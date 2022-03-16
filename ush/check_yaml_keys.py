@@ -5,6 +5,7 @@ import logging
 import os
 import yaml
 
+
 def check_yaml(YAMLref, YAMLtest, checkValues=False):
     assert os.path.exists(YAMLref), f"File {YAMLref} not found."
     assert os.path.exists(YAMLtest), f"File {YAMLtest} not found."
@@ -25,6 +26,7 @@ def check_yaml(YAMLref, YAMLtest, checkValues=False):
     # loop through top level of YAML
     compare_dict('', ref_dict, test_dict, checkValues)
 
+
 def compare_dict(rootkey, dict1, dict2, checkValues):
     for key, value in dict1.items():
         keypath = f"{rootkey}/{key}"
@@ -39,6 +41,7 @@ def compare_dict(rootkey, dict1, dict2, checkValues):
                 if checkValues:
                     if value != dict2[key]:
                         logging.warning(f"{keypath}: {dict2[key]} != {value}")
+
 
 def compare_list(rootkey, list1, list2, checkValues):
     if len(list2) != len(list1):
