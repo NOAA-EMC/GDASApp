@@ -6,3 +6,5 @@ project(GDAS)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 enable_testing()
+
+add_subdirectory(test)

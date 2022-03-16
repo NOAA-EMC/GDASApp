@@ -1,0 +1,4 @@
+app: GDAS
+components:
+- name: atmosphere
+  model: FV3

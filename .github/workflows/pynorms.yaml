@@ -2,7 +2,7 @@ name: Check Python Coding Norms
 on: [push, pull_request]
 
 jobs:
-  check_norms:
+  check_pynorms:
     runs-on: ubuntu-latest
     name: Check Python coding norms with pycodestyle
 
@@ -15,7 +15,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        path: GDASapp 
+        path: GDASapp
 
     - name: Run pycodestyle
       run: |
