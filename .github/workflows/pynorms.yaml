@@ -15,9 +15,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        path: GDASapp
+        path: GDASApp
 
     - name: Run pycodestyle
       run: |
-        cd $GITHUB_WORKSPACE/GDASapp
+        cd $GITHUB_WORKSPACE/GDASApp
         pycodestyle -v --config ./.pycodestyle .
