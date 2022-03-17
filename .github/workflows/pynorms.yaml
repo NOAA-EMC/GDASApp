@@ -1,0 +1,23 @@
+name: Check Python Coding Norms
+on: [push, pull_request]
+
+jobs:
+  check_pynorms:
+    runs-on: ubuntu-latest
+    name: Check Python coding norms with pycodestyle
+
+    steps:
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install pycodestyle
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        path: GDASApp
+
+    - name: Run pycodestyle
+      run: |
+        cd $GITHUB_WORKSPACE/GDASApp
+        pycodestyle -v --config ./.pycodestyle .

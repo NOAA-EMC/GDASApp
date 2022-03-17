@@ -1,0 +1,12 @@
+app: GDAS
+components:
+- name: atmosphere
+  model: FV3
+- name: ocean
+  model: MOM6
+- name: ice
+  model: CICE6
+- name: aerosols
+  model: GOCART
+- name: land
+  model: noah

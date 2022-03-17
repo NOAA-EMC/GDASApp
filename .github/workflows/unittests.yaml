@@ -1,0 +1,31 @@
+name: Run Unit Tests
+on: [push, pull_request]
+
+jobs:
+  ctests:
+    runs-on: ubuntu-latest
+    name: Run Unit Tests with ctest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        path: GDASApp
+
+    - name: Configure with cmake
+      run: |
+        cd $GITHUB_WORKSPACE/GDASApp
+        mkdir build
+        cd build
+        cmake ../
+
+    - name: Build GDASApp
+      run: |
+        cd $GITHUB_WORKSPACE/GDASApp/build
+        make
+
+    - name: Run ctest
+      run: |
+        cd $GITHUB_WORKSPACE/GDASApp/build
+        ctest
