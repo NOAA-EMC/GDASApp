@@ -33,4 +33,4 @@ jobs:
     - name: Run ctest
       run: |
         cd $GITHUB_WORKSPACE/GDASApp/build
-        ctest
+        ctest -VV
