@@ -1,5 +1,5 @@
 name: Check Python Coding Norms
-on: [push, pull_request]
+on: [push]
 
 jobs:
   check_pynorms:
