@@ -2,6 +2,7 @@
 # translate FV3-JEDI increment to FV3 readable format
 import argparse
 import netCDF4 as nc
+import numpy as np
 import os
 
 vardict = {
@@ -39,8 +40,9 @@ def jedi_inc_to_fv3(FV3JEDIinc, FV3inc):
         ncout.source = 'jediinc2fv3.py'
         ncout.comment = 'Increment produced by FV3-JEDI and modified for use by FV3 read'
         # create all the dummy vertical coordinate variables
-        pfull = range(1,128)
-        phalf = range(1,129)
+        nlevs = len(ncin.dimensions['lev'])
+        pfull = range(1, nlevs+1)
+        phalf = range(1, nlevs+2)
         levvar = ncout.createVariable('lev', 'f4', ('lev'))
         levvar[:] = pfull
         pfullvar = ncout.createVariable('pfull', 'f4', ('lev'))
@@ -53,9 +55,16 @@ def jedi_inc_to_fv3(FV3JEDIinc, FV3inc):
         hybivar[:] = phalf
         # rename and change dimensionality of fields
         for name, variable in ncin.variables.items():
+            if len(variable.dimensions) == 4:
+                dimsout = variable.dimensions[1:]
+            else:
+                dimsout = variable.dimensions
             if name in vardict:
-                print(name, vardict[name], variable.datatype, variable.dimensions)
-                #x = ncout.createVariable(vardict[name], variable.datatype, dimsout)
+                x = ncout.createVariable(vardict[name], 'f4', dimsout)
+                if len(variable.dimensions) == 4:
+                    ncout[vardict[name]][:] = ncin[name][0,...]
+                else:
+                    ncout[vardict[name]][:] = ncin[name][:]
 
 
 if __name__ == "__main__":
