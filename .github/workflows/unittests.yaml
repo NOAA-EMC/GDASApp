@@ -8,6 +8,11 @@ jobs:
 
     steps:
 
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install pycodestyle
+
     - name: Checkout
       uses: actions/checkout@v2
       with:
