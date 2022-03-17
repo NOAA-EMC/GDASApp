@@ -62,7 +62,7 @@ def jedi_inc_to_fv3(FV3JEDIinc, FV3inc):
             if name in vardict:
                 x = ncout.createVariable(vardict[name], 'f4', dimsout)
                 if len(variable.dimensions) == 4:
-                    ncout[vardict[name]][:] = ncin[name][0,...]
+                    ncout[vardict[name]][:] = ncin[name][0, ...]
                 else:
                     ncout[vardict[name]][:] = ncin[name][:]
 
