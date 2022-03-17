@@ -12,6 +12,7 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install pycodestyle
+        pip install netCDF4
 
     - name: Checkout
       uses: actions/checkout@v2
