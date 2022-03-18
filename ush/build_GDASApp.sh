@@ -29,12 +29,13 @@ mkdir -p $dir_root/src/build
 cd $dir_root/src/build
 
 # run ecbuild
-ecbuild -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC ../src/
+ecbuild -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC ../
 
 # run make
 make -j ${BUILD_JOBS:-8} VERBOSE=${BUILD_VERBOSE:-}
 
 # link executables to exec dir
 ln -sf $dir_root/src/build/bin/fv3jedi* $dir_root/bin/.
+ln -sf $dir_root/src/build/bin/soca* $dir_root/bin/.
 
 exit 0
