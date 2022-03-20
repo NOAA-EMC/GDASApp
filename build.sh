@@ -15,8 +15,10 @@ usage() {
   echo
   echo "Usage: $0 -p <prefix> | -t <target> -h"
   echo
-  echo "  -p  installation prefix <prefix>    DEFAULT: ${dir_root}/install"
-  echo "  -t  target to build <target>        DEFAULT: $(hostname)"
+  echo "  -p  installation prefix <prefix>    DEFAULT: <none>"
+  echo "  -t  target to build for <target>    DEFAULT: $(hostname)"
+  echo "  -c  additional CMake options        DEFAULT: <none>"
+  echo "  -v  build with verbose output       DEFAULT: NO"
   echo "  -h  display this message and quit"
   echo
   exit 1
@@ -25,10 +27,12 @@ usage() {
 # ==============================================================================
 
 # Defaults:
-INSTALL_PREFIX="${dir_root}/install"
+INSTALL_PREFIX=""
+CMAKE_OPTS=""
 BUILD_TARGET="$(hostname)"
+BUILD_VERBOSE="NO"
 
-while getopts "p:t:h" opt; do
+while getopts "p:t:c:hv" opt; do
   case $opt in
     p)
       INSTALL_PREFIX=$OPTARG
@@ -36,22 +40,25 @@ while getopts "p:t:h" opt; do
     t)
       BUILD_TARGET=$OPTARG
       ;;
+    c)
+      CMAKE_OPTS=$OPTARG
+      ;;
+    v)
+      BUILD_VERBOSE=YES
+      ;;
     h|\?|:)
       usage
       ;;
   esac
 done
 
-
-dir_modules=$dir_root/modulefiles
-
 case ${BUILD_TARGET} in
   hera | orion)
     echo "Building GDASApp on $BUILD_TARGET"
     source $MODULESHOME/init/sh
     module purge
-    module use $dir_modules
-    module load GDAS/${BUILD_TARGET:-}
+    module use $dir_root/modulefiles
+    module load GDAS/$BUILD_TARGET
     CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC"
     module list
     ;;
@@ -67,11 +74,16 @@ BUILD_DIR=${BUILD_DIR:-$dir_root/build}
 [[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR}
 mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 
+# If INSTALL_PREFIX is not empty; install at INSTALL_PREFIX
+[[ -n "${INSTALL_PREFIX:-}" ]] && CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
+
+echo $CMAKE_OPTS
+exit
+
 # Configure
 echo "Configuring ..."
 set -x
 cmake \
-  -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
   ${CMAKE_OPTS:-} \
   $dir_root
 set +x
@@ -79,13 +91,15 @@ set +x
 # Build
 echo "Building ..."
 set -x
-make -j ${BUILD_JOBS:-6} VERBOSE=${BUILD_VERBOSE:-}
+make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
 set +x
 
 # Install
-echo "Installing ..."
-set -x
-make install
-set +x
+if [[ -n ${INSTALL_PREFIX:-} ]]; then
+  echo "Installing ..."
+  set -x
+  make install
+  set +x
+fi
 
 exit 0

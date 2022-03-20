@@ -15,17 +15,15 @@ jobs:
 
     - name: Configure with cmake
       run: |
-        cd $GITHUB_WORKSPACE/GDASApp
-        mkdir build
-        cd build
-        cmake ../
+        mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build
+        cmake -DBUILD_BUNDLE=OFF $GITHUB_WORKSPACE/GDASApp
 
     - name: Build GDASApp
       run: |
-        cd $GITHUB_WORKSPACE/GDASApp/build
+        cd $GITHUB_WORKSPACE/build
         make
 
     - name: Run ctest
       run: |
-        cd $GITHUB_WORKSPACE/GDASApp/build
-        ctest
+        cd $GITHUB_WORKSPACE/build
+        ctest --output-on-failure
