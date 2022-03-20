@@ -128,5 +128,36 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# bin directory
+# Ignore editor caches
+.*sw[a-p]
+
+# Ignore the following directories anywhere in the tree
 bin/
+build/
+install/
+
+# Ignore the following bundle repositories
+ecbuild/
+atlas/
+crtm/
+eckit/
+fckit/
+femps/
+fms/
+fv3/
+fv3-jedi/
+fv3-jedi-data/
+fv3-jedi-lm/
+gsw/
+ioda/
+ioda-data/
+iodaconv/
+jedicmake/
+mom6/
+oops/
+saber/
+saber-data/
+soca/
+test-data-release/
+ufo/
+ufo-data/

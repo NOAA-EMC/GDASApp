@@ -7,4 +7,6 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 enable_testing()
 
+add_subdirectory(src)
+add_subdirectory(ush)
 add_subdirectory(test)
