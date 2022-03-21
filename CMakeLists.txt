@@ -22,6 +22,9 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
                                                "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# Find dependencies.
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
 # Include ecbuild_bundle macro
 include( ecbuild_bundle )
 
