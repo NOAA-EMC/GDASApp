@@ -22,49 +22,51 @@ vardict = {
 
 
 def jedi_inc_to_fv3(FV3JEDIinc, FV3inc):
-    assert os.path.exists(FV3JEDIinc), f"File {FV3JEDIinc} not found."
-    assert os.path.exists(FV3JEDIinc), f"File {FV3JEDIinc} not found."
     # open netCDF files
-    with nc.Dataset(FV3JEDIinc) as ncin, nc.Dataset(FV3inc, "w", format="NETCDF4") as ncout:
-        # copy over dimensions
-        for name, dimension in ncin.dimensions.items():
-            if name == 'time':
-                continue
-            elif name == 'edge':
-                nameout = 'ilev'
-            else:
-                nameout = name
-            ncout.createDimension(nameout,
-                                  (len(dimension) if not dimension.isunlimited() else None))
-        # some global attributes
-        ncout.source = 'jediinc2fv3.py'
-        ncout.comment = 'Increment produced by FV3-JEDI and modified for use by FV3 read'
-        # create all the dummy vertical coordinate variables
-        nlevs = len(ncin.dimensions['lev'])
-        pfull = range(1, nlevs+1)
-        phalf = range(1, nlevs+2)
-        levvar = ncout.createVariable('lev', 'f4', ('lev'))
-        levvar[:] = pfull
-        pfullvar = ncout.createVariable('pfull', 'f4', ('lev'))
-        pfullvar[:] = pfull
-        ilevvar = ncout.createVariable('ilev', 'f4', ('ilev'))
-        ilevvar[:] = phalf
-        hyaivar = ncout.createVariable('hyai', 'f4', ('ilev'))
-        hyaivar[:] = phalf
-        hybivar = ncout.createVariable('hybi', 'f4', ('ilev'))
-        hybivar[:] = phalf
-        # rename and change dimensionality of fields
-        for name, variable in ncin.variables.items():
-            if len(variable.dimensions) == 4:
-                dimsout = variable.dimensions[1:]
-            else:
-                dimsout = variable.dimensions
-            if name in vardict:
-                x = ncout.createVariable(vardict[name], 'f4', dimsout)
-                if len(variable.dimensions) == 4:
-                    ncout[vardict[name]][:] = ncin[name][0, ...]
-                else:
-                    ncout[vardict[name]][:] = ncin[name][:]
+    try:
+		with nc.Dataset(FV3JEDIinc) as ncin, nc.Dataset(FV3inc, "w", format="NETCDF4") as ncout:
+			# copy over dimensions
+			for name, dimension in ncin.dimensions.items():
+				if name == 'time':
+					continue
+				elif name == 'edge':
+					nameout = 'ilev'
+				else:
+					nameout = name
+				ncout.createDimension(nameout,
+									  (len(dimension) if not dimension.isunlimited() else None))
+			# some global attributes
+			ncout.source = 'jediinc2fv3.py'
+			ncout.comment = 'Increment produced by FV3-JEDI and modified for use by FV3 read'
+			# create all the dummy vertical coordinate variables
+			nlevs = len(ncin.dimensions['lev'])
+			pfull = range(1, nlevs+1)
+			phalf = range(1, nlevs+2)
+			levvar = ncout.createVariable('lev', 'f4', ('lev'))
+			levvar[:] = pfull
+			pfullvar = ncout.createVariable('pfull', 'f4', ('lev'))
+			pfullvar[:] = pfull
+			ilevvar = ncout.createVariable('ilev', 'f4', ('ilev'))
+			ilevvar[:] = phalf
+			hyaivar = ncout.createVariable('hyai', 'f4', ('ilev'))
+			hyaivar[:] = phalf
+			hybivar = ncout.createVariable('hybi', 'f4', ('ilev'))
+			hybivar[:] = phalf
+			# rename and change dimensionality of fields
+			for name, variable in ncin.variables.items():
+				if len(variable.dimensions) == 4:
+					dimsout = variable.dimensions[1:]
+				else:
+					dimsout = variable.dimensions
+				if name in vardict:
+					x = ncout.createVariable(vardict[name], 'f4', dimsout)
+					if len(variable.dimensions) == 4:
+						ncout[vardict[name]][:] = ncin[name][0, ...]
+					else:
+						ncout[vardict[name]][:] = ncin[name][:]
+	except FileNotFoundError as e:
+	    print(e)
+	    raise
 
 
 if __name__ == "__main__":
