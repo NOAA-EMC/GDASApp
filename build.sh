@@ -77,9 +77,6 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 # If INSTALL_PREFIX is not empty; install at INSTALL_PREFIX
 [[ -n "${INSTALL_PREFIX:-}" ]] && CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
 
-echo $CMAKE_OPTS
-exit
-
 # Configure
 echo "Configuring ..."
 set -x
