@@ -128,13 +128,21 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Ignore the following
+*.[aox]
+*.mod
+*.la
+*.lo
+
 # Ignore editor caches
-.*sw[a-p]
+.*.sw[a-p]
+*DS_Store*
+*~
 
 # Ignore the following directories anywhere in the tree
 bin/
-build/
-install/
+build*/
+install*/
 
 # Ignore the following bundle repositories
 ecbuild/
