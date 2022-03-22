@@ -85,7 +85,7 @@ for pr in $open_pr_list; do
   # run build and testing command
   $my_dir/run_ci.sh -d $GDAS_CI_ROOT/PR/$pr/GDASApp -o $GDAS_CI_ROOT/PR/$pr/output_${commit}
   ci_status=$?
-  git pr comment $pr --body-file $GDAS_CI_ROOT/PR/$pr/output_${commit}
+  gh pr comment $pr --body-file $GDAS_CI_ROOT/PR/$pr/output_${commit}
   if [ $ci_status -eq 0 ]; then
     gh pr edit $pr --remove-label $CI_LABEL
   fi
