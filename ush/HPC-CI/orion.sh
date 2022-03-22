@@ -1,6 +1,6 @@
 GDAS_CI_ROOT=/work2/noaa/stmp/cmartin/CI/GDASApp
 GDAS_CI_HOST='orion'
-GDAS_MODULE_USE=$GDAS_CI_ROOT/repo/modulefiles
+export GDAS_MODULE_USE=$GDAS_CI_ROOT/repo/modulefiles
 export SLURM_ACCOUNT=da-cpu
 export SALLOC_ACCOUNT=$SLURM_ACCOUNT
 export SBATCH_ACCOUNT=$SLURM_ACCOUNT

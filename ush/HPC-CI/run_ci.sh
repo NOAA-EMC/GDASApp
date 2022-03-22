@@ -31,14 +31,15 @@ done
 
 # ==============================================================================
 # start output file
-echo "Automated ${TARGET} Pull Request Testing Results:" > $outfile
+echo "Automated Pull Request Testing Results:" > $outfile
+echo "Machine: ${TARGET}" >> $outfile
 echo '```' >> $outfile
 echo "Start: $(date) on $(hostname)" >> $outfile
 # ==============================================================================
 # run build script
 cd $repodir
 module purge
-./build.sh -t $TARGET
+./build.sh -t $TARGET &>> log.build
 build_status=$?
 if [ $build_status -eq 0 ]; then
   echo "Build:             *SUCCESS*" >> $outfile
@@ -46,14 +47,18 @@ if [ $build_status -eq 0 ]; then
 else
   echo "Build:             *FAILED*" >> $outfile
   echo "Build: Failed at $(date)" >> $outfile
+  echo "Build: see output at $repodir/log.build" >> $outfile
   echo '```' >> $outfile
   exit 1
 fi
 # ==============================================================================
 # run ctests
 cd $repodir/build
+module use $GDAS_MODULE_USE
+module load GDAS/$TARGET
 echo "---------------------------------" >> $outfile
 ctest --output-on-failure &>> $outfile
+echo "Completed at $(date)" >> $outfile
 ctest_status=$?
 echo '```' >> $outfile
 exit $ctest_status
