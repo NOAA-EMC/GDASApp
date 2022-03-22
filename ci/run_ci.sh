@@ -35,6 +35,7 @@ echo "Automated Pull Request Testing Results:" > $outfile
 echo "Machine: ${TARGET}" >> $outfile
 echo '```' >> $outfile
 echo "Start: $(date) on $(hostname)" >> $outfile
+echo "---------------------------------------------------" >> $outfile
 # ==============================================================================
 # run build script
 cd $repodir
@@ -42,10 +43,10 @@ module purge
 ./build.sh -t $TARGET &>> log.build
 build_status=$?
 if [ $build_status -eq 0 ]; then
-  echo "Build:                          *SUCCESS*" >> $outfile
+  echo "Build:                                 *SUCCESS*" >> $outfile
   echo "Build: Completed at $(date)" >> $outfile
 else
-  echo "Build:                          *FAILED*" >> $outfile
+  echo "Build:                                  *FAILED*" >> $outfile
   echo "Build: Failed at $(date)" >> $outfile
   echo "Build: see output at $repodir/log.build" >> $outfile
   echo '```' >> $outfile
@@ -61,13 +62,13 @@ ctest --output-on-failure &>> log.ctest
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
 if [ $ctest_status -eq 0 ]; then
-  echo "Tests:                          *SUCCESS*" >> $outfile
+  echo "Tests:                                 *SUCCESS*" >> $outfile
   echo "Tests: Completed at $(date)" >> $outfile
-  echo "Tests:         $npassed" >> $outfile
+  echo "Tests: $npassed" >> $outfile
 else
-  echo "Tests:                          *Failed*" >> $outfile
+  echo "Tests:                                  *Failed*" >> $outfile
   echo "Tests: Failed at $(date)" >> $outfile
-  echo "Tests:         $npassed" >> $outfile
+  echo "Tests: $npassed" >> $outfile
   echo "Tests: see output at $repodir/build/log.ctest" >> $outfile
 fi
 echo '```' >> $outfile
