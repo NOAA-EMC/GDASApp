@@ -42,23 +42,33 @@ module purge
 ./build.sh -t $TARGET &>> log.build
 build_status=$?
 if [ $build_status -eq 0 ]; then
-  echo "Build:             *SUCCESS*" >> $outfile
+  echo "Build:                          *SUCCESS*" >> $outfile
   echo "Build: Completed at $(date)" >> $outfile
 else
-  echo "Build:             *FAILED*" >> $outfile
+  echo "Build:                          *FAILED*" >> $outfile
   echo "Build: Failed at $(date)" >> $outfile
   echo "Build: see output at $repodir/log.build" >> $outfile
   echo '```' >> $outfile
-  exit 1
+  exit $build_status
 fi
 # ==============================================================================
 # run ctests
 cd $repodir/build
 module use $GDAS_MODULE_USE
 module load GDAS/$TARGET
-echo "---------------------------------" >> $outfile
-ctest --output-on-failure &>> $outfile
-echo "Completed at $(date)" >> $outfile
+echo "---------------------------------------------------" >> $outfile
+ctest --output-on-failure &>> log.ctest
 ctest_status=$?
+npassed=$(cat log.ctest | grep "tests passed")
+if [ $ctest_status -eq 0 ]; then
+  echo "Tests:                          *SUCCESS*" >> $outfile
+  echo "Tests: Completed at $(date)" >> $outfile
+  echo "Tests:         $npassed" >> $outfile
+else
+  echo "Tests:                          *Failed*" >> $outfile
+  echo "Tests: Failed at $(date)" >> $outfile
+  echo "Tests:         $npassed" >> $outfile
+  echo "Tests: see output at $repodir/build/log.ctest" >> $outfile
+fi
 echo '```' >> $outfile
 exit $ctest_status
