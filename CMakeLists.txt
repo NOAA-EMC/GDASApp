@@ -58,27 +58,27 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT atlas GIT "https://github.com/ecmwf/atlas.git" TAG 0.24.1 )
 
 # External (required) observation operators
-  #ecbuild_bundle( PROJECT crtm GIT "https://github.com/jcsda/crtm.git"   TAG v2.3-jedi.3 )
+  ecbuild_bundle( PROJECT crtm GIT "https://github.com/jcsda/crtm.git"   TAG v2.3-jedi.3 )
 
 # Core JEDI repositories
   ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  BRANCH develop UPDATE )
-  #ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" BRANCH develop UPDATE )
+  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" BRANCH develop UPDATE )
   ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git"  BRANCH develop UPDATE )
-  #ecbuild_bundle( PROJECT ufo   GIT "https://github.com/noaa-emc/ufo.git"   BRANCH feature/ufsda UPDATE )
+  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/noaa-emc/ufo.git"   BRANCH feature/ufsda UPDATE )
 
 # FMS and FV3 dynamical core
-  #ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" BRANCH release-stable UPDATE )
-  #ecbuild_bundle( PROJECT fv3 GIT "https://github.com/jcsda/GFDL_atmos_cubed_sphere.git" BRANCH release-stable UPDATE )
+  ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" BRANCH release-stable UPDATE )
+  ecbuild_bundle( PROJECT fv3 GIT "https://github.com/jcsda/GFDL_atmos_cubed_sphere.git" BRANCH release-stable UPDATE )
 
 # fv3-jedi and associated repositories
-  #ecbuild_bundle( PROJECT femps       GIT "https://github.com/jcsda/femps.git"                BRANCH develop UPDATE )
-  #ecbuild_bundle( PROJECT fv3-jedi-lm GIT "https://github.com/jcsda/fv3-jedi-linearmodel.git" BRANCH develop UPDATE )
-  #ecbuild_bundle( PROJECT fv3-jedi    GIT "https://github.com/jcsda/fv3-jedi.git"             BRANCH develop UPDATE )
+  ecbuild_bundle( PROJECT femps       GIT "https://github.com/jcsda/femps.git"                BRANCH develop UPDATE )
+  ecbuild_bundle( PROJECT fv3-jedi-lm GIT "https://github.com/jcsda/fv3-jedi-linearmodel.git" BRANCH develop UPDATE )
+  ecbuild_bundle( PROJECT fv3-jedi    GIT "https://github.com/jcsda/fv3-jedi.git"             BRANCH develop UPDATE )
 
 # SOCA associated repositories
-  #ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" UPDATE BRANCH develop )
-  #ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" UPDATE BRANCH main-ecbuild RECURSIVE )
-  #ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" UPDATE BRANCH develop )
+  ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" UPDATE BRANCH develop )
+  ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" UPDATE BRANCH main-ecbuild RECURSIVE )
+  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" UPDATE BRANCH develop )
 
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" OFF)
