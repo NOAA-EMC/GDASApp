@@ -59,6 +59,7 @@ open_pr_list=$(cat $GDAS_CI_ROOT/open_pr_list)
 repo_url="https://github.com/NOAA-EMC/GDASApp.git"
 # loop through all open PRs
 for pr in $open_pr_list; do
+  gh pr edit $pr --remove-label $CI_LABEL --add-label ${CI_LABEL}-Running
   echo "Processing Pull Request #${pr}"
   mkdir -p $GDAS_CI_ROOT/PR/$pr
   cd $GDAS_CI_ROOT/PR/$pr
@@ -87,7 +88,13 @@ for pr in $open_pr_list; do
   ci_status=$?
   gh pr comment $pr --body-file $GDAS_CI_ROOT/PR/$pr/output_${commit}
   if [ $ci_status -eq 0 ]; then
-    gh pr edit $pr --remove-label $CI_LABEL
+    gh pr edit $pr --remove-label ${CI_LABEL}-Running --add-label ${CI_LABEL}-Passed
+  else
+    gh pr edit $pr --remove-label ${CI_LABEL}-Running --add-label ${CI_LABEL}-Failed
   fi
 done
+
+# ==============================================================================
+# scrub working directory for older files
+find $GDAS_CI_ROOT/PR/* -mtime +3 -exec rm -rf {} \;
 
