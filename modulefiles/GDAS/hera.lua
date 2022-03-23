@@ -1,5 +1,5 @@
 help([[
-Load environment for running JEDI applications with Intel compilers and MPI.
+Load environment for running the GDAS application with Intel compilers and MPI.
 ]])
 
 local pkgName    = myModuleName()
@@ -46,9 +46,9 @@ load("pybind11/2.7.0")
 load("json/3.9.1")
 load("json-schema-validator/2.1.0")
 
-load("hpc")
-load("miniconda3")
-load("gdasapp")
+load("hpc/1.2.0")
+load("miniconda3/4.6.14")
+load("gdasapp/1.0.0")
 
 setenv("CC","mpiicc")
 setenv("FC","mpiifort")
