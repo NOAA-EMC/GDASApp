@@ -7,4 +7,4 @@ install(PROGRAMS ${ush_files}
         DESTINATION "ush")
 
 # for now temp hack
-file( COPY ufsda DESTIANTION . )
+file( COPY ufsda DESTINATION . )
