@@ -41,9 +41,9 @@ load("eckit/ecmwf-1.16.0")
 load("fckit/ecmwf-0.9.2")
 load("atlas/ecmwf-0.24.1")
 
-load("hpc")
-load("miniconda3")
-load("gdasapp")
+load("hpc/1.2.0")
+load("miniconda3/4.6.14")
+load("gdasapp/1.0.0")
 
 setenv("CC","mpiicc")
 setenv("FC","mpiifort")
