@@ -15,7 +15,8 @@ file(DOWNLOAD
   EXPECTED_HASH SHA256=${SHA}
   )
 # Extract downloaded tarball.
-file(ARCHIVE_EXTRACT INPUT ${TAR})
+file(ARCHIVE_EXTRACT INPUT ${TAR}
+  VERBOSE)
 
 # list of test files to install
 list(APPEND test_data
