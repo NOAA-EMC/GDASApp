@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 ################################################################################
-####  UNIX Script Documentation Block
+#  UNIX Script Documentation Block
 #                      .                                             .
 # Script name:         exufsda_global_atmos_analysis_post.py
 # Script description:  Combines IODA output and archives to R2D2

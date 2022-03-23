@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 ################################################################################
-####  UNIX Script Documentation Block
+#  UNIX Script Documentation Block
 #                      .                                             .
 # Script name:         exufsda_global_atmos_analysis_prep.py
 # Script description:  Stages files and generates YAML for UFS Global Atmosphere Analysis

@@ -36,6 +36,7 @@ def background(config):
         os.symlink(ges_dir, jedi_bkg_dir)
     mkdir(jedi_anl_dir)
 
+
 def obs(config):
     """
     Stage observations using R2D2
@@ -113,6 +114,7 @@ def fv3jedi(config):
     # call solo.Stage
     path = os.path.dirname(config['fv3jedi_stage'])
     stage = Stage(path, config['stage_dir'], config['fv3jedi_stage_files'])
+
 
 def berror(config):
     """

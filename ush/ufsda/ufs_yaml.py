@@ -77,7 +77,7 @@ def include_yaml(config):
                     newconfig = YAMLFile(incpath)
                     newlist.append(newconfig)
                 else:
-                    newlist.append(item) # keeps something in the list if it is not an include
+                    newlist.append(item)  # keeps something in the list if it is not an include
             config[rootkey] = newlist
         else:
             # handle single includes
@@ -148,6 +148,7 @@ def iter_config(config, subconfig):
                         item = iter_config(config, item)
     return subconfig
 
+
 def update_config(config):
     # drill through configuration and add includes and replace vars
     config = replace_vars(config)
@@ -157,6 +158,7 @@ def update_config(config):
         if isinstance(value, dict):
             value = iter_config(config, value)
     return config
+
 
 def remove_nesting(config):
     if isinstance(config, dict):
