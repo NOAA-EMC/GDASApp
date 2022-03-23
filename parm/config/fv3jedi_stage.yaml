@@ -1,0 +1,7 @@
+copy_files:
+  directories:
+    - [$(bundle)/fv3-jedi/test/Data/fieldsets/dynamics.yaml, fieldsets/]
+    - [$(bundle)/fv3-jedi/test/Data/fieldsets/ufo.yaml, fieldsets/]
+    - [$(bundle)/fv3-jedi/test/Data/fv3files/akbk$(npz).nc4, fv3files/akbk.nc4]
+    - [$(bundle)/fv3-jedi/test/Data/fv3files/field_table_gfdl, fv3files/field_table]
+    - [$(bundle)/fv3-jedi/test/Data/fv3files/fmsmpp.nml, fv3files/]
