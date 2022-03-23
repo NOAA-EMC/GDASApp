@@ -2,7 +2,7 @@
 ################################################################################
 ####  UNIX Script Documentation Block
 #                      .                                             .
-# Script name:         exufsda_global_atmos_analysis_run.sh
+# Script name:         exgdas_global_atmos_analysis_run.sh
 # Script description:  Runs the global atmospheric analysis with FV3-JEDI
 #
 # Author: Cory Martin        Org: NCEP/EMC     Date: 2021-12-28
@@ -30,7 +30,7 @@ pwd=$(pwd)
 
 #  Utilities
 export NLN=${NLN:-"/bin/ln -sf"}
-export INCPY=${INCPY:-"$HOMEgfs/sorc/ufs_da.fd/UFS-DA/ush/jediinc2fv3.py"}
+export INCPY=${INCPY:-"$HOMEgfs/sorc/gdasapp.fd/ush/jediinc2fv3.py"}
 
 ################################################################################
 #  Link COMOUT/analysis to $DATA/Data
