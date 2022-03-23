@@ -1,5 +1,5 @@
 name: Run Unit Tests
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   ctests:
@@ -7,6 +7,12 @@ jobs:
     name: Run Unit Tests with ctest
 
     steps:
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install pycodestyle
+        pip install netCDF4
 
     - name: Checkout
       uses: actions/checkout@v2
@@ -41,3 +47,4 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/build
         ctest --output-on-failure
+
