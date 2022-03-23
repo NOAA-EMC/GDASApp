@@ -1,3 +1,0 @@
-observations:
-- $<< $(bundle)/ufo/ewok/jedi-gdas/amsua_n19.yaml
-- $<< $(bundle)/ufo/ewok/jedi-gdas/sondes.yaml

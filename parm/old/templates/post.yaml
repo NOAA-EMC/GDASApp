@@ -1,8 +1,0 @@
-window begin: '{{window_begin}}'
-window length: $(window_length)
-observations: $<< ${OBS_YAML}
-COMOUT: '{{COMOUT}}'
-background_time: '{{background_time}}'
-dump: ${CDUMP}
-experiment: $(experiment)
-r2d2_archive_db: ${R2D2_ARCH_DB}
