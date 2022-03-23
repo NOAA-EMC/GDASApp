@@ -8,6 +8,12 @@ jobs:
 
     steps:
 
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install pycodestyle
+        pip install netCDF4
+
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -41,3 +47,4 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/build
         ctest --output-on-failure
+
