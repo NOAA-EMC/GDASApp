@@ -13,7 +13,7 @@ prepend_path("MODULEPATH", jedi_core)
 
 prepend_path("MODULEPATH", '/work2/noaa/da/python/opt/modulefiles/stack')
 
-load("cmake/3.18.1")
+load("cmake/3.22.1")
 load("git/2.28.0")
 load("git-lfs/2.13.2")
 
