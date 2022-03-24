@@ -96,5 +96,5 @@ done
 
 # ==============================================================================
 # scrub working directory for older files
-find $GDAS_CI_ROOT/PR/* -mtime +3 -exec rm -rf {} \;
+find $GDAS_CI_ROOT/PR/* -maxdepth 1 -mtime +3 -exec rm -rf {} \;
 

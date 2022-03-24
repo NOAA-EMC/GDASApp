@@ -15,8 +15,8 @@ file(DOWNLOAD
   EXPECTED_HASH SHA256=${SHA}
   )
 # Extract downloaded tarball.
-file(ARCHIVE_EXTRACT INPUT ${TAR}
-  VERBOSE)
+file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
+  DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # list of test files to install
 list(APPEND test_data
@@ -25,7 +25,10 @@ list(APPEND test_data
 
 # install
 install(FILES ${test_data}
-        DESTINATION "test/testdata")
+        DESTINATION "test/testdata/")
+
+# create testout dir
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testoutput)
 
 ##### unit tests
 # test for python coding norms
@@ -38,5 +41,5 @@ add_test(NAME test_gdasapp_check_yaml_keys
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for ush/jediinc2fv3.py
 add_test(NAME test_gdasapp_jedi_increment_to_fv3
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testdata/fv_increment.nc 
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc 
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
