@@ -7,7 +7,7 @@ set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
 file(DOWNLOAD
   ${URL}/${TAR}
-  ${CMAKE_CURRENT_BINARY_DIR}/gdasapp-test-data/${TAR}
+  ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
   INACTIVITY_TIMEOUT 30
   TIMEOUT 90
   SHOW_PROGRESS
