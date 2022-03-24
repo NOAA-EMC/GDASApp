@@ -13,13 +13,13 @@ def test_yaml_gen_yaml(template_yaml, output_yaml):
     # this needs to be fixed later
     os.environ['CDATE'] = '2022032418'
     os.environ['GDATE'] = '2022032412'
-    os.environ['assim_freq'] = 6
+    os.environ['assim_freq'] = '6'
     os.environ['COMIN_GES'] = './'
     os.environ['STATICB_DIR'] = './'
     os.environ['COMOUT'] = './'
     os.environ['CASE'] = 'C768'
     os.environ['CASE_ENKF'] = 'C384'
-    os.environ['LEVS'] = 128
+    os.environ['LEVS'] = '128'
     os.environ['PSLOT'] = 'GDASApp_tests'
     os.environ['CDUMP'] = 'gdas'
     os.environ['HOMEgfs'] = './'

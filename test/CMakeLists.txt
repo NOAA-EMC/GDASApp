@@ -35,6 +35,15 @@ list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/generate_yaml_include.yaml
 )
 
+# create testinput dir
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testinput)
+
+# symlink
+foreach(FILENAME ${test_input})
+  file(RELATIVE_PATH FILENAME_REL ${PROJECT_SOURCE_DIR}/test/testinput/ ${FILENAME})
+  file(CREATE_LINK ${FILENAME} ${PROJECT_BINARY_DIR}/test/testinput/${FILENAME_REL} SYMBOLIC)
+endforeach(FILENAME)
+
 # install
 install(FILES ${test_input}
         DESTINATION "test/testinput/")
