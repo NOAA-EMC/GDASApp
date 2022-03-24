@@ -13,6 +13,8 @@ jobs:
         pip install --upgrade pip
         pip install pycodestyle
         pip install netCDF4
+        pip install https://github.com/jcsda/solo.git@877b414
+        pip install https://github.com/jcsda/r2d2.git@bb361c2
 
     - name: Checkout
       uses: actions/checkout@v2
