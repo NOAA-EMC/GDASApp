@@ -15,7 +15,8 @@ file(DOWNLOAD
   EXPECTED_HASH SHA256=${SHA}
   )
 # Extract downloaded tarball.
-file(ARCHIVE_EXTRACT INPUT ${TAR})
+file(ARCHIVE_EXTRACT INPUT ${TAR}
+  VERBOSE)
 
 # list of test files to install
 list(APPEND test_data
@@ -29,7 +30,7 @@ install(FILES ${test_data}
 ##### unit tests
 # test for python coding norms
 add_test(NAME test_gdasapp_check_python_norms
-         COMMAND pycodestyle -v --config ./.pycodestyle .
+         COMMAND pycodestyle -v --config ./.pycodestyle ./ush
          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 # test for ush/check_yaml_keys.py
 add_test(NAME test_gdasapp_check_yaml_keys
