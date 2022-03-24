@@ -7,7 +7,7 @@ set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
 file(DOWNLOAD
   ${URL}/${TAR}
-  ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
+  ${CMAKE_CURRENT_BINARY_DIR}/gdasapp-test-data/${TAR}
   INACTIVITY_TIMEOUT 30
   TIMEOUT 90
   SHOW_PROGRESS
@@ -15,16 +15,23 @@ file(DOWNLOAD
   EXPECTED_HASH SHA256=${SHA}
   )
 # Extract downloaded tarball.
-file(ARCHIVE_EXTRACT INPUT ${TAR})
+file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
+  DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+# rename the directory
+file(RENAME ${CMAKE_CURRENT_BINARY_DIR}/testdata ${CMAKE_CURRENT_BINARY_DIR}/gdasapp-test-data/)
 
 # list of test files to install
 list(APPEND test_data
-  ${CMAKE_CURRENT_BINARY_DIR}/testdata/atminc_compress.nc4
+  ${CMAKE_CURRENT_BINARY_DIR}/gdasapp-test-data/atminc_compress.nc4
 )
 
 # install
 install(FILES ${test_data}
-        DESTINATION "test/testdata")
+        DESTINATION "test/gdasapp-test-data/")
+
+# create testout dir
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testoutput)
 
 ##### unit tests
 # test for python coding norms
@@ -37,5 +44,5 @@ add_test(NAME test_gdasapp_check_yaml_keys
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for ush/jediinc2fv3.py
 add_test(NAME test_gdasapp_jedi_increment_to_fv3
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testdata/fv_increment.nc 
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/gdasapp-test-data/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc 
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
