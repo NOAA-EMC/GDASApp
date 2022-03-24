@@ -36,7 +36,7 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testoutput)
 ##### unit tests
 # test for python coding norms
 add_test(NAME test_gdasapp_check_python_norms
-         COMMAND pycodestyle -v --config ./.pycodestyle .
+         COMMAND pycodestyle -v --config ./.pycodestyle ./ush
          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 # test for ush/check_yaml_keys.py
 add_test(NAME test_gdasapp_check_yaml_keys
