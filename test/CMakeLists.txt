@@ -21,9 +21,12 @@ file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
 # rename the directory
 file(RENAME ${CMAKE_CURRENT_BINARY_DIR}/testdata ${CMAKE_CURRENT_BINARY_DIR}/gdasapp-test-data/)
 
+# rename the test file
+file(RENAME ${CMAKE_CURRENT_BINARY_DIR}/gdasapp-test-data/atminc_compress.nc4 ${CMAKE_CURRENT_BINARY_DIR}/gdasapp-test-data/atminc.nc4)
+
 # list of test files to install
 list(APPEND test_data
-  ${CMAKE_CURRENT_BINARY_DIR}/gdasapp-test-data/atminc_compress.nc4
+  ${CMAKE_CURRENT_BINARY_DIR}/gdasapp-test-data/atminc.nc4
 )
 
 # install
@@ -44,5 +47,5 @@ add_test(NAME test_gdasapp_check_yaml_keys
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for ush/jediinc2fv3.py
 add_test(NAME test_gdasapp_jedi_increment_to_fv3
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/gdasapp-test-data/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc 
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/gdasapp-test-data/atminc.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc 
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
