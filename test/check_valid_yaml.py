@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import argparse
 import logging
+import os
 import pathlib
+import sys
 import yaml
 
 
@@ -11,15 +13,25 @@ def check_valid_yaml(repodir):
     # get recursive list of YAML files to check
     all_yamls = []
     for path in pathlib.Path(os.path.join(repodir, 'test')).rglob('*.yaml'):
-        all_yamls.append(path.name)
+        all_yamls.append(os.path.abspath(path))
     for path in pathlib.Path(os.path.join(repodir, 'parm')).rglob('*.yaml'):
-        all_yamls.append(path.name)
+        all_yamls.append(os.path.abspath(path))
     for path in pathlib.Path(os.path.join(repodir, 'test')).rglob('*.yml'):
-        all_yamls.append(path.name)
+        all_yamls.append(os.path.abspath(path))
     for path in pathlib.Path(os.path.join(repodir, 'parm')).rglob('*.yml'):
-        all_yamls.append(path.name)
+        all_yamls.append(os.path.abspath(path))
+    nfailed = 0
     for yamlfile in all_yamls:
-        print(yamlfile)
+        logging.info(f'Checking {yamlfile}')
+        try:
+            with open(yamlfile, 'r') as YAML_opened:
+                test_dict = yaml.safe_load(YAML_opened)
+        except Exception as e:
+            logging.error(f'Error occurred when attempting to load: {yamlfile}, error: {e}')
+            nfailed += 1
+    logging.info(f'{nfailed} of {len(all_yamls)} files failed.')
+    if nfailed > 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
