@@ -1,4 +1,4 @@
-name: Check Python Coding Norms
+name: Python Coding Norms
 on: [push]
 
 jobs:
