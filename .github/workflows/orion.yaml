@@ -19,3 +19,13 @@ jobs:
       run: |
         echo "RT failed on NOAA RDHPCS Orion"
         exit 1
+    - name: Echo fail due to queued 
+      if: ${{ github.event.label.name == 'orion-RT' }}
+      run: |
+        echo "RT queued on NOAA RDHPCS Orion"
+        exit 1
+    - name: Echo fail due to running 
+      if: ${{ github.event.label.name == 'orion-RT-running' }}
+      run: |
+        echo "RT running on NOAA RDHPCS Orion"
+        exit 1

@@ -18,7 +18,7 @@ file(DOWNLOAD
 file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
   DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-# list of test files to install
+# list of test binary/data files to install
 list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/atminc_compress.nc4
 )
@@ -27,19 +27,53 @@ list(APPEND test_data
 install(FILES ${test_data}
         DESTINATION "test/testdata/")
 
+# list of test input files to install
+list(APPEND test_input
+  ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_ref.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_test.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/generate_yaml.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/generate_yaml_include.yaml
+)
+
+# create testinput dir
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testinput)
+
+# symlink
+foreach(FILENAME ${test_input})
+  file(RELATIVE_PATH FILENAME_REL ${PROJECT_SOURCE_DIR}/test/testinput/ ${FILENAME})
+  file(CREATE_LINK ${FILENAME} ${PROJECT_BINARY_DIR}/test/testinput/${FILENAME_REL} SYMBOLIC)
+endforeach(FILENAME)
+
+# install
+install(FILES ${test_input}
+        DESTINATION "test/testinput/")
+
 # create testout dir
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testoutput)
 
 ##### unit tests
 # test for python coding norms
 add_test(NAME test_gdasapp_check_python_norms
-         COMMAND pycodestyle -v --config ./.pycodestyle ./ush
+         COMMAND pycodestyle -v --config ./.pycodestyle ./ush ./scripts ./test
          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 # test for ush/check_yaml_keys.py
 add_test(NAME test_gdasapp_check_yaml_keys
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/check_yaml_keys.py ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_ref.yaml ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_test.yaml
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/check_yaml_keys.py ${PROJECT_BINARY_DIR}/test/testinput/check_yaml_keys_ref.yaml ${PROJECT_BINARY_DIR}/test/testinput/check_yaml_keys_test.yaml
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+# test to ensure all YAML in repo is valid YAML
+add_test(NAME test_gdasapp_check_valid_yaml
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/check_valid_yaml.py ${PROJECT_SOURCE_DIR} 
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for ush/jediinc2fv3.py
 add_test(NAME test_gdasapp_jedi_increment_to_fv3
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc 
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+# test for YAML generation from a template
+add_test(NAME test_gdasapp_generate_yaml
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/test_generate_yaml.py --template ${PROJECT_BINARY_DIR}/test/testinput/generate_yaml.yaml --output ${PROJECT_BINARY_DIR}/test/testoutput/generate_yaml.yaml
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+set_tests_properties(
+         test_gdasapp_generate_yaml
+PROPERTIES
+         ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}"
+)
