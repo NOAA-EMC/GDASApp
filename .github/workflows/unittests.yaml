@@ -8,13 +8,20 @@ jobs:
 
     steps:
 
-    - name: Install dependencies
+    - name: Install pip dependencies
       run: |
         pip install --upgrade pip
         pip install pycodestyle
         pip install netCDF4
-        pip install https://github.com/jcsda/solo.git@877b414
-        pip install https://github.com/jcsda/r2d2.git@bb361c2
+        
+    - name: Install other dependencies
+      run: |
+        wget https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/r2d2-bb361c2.tar.gz 
+        wget https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/solo-877b414.tar.gz 
+        tar -xvf r2d2-bb361c2.tar.gz
+        tar -xvf solo-877b414.tar.gz
+        cd solo && pip install . && cd ..
+        cd r2d2 && pip install . && cd ..
 
     - name: Checkout
       uses: actions/checkout@v2
