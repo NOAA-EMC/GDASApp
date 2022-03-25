@@ -4,6 +4,7 @@ import os
 import ufsda
 import yaml
 
+
 def test_yaml_gen_yaml(template_yaml, output_yaml):
     # test ufsda.gen_yaml after setting some env vars
     include_yaml = template_yaml.replace('.yaml', '_include.yaml')
