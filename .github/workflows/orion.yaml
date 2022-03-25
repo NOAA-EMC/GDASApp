@@ -4,24 +4,18 @@ on:
     types: [labeled]
 
 jobs:
-  testpass:
-    if: ${{ github.event.label.name == 'orion-RT-Passed' }}
+  test:
     runs-on: ubuntu-latest
     name: Passes on Orion
 
     steps:
 
-    - name: Echo success 
+    - name: Passed 
+      if: ${{ github.event.label.name == 'orion-RT-Passed' }}
       run: |
         echo "RT Passed on NOAA RDHPCS Orion"
-  testfails:
-    if: ${{ github.event.label.name == 'orion-RT-Failed' }}
-    runs-on: ubuntu-latest
-    name: Failed on Orion
-
-    steps:
-
     - name: Echo fail 
+      if: ${{ github.event.label.name == 'orion-RT-Failed' }}
       run: |
         echo "RT failed on NOAA RDHPCS Orion"
         exit 1
