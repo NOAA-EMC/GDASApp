@@ -13,7 +13,6 @@ jobs:
         pip install --upgrade pip
         pip install pycodestyle
         pip install netCDF4
-        pip install logger
         
     - name: Install other dependencies
       run: |
