@@ -1,4 +1,4 @@
-name: Testing on Orion
+name: Orion
 on:
   pull_request:
     types: [labeled]

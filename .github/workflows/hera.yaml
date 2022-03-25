@@ -1,0 +1,21 @@
+name: Hera 
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Passes on Hera 
+
+    steps:
+
+    - name: Passed 
+      if: ${{ github.event.label.name == 'hera-RT-Passed' }}
+      run: |
+        echo "RT Passed on NOAA RDHPCS Hera"
+    - name: Echo fail 
+      if: ${{ github.event.label.name == 'hera-RT-Failed' }}
+      run: |
+        echo "RT failed on NOAA RDHPCS Hera"
+        exit 1
