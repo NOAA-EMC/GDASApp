@@ -1,9 +1,9 @@
 obs space:
   name: amsua_n19
   obsdatain:
-    obsfile: $(experiment_dir)/{{current_cycle}}/amsua_n19.{{window_begin}}.nc4
+    obsfile: $(COMIN_OBS)/$(CDUMP).amsua_n19.$(window_begin).nc4
   obsdataout:
-    obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).amsua_n19.{{window_begin}}.nc4
+    obsfile: $(COMOUT)/$(CDUMP).amsua_n19.output.$(CDATE).nc4
   simulated variables: [brightness_temperature]
   channels: &amsua_n19_channels 1-15
 obs operator:
@@ -14,15 +14,15 @@ obs operator:
   obs options:
     Sensor_ID: amsua_n19
     EndianType: little_endian
-    CoefficientPath: $(jedi_build)/ufo/test/Data/
+    CoefficientPath: $(CRTM_COEFFS)
 obs bias:
-  input file: $(experiment_dir)/{{current_cycle}}/amsua_n19.{{background_time}}.satbias.nc4
+  input file: $(COMIN_OBS)/$(GDUMP).amsua_n19.satbias.$(GDATE).nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &amsua_n19_tlapse $(experiment_dir)/{{current_cycle}}/amsua_n19.{{background_time}}.tlapse.txt
+      tlapse: &amsua_n19_tlapse $(COMIN_OBS)/$(GDUMP).amsua_n19.tlapse.$(GDATE).txt
     - name: lapse_rate
       tlapse: *amsua_n19_tlapse
     - name: emissivity

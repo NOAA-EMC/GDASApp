@@ -1,13 +1,13 @@
 obs space:
   name: sondes
   obsdatain:
-    obsfile: $(experiment_dir)/{{current_cycle}}/sondes.{{window_begin}}.nc4
+    obsfile: $(COMIN_OBS)/$(CDUMP).sondes.$(window_begin).nc4
     obsgrouping:
       group variables: ["station_id", "LaunchTime"]
       sort variable: "air_pressure"
       sort order: "descending"
   obsdataout:
-    obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).sondes.{{window_begin}}.nc4
+    obsfile: $(COMOUT)/$(CDUMP).sondes.output.$(CDATE).nc4
   simulated variables: [eastward_wind, northward_wind, air_temperature, specific_humidity, surface_pressure]
 obs operator:
   name: Composite
