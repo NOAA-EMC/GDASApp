@@ -2,14 +2,13 @@
 ################################################################################
 #  UNIX Script Documentation Block
 #                      .                                             .
-# Script name:         exufsda_global_atmos_analysis_prep.py
-# Script description:  Stages files and generates YAML for UFS Global Atmosphere Analysis
+# Script name:         exufsda_global_marine_analysis_prep.py
+# Script description:  Stages files and generates YAML for UFS Global Marine Analysis
 #
-# Author: Cory Martin      Org: NCEP/EMC     Date: 2021-12-21
+# Author: Guillaume Vernieres      Org: NCEP/EMC     Date: 2022-03-28
 #
-# Abstract: This script stages necessary input files and produces YAML
-#           configuration input file for FV3-JEDI executable(s) needed
-#           to produce a UFS Global Atmospheric Analysis.
+# Abstract: This script stages the marine observations necessar
+#           to produce a UFS Global Marine Analysis.
 #
 # $Id$
 #
@@ -25,7 +24,6 @@ import yaml
 
 # get absolute path of ush/ directory either from env or relative to this file
 sys.path.append('/home/gvernier/sandboxes/GDASApp/ush')
-print(f"sys.path={sys.path}")
 
 # import UFSDA utilities
 import ufsda
@@ -70,8 +68,16 @@ stage_cfg['observations'] = [{'obs space': {'name': 'adt_j3',
                                             'obsdatain': {'obsfile': './obs'}}},
                              {'obs space': {'name': 'sst_noaa19_l3u',
                                             'obsdatain': {'obsfile': './obs'}}}]
+f = open('stage_cfg.yaml', 'w')
+yaml.dump(stage_cfg, f, sort_keys=False, default_flow_style=False)
 
 test = stage_cfg['observations'][0]['obs space']['obsdatain']
+test_stage_cfg = ufsda.parse_config(templateyaml='/home/gvernier/sandboxes/GDASApp/parm/templates/stage.yaml', clean=True)
 
+f = open('test_stage_cfg.yaml', 'w')
+yaml.dump(test_stage_cfg, f, sort_keys=False, default_flow_style=False)
+
+print(test_stage_cfg)
+#quit()
 # stage observations from R2D2 to COMIN_OBS and then link to analysis subdir
-ufsda.stage.obs(stage_cfg)
+ufsda.stage.obs(test_stage_cfg)
