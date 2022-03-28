@@ -1,7 +1,7 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "75c4ce84028956c1ce050e07f70abc25c540492c3e1a40f6fa56d35182322e8e")
+set(SHA "2b547a5f489130edc240db04a08034d15787c15732871526b1873f0a27e491a4")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
@@ -21,6 +21,12 @@ file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
 # list of test binary/data files to install
 list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/atminc_compress.nc4
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/adt.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/sst.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/sss.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/prof.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/icec.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/icefb.nc
 )
 
 # install
@@ -78,5 +84,5 @@ PROPERTIES
          ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}"
 )
 
-# soca regression tests
+# soca tests
 add_subdirectory(soca)
