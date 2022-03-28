@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import os
+import shutil
 from r2d2 import store
 from solo.configuration import Configuration
 from solo.date import date_sequence
@@ -57,13 +58,13 @@ if __name__ == "__main__":
     os.environ['R2D2_CONFIG'] = 'r2d2_config_test.yaml'
 
     # Change the obs file format
-    os.system('cp -L adt.nc adt_j3_20180415.nc4')
-    os.system('cp -L sst.nc sst_noaa19_l3u_20180415.nc4')
-    os.system('cp -L sss.nc sss_smap_20180415.nc4')
-    os.system('cp -L prof.nc temp_profile_fnmoc_20180415.nc4')
-    os.system('cp -L prof.nc salt_profile_fnmoc_20180415.nc4')
-    os.system('cp -L icec.nc icec_EMC_20180415.nc4')
-    os.system('cp -L icefb.nc icefb_GDR_20180415.nc4')
+    shutil.copyfile('adt.nc', 'adt_j3_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile('sst.nc', 'sst_noaa19_l3u_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile('sss.nc', 'sss_smap_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile('prof.nc', 'temp_profile_fnmoc_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile('prof.nc', 'salt_profile_fnmoc_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile('icec.nc', 'icec_EMC_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile('icefb.nc', 'icefb_GDR_20180415.nc4', follow_symlinks=True)
 
     # Create the test R2D2 database
     obsstore = {'start': '20180415',
