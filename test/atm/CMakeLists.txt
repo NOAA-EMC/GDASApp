@@ -4,7 +4,7 @@
 if(BUILD_GDASBUNDLE)
 
   # link input file from iodaconv to test directory
-  file(COPY ${PROJECT_SOURCE_DIR}/iodaconv/test/testinput/gdas.t06z.adpsfc.tm00.bufr_d ${PROJECT_BINARY_DIR}/test/testdata/gdas.t06z.adpsfc.tm00.bufr_d) 
+  file(COPY ${PROJECT_SOURCE_DIR}/iodaconv/test/testinput/gdas.t06z.adpsfc.tm00.bufr_d DESTINATION ${PROJECT_BINARY_DIR}/test/testdata/) 
   # test convert BUFR to IODA
   add_test(NAME test_gdasapp_convert_bufr_adpsfc
            COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_adpsfc.yaml
