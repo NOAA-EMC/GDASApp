@@ -81,7 +81,7 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" UPDATE BRANCH develop )
 
 # Build IODA converters
-  option(BUILD_IODA_CONVERTERS "Build IODA Converters" OFF)
+  option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
   if(BUILD_IODA_CONVERTERS)
     ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" BRANCH develop UPDATE )
   endif()

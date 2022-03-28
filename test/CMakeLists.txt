@@ -39,6 +39,7 @@ list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_test.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/generate_yaml.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/generate_yaml_include.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_adpsfc.yaml
 )
 
 # create testinput dir
@@ -86,3 +87,6 @@ PROPERTIES
 
 # soca tests
 add_subdirectory(soca)
+
+# gdas atm tests
+add_subdirectory(atm)
