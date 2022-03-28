@@ -21,8 +21,13 @@ endforeach(FILENAME)
 
 # Create a test R2D2 database
 # ---------------------------
-add_test(
-      NAME    test_gdasapp_soca_obsdb
-      COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/soca/create_obsdb.py
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obs
+set( WRK_DIR ${CMAKE_CURRENT_BINARY_DIR}/obs )
+ecbuild_add_test(
+      TARGET    test_gdasapp_soca_obsdb
+      TYPE      SCRIPT
+      COMMAND   ${Python3_EXECUTABLE}
+      ARGS      ${PROJECT_SOURCE_DIR}/test/soca/create_obsdb.py
+      WORKING_DIRECTORY ${WRK_DIR}
+      ENVIRONMENT
+        WRK_DIR=${WRK_DIR}
 )
