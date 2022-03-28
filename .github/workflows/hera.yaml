@@ -19,13 +19,3 @@ jobs:
       run: |
         echo "RT failed on NOAA RDHPCS Hera"
         exit 1
-    - name: Echo fail due to queued 
-      if: ${{ github.event.label.name == 'hera-RT' }}
-      run: |
-        echo "RT queued on NOAA RDHPCS Hera"
-        exit 1
-    - name: Echo fail due to running 
-      if: ${{ github.event.label.name == 'hera-RT-Running' }}
-      run: |
-        echo "RT running on NOAA RDHPCS Hera"
-        exit 1
