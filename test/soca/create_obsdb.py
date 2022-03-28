@@ -58,14 +58,14 @@ if __name__ == "__main__":
     os.environ['R2D2_CONFIG'] = 'r2d2_config_test.yaml'
 
     # Change the obs file format
-    wrk = os.getenv('WRK_DIR')
-    shutil.copyfile(os.path.join(wrk, 'adt.nc'), 'adt_j3_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(wrk, 'sst.nc'), 'sst_noaa19_l3u_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(wrk, 'sss.nc'), 'sss_smap_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(wrk, 'prof.nc'), 'temp_profile_fnmoc_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(wrk, 'prof.nc'), 'salt_profile_fnmoc_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(wrk, 'icec.nc'), 'icec_EMC_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(wrk, 'icefb.nc'), 'icefb_GDR_20180415.nc4', follow_symlinks=True)
+    obsdir = os.getenv('OBS_DIR')
+    shutil.copyfile(os.path.join(obsdir, 'adt.nc'), 'adt_j3_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile(os.path.join(obsdir, 'sst.nc'), 'sst_noaa19_l3u_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile(os.path.join(obsdir, 'sss.nc'), 'sss_smap_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile(os.path.join(obsdir, 'prof.nc'), 'temp_profile_fnmoc_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile(os.path.join(obsdir, 'prof.nc'), 'salt_profile_fnmoc_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile(os.path.join(obsdir, 'icec.nc'), 'icec_EMC_20180415.nc4', follow_symlinks=True)
+    shutil.copyfile(os.path.join(obsdir, 'icefb.nc'), 'icefb_GDR_20180415.nc4', follow_symlinks=True)
 
     # Create the test R2D2 database
     obsstore = {'start': '20180415',
