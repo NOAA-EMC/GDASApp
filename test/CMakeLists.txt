@@ -1,7 +1,7 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "75c4ce84028956c1ce050e07f70abc25c540492c3e1a40f6fa56d35182322e8e")
+set(SHA "2b547a5f489130edc240db04a08034d15787c15732871526b1873f0a27e491a4")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
@@ -21,6 +21,12 @@ file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
 # list of test binary/data files to install
 list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/atminc_compress.nc4
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/adt.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/sst.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/sss.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/prof.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/icec.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/icefb.nc
 )
 
 # install
@@ -62,11 +68,11 @@ add_test(NAME test_gdasapp_check_yaml_keys
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test to ensure all YAML in repo is valid YAML
 add_test(NAME test_gdasapp_check_valid_yaml
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/check_valid_yaml.py ${PROJECT_SOURCE_DIR} 
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/check_valid_yaml.py ${PROJECT_SOURCE_DIR}
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for ush/jediinc2fv3.py
 add_test(NAME test_gdasapp_jedi_increment_to_fv3
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc 
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for YAML generation from a template
 add_test(NAME test_gdasapp_generate_yaml
@@ -77,3 +83,6 @@ set_tests_properties(
 PROPERTIES
          ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}"
 )
+
+# soca tests
+add_subdirectory(soca)
