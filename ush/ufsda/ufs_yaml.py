@@ -42,7 +42,6 @@ def parse_config(templateyaml=None, clean=True):
     cycle_dict = get_cycle_vars()
     config_out.update(cycle_dict)
     # define bundle based on env var
-    #config_out['bundle'] = os.path.join(os.environ['HOMEgfs'], 'sorc', 'ufs_da.fd', 'UFS-DA', 'src')
     config_out['bundle'] = os.path.join(os.environ['HOMEgfs'])
     # going to now nest multiple times to do includes and replace
     config_out = update_config(config_out)
