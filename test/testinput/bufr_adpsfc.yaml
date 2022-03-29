@@ -2,7 +2,7 @@ observations:
   - obs space:
       name: bufr
 
-      obsdatain: "./testinput/gdas.t06z.adpsfc.tm00.bufr_d"
+      obsdatain: "./testdata/gdas.t06z.adpsfc.tm00.bufr_d"
 
       mnemonicSets:
         - mnemonics: [YEAR, MNTH, DAYS, HOUR, MINU, WMOB, WMOS]
