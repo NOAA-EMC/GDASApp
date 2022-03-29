@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+# genYAML
+# generate YAML using ufsda python module,
+# current runtime env, and optional input YAML
+import argparse
+import logging
+import ufsda
+import yaml
+
+def genYAML(yamlfile, outyaml):
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
+    # open YAML file to get config
+    try:
+        with open(yamlfile, 'r') as yamlfile_opened:
+            config_dict = yaml.safe_load(yamlfile_opened)
+        logging.info(f'Loading configuration from {yamlfile}')
+        ufsda.yamltools.genYAML(outyaml, config_dict)
+    except Exception as e:
+        logging.error(f'Error occurred when attempting to load: {yamlfile}, error: {e}')
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-y', '--yaml', type=str, help='Input YAML Configuration')
+    parser.add_argument('-o', '--output', type=str, help='Output YAML', required=True)
+    args = parser.parse_args()
+    genYAML(args.yaml, args.output)
