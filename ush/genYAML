@@ -7,21 +7,21 @@ import logging
 import ufsda
 import yaml
 
-def genYAML(yamlfile, outyaml):
+def genYAML(yamlconfig, outyaml):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     # open YAML file to get config
     try:
-        with open(yamlfile, 'r') as yamlfile_opened:
-            config_dict = yaml.safe_load(yamlfile_opened)
-        logging.info(f'Loading configuration from {yamlfile}')
+        with open(yamlconfig, 'r') as yamlconfig_opened:
+            config_dict = yaml.safe_load(yamlconfig_opened)
+        logging.info(f'Loading configuration from {yamlconfig}')
         ufsda.yamltools.genYAML(outyaml, config_dict)
     except Exception as e:
-        logging.error(f'Error occurred when attempting to load: {yamlfile}, error: {e}')
+        logging.error(f'Error occurred when attempting to load: {yamlconfig}, error: {e}')
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-y', '--yaml', type=str, help='Input YAML Configuration')
+    parser.add_argument('-c', '--config', type=str, help='Input YAML Configuration')
     parser.add_argument('-o', '--output', type=str, help='Output YAML', required=True)
     args = parser.parse_args()
-    genYAML(args.yaml, args.output)
+    genYAML(args.config, args.output)
