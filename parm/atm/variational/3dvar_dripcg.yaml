@@ -7,17 +7,17 @@ cost function:
   background:
     datapath: $(BKG_DIR)
     filetype: fms restart
-    datetime: $(fv3_bkg_datetime)
-    filename_core: $(fv3_bkg_time).fv_core.res.nc
-    filename_trcr: $(fv3_bkg_time).fv_tracer.res.nc
-    filename_sfcd: $(fv3_bkg_time).sfc_data.nc
-    filename_sfcw: $(fv3_bkg_time).fv_srf_wnd.res.nc
-    filename_cplr: $(fv3_bkg_time).coupler.res
+    datetime: $(BKG_ISOTIME)
+    filename_core: $(YYYYMMDDpHHMMSS).fv_core.res.nc
+    filename_trcr: $(YYYYMMDDpHHMMSS).fv_tracer.res.nc
+    filename_sfcd: $(YYYYMMDDpHHMMSS).sfc_data.nc
+    filename_sfcw: $(YYYYMMDDpHHMMSS).fv_srf_wnd.res.nc
+    filename_cplr: $(YYYYMMDDpHHMMSS).coupler.res
     state variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
                       slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                       u_srf,v_srf,f10m]
   background error: $<< $(BERROR_YAML)
-  observations: $<< $(OBS_YAML)
+  observations: $<< $(OBS_LIST)
 variational:
   minimizer:
     algorithm: DRIPCG
