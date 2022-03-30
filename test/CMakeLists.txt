@@ -37,8 +37,7 @@ install(FILES ${test_data}
 list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_ref.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_test.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/generate_yaml.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/generate_yaml_include.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/genYAML_example.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_adpsfc.yaml
 )
 
@@ -76,13 +75,24 @@ add_test(NAME test_gdasapp_jedi_increment_to_fv3
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for YAML generation from a template
-add_test(NAME test_gdasapp_generate_yaml
+add_test(NAME test_gdasapp_generate_yaml_func
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/test_generate_yaml.py --parm ${PROJECT_SOURCE_DIR}/parm/
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 set_tests_properties(
-         test_gdasapp_generate_yaml
+         test_gdasapp_generate_yaml_func
 PROPERTIES
          ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm;gPDY=20220330;gcyc=00;PDY=20220330;cyc=06;assim_freq=6"
+)
+add_test(NAME test_gdasapp_genYAML_prep
+         COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+add_test(NAME test_gdasapp_genYAML_run
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example.yaml
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+set_tests_properties(
+         test_gdasapp_genYAML_run
+PROPERTIES
+         ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm"
 )
 
 # soca tests

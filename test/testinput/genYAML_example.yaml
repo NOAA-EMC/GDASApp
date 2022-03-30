@@ -1,0 +1,5 @@
+template: ../parm/atm/variational/3dvar_dripcg.yaml
+output: ./testoutput/test_3dvar_out.yaml
+config:
+  paths: $<< ${PARMgfs}/atm/common/paths.yaml
+
