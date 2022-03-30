@@ -3,6 +3,7 @@ import os
 from solo.yaml_file import YAMLFile
 from solo.template import TemplateConstants, Template
 
+
 def genYAML(input_config_dict, template=None, output=None):
     """
     genYAML(input_config_dict, template=None, output=None)
@@ -19,6 +20,7 @@ def genYAML(input_config_dict, template=None, output=None):
     if not output:
         output = os.path.join(os.getcwd(), 'genYAML_out.yaml')
     config_out.save(output)
+
 
 def parse_config(input_config_dict, template=None, clean=True):
     """
@@ -53,6 +55,7 @@ def parse_config(input_config_dict, template=None, clean=True):
 
     return config_out
 
+
 def pop_out_common(config_out):
     # to help with substitution, put all keys in the common key
     # in the top level of the config instead
@@ -61,6 +64,7 @@ def pop_out_common(config_out):
         config_out[key] = value
     del config_out['common']
     return config_out
+
 
 def clean_yaml(config_out, config_template):
     # if there are nested keys, move the nest up one
@@ -74,6 +78,7 @@ def clean_yaml(config_out, config_template):
         del config_out[key]
     return config_out
 
+
 def remove_nesting(config):
     # if key is nested, pull it up one level in the dict
     if isinstance(config, dict):
@@ -83,6 +88,7 @@ def remove_nesting(config):
                     config[key] = value[key]
                 remove_nesting(value)
     return config
+
 
 def include_yaml(config):
     # look for the include yaml string and if it exists
@@ -108,6 +114,7 @@ def include_yaml(config):
                 config[rootkey] = newconfig
     return config
 
+
 def replace_vars(config):
     # use SOLO to replace variables in the configuration dictionary
     # as appropriate with either other dictionary key/value pairs
@@ -116,6 +123,7 @@ def replace_vars(config):
     config = Template.substitute_with_dependencies(config, config, TemplateConstants.DOLLAR_PARENTHESES)
     config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)
     return config
+
 
 def iter_config(config, subconfig):
     # iterate through the config and do substitution and include YAMLs
@@ -144,5 +152,3 @@ def update_config(config):
         if isinstance(value, dict):
             value = iter_config(config, value)
     return config
-
-
