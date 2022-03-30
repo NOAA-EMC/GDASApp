@@ -82,7 +82,7 @@ add_test(NAME test_gdasapp_generate_yaml
 set_tests_properties(
          test_gdasapp_generate_yaml
 PROPERTIES
-         ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm;gPDY=20220330;gcyc=00"
+         ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm;gPDY=20220330;gcyc=00;PDY=20220330;cyc=06;assim_freq=6"
 )
 
 # soca tests

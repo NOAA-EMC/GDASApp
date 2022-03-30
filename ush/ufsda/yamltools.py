@@ -1,5 +1,6 @@
 import datetime
 import os
+import re
 from solo.yaml_file import YAMLFile
 from solo.template import TemplateConstants, Template
 
@@ -62,21 +63,40 @@ def calc_time_vars(config):
     # compute time variables in different formats
     # based on existing variables
     if all(key in os.environ for key in ('PDY', 'cyc')):
-        config['YYYYMMDDpHHMMSS'] = f"{os.environ['PDY']}.{os.environ['cyc']}0000"
-    if all(key in os.environ for key in ('gPDY', 'gcyc')):
-        config['BKG_YYYYMMDDpHHMMSS'] = f"{os.environ['gPDY']}.{os.environ['gcyc']}0000"
-        config['BKG_ISOTIME'] = datetime.datetime.strptime(config['BKG_YYYYMMDDpHHMMSS'],
-                                                           '%Y%m%d.%H%M%S').strftime('%Y-%m-%dT%H:%M:%SZ')
+        valid_time_obj = datetime.datetime.strptime(f"{os.environ['PDY']}{os.environ['cyc']}",
+                                                    "%Y%m%d%H")
+    elif 'valid_time' in config.keys():
+        valid_time_obj = datetime.datetime.strptime(config['valid_time'],
+                                                    "%Y-%m-%dT%H:%M:%SZ")
+    else:
+        raise KeyError("Neither $(valid_time) nor ${PDY}${cyc} defined")
+    config['YYYYMMDDpHHMMSS'] = valid_time_obj.strftime('%Y%m%d.%H%M%S')
+    # for now bkg_time == valid_time, will change for fgat
+    bkg_time_obj = valid_time_obj
+    config['BKG_YYYYMMDDpHHMMSS'] = bkg_time_obj.strftime('%Y%m%d.%H%M%S')
+    config['BKG_ISOTIME'] = bkg_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
+    if 'assim_freq' in os.environ:
+        config['ATM_WINDOW_LENGTH'] = f"PT{os.environ['assim_freq']}H"
+    elif 'atm_window_length' in config.keys():
+        config['ATM_WINDOW_LENGTH'] = config['atm_window_length']
+    else:
+        raise KeyError("Neither $(atm_window_length) nor ${assim_freq} defined")
+    # get atm window begin
+    h = re.findall('PT(\d+)H', config['ATM_WINDOW_LENGTH'])[0]
+    win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
+    config['ATM_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
     return config
 
 
 def pop_out_common(config):
     # to help with substitution, put all keys in the common key
     # in the top level of the config instead
-    common = config['common']
-    for key, value in common.items():
-        config[key] = value
-    del config['common']
+    for commonkey in ['paths', 'atm_case']:
+        if commonkey in config.keys():
+            common = config[commonkey]
+            for key, value in common.items():
+                config[key] = value
+            del config[commonkey]
     return config
 
 

@@ -7,7 +7,7 @@ saber blocks:
   output variables: *control_vars
   active variables: &active_vars [psi,chi,t,ps,rh,liq_wat,o3mr]
   bump:
-    datadir: &staticb_dir Data/staticb/
+    datadir: &staticb_dir $(fv3jedi_staticb_dir)
     verbosity: main
     strategy: specific_univariate
     load_nicas_local: true

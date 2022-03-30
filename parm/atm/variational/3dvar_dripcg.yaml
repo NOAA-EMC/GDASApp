@@ -1,7 +1,7 @@
 cost function:
   cost type: 3D-Var
-  window begin: '$(WINDOW_BEGIN)'
-  window length: $(WINDOW_LENGTH)
+  window begin: '$(ATM_WINDOW_BEGIN)'
+  window length: $(ATM_WINDOW_LENGTH)
   analysis variables: &3dvars [ua,va,t,delp,ps,sphum,ice_wat,liq_wat,o3mr]
   geometry: $<< $(GEOM_BKG)
   background:
