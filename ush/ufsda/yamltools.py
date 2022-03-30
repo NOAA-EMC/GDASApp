@@ -82,7 +82,7 @@ def calc_time_vars(config):
     else:
         raise KeyError("Neither $(atm_window_length) nor ${assim_freq} defined")
     # get atm window begin
-    h = re.findall('PT(\d+)H', config['ATM_WINDOW_LENGTH'])[0]
+    h = re.findall('PT(\\d+)H', config['ATM_WINDOW_LENGTH'])[0]
     win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
     config['ATM_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
     return config
