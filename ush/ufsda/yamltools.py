@@ -47,6 +47,8 @@ def parse_config(input_config_dict, template=None, clean=True):
     # pull common key values out to top layer
     config_out = pop_out_common(config_out)
     # TODO create some vars in config based on other vars if they exist
+    # calculate time/cycle variables
+    config_out = calc_time_vars(config_out)
     # now recursively update config dict
     config_out = update_config(config_out)
     # clean up if specified
@@ -56,14 +58,26 @@ def parse_config(input_config_dict, template=None, clean=True):
     return config_out
 
 
-def pop_out_common(config_out):
+def calc_time_vars(config):
+    # compute time variables in different formats
+    # based on existing variables
+    if all(key in os.environ for key in ('PDY', 'cyc')):
+        config['YYYYMMDDpHHMMSS'] = f"{os.environ['PDY']}.{os.environ['cyc']}0000"
+    if all(key in os.environ for key in ('gPDY', 'gcyc')):
+        config['BKG_YYYYMMDDpHHMMSS'] = f"{os.environ['gPDY']}.{os.environ['gcyc']}0000"
+        config['BKG_ISOTIME'] = datetime.datetime.strptime(config['BKG_YYYYMMDDpHHMMSS'],
+                                                           '%Y%m%d.%H%M%S').strftime('%Y-%m-%dT%H:%M:%SZ')
+    return config
+
+
+def pop_out_common(config):
     # to help with substitution, put all keys in the common key
     # in the top level of the config instead
-    common = config_out['common']
+    common = config['common']
     for key, value in common.items():
-        config_out[key] = value
-    del config_out['common']
-    return config_out
+        config[key] = value
+    del config['common']
+    return config
 
 
 def clean_yaml(config_out, config_template):
