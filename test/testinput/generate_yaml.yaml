@@ -1,6 +1,0 @@
-gdas:
-  window begin: '{{window_begin}}'
-  window length: $(window_length)
-  background:
-    datetime: $(fv3_bkg_datetime)
-  geometry: $<< ${TEST_INCLUDE_YAML}

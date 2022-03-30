@@ -1,2 +1,0 @@
-npx: $(npx_ges)
-npy: $(npy_ges)
