@@ -37,7 +37,6 @@ install(FILES ${test_data}
 list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_ref.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_test.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/genYAML_example.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_adpsfc.yaml
 )
 
