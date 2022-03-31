@@ -27,6 +27,7 @@ predictors = [
     'scan_angle',
 ]
 
+
 def run_satbias_conv(config):
     # run ioda-converters satbias converter to take GSI satbias file
     # and create UFO compatible input files
@@ -60,7 +61,7 @@ def run_satbias_conv(config):
             os.path.join(workdir, 'satbias2ioda.x'),
             os.path.join(workdir, 'satbias_crtm_in'),
             os.path.join(workdir, 'satbias_crtm_pc'),
-            ]
+        ]
         for src, dest in zip(orig_paths, new_paths):
             if os.path.exists(dest):
                 os.unlink(dest)
