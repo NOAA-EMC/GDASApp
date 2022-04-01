@@ -2,6 +2,7 @@ from r2d2 import store
 from solo.configuration import Configuration
 from solo.date import date_sequence, Hour
 
+
 def obs(config):
     component = config.get('component', 'atm')
     times = date_sequence(config.start, config.end, config.step)
@@ -38,6 +39,3 @@ def obs(config):
             source_file=f'{source_dir}/{datadir}{obs_type}_{cdate}.nc4',
             ignore_missing=True,
         )
-
-
-
