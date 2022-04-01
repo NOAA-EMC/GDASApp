@@ -11,7 +11,7 @@ if __name__ == "__main__":
         'databases':
             {'test': {'cache_fetch': False,
                       'class': 'LocalDB',
-                      'root': os.path.join(os.getcwd(), 'r2d2-test')},},
+                      'root': os.path.join(os.getcwd(), 'r2d2-test')}, },
         'fetch_order': ['test'],
         'store_order': ['test'],
     }
