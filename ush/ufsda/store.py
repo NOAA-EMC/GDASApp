@@ -28,14 +28,15 @@ def obs(config):
             datadir = ""
         else:
             raise ValueError(f"{component} not supported yet")
-        store(
-            provider=provider,
-            type=type,
-            experiment=experiment,
-            database=database,
-            date=time,
-            obs_type=obs_type,
-            time_window=step,
-            source_file=f'{source_dir}/{datadir}{obs_type}_{cdate}.nc4',
-            ignore_missing=True,
-        )
+        for obs_type in obs_types:
+            store(
+                provider=provider,
+                type=type,
+                experiment=experiment,
+                database=database,
+                date=time,
+                obs_type=obs_type,
+                time_window=step,
+                source_file=f'{source_dir}/{datadir}{obs_type}_{cdate}.nc4',
+                ignore_missing=True,
+            )
