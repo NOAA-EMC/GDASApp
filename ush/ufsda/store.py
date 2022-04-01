@@ -33,7 +33,7 @@ def obs(config):
             type=type,
             experiment=experiment,
             database=database,
-            date=date,
+            date=time,
             obs_type=obs_type,
             time_window=step,
             source_file=f'{source_dir}/{datadir}{obs_type}_{cdate}.nc4',
