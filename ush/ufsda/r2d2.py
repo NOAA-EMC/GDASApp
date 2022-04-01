@@ -12,6 +12,7 @@ def store(config):
     database = config.database
     type = config.type
     source_dir = config.source_dir
+    source_file_fmt = config.source_file_fmt
     step = config.step
     dump = config.get('dump', 'gdas')
 
