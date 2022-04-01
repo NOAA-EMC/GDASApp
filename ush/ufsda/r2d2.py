@@ -29,6 +29,6 @@ def store(config):
                 date=time,
                 obs_type=obs_type,
                 time_window=step,
-                source_file=eval(f"f'{source_file_fmt}'")
+                source_file=eval(f"f'{source_file_fmt}'"),
                 ignore_missing=True,
             )
