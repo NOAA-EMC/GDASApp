@@ -4,7 +4,6 @@ from solo.date import date_sequence, Hour
 
 
 def store(config):
-    component = config.get('component', 'atm')
     times = date_sequence(config.start, config.end, config.step)
     obs_types = config.obs_types
     provider = config.provider

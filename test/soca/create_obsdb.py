@@ -42,12 +42,11 @@ if __name__ == "__main__":
     shutil.copyfile(os.path.join(obsdir, 'icefb.nc'), 'icefb_GDR_20180415.nc4', follow_symlinks=True)
 
     # Create the test R2D2 database
-    obsstore = {'start': '20180415',
-                'end': '20180415',
+    obsstore = {'start': '2018-04-15T00:00:00Z',
+                'end': '2018-04-15T00:00:00Z',
                 'step': 'P1D',
                 'source_dir': '.',
                 'source_file_fmt': '{source_dir}/{obs_type}_{year}{month}{day}.nc4',
-                'component': 'soca',
                 'type': 'ob',
                 'database': 'shared',
                 'provider': 'gdasapp',
