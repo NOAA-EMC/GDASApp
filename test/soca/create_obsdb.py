@@ -6,37 +6,13 @@ from r2d2 import store
 from solo.configuration import Configuration
 from solo.date import date_sequence
 import yaml
+import ufsda.store
 
 
 def store_obs(yaml_file):
     config = Configuration(yaml_file)
-    dates = date_sequence(config.start, config.end, config.step)
-    obs_types = config.obs_types
-    provider = config.provider
-    experiment = config.experiment
-    database = config.database
-    type = config.type
-    source_dir = config.source_dir
-    step = config.step
-
-    for date in dates:
-        day = str(date).split('T')[0]
-        year = day[0:4]
-        month = day[4:6]
-        day = day[6:8]
-        for obs_type in obs_types:
-            obs_prefix = obs_type.split('_')[0]
-            store(
-                provider=provider,
-                type=type,
-                experiment=experiment,
-                database=database,
-                date=date,
-                obs_type=obs_type,
-                time_window=step,
-                source_file=f'{source_dir}/{obs_type}_{year}{month}{day}.nc4',
-                ignore_missing=True,
-            )
+    config['component'] = 'soca'
+    ufsda.store.obs(config)
 
 
 if __name__ == "__main__":
