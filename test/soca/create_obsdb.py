@@ -2,17 +2,15 @@
 import argparse
 import os
 import shutil
-from r2d2 import store
 from solo.configuration import Configuration
 from solo.date import date_sequence
 import yaml
-import ufsda.store
+import ufsda.r2d2
 
 
 def store_obs(yaml_file):
     config = Configuration(yaml_file)
-    config['component'] = 'soca'
-    ufsda.store.obs(config)
+    ufsda.r2d2.store(config)
 
 
 if __name__ == "__main__":
@@ -48,6 +46,8 @@ if __name__ == "__main__":
                 'end': '20180415',
                 'step': 'P1D',
                 'source_dir': '.',
+                'source_file_fmt': '{source_dir}/{obs_type}_{year}{month}{day}.nc4',
+                'component': 'soca',
                 'type': 'ob',
                 'database': 'shared',
                 'provider': 'gdasapp',

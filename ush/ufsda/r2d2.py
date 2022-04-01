@@ -1,9 +1,9 @@
-from r2d2 import store
+import r2d2
 from solo.configuration import Configuration
 from solo.date import date_sequence, Hour
 
 
-def obs(config):
+def store(config):
     component = config.get('component', 'atm')
     times = date_sequence(config.start, config.end, config.step)
     obs_types = config.obs_types
@@ -20,16 +20,8 @@ def obs(config):
         month = Hour(time).format('%m')
         day = Hour(time).format('%d')
         hour = Hour(time).format('%H')
-        if component == 'atm':
-            cdate = f"{year}{month}{day}{hour}"
-            datadir = f"{dump}.{year}{month}{day}/{hour}/atmos/"
-        elif component == 'soca':
-            cdate = f"{year}{month}{day}"
-            datadir = ""
-        else:
-            raise ValueError(f"{component} not supported yet")
         for obs_type in obs_types:
-            store(
+            r2d2.store(
                 provider=provider,
                 type=type,
                 experiment=experiment,
@@ -37,6 +29,6 @@ def obs(config):
                 date=time,
                 obs_type=obs_type,
                 time_window=step,
-                source_file=f'{source_dir}/{datadir}{obs_type}_{cdate}.nc4',
+                source_file=eval(f"f'{source_file_fmt}'")
                 ignore_missing=True,
             )
