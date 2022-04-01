@@ -32,7 +32,7 @@ if __name__ == "__main__":
         'step': 'PT6H',
         'source_dir': os.path.join(os.getcwd(), 'testoutput', 'satbias'),
         'source_file_fmt': '{source_dir}/{dump}.{year}{month}{day}/{hour}/atmos/{obs_type}_satbias.nc4',
-        'type': 'satbias',
+        'type': 'bc',
         'database': 'test',
         'provider': 'gsi',
         'experiment': 'gdasapp',
@@ -41,8 +41,8 @@ if __name__ == "__main__":
             'atms_npp',
             'cris-fsr_npp',
             'iasi_metop-c',
-            ],
-        }
+        ],
+    }
     satbias_yaml = os.path.join(os.getcwd(), 'testinput', 'r2d2_store_satbias.yaml')
     with open(satbias_yaml, 'w') as f:
         yaml.dump(satbias, f, sort_keys=False, default_flow_style=False)
@@ -62,8 +62,8 @@ if __name__ == "__main__":
             'atms_npp',
             'cris-fsr_npp',
             'iasi_metop-c',
-            ],
-        }
+        ],
+    }
     tlapse_yaml = os.path.join(os.getcwd(), 'testinput', 'r2d2_store_tlapse.yaml')
     with open(tlapse_yaml, 'w') as f:
         yaml.dump(tlapse, f, sort_keys=False, default_flow_style=False)
