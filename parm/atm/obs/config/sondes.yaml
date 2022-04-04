@@ -23,6 +23,18 @@ obs operator:
      variables:
      - name: surface_pressure
      da_psfc_scheme: UKMO
+linear obs operator:
+  name: Composite
+  components:
+   - name: VertInterp
+     variables:
+     - name: air_temperature
+     - name: specific_humidity
+     - name: eastward_wind
+     - name: northward_wind
+   - name: Identity
+     variables:
+     - name: surface_pressure
 #
 obs filters:
   #

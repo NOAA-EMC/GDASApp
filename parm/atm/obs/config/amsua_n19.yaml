@@ -8,7 +8,7 @@ obs space:
   channels: &amsua_n19_channels 1-15
 obs operator:
   name: CRTM
-  Absorbers: [H2O,O3,CO2]
+  Absorbers: [H2O,O3]
   Clouds: [Water, Ice]
   Cloud_Fraction: 1.0
   obs options:
@@ -17,6 +17,7 @@ obs operator:
     CoefficientPath: $(CRTM_COEFF_DIR)
 obs bias:
   input file: $(BIAS_DIR)/$(BIAS_PREFIX).amsua_n19.satbias.$(BIAS_DATE).nc4
+  output file: $(BIAS_DIR)/$(OBS_PREFIX).amsua_n19.satbias.$(OBS_DATE).nc4
   variational bc:
     predictors:
     - name: constant
