@@ -21,14 +21,26 @@ def store(config):
         day = Hour(time).format('%d')
         hour = Hour(time).format('%H')
         for obs_type in obs_types:
-            r2d2.store(
-                provider=provider,
-                type=type,
-                experiment=experiment,
-                database=database,
-                date=time,
-                obs_type=obs_type,
-                time_window=step,
-                source_file=eval(f"f'{source_file_fmt}'"),
-                ignore_missing=True,
-            )
+            if type == 'bc':
+                r2d2.store(
+                    provider=provider,
+                    type=type,
+                    experiment=experiment,
+                    database=database,
+                    date=time,
+                    obs_type=obs_type,
+                    source_file=eval(f"f'{source_file_fmt}'"),
+                    ignore_missing=True,
+                )
+            else:
+                r2d2.store(
+                    provider=provider,
+                    type=type,
+                    experiment=experiment,
+                    database=database,
+                    date=time,
+                    obs_type=obs_type,
+                    time_window=step,
+                    source_file=eval(f"f'{source_file_fmt}'"),
+                    ignore_missing=True,
+                )
