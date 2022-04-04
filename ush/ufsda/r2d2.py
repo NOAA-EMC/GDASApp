@@ -10,6 +10,7 @@ def store(config):
     experiment = config.experiment
     database = config.database
     type = config.type
+    file_type = config.get('file_type', None)
     source_dir = config.source_dir
     source_file_fmt = config.source_file_fmt
     step = config.step
@@ -25,6 +26,7 @@ def store(config):
                 r2d2.store(
                     provider=provider,
                     type=type,
+                    file_type=file_type,
                     experiment=experiment,
                     database=database,
                     date=time,
