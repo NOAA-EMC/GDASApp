@@ -3,6 +3,7 @@ import os
 import re
 from solo.yaml_file import YAMLFile
 from solo.template import TemplateConstants, Template
+from ufsda import isTrue
 
 
 def genYAML(input_config_dict, template=None, output=None):
@@ -43,6 +44,9 @@ def parse_config(input_config_dict, template=None, clean=True):
         config_out = YAMLFile(data={})
     # add input_config_dict vars to config for substitutions
     config_out.update(input_config_dict)
+    # compute common resolution variables
+    if config_out.get('atm', True):
+        config_out = atmanl_case(config_out)
     # do a first round of includes first
     config_out = include_yaml(config_out)
     # pull common key values out to top layer
@@ -57,6 +61,18 @@ def parse_config(input_config_dict, template=None, clean=True):
         config_out = clean_yaml(config_out, config_temp)
 
     return config_out
+
+
+def atmanl_case(config):
+    # compute atm analysis case/res variables based on environment and/or config
+    case = int(os.environ.get('CASE', 'C768')[1:])
+    case_enkf = int(os.environ.get('CASE_ENKF', 'C384')[1:])
+    levs = int(os.environ.get('LEVS', '128'))
+    dohybvar = isTrue(os.environ.get('DOHYBVAR', 'NO'))
+    #config['npx'] = str(case+1)
+    #config['npy'] = str(case+1)
+    #config['npz'] = str(levs-1)
+    # TODO: ocean/ice case
 
 
 def calc_time_vars(config):
