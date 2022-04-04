@@ -81,10 +81,9 @@ add_test(NAME test_gdasapp_jedi_increment_to_fv3
 add_test(NAME test_gdasapp_generate_yaml
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/test_generate_yaml.py --template ${PROJECT_BINARY_DIR}/test/testinput/generate_yaml.yaml --output ${PROJECT_BINARY_DIR}/test/testoutput/generate_yaml.yaml
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-set_tests_properties(
-         test_gdasapp_generate_yaml
-PROPERTIES
-         ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}"
+set_tests_properties(test_gdasapp_generate_yaml
+    PROPERTIES
+        ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}"
 )
 
 # soca tests
