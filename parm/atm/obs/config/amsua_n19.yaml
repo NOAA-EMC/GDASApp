@@ -34,6 +34,17 @@ obs bias:
     - name: scan_angle
       order: 2
     - name: scan_angle
+  covariance:
+    minimal required obs number: 20
+    variance range: [1.0e-6, 10.0]
+    step size: 1.0e-4
+    largest analysis variance: 10000.0
+    prior:
+      input file: $(BIAS_DIR)/$(BIAS_PREFIX).amsua_n19.satbias.$(BIAS_DATE).nc4
+      inflation:
+        ratio: 1.1
+        ratio for small dataset: 2.0
+    output file: $(BIAS_DIR)/$(OBS_PREFIX).amsua_n19.satbias.$(OBS_DATE).nc4
 obs filters:
 - filter: BlackList
   filter variables:
