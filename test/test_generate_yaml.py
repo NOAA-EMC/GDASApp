@@ -5,37 +5,37 @@ import ufsda
 import yaml
 
 
-def test_yaml_gen_yaml(template_yaml, output_yaml):
-    # test ufsda.gen_yaml after setting some env vars
-    include_yaml = template_yaml.replace('.yaml', '_include.yaml')
-    # this is needed for the unit test
-    os.environ['TEST_INCLUDE_YAML'] = include_yaml
-    # all of the below are currently required
-    # this needs to be fixed later
-    os.environ['CDATE'] = '2022032418'
-    os.environ['GDATE'] = '2022032412'
-    os.environ['assim_freq'] = '6'
-    os.environ['COMIN_GES'] = './'
-    os.environ['STATICB_DIR'] = './'
-    os.environ['COMOUT'] = './'
-    os.environ['CASE'] = 'C768'
-    os.environ['CASE_ENKF'] = 'C384'
-    os.environ['LEVS'] = '128'
-    os.environ['PSLOT'] = 'GDASApp_tests'
-    os.environ['CDUMP'] = 'gdas'
-    os.environ['HOMEgfs'] = './'
-    # generate the YAML file
-    ufsda.gen_yaml(output_yaml, template_yaml)
-    # read it back in
-    myconfig = ufsda.parse_config(templateyaml=output_yaml, clean=True)
-    print(myconfig)
+def test_yaml_gen_yaml(parm_dir):
+    # test generating YAML from config dict, env, and template
+    output_file = os.path.join(os.getcwd(), 'testoutput', 'test_yaml_gen.yaml')
+    template = os.path.join(parm_dir, 'atm/variational/3dvar_dripcg.yaml')
+    config_dict = {
+        'paths': f'$<< {parm_dir}/atm/common/paths.yaml',
+        'atm': True,
+        'layout_x': '1',
+        'layout_y': '2',
+        'BKG_DIR': '/this/is/not/a/real/path',
+        'OBS_LIST': f'{parm_dir}/atm/obs/lists/gdas_prototype.yaml',
+        'fv3jedi_fix_dir': 'Data/fv3files',
+        'fv3jedi_fieldset_dir': 'Data/fieldsets',
+        'ANL_DIR': '/fake/path/to/analysis',
+        'fv3jedi_staticb_dir': '/fake/path/to/berror',
+        'BIAS_DIR': '/fake/path/to/biascoeff',
+        'CRTM_COEFF_DIR': '/fake/path/to/crtm',
+        'BIAS_PREFIX': 'gdas.t18z',
+        'BIAS_DATE': '${gPDY}${gcyc}',
+        'DIAG_DIR': '/fake/output/path',
+        'OBS_DIR': '/fake/path/to/obs',
+        'OBS_PREFIX': 'gdas.t00z',
+        'OBS_DATE': '${PDY}${cyc}',
+    }
+    # now call the function to do all of the heavy lifting
+    ufsda.yamltools.genYAML(config_dict, template=template, output=output_file)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--template", type=str,
-                        help="Input template YAML file", required=True)
-    parser.add_argument("--output", type=str,
-                        help="Output YAML file", required=True)
+    parser.add_argument("--parm", type=str,
+                        help="Path to parm/ directory", required=True)
     args = parser.parse_args()
-    test_yaml_gen_yaml(args.template, args.output)
+    test_yaml_gen_yaml(args.parm)

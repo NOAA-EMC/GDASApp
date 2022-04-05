@@ -1,0 +1,2 @@
+BERROR_YAML: ${PARMgfs}/atm/berror/staticb_bump.yaml
+OBS_YAML_DIR: ${PARMgfs}/atm/obs/config
