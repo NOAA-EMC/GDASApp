@@ -33,7 +33,7 @@ RESTART_GES/$(valid_date).$(file_type).tile$(tile).nc',
     # replace gfs with gfs_metadata
     config['model'] = 'gfs_metadata'
     config['source_file_fmt'] = '{source_dir}/{dump}.{year}{month}{day}/{hour}/atmos/\
-RESTART_GES/$(valid_date).coupler.res'
+RESTART_GES/$(valid_date).$(file_type)'
     yamlfile = os.path.join(os.getcwd(), 'store_gfs_coupler.yaml')
     with open(yamlfile, 'w') as f:
         yaml.dump(config, f, sort_keys=False, default_flow_style=False)
