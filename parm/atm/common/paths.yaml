@@ -1,4 +1,2 @@
-GEOM_ANL: ${PARMgfs}/atm/geom/analysis.yaml
-GEOM_BKG: ${PARMgfs}/atm/geom/background.yaml
 BERROR_YAML: ${PARMgfs}/atm/berror/staticb_bump.yaml
 OBS_YAML_DIR: ${PARMgfs}/atm/obs/config

@@ -11,7 +11,9 @@ def test_yaml_gen_yaml(parm_dir):
     template = os.path.join(parm_dir, 'atm/variational/3dvar_dripcg.yaml')
     config_dict = {
         'paths': f'$<< {parm_dir}/atm/common/paths.yaml',
-        'atm_case': f'$<< {parm_dir}/atm/common/c384.yaml',
+        'atm': True,
+        'layout_x': '1',
+        'layout_y': '2',
         'BKG_DIR': '/this/is/not/a/real/path',
         'OBS_LIST': f'{parm_dir}/atm/obs/lists/gdas_prototype.yaml',
         'fv3jedi_fix_dir': 'Data/fv3files',

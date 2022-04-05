@@ -3,7 +3,7 @@ cost function:
   window begin: '$(ATM_WINDOW_BEGIN)'
   window length: $(ATM_WINDOW_LENGTH)
   analysis variables: &3dvars [ua,va,t,delp,ps,sphum,ice_wat,liq_wat,o3mr]
-  geometry: $<< $(GEOM_BKG)
+  geometry: $(GEOM_BKG)
   background:
     datapath: $(BKG_DIR)
     filetype: fms restart
@@ -25,13 +25,13 @@ variational:
   - ninner: 50
     gradient norm reduction: 1e-10
     test: on
-    geometry: $<< $(GEOM_ANL)
+    geometry: $(GEOM_ANL)
     diagnostics:
       departures: bkgmob
   - ninner: 100
     gradient norm reduction: 1e-10
     test: on
-    geometry: $<< $(GEOM_ANL)
+    geometry: $(GEOM_ANL)
     diagnostics:
       departures: bkgmob1
 final:
@@ -41,4 +41,4 @@ final:
     output:
       filetype: latlon
       filename: $(ANL_DIR)/atminc_latlon.
-    geometry: $<< $(GEOM_ANL)
+    geometry: $(GEOM_ANL)

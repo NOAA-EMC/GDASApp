@@ -69,10 +69,42 @@ def atmanl_case(config):
     case_enkf = int(os.environ.get('CASE_ENKF', 'C384')[1:])
     levs = int(os.environ.get('LEVS', '128'))
     dohybvar = isTrue(os.environ.get('DOHYBVAR', 'NO'))
-    #config['npx'] = str(case+1)
-    #config['npy'] = str(case+1)
-    #config['npz'] = str(levs-1)
-    # TODO: ocean/ice case
+    # get background geometry
+    ntiles = 6 # global, fix later to be more generic
+    layout = [
+        os.environ.get('layout_x', '$(layout_x)'),
+        os.environ.get('layout_y', '$(layout_y)'),
+    ]
+    io_layout = [1, 1] # force to be one file for forseeable future
+    config['GEOM_BKG'] = fv3_geom_dict(case, levs, ntiles, layout, io_layout)
+    # get analysis geometry depending on dohybvar
+    if dohybvar:
+        config['GEOM_ANL'] = fv3_geom_dict(case_enkf, levs, ntiles, layout, io_layout)
+    else:
+        config['GEOM_ANL'] = fv3_geom_dict(case, levs, ntiles, layout, io_layout)
+    return config
+
+
+def fv3_geom_dict(case, levs, ntiles, layout, io_layout):
+    # returns a dictionary matching FV3-JEDI global geometry entries
+    outdict = {
+        'fms initialization': {
+            'namelist filename': '$(fv3jedi_fix_dir)/fmsmpp.nml',
+            'field table filename': '$(fv3jedi_fix_dir)/field_table',
+        },
+        'akbk': '$(fv3jedi_fix_dir)/akbk.nc4',
+        'layout': layout,
+        'io_layout': io_layout,
+        'npx': str(case+1),
+        'npy': str(case+1),
+        'npz': str(levs-1),
+        'ntiles': str(ntiles),
+        'fieldsets': [
+            {'fieldset': '$(fv3jedi_fieldset_dir)/dynamics.yaml'},
+            {'fieldset': '$(fv3jedi_fieldset_dir)/ufo.yaml'},
+        ]
+    }
+    return outdict
 
 
 def calc_time_vars(config):
