@@ -15,6 +15,7 @@ def store(config):
     for arg in config.keys():
         if arg in possible_args:
             kwargs[arg] = config[arg]
+    type = config.type
     times = date_sequence(config.start, config.end, config.step)
     dump = config.get('dump', 'gdas')
     source_dir = config['source_dir']
