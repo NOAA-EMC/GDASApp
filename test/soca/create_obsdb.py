@@ -2,41 +2,15 @@
 import argparse
 import os
 import shutil
-from r2d2 import store
 from solo.configuration import Configuration
 from solo.date import date_sequence
 import yaml
+import ufsda.r2d2
 
 
 def store_obs(yaml_file):
     config = Configuration(yaml_file)
-    dates = date_sequence(config.start, config.end, config.step)
-    obs_types = config.obs_types
-    provider = config.provider
-    experiment = config.experiment
-    database = config.database
-    type = config.type
-    source_dir = config.source_dir
-    step = config.step
-
-    for date in dates:
-        day = str(date).split('T')[0]
-        year = day[0:4]
-        month = day[4:6]
-        day = day[6:8]
-        for obs_type in obs_types:
-            obs_prefix = obs_type.split('_')[0]
-            store(
-                provider=provider,
-                type=type,
-                experiment=experiment,
-                database=database,
-                date=date,
-                obs_type=obs_type,
-                time_window=step,
-                source_file=f'{source_dir}/{obs_type}_{year}{month}{day}.nc4',
-                ignore_missing=True,
-            )
+    ufsda.r2d2.store(config)
 
 
 if __name__ == "__main__":
@@ -68,10 +42,11 @@ if __name__ == "__main__":
     shutil.copyfile(os.path.join(obsdir, 'icefb.nc'), 'icefb_GDR_20180415.nc4', follow_symlinks=True)
 
     # Create the test R2D2 database
-    obsstore = {'start': '20180415',
-                'end': '20180415',
+    obsstore = {'start': '2018-04-15T00:00:00Z',
+                'end': '2018-04-15T00:00:00Z',
                 'step': 'P1D',
                 'source_dir': '.',
+                'source_file_fmt': '{source_dir}/{obs_type}_{year}{month}{day}.nc4',
                 'type': 'ob',
                 'database': 'shared',
                 'provider': 'gdasapp',

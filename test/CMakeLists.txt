@@ -1,7 +1,7 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "2b547a5f489130edc240db04a08034d15787c15732871526b1873f0a27e491a4")
+set(SHA "0ecc05f647c27110a32c4181a92bdfc2c0474ed5035bd379a63add39429368c0")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
@@ -27,6 +27,8 @@ list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/prof.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/icec.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/icefb.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias_pc
 )
 
 # install
@@ -79,10 +81,9 @@ add_test(NAME test_gdasapp_jedi_increment_to_fv3
 add_test(NAME test_gdasapp_generate_yaml
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/test_generate_yaml.py --template ${PROJECT_BINARY_DIR}/test/testinput/generate_yaml.yaml --output ${PROJECT_BINARY_DIR}/test/testoutput/generate_yaml.yaml
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-set_tests_properties(
-         test_gdasapp_generate_yaml
-PROPERTIES
-         ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}"
+set_tests_properties(test_gdasapp_generate_yaml
+    PROPERTIES
+        ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}"
 )
 
 # soca tests
