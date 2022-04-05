@@ -3,7 +3,7 @@ import os
 import re
 from solo.yaml_file import YAMLFile
 from solo.template import TemplateConstants, Template
-from ufsda import isTrue
+from ufsda.misc_utils import isTrue
 
 
 def genYAML(input_config_dict, template=None, output=None):
@@ -47,6 +47,7 @@ def parse_config(input_config_dict, template=None, clean=True):
     # compute common resolution variables
     if config_out.get('atm', True):
         config_out = atmanl_case(config_out)
+    config_out.pop('atm', None)  # pop out boolean variable that will cause issues later
     # do a first round of includes first
     config_out = include_yaml(config_out)
     # pull common key values out to top layer
@@ -65,17 +66,21 @@ def parse_config(input_config_dict, template=None, clean=True):
 
 def atmanl_case(config):
     # compute atm analysis case/res variables based on environment and/or config
-    case = int(os.environ.get('CASE', 'C768')[1:])
-    case_enkf = int(os.environ.get('CASE_ENKF', 'C384')[1:])
-    levs = int(os.environ.get('LEVS', '128'))
-    dohybvar = isTrue(os.environ.get('DOHYBVAR', 'NO'))
+    case = int(config.get('CASE', os.environ.get('CASE', 'C768'))[1:])
+    case_enkf = int(config.get('CASE', os.environ.get('CASE_ENKF', 'C384'))[1:])
+    levs = int(config.get('LEVS', os.environ.get('LEVS', '128')))
+    if 'DOHYBVAR' in config:
+        dohybvar = config['DOHYBVAR']
+        del config['DOHYBVAR']
+    else:
+        dohybvar = isTrue(os.environ.get('DOHYBVAR', 'NO'))
     # get background geometry
-    ntiles = 6 # global, fix later to be more generic
+    ntiles = 6  # global, fix later to be more generic
     layout = [
-        os.environ.get('layout_x', '$(layout_x)'),
-        os.environ.get('layout_y', '$(layout_y)'),
+        str(os.environ.get('layout_x', '$(layout_x)')),
+        str(os.environ.get('layout_y', '$(layout_y)')),
     ]
-    io_layout = [1, 1] # force to be one file for forseeable future
+    io_layout = ['1', '1']  # force to be one file for forseeable future
     config['GEOM_BKG'] = fv3_geom_dict(case, levs, ntiles, layout, io_layout)
     # get analysis geometry depending on dohybvar
     if dohybvar:
