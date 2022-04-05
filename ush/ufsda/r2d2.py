@@ -2,7 +2,6 @@ import r2d2
 from solo.configuration import Configuration
 from solo.date import date_sequence, Hour
 
-fv3files = ['fv_core.res', 'fv_srf_wnd.res', 'fv_tracer.res', 'phy_data', 'sfc_data']
 possible_args = [
     'provider', 'experiment', 'database', 'type', 'file_type',
     'resolution', 'model', 'user_date_format', 'fc_date_rendering', 'tile',
