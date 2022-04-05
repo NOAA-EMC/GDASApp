@@ -4,4 +4,4 @@ import ufsda.stage
 import ufsda.r2d2
 import ufsda.post
 import ufsda.yamltools
-from .misc_utils import *
+from .misc_utils import isTrue
