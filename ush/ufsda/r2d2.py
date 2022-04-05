@@ -4,6 +4,7 @@ from solo.date import date_sequence, Hour
 
 fv3files = ['fv_core.res', 'fv_srf_wnd.res', 'fv_tracer.res', 'phy_data', 'sfc_data']
 
+
 def store(config):
     times = date_sequence(config.start, config.end, config.step)
     obs_types = config.get('obs_types', ['dummy'])

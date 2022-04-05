@@ -38,4 +38,3 @@ RESTART_GES/$(valid_date).coupler.res'
     with open(yamlfile, 'w') as f:
         yaml.dump(config, f, sort_keys=False, default_flow_style=False)
     store_bkg(yamlfile)
-
