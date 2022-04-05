@@ -228,6 +228,7 @@ obs filters:
         name: ObsErrorFactorConventional@ObsFunction
         options:
           test QCflag: PreQC
+          pressure: MetaData/air_pressure
           inflate variables: [air_temperature]
     defer to post: true
   #
@@ -252,6 +253,7 @@ obs filters:
         name: ObsErrorFactorConventional@ObsFunction
         options:
           test QCflag: PreQC
+          pressure: MetaData/air_pressure
           inflate variables: [specific_humidity]
     defer to post: true
   #
@@ -264,6 +266,7 @@ obs filters:
         name: ObsErrorFactorConventional@ObsFunction
         options:
           test QCflag: PreQC
+          pressure: MetaData/air_pressure
           inflate variables: [eastward_wind]
     defer to post: true
   #
@@ -276,6 +279,7 @@ obs filters:
         name: ObsErrorFactorConventional@ObsFunction
         options:
           test QCflag: PreQC
+          pressure: MetaData/air_pressure
           inflate variables: [northward_wind]
     defer to post: true
   #
