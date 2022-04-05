@@ -4,7 +4,7 @@ from solo.date import date_sequence, Hour
 
 fv3files = ['fv_core.res', 'fv_srf_wnd.res', 'fv_tracer.res', 'phy_data', 'sfc_data']
 possible_args = [
-    'obs_types', 'provider', 'experiment', 'database', 'type', 'file_type',
+    'provider', 'experiment', 'database', 'type', 'file_type',
     'resolution', 'model', 'user_date_format', 'fc_date_rendering', 'tile',
 ]
 
@@ -20,6 +20,7 @@ def store(config):
     dump = config.get('dump', 'gdas')
     source_dir = config['source_dir']
     source_file_fmt = config['source_file_fmt']
+    obs_types = config['obs_types']
 
     for time in times:
         year = Hour(time).format('%Y')
