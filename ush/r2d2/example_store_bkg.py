@@ -16,6 +16,7 @@ if __name__ == "__main__":
         'end': '2021-12-21T18:00:00Z',
         'step': 'PT6H',
         'forecast_steps': ['PT6H'],
+        'file_type_list': ['fv_core.res', 'fv_srf_wnd.res', 'fv_tracer.res', 'phy_data', 'sfc_data'],
         'source_dir': '/work/noaa/stmp/rtreadon/comrot/prufsda/',
         'source_file_fmt': '{source_dir}/{dump}.{year}{month}{day}/{hour}/atmos/\
 RESTART_GES/$(valid_date).$(file_type).tile$(tile).nc',
@@ -25,6 +26,9 @@ RESTART_GES/$(valid_date).$(file_type).tile$(tile).nc',
         'database': 'shared',
         'dump': 'gdas',
         'experiment': 'oper_gdas',
+        'tile': [1, 2, 3, 4, 5, 6],
+        'user_date_format': '%Y%m%d.%H%M%S',
+        'fc_date_rendering': 'analysis',
     }
     yamlfile = os.path.join(os.getcwd(), 'store_gfs_bkg.yaml')
     with open(yamlfile, 'w') as f:
@@ -34,6 +38,8 @@ RESTART_GES/$(valid_date).$(file_type).tile$(tile).nc',
     config['model'] = 'gfs_metadata'
     config['source_file_fmt'] = '{source_dir}/{dump}.{year}{month}{day}/{hour}/atmos/\
 RESTART_GES/$(valid_date).$(file_type)'
+    config['file_type_list'] = ['coupler.res', 'fv_core.res.nc']
+    del config['tile']
     yamlfile = os.path.join(os.getcwd(), 'store_gfs_coupler.yaml')
     with open(yamlfile, 'w') as f:
         yaml.dump(config, f, sort_keys=False, default_flow_style=False)
