@@ -53,6 +53,8 @@ local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
+setenv('R2D2_CONFIG', '/work2/noaa/da/cmartin/GDASApp/R2D2_SHARED/config_orion.yaml')
+
 
 whatis("Name: ".. pkgName)
 whatis("Version: " .. pkgVersion)
