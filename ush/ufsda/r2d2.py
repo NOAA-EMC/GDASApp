@@ -2,47 +2,40 @@ import r2d2
 from solo.configuration import Configuration
 from solo.date import date_sequence, Hour
 
+possible_args = [
+    'provider', 'experiment', 'database', 'type', 'file_type',
+    'resolution', 'model', 'user_date_format', 'fc_date_rendering', 'tile',
+]
+
 
 def store(config):
-    times = date_sequence(config.start, config.end, config.step)
-    obs_types = config.obs_types
-    provider = config.provider
-    experiment = config.experiment
-    database = config.database
+    kwargs = {}
+    kwargs['ignore_missing'] = True
+    for arg in config.keys():
+        if arg in possible_args:
+            kwargs[arg] = config[arg]
     type = config.type
-    file_type = config.get('file_type', None)
-    source_dir = config.source_dir
-    source_file_fmt = config.source_file_fmt
-    step = config.step
+    times = date_sequence(config.start, config.end, config.step)
     dump = config.get('dump', 'gdas')
+    source_dir = config['source_dir']
+    source_file_fmt = config['source_file_fmt']
+    obs_types = config['obs_types']
 
     for time in times:
         year = Hour(time).format('%Y')
         month = Hour(time).format('%m')
         day = Hour(time).format('%d')
         hour = Hour(time).format('%H')
-        for obs_type in obs_types:
-            if type == 'bc':
-                r2d2.store(
-                    provider=provider,
-                    type=type,
-                    file_type=file_type,
-                    experiment=experiment,
-                    database=database,
-                    date=time,
-                    obs_type=obs_type,
-                    source_file=eval(f"f'{source_file_fmt}'"),
-                    ignore_missing=True,
-                )
-            else:
-                r2d2.store(
-                    provider=provider,
-                    type=type,
-                    experiment=experiment,
-                    database=database,
-                    date=time,
-                    obs_type=obs_type,
-                    time_window=step,
-                    source_file=eval(f"f'{source_file_fmt}'"),
-                    ignore_missing=True,
-                )
+        kwargs['date'] = time
+        if type in ['bc', 'ob']:
+            if type == 'ob':
+                kwargs['time_window'] = config['step']
+            for obs_type in obs_types:
+                kwargs['source_file'] = eval(f"f'{source_file_fmt}'"),
+                kwargs['obs_type'] = obs_type
+                r2d2.store(**kwargs)
+        else:
+            kwargs['file_type'] = config.file_type_list
+            kwargs['step'] = config['forecast_steps']
+            kwargs['source_file'] = eval(f"f'{source_file_fmt}'"),
+            r2d2.store(**kwargs)
