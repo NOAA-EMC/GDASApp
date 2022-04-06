@@ -6,8 +6,51 @@ from solo.stage import Stage
 import os
 import shutil
 import datetime as dt
+import ufsda
 
-__all__ = ['background', 'fv3jedi', 'obs', 'berror']
+__all__ = ['background', 'fv3jedi', 'obs', 'berror', 'gdas_fix']
+
+
+def gdas_fix(input_fix_dir, working_dir, config):
+    """
+    gdas_fix(input_fix_dir, working_dir, config):
+        Stage fix files needed by FV3-JEDI for GDAS analyses
+        input_fix_dir - path to root fix file directory
+        working_dir - path to where files should be linked to
+        config - dict containing configuration
+    """
+    # create output directories
+    ufsda.disk_utils.mkdir(config['fv3jedi_fieldset_dir'])
+    ufsda.disk_utils.mkdir(config['fv3jedi_fix_dir'])
+    # figure out analysis resolution
+    if config['DOHYBVAR']:
+        case_anl = config['CASE_ENKF']
+    else:
+        case_anl = config['CASE']
+    layers = int(config['LEVS'])-1
+    # link static B files
+    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'bump', case_anl),
+                             config['fv3jedi_staticb_dir'])
+    # link akbk file
+    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
+                                          'fv3files', f"akbk{layers}.nc4"),
+                             os.path.join(config['fv3jedi_fix_dir'], 'akbk.nc4'))
+    # link other fv3files
+    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
+                                          'fv3files', 'fmsmpp.nml'),
+                             os.path.join(config['fv3jedi_fix_dir'], 'fmsmpp.nml'))
+    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
+                                          'fv3files', 'field_table_gfdl'),
+                             os.path.join(config['fv3jedi_fix_dir'], 'field_table'))
+    # link fieldsets
+    fieldsets = ['dynamics.yaml', 'ufo.yaml']
+    for fieldset in fieldsets:
+        ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
+                                              'fieldsets', fieldset),
+                                 os.path.join(config['fv3jedi_fieldset_dir'], fieldset))
+    # link CRTM coeff dir
+    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'crtm', '2.3.0_jedi'),
+                             config['CRTM_COEFF_DIR'])
 
 
 def background(config):
