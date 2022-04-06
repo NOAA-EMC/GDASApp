@@ -10,7 +10,8 @@ def test_yaml_gen_yaml(parm_dir):
     output_file = os.path.join(os.getcwd(), 'testoutput', 'test_yaml_gen.yaml')
     template = os.path.join(parm_dir, 'atm/variational/3dvar_dripcg.yaml')
     config_dict = {
-        'paths': f'$<< {parm_dir}/atm/common/paths.yaml',
+        'BERROR_YAML': '${PARMgfs}/atm/berror/staticb_bump.yaml',
+        'OBS_YAML_DIR': '${PARMgfs}/atm/obs/config',
         'atm': True,
         'layout_x': '1',
         'layout_y': '2',

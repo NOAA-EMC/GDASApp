@@ -20,11 +20,11 @@ saber blocks:
       variables: [surface_pressure]
     universe radius:
       filetype: fms restart
-      datetime: 2021-12-26T00:00:00Z
+      datetime: 2021-12-22T00:00:00Z
       set datetime on read: true
       psinfile: true
       datapath: *staticb_dir
-      prefix: cor/20211226.000000
+      prefix: cor/20211222.000000
       filename_core: cor_rh.fv_core.res.nc
       filename_trcr: cor_rh.fv_tracer.res.nc
       filename_sfcd: cor_rh.sfc_data.nc
@@ -36,11 +36,11 @@ saber blocks:
   active variables: *active_vars
   file:
     filetype: fms restart
-    datetime: 2021-12-26T00:00:00Z
+    datetime: 2021-12-22T00:00:00Z
     set datetime on read: true
     psinfile: true
     datapath: *staticb_dir
-    prefix: stddev/20211226.000000
+    prefix: stddev/20211222.000000
     filename_core: stddev.fv_core.res.nc
     filename_trcr: stddev.fv_tracer.res.nc
     filename_sfcd: stddev.sfc_data.nc
@@ -57,7 +57,7 @@ saber blocks:
     universe_rad: 2000.0e3
     load_vbal: true
     load_samp_local: true
-    fname_samp: vbal/vbal_2021122600_gfs_sampling
+    fname_samp: vbal/vbal_2021122200_gfs_sampling
     vbal_block: [true, true,false, true,false,false]
 - saber block name: BUMP_PsiChiToUV
   input variables: *control_vars

@@ -14,7 +14,7 @@ obs operator:
   obs options:
     Sensor_ID: amsua_n19
     EndianType: little_endian
-    CoefficientPath: $(CRTM_COEFF_DIR)
+    CoefficientPath: $(CRTM_COEFF_DIR)/
 obs bias:
   input file: $(BIAS_DIR)/$(BIAS_PREFIX).amsua_n19.satbias.$(BIAS_DATE).nc4
   output file: $(BIAS_DIR)/$(OBS_PREFIX).amsua_n19.satbias.$(OBS_DATE).nc4

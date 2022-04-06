@@ -34,12 +34,14 @@ def run_atm_var_analysis(yamlconfig):
     valid_time = analysis_subconfig['valid_time']
     h = re.findall('PT(\\d+)H', analysis_subconfig['atm_window_length'])[0]
     prev_cycle = valid_time - dt.timedelta(hours=int(h))
+    window_begin = valid_time - dt.timedelta(hours=int(h)/2)
     cyc = valid_time.strftime("%H")
     cdate = valid_time.strftime("%Y%m%d%H")
     gcyc = prev_cycle.strftime("%H")
     gdate = prev_cycle.strftime("%Y%m%d%H")
     var_config = {
-        'paths': analysis_subconfig['paths'],
+        'BERROR_YAML': analysis_subconfig['berror_yaml'],
+        'OBS_YAML_DIR': analysis_subconfig['obs_yaml_dir'],
         'OBS_LIST': analysis_subconfig['obs_list'],
         'atm': analysis_subconfig['atm'],
         'layout_x': str(analysis_subconfig['layout_x']),
@@ -58,6 +60,8 @@ def run_atm_var_analysis(yamlconfig):
         'OBS_PREFIX': f"{analysis_subconfig['dump']}.t{cyc}z",
         'OBS_DATE': f"{cdate}",
         'valid_time': f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        'prev_valid_time': f"{prev_cycle.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'atm_window_length': analysis_subconfig['atm_window_length'],
         'CASE': analysis_subconfig['case'],
         'CASE_ENKF': analysis_subconfig['case_enkf'],
@@ -73,6 +77,7 @@ def run_atm_var_analysis(yamlconfig):
     ufsda.yamltools.genYAML(var_config, template=template, output=output_file)
     logging.info(f'Wrote Variational DA YAML file to {output_file}')
     # use R2D2 to stage backgrounds, obs, bias correction files, etc.
+    ufsda.stage.gdas_single_cycle(var_config)
     # link additional fix files needed (CRTM, fieldsets, etc.)
     gdasfix = analysis_subconfig['gdas_fix_root']
     ufsda.stage.gdas_fix(gdasfix, workdir, var_config)

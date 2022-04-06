@@ -6,7 +6,8 @@ cat > testoutput/genYAML_example.yaml << EOF
 template: ${srcdir}/parm/atm/variational/3dvar_dripcg.yaml
 output: ${bindir}/test/testoutput/genYAML_output_3dvar.yaml
 config:
-  paths: $<< ${srcdir}/parm/atm/common/paths.yaml
+  BERROR_YAML: \${PARMgfs}/atm/berror/staticb_bump.yaml
+  OBS_YAML_DIR: \${PARMgfs}/atm/obs/config
   atm: true
   layout_x: '1'
   layout_y: '2'
