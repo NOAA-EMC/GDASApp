@@ -55,6 +55,7 @@ setenv('MPIEXEC_NPROC', mpinproc)
 
 setenv('R2D2_CONFIG', '/work2/noaa/da/cmartin/GDASApp/R2D2_SHARED/config_orion.yaml')
 
+execute{cmd="ulimit -s unlimited",modeA={"load"}}
 
 whatis("Name: ".. pkgName)
 whatis("Version: " .. pkgVersion)
