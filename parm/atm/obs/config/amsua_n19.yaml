@@ -44,7 +44,7 @@ obs bias:
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0
-    output file: $(BIAS_DIR)/$(OBS_PREFIX).amsua_n19.satbias.$(OBS_DATE).nc4
+    output file: $(BIAS_DIR)/$(OBS_PREFIX).amsua_n19.satbias_cov.$(OBS_DATE).nc4
 obs filters:
 - filter: BlackList
   filter variables:
