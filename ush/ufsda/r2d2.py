@@ -71,4 +71,3 @@ def fetch(config):
             kwargs['step'] = config['forecast_steps']
             kwargs['target_file'] = eval(f"f'{target_file_fmt}'"),
             r2d2.fetch(**kwargs)
-

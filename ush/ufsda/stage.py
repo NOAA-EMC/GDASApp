@@ -120,8 +120,6 @@ def gdas_single_cycle(config):
             ufsda.r2d2.fetch(r2d2_config)
 
 
-
-
 def background(config):
     """
     Stage backgrounds and create links for analysis
