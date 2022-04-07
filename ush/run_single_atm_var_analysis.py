@@ -84,6 +84,9 @@ def run_atm_var_analysis(yamlconfig):
     # link executable
     varexe = os.path.join(all_config_dict['GDASApp home'], 'build', 'bin', 'fv3jedi_var.x')
     ufsda.disk_utils.symlink(varexe, os.path.join(workdir, 'fv3jedi_var.x'))
+    # create output directories
+    ufsda.disk_utils.mkdir(os.path.join(workdir, 'diags'))
+    ufsda.disk_utils.mkdir(os.path.join(workdir, 'anl'))
     # generate job submission script
     job_script = ufsda.misc_utils.create_batch_job(all_config_dict['job options'],
                                                    workdir,
