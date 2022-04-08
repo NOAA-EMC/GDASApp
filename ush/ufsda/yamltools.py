@@ -48,7 +48,9 @@ def parse_config(input_config_dict, template=None, clean=True):
     if config_out.get('atm', True):
         config_out = atmanl_case(config_out)
     config_out.pop('atm', None)  # pop out boolean variable that will cause issues later
-    # do a first round of includes first
+    # do a first round of substitutions first
+    config_out = replace_vars(config_out)
+    # now do a first round of includes
     config_out = include_yaml(config_out)
     # pull common key values out to top layer
     config_out = pop_out_common(config_out)
