@@ -14,7 +14,7 @@ def store(config):
     for arg in config.keys():
         if arg in possible_args:
             inputs[arg] = config[arg]
-    type = config.type
+    r2d2_type = config.type
     times = date_sequence(config.start, config.end, config.step)
     dump = config.get('dump', 'gdas')
     source_dir = config['source_dir']
@@ -27,8 +27,8 @@ def store(config):
         day = Hour(time).format('%d')
         hour = Hour(time).format('%H')
         inputs['date'] = time
-        if type in ['bc', 'ob']:
-            if type == 'ob':
+        if r2d2_type in ['bc', 'ob']:
+            if r2d2_type == 'ob':
                 inputs['time_window'] = config['step']
             for obs_type in obs_types:
                 inputs['source_file'] = eval(f"f'{source_file_fmt}'"),
@@ -47,7 +47,7 @@ def fetch(config):
     for arg in config.keys():
         if arg in possible_args:
             inputs[arg] = config[arg]
-    type = config.type
+    r2d2_type = config.type
     times = date_sequence(config.start, config.end, config.step)
     dump = config.get('dump', 'gdas')
     obs_types = config.get('obs_types', None)
@@ -59,8 +59,8 @@ def fetch(config):
         day = Hour(time).format('%d')
         hour = Hour(time).format('%H')
         inputs['date'] = time
-        if type in ['bc', 'ob']:
-            if type == 'ob':
+        if r2d2_type in ['bc', 'ob']:
+            if r2d2_type == 'ob':
                 inputs['time_window'] = config['step']
             for obs_type in obs_types:
                 inputs['target_file'] = eval(f"f'{target_file_fmt}'"),
