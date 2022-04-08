@@ -85,8 +85,8 @@ def run_fv3jedi_exe(yamlconfig):
     gdasfix = executable_subconfig['gdas_fix_root']
     ufsda.stage.gdas_fix(gdasfix, workdir, var_config)
     # link executable
-    baseexe = os.path.basename(executable_subconfig['exe_path'])
-    ufsda.disk_utils.symlink(executable_subconfig['exe_path'], os.path.join(workdir, baseexe))
+    baseexe = os.path.basename(executable_subconfig['executable'])
+    ufsda.disk_utils.symlink(executable_subconfig['executable'], os.path.join(workdir, baseexe))
     # create output directories
     ufsda.disk_utils.mkdir(os.path.join(workdir, 'diags'))
     if app_mode in ['variational']:

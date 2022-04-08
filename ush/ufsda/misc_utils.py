@@ -23,7 +23,7 @@ def isTrue(str_in):
     return status
 
 
-def create_batch_job(job_config, working_dir, exe_path, yaml_path):
+def create_batch_job(job_config, working_dir, executable, yaml_path):
     """
     create a batch job submission shell script
     """
@@ -49,7 +49,7 @@ cd {working_dir}
 """
         f.write(commands)
         if scheduler[job_config['machine']] == 'slurm':
-            f.write(f"srun -n $SLURM_NTASKS {exe_path} {yaml_path}\n")
+            f.write(f"srun -n $SLURM_NTASKS {executable} {yaml_path}\n")
     logging.info(f"Wrote batch submission script to {batch_script}")
     return batch_script
 
