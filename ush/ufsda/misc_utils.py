@@ -43,6 +43,7 @@ def create_batch_job(job_config, working_dir, executable, yaml_path):
 #SBATCH -t {job_config['walltime']}"""
             f.write(sbatch)
         commands = f"""
+module purge
 module use {job_config['modulepath']}
 module load GDAS/{job_config['machine']}
 cd {working_dir}
