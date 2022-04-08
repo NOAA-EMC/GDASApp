@@ -32,18 +32,22 @@ def create_batch_job(job_config, working_dir, exe_path, yaml_path):
     with open(batch_script, 'w') as f:
         f.write('#!/bin/bash\n')
         if scheduler[job_config['machine']] == 'slurm':
-            f.write('#SBATCH -J GDASApp\n')
-            f.write('#SBATCH -o GDASApp.o%J\n')
-            f.write(f"#SBATCH -A {job_config['account']}\n")
-            f.write(f"#SBATCH -q {job_config['queue']}\n")
-            f.write(f"#SBATCH -p {job_config['partition']}\n")
-            f.write(f"#SBATCH --ntasks={job_config['ntasks']}\n")
-            f.write(f"#SBATCH --cpus-per-task={job_config['cpus-per-task']}\n")
-            f.write(f"#SBATCH --exclusive\n")
-            f.write(f"#SBATCH -t {job_config['walltime']}\n")
-        f.write(f"module use {job_config['modulepath']}\n")
-        f.write(f"module load GDAS/{job_config['machine']}\n")
-        f.write(f"cd {working_dir}\n")
+            sbatch = f"""#SBATCH -J GDASApp
+#SBATCH -o GDASApp.o%J
+#SBATCH -A {job_config['account']}
+#SBATCH -q {job_config['queue']}
+#SBATCH -p {job_config['partition']}
+#SBATCH --ntasks={job_config['ntasks']}
+#SBATCH --cpus-per-task={job_config['cpus-per-task']}
+#SBATCH --exclusive
+#SBATCH -t {job_config['walltime']}"""
+            f.write(sbatch)
+        commands = f"""
+module use {job_config['modulepath']}
+module load GDAS/{job_config['machine']}
+cd {working_dir}
+"""
+        f.write(commands)
         if scheduler[job_config['machine']] == 'slurm':
             f.write(f"srun -n $SLURM_NTASKS {exe_path} {yaml_path}\n")
     logging.info(f"Wrote batch submission script to {batch_script}")
