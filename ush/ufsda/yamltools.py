@@ -125,10 +125,10 @@ def calc_time_vars(config):
                                                     "%Y-%m-%dT%H:%M:%SZ")
     else:
         raise KeyError("Neither $(valid_time) nor ${PDY}${cyc} defined")
-    config['YYYYMMDDpHHMMSS'] = valid_time_obj.strftime('%Y%m%d.%H%M%S')
+    config['YYYYmmddHHMMSS'] = valid_time_obj.strftime('%Y%m%d.%H%M%S')
     # for now bkg_time == valid_time, will change for fgat
     bkg_time_obj = valid_time_obj
-    config['BKG_YYYYMMDDpHHMMSS'] = bkg_time_obj.strftime('%Y%m%d.%H%M%S')
+    config['BKG_YYYYmmddHHMMSS'] = bkg_time_obj.strftime('%Y%m%d.%H%M%S')
     config['BKG_ISOTIME'] = bkg_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
     if 'assim_freq' in os.environ:
         config['ATM_WINDOW_LENGTH'] = f"PT{os.environ['assim_freq']}H"
