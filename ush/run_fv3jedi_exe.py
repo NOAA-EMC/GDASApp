@@ -9,7 +9,7 @@ import sys
 import yaml
 
 
-def run_atm_var_analysis(yamlconfig):
+def run_fv3jedi_exe(yamlconfig):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     # open YAML file to get config
     try:
@@ -30,9 +30,12 @@ def run_atm_var_analysis(yamlconfig):
     sys.path.append(ufsda_path)
     import ufsda
     # compute config for YAML for executable
-    analysis_subconfig = all_config_dict['analysis options']
-    valid_time = analysis_subconfig['valid_time']
-    h = re.findall('PT(\\d+)H', analysis_subconfig['atm_window_length'])[0]
+    app_mode = all_config_dict['GDASApp mode']
+    if app_mode not in ['hofx', 'variational']:
+        raise KeyError(f"{app_mode} not supported")
+    executable_subconfig = all_config_dict['executable options']
+    valid_time = executable_subconfig['valid_time']
+    h = re.findall('PT(\\d+)H', executable_subconfig['atm_window_length'])[0]
     prev_cycle = valid_time - dt.timedelta(hours=int(h))
     window_begin = valid_time - dt.timedelta(hours=int(h)/2)
     cyc = valid_time.strftime("%H")
@@ -40,12 +43,12 @@ def run_atm_var_analysis(yamlconfig):
     gcyc = prev_cycle.strftime("%H")
     gdate = prev_cycle.strftime("%Y%m%d%H")
     var_config = {
-        'BERROR_YAML': analysis_subconfig['berror_yaml'],
-        'OBS_YAML_DIR': analysis_subconfig['obs_yaml_dir'],
-        'OBS_LIST': analysis_subconfig['obs_list'],
-        'atm': analysis_subconfig['atm'],
-        'layout_x': str(analysis_subconfig['layout_x']),
-        'layout_y': str(analysis_subconfig['layout_y']),
+        'BERROR_YAML': executable_subconfig.get('berror_yaml', './'),
+        'OBS_YAML_DIR': executable_subconfig['obs_yaml_dir'],
+        'OBS_LIST': executable_subconfig['obs_list'],
+        'atm': executable_subconfig.get('atm', False),
+        'layout_x': str(executable_subconfig['layout_x']),
+        'layout_y': str(executable_subconfig['layout_y']),
         'BKG_DIR': os.path.join(workdir, 'bkg'),
         'fv3jedi_fix_dir': os.path.join(workdir, 'Data', 'fv3files'),
         'fv3jedi_fieldset_dir': os.path.join(workdir, 'Data', 'fieldsets'),
@@ -53,44 +56,45 @@ def run_atm_var_analysis(yamlconfig):
         'fv3jedi_staticb_dir': os.path.join(workdir, 'berror'),
         'BIAS_DIR': os.path.join(workdir, 'obs'),
         'CRTM_COEFF_DIR': os.path.join(workdir, 'crtm'),
-        'BIAS_PREFIX': f"{analysis_subconfig['dump']}.t{gcyc}z",
+        'BIAS_PREFIX': f"{executable_subconfig['dump']}.t{gcyc}z",
         'BIAS_DATE': f"{gdate}",
         'DIAG_DIR': os.path.join(workdir, 'diags'),
         'OBS_DIR': os.path.join(workdir, 'obs'),
-        'OBS_PREFIX': f"{analysis_subconfig['dump']}.t{cyc}z",
+        'OBS_PREFIX': f"{executable_subconfig['dump']}.t{cyc}z",
         'OBS_DATE': f"{cdate}",
         'valid_time': f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'prev_valid_time': f"{prev_cycle.strftime('%Y-%m-%dT%H:%M:%SZ')}",
-        'atm_window_length': analysis_subconfig['atm_window_length'],
-        'CASE': analysis_subconfig['case'],
-        'CASE_ENKF': analysis_subconfig['case_enkf'],
-        'DOHYBVAR': analysis_subconfig['dohybvar'],
-        'LEVS': str(analysis_subconfig['levs']),
+        'atm_window_length': executable_subconfig['atm_window_length'],
+        'CASE': executable_subconfig['case'],
+        'CASE_ENKF': executable_subconfig.get('case_enkf', executable_subconfig['case']),
+        'DOHYBVAR': executable_subconfig.get('dohybvar', False),
+        'LEVS': str(executable_subconfig['levs']),
     }
-    template = analysis_subconfig['var_yaml']
-    output_file = os.path.join(workdir, 'fv3jedi_var.yaml')
+    template = executable_subconfig['yaml_template']
+    output_file = os.path.join(workdir, f"gdas_{app_mode}.yaml")
     # set some environment variables
     os.environ['PARMgfs'] = os.path.join(all_config_dict['GDASApp home'], 'parm')
     # generate YAML for executable based on input config
     logging.info(f'Using YAML template {template}')
     ufsda.yamltools.genYAML(var_config, template=template, output=output_file)
-    logging.info(f'Wrote Variational DA YAML file to {output_file}')
+    logging.info(f'Wrote YAML file to {output_file}')
     # use R2D2 to stage backgrounds, obs, bias correction files, etc.
     ufsda.stage.gdas_single_cycle(var_config)
     # link additional fix files needed (CRTM, fieldsets, etc.)
-    gdasfix = analysis_subconfig['gdas_fix_root']
+    gdasfix = executable_subconfig['gdas_fix_root']
     ufsda.stage.gdas_fix(gdasfix, workdir, var_config)
     # link executable
-    varexe = os.path.join(all_config_dict['GDASApp home'], 'build', 'bin', 'fv3jedi_var.x')
-    ufsda.disk_utils.symlink(varexe, os.path.join(workdir, 'fv3jedi_var.x'))
+    baseexe = os.path.basename(executable_subconfig['exe_path'])
+    ufsda.disk_utils.symlink(executable_subconfig['exe_path'], os.path.join(workdir, baseexe))
     # create output directories
     ufsda.disk_utils.mkdir(os.path.join(workdir, 'diags'))
-    ufsda.disk_utils.mkdir(os.path.join(workdir, 'anl'))
+    if app_mode in ['variational']:
+        ufsda.disk_utils.mkdir(os.path.join(workdir, 'anl'))
     # generate job submission script
     job_script = ufsda.misc_utils.create_batch_job(all_config_dict['job options'],
                                                    workdir,
-                                                   os.path.join(workdir, 'fv3jedi_var.x'),
+                                                   os.path.join(workdir, baseexe),
                                                    output_file)
     # submit job to queue
     ufsda.misc_utils.submit_batch_job(all_config_dict['job options'], workdir, job_script)
@@ -100,4 +104,4 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, help='Input YAML Configuration', required=True)
     args = parser.parse_args()
-    run_atm_var_analysis(args.config)
+    run_fv3jedi_exe(args.config)

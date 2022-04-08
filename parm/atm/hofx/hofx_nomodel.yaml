@@ -1,0 +1,16 @@
+window begin: '$(ATM_WINDOW_BEGIN)'
+window length: $(ATM_WINDOW_LENGTH)
+geometry: $(GEOM_BKG)
+state:
+  datapath: $(BKG_DIR)
+  filetype: fms restart
+  datetime: $(BKG_ISOTIME)
+  filename_core: $(BKG_YYYYMMDDpHHMMSS).fv_core.res.nc
+  filename_trcr: $(BKG_YYYYMMDDpHHMMSS).fv_tracer.res.nc
+  filename_sfcd: $(BKG_YYYYMMDDpHHMMSS).sfc_data.nc
+  filename_sfcw: $(BKG_YYYYMMDDpHHMMSS).fv_srf_wnd.res.nc
+  filename_cplr: $(BKG_YYYYMMDDpHHMMSS).coupler.res
+  state variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
+                    slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
+                    u_srf,v_srf,f10m]
+observations: $<< $(OBS_LIST)
