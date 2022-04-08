@@ -9,7 +9,7 @@ import sys
 import yaml
 
 
-def run_fv3jedi_exe(yamlconfig):
+def run_jedi_exe(yamlconfig):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     # open YAML file to get config
     try:
@@ -108,4 +108,4 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, help='Input YAML Configuration', required=True)
     args = parser.parse_args()
-    run_fv3jedi_exe(args.config)
+    run_jedi_exe(args.config)
