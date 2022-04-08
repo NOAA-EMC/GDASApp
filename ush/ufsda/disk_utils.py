@@ -1,3 +1,7 @@
+import os
+import logging
+
+
 def mkdir(dirpath):
     """
     mkdir(dirpath)
@@ -7,6 +11,17 @@ def mkdir(dirpath):
     import os
     try:
         os.makedirs(dirpath, exist_ok=True)
-        print(f"{dirpath} created successfully")
+        logging.info(f"{dirpath} created successfully")
     except OSError as error:
-        print(f"{dirpath} could not be created")
+        logging.info(f"{dirpath} could not be created")
+
+
+def symlink(src, dest):
+    try:
+        os.symlink(src, dest)
+        logging.info(f"Symbolically linked {src} to {dest}")
+    except FileExistsError:
+        os.remove(dest)
+        logging.info(f"{dest} exists, removing...")
+        os.symlink(src, dest)
+        logging.info(f"Symbolically linked {src} to {dest}")

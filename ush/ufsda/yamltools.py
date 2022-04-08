@@ -67,7 +67,7 @@ def parse_config(input_config_dict, template=None, clean=True):
 def atmanl_case(config):
     # compute atm analysis case/res variables based on environment and/or config
     case = int(config.get('CASE', os.environ.get('CASE', 'C768'))[1:])
-    case_enkf = int(config.get('CASE', os.environ.get('CASE_ENKF', 'C384'))[1:])
+    case_enkf = int(config.get('CASE_ENKF', os.environ.get('CASE_ENKF', 'C384'))[1:])
     levs = int(config.get('LEVS', os.environ.get('LEVS', '128')))
     if 'DOHYBVAR' in config:
         dohybvar = config['DOHYBVAR']
