@@ -18,6 +18,13 @@ def run_fv3jedi_exe(yamlconfig):
         logging.info(f'Loading configuration from {yamlconfig}')
     except Exception as e:
         logging.error(f'Error occurred when attempting to load: {yamlconfig}, error: {e}')
+    # check if the specified app mode is valid
+    app_mode = all_config_dict['GDASApp mode']
+    supported_app_modes = ['hofx', 'variational']
+    if app_mode not in supported_app_modes:
+        raise KeyError(f"'{app_mode}' not supported. " +
+                       "Current GDASApp modes supported are: " +
+                       f"{' | '.join(supported_app_modes)}")
     # create working directory
     workdir = all_config_dict['working directory']
     try:
@@ -30,9 +37,6 @@ def run_fv3jedi_exe(yamlconfig):
     sys.path.append(ufsda_path)
     import ufsda
     # compute config for YAML for executable
-    app_mode = all_config_dict['GDASApp mode']
-    if app_mode not in ['hofx', 'variational']:
-        raise KeyError(f"{app_mode} not supported")
     executable_subconfig = all_config_dict['executable options']
     valid_time = executable_subconfig['valid_time']
     h = re.findall('PT(\\d+)H', executable_subconfig['atm_window_length'])[0]
