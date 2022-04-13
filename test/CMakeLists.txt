@@ -1,7 +1,7 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "2b547a5f489130edc240db04a08034d15787c15732871526b1873f0a27e491a4")
+set(SHA "0ecc05f647c27110a32c4181a92bdfc2c0474ed5035bd379a63add39429368c0")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
@@ -27,6 +27,8 @@ list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/prof.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/icec.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/icefb.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias_pc
 )
 
 # install
@@ -37,8 +39,7 @@ install(FILES ${test_data}
 list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_ref.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_test.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/generate_yaml.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/generate_yaml_include.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_adpsfc.yaml
 )
 
 # create testinput dir
@@ -75,14 +76,28 @@ add_test(NAME test_gdasapp_jedi_increment_to_fv3
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for YAML generation from a template
-add_test(NAME test_gdasapp_generate_yaml
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/test_generate_yaml.py --template ${PROJECT_BINARY_DIR}/test/testinput/generate_yaml.yaml --output ${PROJECT_BINARY_DIR}/test/testoutput/generate_yaml.yaml
+add_test(NAME test_gdasapp_generate_yaml_func
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/test_generate_yaml.py --parm ${PROJECT_SOURCE_DIR}/parm/
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 set_tests_properties(
-         test_gdasapp_generate_yaml
+         test_gdasapp_generate_yaml_func
 PROPERTIES
-         ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}"
+         ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm;gPDY=20220330;gcyc=00;PDY=20220330;cyc=06;assim_freq=6"
+)
+add_test(NAME test_gdasapp_genYAML_prep
+         COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+add_test(NAME test_gdasapp_genYAML_run
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example.yaml
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+set_tests_properties(
+         test_gdasapp_genYAML_run
+PROPERTIES
+         ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm"
 )
 
 # soca tests
 add_subdirectory(soca)
+
+# gdas atm tests
+add_subdirectory(atm)

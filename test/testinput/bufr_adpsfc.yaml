@@ -1,0 +1,163 @@
+observations:
+  - obs space:
+      name: bufr
+
+      obsdatain: "./testdata/gdas.t06z.adpsfc.tm00.bufr_d"
+
+      mnemonicSets:
+        - mnemonics: [YEAR, MNTH, DAYS, HOUR, MINU, WMOB, WMOS]
+        - mnemonics: [CLAT, CLON]
+        - mnemonics: [SELV, PRES, PMSL, WDIR, WSPD, TMDB, TMDP]
+        - mnemonics: [RCHR, RCMI]
+
+      exports:
+        variables:
+          timestamp:
+            datetime:
+              year: YEAR
+              month: MNTH
+              day: DAYS
+              hour: HOUR
+              minute: MINU
+
+          WMOBlock:
+            mnemonic: WMOB
+
+          WMOStation:
+            mnemonic: WMOS
+
+          longitude:
+            mnemonic: CLON
+
+          latitude:
+            mnemonic: CLAT
+
+          pressureAir:
+            mnemonic: PRES
+
+          pressureMeanSeaLevel:
+            mnemonic: PMSL
+
+          stationElevation:
+            mnemonic: SELV
+
+          temperatureAir:
+            mnemonic: TMDB
+
+          temperatureDewpoint:
+            mnemonic: TMDP
+
+          windDirection:
+            mnemonic: WDIR
+
+          windSpeed:
+            mnemonic: WSPD
+
+          hourofreceipt:
+            mnemonic: RCHR
+
+          minuteofreceipt:
+            mnemonic: RCMI
+
+    ioda:
+      backend: netcdf
+      obsdataout: "./testoutput/gdas.t06z.adpsfc.tm00.nc"
+
+      dimensions:
+        - name: "nlocs"
+          size: variables/latitude.nrows
+
+      variables:
+        - name: "dateTime@MetaData"
+          source: variables/timestamp
+          dimensions: [ "nlocs" ]
+          longName: "dateTime"
+          units: "seconds since 1970-01-01T00:00:00Z"
+
+        - name: "WMOBlock@MetaData"
+          source: variables/WMOBlock
+          dimensions: [ "nlocs" ]
+          longName: "WMO_BLOCK_NUMBER"
+          units: ""
+
+        - name: "WMOStation@MetaData"
+          source: variables/WMOStation
+          dimensions: [ "nlocs" ]
+          longName: "WMO_STATION_NUMBER"
+          units: ""
+
+        - name: "latitude@MetaData"
+          source: variables/latitude
+          dimensions: ["nlocs"]
+          longName: "LATITUDE (COARSE ACCURACY)"
+          units: "degrees_north"
+          range: [-90, 90]
+
+        - name: "longitude@MetaData"
+          source: variables/longitude
+          dimensions: ["nlocs"]
+          longName: "LONGITUDE (COARSE ACCURACY)"
+          units: "degrees_east"
+          range: [-180, 180]
+
+        - name: "stationElevation@MetaData"
+          coordinates: "longitude latitude"
+          source: variables/stationElevation
+          dimensions: ["nlocs"]
+          longName: "HEIGHT OF STATION"
+          units: "Meter"
+
+        - name: "pressureAir@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/pressureAir
+          dimensions: ["nlocs"]
+          longName: "PRESSURE"
+          units: "Pa"
+
+        - name: "pressureMeanSeaLevel@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/pressureMeanSeaLevel
+          dimensions: ["nlocs"]
+          longName: "PRESSURE REDUCED TO MSL"
+          units: "Pa"
+
+        - name: "temperatureAir@ObsValue"
+          source: variables/temperatureAir
+          dimensions: ["nlocs"]
+          longName: "TEMPERATURE/DRY BULB TEMPERATURE"
+          units: "K"
+
+        - name: "temperatureDewpoint@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/temperatureDewpoint
+          dimensions: ["nlocs"]
+          longName: "DEW POINT TEMPERATURE"
+          units: "K"
+
+        - name: "windDirection@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/windDirection
+          dimensions: ["nlocs"]
+          longName: "WIND DIRECTION"
+          units: "Degrees True"
+
+        - name: "windSpeed@ObsValue"
+          coordinates: "longitude latitude"
+          source: variables/windSpeed
+          dimensions: ["nlocs"]
+          longName: "WIND SPEED"
+          units: "METERS/SECOND"
+
+        - name: "hourofreceipt@MetaData"
+          coordinates: "longitude latitude"
+          source: variables/hourofreceipt
+          dimensions: ["nlocs"]
+          longName: "HOUR   - TIME OF RECEIPT"
+          units: "HOUR"
+
+        - name: "minuteofreceipt@MetaData"
+          coordinates: "longitude latitude"
+          source: variables/minuteofreceipt
+          dimensions: ["nlocs"]
+          longName: "MINUTE  - TIME OF RECEIPT"
+          units: "MINUTE"
