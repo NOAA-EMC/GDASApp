@@ -99,5 +99,3 @@ def get_env_config(component='atm'):
         config[key] = os.environ[key]
     config['atm'] = True if component == 'atm' else False
     return config
-
-
