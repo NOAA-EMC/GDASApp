@@ -40,5 +40,7 @@ import ufsda
 COMOUT = os.getenv('COMOUT', './')
 
 # get configuration based on environment variables
+config = ufsda.misc_utils.get_env_config(component='atm')
 
 # use R2D2 to stage obs and bias correction coefficient files
+ufsda.stage.atm_obs(config)

@@ -10,7 +10,7 @@ import shutil
 import datetime as dt
 import ufsda
 
-__all__ = ['background', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
+__all__ = ['atm_background', 'atm_obs', 'gdas_fix', 'gdas_single_cycle']
 
 
 def gdas_fix(input_fix_dir, working_dir, config):
@@ -55,15 +55,15 @@ def gdas_fix(input_fix_dir, working_dir, config):
                              config['CRTM_COEFF_DIR'])
 
 
-def gdas_single_cycle(config):
-    # grab backgrounds first
+def atm_background(config):
+    # stage FV3 backgrounds
     r2d2_config = {
         'start': config['prev_valid_time'],
         'end': config['prev_valid_time'],
         'step': config['atm_window_length'],
         'forecast_steps': ['PT6H'],  # 3DVar no FGAT for now
         'file_type_list': ['fv_core.res', 'fv_srf_wnd.res', 'fv_tracer.res', 'phy_data', 'sfc_data'],
-        'target_dir': config['BKG_DIR'],
+        'target_dir': config.get('target_dir', config.get('BKG_DIR', './')),
         'target_file_fmt': '{target_dir}/$(valid_date).$(file_type).tile$(tile).nc',
         'type': 'fc',
         'model': 'gfs',
@@ -84,10 +84,19 @@ def gdas_single_cycle(config):
     del r2d2_config['tile']
     ufsda.r2d2.fetch(r2d2_config)
 
-    # remove things from dict and add/change for obs
-    delvars = ['forecast_steps', 'model', 'resolution', 'fc_date_rendering', 'user_date_format']
-    for d in delvars:
-        del r2d2_config[d]
+
+def atm_obs(config):
+    # fetch atm analysis obs
+    r2d2_config = {
+        'start': config['prev_valid_time'],
+        'end': config['prev_valid_time'],
+        'step': config['atm_window_length'],
+        'database': 'shared',
+        'dump': 'gdas',
+        'experiment': 'oper_gdas',  # change this here and other places to be oper_{dump}
+        'target_dir': config.get('target_dir', config.get('BKG_DIR', './')),
+    }
+    r2d2_config = NiceDict(r2d2_config)
     # get list of obs to process and their output files
     obs_list_yaml = config['OBS_LIST']
     obs_list_config = Configuration(obs_list_yaml)
@@ -120,123 +129,9 @@ def gdas_single_cycle(config):
             ufsda.r2d2.fetch(r2d2_config)
 
 
-def background(config):
-    """
-    Stage backgrounds and create links for analysis
-    This involves:
-    - cp RESTART to RESTART_GES
-    - ln RESTART_GES to analysis/bkg
-    - mkdir analysis/anl
-    """
-    rst_dir = os.path.join(config['background_dir'], 'RESTART')
-    ges_dir = os.path.join(config['background_dir'], 'RESTART_GES')
-    jedi_bkg_dir = os.path.join(config['COMOUT'], 'analysis', 'bkg')
-    jedi_anl_dir = os.path.join(config['COMOUT'], 'analysis', 'anl')
+def gdas_single_cycle(config):
+    # grab backgrounds first
+    atm_background(config)
 
-    # copy RESTART to RESTART_GES
-    try:
-        shutil.copytree(rst_dir, ges_dir)
-    except FileExistsError:
-        shutil.rmtree(ges_dir)
-        shutil.copytree(rst_dir, ges_dir)
-    try:
-        os.symlink(ges_dir, jedi_bkg_dir)
-    except FileExistsError:
-        os.remove(jedi_bkg_dir)
-        os.symlink(ges_dir, jedi_bkg_dir)
-    mkdir(jedi_anl_dir)
-
-
-def obs(config):
-    """
-    Stage observations using R2D2
-    based on input `config` dict
-    """
-    # create directory
-    obs_dir = os.path.join(config['COMOUT'], 'analysis', 'obs')
-    mkdir(obs_dir)
-    for ob in config['observations']:
-        obname = ob['obs space']['name'].lower()
-        outfile = ob['obs space']['obsdatain']['obsfile']
-        # the above path is what 'FV3-JEDI' expects, need to modify it
-        outpath = outfile.split('/')
-        outpath[0] = 'analysis'
-        outpath = '/'.join(outpath)
-        outfile = os.path.join(config['COMOUT'], outpath)
-        # grab obs using R2D2
-        fetch(
-            type='ob',
-            provider=config['r2d2_obs_src'],
-            experiment=config['r2d2_obs_dump'],
-            date=config['window begin'],
-            obs_type=obname,
-            time_window=config['window length'],
-            target_file=outfile,
-            ignore_missing=True,
-            database=config['r2d2_obs_db'],
-        )
-        # if the ob type has them specified in YAML
-        # try to grab bias correction files too
-        if 'obs bias' in ob:
-            bkg_time = config['background_time']
-            satbias = ob['obs bias']['input file']
-            # the above path is what 'FV3-JEDI' expects, need to modify it
-            satbias = satbias.split('/')
-            satbias[0] = 'analysis'
-            satbias = '/'.join(satbias)
-            satbias = os.path.join(config['COMOUT'], satbias)
-            # try to grab bc files using R2D2
-            fetch(
-                type='bc',
-                provider=config['r2d2_bc_src'],
-                experiment=config['r2d2_bc_dump'],
-                date=bkg_time,
-                obs_type=obname,
-                target_file=satbias,
-                file_type='satbias',
-                ignore_missing=True,
-                database=config['r2d2_obs_db'],
-            )
-            # below is lazy but good for now...
-            tlapse = satbias.replace('satbias.nc4', 'tlapse.txt')
-            fetch(
-                type='bc',
-                provider=config['r2d2_bc_src'],
-                experiment=config['r2d2_bc_dump'],
-                date=bkg_time,
-                obs_type=obname,
-                target_file=tlapse,
-                file_type='tlapse',
-                ignore_missing=True,
-                database=config['r2d2_obs_db'],
-            )
-
-
-def fv3jedi(config):
-    """
-    fv3jedi(config)
-    stage fix files needed for FV3-JEDI
-    such as akbk, fieldsets, fms namelist, etc.
-    uses input config dictionary for paths
-    """
-    # create output directory
-    mkdir(config['stage_dir'])
-    # call solo.Stage
-    path = os.path.dirname(config['fv3jedi_stage'])
-    stage = Stage(path, config['stage_dir'], config['fv3jedi_stage_files'])
-
-
-def berror(config):
-    """
-    Stage background error
-    This involves:
-    - ln StaticB to analysis/staticb
-    """
-    jedi_staticb_dir = os.path.join(config['COMOUT'], 'analysis', 'staticb')
-
-    # ln StaticB to analysis/staticb
-    try:
-        os.symlink(config['staticb_dir'], jedi_staticb_dir)
-    except FileExistsError:
-        os.remove(jedi_staticb_dir)
-        os.symlink(config['staticb_dir'], jedi_staticb_dir)
+    # grab observations and bias correction files
+    atm_obs(config)
