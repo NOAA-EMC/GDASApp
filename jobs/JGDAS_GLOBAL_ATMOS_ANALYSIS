@@ -88,7 +88,7 @@ export COMIN_GES_ENS="$ROTDIR/enkfgdas.$gPDY/$gcyc/$COMPONENT"
 # HOW TO HANDLE DIFFERENT COMPILERS/ETC. FOR MODEL VS DA
 # PROD_UTIL, ETC. DO NOT EXIST FOR JEDI MODULE VERSIONS
 module purge
-module use $HOMEgfs/sorc/gdasapp.fd/modulefiles
+module use $HOMEgfs/sorc/gdas.cd/modulefiles
 module load GDAS/orion
 
 ###############################################################

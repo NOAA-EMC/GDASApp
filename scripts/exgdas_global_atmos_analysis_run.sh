@@ -8,7 +8,7 @@
 # Author: Cory Martin        Org: NCEP/EMC     Date: 2021-12-28
 #
 # Abstract: This script makes a global model atmospheric analysis using FV3-JEDI
-#           and also (for now) updates RESTART files using a python ush utility
+#           and also (for now) updates increment files using a python ush utility
 #
 # $Id$
 #
@@ -30,17 +30,21 @@ pwd=$(pwd)
 
 #  Utilities
 export NLN=${NLN:-"/bin/ln -sf"}
-export INCPY=${INCPY:-"$HOMEgfs/sorc/gdasapp.fd/ush/jediinc2fv3.py"}
+export INCPY=${INCPY:-"$HOMEgfs/sorc/gdas.cd/ush/jediinc2fv3.py"}
 
 ################################################################################
-#  Link COMOUT/analysis to $DATA/Data
-$NLN $COMOUT/analysis $DATA/Data
+# link observations to $DATA
 
-#  Link YAML to $DATA
-$NLN $COMOUT/analysis/fv3jedi_var.yaml $DATA/fv3jedi_var.yaml
+# link backgrounds to $DATA
+
+################################################################################
+# link fix files to $DATA
 
 #  Link executable to $DATA
 $NLN $JEDIVAREXE $DATA/fv3jedi_var.x
+
+################################################################################
+# generate YAML file
 
 ################################################################################
 # run executable
