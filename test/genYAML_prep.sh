@@ -19,11 +19,11 @@ config:
   fv3jedi_staticb_dir: /fake/path/to/berror
   BIAS_DIR: /fake/path/to/biascoeff
   CRTM_COEFF_DIR: /fake/path/to/crtm
-  BIAS_PREFIX: gdas.t18z
+  BIAS_PREFIX: gdas.t18z.
   BIAS_DATE: '2022033000'
   DIAG_DIR: /fake/output/path
   OBS_DIR: /fake/path/to/obs
-  OBS_PREFIX: gdas.t00z
+  OBS_PREFIX: gdas.t00z.
   OBS_DATE: '2022033000'
   valid_time: '2022-03-30T00:00:00Z'
   atm_window_length: PT6H

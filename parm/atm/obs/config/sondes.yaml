@@ -1,7 +1,7 @@
 obs space:
   name: sondes
   obsdatain:
-    obsfile: $(OBS_DIR)/$(OBS_PREFIX).sondes.$(OBS_DATE).nc4
+    obsfile: $(OBS_DIR)/$(OBS_PREFIX)sondes.$(OBS_DATE).nc4
     obsgrouping:
       group variables: ["station_id"]
       sort variable: "air_pressure"

@@ -84,11 +84,11 @@ def get_env_config(component='atm'):
         'prev_valid_time': f"{prev_cycle.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'atm_window_length': f"PT{assim_freq}H",
         'OBS_DIR': os.environ['COMOUT'],
-        'OBS_PREFIX': f"{os.environ['CDUMP']}.t{os.environ['cyc']}z",
+        'OBS_PREFIX': f"{os.environ['CDUMP']}.t{os.environ['cyc']}z.",
         'target_dir': os.environ['COMOUT'],
         'OBS_DATE': os.environ['CDATE'],
         'BIAS_DIR': os.environ['COMOUT'],
-        'BIAS_PREFIX': f"{os.environ['GDUMP']}.t{os.environ['gcyc']}z",
+        'BIAS_PREFIX': f"{os.environ['GDUMP']}.t{os.environ['gcyc']}z.",
         'BIAS_DATE': f"{os.environ['GDATE']}",
     }
     # some keys we can pull directly from the environment
