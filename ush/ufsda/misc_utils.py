@@ -87,9 +87,10 @@ def get_env_config(component='atm'):
         'OBS_PREFIX': f"{os.environ['CDUMP']}.t{os.environ['cyc']}z.",
         'target_dir': os.environ['COMOUT'],
         'OBS_DATE': os.environ['CDATE'],
-        'BIAS_DIR': os.environ['COMOUT'],
+        'BIAS_IN_DIR': os.environ['COMOUT'],
         'BIAS_PREFIX': f"{os.environ['GDUMP']}.t{os.environ['gcyc']}z.",
         'BIAS_DATE': f"{os.environ['GDATE']}",
+        'experiment': os.getenv('PSLOT', 'test'),
     }
     # some keys we can pull directly from the environment
     env_keys = [

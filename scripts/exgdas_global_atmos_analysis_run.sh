@@ -39,6 +39,7 @@ export GETOBSYAML=${GETOBSYAML:-"$HOMEgfs/sorc/gdas.cd/ush/get_obs_list.py"}
 mkdir -p $DATA/fv3jedi
 mkdir -p $DATA/obs
 mkdir -p $DATA/diags
+mkdir -p $DATA/bc
 mkdir -p $DATA/anl
 
 ################################################################################
@@ -52,7 +53,8 @@ config:
   OBS_DIR: obs
   DIAG_DIR: diags
   CRTM_COEFF_DIR: crtm
-  BIAS_DIR: obs
+  BIAS_IN_DIR: obs
+  BIAS_OUT_DIR: bc
   OBS_PREFIX: $OPREFIX
   BIAS_PREFIX: $GPREFIX
   OBS_LIST: $OBS_LIST
@@ -120,13 +122,19 @@ export err=$?; err_chk
 
 ################################################################################
 # translate FV3-JEDI increment to FV3 readable format
-atminc_jedi=`ls $DATA/atminc_latlon*`
+atminc_jedi=`ls $DATA/anl/atminc_latlon*`
 atminc_fv3=$COMOUT/${CDUMP}.${cycle}.atminc.nc
 $INCPY $atminc_jedi $atminc_fv3
 
 ################################################################################
 # Create log file noting creating of analysis increment file
 echo "$CDUMP $CDATE atminc and tiled sfcanl done at `date`" > $COMOUT/${CDUMP}.${cycle}.loginc.txt
+
+################################################################################
+# Copy diags and YAML to $COMOUT
+cp -r $DATA/fv3jedi_var.yaml $COMOUT/${CDUMP}.${cycle}.fv3jedi_var.yaml
+cp -rf $DATA/diags $COMOUT/diags
+cp -rf $DATA/bc $COMOUT/bc
 
 ################################################################################
 set +x

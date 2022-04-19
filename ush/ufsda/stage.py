@@ -1,8 +1,4 @@
 from r2d2 import fetch
-from solo.basic_files import mkdir
-from solo.date import Hour, DateIncrement
-from solo.logger import Logger
-from solo.stage import Stage
 from solo.configuration import Configuration
 from solo.nice_dict import NiceDict
 import os
@@ -68,7 +64,6 @@ def atm_background(config):
         'type': 'fc',
         'model': 'gfs',
         'resolution': config['CASE'].lower(),
-        'database': 'shared',
         'dump': 'gdas',
         'experiment': 'oper_gdas',  # change this here and other places to be oper_{dump}
         'tile': [1, 2, 3, 4, 5, 6],
@@ -91,7 +86,6 @@ def atm_obs(config):
         'start': config['prev_valid_time'],
         'end': config['prev_valid_time'],
         'step': config['atm_window_length'],
-        'database': 'shared',
         'dump': 'gdas',
         'experiment': 'oper_gdas',  # change this here and other places to be oper_{dump}
         'target_dir': config.get('target_dir', config.get('BKG_DIR', './')),

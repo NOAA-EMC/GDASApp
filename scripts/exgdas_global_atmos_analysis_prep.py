@@ -36,9 +36,6 @@ logging.info(f"sys.path={sys.path}")
 # import UFSDA utilities
 import ufsda
 
-# get COMOUT from env
-COMOUT = os.getenv('COMOUT', './')
-
 # get configuration based on environment variables
 config = ufsda.misc_utils.get_env_config(component='atm')
 
