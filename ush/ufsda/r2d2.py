@@ -1,6 +1,7 @@
 import r2d2
+import re
 from solo.configuration import Configuration
-from solo.date import date_sequence, Hour
+from solo.date import date_sequence, Hour, DateIncrement
 
 possible_args = [
     'provider', 'experiment', 'database', 'type', 'file_type',
@@ -20,6 +21,7 @@ def store(config):
     source_dir = config['source_dir']
     source_file_fmt = config['source_file_fmt']
     obs_types = config.get('obs_types', None)
+    assim_freq = int(re.sub("[^0-9]", "", config.step))
 
     for time in times:
         year = Hour(time).format('%Y')
@@ -27,8 +29,10 @@ def store(config):
         day = Hour(time).format('%d')
         hour = Hour(time).format('%H')
         inputs['date'] = time
+        window_begin = Hour(time) - DateIncrement(f'PT{assim_freq/2}H')
         if r2d2_type in ['bc', 'ob']:
             if r2d2_type == 'ob':
+                inputs['date'] = window_begin
                 inputs['time_window'] = config['step']
             for obs_type in obs_types:
                 inputs['source_file'] = eval(f"f'{source_file_fmt}'"),
