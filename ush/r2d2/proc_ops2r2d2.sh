@@ -175,7 +175,7 @@ source_file_fmt: '{source_dir}/satbias/{dump}.{year}{month}{day}/{hour}/atmos/{o
 type: bc
 database: shared
 provider: gsi
-filetype: satbias
+file_type: satbias
 experiment: oper_$dump
 obs_types:
   - aircraft
@@ -230,7 +230,7 @@ source_file_fmt: '{source_dir}/satbias/{dump}.{year}{month}{day}/{hour}/atmos/{o
 type: bc
 database: shared
 provider: gsi
-filetype: tlapse
+file_type: tlapse
 experiment: oper_$dump
 obs_types:
   - aircraft
