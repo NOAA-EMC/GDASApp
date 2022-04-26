@@ -94,7 +94,7 @@ def get_env_config(component='atm'):
     }
     # some keys we can pull directly from the environment
     env_keys = [
-        'CASE', 'CASE_ENKF', 'DOHYBVAR', 'LEVS', 'OBS_YAML_DIR', 'OBS_LIST',
+        'CASE', 'CASE_ANL', 'CASE_ENKF', 'DOHYBVAR', 'LEVS', 'OBS_YAML_DIR', 'OBS_LIST',
     ]
     for key in env_keys:
         config[key] = os.environ[key]

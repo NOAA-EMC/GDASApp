@@ -86,11 +86,7 @@ $NLN ${COMIN_GES}/RESTART $DATA/bkg
 ################################################################################
 # link fix files to $DATA
 # static B
-if [ $DOHYBVAR = "YES" ]; then
-  CASE_BERROR=${CASE_BERROR:-${CASE_ENKF:-$CASE}}
-else
-  CASE_BERROR=${CASE_BERROR:-$CASE}
-fi
+CASE_BERROR=${CASE_BERROR:-${CASE_ANL:-$CASE}}
 $NLN $FV3JEDI_FIX/bump/$CASE_BERROR/ $DATA/berror
 
 # vertical coordinate
@@ -125,6 +121,7 @@ export err=$?; err_chk
 atminc_jedi=`ls $DATA/anl/atminc_latlon*`
 atminc_fv3=$COMOUT/${CDUMP}.${cycle}.atminc.nc
 $INCPY $atminc_jedi $atminc_fv3
+export err=$?; err_chk
 
 ################################################################################
 # Create log file noting creating of analysis increment file
@@ -133,8 +130,8 @@ echo "$CDUMP $CDATE atminc and tiled sfcanl done at `date`" > $COMOUT/${CDUMP}.$
 ################################################################################
 # Copy diags and YAML to $COMOUT
 cp -r $DATA/fv3jedi_var.yaml $COMOUT/${CDUMP}.${cycle}.fv3jedi_var.yaml
-cp -rf $DATA/diags $COMOUT/diags
-cp -rf $DATA/bc $COMOUT/bc
+cp -rf $DATA/diags $COMOUT/
+cp -rf $DATA/bc $COMOUT/
 
 ################################################################################
 set +x
