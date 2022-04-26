@@ -40,7 +40,7 @@ obs bias:
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)amsua_n19.satbias.$(BIAS_DATE).nc4
+      input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)amsua_n19.satbias_cov.$(BIAS_DATE).nc4
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0

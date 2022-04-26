@@ -69,6 +69,7 @@ def parse_config(input_config_dict, template=None, clean=True):
 def atmanl_case(config):
     # compute atm analysis case/res variables based on environment and/or config
     case = int(config.get('CASE', os.environ.get('CASE', 'C768'))[1:])
+    case_anl = int(config.get('CASE_ANL', os.environ.get('CASE_ANL', 'C384'))[1:])
     case_enkf = int(config.get('CASE_ENKF', os.environ.get('CASE_ENKF', 'C384'))[1:])
     levs = int(config.get('LEVS', os.environ.get('LEVS', '128')))
     if 'DOHYBVAR' in config:
@@ -76,6 +77,10 @@ def atmanl_case(config):
         del config['DOHYBVAR']
     else:
         dohybvar = isTrue(os.environ.get('DOHYBVAR', 'NO'))
+    # if dohybar is true, we currently need to ensure case_enkf = case_anl
+    if dohybvar and not case_enkf == case_anl:
+        raise KeyError(f"dohybvar is '{dohybvar}' but case_enkf= '{case_enkf}' does not equal case_anl= '{case_anl}'")
+
     # get background geometry
     ntiles = 6  # global, fix later to be more generic
     layout = [
@@ -84,11 +89,7 @@ def atmanl_case(config):
     ]
     io_layout = ['1', '1']  # force to be one file for forseeable future
     config['GEOM_BKG'] = fv3_geom_dict(case, levs, ntiles, layout, io_layout)
-    # get analysis geometry depending on dohybvar
-    if dohybvar:
-        config['GEOM_ANL'] = fv3_geom_dict(case_enkf, levs, ntiles, layout, io_layout)
-    else:
-        config['GEOM_ANL'] = fv3_geom_dict(case, levs, ntiles, layout, io_layout)
+    config['GEOM_ANL'] = fv3_geom_dict(case_anl, levs, ntiles, layout, io_layout)
     return config
 
 

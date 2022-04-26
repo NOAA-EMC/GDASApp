@@ -26,8 +26,9 @@ def get_obs_list(yamlconfig, outputfile):
             outf.write(f"{obsdatain}\n")
             if 'obs bias' in ob.keys():
                 biasin = ob['obs bias']['input file']
-                lapsein = biasin.replace('satbias', 'tlapse').replace('nc4', 'txt')
-                outf.write(f"{biasin}\n{lapsein}\n")
+                satcovin = biasin.replace('satbias', 'satbias_cov')
+                lapsein = satcovin.replace('satbias_cov', 'tlapse').replace('nc4', 'txt')
+                outf.write(f"{biasin}\n{satcovin}\n{lapsein}\n")
 
 
 if __name__ == "__main__":

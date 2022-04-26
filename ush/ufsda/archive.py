@@ -35,16 +35,26 @@ def atm_diags(config):
         r2d2_config['source_file_fmt'] = input_file.replace('.nc4', '_0000.nc4')
         r2d2_config['obs_types'] = [ob['obs space']['name']]
         ufsda.r2d2.store(r2d2_config)
-        # get bias files if needed
+        # store bias files
         if 'obs bias' in ob.keys():
             r2d2_config['type'] = 'bc'
             r2d2_config['provider'] = 'gsi'
             r2d2_config['start'] = config['valid_time']
             r2d2_config['end'] = config['valid_time']
+
+            # store satbias
             r2d2_config['file_type'] = 'satbias'
             target_file = ob['obs bias']['output file']
             r2d2_config['source_file_fmt'] = target_file
             ufsda.r2d2.store(r2d2_config)
+
+            # store satbias_cov
+            r2d2_config['file_type'] = 'satbias_cov'
+            target_file = target_file.replace('satbias', 'satbias_cov')
+            r2d2_config['source_file_fmt'] = target_file
+            ufsda.r2d2.store(r2d2_config)
+
+            # store tlapse
             r2d2_config['file_type'] = 'tlapse'
             target_file = target_file.replace('satbias', 'tlapse')
             target_file = target_file.replace('nc4', 'txt')
