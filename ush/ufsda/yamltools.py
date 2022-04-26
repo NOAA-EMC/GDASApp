@@ -79,7 +79,7 @@ def atmanl_case(config):
         dohybvar = isTrue(os.environ.get('DOHYBVAR', 'NO'))
     # if dohybar is true, we currently need to ensure case_enkf = case_anl
     if dohybvar and not case_enkf == case_anl:
-        raise KeyError(f"dohybvar is '{dohybvar}' but case_enkf= '{case_enkf}' does not equal case_anl= '{case_anl}'")
+        raise ValueError(f"dohybvar is '{dohybvar}' but case_enkf= '{case_enkf}' does not equal case_anl= '{case_anl}'")
 
     # get background geometry
     ntiles = 6  # global, fix later to be more generic

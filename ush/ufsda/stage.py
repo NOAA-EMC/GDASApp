@@ -133,37 +133,23 @@ def bias_obs(config):
             r2d2_config['file_type'] = 'satbias'
             target_file = ob['obs bias']['input file']
             r2d2_config['target_file_fmt'] = target_file
-            print(f"config is {config}")
-            try:
-                r2d2_config['experiment'] = config['experiment']
-                ufsda.r2d2.fetch(r2d2_config)
-            except:
-                r2d2_config['experiment'] = 'oper_gdas'
-                ufsda.r2d2.fetch(r2d2_config)
+            r2d2_config['experiment'] = config.get('experiment', 'oper_gdas')
+            ufsda.r2d2.fetch(r2d2_config)
 
             # fetch satbias_cov
             r2d2_config['file_type'] = 'satbias_cov'
             target_file = target_file.replace('satbias', 'satbias_cov')
             r2d2_config['target_file_fmt'] = target_file
-            try:
-                r2d2_config['experiment'] = config['experiment']
-                ufsda.r2d2.fetch(r2d2_config)
-            except:
-                r2d2_config['experiment'] = 'oper_gdas'
-                ufsda.r2d2.fetch(r2d2_config)
+            r2d2_config['experiment'] = config.get('experiment', 'oper_gdas')
+            ufsda.r2d2.fetch(r2d2_config)
 
             # fetch tlapse
             r2d2_config['file_type'] = 'tlapse'
             target_file = target_file.replace('satbias_cov', 'tlapse')
             target_file = target_file.replace('nc4', 'txt')
             r2d2_config['target_file_fmt'] = target_file
-            try:
-                r2d2_config['experiment'] = config['experiment']
-                ufsda.r2d2.fetch(r2d2_config)
-            except:
-                r2d2_config['experiment'] = 'oper_gdas'
-                ufsda.r2d2.fetch(r2d2_config)
-
+            r2d2_config['experiment'] = 'oper_gdas'
+            ufsda.r2d2.fetch(r2d2_config)
 
 def gdas_single_cycle(config):
     # grab backgrounds first
