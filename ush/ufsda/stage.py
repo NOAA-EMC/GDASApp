@@ -104,6 +104,7 @@ def atm_obs(config):
         r2d2_config['obs_types'] = [ob['obs space']['name']]
         ufsda.r2d2.fetch(r2d2_config)
 
+
 def bias_obs(config):
     # fetch bias files
     r2d2_config = {
@@ -150,6 +151,7 @@ def bias_obs(config):
             r2d2_config['target_file_fmt'] = target_file
             r2d2_config['experiment'] = 'oper_gdas'
             ufsda.r2d2.fetch(r2d2_config)
+
 
 def gdas_single_cycle(config):
     # grab backgrounds first
