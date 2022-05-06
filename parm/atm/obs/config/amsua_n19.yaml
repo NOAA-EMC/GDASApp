@@ -4,6 +4,8 @@ obs space:
     obsfile: $(OBS_DIR)/$(OBS_PREFIX).amsua_n19.$(OBS_DATE).nc4
   obsdataout:
     obsfile: $(DIAG_DIR)/diag_amsua_n19_$(OBS_DATE).nc4
+  io pool:
+    max pool size: 1
   simulated variables: [brightness_temperature]
   channels: &amsua_n19_channels 1-15
 obs operator:
