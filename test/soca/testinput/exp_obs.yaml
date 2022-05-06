@@ -1,0 +1,29 @@
+observations:
+- obs space:
+    name: adt_j3
+    obsdatain:
+      obsfile: ./obs
+- obs space:
+    name: sss_smap
+    obsdatain:
+      obsfile: ./obs
+- obs space:
+    name: sst_noa19_l3u
+    obsdatain:
+      obsfile: ./obs
+- obs space:
+    name: temp_profile_fnmoc
+    obsdatain:
+      obsfile: ./obs
+- obs space:
+    name: salt_profile_fnmoc
+    obsdatain:
+      obsfile: ./obs
+- obs space:
+    name: icec_EMC
+    obsdatain:
+      obsfile: ./obs
+- obs space:
+    name: icefb_GDR
+    obsdatain:
+      obsfile: ./obs

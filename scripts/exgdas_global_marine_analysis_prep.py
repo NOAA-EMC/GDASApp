@@ -23,7 +23,8 @@ import sys
 import yaml
 
 # get absolute path of ush/ directory either from env or relative to this file
-sys.path.append('/home/gvernier/sandboxes/GDASApp/ush')
+# TODO: ufsda should be installed
+sys.path.append(os.path.join(os.getenv('HOMEgfs'), 'ush'))
 
 # import UFSDA utilities
 import ufsda
@@ -37,7 +38,6 @@ anl_dir = os.path.join(COMOUT, 'analysis')
 ufsda.mkdir(anl_dir)
 
 # Set the R2D2_CONFIG environement variable
-#
 # TODO: Generate this yaml with ufsda.parse_config ... or something?
 r2d2_config = {'databases': {'archive': {'bucket': 'archive.jcsda',
                                          'cache_fetch': True,
@@ -56,28 +56,10 @@ yaml.dump(r2d2_config, f, sort_keys=False, default_flow_style=False)
 os.environ['R2D2_CONFIG'] = 'r2d2_config.yaml'
 
 # create config dict from runtime env
-# TODO: Generate this yaml with ufsda.parse_config
-# TODO: "window length" below is for the obs database, no the DA window
-stage_cfg = {'COMOUT': COMOUT,
-             'r2d2_obs_db': 'shared',
-             'r2d2_obs_dump': 'soca',
-             'r2d2_obs_src': 'gdasapp',
-             'window begin': '20180415',
-             'window length': '24'}
-stage_cfg['observations'] = [{'obs space': {'name': 'adt_j3',
-                                            'obsdatain': {'obsfile': './obs'}}},
-                             {'obs space': {'name': 'sst_noaa19_l3u',
-                                            'obsdatain': {'obsfile': './obs'}}}]
-f = open('stage_cfg.yaml', 'w')
-yaml.dump(stage_cfg, f, sort_keys=False, default_flow_style=False)
+stage_cfg = ufsda.parse_config(templateyaml=os.path.join(os.getenv('HOMEgfs'),
+                                                         'parm',
+                                                         'templates',
+                                                         'stage.yaml'), clean=True)
 
-test = stage_cfg['observations'][0]['obs space']['obsdatain']
-test_stage_cfg = ufsda.parse_config(templateyaml='/home/gvernier/sandboxes/GDASApp/parm/templates/stage.yaml', clean=True)
-
-f = open('test_stage_cfg.yaml', 'w')
-yaml.dump(test_stage_cfg, f, sort_keys=False, default_flow_style=False)
-
-print(test_stage_cfg)
-#quit()
 # stage observations from R2D2 to COMIN_OBS and then link to analysis subdir
-ufsda.stage.obs(test_stage_cfg)
+ufsda.stage.obs(stage_cfg)
