@@ -44,7 +44,7 @@ if __name__ == "__main__":
     # Create the test R2D2 database
     obsstore = {'start': '2018-04-15T00:00:00Z',
                 'end': '2018-04-15T00:00:00Z',
-                'step': 'P1D',
+                'step': 'PT24H',
                 'source_dir': '.',
                 'source_file_fmt': '{source_dir}/{obs_type}_{year}{month}{day}.nc4',
                 'type': 'ob',
