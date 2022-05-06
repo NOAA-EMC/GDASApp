@@ -7,7 +7,7 @@
 #
 # Author: Guillaume Vernieres      Org: NCEP/EMC     Date: 2022-03-28
 #
-# Abstract: This script stages the marine observations necessar
+# Abstract: This script stages the marine observations necessary
 #           to produce a UFS Global Marine Analysis.
 #
 # $Id$
@@ -60,6 +60,6 @@ stage_cfg = ufsda.parse_config(templateyaml=os.path.join(os.getenv('HOMEgfs'),
                                                          'parm',
                                                          'templates',
                                                          'stage.yaml'), clean=True)
-
+print(stage_cfg)
 # stage observations from R2D2 to COMIN_OBS and then link to analysis subdir
 ufsda.stage.obs(stage_cfg)

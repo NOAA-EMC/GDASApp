@@ -36,8 +36,8 @@ install(FILES ${test_input}
 
 # Set runtime environement variables
 # ----------------------------------
-set( CDATE 2018041512 )        # Analysis time
-set( GDATE 2018041509 )        # What is that?
+set( CDATE 2018041412 )        # Analysis time
+set( GDATE 2018041409 )        # What is that?
 set( assim_freq 6 )            # DA window
 set( OBS_LIST "adt_j3 sst_noaa19_l3u icec_EMC icefb_GDR temp_profile_fnmoc salt_profile_fnmoc" )
 set( COMOUT ${CMAKE_CURRENT_BINARY_DIR}/3dvar )
@@ -55,7 +55,7 @@ set( R2D2_OBS_DB shared )
 set( R2D2_OBS_DUMP soca )
 set( R2D2_OBS_SRC gdasapp )
 set( R2D2_OBS_WINDOW 24 )     # Not the samne as the DA window!
-set( R2D2_WINDOW_BEGIN 2018041500 )
+set( R2D2_WINDOW_BEGIN 2018041400 )
 
 # Create a working directory for prep/run/post
 # --------------------------------------------
