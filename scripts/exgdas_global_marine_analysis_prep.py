@@ -37,29 +37,14 @@ COMIN_OBS = os.getenv('COMIN_OBS')
 anl_dir = os.path.join(COMOUT, 'analysis')
 ufsda.mkdir(anl_dir)
 
-# Set the R2D2_CONFIG environement variable
-# TODO: Generate this yaml with ufsda.parse_config ... or something?
-r2d2_config = {'databases': {'archive': {'bucket': 'archive.jcsda',
-                                         'cache_fetch': True,
-                                         'class': 'S3DB'},
-                             'local': {'cache_fetch': False,
-                                       'class': 'LocalDB',
-                                       'root': './r2d2-local/'},
-                             'shared': {'cache_fetch': False,
-                                        'class': 'LocalDB',
-                                        'root': COMIN_OBS}},
-               'fetch_order': ['shared'],
-               'store_order': ['local']}
-
-f = open('r2d2_config.yaml', 'w')
-yaml.dump(r2d2_config, f, sort_keys=False, default_flow_style=False)
-os.environ['R2D2_CONFIG'] = 'r2d2_config.yaml'
+# Setup the archive, local and shared R2D2 databases
+ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root=COMIN_OBS)
 
 # create config dict from runtime env
 stage_cfg = ufsda.parse_config(templateyaml=os.path.join(os.getenv('HOMEgfs'),
                                                          'parm',
                                                          'templates',
                                                          'stage.yaml'), clean=True)
-print(stage_cfg)
+
 # stage observations from R2D2 to COMIN_OBS and then link to analysis subdir
 ufsda.stage.obs(stage_cfg)

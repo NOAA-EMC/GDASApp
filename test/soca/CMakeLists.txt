@@ -1,5 +1,5 @@
-# Create a test R2D2 database
-# ---------------------------
+# Create a test R2D2 database for obs and bkg
+# -------------------------------------------
 set( OBS_DIR ${PROJECT_BINARY_DIR}/test/testdata )
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obs)
 ecbuild_add_test(
@@ -10,6 +10,21 @@ ecbuild_add_test(
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obs
       ENVIRONMENT
         OBS_DIR=${OBS_DIR}
+        PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}
+)
+
+# TODO (Guillaume): Be nice to corry and ask him to store restarts in the emc ftp so
+#                   we can remove the hard-coded path
+set( BKG_DIR /home/gvernier/sandboxes/GDASApp/build/soca/test/INPUT ) # !!!!!!!!!!!!!!!!!
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bkg)
+ecbuild_add_test(
+      TARGET    test_gdasapp_soca_bkgdb
+      TYPE      SCRIPT
+      COMMAND   ${Python3_EXECUTABLE}
+      ARGS      ${PROJECT_SOURCE_DIR}/test/soca/create_bkgdb.py
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bkg
+      ENVIRONMENT
+        BKG_DIR=${BKG_DIR}
         PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}
 )
 
@@ -36,8 +51,8 @@ install(FILES ${test_input}
 
 # Set runtime environement variables
 # ----------------------------------
-set( CDATE 2018041412 )        # Analysis time
-set( GDATE 2018041409 )        # What is that?
+set( CDATE 2018041512 )        # Analysis date
+set( GDATE 2018041509 )        # Guess date ... Still ... what's that?
 set( assim_freq 6 )            # DA window
 set( OBS_LIST "adt_j3 sst_noaa19_l3u icec_EMC icefb_GDR temp_profile_fnmoc salt_profile_fnmoc" )
 set( COMOUT ${CMAKE_CURRENT_BINARY_DIR}/3dvar )
@@ -55,7 +70,7 @@ set( R2D2_OBS_DB shared )
 set( R2D2_OBS_DUMP soca )
 set( R2D2_OBS_SRC gdasapp )
 set( R2D2_OBS_WINDOW 24 )     # Not the samne as the DA window!
-set( R2D2_WINDOW_BEGIN 2018041400 )
+set( R2D2_WINDOW_BEGIN 2018041500 )
 
 # Create a working directory for prep/run/post
 # --------------------------------------------
