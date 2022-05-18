@@ -1,0 +1,11 @@
+obs space:
+  name: sst_noaa19_l3u
+  obsdatain:
+    obsfile: $(experiment_dir)/{{current_cycle}}/sst_noaa19_l3u.{{window_begin}}.nc4
+  obsdataout:
+    obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).sst_noaa19_l3u.{{window_begin}}.nc4
+  simulated variables: [sea_surface_temperature]
+obs operator:
+  name: Identity
+obs error:
+  covariance model: diagonal

@@ -1,0 +1,3 @@
+observations:
+- $<< ${OBS_YAML_DIR}/adt_j3.yaml
+- $<< ${OBS_YAML_DIR}/sst_noaa19_l3u.yaml
