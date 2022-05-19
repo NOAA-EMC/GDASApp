@@ -5,7 +5,7 @@ geometry: $(GEOM_BKG)
 initial condition:
   datapath: $(BKG_DIR)
   filetype: fms restart
-  datetime: $(BEGIN_ISOTIME)
+  datetime: $(ATM_WINDOW_BEGIN)
   filename_core: $(BEGIN_YYYYmmddHHMMSS).fv_core.res.nc
   filename_trcr: $(BEGIN_YYYYmmddHHMMSS).fv_tracer.res.nc
   filename_sfcd: $(BEGIN_YYYYmmddHHMMSS).sfc_data.nc
@@ -18,7 +18,8 @@ model:
   name: PSEUDO
   datapath: $(BKG_DIR)
   filetype: fms restart
-  datetime: $(BEGIN_ISOTIME)
+  datetime: $(ATM_WINDOW_BEGIN)
+  filename is datetime templated: true
   filename_core: '%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc'
   filename_trcr: '%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc'
   filename_sfcd: '%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc'
