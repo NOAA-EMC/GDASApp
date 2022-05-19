@@ -74,7 +74,8 @@ def run_jedi_exe(yamlconfig):
         'CASE_ENKF': executable_subconfig.get('case_enkf', executable_subconfig['case']),
         'DOHYBVAR': executable_subconfig.get('dohybvar', False),
         'LEVS': str(executable_subconfig['levs']),
-        'forecast_step': executable_subconfig.get('forecast_step', 'PT6H'),
+        'forecast_steps': executable_subconfig.get('forecast_steps', 'PT6H'),
+        'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
     }
     template = executable_subconfig['yaml_template']
     output_file = os.path.join(workdir, f"gdas_{app_mode}.yaml")

@@ -61,7 +61,7 @@ def gdas_single_cycle(config):
         'start': config['prev_valid_time'],
         'end': config['prev_valid_time'],
         'step': config['atm_window_length'],
-        'forecast_steps': config['forecast_step'],
+        'forecast_steps': config['forecast_steps'],
         'file_type_list': ['fv_core.res', 'fv_srf_wnd.res', 'fv_tracer.res', 'phy_data', 'sfc_data'],
         'target_dir': config['BKG_DIR'],
         'target_file_fmt': '{target_dir}/$(valid_date).$(file_type).tile$(tile).nc',
