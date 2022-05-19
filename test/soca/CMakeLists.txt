@@ -65,12 +65,19 @@ set( COMIN_GES ${CMAKE_CURRENT_BINARY_DIR}/bkg )  # Backgrounds from previous fo
 set( CASE "12345" )                               # TODO: No idea what this is, figure it out!
 set( CASE_ENKF "123456")                          # TODO: No idea what this is, figure it out!
 set( LEVS "75" )                                  # TODO: I can sort of guess ...
-# TODO: Consolidate the OBS_* envar below
-set( OBS_LIST "adt_j3 sst_noaa19_l3u icec_EMC icefb_GDR temp_profile_fnmoc salt_profile_fnmoc" )
-set( OBS_YAML ${CMAKE_CURRENT_BINARY_DIR}/testinput/obs_list.yaml ) # TODO: Is that the list of obs
-set( OBS_YAML_DIR ${PROJECT_SOURCE_DIR}/parm/soca/obs/config ) # TODO: Is that the list of obs
-                                                                   #       for the experiment?
-set( HOMEgfs ${PROJECT_SOURCE_DIR} )                                      # TODO: Where the bundle src is?
+set( OBS_YAML ${CMAKE_CURRENT_BINARY_DIR}/testinput/obs_list.yaml ) # list of obs for the experiment
+set( OBS_YAML_DIR ${PROJECT_SOURCE_DIR}/parm/soca/obs/config )      # path to UFO yaml files
+
+# TODO: Find a better way to do this
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/HOMEgfs/sorc/ufs_da.fd/)
+set( HOMEgfs ${PROJECT_BINARY_DIR}/HOMEgfs )
+execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+           ${PROJECT_SOURCE_DIR}
+           ${PROJECT_BINARY_DIR}/HOMEgfs/sorc/ufs_da.fd/UFS-DA )
+execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+           ${PROJECT_SOURCE_DIR}/ush
+           ${PROJECT_BINARY_DIR}/HOMEgfs/ush )
+
 set( STATICB_DIR ${CMAKE_CURRENT_BINARY_DIR}/staticb )                    # Overrated things to do DA
 set( FV3JEDI_STAGE_YAML ${CMAKE_CURRENT_BINARY_DIR}/testinput/dumy.yaml ) # Useless atmospheric stuff
 set( R2D2_OBS_DB shared )

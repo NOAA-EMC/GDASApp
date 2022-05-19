@@ -25,8 +25,12 @@ import glob
 import dateutil.parser as dparser
 
 # get absolute path of ush/ directory either from env or relative to this file
-# TODO: ufsda should be installed
-sys.path.append(os.path.join(os.getenv('HOMEgfs'), 'ush'))
+my_dir = os.path.dirname(__file__)
+my_home = os.path.dirname(os.path.dirname(my_dir))
+ufsda_home = os.path.join(os.getenv('HOMEgfs'), 'sorc', 'ufs_da.fd', 'UFS-DA')
+sys.path.append(os.path.join(os.getenv('HOMEgfs', my_home), 'ush'))
+print(f"sys.path={sys.path}")
+
 
 # import UFSDA utilities
 import ufsda
@@ -63,7 +67,7 @@ ufsda.mkdir(anl_dir)
 ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root=comin_obs)
 
 # create config dict from runtime env
-stage_cfg = ufsda.parse_config(templateyaml=os.path.join(os.getenv('HOMEgfs'),
+stage_cfg = ufsda.parse_config(templateyaml=os.path.join(ufsda_home,
                                                          'parm',
                                                          'templates',
                                                          'stage.yaml'), clean=True)
@@ -79,7 +83,7 @@ ufsda.stage.background(stage_cfg)
 
 # generate YAML file for soca_var
 var_yaml = os.path.join(anl_dir, 'var.yaml')
-var_yaml_template = os.path.join(os.getenv('HOMEgfs'),
+var_yaml_template = os.path.join(ufsda_home,
                                  'parm',
                                  'soca',
                                  'variational',
