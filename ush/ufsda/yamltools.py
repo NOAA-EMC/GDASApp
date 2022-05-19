@@ -140,6 +140,7 @@ def calc_time_vars(config):
     h = re.findall('PT(\\d+)H', config['ATM_WINDOW_LENGTH'])[0]
     win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
     config['ATM_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
+    config['BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
     return config
 
 
