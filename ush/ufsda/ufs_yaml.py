@@ -42,8 +42,7 @@ def parse_config(templateyaml=None, clean=True):
     cycle_dict = get_cycle_vars()
     config_out.update(cycle_dict)
     # define bundle based on env var
-    # TODO (Guillaume): Revert back to what it was and sort out paths.
-    config_out['bundle'] = os.path.join(os.environ['HOMEgfs'])  # 'sorc', 'ufs_da.fd', 'UFS-DA', 'src')
+    config_out['bundle'] = os.path.join(os.environ['HOMEgfs'], 'sorc', 'ufs_da.fd', 'UFS-DA', 'src')
     # going to now nest multiple times to do includes and replace
     config_out = update_config(config_out)
     if clean:
@@ -96,12 +95,7 @@ def get_cycle_vars():
     assim_freq = os.environ['assim_freq']
     cycle_dict['window_length'] = f'PT{assim_freq}H'
     win_begin = cdate - datetime.timedelta(hours=int(assim_freq)/2)
-    if 'R2D2_WINDOW_BEGIN' in os.environ:
-        r2d2_win_begin = datetime.datetime.strptime(os.environ['R2D2_WINDOW_BEGIN'], '%Y%m%d%H')
-    else:
-        r2d2_win_begin = win_begin
     cycle_dict['window_begin'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
-    cycle_dict['r2d2_window_begin'] = r2d2_win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
     cycle_dict['background_time'] = gdate.strftime('%Y-%m-%dT%H:%M:%SZ')
     cycle_dict['fv3_bkg_time'] = cdate.strftime('%Y%m%d.%H%M%S')
     cycle_dict['fv3_bkg_datetime'] = cdate.strftime('%Y-%m-%dT%H:%M:%SZ')
