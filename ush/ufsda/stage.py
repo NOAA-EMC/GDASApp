@@ -168,7 +168,7 @@ def obs(config):
             type='ob',
             provider=config['r2d2_obs_src'],
             experiment=config['r2d2_obs_dump'],
-            date=config['r2d2 window begin'],
+            date=config['window begin'],
             obs_type=obname,
             time_window=config['r2d2 window length'],
             target_file=outfile,

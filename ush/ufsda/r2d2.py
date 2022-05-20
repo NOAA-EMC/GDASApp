@@ -59,12 +59,9 @@ def store(config):
         day = Hour(time).format('%d')
         hour = Hour(time).format('%H')
         inputs['date'] = time
-        # TODO: Sort it out with Cory? Below doesn't seem right, and doesn't
-        #       work with the marine obs
-        window_begin = Hour(time)  # - DateIncrement(f'PT{assim_freq/2}H')
         if r2d2_type in ['bc', 'ob']:
             if r2d2_type == 'ob':
-                inputs['date'] = window_begin
+                inputs['date'] = time
                 inputs['time_window'] = config['step']
             for obs_type in obs_types:
                 inputs['source_file'] = eval(f"f'{source_file_fmt}'"),

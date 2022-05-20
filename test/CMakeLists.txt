@@ -28,7 +28,7 @@ list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/icec.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/icefb.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/MOM.res.nc
-  ${CMAKE_CURRENT_BINARY_DIR}/iced.2019-04-15-43200.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/iced.2019-04-15-43200.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias_pc
 )

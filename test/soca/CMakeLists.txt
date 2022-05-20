@@ -56,19 +56,20 @@ install(FILES ${test_input}
 
 # Set runtime environement variables
 # ----------------------------------
-set( CDATE 2018041512 )        # Analysis date
-set( GDATE 2018041509 )        # Guess date ... Still ... what's that?
+set( CDATE 2018041512 )        # Center of current cycle date
+set( GDATE 2018041506 )        # Center of previous cycle date
 set( assim_freq 6 )            # DA window
 set( COMOUT ${CMAKE_CURRENT_BINARY_DIR}/3dvar )
 set( COMIN_OBS ${CMAKE_CURRENT_BINARY_DIR}/obs/r2d2-shared )
 set( COMIN_GES ${CMAKE_CURRENT_BINARY_DIR}/bkg )  # Backgrounds from previous forecast
-set( CASE "12345" )                               # TODO: No idea what this is, figure it out!
-set( CASE_ENKF "123456")                          # TODO: No idea what this is, figure it out!
-set( LEVS "75" )                                  # TODO: I can sort of guess ...
+set( CASE "C48" )                    # TODO: Replace with or add OCNRES
+set( CASE_ENKF "C192")               # TODO: Needed but doesn't mean anything in this ctest context
+set( LEVS "75" )                     # TODO: Same as above
 set( OBS_YAML ${CMAKE_CURRENT_BINARY_DIR}/testinput/obs_list.yaml ) # list of obs for the experiment
 set( OBS_YAML_DIR ${PROJECT_SOURCE_DIR}/parm/soca/obs/config )      # path to UFO yaml files
 
 # TODO: Find a better way to do this
+# Create a directory structure to make the ctest thinks it's running within the global workflow
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/HOMEgfs/sorc/ufs_da.fd/)
 set( HOMEgfs ${PROJECT_BINARY_DIR}/HOMEgfs )
 execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
@@ -84,7 +85,6 @@ set( R2D2_OBS_DB shared )
 set( R2D2_OBS_DUMP soca )
 set( R2D2_OBS_SRC gdasapp )
 set( R2D2_OBS_WINDOW 24 )     # Not the samne as the DA window!
-set( R2D2_WINDOW_BEGIN 2018041500 )
 
 # Create a working directory for prep/run/post
 # --------------------------------------------
@@ -116,5 +116,4 @@ ecbuild_add_test(
         R2D2_OBS_DUMP=${R2D2_OBS_DUMP}
         R2D2_OBS_SRC=${R2D2_OBS_SRC}
         R2D2_OBS_WINDOW=${R2D2_OBS_WINDOW}
-        R2D2_WINDOW_BEGIN=${R2D2_WINDOW_BEGIN}
 )
