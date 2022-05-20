@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 import yaml
+from ufsda.misc_utils import calc_fcst_steps
 
 
 def run_jedi_exe(yamlconfig):
@@ -74,7 +75,8 @@ def run_jedi_exe(yamlconfig):
         'CASE_ENKF': executable_subconfig.get('case_enkf', executable_subconfig['case']),
         'DOHYBVAR': executable_subconfig.get('dohybvar', False),
         'LEVS': str(executable_subconfig['levs']),
-        'forecast_steps': executable_subconfig.get('forecast_steps', 'PT6H'),
+        'forecast_steps': calc_fcst_steps(executable_subconfig.get('forecast_step', 'PT6H'),
+                                          executable_subconfig['atm_window_length']),
         'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
     }
     template = executable_subconfig['yaml_template']
