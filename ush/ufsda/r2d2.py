@@ -52,7 +52,6 @@ def store(config):
     source_dir = config['source_dir']
     source_file_fmt = config['source_file_fmt']
     obs_types = config.get('obs_types', None)
-    assim_freq = int(re.sub("[^0-9]", "", config.step))
     for time in times:
         year = Hour(time).format('%Y')
         month = Hour(time).format('%m')

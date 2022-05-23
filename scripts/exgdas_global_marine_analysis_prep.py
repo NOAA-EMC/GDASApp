@@ -7,8 +7,8 @@
 #
 # Author: Guillaume Vernieres      Org: NCEP/EMC     Date: 2022-03-28
 #
-# Abstract: This script stages the marine observations necessary
-#           to produce a UFS Global Marine Analysis.
+# Abstract: This script stages the marine observations, backgrounds and prepares
+#           the variational yaml necessary to produce a UFS Global Marine Analysis.
 #
 # $Id$
 #
@@ -37,8 +37,9 @@ import ufsda
 
 
 def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml'):
-    # generate a YAML of the list the backgrounds for the pseudo model
-    # TODO (Guillaume): Move somewhere else ...
+    """
+    Generate a YAML of the list of backgrounds for the pseudo model
+    """
     files = glob.glob(bkg_path+'/*'+file_type+'*')
     files.sort()
     bkg_list = []

@@ -7,7 +7,7 @@ from solo.configuration import Configuration
 from solo.nice_dict import NiceDict
 import os
 import shutil
-import datetime as dt
+from dateutil import parser
 import ufsda
 
 __all__ = ['background', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
@@ -152,6 +152,7 @@ def obs(config):
     Stage observations using R2D2
     based on input `config` dict
     """
+    print(config)
     # create directory
     obs_dir = os.path.join(config['COMOUT'], 'analysis', 'obs')
     mkdir(obs_dir)
@@ -164,11 +165,24 @@ def obs(config):
         outpath = '/'.join(outpath)
         outfile = os.path.join(config['COMOUT'], outpath)
         # grab obs using R2D2
+        window_begin = config['window begin']
+
+        # TODO (Guillaume): 
+        # In order to fetch without specifying the "window begin", the
+        # obs need to be stored in steps that are a factor of the DA window,
+        # so for a 6 hour DA window, 6, 3, 2, 1 would work.
+        # Solutions:
+	# 1 - get rid of the 24 hour window database (probably a good idea)
+        # 2 - fix R2D2
+        # 3 - do nothing
+        if config['r2d2 window length'] == '24':
+            window_begin = parser.parse(config['window begin']).replace(hour=0)
+
         fetch(
             type='ob',
             provider=config['r2d2_obs_src'],
             experiment=config['r2d2_obs_dump'],
-            date=config['window begin'],
+            date=window_begin,
             obs_type=obname,
             time_window=config['r2d2 window length'],
             target_file=outfile,

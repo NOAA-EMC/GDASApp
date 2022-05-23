@@ -1,7 +1,7 @@
 cost function:
   cost type: 4D-Var
-  window begin: $(SOCA_WINDOW_BEGIN)
-  window length: $(SOCA_WINDOW_LENGTH)
+  window begin: $(ATM_WINDOW_BEGIN)
+  window length: $(ATM_WINDOW_LENGTH)
   analysis variables: &soca_vars  [socn, tocn, ssh, hocn]
   geometry:
     mom6_input_nml: ./inputnml/input.nml
@@ -9,21 +9,24 @@ cost function:
 
   model:
     name: PseudoModel
-    tstep: PT1H
+    tstep: PT3H
     state variables: &model_vars [socn, tocn, ssh, hocn, uocn, vocn, mld, layer_depth]
-    states: $<< ${BKG_LIST}
+    basename: ./bkg/
+    ocn_filename: MOM.res.%yyyy-%mm-%dd-%hh-00-00.nc
+    read_from_file: 1
+    datetime: $(ATM_WINDOW_BEGIN)
 
   background:
     read_from_file: 1
     basename: ./INPUT/
     ocn_filename: MOM.res.nc
-    date: &bkg_date 2018-04-15T00:00:00Z
+    date: $(ATM_WINDOW_BEGIN)
     state variables: *model_vars
 
   background error:
     covariance model: SocaError
     analysis variables: [socn, tocn, ssh]
-    date: 2018-04-15T00:00:00Z
+    date: $(ATM_WINDOW_BEGIN)
     bump:
       verbosity: main
       datadir: ./bump
@@ -54,9 +57,6 @@ cost function:
         dsdzmin: 3.0e-6
         dtdzmin: 1.0e-6
         nlayers: 10
-        dcdt:
-          filename: ./Data/kmask.nc
-          name: dcdt
 
   observations:  $<< ${OBS_YAML}
 
@@ -71,7 +71,7 @@ variational:
       name: Identity
       increment variables: *soca_vars
       variable change: Identity
-      tstep: PT1H
+      tstep: PT3H
     ninner: 100
     gradient norm reduction: 1e-10
     test: on
