@@ -11,10 +11,7 @@ cost function:
     name: PseudoModel
     tstep: PT3H
     state variables: &model_vars [socn, tocn, ssh, hocn, uocn, vocn, mld, layer_depth]
-    basename: ./bkg/
-    ocn_filename: MOM.res.%yyyy-%mm-%dd-%hh-00-00.nc
-    read_from_file: 1
-    datetime: $(ATM_WINDOW_BEGIN)
+    states: $<< ${BKG_LIST}
 
   background:
     read_from_file: 1
