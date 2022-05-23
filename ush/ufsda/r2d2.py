@@ -2,11 +2,42 @@ import r2d2
 import re
 from solo.configuration import Configuration
 from solo.date import date_sequence, Hour, DateIncrement
+import yaml
+import os
 
 possible_args = [
     'provider', 'experiment', 'database', 'type', 'file_type',
     'resolution', 'model', 'user_date_format', 'fc_date_rendering', 'tile',
 ]
+
+
+def setup(shared_root='', r2d2_config_yaml='r2d2_config.yaml'):
+    """
+    setup(shared_root)
+
+    prepares the R2D2 configuration yaml file and exports the R2D2_CONFIG
+    environement variable
+
+    TODO (Guillaume): We need the flexibility to change all key values in the
+                      below dictionary ...
+    """
+
+    # TODO: Should it be in a template instead?
+    r2d2_config = {'databases': {'archive': {'bucket': 'archive.jcsda',
+                                             'cache_fetch': True,
+                                             'class': 'S3DB'},
+                                 'local': {'cache_fetch': False,
+                                           'class': 'LocalDB',
+                                           'root': './r2d2-local/'},
+                                 'shared': {'cache_fetch': False,
+                                            'class': 'LocalDB',
+                                            'root': shared_root}},
+                   'fetch_order': ['shared'],
+                   'store_order': ['local']}
+
+    f = open(r2d2_config_yaml, 'w')
+    yaml.dump(r2d2_config, f, sort_keys=False, default_flow_style=False)
+    os.environ['R2D2_CONFIG'] = r2d2_config_yaml
 
 
 def store(config):
@@ -21,28 +52,35 @@ def store(config):
     source_dir = config['source_dir']
     source_file_fmt = config['source_file_fmt']
     obs_types = config.get('obs_types', None)
-    assim_freq = int(re.sub("[^0-9]", "", config.step))
-
     for time in times:
         year = Hour(time).format('%Y')
         month = Hour(time).format('%m')
         day = Hour(time).format('%d')
         hour = Hour(time).format('%H')
         inputs['date'] = time
-        window_begin = Hour(time) - DateIncrement(f'PT{assim_freq/2}H')
         if r2d2_type in ['bc', 'ob']:
             if r2d2_type == 'ob':
-                inputs['date'] = window_begin
+                inputs['date'] = time
                 inputs['time_window'] = config['step']
             for obs_type in obs_types:
                 inputs['source_file'] = eval(f"f'{source_file_fmt}'"),
                 inputs['obs_type'] = obs_type
                 r2d2.store(**inputs)
-        else:
-            inputs['file_type'] = config.file_type_list
-            inputs['step'] = config['forecast_steps']
-            inputs['source_file'] = eval(f"f'{source_file_fmt}'"),
-            r2d2.store(**inputs)
+        if r2d2_type in ['fc']:
+            inputs['model'] = config['model']
+            if config['model'] == 'mom6_cice6_UFS':
+                inputs['step'] = config['forecast_steps']
+                inputs['experiment'] = config['experiment']
+                inputs['database'] = config['database']
+                inputs['resolution'] = config['resolution']
+                file_type = config['file_type']
+                inputs['source_file'] = eval(f"f'{source_file_fmt}'"),
+                r2d2.store(**inputs)
+            else:
+                inputs['file_type'] = config.file_type_list
+                inputs['step'] = config['forecast_steps']
+                inputs['source_file'] = eval(f"f'{source_file_fmt}'"),
+                r2d2.store(**inputs)
 
 
 def fetch(config):
