@@ -1,7 +1,7 @@
 obs space:
   name: adt_j3
   obsdatain:
-    obsfile: obs/{{current_cycle}}/adt_j3.{{window_begin}}.nc4
+    obsfile: ./obs/adt_j3.{{window_begin}}.nc4
   obsdataout:
     obsfile: obs_out/adt_j3.{{window_begin}}.nc4
   simulated variables: [absolute_dynamic_topography]

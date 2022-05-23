@@ -152,7 +152,6 @@ def obs(config):
     Stage observations using R2D2
     based on input `config` dict
     """
-    print(config)
     # create directory
     obs_dir = os.path.join(config['COMOUT'], 'analysis', 'obs')
     mkdir(obs_dir)
@@ -167,12 +166,12 @@ def obs(config):
         # grab obs using R2D2
         window_begin = config['window begin']
 
-        # TODO (Guillaume): 
+        # TODO (Guillaume):
         # In order to fetch without specifying the "window begin", the
         # obs need to be stored in steps that are a factor of the DA window,
         # so for a 6 hour DA window, 6, 3, 2, 1 would work.
         # Solutions:
-	# 1 - get rid of the 24 hour window database (probably a good idea)
+        # 1 - get rid of the 24 hour window database (probably a good idea)
         # 2 - fix R2D2
         # 3 - do nothing
         if config['r2d2 window length'] == '24':

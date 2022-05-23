@@ -39,7 +39,7 @@ ${project_source_dir}/scripts/exgdas_global_marine_analysis_prep.py > exgdas_glo
 
 # Test that the obs were fetched
 echo "============================= Testing for the presence of obs in the fetch target directory"
-if [ ! "$(ls -A ${project_binary_dir}/test/soca/3dvar/analysis/obs/2018041512/)" ]; then
+if [ ! "$(ls -A ${project_binary_dir}/test/soca/3dvar/analysis/obs/)" ]; then
     exit 1
 fi
 
