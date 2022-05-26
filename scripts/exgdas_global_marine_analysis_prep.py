@@ -59,6 +59,7 @@ def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml'):
 # get runtime environment variables
 comout = os.getenv('COMOUT')
 comin_obs = os.getenv('COMIN_OBS')
+staticsoca_dir = os.getenv('STATICSOCA_DIR')
 
 # create analysis directory for files
 anl_dir = os.path.join(comout, 'analysis')
@@ -80,7 +81,7 @@ ufsda.stage.obs(stage_cfg)
 ufsda.stage.background(stage_cfg)
 
 # stage static files
-# TODO (Guillaume)
+ufsda.stage.static(os.path.join(comout, 'static'), staticsoca_dir, 'test')
 
 # generate YAML file for soca_var
 var_yaml = os.path.join(anl_dir, 'var.yaml')

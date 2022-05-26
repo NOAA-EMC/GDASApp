@@ -9,8 +9,8 @@ set_tests_properties(test_gdasapp_soca_obsdb
     PROPERTIES
     ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
 
-# Prepare backgrounds
-# -------------------
+# # Create a test R2D2 database for bkg
+# -------------------------------------
 # 1 - create fake 3 hourly restarts under RESTART
 # 2 - store them with R2D2
 set( TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
@@ -48,8 +48,8 @@ install(FILES ${test_input}
         DESTINATION "test/testinput/")
 
 
-# Create a working directory for prep/run/post
-# --------------------------------------------
+# Test exgdas_global_marine_analysis_prep.py
+# ------------------------------------------
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3dvar)
 
 # Prep
@@ -59,3 +59,16 @@ add_test(NAME test_gdasapp_soca_ana_prep
 set_tests_properties(test_gdasapp_soca_ana_prep
       PROPERTIES
           ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
+
+# Test exgdas_global_marine_analysis_run.py
+# -----------------------------------------
+# requires the full build
+if(BUILD_GDASBUNDLE)
+  add_test(NAME test_gdasapp_soca_ana_run
+           COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_run.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar)
+  set_tests_properties(test_gdasapp_soca_ana_run
+        PROPERTIES
+            DEPENDS "test_gdasapp_soca_ana_prep"
+            ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
+endif(BUILD_GDASBUNDLE)

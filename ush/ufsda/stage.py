@@ -238,6 +238,22 @@ def fv3jedi(config):
     path = os.path.dirname(config['fv3jedi_stage'])
     stage = Stage(path, config['stage_dir'], config['fv3jedi_stage_files'])
 
+def static(stage_dir, static_source_dir, static_source_files):
+    """
+    stage_dir: dir destination to copy files in
+    static_source_dir: source dir
+    static_source_files: list of files to copy
+    """
+    print('================================')
+    print(stage_dir)
+    print(static_source_files)
+
+    # create output directory
+    mkdir(stage_dir)
+    # call solo.Stage
+    path = os.path.dirname(static_source_dir)
+    stage = Stage(path, stage_dir, static_source_files)
+
 
 def berror(config):
     """
