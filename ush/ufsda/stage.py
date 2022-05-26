@@ -144,7 +144,7 @@ def bias_obs(config):
             r2d2_config['experiment'] = config.get('experiment', 'oper_gdas')
             ufsda.r2d2.fetch(r2d2_config)
 
-            # fetch satbias_cov
+            # fetch satbias_cov    # note:  non-standard R2D2 added for cycling
             r2d2_config['file_type'] = 'satbias_cov'
             target_file = target_file.replace('satbias', 'satbias_cov')
             r2d2_config['target_file_fmt'] = target_file

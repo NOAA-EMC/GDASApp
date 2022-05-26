@@ -15,8 +15,8 @@ def atm_diags(config):
         'start': config['prev_valid_time'],
         'end': config['prev_valid_time'],
         'step': config['atm_window_length'],
-        'dump': 'gdas',
-        'experiment': config['experiment'],  # change this here and other places to be oper_{dump}
+        'dump': 'gdas',                      # note:  should move dump to config
+        'experiment': config['experiment'],
     }
     r2d2_config = NiceDict(r2d2_config)
     # get list of obs to process and their output files
@@ -48,7 +48,7 @@ def atm_diags(config):
             r2d2_config['source_file_fmt'] = target_file
             ufsda.r2d2.store(r2d2_config)
 
-            # store satbias_cov
+            # store satbias_cov    # note:  non-standard R2D2 added for cycling
             r2d2_config['file_type'] = 'satbias_cov'
             target_file = target_file.replace('satbias', 'satbias_cov')
             r2d2_config['source_file_fmt'] = target_file
