@@ -1,37 +1,16 @@
 #!/usr/bin/env python3
-import argparse
 import os
 import shutil
 from solo.configuration import Configuration
-from solo.date import date_sequence
-import yaml
+from solo.nice_dict import NiceDict
 import ufsda.r2d2
-
-
-def store_obs(yaml_file):
-    config = Configuration(yaml_file)
-    ufsda.r2d2.store(config)
-
 
 if __name__ == "__main__":
 
-    # Set the R2D2_CONFIG environement variable
-    r2d2_config = {'databases': {'archive': {'bucket': 'archive.jcsda',
-                                             'cache_fetch': True,
-                                             'class': 'S3DB'},
-                                 'local': {'cache_fetch': False,
-                                           'class': 'LocalDB',
-                                           'root': './r2d2-local/'},
-                                 'shared': {'cache_fetch': False,
-                                            'class': 'LocalDB',
-                                            'root': './r2d2-shared/'}},
-                   'fetch_order': ['local'],
-                   'store_order': ['shared', 'local', 'archive']}
-    f = open('r2d2_config_test.yaml', 'w')
-    yaml.dump(r2d2_config, f, sort_keys=False, default_flow_style=False)
-    os.environ['R2D2_CONFIG'] = 'r2d2_config_test.yaml'
+    # Setup the shared R2D2 databases
+    ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root='./r2d2-shared')
 
-    # Change the obs file format
+    # Change the obs file name format
     obsdir = os.getenv('OBS_DIR')
     shutil.copyfile(os.path.join(obsdir, 'adt.nc'), 'adt_j3_20180415.nc4', follow_symlinks=True)
     shutil.copyfile(os.path.join(obsdir, 'sst.nc'), 'sst_noaa19_l3u_20180415.nc4', follow_symlinks=True)
@@ -42,22 +21,21 @@ if __name__ == "__main__":
     shutil.copyfile(os.path.join(obsdir, 'icefb.nc'), 'icefb_GDR_20180415.nc4', follow_symlinks=True)
 
     # Create the test R2D2 database
-    obsstore = {'start': '2018-04-15T00:00:00Z',
-                'end': '2018-04-15T00:00:00Z',
-                'step': 'P1D',
-                'source_dir': '.',
-                'source_file_fmt': '{source_dir}/{obs_type}_{year}{month}{day}.nc4',
-                'type': 'ob',
-                'database': 'shared',
-                'provider': 'gdasapp',
-                'experiment': 'soca',
-                'obs_types': ['adt_j3',
-                              'sst_noaa19_l3u',
-                              'sss_smap',
-                              'temp_profile_fnmoc',
-                              'salt_profile_fnmoc',
-                              'icec_EMC',
-                              'icefb_GDR']}
-    f = open('store_obs.yaml', 'w')
-    yaml.dump(obsstore, f, sort_keys=False, default_flow_style=False)
-    store_obs('store_obs.yaml')
+    obsstore = NiceDict({'start': '2018-04-15T00:00:00Z',
+                         'end': '2018-04-15T00:00:00Z',
+                         'step': 'PT24H',
+                         'source_dir': '.',
+                         'source_file_fmt': '{source_dir}/{obs_type}_{year}{month}{day}.nc4',
+                         'type': 'ob',
+                         'database': 'shared',
+                         'provider': 'gdasapp',
+                         'experiment': 'soca',
+                         'obs_types': ['adt_j3',
+                                       'sst_noaa19_l3u',
+                                       'sss_smap',
+                                       'temp_profile_fnmoc',
+                                       'salt_profile_fnmoc',
+                                       'icec_EMC',
+                                       'icefb_GDR']})
+
+    ufsda.r2d2.store(obsstore)
