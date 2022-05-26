@@ -8,6 +8,8 @@ obs space:
       sort order: "descending"
   obsdataout:
     obsfile: $(DIAG_DIR)/diag_sondes_$(OBS_DATE).nc4
+  io pool:
+    max pool size: 1
   simulated variables: [eastward_wind, northward_wind, air_temperature, specific_humidity, surface_pressure]
 obs operator:
   name: Composite
