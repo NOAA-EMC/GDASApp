@@ -65,7 +65,7 @@ export COMPONENT=${COMPONENT:-atmos}
 
 export GDATE=$(date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - ${assim_freq} hours")
 gPDY=${GDATE:0:8}
-gcyc=${GDATE:8:2}
+export gcyc=${GDATE:8:2}
 export GDUMP=${GDUMP:-"gdas"}
 
 export OPREFIX="${CDUMP}.t${cyc}z."
@@ -88,8 +88,9 @@ export COMIN_GES_ENS="$ROTDIR/enkfgdas.$gPDY/$gcyc/$COMPONENT"
 # HOW TO HANDLE DIFFERENT COMPILERS/ETC. FOR MODEL VS DA
 # PROD_UTIL, ETC. DO NOT EXIST FOR JEDI MODULE VERSIONS
 module purge
-module use $HOMEgfs/sorc/gdasapp.fd/modulefiles
+module use $HOMEgfs/sorc/gdas.cd/modulefiles
 module load GDAS/orion
+export PYTHONPATH=$HOMEgfs/sorc/gdas.cd/ush/:$PYTHONPATH
 
 ###############################################################
 # Run relevant script

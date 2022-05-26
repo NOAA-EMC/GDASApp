@@ -39,7 +39,7 @@ load("pio/2.5.1-debug")
 load("ecbuild/ecmwf-3.6.1")
 load("eckit/ecmwf-1.16.0")
 load("fckit/ecmwf-0.9.2")
-load("atlas/ecmwf-0.24.1")
+load("atlas/ecmwf-0.29.0")
 
 load("hpc/1.2.0")
 load("miniconda3/4.6.14")

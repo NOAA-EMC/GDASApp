@@ -22,13 +22,13 @@ variational:
   minimizer:
     algorithm: DRIPCG
   iterations:
-  - ninner: 50
+  - ninner: 20
     gradient norm reduction: 1e-10
     test: on
     geometry: $(GEOM_ANL)
     diagnostics:
       departures: bkgmob
-  - ninner: 100
+  - ninner: 40
     gradient norm reduction: 1e-10
     test: on
     geometry: $(GEOM_ANL)

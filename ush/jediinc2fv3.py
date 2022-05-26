@@ -11,6 +11,7 @@ vardict = {
     'delp': 'delp_inc',
     'DELP': 'delp_inc',
     'delz': 'delz_inc',
+    't': 'T_inc',
     'T': 'T_inc',
     'sphum': 'sphum_inc',
     'liq_wat': 'liq_wat_inc',
