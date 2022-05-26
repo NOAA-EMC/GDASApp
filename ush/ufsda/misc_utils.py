@@ -1,3 +1,4 @@
+import datetime as dt
 import logging
 import os
 import subprocess
@@ -61,3 +62,41 @@ def submit_batch_job(job_config, working_dir, job_script):
     """
     if scheduler[job_config['machine']] == 'slurm':
         subprocess.Popen(f"sbatch {job_script}", cwd=working_dir, shell=True)
+
+
+def datetime_from_cdate(cdate):
+    cdate_obj = dt.datetime.strptime(cdate, "%Y%m%d%H")
+    return cdate_obj
+
+
+def get_env_config(component='atm'):
+    # get config dict based on environment variables
+    # TODO break this into component specific sections
+    # datetime objects
+    valid_time = datetime_from_cdate(os.environ['CDATE'])
+    assim_freq = int(os.environ['assim_freq'])
+    prev_cycle = valid_time - dt.timedelta(hours=assim_freq)
+    window_begin = valid_time - dt.timedelta(hours=assim_freq/2)
+
+    config = {
+        'valid_time': f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        'prev_valid_time': f"{prev_cycle.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        'atm_window_length': f"PT{assim_freq}H",
+        'OBS_DIR': os.environ['COMOUT'],
+        'OBS_PREFIX': f"{os.environ['CDUMP']}.t{os.environ['cyc']}z.",
+        'target_dir': os.environ['COMOUT'],
+        'OBS_DATE': os.environ['CDATE'],
+        'BIAS_IN_DIR': os.environ['COMOUT'],
+        'BIAS_PREFIX': f"{os.environ['GDUMP']}.t{os.environ['gcyc']}z.",
+        'BIAS_DATE': f"{os.environ['GDATE']}",
+        'experiment': os.getenv('PSLOT', 'test'),
+    }
+    # some keys we can pull directly from the environment
+    env_keys = [
+        'CASE', 'CASE_ANL', 'CASE_ENKF', 'DOHYBVAR', 'LEVS', 'OBS_YAML_DIR', 'OBS_LIST',
+    ]
+    for key in env_keys:
+        config[key] = os.environ[key]
+    config['atm'] = True if component == 'atm' else False
+    return config

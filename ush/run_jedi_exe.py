@@ -58,19 +58,21 @@ def run_jedi_exe(yamlconfig):
         'fv3jedi_fieldset_dir': os.path.join(workdir, 'Data', 'fieldsets'),
         'ANL_DIR': os.path.join(workdir, 'anl'),
         'fv3jedi_staticb_dir': os.path.join(workdir, 'berror'),
-        'BIAS_DIR': os.path.join(workdir, 'obs'),
+        'BIAS_IN_DIR': os.path.join(workdir, 'obs'),
+        'BIAS_OUT_DIR': os.path.join(workdir, 'bc'),
         'CRTM_COEFF_DIR': os.path.join(workdir, 'crtm'),
-        'BIAS_PREFIX': f"{executable_subconfig['dump']}.t{gcyc}z",
+        'BIAS_PREFIX': f"{executable_subconfig['dump']}.t{gcyc}z.",
         'BIAS_DATE': f"{gdate}",
         'DIAG_DIR': os.path.join(workdir, 'diags'),
         'OBS_DIR': os.path.join(workdir, 'obs'),
-        'OBS_PREFIX': f"{executable_subconfig['dump']}.t{cyc}z",
+        'OBS_PREFIX': f"{executable_subconfig['dump']}.t{cyc}z.",
         'OBS_DATE': f"{cdate}",
         'valid_time': f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'prev_valid_time': f"{prev_cycle.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'atm_window_length': executable_subconfig['atm_window_length'],
         'CASE': executable_subconfig['case'],
+        'CASE_ANL': executable_subconfig.get('case_anl', executable_subconfig['case']),
         'CASE_ENKF': executable_subconfig.get('case_enkf', executable_subconfig['case']),
         'DOHYBVAR': executable_subconfig.get('dohybvar', False),
         'LEVS': str(executable_subconfig['levs']),
@@ -95,6 +97,7 @@ def run_jedi_exe(yamlconfig):
     ufsda.disk_utils.mkdir(os.path.join(workdir, 'diags'))
     if app_mode in ['variational']:
         ufsda.disk_utils.mkdir(os.path.join(workdir, 'anl'))
+        ufsda.disk_utils.mkdir(os.path.join(workdir, 'bc'))
     # generate job submission script
     job_script = ufsda.misc_utils.create_batch_job(all_config_dict['job options'],
                                                    workdir,

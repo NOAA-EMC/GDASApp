@@ -58,7 +58,7 @@ def store(config):
         day = Hour(time).format('%d')
         hour = Hour(time).format('%H')
         inputs['date'] = time
-        if r2d2_type in ['bc', 'ob']:
+        if r2d2_type in ['bc', 'ob', 'diag']:
             if r2d2_type == 'ob':
                 inputs['date'] = time
                 inputs['time_window'] = config['step']

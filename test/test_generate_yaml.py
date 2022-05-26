@@ -23,11 +23,11 @@ def test_yaml_gen_yaml(parm_dir):
         'fv3jedi_staticb_dir': '/fake/path/to/berror',
         'BIAS_DIR': '/fake/path/to/biascoeff',
         'CRTM_COEFF_DIR': '/fake/path/to/crtm',
-        'BIAS_PREFIX': 'gdas.t18z',
+        'BIAS_PREFIX': 'gdas.t18z.',
         'BIAS_DATE': '${gPDY}${gcyc}',
         'DIAG_DIR': '/fake/output/path',
         'OBS_DIR': '/fake/path/to/obs',
-        'OBS_PREFIX': 'gdas.t00z',
+        'OBS_PREFIX': 'gdas.t00z.',
         'OBS_DATE': '${PDY}${cyc}',
     }
     # now call the function to do all of the heavy lifting
