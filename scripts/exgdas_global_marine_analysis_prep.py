@@ -27,7 +27,7 @@ import dateutil.parser as dparser
 # get absolute path of ush/ directory either from env or relative to this file
 my_dir = os.path.dirname(__file__)
 my_home = os.path.dirname(os.path.dirname(my_dir))
-ufsda_home = os.path.join(os.getenv('HOMEgfs'), 'sorc', 'ufs_da.fd', 'UFS-DA')
+gdas_home = os.path.join(os.getenv('HOMEgfs'), 'sorc', 'gdas.cd')
 sys.path.append(os.path.join(os.getenv('HOMEgfs', my_home), 'ush'))
 print(f"sys.path={sys.path}")
 
@@ -59,7 +59,7 @@ def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml'):
 # get runtime environment variables
 comout = os.getenv('COMOUT')
 comin_obs = os.getenv('COMIN_OBS')
-staticsoca_dir = os.getenv('STATICSOCA_DIR')
+staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
 
 # create analysis directory for files
 anl_dir = os.path.join(comout, 'analysis')
@@ -69,7 +69,7 @@ ufsda.mkdir(anl_dir)
 ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root=comin_obs)
 
 # create config dict from runtime env
-stage_cfg = ufsda.parse_config(templateyaml=os.path.join(ufsda_home,
+stage_cfg = ufsda.parse_config(templateyaml=os.path.join(gdas_home,
                                                          'parm',
                                                          'templates',
                                                          'stage.yaml'), clean=True)
@@ -81,11 +81,21 @@ ufsda.stage.obs(stage_cfg)
 ufsda.stage.background(stage_cfg)
 
 # stage static files
-ufsda.stage.static(os.path.join(comout, 'static'), staticsoca_dir, 'test')
+ufsda.stage.soca_fix(stage_cfg)
+
+# link yaml for grid generation
+gridgen_yaml = os.path.join(gdas_home,
+                            'parm',
+                            'soca',
+                            'variational',
+                            'ufsda_global_ocn_gridgen.yaml')
+ufsda.disk_utils.symlink(gridgen_yaml,
+                         os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
+
 
 # generate YAML file for soca_var
 var_yaml = os.path.join(anl_dir, 'var.yaml')
-var_yaml_template = os.path.join(ufsda_home,
+var_yaml_template = os.path.join(gdas_home,
                                  'parm',
                                  'soca',
                                  'variational',

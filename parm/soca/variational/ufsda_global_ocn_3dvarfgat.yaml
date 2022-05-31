@@ -5,7 +5,7 @@ cost function:
   analysis variables: &soca_vars  [socn, tocn, ssh, hocn]
   geometry:
     mom6_input_nml: ./inputnml/input.nml
-    fields metadata: ./fields_metadata.yml
+    fields metadata: ./fields_metadata.yaml
 
   model:
     name: PseudoModel
@@ -63,7 +63,7 @@ variational:
   iterations:
   - geometry:
       mom6_input_nml: ./inputnml/input.nml
-      fields metadata: ./fields_metadata.yml
+      fields metadata: ./fields_metadata.yaml
     linear model:
       name: Identity
       increment variables: *soca_vars

@@ -54,7 +54,43 @@ def gdas_fix(input_fix_dir, working_dir, config):
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'crtm', '2.3.0_jedi'),
                              config['CRTM_COEFF_DIR'])
 
+def soca_fix(config):
+    """
+    soca_fix(input_fix_dir, config):
+        Stage fix files needed by SOCA for GDAS analyses
+        input_fix_dir - path to root fix file directory
+        working_dir - path to where files should be linked to
+        config - dict containing configuration
+    """
 
+    # link static B bump files
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'bump'),
+                             os.path.join(config['stage_dir'],'bump'))
+    # link static sst B
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'godas_sst_bgerr.nc'),
+                             os.path.join(config['stage_dir'], 'godas_sst_bgerr.nc'))
+
+    # link Rossby Radius file
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'rossrad.dat'),
+                             os.path.join(config['stage_dir'], 'rossrad.dat'))
+    # link name lists
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'inputnml','input.nml'),
+                             os.path.join(config['stage_dir'], 'mom_input.nml'))
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'field_table'),
+                             os.path.join(config['stage_dir'], 'field_table'))
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'diag_table'),
+                             os.path.join(config['stage_dir'], 'diag_table'))
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'MOM_input'),
+                             os.path.join(config['stage_dir'], 'MOM_input'))
+    # link field metadata
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'fields_metadata.yaml'),
+                             os.path.join(config['stage_dir'], 'fields_metadata.yaml'))
+
+    # INPUT
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'INPUT'),
+                             os.path.join(config['stage_dir'], 'INPUT'))
+    ufsda.disk_utils.symlink(os.path.join(config['stage_dir'],'bkg','MOM.res.2018-04-15-09-00-00.nc'),
+                             os.path.join(config['stage_dir'], 'INPUT','MOM.res.nc'))
 def atm_background(config):
     # stage FV3 backgrounds
     r2d2_config = {

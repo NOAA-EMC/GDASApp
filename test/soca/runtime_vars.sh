@@ -17,17 +17,17 @@ export LEVS="75"                # TODO: Same as above
 export OBS_YAML=${project_binary_dir}/test/soca/testinput/obs_list.yaml # list of obs for the experiment
 export OBS_YAML_DIR=${project_source_dir}/parm/soca/obs/config      # path to UFO yaml files
 
-mkdir -p ${project_binary_dir}/test/soca/HOMEgfs/sorc/ufs_da.fd/
+mkdir -p ${project_binary_dir}/test/soca/HOMEgfs/sorc/
 export HOMEgfs=${project_binary_dir}/test/soca/HOMEgfs
 
-ufsda_link=${project_binary_dir}/test/soca/HOMEgfs/sorc/ufs_da.fd/UFS-DA
+ufsda_link=${project_binary_dir}/test/soca/HOMEgfs/sorc/gdas.cd
 [ ! -L "${ufsda_link}" ] && ln -s ${project_source_dir} ${ufsda_link}
 
 ush_link=${project_binary_dir}/test/soca/HOMEgfs/ush
 [ ! -L "${ush_link}" ] && ln -s ${project_source_dir}/ush ${ush_link}
 
-export STATICSOCA_DIR=${project_binary_dir}/test/soca/static                    # Static B-matrix
-export STATICB_DIR=${project_binary_dir}/test/soca/staticb                    # Static B-matrix
+export SOCA_INPUT_FIX_DIR=${project_binary_dir}/soca_static      # static soca files
+export STATICB_DIR=${project_binary_dir}/test/soca/staticb       # Static B-matrix
 export FV3JEDI_STAGE_YAML=${project_binary_dir}/test/soca/testinput/dumy.yaml # Useless atmospheric stuff
 export R2D2_OBS_DB=shared
 export R2D2_OBS_DUMP=soca
