@@ -37,8 +37,8 @@ load("nccmp/1.8.7.0")
 load("pio/2.5.1-debug")
 
 load("ecbuild/ecmwf-3.6.1")
-load("eckit/ecmwf-1.16.0")
-load("fckit/ecmwf-0.9.2")
+load("fckit/ecmwf-0.9.5")
+load("eckit/ecmwf-1.18.2")
 load("atlas/ecmwf-0.29.0")
 
 load("hpc/1.2.0")
@@ -56,6 +56,9 @@ setenv('MPIEXEC_NPROC', mpinproc)
 setenv('R2D2_CONFIG', '/work2/noaa/da/cmartin/GDASApp/R2D2_SHARED/config_orion.yaml')
 
 execute{cmd="ulimit -s unlimited",modeA={"load"}}
+
+-- below is hack because of hardcoded python exe in fckit
+prepend_path("LD_LIBRARY_PATH","/apps/python-3.9.2/lib")
 
 whatis("Name: ".. pkgName)
 whatis("Version: " .. pkgVersion)
