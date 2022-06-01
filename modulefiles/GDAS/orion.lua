@@ -57,6 +57,9 @@ setenv('R2D2_CONFIG', '/work2/noaa/da/cmartin/GDASApp/R2D2_SHARED/config_orion.y
 
 execute{cmd="ulimit -s unlimited",modeA={"load"}}
 
+-- below is hack because of hardcoded python exe in fckit
+prepend_path("LD_LIBRARY_PATH","/apps/python-3.9.2/lib")
+
 whatis("Name: ".. pkgName)
 whatis("Version: " .. pkgVersion)
 whatis("Category: GDASApp")
