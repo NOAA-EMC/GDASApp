@@ -1,0 +1,27 @@
+working directory: /work2/noaa/stmp/cmartin/gdas_single_test_hofx
+GDASApp home: /work2/noaa/da/cmartin/GDASApp/work/GDASApp
+GDASApp mode: hofx
+executable options:
+  obs_yaml_dir: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/config
+  yaml_template: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/hofx/hofx4d.yaml
+  executable: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/build/bin/fv3jedi_hofx.x
+  obs_list: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype.yaml
+  gdas_fix_root: /work2/noaa/da/cmartin/GDASApp/fix
+  atm: true
+  layout_x: 4
+  layout_y: 4
+  atm_window_length: PT6H
+  forecast_step: PT1H
+  valid_time: 2021-08-01T00:00:00Z
+  dump: gdas
+  case: C768
+  levs: 128
+job options:
+  machine: orion
+  account: da-cpu
+  queue: debug
+  partition: debug
+  walltime: '30:00'
+  ntasks: 96
+  cpus-per-task: 1
+  modulepath: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/modulefiles
