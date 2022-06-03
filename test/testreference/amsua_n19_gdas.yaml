@@ -1,19 +1,34 @@
+obs space:
+  name: amsua_n19
+  obsdatain:
+    obsfile: $(OBS_DIR)/$(OBS_PREFIX)amsua_n19.$(OBS_DATE).nc4
+  obsdataout:
+    obsfile: $(DIAG_DIR)/diag_amsua_n19_$(OBS_DATE).nc4
+  simulated variables:
+  - brightness_temperature
+  channels: 1-15
+  io pool:
+    max pool size: 1
+obs operator:
+  name: CRTM
+  Absorbers:
+  - H2O
+  - O3
+  - CO2
+  Clouds:
+  - Water
+  - Ice
+  Cloud_Fraction: 1.0
+  obs options:
+    Sensor_ID: amsua_n19
+    EndianType: little_endian
+    CoefficientPath: $(CRTM_COEFF_DIR)/
+  linear obs operator:
+    Absorbers:
+    - H2O
+    - O3
 obs bias:
-  covariance:
-    largest analysis variance: 10000.0
-    minimal required obs number: 20
-    output file: $(BIAS_OUT_DIR)/$(OBS_PREFIX)amsua_n19.satbias_cov.$(OBS_DATE).nc4
-    prior:
-      inflation:
-        ratio: 1.1
-        ratio for small dataset: 2.0
-      input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)amsua_n19.satbias_cov.$(BIAS_DATE).nc4
-    step size: 0.0001
-    variance range:
-    - 1.0e-06
-    - 10.0
   input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)amsua_n19.satbias.$(BIAS_DATE).nc4
-  output file: $(BIAS_OUT_DIR)/$(OBS_PREFIX)amsua_n19.satbias.$(OBS_DATE).nc4
   variational bc:
     predictors:
     - name: constant
@@ -30,45 +45,40 @@ obs bias:
     - name: scan_angle
       order: 2
     - name: scan_angle
+  output file: $(BIAS_OUT_DIR)/$(OBS_PREFIX)amsua_n19.satbias.$(OBS_DATE).nc4
+  covariance:
+    minimal required obs number: 20
+    variance range:
+    - 1.0e-06
+    - 10.0
+    step size: 0.0001
+    largest analysis variance: 10000.0
+    prior:
+      input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)amsua_n19.satbias_cov.$(BIAS_DATE).nc4
+      inflation:
+        ratio: 1.1
+        ratio for small dataset: 2.0
+    output file: $(BIAS_OUT_DIR)/$(OBS_PREFIX)amsua_n19.satbias_cov.$(OBS_DATE).nc4
 obs filters:
-- action:
+- filter: BlackList
+  filter variables:
+  - name: brightness_temperature
+    channels: 1-15
+  action:
+    name: assign error
     error function:
-      channels: 1-15
       name: ObsErrorModelRamp@ObsFunction
+      channels: 1-15
       options:
         channels: 1-15
-        err0:
-        - 2.5
-        - 2.2
-        - 2.0
-        - 0.55
-        - 0.3
-        - 0.23
-        - 0.23
-        - 0.25
-        - 0.25
-        - 0.35
-        - 0.4
-        - 0.55
-        - 0.8
-        - 3.0
-        - 3.5
-        err1:
-        - 20.0
-        - 18.0
-        - 12.0
-        - 3.0
-        - 0.5
-        - 0.3
-        - 0.23
-        - 0.25
-        - 0.25
-        - 0.35
-        - 0.4
-        - 0.55
-        - 0.8
-        - 3.0
-        - 18.0
+        xvar:
+          name: CLWRetSymmetricMW@ObsFunction
+          options:
+            clwret_ch238: 1
+            clwret_ch314: 2
+            clwret_types:
+            - ObsValue
+            - HofX
         x0:
         - 0.05
         - 0.03
@@ -101,26 +111,42 @@ obs filters:
         - 0.0
         - 0.0
         - 0.2
-        xvar:
-          name: CLWRetSymmetricMW@ObsFunction
-          options:
-            clwret_ch238: 1
-            clwret_ch314: 2
-            clwret_types:
-            - ObsValue
-            - HofX
-    name: assign error
-  filter: BlackList
+        err0:
+        - 2.5
+        - 2.2
+        - 2.0
+        - 0.55
+        - 0.3
+        - 0.23
+        - 0.23
+        - 0.25
+        - 0.25
+        - 0.35
+        - 0.4
+        - 0.55
+        - 0.8
+        - 3.0
+        - 3.5
+        err1:
+        - 20.0
+        - 18.0
+        - 12.0
+        - 3.0
+        - 0.5
+        - 0.3
+        - 0.23
+        - 0.25
+        - 0.25
+        - 0.35
+        - 0.4
+        - 0.55
+        - 0.8
+        - 3.0
+        - 18.0
+- filter: Bounds Check
   filter variables:
-  - channels: 1-15
-    name: brightness_temperature
-- action:
-    name: reject
-  filter: Bounds Check
-  filter variables:
-  - channels: 1-6, 15
-    name: brightness_temperature
-  maxvalue: 999.0
+  - name: brightness_temperature
+    channels: 1-6, 15
   test variables:
   - name: CLWRetMW@ObsFunction
     options:
@@ -128,13 +154,13 @@ obs filters:
       clwret_ch314: 2
       clwret_types:
       - ObsValue
-- action:
-    name: reject
-  filter: Bounds Check
-  filter variables:
-  - channels: 1-6, 15
-    name: brightness_temperature
   maxvalue: 999.0
+  action:
+    name: reject
+- filter: Bounds Check
+  filter variables:
+  - name: brightness_temperature
+    channels: 1-6, 15
   test variables:
   - name: CLWRetMW@ObsFunction
     options:
@@ -142,25 +168,18 @@ obs filters:
       clwret_ch314: 2
       clwret_types:
       - HofX
-- action:
+  maxvalue: 999.0
+  action:
     name: reject
-  filter: Bounds Check
+- filter: Bounds Check
   filter variables:
-  - channels: 1-15
-    name: brightness_temperature
-  maxvalue: 0.0
+  - name: brightness_temperature
+    channels: 1-15
   test variables:
-  - channels: 1-15
-    name: HydrometeorCheckAMSUA@ObsFunction
+  - name: HydrometeorCheckAMSUA@ObsFunction
+    channels: 1-15
     options:
       channels: 1-15
-      clwret_function:
-        name: CLWRetMW@ObsFunction
-        options:
-          clwret_ch238: 1
-          clwret_ch314: 2
-          clwret_types:
-          - ObsValue
       obserr_clearsky:
       - 2.5
       - 2.2
@@ -177,43 +196,26 @@ obs filters:
       - 0.8
       - 3.0
       - 3.5
+      clwret_function:
+        name: CLWRetMW@ObsFunction
+        options:
+          clwret_ch238: 1
+          clwret_ch314: 2
+          clwret_types:
+          - ObsValue
       obserr_function:
-        channels: 1-15
         name: ObsErrorModelRamp@ObsFunction
+        channels: 1-15
         options:
           channels: 1-15
-          err0:
-          - 2.5
-          - 2.2
-          - 2.0
-          - 0.55
-          - 0.3
-          - 0.23
-          - 0.23
-          - 0.25
-          - 0.25
-          - 0.35
-          - 0.4
-          - 0.55
-          - 0.8
-          - 3.0
-          - 3.5
-          err1:
-          - 20.0
-          - 18.0
-          - 12.0
-          - 3.0
-          - 0.5
-          - 0.3
-          - 0.23
-          - 0.25
-          - 0.25
-          - 0.35
-          - 0.4
-          - 0.55
-          - 0.8
-          - 3.0
-          - 18.0
+          xvar:
+            name: CLWRetSymmetricMW@ObsFunction
+            options:
+              clwret_ch238: 1
+              clwret_ch314: 2
+              clwret_types:
+              - ObsValue
+              - HofX
           x0:
           - 0.05
           - 0.03
@@ -246,41 +248,73 @@ obs filters:
           - 0.0
           - 0.0
           - 0.2
-          xvar:
-            name: CLWRetSymmetricMW@ObsFunction
-            options:
-              clwret_ch238: 1
-              clwret_ch314: 2
-              clwret_types:
-              - ObsValue
-              - HofX
-- action:
+          err0:
+          - 2.5
+          - 2.2
+          - 2.0
+          - 0.55
+          - 0.3
+          - 0.23
+          - 0.23
+          - 0.25
+          - 0.25
+          - 0.35
+          - 0.4
+          - 0.55
+          - 0.8
+          - 3.0
+          - 3.5
+          err1:
+          - 20.0
+          - 18.0
+          - 12.0
+          - 3.0
+          - 0.5
+          - 0.3
+          - 0.23
+          - 0.25
+          - 0.25
+          - 0.35
+          - 0.4
+          - 0.55
+          - 0.8
+          - 3.0
+          - 18.0
+  maxvalue: 0.0
+  action:
+    name: reject
+- filter: BlackList
+  filter variables:
+  - name: brightness_temperature
+    channels: 1-15
+  action:
+    name: inflate error
     inflation variable:
-      channels: 1-15
       name: ObsErrorFactorTopoRad@ObsFunction
+      channels: 1-15
       options:
-        channels: 1-15
         sensor: amsua_n19
-    name: inflate error
-  filter: BlackList
+        channels: 1-15
+- filter: BlackList
   filter variables:
-  - channels: 1-15
-    name: brightness_temperature
-- action:
+  - name: brightness_temperature
+    channels: 1-15
+  action:
+    name: inflate error
     inflation variable:
-      channels: 1-15
       name: ObsErrorFactorTransmitTopRad@ObsFunction
+      channels: 1-15
       options:
         channels: 1-15
-    name: inflate error
-  filter: BlackList
+- filter: BlackList
   filter variables:
-  - channels: 1-15
-    name: brightness_temperature
-- action:
+  - name: brightness_temperature
+    channels: 1-15
+  action:
+    name: inflate error
     inflation variable:
-      channels: 1-15
       name: ObsErrorFactorSurfJacobianRad@ObsFunction
+      channels: 1-15
       options:
         channels: 1-15
         obserr_demisf:
@@ -295,38 +329,47 @@ obs filters:
         - 1.0
         - 2.0
         - 4.5
-    name: inflate error
-  filter: BlackList
+- filter: BlackList
   filter variables:
-  - channels: 1-15
-    name: brightness_temperature
-- action:
+  - name: brightness_temperature
+    channels: 1-15
+  action:
+    name: inflate error
     inflation variable:
-      channels: 1-15
       name: ObsErrorFactorSituDependMW@ObsFunction
+      channels: 1-15
       options:
+        sensor: amsua_n19
         channels: 1-15
+        clwobs_function:
+          name: CLWRetMW@ObsFunction
+          options:
+            clwret_ch238: 1
+            clwret_ch314: 2
+            clwret_types:
+            - ObsValue
         clwbkg_function:
           name: CLWRetMW@ObsFunction
           options:
-            bias_application: HofX
             clwret_ch238: 1
             clwret_ch314: 2
             clwret_types:
             - HofX
+            bias_application: HofX
+        scatobs_function:
+          name: SCATRetMW@ObsFunction
+          options:
+            scatret_ch238: 1
+            scatret_ch314: 2
+            scatret_ch890: 15
+            scatret_types:
+            - ObsValue
+            bias_application: HofX
         clwmatchidx_function:
-          channels: 1-15
           name: CLWMatchIndexMW@ObsFunction
+          channels: 1-15
           options:
             channels: 1-15
-            clwbkg_function:
-              name: CLWRetMW@ObsFunction
-              options:
-                bias_application: HofX
-                clwret_ch238: 1
-                clwret_ch314: 2
-                clwret_types:
-                - HofX
             clwobs_function:
               name: CLWRetMW@ObsFunction
               options:
@@ -334,6 +377,14 @@ obs filters:
                 clwret_ch314: 2
                 clwret_types:
                 - ObsValue
+            clwbkg_function:
+              name: CLWRetMW@ObsFunction
+              options:
+                clwret_ch238: 1
+                clwret_ch314: 2
+                clwret_types:
+                - HofX
+                bias_application: HofX
             clwret_clearsky:
             - 0.05
             - 0.03
@@ -350,13 +401,6 @@ obs filters:
             - 0.0
             - 0.0
             - 0.03
-        clwobs_function:
-          name: CLWRetMW@ObsFunction
-          options:
-            clwret_ch238: 1
-            clwret_ch314: 2
-            clwret_types:
-            - ObsValue
         obserr_clearsky:
         - 2.5
         - 2.2
@@ -373,31 +417,15 @@ obs filters:
         - 0.8
         - 3.0
         - 3.5
-        scatobs_function:
-          name: SCATRetMW@ObsFunction
-          options:
-            bias_application: HofX
-            scatret_ch238: 1
-            scatret_ch314: 2
-            scatret_ch890: 15
-            scatret_types:
-            - ObsValue
-        sensor: amsua_n19
-    name: inflate error
-  filter: BlackList
+- filter: Background Check
   filter variables:
-  - channels: 1-15
-    name: brightness_temperature
-- action:
-    name: reject
-  filter: Background Check
-  filter variables:
-  - channels: 1-15
-    name: brightness_temperature
+  - name: brightness_temperature
+    channels: 1-15
   function absolute threshold:
-  - channels: 1-15
-    name: ObsErrorBoundMW@ObsFunction
+  - name: ObsErrorBoundMW@ObsFunction
+    channels: 1-15
     options:
+      sensor: amsua_n19
       channels: 1-15
       obserr_bound_latitude:
         name: ObsErrorFactorLatRad@ObsFunction
@@ -407,70 +435,31 @@ obs filters:
           - 0.25
           - 0.04
           - 3.0
-      obserr_bound_max:
-      - 4.5
-      - 4.5
-      - 4.5
-      - 2.5
-      - 2.0
-      - 2.0
-      - 2.0
-      - 2.0
-      - 2.0
-      - 2.0
-      - 2.5
-      - 3.5
-      - 4.5
-      - 4.5
-      - 4.5
-      obserr_bound_topo:
+      obserr_bound_transmittop:
+        name: ObsErrorFactorTransmitTopRad@ObsFunction
         channels: 1-15
+        options:
+          channels: 1-15
+      obserr_bound_topo:
         name: ObsErrorFactorTopoRad@ObsFunction
+        channels: 1-15
         options:
           channels: 1-15
           sensor: amsua_n19
-      obserr_bound_transmittop:
-        channels: 1-15
-        name: ObsErrorFactorTransmitTopRad@ObsFunction
-        options:
-          channels: 1-15
       obserr_function:
-        channels: 1-15
         name: ObsErrorModelRamp@ObsFunction
+        channels: 1-15
         options:
           channels: 1-15
-          err0:
-          - 2.5
-          - 2.2
-          - 2.0
-          - 0.55
-          - 0.3
-          - 0.23
-          - 0.23
-          - 0.25
-          - 0.25
-          - 0.35
-          - 0.4
-          - 0.55
-          - 0.8
-          - 3.0
-          - 3.5
-          err1:
-          - 20.0
-          - 18.0
-          - 12.0
-          - 3.0
-          - 0.5
-          - 0.3
-          - 0.23
-          - 0.25
-          - 0.25
-          - 0.35
-          - 0.4
-          - 0.55
-          - 0.8
-          - 3.0
-          - 18.0
+          xvar:
+            name: CLWRetSymmetricMW@ObsFunction
+            options:
+              clwret_ch238: 1
+              clwret_ch314: 2
+              clwret_types:
+              - ObsValue
+              - HofX
+              bias_application: HofX
           x0:
           - 0.05
           - 0.03
@@ -503,55 +492,92 @@ obs filters:
           - 0.0
           - 0.0
           - 0.2
-          xvar:
-            name: CLWRetSymmetricMW@ObsFunction
-            options:
-              bias_application: HofX
-              clwret_ch238: 1
-              clwret_ch314: 2
-              clwret_types:
-              - ObsValue
-              - HofX
-      sensor: amsua_n19
-- action:
+          err0:
+          - 2.5
+          - 2.2
+          - 2.0
+          - 0.55
+          - 0.3
+          - 0.23
+          - 0.23
+          - 0.25
+          - 0.25
+          - 0.35
+          - 0.4
+          - 0.55
+          - 0.8
+          - 3.0
+          - 3.5
+          err1:
+          - 20.0
+          - 18.0
+          - 12.0
+          - 3.0
+          - 0.5
+          - 0.3
+          - 0.23
+          - 0.25
+          - 0.25
+          - 0.35
+          - 0.4
+          - 0.55
+          - 0.8
+          - 3.0
+          - 18.0
+      obserr_bound_max:
+      - 4.5
+      - 4.5
+      - 4.5
+      - 2.5
+      - 2.0
+      - 2.0
+      - 2.0
+      - 2.0
+      - 2.0
+      - 2.0
+      - 2.5
+      - 3.5
+      - 4.5
+      - 4.5
+      - 4.5
+  action:
     name: reject
-  filter: Bounds Check
+- filter: Bounds Check
   filter variables:
-  - channels: 1-15
-    name: brightness_temperature
+  - name: brightness_temperature
+    channels: 1-15
+  test variables:
+  - name: InterChannelConsistencyCheck@ObsFunction
+    channels: 1-15
+    options:
+      channels: 1-15
+      sensor: amsua_n19
+      use_flag:
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - -1
+      - -1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - -1
+      - 1
   maxvalue: 1.0e-12
-  test variables:
-  - channels: 1-15
-    name: InterChannelConsistencyCheck@ObsFunction
-    options:
-      channels: 1-15
-      sensor: amsua_n19
-      use_flag:
-      - 1
-      - 1
-      - 1
-      - 1
-      - 1
-      - 1
-      - -1
-      - -1
-      - 1
-      - 1
-      - 1
-      - 1
-      - 1
-      - -1
-      - 1
-- action:
+  action:
     name: reject
-  filter: Bounds Check
+- filter: Bounds Check
   filter variables:
-  - channels: 1-15
-    name: brightness_temperature
-  minvalue: 1.0e-12
+  - name: brightness_temperature
+    channels: 1-15
   test variables:
-  - channels: 1-15
-    name: ChannelUseflagCheckRad@ObsFunction
+  - name: ChannelUseflagCheckRad@ObsFunction
+    channels: 1-15
     options:
       channels: 1-15
       use_flag:
@@ -570,32 +596,6 @@ obs filters:
       - 1
       - -1
       - 1
-obs operator:
-  Absorbers:
-  - H2O
-  - O3
-  - CO2
-  Cloud_Fraction: 1.0
-  Clouds:
-  - Water
-  - Ice
-  linear obs operator:
-    Absorbers:
-    - H2O
-    - O3
-  name: CRTM
-  obs options:
-    CoefficientPath: $(CRTM_COEFF_DIR)/
-    EndianType: little_endian
-    Sensor_ID: amsua_n19
-obs space:
-  channels: 1-15
-  io pool:
-    max pool size: 1
-  name: amsua_n19
-  obsdatain:
-    obsfile: $(OBS_DIR)/$(OBS_PREFIX)amsua_n19.$(OBS_DATE).nc4
-  obsdataout:
-    obsfile: $(DIAG_DIR)/diag_amsua_n19_$(OBS_DATE).nc4
-  simulated variables:
-  - brightness_temperature
+  minvalue: 1.0e-12
+  action:
+    name: reject
