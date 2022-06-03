@@ -4,6 +4,7 @@ import copy
 import logging
 import yaml
 
+
 def convert_yaml_ewok_to_gdas(ewokyaml, gdasyaml):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     # first, read input YAML into memory
@@ -60,9 +61,9 @@ def convert_yaml_ewok_to_gdas(ewokyaml, gdasyaml):
             'prior': {
                 'input file': f"$(BIAS_IN_DIR)/$(BIAS_PREFIX){obtype}.satbias_cov.$(BIAS_DATE).nc4",
                 'inflation': {'ratio': 1.1, 'ratio for small dataset': 2.0},
-                },
+            },
             'output file': f"$(BIAS_OUT_DIR)/$(OBS_PREFIX){obtype}.satbias_cov.$(OBS_DATE).nc4",
-            }
+        }
         ob_dict['obs bias']['covariance'] = cov_dict
 
     # write out new YAML file
