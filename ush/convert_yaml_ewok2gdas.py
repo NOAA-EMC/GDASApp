@@ -69,7 +69,7 @@ def convert_yaml_ewok_to_gdas(ewokyaml, gdasyaml):
     # write out new YAML file
     try:
         with open(gdasyaml, 'w') as yamlout:
-            yaml.dump(ob_dict, yamlout, default_flow_style=False)
+            yaml.dump(ob_dict, yamlout, default_flow_style=False, sort_keys=False)
         logging.info(f'Wrote YAML to {gdasyaml}')
     except Exception as e:
         logging.error(f'Error occurred when attempting to write: {gdasyaml}, error: {e}')
