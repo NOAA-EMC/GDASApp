@@ -17,6 +17,8 @@
 #
 ################################################################################
 
+set -e
+
 #  Set environment.
 export VERBOSE=${VERBOSE:-"YES"}
 if [ $VERBOSE = "YES" ]; then
@@ -33,14 +35,17 @@ export NLN=${NLN:-"/bin/ln -sf"}
 ################################################################################
 # run executable
 #export pgm=$SOCAVAREXE  # TODO (Guillaume): What's that?
-#. prep_step # TODO (Guillaume): What's that?
-#$APRUN_ATMANAL $DATA/soca_var.x var.yaml 1>&1 2>&2
-#mpirun -np 8 /home/gvernier/sandboxes/GDASApp/build/bin/soca_var.x var.yaml 1>&1 2>&2
-echo '================= $pwd'
-singularity exec -e /home/gvernier/containers/jedi-gnu-openmpi-dev_latest.sif mpirun -np 8 /home/gvernier/sandboxes/GDASApp/build/bin/soca_gridgen.x gridgen.yaml
+#. prep_step             # TODO (Guillaume): What's that?
 
-singularity exec -e /home/gvernier/containers/jedi-gnu-openmpi-dev_latest.sif mpirun -np 8 /home/gvernier/sandboxes/GDASApp/build/bin/soca_var.x var.yaml
-#export err=$?; err_chk
+
+# TODO (Guillaume): Move that somewhere else
+RUNCMD='singularity exec -e /home/gvernier/containers/jedi-gnu-openmpi-dev_latest.sif mpirun'
+
+# Generate soca geometry
+$RUNCMD $JEDI_BIN/soca_gridgen.x gridgen.yaml 2> grigen.err
+
+# run 3DVAR FGAT
+$RUNCMD $JEDI_BIN/soca_var.x var.yaml 2>var.err
 
 ################################################################################
 set +x

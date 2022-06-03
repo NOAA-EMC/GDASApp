@@ -1,0 +1,4 @@
+saber blocks:
+- saber block name: ID
+  input variables: [socn, tocn, ssh, hocn]
+  output variables: [socn, tocn, ssh, hocn]

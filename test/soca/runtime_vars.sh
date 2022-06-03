@@ -7,8 +7,11 @@ project_source_dir=$2
 # Prepare runtime environement
 export CDATE=2018041512        # Center of current cycle date
 export GDATE=2018041506        # Center of previous cycle date
+export PDY=20180415
+export cyc=12
 export assim_freq=6            # DA window
 export COMOUT=${project_binary_dir}/test/soca/3dvar
+export DATA=${COMOUT}/analysis
 export COMIN_OBS=${project_binary_dir}/test/soca/obs/r2d2-shared
 export COMIN_GES=${project_binary_dir}/test/soca/bkg  # Backgrounds from previous forecast
 export CASE="C48"               # TODO: Replace with or add OCNRES
@@ -26,6 +29,7 @@ ufsda_link=${project_binary_dir}/test/soca/HOMEgfs/sorc/gdas.cd
 ush_link=${project_binary_dir}/test/soca/HOMEgfs/ush
 [ ! -L "${ush_link}" ] && ln -s ${project_source_dir}/ush ${ush_link}
 
+export JEDI_BIN=${project_binary_dir}/bin
 export SOCA_INPUT_FIX_DIR=${project_binary_dir}/soca_static      # static soca files
 export STATICB_DIR=${project_binary_dir}/test/soca/staticb       # Static B-matrix
 export FV3JEDI_STAGE_YAML=${project_binary_dir}/test/soca/testinput/dumy.yaml # Useless atmospheric stuff

@@ -1,6 +1,6 @@
 window begin: '{{window_begin}}'
 window length: $(window_length)
-observations: $<< ${OBS_YAML}
+observers: $<< ${OBS_YAML}
 background_dir: '{{background_dir}}'
 staticb_dir: '{{staticb_dir}}'
 COMOUT: '{{COMOUT}}'
