@@ -1,4 +1,4 @@
-working directory: /work2/noaa/stmp/cmartin/gdas_single_test
+working directory: /work2/noaa/stmp/cmartin/gdas_single_test_3dvar
 GDASApp home: /work2/noaa/da/cmartin/GDASApp/work/GDASApp
 GDASApp mode: variational
 executable options:
@@ -15,8 +15,8 @@ executable options:
   valid_time: 2021-12-21T06:00:00Z
   dump: gdas
   case: C96
-  case_enkf: C48
-  dohybvar: true
+  case_anl: C48
+  dohybvar: false
   levs: 128
 job options:
   machine: orion

@@ -1,4 +1,4 @@
-working directory: /work2/noaa/stmp/cmartin/gdas_single_test_hofx
+working directory: /work2/noaa/stmp/cmartin/gdas_single_test_hofx3d
 GDASApp home: /work2/noaa/da/cmartin/GDASApp/work/GDASApp
 GDASApp mode: hofx
 executable options:
@@ -21,6 +21,6 @@ job options:
   queue: debug
   partition: debug
   walltime: '30:00'
-  ntasks: 96 
+  ntasks: 96
   cpus-per-task: 1
   modulepath: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/modulefiles
