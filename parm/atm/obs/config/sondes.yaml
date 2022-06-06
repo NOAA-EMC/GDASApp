@@ -185,13 +185,12 @@ obs filters:
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsErrorModelHumidity@ObsFunction
         options:
           xvar:
             name: MetaData/air_pressure
           xvals: [25000, 20000, 10]
           errors: [0.2, 0.4, 0.8]        # 20% RH up to 250 mb, then increased rapidly above
-          scale_factor_var: ObsValue/specific_humidity
   #
   - filter: Perform Action
     filter variables:
