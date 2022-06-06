@@ -54,6 +54,7 @@ def gdas_fix(input_fix_dir, working_dir, config):
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'crtm', '2.3.0_jedi'),
                              config['CRTM_COEFF_DIR'])
 
+
 def soca_fix(config):
     """
     soca_fix(input_fix_dir, config):
@@ -65,7 +66,7 @@ def soca_fix(config):
 
     # link static B bump files
     ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'bump'),
-                             os.path.join(config['stage_dir'],'bump'))
+                             os.path.join(config['stage_dir'], 'bump'))
     # link static sst B
     ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'godas_sst_bgerr.nc'),
                              os.path.join(config['stage_dir'], 'godas_sst_bgerr.nc'))
@@ -74,23 +75,25 @@ def soca_fix(config):
     ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'rossrad.dat'),
                              os.path.join(config['stage_dir'], 'rossrad.dat'))
     # link name lists
-    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'inputnml','input.nml'),
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'inputnml', 'input.nml'),
                              os.path.join(config['stage_dir'], 'mom_input.nml'))
-    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'field_table'),
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'field_table'),
                              os.path.join(config['stage_dir'], 'field_table'))
-    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'diag_table'),
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'diag_table'),
                              os.path.join(config['stage_dir'], 'diag_table'))
-    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'MOM_input'),
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'MOM_input'),
                              os.path.join(config['stage_dir'], 'MOM_input'))
     # link field metadata
-    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'fields_metadata.yaml'),
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'fields_metadata.yaml'),
                              os.path.join(config['stage_dir'], 'fields_metadata.yaml'))
 
     # INPUT
-    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'],'INPUT'),
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'INPUT'),
                              os.path.join(config['stage_dir'], 'INPUT'))
-    ufsda.disk_utils.symlink(os.path.join(config['stage_dir'],'bkg','MOM.res.2018-04-15-09-00-00.nc'),
-                             os.path.join(config['stage_dir'], 'INPUT','MOM.res.nc'))
+    ufsda.disk_utils.symlink(os.path.join(config['stage_dir'], 'bkg', 'MOM.res.2018-04-15-09-00-00.nc'),
+                             os.path.join(config['stage_dir'], 'INPUT', 'MOM.res.nc'))
+
+
 def atm_background(config):
     # stage FV3 backgrounds
     r2d2_config = {
@@ -378,6 +381,7 @@ def fv3jedi(config):
     # call solo.Stage
     path = os.path.dirname(config['fv3jedi_stage'])
     stage = Stage(path, config['stage_dir'], config['fv3jedi_stage_files'])
+
 
 def static(stage_dir, static_source_dir, static_source_files):
     """

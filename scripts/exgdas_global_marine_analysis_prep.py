@@ -111,6 +111,5 @@ config = {
     'OBS_DATE': os.getenv('PDY')+os.getenv('cyc'),
     'BKG_LIST': 'bkg_list.yaml',
     'COVARIANCE_MODEL': 'SABER',
-    'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_block_identity.yaml')
-    }
+    'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_block_identity.yaml')}
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)

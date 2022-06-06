@@ -37,3 +37,5 @@ export R2D2_OBS_DB=shared
 export R2D2_OBS_DUMP=soca
 export R2D2_OBS_SRC=gdasapp
 export R2D2_OBS_WINDOW=24     # R2D2 sampling DB window
+
+APRUN_SOCAANAL='OMP_NUM_THREADS=1 srun -n 2' # TODO (G): replace srun by envar ...

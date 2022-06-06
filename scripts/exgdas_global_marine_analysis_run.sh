@@ -37,15 +37,12 @@ export NLN=${NLN:-"/bin/ln -sf"}
 #export pgm=$SOCAVAREXE  # TODO (Guillaume): What's that?
 #. prep_step             # TODO (Guillaume): What's that?
 
-
-# TODO (Guillaume): Move that somewhere else
-RUNCMD='singularity exec -e /home/gvernier/containers/jedi-gnu-openmpi-dev_latest.sif mpirun'
-
 # Generate soca geometry
-$RUNCMD $JEDI_BIN/soca_gridgen.x gridgen.yaml 2> grigen.err
+# TODO (Guillaume): Should not use all pe's for the grid generation
+$APRUN_SOCAANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml 2> grigen.err
 
 # run 3DVAR FGAT
-$RUNCMD $JEDI_BIN/soca_var.x var.yaml 2>var.err
+$APRUN_SOCAANAL $JEDI_BIN/soca_var.x var.yaml 2>var.err
 
 ################################################################################
 set +x
