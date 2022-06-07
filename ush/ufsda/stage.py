@@ -389,7 +389,7 @@ def static(stage_dir, static_source_dir, static_source_files):
     static_source_dir: source dir
     static_source_files: list of files to copy
     """
-    
+
     # create output directory
     mkdir(stage_dir)
     # call solo.Stage
