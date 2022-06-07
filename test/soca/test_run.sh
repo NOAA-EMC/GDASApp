@@ -4,7 +4,7 @@ set -e
 project_binary_dir=$1
 project_source_dir=$2
 
-source test_utils.sh
+source ${project_source_dir}/test/soca/test_utils.sh
 
 # Export runtime env. variables
 source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $project_source_dir
