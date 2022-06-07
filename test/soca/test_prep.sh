@@ -4,14 +4,7 @@ set -e
 project_binary_dir=$1
 project_source_dir=$2
 
-test_file () {
-    if test -f "$1"; then
-        echo " - $1 exists"
-    else
-        echo " - $1 does not exist"
-        exit 1
-    fi
-}
+source test_utils.sh
 
 # Export runtime env. variables
 source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $project_source_dir

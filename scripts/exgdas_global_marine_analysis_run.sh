@@ -17,8 +17,6 @@
 #
 ################################################################################
 
-set -e
-
 #  Set environment.
 export VERBOSE=${VERBOSE:-"YES"}
 if [ $VERBOSE = "YES" ]; then
