@@ -242,6 +242,7 @@ obs filters:
 #       name: ObsErrorFactorConventional@ObsFunction
 #       options:
 #         test QCflag: PreQC
+#         pressure: MetaData/air_pressure
 #         inflate variables: [virtual_temperature]
 #   defer to post: true
   #
