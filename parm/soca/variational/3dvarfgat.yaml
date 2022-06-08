@@ -2,7 +2,6 @@ cost function:
   cost type: 4D-Var
   window begin: $(ATM_WINDOW_BEGIN)
   window length: $(ATM_WINDOW_LENGTH)
-
   analysis variables: &soca_vars  [socn, tocn, ssh, hocn]
   geometry:
     mom6_input_nml: mom_input.nml
