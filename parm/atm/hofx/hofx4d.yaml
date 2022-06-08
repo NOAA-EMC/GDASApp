@@ -1,0 +1,32 @@
+window begin: '$(ATM_WINDOW_BEGIN)'
+window length: $(ATM_WINDOW_LENGTH)
+forecast length: $(ATM_WINDOW_LENGTH)
+geometry: $(GEOM_BKG)
+initial condition:
+  datapath: $(BKG_DIR)
+  filetype: fms restart
+  datetime: $(ATM_WINDOW_BEGIN)
+  filename_core: $(BEGIN_YYYYmmddHHMMSS).fv_core.res.nc
+  filename_trcr: $(BEGIN_YYYYmmddHHMMSS).fv_tracer.res.nc
+  filename_sfcd: $(BEGIN_YYYYmmddHHMMSS).sfc_data.nc
+  filename_sfcw: $(BEGIN_YYYYmmddHHMMSS).fv_srf_wnd.res.nc
+  filename_cplr: $(BEGIN_YYYYmmddHHMMSS).coupler.res
+  state variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
+                    slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
+                    u_srf,v_srf,f10m]
+model:
+  name: PSEUDO
+  datapath: $(BKG_DIR)
+  filetype: fms restart
+  datetime: $(ATM_WINDOW_BEGIN)
+  filename is datetime templated: true
+  filename_core: '%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc'
+  filename_trcr: '%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc'
+  filename_sfcd: '%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc'
+  filename_sfcw: '%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc'
+  filename_cplr: '%yyyy%mm%dd.%hh%MM%ss.coupler.res'
+  tstep: $(BKG_TSTEP)
+  model variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
+                    slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
+                    u_srf,v_srf,f10m]
+observations: $<< $(OBS_LIST)
