@@ -98,6 +98,16 @@ gridgen_yaml = os.path.join(gdas_home,
 ufsda.disk_utils.symlink(gridgen_yaml,
                          os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
 
+# generate YAML file for parametric diag of B
+berr_yaml = os.path.join(anl_dir, 'parametric_stddev_b.yaml')
+berr_yaml_template = os.path.join(gdas_home,
+                                 'parm',
+                                 'soca',
+                                 'berror',
+                                 'parametric_stddev_b.yaml')
+config = {'atm': 'false'}
+ufsda.yamltools.genYAML(config, output=berr_yaml, template=berr_yaml_template)
+
 # generate YAML file for soca_var
 var_yaml = os.path.join(anl_dir, 'var.yaml')
 var_yaml_template = os.path.join(gdas_home,

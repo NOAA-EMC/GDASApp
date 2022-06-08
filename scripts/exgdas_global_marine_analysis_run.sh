@@ -39,6 +39,9 @@ export NLN=${NLN:-"/bin/ln -sf"}
 # TODO (Guillaume): Should not use all pe's for the grid generation
 $APRUN_SOCAANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml 2> grigen.err
 
+# Generate the parametric diag of B
+$APRUN_SOCAANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml 2> parametric_stddev_b.err
+
 # run 3DVAR FGAT
 $APRUN_SOCAANAL $JEDI_BIN/soca_var.x var.yaml 2>var.err
 

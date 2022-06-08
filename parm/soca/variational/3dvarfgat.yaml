@@ -29,32 +29,6 @@ cost function:
       output variables: *soca_vars
       linear variable changes:
 
-      - linear variable change name: VertConvSOCA
-        Lz_min: 10.0
-        Lz_mld: 1
-        Lz_mld_max: 500
-        scale_layer_thick: 1.5
-
-      - linear variable change name: BkgErrFILT
-        ocean_depth_min: 1000 # [m]
-        rescale_bkgerr: 1.0
-        efold_z: 2500.0       # [m]
-
-      - linear variable change name: BkgErrGODAS
-        t_min: 0.1
-        t_max: 2.0
-        t_dz:  20.0
-        t_efold: 500.0
-        s_min: 0.0
-        s_max: 0.25
-        ssh_min: 0.0   # value at EQ
-        ssh_max: 0.0   # value in Extratropics
-        ssh_phi_ex: 20 # lat of transition from extratropics
-        cicen_min: 0.1
-        cicen_max: 0.1
-        hicen_min: 0.1
-        hicen_max: 0.1
-
       - linear variable change name: BalanceSOCA
         dsdtmax: 0.1
         dsdzmin: 3.0e-6
