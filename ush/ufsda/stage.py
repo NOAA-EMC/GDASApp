@@ -22,13 +22,13 @@ def gdas_fix(input_fix_dir, working_dir, config):
         config - dict containing configuration
     """
     # create output directories
-    ufsda.disk_utils.mkdir(config['fv3jedi_fieldset_dir'])
+    ufsda.disk_utils.mkdir(config['fv3jedi_fieldmetadata_dir'])
     ufsda.disk_utils.mkdir(config['fv3jedi_fix_dir'])
     # figure out analysis resolution
     if config['DOHYBVAR']:
         case_anl = config['CASE_ENKF']
     else:
-        case_anl = config['CASE']
+        case_anl = config['CASE_ANL']
     layers = int(config['LEVS'])-1
     # link static B files
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'bump', case_anl),
@@ -44,12 +44,10 @@ def gdas_fix(input_fix_dir, working_dir, config):
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
                                           'fv3files', 'field_table_gfdl'),
                              os.path.join(config['fv3jedi_fix_dir'], 'field_table'))
-    # link fieldsets
-    fieldsets = ['dynamics.yaml', 'ufo.yaml']
-    for fieldset in fieldsets:
-        ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
-                                              'fieldsets', fieldset),
-                                 os.path.join(config['fv3jedi_fieldset_dir'], fieldset))
+    # link fieldmetadata
+    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
+                                          'fieldmetadata', 'gfs-restart.yaml'),
+                             os.path.join(config['fv3jedi_fieldmetadata_dir'], 'gfs-restart.yaml'))
     # link CRTM coeff dir
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'crtm', '2.3.0_jedi'),
                              config['CRTM_COEFF_DIR'])
@@ -99,7 +97,7 @@ def atm_obs(config):
     obs_list_yaml = config['OBS_LIST']
     obs_list_config = Configuration(obs_list_yaml)
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
-    for ob in obs_list_config['observations']:
+    for ob in obs_list_config['observers']:
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
@@ -127,7 +125,7 @@ def bias_obs(config):
     obs_list_yaml = config['OBS_LIST']
     obs_list_config = Configuration(obs_list_yaml)
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
-    for ob in obs_list_config['observations']:
+    for ob in obs_list_config['observers']:
         r2d2_config.pop('file_type', None)
         r2d2_config['obs_types'] = [ob['obs space']['name']]
         # get bias files if needed
@@ -197,7 +195,7 @@ def gdas_single_cycle(config):
     obs_list_yaml = config['OBS_LIST']
     obs_list_config = Configuration(obs_list_yaml)
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
-    for ob in obs_list_config['observations']:
+    for ob in obs_list_config['observers']:
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
@@ -218,6 +216,9 @@ def gdas_single_cycle(config):
             target_file = ob['obs bias']['input file']
             r2d2_config['target_file_fmt'] = target_file
             ufsda.r2d2.fetch(r2d2_config)
+            # temp hack to copy satbias as satbias_cov
+            if os.path.isfile(target_file):
+                shutil.copy(target_file,target_file.replace('satbias','satbias_cov'))
             r2d2_config['file_type'] = 'tlapse'
             target_file = target_file.replace('satbias', 'tlapse')
             target_file = target_file.replace('nc4', 'txt')
@@ -334,7 +335,7 @@ def fv3jedi(config):
     """
     fv3jedi(config)
     stage fix files needed for FV3-JEDI
-    such as akbk, fieldsets, fms namelist, etc.
+    such as akbk, fieldmetadata, fms namelist, etc.
     uses input config dictionary for paths
     """
     # create output directory
