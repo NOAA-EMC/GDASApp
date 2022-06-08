@@ -42,6 +42,7 @@ list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_ref.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_test.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_adpsfc.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/amsua_n19_ewok.yaml
 )
 
 # create testinput dir
@@ -59,6 +60,24 @@ install(FILES ${test_input}
 
 # create testout dir
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testoutput)
+
+# create testreference dir
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testreference)
+
+# list of test reference files to install
+list(APPEND test_reference
+  ${PROJECT_SOURCE_DIR}/test/testreference/amsua_n19_gdas.yaml
+)
+
+# symlink
+foreach(FILENAME ${test_reference})
+  file(RELATIVE_PATH FILENAME_REL ${PROJECT_SOURCE_DIR}/test/testreference/ ${FILENAME})
+  file(CREATE_LINK ${FILENAME} ${PROJECT_BINARY_DIR}/test/testreference/${FILENAME_REL} SYMBOLIC)
+endforeach(FILENAME)
+
+# install
+install(FILES ${test_reference}
+        DESTINATION "test/testreference/")
 
 ##### unit tests
 # test for python coding norms
@@ -97,6 +116,10 @@ set_tests_properties(
 PROPERTIES
          ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm"
 )
+# test for converting ewok yaml to gdas
+add_test(NAME test_gdasapp_convert_ewok_yaml
+         COMMAND ${PROJECT_SOURCE_DIR}/test/convert_ewok_yaml.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 # soca tests
 add_subdirectory(soca)
