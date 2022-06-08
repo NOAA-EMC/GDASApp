@@ -218,7 +218,7 @@ def gdas_single_cycle(config):
             ufsda.r2d2.fetch(r2d2_config)
             # temp hack to copy satbias as satbias_cov
             if os.path.isfile(target_file):
-                shutil.copy(target_file,target_file.replace('satbias','satbias_cov'))
+                shutil.copy(target_file, target_file.replace('satbias', 'satbias_cov'))
             r2d2_config['file_type'] = 'tlapse'
             target_file = target_file.replace('satbias', 'tlapse')
             target_file = target_file.replace('nc4', 'txt')
