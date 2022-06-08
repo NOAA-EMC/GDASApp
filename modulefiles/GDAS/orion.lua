@@ -37,8 +37,8 @@ load("nccmp/1.8.7.0")
 load("pio/2.5.1-debug")
 
 load("ecbuild/ecmwf-3.6.1")
-load("fckit/ecmwf-0.9.2")
-load("eckit/ecmwf-1.16.0")
+load("fckit/ecmwf-0.9.5")
+load("eckit/ecmwf-1.18.2")
 load("atlas/ecmwf-0.29.0")
 
 load("hpc/1.2.0")
