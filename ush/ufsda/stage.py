@@ -181,7 +181,7 @@ def gdas_single_cycle(config):
         'fc_date_rendering': 'analysis',
     }
     r2d2_config = NiceDict(r2d2_config)
-    #ufsda.r2d2.fetch(r2d2_config)
+    ufsda.r2d2.fetch(r2d2_config)
     # get gfs metadata
     r2d2_config['model'] = 'gfs_metadata'
     r2d2_config['target_file_fmt'] = '{target_dir}/$(valid_date).$(file_type)'
