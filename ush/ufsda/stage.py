@@ -45,6 +45,7 @@ def gdas_fix(input_fix_dir, working_dir, config):
                                           'fv3files', 'field_table_gfdl'),
                              os.path.join(config['fv3jedi_fix_dir'], 'field_table'))
     # link fieldmetadata
+    # Note that the required data will be dependent on input file type (restart vs history, etc.)
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
                                           'fieldmetadata', 'gfs-restart.yaml'),
                              os.path.join(config['fv3jedi_fieldmetadata_dir'], 'gfs-restart.yaml'))
@@ -216,9 +217,17 @@ def gdas_single_cycle(config):
             target_file = ob['obs bias']['input file']
             r2d2_config['target_file_fmt'] = target_file
             ufsda.r2d2.fetch(r2d2_config)
-            # temp hack to copy satbias as satbias_cov
-            if os.path.isfile(target_file):
-                shutil.copy(target_file, target_file.replace('satbias', 'satbias_cov'))
+            r2d2_config['file_type'] = 'satbias_cov'
+            target_file2 = target_file.replace('satbias', 'satbias_cov')
+            r2d2_config['target_file_fmt'] = target_file2
+            try:
+                ufsda.r2d2.fetch(r2d2_config)
+            except:
+                print('Warning: satbias_cov file cannot be fetched from R2D2!')
+                # temp hack to copy satbias as satbias_cov
+                # if satbias_cov does not exists in R2D2
+                if os.path.isfile(target_file) and not os.path.isfile(target_file2):
+                    shutil.copy(target_file, target_file2)
             r2d2_config['file_type'] = 'tlapse'
             target_file = target_file.replace('satbias', 'tlapse')
             target_file = target_file.replace('nc4', 'txt')
