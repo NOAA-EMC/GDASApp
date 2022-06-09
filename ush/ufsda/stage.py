@@ -9,6 +9,7 @@ import os
 import shutil
 from dateutil import parser
 import ufsda
+import logging
 
 __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
 
@@ -180,7 +181,7 @@ def gdas_single_cycle(config):
         'fc_date_rendering': 'analysis',
     }
     r2d2_config = NiceDict(r2d2_config)
-    ufsda.r2d2.fetch(r2d2_config)
+    #ufsda.r2d2.fetch(r2d2_config)
     # get gfs metadata
     r2d2_config['model'] = 'gfs_metadata'
     r2d2_config['target_file_fmt'] = '{target_dir}/$(valid_date).$(file_type)'
@@ -222,8 +223,8 @@ def gdas_single_cycle(config):
             r2d2_config['target_file_fmt'] = target_file2
             try:
                 ufsda.r2d2.fetch(r2d2_config)
-            except:
-                print('Warning: satbias_cov file cannot be fetched from R2D2!')
+            except FileNotFoundError:
+                logging.error("Warning: satbias_cov file cannot be fetched from R2D2!")
                 # temp hack to copy satbias as satbias_cov
                 # if satbias_cov does not exists in R2D2
                 if os.path.isfile(target_file) and not os.path.isfile(target_file2):
