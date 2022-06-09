@@ -56,7 +56,7 @@ def run_jedi_exe(yamlconfig):
         'layout_y': str(executable_subconfig['layout_y']),
         'BKG_DIR': os.path.join(workdir, 'bkg'),
         'fv3jedi_fix_dir': os.path.join(workdir, 'Data', 'fv3files'),
-        'fv3jedi_fieldset_dir': os.path.join(workdir, 'Data', 'fieldsets'),
+        'fv3jedi_fieldmetadata_dir': os.path.join(workdir, 'Data', 'fieldmetadata'),
         'ANL_DIR': os.path.join(workdir, 'anl'),
         'fv3jedi_staticb_dir': os.path.join(workdir, 'berror'),
         'BIAS_IN_DIR': os.path.join(workdir, 'obs'),
@@ -91,7 +91,7 @@ def run_jedi_exe(yamlconfig):
     logging.info(f'Wrote YAML file to {output_file}')
     # use R2D2 to stage backgrounds, obs, bias correction files, etc.
     ufsda.stage.gdas_single_cycle(var_config)
-    # link additional fix files needed (CRTM, fieldsets, etc.)
+    # link additional fix files needed (CRTM, fieldmetadata, etc.)
     gdasfix = executable_subconfig['gdas_fix_root']
     ufsda.stage.gdas_fix(gdasfix, workdir, var_config)
     # link executable
