@@ -107,10 +107,7 @@ def fv3_geom_dict(case, levs, ntiles, layout, io_layout):
         'npy': str(case+1),
         'npz': str(levs-1),
         'ntiles': str(ntiles),
-        'fieldsets': [
-            {'fieldset': '$(fv3jedi_fieldset_dir)/dynamics.yaml'},
-            {'fieldset': '$(fv3jedi_fieldset_dir)/ufo.yaml'},
-        ]
+        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/gfs-restart.yaml'
     }
     return outdict
 
@@ -141,6 +138,7 @@ def calc_time_vars(config):
     h = re.findall('PT(\\d+)H', config['ATM_WINDOW_LENGTH'])[0]
     win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
     config['ATM_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
+    config['BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
     return config
 
 

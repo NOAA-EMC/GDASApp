@@ -24,7 +24,7 @@ obs operator:
    - name: SfcPCorrected
      variables:
      - name: surface_pressure
-     da_psfc_scheme: UKMO
+     da_psfc_scheme: GSI
 linear obs operator:
   name: Composite
   components:
@@ -185,13 +185,12 @@ obs filters:
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsErrorModelHumidity@ObsFunction
         options:
           xvar:
             name: MetaData/air_pressure
-          xvals: [25000, 20000, 10]
-          errors: [0.2, 0.4, 0.8]        # 20% RH up to 250 mb, then increased rapidly above
-          scale_factor_var: ObsValue/specific_humidity
+          xvals: [25000]
+          errors: [0.2]        # 20% RH fixed error
   #
   - filter: Perform Action
     filter variables:
@@ -243,6 +242,7 @@ obs filters:
 #       name: ObsErrorFactorConventional@ObsFunction
 #       options:
 #         test QCflag: PreQC
+#         pressure: MetaData/air_pressure
 #         inflate variables: [virtual_temperature]
 #   defer to post: true
   #
