@@ -1,3 +1,3 @@
-observations:
+observers:
 - $<< $(OBS_YAML_DIR)/amsua_n19.yaml
 - $<< $(OBS_YAML_DIR)/sondes.yaml
