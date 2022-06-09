@@ -24,7 +24,7 @@ obs operator:
    - name: SfcPCorrected
      variables:
      - name: surface_pressure
-     da_psfc_scheme: UKMO
+     da_psfc_scheme: GSI
 linear obs operator:
   name: Composite
   components:
