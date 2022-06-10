@@ -8,6 +8,8 @@ obs space:
     max pool size: 1
   simulated variables: [brightness_temperature]
   channels: &amsua_n19_channels 1-15
+get values:
+  interpolation method: $(INTERP_METHOD)
 obs operator:
   name: CRTM
   Absorbers: [H2O,O3]

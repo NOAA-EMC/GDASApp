@@ -11,6 +11,8 @@ obs space:
   io pool:
     max pool size: 1
   simulated variables: [eastward_wind, northward_wind, air_temperature, specific_humidity, surface_pressure]
+get values:
+  interpolation method: $(INTERP_METHOD)
 obs operator:
   name: Composite
   components:
