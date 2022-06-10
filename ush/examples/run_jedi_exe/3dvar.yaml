@@ -18,6 +18,7 @@ executable options:
   case_anl: C48
   dohybvar: false
   levs: 128
+  interp_method: barycentric
 job options:
   machine: orion
   account: da-cpu
