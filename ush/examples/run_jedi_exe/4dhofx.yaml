@@ -16,6 +16,7 @@ executable options:
   dump: gdas
   case: C768
   levs: 128
+  interp_method: barycentric
 job options:
   machine: orion
   account: da-cpu
