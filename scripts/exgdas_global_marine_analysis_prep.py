@@ -66,7 +66,8 @@ anl_dir = os.path.join(comout, 'analysis')
 ufsda.mkdir(anl_dir)
 
 # create output directory for obs
-ufsda.mkdir(os.path.join(comout, 'analysis', 'obs_out'))
+diags = os.path.join(comout, 'analysis', 'diags')
+ufsda.mkdir(diags)
 
 # create output directory for soca DA
 ufsda.mkdir(os.path.join(comout, 'analysis', 'Data'))
@@ -75,6 +76,12 @@ ufsda.mkdir(os.path.join(comout, 'analysis', 'Data'))
 ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root=comin_obs)
 
 # create config dict from runtime env
+envconfig = ufsda.misc_utils.get_env_config(component='notatm')
+print(envconfig)
+os.environ['OBS_DATE'] = envconfig['OBS_DATE']
+os.environ['OBS_DIR'] = envconfig['OBS_DIR']
+os.environ['OBS_PREFIX'] = envconfig['OBS_PREFIX']
+os.environ['DIAG_DIR'] = diags
 stage_cfg = ufsda.parse_config(templateyaml=os.path.join(gdas_home,
                                                          'parm',
                                                          'templates',

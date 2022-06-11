@@ -317,7 +317,6 @@ def obs(config):
         outpath = outfile.split('/')
         outpath[0] = 'analysis'
         outpath = '/'.join(outpath)
-        outfile = os.path.join(config['COMOUT'], outpath)
         # grab obs using R2D2
         window_begin = config['window begin']
 

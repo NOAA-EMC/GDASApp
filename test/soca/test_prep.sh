@@ -16,18 +16,12 @@ source ${project_source_dir}/test/soca/static.sh $project_binary_dir $project_so
 echo "============================= Testing exgdas_global_marine_analysis_prep.py for clean exit"
 ${project_source_dir}/scripts/exgdas_global_marine_analysis_prep.py > exgdas_global_marine_analysis_prep.log
 
-# Test that the obs were fetched
-echo "============================= Testing for the presence of obs in the fetch target directory"
-if [ ! "$(ls -A ${project_binary_dir}/test/soca/3dvar/analysis/obs/)" ]; then
-    exit 1
-fi
-
 # Test that the obs path in var.yaml exist
 echo "============================= Testing the existence of obs in var.vaml"
-obslist=`grep obsfile $COMOUT/analysis/var.yaml | grep -v obs_out`
+obslist=`grep 'gdas.t12z' $COMOUT/analysis/var.yaml`
 for o in $obslist; do
     if [ ! "$o" == "obsfile:" ]; then
-        test_file ${project_binary_dir}/test/soca/3dvar/analysis/$o
+        test_file $o
     fi
 done
 
