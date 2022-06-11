@@ -51,7 +51,7 @@ increments:
      date: $(ATM_WINDOW_BEGIN)
      state variables: [ssh, tocn, socn, hocn, layer_depth, mld]
   output:
-     datadir: Data
+     datadir: ./
      exp: bkgerr_stddev
      type: incr
      date: $(ATM_WINDOW_BEGIN)

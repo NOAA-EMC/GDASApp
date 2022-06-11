@@ -10,14 +10,14 @@ source ${project_source_dir}/test/soca/test_utils.sh
 source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $project_source_dir
 
 # Run step
-echo "============================= Testing exgdas_global_marine_analysis_prep.py for clean exit"
+echo "============================= Testing exgdas_global_marine_analysis_run.sh for clean exit"
 ${project_source_dir}/scripts/exgdas_global_marine_analysis_run.sh > exgdas_global_marine_analysis_run.log
 
 echo "============================= Test that the grid has been generated"
 test_file  ${project_binary_dir}/test/soca/3dvar/analysis/soca_gridspec.nc
 
 echo "============================= Test that the parametric diag of B was generated"
-test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.bkgerr_stddev.incr.2018-04-15T09:00:00Z.nc
+test_file  ${project_binary_dir}/test/soca/3dvar/analysis/ocn.bkgerr_stddev.incr.2018-04-15T09:00:00Z.nc
 
 echo "============================= Test that an increment and an analysis were created"
 test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.iter1.incr.2018-04-15T09:00:00Z.nc
