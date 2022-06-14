@@ -80,6 +80,7 @@ def run_jedi_exe(yamlconfig):
         'forecast_steps': calc_fcst_steps(executable_subconfig.get('forecast_step', 'PT6H'),
                                           executable_subconfig['atm_window_length']),
         'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
+        'INTERP_METHOD': executable_subconfig.get('interp_method', 'barycentric'),
     }
     template = executable_subconfig['yaml_template']
     output_file = os.path.join(workdir, f"gdas_{app_mode}.yaml")
