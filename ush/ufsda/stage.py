@@ -55,6 +55,45 @@ def gdas_fix(input_fix_dir, working_dir, config):
                              config['CRTM_COEFF_DIR'])
 
 
+def soca_fix(config):
+    """
+    soca_fix(input_fix_dir, config):
+        Stage fix files needed by SOCA for GDAS analyses
+        input_fix_dir - path to root fix file directory
+        working_dir - path to where files should be linked to
+        config - dict containing configuration
+    """
+
+    # link static B bump files
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'bump'),
+                             os.path.join(config['stage_dir'], 'bump'))
+    # link static sst B
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'godas_sst_bgerr.nc'),
+                             os.path.join(config['stage_dir'], 'godas_sst_bgerr.nc'))
+
+    # link Rossby Radius file
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'rossrad.dat'),
+                             os.path.join(config['stage_dir'], 'rossrad.dat'))
+    # link name lists
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'inputnml', 'input.nml'),
+                             os.path.join(config['stage_dir'], 'mom_input.nml'))
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'field_table'),
+                             os.path.join(config['stage_dir'], 'field_table'))
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'diag_table'),
+                             os.path.join(config['stage_dir'], 'diag_table'))
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'MOM_input'),
+                             os.path.join(config['stage_dir'], 'MOM_input'))
+    # link field metadata
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'fields_metadata.yaml'),
+                             os.path.join(config['stage_dir'], 'fields_metadata.yaml'))
+
+    # INPUT
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'INPUT'),
+                             os.path.join(config['stage_dir'], 'INPUT'))
+    ufsda.disk_utils.symlink(os.path.join(config['stage_dir'], 'bkg', 'MOM.res.2018-04-15-09-00-00.nc'),
+                             os.path.join(config['stage_dir'], 'INPUT', 'MOM.res.nc'))
+
+
 def atm_background(config):
     # stage FV3 backgrounds
     r2d2_config = {
@@ -271,14 +310,13 @@ def obs(config):
     # create directory
     obs_dir = os.path.join(config['COMOUT'], 'analysis', 'obs')
     mkdir(obs_dir)
-    for ob in config['observations']:
+    for ob in config['observers']:
         obname = ob['obs space']['name'].lower()
         outfile = ob['obs space']['obsdatain']['obsfile']
         # the above path is what 'FV3-JEDI' expects, need to modify it
         outpath = outfile.split('/')
         outpath[0] = 'analysis'
         outpath = '/'.join(outpath)
-        outfile = os.path.join(config['COMOUT'], outpath)
         # grab obs using R2D2
         window_begin = config['window begin']
 
@@ -353,6 +391,20 @@ def fv3jedi(config):
     # call solo.Stage
     path = os.path.dirname(config['fv3jedi_stage'])
     stage = Stage(path, config['stage_dir'], config['fv3jedi_stage_files'])
+
+
+def static(stage_dir, static_source_dir, static_source_files):
+    """
+    stage_dir: dir destination to copy files in
+    static_source_dir: source dir
+    static_source_files: list of files to copy
+    """
+
+    # create output directory
+    mkdir(stage_dir)
+    # call solo.Stage
+    path = os.path.dirname(static_source_dir)
+    stage = Stage(path, stage_dir, static_source_files)
 
 
 def berror(config):

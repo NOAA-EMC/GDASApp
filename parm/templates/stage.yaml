@@ -1,6 +1,6 @@
 window begin: '{{window_begin}}'
 window length: $(window_length)
-observations: $<< ${OBS_YAML}
+observers: $<< ${OBS_YAML}
 background_dir: '{{background_dir}}'
 staticb_dir: '{{staticb_dir}}'
 COMOUT: '{{COMOUT}}'
@@ -16,3 +16,4 @@ r2d2 window begin: '{{r2d2_window_begin}}'
 fv3jedi_stage_files: $<< $(fv3jedi_stage)
 fv3jedi_stage: ${FV3JEDI_STAGE_YAML}
 stage_dir: $(COMOUT)/analysis
+soca_input_fix_dir: '{{soca_input_fix_dir}}'
