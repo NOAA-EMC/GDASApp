@@ -18,7 +18,11 @@ def get_obs_list(yamlconfig, outputfile):
     except Exception as e:
         logging.error(f'Error occurred when attempting to load: {yamlconfig}, error: {e}')
     # just grab the observations section
-    obs_list = all_config_dict['cost function']['observations']
+    key = 'cost function'
+    if key in all_config_dict.keys():
+       obs_list = all_config_dict['cost function']['observations']['observers']
+    else:
+       obs_list = all_config_dict['observations']['observers']
     with open(outputfile, 'w') as outf:
         for ob in obs_list:
             # get obsdatain

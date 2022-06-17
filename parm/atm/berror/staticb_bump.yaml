@@ -3,7 +3,7 @@ full inverse: true
 saber blocks:
 - saber block name: BUMP_NICAS
   saber central block: true
-  input variables: &control_vars [psi,chi,t,delp,ps,rh,ice_wat,liq_wat,o3mr]
+  input variables: &control_vars [psi,chi,t,ps,rh,ice_wat,liq_wat,o3mr]
   output variables: *control_vars
   active variables: &active_vars [psi,chi,t,ps,rh,liq_wat,o3mr]
   bump:
@@ -61,7 +61,7 @@ saber blocks:
     vbal_block: [true, true,false, true,false,false]
 - saber block name: BUMP_PsiChiToUV
   input variables: *control_vars
-  output variables: &3dvars_with_rh [ua,va,t,delp,ps,rh,ice_wat,liq_wat,o3mr]
+  output variables: &3dvars_with_rh [ua,va,t,ps,rh,ice_wat,liq_wat,o3mr]
   active variables: [psi,chi,ua,va]
   bump:
     datadir: *staticb_dir
@@ -72,4 +72,4 @@ saber blocks:
 linear variable change:
   linear variable change name: Control2Analysis
   input variables: *3dvars_with_rh
-  output variables: [ua,va,t,delp,ps,sphum,ice_wat,liq_wat,o3mr]
+  output variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
