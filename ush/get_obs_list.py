@@ -20,9 +20,9 @@ def get_obs_list(yamlconfig, outputfile):
     # just grab the observations section
     key = 'cost function'
     if key in all_config_dict.keys():
-       obs_list = all_config_dict['cost function']['observations']['observers']
+        obs_list = all_config_dict['cost function']['observations']['observers']
     else:
-       obs_list = all_config_dict['observations']['observers']
+        obs_list = all_config_dict['observations']['observers']
     with open(outputfile, 'w') as outf:
         for ob in obs_list:
             # get obsdatain
