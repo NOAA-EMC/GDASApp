@@ -27,7 +27,7 @@ obs bias:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &atms_n20_tlapse $(BIAS_IN_DIR)/$(BIAS_PREFIX)atms_n20.tlapse.$(BIAS_DATE)txt
+      tlapse: &atms_n20_tlapse $(BIAS_IN_DIR)/$(BIAS_PREFIX)atms_n20.tlapse.$(BIAS_DATE).txt
     - name: lapse_rate
       tlapse: *atms_n20_tlapse
     - name: emissivity
