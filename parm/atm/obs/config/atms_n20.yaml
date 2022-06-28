@@ -12,7 +12,7 @@ get values:
   interpolation method: $(INTERP_METHOD)
 obs operator:
   name: CRTM
-  Absorbers: [H2O,O3,CO2]
+  Absorbers: [H2O,O3]
   Clouds: [Water, Ice]
   Cloud_Fraction: 1.0
   obs options:
