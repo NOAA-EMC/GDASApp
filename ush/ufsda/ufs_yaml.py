@@ -102,6 +102,7 @@ def get_cycle_vars():
     cycle_dict['current_cycle'] = cdate.strftime('%Y%m%d%H')
     cycle_dict['background_dir'] = os.environ['COMIN_GES']
     cycle_dict['staticb_dir'] = os.environ['STATICB_DIR']
+    cycle_dict['soca_input_fix_dir'] = os.environ['SOCA_INPUT_FIX_DIR']
     cycle_dict['COMOUT'] = os.environ['COMOUT']
     return cycle_dict
 

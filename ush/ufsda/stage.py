@@ -9,6 +9,7 @@ import os
 import shutil
 from dateutil import parser
 import ufsda
+import logging
 
 __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
 
@@ -22,13 +23,13 @@ def gdas_fix(input_fix_dir, working_dir, config):
         config - dict containing configuration
     """
     # create output directories
-    ufsda.disk_utils.mkdir(config['fv3jedi_fieldset_dir'])
+    ufsda.disk_utils.mkdir(config['fv3jedi_fieldmetadata_dir'])
     ufsda.disk_utils.mkdir(config['fv3jedi_fix_dir'])
     # figure out analysis resolution
     if config['DOHYBVAR']:
         case_anl = config['CASE_ENKF']
     else:
-        case_anl = config['CASE']
+        case_anl = config['CASE_ANL']
     layers = int(config['LEVS'])-1
     # link static B files
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'bump', case_anl),
@@ -44,15 +45,53 @@ def gdas_fix(input_fix_dir, working_dir, config):
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
                                           'fv3files', 'field_table_gfdl'),
                              os.path.join(config['fv3jedi_fix_dir'], 'field_table'))
-    # link fieldsets
-    fieldsets = ['dynamics.yaml', 'ufo.yaml']
-    for fieldset in fieldsets:
-        ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
-                                              'fieldsets', fieldset),
-                                 os.path.join(config['fv3jedi_fieldset_dir'], fieldset))
+    # link fieldmetadata
+    # Note that the required data will be dependent on input file type (restart vs history, etc.)
+    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
+                                          'fieldmetadata', 'gfs-restart.yaml'),
+                             os.path.join(config['fv3jedi_fieldmetadata_dir'], 'gfs-restart.yaml'))
     # link CRTM coeff dir
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'crtm', '2.3.0_jedi'),
                              config['CRTM_COEFF_DIR'])
+
+
+def soca_fix(config):
+    """
+    soca_fix(input_fix_dir, config):
+        Stage fix files needed by SOCA for GDAS analyses
+        input_fix_dir - path to root fix file directory
+        working_dir - path to where files should be linked to
+        config - dict containing configuration
+    """
+
+    # link static B bump files
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'bump'),
+                             os.path.join(config['stage_dir'], 'bump'))
+    # link static sst B
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'godas_sst_bgerr.nc'),
+                             os.path.join(config['stage_dir'], 'godas_sst_bgerr.nc'))
+
+    # link Rossby Radius file
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'rossrad.dat'),
+                             os.path.join(config['stage_dir'], 'rossrad.dat'))
+    # link name lists
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'inputnml', 'input.nml'),
+                             os.path.join(config['stage_dir'], 'mom_input.nml'))
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'field_table'),
+                             os.path.join(config['stage_dir'], 'field_table'))
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'diag_table'),
+                             os.path.join(config['stage_dir'], 'diag_table'))
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'MOM_input'),
+                             os.path.join(config['stage_dir'], 'MOM_input'))
+    # link field metadata
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'fields_metadata.yaml'),
+                             os.path.join(config['stage_dir'], 'fields_metadata.yaml'))
+
+    # INPUT
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'INPUT'),
+                             os.path.join(config['stage_dir'], 'INPUT'))
+    ufsda.disk_utils.symlink(os.path.join(config['stage_dir'], 'bkg', 'MOM.res.2018-04-15-09-00-00.nc'),
+                             os.path.join(config['stage_dir'], 'INPUT', 'MOM.res.nc'))
 
 
 def atm_background(config):
@@ -99,7 +138,7 @@ def atm_obs(config):
     obs_list_yaml = config['OBS_LIST']
     obs_list_config = Configuration(obs_list_yaml)
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
-    for ob in obs_list_config['observations']:
+    for ob in obs_list_config['observers']:
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
@@ -127,7 +166,7 @@ def bias_obs(config):
     obs_list_yaml = config['OBS_LIST']
     obs_list_config = Configuration(obs_list_yaml)
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
-    for ob in obs_list_config['observations']:
+    for ob in obs_list_config['observers']:
         r2d2_config.pop('file_type', None)
         r2d2_config['obs_types'] = [ob['obs space']['name']]
         # get bias files if needed
@@ -197,7 +236,7 @@ def gdas_single_cycle(config):
     obs_list_yaml = config['OBS_LIST']
     obs_list_config = Configuration(obs_list_yaml)
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
-    for ob in obs_list_config['observations']:
+    for ob in obs_list_config['observers']:
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
@@ -218,6 +257,17 @@ def gdas_single_cycle(config):
             target_file = ob['obs bias']['input file']
             r2d2_config['target_file_fmt'] = target_file
             ufsda.r2d2.fetch(r2d2_config)
+            r2d2_config['file_type'] = 'satbias_cov'
+            target_file2 = target_file.replace('satbias', 'satbias_cov')
+            r2d2_config['target_file_fmt'] = target_file2
+            try:
+                ufsda.r2d2.fetch(r2d2_config)
+            except FileNotFoundError:
+                logging.error("Warning: satbias_cov file cannot be fetched from R2D2!")
+                # temp hack to copy satbias as satbias_cov
+                # if satbias_cov does not exists in R2D2
+                if os.path.isfile(target_file) and not os.path.isfile(target_file2):
+                    shutil.copy(target_file, target_file2)
             r2d2_config['file_type'] = 'tlapse'
             target_file = target_file.replace('satbias', 'tlapse')
             target_file = target_file.replace('nc4', 'txt')
@@ -260,14 +310,13 @@ def obs(config):
     # create directory
     obs_dir = os.path.join(config['COMOUT'], 'analysis', 'obs')
     mkdir(obs_dir)
-    for ob in config['observations']:
+    for ob in config['observers']:
         obname = ob['obs space']['name'].lower()
         outfile = ob['obs space']['obsdatain']['obsfile']
         # the above path is what 'FV3-JEDI' expects, need to modify it
         outpath = outfile.split('/')
         outpath[0] = 'analysis'
         outpath = '/'.join(outpath)
-        outfile = os.path.join(config['COMOUT'], outpath)
         # grab obs using R2D2
         window_begin = config['window begin']
 
@@ -334,7 +383,7 @@ def fv3jedi(config):
     """
     fv3jedi(config)
     stage fix files needed for FV3-JEDI
-    such as akbk, fieldsets, fms namelist, etc.
+    such as akbk, fieldmetadata, fms namelist, etc.
     uses input config dictionary for paths
     """
     # create output directory
@@ -342,6 +391,20 @@ def fv3jedi(config):
     # call solo.Stage
     path = os.path.dirname(config['fv3jedi_stage'])
     stage = Stage(path, config['stage_dir'], config['fv3jedi_stage_files'])
+
+
+def static(stage_dir, static_source_dir, static_source_files):
+    """
+    stage_dir: dir destination to copy files in
+    static_source_dir: source dir
+    static_source_files: list of files to copy
+    """
+
+    # create output directory
+    mkdir(stage_dir)
+    # call solo.Stage
+    path = os.path.dirname(static_source_dir)
+    stage = Stage(path, stage_dir, static_source_files)
 
 
 def berror(config):
