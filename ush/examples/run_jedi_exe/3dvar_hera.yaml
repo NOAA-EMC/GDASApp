@@ -1,0 +1,30 @@
+working directory: /scratch2/NCEPDEV/stmp1/Cory.R.Martin/gdas_single_test_3dvar
+GDASApp home: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp
+GDASApp mode: variational
+executable options:
+  berror_yaml: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/berror/staticb_bump.yaml
+  obs_yaml_dir: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/config
+  yaml_template: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/variational/3dvar_dripcg.yaml
+  executable: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/build/bin/fv3jedi_var.x
+  obs_list: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype.yaml
+  gdas_fix_root: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
+  atm: true
+  layout_x: 1
+  layout_y: 1
+  atm_window_length: PT6H
+  valid_time: 2021-12-21T06:00:00Z
+  dump: gdas
+  case: C96
+  case_anl: C48
+  dohybvar: false
+  levs: 128
+  interp_method: barycentric
+job options:
+  machine: orion
+  account: da-cpu
+  queue: debug
+  partition: debug
+  walltime: '10:00'
+  ntasks: 6
+  cpus-per-task: 1
+  modulepath: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/modulefiles
