@@ -20,10 +20,10 @@ executable options:
   levs: 128
   interp_method: barycentric
 job options:
-  machine: orion
+  machine: hera
   account: da-cpu
   queue: debug
-  partition: debug
+  partition: hera
   walltime: '10:00'
   ntasks: 6
   cpus-per-task: 1
