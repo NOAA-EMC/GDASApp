@@ -43,8 +43,6 @@ load("atlas/ecmwf-0.29.0")
 load("nco/4.9.1")
 
 load("pybind11/2.7.0")
-load("json/3.9.1")
-load("json-schema-validator/2.1.0")
 
 load("hpc/1.2.0")
 load("miniconda3/4.6.14")

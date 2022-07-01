@@ -66,6 +66,9 @@ def create_batch_job(job_config, working_dir, executable, yaml_path):
 #SBATCH --exclusive
 #SBATCH -t {job_config['walltime']}"""
             f.write(sbatch)
+        if job_config['machinie'] == 'hera': # orion might need this eventually too when full suite of obs?
+            cpus_per_node = f'#SBATCH --ntasks-per-node={job_config.get("ntasks-per-node", 24)}'
+            f.write(cpus_per_node)
         commands = f"""
 module purge
 module use {job_config['modulepath']}
