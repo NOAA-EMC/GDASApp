@@ -1,5 +1,6 @@
 #!/bin/bash
-set -ex
+##set -ex
+set -x
 set -u
 
 export PS4='$SECONDS + '
@@ -10,6 +11,7 @@ date
 # Source relevant config files
 #############################
 export EXPDIR=${EXPDIR:-$HOMEgfs/parm/config}
+configs="base atmensanal atmensanalprep"
 config_path=${EXPDIR:-$NWROOT/gfs.${gfs_ver}/parm/config}
 for config in $configs; do
     . $config_path/config.$config
@@ -21,7 +23,7 @@ done
 ##########################################
 # Source machine runtime environment
 ##########################################
-. $HOMEgfs/env/${machine}.env atmensanalrun
+. $HOMEgfs/env/${machine}.env atmensanalprep
 status=$?
 [[ $status -ne 0 ]] && exit $status
 
@@ -98,6 +100,7 @@ export PYTHONPATH=$HOMEgfs/sorc/gdas.cd/ush/:$PYTHONPATH
 ###############################################################
 # Run relevant script
 
+EXSCRIPT=${GDASPREPPY:-$HOMEgfs/sorc/gdas.cd/scripts/exgdas_global_atmos_analysis_prep.py}
 $EXSCRIPT
 status=$?
 [[ $status -ne 0 ]] && exit $status
