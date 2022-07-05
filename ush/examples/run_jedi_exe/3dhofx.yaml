@@ -6,7 +6,7 @@ executable options:
   yaml_template: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/hofx/hofx_nomodel.yaml
   executable: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/build/bin/fv3jedi_hofx_nomodel.x
   obs_list: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype.yaml
-  gdas_fix_root: /work2/noaa/da/fhan/GDASApp/fix
+  gdas_fix_root: /work2/noaa/da/cmartin/GDASApp/fix
   atm: true
   layout_x: 4
   layout_y: 4

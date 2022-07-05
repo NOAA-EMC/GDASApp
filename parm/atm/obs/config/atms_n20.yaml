@@ -1,0 +1,371 @@
+obs space:
+  name: atms_n20
+  obsdatain:
+    obsfile: $(OBS_DIR)/$(OBS_PREFIX)atms_n20.$(OBS_DATE).nc4
+  obsdataout:
+    obsfile: $(DIAG_DIR)/diag_atms_n20_$(OBS_DATE).nc4
+  io pool:
+    max pool size: 1
+  simulated variables: [brightness_temperature]
+  channels: &atms_n20_channels 1-22
+get values:
+  interpolation method: $(INTERP_METHOD)
+obs operator:
+  name: CRTM
+  Absorbers: [H2O,O3]
+  Clouds: [Water, Ice]
+  Cloud_Fraction: 1.0
+  obs options:
+    Sensor_ID: atms_n20
+    EndianType: little_endian
+    CoefficientPath: $(CRTM_COEFF_DIR)/
+obs bias:
+  input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)atms_n20.satbias.$(BIAS_DATE).nc4
+  output file: $(BIAS_OUT_DIR)/$(OBS_PREFIX)atms_n20.satbias.$(OBS_DATE).nc4
+  variational bc:
+    predictors:
+    - name: constant
+    - name: lapse_rate
+      order: 2
+      tlapse: &atms_n20_tlapse $(BIAS_IN_DIR)/$(BIAS_PREFIX)atms_n20.tlapse.$(BIAS_DATE).txt
+    - name: lapse_rate
+      tlapse: *atms_n20_tlapse
+    - name: emissivity
+    - name: scan_angle
+      order: 4
+    - name: scan_angle
+      order: 3
+    - name: scan_angle
+      order: 2
+    - name: scan_angle
+  covariance:
+    minimal required obs number: 20
+    variance range: [1.0e-6, 10.0]
+    step size: 1.0e-4
+    largest analysis variance: 10000.0
+    prior:
+      input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)atms_n20.satbias_cov.$(BIAS_DATE).nc4
+      inflation:
+        ratio: 1.1
+        ratio for small dataset: 2.0
+    output file: $(BIAS_OUT_DIR)/$(OBS_PREFIX)atms_n20.satbias_cov.$(OBS_DATE).nc4
+obs filters:
+- filter: BlackList
+  filter variables:
+  - name: brightness_temperature
+    channels: *atms_n20_channels
+  action:
+    name: assign error
+    error function:
+      name: ObsErrorModelRamp@ObsFunction
+      channels: *atms_n20_channels
+      options:
+        channels: *atms_n20_channels
+        xvar:
+          name: CLWRetSymmetricMW@ObsFunction
+          options:
+            clwret_ch238: 1
+            clwret_ch314: 2
+            clwret_types: [ObsValue, HofX]
+        x0:    [ 0.030,  0.030,  0.030,  0.020,  0.030,
+                 0.080,  0.150,  0.000,  0.000,  0.000,
+                 0.000,  0.000,  0.000,  0.000,  0.000,
+                 0.020,  0.030,  0.030,  0.030,  0.030,
+                 0.050,  0.100]
+        x1:    [ 0.350,  0.380,  0.400,  0.450,  0.500,
+                 1.000,  1.000,  0.000,  0.000,  0.000,
+                 0.000,  0.000,  0.000,  0.000,  0.000,
+                 0.350,  0.500,  0.500,  0.500,  0.500,
+                 0.500,  0.500]
+        err0:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
+                 0.300,  0.300,  0.400,  0.400,  0.400,
+                 0.450,  0.450,  0.550,  0.800,  3.000,
+                 4.000,  4.000,  3.500,  3.000,  3.000,
+                 3.000,  3.000]
+        err1:  [20.000, 25.000, 12.000,  7.000,  3.500,
+                 3.000,  0.800,  0.400,  0.400,  0.400,
+                 0.450,  0.450,  0.550,  0.800,  3.000,
+                19.000, 30.000, 25.000, 16.500, 12.000,
+                 9.000,  6.500]
+#  CLW Retrieval Check
+- filter: Bounds Check
+  filter variables:
+  - name: brightness_temperature
+    channels: 1-7, 16-22
+  test variables:
+  - name: CLWRetMW@ObsFunction
+    options:
+      clwret_ch238: 1
+      clwret_ch314: 2
+      clwret_types: [ObsValue]
+  maxvalue: 999.0
+  action:
+    name: reject
+#  CLW Retrieval Check
+- filter: Bounds Check
+  filter variables:
+  - name: brightness_temperature
+    channels: 1-7, 16-22
+  test variables:
+  - name: CLWRetMW@ObsFunction
+    options:
+      clwret_ch238: 1
+      clwret_ch314: 2
+      clwret_types: [HofX]
+  maxvalue: 999.0
+  action:
+    name: reject
+#  Hydrometeor Check (cloud/precipitation affected chanels)
+- filter: Bounds Check
+  filter variables:
+  - name: brightness_temperature
+    channels: *atms_n20_channels
+  test variables:
+  - name: HydrometeorCheckATMS@ObsFunction
+    channels: *atms_n20_channels
+    options:
+      channels: *atms_n20_channels
+      obserr_clearsky:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
+                          0.300,  0.300,  0.400,  0.400,  0.400,
+                          0.450,  0.450,  0.550,  0.800,  3.000,
+                          4.000,  4.000,  3.500,  3.000,  3.000,
+                          3.000,  3.000]
+      clwret_function:
+        name: CLWRetMW@ObsFunction
+        options:
+          clwret_ch238: 1
+          clwret_ch314: 2
+          clwret_types: [ObsValue]
+      obserr_function:
+        name: ObsErrorModelRamp@ObsFunction
+        channels: *atms_n20_channels
+        options:
+          channels: *atms_n20_channels
+          xvar:
+            name: CLWRetSymmetricMW@ObsFunction
+            options:
+              clwret_ch238: 1
+              clwret_ch314: 2
+              clwret_types: [ObsValue, HofX]
+          x0:    [ 0.030,  0.030,  0.030,  0.020,  0.030,
+                   0.080,  0.150,  0.000,  0.000,  0.000,
+                   0.000,  0.000,  0.000,  0.000,  0.000,
+                   0.020,  0.030,  0.030,  0.030,  0.030,
+                   0.050,  0.100]
+          x1:    [ 0.350,  0.380,  0.400,  0.450,  0.500,
+                   1.000,  1.000,  0.000,  0.000,  0.000,
+                   0.000,  0.000,  0.000,  0.000,  0.000,
+                   0.350,  0.500,  0.500,  0.500,  0.500,
+                   0.500,  0.500]
+          err0:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
+                   0.300,  0.300,  0.400,  0.400,  0.400,
+                   0.450,  0.450,  0.550,  0.800,  3.000,
+                   4.000,  4.000,  3.500,  3.000,  3.000,
+                   3.000,  3.000]
+          err1:  [20.000, 25.000, 12.000,  7.000,  3.500,
+                  3.000,  0.800,  0.400,  0.400,  0.400,
+                  0.450,  0.450,  0.550,  0.800,  3.000,
+                 19.000, 30.000, 25.000, 16.500, 12.000,
+                  9.000,  6.500]
+  maxvalue: 0.0
+  action:
+    name: reject
+#  Topography check
+- filter: BlackList
+  filter variables:
+  - name: brightness_temperature
+    channels: *atms_n20_channels
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsErrorFactorTopoRad@ObsFunction
+      channels: *atms_n20_channels
+      options:
+        sensor: atms_n20
+        channels: *atms_n20_channels
+#  Transmittnace Top Check
+- filter: BlackList
+  filter variables:
+  - name: brightness_temperature
+    channels: *atms_n20_channels
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsErrorFactorTransmitTopRad@ObsFunction
+      channels: *atms_n20_channels
+      options:
+        channels: *atms_n20_channels
+#  Surface Jacobian check
+- filter: BlackList
+  filter variables:
+  - name: brightness_temperature
+    channels: *atms_n20_channels
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsErrorFactorSurfJacobianRad@ObsFunction
+      channels: *atms_n20_channels
+      options:
+        channels: *atms_n20_channels
+        obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
+        obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
+#  Situation dependent Check
+- filter: BlackList
+  filter variables:
+  - name: brightness_temperature
+    channels: *atms_n20_channels
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsErrorFactorSituDependMW@ObsFunction
+      channels: *atms_n20_channels
+      options:
+        sensor: atms_n20
+        channels: *atms_n20_channels
+        clwobs_function:
+          name: CLWRetMW@ObsFunction
+          options:
+            clwret_ch238: 1
+            clwret_ch314: 2
+            clwret_types: [ObsValue]
+        clwbkg_function:
+          name: CLWRetMW@ObsFunction
+          options:
+            clwret_ch238: 1
+            clwret_ch314: 2
+            clwret_types: [HofX]
+        scatobs_function:
+          name: SCATRetMW@ObsFunction
+          options:
+            scatret_ch238: 1
+            scatret_ch314: 2
+            scatret_ch890: 16
+            scatret_types: [ObsValue]
+        clwmatchidx_function:
+          name: CLWMatchIndexMW@ObsFunction
+          channels: *atms_n20_channels
+          options:
+            channels: *atms_n20_channels
+            clwobs_function:
+              name: CLWRetMW@ObsFunction
+              options:
+                clwret_ch238: 1
+                clwret_ch314: 2
+                clwret_types: [ObsValue]
+            clwbkg_function:
+              name: CLWRetMW@ObsFunction
+              options:
+                clwret_ch238: 1
+                clwret_ch314: 2
+                clwret_types: [HofX]
+            clwret_clearsky: [ 0.030,  0.030,  0.030,  0.020,  0.030,
+                               0.080,  0.150,  0.000,  0.000,  0.000,
+                               0.000,  0.000,  0.000,  0.000,  0.000,
+                               0.020,  0.030,  0.030,  0.030,  0.030,
+                               0.050,  0.100]
+        obserr_clearsky:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
+                            0.300,  0.300,  0.400,  0.400,  0.400,
+                            0.450,  0.450,  0.550,  0.800,  3.000,
+                            4.000,  4.000,  3.500,  3.000,  3.000,
+                            3.000,  3.000]
+#  Gross check
+- filter: Background Check
+  filter variables:
+  - name: brightness_temperature
+    channels: *atms_n20_channels
+  function absolute threshold:
+  - name: ObsErrorBoundMW@ObsFunction
+    channels: *atms_n20_channels
+    options:
+      sensor: atms_n20
+      channels: *atms_n20_channels
+      obserr_bound_latitude:
+        name: ObsErrorFactorLatRad@ObsFunction
+        options:
+          latitude_parameters: [25.0, 0.25, 0.04, 3.0]
+      obserr_bound_transmittop:
+        name: ObsErrorFactorTransmitTopRad@ObsFunction
+        channels: *atms_n20_channels
+        options:
+          channels: *atms_n20_channels
+      obserr_bound_topo:
+        name: ObsErrorFactorTopoRad@ObsFunction
+        channels: *atms_n20_channels
+        options:
+          channels: *atms_n20_channels
+          sensor: atms_n20
+      obserr_function:
+        name: ObsErrorModelRamp@ObsFunction
+        channels: *atms_n20_channels
+        options:
+          channels: *atms_n20_channels
+          xvar:
+            name: CLWRetSymmetricMW@ObsFunction
+            options:
+              clwret_ch238: 1
+              clwret_ch314: 2
+              clwret_types: [ObsValue, HofX]
+          x0:    [ 0.030,  0.030,  0.030,  0.020,  0.030,
+                   0.080,  0.150,  0.000,  0.000,  0.000,
+                   0.000,  0.000,  0.000,  0.000,  0.000,
+                   0.020,  0.030,  0.030,  0.030,  0.030,
+                   0.050,  0.100]
+          x1:    [ 0.350,  0.380,  0.400,  0.450,  0.500,
+                   1.000,  1.000,  0.000,  0.000,  0.000,
+                   0.000,  0.000,  0.000,  0.000,  0.000,
+                   0.350,  0.500,  0.500,  0.500,  0.500,
+                   0.500,  0.500]
+          err0:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
+                   0.300,  0.300,  0.400,  0.400,  0.400,
+                   0.450,  0.450,  0.550,  0.800,  3.000,
+                   4.000,  4.000,  3.500,  3.000,  3.000,
+                   3.000,  3.000]
+          err1:  [20.000, 25.000, 12.000,  7.000,  3.500,
+                   3.000,  0.800,  0.400,  0.400,  0.400,
+                   0.450,  0.450,  0.550,  0.800,  3.000,
+                  19.000, 30.000, 25.000, 16.500, 12.000,
+                   9.000,  6.500]
+      obserr_bound_max: [4.5, 4.5, 3.0, 3.0, 1.0,
+                         1.0, 1.0, 1.0, 1.0, 1.0,
+                         1.0, 1.0, 1.0, 2.0, 4.5,
+                         4.5, 2.0, 2.0, 2.0, 2.0,
+                         2.0, 2.0]
+  action:
+    name: reject
+#  Inter-channel check
+- filter: Bounds Check
+  filter variables:
+  - name: brightness_temperature
+    channels: *atms_n20_channels
+  test variables:
+  - name: InterChannelConsistencyCheck@ObsFunction
+    channels: *atms_n20_channels
+    options:
+      channels: *atms_n20_channels
+      sensor: atms_n20
+      use_flag: [ 1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,
+                  1,  1,  1,  1, -1,
+                  1,  1,  1,  1,  1,
+                  1,  1]
+  maxvalue: 1.0e-12
+  action:
+    name: reject
+#  Useflag check
+- filter: Bounds Check
+  filter variables:
+  - name: brightness_temperature
+    channels: *atms_n20_channels
+  test variables:
+  - name: ChannelUseflagCheckRad@ObsFunction
+    channels: *atms_n20_channels
+    options:
+      channels: *atms_n20_channels
+      use_flag: [ 1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,
+                  1,  1,  1,  1, -1,
+                  1,  1,  1,  1,  1,
+                  1,  1]
+  minvalue: 1.0e-12
+  action:
+    name: reject
