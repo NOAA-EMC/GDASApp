@@ -1,3 +1,19 @@
 observers:
 - $<< $(OBS_YAML_DIR)/amsua_n19.yaml
 - $<< $(OBS_YAML_DIR)/sondes.yaml
+- $<< $(OBS_YAML_DIR)/atms_n20.yaml
+- $<< $(OBS_YAML_DIR)/aircraft.yaml
+- $<< $(OBS_YAML_DIR)/satwind.yaml
+- $<< $(OBS_YAML_DIR)/omi_aura.yaml
+- $<< $(OBS_YAML_DIR)/ompsnp_npp.yaml
+- $<< $(OBS_YAML_DIR)/ompstc8_npp.yaml
+#- $<< $(OBS_YAML_DIR)/sfcship.yaml
+#- $<< $(OBS_YAML_DIR)/sfc.yaml
+
+
+
+
+
+
+
+
