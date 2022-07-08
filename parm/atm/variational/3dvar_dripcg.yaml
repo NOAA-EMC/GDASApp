@@ -2,7 +2,7 @@ cost function:
   cost type: 3D-Var
   window begin: '$(ATM_WINDOW_BEGIN)'
   window length: $(ATM_WINDOW_LENGTH)
-  analysis variables: &3dvars [ua,va,t,delp,ps,sphum,ice_wat,liq_wat,o3mr]
+  analysis variables: &3dvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
   geometry: $(GEOM_BKG)
   background:
     datapath: $(BKG_DIR)
@@ -13,7 +13,7 @@ cost function:
     filename_sfcd: $(BKG_YYYYmmddHHMMSS).sfc_data.nc
     filename_sfcw: $(BKG_YYYYmmddHHMMSS).fv_srf_wnd.res.nc
     filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
-    state variables: [ua,va,t,delp,ps,sphum,ice_wat,liq_wat,o3mr,phis,
+    state variables: [ua,va,t,DZ,delp,ps,sphum,ice_wat,liq_wat,o3mr,phis,
                       slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                       u_srf,v_srf,f10m]
   background error: $<< $(BERROR_YAML)
@@ -40,5 +40,5 @@ final:
   increment:
     output:
       filetype: latlon
-      filename: $(ANL_DIR)/atminc_latlon.
+      filename: $(ANL_DIR)/atminc.
     geometry: $(GEOM_ANL)

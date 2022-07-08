@@ -37,9 +37,8 @@ import ufsda
 
 # get configuration based on environment variables
 config = ufsda.misc_utils.get_env_config(component='atm')
-config['DIAG_DIR'] = os.path.join(os.environ['COMOUT'], 'diags')
-config['BIAS_OUT_DIR'] = os.path.join(os.environ['COMOUT'], 'bc')
-config['provider'] = 'ncdiag'
+config['DIAG_DIR'] = os.path.join(os.environ['COMOUT_ENS'], 'diags')
+config['provider'] = 'ncdiag_lgetkf'
 
-# use R2D2 to archive diags and bias correction coefficient files
+# use R2D2 to archive hofx files
 ufsda.archive.atm_diags(config)

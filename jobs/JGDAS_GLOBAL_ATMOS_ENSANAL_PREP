@@ -1,5 +1,6 @@
 #!/bin/bash
-set -ex
+##set -ex
+set -x
 set -u
 
 export PS4='$SECONDS + '
@@ -10,6 +11,7 @@ date
 # Source relevant config files
 #############################
 export EXPDIR=${EXPDIR:-$HOMEgfs/parm/config}
+configs="base atmensanal atmensanalprep"
 config_path=${EXPDIR:-$NWROOT/gfs.${gfs_ver}/parm/config}
 for config in $configs; do
     . $config_path/config.$config
@@ -21,7 +23,7 @@ done
 ##########################################
 # Source machine runtime environment
 ##########################################
-. $HOMEgfs/env/${machine}.env atmanalrun
+. $HOMEgfs/env/${machine}.env atmensanalprep
 status=$?
 [[ $status -ne 0 ]] && exit $status
 
@@ -75,12 +77,15 @@ export GSUFFIX=${GSUFFIX:-$SUFFIX}
 export ASUFFIX=${ASUFFIX:-$SUFFIX}
 
 export COMOUT=${COMOUT:-$ROTDIR/$CDUMP.$PDY/$cyc/$COMPONENT}
+export COMOUT_ENS=${COMOUT_ENS:-$ROTDIR/enkf$CDUMP.$PDY/$cyc/$COMPONENT}
 
 mkdir -p $COMOUT
+mkdir -p $COMOUT_ENS
 
 # COMIN_GES and COMIN_GES_ENS are used in script
+export COMIN="$ROTDIR/$CDUMP.$PDY/$cyc/$COMPONENT"
 export COMIN_GES="$ROTDIR/$GDUMP.$gPDY/$gcyc/$COMPONENT"
-export COMIN_GES_ENS="$ROTDIR/enkfgdas.$gPDY/$gcyc/$COMPONENT"
+export COMIN_GES_ENS="$ROTDIR/enkf$GDUMP.$gPDY/$gcyc/$COMPONENT"
 
 # NOTE BELOW IS A HACK FOR TESTING
 # PLEASE FIX THIS LATER
@@ -95,6 +100,7 @@ export PYTHONPATH=$HOMEgfs/sorc/gdas.cd/ush/:$PYTHONPATH
 ###############################################################
 # Run relevant script
 
+EXSCRIPT=${GDASPREPPY:-$HOMEgfs/sorc/gdas.cd/scripts/exgdas_global_atmos_analysis_prep.py}
 $EXSCRIPT
 status=$?
 [[ $status -ne 0 ]] && exit $status
