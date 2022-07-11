@@ -9,11 +9,3 @@ observers:
 - $<< $(OBS_YAML_DIR)/ompstc8_npp.yaml
 #- $<< $(OBS_YAML_DIR)/sfcship.yaml
 #- $<< $(OBS_YAML_DIR)/sfc.yaml
-
-
-
-
-
-
-
-

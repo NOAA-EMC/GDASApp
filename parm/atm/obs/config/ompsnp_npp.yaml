@@ -1,0 +1,75 @@
+obs space:
+  name: ompsnp_npp
+  obsdatain:
+    obsfile: $(OBS_DIR)/$(OBS_PREFIX)ompsnp_npp.$(OBS_DATE).nc4
+  obsdataout:
+    obsfile: $(DIAG_DIR)/diag_ompsnp_npp_$(OBS_DATE).nc4
+  io pool:
+    max pool size: 1
+  simulated variables: [integrated_layer_ozone_in_air]
+get values:
+  interpolation method: $(INTERP_METHOD)
+obs operator:
+  name: AtmVertInterpLay
+  geovals: [mole_fraction_of_ozone_in_air]
+  coefficients: [0.007886131] # convert from ppmv to DU
+  nlevels: [22]
+obs filters:
+#- filter: BlackList
+#  filter variables:
+#  - name: integrated_layer_ozone_in_air
+#  where:
+#  - variable:
+#      name: total_ozone_error_flag@MetaData
+#    minvalue: 0.1
+#    maxvalue: 1.1
+#  action:
+#    name: reject
+#- filter: BlackList
+#  filter variables:
+#  - name: integrated_layer_ozone_in_air
+#  where:
+#  - variable:
+#      name: total_ozone_error_flag@MetaData
+#    minvalue: 2.1     # toss toq>2, there are some 4 and 6
+#  action:
+#    name: reject
+#- filter: BlackList
+#  filter variables:
+#  - name: integrated_layer_ozone_in_air
+#  where:
+#  - variable:
+#      name: profile_ozone_error_flag@MetaData
+#    minvalue: 1.1
+#  action:
+#    name: reject
+- filter: BlackList
+  filter variables:
+  - name: integrated_layer_ozone_in_air
+  where:
+  - variable:
+      name: air_pressure@MetaData
+    maxvalue: 64.00000
+  action:
+    name: reject
+- filter: Domain Check
+  filter variables:
+  - name: integrated_layer_ozone_in_air
+  where:
+  - variable:
+      name: latitude@MetaData
+    minvalue: -90.
+    maxvalue: 90.
+  - variable:
+      name: longitude@MetaData
+    minvalue: -180.
+    maxvalue: 360.
+- filter: Bounds Check
+  filter variables:
+  - name: integrated_layer_ozone_in_air
+  minvalue: 0.000001
+  maxvalue: 1000.0
+- filter: Background Check
+  filter variables:
+  - name: integrated_layer_ozone_in_air
+  absolute threshold: 10.0

@@ -1,0 +1,54 @@
+geometry: $(GEOM_BKG)
+
+window begin: '$(ATM_WINDOW_BEGIN)'
+window length: PT6H
+
+background:
+   datetime: $(BKG_ISOTIME)
+   members from template:
+     template:
+       datetime: $(BKG_ISOTIME)
+       filetype: fms restart
+       state variables: [ua,va,t,DZ,delp,sphum,ice_wat,liq_wat,o3mr,phis,
+                        slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
+                        u_srf,v_srf,f10m]
+       datapath: bkg/mem%mem%/RESTART
+       filename_core: $(BKG_YYYYmmddHHMMSS).fv_core.res.nc
+       filename_trcr: $(BKG_YYYYmmddHHMMSS).fv_tracer.res.nc
+       filename_sfcd: $(BKG_YYYYmmddHHMMSS).sfc_data.nc
+       filename_sfcw: $(BKG_YYYYmmddHHMMSS).fv_srf_wnd.res.nc
+       filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
+     pattern: '%mem%'
+     nmembers: $(NMEM_ENKF)
+     zero padding: 3
+
+observations: $<< $(OBS_LIST)
+
+driver:
+  update obs config with geometry info: true
+  save posterior mean: false
+  save posterior ensemble: false
+  save prior mean: false
+  save posterior mean increment: false
+  save posterior ensemble increments: true
+
+local ensemble DA:
+  solver: GETKF
+  vertical localization:
+    fraction of retained variance: 0.975
+    lengthscale: 2.1
+    lengthscale units: logp
+  inflation:
+    rtps: 0.85
+    rtpp: 0.0
+    mult: 1.0
+
+#output:
+#  filetype: latlon
+#  filename: $(ANL_DIR)/mem%{member}%/atmanl.
+
+output ensemble increments:
+  filetype: latlon
+  filename: $(ANL_DIR)/mem%{member}%/atminc.
+
+geometry: $(GEOM_ANL)

@@ -43,8 +43,6 @@ load("atlas/ecmwf-0.29.0")
 load("nco/4.9.1")
 
 load("pybind11/2.7.0")
-load("json/3.9.1")
-load("json-schema-validator/2.1.0")
 
 load("hpc/1.2.0")
 load("miniconda3/4.6.14")
@@ -58,6 +56,8 @@ local mpiexec = '/apps/slurm/default/bin/srun'
 local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
+
+setenv('R2D2_CONFIG', '/scratch1/NCEPDEV/stmp4/Cory.R.Martin/R2D2_SHARED/config_hera.yaml')
 
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)

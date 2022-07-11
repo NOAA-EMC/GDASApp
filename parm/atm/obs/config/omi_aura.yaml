@@ -1,0 +1,16 @@
+obs space:
+  name: omi_aura
+  obsdatain:
+    obsfile: $(OBS_DIR)/$(OBS_PREFIX)omi_aura.$(OBS_DATE).nc4
+  obsdataout:
+    obsfile: $(DIAG_DIR)/diag_omi_aura_$(OBS_DATE).nc4
+  io pool:
+    max pool size: 1
+  simulated variables: [integrated_layer_ozone_in_air]
+get values:
+  interpolation method: $(INTERP_METHOD)
+obs operator:
+  name: AtmVertInterpLay
+  geovals: [mole_fraction_of_ozone_in_air]
+  coefficients: [0.007886131] # convert from ppmv to DU
+  nlevels: [1]
