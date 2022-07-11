@@ -23,5 +23,4 @@ job options:
   partition: hera
   walltime: '30:00'
   ntasks: 96
-  cpus-per-task: 1
   modulepath: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/modulefiles

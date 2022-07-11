@@ -23,5 +23,4 @@ job options:
   partition: debug
   walltime: '30:00'
   ntasks: 96
-  cpus-per-task: 1
   modulepath: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/modulefiles
