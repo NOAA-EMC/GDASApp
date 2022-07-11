@@ -60,7 +60,7 @@ def create_batch_job(job_config, working_dir, executable, yaml_path):
                 taskspernode = job_config.get("ntasks-per-node", 18)
             elif job_config['machine'] == 'orion':
                 taskspernode = job_config.get("ntasks-per-node", 24)
-            else
+            else:
                 taskspernode = job_config.get("ntasks-per-node", 12)
             sbatch = f"""#SBATCH -J GDASApp
 #SBATCH -o GDASApp.o%J
