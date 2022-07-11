@@ -45,8 +45,8 @@ mkdir -p $DATA/anl
 ################################################################################
 # generate YAML file
 cat > $DATA/temp.yaml << EOF
-template: ${ATMVARYAML}
-output: $DATA/fv3jedi_var.yaml
+template: ${ATMENSYAML}
+output: $DATA/fv3jedi_ens.yaml
 config:
   atm: true
   BERROR_YAML: $BERROR_YAML
@@ -74,41 +74,36 @@ $GENYAML --config $DATA/temp.yaml
 
 ################################################################################
 # link observations to $DATA
-$GETOBSYAML --config $DATA/fv3jedi_var.yaml --output $DATA/${OPREFIX}obsspace_list
+$GETOBSYAML --config $DATA/fv3jedi_ens.yaml --output $DATA/${OPREFIX}obsspace_list
 files=$(cat $DATA/${OPREFIX}obsspace_list)
 for file in $files; do
   basefile=$(basename $file)
-  $NLN $COMOUT/$basefile $DATA/obs/$basefile
+  $NLN $COMIN/$basefile $DATA/obs/$basefile
 done
 
 # link backgrounds to $DATA
 # linking FMS RESTART files for now
 # change to (or make optional) for cube sphere history later
-$NLN ${COMIN_GES}/RESTART $DATA/bkg
+##$NLN ${COMIN_GES}/RESTART $DATA/bkg
 
 
-# optionally link ensemble backgrounds to $DATA
-if [ $DOHYBVAR = "YES" ]; then
-   mkdir -p $DATA/ens
-   fhrs="06"
-   if [ $l4densvar = ".true." ]; then
-      fhrs="03 04 05 06 07 08 09"
-   fi
-   
+# Link ensemble backgrounds to $DATA.  Make directories
+# for ensemble output
+if [ $DOHYBVAR = "YES" -o $DO_JEDIENS = "YES" ]; then
+   mkdir -p $DATA/bkg
    for imem in $(seq 1 $NMEM_ENKF); do
       memchar="mem"$(printf %03i $imem)
-      for fhr in $fhrs; do
-         $NLN ${COMIN_GES_ENS}/$memchar/RESTART $DATA/ens/$memchar
-      done
+      mkdir -p $DATA/bkg/$memchar
+      $NLN ${COMIN_GES_ENS}/$memchar/RESTART $DATA/bkg/$memchar
+      mkdir -p $DATA/anl/$memchar
    done
-
 fi
     
 ################################################################################
 # link fix files to $DATA
 # static B
-CASE_BERROR=${CASE_BERROR:-${CASE_ANL:-$CASE}}
-$NLN $FV3JEDI_FIX/bump/$CASE_BERROR/ $DATA/berror
+##CASE_BERROR=${CASE_BERROR:-${CASE_ANL:-$CASE}}
+##$NLN $FV3JEDI_FIX/bump/$CASE_BERROR/ $DATA/berror
 
 # vertical coordinate
 LAYERS=$(expr $LEVS - 1)
@@ -131,45 +126,41 @@ done
 $NLN $FV3JEDI_FIX/crtm/2.3.0_jedi $DATA/crtm
 
 #  Link executable to $DATA
-$NLN $JEDIVAREXE $DATA/fv3jedi_var.x
+$NLN $JEDIENSEXE $DATA/fv3jedi_ens.x
 
 ################################################################################
 # run executable
 export pgm=$JEDIVAREXE
 . prep_step
-$APRUN_ATMANAL $DATA/fv3jedi_var.x $DATA/fv3jedi_var.yaml 1>&1 2>&2
+$APRUN_ATMENSANAL $DATA/fv3jedi_ens.x $DATA/fv3jedi_ens.yaml 1>&1 2>&2
 export err=$?; err_chk
 
 ################################################################################
 # translate FV3-JEDI increment to FV3 readable format
-atminc_jedi=$DATA/anl/atminc.${PDY}_${cyc}0000z.nc4
-atminc_fv3=$COMOUT/${CDUMP}.${cycle}.atminc.nc
-if [ -s $atminc_jedi ]; then
-    $INCPY $atminc_jedi $atminc_fv3
-    export err=$?
-else
-    echo "***WARNING*** missing $atminc_jedi   ABORT"
-    export err=99
-fi
-err_chk
+for imem in $(seq 1 $NMEM_ENKF); do
+    memchar="mem"$(printf %03i $imem)
+    atminc_jedi=$DATA/anl/$memchar/atminc.${PDY}_${cyc}0000z.nc4
+    atminc_fv3=$COMOUT_ENS/$memchar/${CDUMP}.${cycle}.atminc.nc
+    mkdir -p $COMOUT_ENS/$memchar
+    if [ -s $atminc_jedi ]; then
+	$INCPY $atminc_jedi $atminc_fv3
+	export err=$?
+    else
+	echo "***WARNING*** missing $atminc_jedi   ABORT"
+	export err=99
+    fi
+    err_chk
+done
 
 ################################################################################
 # Create log file noting creating of analysis increment file
-echo "$CDUMP $CDATE atminc and tiled sfcanl done at `date`" > $COMOUT/${CDUMP}.${cycle}.loginc.txt
+echo "$CDUMP $CDATE atminc done at `date`" > $COMOUT_ENS/${CDUMP}.${cycle}.loginc.txt
 
 ################################################################################
 # Copy diags and YAML to $COMOUT
-cp -r $DATA/fv3jedi_var.yaml $COMOUT/${CDUMP}.${cycle}.fv3jedi_var.yaml
-cp -rf $DATA/diags $COMOUT/
-cp -rf $DATA/bc $COMOUT/
+cp -r $DATA/fv3jedi_ens.yaml $COMOUT_ENS/${CDUMP}.${cycle}.fv3jedi_ens.yaml
+cp -rf $DATA/diags $COMOUT_ENS/
 
-# ***WARNING*** PATCH
-# Copy abias, abias_pc, and abias_air from previous cycle to current cycle
-# Deterministic abias used in enkf cycle
-alist="abias abias_air abias_int abias_pc"
-for abias in $alist; do
-    cp $COMIN_GES/${GPREFIX}${abias} $COMOUT/${APREFIX}${abias}
-done
 
 ################################################################################
 set +x

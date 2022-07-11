@@ -23,11 +23,11 @@ def atm_diags(config):
     obs_list_yaml = config['OBS_LIST']
     obs_list_config = Configuration(obs_list_yaml)
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
-    for ob in obs_list_config['observations']:
+    for ob in obs_list_config['observers']:
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
-        r2d2_config['provider'] = 'ncdiag'
+        r2d2_config['provider'] = config['provider']
         r2d2_config['start'] = config['window_begin']
         r2d2_config['end'] = r2d2_config['start']
         input_file = ob['obs space']['obsdataout']['obsfile']
