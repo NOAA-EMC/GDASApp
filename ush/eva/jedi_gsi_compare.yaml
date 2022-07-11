@@ -16,3 +16,78 @@ diagnostics:
             - name: EffectiveQC
             - name: MetaData
   transforms:
+
+    # difference of hofx
+    - transform: arithmetic
+      new name: experiment::HofXDiff::${variable}
+      equals: experiment::hofx::${variable}-experiment::GsiHofXBc::${variable}
+      for:
+        variable: *variables
+
+    # Generate omb for GSI
+    - transform: arithmetic
+      new name: experiment::ObsValueMinusGsiHofXBc::${variable}
+      equals: experiment::ObsValue::${variable}-experiment::GsiHofXBc::${variable}
+      for:
+        variable: *variables
+
+    # Generate omb for JEDI
+    - transform: arithmetic
+      new name: experiment::ObsValueMinusHofx::${variable}
+      equals: experiment::ObsValue::${variable}-experiment::hofx::${variable}
+      for:
+        variable: *variables
+
+    # Generate hofx that passed QC for JEDI
+    - transform: accept where
+      new name: experiment::hofxPassedQc::${variable}
+      starting field: experiment::hofx::${variable}
+      where:
+        - experiment::EffectiveQC::${variable} == 0
+      for:
+        variable: *variables
+
+    # Generate GSI hofx that passed JEDI QC
+    - transform: accept where
+      new name: experiment::GsiHofXBcPassedQc::${variable}
+      starting field: experiment::GsiHofXBc::${variable}
+      where:
+        - experiment::EffectiveQC::${variable} == 0
+      for:
+        variable: *variables
+
+    # Generate omb that passed QC for JEDI
+    - transform: accept where
+      new name: experiment::ObsValueMinushofxPassedQc::${variable}
+      starting field: experiment::ObsValueMinusHofx::${variable}
+      where:
+        - experiment::EffectiveQC::${variable} == 0
+      for:
+        variable: *variables
+
+    # Generate omb that passed QC for GSI
+    - transform: accept where
+      new name: experiment::ObsValueMinusGsiHofXBcPassedQc::${variable}
+      starting field: experiment::ObsValueMinusGsiHofXBc::${variable}
+      where:
+        - experiment::EffectiveQC::${variable} == 0
+      for:
+        variable: *variables
+
+    # hofxdiff that passed QC for JEDI
+    - transform: accept where
+      new name: experiment::HofXDiffPassedJediQc::${variable}
+      starting field: experiment::HofXDiff::${variable}
+      where:
+        - experiment::EffectiveQC::${variable} == 0
+      for:
+        variable: *variables
+
+    # hofxdiff that passed QC for GSI
+    - transform: accept where
+      new name: experiment::HofXDiffPassedGsiQc::${variable}
+      starting field: experiment::HofXDiff::${variable}
+      where:
+        - experiment::GsiEffectiveQC::${variable} == 0
+      for:
+        variable: *variables
