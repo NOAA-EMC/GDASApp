@@ -56,20 +56,23 @@ def create_batch_job(job_config, working_dir, executable, yaml_path):
     with open(batch_script, 'w') as f:
         f.write('#!/bin/bash\n')
         if scheduler[job_config['machine']] == 'slurm':
+            if job_config['machine'] == 'hera':
+                taskspernode = job_config.get("ntasks-per-node", 18)
+            elif job_config['machine'] == 'orion':
+                taskspernode = job_config.get("ntasks-per-node", 24)
+            else:
+                taskspernode = job_config.get("ntasks-per-node", 12)
             sbatch = f"""#SBATCH -J GDASApp
 #SBATCH -o GDASApp.o%J
 #SBATCH -A {job_config['account']}
 #SBATCH -q {job_config['queue']}
 #SBATCH -p {job_config['partition']}
 #SBATCH --ntasks={job_config['ntasks']}
-#SBATCH --cpus-per-task={job_config['cpus-per-task']}
+#SBATCH --ntasks-per-node={taskspernode}
+#SBATCH --cpus-per-task=1
 #SBATCH --exclusive
 #SBATCH -t {job_config['walltime']}"""
             f.write(sbatch)
-        if job_config['machine'] == 'hera':  # orion might need this eventually too when full suite of obs?
-            cpus_per_node = f"""
-#SBATCH --ntasks-per-node={job_config.get("ntasks-per-node", 18)}"""
-            f.write(cpus_per_node)
         commands = f"""
 module purge
 module use {job_config['modulepath']}
