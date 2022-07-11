@@ -1,0 +1,18 @@
+# template YAML file to create EVA YAML files
+# based on obs spaces listed in JEDI YAML files
+diagnostics:
+- data:
+    type: IodaObsSpace
+    datasets:
+      - name: experiment
+        filenames:
+          - @FILENAME@
+          @CHANNELS@
+          groups:
+            - name: ObsValue
+              variables: @VARIABLES@
+            - name: GsiHofXBc
+            - name: hofx
+            - name: EffectiveQC
+            - name: MetaData
+  transforms:
