@@ -69,7 +69,7 @@ def create_batch_job(job_config, working_dir, executable, yaml_path):
 #SBATCH -p {job_config['partition']}
 #SBATCH --ntasks={job_config['ntasks']}
 #SBATCH --ntasks-per-node={taskspernode}
-#SBATCH --cpus-per-task={job_config['cpus-per-task']}
+#SBATCH --cpus-per-task=1
 #SBATCH --exclusive
 #SBATCH -t {job_config['walltime']}"""
             f.write(sbatch)
