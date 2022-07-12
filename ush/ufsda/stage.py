@@ -138,8 +138,6 @@ def atm_obs(config):
     obs_list_yaml = config['OBS_LIST']
     obs_list_config = Configuration(obs_list_yaml)
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
-##    OBS_DIST_YAML = config['OBS_DIST_YAML']
-##    OBS_LOCL_YAML = config['OBS_LOCL_YAML']    
     for ob in obs_list_config['observers']:
         # first get obs
         r2d2_config.pop('file_type', None)
@@ -237,8 +235,6 @@ def gdas_single_cycle(config):
     # get list of obs to process and their output files
     obs_list_yaml = config['OBS_LIST']
     obs_list_config = Configuration(obs_list_yaml)
-##    OBS_DIST_YAML = config['OBS_DIST_YAML']
-##    OBS_LOCL_YAML = config['OBS_LOCL_YAML']
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
     for ob in obs_list_config['observers']:
         # first get obs

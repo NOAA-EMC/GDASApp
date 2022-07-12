@@ -94,12 +94,11 @@ def atmanl_case(config):
     obs_yaml_dir = config['OBS_YAML_DIR']
     app_mode = config.get('app_mode', os.environ.get('app_mode', 'variational'))
     if app_mode in ['ensemble']:
-        config['OBS_DIST_YAML']=os.path.join(obs_yaml_dir, 'distribution.yaml')
-        config['OBS_LOCL_YAML']=os.path.join(obs_yaml_dir, 'localization.yaml')
+        config['OBS_DIST_YAML'] = os.path.join(obs_yaml_dir, 'distribution.yaml')
+        config['OBS_LOCL_YAML'] = os.path.join(obs_yaml_dir, 'localization.yaml')
     else:
-        config['OBS_DIST_YAML']=os.path.join(obs_yaml_dir, 'distribution_empty.yaml')
-        config['OBS_LOCL_YAML']=os.path.join(obs_yaml_dir, 'localization_empty.yaml')
-    
+        config['OBS_DIST_YAML'] = os.path.join(obs_yaml_dir, 'distribution_empty.yaml')
+        config['OBS_LOCL_YAML'] = os.path.join(obs_yaml_dir, 'localization_empty.yaml')
     return config
 
 
