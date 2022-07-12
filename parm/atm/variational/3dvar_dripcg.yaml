@@ -39,6 +39,6 @@ final:
     departures: anlmob
   increment:
     output:
-      filetype: latlon
+      filetype: gaussian
       filename: $(ANL_DIR)/atminc.
     geometry: $(GEOM_ANL)

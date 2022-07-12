@@ -20,11 +20,12 @@ def run_jedi_exe(yamlconfig):
     except Exception as e:
         logging.error(f'Error occurred when attempting to load: {yamlconfig}, error: {e}')
     # check if the specified app mode is valid
-    app_mode = all_config_dict['GDASApp mode']
-    supported_app_modes = ['hofx', 'variational']
+    executable_subconfig = all_config_dict['executable options']
+    app_mode = executable_subconfig.get('app_mode', 'variational')
+    supported_app_modes = ['hofx', 'variational', 'ensemble']
     if app_mode not in supported_app_modes:
         raise KeyError(f"'{app_mode}' not supported. " +
-                       "Current GDASApp modes supported are: " +
+                       "Current app_mode supported are: " +
                        f"{' | '.join(supported_app_modes)}")
     # create working directory
     workdir = all_config_dict['working directory']
@@ -38,7 +39,6 @@ def run_jedi_exe(yamlconfig):
     sys.path.append(ufsda_path)
     import ufsda
     # compute config for YAML for executable
-    executable_subconfig = all_config_dict['executable options']
     valid_time = executable_subconfig['valid_time']
     h = re.findall('PT(\\d+)H', executable_subconfig['atm_window_length'])[0]
     prev_cycle = valid_time - dt.timedelta(hours=int(h))
@@ -47,11 +47,20 @@ def run_jedi_exe(yamlconfig):
     cdate = valid_time.strftime("%Y%m%d%H")
     gcyc = prev_cycle.strftime("%H")
     gdate = prev_cycle.strftime("%Y%m%d%H")
+    app_mode = executable_subconfig.get('app_mode', 'variational')
+    obs_yaml_dir = executable_subconfig['obs_yaml_dir']
+    if app_mode in ['ensemble']:
+        obs_dist_yaml=os.path.join(obs_yaml_dir, 'distribution.yaml')
+        obs_locl_yaml=os.path.join(obs_yaml_dir, 'localization.yaml')
+    else:
+        obs_dist_yaml=os.path.join(obs_yaml_dir, 'distribution_empty.yaml')
+        obs_locl_yaml=os.path.join(obs_yaml_dir, 'localization_empty.yaml')
     var_config = {
         'BERROR_YAML': executable_subconfig.get('berror_yaml', './'),
         'OBS_YAML_DIR': executable_subconfig['obs_yaml_dir'],
         'OBS_LIST': executable_subconfig['obs_list'],
         'atm': executable_subconfig.get('atm', False),
+        'app_mode': f"(app_mode)",
         'layout_x': str(executable_subconfig['layout_x']),
         'layout_y': str(executable_subconfig['layout_y']),
         'BKG_DIR': os.path.join(workdir, 'bkg'),
@@ -81,6 +90,8 @@ def run_jedi_exe(yamlconfig):
                                           executable_subconfig['atm_window_length']),
         'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
         'INTERP_METHOD': executable_subconfig.get('interp_method', 'barycentric'),
+        'OBS_DIST_YAML': f"{obs_dist_yaml}",
+        'OBS_LOCL_YAML': f"{obs_locl_yaml}",
     }
     template = executable_subconfig['yaml_template']
     output_file = os.path.join(workdir, f"gdas_{app_mode}.yaml")

@@ -49,6 +49,7 @@ template: ${ATMENSYAML}
 output: $DATA/fv3jedi_ens.yaml
 config:
   atm: true
+  app_mode: ensemble
   BERROR_YAML: $BERROR_YAML
   OBS_DIR: obs
   DIAG_DIR: diags

@@ -1,5 +1,6 @@
 obs space:
   name: sondes
+  distribution: $<< $(OBS_DIST_YAML)
   obsdatain:
     obsfile: $(OBS_DIR)/$(OBS_PREFIX)sondes.$(OBS_DATE).nc4
     obsgrouping:
@@ -327,3 +328,5 @@ obs filters:
     threshold: 8.0
     action:
       name: reject
+obs localizations:
+- $<< $(OBS_LOCL_YAML)

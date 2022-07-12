@@ -49,6 +49,7 @@ template: ${ATMVARYAML}
 output: $DATA/fv3jedi_var.yaml
 config:
   atm: true
+  app_mode: variational
   BERROR_YAML: $BERROR_YAML
   OBS_DIR: obs
   DIAG_DIR: diags

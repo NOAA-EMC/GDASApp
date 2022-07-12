@@ -1,7 +1,7 @@
 working directory: /work2/noaa/stmp/cmartin/gdas_single_test_hofx3d
 GDASApp home: /work2/noaa/da/cmartin/GDASApp/work/GDASApp
-GDASApp mode: hofx
 executable options:
+  app_mode: hofx
   obs_yaml_dir: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/config
   yaml_template: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/hofx/hofx_nomodel.yaml
   executable: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/build/bin/fv3jedi_hofx_nomodel.x

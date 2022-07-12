@@ -1,5 +1,6 @@
 obs space:
   name: amsua_n19
+  distribution: $<< $(OBS_DIST_YAML)
   obsdatain:
     obsfile: $(OBS_DIR)/$(OBS_PREFIX)amsua_n19.$(OBS_DATE).nc4
   obsdataout:
@@ -337,3 +338,5 @@ obs filters:
   minvalue: 1.0e-12
   action:
     name: reject
+obs localizations:
+- $<< $(OBS_LOCL_YAML)

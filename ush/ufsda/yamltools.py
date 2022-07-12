@@ -90,6 +90,16 @@ def atmanl_case(config):
     io_layout = ['1', '1']  # force to be one file for forseeable future
     config['GEOM_BKG'] = fv3_geom_dict(case, levs, ntiles, layout, io_layout)
     config['GEOM_ANL'] = fv3_geom_dict(case_anl, levs, ntiles, layout, io_layout)
+
+    obs_yaml_dir = config['OBS_YAML_DIR']
+    app_mode = config.get('app_mode', os.environ.get('app_mode', 'variational'))
+    if app_mode in ['ensemble']:
+        config['OBS_DIST_YAML']=os.path.join(obs_yaml_dir, 'distribution.yaml')
+        config['OBS_LOCL_YAML']=os.path.join(obs_yaml_dir, 'localization.yaml')
+    else:
+        config['OBS_DIST_YAML']=os.path.join(obs_yaml_dir, 'distribution_empty.yaml')
+        config['OBS_LOCL_YAML']=os.path.join(obs_yaml_dir, 'localization_empty.yaml')
+    
     return config
 
 
