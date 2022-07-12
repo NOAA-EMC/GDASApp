@@ -7,10 +7,10 @@ diagnostics:
       - name: experiment
         filenames:
           - @FILENAME@
-          @CHANNELS@
+          @CHANNELSKEY@
           groups:
             - name: ObsValue
-              variables: @VARIABLES@
+              variables: &variables @VARIABLES@
             - name: GsiHofXBc
             - name: hofx
             - name: EffectiveQC
@@ -91,3 +91,182 @@ diagnostics:
         - experiment::GsiEffectiveQC::${variable} == 0
       for:
         variable: *variables
+
+  graphics:
+
+    # JEDI h(x) vs Observations
+    # -------------------------
+    - batch figure:
+        variables: *variables
+        @CHANNELSKEY@
+      figure:
+        layout: [1,1]
+        title: 'Observations vs. JEDI h(x) | @NAME@ @CYCLE@ | ${variable_title}'
+        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/jedi_hofx_vs_obs_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+      plots:
+        - add_xlabel: 'Observation Value'
+          add_ylabel: 'JEDI h(x)'
+          add_grid:
+          add_legend:
+            loc: 'upper left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::ObsValue::${variable}
+            y:
+              variable: experiment::hofx::${variable}
+            @CHANNELKEY@
+            markersize: 5
+            color: 'black'
+            label: 'JEDI h(x) versus obs (all obs)'
+          - type: Scatter
+            x:
+              variable: experiment::ObsValue::${variable}
+            y:
+              variable: experiment::hofxPassedQc::${variable}
+            @CHANNELKEY@
+            markersize: 5
+            color: 'red'
+            label: 'JEDI h(x) versus obs (passed QC in JEDI)'
+
+    # GSI h(x) vs Observations
+    # -------------------------
+    - batch figure:
+        variables: *variables
+        @CHANNELSKEY@
+      figure:
+        layout: [1,1]
+        title: 'Observations vs. GSI h(x) | @NAME@ @CYCLE@ | ${variable_title}'
+        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/gsi_hofx_vs_obs_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+      plots:
+        - add_xlabel: 'Observation Value'
+          add_ylabel: 'GSI h(x)'
+          add_grid:
+          add_legend:
+            loc: 'upper left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::ObsValue::${variable}
+            y:
+              variable: experiment::GsiHofXBc::${variable}
+            @CHANNELKEY@
+            markersize: 5
+            color: 'black'
+            label: 'GSI h(x) versus obs (all obs)'
+          - type: Scatter
+            x:
+              variable: experiment::ObsValue::${variable}
+            y:
+              variable: experiment::GsiHofXBcPassedQc::${variable}
+            @CHANNELKEY@
+            markersize: 5
+            color: 'red'
+            label: 'GSI h(x) versus obs (passed QC in JEDI)'
+
+    # JEDI h(x) vs GSI h(x)
+    # ---------------------
+
+    - batch figure:
+        variables: *variables
+        channels: *channels
+      figure:
+        layout: [1,1]
+        title: 'JEDI h(x) vs. GSI h(x) | AMSU-A NOAA-19 | ${variable_title}'
+        output name: observation_scatter_plots/amsua_n19/${variable}/${channel}/gsi_hofx_vs_jedi_hofx_amsua_n19_${variable}_${channel}.png
+      plots:
+        - add_xlabel: 'GSI h(x)'
+          add_ylabel: 'JEDI h(x)'
+          add_grid:
+          add_legend:
+            loc: 'upper left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::GsiHofXBc::${variable}
+            y:
+              variable: experiment::hofx::${variable}
+            channel: ${channel}
+            markersize: 5
+            color: 'black'
+            label: 'JEDI h(x) versus GSI h(x)'
+          - type: Scatter
+            x:
+              variable: experiment::GsiHofXBcPassedQc::${variable}
+            y:
+              variable: experiment::hofxPassedQc::${variable}
+            channel: ${channel}
+            markersize: 5
+            color: 'red'
+            label: 'JEDI h(x) versus GSI h(x) (passed QC in JEDI)'
+
+    # JEDI omb vs GSI omb
+    # ---------------------
+
+    - batch figure:
+        variables: *variables
+        channels: *channels
+      figure:
+        layout: [1,1]
+        title: 'JEDI omb vs. GSI omb| AMSU-A NOAA-19 | ${variable_title}'
+        output name: observation_scatter_plots/amsua_n19/${variable}/${channel}/gsi_omb_vs_jedi_omb_amsua_n19_${variable}_${channel}.png
+      plots:
+        - add_xlabel: 'GSI observation minus h(x)'
+          add_ylabel: 'JEDI observation minus h(x)'
+          add_grid:
+          add_legend:
+            loc: 'upper left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::ObsValueMinusGsiHofXBc::${variable}
+            y:
+              variable: experiment::ObsValueMinusHofx::${variable}
+            channel: ${channel}
+            markersize: 5
+            color: 'black'
+            label: 'GSI omb vs JEDI omb (all obs)'
+          - type: Scatter
+            x:
+              variable: experiment::ObsValueMinusGsiHofXBcPassedQc::${variable}
+            y:
+              variable: experiment::ObsValueMinushofxPassedQc::${variable}
+            channel: ${channel}
+            markersize: 5
+            color: 'red'
+            label: 'GSI omb vs JEDI omb (passed QC in JEDI)'
+
+    # Map plot
+    # --------
+
+    - batch figure:
+        variables: *variables
+        channels: *channels
+      figure:
+        layout: [1,1]
+        figure size: [11,11]
+        output name: map_plots/amsua_n19/${variable}/${channel}/hofxdiff_map_amsua_n19_${variable}_${channel}.png
+        tight_layout: true
+      plots:
+        - add_title: 'HofX Difference ${variable}_${channel}'
+          mapping:
+            projection: plcarr
+            domain: global
+          add_map_features: ['coastline']
+          add_grid:
+          add_colorbar:
+          layers:
+          - type: MapScatter
+            longitude:
+              variable: experiment::MetaData::longitude
+            latitude:
+              variable: experiment::MetaData::latitude
+            data:
+              variable: experiment::HofXDiff::${variable}
+              channel: ${channel}
+            markersize: 2
+            label: '$(variable)'
+            colorbar: true
+            cmap: 'bwr'
+            vmin: -0.1
+            vmax: 0.1
