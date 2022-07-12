@@ -50,11 +50,11 @@ def run_jedi_exe(yamlconfig):
     app_mode = executable_subconfig.get('app_mode', 'variational')
     obs_yaml_dir = executable_subconfig['obs_yaml_dir']
     if app_mode in ['ensemble']:
-        obs_dist_yaml=os.path.join(obs_yaml_dir, 'distribution.yaml')
-        obs_locl_yaml=os.path.join(obs_yaml_dir, 'localization.yaml')
+        obs_dist_yaml = os.path.join(obs_yaml_dir, 'distribution.yaml')
+        obs_locl_yaml = os.path.join(obs_yaml_dir, 'localization.yaml')
     else:
-        obs_dist_yaml=os.path.join(obs_yaml_dir, 'distribution_empty.yaml')
-        obs_locl_yaml=os.path.join(obs_yaml_dir, 'localization_empty.yaml')
+        obs_dist_yaml = os.path.join(obs_yaml_dir, 'distribution_empty.yaml')
+        obs_locl_yaml = os.path.join(obs_yaml_dir, 'localization_empty.yaml')
     var_config = {
         'BERROR_YAML': executable_subconfig.get('berror_yaml', './'),
         'OBS_YAML_DIR': executable_subconfig['obs_yaml_dir'],
