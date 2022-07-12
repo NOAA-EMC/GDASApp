@@ -7,5 +7,7 @@ observers:
 - $<< $(OBS_YAML_DIR)/omi_aura.yaml
 - $<< $(OBS_YAML_DIR)/ompsnp_npp.yaml
 - $<< $(OBS_YAML_DIR)/ompstc8_npp.yaml
+- $<< $(OBS_YAML_DIR)/cris-fsr_n20.yaml
+- $<< $(OBS_YAML_DIR)/cris-fsr_npp.yaml
 #- $<< $(OBS_YAML_DIR)/sfcship.yaml
 #- $<< $(OBS_YAML_DIR)/sfc.yaml
