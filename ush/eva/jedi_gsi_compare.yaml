@@ -174,7 +174,7 @@ diagnostics:
       figure:
         layout: [1,1]
         title: 'JEDI h(x) vs. GSI h(x) | @NAME@ @CYCLE@ | ${variable_title}'
-        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/gsi_hofx_vs_jedi_hofx_@CYCLE@_@NAME@__${variable}@CHANNELVAR@.png
+        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/gsi_hofx_vs_jedi_hofx_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
       plots:
         - add_xlabel: 'GSI h(x)'
           add_ylabel: 'JEDI h(x)'
