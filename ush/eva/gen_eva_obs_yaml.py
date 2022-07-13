@@ -63,15 +63,15 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
             '@CYCLE@': cycle,
         }
         if obsspace['channels'] is not None:
-             replacements['@CHANNELS@'] = obsspace['channels']
-             replacements['@CHANNELSKEY@'] = f"channels: {obsspace['channels']}"
-             replacements['@CHANNELKEY@'] = 'channel: ${channel}'
-             replacements['@CHANNELVAR@'] = '${channel}'
+            replacements['@CHANNELS@'] = obsspace['channels']
+            replacements['@CHANNELSKEY@'] = f"channels: {obsspace['channels']}"
+            replacements['@CHANNELKEY@'] = 'channel: ${channel}'
+            replacements['@CHANNELVAR@'] = '${channel}'
         else:
-             replacements['@CHANNELS@'] = ''
-             replacements['@CHANNELSKEY@'] = ''
-             replacements['@CHANNELKEY@'] = ''
-             replacements['@CHANNELVAR@'] = ''
+            replacements['@CHANNELS@'] = ''
+            replacements['@CHANNELSKEY@'] = ''
+            replacements['@CHANNELKEY@'] = ''
+            replacements['@CHANNELVAR@'] = ''
         # open output file for writing and start the find/replace process
         outputyaml = os.path.join(outputdir, f'eva_{name}_{cycle}.yaml')
         try:
@@ -83,7 +83,6 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
                     yaml_out.write(line)
         except Exception as e:
             logging.error(f'Error occurred when attempting to write: {outputyaml}, error: {e}')
-
 
 
 if __name__ == "__main__":
