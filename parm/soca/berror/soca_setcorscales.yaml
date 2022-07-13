@@ -2,7 +2,7 @@ resolution:
   mom6_input_nml: mom_input.nml
   fields metadata: ./fields_metadata.yaml
 
-date: 0000-01-01T00:00:00Z
+date: 0001-01-01T00:00:00Z
 
 corr variables: [socn, tocn, ssh, hocn, cicen, hicen, hsnon]
 
