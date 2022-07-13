@@ -55,8 +55,12 @@ def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml'):
     f = open(yaml_name, 'w')
     yaml.dump(dict, f, sort_keys=False, default_flow_style=False)
 
+################################################################################
+# runtime environment variables, create directories
 
 # get runtime environment variables
+
+
 comout = os.getenv('COMOUT')
 comin_obs = os.getenv('COMIN_OBS')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
@@ -72,12 +76,14 @@ ufsda.mkdir(diags)
 # create output directory for soca DA
 ufsda.mkdir(os.path.join(comout, 'analysis', 'Data'))
 
+################################################################################
+# fetch observations
+
 # setup the archive, local and shared R2D2 databases
 ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root=comin_obs)
 
 # create config dict from runtime env
 envconfig = ufsda.misc_utils.get_env_config(component='notatm')
-print(envconfig)
 os.environ['OBS_DATE'] = envconfig['OBS_DATE']
 os.environ['OBS_DIR'] = envconfig['OBS_DIR']
 os.environ['OBS_PREFIX'] = envconfig['OBS_PREFIX']
@@ -90,11 +96,16 @@ stage_cfg = ufsda.parse_config(templateyaml=os.path.join(gdas_home,
 # stage observations from R2D2 to COMIN_OBS and then link to analysis subdir
 ufsda.stage.obs(stage_cfg)
 
+################################################################################
 # stage backgrounds from COMIN_GES to analysis subdir
 ufsda.stage.background(stage_cfg)
 
+################################################################################
 # stage static files
 ufsda.stage.soca_fix(stage_cfg)
+
+################################################################################
+# prepare JEDI yamls
 
 # link yaml for grid generation
 gridgen_yaml = os.path.join(gdas_home,
@@ -112,10 +123,45 @@ berr_yaml_template = os.path.join(gdas_home,
                                   'soca',
                                   'berror',
                                   'parametric_stddev_b.yaml')
-config = {'atm': 'false'}
+config = {}
 ufsda.yamltools.genYAML(config, output=berr_yaml, template=berr_yaml_template)
 
-# generate YAML file for soca_var
+# link yaml for decorrelation length scales
+corscales_yaml = os.path.join(gdas_home,
+                              'parm',
+                              'soca',
+                              'berror',
+                              'soca_setcorscales.yaml')
+ufsda.disk_utils.symlink(corscales_yaml,
+                         os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml'))
+
+# generate yaml for bump C
+# TODO (Guillaume): move the possible vars somewhere else
+vars3d = ['tocn', 'socn', 'uocn', 'vocn', 'chl', 'biop']
+vars2d = ['ssh', 'cicen', 'hicen', 'hsnon',
+          'swh',
+          'sw', 'lw', 'lw_rad', 'lhf', 'shf', 'us']
+
+# TODO (Guillaume): good enough for now but should be read from config.
+vars = ['ssh', 'tocn', 'socn']
+for v in vars:
+    if v in vars2d:
+        dim = '2d'
+    else:
+        dim = '3d'
+    bumpC_yaml = os.path.join(anl_dir, 'soca_bump'+dim+'_C_'+v+'.yaml')
+    bumpC_yaml_template = os.path.join(gdas_home,
+                                       'parm',
+                                       'soca',
+                                       'berror',
+                                       'soca_bump_C_split.yaml')
+    bumpdir = 'bump'+dim+'_'+v
+    ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
+    config = {'datadir': bumpdir}
+    os.environ['CVAR'] = v
+    ufsda.yamltools.genYAML(config, output=bumpC_yaml, template=bumpC_yaml_template)
+
+# generate yaml for soca_var
 var_yaml = os.path.join(anl_dir, 'var.yaml')
 var_yaml_template = os.path.join(gdas_home,
                                  'parm',
@@ -124,9 +170,9 @@ var_yaml_template = os.path.join(gdas_home,
                                  '3dvarfgat.yaml')
 gen_bkg_list(bkg_path=os.path.join(anl_dir, 'bkg'), yaml_name='bkg_list.yaml')
 config = {
-    'atm': 'false',
     'OBS_DATE': os.getenv('PDY')+os.getenv('cyc'),
     'BKG_LIST': 'bkg_list.yaml',
     'COVARIANCE_MODEL': 'SABER',
-    'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_block_identity.yaml')}
+    'NINNER': '3',
+    'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')}
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
