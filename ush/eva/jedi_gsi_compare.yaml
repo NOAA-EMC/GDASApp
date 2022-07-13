@@ -7,14 +7,15 @@ diagnostics:
       - name: experiment
         filenames:
           - @FILENAME@
-          @CHANNELSKEY@
-          groups:
-            - name: ObsValue
-              variables: &variables @VARIABLES@
-            - name: GsiHofXBc
-            - name: hofx
-            - name: EffectiveQC
-            - name: MetaData
+        @CHANNELSKEY@
+        groups:
+          - name: ObsValue
+            variables: &variables @VARIABLES@
+          - name: GsiHofXBc
+          - name: hofx
+          - name: EffectiveQC
+          - name: MetaData
+          - name: GsiEffectiveQC
   transforms:
 
     # difference of hofx
@@ -244,7 +245,7 @@ diagnostics:
         @CHANNELSKEY@
       figure:
         layout: [1,1]
-        figure size: [11,11]
+        figure size: [11,5]
         title: 'Difference of h(x) JEDI-GSI | @NAME@ @CYCLE@ | ${variable_title}'
         output name: map_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/hofxdiff_map_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
         tight_layout: true
@@ -263,7 +264,7 @@ diagnostics:
               variable: experiment::MetaData::latitude
             data:
               variable: experiment::HofXDiff::${variable}
-              channel: ${channel}
+              @CHANNELKEY@
             markersize: 2
             label: '$(variable)'
             colorbar: true
