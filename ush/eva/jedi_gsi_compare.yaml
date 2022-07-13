@@ -169,11 +169,11 @@ diagnostics:
 
     - batch figure:
         variables: *variables
-        channels: *channels
+        @CHANNELSKEY@
       figure:
         layout: [1,1]
-        title: 'JEDI h(x) vs. GSI h(x) | AMSU-A NOAA-19 | ${variable_title}'
-        output name: observation_scatter_plots/amsua_n19/${variable}/${channel}/gsi_hofx_vs_jedi_hofx_amsua_n19_${variable}_${channel}.png
+        title: 'JEDI h(x) vs. GSI h(x) | @NAME@ @CYCLE@ | ${variable_title}'
+        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/gsi_hofx_vs_jedi_hofx_@CYCLE@_@NAME@__${variable}@CHANNELVAR@.png
       plots:
         - add_xlabel: 'GSI h(x)'
           add_ylabel: 'JEDI h(x)'
@@ -186,7 +186,7 @@ diagnostics:
               variable: experiment::GsiHofXBc::${variable}
             y:
               variable: experiment::hofx::${variable}
-            channel: ${channel}
+            @CHANNELKEY@
             markersize: 5
             color: 'black'
             label: 'JEDI h(x) versus GSI h(x)'
@@ -195,7 +195,7 @@ diagnostics:
               variable: experiment::GsiHofXBcPassedQc::${variable}
             y:
               variable: experiment::hofxPassedQc::${variable}
-            channel: ${channel}
+            @CHANNELKEY@
             markersize: 5
             color: 'red'
             label: 'JEDI h(x) versus GSI h(x) (passed QC in JEDI)'
@@ -205,11 +205,11 @@ diagnostics:
 
     - batch figure:
         variables: *variables
-        channels: *channels
+        @CHANNELSKEY@
       figure:
         layout: [1,1]
-        title: 'JEDI omb vs. GSI omb| AMSU-A NOAA-19 | ${variable_title}'
-        output name: observation_scatter_plots/amsua_n19/${variable}/${channel}/gsi_omb_vs_jedi_omb_amsua_n19_${variable}_${channel}.png
+        title: 'JEDI omb vs. GSI omb| @NAME@ @CYCLE@ | ${variable_title}'
+        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/gsi_omb_vs_jedi_omb_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
       plots:
         - add_xlabel: 'GSI observation minus h(x)'
           add_ylabel: 'JEDI observation minus h(x)'
@@ -222,7 +222,7 @@ diagnostics:
               variable: experiment::ObsValueMinusGsiHofXBc::${variable}
             y:
               variable: experiment::ObsValueMinusHofx::${variable}
-            channel: ${channel}
+            @CHANNELKEY@
             markersize: 5
             color: 'black'
             label: 'GSI omb vs JEDI omb (all obs)'
@@ -231,25 +231,25 @@ diagnostics:
               variable: experiment::ObsValueMinusGsiHofXBcPassedQc::${variable}
             y:
               variable: experiment::ObsValueMinushofxPassedQc::${variable}
-            channel: ${channel}
+            @CHANNELKEY@
             markersize: 5
             color: 'red'
             label: 'GSI omb vs JEDI omb (passed QC in JEDI)'
 
-    # Map plot
+    # Map plot of h(x) difference
     # --------
 
     - batch figure:
         variables: *variables
-        channels: *channels
+        @CHANNELSKEY@
       figure:
         layout: [1,1]
         figure size: [11,11]
-        output name: map_plots/amsua_n19/${variable}/${channel}/hofxdiff_map_amsua_n19_${variable}_${channel}.png
+        title: 'Difference of h(x) JEDI-GSI | @NAME@ @CYCLE@ | ${variable_title}'
+        output name: map_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/hofxdiff_map_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
         tight_layout: true
       plots:
-        - add_title: 'HofX Difference ${variable}_${channel}'
-          mapping:
+        - mapping:
             projection: plcarr
             domain: global
           add_map_features: ['coastline']
@@ -267,6 +267,7 @@ diagnostics:
             markersize: 2
             label: '$(variable)'
             colorbar: true
+            # below may need to be edited/removed
             cmap: 'bwr'
             vmin: -0.1
             vmax: 0.1
