@@ -65,6 +65,13 @@ function clean_yaml()
     sed -e "s/'//g" tmp_yaml > $1
 }
 
+# This is a hack for Orion. Remove when nco is built as part of the stack
+# loading nco should only be done at runtime currently since it reloads
+# udunits/2.2.28 => udunits/2.2.26
+if [[ "$HOSTNAME" =~ .*"Orion".* ]]; then
+    module load nco/4.9.3
+fi
+
 ################################################################################
 # generate soca geometry
 # TODO (Guillaume): Should not use all pe's for the grid generation
