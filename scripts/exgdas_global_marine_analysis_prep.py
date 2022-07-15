@@ -138,8 +138,7 @@ ufsda.disk_utils.symlink(corscales_yaml,
 # generate yaml for bump C
 # TODO (Guillaume): move the possible vars somewhere else
 vars3d = ['tocn', 'socn', 'uocn', 'vocn', 'chl', 'biop']
-vars2d = ['ssh', 'cicen', 'hicen', 'hsnon',
-          'swh',
+vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
           'sw', 'lw', 'lw_rad', 'lhf', 'shf', 'us']
 
 # TODO (Guillaume): good enough for now but should be read from config.
