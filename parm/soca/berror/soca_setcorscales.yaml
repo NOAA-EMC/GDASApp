@@ -1,0 +1,44 @@
+resolution:
+  mom6_input_nml: mom_input.nml
+  fields metadata: ./fields_metadata.yaml
+
+date: 0001-01-01T00:00:00Z
+
+corr variables: [socn, tocn, ssh, hocn, cicen, hicen, hsnon]
+
+scales:
+  vert layers: 5 # in units of layer
+  socn:
+    rossby mult: 0.28
+    min grid mult: 0.28
+  tocn:
+    rossby mult: 0.28
+    min grid mult: 0.28
+  hocn:
+    rossby mult: 100.0
+    min grid mult: 100.0
+  ssh:
+    rossby mult: 0.28
+    min grid mult: 0.28
+  cicen:
+    rossby mult: 0.0
+    min grid mult: 1.0
+    min: 50.0
+  hicen:
+    rossby mult: 0.0
+    min grid mult: 1.0
+    min: 150.0
+  hsnon:
+    rossby mult: 0.0
+    min grid mult: 1.0
+    min: 1000.0
+
+rh output:
+  datadir: ./
+  exp: cor_rh
+  type: incr
+
+rv output:
+  datadir: ./
+  exp: cor_rv
+  type: incr

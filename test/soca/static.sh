@@ -8,6 +8,7 @@ soca_static=${project_binary_dir}/soca_static
 mkdir -p ${soca_static}
 mkdir -p ${soca_static}/inputnml
 mkdir -p ${soca_static}/INPUT
+mkdir -p ${soca_static}/bump
 
 lowres=${project_source_dir}/soca/test/Data/72x35x25
 cp -L ${lowres}/{diag_table,field_table,MOM_input} ${soca_static}

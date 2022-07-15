@@ -48,7 +48,7 @@ variational:
       increment variables: *soca_vars
       variable change: Identity
       tstep: PT3H
-    ninner: 100
+    ninner: $(NINNER)
     gradient norm reduction: 1e-10
     test: on
     diagnostics:
