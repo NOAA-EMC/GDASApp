@@ -1,0 +1,30 @@
+working directory: /home/gvernier/runs/gdasapp/train_bump
+GDASApp home: /home/gvernier/sandboxes/GDASApp
+GDASApp mode: gw_scripts
+
+executable options:
+  obs_yaml_dir: /home/gvernier/sandboxes/GDASApp/parm/soca/obs/config
+  obs_list: /home/gvernier/sandboxes/GDASApp/parm/soca/obs/obs_list.yaml
+  atm_window_length: PT6H
+  valid_time: 2021-08-01T00:00:00Z
+  dump: gdas
+  case: C768
+  levs: 128
+
+job options:
+  machine: orion
+  account: da-cpu
+  queue: debug
+  partition: debug
+  walltime: '30:00'
+  ntasks: 96
+  modulepath: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/modulefiles
+
+jedi static:
+  mom:
+    path: /home/gvernier/sandboxes/GDASApp/soca/test/Data/72x35x25
+    config: [diag_table, field_table, MOM_input, input.nml]
+    static: [hycom1_25.nc, ocean_mosaic.nc, grid_spec.nc, layer_coord25.nc, ocean_hgrid.nc, ocean_topog.nc]
+  soca:
+    path: /home/gvernier/sandboxes/GDASApp/soca/test/Data/72x35x25
+    static: [ fields_metadata.yml, godas_sst_bgerr.nc, rossrad.dat]
