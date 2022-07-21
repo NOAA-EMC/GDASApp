@@ -9,6 +9,22 @@ import sys
 import yaml
 
 
+def export_envar(yamlfile, bashout):
+
+    # open YAML file to get config
+    f = open(yamlfile, "r")
+    envar_dict = yaml.safe_load(f)
+
+    # open up a file for writing
+    f = open(bashout, 'w')
+    f.write('#!/bin/bash\n')
+
+    # Loop through variables
+    for v in envar_dict:
+        batch = f"""export {v}={envar_dict[v]}\n"""
+        f.write(batch)
+
+
 def run_jedi_exe(yamlconfig):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     # open YAML file to get config
@@ -51,6 +67,7 @@ def run_jedi_exe(yamlconfig):
     cdate = valid_time.strftime("%Y%m%d%H")
     gcyc = prev_cycle.strftime("%H")
     gdate = prev_cycle.strftime("%Y%m%d%H")
+    pdy = prev_cycle.strftime("%Y%m%d")
 
     if app_mode in ['hofx', 'variational']:
         single_exec = True
@@ -115,7 +132,60 @@ def run_jedi_exe(yamlconfig):
         baseexe = ''
         output_file = ''
         single_exec = False
+        gdasapp_home = os.path.join(all_config_dict['GDASApp home'])
+        gdasapp_bin = os.path.join(gdasapp_home, 'build', 'bin')
+        homegfs = os.path.join(workdir, 'HOMEgfs')
+        aprun_socaanal = all_config_dict['job options']['mpiexec']+' '+str(all_config_dict['job options']['ntasks'])
+        # TODO (Guillaume): No clue what is actually needed to run within the global-workflow. revisit
+        #                   and consolidate with the atm when mom6-cice6 can be run with the gw.
+        runtime_envar = {
+            'CDATE': cdate,
+            'GDATE': gdate,
+            'gcyc': gcyc,
+            'PDY': pdy,
+            'cyc': cyc,
+            'assim_freq': '6',
+            'COMOUT': workdir,
+            'DATA': os.path.join(workdir, 'analysis'),
+            'COMIN_OBS': all_config_dict['r2d2 options']['root'],
+            'COMIN_GES': all_config_dict['model background']['ocn'],
+            'CDUMP': 'gdas',
+            'GDUMP': 'gdas',
+            'CASE_ANL': "C48",
+            'CASE': 'C48',
+            'DOHYBVAR': 'False',
+            'CASE_ENKF': "C192",
+            'LEVS': '75',
+            'OBS_LIST': os.path.join(gdasapp_home, 'parm', 'soca', 'obs', 'obs_list.yaml'),
+            'OBS_YAML': os.path.join(gdasapp_home, 'parm', 'soca', 'obs', 'obs_list.yaml'),
+            'OBS_YAML_DIR': os.path.join(gdasapp_home, 'parm', 'soca', 'obs', 'config'),
+            'JEDI_BIN': gdasapp_bin,
+            'HOMEgfs': homegfs,
+            'SOCA_INPUT_FIX_DIR': all_config_dict['jedi static']['soca']['path'],
+            'STATICB_DIR': os.path.join(workdir, 'soca_static'),
+            'R2D2_OBS_DB': 'shared',
+            'R2D2_OBS_DUMP': 'soca',
+            'R2D2_OBS_SRC': 'gdasapp',
+            'R2D2_OBS_WINDOW': '24',
+            'FV3JEDI_STAGE_YAML': os.path.join(gdasapp_home, 'test', 'soca', 'testinput', 'dumy.yaml'),
+            'APRUN_SOCAANAL': aprun_socaanal
+        }
+
         # do something to resolve gw env. variables
+        runtime_envar_yaml = os.path.join(workdir, 'runtime_envar.yaml')
+        f = open(runtime_envar_yaml, 'w')
+        yaml.dump(runtime_envar, f, sort_keys=False, default_flow_style=False)
+        bashout = os.path.join(workdir, 'load_envar.sh')
+        export_envar(runtime_envar_yaml, bashout)
+
+        # link gdas.cd
+        ufsda.mkdir(os.path.join(homegfs, 'sorc'))
+        ufsda_link = os.path.join(homegfs, 'sorc', 'gdas.cd')
+        ufsda.disk_utils.symlink(all_config_dict['GDASApp home'],
+                                 ufsda_link)
+        ush_link = os.path.join(homegfs, 'ush')
+        ufsda.disk_utils.symlink(os.path.join(all_config_dict['GDASApp home'], 'ush'),
+                                 ush_link)
 
     # generate job submission script
     job_script = ufsda.misc_utils.create_batch_job(all_config_dict['job options'],
@@ -124,7 +194,7 @@ def run_jedi_exe(yamlconfig):
                                                    output_file,
                                                    single_exec=single_exec)
     # submit job to queue
-    #ufsda.misc_utils.submit_batch_job(all_config_dict['job options'], workdir, job_script)
+    # ufsda.misc_utils.submit_batch_job(all_config_dict['job options'], workdir, job_script)
 
 
 if __name__ == "__main__":

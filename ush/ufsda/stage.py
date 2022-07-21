@@ -65,8 +65,15 @@ def soca_fix(config):
     """
 
     # link static B bump files
-    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'bump'),
-                             os.path.join(config['stage_dir'], 'bump'))
+    bump_archive = os.path.join(config['soca_input_fix_dir'], 'bump')
+    bump_scratch = os.path.join(config['stage_dir'], 'bump')
+    if os.path.isdir(bump_archive):
+        # link archived bump files
+        ufsda.disk_utils.symlink(bump_archive, bump_scratch)
+    else:
+        # create an empty bump directory
+        ufsda.disk_utils.mkdir(bump_scratch)
+
     # link static sst B
     ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'godas_sst_bgerr.nc'),
                              os.path.join(config['stage_dir'], 'godas_sst_bgerr.nc'))
@@ -88,8 +95,8 @@ def soca_fix(config):
                              os.path.join(config['stage_dir'], 'fields_metadata.yaml'))
 
     # INPUT
-    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'INPUT'),
-                             os.path.join(config['stage_dir'], 'INPUT'))
+    shutil.copytree(os.path.join(config['soca_input_fix_dir'], 'INPUT'),
+                    os.path.join(config['stage_dir'], 'INPUT'), dirs_exist_ok=True)
     ufsda.disk_utils.symlink(os.path.join(config['stage_dir'], 'bkg', 'MOM.res.2018-04-15-09-00-00.nc'),
                              os.path.join(config['stage_dir'], 'INPUT', 'MOM.res.nc'))
 
