@@ -95,8 +95,8 @@ def soca_fix(config):
                              os.path.join(config['stage_dir'], 'fields_metadata.yaml'))
 
     # INPUT
-    shutil.copytree(os.path.join(config['soca_input_fix_dir'], 'INPUT'),
-                    os.path.join(config['stage_dir'], 'INPUT'), dirs_exist_ok=True)
+    ufsda.disk_utils.copytree(os.path.join(config['soca_input_fix_dir'], 'INPUT'),
+                              os.path.join(config['stage_dir'], 'INPUT'))
     ufsda.disk_utils.symlink(os.path.join(config['stage_dir'], 'bkg', 'MOM.res.2018-04-15-09-00-00.nc'),
                              os.path.join(config['stage_dir'], 'INPUT', 'MOM.res.nc'))
 
