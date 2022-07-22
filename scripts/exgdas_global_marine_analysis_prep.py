@@ -44,15 +44,15 @@ def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml', iconly=Fal
     """
     files = glob.glob(bkg_path+'/*'+file_type+'*')
     files.sort()
+
     if iconly:
+        # exit early if iconly
         ic_date = dparser.parse(os.path.basename(files[0]), fuzzy=True)
-        ymdhms = [int(ic_date.strftime('%Y')),
-                  int(ic_date.strftime('%m')),
-                  int(ic_date.strftime('%d')),
-                  int(ic_date.strftime('%H')),
-                  int(ic_date.strftime('%M')),
-                  int(ic_date.strftime('%S'))]
+        ymdhms = []
+        for k in ['%Y', '%m', '%d', '%H', '%M', '%S']:
+            ymdhms.append(int(ic_date.strftime(k)))
         return files[0], ymdhms
+
     bkg_list = []
     for bkg in files:
         ocn_filename = os.path.basename(bkg)

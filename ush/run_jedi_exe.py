@@ -194,11 +194,11 @@ def run_jedi_exe(yamlconfig):
                                                    output_file,
                                                    single_exec=single_exec)
     # submit job to queue
-    # ufsda.misc_utils.submit_batch_job(all_config_dict['job options'], workdir, job_script)
+    ufsda.misc_utils.submit_batch_job(all_config_dict['job options'], workdir, job_script)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, help='Input YAML Configuration', required=True)
     args = parser.parse_args()
-    run_jedi_exe(args.config)
+    run_jedi_exe(args.config, submit=args.submit)
