@@ -23,6 +23,8 @@ import sys
 import yaml
 import glob
 import dateutil.parser as dparser
+import f90nml
+import shutil
 
 # get absolute path of ush/ directory either from env or relative to this file
 my_dir = os.path.dirname(__file__)
@@ -36,12 +38,21 @@ print(f"sys.path={sys.path}")
 import ufsda
 
 
-def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml'):
+def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml', iconly=False):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
     """
     files = glob.glob(bkg_path+'/*'+file_type+'*')
     files.sort()
+    if iconly:
+        ic_date = dparser.parse(os.path.basename(files[0]), fuzzy=True)
+        ymdhms = [int(ic_date.strftime('%Y')),
+                  int(ic_date.strftime('%m')),
+                  int(ic_date.strftime('%d')),
+                  int(ic_date.strftime('%H')),
+                  int(ic_date.strftime('%M')),
+                  int(ic_date.strftime('%S'))]
+        return files[0], ymdhms
     bkg_list = []
     for bkg in files:
         ocn_filename = os.path.basename(bkg)
@@ -175,3 +186,19 @@ config = {
     'NINNER': '3',
     'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')}
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
+
+# link of convenience
+ic, ymdhms = gen_bkg_list(bkg_path=os.path.join(anl_dir, 'bkg'), iconly=True)
+ufsda.disk_utils.symlink(ic, os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
+
+# prepare input.nml
+mom_input_nml_src = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
+mom_input_nml_tmpl = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml.tmpl')
+mom_input_nml = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
+ufsda.disk_utils.copyfile(mom_input_nml_src, mom_input_nml_tmpl)
+
+with open(mom_input_nml_tmpl, 'r') as nml_file:
+    nml = f90nml.read(nml_file)
+    nml['ocean_solo_nml']['date_init'] = ymdhms
+    ufsda.disk_utils.removefile(mom_input_nml)
+    nml.write(mom_input_nml)

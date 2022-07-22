@@ -76,7 +76,7 @@ fi
 # generate soca geometry
 # TODO (Guillaume): Should not use all pe's for the grid generation
 # TODO (Guillaume): Does not need to be generated at every cycles, store in static dir?
-$APRUN_SOCAANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml 2>grigen.err
+$APRUN_SOCAANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml 2>gridgen.err
 
 ################################################################################
 # Generate the parametric diag of B
