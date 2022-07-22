@@ -2,6 +2,7 @@ import os
 import logging
 import shutil
 
+
 def mkdir(dirpath):
     """
     mkdir(dirpath)
@@ -15,6 +16,7 @@ def mkdir(dirpath):
     except OSError as error:
         logging.info(f"{dirpath} could not be created")
 
+
 def copytree(src, dest):
     # duplicates of the shutil.copytree with the option dirs_exist_ok=True
     # which does not exixt in the version installed on orion
@@ -26,6 +28,7 @@ def copytree(src, dest):
         logging.info(f"{dest} exists, removing...")
         shutil.copytree(src, dest)
         logging.info(f"Symbolically linked {src} to {dest}")
+
 
 def symlink(src, dest):
     try:
