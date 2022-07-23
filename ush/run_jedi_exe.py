@@ -201,4 +201,4 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, help='Input YAML Configuration', required=True)
     args = parser.parse_args()
-    run_jedi_exe(args.config, submit=args.submit)
+    run_jedi_exe(args.config)
