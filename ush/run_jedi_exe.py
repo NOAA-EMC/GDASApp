@@ -67,7 +67,7 @@ def run_jedi_exe(yamlconfig):
     cdate = valid_time.strftime("%Y%m%d%H")
     gcyc = prev_cycle.strftime("%H")
     gdate = prev_cycle.strftime("%Y%m%d%H")
-    pdy = prev_cycle.strftime("%Y%m%d")
+    pdy = valid_time.strftime("%Y%m%d")
 
     if app_mode in ['hofx', 'variational']:
         single_exec = True
