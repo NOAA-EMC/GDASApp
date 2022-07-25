@@ -96,10 +96,6 @@ cd {working_dir}
             f.write(f"{scripts_path}/exgdas_global_marine_analysis_run.sh\n")
     logging.info(f"Wrote batch submission script to {batch_script}")
 
-    # make the batch script executable
-    current_permissions = os.stat(batch_script)
-    os.chmod(batch_script, current_permissions.st_mode | stat.S_IEXEC)
-
     return batch_script
 
 
