@@ -139,7 +139,7 @@ def run_jedi_exe(yamlconfig):
         comin_ges_src = os.path.join(all_config_dict['model background']['ocn'], 'RESTART')
         ufsda.disk_utils.mkdir(os.path.join(workdir, 'RESTART'))
         ufsda.disk_utils.copytree(comin_ges_src, os.path.join(workdir, 'RESTART'))
-        comin_ges = os.path.join(workdir)                                  
+        comin_ges = os.path.join(workdir)
         # TODO (Guillaume): No clue what is actually needed to run within the global-workflow. revisit
         #                   and consolidate with the atm when mom6-cice6 can be run with the gw.
         runtime_envar = {
@@ -150,7 +150,7 @@ def run_jedi_exe(yamlconfig):
             'cyc': cyc,
             'assim_freq': '6',
             'COMOUT': workdir,
-            'DATA' : os.path.join(workdir, 'analysis'),
+            'DATA': os.path.join(workdir, 'analysis'),
             'COMIN_OBS': all_config_dict['r2d2 options']['root'],
             'COMIN_GES': comin_ges,
             'CDUMP': 'gdas',

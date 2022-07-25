@@ -73,6 +73,7 @@ def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml', iconly=Fal
 ################################################################################
 # runtime environment variables, create directories
 
+
 logging.info(f"---------------- Setup runtime environement")
 
 comout = os.getenv('COMOUT')
