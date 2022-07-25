@@ -1,0 +1,38 @@
+working directory: /work2/noaa/da/gvernier/runs/test-gdasapp/test-1deg
+GDASApp home: /work2/noaa/da/gvernier/GDASApp
+GDASApp mode: gw_scripts
+GDASApp bin: /work2/noaa/da/gvernier/GDASApp/build/bin
+
+executable options:
+  obs_yaml_dir: /work2/noaa/da/gvernier/GDASApp/parm/soca/obs/config
+  obs_list: /work2/noaa/da/gvernier/GDASApp/parm/soca/obs/obs_list.yaml
+  atm_window_length: PT6H
+  valid_time: 2018-04-15T12:00:00Z
+  dump: gdas
+  case: C768
+  levs: 128
+
+job options:
+  machine: orion
+  account: da-cpu
+  queue: debug
+  partition: debug
+  walltime: '30:00'
+  ntasks: 40
+  modulepath: /work2/noaa/da/gvernier/GDASApp/modulefiles
+  mpiexec: mpirun
+  mpinproc: '-np'
+
+jedi static:
+  soca:
+    path: /work2/noaa/da/gvernier/data/static/360x320x75/soca
+    variables: tocn,socn,ssh
+
+model background:
+    ocn: /work2/noaa/da/gvernier/data/test_bkg/360x320x75/
+
+r2d2 options:
+    root: /work2/noaa/da/gvernier/data/static/r2d2-shared
+
+fms:
+    domain_stack_size: 5832000
