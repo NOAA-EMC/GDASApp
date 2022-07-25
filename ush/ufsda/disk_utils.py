@@ -46,7 +46,7 @@ def copyfile(src, dest):
         shutil.copy(src, dest)
         logging.info(f"copy of {src} to {dest}")
     except FileExistsError:
-        shutil.rm(dest)
+        os.remove(dest)
         logging.info(f"{dest} exists, removing...")
         shutil.copy(src, dest)
         logging.info(f"copy of {src} to {dest}")
