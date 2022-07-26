@@ -23,6 +23,12 @@ import sys
 import yaml
 import glob
 import dateutil.parser as dparser
+import f90nml
+import shutil
+import logging
+
+# set up logger
+logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 
 # get absolute path of ush/ directory either from env or relative to this file
 my_dir = os.path.dirname(__file__)
@@ -36,12 +42,21 @@ print(f"sys.path={sys.path}")
 import ufsda
 
 
-def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml'):
+def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml', iconly=False):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
     """
     files = glob.glob(bkg_path+'/*'+file_type+'*')
     files.sort()
+
+    if iconly:
+        # exit early if iconly
+        ic_date = dparser.parse(os.path.basename(files[0]), fuzzy=True)
+        ymdhms = []
+        for k in ['%Y', '%m', '%d', '%H', '%M', '%S']:
+            ymdhms.append(int(ic_date.strftime(k)))
+        return files[0], ymdhms
+
     bkg_list = []
     for bkg in files:
         ocn_filename = os.path.basename(bkg)
@@ -58,8 +73,8 @@ def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml'):
 ################################################################################
 # runtime environment variables, create directories
 
-# get runtime environment variables
 
+logging.info(f"---------------- Setup runtime environement")
 
 comout = os.getenv('COMOUT')
 comin_obs = os.getenv('COMIN_OBS')
@@ -76,8 +91,11 @@ ufsda.mkdir(diags)
 # create output directory for soca DA
 ufsda.mkdir(os.path.join(comout, 'analysis', 'Data'))
 
+
 ################################################################################
 # fetch observations
+
+logging.info(f"---------------- Stage observations")
 
 # setup the archive, local and shared R2D2 databases
 ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root=comin_obs)
@@ -98,14 +116,20 @@ ufsda.stage.obs(stage_cfg)
 
 ################################################################################
 # stage backgrounds from COMIN_GES to analysis subdir
+logging.info(f"---------------- Stage backgrounds")
 ufsda.stage.background(stage_cfg)
 
 ################################################################################
 # stage static files
+logging.info(f"---------------- Stage static files")
 ufsda.stage.soca_fix(stage_cfg)
 
 ################################################################################
 # prepare JEDI yamls
+logging.info(f"---------------- Generate JEDI yaml files")
+
+# get list of DA variables
+soca_vars = os.environ.get("SOCA_VARS").split(",")
 
 # link yaml for grid generation
 gridgen_yaml = os.path.join(gdas_home,
@@ -141,8 +165,9 @@ vars3d = ['tocn', 'socn', 'uocn', 'vocn', 'chl', 'biop']
 vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
           'sw', 'lw', 'lw_rad', 'lhf', 'shf', 'us']
 
-# TODO (Guillaume): good enough for now but should be read from config.
+# TODO (Guillaume): do something with soca_vars.
 vars = ['ssh', 'tocn', 'socn']
+logging.info(f"over-writting {soca_vars} with {vars}")
 for v in vars:
     if v in vars2d:
         dim = '2d'
@@ -175,3 +200,20 @@ config = {
     'NINNER': '3',
     'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')}
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
+
+# link of convenience
+ic, ymdhms = gen_bkg_list(bkg_path=os.path.join(anl_dir, 'bkg'), iconly=True)
+ufsda.disk_utils.symlink(ic, os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
+
+# prepare input.nml
+mom_input_nml_src = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
+mom_input_nml_tmpl = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml.tmpl')
+mom_input_nml = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
+ufsda.disk_utils.copyfile(mom_input_nml_src, mom_input_nml_tmpl)
+domain_stack_size = os.getenv('DOMAIN_STACK_SIZE')
+with open(mom_input_nml_tmpl, 'r') as nml_file:
+    nml = f90nml.read(nml_file)
+    nml['ocean_solo_nml']['date_init'] = ymdhms
+    nml['fms_nml']['domains_stack_size'] = int(domain_stack_size)
+    ufsda.disk_utils.removefile(mom_input_nml)
+    nml.write(mom_input_nml)

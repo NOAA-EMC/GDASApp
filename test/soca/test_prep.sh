@@ -27,7 +27,6 @@ done
 
 # Test that the static files have been linked properly
 echo "============================= Test that the static files have been linked properly"
-test_file $(readlink ${project_binary_dir}/test/soca/3dvar/analysis/mom_input.nml)
 test_file $(readlink ${project_binary_dir}/test/soca/3dvar/analysis/diag_table)
 test_file $(readlink ${project_binary_dir}/test/soca/3dvar/analysis/field_table)
 test_file $(readlink ${project_binary_dir}/test/soca/3dvar/analysis/fields_metadata.yaml)
