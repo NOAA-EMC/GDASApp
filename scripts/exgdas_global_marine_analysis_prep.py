@@ -42,7 +42,7 @@ print(f"sys.path={sys.path}")
 import ufsda
 
 
-def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml', iconly=False):
+def gen_bkg_list(bkg_path='.', file_type='ocn_da', yaml_name='bkg.yaml', iconly=False):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
     """
@@ -51,15 +51,15 @@ def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml', iconly=Fal
 
     if iconly:
         # exit early if iconly
-        ic_date = dparser.parse(os.path.basename(files[0]), fuzzy=True)
+        ic_date = dparser.parse(os.path.splitext(os.path.basename(files[0]))[0], fuzzy=True)
         ymdhms = []
-        for k in ['%Y', '%m', '%d', '%H', '%M', '%S']:
+        for k in ['%Y', '%m', '%d', '%H']:
             ymdhms.append(int(ic_date.strftime(k)))
         return files[0], ymdhms
 
     bkg_list = []
     for bkg in files:
-        ocn_filename = os.path.basename(bkg)
+        ocn_filename = os.path.splitext(os.path.basename(bkg))[0]
         date = dparser.parse(ocn_filename, fuzzy=True)
         bkg_dict = {'date': date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',

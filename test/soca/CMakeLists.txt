@@ -9,20 +9,28 @@ set_tests_properties(test_gdasapp_soca_obsdb
     PROPERTIES
     ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
 
-# # Create a test R2D2 database for bkg
-# -------------------------------------
+# Create a test R2D2 database for bkg
+# -----------------------------------
 # 1 - create fake 3 hourly restarts under RESTART
 # 2 - store them with R2D2
 set( TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
-add_test(NAME test_gdasapp_soca_bkgdb
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/create_bkgdb.py
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg)
-set_tests_properties(test_gdasapp_soca_bkgdb
-    PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};TESTDATA=${TESTDATA}"
-  )
+
+# Link the diag files
+# -------------------
+# used as an alternative to restarts for the bkg
+# symlink
+file(GLOB BKG_DIAG "${TESTDATA}/ocn_da_2018_04_15_*.nc")
+file(COPY ${BKG_DIAG} DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
+
+foreach(FILENAME ${test_input})
+  get_filename_component(filename ${FILENAME} NAME )
+  execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+         ${FILENAME}
+         ${PROJECT_BINARY_DIR}/test/soca/testinput/${filename} )
+endforeach(FILENAME)
+
 
 # tests below require the full build
 if(BUILD_GDASBUNDLE)
