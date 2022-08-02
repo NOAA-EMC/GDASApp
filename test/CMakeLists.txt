@@ -27,6 +27,7 @@ list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/prof.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/icec.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/icefb.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/MOM.res.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_09.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_10.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_11.nc

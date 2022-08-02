@@ -26,6 +26,7 @@ import dateutil.parser as dparser
 import f90nml
 import shutil
 import logging
+import subprocess
 
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -46,6 +47,8 @@ def gen_bkg_list(bkg_path='.', file_type='ocn_da', yaml_name='bkg.yaml', iconly=
     """
     Generate a YAML of the list of backgrounds for the pseudo model
     """
+    # TODO (Guillaume): Assumes that only the necessary backgrounds are under bkg_path.
+    #                   That's sketchy, use ic date, da window and dump freq of bkg instead
     files = glob.glob(bkg_path+'/*'+file_type+'*')
     files.sort()
 
@@ -55,8 +58,25 @@ def gen_bkg_list(bkg_path='.', file_type='ocn_da', yaml_name='bkg.yaml', iconly=
         ymdhms = []
         for k in ['%Y', '%m', '%d', '%H']:
             ymdhms.append(int(ic_date.strftime(k)))
-        return files[0], ymdhms
+        # TODO (Guillaume): Won't work for with split restarts
+        return os.path.join(bkg_path, 'MOM.res.nc'), ymdhms
 
+    # Fix missing value in diag files
+    fix_h_diag_jobs = []
+    for att in ["_FillValue", "missing_value"]:
+        for bkg in files:
+            fix_h_diag_jobs.append('ncatted -a '+att+',h,o,d,0.0 '+bkg)
+
+    for c in fix_h_diag_jobs:
+        logging.info(f"{c}")
+
+    n = len(fix_h_diag_jobs)
+    for j in range(max(int(len(fix_h_diag_jobs)/n), 1)):
+        procs = [subprocess.Popen(i, shell=True) for i in fix_h_diag_jobs[j*n: min((j+1)*n, len(fix_h_diag_jobs))] ]
+        for p in procs:
+            p.wait()
+
+    # Create yaml of list of backgrounds
     bkg_list = []
     for bkg in files:
         ocn_filename = os.path.splitext(os.path.basename(bkg))[0]
