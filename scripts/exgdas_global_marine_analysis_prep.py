@@ -62,26 +62,40 @@ def gen_bkg_list(bkg_path='.', file_type='ocn_da', yaml_name='bkg.yaml', iconly=
         return os.path.join(bkg_path, 'MOM.res.nc'), ymdhms
 
     # Fix missing value in diag files
-    fix_h_diag_jobs = []
-    for att in ["_FillValue", "missing_value"]:
-        for bkg in files:
-            fix_h_diag_jobs.append('ncatted -a '+att+',h,o,d,0.0 '+bkg)
+    for v in ['Temp', 'Salt', 'ave_ssh', 'h', 'MLD']:
+#    for v in ['h']:
+        for att in ["_FillValue", "missing_value"]:
+            fix_diag_ch_jobs = [] # change att value
+            fix_diag_d_jobs = []  # delete att
+            for bkg in files:
+                fix_diag_ch_jobs.append('ncatted -a '+att+','+v+',o,d,9999.0 '+bkg)
+                fix_diag_d_jobs.append('ncatted -a '+att+','+v+',d,d,1.0 '+bkg)
 
-    for c in fix_h_diag_jobs:
-        logging.info(f"{c}")
+            for c in fix_diag_ch_jobs:
+                logging.info(f"{c}")
+                os.system(c)
+                result = subprocess.run(c, stdout=subprocess.PIPE, shell=True)
+                result.stdout.decode('utf-8')
 
-    n = len(fix_h_diag_jobs)
-    for j in range(max(int(len(fix_h_diag_jobs)/n), 1)):
-        procs = [subprocess.Popen(i, shell=True) for i in fix_h_diag_jobs[j*n: min((j+1)*n, len(fix_h_diag_jobs))] ]
-        for p in procs:
-            p.wait()
-
+            for c in fix_diag_d_jobs:
+                logging.info(f"{c}")
+                os.system(c)
+                result = subprocess.run(c, stdout=subprocess.PIPE, shell=True)
+                result.stdout.decode('utf-8')
+            '''
+            n = 1 #len(files)
+            for j in range(max(int(len(fix_diag_ch_jobs)/n), 1)):
+                procs = [subprocess.Popen(i, shell=True) for i in fix_diag_ch_jobs[j*n: min((j+1)*n, len(fix_diag_ch_jobs))] ]
+                for p in procs:
+                    p.wait()
+            '''
     # Create yaml of list of backgrounds
     bkg_list = []
     for bkg in files:
         ocn_filename = os.path.splitext(os.path.basename(bkg))[0]
-        date = dparser.parse(ocn_filename, fuzzy=True)
-        bkg_dict = {'date': date.strftime('%Y-%m-%dT%H:%M:%SZ'),
+        bkg_date = dparser.parse(ocn_filename.replace("_", "-"), fuzzy=True)
+        logging.info(f"@@@@@@@@@@@@@ {bkg_date} {ocn_filename}")
+        bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',
                     'ocn_filename': ocn_filename,
                     'read_from_file': 1}
