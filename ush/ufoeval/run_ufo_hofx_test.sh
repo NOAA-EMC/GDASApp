@@ -14,7 +14,7 @@ cycle=2021080100
 obtype=sondes_ps
 workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
 yamlpath=/work2/noaa/da/cmartin/UFO_eval/geovals/yamls/sondes_ps.yaml
-GDASApp=/work2/noaa/da/cmartin/GDASApp/work/GDASApp
+GDASApp=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp
 exename=test_ObsOperator.x
 machine=orion
 
@@ -42,6 +42,7 @@ cp -rf $ObsDir/${obtype}_obs_${cycle}.nc4 $workdir/.
 ln -sf $GDASApp/build/bin/$exename $workdir/.
 
 # Copy/generate YAML for test executable
+# First, create the input YAML for the genYAML script
 
 # Run executable
 cd $workdir

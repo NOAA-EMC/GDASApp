@@ -1,0 +1,3 @@
+window begin: '$(ATM_WINDOW_BEGIN)'
+window length: $(ATM_WINDOW_LENGTH)
+observations: $<< $(OBS_LIST)
