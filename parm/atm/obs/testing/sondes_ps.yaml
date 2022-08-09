@@ -1,0 +1,18 @@
+obs space:
+  name: sondes_ps
+  obsdatain:
+    obsfile: sondes_ps_obs_$(OBS_DATE).nc4
+  obsdataout:
+    obsfile: sondes_ps_diag_$(OBS_DATE).nc4
+  simulated variables: [surface_pressure]
+geovals:
+  filename: sondes_ps_geoval_$(OBS_DATE).nc4
+vector ref: GsiHofXBc
+tolerance: 0.01
+obs operator:
+  name: SfcPCorrected
+  da_psfc_scheme: GSI
+  geovar_sfc_geomz: surface_geopotential_height
+  geovar_geomz: geopotential_height
+linear obs operator:
+  name: Identity
