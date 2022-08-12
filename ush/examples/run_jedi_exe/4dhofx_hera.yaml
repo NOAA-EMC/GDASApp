@@ -1,11 +1,11 @@
 working directory: /scratch2/NCEPDEV/stmp1/Cory.R.Martin/gdas_single_test_hofx4d
 GDASApp home: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp
+GDASApp mode: hofx
 executable options:
-  app_mode: hofx
   obs_yaml_dir: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/config
   yaml_template: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/hofx/hofx4d.yaml
   executable: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/build/bin/fv3jedi_hofx.x
-  obs_list: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype.yaml
+  obs_list: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/lists/hofx_prototype.yaml
   gdas_fix_root: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
   atm: true
   layout_x: 4

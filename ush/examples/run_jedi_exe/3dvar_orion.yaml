@@ -1,7 +1,7 @@
 working directory: /work2/noaa/stmp/cmartin/gdas_single_test_3dvar
 GDASApp home: /work2/noaa/da/cmartin/GDASApp/work/GDASApp
+GDASApp mode: variational
 executable options:
-  app_mode: variational
   berror_yaml: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/berror/staticb_bump.yaml
   obs_yaml_dir: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/config
   yaml_template: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/variational/3dvar_dripcg.yaml

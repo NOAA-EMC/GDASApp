@@ -37,7 +37,7 @@ def run_jedi_exe(yamlconfig):
 
     # check if the specified app mode is valid
     app_mode = all_config_dict['GDASApp mode']
-    supported_app_modes = ['hofx', 'variational', 'gw_scripts']
+    supported_app_modes = ['hofx', 'variational', 'ensemble', 'gw_scripts']
     if app_mode not in supported_app_modes:
         raise KeyError(f"'{app_mode}' not supported. " +
                        "Current GDASApp modes supported are: " +
@@ -69,7 +69,15 @@ def run_jedi_exe(yamlconfig):
     gdate = prev_cycle.strftime("%Y%m%d%H")
     pdy = valid_time.strftime("%Y%m%d")
 
-    if app_mode in ['hofx', 'variational']:
+    obs_yaml_dir = executable_subconfig['obs_yaml_dir']
+    if app_mode in ['ensemble']:
+        obs_dist_yaml = os.path.join(obs_yaml_dir, 'distribution.yaml')
+        obs_locl_yaml = os.path.join(obs_yaml_dir, 'localization.yaml')
+    else:
+        obs_dist_yaml = os.path.join(obs_yaml_dir, 'distribution_empty.yaml')
+        obs_locl_yaml = os.path.join(obs_yaml_dir, 'localization_empty.yaml')
+
+    if app_mode in ['hofx', 'variational', 'ensemble']:
         single_exec = True
         var_config = {
             'BERROR_YAML': executable_subconfig.get('berror_yaml', './'),
@@ -105,6 +113,8 @@ def run_jedi_exe(yamlconfig):
                                               executable_subconfig['atm_window_length']),
             'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
             'INTERP_METHOD': executable_subconfig.get('interp_method', 'barycentric'),
+            'OBS_DIST_YAML': f"{obs_dist_yaml}",
+            'OBS_LOCL_YAML': f"{obs_locl_yaml}",
         }
         template = executable_subconfig['yaml_template']
         output_file = os.path.join(workdir, f"gdas_{app_mode}.yaml")
