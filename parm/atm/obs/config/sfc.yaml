@@ -1,14 +1,14 @@
 obs space:
-  name: sfc_ps
+  name: sfc
   obsdatain:
-    obsfile: sfc_ps_obs_$(OBS_DATE).nc4
+    obsfile: $(OBS_DIR)/$(OBS_PREFIX)sfc.$(OBS_DATE).nc4
   obsdataout:
-    obsfile: sfc_ps_diag_$(OBS_DATE).nc4
+    obsfile: $(DIAG_DIR)/diag_sfc_$(OBS_DATE).nc4
+  io pool:
+    max pool size: 1
   simulated variables: [surface_pressure]
-geovals:
-  filename: sfc_ps_geoval_$(OBS_DATE).nc4
-vector ref: GsiHofXBc
-tolerance: 0.01
+get values:
+  interpolation method: $(INTERP_METHOD)
 obs operator:
   name: SfcPCorrected
   da_psfc_scheme: GSI
