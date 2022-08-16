@@ -39,6 +39,7 @@ final:
     departures: anlmob
   increment:
     output:
-      filetype: latlon
+      filetype: auxgrid
+      gridtype: latlon
       filename: $(ANL_DIR)/atminc.
     geometry: $(GEOM_ANL)

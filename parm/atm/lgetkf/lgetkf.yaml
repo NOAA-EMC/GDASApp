@@ -44,11 +44,13 @@ local ensemble DA:
     mult: 1.0
 
 #output:
-#  filetype: latlon
+#  filetype: auxgrid
+#  gridtype: latlon
 #  filename: $(ANL_DIR)/mem%{member}%/atmanl.
 
 output ensemble increments:
-  filetype: latlon
+  filetype: auxgrid
+  gridtype: latlon
   filename: $(ANL_DIR)/mem%{member}%/atminc.
 
 geometry: $(GEOM_ANL)
