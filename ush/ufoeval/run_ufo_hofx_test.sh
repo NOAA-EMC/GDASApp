@@ -74,8 +74,6 @@ $GDASApp/ush/genYAML --config $workdir/temp.yaml
 
 # Run executable
 cd $workdir
-export OOPS_DEBUG=1
-export OOPS_TRACE=1
 ./$exename ${obtype}_${cycle}.yaml
 
 # Load EVA modules
