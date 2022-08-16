@@ -20,8 +20,8 @@ machine=orion
 
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
-GeoDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220809/geovals/
-ObsDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220809/obs/
+GeoDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/geovals/
+ObsDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/obs/
 FixDir=/work2/noaa/da/cmartin/GDASApp/fix/
 
 # other variables that should not change often
