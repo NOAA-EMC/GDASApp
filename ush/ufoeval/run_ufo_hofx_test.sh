@@ -11,17 +11,17 @@
 #-------------------------------------------------------------
 #--------------- User modified options below -----------------
 cycle=2021080100
-obtype=sfc_ps
+obtype=sfc
 workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
-yamlpath=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp/parm/atm/obs/testing/sfc_ps.yaml
+yamlpath=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp/parm/atm/obs/testing/sfc.yaml
 GDASApp=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp
 exename=test_ObsFilters.x
 machine=orion
 
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
-GeoDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220806/geovals/
-ObsDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220806/obs/
+GeoDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/geovals/
+ObsDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/obs/
 FixDir=/work2/noaa/da/cmartin/GDASApp/fix/
 
 # other variables that should not change often

@@ -16,12 +16,28 @@ diagnostics:
           - name: EffectiveQC
           - name: MetaData
           - name: GsiEffectiveQC
+          - name: GsiFinalObsError
+          - name: EffectiveError
   transforms:
 
     # difference of hofx
     - transform: arithmetic
       new name: experiment::HofXDiff::${variable}
       equals: experiment::hofx::${variable}-experiment::GsiHofXBc::${variable}
+      for:
+        variable: *variables
+
+    # difference of effective error
+    - transform: arithmetic
+      new name: experiment::ErrDiff::${variable}
+      equals: experiment::EffectiveError::${variable}-experiment::GsiFinalObsError::${variable}
+      for:
+        variable: *variables
+
+    # difference of QC
+    - transform: arithmetic
+      new name: experiment::QCDiff::${variable}
+      equals: experiment::EffectiveQC::${variable}-experiment::GsiEffectiveQC::${variable}
       for:
         variable: *variables
 
@@ -95,6 +111,7 @@ diagnostics:
 
   graphics:
 
+    # ---------- Scatter Plots ----------
     # JEDI h(x) vs Observations
     # -------------------------
     - batch figure:
@@ -180,7 +197,7 @@ diagnostics:
           add_ylabel: 'JEDI h(x)'
           add_grid:
           add_legend:
-            loc: 'upper left'
+            loc: 'lower left'
           layers:
           - type: Scatter
             x:
@@ -261,7 +278,151 @@ diagnostics:
             markersize: 5
             color: 'red'
             label: 'hofxdiff vs pressure'
+          statistics:
+            data:
+              variable: experiment::HofXDiff::${variable}
+              @CHANNELKEY@
+            statistic list:
+            - n
+            - min
+            - mean
+            - max
+            - std
+            - name
+            kwargs:
+              fontsize: 6
 
+    # QC difference as a function of H(x) difference
+    - batch figure:
+        variables: *variables
+        @CHANNELSKEY@
+      figure:
+        layout: [1,1]
+        title: 'H(x) JEDI-GSI vs QC JEDI-GSI. | @NAME@ @CYCLE@ | ${variable_title}'
+        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/hofxdiff_vs_qcdiff_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+      plots:
+        - add_xlabel: 'h(x) JEDI - h(x) GSI'
+          add_ylabel: 'h(x) JEDI - h(x) GSI'
+          add_grid:
+          add_legend:
+            loc: 'lower left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::QCDiff::${variable}
+            y:
+              variable: experiment::HofXDiff::${variable}
+            @CHANNELKEY@
+            markersize: 5
+            color: 'red'
+            label: 'hofxdiff vs qcdiff'
+          statistics:
+            data:
+              variable: experiment::QCDiff::${variable}
+              @CHANNELKEY@
+            statistic list:
+            - n
+            - min
+            - mean
+            - max
+            - std
+            - name
+            kwargs:
+              fontsize: 6
+
+    # Error difference as a function of pressure
+    - batch figure:
+        variables: *variables
+        @CHANNELSKEY@
+      figure:
+        layout: [1,1]
+        title: 'Error JEDI-GSI vs Ob P. | @NAME@ @CYCLE@ | ${variable_title}'
+        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/errordiff_vs_pressure_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+      plots:
+        - add_xlabel: 'Error JEDI - Error GSI'
+          add_ylabel: 'Observation Pressure'
+          add_grid:
+          add_legend:
+            loc: 'lower left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::ErrDiff::${variable}
+            y:
+              variable: experiment::MetaData::air_pressure
+            @CHANNELKEY@
+            markersize: 5
+            color: 'red'
+            label: 'errordiff vs pressure'
+
+    # ---------- Histograms ----------
+    # Histogram of h(x) difference
+    - batch figure:
+        variables: *variables
+        @CHANNELSKEY@
+      figure:
+        layout: [1,1]
+        title: 'Difference of h(x) JEDI-GSI | @NAME@ @CYCLE@ | ${variable_title}'
+        output name: histograms/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/hofxdiff_histogram_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+      plots:
+        - add_xlabel: 'h(x) JEDI - h(x) GSI'
+          add_ylabel: 'Count'
+          statistics:
+            data:
+              variable: experiment::HofXDiff::${variable}
+              @CHANNELKEY@
+            statistic list:
+            - n
+            - min
+            - mean
+            - max
+            - std
+            - name
+            kwargs:
+              fontsize: 6
+          layers:
+          - type: Histogram
+            data:
+              variable: experiment::HofXDiff::${variable}
+              @CHANNELKEY@
+            color: 'blue'
+            label: 'h(x) JEDI - h(x) GSI'
+            bins: 100
+
+    # Histogram of obs error difference
+    - batch figure:
+        variables: *variables
+        @CHANNELSKEY@
+      figure:
+        layout: [1,1]
+        title: 'Difference of final obs error JEDI-GSI | @NAME@ @CYCLE@ | ${variable_title}'
+        output name: histograms/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/errordiff_histogram_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+      plots:
+        - add_xlabel: 'error JEDI - error GSI'
+          add_ylabel: 'Count'
+          statistics:
+            data:
+              variable: experiment::ErrDiff::${variable}
+              @CHANNELKEY@
+            statistic list:
+            - n
+            - min
+            - mean
+            - max
+            - std
+            - name
+            kwargs:
+              fontsize: 6
+          layers:
+          - type: Histogram
+            data:
+              variable: experiment::ErrDiff::${variable}
+              @CHANNELKEY@
+            color: 'blue'
+            label: 'error JEDI - error GSI'
+            bins: 100
+
+    # ---------- Map Plots ----------
     # Map plot of h(x) difference
     # --------
 
@@ -295,5 +456,5 @@ diagnostics:
             colorbar: true
             # below may need to be edited/removed
             cmap: 'bwr'
-            vmin: -10
-            vmax: 10
+            vmin: -3000
+            vmax: 3000
