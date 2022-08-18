@@ -11,17 +11,19 @@
 #-------------------------------------------------------------
 #--------------- User modified options below -----------------
 cycle=2021080100
-obtype=sfc
+obtype=amsua_n19
 workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
-yamlpath=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp/parm/atm/obs/testing/sfc.yaml
+yamlpath=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp/parm/atm/obs/testing/amsua_n19.yaml
 GDASApp=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp
 exename=test_ObsFilters.x
 machine=orion
+radiance="YES"
 
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
 GeoDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/geovals/
 ObsDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/obs/
+BCDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/bc/
 FixDir=/work2/noaa/da/cmartin/GDASApp/fix/
 
 # other variables that should not change often
@@ -41,6 +43,10 @@ mkdir -p $workdir
 
 # Link CRTM coefficients
 ln -sf $FixDir/crtm/2.3.0 $workdir/crtm
+
+# copy BC files
+mkdir -p $workdir/bc
+cp -rf $BCDir/${obtype}*${GDATE}* $workdir/bc/.
 
 # Copy obs and geovals
 cp -rf $GeoDir/${obtype}_geoval_${cycle}.nc4 $workdir/.
@@ -80,7 +86,11 @@ cd $workdir
 module load EVA/$machine
 
 # Generate EVA YAML
-$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ./${obtype}_${cycle}.yaml -t $GDASApp/ush/eva/jedi_gsi_compare.yaml -o $workdir
+if [ $radiance = "YES" ]; then
+  $GDASApp/ush/eva/gen_eva_obs_yaml.py -i ./${obtype}_${cycle}.yaml -t $GDASApp/ush/eva/jedi_gsi_compare_rad.yaml -o $workdir
+else
+  $GDASApp/ush/eva/gen_eva_obs_yaml.py -i ./${obtype}_${cycle}.yaml -t $GDASApp/ush/eva/jedi_gsi_compare_conv.yaml -o $workdir
+fi
 
 # Run EVA
 for yaml in $(ls eva_*.yaml); do
