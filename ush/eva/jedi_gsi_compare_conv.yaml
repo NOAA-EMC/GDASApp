@@ -456,5 +456,5 @@ diagnostics:
             colorbar: true
             # below may need to be edited/removed
             cmap: 'bwr'
-            vmin: -3000
-            vmax: 3000
+            vmin: -0.5
+            vmax: 0.5
