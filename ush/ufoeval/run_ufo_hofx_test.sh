@@ -45,8 +45,7 @@ mkdir -p $workdir
 ln -sf $FixDir/crtm/2.3.0 $workdir/crtm
 
 # copy BC files
-mkdir -p $workdir/bc
-cp -rf $BCDir/${obtype}*${GDATE}* $workdir/bc/.
+cp -rf $BCDir/${obtype}*${GDATE}* $workdir/.
 
 # Copy obs and geovals
 cp -rf $GeoDir/${obtype}_geoval_${cycle}.nc4 $workdir/.
