@@ -13,7 +13,6 @@ get values:
 obs operator:
   name: AodCRTM
   Absorbers: [H2O,O3]
-  Clouds: [Water, Ice]
   obs options:
     Sensor_ID: v.viirs-m_npp
     EndianType: little_endian
