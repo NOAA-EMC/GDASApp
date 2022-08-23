@@ -14,7 +14,6 @@ obs operator:
   name: AodCRTM
   Absorbers: [H2O,O3]
   Clouds: [Water, Ice]
-  Cloud_Fraction: 1.0
   obs options:
     Sensor_ID: v.viirs-m_j1 
     EndianType: little_endian
