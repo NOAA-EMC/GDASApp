@@ -34,8 +34,8 @@ variational:
       departures: bkgmob1
 final:
   diagnostics:
-    departures: anlmob
-    output:
-      filetype: fms restart 
-      filename: $(ANL_DIR)/3dvar-1-gfs
-    geometry: $(GEOM_ANL)
+    departures: anlmob 
+output:
+  filetype: fms restart
+  datapath: $(ANL_DIR) 
+  prefix: aeroanl 
