@@ -33,7 +33,7 @@ saber blocks:
     datetime: 2016-06-30T00:00:00Z
     set datetime on read: true
     psinfile: true
-    datapath: *staticb_dir
+    datapath: *staticb_aero_dir
     prefix: stddev/20160630.000000
     filename_core: stddev.fv_core.res.nc
     filename_trcr: stddev.fv_tracer.res.nc

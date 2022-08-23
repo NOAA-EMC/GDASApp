@@ -35,8 +35,7 @@ variational:
 final:
   diagnostics:
     departures: anlmob
-  increment:
     output:
-      filetype: latlon
-      filename: $(ANL_DIR)/atminc.
+      filetype: fms restart 
+      filename: $(ANL_DIR)/3dvar-1-gfs
     geometry: $(GEOM_ANL)
