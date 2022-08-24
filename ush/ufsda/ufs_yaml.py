@@ -41,8 +41,6 @@ def parse_config(templateyaml=None, clean=True):
     # grab cycle specific time variables and add them to config
     cycle_dict = get_cycle_vars()
     config_out.update(cycle_dict)
-    # define bundle based on env var
-    config_out['bundle'] = os.path.join(os.environ['HOMEgfs'], 'sorc', 'ufs_da.fd', 'UFS-DA', 'src')
     # going to now nest multiple times to do includes and replace
     config_out = update_config(config_out)
     if clean:
@@ -100,10 +98,10 @@ def get_cycle_vars():
     cycle_dict['fv3_bkg_time'] = cdate.strftime('%Y%m%d.%H%M%S')
     cycle_dict['fv3_bkg_datetime'] = cdate.strftime('%Y-%m-%dT%H:%M:%SZ')
     cycle_dict['current_cycle'] = cdate.strftime('%Y%m%d%H')
-    cycle_dict['background_dir'] = os.environ['COMIN_GES']
-    cycle_dict['staticb_dir'] = os.environ['STATICB_DIR']
-    cycle_dict['soca_input_fix_dir'] = os.environ['SOCA_INPUT_FIX_DIR']
-    cycle_dict['COMOUT'] = os.environ['COMOUT']
+    cycle_dict['background_dir'] = os.getenv('COMIN_GES', './')
+    cycle_dict['staticb_dir'] = os.getenv('STATICB_DIR', './')
+    cycle_dict['soca_input_fix_dir'] = os.getenv('SOCA_INPUT_FIX_DIR', './')
+    cycle_dict['COMOUT'] = os.getenv('COMOUT', './')
     return cycle_dict
 
 
@@ -118,7 +116,6 @@ def get_exp_vars():
     exp_dict['npy_ges'] = npx
     exp_dict['npz'] = str(int(os.environ['LEVS'])-1)
     exp_dict['experiment'] = os.getenv('PSLOT', 'oper') + '_' + os.getenv('CDUMP', 'gdas')
-    exp_dict['jedi_build'] = os.path.join(os.environ['HOMEgfs'], 'sorc', 'ufs_da.fd', 'UFS-DA', 'build')
     exp_dict['experiment_dir'] = 'Data/obs'
     return exp_dict
 

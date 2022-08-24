@@ -1,0 +1,37 @@
+obs operator:
+  name: CRTM
+  Absorbers: [H2O,O3]
+  Clouds: [Water, Ice]
+  Cloud_Fraction: 1.0
+  obs options:
+    Sensor_ID: amsua_n19
+    EndianType: little_endian
+    CoefficientPath: crtm/
+obs space:
+  name: amsua_n19
+  obsdatain:
+    obsfile: amsua_n19_obs_$(OBS_DATE).nc4
+  obsdataout:
+    obsfile: amsua_n19_diag_$(OBS_DATE).nc4
+  simulated variables: [brightness_temperature]
+  channels: 1-15
+geovals:
+  filename: amsua_n19_geoval_$(OBS_DATE).nc4
+obs bias:
+  input file: amsua_n19_satbias_$(BIAS_DATE).nc4
+  variational bc:
+    predictors:
+    - name: constant
+    - name: lapse_rate
+      order: 2
+      tlapse: &amsua_n19_tlap amsua_n19_tlapmean_$(BIAS_DATE).txt
+    - name: lapse_rate
+      tlapse: *amsua_n19_tlap
+    - name: emissivity
+    - name: scan_angle
+      order: 4
+    - name: scan_angle
+      order: 3
+    - name: scan_angle
+      order: 2
+    - name: scan_angle
