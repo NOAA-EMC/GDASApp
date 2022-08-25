@@ -1,7 +1,7 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "0b5789d20d6f0963f2c884f2bc178140aef20aa3d1ffd58463ed2153b6cbf86a")
+set(SHA "232c89d2df7a22b2cdda0d695a957d0a2dfecd11b2ef3c134d7923ec43f18783")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
