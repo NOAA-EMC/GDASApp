@@ -63,10 +63,9 @@ def gen_bkg_list(bkg_path='.', file_type='ocn_da', yaml_name='bkg.yaml', iconly=
 
     # Fix missing value in diag files
     for v in ['Temp', 'Salt', 'ave_ssh', 'h', 'MLD']:
-#    for v in ['h']:
         for att in ["_FillValue", "missing_value"]:
-            fix_diag_ch_jobs = [] # change att value
-            fix_diag_d_jobs = []  # delete att
+            fix_diag_ch_jobs = []  # change att value
+            fix_diag_d_jobs = []   # delete att
             for bkg in files:
                 fix_diag_ch_jobs.append('ncatted -a '+att+','+v+',o,d,9999.0 '+bkg)
                 fix_diag_d_jobs.append('ncatted -a '+att+','+v+',d,d,1.0 '+bkg)
