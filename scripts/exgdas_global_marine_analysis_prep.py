@@ -93,7 +93,6 @@ def gen_bkg_list(bkg_path='.', file_type='ocn_da', yaml_name='bkg.yaml', iconly=
     for bkg in files:
         ocn_filename = os.path.splitext(os.path.basename(bkg))[0]
         bkg_date = dparser.parse(ocn_filename.replace("_", "-"), fuzzy=True)
-        logging.info(f"@@@@@@@@@@@@@ {bkg_date} {ocn_filename}")
         bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',
                     'ocn_filename': ocn_filename,
