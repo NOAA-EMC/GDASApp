@@ -6,7 +6,6 @@ project_source_dir=$2
 
 soca_static=${project_binary_dir}/soca_static
 mkdir -p ${soca_static}
-mkdir -p ${soca_static}/inputnml
 mkdir -p ${soca_static}/INPUT
 mkdir -p ${soca_static}/bump
 

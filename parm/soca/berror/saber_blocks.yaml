@@ -2,8 +2,8 @@ saber blocks:
 - saber block name: BUMP_NICAS
   saber central block: true
   iterative inverse: true
-  input variables: [socn, tocn, ssh, hocn]
-  output variables: [socn, tocn, ssh, hocn]
+  input variables: [socn, tocn, ssh]
+  output variables: [socn, tocn, ssh]
   bump:
     verbosity: main
     datadir: ./bump
@@ -15,8 +15,8 @@ saber blocks:
     - prefix: bump2d
       variables: [ssh]
 - saber block name: StdDev
-  input variables: [socn, tocn, ssh, hocn]
-  output variables: [socn, tocn, ssh, hocn]
+  input variables: [socn, tocn, ssh]
+  output variables: [socn, tocn, ssh]
   file:
      read_from_file: 1
      basename: ./
