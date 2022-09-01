@@ -1,0 +1,22 @@
+obs space:
+  name: viirs_n20_aod
+  obsdatain:
+    obsfile: $(OBS_DIR)/$(OBS_PREFIX)viirs_n20.$(OBS_DATE).nc4
+  obsdataout:
+    obsfile: $(DIAG_DIR)/diag_viirs_n20_$(OBS_DATE).nc4
+  io pool:
+    max pool size: 1
+  simulated variables: [aerosol_optical_depth]
+  channels: 4 
+get values:
+  interpolation method: $(INTERP_METHOD)
+obs operator:
+  name: AodCRTM
+  Absorbers: [H2O,O3]
+  obs options:
+    Sensor_ID: v.viirs-m_j1 
+    EndianType: little_endian
+    CoefficientPath: $(CRTM_COEFF_DIR)/
+    AerosolOption: aerosols_gocart_default
+obs error:
+  covariance model: diagonal 

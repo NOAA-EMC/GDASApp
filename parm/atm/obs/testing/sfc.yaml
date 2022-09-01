@@ -1,0 +1,18 @@
+obs space:
+  name: sfc
+  obsdatain:
+    obsfile: sfc_obs_$(OBS_DATE).nc4
+  obsdataout:
+    obsfile: sfc_diag_$(OBS_DATE).nc4
+  simulated variables: [surface_pressure, air_temperature, virtual_temperature]
+geovals:
+  filename: sfc_geoval_$(OBS_DATE).nc4
+vector ref: GsiHofXBc
+tolerance: 0.01
+obs operator:
+  name: SfcPCorrected
+  da_psfc_scheme: GSI
+  geovar_sfc_geomz: surface_geometric_height
+  geovar_geomz: geopotential_height
+linear obs operator:
+  name: Identity

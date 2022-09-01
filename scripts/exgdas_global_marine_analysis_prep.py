@@ -26,6 +26,7 @@ import dateutil.parser as dparser
 import f90nml
 import shutil
 import logging
+import subprocess
 
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -42,26 +43,57 @@ print(f"sys.path={sys.path}")
 import ufsda
 
 
-def gen_bkg_list(bkg_path='.', file_type='MOM', yaml_name='bkg.yaml', iconly=False):
+def gen_bkg_list(bkg_path='.', file_type='ocn_da', yaml_name='bkg.yaml', iconly=False):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
     """
+    # TODO (Guillaume): Assumes that only the necessary backgrounds are under bkg_path.
+    #                   That's sketchy, use ic date, da window and dump freq of bkg instead
     files = glob.glob(bkg_path+'/*'+file_type+'*')
     files.sort()
 
     if iconly:
         # exit early if iconly
-        ic_date = dparser.parse(os.path.basename(files[0]), fuzzy=True)
+        ic_date = dparser.parse(os.path.splitext(os.path.basename(files[0]))[0], fuzzy=True)
         ymdhms = []
-        for k in ['%Y', '%m', '%d', '%H', '%M', '%S']:
+        for k in ['%Y', '%m', '%d', '%H']:
             ymdhms.append(int(ic_date.strftime(k)))
-        return files[0], ymdhms
+        # TODO (Guillaume): Won't work for with split restarts
+        return os.path.join(bkg_path, 'MOM.res.nc'), ymdhms
 
+    # Fix missing value in diag files
+    for v in ['Temp', 'Salt', 'ave_ssh', 'h', 'MLD']:
+        for att in ["_FillValue", "missing_value"]:
+            fix_diag_ch_jobs = []  # change att value
+            fix_diag_d_jobs = []   # delete att
+            for bkg in files:
+                fix_diag_ch_jobs.append('ncatted -a '+att+','+v+',o,d,9999.0 '+bkg)
+                fix_diag_d_jobs.append('ncatted -a '+att+','+v+',d,d,1.0 '+bkg)
+
+            for c in fix_diag_ch_jobs:
+                logging.info(f"{c}")
+                os.system(c)
+                result = subprocess.run(c, stdout=subprocess.PIPE, shell=True)
+                result.stdout.decode('utf-8')
+
+            for c in fix_diag_d_jobs:
+                logging.info(f"{c}")
+                os.system(c)
+                result = subprocess.run(c, stdout=subprocess.PIPE, shell=True)
+                result.stdout.decode('utf-8')
+            '''
+            n = 1 #len(files)
+            for j in range(max(int(len(fix_diag_ch_jobs)/n), 1)):
+                procs = [subprocess.Popen(i, shell=True) for i in fix_diag_ch_jobs[j*n: min((j+1)*n, len(fix_diag_ch_jobs))] ]
+                for p in procs:
+                    p.wait()
+            '''
+    # Create yaml of list of backgrounds
     bkg_list = []
     for bkg in files:
-        ocn_filename = os.path.basename(bkg)
-        date = dparser.parse(ocn_filename, fuzzy=True)
-        bkg_dict = {'date': date.strftime('%Y-%m-%dT%H:%M:%SZ'),
+        ocn_filename = os.path.splitext(os.path.basename(bkg))[0]
+        bkg_date = dparser.parse(ocn_filename.replace("_", "-"), fuzzy=True)
+        bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',
                     'ocn_filename': ocn_filename,
                     'read_from_file': 1}
