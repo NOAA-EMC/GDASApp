@@ -2,9 +2,13 @@ cost function:
   cost type: 3D-Var
   window begin: '$(AERO_WINDOW_BEGIN)'
   window length: $(AERO_WINDOW_LENGTH)
+<<<<<<< HEAD
   analysis variables: &3dvars [sulf,bc1,bc2,oc1,oc2,
                       dust1,dust2,dust3,dust4,dust5,
                       seas1,seas2,seas3,seas4]
+=======
+  analysis variables: &3dvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
+>>>>>>> d7c822b0e910ba49efedab3993f71980334d8704
   geometry: $(GEOM_BKG)
   background:
     datapath: $(BKG_DIR)

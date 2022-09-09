@@ -2,7 +2,7 @@ cost function:
   cost type: 4D-Var
   window begin: $(ATM_WINDOW_BEGIN)
   window length: $(ATM_WINDOW_LENGTH)
-  analysis variables: &soca_vars  [socn, tocn, ssh, hocn]
+  analysis variables: &a_vars  [socn, tocn, ssh]
   geometry:
     mom6_input_nml: mom_input.nml
     fields metadata: ./fields_metadata.yaml
@@ -24,8 +24,8 @@ cost function:
     saber blocks: $<< $(SABER_BLOCKS_YAML)
 
     linear variable change:
-      input variables: *soca_vars
-      output variables: *soca_vars
+      input variables: *a_vars
+      output variables: *a_vars
       linear variable changes:
 
       - linear variable change name: BalanceSOCA
@@ -45,7 +45,7 @@ variational:
       fields metadata: ./fields_metadata.yaml
     linear model:
       name: Identity
-      increment variables: *soca_vars
+      increment variables: *a_vars
       variable change: Identity
       tstep: PT3H
     ninner: $(NINNER)
@@ -72,3 +72,12 @@ output:
 final:
   diagnostics:
     departures: oman
+  increment:
+    output:
+      datadir: Data
+      date: $(ATM_WINDOW_BEGIN)
+      exp: 3dvarfgat_pseudo
+      type: incr
+    geometry:
+      mom6_input_nml: mom_input.nml
+      fields metadata: ./fields_metadata.yaml

@@ -1,0 +1,3 @@
+observers:
+- $<< $(OBS_YAML_DIR)/viirs_n20_aod.yaml
+- $<< $(OBS_YAML_DIR)/viirs_npp_aod.yaml
