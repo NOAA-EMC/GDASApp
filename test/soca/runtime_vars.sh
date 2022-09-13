@@ -46,4 +46,12 @@ export R2D2_OBS_DUMP=soca
 export R2D2_OBS_SRC=gdasapp
 export R2D2_OBS_WINDOW=24     # R2D2 sampling DB window
 
-export APRUN_SOCAANAL="$MPIEXEC_EXEC $MPIEXEC_NPROC 6"
+export APRUN_SOCAANAL="$MPIEXEC_EXEC $MPIEXEC_NPROC 2"
+#export APRUN_SOCAANAL="$MPIEXEC_EXEC $MPIEXEC_NPROC 12 --pty --preserve-env bash"
+
+
+#--- IAU 
+export DA_OCN_IAU=T
+export INCR_TMP_DIR=${DATA}/Data
+export BKGRST_DIR=${DATA}/INPUT
+export SOCAGRID_DIR=${DATA}
