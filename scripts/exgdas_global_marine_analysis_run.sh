@@ -134,7 +134,6 @@ $APRUN_SOCAANAL $JEDI_BIN/soca_var.x var.yaml 2>var.err
 
 # increment update for MOM6 iau
 # Make sure the last (most recent) increment file put into socaincr2mom6 as $1
-#( socaincr2mom6 `ls -t ${DATA}/Data/ocn.*iter*.incr* | head -1` ${DATA}/INPUT/MOM.res.nc ${DATA}/soca_gridspec.nc ${DATA}/Data/inc.nc )
 ( socaincr2mom6 `ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1` ${DATA}/INPUT/MOM.res.nc ${DATA}/soca_gridspec.nc ${DATA}/Data/inc.nc )
 
 
