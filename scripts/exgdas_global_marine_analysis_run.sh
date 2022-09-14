@@ -133,13 +133,9 @@ clean_yaml var.yaml
 $APRUN_SOCAANAL $JEDI_BIN/soca_var.x var.yaml 2>var.err
 
 
-# Prepare increment for MOM6 iau
-if [[ "$DA_OCN_IAU" =~ [yYtT1] ]]; then
-    # TODO: make sure it works when io layout is other than 1,1
-   #( socaincr2mom6 `ls $INCR_TMP_DIR/ocn*.var.iter*` $BKGRST_DIR/MOM.res.nc `readlink soca_gridspec.nc` $INCR_TMP_DIR/inc.nc )
-    # Make sure the last (most recent) increment file put into socaincr2mom6 as $1
-    ( socaincr2mom6 `ls -t $INCR_TMP_DIR/ocn.*iter*.incr* | head -1` $BKGRST_DIR/MOM.res.nc $SOCAGRID_DIR/soca_gridspec.nc $INCR_TMP_DIR/inc.nc )
-fi
+# increment update for MOM6 iau
+# Make sure the last (most recent) increment file put into socaincr2mom6 as $1
+( socaincr2mom6 `ls -t ${DATA}/Data/ocn.*iter*.incr* | head -1` ${DATA}/INPUT/MOM.res.nc ${DATA}/soca_gridspec.nc ${DATA}/Data/inc.nc )
 
 
 
