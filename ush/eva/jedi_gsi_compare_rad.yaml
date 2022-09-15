@@ -87,7 +87,7 @@ diagnostics:
       new name: experiment::ObsValueMinusGsiHofXBcPassedQc::${variable}
       starting field: experiment::ObsValueMinusGsiHofXBc::${variable}
       where:
-        - experiment::EffectiveQC::${variable} == 0
+        - experiment::GsiEffectiveQC::${variable} == 0
       for:
         variable: *variables
 
