@@ -1,0 +1,40 @@
+geometry: $(GEOM_BKG)
+
+window begin: '$(LAND_WINDOW_BEGIN)'
+window length: $(LAND_WINDOW_LENGTH)
+
+background:
+   datetime: $(BKG_ISOTIME)
+   members:
+     - datetime: $(BKG_ISOTIME)
+       filetype: fms restart
+       state variables: [snwdph,vtype,slmsk]
+       datapath: mem_pos/
+       filename_sfcd: $(BKG_YYYYmmddHHMMSS).sfc_data.nc
+       filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
+     - datetime: $(BKG_ISOTIME)
+       filetype: fms restart
+       state variables: [snwdph,vtype,slmsk]
+       datapath: mem_neg/
+       filename_sfcd: $(BKG_YYYYmmddHHMMSS).sfc_data.nc
+       filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
+
+observations: $<< $(OBS_LIST)
+
+driver:
+  save posterior mean: false
+  save posterior ensemble: false
+  save posterior mean increment: true
+
+local ensemble DA:
+  solver: LETKF
+  inflation:
+    rtps: 0.0
+    rtpp: 0.0
+    mult: 1.0
+
+output increment:
+  filetype: fms restart
+  filename_sfcd: xainc.sfc_data.nc
+
+geometry: $(GEOM_ANL)
