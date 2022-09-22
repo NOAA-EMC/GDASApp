@@ -25,7 +25,7 @@ vardict = {
 def jedi_inc_to_fv3(FV3ges, FV3JEDIinc, FV3inc):
     # open netCDF files
     try:
-        with nc.Dataset(FV3ges, 'r') as ncges, nc.Dataset(FV3JEDIinc,'r') as ncin, nc.Dataset(FV3inc, "w", format="NETCDF4") as ncout:
+        with nc.Dataset(FV3ges, 'r') as ncges, nc.Dataset(FV3JEDIinc, 'r') as ncin, nc.Dataset(FV3inc, "w", format="NETCDF4") as ncout:
             # copy over dimensions
             for name, dimension in ncin.dimensions.items():
                 if name == 'time':
@@ -86,34 +86,33 @@ def jedi_inc_to_fv3(FV3ges, FV3JEDIinc, FV3inc):
             # t_inc is (time, lev, lat, lon), t_ges is (time, pfull, grid_yt, grid_xt)
 
             ps_inc = ncin.variables['ps'][:]
-            t_inc  = ncin.variables['t'][:]
-            q_inc  = ncin.variables['sphum'][:]
+            t_inc = ncin.variables['t'][:]
+            q_inc = ncin.variables['sphum'][:]
 
             ps_ges = ncges.variables['pressfc'][:]
-            t_ges  = ncges.variables['tmp'][:]
-            q_ges  = ncges.variables['spfh'][:]
+            t_ges = ncges.variables['tmp'][:]
+            q_ges = ncges.variables['spfh'][:]
 
             nc_attrs = ncges.ncattrs()
             ak = ncges.getncattr('ak')
             bk = ncges.getncattr('bk')
 
-            ps_anl = np.zeros((nlats,nlons),float)
+            ps_anl = np.zeros((nlats, nlons), float)
             ps_anl = ps_ges + ps_inc
 
-            delp_inc = np.zeros((nlevs,nlats,nlons),float)
+            delp_inc = np.zeros((nlevs, nlats, nlons), float)
             k = 0
             while k < nlevs:
                 dbk = bk[k+1] - bk[k]
-                delp_inc[k,:,:] = ps_inc[:,:] * dbk
+                delp_inc[k, :, :] = ps_inc[:, :] * dbk
                 k = k + 1
 
-            x = ncout.createVariable('delp_inc','f4',dimsout4)
+            x = ncout.createVariable('delp_inc', 'f4', dimsout4)
             ncout['delp_inc'][:] = delp_inc[:]
 
-
-            t_anl = np.zeros((nlevs,nlats,nlons),float)
-            q_anl = np.zeros((nlevs,nlats,nlons),float)
-            t_anl = np.add(t_ges,t_inc)
+            t_anl = np.zeros((nlevs, nlats, nlons), float)
+            q_anl = np.zeros((nlevs, nlats, nlons), float)
+            t_anl = np.add(t_ges, t_inc)
             q_anl = q_ges + q_inc
 
             # Set constants
@@ -122,23 +121,23 @@ def jedi_inc_to_fv3(FV3ges, FV3JEDIinc, FV3inc):
             fv = (rv/rd)-1.0
             rdog = rd/grav
 
-            tv_ges  = np.zeros((nlevs,nlats,nlons),float)
-            tv_anl  = np.zeros((nlevs,nlats,nlons),float)
+            tv_ges = np.zeros((nlevs, nlats, nlons), float)
+            tv_anl = np.zeros((nlevs, nlats, nlons), float)
             tv_ges = t_ges * (1.0 + fv*q_ges)
             tv_anl = t_anl * (1.0 + fv*q_anl)
 
-            delz_ges = np.zeros((nlevs,nlats,nlons),float)
-            delz_anl = np.zeros((nlevs,nlats,nlons),float)
-            delz_inc = np.zeros((nlevs,nlats,nlons),float)
+            delz_ges = np.zeros((nlevs, nlats, nlons), float)
+            delz_anl = np.zeros((nlevs, nlats, nlons), float)
+            delz_inc = np.zeros((nlevs, nlats, nlons), float)
 
             k = 0
             while k < nlevs:
-                delz_ges[k,:,:] = rdog * tv_ges[:,k,:,:] * np.log((ak[k]+bk[k]*ps_ges[:,:])/(ak[k+1]+bk[k+1]*ps_ges[:,:]))
-                delz_anl[k,:,:] = rdog * tv_anl[:,k,:,:] * np.log((ak[k]+bk[k]*ps_anl[:,:])/(ak[k+1]+bk[k+1]*ps_anl[:,:]))
-                delz_inc[k,:,:] = delz_anl[k,:,:] - delz_ges[k,:,:]
-                k = k +1
+                delz_ges[k, :, :] = rdog * tv_ges[:, k, :, :] * np.log((ak[k]+bk[k]*ps_ges[:, :])/(ak[k+1]+bk[k+1]*ps_ges[:, :]))
+                delz_anl[k, :, :] = rdog * tv_anl[:, k, :, :] * np.log((ak[k]+bk[k]*ps_anl[:, :])/(ak[k+1]+bk[k+1]*ps_anl[:, :]))
+                delz_inc[k, :, :] = delz_anl[k, :, :] - delz_ges[k, :, :]
+                k = k + 1
 
-            x = ncout.createVariable('delz_inc','f4',dimsout4)
+            x = ncout.createVariable('delz_inc', 'f4', dimsout4)
             ncout['delz_inc'][:] = delz_inc[:]
 
     except FileNotFoundError as e:
@@ -152,4 +151,4 @@ if __name__ == "__main__":
     parser.add_argument('FV3JEDIincrement', type=str, help='Input FV3-JEDI LatLon Increment File')
     parser.add_argument('FV3increment', type=str, help='Output FV3 Increment File')
     args = parser.parse_args()
-    jedi_inc_to_fv3(args.FV3background,args.FV3JEDIincrement,args.FV3increment)
+    jedi_inc_to_fv3(args.FV3background, args.FV3JEDIincrement, args.FV3increment)
