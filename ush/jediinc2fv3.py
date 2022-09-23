@@ -120,13 +120,13 @@ def jedi_inc_to_fv3(FV3ges, FV3JEDIinc, FV3inc):
             # Compute guess and analysis interface pressures
             prsi_ges = np.zeros((nlevs+1, nlats, nlons), float)
             prsi_anl = np.zeros((nlevs+1, nlats, nlons), float)
-            k=0
+            k = 0
             while k < nlevs+1:
                 prsi_ges[k, :, :] = ak[k]+bk[k]*ps_ges[:, :]
                 prsi_anl[k, :, :] = ak[k]+bk[k]*ps_anl[:, :]
                 k = k + 1
 
-            # Compute pressure increment (delp_inc) 
+            # Compute pressure increment (delp_inc)
             # Compute guess and analysis layer pressures using Philips method
             delp_inc = np.zeros((nlevs, nlats, nlons), float)
             prsl_ges = np.zeros((nlevs, nlats, nlons), float)
