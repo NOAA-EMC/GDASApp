@@ -81,62 +81,97 @@ def jedi_inc_to_fv3(FV3ges, FV3JEDIinc, FV3inc):
                     else:
                         ncout[vardict[name]][:] = ncin[name][:]
 
-            # Note:  increment and guess fields have same shape
-            # ps_inc is (time, lat, lon), ps_ges is {time, grid_yt, grid_xt)
-            # t_inc is (time, lev, lat, lon), t_ges is (time, pfull, grid_yt, grid_xt)
-
-            ps_inc = ncin.variables['ps'][:]
-            t_inc = ncin.variables['t'][:]
-            q_inc = ncin.variables['sphum'][:]
+            # Populate increment and guess fields
+            #   Note:  increment and guess fields have same shape
+            #     ps_inc is (time, lat, lon), ps_ges is {time, grid_yt, grid_xt)
+            #     t_inc is (time, lev, lat, lon), t_ges is (time, pfull, grid_yt, grid_xt)
 
             ps_ges = ncges.variables['pressfc'][:]
             t_ges = ncges.variables['tmp'][:]
             q_ges = ncges.variables['spfh'][:]
 
+            ps_inc = ncin.variables['ps'][:]
+            t_inc = ncin.variables['t'][:]
+            q_inc = ncin.variables['sphum'][:]
+
+            # Compute analysis ps
+            ps_anl = np.zeros((nlats, nlons), float)
+            ps_anl = ps_ges + ps_inc
+
+            # Set constants and compute derived constants
+            grav = 9.80665
+            airmw = 28.965
+            h2omw = 18.015
+            runiv = 8314.47
+            rdry = runiv/airmw
+            rvap = runiv/h2omw
+            cpdry = 3.5*rdry
+            fv = (rvap/rdry)-1
+            rdog = rdry/grav
+            kappa = rdry/cpdry
+            kap1 = kappa+1.0
+            kapr = 1.0/kappa
+
+            # Get ak,bk from guess file
             nc_attrs = ncges.ncattrs()
             ak = ncges.getncattr('ak')
             bk = ncges.getncattr('bk')
 
-            ps_anl = np.zeros((nlats, nlons), float)
-            ps_anl = ps_ges + ps_inc
+            # Compute guess and analysis interface pressures
+            prsi_ges = np.zeros((nlevs+1, nlats, nlons), float)
+            prsi_anl = np.zeros((nlevs+1, nlats, nlons), float)
+            k=0
+            while k < nlevs+1:
+                prsi_ges[k, :, :] = ak[k]+bk[k]*ps_ges[:, :]
+                prsi_anl[k, :, :] = ak[k]+bk[k]*ps_anl[:, :]
+                k = k + 1
 
+            # Compute pressure increment (delp_inc) 
+            # Compute guess and analysis layer pressures using Philips method
             delp_inc = np.zeros((nlevs, nlats, nlons), float)
+            prsl_ges = np.zeros((nlevs, nlats, nlons), float)
+            prsl_anl = np.zeros((nlevs, nlats, nlons), float)
             k = 0
             while k < nlevs:
                 dbk = bk[k+1] - bk[k]
                 delp_inc[k, :, :] = ps_inc[:, :] * dbk
+                prsl_ges[k, :, :] = ((prsi_ges[k+1, :, :]**kap1 - prsi_ges[k, :, :]**kap1) / (kap1*(prsi_ges[k+1, :, :] - prsi_ges[k, :, :])))**kapr
+                prsl_anl[k, :, :] = ((prsi_anl[k+1, :, :]**kap1 - prsi_anl[k, :, :]**kap1) / (kap1*(prsi_anl[k+1, :, :] - prsi_anl[k, :, :])))**kapr
                 k = k + 1
 
+            # Write delp increment to output file
             x = ncout.createVariable('delp_inc', 'f4', dimsout4)
             ncout['delp_inc'][:] = delp_inc[:]
 
+            # Compute analysis temperature andl specific humidity
             t_anl = np.zeros((nlevs, nlats, nlons), float)
             q_anl = np.zeros((nlevs, nlats, nlons), float)
             t_anl = np.add(t_ges, t_inc)
             q_anl = q_ges + q_inc
 
-            # Set constants
-            rd = 2.8705e+2
-            rv = 4.6150e+2
-            fv = (rv/rd)-1.0
-            rdog = rd/grav
-
+            # Compute guess and analysis virtual temperature
             tv_ges = np.zeros((nlevs, nlats, nlons), float)
             tv_anl = np.zeros((nlevs, nlats, nlons), float)
             tv_ges = t_ges * (1.0 + fv*q_ges)
             tv_anl = t_anl * (1.0 + fv*q_anl)
 
+            # Compute guess and analysis delz and delz increment
             delz_ges = np.zeros((nlevs, nlats, nlons), float)
             delz_anl = np.zeros((nlevs, nlats, nlons), float)
             delz_inc = np.zeros((nlevs, nlats, nlons), float)
-
             k = 0
             while k < nlevs:
-                delz_ges[k, :, :] = rdog * tv_ges[:, k, :, :] * np.log((ak[k]+bk[k]*ps_ges[:, :])/(ak[k+1]+bk[k+1]*ps_ges[:, :]))
-                delz_anl[k, :, :] = rdog * tv_anl[:, k, :, :] * np.log((ak[k]+bk[k]*ps_anl[:, :])/(ak[k+1]+bk[k+1]*ps_anl[:, :]))
+                if k == 0:
+                    delz_ges[k, :, :] = rdog * tv_ges[:, k, :, :] * np.log(prsl_ges[k, :, :]/prsi_ges[k+1, :, :])
+                    delz_anl[k, :, :] = rdog * tv_anl[:, k, :, :] * np.log(prsl_anl[k, :, :]/prsi_anl[k+1, :, :])
+                else:
+                    delz_ges[k, :, :] = rdog * tv_ges[:, k, :, :] * np.log(prsi_ges[k, :, :]/prsi_ges[k+1, :, :])
+                    delz_anl[k, :, :] = rdog * tv_anl[:, k, :, :] * np.log(prsi_anl[k, :, :]/prsi_anl[k+1, :, :])
+
                 delz_inc[k, :, :] = delz_anl[k, :, :] - delz_ges[k, :, :]
                 k = k + 1
 
+            # Write delz increment to output file
             x = ncout.createVariable('delz_inc', 'f4', dimsout4)
             ncout['delz_inc'][:] = delz_inc[:]
 
