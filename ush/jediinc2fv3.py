@@ -70,8 +70,14 @@ def jedi_inc_to_fv3(FV3ges, FV3JEDIinc, FV3inc):
                 if name in vardict:
                     if name == 'delp':
                         continue
+                    if name == 'DELP':
+                        continue
                     if name == 'delz':
                         continue
+                    if name == 'T':
+                        tinc = 'T'
+                    if name == 't':
+                        tinc = 't'
 
                     x = ncout.createVariable(vardict[name], 'f4', dimsout)
                     if len(variable.dimensions) == 4:
@@ -91,7 +97,7 @@ def jedi_inc_to_fv3(FV3ges, FV3JEDIinc, FV3inc):
             q_ges = ncges.variables['spfh'][:]
 
             ps_inc = ncin.variables['ps'][:]
-            t_inc = ncin.variables['t'][:]
+            t_inc = ncin.variables[tinc][:]
             q_inc = ncin.variables['sphum'][:]
 
             # Compute analysis ps
