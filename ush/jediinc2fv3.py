@@ -8,9 +8,6 @@ import os
 vardict = {
     'ua': 'u_inc',
     'va': 'v_inc',
-    'delp': 'delp_inc',
-    'DELP': 'delp_inc',
-    'delz': 'delz_inc',
     't': 'T_inc',
     'T': 'T_inc',
     'sphum': 'sphum_inc',
@@ -68,16 +65,11 @@ def jedi_inc_to_fv3(FV3ges, FV3JEDIinc, FV3inc):
                     dimsout = variable.dimensions
 
                 if name in vardict:
-                    if name == 'delp':
-                        continue
-                    if name == 'DELP':
-                        continue
-                    if name == 'delz':
-                        continue
-                    if name == 'T':
-                        tinc = 'T'
-                    if name == 't':
-                        tinc = 't'
+                    # The temperature increment is needed to compute the delz
+                    # increment.  Either T or t may be used in jedi increment 
+                    # files.  Set tinc to the appropriate case.
+                    if name in ['T', 't']:
+                        tinc = name
 
                     x = ncout.createVariable(vardict[name], 'f4', dimsout)
                     if len(variable.dimensions) == 4:
