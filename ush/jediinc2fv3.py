@@ -128,24 +128,20 @@ def create_fv3inc(ncges, ncin, ncout):
     # Compute guess and analysis interface pressures
     prsi_ges = np.zeros((nlevs+1, nlats, nlons), float)
     prsi_anl = np.zeros((nlevs+1, nlats, nlons), float)
-    k = 0
-    while k < nlevs+1:
+    for k in range(0, nlevs+1):
         prsi_ges[k, :, :] = ak[k]+bk[k]*ps_ges[:, :]
         prsi_anl[k, :, :] = ak[k]+bk[k]*ps_anl[:, :]
-        k = k + 1
 
     # Compute pressure increment (delp_inc).  Compute
     # guess and analysis layer pressures using Philips method
     delp_inc = np.zeros((nlevs, nlats, nlons), float)
     prsl_ges = np.zeros((nlevs, nlats, nlons), float)
     prsl_anl = np.zeros((nlevs, nlats, nlons), float)
-    k = 0
-    while k < nlevs:
+    for k in range(0, nlevs):
         dbk = bk[k+1] - bk[k]
         delp_inc[k, :, :] = ps_inc[:, :] * dbk
         prsl_ges[k, :, :] = ((prsi_ges[k+1, :, :]**kap1 - prsi_ges[k, :, :]**kap1) / (kap1*(prsi_ges[k+1, :, :] - prsi_ges[k, :, :])))**kapr
         prsl_anl[k, :, :] = ((prsi_anl[k+1, :, :]**kap1 - prsi_anl[k, :, :]**kap1) / (kap1*(prsi_anl[k+1, :, :] - prsi_anl[k, :, :])))**kapr
-        k = k + 1
 
     # Write delp increment to output file
     x = ncout.createVariable('delp_inc', 'f4', dimsout_inc)
@@ -167,8 +163,7 @@ def create_fv3inc(ncges, ncin, ncout):
     delz_ges = np.zeros((nlevs, nlats, nlons), float)
     delz_anl = np.zeros((nlevs, nlats, nlons), float)
     delz_inc = np.zeros((nlevs, nlats, nlons), float)
-    k = 0
-    while k < nlevs:
+    for k in range(0, nlevs):
         if k == 0:
             delz_ges[k, :, :] = rdog * tv_ges[:, k, :, :] * np.log(prsl_ges[k, :, :]/prsi_ges[k+1, :, :])
             delz_anl[k, :, :] = rdog * tv_anl[:, k, :, :] * np.log(prsl_anl[k, :, :]/prsi_anl[k+1, :, :])
@@ -177,7 +172,6 @@ def create_fv3inc(ncges, ncin, ncout):
             delz_anl[k, :, :] = rdog * tv_anl[:, k, :, :] * np.log(prsi_anl[k, :, :]/prsi_anl[k+1, :, :])
 
         delz_inc[k, :, :] = delz_anl[k, :, :] - delz_ges[k, :, :]
-        k = k + 1
 
     # Write delz increment to output file
     x = ncout.createVariable('delz_inc', 'f4', dimsout_inc)
