@@ -150,7 +150,7 @@ def create_fv3inc(ncges, ncin, ncout):
     # Compute analysis temperature andl specific humidity
     t_anl = np.zeros((nlevs, nlats, nlons), float)
     q_anl = np.zeros((nlevs, nlats, nlons), float)
-    t_anl = np.add(t_ges, t_inc)
+    t_anl = t_ges + t_inc
     q_anl = q_ges + q_inc
 
     # Compute guess and analysis virtual temperature
