@@ -42,7 +42,8 @@ ecbuild_bundle_initialize()
 if(BUILD_GDASBUNDLE)
 
 # jedi-cmake
-  ecbuild_bundle( PROJECT jedicmake GIT "https://github.com/jcsda/jedi-cmake.git" BRANCH develop UPDATE )
+  ecbuild_bundle( PROJECT jedicmake GIT "https://github.com/jcsda/jedi-cmake.git" BRANCH develop UPDATE RECURSIVE )
+  include( jedicmake/cmake/Functions/git_functions.cmake )
 
 # ECMWF libraries
   option("BUNDLE_SKIP_ECKIT" "Don't build eckit" "ON" ) # Skip eckit build unless user passes -DBUNDLE_SKIP_ECKIT=OFF
