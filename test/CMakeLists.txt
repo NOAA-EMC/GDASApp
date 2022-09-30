@@ -1,7 +1,7 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "232c89d2df7a22b2cdda0d695a957d0a2dfecd11b2ef3c134d7923ec43f18783")
+set(SHA "2f85f9469ee0788b3765a667fa6e9cd52b599dfb986b7dc773aaf4bcdaf05b4b")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
@@ -101,7 +101,7 @@ add_test(NAME test_gdasapp_check_valid_yaml
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for ush/jediinc2fv3.py
 add_test(NAME test_gdasapp_jedi_increment_to_fv3
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atmges_compress.nc4 ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for YAML generation from a template
 add_test(NAME test_gdasapp_generate_yaml_func
