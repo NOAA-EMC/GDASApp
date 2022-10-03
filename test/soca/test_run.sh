@@ -25,3 +25,4 @@ test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pse
 test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T09:00:00Z.nc
 test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T12:00:00Z.nc
 test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T15:00:00Z.nc
+test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/inc.nc
