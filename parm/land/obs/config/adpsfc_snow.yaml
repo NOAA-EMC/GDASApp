@@ -7,11 +7,7 @@ obs space:
     obsfile: $(OBS_DIR)/$(OBS_PREFIX)adpsfc_snow.$(OBS_DATE).nc4
   obsdataout:
     obsfile: $(DIAG_DIR)/diag_adpsfc_snow_$(OBS_DATE).nc4
-  io pool:
-    max pool size: 1
   simulated variables: [totalSnowDepth]
-get values:
-  interpolation method: $(INTERP_METHOD)
 obs operator:
   name: Composite
   components:
