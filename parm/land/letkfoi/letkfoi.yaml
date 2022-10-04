@@ -4,20 +4,18 @@ window begin: '$(LAND_WINDOW_BEGIN)'
 window length: $(LAND_WINDOW_LENGTH)
 
 background:
-   datetime: $(BKG_ISOTIME)
-   members:
-     - datetime: $(BKG_ISOTIME)
+   datetime: $(LAND_BKG_ISOTIME)
+   members from template:
+     template:
+       datetime: $(LAND_BKG_ISOTIME)
        filetype: fms restart
        state variables: [snwdph,vtype,slmsk]
-       datapath: mem_pos/
-       filename_sfcd: $(BKG_YYYYmmddHHMMSS).sfc_data.nc
-       filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
-     - datetime: $(BKG_ISOTIME)
-       filetype: fms restart
-       state variables: [snwdph,vtype,slmsk]
-       datapath: mem_neg/
-       filename_sfcd: $(BKG_YYYYmmddHHMMSS).sfc_data.nc
-       filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
+       datapath: bkg/mem%mem%/RESTART
+       filename_sfcd: $(LAND_BKG_YYYYmmddHHMMSS).sfc_data.nc
+       filename_cplr: $(LAND_BKG_YYYYmmddHHMMSS).coupler.res
+     pattern: '%mem%'
+     nmembers: $(NMEM_LETKFOI)
+     zero padding: 3
 
 observations: $<< $(OBS_LIST)
 
