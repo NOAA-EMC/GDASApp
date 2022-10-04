@@ -60,6 +60,9 @@ load("hpc/1.2.0")
 load("miniconda3/4.6.14")
 load("gdasapp/1.0.0")
 
+-- below is a hack because of cmake finding the wrong python...
+setenv("CONDA_PREFIX", "/work2/noaa/da/python/opt/core/miniconda3/4.6.14")
+
 setenv("CC","mpiicc")
 setenv("FC","mpiifort")
 setenv("CXX","mpiicpc")
@@ -71,9 +74,6 @@ setenv('MPIEXEC_NPROC', mpinproc)
 setenv('R2D2_CONFIG', '/work2/noaa/da/cmartin/GDASApp/R2D2_SHARED/config_orion.yaml')
 
 execute{cmd="ulimit -s unlimited",modeA={"load"}}
-
--- below is hack because of hardcoded python exe in fckit
--- prepend_path("LD_LIBRARY_PATH","/apps/python-3.9.2/lib")
 
 whatis("Name: ".. pkgName)
 whatis("Version: " .. pkgVersion)
