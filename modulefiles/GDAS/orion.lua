@@ -62,7 +62,7 @@ load("miniconda3/4.6.14")
 load("gdasapp/1.0.0")
 
 -- below is a hack because of cmake finding the wrong python...
-setenv("CONDA_PREFIX", "/work2/noaa/da/python/opt/core/miniconda3/4.6.14")
+setenv("CONDA_PREFIX", "/work2/noaa/da/python/opt/core/miniconda3/4.6.14/envs/gdasapp/")
 
 setenv("CC","mpiicc")
 setenv("FC","mpiifort")
