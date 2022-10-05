@@ -17,7 +17,7 @@ load("stack-intel-oneapi-mpi/2021.5.1")
 load("cmake/3.22.1")
 load("zlib/1.2.12")
 load("curl/7.85.0")
-load("git/1.8.3.1")
+load("git/2.28.0")
 load("pkg-config/0.27.1")
 load("hdf5/1.12.1")
 load("parallel-netcdf/1.12.2")
@@ -55,10 +55,14 @@ load("libxaw/1.0.13")
 load("udunits/2.2.28")
 load("ncview/2.1.8")
 load("netcdf-cxx4/4.3.1")
+load("py-pybind11/2.8.1")
 
 load("hpc/1.2.0")
 load("miniconda3/4.6.14")
 load("gdasapp/1.0.0")
+
+-- below is a hack because of cmake finding the wrong python...
+setenv("CONDA_PREFIX", "/work2/noaa/da/python/opt/core/miniconda3/4.6.14")
 
 setenv("CC","mpiicc")
 setenv("FC","mpiifort")
@@ -71,9 +75,6 @@ setenv('MPIEXEC_NPROC', mpinproc)
 setenv('R2D2_CONFIG', '/work2/noaa/da/cmartin/GDASApp/R2D2_SHARED/config_orion.yaml')
 
 execute{cmd="ulimit -s unlimited",modeA={"load"}}
-
--- below is hack because of hardcoded python exe in fckit
--- prepend_path("LD_LIBRARY_PATH","/apps/python-3.9.2/lib")
 
 whatis("Name: ".. pkgName)
 whatis("Version: " .. pkgVersion)
