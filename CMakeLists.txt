@@ -61,6 +61,12 @@ if(BUILD_GDASBUNDLE)
 # External (required) observation operators
   ecbuild_bundle( PROJECT crtm GIT "https://github.com/jcsda/crtm.git"   TAG v2.3-jedi.3 )
 
+# Build GSI-B
+  option(BUILD_GSIBEC "Build GSI-B" OFF)
+  if(BUILD_GSIBEC)
+    ecbuild_bundle( PROJECT gsibec GIT "https://github.com/GEOS-ESM/GSIbec.git" TAG 1.0.6 )
+  endif()
+
 # Core JEDI repositories
   ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG 72d2c05 )
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG 6741ca4 )
