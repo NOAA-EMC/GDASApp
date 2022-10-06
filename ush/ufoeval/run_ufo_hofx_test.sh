@@ -12,9 +12,9 @@
 #--------------- User modified options below -----------------
 cycle=2021080100
 obtype=amsua_n19
+GDASApp=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp # Change this to your own branch
 workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
-yamlpath=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp/parm/atm/obs/testing/amsua_n19.yaml
-GDASApp=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp
+yamlpath=$GDASApp/parm/atm/obs/testing/amsua_n19.yaml
 exename=test_ObsFilters.x
 machine=orion
 radiance="YES"
@@ -45,7 +45,9 @@ mkdir -p $workdir
 ln -sf $FixDir/crtm/2.3.0 $workdir/crtm
 
 # copy BC files
-cp -rf $BCDir/${obtype}*${GDATE}* $workdir/.
+if [ $radiance = "YES" ]; then
+  cp -rf $BCDir/${obtype}*${GDATE}* $workdir/.
+fi
 
 # Copy obs and geovals
 cp -rf $GeoDir/${obtype}_geoval_${cycle}.nc4 $workdir/.
