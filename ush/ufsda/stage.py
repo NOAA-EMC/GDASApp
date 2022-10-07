@@ -316,7 +316,7 @@ def obs(config):
     mkdir(obs_dir)
     for ob in config['observers']:
         obname = ob['obs space']['name'].lower()
-        outfile = ob['obs space']['obsdatain']['obsfile']
+        outfile = ob['obs space']['obsdatain']['engine']['obsfile']
         # the above path is what 'FV3-JEDI' expects, need to modify it
         outpath = outfile.split('/')
         outpath[0] = 'analysis'

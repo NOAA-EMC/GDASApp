@@ -30,6 +30,29 @@ pwd=$(pwd)
 #  Utilities
 export NLN=${NLN:-"/bin/ln -sf"}
 
+function socaincr2mom6 {
+  incr=$1
+  bkg=$2
+  grid=$3
+  incr_out=$4
+
+  scratch=scratch_socaincr2mom6
+  mkdir -p $scratch
+  cd $scratch
+
+  echo "at socaincr2mom6" $bkg $grid
+
+  cp $incr inc.nc                   # TODO: use accumulated incremnet, not outerloop intermediates
+  ncks -A -C -v h $bkg inc.nc       # Replace h incrememnt (all 0's) by h background (expected by MOM)
+  ncrename -d zaxis_1,Layer inc.nc  # Rename zaxis_1 to Layer
+  ncks -A -C -v Layer $bkg inc.nc   # Replace dimension-less Layer with dimensional Layer
+  mv inc.nc inc_tmp.nc              # ... dummy copy
+  ncwa -O -a Time inc_tmp.nc inc.nc # Remove degenerate Time dimension
+  ncks -A -C -v lon $grid inc.nc    # Add longitude
+  ncks -A -C -v lat $grid inc.nc    # Add latitude
+  mv inc.nc $incr_out
+}
+
 function bump_vars()
 {
     tmp=$(ls -d ${1}_* )
@@ -107,6 +130,12 @@ concatenate_bump 'bump3d'
 # run 3DVAR FGAT
 clean_yaml var.yaml
 $APRUN_SOCAANAL $JEDI_BIN/soca_var.x var.yaml 2>var.err
+
+
+# increments update for MOM6
+( socaincr2mom6 `ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1` ${DATA}/INPUT/MOM.res.nc ${DATA}/soca_gridspec.nc ${DATA}/Data/inc.nc )
+
+
 
 ################################################################################
 set +x

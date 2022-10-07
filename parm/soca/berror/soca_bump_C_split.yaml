@@ -5,7 +5,6 @@ geometry:
 
 input variables:
   - ${CVAR}
-  - hocn
 
 background:
   read_from_file: 1

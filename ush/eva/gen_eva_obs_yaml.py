@@ -17,14 +17,18 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
     except Exception as e:
         logging.error(f'Error occurred when attempting to load: {inputyaml}, error: {e}')
     # get just the observations part of the YAML
-    jediobs = jedi_yaml_dict['observations']['observers']
+    if 'observers' in jedi_yaml_dict['observations']:
+        jediobs = jedi_yaml_dict['observations']['observers']
+    else:
+        # the unit tests have a different YAML setup
+        jediobs = jedi_yaml_dict['observations']
     # construct a simplified list of obsspaces for EVA
     evaobs = []
     for obsspace in jediobs:
         tmp_os = obsspace['obs space']
         tmp_dict = {
             'name': tmp_os['name'],
-            'diagfile': tmp_os['obsdataout']['obsfile'].replace('.nc4', '_0000.nc4'),
+            'diagfile': tmp_os['obsdataout']['engine']['obsfile'].replace('.nc4', '_0000.nc4'),
             'vars': tmp_os['simulated variables'],
             'channels': tmp_os.get('channels', None),
         }

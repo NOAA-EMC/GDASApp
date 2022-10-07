@@ -1,7 +1,7 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "0b5789d20d6f0963f2c884f2bc178140aef20aa3d1ffd58463ed2153b6cbf86a")
+set(SHA "2f85f9469ee0788b3765a667fa6e9cd52b599dfb986b7dc773aaf4bcdaf05b4b")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
@@ -28,6 +28,13 @@ list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/icec.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/icefb.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/MOM.res.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_09.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_10.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_11.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_12.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_13.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_14.nc
+  ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_15.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/iced.2019-04-15-43200.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias_pc
@@ -94,7 +101,7 @@ add_test(NAME test_gdasapp_check_valid_yaml
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for ush/jediinc2fv3.py
 add_test(NAME test_gdasapp_jedi_increment_to_fv3
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atmges_compress.nc4 ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # test for YAML generation from a template
 add_test(NAME test_gdasapp_generate_yaml_func

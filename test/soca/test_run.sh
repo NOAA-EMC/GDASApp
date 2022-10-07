@@ -21,6 +21,8 @@ test_file  ${project_binary_dir}/test/soca/3dvar/analysis/ocn.bkgerr_stddev.incr
 
 echo "============================= Test that an increment and an analysis were created"
 test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.iter1.incr.2018-04-15T09:00:00Z.nc
+test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pseudo.incr.2018-04-15T09:00:00Z.nc
 test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T09:00:00Z.nc
 test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T12:00:00Z.nc
 test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T15:00:00Z.nc
+test_file  ${project_binary_dir}/test/soca/3dvar/analysis/Data/inc.nc

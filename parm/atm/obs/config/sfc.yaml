@@ -1,0 +1,18 @@
+obs space:
+  name: sfc
+  obsdatain:
+    obsfile: $(OBS_DIR)/$(OBS_PREFIX)sfc.$(OBS_DATE).nc4
+  obsdataout:
+    obsfile: $(DIAG_DIR)/diag_sfc_$(OBS_DATE).nc4
+  io pool:
+    max pool size: 1
+  simulated variables: [surface_pressure]
+get values:
+  interpolation method: $(INTERP_METHOD)
+obs operator:
+  name: SfcPCorrected
+  da_psfc_scheme: GSI
+  geovar_sfc_geomz: surface_geopotential_height
+  geovar_geomz: geopotential_height
+linear obs operator:
+  name: Identity
