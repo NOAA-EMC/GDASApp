@@ -1,9 +1,13 @@
 obs space:
   name: sst_noaa19_l3u
   obsdatain:
-    obsfile: ${OBS_DIR}/${OBS_PREFIX}sst_noaa19_l3u.${OBS_DATE}.nc4
+    engine:
+      type: H5File
+      obsfile: ${OBS_DIR}/${OBS_PREFIX}sst_noaa19_l3u.${OBS_DATE}.nc4
   obsdataout:
-    obsfile: ${DIAG_DIR}/sst_noaa19_l3u.${OBS_DATE}.nc4
+    engine:
+      type: H5File
+      obsfile: ${DIAG_DIR}/sst_noaa19_l3u.${OBS_DATE}.nc4
   simulated variables: [sea_surface_temperature]
 obs operator:
   name: Identity
