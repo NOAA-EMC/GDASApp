@@ -2,11 +2,11 @@ obs space:
   name: cris-fsr_npp
   obsdatain:
     engine:
-      name: H5File
+      type: H5File
       obsfile: $(OBS_DIR)/$(OBS_PREFIX)cris-fsr_npp.$(OBS_DATE).nc4 
   obsdataout:
     engine:
-      name: H5File
+      type: H5File
       obsfile: $(DIAG_DIR)/diag_cris-fsr_npp_$(OBS_DATE).nc4
   io pool:
     max pool size: 1

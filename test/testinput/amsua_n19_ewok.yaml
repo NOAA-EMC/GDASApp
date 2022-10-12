@@ -2,11 +2,11 @@ obs space:
   name: amsua_n19
   obsdatain:
     engine:
-      name: H5File
+      type: H5File
       obsfile: $(experiment_dir)/{{current_cycle}}/amsua_n19.{{window_begin}}.nc4
   obsdataout:
     engine:
-      name: H5File
+      type: H5File
       obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).amsua_n19.{{window_begin}}.nc4
   simulated variables: [brightness_temperature]
   channels: &amsua_n19_channels 1-15
