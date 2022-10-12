@@ -2,11 +2,11 @@ obs space:
   name: ompsnp_npp
   obsdatain:
     engine:
-      name: H5File
+      type: H5File
       obsfile: $(OBS_DIR)/$(OBS_PREFIX)ompsnp_npp.$(OBS_DATE).nc4
   obsdataout:
     engine:
-      name: H5File
+      type: H5File
       obsfile: $(DIAG_DIR)/diag_ompsnp_npp_$(OBS_DATE).nc4
   io pool:
     max pool size: 1
