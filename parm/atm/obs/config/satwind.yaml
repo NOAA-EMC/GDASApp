@@ -1,9 +1,13 @@
 obs space:
   name: satwind
   obsdatain:
-    obsfile: $(OBS_DIR)/$(OBS_PREFIX)satwind.$(OBS_DATE).nc4
+    engine:
+      name: H5File
+      obsfile: $(OBS_DIR)/$(OBS_PREFIX)satwind.$(OBS_DATE).nc4
   obsdataout:
-    obsfile: $(DIAG_DIR)/diag_satwind_$(OBS_DATE).nc4
+    engine:
+      name: H5File
+      obsfile: $(DIAG_DIR)/diag_satwind_$(OBS_DATE).nc4
   io pool:
     max pool size: 1
   simulated variables: [eastward_wind, northward_wind]
