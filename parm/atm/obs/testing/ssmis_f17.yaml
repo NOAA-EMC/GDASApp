@@ -234,7 +234,4 @@ obs filters:
     options:
       channels: 1-24
       use_flag: [ 1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1]
-  minvalue: 1.0e-12
-  action:
-    name: reject
-passedBenchmark: 440   #(m_unittest)
+  

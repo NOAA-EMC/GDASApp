@@ -17,8 +17,6 @@ obs space:
       obsfile: $(DIAG_DIR)/diag_ssmis_f17_$(OBS_DATE).nc4
   simulated variables: [brightness_temperature]
   channels: 1-24
-geovals:
-  filename: ssmis_f17_geoval_$(OBS_DATE).nc4
 obs bias:
   input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)ssmis_f17.satbias.$(BIAS_DATE).nc4
   output file: $(BIAS_OUT_DIR)/$(OBS_PREFIX)ssmis_f17.satbias.$(OBS_DATE).nc4
@@ -232,7 +230,3 @@ obs filters:
     options:
       channels: 1-24
       use_flag: [ 1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1]
-  minvalue: 1.0e-12
-  action:
-    name: reject
-passedBenchmark: 440   #(m_unittest)
