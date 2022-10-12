@@ -2,11 +2,11 @@ obs space:
   name: sondes_ps
   obsdatain:
     engine:
-      name: H5File
+      type: H5File
       obsfile: sondes_ps_obs_$(OBS_DATE).nc4
   obsdataout:
     engine:
-      name: H5File
+      type: H5File
       obsfile: sondes_ps_diag_$(OBS_DATE).nc4
   simulated variables: [surface_pressure]
 geovals:
