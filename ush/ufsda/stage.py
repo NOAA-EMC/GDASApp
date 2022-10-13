@@ -149,7 +149,7 @@ def atm_obs(config):
         r2d2_config['provider'] = 'ncdiag'
         r2d2_config['start'] = config['window_begin']
         r2d2_config['end'] = r2d2_config['start']
-        target_file = ob['obs space']['obsdatain']['obsfile']
+        target_file = ob['obs space']['obsdatain']['engine']['obsfile']
         r2d2_config['target_file_fmt'] = target_file
         r2d2_config['obs_types'] = [ob['obs space']['name']]
         ufsda.r2d2.fetch(r2d2_config)
@@ -247,7 +247,7 @@ def gdas_single_cycle(config):
         r2d2_config['provider'] = 'ncdiag'
         r2d2_config['start'] = config['window_begin']
         r2d2_config['end'] = r2d2_config['start']
-        target_file = ob['obs space']['obsdatain']['obsfile']
+        target_file = ob['obs space']['obsdatain']['engine']['obsfile']
         r2d2_config['target_file_fmt'] = target_file
         r2d2_config['obs_types'] = [ob['obs space']['name']]
         ufsda.r2d2.fetch(r2d2_config)

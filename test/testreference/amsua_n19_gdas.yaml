@@ -1,9 +1,13 @@
 obs space:
   name: amsua_n19
   obsdatain:
-    obsfile: $(OBS_DIR)/$(OBS_PREFIX)amsua_n19.$(OBS_DATE).nc4
+    engine:
+      type: H5File
+      obsfile: $(OBS_DIR)/$(OBS_PREFIX)amsua_n19.$(OBS_DATE).nc4
   obsdataout:
-    obsfile: $(DIAG_DIR)/diag_amsua_n19_$(OBS_DATE).nc4
+    engine:
+      type: H5File
+      obsfile: $(DIAG_DIR)/diag_amsua_n19_$(OBS_DATE).nc4
   simulated variables:
   - brightness_temperature
   channels: 1-15

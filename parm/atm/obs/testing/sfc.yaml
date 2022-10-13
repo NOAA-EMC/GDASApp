@@ -1,9 +1,13 @@
 obs space:
   name: sfc
   obsdatain:
-    obsfile: sfc_obs_$(OBS_DATE).nc4
+    engine:
+      type: H5File
+      obsfile: sfc_obs_$(OBS_DATE).nc4
   obsdataout:
-    obsfile: sfc_diag_$(OBS_DATE).nc4
+    engine:
+      type: H5File
+      obsfile: sfc_diag_$(OBS_DATE).nc4
   simulated variables: [surface_pressure, air_temperature, virtual_temperature]
 geovals:
   filename: sfc_geoval_$(OBS_DATE).nc4
