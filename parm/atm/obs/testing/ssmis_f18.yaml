@@ -2,24 +2,25 @@ obs operator:
   name: CRTM
   Absorbers: [H2O,O3,CO2]
   obs options:
-    Sensor_ID: ssmis_f17
+    Sensor_ID: ssmis_f18
     EndianType: little_endian
-    CoefficientPath: $(CRTM_COEFF_DIR)/
+    CoefficientPath: crtm/
 obs space:
-  name: ssmis_f17
+  name: ssmis_f18
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(OBS_DIR)/$(OBS_PREFIX)ssmis_f17.$(OBS_DATE).nc4
+      obsfile: ssmis_f18_obs_$(OBS_DATE).nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DIAG_DIR)/diag_ssmis_f17_$(OBS_DATE).nc4
+      obsfile: ssmis_f18_diag_$(OBS_DATE).nc4
   simulated variables: [brightness_temperature]
   channels: 1-24
+geovals:
+  filename: ssmis_f18_geoval_$(OBS_DATE).nc4
 obs bias:
-  input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)ssmis_f17.satbias.$(BIAS_DATE).nc4
-  output file: $(BIAS_OUT_DIR)/$(OBS_PREFIX)ssmis_f17.satbias.$(OBS_DATE).nc4
+  input file: ssmis_f18_satbias_$(BIAS_DATE).nc4
   variational bc:
     predictors:
     - name: constant
@@ -36,9 +37,9 @@ obs bias:
     - name: sine_of_latitude
     - name: lapse_rate
       order: 2
-      tlapse: &ssmis_f17_tlapse $(BIAS_IN_DIR)/$(BIAS_PREFIX)ssmis_f17.tlapse.$(BIAS_DATE).txt
+      tlapse: &ssmis_f18_tlap ssmis_f18_tlapmean_$(BIAS_DATE).txt
     - name: lapse_rate
-      tlapse: *ssmis_f17_tlapse
+      tlapse: *ssmis_f18_tlap
     - name: emissivity
     - name: scan_angle
       var_name: scan_position
@@ -133,7 +134,7 @@ obs post filters:
       channels: 1-24
       options:
         channels: 1-24
-        sensor: ssmis_f17
+        sensor: ssmis_f18
         obserr_demisf: [0.010, 0.010, 0.010, 0.010, 0.010]
         obserr_dtempf: [0.500, 0.500, 0.500, 0.500, 0.500]
 #  Useflag Check

@@ -53,103 +53,17 @@ obs bias:
     - name: scan_angle
       var_name: scan_position
 
-obs filters:
+obs prior filters:
 - filter: Perform Action
   filter variables:
   - name: brightness_temperature
-    channels: 1
+    channels: 1-24
   action:
     name: assign error
-    error parameter: 1.5
+    error parameter vector: [ 1.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 3, 3, 3, 3, 2.4, 1.27, 1.44, 3,
+                1.34, 1.74, 3.75, 3, 3, 2, 6.4, 1, 1]
 
-- filter: Perform Action
-  filter variables:
-  - name: brightness_temperature
-    channels: 2-5
-  action:
-    name: assign error
-    error parameter: 0.5
-
-- filter: Perform Action
-  filter variables:
-  - name: brightness_temperature
-    channels: 6-7, 23-24
-  action:
-    name: assign error
-    error parameter: 1
-
-- filter: Perform Action
-  filter variables:
-  - name: brightness_temperature
-    channels: 8-11, 15, 19-20
-  action:
-    name: assign error
-    error parameter: 3
-
-- filter: Perform Action
-  filter variables:
-  - name: brightness_temperature
-    channels: 12
-  action:
-    name: assign error
-    error parameter: 2.4
-
-- filter: Perform Action
-  filter variables:
-  - name: brightness_temperature
-    channels: 13
-  action:
-    name: assign error
-    error parameter: 1.27
-
-- filter: Perform Action
-  filter variables:
-  - name: brightness_temperature
-    channels: 14
-  action:
-    name: assign error
-    error parameter: 1.44
-
-- filter: Perform Action
-  filter variables:
-  - name: brightness_temperature
-    channels: 16
-  action:
-    name: assign error
-    error parameter: 1.34
-
-- filter: Perform Action
-  filter variables:
-  - name: brightness_temperature
-    channels: 17
-  action:
-    name: assign error
-    error parameter: 1.74
-
-- filter: Perform Action
-  filter variables:
-  - name: brightness_temperature
-    channels: 18
-  action:
-    name: assign error
-    error parameter: 3.75
-
-- filter: Perform Action
-  filter variables:
-  - name: brightness_temperature
-    channels: 21
-  action:
-    name: assign error
-    error parameter: 2
-
-- filter: Perform Action
-  filter variables:
-  - name: brightness_temperature
-    channels: 22
-  action:
-    name: assign error
-    error parameter: 6.4
-
+obs post filters:
 #step1: Gross check (setuprad)
 - filter: Background Check
   filter variables:
@@ -234,4 +148,6 @@ obs filters:
     options:
       channels: 1-24
       use_flag: [ 1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1]
-  
+  minvalue: 1.0e-12
+  action:
+    name: reject
