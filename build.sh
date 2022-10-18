@@ -55,12 +55,14 @@ done
 case ${BUILD_TARGET} in
   hera | orion)
     echo "Building GDASApp on $BUILD_TARGET"
+    set +e
     source $MODULESHOME/init/sh
     module purge
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET
     CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC"
     module list
+    set -e
     ;;
   $(hostname))
     echo "Building GDASApp on $BUILD_TARGET"

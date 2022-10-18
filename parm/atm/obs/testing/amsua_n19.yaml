@@ -10,9 +10,13 @@ obs operator:
 obs space:
   name: amsua_n19
   obsdatain:
-    obsfile: amsua_n19_obs_$(OBS_DATE).nc4
+      engine:
+        type: H5File
+        obsfile: amsua_n19_obs_$(OBS_DATE).nc4
   obsdataout:
-    obsfile: amsua_n19_diag_$(OBS_DATE).nc4
+      engine:
+        type: H5File
+        obsfile: amsua_n19_diag_$(OBS_DATE).nc4
   simulated variables: [brightness_temperature]
   channels: 1-15
 geovals:

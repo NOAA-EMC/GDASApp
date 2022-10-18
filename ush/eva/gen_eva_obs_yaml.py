@@ -28,7 +28,7 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
         tmp_os = obsspace['obs space']
         tmp_dict = {
             'name': tmp_os['name'],
-            'diagfile': tmp_os['obsdataout']['obsfile'].replace('.nc4', '_0000.nc4'),
+            'diagfile': tmp_os['obsdataout']['engine']['obsfile'].replace('.nc4', '_0000.nc4'),
             'vars': tmp_os['simulated variables'],
             'channels': tmp_os.get('channels', None),
         }
