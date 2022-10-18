@@ -26,6 +26,13 @@ fi
 
 #  Directories
 pwd=$(pwd)
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo $pwd
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
 #  Utilities
 export NLN=${NLN:-"/bin/ln -sf"}
@@ -99,22 +106,22 @@ fi
 # generate soca geometry
 # TODO (Guillaume): Should not use all pe's for the grid generation
 # TODO (Guillaume): Does not need to be generated at every cycles, store in static dir?
-$APRUN_SOCAANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml 2>gridgen.err
+$APRUN_OCNANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml > gridgen.out 2>&1
 
 ################################################################################
 # Generate the parametric diag of B
-$APRUN_SOCAANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml 2>parametric_stddev_b.err
+$APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml 2>parametric_stddev_b.err
 
 ################################################################################
 # Set decorrelation scales for bump C
-$APRUN_SOCAANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml 2>soca_setcorscales.err
+$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml 2>soca_setcorscales.err
 
 # 2D C from bump
 yaml_list=`ls soca_bump2d_C*.yaml`
 for yaml in $yaml_list; do
     # TODO (G, C, R, ...): problem with ' character when reading yaml, removing from file for now
     clean_yaml $yaml
-    $APRUN_SOCAANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
+    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
 done
 concatenate_bump 'bump2d'
 
@@ -122,14 +129,14 @@ concatenate_bump 'bump2d'
 yaml_list=`ls soca_bump3d_C*.yaml`
 for yaml in $yaml_list; do
     clean_yaml $yaml
-    $APRUN_SOCAANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
+    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
 done
 concatenate_bump 'bump3d'
 
 ################################################################################
 # run 3DVAR FGAT
 clean_yaml var.yaml
-$APRUN_SOCAANAL $JEDI_BIN/soca_var.x var.yaml 2>var.err
+$APRUN_OCNANAL $JEDI_BIN/soca_var.x var.yaml 2>var.err
 
 
 # increments update for MOM6
