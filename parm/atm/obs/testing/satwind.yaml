@@ -8,8 +8,6 @@ obs space:
     engine:
       type: H5File
       obsfile: satwind_diag_$(OBS_DATE).nc4
-  io pool:
-    max pool size: 1
   simulated variables: [eastward_wind, northward_wind]
 geovals:
   filename: satwind_geoval_$(OBS_DATE).nc4
