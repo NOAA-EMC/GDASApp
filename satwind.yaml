@@ -17,13 +17,10 @@ vector ref: GsiHofXBc
 tolerance: 0.01
 obs operator:
   name: VertInterp
-# Temporarily forcing pre filters as only filters, to change back and add prior/post filters,
-# replace 'obs filters' with 'obs pre filters' in this section
-#obs pre filters:
-obs filters:
-  # Assign the initial observation error, based on height/pressure
-  # Hard-wiring to prepobs_errtable.global by Type
-  # ObsError is currently not updating, but passes directly to EffectiveError when no inflation is specified in YAML
+obs pre filters:
+# Assign the initial observation error, based on height/pressure
+# Hard-wiring to prepobs_errtable.global by Type
+# ObsError is currently not updating in diag file, but passes directly to EffectiveError when no inflation is specified in YAML
   # Type 240 (GOES SWIR): Assigned all dummy values in prepobs_errtable.global
   - filter: Perform Action
     filter variables:
@@ -404,7 +401,9 @@ obs filters:
             name: MetaData/air_pressure
           xvals: [110000,60000,55000,50000,45000,40000,35000,30000,25000,20000,15000,10000,7500,5000,4000,3000,2000,1000,500,400,300,200,100,0]   #Pressure (Pa)
           errors: [1000000000.,1000000000.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
-  # Type 260 (VIIRS LWIR): All levels assigned dummy values
+  # Type 260 (VIIRS LWIR): All levels assigned dummy values in prepobs_errtable.global, HOWEVER the GSI values appear
+  #                        to be a standard profile (borrowed from e.g., Type=244). Using the standard profile here.
+  #                        It's possibly that my prepobs_errtable.global file is out-of-date.
   - filter: Perform Action
     filter variables:
     - name: eastward_wind
@@ -421,432 +420,448 @@ obs filters:
         options:
           xvar:
             name: MetaData/air_pressure
-          xvals: [110000,0]   #Pressure (Pa)
-          errors: [1000000000.,1000000000.]
-#obs prior filters:
+          xvals: [110000,105000,100000,95000,90000,85000,80000,75000,70000,65000,60000,55000,50000,45000,40000,35000,30000,25000,20000,15000,10000,7500,5000,4000,3000,2000,1000,500,400,300,200,100,0]   #Pressure (Pa)
+          errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
+obs prior filters:
   #
   # sanity-check criteria
   #
   # Observation Range Sanity Check
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    minvalue: -130
-#    maxvalue: 130
-#    action:
-#      name: reject
+  # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    minvalue: -130
+    maxvalue: 130
+    action:
+      name: reject
   # Velocity Sanity Check
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    test variables:
-#    - name: Velocity@ObsFunction
-#    maxvalue: 130.0
-#    action:
-#      name: reject
-  # Reject any ob with PreQC of 9, 12, or 15
-  #   These are flags inherited from read_satwnd.f90 based on
-  #   multiple criteria. Eventually that criteria should be
-  #   replicated in JEDI instead of being read in from GSI,
-  #   but for now we will use the provided PreQC flags
-#  - filter: Perform Action
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: PreQC/eastward_wind
-#      is_in: 9, 12, 15
-#    action:
-#      name: reject
+  # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    test variables:
+    - name: Velocity@ObsFunction
+    maxvalue: 130.0
+    action:
+      name: reject
 #
 # preQC (read_satwnd) criteria
 #
-# EUMETSAT winds: satelliteIdentifer [50–99]
+# EUMETSAT winds: satelliteIdentifer [50–79] (>49, <80)
   # Reject obs with satelliteZenithAngle > 68 deg
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 50
-#      maxvalue: 79
-#    test variables:
-#    - name: MetaData/satelliteZenithAngle
-#    maxvalue: 68.
-#    action:
-#      name: reject
+  # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 49
+      maxvalue: 80
+    test variables:
+    - name: MetaData/satelliteZenithAngle
+    maxvalue: 68.
+    action:
+      name: reject
   # Reject obs with windComputationMethod = 5 (clear-sky WV AMV)
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 50
-#      maxvalue: 79
-#    test variables:
-#    - name: MetaData/windComputationMethod
-#    maxvalue: 4.
-#    action:
-#      name: reject
+  # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 49
+      maxvalue: 80
+    test variables:
+    - name: MetaData/windComputationMethod
+    maxvalue: 4.
+    action:
+      name: reject
   # Reject obs with qualityInformationWithoutForecast < 85.
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 50
-#      maxvalue: 79
-#    test variables:
-#    - name: MetaData/qualityInformationWithoutForecast 
-#    minvalue: 85.
-#    action:
-#      name: reject
-# JMA: satelliteIdentifier [100–199]
+  # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 49
+      maxvalue: 80
+    test variables:
+    - name: MetaData/qualityInformationWithoutForecast 
+    minvalue: 85.
+    action:
+      name: reject
+# JMA: satelliteIdentifier [100–199] (>99, <200)
   # Reject obs with satelliteZenithAngle > 68 deg
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 100
-#      maxvalue: 199
-#    test variables:
-#    - name: MetaData/satelliteZenithAngle
-#    maxvalue: 68.
-#    action:
-#      name: reject
+  # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 99
+      maxvalue: 200
+    test variables:
+    - name: MetaData/satelliteZenithAngle
+    maxvalue: 68.
+    action:
+      name: reject
   # Reject obs with windComputationMethod = 5 (clear-sky WV AMV)
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 100
-#      maxvalue: 199
-#    test variables:
-#    - name: MetaData/windComputationMethod
-#    maxvalue: 4.
-#    action:
-#      name: reject
+  # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 99
+      maxvalue: 200
+    test variables:
+    - name: MetaData/windComputationMethod
+    maxvalue: 4.
+    action:
+      name: reject
   # Reject obs with qualityInformationWithoutForecast < 85.
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 100
-#      maxvalue: 199
-#    test variables:
-#    - name: MetaData/qualityInformationWithoutForecast
-#    minvalue: 85.
-#    action:
-#      name: reject
-# NESDIS: satelliteIdentifier [250–299]
+  # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 99
+      maxvalue: 200
+    test variables:
+    - name: MetaData/qualityInformationWithoutForecast
+    minvalue: 85.
+    action:
+      name: reject
+# NESDIS: satelliteIdentifier [250–299] (>249, <300)
   # Reject obs with satelliteZenithAngle > 68 deg
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 250
-#      maxvalue: 299
-#    test variables:
-#    - name: MetaData/satelliteZenithAngle
-#    maxvalue: 68.
-#    action:
-#      name: reject
+  # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249
+      maxvalue: 300
+    test variables:
+    - name: MetaData/satelliteZenithAngle
+    maxvalue: 68.
+    action:
+      name: reject
   # Reject obs with qualityInformationWithoutForecast < 90. OR > 100.
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 250
-#      maxvalue: 299
-#    test variables:
-#    - name: MetaData/qualityInformationWithoutForecast
-#    minvalue: 90.
-#    maxvalue: 100.
-#    action:
-#      name: reject
+  # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249
+      maxvalue: 300
+    test variables:
+    - name: MetaData/qualityInformationWithoutForecast
+    minvalue: 90.
+    maxvalue: 100.
+    action:
+      name: reject
   # Reject obs with air_pressure < 15000.
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 250
-#      maxvalue: 299
-#    test variables:
-#    - name: MetaData/air_pressure
-#    minvalue: 15000.
-#    action: 
-#      name: reject
+  # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249
+      maxvalue: 300
+    test variables:
+    - name: MetaData/air_pressure
+    minvalue: 15000.
+    action: 
+      name: reject
   # Reject obs with air_pressure < 70000. when Type=251
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 250
-#      maxvalue: 299
-#    - variable: ObsType/eastward_wind
-#      is_in: 251
-#    test variables:
-#    - name: MetaData/air_pressure
-#    minvalue: 70000.
-#    action:
-#      name: reject
+  # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249
+      maxvalue: 300
+    - variable: ObsType/eastward_wind
+      is_in: 251
+    test variables:
+    - name: MetaData/air_pressure
+    minvalue: 70000.
+    action:
+      name: reject
   # Reject obs with air_pressure > 30000. when Type=246
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 250
-#      maxvalue: 299
-#    - variable: ObsType/eastward_wind
-#      is_in: 246
-#    test variables:
-#    - name: MetaData/air_pressure
-#    maxvalue: 30000.
-#    action:
-#      name: reject
+  # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249
+      maxvalue: 300
+    - variable: ObsType/eastward_wind
+      is_in: 246
+    test variables:
+    - name: MetaData/air_pressure
+    maxvalue: 30000.
+    action:
+      name: reject
   # Reject obs with air_pressure > 85000. when isli=1 (land surface)
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 250
-#      maxvalue: 299
-#    - variable: land_type_index_NPOESS@GeoVaLs
-#      minvalue: 1.
-#      maxvalue: 1.
-#    test variables:
-#    - name: MetaData/air_pressure
-#    minvalue: 85000.
-#    action:
-#      name: reject
+  # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249
+      maxvalue: 300
+    - variable: land_type_index_NPOESS@GeoVaLs
+      minvalue: 1.
+      maxvalue: 1.
+    test variables:
+    - name: MetaData/air_pressure
+    maxvalue: 85000.
+    action:
+      name: reject
   # Reject obs with pct1 (Coeff. of Var.) outside of 0.04–0.5, Type [240,245,246,251] ONLY
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/satelliteIdentifier
-#      minvalue: 250
-#      maxvalue: 299
-#    - variable: ObsType/eastward_wind
-#      is_in: 240,245,246,251
-#    test variables:
-#    - name: MetaData/coefficientOfVariation
-#    minvalue: 0.04
-#    maxvalue: 0.5
-#    action:
-#      name: reject
+  # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249
+      maxvalue: 300
+    - variable: ObsType/eastward_wind
+      is_in: 240,245,246,251
+    test variables:
+    - name: MetaData/coefficientOfVariation
+    minvalue: 0.04
+    maxvalue: 0.5
+    action:
+      name: reject
+# NESDIS obs are also subject to the experr_norm test defined as:
+#
+# if (10. - 0.1*(expectedError))/(ob_speed)>0.9, or ob_speed<0.1, reject, applies to Types [240,245,246,247,251]
+#
+# This is not implemented in the YAML file because we do not have the capability to compute
+# the norm, lacking the required math operators. Instead, this will likely have to be
+# implemented as an ObsFunction like the SatWindsLNVDCheck test.
 #
 # setupw criteria
 #
-  # Reject any ob when pressure greater than 950 mb.
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    test variables:
-#    - name: MetaData/air_pressure
-#    maxvalue: 95000
-#    action:
-#      name: reject
+  # Reject any ob Type [240–260] when pressure greater than 950 mb.
+  # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: ObsType/eastward_wind
+      is_in: 240-260
+    test variables:
+    - name: MetaData/air_pressure
+    maxvalue: 95001
+    action:
+      name: reject
   # GOES IR (245) reject when pressure between 399 and 801 mb.
-#  - filter: Perform Action
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/air_pressure
-#      minvalue: 39900
-#      maxvalue: 80100
-#    where:
-#    - variable: ObsType/eastward_wind
-#      is_in: 245
-#    action:
-#      name: reject
+  # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
+  - filter: Perform Action
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/air_pressure
+      minvalue: 39901
+      maxvalue: 80099
+    - variable: ObsType/eastward_wind
+      is_in: 245
+    action:
+      name: reject
   # JMA IR (252) reject when pressure between 499 and 801 mb.
-#  - filter: Perform Action
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/air_pressure
-#      minvalue: 49900
-#      maxvalue: 80100
-#    where:
-#    - variable: ObsType/eastward_wind
-#      is_in: 252
-#    action:
-#      name: reject
+  # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
+  - filter: Perform Action
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/air_pressure
+      minvalue: 49901
+      maxvalue: 80099
+    - variable: ObsType/eastward_wind
+      is_in: 252
+    action:
+      name: reject
   # EUMETSAT IR (253) reject when pressure between 401 and 801 mb.
-#  - filter: Perform Action
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    where:
-#    - variable: MetaData/air_pressure
-#      minvalue: 40100
-#      maxvalue: 80100
-#    where:
-#    - variable: ObsType/eastward_wind
-#      is_in: 253
-#    action:
-#      name: reject
+  # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
+  - filter: Perform Action
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: MetaData/air_pressure
+      minvalue: 40101
+      maxvalue: 80099
+    - variable: ObsType/eastward_wind
+      is_in: 253
+    action:
+      name: reject
   # GOES WV (246, 250, 254), reject when pressure greater than 399 mb.
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    test variables:
-#    - name: MetaData/air_pressure
-#    maxvalue: 39900
-#    where:
-#    - variable:
-#        name: ObsType/eastward_wind
-#      is_in: 246, 250, 254
-#    action:
-#      name: reject
+  # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: ObsType/eastward_wind
+      is_in: 246, 250, 254
+    test variables:
+    - name: MetaData/air_pressure
+    maxvalue: 39900
+    action:
+      name: reject
   # EUMET (242) and JMA (243) vis, reject when pressure less than 700 mb.
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    test variables:
-#    - name: MetaData/air_pressure
-#    minvalue: 70000
-#    where:
-#    - variable:
-#        name: ObsType/eastward_wind
-#      is_in: 242, 243
-#    action:
-#      name: reject
+  # CLEARED: minvalue is rejecting <, not <= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: ObsType/eastward_wind
+      is_in: 242, 243
+    test variables:
+    - name: MetaData/air_pressure
+    minvalue: 70000
+    action:
+      name: reject
   # MODIS-Aqua/Terra (257) and (259), reject when pressure less than 249 mb.
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    test variables:
-#    - name: MetaData/air_pressure
-#    minvalue: 24900
-#    where:
-#    - variable:
-#        name: ObsType/eastward_wind
-#      is_in: 257,259
-#    action:
-#      name: reject
+  # CLEARED: minvalue is rejecting <, not <= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: ObsType/eastward_wind
+      is_in: 257,259
+    test variables:
+    - name: MetaData/air_pressure
+    minvalue: 24900
+    action:
+      name: reject
   # MODIS-Aqua/Terra (258) and (259), reject when pressure greater than 600 mb.
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    test variables:
-#    - name: MetaData/air_pressure
-#    maxvalue: 60000
-#    where:
-#    - variable:
-#        name: ObsType/eastward_wind
-#      is_in: 258, 259
-#    action:
-#      name: reject
+  # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  # maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: ObsType/eastward_wind
+      is_in: 258, 259
+    test variables:
+    - name: MetaData/air_pressure
+    maxvalue: 60000
+    action:
+      name: reject
   # Multiple satellite platforms, reject when pressure is more than 50 mb above tropopause.
-#  - filter: Difference Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    reference: tropopause_pressure@GeoVaLs
-#    value: MetaData/air_pressure
-#    minvalue: -5000                    # 50 hPa above tropopause level, negative p-diff
-#    action:
-#      name: reject
+  # CLEARED: minvalue is rejecting <, not <= as per a Perform Action, so threshold is unchanged
+  - filter: Difference Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    reference: tropopause_pressure@GeoVaLs
+    value: MetaData/air_pressure
+    minvalue: -5000                    # 50 hPa above tropopause level, negative p-diff
+    action:
+      name: reject
   # GOES (247) reject any observation with a /=0 surface type (non-water 
   # surface) within 110 hPa of the surface pressure (as part of the LNVD
   # check).
-#  - filter: Difference Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    reference: surface_pressure@GeoVaLs
-#    value: MetaData/air_pressure
-#    maxvalue: -11000                    # within 110 hPa above surface pressure, negative p-diff
-#    where:
-#    - variable:
-#        name: land_type_index_NPOESS@GeoVaLs
-#      minvalue: 1
-#    - variable:
-#        name: ObsType/eastward_wind
-#      is_in: 247
-#    action:
-#      name: reject
+  # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Difference Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable:
+        name: land_type_index_NPOESS@GeoVaLs
+      minvalue: 1
+    - variable:
+        name: ObsType/eastward_wind
+      is_in: 247
+    reference: surface_pressure@GeoVaLs
+    value: MetaData/air_pressure
+    maxvalue: -11000                    # within 110 hPa above surface pressure, negative p-diff
+    action:
+      name: reject
   # AVHRR (244), MODIS (257,258,259), and VIIRS (260) reject any 
   # observation with a /=0 surface type (non-water surface) within
   # 200 hPa of the surface pressure (as part of the LNVD check).
-#  - filter: Difference Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    reference: surface_pressure@GeoVaLs
-#    value: MetaData/air_pressure
-#    maxvalue: -20000                    # within 200 hPa above surface pressure, negative p-diff
-#    where:
-#    - variable:
-#        name: land_type_index_NPOESS@GeoVaLs
-#      minvalue: 1
-#    - variable:
-#        name: ObsType/eastward_wind
-#      is_in: 244, 257-260
-#    action:
-#      name: reject
-#obs post filters:
+  # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+  - filter: Difference Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable:
+        name: land_type_index_NPOESS@GeoVaLs
+      minvalue: 1
+    - variable:
+        name: ObsType/eastward_wind
+      is_in: 244, 257-260
+    reference: surface_pressure@GeoVaLs
+    value: MetaData/air_pressure
+    maxvalue: -20000                    # within 200 hPa above surface pressure, negative p-diff
+    action:
+      name: reject
+obs post filters:
   # Reject GOES (247) when difference of wind direction is more than 50 degrees.
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    test variables:
-#    - name: WindDirAngleDiff@ObsFunction
-#    maxvalue: 50.0
-#    where:
-#    - variable:
-#        name: ObsType/eastward_wind
-#      is_in: 247
-#    action:
-#      name: reject
+  # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: ObsType/eastward_wind
+      is_in: 247
+    test variables:
+    - name: WindDirAngleDiff@ObsFunction
+    maxvalue: 50.0
+    action:
+      name: reject
   # AVHRR (244), MODIS (257,258,259), VIIRS (260), GOES (247) use a LNVD check.
-#  - filter: Bounds Check
-#    filter variables:
-#    - name: eastward_wind
-#    - name: northward_wind
-#    test variables:
-#    - name: SatWindsLNVDCheck@ObsFunction
-#    maxvalue: 3
-#    where:
-#    - variable:
-#        name: ObsType/eastward_wind
-#      is_in: 244, 247, 257-260
-#    action:
-#      name: reject
+  # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: eastward_wind
+    - name: northward_wind
+    where:
+    - variable: ObsType/eastward_wind
+      is_in: 244, 247, 257-260
+    test variables:
+    - name: SatWindsLNVDCheck@ObsFunction
+    maxvalue: 3
+    action:
+      name: reject
   #
   # All satwinds subject to a SPDB check (function may be broken?)
   #   We are ignoring this filter for now, and will come back to
