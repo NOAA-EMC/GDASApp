@@ -215,11 +215,12 @@ var_yaml_template = os.path.join(gdas_home,
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
 ic_date = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
 gen_bkg_list(window_begin=ic_date, bkg_path=os.getenv('COMIN_GES'), yaml_name='bkg_list.yaml')
+soca_ninner = os.getenv('SOCA_NINNER')
 config = {
     'OBS_DATE': os.getenv('PDY')+os.getenv('cyc'),
     'BKG_LIST': 'bkg_list.yaml',
     'COVARIANCE_MODEL': 'SABER',
-    'NINNER': '3',
+    'NINNER': soca_ninner,
     'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')}
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
 
