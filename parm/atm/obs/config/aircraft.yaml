@@ -1,13 +1,17 @@
 obs space:
   name: Aircraft
   obsdatain:
-    obsfile: $(OBS_DIR)/$(OBS_PREFIX)aircraft.$(OBS_DATE).nc4
+    engine:
+      type: H5File
+      obsfile: $(OBS_DIR)/$(OBS_PREFIX)aircraft.$(OBS_DATE).nc4
     obsgrouping:
       group variables: ["station_id"]
       sort variable: "air_pressure"
       sort order: "descending"
   obsdataout:
-    obsfile: $(DIAG_DIR)/diag_aircraft_$(OBS_DATE).nc4
+    engine:
+      type: H5File
+      obsfile: $(DIAG_DIR)/diag_aircraft_$(OBS_DATE).nc4
   io pool:
     max pool size: 1
   simulated variables: [eastward_wind, northward_wind, air_temperature, specific_humidity]

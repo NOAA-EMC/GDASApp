@@ -19,14 +19,14 @@ def convert_yaml_ewok_to_gdas(ewokyaml, gdasyaml):
     # replace relevant YAML keys as appropriate
 
     # obs space input file
-    infile = ob_dict['obs space']['obsdatain']['obsfile']
+    infile = ob_dict['obs space']['obsdatain']['engine']['obsfile']
     obtype = infile.split('/')[2].split('.')[0]
     infile = f"$(OBS_DIR)/$(OBS_PREFIX){obtype}.$(OBS_DATE).nc4"
-    ob_dict['obs space']['obsdatain']['obsfile'] = infile
+    ob_dict['obs space']['obsdatain']['engine']['obsfile'] = infile
 
     # obs space output diag
     outfile = f"$(DIAG_DIR)/diag_{obtype}_$(OBS_DATE).nc4"
-    ob_dict['obs space']['obsdataout']['obsfile'] = outfile
+    ob_dict['obs space']['obsdataout']['engine']['obsfile'] = outfile
 
     # io pool to one
     ob_dict['obs space']['io pool'] = {'max pool size': 1}
