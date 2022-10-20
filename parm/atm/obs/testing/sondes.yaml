@@ -4,6 +4,10 @@ obs space:
     engine: 
       type: H5File
       obsfile: sondes_obs_$(OBS_DATE).nc4
+      obsgrouping:
+        group variables: ["station_id"]
+        sort variable: "air_pressure"
+        sort order: "descending"
   obsdataout:
     engine:
       type: H5File
@@ -29,7 +33,17 @@ obs operator:
      variables: 
      - name: surface_pressure
 linear obs operator:
-  name: Identity
+  name: Composite
+  components:
+   - name: VertInterp
+     variables:
+     - name: air_temperature
+     - name: eastward_wind
+     - name: northward_wind
+     - name: specific_humidity
+   - name: Identity
+     variables:
+     - name: surface_pressure
 obs filters:
   #
   # Reject all obs with PreQC mark already set above 3
