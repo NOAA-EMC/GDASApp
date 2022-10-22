@@ -77,7 +77,7 @@ def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]'
     bkg_list = []
     bkg_date = window_begin
     for bkg in files:
-        ocn_filename = os.path.splitext(os.path.basename(bkg))[0]
+        ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'
         bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',
                     'ocn_filename': ocn_filename,
@@ -222,10 +222,11 @@ config = {
     'COVARIANCE_MODEL': 'SABER',
     'NINNER': soca_ninner,
     'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')}
+logging.info(f"{config}")
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
 
 # link of convenience
-ufsda.disk_utils.symlink(os.path.join(stage_cfg['background_dir'],'RESTART','MOM.res.nc'), 
+ufsda.disk_utils.symlink(os.path.join(stage_cfg['background_dir'], 'RESTART', 'MOM.res.nc'),
                          os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
 
 # prepare input.nml

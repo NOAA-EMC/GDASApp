@@ -103,11 +103,10 @@ $APRUN_OCNANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml > gridgen.out 2>&1
 
 ################################################################################
 # Generate the parametric diag of B
-$APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml 2>parametric_stddev_b.err
-
+$APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml > parametric_stddev_b.out 2>&1
 ################################################################################
 # Set decorrelation scales for bump C
-$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml 2>soca_setcorscales.err
+$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml > soca_setcorscales.out 2>&1
 
 # 2D C from bump
 yaml_list=`ls soca_bump2d_C*.yaml`
@@ -129,7 +128,7 @@ concatenate_bump 'bump3d'
 ################################################################################
 # run 3DVAR FGAT
 clean_yaml var.yaml
-$APRUN_OCNANAL $JEDI_BIN/soca_var.x var.yaml 2>var.err
+$APRUN_OCNANAL $JEDI_BIN/soca_var.x var.yaml > var.out 2>&1
 
 
 # increments update for MOM6
