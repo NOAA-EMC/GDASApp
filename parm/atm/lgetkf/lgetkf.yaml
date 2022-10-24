@@ -9,7 +9,7 @@ background:
      template:
        datetime: $(BKG_ISOTIME)
        filetype: fms restart
-       state variables: [ua,va,t,DZ,delp,sphum,ice_wat,liq_wat,o3mr,phis,
+       state variables: [ua,va,t,DZ,delp,ps,sphum,ice_wat,liq_wat,o3mr,phis,
                         slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                         u_srf,v_srf,f10m]
        datapath: bkg/mem%mem%/RESTART
@@ -45,12 +45,12 @@ local ensemble DA:
 
 #output:
 #  filetype: auxgrid
-#  gridtype: latlon
+#  gridtype: gaussian
 #  filename: $(ANL_DIR)/mem%{member}%/atmanl.
 
 output ensemble increments:
   filetype: auxgrid
-  gridtype: latlon
+  gridtype: gaussian
   filename: $(ANL_DIR)/mem%{member}%/atminc.
 
 geometry: $(GEOM_ANL)
