@@ -40,6 +40,6 @@ final:
   increment:
     output:
       filetype: auxgrid
-      gridtype: latlon
+      gridtype: gaussian
       filename: $(ANL_DIR)/atminc.
     geometry: $(GEOM_ANL)
