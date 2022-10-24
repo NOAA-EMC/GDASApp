@@ -27,8 +27,7 @@ import f90nml
 import shutil
 import logging
 import subprocess
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -241,7 +240,7 @@ ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
 #           instead of a restart but we end up with NaN's after going through the "linear model".
 #           Check why ...
 bkg_rst = 'MOM.res.'+window_begin.strftime('%Y-%m-%d-%H-%M-%S')+'.nc'
-if not os.path.isfile(bkg_rst):
+if not os.path.isfile(os.path.join(stage_cfg['background_dir'], 'RESTART', bkg_rst)):
     # TODO (G): A bit dangerous, assert that date of MOM.res.nc is correct
     bkg_rst = 'MOM.res.nc'
 ufsda.disk_utils.symlink(os.path.join(stage_cfg['background_dir'], 'RESTART', bkg_rst),
@@ -258,10 +257,7 @@ mom_input_nml = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
 ufsda.disk_utils.copyfile(mom_input_nml_src, mom_input_nml_tmpl)
 domain_stack_size = os.getenv('DOMAIN_STACK_SIZE')
 
-ymdhms = []
-for k in ['%Y', '%m', '%d', '%H']:
-    ymdhms.append(int(window_begin.strftime(k)))
-
+ymdhms = [int(s) for s in window_begin.strftime('%Y,%m,%d,%H,%M,%S').split(',')]
 with open(mom_input_nml_tmpl, 'r') as nml_file:
     nml = f90nml.read(nml_file)
     nml['ocean_solo_nml']['date_init'] = ymdhms
