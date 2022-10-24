@@ -9,6 +9,18 @@ source ${project_source_dir}/test/soca/test_utils.sh
 # Export runtime env. variables
 source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $project_source_dir
 
+# Reload modules when on HPC
+#TARGET=orion
+#if [[ "$TARGET" == "orion" ]] || [[ "$TARGET" == "hera" ]]; then
+#    module purge
+#    module use ${project_source_dir}/modulefiles
+#    module load GDAS/${TARGET}
+#fi
+
+#module purge
+#module use /work2/noaa/da/gvernier/gdas.cd/modulefiles
+#module load GDAS/orion
+
 # Run step
 echo "============================= Testing exgdas_global_marine_analysis_run.sh for clean exit"
 ${project_source_dir}/scripts/exgdas_global_marine_analysis_run.sh > exgdas_global_marine_analysis_run.log
