@@ -9,7 +9,7 @@ cost function:
 
   model:
     name: PseudoModel
-    tstep: PT3H
+    tstep: PT1H
     state variables: &model_vars [socn, tocn, ssh, hocn, uocn, vocn, mld, layer_depth]
     states: $<< $(BKG_LIST)
 

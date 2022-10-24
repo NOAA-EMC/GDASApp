@@ -12,7 +12,7 @@ source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $proj
 # Get low res static files from the soca sandbox
 source ${project_source_dir}/test/soca/static.sh $project_binary_dir $project_source_dir
 
-# MOM6's diag output need to be renamed
+# MOM6's diag output needs to be renamed
 i=3
 lof=`ls ${project_binary_dir}/test/soca/bkg/RESTART/ocn_da_*`
 for f in $lof; do

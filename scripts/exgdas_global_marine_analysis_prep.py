@@ -45,7 +45,7 @@ print(f"sys.path={sys.path}")
 import ufsda
 
 
-def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]', yaml_name='bkg.yaml'):
+def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[4-9]', yaml_name='bkg.yaml'):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
     """
@@ -75,8 +75,11 @@ def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]'
 
     # Create yaml of list of backgrounds
     bkg_list = []
-    bkg_date = window_begin
+    bkg_date = window_begin + timedelta(hours=1)
     for bkg in files:
+        # TODO (G): DANGER!!! There is no error trap in soca to assert that the date
+        #           of the background is consistent with the date in the yaml.
+        #           Check here?
         ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'
         bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',
@@ -213,8 +216,8 @@ var_yaml_template = os.path.join(gdas_home,
                                  'variational',
                                  '3dvarfgat.yaml')
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
-ic_date = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
-gen_bkg_list(window_begin=ic_date, bkg_path=os.getenv('COMIN_GES'), yaml_name='bkg_list.yaml')
+window_begin = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
+gen_bkg_list(window_begin=window_begin, bkg_path=os.getenv('COMIN_GES'), yaml_name='bkg_list.yaml')
 soca_ninner = os.getenv('SOCA_NINNER')
 config = {
     'OBS_DATE': os.getenv('PDY')+os.getenv('cyc'),
@@ -226,8 +229,27 @@ logging.info(f"{config}")
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
 
 # link of convenience
-ufsda.disk_utils.symlink(os.path.join(stage_cfg['background_dir'], 'RESTART', 'MOM.res.nc'),
+# TODO (G): The last restart dumped by MOM6 at the end of the forecast does not
+#           include a date in the file name (MOM.res.nc) but intermittent restarts do.
+#           What's below will probably never work, and/or rarely/never
+#           point to the correct background at the start of the window.
+#           Since we are doing FGAT, MOM.res.nc should point to the restart at the begining
+#           of the DA window.
+# TODO (G): Check for consistency between MOM.res.nc at t=0 and the diag files read by the
+#           pseudo model. Is the vertical geometry the same? Do we care if it isn't?
+# TODO (G): We should be able to use a diag file in the "background" definition in var.yaml
+#           instead of a restart but we end up with NaN's after going through the "linear model".
+#           Check why ...
+bkg_rst = 'MOM.res.'+window_begin.strftime('%Y-%m-%d-%H-%M-%S')+'.nc'
+if not os.path.isfile(bkg_rst):
+    # TODO (G): A bit dangerous, assert that date of MOM.res.nc is correct
+    bkg_rst = 'MOM.res.nc'
+ufsda.disk_utils.symlink(os.path.join(stage_cfg['background_dir'], 'RESTART', bkg_rst),
                          os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
+# TODO (G): Doing what's below should alaways work, but currently segfaulting ...
+# diag_ic = os.path.join(os.getenv('COMIN_GES'), 'gdas.t12z.ocnf003.nc')
+# ufsda.disk_utils.symlink(diag_ic,
+#                         os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
 
 # prepare input.nml
 mom_input_nml_src = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
@@ -238,7 +260,7 @@ domain_stack_size = os.getenv('DOMAIN_STACK_SIZE')
 
 ymdhms = []
 for k in ['%Y', '%m', '%d', '%H']:
-    ymdhms.append(int(ic_date.strftime(k)))
+    ymdhms.append(int(window_begin.strftime(k)))
 
 with open(mom_input_nml_tmpl, 'r') as nml_file:
     nml = f90nml.read(nml_file)
