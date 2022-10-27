@@ -73,6 +73,7 @@ def run_jedi_exe(yamlconfig):
         single_exec = True
         var_config = {
             'BERROR_YAML': executable_subconfig.get('berror_yaml', './'),
+            'STATICB_TYPE': executable_subconfig.get('staticb_type','gsibec'),
             'OBS_YAML_DIR': executable_subconfig['obs_yaml_dir'],
             'OBS_LIST': executable_subconfig['obs_list'],
             'atm': executable_subconfig.get('atm', False),
