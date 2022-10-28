@@ -16,6 +16,7 @@ executable options:
   dump: gdas
   case: C96
   case_anl: C48
+  staticb_type: bump
   dohybvar: false
   levs: 128
   interp_method: barycentric
