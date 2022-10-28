@@ -30,10 +30,22 @@ endforeach(FILENAME)
 if(BUILD_GDASBUNDLE)
 
   # link input file from iodaconv to test directory
-  file(CREATE_LINK ${PROJECT_SOURCE_DIR}/iodaconv/test/testinput/dbuoy_20180415_bufr ${PROJECT_BINARY_DIR}/test/testdata/dbuoy_20180415_bufr SYMBOLIC)
+  #file(CREATE_LINK ${PROJECT_SOURCE_DIR}/iodaconv/test/testinput/dbuoy_20180415_bufr ${PROJECT_BINARY_DIR}/test/testdata/dbuoy_20180415_bufr SYMBOLIC)
   # test convert BUFR to IODA
   add_test(NAME test_gdasapp_convert_bufr_dbuoy
            COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_dbuoy.yaml
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
+  add_test(NAME test_gdasapp_convert_bufr_mbuoyb
+           COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_mbuoyb.yaml
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
+  add_test(NAME test_gdasapp_convert_bufr_tesac
+           COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_tesac.yaml
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
+  add_test(NAME test_gdasapp_convert_bufr_trkob
+           COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_trkob.yaml
            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
   # Symlink test input yaml files
