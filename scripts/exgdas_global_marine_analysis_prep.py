@@ -27,6 +27,7 @@ import f90nml
 import shutil
 import logging
 import subprocess
+from datetime import datetime, timedelta
 
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -43,23 +44,12 @@ print(f"sys.path={sys.path}")
 import ufsda
 
 
-def gen_bkg_list(bkg_path='.', file_type='ocn_da', yaml_name='bkg.yaml', iconly=False):
+def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[4-9]', yaml_name='bkg.yaml'):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
     """
-    # TODO (Guillaume): Assumes that only the necessary backgrounds are under bkg_path.
-    #                   That's sketchy, use ic date, da window and dump freq of bkg instead
     files = glob.glob(bkg_path+'/*'+file_type+'*')
     files.sort()
-
-    if iconly:
-        # exit early if iconly
-        ic_date = dparser.parse(os.path.splitext(os.path.basename(files[0]))[0], fuzzy=True)
-        ymdhms = []
-        for k in ['%Y', '%m', '%d', '%H']:
-            ymdhms.append(int(ic_date.strftime(k)))
-        # TODO (Guillaume): Won't work for with split restarts
-        return os.path.join(bkg_path, 'MOM.res.nc'), ymdhms
 
     # Fix missing value in diag files
     for v in ['Temp', 'Salt', 'ave_ssh', 'h', 'MLD']:
@@ -81,22 +71,20 @@ def gen_bkg_list(bkg_path='.', file_type='ocn_da', yaml_name='bkg.yaml', iconly=
                 os.system(c)
                 result = subprocess.run(c, stdout=subprocess.PIPE, shell=True)
                 result.stdout.decode('utf-8')
-            '''
-            n = 1 #len(files)
-            for j in range(max(int(len(fix_diag_ch_jobs)/n), 1)):
-                procs = [subprocess.Popen(i, shell=True) for i in fix_diag_ch_jobs[j*n: min((j+1)*n, len(fix_diag_ch_jobs))] ]
-                for p in procs:
-                    p.wait()
-            '''
+
     # Create yaml of list of backgrounds
     bkg_list = []
+    bkg_date = window_begin + timedelta(hours=1)
     for bkg in files:
-        ocn_filename = os.path.splitext(os.path.basename(bkg))[0]
-        bkg_date = dparser.parse(ocn_filename.replace("_", "-"), fuzzy=True)
+        # TODO (G): DANGER!!! There is no error trap in soca to assert that the date
+        #           of the background is consistent with the date in the yaml.
+        #           Check here?
+        ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'
         bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',
                     'ocn_filename': ocn_filename,
                     'read_from_file': 1}
+        bkg_date = bkg_date + timedelta(hours=1)
         bkg_list.append(bkg_dict)
     dict = {'states': bkg_list}
     f = open(yaml_name, 'w')
@@ -149,6 +137,8 @@ ufsda.stage.obs(stage_cfg)
 ################################################################################
 # stage backgrounds from COMIN_GES to analysis subdir
 logging.info(f"---------------- Stage backgrounds")
+
+stage_cfg['background_dir'] = os.getenv('COMIN_GES')
 ufsda.stage.background(stage_cfg)
 
 ################################################################################
@@ -224,18 +214,41 @@ var_yaml_template = os.path.join(gdas_home,
                                  'soca',
                                  'variational',
                                  '3dvarfgat.yaml')
-gen_bkg_list(bkg_path=os.path.join(anl_dir, 'bkg'), yaml_name='bkg_list.yaml')
+half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
+window_begin = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
+gen_bkg_list(window_begin=window_begin, bkg_path=os.getenv('COMIN_GES'), yaml_name='bkg_list.yaml')
+soca_ninner = os.getenv('SOCA_NINNER')
 config = {
     'OBS_DATE': os.getenv('PDY')+os.getenv('cyc'),
     'BKG_LIST': 'bkg_list.yaml',
     'COVARIANCE_MODEL': 'SABER',
-    'NINNER': '3',
+    'NINNER': soca_ninner,
     'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')}
+logging.info(f"{config}")
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
 
 # link of convenience
-ic, ymdhms = gen_bkg_list(bkg_path=os.path.join(anl_dir, 'bkg'), iconly=True)
-ufsda.disk_utils.symlink(ic, os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
+# TODO (G): The last restart dumped by MOM6 at the end of the forecast does not
+#           include a date in the file name (MOM.res.nc) but intermittent restarts do.
+#           What's below will probably never work, and/or rarely/never
+#           point to the correct background at the start of the window.
+#           Since we are doing FGAT, MOM.res.nc should point to the restart at the begining
+#           of the DA window.
+# TODO (G): Check for consistency between MOM.res.nc at t=0 and the diag files read by the
+#           pseudo model. Is the vertical geometry the same? Do we care if it isn't?
+# TODO (G): We should be able to use a diag file in the "background" definition in var.yaml
+#           instead of a restart but we end up with NaN's after going through the "linear model".
+#           Check why ...
+bkg_rst = 'MOM.res.'+window_begin.strftime('%Y-%m-%d-%H-%M-%S')+'.nc'
+if not os.path.isfile(os.path.join(stage_cfg['background_dir'], 'RESTART', bkg_rst)):
+    # TODO (G): A bit dangerous, assert that date of MOM.res.nc is correct
+    bkg_rst = 'MOM.res.nc'
+ufsda.disk_utils.symlink(os.path.join(stage_cfg['background_dir'], 'RESTART', bkg_rst),
+                         os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
+# TODO (G): Doing what's below should alaways work, but currently segfaulting ...
+# diag_ic = os.path.join(os.getenv('COMIN_GES'), 'gdas.t12z.ocnf003.nc')
+# ufsda.disk_utils.symlink(diag_ic,
+#                         os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
 
 # prepare input.nml
 mom_input_nml_src = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
@@ -243,6 +256,8 @@ mom_input_nml_tmpl = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml.tmpl')
 mom_input_nml = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
 ufsda.disk_utils.copyfile(mom_input_nml_src, mom_input_nml_tmpl)
 domain_stack_size = os.getenv('DOMAIN_STACK_SIZE')
+
+ymdhms = [int(s) for s in window_begin.strftime('%Y,%m,%d,%H,%M,%S').split(',')]
 with open(mom_input_nml_tmpl, 'r') as nml_file:
     nml = f90nml.read(nml_file)
     nml['ocean_solo_nml']['date_init'] = ymdhms

@@ -18,6 +18,7 @@ lib/
 lib64/
 parts/
 sdist/
+Testing/
 var/
 wheels/
 pip-wheel-metadata/
@@ -156,6 +157,7 @@ fv3/
 fv3-jedi/
 fv3-jedi-data/
 fv3-jedi-lm/
+gsibec/
 gsw/
 ioda/
 ioda-data/

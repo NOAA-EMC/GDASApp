@@ -45,6 +45,5 @@ export R2D2_OBS_DB=shared
 export R2D2_OBS_DUMP=soca
 export R2D2_OBS_SRC=gdasapp
 export R2D2_OBS_WINDOW=24     # R2D2 sampling DB window
-
-export APRUN_SOCAANAL="$MPIEXEC_EXEC $MPIEXEC_NPROC 6"
-
+export SOCA_NINNER=2
+export APRUN_OCNANAL="$MPIEXEC_EXEC $MPIEXEC_NPROC 6"

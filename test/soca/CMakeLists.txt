@@ -66,6 +66,7 @@ if(BUILD_GDASBUNDLE)
 
   # Test exgdas_global_marine_analysis_run.sh
   # -----------------------------------------
+# TODO (G): run step test below fails on Orion ...
   add_test(NAME test_gdasapp_soca_ana_run
            COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_run.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/analysis)
@@ -73,4 +74,5 @@ if(BUILD_GDASBUNDLE)
         PROPERTIES
             DEPENDS "test_gdasapp_soca_ana_prep"
             ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
+
 endif(BUILD_GDASBUNDLE)
