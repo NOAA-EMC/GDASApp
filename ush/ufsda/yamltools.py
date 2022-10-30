@@ -50,7 +50,7 @@ def parse_config(input_config_dict, template=None, clean=True):
     elif config_out.get('land', True):
         config_out = landanl_case(config_out)
     else:
-        raise KeyError("Neither $(atm) nor ${land} defined")
+        raise KeyError("Neither $(atm) nor $(land) defined")
     config_out.pop('atm', None)  # pop out boolean variable that will cause issues later
     config_out.pop('land', None)  # pop out boolean variable that will cause issues later
     # do a first round of substitutions first
@@ -167,7 +167,7 @@ def fv3land_geom_dict(case, levs, ntiles, layout, io_layout):
                 'skip coupler file': 'true',
                 'state variables': '[orog_filt]',
                 'datapath': '/scratch2/BMC/gsienkf/Clara.Draper/data_RnR/orog_files_Mike/',
-                'filename_orog': 'C96_oro_data.nc',
+                'filename_orog': 'C'+str(case)+'_oro_data.nc',
             }
         }
     }
