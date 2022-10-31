@@ -143,7 +143,7 @@ def fv3land_geom_dict(case, levs, ntiles, layout, io_layout):
                 'filetype': 'fms restart',
                 'skip coupler file': 'true',
                 'state variables': '[orog_filt]',
-                # datapath will be changed before we add the land DA to the workflow 
+                # datapath will be changed before we add the land DA to the workflow
                 'datapath': '/scratch2/BMC/gsienkf/Clara.Draper/data_RnR/orog_files_Mike/',
                 'filename_orog': 'C'+str(case)+'_oro_data.nc',
             }
