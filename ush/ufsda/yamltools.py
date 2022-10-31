@@ -45,10 +45,8 @@ def parse_config(input_config_dict, template=None, clean=True):
     # add input_config_dict vars to config for substitutions
     config_out.update(input_config_dict)
     # compute common resolution variables
-    if config_out.get('atm', True):
-        config_out = atmanl_case(config_out)
-    elif config_out.get('land', True):
-        config_out = landanl_case(config_out)
+    if config_out.get('atm', True) or config_out.get('land', True):
+        config_out = fv3anl_case(config_out)
     else:
         raise KeyError("Neither $(atm) nor $(land) defined")
     config_out.pop('atm', None)  # pop out boolean variable that will cause issues later
@@ -71,7 +69,7 @@ def parse_config(input_config_dict, template=None, clean=True):
     return config_out
 
 
-def atmanl_case(config):
+def fv3anl_case(config):
     # compute atm analysis case/res variables based on environment and/or config
     case = int(config.get('CASE', os.environ.get('CASE', 'C768'))[1:])
     case_anl = int(config.get('CASE_ANL', os.environ.get('CASE_ANL', 'C384'))[1:])
@@ -93,39 +91,18 @@ def atmanl_case(config):
         str(os.environ.get('layout_y', '$(layout_y)')),
     ]
     io_layout = ['1', '1']  # force to be one file for forseeable future
-    config['GEOM_BKG'] = fv3_geom_dict(case, levs, ntiles, layout, io_layout)
-    config['GEOM_ANL'] = fv3_geom_dict(case_anl, levs, ntiles, layout, io_layout)
-    return config
-
-
-def landanl_case(config):
-    # compute land analysis case/res variables based on environment and/or config
-    case = int(config.get('CASE', os.environ.get('CASE', 'C768'))[1:])
-    case_anl = int(config.get('CASE_ANL', os.environ.get('CASE_ANL', 'C384'))[1:])
-    case_enkf = int(config.get('CASE_ENKF', os.environ.get('CASE_ENKF', 'C384'))[1:])
-    levs = int(config.get('LEVS', os.environ.get('LEVS', '128')))
-    if 'DOHYBVAR' in config:
-        dohybvar = config['DOHYBVAR']
-        del config['DOHYBVAR']
+    if config.get('atm', True):
+        config['GEOM_BKG'] = fv3atm_geom_dict(case, levs, ntiles, layout, io_layout)
+        config['GEOM_ANL'] = fv3atm_geom_dict(case_anl, levs, ntiles, layout, io_layout)
+    elif config.get('land', True):
+        config['GEOM_BKG'] = fv3land_geom_dict(case, levs, ntiles, layout, io_layout)
+        config['GEOM_ANL'] = fv3land_geom_dict(case_anl, levs, ntiles, layout, io_layout)
     else:
-        dohybvar = isTrue(os.environ.get('DOHYBVAR', 'NO'))
-    # if dohybar is true, we currently need to ensure case_enkf = case_anl
-    if dohybvar and not case_enkf == case_anl:
-        raise ValueError(f"dohybvar is '{dohybvar}' but case_enkf= '{case_enkf}' does not equal case_anl= '{case_anl}'")
-
-    # get background geometry
-    ntiles = 6  # global, fix later to be more generic
-    layout = [
-        str(os.environ.get('layout_x', '$(layout_x)')),
-        str(os.environ.get('layout_y', '$(layout_y)')),
-    ]
-    io_layout = ['1', '1']  # force to be one file for forseeable future
-    config['GEOM_BKG'] = fv3land_geom_dict(case, levs, ntiles, layout, io_layout)
-    config['GEOM_ANL'] = fv3land_geom_dict(case_anl, levs, ntiles, layout, io_layout)
+        raise KeyError("Neither $(atm) nor $(land) defined")
     return config
 
 
-def fv3_geom_dict(case, levs, ntiles, layout, io_layout):
+def fv3atm_geom_dict(case, levs, ntiles, layout, io_layout):
     # returns a dictionary matching FV3-JEDI global geometry entries
     outdict = {
         'fms initialization': {
@@ -166,6 +143,7 @@ def fv3land_geom_dict(case, levs, ntiles, layout, io_layout):
                 'filetype': 'fms restart',
                 'skip coupler file': 'true',
                 'state variables': '[orog_filt]',
+              # 'datapath' will be changed before we add the land DA to the workflow. 
                 'datapath': '/scratch2/BMC/gsienkf/Clara.Draper/data_RnR/orog_files_Mike/',
                 'filename_orog': 'C'+str(case)+'_oro_data.nc',
             }
