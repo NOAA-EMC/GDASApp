@@ -13,7 +13,7 @@ background:
        datapath: bkg/mem%mem%/RESTART
        filename_sfcd: $(LAND_BKG_YYYYmmddHHMMSS).sfc_data.nc
        filename_cplr: $(LAND_BKG_YYYYmmddHHMMSS).coupler.res
-     pattern: '%mem%'
+     pattern: 2
      nmembers: $(NMEM_LETKFOI)
      zero padding: 3
 
