@@ -92,7 +92,7 @@ cd {working_dir}
             f.write(f"source load_envar.sh\n")
             f.write(f"{scripts_path}/exgdas_global_marine_analysis_prep.py\n")
             f.write(f"cd {working_dir}/analysis\n")
-            f.write(f"export APRUN_SOCAANAL=\"{job_config['mpiexec']} {job_config['mpinproc']} {job_config['ntasks']}\"\n")
+            f.write(f"export APRUN_OCNANAL=\"{job_config['mpiexec']} {job_config['mpinproc']} {job_config['ntasks']}\"\n")
             f.write(f"{scripts_path}/exgdas_global_marine_analysis_run.sh\n")
     logging.info(f"Wrote batch submission script to {batch_script}")
 

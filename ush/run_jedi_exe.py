@@ -137,12 +137,10 @@ def run_jedi_exe(yamlconfig):
         gdasapp_bin = os.path.join(gdasapp_home, 'build', 'bin')
         homegfs = os.path.join(workdir, 'HOMEgfs')
         aprun_socaanal = all_config_dict['job options']['mpiexec']+' '+str(all_config_dict['job options']['ntasks'])
-        comin_ges_src = os.path.join(all_config_dict['model background']['ocn'], 'RESTART')
+        comin_ges_src = os.path.join(all_config_dict['model backgrounds']['ocn'], 'RESTART')
         ufsda.disk_utils.mkdir(os.path.join(workdir, 'RESTART'))
         ufsda.disk_utils.copytree(comin_ges_src, os.path.join(workdir, 'RESTART'))
-        comin_ges = os.path.join(workdir)
-        # TODO (Guillaume): No clue what is actually needed to run within the global-workflow. revisit
-        #                   and consolidate with the atm when mom6-cice6 can be run with the gw.
+
         runtime_envar = {
             'CDATE': cdate,
             'GDATE': gdate,
@@ -153,7 +151,7 @@ def run_jedi_exe(yamlconfig):
             'COMOUT': workdir,
             'DATA': os.path.join(workdir, 'analysis'),
             'COMIN_OBS': all_config_dict['r2d2 options']['root'],
-            'COMIN_GES': comin_ges,
+            'COMIN_GES': all_config_dict['model backgrounds']['ocn'],
             'CDUMP': 'gdas',
             'GDUMP': 'gdas',
             'CASE_ANL': "C48",
@@ -161,20 +159,21 @@ def run_jedi_exe(yamlconfig):
             'DOHYBVAR': 'False',
             'CASE_ENKF': "C192",
             'LEVS': '75',
-            'OBS_LIST': os.path.join(gdasapp_home, 'parm', 'soca', 'obs', 'obs_list.yaml'),
-            'OBS_YAML': os.path.join(gdasapp_home, 'parm', 'soca', 'obs', 'obs_list.yaml'),
-            'OBS_YAML_DIR': os.path.join(gdasapp_home, 'parm', 'soca', 'obs', 'config'),
+            'OBS_YAML_DIR': executable_subconfig['obs_yaml_dir'],
+            'OBS_LIST': executable_subconfig['obs_list'],
+            'OBS_YAML': executable_subconfig['obs_list'],
             'JEDI_BIN': gdasapp_bin,
             'HOMEgfs': homegfs,
             'SOCA_INPUT_FIX_DIR': all_config_dict['jedi static']['soca']['path'],
             'STATICB_DIR': os.path.join(workdir, 'soca_static'),
             'R2D2_OBS_DB': 'shared',
-            'R2D2_OBS_DUMP': 'soca',
-            'R2D2_OBS_SRC': 'gdasapp',
+            'R2D2_OBS_DUMP': all_config_dict['r2d2 options']['obs_dump'],
+            'R2D2_OBS_SRC': all_config_dict['r2d2 options']['obs_src'],
             'R2D2_OBS_WINDOW': '24',
             'FV3JEDI_STAGE_YAML': os.path.join(gdasapp_home, 'test', 'soca', 'testinput', 'dumy.yaml'),
             'DOMAIN_STACK_SIZE': all_config_dict['fms']['domain_stack_size'],
-            'SOCA_VARS': all_config_dict['jedi static']['soca']['variables'],
+            'SOCA_VARS': all_config_dict['jedi options']['soca']['variables'],
+            'SOCA_NINNER': all_config_dict['jedi options']['soca']['ninner'],
         }
 
         # do something to resolve gw env. variables

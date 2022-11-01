@@ -50,15 +50,14 @@ def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[4-9]'
     """
     files = glob.glob(bkg_path+'/*'+file_type+'*')
     files.sort()
-
     # Fix missing value in diag files
     for v in ['Temp', 'Salt', 'ave_ssh', 'h', 'MLD']:
         for att in ["_FillValue", "missing_value"]:
             fix_diag_ch_jobs = []  # change att value
             fix_diag_d_jobs = []   # delete att
             for bkg in files:
-                fix_diag_ch_jobs.append('ncatted -a '+att+','+v+',o,d,9999.0 '+bkg)
-                fix_diag_d_jobs.append('ncatted -a '+att+','+v+',d,d,1.0 '+bkg)
+                fix_diag_ch_jobs.append('ncatted -h -a '+att+','+v+',o,d,9999.0 '+bkg)
+                fix_diag_d_jobs.append('ncatted -h -a '+att+','+v+',d,d,1.0 '+bkg)
 
             for c in fix_diag_ch_jobs:
                 logging.info(f"{c}")
