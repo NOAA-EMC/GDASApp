@@ -50,8 +50,6 @@ def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[4-9]'
     """
     files = glob.glob(bkg_path+'/*'+file_type+'*')
     files.sort()
-    logging.info(f"=============== BKG ==================")
-    logging.info(f"{files}")
     # Fix missing value in diag files
     for v in ['Temp', 'Salt', 'ave_ssh', 'h', 'MLD']:
         for att in ["_FillValue", "missing_value"]:
