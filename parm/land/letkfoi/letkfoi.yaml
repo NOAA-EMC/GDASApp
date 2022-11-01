@@ -13,8 +13,8 @@ background:
        datapath: bkg/mem%mem%/RESTART
        filename_sfcd: $(LAND_BKG_YYYYmmddHHMMSS).sfc_data.nc
        filename_cplr: $(LAND_BKG_YYYYmmddHHMMSS).coupler.res
-     pattern: 2
-     nmembers: $(NMEM_LETKFOI)
+     pattern: '%mem%'
+     nmembers: 2
      zero padding: 3
 
 observations: $<< $(OBS_LIST)
