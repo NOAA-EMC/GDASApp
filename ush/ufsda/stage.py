@@ -34,12 +34,7 @@ def gdas_fix(input_fix_dir, working_dir, config):
     layers = int(config['LEVS'])-1
 
     # figure out staticb source
-    if config['STATICB_TYPE'] == 'bump':
-        staticb_source = 'bump'
-    elif config['STATICB_TYPE'] == 'identity':
-        staticb_source = 'identity'
-    else:
-        staticb_source = 'gsibec'
+    staticb_source = config.get('STATICB_TYPE', 'gsibec')
 
     # link staticb
     if staticb_source in ['bump', 'gsibec']:
