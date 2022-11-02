@@ -44,7 +44,7 @@ print(f"sys.path={sys.path}")
 import ufsda
 
 
-def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[4-9]', yaml_name='bkg.yaml'):
+def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]', yaml_name='bkg.yaml'):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
     """
@@ -244,12 +244,12 @@ bkg_rst = 'MOM.res.'+window_begin.strftime('%Y-%m-%d-%H-%M-%S')+'.nc'
 if not os.path.isfile(os.path.join(stage_cfg['background_dir'], 'RESTART', bkg_rst)):
     # TODO (G): A bit dangerous, assert that date of MOM.res.nc is correct
     bkg_rst = 'MOM.res.nc'
-ufsda.disk_utils.symlink(os.path.join(stage_cfg['background_dir'], 'RESTART', bkg_rst),
-                         os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
-# TODO (G): Doing what's below should alaways work, but currently segfaulting ...
-# diag_ic = os.path.join(os.getenv('COMIN_GES'), 'gdas.t12z.ocnf003.nc')
-# ufsda.disk_utils.symlink(diag_ic,
+#ufsda.disk_utils.symlink(os.path.join(stage_cfg['background_dir'], 'RESTART', bkg_rst),
 #                         os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
+# TODO (G): Doing what's below should alaways work, but currently segfaulting ...
+diag_ic = os.path.join(os.getenv('COMIN_GES'), 'gdas.t12z.ocnf003.nc')
+ufsda.disk_utils.symlink(diag_ic,
+                         os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
 
 # prepare input.nml
 mom_input_nml_src = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')

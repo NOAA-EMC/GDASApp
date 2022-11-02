@@ -42,7 +42,7 @@ function socaincr2mom6 {
 
   echo "at socaincr2mom6" $bkg $grid
 
-  cp $incr inc.nc                   # TODO: use accumulated incremnet, not outerloop intermediates
+  cp $incr inc.nc                   # TODO: use accumulated increment, not outerloop intermediates
   ncks -A -C -v h $bkg inc.nc       # Replace h incrememnt (all 0's) by h background (expected by MOM)
   ncrename -d zaxis_1,Layer inc.nc  # Rename zaxis_1 to Layer
   ncks -A -C -v Layer $bkg inc.nc   # Replace dimension-less Layer with dimensional Layer
