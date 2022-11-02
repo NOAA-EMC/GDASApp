@@ -86,9 +86,6 @@ def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]'
     test_hist_date(os.path.join(bkg_path, ocn_filename_ic), bkg_date) # make sure the date of the history file
                                                                       # is correct
     for bkg in files:
-        # TODO (G): DANGER!!! There is no error trap in soca to assert that the date
-        #           of the background is consistent with the date in the yaml.
-        #           Check here?
         test_hist_date(bkg, bkg_date) # make sure the date of the history file
                                       # is correct
         ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'

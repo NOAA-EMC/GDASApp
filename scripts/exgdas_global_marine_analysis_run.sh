@@ -39,7 +39,7 @@ function socaincr2mom6 {
   scratch=scratch_socaincr2mom6
   mkdir -p $scratch
   cd $scratch
-  cp $incr inc.nc                   # TODO: use accumulated increment, not outerloop intermediates
+  cp $incr inc.nc                   # TODO: I don't think we need to make a copy
   ncrename -d zaxis_1,Layer inc.nc  # Rename zaxis_1 to Layer
   ncks -A -C -v h $bkg h.nc         # Get h from background and rename axes to be consistent with inc.nc
   ncrename -d time,Time -d zl,Layer -d xh,xaxis_1 -d yh,yaxis_1 h.nc
