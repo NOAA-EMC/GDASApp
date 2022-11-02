@@ -29,14 +29,20 @@ echo "============================= Testing the existence of obs and bkg in var.
 obslist=`grep 'gdas.t12z' $COMOUT/analysis/var.yaml`
 for o in $obslist; do
     echo "----------------------- "$o
-    if [ "$o" == "obsfile:" ]; then
-      base=''
-      continue
-    fi
-    if [ "$o" == "ocn_filename:" ]; then
-      base=${project_binary_dir}/test/soca/bkg/
-      continue
-    fi
+    case $o in
+        "obsfile:")
+            base=''
+            continue
+            ;;
+        "ocn_filename:")
+            base=${project_binary_dir}/test/soca/bkg/
+            continue
+            ;;
+        "remap_filename:")
+            base=''
+            continue
+            ;;
+    esac
     test_file ${base}$o
 done
 
