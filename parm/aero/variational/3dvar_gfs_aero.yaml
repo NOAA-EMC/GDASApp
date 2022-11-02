@@ -41,7 +41,7 @@ final:
     geometry: $(GEOM_BKG)
     output: 
       datapath: $(ANL_DIR)
-      prefix: aeroinc. 
+      prefix: aeroinc
       filetype: fms restart
       filename_core: $(BKG_YYYYmmddHHMMSS).fv_core.res.nc
       filename_trcr: $(BKG_YYYYmmddHHMMSS).fv_tracer.res.nc
