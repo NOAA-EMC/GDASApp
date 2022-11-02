@@ -44,12 +44,14 @@ print(f"sys.path={sys.path}")
 # import UFSDA utilities
 import ufsda
 
+
 def test_hist_date(histfile, ref_date):
     ncf = Dataset(histfile, 'r')
     hist_date = dparser.parse(ncf.variables['time'].units, fuzzy=True) + timedelta(hours=int(ncf.variables['time'][0]))
     ncf.close()
     logging.info(f"*** history file date: {hist_date} expected date: {ref_date}")
     assert hist_date == ref_date, 'Inconsistent bkg date'
+
 
 def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]', yaml_name='bkg.yaml'):
     """
@@ -83,18 +85,17 @@ def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]'
     bkg_list = []
     bkg_date = window_begin
     ocn_filename_ic = os.path.splitext(os.path.basename(files[0]))[0]+'.nc'
-    test_hist_date(os.path.join(bkg_path, ocn_filename_ic), bkg_date) # make sure the date of the history file
-                                                                      # is correct
+    test_hist_date(os.path.join(bkg_path, ocn_filename_ic), bkg_date)  # assert date of the history file is correct
+
     for bkg in files:
-        test_hist_date(bkg, bkg_date) # make sure the date of the history file
-                                      # is correct
+        test_hist_date(bkg, bkg_date)  # assert date of the history file is correct
         ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'
         bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',
                     'ocn_filename': ocn_filename,
                     'read_from_file': 1,
                     'remap_filename': os.path.join(bkg_path, ocn_filename_ic)}
-        bkg_date = bkg_date + timedelta(hours=1) # TODO: make the bkg interval a configurable
+        bkg_date = bkg_date + timedelta(hours=1)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
     dict = {'states': bkg_list}
     f = open(yaml_name, 'w')
@@ -238,7 +239,7 @@ logging.info(f"{config}")
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
 
 # link of convenience
-diag_ic = glob.glob(os.path.join(os.getenv('COMIN_GES'), 'gdas.*.ocnf003.nc'))[0] 
+diag_ic = glob.glob(os.path.join(os.getenv('COMIN_GES'), 'gdas.*.ocnf003.nc'))[0]
 ufsda.disk_utils.symlink(diag_ic, os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
 
 # prepare input.nml
