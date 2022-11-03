@@ -1,17 +1,9 @@
-# (C) Copyright 2020 NOAA/NWS/NCEP/EMC
-#
-# This software is licensed under the terms of the Apache Licence Version 2.0
-# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-
 observations:
   - obs space:
       name: bufr
-      #obsdatain: "./testdata/bufr_sfcshp.bufr"
-      #obsdatain: "./testdata/shipsu.20180415_subsampled"
       obsdatain: "./testdata/ships.20180415_subsampled"
 
       exports:
-        group_by_variable: depth
         variables:
           timestamp:
             datetime:
@@ -26,31 +18,27 @@ observations:
             query: "*/RPID"
 
           longitude:
-            query: "*/CLONH"
+            query: "*/CLON"
 
           latitude:
-            query: "*/CLATH"
+            query: "*/CLAT"
 
           sst:
-            query: "*/SST0"
+            query: "*/SST1"
+            transforms:
+              - offset: -273.15
 
-          t-profile:
-            query: "*/IDMSMDBS/BBYSTSL/SST1"
-
-          s-profile:
-            query: "*/IDMSMDBS/BBYSTSL/SALN"
-
-          depth:
-            query: "*/IDMSMDBS/BBYSTSL/DBSS"
+          method:
+            query: "*/MSST"
 
     ioda:
       backend: netcdf
-      obsdataout: "./testoutput/bufr_sfcshp.nc"
+      obsdataout: "./testoutput/bufr_sfcship.nc"
 
       globals:
         - name: "dataType@MetaData"
           type: string
-          value: "Moored Buoy"
+          value: "Surface Ship"
 
       dimensions:
         - name: Levels
@@ -80,22 +68,15 @@ observations:
           units: "degrees_east"
           range: [-180, 180]
 
+        - name: "method@MetaData"
+          source: variables/method
+          longName: "Method of Measurement"
+          units: "string"
+ 
         - name: "seaSurfaceTemperature@ObsValue"
           coordinates: "longitude latitude"
           source: variables/sst
-          longName: "Sea Surface Temperature"
-          units: "K"
-          range: [250, 320]
+          longName: "sea_surface_temperature"
+          units: "deg C"
+          range: [-23.0, 40.0]
 
-        - name: "depthBelowWaterSurface@MetaData"
-          coordinates: "longitude latitude Levels"
-          source: variables/depth
-          longName: "Water Depth Below Surface"
-          units: "m"
-
-        - name: "waterTemperature@ObsValue"
-          coordinates: "longitude latitude Levels"
-          source: variables/t-profile
-          longName: "Sea Water Temperature"
-          units: "K"
-          range: [250, 320]
