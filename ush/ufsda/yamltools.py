@@ -184,7 +184,7 @@ def calc_time_vars(config):
         win_end = valid_time_obj + datetime.timedelta(hours=int(h)/2)
         config['ATM_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
         config['ATM_WINDOW_END'] = win_end.strftime('%Y-%m-%dT%H:%M:%SZ')
-        config['BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
+        config['ATM_BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
     # get land window begin
     elif 'land_window_length' in config.keys():
         h = re.findall('PT(\\d+)H', config['LAND_WINDOW_LENGTH'])[0]
