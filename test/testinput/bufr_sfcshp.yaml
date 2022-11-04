@@ -12,9 +12,8 @@ observations:
               day: "*/DAYS"
               hour: "*/HOUR"
               minute: "*/MINU"
-              second: ""
 
-          stationID:
+          stationIdentification:
             query: "*/RPID"
 
           longitude:
@@ -28,7 +27,7 @@ observations:
             transforms:
               - offset: -273.15
 
-          method:
+          waterTemperatureMethod:
             query: "*/MSST"
 
     ioda:
@@ -40,11 +39,6 @@ observations:
           type: string
           value: "Surface Ship"
 
-      dimensions:
-        - name: Levels
-          paths:
-            - "*/IDMSMDBS/BBYSTSL"
-
       variables:
         - name: "datetime@MetaData"
           source: variables/timestamp
@@ -52,7 +46,7 @@ observations:
           units: "datetime"
 
         - name: "stationIdentification@MetaData"
-          source: variables/stationID
+          source: variables/stationIdentification
           longName: "Report Identifier"
           units: "string"
 
@@ -68,10 +62,9 @@ observations:
           units: "degrees_east"
           range: [-180, 180]
 
-        - name: "method@MetaData"
-          source: variables/method
-          longName: "Method of Measurement"
-          units: "string"
+        - name: "waterTemperatureMethod@MetaData"
+          source: variables/waterTemperatureMethod
+          longName: "Method of Water Temperature Measurement"
  
         - name: "seaSurfaceTemperature@ObsValue"
           coordinates: "longitude latitude"
