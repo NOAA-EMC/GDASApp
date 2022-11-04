@@ -66,10 +66,10 @@ observations:
           source: variables/waterTemperatureMethod
           longName: "Method of Water Temperature Measurement"
  
-        - name: "seaSurfaceTemperature@ObsValue"
+        - name: sea_surface_temperature
           coordinates: "longitude latitude"
           source: variables/sst
-          longName: "sea_surface_temperature"
+          longName: "Sea Surface Temperature"
           units: "deg C"
           range: [-23.0, 40.0]
 
