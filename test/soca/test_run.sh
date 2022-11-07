@@ -6,6 +6,17 @@ project_source_dir=$2
 
 source ${project_source_dir}/test/soca/test_utils.sh
 
+# Clean test files created during a previous test
+echo "============================= Test that the grid has been generated"
+rm -f ${project_binary_dir}/test/soca/3dvar/analysis/soca_gridspec.nc
+rm -f  ${project_binary_dir}/test/soca/3dvar/analysis/ocn.bkgerr_stddev.incr.2018-04-15T09:00:00Z.nc
+rm -f  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.iter1.incr.2018-04-15T09:00:00Z.nc
+rm -f  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pseudo.incr.2018-04-15T09:00:00Z.nc
+rm -f  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T09:00:00Z.nc
+rm -f  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T12:00:00Z.nc
+rm -f  ${project_binary_dir}/test/soca/3dvar/analysis/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T15:00:00Z.nc
+rm -f  ${project_binary_dir}/test/soca/3dvar/analysis/Data/inc.nc
+
 # Export runtime env. variables
 source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $project_source_dir
 

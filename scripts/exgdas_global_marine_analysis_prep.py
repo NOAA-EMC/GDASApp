@@ -28,6 +28,7 @@ import shutil
 import logging
 import subprocess
 from datetime import datetime, timedelta
+from netCDF4 import Dataset
 
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -44,46 +45,38 @@ print(f"sys.path={sys.path}")
 import ufsda
 
 
-def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[4-9]', yaml_name='bkg.yaml'):
+def test_hist_date(histfile, ref_date):
+    ncf = Dataset(histfile, 'r')
+    hist_date = dparser.parse(ncf.variables['time'].units, fuzzy=True) + timedelta(hours=int(ncf.variables['time'][0]))
+    ncf.close()
+    logging.info(f"*** history file date: {hist_date} expected date: {ref_date}")
+    assert hist_date == ref_date, 'Inconsistent bkg date'
+
+
+def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]', yaml_name='bkg.yaml'):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
+    TODO: [3-9] shouldn't be hard-coded. Instead construct the list of background dates for the cycle
+                and grab the files that correspond to the dates.
     """
-    files = glob.glob(bkg_path+'/*'+file_type+'*')
-    files.sort()
-    # Fix missing value in diag files
-    for v in ['Temp', 'Salt', 'ave_ssh', 'h', 'MLD']:
-        for att in ["_FillValue", "missing_value"]:
-            fix_diag_ch_jobs = []  # change att value
-            fix_diag_d_jobs = []   # delete att
-            for bkg in files:
-                fix_diag_ch_jobs.append('ncatted -h -a '+att+','+v+',o,d,9999.0 '+bkg)
-                fix_diag_d_jobs.append('ncatted -h -a '+att+','+v+',d,d,1.0 '+bkg)
-
-            for c in fix_diag_ch_jobs:
-                logging.info(f"{c}")
-                os.system(c)
-                result = subprocess.run(c, stdout=subprocess.PIPE, shell=True)
-                result.stdout.decode('utf-8')
-
-            for c in fix_diag_d_jobs:
-                logging.info(f"{c}")
-                os.system(c)
-                result = subprocess.run(c, stdout=subprocess.PIPE, shell=True)
-                result.stdout.decode('utf-8')
 
     # Create yaml of list of backgrounds
     bkg_list = []
-    bkg_date = window_begin + timedelta(hours=1)
+    bkg_date = window_begin
+    files = glob.glob(bkg_path+'/*'+file_type+'*')
+    files.sort()
+    ocn_filename_ic = os.path.splitext(os.path.basename(files[0]))[0]+'.nc'
+    test_hist_date(os.path.join(bkg_path, ocn_filename_ic), bkg_date)  # assert date of the history file is correct
+
     for bkg in files:
-        # TODO (G): DANGER!!! There is no error trap in soca to assert that the date
-        #           of the background is consistent with the date in the yaml.
-        #           Check here?
+        test_hist_date(bkg, bkg_date)  # assert date of the history file is correct
         ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'
         bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',
                     'ocn_filename': ocn_filename,
-                    'read_from_file': 1}
-        bkg_date = bkg_date + timedelta(hours=1)
+                    'read_from_file': 1,
+                    'remap_filename': os.path.join(bkg_path, ocn_filename_ic)}
+        bkg_date = bkg_date + timedelta(hours=1)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
     dict = {'states': bkg_list}
     f = open(yaml_name, 'w')
@@ -227,27 +220,8 @@ logging.info(f"{config}")
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
 
 # link of convenience
-# TODO (G): The last restart dumped by MOM6 at the end of the forecast does not
-#           include a date in the file name (MOM.res.nc) but intermittent restarts do.
-#           What's below will probably never work, and/or rarely/never
-#           point to the correct background at the start of the window.
-#           Since we are doing FGAT, MOM.res.nc should point to the restart at the begining
-#           of the DA window.
-# TODO (G): Check for consistency between MOM.res.nc at t=0 and the diag files read by the
-#           pseudo model. Is the vertical geometry the same? Do we care if it isn't?
-# TODO (G): We should be able to use a diag file in the "background" definition in var.yaml
-#           instead of a restart but we end up with NaN's after going through the "linear model".
-#           Check why ...
-bkg_rst = 'MOM.res.'+window_begin.strftime('%Y-%m-%d-%H-%M-%S')+'.nc'
-if not os.path.isfile(os.path.join(stage_cfg['background_dir'], 'RESTART', bkg_rst)):
-    # TODO (G): A bit dangerous, assert that date of MOM.res.nc is correct
-    bkg_rst = 'MOM.res.nc'
-ufsda.disk_utils.symlink(os.path.join(stage_cfg['background_dir'], 'RESTART', bkg_rst),
-                         os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
-# TODO (G): Doing what's below should alaways work, but currently segfaulting ...
-# diag_ic = os.path.join(os.getenv('COMIN_GES'), 'gdas.t12z.ocnf003.nc')
-# ufsda.disk_utils.symlink(diag_ic,
-#                         os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
+diag_ic = glob.glob(os.path.join(os.getenv('COMIN_GES'), 'gdas.*.ocnf003.nc'))[0]
+ufsda.disk_utils.symlink(diag_ic, os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
 
 # prepare input.nml
 mom_input_nml_src = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
