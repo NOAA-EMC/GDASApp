@@ -55,6 +55,7 @@ list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_tesac.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_trkob.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_sfcshp.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_sfcshpu.yaml
 )
 
 # create testinput dir

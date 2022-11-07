@@ -1,7 +1,7 @@
 observations:
   - obs space:
       name: bufr
-      obsdatain: "./testdata/ships.20180415_subsampled"
+      obsdatain: "./testdata/shipsu.20180415_subsampled"
 
       exports:
         variables:
@@ -32,7 +32,7 @@ observations:
 
     ioda:
       backend: netcdf
-      obsdataout: "./testoutput/bufr_sfcship_20180415.nc"
+      obsdataout: "./testoutput/bufr_sfcshipu_20180415.nc"
 
       globals:
         - name: "dataType@MetaData"

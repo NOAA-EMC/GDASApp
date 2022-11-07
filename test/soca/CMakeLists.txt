@@ -51,6 +51,10 @@ if(BUILD_GDASBUNDLE)
            COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_sfcshp.yaml
            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
+  add_test(NAME test_gdasapp_convert_bufr_sfcshpu
+           COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_sfcshpu.yaml
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
   # Symlink test input yaml files
   # -----------------------------
   # create testinput dir
