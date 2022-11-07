@@ -32,7 +32,7 @@ observations:
 
     ioda:
       backend: netcdf
-      obsdataout: "./testoutput/bufr_sfcshipu_20180415.nc"
+      obsdataout: "./testoutput/bufr_sfcshipsu_20180415.nc"
 
       globals:
         - name: "dataType@MetaData"
