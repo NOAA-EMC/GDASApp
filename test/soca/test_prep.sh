@@ -16,7 +16,7 @@ source ${project_source_dir}/test/soca/static.sh $project_binary_dir $project_so
 i=3
 lof=`ls ${project_binary_dir}/test/soca/bkg/RESTART/ocn_da_*`
 for f in $lof; do
-  ln -sf $f ${project_binary_dir}/test/soca/bkg/gdas.t12z.ocnf00$i.nc
+  cp $f ${project_binary_dir}/test/soca/bkg/gdas.t12z.ocnf00$i.nc
   i=$(($i+1))
 done
 

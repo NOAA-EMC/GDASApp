@@ -56,34 +56,15 @@ def test_hist_date(histfile, ref_date):
 def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]', yaml_name='bkg.yaml'):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
+    TODO: [3-9] shouldn't be hard-coded. Instead construct the list of background dates for the cycle
+                and grab the files that correspond to the dates.
     """
-    files = glob.glob(bkg_path+'/*'+file_type+'*')
-    files.sort()
-
-    # Fix missing value in diag files
-    for v in ['Temp', 'Salt', 'ave_ssh', 'h', 'MLD']:
-        for att in ["_FillValue", "missing_value"]:
-            fix_diag_ch_jobs = []  # change att value
-            fix_diag_d_jobs = []   # delete att
-            for bkg in files:
-                fix_diag_ch_jobs.append('ncatted -h -a '+att+','+v+',o,d,9999.0 '+bkg)
-                fix_diag_d_jobs.append('ncatted -h -a '+att+','+v+',d,d,1.0 '+bkg)
-
-            for c in fix_diag_ch_jobs:
-                logging.info(f"{c}")
-                os.system(c)
-                result = subprocess.run(c, stdout=subprocess.PIPE, shell=True)
-                result.stdout.decode('utf-8')
-
-            for c in fix_diag_d_jobs:
-                logging.info(f"{c}")
-                os.system(c)
-                result = subprocess.run(c, stdout=subprocess.PIPE, shell=True)
-                result.stdout.decode('utf-8')
 
     # Create yaml of list of backgrounds
     bkg_list = []
     bkg_date = window_begin
+    files = glob.glob(bkg_path+'/*'+file_type+'*')
+    files.sort()
     ocn_filename_ic = os.path.splitext(os.path.basename(files[0]))[0]+'.nc'
     test_hist_date(os.path.join(bkg_path, ocn_filename_ic), bkg_date)  # assert date of the history file is correct
 
