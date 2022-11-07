@@ -32,9 +32,15 @@ def gdas_fix(input_fix_dir, working_dir, config):
     else:
         case_anl = config['CASE_ANL']
     layers = int(config['LEVS'])-1
-    # link static B files
-    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'bump', case_anl),
-                             config['fv3jedi_staticb_dir'])
+
+    # figure out staticb source
+    staticb_source = config.get('STATICB_TYPE', 'gsibec')
+
+    # link staticb
+    if staticb_source in ['bump', 'gsibec']:
+        ufsda.disk_utils.symlink(os.path.join(input_fix_dir, staticb_source, case_anl),
+                                 config['fv3jedi_staticb_dir'])
+
     # link akbk file
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
                                           'fv3files', f"akbk{layers}.nc4"),
