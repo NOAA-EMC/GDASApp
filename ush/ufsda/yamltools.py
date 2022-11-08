@@ -178,21 +178,12 @@ def calc_time_vars(config):
     else:
         raise KeyError("Neither $(atm_window_length) nor ${assim_freq} defined")
     # get atm window begin
-    if 'atm_window_length' in config.keys():
-        h = re.findall('PT(\\d+)H', config['ATM_WINDOW_LENGTH'])[0]
-        win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
-        win_end = valid_time_obj + datetime.timedelta(hours=int(h)/2)
-        config['ATM_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
-        config['ATM_WINDOW_END'] = win_end.strftime('%Y-%m-%dT%H:%M:%SZ')
-        config['ATM_BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
-    # get land window begin
-    elif 'land_window_length' in config.keys():
-        h = re.findall('PT(\\d+)H', config['LAND_WINDOW_LENGTH'])[0]
-        win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
-        win_end = valid_time_obj + datetime.timedelta(hours=int(h)/2)
-        config['LAND_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
-        config['LAND_WINDOW_END'] = win_end.strftime('%Y-%m-%dT%H:%M:%SZ')
-        config['LAND_BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
+    h = re.findall('PT(\\d+)H', config['ATM_WINDOW_LENGTH'])[0]
+    win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
+    win_end = valid_time_obj + datetime.timedelta(hours=int(h)/2)
+    config['ATM_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
+    config['ATM_WINDOW_END'] = win_end.strftime('%Y-%m-%dT%H:%M:%SZ')
+    config['BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
     return config
 
 
