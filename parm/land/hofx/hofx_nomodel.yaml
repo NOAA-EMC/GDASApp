@@ -1,0 +1,11 @@
+window begin: '$(LAND_WINDOW_BEGIN)'
+window length: $(LAND_WINDOW_LENGTH)
+geometry: $(GEOM_BKG)
+state:
+  datapath: $(BKG_DIR)
+  filetype: fms restart
+  datetime: $(LAND_BKG_ISOTIME)
+  filename_sfcd: $(LAND_BKG_YYYYmmddHHMMSS).sfc_data.nc
+  filename_cplr: $(LAND_BKG_YYYYmmddHHMMSS).coupler.res
+  state variables: [snwdph,vtype,slmsk]
+observations: $<< $(OBS_LIST)

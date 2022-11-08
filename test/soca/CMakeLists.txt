@@ -2,7 +2,6 @@
 # ------------------
 set( TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
 file(GLOB bkg_diag "${TESTDATA}/ocn_da_2018_04_15_*.nc")
-list(APPEND bkg_diag "${TESTDATA}/MOM.res.nc")
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART_GES)
 file(COPY ${bkg_diag} DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
@@ -84,7 +83,6 @@ set_tests_properties(test_gdasapp_soca_obsdb
 
   # Test exgdas_global_marine_analysis_run.sh
   # -----------------------------------------
-# TODO (G): run step test below fails on Orion ...
   add_test(NAME test_gdasapp_soca_ana_run
            COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_run.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/analysis)

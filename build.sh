@@ -60,7 +60,7 @@ case ${BUILD_TARGET} in
     module purge
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET
-    CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC"
+    CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=ON"
     module list
     set -e
     ;;

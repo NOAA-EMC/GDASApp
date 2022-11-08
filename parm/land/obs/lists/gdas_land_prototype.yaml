@@ -1,0 +1,3 @@
+observers:
+- $<< $(OBS_YAML_DIR)/adpsfc_snow.yaml
+- $<< $(OBS_YAML_DIR)/ims_snow.yaml
