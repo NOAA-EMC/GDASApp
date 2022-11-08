@@ -1,14 +1,3 @@
-# Create a test R2D2 database for obs
-# -----------------------------------
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs)
-set( OBS_DIR ${PROJECT_BINARY_DIR}/test/testdata )
-add_test(NAME test_gdasapp_soca_obsdb
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/create_obsdb.py
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs/)
-set_tests_properties(test_gdasapp_soca_obsdb
-    PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
-
 # Copy the bkg files
 # ------------------
 set( TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
@@ -69,6 +58,17 @@ if(BUILD_GDASBUNDLE)
   # install
   install(FILES ${test_input}
           DESTINATION "test/testinput/")
+
+# Create a test R2D2 database for obs
+# -----------------------------------
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs)
+set( OBS_DIR ${PROJECT_BINARY_DIR}/test/testdata )
+add_test(NAME test_gdasapp_soca_obsdb
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/create_obsdb.py
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs/)
+set_tests_properties(test_gdasapp_soca_obsdb
+    PROPERTIES
+    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
 
   # Test exgdas_global_marine_analysis_prep.py
   # ------------------------------------------
