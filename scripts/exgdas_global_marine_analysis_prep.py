@@ -123,6 +123,7 @@ stage_cfg = ufsda.parse_config(templateyaml=os.path.join(gdas_home,
                                                          'templates',
                                                          'stage.yaml'), clean=True)
 
+stage_cfg['background_dir'] = os.getenv('COMIN_GES')
 # stage observations from R2D2 to COMIN_OBS and then link to analysis subdir
 ufsda.stage.obs(stage_cfg)
 
