@@ -70,7 +70,7 @@ def create_fv3inc(ncges, ncin, ncout):
 
     # Rename and change dimensionality of fields
     for name, variable in ncin.variables.items():
-        if len(variable.dimensions) in [3, 4]:
+        if len(variable.dimensions) in [4]:
             dimsout = variable.dimensions[1:]
             dimsout_inc = dimsout
         else:
@@ -84,7 +84,7 @@ def create_fv3inc(ncges, ncin, ncout):
                 tinc = name
 
             x = ncout.createVariable(vardict[name], 'f4', dimsout)
-            if len(variable.dimensions) in [3, 4]:
+            if len(variable.dimensions) in [4]:
                 ncout[vardict[name]][:] = ncin[name][0, ...]
             else:
                 ncout[vardict[name]][:] = ncin[name][:]

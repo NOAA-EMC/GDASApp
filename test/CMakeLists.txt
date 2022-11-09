@@ -1,7 +1,7 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "2f85f9469ee0788b3765a667fa6e9cd52b599dfb986b7dc773aaf4bcdaf05b4b")
+set(SHA "782aca0e0ff579557877129f242d0aa4c4252620233622ecacc1deaa524ca8ed")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
@@ -50,6 +50,10 @@ list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_test.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_adpsfc.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/amsua_n19_ewok.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_dbuoy.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_mbuoyb.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_tesac.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_trkob.yaml
 )
 
 # create testinput dir

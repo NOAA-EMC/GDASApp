@@ -39,15 +39,11 @@ function socaincr2mom6 {
   scratch=scratch_socaincr2mom6
   mkdir -p $scratch
   cd $scratch
-
-  echo "at socaincr2mom6" $bkg $grid
-
-  cp $incr inc.nc                   # TODO: use accumulated incremnet, not outerloop intermediates
-  ncks -A -C -v h $bkg inc.nc       # Replace h incrememnt (all 0's) by h background (expected by MOM)
+  cp $incr inc.nc                   # TODO: I don't think we need to make a copy
   ncrename -d zaxis_1,Layer inc.nc  # Rename zaxis_1 to Layer
-  ncks -A -C -v Layer $bkg inc.nc   # Replace dimension-less Layer with dimensional Layer
-  mv inc.nc inc_tmp.nc              # ... dummy copy
-  ncwa -O -a Time inc_tmp.nc inc.nc # Remove degenerate Time dimension
+  ncks -A -C -v h $bkg h.nc         # Get h from background and rename axes to be consistent with inc.nc
+  ncrename -d time,Time -d zl,Layer -d xh,xaxis_1 -d yh,yaxis_1 h.nc
+  ncks -A -C -v h h.nc inc.nc       # Replace h incrememnt (all 0's) by h background
   ncks -A -C -v lon $grid inc.nc    # Add longitude
   ncks -A -C -v lat $grid inc.nc    # Add latitude
   mv inc.nc $incr_out
@@ -88,33 +84,25 @@ function clean_yaml()
     sed -e "s/'//g" tmp_yaml > $1
 }
 
-# This is a hack for Orion. Remove when nco is built as part of the stack
-# loading nco should only be done at runtime currently since it reloads
-# udunits/2.2.28 => udunits/2.2.26
-if [[ "$HOSTNAME" =~ .*"Orion".* ]]; then
-    module load nco/4.9.3
-fi
-
 ################################################################################
 # generate soca geometry
 # TODO (Guillaume): Should not use all pe's for the grid generation
 # TODO (Guillaume): Does not need to be generated at every cycles, store in static dir?
-$APRUN_SOCAANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml 2>gridgen.err
+$APRUN_OCNANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml > gridgen.out 2>&1
 
 ################################################################################
 # Generate the parametric diag of B
-$APRUN_SOCAANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml 2>parametric_stddev_b.err
-
+$APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml > parametric_stddev_b.out 2>&1
 ################################################################################
 # Set decorrelation scales for bump C
-$APRUN_SOCAANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml 2>soca_setcorscales.err
+$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml > soca_setcorscales.out 2>&1
 
 # 2D C from bump
 yaml_list=`ls soca_bump2d_C*.yaml`
 for yaml in $yaml_list; do
     # TODO (G, C, R, ...): problem with ' character when reading yaml, removing from file for now
     clean_yaml $yaml
-    $APRUN_SOCAANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
+    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
 done
 concatenate_bump 'bump2d'
 
@@ -122,17 +110,19 @@ concatenate_bump 'bump2d'
 yaml_list=`ls soca_bump3d_C*.yaml`
 for yaml in $yaml_list; do
     clean_yaml $yaml
-    $APRUN_SOCAANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
+    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
 done
 concatenate_bump 'bump3d'
 
 ################################################################################
 # run 3DVAR FGAT
 clean_yaml var.yaml
-$APRUN_SOCAANAL $JEDI_BIN/soca_var.x var.yaml 2>var.err
+$APRUN_OCNANAL $JEDI_BIN/soca_var.x var.yaml > var.out 2>&1
 
 
 # increments update for MOM6
+# Note: ${DATA}/INPUT/MOM.res.nc points to the MOM6 history file from the start of the window
+#       and is used to get the valid vertical geometry of the increment
 ( socaincr2mom6 `ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1` ${DATA}/INPUT/MOM.res.nc ${DATA}/soca_gridspec.nc ${DATA}/Data/inc.nc )
 
 

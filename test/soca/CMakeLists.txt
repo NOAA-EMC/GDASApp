@@ -13,7 +13,6 @@ set_tests_properties(test_gdasapp_soca_obsdb
 # ------------------
 set( TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
 file(GLOB bkg_diag "${TESTDATA}/ocn_da_2018_04_15_*.nc")
-list(APPEND bkg_diag "${TESTDATA}/MOM.res.nc")
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART_GES)
 file(COPY ${bkg_diag} DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
@@ -28,6 +27,24 @@ endforeach(FILENAME)
 
 # tests below require the full build
 if(BUILD_GDASBUNDLE)
+
+  # link input file from iodaconv to test directory
+  # test convert BUFR to IODA
+  add_test(NAME test_gdasapp_convert_bufr_dbuoy
+           COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_dbuoy.yaml
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
+  add_test(NAME test_gdasapp_convert_bufr_mbuoyb
+           COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_mbuoyb.yaml
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
+  add_test(NAME test_gdasapp_convert_bufr_tesac
+           COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_tesac.yaml
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
+  add_test(NAME test_gdasapp_convert_bufr_trkob
+           COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_trkob.yaml
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
   # Symlink test input yaml files
   # -----------------------------
@@ -66,13 +83,12 @@ if(BUILD_GDASBUNDLE)
 
   # Test exgdas_global_marine_analysis_run.sh
   # -----------------------------------------
-# TODO (G): run step test below fails on Orion ...
-#  add_test(NAME test_gdasapp_soca_ana_run
-#           COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_run.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-#           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/analysis)
-#  set_tests_properties(test_gdasapp_soca_ana_run
-#        PROPERTIES
-#            DEPENDS "test_gdasapp_soca_ana_prep"
-#            ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
+  add_test(NAME test_gdasapp_soca_ana_run
+           COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_run.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/analysis)
+  set_tests_properties(test_gdasapp_soca_ana_run
+        PROPERTIES
+            DEPENDS "test_gdasapp_soca_ana_prep"
+            ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
 
 endif(BUILD_GDASBUNDLE)

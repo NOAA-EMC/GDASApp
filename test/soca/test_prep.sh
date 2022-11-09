@@ -12,17 +12,38 @@ source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $proj
 # Get low res static files from the soca sandbox
 source ${project_source_dir}/test/soca/static.sh $project_binary_dir $project_source_dir
 
+# MOM6's diag output needs to be renamed
+i=3
+lof=`ls ${project_binary_dir}/test/soca/bkg/RESTART/ocn_da_*`
+for f in $lof; do
+  cp $f ${project_binary_dir}/test/soca/bkg/gdas.t12z.ocnf00$i.nc
+  i=$(($i+1))
+done
+
 # Run prep step
 echo "============================= Testing exgdas_global_marine_analysis_prep.py for clean exit"
 ${project_source_dir}/scripts/exgdas_global_marine_analysis_prep.py > exgdas_global_marine_analysis_prep.log
 
 # Test that the obs path in var.yaml exist
-echo "============================= Testing the existence of obs in var.vaml"
+echo "============================= Testing the existence of obs and bkg in var.vaml"
 obslist=`grep 'gdas.t12z' $COMOUT/analysis/var.yaml`
 for o in $obslist; do
-    if [ ! "$o" == "obsfile:" ]; then
-        test_file $o
-    fi
+    echo "----------------------- "$o
+    case $o in
+        "obsfile:")
+            base=''
+            continue
+            ;;
+        "ocn_filename:")
+            base=${project_binary_dir}/test/soca/bkg/
+            continue
+            ;;
+        "remap_filename:")
+            base=''
+            continue
+            ;;
+    esac
+    test_file ${base}$o
 done
 
 # Test that the static files have been linked properly
