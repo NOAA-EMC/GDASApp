@@ -12,8 +12,10 @@ from dateutil import parser
 import ufsda
 import logging
 import glob
+import xarray
 
 __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
+
 
 def concatenate_ioda(iodafname):
     flist = glob.glob(iodafname+'*')
@@ -23,13 +25,22 @@ def concatenate_ioda(iodafname):
         shutil.move(flist[0], iodafname)
         return
 
-    # TODO: Eventually replace with Travis' concatenation tool (now in soca-science)
-    # Create a record dimension
-    command = "ncks -O --mk_rec_dmn nlocs "+flist[0]
-    os.system(command)
-    command = "ncrcat -h "+flist[0]+" "+flist[1:]+" "+iodafname
-    os.system(command)
+    if len(flist) > 1:
+        groups = ["ObsError", "ObsValue", "PreQC", "MetaData"]
+        mode = 'w'
+        for group in groups:
+            if group == "MetaData":
+                encoding = {'datetime': {'dtype': 'S1'}}
+            else:
+                encoding = None
+            ds = xarray.concat([xarray.open_dataset(f, group=group) for f in flist],
+                               dim='nlocs')
+
+            ds.to_netcdf('test.nc4', group=group, mode=mode, encoding=encoding)
+            mode = 'a'
+
     return
+
 
 def gdas_fix(input_fix_dir, working_dir, config):
     """
@@ -350,25 +361,25 @@ def obs(config):
         print("----------------------------------------------")
         window_begin = parser.parse(window_begin, fuzzy=True)
         window_end = window_begin + timedelta(hours=6)
-        steps = ['P1D','PT10M']
+        steps = ['P1D', 'PT10M']
         for step in steps:
             if step == 'P1D':
-                dates = date_sequence(window_begin.strftime('%Y%m%d'),window_end.strftime('%Y%m%d'),step)
+                dates = date_sequence(window_begin.strftime('%Y%m%d'), window_end.strftime('%Y%m%d'), step)
             if step == "PT10M":
-                dates = date_sequence(window_begin.strftime('%Y%m%d%H'),window_end.strftime('%Y%m%d%H'),step)
+                dates = date_sequence(window_begin.strftime('%Y%m%d%H'), window_end.strftime('%Y%m%d%H'), step)
             for count, date in enumerate(dates):
-                print("----------   ",count,date, outfile+'.'+str(count))
+                print("----------   ", count, date, outfile+'.'+str(count))
                 fetch(
-                  type='ob',
-                  provider=config['r2d2_obs_src'],
-                  experiment=config['r2d2_obs_dump'],
-                  date=date,
-                  obs_type=obname,
-                  time_window=step,
-                  target_file=outfile+'.'+str(count),
-                  ignore_missing=True,
-                  database=config['r2d2_obs_db']
-                  )
+                    type='ob',
+                    provider=config['r2d2_obs_src'],
+                    experiment=config['r2d2_obs_dump'],
+                    date=date,
+                    obs_type=obname,
+                    time_window=step,
+                    target_file=outfile+'.'+str(count),
+                    ignore_missing=True,
+                    database=config['r2d2_obs_db']
+                )
             # Concatenate ioda files
             concatenate_ioda(outfile)
         print("----------------------------------------------")
