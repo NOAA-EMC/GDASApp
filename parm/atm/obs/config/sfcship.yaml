@@ -74,4 +74,4 @@ obs filters:
     where:
     - variable:
         name: surface_pressure@ObsType
-      is_in: 183.0
+      is_in: 183
