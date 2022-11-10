@@ -173,8 +173,6 @@ def calc_time_vars(config):
         config['ATM_WINDOW_LENGTH'] = f"PT{os.environ['assim_freq']}H"
     elif 'atm_window_length' in config.keys():
         config['ATM_WINDOW_LENGTH'] = config['atm_window_length']
-    elif 'land_window_length' in config.keys():
-        config['LAND_WINDOW_LENGTH'] = config['land_window_length']
     else:
         raise KeyError("Neither $(atm_window_length) nor ${assim_freq} defined")
     # get the default window begin (atm window begin)
@@ -186,6 +184,7 @@ def calc_time_vars(config):
     config['ATM_BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
     # get land window begin
     if 'land_window_length' in config.keys():
+        config['LAND_WINDOW_LENGTH'] = config['land_window_length']
         h = re.findall('PT(\\d+)H', config['LAND_WINDOW_LENGTH'])[0]
         win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
         win_end = valid_time_obj + datetime.timedelta(hours=int(h)/2)
