@@ -50,7 +50,9 @@ if __name__ == "__main__":
                          'provider': 'gdasapp',
                          'experiment': 'soca',
                          'obs_types': ['bufr_dbuoyprof',
-                                       'bufr_mbuoybprof']})
+                                       'bufr_mbuoybprof',
+                                       'bufr_sfcships',
+                                       'bufr_sfcshipsu']})
     ufsda.r2d2.store(obsstore)
 
 # Create the test R2D2 database for output from bufr2ioda tests
