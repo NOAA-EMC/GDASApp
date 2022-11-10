@@ -32,19 +32,19 @@ obs filters:
   - filter: Bounds Check
     filter variables:
     - name: surface_pressure
-    minvalue: 37499
-    maxvalue: 106999
+    minvalue: 37499.0
+    maxvalue: 106999.0
     action:
       name: reject
     filter variables:
     - name: air_temperature
-    minvalue: 195
-    maxvalue: 327
+    minvalue: 195.0
+    maxvalue: 327.0
     action:
       name: reject
     filter variables:
     - name: specific_humidity
-    minvalue: 0
+    minvalue: 0.0
     maxvalue: 0.03499
     action:
       name: reject
@@ -71,4 +71,4 @@ obs filters:
     where:
     - variable:
         name: surface_pressure@ObsType
-      is_in: 183
+      is_in: 183.0
