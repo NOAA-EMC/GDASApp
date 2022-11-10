@@ -17,14 +17,6 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART_GES)
 file(COPY ${bkg_diag} DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 
-foreach(FILENAME ${test_input})
-  get_filename_component(filename ${FILENAME} NAME )
-  execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
-         ${FILENAME}
-         ${PROJECT_BINARY_DIR}/test/soca/testinput/${filename} )
-endforeach(FILENAME)
-
-
 # tests below require the full build
 if(BUILD_GDASBUNDLE)
 
