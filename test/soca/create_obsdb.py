@@ -66,4 +66,3 @@ if __name__ == "__main__":
                          'obs_types': ['bufr_tesacprof',
                                        'bufr_trkobprof']})
     ufsda.r2d2.store(obsstore)
-
