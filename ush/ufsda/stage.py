@@ -1,45 +1,18 @@
 from r2d2 import fetch
 from solo.basic_files import mkdir
-from solo.date import Hour, DateIncrement, date_sequence
+from solo.date import Hour, DateIncrement
 from solo.logger import Logger
 from solo.stage import Stage
 from solo.configuration import Configuration
 from solo.nice_dict import NiceDict
-from datetime import datetime, timedelta
 import os
 import shutil
 from dateutil import parser
 import ufsda
 import logging
 import glob
-import xarray
 
 __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
-
-
-def concatenate_ioda(iodafname):
-    flist = glob.glob(iodafname+'*')
-    flist.sort()
-    if len(flist) == 1:
-        # No need to concatenate, exit early
-        shutil.move(flist[0], iodafname)
-        return
-
-    if len(flist) > 1:
-        groups = ["ObsError", "ObsValue", "PreQC", "MetaData"]
-        mode = 'w'
-        for group in groups:
-            if group == "MetaData":
-                encoding = {'datetime': {'dtype': 'S1'}}
-            else:
-                encoding = None
-            ds = xarray.concat([xarray.open_dataset(f, group=group) for f in flist],
-                               dim='nlocs')
-
-            ds.to_netcdf('test.nc4', group=group, mode=mode, encoding=encoding)
-            mode = 'a'
-
-    return
 
 
 def gdas_fix(input_fix_dir, working_dir, config):
@@ -357,33 +330,63 @@ def obs(config):
         # grab obs using R2D2
         window_begin = config['window begin']
 
-        print("----------------------------------------------")
-        print("----------------------------------------------")
-        window_begin = parser.parse(window_begin, fuzzy=True)
-        window_end = window_begin + timedelta(hours=6)
-        steps = ['P1D', 'PT10M']
-        for step in steps:
-            if step == 'P1D':
-                dates = date_sequence(window_begin.strftime('%Y%m%d'), window_end.strftime('%Y%m%d'), step)
-            if step == "PT10M":
-                dates = date_sequence(window_begin.strftime('%Y%m%d%H'), window_end.strftime('%Y%m%d%H'), step)
-            for count, date in enumerate(dates):
-                print("----------   ", count, date, outfile+'.'+str(count))
-                fetch(
-                    type='ob',
-                    provider=config['r2d2_obs_src'],
-                    experiment=config['r2d2_obs_dump'],
-                    date=date,
-                    obs_type=obname,
-                    time_window=step,
-                    target_file=outfile+'.'+str(count),
-                    ignore_missing=True,
-                    database=config['r2d2_obs_db']
-                )
-            # Concatenate ioda files
-            concatenate_ioda(outfile)
-        print("----------------------------------------------")
-        print("----------------------------------------------")
+        # TODO (Guillaume):
+        # In order to fetch without specifying the "window begin", the
+        # obs need to be stored in steps that are a factor of the DA window,
+        # so for a 6 hour DA window, 6, 3, 2, 1 would work.
+        # Solutions:
+        # 1 - get rid of the 24 hour window database (probably a good idea)
+        # 2 - fix R2D2
+        # 3 - do nothing
+        if config['r2d2 window length'] == '24':
+            window_begin = parser.parse(config['window begin']).replace(hour=0)
+
+        fetch(
+            type='ob',
+            provider=config['r2d2_obs_src'],
+            experiment=config['r2d2_obs_dump'],
+            date=window_begin,
+            obs_type=obname,
+            time_window=config['r2d2 window length'],
+            target_file=outfile,
+            ignore_missing=True,
+            database=config['r2d2_obs_db'],
+        )
+        # if the ob type has them specified in YAML
+        # try to grab bias correction files too
+        if 'obs bias' in ob:
+            bkg_time = config['background_time']
+            satbias = ob['obs bias']['input file']
+            # the above path is what 'FV3-JEDI' expects, need to modify it
+            satbias = satbias.split('/')
+            satbias[0] = 'analysis'
+            satbias = '/'.join(satbias)
+            satbias = os.path.join(config['COMOUT'], satbias)
+            # try to grab bc files using R2D2
+            fetch(
+                type='bc',
+                provider=config['r2d2_bc_src'],
+                experiment=config['r2d2_bc_dump'],
+                date=bkg_time,
+                obs_type=obname,
+                target_file=satbias,
+                file_type='satbias',
+                ignore_missing=True,
+                database=config['r2d2_obs_db'],
+            )
+            # below is lazy but good for now...
+            tlapse = satbias.replace('satbias.nc4', 'tlapse.txt')
+            fetch(
+                type='bc',
+                provider=config['r2d2_bc_src'],
+                experiment=config['r2d2_bc_dump'],
+                date=bkg_time,
+                obs_type=obname,
+                target_file=tlapse,
+                file_type='tlapse',
+                ignore_missing=True,
+                database=config['r2d2_obs_db'],
+            )
 
 
 def fv3jedi(config):
