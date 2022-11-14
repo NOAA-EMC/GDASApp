@@ -43,9 +43,9 @@ if __name__ == "__main__":
     obsstore['source_dir'] = '../../testoutput/'
     obsstore['source_file_fmt'] = '{source_dir}/{obs_type}_{year}{month}{day}.nc'
     obsstore['obs_types'] = ['bufr_dbuoyprof',
-                            'bufr_mbuoybprof',
-                            'bufr_sfcships',
-                            'bufr_sfcshipsu']
+                             'bufr_mbuoybprof',
+                             'bufr_sfcships',
+                             'bufr_sfcshipsu']
     ufsda.r2d2.store(obsstore)
 
     obsstore['start'] = '2018-04-01T00:00:00Z'
