@@ -16,8 +16,9 @@ import xarray
 import sys
 import numpy as np
 
-sys.path.append('/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/sandboxes/GDASApp/build/lib/pyiodaconv/')
-sys.path.append('/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/sandboxes/GDASApp/build/lib/python3.7/pyioda')
+HOMEgfs = os.getenv('HOMEgfs')
+sys.path.append(os.path.join(HOMEgfs, 'sorc/gdas.cd/build/lib/pyiodaconv'))
+sys.path.append(os.path.join(HOMEgfs, 'sorc/gdas.cd/build/lib/python3.7/pyioda'))
 
 import ioda_conv_engines as iconv
 from orddicts import DefaultOrderedDict
@@ -27,7 +28,8 @@ __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'fv3jedi', 'ob
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 
-def concatenate_ioda(iodafname, obsvarname = 'sea_surface_temperature'):
+
+def concatenate_ioda(iodafname, obsvarname='sea_surface_temperature'):
     flist = glob.glob(iodafname+'*')
     flist.sort()
     nfiles = len(flist)
@@ -46,31 +48,30 @@ def concatenate_ioda(iodafname, obsvarname = 'sea_surface_temperature'):
     ds = xarray.concat([xarray.open_dataset(f) for f in flist], dim='nlocs')
 
     # concatenate all but metadata
-    # TODO (G): Not able to properly concatenate PreQC, to be investigated 
+    # TODO (G): Not able to properly concatenate PreQC, to be investigated
     outdata = {}
     for group in ["ObsError", "ObsValue"]:
-        ds = xarray.concat([xarray.open_dataset(f,group=group) for f in flist], dim='nlocs')
+        ds = xarray.concat([xarray.open_dataset(f, group=group) for f in flist], dim='nlocs')
         outdata[(obsvarname, group)] = ds[obsvarname]
 
     # concatenate metadata
     group = "MetaData"
-    ds = xarray.concat([xarray.open_dataset(f,group=group) for f in flist], dim='nlocs')
+    ds = xarray.concat([xarray.open_dataset(f, group=group) for f in flist], dim='nlocs')
     for k in list(ds.keys()):
         outdata[(k, group)] = ds[k]
 
     # to_netcdf does not do the trick unfotunately, write with ioda
     nlocs = ds.dims['nlocs']
-    DimDict = { }
+    DimDict = {}
     DimDict['nlocs'] = nlocs
 
     # setup the IODA writer
-    locationKeyList = [
-            ("latitude", "float"),
-            ("longitude", "float"),
-            ("datetime", "string"),
-            ]
+    locationKeyList = [("latitude", "float"),
+                       ("longitude", "float"),
+                       ("datetime", "string"),
+                       ]
 
-    VarDims = {'':['nlocs']}
+    VarDims = {'': ['nlocs']}
 
     # Reorganize MetaData group to make ioda happy
     outdata[('latitude', 'MetaData')] = outdata[('latitude', 'MetaData')][:]
