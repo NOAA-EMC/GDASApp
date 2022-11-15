@@ -1,0 +1,15 @@
+obs space:
+  name: sss_smap
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: ${OBS_DIR}/${OBS_PREFIX}sss_smap.${OBS_DATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: ${DIAG_DIR}/sss_smap.${OBS_DATE}.nc4
+  simulated variables: [sea_surface_salinity]
+obs operator:
+  name: Identity
+obs error:
+  covariance model: diagonal
