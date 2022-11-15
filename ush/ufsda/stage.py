@@ -24,45 +24,42 @@ from orddicts import DefaultOrderedDict
 
 __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
 
+logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
+                    level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 
-def concatenate_ioda(iodafname):
+def concatenate_ioda(iodafname, obsvarname = 'sea_surface_temperature'):
     flist = glob.glob(iodafname+'*')
     flist.sort()
-    #flist = flist[0:2]
     nfiles = len(flist)
-    logging.info(f"=============================== # of files: {nfiles}")
-    if len(flist) == 0:
-        # Nothin to do, exit early
+    if nfiles == 0:
+        logging.info(f"No files to concatenate.")
         return
 
     if len(flist) == 1:
-        # No need to concatenate, exit early
+        logging.info(f"Only file is {flist[0]}, rename to {iodafname}. No need to concatenate.")
         shutil.move(flist[0], iodafname)
         return
 
-    obsvarname = 'sea_surface_temperature' # TODO: move to func's arguments
-    logging.info(f"=============================== iodafname: {iodafname}")
-    # concatenate stuff outside of groups
+    logging.info(f"Concatenating {nfiles} files from globbing {iodafname}*")
+
+    # concatenate stuff outside of groups (nlocs dimensions and variables)
     ds = xarray.concat([xarray.open_dataset(f) for f in flist], dim='nlocs')
-    logging.info(f"ds: {ds}")
 
     # concatenate all but metadata
+    # TODO (G): Not able to properly concatenate PreQC, to be investigated 
     outdata = {}
-    units = {}
     for group in ["ObsError", "ObsValue"]:
         ds = xarray.concat([xarray.open_dataset(f,group=group) for f in flist], dim='nlocs')
-        logging.info(f"ds: {ds}")
         outdata[(obsvarname, group)] = ds[obsvarname]
 
     # concatenate metadata
     group = "MetaData"
     ds = xarray.concat([xarray.open_dataset(f,group=group) for f in flist], dim='nlocs')
-    outmetadata = {}
     for k in list(ds.keys()):
-        outmetadata[(k, group)] = ds[k]
+        outdata[(k, group)] = ds[k]
 
+    # to_netcdf does not do the trick unfotunately, write with ioda
     nlocs = ds.dims['nlocs']
-
     DimDict = { }
     DimDict['nlocs'] = nlocs
 
@@ -75,24 +72,21 @@ def concatenate_ioda(iodafname):
 
     VarDims = {'':['nlocs']}
 
-    outdata[('latitude', 'MetaData')] = outmetadata[('latitude', 'MetaData')][:]
-    outdata[('longitude', 'MetaData')] = outmetadata[('longitude', 'MetaData')][:]
+    # Reorganize MetaData group to make ioda happy
+    outdata[('latitude', 'MetaData')] = outdata[('latitude', 'MetaData')][:]
+    outdata[('longitude', 'MetaData')] = outdata[('longitude', 'MetaData')][:]
+    dates = outdata[('datetime', 'MetaData')][:]
     outdata[('datetime', 'MetaData')] = np.empty(nlocs, dtype=object)
-
-    dates = outmetadata[('datetime', 'MetaData')][:]
     outdata[('datetime', 'MetaData')][:] = dates
 
-    # TODO: get from ds ...
+    # TODO (G): get the missing attributes from ds
     VarAttrs = DefaultOrderedDict(lambda: DefaultOrderedDict(dict))
-    VarAttrs[('latitude', 'MetaData')]['units'] = 'degrees_north'
-    VarAttrs[('datetime', 'MetaData')]['_FillValue'] = ''
-    VarAttrs[('sea_surface_temperature', 'ObsValue')]['units'] = 'celsius'
-
-
+    units = {}
     writer = iconv.IodaWriter(iodafname, locationKeyList, DimDict)
     writer.BuildIoda(outdata, VarDims, VarAttrs, units)
 
     return
+
 
 def gdas_fix(input_fix_dir, working_dir, config):
     """
@@ -408,9 +402,6 @@ def obs(config):
         outpath = '/'.join(outpath)
         # grab obs using R2D2
         window_begin = config['window begin']
-
-        print("----------------------------------------------")
-        print("----------------------------------------------")
         window_begin = parser.parse(window_begin, fuzzy=True)
         window_end = window_begin + timedelta(hours=6)
         steps = ['P1D', 'PT10M']
@@ -420,7 +411,6 @@ def obs(config):
             if step == "PT10M":
                 dates = date_sequence(window_begin.strftime('%Y%m%d%H'), window_end.strftime('%Y%m%d%H'), step)
             for count, date in enumerate(dates):
-                print("----------   ", count, date, outfile+'.'+str(count))
                 fetch(
                     type='ob',
                     provider=config['r2d2_obs_src'],
@@ -434,8 +424,6 @@ def obs(config):
                 )
             # Concatenate ioda files
             concatenate_ioda(outfile)
-        print("----------------------------------------------")
-        print("----------------------------------------------")
 
 
 def fv3jedi(config):
