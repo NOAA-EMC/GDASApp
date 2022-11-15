@@ -1,0 +1,15 @@
+obs space:
+  name: temp_profile_fnmoc
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: ${OBS_DIR}/${OBS_PREFIX}temp_profile_fnmoc.${OBS_DATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: ${DIAG_DIR}/temp_profile_fnmoc.${OBS_DATE}.nc4
+  simulated variables: [sea_water_temperature]
+obs operator:
+  name: Identity
+obs error:
+  covariance model: diagonal
