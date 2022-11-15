@@ -47,7 +47,7 @@ variational:
       name: Identity
       increment variables: *a_vars
       variable change: Identity
-      tstep: PT3H
+      tstep: PT1H
     ninner: $(NINNER)
     gradient norm reduction: 1e-10
     test: on

@@ -13,9 +13,11 @@ import ufsda
 import logging
 import glob
 import xarray
+import sys
+import numpy as np
 
-sys.path.append('/home/gvernier/sandboxes/GDASApp-pr/build/lib/pyiodaconv/')
-sys.path.append('/home/gvernier/sandboxes/GDASApp-pr/build/lib/python3.9/pyioda')
+sys.path.append('/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/sandboxes/GDASApp/build/lib/pyiodaconv/')
+sys.path.append('/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/sandboxes/GDASApp/build/lib/python3.7/pyioda')
 
 import ioda_conv_engines as iconv
 from orddicts import DefaultOrderedDict
@@ -26,21 +28,30 @@ __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'fv3jedi', 'ob
 def concatenate_ioda(iodafname):
     flist = glob.glob(iodafname+'*')
     flist.sort()
+    #flist = flist[0:2]
+    nfiles = len(flist)
+    logging.info(f"=============================== # of files: {nfiles}")
+    if len(flist) == 0:
+        # Nothin to do, exit early
+        return
+
     if len(flist) == 1:
         # No need to concatenate, exit early
         shutil.move(flist[0], iodafname)
         return
 
     obsvarname = 'sea_surface_temperature' # TODO: move to func's arguments
-
+    logging.info(f"=============================== iodafname: {iodafname}")
     # concatenate stuff outside of groups
     ds = xarray.concat([xarray.open_dataset(f) for f in flist], dim='nlocs')
+    logging.info(f"ds: {ds}")
 
     # concatenate all but metadata
     outdata = {}
     units = {}
     for group in ["ObsError", "ObsValue"]:
         ds = xarray.concat([xarray.open_dataset(f,group=group) for f in flist], dim='nlocs')
+        logging.info(f"ds: {ds}")
         outdata[(obsvarname, group)] = ds[obsvarname]
 
     # concatenate metadata
@@ -68,10 +79,7 @@ def concatenate_ioda(iodafname):
     outdata[('longitude', 'MetaData')] = outmetadata[('longitude', 'MetaData')][:]
     outdata[('datetime', 'MetaData')] = np.empty(nlocs, dtype=object)
 
-    dates = []
-    for d in outmetadata[('datetime', 'MetaData')]:
-        dates.append(str(d.values))
-
+    dates = outmetadata[('datetime', 'MetaData')][:]
     outdata[('datetime', 'MetaData')][:] = dates
 
     # TODO: get from ds ...
