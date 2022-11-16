@@ -94,10 +94,9 @@ install(FILES ${test_reference}
 
 ##### unit tests
 # some of the tests below depend on pyioda and need to be skipped if BUILD_GDASBUNDLE=OFF
-if(${BUILD_GDASBUNDLE})
-  set(${SKIPTEST} false)
-else()
-  set(${SKIPTEST} true)
+set(SKIPTEST TRUE)
+if (${BUILD_GDASBUNDLE})
+  set(SKIPTEST FALSE)
 endif()
 
 # test for python coding norms
@@ -131,7 +130,7 @@ PROPERTIES
                       PDY=20220330;
                       cyc=06;
                       assim_freq=6"
-         DISABLED SKIPTEST)
+         DISABLED ${SKIPTEST})
 add_test(NAME test_gdasapp_genYAML_prep
          COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
@@ -144,7 +143,7 @@ PROPERTIES
          ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};
                       PARMgfs=${PROJECT_SOURCE_DIR}/parm;
                       JEDI_LIB=${PROJECT_BINARY_DIR}/lib"
-         DISABLED SKIPTEST)
+         DISABLED ${SKIPTEST})
 # test for converting ewok yaml to gdas
 add_test(NAME test_gdasapp_convert_ewok_yaml
          COMMAND ${PROJECT_SOURCE_DIR}/test/convert_ewok_yaml.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
