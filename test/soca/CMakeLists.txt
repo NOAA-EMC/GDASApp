@@ -10,9 +10,7 @@ if(BUILD_GDASBUNDLE)
            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs/)
   set_tests_properties(test_gdasapp_soca_obsdb
       PROPERTIES
-          ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush;$ENV{PYTHONPATH};
-                       OBS_DIR=${OBS_DIR};
-                       JEDI_LIB=${PROJECT_BINARY_DIR}/lib")
+    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush;$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
 
   # Copy the bkg files
   # ------------------
