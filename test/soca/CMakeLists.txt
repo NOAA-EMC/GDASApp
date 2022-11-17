@@ -9,22 +9,6 @@ file(COPY ${bkg_diag} DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 # tests below require the full build
 
 if(BUILD_GDASBUNDLE)
-  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs)
-  set( OBS_DIR ${PROJECT_BINARY_DIR}/test/testdata )
-  add_test(NAME test_gdasapp_soca_obsdb
-           COMMAND ${PROJECT_SOURCE_DIR}/test/soca/create_obsdb.py
-           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs/)
-  set_tests_properties(test_gdasapp_soca_obsdb
-      PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush;$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
-
-  # Copy the bkg files
-  # ------------------
-  set( TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
-  file(GLOB bkg_diag "${TESTDATA}/ocn_da_2018_04_15_*.nc")
-  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
-  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART_GES)
-  file(COPY ${bkg_diag} DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 
   # link input file from iodaconv to test directory
   # test convert BUFR to IODA
@@ -84,7 +68,7 @@ add_test(NAME test_gdasapp_soca_obsdb
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs/)
 set_tests_properties(test_gdasapp_soca_obsdb
     PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
+    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};JEDI_LIB=${PROJECT_BINARY_DIR}/lib;OBS_DIR=${OBS_DIR}")
 
   # Test exgdas_global_marine_analysis_prep.py
   # ------------------------------------------
