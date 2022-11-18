@@ -19,6 +19,7 @@ usage() {
   echo "  -t  target to build for <target>    DEFAULT: $(hostname)"
   echo "  -c  additional CMake options        DEFAULT: <none>"
   echo "  -v  build with verbose output       DEFAULT: NO"
+  echo "  -d  include JCSDA ctest data        DEFAULT: NO"
   echo "  -h  display this message and quit"
   echo
   exit 1
@@ -31,8 +32,9 @@ INSTALL_PREFIX=""
 CMAKE_OPTS=""
 BUILD_TARGET="$(hostname)"
 BUILD_VERBOSE="NO"
+CLONE_JCSDADATA="NO"
 
-while getopts "p:t:c:hv" opt; do
+while getopts "p:t:c:hvd" opt; do
   case $opt in
     p)
       INSTALL_PREFIX=$OPTARG
@@ -45,6 +47,9 @@ while getopts "p:t:c:hv" opt; do
       ;;
     v)
       BUILD_VERBOSE=YES
+      ;;
+    d)
+      CLONE_JCSDADATA=YES
       ;;
     h|\?|:)
       usage
@@ -61,6 +66,7 @@ case ${BUILD_TARGET} in
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET
     CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=ON"
+    CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA"
     module list
     set -e
     ;;
