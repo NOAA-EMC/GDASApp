@@ -22,7 +22,7 @@ if(BUILD_GDASBUNDLE)
   set_tests_properties(test_gdasapp_store_gsi_satbias
       PROPERTIES
           DEPENDS "test_gdasapp_convert_gsi_satbias"
-          ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};JEDI_LIB=${PROJECT_BINARY_DIR}/lib"
+          ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PYIODA_PATH}:${PYIODACONV_PATH}:$ENV{PYTHONPATH}"
   )
 
 endif(BUILD_GDASBUNDLE)

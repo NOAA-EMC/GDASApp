@@ -15,12 +15,6 @@ import glob
 import xarray
 import sys
 import numpy as np
-
-# TODO: There's probably a better way to do this
-jedi_lib = os.getenv('JEDI_LIB')
-sys.path.append(os.path.join(jedi_lib, 'pyiodaconv'))
-sys.path.append(glob.glob(os.path.join(jedi_lib, 'python3.*/pyioda'))[0])
-
 import ioda_conv_engines as iconv
 from orddicts import DefaultOrderedDict
 
