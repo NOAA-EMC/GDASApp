@@ -136,16 +136,6 @@ if(CLONE_JCSDADATA)
                       BRANCH ${GIT_BRANCH_FUNC} )
     endif()
 
-  # same procedure for saber-data
-    find_branch_name(REPO_DIR_NAME saber)
-    if( NOT DEFINED ENV{LOCAL_PATH_JEDI_TESTFILES} AND NOT DEFINED GIT_TAG_FUNC )
-      ecbuild_bundle( PROJECT saber-data GIT "https://github.com/JCSDA-internal/saber-data.git" BRANCH develop UPDATE )
-
-      # If saber's current branch is available in saber-data repo, that branch will be checked out
-      branch_checkout (REPO_DIR_NAME saber-data
-                      BRANCH ${GIT_BRANCH_FUNC} )
-    endif()
-
   endif(CLONE_JCSDADATA)
 
 endif(BUILD_GDASBUNDLE)
