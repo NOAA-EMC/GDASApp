@@ -37,5 +37,20 @@ if __name__ == "__main__":
                                        'salt_profile_fnmoc',
                                        'icec_EMC',
                                        'icefb_GDR']})
+    ufsda.r2d2.store(obsstore)
 
+# Create the test R2D2 database for output from bufr2ioda tests
+    obsstore['source_dir'] = '../../testoutput/'
+    obsstore['source_file_fmt'] = '{source_dir}/{obs_type}_{year}{month}{day}.nc'
+    obsstore['obs_types'] = ['bufr_dbuoyprof',
+                             'bufr_mbuoybprof',
+                             'bufr_sfcships',
+                             'bufr_sfcshipsu']
+    ufsda.r2d2.store(obsstore)
+
+    obsstore['start'] = '2018-04-01T00:00:00Z'
+    obsstore['end'] = '2018-04-01T00:00:00Z'
+    obsstore['source_file_fmt'] = '{source_dir}/{obs_type}_{year}{month}.nc'
+    obsstore['obs_types'] = ['bufr_tesacprof',
+                             'bufr_trkobprof']
     ufsda.r2d2.store(obsstore)
