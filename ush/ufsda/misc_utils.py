@@ -81,6 +81,7 @@ module load GDAS/{job_config['machine']}
 cd {working_dir}
 """
         f.write(commands)
+        f.write(f"source load_envar.sh\n")
         if single_exec:
             # standalone jedi application
             if scheduler[job_config['machine']] == 'slurm':
@@ -89,7 +90,6 @@ cd {working_dir}
             # TODO (Guillaume): Hard coded for soca in a few places, change that
             scripts_path = os.path.join(job_config['modulepath'], '../', 'scripts')
             # run the pre/run/post scripts
-            f.write(f"source load_envar.sh\n")
             f.write(f"{scripts_path}/exgdas_global_marine_analysis_prep.py\n")
             f.write(f"cd {working_dir}/analysis\n")
             f.write(f"export APRUN_OCNANAL=\"{job_config['mpiexec']} {job_config['mpinproc']} {job_config['ntasks']}\"\n")

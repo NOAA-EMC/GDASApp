@@ -52,11 +52,9 @@ def run_jedi_exe(yamlconfig):
         logging.error(f'Error creating {workdir}: {error}')
 
     # resolve and add path to pyioda and pyiodaconv
-    python_version = 'python3.'+sys.version_info[1]
+    python_version = 'python3.'+str(sys.version_info[1])
     pyioda_lib = os.path.join(all_config_dict['GDASApp home'], 'build', 'lib', python_version, 'pyioda')
     pyiodaconv_lib = os.path.join(all_config_dict['GDASApp home'], 'build', 'lib', 'pyiodaconv')
-    sys.path.append(pyioda_lib)
-    sys.path.append(pyiodaconv_lib)
 
     # add your ufsda python package to path
     ufsda_path = os.path.join(all_config_dict['GDASApp home'], 'ush')
@@ -116,20 +114,34 @@ def run_jedi_exe(yamlconfig):
         }
         template = executable_subconfig['yaml_template']
         output_file = os.path.join(workdir, f"gdas_{app_mode}.yaml")
+
         # set some environment variables
         os.environ['PARMgfs'] = os.path.join(all_config_dict['GDASApp home'], 'parm')
+
+        # add pyioda/pyiodaconv path
+        runtime_envar_yaml = os.path.join(workdir, 'runtime_envar.yaml')
+        runtime_envar = {'PYTHONPATH': '${PYTHONPATH}:'+pyioda_lib+':'+pyiodaconv_lib}
+        f = open(runtime_envar_yaml, 'w')
+        yaml.dump(runtime_envar, f, sort_keys=False, default_flow_style=False)
+        bashout = os.path.join(workdir, 'load_envar.sh')
+        export_envar(runtime_envar_yaml, bashout)
+
         # generate YAML for executable based on input config
         logging.info(f'Using YAML template {template}')
         ufsda.yamltools.genYAML(var_config, template=template, output=output_file)
         logging.info(f'Wrote YAML file to {output_file}')
+
         # use R2D2 to stage backgrounds, obs, bias correction files, etc.
         ufsda.stage.gdas_single_cycle(var_config)
+
         # link additional fix files needed (CRTM, fieldmetadata, etc.)
         gdasfix = executable_subconfig['gdas_fix_root']
         ufsda.stage.gdas_fix(gdasfix, workdir, var_config)
+
         # link executable
         baseexe = os.path.basename(executable_subconfig['executable'])
         ufsda.disk_utils.symlink(executable_subconfig['executable'], os.path.join(workdir, baseexe))
+
         # create output directories
         ufsda.disk_utils.mkdir(os.path.join(workdir, 'diags'))
         if app_mode in ['variational']:
@@ -170,6 +182,7 @@ def run_jedi_exe(yamlconfig):
             'OBS_LIST': executable_subconfig['obs_list'],
             'OBS_YAML': executable_subconfig['obs_list'],
             'JEDI_BIN': gdasapp_bin,
+            'PYTHONPATH': '${PYTHONPATH}:'+pyioda_lib+':'+pyiodaconv_lib},
             'HOMEgfs': homegfs,
             'SOCA_INPUT_FIX_DIR': all_config_dict['jedi static']['soca']['path'],
             'STATICB_DIR': os.path.join(workdir, 'soca_static'),
