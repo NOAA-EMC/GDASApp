@@ -182,7 +182,7 @@ def run_jedi_exe(yamlconfig):
             'OBS_LIST': executable_subconfig['obs_list'],
             'OBS_YAML': executable_subconfig['obs_list'],
             'JEDI_BIN': gdasapp_bin,
-            'PYTHONPATH': '${PYTHONPATH}:'+pyioda_lib+':'+pyiodaconv_lib},
+            'PYTHONPATH': '${PYTHONPATH}:' + pyioda_lib + ':' + pyiodaconv_lib,
             'HOMEgfs': homegfs,
             'SOCA_INPUT_FIX_DIR': all_config_dict['jedi static']['soca']['path'],
             'STATICB_DIR': os.path.join(workdir, 'soca_static'),
