@@ -82,10 +82,6 @@ list(APPEND test_reference
   ${PROJECT_SOURCE_DIR}/test/testreference/amsua_n19_gdas.yaml
 )
 
-# setup pyioda/pyodaconv paths
-set( PYIODACONV_PATH ${PROJECT_BINARY_DIR}/lib/pyiodaconv)
-set( PYIODA_PATH ${PROJECT_BINARY_DIR}/lib/python3.${Python3_VERSION_MINOR}/pyioda)
-
 # symlink
 foreach(FILENAME ${test_reference})
   file(RELATIVE_PATH FILENAME_REL ${PROJECT_SOURCE_DIR}/test/testreference/ ${FILENAME})
@@ -126,7 +122,7 @@ if (${BUILD_GDASBUNDLE}) # the 2 tests below depend on python bindings to ioda a
   set_tests_properties(
          test_gdasapp_generate_yaml_func
   PROPERTIES
-ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PYIODA_PATH}:${PYIODACONV_PATH}:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm;gPDY=20220330;gcyc=00;PDY=20220330;cyc=06;assim_freq=6")
+ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm;gPDY=20220330;gcyc=00;PDY=20220330;cyc=06;assim_freq=6")
 
   add_test(NAME test_gdasapp_genYAML_run
            COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example.yaml
@@ -134,7 +130,7 @@ ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PYIODA_PATH}:${PYIODACONV_PA
   set_tests_properties(
          test_gdasapp_genYAML_run
   PROPERTIES
-ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PYIODA_PATH}:${PYIODACONV_PATH}:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm")
+ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm")
 endif()
 
 add_test(NAME test_gdasapp_genYAML_prep

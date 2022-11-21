@@ -15,6 +15,19 @@ import glob
 import xarray
 import sys
 import numpy as np
+
+# TODO: We might want to revisit this in the future
+# Try to resolve the location of pyioda, assuming there are only 2 places where this
+# script can exist (build/ush/ufsda or /ush/ufsda)
+from pathlib import Path
+jedilib = Path(os.path.join(Path(__file__).parent.absolute(), '../..', 'lib'))
+if not jedilib.is_dir():
+    jedilib = Path(os.path.join(Path(__file__).parent.absolute(), '../../build', 'lib'))
+pyver = 'python3.'+str(sys.version_info[1])
+pyioda_lib = Path(os.path.join(jedilib, pyver, 'pyioda')).resolve()
+pyiodaconv_lib = Path(os.path.join(jedilib, 'pyiodaconv')).resolve()
+sys.path.append(str(pyioda_lib))
+sys.path.append(str(pyiodaconv_lib))
 import ioda_conv_engines as iconv
 from orddicts import DefaultOrderedDict
 
