@@ -36,7 +36,6 @@ ush_link=${project_binary_dir}/test/soca/HOMEgfs/ush
 [ ! -L "${ush_link}" ] && ln -s ${project_source_dir}/ush ${ush_link}
 
 export JEDI_BIN=${project_binary_dir}/bin
-export JEDI_LIB=${project_binary_dir}/lib
 export SOCA_INPUT_FIX_DIR=${project_binary_dir}/soca_static      # static soca files
 export SOCA_VARS=tocn,socn,ssh
 export DOMAIN_STACK_SIZE=2000000

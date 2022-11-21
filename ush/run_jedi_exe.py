@@ -51,6 +51,13 @@ def run_jedi_exe(yamlconfig):
     except OSError as error:
         logging.error(f'Error creating {workdir}: {error}')
 
+    # resolve and add path to pyioda and pyiodaconv
+    python_version = 'python3.'+sys.version_info[1]
+    pyioda_lib = os.path.join(all_config_dict['GDASApp home'], 'build', 'lib', python_version, 'pyioda')
+    pyiodaconv_lib = os.path.join(all_config_dict['GDASApp home'], 'build', 'lib', 'pyiodaconv')
+    sys.path.append(pyioda_lib)
+    sys.path.append(pyiodaconv_lib)
+
     # add your ufsda python package to path
     ufsda_path = os.path.join(all_config_dict['GDASApp home'], 'ush')
     sys.path.append(ufsda_path)
