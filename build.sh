@@ -21,6 +21,7 @@ usage() {
   echo "  -v  build with verbose output       DEFAULT: NO"
   echo "  -f  force a clean build             DEFAULT: NO"
   echo "  -d  include JCSDA ctest data        DEFAULT: NO"
+  echo "  -a  build everything in bundle      DEFAULT: NO"
   echo "  -h  display this message and quit"
   echo
   exit 1
@@ -35,8 +36,9 @@ BUILD_TARGET="$(hostname)"
 BUILD_VERBOSE="NO"
 CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
+BUILD_JCSDA="NO"
 
-while getopts "p:t:c:hvdf" opt; do
+while getopts "p:t:c:hvdfa" opt; do
   case $opt in
     p)
       INSTALL_PREFIX=$OPTARG
@@ -55,6 +57,9 @@ while getopts "p:t:c:hvdf" opt; do
       ;;
     f)
       CLEAN_BUILD=YES
+      ;;
+    a)
+      BUILD_JCSDA=YES
       ;;
     h|\?|:)
       usage
@@ -102,13 +107,17 @@ set +x
 
 # Build
 echo "Building ..."
-builddirs="fv3-jedi soca iodaconv"
 set -x
-for b in $builddirs; do
-  cd $b
+if [[ $BUILD_JCSDA == 'YES' ]]; then
   make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
-  cd ../
-done
+else
+  builddirs="fv3-jedi soca iodaconv"
+  for b in $builddirs; do
+    cd $b
+    make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
+    cd ../
+  done
+fi
 set +x
 
 # Install
