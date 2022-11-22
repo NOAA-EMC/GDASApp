@@ -36,7 +36,7 @@ BUILD_VERBOSE="NO"
 CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
 
-while getopts "p:t:c:hvd" opt; do
+while getopts "p:t:c:hvdf" opt; do
   case $opt in
     p)
       INSTALL_PREFIX=$OPTARG
