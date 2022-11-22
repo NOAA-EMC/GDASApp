@@ -31,7 +31,7 @@ done
 
 # ==============================================================================
 # start output file
-echo "Automated Pull Request Testing Results:" > $outfile
+echo "Automated GDASApp Testing Results:" > $outfile
 echo "Machine: ${TARGET}" >> $outfile
 echo '```' >> $outfile
 echo "Start: $(date) on $(hostname)" >> $outfile
