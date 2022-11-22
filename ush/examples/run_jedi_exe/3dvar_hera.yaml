@@ -2,7 +2,7 @@ working directory: /scratch2/NCEPDEV/stmp1/Cory.R.Martin/gdas_single_test_3dvar
 GDASApp home: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp
 GDASApp mode: variational
 executable options:
-  berror_yaml: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/berror/staticb_bump.yaml
+  berror_yaml: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/berror/staticb_gsibec.yaml
   obs_yaml_dir: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/config
   yaml_template: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/variational/3dvar_dripcg.yaml
   executable: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/build/bin/fv3jedi_var.x
@@ -15,7 +15,8 @@ executable options:
   valid_time: 2021-12-21T06:00:00Z
   dump: gdas
   case: C96
-  case_anl: C48
+  case_anl: C96
+  staticb_type: gsibec
   dohybvar: false
   levs: 128
   interp_method: barycentric

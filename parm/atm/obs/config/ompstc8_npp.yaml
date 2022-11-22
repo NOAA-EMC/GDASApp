@@ -1,9 +1,13 @@
 obs space:
   name: ompstc8_npp
   obsdatain:
-    obsfile: $(OBS_DIR)/$(OBS_PREFIX)ompstc8_npp.$(OBS_DATE).nc4
+    engine:
+      type: H5File
+      obsfile: $(OBS_DIR)/$(OBS_PREFIX)ompstc8_npp.$(OBS_DATE).nc4
   obsdataout:
-    obsfile: $(DIAG_DIR)/diag_ompstc8_npp_$(OBS_DATE).nc4
+    engine:
+      type: H5File
+      obsfile: $(DIAG_DIR)/diag_ompstc8_npp_$(OBS_DATE).nc4
   io pool:
     max pool size: 1
   simulated variables: [integrated_layer_ozone_in_air]

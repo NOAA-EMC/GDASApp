@@ -26,7 +26,7 @@ def get_obs_list(yamlconfig, outputfile):
     with open(outputfile, 'w') as outf:
         for ob in obs_list:
             # get obsdatain
-            obsdatain = ob['obs space']['obsdatain']['obsfile']
+            obsdatain = ob['obs space']['obsdatain']['engine']['obsfile']
             outf.write(f"{obsdatain}\n")
             if 'obs bias' in ob.keys():
                 biasin = ob['obs bias']['input file']
