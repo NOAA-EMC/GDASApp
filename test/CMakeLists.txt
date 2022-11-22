@@ -115,6 +115,10 @@ add_test(NAME test_gdasapp_jedi_increment_to_fv3
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 # test for YAML generation from a template
+add_test(NAME test_gdasapp_genYAML_prep
+         COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
 if (${BUILD_GDASBUNDLE}) # the 2 tests below depend on python bindings to ioda and require a bundle build
   add_test(NAME test_gdasapp_generate_yaml_func
            COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/test_generate_yaml.py --parm ${PROJECT_SOURCE_DIR}/parm/
@@ -132,10 +136,6 @@ ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PRO
   PROPERTIES
 ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm")
 endif()
-
-add_test(NAME test_gdasapp_genYAML_prep
-         COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 # test for converting ewok yaml to gdas
 add_test(NAME test_gdasapp_convert_ewok_yaml
