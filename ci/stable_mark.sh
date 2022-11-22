@@ -6,12 +6,9 @@
 #
 set -e
 
-cwd=$(pwd)
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
 # figure out what git hash is associated with each repo in the bundle.
 # Note that there are several places where this repo could exist.
-bundle_dir=$SCRIPT_DIR/..
+bundle_dir=$1
 bundle_repos="oops vader saber ioda ufo iodaconv ioda-data ufo-data saber-data \
               fms fv3 femps fv3-jedi-lm fv3-jedi fv3-jedi-data gsibec \
               gsw mom6 soca"

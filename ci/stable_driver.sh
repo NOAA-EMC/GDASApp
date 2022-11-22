@@ -64,11 +64,11 @@ git merge develop
 
 # ==============================================================================
 # update the hashes to the most recent
-$my_dir/stable_mark.sh
+$my_dir/stable_mark.sh $stableroot/$datestr/GDASApp
 
 # ==============================================================================
 # run the automated testing
-#$my_dir/run_ci.sh -d $stableroot/$datestr/GDASApp -o $stableroot/$datestr/output
+$my_dir/run_ci.sh -d $stableroot/$datestr/GDASApp -o $stableroot/$datestr/output
 ci_status=$?
 if [ $ci_status -eq 0 ]; then
   # push a new commit to the stable branch
