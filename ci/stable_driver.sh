@@ -46,13 +46,31 @@ case ${TARGET} in
     ;;
 esac
 
-# below is temp how to run the CI and it will return 0 if tests pass
+# ==============================================================================
+# clone a fresh copy of the stable branch
 datestr="$(date +%Y%m%d)"
-$my_dir/run_ci.sh -d $GDAS_CI_ROOT/$datestr/GDASApp -o $GDAS_CI_ROOT/$datestr/output
+stableroot=$GDAS_CI_ROOT/stable
+
+# ==============================================================================
+# merge in develop
+
+# ==============================================================================
+# update the hashes to the most recent
+
+# ==============================================================================
+# run the automated testing
+$my_dir/run_ci.sh -d $stableroot/$datestr/GDASApp -o $stableroot/$datestr/output
 ci_status=$?
 if [ $ci_status -eq 0 ]; then
+  # push a new commit to the stable branch
   echo "good"
 else
+  # do nothing
   echo "sad!"
 fi
 # ==============================================================================
+# publish some information to RZDM for quick viewing
+
+# ==============================================================================
+# scrub working directory for older files
+find $stableroot/* -maxdepth 1 -mtime +3 -exec rm -rf {} \;
