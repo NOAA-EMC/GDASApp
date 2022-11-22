@@ -57,6 +57,7 @@ load("udunits/2.2.28")
 load("ncview/2.1.8")
 load("netcdf-cxx4/4.3.1")
 load("py-pybind11/2.8.1")
+--load("crtm/v2.4_jedi")
 
 load("hpc/1.2.0")
 load("miniconda3/4.6.14")
