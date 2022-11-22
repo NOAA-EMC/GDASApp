@@ -45,9 +45,12 @@ def parse_config(input_config_dict, template=None, clean=True):
     # add input_config_dict vars to config for substitutions
     config_out.update(input_config_dict)
     # compute common resolution variables
-    if config_out.get('atm', True):
-        config_out = atmanl_case(config_out)
+    if config_out.get('atm', True) or config_out.get('land', True):
+        config_out = fv3anl_case(config_out)
+    else:
+        raise KeyError("Neither $(atm) nor $(land) defined")
     config_out.pop('atm', None)  # pop out boolean variable that will cause issues later
+    config_out.pop('land', None)  # pop out boolean variable that will cause issues later
     # do a first round of substitutions first
     config_out = replace_vars(config_out)
     # now do a first round of includes
@@ -66,7 +69,7 @@ def parse_config(input_config_dict, template=None, clean=True):
     return config_out
 
 
-def atmanl_case(config):
+def fv3anl_case(config):
     # compute atm analysis case/res variables based on environment and/or config
     case = int(config.get('CASE', os.environ.get('CASE', 'C768'))[1:])
     case_anl = int(config.get('CASE_ANL', os.environ.get('CASE_ANL', 'C384'))[1:])
@@ -88,12 +91,18 @@ def atmanl_case(config):
         str(os.environ.get('layout_y', '$(layout_y)')),
     ]
     io_layout = ['1', '1']  # force to be one file for forseeable future
-    config['GEOM_BKG'] = fv3_geom_dict(case, levs, ntiles, layout, io_layout)
-    config['GEOM_ANL'] = fv3_geom_dict(case_anl, levs, ntiles, layout, io_layout)
+    if config.get('atm', True):
+        config['GEOM_BKG'] = fv3atm_geom_dict(case, levs, ntiles, layout, io_layout)
+        config['GEOM_ANL'] = fv3atm_geom_dict(case_anl, levs, ntiles, layout, io_layout)
+    elif config.get('land', True):
+        config['GEOM_BKG'] = fv3land_geom_dict(case, levs, ntiles, layout, io_layout)
+        config['GEOM_ANL'] = fv3land_geom_dict(case_anl, levs, ntiles, layout, io_layout)
+    else:
+        raise KeyError("Neither $(atm) nor $(land) defined")
     return config
 
 
-def fv3_geom_dict(case, levs, ntiles, layout, io_layout):
+def fv3atm_geom_dict(case, levs, ntiles, layout, io_layout):
     # returns a dictionary matching FV3-JEDI global geometry entries
     outdict = {
         'fms initialization': {
@@ -108,6 +117,36 @@ def fv3_geom_dict(case, levs, ntiles, layout, io_layout):
         'npz': str(levs-1),
         'ntiles': str(ntiles),
         'field metadata override': '$(fv3jedi_fieldmetadata_dir)/gfs-restart.yaml'
+    }
+    return outdict
+
+
+def fv3land_geom_dict(case, levs, ntiles, layout, io_layout):
+    # returns a dictionary matching FV3-JEDI global geometry entries
+    outdict = {
+        'fms initialization': {
+            'namelist filename': '$(fv3jedi_fix_dir)/fmsmpp.nml',
+            'field table filename': '$(fv3jedi_fix_dir)/field_table',
+        },
+        'akbk': '$(fv3jedi_fix_dir)/akbk'+str(levs-1)+'.nc4',
+        'layout': layout,
+        'io_layout': io_layout,
+        'npx': str(case+1),
+        'npy': str(case+1),
+        'npz': str(levs-1),
+        'ntiles': str(ntiles),
+        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/gfs-land.yaml',
+
+        'time invariant fields': {
+            'state fields': {
+                'datetime': '$(LAND_WINDOW_BEGIN)',
+                'filetype': 'fms restart',
+                'skip coupler file': 'true',
+                'state variables': '[orog_filt]',
+                'datapath': '/scratch1/NCEPDEV/global/glopara/fix/orog/20220805/C'+str(case)+'/',
+                'filename_orog': 'C'+str(case)+'_oro_data.nc',
+            }
+        }
     }
     return outdict
 
@@ -128,19 +167,30 @@ def calc_time_vars(config):
     bkg_time_obj = valid_time_obj
     config['BKG_YYYYmmddHHMMSS'] = bkg_time_obj.strftime('%Y%m%d.%H%M%S')
     config['BKG_ISOTIME'] = bkg_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
+    config['LAND_BKG_YYYYmmddHHMMSS'] = bkg_time_obj.strftime('%Y%m%d.%H%M%S')
+    config['LAND_BKG_ISOTIME'] = bkg_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
     if 'assim_freq' in os.environ:
         config['ATM_WINDOW_LENGTH'] = f"PT{os.environ['assim_freq']}H"
     elif 'atm_window_length' in config.keys():
         config['ATM_WINDOW_LENGTH'] = config['atm_window_length']
     else:
         raise KeyError("Neither $(atm_window_length) nor ${assim_freq} defined")
-    # get atm window begin
+    # get the default window begin (atm window begin)
     h = re.findall('PT(\\d+)H', config['ATM_WINDOW_LENGTH'])[0]
     win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
     win_end = valid_time_obj + datetime.timedelta(hours=int(h)/2)
     config['ATM_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
     config['ATM_WINDOW_END'] = win_end.strftime('%Y-%m-%dT%H:%M:%SZ')
-    config['BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
+    config['ATM_BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
+    # get land window begin
+    if 'land_window_length' in config.keys():
+        config['LAND_WINDOW_LENGTH'] = config['land_window_length']
+        h = re.findall('PT(\\d+)H', config['LAND_WINDOW_LENGTH'])[0]
+        win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
+        win_end = valid_time_obj + datetime.timedelta(hours=int(h)/2)
+        config['LAND_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
+        config['LAND_WINDOW_END'] = win_end.strftime('%Y-%m-%dT%H:%M:%SZ')
+        config['LAND_BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
     return config
 
 

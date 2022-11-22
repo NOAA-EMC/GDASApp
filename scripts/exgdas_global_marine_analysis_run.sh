@@ -39,15 +39,11 @@ function socaincr2mom6 {
   scratch=scratch_socaincr2mom6
   mkdir -p $scratch
   cd $scratch
-
-  echo "at socaincr2mom6" $bkg $grid
-
-  cp $incr inc.nc                   # TODO: use accumulated incremnet, not outerloop intermediates
-  ncks -A -C -v h $bkg inc.nc       # Replace h incrememnt (all 0's) by h background (expected by MOM)
+  cp $incr inc.nc                   # TODO: I don't think we need to make a copy
   ncrename -d zaxis_1,Layer inc.nc  # Rename zaxis_1 to Layer
-  ncks -A -C -v Layer $bkg inc.nc   # Replace dimension-less Layer with dimensional Layer
-  mv inc.nc inc_tmp.nc              # ... dummy copy
-  ncwa -O -a Time inc_tmp.nc inc.nc # Remove degenerate Time dimension
+  ncks -A -C -v h $bkg h.nc         # Get h from background and rename axes to be consistent with inc.nc
+  ncrename -d time,Time -d zl,Layer -d xh,xaxis_1 -d yh,yaxis_1 h.nc
+  ncks -A -C -v h h.nc inc.nc       # Replace h incrememnt (all 0's) by h background
   ncks -A -C -v lon $grid inc.nc    # Add longitude
   ncks -A -C -v lat $grid inc.nc    # Add latitude
   mv inc.nc $incr_out
@@ -125,6 +121,8 @@ $APRUN_OCNANAL $JEDI_BIN/soca_var.x var.yaml > var.out 2>&1
 
 
 # increments update for MOM6
+# Note: ${DATA}/INPUT/MOM.res.nc points to the MOM6 history file from the start of the window
+#       and is used to get the valid vertical geometry of the increment
 ( socaincr2mom6 `ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1` ${DATA}/INPUT/MOM.res.nc ${DATA}/soca_gridspec.nc ${DATA}/Data/inc.nc )
 
 

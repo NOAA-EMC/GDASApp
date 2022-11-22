@@ -1,0 +1,74 @@
+obs space:
+  name: sfcship
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: sfcship_obs_$(OBS_DATE).nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: sfcship_diag_$(OBS_DATE).nc4
+      overwrite: true
+  _source: ldm
+  simulated variables: [surface_pressure, air_temperature, specific_humidity]
+geovals:
+  filename: sfcship_geoval_$(OBS_DATE).nc4
+obs operator:
+  name: Composite
+  components:
+    - name: VertInterp
+      variables:
+      - name: air_temperature
+      - name: specific_humidity
+    - name: SfcPCorrected
+      variables:
+      - name: surface_pressure
+      da_psfc_scheme: GSI
+      geovar_sfc_geomz: surface_geometric_height
+      geovar_geomz: geopotential_height
+      
+obs filters:
+  # Observation range sanity check
+  - filter: Bounds Check
+    filter variables:
+    - name: surface_pressure
+    minvalue: 37499.0
+    maxvalue: 106999.0
+    action:
+      name: reject
+    filter variables:
+    - name: air_temperature
+    minvalue: 195.0
+    maxvalue: 327.0
+    action:
+      name: reject
+    filter variables:
+    - name: specific_humidity
+    minvalue: 0.0
+    maxvalue: 0.03499
+    action:
+      name: reject
+
+  # Gross error check with (O - B) / ObsError greater than threshold.
+  - filter: Background Check
+    filter variables:
+    - name: surface_pressure
+    threshold: 3.6
+    absolute threshold: 990.0
+    action:
+      name: reject
+    defer to post: true
+    filter variables:
+    - name: air_temperature
+    threshold: 7.0
+    absolute threshold: 9.0
+    action:
+      name: reject
+    defer to post: true
+
+  # Reject all ObsType 183
+  - filter: BlackList
+    where:
+    - variable:
+        name: surface_pressure@ObsType
+      is_in: 183
