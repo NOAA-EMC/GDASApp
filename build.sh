@@ -19,7 +19,9 @@ usage() {
   echo "  -t  target to build for <target>    DEFAULT: $(hostname)"
   echo "  -c  additional CMake options        DEFAULT: <none>"
   echo "  -v  build with verbose output       DEFAULT: NO"
+  echo "  -f  force a clean build             DEFAULT: NO"
   echo "  -d  include JCSDA ctest data        DEFAULT: NO"
+  echo "  -a  build everything in bundle      DEFAULT: NO"
   echo "  -h  display this message and quit"
   echo
   exit 1
@@ -33,8 +35,10 @@ CMAKE_OPTS=""
 BUILD_TARGET="$(hostname)"
 BUILD_VERBOSE="NO"
 CLONE_JCSDADATA="NO"
+CLEAN_BUILD="NO"
+BUILD_JCSDA="NO"
 
-while getopts "p:t:c:hvd" opt; do
+while getopts "p:t:c:hvdfa" opt; do
   case $opt in
     p)
       INSTALL_PREFIX=$OPTARG
@@ -50,6 +54,12 @@ while getopts "p:t:c:hvd" opt; do
       ;;
     d)
       CLONE_JCSDADATA=YES
+      ;;
+    f)
+      CLEAN_BUILD=YES
+      ;;
+    a)
+      BUILD_JCSDA=YES
       ;;
     h|\?|:)
       usage
@@ -79,7 +89,9 @@ case ${BUILD_TARGET} in
 esac
 
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
-[[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR}
+if [[ $CLEAN_BUILD == 'YES' ]]; then
+  [[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR}
+fi
 mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 
 # If INSTALL_PREFIX is not empty; install at INSTALL_PREFIX
@@ -96,7 +108,16 @@ set +x
 # Build
 echo "Building ..."
 set -x
-make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
+if [[ $BUILD_JCSDA == 'YES' ]]; then
+  make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
+else
+  builddirs="fv3-jedi soca iodaconv"
+  for b in $builddirs; do
+    cd $b
+    make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
+    cd ../
+  done
+fi
 set +x
 
 # Install
