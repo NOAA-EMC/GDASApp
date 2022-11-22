@@ -55,23 +55,31 @@ stableroot=$GDAS_CI_ROOT/stable
 mkdir -p $stableroot/$datestr
 cd $stableroot/$datestr
 git clone $repo_url
+cd GDASApp
+git checkout feature/stable-nightly
 
 # ==============================================================================
 # merge in develop
+git merge develop
 
 # ==============================================================================
 # update the hashes to the most recent
+$my_dir/stable_mark.sh
 
 # ==============================================================================
 # run the automated testing
-$my_dir/run_ci.sh -d $stableroot/$datestr/GDASApp -o $stableroot/$datestr/output
+#$my_dir/run_ci.sh -d $stableroot/$datestr/GDASApp -o $stableroot/$datestr/output
 ci_status=$?
 if [ $ci_status -eq 0 ]; then
   # push a new commit to the stable branch
-  echo "good"
+  cd $stableroot/$datestr/GDASApp
+  git add CMakeLists.txt
+  git commit -m "Update to new stable build on $datestr"
+  git push
+  echo "Stable branch updated"
 else
   # do nothing
-  echo "sad!"
+  echo "Testing failed, stable branch will not be updated"
 fi
 # ==============================================================================
 # publish some information to RZDM for quick viewing
