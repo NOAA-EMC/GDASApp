@@ -17,7 +17,9 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
     except Exception as e:
         logging.error(f'Error occurred when attempting to load: {inputyaml}, error: {e}')
     # get just the observations part of the YAML
-    if 'observers' in jedi_yaml_dict['observations']:
+    if 'observations' in jedi_yaml_dict['cost function']:
+        jediobs = jedi_yaml_dict['cost function']['observations']['observers']
+    elif 'observers' in jedi_yaml_dict['observations']:
         jediobs = jedi_yaml_dict['observations']['observers']
     else:
         # the unit tests have a different YAML setup
