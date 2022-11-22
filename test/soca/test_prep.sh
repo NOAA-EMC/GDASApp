@@ -6,6 +6,10 @@ project_source_dir=$2
 
 source ${project_source_dir}/test/soca/test_utils.sh
 
+# Remove previously fetched obs
+rm -f ${project_binary_dir}/test/soca/3dvar/gdas.t12z.sst*.nc4
+rm -f ${project_binary_dir}/test/soca/3dvar/gdas.t12z.adt*.nc4
+
 # Export runtime env. variables
 source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $project_source_dir
 
@@ -22,7 +26,7 @@ done
 
 # Run prep step
 echo "============================= Testing exgdas_global_marine_analysis_prep.py for clean exit"
-${project_source_dir}/scripts/exgdas_global_marine_analysis_prep.py > exgdas_global_marine_analysis_prep.log
+${project_source_dir}/scripts/exgdas_global_marine_analysis_prep.py
 
 # Test that the obs path in var.yaml exist
 echo "============================= Testing the existence of obs and bkg in var.vaml"

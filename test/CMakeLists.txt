@@ -93,49 +93,59 @@ install(FILES ${test_reference}
         DESTINATION "test/testreference/")
 
 ##### unit tests
+
 # test for python coding norms
 add_test(NAME test_gdasapp_check_python_norms
          COMMAND pycodestyle -v --config ./.pycodestyle ./ush ./scripts ./test
          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+
 # test for ush/check_yaml_keys.py
 add_test(NAME test_gdasapp_check_yaml_keys
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/check_yaml_keys.py ${PROJECT_BINARY_DIR}/test/testinput/check_yaml_keys_ref.yaml ${PROJECT_BINARY_DIR}/test/testinput/check_yaml_keys_test.yaml
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
 # test to ensure all YAML in repo is valid YAML
 add_test(NAME test_gdasapp_check_valid_yaml
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/check_valid_yaml.py ${PROJECT_SOURCE_DIR}
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
 # test for ush/jediinc2fv3.py
 add_test(NAME test_gdasapp_jedi_increment_to_fv3
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atmges_compress.nc4 ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
 # test for YAML generation from a template
-add_test(NAME test_gdasapp_generate_yaml_func
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/test_generate_yaml.py --parm ${PROJECT_SOURCE_DIR}/parm/
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-set_tests_properties(
-         test_gdasapp_generate_yaml_func
-PROPERTIES
-         ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm;gPDY=20220330;gcyc=00;PDY=20220330;cyc=06;assim_freq=6"
-)
 add_test(NAME test_gdasapp_genYAML_prep
          COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-add_test(NAME test_gdasapp_genYAML_run
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example.yaml
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-set_tests_properties(
+
+if (${BUILD_GDASBUNDLE}) # the 2 tests below depend on python bindings to ioda and require a bundle build
+  add_test(NAME test_gdasapp_generate_yaml_func
+           COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/test_generate_yaml.py --parm ${PROJECT_SOURCE_DIR}/parm/
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+  set_tests_properties(
+         test_gdasapp_generate_yaml_func
+  PROPERTIES
+ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm;gPDY=20220330;gcyc=00;PDY=20220330;cyc=06;assim_freq=6")
+
+  add_test(NAME test_gdasapp_genYAML_run
+           COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example.yaml
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+  set_tests_properties(
          test_gdasapp_genYAML_run
-PROPERTIES
-         ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm"
-)
+  PROPERTIES
+ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm")
+endif()
+
 # test for converting ewok yaml to gdas
 add_test(NAME test_gdasapp_convert_ewok_yaml
          COMMAND ${PROJECT_SOURCE_DIR}/test/convert_ewok_yaml.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 # soca tests
-add_subdirectory(soca)
+if (${BUILD_GDASBUNDLE})
+  add_subdirectory(soca)
+endif()
 
 # gdas atm tests
 add_subdirectory(atm)
