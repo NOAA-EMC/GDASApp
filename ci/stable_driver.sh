@@ -49,7 +49,12 @@ esac
 # ==============================================================================
 # clone a fresh copy of the stable branch
 datestr="$(date +%Y%m%d)"
+repo_url="https://github.com/NOAA-EMC/GDASApp.git"
 stableroot=$GDAS_CI_ROOT/stable
+
+mkdir -p $stableroot/$datestr
+cd $stableroot/$datestr
+git clone $repo_url
 
 # ==============================================================================
 # merge in develop
