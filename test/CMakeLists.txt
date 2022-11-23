@@ -50,8 +50,10 @@ list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_test.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_adpsfc.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/amsua_n19_ewok.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_dbuoy.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_mbuoyb.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/temp_bufr_dbuoyprof.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/salt_bufr_dbuoyprof.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/temp_bufr_mbuoybprof.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/salt_bufr_mbuoybprof.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_tesac.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_trkob.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_sfcships.yaml
