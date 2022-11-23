@@ -64,7 +64,6 @@ diagnostics:
       for:
         variable: *variables
 
-
   graphics:
 
     # ---------- Map Plots ----------
@@ -79,7 +78,6 @@ diagnostics:
         figure size: [11,5]
         title: 'ObsValue | @NAME@ | ${variable_title}'
         output name: map_plots/@NAME@/${variable}/@CHANNELVAR@/obsvalue_@NAME@_${variable}@CHANNELVAR@.png
-        #output name: map_plots/@CYCLE@/@NAME@/${variable}/observations_map_@NAME@_${variable}.png
         tight_layout: true
       plots:
         - mapping:
@@ -113,7 +111,6 @@ diagnostics:
         figure size: [11,5]
         title: 'ObsError | @NAME@ | ${variable_title}'
         output name: map_plots/@NAME@/${variable}/@CHANNELVAR@/obserror_@NAME@_${variable}@CHANNELVAR@.png
-        #output name: map_plots/@CYCLE@/@NAME@/${variable}/observations_map_@NAME@_${variable}.png
         tight_layout: true
       plots:
         - mapping:
@@ -183,7 +180,6 @@ diagnostics:
         figure size: [11,5]
         title: 'ombg | @NAME@ | ${variable_title}'
         output name: map_plots/@NAME@/${variable}/@CHANNELVAR@/ombg_@NAME@_${variable}@CHANNELVAR@.png
-        #output name: map_plots/@CYCLE@/@NAME@/${variable}/ombg_map_@NAME@_${variable}.png
         tight_layout: true
       plots:
         - mapping:
@@ -209,7 +205,6 @@ diagnostics:
             vmin: 0 # ${dynamic_vmin}
             vmax: .2 # ${dynamic_vmax}
 
-
     - batch figure:
         variables: *variables
         @CHANNELSKEY@
@@ -218,7 +213,6 @@ diagnostics:
         figure size: [11,5]
         title: 'bkg | @NAME@ | ${variable_title}'
         output name: map_plots/@NAME@/${variable}/@CHANNELVAR@/bkg_@NAME@_${variable}@CHANNELVAR@.png
-        #output name: map_plots/@CYCLE@/@NAME@/${variable}/bkg_@NAME@_${variable}.png
         tight_layout: true
       plots:
         - mapping:
@@ -243,5 +237,3 @@ diagnostics:
             cmap: 'bwr'
             vmin: 0 #${dynamic_vmin}
             vmax: 1 # ${dynamic_vmax}
-
-

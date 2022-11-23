@@ -6,7 +6,6 @@
 # - Stage fix files, obs, geovals, etc.
 # - Produce an EVA YAML
 # - Run EVA
-#-------------------------------------------------------------
 #--------------- User modified options below -----------------
 cycle=2021032318
 GDASApp=/scratch2/NCEPDEV/marineda/Jakir.Hossen/sandbox/GDASApp # Change this to your own branch
@@ -34,5 +33,4 @@ cd $workdir
 for yaml in $(ls eva_*.yaml); do
   eva $yaml
 done
-
 
