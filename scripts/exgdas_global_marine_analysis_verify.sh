@@ -12,7 +12,6 @@ cycle=2021032318
 GDASApp=/scratch2/NCEPDEV/marineda/Jakir.Hossen/sandbox/GDASApp # Change this to your own branch
 workdir=$PWD/$cycle
 EXP_DIR=/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/runs/test4jakir
-VarYaml=/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/runs/test4jakir/analysis
 machine=hera
 
 # Load Modules for GDASApp
@@ -22,17 +21,18 @@ export PYTHONPATH=$GDASApp/ush:$PYTHONPATH
 
 # Create and set up the working directory
 mkdir -p $workdir
-cd $workdir
 # Load EVA modules
 module load EVA/$machine
 
 # Generate EVA YAML
-#./gen_eva_obs_yaml_marine.py -i ${VarYaml}/var.yaml -t ./jedi_marine_mapplots.yaml -o $workdir
-$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${VarYaml}/var.yaml -t $GDASApp/ush/eva//jedi_marine_mapplots.yaml -o $workdir
+$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${EXP_DIR}/analysis/var.yaml -t $GDASApp/ush/eva/marine_gdas_adt.yaml -o $workdir -v absolute_dynamic_topography 
+$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${EXP_DIR}/analysis/var.yaml -t $GDASApp/ush/eva/marine_gdas_sst.yaml -o $workdir -v sea_surface_temperature
+#$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${EXP_DIR}/analysis/var.yaml -t $GDASApp/ush/eva/jedi_marine_mapplots.yaml -o $workdir
+
 # Run EVA
+cd $workdir
 for yaml in $(ls eva_*.yaml); do
   eva $yaml
 done
 
-rm *.yaml
 

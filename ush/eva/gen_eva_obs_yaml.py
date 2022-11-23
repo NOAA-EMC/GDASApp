@@ -7,7 +7,7 @@ import socket
 import yaml
 
 
-def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
+def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, variable=None):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     # open input YAML file to get config
     try:
@@ -28,6 +28,8 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
     evaobs = []
     for obsspace in jediobs:
         tmp_os = obsspace['obs space']
+        if tmp_os['simulated variables'][0] != variable:
+            continue
         tmp_dict = {
             'name': tmp_os['name'],
             'diagfile': tmp_os['obsdataout']['engine']['obsfile'].replace('.nc4', '_0000.nc4'),
@@ -96,5 +98,6 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--inputjediyaml', type=str, help='Input JEDI YAML Configuration', required=True)
     parser.add_argument('-t', '--templateyaml', type=str, help='Template EVA YAML', required=True)
     parser.add_argument('-o', '--outputdir', type=str, help='Output directory for EVA YAMLs', required=True)
+    parser.add_argument('-v', '--variable', type=str, help='variable for yaml', required=False, default=None)
     args = parser.parse_args()
-    gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir)
+    gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir, variable=args.variable)
