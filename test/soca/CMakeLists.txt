@@ -8,12 +8,20 @@ file(COPY ${bkg_diag} DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 
 # link input file from iodaconv to test directory
 # test convert BUFR to IODA
-add_test(NAME test_gdasapp_convert_bufr_dbuoy
-         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_dbuoy.yaml
+add_test(NAME test_gdasapp_convert_bufr_temp_dbuoy
+         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/temp_bufr_dbuoyprof.yaml
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
-add_test(NAME test_gdasapp_convert_bufr_mbuoyb
-         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_mbuoyb.yaml
+add_test(NAME test_gdasapp_convert_bufr_salt_dbuoy
+         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/salt_bufr_dbuoyprof.yaml
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
+add_test(NAME test_gdasapp_convert_bufr_temp_mbuoyb
+         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/temp_bufr_mbuoybprof.yaml
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
+add_test(NAME test_gdasapp_convert_bufr_salt_mbuoyb
+         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/salt_bufr_mbuoybprof.yaml
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_tesac

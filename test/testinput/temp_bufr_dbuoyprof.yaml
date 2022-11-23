@@ -1,7 +1,7 @@
 observations:
   - obs space:
       name: bufr
-      obsdatain: "./testdata/mbuoyb.20180415_subsampled"
+      obsdatain: "./testdata/dbuoy.20180415_subsampled" 
 
       exports:
         group_by_variable: depth  # Optional
@@ -16,17 +16,15 @@ observations:
           stationID:
             query: "*/RPID"
           longitude:
-            query: "*/CLONH"
+            query: "*/CLON"
           latitude:
-            query: "*/CLATH"
+            query: "*/CLAT"
           depth:
-            query: "*/IDMSMDBS/BBYSTSL/DBSS"
+            query: "*/DTSCUR/DBSS"
           temp:
-            query: "*/IDMSMDBS/BBYSTSL/SST1"
+            query: "*/DTSCUR/STMP"
             transforms:
               - offset: -273.15
-          saln:
-            query: "*/IDMSMDBS/BBYSTSL/SALN"
         filters:
           - bounding:
               variable: depth
@@ -35,21 +33,19 @@ observations:
               variable: temp
               lowerBound: 250.15
               upperBound: 313.15
-              variable: saln
-              lowerBound: 0.0
-              upperBound: 40.0
+
     ioda:
       backend: netcdf
-      obsdataout: "./testoutput/bufr_mbuoybprof_20180415.nc"
+      obsdataout: "./testoutput/temp_bufr_dbuoyprof_20180415.nc"
 
       globals:
         - name: "dataType-date"
           type: string
-          value: "Moored Buoy Temp & Salinity Profile - 2018041512"
+          value: "Drifting Buoy Temp Profile - 2018041512"
 
       dimensions:
         - name: nlevs
-          path: "*/IDMSMDBS"
+          path: "*/DTSCUR"
 
       variables:
         - name: "dateTime@MetaData"
@@ -85,8 +81,3 @@ observations:
           units: "deg C"
           range: [-23.0, 40.0]
 
-        - name: "sea_water_salinity@ObsValue"
-          source: variables/saln
-          longName: "Salinity at depth"
-          units: "psu"
-          range: [0.0, 40.0]
