@@ -32,7 +32,7 @@ for r in $bundle_repos; do
     echo "git_hash: $hash"
     if [[ $hash != "none" ]]; then
         hash=${hash:0:7}
-        echo "changing $r to $hash"
+        echo "changing $r to $hash in $bundle_dir/CMakeLists.txt"
         sed -i "s/\(.*PROJECT \+$r .*\)\(BRANCH\|TAG\) *\([a-zA-Z0-9\/\_\.\-]*\)\(.*\)/\1TAG $hash\4/g" $bundle_dir/CMakeLists.txt
     fi
 done
