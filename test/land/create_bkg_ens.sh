@@ -6,16 +6,15 @@ YYYY=2021
 MM=03
 DD=23
 HH=18
-
-WORKDIR=./
-SORCDIR=/scratch2/NCEPDEV/stmp1/Jiarui.Dong/gdasapp/gdasapp.3
 FILEDATE=$YYYY$MM$DD.${HH}0000
 
-MODDIR=/scratch1/NCEPDEV/global/Jiarui.Dong/JEDI/GDASWork/GDASApp/ush/land/modules
-RSTDIR=/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data/lowres/gdas.$YYYY$MM$DD/12/atmos/RESTART/
-DAtype=letkfoi_snow_gts
+WORKDIR=$1
+SORCDIR=$2
 
-if [[ ${DAtype} == 'letkfoi_snow_gts' ]]; then
+RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$YYYY$MM$DD/12/atmos/RESTART/
+DAtype=letkfoi_snow
+
+if [[ ${DAtype} == 'letkfoi_snow' ]]; then
 
     B=30  # back ground error std for LETKFOI
 
@@ -37,10 +36,6 @@ if [[ ${DAtype} == 'letkfoi_snow_gts' ]]; then
 
 
     echo 'do_landDA: calling create ensemble'
-
-    # using ioda mods to get a python version with netCDF4
-#    source ${WORKDIR}/ioda_mods_hera
-    source ${MODDIR}/gdasapp_mods
 
     python ${SORCDIR}/ush/land/letkf_create_ens.py $FILEDATE $B
     if [[ $? != 0 ]]; then
