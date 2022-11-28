@@ -83,6 +83,7 @@ else
 fi
 # ==============================================================================
 # publish some information to RZDM for quick viewing
+# THIS IS A TODO FOR NOW
 
 # ==============================================================================
 # scrub working directory for older files
