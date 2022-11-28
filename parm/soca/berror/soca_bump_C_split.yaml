@@ -20,9 +20,8 @@ bump:
   strategy: specific_univariate
   new_nicas: true
   write_nicas_local: true
-  mask_check: true
-  resol: 6.0
-  network: false
+  mask_check: false
+  resol: 20.0
   grids:
   - prefix: ${CVAR}
     variables:

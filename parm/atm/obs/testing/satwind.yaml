@@ -3,16 +3,16 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(OBS_DIR)/$(OBS_PREFIX)satwind.$(OBS_DATE).nc4
+      obsfile: satwind_obs_$(OBS_DATE).nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DIAG_DIR)/diag_satwind_$(OBS_DATE).nc4
-  io pool:
-    max pool size: 1
+      obsfile: satwind_diag_$(OBS_DATE).nc4
   simulated variables: [eastward_wind, northward_wind]
-get values:
-  interpolation method: $(INTERP_METHOD)
+geovals:
+  filename: satwind_geoval_$(OBS_DATE).nc4
+vector ref: GsiHofXBc
+tolerance: 0.01
 obs operator:
   name: VertInterp
 obs pre filters:

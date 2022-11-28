@@ -21,10 +21,6 @@ observations:
             query: "*/CLAT"
           depth:
             query: "*/DTSCUR/DBSS"
-          temp:
-            query: "*/DTSCUR/STMP"
-            transforms:
-              - offset: -273.15
           saln:
             query: "*/DTSCUR/SALN"
         filters:
@@ -32,21 +28,18 @@ observations:
               variable: depth
               lowerBound: 0
               upperBound: 10000
-              variable: temp
-              lowerBound: 250.15
-              upperBound: 313.15
               variable: saln
               lowerBound: 0.0
               upperBound: 40.0
 
     ioda:
       backend: netcdf
-      obsdataout: "./testoutput/bufr_dbuoyprof_20180415.nc"
+      obsdataout: "./testoutput/salt_bufr_dbuoyprof_20180415.nc"
 
       globals:
         - name: "dataType-date"
           type: string
-          value: "Drifting Buoy Temp & Salinity Profile - 2018041512"
+          value: "Drifting Buoy Salinity Profile - 2018041512"
 
       dimensions:
         - name: nlevs
@@ -79,12 +72,6 @@ observations:
           source: variables/depth
           longName: "Depth below sea surface"
           units: "m"
-
-        - name: "sea_water_temperature@ObsValue"
-          source: variables/temp
-          longName: "Temperature at depth"
-          units: "deg C"
-          range: [-23.0, 40.0]
 
         - name: "sea_water_salinity@ObsValue"
           source: variables/saln
