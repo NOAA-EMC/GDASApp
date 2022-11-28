@@ -10,7 +10,7 @@ import sys
 # Clara Draper, October, 2021.
 
 if (len(sys.argv) != 3):
-    print('argument error, usage: letkf_create file_stub back_error' )
+    print('argument error, usage: letkf_create file_stub back_error')
 
 fstub = sys.argv[1]
 b = float(sys.argv[2])
@@ -20,8 +20,8 @@ offset = b/np.sqrt(2)
 
 print('adjusting '+fstub+'* by '+str(offset))
 
-sign = [ 1, -1 ]
-ens_dirs = ['mem001', 'mem002'] 
+sign = [1, -1]
+ens_dirs = ['mem001', 'mem002']
 
 for ens in range(2):
     for tt in range(6):
