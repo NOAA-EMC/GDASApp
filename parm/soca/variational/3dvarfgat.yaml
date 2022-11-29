@@ -9,7 +9,7 @@ cost function:
 
   model:
     name: PseudoModel
-    tstep: PT3H
+    tstep: PT1H
     state variables: &model_vars [socn, tocn, ssh, hocn, uocn, vocn, mld, layer_depth]
     states: $<< $(BKG_LIST)
 
@@ -47,7 +47,7 @@ variational:
       name: Identity
       increment variables: *a_vars
       variable change: Identity
-      tstep: PT3H
+      tstep: PT1H
     ninner: $(NINNER)
     gradient norm reduction: 1e-10
     test: on

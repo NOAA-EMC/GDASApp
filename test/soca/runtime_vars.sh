@@ -14,7 +14,7 @@ export PDY=20180415
 export cyc=12
 export assim_freq=6            # DA window
 export COMOUT=${project_binary_dir}/test/soca/3dvar
-export DATA=${COMOUT}/analysis
+export DATA=${project_binary_dir}/test/soca/3dvar/ocnanal_${CDATE}
 export COMIN_OBS=${project_binary_dir}/test/soca/obs/r2d2-shared
 export COMIN_GES=${project_binary_dir}/test/soca/bkg  # Backgrounds from previous forecast
 export CASE_ANL="C48"           # TODO: Replace with or add OCNRES
@@ -45,6 +45,5 @@ export R2D2_OBS_DB=shared
 export R2D2_OBS_DUMP=soca
 export R2D2_OBS_SRC=gdasapp
 export R2D2_OBS_WINDOW=24     # R2D2 sampling DB window
-
-export APRUN_SOCAANAL="$MPIEXEC_EXEC $MPIEXEC_NPROC 6"
-
+export SOCA_NINNER=2
+export APRUN_OCNANAL="$MPIEXEC_EXEC $MPIEXEC_NPROC 6"

@@ -1,18 +1,100 @@
 from r2d2 import fetch
 from solo.basic_files import mkdir
-from solo.date import Hour, DateIncrement
+from solo.date import Hour, DateIncrement, date_sequence
 from solo.logger import Logger
 from solo.stage import Stage
 from solo.configuration import Configuration
 from solo.nice_dict import NiceDict
+from datetime import datetime, timedelta
 import os
 import shutil
 from dateutil import parser
 import ufsda
 import logging
 import glob
+import xarray
+import sys
+import numpy as np
+
+# TODO: We might want to revisit this in the future
+# Try to resolve the location of pyioda, assuming there are only 2 places where this
+# script can exist (build/ush/ufsda or /ush/ufsda)
+from pathlib import Path
+jedilib = Path(os.path.join(Path(__file__).parent.absolute(), '../..', 'lib'))
+if not jedilib.is_dir():
+    jedilib = Path(os.path.join(Path(__file__).parent.absolute(), '../../build', 'lib'))
+pyver = 'python3.'+str(sys.version_info[1])
+pyioda_lib = Path(os.path.join(jedilib, pyver, 'pyioda')).resolve()
+pyiodaconv_lib = Path(os.path.join(jedilib, 'pyiodaconv')).resolve()
+sys.path.append(str(pyioda_lib))
+sys.path.append(str(pyiodaconv_lib))
+import ioda_conv_engines as iconv
+from orddicts import DefaultOrderedDict
 
 __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
+
+logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
+                    level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
+
+
+def concatenate_ioda(iodafname, obsvarname='sea_surface_temperature'):
+    flist = glob.glob(iodafname+'*')
+    flist.sort()
+    nfiles = len(flist)
+    if nfiles == 0:
+        logging.info(f"No files to concatenate.")
+        return
+
+    if len(flist) == 1:
+        logging.info(f"Only file is {flist[0]}, rename to {iodafname}. No need to concatenate.")
+        shutil.move(flist[0], iodafname)
+        return
+
+    logging.info(f"Concatenating {nfiles} files from globbing {iodafname}*")
+
+    # concatenate stuff outside of groups (nlocs dimensions and variables)
+    ds = xarray.concat([xarray.open_dataset(f) for f in flist], dim='nlocs')
+
+    # concatenate all but metadata
+    # TODO (G): Not able to properly concatenate PreQC, to be investigated
+    outdata = {}
+    for group in ["ObsError", "ObsValue"]:
+        ds = xarray.concat([xarray.open_dataset(f, group=group) for f in flist], dim='nlocs')
+        outdata[(obsvarname, group)] = ds[obsvarname]
+
+    # concatenate metadata
+    group = "MetaData"
+    ds = xarray.concat([xarray.open_dataset(f, group=group) for f in flist], dim='nlocs')
+    for k in list(ds.keys()):
+        outdata[(k, group)] = ds[k]
+
+    # to_netcdf does not do the trick unfotunately, write with ioda
+    nlocs = ds.dims['nlocs']
+    DimDict = {}
+    DimDict['nlocs'] = nlocs
+
+    # setup the IODA writer
+    locationKeyList = [("latitude", "float"),
+                       ("longitude", "float"),
+                       ("datetime", "string"),
+                       ]
+
+    VarDims = {'': ['nlocs']}
+
+    # Reorganize MetaData group to make ioda happy
+    outdata[('latitude', 'MetaData')] = outdata[('latitude', 'MetaData')][:]
+    outdata[('longitude', 'MetaData')] = outdata[('longitude', 'MetaData')][:]
+    dates = outdata[('datetime', 'MetaData')][:]
+    outdata[('datetime', 'MetaData')] = np.empty(nlocs, dtype=object)
+    outdata[('datetime', 'MetaData')][:] = dates
+
+    # TODO (G): get the missing attributes from ds
+    VarAttrs = DefaultOrderedDict(lambda: DefaultOrderedDict(dict))
+    units = {}
+    writer = iconv.IodaWriter(iodafname, locationKeyList, DimDict)
+    writer.BuildIoda(outdata, VarDims, VarAttrs, units)
+
+    return
 
 
 def gdas_fix(input_fix_dir, working_dir, config):
@@ -32,9 +114,15 @@ def gdas_fix(input_fix_dir, working_dir, config):
     else:
         case_anl = config['CASE_ANL']
     layers = int(config['LEVS'])-1
-    # link static B files
-    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'bump', case_anl),
-                             config['fv3jedi_staticb_dir'])
+
+    # figure out staticb source
+    staticb_source = config.get('STATICB_TYPE', 'gsibec')
+
+    # link staticb
+    if staticb_source in ['bump', 'gsibec']:
+        ufsda.disk_utils.symlink(os.path.join(input_fix_dir, staticb_source, case_anl),
+                                 config['fv3jedi_staticb_dir'])
+
     # link akbk file
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
                                           'fv3files', f"akbk{layers}.nc4"),
@@ -289,8 +377,8 @@ def background(config):
     """
     rst_dir = os.path.join(config['background_dir'], 'RESTART')
     ges_dir = os.path.join(config['background_dir'], 'RESTART_GES')
-    jedi_bkg_dir = os.path.join(config['COMOUT'], 'analysis', 'bkg')
-    jedi_anl_dir = os.path.join(config['COMOUT'], 'analysis', 'anl')
+    jedi_bkg_dir = os.path.join(config['DATA'], 'bkg')
+    jedi_anl_dir = os.path.join(config['DATA'], 'anl')
 
     # copy RESTART to RESTART_GES
     try:
@@ -312,75 +400,35 @@ def obs(config):
     based on input `config` dict
     """
     # create directory
-    obs_dir = os.path.join(config['COMOUT'], 'analysis', 'obs')
+    obs_dir = os.path.join(config['DATA'], 'obs')
     mkdir(obs_dir)
     for ob in config['observers']:
         obname = ob['obs space']['name'].lower()
         outfile = ob['obs space']['obsdatain']['engine']['obsfile']
-        # the above path is what 'FV3-JEDI' expects, need to modify it
-        outpath = outfile.split('/')
-        outpath[0] = 'analysis'
-        outpath = '/'.join(outpath)
         # grab obs using R2D2
         window_begin = config['window begin']
-
-        # TODO (Guillaume):
-        # In order to fetch without specifying the "window begin", the
-        # obs need to be stored in steps that are a factor of the DA window,
-        # so for a 6 hour DA window, 6, 3, 2, 1 would work.
-        # Solutions:
-        # 1 - get rid of the 24 hour window database (probably a good idea)
-        # 2 - fix R2D2
-        # 3 - do nothing
-        if config['r2d2 window length'] == '24':
-            window_begin = parser.parse(config['window begin']).replace(hour=0)
-
-        fetch(
-            type='ob',
-            provider=config['r2d2_obs_src'],
-            experiment=config['r2d2_obs_dump'],
-            date=window_begin,
-            obs_type=obname,
-            time_window=config['r2d2 window length'],
-            target_file=outfile,
-            ignore_missing=True,
-            database=config['r2d2_obs_db'],
-        )
-        # if the ob type has them specified in YAML
-        # try to grab bias correction files too
-        if 'obs bias' in ob:
-            bkg_time = config['background_time']
-            satbias = ob['obs bias']['input file']
-            # the above path is what 'FV3-JEDI' expects, need to modify it
-            satbias = satbias.split('/')
-            satbias[0] = 'analysis'
-            satbias = '/'.join(satbias)
-            satbias = os.path.join(config['COMOUT'], satbias)
-            # try to grab bc files using R2D2
-            fetch(
-                type='bc',
-                provider=config['r2d2_bc_src'],
-                experiment=config['r2d2_bc_dump'],
-                date=bkg_time,
-                obs_type=obname,
-                target_file=satbias,
-                file_type='satbias',
-                ignore_missing=True,
-                database=config['r2d2_obs_db'],
-            )
-            # below is lazy but good for now...
-            tlapse = satbias.replace('satbias.nc4', 'tlapse.txt')
-            fetch(
-                type='bc',
-                provider=config['r2d2_bc_src'],
-                experiment=config['r2d2_bc_dump'],
-                date=bkg_time,
-                obs_type=obname,
-                target_file=tlapse,
-                file_type='tlapse',
-                ignore_missing=True,
-                database=config['r2d2_obs_db'],
-            )
+        window_begin = parser.parse(window_begin, fuzzy=True)
+        window_end = window_begin + timedelta(hours=6)
+        steps = ['P1D', 'PT10M']
+        for step in steps:
+            if step == 'P1D':
+                dates = date_sequence(window_begin.strftime('%Y%m%d'), window_end.strftime('%Y%m%d'), step)
+            if step == "PT10M":
+                dates = date_sequence(window_begin.strftime('%Y%m%d%H'), window_end.strftime('%Y%m%d%H'), step)
+            for count, date in enumerate(dates):
+                fetch(
+                    type='ob',
+                    provider=config['r2d2_obs_src'],
+                    experiment=config['r2d2_obs_dump'],
+                    date=date,
+                    obs_type=obname,
+                    time_window=step,
+                    target_file=outfile+'.'+str(count),
+                    ignore_missing=True,
+                    database=config['r2d2_obs_db']
+                )
+            # Concatenate ioda files
+            concatenate_ioda(outfile)
 
 
 def fv3jedi(config):

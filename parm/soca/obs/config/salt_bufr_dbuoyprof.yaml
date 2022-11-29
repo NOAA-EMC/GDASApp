@@ -1,0 +1,15 @@
+obs space:
+  name: salt_bufr_dbuoyprof
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: ${OBS_DIR}/${OBS_PREFIX}salt_bufr_dbuoyprof.${OBS_DATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: ${DIAG_DIR}/salt_bufr_dbuoyprof.${OBS_DATE}.nc4
+  simulated variables: [sea_water_salinity]
+obs operator:
+  name: Identity
+obs error:
+  covariance model: diagonal

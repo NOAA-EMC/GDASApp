@@ -57,6 +57,7 @@ load("udunits/2.2.28")
 load("ncview/2.1.8")
 load("netcdf-cxx4/4.3.1")
 load("py-pybind11/2.8.1")
+--load("crtm/v2.4_jedi")
 
 load("hpc/1.2.0")
 load("miniconda3/4.6.14")
@@ -74,6 +75,8 @@ setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
 setenv('R2D2_CONFIG', '/work2/noaa/da/cmartin/GDASApp/R2D2_SHARED/config_orion.yaml')
+setenv("CRTM_FIX","/work2/noaa/da/cmartin/GDASApp/fix/crtm")
+prepend_path("PATH","/apps/contrib/NCEP/libs/hpc-stack/intel-2018.4/prod_util/1.2.2/bin")
 
 execute{cmd="ulimit -s unlimited",modeA={"load"}}
 

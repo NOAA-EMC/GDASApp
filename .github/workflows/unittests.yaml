@@ -13,11 +13,12 @@ jobs:
         pip install --upgrade pip
         pip install pycodestyle
         pip install netCDF4
-        
+        pip install xarray
+
     - name: Install other dependencies
       run: |
-        wget https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/r2d2-bb361c2.tar.gz 
-        wget https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/solo-877b414.tar.gz 
+        wget https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/r2d2-bb361c2.tar.gz
+        wget https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/solo-877b414.tar.gz
         tar -xvf r2d2-bb361c2.tar.gz
         tar -xvf solo-877b414.tar.gz
         cd solo && pip install . && cd ..
@@ -56,4 +57,3 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/build
         ctest --output-on-failure
-

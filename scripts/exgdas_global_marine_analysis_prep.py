@@ -27,6 +27,8 @@ import f90nml
 import shutil
 import logging
 import subprocess
+from datetime import datetime, timedelta
+from netCDF4 import Dataset
 
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -43,60 +45,38 @@ print(f"sys.path={sys.path}")
 import ufsda
 
 
-def gen_bkg_list(bkg_path='.', file_type='ocn_da', yaml_name='bkg.yaml', iconly=False):
+def test_hist_date(histfile, ref_date):
+    ncf = Dataset(histfile, 'r')
+    hist_date = dparser.parse(ncf.variables['time'].units, fuzzy=True) + timedelta(hours=int(ncf.variables['time'][0]))
+    ncf.close()
+    logging.info(f"*** history file date: {hist_date} expected date: {ref_date}")
+    assert hist_date == ref_date, 'Inconsistent bkg date'
+
+
+def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]', yaml_name='bkg.yaml'):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
+    TODO: [3-9] shouldn't be hard-coded. Instead construct the list of background dates for the cycle
+                and grab the files that correspond to the dates.
     """
-    # TODO (Guillaume): Assumes that only the necessary backgrounds are under bkg_path.
-    #                   That's sketchy, use ic date, da window and dump freq of bkg instead
-    files = glob.glob(bkg_path+'/*'+file_type+'*')
-    files.sort()
 
-    if iconly:
-        # exit early if iconly
-        ic_date = dparser.parse(os.path.splitext(os.path.basename(files[0]))[0], fuzzy=True)
-        ymdhms = []
-        for k in ['%Y', '%m', '%d', '%H']:
-            ymdhms.append(int(ic_date.strftime(k)))
-        # TODO (Guillaume): Won't work for with split restarts
-        return os.path.join(bkg_path, 'MOM.res.nc'), ymdhms
-
-    # Fix missing value in diag files
-    for v in ['Temp', 'Salt', 'ave_ssh', 'h', 'MLD']:
-        for att in ["_FillValue", "missing_value"]:
-            fix_diag_ch_jobs = []  # change att value
-            fix_diag_d_jobs = []   # delete att
-            for bkg in files:
-                fix_diag_ch_jobs.append('ncatted -a '+att+','+v+',o,d,9999.0 '+bkg)
-                fix_diag_d_jobs.append('ncatted -a '+att+','+v+',d,d,1.0 '+bkg)
-
-            for c in fix_diag_ch_jobs:
-                logging.info(f"{c}")
-                os.system(c)
-                result = subprocess.run(c, stdout=subprocess.PIPE, shell=True)
-                result.stdout.decode('utf-8')
-
-            for c in fix_diag_d_jobs:
-                logging.info(f"{c}")
-                os.system(c)
-                result = subprocess.run(c, stdout=subprocess.PIPE, shell=True)
-                result.stdout.decode('utf-8')
-            '''
-            n = 1 #len(files)
-            for j in range(max(int(len(fix_diag_ch_jobs)/n), 1)):
-                procs = [subprocess.Popen(i, shell=True) for i in fix_diag_ch_jobs[j*n: min((j+1)*n, len(fix_diag_ch_jobs))] ]
-                for p in procs:
-                    p.wait()
-            '''
     # Create yaml of list of backgrounds
     bkg_list = []
+    bkg_date = window_begin
+    files = glob.glob(bkg_path+'/*'+file_type+'*')
+    files.sort()
+    ocn_filename_ic = os.path.splitext(os.path.basename(files[0]))[0]+'.nc'
+    test_hist_date(os.path.join(bkg_path, ocn_filename_ic), bkg_date)  # assert date of the history file is correct
+
     for bkg in files:
-        ocn_filename = os.path.splitext(os.path.basename(bkg))[0]
-        bkg_date = dparser.parse(ocn_filename.replace("_", "-"), fuzzy=True)
+        test_hist_date(bkg, bkg_date)  # assert date of the history file is correct
+        ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'
         bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',
                     'ocn_filename': ocn_filename,
-                    'read_from_file': 1}
+                    'read_from_file': 1,
+                    'remap_filename': os.path.join(bkg_path, ocn_filename_ic)}
+        bkg_date = bkg_date + timedelta(hours=1)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
     dict = {'states': bkg_list}
     f = open(yaml_name, 'w')
@@ -110,18 +90,20 @@ logging.info(f"---------------- Setup runtime environement")
 
 comout = os.getenv('COMOUT')
 comin_obs = os.getenv('COMIN_OBS')
+anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
 
 # create analysis directory for files
-anl_dir = os.path.join(comout, 'analysis')
 ufsda.mkdir(anl_dir)
 
 # create output directory for obs
-diags = os.path.join(comout, 'analysis', 'diags')
+diags = os.path.join(anl_dir, 'diags')
 ufsda.mkdir(diags)
 
 # create output directory for soca DA
-ufsda.mkdir(os.path.join(comout, 'analysis', 'Data'))
+anl_out = os.path.join(comout, 'ocnanal_'+os.getenv('CDATE'), 'Data')
+ufsda.mkdir(anl_out)
+ufsda.symlink(os.path.join(anl_dir, 'Data'), anl_out, remove=False)
 
 
 ################################################################################
@@ -149,6 +131,8 @@ ufsda.stage.obs(stage_cfg)
 ################################################################################
 # stage backgrounds from COMIN_GES to analysis subdir
 logging.info(f"---------------- Stage backgrounds")
+
+stage_cfg['background_dir'] = os.getenv('COMIN_GES')
 ufsda.stage.background(stage_cfg)
 
 ################################################################################
@@ -224,18 +208,22 @@ var_yaml_template = os.path.join(gdas_home,
                                  'soca',
                                  'variational',
                                  '3dvarfgat.yaml')
-gen_bkg_list(bkg_path=os.path.join(anl_dir, 'bkg'), yaml_name='bkg_list.yaml')
+half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
+window_begin = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
+gen_bkg_list(window_begin=window_begin, bkg_path=os.getenv('COMIN_GES'), yaml_name='bkg_list.yaml')
+soca_ninner = os.getenv('SOCA_NINNER')
 config = {
     'OBS_DATE': os.getenv('PDY')+os.getenv('cyc'),
     'BKG_LIST': 'bkg_list.yaml',
     'COVARIANCE_MODEL': 'SABER',
-    'NINNER': '3',
+    'NINNER': soca_ninner,
     'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')}
+logging.info(f"{config}")
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
 
 # link of convenience
-ic, ymdhms = gen_bkg_list(bkg_path=os.path.join(anl_dir, 'bkg'), iconly=True)
-ufsda.disk_utils.symlink(ic, os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
+diag_ic = glob.glob(os.path.join(os.getenv('COMIN_GES'), 'gdas.*.ocnf003.nc'))[0]
+ufsda.disk_utils.symlink(diag_ic, os.path.join(anl_dir, 'INPUT', 'MOM.res.nc'))
 
 # prepare input.nml
 mom_input_nml_src = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
@@ -243,6 +231,8 @@ mom_input_nml_tmpl = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml.tmpl')
 mom_input_nml = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
 ufsda.disk_utils.copyfile(mom_input_nml_src, mom_input_nml_tmpl)
 domain_stack_size = os.getenv('DOMAIN_STACK_SIZE')
+
+ymdhms = [int(s) for s in window_begin.strftime('%Y,%m,%d,%H,%M,%S').split(',')]
 with open(mom_input_nml_tmpl, 'r') as nml_file:
     nml = f90nml.read(nml_file)
     nml['ocean_solo_nml']['date_init'] = ymdhms

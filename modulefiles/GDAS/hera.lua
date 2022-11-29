@@ -63,6 +63,7 @@ load("ncview/2.1.8")
 load("netcdf-cxx4/4.3.1")
 load("json/3.10.5")
 load("py-pybind11/2.8.1")
+--load("crtm/v2.4_jedi")
 
 load("hpc/1.2.0")
 load("miniconda3/4.6.14")
@@ -78,6 +79,8 @@ setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
 setenv('R2D2_CONFIG', '/scratch1/NCEPDEV/stmp4/Cory.R.Martin/R2D2_SHARED/config_hera.yaml')
+setenv("CRTM_FIX","/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix/crtm")
+prepend_path("PATH","/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/intel-18.0.5.274/prod_util/1.2.2/bin")
 
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)
