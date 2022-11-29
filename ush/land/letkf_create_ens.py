@@ -26,7 +26,7 @@ sign = [1, -1]
 ens_dirs = ['mem001', 'mem002']
 
 for (mem, value) in zip(ens_dirs, sign):
-    for tt in range(1,7):
+    for tt in range(1, 7):
         # open file
         out_netcdf = os.path.join(workdir, mem, f"{fstub}.sfc_data.tile{tt}.nc")
         # print (f"{out_netcdf}")
