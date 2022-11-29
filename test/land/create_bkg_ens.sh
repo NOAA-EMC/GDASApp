@@ -35,7 +35,7 @@ if [[ ${DAtype} == 'letkfoi_snow' ]]; then
         mkdir $WORKDIR/mem${ens}
         for tile in 1 2 3 4 5 6
         do
-        cp ${RSTDIR}/${FILEDATE}.sfc_data.tile${tile}.nc  ${WORKDIR}/mem${ens}/${FILEDATE}.sfc_data.tile${tile}.nc
+            cp ${RSTDIR}/${FILEDATE}.sfc_data.tile${tile}.nc  ${WORKDIR}/mem${ens}/${FILEDATE}.sfc_data.tile${tile}.nc
         done
         cp ${RSTDIR}/${FILEDATE}.coupler.res ${WORKDIR}/mem${ens}/${FILEDATE}.coupler.res
     done

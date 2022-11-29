@@ -25,14 +25,12 @@ print(f"adjusting {fstub}* by {str(offset)}")
 sign = [1, -1]
 ens_dirs = ['mem001', 'mem002']
 
-for ens in range(2):
-    for tt in range(6):
+for (mem, value) in zip(ens_dirs, sign):
+    for tt in range(1,7):
         # open file
-        out_netcdf = os.path.join(workdir, ens_dirs[ens], fstub+".sfc_data.tile"+str(tt+1)+".nc")
+        out_netcdf = os.path.join(workdir, mem, f"{fstub}.sfc_data.tile{tt}.nc")
         # print (f"{out_netcdf}")
-        ncOut = Dataset(out_netcdf, "r+")
-        # add offset to the snow
-        var_array = ncOut.variables["snwdph"][:]
-        var_array = var_array + sign[ens]*offset
-        ncOut.variables["snwdph"][0, :, :] = var_array[:]
-        ncOut.close()
+        with Dataset(out_netcdf, "r+") as ncOut:
+            var_array = ncOut.variables["snwdph"][:]
+            var_array = var_array + value*offset
+            ncOut.variables["snwdph"][0, :, :] = var_array[:]
