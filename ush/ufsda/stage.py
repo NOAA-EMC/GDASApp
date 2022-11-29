@@ -377,8 +377,8 @@ def background(config):
     """
     rst_dir = os.path.join(config['background_dir'], 'RESTART')
     ges_dir = os.path.join(config['background_dir'], 'RESTART_GES')
-    jedi_bkg_dir = os.path.join(config['COMOUT'], 'analysis', 'bkg')
-    jedi_anl_dir = os.path.join(config['COMOUT'], 'analysis', 'anl')
+    jedi_bkg_dir = os.path.join(config['DATA'], 'bkg')
+    jedi_anl_dir = os.path.join(config['DATA'], 'anl')
 
     # copy RESTART to RESTART_GES
     try:
@@ -400,15 +400,11 @@ def obs(config):
     based on input `config` dict
     """
     # create directory
-    obs_dir = os.path.join(config['COMOUT'], 'analysis', 'obs')
+    obs_dir = os.path.join(config['DATA'], 'obs')
     mkdir(obs_dir)
     for ob in config['observers']:
         obname = ob['obs space']['name'].lower()
         outfile = ob['obs space']['obsdatain']['engine']['obsfile']
-        # the above path is what 'FV3-JEDI' expects, need to modify it
-        outpath = outfile.split('/')
-        outpath[0] = 'analysis'
-        outpath = '/'.join(outpath)
         # grab obs using R2D2
         window_begin = config['window begin']
         window_begin = parser.parse(window_begin, fuzzy=True)
