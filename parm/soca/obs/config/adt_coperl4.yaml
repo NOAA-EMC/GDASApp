@@ -1,47 +1,40 @@
-- obs space:
-    name: adt_coperl4
-    obsdatain:
-      engine:
-        type: H5File
-        obsfile: $(experiment_dir)/{{current_cycle}}/adt_coperl4.{{window_begin}}.nc4
-    obsdataout:
-      engine:
-        type: H5File
-        obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).adt_coperl4.{{window_begin}}.nc4
-    simulated variables: [absolute_dynamic_topography]
-  obs operator:
-    name: ADT
-  obs error:
-    covariance model: diagonal
-  _letkf: &letkf
-    # note, this is only used for LETKF. If running with LETKF, the workflow
-    # will append "<< : *letkf" to the end of this file
-    obs localizations:
-    - localization method: Horizontal Gaspari-Cohn
-      lengthscale: 500e3
-  obs filters:
-  - *obs_land_mask
-  # Reject obs where ocean fraction is < 90%
-  - filter: Domain Check
-    action:
-      name: reject
-    where:
-    - variable: {name: sea_area_fraction@GeoVaLs}
-      minvalue: 0.9
-  # Passivate obs where ocean fraction is > 90%
-  - filter: Domain Check
-    action:
-      name: passivate
-    where:
-    - variable: {name: sea_area_fraction@GeoVaLs}
-      maxvalue: 0.9
-  # Reject obs outside of [-4.0m,4.0m]
-  - filter: Bounds Check
-    action:
-      name: reject
-    minvalue: -4.0
-    maxvalue: 4.0
-  - filter: Domain Check
-    where:
-    - variable: {name: distance_from_coast@GeoVaLs}
-      minvalue: 100e3
+obs space:
+  name: adt_coperl4
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: ${OBS_DIR}/${OBS_PREFIX}adt_coperl4.${OBS_DATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: ${DIAG_DIR}/adt_coperl4.${OBS_DATE}.nc4
+  simulated variables: [absolute_dynamic_topography]
+obs operator:
+  name: ADT
+obs error:
+  covariance model: diagonal
+obs filters:
+# Reject obs where ocean fraction is < 90%
+- filter: Domain Check
+  action:
+    name: reject
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    minvalue: 0.9
+# Passivate obs where ocean fraction is > 90%
+- filter: Domain Check
+  action:
+    name: passivate
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    maxvalue: 0.9
+# Reject obs outside of [-4.0m,4.0m]
+- filter: Bounds Check
+  action:
+    name: reject
+  minvalue: -4.0
+  maxvalue: 4.0
+- filter: Domain Check
+  where:
+  - variable: {name: distance_from_coast@GeoVaLs}
+    minvalue: 100e3
