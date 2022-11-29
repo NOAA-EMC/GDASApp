@@ -10,8 +10,17 @@ FILEDATE=$YYYY$MM$DD.${HH}0000
 
 WORKDIR=$1
 SORCDIR=$2
+echo "START CREATE BACKGROUND ENSEMBLE"
+echo "WORKDIR: $WORKDIR"
+echo "SORCDIR: $SORCDIR"
+module use $SORCDIR/modulefiles
+module load GDAS/hera
+echo "GDASAPP_TESTDATA: $GDASAPP_TESTDATA"
 
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$YYYY$MM$DD/12/atmos/RESTART/
+echo "RSTDIR1: $RSTDIR"
+RSTDIR=/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data/lowres/gdas.$YYYY$MM$DD/12/atmos/RESTART/
+echo "RSTDIR2: $RSTDIR"
 DAtype=letkfoi_snow
 
 if [[ ${DAtype} == 'letkfoi_snow' ]]; then
