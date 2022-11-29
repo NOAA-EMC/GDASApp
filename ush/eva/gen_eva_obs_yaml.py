@@ -7,7 +7,7 @@ import socket
 import yaml
 
 
-def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, variable=None):
+def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     # open input YAML file to get config
     try:
@@ -28,8 +28,6 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, variable=None):
     evaobs = []
     for obsspace in jediobs:
         tmp_os = obsspace['obs space']
-        if tmp_os['simulated variables'][0] != variable:
-            continue
         tmp_dict = {
             'name': tmp_os['name'],
             'diagfile': tmp_os['obsdataout']['engine']['obsfile'].replace('.nc4', '_0000.nc4'),
@@ -80,6 +78,20 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, variable=None):
             replacements['@CHANNELSKEY@'] = ''
             replacements['@CHANNELKEY@'] = ''
             replacements['@CHANNELVAR@'] = ''
+
+        if obsspace['vars'][0] == 'sea_surface_temperature':
+            replacements['@VMAX@'] = 25
+            replacements['@OMAX@'] = .5
+            replacements['@EMAX@'] = .2
+        elif obsspace['vars'][0] == 'absolute_dynamic_topography':
+            replacements['@VMAX@'] = 1
+            replacements['@OMAX@'] = .2
+            replacements['@EMAX@'] = .1
+        else:
+            replacements['@VMAX@'] = 10
+            replacements['@OMAX@'] = .1
+            replacements['@EMAX@'] = .2
+
         # open output file for writing and start the find/replace process
         outputyaml = os.path.join(outputdir, f'eva_{name}_{cycle}.yaml')
         try:
@@ -98,6 +110,5 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--inputjediyaml', type=str, help='Input JEDI YAML Configuration', required=True)
     parser.add_argument('-t', '--templateyaml', type=str, help='Template EVA YAML', required=True)
     parser.add_argument('-o', '--outputdir', type=str, help='Output directory for EVA YAMLs', required=True)
-    parser.add_argument('-v', '--variable', type=str, help='variable for yaml', required=False, default=None)
     args = parser.parse_args()
-    gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir, variable=args.variable)
+    gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir)

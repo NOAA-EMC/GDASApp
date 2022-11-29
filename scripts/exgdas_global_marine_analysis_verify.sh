@@ -6,11 +6,13 @@
 # - Stage fix files, obs, geovals, etc.
 # - Produce an EVA YAML
 # - Run EVA
+#-------------------------------------------------------------
 #--------------- User modified options below -----------------
 cycle=2021032318
 GDASApp=/scratch2/NCEPDEV/marineda/Jakir.Hossen/sandbox/GDASApp # Change this to your own branch
 workdir=$PWD/$cycle
 EXP_DIR=/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/runs/test4jakir
+VarYaml=/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/runs/test4jakir/analysis
 machine=hera
 
 # Load Modules for GDASApp
@@ -24,13 +26,12 @@ mkdir -p $workdir
 module load EVA/$machine
 
 # Generate EVA YAML
-$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${EXP_DIR}/analysis/var.yaml -t $GDASApp/ush/eva/marine_gdas_adt.yaml -o $workdir -v absolute_dynamic_topography 
-$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${EXP_DIR}/analysis/var.yaml -t $GDASApp/ush/eva/marine_gdas_sst.yaml -o $workdir -v sea_surface_temperature
-#$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${EXP_DIR}/analysis/var.yaml -t $GDASApp/ush/eva/jedi_marine_mapplots.yaml -o $workdir
-
+$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${VarYaml}/var.yaml -t $GDASApp/ush/eva//marine_gdas_mapplots.yaml -o $workdir
 # Run EVA
 cd $workdir
 for yaml in $(ls eva_*.yaml); do
   eva $yaml
 done
+
+rm *.yaml
 
