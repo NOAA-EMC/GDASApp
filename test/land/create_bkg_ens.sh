@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -e
 ################################################
 # 4. CREATE BACKGROUND ENSEMBLE (LETKFOI)
 ################################################
@@ -8,12 +9,14 @@ DD=23
 HH=18
 FILEDATE=$YYYY$MM$DD.${HH}0000
 
-WORKDIR=$1
-SORCDIR=$2
+project_binary_dir=$1
+project_source_dir=$2
+
 echo "START CREATE BACKGROUND ENSEMBLE"
-echo "WORKDIR: $WORKDIR"
-echo "SORCDIR: $SORCDIR"
-module use $SORCDIR/modulefiles
+echo "project_binary_dir: $project_binary_dir"
+echo "project_source_dir: $project_source_dir"
+
+module use $project_source_dir/modulefiles
 module load GDAS/hera
 echo "GDASAPP_TESTDATA: $GDASAPP_TESTDATA"
 
@@ -32,21 +35,21 @@ if [[ ${DAtype} == 'letkfoi_snow' ]]; then
     # FOR LETKFOI, CREATE THE PSEUDO-ENSEMBLE
     for ens in 001 002
     do
-        if [ -e $WORKDIR/mem${ens} ]; then
-                rm -r $WORKDIR/mem${ens}
+        if [ -e $project_binary_dir/mem${ens} ]; then
+                rm -r $project_binary_dir/mem${ens}
         fi
-        mkdir $WORKDIR/mem${ens}
+        mkdir $project_binary_dir/mem${ens}
         for tile in 1 2 3 4 5 6
         do
-        cp ${RSTDIR}/${FILEDATE}.sfc_data.tile${tile}.nc  ${WORKDIR}/mem${ens}/${FILEDATE}.sfc_data.tile${tile}.nc
+        cp ${RSTDIR}/${FILEDATE}.sfc_data.tile${tile}.nc  ${project_binary_dir}/mem${ens}/${FILEDATE}.sfc_data.tile${tile}.nc
         done
-        cp ${RSTDIR}/${FILEDATE}.coupler.res ${WORKDIR}/mem${ens}/${FILEDATE}.coupler.res
+        cp ${RSTDIR}/${FILEDATE}.coupler.res ${project_binary_dir}/mem${ens}/${FILEDATE}.coupler.res
     done
 
 
     echo 'do_landDA: calling create ensemble'
 
-    python ${SORCDIR}/ush/land/letkf_create_ens.py $FILEDATE $B
+    python ${project_source_dir}/ush/land/letkf_create_ens.py $FILEDATE $B $project_binary_dir
     if [[ $? != 0 ]]; then
         echo "letkf create failed"
         exit 10

@@ -9,11 +9,12 @@ import sys
 # perturbation, given stdev(ensemble) of B
 # Clara Draper, October, 2021.
 
-if (len(sys.argv) != 3):
+if (len(sys.argv) != 4):
     print('argument error, usage: letkf_create file_stub back_error')
 
 fstub = sys.argv[1]
 b = float(sys.argv[2])
+project_binary_dir = sys.argv[3]
 
 # 2 ens members
 offset = b/np.sqrt(2)
@@ -26,7 +27,7 @@ ens_dirs = ['mem001', 'mem002']
 for ens in range(2):
     for tt in range(6):
         # open file
-        out_netcdf = ens_dirs[ens]+'/'+fstub+'.sfc_data.tile'+str(tt+1)+'.nc'
+        out_netcdf = project_binary_dir+'/'+ens_dirs[ens]+'/'+fstub+'.sfc_data.tile'+str(tt+1)+'.nc'
         # print (out_netcdf)
         ncOut = Dataset(out_netcdf, "r+")
         # add offset to the snow
