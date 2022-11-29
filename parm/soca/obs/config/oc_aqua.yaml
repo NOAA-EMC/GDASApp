@@ -1,39 +1,36 @@
-- obs space:
-    name: oc_aqua
-    distribution:
-      name: *obs_distribution
-    obsdatain:
-      engine:
-        type: H5File
-        obsfile: $(experiment_dir)/{{current_cycle}}/oc_aqua.{{window_begin}}.nc4
-    obsdataout:
-      engine:
-        type: H5File
-        obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).oc_aqua.{{window_begin}}.nc4
-    simulated variables: [sea_surface_chlorophyll]
-  obs operator:
-    name: Identity
-  obs error:
-    covariance model: diagonal
-  _letkf: &letkf
-    # note, this is only used for LETKF. If running with LETKF, the workflow
-    # will append "<< : *letkf" to the end of this file
-    obs localizations:
-    - localization method: Horizontal Gaspari-Cohn
-      lengthscale: 500e3
-  obs filters:
-  - *obs_land_mask
-  - filter: Gaussian_Thinning
-    horizontal_mesh:   11
-    use_reduced_horizontal_grid: false
-  - filter: Bounds Check
-    minvalue: 0.001
-    maxvalue: 30.0
-  - filter: BlackList
-    where:
-    - variable:
-        name: sea_surface_chlorophyll@PreQC
-      any_bit_set_of: 0,1,3,4,5,8,9,10,12,14,15,16,19,21,22,25
-    action:
-      name: inflate error
-      inflation factor: 1.5
+obs space:
+  name: oc_aqua
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: ${OBS_DIR}/${OBS_PREFIX}oc_aqua.${OBS_DATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: ${DIAG_DIR}/oc_aqua.${OBS_DATE}.nc4
+  simulated variables: [sea_surface_chlorophyll]
+obs operator:
+  name: Identity
+obs error:
+  covariance model: diagonal
+_letkf: &letkf
+  # note, this is only used for LETKF. If running with LETKF, the workflow
+  # will append "<< : *letkf" to the end of this file
+  obs localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 500e3
+obs filters:
+- filter: Gaussian_Thinning
+  horizontal_mesh:   11
+  use_reduced_horizontal_grid: false
+- filter: Bounds Check
+  minvalue: 0.001
+  maxvalue: 30.0
+- filter: BlackList
+  where:
+  - variable:
+      name: sea_surface_chlorophyll@PreQC
+    any_bit_set_of: 0,1,3,4,5,8,9,10,12,14,15,16,19,21,22,25
+  action:
+    name: inflate error
+    inflation factor: 1.5

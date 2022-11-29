@@ -1,47 +1,44 @@
-- obs space:
-    name: sss_trak_fnmoc
-    distribution:
-      name: *obs_distribution
-    obsdatain:
-      engine:
-        type: H5File
-        obsfile: $(experiment_dir)/{{current_cycle}}/sss_trak_fnmoc.{{window_begin}}.nc4
-    obsdataout:
-      engine:
-        type: H5File
-        obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).sss_trak_fnmoc.{{window_begin}}.nc4
-    simulated variables: [sea_surface_salinity]
-  obs operator:
-    name: Identity
-  obs error:
-    covariance model: diagonal
-  _letkf: &letkf
-    # note, this is only used for LETKF. If running with LETKF, the workflow
-    #     # will append "<< : *letkf" to the end of this file
-    obs localizations:
-    - localization method: Horizontal Gaspari-Cohn
-      lengthscale: 200e3
-  obs filters:
-  - *obs_land_mask
-  - filter: Bounds Check
-    minvalue: 0.1
-    maxvalue: 40.0
-  #- filter: Background Check
-  #  threshold: 5.0
-  - filter: Domain Check
-    action:
-      name: passivate
-    where:
-    - variable: {name: sea_surface_temperature@GeoVaLs}
-      minvalue: 10.0
-  # Passivate obs where ocean fraction is > 90%
-  - filter: Domain Check
-    action:
-      name: passivate
-    where:
-    - variable: {name: sea_area_fraction@GeoVaLs}
-      maxvalue: 0.9
-  - filter: Domain Check
-    where:
-    - variable: {name: distance_from_coast@GeoVaLs}
-      minvalue: 100e3
+obs space:
+  name: sss_trak_fnmoc
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: ${OBS_DIR}/${OBS_PREFIX}sss_trak_fnmoc.${OBS_DATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: ${DIAG_DIR}/sss_trak_fnmoc.${OBS_DATE}.nc4
+  simulated variables: [sea_surface_salinity]
+obs operator:
+  name: Identity
+obs error:
+  covariance model: diagonal
+_letkf: &letkf
+  # note, this is only used for LETKF. If running with LETKF, the workflow
+  #     # will append "<< : *letkf" to the end of this file
+  obs localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 200e3
+obs filters:
+- filter: Bounds Check
+  minvalue: 0.1
+  maxvalue: 40.0
+#- filter: Background Check
+#  threshold: 5.0
+- filter: Domain Check
+  action:
+    name: passivate
+  where:
+  - variable: {name: sea_surface_temperature@GeoVaLs}
+    minvalue: 10.0
+# Passivate obs where ocean fraction is > 90%
+- filter: Domain Check
+  action:
+    name: passivate
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    maxvalue: 0.9
+- filter: Domain Check
+  where:
+  - variable: {name: distance_from_coast@GeoVaLs}
+    minvalue: 100e3
