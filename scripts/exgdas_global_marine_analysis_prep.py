@@ -90,18 +90,20 @@ logging.info(f"---------------- Setup runtime environement")
 
 comout = os.getenv('COMOUT')
 comin_obs = os.getenv('COMIN_OBS')
+anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
 
 # create analysis directory for files
-anl_dir = os.path.join(comout, 'analysis')
 ufsda.mkdir(anl_dir)
 
 # create output directory for obs
-diags = os.path.join(comout, 'analysis', 'diags')
+diags = os.path.join(anl_dir, 'diags')
 ufsda.mkdir(diags)
 
 # create output directory for soca DA
-ufsda.mkdir(os.path.join(comout, 'analysis', 'Data'))
+anl_out = os.path.join(comout, 'ocnanal_'+os.getenv('CDATE'), 'Data')
+ufsda.mkdir(anl_out)
+ufsda.symlink(os.path.join(anl_dir, 'Data'), anl_out, remove=False)
 
 
 ################################################################################
@@ -221,7 +223,7 @@ ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
 
 # link of convenience
 diag_ic = glob.glob(os.path.join(os.getenv('COMIN_GES'), 'gdas.*.ocnf003.nc'))[0]
-ufsda.disk_utils.symlink(diag_ic, os.path.join(comout, 'analysis', 'INPUT', 'MOM.res.nc'))
+ufsda.disk_utils.symlink(diag_ic, os.path.join(anl_dir, 'INPUT', 'MOM.res.nc'))
 
 # prepare input.nml
 mom_input_nml_src = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
