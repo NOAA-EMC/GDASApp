@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from netCDF4 import Dataset
 import sys
@@ -14,12 +15,12 @@ if (len(sys.argv) != 4):
 
 fstub = sys.argv[1]
 b = float(sys.argv[2])
-project_binary_dir = sys.argv[3]
+workdir = sys.argv[3]
 
 # 2 ens members
 offset = b/np.sqrt(2)
 
-print('adjusting '+fstub+'* by '+str(offset))
+print(f"adjusting {fstub}* by {str(offset)}")
 
 sign = [1, -1]
 ens_dirs = ['mem001', 'mem002']
@@ -27,8 +28,8 @@ ens_dirs = ['mem001', 'mem002']
 for ens in range(2):
     for tt in range(6):
         # open file
-        out_netcdf = project_binary_dir+'/'+ens_dirs[ens]+'/'+fstub+'.sfc_data.tile'+str(tt+1)+'.nc'
-        # print (out_netcdf)
+        out_netcdf = os.path.join(workdir, ens_dirs[ens], fstub+".sfc_data.tile"+str(tt+1)+".nc")
+        # print (f"{out_netcdf}")
         ncOut = Dataset(out_netcdf, "r+")
         # add offset to the snow
         var_array = ncOut.variables["snwdph"][:]
