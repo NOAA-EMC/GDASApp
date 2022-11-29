@@ -3,18 +3,21 @@ set -e
 ################################################
 # 4. CREATE BACKGROUND ENSEMBLE (LETKFOI)
 ################################################
-YYYY=2021
+YY=2021
 MM=03
 DD=23
 HH=18
 HR=12
-FILEDATE=$YYYY$MM$DD.${HH}0000
+FILEDATE=$YY$MM$DD.${HH}0000
 
 project_binary_dir=$1
 project_source_dir=$2
 
+GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
+GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
+
 WORKDIR=$project_binary_dir/test/testrun
-RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$YYYY$MM$DD/$HR/atmos/RESTART/
+RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART/
 DAtype=letkfoi_snow
 
 if [[ ${DAtype} == 'letkfoi_snow' ]]; then
