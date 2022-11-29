@@ -1,32 +1,39 @@
 - obs space:
-    name: sst_drifter
+    name: sss_trak_fnmoc
+    distribution:
+      name: *obs_distribution
     obsdatain:
       engine:
         type: H5File
-        obsfile: $(experiment_dir)/{{current_cycle}}/sst_drifter.{{window_begin}}.nc4
+        obsfile: $(experiment_dir)/{{current_cycle}}/sss_trak_fnmoc.{{window_begin}}.nc4
     obsdataout:
       engine:
         type: H5File
-        obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).sst_drifter.{{window_begin}}.nc4
-    simulated variables: [sea_surface_temperature]
+        obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).sss_trak_fnmoc.{{window_begin}}.nc4
+    simulated variables: [sea_surface_salinity]
   obs operator:
     name: Identity
   obs error:
     covariance model: diagonal
   _letkf: &letkf
     # note, this is only used for LETKF. If running with LETKF, the workflow
-    # will append "<< : *letkf" to the end of this file
+    #     # will append "<< : *letkf" to the end of this file
     obs localizations:
     - localization method: Horizontal Gaspari-Cohn
-      lengthscale: 500e3
+      lengthscale: 200e3
   obs filters:
-  # Reject obs where ocean fraction is < 90%
+  - *obs_land_mask
+  - filter: Bounds Check
+    minvalue: 0.1
+    maxvalue: 40.0
+  #- filter: Background Check
+  #  threshold: 5.0
   - filter: Domain Check
     action:
-      name: reject
+      name: passivate
     where:
-    - variable: {name: sea_area_fraction@GeoVaLs}
-      minvalue: 0.9
+    - variable: {name: sea_surface_temperature@GeoVaLs}
+      minvalue: 10.0
   # Passivate obs where ocean fraction is > 90%
   - filter: Domain Check
     action:
@@ -34,12 +41,6 @@
     where:
     - variable: {name: sea_area_fraction@GeoVaLs}
       maxvalue: 0.9
-  # Reject obs outside of [-2.0C,36.0C]
-  - filter: Bounds Check
-    action:
-      name: reject
-    minvalue: -2.0
-    maxvalue: 36.0
   - filter: Domain Check
     where:
     - variable: {name: distance_from_coast@GeoVaLs}

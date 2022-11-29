@@ -1,0 +1,52 @@
+- obs space:
+    name: insitu_t_profile_fnmoc
+    distribution:
+      name: *obs_distribution
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: $(experiment_dir)/{{current_cycle}}/temp_profile_fnmoc.{{window_begin}}.nc4
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).temp_profile_fnmoc.{{window_begin}}.nc4
+    simulated variables: [sea_water_temperature]
+  obs operator:
+    name: InsituTemperature
+  obs error:
+    covariance model: diagonal
+  _letkf: &letkf
+    # note, this is only used for LETKF. If running with LETKF, the workflow
+    # will append "<< : *letkf" to the end of this file
+    obs localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 500e3
+  obs filters:
+  - *obs_land_mask
+  - filter: Domain Check
+    where:
+    - variable: {name: sea_water_temperature@ObsError}
+      minvalue: 0.001
+  - filter: Bounds Check
+    minvalue: -2.0
+    maxvalue: 36.0
+  - filter: Background Check
+    threshold: 3.0
+  # Measurement errors are too small, inflate almost everywhere
+  #- filter: Background Check
+  #  threshold: 0.01
+  #  action:
+  #    name: inflate error
+  #    inflation factor: 30.0
+  - filter: Domain Check
+    where:
+    - variable: { name: sea_ice_area_fraction@GeoVaLs}
+      maxvalue: 0.00001
+  - filter: Domain Check
+    where:
+    - variable: {name: sea_surface_temperature@GeoVaLs}
+      minvalue: 3.0
+  - filter: Domain Check
+    where:
+    - variable: {name: distance_from_coast@GeoVaLs}
+      minvalue: 100e3

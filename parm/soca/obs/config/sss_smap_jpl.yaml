@@ -1,14 +1,14 @@
 - obs space:
-    name: sst_drifter
+    name: sss_smap_jpl  
     obsdatain:
       engine:
         type: H5File
-        obsfile: $(experiment_dir)/{{current_cycle}}/sst_drifter.{{window_begin}}.nc4
+        obsfile: $(experiment_dir)/{{current_cycle}}/sss_smap_jpl.{{window_begin}}.nc4
     obsdataout:
       engine:
         type: H5File
-        obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).sst_drifter.{{window_begin}}.nc4
-    simulated variables: [sea_surface_temperature]
+        obsfile: $(experiment_dir)/{{current_cycle}}/$(experiment).sss_smap_jpl.{{window_begin}}.nc4
+    simulated variables: [sea_surface_salinity]
   obs operator:
     name: Identity
   obs error:
@@ -20,26 +20,24 @@
     - localization method: Horizontal Gaspari-Cohn
       lengthscale: 500e3
   obs filters:
-  # Reject obs where ocean fraction is < 90%
+  - *obs_land_mask
+  - filter: Bounds Check
+    minvalue: 0.1
+    maxvalue: 40.0
+  - filter: Background Check
+    threshold: 5.0
   - filter: Domain Check
     action:
       name: reject
     where:
-    - variable: {name: sea_area_fraction@GeoVaLs}
-      minvalue: 0.9
-  # Passivate obs where ocean fraction is > 90%
+    - variable: {name: sea_surface_salinity@ObsError}
+      maxvalue: 0.6
   - filter: Domain Check
     action:
       name: passivate
     where:
-    - variable: {name: sea_area_fraction@GeoVaLs}
-      maxvalue: 0.9
-  # Reject obs outside of [-2.0C,36.0C]
-  - filter: Bounds Check
-    action:
-      name: reject
-    minvalue: -2.0
-    maxvalue: 36.0
+    - variable: {name: sea_surface_temperature@GeoVaLs}
+      minvalue: 10.0
   - filter: Domain Check
     where:
     - variable: {name: distance_from_coast@GeoVaLs}
