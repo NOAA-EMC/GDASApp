@@ -11,10 +11,10 @@
 #-------------------------------------------------------------
 #--------------- User modified options below -----------------
 cycle=2021080100
-obtype=sondes
-GDASApp=/work/noaa/da/Praveen.Kumar/JEDI/GDASApp_sonde_yaml # Change this to your own branch
-workdir=/work/noaa/da/Praveen.Kumar/JEDI/ufoeval_sondes_pk_gsi_1129/$cycle/$obtype
-yamlpath=$GDASApp/parm/atm/obs/testing/sondes.yaml
+obtype=amsua_n19
+GDASApp=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp # Change this to your own branch
+workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
+yamlpath=$GDASApp/parm/atm/obs/testing/amsua_n19.yaml
 exename=test_ObsFilters.x
 machine=orion
 radiance="YES"
