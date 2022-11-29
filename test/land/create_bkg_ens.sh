@@ -12,18 +12,17 @@ FILEDATE=$YYYY$MM$DD.${HH}0000
 project_binary_dir=$1
 project_source_dir=$2
 
-echo "START CREATE BACKGROUND ENSEMBLE"
 echo "project_binary_dir: $project_binary_dir"
 echo "project_source_dir: $project_source_dir"
 
-module use $project_source_dir/modulefiles
-module load GDAS/hera
+##module use $project_source_dir/modulefiles
+##module load GDAS/hera
 echo "GDASAPP_TESTDATA: $GDASAPP_TESTDATA"
 
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$YYYY$MM$DD/12/atmos/RESTART/
-echo "RSTDIR1: $RSTDIR"
-RSTDIR=/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data/lowres/gdas.$YYYY$MM$DD/12/atmos/RESTART/
-echo "RSTDIR2: $RSTDIR"
+echo "RSTDIR: $RSTDIR"
+##RSTDIR=/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data/lowres/gdas.$YYYY$MM$DD/12/atmos/RESTART/
+##echo "RSTDIR2: $RSTDIR"
 DAtype=letkfoi_snow
 
 if [[ ${DAtype} == 'letkfoi_snow' ]]; then
