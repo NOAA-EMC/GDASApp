@@ -7,8 +7,7 @@ project_source_dir=$2
 source ${project_source_dir}/test/soca/test_utils.sh
 
 # Remove previously fetched obs
-rm -f ${project_binary_dir}/test/soca/3dvar/gdas.t12z.sst*.nc4
-rm -f ${project_binary_dir}/test/soca/3dvar/gdas.t12z.adt*.nc4
+rm -f ${project_binary_dir}/test/soca/3dvar/gdas.t12z.{sst,adt,sss,salt}*.nc4
 
 # Export runtime env. variables
 source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $project_source_dir
@@ -30,7 +29,7 @@ ${project_source_dir}/scripts/exgdas_global_marine_analysis_prep.py
 
 # Test that the obs path in var.yaml exist
 echo "============================= Testing the existence of obs and bkg in var.vaml"
-obslist=`grep 'gdas.t12z' $COMOUT/analysis/var.yaml`
+obslist=`grep 'gdas.t12z' ${DATA}/var.yaml`
 for o in $obslist; do
     echo "----------------------- "$o
     case $o in
@@ -52,9 +51,9 @@ done
 
 # Test that the static files have been linked properly
 echo "============================= Test that the static files have been linked properly"
-test_file $(readlink ${project_binary_dir}/test/soca/3dvar/analysis/diag_table)
-test_file $(readlink ${project_binary_dir}/test/soca/3dvar/analysis/field_table)
-test_file $(readlink ${project_binary_dir}/test/soca/3dvar/analysis/fields_metadata.yaml)
-test_file $(readlink ${project_binary_dir}/test/soca/3dvar/analysis/godas_sst_bgerr.nc)
-test_file $(readlink ${project_binary_dir}/test/soca/3dvar/analysis/rossrad.dat)
-test_file $(readlink ${project_binary_dir}/test/soca/3dvar/analysis/MOM_input)
+test_file $(readlink ${DATA}/diag_table)
+test_file $(readlink ${DATA}/field_table)
+test_file $(readlink ${DATA}/fields_metadata.yaml)
+test_file $(readlink ${DATA}/godas_sst_bgerr.nc)
+test_file $(readlink ${DATA}/rossrad.dat)
+test_file $(readlink ${DATA}/MOM_input)
