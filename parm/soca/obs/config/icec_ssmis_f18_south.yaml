@@ -9,11 +9,17 @@ obs space:
       type: H5File
       obsfile: ${DIAG_DIR}/icec_ssmis_f18_south.${OBS_DATE}.nc4
   simulated variables: [sea_ice_area_fraction]
+  io pool:
+    max pool size: 1
 obs operator:
   name: Identity
 obs error:
   covariance model: diagonal
 obs filters:
+- filter: Domain Check
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    minvalue: 0.9
 - filter: Bounds Check
   minvalue: 0.0
   maxvalue: 1.0

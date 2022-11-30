@@ -9,11 +9,17 @@ obs space:
       type: H5File
       obsfile: ${DIAG_DIR}/icefb_GDR.${OBS_DATE}.nc4
   simulated variables:  [sea_ice_freeboard]
+  io pool:
+    max pool size: 1
 obs operator:
   name: SeaIceThickness
 obs error:
   covariance model: diagonal
 obs filters:
+- filter: Domain Check
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    minvalue: 0.9
 - filter: Bounds Check
   minvalue: -0.1
   maxvalue: 1.0
