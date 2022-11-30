@@ -54,7 +54,7 @@ jobs:
       run: |
         export ecbuild_DIR=$GITHUB_WORKSPACE/ecbuild/lib/cmake/ecbuild
         mkdir $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/build && cd $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/build
-        cmake -DBUILD_GDASBUNDLE=OFF $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/
+        cmake -DBUILD_GDASBUNDLE=OFF -DWORKFLOW_TESTS=ON $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/
 
     - name: Build GDASApp
       run: |
