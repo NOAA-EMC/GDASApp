@@ -9,11 +9,17 @@ obs space:
       type: H5File
       obsfile: ${DIAG_DIR}/temp_profile_fnmoc.${OBS_DATE}.nc4
   simulated variables: [sea_water_temperature]
+  io pool:
+    max pool size: 1
 obs operator:
   name: InsituTemperature
 obs error:
   covariance model: diagonal
 obs filters:
+- filter: Domain Check
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    minvalue: 0.9
 - filter: Domain Check
   where:
   - variable: {name: sea_water_temperature@ObsError}
@@ -29,10 +35,10 @@ obs filters:
 #  action:
 #    name: inflate error
 #    inflation factor: 30.0
-- filter: Domain Check
-  where:
-  - variable: { name: sea_ice_area_fraction@GeoVaLs}
-    maxvalue: 0.00001
+#- filter: Domain Check
+#  where:
+#  - variable: { name: sea_ice_area_fraction@GeoVaLs}
+#    maxvalue: 0.00001
 - filter: Domain Check
   where:
   - variable: {name: sea_surface_temperature@GeoVaLs}

@@ -9,11 +9,17 @@ obs space:
       type: H5File
       obsfile: ${DIAG_DIR}/temp_profile_wod.${OBS_DATE}.nc4
   simulated variables: [sea_water_temperature]
+  io pool:
+    max pool size: 1
 obs operator:
   name: InsituTemperature
 obs error:
   covariance model: diagonal
 obs filters:
+- filter: Domain Check
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    minvalue: 0.9
 - filter: Domain Check
   where:
   - variable: {name: sea_water_temperature@ObsError}
