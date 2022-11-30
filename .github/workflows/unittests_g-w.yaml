@@ -66,4 +66,5 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/build
         ctest --output-on-failure
-        ctest -VV -R setup_cycled
+        ls -l /home/runner/work/GDASApp/GDASApp/global-workflow/sorc/gdas.cd/build/test/testrun/experiments/gdas_test
+        cat /home/runner/work/GDASApp/GDASApp/global-workflow/sorc/gdas.cd/build/test/testrun/experiments/gdas_test/config.base
