@@ -42,6 +42,11 @@ jobs:
         git clone https://github.com/ecmwf/ecbuild.git ecbuild
         cd ecbuild
         git checkout 3.6.1
+        mkdir bootstrap
+        cd bootstrap
+        ../bin/ecbuild --prefix=$GITHUB_WORKSPACE/local/ ..
+        ctest
+        make install
 
     - name: Configure with cmake
       run: |
