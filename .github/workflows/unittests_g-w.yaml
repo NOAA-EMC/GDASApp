@@ -1,0 +1,60 @@
+name: Unit Tests Within NCEP Global-Workflow
+on: [push, pull_request]
+
+jobs:
+  ctests:
+    runs-on: ubuntu-latest
+    name: Run Unit Tests inside global-workflow with ctest
+
+    steps:
+
+    - name: Install pip dependencies
+      run: |
+        pip install --upgrade pip
+        pip install pycodestyle
+        pip install netCDF4
+        pip install xarray
+
+    - name: Install other dependencies
+      run: |
+        wget https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/r2d2-bb361c2.tar.gz
+        wget https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/solo-877b414.tar.gz
+        tar -xvf r2d2-bb361c2.tar.gz
+        tar -xvf solo-877b414.tar.gz
+        cd solo && pip install . && cd ..
+        cd r2d2 && pip install . && cd ..
+
+    - name: Checkout workflow
+      uses: actions/checkout@v2
+      with:
+        name: NOAA-EMC/global-workflow
+        path: global-workflow
+
+    - name: Cache ecBuild
+      id: cache-ecbuild
+      uses: actions/cache@v2
+      with:
+        path: ecbuild
+        key: ${{ runner.os }}-ecbuild
+
+    - name: Install ecBuild
+      if: steps.cache-ecbuild.outputs.cache-hit != 'true'
+      run: |
+        git clone https://github.com/ecmwf/ecbuild.git ecbuild
+        cd ecbuild
+        git checkout 3.6.1
+
+    #- name: Configure with cmake
+    #  run: |
+    #    mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build
+    #    cmake -DBUILD_GDASBUNDLE=OFF $GITHUB_WORKSPACE/GDASApp
+
+    #- name: Build GDASApp
+    #  run: |
+    #    cd $GITHUB_WORKSPACE/build
+    #    make
+
+    #- name: Run ctest
+    #  run: |
+    #    cd $GITHUB_WORKSPACE/build
+    #    ctest --output-on-failure
