@@ -9,11 +9,17 @@ obs space:
       type: H5File
       obsfile: ${DIAG_DIR}/adt_6a_egm2008.${OBS_DATE}.nc4
   simulated variables: [absolute_dynamic_topography]
+  io pool:
+    max pool size: 1
 obs operator:
   name: ADT
 obs error:
   covariance model: diagonal
 obs filters:
+- filter: Domain Check
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    minvalue: 0.9
 - filter: Domain Check
   where:
   - variable: { name: sea_surface_temperature@GeoVaLs}
