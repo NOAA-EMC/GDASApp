@@ -5,7 +5,7 @@ srcdir=$2
 
 # test experiment variables
 idate=2021032318
-edate=2021034318
+edate=2021032418
 app=ATM # NOTE make this S2SWA soon
 starttype='warm'
 gfscyc='4'
