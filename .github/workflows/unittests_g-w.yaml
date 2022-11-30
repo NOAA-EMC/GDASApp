@@ -45,7 +45,7 @@ jobs:
         key: ${{ runner.os }}-ecbuild
 
     - name: Install ecBuild
-      if: steps.cache-ecbuild.outputs.cache-hit != 'true'
+      #if: steps.cache-ecbuild.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/ecmwf/ecbuild.git ecbuild
         cd ecbuild
@@ -58,7 +58,6 @@ jobs:
 
     - name: Configure with cmake
       run: |
-        export ecbuild_DIR=$GITHUB_WORKSPACE/ecbuild/lib/cmake/ecbuild
         mkdir $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/build && cd $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/build
         cmake -DBUILD_GDASBUNDLE=OFF -DWORKFLOW_TESTS=ON $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/
 
