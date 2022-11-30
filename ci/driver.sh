@@ -82,6 +82,7 @@ for pr in $open_pr_list; do
   case ${TARGET} in
     hera | orion)
       echo "Loading modules on $TARGET"
+      module purge
       module use $GDAS_CI_ROOT/PR/$pr/GDASApp/modulefiles
       module load GDAS/$TARGET
       module list
