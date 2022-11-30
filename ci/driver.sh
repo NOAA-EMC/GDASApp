@@ -35,6 +35,10 @@ case ${TARGET} in
     echo "Running Automated Testing on $TARGET"
     source $MODULESHOME/init/sh
     source $my_dir/${TARGET}.sh
+    module purge
+    module use $GDAS_MODULE_USE
+    module load GDAS/$TARGET
+    module list
     ;;
   *)
     echo "Unsupported platform. Exiting with error."
