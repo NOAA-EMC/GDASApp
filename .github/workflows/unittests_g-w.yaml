@@ -53,7 +53,7 @@ jobs:
         mkdir bootstrap
         cd bootstrap
         ../bin/ecbuild ..
-        make install
+        sudo make install
 
     - name: Configure with cmake
       run: |
