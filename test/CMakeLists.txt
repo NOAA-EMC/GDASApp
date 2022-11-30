@@ -73,6 +73,9 @@ endforeach(FILENAME)
 install(FILES ${test_input}
         DESTINATION "test/testinput/")
 
+# create testrun dir
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testrun)
+
 # create testout dir
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testoutput)
 
@@ -143,6 +146,14 @@ endif()
 add_test(NAME test_gdasapp_convert_ewok_yaml
          COMMAND ${PROJECT_SOURCE_DIR}/test/convert_ewok_yaml.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
+# high level tests that require the global-workflow
+if (WORKFLOW_TESTS)
+  # test for creating an experiment directory within the global-workflow
+  add_test(NAME test_gdasapp_setup_cycled_exp
+           COMMAND ${PROJECT_SOURCE_DIR}/test/setup_workflow_exp.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/testrun)
+endif()
 
 # soca tests
 if (${BUILD_GDASBUNDLE})
