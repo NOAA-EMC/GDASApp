@@ -37,15 +37,15 @@ jobs:
       with:
         path: global-workflow/sorc/gdas.cd
 
-    #- name: Cache ecBuild
-    #  id: cache-ecbuild
-    #  uses: actions/cache@v2
-    #  with:
-    #    path: ecbuild
-    #    key: ${{ runner.os }}-ecbuild
+    - name: Cache ecBuild
+      id: cache-ecbuild
+      uses: actions/cache@v2
+      with:
+        path: ecbuild
+        key: ${{ runner.os }}-ecbuild
 
     - name: Install ecBuild
-      #if: steps.cache-ecbuild.outputs.cache-hit != 'true'
+      if: steps.cache-ecbuild.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/ecmwf/ecbuild.git ecbuild
         cd ecbuild
