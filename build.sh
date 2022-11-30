@@ -97,6 +97,10 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 # If INSTALL_PREFIX is not empty; install at INSTALL_PREFIX
 [[ -n "${INSTALL_PREFIX:-}" ]] && CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
 
+# activate tests based on if this is cloned within the global-workflow
+WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
+CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_BUILD}"
+
 # Configure
 echo "Configuring ..."
 set -x
