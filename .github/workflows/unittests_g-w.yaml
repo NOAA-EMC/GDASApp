@@ -52,8 +52,7 @@ jobs:
         git checkout 3.6.1
         mkdir bootstrap
         cd bootstrap
-        ../bin/ecbuild --prefix=$GITHUB_WORKSPACE/local/ ..
-        ctest
+        ../bin/ecbuild ..
         make install
 
     - name: Configure with cmake
