@@ -80,6 +80,7 @@ setenv('MPIEXEC_NPROC', mpinproc)
 
 setenv('R2D2_CONFIG', '/scratch1/NCEPDEV/stmp4/Cory.R.Martin/R2D2_SHARED/config_hera.yaml')
 setenv("CRTM_FIX","/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix/crtm")
+setenv("GDASAPP_TESTDATA","/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data")
 prepend_path("PATH","/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/intel-18.0.5.274/prod_util/1.2.2/bin")
 
 whatis("Name: ".. pkgName)

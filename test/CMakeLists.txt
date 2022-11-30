@@ -149,5 +149,11 @@ if (${BUILD_GDASBUNDLE})
   add_subdirectory(soca)
 endif()
 
+# land tests
+if (${BUILD_GDASBUNDLE})
+  add_subdirectory(land)
+endif()
+
 # gdas atm tests
 add_subdirectory(atm)
+
