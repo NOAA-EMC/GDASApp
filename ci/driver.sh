@@ -30,16 +30,11 @@ while getopts "t:h" opt; do
   esac
 done
 
-# load modules
 case ${TARGET} in
   hera | orion)
     echo "Running Automated Testing on $TARGET"
     source $MODULESHOME/init/sh
     source $my_dir/${TARGET}.sh
-    module purge
-    module use $GDAS_MODULE_USE
-    module load GDAS/$TARGET
-    module list
     ;;
   *)
     echo "Unsupported platform. Exiting with error."
@@ -87,10 +82,7 @@ for pr in $open_pr_list; do
   case ${TARGET} in
     hera | orion)
       echo "Loading modules on $TARGET"
-      source $MODULESHOME/init/sh
-      source $my_dir/${TARGET}.sh
-      module purge
-      module use $GDAS_MODULE_USE
+      module use $GDAS_CI_ROOT/PR/$pr/GDASApp/modulefiles
       module load GDAS/$TARGET
       module list
       ;;
