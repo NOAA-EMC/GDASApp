@@ -49,6 +49,7 @@ jobs:
         git clone https://github.com/ecmwf/ecbuild.git ecbuild
         cd ecbuild
         git checkout 3.6.1
+        export ecbuild_DIR=$GITHUB_WORKSPACE/ecbuild/lib/cmake/ecbuild
 
     - name: Configure with cmake
       run: |
