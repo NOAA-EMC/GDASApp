@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -x
 ################################################
 YY=2021
 MM=03
@@ -25,20 +25,19 @@ export TSTUB="oro_C${RES}.mx100"
 mkdir -p $WORKDIR
 cd $WORKDIR
 
-rm fims.nml
-
-JDATE=$YYYY$DOY
-YYYYMMDD=$YYYY$MM$DD
+if [[ -e fims.nml ]]; then
+  rm fims.nml
+fi
 
 cat >> fims.nml << EOF
  &fIMS_nml
   idim=$RES, jdim=$RES,
   otype=${TSTUB},
-  jdate=$JDATE,
-  yyyymmddhh=${YYYYMMDD}.18,
+  jdate=$YY$DOY,
+  yyyymmddhh=$YY$MM$DD.18,
   imsformat=2,
   imsversion=1.3,
-  IMS_OBS_PATH="${OBSDIR}/IMS/$YYYY/",
+  IMS_OBS_PATH="${OBSDIR}/IMS/$YY/",
   IMS_IND_PATH="${OBSDIR}/IMS/index_files/"
   /
 EOF
@@ -46,7 +45,7 @@ EOF
 # stage restarts
 for tile in 1 2 3 4 5 6
 do
-  if [[ ! -e ${RSTDIR}/${FILEDATE}.sfc_data.tile${tile}.nc ]]; then
+  if [[ ! -e ${FILEDATE}.sfc_data.tile${tile}.nc ]]; then
     ln -s ${RSTDIR}/${FILEDATE}.sfc_data.tile${tile}.nc .
   fi
 done
