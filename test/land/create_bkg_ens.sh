@@ -30,9 +30,9 @@ if [[ ${DAtype} == 'letkfoi_snow' ]]; then
     for ens in 001 002
     do
         if [ -e $WORKDIR/mem${ens} ]; then
-                rm -r $WORKDIR/mem${ens}
+                rm -rf $WORKDIR/mem${ens}
         fi
-        mkdir $WORKDIR/mem${ens}
+        mkdir -p $WORKDIR/mem${ens}
         for tile in 1 2 3 4 5 6
         do
             cp ${RSTDIR}/${FILEDATE}.sfc_data.tile${tile}.nc  ${WORKDIR}/mem${ens}/${FILEDATE}.sfc_data.tile${tile}.nc
