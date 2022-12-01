@@ -40,6 +40,8 @@ echo "---------------------------------------------------" >> $outfile
 # run build script
 cd $repodir
 module purge
+export BUILD_JOBS=8
+rm -rf log.build
 ./build.sh -t $TARGET &>> log.build
 build_status=$?
 if [ $build_status -eq 0 ]; then
@@ -58,6 +60,7 @@ cd $repodir/build
 module use $GDAS_MODULE_USE
 module load GDAS/$TARGET
 echo "---------------------------------------------------" >> $outfile
+rm -rf log.ctest
 ctest -R gdasapp --output-on-failure &>> log.ctest
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
@@ -69,6 +72,7 @@ else
   echo "Tests:                                  *Failed*" >> $outfile
   echo "Tests: Failed at $(date)" >> $outfile
   echo "Tests: $npassed" >> $outfile
+  cat log.ctest | grep "(Failed)" >> $outfile
   echo "Tests: see output at $repodir/build/log.ctest" >> $outfile
 fi
 echo '```' >> $outfile

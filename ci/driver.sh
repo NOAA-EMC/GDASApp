@@ -46,7 +46,6 @@ case ${TARGET} in
     ;;
 esac
 
-
 # ==============================================================================
 # pull on the repo and get list of open PRs
 cd $GDAS_CI_ROOT/repo
@@ -82,6 +81,21 @@ for pr in $open_pr_list; do
     fi
   fi
   echo "$commit" > $GDAS_CI_ROOT/PR/$pr/commit
+
+  # load modules
+  case ${TARGET} in
+    hera | orion)
+      echo "Loading modules on $TARGET"
+      module purge
+      module use $GDAS_CI_ROOT/PR/$pr/GDASApp/modulefiles
+      module load GDAS/$TARGET
+      module list
+      ;;
+    *)
+      echo "Unsupported platform. Exiting with error."
+      exit 1
+      ;;
+  esac
 
   # run build and testing command
   $my_dir/run_ci.sh -d $GDAS_CI_ROOT/PR/$pr/GDASApp -o $GDAS_CI_ROOT/PR/$pr/output_${commit}
