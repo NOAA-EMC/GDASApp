@@ -19,7 +19,7 @@ EXECDIR=$project_source_dir/build/bin/
 WORKDIR=$project_binary_dir/test/testrun
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART/
 
-export OBSDIR=/scratch2/NCEPDEV/land/data/DA/snow_ice_cover
+export OBSDIR=$GDASAPP_TESTDATA/land/snow_ice_cover
 export TSTUB="oro_C${RES}.mx100"
 
 mkdir -p $WORKDIR
@@ -53,4 +53,8 @@ done
 ulimit -Ss unlimited
 ${EXECDIR}/calcfIMS.exe
 
+if [[ $? != 0 ]]; then
+    echo "IMS processing failed"
+    exit 10
+fi
 
