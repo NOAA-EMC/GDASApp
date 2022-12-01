@@ -50,7 +50,6 @@ do
   fi
 done
 
-ulimit -Ss unlimited
 ${EXECDIR}/calcfIMS.exe
 
 rc=$?
