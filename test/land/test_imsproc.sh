@@ -53,8 +53,7 @@ done
 ulimit -Ss unlimited
 ${EXECDIR}/calcfIMS.exe
 
-if [[ $? != 0 ]]; then
-    echo "IMS processing failed"
-    exit 10
-fi
+rc=$?
+
+exit $rc
 
