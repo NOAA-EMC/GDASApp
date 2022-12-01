@@ -2,7 +2,7 @@ cost function:
   cost type: 4D-Var
   window begin: $(ATM_WINDOW_BEGIN)
   window length: $(ATM_WINDOW_LENGTH)
-  analysis variables: &a_vars  [socn, tocn, ssh]
+  analysis variables: &a_vars  [cicen, hicen, socn, tocn, ssh]
   geometry:
     mom6_input_nml: mom_input.nml
     fields metadata: ./fields_metadata.yaml
@@ -10,29 +10,30 @@ cost function:
   model:
     name: PseudoModel
     tstep: PT1H
-    state variables: &model_vars [socn, tocn, ssh, hocn, uocn, vocn, mld, layer_depth]
+    state variables: &model_vars [cicen, hicen, hsnon, socn, tocn, ssh, hocn, uocn, vocn, mld, layer_depth]
     states: $<< $(BKG_LIST)
 
   background:
     read_from_file: 1
     basename: ./INPUT/
     ocn_filename: MOM.res.nc
+    ice_filename: cice.res.nc
     date: $(ATM_WINDOW_BEGIN)
     state variables: *model_vars
   background error:
     covariance model: $(COVARIANCE_MODEL)
     saber blocks: $<< $(SABER_BLOCKS_YAML)
 
-    linear variable change:
-      input variables: *a_vars
-      output variables: *a_vars
-      linear variable changes:
-
-      - linear variable change name: BalanceSOCA
-        dsdtmax: 0.1
-        dsdzmin: 3.0e-6
-        dtdzmin: 1.0e-6
-        nlayers: 10
+#    linear variable change:
+#      input variables: *a_vars
+#      output variables: *a_vars
+#      linear variable changes:
+#
+#      - linear variable change name: BalanceSOCA
+#        dsdtmax: 0.1
+#        dsdzmin: 3.0e-6
+#        dtdzmin: 1.0e-6
+#        nlayers: 10
   observations:
     observations:  $<< ${OBS_YAML}
 
