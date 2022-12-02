@@ -148,6 +148,9 @@ add_subdirectory(ush)
 # Include testing.
 add_subdirectory(test)
 
+# Include the land add_jedi_incr
+add_subdirectory(land-jediincr)
+
 # Finalize bundle
 # ---------------
 ecbuild_bundle_finalize()
