@@ -58,7 +58,7 @@ fi
 # ==============================================================================
 # run ctests
 cd $repodir/sorc/gdas.cd/build
-module use $GDAS_MODULE_USE
+module use $repodir/sorc/gdas.cd/modulefiles
 module load GDAS/$TARGET
 echo "---------------------------------------------------" >> $outfile
 rm -rf log.ctest
