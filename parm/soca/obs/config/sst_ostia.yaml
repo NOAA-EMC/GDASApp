@@ -1,0 +1,39 @@
+obs space:
+  name: sst_ostia
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: ${OBS_DIR}/${OBS_PREFIX}sst_ostia.${OBS_DATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: ${DIAG_DIR}/sst_ostia.${OBS_DATE}.nc4
+  simulated variables: [sea_surface_temperature]
+  io pool:
+    max pool size: 1
+obs operator:
+  name: Identity
+obs error:
+  covariance model: diagonal
+obs filters:
+- filter: Domain Check
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    minvalue: 0.9
+- filter: Bounds Check
+  minvalue: -2.0
+  maxvalue: 36.0
+- filter: Background Check
+  threshold: 5.0
+- filter: Domain Check
+  where:
+  - variable: {name: sea_surface_temperature@ObsError}
+    minvalue: 0.001
+- filter: Domain Check
+  where:
+  - variable: { name: sea_ice_area_fraction@GeoVaLs}
+    maxvalue: 0.00001
+- filter: Domain Check
+  where:
+  - variable: {name: distance_from_coast@GeoVaLs}
+    minvalue: 100e3

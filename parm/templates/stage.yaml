@@ -4,6 +4,7 @@ observers: $<< ${OBS_YAML}
 background_dir: '{{background_dir}}'
 staticb_dir: '{{staticb_dir}}'
 COMOUT: '{{COMOUT}}'
+DATA: ${DATA}
 background_time: '{{background_time}}'
 dump: ${CDUMP}
 r2d2_obs_db: ${R2D2_OBS_DB}
@@ -15,5 +16,5 @@ r2d2 window length: ${R2D2_OBS_WINDOW}
 r2d2 window begin: '{{r2d2_window_begin}}'
 fv3jedi_stage_files: $<< $(fv3jedi_stage)
 fv3jedi_stage: ${FV3JEDI_STAGE_YAML}
-stage_dir: $(COMOUT)/analysis
+stage_dir: $(DATA)
 soca_input_fix_dir: '{{soca_input_fix_dir}}'

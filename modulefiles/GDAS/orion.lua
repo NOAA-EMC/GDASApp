@@ -76,6 +76,7 @@ setenv('MPIEXEC_NPROC', mpinproc)
 
 setenv('R2D2_CONFIG', '/work2/noaa/da/cmartin/GDASApp/R2D2_SHARED/config_orion.yaml')
 setenv("CRTM_FIX","/work2/noaa/da/cmartin/GDASApp/fix/crtm")
+setenv("GDASAPP_TESTDATA","/work2/noaa/da/cmartin/CI/GDASApp/data")
 prepend_path("PATH","/apps/contrib/NCEP/libs/hpc-stack/intel-2018.4/prod_util/1.2.2/bin")
 
 execute{cmd="ulimit -s unlimited",modeA={"load"}}

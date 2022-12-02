@@ -1,0 +1,66 @@
+obs space:
+  name: adt_c2_egm2008
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: ${OBS_DIR}/${OBS_PREFIX}adt_c2_egm2008.${OBS_DATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: ${DIAG_DIR}/adt_c2_egm2008.${OBS_DATE}.nc4
+  simulated variables: [absolute_dynamic_topography]
+  io pool:
+    max pool size: 1
+obs operator:
+  name: ADT
+obs error:
+  covariance model: diagonal
+obs filters:
+- filter: Domain Check
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    minvalue: 0.9
+- filter: Domain Check
+  where:
+  - variable: { name: sea_surface_temperature@GeoVaLs}
+    minvalue: 15.0
+- filter: Background Check
+  absolute threshold: 0.2
+- filter: Domain Check
+  where:
+  - variable: {name: sea_floor_depth_below_sea_surface@GeoVaLs}
+    minvalue: 500
+- filter: Perform Action
+  action:
+    name: assign error
+    error function:
+      name: LinearCombination@ObsFunction
+      options:
+        variables: [mesoscale_representation_error@GeoVaLs,
+                    absolute_dynamic_topography@ObsError]
+        coefs: [0.1,
+                0.5]
+- filter: BlackList
+  where:
+  - variable:
+      name: latitude@MetaData
+    minvalue: -65
+    maxvalue: -30
+  - variable:
+      name: longitude@MetaData
+    minvalue: -125
+    maxvalue: -90
+- filter: BlackList
+  where:
+  - variable:
+      name: latitude@MetaData
+    minvalue: -65
+    maxvalue: -30
+  - variable:
+      name: longitude@MetaData
+    minvalue: 60
+    maxvalue: 110
+- filter: Domain Check
+  where:
+  - variable: { name: sea_ice_area_fraction@GeoVaLs}
+    maxvalue: 0.00001
