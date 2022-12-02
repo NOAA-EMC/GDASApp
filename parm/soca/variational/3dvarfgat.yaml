@@ -20,20 +20,8 @@ cost function:
     ice_filename: cice.res.nc
     date: $(ATM_WINDOW_BEGIN)
     state variables: *model_vars
-  background error:
-    covariance model: $(COVARIANCE_MODEL)
-    saber blocks: $<< $(SABER_BLOCKS_YAML)
+  background error: $<< $(SABER_BLOCKS_YAML)
 
-#    linear variable change:
-#      input variables: *a_vars
-#      output variables: *a_vars
-#      linear variable changes:
-#
-#      - linear variable change name: BalanceSOCA
-#        dsdtmax: 0.1
-#        dsdzmin: 3.0e-6
-#        dtdzmin: 1.0e-6
-#        nlayers: 10
   observations:
     observations:  $<< ${OBS_YAML}
 
