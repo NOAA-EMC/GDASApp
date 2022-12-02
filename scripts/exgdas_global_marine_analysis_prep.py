@@ -227,10 +227,23 @@ vars3d = ['tocn', 'socn', 'uocn', 'vocn', 'chl', 'biop']
 vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
           'sw', 'lw', 'lw_rad', 'lhf', 'shf', 'us']
 
+# 2d bump yaml (all 2d vars at once)
+bumpdir = 'bump'
+ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
+config = {'datadir': bumpdir}
+bumpC_yaml = os.path.join(anl_dir, 'soca_bump_C_2d.yaml')
+bumpC_yaml_template = os.path.join(gdas_home,
+                                   'parm',
+                                   'soca',
+                                   'berror',
+                                   'soca_bump_C_2d.yaml')
+ufsda.yamltools.genYAML(config, output=bumpC_yaml, template=bumpC_yaml_template)
+
+# 3d bump yaml, 1 yaml per variable
 for v in soca_vars:
     logging.info(f"creating the yaml to initialize bump for {v}")
     if v in vars2d:
-        dim = '2d'
+        continue
     else:
         dim = '3d'
     bumpC_yaml = os.path.join(anl_dir, 'soca_bump'+dim+'_C_'+v+'.yaml')

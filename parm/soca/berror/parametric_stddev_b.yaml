@@ -9,8 +9,8 @@ output geometry:
   fields metadata: fields_metadata.yaml
 
 linear variable change:
-  input variables: [tocn, socn, ssh]
-  output variables: [tocn, socn, ssh]
+  input variables: [tocn, socn, ssh, cicen, hicen]
+  output variables: [tocn, socn, ssh, cicen, hicen]
   linear variable changes:
 
   - linear variable change name: BkgErrGODAS
@@ -39,17 +39,18 @@ linear variable change:
 
 increments:
 - date: $(ATM_WINDOW_BEGIN)
-  input variables: [tocn, socn, ssh]
+  input variables: [tocn, socn, ssh, cicen, hicen]
   input:
      Identity: 1
      date: $(ATM_WINDOW_BEGIN)
-     state variables: [ssh, tocn, socn]
+     state variables: [ssh, tocn, socn, cicen, hicen]
   trajectory:
      read_from_file: 1
      basename: ./INPUT/
      ocn_filename: MOM.res.nc
+     ice_filename: cice.res.nc
      date: $(ATM_WINDOW_BEGIN)
-     state variables: [ssh, tocn, socn, hocn, layer_depth, mld]
+     state variables: [cicen, hicen, ssh, tocn, socn, hocn, layer_depth, mld]
   output:
      datadir: ./
      exp: bkgerr_stddev
