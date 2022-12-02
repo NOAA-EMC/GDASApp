@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -e
 ################################################
 YY=2021
 MM=03
@@ -17,9 +17,10 @@ module load GDAS/hera
 GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
 GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 
-EXECDIR=$project_source_dir/build/bin/
+EXECDIR=$project_source_dir/build/bin
 WORKDIR=$project_binary_dir/test/testrun
-RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART/
+RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART
+JEDIDIR=/scratch2/NCEPDEV/stmp1/Jiarui.Dong/workdir/jedi
 
 #export TPATH="/scratch2/BMC/gsienkf/Clara.Draper/data_RnR/orog_files_Mike/"
 export TPATH="/scratch1/NCEPDEV/global/glopara/fix/orog/20220805/C${RES}/"
@@ -53,10 +54,19 @@ do
   fi
 done
 
+# stage restarts
+for tile in 1 2 3 4 5 6
+do
+  if [[ ! -e ${FILEDATE}.xainc.sfc_data.tile${tile}.nc ]]; then
+    ln ${JEDIDIR}/${FILEDATE}.xainc.sfc_data.tile${tile}.nc .
+  fi
+done
+
+
 echo 'do_landDA: calling apply snow increment'
 
 # (n=6) -> this is fixed, at one task per tile (with minor code change, could run on a single proc).
-srun '--export=ALL' -A fv3-cpu -n 6 ${EXECDIR}/apply_incr ${WORKDIR}/apply_incr.log
+srun '--export=ALL' -A fv3-cpu -n 6 ${EXECDIR}/apply_incr.exe ${WORKDIR}/apply_incr.log
 if [[ $? != 0 ]]; then
     echo "apply snow increment failed"
     exit 10
