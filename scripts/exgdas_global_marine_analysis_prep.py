@@ -47,6 +47,7 @@ print(f"sys.path={sys.path}")
 # import UFSDA utilities
 import ufsda
 
+
 def agg_seaice(fname_in, fname_out):
     """
     Aggregates seaice variables from fname_in and save in fname_out.
@@ -63,10 +64,9 @@ def agg_seaice(fname_in, fname_out):
 
     # populate xarray with aggregated quantities
     aggds = xr.merge([xr.DataArray(
-                         name = varname,
-                         data = np.reshape(np.sum(ds[soca2cice_vars[varname]].values, axis=0), (1, nj,ni)),
-                         dims = ['time','yaxis_1','xaxis_1']
-                                  ) for varname in soca2cice_vars.keys()])
+                      name=varname,
+                      data=np.reshape(np.sum(ds[soca2cice_vars[varname]].values, axis=0), (1, nj, ni)),
+                      dims=['time', 'yaxis_1', 'xaxis_1']) for varname in soca2cice_vars.keys()])
 
     # remove fill value
     encoding = {varname: {'_FillValue': False} for varname in soca2cice_vars.keys()}
@@ -75,10 +75,11 @@ def agg_seaice(fname_in, fname_out):
     aggds.to_netcdf(fname_out, format='NETCDF4', unlimited_dims='time', encoding=encoding)
 
     # xarray doesn't allow variables and dim that have the same name, switch to netCDF4
-    ncf = Dataset(fname_out,'a')
-    t = ncf.createVariable('time','f8',('time'))
+    ncf = Dataset(fname_out, 'a')
+    t = ncf.createVariable('time', 'f8', ('time'))
     t[:] = 1.0
     ncf.close()
+
 
 def test_hist_date(histfile, ref_date):
     """
@@ -114,7 +115,7 @@ def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]'
         ice_filename = ocn_filename.replace("ocn", "ice")
         agg_ice_filename = ocn_filename.replace("ocn", "agg_ice")
         agg_seaice(os.path.join(bkg_path, ice_filename),
-                   os.path.join(bkg_path, agg_ice_filename)) # aggregate seaice variables
+                   os.path.join(bkg_path, agg_ice_filename))  # aggregate seaice variables
         bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',
                     'ocn_filename': ocn_filename,
