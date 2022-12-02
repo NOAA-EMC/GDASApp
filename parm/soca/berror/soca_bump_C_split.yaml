@@ -14,28 +14,29 @@ background:
   state variables: [socn, tocn, ssh, hocn]
 
 bump:
-  verbosity: main
   datadir: $(datadir)
   method: cor
   strategy: specific_univariate
   new_nicas: true
   write_nicas_local: true
   mask_check: false
-  resol: 20.0
+  resol: 1.0
   grids:
   - prefix: ${CVAR}
     variables:
     - ${CVAR}
 
-  input:
-  - parameter: rh
+input fields:
+- parameter: rh
+  file:
     read_from_file: 1
     date: *date
     basename: ./
     ocn_filename: ocn.cor_rh.incr.0001-01-01T00:00:00Z.nc
     state variables:
     - ${CVAR}
-  - parameter: rv
+- parameter: rv
+  file:
     read_from_file: 1
     date: *date
     basename: ./
