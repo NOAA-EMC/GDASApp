@@ -1,10 +1,10 @@
-name: Unit Tests
+name: Unit Tests Within NCEP Global-Workflow
 on: [push, pull_request]
 
 jobs:
   ctests:
     runs-on: ubuntu-latest
-    name: Run Unit Tests with ctest
+    name: Run Unit Tests inside global-workflow with ctest
 
     steps:
 
@@ -23,11 +23,19 @@ jobs:
         tar -xvf solo-877b414.tar.gz
         cd solo && pip install . && cd ..
         cd r2d2 && pip install . && cd ..
+        sudo mkdir -p /work/noaa # to trick workflow into thinking this is RDHPCS Orion
 
-    - name: Checkout
-      uses: actions/checkout@v2
+    - name: Checkout workflow
+      uses: actions/checkout@v3
       with:
-        path: GDASApp
+        repository: NOAA-EMC/global-workflow
+        ref: develop
+        path: global-workflow
+
+    - name: Checkout GDASApp
+      uses: actions/checkout@v3
+      with:
+        path: global-workflow/sorc/gdas.cd
 
     - name: Install ecBuild
       run: |
@@ -41,15 +49,15 @@ jobs:
 
     - name: Configure with cmake
       run: |
-        mkdir $GITHUB_WORKSPACE/build && cd $GITHUB_WORKSPACE/build
-        cmake -DBUILD_GDASBUNDLE=OFF $GITHUB_WORKSPACE/GDASApp
+        mkdir $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/build && cd $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/build
+        cmake -DBUILD_GDASBUNDLE=OFF -DWORKFLOW_TESTS=ON $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/
 
     - name: Build GDASApp
       run: |
-        cd $GITHUB_WORKSPACE/build
+        cd $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/build
         make
 
     - name: Run ctest
       run: |
-        cd $GITHUB_WORKSPACE/build
+        cd $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/build
         ctest --output-on-failure

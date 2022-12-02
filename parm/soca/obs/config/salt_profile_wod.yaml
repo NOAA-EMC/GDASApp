@@ -1,0 +1,45 @@
+obs space:
+  name: insitu_s_profile_wod
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: ${OBS_DIR}/${OBS_PREFIX}salt_profile_wod.${OBS_DATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: ${DIAG_DIR}/salt_profile_wod.${OBS_DATE}.nc4
+  simulated variables: [sea_water_salinity]
+  io pool:
+    max pool size: 1
+obs operator:
+  name: MarineVertInterp
+obs error:
+  covariance model: diagonal
+obs filters:
+- filter: Domain Check
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    minvalue: 0.9
+- filter: Domain Check
+  where:
+  - variable: {name: sea_water_salinity@ObsError}
+    minvalue: 0.0001
+- filter: Bounds Check
+  minvalue: 1.0
+  maxvalue: 40.0
+- filter: Background Check
+  threshold: 2.0
+# Measurement errors are too small, inflate almost everywhere
+#- filter: Background Check
+#  threshold: 0.01
+#  action:
+#    name: inflate error
+#    inflation factor: 30.0
+- filter: Domain Check
+  where:
+  - variable: {name: sea_surface_temperature@GeoVaLs}
+    minvalue: 3.0
+- filter: Domain Check
+  where:
+  - variable: { name: sea_ice_area_fraction@GeoVaLs}
+    maxvalue: 0.00001

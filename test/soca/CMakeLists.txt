@@ -91,7 +91,7 @@ add_test(NAME test_gdasapp_soca_ana_prep
 # -----------------------------------------
 add_test(NAME test_gdasapp_soca_ana_run
          COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_run.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/analysis)
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/ocnanal_2018041512)
 set_tests_properties(test_gdasapp_soca_ana_run
       PROPERTIES
           DEPENDS "test_gdasapp_soca_ana_prep"

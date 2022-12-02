@@ -52,12 +52,15 @@ def copyfile(src, dest):
         logging.info(f"copy of {src} to {dest}")
 
 
-def symlink(src, dest):
+def symlink(src, dest, remove=True):
     try:
         os.symlink(src, dest)
         logging.info(f"Symbolically linked {src} to {dest}")
     except FileExistsError:
-        os.remove(dest)
-        logging.info(f"{dest} exists, removing...")
-        os.symlink(src, dest)
-        logging.info(f"Symbolically linked {src} to {dest}")
+        if remove:
+            os.remove(dest)
+            logging.info(f"{dest} exists, removing...")
+            os.symlink(src, dest)
+            logging.info(f"Symbolically linked {src} to {dest}")
+        else:
+            logging.info(f"{dest} exists, do nothing.")
