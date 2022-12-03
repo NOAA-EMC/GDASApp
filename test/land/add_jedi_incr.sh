@@ -10,17 +10,14 @@ RES=48
 
 project_binary_dir=$1
 project_source_dir=$2
-module purge
-module use $project_source_dir/modulefiles
-module load GDAS/hera
 
 GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
 GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 
 EXECDIR=$project_source_dir/build/bin
-WORKDIR=$project_binary_dir/test/testrun
+WORKDIR=$project_binary_dir/test/land
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART
-JEDIDIR=/scratch2/NCEPDEV/stmp1/Jiarui.Dong/workdir/jedi
+INCDIR=/scratch2/NCEPDEV/stmp1/Jiarui.Dong/workdir/jedi
 
 #export TPATH="/scratch2/BMC/gsienkf/Clara.Draper/data_RnR/orog_files_Mike/"
 export TPATH="/scratch1/NCEPDEV/global/glopara/fix/orog/20220805/C${RES}/"
@@ -58,7 +55,7 @@ done
 for tile in 1 2 3 4 5 6
 do
   if [[ ! -e ${FILEDATE}.xainc.sfc_data.tile${tile}.nc ]]; then
-    ln ${JEDIDIR}/${FILEDATE}.xainc.sfc_data.tile${tile}.nc .
+    ln ${INCDIR}/${FILEDATE}.xainc.sfc_data.tile${tile}.nc .
   fi
 done
 
