@@ -33,7 +33,7 @@ jobs:
 
     - name: Install workflow utils
       run: |
-        cd global-workflow/ush/python
+        cd global-workflow/ush/python/pygw
         pip install .
 
     - name: Checkout
