@@ -99,6 +99,7 @@ if(BUILD_GDASBUNDLE)
 
 # Land associated repositories
   ecbuild_bundle( PROJECT land-imsproc  GIT "https://github.com/NOAA-PSL/land-IMS_proc.git"  TAG 4938daa )
+  ecbuild_bundle( PROJECT land-jediincr GIT "https://github.com/NOAA-PSL/land-apply_jedi_incr.git"  TAG a12a046 )
 
 # ioda, ufo, fv3-jedi, and saber test data
 #---------------------------------
@@ -150,9 +151,6 @@ add_subdirectory(ush)
 
 # Include testing.
 add_subdirectory(test)
-
-# Include the land add_jedi_incr
-add_subdirectory(land-jediincr)
 
 # Finalize bundle
 # ---------------

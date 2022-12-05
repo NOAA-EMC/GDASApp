@@ -10,6 +10,9 @@ RES=48
 
 project_binary_dir=$1
 project_source_dir=$2
+module purge
+module use $project_source_dir/modulefiles
+module load GDAS/hera
 
 GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
 GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
