@@ -1,6 +1,0 @@
-module purge
-
-module load intel/2020.2
-module load impi/2018.0.4
-module load netcdf/4.7.0
-
