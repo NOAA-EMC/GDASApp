@@ -1,14 +1,25 @@
-window begin: '$(AERO_WINDOW_BEGIN)'
-window length: $(AERO_WINDOW_LENGTH)
-geometry: $(GEOM_BKG)
+window begin: '{{AERO_WINDOW_BEGIN}}'
+window length: {{AERO_WINDOW_LENGTH}}
+geometry:
+  fms initialization:
+    namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
+    field table filename: !ENV ${DATA}/fv3jedi/field_table
+  akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+  layout:
+  - !ENV ${layout_x}
+  - !ENV ${layout_y}
+  npx: $(npx_ges)
+  npy: $(npy_ges)
+  npz: $(npz_ges)
+  field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
 state:
-  datapath: $(BKG_DIR)
+  datapath: !ENV ${DATA}/bkg
   filetype: fms restart
-  datetime: $(BKG_ISOTIME)
-  filename_core: $(BKG_YYYYmmddHHMMSS).fv_core.res.nc
-  filename_trcr: $(BKG_YYYYmmddHHMMSS).fv_tracer.res.nc
-  filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
+  datetime: {{BKG_ISOTIME}}
+  filename_core: {{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc
+  filename_trcr: {{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc
+  filename_cplr: {{BKG_YYYYmmddHHMMSS}}.coupler.res
   state variables: [t,delp,sphum,sulf,bc1,bc2,oc1,oc2,
                       dust1,dust2,dust3,dust4,dust5,
                       seas1,seas2,seas3,seas4]
-observations: $<< $(OBS_LIST)
+observations: !INC ${OBS_LIST}
