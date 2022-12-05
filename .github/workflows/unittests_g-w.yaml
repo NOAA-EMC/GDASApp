@@ -32,6 +32,11 @@ jobs:
         ref: develop
         path: global-workflow
 
+    - name: Install workflow utils
+      run: |
+        cd global-workflow/ush/python/pygw
+        pip install .
+
     - name: Checkout GDASApp
       uses: actions/checkout@v3
       with:
