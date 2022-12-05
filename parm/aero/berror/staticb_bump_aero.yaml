@@ -11,7 +11,7 @@ saber blocks:
                       dust1,dust2,dust3,dust4,dust5,
                       seas1,seas2,seas3,seas4]
   bump:
-    datadir: &staticb_aero_dir ${DATA}/berror
+    datadir: &staticb_aero_dir !ENV ${DATA}/berror
     verbosity: main
     strategy: specific_univariate
     load_nicas_local: true
