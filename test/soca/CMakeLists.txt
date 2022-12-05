@@ -5,6 +5,7 @@ file(GLOB bkg_diag "${TESTDATA}/ocn_da_2018_04_15_*.nc")
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART_GES)
 file(COPY ${bkg_diag} DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
+file(COPY ${TESTDATA}/iced.2019-04-15-43200.nc DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 
 # link input file from iodaconv to test directory
 # test convert BUFR to IODA

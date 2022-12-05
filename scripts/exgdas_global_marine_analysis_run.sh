@@ -97,14 +97,11 @@ $APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml > para
 # Set decorrelation scales for bump C
 $APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml > soca_setcorscales.out 2>&1
 
+# TODO (G, C, R, ...): problem with ' character when reading yaml, removing from file for now
 # 2D C from bump
-yaml_list=`ls soca_bump2d_C*.yaml`
-for yaml in $yaml_list; do
-    # TODO (G, C, R, ...): problem with ' character when reading yaml, removing from file for now
-    clean_yaml $yaml
-    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
-done
-concatenate_bump 'bump2d'
+yaml_bump2d=soca_bump_C_2d.yaml
+clean_yaml $yaml_bump2d
+$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml_bump2d 2>$yaml_bump2d.err
 
 # 3D C from bump
 yaml_list=`ls soca_bump3d_C*.yaml`

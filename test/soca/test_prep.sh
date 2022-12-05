@@ -7,7 +7,7 @@ project_source_dir=$2
 source ${project_source_dir}/test/soca/test_utils.sh
 
 # Remove previously fetched obs
-rm -f ${project_binary_dir}/test/soca/3dvar/gdas.t12z.{sst,adt,sss,salt}*.nc4
+rm -f ${project_binary_dir}/test/soca/3dvar/gdas.t12z.{sst,adt,sss,salt,icec}*.nc4
 
 # Export runtime env. variables
 source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $project_source_dir
@@ -15,11 +15,13 @@ source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $proj
 # Get low res static files from the soca sandbox
 source ${project_source_dir}/test/soca/static.sh $project_binary_dir $project_source_dir
 
-# MOM6's diag output needs to be renamed
+# MOM6's diag output needs to be renamed, CICE restarts are made up
 i=3
 lof=`ls ${project_binary_dir}/test/soca/bkg/RESTART/ocn_da_*`
-for f in $lof; do
-  cp $f ${project_binary_dir}/test/soca/bkg/gdas.t12z.ocnf00$i.nc
+icef=${project_binary_dir}/test/soca/bkg/RESTART/iced.2019-04-15-43200.nc # TODO: cice restart is made up
+for ocnf in $lof; do
+  cp $ocnf ${project_binary_dir}/test/soca/bkg/gdas.t12z.ocnf00$i.nc
+  cp $icef ${project_binary_dir}/test/soca/bkg/gdas.t12z.icef00$i.nc
   i=$(($i+1))
 done
 
@@ -38,6 +40,10 @@ for o in $obslist; do
             continue
             ;;
         "ocn_filename:")
+            base=${project_binary_dir}/test/soca/bkg/
+            continue
+            ;;
+        "ice_filename:")
             base=${project_binary_dir}/test/soca/bkg/
             continue
             ;;
