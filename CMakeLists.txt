@@ -99,7 +99,8 @@ if(BUILD_GDASBUNDLE)
 
 # Land associated repositories
   ecbuild_bundle( PROJECT land-imsproc  GIT "https://github.com/NOAA-PSL/land-IMS_proc.git"  TAG 4938daa )
-  ecbuild_bundle( PROJECT land-jediincr GIT "https://github.com/NOAA-PSL/land-apply_jedi_incr.git"  TAG a12a046 )
+#  ecbuild_bundle( PROJECT land-jediincr GIT "https://github.com/NOAA-PSL/land-apply_jedi_incr.git"  TAG a12a046 )
+  ecbuild_bundle( PROJECT land-jediincr GIT "https://github.com/jiaruidong2017/land-apply_jedi_incr.git"  BRANCH bugfix )
 
 # ioda, ufo, fv3-jedi, and saber test data
 #---------------------------------
