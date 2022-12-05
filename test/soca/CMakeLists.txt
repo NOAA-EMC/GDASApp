@@ -96,3 +96,8 @@ set_tests_properties(test_gdasapp_soca_ana_run
       PROPERTIES
           DEPENDS "test_gdasapp_soca_ana_prep"
         )
+
+# Test exgdas scripts from the global-worflow
+if (WORKFLOW_TESTS)
+  add_subdirectory(global-workflow)
+endif()
