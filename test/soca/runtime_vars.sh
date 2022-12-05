@@ -37,7 +37,7 @@ ush_link=${project_binary_dir}/test/soca/HOMEgfs/ush
 
 export JEDI_BIN=${project_binary_dir}/bin
 export SOCA_INPUT_FIX_DIR=${project_binary_dir}/soca_static      # static soca files
-export SOCA_VARS=tocn,socn,ssh
+export SOCA_VARS=tocn,socn,ssh,cicen,hicen                       # Should be renamed, these are the control variables
 export DOMAIN_STACK_SIZE=2000000
 export STATICB_DIR=${project_binary_dir}/test/soca/staticb       # Static B-matrix
 export FV3JEDI_STAGE_YAML=${project_binary_dir}/test/soca/testinput/dumy.yaml # Useless atmospheric stuff
