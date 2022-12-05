@@ -29,6 +29,9 @@ import logging
 import subprocess
 from datetime import datetime, timedelta
 from netCDF4 import Dataset
+import xarray as xr
+import numpy as np
+
 
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -45,7 +48,45 @@ print(f"sys.path={sys.path}")
 import ufsda
 
 
+def agg_seaice(fname_in, fname_out):
+    """
+    Aggregates seaice variables from fname_in and save in fname_out.
+    """
+
+    soca2cice_vars = {'aicen': 'aicen',
+                      'hicen': 'vicen',
+                      'hsnon': 'vsnon'}
+
+    # read CICE restart
+    ds = xr.open_dataset(fname_in)
+    nj = np.shape(ds['aicen'])[1]
+    ni = np.shape(ds['aicen'])[2]
+
+    # populate xarray with aggregated quantities
+    aggds = xr.merge([xr.DataArray(
+                      name=varname,
+                      data=np.reshape(np.sum(ds[soca2cice_vars[varname]].values, axis=0), (1, nj, ni)),
+                      dims=['time', 'yaxis_1', 'xaxis_1']) for varname in soca2cice_vars.keys()])
+
+    # remove fill value
+    encoding = {varname: {'_FillValue': False} for varname in soca2cice_vars.keys()}
+
+    # save datasets
+    aggds.to_netcdf(fname_out, format='NETCDF4', unlimited_dims='time', encoding=encoding)
+
+    # xarray doesn't allow variables and dim that have the same name, switch to netCDF4
+    ncf = Dataset(fname_out, 'a')
+    t = ncf.createVariable('time', 'f8', ('time'))
+    t[:] = 1.0
+    ncf.close()
+
+
 def test_hist_date(histfile, ref_date):
+    """
+    Check that the date in the MOM6 history file is the expected one for the cycle.
+    TODO: Implement the same for seaice
+    """
+
     ncf = Dataset(histfile, 'r')
     hist_date = dparser.parse(ncf.variables['time'].units, fuzzy=True) + timedelta(hours=int(ncf.variables['time'][0]))
     ncf.close()
@@ -71,9 +112,14 @@ def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]'
     for bkg in files:
         test_hist_date(bkg, bkg_date)  # assert date of the history file is correct
         ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'
+        ice_filename = ocn_filename.replace("ocn", "ice")
+        agg_ice_filename = ocn_filename.replace("ocn", "agg_ice")
+        agg_seaice(os.path.join(bkg_path, ice_filename),
+                   os.path.join(bkg_path, agg_ice_filename))  # aggregate seaice variables
         bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': bkg_path+'/',
                     'ocn_filename': ocn_filename,
+                    'ice_filename': agg_ice_filename,
                     'read_from_file': 1,
                     'remap_filename': os.path.join(bkg_path, ocn_filename_ic)}
         bkg_date = bkg_date + timedelta(hours=1)  # TODO: make the bkg interval a configurable
@@ -181,12 +227,23 @@ vars3d = ['tocn', 'socn', 'uocn', 'vocn', 'chl', 'biop']
 vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
           'sw', 'lw', 'lw_rad', 'lhf', 'shf', 'us']
 
-# TODO (Guillaume): do something with soca_vars.
-vars = ['ssh', 'tocn', 'socn']
-logging.info(f"over-writting {soca_vars} with {vars}")
-for v in vars:
+# 2d bump yaml (all 2d vars at once)
+bumpdir = 'bump'
+ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
+config = {'datadir': bumpdir}
+bumpC_yaml = os.path.join(anl_dir, 'soca_bump_C_2d.yaml')
+bumpC_yaml_template = os.path.join(gdas_home,
+                                   'parm',
+                                   'soca',
+                                   'berror',
+                                   'soca_bump_C_2d.yaml')
+ufsda.yamltools.genYAML(config, output=bumpC_yaml, template=bumpC_yaml_template)
+
+# 3d bump yaml, 1 yaml per variable
+for v in soca_vars:
+    logging.info(f"creating the yaml to initialize bump for {v}")
     if v in vars2d:
-        dim = '2d'
+        continue
     else:
         dim = '3d'
     bumpC_yaml = os.path.join(anl_dir, 'soca_bump'+dim+'_C_'+v+'.yaml')
@@ -221,8 +278,11 @@ logging.info(f"{config}")
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
 
 # link of convenience
-diag_ic = glob.glob(os.path.join(os.getenv('COMIN_GES'), 'gdas.*.ocnf003.nc'))[0]
-ufsda.disk_utils.symlink(diag_ic, os.path.join(anl_dir, 'INPUT', 'MOM.res.nc'))
+mom_ic = glob.glob(os.path.join(os.getenv('COMIN_GES'), 'gdas.*.ocnf003.nc'))[0]
+ufsda.disk_utils.symlink(mom_ic, os.path.join(anl_dir, 'INPUT', 'MOM.res.nc'))
+
+cice_ic = glob.glob(os.path.join(os.getenv('COMIN_GES'), 'gdas.*.agg_icef003.nc'))[0]
+ufsda.disk_utils.symlink(cice_ic, os.path.join(anl_dir, 'INPUT', 'cice.res.nc'))
 
 # prepare input.nml
 mom_input_nml_src = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
