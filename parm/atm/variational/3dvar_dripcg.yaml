@@ -1,23 +1,34 @@
 cost function:
   cost type: 3D-Var
-  window begin: '$(ATM_WINDOW_BEGIN)'
+  window begin: '{{ATM_WINDOW_BEGIN}}'
   window length: $(ATM_WINDOW_LENGTH)
   analysis variables: &3dvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
-  geometry: $(GEOM_BKG)
+  geometry:
+    fms initialization:
+      namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
+      field table filename: !ENV ${DATA}/fv3jedi/field_table
+    akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+    layout:
+    - !ENV ${layout_x}
+    - !ENV ${layout_y}
+    npx: $(npx_ges)
+    npy: $(npy_ges)
+    npz: $(npz_ges)
+    field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
   background:
-    datapath: $(BKG_DIR)
+    datapath: !ENV ${DATA}/bkg
     filetype: fms restart
-    datetime: $(BKG_ISOTIME)
-    filename_core: $(BKG_YYYYmmddHHMMSS).fv_core.res.nc
-    filename_trcr: $(BKG_YYYYmmddHHMMSS).fv_tracer.res.nc
-    filename_sfcd: $(BKG_YYYYmmddHHMMSS).sfc_data.nc
-    filename_sfcw: $(BKG_YYYYmmddHHMMSS).fv_srf_wnd.res.nc
-    filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
+    datetime: {{BKG_ISOTIME}}
+    filename_core: {{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc
+    filename_trcr: {{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc
+    filename_sfcd: {{BKG_YYYYmmddHHMMSS}}.sfc_data.nc
+    filename_sfcw: {{BKG_YYYYmmddHHMMSS}}.fv_srf_wnd.res.nc
+    filename_cplr: {{BKG_YYYYmmddHHMMSS}}.coupler.res
     state variables: [ua,va,t,DZ,delp,ps,sphum,ice_wat,liq_wat,o3mr,phis,
                       slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                       u_srf,v_srf,f10m]
-  background error: $<< $(BERROR_YAML)
-  observations: $<< $(OBS_LIST)
+  background error: !INC ${BERROR_YAML}
+  observations: !INC ${OBS_LIST}
 variational:
   minimizer:
     algorithm: DRIPCG
@@ -25,13 +36,35 @@ variational:
   - ninner: 20
     gradient norm reduction: 1e-10
     test: on
-    geometry: $(GEOM_ANL)
+    geometry:
+      fms initialization:
+        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
+        field table filename: !ENV ${DATA}/fv3jedi/field_table
+      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+      layout:
+      - !ENV ${layout_x}
+      - !ENV ${layout_y}
+      npx: $(npx_anl)
+      npy: $(npy_anl)
+      npz: $(npz_anl)
+      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
     diagnostics:
       departures: bkgmob
   - ninner: 40
     gradient norm reduction: 1e-10
     test: on
-    geometry: $(GEOM_ANL)
+    geometry:
+      fms initialization:
+        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
+        field table filename: !ENV ${DATA}/fv3jedi/field_table
+      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+      layout:
+      - !ENV ${layout_x}
+      - !ENV ${layout_y}
+      npx: $(npx_anl)
+      npy: $(npy_anl)
+      npz: $(npz_anl)
+      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
     diagnostics:
       departures: bkgmob1
 final:
@@ -41,5 +74,16 @@ final:
     output:
       filetype: auxgrid
       gridtype: gaussian
-      filename: $(ANL_DIR)/atminc.
-    geometry: $(GEOM_ANL)
+      filename: !ENV ${DATA}/anl/atminc.
+    geometry:
+      fms initialization:
+        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
+        field table filename: !ENV ${DATA}/fv3jedi/field_table
+      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+      layout:
+      - !ENV ${layout_x}
+      - !ENV ${layout_y}
+      npx: $(npx_anl)
+      npy: $(npy_anl)
+      npz: $(npz_anl)
+      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml

@@ -1,28 +1,38 @@
-geometry: $(GEOM_BKG)
-
+geometry:
+  fms initialization:
+    namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
+    field table filename: !ENV ${DATA}/fv3jedi/field_table
+  akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+  layout:
+  - !ENV ${layout_x}
+  - !ENV ${layout_y}
+  npx: $(npx_ges)
+  npy: $(npy_ges)
+  npz: $(npz_ges)
+  field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
 window begin: '$(ATM_WINDOW_BEGIN)'
 window length: PT6H
 
 background:
-   datetime: $(BKG_ISOTIME)
+   datetime: {{BKG_ISOTIME}}
    members from template:
      template:
-       datetime: $(BKG_ISOTIME)
+       datetime: {{BKG_ISOTIME}}
        filetype: fms restart
        state variables: [ua,va,t,DZ,delp,ps,sphum,ice_wat,liq_wat,o3mr,phis,
                         slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                         u_srf,v_srf,f10m]
        datapath: bkg/mem%mem%/RESTART
-       filename_core: $(BKG_YYYYmmddHHMMSS).fv_core.res.nc
-       filename_trcr: $(BKG_YYYYmmddHHMMSS).fv_tracer.res.nc
-       filename_sfcd: $(BKG_YYYYmmddHHMMSS).sfc_data.nc
-       filename_sfcw: $(BKG_YYYYmmddHHMMSS).fv_srf_wnd.res.nc
-       filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
+       filename_core: {{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc
+       filename_trcr: {{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc
+       filename_sfcd: {{BKG_YYYYmmddHHMMSS}}.sfc_data.nc
+       filename_sfcw: {{BKG_YYYYmmddHHMMSS}}.fv_srf_wnd.res.nc
+       filename_cplr: {{BKG_YYYYmmddHHMMSS}}.coupler.res
      pattern: '%mem%'
-     nmembers: $(NMEM_ENKF)
+     nmembers: !ENV ${NMEM_ENKF}
      zero padding: 3
 
-observations: $<< $(OBS_LIST)
+observations: !INC ${OBS_LIST}
 
 driver:
   update obs config with geometry info: true
@@ -46,11 +56,9 @@ local ensemble DA:
 #output:
 #  filetype: auxgrid
 #  gridtype: gaussian
-#  filename: $(ANL_DIR)/mem%{member}%/atmanl.
+#  filename: !ENV ${DATA}/mem%{member}%/atmanl.
 
 output ensemble increments:
   filetype: auxgrid
   gridtype: gaussian
-  filename: $(ANL_DIR)/mem%{member}%/atminc.
-
-geometry: $(GEOM_ANL)
+  filename: !ENV ${DATA}/anl/mem%{member}%/atminc.
