@@ -3,16 +3,15 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: sfcship_obs_$(OBS_DATE).nc4
+      obsfile: !ENV sfcship_obs_${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: sfcship_diag_$(OBS_DATE).nc4
+      obsfile:!ENV  sfcship_diag_${CDATE}.nc4
       overwrite: true
-  _source: ldm
   simulated variables: [surface_pressure, air_temperature, specific_humidity]
 geovals:
-  filename: sfcship_geoval_$(OBS_DATE).nc4
+  filename: !ENV sfcship_geoval_${CDATE}.nc4
 obs operator:
   name: Composite
   components:
