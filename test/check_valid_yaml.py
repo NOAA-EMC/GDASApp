@@ -26,6 +26,8 @@ def check_valid_yaml(repodir):
         logging.info(f'Checking {yamlfile}')
         try:
             config = YAMLFile(path=yamlfile)
+        except OSError as e:
+            logging.info(f'{yamlfile} warns of error: {e}, but this is fine')
         except Exception as e:
             logging.error(f'Error occurred when attempting to load: {yamlfile}, error: {e}')
             nfailed += 1
