@@ -30,8 +30,8 @@ background:
        filetype: fms restart
        state variables: [snwdph,vtype,slmsk]
        datapath: !ENV ${DATA}/bkg/mem%mem%/RESTART
-       filename_sfcd: {{LAND_BKG_YYYYmmddHHMMSS}}.sfc_data.nc
-       filename_cplr: {{LAND_BKG_YYYYmmddHHMMSS}}.coupler.res
+       filename_sfcd: '{{LAND_BKG_YYYYmmddHHMMSS}}.sfc_data.nc'
+       filename_cplr: '{{LAND_BKG_YYYYmmddHHMMSS}}.coupler.res'
      pattern: '%mem%'
      nmembers: 2
      zero padding: 3

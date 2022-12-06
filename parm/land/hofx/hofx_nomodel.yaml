@@ -24,7 +24,7 @@ state:
   datapath: !ENV ${DATA}/bkg
   filetype: fms restart
   datetime: '{{LAND_BKG_ISOTIME}}'
-  filename_sfcd: {{LAND_BKG_YYYYmmddHHMMSS}}.sfc_data.nc
-  filename_cplr: {{LAND_BKG_YYYYmmddHHMMSS}}.coupler.res
+  filename_sfcd: '{{LAND_BKG_YYYYmmddHHMMSS}}.sfc_data.nc'
+  filename_cplr: '{{LAND_BKG_YYYYmmddHHMMSS}}.coupler.res'
   state variables: [snwdph,vtype,slmsk]
 observations: !INC ${OBS_LIST}
