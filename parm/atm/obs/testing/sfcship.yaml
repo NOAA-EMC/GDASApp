@@ -7,7 +7,7 @@ obs space:
   obsdataout:
     engine:
       type: H5File
-      obsfile:!ENV  sfcship_diag_${CDATE}.nc4
+      obsfile: !ENV  sfcship_diag_${CDATE}.nc4
       overwrite: true
   simulated variables: [surface_pressure, air_temperature, specific_humidity]
 geovals:

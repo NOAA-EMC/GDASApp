@@ -26,7 +26,7 @@ background:
    datetime: {{LAND_BKG_ISOTIME}}
    members from template:
      template:
-       datetime: {{LAND_BKG_ISOTIME}}
+       datetime: '{{LAND_BKG_ISOTIME}}'
        filetype: fms restart
        state variables: [snwdph,vtype,slmsk]
        datapath: !ENV ${DATA}/bkg/mem%mem%/RESTART

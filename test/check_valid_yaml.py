@@ -21,6 +21,7 @@ def check_valid_yaml(repodir):
     for path in pathlib.Path(os.path.join(repodir, 'parm')).rglob('*.yml'):
         all_yamls.append(os.path.abspath(path))
     nfailed = 0
+    failed_yamls = []
 
     for yamlfile in all_yamls:
         logging.info(f'Checking {yamlfile}')
@@ -31,8 +32,11 @@ def check_valid_yaml(repodir):
         except Exception as e:
             logging.error(f'Error occurred when attempting to load: {yamlfile}, error: {e}')
             nfailed += 1
+            failed_yamls.append(yamlfile)
     logging.info(f'{nfailed} of {len(all_yamls)} files failed.')
     if nfailed > 0:
+        for yamlfile in failed_yamls:
+            logging.info(yamlfile)
         sys.exit(1)
 
 
