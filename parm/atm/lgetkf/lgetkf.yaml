@@ -14,20 +14,20 @@ window begin: '$(ATM_WINDOW_BEGIN)'
 window length: PT6H
 
 background:
-   datetime: {{BKG_ISOTIME}}
+   datetime: '{{BKG_ISOTIME}}'
    members from template:
      template:
-       datetime: {{BKG_ISOTIME}}
+       datetime: '{{BKG_ISOTIME}}'
        filetype: fms restart
        state variables: [ua,va,t,DZ,delp,ps,sphum,ice_wat,liq_wat,o3mr,phis,
                         slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                         u_srf,v_srf,f10m]
        datapath: bkg/mem%mem%/RESTART
-       filename_core: {{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc
-       filename_trcr: {{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc
-       filename_sfcd: {{BKG_YYYYmmddHHMMSS}}.sfc_data.nc
-       filename_sfcw: {{BKG_YYYYmmddHHMMSS}}.fv_srf_wnd.res.nc
-       filename_cplr: {{BKG_YYYYmmddHHMMSS}}.coupler.res
+       filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
+       filename_trcr: '{{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc'
+       filename_sfcd: '{{BKG_YYYYmmddHHMMSS}}.sfc_data.nc'
+       filename_sfcw: '{{BKG_YYYYmmddHHMMSS}}.fv_srf_wnd.res.nc'
+       filename_cplr: '{{BKG_YYYYmmddHHMMSS}}.coupler.res'
      pattern: '%mem%'
      nmembers: !ENV ${NMEM_ENKF}
      zero padding: 3

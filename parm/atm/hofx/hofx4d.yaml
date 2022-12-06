@@ -16,12 +16,12 @@ geometry:
 initial condition:
   datapath: !ENV ${DATA}/bkg
   filetype: fms restart
-  datetime: {{ATM_WINDOW_BEGIN}}
-  filename_core: {{ATM_BEGIN_YYYYmmddHHMMSS}}.fv_core.res.nc
-  filename_trcr: {{ATM_BEGIN_YYYYmmddHHMMSS}}.fv_tracer.res.nc
-  filename_sfcd: {{ATM_BEGIN_YYYYmmddHHMMSS}}.sfc_data.nc
-  filename_sfcw: {{ATM_BEGIN_YYYYmmddHHMMSS}}.fv_srf_wnd.res.nc
-  filename_cplr: {{ATM_BEGIN_YYYYmmddHHMMSS}}.coupler.res
+  datetime: '{{ATM_WINDOW_BEGIN}}'
+  filename_core: '{{ATM_BEGIN_YYYYmmddHHMMSS}}.fv_core.res.nc'
+  filename_trcr: '{{ATM_BEGIN_YYYYmmddHHMMSS}}.fv_tracer.res.nc'
+  filename_sfcd: '{{ATM_BEGIN_YYYYmmddHHMMSS}}.sfc_data.nc'
+  filename_sfcw: '{{ATM_BEGIN_YYYYmmddHHMMSS}}.fv_srf_wnd.res.nc'
+  filename_cplr: '{{ATM_BEGIN_YYYYmmddHHMMSS}}.coupler.res'
   state variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
                     slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                     u_srf,v_srf,f10m]
@@ -29,7 +29,7 @@ model:
   name: PSEUDO
   datapath: !ENV ${DATA}/bkg
   filetype: fms restart
-  datetime: {{ATM_WINDOW_BEGIN}}
+  datetime: '{{ATM_WINDOW_BEGIN}}'
   filename is datetime templated: true
   filename_core: '%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc'
   filename_trcr: '%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc'

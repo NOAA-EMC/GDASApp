@@ -36,7 +36,7 @@ def check_valid_yaml(repodir):
     logging.info(f'{nfailed} of {len(all_yamls)} files failed.')
     if nfailed > 0:
         for yamlfile in failed_yamls:
-            logging.info(yamlfile)
+            logging.info(f'FAILED: {yamlfile}')
         sys.exit(1)
 
 

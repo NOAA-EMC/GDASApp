@@ -1,5 +1,5 @@
 window begin: '{{AERO_WINDOW_BEGIN}}'
-window length: {{AERO_WINDOW_LENGTH}}
+window length: $(AERO_WINDOW_LENGTH)
 geometry:
   fms initialization:
     namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
@@ -15,10 +15,10 @@ geometry:
 state:
   datapath: !ENV ${DATA}/bkg
   filetype: fms restart
-  datetime: {{BKG_ISOTIME}}
-  filename_core: {{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc
-  filename_trcr: {{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc
-  filename_cplr: {{BKG_YYYYmmddHHMMSS}}.coupler.res
+  datetime: '{{BKG_ISOTIME}}'
+  filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
+  filename_trcr: '{{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc'
+  filename_cplr: '{{BKG_YYYYmmddHHMMSS}}.coupler.res'
   state variables: [t,delp,sphum,sulf,bc1,bc2,oc1,oc2,
                       dust1,dust2,dust3,dust4,dust5,
                       seas1,seas2,seas3,seas4]
