@@ -14,8 +14,8 @@ resens='24'
 nens=0
 pslot='gdas_test'
 configdir=$srcdir/../../parm/config
-comrot=$bindir/test/soca/global-workflow/testrun/ROTDIRS
-expdir=$bindir/test/soca/global-workflow/testrun/experiments
+comrot=$bindir/test/soca/gw/testrun/ROTDIRS
+expdir=$bindir/test/soca/gw/testrun/experiments
 
 # clean previous experiment
 rm -rf $comrot $expdir
@@ -35,6 +35,7 @@ echo "Running global-workflow experiment generation script"
                        --pslot $pslot \
                        --configdir $configdir \
                        --comrot $comrot \
-                       --expdir $expdir
+                       --expdir $expdir \
+                       --yaml $srcdir/test/soca/gw/config.yaml
 
 exit $?
