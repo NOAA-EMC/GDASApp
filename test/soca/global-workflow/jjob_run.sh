@@ -2,8 +2,18 @@
 bindir=$1
 srcdir=$2
 
-# source configs
-
-# prepare stuff from previous cycle
-
 # run jjob
+export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
+echo $HOMEgfs
+
+export EXPDIR=$bindir/test/soca/global-workflow/testrun/experiments/gdas_test
+export PDY=20180415
+export cyc=12
+export CDATE=2018041512
+export ROTDIR=$bindir/test/soca/global-workflow/testrun/ROTDIRS
+export CDUMP=gdas
+export DATAROOT=$bindir/test/soca/global-workflow/testrun/RUNDIR
+export COMIN_GES=${bindir}/test/soca/bkg
+export APRUN_OCNANAL="$MPIEXEC_EXEC $MPIEXEC_NPROC 6"
+
+${HOMEgfs}/jobs/JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN

@@ -38,8 +38,11 @@ my_dir = os.path.dirname(__file__)
 my_home = os.path.dirname(os.path.dirname(my_dir))
 gdas_home = os.path.join(os.getenv('HOMEgfs'), 'sorc', 'gdas.cd')
 sys.path.append(os.path.join(os.getenv('HOMEgfs', my_home), 'ush'))
+sys.path.append(os.path.join(gdas_home, 'ush'))
 print(f"sys.path={sys.path}")
-
+logging.info(f"******************** HOMEgfs: {os.getenv('HOMEgfs')}")
+logging.info(f"******************** gdas_home: {gdas_home}")
+logging.info(f"******************** CDATE: {os.getenv('CDATE')}")
 
 # import UFSDA utilities
 import ufsda
