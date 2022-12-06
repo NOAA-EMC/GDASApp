@@ -26,3 +26,8 @@ if(BUILD_GDASBUNDLE)
   )
 
 endif(BUILD_GDASBUNDLE)
+
+# Test exgdas scripts from the global-worflow
+if (WORKFLOW_TESTS)
+  add_subdirectory(global-workflow)
+endif()
