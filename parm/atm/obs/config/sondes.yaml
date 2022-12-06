@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine: 
       type: H5File
-      obsfile: $(OBS_DIR)/$(OBS_PREFIX)sondes.$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}sondes.${CDATE}.nc4
     obsgrouping:
       group variables: ["station_id"]
       sort variable: "air_pressure"
@@ -11,12 +11,10 @@ obs space:
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DIAG_DIR)/diag_sondes_$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/diags/diag_sondes_${CDATE}.nc4
   io pool:
     max pool size: 1
   simulated variables: [surface_pressure, air_temperature, eastward_wind, northward_wind, specific_humidity]
-get values:
-  interpolation method: $(INTERP_METHOD)
 obs operator:
   name: Composite
   components:
