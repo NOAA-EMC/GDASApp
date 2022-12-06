@@ -26,7 +26,7 @@ def check_valid_yaml(repodir):
     envtag = '!ENV'
     inctag = '!INC'
     # pattern for global vars: look for ${word}
-    pattern = re.compile('.*?\${(\w+)}.*?')
+    pattern = re.compile(r'.*?\${(\w+)}.*?')
     loader = yaml.SafeLoader
 
     # the envtag will be used to mark where to start searching for the pattern
@@ -41,7 +41,6 @@ def check_valid_yaml(repodir):
             for g in match:
                 full_value = full_value.replace(
                     f'${{{g}}}', os.environ.get(g, f'${{{g}}}')
-                    #f'${{{g}}}', os.environ.get(g, g)
                 )
             return full_value
         return line
@@ -76,7 +75,7 @@ def check_valid_yaml(repodir):
         logging.info(f'Checking {yamlfile}')
         try:
             with open(yamlfile, 'r') as YAML_opened:
-                test_dict = yaml.safe_load(YAML_opened, loader=loader)
+                test_dict = yaml.load(YAML_opened, Loader=loader)
         except Exception as e:
             logging.error(f'Error occurred when attempting to load: {yamlfile}, error: {e}')
             nfailed += 1
