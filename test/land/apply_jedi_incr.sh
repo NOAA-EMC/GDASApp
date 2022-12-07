@@ -66,7 +66,7 @@ done
 echo 'do_landDA: calling apply snow increment'
 
 # (n=6) -> this is fixed, at one task per tile (with minor code change, could run on a single proc).
-srun '--export=ALL' -A fv3-cpu -n 6 ${EXECDIR}/apply_incr.exe ${WORKDIR}/apply_incr.log
+srun '--export=ALL' -n 6 ${EXECDIR}/apply_incr.exe ${WORKDIR}/apply_incr.log
 if [[ $? != 0 ]]; then
     echo "apply snow increment failed"
     exit 10
