@@ -3,17 +3,15 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(OBS_DIR)/$(OBS_PREFIX)atms_n20.$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}atms_n20.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DIAG_DIR)/diag_atms_n20_$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/diags/diag_atms_n20_${CDATE}.nc4
   io pool:
     max pool size: 1
   simulated variables: [brightness_temperature]
   channels: &atms_n20_channels 1-22
-get values:
-  interpolation method: $(INTERP_METHOD)
 obs operator:
   name: CRTM
   Absorbers: [H2O,O3]
@@ -22,16 +20,16 @@ obs operator:
   obs options:
     Sensor_ID: atms_n20
     EndianType: little_endian
-    CoefficientPath: $(CRTM_COEFF_DIR)/
+    CoefficientPath: !ENV ${DATA}/crtm
 obs bias:
-  input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)atms_n20.satbias.$(BIAS_DATE).nc4
-  output file: $(BIAS_OUT_DIR)/$(OBS_PREFIX)atms_n20.satbias.$(OBS_DATE).nc4
+  input file: !ENV ${DATA}/obs/${GPREFIX}atms_n20.satbias.${GDATE}.nc4
+  output file: !ENV ${DATA}/bc/${APREFIX}atms_n20.satbias.${CDATE}.nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &atms_n20_tlapse $(BIAS_IN_DIR)/$(BIAS_PREFIX)atms_n20.tlapse.$(BIAS_DATE).txt
+      tlapse: &atms_n20_tlapse !ENV ${DATA}/obs/${GPREFIX}atms_n20.tlapse.${GDATE}.txt
     - name: lapse_rate
       tlapse: *atms_n20_tlapse
     - name: emissivity
@@ -48,11 +46,11 @@ obs bias:
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)atms_n20.satbias_cov.$(BIAS_DATE).nc4
+      input file: !ENV ${DATA}/obs/${GPREFIX}atms_n20.satbias_cov.${GDATE}.nc4
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0
-    output file: $(BIAS_OUT_DIR)/$(OBS_PREFIX)atms_n20.satbias_cov.$(OBS_DATE).nc4
+    output file: !ENV ${DATA}/bc/${APREFIX}atms_n20.satbias_cov.${CDATE}.nc4
 obs filters:
 - filter: BlackList
   filter variables:

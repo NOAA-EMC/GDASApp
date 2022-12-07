@@ -3,16 +3,14 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(OBS_DIR)/$(OBS_PREFIX)ompstc8_npp.$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}ompstc8_npp.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DIAG_DIR)/diag_ompstc8_npp_$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/diags/diag_ompstc8_npp_${CDATE}.nc4
   io pool:
     max pool size: 1
   simulated variables: [integrated_layer_ozone_in_air]
-get values:
-  interpolation method: $(INTERP_METHOD)
 obs operator:
   name: AtmVertInterpLay
   geovals: [mole_fraction_of_ozone_in_air]
