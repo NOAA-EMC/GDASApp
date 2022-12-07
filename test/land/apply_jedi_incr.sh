@@ -10,9 +10,6 @@ RES=48
 
 project_binary_dir=$1
 project_source_dir=$2
-module purge
-module use $project_source_dir/modulefiles
-module load GDAS/hera
 
 GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
 GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
@@ -25,6 +22,7 @@ INCDIR=$GDASAPP_TESTDATA/land/C${RES}
 export TPATH="$GDASAPP_TESTDATA/land/C${RES}"
 export TSTUB="C${RES}_oro_data"
 
+rm -rf $WORKDIR
 mkdir -p $WORKDIR
 cd $WORKDIR
 
@@ -53,11 +51,11 @@ do
   fi
 done
 
-# stage restarts
+# stage increments
 for tile in 1 2 3 4 5 6
 do
   if [[ ! -e ${FILEDATE}.xainc.sfc_data.tile${tile}.nc ]]; then
-    ln ${INCDIR}/${FILEDATE}.xainc.sfc_data.tile${tile}.nc .
+    cp ${INCDIR}/${FILEDATE}.xainc.sfc_data.tile${tile}.nc .
   fi
 done
 
@@ -66,8 +64,8 @@ echo 'do_landDA: calling apply snow increment'
 
 # (n=6) -> this is fixed, at one task per tile (with minor code change, could run on a single proc).
 srun '--export=ALL' -n 6 ${EXECDIR}/apply_incr.exe ${WORKDIR}/apply_incr.log
-if [[ $? != 0 ]]; then
-    echo "apply snow increment failed"
-    exit 10
-fi
+
+rc=$?
+
+exit $rc
 
