@@ -15,14 +15,16 @@ GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
 GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 
 EXECDIR=$project_source_dir/build/bin
-WORKDIR=$project_binary_dir/test/land
+WORKDIR=$project_binary_dir/test/land/apply_jedi_incr
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART
 INCDIR=$GDASAPP_TESTDATA/land/C${RES}
 
 export TPATH="$GDASAPP_TESTDATA/land/C${RES}"
 export TSTUB="C${RES}_oro_data"
 
-rm -rf $WORKDIR
+if [[ -e $WORKDIR ]]; then
+  rm -rf $WORKDIR
+fi
 mkdir -p $WORKDIR
 cd $WORKDIR
 
