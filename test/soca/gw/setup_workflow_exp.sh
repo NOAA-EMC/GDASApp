@@ -45,10 +45,15 @@ echo "Running global-workflow experiment generation script"
                        --expdir $expdir \
                        --yaml config.yaml
 
+# get the machine name from config.base
+machine=$(echo `grep "export machine=" ${expdir}/${pslot}/config.base` | cut -d "=" -f2)
+machine=$(echo $machine | sed 's/[^0-9A-Z]*//g')
+
 # over-write config.base
 cp $srcdir/test/soca/gw/config.base ${expdir}/${pslot}/
 HOMEgfs=$(readlink -f ${srcdir}/../..)
 STMP=$bindir/test/soca/gw/testrun
+sed -i -e "s~@MACHINE@~${machine}~g" ${expdir}/${pslot}/config.base
 sed -i -e "s~@HOMEgfs@~${HOMEgfs}~g" ${expdir}/${pslot}/config.base
 sed -i -e "s~@STMP@~${STMP}~g" ${expdir}/${pslot}/config.base
 sed -i -e "s~@ROTDIRS@~${comrot}~g" ${expdir}/${pslot}/config.base
