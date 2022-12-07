@@ -1,5 +1,5 @@
 window begin: '{{AERO_WINDOW_BEGIN}}'
-window length: '{{AERO_WINDOW_LENGTH}}'
+window length: $(AERO_WINDOW_LENGTH)
 geometry:
   fms initialization:
     namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml

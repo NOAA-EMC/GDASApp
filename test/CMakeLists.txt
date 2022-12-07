@@ -168,3 +168,6 @@ endif()
 
 # gdas atm tests
 add_subdirectory(atm)
+
+# gdas aerosol tests
+add_subdirectory(aero)

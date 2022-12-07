@@ -1,7 +1,7 @@
 cost function:
   cost type: 3D-Var
   window begin: '{{AERO_WINDOW_BEGIN}}'
-  window length: '{{AERO_WINDOW_LENGTH}}'
+  window length: $(AERO_WINDOW_LENGTH)
   analysis variables: &3dvars [so4,bc1,bc2,oc1,oc2,
                       dust1,dust2,dust3,dust4,dust5,
                       seas1,seas2,seas3,seas4]
