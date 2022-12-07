@@ -152,8 +152,7 @@ ufsda.mkdir(diags)
 # create output directory for soca DA
 anl_out = os.path.join(comout, 'ocnanal_'+os.getenv('CDATE'), 'Data')
 ufsda.mkdir(anl_out)
-ufsda.symlink(os.path.join(anl_dir, 'Data'), anl_out, remove=False)
-
+ufsda.symlink(anl_out, os.path.join(anl_dir, 'Data'), remove=False)
 
 ################################################################################
 # fetch observations
