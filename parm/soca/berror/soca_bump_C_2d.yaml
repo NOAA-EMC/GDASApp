@@ -7,14 +7,14 @@ input variables: [cicen, hicen, hsnon, ssh]
 
 background:
   read_from_file: 1
-  date: &date $(ATM_WINDOW_BEGIN)
+  date: &date '{{ATM_WINDOW_BEGIN}}'
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
   ice_filename: cice.res.nc
   state variables: [cicen, hicen, hsnon, ssh, hocn]
 
 bump:
-  datadir: $(datadir)
+  datadir: !ENV ${DATA}
   method: cor
   strategy: specific_univariate
   new_nicas: true
