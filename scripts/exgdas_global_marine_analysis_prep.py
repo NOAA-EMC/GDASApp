@@ -259,7 +259,8 @@ for v in soca_vars:
                                        'soca',
                                        'berror',
                                        'soca_bump_C_split.yaml')
-    os.environ['BUMPDIR'] = 'bump'+dim+'_'+v
+    bumpdir = 'bump'+dim+'_'+v
+    os.environ['BUMPDIR'] = bumpdir
     ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
     os.environ['CVAR'] = v
     config = YAMLFile(path=bumpC_yaml_template)
