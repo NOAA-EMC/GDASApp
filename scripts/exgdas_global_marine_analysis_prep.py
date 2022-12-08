@@ -282,12 +282,8 @@ var_yaml_template = os.path.join(gdas_home,
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
 window_begin = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
 gen_bkg_list(window_begin=window_begin, bkg_path=os.getenv('COMIN_GES'), yaml_name='bkg_list.yaml')
-soca_ninner = os.getenv('SOCA_NINNER')
-config = {
-    'OBS_DATE': os.getenv('PDY')+os.getenv('cyc'),
-    'BKG_LIST': 'bkg_list.yaml',
-    'NINNER': soca_ninner,
-    'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')}
+os.environ['BKG_LIST'] = 'bkg_list.yaml'
+os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
 logging.info(f"{config}")
 varconfig = YAMLFile(path=var_yaml_template)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)

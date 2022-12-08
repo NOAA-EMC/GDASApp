@@ -11,7 +11,7 @@ cost function:
     name: PseudoModel
     tstep: PT1H
     state variables: &model_vars [cicen, hicen, hsnon, socn, tocn, ssh, hocn, uocn, vocn, mld, layer_depth]
-    states: !INC $(BKG_LIST)
+    states: !INC ${BKG_LIST}
 
   background:
     read_from_file: 1
@@ -20,7 +20,7 @@ cost function:
     ice_filename: cice.res.nc
     date: '{{ATM_WINDOW_BEGIN)}}'
     state variables: *model_vars
-  background error: !INC $(SABER_BLOCKS_YAML)
+  background error: !INC ${SABER_BLOCKS_YAML}
 
   observations:
     observations: !INC ${OBS_YAML}
