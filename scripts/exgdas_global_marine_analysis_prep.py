@@ -31,6 +31,9 @@ from datetime import datetime, timedelta
 from netCDF4 import Dataset
 import xarray as xr
 import numpy as np
+from pygw.attrdict import AttrDict
+from pygw.template import Template, TemplateConstants
+from pygw.yaml_file import YAMLFile
 
 
 # set up logger
@@ -162,14 +165,19 @@ ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root=comin_obs)
 
 # create config dict from runtime env
 envconfig = ufsda.misc_utils.get_env_config(component='notatm')
-os.environ['OBS_DATE'] = envconfig['OBS_DATE']
-os.environ['OBS_DIR'] = envconfig['OBS_DIR']
-os.environ['OBS_PREFIX'] = envconfig['OBS_PREFIX']
-os.environ['DIAG_DIR'] = diags
+
 stage_cfg = ufsda.parse_config(templateyaml=os.path.join(gdas_home,
                                                          'parm',
                                                          'templates',
                                                          'stage.yaml'), clean=True)
+stage_cfg = YAMLFile(path=os.path.join(gdas_home,
+                                       'parm',
+                                       'templates',
+                                       'stage.yaml'))
+stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+
+print(stage_cfg)
 
 # stage observations from R2D2 to COMIN_OBS and then link to analysis subdir
 ufsda.stage.obs(stage_cfg)
@@ -209,7 +217,9 @@ berr_yaml_template = os.path.join(gdas_home,
                                   'soca',
                                   'berror',
                                   'parametric_stddev_b.yaml')
-config = {}
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, cycle_dict.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, exp_dict.get)
 ufsda.yamltools.genYAML(config, output=berr_yaml, template=berr_yaml_template)
 
 # link yaml for decorrelation length scales
