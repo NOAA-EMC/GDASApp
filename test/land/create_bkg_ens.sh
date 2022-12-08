@@ -16,8 +16,8 @@ project_source_dir=$2
 GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
 GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 
-WORKDIR=$project_binary_dir/test/testrun
-RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART/
+WORKDIR=$project_binary_dir/test/land/create_jedi_ens
+RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART
 DAtype=letkfoi_snow
 
 if [[ ${DAtype} == 'letkfoi_snow' ]]; then
@@ -44,10 +44,10 @@ if [[ ${DAtype} == 'letkfoi_snow' ]]; then
     echo 'do_landDA: calling create ensemble'
 
     python ${project_source_dir}/ush/land/letkf_create_ens.py $FILEDATE $B $WORKDIR
-    if [[ $? != 0 ]]; then
-        echo "letkf create failed"
-        exit 10
-    fi
+
+    rc=$?
+
+    exit $rc
 
 fi
 

@@ -97,6 +97,10 @@ if(BUILD_GDASBUNDLE)
     ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" BRANCH develop )
   endif()
 
+# Land associated repositories
+  ecbuild_bundle( PROJECT land-imsproc  GIT "https://github.com/NOAA-PSL/land-IMS_proc.git"  TAG 4938daa )
+  ecbuild_bundle( PROJECT land-jediincr GIT "https://github.com/NOAA-PSL/land-apply_jedi_incr.git"  TAG 80b19b8 )
+
 # ioda, ufo, fv3-jedi, and saber test data
 #---------------------------------
 if(CLONE_JCSDADATA)
