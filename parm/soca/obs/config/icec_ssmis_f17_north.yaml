@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: ${OBS_DIR}/${OBS_PREFIX}icec_ssmis_f17_north.${OBS_DATE}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}icec_ssmis_f17_north.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: ${DIAG_DIR}/icec_ssmis_f17_north.${OBS_DATE}.nc4
+      obsfile: !ENV ${DATA}/diags/icec_ssmis_f17_north.${CDATE}.nc4
   simulated variables: [sea_ice_area_fraction]
   io pool:
     max pool size: 1

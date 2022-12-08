@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: ${OBS_DIR}/${OBS_PREFIX}sst_metopc_l3u_so025.${OBS_DATE}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}sst_metopc_l3u_so025.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: ${DIAG_DIR}/sst_metopc_l3u_so025.${OBS_DATE}.nc4
+      obsfile: !ENV ${DATA}/diags/sst_metopc_l3u_so025.${CDATE}.nc4
   simulated variables: [sea_surface_temperature]
   io pool:
     max pool size: 1
