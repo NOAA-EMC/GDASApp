@@ -37,7 +37,7 @@ variational:
       increment variables: *a_vars
       variable change: Identity
       tstep: PT1H
-    ninner: $(NINNER)
+    ninner: !ENV ${SOCA_NINNER}
     gradient norm reduction: 1e-10
     test: on
     diagnostics:

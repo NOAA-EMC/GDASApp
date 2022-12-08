@@ -220,7 +220,7 @@ berr_yaml_template = os.path.join(gdas_home,
 config = YAMLFile(path=berr_yaml_template)
 config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, cycle_dict.get)
 config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, exp_dict.get)
-ufsda.yamltools.genYAML(config, output=berr_yaml, template=berr_yaml_template)
+config.save(berr_yaml)
 
 # link yaml for decorrelation length scales
 corscales_yaml = os.path.join(gdas_home,
@@ -240,14 +240,16 @@ vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
 # 2d bump yaml (all 2d vars at once)
 bumpdir = 'bump'
 ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
-config = {'datadir': bumpdir}
 bumpC_yaml = os.path.join(anl_dir, 'soca_bump_C_2d.yaml')
 bumpC_yaml_template = os.path.join(gdas_home,
                                    'parm',
                                    'soca',
                                    'berror',
                                    'soca_bump_C_2d.yaml')
-ufsda.yamltools.genYAML(config, output=bumpC_yaml, template=bumpC_yaml_template)
+config = YAMLFile(path=bumpC_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, {'datadir': bumpdir}.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, {'datadir': bumpdir}.get)
+config.save(bumpC_yaml)
 
 # 3d bump yaml, 1 yaml per variable
 for v in soca_vars:
@@ -264,9 +266,11 @@ for v in soca_vars:
                                        'soca_bump_C_split.yaml')
     bumpdir = 'bump'+dim+'_'+v
     ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
-    config = {'datadir': bumpdir}
     os.environ['CVAR'] = v
-    ufsda.yamltools.genYAML(config, output=bumpC_yaml, template=bumpC_yaml_template)
+    config = YAMLFile(path=bumpC_yaml_template)
+    config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, {'datadir': bumpdir}.get)
+    config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, {'datadir': bumpdir}.get)
+    config.save(bumpC_yaml)
 
 # generate yaml for soca_var
 var_yaml = os.path.join(anl_dir, 'var.yaml')
@@ -285,7 +289,10 @@ config = {
     'NINNER': soca_ninner,
     'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')}
 logging.info(f"{config}")
-ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
+varconfig = YAMLFile(path=var_yaml_template)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, config.get)
+varconfig.save(var_yaml)
 
 # link of convenience
 mom_ic = glob.glob(os.path.join(os.getenv('COMIN_GES'), 'gdas.*.ocnf003.nc'))[0]
