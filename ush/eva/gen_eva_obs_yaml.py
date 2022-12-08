@@ -7,7 +7,7 @@ import socket
 import yaml
 
 
-def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group='ObsValue', variable='None', bound=[0, 20]):
+def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group, variable, bound):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     # open input YAML file to get config
     try:
@@ -101,11 +101,18 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group='ObsValue', varia
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--inputjediyaml', type=str, help='Input JEDI YAML Configuration', required=True)
-    parser.add_argument('-t', '--templateyaml', type=str, help='Template EVA YAML', required=True)
-    parser.add_argument('-o', '--outputdir', type=str, help='Output directory for EVA YAMLs', required=True)
-    parser.add_argument('-g', '--group', type=str, help='ioda groups [ObsValue, ObsError, ombg oman] ', required=False, default='ObsValue')
-    parser.add_argument('-v', '--variable', type=str, help='Variable name for the data', required=True)
-    parser.add_argument('-b', '--bound', type=str, nargs='+', help='min, max', required=True)
+    parser.add_argument('-i', '--inputjediyaml', type=str,
+        help='Input JEDI YAML Configuration', required=True)
+    parser.add_argument('-t', '--templateyaml', type=str,
+        help='Template EVA YAML', required=True)
+    parser.add_argument('-o', '--outputdir', type=str,
+        help='Output directory for EVA YAMLs', required=True)
+    parser.add_argument('-g', '--group', type=str,
+        help='ioda groups [ObsValue, ombg, ...] ', required=False, default='ObsValue')
+    parser.add_argument('-v', '--variable', type=str,
+        help='Variable name ...', required=False, default='brightness_temperature')
+    parser.add_argument('-b', '--bound', type=str, nargs='+',
+        help='min, max', required=False, default=[0, 20])
     args = parser.parse_args()
-    gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir, group=args.group, variable=args.variable, bound=args.bound)
+    gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir,
+        args.group, args.variable, args.bound)
