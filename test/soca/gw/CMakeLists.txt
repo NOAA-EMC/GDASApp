@@ -6,12 +6,26 @@ add_test(NAME test_gdasapp_setup_soca_cycled_exp
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
 
+add_test(NAME test_gdasapp_soca_bkg2comrot
+  COMMAND ${PROJECT_SOURCE_DIR}/test/soca/gw/bkg2comrot.sh
+          ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
+set_tests_properties(test_gdasapp_soca_bkg2comrot
+  PROPERTIES
+DEPENDS "test_gdasapp_soca_cycled_exp")
+
 add_test(NAME test_gdasapp_soca_jjob_soca_prep
   COMMAND ${PROJECT_SOURCE_DIR}/test/soca/gw/jjob_prep.sh
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
+set_tests_properties(test_gdasapp_soca_jjob_soca_prep
+  PROPERTIES
+    DEPENDS "test_gdasapp_soca_cycled_exp;test_gdasapp_soca_bkg2comrot")
 
 add_test(NAME test_gdasapp_soca_jjob_soca_run
   COMMAND ${PROJECT_SOURCE_DIR}/test/soca/gw/jjob_run.sh
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
+  set_tests_properties(test_gdasapp_soca_jjob_soca_run
+  PROPERTIES
+    DEPENDS "test_gdasapp_soca_cycled_exp;test_gdasapp_soca_bkg2comrot;test_gdasapp_soca_jjob_soca_prep")

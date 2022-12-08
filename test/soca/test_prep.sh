@@ -40,15 +40,15 @@ for o in $obslist; do
             continue
             ;;
         "ocn_filename:")
-            base=${project_binary_dir}/test/soca/bkg/
+            base=${project_binary_dir}/test/soca/3dvar/ocnanal_2018041512/bkg/
             continue
             ;;
         "ice_filename:")
-            base=${project_binary_dir}/test/soca/bkg/
+            base=${project_binary_dir}/test/soca/3dvar/ocnanal_2018041512/bkg/
             continue
             ;;
         "remap_filename:")
-            base=''
+            base=${project_binary_dir}/test/soca/3dvar/ocnanal_2018041512/
             continue
             ;;
     esac

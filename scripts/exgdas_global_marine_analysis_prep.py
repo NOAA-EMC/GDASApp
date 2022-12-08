@@ -93,7 +93,7 @@ def test_hist_date(histfile, ref_date):
     assert hist_date == ref_date, 'Inconsistent bkg date'
 
 
-def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]', yaml_name='bkg.yaml'):
+def gen_bkg_list(bkg_path, out_path, window_begin=' ', file_type='gdas.t*.ocnf00[3-9]', yaml_name='bkg.yaml'):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
     TODO: [3-9] shouldn't be hard-coded. Instead construct the list of background dates for the cycle
@@ -109,18 +109,27 @@ def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]'
     test_hist_date(os.path.join(bkg_path, ocn_filename_ic), bkg_date)  # assert date of the history file is correct
 
     for bkg in files:
-        test_hist_date(bkg, bkg_date)  # assert date of the history file is correct
+
+        # assert validity of ocean bkg, remove basename
+        test_hist_date(bkg, bkg_date)
         ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'
+
+        # aggregate seaice variables and dump aggregated ice bkg in out_path
         ice_filename = ocn_filename.replace("ocn", "ice")
         agg_ice_filename = ocn_filename.replace("ocn", "agg_ice")
         agg_seaice(os.path.join(bkg_path, ice_filename),
-                   os.path.join(bkg_path, agg_ice_filename))  # aggregate seaice variables
+                   os.path.join(out_path, agg_ice_filename))
+
+        # copy ocean bkg to out_path
+        ufsda.disk_utils.copyfile(os.path.join(bkg_path, ocn_filename),
+                                  os.path.join(out_path, ocn_filename))
+
         bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                    'basename': bkg_path+'/',
+                    'basename': './bkg/',
                     'ocn_filename': ocn_filename,
                     'ice_filename': agg_ice_filename,
                     'read_from_file': 1,
-                    'remap_filename': os.path.join(bkg_path, ocn_filename_ic)}
+                    'remap_filename': './bkg/'+ocn_filename_ic}
         bkg_date = bkg_date + timedelta(hours=1)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
     dict = {'states': bkg_list}
@@ -144,6 +153,10 @@ ufsda.mkdir(anl_dir)
 # create output directory for obs
 diags = os.path.join(anl_dir, 'diags')
 ufsda.mkdir(diags)
+
+# create output directory for obs
+bkg_dir = os.path.join(anl_dir, 'bkg')
+ufsda.mkdir(bkg_dir)
 
 # create output directory for soca DA
 anl_out = os.path.join(comout, 'ocnanal_'+os.getenv('CDATE'), 'Data')
@@ -171,13 +184,6 @@ stage_cfg = ufsda.parse_config(templateyaml=os.path.join(gdas_home,
 
 # stage observations from R2D2 to COMIN_OBS and then link to analysis subdir
 ufsda.stage.obs(stage_cfg)
-
-################################################################################
-# stage backgrounds from COMIN_GES to analysis subdir
-logging.info(f"---------------- Stage backgrounds")
-
-stage_cfg['background_dir'] = os.getenv('COMIN_GES')
-ufsda.stage.background(stage_cfg)
 
 ################################################################################
 # stage static files
@@ -256,16 +262,22 @@ for v in soca_vars:
     os.environ['CVAR'] = v
     ufsda.yamltools.genYAML(config, output=bumpC_yaml, template=bumpC_yaml_template)
 
-# generate yaml for soca_var
+# generate yaml for the list of backgrounds and copy the bkg's to bkg_dir
+half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
+window_begin = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
+gen_bkg_list(bkg_path=os.getenv('COMIN_GES'),
+             out_path=bkg_dir,
+             window_begin=window_begin,
+             yaml_name='bkg_list.yaml')
+
+# generate var.yaml
 var_yaml = os.path.join(anl_dir, 'var.yaml')
 var_yaml_template = os.path.join(gdas_home,
                                  'parm',
                                  'soca',
                                  'variational',
                                  '3dvarfgat.yaml')
-half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
-window_begin = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
-gen_bkg_list(window_begin=window_begin, bkg_path=os.getenv('COMIN_GES'), yaml_name='bkg_list.yaml')
+
 soca_ninner = os.getenv('SOCA_NINNER')
 config = {
     'OBS_DATE': os.getenv('PDY')+os.getenv('cyc'),
@@ -276,10 +288,10 @@ logging.info(f"{config}")
 ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
 
 # link of convenience
-mom_ic = glob.glob(os.path.join(os.getenv('COMIN_GES'), 'gdas.*.ocnf003.nc'))[0]
+mom_ic = glob.glob(os.path.join(bkg_dir, 'gdas.*.ocnf003.nc'))[0]
 ufsda.disk_utils.symlink(mom_ic, os.path.join(anl_dir, 'INPUT', 'MOM.res.nc'))
 
-cice_ic = glob.glob(os.path.join(os.getenv('COMIN_GES'), 'gdas.*.agg_icef003.nc'))[0]
+cice_ic = glob.glob(os.path.join(bkg_dir, 'gdas.*.agg_icef003.nc'))[0]
 ufsda.disk_utils.symlink(cice_ic, os.path.join(anl_dir, 'INPUT', 'cice.res.nc'))
 
 # prepare input.nml

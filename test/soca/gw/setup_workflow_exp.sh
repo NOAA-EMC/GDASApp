@@ -23,6 +23,12 @@ rm -rf $comrot $expdir
 # run the script
 ln -sf $srcdir/../../workflow/setup_expt.py .
 
+# make a copy of parm/configdir
+# TODO: remove when all the config.* that need to have variables substituted have been
+#       updated in the g-w
+cp -r $configdir config
+cp $srcdir/test/soca/gw/config.ocnanal ./config
+
 # edit config.yaml
 cp $srcdir/test/soca/gw/config.yaml .
 soca_input_fix_dir="${bindir}/soca_static"
@@ -40,13 +46,13 @@ echo "Running global-workflow experiment generation script"
                        --resens $resens \
                        --nens $nens \
                        --pslot $pslot \
-                       --configdir $configdir \
+                       --configdir config \
                        --comrot $comrot \
                        --expdir $expdir \
                        --yaml config.yaml
 
 # get the machine name from config.base
-machine=$(echo `grep "export machine=" ${expdir}/${pslot}/config.base` | cut -d "=" -f2)
+machine="$(echo `grep "export machine=" ${expdir}/${pslot}/config.base` | cut -d "=" -f2)"
 machine=$(echo $machine | sed 's/[^0-9A-Z]*//g')
 
 # over-write config.base
