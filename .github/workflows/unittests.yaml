@@ -24,6 +24,18 @@ jobs:
         cd solo && pip install . && cd ..
         cd r2d2 && pip install . && cd ..
 
+    - name: Checkout workflow
+      uses: actions/checkout@v3
+      with:
+        repository: NOAA-EMC/global-workflow
+        ref: develop
+        path: global-workflow
+
+    - name: Install workflow utils
+      run: |
+        cd global-workflow/ush/python/pygw
+        pip install .
+
     - name: Checkout
       uses: actions/checkout@v2
       with:
