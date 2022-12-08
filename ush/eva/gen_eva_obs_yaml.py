@@ -17,13 +17,17 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group, variable, bound)
     except Exception as e:
         logging.error(f'Error occurred when attempting to load: {inputyaml}, error: {e}')
     # get just the observations part of the YAML
-    if 'observations' in jedi_yaml_dict['cost function']:
-        jediobs = jedi_yaml_dict['cost function']['observations']['observers']
-    elif 'observers' in jedi_yaml_dict['observations']:
-        jediobs = jedi_yaml_dict['observations']['observers']
+    if 'cost function' in jedi_yaml_dict:
+        # cost function is in marine DA var.yaml
+        if 'observations' in jedi_yaml_dict['cost function']:
+            jediobs = jedi_yaml_dict['cost function']['observations']['observers']
     else:
-        # the unit tests have a different YAML setup
-        jediobs = jedi_yaml_dict['observations']
+        # this is for atm DA var.yaml
+        if 'observers' in jedi_yaml_dict['observations']:
+            jediobs = jedi_yaml_dict['observations']['observers']
+        else:
+            # the unit tests have a different YAML setup
+            jediobs = jedi_yaml_dict['observations']
     # construct a simplified list of obsspaces for EVA
     evaobs = []
     for obsspace in jediobs:
@@ -101,18 +105,11 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group, variable, bound)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--inputjediyaml', type=str,
-        help='Input JEDI YAML Configuration', required=True)
-    parser.add_argument('-t', '--templateyaml', type=str,
-        help='Template EVA YAML', required=True)
-    parser.add_argument('-o', '--outputdir', type=str,
-        help='Output directory for EVA YAMLs', required=True)
-    parser.add_argument('-g', '--group', type=str,
-        help='ioda groups [ObsValue, ombg, ...] ', required=False, default='ObsValue')
-    parser.add_argument('-v', '--variable', type=str,
-        help='Variable name ...', required=False, default='brightness_temperature')
-    parser.add_argument('-b', '--bound', type=str, nargs='+',
-        help='min, max', required=False, default=[0, 20])
+    parser.add_argument('-i', '--inputjediyaml', type=str, help='Input JEDI YAML Configuration', required=True)
+    parser.add_argument('-t', '--templateyaml', type=str, help='Template EVA YAML', required=True)
+    parser.add_argument('-o', '--outputdir', type=str, help='Output directory for EVA YAMLs', required=True)
+    parser.add_argument('-g', '--group', type=str, help='ioda groups [ObsValue, ombg, ...] ', required=False, default='ObsValue')
+    parser.add_argument('-v', '--variable', type=str, help='Variable name ...', required=False, default='brightness_temperature')
+    parser.add_argument('-b', '--bound', type=str, nargs='+', help='min, max', required=False, default=[0, 20])
     args = parser.parse_args()
-    gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir,
-        args.group, args.variable, args.bound)
+    gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir, args.group, args.variable, args.bound)
