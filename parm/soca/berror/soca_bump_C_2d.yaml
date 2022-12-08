@@ -14,7 +14,7 @@ background:
   state variables: [cicen, hicen, hsnon, ssh, hocn]
 
 bump:
-  datadir: !ENV ${DATA}
+  datadir: bump
   method: cor
   strategy: specific_univariate
   new_nicas: true

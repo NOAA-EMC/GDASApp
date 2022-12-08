@@ -127,9 +127,8 @@ def gen_bkg_list(window_begin=' ', bkg_path='.', file_type='gdas.t*.ocnf00[3-9]'
                     'remap_filename': os.path.join(bkg_path, ocn_filename_ic)}
         bkg_date = bkg_date + timedelta(hours=1)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
-    dict = {'states': bkg_list}
     f = open(yaml_name, 'w')
-    yaml.dump(dict, f, sort_keys=False, default_flow_style=False)
+    yaml.dump(bkg_list, f, sort_keys=False, default_flow_style=False)
 
 ################################################################################
 # runtime environment variables, create directories
@@ -212,6 +211,8 @@ berr_yaml_template = os.path.join(gdas_home,
                                   'berror',
                                   'parametric_stddev_b.yaml')
 config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
 config.save(berr_yaml)
 
 # link yaml for decorrelation length scales
@@ -241,6 +242,8 @@ bumpC_yaml_template = os.path.join(gdas_home,
 config = YAMLFile(path=bumpC_yaml_template)
 config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, {'datadir': bumpdir}.get)
 config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, {'datadir': bumpdir}.get)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
 config.save(bumpC_yaml)
 
 # 3d bump yaml, 1 yaml per variable
@@ -256,12 +259,12 @@ for v in soca_vars:
                                        'soca',
                                        'berror',
                                        'soca_bump_C_split.yaml')
-    bumpdir = 'bump'+dim+'_'+v
+    os.environ['BUMPDIR'] = 'bump'+dim+'_'+v
     ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
     os.environ['CVAR'] = v
     config = YAMLFile(path=bumpC_yaml_template)
-    config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, {'datadir': bumpdir}.get)
-    config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, {'datadir': bumpdir}.get)
+    config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+    config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
     config.save(bumpC_yaml)
 
 # generate yaml for soca_var
@@ -280,6 +283,8 @@ logging.info(f"{config}")
 varconfig = YAMLFile(path=var_yaml_template)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, config.get)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
 varconfig.save(var_yaml)
 
 # link of convenience

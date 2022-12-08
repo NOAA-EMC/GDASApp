@@ -49,7 +49,7 @@ increments:
      basename: ./INPUT/
      ocn_filename: MOM.res.nc
      ice_filename: cice.res.nc
-     date: '{{ATM_WINDOW_BEGIN)}}'
+     date: '{{ATM_WINDOW_BEGIN}}'
      state variables: [cicen, hicen, ssh, tocn, socn, hocn, layer_depth, mld]
   output:
      datadir: ./

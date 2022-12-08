@@ -1,6 +1,6 @@
 cost function:
   cost type: 4D-Var
-  window begin: '{{ATM_WINDOW_BEGIN)}}'
+  window begin: '{{ATM_WINDOW_BEGIN}}'
   window length: $(ATM_WINDOW_LENGTH)
   analysis variables: &a_vars  [cicen, hicen, socn, tocn, ssh]
   geometry:
@@ -18,12 +18,11 @@ cost function:
     basename: ./INPUT/
     ocn_filename: MOM.res.nc
     ice_filename: cice.res.nc
-    date: '{{ATM_WINDOW_BEGIN)}}'
+    date: '{{ATM_WINDOW_BEGIN}}'
     state variables: *model_vars
   background error: !INC ${SABER_BLOCKS_YAML}
 
-  observations:
-    observations: !INC ${OBS_YAML}
+  observations: !INC ${OBS_YAML}
 
 variational:
   minimizer:
