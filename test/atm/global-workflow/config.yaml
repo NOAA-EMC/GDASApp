@@ -1,0 +1,8 @@
+base:
+  NCDUMP: $CONDA_PREFIX/ncdump
+  DO_JEDIVAR: "YES"
+  DO_JEDIENS: "NO"
+  UTILROOT: /apps/contrib/NCEP/libs/hpc-stack/intel-2018.4/prod_util/1.2.2
+  DATAPATH: @bindir@/test/atm/global-workflow/testrun
+atmanal:
+  OBS_LIST: @srcdir@/test/atm/global-workflow/gdas_prototype.yaml

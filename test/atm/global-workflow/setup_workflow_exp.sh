@@ -19,13 +19,24 @@ comrot=$bindir/test/atm/global-workflow/testrun/ROTDIRS
 expdir=$bindir/test/atm/global-workflow/testrun/experiments
 
 # clean previous experiment
-rm -rf $comrot $expdir
+rm -rf $comrot $expdir config
+
+# copy config.yaml to local config
+cp -r $configdir config
+cp $srcdir/test/atm/global-workflow/config.base.emc.dyn config/
+cp $srcdir/test/atm/global-workflow/config.atmanal      config/
+cp $srcdir/test/atm/global-workflow/config.yaml .
+
+# update paths in config.yaml
+sed -i -e "s~@bindir@~${bindir}~g" config.yaml
+sed -i -e "s~@srcdir@~${srcdir}~g" config.yaml
 
 # run the script
 ln -sf $srcdir/../../workflow/setup_expt.py .
 
+
 echo "Running global-workflow experiment generation script"
-./setup_expt.py cycled --idate $idate  \
+$srcdir/../../workflow/setup_expt.py cycled --idate $idate  \
                        --edate $edate \
                        --app $app \
                        --start $starttype \
@@ -34,9 +45,9 @@ echo "Running global-workflow experiment generation script"
                        --resens $resens \
                        --nens $nens \
                        --pslot $pslot \
-                       --configdir $configdir \
+                       --configdir $expdir/../config \
                        --comrot $comrot \
                        --expdir $expdir \
-                       --yaml $configdir/yaml/defaults.yaml
+                       --yaml $expdir/../config.yaml
 
 exit $?
