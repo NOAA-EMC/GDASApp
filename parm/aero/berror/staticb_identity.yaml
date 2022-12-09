@@ -1,2 +1,2 @@
 covariance model: FV3JEDI-ID
-date: $(window_begin)
+date: '{{AERO_WINDOW_BEGIN}}'

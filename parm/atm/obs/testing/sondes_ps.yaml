@@ -3,14 +3,14 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: sondes_ps_obs_$(OBS_DATE).nc4
+      obsfile: !ENV sondes_ps_obs_${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: sondes_ps_diag_$(OBS_DATE).nc4
+      obsfile: !ENV sondes_ps_diag_${CDATE}.nc4
   simulated variables: [surface_pressure]
 geovals:
-  filename: sondes_ps_geoval_$(OBS_DATE).nc4
+  filename: !ENV sondes_ps_geoval_${CDATE}.nc4
 vector ref: GsiHofXBc
 tolerance: 0.01
 obs operator:

@@ -1,51 +1,95 @@
 cost function:
   cost type: 3D-Var
-  window begin: '$(AERO_WINDOW_BEGIN)'
+  window begin: '{{AERO_WINDOW_BEGIN}}'
   window length: $(AERO_WINDOW_LENGTH)
   analysis variables: &3dvars [so4,bc1,bc2,oc1,oc2,
                       dust1,dust2,dust3,dust4,dust5,
                       seas1,seas2,seas3,seas4]
-  geometry: $(GEOM_BKG)
+  geometry:
+    fms initialization:
+      namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
+      field table filename: !ENV ${DATA}/fv3jedi/field_table
+    akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+    layout:
+    - !ENV ${layout_x}
+    - !ENV ${layout_y}
+    npx: $(npx_ges)
+    npy: $(npy_ges)
+    npz: $(npz_ges)
+    field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
   background:
-    datapath: $(BKG_DIR)
+    datapath: !ENV ${DATA}/bkg
     filetype: fms restart
-    datetime: $(BKG_ISOTIME)
-    filename_core: $(BKG_YYYYmmddHHMMSS).fv_core.res.nc
-    filename_trcr: $(BKG_YYYYmmddHHMMSS).fv_tracer.res.nc
-    filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
+    datetime: '{{BKG_ISOTIME}}'
+    filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
+    filename_trcr: '{{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc'
+    filename_cplr: '{{BKG_YYYYmmddHHMMSS}}.coupler.res'
     state variables: [t,delp,sphum,so4,bc1,bc2,oc1,oc2,
                       dust1,dust2,dust3,dust4,dust5,
-                      seas1,seas2,seas3,seas4] 
-  background error: $<< $(BERROR_YAML)
-  observations: $<< $(OBS_LIST)
+                      seas1,seas2,seas3,seas4]
+  background error: !INC ${BERROR_YAML}
+  observations: !INC ${OBS_LIST}
 variational:
   minimizer:
     algorithm: DRIPCG
   iterations:
-  - ninner: 35 
+  - ninner: 35
     gradient norm reduction: 1e-10
     test: on
-    geometry: $(GEOM_ANL)
+    geometry:
+      fms initialization:
+        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
+        field table filename: !ENV ${DATA}/fv3jedi/field_table
+      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+      layout:
+      - !ENV ${layout_x}
+      - !ENV ${layout_y}
+      npx: $(npx_anl)
+      npy: $(npy_anl)
+      npz: $(npz_anl)
+      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
     diagnostics:
       departures: bkgmob
-  - ninner: 35 
+  - ninner: 35
     gradient norm reduction: 1e-10
     test: on
-    geometry: $(GEOM_ANL)
+    geometry:
+      fms initialization:
+        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
+        field table filename: !ENV ${DATA}/fv3jedi/field_table
+      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+      layout:
+      - !ENV ${layout_x}
+      - !ENV ${layout_y}
+      npx: $(npx_anl)
+      npy: $(npy_anl)
+      npz: $(npz_anl)
+      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
     diagnostics:
       departures: bkgmob1
 final:
   diagnostics:
-    departures: anlmob 
-  increment: 
-    geometry: $(GEOM_BKG)
-    output: 
-      datapath: $(ANL_DIR)
+    departures: anlmob
+  increment:
+    geometry:
+      fms initialization:
+        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
+        field table filename: !ENV ${DATA}/fv3jedi/field_table
+      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+      layout:
+      - !ENV ${layout_x}
+      - !ENV ${layout_y}
+      npx: $(npx_ges)
+      npy: $(npy_ges)
+      npz: $(npz_ges)
+      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+    output:
+      datapath: !ENV ${DATA}/anl
       prefix: aeroinc
       filetype: fms restart
-      filename_core: $(BKG_YYYYmmddHHMMSS).fv_core.res.nc
-      filename_trcr: $(BKG_YYYYmmddHHMMSS).fv_tracer.res.nc
-      filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
+      filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
+      filename_trcr: '{{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc'
+      filename_cplr: '{{BKG_YYYYmmddHHMMSS}}.coupler.res'
       state variables: [t,delp,sphum,so4,bc1,bc2,oc1,oc2,
                         dust1,dust2,dust3,dust4,dust5,
                         seas1,seas2,seas3,seas4]

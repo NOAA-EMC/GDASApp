@@ -3,14 +3,14 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: satwind_obs_$(OBS_DATE).nc4
+      obsfile: !ENV satwind_obs_${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: satwind_diag_$(OBS_DATE).nc4
+      obsfile: !ENV satwind_diag_${CDATE}.nc4
   simulated variables: [eastward_wind, northward_wind]
 geovals:
-  filename: satwind_geoval_$(OBS_DATE).nc4
+  filename: !ENV satwind_geoval_${CDATE}.nc4
 vector ref: GsiHofXBc
 tolerance: 0.01
 obs operator:

@@ -402,7 +402,7 @@ def obs(config):
     # create directory
     obs_dir = os.path.join(config['DATA'], 'obs')
     mkdir(obs_dir)
-    for ob in config['observers']:
+    for ob in config['observations']['observers']:
         obname = ob['obs space']['name'].lower()
         outfile = ob['obs space']['obsdatain']['engine']['obsfile']
         # grab obs using R2D2

@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: ${OBS_DIR}/${OBS_PREFIX}salt_profile_fnmoc.${OBS_DATE}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}salt_profile_fnmoc.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: ${DIAG_DIR}/salt_profile_fnmoc.${OBS_DATE}.nc4
+      obsfile: !ENV ${DATA}/diags/salt_profile_fnmoc.${CDATE}.nc4
   simulated variables: [sea_water_salinity]
 obs operator:
   name: Identity
