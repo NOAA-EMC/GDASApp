@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}bufr_sfcships.${CDATE}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}bufr_sfcships.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/bufr_sfcships.${CDATE}.nc4
+      obsfile: !ENV ${DATA}/diags/bufr_sfcships.${PDY}${cyc}.nc4
   simulated variables: [sea_surface_temperature]
 obs operator:
   name: Identity
