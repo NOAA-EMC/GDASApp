@@ -1,7 +1,7 @@
 # tests that can run without needing all JEDI components
 
 # tests that require the full build
-if(BUILD_GDASBUNDLE)
+if (${BUILD_GDASBUNDLE})
 
   # link input file from iodaconv to test directory
   file(CREATE_LINK ${PROJECT_SOURCE_DIR}/iodaconv/test/testinput/gdas.t06z.adpsfc.tm00.bufr_d ${PROJECT_BINARY_DIR}/test/testdata/gdas.t06z.adpsfc.tm00.bufr_d SYMBOLIC)
@@ -25,9 +25,9 @@ if(BUILD_GDASBUNDLE)
           ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}"
   )
 
-endif(BUILD_GDASBUNDLE)
-
 # Test exgdas scripts from the global-worflow
-if (WORKFLOW_TESTS)
-  add_subdirectory(global-workflow)
-endif()
+  if (WORKFLOW_TESTS)
+    add_subdirectory(global-workflow)
+  endif()
+
+endif(BUILD_GDASBUNDLE)
