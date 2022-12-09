@@ -32,15 +32,18 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group, variable, bound)
     evaobs = []
     for obsspace in jediobs:
         tmp_os = obsspace['obs space']
-        if tmp_os['simulated variables'][0] != variable:
-            continue
         tmp_dict = {
             'name': tmp_os['name'],
             'diagfile': tmp_os['obsdataout']['engine']['obsfile'].replace('.nc4', '_0000.nc4'),
             'vars': tmp_os['simulated variables'],
             'channels': tmp_os.get('channels', None),
         }
-        evaobs.append(tmp_dict)
+        if variable == 'all':
+            evaobs.append(tmp_dict)
+        elif variable == tmp_os['simulated variables'][0]:
+            evaobs.append(tmp_dict)
+        else:
+            print('check variable option; default is all') 
     # read in template YAML file
     # read it in as a text file and not a YAML file
     # this is so that we can find/replace some things more simply
@@ -109,7 +112,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--templateyaml', type=str, help='Template EVA YAML', required=True)
     parser.add_argument('-o', '--outputdir', type=str, help='Output directory for EVA YAMLs', required=True)
     parser.add_argument('-g', '--group', type=str, help='ioda groups [ObsValue, ombg, ...] ', required=False, default='ObsValue')
-    parser.add_argument('-v', '--variable', type=str, help='Variable name ...', required=False, default='brightness_temperature')
+    parser.add_argument('-v', '--variable', type=str, help='Variable name ...', required=False, default='all')
     parser.add_argument('-b', '--bound', type=str, nargs='+', help='min, max', required=False, default=[0, 20])
     args = parser.parse_args()
     gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir, args.group, args.variable, args.bound)
