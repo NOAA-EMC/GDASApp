@@ -22,14 +22,18 @@ export jobid=$pid
 export COMROOT=$DATAROOT
 
 # prepare background from previous cycle
-GDATE=`date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - 6 hours"`
-gPDY=$(echo $GDATE | cut -c1-8)
-gcyc=$(echo $GDATE | cut -c9-10)
-mkdir -p $bindir/test/atm/global-workflow/testrun/ROTDIRS/gdas_test/gdas.$gPDY/$gcyc/atmos/
+##GDATE=`date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - 6 hours"`
+##gPDY=$(echo $GDATE | cut -c1-8)
+##gcyc=$(echo $GDATE | cut -c9-10)
+##mkdir -p $bindir/test/atm/global-workflow/testrun/ROTDIRS/gdas_test/gdas.$gPDY/$gcyc/atmos/
 
-flist="abias atmf006 RESTART"
-for file in $flist; do
-   cp -r $GDASAPP_TESTDATA/lowres/gdas.$gPDY/$gcyc/atmos/*${file}* $bindir/test/atm/global-workflow/testrun/ROTDIRS/gdas_test/gdas.$gPDY/$gcyc/atmos/
-done
+##TEST
+GDASAPP_TESTDATA=/work2/noaa/da/rtreadon/CI/GDASApp/data
+##TEST
 
-${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_PREP
+##flist="abias atmf006"
+##for file in $flist; do
+##   cp -r $GDASAPP_TESTDATA/lowres/gdas.$gPDY/$gcyc/atmos/*${file}* $bindir/test/atm/global-workflow/testrun/ROTDIRS/gdas_test/gdas.$gPDY/$gcyc/atmos/
+##done
+
+${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_POST

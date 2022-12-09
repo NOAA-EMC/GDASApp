@@ -1,11 +1,12 @@
 #!/bin/bash
+set -x
 # ctest to create an experiment directory for global-workflow
 bindir=$1
 srcdir=$2
 
 # test experiment variables
 idate=2021032312
-edate=2021032418
+edate=2021032318
 app=ATM
 starttype='warm'
 gfscyc='4'
@@ -35,6 +36,7 @@ echo "Running global-workflow experiment generation script"
                        --pslot $pslot \
                        --configdir $configdir \
                        --comrot $comrot \
-                       --expdir $expdir
+                       --expdir $expdir \
+                       --yaml $configdir/yaml/defaults.yaml
 
 exit $?
