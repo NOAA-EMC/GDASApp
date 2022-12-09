@@ -43,7 +43,7 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group, variable, bound)
         elif variable == tmp_os['simulated variables'][0]:
             evaobs.append(tmp_dict)
         else:
-            print('check variable option; default is all') 
+            print('check variable option; default is all')
     # read in template YAML file
     # read it in as a text file and not a YAML file
     # this is so that we can find/replace some things more simply
