@@ -10,17 +10,17 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: ssmis_f17_obs_$(OBS_DATE).nc4
+      obsfile: !ENV ssmis_f17_obs_${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: ssmis_f17_diag_$(OBS_DATE).nc4
+      obsfile: !ENV ssmis_f17_diag_${CDATE}.nc4
   simulated variables: [brightness_temperature]
   channels: 1-24
 geovals:
-  filename: ssmis_f17_geoval_$(OBS_DATE).nc4
+  filename: !ENV ssmis_f17_geoval_${CDATE}.nc4
 obs bias:
-  input file: ssmis_f17_satbias_$(BIAS_DATE).nc4
+  input file: !ENV ssmis_f17_satbias_${GDATE}.nc4
   variational bc:
     predictors:
     - name: constant
@@ -37,7 +37,7 @@ obs bias:
     - name: sine_of_latitude
     - name: lapse_rate
       order: 2
-      tlapse: &ssmis_f17_tlap ssmis_f17_tlapmean_$(BIAS_DATE).txt
+      tlapse: !ENV &ssmis_f17_tlap ssmis_f17_tlapmean_${GDATE}.txt
     - name: lapse_rate
       tlapse: *ssmis_f17_tlap
     - name: emissivity

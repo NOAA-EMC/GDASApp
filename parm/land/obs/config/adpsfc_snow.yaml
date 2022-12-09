@@ -6,11 +6,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(OBS_DIR)/$(OBS_PREFIX)adpsfc_snow_$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}adpsfc_snow_${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DIAG_DIR)/diag_adpsfc_snow_$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/diags/diag_adpsfc_snow_${CDATE}.nc4
   simulated variables: [totalSnowDepth]
 obs operator:
   name: Composite

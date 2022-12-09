@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine: 
       type: H5File
-      obsfile: sondes_obs_$(OBS_DATE).nc4
+      obsfile: !ENV sondes_obs_${CDATE}.nc4
     obsgrouping:
       group variables: ["station_id"]
       sort variable: "air_pressure"
@@ -11,10 +11,10 @@ obs space:
   obsdataout:
     engine:
       type: H5File
-      obsfile: sondes_diag_$(OBS_DATE).nc4
+      obsfile: !ENV sondes_diag_${CDATE}.nc4
   simulated variables: [surface_pressure, air_temperature, eastward_wind, northward_wind, specific_humidity]
 geovals:
-  filename: sondes_geoval_$(OBS_DATE).nc4
+  filename: !ENV sondes_geoval_${CDATE}.nc4
 vector ref: GsiHofXBc
 tolerance: 0.01
 obs operator:

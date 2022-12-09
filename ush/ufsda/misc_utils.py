@@ -124,8 +124,10 @@ def get_env_config(component='atm'):
     config = {
         'valid_time': f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        'ATM_WINDOW_BEGIN': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'prev_valid_time': f"{prev_cycle.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'atm_window_length': f"PT{assim_freq}H",
+        'ATM_WINDOW_LENGTH': f"PT{assim_freq}H",
         'OBS_DIR': os.environ['COMOUT'],
         'OBS_PREFIX': f"{os.environ['CDUMP']}.t{os.environ['cyc']}z.",
         'target_dir': os.environ['COMOUT'],
