@@ -175,7 +175,6 @@ ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root=comin_obs)
 
 # create config dict from runtime env
 envconfig = ufsda.misc_utils.get_env_config(component='notatm')
-
 stage_cfg = YAMLFile(path=os.path.join(gdas_home,
                                        'parm',
                                        'templates',
@@ -272,15 +271,7 @@ for v in soca_vars:
     config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
     config.save(bumpC_yaml)
 
-# generate yaml for the list of backgrounds and copy the bkg's to bkg_dir
-half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
-window_begin = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
-gen_bkg_list(bkg_path=os.getenv('COMIN_GES'),
-             out_path=bkg_dir,
-             window_begin=window_begin,
-             yaml_name='bkg_list.yaml')
-
-# generate var.yaml
+# generate yaml for soca_var
 var_yaml = os.path.join(anl_dir, 'var.yaml')
 var_yaml_template = os.path.join(gdas_home,
                                  'parm',
@@ -290,10 +281,12 @@ var_yaml_template = os.path.join(gdas_home,
 
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
 window_begin = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
-gen_bkg_list(window_begin=window_begin, bkg_path=os.getenv('COMIN_GES'), yaml_name='bkg_list.yaml')
+gen_bkg_list(bkg_path=os.getenv('COMIN_GES'),
+             out_path=bkg_dir,
+             window_begin=window_begin,
+             yaml_name='bkg_list.yaml')
 os.environ['BKG_LIST'] = 'bkg_list.yaml'
 os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
-
 logging.info(f"{config}")
 varconfig = YAMLFile(path=var_yaml_template)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)

@@ -2,6 +2,7 @@
 
 ########## config.ocnanal ##########
 # configuration common to all atm analysis tasks
+# TODO: Move this to the g-w at some point
 
 echo "BEGIN: config.ocnanal"
 
