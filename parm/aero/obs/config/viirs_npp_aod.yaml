@@ -3,24 +3,24 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(OBS_DIR)/$(OBS_PREFIX)viirs_npp.$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}viirs_npp.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DIAG_DIR)/diag_viirs_npp_$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/diags/diag_viirs_npp_${CDATE}.nc4
   io pool:
     max pool size: 1
   simulated variables: [aerosol_optical_depth]
-  channels: 4 
+  channels: 4
 get values:
-  interpolation method: $(INTERP_METHOD)
+  interpolation method: barycentric
 obs operator:
   name: AodCRTM
   Absorbers: [H2O,O3]
   obs options:
     Sensor_ID: v.viirs-m_npp
     EndianType: little_endian
-    CoefficientPath: $(CRTM_COEFF_DIR)/
+    CoefficientPath: !ENV ${DATA}/crtm
     AerosolOption: aerosols_gocart_default
 obs error:
-  covariance model: diagonal 
+  covariance model: diagonal

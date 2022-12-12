@@ -3,16 +3,14 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(OBS_DIR)/$(OBS_PREFIX)sfc.$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}sfc.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DIAG_DIR)/diag_sfc_$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/diags/diag_sfc_${CDATE}.nc4
   io pool:
     max pool size: 1
   simulated variables: [surface_pressure]
-get values:
-  interpolation method: $(INTERP_METHOD)
 obs operator:
   name: SfcPCorrected
   da_psfc_scheme: GSI

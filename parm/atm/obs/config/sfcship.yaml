@@ -3,17 +3,15 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(OBS_DIR)/$(OBS_PREFIX)sfcship.$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}sfcship.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DIAG_DIR)/diag_sfcship_$(OBS_DATE).nc4
       overwrite: true
+      obsfile: !ENV ${DATA}/diags/diag_sfcship_${CDATE}.nc4
   io pool:
     max pool size: 1
   simulated variables: [surface_pressure, air_temperature, specific_humidity]
-get values:
-  interpolation method: $(INTERP_METHOD)
 obs operator:
   name: Composite
   components:

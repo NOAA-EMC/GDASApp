@@ -38,21 +38,21 @@ linear variable change:
     filter variables: [tocn, socn, ssh]
 
 increments:
-- date: $(ATM_WINDOW_BEGIN)
+- date: '{{ATM_WINDOW_BEGIN}}'
   input variables: [tocn, socn, ssh, cicen, hicen]
   input:
      Identity: 1
-     date: $(ATM_WINDOW_BEGIN)
+     date: '{{ATM_WINDOW_BEGIN}}'
      state variables: [ssh, tocn, socn, cicen, hicen]
   trajectory:
      read_from_file: 1
      basename: ./INPUT/
      ocn_filename: MOM.res.nc
      ice_filename: cice.res.nc
-     date: $(ATM_WINDOW_BEGIN)
+     date: '{{ATM_WINDOW_BEGIN}}'
      state variables: [cicen, hicen, ssh, tocn, socn, hocn, layer_depth, mld]
   output:
      datadir: ./
      exp: bkgerr_stddev
      type: incr
-     date: $(ATM_WINDOW_BEGIN)
+     date: '{{ATM_WINDOW_BEGIN}}'

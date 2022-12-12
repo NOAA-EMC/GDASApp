@@ -15,9 +15,9 @@ GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
 GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 DOY=$(date +%j -d "$YY$MM$DD + 1 day")
 
-EXECDIR=$project_source_dir/build/bin/
-WORKDIR=$project_binary_dir/test/testrun
-RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART/
+EXECDIR=$project_source_dir/build/bin
+WORKDIR=$project_binary_dir/test/land/ims_proc
+RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART
 
 export OBSDIR=$GDASAPP_TESTDATA/land/snow_ice_cover
 export TSTUB="oro_C${RES}.mx100"

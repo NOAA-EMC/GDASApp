@@ -4,9 +4,13 @@ obs space:
     name: Halo
     simulated variables: [totalSnowDepth]
   obsdatain:
-    obsfile: $(OBS_DIR)/$(OBS_PREFIX)ghcn_snow.$(OBS_DATE).nc4
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}ghcn_snow_${CDATE}.nc4
   obsdataout:
-    obsfile: $(DIAG_DIR)/diag_ghcn_snow_$(OBS_DATE).nc4
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/diags/diag_ghcn_snow_${CDATE}.nc4
 
 obs operator:
   name: Identity

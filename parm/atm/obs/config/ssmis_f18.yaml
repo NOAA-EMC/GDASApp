@@ -4,22 +4,22 @@ obs operator:
   obs options:
     Sensor_ID: ssmis_f18
     EndianType: little_endian
-    CoefficientPath: $(CRTM_COEFF_DIR)/
+    CoefficientPath: !ENV ${DATA}/crtm
 obs space:
   name: ssmis_f18
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(OBS_DIR)/$(OBS_PREFIX)ssmis_f18.$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}ssmis_f18.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DIAG_DIR)/diag_ssmis_f18_$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/diags/diag_ssmis_f18_${CDATE}.nc4
   simulated variables: [brightness_temperature]
   channels: 1-24
 obs bias:
-  input file: $(BIAS_IN_DIR)/$(BIAS_PREFIX)ssmis_f18.satbias.$(BIAS_DATE).nc4
-  output file: $(BIAS_OUT_DIR)/$(OBS_PREFIX)ssmis_f18.satbias.$(OBS_DATE).nc4
+  input file: !ENV ${DATA}/obs/${GPREFIX}ssmis_f18.satbias.${GDATE}.nc4
+  output file: !ENV ${DATA}/bc/${APREFIX}ssmis_f18.satbias.${CDATE}.nc4
   variational bc:
     predictors:
     - name: constant
@@ -36,7 +36,7 @@ obs bias:
     - name: sine_of_latitude
     - name: lapse_rate
       order: 2
-      tlapse: &ssmis_f18_tlapse $(BIAS_IN_DIR)/$(BIAS_PREFIX)ssmis_f18.tlapse.$(BIAS_DATE).txt
+      tlapse: &ssmis_f18_tlapse !ENV ${DATA}/obs/${GPREFIX}ssmis_f18.tlapse.${GDATE}.txt
     - name: lapse_rate
       tlapse: *ssmis_f18_tlapse
     - name: emissivity

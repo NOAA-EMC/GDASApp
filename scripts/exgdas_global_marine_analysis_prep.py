@@ -31,6 +31,9 @@ from datetime import datetime, timedelta
 from netCDF4 import Dataset
 import xarray as xr
 import numpy as np
+from pygw.attrdict import AttrDict
+from pygw.template import Template, TemplateConstants
+from pygw.yaml_file import YAMLFile
 
 
 # set up logger
@@ -132,9 +135,8 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', file_type='gdas.t*.ocnf00
                     'remap_filename': './bkg/'+ocn_filename_ic}
         bkg_date = bkg_date + timedelta(hours=1)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
-    dict = {'states': bkg_list}
     f = open(yaml_name, 'w')
-    yaml.dump(dict, f, sort_keys=False, default_flow_style=False)
+    yaml.dump(bkg_list, f, sort_keys=False, default_flow_style=False)
 
 ################################################################################
 # runtime environment variables, create directories
@@ -173,14 +175,13 @@ ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root=comin_obs)
 
 # create config dict from runtime env
 envconfig = ufsda.misc_utils.get_env_config(component='notatm')
-os.environ['OBS_DATE'] = envconfig['OBS_DATE']
-os.environ['OBS_DIR'] = envconfig['OBS_DIR']
-os.environ['OBS_PREFIX'] = envconfig['OBS_PREFIX']
-os.environ['DIAG_DIR'] = diags
-stage_cfg = ufsda.parse_config(templateyaml=os.path.join(gdas_home,
-                                                         'parm',
-                                                         'templates',
-                                                         'stage.yaml'), clean=True)
+
+stage_cfg = YAMLFile(path=os.path.join(gdas_home,
+                                       'parm',
+                                       'templates',
+                                       'stage.yaml'))
+stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
 
 # stage observations from R2D2 to COMIN_OBS and then link to analysis subdir
 ufsda.stage.obs(stage_cfg)
@@ -213,8 +214,10 @@ berr_yaml_template = os.path.join(gdas_home,
                                   'soca',
                                   'berror',
                                   'parametric_stddev_b.yaml')
-config = {}
-ufsda.yamltools.genYAML(config, output=berr_yaml, template=berr_yaml_template)
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+config.save(berr_yaml)
 
 # link yaml for decorrelation length scales
 corscales_yaml = os.path.join(gdas_home,
@@ -234,14 +237,18 @@ vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
 # 2d bump yaml (all 2d vars at once)
 bumpdir = 'bump'
 ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
-config = {'datadir': bumpdir}
 bumpC_yaml = os.path.join(anl_dir, 'soca_bump_C_2d.yaml')
 bumpC_yaml_template = os.path.join(gdas_home,
                                    'parm',
                                    'soca',
                                    'berror',
                                    'soca_bump_C_2d.yaml')
-ufsda.yamltools.genYAML(config, output=bumpC_yaml, template=bumpC_yaml_template)
+config = YAMLFile(path=bumpC_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, {'datadir': bumpdir}.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, {'datadir': bumpdir}.get)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+config.save(bumpC_yaml)
 
 # 3d bump yaml, 1 yaml per variable
 for v in soca_vars:
@@ -257,10 +264,13 @@ for v in soca_vars:
                                        'berror',
                                        'soca_bump_C_split.yaml')
     bumpdir = 'bump'+dim+'_'+v
+    os.environ['BUMPDIR'] = bumpdir
     ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
-    config = {'datadir': bumpdir}
     os.environ['CVAR'] = v
-    ufsda.yamltools.genYAML(config, output=bumpC_yaml, template=bumpC_yaml_template)
+    config = YAMLFile(path=bumpC_yaml_template)
+    config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+    config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+    config.save(bumpC_yaml)
 
 # generate yaml for the list of backgrounds and copy the bkg's to bkg_dir
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
@@ -278,14 +288,19 @@ var_yaml_template = os.path.join(gdas_home,
                                  'variational',
                                  '3dvarfgat.yaml')
 
-soca_ninner = os.getenv('SOCA_NINNER')
-config = {
-    'OBS_DATE': os.getenv('PDY')+os.getenv('cyc'),
-    'BKG_LIST': 'bkg_list.yaml',
-    'NINNER': soca_ninner,
-    'SABER_BLOCKS_YAML': os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')}
+half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
+window_begin = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
+gen_bkg_list(window_begin=window_begin, bkg_path=os.getenv('COMIN_GES'), yaml_name='bkg_list.yaml')
+os.environ['BKG_LIST'] = 'bkg_list.yaml'
+os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
+
 logging.info(f"{config}")
-ufsda.yamltools.genYAML(config, output=var_yaml, template=var_yaml_template)
+varconfig = YAMLFile(path=var_yaml_template)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, config.get)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+varconfig.save(var_yaml)
 
 # link of convenience
 mom_ic = glob.glob(os.path.join(bkg_dir, 'gdas.*.ocnf003.nc'))[0]

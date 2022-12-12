@@ -1,20 +1,20 @@
 window begin: '{{window_begin}}'
 window length: $(window_length)
-observers: $<< ${OBS_YAML}
+observations: !INC ${OBS_YAML}
 background_dir: '{{background_dir}}'
-staticb_dir: '{{staticb_dir}}'
-COMOUT: '{{COMOUT}}'
-DATA: ${DATA}
+staticb_dir: !ENV ${STATICB_DIR}
+COMOUT: !ENV ${COMOUT}
+DATA: !ENV ${DATA}
 background_time: '{{background_time}}'
-dump: ${CDUMP}
-r2d2_obs_db: ${R2D2_OBS_DB}
-r2d2_obs_dump: ${R2D2_OBS_DUMP}
-r2d2_obs_src: ${R2D2_OBS_SRC}
-r2d2_bc_src: ${R2D2_BC_SRC}
-r2d2_bc_dump: ${R2D2_BC_DUMP}
-r2d2 window length: ${R2D2_OBS_WINDOW}
+dump: !ENV ${CDUMP}
+r2d2_obs_db: !ENV ${R2D2_OBS_DB}
+r2d2_obs_dump: !ENV ${R2D2_OBS_DUMP}
+r2d2_obs_src: !ENV ${R2D2_OBS_SRC}
+r2d2_bc_src: !ENV ${R2D2_BC_SRC}
+r2d2_bc_dump: !ENV ${R2D2_BC_DUMP}
+r2d2 window length: !ENV ${R2D2_OBS_WINDOW}
 r2d2 window begin: '{{r2d2_window_begin}}'
-fv3jedi_stage_files: $<< $(fv3jedi_stage)
-fv3jedi_stage: ${FV3JEDI_STAGE_YAML}
-stage_dir: $(DATA)
-soca_input_fix_dir: '{{soca_input_fix_dir}}'
+fv3jedi_stage_files: !ENV ${FV3JEDI_STAGE_YAML}
+fv3jedi_stage: !ENV ${FV3JEDI_STAGE_YAML}
+stage_dir: !ENV ${DATA}
+soca_input_fix_dir: !ENV ${SOCA_INPUT_FIX_DIR}
