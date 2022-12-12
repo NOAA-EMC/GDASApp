@@ -29,28 +29,28 @@ diagnostics:
 
     # Generate omb that passed QC for JEDI
     - transform: accept where
-      new name: experiment::ombg::${variable}
+      new name: experiment::ombgPassedQC::${variable}
       starting field: experiment::ombg::${variable}
       where:
-        - experiment::EffectiveQC0::${variable} == 0
+        - experiment::PreQC::${variable} == 0
       for:
         variable: *variables
 
     # Generate oma that passed QC for JEDI
     - transform: accept where
-      new name: experiment::oman::${variable}
+      new name: experiment::omanPassedQC::${variable}
       starting field: experiment::oman::${variable}
       where:
-        - experiment::EffectiveQC0::${variable} == 0
+        - experiment::PreQC::${variable} == 0
       for:
         variable: *variables
 
     # Generate bkg that passed QC for JEDI
     - transform: accept where
-      new name: experiment::bkg::${variable}
+      new name: experiment::bkgPassedQC::${variable}
       starting field: experiment::bkg::${variable}
       where:
-        - experiment::EffectiveQC0::${variable} == 0
+        - experiment::PreQC::${variable} == 0
       for:
         variable: *variables
 
@@ -64,6 +64,9 @@ diagnostics:
     - batch figure:
         variables: *variables
         @CHANNELSKEY@
+      dynamic options:
+        - type: vminvmaxcmap
+          data variable: experiment::@GRPNAME@::${variable}
       figure:
         layout: [1,1]
         figure size: [11,5]
@@ -77,6 +80,7 @@ diagnostics:
           add_map_features: ['coastline']
           add_grid:
           add_colorbar:
+             label: '${variable}'
           layers:
           - type: MapScatter
             longitude:
@@ -84,12 +88,12 @@ diagnostics:
             latitude:
               variable: experiment::MetaData::latitude
             data:
-              variable: experiment::@GRPNAME@::${variable}
+              variable: experiment::@GRPNAME@PassedQC::${variable}
               @CHANNELKEY@
             markersize: 2
             label: '$(variable)'
             colorbar: true
             # below may need to be edited/removed
-            cmap: 'bwr'
-            vmin: @VMIN@  #${dynamic_vmin}
-            vmax: @VMAX@ # ${dynamic_vmax} 
+            cmap: ${dynamic_cmap}
+            vmin: ${dynamic_vmin}
+            vmax: ${dynamic_vmax} 

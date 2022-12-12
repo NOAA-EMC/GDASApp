@@ -7,7 +7,7 @@ import socket
 import yaml
 
 
-def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group, variable, bound):
+def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group, variable):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     # open input YAML file to get config
     try:
@@ -32,18 +32,19 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group, variable, bound)
     evaobs = []
     for obsspace in jediobs:
         tmp_os = obsspace['obs space']
+        sim_var = tmp_os['simulated variables'][0]
         tmp_dict = {
             'name': tmp_os['name'],
             'diagfile': tmp_os['obsdataout']['engine']['obsfile'].replace('.nc4', '_0000.nc4'),
             'vars': tmp_os['simulated variables'],
             'channels': tmp_os.get('channels', None),
         }
+
+        if sim_var == variable:
+            evaobs.append(tmp_dict)
         if variable == 'all':
             evaobs.append(tmp_dict)
-        elif variable == tmp_os['simulated variables'][0]:
-            evaobs.append(tmp_dict)
-        else:
-            print('check variable option; default is all')
+
     # read in template YAML file
     # read it in as a text file and not a YAML file
     # this is so that we can find/replace some things more simply
@@ -90,8 +91,6 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group, variable, bound)
 
         # put the group name and bounds for the colorbar
         replacements['@GRPNAME@'] = group
-        replacements['@VMIN@'] = bound[0]
-        replacements['@VMAX@'] = bound[1]
 
         # open output file for writing and start the find/replace process
         outputyaml = os.path.join(outputdir, f'eva_{name}_{cycle}.yaml')
@@ -113,6 +112,5 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--outputdir', type=str, help='Output directory for EVA YAMLs', required=True)
     parser.add_argument('-g', '--group', type=str, help='ioda groups [ObsValue, ombg, ...] ', required=False, default='ObsValue')
     parser.add_argument('-v', '--variable', type=str, help='Variable name ...', required=False, default='all')
-    parser.add_argument('-b', '--bound', type=str, nargs='+', help='min, max', required=False, default=[0, 20])
     args = parser.parse_args()
-    gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir, args.group, args.variable, args.bound)
+    gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir, args.group, args.variable)

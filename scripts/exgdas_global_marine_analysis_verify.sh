@@ -26,9 +26,9 @@ mkdir -p $workdir
 module load EVA/$machine
 
 # Generate EVA YAML
-#$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${VarYaml}/var.yaml -t $GDASApp/ush/eva//marine_gdas_plots.yaml -o $workdir -g ombg -v sea_surface_temperature -b 0 .2
-$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${VarYaml}/var.yaml -t $GDASApp/ush/eva//marine_gdas_plots.yaml -o $workdir -g ombg -v absolute_dynamic_topography -b 0 .1
+#$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${VarYaml}/var.yaml -t $GDASApp/ush/eva/marine_gdas_plots.yaml -o $workdir -g ombg -v absolute_dynamic_topography 
 
+$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${VarYaml}/var.yaml -t $GDASApp/ush/eva/marine_gdas_plots.yaml -o $workdir -v sea_surface_temperature -g bkg 
 # Run EVA
 cd $workdir
 for yaml in $(ls eva_*.yaml); do
