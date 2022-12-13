@@ -27,7 +27,6 @@ ln -sf $srcdir/../../workflow/setup_expt.py .
 # TODO: remove when all the config.* that need to have variables substituted have been
 #       updated in the g-w
 cp -r $configdir config
-cp $srcdir/test/soca/gw/config.ocnanal ./config
 
 # edit config.yaml
 cp $srcdir/test/soca/gw/config.yaml .
