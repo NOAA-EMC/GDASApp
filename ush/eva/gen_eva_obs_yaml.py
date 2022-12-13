@@ -22,7 +22,6 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group):
         if 'observations' in jedi_yaml_dict['cost function']:
             jediobs = jedi_yaml_dict['cost function']['observations']['observers']
     else:
-        # this is for atm DA var.yaml
         if 'observers' in jedi_yaml_dict['observations']:
             jediobs = jedi_yaml_dict['observations']['observers']
         else:
