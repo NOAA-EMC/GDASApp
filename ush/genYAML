@@ -24,6 +24,9 @@ def genYAML(yamlconfig):
     outconfig = YAMLFile(path=template)
     outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config_dict.get)
     outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOLLAR_PARENTHESES, config_dict.get)
+    config2 = ufsda.misc_utils.get_env_config()
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config2.get)
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOLLAR_PARENTHESES, config2.get)
     outconfig.save(output_file)
 
 

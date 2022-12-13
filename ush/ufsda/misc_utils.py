@@ -137,6 +137,8 @@ def get_env_config(component='atm'):
         'BIAS_DATE': f"{os.environ['GDATE']}",
         'experiment': os.getenv('PSLOT', 'test'),
     }
+    config['BKG_YYYYmmddHHMMSS'] = valid_time.strftime('%Y%m%d.%H%M%S')
+    config['BKG_ISOTIME'] = valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')
     # some keys we can pull directly from the environment
     env_keys = [
         'CASE', 'CASE_ANL', 'CASE_ENKF', 'DOHYBVAR', 'LEVS', 'OBS_YAML_DIR', 'OBS_LIST',
@@ -144,4 +146,12 @@ def get_env_config(component='atm'):
     for key in env_keys:
         config[key] = os.environ[key]
     config['atm'] = True if component == 'atm' else False
+    # compute some other things here
+    config['npx_ges'] = int(os.environ['CASE'][1:]) + 1
+    config['npy_ges'] = int(os.environ['CASE'][1:]) + 1
+    config['npz_ges'] = int(os.environ['LEVS']) - 1
+    config['npx_anl'] = int(os.environ['CASE_ENKF'][1:]) + 1
+    config['npy_anl'] = int(os.environ['CASE_ENKF'][1:]) + 1
+    config['npz_anl'] = int(os.environ['LEVS']) - 1
+
     return config
