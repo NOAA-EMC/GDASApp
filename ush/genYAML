@@ -6,6 +6,8 @@ import argparse
 import logging
 import ufsda
 import yaml
+from pygw.template import Template, TemplateConstants
+from pygw.yaml_file import YAMLFile
 
 def genYAML(yamlconfig):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -19,7 +21,10 @@ def genYAML(yamlconfig):
     output_file = all_config_dict['output']
     template = all_config_dict['template']
     config_dict = all_config_dict['config']
-    ufsda.yamltools.genYAML(config_dict, template=template, output=output_file)
+    outconfig = YAMLFile(path=template)
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config_dict.get)
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOLLAR_PARENTHESES, config_dict.get)
+    outconfig.save(output_file)
 
 
 if __name__ == "__main__":
