@@ -26,12 +26,16 @@ mkdir -p $workdir
 
 # Generate EVA YAML
 
-$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${VarYaml}/var.yaml -t $GDASApp/ush/eva/marine_gdas_plots.yaml -o $workdir -v sea_surface_temperature -g bkg 
+$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${VarYaml}/var.yaml -t $GDASApp/ush/eva/marine_gdas_plots.yaml -o $workdir -g bkg 
 
+vars=("adt_3a" "sst_gmi")
 # Run EVA
 cd $workdir
-for yaml in $(ls eva_*.yaml); do
-  eva $yaml
+for var in ${vars[@]}; do 
+  for yaml in $(ls eva_${var}*.yaml); do
+    echo plotting $yaml ...
+    eva $yaml
+  done
 done
 
 

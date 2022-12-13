@@ -29,26 +29,8 @@ diagnostics:
 
     # Generate omb that passed QC for JEDI
     - transform: accept where
-      new name: experiment::ombgPassedQC::${variable}
-      starting field: experiment::ombg::${variable}
-      where:
-        - experiment::PreQC::${variable} == 0
-      for:
-        variable: *variables
-
-    # Generate oma that passed QC for JEDI
-    - transform: accept where
-      new name: experiment::omanPassedQC::${variable}
-      starting field: experiment::oman::${variable}
-      where:
-        - experiment::PreQC::${variable} == 0
-      for:
-        variable: *variables
-
-    # Generate bkg that passed QC for JEDI
-    - transform: accept where
-      new name: experiment::bkgPassedQC::${variable}
-      starting field: experiment::bkg::${variable}
+      new name: experiment::@GRPNAME@PassedQC::${variable}
+      starting field: experiment::@GRPNAME@::${variable}
       where:
         - experiment::PreQC::${variable} == 0
       for:
@@ -95,5 +77,5 @@ diagnostics:
             colorbar: true
             # below may need to be edited/removed
             cmap: ${dynamic_cmap}
-            vmin: ${dynamic_vmin}
+            vmin: 0 #${dynamic_vmin}
             vmax: ${dynamic_vmax} 
