@@ -20,7 +20,7 @@ obs operator:
   obs options:
     Sensor_ID: amsua_n19
     EndianType: little_endian
-    CoefficientPath: !ENV ${DATA}/crtm
+    CoefficientPath: !ENV ${DATA}/crtm/
 obs bias:
   input file: !ENV ${DATA}/obs/${GPREFIX}amsua_n19.satbias.${GDATE}.nc4
   output file: !ENV ${DATA}/bc/${APREFIX}amsua_n19.satbias.${CDATE}.nc4

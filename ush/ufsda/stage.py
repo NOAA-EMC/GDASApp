@@ -237,7 +237,8 @@ def atm_obs(config):
         r2d2_config['provider'] = 'ncdiag'
         r2d2_config['start'] = config['ATM_WINDOW_BEGIN']
         r2d2_config['end'] = r2d2_config['start']
-        target_file = ob['obs space']['obsdatain']['engine']['obsfile']
+        ob_basename = os.path.basename(ob['obs space']['obsdatain']['engine']['obsfile'])
+        target_file = os.path.join(os.environ['COMOUT'], ob_basename)
         r2d2_config['target_file_fmt'] = target_file
         r2d2_config['obs_types'] = [ob['obs space']['name']]
         ufsda.r2d2.fetch(r2d2_config)
@@ -251,7 +252,7 @@ def bias_obs(config):
         'step': config['atm_window_length'],
         'dump': 'gdas',
         'experiment': 'oper_gdas',  # change this here and other places to be oper_{dump}
-        'target_dir': config.get('target_dir', config.get('BKG_DIR', './')),
+        'target_dir': config.get('target_dir', config.get('COMIN_GES', './')),
     }
     r2d2_config = NiceDict(r2d2_config)
     # get list of obs to process and their output files
@@ -270,6 +271,8 @@ def bias_obs(config):
             # fetch satbias
             r2d2_config['file_type'] = 'satbias'
             target_file = ob['obs bias']['input file']
+            ob_basename = os.path.basename(target_file)
+            target_file = os.path.join(os.environ['COMOUT'], ob_basename)
             r2d2_config['target_file_fmt'] = target_file
             r2d2_config['experiment'] = config.get('experiment', 'oper_gdas')
             ufsda.r2d2.fetch(r2d2_config)

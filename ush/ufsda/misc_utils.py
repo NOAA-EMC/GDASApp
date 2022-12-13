@@ -130,7 +130,6 @@ def get_env_config(component='atm'):
         'ATM_WINDOW_LENGTH': f"PT{assim_freq}H",
         'OBS_DIR': os.environ['COMOUT'],
         'OBS_PREFIX': f"{os.environ['CDUMP']}.t{os.environ['cyc']}z.",
-        'target_dir': os.environ['COMOUT'],
         'OBS_DATE': os.environ['CDATE'],
         'BIAS_IN_DIR': os.environ['COMOUT'],
         'BIAS_PREFIX': f"{os.environ['GDUMP']}.t{os.environ['gcyc']}z.",

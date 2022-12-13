@@ -5,6 +5,7 @@ import os
 import shutil
 import datetime as dt
 import ufsda
+from pygw.yaml_file import YAMLFile
 
 __all__ = ['atm_diags']
 
@@ -21,8 +22,7 @@ def atm_diags(config):
     r2d2_config = NiceDict(r2d2_config)
     # get list of obs to process and their output files
     obs_list_yaml = config['OBS_LIST']
-    obs_list_config = Configuration(obs_list_yaml)
-    obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
+    obs_list_config = YAMLFile(path=obs_list_yaml)
     for ob in obs_list_config['observers']:
         # first get obs
         r2d2_config.pop('file_type', None)
@@ -30,6 +30,7 @@ def atm_diags(config):
         r2d2_config['provider'] = config['provider']
         r2d2_config['start'] = config['window_begin']
         r2d2_config['end'] = r2d2_config['start']
+        print(ob)
         input_file = ob['obs space']['obsdataout']['engine']['obsfile']
         r2d2_config['source_dir'] = config['OBS_DIR']
         r2d2_config['source_file_fmt'] = input_file.replace('.nc4', '_0000.nc4')
