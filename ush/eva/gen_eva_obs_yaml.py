@@ -32,7 +32,7 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group, variable):
     evaobs = []
     for obsspace in jediobs:
         tmp_os = obsspace['obs space']
-        sim_var = tmp_os['simulated variables'][0]
+        sim_var = tmp_os['simulated variables'][0]  # to get only the variable, not the list
         tmp_dict = {
             'name': tmp_os['name'],
             'diagfile': tmp_os['obsdataout']['engine']['obsfile'].replace('.nc4', '_0000.nc4'),
@@ -40,7 +40,7 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group, variable):
             'channels': tmp_os.get('channels', None),
         }
 
-        if sim_var == variable:
+        if variable == sim_var:
             evaobs.append(tmp_dict)
         if variable == 'all':
             evaobs.append(tmp_dict)

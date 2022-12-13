@@ -17,23 +17,21 @@ machine=hera
 
 # Load Modules for GDASApp
 module use $GDASApp/modulefiles
-module load GDAS/$machine
+# Load EVA modules
+module load EVA/$machine
 export PYTHONPATH=$GDASApp/ush:$PYTHONPATH
 
 # Create and set up the working directory
 mkdir -p $workdir
-# Load EVA modules
-module load EVA/$machine
 
 # Generate EVA YAML
-#$GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${VarYaml}/var.yaml -t $GDASApp/ush/eva/marine_gdas_plots.yaml -o $workdir -g ombg -v absolute_dynamic_topography 
 
 $GDASApp/ush/eva/gen_eva_obs_yaml.py -i ${VarYaml}/var.yaml -t $GDASApp/ush/eva/marine_gdas_plots.yaml -o $workdir -v sea_surface_temperature -g bkg 
+
 # Run EVA
 cd $workdir
 for yaml in $(ls eva_*.yaml); do
   eva $yaml
 done
 
-rm *.yaml
 
