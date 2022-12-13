@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: ${OBS_DIR}/${OBS_PREFIX}icefb_gdr.${OBS_DATE}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}icefb_gdr.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: ${DIAG_DIR}/icefb_gdr.${OBS_DATE}.nc4
+      obsfile: !ENV ${DATA}/diags/icefb_gdr.${PDY}${cyc}.nc4
   simulated variables:  [sea_ice_freeboard]
   io pool:
     max pool size: 1
