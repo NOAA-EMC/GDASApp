@@ -4,7 +4,7 @@ import logging
 import os
 import pathlib
 import sys
-import yaml
+from pygw.yaml_file import YAMLFile
 
 
 def check_valid_yaml(repodir):
@@ -21,16 +21,22 @@ def check_valid_yaml(repodir):
     for path in pathlib.Path(os.path.join(repodir, 'parm')).rglob('*.yml'):
         all_yamls.append(os.path.abspath(path))
     nfailed = 0
+    failed_yamls = []
+
     for yamlfile in all_yamls:
         logging.info(f'Checking {yamlfile}')
         try:
-            with open(yamlfile, 'r') as YAML_opened:
-                test_dict = yaml.safe_load(YAML_opened)
+            config = YAMLFile(path=yamlfile)
+        except OSError as e:
+            logging.info(f'{yamlfile} warns of error: {e}, but this is fine')
         except Exception as e:
             logging.error(f'Error occurred when attempting to load: {yamlfile}, error: {e}')
             nfailed += 1
+            failed_yamls.append(yamlfile)
     logging.info(f'{nfailed} of {len(all_yamls)} files failed.')
     if nfailed > 0:
+        for yamlfile in failed_yamls:
+            logging.info(f'FAILED: {yamlfile}')
         sys.exit(1)
 
 

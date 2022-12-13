@@ -7,10 +7,10 @@ saber blocks:
                            specific_humidity,cloud_liquid_ice,cloud_liquid_water,
                            mole_fraction_of_ozone_in_air]
   output variables: *control_vars
-  gsi akbk: &akbk $(fv3jedi_fix_dir)/akbk.nc4
-  gsi error covariance file: &gsiberr $(fv3jedi_staticb_dir)/gsi-coeffs-gfs-global.nc4
-# gsi error covariance file: &gsiberr $(fv3jedi_staticb_dir)/global_berror.f77
-  gsi berror namelist file: &gsibnml $(fv3jedi_staticb_dir)/gfs_gsi_global.nml
+  gsi akbk: !ENV &akbk ${DATA}/fv3jedi/akbk.nc4
+  gsi error covariance file: !ENV &gsiberr ${DATA}/berror/gsi-coeffs-gfs-global.nc4
+# gsi error covariance file: !ENV &gsiberr ${DATA}/berror/global_berror.f77
+  gsi berror namelist file: !ENV &gsibnml ${DATA}/berror/gfs_gsi_global.nml
   processor layout x direction: &layout_gsib_x 3
   processor layout y direction: &layout_gsib_y 2
   debugging mode: false

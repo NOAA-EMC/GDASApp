@@ -9,7 +9,7 @@ components:
       output variables: *control_vars
       active variables: &active_vars [psi,chi,t,ps,rh,liq_wat,o3mr]
       bump:
-        datadir: &staticb_dir $(fv3jedi_staticb_dir)
+        datadir: !ENV &staticb_dir ${DATA}/berror
         verbosity: main
         strategy: specific_univariate
         load_nicas_local: true
@@ -81,17 +81,17 @@ components:
     covariance model: ensemble
     members from template:
       template:
-        datetime: $(BKG_ISOTIME)
+        datetime: '{{BKG_ISOTIME}}'
         filetype: fms restart
         state variables: *3dvars
         datapath: ens/mem%mem%/
-        filename_core: $(BKG_YYYYmmddHHMMSS).fv_core.res.nc
-        filename_trcr: $(BKG_YYYYmmddHHMMSS).fv_tracer.res.nc
-        filename_sfcd: $(BKG_YYYYmmddHHMMSS).sfc_data.nc
-        filename_sfcw: $(BKG_YYYYmmddHHMMSS).fv_srf_wnd.res.nc
-        filename_cplr: $(BKG_YYYYmmddHHMMSS).coupler.res
+        filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
+        filename_trcr: '{{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc'
+        filename_sfcd: '{{BKG_YYYYmmddHHMMSS}}.sfc_data.nc'
+        filename_sfcw: '{{BKG_YYYYmmddHHMMSS}}.fv_srf_wnd.res.nc'
+        filename_cplr: '{{BKG_YYYYmmddHHMMSS}}.coupler.res'
       pattern: '%mem%'
-      nmembers: $(NMEM_ENKF)
+      nmembers: !ENV ${NMEM_ENKF}
       zero padding: 3
 #    localization:
 #      localization method: SABER

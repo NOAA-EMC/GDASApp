@@ -3,16 +3,14 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(OBS_DIR)/$(OBS_PREFIX)satwind.$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}satwind.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DIAG_DIR)/diag_satwind_$(OBS_DATE).nc4
+      obsfile: !ENV ${DATA}/diags/diag_satwind_${CDATE}.nc4
   io pool:
     max pool size: 1
   simulated variables: [eastward_wind, northward_wind]
-get values:
-  interpolation method: $(INTERP_METHOD)
 obs operator:
   name: VertInterp
 obs pre filters:
