@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs${OPREFIX}sst_noaa19_l3u.${CDATE}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}sst_noaa19_l3u.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
