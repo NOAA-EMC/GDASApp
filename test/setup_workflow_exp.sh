@@ -17,6 +17,8 @@ configdir=$srcdir/../../parm/config
 comrot=$bindir/test/testrun/ROTDIRS
 expdir=$bindir/test/testrun/experiments
 
+# clean previous experiment
+rm -rf "${comrot}" "${expdir}"
 
 # run the script
 cd $srcdir/../../workflow
