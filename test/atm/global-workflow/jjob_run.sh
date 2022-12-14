@@ -17,6 +17,5 @@ export COMIN_GES=${bindir}/test/atm/bkg
 export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
-export APRUN_ATMANAL="$MPIEXEC_EXEC $MPIEXEC_NPROC 6"
 
 ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_RUN
