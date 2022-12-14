@@ -7,7 +7,7 @@ project_source_dir=$2
 source ${project_source_dir}/test/soca/test_utils.sh
 
 # Remove previously fetched obs
-rm -f ${project_binary_dir}/test/soca/3dvar/gdas.t12z.{sst,adt,sss,salt,icec}*.nc4
+rm -f ${project_binary_dir}/test/soca/3dvar/ocnanal_2018041512/obs/gdas.t12z.{sst,adt,sss,salt,icec}*.nc4
 
 # Export runtime env. variables
 source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $project_source_dir
@@ -40,15 +40,15 @@ for o in $obslist; do
             continue
             ;;
         "ocn_filename:")
-            base=${project_binary_dir}/test/soca/bkg/
+            base=${project_binary_dir}/test/soca/3dvar/ocnanal_2018041512/bkg/
             continue
             ;;
         "ice_filename:")
-            base=${project_binary_dir}/test/soca/bkg/
+            base=${project_binary_dir}/test/soca/3dvar/ocnanal_2018041512/bkg/
             continue
             ;;
         "remap_filename:")
-            base=''
+            base=${project_binary_dir}/test/soca/3dvar/ocnanal_2018041512/
             continue
             ;;
     esac
