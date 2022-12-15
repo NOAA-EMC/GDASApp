@@ -161,7 +161,8 @@ bkg_dir = os.path.join(anl_dir, 'bkg')
 ufsda.mkdir(bkg_dir)
 
 # create output directory for soca DA
-anl_out = os.path.join(comout, 'ocnanal_'+os.getenv('CDATE'), 'Data')
+cdate = os.getenv('PDY')+os.getenv('cyc')
+anl_out = os.path.join(comout, 'ocnanal_' + cdate, 'Data')
 ufsda.mkdir(anl_out)
 ufsda.symlink(anl_out, os.path.join(anl_dir, 'Data'), remove=False)
 
@@ -280,7 +281,7 @@ var_yaml_template = os.path.join(gdas_home,
                                  '3dvarfgat.yaml')
 
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
-window_begin = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
+window_begin = datetime.strptime( cdate, '%Y%m%d%H') - half_assim_freq
 gen_bkg_list(bkg_path=os.getenv('COMIN_GES'),
              out_path=bkg_dir,
              window_begin=window_begin,
