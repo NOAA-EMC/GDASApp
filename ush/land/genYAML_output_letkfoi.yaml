@@ -36,7 +36,7 @@ geometry:
   ntiles: '6'
   time invariant fields:
     state fields:
-      datapath: /scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data/land/C48
+      datapath: Data/land/C48
       datetime: '2021-03-23T15:00:00Z'
       filename_orog: C48_oro_data
       filetype: fms restart
