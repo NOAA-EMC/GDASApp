@@ -12,7 +12,7 @@ add_test(NAME test_gdasapp_land_imsproc
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/land/)
 set_tests_properties(test_gdasapp_land_imsproc
     PROPERTIES
-    ENVIRONMENT "GDASAPP_TESTDATA=$ENV{GDASAPP_TESTDATA}")
+    ENVIRONMENT "GDASAPP_TESTDATA=$ENV{GDASAPP_TESTDATA};Python3_VERSION_MAJOR=${Python3_VERSION_MAJOR};Python3_VERSION_MINOR=${Python3_VERSION_MINOR}")
 
 # test for adding jedi increment
 add_test(NAME test_gdasapp_land_apply_jediincr
