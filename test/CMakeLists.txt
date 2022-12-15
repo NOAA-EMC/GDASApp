@@ -140,7 +140,7 @@ ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PRO
   set_tests_properties(
          test_gdasapp_genYAML_run
   PROPERTIES
-ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm")
+ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm;BERROR_YAML=${PROJECT_SOURCE_DIR}/parm/atm/berror/staticb_bump.yaml;OBS_YAML_DIR=${PROJECT_SOURCE_DIR}/parm/atm/obs/config;OBS_LIST=${PROJECT_SOURCE_DIR}/parm/atm/obs/lists/gdas_prototype.yaml;CDATE=2022033000;assim_freq=6;COMOUT=/path/to/nowhere;CDUMP=gdas;cyc=00;GDUMP=gdas;GDATE=2022032918;gcyc=18;PSLOT=ctest;CASE=48;CASE_ANL=C48;CASE_ENKF=48;LEVS=128;DOHYBVAR=YES")
 endif()
 
 # test for converting ewok yaml to gdas
