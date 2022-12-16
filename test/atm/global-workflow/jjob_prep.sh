@@ -21,11 +21,15 @@ export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
 
+# detemine machine from config.base
+machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
+echo "machine is $machine"
+
 # prepare background from previous cycle
 GDATE=`date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - 6 hours"`
 gPDY=$(echo $GDATE | cut -c1-8)
 gcyc=$(echo $GDATE | cut -c9-10)
-mkdir -p $$ROTDIR/gdas_test/gdas.$gPDY/$gcyc/atmos/
+mkdir -p $ROTDIR/gdas_test/gdas.$gPDY/$gcyc/atmos/
 
 flist="abias atmf006 RESTART"
 for file in $flist; do

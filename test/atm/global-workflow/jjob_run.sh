@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 bindir=$1
 srcdir=$2
 
@@ -17,6 +18,9 @@ export COMIN_GES=${bindir}/test/atm/bkg
 export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
+
+# detemine machine from config.base
+machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
 
 if [ $machine != 'HERA' ]; then
     ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_RUN
