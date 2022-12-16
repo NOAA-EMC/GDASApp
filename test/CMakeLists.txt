@@ -125,23 +125,13 @@ add_test(NAME test_gdasapp_genYAML_prep
          COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
-if (${BUILD_GDASBUNDLE}) # the 2 tests below depend on python bindings to ioda and require a bundle build
-  add_test(NAME test_gdasapp_generate_yaml_func
-           COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/test_generate_yaml.py --parm ${PROJECT_SOURCE_DIR}/parm/
-           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-  set_tests_properties(
-         test_gdasapp_generate_yaml_func
-  PROPERTIES
-ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm;gPDY=20220330;gcyc=00;PDY=20220330;cyc=06;assim_freq=6")
-
-  add_test(NAME test_gdasapp_genYAML_run
-           COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example.yaml
-           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-  set_tests_properties(
-         test_gdasapp_genYAML_run
-  PROPERTIES
+add_test(NAME test_gdasapp_genYAML_run
+          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example.yaml
+          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+set_tests_properties(
+        test_gdasapp_genYAML_run
+PROPERTIES
 ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm")
-endif()
 
 # test for converting ewok yaml to gdas
 add_test(NAME test_gdasapp_convert_ewok_yaml
