@@ -4,8 +4,9 @@
 # current runtime env, and optional input YAML
 import argparse
 import logging
-import ufsda
 import yaml
+from pygw.template import Template, TemplateConstants
+from pygw.yaml_file import YAMLFile
 
 def genYAML(yamlconfig):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -19,7 +20,21 @@ def genYAML(yamlconfig):
     output_file = all_config_dict['output']
     template = all_config_dict['template']
     config_dict = all_config_dict['config']
-    ufsda.yamltools.genYAML(config_dict, template=template, output=output_file)
+    # NOTE the following is a hack until YAMLFile can take in an input config dict
+    # if something in the template is expected to be an env var
+    # but it is not defined in the env, problems will arise
+    # so we set the env var in this subprocess for the substitution to occur
+    for key, value in config_dict.items():
+        os.environ[key] = str(value)
+    # next we need to compute a few things
+    runtime_config = get_runtime_config(config_dict)
+    # now run the global-workflow parser
+    outconfig = YAMLFile(path=template)
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config_dict.get)
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOLLAR_PARENTHESES, config_dict.get)
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOUBLE_CURLY_BRACES, runtime_config.get)
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOLLAR_PARENTHESES, runtime_config.get) 
+    outconfig.save(output_file)
 
 
 if __name__ == "__main__":
