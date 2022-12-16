@@ -67,12 +67,11 @@ mkdir -p Data diags
 ln -s ${project_binary_dir}/fv3-jedi/test/Data/fieldmetadata Data/fieldmetadata
 ln -s ${project_binary_dir}/fv3-jedi/test/Data/fv3files Data/fv3files
 ln -s ${project_source_dir}/ush/land/genYAML_output_letkfoi.yaml letkf_land.yaml
-ln -s /scratch2/NCEPDEV/land/data/DA/snow_depth/GTS/data_proc/202103/adpsfc_snow_2021032318.nc4 adpsfc_snow.nc4
-#ln -s ${OBSDIR}/snow_depth/GTS/202103/adpsfc_snow_2021032318.nc4 adpsfc_snow.nc4
+ln -s ${OBSDIR}/snow_depth/GTS/202103/adpsfc_snow_2021032318.nc4 adpsfc_snow.nc4
 ln -s ${OBSDIR} Data/land
 echo 'do_landDA: calling fv3-jedi'
 
-srun '--export=ALL' -n 6 ${EXECDIR}/${JEDI_EXEC} letkf_land.yaml ${WORKDIR}/letkfoi_snowda.log
+srun '--export=ALL' -n 6 ${EXECDIR}/${JEDI_EXEC} letkf_land.yaml
 
 rc=$?
 
