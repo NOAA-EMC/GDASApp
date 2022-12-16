@@ -60,7 +60,9 @@ if [[ ${DAtype} == 'letkfoi_snow' ]]; then
     python ${project_source_dir}/ush/land/letkf_create_ens.py $FILEDATE $SNOWDEPTHVAR $B $WORKDIR
 
 fi
-
+############################################
+# Prepare and Run JEDI
+############################################
 mkdir -p Data diags
 ln -s ${project_binary_dir}/fv3-jedi/test/Data/fieldmetadata Data/fieldmetadata
 ln -s ${project_binary_dir}/fv3-jedi/test/Data/fv3files Data/fv3files
