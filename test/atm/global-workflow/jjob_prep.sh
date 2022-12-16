@@ -32,4 +32,8 @@ for file in $flist; do
    cp -r $GDASAPP_TESTDATA/lowres/gdas.$gPDY/$gcyc/atmos/*${file}* $bindir/test/atm/global-workflow/testrun/ROTDIRS/gdas_test/gdas.$gPDY/$gcyc/atmos/
 done
 
-${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_PREP
+if [ $machine != 'HERA' ]; then
+    ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_PREP
+else
+    sbatch -n 1 --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_PREP
+fi

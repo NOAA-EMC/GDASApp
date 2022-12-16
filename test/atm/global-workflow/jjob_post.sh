@@ -21,4 +21,8 @@ export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
 
-${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_POST
+if [ $machine != 'HERA' ]; then
+    ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_POST
+else
+    sbatch -n 1 --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_POST
+fi
