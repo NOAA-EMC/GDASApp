@@ -281,7 +281,7 @@ var_yaml_template = os.path.join(gdas_home,
                                  '3dvarfgat.yaml')
 
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
-window_begin = datetime.strptime( cdate, '%Y%m%d%H') - half_assim_freq
+window_begin = datetime.strptime(cdate, '%Y%m%d%H') - half_assim_freq
 gen_bkg_list(bkg_path=os.getenv('COMIN_GES'),
              out_path=bkg_dir,
              window_begin=window_begin,
