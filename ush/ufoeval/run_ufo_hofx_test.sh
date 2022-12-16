@@ -32,6 +32,8 @@ export assim_freq=6
 export GDATE=$(date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - ${assim_freq} hours")
 export PDY=${CDATE:0:8}
 export cyc=${CDATE:8:2}
+export gPDY=${GDATE:0:8}
+export gcyc=${GDATE:8:2}
 
 # Load Modules for GDASApp
 module use $GDASApp/modulefiles
@@ -60,22 +62,18 @@ ln -sf $GDASApp/build/bin/$exename $workdir/.
 # First, create the input YAMLs for the genYAML script
 cat > $workdir/obslist.yaml << EOF
 observations:
-- $<< $yamlpath
+- !INC $yamlpath
 EOF
 cat > $workdir/temp.yaml << EOF
 template: $GDASApp/parm/atm/hofx/hofx_ufotest.yaml
 output: $workdir/${obtype}_${cycle}.yaml
 config:
-  atm: true
-  OBS_DIR: ./
-  DIAG_DIR: ./
-  CRTM_COEFF_DIR: crtm
-  BIAS_IN_DIR: ./
+  COMPONENT: atmos
   OBS_LIST: $workdir/obslist.yaml
-  BKG_DIR: ./
-  OBS_DATE: '$CDATE'
-  BIAS_DATE: '$GDATE'
-  INTERP_METHOD: '$INTERP_METHOD'
+  DATA: ./
+  OPREFIX: gdas.t${cyc}z
+  APREFIX: gdas.t${cyc}z
+  GPREFIX: gdas.t${gcyc}z
 EOF
 $GDASApp/ush/genYAML --config $workdir/temp.yaml
 

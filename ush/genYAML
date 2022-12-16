@@ -3,6 +3,7 @@
 # generate YAML using ufsda python module,
 # current runtime env, and optional input YAML
 import argparse
+import datetime as dt
 import logging
 import yaml
 from pygw.template import Template, TemplateConstants
@@ -27,7 +28,7 @@ def genYAML(yamlconfig):
     for key, value in config_dict.items():
         os.environ[key] = str(value)
     # next we need to compute a few things
-    runtime_config = get_runtime_config(config_dict)
+    runtime_config = get_runtime_config(dict(os.environ, **config_dict))
     # now run the global-workflow parser
     outconfig = YAMLFile(path=template)
     outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config_dict.get)
@@ -35,6 +36,30 @@ def genYAML(yamlconfig):
     outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOUBLE_CURLY_BRACES, runtime_config.get)
     outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOLLAR_PARENTHESES, runtime_config.get) 
     outconfig.save(output_file)
+
+
+def get_runtime_config(config_dict):
+    # compute some runtime variables
+    # this will probably need pulled out somewhere else eventually
+    # a temporary hack to get UFO evaluation stuff going again
+    valid_time = dt.datetime.strptime(config_dict['CDATE'], '%Y%m%d%H')
+    assim_freq = int(config_dict.get('assim_freq', 6))
+    window_begin = valid_time - dt.timedelta(hours=assim_freq/2)
+    component_dict = {
+        'atmos': 'ATM',
+        'chem': 'AERO',
+        'ocean': 'SOCA',
+        'land': 'land',
+    }
+    win_begin_var = component_dict[config_dict.get('COMPONENT', 'atmos')] + '_WINDOW_BEGIN'
+    win_len_var = component_dict[config_dict.get('COMPONENT', 'atmos')] + '_WINDOW_LENGTH'
+
+    runtime_config = {
+        win_begin_var: f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        win_len_var: f"PT{assim_freq}H",
+    }
+
+    return runtime_config
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ output: ${bindir}/test/testoutput/genYAML_output_3dvar.yaml
 config:
   BERROR_YAML: \${PARMgfs}/atm/berror/staticb_bump.yaml
   OBS_YAML_DIR: \${PARMgfs}/atm/obs/config
-  atm: true
+  COMPONENT: atmos
   layout_x: '1'
   layout_y: '2'
   OBS_LIST: ${srcdir}/parm/atm/obs/lists/gdas_prototype.yaml
