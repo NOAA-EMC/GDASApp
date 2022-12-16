@@ -25,11 +25,11 @@ export COMROOT=$DATAROOT
 GDATE=`date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - 6 hours"`
 gPDY=$(echo $GDATE | cut -c1-8)
 gcyc=$(echo $GDATE | cut -c9-10)
-mkdir -p $bindir/test/atm/global-workflow/testrun/ROTDIRS/gdas_test/gdas.$gPDY/$gcyc/atmos/
+mkdir -p $$ROTDIR/gdas_test/gdas.$gPDY/$gcyc/atmos/
 
 flist="abias atmf006 RESTART"
 for file in $flist; do
-   cp -r $GDASAPP_TESTDATA/lowres/gdas.$gPDY/$gcyc/atmos/*${file}* $bindir/test/atm/global-workflow/testrun/ROTDIRS/gdas_test/gdas.$gPDY/$gcyc/atmos/
+   cp -r $GDASAPP_TESTDATA/lowres/gdas.$gPDY/$gcyc/atmos/*${file}* $ROTDIR/gdas_test/gdas.$gPDY/$gcyc/atmos/
 done
 
 if [ $machine != 'HERA' ]; then

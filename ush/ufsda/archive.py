@@ -30,7 +30,6 @@ def atm_diags(config):
         r2d2_config['provider'] = config['provider']
         r2d2_config['start'] = config['window_begin']
         r2d2_config['end'] = r2d2_config['start']
-        print(ob)
         input_file = ob['obs space']['obsdataout']['engine']['obsfile']
         r2d2_config['source_dir'] = config['OBS_DIR']
         r2d2_config['source_file_fmt'] = input_file.replace('.nc4', '_0000.nc4')
