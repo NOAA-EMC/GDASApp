@@ -23,7 +23,7 @@ obs operator:
   obs options:
     Sensor_ID: amsua_n19
     EndianType: little_endian
-    CoefficientPath: !ENV ${DATA}/crtm
+    CoefficientPath: !ENV ${DATA}/crtm/
 obs error:
   covariance model: diagonal
 obs filters:
