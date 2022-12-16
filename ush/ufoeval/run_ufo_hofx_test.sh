@@ -13,6 +13,7 @@
 cycle=2021080100
 obtype=amsua_n19
 GDASApp=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp # Change this to your own branch
+GDASApp=/work2/noaa/stmp/cmartin/tmp8/
 workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
 yamlpath=$GDASApp/parm/atm/obs/testing/amsua_n19.yaml
 exename=test_ObsFilters.x
@@ -61,7 +62,6 @@ ln -sf $GDASApp/build/bin/$exename $workdir/.
 # Copy/generate YAML for test executable
 # First, create the input YAMLs for the genYAML script
 cat > $workdir/obslist.yaml << EOF
-observations:
 - !INC $yamlpath
 EOF
 cat > $workdir/temp.yaml << EOF
