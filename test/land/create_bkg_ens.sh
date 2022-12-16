@@ -7,7 +7,6 @@ YY=2021
 MM=03
 DD=23
 HH=18
-HR=12
 FILEDATE=$YY$MM$DD.${HH}0000
 
 project_binary_dir=$1
@@ -18,7 +17,14 @@ GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 
 WORKDIR=$project_binary_dir/test/land/create_jedi_ens
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART
+GFSv17=NO
 DAtype=letkfoi_snow
+
+if [ $GFSv17 == "YES" ]; then
+    SNOWDEPTHVAR="snodl"
+else
+    SNOWDEPTHVAR="snwdph"
+fi
 
 if [[ ${DAtype} == 'letkfoi_snow' ]]; then
 
@@ -43,7 +49,7 @@ if [[ ${DAtype} == 'letkfoi_snow' ]]; then
 
     echo 'do_landDA: calling create ensemble'
 
-    python ${project_source_dir}/ush/land/letkf_create_ens.py $FILEDATE $B $WORKDIR
+    python ${project_source_dir}/ush/land/letkf_create_ens.py $FILEDATE $SNOWDEPTHVAR $B $WORKDIR
 
     rc=$?
 

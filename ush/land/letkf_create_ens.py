@@ -10,12 +10,13 @@ import sys
 # perturbation, given stdev(ensemble) of B
 # Clara Draper, October, 2021.
 
-if (len(sys.argv) != 4):
+if (len(sys.argv) != 5):
     print('argument error, usage: letkf_create file_stub back_error')
 
 fstub = sys.argv[1]
-b = float(sys.argv[2])
-workdir = sys.argv[3]
+vname = sys.argv[2]
+b = float(sys.argv[3])
+workdir = sys.argv[4]
 
 # 2 ens members
 offset = b/np.sqrt(2)
@@ -30,6 +31,6 @@ for (mem, value) in zip(ens_dirs, sign):
         # open file
         out_netcdf = os.path.join(workdir, mem, f"{fstub}.sfc_data.tile{tt}.nc")
         with Dataset(out_netcdf, "r+") as ncOut:
-            var_array = ncOut.variables["snwdph"][:]
+            var_array = ncOut.variables[vname][:]
             var_array = var_array + value*offset
-            ncOut.variables["snwdph"][0, :, :] = var_array[:]
+            ncOut.variables[vname][0, :, :] = var_array[:]
