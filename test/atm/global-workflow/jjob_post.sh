@@ -1,10 +1,7 @@
 #!/bin/bash
 set -x
-set -x
 bindir=$1
 srcdir=$2
-
-# prepare stuff from previous cycle
 
 # run jjob
 export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config

@@ -3,8 +3,6 @@ set -x
 bindir=$1
 srcdir=$2
 
-# prepare stuff from previous cycle
-
 # run jjob
 export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
 echo $HOMEgfs
@@ -23,7 +21,6 @@ export COMROOT=$DATAROOT
 
 # detemine machine from config.base
 machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
-echo "machine is $machine"
 
 # prepare background from previous cycle
 GDATE=`date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - 6 hours"`
