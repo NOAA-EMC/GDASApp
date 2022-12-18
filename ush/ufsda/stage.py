@@ -15,6 +15,7 @@ import glob
 import xarray
 import sys
 import numpy as np
+from pygw.yaml_file import YAMLFile
 
 # TODO: We might want to revisit this in the future
 # Try to resolve the location of pyioda, assuming there are only 2 places where this
@@ -220,24 +221,24 @@ def atm_obs(config):
     r2d2_config = {
         'start': config['prev_valid_time'],
         'end': config['prev_valid_time'],
-        'step': config['atm_window_length'],
+        'step': config['ATM_WINDOW_LENGTH'],
         'dump': 'gdas',
         'experiment': 'oper_gdas',  # change this here and other places to be oper_{dump}
-        'target_dir': config.get('target_dir', config.get('BKG_DIR', './')),
+        'target_dir': config.get('target_dir', os.path.join(config.get('DATA', './'), 'obs')),
     }
     r2d2_config = NiceDict(r2d2_config)
     # get list of obs to process and their output files
     obs_list_yaml = config['OBS_LIST']
-    obs_list_config = Configuration(obs_list_yaml)
-    obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
+    obs_list_config = YAMLFile(path=obs_list_yaml)
     for ob in obs_list_config['observers']:
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
         r2d2_config['provider'] = 'ncdiag'
-        r2d2_config['start'] = config['window_begin']
+        r2d2_config['start'] = config['ATM_WINDOW_BEGIN']
         r2d2_config['end'] = r2d2_config['start']
-        target_file = ob['obs space']['obsdatain']['engine']['obsfile']
+        ob_basename = os.path.basename(ob['obs space']['obsdatain']['engine']['obsfile'])
+        target_file = os.path.join(os.environ['COMOUT'], ob_basename)
         r2d2_config['target_file_fmt'] = target_file
         r2d2_config['obs_types'] = [ob['obs space']['name']]
         ufsda.r2d2.fetch(r2d2_config)
@@ -251,13 +252,12 @@ def bias_obs(config):
         'step': config['atm_window_length'],
         'dump': 'gdas',
         'experiment': 'oper_gdas',  # change this here and other places to be oper_{dump}
-        'target_dir': config.get('target_dir', config.get('BKG_DIR', './')),
+        'target_dir': config.get('target_dir', config.get('COMIN_GES', './')),
     }
     r2d2_config = NiceDict(r2d2_config)
     # get list of obs to process and their output files
     obs_list_yaml = config['OBS_LIST']
-    obs_list_config = Configuration(obs_list_yaml)
-    obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
+    obs_list_config = YAMLFile(path=obs_list_yaml)
     for ob in obs_list_config['observers']:
         r2d2_config.pop('file_type', None)
         r2d2_config['obs_types'] = [ob['obs space']['name']]
@@ -271,6 +271,8 @@ def bias_obs(config):
             # fetch satbias
             r2d2_config['file_type'] = 'satbias'
             target_file = ob['obs bias']['input file']
+            ob_basename = os.path.basename(target_file)
+            target_file = os.path.join(os.environ['COMOUT'], ob_basename)
             r2d2_config['target_file_fmt'] = target_file
             r2d2_config['experiment'] = config.get('experiment', 'oper_gdas')
             ufsda.r2d2.fetch(r2d2_config)
