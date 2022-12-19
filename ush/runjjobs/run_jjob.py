@@ -103,8 +103,16 @@ with open(configbase, "r") as f:
         parts = line.split("=")
         if parts[0] == "export machine":
             machine = parts[1]
+            machine = ''.join([c for c in machine if c.isalnum()])
             break
+
+# Append SLURM directive to so the script can be "sbatch'ed"
+machines = { "CONTAINER" }
+if machine in machines:
     print(f'machine is {machine}')
+else:
+    print(f"Probably does not work for {machine} yet")
+# TODO: Add SLURM directive to the header of the script
 
 # swap a few variables in config.base
 var2replace = {'HOMEgfs': homegfs, 'STMP': stmp, 'ROTDIRS': rotdirs, 'EXPDIRS': expdirs}
