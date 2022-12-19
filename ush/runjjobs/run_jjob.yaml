@@ -1,0 +1,36 @@
+gw environement:
+  experiment identifier:
+    PSLOT: gdas_test
+    HOMEgfs: /home/gvernier/wrk/gw
+    COMPONENT: ocean
+
+  cycle info:
+    PDY: 20180415
+    cyc: 12
+    assym_freq: 6
+
+  backgrounds:
+    COMIN_GES: /home/gvernier/wrk/gw/sorc/gdas.cd/build/test/soca/bkg
+
+  r2d2:
+    R2D2_OBS_SRC: 'gdasapp'
+    R2D2_OBS_DUMP: 'soca'
+
+  working directories:
+    ROTDIR: /home/gvernier/wrk/gw/sorc/gdas.cd/ush/runjjobs/test/ROTDIRS
+    EXPDIRS: /home/gvernier/wrk/gw/sorc/gdas.cd/ush/runjjobs/test/experiments
+    STMP: /home/gvernier/wrk/gw/sorc/gdas.cd/ush/runjjobs/test
+
+jjobs:
+ - JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP
+ - JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN
+# - JGDAS_GLOBAL_OCEAN_ANALYSIS_POST
+
+configs:
+  ocnanal:
+    SOCA_INPUT_FIX_DIR: '/home/gvernier/wrk/gw/sorc/gdas.cd/build/soca_static'
+    CASE_ANL: 'C24'
+    COMIN_OBS: '/home/gvernier/wrk/gw/sorc/gdas.cd/build/test/soca/obs/r2d2-shared'
+    SOCA_NINNER: 3
+    R2D2_OBS_SRC: 'gdasapp'
+    R2D2_OBS_DUMP: 'soca'
