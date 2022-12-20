@@ -29,8 +29,16 @@ jjobs:
 configs:
   ocnanal:
     SOCA_INPUT_FIX_DIR: '/home/gvernier/wrk/gw/sorc/gdas.cd/build/soca_static'
-    CASE_ANL: 'C24'
+    CASE_ANL: 'C48'
     COMIN_OBS: '/home/gvernier/wrk/gw/sorc/gdas.cd/build/test/soca/obs/r2d2-shared'
     SOCA_NINNER: 3
     R2D2_OBS_SRC: 'gdasapp'
     R2D2_OBS_DUMP: 'soca'
+
+job options:
+  account: marine-cpu
+  qos: debug
+  output: gdas_test
+  nodes: 1
+  partition: hera
+  time: 00:30:00

@@ -18,7 +18,6 @@ def export_env_vars_script(config, bash_script, pslot):
     bash_script.write("# Export jjob environement\n")
     for key, value in config.items():
         for subkey, subvalue in value.items():
-            # TODO: The below is a bit dangerous, it assumes the format is always "export VAR=varvalue"
             bash_script.write(f"export {subkey}='{subvalue}'\n")
 
     # Compute remaining environment variables
@@ -38,6 +37,13 @@ def export_env_vars_script(config, bash_script, pslot):
     #       needed to run the jjobs?
     bash_script.write("PYTHONPATH=${HOMEgfs}/ush/python/pygw/src:${PYTHONPATH}\n")
 
+def slurm_header(config, script):
+    sbatch = ''
+    for key, value in config.items():
+        print(key)
+        sbatch += f"#SBATCH --{key} {value} \n"
+    script.write(f"{sbatch}\n")
+
 
 # Get the experiment configuration
 with open("run_jjob.yaml", "r") as file:
@@ -50,7 +56,7 @@ stmp = exp_config['gw environement']['working directories']['STMP']
 rotdirs = exp_config['gw environement']['working directories']['ROTDIR']
 expdirs = exp_config['gw environement']['working directories']['EXPDIRS']
 
-# Generate the prep script
+# Generate the setup_expt.sh script
 with open("setup_expt.sh", "w") as bash_script:
     bash_script.write("#!/usr/bin/env bash\n")
     export_env_vars_script(exp_config['gw environement'], bash_script, pslot)
@@ -70,7 +76,7 @@ with open("setup_expt.sh", "w") as bash_script:
     bash_script.write("# Setup the experiment\n")
 
     setupexpt = "${HOMEgfs}/workflow/setup_expt.py cycled "
-    # Most of args isn't used to run the jjobs but needed to run setupexpt
+    # Most of the args keys are not used to run the jjobs but needed to run setupexpt
     args = {
         "idate": "${PDY}${cyc}",
         "edate": "${PDY}${cyc}",
@@ -90,9 +96,11 @@ with open("setup_expt.sh", "w") as bash_script:
     for key, value in args.items():
         setupexpt += f" --{key} {value}"
     bash_script.write(f"{setupexpt}\n")
+    bash_script.close()
 
 # Execute prep.sh
 execute_script('setup_expt.sh')
+
 
 # get the machine value ... Do we still need it?
 configbase = os.path.join(exp_config['gw environement']['working directories']['EXPDIRS'],
@@ -106,13 +114,12 @@ with open(configbase, "r") as f:
             machine = ''.join([c for c in machine if c.isalnum()])
             break
 
-# Append SLURM directive to so the script can be "sbatch'ed"
+# Append SLURM directive so the script can be "sbatch'ed"
 machines = { "CONTAINER" }
 if machine in machines:
     print(f'machine is {machine}')
 else:
     print(f"Probably does not work for {machine} yet")
-# TODO: Add SLURM directive to the header of the script
 
 # swap a few variables in config.base
 var2replace = {'HOMEgfs': homegfs, 'STMP': stmp, 'ROTDIRS': rotdirs, 'EXPDIRS': expdirs}
@@ -123,9 +130,15 @@ for key, value in var2replace.items():
 with open(configbase, 'w') as f:
     f.write(newconfigbase)
 
-# Run the jjobs
+# Generate the script that runs the jjobs
 with open("run_jjobs.sh", "w") as bash_script:
+    # TODO: Add SLURM directive to the header of the script
     bash_script.write("#!/usr/bin/env bash\n")
+    sbatch = './'
+    if machine != "CONTAINER":
+        slurm_header(exp_config['job options'], bash_script)
+        sbatch = 'sbatch'
+
     export_env_vars_script(exp_config['gw environement'], bash_script, pslot)
 
     # Copy backgrounds from previous cycle
@@ -138,4 +151,5 @@ with open("run_jjobs.sh", "w") as bash_script:
         runjobs += f"{thejob} &>{job}.out\n"
     bash_script.write(runjobs)
 
-execute_script('run_jjobs.sh')
+
+execute_script(sbatch+'run_jjobs.sh')
