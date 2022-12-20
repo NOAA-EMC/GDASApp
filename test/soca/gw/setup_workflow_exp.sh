@@ -32,10 +32,9 @@ cp -r "${configdir}" config
 cp "${srcdir}/test/soca/gw/config.yaml" .
 soca_input_fix_dir="${bindir}/soca_static"
 comin_obs="${bindir}/test/soca/obs/r2d2-shared"
-soca_ninner=1
 sed -i -e "s~@SOCA_INPUT_FIX_DIR@~${soca_input_fix_dir}~g" config.yaml
 sed -i -e "s~@COMIN_OBS@~${comin_obs}~g" config.yaml
-sed -i -e "s~@SOCA_NINNER@~${soca_ninner}~g" config.yaml
+
 echo "Running global-workflow experiment generation script"
 ./setup_expt.py cycled --idate "${idate}"  \
                        --edate "${edate}" \
