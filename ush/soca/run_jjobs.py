@@ -5,12 +5,14 @@ import sys
 import re
 import subprocess
 
+
 def execute_script(script):
     # Execute prep.sh
     try:
         subprocess.check_output(["bash", script])
     except subprocess.CalledProcessError as e:
         print(f"{script} failed with return code:", e.returncode)
+
 
 def export_env_vars_script(config, bash_script, pslot):
     # export the variables in config
@@ -36,6 +38,7 @@ def export_env_vars_script(config, bash_script, pslot):
     # TODO: Should that be in the yaml as pythonpath path "key" listing all the python paths
     #       needed to run the jjobs?
     bash_script.write("PYTHONPATH=${HOMEgfs}/ush/python/pygw/src:${PYTHONPATH}\n")
+
 
 def slurm_header(config, script):
     sbatch = ''
@@ -90,7 +93,7 @@ with open("setup_expt.sh", "w") as bash_script:
         "configdir": "${PWD}/config",
         "comrot": "${ROTDIR}",
         "expdir": "${EXPDIRS}",
-        "yaml": "overwrite_defaults.yaml" }
+        "yaml": "overwrite_defaults.yaml"}
 
     # Write the arguments of setup_expt.py
     for key, value in args.items():
@@ -115,7 +118,7 @@ with open(configbase, "r") as f:
             break
 
 # Append SLURM directive so the script can be "sbatch'ed"
-machines = { "CONTAINER" }
+machines = {"CONTAINER"}
 if machine in machines:
     print(f'machine is {machine}')
 else:
