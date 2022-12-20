@@ -73,7 +73,7 @@ add_test(NAME test_gdasapp_soca_obsdb
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs/)
 set_tests_properties(test_gdasapp_soca_obsdb
     PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
+    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/pygw/src:$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
 
 # Test exgdas_global_marine_analysis_prep.py
 # ------------------------------------------
@@ -92,7 +92,7 @@ add_test(NAME test_gdasapp_soca_ana_prep
 # -----------------------------------------
 add_test(NAME test_gdasapp_soca_ana_run
          COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_run.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/ocnanal_2018041512)
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/ocnanal_12)
 set_tests_properties(test_gdasapp_soca_ana_run
       PROPERTIES
           DEPENDS "test_gdasapp_soca_ana_prep"
