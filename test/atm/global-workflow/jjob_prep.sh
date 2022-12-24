@@ -18,6 +18,7 @@ export COMIN_GES=${bindir}/test/atm/bkg
 export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
+export ACCOUNT=da-cpu
 
 # detemine machine from config.base
 machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
@@ -36,5 +37,5 @@ done
 if [ $machine != 'HERA' ]; then
     ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_PREP
 else
-    sbatch -n 1 --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_PREP
+    sbatch -n 1 --account=$ACCOUNT --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_PREP
 fi
