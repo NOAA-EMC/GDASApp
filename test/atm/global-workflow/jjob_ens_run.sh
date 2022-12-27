@@ -25,8 +25,12 @@ export DO_JEDIENS="YES"
 # detemine machine from config.base
 machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
 
-if [ $machine != 'HERA' ]; then
-    ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ENSANAL_RUN
-else
+if [ $machine = 'ORION'  ]; then
+    sbatch --ntasks-per-node=6 --nodes=6 --account=$ACCOUNT --qos=debug --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ENSANAL_RUN
+elif [ $machine = 'HERA' ]; then
     sbatch -n 6 --account=$ACCOUNT --qos=debug --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ENSANAL_RUN
+else
+    ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ENSANAL_RUN
 fi
+
+
