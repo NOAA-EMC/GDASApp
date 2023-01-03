@@ -18,7 +18,7 @@ export COMIN_GES=${bindir}/test/atm/bkg
 export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
-export NMEM_ENKF=10
+export NMEM_ENKF=3
 export ACCOUNT=da-cpu
 export DO_JEDIENS="YES"
 
