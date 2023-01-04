@@ -43,10 +43,6 @@ for imem in $(seq 1 $NMEM_ENKF); do
 
 done
 
-
-
-
-
 if [ $machine != 'HERA' ]; then
     ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ENSANAL_PREP
 else
