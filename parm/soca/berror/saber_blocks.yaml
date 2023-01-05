@@ -2,14 +2,25 @@ covariance model: SABER
 saber central block:
   saber block name: BUMP_NICAS
   bump:
-    datadir: ./bump
-    strategy: specific_univariate
-    load_nicas_local: true
+    io:
+      data directory: ./bump
+    drivers:
+      multivariate strategy: specific_univariate
+      read local nicas: true
     grids:
-    - prefix: bump3d
-      variables: [socn, tocn]
-    - prefix: bump2d
-      variables: [cicen, hicen, ssh]
+    - model:
+        variables:
+        - socn
+        - tocn
+      io:
+        files prefix: bump3d
+    - model:
+        variables:
+        - cicen
+        - hicen
+        - ssh
+      io:
+        files prefix: bump2d
 saber outer blocks:
   - saber block name: StdDev
     input fields:

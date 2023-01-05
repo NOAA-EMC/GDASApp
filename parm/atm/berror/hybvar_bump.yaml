@@ -9,29 +9,32 @@ components:
       output variables: *control_vars
       active variables: &active_vars [psi,chi,t,ps,rh,liq_wat,o3mr]
       bump:
-        datadir: !ENV &staticb_dir ${DATA}/berror
-        verbosity: main
-        strategy: specific_univariate
-        load_nicas_local: true
-        min_lev:
-          liq_wat: 76
+        io:
+          data directory: !ENV &staticb_dir ${DATA}/berror
+        drivers:
+          multivariate strategy: specific_univariate
+          read local nicas: true
+        nicas:
+          minimum level:
+          - variables:
+            - liq_wat
+            value: 76
         grids:
-        - prefix: nicas/nicas_3D_gfs
-          variables: [stream_function,velocity_potential,air_temperature,relative_humidity,cloud_liquid_water,ozone_mass_mixing_ratio]
-        - prefix: nicas/nicas_2D_gfs
-          variables: [surface_pressure]
-        universe radius:
-          filetype: fms restart
-          datetime: 2021-12-22T00:00:00Z
-          set datetime on read: true
-          psinfile: true
-          datapath: *staticb_dir
-          prefix: cor/20211222.000000
-          filename_core: cor_rh.fv_core.res.nc
-          filename_trcr: cor_rh.fv_tracer.res.nc
-          filename_sfcd: cor_rh.sfc_data.nc
-          filename_sfcw: cor_rh.fv_srf_wnd.res.nc
-          filename_cplr: cor_rh.coupler.res
+        - model:
+            variables:
+            - stream_function
+            - velocity_potential
+            - air_temperature
+            - relative_humidity
+            - cloud_liquid_water
+            - ozone_mass_mixing_ratio
+          io:
+            files prefix: nicas/nicas_3D_gfs
+        - model:
+            variables:
+            - surface_pressure
+          io:
+            files prefix: nicas/nicas_2D_gfs
     - saber block name: StdDev
       input variables: *control_vars
       output variables: *control_vars
@@ -41,7 +44,7 @@ components:
         datetime: 2021-12-22T00:00:00Z
         set datetime on read: true
         psinfile: true
-        datapath: *staticb_dir
+        datapath: '*staticb_dir'
         prefix: stddev/20211222.000000
         filename_core: stddev.fv_core.res.nc
         filename_trcr: stddev.fv_tracer.res.nc
@@ -53,24 +56,35 @@ components:
       output variables: *control_vars
       active variables: *active_vars
       bump:
-        datadir: *staticb_dir
-        prefix: vbal/vbal_gfs
-        verbosity: main
-        universe_rad: 2000.0e3
-        load_vbal: true
-        load_samp_local: true
-        fname_samp: vbal/vbal_2021122200_gfs_sampling
-        vbal_block: [true, true,false, true,false,false]
+        general:
+          universe length-scale: 2000.0e3
+        io:
+          data directory: *staticb_dir
+          files prefix: vbal/vbal_gfs
+          overriding sampling file: vbal/vbal_2021122200_gfs_sampling
+        drivers:
+          read local sampling: true
+          read vertical balance: true
+        vertical balance:
+          vbal:
+          - balanced variable: var2
+            unbalanced variable: var1
+          - balanced variable: var3
+            unbalanced variable: var1
+          - balanced variable: var4
+            unbalanced variable: var1
     - saber block name: BUMP_PsiChiToUV
       input variables: *control_vars
       output variables: &3dvars_with_rh [ua,va,t,ps,rh,ice_wat,liq_wat,o3mr]
       active variables: [psi,chi,ua,va]
       bump:
-        datadir: *staticb_dir
-        prefix: psichitouv/psichitouv_gfs
-        verbosity: main
-        universe_rad: 2000.0e3
-        load_wind_local: true
+        general:
+          universe length-scale: 2000.0e3
+        io:
+          data directory: *staticb_dir
+          files prefix: psichitouv/psichitouv_gfs
+        drivers:
+          read local psichitouv: true
     linear variable change:
       linear variable change name: Control2Analysis
       input variables: *3dvars_with_rh

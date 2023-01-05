@@ -15,17 +15,22 @@ background:
   state variables: [cicen, hicen, hsnon, socn, tocn, ssh, hocn]
 
 bump:
-  datadir: !ENV ${BUMPDIR}
-  method: cor
-  strategy: specific_univariate
-  new_nicas: true
-  write_nicas_local: true
-  mask_check: false
-  resol: 1.0
+  io:
+    data directory: !ENV ${BUMPDIR}
+  drivers:
+    multivariate strategy: specific_univariate
+    compute nicas: true
+    write local nicas: true
+  model:
+    do not cross mask boundaries: false
+  nicas:
+    resolution: 1.0
   grids:
-  - prefix: !ENV ${CVAR}
-    variables:
-    - !ENV ${CVAR}
+  - model:
+      variables:
+      - !ENV ${CVAR}
+    io:
+      files prefix: !ENV ${CVAR}
 
 input fields:
 - parameter: rh
