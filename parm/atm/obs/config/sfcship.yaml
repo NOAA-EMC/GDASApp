@@ -23,7 +23,7 @@ obs operator:
       variables:
       - name: surface_pressure
       da_psfc_scheme: GSI
-      geovar_sfc_geomz: surface_geometric_height
+      geovar_sfc_geomz: surface_geopotential_height
       geovar_geomz: geopotential_height
 linear obs operator:
   name: Identity
