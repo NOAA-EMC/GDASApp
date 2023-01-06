@@ -42,14 +42,6 @@ add_test(NAME test_gdasapp_convert_bufr_sfcshipsu
          COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} bufr_sfcshipsu
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
-#add_test(NAME test_gdasapp_convert_bufr_sfcships
-#         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_sfcships.yaml
-#         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-
-#add_test(NAME test_gdasapp_convert_bufr_sfcshipsu
-#         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_sfcshipsu.yaml
-#         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-
 # Symlink test input yaml files
 # -----------------------------
 # create testinput dir
