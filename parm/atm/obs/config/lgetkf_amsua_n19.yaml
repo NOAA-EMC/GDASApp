@@ -6,11 +6,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}amsua_n19.${CDATE}.nc4
+      obsfile: !ENV ./obs/${OPREFIX}amsua_n19.${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/diag_amsua_n19_${CDATE}.nc4
+      obsfile: !ENV ./diags/diag_amsua_n19_${CDATE}.nc4
   io pool:
     max pool size: 1
   simulated variables: [brightness_temperature]
@@ -23,7 +23,7 @@ obs operator:
   obs options:
     Sensor_ID: amsua_n19
     EndianType: little_endian
-    CoefficientPath: !ENV ${DATA}/crtm/
+    CoefficientPath: ./crtm/
 obs error:
   covariance model: diagonal
 obs filters:
