@@ -116,7 +116,8 @@ def get_env_config(component='atm'):
     # get config dict based on environment variables
     # TODO break this into component specific sections
     # datetime objects
-    valid_time = datetime_from_cdate(os.environ['CDATE'])
+    cdate = os.environ['PDY']+os.environ['cyc']
+    valid_time = datetime_from_cdate(cdate)
     assim_freq = int(os.environ['assim_freq'])
     prev_cycle = valid_time - dt.timedelta(hours=assim_freq)
     window_begin = valid_time - dt.timedelta(hours=assim_freq/2)
@@ -130,7 +131,8 @@ def get_env_config(component='atm'):
         'ATM_WINDOW_LENGTH': f"PT{assim_freq}H",
         'OBS_DIR': os.environ['COMOUT'],
         'OBS_PREFIX': f"{os.environ['CDUMP']}.t{os.environ['cyc']}z.",
-        'OBS_DATE': os.environ['CDATE'],
+        'target_dir': os.environ['COMOUT'],
+        'OBS_DATE': cdate,
         'BIAS_IN_DIR': os.environ['COMOUT'],
         'BIAS_PREFIX': f"{os.environ['GDUMP']}.t{os.environ['gcyc']}z.",
         'BIAS_DATE': f"{os.environ['GDATE']}",

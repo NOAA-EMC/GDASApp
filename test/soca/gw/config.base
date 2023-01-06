@@ -95,6 +95,7 @@ export BASE_ENV="$HOMEgfs/env"
 export BASE_JOB="$HOMEgfs/jobs/rocoto"
 
 # EXPERIMENT specific environment parameters
+CDATE = ${PDY}${cyc}
 export SDATE=2021032318
 export FDATE=@FDATE@
 export EDATE=2021032418
