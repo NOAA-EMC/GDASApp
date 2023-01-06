@@ -55,8 +55,8 @@ list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/salt_bufr_dbuoyprof.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/temp_bufr_mbuoybprof.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/salt_bufr_mbuoybprof.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_tesac.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_trkob.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_tesacprof.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_trkobprof.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_sfcships.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_sfcshipsu.yaml
 )
