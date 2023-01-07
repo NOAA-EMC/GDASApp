@@ -49,7 +49,7 @@ def slurm_header(config, script):
 
 
 # Get the experiment configuration
-with open("run_jjob.yaml", "r") as file:
+with open("run_jjobs.yaml", "r") as file:
     exp_config = yaml.safe_load(file)
 
 # define variables of convenience
@@ -106,19 +106,14 @@ execute_script('setup_expt.sh')
 
 
 # get the machine value ... Do we still need it?
+machine = exp_config['machine']
+
 configbase = os.path.join(exp_config['gw environement']['working directories']['EXPDIRS'],
                           exp_config['gw environement']['experiment identifier']['PSLOT'],
                           'config.base')
-with open(configbase, "r") as f:
-    for line in f:
-        parts = line.split("=")
-        if parts[0] == "export machine":
-            machine = parts[1]
-            machine = ''.join([c for c in machine if c.isalnum()])
-            break
 
 # Append SLURM directive so the script can be "sbatch'ed"
-machines = {"CONTAINER"}
+machines = {"CONTAINER", "HERA"}
 if machine in machines:
     print(f'machine is {machine}')
 else:
@@ -140,7 +135,7 @@ with open("run_jjobs.sh", "w") as bash_script:
     sbatch = './'
     if machine != "CONTAINER":
         slurm_header(exp_config['job options'], bash_script)
-        sbatch = 'sbatch'
+        sbatch = 'sbatch '
 
     export_env_vars_script(exp_config['gw environement'], bash_script, pslot)
 

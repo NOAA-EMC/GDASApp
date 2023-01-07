@@ -1,3 +1,4 @@
+machine: HERA
 gw environement:
   experiment identifier:
     PSLOT: gdas_test
