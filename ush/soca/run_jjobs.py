@@ -152,6 +152,4 @@ with open("run_jjobs.sh", "w") as bash_script:
         runjobs += f"{thejob} &>{job}.out\n"
     bash_script.write(runjobs)
 
-bash_script.close()
-
 execute_script(sbatch+'run_jjobs.sh')
