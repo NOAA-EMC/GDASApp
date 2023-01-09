@@ -171,7 +171,7 @@ ufsda.symlink(anl_out, os.path.join(anl_dir, 'Data'), remove=False)
 logging.info(f"---------------- Stage observations")
 
 # setup the archive, local and shared R2D2 databases
-ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root=comin_obs)
+ufsda.r2d2.setup(r2d2_config_yaml=os.path.join(anl_dir, 'r2d2_config.yaml'), shared_root=comin_obs)
 
 # create config dict from runtime env
 envconfig = ufsda.misc_utils.get_env_config(component='notatm')

@@ -31,22 +31,40 @@ pwd=$(pwd)
 export NLN=${NLN:-"/bin/ln -sf"}
 
 function socaincr2mom6 {
+# Function to process the JEDI/SOCA increment file
+# and create a MOM6 increment file with the correct
+# variable names and dimensions
+
   incr=$1
   bkg=$2
   grid=$3
   incr_out=$4
 
+  # Create a temporary directory
   scratch=scratch_socaincr2mom6
   mkdir -p $scratch
   cd $scratch
-  cp $incr inc.nc                   # TODO: I don't think we need to make a copy
-  ncrename -d zaxis_1,Layer inc.nc  # Rename zaxis_1 to Layer
-  ncks -A -C -v h $bkg h.nc         # Get h from background and rename axes to be consistent with inc.nc
+
+  # Rename zaxis_1 to Layer in the increment file
+  ncrename -d zaxis_1,Layer $incr
+
+  # Extract h from the background file and rename axes to be consistent
+  ncks -A -C -v h $bkg h.nc
   ncrename -d time,Time -d zl,Layer -d xh,xaxis_1 -d yh,yaxis_1 h.nc
-  ncks -A -C -v h h.nc inc.nc       # Replace h incrememnt (all 0's) by h background
-  ncks -A -C -v lon $grid inc.nc    # Add longitude
-  ncks -A -C -v lat $grid inc.nc    # Add latitude
-  mv inc.nc $incr_out
+
+  # Replace h in the increment file with h from the background file
+  ncks -A -C -v h h.nc $incr
+
+  # Add longitude and latitude from the grid file to the increment file
+  ncks -A -C -v lon $grid $incr
+  ncks -A -C -v lat $grid $incr
+
+  # Move the final increment file to the desired output location
+  mv $incr $incr_out
+
+  # Clean up the temporary directory
+  cd ..
+  rm -r $scratch
 }
 
 function bump_vars()
@@ -90,23 +108,23 @@ function clean_yaml()
 # TODO (Guillaume): Does not need to be generated at every cycles, store in static dir?
 $APRUN_OCNANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml > gridgen.out 2>&1
 export err=$?; err_chk
-if [ $err -gt 0  ]; then 
-    exit $err 
+if [ $err -gt 0  ]; then
+    exit $err
 fi
 
 ################################################################################
 # Generate the parametric diag of B
 $APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml > parametric_stddev_b.out 2>&1
 export err=$?; err_chk
-if [ $err -gt 0  ]; then 
-    exit $err 
+if [ $err -gt 0  ]; then
+    exit $err
 fi
 ################################################################################
 # Set decorrelation scales for bump C
 $APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml > soca_setcorscales.out 2>&1
 export err=$?; err_chk
-if [ $err -gt 0  ]; then 
-    exit $err 
+if [ $err -gt 0  ]; then
+    exit $err
 fi
 
 # TODO (G, C, R, ...): problem with ' character when reading yaml, removing from file for now
@@ -115,8 +133,8 @@ yaml_bump2d=soca_bump_C_2d.yaml
 clean_yaml $yaml_bump2d
 $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml_bump2d 2>$yaml_bump2d.err
 export err=$?; err_chk
-if [ $err -gt 0  ]; then 
-    exit $err 
+if [ $err -gt 0  ]; then
+    exit $err
 fi
 
 # 3D C from bump
@@ -125,8 +143,8 @@ for yaml in $yaml_list; do
     clean_yaml $yaml
     $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
     export err=$?; err_chk
-    if [ $err -gt 0  ]; then 
-        exit $err 
+    if [ $err -gt 0  ]; then
+        exit $err
     fi
 done
 concatenate_bump 'bump3d'
@@ -141,7 +159,9 @@ export err=$?; err_chk
 # increments update for MOM6
 # Note: ${DATA}/INPUT/MOM.res.nc points to the MOM6 history file from the start of the window
 #       and is used to get the valid vertical geometry of the increment
-( socaincr2mom6 `ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1` ${DATA}/INPUT/MOM.res.nc ${DATA}/soca_gridspec.nc ${DATA}/Data/inc.nc )
+socaincr=$(ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1)
+mom6incr=${COMOUT}/inc.nc
+( socaincr2mom6 ${socaincr} ${DATA}/INPUT/MOM.res.nc ${DATA}/soca_gridspec.nc ${mom6incr} )
 
 
 
