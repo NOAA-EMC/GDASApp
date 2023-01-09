@@ -86,7 +86,7 @@ with open("setup_expt.sh", "w") as bash_script:
         "app": "ATM",
         "start": "warm",
         "gfs_cyc": "0",
-        "resdet": "48",
+        "resdet": exp_config['setup_expt config']['resdet'],
         "resens": "24",
         "nens": "0",
         "pslot": "${PSLOT}",

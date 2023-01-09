@@ -30,10 +30,10 @@ gw environement:
     OMP_NUM_THREADS: 1
 
 setup_expt config:
+  resdet: 384
   ocnanal:
     SOCA_INPUT_FIX_DIR: '/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/1440x1080x75/soca'
     CASE_ANL: 'C384'
-    CASECTL: 'C384'
     COMIN_OBS:  /scratch2/NCEPDEV/marineda/r2d2
     SOCA_NINNER: 3
     R2D2_OBS_SRC: 'gdas_marine'

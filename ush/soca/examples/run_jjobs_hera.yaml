@@ -1,4 +1,9 @@
 machine: hera
+
+jjobs:
+ - JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP
+ - JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN
+
 gw environement:
   experiment identifier:
     PSLOT: gdas_test_5deg
@@ -24,12 +29,8 @@ gw environement:
     OOPS_DEBUG: 1
     OMP_NUM_THREADS: 1
 
-jjobs:
- - JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP
- - JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN
-# - JGDAS_GLOBAL_OCEAN_ANALYSIS_POST
-
 setup_expt config:
+  resdet: 48
   ocnanal:
     SOCA_INPUT_FIX_DIR: '/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/72x35x25/soca'
     CASE_ANL: 'C48'
