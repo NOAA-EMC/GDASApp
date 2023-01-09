@@ -7,10 +7,10 @@ import subprocess
 import argparse
 
 
-def execute_script(script):
+def execute_script(script, exeopt='bash'):
     # Execute prep.sh
     try:
-        subprocess.check_output(["bash", script])
+        subprocess.check_output([exeopt, script])
     except subprocess.CalledProcessError as e:
         print(f"{script} failed with return code:", e.returncode)
 
@@ -130,14 +130,13 @@ with open(configbase, 'w') as f:
 # Generate the script that runs the jjobs
 with open("run_jjobs.sh", "w") as bash_script:
     bash_script.write("#!/usr/bin/env bash\n")
+    sbatch = 'bash'
     if machine != "container":
         slurm_header(exp_config['job options'], bash_script)
-        sbatch = 'sbatch '
+        sbatch = 'sbatch'
 
     export_env_vars_script(exp_config['gw environement'], bash_script, pslot)
-    sbatch = './'
     if machine != "container":
-        sbatch = 'sbatch '
         bash_script.write("module purge \n")
         bash_script.write("module use ${HOMEgfs}/sorc/gdas.cd/modulefiles \n")
         bash_script.write(f"module load GDAS/{machine} \n")
@@ -152,4 +151,4 @@ with open("run_jjobs.sh", "w") as bash_script:
         runjobs += f"{thejob} &>{job}.out\n"
     bash_script.write(runjobs)
 
-execute_script(sbatch+'run_jjobs.sh')
+execute_script(script='run_jjobs.sh', exeopt=sbatch)
