@@ -7,10 +7,18 @@ OBSSOURCE=${2}
 CMD=${PROJECT_BINARY_DIR}/bin/bufr2ioda.x
 OBSYAML=${PROJECT_BINARY_DIR}/test/testinput/${OBSSOURCE}.yaml
 
-rm -fv ${PROJECT_BINARY_DIR}/test/testoutput/${OBSSOURCE}_20180415.nc
-rm -fv ${PROJECT_BINARY_DIR}/test/testoutput/${OBSSOURCE}_201804.nc
+OUTFILE=`grep obsdataout ${OBSYAML} | cut -d'"' -f2`
+
+echo "the following might not exist"
+rm -v ${PROJECT_BINARY_DIR}/test/${OUTFILE}
 
 ${CMD} ${OBSYAML}
+rc=$?
 
+ls ${PROJECT_BINARY_DIR}/test/${OUTFILE}
+ra=$?
+rc=$((rc+ra))
 
+export err=$rc; err_chk
 
+exit $err
