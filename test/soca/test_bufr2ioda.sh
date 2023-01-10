@@ -19,6 +19,6 @@ ls ${PROJECT_BINARY_DIR}/test/${OUTFILE}
 ra=$?
 rc=$((rc+ra))
 
-export err=$rc; err_chk
+export err=$rc
 
 exit $err
