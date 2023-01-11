@@ -7,7 +7,7 @@ import ufsda.r2d2
 
 if __name__ == "__main__":
 
-    shared_root = './r2d2-share'
+    shared_root = './r2d2-shared'
     r2d2_config_yaml = 'r2d2_config.yaml'
 
     # clean output before running - if nothing found, assume first run
