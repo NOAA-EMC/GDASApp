@@ -129,7 +129,7 @@ fi
 
 # TODO (G, C, R, ...): problem with ' character when reading yaml, removing from file for now
 # 2D C from bump
-yaml_bump2d=soca_bump_C_2d.yaml
+yaml_bump2d=soca_bump2d.yaml
 clean_yaml $yaml_bump2d
 $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml_bump2d 2>$yaml_bump2d.err
 export err=$?; err_chk
@@ -138,7 +138,7 @@ if [ $err -gt 0  ]; then
 fi
 
 # 3D C from bump
-yaml_list=`ls soca_bump3d_C*.yaml`
+yaml_list=`ls soca_bump3d_*.yaml`
 for yaml in $yaml_list; do
     clean_yaml $yaml
     $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
