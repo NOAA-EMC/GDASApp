@@ -23,7 +23,8 @@ bump:
   model:
     do not cross mask boundaries: false
   nicas:
-    resolution: 1.0
+    resolution: !ENV ${NICAS_RESOL}
+    max horizontal grid size: ${NICAS_GRID_SIZE}
   grids:
   - model:
       variables:
