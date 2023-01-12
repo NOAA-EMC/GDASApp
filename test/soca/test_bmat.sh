@@ -24,4 +24,5 @@ test_file  ${DATA}/soca_gridspec.nc
 
 echo "============================= Test that the parametric diag of B was generated"
 test_file  ${DATA}/ocn.bkgerr_stddev.incr.2018-04-15T09:00:00Z.nc
-test_file  ${DATA}/bump/bump[23]d_nicas_local_000002-00000[12].nc
+test_file  ${DATA}/bump/bump2d_nicas_local_000002-000001.nc
+test_file  ${DATA}/bump/bump3d_nicas_local_000002-000001.nc
