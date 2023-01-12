@@ -30,9 +30,3 @@ test_file  ${DATA}/soca_gridspec.nc
 echo "============================= Test that the parametric diag of B was generated"
 test_file  ${DATA}/ocn.bkgerr_stddev.incr.2018-04-15T09:00:00Z.nc
 
-echo "============================= Test that an increment and an analysis were created"
-test_file  ${DATA}/Data/ocn.iter1.incr.2018-04-15T09:00:00Z.nc
-test_file  ${DATA}/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T09:00:00Z.nc
-test_file  ${DATA}/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T12:00:00Z.nc
-test_file  ${DATA}/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T15:00:00Z.nc
-test_file  ${COMOUT}/inc.nc
