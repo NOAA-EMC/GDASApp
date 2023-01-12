@@ -2,12 +2,17 @@
 ################################################################################
 ####  UNIX Script Documentation Block
 #                      .                                             .
-# Script name:         exgdas_global_marine_analysis_run.sh
-# Script description:  Runs the global marine analysis with SOCA
+# Script name:         exgdas_global_marine_analysis_bmat.sh
+# Script description:  Performs calculations in preparation for the global 
+#                      marine analysis with SOCA
 #
-# Author: Guillaume Vernieres        Org: NCEP/EMC     Date: 2022-04-24
+# Author: Andrew Eichamnn   Org: NCEP/EMC     Date: 2023-01-12
 #
-# Abstract: This script makes a global model ocean sea-ice analysis using SOCA
+# Abstract: This script does the follwing in preparation for creating the 
+#           global model ocean sea-ice analysis using SOCA:
+#           - generates the DA grid
+#           - computes diagonal of B based on the background
+#           - creates the bump correlation operators
 #
 # $Id$
 #

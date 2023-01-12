@@ -10,12 +10,7 @@ source ${project_source_dir}/test/soca/test_utils.sh
 echo "============================= Test that the grid has been generated"
 rm -f  ${DATA}/soca_gridspec.nc
 rm -f  ${DATA}/ocn.bkgerr_stddev.incr.2018-04-15T09:00:00Z.nc
-rm -f  ${DATA}/Data/ocn.iter1.incr.2018-04-15T09:00:00Z.nc
-rm -f  ${DATA}/Data/ocn.3dvarfgat_pseudo.incr.2018-04-15T09:00:00Z.nc
-rm -f  ${DATA}/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T09:00:00Z.nc
-rm -f  ${DATA}/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T12:00:00Z.nc
-rm -f  ${DATA}/Data/ocn.3dvarfgat_pseudo.an.2018-04-15T15:00:00Z.nc
-rm -f  ${DATA}/Data/inc.nc
+rm -f  ${DATA}/bump/bump[23]d_nicas_local_000002-00000[12].nc
 
 # Export runtime env. variables
 source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $project_source_dir
@@ -29,4 +24,4 @@ test_file  ${DATA}/soca_gridspec.nc
 
 echo "============================= Test that the parametric diag of B was generated"
 test_file  ${DATA}/ocn.bkgerr_stddev.incr.2018-04-15T09:00:00Z.nc
-
+test_file  ${DATA}/bump/bump[23]d_nicas_local_000002-00000[12].nc
