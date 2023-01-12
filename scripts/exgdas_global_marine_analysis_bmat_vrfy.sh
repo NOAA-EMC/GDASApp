@@ -2,13 +2,13 @@
 ################################################################################
 ####  UNIX Script Documentation Block
 #                      .                                             .
-# Script name:         exgdas_global_marine_analysis_run.sh
-# Script description:  Runs the global marine analysis with SOCA
+# Script name:         exgdas_global_marine_analysis_bmat_vrfy.sh
+# Script description:  Diagnose the JEDI/SOCA B-matrix
 #
-# Author: Guillaume Vernieres        Org: NCEP/EMC     Date: 2022-04-24
+# Author: Guillaume Vernieres        Org: NCEP/EMC     Date: 2023-01-12
 #
-# Abstract: This script makes a global model ocean sea-ice analysis using SOCA
-#
+# Abstract: This script runs the JEDI/SOCA dirac application with the B-matrix
+#           used in the variational step
 # $Id$
 #
 # Attributes:
