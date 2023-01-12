@@ -34,7 +34,7 @@ export DIRAC="${HOMEgfs}/sorc/gdas.cd/ush/ufsda/dirac_yaml.py"
 ################################################################################
 # generate dirac yamls
 cat > dirac_output.yaml << EOL
-datadir: ./
+datadir: ./Data
 exp: dirac_test
 type: an
 EOL
@@ -44,9 +44,10 @@ ${DIRAC} --varyaml 'var.yaml' \
          --dim1 'xaxis_1' \
          --dim2 'yaxis_1' \
          --diracyaml 'dirac.yaml' \
-         --step 10 \
+         --step 20 \
          --level 1 \
          --fieldindex 1 \
+         --statevars tocn socn ssh cicen hicen \
          --diracoutput dirac_output.yaml
 export err=$?
 

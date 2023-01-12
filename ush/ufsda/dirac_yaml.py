@@ -7,7 +7,21 @@ from itertools import repeat
 import argparse
 import dateutil
 
-def var2dirac(varyaml, diracyaml, grid, dim1, dim2, step, level, field, output):
+def var2dirac(args):
+
+    # Variables of convenience
+    varyaml = args.varyaml
+    diracyaml = args.diracyaml
+    grid = args.fields
+    dim1 = args.dim1
+    dim2 = args.dim2
+    step = args.step
+    level = args.level
+    field = args.fieldindex
+    statevars = args.statevars
+    output = args.diracoutput
+
+    # Parse the variational yaml
     with open(varyaml, 'r') as file:
         varconfig = yaml.load(file, Loader=yaml.SafeLoader)
 
@@ -16,6 +30,9 @@ def var2dirac(varyaml, diracyaml, grid, dim1, dim2, step, level, field, output):
     diracconfig['geometry'] = varconfig['cost function']['geometry']
     diracconfig['initial condition'] = varconfig['cost function']['background']
     diracconfig['background error'] = varconfig['cost function']['background error']
+
+    # Overwrite the variable list in the trajectory section
+    diracconfig['initial condition']['state variables'] = statevars
 
     # Generate impulse indices
     ds = xr.open_dataset(grid)
@@ -36,15 +53,14 @@ def var2dirac(varyaml, diracyaml, grid, dim1, dim2, step, level, field, output):
 
     diracconfig['dirac'] = dirconfig
 
-    # Read the model depandent incrememnt output configuration
+    # Read the model dependent incrememnt output configuration
     diracconfig['output dirac'] = yaml.safe_load(open(output, 'r'))
 
-    # fix the date
+    # Fix the date
     dirac_date = dateutil.parser.parse(str(diracconfig['initial condition']['date']))
     diracconfig['initial condition']['date'] = dirac_date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # TODO: get the background state variable list from the increment
- 
+    # Write the dirac yaml
     with open(diracyaml, 'w') as f:
         yaml.dump(diracconfig, f, sort_keys=False, default_flow_style=False, Dumper=yaml.SafeDumper)
 
@@ -61,10 +77,11 @@ if __name__ == "__main__":
     parser.add_argument('--level', type=int, help='Model level of the impulse', required=True)
     parser.add_argument('--fieldindex', type=int,
                         help='Index of the field for which to generate the impulse', required=True)
+    parser.add_argument('--statevars', type=str,
+                        help='List of variables to read from the trajectory', nargs='+', required=True)
     parser.add_argument('--diracoutput', type=str,
                         help='A yaml file containing the dictionary that the model uses to write an incremement',
                         required=True)
     args = parser.parse_args()
 
-    var2dirac(args.varyaml, args.diracyaml, args.fields, args.dim1,
-              args.dim2, args.step, args.level, args.fieldindex, args.diracoutput)
+    var2dirac(args)
