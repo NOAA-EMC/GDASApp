@@ -32,29 +32,44 @@ export NLN=${NLN:-"/bin/ln -sf"}
 export DIRAC="${HOMEgfs}/sorc/gdas.cd/ush/ufsda/dirac_yaml.py"
 
 ################################################################################
-# generate dirac yamls
+# Compute the impulse response of the B-matrix from the variational application
+# field = 1: tocn
+# field = 2: socn
+# field = 3: ssh
+# field = 4: cicen
+# field = 5: hicen
+
+arr=("tocn" "socn" "ssh" "cicen" "hicen")
+level=1
+ndiracs=100
+
+for i in "${!arr[@]}"
+do
+    var=${arr[i]}
+    ifield=$((i+1))
+    # generate dirac yamls
 cat > dirac_output.yaml << EOL
 datadir: ./Data
-exp: dirac_test
+exp: dirac_${var}_${level}
 type: an
 EOL
 
-${DIRAC} --varyaml 'var.yaml' \
-         --fields 'soca_gridspec.nc' \
-         --dim1 'xaxis_1' \
-         --dim2 'yaxis_1' \
-         --diracyaml 'dirac.yaml' \
-         --step 20 \
-         --level 1 \
-         --fieldindex 1 \
-         --statevars tocn socn ssh cicen hicen \
-         --diracoutput dirac_output.yaml
-export err=$?
+    ${DIRAC} --varyaml 'var.yaml' \
+             --fields 'soca_gridspec.nc' \
+             --dim1 'xaxis_1' \
+             --dim2 'yaxis_1' \
+             --diracyaml 'dirac.yaml' \
+             --ndiracs ${ndiracs} \
+             --level ${level} \
+             --fieldindex ${ifield} \
+             --statevars tocn socn ssh cicen hicen \
+             --diracoutput dirac_output.yaml
+    export err=$?
 
-################################################################################
-# run the dirac application
-$APRUN_OCNANAL $JEDI_BIN/soca_dirac.x dirac.yaml > dirac.out 2>&1
-export err=$?
+    # run the dirac application
+    $APRUN_OCNANAL $JEDI_BIN/soca_dirac.x dirac.yaml > dirac.out 2>&1
+    export err=$?
+done
 
 ################################################################################
 

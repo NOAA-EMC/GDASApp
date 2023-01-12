@@ -15,7 +15,7 @@ def var2dirac(args):
     grid = args.fields
     dim1 = args.dim1
     dim2 = args.dim2
-    step = args.step
+    ndiracs = args.ndiracs
     level = args.level
     field = args.fieldindex
     statevars = args.statevars
@@ -36,8 +36,13 @@ def var2dirac(args):
 
     # Generate impulse indices
     ds = xr.open_dataset(grid)
-    ixdir, iydir = np.meshgrid( np.arange(1, ds.dims[dim1], step),
-                                np.arange(1, ds.dims[dim2], step))
+    ni = ds.dims[dim1]
+    nj = ds.dims[dim2]
+    step = ni*nj/ndiracs
+    stepi = int(ni/(ni+nj)*step)
+    stepj = int(nj/(ni+nj)*step)
+    ixdir, iydir = np.meshgrid( np.arange(1, ni, stepi),
+                                np.arange(1, nj, stepj))
     ixdir = ixdir.reshape(-1).tolist()
     iydir = iydir.reshape(-1).tolist()
 
@@ -73,7 +78,7 @@ if __name__ == "__main__":
     parser.add_argument('--dim1', type=str, help='Name of the longitude dimension', required=True)
     parser.add_argument('--dim2', type=str, help='Name of the latitude dimension', required=True)
     parser.add_argument('--diracyaml', type=str, help='Name of the output dirac YAML', required=True)
-    parser.add_argument('--step', type=int, help='Number of indices to skip', required=True)
+    parser.add_argument('--ndiracs', type=int, help='Number of impulses', required=True)
     parser.add_argument('--level', type=int, help='Model level of the impulse', required=True)
     parser.add_argument('--fieldindex', type=int,
                         help='Index of the field for which to generate the impulse', required=True)
