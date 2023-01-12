@@ -7,6 +7,7 @@ from itertools import repeat
 import argparse
 import dateutil
 
+
 def var2dirac(args):
 
     # Variables of convenience
@@ -41,8 +42,8 @@ def var2dirac(args):
     step = ni*nj/ndiracs
     stepi = int(ni/(ni+nj)*step)
     stepj = int(nj/(ni+nj)*step)
-    ixdir, iydir = np.meshgrid( np.arange(1, ni, stepi),
-                                np.arange(1, nj, stepj))
+    ixdir, iydir = np.meshgrid(np.arange(1, ni, stepi),
+                               np.arange(1, nj, stepj))
     ixdir = ixdir.reshape(-1).tolist()
     iydir = iydir.reshape(-1).tolist()
 
