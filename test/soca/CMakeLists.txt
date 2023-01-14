@@ -88,6 +88,16 @@ add_test(NAME test_gdasapp_soca_ana_prep
       PROPERTIES
       ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
 
+# Test exgdas_global_marine_analysis_bmat.sh
+# -----------------------------------------
+add_test(NAME test_gdasapp_soca_ana_bmat
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bmat.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/ocnanal_12)
+set_tests_properties(test_gdasapp_soca_ana_bmat
+      PROPERTIES
+          DEPENDS "test_gdasapp_soca_ana_prep"
+        )
+
 
 # Test exgdas_global_marine_analysis_run.sh
 # -----------------------------------------
