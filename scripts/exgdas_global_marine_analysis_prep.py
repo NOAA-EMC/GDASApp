@@ -287,8 +287,8 @@ os.environ['BKG_LIST'] = 'bkg_list.yaml'
 
 # select the SABER BLOCKS to use
 if 'SABER_BLOCKS_YAML' in os.environ and os.environ['SABER_BLOCKS_YAML']:
-    logging.info(f"using non-default SABER blocks yaml: {saber_blocks_yaml}")
     saber_blocks_yaml = os.getenv('SABER_BLOCKS_YAML')
+    logging.info(f"using non-default SABER blocks yaml: {saber_blocks_yaml}")
 else:
     logging.info(f"using default SABER blocks yaml")
     os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
