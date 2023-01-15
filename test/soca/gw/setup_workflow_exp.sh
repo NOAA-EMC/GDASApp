@@ -35,7 +35,7 @@ comin_obs="${bindir}/test/soca/obs/r2d2-shared"
 soca_obs_list="${bindir}/parm/soca/obs/obs_list.yaml"
 sed -i -e "s~@SOCA_INPUT_FIX_DIR@~${soca_input_fix_dir}~g" config.yaml
 sed -i -e "s~@COMIN_OBS@~${comin_obs}~g" config.yaml
-sed -i -e "s~@SOCA_OBS_LIST@~${comin_obs}~g" config.yaml
+sed -i -e "s~@SOCA_OBS_LIST@~${soca_obs_list}~g" config.yaml
 
 echo "Running global-workflow experiment generation script"
 ./setup_expt.py cycled --idate "${idate}"  \

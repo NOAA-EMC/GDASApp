@@ -18,7 +18,7 @@ cp -r "${bindir}/test/soca/bkg/"* ${OCNDIR}
 machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
 
 # run prep jjob
-if [ $machine != 'HERA' ]; then
+if [[ ${machine} == 'CONTAINER' ]]; then
     "${HOMEgfs}/jobs/JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
 else
     sbatch -n 1 \

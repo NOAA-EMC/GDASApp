@@ -6,7 +6,7 @@ srcdir=$2
 source "${srcdir}/test/soca/gw/runtime_vars.sh" "${bindir}" "${srcdir}"
 
 # run DA jjob
-if [ $machine != 'HERA' ]; then
+if [[ ${machine} == 'CONTAINER' ]]; then
     "${HOMEgfs}/jobs/JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN"
 else
     sbatch -n 16 \
