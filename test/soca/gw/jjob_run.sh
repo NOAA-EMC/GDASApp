@@ -9,8 +9,8 @@ source "${srcdir}/test/soca/gw/runtime_vars.sh" "${bindir}" "${srcdir}"
 if [[ ${machine} == 'CONTAINER' ]]; then
     "${HOMEgfs}/jobs/JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN"
 else
-    sbatch -n 16 \
-           --account=$ACCOUNT \
+    sbatch --ntasks=16 \
+           --account=da-cpu \
            --qos=debug \
            --time=00:10:00 \
            --export=ALL \
