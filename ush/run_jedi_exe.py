@@ -8,6 +8,8 @@ import subprocess
 import sys
 import yaml
 
+from pygw.template import Template, TemplateConstants
+from pygw.yaml_file import YAMLFile
 
 def export_envar(yamlfile, bashout):
 
@@ -58,8 +60,9 @@ def run_jedi_exe(yamlconfig):
     from ufsda.misc_utils import calc_fcst_steps
 
     # compute config for YAML for executable
-    executable_subconfig = all_config_dict['executable options']
+    executable_subconfig = all_config_dict['config']
     valid_time = executable_subconfig['valid_time']
+    assim_freq = int(executable_subconfig.get('assim_freq', 6))
     h = re.findall('PT(\\d+)H', executable_subconfig['atm_window_length'])[0]
     prev_cycle = valid_time - dt.timedelta(hours=int(h))
     window_begin = valid_time - dt.timedelta(hours=int(h)/2)
@@ -68,10 +71,19 @@ def run_jedi_exe(yamlconfig):
     gcyc = prev_cycle.strftime("%H")
     gdate = prev_cycle.strftime("%Y%m%d%H")
     pdy = valid_time.strftime("%Y%m%d")
+    os.environ['PDY'] = str(pdy)
+    os.environ['cyc'] = str(cyc)
+    os.environ['assim_freq'] = str(assim_freq)
+    oprefix = executable_subconfig['dump'] + ".t" + str(cyc) + "z."
+    gprefix = executable_subconfig['dump'] + ".t" + str(gcyc) + "z."
 
     if app_mode in ['hofx', 'variational']:
         single_exec = True
         var_config = {
+            'DATA': os.path.join(workdir),
+            'APREFIX': str(oprefix),
+            'OPREFIX': str(oprefix),
+            'GPREFIX': str(gprefix),
             'BERROR_YAML': executable_subconfig.get('berror_yaml', './'),
             'STATICB_TYPE': executable_subconfig.get('staticb_type', 'gsibec'),
             'OBS_YAML_DIR': executable_subconfig['obs_yaml_dir'],
@@ -80,8 +92,8 @@ def run_jedi_exe(yamlconfig):
             'layout_x': str(executable_subconfig['layout_x']),
             'layout_y': str(executable_subconfig['layout_y']),
             'BKG_DIR': os.path.join(workdir, 'bkg'),
-            'fv3jedi_fix_dir': os.path.join(workdir, 'Data', 'fv3files'),
-            'fv3jedi_fieldmetadata_dir': os.path.join(workdir, 'Data', 'fieldmetadata'),
+            'fv3jedi_fix_dir': os.path.join(workdir, 'fv3jedi'),
+            'fv3jedi_fieldmetadata_dir': os.path.join(workdir,  'fv3jedi'),
             'ANL_DIR': os.path.join(workdir, 'anl'),
             'fv3jedi_staticb_dir': os.path.join(workdir, 'berror'),
             'BIAS_IN_DIR': os.path.join(workdir, 'obs'),
@@ -93,6 +105,8 @@ def run_jedi_exe(yamlconfig):
             'OBS_DIR': os.path.join(workdir, 'obs'),
             'OBS_PREFIX': f"{executable_subconfig['dump']}.t{cyc}z.",
             'OBS_DATE': f"{cdate}",
+            'CDATE': f"{cdate}",
+            'GDATE': f"{gdate}",
             'valid_time': f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
             'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
             'prev_valid_time': f"{prev_cycle.strftime('%Y-%m-%dT%H:%M:%SZ')}",
@@ -102,18 +116,20 @@ def run_jedi_exe(yamlconfig):
             'CASE_ENKF': executable_subconfig.get('case_enkf', executable_subconfig['case']),
             'DOHYBVAR': executable_subconfig.get('dohybvar', False),
             'LEVS': str(executable_subconfig['levs']),
+            'NMEM_ENKF': str(executable_subconfig['nmem']),
             'forecast_steps': calc_fcst_steps(executable_subconfig.get('forecast_step', 'PT6H'),
                                               executable_subconfig['atm_window_length']),
             'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
             'INTERP_METHOD': executable_subconfig.get('interp_method', 'barycentric'),
         }
-        template = executable_subconfig['yaml_template']
         output_file = os.path.join(workdir, f"gdas_{app_mode}.yaml")
         # set some environment variables
         os.environ['PARMgfs'] = os.path.join(all_config_dict['GDASApp home'], 'parm')
+        for key, value in var_config.items():
+            os.environ[key] = str(value)
         # generate YAML for executable based on input config
-        logging.info(f'Using YAML template {template}')
-        ufsda.yamltools.genYAML(var_config, template=template, output=output_file)
+        logging.info(f'Using yamlconfig {yamlconfig}')
+        genYAML(yamlconfig, output_file)
         logging.info(f'Wrote YAML file to {output_file}')
         # use R2D2 to stage backgrounds, obs, bias correction files, etc.
         ufsda.stage.gdas_single_cycle(var_config)
@@ -200,6 +216,88 @@ def run_jedi_exe(yamlconfig):
                                                    single_exec=single_exec)
     # submit job to queue
     ufsda.misc_utils.submit_batch_job(all_config_dict['job options'], workdir, job_script)
+
+
+def genYAML(yamlconfig, output_file):
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
+    # open YAML file to get config
+    try:
+        with open(yamlconfig, 'r') as yamlconfig_opened:
+            all_config_dict = yaml.safe_load(yamlconfig_opened)
+        logging.info(f'Loading configuration from {yamlconfig}')
+    except Exception as e:
+        logging.error(f'Error occurred when attempting to load: {yamlconfig}, error: {e}')
+    template = all_config_dict['template']
+    config_dict = all_config_dict['config']
+    # what if the config_dict has environment variables that need substituted?
+    pattern = re.compile(r'.*?\${(\w+)}.*?')
+    for key, value in config_dict.items():
+        if type(value) == str:
+            match = pattern.findall(value)
+            if match:
+                fullvalue = value
+                for g in match:
+                    config_dict[key] = fullvalue.replace(
+                        f'${{{g}}}', os.environ.get(g, f'${{{g}}}')
+                    )
+    # NOTE the following is a hack until YAMLFile can take in an input config dict
+    # if something in the template is expected to be an env var
+    # but it is not defined in the env, problems will arise
+    # so we set the env var in this subprocess for the substitution to occur
+    for key, value in config_dict.items():
+        os.environ[key] = str(value)
+    # next we need to compute a few things
+    runtime_config = get_runtime_config(dict(os.environ, **config_dict))
+    # now run the global-workflow parser
+    outconfig = YAMLFile(path=template)
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config_dict.get)
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOLLAR_PARENTHESES, config_dict.get)
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOUBLE_CURLY_BRACES, runtime_config.get)
+    outconfig = Template.substitute_structure(outconfig, TemplateConstants.DOLLAR_PARENTHESES, runtime_config.get)
+    outconfig.save(output_file)
+
+
+def get_runtime_config(config_dict):
+    # compute some runtime variables
+    # this will probably need pulled out somewhere else eventually
+    # a temporary hack to get UFO evaluation stuff and ATM VAR going again
+    valid_time = dt.datetime.strptime(config_dict['CDATE'], '%Y%m%d%H')
+    assim_freq = int(config_dict.get('assim_freq', 6))
+    window_begin = valid_time - dt.timedelta(hours=assim_freq/2)
+    window_end = valid_time + dt.timedelta(hours=assim_freq/2)
+    component_dict = {
+        'atmos': 'ATM',
+        'chem': 'AERO',
+        'ocean': 'SOCA',
+        'land': 'land',
+    }
+    win_begin_var = component_dict[config_dict.get('COMPONENT', 'atmos')] + '_WINDOW_BEGIN'
+    win_end_var = component_dict[config_dict.get('COMPONENT', 'atmos')] + '_WINDOW_END'
+    win_len_var = component_dict[config_dict.get('COMPONENT', 'atmos')] + '_WINDOW_LENGTH'
+    bkg_string_var = 'BKG_YYYYmmddHHMMSS'
+    bkg_isotime_var = 'BKG_ISOTIME'
+    npx_ges_var = 'npx_ges'
+    npy_ges_var = 'npy_ges'
+    npz_ges_var = 'npz_ges'
+    npx_anl_var = 'npx_anl'
+    npy_anl_var = 'npy_anl'
+    npz_anl_var = 'npz_anl'
+
+    runtime_config = {
+        win_begin_var: f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        win_end_var: f"{window_end.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        win_len_var: f"PT{assim_freq}H",
+        bkg_string_var: f"{valid_time.strftime('%Y%m%d.%H%M%S')}",
+        bkg_isotime_var: f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        npx_ges_var : f"{int(os.environ['CASE'][1:]) + 1}",
+        npy_ges_var : f"{int(os.environ['CASE'][1:]) + 1}",
+        npz_ges_var : f"{int(os.environ['LEVS']) - 1}",
+        npx_anl_var : f"{int(os.environ['CASE_ENKF'][1:]) + 1}",
+        npy_anl_var : f"{int(os.environ['CASE_ENKF'][1:]) + 1}",
+        npz_anl_var : f"{int(os.environ['LEVS']) - 1}",
+    }
+
+    return runtime_config
 
 
 if __name__ == "__main__":

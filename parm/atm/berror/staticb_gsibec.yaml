@@ -1,8 +1,7 @@
 covariance model: SABER
 full inverse: true
-saber blocks:
-- saber block name: gsi covariance
-  saber central block: true
+saber central block:
+  saber block name: gsi covariance
   input variables: &control_vars [eastward_wind,northward_wind,air_temperature,surface_pressure,
                            specific_humidity,cloud_liquid_ice,cloud_liquid_water,
                            mole_fraction_of_ozone_in_air]
@@ -14,6 +13,7 @@ saber blocks:
   processor layout x direction: &layout_gsib_x 3
   processor layout y direction: &layout_gsib_y 2
   debugging mode: false
+saber outer blocks:
 - saber block name: gsi interpolation to model grid
   input variables: *control_vars
   output variables: *control_vars
