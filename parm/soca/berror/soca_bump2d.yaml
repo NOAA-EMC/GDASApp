@@ -23,8 +23,8 @@ bump:
   model:
     do not cross mask boundaries: false
   nicas:
-    resolution: 1.0                   # Do not use these numbers for
-    max horizontal grid size: 15000   # science experiments, only good for testing
+    resolution: !ENV ${NICAS_RESOL}
+    max horizontal grid size: ${NICAS_GRID_SIZE}
   grids:
   - model:
       variables:

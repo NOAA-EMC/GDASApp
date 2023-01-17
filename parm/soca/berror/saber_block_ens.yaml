@@ -1,0 +1,12 @@
+covariance model: ensemble
+members from template:
+  template:
+    read_from_file: 1
+    date: '{{ATM_WINDOW_BEGIN}}'
+    basename: ./ens/
+    ocn_filename: MOM.res_%mem%.nc
+    ice_filename: cice.res_%mem%.nc
+    remap_filename: ./bkg/MOM.res.nc
+    state variables: [tocn, sonc, ssh, hocn, cicen, hicen]
+  pattern: '%mem%'
+  nmembers: 3
