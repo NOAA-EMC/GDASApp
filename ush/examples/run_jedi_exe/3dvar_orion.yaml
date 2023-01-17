@@ -10,7 +10,6 @@ config:
   bias_in_dir: obs
   bias_out_dir: bc
   obs_yaml_dir: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/config
-  yaml_template: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/variational/3dvar_dripcg.yaml
   executable: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/build/bin/fv3jedi_var.x
   obs_list: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype.yaml
   gdas_fix_root: /work2/noaa/da/cmartin/GDASApp/fix
