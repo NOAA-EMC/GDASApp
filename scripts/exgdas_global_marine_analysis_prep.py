@@ -174,7 +174,7 @@ logging.info(f"---------------- Stage observations")
 ufsda.r2d2.setup(r2d2_config_yaml=os.path.join(anl_dir, 'r2d2_config.yaml'), shared_root=comin_obs)
 
 # create config dict from runtime env
-envconfig = ufsda.misc_utils.get_env_config(component='notatm')
+envconfig = ufsda.misc_utils.get_env_config(component='soca')
 stage_cfg = YAMLFile(path=os.path.join(gdas_home,
                                        'parm',
                                        'templates',
@@ -243,8 +243,6 @@ bump_yaml_template = os.path.join(gdas_home,
                                   'berror',
                                   'soca_bump2d.yaml')
 config = YAMLFile(path=bump_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, {'datadir': bumpdir}.get)
-config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, {'datadir': bumpdir}.get)
 config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
 config.save(bump_yaml)
@@ -286,7 +284,15 @@ gen_bkg_list(bkg_path=os.getenv('COMIN_GES'),
              window_begin=window_begin,
              yaml_name='bkg_list.yaml')
 os.environ['BKG_LIST'] = 'bkg_list.yaml'
-os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
+
+# select the SABER BLOCKS to use
+if 'SABER_BLOCKS_YAML' in os.environ and os.environ['SABER_BLOCKS_YAML']:
+    saber_blocks_yaml = os.getenv('SABER_BLOCKS_YAML')
+    logging.info(f"using non-default SABER blocks yaml: {saber_blocks_yaml}")
+else:
+    logging.info(f"using default SABER blocks yaml")
+    os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
+
 logging.info(f"{config}")
 varconfig = YAMLFile(path=var_yaml_template)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)
