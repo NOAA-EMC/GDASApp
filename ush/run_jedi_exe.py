@@ -11,6 +11,7 @@ import yaml
 from pygw.template import Template, TemplateConstants
 from pygw.yaml_file import YAMLFile
 
+
 def export_envar(yamlfile, bashout):
 
     # open YAML file to get config
@@ -93,7 +94,7 @@ def run_jedi_exe(yamlconfig):
             'layout_y': str(executable_subconfig['layout_y']),
             'BKG_DIR': os.path.join(workdir, 'bkg'),
             'fv3jedi_fix_dir': os.path.join(workdir, 'fv3jedi'),
-            'fv3jedi_fieldmetadata_dir': os.path.join(workdir,  'fv3jedi'),
+            'fv3jedi_fieldmetadata_dir': os.path.join(workdir, 'fv3jedi'),
             'ANL_DIR': os.path.join(workdir, 'anl'),
             'fv3jedi_staticb_dir': os.path.join(workdir, 'berror'),
             'BIAS_IN_DIR': os.path.join(workdir, 'obs'),
@@ -289,12 +290,12 @@ def get_runtime_config(config_dict):
         win_len_var: f"PT{assim_freq}H",
         bkg_string_var: f"{valid_time.strftime('%Y%m%d.%H%M%S')}",
         bkg_isotime_var: f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
-        npx_ges_var : f"{int(os.environ['CASE'][1:]) + 1}",
-        npy_ges_var : f"{int(os.environ['CASE'][1:]) + 1}",
-        npz_ges_var : f"{int(os.environ['LEVS']) - 1}",
-        npx_anl_var : f"{int(os.environ['CASE_ENKF'][1:]) + 1}",
-        npy_anl_var : f"{int(os.environ['CASE_ENKF'][1:]) + 1}",
-        npz_anl_var : f"{int(os.environ['LEVS']) - 1}",
+        npx_ges_var: f"{int(os.environ['CASE'][1:]) + 1}",
+        npy_ges_var: f"{int(os.environ['CASE'][1:]) + 1}",
+        npz_ges_var: f"{int(os.environ['LEVS']) - 1}",
+        npx_anl_var: f"{int(os.environ['CASE_ENKF'][1:]) + 1}",
+        npy_anl_var: f"{int(os.environ['CASE_ENKF'][1:]) + 1}",
+        npz_anl_var: f"{int(os.environ['LEVS']) - 1}",
     }
 
     return runtime_config
