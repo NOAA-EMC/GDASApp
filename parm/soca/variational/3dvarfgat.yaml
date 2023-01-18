@@ -22,7 +22,7 @@ cost function:
     state variables: *model_vars
   background error: !INC ${SABER_BLOCKS_YAML}
 
-  observations: !INC ${OBS_YAML}
+  observations: !INC ${OBS_LIST}
 
 variational:
   minimizer:
