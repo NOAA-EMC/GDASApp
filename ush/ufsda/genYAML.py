@@ -98,10 +98,3 @@ def get_runtime_config(config_dict):
     }
 
     return runtime_config
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', type=str, help='Input YAML Configuration', required=True)
-    args = parser.parse_args()
-    genYAML(args.config)
