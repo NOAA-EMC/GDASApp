@@ -58,6 +58,7 @@ def run_jedi_exe(yamlconfig):
     sys.path.append(ufsda_path)
     import ufsda
     from ufsda.misc_utils import calc_fcst_steps
+    from ufsda.stage import gdas_single_cycle, gdas_fix
 
     # compute config for YAML for executable
     executable_subconfig = all_config_dict['config']
