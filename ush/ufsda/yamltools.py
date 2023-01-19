@@ -6,24 +6,6 @@ from solo.template import TemplateConstants, Template
 from ufsda.misc_utils import isTrue
 
 
-def genYAML(input_config_dict, template=None, output=None):
-    """
-    genYAML(input_config_dict, template=None, output=None)
-
-    generate YAML file based on inpput configuration dictionary,
-    environment variables, and optional template.
-
-    input_config_dict - input configuration dictionary
-    template          - path to template YAML file
-    output            - path to output YAML file
-    """
-    # call the parse_config function to create the final dict
-    config_out = parse_config(input_config_dict, template=template)
-    if not output:
-        output = os.path.join(os.getcwd(), 'genYAML_out.yaml')
-    config_out.save(output)
-
-
 def parse_config(input_config_dict, template=None, clean=True):
     """
     parse_config(input_config_dict, template=None, clean=True)
