@@ -3,8 +3,7 @@ geometry:
   mom6_input_nml: mom_input.nml
   fields metadata: fields_metadata.yaml
 
-input variables:
-  - !ENV ${CVAR}
+input variables: [cicen, hicen, hsnon, ssh]
 
 background:
   read_from_file: 1
@@ -12,20 +11,29 @@ background:
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
   ice_filename: cice.res.nc
-  state variables: [cicen, hicen, hsnon, socn, tocn, ssh, hocn]
+  state variables: [cicen, hicen, hsnon, ssh, hocn]
 
 bump:
-  datadir: !ENV ${BUMPDIR}
-  method: cor
-  strategy: specific_univariate
-  new_nicas: true
-  write_nicas_local: true
-  mask_check: false
-  resol: 1.0
+  io:
+    data directory: bump
+  drivers:
+    multivariate strategy: specific_univariate
+    compute nicas: true
+    write local nicas: true
+  model:
+    do not cross mask boundaries: false
+  nicas:
+    resolution: !ENV ${NICAS_RESOL}
+    max horizontal grid size: ${NICAS_GRID_SIZE}
   grids:
-  - prefix: !ENV ${CVAR}
-    variables:
-    - !ENV ${CVAR}
+  - model:
+      variables:
+      - cicen
+      - hicen
+      - hsnon
+      - ssh
+    io:
+      files prefix: bump2d
 
 input fields:
 - parameter: rh
@@ -35,8 +43,7 @@ input fields:
     basename: ./
     ocn_filename: ocn.cor_rh.incr.0001-01-01T00:00:00Z.nc
     ice_filename: ice.cor_rh.incr.0001-01-01T00:00:00Z.nc
-    state variables:
-    - !ENV ${CVAR}
+    state variables: [cicen, hicen, hsnon, ssh]
 - parameter: rv
   file:
     read_from_file: 1
@@ -44,5 +51,4 @@ input fields:
     basename: ./
     ocn_filename: ocn.cor_rv.incr.0001-01-01T00:00:00Z.nc
     ice_filename: ice.cor_rv.incr.0001-01-01T00:00:00Z.nc
-    state variables:
-    - !ENV ${CVAR}
+    state variables: [cicen, hicen, hsnon, ssh]

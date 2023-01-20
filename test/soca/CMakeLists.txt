@@ -9,36 +9,37 @@ file(COPY ${TESTDATA}/iced.2019-04-15-43200.nc DESTINATION ${PROJECT_BINARY_DIR}
 
 # link input file from iodaconv to test directory
 # test convert BUFR to IODA
+
 add_test(NAME test_gdasapp_convert_bufr_temp_dbuoy
-         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/temp_bufr_dbuoyprof.yaml
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} temp_bufr_dbuoyprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_salt_dbuoy
-         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/salt_bufr_dbuoyprof.yaml
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} salt_bufr_dbuoyprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_temp_mbuoyb
-         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/temp_bufr_mbuoybprof.yaml
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} temp_bufr_mbuoybprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_salt_mbuoyb
-         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/salt_bufr_mbuoybprof.yaml
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} salt_bufr_mbuoybprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
-add_test(NAME test_gdasapp_convert_bufr_tesac
-         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_tesac.yaml
+add_test(NAME test_gdasapp_convert_bufr_tesacprof
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} bufr_tesacprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
-add_test(NAME test_gdasapp_convert_bufr_trkob
-         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_trkob.yaml
+add_test(NAME test_gdasapp_convert_bufr_trkobprof
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} bufr_trkobprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_sfcships
-         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_sfcships.yaml
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} bufr_sfcships
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_sfcshipsu
-         COMMAND ${PROJECT_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_sfcshipsu.yaml
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} bufr_sfcshipsu
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 # Symlink test input yaml files
@@ -73,7 +74,7 @@ add_test(NAME test_gdasapp_soca_obsdb
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs/)
 set_tests_properties(test_gdasapp_soca_obsdb
     PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
+    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/pygw/src:$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
 
 # Test exgdas_global_marine_analysis_prep.py
 # ------------------------------------------
@@ -87,15 +88,35 @@ add_test(NAME test_gdasapp_soca_ana_prep
       PROPERTIES
       ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
 
+# Test exgdas_global_marine_analysis_bmat.sh
+# -----------------------------------------
+add_test(NAME test_gdasapp_soca_ana_bmat
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bmat.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/ocnanal_12)
+set_tests_properties(test_gdasapp_soca_ana_bmat
+      PROPERTIES
+          DEPENDS "test_gdasapp_soca_ana_prep"
+        )
+
 
 # Test exgdas_global_marine_analysis_run.sh
 # -----------------------------------------
 add_test(NAME test_gdasapp_soca_ana_run
          COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_run.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/ocnanal_2018041512)
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/ocnanal_12)
 set_tests_properties(test_gdasapp_soca_ana_run
       PROPERTIES
           DEPENDS "test_gdasapp_soca_ana_prep"
+        )
+
+# Test exgdas_global_marine_analysis_bmat_vrfy.sh
+# -----------------------------------------------
+add_test(NAME test_gdasapp_soca_ana_bmat_vrfy
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bmat_vrfy.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/ocnanal_12)
+set_tests_properties(test_gdasapp_soca_ana_bmat_vrfy
+      PROPERTIES
+          DEPENDS "test_gdasapp_soca_ana_run"
         )
 
 # Test exgdas scripts from the global-worflow

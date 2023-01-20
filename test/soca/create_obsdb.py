@@ -7,8 +7,19 @@ import ufsda.r2d2
 
 if __name__ == "__main__":
 
+    shared_root = './r2d2-shared'
+    r2d2_config_yaml = 'r2d2_config.yaml'
+
+    # clean output before running - if nothing found, assume first run
+    try:
+        shutil.rmtree(shared_root)
+        os.remove(r2d2_config_yaml)
+        os.remove('*20180415.nc4')
+    except FileNotFoundError:
+        pass
+
     # Setup the shared R2D2 databases
-    ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root='./r2d2-shared')
+    ufsda.r2d2.setup(r2d2_config_yaml=r2d2_config_yaml, shared_root=shared_root)
 
     # Change the obs file name format
     obsdir = os.getenv('OBS_DIR')

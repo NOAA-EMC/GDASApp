@@ -20,7 +20,7 @@ obs operator:
   obs options:
     Sensor_ID: v.viirs-m_j1 
     EndianType: little_endian
-    CoefficientPath: !ENV ${DATA}/crtm
+    CoefficientPath: !ENV ${DATA}/crtm/
     AerosolOption: aerosols_gocart_default
 obs error:
   covariance model: diagonal 

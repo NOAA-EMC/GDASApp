@@ -161,7 +161,7 @@ bkg_dir = os.path.join(anl_dir, 'bkg')
 ufsda.mkdir(bkg_dir)
 
 # create output directory for soca DA
-anl_out = os.path.join(comout, 'ocnanal_'+os.getenv('CDATE'), 'Data')
+anl_out = os.path.join(comout, 'ocnanal_' + os.getenv('cyc'), 'Data')
 ufsda.mkdir(anl_out)
 ufsda.symlink(anl_out, os.path.join(anl_dir, 'Data'), remove=False)
 
@@ -171,10 +171,10 @@ ufsda.symlink(anl_out, os.path.join(anl_dir, 'Data'), remove=False)
 logging.info(f"---------------- Stage observations")
 
 # setup the archive, local and shared R2D2 databases
-ufsda.r2d2.setup(r2d2_config_yaml='r2d2_config.yaml', shared_root=comin_obs)
+ufsda.r2d2.setup(r2d2_config_yaml=os.path.join(anl_dir, 'r2d2_config.yaml'), shared_root=comin_obs)
 
 # create config dict from runtime env
-envconfig = ufsda.misc_utils.get_env_config(component='notatm')
+envconfig = ufsda.misc_utils.get_env_config(component='soca')
 stage_cfg = YAMLFile(path=os.path.join(gdas_home,
                                        'parm',
                                        'templates',
@@ -227,7 +227,7 @@ corscales_yaml = os.path.join(gdas_home,
 ufsda.disk_utils.symlink(corscales_yaml,
                          os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml'))
 
-# generate yaml for bump C
+# generate yaml for bump/nicas (used for correlation and/or localization)
 # TODO (Guillaume): move the possible vars somewhere else
 vars3d = ['tocn', 'socn', 'uocn', 'vocn', 'chl', 'biop']
 vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
@@ -236,18 +236,16 @@ vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
 # 2d bump yaml (all 2d vars at once)
 bumpdir = 'bump'
 ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
-bumpC_yaml = os.path.join(anl_dir, 'soca_bump_C_2d.yaml')
-bumpC_yaml_template = os.path.join(gdas_home,
-                                   'parm',
-                                   'soca',
-                                   'berror',
-                                   'soca_bump_C_2d.yaml')
-config = YAMLFile(path=bumpC_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, {'datadir': bumpdir}.get)
-config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, {'datadir': bumpdir}.get)
+bump_yaml = os.path.join(anl_dir, 'soca_bump2d.yaml')
+bump_yaml_template = os.path.join(gdas_home,
+                                  'parm',
+                                  'soca',
+                                  'berror',
+                                  'soca_bump2d.yaml')
+config = YAMLFile(path=bump_yaml_template)
 config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-config.save(bumpC_yaml)
+config.save(bump_yaml)
 
 # 3d bump yaml, 1 yaml per variable
 for v in soca_vars:
@@ -256,20 +254,20 @@ for v in soca_vars:
         continue
     else:
         dim = '3d'
-    bumpC_yaml = os.path.join(anl_dir, 'soca_bump'+dim+'_C_'+v+'.yaml')
-    bumpC_yaml_template = os.path.join(gdas_home,
-                                       'parm',
-                                       'soca',
-                                       'berror',
-                                       'soca_bump_C_split.yaml')
+    bump_yaml = os.path.join(anl_dir, 'soca_bump'+dim+'_'+v+'.yaml')
+    bump_yaml_template = os.path.join(gdas_home,
+                                      'parm',
+                                      'soca',
+                                      'berror',
+                                      'soca_bump_split.yaml')
     bumpdir = 'bump'+dim+'_'+v
     os.environ['BUMPDIR'] = bumpdir
     ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
     os.environ['CVAR'] = v
-    config = YAMLFile(path=bumpC_yaml_template)
+    config = YAMLFile(path=bump_yaml_template)
     config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
     config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-    config.save(bumpC_yaml)
+    config.save(bump_yaml)
 
 # generate yaml for soca_var
 var_yaml = os.path.join(anl_dir, 'var.yaml')
@@ -280,13 +278,21 @@ var_yaml_template = os.path.join(gdas_home,
                                  '3dvarfgat.yaml')
 
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
-window_begin = datetime.strptime(os.getenv('CDATE'), '%Y%m%d%H') - half_assim_freq
+window_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H') - half_assim_freq
 gen_bkg_list(bkg_path=os.getenv('COMIN_GES'),
              out_path=bkg_dir,
              window_begin=window_begin,
              yaml_name='bkg_list.yaml')
 os.environ['BKG_LIST'] = 'bkg_list.yaml'
-os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
+
+# select the SABER BLOCKS to use
+if 'SABER_BLOCKS_YAML' in os.environ and os.environ['SABER_BLOCKS_YAML']:
+    saber_blocks_yaml = os.getenv('SABER_BLOCKS_YAML')
+    logging.info(f"using non-default SABER blocks yaml: {saber_blocks_yaml}")
+else:
+    logging.info(f"using default SABER blocks yaml")
+    os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
+
 logging.info(f"{config}")
 varconfig = YAMLFile(path=var_yaml_template)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)

@@ -20,7 +20,7 @@ obs operator:
   obs options:
     Sensor_ID: atms_n20
     EndianType: little_endian
-    CoefficientPath: !ENV ${DATA}/crtm
+    CoefficientPath: !ENV ${DATA}/crtm/
 obs bias:
   input file: !ENV ${DATA}/obs/${GPREFIX}atms_n20.satbias.${GDATE}.nc4
   output file: !ENV ${DATA}/bc/${APREFIX}atms_n20.satbias.${CDATE}.nc4
