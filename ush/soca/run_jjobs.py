@@ -2,153 +2,226 @@
 import yaml
 import os
 import sys
-import re
 import subprocess
 import argparse
 
 
-def execute_script(script, exeopt='bash'):
-    # Execute prep.sh
-    try:
-        subprocess.check_output([exeopt, script])
-    except subprocess.CalledProcessError as e:
-        print(f"{script} failed with return code:", e.returncode)
-
-
-def export_env_vars_script(config, bash_script, pslot):
-    # export the variables in config
-    bash_script.write("\n")
-    bash_script.write("# Export jjob environement\n")
-    for key, value in config.items():
-        for subkey, subvalue in value.items():
-            bash_script.write(f"export {subkey}='{subvalue}'\n")
-
-    # Compute remaining environment variables
-    EXPDIR = os.path.join(config['working directories']['EXPDIRS'], pslot)
-    DATAROOT = os.path.join(config['working directories']['STMP'], 'RUNDIRS', pslot)
-    gcyc = str((config['cycle info']['cyc'] - config['cycle info']['assym_freq']) % 24).zfill(2)
-    CDATE = f"{config['cycle info']['PDY']}{config['cycle info']['cyc']}"  # TODO: Not needed after Andy's PR
-
-    # Write the export commands for the remaining environment variables
-    bash_script.write(f"export EXPDIR='{EXPDIR}'\n")
-    bash_script.write(f"export DATAROOT='{DATAROOT}'\n")
-    bash_script.write(f"export gcyc='{gcyc}'\n")
-    bash_script.write(f"export CDATE='{CDATE}'\n")
-
-    # Add to python environement
-    bash_script.write("PYTHONPATH=${HOMEgfs}/ush/python/pygw/src:${PYTHONPATH}\n")
-
-
-def slurm_header(config, script):
-    sbatch = ''
-    for key, value in config.items():
-        print(key)
-        sbatch += f"#SBATCH --{key}={value} \n"
-    script.write(f"{sbatch}\n")
-
-
-# Get the experiment configuration
-run_jjobs_yaml = sys.argv[1]
-with open(run_jjobs_yaml, 'r') as file:
-    exp_config = yaml.safe_load(file)
-
-# define variables of convenience
-pslot = exp_config['gw environement']['experiment identifier']['PSLOT']
-homegfs = exp_config['gw environement']['experiment identifier']['HOMEgfs']
-stmp = exp_config['gw environement']['working directories']['STMP']
-rotdirs = exp_config['gw environement']['working directories']['ROTDIR']
-expdirs = exp_config['gw environement']['working directories']['EXPDIRS']
-
-# Generate the setup_expt.sh script
-with open("setup_expt.sh", "w") as bash_script:
-    bash_script.write("#!/usr/bin/env bash\n")
-    export_env_vars_script(exp_config['gw environement'], bash_script, pslot)
-
-    # Make a copy of the configs
-    origconfig = "${HOMEgfs}/parm/config"
-    bash_script.write("\n")
-    bash_script.write("# Make a copy of config\n")
-    bash_script.write(f"cp -r {origconfig} .\n")
-
-    # Dump the configs in a separate yaml file
-    with open("overwrite_defaults.yaml", "w") as f:
-        yaml.safe_dump(exp_config['setup_expt config'], f)
-
-    # Setup the experiment
-    bash_script.write("\n")
-    bash_script.write("# Setup the experiment\n")
-
-    setupexpt = "${HOMEgfs}/workflow/setup_expt.py cycled "
-    # Most of the args keys are not used to run the jjobs but are needed to run setup_expt.py
-    args = {
-        "idate": "${PDY}${cyc}",
-        "edate": "${PDY}${cyc}",
-        "app": "ATM",
-        "start": "warm",
-        "gfs_cyc": "0",
-        "resdet": exp_config['resdet'],
-        "resens": "24",
-        "nens": "0",
-        "pslot": "${PSLOT}",
-        "configdir": "${PWD}/config",
-        "comrot": "${ROTDIR}",
-        "expdir": "${EXPDIRS}",
-        "yaml": "overwrite_defaults.yaml"}
-
-    # Write the arguments of setup_expt.py
-    for key, value in args.items():
-        setupexpt += f" --{key} {value}"
-    bash_script.write(f"{setupexpt}\n")
-    bash_script.close()
-
-# Execute prep.sh
-execute_script('setup_expt.sh')
-
-# get the machine value ... Do we still need it?
-machine = exp_config['machine']
-
-configbase = os.path.join(exp_config['gw environement']['working directories']['EXPDIRS'],
-                          exp_config['gw environement']['experiment identifier']['PSLOT'],
-                          'config.base')
-
-# Append SLURM directive so the script can be "sbatch'ed"
 machines = {"container", "hera", "orion"}
-if machine in machines:
-    print(f'machine is {machine}')
-else:
-    print(f"Probably does not work for {machine} yet")
 
-# swap a few variables in config.base
-var2replace = {'HOMEgfs': homegfs, 'STMP': stmp, 'ROTDIRS': rotdirs, 'EXPDIRS': expdirs}
-with open(configbase, 'r') as f:
-    newconfigbase = f.read()
-for key, value in var2replace.items():
-    newconfigbase = newconfigbase.replace(f'{key}=', f'{key}={value} #')
-with open(configbase, 'w') as f:
-    f.write(newconfigbase)
 
-# Generate the script that runs the jjobs
-with open("run_jjobs.sh", "w") as bash_script:
-    bash_script.write("#!/usr/bin/env bash\n")
-    sbatch = 'bash'
-    if machine != "container":
-        slurm_header(exp_config['job options'], bash_script)
-        sbatch = 'sbatch'
+class JobCard:
 
-    export_env_vars_script(exp_config['gw environement'], bash_script, pslot)
-    if machine != "container":
-        bash_script.write("module purge \n")
-        bash_script.write("module use ${HOMEgfs}/sorc/gdas.cd/modulefiles \n")
-        bash_script.write(f"module load GDAS/{machine} \n")
+    def __init__(self, scriptname, config):
+        """
+        Constructor for the JobCard class.
+        :param scriptname: name of the script file
+        :param config: dictionary containing configuration information
+        """
+        self.name = scriptname
+        self.f = open(self.name, "w")
+        self.f.write("#!/usr/bin/env bash\n")
+        self.pslot = config['gw environement']['experiment identifier']['PSLOT']
+        self.homegfs = config['gw environement']['experiment identifier']['HOMEgfs']
+        self.stmp = config['gw environement']['working directories']['STMP']
+        self.rotdirs = config['gw environement']['working directories']['ROTDIR']
+        self.expdirs = config['gw environement']['working directories']['EXPDIRS']
+        self.config = config
+        self.machine = config['machine']
 
-    # Copy backgrounds from previous cycle
-    bash_script.write("mkdir -p ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/${COMPONENT}/\n")
-    bash_script.write("cp -r ${COMIN_GES}/* ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/${COMPONENT}/\n")
+    def header(self):
+        """
+        Write machine dependent scheduler header
+        """
+        if self.machine != "container":
+            sbatch = ''
+            for key, value in self.config['job options'].items():
+                sbatch += f"#SBATCH --{key}={value} \n"
+            self.f.write(f"{sbatch}\n")
 
-    runjobs = "# Run jjobs\n"
-    for job in exp_config['jjobs']:
-        thejob = "${HOMEgfs}/jobs/"+job
-        runjobs += f"{thejob} &>{job}.out\n"
-    bash_script.write(runjobs)
+    def export_env_vars_script(self):
+        """
+        Write the exports needed by the global-workflow environement
+        """
+        self.f.write("\n")
+        self.f.write("# Export jjob environement\n")
+        for key, value in self.config['gw environement'].items():
+            for subkey, subvalue in value.items():
+                self.f.write(f"export {subkey}='{subvalue}'\n")
 
-execute_script(script='run_jjobs.sh', exeopt=sbatch)
+        # Compute remaining environment variables
+        config = self.config['gw environement']
+        EXPDIR = os.path.join(config['working directories']['EXPDIRS'], self.pslot)
+        DATAROOT = os.path.join(config['working directories']['STMP'], 'RUNDIRS', self.pslot)
+        gcyc = str((config['cycle info']['cyc'] - config['cycle info']['assym_freq']) % 24).zfill(2)
+        CDATE = f"{config['cycle info']['PDY']}{config['cycle info']['cyc']}"  # TODO: Not needed after Andy's PR
+
+        # Write the export commands for the remaining environment variables
+        self.f.write(f"export EXPDIR='{EXPDIR}'\n")
+        self.f.write(f"export DATAROOT='{DATAROOT}'\n")
+        self.f.write(f"export gcyc='{gcyc}'\n")
+        self.f.write(f"export CDATE='{CDATE}'\n")
+
+        # Add to python environement
+        self.f.write("PYTHONPATH=${HOMEgfs}/ush/python/pygw/src:${PYTHONPATH}\n")
+
+    def setupexpt(self):
+        """
+        Write a call to the global-worflow utility setup_expt.py
+        """
+
+        # Make a copy of the configs
+        origconfig = "${HOMEgfs}/parm/config"
+        self.f.write("\n")
+        self.f.write("# Make a copy of config\n")
+        self.f.write(f"cp -r {origconfig} .\n")
+
+        # Dump the configs in a separate yaml file
+        with open("overwrite_defaults.yaml", "w") as f:
+            yaml.safe_dump(self.config['setup_expt config'], f)
+
+        # Setup the experiment
+        self.f.write("\n")
+        self.f.write("# Setup the experiment\n")
+
+        setupexpt = "${HOMEgfs}/workflow/setup_expt.py cycled "
+        # Most of the args keys are not used to run the jjobs but are needed to run setup_expt.py
+        args = {
+            "idate": "${PDY}${cyc}",
+            "edate": "${PDY}${cyc}",
+            "app": "ATM",
+            "start": "warm",
+            "gfs_cyc": "0",
+            "resdet": self.config['resdet'],
+            "resens": "24",
+            "nens": "0",
+            "pslot": "${PSLOT}",
+            "configdir": "${PWD}/config",
+            "comrot": "${ROTDIR}",
+            "expdir": "${EXPDIRS}",
+            "yaml": "overwrite_defaults.yaml"}
+
+        # Write the arguments of setup_expt.py
+        for key, value in args.items():
+            setupexpt += f" --{key} {value}"
+        self.f.write(f"{setupexpt}\n")
+
+    def close(self):
+        """
+        Flush and make the card executable
+        """
+        self.f.close()
+        subprocess.run(["chmod", "+x", self.name])
+
+    def modules(self):
+        """
+        Write a section that will load the machine dependent modules
+        """
+        if self.machine != "container":
+            self.f.write("module purge \n")
+            self.f.write("module use ${HOMEgfs}/sorc/gdas.cd/modulefiles \n")
+            self.f.write(f"module load GDAS/{self.machine} \n")
+
+    def copy_bkgs(self):
+        """
+        Fill the ROTDIR with backgrounds
+        TODO: replace by fill comrot?
+        """
+        self.f.write("mkdir -p ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/${COMPONENT}/\n")
+        self.f.write("cp -r ${COMIN_GES}/* ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/${COMPONENT}/\n")
+
+    def fixconfigs(self):
+        """
+        Replace cone of the env. var. in the configs
+        """
+        configbase = os.path.join(self.config['gw environement']['working directories']['EXPDIRS'],
+                                  self.config['gw environement']['experiment identifier']['PSLOT'],
+                                  'config.base')
+
+        # Append SLURM directive so the script can be "sbatch'ed"
+        if self.machine in machines:
+            print(f'machine is {self.machine}')
+        else:
+            print(f"Probably does not work for {machine} yet")
+
+        # swap a few variables in config.base
+        var2replace = {'HOMEgfs': self.homegfs,
+                       'STMP': self.stmp,
+                       'ROTDIRS': self.rotdirs,
+                       'EXPDIRS': self.expdirs}
+        with open(configbase, 'r') as f:
+            newconfigbase = f.read()
+        for key, value in var2replace.items():
+            newconfigbase = newconfigbase.replace(f'{key}=', f'{key}={value} #')
+        with open(configbase, 'w') as f:
+            f.write(newconfigbase)
+
+    def jjobs(self):
+        """
+        Add the list of j-jobs to the job card
+        """
+        runjobs = "# Run jjobs\n"
+        for job in self.config['jjobs']:
+            thejob = "${HOMEgfs}/jobs/"+job
+            runjobs += f"{thejob} &>{job}.out\n"
+        self.f.write(runjobs)
+
+    def execute(self):
+        """
+        Execute the script
+        """
+        print(f"EXECUTE: {os.path.join(os.getcwd())}")
+        exeopt = 'sbatch --wait'
+        if self.machine == "container":
+            print(f"running ./{self.name} ...")
+            exeopt = [f"./{self.name}"]
+            subprocess.check_output(exeopt)
+        else:
+            try:
+                print(f"running {self.name} ...")
+                subprocess.check_output([exeopt, self.name])
+            except subprocess.CalledProcessError as e:
+                print(f"{self.name} failed with return code:", e.returncode)
+
+
+def main():
+    epilog = ["Make sure the comrot, experiment and config directories are removed before running this script",
+              "Examples:",
+              "   ./run_jjobs.py -y run_jjobs_orion.yaml",
+              "   ./run_jjobs.py -h"]
+    parser = argparse.ArgumentParser(description="Run an ordered list of j-jobs.",
+                                     formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     epilog=os.linesep.join(epilog))
+    parser.add_argument("-y", "--yaml", required=True, help="The YAML file")
+    parser.add_argument("-s", "--skip", action='store_true', default=False, help="Skip setup_expt.sh if present")
+    #parser.add_argument("-s", "--skip", dest='feature', default=False, action='store_true')
+    args = parser.parse_args()
+
+    # Get the experiment configuration
+    run_jjobs_yaml = args.yaml
+    with open(run_jjobs_yaml, 'r') as file:
+        exp_config = yaml.safe_load(file)
+
+    if not args.skip:
+        # Write a setup card (prepare COMROT, configs, ...)
+        setup_card = JobCard("setup_expt.sh", exp_config)
+        setup_card.export_env_vars_script()
+        setup_card.setupexpt()
+        setup_card.close()     # flush to file, close and make it executable
+        setup_card.execute()   # run the setup card
+
+    # Write the j-jobs card
+    run_card = JobCard("run_jjobs.sh", exp_config)
+    run_card.fixconfigs()                # over-write some of the config variables
+    run_card.header()                    # prepare a machine dependent header (SLURM or nothing)
+    run_card.export_env_vars_script()
+    run_card.modules()
+    run_card.copy_bkgs()
+    run_card.jjobs()
+    run_card.close()
+
+    # Submit/Run the j-jobs card
+    run_card.execute()
+
+
+if __name__ == "__main__":
+    main()

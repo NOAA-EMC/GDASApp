@@ -22,9 +22,9 @@ gw environement:
     COMIN_GES: /home/gvernier/wrk/gw/sorc/gdas.cd/build/test/soca/bkg
 
   working directories:
-    ROTDIR: /home/gvernier/wrk/gw/sorc/gdas.cd/ush/soca/test/ROTDIRS
-    EXPDIRS: /home/gvernier/wrk/gw/sorc/gdas.cd/ush/soca/test/experiments
-    STMP: /home/gvernier/wrk/gw/sorc/gdas.cd/ush/soca/test
+    ROTDIR: /home/gvernier/trash/ROTDIRS
+    EXPDIRS: /home/gvernier/trash/experiments
+    STMP: /home/gvernier/trash
 
   jedi:
     OOPS_TRACE: 1
