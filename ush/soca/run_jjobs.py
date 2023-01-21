@@ -193,7 +193,6 @@ def main():
                                      epilog=os.linesep.join(epilog))
     parser.add_argument("-y", "--yaml", required=True, help="The YAML file")
     parser.add_argument("-s", "--skip", action='store_true', default=False, help="Skip setup_expt.sh if present")
-    #parser.add_argument("-s", "--skip", dest='feature', default=False, action='store_true')
     args = parser.parse_args()
 
     # Get the experiment configuration
