@@ -26,7 +26,7 @@ foreach(jjob ${jjob_list})
   message("ctest for ${jjob}")
   set(HOMEgfs ${PROJECT_SOURCE_DIR}/../..)
   set(JJOB ${jjob})
-  configure_file(${PROJECT_SOURCE_DIR}/test/soca/gw/run_jjobs.yaml
+  configure_file(${PROJECT_SOURCE_DIR}/test/soca/gw/run_jjobs.yaml.test
                  ${PROJECT_BINARY_DIR}/test/soca/gw/testrun/run_jjobs_${jjob}.yaml)
   set(test_name "test_gdasapp_soca_${jjob}")
   add_test(NAME ${test_name}
