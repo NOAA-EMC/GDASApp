@@ -165,22 +165,17 @@ class JobCard:
             runjobs += f"{thejob} &>{job}.out\n"
         self.f.write(runjobs)
 
-    def execute(self):
+    def execute(self, submit=False):
         """
         Execute the script
         """
-        print(f"EXECUTE: {os.path.join(os.getcwd())}")
-        exeopt = 'sbatch --wait'
-        if self.machine == "container":
+        if not submit or self.machine == "container":
             print(f"running ./{self.name} ...")
-            exeopt = [f"./{self.name}"]
-            subprocess.check_output(exeopt)
-        else:
-            try:
-                print(f"running {self.name} ...")
-                subprocess.check_output([exeopt, self.name])
-            except subprocess.CalledProcessError as e:
-                print(f"{self.name} failed with return code:", e.returncode)
+            subprocess.check_output([f"./{self.name}"])
+            return
+
+        print(f"running sbatch --wait {self.name} ...")
+        subprocess.check_output(["sbatch", "--wait", self.name])
 
 
 def main():
@@ -219,7 +214,7 @@ def main():
     run_card.close()
 
     # Submit/Run the j-jobs card
-    run_card.execute()
+    run_card.execute(submit=True)
 
 
 if __name__ == "__main__":

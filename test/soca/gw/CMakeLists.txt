@@ -5,9 +5,11 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
 set(MACHINE "container")
 IF (IS_DIRECTORY /work2/noaa/da)
   set(MACHINE "orion")
+  set(PARTITION "debug")
 ENDIF()
 IF (IS_DIRECTORY /scratch2/NCEPDEV/)
   set(MACHINE "hera")
+  set(PARTITION "hera")
 ENDIF()
 
 # Clean-up

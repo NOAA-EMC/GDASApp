@@ -40,4 +40,13 @@ setup_expt config:
     R2D2_OBS_DUMP: soca
     SABER_BLOCKS_YAML: @HOMEgfs@/sorc/gdas.cd/parm/soca/berror/saber_blocks.yaml
     NICAS_RESOL: 1
-    NICAS_GRID_SIZE: 15000
+    NICAS_GRID_SIZE: 150
+
+job options:
+  account: marine-cpu
+  qos: debug
+  output: @JJOB@.out
+  nodes: 1
+  ntasks: 16
+  partition: @PARTITION@
+  time: 00:05:00
