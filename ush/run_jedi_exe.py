@@ -117,7 +117,7 @@ def run_jedi_exe(yamlconfig):
             'CASE_ENKF': executable_subconfig.get('case_enkf', executable_subconfig['case']),
             'DOHYBVAR': executable_subconfig.get('dohybvar', False),
             'LEVS': str(executable_subconfig['levs']),
-            'NMEM_ENKF': str(executable_subconfig['nmem']),
+            'NMEM_ENKF': executable_subconfig.get('nmem', 0),
             'forecast_steps': calc_fcst_steps(executable_subconfig.get('forecast_step', 'PT6H'),
                                               executable_subconfig['atm_window_length']),
             'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
