@@ -1,10 +1,15 @@
 working directory: /scratch2/NCEPDEV/stmp1/Cory.R.Martin/gdas_single_test_3dvar
 GDASApp home: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp
 GDASApp mode: variational
-executable options:
+template: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/variational/3dvar_dripcg.yaml
+config:
   berror_yaml: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/berror/staticb_gsibec.yaml
+  obs_dir: obs
+  diag_dig: diags
+  crtm_coeff_dir: crtm
+  bias_in_dir: obs
+  bias_out_dir: bc
   obs_yaml_dir: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/config
-  yaml_template: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/variational/3dvar_dripcg.yaml
   executable: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/build/bin/fv3jedi_var.x
   obs_list: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype.yaml
   gdas_fix_root: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
@@ -19,6 +24,7 @@ executable options:
   staticb_type: gsibec
   dohybvar: false
   levs: 128
+  nmem: 10
   interp_method: barycentric
 job options:
   machine: hera
