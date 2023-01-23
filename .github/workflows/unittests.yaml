@@ -27,8 +27,8 @@ jobs:
     - name: Checkout workflow
       uses: actions/checkout@v3
       with:
-        repository: RussTreadon-NOAA/global-workflow
-        ref: feature/ufsda_stage
+        repository: NOAA-EMC/global-workflow
+        ref: develop
         path: global-workflow
 
     - name: Install workflow utils
