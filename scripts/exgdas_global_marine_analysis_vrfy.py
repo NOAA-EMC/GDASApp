@@ -45,6 +45,9 @@ import ufsda
 
 
 def plot_config(grid_file, data_file, variable, levels, bounds, colormap, comout):
+    """
+    Prepares the configuration for the plotting function below
+    """
     config = {}
     config['grid file'] = grid_file
     config['fields file'] = data_file
@@ -55,8 +58,11 @@ def plot_config(grid_file, data_file, variable, levels, bounds, colormap, comout
     config['comout'] = comout
     return config
 
-def plot_horizontal_slice(config):
 
+def plot_horizontal_slice(config):
+    """
+    pcolormesh of a horizontal slice of an ocean field
+    """
     level = config['levels'][0]
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
@@ -65,8 +71,6 @@ def plot_horizontal_slice(config):
     else:
         slice_data = data[config['variable']]
     bounds = config['bounds']
-
-
     fig, ax = plt.subplots(figsize=(8, 5), subplot_kw={'projection': ccrs.PlateCarree()})
     plt.pcolormesh(np.squeeze(grid.lon),
                    np.squeeze(grid.lat),
@@ -75,13 +79,11 @@ def plot_horizontal_slice(config):
                    transform=ccrs.PlateCarree(),
                    cmap=config['colormap'])
     plt.colorbar(label=config['variable']+' Level '+str(level), shrink=0.5, orientation='horizontal')
-
     ax.coastlines()
     ax.gridlines(draw_labels=True)
-    ax.add_feature(cartopy.feature.LAND) #facecolor="blue")
-    dirname = os.path.join(config['comout'], 'vrfy',config['variable'])
+    ax.add_feature(cartopy.feature.LAND)
+    dirname = os.path.join(config['comout'], 'vrfy', config['variable'])
     ufsda.mkdir(dirname)
-
     figname = os.path.join(dirname, config['variable']+'_Level_'+str(level))
     plt.savefig(figname, bbox_inches='tight')
 
