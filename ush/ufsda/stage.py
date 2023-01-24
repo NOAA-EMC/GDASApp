@@ -331,24 +331,25 @@ def gdas_single_cycle(config):
     obs_list_config = Configuration(obs_list_yaml)
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
     for ob in obs_list_config['observers']:
+        ob_config = YAMLFile(path=ob)
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
         r2d2_config['provider'] = 'ncdiag'
         r2d2_config['start'] = config['window_begin']
         r2d2_config['end'] = r2d2_config['start']
-        target_file = ob['obs space']['obsdatain']['engine']['obsfile']
+        target_file = ob_config['obs space']['obsdatain']['engine']['obsfile']
         r2d2_config['target_file_fmt'] = target_file
-        r2d2_config['obs_types'] = [ob['obs space']['name']]
+        r2d2_config['obs_types'] = [ob_config['obs space']['name']]
         ufsda.r2d2.fetch(r2d2_config)
         # get bias files if needed
-        if 'obs bias' in ob.keys():
+        if 'obs bias' in ob_config.keys():
             r2d2_config['type'] = 'bc'
             r2d2_config['provider'] = 'gsi'
             r2d2_config['start'] = config['prev_valid_time']
             r2d2_config['end'] = r2d2_config['start']
             r2d2_config['file_type'] = 'satbias'
-            target_file = ob['obs bias']['input file']
+            target_file = ob_config['obs bias']['input file']
             r2d2_config['target_file_fmt'] = target_file
             ufsda.r2d2.fetch(r2d2_config)
             r2d2_config['file_type'] = 'satbias_cov'

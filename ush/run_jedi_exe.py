@@ -8,6 +8,8 @@ import subprocess
 import sys
 import yaml
 
+from ufsda.genYAML import genYAML
+
 
 def export_envar(yamlfile, bashout):
 
@@ -56,10 +58,12 @@ def run_jedi_exe(yamlconfig):
     sys.path.append(ufsda_path)
     import ufsda
     from ufsda.misc_utils import calc_fcst_steps
+    from ufsda.stage import gdas_single_cycle, gdas_fix
 
     # compute config for YAML for executable
-    executable_subconfig = all_config_dict['executable options']
+    executable_subconfig = all_config_dict['config']
     valid_time = executable_subconfig['valid_time']
+    assim_freq = int(executable_subconfig.get('assim_freq', 6))
     h = re.findall('PT(\\d+)H', executable_subconfig['atm_window_length'])[0]
     prev_cycle = valid_time - dt.timedelta(hours=int(h))
     window_begin = valid_time - dt.timedelta(hours=int(h)/2)
@@ -68,10 +72,19 @@ def run_jedi_exe(yamlconfig):
     gcyc = prev_cycle.strftime("%H")
     gdate = prev_cycle.strftime("%Y%m%d%H")
     pdy = valid_time.strftime("%Y%m%d")
+    os.environ['PDY'] = str(pdy)
+    os.environ['cyc'] = str(cyc)
+    os.environ['assim_freq'] = str(assim_freq)
+    oprefix = executable_subconfig['dump'] + ".t" + str(cyc) + "z."
+    gprefix = executable_subconfig['dump'] + ".t" + str(gcyc) + "z."
 
     if app_mode in ['hofx', 'variational']:
         single_exec = True
         var_config = {
+            'DATA': os.path.join(workdir),
+            'APREFIX': str(oprefix),
+            'OPREFIX': str(oprefix),
+            'GPREFIX': str(gprefix),
             'BERROR_YAML': executable_subconfig.get('berror_yaml', './'),
             'STATICB_TYPE': executable_subconfig.get('staticb_type', 'gsibec'),
             'OBS_YAML_DIR': executable_subconfig['obs_yaml_dir'],
@@ -80,8 +93,8 @@ def run_jedi_exe(yamlconfig):
             'layout_x': str(executable_subconfig['layout_x']),
             'layout_y': str(executable_subconfig['layout_y']),
             'BKG_DIR': os.path.join(workdir, 'bkg'),
-            'fv3jedi_fix_dir': os.path.join(workdir, 'Data', 'fv3files'),
-            'fv3jedi_fieldmetadata_dir': os.path.join(workdir, 'Data', 'fieldmetadata'),
+            'fv3jedi_fix_dir': os.path.join(workdir, 'fv3jedi'),
+            'fv3jedi_fieldmetadata_dir': os.path.join(workdir, 'fv3jedi'),
             'ANL_DIR': os.path.join(workdir, 'anl'),
             'fv3jedi_staticb_dir': os.path.join(workdir, 'berror'),
             'BIAS_IN_DIR': os.path.join(workdir, 'obs'),
@@ -93,6 +106,8 @@ def run_jedi_exe(yamlconfig):
             'OBS_DIR': os.path.join(workdir, 'obs'),
             'OBS_PREFIX': f"{executable_subconfig['dump']}.t{cyc}z.",
             'OBS_DATE': f"{cdate}",
+            'CDATE': f"{cdate}",
+            'GDATE': f"{gdate}",
             'valid_time': f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
             'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
             'prev_valid_time': f"{prev_cycle.strftime('%Y-%m-%dT%H:%M:%SZ')}",
@@ -102,18 +117,20 @@ def run_jedi_exe(yamlconfig):
             'CASE_ENKF': executable_subconfig.get('case_enkf', executable_subconfig['case']),
             'DOHYBVAR': executable_subconfig.get('dohybvar', False),
             'LEVS': str(executable_subconfig['levs']),
+            'NMEM_ENKF': executable_subconfig.get('nmem', 0),
             'forecast_steps': calc_fcst_steps(executable_subconfig.get('forecast_step', 'PT6H'),
                                               executable_subconfig['atm_window_length']),
             'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
             'INTERP_METHOD': executable_subconfig.get('interp_method', 'barycentric'),
         }
-        template = executable_subconfig['yaml_template']
         output_file = os.path.join(workdir, f"gdas_{app_mode}.yaml")
         # set some environment variables
         os.environ['PARMgfs'] = os.path.join(all_config_dict['GDASApp home'], 'parm')
+        for key, value in var_config.items():
+            os.environ[key] = str(value)
         # generate YAML for executable based on input config
-        logging.info(f'Using YAML template {template}')
-        ufsda.yamltools.genYAML(var_config, template=template, output=output_file)
+        logging.info(f'Using yamlconfig {yamlconfig}')
+        genYAML(yamlconfig, output=output_file)
         logging.info(f'Wrote YAML file to {output_file}')
         # use R2D2 to stage backgrounds, obs, bias correction files, etc.
         ufsda.stage.gdas_single_cycle(var_config)

@@ -71,7 +71,7 @@ def create_batch_job(job_config, working_dir, executable, yaml_path, single_exec
 #SBATCH --ntasks={job_config['ntasks']}
 #SBATCH --ntasks-per-node={taskspernode}
 #SBATCH --cpus-per-task=1
-#SBATCH --exclusive
+#SBATCH --mem=0
 #SBATCH -t {job_config['walltime']}"""
             f.write(sbatch)
         commands = f"""
