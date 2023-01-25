@@ -43,7 +43,7 @@ setup_expt config:
     NICAS_GRID_SIZE: 150
 
 job options:
-  account: marine-cpu
+  account: da-cpu
   qos: debug
   output: @JJOB@.out
   nodes: 1

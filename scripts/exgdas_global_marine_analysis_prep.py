@@ -48,6 +48,7 @@ sys.path.append(os.path.join(gdas_home, 'ush'))
 
 # import UFSDA utilities
 import ufsda
+from ufsda.stage import obs, soca_fix
 
 
 def agg_seaice(fname_in, fname_out):
