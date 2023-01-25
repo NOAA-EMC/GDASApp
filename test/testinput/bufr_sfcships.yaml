@@ -13,6 +13,14 @@ observations:
               hour: "*/HOUR"
               minute: "*/MINU"
 
+          rcptimestamp:
+            datetime:
+              year: "*/RCYR"
+              month: "*/RCMO"
+              day: "*/RCDY"
+              hour: "*/RCHR"
+              minute: "*/RCMI"
+
           stationID:
             query: "*/RPID"
 
@@ -44,6 +52,11 @@ observations:
           source: variables/timestamp
           longName: "dateTime"
           units: "seconds since 1970-01-01T00:00:00Z" 
+
+        - name: "rcpdateTime@MetaData"
+          source: variables/rcptimestamp
+          longName: "receipt dateTime"
+          units: "seconds since 1970-01-01T00:00:00Z"
 
         - name: "stationID@MetaData"
           source: variables/stationID
