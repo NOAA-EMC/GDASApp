@@ -3,11 +3,12 @@
 #  UNIX Script Documentation Block
 #                      .                                             .
 # Script name:         exufsda_global_marine_analysis_vrfy.py
-# Script description:  State and observation space verification for UFS Global Marine Analysis
+# Script description:  State and observation space verification for the
+#                      UFS Global Marine Analysis
 #
 # Author: Guillaume Vernieres      Org: NCEP/EMC     Date: 2023-01-23
 #
-# Abstract: This script produces a figures relevant to the cycle
+# Abstract: This script produces figures relevant to the marine DA cycle
 #
 # $Id$
 #
@@ -16,31 +17,12 @@
 #
 ################################################################################
 
-# import os and sys to add ush to path
 import os
-import sys
-import yaml
-import glob
-import dateutil.parser as dparser
-import shutil
-
-import subprocess
-from datetime import datetime, timedelta
-from netCDF4 import Dataset
-import xarray as xr
 import numpy as np
-import logging
-
-# set up logger
-logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
-
-import xarray as xr
 import matplotlib.pyplot as plt
-
 import xarray as xr
 import cartopy
 import cartopy.crs as ccrs
-import matplotlib.pyplot as plt
 import ufsda
 
 
@@ -122,6 +104,7 @@ comout = os.getenv('COMOUT')
 cyc = os.getenv('cyc')
 bcyc = str((int(cyc) - 3) % 24)
 
+# TODO: do not write to COM, instead dump figures in DATA and copy to COM.
 grid_file = os.path.join(comout, 'gdas.t'+bcyc+'z.ocngrid.nc')
 
 #######################################
@@ -169,7 +152,7 @@ plot_horizontal_slice(config)
 #######################################
 # Std Bkg. Error
 #######################################
-bmat_cmap = 'hot'
+bmat_cmap = 'jet'
 data_file = os.path.join(comout, 'gdas.t'+cyc+'z.ocn.bkgerr_stddev.nc')
 config = plot_config(grid_file=grid_file,
                      data_file=data_file,
