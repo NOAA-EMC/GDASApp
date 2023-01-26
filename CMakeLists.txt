@@ -89,7 +89,7 @@ if(BUILD_GDASBUNDLE)
 # SOCA associated repositories
   ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" BRANCH develop )
   ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" BRANCH main-ecbuild RECURSIVE )
-  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" TAG 753cec67c9010140d13831996f3c86e210e9b099 )
+  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" BRANCH develop )
 
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
