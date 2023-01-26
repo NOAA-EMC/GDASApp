@@ -7,6 +7,11 @@ import argparse
 
 
 machines = {"container", "hera", "orion"}
+MODS = {'JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP': 'GDAS',
+        'JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT': 'GDAS',
+        'JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN': 'GDAS',
+        'JGDAS_GLOBAL_OCEAN_ANALYSIS_POST': 'GDAS',
+        'JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY': 'EVA'}
 
 
 class JobCard:
@@ -119,7 +124,7 @@ class JobCard:
         if self.machine != "container":
             self.f.write("module purge \n")
             self.f.write("module use ${HOMEgfs}/sorc/gdas.cd/modulefiles \n")
-            self.f.write(f"module load GDAS/{self.machine} \n")
+            self.f.write(f"module load {MODS[self.name]}/{self.machine} \n")
 
     def copy_bkgs(self):
         """
