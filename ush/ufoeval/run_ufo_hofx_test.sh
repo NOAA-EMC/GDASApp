@@ -11,19 +11,21 @@
 #-------------------------------------------------------------
 #--------------- User modified options below -----------------
 cycle=2021080100
-obtype=amsua_n19
-GDASApp=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp # Change this to your own branch
+obtype=aircraft
+#GDASApp=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp # Change this to your own branch
+GDASApp=/work2/noaa/da/nesposito/GDASApp_20230126/GDASApp_sprint-ioda-converters/
 workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
-yamlpath=$GDASApp/parm/atm/obs/testing/amsua_n19.yaml
+yamlpath=$GDASApp/parm/atm/obs/testing/aircraft.yaml
 exename=test_ObsFilters.x
 machine=orion
-radiance="YES"
+#radiance="YES"
+radiance="NO"
 
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
-GeoDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/geovals/
-ObsDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/obs/
-BCDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/bc/
+GeoDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20230126/geovals/
+ObsDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20230126/obs/
+BCDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20230126/bc/
 FixDir=/work2/noaa/da/cmartin/GDASApp/fix/
 
 # other variables that should not change often
@@ -34,6 +36,9 @@ export PDY=${CDATE:0:8}
 export cyc=${CDATE:8:2}
 export gPDY=${GDATE:0:8}
 export gcyc=${GDATE:8:2}
+export CASE="C768"
+export CASE_ENKF="C768"
+export LEVS="128"
 
 # Load Modules for GDASApp
 module use $GDASApp/modulefiles
