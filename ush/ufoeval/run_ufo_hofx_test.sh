@@ -40,10 +40,11 @@ exename=test_ObsFilters.x
 # paths that should only be changed by an expert user
 
 obtype_short=${obtype:0:4}
-echo $obtype_short
 if [ $obtype_short = "cris" ] || [ $obtype_short = "iasi" ] || [ $obtype_short = "hirs" ] || [ $obtype_short = "sevi" ] || \
    [ $obtype_short = "avhr" ] || [ $obtype_short = "mhs_" ] || [ $obtype_short = "ssmi" ]; then
    radiance="YES"
+else 
+   radiance="NO"
 fi
 
 if [ $machine = orion ]; then
