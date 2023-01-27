@@ -16,6 +16,7 @@ def cdl2nc(cdl_filename, nc4_filename):
         print("Return code:", e.returncode)
         print("Output:", e.output)
 
+
 if __name__ == "__main__":
 
     shared_root = './r2d2-shared'
