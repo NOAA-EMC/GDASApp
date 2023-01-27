@@ -8,7 +8,7 @@ obs space:
     engine:
       type: H5File
       obsfile: !ENV ${DATA}/diags/adt_j3.${PDY}${cyc}.nc4
-  simulated variables: [absolute_dynamic_topography]
+  simulated variables: [absoluteDynamicTopography]
 obs operator:
   name: ADT
 obs error:

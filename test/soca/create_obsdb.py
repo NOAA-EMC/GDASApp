@@ -4,6 +4,17 @@ import shutil
 from solo.configuration import Configuration
 from solo.nice_dict import NiceDict
 import ufsda.r2d2
+import subprocess
+
+
+def cdl2nc(cdl_filename, nc4_filename):
+    try:
+        result = subprocess.run(["ncgen", "-o", nc4_filename, cdl_filename], capture_output=True)
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print("Command failed:", e)
+        print("Return code:", e.returncode)
+        print("Output:", e.output)
 
 if __name__ == "__main__":
 
@@ -22,14 +33,13 @@ if __name__ == "__main__":
     ufsda.r2d2.setup(r2d2_config_yaml=r2d2_config_yaml, shared_root=shared_root)
 
     # Change the obs file name format
-    obsdir = os.getenv('OBS_DIR')
-    shutil.copyfile(os.path.join(obsdir, 'adt.nc'), 'adt_j3_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(obsdir, 'sst.nc'), 'sst_noaa19_l3u_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(obsdir, 'sss.nc'), 'sss_smap_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(obsdir, 'prof.nc'), 'temp_profile_fnmoc_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(obsdir, 'prof.nc'), 'salt_profile_fnmoc_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(obsdir, 'icec.nc'), 'icec_EMC_20180415.nc4', follow_symlinks=True)
-    shutil.copyfile(os.path.join(obsdir, 'icefb.nc'), 'icefb_GDR_20180415.nc4', follow_symlinks=True)
+    obsdir = os.getenv('SOCA_TEST_OBS')
+    cdl2nc(os.path.join(obsdir, 'adt.nc.cdl'), 'adt_j3_20180415.nc4')
+    cdl2nc(os.path.join(obsdir, 'sst.nc.cdl'), 'sst_noaa19_l3u_20180415.nc4')
+    cdl2nc(os.path.join(obsdir, 'sss.nc.cdl'), 'sss_smap_20180415.nc4')
+    cdl2nc(os.path.join(obsdir, 'prof.nc.cdl'), 'temp_profile_fnmoc_20180415.nc4')
+    cdl2nc(os.path.join(obsdir, 'prof.nc.cdl'), 'salt_profile_fnmoc_20180415.nc4')
+    cdl2nc(os.path.join(obsdir, 'icec.nc.cdl'), 'icec_EMC_20180415.nc4')
 
     # Create the test R2D2 database
     obsstore = NiceDict({'start': '2018-04-15T00:00:00Z',

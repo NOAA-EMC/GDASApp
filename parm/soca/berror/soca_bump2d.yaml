@@ -17,7 +17,7 @@ bump:
   io:
     data directory: bump
   drivers:
-    multivariate strategy: specific_univariate
+    multivariate strategy: univariate
     compute nicas: true
     write local nicas: true
   model:
