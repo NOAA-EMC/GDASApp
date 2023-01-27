@@ -11,7 +11,7 @@ config:
   bias_out_dir: bc
   obs_yaml_dir: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/config
   executable: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/build/bin/fv3jedi_var.x
-  obs_list: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype.yaml
+  obs_list: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype_3d.yaml
   gdas_fix_root: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
   atm: true
   layout_x: 1
@@ -31,6 +31,6 @@ job options:
   account: da-cpu
   queue: debug
   partition: hera
-  walltime: '10:00'
+  walltime: '30:00'
   ntasks: 6
   modulepath: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/modulefiles

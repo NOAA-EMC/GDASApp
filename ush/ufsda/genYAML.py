@@ -65,6 +65,8 @@ def get_runtime_config(config_dict):
     assim_freq = int(config_dict.get('assim_freq', 6))
     window_begin = valid_time - dt.timedelta(hours=assim_freq/2)
     window_end = valid_time + dt.timedelta(hours=assim_freq/2)
+    bkg_tstep_default = f"PT{assim_freq}H"
+    bkg_tstep = str(config_dict.get('BKG_TSTEP', f"PT{assim_freq}H"))
     component_dict = {
         'atmos': 'ATM',
         'chem': 'AERO',
@@ -74,8 +76,10 @@ def get_runtime_config(config_dict):
     win_begin_var = component_dict[config_dict.get('COMPONENT', 'atmos')] + '_WINDOW_BEGIN'
     win_end_var = component_dict[config_dict.get('COMPONENT', 'atmos')] + '_WINDOW_END'
     win_len_var = component_dict[config_dict.get('COMPONENT', 'atmos')] + '_WINDOW_LENGTH'
+    atm_begin_var = 'ATM_BEGIN_YYYYmmddHHMMSS'
     bkg_string_var = 'BKG_YYYYmmddHHMMSS'
     bkg_isotime_var = 'BKG_ISOTIME'
+    bkg_tstep_var = 'BKG_TSTEP'
     npx_ges_var = 'npx_ges'
     npy_ges_var = 'npy_ges'
     npz_ges_var = 'npz_ges'
@@ -87,8 +91,10 @@ def get_runtime_config(config_dict):
         win_begin_var: f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         win_end_var: f"{window_end.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         win_len_var: f"PT{assim_freq}H",
+        atm_begin_var: f"{window_begin.strftime('%Y%m%d.%H%M%S')}",
         bkg_string_var: f"{valid_time.strftime('%Y%m%d.%H%M%S')}",
         bkg_isotime_var: f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        bkg_tstep_var: f"{bkg_tstep}",
         npx_ges_var: f"{int(os.environ['CASE'][1:]) + 1}",
         npy_ges_var: f"{int(os.environ['CASE'][1:]) + 1}",
         npz_ges_var: f"{int(os.environ['LEVS']) - 1}",
