@@ -39,19 +39,22 @@ exename=test_ObsFilters.x
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
 
+dataprocdate=20230126 # Production date of test data
+
 obtype_short=${obtype:0:4}
 if [ $obtype_short = "cris" ] || [ $obtype_short = "iasi" ] || [ $obtype_short = "hirs" ] || [ $obtype_short = "sevi" ] || \
-   [ $obtype_short = "avhr" ] || [ $obtype_short = "mhs_" ] || [ $obtype_short = "ssmi" ]; then
+   [ $obtype_short = "avhr" ] || [ $obtype_short = "mhs_" ] || [ $obtype_short = "ssmi" ] || [ $obtype_short = "amsu" ] || \
+   [ $obtype_short = "atms" ]; then
    radiance="YES"
 else 
    radiance="NO"
 fi
 
 if [ $machine = orion ]; then
-    export Datapath='/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816' 
+    export Datapath='/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate 
     FixDir=/work2/noaa/da/cmartin/GDASApp/fix
 elif [ $machine = hera ]; then
-    export Datapath='/scratch1/NCEPDEV/da/Cory.R.Martin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20230126'
+    export Datapath='/scratch1/NCEPDEV/da/Cory.R.Martin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate
     FixDir=/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
 else
    echo "Machine " $machine "not found"
@@ -118,11 +121,21 @@ config:
 EOF
 $GDASApp/ush/genYAML --config $workdir/temp.yaml
 
+if [ $? -ne 0 ]; then
+   echo "YAML creation failed"
+   exit 1
+fi
+
 echo "Running executable"
 
 # Run executable
 cd $workdir
 ./$exename ${obtype}_${cycle}.yaml
+
+if [ $? -ne 0 ]; then
+   echo "Running UFO failed"
+   exit 1
+fi
 
 echo "Running EVA"
 
@@ -140,3 +153,10 @@ fi
 for yaml in $(ls eva_*.yaml); do
   eva $yaml
 done
+
+if [ $? -ne 0 ]; then
+   echo "EVA failed"
+   exit 1
+else
+   exit 0
+fi
