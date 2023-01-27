@@ -5,7 +5,7 @@ saber central block:
     io:
       data directory: ./bump
     drivers:
-      multivariate strategy: specific_univariate
+      multivariate strategy: univariate
       read local nicas: true
     grids:
     - model:
