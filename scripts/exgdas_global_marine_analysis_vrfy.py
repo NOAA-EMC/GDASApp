@@ -23,7 +23,6 @@ import matplotlib.pyplot as plt
 import xarray as xr
 import cartopy
 import cartopy.crs as ccrs
-import ufsda
 
 
 def plot_config(grid_file=[], data_file=[],
@@ -64,11 +63,11 @@ def plot_horizontal_slice(config):
                    transform=ccrs.PlateCarree(),
                    cmap=config['colormap'])
     plt.colorbar(label=config['variable']+' Level '+str(level), shrink=0.5, orientation='horizontal')
-    ax.coastlines()
+    # ax.coastlines()  # TODO: make this work on hpc
     ax.gridlines(draw_labels=True)
-    ax.add_feature(cartopy.feature.LAND)
+    # ax.add_feature(cartopy.feature.LAND)  # TODO: make this work on hpc
     dirname = os.path.join(config['comout'], config['variable'])
-    ufsda.mkdir(dirname)
+    os.makedirs(dirname, exist_ok=True)
     figname = os.path.join(dirname, config['variable']+'_Level_'+str(level))
     plt.savefig(figname, bbox_inches='tight')
 
@@ -94,7 +93,7 @@ def plot_zonal_slice(config):
     plt.colorbar(label=config['variable']+' Lat '+str(lat), shrink=0.5, orientation='horizontal')
     ax.set_ylim(-config['max depth'], 0)
     dirname = os.path.join(config['comout'], config['variable'])
-    ufsda.mkdir(dirname)
+    os.makedirs(dirname, exist_ok=True)
     figname = os.path.join(dirname, config['variable'] +
                            'zonal_lat_'+str(int(lat)) + '_' + str(int(config['max depth'])) + 'm')
     plt.savefig(figname, bbox_inches='tight')

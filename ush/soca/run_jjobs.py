@@ -117,14 +117,14 @@ class JobCard:
         self.f.close()
         subprocess.run(["chmod", "+x", self.name])
 
-    def modules(self):
+    def _modules(self, jjob):
         """
         Write a section that will load the machine dependent modules
         """
         if self.machine != "container":
             self.f.write("module purge \n")
             self.f.write("module use ${HOMEgfs}/sorc/gdas.cd/modulefiles \n")
-            self.f.write(f"module load {MODS[self.name]}/{self.machine} \n")
+            self.f.write(f"module load {MODS[jjob]}/{self.machine} \n")
 
     def copy_bkgs(self):
         """
@@ -166,6 +166,7 @@ class JobCard:
         """
         runjobs = "# Run jjobs\n"
         for job in self.config['jjobs']:
+            self._modules(job)  # Add module's jjob
             thejob = "${HOMEgfs}/jobs/"+job
             runjobs += f"{thejob} &>{job}.out\n"
         self.f.write(runjobs)
@@ -213,7 +214,6 @@ def main():
     run_card.fixconfigs()                # over-write some of the config variables
     run_card.header()                    # prepare a machine dependent header (SLURM or nothing)
     run_card.export_env_vars_script()
-    run_card.modules()
     run_card.copy_bkgs()
     run_card.jjobs()
     run_card.close()
