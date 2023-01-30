@@ -33,10 +33,19 @@ saber outer blocks:
         date: '{{ATM_WINDOW_BEGIN}}'
 # TODO (G): Below change of variable is not ordered properly after processing this yaml
 # TODO (G): failing in multiply inverse, check why eventually.
-#linear variable change:
-#  input variables: [socn, tocn, ssh, cicen, hicen]
-#  output variables: [socn, tocn, ssh, cicen, hicen]
-#  linear variable changes:
+linear variable change:
+  input variables: [socn, tocn, ssh, cicen, hicen]
+  output variables: [socn, tocn, ssh, cicen, hicen]
+  linear variable changes:
+  - linear variable change name: VertConvSOCA
+    Lz_min: 0.0
+    Lz_mld: 0
+    Lz_mld_max: 1.0
+    scale_layer_thick: 5
+
+  - linear variable change name: HorizFiltSOCA
+    niter: 4
+    filter variables: [socn, tocn, ssh, cicen]
 #  - linear variable change name: BalanceSOCA
 #    dsdtmax: 0.1
 #    dsdzmin: 3.0e-6
