@@ -84,7 +84,7 @@ export err=$?; err_chk
 # Note: ${DATA}/INPUT/MOM.res.nc points to the MOM6 history file from the start of the window
 #       and is used to get the valid vertical geometry of the increment
 socaincr=$(ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1)
-mom6incr=${COMOUT}/inc.nc
+mom6incr=${DATA}/inc.nc
 ( socaincr2mom6 ${socaincr} ${DATA}/INPUT/MOM.res.nc ${DATA}/soca_gridspec.nc ${mom6incr} )
 
 
