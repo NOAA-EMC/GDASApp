@@ -1,17 +1,16 @@
-working directory: /scratch2/NCEPDEV/stmp1/Cory.R.Martin/gdas_single_test_3dvar
+working directory: /scratch2/NCEPDEV/stmp1/Cory.R.Martin/gdas_single_test_letkf
 GDASApp home: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp
-GDASApp mode: variational
-template: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/variational/3dvar_dripcg.yaml
+GDASApp mode: letkf
+template: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/lgetkf/lgetkf.yaml
 config:
-  berror_yaml: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/berror/staticb_gsibec.yaml
   obs_dir: obs
   diag_dir: diags
   crtm_coeff_dir: crtm
   bias_in_dir: obs
   bias_out_dir: bc
   obs_yaml_dir: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/config
-  executable: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/build/bin/fv3jedi_var.x
-  obs_list: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype_3d.yaml
+  executable: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/build/bin/fv3jedi_letkf.x
+  obs_list: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/work/GDASApp/parm/atm/obs/lists/lgetkf_prototype.yaml
   gdas_fix_root: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
   atm: true
   layout_x: 1
@@ -19,12 +18,14 @@ config:
   atm_window_length: PT6H
   valid_time: 2021-12-21T06:00:00Z
   dump: gdas
-  case: C96
-  case_anl: C96
+  case: C48
+  case_anl: C48
+  case_enkf: C48
   staticb_type: gsibec
-  dohybvar: false
+  dohybvar: no
   levs: 128
   nmem: 10
+  comin_ens: /scratch2/NCEPDEV/stmp1/Russ.Treadon/comrot/prufsda/enkfgdas.20211221/00/atmos
   interp_method: barycentric
 job options:
   machine: hera

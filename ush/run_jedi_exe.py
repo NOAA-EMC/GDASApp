@@ -39,7 +39,7 @@ def run_jedi_exe(yamlconfig):
 
     # check if the specified app mode is valid
     app_mode = all_config_dict['GDASApp mode']
-    supported_app_modes = ['hofx', 'variational']
+    supported_app_modes = ['hofx', 'variational', 'letkf']
     if app_mode not in supported_app_modes:
         raise KeyError(f"'{app_mode}' not supported. " +
                        "Current GDASApp modes supported are: " +
@@ -58,7 +58,7 @@ def run_jedi_exe(yamlconfig):
     sys.path.append(ufsda_path)
     import ufsda
     from ufsda.misc_utils import calc_fcst_steps
-    from ufsda.stage import gdas_single_cycle, gdas_fix
+    from ufsda.stage import gdas_single_cycle, gdas_fix, background_ens, atm_obs, bias_obs
 
     # compute config for YAML for executable
     executable_subconfig = all_config_dict['config']
@@ -111,12 +111,16 @@ def run_jedi_exe(yamlconfig):
         'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'prev_valid_time': f"{prev_cycle.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'atm_window_length': executable_subconfig['atm_window_length'],
+        'ATM_WINDOW_LENGTH': f"PT{assim_freq}H",
+        'ATM_WINDOW_BEGIN': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        'COMOUT': os.path.join(workdir, 'obs'),
         'CASE': executable_subconfig['case'],
         'CASE_ANL': executable_subconfig.get('case_anl', executable_subconfig['case']),
         'CASE_ENKF': executable_subconfig.get('case_enkf', executable_subconfig['case']),
         'DOHYBVAR': executable_subconfig.get('dohybvar', False),
         'LEVS': str(executable_subconfig['levs']),
         'NMEM_ENKF': executable_subconfig.get('nmem', 0),
+        'COMIN_GES_ENS': executable_subconfig.get('comin_ens','./'),
         'forecast_steps': calc_fcst_steps(executable_subconfig.get('forecast_step', 'PT6H'),
                                           executable_subconfig['atm_window_length']),
         'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
@@ -132,7 +136,14 @@ def run_jedi_exe(yamlconfig):
     genYAML(yamlconfig, output=output_file)
     logging.info(f'Wrote YAML file to {output_file}')
     # use R2D2 to stage backgrounds, obs, bias correction files, etc.
-    ufsda.stage.gdas_single_cycle(var_config)
+    if app_mode in ['variational', 'hofx']:
+        ufsda.stage.gdas_single_cycle(var_config)
+    # stage ensemble backgrouns for letkf
+    if app_mode in ['letkf']:
+        ufsda.stage.background_ens(var_config)
+        ufsda.stage.atm_obs(var_config)
+        ufsda.stage.bias_obs(var_config)
+
     # link additional fix files needed (CRTM, fieldmetadata, etc.)
     gdasfix = executable_subconfig['gdas_fix_root']
     ufsda.stage.gdas_fix(gdasfix, workdir, var_config)
@@ -141,7 +152,7 @@ def run_jedi_exe(yamlconfig):
     ufsda.disk_utils.symlink(executable_subconfig['executable'], os.path.join(workdir, baseexe))
     # create output directories
     ufsda.disk_utils.mkdir(os.path.join(workdir, 'diags'))
-    if app_mode in ['variational']:
+    if app_mode in ['variational', 'letkf']:
         ufsda.disk_utils.mkdir(os.path.join(workdir, 'anl'))
         ufsda.disk_utils.mkdir(os.path.join(workdir, 'bc'))
     baseexe = os.path.join(workdir, baseexe)
