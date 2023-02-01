@@ -162,9 +162,8 @@ bkg_dir = os.path.join(anl_dir, 'bkg')
 ufsda.mkdir(bkg_dir)
 
 # create output directory for soca DA
-anl_out = os.path.join(comout, 'ocnanal_' + os.getenv('cyc'), 'Data')
+anl_out = os.path.join(anl_dir, 'Data')
 ufsda.mkdir(anl_out)
-ufsda.symlink(anl_out, os.path.join(anl_dir, 'Data'), remove=False)
 
 ################################################################################
 # fetch observations
