@@ -120,7 +120,7 @@ def run_jedi_exe(yamlconfig):
         'DOHYBVAR': executable_subconfig.get('dohybvar', False),
         'LEVS': str(executable_subconfig['levs']),
         'NMEM_ENKF': executable_subconfig.get('nmem', 0),
-        'COMIN_GES_ENS': executable_subconfig.get('comin_ens','./'),
+        'COMIN_GES_ENS': executable_subconfig.get('comin_ens', './'),
         'forecast_steps': calc_fcst_steps(executable_subconfig.get('forecast_step', 'PT6H'),
                                           executable_subconfig['atm_window_length']),
         'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),

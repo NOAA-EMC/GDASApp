@@ -508,5 +508,3 @@ def background_ens(config):
             os.remove(jedi_bkg_dir)
             os.symlink(ges_dir, jedi_bkg_dir)
         mkdir(jedi_anl_dir)
-
-
