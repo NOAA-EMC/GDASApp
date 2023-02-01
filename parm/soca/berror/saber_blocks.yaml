@@ -1,26 +1,6 @@
 covariance model: SABER
 saber central block:
-  saber block name: BUMP_NICAS
-  bump:
-    io:
-      data directory: ./bump
-    drivers:
-      multivariate strategy: specific_univariate
-      read local nicas: true
-    grids:
-    - model:
-        variables:
-        - socn
-        - tocn
-      io:
-        files prefix: bump3d
-    - model:
-        variables:
-        - cicen
-        - hicen
-        - ssh
-      io:
-        files prefix: bump2d
+  saber block name: ID
 saber outer blocks:
   - saber block name: StdDev
     input fields:
@@ -30,6 +10,7 @@ saber outer blocks:
         basename: ./
         ocn_filename: 'ocn.bkgerr_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
         ice_filename: 'ice.bkgerr_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
+        remap_filename: ./INPUT/MOM.res.nc
         date: '{{ATM_WINDOW_BEGIN}}'
 # TODO (G): Below change of variable is not ordered properly after processing this yaml
 # TODO (G): failing in multiply inverse, check why eventually.

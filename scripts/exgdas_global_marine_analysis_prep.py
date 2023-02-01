@@ -207,12 +207,12 @@ ufsda.disk_utils.symlink(gridgen_yaml,
                          os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
 
 # generate YAML file for parametric diag of B
-berr_yaml = os.path.join(anl_dir, 'parametric_stddev_b.yaml')
+berr_yaml = os.path.join(anl_dir, 'clim_stddev_b.yaml')
 berr_yaml_template = os.path.join(gdas_home,
                                   'parm',
                                   'soca',
                                   'berror',
-                                  'parametric_stddev_b.yaml')
+                                  'clim_stddev_b.yaml')
 config = YAMLFile(path=berr_yaml_template)
 config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
