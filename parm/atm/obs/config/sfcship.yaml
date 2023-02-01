@@ -11,7 +11,7 @@ obs space:
       obsfile: !ENV ${DATA}/diags/diag_sfcship_${CDATE}.nc4
   io pool:
     max pool size: 1
-  simulated variables: [surfacePressure, airTemperature, specificHumidity]
+  simulated variables: [stationPressure, airTemperature, specificHumidity]
 obs operator:
   name: Composite
   components:
@@ -21,7 +21,7 @@ obs operator:
       - name: specificHumidity
     - name: SfcPCorrected
       variables:
-      - name: surfacePressure
+      - name: stationPressure
       da_psfc_scheme: GSI
       geovar_sfc_geomz: surface_geometric_height
       geovar_geomz: geopotential_height
@@ -32,7 +32,7 @@ obs filters:
   # Observation range sanity check
   - filter: Bounds Check
     filter variables:
-    - name: surfacePressure
+    - name: stationPressure
     minvalue: 37499.0
     maxvalue: 106999.0
     action:
@@ -53,7 +53,7 @@ obs filters:
   # Gross error check with (O - B) / ObsError greater than threshold.
   - filter: Background Check
     filter variables:
-    - name: surfacePressure
+    - name: stationPressure
     threshold: 3.6
     absolute threshold: 990.0
     action:
@@ -71,5 +71,5 @@ obs filters:
   - filter: BlackList
     where:
     - variable:
-        name: ObsType/surfacePressure
+        name: ObsType/stationPressure
       is_in: 183
