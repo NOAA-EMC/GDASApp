@@ -72,7 +72,6 @@ def run_jedi_exe(yamlconfig):
     gcyc = prev_cycle.strftime("%H")
     gdate = prev_cycle.strftime("%Y%m%d%H")
     gPDY = prev_cycle.strftime("%Y%m%d")
-    print(f"gdate {gdate} gpdy {gPDY} gcyc {gcyc}")
     pdy = valid_time.strftime("%Y%m%d")
     os.environ['PDY'] = str(pdy)
     os.environ['cyc'] = str(cyc)
@@ -81,8 +80,6 @@ def run_jedi_exe(yamlconfig):
     gprefix = executable_subconfig['dump'] + ".t" + str(gcyc) + "z."
     comin = executable_subconfig.get('comin_ges', './')
     comin_ges_ens = os.path.join(comin, 'enkfgdas.' + str(gPDY), str(gcyc), 'atmos')
-    print(f"comin {comin}")
-    print(f"comin_ges_ens {comin_ges_ens}")
 
     single_exec = True
     var_config = {
