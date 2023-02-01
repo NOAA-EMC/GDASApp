@@ -488,7 +488,7 @@ def background_ens(config):
     """
     for imem in range(1, config['NMEM_ENKF']+1):
         memchar = f"mem{imem:03d}"
-        print(f"background_ens:  process {memchar}")
+        print(f"background_ens:  stage {memchar}")
         rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'RESTART')
         ges_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'RESTART_GES')
         jedi_bkg_mem = os.path.join(config['DATA'], 'bkg', memchar)

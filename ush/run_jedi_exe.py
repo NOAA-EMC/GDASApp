@@ -71,12 +71,18 @@ def run_jedi_exe(yamlconfig):
     cdate = valid_time.strftime("%Y%m%d%H")
     gcyc = prev_cycle.strftime("%H")
     gdate = prev_cycle.strftime("%Y%m%d%H")
+    gPDY = prev_cycle.strftime("%Y%m%d")
+    print(f"gdate {gdate} gpdy {gPDY} gcyc {gcyc}")
     pdy = valid_time.strftime("%Y%m%d")
     os.environ['PDY'] = str(pdy)
     os.environ['cyc'] = str(cyc)
     os.environ['assim_freq'] = str(assim_freq)
     oprefix = executable_subconfig['dump'] + ".t" + str(cyc) + "z."
     gprefix = executable_subconfig['dump'] + ".t" + str(gcyc) + "z."
+    comin = executable_subconfig.get('comin_ges', './')
+    comin_ges_ens = os.path.join(comin, 'enkfgdas.' + str(gPDY), str(gcyc), 'atmos')
+    print(f"comin {comin}")
+    print(f"comin_ges_ens {comin_ges_ens}")
 
     single_exec = True
     var_config = {
@@ -120,7 +126,7 @@ def run_jedi_exe(yamlconfig):
         'DOHYBVAR': executable_subconfig.get('dohybvar', False),
         'LEVS': str(executable_subconfig['levs']),
         'NMEM_ENKF': executable_subconfig.get('nmem', 0),
-        'COMIN_GES_ENS': executable_subconfig.get('comin_ens', './'),
+        'COMIN_GES_ENS': f"{comin_ges_ens}",
         'forecast_steps': calc_fcst_steps(executable_subconfig.get('forecast_step', 'PT6H'),
                                           executable_subconfig['atm_window_length']),
         'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
