@@ -3,15 +3,16 @@
 ####  UNIX Script Documentation Block
 #                      .                                             .
 # Script name:         exgdas_global_marine_analysis_bmat.sh
-# Script description:  Performs calculations in preparation for the global 
+# Script description:  Performs calculations in preparation for the global
 #                      marine analysis with SOCA
 #
 # Author: Andrew Eichamnn   Org: NCEP/EMC     Date: 2023-01-12
 #
-# Abstract: This script does the follwing in preparation for creating the 
+# Abstract: This script does the follwing in preparation for creating the
 #           global model ocean sea-ice analysis using SOCA:
 #           - generates the DA grid
-#           - computes diagonal of B based on the background
+#           - computes diagonal of B based on the background if a std. dev. file
+#             was not staged. TODO: Remove this option in the future
 #           - creates the bump correlation operators
 #
 # $Id$
@@ -71,70 +72,51 @@ function clean_yaml()
     sed -e "s/'//g" tmp_yaml > $1
 }
 
-function find_closest_bkgerr 
-{
-  input_date=$1
-  filenames=$2
-  files=($(ls ${filenames}))
-  closest_file=""
-  closest_diff=99999999999
-  closest_date=""
-  for file in "${files[@]}"; do
-    file_date=$(echo "$file" | cut -d '.' -f 2)
-    diff=$(date -d "$input_date" +%s -d "$file_date" +%s)
-    diff=${diff#-}
-    if [[ $diff -lt $closest_diff ]]; then
-      closest_file=$file
-      closest_diff=$diff
-      closest_date=$file_date
+################################################################################
+# Generate soca geometry if needed
+if [[ -e 'soca_gridspec.nc' ]]; then
+    echo "soca_gridspc.nc already exists, skip the grid generation step"
+else
+    # Run soca_gridgen.x if the grid was not staged
+    # TODO (Guillaume): Should not use all pe's for the grid generation
+    $APRUN_OCNANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml
+    export err=$?; err_chk
+    if [ $err -gt 0  ]; then
+        exit $err
     fi
-  done
-  echo "$closest_file"
-}
-
-################################################################################
-# generate soca geometry
-# TODO (Guillaume): Should not use all pe's for the grid generation
-# TODO (Guillaume): Does not need to be generated at every cycles, store in static dir?
-$APRUN_OCNANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
 fi
 
 ################################################################################
-# Generate the parametric diag of B
-
-# Window begin date
-dt=$((assym_freq / 2))
-gdate=$(date -d "${PDY:0:4}-${PDY:4:2}-${PDY:6:2} ${cyc}:00:00" +%s)
-gdate=$((gdate - dt * 3600))
-gdate=$(date -d @$gdate +"%Y-%m-%dT%H:%M:%SZ")
-
-# Find the bkg error closest to the begining of the window
-domains=("ocn" "ice")
-for domain in "${domains[@]}"; do
-    cp $(find_closest_bkgerr "${gdate}" "${SOCA_INPUT_FIX_DIR}/../bkgerror/${domain}.ensstddev.fc.*.nc") \
-       ${domain}.bkgerr_stddev.incr.${gdate}.nc
-done
-
-
-#cp ${SOCA_INPUT_FIX_DIR}/../bkgerror/ocn.ensstddev.fc.2019-06-30T00:00:00Z.PT0S.nc ocn.bkgerr_stddev.incr.${gdate}.nc
-#cp ${SOCA_INPUT_FIX_DIR}/../bkgerror/ice.ensstddev.fc.2019-06-30T00:00:00Z.PT0S.nc ice.bkgerr_stddev.incr.${gdate}.nc
-#$APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x clim_stddev_b.yaml
-#export err=$?; err_chk
-#if [ $err -gt 0  ]; then
-#    exit $err
-#fi
-
-################################################################################
-set +x
-if [ $VERBOSE = "YES" ]; then
-   echo $(date) EXITING $0 with return code $err >&2
+# Prepare the diagonal of B
+shopt -s nullglob
+files=(ocn.bkgerr_stddev.incr.*.nc)
+echo $files
+if [ ${#files[@]} -gt 0 ]; then
+  echo "Diag of B already staged, skipping the parametric diag B"
+else
+    # TODO: this step should be replaced by a post processing step of the ens. derived std. dev.
+    $APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml > parametric_stddev_b.out 2>&1
+    export err=$?; err_chk
+    if [ $err -gt 0  ]; then
+        exit $err
+    fi
 fi
-exit $err
+shopt -u nullglob
 
 ################################################################################
+# Correlation and Localization operators
+shopt -s nullglob
+files=(./bump/*.nc)
+echo $files
+if [ ${#files[@]} -gt 0 ]; then
+    echo "BUMP/NICAS correlation and localization already staged, skipping BUMP initialization"
+    set +x
+    if [ $VERBOSE = "YES" ]; then
+        echo $(date) EXITING $0 with return code $err >&2
+    fi
+    exit $err  # Exit early, we're done with B
+    shopt -u nullglob
+fi
 
 ################################################################################
 # Set decorrelation scales for bump C

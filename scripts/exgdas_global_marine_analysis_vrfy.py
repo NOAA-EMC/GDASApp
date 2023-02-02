@@ -80,8 +80,8 @@ def plot_zonal_slice(config):
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
     lat_index = np.argmin(np.array(np.abs(np.squeeze(grid.lat)[:, 0]-lat)))
-    slice_data = np.squeeze(np.array(data[config['variable']].sel(yaxis_1=lat_index)))
-    depth = np.squeeze(np.array(grid['h'].sel(yaxis_1=lat_index)))
+    slice_data = np.squeeze(np.array(data[config['variable']]))[:, lat_index, :]
+    depth = np.squeeze(np.array(grid['h']))[:, lat_index, :]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
     bounds = config['bounds']

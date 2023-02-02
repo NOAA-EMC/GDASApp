@@ -28,6 +28,7 @@ import shutil
 import logging
 import subprocess
 from datetime import datetime, timedelta
+import pytz
 from netCDF4 import Dataset
 import xarray as xr
 import numpy as np
@@ -139,6 +140,25 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', file_type='gdas.t*.ocnf00
     f = open(yaml_name, 'w')
     yaml.dump(bkg_list, f, sort_keys=False, default_flow_style=False)
 
+
+def find_bkgerr(input_date, domain):
+    """
+    Find the std. dev. files that are the closest to the DA window
+    """
+    bkgerror_dir = os.path.join(os.getenv('SOCA_INPUT_FIX_DIR'), 'bkgerr', 'stddev')
+    files = glob.glob(os.path.join(bkgerror_dir, domain+'.ensstddev.fc.*.nc'))
+    closest_file = ""
+    closest_diff = float("inf")
+    for file in files:
+        file_date = dparser.parse(file, fuzzy=True)
+        file_date = file_date.replace(year=input_date.year)
+        diff = abs((file_date - input_date).total_seconds())
+        if diff < closest_diff:
+            closest_file = file
+            closest_diff = diff
+    return closest_file
+
+
 ################################################################################
 # runtime environment variables, create directories
 
@@ -164,6 +184,10 @@ ufsda.mkdir(bkg_dir)
 # create output directory for soca DA
 anl_out = os.path.join(anl_dir, 'Data')
 ufsda.mkdir(anl_out)
+
+# Variables of convenience
+half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
+window_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H') - half_assim_freq
 
 ################################################################################
 # fetch observations
@@ -191,6 +215,13 @@ logging.info(f"---------------- Stage static files")
 ufsda.stage.soca_fix(stage_cfg)
 
 ################################################################################
+# stage background error files
+for domain in ['ocn', 'ice']:
+    fname_stddev = find_bkgerr(pytz.utc.localize(window_begin, is_dst=None), domain=domain)
+    fname_out = domain+'.bkgerr_stddev.incr.'+window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')+'.nc'
+    ufsda.disk_utils.copyfile(fname_stddev, os.path.join(stage_cfg['stage_dir'], fname_out))
+
+################################################################################
 # prepare JEDI yamls
 logging.info(f"---------------- Generate JEDI yaml files")
 
@@ -207,12 +238,12 @@ ufsda.disk_utils.symlink(gridgen_yaml,
                          os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
 
 # generate YAML file for parametric diag of B
-berr_yaml = os.path.join(anl_dir, 'clim_stddev_b.yaml')
+berr_yaml = os.path.join(anl_dir, 'parametric_stddev_b.yaml')
 berr_yaml_template = os.path.join(gdas_home,
                                   'parm',
                                   'soca',
                                   'berror',
-                                  'clim_stddev_b.yaml')
+                                  'parametric_stddev_b.yaml')
 config = YAMLFile(path=berr_yaml_template)
 config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
@@ -276,9 +307,6 @@ var_yaml_template = os.path.join(gdas_home,
                                  'soca',
                                  'variational',
                                  '3dvarfgat.yaml')
-
-half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
-window_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H') - half_assim_freq
 gen_bkg_list(bkg_path=os.getenv('COMIN_GES'),
              out_path=bkg_dir,
              window_begin=window_begin,
