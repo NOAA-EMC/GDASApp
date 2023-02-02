@@ -8,7 +8,7 @@ obs space:
     engine:
       type: H5File
       obsfile: !ENV satwind_diag_${CDATE}.nc4
-  simulated variables: [eastward_wind, northward_wind]
+  simulated variables: [windEastward, windNorthward]
 geovals:
   filename: !ENV satwind_geoval_${CDATE}.nc4
 vector ref: GsiHofXBc
@@ -22,381 +22,381 @@ obs pre filters:
   # Type 240 (GOES SWIR): Assigned all dummy values in prepobs_errtable.global
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 240
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,0.]   #Pressure (Pa)
           errors: [1000000000.,1000000000.]
   # Type 241 (Multi Spec. Imager LWIR): Assigned all dummy values
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 241
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,0.]   #Pressure (Pa)
           errors: [1000000000.,1000000000.]
   # Type 242 (Himawari VIS)
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 242
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
   # Type 243  (MVIRI/SEVIRI VIS)
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 243
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
   # Type 244 (AVHRR LWIR)
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 244
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
   # Type 245 (GOES LWIR): I am assuming these are halved relative to prepobs_errtable.global, based on read_satwnd.f90: L1410–1416
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 245
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [7.6,7.6,7.6,7.6,7.6,7.6,7.6,7.6,7.8,7.8,8.,8.,8.2,10.,12.,12.6,13.2,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.]
   # Type 246 (GOES cloud-top WV): I am assuming these are halved relative to prepobs_errtable.global, based on read_satwnd.f90: L1410–1416
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 246
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [7.6,7.6,7.6,7.6,7.6,7.6,7.6,7.6,7.8,7.8,8.,8.,8.2,10.,12.,12.6,13.2,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.]
   # Type 247 (GOES clear-sky WV): I am assuming these are halved relative to prepobs_errtable.global, based on read_satwnd.f90: L1410–1416
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 247
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [7.6,7.6,7.6,7.6,7.6,7.6,7.6,7.6,7.8,7.8,8.,8.,8.2,10.,12.,12.6,13.2,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.,14.]
   # Type 248 (GOES Sounder cloud-top WV): Assigned all dummy values
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 248
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,0.]   #Pressure (Pa)
           errors: [1000000000.,1000000000.]
   # Type 249 (GOES Sounder clear-sky WV): Assigned all dummy values
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 249
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,0.]   #Pressure (Pa)
           errors: [1000000000.,1000000000.]
   # Type 250 (Himawari AHI WV, cloud-top or clear-sky)
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 250
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,7.,7.3,7.6,8.,8.,8.,8.,8.,8.,8.,8.,8.,8.,8.,8.,8.,8.,8.,8.]
   # Type 251 (GOES VIS): Assigned all dummy values
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 251
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,0.]   #Pressure (Pa)
           errors: [1000000000.,1000000000.]
   # Type 252 (Himawari AHI LWIR)
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 252
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
   # Type 253 (MVIRI/SEVERI LWIR)
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 253
     minvalue: -135.
     maxvalue: 135.
     action: 
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
   # Type 254 (MVIRI/SEVIRI WV, both cloud-top and clear-sky)
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 254
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.5,6.1,6.,6.5,7.3,7.6,7.,7.5,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
   # Type 255 (GOES low-level picture triplet cloud drift): According to prepbufr table this should no longer exist??
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 255
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
   # Type 256 (Multi Spec. Imager WV, both clear-sky and cloud-top): Assigned all dummy values
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 256
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,0.]   #Pressure (Pa)
           errors: [1000000000.,1000000000.]
   # Type 257 (MODIS LWIR)
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 257
     minvalue: -135.
     maxvalue: 135.
     action: 
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
   # Type 258 (MODIS cloud-top WV): Some levels assigned dummy values
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 258
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [1000000000.,1000000000.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
   # Type 259 (MODIS clear-sky WV): Some levels assigned dummy values
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 259
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [1000000000.,1000000000.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
   # Type 260 (VIIRS LWIR): All levels assigned dummy values in prepobs_errtable.global, HOWEVER the GSI values appear
@@ -404,20 +404,20 @@ obs pre filters:
   #                        It's possibly that my prepobs_errtable.global file is out-of-date.
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 260
     minvalue: -135.
     maxvalue: 135.
     action:
       name: assign error
       error function:
-        name: ObsErrorModelStepwiseLinear@ObsFunction
+        name: ObsFunction/ObsErrorModelStepwiseLinear
         options:
           xvar:
-            name: MetaData/air_pressure
+            name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
 obs prior filters:
@@ -428,8 +428,8 @@ obs prior filters:
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     minvalue: -130.
     maxvalue: 130.
     action:
@@ -438,10 +438,10 @@ obs prior filters:
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     test variables:
-    - name: Velocity@ObsFunction
+    - name: ObsFunction/Velocity
     maxvalue: 130.
     action:
       name: reject
@@ -453,8 +453,8 @@ obs prior filters:
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 49.
@@ -468,8 +468,8 @@ obs prior filters:
   # CLEARED
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 49.
@@ -483,8 +483,8 @@ obs prior filters:
   # CLEARED
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 49.
@@ -499,8 +499,8 @@ obs prior filters:
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 99.
@@ -514,8 +514,8 @@ obs prior filters:
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 99.
@@ -529,8 +529,8 @@ obs prior filters:
   # CLEARED
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 99.
@@ -545,8 +545,8 @@ obs prior filters:
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 249.
@@ -560,8 +560,8 @@ obs prior filters:
   # CLEARED
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 249.
@@ -572,70 +572,70 @@ obs prior filters:
     maxvalue: 100.
     action:
       name: reject
-  # Reject obs with air_pressure < 15000.
+  # Reject obs with pressure < 15000.
   # CLEARED
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 249.
       maxvalue: 300.
     test variables:
-    - name: MetaData/air_pressure
+    - name: MetaData/pressure
     minvalue: 15000.
     action: 
       name: reject
-  # Reject obs with air_pressure < 70000. when Type=251
+  # Reject obs with pressure < 70000. when Type=251
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 249.
       maxvalue: 300.
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 251
     test variables:
-    - name: MetaData/air_pressure
+    - name: MetaData/pressure
     minvalue: 70000.
     action:
       name: reject
-  # Reject obs with air_pressure > 30000. when Type=246
+  # Reject obs with pressure > 30000. when Type=246
   # CLEARED
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 249.
       maxvalue: 300.
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 246
     test variables:
-    - name: MetaData/air_pressure
+    - name: MetaData/pressure
     maxvalue: 30000.
     action:
       name: reject
-  # Reject obs with air_pressure > 85000. when isli=1 (land surface)
+  # Reject obs with pressure > 85000. when isli=1 (land surface)
   # CLEARED
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 249.
       maxvalue: 300.
-    - variable: land_type_index_NPOESS@GeoVaLs
+    - variable: GeoVaLs/land_type_index_NPOESS
       minvalue: 1.
       maxvalue: 1.
     test variables:
-    - name: MetaData/air_pressure
+    - name: MetaData/pressure
     maxvalue: 85000.
     action:
       name: reject
@@ -643,13 +643,13 @@ obs prior filters:
   # CLEARED
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       minvalue: 249.
       maxvalue: 300.
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 240,245,246,251
     test variables:
     - name: MetaData/coefficientOfVariation
@@ -671,13 +671,13 @@ obs prior filters:
   # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 240-260
     test variables:
-    - name: MetaData/air_pressure
+    - name: MetaData/pressure
     maxvalue: 95001.
     action:
       name: reject
@@ -685,13 +685,13 @@ obs prior filters:
   # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: MetaData/air_pressure
+    - variable: MetaData/pressure
       minvalue: 39901.
       maxvalue: 80099.
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 245
     action:
       name: reject
@@ -699,13 +699,13 @@ obs prior filters:
   # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: MetaData/air_pressure
+    - variable: MetaData/pressure
       minvalue: 49901.
       maxvalue: 80099.
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 252
     action:
       name: reject
@@ -713,13 +713,13 @@ obs prior filters:
   # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
   - filter: Perform Action
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: MetaData/air_pressure
+    - variable: MetaData/pressure
       minvalue: 40101.
       maxvalue: 80099.
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 253
     action:
       name: reject
@@ -727,13 +727,13 @@ obs prior filters:
   # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 246, 250, 254
     test variables:
-    - name: MetaData/air_pressure
+    - name: MetaData/pressure
     maxvalue: 39900.
     action:
       name: reject
@@ -741,13 +741,13 @@ obs prior filters:
   # CLEARED: minvalue is rejecting <, not <= as per a Perform Action, so threshold is unchanged
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 242, 243
     test variables:
-    - name: MetaData/air_pressure
+    - name: MetaData/pressure
     minvalue: 70000.
     action:
       name: reject
@@ -755,13 +755,13 @@ obs prior filters:
   # CLEARED: minvalue is rejecting <, not <= as per a Perform Action, so threshold is unchanged
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 257,259
     test variables:
-    - name: MetaData/air_pressure
+    - name: MetaData/pressure
     minvalue: 24900.
     action:
       name: reject
@@ -770,13 +770,13 @@ obs prior filters:
   # maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 258, 259
     test variables:
-    - name: MetaData/air_pressure
+    - name: MetaData/pressure
     maxvalue: 60000.
     action:
       name: reject
@@ -784,10 +784,10 @@ obs prior filters:
   # CLEARED: minvalue is rejecting <, not <= as per a Perform Action, so threshold is unchanged
   - filter: Difference Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
-    reference: tropopause_pressure@GeoVaLs
-    value: MetaData/air_pressure
+    - name: windEastward
+    - name: windNorthward
+    reference: GeoVaLs/tropopause_pressure
+    value: MetaData/pressure
     minvalue: -5000.                   # 50 hPa above tropopause level, negative p-diff
     action:
       name: reject
@@ -797,17 +797,17 @@ obs prior filters:
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
   - filter: Difference Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable:
-        name: land_type_index_NPOESS@GeoVaLs
+        name: GeoVaLs/land_type_index_NPOESS
       minvalue: 1.
     - variable:
-        name: ObsType/eastward_wind
+        name: ObsType/windEastward
       is_in: 247
-    reference: surface_pressure@GeoVaLs
-    value: MetaData/air_pressure
+    reference: GeoVaLs/surface_pressure
+    value: MetaData/pressure
     maxvalue: -11000.                   # within 110 hPa above surface pressure, negative p-diff
     action:
       name: reject
@@ -817,17 +817,17 @@ obs prior filters:
   # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
   - filter: Difference Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
     - variable:
-        name: land_type_index_NPOESS@GeoVaLs
+        name: GeoVaLs/land_type_index_NPOESS
       minvalue: 1.
     - variable:
-        name: ObsType/eastward_wind
+        name: ObsType/windEastward
       is_in: 244, 257-260
-    reference: surface_pressure@GeoVaLs
-    value: MetaData/air_pressure
+    reference: GeoVaLs/surface_pressure
+    value: MetaData/pressure
     maxvalue: -20000.                   # within 200 hPa above surface pressure, negative p-diff
     action:
       name: reject
@@ -836,13 +836,13 @@ obs post filters:
   # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 247
     test variables:
-    - name: WindDirAngleDiff@ObsFunction
+    - name: ObsFunction/WindDirAngleDiff
     maxvalue: 50.
     action:
       name: reject
@@ -850,13 +850,13 @@ obs post filters:
   # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
   - filter: Bounds Check
     filter variables:
-    - name: eastward_wind
-    - name: northward_wind
+    - name: windEastward
+    - name: windNorthward
     where:
-    - variable: ObsType/eastward_wind
+    - variable: ObsType/windEastward
       is_in: 244, 247, 257-260
     test variables:
-    - name: SatWindsLNVDCheck@ObsFunction
+    - name: ObsFunction/SatWindsLNVDCheck
     maxvalue: 3.
     action:
       name: reject
@@ -868,10 +868,10 @@ obs post filters:
   #   not being considered when checking acceptance compliance.
   #- filter: Bounds Check
   #  filter variables:
-  #  - name: eastward_wind
-  #  - name: northward_wind
+  #  - name: windEastward
+  #  - name: windNorthward
   #  test variables:
-  #  - name: SatWindsSPDBCheck@ObsFunction
+  #  - name: ObsFunction/SatWindsSPDBCheck
   #    options:
   #      error_min: 1.4
   #      error_max: 20.0

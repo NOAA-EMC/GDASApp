@@ -10,11 +10,11 @@ obs space:
       obsfile: !ENV ${DATA}/diags/diag_sfc_${CDATE}.nc4
   io pool:
     max pool size: 1
-  simulated variables: [surface_pressure]
+  simulated variables: [stationPressure]
 obs operator:
   name: SfcPCorrected
   da_psfc_scheme: GSI
-  geovar_sfc_geomz: surface_geopotential_height
+  geovar_sfc_geomz: surface_geometric_height
   geovar_geomz: geopotential_height
 linear obs operator:
   name: Identity
