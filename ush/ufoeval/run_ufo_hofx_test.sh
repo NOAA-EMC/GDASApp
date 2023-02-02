@@ -21,8 +21,7 @@ if [ $# -lt 1 ] || [ $# -gt 2 ]; then
 fi
 
 machine=hera
-#GDASApp=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp # Change this to your own branch
-GDASApp=/scratch1/NCEPDEV/da/Andrew.Collard/git/GDASApp_sprint-ioda-converters/ # Change this to your own branch
+GDASApp=/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/ # Change this to your own branch
 
 if [ $machine = orion ]; then
    workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
@@ -39,7 +38,7 @@ exename=test_ObsFilters.x
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
 
-dataprocdate=20230126 # Production date of test data
+dataprocdate=20230202 # Production date of test data
 
 obtype_short=${obtype:0:4}
 if [ $obtype_short = "cris" ] || [ $obtype_short = "iasi" ] || [ $obtype_short = "hirs" ] || [ $obtype_short = "sevi" ] || \
@@ -133,11 +132,11 @@ cd $workdir
 ./$exename ${obtype}_${cycle}.yaml
 
 if [ $? -ne 0 ]; then
-   echo "Running UFO failed"
-   exit 1
+   echo "*************** Running UFO failed ****************"
+   echo "Running EVA for diagnostic purposes"
+else
+   echo "Running EVA"
 fi
-
-echo "Running EVA"
 
 # Load EVA modules
 module load EVA/$machine
