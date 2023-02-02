@@ -44,8 +44,6 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=loggin
 my_dir = os.path.dirname(__file__)
 my_home = os.path.dirname(os.path.dirname(my_dir))
 gdas_home = os.path.join(os.getenv('HOMEgfs'), 'sorc', 'gdas.cd')
-sys.path.append(os.path.join(os.getenv('HOMEgfs', my_home), 'ush'))
-sys.path.append(os.path.join(gdas_home, 'ush'))
 
 # import UFSDA utilities
 import ufsda
