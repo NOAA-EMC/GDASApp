@@ -150,7 +150,7 @@ def find_bkgerr(input_date, domain):
     closest_file = ""
     closest_diff = float("inf")
     for file in files:
-        file_date = dparser.parse(file, fuzzy=True)
+        file_date = dparser.parse(os.path.basename(file), fuzzy=True)
         file_date = file_date.replace(year=input_date.year)
         diff = abs((file_date - input_date).total_seconds())
         if diff < closest_diff:
