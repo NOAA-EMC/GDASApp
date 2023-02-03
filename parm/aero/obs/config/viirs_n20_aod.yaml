@@ -10,7 +10,7 @@ obs space:
       obsfile: !ENV ${DATA}/diags/diag_viirs_n20_${CDATE}.nc4
   io pool:
     max pool size: 1
-  simulated variables: [aerosol_optical_depth]
+  simulated variables: [aerosolOpticalDepth]
   channels: 4 
 get values:
   interpolation method: barycentric
