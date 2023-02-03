@@ -497,11 +497,12 @@ def background_ens(config):
         mkdir(jedi_bkg_mem)
 
         # copy RESTART to RESTART_GES
-        try:
-            shutil.copytree(rst_dir, ges_dir)
-        except FileExistsError:
-            shutil.rmtree(ges_dir)
-            shutil.copytree(rst_dir, ges_dir)
+        if not os.path.exists(ges_dir):
+            try:
+                shutil.copytree(rst_dir, ges_dir)
+            except FileExistsError:
+                shutil.rmtree(ges_dir)
+                shutil.copytree(rst_dir, ges_dir)
         try:
             os.symlink(ges_dir, jedi_bkg_dir)
         except FileExistsError:
