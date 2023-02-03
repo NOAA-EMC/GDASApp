@@ -457,8 +457,7 @@ obs prior filters:
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 49.
-      maxvalue: 80.
+      is_in: 50-79
     test variables:
     - name: MetaData/satelliteZenithAngle
     maxvalue: 68.
@@ -466,32 +465,30 @@ obs prior filters:
       name: reject
   # Reject obs with windComputationMethod = 5 (clear-sky WV AMV)
   # CLEARED
-  - filter: Bounds Check
+  - filter: Perform Action
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 49.
-      maxvalue: 80.
+      is_in: 50-79
     test variables:
     - name: MetaData/windComputationMethod
-    maxvalue: 4.
+    is_in: 5
     action:
       name: reject
-  # Reject obs with qualityInformationWithoutForecast < 85.
+  # Reject obs with qualityInformationWithoutForecast < 85
   # CLEARED
-  - filter: Bounds Check
+  - filter: Perform Action
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 49.
-      maxvalue: 80.
+      is_in: 50-79
     test variables:
     - name: MetaData/qualityInformationWithoutForecast 
-    minvalue: 85.
+    is_not_in: 85-100
     action:
       name: reject
 # JMA: satelliteIdentifier [100–199] (>99, <200)
@@ -503,8 +500,7 @@ obs prior filters:
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 99.
-      maxvalue: 200.
+      is_in: 100-199
     test variables:
     - name: MetaData/satelliteZenithAngle
     maxvalue: 68.
@@ -512,32 +508,30 @@ obs prior filters:
       name: reject
   # Reject obs with windComputationMethod = 5 (clear-sky WV AMV)
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
-  - filter: Bounds Check
+  - filter: Perform Action
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 99.
-      maxvalue: 200.
+      is_in: 100-199
     test variables:
     - name: MetaData/windComputationMethod
-    maxvalue: 4.
+    is_in: 5
     action:
       name: reject
   # Reject obs with qualityInformationWithoutForecast < 85.
   # CLEARED
-  - filter: Bounds Check
+  - filter: Perform Action
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 99.
-      maxvalue: 200.
+      is_in: 100-199
     test variables:
     - name: MetaData/qualityInformationWithoutForecast
-    minvalue: 85.
+    is_not_in: 85-100
     action:
       name: reject
 # NESDIS: satelliteIdentifier [250–299] (>249, <300)
@@ -549,8 +543,7 @@ obs prior filters:
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 249.
-      maxvalue: 300.
+      is_in: 250-299
     test variables:
     - name: MetaData/satelliteZenithAngle
     maxvalue: 68.
@@ -558,18 +551,16 @@ obs prior filters:
       name: reject
   # Reject obs with qualityInformationWithoutForecast < 90. OR > 100.
   # CLEARED
-  - filter: Bounds Check
+  - filter: Perform Action
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 249.
-      maxvalue: 300.
+      is_in: 250-299
     test variables:
     - name: MetaData/qualityInformationWithoutForecast
-    minvalue: 90.
-    maxvalue: 100.
+    is_not_in: 90-100
     action:
       name: reject
   # Reject obs with pressure < 15000.
@@ -580,8 +571,7 @@ obs prior filters:
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 249.
-      maxvalue: 300.
+      is_in: 250-299
     test variables:
     - name: MetaData/pressure
     minvalue: 15000.
@@ -595,8 +585,7 @@ obs prior filters:
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 249.
-      maxvalue: 300.
+      is_in: 250-299
     - variable: ObsType/windEastward
       is_in: 251
     test variables:
@@ -612,8 +601,7 @@ obs prior filters:
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 249.
-      maxvalue: 300.
+      is_in: 250-299
     - variable: ObsType/windEastward
       is_in: 246
     test variables:
@@ -629,8 +617,7 @@ obs prior filters:
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 249.
-      maxvalue: 300.
+      is_in: 250-299
     - variable: GeoVaLs/land_type_index_NPOESS
       minvalue: 1.
       maxvalue: 1.
@@ -647,8 +634,7 @@ obs prior filters:
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
-      minvalue: 249.
-      maxvalue: 300.
+      is_in: 250-299
     - variable: ObsType/windEastward
       is_in: 240,245,246,251
     test variables:
