@@ -25,8 +25,8 @@ elif [ "$machine" = "orion" ]; then
     cominges="/work2/noaa/da/rtreadon/GDASApp/cases"
 fi
 
-mkdir -p ${bindir}/test/testoutput/gdas_single_test_letkf
-cd ${bindir}/test/testoutput/gdas_single_test_letkf
+mkdir -p ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_letkf
+cd ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_letkf
 
 cat > ./letkf_example.yaml << EOF
 working directory: ./

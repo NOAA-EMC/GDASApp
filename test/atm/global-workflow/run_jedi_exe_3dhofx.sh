@@ -19,8 +19,8 @@ module load GDAS/${machine}
 set -x
 module list
 
-mkdir -p ${bindir}/test/testoutput/gdas_single_test_hofx3d
-cd ${bindir}/test/testoutput/gdas_single_test_hofx3d
+mkdir -p ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_hofx3d
+cd ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_hofx3d
 
 cat > ./3dhofx_example.yaml << EOF
 working directory: ./

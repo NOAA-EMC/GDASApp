@@ -20,8 +20,8 @@ set -x
 module list
 
 
-mkdir -p ${bindir}/test/testoutput/gdas_single_test_3dvar
-cd ${bindir}/test/testoutput/gdas_single_test_3dvar
+mkdir -p ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3dvar
+cd ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3dvar
 
 cat > ./3dvar_example.yaml << EOF
 working directory: ./
