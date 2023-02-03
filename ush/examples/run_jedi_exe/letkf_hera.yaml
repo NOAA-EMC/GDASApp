@@ -25,7 +25,7 @@ config:
   dohybvar: no
   levs: 128
   nmem: 10
-  comin_ges: /scratch2/NCEPDEV/stmp1/Russ.Treadon/comrot/prufsda
+  comin_ges: /scratch1/NCEPDEV/da/Russ.Treadon/GDASApp/cases
   interp_method: barycentric
 job options:
   machine: hera
