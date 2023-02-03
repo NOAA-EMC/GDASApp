@@ -62,13 +62,16 @@ EOL
              --ndiracs ${ndiracs} \
              --level ${level} \
              --fieldindex ${ifield} \
-             --statevars tocn socn ssh cicen hicen \
+             --statevars tocn socn ssh hocn uocn vocn mld layer_depth cicen hicen hsnon \
              --diracoutput dirac_output.yaml
     export err=$?
 
     # run the dirac application
     $APRUN_OCNANAL $JEDI_BIN/soca_dirac.x dirac.yaml > dirac.out 2>&1
     export err=$?
+    if [ $err -gt 0  ]; then
+        exit $err
+    fi
 done
 
 ################################################################################

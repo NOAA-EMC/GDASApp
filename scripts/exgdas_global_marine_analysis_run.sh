@@ -76,7 +76,7 @@ function clean_yaml()
 ################################################################################
 # run 3DVAR FGAT
 clean_yaml var.yaml
-$APRUN_OCNANAL $JEDI_BIN/soca_var.x var.yaml > var.out 2>&1
+$APRUN_OCNANAL $JEDI_BIN/soca_var.x var.yaml
 export err=$?; err_chk
 
 

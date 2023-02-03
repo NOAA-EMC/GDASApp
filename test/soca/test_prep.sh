@@ -25,6 +25,14 @@ for ocnf in $lof; do
   i=$(($i+1))
 done
 
+# Invent background error
+for day in $(seq 1 2 9); do
+    cp ${project_binary_dir}/test/soca/bkg/gdas.t12z.ocnf003.nc \
+       ${project_binary_dir}/soca_static/bkgerr/stddev/ocn.ensstddev.fc.2019-04-0${day}T00:00:00Z.PT0S.nc
+    cp ${project_source_dir}/soca/test/Data/72x35x25/ice.bkgerror.nc \
+       ${project_binary_dir}/soca_static/bkgerr/stddev/ice.ensstddev.fc.2019-04-0${day}T00:00:00Z.PT0S.nc
+done
+
 # Run prep step
 echo "============================= Testing exgdas_global_marine_analysis_prep.py for clean exit"
 ${project_source_dir}/scripts/exgdas_global_marine_analysis_prep.py
