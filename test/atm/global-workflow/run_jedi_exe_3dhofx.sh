@@ -13,43 +13,33 @@ else
     exit 99
 fi
 
-if [ "$machine" = "hera" ] ; then
-    cominges="/scratch1/NCEPDEV/da/Russ.Treadon/GDASApp/cases"
-elif [ "$machine" = "orion" ]; then
-    cominges="/work2/noaa/da/rtreadon/GDASApp/cases"
-fi
+set +x
+module use ${srcdir}/modulefiles
+module load GDAS/${machine}
+set -x
+module list
 
-mkdir -p ${bindir}/test/testoutput/gdas_single_test_letkf
-cd ${bindir}/test/testoutput/gdas_single_test_letkf
+mkdir -p ${bindir}/test/testoutput/gdas_single_test_hofx3d
+cd ${bindir}/test/testoutput/gdas_single_test_hofx3d
 
-cat > ./letkf_example.yaml << EOF
+cat > ./3dhofx_example.yaml << EOF
 working directory: ./
 GDASApp home: ${srcdir}
-GDASApp mode: letkf
-template: ${srcdir}/parm/atm/lgetkf/lgetkf.yaml
+GDASApp mode: hofx
+template: ${srcdir}/parm/atm/hofx/hofx_nomodel.yaml
 config:
-  obs_dir: obs
-  diag_dir: diags
-  crtm_coeff_dir: crtm
-  bias_in_dir: obs
-  bias_out_dir: bc
   obs_yaml_dir: ${srcdir}/parm/atm/obs/config
-  executable: ${bindir}/bin/fv3jedi_letkf.x
-  obs_list: ${srcdir}/parm/atm/obs/lists/lgetkf_prototype.yaml
+  executable: ${bindir}/bin/fv3jedi_hofx_nomodel.x
+  obs_list: ${srcdir}/parm/atm/obs/lists/gdas_prototype_3d.yaml
   gdas_fix_root: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
   atm: true
   layout_x: 1
   layout_y: 1
   atm_window_length: PT6H
-  valid_time: 2021-12-21T06:00:00Z
+  valid_time: 2021-08-01T00:00:00Z
   dump: gdas
-  case: C48
-  case_anl: C48
-  staticb_type: gsibec
-  dohybvar: no
+  case: C768
   levs: 128
-  nmem: 5
-  comin_ges: ${cominges}
   interp_method: barycentric
 job options:
   machine: ${machine}
@@ -58,11 +48,12 @@ job options:
   partition: hera
   walltime: '30:00'
   ntasks: 6
+  ntasks-per-node: 2
   modulepath: ${srcdir}/modulefiles
 EOF
 
 rm stdout.txt
-${srcdir}/ush/run_jedi_exe.py -c ./letkf_example.yaml > stdout.txt
+${srcdir}/ush/run_jedi_exe.py -c ./3dhofx_example.yaml > stdout.txt
 rc=$?
 if [ $rc -ne 0 ]; then
     exit $rc
@@ -95,4 +86,3 @@ while [ $n -le $nloop ]; do
 done
 
 exit $rc
-

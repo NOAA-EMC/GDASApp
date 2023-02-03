@@ -141,22 +141,6 @@ add_test(NAME test_gdasapp_convert_ewok_yaml
 # high level tests that require the global-workflow
 if (WORKFLOW_TESTS)
 
-  # run_jedi_exe ctests do not require g-w.  place here due to longer run time
-  # test for ush/run_jedi_exe.py 3dhofx
-  add_test(NAME test_gdasapp_run_jedi_exe_3dhofx
-           COMMAND ${PROJECT_SOURCE_DIR}/test/run_jedi_exe_3dhofx.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-
-  # test for ush/run_jedi_exe.py 3dvar
-  add_test(NAME test_gdasapp_run_jedi_exe_3dvar
-           COMMAND ${PROJECT_SOURCE_DIR}/test/run_jedi_exe_3dvar.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-
-  # test for ush/run_jedi_exe.py letkf
-  add_test(NAME test_gdasapp_run_jedi_exe_letkf
-           COMMAND ${PROJECT_SOURCE_DIR}/test/run_jedi_exe_letkf.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-
   # test for creating an experiment directory within the global-workflow
   add_test(NAME test_gdasapp_setup_cycled_exp
            COMMAND ${PROJECT_SOURCE_DIR}/test/setup_workflow_exp.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}

@@ -13,24 +13,35 @@ else
     exit 99
 fi
 
-mkdir -p ${bindir}/test/testoutput/gdas_single_test_3dvar
-cd ${bindir}/test/testoutput/gdas_single_test_3dvar
+set +x
+module use ${srcdir}/modulefiles
+module load GDAS/${machine}
+set -x
+module list
 
-cat > ./3dvar_example.yaml << EOF
+if [ "$machine" = "hera" ] ; then
+    cominges="/scratch1/NCEPDEV/da/Russ.Treadon/GDASApp/cases"
+elif [ "$machine" = "orion" ]; then
+    cominges="/work2/noaa/da/rtreadon/GDASApp/cases"
+fi
+
+mkdir -p ${bindir}/test/testoutput/gdas_single_test_letkf
+cd ${bindir}/test/testoutput/gdas_single_test_letkf
+
+cat > ./letkf_example.yaml << EOF
 working directory: ./
 GDASApp home: ${srcdir}
-GDASApp mode: variational
-template: ${srcdir}/parm/atm/variational/3dvar_dripcg.yaml
+GDASApp mode: letkf
+template: ${srcdir}/parm/atm/lgetkf/lgetkf.yaml
 config:
-  berror_yaml: ${srcdir}/parm/atm/berror/staticb_gsibec.yaml
   obs_dir: obs
   diag_dir: diags
   crtm_coeff_dir: crtm
   bias_in_dir: obs
   bias_out_dir: bc
   obs_yaml_dir: ${srcdir}/parm/atm/obs/config
-  executable: ${bindir}/bin/fv3jedi_var.x
-  obs_list: ${srcdir}/parm/atm/obs/lists/gdas_prototype_3d.yaml
+  executable: ${bindir}/bin/fv3jedi_letkf.x
+  obs_list: ${srcdir}/parm/atm/obs/lists/lgetkf_prototype.yaml
   gdas_fix_root: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
   atm: true
   layout_x: 1
@@ -38,12 +49,13 @@ config:
   atm_window_length: PT6H
   valid_time: 2021-12-21T06:00:00Z
   dump: gdas
-  case: C96
-  case_anl: C96
+  case: C48
+  case_anl: C48
   staticb_type: gsibec
-  dohybvar: false
+  dohybvar: no
   levs: 128
-  nmem: 10
+  nmem: 5
+  comin_ges: ${cominges}
   interp_method: barycentric
 job options:
   machine: ${machine}
@@ -56,7 +68,7 @@ job options:
 EOF
 
 rm stdout.txt
-${srcdir}/ush/run_jedi_exe.py -c ./3dvar_example.yaml > stdout.txt
+${srcdir}/ush/run_jedi_exe.py -c ./letkf_example.yaml > stdout.txt
 rc=$?
 if [ $rc -ne 0 ]; then
     exit $rc
@@ -89,3 +101,4 @@ while [ $n -le $nloop ]; do
 done
 
 exit $rc
+
