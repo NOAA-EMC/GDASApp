@@ -117,6 +117,8 @@ def test_hist_date(histfile, ref_date):
 def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice_rst=False):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
+    TODO: bkg_path points to the ocean background, ice backgrounds are in 
+          bkg_path/../ice/ change that so bkg_path is 1 dir up.
     """
 
     # Pseudo model parameters (time step, start date)
@@ -127,10 +129,11 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
     # Construct list of background file names
     cdump = os.getenv('CDUMP')
     cyc = os.getenv('cyc')
+    gcyc = str((int(cyc) - 6) % 24) # previous cycle
     fcst_hrs = list(range(3, 10, dt_pseudo))
     files = []
     for fcst_hr in fcst_hrs:
-        files.append(os.path.join(bkg_path, cdump+'.t'+cyc+'z.ocnf'+str(fcst_hr).zfill(3)+'.nc'))
+        files.append(os.path.join(bkg_path, cdump+'.t'+gcyc+'z.ocnf'+str(fcst_hr).zfill(3)+'.nc'))
 
     # Identify the ocean background that will be used for the  vertical coordinate remapping
     ocn_filename_ic = os.path.splitext(os.path.basename(files[0]))[0]+'.nc'
@@ -156,7 +159,8 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
         else:
             # Process the CICE history file so they can be read by soca/fms
             # TODO: Add date check of the cice history
-            cice_hist2fms(os.path.join(bkg_path, ice_filename),
+            # TODO: bkg_path should be 1 level up
+            cice_hist2fms(os.path.join(bkg_path, '..', 'ice', ice_filename),
                           os.path.join(out_path, agg_ice_filename))
 
         # copy ocean bkg to out_path

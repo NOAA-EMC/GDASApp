@@ -10,6 +10,6 @@ obs space:
       obsfile: !ENV ${DATA}/diags/salt_profile_fnmoc.${PDY}${cyc}.nc4
   simulated variables: [sea_water_salinity]
 obs operator:
-  name: Identity
+  name: MarineVertInterp
 obs error:
   covariance model: diagonal
