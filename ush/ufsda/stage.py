@@ -279,14 +279,21 @@ def bias_obs(config):
 
             # fetch satbias_cov    # note:  non-standard R2D2 added for cycling
             r2d2_config['file_type'] = 'satbias_cov'
-            target_file = target_file.replace('satbias', 'satbias_cov')
-            r2d2_config['target_file_fmt'] = target_file
+            target_file2 = target_file.replace('satbias', 'satbias_cov')
+            r2d2_config['target_file_fmt'] = target_file2
             r2d2_config['experiment'] = config.get('experiment', 'oper_gdas')
-            ufsda.r2d2.fetch(r2d2_config)
+            try:
+                ufsda.r2d2.fetch(r2d2_config)
+            except FileNotFoundError:
+                logging.error("Warning: satbias_cov file cannot be fetched from R2D2!")
+                # temp hack to copy satbias as satbias_cov
+                # if satbias_cov does not exists in R2D2
+                if os.path.isfile(target_file) and not os.path.isfile(target_file2):
+                    shutil.copy(target_file, target_file2)
 
             # fetch tlapse
             r2d2_config['file_type'] = 'tlapse'
-            target_file = target_file.replace('satbias_cov', 'tlapse')
+            target_file = target_file.replace('satbias', 'tlapse')
             target_file = target_file.replace('nc4', 'txt')
             r2d2_config['target_file_fmt'] = target_file
             r2d2_config['experiment'] = 'oper_gdas'
