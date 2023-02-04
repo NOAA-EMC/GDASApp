@@ -117,8 +117,6 @@ def test_hist_date(histfile, ref_date):
 def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice_rst=False):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
-    TODO: bkg_path points to the ocean background, ice backgrounds are in 
-          bkg_path/../ice/ change that so bkg_path is 1 dir up.
     """
 
     # Pseudo model parameters (time step, start date)
@@ -128,8 +126,8 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
 
     # Construct list of background file names
     cdump = os.getenv('CDUMP')
-    cyc = os.getenv('cyc')
-    gcyc = str((int(cyc) - 6) % 24) # previous cycle
+    cyc = str(os.getenv('cyc')).zfill(2)
+    gcyc = str((int(cyc) - 6) % 24).zfill(2)  # previous cycle
     fcst_hrs = list(range(3, 10, dt_pseudo))
     files = []
     for fcst_hr in fcst_hrs:
