@@ -19,6 +19,13 @@ module load GDAS/${machine}
 set -x
 module list
 
+if [ "$machine" = "hera" ] ; then
+    partition="hera"
+    gdasfix="/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix"
+elif [ "$machine" = "orion" ]; then
+    partition="debug"
+    gdasfix="/work2/noaa/da/cmartin/GDASApp/fix"
+fi
 
 mkdir -p ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3dvar
 cd ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3dvar
@@ -38,7 +45,7 @@ config:
   obs_yaml_dir: ${srcdir}/parm/atm/obs/config
   executable: ${bindir}/bin/fv3jedi_var.x
   obs_list: ${srcdir}/parm/atm/obs/lists/gdas_prototype_3d.yaml
-  gdas_fix_root: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
+  gdas_fix_root: ${gdasfix}
   atm: true
   layout_x: 1
   layout_y: 1
@@ -56,7 +63,7 @@ job options:
   machine: ${machine}
   account: da-cpu
   queue: debug
-  partition: hera
+  partition: ${partition}
   walltime: '30:00'
   ntasks: 6
   modulepath: ${srcdir}/modulefiles
@@ -72,6 +79,7 @@ if [ $rc -ne 0 ]; then
     exit $rc
 fi
 
+sleep 10
 jobid=$(grep "Submitted" stdout.txt | awk -F' ' '{print $4}')
 echo "jobid is $jobid"
 

@@ -21,8 +21,12 @@ module list
 
 if [ "$machine" = "hera" ] ; then
     cominges="/scratch1/NCEPDEV/da/Russ.Treadon/GDASApp/cases"
+    partition="hera"
+    gdasfix="/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix"
 elif [ "$machine" = "orion" ]; then
     cominges="/work2/noaa/da/rtreadon/GDASApp/cases"
+    partition="debug"
+    gdasfix="/work2/noaa/da/cmartin/GDASApp/fix"
 fi
 
 mkdir -p ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_letkf
@@ -42,7 +46,7 @@ config:
   obs_yaml_dir: ${srcdir}/parm/atm/obs/config
   executable: ${bindir}/bin/fv3jedi_letkf.x
   obs_list: ${srcdir}/parm/atm/obs/lists/lgetkf_prototype.yaml
-  gdas_fix_root: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
+  gdas_fix_root: ${gdasfix}
   atm: true
   layout_x: 3
   layout_y: 2
@@ -61,7 +65,7 @@ job options:
   machine: ${machine}
   account: da-cpu
   queue: debug
-  partition: hera
+  partition: ${partition}
   walltime: '30:00'
   ntasks: 36
   modulepath: ${srcdir}/modulefiles
@@ -74,6 +78,7 @@ if [ $rc -ne 0 ]; then
     exit $rc
 fi
 
+sleep 10
 jobid=$(grep "Submitted" stdout.txt | awk -F' ' '{print $4}')
 echo "jobid is $jobid"
 
