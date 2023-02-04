@@ -97,11 +97,6 @@ def cice_hist2fms(input_filename, output_filename):
     # rename the variables
     ds = ds.rename({'aice_h': 'aicen', 'hi_h': 'hicen', 'hs_h': 'hsnon'})
 
-    # set the fill value for the new variables
-    #ds['aicen'].attrs['_FillValue'] = 0.
-    #ds['hicen'].attrs['_FillValue'] = 0.
-    #ds['hsnon'].attrs['_FillValue'] = 0.
-
     # Save the new netCDF file
     ds.to_netcdf(output_filename, mode='w')
 
@@ -160,6 +155,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
                        os.path.join(out_path, agg_ice_filename))
         else:
             # Process the CICE history file so they can be read by soca/fms
+            # TODO: Add date check of the cice history
             cice_hist2fms(os.path.join(bkg_path, ice_filename),
                           os.path.join(out_path, agg_ice_filename))
 
