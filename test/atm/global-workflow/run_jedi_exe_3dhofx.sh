@@ -33,8 +33,8 @@ config:
   obs_list: ${srcdir}/parm/atm/obs/lists/gdas_prototype_3d.yaml
   gdas_fix_root: /scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
   atm: true
-  layout_x: 1
-  layout_y: 1
+  layout_x: 3
+  layout_y: 2
   atm_window_length: PT6H
   valid_time: 2021-08-01T00:00:00Z
   dump: gdas
@@ -47,8 +47,8 @@ job options:
   queue: debug
   partition: hera
   walltime: '30:00'
-  ntasks: 6
-  ntasks-per-node: 2
+  ntasks: 36
+  ntasks-per-node: 9
   modulepath: ${srcdir}/modulefiles
 EOF
 
@@ -76,10 +76,14 @@ rc=1
 n=1
 while [ $n -le $nloop ]; do
     count=$(cat GDASApp.o$jobid | grep "OOPS_STATS Run end" | wc -l)
-    echo "n = $n   count = $count"
     if [ $count -gt 0 ]; then
 	rc=0
 	break
+    fi
+    count=$(cat GDASApp.o$jobid | grep "srun: error" | wc -l)
+    if [ $count -gt 0 ]; then
+        rc=9
+        break
     fi
     sleep 10
     n=$((n+1))

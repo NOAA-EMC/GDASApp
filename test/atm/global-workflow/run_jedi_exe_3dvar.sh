@@ -62,7 +62,7 @@ job options:
   modulepath: ${srcdir}/modulefiles
 EOF
 
-if [ -e stdout.txt]; then
+if [ -e stdout.txt ]; then
     rm -f stdout.txt
 fi
 
@@ -89,10 +89,14 @@ rc=1
 n=1
 while [ $n -le $nloop ]; do
     count=$(cat GDASApp.o$jobid | grep "OOPS_STATS Run end" | wc -l)
-    echo "n = $n   count = $count"
     if [ $count -gt 0 ]; then
 	rc=0
 	break
+    fi
+    count=$(cat GDASApp.o$jobid | grep "srun: error" | wc -l)
+    if [ $count -gt 0 ]; then
+        rc=9
+        break
     fi
     sleep 10
     n=$((n+1))
