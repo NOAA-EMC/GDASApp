@@ -12,7 +12,7 @@ MODS = {'JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_POST': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY': 'EVA'}
-components_short = {'ocean': 'ocn', 'ice': 'ice'}
+components_short = {'ocean': 'ocn', 'ice': 'ice'}  # Short names for components
 
 
 class JobCard:
