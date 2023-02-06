@@ -7,6 +7,11 @@ import argparse
 
 
 machines = {"container", "hera", "orion"}
+MODS = {'JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP': 'GDAS',
+        'JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT': 'GDAS',
+        'JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN': 'GDAS',
+        'JGDAS_GLOBAL_OCEAN_ANALYSIS_POST': 'GDAS',
+        'JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY': 'EVA'}
 
 
 class JobCard:
@@ -112,14 +117,14 @@ class JobCard:
         self.f.close()
         subprocess.run(["chmod", "+x", self.name])
 
-    def modules(self):
+    def _modules(self, jjob):
         """
         Write a section that will load the machine dependent modules
         """
         if self.machine != "container":
             self.f.write("module purge \n")
             self.f.write("module use ${HOMEgfs}/sorc/gdas.cd/modulefiles \n")
-            self.f.write(f"module load GDAS/{self.machine} \n")
+            self.f.write(f"module load {MODS[jjob]}/{self.machine} \n")
 
     def copy_bkgs(self):
         """
@@ -159,11 +164,11 @@ class JobCard:
         """
         Add the list of j-jobs to the job card
         """
-        runjobs = "# Run jjobs\n"
         for job in self.config['jjobs']:
+            self._modules(job)  # Add module's jjob
             thejob = "${HOMEgfs}/jobs/"+job
-            runjobs += f"{thejob} &>{job}.out\n"
-        self.f.write(runjobs)
+            runjob = f"{thejob} &>{job}.out\n"
+            self.f.write(runjob)
 
     def execute(self, submit=False):
         """
@@ -208,7 +213,6 @@ def main():
     run_card.fixconfigs()                # over-write some of the config variables
     run_card.header()                    # prepare a machine dependent header (SLURM or nothing)
     run_card.export_env_vars_script()
-    run_card.modules()
     run_card.copy_bkgs()
     run_card.jjobs()
     run_card.close()
