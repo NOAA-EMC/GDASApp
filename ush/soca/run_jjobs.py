@@ -140,10 +140,10 @@ class JobCard:
         self.f.write(command)
         # Special case for the ocean: DA for ice & ocean
         if self.component == 'ocean':
-            # staging seaice backgrounds
+            # staging ice backgrounds
             ice_file_descriptor = components_short['ice']
             self.f.write("mkdir -p ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/ice/\n")
-            self.f.write("cp -r ${COMIN_GES}/*icef0*.nc ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/ice/\n")
+            self.f.write("cp -r ${COMIN_GES}/../ice/*icef0*.nc ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/ice/\n")
 
     def fixconfigs(self):
         """
