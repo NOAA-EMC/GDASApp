@@ -4,6 +4,7 @@ set -x
 bindir=$1
 srcdir=$2
 
+# Identify machine
 if [[ -d /scratch1 ]] ; then
     machine="hera"
 elif [[ -d /work ]] ; then
@@ -13,12 +14,14 @@ else
     exit 99
 fi
 
+# Load modules
 set +x
 module use ${srcdir}/modulefiles
 module load GDAS/${machine}
 set -x
 module list
 
+# Set machine dependent variables
 if [ "$machine" = "hera" ] ; then
     cominges="/scratch1/NCEPDEV/da/Russ.Treadon/GDASApp/cases"
     partition="hera"
@@ -29,9 +32,11 @@ elif [ "$machine" = "orion" ]; then
     gdasfix="/work2/noaa/da/cmartin/GDASApp/fix"
 fi
 
+# Create test run directory
 mkdir -p ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_letkf
 cd ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_letkf
 
+# Create input yaml
 cat > ./letkf_example.yaml << EOF
 working directory: ./
 GDASApp home: ${srcdir}
@@ -71,43 +76,39 @@ job options:
   modulepath: ${srcdir}/modulefiles
 EOF
 
-rm stdout.txt
-${srcdir}/ush/run_jedi_exe.py -c ./letkf_example.yaml > stdout.txt
+# Execute run_jedi_exe.py
+if [ -e stdout.txt ]; then
+    rm -f stdout.txt
+fi
+${srcdir}/ush/run_jedi_exe.py -c ./letkf_example.yaml > stdout.txt 2>&1
 rc=$?
 if [ $rc -ne 0 ]; then
     exit $rc
 fi
 
-sleep 10
+# Check for job submission error
+error=$(grep -i "error" stdout.txt | wc -l)
+if [ $error -ne 0 ]; then
+    rc=$error
+    exit $rc
+fi
+
+# Cancel submitted job
 jobid=$(grep "Submitted" stdout.txt | awk -F' ' '{print $4}')
-echo "jobid is $jobid"
+scancel $jobid
+rc=$?
+if [ $rc -ne 0 ]; then
+    exit $rc
+fi
 
-nloop=100
-n=1
-while [ $n -le $nloop ]; do
-    if [ -s GDASApp.o$jobid ]; then
-	break
+# Check for valid yaml files
+ylist="letkf_example.yaml gdas_letkf.yaml"
+for yfile in $ylist; do
+    python3 -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < $yfile
+    rc=$?
+    if [ $rc -ne 0 ]; then
+	exit $rc
     fi
-    sleep 10
-    n=$((n+1))
-done
-
-rc=1
-n=1
-while [ $n -le $nloop ]; do
-    count=$(cat GDASApp.o$jobid | grep "OOPS_STATS Run end" | wc -l)
-    if [ $count -gt 0 ]; then
-	rc=0
-	break
-    fi
-    count=$(cat GDASApp.o$jobid | grep "srun: error" | wc -l)
-    if [ $count -gt 0 ]; then
-        rc=9
-        break
-    fi
-    sleep 10
-    n=$((n+1))
 done
 
 exit $rc
-
