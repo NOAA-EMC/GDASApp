@@ -32,8 +32,10 @@ def var2dirac(args):
     diracconfig['initial condition'] = varconfig['cost function']['background']
     diracconfig['background error'] = varconfig['cost function']['background error']
 
-    # Overwrite the variable list in the trajectory section
+    # Overwrite variables
     diracconfig['initial condition']['state variables'] = statevars
+    diracconfig['background error']['linear variable change']['input variables'] = statevars
+    diracconfig['background error']['linear variable change']['output variables'] = statevars
 
     # Generate impulse indices
     ds = xr.open_dataset(grid)

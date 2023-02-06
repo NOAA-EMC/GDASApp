@@ -8,6 +8,7 @@ soca_static=${project_binary_dir}/soca_static
 mkdir -p ${soca_static}
 mkdir -p ${soca_static}/INPUT
 mkdir -p ${soca_static}/bump
+mkdir -p ${soca_static}/bkgerr/stddev
 
 lowres=${project_source_dir}/soca/test/Data
 

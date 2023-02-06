@@ -3,15 +3,16 @@
 ####  UNIX Script Documentation Block
 #                      .                                             .
 # Script name:         exgdas_global_marine_analysis_bmat.sh
-# Script description:  Performs calculations in preparation for the global 
+# Script description:  Performs calculations in preparation for the global
 #                      marine analysis with SOCA
 #
 # Author: Andrew Eichamnn   Org: NCEP/EMC     Date: 2023-01-12
 #
-# Abstract: This script does the follwing in preparation for creating the 
+# Abstract: This script does the follwing in preparation for creating the
 #           global model ocean sea-ice analysis using SOCA:
 #           - generates the DA grid
-#           - computes diagonal of B based on the background
+#           - computes diagonal of B based on the background if a std. dev. file
+#             was not staged. TODO: Remove this option in the future
 #           - creates the bump correlation operators
 #
 # $Id$
@@ -72,22 +73,51 @@ function clean_yaml()
 }
 
 ################################################################################
-# generate soca geometry
-# TODO (Guillaume): Should not use all pe's for the grid generation
-# TODO (Guillaume): Does not need to be generated at every cycles, store in static dir?
-$APRUN_OCNANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml > gridgen.out 2>&1
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
+# Generate soca geometry if needed
+if [[ -e 'soca_gridspec.nc' ]]; then
+    echo "soca_gridspc.nc already exists, skip the grid generation step"
+else
+    # Run soca_gridgen.x if the grid was not staged
+    # TODO (Guillaume): Should not use all pe's for the grid generation
+    $APRUN_OCNANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml
+    export err=$?; err_chk
+    if [ $err -gt 0  ]; then
+        exit $err
+    fi
 fi
 
 ################################################################################
-# Generate the parametric diag of B
-$APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml > parametric_stddev_b.out 2>&1
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
+# Prepare the diagonal of B
+shopt -s nullglob
+files=(ocn.bkgerr_stddev.incr.*.nc)
+echo $files
+if [ ${#files[@]} -gt 0 ]; then
+  echo "Diag of B already staged, skipping the parametric diag B"
+else
+    # TODO: this step should be replaced by a post processing step of the ens. derived std. dev.
+    $APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml > parametric_stddev_b.out 2>&1
+    export err=$?; err_chk
+    if [ $err -gt 0  ]; then
+        exit $err
+    fi
 fi
+shopt -u nullglob
+
+################################################################################
+# Correlation and Localization operators
+shopt -s nullglob
+files=(./bump/*.nc)
+echo $files
+if [ ${#files[@]} -gt 0 ]; then
+    echo "BUMP/NICAS correlation and localization already staged, skipping BUMP initialization"
+    set +x
+    if [ $VERBOSE = "YES" ]; then
+        echo $(date) EXITING $0 with return code $err >&2
+    fi
+    exit $err  # Exit early, we're done with B
+    shopt -u nullglob
+fi
+
 ################################################################################
 # Set decorrelation scales for bump C
 $APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml > soca_setcorscales.out 2>&1
