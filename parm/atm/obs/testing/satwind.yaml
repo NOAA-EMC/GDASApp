@@ -472,9 +472,8 @@ obs prior filters:
     where:
     - variable: MetaData/satelliteIdentifier
       is_in: 50-79
-    test variables:
-    - name: MetaData/windComputationMethod
-    is_in: 5
+    - variable: MetaData/windComputationMethod
+      is_in: 5
     action:
       name: reject
   # Reject obs with qualityInformationWithoutForecast < 85
@@ -486,9 +485,8 @@ obs prior filters:
     where:
     - variable: MetaData/satelliteIdentifier
       is_in: 50-79
-    test variables:
-    - name: MetaData/qualityInformationWithoutForecast 
-    is_not_in: 85-100
+    - variable: MetaData/qualityInformationWithoutForecast 
+      is_not_in: 85-100
     action:
       name: reject
 # JMA: satelliteIdentifier [100–199] (>99, <200)
@@ -515,9 +513,8 @@ obs prior filters:
     where:
     - variable: MetaData/satelliteIdentifier
       is_in: 100-199
-    test variables:
-    - name: MetaData/windComputationMethod
-    is_in: 5
+    - variable: MetaData/windComputationMethod
+      is_in: 5
     action:
       name: reject
   # Reject obs with qualityInformationWithoutForecast < 85.
@@ -529,9 +526,8 @@ obs prior filters:
     where:
     - variable: MetaData/satelliteIdentifier
       is_in: 100-199
-    test variables:
-    - name: MetaData/qualityInformationWithoutForecast
-    is_not_in: 85-100
+    - variable: MetaData/qualityInformationWithoutForecast
+      is_not_in: 85-100
     action:
       name: reject
 # NESDIS: satelliteIdentifier [250–299] (>249, <300)
@@ -558,9 +554,8 @@ obs prior filters:
     where:
     - variable: MetaData/satelliteIdentifier
       is_in: 250-299
-    test variables:
-    - name: MetaData/qualityInformationWithoutForecast
-    is_not_in: 90-100
+    - variable: MetaData/qualityInformationWithoutForecast
+      is_not_in: 90-100
     action:
       name: reject
   # Reject obs with pressure < 15000.
