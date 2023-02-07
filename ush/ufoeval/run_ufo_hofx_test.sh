@@ -9,19 +9,58 @@
 # - Produce an EVA YAML
 # - Run EVA
 #-------------------------------------------------------------
+
+# ==============================================================================
+usage() {
+  set +x
+  echo
+  echo "Usage: $0 instrument [cycle] [-x] [-s] [-h]"
+  echo
+  echo "  -x  run eva DEFAULT=YES"
+  echo "  -s  just produce eva stats plots DEFAULT=YES"
+  echo "  -h  display this message and quit"
+  echo
+  exit 1
+}
+
+# ==============================================================================
+
+
 #--------------- User modified options below -----------------
 obtype=$1
 cycle=${2:-2021080100}
 
-if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-   echo "Incorrect number of arguments"
-   echo "Usage:"
-   echo $0 instrument [cycle]
-   exit 1
-fi
+#if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+#   echo "Incorrect number of arguments"
+#   echo "Usage:"
+#   echo $0 instrument [cycle]
+#   exit 1
+#fi
 
-machine=hera
-GDASApp=/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/ # Change this to your own branch
+RUN_EVA=YES
+EVA_STATS_ONLY=NO
+ 
+while getopts "hsx" opt; do
+  echo $opt
+  case $opt in
+    x)
+      RUN_EVA=NO 
+      ;;
+    s)
+      EVA_STATS_ONLY=YES
+      ;;
+    h|\?|:)
+      usage
+      ;;
+  esac
+done
+
+echo "RUN_EVA, EVA_STATS_ONLY " $RUN_EVA $EVA_STATS_ONLY
+exit 0
+
+machine=orion
+#GDASApp=/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/ # Change this to your own branch
+GDASApp=/work/noaa/da/acollard/git/GDASApp_sprint-ioda-converters
 
 if [ $machine = orion ]; then
    workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
