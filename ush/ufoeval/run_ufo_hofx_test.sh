@@ -58,8 +58,7 @@ obtype=$1
 #--------------- User modified options below -----------------
 
 machine=orion
-#GDASApp=/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/ # Change this to your own branch
-GDASApp=/work/noaa/da/acollard/git/GDASApp_sprint-ioda-converters
+GDASApp=/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/ # Change this to your own branch
 
 if [ $machine = orion ]; then
    workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
