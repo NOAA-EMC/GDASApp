@@ -87,7 +87,7 @@ observations:
         - '71816'
         size where true: '5'
         variable:
-          name: station_id@MetaData
+          name: stationIdentification@MetaData
     - action:
         name: reject
       filter: Background Check
@@ -111,7 +111,7 @@ observations:
         search_radius: '150'
         sort_by_pressure: 'false'
         station_id_variable:
-          name: station_id@MetaData
+          name: stationIdentification@MetaData
         temporal_correlation_scale: PT6H
         traced_boxes:
           max_latitude: '90'
