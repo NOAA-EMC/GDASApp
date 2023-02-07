@@ -10,9 +10,9 @@ obs space:
       obsfile: !ENV ${DATA}/diags/diag_ompstc8_npp_${CDATE}.nc4
   io pool:
     max pool size: 1
-  simulated variables: [integrated_layer_ozone_in_air]
+  simulated variables: [ozoneTotal]
 obs operator:
   name: AtmVertInterpLay
-  geovals: [mole_fraction_of_ozone_in_air]
+  geovals: [ozoneLayer]
   coefficients: [0.007886131] # convert from ppmv to DU
   nlevels: [1]

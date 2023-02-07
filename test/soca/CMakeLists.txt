@@ -74,7 +74,7 @@ add_test(NAME test_gdasapp_soca_obsdb
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs/)
 set_tests_properties(test_gdasapp_soca_obsdb
     PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/pygw/src:$ENV{PYTHONPATH};OBS_DIR=${OBS_DIR}")
+    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/pygw/src:$ENV{PYTHONPATH};SOCA_TEST_OBS=${PROJECT_SOURCE_DIR}/test/soca/testdata")
 
 # Test exgdas_global_marine_analysis_prep.py
 # ------------------------------------------
