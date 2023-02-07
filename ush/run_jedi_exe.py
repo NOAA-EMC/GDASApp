@@ -68,9 +68,7 @@ def run_jedi_exe(yamlconfig):
     prev_cycle = valid_time - dt.timedelta(hours=int(h))
     window_begin = valid_time - dt.timedelta(hours=int(h)/2)
     cyc = valid_time.strftime("%H")
-    cdate = valid_time.strftime("%Y%m%d%H")
     gcyc = prev_cycle.strftime("%H")
-    gdate = prev_cycle.strftime("%Y%m%d%H")
     gPDY = prev_cycle.strftime("%Y%m%d")
     pdy = valid_time.strftime("%Y%m%d")
     os.environ['PDY'] = str(pdy)
@@ -103,13 +101,15 @@ def run_jedi_exe(yamlconfig):
         'BIAS_OUT_DIR': os.path.join(workdir, 'bc'),
         'CRTM_COEFF_DIR': os.path.join(workdir, 'crtm'),
         'BIAS_PREFIX': f"{executable_subconfig['dump']}.t{gcyc}z.",
-        'BIAS_DATE': f"{gdate}",
+        'BIAS_DATE': f"{gPDY}{gcyc}",
         'DIAG_DIR': os.path.join(workdir, 'diags'),
         'OBS_DIR': os.path.join(workdir, 'obs'),
         'OBS_PREFIX': f"{executable_subconfig['dump']}.t{cyc}z.",
-        'OBS_DATE': f"{cdate}",
-        'CDATE': f"{cdate}",
-        'GDATE': f"{gdate}",
+        'OBS_DATE': f"{pdy}{cyc}",
+        'PDY': f"{pdy}",
+        'cyc': f"{cyc}",
+        'gPDY': f"{gPDY}",
+        'gcyc': f"{gcyc}",
         'valid_time': f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'prev_valid_time': f"{prev_cycle.strftime('%Y-%m-%dT%H:%M:%SZ')}",

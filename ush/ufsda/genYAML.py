@@ -61,7 +61,10 @@ def get_runtime_config(config_dict):
     # compute some runtime variables
     # this will probably need pulled out somewhere else eventually
     # a temporary hack to get UFO evaluation stuff and ATM VAR going again
-    valid_time = dt.datetime.strptime(config_dict['CDATE'], '%Y%m%d%H')
+    vpdy = dt.datetime.strptime(config_dict['PDY'], '%Y%m%d')
+    vcyc = dt.datetime.strptime(config_dict['cyc'], '%H')
+    vdate = int(config_dict.get('PDY'))*100 + int(config_dict.get('cyc'))
+    valid_time = dt.datetime.strptime(str(vdate), '%Y%m%d%H')
     assim_freq = int(config_dict.get('assim_freq', 6))
     window_begin = valid_time - dt.timedelta(hours=assim_freq/2)
     window_end = valid_time + dt.timedelta(hours=assim_freq/2)

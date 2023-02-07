@@ -87,7 +87,7 @@ if [ $rc -ne 0 ]; then
 fi
 
 # Check for job submission error
-error=$(grep -i "error" stdout.txt | wc -l)
+error=$(grep "sbatch: error" stdout.txt | wc -l)
 if [ $error -ne 0 ]; then
     rc=$error
     exit $rc
