@@ -164,12 +164,11 @@ class JobCard:
         """
         Add the list of j-jobs to the job card
         """
-        runjobs = "# Run jjobs\n"
         for job in self.config['jjobs']:
             self._modules(job)  # Add module's jjob
             thejob = "${HOMEgfs}/jobs/"+job
-            runjobs += f"{thejob} &>{job}.out\n"
-        self.f.write(runjobs)
+            runjob = f"{thejob} &>{job}.out\n"
+            self.f.write(runjob)
 
     def execute(self, submit=False):
         """
