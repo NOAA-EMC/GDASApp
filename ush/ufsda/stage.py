@@ -182,6 +182,10 @@ def soca_fix(config):
     ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'fields_metadata.yaml'),
                              os.path.join(config['stage_dir'], 'fields_metadata.yaml'))
 
+    # link ufo <---> soca name variable mapping
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'obsop_name_map.yaml'),
+                             os.path.join(config['stage_dir'], 'obsop_name_map.yaml'))
+
     # INPUT
     ufsda.disk_utils.copytree(os.path.join(config['soca_input_fix_dir'], 'INPUT'),
                               os.path.join(config['stage_dir'], 'INPUT'))
