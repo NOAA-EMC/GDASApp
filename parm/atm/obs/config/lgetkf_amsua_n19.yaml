@@ -44,31 +44,31 @@ obs filters:
     channels: 4-6,9-14
   where:
   - variable:
-      name: sensorScanPosition@MetaData
+      name: MetaData/sensorScanPosition
     minvalue: 4
     maxvalue: 27
   - variable:
-      name: brightnessTemperature_1@ObsValue
+      name: ObsValue/brightnessTemperature_1
     minvalue: 50.0
     maxvalue: 550.0
   - variable:
-      name: brightnessTemperature_2@ObsValue
+      name: ObsValue/brightnessTemperature_2
     minvalue: 50.0
     maxvalue: 550.0
   - variable:
-      name: brightnessTemperature_3@ObsValue
+      name: ObsValue/brightnessTemperature_3
     minvalue: 50.0
     maxvalue: 550.0
   - variable:
-      name: brightnessTemperature_4@ObsValue
+      name: ObsValue/brightnessTemperature_4
     minvalue: 50.0
     maxvalue: 550.0
   - variable:
-      name: brightnessTemperature_6@ObsValue
+      name: ObsValue/brightnessTemperature_6
     minvalue: 50.0
     maxvalue: 550.0
   - variable:
-      name: brightnessTemperature_15@ObsValue
+      name: ObsValue/brightnessTemperature_15
     minvalue: 50.0
     maxvalue: 550.0
 obs localizations:
