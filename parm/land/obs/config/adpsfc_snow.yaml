@@ -54,7 +54,7 @@ obs filters:
   - filter: BlackList
     where:
     - variable:
-        name: station_id@MetaData
+        name: stationIdentification@MetaData
       is_in: [71120,71397,71621,71727,71816]
       size where true: 5
   - filter: Background Check # gross error check
@@ -74,7 +74,7 @@ obs filters:
         max_longitude:  180
       search_radius: 150 # km
       station_id_variable:
-        name: station_id@MetaData
+        name: stationIdentification@MetaData
       num_zonal_bands: 24
       sort_by_pressure: false
       max_total_num_buddies: 15
