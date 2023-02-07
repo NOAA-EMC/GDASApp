@@ -13,7 +13,7 @@ obs space:
       obsfile: !ENV ./diags/diag_amsua_n19_${CDATE}.nc4
   io pool:
     max pool size: 1
-  simulated variables: [brightness_temperature]
+  simulated variables: [brightnessTemperature]
   channels: 4-6,9-14
 obs operator:
   name: CRTM
@@ -29,46 +29,46 @@ obs error:
 obs filters:
 - filter: Bounds Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 4-6,9-14
   minvalue: 100.0
   maxvalue: 500.0
 - filter: Background Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 4-6,9-14
   threshold: 3.0
 - filter: Domain Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 4-6,9-14
   where:
   - variable:
-      name: scan_position@MetaData
+      name: sensorScanPosition@MetaData
     minvalue: 4
     maxvalue: 27
   - variable:
-      name: brightness_temperature_1@ObsValue
+      name: brightnessTemperature_1@ObsValue
     minvalue: 50.0
     maxvalue: 550.0
   - variable:
-      name: brightness_temperature_2@ObsValue
+      name: brightnessTemperature_2@ObsValue
     minvalue: 50.0
     maxvalue: 550.0
   - variable:
-      name: brightness_temperature_3@ObsValue
+      name: brightnessTemperature_3@ObsValue
     minvalue: 50.0
     maxvalue: 550.0
   - variable:
-      name: brightness_temperature_4@ObsValue
+      name: brightnessTemperature_4@ObsValue
     minvalue: 50.0
     maxvalue: 550.0
   - variable:
-      name: brightness_temperature_6@ObsValue
+      name: brightnessTemperature_6@ObsValue
     minvalue: 50.0
     maxvalue: 550.0
   - variable:
-      name: brightness_temperature_15@ObsValue
+      name: brightnessTemperature_15@ObsValue
     minvalue: 50.0
     maxvalue: 550.0
 obs localizations:

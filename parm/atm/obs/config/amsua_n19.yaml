@@ -10,7 +10,7 @@ obs space:
       obsfile: !ENV ${DATA}/diags/diag_amsua_n19_${CDATE}.nc4
   io pool:
     max pool size: 1
-  simulated variables: [brightness_temperature]
+  simulated variables: [brightnessTemperature]
   channels: &amsua_n19_channels 1-15
 obs operator:
   name: CRTM
@@ -54,7 +54,7 @@ obs bias:
 obs filters:
 - filter: BlackList
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: *amsua_n19_channels
   action:
     name: assign error
@@ -84,7 +84,7 @@ obs filters:
 #  CLW Retrieval Check
 - filter: Bounds Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 1-6, 15
   test variables:
   - name: CLWRetMW@ObsFunction
@@ -98,7 +98,7 @@ obs filters:
 #  CLW Retrieval Check
 - filter: Bounds Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 1-6, 15
   test variables:
   - name: CLWRetMW@ObsFunction
@@ -112,7 +112,7 @@ obs filters:
 #  Hydrometeor Check (cloud/precipitation affected chanels)
 - filter: Bounds Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: *amsua_n19_channels
   test variables:
   - name: HydrometeorCheckAMSUA@ObsFunction
@@ -157,7 +157,7 @@ obs filters:
 #  Topography check
 - filter: BlackList
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: *amsua_n19_channels
   action:
     name: inflate error
@@ -170,7 +170,7 @@ obs filters:
 #  Transmittnace Top Check
 - filter: BlackList
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: *amsua_n19_channels
   action:
     name: inflate error
@@ -183,7 +183,7 @@ obs filters:
 #  Surface Jacobian check
 - filter: BlackList
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: *amsua_n19_channels
   action:
     name: inflate error
@@ -198,7 +198,7 @@ obs filters:
 #  Situation dependent Check
 - filter: BlackList
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: *amsua_n19_channels
   action:
     name: inflate error
@@ -256,7 +256,7 @@ obs filters:
 #  Gross check
 - filter: Background Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: *amsua_n19_channels
   function absolute threshold:
   - name: ObsErrorBoundMW@ObsFunction
@@ -311,7 +311,7 @@ obs filters:
 #  Inter-channel check
 - filter: Bounds Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: *amsua_n19_channels
   test variables:
   - name: InterChannelConsistencyCheck@ObsFunction
@@ -328,7 +328,7 @@ obs filters:
 #  Useflag check
 - filter: Bounds Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: *amsua_n19_channels
   test variables:
   - name: ChannelUseflagCheckRad@ObsFunction
