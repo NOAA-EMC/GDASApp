@@ -14,10 +14,11 @@
 usage() {
   set +x
   echo
-  echo "Usage: $0 instrument [cycle] [-x] [-s] [-h]"
+  echo "Usage: $0 [-c cycle] [-x] [-s] [-h] instrument [cycle]"
   echo
-  echo "  -x  run eva DEFAULT=YES"
-  echo "  -s  just produce eva stats plots DEFAULT=YES"
+  echo "  -c  cycle to run DEFAULT=2021080100"
+  echo "  -x  don't run eva DEFAULT=run eva"
+  echo "  -s  just produce eva stats plots DEFAULT=produce lots of plots"
   echo "  -h  display this message and quit"
   echo
   exit 1
@@ -25,38 +26,36 @@ usage() {
 
 # ==============================================================================
 
-
-#--------------- User modified options below -----------------
-obtype=$1
-cycle=${2:-2021080100}
-
-#if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-#   echo "Incorrect number of arguments"
-#   echo "Usage:"
-#   echo $0 instrument [cycle]
-#   exit 1
-#fi
-
-RUN_EVA=YES
-EVA_STATS_ONLY=NO
+cycle=2021080100
+run_eva=YES
+eva_stats_only=NO
  
-while getopts "hsx" opt; do
-  echo $opt
+while getopts "c:hsx" opt; do
   case $opt in
+    c)
+      cycle=$OPTARG
+      ;;
     x)
-      RUN_EVA=NO 
+      run_eva=NO 
       ;;
     s)
-      EVA_STATS_ONLY=YES
+      eva_stats_only=YES
       ;;
     h|\?|:)
       usage
       ;;
   esac
 done
+shift $((OPTIND - 1))
 
-echo "RUN_EVA, EVA_STATS_ONLY " $RUN_EVA $EVA_STATS_ONLY
-exit 0
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+   echo "Incorrect number of arguments"
+   usage 
+fi
+
+obtype=$1
+
+#--------------- User modified options below -----------------
 
 machine=orion
 #GDASApp=/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/ # Change this to your own branch
@@ -172,9 +171,20 @@ cd $workdir
 
 if [ $? -ne 0 ]; then
    echo "*************** Running UFO failed ****************"
-   echo "Running EVA for diagnostic purposes"
+   RC=1
+   if [ $run_eva == YES ]; then
+       echo "Running EVA for diagnostic purposes"
+   else
+       exit 1
+   fi
 else
    echo "Running EVA"
+   RC=0
+   if [ $run_eva == YES ]; then
+       echo "Running EVA"
+   else
+       exit 0
+   fi
 fi
 
 # Load EVA modules
@@ -182,7 +192,11 @@ module load EVA/$machine
 
 # Generate EVA YAML
 if [ $radiance = "YES" ]; then
-  $GDASApp/ush/eva/gen_eva_obs_yaml.py -i ./${obtype}_${cycle}.yaml -t $GDASApp/ush/eva/jedi_gsi_compare_rad.yaml -o $workdir
+  if [ $eva_stats_only = "YES" ]; then
+    $GDASApp/ush/eva/gen_eva_obs_yaml.py -i ./${obtype}_${cycle}.yaml -t $GDASApp/ush/eva/jedi_gsi_compare_rad_summary.yaml -o $workdir
+  else 
+    $GDASApp/ush/eva/gen_eva_obs_yaml.py -i ./${obtype}_${cycle}.yaml -t $GDASApp/ush/eva/jedi_gsi_compare_rad.yaml -o $workdir
+  fi
 else
   $GDASApp/ush/eva/gen_eva_obs_yaml.py -i ./${obtype}_${cycle}.yaml -t $GDASApp/ush/eva/jedi_gsi_compare_conv.yaml -o $workdir
 fi
@@ -196,5 +210,5 @@ if [ $? -ne 0 ]; then
    echo "EVA failed"
    exit 1
 else
-   exit 0
+   exit $RC
 fi
