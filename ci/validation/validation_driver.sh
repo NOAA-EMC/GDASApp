@@ -34,7 +34,7 @@ case ${TARGET} in
   hera | orion)
     echo "Running Automated Testing on $TARGET"
     source $MODULESHOME/init/sh
-    source $my_dir/${TARGET}.sh
+    source $my_dir/../${TARGET}.sh
     module purge
     module use $GDAS_MODULE_USE
     module load GDAS/$TARGET
@@ -47,68 +47,36 @@ case ${TARGET} in
 esac
 
 # ==============================================================================
-# pull on the repo and get list of open PRs
-cd $GDAS_CI_ROOT/repo
-CI_LABEL="${GDAS_CI_HOST}-RT"
-gh pr list --label "$CI_LABEL" --state "open" | awk '{print $1;}' > $GDAS_CI_ROOT/open_pr_list
-open_pr_list=$(cat $GDAS_CI_ROOT/open_pr_list)
-
-# ==============================================================================
 # clone, checkout, build, test, etc.
 repo_url="https://github.com/NOAA-EMC/GDASApp.git"
-# loop through all open PRs
-for pr in $open_pr_list; do
-  gh pr edit $pr --remove-label $CI_LABEL --add-label ${CI_LABEL}-Running
-  echo "Processing Pull Request #${pr}"
-  mkdir -p $GDAS_CI_ROOT/PR/$pr
-  cd $GDAS_CI_ROOT/PR/$pr
+today=$(date +%Y%m%d)
 
-  # clone copy of repo
-  git clone $repo_url
-  cd GDASApp
+mkdir -p $GDAS_CI_ROOT/validation/$today
+cd $GDAS_CI_ROOT/PR/$today
 
-  # checkout pull request
-  git pull
-  gh pr checkout $pr
+# clone copy of repo
+git clone $repo_url
+cd GDASApp
 
-  # get commit hash
-  commit=$(git log --pretty=format:'%h' -n 1)
-  if [ -f "$GDAS_CI_ROOT/PR/$pr/commit" ]; then
-    oldcommit=$(cat $GDAS_CI_ROOT/PR/$pr/commit)
-    if [ $oldcommit == $commit ]; then
-      # do no more for this PR, as the commit has already been tested
-      continue
-    fi
-  fi
-  echo "$commit" > $GDAS_CI_ROOT/PR/$pr/commit
+# load modules
+case ${TARGET} in
+  hera | orion)
+    echo "Loading modules on $TARGET"
+    module purge
+    module use $GDAS_CI_ROOT/validation/$today/GDASApp/modulefiles
+    module load GDAS/$TARGET
+    module list
+    ;;
+  *)
+    echo "Unsupported platform. Exiting with error."
+    exit 1
+    ;;
+esac
 
-  # load modules
-  case ${TARGET} in
-    hera | orion)
-      echo "Loading modules on $TARGET"
-      module purge
-      module use $GDAS_CI_ROOT/PR/$pr/GDASApp/modulefiles
-      module load GDAS/$TARGET
-      module list
-      ;;
-    *)
-      echo "Unsupported platform. Exiting with error."
-      exit 1
-      ;;
-  esac
-
-  # run build and testing command
-  $my_dir/run_ci.sh -d $GDAS_CI_ROOT/PR/$pr/GDASApp -o $GDAS_CI_ROOT/PR/$pr/output_${commit}
-  ci_status=$?
-  gh pr comment $pr --body-file $GDAS_CI_ROOT/PR/$pr/output_${commit}
-  if [ $ci_status -eq 0 ]; then
-    gh pr edit $pr --remove-label ${CI_LABEL}-Running --add-label ${CI_LABEL}-Passed
-  else
-    gh pr edit $pr --remove-label ${CI_LABEL}-Running --add-label ${CI_LABEL}-Failed
-  fi
-done
+# run build and testing command
+$my_dir/run_validation.sh -d $GDAS_CI_ROOT/validation/$today/GDASApp -o $GDAS_CI_ROOT/validation/$today/output.txt
 
 # ==============================================================================
 # scrub working directory for older files
-find $GDAS_CI_ROOT/PR/* -maxdepth 1 -mtime +3 -exec rm -rf {} \;
+find $GDAS_CI_ROOT/validation/* -maxdepth 1 -mtime +3 -exec rm -rf {} \;
 
