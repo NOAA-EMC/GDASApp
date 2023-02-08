@@ -40,6 +40,6 @@ foreach(jjob ${jjob_list})
          ${setup}
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
 
-  set(setup "--skip") # Only run the seup of the first test, if not, it will hang
+  set(setup "--skip") # Only run the setup of the first test, if not, it will hang
                       # waiting for standard input from setup_expt.py
 endforeach()
