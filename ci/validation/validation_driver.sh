@@ -52,7 +52,7 @@ repo_url="https://github.com/NOAA-EMC/GDASApp.git"
 today=$(date +%Y%m%d)
 
 mkdir -p $GDAS_CI_ROOT/validation/$today
-cd $GDAS_CI_ROOT/PR/$today
+cd $GDAS_CI_ROOT/validation/$today
 
 # clone copy of repo
 git clone $repo_url
