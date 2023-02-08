@@ -14,6 +14,8 @@ config:
   OBS_LIST: ${srcdir}/parm/atm/obs/lists/gdas_prototype.yaml
   OPREFIX: gdas.t00z.
   CDATE: '2022033000'
+  PDY: '20220330'
+  cyc: '00'
   valid_time: '2022-03-30T00:00:00Z'
   atm_window_length: PT6H
   CASE: 'C48'
