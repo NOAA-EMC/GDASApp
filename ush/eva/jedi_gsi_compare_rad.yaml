@@ -109,7 +109,120 @@ diagnostics:
       for:
         variable: *variables
 
+    # Stats for hofx
+    - transform: channel_stats
+      variable_name: experiment::HofXDiff::${variable}
+      for:
+         variable: *variables
+
+    # Stats for omb that passed QC for GSI
+    - transform: channel_stats
+      variable_name: experiment::ObsValueMinusGsiHofXBcPassedQc::${variable}
+      for:
+         variable: *variables
+
+    # Stats for omb that passed QC for JEDI
+    - transform: channel_stats
+      variable_name: experiment::ObsValueMinushofxPassedQc::${variable}
+      for:
+        variable: *variables
+
+    # Generate QC Counts Difference
+    - transform: arithmetic
+      new name: experiment::QCCountsDiff::${variable}
+      equals: experiment::ObsValueMinushofxPassedQcCount::brightnessTemperature-experiment::ObsValueMinusGsiHofXBcPassedQcCount::brightnessTemperature
+      for:
+        variable: *variables
+
   graphics:
+    - figure:
+        layout: [1,1]
+        title: 'JEDI HofX - GSI HofX vs Channel | @NAME@ @CYCLE@'
+        output name: HofX Difference_@CYCLE@_@NAME@_${variable}.png
+        linear_regression:
+      plots:
+        - add_xlabel: 'Channel'
+          add_ylabel: 'HofX Difference'
+          add_grid:
+          add_legend:
+            loc: 'upper left'
+          set_xlim: [0, 500]
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber
+            y:
+              variable: experiment::HofXDiffMean::brightnessTemperature
+            markersize: 5
+            color: 'red'
+            label: 'Mean'
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber
+            y:
+              variable: experiment::HofXDiffMax::brightnessTemperature
+            markersize: 5
+            color: 'green'
+            label: 'Maximum'
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber
+            y:
+              variable: experiment::HofXDiffMin::brightnessTemperature
+            markersize: 5
+            color: 'blue'
+            label: 'Minimum'
+
+    - figure:
+        layout: [1,1]
+        title: 'Difference in Number of Obs Passing QCi | @NAME@ @CYCLE@'
+        output name: QCCount_Diff_@CYCLE@_@NAME@_${variable}.png
+        linear_regression:
+      plots:
+        - add_xlabel: 'Channel'
+          add_ylabel: 'Counts'
+          add_grid:
+          add_legend:
+            loc: 'upper left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber
+            y:
+              variable: experiment::QCCountsDiff::brightnessTemperature
+            markersize: 5
+            color: 'red'
+            label: 'JEDI'
+
+
+    - figure:
+        layout: [1,1]
+        title: 'Number of Obs Passing QC | @NAME@ @CYCLE@'
+        output name: QCCount_Diff_@CYCLE@_@NAME@.png
+        linear_regression:
+      plots:
+        - add_xlabel: 'Channel'
+          add_ylabel: 'Counts'
+          add_grid:
+          add_legend:
+            loc: 'upper left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber
+            y:
+              variable: experiment::ObsValueMinushofxPassedQcCount::brightnessTemperature
+            markersize: 5
+            color: 'red'
+            label: 'JEDI'
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber
+            y:
+              variable: experiment::ObsValueMinusGsiHofXBcPassedQcCount::brightnessTemperature
+            markersize: 5
+            color: 'green'
+            label: 'GSI'
 
     # ---------- Scatter Plots ----------
     # JEDI h(x) vs Observations
