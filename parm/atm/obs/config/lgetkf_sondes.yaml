@@ -13,7 +13,7 @@ obs space:
       obsfile: !ENV ./diags/diag_sondes_lgetkf_${CDATE}.nc4
   io pool:
     max pool size: 1
-  simulated variables: [eastward_wind, northward_wind, air_temperature]
+  simulated variables: [windEastward, windNorthward, airTemperature]
 obs operator:
   name: VertInterp
 obs error:
@@ -23,9 +23,9 @@ obs filters:
   maxvalue: 3
 - filter: Background Check
   filter variables:
-  - name: eastward_wind
-  - name: northward_wind
-  - name: air_temperature
+  - name: windEastward
+  - name: windNorthward
+  - name: airTemperature
   threshold: 2.0
 obs localizations:
 - localization method: Horizontal Gaspari-Cohn

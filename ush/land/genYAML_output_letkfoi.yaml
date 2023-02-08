@@ -64,19 +64,19 @@ observations:
       where:
       - minvalue: '-999.0'
         variable:
-          name: height@MetaData
+          name: MetaData/height
     - filter: Domain Check
       where:
       - maxvalue: '1.5'
         minvalue: '0.5'
         variable:
-          name: slmsk@GeoVaLs
+          name: GeoVaLs/slmsk
     - filter: RejectList
       where:
       - maxvalue: '15.5'
         minvalue: '14.5'
         variable:
-          name: vtype@GeoVaLs
+          name: GeoVaLs/vtype
     - filter: BlackList
       where:
       - is_in:
@@ -87,7 +87,7 @@ observations:
         - '71816'
         size where true: '5'
         variable:
-          name: station_id@MetaData
+          name: MetaData/stationIdentification
     - action:
         name: reject
       filter: Background Check
@@ -111,7 +111,7 @@ observations:
         search_radius: '150'
         sort_by_pressure: 'false'
         station_id_variable:
-          name: station_id@MetaData
+          name: MetaData/stationIdentification
         temporal_correlation_scale: PT6H
         traced_boxes:
           max_latitude: '90'
@@ -120,10 +120,10 @@ observations:
           min_longitude: '-180'
         use_legacy_buddy_collector: 'false'
     - assignments:
-      - name: totalSnowDepth@GrossErrorProbability
+      - name: GrossErrorProbability/totalSnowDepth
         type: float
         value: '0.02'
-      - name: totalSnowDepth_background_error@BkgError
+      - name: BkgError/totalSnowDepth_background_error
         type: float
         value: '30.0'
       filter: Variable Assignment
