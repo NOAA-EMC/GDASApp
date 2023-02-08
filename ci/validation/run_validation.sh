@@ -93,8 +93,22 @@ cat $repodir/../ufo_geovals_results.txt >> $outfile
 # create HTML table of status
 python $repodir/ci/validation/gen_ufo_geoval_table.py --oblist $repodir/ci/validation/oblist_gfsv16p3.txt --results $repodir/../ufo_geovals_results.txt --output $repodir/../status_geovals.html 
 # ---------------------------
-# rsync/scp HTML table of status
+# scp HTML table of status
+scp -r $repodir/../status_geovals.html cmartin@emcrzdm.ncep.noaa.gov:/home/www/emc/htdocs/data_assimilation/JEDI/GDAS/UFO/acceptance/status_geovals.html
 # ---------------------------
 # send email of status if necessary
+grep "Failed" $repodir/../ufo_geovals_results.txt
+if [ $? -eq 0 ]; then
+  # one of the tests failed, that is bad!
+  PEOPLE="Cory.R.Martin@noaa.gov Andrew.Collard@noaa.gov Emily.Liu@noaa.gov"
+  SUBJECT="FAILURE of one or more GDAS UFO validation tests"
+  BODY=$repodir/../ufo_geovals_email.txt
+  cat > $BODY << EOF
+One or more of the GDAS UFO validation tests failed earlier today. See information below.
+
+EOF
+  cat $repodir/../ufo_geovals_results.txt >> $BODY
+  mail -r "Darth Vader - NOAA Affiliate <jedi.bot@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
+fi
 
 echo '```' >> $outfile
