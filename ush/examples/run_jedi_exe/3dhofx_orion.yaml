@@ -1,15 +1,15 @@
 working directory: /work2/noaa/stmp/cmartin/gdas_single_test_hofx3d
 GDASApp home: /work2/noaa/da/cmartin/GDASApp/work/GDASApp
 GDASApp mode: hofx
-executable options:
+template: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/hofx/hofx_nomodel.yaml
+config:
   obs_yaml_dir: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/config
-  yaml_template: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/hofx/hofx_nomodel.yaml
   executable: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/build/bin/fv3jedi_hofx_nomodel.x
-  obs_list: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype.yaml
+  obs_list: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype_3d.yaml
   gdas_fix_root: /work2/noaa/da/cmartin/GDASApp/fix
   atm: true
-  layout_x: 4
-  layout_y: 4
+  layout_x: 1
+  layout_y: 1
   atm_window_length: PT6H
   valid_time: 2021-08-01T00:00:00Z
   dump: gdas
@@ -22,5 +22,6 @@ job options:
   queue: debug
   partition: debug
   walltime: '30:00'
-  ntasks: 96
+  ntasks: 6
+  ntasks-per-node: 2
   modulepath: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/modulefiles
