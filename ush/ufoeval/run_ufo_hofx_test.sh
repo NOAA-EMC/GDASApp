@@ -178,7 +178,6 @@ if [ $? -ne 0 ]; then
        exit 1
    fi
 else
-   echo "Running EVA"
    RC=0
    if [ $run_eva == YES ]; then
        echo "Running EVA"
