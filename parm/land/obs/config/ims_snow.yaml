@@ -29,13 +29,13 @@ obs filters:
   - filter: Domain Check # land only
     where:
     - variable:
-        name: slmsk@GeoVaLs
+        name: GeoVaLs/slmsk
       minvalue: 0.5
       maxvalue: 1.5
   - filter: RejectList  # no land-ice
     where:
     - variable:
-        name: vtype@GeoVaLs
+        name: GeoVaLs/vtype
       minvalue: 14.5
       maxvalue: 15.5
   - filter: Background Check # gross error check
