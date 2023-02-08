@@ -33,7 +33,7 @@ variational:
   minimizer:
     algorithm: DRIPCG
   iterations:
-  - ninner: 20
+  - ninner: 2
     gradient norm reduction: 1e-10
     test: on
     geometry:
@@ -50,7 +50,7 @@ variational:
       field metadata override: ./fv3jedi/gfs-restart.yaml
     diagnostics:
       departures: bkgmob
-  - ninner: 40
+  - ninner: 4
     gradient norm reduction: 1e-10
     test: on
     geometry:

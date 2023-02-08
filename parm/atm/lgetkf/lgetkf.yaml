@@ -45,7 +45,8 @@ driver:
 local ensemble DA:
   solver: GETKF
   vertical localization:
-    fraction of retained variance: 0.975
+#   fraction of retained variance: 0.975  # use for scientific tests
+    fraction of retained variance: 0.750  # use for ctest
     lengthscale: 2.1
     lengthscale units: logp
   inflation:

@@ -32,7 +32,7 @@ sys.path.append(str(pyiodaconv_lib))
 import ioda_conv_engines as iconv
 from orddicts import DefaultOrderedDict
 
-__all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
+__all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'background_ens', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -283,14 +283,21 @@ def bias_obs(config):
 
             # fetch satbias_cov    # note:  non-standard R2D2 added for cycling
             r2d2_config['file_type'] = 'satbias_cov'
-            target_file = target_file.replace('satbias', 'satbias_cov')
-            r2d2_config['target_file_fmt'] = target_file
+            target_file2 = target_file.replace('satbias', 'satbias_cov')
+            r2d2_config['target_file_fmt'] = target_file2
             r2d2_config['experiment'] = config.get('experiment', 'oper_gdas')
-            ufsda.r2d2.fetch(r2d2_config)
+            try:
+                ufsda.r2d2.fetch(r2d2_config)
+            except FileNotFoundError:
+                logging.error("Warning: satbias_cov file cannot be fetched from R2D2!")
+                # temp hack to copy satbias as satbias_cov
+                # if satbias_cov does not exists in R2D2
+                if os.path.isfile(target_file) and not os.path.isfile(target_file2):
+                    shutil.copy(target_file, target_file2)
 
             # fetch tlapse
             r2d2_config['file_type'] = 'tlapse'
-            target_file = target_file.replace('satbias_cov', 'tlapse')
+            target_file = target_file.replace('satbias', 'tlapse')
             target_file = target_file.replace('nc4', 'txt')
             r2d2_config['target_file_fmt'] = target_file
             r2d2_config['experiment'] = 'oper_gdas'
@@ -480,3 +487,36 @@ def berror(config):
     except FileExistsError:
         os.remove(jedi_staticb_dir)
         os.symlink(config['staticb_dir'], jedi_staticb_dir)
+
+
+def background_ens(config):
+    """
+    Stage backgrounds and create links for analysis
+    This involves:
+    - cp RESTART to RESTART_GES
+    - ln RESTART_GES to analysis/bkg
+    - mkdir analysis/anl
+    """
+    for imem in range(1, config['NMEM_ENKF']+1):
+        memchar = f"mem{imem:03d}"
+        print(f"background_ens:  stage {memchar}")
+        rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'RESTART')
+        ges_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'RESTART_GES')
+        jedi_bkg_mem = os.path.join(config['DATA'], 'bkg', memchar)
+        jedi_bkg_dir = os.path.join(config['DATA'], 'bkg', memchar, 'RESTART')
+        jedi_anl_dir = os.path.join(config['DATA'], 'anl', memchar)
+        mkdir(jedi_bkg_mem)
+
+        # copy RESTART to RESTART_GES
+        if not os.path.exists(ges_dir):
+            try:
+                shutil.copytree(rst_dir, ges_dir)
+            except FileExistsError:
+                shutil.rmtree(ges_dir)
+                shutil.copytree(rst_dir, ges_dir)
+        try:
+            os.symlink(ges_dir, jedi_bkg_dir)
+        except FileExistsError:
+            os.remove(jedi_bkg_dir)
+            os.symlink(ges_dir, jedi_bkg_dir)
+        mkdir(jedi_anl_dir)
