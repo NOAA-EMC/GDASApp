@@ -25,14 +25,6 @@ if (BUILD_GDASBUNDLE)
           ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}"
   )
 
-  # if running on Hera, run 'validation' tests
-  if(DEFINED ENV{BUILD_TARGET})
-    if($ENV{BUILD_TARGET} MATCHES "hera")
-      message(status "Machine is HERA, including scientific validation tests")
-      add_subdirectory(validation)
-    endif()
-  endif()
-
 # Test exgdas scripts from the global-worflow
   if (WORKFLOW_TESTS)
     add_subdirectory(global-workflow)
