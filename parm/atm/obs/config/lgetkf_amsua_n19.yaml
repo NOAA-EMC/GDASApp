@@ -13,13 +13,13 @@ obs space:
       obsfile: !ENV ./diags/diag_amsua_n19_${CDATE}.nc4
   io pool:
     max pool size: 1
-  simulated variables: [brightness_temperature]
-  channels: 4-6,9-14
+  simulated variables: [brightnessTemperature]
+  channels: &amsua_n19_channels 4-6,9-14
 obs operator:
   name: CRTM
   Absorbers: [H2O,O3]
-#   Clouds: [Water, Ice]
-#   Cloud_Fraction: 1.0
+  Clouds: [Water, Ice]
+  Cloud_Fraction: 1.0
   obs options:
     Sensor_ID: amsua_n19
     EndianType: little_endian
@@ -29,48 +29,20 @@ obs error:
 obs filters:
 - filter: Bounds Check
   filter variables:
-  - name: brightness_temperature
-    channels: 4-6,9-14
+  - name: brightnessTemperature
+    channels: *amsua_n19_channels
   minvalue: 100.0
   maxvalue: 500.0
+  action:
+    name: reject
+#  Gross check
 - filter: Background Check
   filter variables:
-  - name: brightness_temperature
-    channels: 4-6,9-14
+  - name: brightnessTemperature
+    channels: *amsua_n19_channels
   threshold: 3.0
-- filter: Domain Check
-  filter variables:
-  - name: brightness_temperature
-    channels: 4-6,9-14
-  where:
-  - variable:
-      name: scan_position@MetaData
-    minvalue: 4
-    maxvalue: 27
-  - variable:
-      name: brightness_temperature_1@ObsValue
-    minvalue: 50.0
-    maxvalue: 550.0
-  - variable:
-      name: brightness_temperature_2@ObsValue
-    minvalue: 50.0
-    maxvalue: 550.0
-  - variable:
-      name: brightness_temperature_3@ObsValue
-    minvalue: 50.0
-    maxvalue: 550.0
-  - variable:
-      name: brightness_temperature_4@ObsValue
-    minvalue: 50.0
-    maxvalue: 550.0
-  - variable:
-      name: brightness_temperature_6@ObsValue
-    minvalue: 50.0
-    maxvalue: 550.0
-  - variable:
-      name: brightness_temperature_15@ObsValue
-    minvalue: 50.0
-    maxvalue: 550.0
+  action:
+    name: reject
 obs localizations:
 - localization method: Horizontal Gaspari-Cohn
   lengthscale: 1250e3
