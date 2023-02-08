@@ -4,7 +4,7 @@
 # and outputs pass/fail information
 
 # Work directory
-WORKDIR=$STMP/test_yamls
+WORKDIR=$STMP/test_yamls  # Change to suitable path
 
 mkdir -p $WORKDIR
 
