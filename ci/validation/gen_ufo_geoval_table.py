@@ -3,6 +3,7 @@
 # generate a HTML table of UFO validation status
 import argparse
 
+
 def gen_ufo_geoval_table(oblist, results, output):
     """Generate HTML table of UFO validation results using GeoVaLs
 
@@ -50,7 +51,9 @@ def gen_ufo_geoval_table(oblist, results, output):
             if status_dict[obtype] == 'Missing':
                 f.write("<td style='background-color:Red;'>No YAML</td><td style='background-color:Gray;'>N/A</td></tr>\n")
             else:
-                f.write(f"<td style='background-color:Green;'>YAML Exists</td><td style='background-color:{color_dict[status_dict[obtype]]};'>{status_dict[obtype]}</td></tr>\n")
+                colorstr = color_dict[status_dict[obtype]]
+                statusstr = status_dict[obtype]
+                f.write(f"<td style='background-color:Green;'>YAML Exists</td><td style='background-color:{colorstr};'>{statusstr}</td></tr>\n")
         f.write('</table>\n')
     print(f"Wrote HTML table to {output}")
 
