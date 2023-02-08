@@ -78,4 +78,3 @@ else
 fi
 echo '```' >> $outfile
 exit $ctest_status
-

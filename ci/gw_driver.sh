@@ -79,13 +79,6 @@ for pr in $open_pr_list; do
 
   # get commit hash
   commit=$(git log --pretty=format:'%h' -n 1)
-  if [ -f "$GDAS_CI_ROOT/workflow/PR/$pr/commit" ]; then
-    oldcommit=$(cat $GDAS_CI_ROOT/workflow/PR/$pr/commit)
-    if [ $oldcommit == $commit ]; then
-      # do no more for this PR, as the commit has already been tested
-      continue
-    fi
-  fi
   echo "$commit" > $GDAS_CI_ROOT/workflow/PR/$pr/commit
 
   $my_dir/run_gw_ci.sh -d $GDAS_CI_ROOT/workflow/PR/$pr/global-workflow -o $GDAS_CI_ROOT/workflow/PR/$pr/output_${commit}
