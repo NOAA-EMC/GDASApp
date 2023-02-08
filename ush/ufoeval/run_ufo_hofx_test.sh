@@ -57,16 +57,17 @@ obtype=$1
 
 #--------------- User modified options below -----------------
 
-machine=orion
-GDASApp=/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/ # Change this to your own branch
+machine=${machine:-orion} 
 
 if [ $machine = orion ]; then
    workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
+   GDASApp=${GDASApp:-/work2/noaa/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
 elif [ $machine = hera ]; then
    workdir=/scratch1/NCEPDEV/stmp2/$LOGNAME/ufoeval/$cycle/$obtype
+   GDASApp=${GDASApp:-/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
 else
    echo "Machine " $machine "not found"
-   exit
+   exit 1
 fi
 
 yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}.yaml
