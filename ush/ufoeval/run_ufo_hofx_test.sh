@@ -14,7 +14,7 @@
 usage() {
   set +x
   echo
-  echo "Usage: $0 [-c cycle] [-x] [-s] [-h] instrument [cycle]"
+  echo "Usage: $0 [-c cycle] [-x] [-s] [-h] instrument"
   echo
   echo "  -c  cycle to run DEFAULT=2021080100"
   echo "  -x  don't run eva DEFAULT=run eva"
@@ -48,7 +48,7 @@ while getopts "c:hsx" opt; do
 done
 shift $((OPTIND - 1))
 
-if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+if [ $# -ne 1 ]; then
    echo "Incorrect number of arguments"
    usage 
 fi
