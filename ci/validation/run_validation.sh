@@ -74,7 +74,6 @@ else
   cat log.ctest | grep "(Failed)" >> $outfile
   echo "Tests: see output at $repodir/build/log.ctest" >> $outfile
   echo '```' >> $outfile
-  exit $ctest_status
 fi
 # ==============================================================================
 # run validation scripts
@@ -85,7 +84,7 @@ export GDASApp=$repodir
 export machine=$TARGET
 export STMP=$repodir/../
 commit=$(git rev-parse --short HEAD)
-echo "${commit} tested on $(date)" >> $repodir/../ufo_geovals_results.txt
+echo "Commit hash ${commit} tested on $(date)" >> $repodir/../ufo_geovals_results.txt
 ./test_yamls.sh >> $repodir/../ufo_geovals_results.txt
 
 cat $repodir/../ufo_geovals_results.txt >> $outfile
@@ -97,7 +96,7 @@ python $repodir/ci/validation/gen_ufo_geoval_table.py --oblist $repodir/ci/valid
 scp -r $repodir/../status_geovals.html cmartin@emcrzdm.ncep.noaa.gov:/home/www/emc/htdocs/data_assimilation/JEDI/GDAS/UFO/acceptance/status_geovals.html
 # ---------------------------
 # send email of status if necessary
-grep "Failed" $repodir/../ufo_geovals_results.txt
+grep "Fails" $repodir/../ufo_geovals_results.txt
 if [ $? -eq 0 ]; then
   # one of the tests failed, that is bad!
   PEOPLE="Cory.R.Martin@noaa.gov Andrew.Collard@noaa.gov Emily.Liu@noaa.gov"

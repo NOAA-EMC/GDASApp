@@ -5,7 +5,7 @@ import argparse
 
 def gen_ufo_geoval_table(oblist, results, output):
     """Generate HTML table of UFO validation results using GeoVaLs
-    
+
     Parameters
     ----------
     oblist: str
@@ -18,7 +18,7 @@ def gen_ufo_geoval_table(oblist, results, output):
     # first, read the list of ob types from a text file
     with open(oblist) as obfile:
         obtypes = [line.rstrip() for line in obfile]
-    
+
     # create a dict of the status of each ob type
     status_dict = {}
 
@@ -32,7 +32,7 @@ def gen_ufo_geoval_table(oblist, results, output):
             if yamlname == obtype:
                 status = line.split(' ')[1]
         status_dict[obtype] = status
-    
+
     # start writing the HTML file
     color_dict = {
         'Missing': 'Red',
@@ -43,7 +43,7 @@ def gen_ufo_geoval_table(oblist, results, output):
         f.write('GDAS UFO validation status using GeoVaLs<br>\n')
         f.write(resultlines[0])
         f.write('<br>\n')
-        f.write('<table style="width:100%;text-align:left;">\n')
+        f.write('<table style="font-size:90%;width:80%;text-align:left;">\n')
         f.write('<tr><th>Observation Type</th><th>Testing YAML</th><th>Passes Validation</th></tr>\n')
         for obtype in obtypes:
             f.write(f"<tr><td>{obtype}</td>")
