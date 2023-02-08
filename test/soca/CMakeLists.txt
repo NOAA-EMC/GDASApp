@@ -89,37 +89,6 @@ add_test(NAME test_gdasapp_soca_ana_prep
       PROPERTIES
       ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
 
-# Test exgdas_global_marine_analysis_bmat.sh
-# -----------------------------------------
-add_test(NAME test_gdasapp_soca_ana_bmat
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bmat.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/ocnanal_12)
-set_tests_properties(test_gdasapp_soca_ana_bmat
-      PROPERTIES
-          DEPENDS "test_gdasapp_soca_ana_prep"
-        )
-
-
-# Test exgdas_global_marine_analysis_run.sh
-# -----------------------------------------
-add_test(NAME test_gdasapp_soca_ana_run
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_run.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/ocnanal_12)
-set_tests_properties(test_gdasapp_soca_ana_run
-      PROPERTIES
-          DEPENDS "test_gdasapp_soca_ana_prep"
-        )
-
-# Test exgdas_global_marine_analysis_bmat_vrfy.sh
-# -----------------------------------------------
-add_test(NAME test_gdasapp_soca_ana_bmat_vrfy
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bmat_vrfy.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar/ocnanal_12)
-set_tests_properties(test_gdasapp_soca_ana_bmat_vrfy
-      PROPERTIES
-          DEPENDS "test_gdasapp_soca_ana_run"
-        )
-
 # Test exgdas scripts from the global-worflow
 if (WORKFLOW_TESTS)
   add_subdirectory(gw)
