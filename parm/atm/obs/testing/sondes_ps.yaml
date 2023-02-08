@@ -8,7 +8,7 @@ obs space:
     engine:
       type: H5File
       obsfile: !ENV sondes_ps_diag_${CDATE}.nc4
-  simulated variables: [surface_pressure]
+  simulated variables: [stationPressure]
 geovals:
   filename: !ENV sondes_ps_geoval_${CDATE}.nc4
 vector ref: GsiHofXBc
