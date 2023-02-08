@@ -107,7 +107,7 @@ One or more of the GDAS UFO validation tests failed earlier today. See informati
 
 EOF
   cat $repodir/../ufo_geovals_results.txt >> $BODY
-  mail -r "Darth Vader - NOAA Affiliate <jedi.bot@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
+  mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
 fi
 
 echo '```' >> $outfile
