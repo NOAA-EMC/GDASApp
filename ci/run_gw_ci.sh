@@ -40,6 +40,7 @@ echo "---------------------------------------------------" >> $outfile
 # run build and link as part of the workflow
 export WORKFLOW_BUILD="ON"
 cd $repodir/sorc
+git pull # get latest global-workflow updates
 module purge
 rm -rf log.build
 ./build_all.sh &>> log.build
@@ -78,4 +79,3 @@ else
 fi
 echo '```' >> $outfile
 exit $ctest_status
-
