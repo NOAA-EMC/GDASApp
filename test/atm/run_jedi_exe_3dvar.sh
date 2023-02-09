@@ -84,6 +84,10 @@ if [ $rc -ne 0 ]; then
     exit $rc
 fi
 
+# Wait and ensure buffers flushed to disk
+sleep 5
+sync stdout.txt
+
 # Check for job submission error
 error=$(grep "sbatch: error" stdout.txt | wc -l)
 if [ $error -ne 0 ]; then
