@@ -6,11 +6,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ./obs/${OPREFIX}sondes.${CDATE}.nc4
+      obsfile: !ENV ./obs/${OPREFIX}sondes.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ./diags/diag_sondes_lgetkf_${CDATE}.nc4
+      obsfile: !ENV ./diags/diag_sondes_lgetkf_${PDY}${cyc}.nc4
   io pool:
     max pool size: 1
   simulated variables: [windEastward, windNorthward, airTemperature]

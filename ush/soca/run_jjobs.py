@@ -9,9 +9,11 @@ import argparse
 machines = {"container", "hera", "orion"}
 MODS = {'JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT': 'GDAS',
+        'JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT_VRFY': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_POST': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY': 'EVA'}
+components_short = {'ocean': 'ocn', 'ice': 'ice'}  # Short names for components
 
 
 class JobCard:
@@ -25,6 +27,7 @@ class JobCard:
         self.name = scriptname
         self.f = open(self.name, "w")
         self.f.write("#!/usr/bin/env bash\n")
+        self.component = config['gw environement']['experiment identifier']['COMPONENT']
         self.pslot = config['gw environement']['experiment identifier']['PSLOT']
         self.homegfs = config['gw environement']['experiment identifier']['HOMEgfs']
         self.stmp = config['gw environement']['working directories']['STMP']
@@ -131,8 +134,17 @@ class JobCard:
         Fill the ROTDIR with backgrounds
         TODO: replace by fill comrot?
         """
+        file_descriptor = components_short[self.component]+'f0'
         self.f.write("mkdir -p ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/${COMPONENT}/\n")
-        self.f.write("cp -r ${COMIN_GES}/* ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/${COMPONENT}/\n")
+        command = "cp -r ${COMIN_GES}/*." + file_descriptor + "*.nc"
+        command += "  ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/${COMPONENT}/\n"
+        self.f.write(command)
+        # Special case for the ocean: DA for ice & ocean
+        if self.component == 'ocean':
+            # staging ice backgrounds
+            ice_file_descriptor = components_short['ice']
+            self.f.write("mkdir -p ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/ice/\n")
+            self.f.write("cp -r ${COMIN_GES}/../ice/*icef0*.nc ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/ice/\n")
 
     def fixconfigs(self):
         """

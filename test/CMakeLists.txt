@@ -1,7 +1,8 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "782aca0e0ff579557877129f242d0aa4c4252620233622ecacc1deaa524ca8ed")
+set(SHA "117b8af9db031466b1d5e8f82df3ab9b09ca093a0617ec58f6ac059fbbb354ea")
+
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
@@ -140,6 +141,7 @@ add_test(NAME test_gdasapp_convert_ewok_yaml
 
 # high level tests that require the global-workflow
 if (WORKFLOW_TESTS)
+
   # test for creating an experiment directory within the global-workflow
   add_test(NAME test_gdasapp_setup_cycled_exp
            COMMAND ${PROJECT_SOURCE_DIR}/test/setup_workflow_exp.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}

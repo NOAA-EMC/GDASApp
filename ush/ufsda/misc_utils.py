@@ -120,6 +120,9 @@ def get_env_config(component='atm'):
     valid_time = datetime_from_cdate(cdate)
     assim_freq = int(os.environ['assim_freq'])
     prev_cycle = valid_time - dt.timedelta(hours=assim_freq)
+    gPDY = f"{prev_cycle.strftime('%Y%m%d')}"
+    os.environ['gPDY'] = str(gPDY)
+    gdate = os.environ['gPDY']+os.environ['gcyc']
     window_begin = valid_time - dt.timedelta(hours=assim_freq/2)
 
     config = {
@@ -135,7 +138,7 @@ def get_env_config(component='atm'):
         'OBS_DATE': cdate,
         'BIAS_IN_DIR': os.environ['COMOUT'],
         'BIAS_PREFIX': f"{os.environ['GDUMP']}.t{os.environ['gcyc']}z.",
-        'BIAS_DATE': f"{os.environ['GDATE']}",
+        'BIAS_DATE': gdate,
         'experiment': os.getenv('PSLOT', 'test'),
     }
     config['BKG_YYYYmmddHHMMSS'] = valid_time.strftime('%Y%m%d.%H%M%S')
