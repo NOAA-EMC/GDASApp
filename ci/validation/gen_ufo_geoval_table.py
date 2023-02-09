@@ -47,7 +47,7 @@ def gen_ufo_geoval_table(oblist, results, output):
         f.write('<table style="font-size:90%;width:80%;text-align:left;">\n')
         f.write('<tr><th>Observation Type</th><th>Testing YAML</th><th>Passes Validation</th></tr>\n')
         for obtype in obtypes:
-            f.write(f"<tr><td>{obtype}</td>")
+            f.write(f"<tr><td style='border-bottom:solid;'>{obtype}</td>")
             if status_dict[obtype] == 'Missing':
                 f.write("<td style='background-color:Red;'>No YAML</td><td style='background-color:Gray;'>N/A</td></tr>\n")
             else:
