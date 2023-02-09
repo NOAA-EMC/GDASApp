@@ -9,7 +9,7 @@ cost function:
 
   model:
     name: PseudoModel
-    tstep: PT1H
+    tstep: PT3H
     state variables: *soca_vars
     states: !INC ${BKG_LIST}
 
@@ -35,7 +35,7 @@ variational:
       name: Identity
       increment variables: *soca_vars
       variable change: Identity
-      tstep: PT1H
+      tstep: PT3H
     ninner: !ENV ${SOCA_NINNER}
     gradient norm reduction: 1e-10
     test: on
