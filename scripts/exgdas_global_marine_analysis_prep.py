@@ -52,7 +52,7 @@ from ufsda.stage import obs, soca_fix
 
 def agg_seaice(fname_in, fname_out):
     """
-    Aggregates seaice variables from fname_in and save in fname_out.
+    Aggregates seaice variables from a CICE restart fname_in and save in fname_out.
     """
 
     soca2cice_vars = {'aicen': 'aicen',
@@ -83,6 +83,24 @@ def agg_seaice(fname_in, fname_out):
     ncf.close()
 
 
+def cice_hist2fms(input_filename, output_filename):
+    """
+    Simple reformatting utility to allow soca/fms to read CICE's history
+    """
+
+    # open the CICE history file
+    ds = xr.open_dataset(input_filename)
+
+    # rename the dimensions to xaxis_1 and yaxis_1
+    ds = ds.rename({'ni': 'xaxis_1', 'nj': 'yaxis_1'})
+
+    # rename the variables
+    ds = ds.rename({'aice_h': 'aicen', 'hi_h': 'hicen', 'hs_h': 'hsnon'})
+
+    # Save the new netCDF file
+    ds.to_netcdf(output_filename, mode='w')
+
+
 def test_hist_date(histfile, ref_date):
     """
     Check that the date in the MOM6 history file is the expected one for the cycle.
@@ -96,32 +114,52 @@ def test_hist_date(histfile, ref_date):
     assert hist_date == ref_date, 'Inconsistent bkg date'
 
 
-def gen_bkg_list(bkg_path, out_path, window_begin=' ', file_type='gdas.t*.ocnf00[3-9]', yaml_name='bkg.yaml'):
+def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice_rst=False):
     """
     Generate a YAML of the list of backgrounds for the pseudo model
-    TODO: [3-9] shouldn't be hard-coded. Instead construct the list of background dates for the cycle
-                and grab the files that correspond to the dates.
     """
 
-    # Create yaml of list of backgrounds
-    bkg_list = []
+    # Pseudo model parameters (time step, start date)
+    # TODO: make this a parameter
+    dt_pseudo = 3
     bkg_date = window_begin
-    files = glob.glob(bkg_path+'/*'+file_type+'*')
-    files.sort()
+
+    # Construct list of background file names
+    cdump = os.getenv('CDUMP')
+    cyc = str(os.getenv('cyc')).zfill(2)
+    gcyc = str((int(cyc) - 6) % 24).zfill(2)  # previous cycle
+    fcst_hrs = list(range(3, 10, dt_pseudo))
+    files = []
+    for fcst_hr in fcst_hrs:
+        files.append(os.path.join(bkg_path, cdump+'.t'+gcyc+'z.ocnf'+str(fcst_hr).zfill(3)+'.nc'))
+
+    # Identify the ocean background that will be used for the  vertical coordinate remapping
     ocn_filename_ic = os.path.splitext(os.path.basename(files[0]))[0]+'.nc'
     test_hist_date(os.path.join(bkg_path, ocn_filename_ic), bkg_date)  # assert date of the history file is correct
 
+    # Copy/process backgrounds and generate background yaml list
+    bkg_list = []
     for bkg in files:
 
-        # assert validity of ocean bkg, remove basename
+        # assert validity of the ocean bkg date, remove basename
         test_hist_date(bkg, bkg_date)
         ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'
 
-        # aggregate seaice variables and dump aggregated ice bkg in out_path
+        # prepare the seaice background, aggregate if the backgrounds are CICE restarts
         ice_filename = ocn_filename.replace("ocn", "ice")
         agg_ice_filename = ocn_filename.replace("ocn", "agg_ice")
-        agg_seaice(os.path.join(bkg_path, ice_filename),
-                   os.path.join(out_path, agg_ice_filename))
+        if ice_rst:
+            # if this is a CICE restart, aggregate seaice variables and dump
+            # aggregated ice bkg in out_path
+            # TODO: This option is turned off for now, figure out what to do with it.
+            agg_seaice(os.path.join(bkg_path, ice_filename),
+                       os.path.join(out_path, agg_ice_filename))
+        else:
+            # Process the CICE history file so they can be read by soca/fms
+            # TODO: Add date check of the cice history
+            # TODO: bkg_path should be 1 level up
+            cice_hist2fms(os.path.join(bkg_path, '..', 'ice', ice_filename),
+                          os.path.join(out_path, agg_ice_filename))
 
         # copy ocean bkg to out_path
         ufsda.disk_utils.copyfile(os.path.join(bkg_path, ocn_filename),
@@ -133,7 +171,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', file_type='gdas.t*.ocnf00
                     'ice_filename': agg_ice_filename,
                     'read_from_file': 1,
                     'remap_filename': './bkg/'+ocn_filename_ic}
-        bkg_date = bkg_date + timedelta(hours=1)  # TODO: make the bkg interval a configurable
+        bkg_date = bkg_date + timedelta(hours=dt_pseudo)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
     f = open(yaml_name, 'w')
     yaml.dump(bkg_list, f, sort_keys=False, default_flow_style=False)
