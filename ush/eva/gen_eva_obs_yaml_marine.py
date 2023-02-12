@@ -7,7 +7,6 @@ import socket
 import yaml
 
 
-#def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir, group):
 def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     # open input YAML file to get config
@@ -18,16 +17,8 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
     except Exception as e:
         logging.error(f'Error occurred when attempting to load: {inputyaml}, error: {e}')
     # get just the observations part of the YAML
-    if 'cost function' in jedi_yaml_dict:
-        # cost function is in marine DA var.yaml
-        if 'observations' in jedi_yaml_dict['cost function']:
-            jediobs = jedi_yaml_dict['cost function']['observations']['observers']
-    else:
-        if 'observers' in jedi_yaml_dict['observations']:
-            jediobs = jedi_yaml_dict['observations']['observers']
-        else:
-            # the unit tests have a different YAML setup
-            jediobs = jedi_yaml_dict['observations']
+    if 'observations' in jedi_yaml_dict['cost function']:
+        jediobs = jedi_yaml_dict['cost function']['observations']['observers']
     # construct a simplified list of obsspaces for EVA
     evaobs = []
     for obsspace in jediobs:
@@ -38,7 +29,8 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
             'vars': tmp_os['simulated variables'],
             'channels': tmp_os.get('channels', None),
         }
-
+        comout = os.getenv('COMOUT')
+        tmp_dict['diagfile']=os.path.join(comout,'diags', os.path.basename(tmp_dict['diagfile']))
         evaobs.append(tmp_dict)
 
     # read in template YAML file
@@ -103,7 +95,5 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--inputjediyaml', type=str, help='Input JEDI YAML Configuration', required=True)
     parser.add_argument('-t', '--templateyaml', type=str, help='Template EVA YAML', required=True)
     parser.add_argument('-o', '--outputdir', type=str, help='Output directory for EVA YAMLs', required=True)
-    #parser.add_argument('-g', '--group', type=str, help='ioda groups [ObsValue, ombg, ...] ', required=False, default='')
     args = parser.parse_args()
-    #gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir, args.group)
     gen_eva_obs_yaml(args.inputjediyaml, args.templateyaml, args.outputdir)
