@@ -30,7 +30,7 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
             'channels': tmp_os.get('channels', None),
         }
         comout = os.getenv('COMOUT')
-        tmp_dict['diagfile']=os.path.join(comout,'diags', os.path.basename(tmp_dict['diagfile']))
+        tmp_dict['diagfile'] = os.path.join(comout, 'diags', os.path.basename(tmp_dict['diagfile']))
         evaobs.append(tmp_dict)
 
     # read in template YAML file
