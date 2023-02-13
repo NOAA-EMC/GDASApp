@@ -45,10 +45,11 @@ def marine_eva_post(inputdir, outputdir, diagdir):
             logging.error(f'Error occurred when attempting to write: {outputyaml}, error: {e}')
 
 if __name__ == "__main__":
+
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--inputdir', type=str, help='Directory with input YAMLs', required=True)
     parser.add_argument('-o', '--outputdir', type=str, help='Directory to send output YAMLs', required=True)
     parser.add_argument('-d', '--diagdir', type=str, help='Location of diag files', required=True)
     args = parser.parse_args()
     marine_eva_post(args.inputdir, args.outputdir, args.diagdir)
-
