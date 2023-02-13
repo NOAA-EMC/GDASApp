@@ -44,8 +44,8 @@ def marine_eva_post(inputdir, outputdir, diagdir):
         except Exception as e:
             logging.error(f'Error occurred when attempting to write: {outputyaml}, error: {e}')
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--inputdir', type=str, help='Directory with input YAMLs', required=True)
