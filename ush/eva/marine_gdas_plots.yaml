@@ -17,7 +17,7 @@ diagnostics:
           - name: hofx0
           - name: EffectiveQC0
           - name: MetaData
-          - name: PreQC
+          - name: PreQc
   transforms:
 
     # bkg 
@@ -29,10 +29,10 @@ diagnostics:
 
     # Generate omb that passed QC for JEDI
     - transform: accept where
-      new name: experiment::@GRPNAME@PassedQC::${variable}
-      starting field: experiment::@GRPNAME@::${variable}
+      new name: experiment::PassedQC::${variable}
+      starting field: experiment::ombg::${variable}
       where:
-        - experiment::PreQC::${variable} == 0
+        - experiment::PreQc::${variable} == 0
       for:
         variable: *variables
 
@@ -48,12 +48,12 @@ diagnostics:
         @CHANNELSKEY@
       dynamic options:
         - type: vminvmaxcmap
-          data variable: experiment::@GRPNAME@::${variable}
+          data variable: experiment::ObsValue::${variable}
       figure:
         layout: [1,1]
         figure size: [11,5]
-        title: '@GRPNAME@ | @NAME@ | ${variable_title}'
-        output name: map_plots/@NAME@/${variable}/@CHANNELVAR@/@GRPNAME@_@NAME@_${variable}@CHANNELVAR@.png
+        title: ' @NAME@ | ${variable_title}'
+        output name: map_plots/@NAME@/${variable}/@CHANNELVAR@/@NAME@_${variable}@CHANNELVAR@.png
         tight_layout: true
       plots:
         - mapping:
@@ -70,7 +70,7 @@ diagnostics:
             latitude:
               variable: experiment::MetaData::latitude
             data:
-              variable: experiment::@GRPNAME@PassedQC::${variable}
+              variable: experiment::PassedQC::${variable}
               @CHANNELKEY@
             markersize: 2
             label: '$(variable)'
