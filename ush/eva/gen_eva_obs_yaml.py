@@ -17,11 +17,16 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
     except Exception as e:
         logging.error(f'Error occurred when attempting to load: {inputyaml}, error: {e}')
     # get just the observations part of the YAML
-    if 'observers' in jedi_yaml_dict['observations']:
-        jediobs = jedi_yaml_dict['observations']['observers']
+    if 'cost function' in jedi_yaml_dict:
+        # cost function is in marine DA var.yaml
+        if 'observations' in jedi_yaml_dict['cost function']:
+            jediobs = jedi_yaml_dict['cost function']['observations']['observers']
     else:
-        # the unit tests have a different YAML setup
-        jediobs = jedi_yaml_dict['observations']
+        if 'observers' in jedi_yaml_dict['observations']:
+            jediobs = jedi_yaml_dict['observations']['observers']
+        else:
+            # the unit tests have a different YAML setup
+            jediobs = jedi_yaml_dict['observations']
     # construct a simplified list of obsspaces for EVA
     evaobs = []
     for obsspace in jediobs:
@@ -32,7 +37,9 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
             'vars': tmp_os['simulated variables'],
             'channels': tmp_os.get('channels', None),
         }
+
         evaobs.append(tmp_dict)
+
     # read in template YAML file
     # read it in as a text file and not a YAML file
     # this is so that we can find/replace some things more simply
@@ -76,6 +83,7 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
             replacements['@CHANNELSKEY@'] = ''
             replacements['@CHANNELKEY@'] = ''
             replacements['@CHANNELVAR@'] = ''
+
         # open output file for writing and start the find/replace process
         outputyaml = os.path.join(outputdir, f'eva_{name}_{cycle}.yaml')
         try:
