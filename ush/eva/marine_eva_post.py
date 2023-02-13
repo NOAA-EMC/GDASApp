@@ -45,8 +45,8 @@ def marine_eva_post(inputyaml, outputdir, diagdir):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--inputdir', type=str, help='Directory with input YAMLs', required=True)
-    parser.add_argument('-o', '--outputdir', type=str, help='Directory to send output YAMLs', required=True)
+    parser.add_argument('-i', '--inputyaml', type=str, help='Input YAML to modify', required=True)
+    parser.add_argument('-o', '--outputdir', type=str, help='Directory to send output YAML', required=True)
     parser.add_argument('-d', '--diagdir', type=str, help='Location of diag files', required=True)
     args = parser.parse_args()
-    marine_eva_post(args.inputdir, args.outputdir, args.diagdir)
+    marine_eva_post(args.inputyaml, args.outputdir, args.diagdir)
