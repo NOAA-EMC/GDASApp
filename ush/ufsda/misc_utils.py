@@ -71,7 +71,7 @@ def create_batch_job(job_config, working_dir, executable, yaml_path, single_exec
 #SBATCH --ntasks={job_config['ntasks']}
 #SBATCH --ntasks-per-node={taskspernode}
 #SBATCH --cpus-per-task=1
-#SBATCH --exclusive
+#SBATCH --mem=0
 #SBATCH -t {job_config['walltime']}"""
             f.write(sbatch)
         commands = f"""
@@ -116,9 +116,13 @@ def get_env_config(component='atm'):
     # get config dict based on environment variables
     # TODO break this into component specific sections
     # datetime objects
-    valid_time = datetime_from_cdate(os.environ['CDATE'])
+    cdate = os.environ['PDY']+os.environ['cyc']
+    valid_time = datetime_from_cdate(cdate)
     assim_freq = int(os.environ['assim_freq'])
     prev_cycle = valid_time - dt.timedelta(hours=assim_freq)
+    gPDY = f"{prev_cycle.strftime('%Y%m%d')}"
+    os.environ['gPDY'] = str(gPDY)
+    gdate = os.environ['gPDY']+os.environ['gcyc']
     window_begin = valid_time - dt.timedelta(hours=assim_freq/2)
 
     config = {
@@ -131,12 +135,14 @@ def get_env_config(component='atm'):
         'OBS_DIR': os.environ['COMOUT'],
         'OBS_PREFIX': f"{os.environ['CDUMP']}.t{os.environ['cyc']}z.",
         'target_dir': os.environ['COMOUT'],
-        'OBS_DATE': os.environ['CDATE'],
+        'OBS_DATE': cdate,
         'BIAS_IN_DIR': os.environ['COMOUT'],
         'BIAS_PREFIX': f"{os.environ['GDUMP']}.t{os.environ['gcyc']}z.",
-        'BIAS_DATE': f"{os.environ['GDATE']}",
+        'BIAS_DATE': gdate,
         'experiment': os.getenv('PSLOT', 'test'),
     }
+    config['BKG_YYYYmmddHHMMSS'] = valid_time.strftime('%Y%m%d.%H%M%S')
+    config['BKG_ISOTIME'] = valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')
     # some keys we can pull directly from the environment
     env_keys = [
         'CASE', 'CASE_ANL', 'CASE_ENKF', 'DOHYBVAR', 'LEVS', 'OBS_YAML_DIR', 'OBS_LIST',
@@ -144,4 +150,12 @@ def get_env_config(component='atm'):
     for key in env_keys:
         config[key] = os.environ[key]
     config['atm'] = True if component == 'atm' else False
+    # compute some other things here
+    config['npx_ges'] = int(os.environ['CASE'][1:]) + 1
+    config['npy_ges'] = int(os.environ['CASE'][1:]) + 1
+    config['npz_ges'] = int(os.environ['LEVS']) - 1
+    config['npx_anl'] = int(os.environ['CASE_ENKF'][1:]) + 1
+    config['npy_anl'] = int(os.environ['CASE_ENKF'][1:]) + 1
+    config['npz_anl'] = int(os.environ['LEVS']) - 1
+
     return config

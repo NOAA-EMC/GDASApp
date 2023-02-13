@@ -15,7 +15,7 @@ obs space:
     engine:
       type: H5File
       obsfile: !ENV ssmis_f17_diag_${CDATE}.nc4
-  simulated variables: [brightness_temperature]
+  simulated variables: [brightnessTemperature]
   channels: 1-24
 geovals:
   filename: !ENV ssmis_f17_geoval_${CDATE}.nc4
@@ -42,21 +42,21 @@ obs bias:
       tlapse: *ssmis_f17_tlap
     - name: emissivity
     - name: scan_angle
-      var_name: scan_position
+      var_name: sensorScanPosition
       order: 4
     - name: scan_angle
-      var_name: scan_position
+      var_name: sensorScanPosition
       order: 3
     - name: scan_angle
-      var_name: scan_position
+      var_name: sensorScanPosition
       order: 2
     - name: scan_angle
-      var_name: scan_position
+      var_name: sensorScanPosition
 
 obs prior filters:
 - filter: Perform Action
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 1-24
   action:
     name: assign error
@@ -67,7 +67,7 @@ obs post filters:
 #step1: Gross check (setuprad)
 - filter: Background Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 1-24
   threshold: 1.5
   action:
@@ -75,7 +75,7 @@ obs post filters:
 #step1: Gross check(qcmod)
 - filter: Background Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 1-24
   absolute threshold: 3.5
   remove bias correction: true
@@ -84,53 +84,53 @@ obs post filters:
 
 - filter: Difference Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 1-2,12-16
-  reference: brightness_temperature_2@ObsValue
-  value: brightness_temperature_2@HofX
+  reference: ObsValue/brightnessTemperature_2 
+  value: HofX/brightnessTemperature_2
   minvalue: -1.5
   maxvalue: 1.5
   where:
   - variable:
-      name: water_area_fraction@GeoVaLs
+      name: GeoVaLs/water_area_fraction
     maxvalue: 0.99
 #QC_terrain: If seviri and terrain height > 2km. do not use
 - filter: Domain Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 1-24
   where:
     - variable:
-        name: height_above_mean_sea_level@MetaData
+        name: MetaData/heightOfSurface
       maxvalue: 2000.0
 #do not use over mixed surface
 - filter: BlackList
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 1-3,8-18
   where:
   - variable:
-      name: land_area_fraction@GeoVaLs
+      name: GeoVaLs/land_area_fraction
     maxvalue: 0.99
   - variable:
-      name: water_area_fraction@GeoVaLs
+      name: GeoVaLs/water_area_fraction
     maxvalue: 0.99
   - variable:
-      name: ice_area_fraction@GeoVaLs
+      name: GeoVaLs/ice_area_fraction
     maxvalue: 0.99
   - variable:
-      name: surface_snow_area_fraction@GeoVaLs
+      name: GeoVaLs/surface_snow_area_fraction
     maxvalue: 0.99
 #step4: Generate q.c. bounds and modified variances
 - filter: BlackList
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 1-24
   action:
     name: inflate error
     inflation variable:
 #  Surface Jacobian check
-      name: ObsErrorFactorSurfJacobianRad@ObsFunction
+      name: ObsFunction/ObsErrorFactorSurfJacobianRad
       channels: 1-24
       options:
         channels: 1-24
@@ -140,10 +140,10 @@ obs post filters:
 #  Useflag Check
 - filter: Bounds Check
   filter variables:
-  - name: brightness_temperature
+  - name: brightnessTemperature
     channels: 1-24
   test variables:
-  - name: ChannelUseflagCheckRad@ObsFunction
+  - name: ObsFunction/ChannelUseflagCheckRad
     channels: 1-24
     options:
       channels: 1-24

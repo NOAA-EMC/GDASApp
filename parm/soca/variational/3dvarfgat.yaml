@@ -2,15 +2,15 @@ cost function:
   cost type: 4D-Var
   window begin: '{{ATM_WINDOW_BEGIN}}'
   window length: $(ATM_WINDOW_LENGTH)
-  analysis variables: &a_vars  [cicen, hicen, socn, tocn, ssh]
+  analysis variables: &soca_vars  [cicen, hicen, hsnon, socn, tocn, ssh, hocn, uocn, vocn, mld, layer_depth]
   geometry:
     mom6_input_nml: mom_input.nml
     fields metadata: ./fields_metadata.yaml
 
   model:
     name: PseudoModel
-    tstep: PT1H
-    state variables: &model_vars [cicen, hicen, hsnon, socn, tocn, ssh, hocn, uocn, vocn, mld, layer_depth]
+    tstep: PT3H
+    state variables: *soca_vars
     states: !INC ${BKG_LIST}
 
   background:
@@ -19,10 +19,10 @@ cost function:
     ocn_filename: MOM.res.nc
     ice_filename: cice.res.nc
     date: '{{ATM_WINDOW_BEGIN}}'
-    state variables: *model_vars
+    state variables: *soca_vars
   background error: !INC ${SABER_BLOCKS_YAML}
 
-  observations: !INC ${OBS_YAML}
+  observations: !INC ${OBS_LIST}
 
 variational:
   minimizer:
@@ -33,9 +33,9 @@ variational:
       fields metadata: ./fields_metadata.yaml
     linear model:
       name: Identity
-      increment variables: *a_vars
+      increment variables: *soca_vars
       variable change: Identity
-      tstep: PT1H
+      tstep: PT3H
     ninner: !ENV ${SOCA_NINNER}
     gradient norm reduction: 1e-10
     test: on

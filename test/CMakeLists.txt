@@ -1,7 +1,8 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "782aca0e0ff579557877129f242d0aa4c4252620233622ecacc1deaa524ca8ed")
+set(SHA "117b8af9db031466b1d5e8f82df3ab9b09ca093a0617ec58f6ac059fbbb354ea")
+
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
@@ -55,8 +56,8 @@ list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/salt_bufr_dbuoyprof.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/temp_bufr_mbuoybprof.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/salt_bufr_mbuoybprof.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_tesac.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_trkob.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_tesacprof.yaml
+  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_trkobprof.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_sfcships.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_sfcshipsu.yaml
 )
@@ -125,23 +126,13 @@ add_test(NAME test_gdasapp_genYAML_prep
          COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
-if (${BUILD_GDASBUNDLE}) # the 2 tests below depend on python bindings to ioda and require a bundle build
-  add_test(NAME test_gdasapp_generate_yaml_func
-           COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/test_generate_yaml.py --parm ${PROJECT_SOURCE_DIR}/parm/
-           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-  set_tests_properties(
-         test_gdasapp_generate_yaml_func
-  PROPERTIES
-ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm;gPDY=20220330;gcyc=00;PDY=20220330;cyc=06;assim_freq=6")
-
-  add_test(NAME test_gdasapp_genYAML_run
-           COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example.yaml
-           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-  set_tests_properties(
-         test_gdasapp_genYAML_run
-  PROPERTIES
+add_test(NAME test_gdasapp_genYAML_run
+          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example.yaml
+          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+set_tests_properties(
+        test_gdasapp_genYAML_run
+PROPERTIES
 ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm")
-endif()
 
 # test for converting ewok yaml to gdas
 add_test(NAME test_gdasapp_convert_ewok_yaml
@@ -150,6 +141,7 @@ add_test(NAME test_gdasapp_convert_ewok_yaml
 
 # high level tests that require the global-workflow
 if (WORKFLOW_TESTS)
+
   # test for creating an experiment directory within the global-workflow
   add_test(NAME test_gdasapp_setup_cycled_exp
            COMMAND ${PROJECT_SOURCE_DIR}/test/setup_workflow_exp.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}

@@ -1,15 +1,15 @@
 geometry:
   fms initialization:
-    namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-    field table filename: !ENV ${DATA}/fv3jedi/field_table
-  akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
   layout:
   - !ENV ${layout_x}
   - !ENV ${layout_y}
   npx: $(npx_ges)
   npy: $(npy_ges)
   npz: $(npz_ges)
-  field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+  field metadata override: ./fv3jedi/gfs-restart.yaml
 window begin: '$(ATM_WINDOW_BEGIN)'
 window length: PT6H
 
@@ -45,7 +45,8 @@ driver:
 local ensemble DA:
   solver: GETKF
   vertical localization:
-    fraction of retained variance: 0.975
+#   fraction of retained variance: 0.975  # use for scientific tests
+    fraction of retained variance: 0.750  # use for ctest
     lengthscale: 2.1
     lengthscale units: logp
   inflation:
@@ -56,9 +57,9 @@ local ensemble DA:
 #output:
 #  filetype: auxgrid
 #  gridtype: gaussian
-#  filename: !ENV ${DATA}/mem%{member}%/atmanl.
+#  filename: ./mem%{member}%/atmanl.
 
 output ensemble increments:
   filetype: auxgrid
   gridtype: gaussian
-  filename: !ENV ${DATA}/anl/mem%{member}%/atminc.
+  filename: ./anl/mem%{member}%/atminc.

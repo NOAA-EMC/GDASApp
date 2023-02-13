@@ -273,7 +273,7 @@ diagnostics:
             x:
               variable: experiment::HofXDiff::${variable}
             y:
-              variable: experiment::MetaData::air_pressure
+              variable: experiment::MetaData::pressure
             @CHANNELKEY@
             markersize: 5
             color: 'red'
@@ -349,7 +349,7 @@ diagnostics:
             x:
               variable: experiment::ErrDiff::${variable}
             y:
-              variable: experiment::MetaData::air_pressure
+              variable: experiment::MetaData::pressure
             @CHANNELKEY@
             markersize: 5
             color: 'red'

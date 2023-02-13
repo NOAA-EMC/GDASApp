@@ -9,22 +9,98 @@
 # - Produce an EVA YAML
 # - Run EVA
 #-------------------------------------------------------------
-#--------------- User modified options below -----------------
+
+# ==============================================================================
+usage() {
+  set +x
+  echo
+  echo "Usage: $0 [-c cycle] [-x] [-s] [-h] instrument"
+  echo
+  echo "  -c  cycle to run DEFAULT=2021080100"
+  echo "  -x  don't run eva DEFAULT=run eva"
+  echo "  -s  just produce eva stats plots DEFAULT=produce lots of plots"
+  echo "  -h  display this message and quit"
+  echo
+  exit 1
+}
+
+# ==============================================================================
+
 cycle=2021080100
-obtype=amsua_n19
-GDASApp=/work2/noaa/da/cmartin/GDASApp/dev/GDASApp # Change this to your own branch
-workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
-yamlpath=$GDASApp/parm/atm/obs/testing/amsua_n19.yaml
+run_eva=YES
+eva_stats_only=NO
+ 
+while getopts "c:hsx" opt; do
+  case $opt in
+    c)
+      cycle=$OPTARG
+      ;;
+    x)
+      run_eva=NO 
+      ;;
+    s)
+      eva_stats_only=YES
+      ;;
+    h|\?|:)
+      usage
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ $# -ne 1 ]; then
+   echo "Incorrect number of arguments"
+   usage 
+fi
+
+obtype=$1
+
+#--------------- User modified options below -----------------
+
+machine=${machine:-orion} 
+
+if [ $machine = orion ]; then
+   workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
+   GDASApp=${GDASApp:-/work2/noaa/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
+elif [ $machine = hera ]; then
+   workdir=/scratch1/NCEPDEV/stmp2/$LOGNAME/ufoeval/$cycle/$obtype
+   GDASApp=${GDASApp:-/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
+else
+   echo "Machine " $machine "not found"
+   exit 1
+fi
+
+yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}.yaml
 exename=test_ObsFilters.x
-machine=orion
-radiance="YES"
 
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
-GeoDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/geovals/
-ObsDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/obs/
-BCDir=/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/20220816/bc/
-FixDir=/work2/noaa/da/cmartin/GDASApp/fix/
+
+dataprocdate=20230202 # Production date of test data
+
+obtype_short=${obtype:0:4}
+if [ $obtype_short = "cris" ] || [ $obtype_short = "iasi" ] || [ $obtype_short = "hirs" ] || [ $obtype_short = "sevi" ] || \
+   [ $obtype_short = "avhr" ] || [ $obtype_short = "mhs_" ] || [ $obtype_short = "ssmi" ] || [ $obtype_short = "amsu" ] || \
+   [ $obtype_short = "atms" ]; then
+   radiance="YES"
+else 
+   radiance="NO"
+fi
+
+if [ $machine = orion ]; then
+    export Datapath='/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate 
+    FixDir=/work2/noaa/da/cmartin/GDASApp/fix
+elif [ $machine = hera ]; then
+    export Datapath='/scratch1/NCEPDEV/da/Cory.R.Martin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate
+    FixDir=/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
+else
+   echo "Machine " $machine "not found"
+   exit
+fi
+
+GeoDir=$Datapath/geovals/
+ObsDir=$Datapath/obs/
+BCDir=$Datapath/bc/
 
 # other variables that should not change often
 export CDATE=$cycle
@@ -32,6 +108,11 @@ export assim_freq=6
 export GDATE=$(date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - ${assim_freq} hours")
 export PDY=${CDATE:0:8}
 export cyc=${CDATE:8:2}
+export gPDY=${GDATE:0:8}
+export gcyc=${GDATE:8:2}
+export CASE="C768"
+export CASE_ENKF="C384"
+export LEVS="128"
 
 # Load Modules for GDASApp
 module use $GDASApp/modulefiles
@@ -42,6 +123,7 @@ export PYTHONPATH=$GDASApp/ush:$PYTHONPATH
 mkdir -p $workdir
 
 # Link CRTM coefficients
+rm -rf $workdir/crtm
 ln -sf $FixDir/crtm/2.3.0 $workdir/crtm
 
 # copy BC files
@@ -56,39 +138,64 @@ cp -rf $ObsDir/${obtype}_obs_${cycle}.nc4 $workdir/.
 # Link executable
 ln -sf $GDASApp/build/bin/$exename $workdir/.
 
+echo "Generating YAML"
+
 # Copy/generate YAML for test executable
 # First, create the input YAMLs for the genYAML script
 cat > $workdir/obslist.yaml << EOF
-observations:
-- $<< $yamlpath
+- !INC $yamlpath
 EOF
 cat > $workdir/temp.yaml << EOF
 template: $GDASApp/parm/atm/hofx/hofx_ufotest.yaml
 output: $workdir/${obtype}_${cycle}.yaml
 config:
-  atm: true
-  OBS_DIR: ./
-  DIAG_DIR: ./
-  CRTM_COEFF_DIR: crtm
-  BIAS_IN_DIR: ./
+  COMPONENT: atmos
   OBS_LIST: $workdir/obslist.yaml
-  BKG_DIR: ./
-  OBS_DATE: '$CDATE'
-  BIAS_DATE: '$GDATE'
-  INTERP_METHOD: '$INTERP_METHOD'
+  DATA: ./
+  OPREFIX: gdas.t${cyc}z
+  APREFIX: gdas.t${cyc}z
+  GPREFIX: gdas.t${gcyc}z
 EOF
 $GDASApp/ush/genYAML --config $workdir/temp.yaml
+
+if [ $? -ne 0 ]; then
+   echo "YAML creation failed"
+   exit 1
+fi
+
+echo "Running executable"
 
 # Run executable
 cd $workdir
 ./$exename ${obtype}_${cycle}.yaml
+
+if [ $? -ne 0 ]; then
+   echo "*************** Running UFO failed ****************"
+   RC=1
+   if [ $run_eva == YES ]; then
+       echo "Running EVA for diagnostic purposes"
+   else
+       exit 1
+   fi
+else
+   RC=0
+   if [ $run_eva == YES ]; then
+       echo "Running EVA"
+   else
+       exit 0
+   fi
+fi
 
 # Load EVA modules
 module load EVA/$machine
 
 # Generate EVA YAML
 if [ $radiance = "YES" ]; then
-  $GDASApp/ush/eva/gen_eva_obs_yaml.py -i ./${obtype}_${cycle}.yaml -t $GDASApp/ush/eva/jedi_gsi_compare_rad.yaml -o $workdir
+  if [ $eva_stats_only = "YES" ]; then
+    $GDASApp/ush/eva/gen_eva_obs_yaml.py -i ./${obtype}_${cycle}.yaml -t $GDASApp/ush/eva/jedi_gsi_compare_rad_summary.yaml -o $workdir
+  else 
+    $GDASApp/ush/eva/gen_eva_obs_yaml.py -i ./${obtype}_${cycle}.yaml -t $GDASApp/ush/eva/jedi_gsi_compare_rad.yaml -o $workdir
+  fi
 else
   $GDASApp/ush/eva/gen_eva_obs_yaml.py -i ./${obtype}_${cycle}.yaml -t $GDASApp/ush/eva/jedi_gsi_compare_conv.yaml -o $workdir
 fi
@@ -97,3 +204,10 @@ fi
 for yaml in $(ls eva_*.yaml); do
   eva $yaml
 done
+
+if [ $? -ne 0 ]; then
+   echo "EVA failed"
+   exit 1
+else
+   exit $RC
+fi

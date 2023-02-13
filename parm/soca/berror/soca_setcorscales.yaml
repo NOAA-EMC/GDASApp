@@ -19,16 +19,16 @@ scales:
     min grid mult: 2.0
   cicen:
     rossby mult: 0.0
-    min grid mult: 1.0
+    min grid mult: 2.0
     min: 50.0
   hicen:
     rossby mult: 0.0
-    min grid mult: 1.0
-    min: 150.0
+    min grid mult: 4.0
+    min: 150000.0
   hsnon:
     rossby mult: 0.0
-    min grid mult: 1.0
-    min: 1000.0
+    min grid mult: 4.0
+    min: 150000.0
 
 rh output:
   datadir: ./

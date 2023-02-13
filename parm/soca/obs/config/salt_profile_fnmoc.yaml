@@ -3,13 +3,14 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}salt_profile_fnmoc.${CDATE}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}salt_profile_fnmoc.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/salt_profile_fnmoc.${CDATE}.nc4
-  simulated variables: [sea_water_salinity]
+      obsfile: !ENV ${DATA}/diags/salt_profile_fnmoc.${PDY}${cyc}.nc4
+  simulated variables: [salinity]
 obs operator:
-  name: Identity
+  name: MarineVertInterp
+  observation alias file: ./obsop_name_map.yaml
 obs error:
   covariance model: diagonal

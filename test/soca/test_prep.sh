@@ -7,7 +7,7 @@ project_source_dir=$2
 source ${project_source_dir}/test/soca/test_utils.sh
 
 # Remove previously fetched obs
-rm -f ${project_binary_dir}/test/soca/3dvar/ocnanal_2018041512/obs/gdas.t12z.{sst,adt,sss,salt,icec}*.nc4
+rm -f ${project_binary_dir}/test/soca/3dvar/ocnanal_12/obs/gdas.t12z.{sst,adt,sss,salt,icec}*.nc4
 
 # Export runtime env. variables
 source ${project_source_dir}/test/soca/runtime_vars.sh $project_binary_dir $project_source_dir
@@ -19,10 +19,20 @@ source ${project_source_dir}/test/soca/static.sh $project_binary_dir $project_so
 i=3
 lof=`ls ${project_binary_dir}/test/soca/bkg/RESTART/ocn_da_*`
 icef=${project_binary_dir}/test/soca/bkg/RESTART/iced.2019-04-15-43200.nc # TODO: cice restart is made up
+hist_icef=${project_binary_dir}/test/soca/bkg/RESTART/cice_hist.nc        # TODO: cice hist date is no ggod
+mkdir -p ${project_binary_dir}/test/soca/ice
 for ocnf in $lof; do
-  cp $ocnf ${project_binary_dir}/test/soca/bkg/gdas.t12z.ocnf00$i.nc
-  cp $icef ${project_binary_dir}/test/soca/bkg/gdas.t12z.icef00$i.nc
+  cp $ocnf ${project_binary_dir}/test/soca/bkg/gdas.t06z.ocnf00$i.nc
+  cp $hist_icef ${project_binary_dir}/test/soca/ice/gdas.t06z.icef00$i.nc
   i=$(($i+1))
+done
+
+# Invent background error
+for day in $(seq 1 2 9); do
+    cp ${project_binary_dir}/test/soca/bkg/gdas.t06z.ocnf003.nc \
+       ${project_binary_dir}/soca_static/bkgerr/stddev/ocn.ensstddev.fc.2019-04-0${day}T00:00:00Z.PT0S.nc
+    cp ${project_source_dir}/soca/test/Data/72x35x25/ice.bkgerror.nc \
+       ${project_binary_dir}/soca_static/bkgerr/stddev/ice.ensstddev.fc.2019-04-0${day}T00:00:00Z.PT0S.nc
 done
 
 # Run prep step
@@ -40,15 +50,15 @@ for o in $obslist; do
             continue
             ;;
         "ocn_filename:")
-            base=${project_binary_dir}/test/soca/3dvar/ocnanal_2018041512/bkg/
+            base=${project_binary_dir}/test/soca/3dvar/ocnanal_12/bkg/
             continue
             ;;
         "ice_filename:")
-            base=${project_binary_dir}/test/soca/3dvar/ocnanal_2018041512/bkg/
+            base=${project_binary_dir}/test/soca/3dvar/ocnanal_12/bkg/
             continue
             ;;
         "remap_filename:")
-            base=${project_binary_dir}/test/soca/3dvar/ocnanal_2018041512/
+            base=${project_binary_dir}/test/soca/3dvar/ocnanal_12/
             continue
             ;;
     esac

@@ -1,7 +1,0 @@
-ocnanal:
-  SOCA_INPUT_FIX_DIR: '@SOCA_INPUT_FIX_DIR@'
-  CASE_ANL: 'C24'
-  COMIN_OBS: '@COMIN_OBS@'
-  SOCA_NINNER: 3
-  R2D2_OBS_SRC: 'gdasapp'
-  R2D2_OBS_DUMP: 'soca'

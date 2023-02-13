@@ -30,53 +30,6 @@ pwd=$(pwd)
 #  Utilities
 export NLN=${NLN:-"/bin/ln -sf"}
 
-function socaincr2mom6 {
-  incr=$1
-  bkg=$2
-  grid=$3
-  incr_out=$4
-
-  scratch=scratch_socaincr2mom6
-  mkdir -p $scratch
-  cd $scratch
-  cp $incr inc.nc                   # TODO: I don't think we need to make a copy
-  ncrename -d zaxis_1,Layer inc.nc  # Rename zaxis_1 to Layer
-  ncks -A -C -v h $bkg h.nc         # Get h from background and rename axes to be consistent with inc.nc
-  ncrename -d time,Time -d zl,Layer -d xh,xaxis_1 -d yh,yaxis_1 h.nc
-  ncks -A -C -v h h.nc inc.nc       # Replace h incrememnt (all 0's) by h background
-  ncks -A -C -v lon $grid inc.nc    # Add longitude
-  ncks -A -C -v lat $grid inc.nc    # Add latitude
-  mv inc.nc $incr_out
-}
-
-function bump_vars()
-{
-    tmp=$(ls -d ${1}_* )
-    lov=()
-    for v in $tmp; do
-        lov[${#lov[@]}]=${v#*_}
-    done
-    echo "$lov"
-}
-
-function concatenate_bump()
-{
-    bumpdim=$1
-    # Concatenate the bump files
-    vars=$(bump_vars $bumpdim)
-    n=$(wc -w <<< "$vars")
-    echo "concatenating $n variables: $vars"
-    lof=$(ls ${bumpdim}_${vars[0]})
-    echo $lof
-    for f in $lof; do
-        bumpbase=${f#*_}
-        output=bump/${bumpdim}_$bumpbase
-        lob=$(ls ${bumpdim}_*/*$bumpbase)
-        for b in $lob; do
-            ncks -A $b $output
-        done
-    done
-}
 
 function clean_yaml()
 {
@@ -85,44 +38,22 @@ function clean_yaml()
 }
 
 ################################################################################
-# generate soca geometry
-# TODO (Guillaume): Should not use all pe's for the grid generation
-# TODO (Guillaume): Does not need to be generated at every cycles, store in static dir?
-$APRUN_OCNANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml > gridgen.out 2>&1
-
-################################################################################
-# Generate the parametric diag of B
-$APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml > parametric_stddev_b.out 2>&1
-################################################################################
-# Set decorrelation scales for bump C
-$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml > soca_setcorscales.out 2>&1
-
-# TODO (G, C, R, ...): problem with ' character when reading yaml, removing from file for now
-# 2D C from bump
-yaml_bump2d=soca_bump_C_2d.yaml
-clean_yaml $yaml_bump2d
-$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml_bump2d 2>$yaml_bump2d.err
-
-# 3D C from bump
-yaml_list=`ls soca_bump3d_C*.yaml`
-for yaml in $yaml_list; do
-    clean_yaml $yaml
-    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
-done
-concatenate_bump 'bump3d'
-
-################################################################################
 # run 3DVAR FGAT
 clean_yaml var.yaml
-$APRUN_OCNANAL $JEDI_BIN/soca_var.x var.yaml > var.out 2>&1
+$APRUN_OCNANAL $JEDI_BIN/soca_var.x var.yaml
+export err=$?; err_chk
 
 
-# increments update for MOM6
+# prepare MOM6 IAU increment
 # Note: ${DATA}/INPUT/MOM.res.nc points to the MOM6 history file from the start of the window
 #       and is used to get the valid vertical geometry of the increment
-( socaincr2mom6 `ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1` ${DATA}/INPUT/MOM.res.nc ${DATA}/soca_gridspec.nc ${DATA}/Data/inc.nc )
-
-
+# TODO: Check what to do with (u,v), it seems that MOM6's iau expects (u, v) on the tracer grid
+soca_incr=$(ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1)
+mom6_iau_incr=${DATA}/inc.nc
+${HOMEgfs}/sorc/gdas.cd/ush/socaincr2mom6.py --incr "${soca_incr}" \
+                                             --bkg "${DATA}/INPUT/MOM.res.nc" \
+                                             --grid "${DATA}/soca_gridspec.nc" \
+                                             --out "${mom6_iau_incr}"
 
 ################################################################################
 set +x

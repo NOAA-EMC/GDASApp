@@ -1,18 +1,18 @@
 obs space:
   name: sondes
   obsdatain:
-    engine: 
+    engine:
       type: H5File
       obsfile: !ENV sondes_obs_${CDATE}.nc4
     obsgrouping:
-      group variables: ["station_id"]
-      sort variable: "air_pressure"
+      group variables: ["stationIdentification"]
+      sort variable: "pressure"
       sort order: "descending"
   obsdataout:
     engine:
       type: H5File
       obsfile: !ENV sondes_diag_${CDATE}.nc4
-  simulated variables: [surface_pressure, air_temperature, eastward_wind, northward_wind, specific_humidity]
+  simulated variables: [stationPressure, airTemperature, windEastward, windNorthward, specificHumidity]
 geovals:
   filename: !ENV sondes_geoval_${CDATE}.nc4
 vector ref: GsiHofXBc
@@ -22,28 +22,28 @@ obs operator:
   components:
    - name: VertInterp
      variables:
-     - name: air_temperature
-     - name: eastward_wind
-     - name: northward_wind
-     - name: specific_humidity
+     - name: airTemperature
+     - name: windEastward
+     - name: windNorthward
+     - name: specificHumidity
    - name: SfcPCorrected
      da_psfc_scheme: GSI
      geovar_sfc_geomz: surface_geometric_height
      geovar_geomz: geopotential_height
      variables: 
-     - name: surface_pressure
+     - name: stationPressure
 linear obs operator:
   name: Composite
   components:
    - name: VertInterp
      variables:
-     - name: air_temperature
-     - name: eastward_wind
-     - name: northward_wind
-     - name: specific_humidity
+     - name: airTemperature
+     - name: windEastward
+     - name: windNorthward
+     - name: specificHumidity
    - name: Identity
      variables:
-     - name: surface_pressure
+     - name: stationPressure
 obs filters:
   #
   # Reject all obs with PreQC mark already set above 3
@@ -55,7 +55,7 @@ obs filters:
   # Observation Range Sanity Check
   - filter: Bounds Check
     filter variables:
-    - name: surface_pressure
+    - name: stationPressure
     minvalue: 37499.0
     maxvalue: 106999.0
     action:
@@ -64,7 +64,7 @@ obs filters:
   # Assign obsError
   - filter: Perform Action
     filter variables:
-    - name: surface_pressure
+    - name: stationPressure
     action:
       name: assign error
       error parameter: 100.0     # 1.0 hPa
@@ -72,20 +72,20 @@ obs filters:
   # Assign the initial observation error, based on height/pressure
   - filter: Perform Action
     filter variables:
-    - name: surface_pressure
+    - name: stationPressure
     action:
       name: assign error
       error function:
         name: ObsErrorModelStepwiseLinear@ObsFunction
         options:
           xvar:
-            name: ObsValue/surface_pressure
+            name: ObsValue/stationPressure
           xvals: [80000.0, 75000.0]
           errors: [110.0, 120.0]        # 1.1 mb below 800 mb and 1.2 mb agove 750 mb
   #
   - filter: Perform Action
     filter variables:
-    - name: surface_pressure
+    - name: stationPressure
     action:
       name: inflate error
       inflation variable:
@@ -99,7 +99,7 @@ obs filters:
   # Gross error check with (O - B) / ObsError greater than threshold
   - filter: Background Check
     filter variables:
-    - name: surface_pressure
+    - name: stationPressure
     threshold: 3.6
     absolute threshold: 990.0
     action:

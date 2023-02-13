@@ -5,18 +5,18 @@ cost function:
   analysis variables: &3dvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
   geometry:
     fms initialization:
-      namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-      field table filename: !ENV ${DATA}/fv3jedi/field_table
-    akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table
+    akbk: ./fv3jedi/akbk.nc4
     layout:
     - !ENV ${layout_x}
     - !ENV ${layout_y}
     npx: $(npx_ges)
     npy: $(npy_ges)
     npz: $(npz_ges)
-    field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+    field metadata override: ./fv3jedi/gfs-restart.yaml
   background:
-    datapath: !ENV ${DATA}/bkg
+    datapath: ./bkg
     filetype: fms restart
     datetime: '{{BKG_ISOTIME}}'
     filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
@@ -33,38 +33,38 @@ variational:
   minimizer:
     algorithm: DRIPCG
   iterations:
-  - ninner: 20
+  - ninner: 2
     gradient norm reduction: 1e-10
     test: on
     geometry:
       fms initialization:
-        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-        field table filename: !ENV ${DATA}/fv3jedi/field_table
-      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+        namelist filename: ./fv3jedi/fmsmpp.nml
+        field table filename: ./fv3jedi/field_table
+      akbk: ./fv3jedi/akbk.nc4
       layout:
       - !ENV ${layout_x}
       - !ENV ${layout_y}
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
-      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+      field metadata override: ./fv3jedi/gfs-restart.yaml
     diagnostics:
       departures: bkgmob
-  - ninner: 40
+  - ninner: 4
     gradient norm reduction: 1e-10
     test: on
     geometry:
       fms initialization:
-        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-        field table filename: !ENV ${DATA}/fv3jedi/field_table
-      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+        namelist filename: ./fv3jedi/fmsmpp.nml
+        field table filename: ./fv3jedi/field_table
+      akbk: ./fv3jedi/akbk.nc4
       layout:
       - !ENV ${layout_x}
       - !ENV ${layout_y}
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
-      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+      field metadata override: ./fv3jedi/gfs-restart.yaml
     diagnostics:
       departures: bkgmob1
 final:
@@ -74,16 +74,16 @@ final:
     output:
       filetype: auxgrid
       gridtype: gaussian
-      filename: !ENV ${DATA}/anl/atminc.
+      filename: ./anl/atminc.
     geometry:
       fms initialization:
-        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-        field table filename: !ENV ${DATA}/fv3jedi/field_table
-      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+        namelist filename: ./fv3jedi/fmsmpp.nml
+        field table filename: ./fv3jedi/field_table
+      akbk: ./fv3jedi/akbk.nc4
       layout:
       - !ENV ${layout_x}
       - !ENV ${layout_y}
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
-      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+      field metadata override: ./fv3jedi/gfs-restart.yaml

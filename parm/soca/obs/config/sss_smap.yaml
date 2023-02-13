@@ -3,13 +3,14 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}sss_smap.${CDATE}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}sss_smap.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/sss_smap.${CDATE}.nc4
-  simulated variables: [sea_surface_salinity]
+      obsfile: !ENV ${DATA}/diags/sss_smap.${PDY}${cyc}.nc4
+  simulated variables: [seaSurfaceSalinity]
 obs operator:
   name: Identity
+  observation alias file: ./obsop_name_map.yaml
 obs error:
   covariance model: diagonal

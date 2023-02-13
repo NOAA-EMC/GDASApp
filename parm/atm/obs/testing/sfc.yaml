@@ -8,7 +8,7 @@ obs space:
     engine:
       type: H5File
       obsfile: !ENV sfc_diag_${CDATE}.nc4
-  simulated variables: [surface_pressure, air_temperature, virtual_temperature]
+  simulated variables: [stationPressure, airTemperature, virtualTemperature]
 geovals:
   filename: !ENV sfc_geoval_${CDATE}.nc4
 vector ref: GsiHofXBc

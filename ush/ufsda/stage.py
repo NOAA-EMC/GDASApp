@@ -15,6 +15,7 @@ import glob
 import xarray
 import sys
 import numpy as np
+from pygw.yaml_file import YAMLFile
 
 # TODO: We might want to revisit this in the future
 # Try to resolve the location of pyioda, assuming there are only 2 places where this
@@ -31,7 +32,7 @@ sys.path.append(str(pyiodaconv_lib))
 import ioda_conv_engines as iconv
 from orddicts import DefaultOrderedDict
 
-__all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
+__all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'background_ens', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -181,6 +182,10 @@ def soca_fix(config):
     ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'fields_metadata.yaml'),
                              os.path.join(config['stage_dir'], 'fields_metadata.yaml'))
 
+    # link ufo <---> soca name variable mapping
+    ufsda.disk_utils.symlink(os.path.join(config['soca_input_fix_dir'], 'obsop_name_map.yaml'),
+                             os.path.join(config['stage_dir'], 'obsop_name_map.yaml'))
+
     # INPUT
     ufsda.disk_utils.copytree(os.path.join(config['soca_input_fix_dir'], 'INPUT'),
                               os.path.join(config['stage_dir'], 'INPUT'))
@@ -220,24 +225,24 @@ def atm_obs(config):
     r2d2_config = {
         'start': config['prev_valid_time'],
         'end': config['prev_valid_time'],
-        'step': config['atm_window_length'],
+        'step': config['ATM_WINDOW_LENGTH'],
         'dump': 'gdas',
         'experiment': 'oper_gdas',  # change this here and other places to be oper_{dump}
-        'target_dir': config.get('target_dir', config.get('BKG_DIR', './')),
+        'target_dir': config.get('target_dir', os.path.join(config.get('DATA', './'), 'obs')),
     }
     r2d2_config = NiceDict(r2d2_config)
     # get list of obs to process and their output files
     obs_list_yaml = config['OBS_LIST']
-    obs_list_config = Configuration(obs_list_yaml)
-    obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
+    obs_list_config = YAMLFile(path=obs_list_yaml)
     for ob in obs_list_config['observers']:
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
         r2d2_config['provider'] = 'ncdiag'
-        r2d2_config['start'] = config['window_begin']
+        r2d2_config['start'] = config['ATM_WINDOW_BEGIN']
         r2d2_config['end'] = r2d2_config['start']
-        target_file = ob['obs space']['obsdatain']['engine']['obsfile']
+        ob_basename = os.path.basename(ob['obs space']['obsdatain']['engine']['obsfile'])
+        target_file = os.path.join(os.environ['COMOUT'], ob_basename)
         r2d2_config['target_file_fmt'] = target_file
         r2d2_config['obs_types'] = [ob['obs space']['name']]
         ufsda.r2d2.fetch(r2d2_config)
@@ -251,13 +256,12 @@ def bias_obs(config):
         'step': config['atm_window_length'],
         'dump': 'gdas',
         'experiment': 'oper_gdas',  # change this here and other places to be oper_{dump}
-        'target_dir': config.get('target_dir', config.get('BKG_DIR', './')),
+        'target_dir': config.get('target_dir', config.get('COMIN_GES', './')),
     }
     r2d2_config = NiceDict(r2d2_config)
     # get list of obs to process and their output files
     obs_list_yaml = config['OBS_LIST']
-    obs_list_config = Configuration(obs_list_yaml)
-    obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
+    obs_list_config = YAMLFile(path=obs_list_yaml)
     for ob in obs_list_config['observers']:
         r2d2_config.pop('file_type', None)
         r2d2_config['obs_types'] = [ob['obs space']['name']]
@@ -271,20 +275,29 @@ def bias_obs(config):
             # fetch satbias
             r2d2_config['file_type'] = 'satbias'
             target_file = ob['obs bias']['input file']
+            ob_basename = os.path.basename(target_file)
+            target_file = os.path.join(os.environ['COMOUT'], ob_basename)
             r2d2_config['target_file_fmt'] = target_file
             r2d2_config['experiment'] = config.get('experiment', 'oper_gdas')
             ufsda.r2d2.fetch(r2d2_config)
 
             # fetch satbias_cov    # note:  non-standard R2D2 added for cycling
             r2d2_config['file_type'] = 'satbias_cov'
-            target_file = target_file.replace('satbias', 'satbias_cov')
-            r2d2_config['target_file_fmt'] = target_file
+            target_file2 = target_file.replace('satbias', 'satbias_cov')
+            r2d2_config['target_file_fmt'] = target_file2
             r2d2_config['experiment'] = config.get('experiment', 'oper_gdas')
-            ufsda.r2d2.fetch(r2d2_config)
+            try:
+                ufsda.r2d2.fetch(r2d2_config)
+            except FileNotFoundError:
+                logging.error("Warning: satbias_cov file cannot be fetched from R2D2!")
+                # temp hack to copy satbias as satbias_cov
+                # if satbias_cov does not exists in R2D2
+                if os.path.isfile(target_file) and not os.path.isfile(target_file2):
+                    shutil.copy(target_file, target_file2)
 
             # fetch tlapse
             r2d2_config['file_type'] = 'tlapse'
-            target_file = target_file.replace('satbias_cov', 'tlapse')
+            target_file = target_file.replace('satbias', 'tlapse')
             target_file = target_file.replace('nc4', 'txt')
             r2d2_config['target_file_fmt'] = target_file
             r2d2_config['experiment'] = 'oper_gdas'
@@ -329,24 +342,25 @@ def gdas_single_cycle(config):
     obs_list_config = Configuration(obs_list_yaml)
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
     for ob in obs_list_config['observers']:
+        ob_config = YAMLFile(path=ob)
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
         r2d2_config['provider'] = 'ncdiag'
         r2d2_config['start'] = config['window_begin']
         r2d2_config['end'] = r2d2_config['start']
-        target_file = ob['obs space']['obsdatain']['engine']['obsfile']
+        target_file = ob_config['obs space']['obsdatain']['engine']['obsfile']
         r2d2_config['target_file_fmt'] = target_file
-        r2d2_config['obs_types'] = [ob['obs space']['name']]
+        r2d2_config['obs_types'] = [ob_config['obs space']['name']]
         ufsda.r2d2.fetch(r2d2_config)
         # get bias files if needed
-        if 'obs bias' in ob.keys():
+        if 'obs bias' in ob_config.keys():
             r2d2_config['type'] = 'bc'
             r2d2_config['provider'] = 'gsi'
             r2d2_config['start'] = config['prev_valid_time']
             r2d2_config['end'] = r2d2_config['start']
             r2d2_config['file_type'] = 'satbias'
-            target_file = ob['obs bias']['input file']
+            target_file = ob_config['obs bias']['input file']
             r2d2_config['target_file_fmt'] = target_file
             ufsda.r2d2.fetch(r2d2_config)
             r2d2_config['file_type'] = 'satbias_cov'
@@ -473,3 +487,36 @@ def berror(config):
     except FileExistsError:
         os.remove(jedi_staticb_dir)
         os.symlink(config['staticb_dir'], jedi_staticb_dir)
+
+
+def background_ens(config):
+    """
+    Stage backgrounds and create links for analysis
+    This involves:
+    - cp RESTART to RESTART_GES
+    - ln RESTART_GES to analysis/bkg
+    - mkdir analysis/anl
+    """
+    for imem in range(1, config['NMEM_ENKF']+1):
+        memchar = f"mem{imem:03d}"
+        print(f"background_ens:  stage {memchar}")
+        rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'RESTART')
+        ges_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'RESTART_GES')
+        jedi_bkg_mem = os.path.join(config['DATA'], 'bkg', memchar)
+        jedi_bkg_dir = os.path.join(config['DATA'], 'bkg', memchar, 'RESTART')
+        jedi_anl_dir = os.path.join(config['DATA'], 'anl', memchar)
+        mkdir(jedi_bkg_mem)
+
+        # copy RESTART to RESTART_GES
+        if not os.path.exists(ges_dir):
+            try:
+                shutil.copytree(rst_dir, ges_dir)
+            except FileExistsError:
+                shutil.rmtree(ges_dir)
+                shutil.copytree(rst_dir, ges_dir)
+        try:
+            os.symlink(ges_dir, jedi_bkg_dir)
+        except FileExistsError:
+            os.remove(jedi_bkg_dir)
+            os.symlink(ges_dir, jedi_bkg_dir)
+        mkdir(jedi_anl_dir)

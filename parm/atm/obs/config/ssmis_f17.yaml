@@ -4,7 +4,7 @@ obs operator:
   obs options:
     Sensor_ID: ssmis_f17
     EndianType: little_endian
-    CoefficientPath: !ENV ${DATA}/crtm
+    CoefficientPath: !ENV ${DATA}/crtm/
 obs space:
   name: ssmis_f17
   obsdatain:
