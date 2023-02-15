@@ -4,33 +4,33 @@ obs operator:
   Clouds: [Water, Ice]
   Cloud_Fraction: 1.0
   obs options:
-    Sensor_ID: &Sensor_ID amsua_n19
+    Sensor_ID: &Sensor_ID amsua_metop-c
     EndianType: little_endian
     CoefficientPath: crtm/
 obs space:
-  name: amsua_n19
+  name: amsua_metop-c
   obsdatain:
       engine:
         type: H5File
-        obsfile: !ENV amsua_n19_obs_${CDATE}.nc4
+        obsfile: !ENV amsua_metop-c_obs_${CDATE}.nc4
   obsdataout:
       engine:
         type: H5File
-        obsfile: !ENV amsua_n19_diag_${CDATE}.nc4
+        obsfile: !ENV amsua_metop-c_diag_${CDATE}.nc4
   simulated variables: [brightnessTemperature]
   channels: &all_channels 1-15
 geovals:
-  filename: !ENV amsua_n19_geoval_${CDATE}.nc4
+  filename: !ENV amsua_metop-c_geoval_${CDATE}.nc4
 obs bias:
-  input file: !ENV amsua_n19_satbias_${GDATE}.nc4
+  input file: !ENV amsua_metop-c_satbias_${GDATE}.nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &amsua_n19_tlap !ENV amsua_n19_tlapmean_${GDATE}.txt
+      tlapse: &amsua_metop-c_tlap !ENV amsua_metop-c_tlapmean_${GDATE}.txt
     - name: lapse_rate
-      tlapse: *amsua_n19_tlap
+      tlapse: *amsua_metop-c_tlap
     - name: emissivity
     - name: scan_angle
       order: 4
@@ -132,8 +132,8 @@ obs post filters:
       name: ObsFunction/Arithmetic
       options:
         variables:
-        - name: DerivedMetaData/CLWRetFromObs
-        - name: DerivedMetaData/CLWRetFromBkg
+        - name: DerivedMetaData/CLWRetFromObs  
+        - name: DerivedMetaData/CLWRetFromBkg  
         total coefficient: 0.5
 
 # Calculate scattering index from observation
@@ -252,11 +252,11 @@ obs post filters:
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: 1-6, 15
+    channels: 1-6, 15 
   test variables:
-  - name: DerivedMetaData/Innovation
-    channels: 1, 2 4-6, 15
-  maxvalue: 200.0
+  - name: DerivedMetaData/Innovation 
+    channels: 1, 2, 4-6, 15 
+  maxvalue:  200.0 
   minvalue: -200.0
   flag all filter variables if any test variable is out of bounds: true
 
@@ -362,7 +362,7 @@ obs post filters:
     channels: *all_channels
     type: float
     function:
-      name: ObsFunction/ObsErrorFactorSituDependMW 
+      name: ObsFunction/ObsErrorFactorSituDependMW       
       channels: *all_channels
       options:
         sensor: *Sensor_ID
@@ -459,7 +459,7 @@ obs post filters:
       use passive_bc: true
       sensor: *Sensor_ID
       use_flag: [ 1,  1,  1,  1,  1,
-                  1, -1, -1,  1,  1,
+                  1,  1,  1,  1,  1,
                   1,  1,  1,  1,  1 ]
   maxvalue: 1.0e-12
   actions:
@@ -467,4 +467,4 @@ obs post filters:
       flag: InterChannelCheckReject
       ignore: rejected observations
     - name: reject
-passedBenchmark: 107747
+passedBenchmark: 113345 
