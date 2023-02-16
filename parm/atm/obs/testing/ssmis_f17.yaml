@@ -86,7 +86,7 @@ obs post filters:
     channels: *all_channels 
   where:
   - variable:
-      name: MetaData/heightOfSurface
+      name: GeoVaLs/surface_geopotential_height
     minvalue: 2000.0
     min_exclusive: true 
   - variable:
@@ -768,14 +768,3 @@ obs post filters:
     name: reject
 
 passedBenchmark: 126336
-
-#- filter: Print Filter Data
-#  message: Emily debugging.  
-#  variables:
-#  - variable: ObsValue/brightnessTemperature_1
-#  - variable: HofX/brightnessTemperature_1
-#  - variable: ObsErrorData/brightnessTemperature_1
-#  - variable: QCflagsData/brightnessTemperature_1
-#  minumum location: 0
-#  maximum location: 200 
-

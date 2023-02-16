@@ -114,7 +114,7 @@ obs post filters:
     channels: *seviri_m11_channels
   where:
   - variable:
-      name: MetaData/heightOfSurface 
+      name: GeoVaLs/surface_geopotential_height 
     maxvalue: 1000.0
 
 # Step 4: Observation Range Sanity Check
