@@ -76,7 +76,7 @@ exename=test_ObsFilters.x
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
 
-dataprocdate=20230202 # Production date of test data
+dataprocdate=20230215 # Production date of test data
 
 obtype_short=${obtype:0:4}
 if [ $obtype_short = "cris" ] || [ $obtype_short = "iasi" ] || [ $obtype_short = "hirs" ] || [ $obtype_short = "sevi" ] || \
@@ -88,10 +88,12 @@ else
 fi
 
 if [ $machine = orion ]; then
-    export Datapath='/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate 
+#   export Datapath='/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate 
+    export Datapath='/work2/noaa/da/eliu/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate 
     FixDir=/work2/noaa/da/cmartin/GDASApp/fix
 elif [ $machine = hera ]; then
-    export Datapath='/scratch1/NCEPDEV/da/Cory.R.Martin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate
+#   export Datapath='/scratch1/NCEPDEV/da/Cory.R.Martin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate
+    export Datapath='/scratch1/NCEPDEV/da/Emily.Liu/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate
     FixDir=/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
 else
    echo "Machine " $machine "not found"
