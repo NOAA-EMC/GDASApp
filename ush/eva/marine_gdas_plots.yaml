@@ -1,0 +1,81 @@
+# template YAML file to create EVA YAML files
+# based on obs spaces listed in JEDI YAML files
+diagnostics:
+- data:
+    type: IodaObsSpace
+    datasets:
+      - name: experiment
+        filenames:
+          - @FILENAME@
+        @CHANNELSKEY@
+        groups:
+          - name: ObsValue
+            variables: &variables @VARIABLES@
+          - name: ObsError
+          - name: ombg
+          - name: oman
+          - name: hofx0
+          - name: EffectiveQC0
+          - name: MetaData
+          - name: PreQc
+  transforms:
+
+    # bkg 
+    - transform: arithmetic
+      new name: experiment::bkg::${variable}
+      equals: experiment::ObsValue::${variable}-experiment::ombg::${variable}
+      for:
+        variable: *variables
+
+    # Generate omb that passed QC for JEDI
+    - transform: accept where
+      new name: experiment::PassedQC::${variable}
+      starting field: experiment::ombg::${variable}
+      where:
+        - experiment::PreQc::${variable} == 0
+      for:
+        variable: *variables
+
+
+  graphics:
+
+    # ---------- Map Plots ----------
+    # Map plot of ObsValue 
+    # --------
+
+    - batch figure:
+        variables: *variables
+        @CHANNELSKEY@
+      dynamic options:
+        - type: vminvmaxcmap
+          data variable: experiment::ObsValue::${variable}
+      figure:
+        layout: [1,1]
+        figure size: [11,5]
+        title: ' @NAME@ | ${variable_title}'
+        output name: map_plots/@NAME@/${variable}/@CHANNELVAR@/@NAME@_${variable}@CHANNELVAR@.png
+        tight_layout: true
+      plots:
+        - mapping:
+            projection: plcarr
+            domain: global
+          add_map_features: ['coastline']
+          add_grid:
+          add_colorbar:
+             label: '${variable}'
+          layers:
+          - type: MapScatter
+            longitude:
+              variable: experiment::MetaData::longitude
+            latitude:
+              variable: experiment::MetaData::latitude
+            data:
+              variable: experiment::PassedQC::${variable}
+              @CHANNELKEY@
+            markersize: 2
+            label: '$(variable)'
+            colorbar: true
+            # below may need to be edited/removed
+            cmap: ${dynamic_cmap}
+            vmin: 0 #${dynamic_vmin}
+            vmax: ${dynamic_vmax} 
