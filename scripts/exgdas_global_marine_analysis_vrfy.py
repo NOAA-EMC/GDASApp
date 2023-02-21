@@ -209,8 +209,10 @@ varyaml = os.path.join(comout, 'yaml', 'var.yaml')
 # it would be better to refrence the dirs explicitly with the comout path
 # but eva doesn't allow for specifying output directories 
 os.chdir(comout)
-os.mkdir('preevayamls')
-os.mkdir('evayamls')
+if not os.path.exists('preevayamls'):
+   os.makedirs('preevayamls')
+if not os.path.exists('evayamls'):
+   os.makedirs('evayamls')
 
 # mama, i'm sorry
 runlist = [ yamlgen, '-i', varyaml, \
