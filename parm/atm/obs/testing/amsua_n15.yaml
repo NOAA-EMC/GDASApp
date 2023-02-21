@@ -4,33 +4,33 @@ obs operator:
   Clouds: [Water, Ice]
   Cloud_Fraction: 1.0
   obs options:
-    Sensor_ID: &Sensor_ID amsua_n19
+    Sensor_ID: &Sensor_ID amsua_n15
     EndianType: little_endian
     CoefficientPath: crtm/
 obs space:
-  name: amsua_n19
+  name: amsua_n15
   obsdatain:
       engine:
         type: H5File
-        obsfile: !ENV amsua_n19_obs_${CDATE}.nc4
+        obsfile: !ENV amsua_n15_obs_${CDATE}.nc4
   obsdataout:
       engine:
         type: H5File
-        obsfile: !ENV amsua_n19_diag_${CDATE}.nc4
+        obsfile: !ENV amsua_n15_diag_${CDATE}.nc4
   simulated variables: [brightnessTemperature]
   channels: &all_channels 1-15
 geovals:
-  filename: !ENV amsua_n19_geoval_${CDATE}.nc4
+  filename: !ENV amsua_n15_geoval_${CDATE}.nc4
 obs bias:
-  input file: !ENV amsua_n19_satbias_${GDATE}.nc4
+  input file: !ENV amsua_n15_satbias_${GDATE}.nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &amsua_n19_tlap !ENV amsua_n19_tlapmean_${GDATE}.txt
+      tlapse: &amsua_n15_tlap !ENV amsua_n15_tlapmean_${GDATE}.txt
     - name: lapse_rate
-      tlapse: *amsua_n19_tlap
+      tlapse: *amsua_n15_tlap
     - name: emissivity
     - name: scan_angle
       order: 4
@@ -187,12 +187,12 @@ obs post filters:
         x1:    [ 0.600,  0.450,  0.400,  0.450,  1.000,
                  1.500,  0.000,  0.000,  0.000,  0.000,
                  0.000,  0.000,  0.000,  0.000,  0.200]
-        err0:  [ 2.500,  2.200,  2.000,  0.550,  0.300,
-                 0.230,  0.230,  0.250,  0.250,  0.350,
-                 0.400,  0.550,  0.800,  4.000,  3.500]
+        err0:  [ 3.000,  2.200,  2.000,  0.600,  0.300,
+                 0.230,  0.250,  0.275,  0.340,  0.400,
+                 0.600,  1.000,  1.500,  4.000,  3.500]
         err1:  [20.000, 18.000, 12.000,  3.000,  0.500,
-                 0.300,  0.230,  0.250,  0.250,  0.350,
-                 0.400,  0.550,  0.800,  4.000, 18.000]
+                 0.300,  0.250,  0.275,  0.340,  0.400,
+                 0.600,  1.000,  1.500,  4.000, 18.000]
 
 # Calculate Innovation
 - filter: Variable Assignment
@@ -252,10 +252,10 @@ obs post filters:
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: 1-6, 15
+    channels: 1-6, 15 
   test variables:
   - name: DerivedMetaData/Innovation
-    channels: 1, 2 4-6, 15
+    channels: 1, 2, 4-6, 15 
   maxvalue: 200.0
   minvalue: -200.0
   flag all filter variables if any test variable is out of bounds: true
@@ -270,9 +270,9 @@ obs post filters:
     channels: *all_channels
     options:
       channels: *all_channels
-      obserr_clearsky: [ 2.500, 2.200, 2.000, 0.550, 0.300,
-                         0.230, 0.230, 0.250, 0.250, 0.350,
-                         0.400, 0.550, 0.800, 4.000, 3.500]
+      obserr_clearsky: [ 3.000,  2.200,  2.000,  0.600,  0.300,
+                         0.230,  0.250,  0.275,  0.340,  0.400,
+                         0.600,  1.000,  1.500,  4.000,  3.500]
       clwret_function:
         name: DerivedMetaData/CLWRetFromObs
       obserr_function:
@@ -362,7 +362,7 @@ obs post filters:
     channels: *all_channels
     type: float
     function:
-      name: ObsFunction/ObsErrorFactorSituDependMW 
+      name: ObsFunction/ObsErrorFactorSituDependMW    
       channels: *all_channels
       options:
         sensor: *Sensor_ID
@@ -379,9 +379,9 @@ obs post filters:
         obserr_function:
           name: DerivedMetaData/InitialObsError
           channels: *all_channels
-        obserr_clearsky: [2.500, 2.200, 2.000, 0.550, 0.300,
-                          0.230, 0.230, 0.250, 0.250, 0.350,
-                          0.400, 0.550, 0.800, 4.000, 3.500]
+        obserr_clearsky: [ 3.000,  2.200,  2.000,  0.600,  0.300,
+                           0.230,  0.250,  0.275,  0.340,  0.400,
+                           0.600,  1.000,  1.500,  4.000,  3.500]
 
 - filter: Perform Action
   filter variables:
@@ -459,12 +459,12 @@ obs post filters:
       use passive_bc: true
       sensor: *Sensor_ID
       use_flag: [ 1,  1,  1,  1,  1,
-                  1, -1, -1,  1,  1,
-                  1,  1,  1,  1,  1 ]
+                 -1,  1,  1,  1,  1,
+                 -1,  1,  1, -1,  1 ]
   maxvalue: 1.0e-12
   actions:
     - name: set
       flag: InterChannelCheckReject
       ignore: rejected observations
     - name: reject
-passedBenchmark: 107747
+passedBenchmark: 91792 

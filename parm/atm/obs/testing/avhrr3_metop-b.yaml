@@ -1,0 +1,191 @@
+obs operator:
+  name: CRTM
+  Absorbers: [H2O,O3,CO2]
+  obs options:
+    Sensor_ID: &Sensor_ID avhrr3_metop-b
+    EndianType: little_endian
+    CoefficientPath: crtm/
+obs space:
+  name: avhrr3_metop-b
+  obsdatain:
+      engine:
+        type: H5File
+        obsfile: !ENV avhrr3_metop-b_obs_${CDATE}.nc4
+  obsdataout:
+      engine:
+        type: H5File
+        obsfile: !ENV avhrr3_metop-b_diag_${CDATE}.nc4
+  simulated variables: [brightnessTemperature]
+  channels: &all_channels 3-5 
+geovals:
+  filename: !ENV avhrr3_metop-b_geoval_${CDATE}.nc4
+obs bias:
+  input file: !ENV avhrr3_metop-b_satbias_${GDATE}.nc4
+  variational bc:
+    predictors:
+    - name: constant
+    - name: lapse_rate
+      order: 2
+      tlapse: &avhrr3_metop-b_tlap !ENV avhrr3_metop-b_tlapmean_${GDATE}.txt
+    - name: lapse_rate
+      tlapse: *avhrr3_metop-b_tlap
+    - name: emissivity
+    - name: scan_angle
+      order: 4
+    - name: scan_angle
+      order: 3
+    - name: scan_angle
+      order: 2
+    - name: scan_angle
+
+obs post filters:
+# Step 1: Assign initial observation error
+- filter: Perform Action
+  filter variables:
+  - name: brightnessTemperature
+    channels: *all_channels
+  action:
+    name: assign error
+    error parameter vector: [0.450, 0.550, 0.600]
+
+# Step 2: Wavenumber Check
+- filter: RejectList 
+  filter variables:
+  - name: brightnessTemperature
+    channels: 3
+  where:
+  - variable:
+      name: MetaData/solarZenithAngle
+    maxvalue: 89.0
+  - variable:
+      name: GeoVaLs/water_area_fraction
+    minvalue: 1.0e-12
+
+# Step 3: Observation error inflation based on wavenumber
+- filter: Perform Action 
+  filter variables:
+  - name: brightnessTemperature
+    channels: *all_channels
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorWavenumIR
+      channels: *all_channels
+      options:
+        channels: *all_channels
+
+# Step 4: Observation error inflation based on topography check
+- filter: Perform Action 
+  filter variables:
+  - name: brightnessTemperature
+    channels: *all_channels
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorTopoRad
+      channels: *all_channels
+      options:
+        channels: *all_channels
+        sensor: *Sensor_ID
+
+# Step 5: Observation Range Sanity Check
+- filter: Bounds Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: *all_channels
+  minvalue: 0.00001
+  maxvalue: 1000.0
+  action:
+    name: reject
+
+# Step 6: Transmittance Top Check
+- filter: Perform Action 
+  filter variables:
+  - name: brightnessTemperature
+    channels: *all_channels
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorTransmitTopRad
+      channels: *all_channels
+      options:
+        channels: *all_channels
+
+# Step 7: Cloud Detection Check
+- filter: Bounds Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: *all_channels
+  test variables:
+  - name: ObsFunction/CloudDetectMinResidualAVHRR
+    channels: *all_channels
+    options:
+      channels: *all_channels
+      use_flag: [ 1,  1,  1 ]
+      use_flag_clddet: [ 1,  1,  1 ]
+      obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+      error parameter vector: [0.450, 0.550, 0.600]
+  maxvalue: 1.0e-12
+  action:
+      name: reject
+
+# Step 8: NSST Retrieval Check
+- filter: Bounds Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: *all_channels
+  test variables:
+  - name: ObsFunction/NearSSTRetCheckIR
+    channels: *all_channels
+    options:
+      channels: *all_channels
+      use_flag: [ 1,  1,  1 ]
+      error parameter vector: [0.450, 0.550, 0.600]
+  maxvalue: 1.0e-12
+  action:
+    name: reject
+
+# Step 9: Surface Jacobians Check
+- filter: Perform Action
+  filter variables:
+  - name: brightnessTemperature
+    channels: *all_channels
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorSurfJacobianRad
+      channels: *all_channels
+      options:
+        channels: *all_channels
+        sensor: *Sensor_ID
+        obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
+        obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+
+# Step 10: Gross check
+- filter: Background Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: *all_channels
+  function absolute threshold:
+  - name: ObsFunction/ObsErrorBoundIR
+    channels: *all_channels
+    options:
+      sensor: *Sensor_ID
+      channels: *all_channels
+      obserr_bound_latitude:
+        name: ObsFunction/ObsErrorFactorLatRad
+        options:
+          latitude_parameters: [25.0, 0.5, 0.04, 1.0]
+      obserr_bound_transmittop:
+        name: ObsFunction/ObsErrorFactorTransmitTopRad
+        channels: *all_channels
+        options:
+          channels: *all_channels
+      obserr_bound_max: [ 6.0, 6.0, 6.0 ]
+      error parameter vector: [0.450, 0.550, 0.600]
+  action:
+    name: reject
+passedBenchmark: 9150 
+
+
+
