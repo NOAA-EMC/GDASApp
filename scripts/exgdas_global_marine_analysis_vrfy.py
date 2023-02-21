@@ -198,7 +198,7 @@ config.update({'variable': 'ave_ssh', 'bounds': [0, 0.1]})
 plot_horizontal_slice(config)
 
 #######################################
-# eva plots 
+# eva plots
 
 evadir = os.path.join(HOMEgfs, 'sorc', 'gdas.cd', 'ush', 'eva')
 yamlgen = os.path.join(evadir, 'gen_eva_obs_yaml.py')
@@ -207,28 +207,28 @@ marinepost = os.path.join(evadir, 'marine_eva_post.py')
 varyaml = os.path.join(comout, 'yaml', 'var.yaml')
 
 # it would be better to refrence the dirs explicitly with the comout path
-# but eva doesn't allow for specifying output directories 
+# but eva doesn't allow for specifying output directories
 os.chdir(comout)
 if not os.path.exists('preevayamls'):
-   os.makedirs('preevayamls')
+    os.makedirs('preevayamls')
 if not os.path.exists('evayamls'):
-   os.makedirs('evayamls')
+    os.makedirs('evayamls')
 
 # mama, i'm sorry
-runlist = [ yamlgen, '-i', varyaml, \
-                     '-t', marinetemplate, \
-                     '-o',  'preevayamls']
+runlist = [yamlgen, '-i', varyaml,
+                    '-t', marinetemplate,
+                    '-o', 'preevayamls']
 
 subprocess.run(runlist, check=True)
 
 files = os.listdir('preevayamls')
 for file in files:
-   infile = os.path.join('preevayamls', file)
-   runlist = [ marinepost, '-i' , infile, '-o', 'evayamls', '-d', diagdir ] 
-   subprocess.run(runlist, check=True)
+    infile = os.path.join('preevayamls', file)
+    runlist = [marinepost, '-i', infile, '-o', 'evayamls', '-d', diagdir]
+    subprocess.run(runlist, check=True)
 
 files = os.listdir('evayamls')
 for file in files:
-   infile = os.path.join('evayamls', file)
-   print('running eva on', infile)
-   subprocess.run(['eva', infile], check=True)
+    infile = os.path.join('evayamls', file)
+    print('running eva on', infile)
+    subprocess.run(['eva', infile], check=True)
