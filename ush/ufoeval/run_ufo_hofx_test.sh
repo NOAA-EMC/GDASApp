@@ -14,11 +14,12 @@
 usage() {
   set +x
   echo
-  echo "Usage: $0 [-c cycle] [-x] [-s] [-h] instrument"
+  echo "Usage: $0 [-c cycle] [-x] [-s] [-k] [-h] instrument"
   echo
   echo "  -c  cycle to run DEFAULT=2021080100"
   echo "  -x  don't run eva DEFAULT=run eva"
   echo "  -s  just produce eva stats plots DEFAULT=produce lots of plots"
+  echo "  -k  keep output directory"
   echo "  -h  display this message and quit"
   echo
   exit 1
@@ -40,6 +41,9 @@ while getopts "c:hsx" opt; do
       ;;
     s)
       eva_stats_only=YES
+      ;;
+    k)
+      keep_output=NO
       ;;
     h|\?|:)
       usage
@@ -70,6 +74,11 @@ else
    exit 1
 fi
 
+if [ keep_output = YES ]; then
+  datetime=`date +%F:%T`
+  workdir=${workdir}_datetime
+fi
+
 yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}.yaml
 exename=test_ObsFilters.x
 
@@ -88,11 +97,9 @@ else
 fi
 
 if [ $machine = orion ]; then
-#   export Datapath='/work2/noaa/da/cmartin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate 
     export Datapath='/work2/noaa/da/eliu/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate 
     FixDir=/work2/noaa/da/cmartin/GDASApp/fix
 elif [ $machine = hera ]; then
-#   export Datapath='/scratch1/NCEPDEV/da/Cory.R.Martin/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate
     export Datapath='/scratch1/NCEPDEV/da/Emily.Liu/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate
     FixDir=/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
 else
@@ -122,10 +129,11 @@ module load GDAS/$machine
 export PYTHONPATH=$GDASApp/ush:$PYTHONPATH
 
 # Create and set up the working directory
+[ -d $workdir ] && rm -rf $workdir
 mkdir -p $workdir
 
 # Link CRTM coefficients
-rm -rf $workdir/crtm
+[ -d $workdir/crtm ] && rm -rf $workdir/crtm
 ln -sf $FixDir/crtm/2.3.0 $workdir/crtm
 
 # copy BC files
@@ -134,8 +142,8 @@ if [ $radiance = "YES" ]; then
 fi
 
 # Copy obs and geovals
-cp -rf $GeoDir/${obtype}_geoval_${cycle}.nc4 $workdir/.
-cp -rf $ObsDir/${obtype}_obs_${cycle}.nc4 $workdir/.
+cp -rf $GeoDir/${obtype}_geoval_${cycle}*.nc4 $workdir/.
+cp -rf $ObsDir/${obtype}_obs_${cycle}*.nc4 $workdir/.
 
 # Link executable
 ln -sf $GDASApp/build/bin/$exename $workdir/.
