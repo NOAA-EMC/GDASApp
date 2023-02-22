@@ -1,9 +1,6 @@
 #!/bin/bash
 bindir=$1
 srcdir=$2
-#bindir=/scratch2/NCEPDEV/stmp1/Jiarui.Dong/gdasapp/gdasapp.6
-#srcdir=/scratch2/NCEPDEV/stmp1/Jiarui.Dong/gdasapp/gdasapp.6
-#PARMgfs=/scratch2/NCEPDEV/stmp1/Jiarui.Dong/gdasapp/gdasapp.6/parm
 
 cat > testoutput/genYAML_example_land.yaml << EOF
 template: ${srcdir}/parm/land/letkfoi/letkfoi.yaml
