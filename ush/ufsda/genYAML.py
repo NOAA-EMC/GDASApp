@@ -79,7 +79,7 @@ def get_runtime_config(config_dict):
     win_begin_var = component_dict[config_dict.get('COMPONENT', 'atmos')] + '_WINDOW_BEGIN'
     win_end_var = component_dict[config_dict.get('COMPONENT', 'atmos')] + '_WINDOW_END'
     win_len_var = component_dict[config_dict.get('COMPONENT', 'atmos')] + '_WINDOW_LENGTH'
-    com_begin_var = 'ATM_BEGIN_YYYYmmddHHMMSS'
+    fv3_begin_var = 'ATM_BEGIN_YYYYmmddHHMMSS'
     bkg_string_var = 'BKG_YYYYmmddHHMMSS'
     bkg_isotime_var = 'BKG_ISOTIME'
     bkg_tstep_var = 'BKG_TSTEP'
@@ -87,7 +87,7 @@ def get_runtime_config(config_dict):
         win_begin_var = component_dict[config_dict.get('COMPONENT', 'land')] + '_WINDOW_BEGIN'
         win_end_var = component_dict[config_dict.get('COMPONENT', 'land')] + '_WINDOW_END'
         win_len_var = component_dict[config_dict.get('COMPONENT', 'land')] + '_WINDOW_LENGTH'
-        com_begin_var = 'LAND_BEGIN_YYYYmmddHHMMSS'
+        fv3_begin_var = 'LAND_BEGIN_YYYYmmddHHMMSS'
         bkg_string_var = 'LAND_BKG_YYYYmmddHHMMSS'
         bkg_isotime_var = 'LAND_BKG_ISOTIME'
     npx_ges_var = 'npx_ges'
@@ -101,7 +101,7 @@ def get_runtime_config(config_dict):
         win_begin_var: f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         win_end_var: f"{window_end.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         win_len_var: f"PT{assim_freq}H",
-        com_begin_var: f"{window_begin.strftime('%Y%m%d.%H%M%S')}",
+        fv3_begin_var: f"{window_begin.strftime('%Y%m%d.%H%M%S')}",
         bkg_string_var: f"{valid_time.strftime('%Y%m%d.%H%M%S')}",
         bkg_isotime_var: f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         bkg_tstep_var: f"{bkg_tstep}",
