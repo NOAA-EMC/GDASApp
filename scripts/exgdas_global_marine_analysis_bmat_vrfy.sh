@@ -62,7 +62,6 @@ EOL
              --ndiracs ${ndiracs} \
              --level ${level} \
              --fieldindex ${ifield} \
-             --statevars tocn socn ssh hocn uocn vocn mld layer_depth cicen hicen hsnon \
              --diracoutput dirac_output.yaml
     export err=$?
 

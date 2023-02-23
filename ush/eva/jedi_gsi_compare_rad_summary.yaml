@@ -127,6 +127,12 @@ diagnostics:
       for:
         variable: *variables
 
+    # Stats for Obs Error Difference
+    - transform: channel_stats
+      variable_name: experiment::ErrDiff::${variable}
+      for:
+        variable: *variables
+
     # Generate QC Counts Difference
     - transform: arithmetic
       new name: experiment::QCCountsDiff::${variable}
@@ -225,3 +231,43 @@ diagnostics:
             color: 'green'
             label: 'GSI'
             do_linear_regression: False
+
+    - figure:
+        layout: [1,1]
+        title: 'JEDI Obs Error - GSI Obs Error vs Channel | @NAME@ @CYCLE@'
+        output name: ObsErr_Difference_@CYCLE@_@NAME@.png
+      plots:
+        - add_xlabel: 'Channel'
+          add_ylabel: 'Observation Error Difference'
+          add_grid:
+          add_legend:
+            loc: 'upper left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber
+            y:
+              variable: experiment::ErrDiffMean::brightnessTemperature
+            markersize: 5
+            color: 'red'
+            label: 'Mean'
+            do_linear_regression: False
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber
+            y:
+              variable: experiment::ErrDiffMax::brightnessTemperature
+            markersize: 5
+            color: 'green'
+            label: 'Maximum'
+            do_linear_regression: False
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber
+            y:
+              variable: experiment::ErrDiffMin::brightnessTemperature
+            markersize: 5
+            color: 'blue'
+            label: 'Minimum'
+            do_linear_regression: False
+

@@ -20,6 +20,7 @@ bump:
     multivariate strategy: univariate
     compute nicas: true
     write local nicas: true
+    write nicas grids: true
   model:
     do not cross mask boundaries: false
   nicas:
