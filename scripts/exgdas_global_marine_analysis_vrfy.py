@@ -109,7 +109,6 @@ grid_file = os.path.join(comout, 'gdas.t'+bcyc+'z.ocngrid.nc')
 
 # for eva
 diagdir = os.path.join(comout, 'diags')
-project_source_dir = os.getenv('PROJECT_SOURCE_DIR')
 HOMEgfs = os.getenv('HOMEgfs')
 
 
