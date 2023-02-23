@@ -218,7 +218,7 @@ gen_eva_obs_yaml.gen_eva_obs_yaml(varyaml, marinetemplate, 'preevayamls')
 files = os.listdir('preevayamls')
 for file in files:
     infile = os.path.join('preevayamls', file)
-    marine_eva_post.marine_eva_post(infile,'evayamls',diagdir)
+    marine_eva_post.marine_eva_post(infile, 'evayamls', diagdir)
 
 files = os.listdir('evayamls')
 for file in files:
