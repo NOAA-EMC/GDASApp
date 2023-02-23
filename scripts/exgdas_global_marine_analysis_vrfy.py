@@ -23,6 +23,8 @@ import matplotlib.pyplot as plt
 import xarray as xr
 import cartopy
 import cartopy.crs as ccrs
+import gen_eva_obs_yaml
+import marine_eva_post
 import subprocess
 
 
@@ -200,9 +202,7 @@ plot_horizontal_slice(config)
 # eva plots
 
 evadir = os.path.join(HOMEgfs, 'sorc', 'gdas.cd', 'ush', 'eva')
-yamlgen = os.path.join(evadir, 'gen_eva_obs_yaml.py')
 marinetemplate = os.path.join(evadir, 'marine_gdas_plots.yaml')
-marinepost = os.path.join(evadir, 'marine_eva_post.py')
 varyaml = os.path.join(comout, 'yaml', 'var.yaml')
 
 # it would be better to refrence the dirs explicitly with the comout path
@@ -213,18 +213,12 @@ if not os.path.exists('preevayamls'):
 if not os.path.exists('evayamls'):
     os.makedirs('evayamls')
 
-# mama, i'm sorry
-runlist = [yamlgen, '-i', varyaml,
-                    '-t', marinetemplate,
-                    '-o', 'preevayamls']
-
-subprocess.run(runlist, check=True)
+gen_eva_obs_yaml.gen_eva_obs_yaml(varyaml, marinetemplate, 'preevayamls')
 
 files = os.listdir('preevayamls')
 for file in files:
     infile = os.path.join('preevayamls', file)
-    runlist = [marinepost, '-i', infile, '-o', 'evayamls', '-d', diagdir]
-    subprocess.run(runlist, check=True)
+    marine_eva_post.marine_eva_post(infile,'evayamls',diagdir)
 
 files = os.listdir('evayamls')
 for file in files:
