@@ -1,41 +1,36 @@
 covariance model: SABER
-full inverse: true
-saber blocks:
-- saber block name: BUMP_NICAS
-  saber central block: true
-  input variables: &control_vars [so4,bc1,bc2,oc1,oc2,
-                       dust1,dust2,dust3,dust4,dust5,
-                       seas1,seas2,seas3,seas4]
-  output variables: *control_vars
-  active variables: &active_vars [so4,bc1,bc2,oc1,oc2,
-                      dust1,dust2,dust3,dust4,dust5,
-                      seas1,seas2,seas3,seas4]
+saber central block:
+  saber block name: BUMP_NICAS
   bump:
-    datadir: &staticb_aero_dir !ENV ${DATA}/berror
-    verbosity: main
-    strategy: specific_univariate
-    load_nicas_local: true
-    prefix: 'nicas_aero'
-    universe radius:
-      filetype: fms restart
-      datetime: 2016-06-30T00:00:00Z
-      set datetime on read: true
-      psinfile: true
-      datapath: *staticb_aero_dir
-      prefix: '20160630.000000'
-      filename_core: cor_rh.fv_core.res.nc
-      filename_trcr: cor_rh.fv_tracer.res.nc
-      filename_cplr: cor_rh.coupler.res
-- saber block name: StdDev
-  input variables: *control_vars
-  output variables: *control_vars
-  file:
-    filetype: fms restart
-    datetime: 2016-06-30T00:00:00Z
-    set datetime on read: true
-    psinfile: true
-    datapath: *staticb_aero_dir
-    prefix: '20160630.000000'
-    filename_core: stddev.fv_core.res.nc
-    filename_trcr: stddev.fv_tracer.res.nc
-    filename_cplr: stddev.coupler.res
+    io:
+      data directory: &staticb_aero_dir !ENV ${DATA}/berror
+      files prefix: 'nicas_aero'
+    drivers:
+      multivariate strategy: univariate
+      read local nicas: true
+    input fields:
+    - parameter: universe radius
+      file:
+        filetype: fms restart
+        datetime: 2016-06-30T00:00:00Z
+        set datetime on read: true
+        psinfile: true
+        datapath: *staticb_aero_dir
+        prefix: '20160630.000000'
+        filename_core: cor_rh.fv_core.res.nc
+        filename_trcr: cor_rh.fv_tracer.res.nc
+        filename_cplr: cor_rh.coupler.res
+  saber outer blocks:
+  - saber block name: StdDev
+    input fields:
+    - parameter: StdDev
+      file:
+        filetype: fms restart
+        datetime: 2016-06-30T00:00:00Z
+        set datetime on read: true
+        psinfile: true
+        datapath: *staticb_aero_dir
+        prefix: '20160630.000000'
+        filename_core: stddev.fv_core.res.nc
+        filename_trcr: stddev.fv_tracer.res.nc
+        filename_cplr: stddev.coupler.res
