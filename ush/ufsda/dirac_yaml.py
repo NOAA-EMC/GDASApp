@@ -19,7 +19,6 @@ def var2dirac(args):
     ndiracs = args.ndiracs
     level = args.level
     field = args.fieldindex
-    statevars = args.statevars
     output = args.diracoutput
 
     # Parse the variational yaml
@@ -31,11 +30,6 @@ def var2dirac(args):
     diracconfig['geometry'] = varconfig['cost function']['geometry']
     diracconfig['initial condition'] = varconfig['cost function']['background']
     diracconfig['background error'] = varconfig['cost function']['background error']
-
-    # Overwrite variables
-    diracconfig['initial condition']['state variables'] = statevars
-    diracconfig['background error']['linear variable change']['input variables'] = statevars
-    diracconfig['background error']['linear variable change']['output variables'] = statevars
 
     # Generate impulse indices
     ds = xr.open_dataset(grid)
@@ -85,8 +79,6 @@ if __name__ == "__main__":
     parser.add_argument('--level', type=int, help='Model level of the impulse', required=True)
     parser.add_argument('--fieldindex', type=int,
                         help='Index of the field for which to generate the impulse', required=True)
-    parser.add_argument('--statevars', type=str,
-                        help='List of variables to read from the trajectory', nargs='+', required=True)
     parser.add_argument('--diracoutput', type=str,
                         help='A yaml file containing the dictionary that the model uses to write an incremement',
                         required=True)
