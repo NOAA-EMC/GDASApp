@@ -23,6 +23,9 @@ import matplotlib.pyplot as plt
 import xarray as xr
 import cartopy
 import cartopy.crs as ccrs
+import gen_eva_obs_yaml
+import marine_eva_post
+import subprocess
 
 
 def plot_config(grid_file=[], data_file=[],
@@ -100,11 +103,16 @@ def plot_zonal_slice(config):
 
 
 comout = os.getenv('COMOUT')
+data = os.getenv('DATA')
 cyc = os.getenv('cyc')
 bcyc = str((int(cyc) - 3) % 24)
 
-# TODO: do not write to COM, instead dump figures in DATA and copy to COM.
 grid_file = os.path.join(comout, 'gdas.t'+bcyc+'z.ocngrid.nc')
+
+# for eva
+diagdir = os.path.join(comout, 'diags')
+HOMEgfs = os.getenv('HOMEgfs')
+
 
 #######################################
 # INCREMENT
@@ -189,3 +197,31 @@ plot_horizontal_slice(config)
 # Sea surface height
 config.update({'variable': 'ave_ssh', 'bounds': [0, 0.1]})
 plot_horizontal_slice(config)
+
+#######################################
+# eva plots
+
+evadir = os.path.join(HOMEgfs, 'sorc', 'gdas.cd', 'ush', 'eva')
+marinetemplate = os.path.join(evadir, 'marine_gdas_plots.yaml')
+varyaml = os.path.join(comout, 'yaml', 'var.yaml')
+
+# it would be better to refrence the dirs explicitly with the comout path
+# but eva doesn't allow for specifying output directories
+os.chdir(comout)
+if not os.path.exists('preevayamls'):
+    os.makedirs('preevayamls')
+if not os.path.exists('evayamls'):
+    os.makedirs('evayamls')
+
+gen_eva_obs_yaml.gen_eva_obs_yaml(varyaml, marinetemplate, 'preevayamls')
+
+files = os.listdir('preevayamls')
+for file in files:
+    infile = os.path.join('preevayamls', file)
+    marine_eva_post.marine_eva_post(infile, 'evayamls', diagdir)
+
+files = os.listdir('evayamls')
+for file in files:
+    infile = os.path.join('evayamls', file)
+    print('running eva on', infile)
+    subprocess.run(['eva', infile], check=True)
