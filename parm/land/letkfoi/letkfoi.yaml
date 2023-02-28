@@ -23,7 +23,7 @@ window begin: '{{LAND_WINDOW_BEGIN}}'
 window length: $(LAND_WINDOW_LENGTH)
 
 background:
-   datetime: {{LAND_BKG_ISOTIME}}
+   datetime: '{{LAND_BKG_ISOTIME}}'
    members from template:
      template:
        datetime: '{{LAND_BKG_ISOTIME}}'
