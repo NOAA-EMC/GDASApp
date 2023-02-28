@@ -47,7 +47,7 @@ case ${TARGET} in
 esac
 
 # ==============================================================================
-# clone a fresh copy of the stable branch
+# clone a fresh copy of the develop branch
 datestr="$(date +%Y%m%d)"
 repo_url="https://github.com/NOAA-EMC/GDASApp.git"
 stableroot=$GDAS_CI_ROOT/stable
@@ -56,11 +56,14 @@ mkdir -p $stableroot/$datestr
 cd $stableroot/$datestr
 git clone $repo_url
 cd GDASApp
-git checkout feature/stable-nightly
 
 # ==============================================================================
-# merge in develop
-git merge develop
+# run ecbuild to get the repos cloned
+mkdir -p build
+cd build
+ecbuild ../
+cd ..
+rm -rf build
 
 # ==============================================================================
 # update the hashes to the most recent
@@ -73,9 +76,11 @@ ci_status=$?
 if [ $ci_status -eq 0 ]; then
   # push a new commit to the stable branch
   cd $stableroot/$datestr/GDASApp
+  git push origin --delete feature/stable-nightly
+  git checkout -b feature/stable-nightly
   git add CMakeLists.txt
   git commit -m "Update to new stable build on $datestr"
-  git push
+  git push --set-upstream origin feature/stable-nightly
   echo "Stable branch updated"
 else
   # do nothing
