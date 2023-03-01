@@ -24,3 +24,6 @@ obs operator:
     AerosolOption: aerosols_gocart_default
 obs error:
   covariance model: diagonal
+obs filters:
+  - filter: PreQC
+    maxvalue: 0
