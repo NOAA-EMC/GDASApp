@@ -64,7 +64,7 @@ def gen_eva_obs_yaml(inputyaml, templateyaml, outputdir):
     # now loop over all observation spaces in input JEDI YAML file
     for obsspace in evaobs:
         name = obsspace['name']
-        cycle = obsspace['diagfile'].split('_')[-2]
+        cycle = obsspace['diagfile'].split('.')[-2]
         logging.info(f'Now processing: {name}')
         # get the dictionary of replacements set up
         replacements = {
