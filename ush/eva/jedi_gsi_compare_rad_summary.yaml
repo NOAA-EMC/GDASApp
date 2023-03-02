@@ -140,6 +140,37 @@ diagnostics:
       for:
         variable: *variables
 
+    # Because of some issues with passive IR channels, the following four transforms create QC counts just for channels with non-zero JEDI counts
+    - transform: accept where
+      new name: experiment::PassedQc_Used::${variable}
+      starting field: experiment::ObsValueMinushofxPassedQcCount::${variable}
+      where:
+        - experiment::ObsValueMinushofxPassedQcCount::${variable} > 0
+      for:
+        variable: *variables
+
+    - transform: accept where
+      new name: experiment::GsiPassedQc_Used::${variable}
+      starting field: experiment::ObsValueMinusGsiHofXBcPassedQcCount::${variable}
+      where:
+        - experiment::ObsValueMinushofxPassedQcCount::${variable} > 0
+      for:
+        variable: *variables
+
+    - transform: arithmetic
+      new name: experiment::QCCountsDiff_Used::${variable}
+      equals: experiment::PassedQc_Used::brightnessTemperature-experiment::GsiPassedQc_Used::brightnessTemperature
+      for:
+        variable: *variables
+
+    - transform: accept where
+      new name: experiment::MetaData::sensorChannelNumber_Used
+      starting field: experiment::MetaData::sensorChannelNumber
+      where:
+        - experiment::ObsValueMinushofxPassedQcCount::${variable} > 0
+      for:
+        variable: *variables
+
   graphics:
     - figure:
         layout: [1,1]
@@ -204,6 +235,27 @@ diagnostics:
 
     - figure:
         layout: [1,1]
+        title: 'Difference in Number of Obs Passing QC - Used Channels Only | @NAME@ @CYCLE@'
+        output name: QCCount_Diff_Used_@CYCLE@_@NAME@.png
+      plots:
+        - add_xlabel: 'Channel'
+          add_ylabel: 'Counts'
+          add_grid:
+          add_legend:
+            loc: 'upper left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber_Used
+            y:
+              variable: experiment::QCCountsDiff_Used::brightnessTemperature
+            markersize: 5
+            color: 'red'
+            label: 'JEDI-GSI Counts Difference'
+            do_linear_regression: False
+
+    - figure:
+        layout: [1,1]
         title: 'Number of Obs Passing QC | @NAME@ @CYCLE@'
         output name: PassedQC_Counts@CYCLE@_@NAME@.png
       plots:
@@ -227,6 +279,36 @@ diagnostics:
               variable: experiment::MetaData::sensorChannelNumber
             y:
               variable: experiment::ObsValueMinusGsiHofXBcPassedQcCount::brightnessTemperature
+            markersize: 5
+            color: 'green'
+            label: 'GSI'
+            do_linear_regression: False
+
+    - figure:
+        layout: [1,1]
+        title: 'Number of Obs Passing QC - Used Channels Only | @NAME@ @CYCLE@'
+        output name: PassedQC_Counts_Used@CYCLE@_@NAME@.png
+      plots:
+        - add_xlabel: 'Channel'
+          add_ylabel: 'Counts'
+          add_grid:
+          add_legend:
+            loc: 'upper left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber_Used
+            y:
+              variable: experiment::PassedQc_Used::brightnessTemperature
+            markersize: 5
+            color: 'red'
+            label: 'JEDI'
+            do_linear_regression: False
+          - type: Scatter
+            x:
+              variable: experiment::MetaData::sensorChannelNumber_Used
+            y:
+              variable: experiment::GsiPassedQc_Used::brightnessTemperature
             markersize: 5
             color: 'green'
             label: 'GSI'
@@ -270,4 +352,3 @@ diagnostics:
             color: 'blue'
             label: 'Minimum'
             do_linear_regression: False
-
