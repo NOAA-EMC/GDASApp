@@ -74,7 +74,7 @@ else
    exit 1
 fi
 
-if [ keep_output = YES ]; then
+if [ $keep_output = YES ]; then
   datetime=`date +%F:%T`
   workdir=${workdir}_datetime
 fi
