@@ -33,7 +33,7 @@ def parse_config(input_config_dict, template=None, clean=True):
         raise KeyError("Neither $(atm), $(land) nor $(aero) defined")
     config_out.pop('atm', None)  # pop out boolean variable that will cause issues later
     config_out.pop('land', None)  # pop out boolean variable that will cause issues later
-    config_out.pop('aero', None) # pop out boolean variable that will cause issues later
+    config_out.pop('aero', None)  # pop out boolean variable that will cause issues later
     # do a first round of substitutions first
     config_out = replace_vars(config_out)
     # now do a first round of includes
@@ -80,7 +80,7 @@ def fv3anl_case(config):
     elif config.get('land', True):
         config['GEOM_BKG'] = fv3land_geom_dict(case, levs, ntiles, layout, io_layout)
         config['GEOM_ANL'] = fv3land_geom_dict(case_anl, levs, ntiles, layout, io_layout)
-    elif config.get('aero', True): 
+    elif config.get('aero', True):
         config['GEOM_BKG'] = fv3aero_geom_dict(case, levs, ntiles, layout, io_layout)
         config['GEOM_ANL'] = fv3aero_geom_dict(case_anl, levs, ntiles, layout, io_layout)
     else:
@@ -135,6 +135,7 @@ def fv3land_geom_dict(case, levs, ntiles, layout, io_layout):
         }
     }
     return outdict
+
 
 def fv3aero_geom_dict(case, levs, ntiles, layout, io_layout):
     # returns a dictionary matching FV3-JEDI global geometry entries
