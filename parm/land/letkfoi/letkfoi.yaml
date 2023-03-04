@@ -16,7 +16,7 @@ geometry:
       filetype: fms restart
       skip coupler file: true
       state variables: [orog_filt]
-      datapath: !ENV ${FIXgfs}/fix_orog/${CASE}/
+      datapath: !ENV ${FIXgfs}/orog/${CASE}/
       filename_orog: !ENV ${CASE}_oro_data.nc
 
 window begin: '{{LAND_WINDOW_BEGIN}}'
@@ -51,6 +51,10 @@ local ensemble DA:
     mult: 1.0
 
 output increment:
+  datapath: !ENV ${DATA}/anl
+  prefix: landinc
   filetype: fms restart
-  filename_sfcd: xainc.sfc_data.nc
+  filename_sfcd: '{{LAND_BKG_YYYYmmddHHMMSS}}.sfc_data.nc'
+  filename_cplr: '{{LAND_BKG_YYYYmmddHHMMSS}}.coupler.res'
+  state variables: [snwdph,vtype,slmsk]
 
