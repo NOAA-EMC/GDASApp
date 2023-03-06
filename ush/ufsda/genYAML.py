@@ -72,7 +72,7 @@ def get_runtime_config(config_dict):
     bkg_tstep = str(config_dict.get('BKG_TSTEP', f"PT{assim_freq}H"))
     component_dict = {
         'atmos': 'ATM',
-        'aero': 'AERO',
+        'chem': 'AERO',
         'ocean': 'SOCA',
         'land': 'LAND',
     }

@@ -153,16 +153,6 @@ def fv3aero_geom_dict(case, levs, ntiles, layout, io_layout):
         'ntiles': str(ntiles),
         'field metadata override': '$(fv3jedi_fieldmetadata_dir)/gfs-aero.yaml',
 
-        'time invariant fields': {
-            'state fields': {
-                'datetime': '$(AERO_WINDOW_BEGIN)',
-                'filetype': 'fms restart',
-                'skip coupler file': 'true',
-                'state variables': '[orog_filt]',
-                'datapath': '/scratch1/NCEPDEV/global/glopara/fix/orog/20220805/C'+str(case)+'/',
-                'filename_orog': 'C'+str(case)+'_oro_data.nc',
-            }
-        }
     }
     return outdict
 
