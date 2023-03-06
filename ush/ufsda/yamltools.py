@@ -27,12 +27,13 @@ def parse_config(input_config_dict, template=None, clean=True):
     # add input_config_dict vars to config for substitutions
     config_out.update(input_config_dict)
     # compute common resolution variables
-    if config_out.get('atm', True) or config_out.get('land', True):
+    if config_out.get('atm', True) or config_out.get('land', True) or config_out.get('aero', True):
         config_out = fv3anl_case(config_out)
     else:
-        raise KeyError("Neither $(atm) nor $(land) defined")
+        raise KeyError("Neither $(atm), $(land) nor $(aero) defined")
     config_out.pop('atm', None)  # pop out boolean variable that will cause issues later
     config_out.pop('land', None)  # pop out boolean variable that will cause issues later
+    config_out.pop('aero', None)  # pop out boolean variable that will cause issues later
     # do a first round of substitutions first
     config_out = replace_vars(config_out)
     # now do a first round of includes
@@ -79,8 +80,11 @@ def fv3anl_case(config):
     elif config.get('land', True):
         config['GEOM_BKG'] = fv3land_geom_dict(case, levs, ntiles, layout, io_layout)
         config['GEOM_ANL'] = fv3land_geom_dict(case_anl, levs, ntiles, layout, io_layout)
+    elif config.get('aero', True):
+        config['GEOM_BKG'] = fv3aero_geom_dict(case, levs, ntiles, layout, io_layout)
+        config['GEOM_ANL'] = fv3aero_geom_dict(case_anl, levs, ntiles, layout, io_layout)
     else:
-        raise KeyError("Neither $(atm) nor $(land) defined")
+        raise KeyError("Neither $(atm), $(land) nor $(aero) defined")
     return config
 
 
@@ -133,6 +137,26 @@ def fv3land_geom_dict(case, levs, ntiles, layout, io_layout):
     return outdict
 
 
+def fv3aero_geom_dict(case, levs, ntiles, layout, io_layout):
+    # returns a dictionary matching FV3-JEDI global geometry entries
+    outdict = {
+        'fms initialization': {
+            'namelist filename': '$(fv3jedi_fix_dir)/fmsmpp.nml',
+            'field table filename': '$(fv3jedi_fix_dir)/field_table',
+        },
+        'akbk': '$(fv3jedi_fix_dir)/akbk'+str(levs-1)+'.nc4',
+        'layout': layout,
+        'io_layout': io_layout,
+        'npx': str(case+1),
+        'npy': str(case+1),
+        'npz': str(levs-1),
+        'ntiles': str(ntiles),
+        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/gfs-aero.yaml',
+
+    }
+    return outdict
+
+
 def calc_time_vars(config):
     # compute time variables in different formats
     # based on existing variables
@@ -151,6 +175,8 @@ def calc_time_vars(config):
     config['BKG_ISOTIME'] = bkg_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
     config['LAND_BKG_YYYYmmddHHMMSS'] = bkg_time_obj.strftime('%Y%m%d.%H%M%S')
     config['LAND_BKG_ISOTIME'] = bkg_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
+    config['AERO_BKG_YYYYmmddHHMMSS'] = bkg_time_obj.strftime('%Y%m%d.%H%M%S')
+    config['AERO_BKG_ISOTIME'] = bkg_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
     if 'assim_freq' in os.environ:
         config['ATM_WINDOW_LENGTH'] = f"PT{os.environ['assim_freq']}H"
     elif 'atm_window_length' in config.keys():
@@ -173,6 +199,16 @@ def calc_time_vars(config):
         config['LAND_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
         config['LAND_WINDOW_END'] = win_end.strftime('%Y-%m-%dT%H:%M:%SZ')
         config['LAND_BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
+    return config
+    # get aero window begin
+    if 'aero_window_length' in config.keys():
+        config['AERO_WINDOW_LENGTH'] = config['aero_window_length']
+        h = re.findall('PT(\\d+)H', config['AERO_WINDOW_LENGTH'])[0]
+        win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
+        win_end = valid_time_obj + datetime.timedelta(hours=int(h)/2)
+        config['AERO_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
+        config['AERO_WINDOW_END'] = win_end.strftime('%Y-%m-%dT%H:%M:%SZ')
+        config['AERO_BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
     return config
 
 
