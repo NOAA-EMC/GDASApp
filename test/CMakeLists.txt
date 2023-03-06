@@ -189,6 +189,4 @@ endif()
 add_subdirectory(atm)
 
 # gdas aerosol tests
-if (${BUILD_GDASBUNDLE})
-  add_subdirectory(aero)
-endif()
+add_subdirectory(aero)
