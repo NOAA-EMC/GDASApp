@@ -90,6 +90,13 @@ def get_runtime_config(config_dict):
         fv3_begin_var = 'LAND_BEGIN_YYYYmmddHHMMSS'
         bkg_string_var = 'LAND_BKG_YYYYmmddHHMMSS'
         bkg_isotime_var = 'LAND_BKG_ISOTIME'
+    if 'aero_window_length' in config_dict.keys():
+        win_begin_var = component_dict[config_dict.get('COMPONENT', 'aero')] + '_WINDOW_BEGIN'
+        win_end_var = component_dict[config_dict.get('COMPONENT', 'aero')] + '_WINDOW_END'
+        win_len_var = component_dict[config_dict.get('COMPONENT', 'aero')] + '_WINDOW_LENGTH'
+        fv3_begin_var = 'AERO_BEGIN_YYYYmmddHHMMSS'
+        bkg_string_var = 'AERO_BKG_YYYYmmddHHMMSS'
+        bkg_isotime_var = 'AERO_BKG_ISOTIME'
     npx_ges_var = 'npx_ges'
     npy_ges_var = 'npy_ges'
     npz_ges_var = 'npz_ges'
