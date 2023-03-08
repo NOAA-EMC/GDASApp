@@ -12,90 +12,13 @@ from dateutil import parser
 import ufsda
 import logging
 import glob
-import xarray
-import sys
 import numpy as np
 from pygw.yaml_file import YAMLFile
-
-# TODO: We might want to revisit this in the future
-# Try to resolve the location of pyioda, assuming there are only 2 places where this
-# script can exist (build/ush/ufsda or /ush/ufsda)
-from pathlib import Path
-jedilib = Path(os.path.join(Path(__file__).parent.absolute(), '../..', 'lib'))
-if not jedilib.is_dir():
-    jedilib = Path(os.path.join(Path(__file__).parent.absolute(), '../../build', 'lib'))
-pyver = 'python3.'+str(sys.version_info[1])
-pyioda_lib = Path(os.path.join(jedilib, pyver, 'pyioda')).resolve()
-pyiodaconv_lib = Path(os.path.join(jedilib, 'pyiodaconv')).resolve()
-sys.path.append(str(pyioda_lib))
-sys.path.append(str(pyiodaconv_lib))
-import ioda_conv_engines as iconv
-from orddicts import DefaultOrderedDict
 
 __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'background_ens', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
-
-
-def concatenate_ioda(iodafname, obsvarname='sea_surface_temperature'):
-    flist = glob.glob(iodafname+'*')
-    flist.sort()
-    nfiles = len(flist)
-    if nfiles == 0:
-        logging.info(f"No files to concatenate.")
-        return
-
-    if len(flist) == 1:
-        logging.info(f"Only file is {flist[0]}, rename to {iodafname}. No need to concatenate.")
-        shutil.move(flist[0], iodafname)
-        return
-
-    logging.info(f"Concatenating {nfiles} files from globbing {iodafname}*")
-
-    # concatenate stuff outside of groups (nlocs dimensions and variables)
-    ds = xarray.concat([xarray.open_dataset(f) for f in flist], dim='nlocs')
-
-    # concatenate all but metadata
-    # TODO (G): Not able to properly concatenate PreQC, to be investigated
-    outdata = {}
-    for group in ["ObsError", "ObsValue"]:
-        ds = xarray.concat([xarray.open_dataset(f, group=group) for f in flist], dim='nlocs')
-        outdata[(obsvarname, group)] = ds[obsvarname]
-
-    # concatenate metadata
-    group = "MetaData"
-    ds = xarray.concat([xarray.open_dataset(f, group=group) for f in flist], dim='nlocs')
-    for k in list(ds.keys()):
-        outdata[(k, group)] = ds[k]
-
-    # to_netcdf does not do the trick unfotunately, write with ioda
-    nlocs = ds.dims['nlocs']
-    DimDict = {}
-    DimDict['nlocs'] = nlocs
-
-    # setup the IODA writer
-    locationKeyList = [("latitude", "float"),
-                       ("longitude", "float"),
-                       ("datetime", "string"),
-                       ]
-
-    VarDims = {'': ['nlocs']}
-
-    # Reorganize MetaData group to make ioda happy
-    outdata[('latitude', 'MetaData')] = outdata[('latitude', 'MetaData')][:]
-    outdata[('longitude', 'MetaData')] = outdata[('longitude', 'MetaData')][:]
-    dates = outdata[('datetime', 'MetaData')][:]
-    outdata[('datetime', 'MetaData')] = np.empty(nlocs, dtype=object)
-    outdata[('datetime', 'MetaData')][:] = dates
-
-    # TODO (G): get the missing attributes from ds
-    VarAttrs = DefaultOrderedDict(lambda: DefaultOrderedDict(dict))
-    units = {}
-    writer = iconv.IodaWriter(iodafname, locationKeyList, DimDict)
-    writer.BuildIoda(outdata, VarDims, VarAttrs, units)
-
-    return
 
 
 def gdas_fix(input_fix_dir, working_dir, config):
@@ -442,7 +365,7 @@ def obs(config):
                     database=config['r2d2_obs_db']
                 )
             # Concatenate ioda files
-            concatenate_ioda(outfile)
+            ufsda.soca_utils.concatenate_ioda(outfile)
 
 
 def fv3jedi(config):

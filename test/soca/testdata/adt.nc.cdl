@@ -1,20 +1,15 @@
 netcdf adt.nc {
 dimensions:
 	Location = 100 ;
-	nvars = 1 ;
 variables:
 	int Location(Location) ;
 		Location:suggested_chunk_dim = 100LL ;
-	float nvars(nvars) ;
-		nvars:suggested_chunk_dim = 100LL ;
 
 // global attributes:
 		string :_ioda_layout = "ObsGroup" ;
 		:_ioda_layout_version = 0 ;
 		:nrecs = 1 ;
-		:nvars = 1 ;
 		:odb_version = 1LL ;
-		:date_time = 2018041512 ;
 		:nlocs = 100LL ;
 		:nobs = 100LL ;
 		:history = "Fri Apr 19 08:49:14 2019: ncks -d nlocs,1,50000,500 adt.orig.nc -O adt.nc" ;
@@ -27,23 +22,18 @@ data:
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0 ;
 
- nvars = 0 ;
 
 group: MetaData {
   variables:
   	int64 dateTime(Location) ;
   		dateTime:_FillValue = -3732782400LL ;
   		string dateTime:units = "seconds since 2018-04-15T12:00:00Z" ;
-  	string date_time(Location) ;
-  		string date_time:_FillValue = "" ;
   	float latitude(Location) ;
   		latitude:_FillValue = 9.96921e+36f ;
   	float longitude(Location) ;
   		longitude:_FillValue = 9.96921e+36f ;
   	int sequenceNumber(Location) ;
   		sequenceNumber:_FillValue = -2147483647 ;
-  	string variable_names(nvars) ;
-  		string variable_names:_FillValue = "" ;
   data:
 
    dateTime = 8979, 37065, -10967, -28959, -42772, -24069, 28606, -17781,
@@ -93,19 +83,13 @@ group: MetaData {
       -155.184, -14.87442, 12.47116, -80.52476, 133.6994, -34.77795,
       139.1339, -121.1142, 127.6422, -132.5225 ;
 
-   sequenceNumber = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1, 1 ;
-
-   variable_names = "absolute_dynamic_topography" ;
   } // group MetaData
 
 group: ObsError {
   variables:
   	float absoluteDynamicTopography(Location) ;
   		absoluteDynamicTopography:_FillValue = 9.96921e+36f ;
+                string absoluteDynamicTopography:units = "m" ;
   data:
 
    absoluteDynamicTopography = 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
@@ -122,6 +106,7 @@ group: ObsValue {
   variables:
   	float absoluteDynamicTopography(Location) ;
   		absoluteDynamicTopography:_FillValue = 9.96921e+36f ;
+                string absoluteDynamicTopography:units = "m" ;
   data:
 
    absoluteDynamicTopography = 0.2886, -1.3556, -0.5692, 0.5597, 0.3317,
@@ -139,7 +124,7 @@ group: ObsValue {
       1.469, 0.2632, -0.8869, 0.6544, 0.6571, -0.1728 ;
   } // group ObsValue
 
-group: PreQc {
+group: PreQC {
   variables:
   	int absoluteDynamicTopography(Location) ;
   		absoluteDynamicTopography:_FillValue = -2147483647 ;
@@ -150,5 +135,5 @@ group: PreQc {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
-  } // group PreQc
+  } // group PreQC
 }
