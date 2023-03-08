@@ -3,6 +3,7 @@ import os
 import sys
 
 
+# Define a function that duplicates a file
 def duplicate_obs(src_filename):
     if os.path.isfile(src_filename):
         base_filename = os.path.basename(src_filename)
@@ -15,10 +16,11 @@ def duplicate_obs(src_filename):
         raise Exception(f"{src_filename} does not exist")
 
 
+# Get the directory where the files to be duplicated are located from command-line arguments
 obsdir = sys.argv[1]
 
+# Test the concatenation for these obs types
 obslist = ['adt_j3_20180415.nc4', 'sst_noaa19_l3u_20180415.nc4']
-
 for fname in obslist:
     iodafname = os.path.join(obsdir, fname)
     duplicate_obs(iodafname)
