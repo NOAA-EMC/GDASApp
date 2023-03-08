@@ -1,4 +1,5 @@
 import ufsda
+import ufsda.soca_utils
 import os
 import sys
 
