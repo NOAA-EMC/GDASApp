@@ -362,7 +362,7 @@ diagnostics:
       figure:
         layout: [1,1]
         title: 'Observations vs. JEDI h(x) | @NAME@ @CYCLE@ | ${variable_title}'
-        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/jedi_hofx_vs_obs_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+        output name: observation_scatter_plots/jedi_hofx_vs_obs_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
       plots:
         - add_xlabel: 'Observation Value'
           add_ylabel: 'JEDI h(x)'
@@ -397,7 +397,7 @@ diagnostics:
       figure:
         layout: [1,1]
         title: 'Observations vs. GSI h(x) | @NAME@ @CYCLE@ | ${variable_title}'
-        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/gsi_hofx_vs_obs_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+        output name: observation_scatter_plots/gsi_hofx_vs_obs_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
       plots:
         - add_xlabel: 'Observation Value'
           add_ylabel: 'GSI h(x)'
@@ -433,7 +433,7 @@ diagnostics:
       figure:
         layout: [1,1]
         title: 'JEDI h(x) vs. GSI h(x) | @NAME@ @CYCLE@ | ${variable_title}'
-        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/gsi_hofx_vs_jedi_hofx_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+        output name: observation_scatter_plots/gsi_hofx_vs_jedi_hofx_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
       plots:
         - add_xlabel: 'GSI h(x)'
           add_ylabel: 'JEDI h(x)'
@@ -469,7 +469,7 @@ diagnostics:
       figure:
         layout: [1,1]
         title: 'JEDI omb vs. GSI omb | @NAME@ @CYCLE@ | ${variable_title}'
-        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/gsi_omb_vs_jedi_omb_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+        output name: observation_scatter_plots/gsi_omb_vs_jedi_omb_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
       plots:
         - add_xlabel: 'GSI observation minus h(x)'
           add_ylabel: 'JEDI observation minus h(x)'
@@ -503,7 +503,7 @@ diagnostics:
       figure:
         layout: [1,1]
         title: 'H(x) JEDI-GSI vs QC JEDI-GSI. | @NAME@ @CYCLE@ | ${variable_title}'
-        output name: observation_scatter_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/hofxdiff_vs_qcdiff_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+        output name: observation_scatter_plots/hofxdiff_vs_qcdiff_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
       plots:
         - add_xlabel: 'h(x) JEDI - h(x) GSI'
           add_ylabel: 'h(x) JEDI - h(x) GSI'
@@ -521,18 +521,19 @@ diagnostics:
             color: 'red'
             label: 'hofxdiff vs qcdiff'
           statistics:
-            data:
-              variable: experiment::QCDiff::${variable}
-              @CHANNELKEY@
-            statistic list:
+            fields:
+              - field_name: experiment::QCDiff::${variable}
+                @CHANNELKEY@
+                xloc: 0.5
+                yloc: -0.10
+                kwargs:
+                  fontsize: 6
+            statistics_variables:
             - n
             - min
             - mean
             - max
             - std
-            - name
-            kwargs:
-              fontsize: 6
 
     # ---------- Histograms ----------
     # Histogram of h(x) difference
@@ -542,23 +543,24 @@ diagnostics:
       figure:
         layout: [1,1]
         title: 'Difference of h(x) JEDI-GSI | @NAME@ @CYCLE@ | ${variable_title}'
-        output name: histograms/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/hofxdiff_histogram_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+        output name: histograms/hofxdiff_histogram_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
       plots:
         - add_xlabel: 'h(x) JEDI - h(x) GSI'
           add_ylabel: 'Count'
           statistics:
-            data:
-              variable: experiment::HofXDiff::${variable}
-              @CHANNELKEY@
-            statistic list:
+            fields:
+              - field_name: experiment::HofXDiff::${variable}
+                @CHANNELKEY@
+                xloc: 0.5
+                yloc: -0.10
+                kwargs:
+                  fontsize: 6
+            statistics_variables:
             - n
             - min
             - mean
             - max
             - std
-            - name
-            kwargs:
-              fontsize: 6
           layers:
           - type: Histogram
             data:
@@ -575,23 +577,24 @@ diagnostics:
       figure:
         layout: [1,1]
         title: 'Difference of final obs error JEDI-GSI | @NAME@ @CYCLE@ | ${variable_title}'
-        output name: histograms/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/errordiff_histogram_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+        output name: histograms/errordiff_histogram_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
       plots:
         - add_xlabel: 'error JEDI - error GSI'
           add_ylabel: 'Count'
           statistics:
-            data:
-              variable: experiment::ErrDiff::${variable}
-              @CHANNELKEY@
-            statistic list:
+            fields:
+              - field_name: experiment::ErrDiff::${variable}
+                @CHANNELKEY@
+                xloc: 0.5
+                yloc: -0.10
+                kwargs:
+                  fontsize: 6
+            statistics_variables:
             - n
             - min
             - mean
             - max
             - std
-            - name
-            kwargs:
-              fontsize: 6
           layers:
           - type: Histogram
             data:
@@ -612,7 +615,7 @@ diagnostics:
         layout: [1,1]
         figure size: [11,5]
         title: 'Difference of h(x) JEDI-GSI | @NAME@ @CYCLE@ | ${variable_title}'
-        output name: map_plots/@CYCLE@/@NAME@/${variable}/@CHANNELVAR@/hofxdiff_map_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+        output name: map_plots/hofxdiff_map_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
         tight_layout: true
       plots:
         - mapping:

@@ -1,0 +1,93 @@
+obs space:
+  name: ompstc8_npp
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV ompstc8_npp_obs_${CDATE}.nc4
+    obsgrouping:
+      group variables: ["latitude"]
+      sort variable: "pressure"
+      sort order: "ascending"
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV ompstc8_npp_diag_${CDATE}.nc4
+  io pool:
+    max pool size: 1
+  simulated variables: [ozoneTotal]
+geovals:
+  filename: !ENV ompstc8_npp_geoval_${CDATE}.nc4
+obs operator:
+  name: AtmVertInterpLay
+  geovals: [mole_fraction_of_ozone_in_air]
+  coefficients: [0.007886131] # convert from ppmv to DU
+  nlevels: [1]
+
+obs filters:
+# range sanity check
+- filter: Bounds Check
+  filter variables:
+  - name: ozoneTotal
+  minvalue: 0
+  maxvalue: 1000
+  action:
+    name: reject
+
+# Accept total_ozone_error_flag values of 0 and 1, but not any others.
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/total_ozone_error_flag
+    minvalue: 0.1
+  action:
+    name: reject
+#
+- filter: AcceptList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/total_ozone_error_flag
+    minvalue: 0.9
+    maxvalue: 1.1
+  action:
+    name: accept
+
+#exclude afbo=3 or 13
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/bestOzoneAlgorithmFlag
+    minvalue: 2.9
+    maxvalue: 3.1
+  action:
+    name: reject
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/bestOzoneAlgorithmFlag
+    minvalue: 12.9
+    maxvalue: 13.1
+  action:
+    name: reject
+
+#scan position check
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/sensorScanPosition
+    minvalue: 1
+    maxvalue: 4
+  - variable:
+      name: MetaData/latitude
+    minvalue: 50.0
+  action:
+    name: reject
