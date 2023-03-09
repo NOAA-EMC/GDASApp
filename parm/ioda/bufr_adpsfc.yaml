@@ -2,7 +2,7 @@ observations:
   - obs space:
       name: bufr
 
-      obsdatain: "testinput/gdas.t12z.adpsfc.tm00.bufr_d"
+      obsdatain: $(BUFR_in)
 
       exports:
         variables:
@@ -97,7 +97,7 @@ observations:
 
     ioda:
       backend: netcdf
-      obsdataout: "testrun/gdas.t12z.adpsfc.tm00.nc"
+      obsdataout: $(IODA_out)
 
       dimensions:
         - name: CloudSequence
@@ -158,7 +158,7 @@ observations:
         - name: "ObsValue/stationPressure"
           coordinates: "longitude latitude"
           source: variables/pressure
-          longName: "Station Pressure"
+          longName: "Pressure"
           units: "Pa"
 
         - name: "ObsValue/pressureReducedToMeanSeaLevel"
@@ -278,7 +278,7 @@ observations:
           source: variables/dewpointTemperatureQM
           longName: "Quality Indicator for Dewpoint Temperature"
 
-        - name: "QualityMarker/pressure"
+        - name: "QualityMarker/stationPressure"
           coordinates: "longitude latitude"
           source: variables/pressureQM
           longName: "Quality Indicator for Pressure"
@@ -287,4 +287,3 @@ observations:
           coordinates: "longitude latitude"
           source: variables/windQM
           longName: "Quality Indicator for Wind Direction"
-
