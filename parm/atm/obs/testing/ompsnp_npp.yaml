@@ -1,0 +1,274 @@
+obs space:
+  name: ompsnp_npp
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV ompsnp_npp_obs_${CDATE}.nc4
+    obsgrouping:
+      group variables: ["latitude"]
+      sort variable: "pressure"
+      sort order: "ascending"
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV ompsnp_npp_diag_${CDATE}.nc4
+  io pool:
+    max pool size: 1
+  simulated variables: [ozoneTotal]
+geovals:
+  filename: !ENV ompsnp_npp_geoval_${CDATE}.nc4
+obs operator:
+  name: AtmVertInterpLay
+  geovals: [mole_fraction_of_ozone_in_air]
+  coefficients: [0.007886131] # convert from ppmv to DU
+  nlevels: [22]
+
+obs filters:
+# range sanity check
+- filter: Bounds Check
+  filter variables:
+  - name: ozoneTotal
+  minvalue: 0
+  maxvalue: 1000
+  action:
+    name: reject
+
+# Accept total_ozone_error_flag values of 0 and 2, but not any others.
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/total_ozone_error_flag
+    minvalue: 0.1
+  action:
+    name: reject
+#
+- filter: AcceptList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/total_ozone_error_flag
+    minvalue: 1.9
+    maxvalue: 2.1
+  action:
+    name: accept
+
+#
+# Accept profile_ozone_error_flag values of 0, 1, and 7, but not any others.
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/profile_ozone_error_flag
+    minvalue: 1.1
+  action:
+    name: reject
+#
+- filter: AcceptList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/profile_ozone_error_flag
+    minvalue: 6.9
+    maxvalue: 7.1
+  action:
+    name: accept
+#
+# Reject all the pressure levels higher in height than pressure of 0.64hPa
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/pressure
+    maxvalue: 64.0
+  action:
+    name: reject
+#
+# Assign initial error value based on pressure
+- filter: Perform Action
+  filter variables:
+  - name: ozoneTotal
+  action:
+    name: assign error
+    error function:
+      name: ObsErrorModelStepwiseLinear@ObsFunction
+      options:
+        xvar:
+          name: MetaData/pressure
+        xvals: [0.001, 10.1325, 16.00935, 25.43258, 40.32735, 63.93607, 101.325, 160.0935, 254.3257, 403.2735, 639.3608, 1013.25, 1600.935, 2543.258, 4032.735, 6393.607, 10132.5, 16009.35, 25432.57, 40327.35, 63936.07, 101325]
+        errors: [7.7236, 0.04, 0.02, 0.015, 0.03, 0.15, 0.056, 0.125, 0.2, 0.299, 0.587, 0.864, 1.547, 2.718, 3.893, 4.353, 3.971, 4.407, 4.428, 3.312, 2.198, 2.285]
+
+# Gross error check with (O - B) / ObsError greater than threshold.
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 100
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      maxvalue: 0.001
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 30
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue:  30000.0
+      maxvalue: 110000.0
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 40
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue: 20000.0
+      maxvalue: 30000.0
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 44.42
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue: 10100.0
+      maxvalue: 20000.0
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 57.52
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue:  6400.0
+      maxvalue: 10100.0
+
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 69.4
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue:  4000.0
+      maxvalue:  6400.0
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 70
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue:  2600.0
+      maxvalue:  4000.0
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 62.73
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue:  1600.0
+      maxvalue:  2600.0
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 50.52
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue:  1100.0
+      maxvalue:  1600.0
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 35.9
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue:   700.0
+      maxvalue:  1100.0
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 26.41
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue:   400.0
+      maxvalue:   700.0
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 20.51
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue:   300.0
+      maxvalue:   400.0
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 12.82
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      minvalue:   200.0
+      maxvalue:   300.0
+#
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  absolute threshold: 10
+  action:
+    name: reject
+  where:
+    - variable:
+        name: MetaData/pressure
+      maxvalue:   200.0
+
+passedBenchmark: 4133
