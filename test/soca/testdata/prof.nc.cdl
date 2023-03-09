@@ -302,7 +302,7 @@ group: ObsValue {
       30.25, 16.03, 15.5, 14.81, 9.410004, 30.12, 29.95001, 28.56 ;
   } // group ObsValue
 
-group: PreQc {
+group: PreQC {
   variables:
   	float salinity(Location) ;
   		salinity:_FillValue = 9.96921e+36f ;
@@ -384,5 +384,5 @@ group: PreQc {
       0.3094093, 0.3094093, 0.5460482, 0.5460482, 0.5460482, 0.5460482,
       0.5460482, 0.5460482, 0.5460482, 0.5460482, 0.5460482, 0.5460482,
       0.5460482, 0.5460482 ;
-  } // group PreQc
+  } // group PreQC
 }
