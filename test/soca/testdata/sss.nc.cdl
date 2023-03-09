@@ -136,7 +136,7 @@ group: ObsValue {
       34.44715, 35.18509, 34.1835, 35.66429 ;
   } // group ObsValue
 
-group: PreQc {
+group: PreQC {
   variables:
   	int seaSurfaceSalinity(Location) ;
   		seaSurfaceSalinity:_FillValue = -2147483647 ;
@@ -149,5 +149,5 @@ group: PreQc {
       0, 0, 2048, 8448, 0, 0, 32, 0, 32768, 18432, 14336, 0, 8192, 0, 32768,
       0, 2048, 0, 0, 0, 0, 59392, 0, 32768, 128, 2048, 2048, 32, 0, 32, 8192,
       0, 0, 4096, 128, 2048, 6144, 0, 0, 0, 0, 40960, 0, 0, 32, 0 ;
-  } // group PreQc
+  } // group PreQC
 }
