@@ -53,7 +53,7 @@ done
 ulimit -Ss unlimited
 ${EXECDIR}/calcfIMS.exe
 
-export PYTHONPATH=$PYTHONPATH:${project_source_dir}/build/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/pyioda/
+export PYTHONPATH=$PYTHONPATH:${project_source_dir}/iodaconv/src/:${project_source_dir}/build/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/pyioda/
 IMS_IODA=${EXECDIR}/imsfv3_scf2ioda.py
 
 echo 'do_landDA: calling ioda converter'

@@ -1,12 +1,9 @@
 netcdf sst.nc {
 dimensions:
 	Location = 201 ;
-	nvars = 1 ;
 variables:
 	int Location(Location) ;
 		Location:suggested_chunk_dim = 201LL ;
-	float nvars(nvars) ;
-		nvars:suggested_chunk_dim = 100LL ;
 
 // global attributes:
 		string :_ioda_layout = "ObsGroup" ;
@@ -14,8 +11,6 @@ variables:
 		:nrecs = 1 ;
 		:converter = "gds2_sst2ioda.py" ;
 		:processing_level = "L3U" ;
-		:nvars = 1 ;
-		:date_time = 2018041512 ;
 		:nlocs = 201 ;
 		:nobs = 201 ;
 		:thinning = 0.99999 ;
@@ -33,21 +28,17 @@ data:
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
- nvars = 0 ;
 
 group: MetaData {
   variables:
   	int64 dateTime(Location) ;
   		dateTime:_FillValue = -3732782400LL ;
   		string dateTime:units = "seconds since 2018-04-15T12:00:00Z" ;
-  	string date_time(Location) ;
-  		string date_time:_FillValue = "" ;
   	float latitude(Location) ;
   		latitude:_FillValue = 9.96921e+36f ;
   	float longitude(Location) ;
   		longitude:_FillValue = 9.96921e+36f ;
-  	string variable_names(nvars) ;
-  		string variable_names:_FillValue = "" ;
+
   data:
 
    dateTime = -40813, -41195, -41918, -41960, -42007, -42014, -42017, -36233,
@@ -124,13 +115,14 @@ group: MetaData {
       -99.67, -102.53, -107.39, -93.09, -96.47, -96.41, -96.37, -90.85,
       -90.49001, -82.77, 70.41, 67.73, 69.17, 72.31, 51.64999, 50.84999, 61.07 ;
 
-   variable_names = "sea_surface_temperature" ;
   } // group MetaData
 
 group: ObsError {
   variables:
   	float seaSurfaceTemperature(Location) ;
   		seaSurfaceTemperature:_FillValue = 9.96921e+36f ;
+  		string seaSurfaceTemperature:units = "c" ;
+
   data:
 
    seaSurfaceTemperature = 0.29, 0.29, 0.39, 0.47, 0.39, 0.39, 0.42, 0.37,
@@ -157,6 +149,8 @@ group: ObsValue {
   variables:
   	float seaSurfaceTemperature(Location) ;
   		seaSurfaceTemperature:_FillValue = 9.96921e+36f ;
+  		string seaSurfaceTemperature:units = "c" ;
+
   data:
 
    seaSurfaceTemperature = 5.803994, 13.77201, 27.064, 27.87, 26.804, 27.56,
@@ -190,7 +184,7 @@ group: ObsValue {
       10.55799, 3.594002 ;
   } // group ObsValue
 
-group: PreQc {
+group: PreQC {
   variables:
   	float seaSurfaceTemperature(Location) ;
   		seaSurfaceTemperature:_FillValue = 9.96921e+36f ;
@@ -205,5 +199,5 @@ group: PreQc {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
-  } // group PreQc
+  } // group PreQC
 }
