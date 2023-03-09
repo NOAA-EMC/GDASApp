@@ -583,7 +583,7 @@ diagnostics:
           add_ylabel: 'Count'
           statistics:
             fields:
-              -field_name: experiment::ErrDiff::${variable}
+              - field_name: experiment::ErrDiff::${variable}
                 @CHANNELKEY@
                 xloc: 0.5
                 yloc: -0.10
