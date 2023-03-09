@@ -79,7 +79,7 @@ def soca_fix(config):
     """
 
     # link static B bump files
-    bump_archive = os.path.join(config['soca_input_fix_dir'], 'bump')
+    bump_archive = os.path.join(config['soca_input_fix_dir'], 'bkgerr', 'bump')
     bump_scratch = os.path.join(config['stage_dir'], 'bump')
     if os.path.isdir(bump_archive):
         # link archived bump files
