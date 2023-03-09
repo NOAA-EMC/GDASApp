@@ -30,6 +30,7 @@ usage() {
 cycle=2021080100
 run_eva=YES
 eva_stats_only=NO
+keep_output=NO 
  
 while getopts "c:hsx" opt; do
   case $opt in
@@ -43,7 +44,7 @@ while getopts "c:hsx" opt; do
       eva_stats_only=YES
       ;;
     k)
-      keep_output=NO
+      keep_output=YES
       ;;
     h|\?|:)
       usage

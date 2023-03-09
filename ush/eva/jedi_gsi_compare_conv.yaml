@@ -279,18 +279,20 @@ diagnostics:
             color: 'red'
             label: 'hofxdiff vs pressure'
           statistics:
-            data:
-              variable: experiment::HofXDiff::${variable}
-              @CHANNELKEY@
-            statistic list:
+            fields:
+              - field_name: experiment::HofXDiff::${variable}
+                @CHANNELKEY@
+                xloc: 0.5
+                yloc: -0.10
+                kwargs:
+                  fontsize: 6
+            statistics_variables:
             - n
             - min
             - mean
             - max
             - std
             - name
-            kwargs:
-              fontsize: 6
 
     # QC difference as a function of H(x) difference
     - batch figure:
@@ -317,18 +319,19 @@ diagnostics:
             color: 'red'
             label: 'hofxdiff vs qcdiff'
           statistics:
-            data:
-              variable: experiment::QCDiff::${variable}
-              @CHANNELKEY@
+            fields:
+              - field_name: experiment::QCDiff::${variable}
+                @CHANNELKEY@
+                xloc: 0.5
+                yloc: -0.10
+                kwargs:
+                  :fontsize: 6
             statistic list:
             - n
             - min
             - mean
             - max
             - std
-            - name
-            kwargs:
-              fontsize: 6
 
     # Error difference as a function of pressure
     - batch figure:
@@ -368,18 +371,19 @@ diagnostics:
         - add_xlabel: 'h(x) JEDI - h(x) GSI'
           add_ylabel: 'Count'
           statistics:
-            data:
-              variable: experiment::HofXDiff::${variable}
-              @CHANNELKEY@
+            fields:
+              - field_name: experiment::HofXDiff::${variable}
+                @CHANNELKEY@
+                xloc: 0.5
+                yloc: -0.10
+                kwargs:
+                  fontsize: 6
             statistic list:
             - n
             - min
             - mean
             - max
             - std
-            - name
-            kwargs:
-              fontsize: 6
           layers:
           - type: Histogram
             data:
@@ -401,18 +405,19 @@ diagnostics:
         - add_xlabel: 'error JEDI - error GSI'
           add_ylabel: 'Count'
           statistics:
-            data:
-              variable: experiment::ErrDiff::${variable}
-              @CHANNELKEY@
+            fields:
+              - field_name: experiment::ErrDiff::${variable}
+                @CHANNELKEY@
+                xloc: 0.5
+                yloc: -0.10
+                kwargs:
+                  fontsize: 6
             statistic list:
             - n
             - min
             - mean
             - max
             - std
-            - name
-            kwargs:
-              fontsize: 6
           layers:
           - type: Histogram
             data:
