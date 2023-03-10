@@ -6,13 +6,13 @@ components:
       saber block name: ID
     # This will setup B = K D C_v C_h C_h^{T} C_v^{T} D K^{T}
     linear variable change:
-      input variables: &soca_vars  [cicen, hicen, hsnon, socn, tocn, ssh, hocn, uocn, vocn, mld, layer_depth]
+      input variables: &soca_vars  [cicen, hicen, hsnon, socn, tocn, ssh]
       output variables: *soca_vars
       linear variable changes:
 
       - linear variable change name: HorizFiltSOCA
         niter: 1
-        filter variables: [socn, tocn, ssh, uocn, vocn, cicen, hicen, hsnon]
+        filter variables: *soca_vars
 
       - linear variable change name: VertConvSOCA
         Lz_min: 0.0
