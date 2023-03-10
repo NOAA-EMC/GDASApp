@@ -15,7 +15,8 @@ export gPDY=20210323
 export gcyc=12
 export GDATE=${gPDY}${gcyc}
 export ROTDIR=$bindir/test/atm/global-workflow/testrun/ROTDIRS
-export CDUMP=gdas
+export RUN=enkfgdas
+export CDUMP=enkfgdas
 export DATAROOT=$bindir/test/atm/global-workflow/testrun/RUNDIR
 export COMIN_GES=${bindir}/test/atm/bkg
 export pid=${pid:-$$}
@@ -25,13 +26,18 @@ export NMEM_ENKF=3
 export ACCOUNT=da-cpu
 export DO_JEDIENS="YES"
 
+# setup python path for workflow utilities and tasks
+pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${pygwPATH}"
+export PYTHONPATH
+
 # detemine machine from config.base
 machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
 
 if [ $machine = 'HERA' -o $machine = 'ORION' ]; then
-    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=debug --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ENSANAL_RUN
+    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=debug --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
 else
-    ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ENSANAL_RUN
+    ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
 fi
 
 
