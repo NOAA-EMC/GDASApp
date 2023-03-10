@@ -17,10 +17,10 @@ diagnostics:
           - name: hofx0
           - name: EffectiveQC0
           - name: MetaData
-          - name: PreQc
+          - name: PreQC
   transforms:
 
-    # bkg 
+    # bkg
     - transform: arithmetic
       new name: experiment::bkg::${variable}
       equals: experiment::ObsValue::${variable}-experiment::ombg::${variable}
@@ -32,7 +32,7 @@ diagnostics:
       new name: experiment::PassedQC::${variable}
       starting field: experiment::ombg::${variable}
       where:
-        - experiment::PreQc::${variable} == 0
+        - experiment::PreQC::${variable} == 0
       for:
         variable: *variables
 
@@ -40,7 +40,7 @@ diagnostics:
   graphics:
 
     # ---------- Map Plots ----------
-    # Map plot of ObsValue 
+    # Map plot of ObsValue
     # --------
 
     - batch figure:
@@ -78,4 +78,4 @@ diagnostics:
             # below may need to be edited/removed
             cmap: ${dynamic_cmap}
             vmin: 0 #${dynamic_vmin}
-            vmax: ${dynamic_vmax} 
+            vmax: ${dynamic_vmax}
