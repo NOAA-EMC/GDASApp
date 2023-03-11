@@ -32,7 +32,7 @@ export PYTHONPATH
 machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
 
 if [ $machine != 'HERA' ]; then
-    ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FINAL
+    ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FINALIZE
 else
     sbatch -n 1 --account=$ACCOUNT --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FINALIZE
 fi
