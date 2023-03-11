@@ -66,7 +66,7 @@ EOL
     export err=$?
 
     # run the dirac application
-    $APRUN_OCNANAL $JEDI_BIN/soca_dirac.x dirac.yaml > dirac.out 2>&1
+    $APRUN_OCNANAL $JEDI_BIN/soca_dirac.x dirac.yaml
     export err=$?
     if [ $err -gt 0  ]; then
         exit $err

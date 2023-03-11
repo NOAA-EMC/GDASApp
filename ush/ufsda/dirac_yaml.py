@@ -31,6 +31,13 @@ def var2dirac(args):
     diracconfig['initial condition'] = varconfig['cost function']['background']
     diracconfig['background error'] = varconfig['cost function']['background error']
 
+    # Overwrite variables
+    state_vars = ['cicen', 'hicen', 'hsnon', 'socn', 'tocn', 'ssh', 'hocn', 'mld', 'layer_depth']
+    diracconfig['initial condition']['state variables'] = state_vars
+    for sub_bmat in range(len(diracconfig['background error']['components'])):
+        diracconfig['background error']['components'][sub_bmat]['covariance']['linear variable change']['input variables'] = state_vars
+        diracconfig['background error']['components'][sub_bmat]['covariance']['linear variable change']['output variables'] = state_vars
+
     # Generate impulse indices
     ds = xr.open_dataset(grid)
     ni = ds.dims[dim1]
