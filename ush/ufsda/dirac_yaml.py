@@ -42,13 +42,15 @@ def var2dirac(args):
     ds = xr.open_dataset(grid)
     ni = ds.dims[dim1]
     nj = ds.dims[dim2]
-    step = ni*nj/ndiracs
-    stepi = int(ni/(ni+nj)*step)
-    stepj = int(nj/(ni+nj)*step)
+    stepi = int(ni/(sqrt(ndiracs))
+    stepi = int(nj/(sqrt(ndiracs))
     ixdir, iydir = np.meshgrid(np.arange(1, ni, stepi),
                                np.arange(1, nj, stepj))
     ixdir = ixdir.reshape(-1).tolist()
     iydir = iydir.reshape(-1).tolist()
+    print(f'-------------------------------- {ixdir}')
+    print(f'-------------------------------- {ni}, {nj}, {ndiracs}, {step}, {stepi}, {stepj}')
+    print(ni/(ni+nj)*step)
 
     listsize = len(ixdir)
     izdir = list(repeat(level, listsize))

@@ -8,36 +8,36 @@ obs space:
     engine:
       type: H5File
       obsfile: !ENV ${DATA}/diags/sst_viirs_n20_l3u_so025.${PDY}${cyc}.nc4
-  simulated variables: [sea_surface_temperature]
+  simulated variables: [seaSurfaceTemperature]
   io pool:
     max pool size: 1
 obs operator:
   name: Identity
 obs error:
   covariance model: diagonal
-obs filters:
-- filter: Domain Check
-  where:
-  - variable: {name: sea_area_fraction@GeoVaLs}
-    minvalue: 0.9
-- filter: Bounds Check
-  minvalue: 1.0
-  maxvalue: 36.0
-- filter: Background Check
-  threshold: 5.0
-- filter: Domain Check
-  where:
-  - variable: {name: sea_surface_temperature@ObsError}
-    minvalue: 0.001
-- filter: Domain Check
-  where:
-  - variable: { name: sea_ice_area_fraction@GeoVaLs}
-    maxvalue: 0.00001
-- filter: Domain Check
-  where:
-  - variable: {name: sea_surface_temperature@GeoVaLs}
-    minvalue: 3.0
-- filter: Domain Check
-  where:
-  - variable: {name: distance_from_coast@GeoVaLs}
-    minvalue: 100e3
+#obs filters:
+#- filter: Domain Check
+#  where:
+#  - variable: {name: sea_area_fraction@GeoVaLs}
+#    minvalue: 0.9
+#- filter: Bounds Check
+#  minvalue: 1.0
+#  maxvalue: 36.0
+#- filter: Background Check
+#  threshold: 5.0
+#- filter: Domain Check
+#  where:
+#  - variable: {name: sea_surface_temperature@ObsError}
+#    minvalue: 0.001
+#- filter: Domain Check
+#  where:
+#  - variable: { name: sea_ice_area_fraction@GeoVaLs}
+#    maxvalue: 0.00001
+#- filter: Domain Check
+#  where:
+#  - variable: {name: sea_surface_temperature@GeoVaLs}
+#    minvalue: 3.0
+#- filter: Domain Check
+#  where:
+#  - variable: {name: distance_from_coast@GeoVaLs}
+#    minvalue: 100e3
