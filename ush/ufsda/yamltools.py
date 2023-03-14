@@ -1,9 +1,48 @@
 import datetime
 import os
 import re
+import logging
 from solo.yaml_file import YAMLFile
 from solo.template import TemplateConstants, Template
 from ufsda.misc_utils import isTrue
+import pygw
+
+logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
+                    level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
+
+
+class DAYAMLFile(pygw.yaml_file.YAMLFile):
+    def __init__(self, path=None, apptype='var', app='var'):
+        super().__init__(path=path)
+        self.app = app
+
+    def save_check(self, target):
+        """
+        Remove obs spaces that point to non-existent file and save
+        """
+        config = self.as_dict()
+
+        # obs space depth is dependent on the application
+        if self.app == 'var':
+            obs_spaces = config['cost function']['observations']['observers']
+        else:
+            logging.error(f"Error: {app} case not implemented yet!")
+
+        # remove obs spaces that point to a non existant file
+        cleaned_obs_spaces = []
+        for obs_space in obs_spaces:
+            fname = obs_space['obs space']['obsdatain']['engine']['obsfile']
+            if os.path.isfile(fname):
+                cleaned_obs_spaces.append(obs_space)
+            else:
+                logging.info(f"{fname} does not exist, removing obs space")
+                print("File does not exist")
+
+        # update obs spaces
+        config['cost function']['observations']['observers'] = cleaned_obs_spaces
+
+        # save cleaned yaml
+        pygw.yaml_file.save_as_yaml(config, target)
 
 
 def parse_config(input_config_dict, template=None, clean=True):

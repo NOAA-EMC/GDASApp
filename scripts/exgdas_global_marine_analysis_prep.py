@@ -357,13 +357,16 @@ else:
     logging.info(f"using default SABER blocks yaml")
     os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
 
+# substitute templated variables in the var config
 logging.info(f"{config}")
-varconfig = YAMLFile(path=var_yaml_template)
+varconfig = ufsda.yamltools.DAYAMLFile(path=var_yaml_template)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, config.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-varconfig.save(var_yaml)
+
+# Check obs space and save
+varconfig.save_check(var_yaml)
 
 # link of convenience
 mom_ic = glob.glob(os.path.join(bkg_dir, 'gdas.*.ocnf003.nc'))[0]
