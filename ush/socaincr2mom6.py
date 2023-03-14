@@ -43,8 +43,8 @@ def socaincr2mom6(incr, bkg, grid, incr_out):
     ds_incr['lat'] = ds_grid['lat']
 
     # Save increment
-    ds_incr.to_netcdf(incr_out, mode='w')
-
+    ds_incr.to_netcdf(incr_out, mode='a')
+    return
 
 if __name__ == "__main__":
     epilog = ["Usage examples:",
