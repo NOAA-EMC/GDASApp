@@ -55,6 +55,14 @@ ${HOMEgfs}/sorc/gdas.cd/ush/socaincr2mom6.py --incr "${soca_incr}" \
                                              --grid "${DATA}/soca_gridspec.nc" \
                                              --out "${mom6_iau_incr}"
 
+# insert seaice analysis in CICE6 restart
+# TODO: This should probably be in a separate j-job, that includes 
+#       the mom6 incr postprocessing from above. 
+
+${launcher} 1 ${JEDI_BIN}/soca_convertstate.x soca_2cice_arctic.yaml
+${launcher} 1 ${JEDI_BIN}/soca_convertstate.x soca_2cice_antarctic.yaml
+
+
 ################################################################################
 set +x
 if [ $VERBOSE = "YES" ]; then

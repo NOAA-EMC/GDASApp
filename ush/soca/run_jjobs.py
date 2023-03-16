@@ -143,8 +143,9 @@ class JobCard:
         if self.component == 'ocean':
             # staging ice backgrounds
             ice_file_descriptor = components_short['ice']
-            self.f.write("mkdir -p ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/ice/\n")
+            self.f.write("mkdir -p ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/ice/RESTART\n")
             self.f.write("cp -r ${COMIN_GES}/../ice/*icef0*.nc ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/ice/\n")
+            self.f.write("cp -r ${COMIN_GES}/../ice/RESTART/*cice_model.res.nc ${ROTDIR}/${PSLOT}/gdas.${PDY}/${gcyc}/ice/RESTART/\n")
 
     def fixconfigs(self):
         """

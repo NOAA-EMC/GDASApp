@@ -5,7 +5,9 @@ file(GLOB bkg_diag "${TESTDATA}/ocn_da_2018_04_15_*.nc")
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART_GES)
 file(COPY ${bkg_diag} DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
-file(COPY ${TESTDATA}/iced.2019-04-15-43200.nc DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
+configure_file(${TESTDATA}/iced.2019-04-15-43200.nc
+  ${PROJECT_BINARY_DIR}/test/soca/ice/RESTART/20180415.060000.cice_model.res.nc
+  COPYONLY)
 file(COPY ${TESTDATA}/cice_hist.nc DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 
 # link input file from iodaconv to test directory
