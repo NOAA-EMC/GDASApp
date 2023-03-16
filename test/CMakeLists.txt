@@ -37,7 +37,6 @@ list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_13.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_14.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_15.nc
-  ${CMAKE_CURRENT_BINARY_DIR}/testdata/iced.2019-04-15-43200.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias_pc
 )
