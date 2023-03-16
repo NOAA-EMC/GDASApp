@@ -3,14 +3,14 @@ cost function:
   window begin: '{{ATM_WINDOW_BEGIN}}'
   window length: $(ATM_WINDOW_LENGTH)
   analysis variables: &soca_ana_vars  [cicen, hicen, hsnon, socn, tocn, ssh]
-  variable change:
-    variable change name: Ana2Model
-    rotate:
-      u: []
-      v: []
-    log:
-      var: []
-    output variables: *soca_ana_vars
+#  variable change:
+#    variable change name: Ana2Model
+#    rotate:
+#      u: []
+#      v: []
+#    log:
+#      var: []
+#    output variables: *soca_ana_vars
 
   geometry:
     mom6_input_nml: mom_input.nml
