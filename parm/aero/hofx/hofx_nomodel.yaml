@@ -2,18 +2,18 @@ window begin: '{{AERO_WINDOW_BEGIN}}'
 window length: $(AERO_WINDOW_LENGTH)
 geometry:
   fms initialization:
-    namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-    field table filename: !ENV ${DATA}/fv3jedi/field_table
-  akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+    namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
+    field table filename: $(DATA)/fv3jedi/field_table
+  akbk: $(DATA)/fv3jedi/akbk.nc4
   layout:
   - !ENV ${layout_x}
   - !ENV ${layout_y}
   npx: $(npx_ges)
   npy: $(npy_ges)
   npz: $(npz_ges)
-  field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+  field metadata override: $(DATA)/fv3jedi/gfs-restart.yaml
 state:
-  datapath: !ENV ${DATA}/bkg
+  datapath: $(DATA)/bkg
   filetype: fms restart
   datetime: '{{BKG_ISOTIME}}'
   filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'

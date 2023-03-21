@@ -15,18 +15,18 @@ cost function:
                        mass_fraction_of_sea_salt004_in_air]
   geometry:
     fms initialization:
-      namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-      field table filename: !ENV ${DATA}/fv3jedi/field_table
-    akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+      namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
+      field table filename: $(DATA)/fv3jedi/field_table
+    akbk: $(DATA)/fv3jedi/akbk.nc4
     layout:
     - !ENV ${layout_x}
     - !ENV ${layout_y}
     npx: $(npx_ges)
     npy: $(npy_ges)
     npz: $(npz_ges)
-    field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+    field metadata override: $(DATA)/fv3jedi/gfs-restart.yaml
   background:
-    datapath: !ENV ${DATA}/bkg
+    datapath: $(DATA)/bkg
     filetype: fms restart
     datetime: '{{BKG_ISOTIME}}'
     filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
@@ -46,16 +46,16 @@ variational:
     test: on
     geometry:
       fms initialization:
-        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-        field table filename: !ENV ${DATA}/fv3jedi/field_table
-      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+        namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
+        field table filename: $(DATA)/fv3jedi/field_table
+      akbk: $(DATA)/fv3jedi/akbk.nc4
       layout:
       - !ENV ${layout_x}
       - !ENV ${layout_y}
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
-      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+      field metadata override: $(DATA)/fv3jedi/gfs-restart.yaml
     diagnostics:
       departures: bkgmob
   - ninner: 35
@@ -63,16 +63,16 @@ variational:
     test: on
     geometry:
       fms initialization:
-        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-        field table filename: !ENV ${DATA}/fv3jedi/field_table
-      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+        namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
+        field table filename: $(DATA)/fv3jedi/field_table
+      akbk: $(DATA)/fv3jedi/akbk.nc4
       layout:
       - !ENV ${layout_x}
       - !ENV ${layout_y}
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
-      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+      field metadata override: $(DATA)/fv3jedi/gfs-restart.yaml
     diagnostics:
       departures: bkgmob1
 final:
@@ -81,18 +81,18 @@ final:
   increment:
     geometry:
       fms initialization:
-        namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-        field table filename: !ENV ${DATA}/fv3jedi/field_table
-      akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+        namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
+        field table filename: $(DATA)/fv3jedi/field_table
+      akbk: $(DATA)/fv3jedi/akbk.nc4
       layout:
       - !ENV ${layout_x}
       - !ENV ${layout_y}
       npx: $(npx_ges)
       npy: $(npy_ges)
       npz: $(npz_ges)
-      field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+      field metadata override: $(DATA)/fv3jedi/gfs-restart.yaml
     output:
-      datapath: !ENV ${DATA}/anl
+      datapath: $(DATA)/anl
       prefix: aeroinc
       filetype: fms restart
       filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
