@@ -12,6 +12,7 @@ geometry:
   field metadata override: ./fv3jedi/gfs-restart.yaml
 window begin: '$(ATM_WINDOW_BEGIN)'
 window length: PT6H
+increment variables: [ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
 background:
    datetime: '{{BKG_ISOTIME}}'
@@ -41,6 +42,7 @@ driver:
   save prior mean: false
   save posterior mean increment: false
   save posterior ensemble increments: true
+  do posterior observer: false
 
 local ensemble DA:
   solver: GETKF
