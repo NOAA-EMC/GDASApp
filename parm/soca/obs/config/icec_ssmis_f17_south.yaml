@@ -8,17 +8,18 @@ obs space:
     engine:
       type: H5File
       obsfile: !ENV ${DATA}/diags/icec_ssmis_f17_south.${PDY}${cyc}.nc4
-  simulated variables: [sea_ice_area_fraction]
+  simulated variables: [seaIceFraction]
   io pool:
     max pool size: 1
 obs operator:
   name: Identity
+  observation alias file: obsop_name_map.yaml
 obs error:
   covariance model: diagonal
 obs filters:
 - filter: Domain Check
   where:
-  - variable: {name: sea_area_fraction@GeoVaLs}
+  - variable: {name: GeoVaLs/sea_area_fraction}
     minvalue: 0.9
 - filter: Bounds Check
   minvalue: 0.0
@@ -27,17 +28,16 @@ obs filters:
   threshold: 5.0
 - filter: Domain Check
   where:
-  - variable: { name: sea_surface_temperature@GeoVaLs}
+  - variable: { name: GeoVaLs/sea_surface_temperature}
     maxvalue: 2.0
 - filter: Domain Check
   where:
-  - variable: { name: sea_surface_temperature@GeoVaLs}
+  - variable: { name: GeoVaLs/sea_surface_temperature}
     maxvalue: 0.0
   action:
     name: inflate error
     inflation factor: 2.0
 - filter: Domain Check
   where:
-  - variable: {name: distance_from_coast@GeoVaLs}
+  - variable: {name: GeoVaLs/distance_from_coast}
     minvalue: 100e3
-

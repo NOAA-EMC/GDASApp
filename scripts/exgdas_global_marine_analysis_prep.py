@@ -225,7 +225,7 @@ half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
 assim_freq = timedelta(hours=int(os.getenv('assim_freq')))
 window_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H') - half_assim_freq
 window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
-fcst_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H') - assim_freq
+fcst_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')# - assim_freq
 
 ################################################################################
 # fetch observations
