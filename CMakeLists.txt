@@ -88,6 +88,7 @@ if(BUILD_GDASBUNDLE)
 
 # SOCA associated repositories
 # TODO: Move the Icepack fork to EMC github
+  set(BUILD_ICEPACK "ON" CACHE STRING "Build the icepack library")
   if ( BUILD_ICEPACK )
     ecbuild_bundle( PROJECT icepack GIT "https://github.com/JCSDA-internal/Icepack.git" BRANCH feature/ecbuild-new )
   endif()
