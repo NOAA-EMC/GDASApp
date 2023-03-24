@@ -25,9 +25,11 @@ module list
 if [ "$machine" = "hera" ] ; then
     partition="hera"
     gdasfix="/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix"
+    cominges="/scratch1/NCEPDEV/da/Russ.Treadon/GDASApp/cases"
 elif [ "$machine" = "orion" ]; then
     partition="debug"
     gdasfix="/work2/noaa/da/cmartin/GDASApp/fix"
+    cominges="/work2/noaa/da/rtreadon/GDASApp/cases"
 fi
 
 # Create test run directory
@@ -64,7 +66,7 @@ config:
   dohybvar: true
   levs: 128
   nmem: 10
-  comin_ges: /scratch1/NCEPDEV/da/Russ.Treadon/GDASApp/cases
+  comin_ges: ${cominges}
   interp_method: barycentric
 job options:
   machine: ${machine}
