@@ -28,8 +28,8 @@ jobs:
     - name: Checkout workflow
       uses: actions/checkout@v3
       with:
-        repository: aerorahul/global-workflow
-        ref: feature/aerosol-da-updates
+        repository: NOAA-EMC/global-workflow
+        ref: develop
         path: global-workflow
 
     - name: Install workflow utils
