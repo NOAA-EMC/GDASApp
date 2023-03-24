@@ -33,19 +33,33 @@ def gdas_fix(input_fix_dir, working_dir, config):
     # create output directories
     ufsda.disk_utils.mkdir(config['fv3jedi_fieldmetadata_dir'])
     ufsda.disk_utils.mkdir(config['fv3jedi_fix_dir'])
-    # figure out analysis resolution
-    if config['DOHYBVAR']:
-        case_anl = config['CASE_ENKF']
-    else:
-        case_anl = config['CASE_ANL']
+
+    # error checking
+    dohybvar = config['DOHYBVAR']
+    case = config['CASE']
+    case_enkf = config['CASE_ENKF']
+    case_anl = config['CASE_ANL']
+    if dohybvar and not case_enkf == case_anl:
+        raise ValueError(f"dohybvar is '{dohybvar}' but case_enkf= '{case_enkf}' does not equal case_anl= '{case_anl}'")
+
+    # set layers
     layers = int(config['LEVS'])-1
 
     # figure out staticb source
     staticb_source = config.get('STATICB_TYPE', 'gsibec')
 
-    # link staticb
-    if staticb_source in ['bump', 'gsibec']:
+    # link bump staticb
+    if staticb_source in ['bump']:
         ufsda.disk_utils.symlink(os.path.join(input_fix_dir, staticb_source, case_anl),
+                                 config['fv3jedi_staticb_dir'])
+
+    # link gsibec staticb
+    if staticb_source in ['gsibec']:
+        if dohybvar:
+            case_gsibec = case_anl
+        else:
+            case_gsibec = case
+        ufsda.disk_utils.symlink(os.path.join(input_fix_dir, staticb_source, case_gsibec),
                                  config['fv3jedi_staticb_dir'])
 
     # link akbk file
@@ -303,6 +317,30 @@ def gdas_single_cycle(config):
             target_file = target_file.replace('nc4', 'txt')
             r2d2_config['target_file_fmt'] = target_file
             ufsda.r2d2.fetch(r2d2_config)
+    # if hybvar, link ensemble members to DATA
+    if config['DOHYBVAR']:
+        for imem in range(1, config['NMEM_ENKF']+1):
+            memchar = f"mem{imem:03d}"
+            print(f"background_ens:  stage {memchar}")
+            rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART')
+            ges_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART_GES')
+            jedi_bkg_mem = os.path.join(config['DATA'], 'ens')
+            jedi_bkg_dir = os.path.join(config['DATA'], 'ens', memchar)
+
+            mkdir(jedi_bkg_mem)
+
+            # copy RESTART to RESTART_GES
+            if not os.path.exists(ges_dir):
+                try:
+                    shutil.copytree(rst_dir, ges_dir)
+                except FileExistsError:
+                    shutil.rmtree(ges_dir)
+                    shutil.copytree(rst_dir, ges_dir)
+            try:
+                os.symlink(ges_dir, jedi_bkg_dir)
+            except FileExistsError:
+                os.remove(jedi_bkg_dir)
+                os.symlink(ges_dir, jedi_bkg_dir)
 
 
 def background(config):
@@ -424,8 +462,8 @@ def background_ens(config):
     for imem in range(1, config['NMEM_ENKF']+1):
         memchar = f"mem{imem:03d}"
         print(f"background_ens:  stage {memchar}")
-        rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'RESTART')
-        ges_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'RESTART_GES')
+        rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART')
+        ges_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART_GES')
         jedi_bkg_mem = os.path.join(config['DATA'], 'bkg', memchar)
         jedi_bkg_dir = os.path.join(config['DATA'], 'bkg', memchar, 'RESTART')
         jedi_anl_dir = os.path.join(config['DATA'], 'anl', memchar)
