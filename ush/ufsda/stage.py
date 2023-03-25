@@ -55,11 +55,7 @@ def gdas_fix(input_fix_dir, working_dir, config):
 
     # link gsibec staticb
     if staticb_source in ['gsibec']:
-        if dohybvar:
-            case_gsibec = case_anl
-        else:
-            case_gsibec = case
-        ufsda.disk_utils.symlink(os.path.join(input_fix_dir, staticb_source, case_gsibec),
+        ufsda.disk_utils.symlink(os.path.join(input_fix_dir, staticb_source, case),
                                  config['fv3jedi_staticb_dir'])
 
     # link akbk file
@@ -321,7 +317,7 @@ def gdas_single_cycle(config):
     if config['DOHYBVAR']:
         for imem in range(1, config['NMEM_ENKF']+1):
             memchar = f"mem{imem:03d}"
-            print(f"background_ens:  stage {memchar}")
+            logging.info("Stage hybvar ens {memchar}")
             rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART')
             ges_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART_GES')
             jedi_bkg_mem = os.path.join(config['DATA'], 'ens')
@@ -461,7 +457,7 @@ def background_ens(config):
     """
     for imem in range(1, config['NMEM_ENKF']+1):
         memchar = f"mem{imem:03d}"
-        print(f"background_ens:  stage {memchar}")
+        logging.info("Stage background_ens {memchar}")
         rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART')
         ges_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART_GES')
         jedi_bkg_mem = os.path.join(config['DATA'], 'bkg', memchar)
