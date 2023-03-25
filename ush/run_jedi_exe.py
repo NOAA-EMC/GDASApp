@@ -8,8 +8,6 @@ import subprocess
 import sys
 import yaml
 
-from ufsda.genYAML import genYAML
-
 
 def export_envar(yamlfile, bashout):
 
@@ -59,6 +57,7 @@ def run_jedi_exe(yamlconfig):
     import ufsda
     from ufsda.misc_utils import calc_fcst_steps
     from ufsda.stage import gdas_single_cycle, gdas_fix, background_ens, atm_obs, bias_obs
+    from ufsda.genYAML import genYAML
 
     # compute config for YAML for executable
     executable_subconfig = all_config_dict['config']
