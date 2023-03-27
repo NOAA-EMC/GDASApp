@@ -1,24 +1,24 @@
-window begin: '{{AERO_WINDOW_BEGIN}}'
+window begin: '{{ AERO_WINDOW_BEGIN | to_isotime }}'
 window length: $(AERO_WINDOW_LENGTH)
 geometry:
   fms initialization:
-    namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-    field table filename: !ENV ${DATA}/fv3jedi/field_table
-  akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+    namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
+    field table filename: $(DATA)/fv3jedi/field_table
+  akbk: $(DATA)/fv3jedi/akbk.nc4
   layout:
-  - !ENV ${layout_x}
-  - !ENV ${layout_y}
+  - $(layout_x)
+  - $(layout_y)
   npx: $(npx_ges)
   npy: $(npy_ges)
   npz: $(npz_ges)
-  field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+  field metadata override: $(DATA)/fv3jedi/gfs-restart.yaml
 state:
-  datapath: !ENV ${DATA}/bkg
+  datapath: $(DATA)/bkg
   filetype: fms restart
-  datetime: '{{BKG_ISOTIME}}'
-  filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
-  filename_trcr: '{{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc'
-  filename_cplr: '{{BKG_YYYYmmddHHMMSS}}.coupler.res'
+  datetime: '{{ current_cycle | to_isotime }}'
+  filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
+  filename_trcr: '{{ current_cycle | to_fv3time }}.fv_tracer.res.nc'
+  filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
   state variables: [t,delp,sphum,sulf,bc1,bc2,oc1,oc2,
                       dust1,dust2,dust3,dust4,dust5,
                       seas1,seas2,seas3,seas4]
