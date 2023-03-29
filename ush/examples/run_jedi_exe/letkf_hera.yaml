@@ -19,10 +19,7 @@ config:
   valid_time: 2021-12-21T06:00:00Z
   dump: gdas
   case: C48
-  case_anl: C48
   case_enkf: C48
-  staticb_type: gsibec
-  dohybvar: no
   levs: 128
   nmem: 10
   comin_ges: /scratch1/NCEPDEV/da/Russ.Treadon/GDASApp/cases
