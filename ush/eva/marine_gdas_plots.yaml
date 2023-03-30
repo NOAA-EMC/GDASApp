@@ -77,5 +77,5 @@ diagnostics:
             colorbar: true
             # below may need to be edited/removed
             cmap: ${dynamic_cmap}
-            vmin: 0 #${dynamic_vmin}
+            vmin: ${dynamic_vmin}
             vmax: ${dynamic_vmax}
