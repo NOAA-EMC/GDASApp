@@ -13,6 +13,7 @@ vminmax = {'seaSurfaceTemperature': {'vmin': -2.0, 'vmax': 2.0},
            'seaIceFraction': {'vmin': -0.2, 'vmax': 0.2},
            'absoluteDynamicTopography': {'vmin': -0.2, 'vmax': 0.2}}
 
+
 def marine_eva_post(inputyaml, outputdir, diagdir):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     try:
@@ -36,7 +37,6 @@ def marine_eva_post(inputyaml, outputdir, diagdir):
                 for layer in plot['layers']:
                     layer['vmin'] = vminmax[variable]['vmin']
                     layer['vmax'] = vminmax[variable]['vmax']
-
 
     # first, let us prepend some comments that tell someone this output YAML was generated
     now = datetime.datetime.now()
