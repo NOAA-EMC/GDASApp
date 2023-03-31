@@ -29,10 +29,10 @@ diagnostics:
 
     # Generate omb that passed QC for JEDI
     - transform: accept where
-      new name: experiment::PassedQC::${variable}
+      new name: experiment::OmBQC::${variable}
       starting field: experiment::ombg::${variable}
       where:
-        - experiment::PreQC::${variable} == 0
+        - experiment::EffectiveQC0::${variable} == 0
       for:
         variable: *variables
 
@@ -40,7 +40,7 @@ diagnostics:
   graphics:
 
     # ---------- Map Plots ----------
-    # Map plot of ObsValue
+    # Map plot of OmBQC
     # --------
 
     - batch figure:
@@ -48,12 +48,12 @@ diagnostics:
         @CHANNELSKEY@
       dynamic options:
         - type: vminvmaxcmap
-          data variable: experiment::ObsValue::${variable}
+          data variable: experiment::OmBQC::${variable}
       figure:
         layout: [1,1]
         figure size: [11,5]
-        title: ' @NAME@ | ${variable_title}'
-        output name: map_plots/@NAME@/${variable}/@CHANNELVAR@/@NAME@_${variable}@CHANNELVAR@.png
+        title: 'OmB post QC | @NAME@ @CYCLE@ | ${variable_title}'
+        output name: map_plots/@NAME@/${variable}/@CHANNELVAR@/@NAME@_${variable}@CHANNELVAR@OmBQC.png
         tight_layout: true
       plots:
         - mapping:
@@ -70,7 +70,7 @@ diagnostics:
             latitude:
               variable: experiment::MetaData::latitude
             data:
-              variable: experiment::PassedQC::${variable}
+              variable: experiment::OmBQC::${variable}
               @CHANNELKEY@
             markersize: 2
             label: '$(variable)'
