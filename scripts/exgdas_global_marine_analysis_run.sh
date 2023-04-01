@@ -58,10 +58,10 @@ ${HOMEgfs}/sorc/gdas.cd/ush/socaincr2mom6.py --incr "${soca_incr}" \
 # insert seaice analysis in CICE6 restart
 # TODO: This should probably be in a separate j-job, that includes 
 #       the mom6 incr postprocessing from above. 
-launcher=$(echo $APRUN_OCNANAL | cut -d' ' -f1)
+launcher=$(echo $APRUN_OCNANAL | cut -d' ' -f1-3)
 ${launcher} -n 1 ${JEDI_BIN}/soca_convertstate.x soca_2cice_arctic.yaml
 ${launcher} -n 1 ${JEDI_BIN}/soca_convertstate.x soca_2cice_antarctic.yaml
-
+export err=$?; err_chk
 
 ################################################################################
 set +x
