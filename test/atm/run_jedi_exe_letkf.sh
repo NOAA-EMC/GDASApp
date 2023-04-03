@@ -23,11 +23,9 @@ module list
 
 # Set machine dependent variables
 if [ "$machine" = "hera" ] ; then
-    cominges="/scratch1/NCEPDEV/da/Russ.Treadon/GDASApp/cases"
     partition="hera"
     gdasfix="/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix"
 elif [ "$machine" = "orion" ]; then
-    cominges="/work2/noaa/da/rtreadon/GDASApp/cases"
     partition="debug"
     gdasfix="/work2/noaa/da/cmartin/GDASApp/fix"
 fi
@@ -64,7 +62,6 @@ config:
   dohybvar: no
   levs: 128
   nmem: 5
-  comin_ges: ${cominges}
   interp_method: barycentric
 job options:
   machine: ${machine}

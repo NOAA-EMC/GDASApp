@@ -75,8 +75,8 @@ def run_jedi_exe(yamlconfig):
     os.environ['assim_freq'] = str(assim_freq)
     oprefix = executable_subconfig['dump'] + ".t" + str(cyc) + "z."
     gprefix = executable_subconfig['dump'] + ".t" + str(gcyc) + "z."
-    comin = executable_subconfig.get('comin_ges', './')
-    comin_ges_ens = os.path.join(comin, 'enkfgdas.' + str(gPDY), str(gcyc))
+    comin = executable_subconfig.get('gdas_fix_root', './')
+    comin_ges_ens = os.path.join(comin, 'cases', 'enkfgdas.' + str(gPDY), str(gcyc))
 
     single_exec = True
     var_config = {

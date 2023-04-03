@@ -22,7 +22,6 @@ config:
   case_enkf: C48
   levs: 128
   nmem: 10
-  comin_ges: /scratch1/NCEPDEV/da/Russ.Treadon/GDASApp/cases
   interp_method: barycentric
 job options:
   machine: hera
