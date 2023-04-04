@@ -228,6 +228,30 @@ for data_file, dir_out in zip(data_files, dirs_out):
         plot_horizontal_slice(config)
 
 #######################################
+# Ocean surface
+data_files = [os.path.join(comout, 'gdas.t'+cyc+'z.ocnana.nc'),
+              os.path.join(comout, '..', '..', '..', gcdate.strftime('gdas.%Y%m%d/%H'), 'ocean', 'gdas.t'+gcyc+'z.ocnf006.nc')]
+dirs_out = ['ana', 'bkg']
+ocn_vars = ['ave_ssh', 'Temp', 'Salt']
+for data_file, dir_out in zip(data_files, dirs_out):
+    config = plot_config(grid_file=grid_file,
+                         data_file=data_file,
+                         colormap='jet',
+                         comout=os.path.join(comout, 'vrfy', dir_out))
+
+    # ssh
+    config.update({'variable': 'ave_ssh', 'bounds': [-1.8, 1.3], 'proj': proj, 'levels': [1]})
+    plot_horizontal_slice(config)
+
+    # sst
+    config.update({'variable': 'Temp', 'bounds': [-1.8, 34.0], 'proj': proj, 'levels': [1]})
+    plot_horizontal_slice(config)
+
+    # sss
+    config.update({'variable': 'Salt', 'bounds': [30, 38], 'proj': proj, 'levels': [1]})
+    plot_horizontal_slice(config)
+
+#######################################
 # Std Bkg. Error
 #######################################
 bmat_cmap = 'jet'

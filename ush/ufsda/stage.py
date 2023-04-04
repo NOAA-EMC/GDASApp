@@ -352,8 +352,9 @@ def obs(config):
             if step == 'P1D':
                 dates = date_sequence(window_begin.strftime('%Y%m%d'), window_end.strftime('%Y%m%d'), step)
             if step == "PT10M":
-                dates = date_sequence(window_begin.strftime('%Y%m%d%H'), window_end.strftime('%Y%m%d%H'), step)
-            for count, date in enumerate(dates):
+                dates = date_sequence(window_begin.strftime('%Y%m%d%H%M'), window_end.strftime('%Y%m%d%H%M'), step)
+            count = 0
+            for date in dates:
                 fetch(
                     type='ob',
                     provider=config['r2d2_obs_src'],
@@ -365,6 +366,7 @@ def obs(config):
                     ignore_missing=True,
                     database=config['r2d2_obs_db']
                 )
+                count += 1
             # Concatenate ioda files
             ufsda.soca_utils.concatenate_ioda(outfile)
 

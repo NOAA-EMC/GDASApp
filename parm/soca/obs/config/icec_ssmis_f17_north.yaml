@@ -24,8 +24,8 @@ obs filters:
 - filter: Bounds Check
   minvalue: 0.0
   maxvalue: 1.0
-- filter: Background Check
-  threshold: 5.0
+#- filter: Background Check
+#  threshold: 5.0
 - filter: Domain Check
   where:
   - variable: { name: GeoVaLs/sea_surface_temperature}
