@@ -47,16 +47,9 @@ def gdas_fix(input_fix_dir, working_dir, config):
 
     # figure out staticb source
     staticb_source = config.get('STATICB_TYPE', 'gsibec')
-
-    # link bump staticb
-    if staticb_source in ['bump']:
-        ufsda.disk_utils.symlink(os.path.join(input_fix_dir, staticb_source, case_anl),
-                                 config['fv3jedi_staticb_dir'])
-
-    # link gsibec staticb
-    if staticb_source in ['gsibec']:
-        ufsda.disk_utils.symlink(os.path.join(input_fix_dir, staticb_source, case),
-                                 config['fv3jedi_staticb_dir'])
+    case_berror = case if staticb_source in ['gsibec'] else case_anl
+    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, staticb_source, case_berror),
+                             config['fv3jedi_staticb_dir'])
 
     # link akbk file
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
