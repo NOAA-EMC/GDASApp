@@ -309,6 +309,7 @@ def gdas_single_cycle(config):
     if config['DOHYBVAR']:
         background_ens(config)
 
+
 def background(config):
     """
     Stage backgrounds and create links for analysis
@@ -318,16 +319,8 @@ def background(config):
     - mkdir analysis/anl
     """
     rst_dir = os.path.join(config['background_dir'], 'RESTART')
-##  ges_dir = os.path.join(config['background_dir'], 'RESTART_GES')
     jedi_bkg_dir = os.path.join(config['DATA'], 'bkg')
     jedi_anl_dir = os.path.join(config['DATA'], 'anl')
-
-    # copy RESTART to RESTART_GES
-##    try:
-##        shutil.copytree(rst_dir, ges_dir)
-##    except FileExistsError:
-##        shutil.rmtree(ges_dir)
-##        shutil.copytree(rst_dir, ges_dir)
     try:
         os.symlink(rst_dir, jedi_bkg_dir)
     except FileExistsError:
@@ -427,8 +420,9 @@ def background_ens(config):
     """
 
     dohybvar = config['DOHYBVAR']
-    bkgdir = 'ens' 
-    if not dohybvar: bkgdir = 'bkg'
+    bkgdir = 'ens'
+    if not dohybvar:
+        bkgdir = 'bkg'
 
     for imem in range(1, config['NMEM_ENKF']+1):
         memchar = f"mem{imem:03d}"
