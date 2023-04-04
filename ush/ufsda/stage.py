@@ -1,7 +1,6 @@
 from r2d2 import fetch
 from solo.basic_files import mkdir
 from solo.date import Hour, DateIncrement, date_sequence
-from solo.logger import Logger
 from solo.stage import Stage
 from solo.configuration import Configuration
 from solo.nice_dict import NiceDict
@@ -308,29 +307,7 @@ def gdas_single_cycle(config):
             ufsda.r2d2.fetch(r2d2_config)
     # if hybvar, link ensemble members to DATA
     if config['DOHYBVAR']:
-        for imem in range(1, config['NMEM_ENKF']+1):
-            memchar = f"mem{imem:03d}"
-            logging.info("Stage hybvar ens {memchar}")
-            rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART')
-            ges_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART_GES')
-            jedi_bkg_mem = os.path.join(config['DATA'], 'ens')
-            jedi_bkg_dir = os.path.join(config['DATA'], 'ens', memchar)
-
-            mkdir(jedi_bkg_mem)
-
-            # copy RESTART to RESTART_GES
-            if not os.path.exists(ges_dir):
-                try:
-                    shutil.copytree(rst_dir, ges_dir)
-                except FileExistsError:
-                    shutil.rmtree(ges_dir)
-                    shutil.copytree(rst_dir, ges_dir)
-            try:
-                os.symlink(ges_dir, jedi_bkg_dir)
-            except FileExistsError:
-                os.remove(jedi_bkg_dir)
-                os.symlink(ges_dir, jedi_bkg_dir)
-
+        background_ens(config)
 
 def background(config):
     """
@@ -341,21 +318,21 @@ def background(config):
     - mkdir analysis/anl
     """
     rst_dir = os.path.join(config['background_dir'], 'RESTART')
-    ges_dir = os.path.join(config['background_dir'], 'RESTART_GES')
+##  ges_dir = os.path.join(config['background_dir'], 'RESTART_GES')
     jedi_bkg_dir = os.path.join(config['DATA'], 'bkg')
     jedi_anl_dir = os.path.join(config['DATA'], 'anl')
 
     # copy RESTART to RESTART_GES
+##    try:
+##        shutil.copytree(rst_dir, ges_dir)
+##    except FileExistsError:
+##        shutil.rmtree(ges_dir)
+##        shutil.copytree(rst_dir, ges_dir)
     try:
-        shutil.copytree(rst_dir, ges_dir)
-    except FileExistsError:
-        shutil.rmtree(ges_dir)
-        shutil.copytree(rst_dir, ges_dir)
-    try:
-        os.symlink(ges_dir, jedi_bkg_dir)
+        os.symlink(rst_dir, jedi_bkg_dir)
     except FileExistsError:
         os.remove(jedi_bkg_dir)
-        os.symlink(ges_dir, jedi_bkg_dir)
+        os.symlink(rst_dir, jedi_bkg_dir)
     mkdir(jedi_anl_dir)
 
 
@@ -448,26 +425,25 @@ def background_ens(config):
     - ln RESTART_GES to analysis/bkg
     - mkdir analysis/anl
     """
+
+    dohybvar = config['DOHYBVAR']
+    bkgdir = 'ens' 
+    if not dohybvar: bkgdir = 'bkg'
+
     for imem in range(1, config['NMEM_ENKF']+1):
         memchar = f"mem{imem:03d}"
-        logging.info("Stage background_ens {memchar}")
+        logging.info(f'Stage background_ens {memchar}')
         rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART')
-        ges_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART_GES')
-        jedi_bkg_mem = os.path.join(config['DATA'], 'bkg', memchar)
-        jedi_bkg_dir = os.path.join(config['DATA'], 'bkg', memchar, 'RESTART')
+        jedi_bkg_dir = os.path.join(config['DATA'], bkgdir)
+        jedi_bkg_mem = os.path.join(config['DATA'], bkgdir, memchar)
         jedi_anl_dir = os.path.join(config['DATA'], 'anl', memchar)
-        mkdir(jedi_bkg_mem)
-
-        # copy RESTART to RESTART_GES
-        if not os.path.exists(ges_dir):
-            try:
-                shutil.copytree(rst_dir, ges_dir)
-            except FileExistsError:
-                shutil.rmtree(ges_dir)
-                shutil.copytree(rst_dir, ges_dir)
+        mkdir(jedi_bkg_dir)
         try:
-            os.symlink(ges_dir, jedi_bkg_dir)
+            os.symlink(rst_dir, jedi_bkg_mem)
         except FileExistsError:
-            os.remove(jedi_bkg_dir)
-            os.symlink(ges_dir, jedi_bkg_dir)
-        mkdir(jedi_anl_dir)
+            os.remove(jedi_bkg_mem)
+            os.symlink(rst_dir, jedi_bkg_mem)
+
+        # do not create member analysis directories for dohybvar
+        if not config['DOHYBVAR']:
+            mkdir(jedi_anl_dir)
