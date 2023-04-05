@@ -312,11 +312,10 @@ def gdas_single_cycle(config):
 
 def background(config):
     """
-    Stage backgrounds and create links for analysis
+    Stage backgrounds and create analysis directory
     This involves:
-    - cp RESTART to RESTART_GES
-    - ln RESTART_GES to analysis/bkg
-    - mkdir analysis/anl
+    - ln RESTART to bkg_dir
+    - mkdir anl
     """
     rst_dir = os.path.join(config['background_dir'], 'RESTART')
     jedi_bkg_dir = os.path.join(config['DATA'], 'bkg')
@@ -412,16 +411,15 @@ def berror(config):
 
 def background_ens(config):
     """
-    Stage backgrounds and create links for analysis
+    Stage backgrounds and optionally create analysis directories
     This involves:
-    - cp RESTART to RESTART_GES
-    - ln RESTART_GES to analysis/bkg
-    - mkdir analysis/anl
+    - ln member RESTART to bkg_mem
+    - optionally mkdir anl_mem
     """
 
-    dohybvar = config['DOHYBVAR']
+    # set background directory keyword based on dohybvar
     bkgdir = 'ens'
-    if not dohybvar:
+    if not config['DOHYBVAR']:
         bkgdir = 'bkg'
 
     for imem in range(1, config['NMEM_ENKF']+1):
@@ -430,7 +428,7 @@ def background_ens(config):
         rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART')
         jedi_bkg_dir = os.path.join(config['DATA'], bkgdir)
         jedi_bkg_mem = os.path.join(config['DATA'], bkgdir, memchar)
-        jedi_anl_dir = os.path.join(config['DATA'], 'anl', memchar)
+        jedi_anl_mem = os.path.join(config['DATA'], 'anl', memchar)
         mkdir(jedi_bkg_dir)
         try:
             os.symlink(rst_dir, jedi_bkg_mem)
@@ -440,4 +438,4 @@ def background_ens(config):
 
         # do not create member analysis directories for dohybvar
         if not config['DOHYBVAR']:
-            mkdir(jedi_anl_dir)
+            mkdir(jedi_anl_mem)
