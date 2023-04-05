@@ -19,6 +19,6 @@ config:
   valid_time: '2019-06-14T06:00:00Z'
   aero_window_length: PT6H
   CASE: 'C96'
-  CASE_ENKF: 'C48'
+  CASE_ANL: 'C48'
   LEVS: '128'
 EOF
