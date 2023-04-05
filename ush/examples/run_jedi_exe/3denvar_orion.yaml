@@ -1,16 +1,17 @@
-working directory: /work2/noaa/stmp/cmartin/gdas_single_test_letkf
+working directory: /work2/noaa/stmp/cmartin/gdas_single_test_3denvar
 GDASApp home: /work2/noaa/da/cmartin/GDASApp/work/GDASApp
-GDASApp mode: letkf
-template: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/lgetkf/lgetkf.yaml
+GDASApp mode: variational
+template: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/variational/3dvar_dripcg.yaml
 config:
+  berror_yaml: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/berror/hybvar_gsibec.yaml
   obs_dir: obs
   diag_dir: diags
   crtm_coeff_dir: crtm
   bias_in_dir: obs
   bias_out_dir: bc
   obs_yaml_dir: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/config
-  executable: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/build/bin/fv3jedi_letkf.x
-  obs_list: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/lists/lgetkf_prototype.yaml
+  executable: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/build/bin/fv3jedi_var.x
+  obs_list: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/parm/atm/obs/lists/gdas_prototype_3d.yaml
   gdas_fix_root: /work2/noaa/da/cmartin/GDASApp/fix
   atm: true
   layout_x: 1
@@ -18,8 +19,11 @@ config:
   atm_window_length: PT6H
   valid_time: 2021-12-21T06:00:00Z
   dump: gdas
-  case: C48
+  case: C96
+  case_anl: C48
   case_enkf: C48
+  staticb_type: gsibec
+  dohybvar: true
   levs: 128
   nmem: 10
   interp_method: barycentric

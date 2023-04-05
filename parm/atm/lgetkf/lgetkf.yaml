@@ -22,7 +22,7 @@ background:
        state variables: [ua,va,t,DZ,delp,ps,sphum,ice_wat,liq_wat,o3mr,phis,
                         slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                         u_srf,v_srf,f10m]
-       datapath: bkg/mem%mem%/RESTART
+       datapath: bkg/mem%mem%
        filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
        filename_trcr: '{{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc'
        filename_sfcd: '{{BKG_YYYYmmddHHMMSS}}.sfc_data.nc'
