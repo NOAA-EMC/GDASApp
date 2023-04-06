@@ -207,7 +207,7 @@ varyaml = os.path.join(comout, 'yaml', 'var.yaml')
 
 # it would be better to refrence the dirs explicitly with the comout path
 # but eva doesn't allow for specifying output directories
-os.chdir(comout)
+os.chdir(os.path.join(comout, 'vrfy'))
 if not os.path.exists('preevayamls'):
     os.makedirs('preevayamls')
 if not os.path.exists('evayamls'):

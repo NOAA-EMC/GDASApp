@@ -35,8 +35,9 @@ def marine_eva_post(inputyaml, outputdir, diagdir):
             variable = graphic['batch figure']['variables'][0]
             for plot in graphic['plots']:
                 for layer in plot['layers']:
-                    layer['vmin'] = vminmax[variable]['vmin']
-                    layer['vmax'] = vminmax[variable]['vmax']
+                    if layer['type'] == 'MapScatter':
+                       layer['vmin'] = vminmax[variable]['vmin']
+                       layer['vmax'] = vminmax[variable]['vmax']
 
     # first, let us prepend some comments that tell someone this output YAML was generated
     now = datetime.datetime.now()
