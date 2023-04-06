@@ -121,7 +121,7 @@ export cyc=${CDATE:8:2}
 export gPDY=${GDATE:0:8}
 export gcyc=${GDATE:8:2}
 export CASE="C768"
-export CASE_ENKF="C384"
+export CASE_ANL="C384"
 export LEVS="128"
 
 # Load Modules for GDASApp
