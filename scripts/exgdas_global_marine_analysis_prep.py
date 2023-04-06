@@ -174,7 +174,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
         bkg_date = bkg_date + timedelta(hours=dt_pseudo)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
     f = open(yaml_name, 'w')
-    yaml.dump(bkg_list, f, sort_keys=False, default_flow_style=False)
+    yaml.dump(bkg_list[1:], f, sort_keys=False, default_flow_style=False)
 
 
 def find_bkgerr(input_date, domain):
