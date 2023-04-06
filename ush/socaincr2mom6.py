@@ -46,6 +46,7 @@ def socaincr2mom6(incr, bkg, grid, incr_out):
     ds_incr.to_netcdf(incr_out, mode='a')
     return
 
+
 if __name__ == "__main__":
     epilog = ["Usage examples:",
               "   ./socaincr2mom6.py --bkg bkg.nc --incr incr.nc --grid grid.nc --out incrout.nc"]
