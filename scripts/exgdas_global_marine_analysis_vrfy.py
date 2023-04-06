@@ -30,7 +30,8 @@ from datetime import datetime, timedelta
 
 projs = {'North': ccrs.NorthPolarStereo(),
          'South': ccrs.SouthPolarStereo(),
-         'Global': ccrs.Mollweide(central_longitude=-150) }
+         'Global': ccrs.Mollweide(central_longitude=-150)}
+
 
 def plot_config(grid_file=[], data_file=[],
                 variable=[], levels=[], bounds=[], colormap=[], comout=[], lats=[]):
@@ -84,9 +85,9 @@ def plot_horizontal_slice(config):
     plt.colorbar(label=label_colorbar, shrink=0.5, orientation='horizontal')
     ax.coastlines()  # TODO: make this work on hpc
     ax.gridlines(draw_labels=True)
-    if config['proj']=='South':
+    if config['proj'] == 'South':
         ax.set_extent([-180, 180, -90, -50], ccrs.PlateCarree())
-    if config['proj']=='North':
+    if config['proj'] == 'North':
         ax.set_extent([-180, 180, 50, 90], ccrs.PlateCarree())
     # ax.add_feature(cartopy.feature.LAND)  # TODO: make this work on hpc
     plt.savefig(figname, bbox_inches='tight', dpi=600)
@@ -302,7 +303,7 @@ varyaml = os.path.join(comout, 'yaml', 'var.yaml')
 
 # it would be better to refrence the dirs explicitly with the comout path
 # but eva doesn't allow for specifying output directories
-os.chdir(comout)
+os.chdir(os.path.join(comout, 'vrfy'))
 if not os.path.exists('preevayamls'):
     os.makedirs('preevayamls')
 if not os.path.exists('evayamls'):
