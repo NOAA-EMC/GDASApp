@@ -108,7 +108,7 @@ def get_cycle_vars():
 def get_exp_vars():
     # variables computed from shell variables but not time dependent
     exp_dict = {}
-    npx_anl = str(int(os.getenv('CASE_ENKF', os.environ['CASE'])[1:]) + 1)
+    npx_anl = str(int(os.getenv('CASE_ANL', os.environ['CASE'])[1:]) + 1)
     npx = str(int(os.environ['CASE'][1:]) + 1)
     exp_dict['npx_anl'] = npx_anl
     exp_dict['npy_anl'] = npx_anl

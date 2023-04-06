@@ -26,7 +26,7 @@ obs operator:
      - name: specificHumidity
    - name: SfcPCorrected
      da_psfc_scheme: GSI
-     geovar_sfc_geomz: surface_geometric_height
+     geovar_sfc_geomz: surface_geopotential_height
      geovar_geomz: geopotential_height
      variables: 
      - name: stationPressure
@@ -92,7 +92,7 @@ obs filters:
           error_min: 100.0         # 1 mb
           error_max: 300.0         # 3 mb
           geovar_geomz: geopotential_height
-          geovar_sfc_geomz: surface_geometric_height 
+          geovar_sfc_geomz: surface_geopotential_height 
   #
   # Gross error check with (O - B) / ObsError greater than threshold
   - filter: Background Check

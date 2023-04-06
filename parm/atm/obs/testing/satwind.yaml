@@ -478,15 +478,17 @@ obs prior filters:
       name: reject
   # Reject obs with qualityInformationWithoutForecast < 85
   # CLEARED
-  - filter: Perform Action
+  - filter: Bounds Check
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       is_in: 50-79
-    - variable: MetaData/qualityInformationWithoutForecast 
-      is_not_in: 85-100
+    test variables:
+    - name: MetaData/qualityInformationWithoutForecast 
+    minvalue: 85.
+    maxvalue: 100.
     action:
       name: reject
 # JMA: satelliteIdentifier [100–199] (>99, <200)
@@ -519,15 +521,17 @@ obs prior filters:
       name: reject
   # Reject obs with qualityInformationWithoutForecast < 85.
   # CLEARED
-  - filter: Perform Action
+  - filter: Bounds Check
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       is_in: 100-199
-    - variable: MetaData/qualityInformationWithoutForecast
-      is_not_in: 85-100
+    test variables:
+    - name: MetaData/qualityInformationWithoutForecast
+    minvalue: 85.
+    maxvalue: 100.
     action:
       name: reject
 # NESDIS: satelliteIdentifier [250–299] (>249, <300)
@@ -547,15 +551,17 @@ obs prior filters:
       name: reject
   # Reject obs with qualityInformationWithoutForecast < 90. OR > 100.
   # CLEARED
-  - filter: Perform Action
+  - filter: Bounds Check
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: MetaData/satelliteIdentifier
       is_in: 250-299
-    - variable: MetaData/qualityInformationWithoutForecast
-      is_not_in: 90-100
+    test variables:
+    - name: MetaData/qualityInformationWithoutForecast
+    minvalue: 90.
+    maxvalue: 100.
     action:
       name: reject
   # Reject obs with pressure < 15000.
