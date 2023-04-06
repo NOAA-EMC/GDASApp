@@ -115,8 +115,8 @@ def get_runtime_config(config_dict):
         npx_ges_var: f"{int(os.environ['CASE'][1:]) + 1}",
         npy_ges_var: f"{int(os.environ['CASE'][1:]) + 1}",
         npz_ges_var: f"{int(os.environ['LEVS']) - 1}",
-        npx_anl_var: f"{int(os.environ['CASE_ENKF'][1:]) + 1}",
-        npy_anl_var: f"{int(os.environ['CASE_ENKF'][1:]) + 1}",
+        npx_anl_var: f"{int(os.environ['CASE_ANL'][1:]) + 1}",
+        npy_anl_var: f"{int(os.environ['CASE_ANL'][1:]) + 1}",
         npz_anl_var: f"{int(os.environ['LEVS']) - 1}",
     }
 

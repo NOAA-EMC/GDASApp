@@ -67,7 +67,7 @@ if(BUILD_GDASBUNDLE)
 # Build GSI-B
   option(BUILD_GSIBEC "Build GSI-B" OFF)
   if(BUILD_GSIBEC)
-    ecbuild_bundle( PROJECT gsibec GIT "https://github.com/GEOS-ESM/GSIbec.git" BRANCH develop )
+    ecbuild_bundle( PROJECT gsibec GIT "https://github.com/GEOS-ESM/GSIbec.git" TAG 1.0.7 )
   endif()
 
 # Core JEDI repositories
@@ -104,7 +104,7 @@ if(BUILD_GDASBUNDLE)
 
 # Land associated repositories
   ecbuild_bundle( PROJECT land-imsproc  GIT "https://github.com/NOAA-PSL/land-IMS_proc.git"  TAG 6373819 )
-  ecbuild_bundle( PROJECT land-jediincr GIT "https://github.com/NOAA-PSL/land-apply_jedi_incr.git"  TAG 80b19b8 )
+  ecbuild_bundle( PROJECT land-jediincr GIT "https://github.com/NOAA-PSL/land-apply_jedi_incr.git"  TAG ced6576 )
 
 # ioda, ufo, fv3-jedi, and saber test data
 #---------------------------------

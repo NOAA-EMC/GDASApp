@@ -1,7 +1,6 @@
 from r2d2 import fetch
 from solo.basic_files import mkdir
 from solo.date import Hour, DateIncrement, date_sequence
-from solo.logger import Logger
 from solo.stage import Stage
 from solo.configuration import Configuration
 from solo.nice_dict import NiceDict
@@ -33,20 +32,23 @@ def gdas_fix(input_fix_dir, working_dir, config):
     # create output directories
     ufsda.disk_utils.mkdir(config['fv3jedi_fieldmetadata_dir'])
     ufsda.disk_utils.mkdir(config['fv3jedi_fix_dir'])
-    # figure out analysis resolution
-    if config['DOHYBVAR']:
-        case_anl = config['CASE_ENKF']
-    else:
-        case_anl = config['CASE_ANL']
+
+    # error checking
+    dohybvar = config['DOHYBVAR']
+    case = config['CASE']
+    case_enkf = config['CASE_ENKF']
+    case_anl = config['CASE_ANL']
+    if dohybvar and not case_enkf == case_anl:
+        raise ValueError(f"dohybvar is '{dohybvar}' but case_enkf= '{case_enkf}' does not equal case_anl= '{case_anl}'")
+
+    # set layers
     layers = int(config['LEVS'])-1
 
     # figure out staticb source
     staticb_source = config.get('STATICB_TYPE', 'gsibec')
-
-    # link staticb
-    if staticb_source in ['bump', 'gsibec']:
-        ufsda.disk_utils.symlink(os.path.join(input_fix_dir, staticb_source, case_anl),
-                                 config['fv3jedi_staticb_dir'])
+    case_berror = case if staticb_source in ['gsibec'] else case_anl
+    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, staticb_source, case_berror),
+                             config['fv3jedi_staticb_dir'])
 
     # link akbk file
     ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
@@ -303,32 +305,26 @@ def gdas_single_cycle(config):
             target_file = target_file.replace('nc4', 'txt')
             r2d2_config['target_file_fmt'] = target_file
             ufsda.r2d2.fetch(r2d2_config)
+    # if hybvar, link ensemble members to DATA
+    if config['DOHYBVAR']:
+        background_ens(config)
 
 
 def background(config):
     """
-    Stage backgrounds and create links for analysis
+    Stage backgrounds and create analysis directory
     This involves:
-    - cp RESTART to RESTART_GES
-    - ln RESTART_GES to analysis/bkg
-    - mkdir analysis/anl
+    - ln RESTART to bkg_dir
+    - mkdir anl
     """
     rst_dir = os.path.join(config['background_dir'], 'RESTART')
-    ges_dir = os.path.join(config['background_dir'], 'RESTART_GES')
     jedi_bkg_dir = os.path.join(config['DATA'], 'bkg')
     jedi_anl_dir = os.path.join(config['DATA'], 'anl')
-
-    # copy RESTART to RESTART_GES
     try:
-        shutil.copytree(rst_dir, ges_dir)
-    except FileExistsError:
-        shutil.rmtree(ges_dir)
-        shutil.copytree(rst_dir, ges_dir)
-    try:
-        os.symlink(ges_dir, jedi_bkg_dir)
+        os.symlink(rst_dir, jedi_bkg_dir)
     except FileExistsError:
         os.remove(jedi_bkg_dir)
-        os.symlink(ges_dir, jedi_bkg_dir)
+        os.symlink(rst_dir, jedi_bkg_dir)
     mkdir(jedi_anl_dir)
 
 
@@ -417,32 +413,31 @@ def berror(config):
 
 def background_ens(config):
     """
-    Stage backgrounds and create links for analysis
+    Stage backgrounds and optionally create analysis directories
     This involves:
-    - cp RESTART to RESTART_GES
-    - ln RESTART_GES to analysis/bkg
-    - mkdir analysis/anl
+    - ln member RESTART to bkg_mem
+    - optionally mkdir anl_mem
     """
+
+    # set background directory keyword based on dohybvar
+    bkgdir = 'ens'
+    if not config['DOHYBVAR']:
+        bkgdir = 'bkg'
+
     for imem in range(1, config['NMEM_ENKF']+1):
         memchar = f"mem{imem:03d}"
-        print(f"background_ens:  stage {memchar}")
-        rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'RESTART')
-        ges_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'RESTART_GES')
-        jedi_bkg_mem = os.path.join(config['DATA'], 'bkg', memchar)
-        jedi_bkg_dir = os.path.join(config['DATA'], 'bkg', memchar, 'RESTART')
-        jedi_anl_dir = os.path.join(config['DATA'], 'anl', memchar)
-        mkdir(jedi_bkg_mem)
-
-        # copy RESTART to RESTART_GES
-        if not os.path.exists(ges_dir):
-            try:
-                shutil.copytree(rst_dir, ges_dir)
-            except FileExistsError:
-                shutil.rmtree(ges_dir)
-                shutil.copytree(rst_dir, ges_dir)
+        logging.info(f'Stage background_ens {memchar}')
+        rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART')
+        jedi_bkg_dir = os.path.join(config['DATA'], bkgdir)
+        jedi_bkg_mem = os.path.join(config['DATA'], bkgdir, memchar)
+        jedi_anl_mem = os.path.join(config['DATA'], 'anl', memchar)
+        mkdir(jedi_bkg_dir)
         try:
-            os.symlink(ges_dir, jedi_bkg_dir)
+            os.symlink(rst_dir, jedi_bkg_mem)
         except FileExistsError:
-            os.remove(jedi_bkg_dir)
-            os.symlink(ges_dir, jedi_bkg_dir)
-        mkdir(jedi_anl_dir)
+            os.remove(jedi_bkg_mem)
+            os.symlink(rst_dir, jedi_bkg_mem)
+
+        # do not create member analysis directories for dohybvar
+        if not config['DOHYBVAR']:
+            mkdir(jedi_anl_mem)

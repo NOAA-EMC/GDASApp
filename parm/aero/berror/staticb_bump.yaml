@@ -3,7 +3,7 @@ saber central block:
   saber block name: BUMP_NICAS
   bump:
     io:
-      data directory: &staticb_aero_dir !ENV ${DATA}/berror
+      data directory: &staticb_aero_dir $(DATA)/berror
       files prefix: 'nicas_aero'
       alias:
       - in code: mass_fraction_of_sulfate_in_air

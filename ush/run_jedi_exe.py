@@ -8,8 +8,6 @@ import subprocess
 import sys
 import yaml
 
-from ufsda.genYAML import genYAML
-
 
 def export_envar(yamlfile, bashout):
 
@@ -59,6 +57,7 @@ def run_jedi_exe(yamlconfig):
     import ufsda
     from ufsda.misc_utils import calc_fcst_steps
     from ufsda.stage import gdas_single_cycle, gdas_fix, background_ens, atm_obs, bias_obs
+    from ufsda.genYAML import genYAML
 
     # compute config for YAML for executable
     executable_subconfig = all_config_dict['config']
@@ -76,8 +75,8 @@ def run_jedi_exe(yamlconfig):
     os.environ['assim_freq'] = str(assim_freq)
     oprefix = executable_subconfig['dump'] + ".t" + str(cyc) + "z."
     gprefix = executable_subconfig['dump'] + ".t" + str(gcyc) + "z."
-    comin = executable_subconfig.get('comin_ges', './')
-    comin_ges_ens = os.path.join(comin, 'enkfgdas.' + str(gPDY), str(gcyc), 'atmos')
+    comin = executable_subconfig.get('gdas_fix_root', './')
+    comin_ges_ens = os.path.join(comin, 'cases', 'enkfgdas.' + str(gPDY), str(gcyc))
 
     single_exec = True
     var_config = {
