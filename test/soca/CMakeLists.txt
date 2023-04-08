@@ -87,7 +87,7 @@ add_test(NAME test_gdasapp_soca_ana_prep
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar)
        set_tests_properties(test_gdasapp_soca_ana_prep
       PROPERTIES
-      ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
+      ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/pygw/src:$ENV{PYTHONPATH}")
 
 # Test exgdas scripts from the global-worflow
 if (WORKFLOW_TESTS)

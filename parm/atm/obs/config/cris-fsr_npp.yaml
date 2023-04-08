@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}cris-fsr_npp.${CDATE}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)cris-fsr_npp.${{ current_cycle | to_YMDH }}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/diag_cris-fsr_npp_${CDATE}.nc4
+      obsfile: $(DATA)/diags/diag_cris-fsr_npp_${{ current_cycle | to_YMDH }}.nc4
   io pool:
     max pool size: 1
   simulated variables: [brightness_temperature]
@@ -51,16 +51,16 @@ obs operator:
   obs options:
     Sensor_ID: cris-fsr_npp
     EndianType: little_endian
-    CoefficientPath: !ENV ${DATA}/crtm/
+    CoefficientPath: $(DATA)/crtm/
 obs bias:
-  input file: !ENV ${DATA}/obs/${GPREFIX}cris-fsr_npp.satbias.${GDATE}.nc4
-  output file: !ENV ${DATA}/bc/${APREFIX}cris-fsr_npp.satbias.${CDATE}.nc4
+  input file: $(DATA)/obs/$(GPREFIX)cris-fsr_npp.satbias.${{ previous_cycle | to_YMDH }}.nc4
+  output file: $(DATA)/bc/$(APREFIX)cris-fsr_npp.satbias.${{ current_cycle | to_YMDH }}.nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &cris-fsr_npp_tlapse !ENV ${DATA}/obs/${GPREFIX}cris-fsr_npp.tlapse.${GDATE}.txt
+      tlapse: &cris-fsr_npp_tlapse $(DATA)/obs/$(GPREFIX)cris-fsr_npp.tlapse.${{ previous_cycle | to_YMDH }}.txt
     - name: lapse_rate
       tlapse: *cris-fsr_npp_tlapse
     - name: emissivity
@@ -77,11 +77,11 @@ obs bias:
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: !ENV ${DATA}/obs/${GPREFIX}cris-fsr_npp.satbias_cov.${GDATE}.nc4
+      input file: $(DATA)/obs/$(GPREFIX)cris-fsr_npp.satbias_cov.${{ previous_cycle | to_YMDH }}.nc4
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0
-    output file: !ENV ${DATA}/bc/${APREFIX}cris-fsr_npp.satbias_cov.${CDATE}.nc4
+    output file: $(DATA)/bc/$(APREFIX)cris-fsr_npp.satbias_cov.${{ current_cycle | to_YMDH }}.nc4
 #obs filters:
 ##  Wavenumber Check
 #- filter: BlackList

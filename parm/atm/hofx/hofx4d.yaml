@@ -1,35 +1,35 @@
-window begin: '{{ATM_WINDOW_BEGIN}}'
+window begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
 window length: $(ATM_WINDOW_LENGTH)
 forecast length: $(ATM_WINDOW_LENGTH)
 geometry:
   fms initialization:
-    namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-    field table filename: !ENV ${DATA}/fv3jedi/field_table
-  akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+    namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
+    field table filename: $(DATA)/fv3jedi/field_table
+  akbk: $(DATA)/fv3jedi/akbk.nc4
   layout:
-  - !ENV ${layout_x}
-  - !ENV ${layout_y}
+  - $(layout_x)
+  - $(layout_y)
   npx: $(npx_ges)
   npy: $(npy_ges)
   npz: $(npz_ges)
-  field metadata override: !ENV ${DATA}/fv3jedi/gfs-restart.yaml
+  field metadata override: $(DATA)/fv3jedi/gfs-restart.yaml
 initial condition:
-  datapath: !ENV ${DATA}/bkg
+  datapath: $(DATA)/bkg
   filetype: fms restart
-  datetime: '{{ATM_WINDOW_BEGIN}}'
-  filename_core: '{{ATM_BEGIN_YYYYmmddHHMMSS}}.fv_core.res.nc'
-  filename_trcr: '{{ATM_BEGIN_YYYYmmddHHMMSS}}.fv_tracer.res.nc'
-  filename_sfcd: '{{ATM_BEGIN_YYYYmmddHHMMSS}}.sfc_data.nc'
-  filename_sfcw: '{{ATM_BEGIN_YYYYmmddHHMMSS}}.fv_srf_wnd.res.nc'
-  filename_cplr: '{{ATM_BEGIN_YYYYmmddHHMMSS}}.coupler.res'
+  datetime: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
+  filename_core: '{{ ATM_WINDOW_BEGIN | to_fv3time }}.fv_core.res.nc'
+  filename_trcr: '{{ ATM_WINDOW_BEGIN | to_fv3time }}.fv_tracer.res.nc'
+  filename_sfcd: '{{ ATM_WINDOW_BEGIN | to_fv3time }}.sfc_data.nc'
+  filename_sfcw: '{{ ATM_WINDOW_BEGIN | to_fv3time }}.fv_srf_wnd.res.nc'
+  filename_cplr: '{{ ATM_WINDOW_BEGIN | to_fv3time }}.coupler.res'
   state variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
                     slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                     u_srf,v_srf,f10m]
 model:
   name: PSEUDO
-  datapath: !ENV ${DATA}/bkg
+  datapath: $(DATA)/bkg
   filetype: fms restart
-  datetime: '{{ATM_WINDOW_BEGIN}}'
+  datetime: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
   filename is datetime templated: true
   filename_core: '%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc'
   filename_trcr: '%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc'
