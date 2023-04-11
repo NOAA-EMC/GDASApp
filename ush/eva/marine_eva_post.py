@@ -7,6 +7,13 @@ import socket
 import yaml
 import glob
 
+# sets the cmap vmin/vmax for each variable
+# TODO: this should probably be in a yaml or something
+vminmax = {'seaSurfaceTemperature': {'vmin': -2.0, 'vmax': 2.0},
+           'seaIceFraction': {'vmin': -0.2, 'vmax': 0.2},
+           'seaSurfaceSalinity': {'vmin': -0.2, 'vmax': 0.2}, # TODO: this should be changed
+           'absoluteDynamicTopography': {'vmin': -0.2, 'vmax': 0.2}}
+
 
 def marine_eva_post(inputyaml, outputdir, diagdir):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -23,6 +30,15 @@ def marine_eva_post(inputyaml, outputdir, diagdir):
                 newfilename = os.path.join(diagdir, os.path.basename(filename))
                 newfilenames.append(newfilename)
             dataset['filenames'] = newfilenames
+        for graphic in diagnostic['graphics']:
+            # this assumes that there is only one variable, or that the
+            # variables are all the same
+            variable = graphic['batch figure']['variables'][0]
+            for plot in graphic['plots']:
+                for layer in plot['layers']:
+                    if layer['type'] == 'MapScatter':
+                        layer['vmin'] = vminmax[variable]['vmin']
+                        layer['vmax'] = vminmax[variable]['vmax']
 
     # first, let us prepend some comments that tell someone this output YAML was generated
     now = datetime.datetime.now()
