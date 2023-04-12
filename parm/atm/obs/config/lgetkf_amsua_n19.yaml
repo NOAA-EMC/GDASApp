@@ -27,14 +27,14 @@ obs operator:
 obs error:
   covariance model: diagonal
 obs bias:
-  input file: $(DATA)/obs/$(GPREFIX)amsua_n19.satbias.{{ previous_cycle | to_YMDH }}.nc4
-  output file: $(DATA)/bc/$(APREFIX)amsua_n19.satbias.{{ current_cycle | to_YMDH }}.nc4
+  input file: $(DATA)/obs/$(GPREFIX)amsua_n19.satbias.nc4
+  output file: $(DATA)/bc/$(APREFIX)amsua_n19.satbias.nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &amsua_n19_tlapse $(DATA)/obs/$(GPREFIX)amsua_n19.tlapse.{{ previous_cycle | to_YMDH }}.txt
+      tlapse: &amsua_n19_tlapse $(DATA)/obs/$(GPREFIX)amsua_n19.tlapse.txt
     - name: lapse_rate
       tlapse: *amsua_n19_tlapse
     - name: emissivity
@@ -51,11 +51,11 @@ obs bias:
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: $(DATA)/obs/$(GPREFIX)amsua_n19.satbias_cov.{{ previous_cycle | to_YMDH }}.nc4
+      input file: $(DATA)/obs/$(GPREFIX)amsua_n19.satbias_cov.nc4
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0
-    output file: $(DATA)/bc/$(APREFIX)amsua_n19.satbias_cov.{{ current_cycle | to_YMDH }}.nc4
+    output file: $(DATA)/bc/$(APREFIX)amsua_n19.satbias_cov.nc4
 obs filters:
 - filter: Bounds Check
   filter variables:

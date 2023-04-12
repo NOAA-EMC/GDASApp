@@ -53,14 +53,14 @@ obs operator:
     EndianType: little_endian
     CoefficientPath: $(DATA)/crtm/
 obs bias:
-  input file: $(DATA)/obs/$(GPREFIX)cris-fsr_npp.satbias.${{ previous_cycle | to_YMDH }}.nc4
-  output file: $(DATA)/bc/$(APREFIX)cris-fsr_npp.satbias.${{ current_cycle | to_YMDH }}.nc4
+  input file: $(DATA)/obs/$(GPREFIX)cris-fsr_npp.satbias.nc4
+  output file: $(DATA)/bc/$(APREFIX)cris-fsr_npp.satbias.nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &cris-fsr_npp_tlapse $(DATA)/obs/$(GPREFIX)cris-fsr_npp.tlapse.${{ previous_cycle | to_YMDH }}.txt
+      tlapse: &cris-fsr_npp_tlapse $(DATA)/obs/$(GPREFIX)cris-fsr_npp.tlapse.txt
     - name: lapse_rate
       tlapse: *cris-fsr_npp_tlapse
     - name: emissivity
@@ -77,11 +77,11 @@ obs bias:
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: $(DATA)/obs/$(GPREFIX)cris-fsr_npp.satbias_cov.${{ previous_cycle | to_YMDH }}.nc4
+      input file: $(DATA)/obs/$(GPREFIX)cris-fsr_npp.satbias_cov.nc4
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0
-    output file: $(DATA)/bc/$(APREFIX)cris-fsr_npp.satbias_cov.${{ current_cycle | to_YMDH }}.nc4
+    output file: $(DATA)/bc/$(APREFIX)cris-fsr_npp.satbias_cov.nc4
 #obs filters:
 ##  Wavenumber Check
 #- filter: BlackList
