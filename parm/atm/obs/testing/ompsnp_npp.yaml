@@ -14,7 +14,7 @@ obs space:
       obsfile: !ENV ompsnp_npp_diag_${CDATE}.nc4
   io pool:
     max pool size: 1
-  simulated variables: [ozoneTotal]
+  simulated variables: [ozoneLayer]
 geovals:
   filename: !ENV ompsnp_npp_geoval_${CDATE}.nc4
 obs operator:
@@ -27,7 +27,7 @@ obs filters:
 # range sanity check
 - filter: Bounds Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   minvalue: 0
   maxvalue: 1000
   action:
@@ -36,7 +36,7 @@ obs filters:
 # Accept total_ozone_error_flag values of 0 and 2, but not any others.
 - filter: RejectList
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   where:
   - variable:
       name: MetaData/total_ozone_error_flag
@@ -46,7 +46,7 @@ obs filters:
 #
 - filter: AcceptList
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   where:
   - variable:
       name: MetaData/total_ozone_error_flag
@@ -59,7 +59,7 @@ obs filters:
 # Accept profile_ozone_error_flag values of 0, 1, and 7, but not any others.
 - filter: RejectList
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   where:
   - variable:
       name: MetaData/profile_ozone_error_flag
@@ -69,7 +69,7 @@ obs filters:
 #
 - filter: AcceptList
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   where:
   - variable:
       name: MetaData/profile_ozone_error_flag
@@ -81,7 +81,7 @@ obs filters:
 # Reject all the pressure levels higher in height than pressure of 0.64hPa
 - filter: RejectList
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   where:
   - variable:
       name: MetaData/pressure
@@ -92,7 +92,7 @@ obs filters:
 # Assign initial error value based on pressure
 - filter: Perform Action
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   action:
     name: assign error
     error function:
@@ -106,7 +106,7 @@ obs filters:
 # Gross error check with (O - B) / ObsError greater than threshold.
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 100
   action:
     name: reject
@@ -117,7 +117,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 30
   action:
     name: reject
@@ -129,7 +129,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 40
   action:
     name: reject
@@ -141,7 +141,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 44.42
   action:
     name: reject
@@ -153,7 +153,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 57.52
   action:
     name: reject
@@ -166,7 +166,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 69.4
   action:
     name: reject
@@ -178,7 +178,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 70
   action:
     name: reject
@@ -190,7 +190,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 62.73
   action:
     name: reject
@@ -202,7 +202,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 50.52
   action:
     name: reject
@@ -214,7 +214,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 35.9
   action:
     name: reject
@@ -226,7 +226,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 26.41
   action:
     name: reject
@@ -238,7 +238,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 20.51
   action:
     name: reject
@@ -250,7 +250,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 12.82
   action:
     name: reject
@@ -262,7 +262,7 @@ obs filters:
 #
 - filter: Background Check
   filter variables:
-  - name: ozoneTotal
+  - name: ozoneLayer
   absolute threshold: 10
   action:
     name: reject
