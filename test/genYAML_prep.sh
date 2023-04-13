@@ -19,6 +19,6 @@ config:
   valid_time: '2022-03-30T00:00:00Z'
   atm_window_length: PT6H
   CASE: 'C48'
-  CASE_ENKF: 'C48'
+  CASE_ANL: 'C48'
   LEVS: '128'
 EOF

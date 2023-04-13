@@ -9,6 +9,8 @@ set -eu
 
 dir_root="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+source $dir_root/ush/detect_machine.sh
+
 # ==============================================================================
 usage() {
   set +x
@@ -16,7 +18,7 @@ usage() {
   echo "Usage: $0 -p <prefix> | -t <target> -h"
   echo
   echo "  -p  installation prefix <prefix>    DEFAULT: <none>"
-  echo "  -t  target to build for <target>    DEFAULT: $(hostname)"
+  echo "  -t  target to build for <target>    DEFAULT: $MACHINE_ID"
   echo "  -c  additional CMake options        DEFAULT: <none>"
   echo "  -v  build with verbose output       DEFAULT: NO"
   echo "  -f  force a clean build             DEFAULT: NO"
@@ -32,7 +34,7 @@ usage() {
 # Defaults:
 INSTALL_PREFIX=""
 CMAKE_OPTS=""
-BUILD_TARGET="$(hostname)"
+BUILD_TARGET="${MACHINE_ID}"
 BUILD_VERBOSE="NO"
 CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
@@ -70,15 +72,12 @@ done
 case ${BUILD_TARGET} in
   hera | orion)
     echo "Building GDASApp on $BUILD_TARGET"
-    set +e
-    source $MODULESHOME/init/sh
-    module purge
+    source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET
     CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=ON"
     CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA"
     module list
-    set -e
     ;;
   $(hostname))
     echo "Building GDASApp on $BUILD_TARGET"

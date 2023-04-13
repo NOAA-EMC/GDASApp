@@ -17,10 +17,10 @@ amsua_n18
 amsua_n19
 atms_n20
 atms_npp
-avhrr_metop-b
-avhrr_metop-c
-avhrr_n18
-avhrr_n19
+avhrr3_metop-b
+avhrr3_metop-c
+avhrr3_n18
+avhrr3_n19
 cris-fsr_n20
 cris-fsr_npp
 gmi_gpm

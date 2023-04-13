@@ -1,0 +1,43 @@
+input geometry:
+  mom6_input_nml: mom_input.nml
+  fields metadata: fields_metadata.yaml
+  geom_grid_file: soca_gridspec.nc
+
+output geometry:
+  mom6_input_nml: mom_input.nml
+  fields metadata: fields_metadata.yaml
+  geom_grid_file: soca_gridspec.nc
+
+variable change:
+  variable change name: Soca2Cice
+  do inverse: false
+  seaice edge: 0.9
+  shuffle: true
+  rescale prior:
+    min hice: 0.5
+    min hsno: 0.1
+  domain: antarctic
+  cice background state:
+    restart: __ICE_RST__
+    grid: ' '
+    ncat: 5
+    ice_lev: 7
+    sno_lev: 1
+    tstep: PT1H
+  cice output:
+    restart: __ICE_RST__
+  output variables: [tocn, socn, hocn, cicen, hicen, hsnon]
+
+states:
+- input:
+     read_from_file: 1
+     basename: ./
+     ocn_filename: __OCN_ANA__
+     ice_filename: __ICE_ANA__
+     date: __DA_ANA_DATE__
+     state variables: [tocn, socn, hocn, cicen, hicen, hsnon]
+  output:
+     datadir: Data
+     exp: soca2cice
+     type: fc
+     date: __DA_ANA_DATE__
