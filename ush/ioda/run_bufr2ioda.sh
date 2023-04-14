@@ -26,6 +26,11 @@ out_dir=${out_dir:-$5}
 PDY=$(echo $CDATE | cut -c1-8)
 cyc=$(echo $CDATE | cut -c9-10)
 
+# get gdasapp root directory
+readonly DIR_ROOT=$(cd "$(dirname "$(readlink -f -n "${BASH_SOURCE[0]}" )" )/../.." && pwd -P)
+BUFR2IODA=$DIR_ROOT/build/bin/bufr2ioda.x
+BUFRYAMLGEN=$DIR_ROOT/ush/ioda/gen_bufr2ioda_yaml.py
+
 # get list of BUFR files in input directory using glob
 BUFR_files=$(ls $BUFR_dir/${RUN}.t${cyc}z.*.bufr_d)
 if [ $? -ne 0 ]; then
@@ -54,10 +59,36 @@ for f in $BUFR_files; do
         echo "${YAML_template} does not exist, skipping ${BUFRtype}!"
         continue
     fi
-    # need to create a usable YAML from the template
-    
+
+    # input YAML file to the template parser
+    cat > $out_dir/config_bufr_${BUFRtype}.yaml << EOF
+obtype: $BUFRtype
+input file: $f
+output file: $out_dir/bufr_${BUFRtype}.yaml
+template yaml: $YAML_template
+run: $RUN
+PDY: $PDY
+cyc: $cyc
+EOF
+
+    # now create YAML from the template
+    $BUFRYAMLGEN --config $out_dir/config_bufr_${BUFRtype}.yaml
 
     # run BUFR2IODA for the created YAML file
+    $BUFR2IODA $out_dir/bufr_${BUFRtype}.yaml
+
+    # check if converter was successful
+    if [ $? == 0]; then
+      # remove YAMLs if success
+      rm -rf $out_dir/config_bufr_${BUFRtype}.yaml
+      rm -rf $out_dir/bufr_${BUFRtype}.yaml
+    else
+      # warn and keep YAMLs on failure
+      echo "Problem running bufr2ioda.x for ${BUFRtype}"
+      echo "See YAMLs in $out_dir"
+      echo "  $out_dir/config_bufr_${BUFRtype}.yaml"
+      echo "  $out_dir/bufr_${BUFRtype}.yaml"
+    fi
 
 done
 
