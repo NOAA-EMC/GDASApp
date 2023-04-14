@@ -24,5 +24,5 @@ job options:
   partition: debug
   walltime: '30:00'
   ntasks: 6
-  ntasks-per-node: 2
+  ntasks-per-node: 1
   modulepath: /work2/noaa/da/cmartin/GDASApp/work/GDASApp/modulefiles

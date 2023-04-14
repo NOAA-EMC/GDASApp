@@ -1,30 +1,30 @@
-window begin: '{{LAND_WINDOW_BEGIN}}'
+window begin: '{{ LAND_WINDOW_BEGIN | to_isotime }}'
 window length: $(LAND_WINDOW_LENGTH)
 geometry:
   fms initialization:
-    namelist filename: !ENV ${DATA}/fv3jedi/fmsmpp.nml
-    field table filename: !ENV ${DATA}/fv3jedi/field_table
-  akbk: !ENV ${DATA}/fv3jedi/akbk.nc4
+    namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
+    field table filename: $(DATA)/fv3jedi/field_table
+  akbk: $(DATA)/fv3jedi/akbk.nc4
   layout:
-  - !ENV ${layout_x}
-  - !ENV ${layout_y}
+  - $(layout_x)
+  - $(layout_y)
   npx: $(npx_ges)
   npy: $(npy_ges)
   npz: $(npz_ges)
-  field metadata override: !ENV ${DATA}/fv3jedi/gfs-land.yaml
+  field metadata override: $(DATA)/fv3jedi/gfs-land.yaml
   time invariant fields:
     state fields:
-      datetime: '{{LAND_WINDOW_BEGIN}}'
+      datetime: '{{ LAND_WINDOW_BEGIN | to_isotime }}'
       filetype: fms restart
       skip coupler file: true
       state variables: [orog_filt]
-      datapath: !ENV ${FIXgfs}/fix_orog/${CASE}/
-      filename_orog: !ENV ${CASE}_oro_data.nc
+      datapath: $(FIXgfs)/fix_orog/${CASE}/
+      filename_orog: $(CASE)_oro_data.nc
 state:
-  datapath: !ENV ${DATA}/bkg
+  datapath: $(DATA)/bkg
   filetype: fms restart
-  datetime: '{{LAND_BKG_ISOTIME}}'
-  filename_sfcd: '{{LAND_BKG_YYYYmmddHHMMSS}}.sfc_data.nc'
-  filename_cplr: '{{LAND_BKG_YYYYmmddHHMMSS}}.coupler.res'
+  datetime: '{{ current_cycle | to_isotime }}'
+  filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
+  filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
   state variables: [snwdph,vtype,slmsk]
 observations: !INC ${OBS_LIST}

@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}viirs_npp.${CDATE}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)viirs_npp.{{ current_cycle | to_YMDH }}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/diag_viirs_npp_${CDATE}.nc4
+      obsfile: $(DATA)/diags/diag_viirs_npp_{{ current_cycle | to_YMDH }}.nc4
   io pool:
     max pool size: 1
   simulated variables: [aerosolOpticalDepth]
@@ -20,7 +20,7 @@ obs operator:
   obs options:
     Sensor_ID: v.viirs-m_npp
     EndianType: little_endian
-    CoefficientPath: !ENV ${DATA}/crtm/
+    CoefficientPath: $(DATA)/crtm/
     AerosolOption: aerosols_gocart_default
 obs error:
   covariance model: diagonal
