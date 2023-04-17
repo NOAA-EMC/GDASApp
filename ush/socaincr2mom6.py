@@ -4,6 +4,7 @@ import argparse
 import os
 import numpy as np
 from netCDF4 import Dataset
+from scipy.interpolate import griddata
 import ufsda
 
 
@@ -67,6 +68,63 @@ def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
     # Save increment
     ds_incr.to_netcdf(incr_out, mode='a')
     return
+
+
+def trefincr2mom6(bkgfile, anlfile, ocngridfile)
+    """
+    Create tref increment from FV3 and interpolate it to MOM6 grid.
+
+    Parameters:
+    bkgfile (str): path to FV3 background file with tref (prob. sfcf006)
+    anlfile (str): path to FV3 analysis file with tref (prob. sfcanl)
+    ocngridfile (str): path to the MOM6 grid file
+
+    Returns:
+    momtrefinc (2D array): FV3 tref increment on MOM6 grid
+    """
+
+
+    bkg = xr.open_dataset(bkgfile)
+    anl = xr.open_dataset(anlfile)
+
+    # subtract the field tref in background from the field tref in analysis
+    # to get the increment
+    at=anl['tref'].load()
+    bt=bkg['tref'].load()
+    incval=at.values-bt.values
+
+    ct=bt
+    ct.values=incval
+    ct.name='tref_inc'
+
+    land=bkg['land'].load()
+    #ct = 0 where land is 1
+    ct.values[land.values==1]=0.0
+
+    ## write the increment to a netcdf file
+    #ct.to_netcdf(incfile)
+
+    fv3lats=ct['grid_yt'].values
+    fv3lons=ct['grid_xt'].values
+    #convert lons to mom6 convention
+    fv3lons[fv3lons >= 60 ] = fv3lons[fv3lons >= 60] - 360
+
+    fv3longrid,fv3latgrid = np.meshgrid(fv3lons,fv3lats)
+    fv3vals=ct.values.squeeze()
+
+    ocngrid = xr.open_dataset(ocngridfile)
+    momlat=ocngrid['lat'].load()
+    momlon=ocngrid['lon'].load()
+
+    momlats=momlat.values.squeeze()
+    momlons=momlon.values.squeeze()
+
+    momtrefinc = griddata((fv3longrid.reshape(-1),fv3latgrid.reshape(-1)), \
+                           fv3vals.reshape(-1), \
+                           (momlons, momlats), \
+                           method='nearest')
+
+   return momtrefinc
 
 
 if __name__ == "__main__":
