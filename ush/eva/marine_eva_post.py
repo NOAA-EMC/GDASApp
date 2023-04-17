@@ -11,6 +11,7 @@ import glob
 # TODO: this should probably be in a yaml or something
 vminmax = {'seaSurfaceTemperature': {'vmin': -2.0, 'vmax': 2.0},
            'seaIceFraction': {'vmin': -0.2, 'vmax': 0.2},
+           'seaSurfaceSalinity': {'vmin': -0.2, 'vmax': 0.2},  # TODO: this should be changed
            'absoluteDynamicTopography': {'vmin': -0.2, 'vmax': 0.2}}
 
 

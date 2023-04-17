@@ -45,6 +45,17 @@ diagnostics:
       for:
         variable: *variables
 
+    # Generate oma that passed QC for JEDI
+    - transform: accept where
+      new name: experiment::hofxQC::${variable}
+      starting field: experiment::hofx0::${variable}
+      where:
+        - experiment::EffectiveQC0::${variable} == 0
+      for:
+        variable: *variables
+
+
+
 
 
   graphics:
@@ -100,7 +111,7 @@ diagnostics:
       figure:
         layout: [1,1]
         title: 'OmA pre- and post QC | @NAME@ | ${variable_title}'
-        output name: histograms/@NAME@/${variable}/oma_omb_histogram_${variable}.png
+        output name: histograms/@NAME@/${variable}/oma_pre_post_qc_${variable}.png
       plots:
         - add_xlabel: 'Observation minus anl pre- and post-QC'
           add_ylabel: 'Count'
@@ -135,4 +146,76 @@ diagnostics:
             bins: 100
             alpha: 0.5
 
+    # diff between OmA and OmB
+    - batch figure:
+        variables: *variables
+      figure:
+        layout: [1,1]
+        title: 'OmA and OmB, post-QC | @NAME@ | ${variable_title}'
+        output name: histograms/@NAME@/${variable}/oma_omb_histogram_${variable}.png
+      plots:
+        - add_xlabel: 'OmA and OmB post-QC'
+          add_ylabel: 'Count'
+          add_legend:
+            loc: 'upper left'
+          statistics:
+            fields:
+              - field_name: experiment::OmAQC::${variable}
+                xloc: 0.5
+                yloc: -0.10
+                kwargs:
+                  fontsize: 6
+            statistics_variables:
+            - n
+            - min
+            - mean
+            - max
+            - std
+          layers:
+          - type: Histogram
+            data:
+              variable: experiment::OmAQC::${variable}
+            color: 'blue'
+            label: 'OmA (post QC)'
+            bins: 100
+            alpha: 0.5
+          - type: Histogram
+            data:
+              variable: experiment::OmBQC::${variable}
+            color: 'red'
+            label: 'OmB (post QC)'
+            bins: 100
+            alpha: 0.5
 
+    - batch figure:
+        variables: *variables
+        @CHANNELSKEY@
+      figure:
+        layout: [1,1]
+        title: 'Observations vs. JEDI h(x) | @NAME@ @CYCLE@ | ${variable_title}'
+        output name: observation_scatter_plots/jedi_hofx_vs_obs_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+      plots:
+        - add_xlabel: 'Observation Value'
+          add_ylabel: 'JEDI h(x)'
+          add_grid:
+          add_legend:
+            loc: 'upper left'
+          layers:
+          - type: Scatter
+            x:
+              variable: experiment::ObsValue::${variable}
+            y:
+              variable: experiment::hofx0::${variable}
+            @CHANNELKEY@
+            markersize: 5
+            color: 'black'
+            label: 'JEDI h(x) versus obs (all obs)'
+          - type: Scatter
+            x:
+              variable: experiment::ObsValue::${variable}
+            y:
+              variable: experiment::hofxQC::${variable}
+            @CHANNELKEY@
+            markersize: 5
+            color: 'red'
+            label: 'JEDI h(x) versus obs (passed QC in JEDI)'
