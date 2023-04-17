@@ -6,7 +6,7 @@ import numpy as np
 from netCDF4 import Dataset
 from scipy.interpolate import griddata
 import ufsda
-
+from pygw.yaml_file import YAMLFile
 
 def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
     """
@@ -48,20 +48,20 @@ def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
     # Merge soca and nsst increment
     if nsst_yaml is not None:
         # compute Tref increment and interpolate on the tripolar grid
-
-        # get the nsst increment and the number of layers used to propagate
-        # the incr down the water column
         nsst_config = YAMLFile(path=nsst_yaml)
-        ds_tref_incr = xr.open_dataset(nsst_config['tref increment'])
-        nlayers = float(nsst_config['nlayers'])
-        tref_incr = ds_tref_incr['dtref'].values[:]
+        sfc_fcst = nsst_config['sfc_fcst']
+        sfc_ana = nsst_config['sfc_ana']
+        tref_incr = trefincr2mom6(sfc_fcst, sfc_ana, grid)
+
+        # get the number of layers used to propagate the incr down the water column
+        nlayers = nsst_config['nlayers']
 
         # get the soca temp increment
         soca_incr = ds_incr['Temp'].values[:]
 
         # Merge the 2 increments
         for layer in range(nlayers):
-            coef = 1 - (float(layer)/nlayers)
+            coef = 1 - (layer/nlayers)
             soca_incr[0,layer,:,:] = coef * tref_incr[:,:] + (coef - 1.0)*soca_incr[0,layer,:,:]
         ds_incr['Temp'].values[:] = soca_incr[:]
 
@@ -70,7 +70,7 @@ def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
     return
 
 
-def trefincr2mom6(bkgfile, anlfile, ocngridfile)
+def trefincr2mom6(bkgfile, anlfile, ocngridfile):
     """
     Create tref increment from FV3 and interpolate it to MOM6 grid.
 
@@ -124,7 +124,7 @@ def trefincr2mom6(bkgfile, anlfile, ocngridfile)
                            (momlons, momlats), \
                            method='nearest')
 
-   return momtrefinc
+    return momtrefinc
 
 
 if __name__ == "__main__":

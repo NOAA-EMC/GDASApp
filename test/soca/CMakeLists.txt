@@ -95,3 +95,12 @@ add_test(NAME test_gdasapp_soca_ana_prep
 if (WORKFLOW_TESTS)
   add_subdirectory(gw)
 endif()
+
+# test for ush/socaincr2mom6.py
+add_test(NAME test_gdasapp_soca_nsst_increment_to_mom6
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/socaincr2mom6.sh ${PROJECT_SOURCE_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca)
+set_tests_properties(
+        test_gdasapp_soca_nsst_increment_to_mom6
+PROPERTIES
+ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
