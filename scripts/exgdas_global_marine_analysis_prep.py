@@ -390,7 +390,7 @@ varconfig.save_check(var_yaml)
 rst_date = fcst_begin.strftime('%Y%m%d.%H%M%S')
 ice_rst = os.path.join(os.getenv('COMIN_GES'), '..', 'ice', 'RESTART',
                        rst_date+'.cice_model.res.nc')
-ice_rst_ana = os.path.join('Data', rst_date+'.cice_model.res.nc')
+ice_rst_ana = os.path.join(anl_out, rst_date+'.cice_model.res.nc')
 ufsda.disk_utils.copyfile(ice_rst, ice_rst_ana)
 
 # write the two seaice analysis to model change of variable yamls

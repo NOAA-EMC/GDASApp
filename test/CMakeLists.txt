@@ -120,6 +120,15 @@ add_test(NAME test_gdasapp_jedi_increment_to_fv3
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atmges_compress.nc4 ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
+# test for ush/socaincr2mom6.py
+add_test(NAME test_gdasapp_soca_nsst_increment_to_mom6
+         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/socaincr2mom6.py ${PROJECT_BIN_DIR} ${PROJECT_SOURCE_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+set_tests_properties(
+        test_gdasapp_soca_nsst_increment_to_mom6
+PROPERTIES
+ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
+
 # test for YAML generation from a template
 add_test(NAME test_gdasapp_genYAML_prep
          COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
