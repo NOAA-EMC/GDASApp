@@ -3,7 +3,7 @@
 ####  UNIX Script Documentation Block
 #                      .                                             .
 # Script name:         exgdas_global_marine_analysis_chkpt.sh
-# Script description:  Prepare MOM6 IAU increment and insert the seaice analysis 
+# Script description:  Prepare MOM6 IAU increment and insert the seaice analysis
 #                       in the CICE6 restart
 #
 # Author: Guillaume Vernieres        Org: NCEP/EMC     Date: 2023-04-01
@@ -14,7 +14,7 @@
 #
 # Attributes:
 #   Language: POSIX shell
-#   Machine: 
+#   Machine:
 #
 ################################################################################
 
@@ -43,8 +43,8 @@ export err=$?; err_chk
 
 ################################################################################
 # Insert seaice analysis in CICE6 restart
-# TODO: This should probably be in a separate j-job, that includes 
-#       the mom6 incr postprocessing from above. 
+# TODO: This should probably be in a separate j-job, that includes
+#       the mom6 incr postprocessing from above.
 
 $APRUN_OCNANAL ${JEDI_BIN}/soca_convertstate.x soca_2cice_arctic.yaml
 $APRUN_OCNANAL ${JEDI_BIN}/soca_convertstate.x soca_2cice_antarctic.yaml

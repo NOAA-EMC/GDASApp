@@ -1,12 +1,12 @@
 #!/bin/bash
 set -ex
-bindir=$1
-srcdir=$2
 
-${srcdir}/ush/socaincr2mom6.py --help
+srcdir=$1
 
-#--incr "${soca_incr}" \
-#                                             --bkg "${DATA}/INPUT/MOM.res.nc" \
-#                                             --grid "${DATA}/soca_gridspec.nc" \
-#                                             --out "${mom6_iau_incr}" \
-#                                             --nsst_yaml
+data="/home/gvernier/wcda-sprint/wrk"
+mom6_iau_incr="gdas.t12z.ocn.incr.nc"
+
+${srcdir}/ush/socaincr2mom6.py --incr "${data}/ocn.3dvarfgat_pseudo.incr.2018-04-15T09:00:00Z.nc" \
+                               --bkg "${data}/gdas.t06z.ocnf006.nc" \
+                               --grid "${data}/gdas.t09z.ocngrid.nc" \
+                               --out "${mom6_iau_incr}"
