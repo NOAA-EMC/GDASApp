@@ -10,8 +10,8 @@ machines = {"container", "hera", "orion"}
 MODS = {'JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT_VRFY': 'GDAS',
-        'JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN': 'GDAS',
+        'JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_POST': 'GDAS',
         'JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY': 'EVA'}
 components_short = {'ocean': 'ocn', 'ice': 'ice'}  # Short names for components
