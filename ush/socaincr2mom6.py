@@ -70,7 +70,7 @@ def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
     return
 
 
-def trefincr2mom6(bkgfile, anlfile, ocngridfile)
+def trefincr2mom6(bkgfile, anlfile, ocngridfile):
     """
     Create tref increment from FV3 and interpolate it to MOM6 grid.
 
@@ -124,7 +124,7 @@ def trefincr2mom6(bkgfile, anlfile, ocngridfile)
                            (momlons, momlats), \
                            method='nearest')
 
-   return momtrefinc
+    return momtrefinc
 
 
 if __name__ == "__main__":
