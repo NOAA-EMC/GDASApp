@@ -60,9 +60,12 @@ def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
         soca_incr = ds_incr['Temp'].values[:]
 
         # Merge the 2 increments
+        I = np.where(np.abs(np.squeeze(ds_grid['lat'].values[:]))>60.0)
+        tref_incr[I] = 0.0
         for layer in range(nlayers):
             coef = 1 - (layer/nlayers)
             soca_incr[0,layer,:,:] = coef * tref_incr[:,:] + (coef - 1.0)*soca_incr[0,layer,:,:]
+
         ds_incr['Temp'].values[:] = soca_incr[:]
 
     # Save increment
