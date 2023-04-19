@@ -15,4 +15,56 @@ obs operator:
   name: ADT
 obs error:
   covariance model: diagonal
-
+obs filters:
+- filter: Domain Check
+  where:
+  - variable: {name: GeoVaLs/sea_area_fraction}
+    minvalue: 0.9
+- filter: Domain Check
+  where:
+  - variable: { name: GeoVaLs/sea_surface_temperature}
+    minvalue: 15.0
+- filter: Background Check
+  absolute threshold: 0.2
+- filter: Domain Check
+  where:
+  - variable: {name: GeoVaLs/sea_floor_depth_below_sea_surface}
+    minvalue: 500
+- filter: Perform Action
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables: [GeoVaLs/mesoscale_representation_error,
+                    ObsError/absoluteDynamicTopography]
+        coefs: [0.1,
+                0.5]
+- filter: BlackList
+  where:
+  - variable:
+      name: MetaData/latitude
+    minvalue: -65
+    maxvalue: -30
+  - variable:
+      name: MetaData/longitude
+    minvalue: -125
+    maxvalue: -90
+- filter: BlackList
+  where:
+  - variable:
+      name: MetaData/latitude
+    minvalue: -65
+    maxvalue: -30
+  - variable:
+      name: MetaData/longitude
+    minvalue: 60
+    maxvalue: 110
+- filter: Domain Check
+  where:
+  - variable: { name: GeoVaLs/sea_ice_area_fraction}
+    maxvalue: 0.00001
+- filter: Domain Check
+  where:
+  - variable: {name: GeoVaLs/distance_from_coast}
+    minvalue: 100e3
