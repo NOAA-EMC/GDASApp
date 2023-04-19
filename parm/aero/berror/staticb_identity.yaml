@@ -1,2 +1,2 @@
 covariance model: FV3JEDI-ID
-date: '{{AERO_WINDOW_BEGIN}}'
+date: '{{ AERO_WINDOW_BEGIN | to_isotime }}'

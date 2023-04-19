@@ -154,8 +154,8 @@ def get_env_config(component='atm'):
     config['npx_ges'] = int(os.environ['CASE'][1:]) + 1
     config['npy_ges'] = int(os.environ['CASE'][1:]) + 1
     config['npz_ges'] = int(os.environ['LEVS']) - 1
-    config['npx_anl'] = int(os.environ['CASE_ENKF'][1:]) + 1
-    config['npy_anl'] = int(os.environ['CASE_ENKF'][1:]) + 1
+    config['npx_anl'] = int(os.environ['CASE_ANL'][1:]) + 1
+    config['npy_anl'] = int(os.environ['CASE_ANL'][1:]) + 1
     config['npz_anl'] = int(os.environ['LEVS']) - 1
 
     return config
