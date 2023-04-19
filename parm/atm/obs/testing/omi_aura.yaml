@@ -1,0 +1,106 @@
+obs space:
+  name: omi_aura
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV omi_aura_obs_${CDATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV omi_aura_diag_${CDATE}.nc4
+  io pool:
+    max pool size: 1
+  simulated variables: [ozoneTotal]
+geovals:
+  filename: !ENV omi_aura_geoval_${CDATE}.nc4
+obs operator:
+  name: AtmVertInterpLay
+  geovals: [mole_fraction_of_ozone_in_air]
+  coefficients: [0.007886131] # convert from ppmv to DU
+  nlevels: [1]
+
+obs filters:
+# range sanity check
+- filter: Bounds Check
+  filter variables:
+  - name: ozoneTotal
+  minvalue: 0
+  maxvalue: 1000
+  action:
+    name: reject
+
+# Toss observations for which the profile ozone error code is neither 0 nor 1
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/total_ozone_error_flag
+    minvalue: 0.1
+  action:
+    name: reject
+#
+- filter: AcceptList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/total_ozone_error_flag
+    minvalue: 0.9
+    maxvalue: 1.1
+  action:
+    name: accept
+
+#exclude afbo=3 or 13
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/bestOzoneAlgorithmFlag
+    minvalue: 2.9
+    maxvalue: 3.1
+  action:
+    name: reject
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/bestOzoneAlgorithmFlag
+    minvalue: 12.9
+    maxvalue: 13.1
+  action:
+    name: reject
+
+#Do not use the data if row anomaly (bit 10)is 1
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/row_anomaly_index
+    minvalue: 0.9
+    maxvalue: 1.1
+  action:
+    name: reject
+
+#scan position check
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/sensorScanPosition
+    minvalue: 25
+  action:
+    name: reject
+
+ # Gross check
+- filter: Background Check
+  filter variables:
+  - name: ozoneTotal
+  threshold: 5.0
+  action:
+    name: reject
+
