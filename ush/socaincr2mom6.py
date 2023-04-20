@@ -65,6 +65,7 @@ def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
         for layer in range(nlayers):
             coef = 1 - (layer/nlayers)
             soca_incr[0,layer,:,:] = coef * tref_incr[:,:] + (coef - 1.0)*soca_incr[0,layer,:,:]
+            print(f'------- {coef}, {np.min(soca_incr[0,layer,:,:])}, {np.max(soca_incr[0,layer,:,:])}')
 
         ds_incr['Temp'].values[:] = soca_incr[:]
 
@@ -86,44 +87,26 @@ def trefincr2mom6(bkgfile, anlfile, ocngridfile):
     momtrefinc (2D array): FV3 tref increment on MOM6 grid
     """
 
+    # compute increment
+    ds_bkg = xr.open_dataset(bkgfile)
+    ds_anl = xr.open_dataset(anlfile)
+    incval=ds_anl['tref'].values-ds_bkg['tref'].values
+    incval[ds_bkg['land'].values==1]=0.0
 
-    bkg = xr.open_dataset(bkgfile)
-    anl = xr.open_dataset(anlfile)
-
-    # subtract the field tref in background from the field tref in analysis
-    # to get the increment
-    at=anl['tref'].load()
-    bt=bkg['tref'].load()
-    incval=at.values-bt.values
-
-    ct=bt
-    ct.values=incval
-    ct.name='tref_inc'
-
-    land=bkg['land'].load()
-    #ct = 0 where land is 1
-    ct.values[land.values==1]=0.0
-
-    ## write the increment to a netcdf file
-    #ct.to_netcdf(incfile)
-
-    fv3lats=ct['grid_yt'].values
-    fv3lons=ct['grid_xt'].values
-    #convert lons to mom6 convention
-    fv3lons[fv3lons >= 60 ] = fv3lons[fv3lons >= 60] - 360
-
-    fv3longrid,fv3latgrid = np.meshgrid(fv3lons,fv3lats)
-    fv3vals=ct.values.squeeze()
-
+    # get ocean grid
     ocngrid = xr.open_dataset(ocngridfile)
-    momlat=ocngrid['lat'].load()
-    momlon=ocngrid['lon'].load()
+    momlats=ocngrid['lat'].values.squeeze()
+    momlons=ocngrid['lon'].values.squeeze()
 
-    momlats=momlat.values.squeeze()
-    momlons=momlon.values.squeeze()
+    # get atmos gaussian grid and rotate to match the ocean grid
+    fv3lats=ds_bkg['grid_yt'].values
+    fv3lons=ds_bkg['grid_xt'].values
+    momlon_max = np.max(momlons)
+    fv3lons[fv3lons >= momlon_max ] = fv3lons[fv3lons >= momlon_max] - 360
+    fv3longrid,fv3latgrid = np.meshgrid(fv3lons,fv3lats)
 
     momtrefinc = griddata((fv3longrid.reshape(-1),fv3latgrid.reshape(-1)), \
-                           fv3vals.reshape(-1), \
+                           np.squeeze(incval).reshape(-1), \
                            (momlons, momlats), \
                            method='nearest')
 
