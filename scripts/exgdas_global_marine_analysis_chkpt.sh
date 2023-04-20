@@ -35,11 +35,23 @@ pwd=$(pwd)
 # TODO: Check what to do with (u,v), it seems that MOM6's iau expects (u, v) on the tracer grid
 soca_incr=$(ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1)
 mom6_iau_incr=${DATA}/inc.nc
+
+# prepare nsst yaml
+cat > nsst.yaml << EOF
+sfc_fcst: ${ROTDIR}/${GDUMP}.${gPDY}/${gcyc}/atmos/${GPREFIX}sfcf006.nc
+sfc_ana: ${COMOUT}/../atmos/${APREFIX}sfcanl.nc
+nlayers: 5
+EOF
+
 ${HOMEgfs}/sorc/gdas.cd/ush/socaincr2mom6.py --incr "${soca_incr}" \
                                              --bkg "${DATA}/INPUT/MOM.res.nc" \
                                              --grid "${DATA}/soca_gridspec.nc" \
-                                             --out "${mom6_iau_incr}"
-export err=$?; err_chk
+                                             --out "${mom6_iau_incr}" \
+                                             --nsst_yaml "nsst.yaml"
+export err=$?
+if [ $err -gt 0  ]; then
+    exit $err
+fi
 
 ################################################################################
 # Insert seaice analysis in CICE6 restart

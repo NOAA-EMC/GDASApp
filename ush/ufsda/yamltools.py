@@ -16,13 +16,13 @@ class DAYAMLFile(pygw.yaml_file.YAMLFile):
         super().__init__(path=path)
         self.app = app
 
-    def save_check(self, target):
+    def save_check(self, target, app='var'):
         """
         Remove obs spaces that point to non-existent file and save
         """
         config = self.as_dict()
 
-        # obs space depth is dependent on the application
+        # obs space dictionary depth is dependent on the application
         if self.app == 'var':
             obs_spaces = config['cost function']['observations']['observers']
         else:

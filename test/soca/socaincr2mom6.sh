@@ -7,8 +7,8 @@ data="/home/gvernier/wcda-sprint/wrk"
 mom6_iau_incr="gdas.t12z.ocn.incr.nc"
 
 cat > nsst.yaml << EOF
-sfc_fcst: ${data}/nsst/gdas.t12z.sfcf006.nc
-sfc_ana: ${data}/nsst/gdas.t18z.sfcanl.nc
+sfc_fcst: ${data}/gdas.t06z.sfcf006.nc
+sfc_ana: ${data}/gdas.t12z.sfcanl.nc
 nlayers: 2
 EOF
 
