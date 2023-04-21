@@ -84,7 +84,6 @@ observations:
     ioda:
       backend: netcdf
       obsdataout: "$(IODA_out)"
-      #obsdataout: "./testrun/gdas.t00z.atms_{splits/satId}_remap.tm00.nc"
 
       dimensions:
         - name: Channel
