@@ -8,7 +8,7 @@ obs space:
     engine:
       type: H5File
       obsfile: !ENV ${DATA}/diags/adt_3b_egm2008.${PDY}${cyc}.nc4
-  simulated variables: [absolute_dynamic_topography]
+  simulated variables: [absoluteDynamicTopography]
   io pool:
     max pool size: 1
 obs operator:
@@ -18,53 +18,53 @@ obs error:
 obs filters:
 - filter: Domain Check
   where:
-  - variable: {name: sea_area_fraction@GeoVaLs}
+  - variable: {name: GeoVaLs/sea_area_fraction}
     minvalue: 0.9
 - filter: Domain Check
   where:
-  - variable: { name: sea_surface_temperature@GeoVaLs}
+  - variable: { name: GeoVaLs/sea_surface_temperature}
     minvalue: 15.0
 - filter: Background Check
   absolute threshold: 0.2
 - filter: Domain Check
   where:
-  - variable: {name: sea_floor_depth_below_sea_surface@GeoVaLs}
+  - variable: {name: GeoVaLs/sea_floor_depth_below_sea_surface}
     minvalue: 500
 - filter: Perform Action
   action:
     name: assign error
     error function:
-      name: LinearCombination@ObsFunction
+      name: ObsFunction/LinearCombination
       options:
-        variables: [mesoscale_representation_error@GeoVaLs,
-                    absolute_dynamic_topography@ObsError]
+        variables: [GeoVaLs/mesoscale_representation_error,
+                    ObsError/absoluteDynamicTopography]
         coefs: [0.1,
                 0.5]
 - filter: BlackList
   where:
   - variable:
-      name: latitude@MetaData
+      name: MetaData/latitude
     minvalue: -65
     maxvalue: -30
   - variable:
-      name: longitude@MetaData
+      name: MetaData/longitude
     minvalue: -125
     maxvalue: -90
 - filter: BlackList
   where:
   - variable:
-      name: latitude@MetaData
+      name: MetaData/latitude
     minvalue: -65
     maxvalue: -30
   - variable:
-      name: longitude@MetaData
+      name: MetaData/longitude
     minvalue: 60
     maxvalue: 110
 - filter: Domain Check
   where:
-  - variable: { name: sea_ice_area_fraction@GeoVaLs}
+  - variable: { name: GeoVaLs/sea_ice_area_fraction}
     maxvalue: 0.00001
 - filter: Domain Check
   where:
-  - variable: {name: distance_from_coast@GeoVaLs}
+  - variable: {name: GeoVaLs/distance_from_coast}
     minvalue: 100e3
