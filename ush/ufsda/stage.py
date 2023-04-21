@@ -12,7 +12,6 @@ import ufsda
 import logging
 import glob
 import numpy as np
-import yaml
 from pygw.yaml_file import YAMLFile, parse_j2yaml
 import ufsda.soca_utils
 
