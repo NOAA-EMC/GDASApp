@@ -18,6 +18,7 @@ sat_list = [
     'iasidb',
 ]
 
+
 def gen_bufr_yaml(config):
     # open the template input file
     bufr_yaml = YAMLFile(path=config['template yaml'])
@@ -46,6 +47,7 @@ def gen_bufr_yaml(config):
     bufr_yaml = Template.substitute_structure(bufr_yaml, TemplateConstants.DOLLAR_PARENTHESES, substitutions.get)
     # write out BUFR converter YAML file
     bufr_yaml.save(config['output yaml file'])
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
