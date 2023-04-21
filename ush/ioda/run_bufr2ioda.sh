@@ -64,7 +64,8 @@ for f in $BUFR_files; do
     cat > $out_dir/config_bufr_${BUFRtype}.yaml << EOF
 obtype: $BUFRtype
 input file: $f
-output file: $out_dir/bufr_${BUFRtype}.yaml
+output yaml file: $out_dir/bufr_${BUFRtype}.yaml
+output dir: $out_dir
 template yaml: $YAML_template
 run: $RUN
 PDY: $PDY
@@ -78,7 +79,7 @@ EOF
     $BUFR2IODA $out_dir/bufr_${BUFRtype}.yaml
 
     # check if converter was successful
-    if [ $? == 0]; then
+    if [ $? == 0 ]; then
       # remove YAMLs if success
       rm -rf $out_dir/config_bufr_${BUFRtype}.yaml
       rm -rf $out_dir/bufr_${BUFRtype}.yaml
