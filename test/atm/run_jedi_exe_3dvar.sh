@@ -30,6 +30,13 @@ elif [ "$machine" = "orion" ]; then
     gdasfix="/work2/noaa/da/cmartin/GDASApp/fix"
 fi
 
+# Setup python path for workflow utilities and tasks
+export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
+echo $HOMEgfs
+pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${pygwPATH}"
+export PYTHONPATH
+
 # Create test run directory
 mkdir -p ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3dvar
 cd ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3dvar
