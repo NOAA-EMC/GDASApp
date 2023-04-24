@@ -71,30 +71,30 @@ if(BUILD_GDASBUNDLE)
   endif()
 
 # Core JEDI repositories
-  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  BRANCH develop )
-  ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" BRANCH develop )
-  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" BRANCH develop )
-  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" BRANCH develop  )
-  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" BRANCH feature/gdasapp_ufo )
+  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG e2b9dc6 )
+  ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG de52190 )
+  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 4c79b8c )
+  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG f27bd1c  )
+  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG 1a67b67 )
 
 # FMS and FV3 dynamical core
-  ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" BRANCH release-stable )
-  ecbuild_bundle( PROJECT fv3 GIT "https://github.com/jcsda/GFDL_atmos_cubed_sphere.git" BRANCH release-stable )
+  ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" TAG 1f73914 )
+  ecbuild_bundle( PROJECT fv3 GIT "https://github.com/jcsda/GFDL_atmos_cubed_sphere.git" TAG 61450b4 )
 
 # fv3-jedi and associated repositories
-  ecbuild_bundle( PROJECT femps       GIT "https://github.com/jcsda/femps.git"                BRANCH develop )
-  ecbuild_bundle( PROJECT fv3-jedi-lm GIT "https://github.com/jcsda/fv3-jedi-linearmodel.git" BRANCH develop )
-  ecbuild_bundle( PROJECT fv3-jedi    GIT "https://github.com/jcsda/fv3-jedi.git"             BRANCH develop )
+  ecbuild_bundle( PROJECT femps       GIT "https://github.com/jcsda/femps.git"                TAG cb39681 )
+  ecbuild_bundle( PROJECT fv3-jedi-lm GIT "https://github.com/jcsda/fv3-jedi-linearmodel.git" TAG a934a7b )
+  ecbuild_bundle( PROJECT fv3-jedi    GIT "https://github.com/jcsda/fv3-jedi.git"             TAG 07b1a28 )
 
 # SOCA associated repositories
-  ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" BRANCH develop )
-  ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" BRANCH main-ecbuild RECURSIVE )
-  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" BRANCH develop )
+  ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" TAG 1a02eba )
+  ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" TAG 51ec489 RECURSIVE )
+  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" TAG 5d1a7ad )
 
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
   if(BUILD_IODA_CONVERTERS)
-    ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" BRANCH develop )
+    ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" TAG c27c1df )
   endif()
 
 # Land associated repositories
