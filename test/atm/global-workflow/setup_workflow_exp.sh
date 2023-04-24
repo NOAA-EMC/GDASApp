@@ -24,12 +24,13 @@ rm -rf $comrot $expdir config
 # copy config.yaml to local config
 cp -r $configdir config
 cp $srcdir/test/atm/global-workflow/config.base.emc.dyn config/
-cp $srcdir/test/atm/global-workflow/config.atmanal      config/
+cp $srcdir/test/atm/global-workflow/config.atmanl       config/
 cp $srcdir/test/atm/global-workflow/config.yaml .
 
 # update paths in config.yaml
 sed -i -e "s~@bindir@~${bindir}~g" config.yaml
 sed -i -e "s~@srcdir@~${srcdir}~g" config.yaml
+sed -i -e "s~@dumpdir@~${GDASAPP_TESTDATA}/lowres~g" config.yaml
 
 # run the script
 ln -sf $srcdir/../../workflow/setup_expt.py .
@@ -49,5 +50,9 @@ $srcdir/../../workflow/setup_expt.py cycled --idate $idate  \
                        --comrot $comrot \
                        --expdir $expdir \
                        --yaml $expdir/../config.yaml
+
+echo " "
+echo "$expdir/../config.yaml is"
+cat $expdir/../config.yaml
 
 exit $?
