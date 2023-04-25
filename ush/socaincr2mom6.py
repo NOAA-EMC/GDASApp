@@ -8,6 +8,7 @@ from scipy.interpolate import griddata
 import ufsda
 from pygw.yaml_file import YAMLFile
 
+
 def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
     """
     Process the JEDI/SOCA increment file and create a MOM6 increment file
@@ -60,12 +61,11 @@ def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
         soca_incr = ds_incr['Temp'].values[:]
 
         # Merge the 2 increments
-        I = np.where(np.abs(np.squeeze(ds_grid['lat'].values[:]))>60.0)
-        tref_incr[I] = 0.0
+        I_filter = np.where(np.abs(np.squeeze(ds_grid['lat'].values[:])) > 60.0)
+        tref_incr[I_filter] = 0.0
         for layer in range(nlayers):
             coef = 1 - (layer/nlayers)
-            soca_incr[0,layer,:,:] = coef * tref_incr[:,:] + (coef - 1.0)*soca_incr[0,layer,:,:]
-            print(f'------- {coef}, {np.min(soca_incr[0,layer,:,:])}, {np.max(soca_incr[0,layer,:,:])}')
+            soca_incr[0, layer, :, :] = coef * tref_incr[:, :] + (coef - 1.0)*soca_incr[0, layer, :, :]
 
         ds_incr['Temp'].values[:] = soca_incr[:]
 
@@ -90,25 +90,25 @@ def trefincr2mom6(bkgfile, anlfile, ocngridfile):
     # compute increment
     ds_bkg = xr.open_dataset(bkgfile)
     ds_anl = xr.open_dataset(anlfile)
-    incval=ds_anl['tref'].values-ds_bkg['tref'].values
-    incval[ds_bkg['land'].values==1]=0.0
+    incval = ds_anl['tref'].values-ds_bkg['tref'].values
+    incval[ds_bkg['land'].values == 1] = 0.0
 
     # get ocean grid
     ocngrid = xr.open_dataset(ocngridfile)
-    momlats=ocngrid['lat'].values.squeeze()
-    momlons=ocngrid['lon'].values.squeeze()
+    momlats = ocngrid['lat'].values.squeeze()
+    momlons = ocngrid['lon'].values.squeeze()
 
     # get atmos gaussian grid and rotate to match the ocean grid
-    fv3lats=ds_bkg['grid_yt'].values
-    fv3lons=ds_bkg['grid_xt'].values
+    fv3lats = ds_bkg['grid_yt'].values
+    fv3lons = ds_bkg['grid_xt'].values
     momlon_max = np.max(momlons)
-    fv3lons[fv3lons >= momlon_max ] = fv3lons[fv3lons >= momlon_max] - 360
-    fv3longrid,fv3latgrid = np.meshgrid(fv3lons,fv3lats)
+    fv3lons[fv3lons >= momlon_max] = fv3lons[fv3lons >= momlon_max] - 360
+    fv3longrid, fv3latgrid = np.meshgrid(fv3lons, fv3lats)
 
-    momtrefinc = griddata((fv3longrid.reshape(-1),fv3latgrid.reshape(-1)), \
-                           np.squeeze(incval).reshape(-1), \
-                           (momlons, momlats), \
-                           method='nearest')
+    momtrefinc = griddata((fv3longrid.reshape(-1), fv3latgrid.reshape(-1)),
+                          np.squeeze(incval).reshape(-1),
+                          (momlons, momlats),
+                          method='nearest')
 
     return momtrefinc
 
