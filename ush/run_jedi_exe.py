@@ -7,6 +7,8 @@ import re
 import subprocess
 import sys
 import yaml
+import pygw
+from pygw.yaml_file import parse_j2yaml, save_as_yaml
 
 
 def export_envar(yamlfile, bashout):
@@ -77,6 +79,8 @@ def run_jedi_exe(yamlconfig):
     gprefix = executable_subconfig['dump'] + ".t" + str(gcyc) + "z."
     comin = executable_subconfig.get('gdas_fix_root', './')
     comin_ges_ens = os.path.join(comin, 'cases', 'enkfgdas.' + str(gPDY), str(gcyc))
+    dump = executable_subconfig['dump']
+    output_file = os.path.join(workdir, f"gdas_{app_mode}.yaml")
 
     single_exec = True
     var_config = {
@@ -112,6 +116,8 @@ def run_jedi_exe(yamlconfig):
         'valid_time': f"{valid_time.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
         'prev_valid_time': f"{prev_cycle.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        'previous_cycle': f"{prev_cycle}",
+        'current_cycle': f"{valid_time}",
         'atm_window_length': executable_subconfig['atm_window_length'],
         'ATM_WINDOW_LENGTH': f"PT{assim_freq}H",
         'ATM_WINDOW_BEGIN': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
@@ -127,24 +133,52 @@ def run_jedi_exe(yamlconfig):
                                           executable_subconfig['atm_window_length']),
         'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
         'INTERP_METHOD': executable_subconfig.get('interp_method', 'barycentric'),
+        'output_file': os.path.join(workdir, f"gdas_{app_mode}.yaml"),
+        'dump': f"{dump}",
+        'output_file': f"{output_file}",
     }
-    output_file = os.path.join(workdir, f"gdas_{app_mode}.yaml")
+
     # set some environment variables
     os.environ['PARMgfs'] = os.path.join(all_config_dict['GDASApp home'], 'parm')
     for key, value in var_config.items():
         os.environ[key] = str(value)
     # generate YAML for executable based on input config
     logging.info(f'Using yamlconfig {yamlconfig}')
-    genYAML(yamlconfig, output=output_file)
+
+    local_dict = {
+        'npx_ges': f"{int(os.environ['CASE'][1:]) + 1}",
+        'npy_ges': f"{int(os.environ['CASE'][1:]) + 1}",
+        'npz_ges': f"{int(os.environ['LEVS']) - 1}",
+        'npz': f"{int(os.environ['LEVS']) - 1}",
+        'npx_anl': f"{int(os.environ['CASE_ANL'][1:]) + 1}",
+        'npy_anl': f"{int(os.environ['CASE_ANL'][1:]) + 1}",
+        'npz_anl': f"{int(os.environ['LEVS']) - 1}",
+        'NMEM_ENKF': f"{int(os.environ['NMEM_ENKF'])}",
+        'ATM_WINDOW_BEGIN': window_begin,
+        'ATM_WINDOW_LENGTH': f"PT{assim_freq}H",
+        'BKG_TSTEP': executable_subconfig.get('forecast_step', 'PT6H'),
+        'OPREFIX': f"{dump}.t{cyc}z.",  # TODO: CDUMP is being replaced by RUN
+        'APREFIX': f"{dump}.t{cyc}z.",  # TODO: CDUMP is being replaced by RUN
+        'GPREFIX': f"gdas.t{gcyc}z.",
+        'DATA': os.path.join(workdir),
+        'layout_x': str(executable_subconfig['layout_x']),
+        'layout_y': str(executable_subconfig['layout_y']),
+        'previous_cycle': prev_cycle,
+        'current_cycle': valid_time,
+    }
+
+    varda_yaml = parse_j2yaml(all_config_dict['template'], local_dict)
+    save_as_yaml(varda_yaml, output_file)
+
     logging.info(f'Wrote YAML file to {output_file}')
     # use R2D2 to stage backgrounds, obs, bias correction files, etc.
     if app_mode in ['variational', 'hofx']:
-        ufsda.stage.gdas_single_cycle(var_config)
+        ufsda.stage.gdas_single_cycle(var_config, local_dict)
     # stage ensemble backgrouns for letkf
     if app_mode in ['letkf']:
         ufsda.stage.background_ens(var_config)
-        ufsda.stage.atm_obs(var_config)
-        ufsda.stage.bias_obs(var_config)
+        ufsda.stage.atm_obs(var_config, local_dict)
+        ufsda.stage.bias_obs(var_config, local_dict)
 
     # link additional fix files needed (CRTM, fieldmetadata, etc.)
     gdasfix = executable_subconfig['gdas_fix_root']

@@ -15,6 +15,7 @@ export gPDY=20210323
 export gcyc=12
 export GDATE=${gPDY}${gcyc}
 export ROTDIR=$bindir/test/atm/global-workflow/testrun/ROTDIRS
+export RUN=gdas
 export CDUMP=gdas
 export DATAROOT=$bindir/test/atm/global-workflow/testrun/RUNDIR
 export COMIN_GES=${bindir}/test/atm/bkg
@@ -23,11 +24,16 @@ export jobid=$pid
 export COMROOT=$DATAROOT
 export ACCOUNT=da-cpu
 
+# setup python path for workflow utilities and tasks
+pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${pygwPATH}"
+export PYTHONPATH
+
 # detemine machine from config.base
 machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
 
 if [ $machine != 'HERA' ]; then
-    ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_RUN
+    ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_RUN
 else
-    sbatch -n 6 --account=$ACCOUNT --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGDAS_GLOBAL_ATMOS_ANALYSIS_RUN
+    sbatch -n 6 --account=$ACCOUNT --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_RUN
 fi
