@@ -374,14 +374,14 @@ else:
 
 # substitute templated variables in the var config
 logging.info(f"{config}")
-varconfig = ufsda.yamltools.DAYAMLFile(path=var_yaml_template)
+varconfig = YAMLFile(path=var_yaml_template)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, config.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
 
-# Check obs space and save
-varconfig.save_check(var_yaml)
+# Remove empty obs spaces in var_yaml
+ufsda.yamltools.save_check(varconfig.as_dict(), target=var_yaml, app='var')
 
 ################################################################################
 # prepare yaml and CICE restart for soca to cice change of variable

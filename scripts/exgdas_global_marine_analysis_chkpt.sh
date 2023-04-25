@@ -37,17 +37,24 @@ soca_incr=$(ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1)
 mom6_iau_incr=${DATA}/inc.nc
 
 # prepare nsst yaml
+if [ $DO_MERGENSST = "YES" ]; then
 cat > nsst.yaml << EOF
 sfc_fcst: ${ROTDIR}/${GDUMP}.${gPDY}/${gcyc}/atmos/${GPREFIX}sfcf006.nc
 sfc_ana: ${COMOUT}/../atmos/${APREFIX}sfcanl.nc
 nlayers: 5
 EOF
 
-${HOMEgfs}/sorc/gdas.cd/ush/socaincr2mom6.py --incr "${soca_incr}" \
-                                             --bkg "${DATA}/INPUT/MOM.res.nc" \
-                                             --grid "${DATA}/soca_gridspec.nc" \
-                                             --out "${mom6_iau_incr}" \
-                                             --nsst_yaml "nsst.yaml"
+   ${HOMEgfs}/sorc/gdas.cd/ush/socaincr2mom6.py --incr "${soca_incr}" \
+                                                --bkg "${DATA}/INPUT/MOM.res.nc" \
+                                                --grid "${DATA}/soca_gridspec.nc" \
+                                                --out "${mom6_iau_incr}" \
+                                                --nsst_yaml "nsst.yaml"
+else
+   ${HOMEgfs}/sorc/gdas.cd/ush/socaincr2mom6.py --incr "${soca_incr}" \
+                                                --bkg "${DATA}/INPUT/MOM.res.nc" \
+                                                --grid "${DATA}/soca_gridspec.nc" \
+                                                --out "${mom6_iau_incr}"
+fi
 export err=$?
 if [ $err -gt 0  ]; then
     exit $err
