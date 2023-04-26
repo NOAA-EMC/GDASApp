@@ -78,7 +78,7 @@ ufsda.disk_utils.copyfile(os.path.join(anl_dir, 'Data', 'ice.3dvarfgat_pseudo.an
                           os.path.join(comout, cdump + '.t' + cyc + 'z.iceana.nc'))
 
 # Copy the CICE analysis restart
-cdateice = pdy + '.' + cyc + '0000' 
+cdateice = pdy + '.' + cyc + '0000'
 ufsda.disk_utils.copyfile(os.path.join(anl_dir, 'Data', cdateice + '.cice_model.res.nc'),
                           os.path.join(comoutice, 'RESTART', cdate + '.cice_model_anl.res.nc'))
 
