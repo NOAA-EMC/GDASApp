@@ -124,11 +124,12 @@ comout = os.getenv('COMOUT')
 data = os.getenv('DATA')
 pdy = os.getenv('PDY')
 cyc = os.getenv('cyc')
+RUN = os.getenv('RUN')
 bcyc = str((int(cyc) - 3) % 24).zfill(2)
 gcyc = str((int(cyc) - 6) % 24).zfill(2)
 gcdate = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H') - timedelta(hours=int(os.getenv('assim_freq')))
 
-grid_file = os.path.join(comout, 'gdas.t'+bcyc+'z.ocngrid.nc')
+grid_file = os.path.join(comout, f'{RUN}.t'+bcyc+'z.ocngrid.nc')
 
 # for eva
 diagdir = os.path.join(comout, 'diags')
@@ -139,7 +140,7 @@ HOMEgfs = os.getenv('HOMEgfs')
 # INCREMENT
 #######################################
 incr_cmap = 'RdBu'
-data_file = os.path.join(comout, 'gdas.t'+cyc+'z.ocninc.nc')
+data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
 config = plot_config(grid_file=grid_file,
                      data_file=data_file,
                      colormap=incr_cmap,
@@ -179,7 +180,7 @@ plot_horizontal_slice(config)
 
 #######################################
 # Sea ice
-data_file = os.path.join(comout, 'gdas.t'+cyc+'z.ice.incr.nc')
+data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc')
 config = plot_config(grid_file=grid_file,
                      data_file=data_file,
                      colormap=incr_cmap,
@@ -204,8 +205,8 @@ for proj in ['North', 'South']:
 
 #######################################
 # Sea ice
-data_files = [os.path.join(comout, 'gdas.t'+cyc+'z.iceana.nc'),
-              os.path.join(comout, '..', '..', '..', gcdate.strftime('gdas.%Y%m%d/%H'), 'ice', 'gdas.t'+gcyc+'z.icef006.nc')]
+data_files = [os.path.join(comout, f'{RUN}.t'+cyc+'z.iceana.nc'),
+              os.path.join(comout, '..', '..', '..', gcdate.strftime(f'{RUN}.%Y%m%d/%H'), 'ice', f'{RUN}.t'+gcyc+'z.icef006.nc')]
 dirs_out = ['ana', 'bkg']
 ice_vars = {'bkg': ['aice_h', 'hs_h', 'hi_h'], 'ana': ['aicen', 'hicen', 'hsnon']}
 for data_file, dir_out in zip(data_files, dirs_out):
@@ -230,8 +231,8 @@ for data_file, dir_out in zip(data_files, dirs_out):
 
 #######################################
 # Ocean surface
-data_files = [os.path.join(comout, 'gdas.t'+cyc+'z.ocnana.nc'),
-              os.path.join(comout, '..', '..', '..', gcdate.strftime('gdas.%Y%m%d/%H'), 'ocean', 'gdas.t'+gcyc+'z.ocnf006.nc')]
+data_files = [os.path.join(comout, f'{RUN}.t'+cyc+'z.ocnana.nc'),
+              os.path.join(comout, '..', '..', '..', gcdate.strftime(f'{RUN}.%Y%m%d/%H'), 'ocean', f'{RUN}.t'+gcyc+'z.ocnf006.nc')]
 dirs_out = ['ana', 'bkg']
 ocn_vars = ['ave_ssh', 'Temp', 'Salt']
 for data_file, dir_out in zip(data_files, dirs_out):
@@ -256,7 +257,7 @@ for data_file, dir_out in zip(data_files, dirs_out):
 # Std Bkg. Error
 #######################################
 bmat_cmap = 'jet'
-data_file = os.path.join(comout, 'gdas.t'+cyc+'z.ocn.bkgerr_stddev.nc')
+data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
 config = plot_config(grid_file=grid_file,
                      data_file=data_file,
                      colormap=bmat_cmap,
@@ -297,7 +298,7 @@ plot_horizontal_slice(config)
 #######################################
 # eva plots
 
-evadir = os.path.join(HOMEgfs, 'sorc', 'gdas.cd', 'ush', 'eva')
+evadir = os.path.join(HOMEgfs, 'sorc', f'{RUN}.cd', 'ush', 'eva')
 marinetemplate = os.path.join(evadir, 'marine_gdas_plots.yaml')
 varyaml = os.path.join(comout, 'yaml', 'var.yaml')
 

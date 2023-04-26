@@ -1,4 +1,5 @@
-#!/bin/bash
+#! /usr/bin/env bash
+
 ################################################################################
 ####  UNIX Script Documentation Block
 #                      .                                             .
@@ -8,7 +9,11 @@
 #
 # Author: Guillaume Vernieres        Org: NCEP/EMC     Date: 2023-04-01
 #
-# Abstract: Doodads for ocean and seaice DA
+# Abstract: This script does the following:
+#           1 - Post processing of the ocean increment for MOM6 IAU.
+#           2 - De-aggregates the sea-ice analysis and prepares the CICE6 analysis restart
+#           3 - Optionaly interpolates the Tref increment from the NSST analysis onto the
+#               MOM6 grid and merges it with the JEDI/SOCA increment
 #
 # $Id$
 #

@@ -222,10 +222,9 @@ ufsda.mkdir(anl_out)
 
 # Variables of convenience
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
-assim_freq = timedelta(hours=int(os.getenv('assim_freq')))
 window_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H') - half_assim_freq
 window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
-fcst_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')  # - assim_freq
+fcst_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')
 
 ################################################################################
 # fetch observations
@@ -414,10 +413,11 @@ for varchgyaml in varchgyamls:
 
 ################################################################################
 # links of convenience
-mom_ic = glob.glob(os.path.join(bkg_dir, 'gdas.*.ocnf003.nc'))[0]
+cdump = os.getenv('RUN')
+mom_ic = glob.glob(os.path.join(bkg_dir, f'{cdump}.*.ocnf003.nc'))[0]
 ufsda.disk_utils.symlink(mom_ic, os.path.join(anl_dir, 'INPUT', 'MOM.res.nc'))
 
-cice_ic = glob.glob(os.path.join(bkg_dir, 'gdas.*.agg_icef003.nc'))[0]
+cice_ic = glob.glob(os.path.join(bkg_dir, f'{cdump}.*.agg_icef003.nc'))[0]
 ufsda.disk_utils.symlink(cice_ic, os.path.join(anl_dir, 'INPUT', 'cice.res.nc'))
 
 ################################################################################
