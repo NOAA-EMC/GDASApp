@@ -3,7 +3,7 @@
 #  UNIX Script Documentation Block
 #                      .                                             .
 # Script name:         exufsda_global_marine_analysis_post.py
-# Script description:  Stages files and generates YAML for UFS Global Marine Analysis
+# Script description:  Copies files from rundir to comrot after analysis run
 #
 # Author: Andrew Eichmann    Org: NCEP/EMC     Date: 2023-04-24
 #
