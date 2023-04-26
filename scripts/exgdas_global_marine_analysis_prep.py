@@ -125,13 +125,13 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
     bkg_date = window_begin
 
     # Construct list of background file names
-    cdump = os.getenv('CDUMP')
+    RUN = os.getenv('RUN')
     cyc = str(os.getenv('cyc')).zfill(2)
     gcyc = str((int(cyc) - 6) % 24).zfill(2)  # previous cycle
     fcst_hrs = list(range(3, 10, dt_pseudo))
     files = []
     for fcst_hr in fcst_hrs:
-        files.append(os.path.join(bkg_path, cdump+'.t'+gcyc+'z.ocnf'+str(fcst_hr).zfill(3)+'.nc'))
+        files.append(os.path.join(bkg_path, f'{RUN}.t'+gcyc+'z.ocnf'+str(fcst_hr).zfill(3)+'.nc'))
 
     # Identify the ocean background that will be used for the  vertical coordinate remapping
     ocn_filename_ic = os.path.splitext(os.path.basename(files[0]))[0]+'.nc'
@@ -413,11 +413,11 @@ for varchgyaml in varchgyamls:
 
 ################################################################################
 # links of convenience
-cdump = os.getenv('RUN')
-mom_ic = glob.glob(os.path.join(bkg_dir, f'{cdump}.*.ocnf003.nc'))[0]
+RUN = os.getenv('RUN')
+mom_ic = glob.glob(os.path.join(bkg_dir, f'{RUN}.*.ocnf003.nc'))[0]
 ufsda.disk_utils.symlink(mom_ic, os.path.join(anl_dir, 'INPUT', 'MOM.res.nc'))
 
-cice_ic = glob.glob(os.path.join(bkg_dir, f'{cdump}.*.agg_icef003.nc'))[0]
+cice_ic = glob.glob(os.path.join(bkg_dir, f'{RUN}.*.agg_icef003.nc'))[0]
 ufsda.disk_utils.symlink(cice_ic, os.path.join(anl_dir, 'INPUT', 'cice.res.nc'))
 
 ################################################################################
