@@ -7,8 +7,8 @@
 #
 # Author: Andrew Eichmann    Org: NCEP/EMC     Date: 2023-04-24
 #
-# Abstract: This script stages the marine observations, backgrounds and prepares
-#           the variational yaml necessary to produce a UFS Global Marine Analysis.
+# Abstract: This script, to be called from jobs/JGDAS_GLOBAL_OCEAN_ANALYSIS_POST
+#           in global-workflow, copies ocean da files from the rundir to the comrot
 #
 # $Id$
 #
