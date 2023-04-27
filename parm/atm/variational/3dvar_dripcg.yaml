@@ -1,6 +1,6 @@
 cost function:
   cost type: 3D-Var
-  window begin: '{{ATM_WINDOW_BEGIN}}'
+  window begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
   window length: $(ATM_WINDOW_LENGTH)
   analysis variables: &3dvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
   geometry:
@@ -9,8 +9,8 @@ cost function:
       field table filename: ./fv3jedi/field_table
     akbk: ./fv3jedi/akbk.nc4
     layout:
-    - !ENV ${layout_x}
-    - !ENV ${layout_y}
+    - $(layout_x)
+    - $(layout_y)
     npx: $(npx_ges)
     npy: $(npy_ges)
     npz: $(npz_ges)
@@ -18,12 +18,12 @@ cost function:
   background:
     datapath: ./bkg
     filetype: fms restart
-    datetime: '{{BKG_ISOTIME}}'
-    filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
-    filename_trcr: '{{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc'
-    filename_sfcd: '{{BKG_YYYYmmddHHMMSS}}.sfc_data.nc'
-    filename_sfcw: '{{BKG_YYYYmmddHHMMSS}}.fv_srf_wnd.res.nc'
-    filename_cplr: '{{BKG_YYYYmmddHHMMSS}}.coupler.res'
+    datetime: '{{ current_cycle | to_isotime }}'
+    filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
+    filename_trcr: '{{ current_cycle | to_fv3time }}.fv_tracer.res.nc'
+    filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
+    filename_sfcw: '{{ current_cycle | to_fv3time }}.fv_srf_wnd.res.nc'
+    filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
     state variables: [ua,va,t,DZ,delp,ps,sphum,ice_wat,liq_wat,o3mr,phis,
                       slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                       u_srf,v_srf,f10m]
@@ -42,8 +42,8 @@ variational:
         field table filename: ./fv3jedi/field_table
       akbk: ./fv3jedi/akbk.nc4
       layout:
-      - !ENV ${layout_x}
-      - !ENV ${layout_y}
+      - $(layout_x)
+      - $(layout_y)
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
@@ -59,8 +59,8 @@ variational:
         field table filename: ./fv3jedi/field_table
       akbk: ./fv3jedi/akbk.nc4
       layout:
-      - !ENV ${layout_x}
-      - !ENV ${layout_y}
+      - $(layout_x)
+      - $(layout_y)
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
@@ -81,8 +81,8 @@ final:
         field table filename: ./fv3jedi/field_table
       akbk: ./fv3jedi/akbk.nc4
       layout:
-      - !ENV ${layout_x}
-      - !ENV ${layout_y}
+      - $(layout_x)
+      - $(layout_y)
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)

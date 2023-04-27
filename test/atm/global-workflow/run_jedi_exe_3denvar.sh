@@ -30,18 +30,25 @@ elif [ "$machine" = "orion" ]; then
     gdasfix="/work2/noaa/da/cmartin/GDASApp/fix"
 fi
 
+# Setup python path for workflow utilities and tasks
+export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
+echo $HOMEgfs
+pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${pygwPATH}"
+export PYTHONPATH
+
 # Create test run directory
-mkdir -p ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3dvar
-cd ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3dvar
+mkdir -p ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3denvar
+cd ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3denvar
 
 # Create input yaml
-cat > ./3dvar_example.yaml << EOF
+cat > ./3denvar_example.yaml << EOF
 working directory: ./
 GDASApp home: ${srcdir}
 GDASApp mode: variational
 template: ${srcdir}/parm/atm/variational/3dvar_dripcg.yaml
 config:
-  berror_yaml: ${srcdir}/parm/atm/berror/staticb_gsibec.yaml
+  berror_yaml: ${srcdir}/parm/atm/berror/hybvar_gsibec.yaml
   obs_dir: obs
   diag_dir: diags
   crtm_coeff_dir: crtm
@@ -58,9 +65,10 @@ config:
   valid_time: 2021-12-21T06:00:00Z
   dump: gdas
   case: C96
-  case_anl: C96
+  case_anl: C48
+  case_enkf: C48
   staticb_type: gsibec
-  dohybvar: false
+  dohybvar: true
   levs: 128
   nmem: 10
   interp_method: barycentric
@@ -78,7 +86,7 @@ EOF
 if [ -e stdout.txt ]; then
     rm -f stdout.txt
 fi
-${srcdir}/ush/run_jedi_exe.py -c ./3dvar_example.yaml > stdout.txt 2>&1
+${srcdir}/ush/run_jedi_exe.py -c ./3denvar_example.yaml > stdout.txt 2>&1
 rc=$?
 if [ $rc -ne 0 ]; then
     exit $rc
@@ -104,7 +112,7 @@ if [ $rc -ne 0 ]; then
 fi
 
 # Check for valid yaml files
-ylist="3dvar_example.yaml gdas_variational.yaml"
+ylist="3denvar_example.yaml gdas_variational.yaml"
 for yfile in $ylist; do
     python3 -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < $yfile
     rc=$?

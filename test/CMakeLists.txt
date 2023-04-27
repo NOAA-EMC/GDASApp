@@ -1,8 +1,7 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "117b8af9db031466b1d5e8f82df3ab9b09ca093a0617ec58f6ac059fbbb354ea")
-
+set(SHA "0412bf1037a28bb66e849ee9e03aadab4d01cd73b6cbc25dfb6a293e694006dc")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
@@ -37,7 +36,6 @@ list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_13.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_14.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/ocn_da_2018_04_15_15.nc
-  ${CMAKE_CURRENT_BINARY_DIR}/testdata/iced.2019-04-15-43200.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/gdas.t00z.abias_pc
 )

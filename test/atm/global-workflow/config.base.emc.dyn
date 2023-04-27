@@ -40,7 +40,7 @@ export FIXreg2grb2=$HOMEgfs/fix/reg2grb2
 export PACKAGEROOT="@PACKAGEROOT@"    # TODO: set via prod_envir in Ops
 export COMROOT="@COMROOT@"    # TODO: set via prod_envir in Ops
 export COMINsyn="@COMINsyn@"
-export DMPDIR="@DMPDIR@"
+export DMPDIR=@DUMPDIR@
 
 # USER specific paths
 export HOMEDIR="@HOMEDIR@"
@@ -109,7 +109,7 @@ export DUMP_SUFFIX=""
 if [[ "$CDATE" -ge "2019092100" && "$CDATE" -le "2019110700" ]]; then
     export DUMP_SUFFIX="p"              # Use dumps from NCO GFS v15.3 parallel
 fi
-export DATAROOT="@DATAPATH@/RUNDIR/${jobid}"  # TODO: set via prod_envir in Ops
+export DATAROOT="@DATAPATH@/RUNDIR"  # TODO: set via prod_envir in Ops
 export RUNDIR="${DATAROOT}"  # TODO: Should be removed; use DATAROOT instead
 export ARCDIR="$NOSCRUB/archive/$PSLOT"
 export ICSDIR="@ICSDIR@"
@@ -119,8 +119,12 @@ export ATARDIR="@ATARDIR@"
 export envir=${envir:-"prod"}
 export NET="gfs"
 export RUN=${RUN:-${CDUMP:-"gfs"}}
-export COMIN_OBS=${DMPDIR}/${CDUMP}.${PDY}/$cyc/atmos
-export COMIN_GES_OBS=${DMPDIR}/${CDUMP}.${PDY}/$cyc/atmos
+CDUMP_OBS="${CDUMP}"
+if [ "${CDUMP_OBS}" = "enkfgdas" ]; then
+    CDUMP_OBS="gdas"
+fi
+export COMIN_OBS=${DMPDIR}/${CDUMP_OBS}.${PDY}/$cyc/atmos
+export COMIN_GES_OBS=${DMPDIR}/${CDUMP_OBS}.${PDY}/$cyc/atmos
 export COMINatmos=${ROTDIR}/${CDUMP}.${PDY}/${cyc}/atmos
 export COMOUTatmos=${ROTDIR}/${CDUMP}.${PDY}/${cyc}/atmos
 export COMINwave=${ROTDIR}/${CDUMP}.${PDY}/${cyc}/wave

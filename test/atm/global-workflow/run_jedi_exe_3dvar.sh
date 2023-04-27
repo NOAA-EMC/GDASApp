@@ -30,38 +30,46 @@ elif [ "$machine" = "orion" ]; then
     gdasfix="/work2/noaa/da/cmartin/GDASApp/fix"
 fi
 
+# Setup python path for workflow utilities and tasks
+export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
+echo $HOMEgfs
+pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${pygwPATH}"
+export PYTHONPATH
+
 # Create test run directory
-mkdir -p ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_letkf
-cd ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_letkf
+mkdir -p ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3dvar
+cd ${bindir}/test/atm/global-workflow/testrun/gdas_single_test_3dvar
 
 # Create input yaml
-cat > ./letkf_example.yaml << EOF
+cat > ./3dvar_example.yaml << EOF
 working directory: ./
 GDASApp home: ${srcdir}
-GDASApp mode: letkf
-template: ${srcdir}/parm/atm/lgetkf/lgetkf.yaml
+GDASApp mode: variational
+template: ${srcdir}/parm/atm/variational/3dvar_dripcg.yaml
 config:
+  berror_yaml: ${srcdir}/parm/atm/berror/staticb_gsibec.yaml
   obs_dir: obs
   diag_dir: diags
   crtm_coeff_dir: crtm
   bias_in_dir: obs
   bias_out_dir: bc
   obs_yaml_dir: ${srcdir}/parm/atm/obs/config
-  executable: ${bindir}/bin/fv3jedi_letkf.x
-  obs_list: ${srcdir}/parm/atm/obs/lists/lgetkf_prototype.yaml
+  executable: ${bindir}/bin/fv3jedi_var.x
+  obs_list: ${srcdir}/parm/atm/obs/lists/gdas_prototype_3d.yaml
   gdas_fix_root: ${gdasfix}
   atm: true
-  layout_x: 3
-  layout_y: 2
+  layout_x: 1
+  layout_y: 1
   atm_window_length: PT6H
   valid_time: 2021-12-21T06:00:00Z
   dump: gdas
-  case: C48
-  case_anl: C48
+  case: C96
+  case_anl: C96
   staticb_type: gsibec
-  dohybvar: no
+  dohybvar: false
   levs: 128
-  nmem: 5
+  nmem: 10
   interp_method: barycentric
 job options:
   machine: ${machine}
@@ -69,7 +77,7 @@ job options:
   queue: debug
   partition: ${partition}
   walltime: '30:00'
-  ntasks: 36
+  ntasks: 6
   modulepath: ${srcdir}/modulefiles
 EOF
 
@@ -77,7 +85,7 @@ EOF
 if [ -e stdout.txt ]; then
     rm -f stdout.txt
 fi
-${srcdir}/ush/run_jedi_exe.py -c ./letkf_example.yaml > stdout.txt 2>&1
+${srcdir}/ush/run_jedi_exe.py -c ./3dvar_example.yaml > stdout.txt 2>&1
 rc=$?
 if [ $rc -ne 0 ]; then
     exit $rc
@@ -103,7 +111,7 @@ if [ $rc -ne 0 ]; then
 fi
 
 # Check for valid yaml files
-ylist="letkf_example.yaml gdas_letkf.yaml"
+ylist="3dvar_example.yaml gdas_variational.yaml"
 for yfile in $ylist; do
     python3 -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < $yfile
     rc=$?

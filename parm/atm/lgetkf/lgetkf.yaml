@@ -4,32 +4,33 @@ geometry:
     field table filename: ./fv3jedi/field_table
   akbk: ./fv3jedi/akbk.nc4
   layout:
-  - !ENV ${layout_x}
-  - !ENV ${layout_y}
+  - $(layout_x)
+  - $(layout_y)
   npx: $(npx_ges)
   npy: $(npy_ges)
   npz: $(npz_ges)
   field metadata override: ./fv3jedi/gfs-restart.yaml
-window begin: '$(ATM_WINDOW_BEGIN)'
-window length: PT6H
+window begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
+window length: $(ATM_WINDOW_LENGTH)
+increment variables: [ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
 background:
-   datetime: '{{BKG_ISOTIME}}'
+   datetime: '{{ current_cycle | to_isotime }}'
    members from template:
      template:
-       datetime: '{{BKG_ISOTIME}}'
+       datetime: '{{ current_cycle | to_isotime }}'
        filetype: fms restart
        state variables: [ua,va,t,DZ,delp,ps,sphum,ice_wat,liq_wat,o3mr,phis,
                         slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                         u_srf,v_srf,f10m]
        datapath: bkg/mem%mem%
-       filename_core: '{{BKG_YYYYmmddHHMMSS}}.fv_core.res.nc'
-       filename_trcr: '{{BKG_YYYYmmddHHMMSS}}.fv_tracer.res.nc'
-       filename_sfcd: '{{BKG_YYYYmmddHHMMSS}}.sfc_data.nc'
-       filename_sfcw: '{{BKG_YYYYmmddHHMMSS}}.fv_srf_wnd.res.nc'
-       filename_cplr: '{{BKG_YYYYmmddHHMMSS}}.coupler.res'
+       filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
+       filename_trcr: '{{ current_cycle | to_fv3time }}.fv_tracer.res.nc'
+       filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
+       filename_sfcw: '{{ current_cycle | to_fv3time }}.fv_srf_wnd.res.nc'
+       filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
      pattern: '%mem%'
-     nmembers: !ENV ${NMEM_ENKF}
+     nmembers: $(NMEM_ENKF)
      zero padding: 3
 
 observations: !INC ${OBS_LIST}
@@ -41,6 +42,7 @@ driver:
   save prior mean: false
   save posterior mean increment: false
   save posterior ensemble increments: true
+  do posterior observer: false
 
 local ensemble DA:
   solver: GETKF
