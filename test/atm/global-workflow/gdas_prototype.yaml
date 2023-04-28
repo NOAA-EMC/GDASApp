@@ -1,6 +1,6 @@
 observers:
 - !INC ${OBS_YAML_DIR}/amsua_n19.yaml
-##- !INC ${OBS_YAML_DIR}/sondes.yaml
+- !INC ${OBS_YAML_DIR}/sondes.yaml
 ##- !INC ${OBS_YAML_DIR}/atms_n20.yaml
 ##- !INC ${OBS_YAML_DIR}/aircraft.yaml
 ##- !INC ${OBS_YAML_DIR}/satwind.yaml

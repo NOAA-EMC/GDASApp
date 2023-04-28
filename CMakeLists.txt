@@ -67,15 +67,23 @@ if(BUILD_GDASBUNDLE)
 # Build GSI-B
   option(BUILD_GSIBEC "Build GSI-B" OFF)
   if(BUILD_GSIBEC)
-    ecbuild_bundle( PROJECT gsibec GIT "https://github.com/GEOS-ESM/GSIbec.git" TAG 1.0.7 )
+    ecbuild_bundle( PROJECT gsibec GIT "https://github.com/GEOS-ESM/GSIbec.git" TAG 271edbc )
   endif()
 
 # Core JEDI repositories
-  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG e2b9dc6 )
-  ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG de52190 )
-  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 4c79b8c )
-  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG f27bd1c  )
-  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG 1a67b67 )
+<<<<<<< HEAD
+  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG faffa88 )
+  ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG a3c0600 )
+  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG efa93b0 )
+  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG 0afdd86  )
+  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG 33b3ded )
+=======
+  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG faffa88 )
+  ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG a3c0600 )
+  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG efa93b0 )
+  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG 0afdd86  )
+  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG 33b3ded )
+>>>>>>> develop
 
 # FMS and FV3 dynamical core
   ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" TAG 1f73914 )
@@ -84,17 +92,35 @@ if(BUILD_GDASBUNDLE)
 # fv3-jedi and associated repositories
   ecbuild_bundle( PROJECT femps       GIT "https://github.com/jcsda/femps.git"                TAG cb39681 )
   ecbuild_bundle( PROJECT fv3-jedi-lm GIT "https://github.com/jcsda/fv3-jedi-linearmodel.git" TAG a934a7b )
-  ecbuild_bundle( PROJECT fv3-jedi    GIT "https://github.com/jcsda/fv3-jedi.git"             TAG 07b1a28 )
+<<<<<<< HEAD
+  ecbuild_bundle( PROJECT fv3-jedi    GIT "https://github.com/jcsda/fv3-jedi.git"             TAG dc58205 )
 
 # SOCA associated repositories
   ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" TAG 1a02eba )
   ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" TAG 51ec489 RECURSIVE )
-  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" TAG 5d1a7ad )
+  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" TAG 75dec0a )
+=======
+  ecbuild_bundle( PROJECT fv3-jedi    GIT "https://github.com/jcsda/fv3-jedi.git"             TAG dc58205 )
+
+# SOCA associated repositories
+# TODO: Move the Icepack fork to EMC github
+  set(BUILD_ICEPACK "ON" CACHE STRING "Build the icepack library")
+  if ( BUILD_ICEPACK )
+    ecbuild_bundle( PROJECT icepack GIT "https://github.com/JCSDA-internal/Icepack.git" BRANCH feature/ecbuild-new )
+  endif()
+  ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" TAG 1a02eba )
+  ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" TAG 51ec489 RECURSIVE )
+  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" TAG 75dec0a )
+>>>>>>> develop
 
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
   if(BUILD_IODA_CONVERTERS)
-    ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" TAG c27c1df )
+<<<<<<< HEAD
+    ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" TAG 6a3c59b )
+=======
+    ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" TAG 6a3c59b )
+>>>>>>> develop
   endif()
 
 # Land associated repositories
