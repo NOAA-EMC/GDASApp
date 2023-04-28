@@ -71,9 +71,15 @@ if(BUILD_GDASBUNDLE)
   endif()
 
 # Core JEDI repositories
+<<<<<<< Updated upstream
   ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG faffa88 )
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG a3c0600 )
   ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG efa93b0 )
+=======
+  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG 0925baf )
+  ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG a3c0600 )
+  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 44f9e27 )
+>>>>>>> Stashed changes
   ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG 0afdd86  )
   ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG 33b3ded )
 
