@@ -158,7 +158,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
             # Process the CICE history file so they can be read by soca/fms
             # TODO: Add date check of the cice history
             # TODO: bkg_path should be 1 level up
-            cice_hist2fms(os.path.join(bkg_path, '..', 'ice', ice_filename),
+            cice_hist2fms(os.path.join(os.getenv('COM_ICE_HISTORY'), ice_filename),
                           os.path.join(out_path, agg_ice_filename))
 
         # copy ocean bkg to out_path
@@ -200,8 +200,8 @@ def find_bkgerr(input_date, domain):
 
 logging.info(f"---------------- Setup runtime environement")
 
-comout = os.getenv('COMOUT')
-comin_obs = os.getenv('COMIN_OBS')
+#comout = os.getenv('COMOUT')
+comin_obs = os.getenv('COMIN_OBS')  # R2D2 DB for now
 anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
 
@@ -235,15 +235,19 @@ logging.info(f"---------------- Stage observations")
 ufsda.r2d2.setup(r2d2_config_yaml=os.path.join(anl_dir, 'r2d2_config.yaml'), shared_root=comin_obs)
 
 # create config dict from runtime env
-envconfig = ufsda.misc_utils.get_env_config(component='soca')
-stage_cfg = YAMLFile(path=os.path.join(gdas_home,
-                                       'parm',
-                                       'templates',
-                                       'stage.yaml'))
+envconfig = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+             'r2d2_obs_src': os.getenv('R2D2_OBS_SRC'),
+             'r2d2_obs_dump': os.getenv('R2D2_OBS_DUMP'),
+             'r2d2_obs_db': os.getenv('R2D2_OBS_DB'),
+             'ATM_WINDOW_BEGIN': window_begin_iso,
+             'ATM_WINDOW_LENGTH': f"PT{os.getenv('assim_freq')}H",
+ }
+stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'stage.yaml'))
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+stage_cfg['r2d2_obs_out'] = os.getenv('COM_OBS')
 
-# stage observations from R2D2 to COMIN_OBS and then link to analysis subdir
+# stage observations from R2D2 COMIN_OBS to COM_OBS
 ufsda.stage.obs(stage_cfg)
 
 ################################################################################
@@ -357,7 +361,8 @@ var_yaml_template = os.path.join(gdas_home,
                                  'soca',
                                  'variational',
                                  '3dvarfgat.yaml')
-gen_bkg_list(bkg_path=os.getenv('COMIN_GES'),
+print(f"&&&&&&&&&&&&&&&& {os.getenv('COM_OCEAN_HISTORY')}")
+gen_bkg_list(bkg_path=os.getenv('COM_OCEAN_HISTORY'),
              out_path=bkg_dir,
              window_begin=window_begin,
              yaml_name='bkg_list.yaml')
@@ -387,8 +392,7 @@ ufsda.yamltools.save_check(varconfig.as_dict(), target=var_yaml, app='var')
 
 # make a copy of the CICE6 restart
 rst_date = fcst_begin.strftime('%Y%m%d.%H%M%S')
-ice_rst = os.path.join(os.getenv('COMIN_GES'), '..', 'ice', 'RESTART',
-                       rst_date+'.cice_model.res.nc')
+ice_rst = os.path.join(os.getenv('COM_ICE_RESTART'), f'{rst_date}.cice_model.res.nc')
 ice_rst_ana = os.path.join(anl_out, rst_date+'.cice_model.res.nc')
 ufsda.disk_utils.copyfile(ice_rst, ice_rst_ana)
 

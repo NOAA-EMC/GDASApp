@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}salt_bufr_dbuoyprof.${PDY}${cyc}.nc4
+      obsfile: !ENV ${COM_OBS}/${OPREFIX}salt_bufr_dbuoyprof.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
