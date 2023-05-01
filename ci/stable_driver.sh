@@ -73,15 +73,42 @@ $my_dir/stable_mark.sh $stableroot/$datestr/GDASApp
 # run the automated testing
 $my_dir/run_ci.sh -d $stableroot/$datestr/GDASApp -o $stableroot/$datestr/output
 ci_status=$?
+total=0
 if [ $ci_status -eq 0 ]; then
-  # push a new commit to the stable branch
-  cd $stableroot/$datestr/GDASApp
-  git push origin --delete feature/stable-nightly
-  git checkout -b feature/stable-nightly
+  # copy the CMakeLists file for safe keeping
+  cp $stableroot/$datestr/GDASApp/CMakeLists.txt $stableroot/$datestr/GDASApp/CMakeLists.txt.new
+  total=$(($total+$?))
+  # checkout feature/stable-nightly
+  git stash
+  total=$(($total+$?))
+  git checkout feature/stable-nightly
+  total=$(($total+$?))
+  # merge in develop
+  git merge develop
+  total=$(($total+$?))
+  # force move the copy to the original path of CMakeLists.txt
+  /bin/mv -f $stableroot/$datestr/GDASApp/CMakeLists.txt.new $stableroot/$datestr/GDASApp/CMakeLists.txt
+  total=$(($total+$?))
+  # commit this change and push
   git add CMakeLists.txt
+  total=$(($total+$?))
   git commit -m "Update to new stable build on $datestr"
+  total=$(($total+$?))
   git push --set-upstream origin feature/stable-nightly
-  echo "Stable branch updated"
+  total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Issue merging with develop. please manually fix"
+    PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov"
+    SUBJECT="Problem updating feature/stable-nightly branch of GDASApp"
+    BODY=$stableroot/$datestr/output_stable_nightly
+    cat > $BODY << EOF
+Problem updating feature/stable-nightly branch of GDASApp. Please check $stableroot/$datestr/GDASApp
+
+EOF
+    mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
+  else
+    echo "Stable branch updated"
+  fi
 else
   # do nothing
   echo "Testing failed, stable branch will not be updated"
