@@ -200,7 +200,6 @@ def find_bkgerr(input_date, domain):
 
 logging.info(f"---------------- Setup runtime environement")
 
-#comout = os.getenv('COMOUT')
 comin_obs = os.getenv('COMIN_OBS')  # R2D2 DB for now
 anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
@@ -240,8 +239,7 @@ envconfig = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
              'r2d2_obs_dump': os.getenv('R2D2_OBS_DUMP'),
              'r2d2_obs_db': os.getenv('R2D2_OBS_DB'),
              'ATM_WINDOW_BEGIN': window_begin_iso,
-             'ATM_WINDOW_LENGTH': f"PT{os.getenv('assim_freq')}H",
- }
+             'ATM_WINDOW_LENGTH': f"PT{os.getenv('assim_freq')}H"}
 stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'stage.yaml'))
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
