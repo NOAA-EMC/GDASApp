@@ -224,7 +224,6 @@ def obs(config):
     for ob in config['observations']['observers']:
         obname = ob['obs space']['name'].lower()
         outfile = ob['obs space']['obsdatain']['engine']['obsfile']
-        print(outfile)
         # grab obs using R2D2
         window_begin = config['window begin']
         window_begin = parser.parse(window_begin, fuzzy=True)

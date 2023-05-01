@@ -359,7 +359,6 @@ var_yaml_template = os.path.join(gdas_home,
                                  'soca',
                                  'variational',
                                  '3dvarfgat.yaml')
-print(f"&&&&&&&&&&&&&&&& {os.getenv('COM_OCEAN_HISTORY')}")
 gen_bkg_list(bkg_path=os.getenv('COM_OCEAN_HISTORY'),
              out_path=bkg_dir,
              window_begin=window_begin,
