@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${COM_OBS}/${OPREFIX}sst_viirs_npp_l3u_so025.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}sst_viirs_npp_l3u_so025.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File

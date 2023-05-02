@@ -4,7 +4,7 @@ import os
 import sys
 import subprocess
 import argparse
-
+from datetime import datetime, timedelta
 
 machines = {"container", "hera", "orion"}
 MODS = {'JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP': 'GDAS',
@@ -28,14 +28,26 @@ class JobCard:
         self.name = scriptname
         self.f = open(self.name, "w")
         self.f.write("#!/usr/bin/env bash\n")
-        self.component = config['gw environement']['experiment identifier']['COMPONENT']
         self.pslot = config['gw environement']['experiment identifier']['PSLOT']
         self.homegfs = config['gw environement']['experiment identifier']['HOMEgfs']
         self.stmp = config['gw environement']['working directories']['STMP']
-        self.rotdirs = config['gw environement']['working directories']['ROTDIR']
+        self.rotdirs = config['gw environement']['working directories']['ROTDIRS']
+        self.rotdir = os.path.join(self.rotdirs, self.pslot)
         self.expdirs = config['gw environement']['working directories']['EXPDIRS']
         self.config = config
         self.machine = config['machine']
+
+        # get cycle info
+        self.PDY = config['gw environement']['cycle info']['PDY']
+        self.cyc = config['gw environement']['cycle info']['cyc']
+        self.assim_freq = config['gw environement']['cycle info']['assym_freq']
+        self.RUN = config['gw environement']['experiment identifier']['RUN']
+
+        # compute previous cycle info
+        gdate = datetime.strptime(f"{self.PDY}{self.cyc}", '%Y%m%d%H') - timedelta(hours=self.assim_freq)
+        self.gPDY = gdate.strftime("%Y%m%d")
+        self.gcyc = gdate.strftime("%H")
+        self.com_src = config['gw environement']['backgrounds']['COM_SRC']
 
     def header(self):
         """
@@ -60,12 +72,14 @@ class JobCard:
         # Compute remaining environment variables
         config = self.config['gw environement']
         EXPDIR = os.path.join(config['working directories']['EXPDIRS'], self.pslot)
+        ROTDIR = self.rotdir
         DATAROOT = os.path.join(config['working directories']['STMP'], 'RUNDIRS', self.pslot)
         gcyc = str((config['cycle info']['cyc'] - config['cycle info']['assym_freq']) % 24).zfill(2)
         CDATE = f"{config['cycle info']['PDY']}{config['cycle info']['cyc']}"  # TODO: Not needed after Andy's PR
 
         # Write the export commands for the remaining environment variables
         self.f.write(f"export EXPDIR='{EXPDIR}'\n")
+        self.f.write(f"export ROTDIR='{ROTDIR}'\n")
         self.f.write(f"export DATAROOT='{DATAROOT}'\n")
         self.f.write(f"export gcyc='{gcyc}'\n")
         self.f.write(f"export CDATE='{CDATE}'\n")
@@ -87,7 +101,6 @@ class JobCard:
         # Dump the configs in a separate yaml file
         with open("overwrite_defaults.yaml", "w") as f:
             yaml.safe_dump(self.config['setup_expt config'], f)
-
         # Setup the experiment
         self.f.write("\n")
         self.f.write("# Setup the experiment\n")
@@ -105,7 +118,7 @@ class JobCard:
             "nens": "0",
             "pslot": "${PSLOT}",
             "configdir": "${PWD}/config",
-            "comrot": "${ROTDIR}",
+            "comrot": self.rotdir,
             "expdir": "${EXPDIRS}",
             "yaml": "overwrite_defaults.yaml"}
 
@@ -130,19 +143,39 @@ class JobCard:
             self.f.write("module use ${HOMEgfs}/sorc/gdas.cd/modulefiles \n")
             self.f.write(f"module load {MODS[jjob]}/{self.machine} \n")
 
+    def precom(self, com):
+        cmd = f"RUN={self.RUN} YMD={self.gPDY} HH={self.gcyc} generate_com -xr {com}"
+        self.f.write(f"{cmd}\n")
+
     def copy_bkgs(self):
         """
         Fill the ROTDIR with backgrounds
         TODO: replace by fill comrot?
         """
+        print(f"gPDY: {self.gPDY}")
+        print(f"gcyc: {self.gcyc}")
+        print(f"assim_freq: {self.assim_freq}")
+        print(f"RUN: {self.RUN}")
+
+        # setup COM variables
+        self.f.write("source ${HOMEgfs}/parm/config/config.com\n")
+        self.f.write("source ${HOMEgfs}/ush/preamble.sh\n")
+        self.precom('COM_OCEAN_HISTORY')
+        self.precom('COM_ICE_HISTORY')
+        self.precom('COM_ICE_RESTART')
+
         self.f.write("mkdir -p ${COM_OCEAN_HISTORY}/\n")
         self.f.write("mkdir -p ${COM_ICE_HISTORY}/\n")
         self.f.write("mkdir -p ${COM_ICE_RESTART}/\n")
-        self.f.write("echo ${COM_OCEAN_HISTORY_SRC}\n")
         self.f.write("echo ${COM_OCEAN_HISTORY}\n")
-        self.f.write("cp ${COM_OCEAN_HISTORY_SRC}/*.nc ${COM_OCEAN_HISTORY}\n")
-        self.f.write("cp ${COM_ICE_HISTORY_SRC}/*.nc ${COM_ICE_HISTORY}\n")
-        self.f.write("cp ${COM_ICE_RESTART_SRC}/*.nc ${COM_ICE_RESTART}\n")
+
+        model_data = os.path.join(self.com_src, f"{self.RUN}.{self.gPDY}", self.gcyc, "model_data")
+        com_ocean_history_src = os.path.join(model_data, 'ocean', 'history')
+        com_ice_history_src = os.path.join(model_data, 'ice', 'history')
+        com_ice_restart_src = os.path.join(model_data, 'ice', 'restart')
+        self.f.write(f"cp {com_ocean_history_src}/*ocnf*.nc $COM_OCEAN_HISTORY \n")
+        self.f.write(f"cp {com_ice_history_src}/*icef*.nc $COM_ICE_HISTORY \n")
+        self.f.write(f"cp {com_ice_restart_src}/*cice_model*.nc $COM_ICE_RESTART \n")
 
     def fixconfigs(self):
         """
@@ -161,7 +194,7 @@ class JobCard:
         # swap a few variables in config.base
         var2replace = {'HOMEgfs': self.homegfs,
                        'STMP': self.stmp,
-                       'ROTDIRS': self.rotdirs,
+                       'ROTDIR': self.rotdir,
                        'EXPDIRS': self.expdirs}
         with open(configbase, 'r') as f:
             newconfigbase = f.read()

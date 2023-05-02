@@ -9,7 +9,7 @@ gw environement:
     PSLOT: gdas_test
     HOMEgfs: @HOMEgfs@
     COMPONENT: ocean
-    CDUMP: gdas
+    RUN: gdas
 
   cycle info:
     PDY: 20180415
@@ -17,15 +17,10 @@ gw environement:
     assym_freq: 6
 
   backgrounds:
-    COM_OCEAN_HISTORY_SRC: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/COM/gdas.20180415/06/model_data/ocean/history
-    COM_ICE_HISTORY_SRC: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/COM/gdas.20180415/06/model_data/ice/history
-    COM_ICE_RESTART_SRC: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/COM/gdas.20180415/06/model_data/ice/restart
-    COM_OCEAN_HISTORY: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/ROTDIRS/gdas_test/gdas.20180415/06/model_data/ocean/history
-    COM_ICE_HISTORY: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/ROTDIRS/gdas_test/gdas.20180415/06/model_data/ice/history
-    COM_ICE_RESTART: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/ROTDIRS/gdas_test/gdas.20180415/06/model_data/ice/restart
+     COM_SRC: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/COM
 
   working directories:
-    ROTDIR: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/ROTDIRS
+    ROTDIRS: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/ROTDIRS
     EXPDIRS: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/experiments
     STMP: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs
 

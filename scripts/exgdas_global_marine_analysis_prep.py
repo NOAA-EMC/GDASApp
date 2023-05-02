@@ -35,7 +35,7 @@ import numpy as np
 from pygw.attrdict import AttrDict
 from pygw.template import Template, TemplateConstants
 from pygw.yaml_file import YAMLFile
-
+from pygw.file_utils import FileHandler
 
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -138,6 +138,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
     test_hist_date(os.path.join(bkg_path, ocn_filename_ic), bkg_date)  # assert date of the history file is correct
 
     # Copy/process backgrounds and generate background yaml list
+    bkg_list_src_dst = []
     bkg_list = []
     for bkg in files:
 
@@ -161,9 +162,9 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
             cice_hist2fms(os.path.join(os.getenv('COM_ICE_HISTORY'), ice_filename),
                           os.path.join(out_path, agg_ice_filename))
 
-        # copy ocean bkg to out_path
-        ufsda.disk_utils.copyfile(os.path.join(bkg_path, ocn_filename),
-                                  os.path.join(out_path, ocn_filename))
+        # prepare list of ocean bkg to be copied to RUNDIR
+        bkg_list_src_dst.append([os.path.join(bkg_path, ocn_filename),
+                                 os.path.join(out_path, ocn_filename)])
 
         bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                     'basename': './bkg/',
@@ -173,8 +174,13 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
                     'remap_filename': './bkg/'+ocn_filename_ic}
         bkg_date = bkg_date + timedelta(hours=dt_pseudo)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
+
+    # save pseudo model yaml configuration
     f = open(yaml_name, 'w')
     yaml.dump(bkg_list[1:], f, sort_keys=False, default_flow_style=False)
+
+    # copy ocean backgrounds to RUNDIR
+    FileHandler({'copy': bkg_list_src_dst}).sync()
 
 
 def find_bkgerr(input_date, domain):
@@ -204,26 +210,21 @@ comin_obs = os.getenv('COMIN_OBS')  # R2D2 DB for now
 anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
 
-# create analysis directory for files
-ufsda.mkdir(anl_dir)
-
-# create output directory for obs
-diags = os.path.join(anl_dir, 'diags')
-ufsda.mkdir(diags)
-
-# create output directory for obs
-bkg_dir = os.path.join(anl_dir, 'bkg')
-ufsda.mkdir(bkg_dir)
-
-# create output directory for soca DA
-anl_out = os.path.join(anl_dir, 'Data')
-ufsda.mkdir(anl_out)
+# create analysis directories
+diags = os.path.join(anl_dir, 'diags')   # output dir for soca DA obs space
+obs_in = os.path.join(anl_dir, 'obs')    # input      "           "
+bkg_dir = os.path.join(anl_dir, 'bkg')   # ice and ocean backgrounds
+anl_out = os.path.join(anl_dir, 'Data')  # output dir for soca DA
+FileHandler({'mkdir': [anl_dir, diags, obs_in, bkg_dir, anl_out]}).sync()
 
 # Variables of convenience
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
 window_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H') - half_assim_freq
 window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
 fcst_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')
+RUN = os.getenv('RUN')
+cyc = os.getenv('cyc')
+PDY = os.getenv('PDY')
 
 ################################################################################
 # fetch observations
@@ -248,6 +249,20 @@ stage_cfg['r2d2_obs_out'] = os.getenv('COM_OBS')
 # stage observations from R2D2 COMIN_OBS to COM_OBS
 ufsda.stage.obs(stage_cfg)
 
+# get the list of observations
+obs_files = []
+for ob in stage_cfg['observations']['observers']:
+    obs_files.append(f"{RUN}.t{cyc}z.{ob['obs space']['name'].lower()}.{PDY}{cyc}.nc4")
+obs_list = []
+
+# copy obs from COM_OBS to DATA/obs
+for obs_file in obs_files:
+    logging.info(f"******* {obs_file}")
+    obs_src = os.path.join(os.getenv('COM_OBS'), obs_file)
+    obs_dst = os.path.join(os.path.abspath(obs_in), obs_file)
+    obs_list.append([obs_src, obs_dst])
+FileHandler({'copy': obs_list}).sync()
+
 ################################################################################
 # stage static files
 
@@ -258,10 +273,12 @@ ufsda.stage.soca_fix(stage_cfg)
 # stage background error files
 
 logging.info(f"---------------- Stage static files")
+bkgerr_list = []
 for domain in ['ocn', 'ice']:
     fname_stddev = find_bkgerr(pytz.utc.localize(window_begin, is_dst=None), domain=domain)
     fname_out = domain+'.bkgerr_stddev.incr.'+window_begin_iso+'.nc'
-    ufsda.disk_utils.copyfile(fname_stddev, os.path.join(stage_cfg['stage_dir'], fname_out))
+    bkgerr_list.append([fname_stddev, fname_out])
+FileHandler({'copy': bkgerr_list}).sync()
 
 ################################################################################
 # prepare JEDI yamls
@@ -269,15 +286,12 @@ for domain in ['ocn', 'ice']:
 logging.info(f"---------------- Generate JEDI yaml files")
 
 ################################################################################
-# link yaml for grid generation
+# copy yaml for grid generation
 
-gridgen_yaml = os.path.join(gdas_home,
-                            'parm',
-                            'soca',
-                            'gridgen',
-                            'gridgen.yaml')
-ufsda.disk_utils.symlink(gridgen_yaml,
-                         os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
+gridgen_yaml_src = os.path.abspath(os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'))
+gridgen_yaml_dst = os.path.abspath(os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
+FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
+
 
 ################################################################################
 # generate YAML file for parametric diag of B
@@ -294,15 +308,11 @@ config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHE
 config.save(berr_yaml)
 
 ################################################################################
-# link yaml for decorrelation length scales
+# copy yaml for decorrelation length scales
 
-corscales_yaml = os.path.join(gdas_home,
-                              'parm',
-                              'soca',
-                              'berror',
-                              'soca_setcorscales.yaml')
-ufsda.disk_utils.symlink(corscales_yaml,
-                         os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml'))
+corscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setcorscales.yaml')
+corscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml')
+FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
 
 ################################################################################
 # generate yaml for bump/nicas (used for correlation and/or localization)
@@ -391,7 +401,7 @@ ufsda.yamltools.save_check(varconfig.as_dict(), target=var_yaml, app='var')
 rst_date = fcst_begin.strftime('%Y%m%d.%H%M%S')
 ice_rst = os.path.join(os.getenv('COM_ICE_RESTART'), f'{rst_date}.cice_model.res.nc')
 ice_rst_ana = os.path.join(anl_out, rst_date+'.cice_model.res.nc')
-ufsda.disk_utils.copyfile(ice_rst, ice_rst_ana)
+FileHandler({'copy': [[ice_rst, ice_rst_ana]]}).sync()
 
 # write the two seaice analysis to model change of variable yamls
 varchgyamls = ['soca_2cice_arctic.yaml', 'soca_2cice_antarctic.yaml']
@@ -409,26 +419,33 @@ varchgyamls = ['soca_2cice_arctic.yaml', 'soca_2cice_antarctic.yaml']
 for varchgyaml in varchgyamls:
     soca2cice_cfg['template'] = os.path.join(gdas_home, 'parm', 'soca', 'varchange', varchgyaml)
     f = open('tmp.yaml', 'w')
+    # TODO: use YAMLFile instead
     yaml.dump(soca2cice_cfg, f, sort_keys=False, default_flow_style=False)
     ufsda.genYAML.genYAML('tmp.yaml', output=varchgyaml)
 
 ################################################################################
-# links of convenience
-RUN = os.getenv('RUN')
-mom_ic = glob.glob(os.path.join(bkg_dir, f'{RUN}.*.ocnf003.nc'))[0]
-ufsda.disk_utils.symlink(mom_ic, os.path.join(anl_dir, 'INPUT', 'MOM.res.nc'))
+# Copy initial condition
+ics_list = []
+# ocean IC's
+mom_ic_src = glob.glob(os.path.join(bkg_dir, f'{RUN}.*.ocnf003.nc'))[0]
+mom_ic_dst = os.path.join(anl_dir, 'INPUT', 'MOM.res.nc')
+ics_list.append([mom_ic_src, mom_ic_dst])
 
-cice_ic = glob.glob(os.path.join(bkg_dir, f'{RUN}.*.agg_icef003.nc'))[0]
-ufsda.disk_utils.symlink(cice_ic, os.path.join(anl_dir, 'INPUT', 'cice.res.nc'))
+# seaice IC's
+cice_ic_src = glob.glob(os.path.join(bkg_dir, f'{RUN}.*.agg_icef003.nc'))[0]
+cice_ic_dst = os.path.join(anl_dir, 'INPUT', 'cice.res.nc')
+ics_list.append([cice_ic_src, cice_ic_dst])
+FileHandler({'copy': ics_list}).sync()
 
 ################################################################################
 # prepare input.nml
 mom_input_nml_src = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
 mom_input_nml_tmpl = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml.tmpl')
 mom_input_nml = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
-ufsda.disk_utils.copyfile(mom_input_nml_src, mom_input_nml_tmpl)
-domain_stack_size = os.getenv('DOMAIN_STACK_SIZE')
+FileHandler({'copy': [[mom_input_nml_src, mom_input_nml_tmpl]]}).sync()
 
+# swap date and stack size
+domain_stack_size = os.getenv('DOMAIN_STACK_SIZE')
 ymdhms = [int(s) for s in window_begin.strftime('%Y,%m,%d,%H,%M,%S').split(',')]
 with open(mom_input_nml_tmpl, 'r') as nml_file:
     nml = f90nml.read(nml_file)
