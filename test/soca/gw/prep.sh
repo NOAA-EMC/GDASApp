@@ -35,3 +35,6 @@ for day in $(seq 1 2 9); do
     cp ${project_source_dir}/soca/test/Data/72x35x25/ice.bkgerror.nc \
        ${project_binary_dir}/soca_static/bkgerr/stddev/ice.ensstddev.fc.2019-04-0${day}T00:00:00Z.PT0S.nc
 done
+
+# Get low res static files from the soca sandbox
+${project_source_dir}/test/soca/gw/static.sh $project_binary_dir $project_source_dir

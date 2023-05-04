@@ -143,8 +143,8 @@ class JobCard:
             self.f.write("module use ${HOMEgfs}/sorc/gdas.cd/modulefiles \n")
             self.f.write(f"module load {MODS[jjob]}/{self.machine} \n")
 
-    def precom(self, com):
-        cmd = f"RUN={self.RUN} YMD={self.gPDY} HH={self.gcyc} generate_com -xr {com}"
+    def precom(self, com, tmpl):
+        cmd = f"RUN={self.RUN} YMD={self.gPDY} HH={self.gcyc} generate_com -xr {com}:{tmpl}"
         self.f.write(f"{cmd}\n")
 
     def copy_bkgs(self):
@@ -160,22 +160,21 @@ class JobCard:
         # setup COM variables
         self.f.write("source ${HOMEgfs}/parm/config/config.com\n")
         self.f.write("source ${HOMEgfs}/ush/preamble.sh\n")
-        self.precom('COM_OCEAN_HISTORY')
-        self.precom('COM_ICE_HISTORY')
-        self.precom('COM_ICE_RESTART')
+        self.precom('COM_OCEAN_HISTORY_PREV', 'COM_OCEAN_HISTORY_TMPL')
+        self.precom('COM_ICE_HISTORY_PREV', 'COM_ICE_HISTORY_TMPL')
+        self.precom('COM_ICE_RESTART_PREV', 'COM_ICE_RESTART_TMPL')
 
-        self.f.write("mkdir -p ${COM_OCEAN_HISTORY}/\n")
-        self.f.write("mkdir -p ${COM_ICE_HISTORY}/\n")
-        self.f.write("mkdir -p ${COM_ICE_RESTART}/\n")
-        self.f.write("echo ${COM_OCEAN_HISTORY}\n")
+        self.f.write("mkdir -p ${COM_OCEAN_HISTORY_PREV}/\n")
+        self.f.write("mkdir -p ${COM_ICE_HISTORY_PREV}/\n")
+        self.f.write("mkdir -p ${COM_ICE_RESTART_PREV}/\n")
 
         model_data = os.path.join(self.com_src, f"{self.RUN}.{self.gPDY}", self.gcyc, "model_data")
         com_ocean_history_src = os.path.join(model_data, 'ocean', 'history')
         com_ice_history_src = os.path.join(model_data, 'ice', 'history')
         com_ice_restart_src = os.path.join(model_data, 'ice', 'restart')
-        self.f.write(f"cp {com_ocean_history_src}/*ocnf*.nc $COM_OCEAN_HISTORY \n")
-        self.f.write(f"cp {com_ice_history_src}/*icef*.nc $COM_ICE_HISTORY \n")
-        self.f.write(f"cp {com_ice_restart_src}/*cice_model*.nc $COM_ICE_RESTART \n")
+        self.f.write(f"cp {com_ocean_history_src}/*ocnf*.nc $COM_OCEAN_HISTORY_PREV \n")
+        self.f.write(f"cp {com_ice_history_src}/*icef*.nc $COM_ICE_HISTORY_PREV \n")
+        self.f.write(f"cp {com_ice_restart_src}/*cice_model*.nc $COM_ICE_RESTART_PREV \n")
 
     def fixconfigs(self):
         """

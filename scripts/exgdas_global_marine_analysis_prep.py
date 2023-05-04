@@ -159,7 +159,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
             # Process the CICE history file so they can be read by soca/fms
             # TODO: Add date check of the cice history
             # TODO: bkg_path should be 1 level up
-            cice_hist2fms(os.path.join(os.getenv('COM_ICE_HISTORY'), ice_filename),
+            cice_hist2fms(os.path.join(os.getenv('COM_ICE_HISTORY_PREV'), ice_filename),
                           os.path.join(out_path, agg_ice_filename))
 
         # prepare list of ocean bkg to be copied to RUNDIR
@@ -369,7 +369,7 @@ var_yaml_template = os.path.join(gdas_home,
                                  'soca',
                                  'variational',
                                  '3dvarfgat.yaml')
-gen_bkg_list(bkg_path=os.getenv('COM_OCEAN_HISTORY'),
+gen_bkg_list(bkg_path=os.getenv('COM_OCEAN_HISTORY_PREV'),
              out_path=bkg_dir,
              window_begin=window_begin,
              yaml_name='bkg_list.yaml')
@@ -399,7 +399,7 @@ ufsda.yamltools.save_check(varconfig.as_dict(), target=var_yaml, app='var')
 
 # make a copy of the CICE6 restart
 rst_date = fcst_begin.strftime('%Y%m%d.%H%M%S')
-ice_rst = os.path.join(os.getenv('COM_ICE_RESTART'), f'{rst_date}.cice_model.res.nc')
+ice_rst = os.path.join(os.getenv('COM_ICE_RESTART_PREV'), f'{rst_date}.cice_model.res.nc')
 ice_rst_ana = os.path.join(anl_out, rst_date+'.cice_model.res.nc')
 FileHandler({'copy': [[ice_rst, ice_rst_ana]]}).sync()
 
