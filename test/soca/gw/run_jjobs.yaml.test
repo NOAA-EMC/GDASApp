@@ -17,7 +17,7 @@ gw environement:
     assym_freq: 6
 
   backgrounds:
-     COM_SRC: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/COM
+    COM_SRC: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/COM
 
   working directories:
     ROTDIRS: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/ROTDIRS

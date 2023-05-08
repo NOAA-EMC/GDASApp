@@ -97,6 +97,7 @@ class JobCard:
         # Dump the configs in a separate yaml file
         with open("overwrite_defaults.yaml", "w") as f:
             yaml.safe_dump(self.config['setup_expt config'], f)
+
         # Setup the experiment
         self.f.write("\n")
         self.f.write("# Setup the experiment\n")
