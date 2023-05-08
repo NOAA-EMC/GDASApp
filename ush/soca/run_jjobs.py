@@ -7,13 +7,9 @@ import argparse
 from datetime import datetime, timedelta
 
 machines = {"container", "hera", "orion"}
-MODS = {'JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP': 'GDAS',
-        'JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT': 'GDAS',
-        'JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT_VRFY': 'GDAS',
-        'JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN': 'GDAS',
-        'JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT': 'GDAS',
-        'JGDAS_GLOBAL_OCEAN_ANALYSIS_POST': 'GDAS',
-        'JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY': 'EVA'}
+
+# Assume the default conda environement is gdassapp
+ENVS = {'JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY': 'eva'}
 components_short = {'ocean': 'ocn', 'ice': 'ice'}  # Short names for components
 
 
@@ -134,14 +130,14 @@ class JobCard:
         self.f.close()
         subprocess.run(["chmod", "+x", self.name])
 
-    def _modules(self, jjob):
+    def _conda_envs(self, jjob):
         """
         Write a section that will load the machine dependent modules
         """
         if self.machine != "container":
-            self.f.write("module purge \n")
-            self.f.write("module use ${HOMEgfs}/sorc/gdas.cd/modulefiles \n")
-            self.f.write(f"module load {MODS[jjob]}/{self.machine} \n")
+            if jjob in ENVS:
+                # TODO: This does nothing for now. Make the conda activate work!
+                self.f.write(f"# conda activate {ENVS[jjob]} \n")
 
     def precom(self, com, tmpl):
         cmd = f"RUN={self.RUN} YMD={self.gPDY} HH={self.gcyc} generate_com -xr {com}:{tmpl}"
@@ -207,7 +203,7 @@ class JobCard:
         Add the list of j-jobs to the job card
         """
         for job in self.config['jjobs']:
-            self._modules(job)  # Add module's jjob
+            self._conda_envs(job)  # Add module's jjob
             thejob = "${HOMEgfs}/jobs/"+job
             runjob = f"{thejob} &>{job}.out\n"
             self.f.write(runjob)
