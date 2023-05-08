@@ -22,6 +22,9 @@ RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model_data/atmos/restart
 export OBSDIR=$GDASAPP_TESTDATA/land/snow_ice_cover
 export TSTUB="oro_C${RES}.mx100"
 
+if [[ -e $WORKDIR ]]; then
+  rm -rf $WORKDIR
+fi
 mkdir -p $WORKDIR
 cd $WORKDIR
 
