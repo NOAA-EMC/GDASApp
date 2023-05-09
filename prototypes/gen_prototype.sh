@@ -39,12 +39,13 @@ mkdir -p $PROTOROOT/$PSLOT
 # clone/build/link workflow and GDASApp
 if [[ $BUILD == 'YES' ]]; then
     cd $GWDIR
-    git clone -b $GWHASH https://github.com/NOAA-EMC/global-workflow.git
+    git clone https://github.com/NOAA-EMC/global-workflow.git
     cd global-workflow/sorc
+    git checkout $GWHASH
     ./checkout.sh -ug
     cd gdas.cd
     git checkout $GDASHASH
-    cd ..
+    cd ../
     ./build_all.sh
     ./link_workflow.sh
 fi
