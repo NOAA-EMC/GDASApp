@@ -1,14 +1,6 @@
 # Copy the bkg files
 # ------------------
 set( TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
-file(GLOB bkg_diag "${TESTDATA}/ocn_da_2018_04_15_*.nc")
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART_GES)
-file(COPY ${bkg_diag} DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
-configure_file(${TESTDATA}/iced.2019-04-15-43200.nc
-  ${PROJECT_BINARY_DIR}/test/soca/ice/RESTART/20180415.120000.cice_model.res.nc
-  COPYONLY)
-file(COPY ${TESTDATA}/cice_hist.nc DESTINATION ${PROJECT_BINARY_DIR}/test/soca/bkg/RESTART)
 
 # link input file from iodaconv to test directory
 # test convert BUFR to IODA
@@ -78,18 +70,6 @@ add_test(NAME test_gdasapp_soca_obsdb
 set_tests_properties(test_gdasapp_soca_obsdb
     PROPERTIES
     ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/pygw/src:$ENV{PYTHONPATH};SOCA_TEST_OBS=${PROJECT_SOURCE_DIR}/test/soca/testdata")
-
-# Test exgdas_global_marine_analysis_prep.py
-# ------------------------------------------
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3dvar)
-
-# Prep
-add_test(NAME test_gdasapp_soca_ana_prep
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/3dvar)
-       set_tests_properties(test_gdasapp_soca_ana_prep
-      PROPERTIES
-      ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/pygw/src:$ENV{PYTHONPATH}")
 
 # Test exgdas scripts from the global-worflow
 if (WORKFLOW_TESTS)

@@ -12,7 +12,7 @@ import ufsda
 import logging
 import glob
 import numpy as np
-from pygw.yaml_file import YAMLFile, parse_j2yaml
+from pygw.yaml_file import YAMLFile, parse_yaml, parse_j2yaml
 import ufsda.soca_utils
 
 __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'background_ens', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
@@ -275,7 +275,7 @@ def gdas_single_cycle(config, local_dict):
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
 
     for ob in obs_list_config['observers']:
-        ob_config = parse_j2yaml(ob, local_dict)
+        ob_config = parse_yaml(ob, local_dict)
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
@@ -340,12 +340,11 @@ def obs(config):
     Stage observations using R2D2
     based on input `config` dict
     """
-    # create directory
-    obs_dir = os.path.join(config['DATA'], 'obs')
-    mkdir(obs_dir)
     for ob in config['observations']['observers']:
         obname = ob['obs space']['name'].lower()
-        outfile = ob['obs space']['obsdatain']['engine']['obsfile']
+        outfile = os.path.join(config['r2d2_obs_out'],
+                               os.path.basename(ob['obs space']['obsdatain']['engine']['obsfile']))
+
         # grab obs using R2D2
         window_begin = config['window begin']
         window_begin = parser.parse(window_begin, fuzzy=True)

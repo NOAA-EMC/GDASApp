@@ -2,6 +2,13 @@
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/concatioda)
 
+# Prepare COMROT and static dir
+add_test(NAME test_gdasapp_soca_prep
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/gw/prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw)
+       set_tests_properties(test_gdasapp_soca_prep
+      PROPERTIES
+      ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/pygw/src:$ENV{PYTHONPATH}")
 
 # Identify machine
 set(MACHINE "container")
