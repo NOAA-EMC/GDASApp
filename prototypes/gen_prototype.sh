@@ -92,7 +92,7 @@ cd $GWDIR/global-workflow/workflow
                            --resens $resens \
                            --nens $nens \
                            --pslot $PSLOT \
-                           --configdir $GWDIR/global-workflow/parm/config \
+                           --configdir $GWDIR/global-workflow/parm/config/gfs \
                            --comrot $comrot \
                            --expdir $expdir \
                            --yaml $expdir/config_${PSLOT}.yaml
