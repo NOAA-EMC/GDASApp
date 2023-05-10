@@ -22,6 +22,7 @@ while getopts "c:t:h" opt; do
       ;;
     t)
       MACHINE=${MACHINE:-$OPTARG}
+      ;;
     h|\?|:)
       usage
       ;;
@@ -56,32 +57,42 @@ module load GDAS/$MACHINE
 
 # move expdir if it exists, delete backup if it exists
 if [[ -d $expdir/$PSLOT ]]; then
-  [[ -d $expdir/${PSLOT}.bak]] && rm -rf $expdir/${PSLOT}.bak
+  [[ -d $expdir/${PSLOT}.bak ]] && rm -rf $expdir/${PSLOT}.bak
   mv $expdir/$PSLOT $expdir/${PSLOT}.bak
 fi
 
+# move rotdir if it exists, delete backup if it exists
+if [[ -d $comrot/$PSLOT ]]; then
+  [[ -d $comrot/${PSLOT}.bak ]] && rm -rf $comrot/${PSLOT}.bak
+  mv $comrot/$PSLOT $comrot/${PSLOT}.bak
+fi
+
 # create YAML to override workflow config defaults
+mkdir -p $expdir
 cat > $expdir/config_${PSLOT}.yaml << EOF
 base:
-  ACCOUNT: da-cpu
-  HPSS_PROJECT: emc-da
+  ACCOUNT: "da-cpu"
+  HPSS_PROJECT: "emc-da"
   HOMEDIR: "/scratch1/NCEPDEV/da/${USER}"
+  DMPDIR: "${DUMPDIR}"
+atmanl:
+  OBS_LIST: "/dev/null"
 EOF
 
 
 
 # setup experiment
-cd $GWDIR/workflow
-./setup_expt.py cycled --idate $idate  \
-                       --edate $edate \
-                       --app $app \
-                       --start $starttype \
-                       --gfs_cyc $gfscyc \
-                       --resdet $resdet \
-                       --resens $resens \
-                       --nens $nens \
-                       --pslot $pslot \
-                       --configdir $GWDIR/parm/config \
-                       --comrot $comrot \
-                       --expdir $expdir \
-                       --yaml $expdir/config_${PSLOT}.yaml
+cd $GWDIR/global-workflow/workflow
+./setup_expt.py gfs cycled --idate $idate  \
+                           --edate $edate \
+                           --app $app \
+                           --start $starttype \
+                           --gfs_cyc $gfscyc \
+                           --resdet $resdet \
+                           --resens $resens \
+                           --nens $nens \
+                           --pslot $PSLOT \
+                           --configdir $GWDIR/global-workflow/parm/config \
+                           --comrot $comrot \
+                           --expdir $expdir \
+                           --yaml $expdir/config_${PSLOT}.yaml
