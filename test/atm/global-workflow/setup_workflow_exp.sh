@@ -14,7 +14,7 @@ resdet='48'
 resens='48'
 nens=3
 pslot='gdas_test'
-configdir=$srcdir/../../parm/config
+configdir=$srcdir/../../parm/config/gfs
 comrot=$bindir/test/atm/global-workflow/testrun/ROTDIRS
 expdir=$bindir/test/atm/global-workflow/testrun/experiments
 
