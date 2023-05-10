@@ -24,6 +24,6 @@ rm -rf "${comrot}" "${expdir}"
 cd $srcdir/../../workflow
 
 echo "Running global-workflow experiment generation script"
-./setup_expt.py cycled --idate $idate --edate $edate --app $app --start $starttype --gfs_cyc $gfscyc --resdet $resdet --resens $resens --nens $nens --pslot $pslot --configdir $configdir --comrot $comrot --expdir $expdir
+./setup_expt.py gfs cycled --idate $idate --edate $edate --app $app --start $starttype --gfs_cyc $gfscyc --resdet $resdet --resens $resens --nens $nens --pslot $pslot --configdir $configdir --comrot $comrot --expdir $expdir
 
 exit $?
