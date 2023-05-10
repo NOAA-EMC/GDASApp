@@ -37,7 +37,7 @@ ln -sf $srcdir/../../workflow/setup_expt.py .
 
 
 echo "Running global-workflow experiment generation script"
-$srcdir/../../workflow/setup_expt.py cycled --idate $idate  \
+$srcdir/../../workflow/setup_expt.py gfs cycled --idate $idate  \
                        --edate $edate \
                        --app $app \
                        --start $starttype \
