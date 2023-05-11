@@ -75,11 +75,12 @@ base:
   HPSS_PROJECT: "emc-da"
   HOMEDIR: "/scratch1/NCEPDEV/da/${USER}"
   DMPDIR: "${DUMPDIR}"
-atmanl:
-  OBS_LIST: "/dev/null"
+  DO_JEDIVAR: "${DO_JEDIVAR}"
+  DO_JEDIENS: "${DO_JEDIENS}"
+  DO_JEDIOCNVAR: "${DO_JEDIOCNVAR}"
+  DO_JEDILANDDA: "${DO_JEDILANDDA}"
+  DO_MERGENSST: "${DO_MERGENSST}"
 EOF
-
-
 
 # setup experiment
 cd $GWDIR/global-workflow/workflow
@@ -95,4 +96,8 @@ cd $GWDIR/global-workflow/workflow
                            --configdir $GWDIR/global-workflow/parm/config/gfs \
                            --comrot $comrot \
                            --expdir $expdir \
+                           --icsdir $ICSDIR \
                            --yaml $expdir/config_${PSLOT}.yaml
+
+# setup XML for workflow
+./setup_xml.py $expdir/$PSLOT
