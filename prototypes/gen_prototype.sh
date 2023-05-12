@@ -101,3 +101,9 @@ cd $GWDIR/global-workflow/workflow
 
 # setup XML for workflow
 ./setup_xml.py $expdir/$PSLOT
+
+# run rocotorun one time
+rocotorun -w $expdir/$PSLOT/${PSLOT}.xml -d $expdir/$PSLOT/${PSLOT}.db
+
+# run rocotostat on the first cycle to see if things were submitted
+rocotostat -w $expdir/$PSLOT/${PSLOT}.xml -d $expdir/$PSLOT/${PSLOT}.db -c ${idate}00
