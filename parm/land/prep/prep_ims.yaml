@@ -1,0 +1,10 @@
+calcfims:
+  mkdir:
+    - $(DATA)/obs
+  copy:
+    - [$(COM_OBS)/$(OPREFIX)ims{{ current_cycle | to_julian }}_4km_v1.3.nc, $(DATA)/obs/ims{{ current_cycle | to_julian }}_4km_v1.3.nc]
+    - [$(COM_OBS)/$(OPREFIX)IMS4km_to_FV3_mapping.$(CASE)_oro_data.nc, $(DATA)/obs/IMS4km_to_FV3_mapping.$(CASE)_oro_data.nc]
+ims2ioda:
+  copy:
+    - [$(DATA)/ims_snow_{{ current_cycle | to_YMDH }}.nc4, $(COM_OBS)/$(OPREFIX)ims_snow.nc4]
+
