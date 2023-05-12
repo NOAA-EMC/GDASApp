@@ -1,8 +1,8 @@
 # top level options
-GWHASH=e55f090
-GDASHASH=58d0b9b
+GWHASH=255d99b
+GDASHASH=ab6f06d
 BUILD="NO"
-PSLOT=apple
+PSLOT=cp0
 PROTOROOT=/scratch1/NCEPDEV/da/Cory.R.Martin/GDAS_prototypes
 GWDIR=$PROTOROOT/$PSLOT
 DUMPDIR=/scratch1/NCEPDEV/da/role.jedipara/dump/
