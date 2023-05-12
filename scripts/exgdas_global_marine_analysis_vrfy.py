@@ -120,7 +120,9 @@ def plot_zonal_slice(config):
     plt.savefig(figname, bbox_inches='tight', dpi=600)
 
 
-comout = os.getenv('COMOUT')
+comout = os.getenv('COM_OCEAN_ANALYSIS')
+com_ice_history = os.getenv('COM_ICE_HISTORY_PREV')
+com_ocean_history = os.getenv('COM_OCEAN_HISTORY_PREV')
 data = os.getenv('DATA')
 pdy = os.getenv('PDY')
 cyc = os.getenv('cyc')
@@ -205,8 +207,8 @@ for proj in ['North', 'South']:
 
 #######################################
 # Sea ice
-data_files = [os.path.join(comout, f'{RUN}.t'+cyc+'z.iceana.nc'),
-              os.path.join(comout, '..', '..', '..', gcdate.strftime(f'{RUN}.%Y%m%d/%H'), 'ice', f'{RUN}.t'+gcyc+'z.icef006.nc')]
+data_files = [os.path.join(comout, f'{RUN}.t{cyc}z.iceana.nc'),
+              os.path.join(com_ice_history, f'{RUN}.t{gcyc}z.icef006.nc')]
 dirs_out = ['ana', 'bkg']
 ice_vars = {'bkg': ['aice_h', 'hs_h', 'hi_h'], 'ana': ['aicen', 'hicen', 'hsnon']}
 for data_file, dir_out in zip(data_files, dirs_out):
@@ -232,7 +234,7 @@ for data_file, dir_out in zip(data_files, dirs_out):
 #######################################
 # Ocean surface
 data_files = [os.path.join(comout, f'{RUN}.t'+cyc+'z.ocnana.nc'),
-              os.path.join(comout, '..', '..', '..', gcdate.strftime(f'{RUN}.%Y%m%d/%H'), 'ocean', f'{RUN}.t'+gcyc+'z.ocnf006.nc')]
+              os.path.join(com_ocean_history, f'{RUN}.t{gcyc}z.ocnf006.nc')]
 dirs_out = ['ana', 'bkg']
 ocn_vars = ['ave_ssh', 'Temp', 'Salt']
 for data_file, dir_out in zip(data_files, dirs_out):

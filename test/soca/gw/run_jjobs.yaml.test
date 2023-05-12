@@ -9,7 +9,7 @@ gw environement:
     PSLOT: gdas_test
     HOMEgfs: @HOMEgfs@
     COMPONENT: ocean
-    CDUMP: gdas
+    RUN: gdas
 
   cycle info:
     PDY: 20180415
@@ -17,10 +17,10 @@ gw environement:
     assym_freq: 6
 
   backgrounds:
-    COMIN_GES: @HOMEgfs@/sorc/gdas.cd/build/test/soca/bkg
+    COM_SRC: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/COM
 
   working directories:
-    ROTDIR: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/ROTDIRS
+    ROTDIRS: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/ROTDIRS
     EXPDIRS: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/experiments
     STMP: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs
 
