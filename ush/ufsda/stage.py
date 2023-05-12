@@ -36,7 +36,7 @@ def gdas_fix(input_fix_dir, working_dir, config):
     # error checking
     dohybvar = config['DOHYBVAR']
     case = config['CASE']
-    case_enkf = config['CASE_ENKF']
+    case_enkf = config['CASE_ENS']
     case_anl = config['CASE_ANL']
     if dohybvar and not case_enkf == case_anl:
         raise ValueError(f"dohybvar is '{dohybvar}' but case_enkf= '{case_enkf}' does not equal case_anl= '{case_anl}'")
@@ -430,7 +430,7 @@ def background_ens(config):
     if not config['DOHYBVAR']:
         bkgdir = 'bkg'
 
-    for imem in range(1, config['NMEM_ENKF']+1):
+    for imem in range(1, config['NMEM_ENS']+1):
         memchar = f"mem{imem:03d}"
         logging.info(f'Stage background_ens {memchar}')
         rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART')
