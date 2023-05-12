@@ -44,8 +44,8 @@ mom6_iau_incr=${DATA}/inc.nc
 # prepare nsst yaml
 if [ $DO_MERGENSST = "YES" ]; then
 cat > nsst.yaml << EOF
-sfc_fcst: ${ROTDIR}/${GDUMP}.${gPDY}/${gcyc}/atmos/${GPREFIX}sfcf006.nc
-sfc_ana: ${COMOUT}/../atmos/${APREFIX}sfcanl.nc
+sfc_fcst: ${COM_ATMOS_HISTORY_PREV}/${GPREFIX}sfcf006.nc
+sfc_ana: ${COM_ATMOS_ANALYSIS}/${APREFIX}sfcanl.nc
 nlayers: 5
 EOF
 

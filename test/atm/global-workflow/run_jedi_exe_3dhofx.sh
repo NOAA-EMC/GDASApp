@@ -15,10 +15,10 @@ else
 fi
 
 # Load modules
-set +x
-module use ${srcdir}/modulefiles
-module load GDAS/${machine}
-set -x
+#set +x
+#module use ${srcdir}/modulefiles
+#module load GDAS/${machine}
+#set -x
 module list
 
 # Set machine dependent variables
