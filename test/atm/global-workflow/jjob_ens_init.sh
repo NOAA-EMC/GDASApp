@@ -70,7 +70,7 @@ done
 
 # Link tiled ges and atmf006 files to ROTDIR
 dpath=enkfgdas.$gPDY/$gcyc
-for imem in $(seq 1 $NMEM_ENKF); do
+for imem in $(seq 1 $NMEM_ENS); do
     memchar="mem"$(printf %03i $imem)
 
     MEMDIR=${memchar} RUN=${RUN} YMD=${gPDY} HH=${gcyc} generate_com -x \
