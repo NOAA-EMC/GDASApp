@@ -92,7 +92,8 @@ class JobCard:
         origconfig = "${HOMEgfs}/parm/config/gfs"
         self.f.write("\n")
         self.f.write("# Make a copy of config\n")
-        self.f.write(f"cp -r {origconfig} .\n")
+        self.f.write(f"mkdir -p config\n")
+        self.f.write(f"cp -r {origconfig} config/\n")
 
         # Dump the configs in a separate yaml file
         with open("overwrite_defaults.yaml", "w") as f:
