@@ -24,7 +24,6 @@ rm -rf $comrot $expdir config
 
 # copy config.yaml to local config
 cp -r $configdir config
-cp $srcdir/test/atm/global-workflow/config.base.emc.dyn config/
 cp $srcdir/test/atm/global-workflow/config.atmanl       config/
 cp $srcdir/test/atm/global-workflow/config.yaml .
 
@@ -44,6 +43,7 @@ $srcdir/../../workflow/setup_expt.py gfs cycled --idate $idate  \
                        --start $starttype \
                        --gfs_cyc $gfscyc \
                        --resdet $resdet \
+                       --resanl $resanl \
                        --resens $resens \
                        --nens $nens \
                        --pslot $pslot \
