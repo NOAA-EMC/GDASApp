@@ -5,6 +5,6 @@ base:
   DUMPDIR: "@dumpdir@"
   STMP: "@bindir@/test/atm/global-workflow/testrun"
   PTMP: "@bindir@/test/atm/global-workflow/testrun"
-  ATMRES_ANL: "C48"
 atmanl:
   OBS_LIST: "@srcdir@/test/atm/global-workflow/gdas_prototype.yaml"
+  ATMRES_ANL: "C48"
