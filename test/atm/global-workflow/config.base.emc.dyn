@@ -162,7 +162,7 @@ export OPS_RES="C768" # Do not change
 export LEVS=128
 export CASE="@CASECTL@"
 export CASE_ANL="$CASE"
-export CASE_ENKF="@CASEENS@"
+export CASE_ENS="@CASEENS@"
 
 # TODO: This should not depend on $CASE or $CASE_ENKF
 # These are the currently available grid-combinations
@@ -302,15 +302,15 @@ export imp_physics=@IMP_PHYSICS@
 
 # Shared parameters
 # DA engine
-export DO_JEDIVAR="@DO_JEDIVAR@"
-export DO_JEDIENS="@DO_JEDIENS@"
+export DO_JEDIATMVAR="@DO_JEDIATMVAR@"
+export DO_JEDIATMENS="@DO_JEDIATMENS@"
 export DO_JEDIOCNVAR="NO"
 export DO_JEDILANDDA="NO"
 export DO_MERGENSST="NO"
 
 # Hybrid related
 export DOHYBVAR="@DOHYBVAR@"
-export NMEM_ENKF=@NMEM_ENKF@
+export NMEM_ENS=@NMEM_ENS@
 export NMEM_EFCS=30
 export SMOOTH_ENKF="NO"
 export l4densvar=".true."

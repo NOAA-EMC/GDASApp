@@ -13,7 +13,7 @@ resdet='48'
 resens='24'
 nens=0
 pslot='gdas_test'
-configdir=$srcdir/../../parm/config
+configdir=$srcdir/../../parm/config/gfs
 comrot=$bindir/test/testrun/ROTDIRS
 expdir=$bindir/test/testrun/experiments
 
@@ -24,6 +24,6 @@ rm -rf "${comrot}" "${expdir}"
 cd $srcdir/../../workflow
 
 echo "Running global-workflow experiment generation script"
-./setup_expt.py cycled --idate $idate --edate $edate --app $app --start $starttype --gfs_cyc $gfscyc --resdet $resdet --resens $resens --nens $nens --pslot $pslot --configdir $configdir --comrot $comrot --expdir $expdir
+./setup_expt.py gfs cycled --idate $idate --edate $edate --app $app --start $starttype --gfs_cyc $gfscyc --resdet $resdet --resens $resens --nens $nens --pslot $pslot --configdir $configdir --comrot $comrot --expdir $expdir
 
 exit $?
