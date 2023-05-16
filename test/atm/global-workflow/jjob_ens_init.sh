@@ -20,13 +20,13 @@ export COMIN_GES=${bindir}/test/atm/bkg
 export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
-export NMEM_ENKF=3
+export NMEM_ENS=3
 export ACCOUNT=da-cpu
 export COM_TOP=$ROTDIR
 
 # Set GFS COM paths
 source "${HOMEgfs}/ush/preamble.sh"
-source "${HOMEgfs}/parm/config/config.com"
+source "${HOMEgfs}/parm/config/gfs/config.com"
 
 # Set python path for workflow utilities and tasks
 pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
@@ -70,7 +70,7 @@ done
 
 # Link tiled ges and atmf006 files to ROTDIR
 dpath=enkfgdas.$gPDY/$gcyc
-for imem in $(seq 1 $NMEM_ENKF); do
+for imem in $(seq 1 $NMEM_ENS); do
     memchar="mem"$(printf %03i $imem)
 
     MEMDIR=${memchar} RUN=${RUN} YMD=${gPDY} HH=${gcyc} generate_com -x \
