@@ -1,9 +1,10 @@
 base:
-  NCDUMP: $CONDA_PREFIX/ncdump
   DO_JEDIATMVAR: "YES"
   DO_JEDIATMENS: "YES"
-  UTILROOT: /apps/contrib/NCEP/libs/hpc-stack/intel-2018.4/prod_util/1.2.2
   DATAPATH: "@bindir@/test/atm/global-workflow/testrun"
   DUMPDIR: "@dumpdir@"
+  STMP: "@bindir@/test/atm/global-workflow/testrun"
+  PTMP: "@bindir@/test/atm/global-workflow/testrun"
+  CASEANL: "C48"
 atmanl:
   OBS_LIST: "@srcdir@/test/atm/global-workflow/gdas_prototype.yaml"

@@ -11,6 +11,7 @@ app=ATM
 starttype='warm'
 gfscyc='4'
 resdet='48'
+resanl='48'
 resens='48'
 nens=3
 pslot='gdas_test'
