@@ -10,7 +10,6 @@ app=ATM # NOTE make this S2SWA soon
 starttype='warm'
 gfscyc='4'
 resdet='48'
-resens='24'
 nens=0
 pslot='gdas_test'
 configdir=$srcdir/../../parm/config/gfs
@@ -24,6 +23,6 @@ rm -rf "${comrot}" "${expdir}"
 cd $srcdir/../../workflow
 
 echo "Running global-workflow experiment generation script"
-./setup_expt.py gfs cycled --idate $idate --edate $edate --app $app --start $starttype --gfs_cyc $gfscyc --resdet $resdet --resens $resens --nens $nens --pslot $pslot --configdir $configdir --comrot $comrot --expdir $expdir
+./setup_expt.py gfs cycled --idate $idate --edate $edate --app $app --start $starttype --gfs_cyc $gfscyc --resdet $resdet --nens $nens --pslot $pslot --configdir $configdir --comrot $comrot --expdir $expdir
 
 exit $?
