@@ -25,6 +25,7 @@ import cartopy
 import cartopy.crs as ccrs
 import gen_eva_obs_yaml
 import marine_eva_post
+import diag_statistics
 import subprocess
 from datetime import datetime, timedelta
 
@@ -121,8 +122,8 @@ def plot_zonal_slice(config):
 
 
 comout = os.getenv('COM_OCEAN_ANALYSIS')
-com_ice_history = os.getenv('COM_ICE_HISTORY_PREV')
-com_ocean_history = os.getenv('COM_OCEAN_HISTORY_PREV')
+com_ice_history = os.getenv('COM_ICE_HISTORY')
+com_ocean_history = os.getenv('COM_OCEAN_HISTORY')
 data = os.getenv('DATA')
 pdy = os.getenv('PDY')
 cyc = os.getenv('cyc')
@@ -324,3 +325,5 @@ for file in files:
     infile = os.path.join('evayamls', file)
     print('running eva on', infile)
     subprocess.run(['eva', infile], check=True)
+
+diag_statistics.get_diag_stats()
