@@ -11,7 +11,6 @@ app=ATM
 starttype='warm'
 gfscyc='4'
 resdet='48'
-resanl='48'
 resens='48'
 nens=3
 pslot='gdas_test'
@@ -43,7 +42,6 @@ $srcdir/../../workflow/setup_expt.py gfs cycled --idate $idate  \
                        --start $starttype \
                        --gfs_cyc $gfscyc \
                        --resdet $resdet \
-                       --resanl $resanl \
                        --resens $resens \
                        --nens $nens \
                        --pslot $pslot \
