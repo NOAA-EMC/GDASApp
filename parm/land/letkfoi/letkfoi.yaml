@@ -52,9 +52,8 @@ local ensemble DA:
 
 output increment:
   datapath: $(DATA)/anl
-  prefix: landinc
   filetype: fms restart
-  filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
-  filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
+  filename_sfcd: '{{ current_cycle | to_fv3time }}.xainc.sfc_data.nc'
+  filename_cplr: '{{ current_cycle | to_fv3time }}.xainc.coupler.res'
   state variables: [snwdph,vtype,slmsk]
 
