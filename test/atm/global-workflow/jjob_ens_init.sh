@@ -1,4 +1,5 @@
-#!/bin/bash
+#! /usr/bin/env bash
+
 set -x
 bindir=$1
 srcdir=$2
@@ -15,7 +16,7 @@ export CDATE=${PDY}${cyc}
 export ROTDIR=$bindir/test/atm/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=enkfgdas
 export CDUMP=enkfgdas
-export DATAROOT=$bindir/test/atm/global-workflow/testrun/RUNDIR
+export DATAROOT=$bindir/test/atm/global-workflow/testrun/RUNDIRS/$PSLOT
 export COMIN_GES=${bindir}/test/atm/bkg
 export pid=${pid:-$$}
 export jobid=$pid
@@ -36,6 +37,18 @@ export PYTHONPATH
 # Detemine machine from config.base
 machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
 
+# Set NETCDF and UTILROOT variables (used in config.base)
+if [ $machine = 'HERA' ]; then
+    NETCDF=$( which ncdump )
+    export NETCDF
+    export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
+elif [ $machine = 'ORION' ]; then
+    ncdump=$( which ncdump )
+    NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
+    export NETCDF
+    export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
+fi
+
 # Set date variables for previous cycle
 GDATE=`date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - 6 hours"`
 gPDY=$(echo $GDATE | cut -c1-8)
@@ -46,20 +59,12 @@ GDUMP="gdas"
 gprefix=$GDUMP.t${gcyc}z
 oprefix=$GDUMP.t${cyc}z
 
-# Generate gdas COM variables from templates
+# Generate COM variables from templates
 RUN=${GDUMP} YMD=${PDY} HH=${cyc} generate_com -rx COM_OBS
 RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} generate_com -rx \
     COM_ATMOS_ANALYSIS_PREV:COM_ATMOS_ANALYSIS_TMPL \
 
-# Link gdas radiance bias correction files
-dpath=gdas.$gPDY/$gcyc/analysis/atmos
-mkdir -p $COM_ATMOS_ANALYSIS_PREV
-flist="amsua_n19.satbias.nc4 amsua_n19.satbias_cov.nc4 amsua_n19.tlapse.txt"
-for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.$file $COM_ATMOS_ANALYSIS_PREV/
-done
-
-# Link gdas observations
+# Link observations
 dpath=gdas.$PDY/$cyc/obs
 mkdir -p $COM_OBS
 flist="amsua_n19.$CDATE.nc4 sondes.$CDATE.nc4"
@@ -67,8 +72,15 @@ for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.$file $COM_OBS/
 done
 
+# Link radiance bias correction files
+dpath=gdas.$gPDY/$gcyc/analysis/atmos
+mkdir -p $COM_ATMOS_ANALYSIS_PREV
+flist="amsua_n19.satbias.nc4 amsua_n19.satbias_cov.nc4 amsua_n19.tlapse.txt"
+for file in $flist; do
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.$file $COM_ATMOS_ANALYSIS_PREV/
+done
 
-# Link tiled ges and atmf006 files to ROTDIR
+# Link member atmospheric background on tiles and atmf006
 dpath=enkfgdas.$gPDY/$gcyc
 for imem in $(seq 1 $NMEM_ENS); do
     memchar="mem"$(printf %03i $imem)
@@ -92,8 +104,8 @@ for imem in $(seq 1 $NMEM_ENS); do
 done
 
 # Execute j-job
-if [ $machine != 'HERA' ]; then
-    ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
+if [ $machine = 'HERA' -o $machine = 'ORION' ]; then
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 else
-    sbatch -n 1 --account=$ACCOUNT --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
+    ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 fi

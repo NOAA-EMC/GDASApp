@@ -112,7 +112,6 @@ class JobCard:
             "start": "warm",
             "gfs_cyc": "0",
             "resdet": self.config['resdet'],
-            "resens": "24",
             "nens": "0",
             "pslot": "${PSLOT}",
             "configdir": "${PWD}/config/gfs",
