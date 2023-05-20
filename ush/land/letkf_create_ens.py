@@ -29,7 +29,7 @@ ens_dirs = ['mem001', 'mem002']
 for (mem, value) in zip(ens_dirs, sign):
     for tt in range(1, 7):
         # open file
-        out_netcdf = os.path.join(workdir, mem, f"{fstub}.sfc_data.tile{tt}.nc")
+        out_netcdf = os.path.join(workdir, mem, "RESTART", f"{fstub}.sfc_data.tile{tt}.nc")
         with Dataset(out_netcdf, "r+") as ncOut:
             slmsk_array = ncOut.variables['slmsk'][:]
             vtype_array = ncOut.variables['vtype'][:]

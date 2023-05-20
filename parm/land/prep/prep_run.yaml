@@ -1,0 +1,31 @@
+ens_mem1:
+  mkdir:
+    - $(DATA)/bkg/mem001/RESTART
+  copy:
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.coupler.res, $(DATA)/bkg/mem001/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.coupler.res]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile1.nc, $(DATA)/bkg/mem001/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile1.nc]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile2.nc, $(DATA)/bkg/mem001/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile2.nc]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile3.nc, $(DATA)/bkg/mem001/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile3.nc]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile4.nc, $(DATA)/bkg/mem001/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile4.nc]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile5.nc, $(DATA)/bkg/mem001/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile5.nc]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile6.nc, $(DATA)/bkg/mem001/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile6.nc]
+ens_mem2:
+  mkdir:
+    - $(DATA)/bkg/mem002/RESTART
+  copy:
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.coupler.res, $(DATA)/bkg/mem002/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.coupler.res]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile1.nc, $(DATA)/bkg/mem002/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile1.nc]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile2.nc, $(DATA)/bkg/mem002/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile2.nc]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile3.nc, $(DATA)/bkg/mem002/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile3.nc]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile4.nc, $(DATA)/bkg/mem002/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile4.nc]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile5.nc, $(DATA)/bkg/mem002/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile5.nc]
+    - [$(DATA)/bkg/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile6.nc, $(DATA)/bkg/mem002/RESTART/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile6.nc]
+increment:
+  copy:
+    - [$(DATA)/anl/landinc.{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.coupler.res, $(DATA)/anl/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.xainc.coupler.res]
+    - [$(DATA)/anl/landinc.{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile1.nc, $(DATA)/anl/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.xainc.sfc_data.tile1.nc]
+    - [$(DATA)/anl/landinc.{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile2.nc, $(DATA)/anl/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.xainc.sfc_data.tile2.nc]
+    - [$(DATA)/anl/landinc.{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile3.nc, $(DATA)/anl/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.xainc.sfc_data.tile3.nc]
+    - [$(DATA)/anl/landinc.{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile4.nc, $(DATA)/anl/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.xainc.sfc_data.tile4.nc]
+    - [$(DATA)/anl/landinc.{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile5.nc, $(DATA)/anl/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.xainc.sfc_data.tile5.nc]
+    - [$(DATA)/anl/landinc.{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.sfc_data.tile6.nc, $(DATA)/anl/{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}0000.xainc.sfc_data.tile6.nc]
