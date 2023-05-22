@@ -78,24 +78,50 @@ if [ $ci_status -eq 0 ]; then
   # copy the CMakeLists file for safe keeping
   cp $stableroot/$datestr/GDASApp/CMakeLists.txt $stableroot/$datestr/GDASApp/CMakeLists.txt.new
   total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to cp CMakeLists" >> $stableroot/$datestr/output
+  fi
   # checkout feature/stable-nightly
   git stash
   total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to cp CMakeLists" >> $stableroot/$datestr/output
+  fi
   git checkout feature/stable-nightly
   total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to cp CMakeLists" >> $stableroot/$datestr/output
+  fi
   # merge in develop
   git merge develop
   total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to merge develop" >> $stableroot/$datestr/output
+  fi
   # force move the copy to the original path of CMakeLists.txt
   /bin/mv -f $stableroot/$datestr/GDASApp/CMakeLists.txt.new $stableroot/$datestr/GDASApp/CMakeLists.txt
   total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to mv CMakeLists" >> $stableroot/$datestr/output
+  fi
   # commit this change and push
   git add CMakeLists.txt
   total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to add CMakeLists to commit" >> $stableroot/$datestr/output
+  fi
   git commit -m "Update to new stable build on $datestr"
   total=$(($total+$?))
+  caution=""
+  if [ $total -ne 0 ]; then
+    echo "Unable to commit" >> $stableroot/$datestr/output
+    caution="There probably was just no update to commit today. Git returns exit code 1 in this case. I should blow up their planet..." 
+  fi
   git push --set-upstream origin feature/stable-nightly
   total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to push" >> $stableroot/$datestr/output
+  fi
   if [ $total -ne 0 ]; then
     echo "Issue merging with develop. please manually fix"
     PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov"
@@ -104,6 +130,7 @@ if [ $ci_status -eq 0 ]; then
     cat > $BODY << EOF
 Problem updating feature/stable-nightly branch of GDASApp. Please check $stableroot/$datestr/GDASApp
 
+$caution
 EOF
     mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
   else
