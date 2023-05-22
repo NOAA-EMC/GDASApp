@@ -31,13 +31,19 @@ def var2dirac(args):
     diracconfig['initial condition'] = varconfig['cost function']['background']
     diracconfig['background error'] = varconfig['cost function']['background error']
 
+    # Overwrite variables
+    state_vars = ['cicen', 'hicen', 'hsnon', 'socn', 'tocn', 'ssh', 'hocn', 'mld', 'layer_depth']
+    diracconfig['initial condition']['state variables'] = state_vars
+    for sub_bmat in range(len(diracconfig['background error']['components'])):
+        diracconfig['background error']['components'][sub_bmat]['covariance']['linear variable change']['input variables'] = state_vars
+        diracconfig['background error']['components'][sub_bmat]['covariance']['linear variable change']['output variables'] = state_vars
+
     # Generate impulse indices
     ds = xr.open_dataset(grid)
     ni = ds.dims[dim1]
     nj = ds.dims[dim2]
-    step = ni*nj/ndiracs
-    stepi = int(ni/(ni+nj)*step)
-    stepj = int(nj/(ni+nj)*step)
+    stepi = int(ni/(np.sqrt(ndiracs)))
+    stepj = int(nj/(np.sqrt(ndiracs)))
     ixdir, iydir = np.meshgrid(np.arange(1, ni, stepi),
                                np.arange(1, nj, stepj))
     ixdir = ixdir.reshape(-1).tolist()

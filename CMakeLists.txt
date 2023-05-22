@@ -67,7 +67,7 @@ if(BUILD_GDASBUNDLE)
 # Build GSI-B
   option(BUILD_GSIBEC "Build GSI-B" OFF)
   if(BUILD_GSIBEC)
-    ecbuild_bundle( PROJECT gsibec GIT "https://github.com/GEOS-ESM/GSIbec.git" TAG 1.0.7 )
+    ecbuild_bundle( PROJECT gsibec GIT "https://github.com/GEOS-ESM/GSIbec.git" TAG 1.1.2 )
   endif()
 
 # Core JEDI repositories
@@ -87,6 +87,11 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT fv3-jedi    GIT "https://github.com/jcsda/fv3-jedi.git"             BRANCH develop )
 
 # SOCA associated repositories
+# TODO: Move the Icepack fork to EMC github
+  set(BUILD_ICEPACK "ON" CACHE STRING "Build the icepack library")
+  if ( BUILD_ICEPACK )
+    ecbuild_bundle( PROJECT icepack GIT "https://github.com/JCSDA-internal/Icepack.git" BRANCH feature/ecbuild-new )
+  endif()
   ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" BRANCH develop )
   ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" BRANCH main-ecbuild RECURSIVE )
   ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" BRANCH develop )

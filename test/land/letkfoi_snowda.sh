@@ -16,7 +16,7 @@ GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 
 EXECDIR=$project_source_dir/build/bin
 WORKDIR=$project_binary_dir/test/land/letkfoi_snowda
-RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART
+RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model_data/atmos/restart
 export OBSDIR=$GDASAPP_TESTDATA/land
 
 GFSv17=${GFSv17:-"NO"}
