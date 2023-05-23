@@ -2,7 +2,7 @@
   date_str = "{{ current_cycle | to_YMD }}",
   hour_str = "{{ current_cycle | strftime('%H') }}",
   res = {{ CASE[1:] }},
-  frac_grid = "{{ FRACGRID | str.upper() }}",
+  frac_grid = "{{ FRACGRID | upper }}",
   orog_path = "{{ HOMEgfs }}/fix/orog/{{ CASE }}",
   otype = "{{ CASE }}_oro_data"
 /
