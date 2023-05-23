@@ -1,5 +1,6 @@
 machine: @MACHINE@
 resdet: 48
+resens: 48
 
 jjobs:
  - @JJOB@
@@ -30,6 +31,12 @@ gw environement:
     OMP_NUM_THREADS: 1
 
 setup_expt config:
+  base:
+    DO_JEDIATMVAR: "NO"
+    DO_JEDIATMENS: "NO"
+    DO_JEDIOCNVAR: "YES"
+    DO_JEDILANDDA: "NO"
+    DO_MERGENSST: "NO"
   ocnanal:
     SOCA_INPUT_FIX_DIR: @HOMEgfs@/sorc/gdas.cd/build/soca_static
     CASE_ANL: C48

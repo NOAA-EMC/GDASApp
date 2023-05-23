@@ -89,10 +89,11 @@ class JobCard:
         """
 
         # Make a copy of the configs
-        origconfig = "${HOMEgfs}/parm/config"
+        origconfig = "${HOMEgfs}/parm/config/gfs"
         self.f.write("\n")
         self.f.write("# Make a copy of config\n")
-        self.f.write(f"cp -r {origconfig} .\n")
+        self.f.write(f"mkdir -p config\n")
+        self.f.write(f"cp -r {origconfig} config/\n")
 
         # Dump the configs in a separate yaml file
         with open("overwrite_defaults.yaml", "w") as f:
@@ -102,7 +103,7 @@ class JobCard:
         self.f.write("\n")
         self.f.write("# Setup the experiment\n")
 
-        setupexpt = "${HOMEgfs}/workflow/setup_expt.py cycled "
+        setupexpt = "${HOMEgfs}/workflow/setup_expt.py gfs cycled "
         # Most of the args keys are not used to run the jjobs but are needed to run setup_expt.py
         args = {
             "idate": "${PDY}${cyc}",
@@ -111,10 +112,10 @@ class JobCard:
             "start": "warm",
             "gfs_cyc": "0",
             "resdet": self.config['resdet'],
-            "resens": "24",
+            "resens": self.config['resens'],
             "nens": "0",
             "pslot": "${PSLOT}",
-            "configdir": "${PWD}/config",
+            "configdir": "${PWD}/config/gfs",
             "comrot": self.rotdir,
             "expdir": "${EXPDIRS}",
             "yaml": "overwrite_defaults.yaml"}
@@ -155,7 +156,7 @@ class JobCard:
         print(f"RUN: {self.RUN}")
 
         # setup COM variables
-        self.f.write("source ${HOMEgfs}/parm/config/config.com\n")
+        self.f.write("source ${HOMEgfs}/parm/config/gfs/config.com\n")
         self.f.write("source ${HOMEgfs}/ush/preamble.sh\n")
         self.precom('COM_OCEAN_HISTORY_PREV', 'COM_OCEAN_HISTORY_TMPL')
         self.precom('COM_ICE_HISTORY_PREV', 'COM_ICE_HISTORY_TMPL')
