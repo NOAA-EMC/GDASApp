@@ -45,9 +45,7 @@ components:
         hicen_max: 1.0
 
       - linear variable change name: BalanceSOCA
-        dsdtmax: 0.1
-        dsdzmin: 3.0e-6
-        dtdzmin: 1.0e-6
-        nlayers: 10
+        ksshts:
+          nlayers: 10
   weight:
     value: 1.0

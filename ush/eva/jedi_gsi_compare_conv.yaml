@@ -2,9 +2,9 @@
 # based on obs spaces listed in JEDI YAML files
 diagnostics:
 - data:
-    type: IodaObsSpace
     datasets:
       - name: experiment
+        type: IodaObsSpace
         filenames:
           - @FILENAME@
         @CHANNELSKEY@
