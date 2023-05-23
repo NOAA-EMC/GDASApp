@@ -7,14 +7,8 @@ from netCDF4 import Dataset
 data = os.getenv('DATA')
 pdy = os.getenv('PDY')
 cyc = os.getenv('cyc')
-comout=os.getenv('COM_ATMOS_ANALYSIS_TMPL')
-arcdir = os.getenv('arcdir')
-
-#pdy = '20210715'
-#cyc = '00'
-#comout='/Users/mossland/Desktop/work/WCDA/no-ocn-da/gdas.20210715/00/atmos'
-#data='/Users/mossland/Desktop/work/WCDA/no-ocn-da/rundir'
-#arcdir='/Users/mossland/Desktop/work/WCDA/no-ocn-da/arcdir'
+comout=os.getenv('COM_ATMOS_ANALYSIS')
+arcdir = os.getenv('ARCDIR')
 
 def get_diag_stats():
 
@@ -35,11 +29,13 @@ def get_diag_stats():
         
         command = 'tar -xvf ' + tarfile + ' ' + zipfilename
         print(command)
-        os.system(command)
+        #os.system(command)
+        subprocess.run(['tar', '-xfv', tarfile, zipfilename], check=True)
         command = 'gunzip ' + os.path.join(data, zipfile)
         print(command)
-        os.system(command)
-        
+        #os.system(command)
+        subprocess.run(['gunzip', os.path.join(data, zipfile)], check=True)
+
         # The following is lifted from PyGSI/src/pyGSI/diags.py
         
         df_dict = {}
@@ -67,6 +63,12 @@ def get_diag_stats():
         
         # looking at the used observations, maybe variations on this later
         df = df[df.Analysis_Use_Flag == 1.0]
+
+        # this is a crude filter to obtain surface t observations, hopefully
+        # catching at least most of the airborn observations and passing the
+        # sea observations
+        # TODO: This needs to be refined, possibly using obtype
+        df = df[df.Station_Elevation <= 10.0] 
         
         meaned_cols = ['Obs_Minus_Forecast_unadjusted',
                        'Obs_Minus_Forecast_adjusted']
@@ -81,4 +83,3 @@ def get_diag_stats():
         
         print('writing ', outfile)
         means.to_csv(os.path.join(arcdir, outfile))
-        
