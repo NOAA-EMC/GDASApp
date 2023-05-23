@@ -122,8 +122,8 @@ def plot_zonal_slice(config):
 
 
 comout = os.getenv('COM_OCEAN_ANALYSIS')
-com_ice_history = os.getenv('COM_ICE_HISTORY')
-com_ocean_history = os.getenv('COM_OCEAN_HISTORY')
+com_ice_history = os.getenv('COM_ICE_HISTORY_PREV')
+com_ocean_history = os.getenv('COM_OCEAN_HISTORY_PREV')
 data = os.getenv('DATA')
 pdy = os.getenv('PDY')
 cyc = os.getenv('cyc')
