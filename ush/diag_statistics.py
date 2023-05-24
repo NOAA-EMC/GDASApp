@@ -84,4 +84,3 @@ def get_diag_stats():
 
         print('writing ', outfile)
         means.to_csv(os.path.join(arcdir, outfile))
-
