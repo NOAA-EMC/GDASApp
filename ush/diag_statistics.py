@@ -27,14 +27,14 @@ def get_diag_stats():
         zipfile=os.path.join(data, zipfilename)
         outfile='cnvstat.' + var +'.gdas.' + pdy + cyc
         
+        #TODO: these probably should be in the jjob. Will try to get them there 
+        # once this is up and running
         command = 'tar -xvf ' + tarfile + ' ' + zipfilename
-        print(command)
-        #os.system(command)
-        subprocess.run(['tar', '-xfv', tarfile, zipfilename], check=True)
+        print('running', command)
+        os.system(command)
         command = 'gunzip ' + os.path.join(data, zipfile)
-        print(command)
-        #os.system(command)
-        subprocess.run(['gunzip', os.path.join(data, zipfile)], check=True)
+        print('running', command)
+        os.system(command)
 
         # The following is lifted from PyGSI/src/pyGSI/diags.py
         
@@ -66,7 +66,7 @@ def get_diag_stats():
 
         # this is a crude filter to obtain surface t observations, hopefully
         # catching at least most of the airborn observations and passing the
-        # sea observations
+        # sea observations (with much else)
         # TODO: This needs to be refined, possibly using obtype
         df = df[df.Station_Elevation <= 10.0] 
         
