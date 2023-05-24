@@ -304,7 +304,7 @@ obs pre filters:
             name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.5,6.1,6.,6.5,7.3,7.6,7.,7.5,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
-  # Type 255 (GOES low-level picture triplet cloud drift): According to prepbufr table this should no longer exist??
+  # Type 255 (LEOGEO):
   - filter: Perform Action
     filter variables:
     - name: windEastward
@@ -646,11 +646,34 @@ obs prior filters:
       name: reject
 # NESDIS obs are also subject to the experr_norm test defined as:
 #
-# if (10. - 0.1*(expectedError))/(ob_speed)>0.9, or ob_speed<0.1, reject, applies to Types [240,245,246,247,251]
+# if (10. - 0.1*(expectedError))/(ob_speed)>0.9, or ob_speed<0.1, reject, applies to NESDIS winds
 #
-# This is not implemented in the YAML file because we do not have the capability to compute
-# the norm, lacking the required math operators. Instead, this will likely have to be
-# implemented as an ObsFunction like the SatWindsLNVDCheck test.
+# CLEARED: With caveat that float precision/handling differences can generate different acceptance criteria
+# between UFO and GSO for observations with an experr_norm value right around the maxvalue.
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      is_in: 250-299
+    test variables:
+    - name: ObsFunction/SatWindsErrnormCheck
+    maxvalue: 0.9
+    action:
+      name: reject
+#
+  # Reject all Type=240 (GOES SWIR) AMVs: These are not currently assimilated in GSI and they have missing-values
+  # assigned to ob-errors
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 240
+    action:
+      name: reject
 #
 # setupw criteria
 #
@@ -847,25 +870,140 @@ obs post filters:
     maxvalue: 3.
     action:
       name: reject
+  # All satwinds must adjust errors based on ObsErrorFactorPressureCheck
+  # prior to the SPDB check (i.e. the gross-error check). The gross-error
+  # check uses the adjusted errors for error-bound tightening and rejection,
+  # so this check has to come first. This check will inflate errors for obs
+  # that are too close to either the model top or bottom.
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    where:
+      - variable:
+          name: ObsType/windEastward
+        is_in: 240-260
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorPressureCheck
+        options:
+          variable: windEastward
+          inflation factor: 4.0
+
+  - filter: Perform Action
+    filter variables:
+    - name: windNorthward
+    where:
+      - variable:
+          name: ObsType/windNorthward
+        is_in: 240-260
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorPressureCheck
+        options:
+          variable: windNorthward
+          inflation factor: 4.0
   #
-  # All satwinds subject to a SPDB check (function may be broken?)
-  #   We are ignoring this filter for now, and will come back to
-  #   the issue of how to handle this SPDB check later. For now,
-  #   observations that are GSI-rejected based on this test are
-  #   not being considered when checking acceptance compliance.
-  #- filter: Bounds Check
-  #  filter variables:
-  #  - name: windEastward
-  #  - name: windNorthward
-  #  test variables:
-  #  - name: ObsFunction/SatWindsSPDBCheck
-  #    options:
-  #      error_min: 1.4
-  #      error_max: 20.0
-  #  maxvalue: 1.75
-  #  action:
-  #    name: reject
-  #  defer to post: true
+  # All satwinds subject to a gross-error check that contains significant
+  # modifiers for satwinds with a negative speed-bias. ALL wind gross-error
+  # checks are currently being done by the SatWindsSPDBCheck.
+  # CLEARED
+  - filter: Background Check
+    filter variables:
+    - name: windEastward
+    function absolute threshold:
+    - name: ObsFunction/SatWindsSPDBCheck
+      options:
+        wndtype: [  240,  241,  242,  243,  244,  245,  246,  247,  248,  249, 250,  251,  252,  253,   254,  255,  256,  257,  258,  259,  260]
+        cgross:  [  2.5,  2.5,  2.5,  1.5,  2.5,  1.3,  1.3,  2.5,  2.5,  2.5, 2.5,  1.3,  2.5,  1.5,   1.5,  2.5,  2.5,  2.5,  2.5,  2.5,  2.5]
+        error_min: [1.4,  1.4,  1.4,  1.4,  1.4,  1.4,  1.4,  1.4,  1.4,  1.4, 1.4,  1.4,  1.4,  1.4,   1.4,  1.4,  1.4,  1.4,  1.4,  1.4,  1.4]
+        error_max: [6.1,  6.1, 15.0, 15.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.1, 20.1, 20.1, 20.1, 20.1, 20.1]
+        variable: windEastward
+    action:
+      name: reject
+
+  - filter: Background Check
+    filter variables:
+    - name: windNorthward
+    function absolute threshold:
+    - name: ObsFunction/SatWindsSPDBCheck
+      options:
+        wndtype: [  240,  241,  242,  243,  244,  245,  246,  247,  248,  249, 250,  251,  252,  253,   254,  255,  256,  257,  258,  259,  260]
+        cgross:  [  2.5,  2.5,  2.5,  1.5,  2.5,  1.3,  1.3,  2.5,  2.5,  2.5, 2.5,  1.3,  2.5,  1.5,   1.5,  2.5,  2.5,  2.5,  2.5,  2.5,  2.5]
+        error_min: [1.4,  1.4,  1.4,  1.4,  1.4,  1.4,  1.4,  1.4,  1.4,  1.4, 1.4,  1.4,  1.4,  1.4,   1.4,  1.4,  1.4,  1.4,  1.4,  1.4,  1.4]
+        error_max: [6.1,  6.1, 15.0, 15.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.1, 20.1, 20.1, 20.1, 20.1, 20.1]
+        variable: windNorthward
+    action:
+      name: reject
+  # The last error inflation check is for duplicate observations. This one needs
+  # to come last, because we don't want to inflate errors for duplication if one
+  # of the duplicates should be rejected.
+  - filter: BlackList
+    filter variables:
+    - name: windEastward
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorDuplicateCheck
+        options:
+          use_air_pressure: true
+          variable: windEastward
+  - filter: BlackList
+    filter variables:
+    - name: windNorthward
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorDuplicateCheck
+        options:
+          use_air_pressure: true
+          variable: windNorthward
+  # We are extending this to an additional filter that inflates final ob-errors across-the-board by
+  # 1/0.8 = 1.25. This is caused by the GSI value of nvqc being set to .true. in the global operational
+  # configuration, see: https://github.com/NOAA-EMC/global-workflow/blob/d5ae3328fa4041b177357b1133f6b92e81c859d7/scripts/exglobal_atmos_analysis.sh#L750
+  # This setting activates Line 1229 of setupw.f90 to scale ratio_errors by 0.8, which is applied in
+  # the denominator of the final ob-error, so 1/0.8 = 1.25 factor of ob-error inflation.
+  #
+  # If this nvqc functionality were to be switched off (i.e. if variational qc were to be turned off),
+  # you would want to remove this last inflation filter.
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 240-260
+    action:
+      name: inflate error
+      inflation factor: 1.25
+#
+  - filter: Perform Action
+    filter variables:
+    - name: windNorthward
+    where:
+    - variable: ObsType/windNorthward
+      is_in: 240-260
+    action:
+      name: inflate error
+      inflation factor: 1.25
+# END OF FILTERS
 linear obs operator:
   name: Identity
 
+passedBenchmark: 1025814 # 2 variables (u,v), both passing 512907 obs, including 512907 GSI/UFO agreements, and:
+                         # 16 GOES AMVs (6 u-obs, 6 v-obs) that are rejected by the SatWindsErrnormCheck in UFO
+                         # but are retained in GSI's equivalent experr_norm check. All 6 of these disagreements
+                         # have error norm values at almost exactly 0.9, indicating a float precision/handling
+                         # difference between UFO and GSI generating the disagreement.
+                         #
+                         # NOTE: This benchmark is specifically for a test with assim_freq=6, which based on
+                         #       JEDI convention, cuts off data from the front-end of the time-window that is
+                         #       retained in GSI. This can generate some problems with the assigned ob-errors,
+                         #       particularly the UFO assigning lower ob-errors because the reduced number of
+                         #       observations being assimilated will allow for fewer duplicate-ob matches than
+                         #       found in GSI, which will cause GSI to downweight observations within the UFO's
+                         #       truncated time-window that UFO will not downweight. This is happening on 3 of
+                         #       the satwinds in this dataset. Setting the assim_freq=12, which expands the
+                         #       UFO time-window wide enough to capture all of the observations that are being
+                         #       assimilated in GSI from this test-data, results in these ob-error differences
+                         #       disappearing.

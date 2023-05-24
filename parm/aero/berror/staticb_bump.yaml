@@ -1,7 +1,7 @@
 covariance model: SABER
 saber central block:
   saber block name: BUMP_NICAS
-  bump:
+  read:
     io:
       data directory: &staticb_aero_dir $(DATA)/berror
       files prefix: 'nicas_aero'
@@ -41,7 +41,7 @@ saber central block:
     - parameter: universe radius
       file:
         filetype: fms restart
-        datetime: 2016-06-30T00:00:00Z
+        datetime: '2016-06-30T00:00:00Z'
         set datetime on read: true
         psinfile: true
         datapath: *staticb_aero_dir
@@ -55,7 +55,7 @@ saber central block:
     - parameter: StdDev
       file:
         filetype: fms restart
-        datetime: 2016-06-30T00:00:00Z
+        datetime: '2016-06-30T00:00:00Z'
         set datetime on read: true
         psinfile: true
         datapath: *staticb_aero_dir

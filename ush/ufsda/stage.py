@@ -12,7 +12,7 @@ import ufsda
 import logging
 import glob
 import numpy as np
-from pygw.yaml_file import YAMLFile
+from pygw.yaml_file import YAMLFile, parse_yaml, parse_j2yaml
 import ufsda.soca_utils
 
 __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'background_ens', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
@@ -36,7 +36,7 @@ def gdas_fix(input_fix_dir, working_dir, config):
     # error checking
     dohybvar = config['DOHYBVAR']
     case = config['CASE']
-    case_enkf = config['CASE_ENKF']
+    case_enkf = config['CASE_ENS']
     case_anl = config['CASE_ANL']
     if dohybvar and not case_enkf == case_anl:
         raise ValueError(f"dohybvar is '{dohybvar}' but case_enkf= '{case_enkf}' does not equal case_anl= '{case_anl}'")
@@ -146,7 +146,7 @@ def atm_background(config):
     ufsda.r2d2.fetch(r2d2_config)
 
 
-def atm_obs(config):
+def atm_obs(config, local_dict):
     # fetch atm analysis obs
     r2d2_config = {
         'start': config['prev_valid_time'],
@@ -159,22 +159,25 @@ def atm_obs(config):
     r2d2_config = NiceDict(r2d2_config)
     # get list of obs to process and their output files
     obs_list_yaml = config['OBS_LIST']
-    obs_list_config = YAMLFile(path=obs_list_yaml)
+    obs_list_config = Configuration(obs_list_yaml)
+    obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
+
     for ob in obs_list_config['observers']:
+        ob_config = parse_j2yaml(ob, local_dict)
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
         r2d2_config['provider'] = 'ncdiag'
         r2d2_config['start'] = config['ATM_WINDOW_BEGIN']
         r2d2_config['end'] = r2d2_config['start']
-        ob_basename = os.path.basename(ob['obs space']['obsdatain']['engine']['obsfile'])
+        ob_basename = os.path.basename(ob_config['obs space']['obsdatain']['engine']['obsfile'])
         target_file = os.path.join(os.environ['COMOUT'], ob_basename)
         r2d2_config['target_file_fmt'] = target_file
-        r2d2_config['obs_types'] = [ob['obs space']['name']]
+        r2d2_config['obs_types'] = [ob_config['obs space']['name']]
         ufsda.r2d2.fetch(r2d2_config)
 
 
-def bias_obs(config):
+def bias_obs(config, local_dict):
     # fetch bias files
     r2d2_config = {
         'start': config['prev_valid_time'],
@@ -187,12 +190,15 @@ def bias_obs(config):
     r2d2_config = NiceDict(r2d2_config)
     # get list of obs to process and their output files
     obs_list_yaml = config['OBS_LIST']
-    obs_list_config = YAMLFile(path=obs_list_yaml)
+    obs_list_config = Configuration(obs_list_yaml)
+    obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
+
     for ob in obs_list_config['observers']:
+        ob_config = parse_j2yaml(ob, local_dict)
         r2d2_config.pop('file_type', None)
-        r2d2_config['obs_types'] = [ob['obs space']['name']]
+        r2d2_config['obs_types'] = [ob_config['obs space']['name']]
         # get bias files if needed
-        if 'obs bias' in ob.keys():
+        if 'obs bias' in ob_config.keys():
             r2d2_config['type'] = 'bc'
             r2d2_config['provider'] = 'gsi'
             r2d2_config['start'] = config['prev_valid_time']
@@ -200,7 +206,7 @@ def bias_obs(config):
 
             # fetch satbias
             r2d2_config['file_type'] = 'satbias'
-            target_file = ob['obs bias']['input file']
+            target_file = ob_config['obs bias']['input file']
             ob_basename = os.path.basename(target_file)
             target_file = os.path.join(os.environ['COMOUT'], ob_basename)
             r2d2_config['target_file_fmt'] = target_file
@@ -230,7 +236,7 @@ def bias_obs(config):
             ufsda.r2d2.fetch(r2d2_config)
 
 
-def gdas_single_cycle(config):
+def gdas_single_cycle(config, local_dict):
     # grab backgrounds first
     r2d2_config = {
         'start': config['prev_valid_time'],
@@ -267,8 +273,9 @@ def gdas_single_cycle(config):
     obs_list_yaml = config['OBS_LIST']
     obs_list_config = Configuration(obs_list_yaml)
     obs_list_config = ufsda.yamltools.iter_config(config, obs_list_config)
+
     for ob in obs_list_config['observers']:
-        ob_config = YAMLFile(path=ob)
+        ob_config = parse_yaml(ob, local_dict)
         # first get obs
         r2d2_config.pop('file_type', None)
         r2d2_config['type'] = 'ob'
@@ -333,12 +340,11 @@ def obs(config):
     Stage observations using R2D2
     based on input `config` dict
     """
-    # create directory
-    obs_dir = os.path.join(config['DATA'], 'obs')
-    mkdir(obs_dir)
     for ob in config['observations']['observers']:
         obname = ob['obs space']['name'].lower()
-        outfile = ob['obs space']['obsdatain']['engine']['obsfile']
+        outfile = os.path.join(config['r2d2_obs_out'],
+                               os.path.basename(ob['obs space']['obsdatain']['engine']['obsfile']))
+
         # grab obs using R2D2
         window_begin = config['window begin']
         window_begin = parser.parse(window_begin, fuzzy=True)
@@ -348,8 +354,9 @@ def obs(config):
             if step == 'P1D':
                 dates = date_sequence(window_begin.strftime('%Y%m%d'), window_end.strftime('%Y%m%d'), step)
             if step == "PT10M":
-                dates = date_sequence(window_begin.strftime('%Y%m%d%H'), window_end.strftime('%Y%m%d%H'), step)
-            for count, date in enumerate(dates):
+                dates = date_sequence(window_begin.strftime('%Y%m%d%H%M'), window_end.strftime('%Y%m%d%H%M'), step)
+            count = 0
+            for date in dates:
                 fetch(
                     type='ob',
                     provider=config['r2d2_obs_src'],
@@ -361,6 +368,7 @@ def obs(config):
                     ignore_missing=True,
                     database=config['r2d2_obs_db']
                 )
+                count += 1
             # Concatenate ioda files
             ufsda.soca_utils.concatenate_ioda(outfile)
 
@@ -422,7 +430,7 @@ def background_ens(config):
     if not config['DOHYBVAR']:
         bkgdir = 'bkg'
 
-    for imem in range(1, config['NMEM_ENKF']+1):
+    for imem in range(1, config['NMEM_ENS']+1):
         memchar = f"mem{imem:03d}"
         logging.info(f'Stage background_ens {memchar}')
         rst_dir = os.path.join(config['COMIN_GES_ENS'], memchar, 'atmos', 'RESTART')

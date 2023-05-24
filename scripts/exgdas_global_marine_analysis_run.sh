@@ -43,18 +43,6 @@ clean_yaml var.yaml
 $APRUN_OCNANAL $JEDI_BIN/soca_var.x var.yaml
 export err=$?; err_chk
 
-
-# prepare MOM6 IAU increment
-# Note: ${DATA}/INPUT/MOM.res.nc points to the MOM6 history file from the start of the window
-#       and is used to get the valid vertical geometry of the increment
-# TODO: Check what to do with (u,v), it seems that MOM6's iau expects (u, v) on the tracer grid
-soca_incr=$(ls -t ${DATA}/Data/ocn.*3dvar*.incr* | head -1)
-mom6_iau_incr=${DATA}/inc.nc
-${HOMEgfs}/sorc/gdas.cd/ush/socaincr2mom6.py --incr "${soca_incr}" \
-                                             --bkg "${DATA}/INPUT/MOM.res.nc" \
-                                             --grid "${DATA}/soca_gridspec.nc" \
-                                             --out "${mom6_iau_incr}"
-
 ################################################################################
 set +x
 if [ $VERBOSE = "YES" ]; then

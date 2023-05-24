@@ -1,5 +1,6 @@
 machine: @MACHINE@
 resdet: 48
+resens: 48
 
 jjobs:
  - @JJOB@
@@ -9,7 +10,7 @@ gw environement:
     PSLOT: gdas_test
     HOMEgfs: @HOMEgfs@
     COMPONENT: ocean
-    CDUMP: gdas
+    RUN: gdas
 
   cycle info:
     PDY: 20180415
@@ -17,10 +18,10 @@ gw environement:
     assym_freq: 6
 
   backgrounds:
-    COMIN_GES: @HOMEgfs@/sorc/gdas.cd/build/test/soca/bkg
+    COM_SRC: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/COM
 
   working directories:
-    ROTDIR: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/ROTDIRS
+    ROTDIRS: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/ROTDIRS
     EXPDIRS: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs/experiments
     STMP: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/testrun/testjjobs
 
@@ -30,6 +31,12 @@ gw environement:
     OMP_NUM_THREADS: 1
 
 setup_expt config:
+  base:
+    DO_JEDIATMVAR: "NO"
+    DO_JEDIATMENS: "NO"
+    DO_JEDIOCNVAR: "YES"
+    DO_JEDILANDDA: "NO"
+    DO_MERGENSST: "NO"
   ocnanal:
     SOCA_INPUT_FIX_DIR: @HOMEgfs@/sorc/gdas.cd/build/soca_static
     CASE_ANL: C48

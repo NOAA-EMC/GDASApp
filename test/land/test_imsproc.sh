@@ -17,11 +17,14 @@ DOY=$(date +%j -d "$YY$MM$DD + 1 day")
 
 EXECDIR=$project_source_dir/build/bin
 WORKDIR=$project_binary_dir/test/land/ims_proc
-RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/atmos/RESTART
+RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model_data/atmos/restart
 
 export OBSDIR=$GDASAPP_TESTDATA/land/snow_ice_cover
 export TSTUB="oro_C${RES}.mx100"
 
+if [[ -e $WORKDIR ]]; then
+  rm -rf $WORKDIR
+fi
 mkdir -p $WORKDIR
 cd $WORKDIR
 

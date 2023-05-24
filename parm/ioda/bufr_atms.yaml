@@ -1,0 +1,176 @@
+observations:
+  - obs space:
+      name: bufr
+      obsdatain: "$(BUFR_in)"
+
+      exports:
+        variables:
+          # MetaData
+          timestamp:
+            datetime:
+              year: "*/YEAR"
+              month: "*/MNTH"
+              day: "*/DAYS"
+              hour: "*/HOUR"
+              minute: "*/MINU"
+              second: "*/SECO"
+
+          latitude:
+            query: "*/CLATH"
+
+          longitude:
+            query: "*/CLONH"
+
+          satelliteIdentifier:
+            query: "*/SAID"
+
+          satelliteInstrument:
+            query: "*/SIID"
+
+          # The type should be integer.
+          # However, UFO/CRTM requred this variable to be float
+          fieldOfViewNumber:
+            query: "*/FOVN"
+            type: float
+
+          heightOfStation:
+            query: "*/HMSL"
+
+          solarZenithAngle:
+            query: "*/SOZA"
+
+          solarAzimuthAngle:
+            query: "*/SOLAZI"
+
+          sensorZenithAngle:
+            query: "*/SAZA"
+
+          sensorAzimuthAngle:
+            query: "*/BEARAZ"
+
+          sensorScanAngle:
+            sensorScanAngle:
+              fieldOfViewNumber: "*/FOVN"
+              heightOfStation: "*/HMSL"
+              scanStart: -52.725
+              scanStep: 1.110
+
+          sensorChannelNumber:
+            query: "*/ATMSCH/CHNM"
+
+          # ObsValue
+          # Remapped Brightness Temperature
+          remappedBT:
+            remappedBrightnessTemperature:
+              fieldOfViewNumber: "*/FOVN"
+              sensorChannelNumber: "*/ATMSCH/CHNM"
+              brightnessTemperature: "*/ATMSCH/TMBR"
+              obsTime:
+                year: "*/YEAR"
+                month: "*/MNTH"
+                day: "*/DAYS"
+                hour: "*/HOUR"
+                minute: "*/MINU"
+                second: "*/SECO"
+
+        splits:
+          satId:
+            category:
+              variable: satelliteIdentifier
+              map:
+                _224: npp
+                _225: n20
+
+    ioda:
+      backend: netcdf
+      obsdataout: "$(IODA_out)"
+
+      dimensions:
+        - name: Channel
+          source: variables/sensorChannelNumber
+          path: "*/ATMSCH"
+
+      globals:
+        - name: "platformCommonName"
+          type: string
+          value: "ATMS"
+
+        - name: "platformLongDescription"
+          type: string
+          value: "MTYP 021-203 ATMS ATENNA/BRIGHTNESS TEMPERATURE DATA"
+
+      variables:
+        # MetaData
+        - name: "MetaData/dateTime"
+          source: variables/timestamp
+          longName: "Datetime"
+          units: "seconds since 1970-01-01T00:00:00Z"
+
+        - name: "MetaData/latitude"
+          source: variables/latitude
+          longName: "Latitude"
+          units: "degree_north"
+          range: [-90, 90]
+
+        - name: "MetaData/longitude"
+          source: variables/longitude
+          longName: "Longitude"
+          units: "degree_east"
+
+        - name: "MetaData/satelliteIdentifier"
+          source: variables/satelliteIdentifier
+          longName: "Satellite Identifier"
+
+        - name: "MetaData/satelliteInstrument"
+          source: variables/satelliteInstrument
+          longName: "Satellite Instrument"
+
+        - name: "MetaData/sensorScanPosition"
+          source: variables/fieldOfViewNumber
+          longName: "Field of View Number"
+
+        - name: "MetaData/sensorViewAngle"
+          source: variables/sensorScanAngle
+          longName: "Sensor View Angle"
+          units: "degree"
+
+        - name: "MetaData/heightOfStation"
+          source: variables/heightOfStation
+          longName: "Altitude of Satellite"
+          units: "m"
+
+        - name: "MetaData/solarZenithAngle"
+          source: variables/solarZenithAngle
+          longName: "Solar Zenith Angle"
+          units: "degree"
+          range: [0, 180]
+
+        - name: "MetaData/solarAzimuthAngle"
+          source: variables/solarAzimuthAngle
+          longName: "Solar Azimuth Angle"
+          units: "degree"
+          range: [0, 360]
+
+        - name: "MetaData/sensorZenithAngle"
+          source: variables/sensorZenithAngle
+          longName: "Sensor Zenith Angle"
+          units: "degree"
+          range: [0, 90]
+
+        - name: "MetaData/sensorAzimuthAngle"
+          source: variables/sensorAzimuthAngle
+          longName: "Sensor Azimuth Angle"
+          units: "degree"
+          range: [0, 360]
+
+        - name: "MetaData/sensorChannelNumber"
+          source: variables/sensorChannelNumber
+          longName: "Sensor Channel Number"
+
+        # ObsValue
+        # Remapped Brightness Temperature
+        - name: "ObsValue/brightnessTemperature"
+          source: variables/remappedBT
+          longName: "3-by-3 Averaged Brightness Temperature"
+          units: "K"
+          chunks: [10000, 22]

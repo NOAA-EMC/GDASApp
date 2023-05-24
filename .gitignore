@@ -159,7 +159,8 @@ fv3-jedi-data/
 fv3-jedi-lm/
 gsibec/
 gsw/
-ioda/
+icepack/
+/ioda/
 ioda-data/
 iodaconv/
 jedicmake/
