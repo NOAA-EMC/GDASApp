@@ -4,7 +4,7 @@ resolution:
 
 date: 0001-01-01T00:00:00Z
 
-corr variables: [socn, tocn, ssh, cicen, hicen, hsnon]
+corr variables: [socn, tocn, ssh, uocn, vocn, cicen, hicen, hsnon]
 
 scales:
   vert layers: 5 # in units of layer
@@ -12,6 +12,12 @@ scales:
     rossby mult: 1.00
     min grid mult: 2.0
   tocn:
+    rossby mult: 1.00
+    min grid mult: 2.0
+  uocn:
+    rossby mult: 1.00
+    min grid mult: 2.0
+  vocn:
     rossby mult: 1.00
     min grid mult: 2.0
   ssh:
