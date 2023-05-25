@@ -18,6 +18,7 @@ cyc = os.getenv('cyc')
 comout = os.getenv('COM_ATMOS_ANALYSIS')
 arcdir = os.getenv('ARCDIR')
 
+
 def get_diag_stats():
 
     tarfilename = 'gdas.t' + cyc + 'z.cnvstat'
