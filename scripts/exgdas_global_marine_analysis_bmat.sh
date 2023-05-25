@@ -126,27 +126,49 @@ if [ $err -gt 0  ]; then
     exit $err
 fi
 
+################################################################################
+# Compute convolution coefs for C
 # TODO (G, C, R, ...): problem with ' character when reading yaml, removing from file for now
 # 2D C from bump
-yaml_bump2d=soca_bump2d.yaml
-clean_yaml $yaml_bump2d
-$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml_bump2d 2>$yaml_bump2d.err
+if false; then
+    # TODO: resurect this section when making use of bump 3D in the static B, skip for now
+    yaml_bump2d=soca_bump2d.yaml
+    clean_yaml $yaml_bump2d
+    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml_bump2d 2>$yaml_bump2d.err
+    export err=$?; err_chk
+    if [ $err -gt 0  ]; then
+        exit $err
+    fi
+
+    # 3D C from bump
+    yaml_list=`ls soca_bump3d_*.yaml`
+    for yaml in $yaml_list; do
+        clean_yaml $yaml
+        $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
+        export err=$?; err_chk
+        if [ $err -gt 0  ]; then
+            exit $err
+        fi
+    done
+    concatenate_bump 'bump3d'
+fi
+
+################################################################################
+# Compute convolution coefs for L
+clean_yaml soca_bump_loc.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x soca_bump_loc.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err
 fi
 
-# 3D C from bump
-yaml_list=`ls soca_bump3d_*.yaml`
-for yaml in $yaml_list; do
-    clean_yaml $yaml
-    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
-    export err=$?; err_chk
-    if [ $err -gt 0  ]; then
-        exit $err
-    fi
-done
-concatenate_bump 'bump3d'
+################################################################################
+# Create ensemble of perturbations for the cycle
+
+# Use ensemble recenter with "zerocenter"
+
+# Apply inverse balance to perturbations, use deterministic background as trajectory
+
 
 ################################################################################
 set +x
