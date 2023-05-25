@@ -29,7 +29,7 @@ def get_diag_stats():
 
         diagfilename = 'diag_conv_' + var + '_ges.' + pdy + cyc + '.nc4'
         zipfilename = diagfilename + '.gz'
-        outfilename = 'cnvstat.' + var + '.gdas.' + pdy + cyc
+        outfilename = 'cnvstat.' + var + '.gdas.' + pdy + cyc + '.csv'
 
         with tarfile.open(os.path.join(comout, tarfilename), "r") as tf:
             tf.extract(member=zipfilename)
