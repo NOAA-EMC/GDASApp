@@ -183,22 +183,38 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
     FileHandler({'copy': bkg_list_src_dst}).sync()
 
 
+def nearest_date(strings, input_date):
+    closest_str = ""
+    closest_diff = float("inf")
+    for string in strings:
+        file_date = dparser.parse(os.path.basename(string), fuzzy=True)
+        file_date = file_date.replace(year=input_date.year)
+        diff = abs((file_date - input_date).total_seconds())
+        if diff < closest_diff:
+            closest_str = string
+            closest_diff = diff
+
+    return closest_str
+
+
 def find_bkgerr(input_date, domain):
     """
     Find the std. dev. files that are the closest to the DA window
     """
     bkgerror_dir = os.path.join(os.getenv('SOCA_INPUT_FIX_DIR'), 'bkgerr', 'stddev')
     files = glob.glob(os.path.join(bkgerror_dir, domain+'.ensstddev.fc.*.nc'))
-    closest_file = ""
-    closest_diff = float("inf")
-    for file in files:
-        file_date = dparser.parse(os.path.basename(file), fuzzy=True)
-        file_date = file_date.replace(year=input_date.year)
-        diff = abs((file_date - input_date).total_seconds())
-        if diff < closest_diff:
-            closest_file = file
-            closest_diff = diff
-    return closest_file
+
+    return nearest_date(files, input_date)
+
+
+def find_clim_ens(input_date):
+    """
+    Find the clim. ens. that is the closest to the DA window
+    """
+    ens_clim_dir = os.path.join(os.getenv('SOCA_INPUT_FIX_DIR'), 'bkgerr', 'ens')
+    dirs = glob.glob(os.path.join(ens_clim_dir, '*'))
+
+    return nearest_date(dirs, input_date)
 
 
 ################################################################################
@@ -211,11 +227,12 @@ anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
 
 # create analysis directories
-diags = os.path.join(anl_dir, 'diags')   # output dir for soca DA obs space
-obs_in = os.path.join(anl_dir, 'obs')    # input      "           "
-bkg_dir = os.path.join(anl_dir, 'bkg')   # ice and ocean backgrounds
-anl_out = os.path.join(anl_dir, 'Data')  # output dir for soca DA
-FileHandler({'mkdir': [anl_dir, diags, obs_in, bkg_dir, anl_out]}).sync()
+diags = os.path.join(anl_dir, 'diags')            # output dir for soca DA obs space
+obs_in = os.path.join(anl_dir, 'obs')             # input      "           "
+bkg_dir = os.path.join(anl_dir, 'bkg')            # ice and ocean backgrounds
+anl_out = os.path.join(anl_dir, 'Data')           # output dir for soca DA
+static_ens = os.path.join(anl_dir, 'static_ens')  # clim. ens.
+FileHandler({'mkdir': [anl_dir, diags, obs_in, bkg_dir, anl_out, static_ens]}).sync()
 
 # Variables of convenience
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
@@ -281,6 +298,21 @@ for domain in ['ocn', 'ice']:
 FileHandler({'copy': bkgerr_list}).sync()
 
 ################################################################################
+# stage static ensemble
+
+logging.info(f"---------------- Stage climatological ensemble")
+clim_ens_member_list = []
+clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
+clim_ens_size = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
+for domain in ['ocn', 'ice']:
+    for mem in range(1, clim_ens_size+1):
+        fname = domain+"."+str(mem)+".nc"
+        fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
+        fname_out = os.path.abspath(os.path.join(static_ens, fname))
+        clim_ens_member_list.append([fname_in, fname_out])
+FileHandler({'copy': clim_ens_member_list}).sync()
+
+################################################################################
 # prepare JEDI yamls
 
 logging.info(f"---------------- Generate JEDI yaml files")
@@ -288,6 +320,7 @@ logging.info(f"---------------- Generate JEDI yaml files")
 ################################################################################
 # copy yaml for grid generation
 
+logging.info(f"---------------- generate gridgen.yaml")
 gridgen_yaml_src = os.path.abspath(os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'))
 gridgen_yaml_dst = os.path.abspath(os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
 FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
@@ -296,6 +329,7 @@ FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
 ################################################################################
 # generate YAML file for parametric diag of B
 
+logging.info(f"---------------- generate parametric_stddev_b.yaml")
 berr_yaml = os.path.join(anl_dir, 'parametric_stddev_b.yaml')
 berr_yaml_template = os.path.join(gdas_home,
                                   'parm',
@@ -310,6 +344,7 @@ config.save(berr_yaml)
 ################################################################################
 # copy yaml for decorrelation length scales
 
+logging.info(f"---------------- generate soca_setcorscales.yaml")
 corscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setcorscales.yaml')
 corscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml')
 FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
@@ -317,6 +352,7 @@ FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
 ################################################################################
 # generate yaml for bump/nicas (used for correlation and/or localization)
 
+logging.info(f"---------------- generate BUMP/NICAS yamls")
 # TODO (Guillaume): move the possible vars somewhere else
 vars3d = ['tocn', 'socn', 'uocn', 'vocn', 'chl', 'biop']
 vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
@@ -337,8 +373,7 @@ config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHE
 config.save(bump_yaml)
 
 # 3d bump yaml, 1 yaml per variable
-# get list of DA variables
-soca_vars = os.environ.get("SOCA_VARS").split(",")
+soca_vars = ['tocn', 'socn', 'uocn', 'vocn']
 for v in soca_vars:
     logging.info(f"creating the yaml to initialize bump for {v}")
     if v in vars2d:
@@ -360,9 +395,24 @@ for v in soca_vars:
     config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
     config.save(bump_yaml)
 
+# localization bump yaml
+bumpdir = 'bump'
+ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
+bump_yaml = os.path.join(anl_dir, 'soca_bump_loc.yaml')
+bump_yaml_template = os.path.join(gdas_home,
+                                  'parm',
+                                  'soca',
+                                  'berror',
+                                  'soca_bump_loc.yaml')
+config = YAMLFile(path=bump_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+config.save(bump_yaml)
+
 ################################################################################
 # generate yaml for soca_var
 
+logging.info(f"---------------- generate var.yaml")
 var_yaml = os.path.join(anl_dir, 'var.yaml')
 var_yaml_template = os.path.join(gdas_home,
                                  'parm',
@@ -382,6 +432,7 @@ if 'SABER_BLOCKS_YAML' in os.environ and os.environ['SABER_BLOCKS_YAML']:
 else:
     logging.info(f"using default SABER blocks yaml")
     os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
+os.environ['CLIM_ENS_SIZE'] = str(clim_ens_size)
 
 # substitute templated variables in the var config
 logging.info(f"{config}")
@@ -397,6 +448,7 @@ ufsda.yamltools.save_check(varconfig.as_dict(), target=var_yaml, app='var')
 ################################################################################
 # prepare yaml and CICE restart for soca to cice change of variable
 
+logging.info(f"---------------- generate soca to cice yamls")
 # make a copy of the CICE6 restart
 rst_date = fcst_begin.strftime('%Y%m%d.%H%M%S')
 ice_rst = os.path.join(os.getenv('COM_ICE_RESTART_PREV'), f'{rst_date}.cice_model.res.nc')
