@@ -110,12 +110,11 @@ if [ $ci_status -eq 0 ]; then
   if [ $total -ne 0 ]; then
     echo "Unable to add CMakeLists to commit" >> $stableroot/$datestr/output
   fi
-  git commit -m "Update to new stable build on $datestr"
+  git diff-index --quiet HEAD || git commit -m "Update to new stable build on $datestr"
   total=$(($total+$?))
   caution=""
   if [ $total -ne 0 ]; then
     echo "Unable to commit" >> $stableroot/$datestr/output
-    caution="There probably was just no update to commit today. Git returns exit code 1 in this case. I should blow up their planet..." 
   fi
   git push --set-upstream origin feature/stable-nightly
   total=$(($total+$?))
@@ -130,7 +129,6 @@ if [ $ci_status -eq 0 ]; then
     cat > $BODY << EOF
 Problem updating feature/stable-nightly branch of GDASApp. Please check $stableroot/$datestr/GDASApp
 
-$caution
 EOF
     mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
   else
