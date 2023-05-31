@@ -74,7 +74,7 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG d91a349 )
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG 166090d )
   ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 16bffb9 )
-  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG 81cdb7c  )
+  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG 063e978  )
   ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG 33b3ded )
 
 # FMS and FV3 dynamical core
@@ -94,7 +94,7 @@ if(BUILD_GDASBUNDLE)
   endif()
   ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" TAG 1a02eba )
   ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" TAG 51ec489 RECURSIVE )
-  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" TAG 3bfb201 )
+  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" TAG 7f4cc74 )
 
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
