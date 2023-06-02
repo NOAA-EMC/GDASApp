@@ -10,7 +10,7 @@ background:
       filename_sfcd: 20210323.180000.sfc_data.nc
       filetype: fms restart
       state variables:
-      - snwdph
+      - snodl
       - vtype
       - slmsk
     zero padding: '3'

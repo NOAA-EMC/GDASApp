@@ -1,0 +1,16 @@
+field metadata:
+
+- long name: slmsk
+  interpolation type: nearest
+
+- long name: totalSnowDepth
+  io name: snodl
+  interpolation type: nearest
+
+- long name: vtype
+  interpolation type: nearest
+
+- long name: fraction_of_ice
+  io name: fice
+  interpolation type: nearest
+
