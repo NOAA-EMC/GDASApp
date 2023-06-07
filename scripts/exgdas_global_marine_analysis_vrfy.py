@@ -25,6 +25,7 @@ import cartopy
 import cartopy.crs as ccrs
 import gen_eva_obs_yaml
 import marine_eva_post
+import diag_statistics
 import subprocess
 from datetime import datetime, timedelta
 
@@ -324,3 +325,5 @@ for file in files:
     infile = os.path.join('evayamls', file)
     print('running eva on', infile)
     subprocess.run(['eva', infile], check=True)
+
+diag_statistics.get_diag_stats()

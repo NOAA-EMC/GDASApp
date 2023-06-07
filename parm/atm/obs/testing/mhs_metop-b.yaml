@@ -173,4 +173,5 @@ obs post filters:
   maxvalue: 1.0e-12
   actions:
     - name: reject
+
 passedBenchmark: 18125 
