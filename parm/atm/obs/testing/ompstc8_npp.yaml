@@ -91,3 +91,5 @@ obs filters:
     minvalue: 50.0
   action:
     name: reject
+
+passedBenchmark: 5908

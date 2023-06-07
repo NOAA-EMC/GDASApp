@@ -104,3 +104,4 @@ obs filters:
   action:
     name: reject
 
+passedBenchmark: 2329

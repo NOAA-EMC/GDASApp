@@ -271,4 +271,4 @@ obs filters:
         name: MetaData/pressure
       maxvalue:   200.0
 
-passedBenchmark: 4133
+passedBenchmark: 3744
