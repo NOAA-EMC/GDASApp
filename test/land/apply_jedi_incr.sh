@@ -40,6 +40,8 @@ cat << EOF > apply_incr_nml
  hour_str=$HH
  res=$RES
  frac_grid=$GFSv17
+ rst_path="$WORKDIR",
+ inc_path="$WORKDIR",
  orog_path="$TPATH"
  otype="$TSTUB"
 /
@@ -56,8 +58,8 @@ done
 # stage increments
 for tile in 1 2 3 4 5 6
 do
-  if [[ ! -e ${FILEDATE}.xainc.sfc_data.tile${tile}.nc ]]; then
-    cp ${INCDIR}/${FILEDATE}.xainc.sfc_data.tile${tile}.nc .
+  if [[ ! -e landinc.${FILEDATE}.sfc_data.tile${tile}.nc ]]; then
+    cp ${INCDIR}/${FILEDATE}.xainc.sfc_data.tile${tile}.nc landinc.${FILEDATE}.sfc_data.tile${tile}.nc
   fi
 done
 
