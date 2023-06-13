@@ -71,7 +71,7 @@ $my_dir/stable_mark.sh $stableroot/$datestr/GDASApp
 
 # ==============================================================================
 # run the automated testing
-$my_dir/run_ci.sh -d $stableroot/$datestr/GDASApp -o $stableroot/$datestr/output
+$my_dir/run_gw_ci.sh -d $stableroot/$datestr/GDASApp -o $stableroot/$datestr/output
 ci_status=$?
 total=0
 if [ $ci_status -eq 0 ]; then
