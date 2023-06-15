@@ -37,7 +37,7 @@ def get_diag_stats():
         except FileNotFoundError:
             print('WARNING: file', os.path.join(comout, tarfilename),
                   'not found, this is expected in GDASApp ctests')
-            return 
+            return
         with gzip.open(zipfilename, 'rb') as f_in:
             with open(diagfilename, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
