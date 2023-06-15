@@ -138,8 +138,9 @@ class JobCard:
         """
         if self.machine != "container":
             if jjob in ENVS:
-                # TODO: This does nothing for now. Make the conda activate work!
-                self.f.write(f"# conda activate {ENVS[jjob]} \n")
+                self.f.write(f"set +u \n")
+                self.f.write(f"conda activate {ENVS[jjob]} \n")
+                self.f.write(f"set -u \n")
 
     def precom(self, com, tmpl):
         cmd = f"RUN={self.RUN} YMD={self.gPDY} HH={self.gcyc} generate_com -xr {com}:{tmpl}"
