@@ -138,6 +138,7 @@ class JobCard:
         """
         if self.machine != "container":
             if jjob in ENVS:
+                # set +/-u is a workaround for an apparent conda bug 
                 self.f.write(f"set +u \n")
                 self.f.write(f"conda activate {ENVS[jjob]} \n")
                 self.f.write(f"set -u \n")
