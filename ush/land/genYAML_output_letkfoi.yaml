@@ -119,6 +119,13 @@ observations:
           min_latitude: '-90'
           min_longitude: '-180'
         use_legacy_buddy_collector: 'false'
+    # Assign obsError.
+    - filter: Perform Action
+      filter variables:
+      - name: totalSnowDepth
+      action:
+        name: assign error
+        error parameter: 40.0
     - assignments:
       - name: GrossErrorProbability/totalSnowDepth
         type: float
