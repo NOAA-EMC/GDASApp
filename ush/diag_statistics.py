@@ -31,8 +31,13 @@ def get_diag_stats():
         zipfilename = diagfilename + '.gz'
         outfilename = 'cnvstat.' + var + '.gdas.' + pdy + cyc + '.csv'
 
-        with tarfile.open(os.path.join(comout, tarfilename), "r") as tf:
-            tf.extract(member=zipfilename)
+        try:
+            with tarfile.open(os.path.join(comout, tarfilename), "r") as tf:
+                tf.extract(member=zipfilename)
+        except FileNotFoundError:
+            print('WARNING: file', os.path.join(comout, tarfilename),
+                  'not found, this is expected in GDASApp ctests')
+            return
         with gzip.open(zipfilename, 'rb') as f_in:
             with open(diagfilename, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)

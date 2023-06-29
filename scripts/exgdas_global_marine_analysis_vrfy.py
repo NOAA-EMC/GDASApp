@@ -303,7 +303,7 @@ plot_horizontal_slice(config)
 
 evadir = os.path.join(HOMEgfs, 'sorc', f'{RUN}.cd', 'ush', 'eva')
 marinetemplate = os.path.join(evadir, 'marine_gdas_plots.yaml')
-varyaml = os.path.join(comout, 'yaml', 'var.yaml')
+varyaml = os.path.join(comout, 'yaml', 'var_original.yaml')
 
 # it would be better to refrence the dirs explicitly with the comout path
 # but eva doesn't allow for specifying output directories
