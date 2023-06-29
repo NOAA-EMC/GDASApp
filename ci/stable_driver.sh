@@ -47,15 +47,25 @@ case ${TARGET} in
 esac
 
 # ==============================================================================
-# clone a fresh copy of the develop branch
 datestr="$(date +%Y%m%d)"
 repo_url="https://github.com/NOAA-EMC/GDASApp.git"
+workflow_url="https://github.com/NOAA-EMC/global-workflow.git"
 stableroot=$GDAS_CI_ROOT/stable
 
 mkdir -p $stableroot/$datestr
 cd $stableroot/$datestr
-git clone $repo_url
-cd GDASApp
+
+# clone global workflow develop branch
+git clone $workflow_url
+
+# run checkout script for all other components
+cd $stableroot/$datestr/global-workflow/sorc
+./checkout.sh -u
+
+# checkout develop
+cd gdas.cd
+git checkout develop
+git pull
 
 # ==============================================================================
 # run ecbuild to get the repos cloned
@@ -67,16 +77,18 @@ rm -rf build
 
 # ==============================================================================
 # update the hashes to the most recent
-$my_dir/stable_mark.sh $stableroot/$datestr/GDASApp
+gdasdir=$stableroot/$datestr/global-workflow/gdas.cd
+$my_dir/stable_mark.sh $gdasdir
 
 # ==============================================================================
 # run the automated testing
-$my_dir/run_gw_ci.sh -d $stableroot/$datestr/GDASApp -o $stableroot/$datestr/output
+$my_dir/run_gw_ci.sh -d $stableroot/$datestr/global-workflow -o $stableroot/$datestr/output
 ci_status=$?
 total=0
 if [ $ci_status -eq 0 ]; then
+  cd $gdasdir
   # copy the CMakeLists file for safe keeping
-  cp $stableroot/$datestr/GDASApp/CMakeLists.txt $stableroot/$datestr/GDASApp/CMakeLists.txt.new
+  cp $gdasdir/CMakeLists.txt $gdasdir/CMakeLists.txt.new
   total=$(($total+$?))
   if [ $total -ne 0 ]; then
     echo "Unable to cp CMakeLists" >> $stableroot/$datestr/output
@@ -99,7 +111,7 @@ if [ $ci_status -eq 0 ]; then
     echo "Unable to merge develop" >> $stableroot/$datestr/output
   fi
   # force move the copy to the original path of CMakeLists.txt
-  /bin/mv -f $stableroot/$datestr/GDASApp/CMakeLists.txt.new $stableroot/$datestr/GDASApp/CMakeLists.txt
+  /bin/mv -f $gdasdir/CMakeLists.txt.new $gdasdir/CMakeLists.txt
   total=$(($total+$?))
   if [ $total -ne 0 ]; then
     echo "Unable to mv CMakeLists" >> $stableroot/$datestr/output
