@@ -134,7 +134,7 @@ if false; then
     # TODO: resurect this section when making use of bump 3D in the static B, skip for now
     yaml_bump2d=soca_bump2d.yaml
     clean_yaml $yaml_bump2d
-    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml_bump2d 2>$yaml_bump2d.err
+    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x $yaml_bump2d 2>$yaml_bump2d.err
     export err=$?; err_chk
     if [ $err -gt 0  ]; then
         exit $err
@@ -144,7 +144,7 @@ if false; then
     yaml_list=`ls soca_bump3d_*.yaml`
     for yaml in $yaml_list; do
         clean_yaml $yaml
-        $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
+        $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x $yaml 2>$yaml.err
         export err=$?; err_chk
         if [ $err -gt 0  ]; then
             exit $err
@@ -156,7 +156,7 @@ fi
 ################################################################################
 # Compute convolution coefs for L
 clean_yaml soca_bump_loc.yaml
-$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x soca_bump_loc.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_bump_loc.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err
