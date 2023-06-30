@@ -59,3 +59,14 @@ add_test(NAME test_gdasapp_atm_jjob_ens_final
   COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_final.sh
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
+
+# python fix
+  set_tests_properties(
+      test_gdasapp_run_jedi_exe_3dhofx
+      test_gdasapp_run_jedi_exe_3dvar
+      test_gdasapp_run_jedi_exe_3denvar
+      test_gdasapp_run_jedi_exe_letkf
+      PROPERTIES
+          ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}"
+  )
+
