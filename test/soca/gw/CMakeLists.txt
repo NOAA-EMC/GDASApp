@@ -58,6 +58,10 @@ foreach(jjob ${jjob_list})
          -y ${PROJECT_BINARY_DIR}/test/soca/gw/testrun/run_jjobs_${jjob}.yaml
          ${setup}
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
+  set_tests_properties(${test_name}
+    PROPERTIES
+    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}")
+
 
   set(setup "--skip") # Only run the setup of the first test, if not, it will hang
                       # waiting for standard input from setup_expt.py
