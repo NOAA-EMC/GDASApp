@@ -6,7 +6,7 @@ cat > testoutput/genYAML_example_aero.yaml << EOF
 template: ${srcdir}/parm/aero/variational/3dvar_gfs_aero.yaml
 output: ${bindir}/test/testoutput/genYAML_output_3dvar_gfs_aero.yaml
 config:
-  BERROR_YAML: \${PARMgfs}/aero/berror/staticb_bump.yaml
+  BERROR_YAML: \${PARMgfs}/aero/berror/staticb_bump_aero.yaml
   OBS_YAML_DIR: \${PARMgfs}/aero/obs/config
   COMPONENT: chem 
   layout_x: '8'
