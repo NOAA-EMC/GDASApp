@@ -6,7 +6,7 @@ import numpy as np
 from netCDF4 import Dataset
 from scipy.interpolate import griddata
 import ufsda
-from pygw.yaml_file import YAMLFile
+from wxflow.yaml_file import YAMLFile
 
 
 def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):

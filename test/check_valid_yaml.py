@@ -4,7 +4,7 @@ import logging
 import os
 import pathlib
 import sys
-from pygw.yaml_file import YAMLFile
+from wxflow.yaml_file import YAMLFile
 
 
 def check_valid_yaml(repodir):

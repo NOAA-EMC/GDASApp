@@ -5,7 +5,7 @@ import os
 import shutil
 import datetime as dt
 import ufsda
-from pygw.yaml_file import YAMLFile
+from wxflow.yaml_file import YAMLFile
 
 __all__ = ['atm_diags']
 

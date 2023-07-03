@@ -8,8 +8,8 @@ import logging
 import os
 import re
 import yaml
-from pygw.template import Template, TemplateConstants
-from pygw.yaml_file import YAMLFile
+from wxflow.template import Template, TemplateConstants
+from wxflow.yaml_file import YAMLFile
 
 
 def genYAML(yamlconfig, output=None):
