@@ -77,7 +77,7 @@ rm -rf build
 
 # ==============================================================================
 # update the hashes to the most recent
-gdasdir=$stableroot/$datestr/global-workflow/gdas.cd
+gdasdir=$stableroot/$datestr/global-workflow/sorc/gdas.cd
 $my_dir/stable_mark.sh $gdasdir
 
 # ==============================================================================
