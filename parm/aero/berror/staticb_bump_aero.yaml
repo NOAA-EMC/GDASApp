@@ -1,0 +1,23 @@
+covariance model: SABER
+saber central block:
+  saber block name: BUMP_NICAS
+  read:
+    io:
+      data directory: &staticb_aero_dir $(DATA)/berror
+      files prefix: 'nicas_aero'
+    drivers:
+      multivariate strategy: univariate
+      read local nicas: true
+  saber outer blocks:
+  - saber block name: StdDev
+    read: 
+      model file: 
+        datetime: '2016-06-30T00:00:00Z'
+        set datetime on read: true
+        filetype: fms restart
+        psinfile: true
+        datapath: Data/staticb_aero/
+        filename_core: 20160630.000000.stddev.fv_core.res.nc
+        filename_trcr: 20160630.000000.stddev.fv_tracer.res.nc
+        filename_cplr: 20160630.000000.stddev.coupler.res
+        date: '2016-06-30T00:00:00Z'
