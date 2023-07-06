@@ -55,7 +55,7 @@ EOF
                                                 --out "${mom6_iau_incr}" \
                                                 --nsst_yaml "nsst.yaml"
 else
-   $APRUN_OCNANAL ${JEDI_BIN}/socaincr2mom6.x socaincr2mom6.yaml
+   $APRUN_OCNANAL ${JEDI_BIN}/gdas_socaincr2mom6.x socaincr2mom6.yaml
 fi
 export err=$?
 if [ $err -gt 0  ]; then
