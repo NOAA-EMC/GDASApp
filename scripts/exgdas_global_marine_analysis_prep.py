@@ -475,6 +475,14 @@ for varchgyaml in varchgyamls:
     yaml.dump(soca2cice_cfg, f, sort_keys=False, default_flow_style=False)
     ufsda.genYAML.genYAML('tmp.yaml', output=varchgyaml)
 
+# prepare yaml for soca to MOM6 IAU increment
+logging.info(f"---------------- generate soca to MOM6 IAU yaml")
+socaincr2mom6_yaml = os.path.join(anl_dir, 'socaincr2mom6.yaml')
+socaincr2mom6_yaml_template = os.path.join(gdas_home, 'parm', 'soca', 'variational', 'socaincr2mom6.yaml')
+s2mconfig = YAMLFile(path=socaincr2mom6_yaml_template)
+s2mconfig = Template.substitute_structure(s2mconfig, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+s2mconfig.save(socaincr2mom6_yaml)
+
 ################################################################################
 # Copy initial condition
 ics_list = []
