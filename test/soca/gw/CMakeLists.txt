@@ -33,6 +33,8 @@ add_test(NAME test_gdasapp_soca_concatioda
 add_test(NAME test_gdasapp_soca_run_clean
   COMMAND  ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BINARY_DIR}/test/soca/gw/testrun/testjjobs)
 
+# Create scratch for testing apps
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/apps_scratch)
 
 # Test JGDAS_GLOBAL_OCEAN_ANALYSIS_*
 set(jjob_list "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
@@ -45,6 +47,14 @@ set(jjob_list "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
 
 set(setup "")
 foreach(jjob ${jjob_list})
+
+  # Make a copy of the scratch before it is removed by post
+  IF (jjob STREQUAL "JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT")
+    add_test(NAME test_gdasapp_soca_copy_scratch
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/gw/copy_scratch.sh ${PROJECT_BINARY_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw)
+  ENDIF()
+
 
   # substitute a few variables in the test yaml
   message("ctest for ${jjob}")
@@ -66,3 +76,13 @@ foreach(jjob ${jjob_list})
   set(setup "--skip") # Only run the setup of the first test, if not, it will hang
                       # waiting for standard input from setup_expt.py
 endforeach()
+
+# Test hyb-weights app
+add_test(NAME test_gdasapp_soca_hyb_weights
+  COMMAND ${PROJECT_BINARY_DIR}/bin/gdas_socahybridweights.x ${PROJECT_SOURCE_DIR}/test/soca/testinput/soca_hybweights.yaml
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/apps_scratch)
+
+# Test soca increment to mom6 iau
+add_test(NAME test_gdasapp_socaincr2mom6
+  COMMAND ${PROJECT_BINARY_DIR}/bin/gdas_socaincr2mom6.x ${PROJECT_SOURCE_DIR}/test/soca/testinput/socaincr2mom6.yaml
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/apps_scratch)
