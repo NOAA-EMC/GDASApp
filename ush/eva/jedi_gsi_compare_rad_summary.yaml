@@ -1,354 +1,352 @@
 # template YAML file to create EVA YAML files
 # based on obs spaces listed in JEDI YAML files
-diagnostics:
-- data:
-    datasets:
-      - name: experiment
-        type: IodaObsSpace
-        filenames:
-          - @FILENAME@
-        @CHANNELSKEY@
-        groups:
-          - name: ObsValue
-            variables: &variables @VARIABLES@
-          - name: GsiHofXBc
-          - name: hofx
-          - name: EffectiveQC
-          - name: MetaData
-          - name: GsiEffectiveQC
-          - name: GsiFinalObsError
-          - name: EffectiveError
-  transforms:
+datasets:
+  - name: experiment
+    type: IodaObsSpace
+    filenames:
+      - @FILENAME@
+    @CHANNELSKEY@
+    groups:
+      - name: ObsValue
+        variables: &variables @VARIABLES@
+      - name: GsiHofXBc
+      - name: hofx
+      - name: EffectiveQC
+      - name: MetaData
+      - name: GsiEffectiveQC
+      - name: GsiFinalObsError
+      - name: EffectiveError
+transforms:
 
-    # difference of hofx
-    - transform: arithmetic
-      new name: experiment::HofXDiff::${variable}
-      equals: experiment::hofx::${variable}-experiment::GsiHofXBc::${variable}
-      for:
-        variable: *variables
+  # difference of hofx
+  - transform: arithmetic
+    new name: experiment::HofXDiff::${variable}
+    equals: experiment::hofx::${variable}-experiment::GsiHofXBc::${variable}
+    for:
+      variable: *variables
 
-    # difference of effective error
-    - transform: arithmetic
-      new name: experiment::ErrDiff::${variable}
-      equals: experiment::EffectiveError::${variable}-experiment::GsiFinalObsError::${variable}
-      for:
-        variable: *variables
+  # difference of effective error
+  - transform: arithmetic
+    new name: experiment::ErrDiff::${variable}
+    equals: experiment::EffectiveError::${variable}-experiment::GsiFinalObsError::${variable}
+    for:
+      variable: *variables
 
-    # difference of QC
-    - transform: arithmetic
-      new name: experiment::QCDiff::${variable}
-      equals: experiment::EffectiveQC::${variable}-experiment::GsiEffectiveQC::${variable}
-      for:
-        variable: *variables
+  # difference of QC
+  - transform: arithmetic
+    new name: experiment::QCDiff::${variable}
+    equals: experiment::EffectiveQC::${variable}-experiment::GsiEffectiveQC::${variable}
+    for:
+      variable: *variables
 
-    # Generate omb for GSI
-    - transform: arithmetic
-      new name: experiment::ObsValueMinusGsiHofXBc::${variable}
-      equals: experiment::ObsValue::${variable}-experiment::GsiHofXBc::${variable}
-      for:
-        variable: *variables
+  # Generate omb for GSI
+  - transform: arithmetic
+    new name: experiment::ObsValueMinusGsiHofXBc::${variable}
+    equals: experiment::ObsValue::${variable}-experiment::GsiHofXBc::${variable}
+    for:
+      variable: *variables
 
-    # Generate omb for JEDI
-    - transform: arithmetic
-      new name: experiment::ObsValueMinusHofx::${variable}
-      equals: experiment::ObsValue::${variable}-experiment::hofx::${variable}
-      for:
-        variable: *variables
+  # Generate omb for JEDI
+  - transform: arithmetic
+    new name: experiment::ObsValueMinusHofx::${variable}
+    equals: experiment::ObsValue::${variable}-experiment::hofx::${variable}
+    for:
+      variable: *variables
 
-    # Generate hofx that passed QC for JEDI
-    - transform: accept where
-      new name: experiment::hofxPassedQc::${variable}
-      starting field: experiment::hofx::${variable}
-      where:
-        - experiment::EffectiveQC::${variable} == 0
-      for:
-        variable: *variables
+  # Generate hofx that passed QC for JEDI
+  - transform: accept where
+    new name: experiment::hofxPassedQc::${variable}
+    starting field: experiment::hofx::${variable}
+    where:
+      - experiment::EffectiveQC::${variable} == 0
+    for:
+      variable: *variables
 
-    # Generate GSI hofx that passed JEDI QC
-    - transform: accept where
-      new name: experiment::GsiHofXBcPassedQc::${variable}
-      starting field: experiment::GsiHofXBc::${variable}
-      where:
-        - experiment::EffectiveQC::${variable} == 0
-      for:
-        variable: *variables
+  # Generate GSI hofx that passed JEDI QC
+  - transform: accept where
+    new name: experiment::GsiHofXBcPassedQc::${variable}
+    starting field: experiment::GsiHofXBc::${variable}
+    where:
+      - experiment::EffectiveQC::${variable} == 0
+    for:
+      variable: *variables
 
-    # Generate omb that passed QC for JEDI
-    - transform: accept where
-      new name: experiment::ObsValueMinushofxPassedQc::${variable}
-      starting field: experiment::ObsValueMinusHofx::${variable}
-      where:
-        - experiment::EffectiveQC::${variable} == 0
-      for:
-        variable: *variables
+  # Generate omb that passed QC for JEDI
+  - transform: accept where
+    new name: experiment::ObsValueMinushofxPassedQc::${variable}
+    starting field: experiment::ObsValueMinusHofx::${variable}
+    where:
+      - experiment::EffectiveQC::${variable} == 0
+    for:
+      variable: *variables
 
-    # Generate omb that passed QC for GSI
-    - transform: accept where
-      new name: experiment::ObsValueMinusGsiHofXBcPassedQc::${variable}
-      starting field: experiment::ObsValueMinusGsiHofXBc::${variable}
-      where:
-        - experiment::GsiEffectiveQC::${variable} == 0
-      for:
-        variable: *variables
+  # Generate omb that passed QC for GSI
+  - transform: accept where
+    new name: experiment::ObsValueMinusGsiHofXBcPassedQc::${variable}
+    starting field: experiment::ObsValueMinusGsiHofXBc::${variable}
+    where:
+      - experiment::GsiEffectiveQC::${variable} == 0
+    for:
+      variable: *variables
 
-    # hofxdiff that passed QC for JEDI
-    - transform: accept where
-      new name: experiment::HofXDiffPassedJediQc::${variable}
-      starting field: experiment::HofXDiff::${variable}
-      where:
-        - experiment::EffectiveQC::${variable} == 0
-      for:
-        variable: *variables
+  # hofxdiff that passed QC for JEDI
+  - transform: accept where
+    new name: experiment::HofXDiffPassedJediQc::${variable}
+    starting field: experiment::HofXDiff::${variable}
+    where:
+      - experiment::EffectiveQC::${variable} == 0
+    for:
+      variable: *variables
 
-    # hofxdiff that passed QC for GSI
-    - transform: accept where
-      new name: experiment::HofXDiffPassedGsiQc::${variable}
-      starting field: experiment::HofXDiff::${variable}
-      where:
-        - experiment::GsiEffectiveQC::${variable} == 0
-      for:
-        variable: *variables
+  # hofxdiff that passed QC for GSI
+  - transform: accept where
+    new name: experiment::HofXDiffPassedGsiQc::${variable}
+    starting field: experiment::HofXDiff::${variable}
+    where:
+      - experiment::GsiEffectiveQC::${variable} == 0
+    for:
+      variable: *variables
 
-    # Stats for hofx
-    - transform: channel_stats
-      variable_name: experiment::HofXDiff::${variable}
-      for:
-         variable: *variables
+  # Stats for hofx
+  - transform: channel_stats
+    variable_name: experiment::HofXDiff::${variable}
+    for:
+       variable: *variables
 
-    # Stats for omb that passed QC for GSI
-    - transform: channel_stats
-      variable_name: experiment::ObsValueMinusGsiHofXBcPassedQc::${variable}
-      for:
-         variable: *variables
+  # Stats for omb that passed QC for GSI
+  - transform: channel_stats
+    variable_name: experiment::ObsValueMinusGsiHofXBcPassedQc::${variable}
+    for:
+       variable: *variables
 
-    # Stats for omb that passed QC for JEDI
-    - transform: channel_stats
-      variable_name: experiment::ObsValueMinushofxPassedQc::${variable}
-      for:
-        variable: *variables
+  # Stats for omb that passed QC for JEDI
+  - transform: channel_stats
+    variable_name: experiment::ObsValueMinushofxPassedQc::${variable}
+    for:
+      variable: *variables
 
-    # Stats for Obs Error Difference
-    - transform: channel_stats
-      variable_name: experiment::ErrDiff::${variable}
-      for:
-        variable: *variables
+  # Stats for Obs Error Difference
+  - transform: channel_stats
+    variable_name: experiment::ErrDiff::${variable}
+    for:
+      variable: *variables
 
-    # Generate QC Counts Difference
-    - transform: arithmetic
-      new name: experiment::QCCountsDiff::${variable}
-      equals: experiment::ObsValueMinushofxPassedQcCount::brightnessTemperature-experiment::ObsValueMinusGsiHofXBcPassedQcCount::brightnessTemperature
-      for:
-        variable: *variables
+  # Generate QC Counts Difference
+  - transform: arithmetic
+    new name: experiment::QCCountsDiff::${variable}
+    equals: experiment::ObsValueMinushofxPassedQcCount::brightnessTemperature-experiment::ObsValueMinusGsiHofXBcPassedQcCount::brightnessTemperature
+    for:
+      variable: *variables
 
-    # Because of some issues with passive IR channels, the following four transforms create QC counts just for channels with non-zero JEDI counts
-    - transform: accept where
-      new name: experiment::PassedQc_Used::${variable}
-      starting field: experiment::ObsValueMinushofxPassedQcCount::${variable}
-      where:
-        - experiment::ObsValueMinushofxPassedQcCount::${variable} > 0
-      for:
-        variable: *variables
+  # Because of some issues with passive IR channels, the following four transforms create QC counts just for channels with non-zero JEDI counts
+  - transform: accept where
+    new name: experiment::PassedQc_Used::${variable}
+    starting field: experiment::ObsValueMinushofxPassedQcCount::${variable}
+    where:
+      - experiment::ObsValueMinushofxPassedQcCount::${variable} > 0
+    for:
+      variable: *variables
 
-    - transform: accept where
-      new name: experiment::GsiPassedQc_Used::${variable}
-      starting field: experiment::ObsValueMinusGsiHofXBcPassedQcCount::${variable}
-      where:
-        - experiment::ObsValueMinushofxPassedQcCount::${variable} > 0
-      for:
-        variable: *variables
+  - transform: accept where
+    new name: experiment::GsiPassedQc_Used::${variable}
+    starting field: experiment::ObsValueMinusGsiHofXBcPassedQcCount::${variable}
+    where:
+      - experiment::ObsValueMinushofxPassedQcCount::${variable} > 0
+    for:
+      variable: *variables
 
-    - transform: arithmetic
-      new name: experiment::QCCountsDiff_Used::${variable}
-      equals: experiment::PassedQc_Used::brightnessTemperature-experiment::GsiPassedQc_Used::brightnessTemperature
-      for:
-        variable: *variables
+  - transform: arithmetic
+    new name: experiment::QCCountsDiff_Used::${variable}
+    equals: experiment::PassedQc_Used::brightnessTemperature-experiment::GsiPassedQc_Used::brightnessTemperature
+    for:
+      variable: *variables
 
-    - transform: accept where
-      new name: experiment::MetaData::sensorChannelNumber_Used
-      starting field: experiment::MetaData::sensorChannelNumber
-      where:
-        - experiment::ObsValueMinushofxPassedQcCount::${variable} > 0
-      for:
-        variable: *variables
+  - transform: accept where
+    new name: experiment::MetaData::sensorChannelNumber_Used
+    starting field: experiment::MetaData::sensorChannelNumber
+    where:
+      - experiment::ObsValueMinushofxPassedQcCount::${variable} > 0
+    for:
+      variable: *variables
 
-  graphics:
-    - figure:
-        layout: [1,1]
-        title: 'JEDI HofX - GSI HofX vs Channel | @NAME@ @CYCLE@'
-        output name: HofX_Difference_@CYCLE@_@NAME@.png
-      plots:
-        - add_xlabel: 'Channel'
-          add_ylabel: 'HofX Difference'
-          add_grid:
-          add_legend:
-            loc: 'upper left'
-          layers:
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber
-            y:
-              variable: experiment::HofXDiffMean::brightnessTemperature
-            markersize: 5
-            color: 'red'
-            label: 'Mean'
-            do_linear_regression: False
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber
-            y:
-              variable: experiment::HofXDiffMax::brightnessTemperature
-            markersize: 5
-            color: 'green'
-            label: 'Maximum'
-            do_linear_regression: False
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber
-            y:
-              variable: experiment::HofXDiffMin::brightnessTemperature
-            markersize: 5
-            color: 'blue'
-            label: 'Minimum'
-            do_linear_regression: False
+graphics:
+  - figure:
+      layout: [1,1]
+      title: 'JEDI HofX - GSI HofX vs Channel | @NAME@ @CYCLE@'
+      output name: HofX_Difference_@CYCLE@_@NAME@.png
+    plots:
+      - add_xlabel: 'Channel'
+        add_ylabel: 'HofX Difference'
+        add_grid:
+        add_legend:
+          loc: 'upper left'
+        layers:
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber
+          y:
+            variable: experiment::HofXDiffMean::brightnessTemperature
+          markersize: 5
+          color: 'red'
+          label: 'Mean'
+          do_linear_regression: False
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber
+          y:
+            variable: experiment::HofXDiffMax::brightnessTemperature
+          markersize: 5
+          color: 'green'
+          label: 'Maximum'
+          do_linear_regression: False
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber
+          y:
+            variable: experiment::HofXDiffMin::brightnessTemperature
+          markersize: 5
+          color: 'blue'
+          label: 'Minimum'
+          do_linear_regression: False
 
-    - figure:
-        layout: [1,1]
-        title: 'Difference in Number of Obs Passing QC | @NAME@ @CYCLE@'
-        output name: QCCount_Diff_@CYCLE@_@NAME@.png
-      plots:
-        - add_xlabel: 'Channel'
-          add_ylabel: 'Counts'
-          add_grid:
-          add_legend:
-            loc: 'upper left'
-          layers:
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber
-            y:
-              variable: experiment::QCCountsDiff::brightnessTemperature
-            markersize: 5
-            color: 'red'
-            label: 'JEDI-GSI Counts Difference'
-            do_linear_regression: False
+  - figure:
+      layout: [1,1]
+      title: 'Difference in Number of Obs Passing QC | @NAME@ @CYCLE@'
+      output name: QCCount_Diff_@CYCLE@_@NAME@.png
+    plots:
+      - add_xlabel: 'Channel'
+        add_ylabel: 'Counts'
+        add_grid:
+        add_legend:
+          loc: 'upper left'
+        layers:
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber
+          y:
+            variable: experiment::QCCountsDiff::brightnessTemperature
+          markersize: 5
+          color: 'red'
+          label: 'JEDI-GSI Counts Difference'
+          do_linear_regression: False
 
 
-    - figure:
-        layout: [1,1]
-        title: 'Difference in Number of Obs Passing QC - Used Channels Only | @NAME@ @CYCLE@'
-        output name: QCCount_Diff_Used_@CYCLE@_@NAME@.png
-      plots:
-        - add_xlabel: 'Channel'
-          add_ylabel: 'Counts'
-          add_grid:
-          add_legend:
-            loc: 'upper left'
-          layers:
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber_Used
-            y:
-              variable: experiment::QCCountsDiff_Used::brightnessTemperature
-            markersize: 5
-            color: 'red'
-            label: 'JEDI-GSI Counts Difference'
-            do_linear_regression: False
+  - figure:
+      layout: [1,1]
+      title: 'Difference in Number of Obs Passing QC - Used Channels Only | @NAME@ @CYCLE@'
+      output name: QCCount_Diff_Used_@CYCLE@_@NAME@.png
+    plots:
+      - add_xlabel: 'Channel'
+        add_ylabel: 'Counts'
+        add_grid:
+        add_legend:
+          loc: 'upper left'
+        layers:
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber_Used
+          y:
+            variable: experiment::QCCountsDiff_Used::brightnessTemperature
+          markersize: 5
+          color: 'red'
+          label: 'JEDI-GSI Counts Difference'
+          do_linear_regression: False
 
-    - figure:
-        layout: [1,1]
-        title: 'Number of Obs Passing QC | @NAME@ @CYCLE@'
-        output name: PassedQC_Counts@CYCLE@_@NAME@.png
-      plots:
-        - add_xlabel: 'Channel'
-          add_ylabel: 'Counts'
-          add_grid:
-          add_legend:
-            loc: 'upper left'
-          layers:
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber
-            y:
-              variable: experiment::ObsValueMinushofxPassedQcCount::brightnessTemperature
-            markersize: 5
-            color: 'red'
-            label: 'JEDI'
-            do_linear_regression: False
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber
-            y:
-              variable: experiment::ObsValueMinusGsiHofXBcPassedQcCount::brightnessTemperature
-            markersize: 5
-            color: 'green'
-            label: 'GSI'
-            do_linear_regression: False
+  - figure:
+      layout: [1,1]
+      title: 'Number of Obs Passing QC | @NAME@ @CYCLE@'
+      output name: PassedQC_Counts@CYCLE@_@NAME@.png
+    plots:
+      - add_xlabel: 'Channel'
+        add_ylabel: 'Counts'
+        add_grid:
+        add_legend:
+          loc: 'upper left'
+        layers:
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber
+          y:
+            variable: experiment::ObsValueMinushofxPassedQcCount::brightnessTemperature
+          markersize: 5
+          color: 'red'
+          label: 'JEDI'
+          do_linear_regression: False
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber
+          y:
+            variable: experiment::ObsValueMinusGsiHofXBcPassedQcCount::brightnessTemperature
+          markersize: 5
+          color: 'green'
+          label: 'GSI'
+          do_linear_regression: False
 
-    - figure:
-        layout: [1,1]
-        title: 'Number of Obs Passing QC - Used Channels Only | @NAME@ @CYCLE@'
-        output name: PassedQC_Counts_Used@CYCLE@_@NAME@.png
-      plots:
-        - add_xlabel: 'Channel'
-          add_ylabel: 'Counts'
-          add_grid:
-          add_legend:
-            loc: 'upper left'
-          layers:
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber_Used
-            y:
-              variable: experiment::PassedQc_Used::brightnessTemperature
-            markersize: 5
-            color: 'red'
-            label: 'JEDI'
-            do_linear_regression: False
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber_Used
-            y:
-              variable: experiment::GsiPassedQc_Used::brightnessTemperature
-            markersize: 5
-            color: 'green'
-            label: 'GSI'
-            do_linear_regression: False
+  - figure:
+      layout: [1,1]
+      title: 'Number of Obs Passing QC - Used Channels Only | @NAME@ @CYCLE@'
+      output name: PassedQC_Counts_Used@CYCLE@_@NAME@.png
+    plots:
+      - add_xlabel: 'Channel'
+        add_ylabel: 'Counts'
+        add_grid:
+        add_legend:
+          loc: 'upper left'
+        layers:
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber_Used
+          y:
+            variable: experiment::PassedQc_Used::brightnessTemperature
+          markersize: 5
+          color: 'red'
+          label: 'JEDI'
+          do_linear_regression: False
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber_Used
+          y:
+            variable: experiment::GsiPassedQc_Used::brightnessTemperature
+          markersize: 5
+          color: 'green'
+          label: 'GSI'
+          do_linear_regression: False
 
-    - figure:
-        layout: [1,1]
-        title: 'JEDI Obs Error - GSI Obs Error vs Channel | @NAME@ @CYCLE@'
-        output name: ObsErr_Difference_@CYCLE@_@NAME@.png
-      plots:
-        - add_xlabel: 'Channel'
-          add_ylabel: 'Observation Error Difference'
-          add_grid:
-          add_legend:
-            loc: 'upper left'
-          layers:
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber
-            y:
-              variable: experiment::ErrDiffMean::brightnessTemperature
-            markersize: 5
-            color: 'red'
-            label: 'Mean'
-            do_linear_regression: False
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber
-            y:
-              variable: experiment::ErrDiffMax::brightnessTemperature
-            markersize: 5
-            color: 'green'
-            label: 'Maximum'
-            do_linear_regression: False
-          - type: Scatter
-            x:
-              variable: experiment::MetaData::sensorChannelNumber
-            y:
-              variable: experiment::ErrDiffMin::brightnessTemperature
-            markersize: 5
-            color: 'blue'
-            label: 'Minimum'
-            do_linear_regression: False
+  - figure:
+      layout: [1,1]
+      title: 'JEDI Obs Error - GSI Obs Error vs Channel | @NAME@ @CYCLE@'
+      output name: ObsErr_Difference_@CYCLE@_@NAME@.png
+    plots:
+      - add_xlabel: 'Channel'
+        add_ylabel: 'Observation Error Difference'
+        add_grid:
+        add_legend:
+          loc: 'upper left'
+        layers:
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber
+          y:
+            variable: experiment::ErrDiffMean::brightnessTemperature
+          markersize: 5
+          color: 'red'
+          label: 'Mean'
+          do_linear_regression: False
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber
+          y:
+            variable: experiment::ErrDiffMax::brightnessTemperature
+          markersize: 5
+          color: 'green'
+          label: 'Maximum'
+          do_linear_regression: False
+        - type: Scatter
+          x:
+            variable: experiment::MetaData::sensorChannelNumber
+          y:
+            variable: experiment::ErrDiffMin::brightnessTemperature
+          markersize: 5
+          color: 'blue'
+          label: 'Minimum'
+          do_linear_regression: False
