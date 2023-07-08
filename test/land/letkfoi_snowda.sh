@@ -19,7 +19,7 @@ WORKDIR=$project_binary_dir/test/land/letkfoi_snowda
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model_data/atmos/restart
 export OBSDIR=$GDASAPP_TESTDATA/land
 
-GFSv17=${GFSv17:-"NO"}
+GFSv17=${GFSv17:-"YES"}
 DAtype=letkfoi_snow
 
 if [ $GFSv17 == "YES" ]; then

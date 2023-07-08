@@ -86,6 +86,12 @@ obs filters:
       damping_factor_1: 1.0
       damping_factor_2: 1.0
       background_error_group: BkgError
+  - filter: Perform Action
+    filter variables:
+    - name: totalSnowDepth
+    action:
+      name: assign error
+      error parameter: 40.0
   - filter: Variable Assignment
     assignments:
     - name: GrossErrorProbability/totalSnowDepth
