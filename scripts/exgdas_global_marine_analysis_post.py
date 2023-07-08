@@ -23,7 +23,7 @@ import glob
 import shutil
 import logging
 from datetime import datetime, timedelta
-from wxflow.file_utils import FileHandler
+from wxflow import FileHandler
 
 
 # TODO: Move this somewhere else?

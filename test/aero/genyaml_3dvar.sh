@@ -27,9 +27,7 @@ mkdir -p $DATA
 
 # run some python code to generate the YAML
 python3 - <<EOF
-from wxflow.attrdict import AttrDict
-from wxflow.template import Template, TemplateConstants
-from wxflow.yaml_file import YAMLFile
+from wxflow import AttrDict, Template, TemplateConstants, YAMLFile
 import datetime
 
 config = YAMLFile(path='$YAMLin')

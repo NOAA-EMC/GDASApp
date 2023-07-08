@@ -8,7 +8,7 @@ import subprocess
 import sys
 import yaml
 import wxflow
-from wxflow.yaml_file import parse_j2yaml, save_as_yaml
+from wxflow import parse_j2yaml, save_as_yaml
 
 
 def export_envar(yamlfile, bashout):

@@ -32,10 +32,7 @@ import pytz
 from netCDF4 import Dataset
 import xarray as xr
 import numpy as np
-from wxflow.attrdict import AttrDict
-from wxflow.template import Template, TemplateConstants
-from wxflow.yaml_file import YAMLFile
-from wxflow.file_utils import FileHandler
+from wxflow import (AttrDict, Template, TemplateConstants, YAMLFile, FileHandler)
 
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')

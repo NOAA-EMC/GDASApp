@@ -36,7 +36,7 @@ def save_check(config, target, app='var'):
     config['cost function']['observations']['observers'] = cleaned_obs_spaces
 
     # save cleaned yaml
-    wxflow.yaml_file.save_as_yaml(config, target)
+    wxflow.save_as_yaml(config, target)
 
 
 def parse_config(input_config_dict, template=None, clean=True):

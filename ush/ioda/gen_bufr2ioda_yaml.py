@@ -5,8 +5,7 @@
 # and certain configuration parameters
 import argparse
 import os
-from wxflow.template import Template, TemplateConstants
-from wxflow.yaml_file import YAMLFile
+from wxflow import Template, TemplateConstants, YAMLFile
 
 
 # list of satellite radiance BUFR files that need split by SatId
