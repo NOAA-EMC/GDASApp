@@ -81,7 +81,7 @@ class JobCard:
         self.f.write(f"export CDATE='{CDATE}'\n")
 
         # Add to python environement
-        self.f.write("PYTHONPATH=${HOMEgfs}/ush/python/pygw/src:${PYTHONPATH}\n")
+        self.f.write("PYTHONPATH=${HOMEgfs}/ush/python/wxflow/src:${PYTHONPATH}\n")
 
     def setupexpt(self):
         """
