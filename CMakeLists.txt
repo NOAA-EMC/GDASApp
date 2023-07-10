@@ -96,6 +96,9 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" BRANCH main-ecbuild RECURSIVE )
   ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" BRANCH develop )
 
+  # Build JEDI/DA or other peripherals
+  ecbuild_bundle( PROJECT gdas-utils SOURCE "./utils" )
+
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
   if(BUILD_IODA_CONVERTERS)
@@ -105,9 +108,6 @@ if(BUILD_GDASBUNDLE)
 # Land associated repositories
   ecbuild_bundle( PROJECT land-imsproc  GIT "https://github.com/NOAA-PSL/land-IMS_proc.git"  TAG 6373819 )
   ecbuild_bundle( PROJECT land-jediincr GIT "https://github.com/NOAA-PSL/land-apply_jedi_incr.git"  TAG 2923344)
-
-  # Build JEDI/DA or other peripherals
-  add_subdirectory(utils)
 
 # ioda, ufo, fv3-jedi, and saber test data
 #---------------------------------

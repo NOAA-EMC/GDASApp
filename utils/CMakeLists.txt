@@ -1,4 +1,6 @@
-find_package( NetCDF REQUIRED COMPONENTS CXX)
+project(gdas-utils LANGUAGES C CXX )
+
+find_package(NetCDF REQUIRED COMPONENTS CXX)
 find_package(oops REQUIRED)
 find_package(atlas REQUIRED)
 find_package(soca REQUIRED)
