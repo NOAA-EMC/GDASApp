@@ -30,8 +30,8 @@ source "${HOMEgfs}/ush/preamble.sh"
 source "${HOMEgfs}/parm/config/gfs/config.com"
 
 # Set python path for workflow utilities and tasks
-pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
-PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${pygwPATH}"
+wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow/src"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
 # Detemine machine from config.base

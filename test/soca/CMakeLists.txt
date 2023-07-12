@@ -69,7 +69,7 @@ add_test(NAME test_gdasapp_soca_obsdb
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs/)
 set_tests_properties(test_gdasapp_soca_obsdb
     PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/pygw/src:$ENV{PYTHONPATH};SOCA_TEST_OBS=${PROJECT_SOURCE_DIR}/test/soca/testdata")
+    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/wxflow/src:$ENV{PYTHONPATH};SOCA_TEST_OBS=${PROJECT_SOURCE_DIR}/test/soca/testdata")
 
 # Test exgdas scripts from the global-worflow
 if (WORKFLOW_TESTS)
