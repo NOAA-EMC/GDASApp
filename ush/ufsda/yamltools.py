@@ -5,7 +5,7 @@ import logging
 from solo.yaml_file import YAMLFile
 from solo.template import TemplateConstants, Template
 from ufsda.misc_utils import isTrue
-import pygw
+import wxflow
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -36,7 +36,7 @@ def save_check(config, target, app='var'):
     config['cost function']['observations']['observers'] = cleaned_obs_spaces
 
     # save cleaned yaml
-    pygw.yaml_file.save_as_yaml(config, target)
+    wxflow.save_as_yaml(config, target)
 
 
 def parse_config(input_config_dict, template=None, clean=True):

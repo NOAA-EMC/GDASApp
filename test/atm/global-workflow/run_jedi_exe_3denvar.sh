@@ -33,8 +33,8 @@ fi
 # Setup python path for workflow utilities and tasks
 export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
 echo $HOMEgfs
-pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
-PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${pygwPATH}"
+wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow/src"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
 # Create test run directory
