@@ -1,21 +1,6 @@
 #!/usr/bin/env python3
-################################################################################
-#  UNIX Script Documentation Block
-#                      .                                             .
-# Script name:         soca_vrfy.py
-# Script description:  Module with plotting functions for marine analysis vrfy task
-#
-# Author: Andrew Eichmann          Org: NCEP/EMC     Date: 2023-07-13
-#
-# Abstract: This script produces figures relevant to the marine DA cycle
-#
-# $Id$
-#
-# Attributes:
-#   Language: Python3
-#
-################################################################################
 
+# make plots for marine analysis  
 
 import matplotlib.pyplot as plt
 import xarray as xr
