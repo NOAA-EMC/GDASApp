@@ -29,6 +29,7 @@ projs = {'North': ccrs.NorthPolarStereo(),
          'South': ccrs.SouthPolarStereo(),
          'Global': ccrs.Mollweide(central_longitude=-150)}
 
+
 def plot_config(grid_file=[], data_file=[],
                 variable=[], levels=[], bounds=[], colormap=[], comout=[], lats=[]):
     """
@@ -114,6 +115,3 @@ def plot_zonal_slice(config):
     figname = os.path.join(dirname, config['variable'] +
                            'zonal_lat_'+str(int(lat)) + '_' + str(int(config['max depth'])) + 'm')
     plt.savefig(figname, bbox_inches='tight', dpi=600)
-
-
-
