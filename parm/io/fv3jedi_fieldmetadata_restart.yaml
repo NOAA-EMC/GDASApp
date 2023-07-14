@@ -12,10 +12,13 @@ field metadata:
 - long name: air_pressure_thickness
   io name: DELP
 
+- long name: layer_thickness
+  io name: DZ
+
 - long name: stc
   io file: surface
 
-- long name: soilMoistureVolumetric 
+- long name: soilMoistureVolumetric
   io name: smc
   io file: surface
 
