@@ -46,7 +46,7 @@ fi
 
 # Execute j-job
 if [ $machine = 'HERA' -o $machine = 'ORION' ]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FINALIZE
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FINALIZE
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FINALIZE
 fi

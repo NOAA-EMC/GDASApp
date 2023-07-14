@@ -51,7 +51,7 @@ setup_expt config:
 
 job options:
   account: da-cpu
-  qos: debug
+  qos: batch
   output: @JJOB@.out
   nodes: 1
   ntasks: 16
