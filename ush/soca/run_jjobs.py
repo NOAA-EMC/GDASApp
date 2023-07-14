@@ -31,7 +31,12 @@ class JobCard:
         # Exit early if not testing a gw jjob
         print(config)
         if ctest:
-            command = f"{config['ctest command']['executable']} {config['ctest command']['yaml input']}"
+            self.header()
+            # Hard coded to one task for now
+            mpiexec = "mpirun -np 1"
+            if self.machine != "container":
+                mpiexec = "srun -n 1"
+            command = f"{mpiexec} {config['ctest command']['executable']} {config['ctest command']['yaml input']}"
             self.f.write(f"{command} \n")
             return
 
