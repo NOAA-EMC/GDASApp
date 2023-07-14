@@ -28,8 +28,8 @@ export NMEM_ENS=0
 export ACCOUNT=da-cpu
 
 # Set python path for workflow utilities and tasks
-pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
-PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${pygwPATH}"
+wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow/src"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
 # Detemine machine from config.base

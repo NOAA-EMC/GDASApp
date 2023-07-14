@@ -1,6 +1,6 @@
 #!/bin/bash
 # generate YAML from a template
-# using pygw YAML tools
+# using wxflow YAML tools
 bindir=$1
 srcdir=$2
 
@@ -27,9 +27,7 @@ mkdir -p $DATA
 
 # run some python code to generate the YAML
 python3 - <<EOF
-from pygw.attrdict import AttrDict
-from pygw.template import Template, TemplateConstants
-from pygw.yaml_file import YAMLFile
+from wxflow import AttrDict, Template, TemplateConstants, YAMLFile
 import datetime
 
 config = YAMLFile(path='$YAMLin')

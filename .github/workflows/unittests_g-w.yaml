@@ -25,17 +25,24 @@ jobs:
         cd r2d2 && pip install . && cd ..
         sudo mkdir -p /work/noaa # to trick workflow into thinking this is RDHPCS Orion
 
+    - name: Checkout wxflow
+      uses: actions/checkout@v3
+      with:
+        repository: NOAA-EMC/wxflow
+        ref: develop
+        path: wxflow
+
+    - name: Install wxflow
+      run: |
+        cd wxflow
+        pip install .
+
     - name: Checkout workflow
       uses: actions/checkout@v3
       with:
         repository: NOAA-EMC/global-workflow
         ref: develop
         path: global-workflow
-
-    - name: Install workflow utils
-      run: |
-        cd global-workflow/ush/python/pygw
-        pip install .
 
     - name: Checkout GDASApp
       uses: actions/checkout@v3
