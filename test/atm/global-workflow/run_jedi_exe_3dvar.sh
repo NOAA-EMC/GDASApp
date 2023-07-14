@@ -26,7 +26,7 @@ if [ "$machine" = "hera" ] ; then
     partition="hera"
     gdasfix="/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix"
 elif [ "$machine" = "orion" ]; then
-    partition="batch"
+    partition="orion"
     gdasfix="/work2/noaa/da/cmartin/GDASApp/fix"
 fi
 

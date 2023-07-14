@@ -14,7 +14,7 @@ add_test(NAME test_gdasapp_soca_prep
 set(MACHINE "container")
 IF (IS_DIRECTORY /work2/noaa/da)
   set(MACHINE "orion")
-  set(PARTITION "batch")
+  set(PARTITION "orion")
 ENDIF()
 IF (IS_DIRECTORY /scratch2/NCEPDEV/)
   set(MACHINE "hera")
