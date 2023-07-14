@@ -14,7 +14,7 @@ cost function:
     npx: $(npx_ges)
     npy: $(npy_ges)
     npz: $(npz_ges)
-    field metadata override: ./fv3jedi/gfs-restart.yaml
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
   background:
     datapath: ./bkg
     filetype: fms restart
@@ -47,7 +47,7 @@ variational:
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
-      field metadata override: ./fv3jedi/gfs-restart.yaml
+      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
     diagnostics:
       departures: bkgmob
   - ninner: 4
@@ -64,7 +64,7 @@ variational:
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
-      field metadata override: ./fv3jedi/gfs-restart.yaml
+      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
     diagnostics:
       departures: bkgmob1
 final:
@@ -86,4 +86,4 @@ final:
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
-      field metadata override: ./fv3jedi/gfs-restart.yaml
+      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml

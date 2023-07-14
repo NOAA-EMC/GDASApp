@@ -20,7 +20,7 @@ driver:
   save posterior mean increment: 'true'
 geometry:
   akbk: Data/fv3files/akbk127.nc4
-  field metadata override: Data/fieldmetadata/gfs-land.yaml
+  field metadata override: Data/fieldmetadata/fv3jedi_fieldmetadata_restart.yaml
   fms initialization:
     field table filename: Data/fv3files/field_table
     namelist filename: Data/fv3files/fmsmpp.nml

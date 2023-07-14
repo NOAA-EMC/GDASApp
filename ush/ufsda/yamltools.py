@@ -135,7 +135,7 @@ def fv3atm_geom_dict(case, levs, ntiles, layout, io_layout):
         'npy': str(case+1),
         'npz': str(levs-1),
         'ntiles': str(ntiles),
-        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/gfs-restart.yaml'
+        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/fv3jedi_fieldmetadata_restart.yaml'
     }
     return outdict
 
@@ -154,7 +154,7 @@ def fv3land_geom_dict(case, levs, ntiles, layout, io_layout):
         'npy': str(case+1),
         'npz': str(levs-1),
         'ntiles': str(ntiles),
-        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/gfs-land.yaml',
+        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/fv3jedi_fieldmetadata_restart.yaml',
 
         'time invariant fields': {
             'state fields': {
@@ -184,7 +184,7 @@ def fv3aero_geom_dict(case, levs, ntiles, layout, io_layout):
         'npy': str(case+1),
         'npz': str(levs-1),
         'ntiles': str(ntiles),
-        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/gfs-aero.yaml',
+        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/fv3jedi_fieldmetadata_restart.yaml',
 
     }
     return outdict
