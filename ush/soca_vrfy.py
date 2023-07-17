@@ -110,39 +110,39 @@ def plot_increment(comout, cyc, RUN, grid_file):
                          data_file=data_file,
                          colormap=incr_cmap,
                          comout=os.path.join(comout, 'vrfy', 'incr'))
-    
+
     #######################################
     # zonal slices
-    
+
     for lat in np.arange(-60, 60, 10):
-    
+
         for max_depth in [700.0, 5000.0]:
             config['lats'] = [lat]
             config['max depth'] = max_depth
-    
+
             # Temperature
             config.update({'variable': 'Temp', 'levels': [1], 'bounds': [-.5, .5]})
             plot_zonal_slice(config)
-    
+
             # Salinity
             config.update({'variable': 'Salt', 'levels': [1], 'bounds': [-.1, .1]})
             plot_zonal_slice(config)
-    
+
     #######################################
     # Horizontal slices
-    
+
     # Temperature
     config.update({'variable': 'Temp', 'levels': [1], 'bounds': [-1, 1]})
     plot_horizontal_slice(config)
-    
+
     # Salinity
     config.update({'variable': 'Salt', 'bounds': [-0.1, 0.1]})
     plot_horizontal_slice(config)
-    
+
     # Sea surface height
     config.update({'variable': 'ave_ssh', 'bounds': [-0.1, 0.1]})
     plot_horizontal_slice(config)
-    
+
     #######################################
     # Sea ice
     data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc')
@@ -150,26 +150,27 @@ def plot_increment(comout, cyc, RUN, grid_file):
                          data_file=data_file,
                          colormap=incr_cmap,
                          comout=os.path.join(comout, 'vrfy', 'incr'))
-    
+
     for proj in ['North', 'South']:
         # concentration
         config.update({'variable': 'aicen', 'bounds': [-0.2, 0.2], 'proj': proj})
         plot_horizontal_slice(config)
-    
+
         # thickness
         config.update({'variable': 'hicen', 'bounds': [-0.5, 0.5], 'proj': proj})
         plot_horizontal_slice(config)
-    
+
         # snow depth
         config.update({'variable': 'hsnon', 'bounds': [-0.1, 0.1], 'proj': proj})
         plot_horizontal_slice(config)
-    
-def plot_analysis(comout, 
-                  com_ice_history, 
-                  com_ocean_history, 
-                  cyc, 
-                  RUN, 
-                  grid_file, 
+
+
+def plot_analysis(comout,
+                  com_ice_history,
+                  com_ocean_history,
+                  cyc,
+                  RUN,
+                  grid_file,
                   gcyc):
 
     #######################################
@@ -183,21 +184,21 @@ def plot_analysis(comout,
                              data_file=data_file,
                              colormap='jet',
                              comout=os.path.join(comout, 'vrfy', dir_out))
-    
+
         for proj in ['North', 'South', 'Global']:
             # concentration
             var = ice_vars[dir_out]
             config.update({'variable': var[0], 'bounds': [0.0, 1.0], 'proj': proj})
             plot_horizontal_slice(config)
-    
+
             # thickness
             config.update({'variable': var[1], 'bounds': [0.0, 4.0], 'proj': proj})
             plot_horizontal_slice(config)
-    
+
             # snow depth
             config.update({'variable': var[2], 'bounds': [0.0, 0.5], 'proj': proj})
             plot_horizontal_slice(config)
-    
+
     #######################################
     # Ocean surface
     data_files = [os.path.join(comout, f'{RUN}.t'+cyc+'z.ocnana.nc'),
@@ -209,19 +210,19 @@ def plot_analysis(comout,
                              data_file=data_file,
                              colormap='jet',
                              comout=os.path.join(comout, 'vrfy', dir_out))
-    
+
         # ssh
         config.update({'variable': 'ave_ssh', 'bounds': [-1.8, 1.3], 'proj': proj, 'levels': [1]})
         plot_horizontal_slice(config)
-    
+
         # sst
         config.update({'variable': 'Temp', 'bounds': [-1.8, 34.0], 'proj': proj, 'levels': [1]})
         plot_horizontal_slice(config)
-    
+
         # sss
         config.update({'variable': 'Salt', 'bounds': [30, 38], 'proj': proj, 'levels': [1]})
         plot_horizontal_slice(config)
-    
+
     #######################################
     # Std Bkg. Error
     #######################################
@@ -231,36 +232,36 @@ def plot_analysis(comout,
                          data_file=data_file,
                          colormap=bmat_cmap,
                          comout=os.path.join(comout, 'vrfy', 'bkgerr'))
-    
+
     #######################################
     # zonal slices
-    
+
     for lat in np.arange(-60, 60, 10):
-    
+
         for max_depth in [700.0, 5000.0]:
             config['lats'] = [lat]
             config['max depth'] = max_depth
-    
+
             # Temperature
             config.update({'variable': 'Temp', 'levels': [1], 'bounds': [0, 1.5]})
             plot_zonal_slice(config)
-    
+
             # Salinity
             config.update({'variable': 'Salt', 'levels': [1], 'bounds': [0, .2]})
             plot_zonal_slice(config)
-    
+
     #######################################
     # Horizontal slices
-    
+
     # Temperature
     config.update({'variable': 'Temp', 'levels': [1], 'bounds': [0, 2]})
     plot_horizontal_slice(config)
-    
+
     # Salinity
     config.update({'variable': 'Salt', 'bounds': [0, 0.2]})
     plot_horizontal_slice(config)
-    
+
     # Sea surface height
     config.update({'variable': 'ave_ssh', 'bounds': [0, 0.1]})
     plot_horizontal_slice(config)
-    
+

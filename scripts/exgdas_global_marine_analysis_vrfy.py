@@ -51,12 +51,12 @@ plot_increment(comout, cyc, RUN, grid_file)
 # Analysis/Background
 #######################################
 
-plot_analysis(comout, 
-              com_ice_history, 
-              com_ocean_history, 
-              cyc, 
-              RUN, 
-              grid_file, 
+plot_analysis(comout,
+              com_ice_history,
+              com_ocean_history,
+              cyc,
+              RUN,
+              grid_file,
               gcyc)
 
 #######################################
