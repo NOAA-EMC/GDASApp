@@ -96,6 +96,9 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" BRANCH main-ecbuild RECURSIVE )
   ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" BRANCH develop )
 
+  # Build JEDI/DA or other peripherals
+  ecbuild_bundle( PROJECT gdas-utils SOURCE "./utils" )
+
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
   if(BUILD_IODA_CONVERTERS)

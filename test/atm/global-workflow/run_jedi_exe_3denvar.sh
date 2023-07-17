@@ -26,7 +26,7 @@ if [ "$machine" = "hera" ] ; then
     partition="hera"
     gdasfix="/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix"
 elif [ "$machine" = "orion" ]; then
-    partition="debug"
+    partition="orion"
     gdasfix="/work2/noaa/da/cmartin/GDASApp/fix"
 fi
 
@@ -75,7 +75,7 @@ config:
 job options:
   machine: ${machine}
   account: da-cpu
-  queue: debug
+  queue: batch
   partition: ${partition}
   walltime: '30:00'
   ntasks: 6
