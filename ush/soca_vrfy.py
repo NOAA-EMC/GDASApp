@@ -264,4 +264,3 @@ def plot_analysis(comout,
     # Sea surface height
     config.update({'variable': 'ave_ssh', 'bounds': [0, 0.1]})
     plot_horizontal_slice(config)
-
