@@ -12,7 +12,7 @@ geometry:
   npx: $(npx_ges)
   npy: $(npy_ges)
   npz: $(npz_ges)
-  field metadata override: $(DATA)/fv3jedi/gfs-restart.yaml
+  field metadata override: $(DATA)/fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 initial condition:
   datapath: $(DATA)/bkg
   filetype: fms restart
