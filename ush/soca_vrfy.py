@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# make plots for marine analysis  
+# make plots for marine analysis
 
 import matplotlib.pyplot as plt
 import xarray as xr
