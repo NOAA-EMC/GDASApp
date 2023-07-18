@@ -114,7 +114,7 @@ set -x
 if [[ $BUILD_JCSDA == 'YES' ]]; then
   make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
 else
-  builddirs="fv3-jedi soca iodaconv land-imsproc land-jediincr"
+  builddirs="fv3-jedi soca iodaconv land-imsproc land-jediincr gdas-utils"
   for b in $builddirs; do
     cd $b
     make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
