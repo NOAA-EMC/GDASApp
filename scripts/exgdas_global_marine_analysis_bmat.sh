@@ -87,7 +87,7 @@ else
 fi
 
 ################################################################################
-# Prepare the diagonal of B
+# Prepare the diagonal of the parametric B
 shopt -s nullglob
 files=(ocn.bkgerr_stddev.incr.*.nc)
 echo $files
@@ -102,6 +102,51 @@ else
     fi
 fi
 shopt -u nullglob
+
+################################################################################
+# Write ensemble weights for the hybrid envar
+$APRUN_OCNANAL $JEDI_BIN/gdas_socahybridweights.x soca_ensweights.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+################################################################################
+# Compute the ens std. dev, ignore ssh variance
+# TODO (G): Implement what's below into one single oops application
+# 0 - Compute moments of original ensemble, used at the diag of the first 
+#     component of the hybrid B
+# 1 - Ensemble perturbations:
+#       o Vertically Interpolate to the deterministic layers
+#       o Recenter around 0 to create an ensemble of perturbations
+# 2 - Filter members and apply the linear steric height balance to each members
+# 3 - Copy h from deterministic to unbalanced perturbations
+# 4 - Compute moments of converted ensemble perturbations
+
+# Compute ensemble moments
+clean_yaml soca_clim_ens_moments.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_ensmeanandvariance.x soca_clim_ens_moments.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+# Compute ensemble perturbations, vertically remap to cycle's vertical geometry
+clean_yaml soca_clim_ens_perts.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_ensrecenter.x soca_clim_ens_perts.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+# Vertical filtering of the 3D perturbations and recompute the steric height perturbation
+clean_yaml soca_apply_steric.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x soca_apply_steric.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
 
 ################################################################################
 # Correlation and Localization operators
@@ -120,7 +165,15 @@ fi
 
 ################################################################################
 # Set decorrelation scales for bump C
-$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml > soca_setcorscales.out 2>&1
+$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+################################################################################
+# Set localization scales for the hybrid en. var.
+$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setlocscales.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err

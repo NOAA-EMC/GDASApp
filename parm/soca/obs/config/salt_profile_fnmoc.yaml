@@ -9,8 +9,13 @@ obs space:
       type: H5File
       obsfile: !ENV ${DATA}/diags/salt_profile_fnmoc.${PDY}${cyc}.nc4
   simulated variables: [salinity]
+  io pool:
+    max pool size: 1
 obs operator:
-  name: MarineVertInterp
+  name: VertInterp
   observation alias file: ./obsop_name_map.yaml
+  vertical coordinate: sea_water_depth
+  observation vertical coordinate: depth
+  interpolation method: linear
 obs error:
   covariance model: diagonal
