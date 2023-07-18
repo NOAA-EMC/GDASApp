@@ -169,8 +169,8 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
                     'ocn_filename': ocn_filename,
                     'ice_filename': agg_ice_filename,
                     'read_from_file': 1,
-                    '#remap_filename': './bkg/'+ocn_filename_ic}  # TODO: Remapping bug in soca.
-                                                                  #       Switch to z*
+                    '#remap_filename': './bkg/'+ocn_filename_ic}  # TODO: Remapping bug in soca. Switch to z*
+
         bkg_date = bkg_date + timedelta(hours=dt_pseudo)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
 
