@@ -75,7 +75,7 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" BRANCH develop )
   ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" BRANCH develop )
   ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" BRANCH develop  )
-  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" BRANCH develop )
+  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" BRANCH feature/gdasapp_ufo )
 
 # FMS and FV3 dynamical core
   ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" BRANCH release-stable )
