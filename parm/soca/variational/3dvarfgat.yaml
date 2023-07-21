@@ -11,7 +11,6 @@ cost function:
   model:
     name: PseudoModel
     tstep: PT3H
-    state variables: &soca_model_vars [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh, hocn, mld, layer_depth]
     states: !INC ${BKG_LIST}
 
   background:
@@ -20,7 +19,8 @@ cost function:
     ocn_filename: MOM.res.nc
     ice_filename: cice.res.nc
     date: '{{ATM_WINDOW_BEGIN}}'
-    state variables: *soca_model_vars
+    state variables: &soca_model_vars [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh, hocn, mld, layer_depth]
+
   background error: !INC ${SABER_BLOCKS_YAML}
 
   observations: !INC ${OBS_LIST}
