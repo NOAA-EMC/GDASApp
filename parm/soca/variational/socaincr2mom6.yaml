@@ -17,7 +17,7 @@ vertical geometry:
 soca increment:
   date: '{{ATM_WINDOW_BEGIN}}'
   basename: ./Data/
-  ocn_filename: 'ocn.3dvarfgat_pseudo.incr.{{ATM_WINDOW_BEGIN}}.nc'
+  ocn_filename: 'ocn.3dvarfgat_pseudo.incr.{{ATM_WINDOW_MIDDLE}}.nc'
   read_from_file: 1
 
 mom6 iau increment:
