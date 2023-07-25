@@ -9,7 +9,7 @@ background:
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
   ice_filename: cice.res.nc
-  state variables: [cicen, hicen, hsnon, socn, tocn, ssh]
+  state variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
 
 background error:
   covariance model: SABER
