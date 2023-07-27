@@ -23,10 +23,10 @@ def plot_config(grid_file=[],
                 bounds=[],
                 colormap=[],
                 max_depth=np.nan,
-                max_depths = [700.0, 5000.0],
+                max_depths=[700.0, 5000.0],
                 comout=[],
-                variables_horiz = [],
-                variables_zonal = [],
+                variables_horiz=[],
+                variables_zonal=[],
                 lat=np.nan,
                 lats=np.arange(-60, 60, 10),
                 proj='set me',
@@ -36,22 +36,22 @@ def plot_config(grid_file=[],
     Prepares the configuration for the plotting functions below
     """
     config = {}
-    config['comout'] = comout # output directory
+    config['comout'] = comout  # output directory
     config['grid file'] = grid_file
     config['fields file'] = data_file
     config['levels'] = [1]
     config['colormap'] = colormap
     config['all bounds'] = allbounds
     config['bounds'] = bounds
-    config['lats'] = lats # all the lats to plot
+    config['lats'] = lats  # all the lats to plot
     config['lat'] = lat  # the lat being currently plotted
-    config['max depths'] = max_depths # all the max depths to plot
-    config['max depth'] = max_depth # the max depth currently plotted
-    config['horiz variables'] = variables_horiz # all the vars for horiz plots
-    config['zonal variables'] = variables_zonal # all the vars for zonal plots
-    config['variable'] = variable # the variable currently plotted
-    config['projs'] = projs # all the projections etc.
-    config['proj'] = proj 
+    config['max depths'] = max_depths  # all the max depths to plot
+    config['max depth'] = max_depth  # the max depth currently plotted
+    config['horiz variables'] = variables_horiz  # all the vars for horiz plots
+    config['zonal variables'] = variables_zonal  # all the vars for zonal plots
+    config['variable'] = variable  # the variable currently plotted
+    config['projs'] = projs  # all the projections etc.
+    config['proj'] = proj
     return config
 
 
@@ -130,7 +130,7 @@ class StatePlotter:
 
     def plot(self):
         # Loop over variables, slices (horiz and vertical) and projections ... and whatever else is needed
-   
+
         #######################################
         # zonal slices
 
