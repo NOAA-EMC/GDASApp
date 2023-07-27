@@ -1,0 +1,27 @@
+geometry:
+  mom6_input_nml: mom_input.nml
+  fields metadata: ./fields_metadata.yaml
+
+date: '{{ATM_WINDOW_MIDDLE}}'
+
+variables:
+  ice: [cicen, hicen, hsnon]
+  ocean: [tocn, socn, uocn, vocn, ssh]
+
+background:
+  date: '{{ATM_WINDOW_BEGIN}}'
+  basename: ./INPUT/
+  ocn_filename: MOM.res.nc
+  ice_filename: cice.res.nc
+  read_from_file: 1
+
+weights:
+  # Need to provide weights^2 when reading from file
+  ice: 0.0025   #  5% of original variance
+  ocean: 0.01   # 10%      "       "
+
+output:
+  datadir: ./
+  date: '{{ATM_WINDOW_MIDDLE}}'
+  exp: ens_weights
+  type: incr
