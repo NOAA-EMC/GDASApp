@@ -15,8 +15,21 @@ projs = {'North': ccrs.NorthPolarStereo(),
          'Global': ccrs.Mollweide(central_longitude=-150)}
 
 
-def plot_config(grid_file=[], data_file=[],
-                variable=[], levels=[], bounds=[], colormap=[], comout=[], lats=[]):
+def plot_config(grid_file=[],
+                data_file=[],
+                variable=[],
+                levels=[],
+                allbounds=[],
+                bounds=[],
+                colormap=[],
+                max_depth=np.nan,
+                max_depths = [700.0, 5000.0],
+                comout=[],
+                variables_horiz = [],
+                variables_zonal = [],
+                lat=np.nan,
+                lats=np.arange(-60, 60, 10)):
+
     """
     Prepares the configuration for the plotting functions below
     """
@@ -24,12 +37,17 @@ def plot_config(grid_file=[], data_file=[],
     config['grid file'] = grid_file
     config['fields file'] = data_file
     config['variable'] = variable
-    config['levels'] = levels
+    config['levels'] = [1]
     config['bounds'] = bounds
+    config['all bounds'] = allbounds
     config['colormap'] = colormap
-    config['lats'] = lats
+    config['lats'] = lats # all the lats to plot
+    config['lat'] = lat  # the lat being currently plotted
     config['comout'] = comout
-    config['max depth'] = 5000.0
+    config['max depth'] = max_depth
+    config['max depths'] = max_depths
+    config['horiz variables'] = variables_horiz
+    config['zonal variables'] = variables_zonal
     config['proj'] = 'Global'
     return config
 
@@ -79,7 +97,7 @@ def plot_zonal_slice(config):
     """
     pcolormesh of a zonal slice of an ocean field
     """
-    lat = float(config['lats'][0])
+    lat = float(config['lat'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
     lat_index = np.argmin(np.array(np.abs(np.squeeze(grid.lat)[:, 0]-lat)))
@@ -117,7 +135,7 @@ def plot_increment(comout, cyc, RUN, grid_file):
     for lat in np.arange(-60, 60, 10):
 
         for max_depth in [700.0, 5000.0]:
-            config['lats'] = [lat]
+            config['lat'] = lat
             config['max depth'] = max_depth
 
             # Temperature
@@ -223,44 +241,114 @@ def plot_analysis(comout,
         config.update({'variable': 'Salt', 'bounds': [30, 38], 'proj': proj, 'levels': [1]})
         plot_horizontal_slice(config)
 
-    #######################################
-    # Std Bkg. Error
-    #######################################
-    bmat_cmap = 'jet'
-    data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
-    config = plot_config(grid_file=grid_file,
-                         data_file=data_file,
-                         colormap=bmat_cmap,
-                         comout=os.path.join(comout, 'vrfy', 'bkgerr'))
+#def plot_error(comout,
+#                  com_ice_history,
+#                  com_ocean_history,
+#                  cyc,
+#                  RUN,
+#                  grid_file,
+#                  gcyc):
 
-    #######################################
-    # zonal slices
+#   #######################################
+#    # Std Bkg. Error
+#    #######################################
+#    bmat_cmap = 'jet'
+#    data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
+#    config = plot_config(grid_file=grid_file,
+#                         data_file=data_file,
+#                         colormap=bmat_cmap,
+#                         comout=os.path.join(comout, 'vrfy', 'bkgerr'))
+#
+#    #######################################
+#    # zonal slices
+#
+#    for lat in np.arange(-60, 60, 10):
+#
+#        for max_depth in [700.0, 5000.0]:
+#            config['lat'] = lat
+#            config['max depth'] = max_depth
+#
+#            # Temperature
+#            config.update({'variable': 'Temp', 'levels': [1], 'bounds': [0, 1.5]})
+#            plot_zonal_slice(config)
+#
+#            # Salinity
+#            config.update({'variable': 'Salt', 'levels': [1], 'bounds': [0, .2]})
+#            plot_zonal_slice(config)
+#
+#    #######################################
+#    # Horizontal slices
+#
+#    # Temperature
+#    config.update({'variable': 'Temp', 'levels': [1], 'bounds': [0, 2]})
+#    plot_horizontal_slice(config)
+#
+#    # Salinity
+#    config.update({'variable': 'Salt', 'bounds': [0, 0.2]})
+#    plot_horizontal_slice(config)
+#
+#    # Sea surface height
+#    config.update({'variable': 'ave_ssh', 'bounds': [0, 0.1]})
+#    plot_horizontal_slice(config)
+#
+class StatePlotter:
 
-    for lat in np.arange(-60, 60, 10):
+    def __init__(self, config_dict):
+        self.config = config_dict
+#        self.grid_file = config['grid file']
+#        self.data_file = config['fields file']
+#        self.variable = config['variable']
+#        self.levels = config['levels'] 
+#        self.bounds = config['bounds']
+#        self.colormap = config['colormap']
+#        self.lats = config['lats']
+#        self.comout = config['comout']
+#        self.maxdepth = 5000.0
+#        self.proj = 'Global'
+#     
+        ...
+        # Where config contains the bounds, filename and whatever else is needed to plot stuff
 
-        for max_depth in [700.0, 5000.0]:
-            config['lats'] = [lat]
-            config['max depth'] = max_depth
+    def plot(self):
+        # Loop over variables, slices (horiz and vertical) and projections ... and whatever else is needed
+   
+        #######################################
+        # zonal slices
 
-            # Temperature
-            config.update({'variable': 'Temp', 'levels': [1], 'bounds': [0, 1.5]})
-            plot_zonal_slice(config)
+        for lat in self.config['lats']:
+            self.config['lat'] = lat
 
-            # Salinity
-            config.update({'variable': 'Salt', 'levels': [1], 'bounds': [0, .2]})
-            plot_zonal_slice(config)
+            for max_depth in self.config['max depths']:
+                self.config['max depth'] = max_depth
 
-    #######################################
-    # Horizontal slices
+                for variable in self.config['zonal variables']:
+                # Temperature
+                    bounds = self.config['all bounds'][variable]
+                    self.config.update({'variable': variable, 'bounds': bounds})
+                    plot_zonal_slice(self.config)
 
-    # Temperature
-    config.update({'variable': 'Temp', 'levels': [1], 'bounds': [0, 2]})
-    plot_horizontal_slice(config)
+                # Salinity
+#                self.config.update({'variable': 'Salt', 'levels': [1], 'bounds': [0, .2]})
+#                plot_zonal_slice(config)
 
-    # Salinity
-    config.update({'variable': 'Salt', 'bounds': [0, 0.2]})
-    plot_horizontal_slice(config)
+        #######################################
+        # Horizontal slices
 
-    # Sea surface height
-    config.update({'variable': 'ave_ssh', 'bounds': [0, 0.1]})
-    plot_horizontal_slice(config)
+        for variable in self.config['horiz variables']:
+            bounds = self.config['all bounds'][variable]
+            self.config.update({'variable': variable, 'bounds': bounds})
+            plot_horizontal_slice(self.config)
+
+#        # Temperature
+#        self.config.update({'variable': 'Temp', 'levels': [1], 'bounds': [0, 2]})
+#        plot_horizontal_slice(config)
+#
+#        # Salinity
+#        self.config.update({'variable': 'Salt', 'bounds': [0, 0.2]})
+#        plot_horizontal_slice(config)
+#
+#        # Sea surface height
+#        self.config.update({'variable': 'ave_ssh', 'bounds': [0, 0.1]})
+#        plot_horizontal_slice(config)
+
+

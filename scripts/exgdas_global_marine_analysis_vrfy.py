@@ -22,7 +22,7 @@ import numpy as np
 import gen_eva_obs_yaml
 import marine_eva_post
 import diag_statistics
-from soca_vrfy import plot_increment, plot_analysis
+from soca_vrfy import StatePlotter, plot_config, plot_increment, plot_analysis
 import subprocess
 from datetime import datetime, timedelta
 
@@ -58,6 +58,25 @@ plot_analysis(comout,
               RUN,
               grid_file,
               gcyc)
+
+
+
+
+data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
+config = plot_config(grid_file = grid_file,
+                     data_file = data_file,
+                     lats = np.arange(-60, 60, 10),
+                     variables_zonal = ['Temp', 'Salt'],
+                     variables_horiz = ['Temp', 'Salt', 'ave_ssh'],
+                     allbounds = {'Temp': [0, 2],
+                                  'Salt': [0, 0.2],
+                                  'ave_ssh': [0, 0.1]},
+                     colormap = 'jet',
+                     comout = os.path.join(comout, 'vrfy', 'bkgerr'))
+BkgErrPlotter = StatePlotter(config)
+BkgErrPlotter.plot()
+
+
 
 #######################################
 # eva plots
