@@ -22,7 +22,7 @@ import numpy as np
 import gen_eva_obs_yaml
 import marine_eva_post
 import diag_statistics
-from soca_vrfy import StatePlotter, plot_config, plot_increment, plot_analysis
+from soca_vrfy import StatePlotter, plot_config
 import subprocess
 from datetime import datetime, timedelta
 
@@ -40,27 +40,111 @@ grid_file = os.path.join(comout, f'{RUN}.t'+bcyc+'z.ocngrid.nc')
 diagdir = os.path.join(comout, 'diags')
 HOMEgfs = os.getenv('HOMEgfs')
 
-
 #######################################
-# INCREMENT
-#######################################
-
-plot_increment(comout, cyc, RUN, grid_file)
-
-#######################################
-# Analysis/Background
+# ocean increment
 #######################################
 
-plot_analysis(comout,
-              com_ice_history,
-              com_ocean_history,
-              cyc,
-              RUN,
-              grid_file,
-              gcyc)
+data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
+config = plot_config(grid_file = grid_file,
+                     data_file = data_file,
+                     lats = np.arange(-60, 60, 10),
+                     variables_zonal = ['Temp', 'Salt'],
+                     variables_horiz = ['Temp', 'Salt', 'ave_ssh'],
+                     allbounds = {'Temp': [-0.5, 0.5],
+                                  'Salt': [-0.1, 0.1],
+                                  'ave_ssh': [-0.1, 0.1]},
+                     colormap = 'RdBu',
+                     comout = os.path.join(comout, 'vrfy', 'incr'))
+OcnIncPlotter = StatePlotter(config)
+OcnIncPlotter.plot()
 
+#######################################
+# sea ice increment
+#######################################
 
+data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc')
+config = plot_config(grid_file = grid_file,
+                     data_file = data_file,
+                     lats = np.arange(-60, 60, 10),
+                     variables_horiz = ['aicen', 'hicen', 'hsnon'],
+                     allbounds = {'aicen': [-0.2, 0.2],
+                                  'hicen': [-0.5, 0.5],
+                                  'hsnon': [-0.1, 0.1]},
+                     colormap = 'RdBu',
+                     projs = ['North', 'South'],
+                     comout = os.path.join(comout, 'vrfy', 'incr'))
+IceIncPlotter = StatePlotter(config)
+IceIncPlotter.plot()
 
+#######################################
+# sea ice analysis
+#######################################
+
+data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.iceana.nc')
+config = plot_config(grid_file = grid_file,
+                     data_file = data_file,
+                     variables_horiz = ['aicen', 'hicen', 'hsnon'],
+                     allbounds = {'aicen': [0.0, 1.0],
+                                  'hicen': [0.0, 4.0],
+                                  'hsnon': [0.0, 0.5]},
+                     colormap = 'jet',
+                     projs = ['North', 'South','Global'],
+                     comout = os.path.join(comout, 'vrfy', 'ana'))
+IceAnaPlotter = StatePlotter(config)
+IceAnaPlotter.plot()
+
+#######################################
+# sea ice background
+#######################################
+
+data_file = os.path.join(com_ice_history, f'{RUN}.t{gcyc}z.icef006.nc')
+config = plot_config(grid_file = grid_file,
+                     data_file = data_file,
+                     variables_horiz = ['aice_h', 'hs_h', 'hi_h'],
+                     allbounds = {'aice_h': [0.0, 1.0],
+                                  'hs_h': [0.0, 4.0],
+                                  'hi_h': [0.0, 0.5]},
+                     colormap = 'jet',
+                     projs = ['North', 'South','Global'],
+                     comout = os.path.join(comout, 'vrfy', 'bkg'))
+IceBkgPlotter = StatePlotter(config)
+IceBkgPlotter.plot()
+
+#######################################
+# ocean surface analysis
+#######################################
+
+data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocnana.nc')
+config = plot_config(grid_file = grid_file,
+                     data_file = data_file,
+                     variables_horiz = ['ave_ssh', 'Temp', 'Salt'],
+                     allbounds = {'ave_ssh': [-1.8, 1.3],
+                                  'Temp': [-1.8, 34.0],
+                                  'Salt': [30, 38]},
+                     colormap = 'jet',
+                     comout = os.path.join(comout, 'vrfy', 'ana'))
+OcnAnaPlotter = StatePlotter(config)
+OcnAnaPlotter.plot()
+
+#######################################
+# ocean surface background
+#######################################
+
+data_file = os.path.join(com_ocean_history, f'{RUN}.t{gcyc}z.ocnf006.nc')
+config = plot_config(grid_file = grid_file,
+                     data_file = data_file,
+                     variables_horiz = ['ave_ssh', 'Temp', 'Salt'],
+                     allbounds = {'ave_ssh': [-1.8, 1.3],
+                                  'Temp': [-1.8, 34.0],
+                                  'Salt': [30, 38]},
+                     colormap = 'jet',
+                     comout = os.path.join(comout, 'vrfy', 'bkg'))
+OcnBkgPlotter = StatePlotter(config)
+OcnBkgPlotter.plot()
+
+#######################################
+# background error
+#######################################
 
 data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
 config = plot_config(grid_file = grid_file,
@@ -76,10 +160,9 @@ config = plot_config(grid_file = grid_file,
 BkgErrPlotter = StatePlotter(config)
 BkgErrPlotter.plot()
 
-
-
 #######################################
 # eva plots
+#######################################
 
 evadir = os.path.join(HOMEgfs, 'sorc', f'{RUN}.cd', 'ush', 'eva')
 marinetemplate = os.path.join(evadir, 'marine_gdas_plots.yaml')
@@ -108,5 +191,6 @@ for file in files:
 
 #######################################
 # calculate diag statistics
+#######################################
 
 diag_statistics.get_diag_stats()
