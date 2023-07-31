@@ -15,22 +15,22 @@ projs = {'North': ccrs.NorthPolarStereo(),
          'Global': ccrs.Mollweide(central_longitude=-150)}
 
 
-def plot_config(grid_file=[],
-                data_file=[],
-                variable=[],
-                levels=[],
-                allbounds=[],
-                bounds=[],
-                colormap=[],
-                max_depth=np.nan,
-                max_depths=[700.0, 5000.0],
-                comout=[],
-                variables_horiz=[],
-                variables_zonal=[],
-                lat=np.nan,
-                lats=np.arange(-60, 60, 10),
-                proj='set me',
-                projs=['Global']):
+def plotConfig(grid_file=[],
+               data_file=[],
+               variable=[],
+               levels=[],
+               allbounds=[],
+               bounds=[],
+               colormap=[],
+               max_depth=np.nan,
+               max_depths=[700.0, 5000.0],
+               comout=[],
+               variables_horiz=[],
+               variables_zonal=[],
+               lat=np.nan,
+               lats=np.arange(-60, 60, 10),
+               proj='set me',
+               projs=['Global']):
 
     """
     Prepares the configuration for the plotting functions below
@@ -55,7 +55,7 @@ def plot_config(grid_file=[],
     return config
 
 
-def plot_horizontal_slice(config):
+def plotHorizontalSlice(config):
     """
     pcolormesh of a horizontal slice of an ocean field
     """
@@ -96,7 +96,7 @@ def plot_horizontal_slice(config):
     plt.savefig(figname, bbox_inches='tight', dpi=600)
 
 
-def plot_zonal_slice(config):
+def plotZonalSlice(config):
     """
     pcolormesh of a zonal slice of an ocean field
     """
@@ -123,7 +123,7 @@ def plot_zonal_slice(config):
     plt.savefig(figname, bbox_inches='tight', dpi=600)
 
 
-class StatePlotter:
+class statePlotter:
 
     def __init__(self, config_dict):
         self.config = config_dict
@@ -143,7 +143,7 @@ class StatePlotter:
                 for variable in self.config['zonal variables']:
                     bounds = self.config['all bounds'][variable]
                     self.config.update({'variable': variable, 'bounds': bounds})
-                    plot_zonal_slice(self.config)
+                    plotZonalSlice(self.config)
 
         #######################################
         # Horizontal slices
@@ -151,4 +151,4 @@ class StatePlotter:
             for variable in self.config['horiz variables']:
                 bounds = self.config['all bounds'][variable]
                 self.config.update({'variable': variable, 'bounds': bounds, 'proj': proj})
-                plot_horizontal_slice(self.config)
+                plotHorizontalSlice(self.config)
