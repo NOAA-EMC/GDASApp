@@ -46,15 +46,15 @@ HOMEgfs = os.getenv('HOMEgfs')
 
 data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
 config = plotConfig(grid_file=grid_file,
-                     data_file=data_file,
-                     lats=np.arange(-60, 60, 10),
-                     variables_zonal=['Temp', 'Salt'],
-                     variables_horiz=['Temp', 'Salt', 'ave_ssh'],
-                     allbounds={'Temp': [-0.5, 0.5],
-                                'Salt': [-0.1, 0.1],
-                                'ave_ssh': [-0.1, 0.1]},
-                     colormap='RdBu',
-                     comout=os.path.join(comout, 'vrfy', 'incr'))
+                    data_file=data_file,
+                    lats=np.arange(-60, 60, 10),
+                    variables_zonal=['Temp', 'Salt'],
+                    variables_horiz=['Temp', 'Salt', 'ave_ssh'],
+                    allbounds={'Temp': [-0.5, 0.5],
+                               'Salt': [-0.1, 0.1],
+                               'ave_ssh': [-0.1, 0.1]},
+                    colormap='RdBu',
+                    comout=os.path.join(comout, 'vrfy', 'incr'))
 ocnIncPlotter = statePlotter(config)
 ocnIncPlotter.plot()
 
@@ -64,15 +64,15 @@ ocnIncPlotter.plot()
 
 data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc')
 config = plotConfig(grid_file=grid_file,
-                     data_file=data_file,
-                     lats=np.arange(-60, 60, 10),
-                     variables_horiz=['aicen', 'hicen', 'hsnon'],
-                     allbounds={'aicen': [-0.2, 0.2],
-                                'hicen': [-0.5, 0.5],
-                                'hsnon': [-0.1, 0.1]},
-                     colormap='RdBu',
-                     projs=['North', 'South'],
-                     comout=os.path.join(comout, 'vrfy', 'incr'))
+                    data_file=data_file,
+                    lats=np.arange(-60, 60, 10),
+                    variables_horiz=['aicen', 'hicen', 'hsnon'],
+                    allbounds={'aicen': [-0.2, 0.2],
+                               'hicen': [-0.5, 0.5],
+                               'hsnon': [-0.1, 0.1]},
+                    colormap='RdBu',
+                    projs=['North', 'South'],
+                    comout=os.path.join(comout, 'vrfy', 'incr'))
 iceIncPlotter = statePlotter(config)
 iceIncPlotter.plot()
 
@@ -82,14 +82,14 @@ iceIncPlotter.plot()
 
 data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.iceana.nc')
 config = plotConfig(grid_file=grid_file,
-                     data_file=data_file,
-                     variables_horiz=['aicen', 'hicen', 'hsnon'],
-                     allbounds={'aicen': [0.0, 1.0],
-                                'hicen': [0.0, 4.0],
-                                'hsnon': [0.0, 0.5]},
-                     colormap='jet',
-                     projs=['North', 'South', 'Global'],
-                     comout=os.path.join(comout, 'vrfy', 'ana'))
+                    data_file=data_file,
+                    variables_horiz=['aicen', 'hicen', 'hsnon'],
+                    allbounds={'aicen': [0.0, 1.0],
+                               'hicen': [0.0, 4.0],
+                               'hsnon': [0.0, 0.5]},
+                    colormap='jet',
+                    projs=['North', 'South', 'Global'],
+                    comout=os.path.join(comout, 'vrfy', 'ana'))
 iceAnaPlotter = statePlotter(config)
 iceAnaPlotter.plot()
 
@@ -99,14 +99,14 @@ iceAnaPlotter.plot()
 
 data_file = os.path.join(com_ice_history, f'{RUN}.t{gcyc}z.icef006.nc')
 config = plotConfig(grid_file=grid_file,
-                     data_file=data_file,
-                     variables_horiz=['aice_h', 'hs_h', 'hi_h'],
-                     allbounds={'aice_h': [0.0, 1.0],
-                                'hs_h': [0.0, 4.0],
-                                'hi_h': [0.0, 0.5]},
-                     colormap='jet',
-                     projs=['North', 'South', 'Global'],
-                     comout=os.path.join(comout, 'vrfy', 'bkg'))
+                    data_file=data_file,
+                    variables_horiz=['aice_h', 'hs_h', 'hi_h'],
+                    allbounds={'aice_h': [0.0, 1.0],
+                               'hs_h': [0.0, 4.0],
+                               'hi_h': [0.0, 0.5]},
+                    colormap='jet',
+                    projs=['North', 'South', 'Global'],
+                    comout=os.path.join(comout, 'vrfy', 'bkg'))
 iceBkgPlotter = statePlotter(config)
 iceBkgPlotter.plot()
 
@@ -116,13 +116,13 @@ iceBkgPlotter.plot()
 
 data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocnana.nc')
 config = plotConfig(grid_file=grid_file,
-                     data_file=data_file,
-                     variables_horiz=['ave_ssh', 'Temp', 'Salt'],
-                     allbounds={'ave_ssh': [-1.8, 1.3],
-                                'Temp': [-1.8, 34.0],
-                                'Salt': [30, 38]},
-                     colormap='jet',
-                     comout=os.path.join(comout, 'vrfy', 'ana'))
+                    data_file=data_file,
+                    variables_horiz=['ave_ssh', 'Temp', 'Salt'],
+                    allbounds={'ave_ssh': [-1.8, 1.3],
+                               'Temp': [-1.8, 34.0],
+                               'Salt': [30, 38]},
+                    colormap='jet',
+                    comout=os.path.join(comout, 'vrfy', 'ana'))
 ocnAnaPlotter = statePlotter(config)
 ocnAnaPlotter.plot()
 
@@ -132,13 +132,13 @@ ocnAnaPlotter.plot()
 
 data_file = os.path.join(com_ocean_history, f'{RUN}.t{gcyc}z.ocnf006.nc')
 config = plotConfig(grid_file=grid_file,
-                     data_file=data_file,
-                     variables_horiz=['ave_ssh', 'Temp', 'Salt'],
-                     allbounds={'ave_ssh': [-1.8, 1.3],
-                                'Temp': [-1.8, 34.0],
-                                'Salt': [30, 38]},
-                     colormap='jet',
-                     comout=os.path.join(comout, 'vrfy', 'bkg'))
+                    data_file=data_file,
+                    variables_horiz=['ave_ssh', 'Temp', 'Salt'],
+                    allbounds={'ave_ssh': [-1.8, 1.3],
+                               'Temp': [-1.8, 34.0],
+                               'Salt': [30, 38]},
+                    colormap='jet',
+                    comout=os.path.join(comout, 'vrfy', 'bkg'))
 ocnBkgPlotter = statePlotter(config)
 ocnBkgPlotter.plot()
 
@@ -148,15 +148,15 @@ ocnBkgPlotter.plot()
 
 data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
 config = plotConfig(grid_file=grid_file,
-                     data_file=data_file,
-                     lats=np.arange(-60, 60, 10),
-                     variables_zonal=['Temp', 'Salt'],
-                     variables_horiz=['Temp', 'Salt', 'ave_ssh'],
-                     allbounds={'Temp': [0, 2],
-                                'Salt': [0, 0.2],
-                                'ave_ssh': [0, 0.1]},
-                     colormap='jet',
-                     comout=os.path.join(comout, 'vrfy', 'bkgerr'))
+                    data_file=data_file,
+                    lats=np.arange(-60, 60, 10),
+                    variables_zonal=['Temp', 'Salt'],
+                    variables_horiz=['Temp', 'Salt', 'ave_ssh'],
+                    allbounds={'Temp': [0, 2],
+                               'Salt': [0, 0.2],
+                               'ave_ssh': [0, 0.1]},
+                    colormap='jet',
+                    comout=os.path.join(comout, 'vrfy', 'bkgerr'))
 bkgErrPlotter = statePlotter(config)
 bkgErrPlotter.plot()
 
