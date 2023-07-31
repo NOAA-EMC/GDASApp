@@ -20,8 +20,9 @@ soca increment:
   ocn_filename: 'ocn.3dvarfgat_pseudo.incr.{{ATM_WINDOW_MIDDLE}}.nc'
   read_from_file: 1
 
-mom6 iau increment:
+output increment:
   datadir: ./
   date: '{{ATM_WINDOW_BEGIN}}'
   exp: mom6_iau
   type: incr
+  output file: inc.nc

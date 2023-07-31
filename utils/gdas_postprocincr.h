@@ -25,11 +25,14 @@ namespace gdasapp {
 class PostProcIncr {
 public:
   // Constructor
-  PostProcIncr(const eckit::Configuration & fullConfig, const soca::Geometry& geom)
+  PostProcIncr(const eckit::Configuration & fullConfig, const soca::Geometry& geom,
+               const eckit::mpi::Comm & comm)
     : dt_(getDate(fullConfig)),
       layerVar_(getLayerVar(fullConfig)),
       geom_(geom),
-      Layers_(getLayerThickness(fullConfig, geom)){
+      Layers_(getLayerThickness(fullConfig, geom)),
+      xTraj_(getTraj(fullConfig, geom)),
+      comm_(comm) {
     oops::Log::info() << "Date: " << std::endl << dt_ << std::endl;
 
     // Increment variables
@@ -38,11 +41,13 @@ public:
     socaIncrVar_ = socaIncrVar;
 
     // Input increment configuration
-    eckit::LocalConfiguration inputIncrConfig(fullConfig, "soca increment");
+    eckit::LocalConfiguration inputIncrConfig = fullConfig.getSubConfiguration("soca increments");
     inputIncrConfig_ = inputIncrConfig;
 
+    std::cout << "------------------------------------------" << std::endl;
+    std::cout << inputIncrConfig_ << std::endl;
     // Output incrememnt configuration
-    eckit::LocalConfiguration outputIncrConfig(fullConfig, "mom6 iau increment");
+    eckit::LocalConfiguration outputIncrConfig(fullConfig, "output increment");
     outputIncrConfig_ = outputIncrConfig;
 
     // Variables that should be set to 0
@@ -136,13 +141,14 @@ public:
       return socaIncr;
     }
     oops::Log::info() << "======      applying specified change of variables" << std::endl;
-    const eckit::LocalConfiguration trajConfig(lvcConfig_, "trajectory");
-    soca::State xTraj(this->geom_, trajConfig);
+    //const eckit::LocalConfiguration trajConfig(lvcConfig_, "trajectory");
+    //soca::State xTraj(this->geom_, trajConfig);
     soca::LinearVariableChangeParameters params;
     params.deserialize(lvcConfig_);
     oops::Log::info() <<  params << std::endl;
     soca::LinearVariableChange lvc(this->geom_, params);
-    lvc.changeVarTraj(xTraj, socaIncrVar_);
+    oops::Log::info() <<  "traj: " << xTraj_ << std::endl;
+    lvc.changeVarTraj(xTraj_, socaIncrVar_);
     lvc.changeVarTL(socaIncr, socaIncrVar_);
     oops::Log::info() << "incr after var change: " << std::endl << socaIncr << std::endl;
 
@@ -150,29 +156,35 @@ public:
   }
 
   // Save increment
-  void save(soca::Increment socaIncr) {
+  int save(soca::Increment socaIncr) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "-------------------- save increment: " << std::endl;
     socaIncr.write(outputIncrConfig_);
 
-    std::string outputFileName;
-    outputIncrConfig_.get("output file", outputFileName);
+    // wait for everybody to be done
+    comm_.barrier();
 
-    std::string datadir;
-    outputIncrConfig_.get("datadir", datadir);
-    std::filesystem::path pathToResolve = datadir;
-    std::string exp;
-    outputIncrConfig_.get("exp", exp);
-    std::string outputType;
-    outputIncrConfig_.get("type", outputType);
-    std::string incrFname = std::filesystem::canonical(pathToResolve);
-    incrFname += "/ocn." + exp + "." + outputType + "." + dt_.toString() + ".nc";
-    const char* charPtr = incrFname.c_str();
-    const char* charPtrOut = outputFileName.c_str();
-    oops::Log::info() << "rename: " << incrFname << " to " << outputFileName << std::endl;
-    int result = std::rename(charPtr, charPtrOut);
+    // Change soca standard output name to something specidfied in the config
+    int result = 0;
+    if ( comm_.rank() == 0 ) {
+      std::string outputFileName;
+      outputIncrConfig_.get("output file", outputFileName);
 
-    //return;
+      std::string datadir;
+      outputIncrConfig_.get("datadir", datadir);
+      std::filesystem::path pathToResolve = datadir;
+      std::string exp;
+      outputIncrConfig_.get("exp", exp);
+      std::string outputType;
+      outputIncrConfig_.get("type", outputType);
+      std::string incrFname = std::filesystem::canonical(pathToResolve);
+      incrFname += "/ocn." + exp + "." + outputType + "." + dt_.toString() + ".nc";
+      const char* charPtr = incrFname.c_str();
+      const char* charPtrOut = outputFileName.c_str();
+      oops::Log::info() << "rename: " << incrFname << " to " << outputFileName << std::endl;
+      result = std::rename(charPtr, charPtrOut);
+    }
+    return result;
   }
 
   // -----------------------------------------------------------------------------
@@ -200,12 +212,28 @@ public:
     oops::Log::info() << "layerThick: " << std::endl << layerThick << std::endl;
     return layerThick;
   }
+  // Initialize the trajectory
+  soca::State getTraj(const eckit::Configuration& fullConfig,
+                      const soca::Geometry& geom) const {
+    if ( fullConfig.has("linear variable change") ) {
+      const eckit::LocalConfiguration trajConfig(fullConfig, "linear variable change.trajectory");
+      soca::State traj(geom, trajConfig);
+      oops::Log::info() << "traj:" << traj << std::endl;
+      return traj;
+    } else {
+      oops::Variables tmpVar(fullConfig, "layers variable");
+      util::DateTime tmpDate(getDate(fullConfig));
+      soca::State traj(geom, tmpVar, tmpDate);
+      return traj;
+    }
+  }
 
-private:
+public:
   util::DateTime dt_;                  // valid date of increment
   oops::Variables layerVar_;           // layer variable
   const soca::Increment Layers_;       // layer thicknesses
   const soca::Geometry & geom_;
+  const eckit::mpi::Comm & comm_;
   eckit::LocalConfiguration inputIncrConfig_;
   eckit::LocalConfiguration outputIncrConfig_;
   eckit::LocalConfiguration zeroIncrConfig_;
@@ -213,6 +241,7 @@ private:
   oops::Variables socaIncrVar_;
   bool setToZero_;
   bool doLVC_;
+  const soca::State xTraj_;
   oops::Variables socaZeroIncrVar_;
 };
 
