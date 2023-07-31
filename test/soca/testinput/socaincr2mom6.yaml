@@ -8,6 +8,8 @@ layers variable: [hocn]
 
 increment variables: [tocn, socn, uocn, vocn, ssh]
 
+set increment variables to zero: [uocn, vocn, ssh]
+
 vertical geometry:
   date: 2018-04-15T09:00:00Z
   basename: ./INPUT/

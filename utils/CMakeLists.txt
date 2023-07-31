@@ -6,7 +6,7 @@ find_package(atlas REQUIRED)
 find_package(soca REQUIRED)
 
 ecbuild_add_executable( TARGET gdas_socaincr2mom6.x
-                        SOURCES gdas_socaincr2mom6.cc )
+                        SOURCES gdas_socaincr2mom6.cc gdas_postprocincr.h)
 
 target_compile_features( gdas_socaincr2mom6.x PUBLIC cxx_std_17)
 target_link_libraries( gdas_socaincr2mom6.x PUBLIC NetCDF::NetCDF_CXX oops atlas soca)
