@@ -31,7 +31,7 @@ def genYAML(yamlconfig, output=None):
     # what if the config_dict has environment variables that need substituted?
     pattern = re.compile(r'.*?\${(\w+)}.*?')
     for key, value in config_dict.items():
-        if type(value) == str:
+        if type(value) is str:
             match = pattern.findall(value)
             if match:
                 fullvalue = value
