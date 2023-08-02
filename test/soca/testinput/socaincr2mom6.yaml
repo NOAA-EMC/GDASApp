@@ -45,4 +45,5 @@ output increment:
   date: 2018-04-15T09:00:00Z
   exp: mom6_iau
   type: incr
-  output file: inc.nc
+  output file: inc.%mem%.nc
+  pattern: %mem%

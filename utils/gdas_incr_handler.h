@@ -22,11 +22,11 @@
 
 namespace gdasapp {
 
-  class SocaIncr2Mom6 : public oops::Application {
+  class SocaIncrHandler : public oops::Application {
    public:
-    explicit SocaIncr2Mom6(const eckit::mpi::Comm & comm = oops::mpi::world())
+    explicit SocaIncrHandler(const eckit::mpi::Comm & comm = oops::mpi::world())
       : Application(comm) {}
-    static const std::string classname() {return "gdasapp::SocaIncr2Mom6";}
+    static const std::string classname() {return "gdasapp::SocaIncrHandler";}
 
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
 
@@ -41,24 +41,23 @@ namespace gdasapp {
 
       oops::Log::info() << "soca increments: " << std::endl << postProcIncr.inputIncrConfig_ << std::endl;
 
-      std::vector<eckit::LocalConfiguration> increments;
-      fullConfig.get("soca increments", increments);
-      oops::Log::info() << "ooooooooooooooooooooooooooooooooooooooooooooooooooooooo" << std::endl;
-      oops::Log::info() << increments[0] << std::endl;
-      oops::Log::info() << "ooooooooooooooooooooooooooooooooooooooooooooooooooooooo" << std::endl;
+      // Process list of increments
+      int result = 0;
+      for (size_t i = 0; i < postProcIncr.inputIncrConfig_.size(); ++i) {
+        oops::Log::info() << postProcIncr.inputIncrConfig_[0] << std::endl;
 
-      // At the very minimum, we run this script to append the layers state, so do that!
-      soca::Increment incr = postProcIncr.appendLayer();
+        // At the very minimum, we run this script to append the layers state, so do that!
+        soca::Increment incr = postProcIncr.appendLayer(i);
 
-      // Zero out specified fields
-      incr = postProcIncr.setToZero(incr);
+        // Zero out specified fields
+        incr = postProcIncr.setToZero(incr);
 
-      // Apply linear change of variables
-      incr = postProcIncr.applyLinVarChange(incr);
+        // Apply linear change of variables
+        incr = postProcIncr.applyLinVarChange(incr);
 
-      // Save final increment
-      int result = postProcIncr.save(incr);
-
+        // Save final increment
+        result = postProcIncr.save(incr, i+1);
+      }
       return result;
     }
     // -----------------------------------------------------------------------------
@@ -67,7 +66,7 @@ namespace gdasapp {
 
     // -----------------------------------------------------------------------------
     std::string appname() const {
-      return "gdasapp::SocaIncr2Mom6";
+      return "gdasapp::SocaIncrHandler";
     }
   };
 

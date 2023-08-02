@@ -10,9 +10,7 @@
 
 #include "oops/base/PostProcessor.h"
 #include "oops/mpi/mpi.h"
-//#include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
-#include "oops/util/Duration.h"
 #include "oops/util/Logger.h"
 
 #include "soca/Geometry/Geometry.h"
@@ -40,12 +38,9 @@ public:
     ASSERT(socaIncrVar.size() >= 1);
     socaIncrVar_ = socaIncrVar;
 
-    // Input increment configuration
-    eckit::LocalConfiguration inputIncrConfig = fullConfig.getSubConfiguration("soca increments");
-    inputIncrConfig_ = inputIncrConfig;
+    // Input increments configuration
+    fullConfig.get("soca increments", inputIncrConfig_);
 
-    std::cout << "------------------------------------------" << std::endl;
-    std::cout << inputIncrConfig_ << std::endl;
     // Output incrememnt configuration
     eckit::LocalConfiguration outputIncrConfig(fullConfig, "output increment");
     outputIncrConfig_ = outputIncrConfig;
@@ -68,12 +63,13 @@ public:
   }
 
   // Append layer thicknesses to increment
-  soca::Increment appendLayer(){
+  // TODO: There's got to be a better way to append a variable.
+  soca::Increment appendLayer(const int n){
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======  Append Layers" << std::endl;
     // read the soca increment
     soca::Increment socaIncr(geom_, socaIncrVar_, dt_);
-    socaIncr.read(inputIncrConfig_);
+    socaIncr.read(inputIncrConfig_[n]);
     oops::Log::info() << "-------------------- input increment: " << std::endl;
     oops::Log::info() << socaIncr << std::endl;
 
@@ -141,8 +137,6 @@ public:
       return socaIncr;
     }
     oops::Log::info() << "======      applying specified change of variables" << std::endl;
-    //const eckit::LocalConfiguration trajConfig(lvcConfig_, "trajectory");
-    //soca::State xTraj(this->geom_, trajConfig);
     soca::LinearVariableChangeParameters params;
     params.deserialize(lvcConfig_);
     oops::Log::info() <<  params << std::endl;
@@ -156,7 +150,7 @@ public:
   }
 
   // Save increment
-  int save(soca::Increment socaIncr) {
+  int save(soca::Increment socaIncr, int ensMem = 1) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "-------------------- save increment: " << std::endl;
     socaIncr.write(outputIncrConfig_);
@@ -169,18 +163,17 @@ public:
     if ( comm_.rank() == 0 ) {
       std::string outputFileName;
       outputIncrConfig_.get("output file", outputFileName);
-
-      std::string datadir;
-      outputIncrConfig_.get("datadir", datadir);
-      std::filesystem::path pathToResolve = datadir;
-      std::string exp;
-      outputIncrConfig_.get("exp", exp);
-      std::string outputType;
-      outputIncrConfig_.get("type", outputType);
-      std::string incrFname = std::filesystem::canonical(pathToResolve);
-      incrFname += "/ocn." + exp + "." + outputType + "." + dt_.toString() + ".nc";
-      const char* charPtr = incrFname.c_str();
+      if (outputIncrConfig_.has("pattern")) {
+          std::string pattern;
+          outputIncrConfig_.get("pattern", pattern);
+          outputFileName = this->swapPattern(outputFileName, pattern, std::to_string(ensMem));
+          oops::Log::info() << "-------------------- pattern: " << pattern << std::endl;
+        }
       const char* charPtrOut = outputFileName.c_str();
+
+      std::string incrFname = this->socaFname();
+      const char* charPtr = incrFname.c_str();
+
       oops::Log::info() << "rename: " << incrFname << " to " << outputFileName << std::endl;
       result = std::rename(charPtr, charPtrOut);
     }
@@ -228,13 +221,48 @@ public:
     }
   }
 
+  // -----------------------------------------------------------------------------
+
+  // Utility functions
+  // -----------------------------------------------------------------------------
+  // Recreate the soca filename from the configuration
+  std::string socaFname() {
+    std::string datadir;
+    outputIncrConfig_.get("datadir", datadir);
+    std::filesystem::path pathToResolve = datadir;
+    std::string exp;
+    outputIncrConfig_.get("exp", exp);
+    std::string outputType;
+    outputIncrConfig_.get("type", outputType);
+    std::string incrFname = std::filesystem::canonical(pathToResolve);
+    incrFname += "/ocn." + exp + "." + outputType + "." + dt_.toString() + ".nc";
+
+    return incrFname;
+  }
+
+  // Function to replace all occurrences of a pattern in a string with a replacement
+  std::string swapPattern(const std::string& input,
+                          const std::string& pattern,
+                          const std::string& replacement) {
+    std::string result = input;
+    size_t startPos = 0;
+
+    while ((startPos = result.find(pattern, startPos)) != std::string::npos) {
+      result.replace(startPos, pattern.length(), replacement);
+      startPos += replacement.length();
+    }
+
+    return result;
+}
+
+
 public:
   util::DateTime dt_;                  // valid date of increment
   oops::Variables layerVar_;           // layer variable
   const soca::Increment Layers_;       // layer thicknesses
   const soca::Geometry & geom_;
   const eckit::mpi::Comm & comm_;
-  eckit::LocalConfiguration inputIncrConfig_;
+  std::vector<eckit::LocalConfiguration> inputIncrConfig_;
   eckit::LocalConfiguration outputIncrConfig_;
   eckit::LocalConfiguration zeroIncrConfig_;
   eckit::LocalConfiguration lvcConfig_;
@@ -244,7 +272,6 @@ public:
   const soca::State xTraj_;
   oops::Variables socaZeroIncrVar_;
 };
-
 } // namespace gdasapp
 
 #endif // GDAS_POSTPROCINCR_H
