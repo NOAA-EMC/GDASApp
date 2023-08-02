@@ -34,7 +34,7 @@ usage() {
 # Defaults:
 INSTALL_PREFIX=""
 CMAKE_OPTS=""
-BUILD_TARGET="${MACHINE_ID}"
+BUILD_TARGET="${MACHINE_ID:-'localhost'}"
 BUILD_VERBOSE="NO"
 CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
@@ -76,7 +76,6 @@ case ${BUILD_TARGET} in
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET
     CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=ON"
-    CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA"
     module list
     ;;
   $(hostname))
@@ -86,6 +85,8 @@ case ${BUILD_TARGET} in
     echo "Building GDASApp on unknown target: $BUILD_TARGET"
     ;;
 esac
+
+CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA"
 
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
 if [[ $CLEAN_BUILD == 'YES' ]]; then
