@@ -15,26 +15,47 @@ projs = {'North': ccrs.NorthPolarStereo(),
          'Global': ccrs.Mollweide(central_longitude=-150)}
 
 
-def plot_config(grid_file=[], data_file=[],
-                variable=[], levels=[], bounds=[], colormap=[], comout=[], lats=[]):
+def plotConfig(grid_file=[],
+               data_file=[],
+               variable=[],
+               levels=[],
+               allbounds=[],
+               bounds=[],
+               colormap=[],
+               max_depth=np.nan,
+               max_depths=[700.0, 5000.0],
+               comout=[],
+               variables_horiz=[],
+               variables_zonal=[],
+               lat=np.nan,
+               lats=np.arange(-60, 60, 10),
+               proj='set me',
+               projs=['Global']):
+
     """
     Prepares the configuration for the plotting functions below
     """
     config = {}
+    config['comout'] = comout  # output directory
     config['grid file'] = grid_file
     config['fields file'] = data_file
-    config['variable'] = variable
-    config['levels'] = levels
-    config['bounds'] = bounds
+    config['levels'] = [1]
     config['colormap'] = colormap
-    config['lats'] = lats
-    config['comout'] = comout
-    config['max depth'] = 5000.0
-    config['proj'] = 'Global'
+    config['all bounds'] = allbounds
+    config['bounds'] = bounds
+    config['lats'] = lats  # all the lats to plot
+    config['lat'] = lat  # the lat being currently plotted
+    config['max depths'] = max_depths  # all the max depths to plot
+    config['max depth'] = max_depth  # the max depth currently plotted
+    config['horiz variables'] = variables_horiz  # all the vars for horiz plots
+    config['zonal variables'] = variables_zonal  # all the vars for zonal plots
+    config['variable'] = variable  # the variable currently plotted
+    config['projs'] = projs  # all the projections etc.
+    config['proj'] = proj
     return config
 
 
-def plot_horizontal_slice(config):
+def plotHorizontalSlice(config):
     """
     pcolormesh of a horizontal slice of an ocean field
     """
@@ -75,11 +96,11 @@ def plot_horizontal_slice(config):
     plt.savefig(figname, bbox_inches='tight', dpi=600)
 
 
-def plot_zonal_slice(config):
+def plotZonalSlice(config):
     """
     pcolormesh of a zonal slice of an ocean field
     """
-    lat = float(config['lats'][0])
+    lat = float(config['lat'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
     lat_index = np.argmin(np.array(np.abs(np.squeeze(grid.lat)[:, 0]-lat)))
@@ -100,3 +121,34 @@ def plot_zonal_slice(config):
     figname = os.path.join(dirname, config['variable'] +
                            'zonal_lat_'+str(int(lat)) + '_' + str(int(config['max depth'])) + 'm')
     plt.savefig(figname, bbox_inches='tight', dpi=600)
+
+
+class statePlotter:
+
+    def __init__(self, config_dict):
+        self.config = config_dict
+
+    def plot(self):
+        # Loop over variables, slices (horiz and vertical) and projections ... and whatever else is needed
+
+        #######################################
+        # zonal slices
+
+        for lat in self.config['lats']:
+            self.config['lat'] = lat
+
+            for max_depth in self.config['max depths']:
+                self.config['max depth'] = max_depth
+
+                for variable in self.config['zonal variables']:
+                    bounds = self.config['all bounds'][variable]
+                    self.config.update({'variable': variable, 'bounds': bounds})
+                    plotZonalSlice(self.config)
+
+        #######################################
+        # Horizontal slices
+        for proj in self.config['projs']:
+            for variable in self.config['horiz variables']:
+                bounds = self.config['all bounds'][variable]
+                self.config.update({'variable': variable, 'bounds': bounds, 'proj': proj})
+                plotHorizontalSlice(self.config)

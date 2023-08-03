@@ -62,7 +62,7 @@ if(BUILD_GDASBUNDLE)
 
 # External (required) observation operators
   option("BUNDLE_SKIP_CRTM" "Don't build CRTM" "OFF") # Don't build crtm unless user passes -DBUNDLE_SKIP_CRTM=OFF
-  ecbuild_bundle( PROJECT crtm GIT "https://github.com/ADCollard/crtm.git"   TAG v2.3-jedi.3_fix )
+  ecbuild_bundle( PROJECT crtm GIT "https://github.com/JCSDA/crtm.git"   TAG v2.4.1-jedi.1 )
 
 # Build GSI-B
   option(BUILD_GSIBEC "Build GSI-B" OFF)
