@@ -382,16 +382,6 @@ berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_apply_steric.yaml')
 config = YAMLFile(path=berr_yaml_template)
 config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-member_template = config['increments'][0]
-ocn_fname_tmpl = member_template['input']['ocn_filename']
-ice_fname_tmpl = member_template['input']['ice_filename']
-config['increments'] = []
-for n in range(1, clim_ens_size+1):
-    member = copy.deepcopy(member_template)
-    member['input']['ocn_filename'] = member['input']['ocn_filename'].replace("MEMNUM", str(n))
-    member['input']['ice_filename'] = member['input']['ice_filename'].replace("MEMNUM", str(n))
-    member['output']['exp'] = member['output']['exp'].replace("MEMNUM", str(n))
-    config['increments'].append(member)
 config.save(berr_yaml)
 
 logging.info(f"---------------- generate soca_ensweights.yaml")

@@ -14,8 +14,8 @@ vertical geometry:
   ocn_filename: MOM.res.nc
   read_from_file: 1
 
-soca increments:
-- date: '{{ATM_WINDOW_BEGIN}}'
+soca increment:
+  date: '{{ATM_WINDOW_BEGIN}}'
   basename: ./Data/
   ocn_filename: 'ocn.3dvarfgat_pseudo.incr.{{ATM_WINDOW_MIDDLE}}.nc'
   read_from_file: 1

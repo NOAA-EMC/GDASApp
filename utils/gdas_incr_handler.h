@@ -43,8 +43,8 @@ namespace gdasapp {
 
       // Process list of increments
       int result = 0;
-      for (size_t i = 0; i < postProcIncr.inputIncrConfig_.size(); ++i) {
-        oops::Log::info() << postProcIncr.inputIncrConfig_[0] << std::endl;
+      for (size_t i = 1; i < postProcIncr.ensSize_+1; ++i) {
+        oops::Log::info() << postProcIncr.inputIncrConfig_ << std::endl;
 
         // At the very minimum, we run this script to append the layers state, so do that!
         soca::Increment incr = postProcIncr.appendLayer(i);
@@ -56,7 +56,7 @@ namespace gdasapp {
         incr = postProcIncr.applyLinVarChange(incr);
 
         // Save final increment
-        result = postProcIncr.save(incr, i+1);
+        result = postProcIncr.save(incr, i);
       }
       return result;
     }
@@ -69,5 +69,4 @@ namespace gdasapp {
       return "gdasapp::SocaIncrHandler";
     }
   };
-
 }  // namespace gdasapp

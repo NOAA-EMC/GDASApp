@@ -10,6 +10,7 @@
 
 #include "oops/base/PostProcessor.h"
 #include "oops/mpi/mpi.h"
+#include "oops/util/ConfigFunctions.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Logger.h"
 
@@ -30,7 +31,10 @@ public:
       geom_(geom),
       Layers_(getLayerThickness(fullConfig, geom)),
       xTraj_(getTraj(fullConfig, geom)),
-      comm_(comm) {
+      comm_(comm),
+      ensSize_(1),
+      pattern_(){
+
     oops::Log::info() << "Date: " << std::endl << dt_ << std::endl;
 
     // Increment variables
@@ -39,7 +43,13 @@ public:
     socaIncrVar_ = socaIncrVar;
 
     // Input increments configuration
-    fullConfig.get("soca increments", inputIncrConfig_);
+    if ( fullConfig.has("soca increments.template") ) {
+      fullConfig.get("soca increments.template", inputIncrConfig_);
+      fullConfig.get("soca increments.number of increments", ensSize_);
+      fullConfig.get("soca increments.pattern", pattern_);
+    } else {
+      fullConfig.get("soca increment", inputIncrConfig_);
+    }
 
     // Output incrememnt configuration
     eckit::LocalConfiguration outputIncrConfig(fullConfig, "output increment");
@@ -67,9 +77,20 @@ public:
   soca::Increment appendLayer(const int n){
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======  Append Layers" << std::endl;
-    // read the soca increment
+
+    // initialize the soca increment
     soca::Increment socaIncr(geom_, socaIncrVar_, dt_);
-    socaIncr.read(inputIncrConfig_[n]);
+    eckit::LocalConfiguration memberConfig; //inputIncrConfig_);
+    memberConfig = inputIncrConfig_;
+
+    // replace templated string if necessary
+    if (not pattern_.empty()) {
+      util::seekAndReplace(memberConfig, pattern_, std::to_string(n));
+      oops::Log::info() << "oooooooooooooooooooooooooooooooooooo" << memberConfig << std::endl;
+    }
+
+    // read the soca increment
+    socaIncr.read(memberConfig);
     oops::Log::info() << "-------------------- input increment: " << std::endl;
     oops::Log::info() << socaIncr << std::endl;
 
@@ -269,7 +290,8 @@ public:
   const soca::Increment Layers_;       // layer thicknesses
   const soca::Geometry & geom_;
   const eckit::mpi::Comm & comm_;
-  std::vector<eckit::LocalConfiguration> inputIncrConfig_;
+  //  std::vector<eckit::LocalConfiguration> inputIncrConfig_;
+  eckit::LocalConfiguration inputIncrConfig_;
   eckit::LocalConfiguration outputIncrConfig_;
   eckit::LocalConfiguration zeroIncrConfig_;
   eckit::LocalConfiguration lvcConfig_;
@@ -278,6 +300,8 @@ public:
   bool doLVC_;
   const soca::State xTraj_;
   oops::Variables socaZeroIncrVar_;
+  int ensSize_;
+  std::string pattern_;
 };
 } // namespace gdasapp
 

@@ -1,30 +1,35 @@
 geometry:
-  geom_grid_file: soca_gridspec.nc
   mom6_input_nml: mom_input.nml
-  fields metadata: fields_metadata.yaml
+  fields metadata: ./fields_metadata.yaml
 
-date: '{{ATM_WINDOW_BEGIN}}'
+date: 2018-04-15T09:00:00Z
 
 layers variable: [hocn]
 
 increment variables: [tocn, socn, uocn, vocn, ssh, hocn]
 
-set increment variables to zero: [ssh]
+set increment variables to zero: [uocn, vocn, ssh]
 
 vertical geometry:
-  read_from_file: 1
+  date: 2018-04-15T09:00:00Z
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
-  date: '{{ATM_WINDOW_BEGIN}}'
+  read_from_file: 1
 
-soca increments:
-  number of increments: ${CLIM_ENS_SIZE}
-  pattern: '%mem%'
-  template:
-    date: '{{ATM_WINDOW_BEGIN}}'
-    basename: ./static_ens/
-    ocn_filename: 'ocn.pert.ens.%mem%.{{ATM_WINDOW_BEGIN}}.PT0S.nc'
-    read_from_file: 1
+soca increment:
+  date: 2018-04-15T09:00:00Z
+  basename: ./Data/
+  ocn_filename: 'ocn.3dvarfgat_pseudo.incr.2018-04-15T12:00:00Z.nc'
+  read_from_file: 1
+
+#soca increments:
+#  number of increments: 1
+#  pattern: incr
+#  template:
+#    date: 2018-04-15T09:00:00Z
+#    basename: ./static_ens/
+#    ocn_filename: 'ocn.1.nc'
+#    read_from_file: 1
 
 linear variable change:
   linear variable changes:
@@ -35,15 +40,14 @@ linear variable change:
   - linear variable change name: BalanceSOCA
   trajectory:
     state variables: [tocn, socn, uocn, vocn, ssh, hocn, layer_depth, mld]
-    date: '{{ATM_WINDOW_BEGIN}}'
+    date: 2018-04-15T09:00:00Z
     basename: ./INPUT/
     ocn_filename: MOM.res.nc
     read_from_file: 1
 
 output increment:
-  datadir: ./static_ens/
-  date: '{{ATM_WINDOW_BEGIN}}'
-  exp: tmp
+  datadir: ./
+  date: 2018-04-15T09:00:00Z
+  exp: mom6_iau
   type: incr
-  output file: 'ocn.pert.steric.%mem%.{{ATM_WINDOW_BEGIN}}.nc'
-  pattern: '%mem%'
+  output file: inc.nc #inc.%mem%.nc

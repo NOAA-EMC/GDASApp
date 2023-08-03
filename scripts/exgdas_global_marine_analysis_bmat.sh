@@ -150,7 +150,7 @@ fi
 
 # Vertical filtering of the 3D perturbations and recompute the steric height perturbation
 clean_yaml soca_apply_steric.yaml
-$APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x soca_apply_steric.yaml
+$APRUN_OCNANAL $JEDI_BIN/gdas_incr_handler.x soca_apply_steric.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err

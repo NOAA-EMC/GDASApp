@@ -16,15 +16,20 @@ vertical geometry:
   ocn_filename: MOM.res.nc
   read_from_file: 1
 
-soca increments:
-- date: 2018-04-15T09:00:00Z
+soca increment:
+  date: 2018-04-15T09:00:00Z
   basename: ./Data/
   ocn_filename: 'ocn.3dvarfgat_pseudo.incr.2018-04-15T12:00:00Z.nc'
   read_from_file: 1
-- date: 2018-04-15T09:00:00Z
-  basename: ./Data/
-  ocn_filename: 'ocn.3dvarfgat_pseudo.incr.2018-04-15T12:00:00Z.nc'
-  read_from_file: 1
+
+#soca increments:
+#  number of increments: 1
+#  pattern: incr
+#  template:
+#    date: 2018-04-15T09:00:00Z
+#    basename: ./static_ens/
+#    ocn_filename: 'ocn.1.nc'
+#    read_from_file: 1
 
 linear variable change:
   linear variable changes:
@@ -45,5 +50,5 @@ output increment:
   date: 2018-04-15T09:00:00Z
   exp: mom6_iau
   type: incr
-  output file: inc.%mem%.nc
-  pattern: %mem%
+  output file: inc.nc #inc.%mem%.nc
+#  pattern: %mem%
