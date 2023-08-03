@@ -354,12 +354,18 @@ config.save(berr_yaml)
 # generate YAMLS file for diag of clim. ens. B
 berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
 
-logging.info(f"---------------- generate soca_clim_moments.yaml")
+logging.info(f"---------------- generate soca_clim_ens_moments.yaml")
 berr_yaml = os.path.join(anl_dir, 'soca_clim_ens_moments.yaml')
 berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_clim_ens_moments.yaml')
 config = YAMLFile(path=berr_yaml_template)
 config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+config.save(berr_yaml)
+
+logging.info(f"---------------- generate soca_postproc_stddev.yaml")
+berr_yaml = os.path.join(anl_dir, 'soca_postproc_stddev.yaml')
+berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_postproc_stddev.yaml')
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 config.save(berr_yaml)
 
 logging.info(f"---------------- generate soca_clim_ens_perts.yaml")

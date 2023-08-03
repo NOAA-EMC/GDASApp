@@ -114,11 +114,11 @@ fi
 ################################################################################
 # Compute the ens std. dev, ignore ssh variance
 # TODO (G): Implement what's below into one single oops application
-# 0 - Compute moments of original ensemble, used at the diag of the first 
+# 0 - Compute moments of original ensemble, used at the diag of the first
 #     component of the hybrid B
 # 1 - Ensemble perturbations:
 #       o Vertically Interpolate to the deterministic layers
-#       o Recenter around 0 to create an ensemble of perturbations
+#       o Recenter around 0 to create an ensemble of perurbations
 # 2 - Filter members and apply the linear steric height balance to each members
 # 3 - Copy h from deterministic to unbalanced perturbations
 # 4 - Compute moments of converted ensemble perturbations
@@ -126,6 +126,15 @@ fi
 # Compute ensemble moments
 clean_yaml soca_clim_ens_moments.yaml
 $APRUN_OCNANAL $JEDI_BIN/soca_ensmeanandvariance.x soca_clim_ens_moments.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+# Zero out std. dev of ssh to use the balance as a strong constraint
+# TODO: Apply the inverse of the balance
+clean_yaml soca_clim_ens_moments.yaml
+$APRUN_OCNANAL $JEDI_BIN/gdas_incr_handler.x soca_postproc_stddev.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err

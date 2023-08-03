@@ -158,11 +158,16 @@ public:
     // wait for everybody to be done
     comm_.barrier();
 
-    // Change soca standard output name to something specidfied in the config
+    // Change soca standard output name to something specified in the config
     int result = 0;
     if ( comm_.rank() == 0 ) {
+      // get the output directory
+      std::string dataDir;
+      outputIncrConfig_.get("datadir", dataDir);
+      // get the output file name
       std::string outputFileName;
       outputIncrConfig_.get("output file", outputFileName);
+      outputFileName = dataDir + "/" + outputFileName;
       if (outputIncrConfig_.has("pattern")) {
           std::string pattern;
           outputIncrConfig_.get("pattern", pattern);
@@ -226,6 +231,8 @@ public:
   // Utility functions
   // -----------------------------------------------------------------------------
   // Recreate the soca filename from the configuration
+  // TODO: Change this in soca?
+  // TODO: Hard-coded for ocean, implement for seaice as well
   std::string socaFname() {
     std::string datadir;
     outputIncrConfig_.get("datadir", datadir);
