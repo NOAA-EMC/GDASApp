@@ -67,7 +67,7 @@ def gdas_fix(input_fix_dir, working_dir, config):
     ufsda.disk_utils.symlink(os.path.join(gdasapp_parm, 'io', 'fv3jedi_fieldmetadata_restart.yaml'),
                              os.path.join(config['fv3jedi_fieldmetadata_dir'], 'fv3jedi_fieldmetadata_restart.yaml'))
     # link CRTM coeff dir
-    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'crtm', '2.3.0'),
+    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'crtm', '2.4.0'),
                              config['CRTM_COEFF_DIR'])
 
 
