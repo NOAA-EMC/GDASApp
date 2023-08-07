@@ -25,15 +25,34 @@ namespace gdasapp {
       ioda::ObsTopLevelParameters obsparams;
       obsparams.validateAndDeserialize(obsConfig);
       oops::Log::info() << "obs space: " << std::endl << obsConfig << std::endl;
-
-      // read the obs space
+      // time window stuff
       std::string winbegin;
       std::string winend;
       fullConfig.get("window begin", winbegin);
       fullConfig.get("window end", winend);
+      // what variable to get the mean of
+      std::string group;
+      std::string variable;
+      fullConfig.get("group", group);
+      fullConfig.get("variable", variable);
+      int chan = 0;
+      if (fullConfig.has("channel")) {
+        fullConfig.get("channel", chan);
+      }
+      // read the obs space
       ioda::ObsSpace ospace(obsparams, oops::mpi::world(), util::DateTime(winbegin), util::DateTime(winend), oops::mpi::myself());
       const size_t nlocs = ospace.nlocs();
       oops::Log::info() << "nlocs =" << nlocs << std::endl;
+      std::vector<float> buffer(nlocs);
+      if (chan == 0) {
+        // no channel is selected
+        ospace.get_db(group, variable, buffer);
+      } else {
+        // give it the channel as a single item list
+        ospace.get_db(group, variable, buffer, {chan});
+      }
+      const float mean = std::reduce(buffer.begin(), buffer.end()) / float(nlocs);
+      oops::Log::info() << "mean value for " << group << "/" << variable << "=" << mean << std::endl;
 
       return 0;
     }
