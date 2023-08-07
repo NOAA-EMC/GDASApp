@@ -1,0 +1,11 @@
+window begin: 2020-11-01T09:00:00Z
+window end: 2020-11-01T15:00:00Z
+obs space:
+  name: amsua_n19
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: Data/ufo/testinput_tier_1/instruments/radiance/amsua_n19_obs_2020110112_m.nc4
+  simulated variables: [brightnessTemperature]
+  observed variables: [brightnessTemperature]
+  channel: 6

@@ -7,3 +7,4 @@ find_package(soca REQUIRED)
 
 add_subdirectory(soca)
 add_subdirectory(ioda_example)
+add_subdirectory(test)
