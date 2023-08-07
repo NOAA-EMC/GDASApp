@@ -99,8 +99,8 @@ data_file = os.path.join(com_ice_history, f'{RUN}.t{gcyc}z.icef006.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
                     variables_horiz={'aice_h': [0.0, 1.0],
-                                      'hs_h': [0.0, 4.0],
-                                      'hi_h': [0.0, 0.5]},
+                                     'hs_h': [0.0, 4.0],
+                                     'hi_h': [0.0, 0.5]},
                     colormap='jet',
                     projs=['North', 'South', 'Global'],
                     comout=os.path.join(comout, 'vrfy', 'bkg'))
