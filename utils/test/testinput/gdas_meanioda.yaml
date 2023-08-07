@@ -8,4 +8,6 @@ obs space:
       obsfile: Data/ufo/testinput_tier_1/instruments/radiance/amsua_n19_obs_2020110112_m.nc4
   simulated variables: [brightnessTemperature]
   observed variables: [brightnessTemperature]
-  channel: 6
+group: ObsValue
+variable: brightnessTemperature
+channel: 6
