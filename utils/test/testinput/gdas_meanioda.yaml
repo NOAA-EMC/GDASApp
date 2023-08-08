@@ -5,7 +5,7 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: ../../ufo-data/testinput_tier_1/instruments/radiance/amsua_n19_obs_2020110112_m.nc4
+      obsfile: ../../../ufo-data/testinput_tier_1/instruments/radiance/amsua_n19_obs_2020110112_m.nc4
   simulated variables: [brightnessTemperature]
   observed variables: [brightnessTemperature]
 group: ObsValue
