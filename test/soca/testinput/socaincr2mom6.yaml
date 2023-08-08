@@ -6,7 +6,7 @@ date: 2018-04-15T09:00:00Z
 
 layers variable: [hocn]
 
-increment variables: [tocn, socn, uocn, vocn, ssh]
+increment variables: [tocn, socn, uocn, vocn, ssh, hocn]
 
 vertical geometry:
   date: 2018-04-15T09:00:00Z
@@ -20,8 +20,9 @@ soca increment:
   ocn_filename: 'ocn.3dvarfgat_pseudo.incr.2018-04-15T12:00:00Z.nc'
   read_from_file: 1
 
-mom6 iau increment:
+output increment:
   datadir: ./
   date: 2018-04-15T09:00:00Z
   exp: mom6_iau
   type: incr
+  output file: inc.nc
