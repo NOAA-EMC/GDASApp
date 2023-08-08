@@ -31,11 +31,13 @@ namespace gdasapp {
       ioda::ObsTopLevelParameters obsparams;
       obsparams.validateAndDeserialize(obsConfig);  // TODO CRM, can I remove this and then the simulated vars junk??
       oops::Log::info() << "obs space: " << std::endl << obsConfig << std::endl;
+
       // time window stuff
       std::string winbegin;
       std::string winend;
       fullConfig.get("window begin", winbegin);
       fullConfig.get("window end", winend);
+
       // what variable to get the mean of
       std::string group;
       std::string variable;
@@ -45,6 +47,7 @@ namespace gdasapp {
       if (fullConfig.has("channel")) {
         fullConfig.get("channel", chan);
       }
+
       // read the obs space
       // Note, the below line does a lot of heavy lifting
       // we can probably go to a lower level function (and more of them) to accomplish the same thing
@@ -52,6 +55,7 @@ namespace gdasapp {
       const size_t nlocs = ospace.nlocs();
       oops::Log::info() << "nlocs =" << nlocs << std::endl;
       std::vector<float> buffer(nlocs);
+
       // below is grabbing from the IODA obs space the specified group/variable and putting it into the buffer
       if (chan == 0) {
         // no channel is selected
@@ -60,10 +64,13 @@ namespace gdasapp {
         // give it the channel as a single item list
         ospace.get_db(group, variable, buffer, {chan});
       }
+
       // the below line computes the mean, aka sum divided by count
       const float mean = std::reduce(buffer.begin(), buffer.end()) / float(nlocs);
+
       // write the mean out to the stdout
       oops::Log::info() << "mean value for " << group << "/" << variable << "=" << mean << std::endl;
+
       // a better program should return a real exit code depending on result, but this is just an example!
       return 0;
     }
