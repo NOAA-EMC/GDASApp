@@ -1,10 +1,10 @@
-name: Python Coding Norms
+name: Coding Norms
 on: [push]
 
 jobs:
   check_pynorms:
     runs-on: ubuntu-latest
-    name: Check Python coding norms with pycodestyle
+    name: Check coding norms with pycodestyle and cpplint
 
     steps:
 
@@ -21,3 +21,8 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/GDASApp
         pycodestyle -v --config ./.pycodestyle .
+
+    - name: Run C++ linter on utils 
+      run: |
+        cd $GITHUB_WORKSPACE/GDASApp/utils/test/
+        ./cpplint.py --quiet --recursive $GITHUB_WORKSPACE/GDASApp/utils
