@@ -1,4 +1,5 @@
 #include <iostream>
+#include <numeric>
 #include "eckit/config/LocalConfiguration.h"
 #include "ioda/Group.h"
 #include "ioda/ObsSpace.h"
@@ -66,7 +67,7 @@ namespace gdasapp {
       }
 
       // the below line computes the mean, aka sum divided by count
-      const float mean = std::reduce(buffer.begin(), buffer.end()) / float(nlocs);
+      const float mean = std::accumulate(buffer.begin(), buffer.end(), 0) / float(nlocs);
 
       // write the mean out to the stdout
       oops::Log::info() << "mean value for " << group << "/" << variable << "=" << mean << std::endl;
