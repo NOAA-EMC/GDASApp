@@ -1,13 +1,16 @@
-window begin: 2020-11-01T09:00:00Z
-window end: 2020-11-01T15:00:00Z
+# the window is 30 years long to capture anything we can throw at it in this input file
+window begin: 2000-11-01T09:00:00Z
+window end: 2030-11-01T15:00:00Z
 obs space:
-  name: amsua_n19
+  name: gmi_gpm_test_mean
   obsdatain:
     engine:
       type: H5File
-      obsfile: ../../../ufo-data/testinput_tier_1/instruments/radiance/amsua_n19_obs_2020110112_m.nc4
+      obsfile: ../../../soca/test/Data/obs/gmi_gpm_obs.nc
+  # the below 2 lines are not used but needed by the IODA obsspace it seems...
   simulated variables: [brightnessTemperature]
   observed variables: [brightnessTemperature]
 group: ObsValue
 variable: brightnessTemperature
+# channel is optional, depends on what variable you are reading
 channel: 6
