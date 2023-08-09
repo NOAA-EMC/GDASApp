@@ -23,7 +23,7 @@
 #include "soca/LinearVariableChange/LinearVariableChange.h"
 #include "soca/State/State.h"
 
-#include "soca/gdas_postprocincr.h"
+#include "gdas_postprocincr.h"
 
 namespace gdasapp {
 

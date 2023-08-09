@@ -1,4 +1,4 @@
-#include "soca/gdas_incr_handler.h"
+#include "gdas_incr_handler.h"
 #include "oops/runs/Run.h"
 
 int main(int argc,  char ** argv) {

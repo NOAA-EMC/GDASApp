@@ -1,4 +1,4 @@
-#include "ioda_example/gdas_meanioda.h"
+#include "gdas_meanioda.h"
 #include "oops/runs/Run.h"
 
 // this is an example application that
