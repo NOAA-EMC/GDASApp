@@ -1,4 +1,4 @@
-#include "gdas_socahybridweights.h"
+#include "soca/gdas_socahybridweights.h"
 #include "oops/runs/Run.h"
 
 int main(int argc,  char ** argv) {

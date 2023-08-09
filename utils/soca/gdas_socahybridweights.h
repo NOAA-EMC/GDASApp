@@ -1,6 +1,11 @@
+#ifndef GDAS_UTILS_SOCA_GDAS_SOCAHYBRIDWEIGHTS_H_
+#define GDAS_UTILS_SOCA_GDAS_SOCAHYBRIDWEIGHTS_H_
+
 #include <netcdf>
-#include <iostream>
+
 #include <filesystem>
+#include <iostream>
+#include <string>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -13,9 +18,9 @@
 #include "oops/util/Duration.h"
 #include "oops/util/Logger.h"
 
-#include "soca/State/State.h"
 #include "soca/Geometry/Geometry.h"
 #include "soca/Increment/Increment.h"
+#include "soca/State/State.h"
 
 namespace gdasapp {
 
@@ -26,7 +31,6 @@ namespace gdasapp {
     static const std::string classname() {return "gdasapp::SocaHybridWeights";}
 
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
-
       /// Setup the soca geometry
       const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");
       oops::Log::info() << "geometry: " << std::endl << geomConfig << std::endl;
@@ -44,7 +48,7 @@ namespace gdasapp {
       socaVars += socaOcnVars;
 
       /// Read the background
-      // TODO: Use the ice extent to set the weights ... no clue if this is
+      // TODO(guillaume): Use the ice extent to set the weights ... no clue if this is
       //       possible at this level
       soca::State socaBkg(geom, socaVars, dt);
       const eckit::LocalConfiguration socaBkgConfig(fullConfig, "background");
@@ -59,7 +63,7 @@ namespace gdasapp {
       oops::Log::info() << "wOcean: " << wOcean << std::endl;
 
       /// Create fields of weights for seaice
-      soca::Increment socaIceHW(geom, socaVars, dt); // ocean field is mandatory for writting
+      soca::Increment socaIceHW(geom, socaVars, dt);  // ocean field is mandatory for writting
       socaIceHW.ones();
       socaIceHW *= wIce;
       oops::Log::info() << "socaIceHW: " << std::endl << socaIceHW << std::endl;
@@ -84,3 +88,5 @@ namespace gdasapp {
   };
 
 }  // namespace gdasapp
+
+#endif  // GDAS_UTILS_SOCA_GDAS_SOCAHYBRIDWEIGHTS_H_
