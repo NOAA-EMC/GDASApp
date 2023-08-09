@@ -1,5 +1,5 @@
-#ifndef GDAS_UTILS_SOCA_GDAS_POSTPROCINCR_H_
-#define GDAS_UTILS_SOCA_GDAS_POSTPROCINCR_H_
+#ifndef UTILS_SOCA_GDAS_POSTPROCINCR_H_
+#define UTILS_SOCA_GDAS_POSTPROCINCR_H_
 
 #include <filesystem>
 
@@ -307,4 +307,4 @@ class PostProcIncr {
 };
 }  // namespace gdasapp
 
-#endif  // GDAS_UTILS_SOCA_GDAS_POSTPROCINCR_H_
+#endif  // UTILS_SOCA_GDAS_POSTPROCINCR_H_

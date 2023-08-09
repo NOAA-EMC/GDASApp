@@ -1,5 +1,5 @@
-#ifndef GDAS_UTILS_IODA_EXAMPLE_GDAS_MEANIODA_H_
-#define GDAS_UTILS_IODA_EXAMPLE_GDAS_MEANIODA_H_
+#ifndef UTILS_IODA_EXAMPLE_GDAS_MEANIODA_H_
+#define UTILS_IODA_EXAMPLE_GDAS_MEANIODA_H_
 
 #include <iostream>
 #include <numeric>
@@ -95,4 +95,4 @@ namespace gdasapp {
 
 }  // namespace gdasapp
 
-#endif  // GDAS_UTILS_IODA_EXAMPLE_GDAS_MEANIODA_H_
+#endif  // UTILS_IODA_EXAMPLE_GDAS_MEANIODA_H_
