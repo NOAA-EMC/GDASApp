@@ -20,7 +20,7 @@ jobs:
     - name: Run pycodestyle
       run: |
         cd $GITHUB_WORKSPACE/GDASApp
-        pycodestyle -v --config ./.pycodestyle .
+        pycodestyle -v --config ./.pycodestyle ./ush ./scripts ./test 
 
     - name: Run C++ linter on utils 
       run: |

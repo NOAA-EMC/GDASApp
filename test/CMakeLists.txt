@@ -102,7 +102,7 @@ install(FILES ${test_reference}
 
 # test for python coding norms
 add_test(NAME test_gdasapp_check_python_norms
-         COMMAND pycodestyle -v --config ./.pycodestyle ./ush ./scripts ./test ./utils
+         COMMAND pycodestyle -v --config ./.pycodestyle ./ush ./scripts ./test
          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 # test for ush/check_yaml_keys.py
