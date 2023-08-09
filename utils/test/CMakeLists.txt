@@ -9,6 +9,13 @@ CREATE_SYMLINK( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${utils_
 # copy the cpp linter script
 execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cpplint.py ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_cpplint.py)
 
+# add linter for the utils
+ecbuild_add_test( TARGET gdasapp_util_coding_norms
+                  TYPE SCRIPT
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_cpplint.py
+                  ARGS --quiet --recursive ${CMAKE_CURRENT_SOURCE_DIR}/../
+                  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
+
 # Test example IODA utility that computes the mean of a variable
 ecbuild_add_test( TARGET  test_gdasapp_util_ioda_example
                   COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_meanioda.x
