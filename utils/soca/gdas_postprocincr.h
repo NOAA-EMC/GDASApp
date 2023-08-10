@@ -1,8 +1,9 @@
-#ifndef GDAS_POSTPROCINCR_H
-#define GDAS_POSTPROCINCR_H
+#pragma once
+
+#include <filesystem>
 
 #include <iostream>
-#include <filesystem>
+#include <string>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -22,7 +23,7 @@
 namespace gdasapp {
 
 class PostProcIncr {
-public:
+ public:
   // Constructor
   PostProcIncr(const eckit::Configuration & fullConfig, const soca::Geometry& geom,
                const eckit::mpi::Comm & comm)
@@ -33,7 +34,7 @@ public:
       xTraj_(getTraj(fullConfig, geom)),
       comm_(comm),
       ensSize_(1),
-      pattern_(){
+      pattern_() {
 
     oops::Log::info() << "Date: " << std::endl << dt_ << std::endl;
 
@@ -73,18 +74,18 @@ public:
   }
 
   // Append layer thicknesses to increment
-  // TODO: There's got to be a better way to append a variable.
-  soca::Increment appendLayer(const int n){
+  // TODO(guillaume): There's got to be a better way to append a variable.
+  soca::Increment appendLayer(const int n) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======  Append Layers" << std::endl;
 
     // initialize the soca increment
     soca::Increment socaIncr(geom_, socaIncrVar_, dt_);
-    eckit::LocalConfiguration memberConfig; //inputIncrConfig_);
+    eckit::LocalConfiguration memberConfig;  // inputIncrConfig_);
     memberConfig = inputIncrConfig_;
 
     // replace templated string if necessary
-    if (not pattern_.empty()) {
+    if (!pattern_.empty()) {
       util::seekAndReplace(memberConfig, pattern_, std::to_string(n));
       oops::Log::info() << "oooooooooooooooooooooooooooooooooooo" << memberConfig << std::endl;
     }
@@ -124,7 +125,7 @@ public:
   // Set specified variables to 0
   soca::Increment setToZero(soca::Increment socaIncr) {
     oops::Log::info() << "==========================================" << std::endl;
-    if (not this->setToZero_) {
+    if (!this->setToZero_) {
       oops::Log::info() << "======      no variables to set to 0.0" << std::endl;
       return socaIncr;
     }
@@ -154,7 +155,7 @@ public:
   // Apply linear variable changes
   soca::Increment applyLinVarChange(soca::Increment socaIncr) {
     oops::Log::info() << "==========================================" << std::endl;
-    if (not this->doLVC_) {
+    if (!this->doLVC_) {
       return socaIncr;
     }
     oops::Log::info() << "======      applying specified change of variables" << std::endl;
@@ -252,8 +253,8 @@ public:
   // Utility functions
   // -----------------------------------------------------------------------------
   // Recreate the soca filename from the configuration
-  // TODO: Change this in soca?
-  // TODO: Hard-coded for ocean, implement for seaice as well
+  // TODO(guillaume): Change this in soca?
+  // TODO(guillaume): Hard-coded for ocean, implement for seaice as well
   std::string socaFname() {
     std::string datadir;
     outputIncrConfig_.get("datadir", datadir);
@@ -284,7 +285,7 @@ public:
 }
 
 
-public:
+ public:
   util::DateTime dt_;                  // valid date of increment
   oops::Variables layerVar_;           // layer variable
   const soca::Increment Layers_;       // layer thicknesses
@@ -303,6 +304,4 @@ public:
   int ensSize_;
   std::string pattern_;
 };
-} // namespace gdasapp
-
-#endif // GDAS_POSTPROCINCR_H
+}  // namespace gdasapp

@@ -1,6 +1,10 @@
+#pragma once
+
 #include <netcdf>
-#include <iostream>
+
 #include <filesystem>
+#include <iostream>
+#include <string>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -18,7 +22,7 @@
 #include "soca/LinearVariableChange/LinearVariableChange.h"
 #include "soca/State/State.h"
 
-# include "gdas_postprocincr.h"
+#include "gdas_postprocincr.h"
 
 namespace gdasapp {
 
@@ -29,7 +33,6 @@ namespace gdasapp {
     static const std::string classname() {return "gdasapp::SocaIncrHandler";}
 
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
-
       /// Setup the soca geometry
       const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");
       oops::Log::info() << "geometry: " << std::endl << geomConfig << std::endl;
@@ -39,7 +42,8 @@ namespace gdasapp {
       // Initialize the post processing
       PostProcIncr postProcIncr(fullConfig, geom, this->getComm());
 
-      oops::Log::info() << "soca increments: " << std::endl << postProcIncr.inputIncrConfig_ << std::endl;
+      oops::Log::info() << "soca increments: " << std::endl
+                        << postProcIncr.inputIncrConfig_ << std::endl;
 
       // Process list of increments
       int result = 0;
