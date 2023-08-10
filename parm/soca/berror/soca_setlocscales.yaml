@@ -1,0 +1,26 @@
+resolution:
+  mom6_input_nml: mom_input.nml
+  fields metadata: ./fields_metadata.yaml
+
+date: 0001-01-01T00:00:00Z
+
+corr variables: [tocn, cicen]
+
+scales:
+  vert layers: 70 # in units of layer
+  tocn:
+    rossby mult: 1.00
+    min grid mult: 2.0
+  cicen:
+    rossby mult: 1.00
+    min grid mult: 2.0
+
+rh output:
+  datadir: ./
+  exp: loc_rh
+  type: incr
+
+rv output:
+  datadir: ./
+  exp: loc_rv
+  type: incr

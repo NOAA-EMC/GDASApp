@@ -48,8 +48,10 @@ elif [ $machine = 'ORION' ]; then
 fi
 
 # Execute j-job
-if [ $machine = 'HERA' -o $machine = 'ORION' ]; then
-    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=debug --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
+if [ $machine = 'HERA' ]; then
+    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
+elif [ $machine = 'ORION' ]; then
+    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --partition=orion --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
 fi

@@ -11,7 +11,7 @@ geometry:
   npx: $(npx_ges)
   npy: $(npy_ges)
   npz: $(npz_ges)
-  field metadata override: $(DATA)/fv3jedi/gfs-land.yaml
+  field metadata override: $(DATA)/fv3jedi/fv3jedi_fieldmetadata_restart.yaml
   time invariant fields:
     state fields:
       datetime: '{{ LAND_WINDOW_BEGIN | to_isotime }}'

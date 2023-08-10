@@ -22,6 +22,7 @@ import os
 import sys
 import yaml
 import glob
+import copy
 import dateutil.parser as dparser
 import f90nml
 import shutil
@@ -168,7 +169,8 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
                     'ocn_filename': ocn_filename,
                     'ice_filename': agg_ice_filename,
                     'read_from_file': 1,
-                    'remap_filename': './bkg/'+ocn_filename_ic}
+                    '#remap_filename': './bkg/'+ocn_filename_ic}  # TODO: Remapping bug in soca. Switch to z*
+
         bkg_date = bkg_date + timedelta(hours=dt_pseudo)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
 
@@ -233,8 +235,10 @@ FileHandler({'mkdir': [anl_dir, diags, obs_in, bkg_dir, anl_out, static_ens]}).s
 
 # Variables of convenience
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
+window_middle = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')
 window_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H') - half_assim_freq
 window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
+window_middle_iso = window_middle.strftime('%Y-%m-%dT%H:%M:%SZ')
 fcst_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')
 RUN = os.getenv('RUN')
 cyc = os.getenv('cyc')
@@ -254,6 +258,7 @@ envconfig = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
              'r2d2_obs_dump': os.getenv('R2D2_OBS_DUMP'),
              'r2d2_obs_db': os.getenv('R2D2_OBS_DB'),
              'ATM_WINDOW_BEGIN': window_begin_iso,
+             'ATM_WINDOW_MIDDLE': window_middle_iso,
              'ATM_WINDOW_LENGTH': f"PT{os.getenv('assim_freq')}H"}
 stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'stage.yaml'))
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
@@ -274,7 +279,12 @@ for obs_file in obs_files:
     logging.info(f"******* {obs_file}")
     obs_src = os.path.join(os.getenv('COM_OBS'), obs_file)
     obs_dst = os.path.join(os.path.abspath(obs_in), obs_file)
-    obs_list.append([obs_src, obs_dst])
+    if os.path.exists(obs_src):
+        logging.info(f"******* fetching {obs_file}")
+        obs_list.append([obs_src, obs_dst])
+    else:
+        logging.info(f"******* {obs_file} is not in the database")
+
 FileHandler({'copy': obs_list}).sync()
 
 ################################################################################
@@ -301,6 +311,8 @@ logging.info(f"---------------- Stage climatological ensemble")
 clim_ens_member_list = []
 clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
 clim_ens_size = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
+os.environ['CLIM_ENS_SIZE'] = str(clim_ens_size)
+
 for domain in ['ocn', 'ice']:
     for mem in range(1, clim_ens_size+1):
         fname = domain+"."+str(mem)+".nc"
@@ -339,12 +351,61 @@ config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHE
 config.save(berr_yaml)
 
 ################################################################################
+# generate YAMLS file for diag of clim. ens. B
+berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
+
+logging.info(f"---------------- generate soca_clim_ens_moments.yaml")
+berr_yaml = os.path.join(anl_dir, 'soca_clim_ens_moments.yaml')
+berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_clim_ens_moments.yaml')
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config.save(berr_yaml)
+
+logging.info(f"---------------- generate soca_postproc_stddev.yaml")
+berr_yaml = os.path.join(anl_dir, 'soca_postproc_stddev.yaml')
+berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_postproc_stddev.yaml')
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config.save(berr_yaml)
+
+logging.info(f"---------------- generate soca_clim_ens_perts.yaml")
+berr_yaml = os.path.join(anl_dir, 'soca_clim_ens_perts.yaml')
+berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_clim_ens_perts.yaml')
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+config.save(berr_yaml)
+
+logging.info(f"---------------- generate soca_apply_steric.yaml")
+berr_yaml = os.path.join(anl_dir, 'soca_apply_steric.yaml')
+berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_apply_steric.yaml')
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+config.save(berr_yaml)
+
+logging.info(f"---------------- generate soca_ensweights.yaml")
+berr_yaml = os.path.join(anl_dir, 'soca_ensweights.yaml')
+berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_ensweights.yaml')
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config.save(berr_yaml)
+
+################################################################################
 # copy yaml for decorrelation length scales
 
 logging.info(f"---------------- generate soca_setcorscales.yaml")
 corscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setcorscales.yaml')
 corscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml')
 FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
+
+################################################################################
+# copy yaml for localization length scales
+
+logging.info(f"---------------- generate soca_setlocscales.yaml")
+locscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setlocscales.yaml')
+locscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setlocscales.yaml')
+FileHandler({'copy': [[locscales_yaml_src, locscales_yaml_dst]]}).sync()
 
 ################################################################################
 # generate yaml for bump/nicas (used for correlation and/or localization)
@@ -443,6 +504,7 @@ varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PA
 ufsda.yamltools.save_check(varconfig.as_dict(), target=var_yaml, app='var')
 
 ################################################################################
+# Prepare the yamls for the "checkpoint" jjob
 # prepare yaml and CICE restart for soca to cice change of variable
 
 logging.info(f"---------------- generate soca to cice yamls")
@@ -458,8 +520,8 @@ soca2cice_cfg = {
     "template": "",
     "output": "",
     "config": {
-        "OCN_ANA": "./Data/ocn.3dvarfgat_pseudo.an."+window_begin_iso+".nc",
-        "ICE_ANA": "./Data/ice.3dvarfgat_pseudo.an."+window_begin_iso+".nc",
+        "OCN_ANA": "./Data/ocn.3dvarfgat_pseudo.an."+window_middle_iso+".nc",
+        "ICE_ANA": "./Data/ice.3dvarfgat_pseudo.an."+window_middle_iso+".nc",
         "ICE_RST": ice_rst_ana,
         "FCST_BEGIN": fcst_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
     }
@@ -471,6 +533,14 @@ for varchgyaml in varchgyamls:
     # TODO: use YAMLFile instead
     yaml.dump(soca2cice_cfg, f, sort_keys=False, default_flow_style=False)
     ufsda.genYAML.genYAML('tmp.yaml', output=varchgyaml)
+
+# prepare yaml for soca to MOM6 IAU increment
+logging.info(f"---------------- generate soca to MOM6 IAU yaml")
+socaincr2mom6_yaml = os.path.join(anl_dir, 'socaincr2mom6.yaml')
+socaincr2mom6_yaml_template = os.path.join(gdas_home, 'parm', 'soca', 'variational', 'socaincr2mom6.yaml')
+s2mconfig = YAMLFile(path=socaincr2mom6_yaml_template)
+s2mconfig = Template.substitute_structure(s2mconfig, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+s2mconfig.save(socaincr2mom6_yaml)
 
 ################################################################################
 # Copy initial condition

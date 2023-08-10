@@ -135,7 +135,7 @@ mkdir -p $workdir
 
 # Link CRTM coefficients
 [ -d $workdir/crtm ] && rm -rf $workdir/crtm
-ln -sf $FixDir/crtm/2.3.0 $workdir/crtm
+ln -sf $FixDir/crtm/2.4.0 $workdir/crtm
 
 # copy BC files
 if [ $radiance = "YES" ]; then
