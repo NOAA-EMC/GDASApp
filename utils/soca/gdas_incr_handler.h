@@ -1,5 +1,4 @@
-#ifndef UTILS_SOCA_GDAS_INCR_HANDLER_H_
-#define UTILS_SOCA_GDAS_INCR_HANDLER_H_
+#pragma once
 
 #include <netcdf>
 
@@ -75,5 +74,3 @@ namespace gdasapp {
     }
   };
 }  // namespace gdasapp
-
-#endif  // UTILS_SOCA_GDAS_INCR_HANDLER_H_

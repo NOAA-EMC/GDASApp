@@ -1,5 +1,4 @@
-#ifndef UTILS_IODA_EXAMPLE_GDAS_MEANIODA_H_
-#define UTILS_IODA_EXAMPLE_GDAS_MEANIODA_H_
+#pragma once
 
 #include <iostream>
 #include <numeric>
@@ -94,5 +93,3 @@ namespace gdasapp {
   };
 
 }  // namespace gdasapp
-
-#endif  // UTILS_IODA_EXAMPLE_GDAS_MEANIODA_H_

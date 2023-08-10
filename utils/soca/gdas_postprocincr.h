@@ -1,5 +1,4 @@
-#ifndef UTILS_SOCA_GDAS_POSTPROCINCR_H_
-#define UTILS_SOCA_GDAS_POSTPROCINCR_H_
+#pragma once
 
 #include <filesystem>
 
@@ -306,5 +305,3 @@ class PostProcIncr {
   std::string pattern_;
 };
 }  // namespace gdasapp
-
-#endif  // UTILS_SOCA_GDAS_POSTPROCINCR_H_
