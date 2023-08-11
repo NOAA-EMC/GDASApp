@@ -5,7 +5,10 @@
 #include <string>
 #include <vector>
 #include "eckit/config/LocalConfiguration.h"
+#include "ioda/Engines/EngineUtils.h"
 #include "ioda/Group.h"
+#include "ioda/ObsDataIoParameters.h"
+#include "ioda/ObsGroup.h"
 #include "ioda/ObsSpace.h"
 #include "ioda/ObsVector.h"
 #include "oops/base/PostProcessor.h"
@@ -79,6 +82,47 @@ namespace gdasapp {
       // write the mean out to the stdout
       oops::Log::info() << "mean value for " << group << "/" << variable
                         << "=" << mean << std::endl;
+
+      // let's try writing the mean out to a IODA file now!
+      ////////////////////////////////////////////////////
+      // get the configuration for the obsdataout
+      eckit::LocalConfiguration outconf(fullConfig, "obsdataout");
+      ioda::ObsDataOutParameters outparams;
+      outparams.validateAndDeserialize(outconf);
+
+      // set up the backend
+      auto backendParams = ioda::Engines::BackendCreationParameters();
+      backendParams.fileName = outconf.getString("engine.obsfile");
+      backendParams.createMode = ioda::Engines::BackendCreateModes::Truncate_If_Exists;
+      backendParams.action = ioda::Engines::BackendFileActions::Create;
+      backendParams.flush = true;
+      backendParams.allocBytes = 1024*1024*50;  // no idea what this number should be
+
+      // construct the output group(s)
+      ioda::Group grpFromFile
+        = ioda::Engines::constructBackend(ioda::Engines::BackendNames::Hdf5File, backendParams);
+      const int numLocs = 1;
+      ioda::NewDimensionScales_t newDims;
+      newDims.push_back(ioda::NewDimensionScale<int>("Location",
+                                                     numLocs, ioda::Unlimited, numLocs));
+      ioda::ObsGroup og = ioda::ObsGroup::generate(grpFromFile, newDims);
+
+      // create the output variables
+      ioda::Variable LocationVar = og.vars["Location"];
+      std::string varname = "mean/" + group + "/" + variable;
+      ioda::VariableCreationParameters float_params;
+      float_params.chunk = true;               // allow chunking
+      float_params.compressWithGZIP();         // compress using gzip
+      float_params.setFillValue<float>(-999);  // set the fill value to -999
+      ioda::Variable outVar = og.vars.createWithScales<float>(varname, {LocationVar}, float_params);
+
+      // write to file
+      std::vector<float> meanVec(numLocs);
+      meanVec[0] = mean;
+      outVar.write(meanVec);
+
+      // print a message
+      oops::Log::info() << "mean written to" << backendParams.fileName << std::endl;
 
       // a better program should return a real exit code depending on result,
       // but this is just an example!
