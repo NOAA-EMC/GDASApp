@@ -14,3 +14,7 @@ group: ObsValue
 variable: brightnessTemperature
 # channel is optional, depends on what variable you are reading
 channel: 6
+obsdataout:
+  engine:
+    type: H5File
+    obsfile: testrun/gmi_gpm_mean.nc
