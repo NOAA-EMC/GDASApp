@@ -47,15 +47,25 @@ case ${TARGET} in
 esac
 
 # ==============================================================================
-# clone a fresh copy of the develop branch
 datestr="$(date +%Y%m%d)"
 repo_url="https://github.com/NOAA-EMC/GDASApp.git"
+workflow_url="https://github.com/NOAA-EMC/global-workflow.git"
 stableroot=$GDAS_CI_ROOT/stable
 
 mkdir -p $stableroot/$datestr
 cd $stableroot/$datestr
-git clone $repo_url
-cd GDASApp
+
+# clone global workflow develop branch
+git clone $workflow_url
+
+# run checkout script for all other components
+cd $stableroot/$datestr/global-workflow/sorc
+./checkout.sh -u
+
+# checkout develop
+cd gdas.cd
+git checkout develop
+git pull
 
 # ==============================================================================
 # run ecbuild to get the repos cloned
@@ -67,21 +77,75 @@ rm -rf build
 
 # ==============================================================================
 # update the hashes to the most recent
-$my_dir/stable_mark.sh $stableroot/$datestr/GDASApp
+gdasdir=$stableroot/$datestr/global-workflow/sorc/gdas.cd
+$my_dir/stable_mark.sh $gdasdir
 
 # ==============================================================================
 # run the automated testing
-$my_dir/run_ci.sh -d $stableroot/$datestr/GDASApp -o $stableroot/$datestr/output
+$my_dir/run_gw_ci.sh -d $stableroot/$datestr/global-workflow -o $stableroot/$datestr/output
 ci_status=$?
+total=0
 if [ $ci_status -eq 0 ]; then
-  # push a new commit to the stable branch
-  cd $stableroot/$datestr/GDASApp
-  git push origin --delete feature/stable-nightly
-  git checkout -b feature/stable-nightly
+  cd $gdasdir
+  # copy the CMakeLists file for safe keeping
+  cp $gdasdir/CMakeLists.txt $gdasdir/CMakeLists.txt.new
+  total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to cp CMakeLists" >> $stableroot/$datestr/output
+  fi
+  # checkout feature/stable-nightly
+  git stash
+  total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to cp CMakeLists" >> $stableroot/$datestr/output
+  fi
+  git checkout feature/stable-nightly
+  total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to cp CMakeLists" >> $stableroot/$datestr/output
+  fi
+  # merge in develop
+  git merge develop
+  total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to merge develop" >> $stableroot/$datestr/output
+  fi
+  # force move the copy to the original path of CMakeLists.txt
+  /bin/mv -f $gdasdir/CMakeLists.txt.new $gdasdir/CMakeLists.txt
+  total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to mv CMakeLists" >> $stableroot/$datestr/output
+  fi
+  # commit this change and push
   git add CMakeLists.txt
-  git commit -m "Update to new stable build on $datestr"
+  total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to add CMakeLists to commit" >> $stableroot/$datestr/output
+  fi
+  git diff-index --quiet HEAD || git commit -m "Update to new stable build on $datestr"
+  total=$(($total+$?))
+  caution=""
+  if [ $total -ne 0 ]; then
+    echo "Unable to commit" >> $stableroot/$datestr/output
+  fi
   git push --set-upstream origin feature/stable-nightly
-  echo "Stable branch updated"
+  total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to push" >> $stableroot/$datestr/output
+  fi
+  if [ $total -ne 0 ]; then
+    echo "Issue merging with develop. please manually fix"
+    PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov"
+    SUBJECT="Problem updating feature/stable-nightly branch of GDASApp"
+    BODY=$stableroot/$datestr/output_stable_nightly
+    cat > $BODY << EOF
+Problem updating feature/stable-nightly branch of GDASApp. Please check $stableroot/$datestr/GDASApp
+
+EOF
+    mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
+  else
+    echo "Stable branch updated"
+  fi
 else
   # do nothing
   echo "Testing failed, stable branch will not be updated"
