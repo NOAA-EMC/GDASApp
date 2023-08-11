@@ -99,10 +99,12 @@ namespace gdasapp {
       backendParams.allocBytes = 1024*1024*50;  // no idea what this number should be
 
       // construct the output group(s)
-      ioda::Group grpFromFile = ioda::Engines::constructBackend(ioda::Engines::BackendNames::Hdf5File, backendParams);
+      ioda::Group grpFromFile
+        = ioda::Engines::constructBackend(ioda::Engines::BackendNames::Hdf5File, backendParams);
       const int numLocs = 1;
       ioda::NewDimensionScales_t newDims;
-      newDims.push_back(ioda::NewDimensionScale<int>("Location", numLocs, ioda::Unlimited, numLocs));
+      newDims.push_back(ioda::NewDimensionScale<int>("Location",
+                                                     numLocs, ioda::Unlimited, numLocs));
       ioda::ObsGroup og = ioda::ObsGroup::generate(grpFromFile, newDims);
 
       // create the output variables
@@ -112,7 +114,7 @@ namespace gdasapp {
       float_params.chunk = true;               // allow chunking
       float_params.compressWithGZIP();         // compress using gzip
       float_params.setFillValue<float>(-999);  // set the fill value to -999
-      ioda::Variable outVar = og.vars.createWithScales<float>(varname, {LocationVar}, float_params); 
+      ioda::Variable outVar = og.vars.createWithScales<float>(varname, {LocationVar}, float_params);
 
       // write to file
       std::vector<float> meanVec(numLocs);
