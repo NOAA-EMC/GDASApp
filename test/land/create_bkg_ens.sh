@@ -38,12 +38,12 @@ if [[ ${DAtype} == 'letkfoi_snow' ]]; then
         if [ -e $WORKDIR/mem${ens} ]; then
                 rm -rf $WORKDIR/mem${ens}
         fi
-        mkdir -p $WORKDIR/mem${ens}/RESTART
+        mkdir -p $WORKDIR/mem${ens}
         for tile in 1 2 3 4 5 6
         do
-            cp ${RSTDIR}/${FILEDATE}.sfc_data.tile${tile}.nc  ${WORKDIR}/mem${ens}/RESTART/${FILEDATE}.sfc_data.tile${tile}.nc
+            cp ${RSTDIR}/${FILEDATE}.sfc_data.tile${tile}.nc  ${WORKDIR}/mem${ens}/${FILEDATE}.sfc_data.tile${tile}.nc
         done
-        cp ${RSTDIR}/${FILEDATE}.coupler.res ${WORKDIR}/mem${ens}/RESTART/${FILEDATE}.coupler.res
+        cp ${RSTDIR}/${FILEDATE}.coupler.res ${WORKDIR}/mem${ens}/${FILEDATE}.coupler.res
     done
 
 
