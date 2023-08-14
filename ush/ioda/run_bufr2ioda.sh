@@ -14,16 +14,17 @@ if [[ $# -ne 5 ]] ; then
     exit 1
 fi
 
+# some of these need exported to be picked up by the python script below
 # input parameters
 CDATE=${CDATE:-$1}
-RUN=${RUN:-$2}
-DMPDIR=${DMPDIR:-$3}
+export RUN=${RUN:-$2}
+export DMPDIR=${DMPDIR:-$3}
 config_template_dir=${config_template_dir:-$4}
-COM_OBS=${COM_OBS:-$5}
+export COM_OBS=${COM_OBS:-$5}
 
 # derived parameters
-PDY=$(echo $CDATE | cut -c1-8)
-cyc=$(echo $CDATE | cut -c9-10)
+export PDY=$(echo $CDATE | cut -c1-8)
+export cyc=$(echo $CDATE | cut -c9-10)
 
 # get gdasapp root directory
 readonly DIR_ROOT=$(cd "$(dirname "$(readlink -f -n "${BASH_SOURCE[0]}" )" )/../.." && pwd -P)
@@ -39,6 +40,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# add to pythonpath the necessary libraries
+PYIODALIB=`echo $DIR_ROOT/build/lib/python3.?`
+export PYTHONPATH=${PYIODALIB}:${PYTHONPATH}
+
 #---------------------------------------------------------
 # for some BUFR files, we will use python scripts
 # and for others, bufr2ioda.x
@@ -49,7 +54,6 @@ fi
 BUFR_py="satwind_amv_goes"
 
 for obtype in $BUFR_py; do
-  cd $COM_OBS # TEMPORARY
   # this loop assumes that there is a python script and template with the same name
   echo "Processing ${obtype}..."
 
@@ -57,7 +61,7 @@ for obtype in $BUFR_py; do
   ${BUFRJSONGEN} -t ${config_template_dir}/bufr2ioda_${obtype}.json -o ${COM_OBS}/${obtype}_${PDY}${cyc}.json
 
   # now use the converter script for the ob type
-  python3 $USH_IODA/bufr2ioda_${obtype}.py
+  python3 $USH_IODA/bufr2ioda_${obtype}.py ${COM_OBS}/${obtype}_${PDY}${cyc}.json
 
   # check if converter was successful
   if [ $? == 0 ]; then
