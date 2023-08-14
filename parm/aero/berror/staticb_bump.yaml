@@ -5,61 +5,19 @@ saber central block:
     io:
       data directory: &staticb_aero_dir $(DATA)/berror
       files prefix: 'nicas_aero'
-      alias:
-      - in code: mass_fraction_of_sulfate_in_air
-        in file: mass_fraction_of_sulfate_in_air-mass_fraction_of_sulfate_in_air
-      - in code: mass_fraction_of_hydrophobic_black_carbon_in_air
-        in file: mass_fraction_of_hydrophobic_black_carbon_in_air-mass_fraction_of_hydrophobic_black_carbon_in_air
-      - in code: mass_fraction_of_hydrophilic_black_carbon_in_air
-        in file: mass_fraction_of_hydrophilic_black_carbon_in_air-mass_fraction_of_hydrophilic_black_carbon_in_air
-      - in code: mass_fraction_of_hydrophobic_organic_carbon_in_air
-        in file: mass_fraction_of_hydrophobic_organic_carbon_in_air-mass_fraction_of_hydrophobic_organic_carbon_in_air
-      - in code: mass_fraction_of_hydrophilic_organic_carbon_in_air
-        in file: mass_fraction_of_hydrophilic_organic_carbon_in_air-mass_fraction_of_hydrophilic_organic_carbon_in_air
-      - in code: mass_fraction_of_dust001_in_air
-        in file: mass_fraction_of_dust001_in_air-mass_fraction_of_dust001_in_air
-      - in code: mass_fraction_of_dust002_in_air
-        in file: mass_fraction_of_dust002_in_air-mass_fraction_of_dust002_in_air
-      - in code: mass_fraction_of_dust003_in_air
-        in file: mass_fraction_of_dust003_in_air-mass_fraction_of_dust003_in_air
-      - in code: mass_fraction_of_dust004_in_air
-        in file: mass_fraction_of_dust004_in_air-mass_fraction_of_dust004_in_air
-      - in code: mass_fraction_of_dust005_in_air
-        in file: mass_fraction_of_dust005_in_air-mass_fraction_of_dust005_in_air
-      - in code: mass_fraction_of_sea_salt001_in_air
-        in file: mass_fraction_of_sea_salt001_in_air-mass_fraction_of_sea_salt001_in_air
-      - in code: mass_fraction_of_sea_salt002_in_air
-        in file: mass_fraction_of_sea_salt002_in_air-mass_fraction_of_sea_salt002_in_air
-      - in code: mass_fraction_of_sea_salt003_in_air
-        in file: mass_fraction_of_sea_salt003_in_air-mass_fraction_of_sea_salt003_in_air
-      - in code: mass_fraction_of_sea_salt004_in_air
-        in file: mass_fraction_of_sea_salt004_in_air-mass_fraction_of_sea_salt004_in_air
     drivers:
       multivariate strategy: univariate
       read local nicas: true
-    input fields:
-    - parameter: universe radius
-      file:
-        filetype: fms restart
-        datetime: '2016-06-30T00:00:00Z'
-        set datetime on read: true
-        psinfile: true
-        datapath: *staticb_aero_dir
-        prefix: '20160630.000000'
-        filename_core: cor_rh.fv_core.res.nc
-        filename_trcr: cor_rh.fv_tracer.res.nc
-        filename_cplr: cor_rh.coupler.res
   saber outer blocks:
   - saber block name: StdDev
-    input fields:
-    - parameter: StdDev
-      file:
-        filetype: fms restart
+    read: 
+      model file: 
         datetime: '2016-06-30T00:00:00Z'
         set datetime on read: true
+        filetype: fms restart
         psinfile: true
-        datapath: *staticb_aero_dir
-        prefix: '20160630.000000'
-        filename_core: stddev.fv_core.res.nc
-        filename_trcr: stddev.fv_tracer.res.nc
-        filename_cplr: stddev.coupler.res
+        datapath: Data/staticb_aero/
+        filename_core: 20160630.000000.stddev.fv_core.res.nc
+        filename_trcr: 20160630.000000.stddev.fv_tracer.res.nc
+        filename_cplr: 20160630.000000.stddev.coupler.res
+        date: '2016-06-30T00:00:00Z'

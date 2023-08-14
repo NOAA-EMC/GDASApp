@@ -30,3 +30,8 @@ set_tests_properties(test_gdasapp_land_letkfoi_snowda
     PROPERTIES
     ENVIRONMENT "GDASAPP_TESTDATA=$ENV{GDASAPP_TESTDATA}")
 
+# Test convert BUFR to IODA
+add_test(NAME test_gdasapp_convert_bufr_adpsfc_snow
+         COMMAND ${PROJECT_SOURCE_DIR}/test/land/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} bufr_adpsfc_snow
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+

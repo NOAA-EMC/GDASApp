@@ -30,8 +30,8 @@ source "${HOMEgfs}/ush/preamble.sh"
 source "${HOMEgfs}/parm/config/gfs/config.com"
 
 # Set python path for workflow utilities and tasks
-pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
-PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${pygwPATH}"
+wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow/src"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
 # Detemine machine from config.base
@@ -101,8 +101,10 @@ done
 
 
 # Execute j-job
-if [ $machine = 'HERA' -o $machine = 'ORION' ]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
+if [ $machine = 'HERA' ]; then
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
+elif [ $machine = 'ORION' ]; then
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --partition=orion --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
 fi

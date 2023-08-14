@@ -25,8 +25,8 @@ export NMEM_ENS=0
 export ACCOUNT=da-cpu
 
 # Set python path for workflow utilities and tasks
-pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
-PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${pygwPATH}"
+wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow/src"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
 # Detemine machine from config.base
@@ -45,8 +45,10 @@ elif [ $machine = 'ORION' ]; then
 fi
 
 # Execute j-job
-if [ $machine = 'HERA' -o $machine = 'ORION' ]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=debug --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FINALIZE
+if [ $machine = 'HERA' ]; then
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FINALIZE
+elif [ $machine = 'ORION' ]; then
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --partition=orion --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FINALIZE
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FINALIZE
 fi

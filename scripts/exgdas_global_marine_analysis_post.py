@@ -23,7 +23,7 @@ import glob
 import shutil
 import logging
 from datetime import datetime, timedelta
-from pygw.file_utils import FileHandler
+from wxflow import FileHandler
 
 
 # TODO: Move this somewhere else?
@@ -51,6 +51,7 @@ bcyc = str((int(cyc) - 3) % 24).zfill(2)
 gcyc = str((int(cyc) - 6) % 24).zfill(2)  # previous cycle
 bdatedt = datetime.strptime(cdate, '%Y%m%d%H') - timedelta(hours=3)
 bdate = datetime.strftime(bdatedt, '%Y-%m-%dT%H:00:00Z')
+mdate = datetime.strftime(datetime.strptime(cdate, '%Y%m%d%H'), '%Y-%m-%dT%H:00:00Z')
 
 post_file_list = []
 
@@ -59,15 +60,15 @@ post_file_list.append([os.path.join(anl_dir, 'inc.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ocninc.nc')])
 
 # Copy of the diagonal of the background error for the cycle
-post_file_list.append([os.path.join(anl_dir, f'ocn.bkgerr_stddev.incr.{bdate}.nc'),
+post_file_list.append([os.path.join(anl_dir, 'static_ens', f'ocn.orig_ens_stddev.incr.{bdate}.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ocn.bkgerr_stddev.nc')])
-post_file_list.append([os.path.join(anl_dir, f'ice.bkgerr_stddev.incr.{bdate}.nc'),
+post_file_list.append([os.path.join(anl_dir, 'static_ens', f'ice.orig_ens_stddev.incr.{bdate}.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ice.bkgerr_stddev.nc')])
 
 # Copy the ice and ocean increments
-post_file_list.append([os.path.join(anl_dir, 'Data', f'ocn.3dvarfgat_pseudo.incr.{bdate}.nc'),
+post_file_list.append([os.path.join(anl_dir, 'Data', f'ocn.3dvarfgat_pseudo.incr.{mdate}.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ocn.incr.nc')])
-post_file_list.append([os.path.join(anl_dir, 'Data', f'ice.3dvarfgat_pseudo.incr.{bdate}.nc'),
+post_file_list.append([os.path.join(anl_dir, 'Data', f'ice.3dvarfgat_pseudo.incr.{mdate}.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ice.incr.nc')])
 
 # Copy DA grid (computed for the start of the window)
@@ -75,9 +76,9 @@ post_file_list.append([os.path.join(anl_dir, 'soca_gridspec.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{bcyc}z.ocngrid.nc')])
 
 # Copy the analysis at the start of the window
-post_file_list.append([os.path.join(anl_dir, 'Data', f'ocn.3dvarfgat_pseudo.an.{bdate}.nc'),
+post_file_list.append([os.path.join(anl_dir, 'Data', f'ocn.3dvarfgat_pseudo.an.{mdate}.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ocnana.nc')])
-post_file_list.append([os.path.join(anl_dir, 'Data', f'ice.3dvarfgat_pseudo.an.{bdate}.nc'),
+post_file_list.append([os.path.join(anl_dir, 'Data', f'ice.3dvarfgat_pseudo.an.{mdate}.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.iceana.nc')])
 
 # Copy the CICE analysis restart

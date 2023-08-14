@@ -8,8 +8,10 @@ obs space:
     engine:
       type: H5File
       obsfile: !ENV ${DATA}/diags/temp_profile_fnmoc.${PDY}${cyc}.nc4
-  simulated variables: [sea_water_temperature]
+  simulated variables: [waterTemperature]
+  io pool:
+    max pool size: 1
 obs operator:
-  name: Identity
+  name: InsituTemperature
 obs error:
   covariance model: diagonal

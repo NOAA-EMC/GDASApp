@@ -18,8 +18,8 @@ pyioda_lib = Path(os.path.join(jedilib, pyver, 'pyioda')).resolve()
 pyiodaconv_lib = Path(os.path.join(jedilib, 'pyiodaconv')).resolve()
 sys.path.append(str(pyioda_lib))
 sys.path.append(str(pyiodaconv_lib))
-import ioda_conv_engines as iconv
-from orddicts import DefaultOrderedDict
+import pyiodaconv.ioda_conv_engines as iconv
+from pyiodaconv.orddicts import DefaultOrderedDict
 
 __all__ = ['concatenate_ioda']
 

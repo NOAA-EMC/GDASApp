@@ -22,6 +22,7 @@ import os
 import sys
 import yaml
 import glob
+import copy
 import dateutil.parser as dparser
 import f90nml
 import shutil
@@ -32,10 +33,7 @@ import pytz
 from netCDF4 import Dataset
 import xarray as xr
 import numpy as np
-from pygw.attrdict import AttrDict
-from pygw.template import Template, TemplateConstants
-from pygw.yaml_file import YAMLFile
-from pygw.file_utils import FileHandler
+from wxflow import (AttrDict, Template, TemplateConstants, YAMLFile, FileHandler)
 
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -171,7 +169,8 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
                     'ocn_filename': ocn_filename,
                     'ice_filename': agg_ice_filename,
                     'read_from_file': 1,
-                    'remap_filename': './bkg/'+ocn_filename_ic}
+                    '#remap_filename': './bkg/'+ocn_filename_ic}  # TODO: Remapping bug in soca. Switch to z*
+
         bkg_date = bkg_date + timedelta(hours=dt_pseudo)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
 
@@ -183,22 +182,38 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
     FileHandler({'copy': bkg_list_src_dst}).sync()
 
 
+def nearest_date(strings, input_date):
+    closest_str = ""
+    closest_diff = float("inf")
+    for string in strings:
+        file_date = dparser.parse(os.path.basename(string), fuzzy=True)
+        file_date = file_date.replace(year=input_date.year)
+        diff = abs((file_date - input_date).total_seconds())
+        if diff < closest_diff:
+            closest_str = string
+            closest_diff = diff
+
+    return closest_str
+
+
 def find_bkgerr(input_date, domain):
     """
     Find the std. dev. files that are the closest to the DA window
     """
     bkgerror_dir = os.path.join(os.getenv('SOCA_INPUT_FIX_DIR'), 'bkgerr', 'stddev')
     files = glob.glob(os.path.join(bkgerror_dir, domain+'.ensstddev.fc.*.nc'))
-    closest_file = ""
-    closest_diff = float("inf")
-    for file in files:
-        file_date = dparser.parse(os.path.basename(file), fuzzy=True)
-        file_date = file_date.replace(year=input_date.year)
-        diff = abs((file_date - input_date).total_seconds())
-        if diff < closest_diff:
-            closest_file = file
-            closest_diff = diff
-    return closest_file
+
+    return nearest_date(files, input_date)
+
+
+def find_clim_ens(input_date):
+    """
+    Find the clim. ens. that is the closest to the DA window
+    """
+    ens_clim_dir = os.path.join(os.getenv('SOCA_INPUT_FIX_DIR'), 'bkgerr', 'ens')
+    dirs = glob.glob(os.path.join(ens_clim_dir, '*'))
+
+    return nearest_date(dirs, input_date)
 
 
 ################################################################################
@@ -211,16 +226,19 @@ anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
 
 # create analysis directories
-diags = os.path.join(anl_dir, 'diags')   # output dir for soca DA obs space
-obs_in = os.path.join(anl_dir, 'obs')    # input      "           "
-bkg_dir = os.path.join(anl_dir, 'bkg')   # ice and ocean backgrounds
-anl_out = os.path.join(anl_dir, 'Data')  # output dir for soca DA
-FileHandler({'mkdir': [anl_dir, diags, obs_in, bkg_dir, anl_out]}).sync()
+diags = os.path.join(anl_dir, 'diags')            # output dir for soca DA obs space
+obs_in = os.path.join(anl_dir, 'obs')             # input      "           "
+bkg_dir = os.path.join(anl_dir, 'bkg')            # ice and ocean backgrounds
+anl_out = os.path.join(anl_dir, 'Data')           # output dir for soca DA
+static_ens = os.path.join(anl_dir, 'static_ens')  # clim. ens.
+FileHandler({'mkdir': [anl_dir, diags, obs_in, bkg_dir, anl_out, static_ens]}).sync()
 
 # Variables of convenience
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
+window_middle = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')
 window_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H') - half_assim_freq
 window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
+window_middle_iso = window_middle.strftime('%Y-%m-%dT%H:%M:%SZ')
 fcst_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')
 RUN = os.getenv('RUN')
 cyc = os.getenv('cyc')
@@ -240,6 +258,7 @@ envconfig = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
              'r2d2_obs_dump': os.getenv('R2D2_OBS_DUMP'),
              'r2d2_obs_db': os.getenv('R2D2_OBS_DB'),
              'ATM_WINDOW_BEGIN': window_begin_iso,
+             'ATM_WINDOW_MIDDLE': window_middle_iso,
              'ATM_WINDOW_LENGTH': f"PT{os.getenv('assim_freq')}H"}
 stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'stage.yaml'))
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
@@ -260,7 +279,12 @@ for obs_file in obs_files:
     logging.info(f"******* {obs_file}")
     obs_src = os.path.join(os.getenv('COM_OBS'), obs_file)
     obs_dst = os.path.join(os.path.abspath(obs_in), obs_file)
-    obs_list.append([obs_src, obs_dst])
+    if os.path.exists(obs_src):
+        logging.info(f"******* fetching {obs_file}")
+        obs_list.append([obs_src, obs_dst])
+    else:
+        logging.info(f"******* {obs_file} is not in the database")
+
 FileHandler({'copy': obs_list}).sync()
 
 ################################################################################
@@ -281,6 +305,23 @@ for domain in ['ocn', 'ice']:
 FileHandler({'copy': bkgerr_list}).sync()
 
 ################################################################################
+# stage static ensemble
+
+logging.info(f"---------------- Stage climatological ensemble")
+clim_ens_member_list = []
+clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
+clim_ens_size = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
+os.environ['CLIM_ENS_SIZE'] = str(clim_ens_size)
+
+for domain in ['ocn', 'ice']:
+    for mem in range(1, clim_ens_size+1):
+        fname = domain+"."+str(mem)+".nc"
+        fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
+        fname_out = os.path.abspath(os.path.join(static_ens, fname))
+        clim_ens_member_list.append([fname_in, fname_out])
+FileHandler({'copy': clim_ens_member_list}).sync()
+
+################################################################################
 # prepare JEDI yamls
 
 logging.info(f"---------------- Generate JEDI yaml files")
@@ -288,6 +329,7 @@ logging.info(f"---------------- Generate JEDI yaml files")
 ################################################################################
 # copy yaml for grid generation
 
+logging.info(f"---------------- generate gridgen.yaml")
 gridgen_yaml_src = os.path.abspath(os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'))
 gridgen_yaml_dst = os.path.abspath(os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
 FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
@@ -296,6 +338,7 @@ FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
 ################################################################################
 # generate YAML file for parametric diag of B
 
+logging.info(f"---------------- generate parametric_stddev_b.yaml")
 berr_yaml = os.path.join(anl_dir, 'parametric_stddev_b.yaml')
 berr_yaml_template = os.path.join(gdas_home,
                                   'parm',
@@ -308,15 +351,66 @@ config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHE
 config.save(berr_yaml)
 
 ################################################################################
+# generate YAMLS file for diag of clim. ens. B
+berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
+
+logging.info(f"---------------- generate soca_clim_ens_moments.yaml")
+berr_yaml = os.path.join(anl_dir, 'soca_clim_ens_moments.yaml')
+berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_clim_ens_moments.yaml')
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config.save(berr_yaml)
+
+logging.info(f"---------------- generate soca_postproc_stddev.yaml")
+berr_yaml = os.path.join(anl_dir, 'soca_postproc_stddev.yaml')
+berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_postproc_stddev.yaml')
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config.save(berr_yaml)
+
+logging.info(f"---------------- generate soca_clim_ens_perts.yaml")
+berr_yaml = os.path.join(anl_dir, 'soca_clim_ens_perts.yaml')
+berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_clim_ens_perts.yaml')
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+config.save(berr_yaml)
+
+logging.info(f"---------------- generate soca_apply_steric.yaml")
+berr_yaml = os.path.join(anl_dir, 'soca_apply_steric.yaml')
+berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_apply_steric.yaml')
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+config.save(berr_yaml)
+
+logging.info(f"---------------- generate soca_ensweights.yaml")
+berr_yaml = os.path.join(anl_dir, 'soca_ensweights.yaml')
+berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_ensweights.yaml')
+config = YAMLFile(path=berr_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config.save(berr_yaml)
+
+################################################################################
 # copy yaml for decorrelation length scales
 
+logging.info(f"---------------- generate soca_setcorscales.yaml")
 corscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setcorscales.yaml')
 corscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml')
 FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
 
 ################################################################################
+# copy yaml for localization length scales
+
+logging.info(f"---------------- generate soca_setlocscales.yaml")
+locscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setlocscales.yaml')
+locscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setlocscales.yaml')
+FileHandler({'copy': [[locscales_yaml_src, locscales_yaml_dst]]}).sync()
+
+################################################################################
 # generate yaml for bump/nicas (used for correlation and/or localization)
 
+logging.info(f"---------------- generate BUMP/NICAS yamls")
 # TODO (Guillaume): move the possible vars somewhere else
 vars3d = ['tocn', 'socn', 'uocn', 'vocn', 'chl', 'biop']
 vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
@@ -337,8 +431,7 @@ config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHE
 config.save(bump_yaml)
 
 # 3d bump yaml, 1 yaml per variable
-# get list of DA variables
-soca_vars = os.environ.get("SOCA_VARS").split(",")
+soca_vars = ['tocn', 'socn', 'uocn', 'vocn']
 for v in soca_vars:
     logging.info(f"creating the yaml to initialize bump for {v}")
     if v in vars2d:
@@ -360,9 +453,24 @@ for v in soca_vars:
     config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
     config.save(bump_yaml)
 
+# localization bump yaml
+bumpdir = 'bump'
+ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
+bump_yaml = os.path.join(anl_dir, 'soca_bump_loc.yaml')
+bump_yaml_template = os.path.join(gdas_home,
+                                  'parm',
+                                  'soca',
+                                  'berror',
+                                  'soca_bump_loc.yaml')
+config = YAMLFile(path=bump_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+config.save(bump_yaml)
+
 ################################################################################
 # generate yaml for soca_var
 
+logging.info(f"---------------- generate var.yaml")
 var_yaml = os.path.join(anl_dir, 'var.yaml')
 var_yaml_template = os.path.join(gdas_home,
                                  'parm',
@@ -382,6 +490,7 @@ if 'SABER_BLOCKS_YAML' in os.environ and os.environ['SABER_BLOCKS_YAML']:
 else:
     logging.info(f"using default SABER blocks yaml")
     os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
+os.environ['CLIM_ENS_SIZE'] = str(clim_ens_size)
 
 # substitute templated variables in the var config
 logging.info(f"{config}")
@@ -395,8 +504,10 @@ varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PA
 ufsda.yamltools.save_check(varconfig.as_dict(), target=var_yaml, app='var')
 
 ################################################################################
+# Prepare the yamls for the "checkpoint" jjob
 # prepare yaml and CICE restart for soca to cice change of variable
 
+logging.info(f"---------------- generate soca to cice yamls")
 # make a copy of the CICE6 restart
 rst_date = fcst_begin.strftime('%Y%m%d.%H%M%S')
 ice_rst = os.path.join(os.getenv('COM_ICE_RESTART_PREV'), f'{rst_date}.cice_model.res.nc')
@@ -409,8 +520,8 @@ soca2cice_cfg = {
     "template": "",
     "output": "",
     "config": {
-        "OCN_ANA": "./Data/ocn.3dvarfgat_pseudo.an."+window_begin_iso+".nc",
-        "ICE_ANA": "./Data/ice.3dvarfgat_pseudo.an."+window_begin_iso+".nc",
+        "OCN_ANA": "./Data/ocn.3dvarfgat_pseudo.an."+window_middle_iso+".nc",
+        "ICE_ANA": "./Data/ice.3dvarfgat_pseudo.an."+window_middle_iso+".nc",
         "ICE_RST": ice_rst_ana,
         "FCST_BEGIN": fcst_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
     }
@@ -422,6 +533,14 @@ for varchgyaml in varchgyamls:
     # TODO: use YAMLFile instead
     yaml.dump(soca2cice_cfg, f, sort_keys=False, default_flow_style=False)
     ufsda.genYAML.genYAML('tmp.yaml', output=varchgyaml)
+
+# prepare yaml for soca to MOM6 IAU increment
+logging.info(f"---------------- generate soca to MOM6 IAU yaml")
+socaincr2mom6_yaml = os.path.join(anl_dir, 'socaincr2mom6.yaml')
+socaincr2mom6_yaml_template = os.path.join(gdas_home, 'parm', 'soca', 'variational', 'socaincr2mom6.yaml')
+s2mconfig = YAMLFile(path=socaincr2mom6_yaml_template)
+s2mconfig = Template.substitute_structure(s2mconfig, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+s2mconfig.save(socaincr2mom6_yaml)
 
 ################################################################################
 # Copy initial condition

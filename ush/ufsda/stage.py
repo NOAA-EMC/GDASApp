@@ -12,7 +12,7 @@ import ufsda
 import logging
 import glob
 import numpy as np
-from pygw.yaml_file import YAMLFile, parse_yaml, parse_j2yaml
+from wxflow import YAMLFile, parse_yaml, parse_j2yaml
 import ufsda.soca_utils
 
 __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'background_ens', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
@@ -63,11 +63,11 @@ def gdas_fix(input_fix_dir, working_dir, config):
                              os.path.join(config['fv3jedi_fix_dir'], 'field_table'))
     # link fieldmetadata
     # Note that the required data will be dependent on input file type (restart vs history, etc.)
-    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'fv3jedi',
-                                          'fieldmetadata', 'gfs-restart.yaml'),
-                             os.path.join(config['fv3jedi_fieldmetadata_dir'], 'gfs-restart.yaml'))
+    gdasapp_parm = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'parm'))
+    ufsda.disk_utils.symlink(os.path.join(gdasapp_parm, 'io', 'fv3jedi_fieldmetadata_restart.yaml'),
+                             os.path.join(config['fv3jedi_fieldmetadata_dir'], 'fv3jedi_fieldmetadata_restart.yaml'))
     # link CRTM coeff dir
-    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'crtm', '2.3.0'),
+    ufsda.disk_utils.symlink(os.path.join(input_fix_dir, 'crtm', '2.4.0'),
                              config['CRTM_COEFF_DIR'])
 
 

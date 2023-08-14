@@ -6,11 +6,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)adpsfc_snow_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)adpsfc_snow.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_adpsfc_snow_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_adpsfc_snow.nc4
   simulated variables: [totalSnowDepth]
 obs operator:
   name: Composite
@@ -86,6 +86,12 @@ obs filters:
       damping_factor_1: 1.0
       damping_factor_2: 1.0
       background_error_group: BkgError
+  - filter: Perform Action
+    filter variables:
+    - name: totalSnowDepth
+    action:
+      name: assign error
+      error parameter: 40.0
   - filter: Variable Assignment
     assignments:
     - name: GrossErrorProbability/totalSnowDepth

@@ -1,16 +1,8 @@
 cost function:
-  cost type: 4D-Var
+  cost type: 3D-FGAT
   window begin: '{{ATM_WINDOW_BEGIN}}'
   window length: $(ATM_WINDOW_LENGTH)
-  analysis variables: &soca_ana_vars  [cicen, hicen, hsnon, socn, tocn, ssh]
-#  variable change:
-#    variable change name: Ana2Model
-#    rotate:
-#      u: []
-#      v: []
-#    log:
-#      var: []
-#    output variables: *soca_ana_vars
+  analysis variables: &soca_ana_vars  [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
 
   geometry:
     mom6_input_nml: mom_input.nml
@@ -19,7 +11,6 @@ cost function:
   model:
     name: PseudoModel
     tstep: PT3H
-    state variables: &soca_model_vars [cicen, hicen, hsnon, socn, tocn, ssh, hocn, mld, layer_depth]
     states: !INC ${BKG_LIST}
 
   background:
@@ -28,7 +19,8 @@ cost function:
     ocn_filename: MOM.res.nc
     ice_filename: cice.res.nc
     date: '{{ATM_WINDOW_BEGIN}}'
-    state variables: *soca_model_vars
+    state variables: &soca_model_vars [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh, hocn, mld, layer_depth]
+
   background error: !INC ${SABER_BLOCKS_YAML}
 
   observations: !INC ${OBS_LIST}
@@ -40,23 +32,10 @@ variational:
   - geometry:
       mom6_input_nml: mom_input.nml
       fields metadata: ./fields_metadata.yaml
-    linear model:
-      name: Identity
-      increment variables: *soca_ana_vars
-      variable change: Identity
-      tstep: PT3H
     ninner: !ENV ${SOCA_NINNER}
     gradient norm reduction: 1e-10
-    test: on
     diagnostics:
       departures: ombg
-    online diagnostics:
-      write increment: true
-      increment:
-        datadir: Data
-        date: '{{ATM_WINDOW_BEGIN}}'
-        exp: iter1
-        type: incr
 
 minimizer:
   algorithm: RPCG
@@ -65,6 +44,8 @@ output:
   datadir: Data
   exp: 3dvarfgat_pseudo
   type: an
+  frequency: PT3H # can only writes out the analysis at the middle of the window
+                  # when using 3D-FGAT as cost function
 
 final:
   diagnostics:

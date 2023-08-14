@@ -26,15 +26,15 @@ if [ "$machine" = "hera" ] ; then
     partition="hera"
     gdasfix="/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix"
 elif [ "$machine" = "orion" ]; then
-    partition="debug"
+    partition="orion"
     gdasfix="/work2/noaa/da/cmartin/GDASApp/fix"
 fi
 
 # Setup python path for workflow utilities and tasks
 export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
 echo $HOMEgfs
-pygwPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/pygw/src"
-PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${pygwPATH}"
+wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow/src"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
 # Create test run directory
@@ -75,7 +75,7 @@ config:
 job options:
   machine: ${machine}
   account: da-cpu
-  queue: debug
+  queue: batch
   partition: ${partition}
   walltime: '30:00'
   ntasks: 6

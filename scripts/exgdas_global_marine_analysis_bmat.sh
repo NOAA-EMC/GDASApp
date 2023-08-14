@@ -87,7 +87,7 @@ else
 fi
 
 ################################################################################
-# Prepare the diagonal of B
+# Prepare the diagonal of the parametric B
 shopt -s nullglob
 files=(ocn.bkgerr_stddev.incr.*.nc)
 echo $files
@@ -102,6 +102,60 @@ else
     fi
 fi
 shopt -u nullglob
+
+################################################################################
+# Write ensemble weights for the hybrid envar
+$APRUN_OCNANAL $JEDI_BIN/gdas_socahybridweights.x soca_ensweights.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+################################################################################
+# Compute the ens std. dev, ignore ssh variance
+# TODO (G): Implement what's below into one single oops application
+# 0 - Compute moments of original ensemble, used at the diag of the first
+#     component of the hybrid B
+# 1 - Ensemble perturbations:
+#       o Vertically Interpolate to the deterministic layers
+#       o Recenter around 0 to create an ensemble of perurbations
+# 2 - Filter members and apply the linear steric height balance to each members
+# 3 - Copy h from deterministic to unbalanced perturbations
+# 4 - Compute moments of converted ensemble perturbations
+
+# Compute ensemble moments
+clean_yaml soca_clim_ens_moments.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_ensmeanandvariance.x soca_clim_ens_moments.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+# Zero out std. dev of ssh to use the balance as a strong constraint
+# TODO: Apply the inverse of the balance
+clean_yaml soca_clim_ens_moments.yaml
+$APRUN_OCNANAL $JEDI_BIN/gdas_incr_handler.x soca_postproc_stddev.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+# Compute ensemble perturbations, vertically remap to cycle's vertical geometry
+clean_yaml soca_clim_ens_perts.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_ensrecenter.x soca_clim_ens_perts.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+# Vertical filtering of the 3D perturbations and recompute the steric height perturbation
+clean_yaml soca_apply_steric.yaml
+$APRUN_OCNANAL $JEDI_BIN/gdas_incr_handler.x soca_apply_steric.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
 
 ################################################################################
 # Correlation and Localization operators
@@ -120,33 +174,63 @@ fi
 
 ################################################################################
 # Set decorrelation scales for bump C
-$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml > soca_setcorscales.out 2>&1
+$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err
 fi
 
+################################################################################
+# Set localization scales for the hybrid en. var.
+$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setlocscales.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+################################################################################
+# Compute convolution coefs for C
 # TODO (G, C, R, ...): problem with ' character when reading yaml, removing from file for now
 # 2D C from bump
-yaml_bump2d=soca_bump2d.yaml
-clean_yaml $yaml_bump2d
-$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml_bump2d 2>$yaml_bump2d.err
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
-fi
-
-# 3D C from bump
-yaml_list=`ls soca_bump3d_*.yaml`
-for yaml in $yaml_list; do
-    clean_yaml $yaml
-    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_training.x $yaml 2>$yaml.err
+if false; then
+    # TODO: resurect this section when making use of bump 3D in the static B, skip for now
+    yaml_bump2d=soca_bump2d.yaml
+    clean_yaml $yaml_bump2d
+    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x $yaml_bump2d 2>$yaml_bump2d.err
     export err=$?; err_chk
     if [ $err -gt 0  ]; then
         exit $err
     fi
-done
-concatenate_bump 'bump3d'
+
+    # 3D C from bump
+    yaml_list=`ls soca_bump3d_*.yaml`
+    for yaml in $yaml_list; do
+        clean_yaml $yaml
+        $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x $yaml 2>$yaml.err
+        export err=$?; err_chk
+        if [ $err -gt 0  ]; then
+            exit $err
+        fi
+    done
+    concatenate_bump 'bump3d'
+fi
+
+################################################################################
+# Compute convolution coefs for L
+clean_yaml soca_bump_loc.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_bump_loc.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+################################################################################
+# Create ensemble of perturbations for the cycle
+
+# Use ensemble recenter with "zerocenter"
+
+# Apply inverse balance to perturbations, use deterministic background as trajectory
+
 
 ################################################################################
 set +x

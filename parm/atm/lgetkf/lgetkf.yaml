@@ -9,7 +9,7 @@ geometry:
   npx: $(npx_ges)
   npy: $(npy_ges)
   npz: $(npz_ges)
-  field metadata override: ./fv3jedi/gfs-restart.yaml
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 window begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
 window length: $(ATM_WINDOW_LENGTH)
 increment variables: [ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]

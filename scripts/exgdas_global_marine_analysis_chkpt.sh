@@ -55,10 +55,7 @@ EOF
                                                 --out "${mom6_iau_incr}" \
                                                 --nsst_yaml "nsst.yaml"
 else
-   ${HOMEgfs}/sorc/gdas.cd/ush/socaincr2mom6.py --incr "${soca_incr}" \
-                                                --bkg "${DATA}/INPUT/MOM.res.nc" \
-                                                --grid "${DATA}/soca_gridspec.nc" \
-                                                --out "${mom6_iau_incr}"
+   $APRUN_OCNANAL ${JEDI_BIN}/gdas_incr_handler.x socaincr2mom6.yaml
 fi
 export err=$?
 if [ $err -gt 0  ]; then

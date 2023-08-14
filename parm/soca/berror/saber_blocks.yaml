@@ -6,46 +6,77 @@ components:
       saber block name: ID
     # This will setup B = K D C_v C_h C_h^{T} C_v^{T} D K^{T}
     linear variable change:
-      input variables: &soca_vars  [cicen, hicen, hsnon, socn, tocn, ssh]
-      output variables: *soca_vars
+      input variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
+      output variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
       linear variable changes:
 
       - linear variable change name: HorizFiltSOCA
         niter: 5
-        scale_flow:  0.5
-        filter variables: [cicen, hicen, hsnon, socn, tocn, ssh]
+        filter variables: [cicen, socn, tocn, ssh]
 
       - linear variable change name: VertConvSOCA
-        Lz_min: 0.0
+        Lz_min: 10.0
         Lz_mld: 0
         Lz_mld_max: 1.0
         scale_layer_thick: 5
 
       - linear variable change name: BkgErrFILT
-        ocean_depth_min: 1000 # [m]
+        ocean_depth_min: 500 # [m]
         rescale_bkgerr: 1.0
-        efold_z: 4000.0       # [m]
+        efold_z: 1500.0       # [m]
 
       - linear variable change name: BkgErrSOCA
         read_from_file: 3
-        basename: ./
-        ocn_filename: 'ocn.bkgerr_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
-        ice_filename: 'ice.bkgerr_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
-        remap_filename: ./INPUT/MOM.res.nc
-        date: '{{ATM_WINDOW_BEGIN}}'
+        basename: ./static_ens/
+        ocn_filename: 'ocn.orig_ens_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
+        ice_filename: 'ice.orig_ens_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
+        #remap_filename: ./INPUT/MOM.res.nc
+        date: '{{ATM_WINDOW_MIDDLE}}'
         t_min: 0.1
-        t_max: 5.0
+        t_max: 10.0
         s_min: 0.1
-        s_max: 1.0
+        s_max: 10.0
         ssh_min: 0.0 # std ssh=0 => ssh balance applied as
         ssh_max: 0.0 #              strong constraint
         cicen_min: 0.1
         cicen_max: 0.5
-        hicen_min: 0.1
-        hicen_max: 1.0
+        hicen_min: 0.0
+        hicen_max: 0.0
+        standard deviation: true
 
       - linear variable change name: BalanceSOCA
         ksshts:
           nlayers: 10
   weight:
     value: 1.0
+- covariance:
+    covariance model: ensemble
+    members from template:
+      template:
+        read_from_file: 1
+        date: '{{ATM_WINDOW_MIDDLE}}'
+        basename: ./static_ens/
+        ocn_filename: 'ocn.pert.steric.%mem%.{{ATM_WINDOW_BEGIN}}.nc'
+        ice_filename: 'ice.pert.ens.%mem%.{{ATM_WINDOW_BEGIN}}.PT0S.nc'
+        state variables: [tocn, socn, ssh, uocn, vocn, cicen, hicen, hsnon]
+      pattern: '%mem%'
+      nmembers: ${CLIM_ENS_SIZE}
+    localization:
+      localization method: SABER
+      saber central block:
+        saber block name: BUMP_NICAS
+        read:
+          io:
+            data directory: bump
+          drivers:
+            multivariate strategy: duplicated
+            read local nicas: true
+          model:
+            do not cross mask boundaries: false
+
+  weight:
+    read_from_file: 3
+    basename: ./
+    ocn_filename: 'ocn.ens_weights.incr.{{ATM_WINDOW_MIDDLE}}.nc'
+    ice_filename: 'ice.ens_weights.incr.{{ATM_WINDOW_MIDDLE}}.nc'
+    date: '{{ATM_WINDOW_MIDDLE}}'

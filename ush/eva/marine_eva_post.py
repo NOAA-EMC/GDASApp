@@ -23,22 +23,21 @@ def marine_eva_post(inputyaml, outputdir, diagdir):
         logging.info(f'Loading input YAML from {inputyaml}')
     except Exception as e:
         logging.error(f'Error occurred when attempting to load: {inputyaml}, error: {e}')
-    for diagnostic in input_yaml_dict['diagnostics']:
-        for dataset in diagnostic['data']['datasets']:
-            newfilenames = []
-            for filename in dataset['filenames']:
-                newfilename = os.path.join(diagdir, os.path.basename(filename))
-                newfilenames.append(newfilename)
-            dataset['filenames'] = newfilenames
-        for graphic in diagnostic['graphics']:
-            # this assumes that there is only one variable, or that the
-            # variables are all the same
-            variable = graphic['batch figure']['variables'][0]
-            for plot in graphic['plots']:
-                for layer in plot['layers']:
-                    if layer['type'] == 'MapScatter':
-                        layer['vmin'] = vminmax[variable]['vmin']
-                        layer['vmax'] = vminmax[variable]['vmax']
+    for dataset in input_yaml_dict['datasets']:
+        newfilenames = []
+        for filename in dataset['filenames']:
+            newfilename = os.path.join(diagdir, os.path.basename(filename))
+            newfilenames.append(newfilename)
+        dataset['filenames'] = newfilenames
+    for graphic in input_yaml_dict['graphics']:
+        # this assumes that there is only one variable, or that the
+        # variables are all the same
+        variable = graphic['batch figure']['variables'][0]
+        for plot in graphic['plots']:
+            for layer in plot['layers']:
+                if layer['type'] == 'MapScatter':
+                    layer['vmin'] = vminmax[variable]['vmin']
+                    layer['vmax'] = vminmax[variable]['vmax']
 
     # first, let us prepend some comments that tell someone this output YAML was generated
     now = datetime.datetime.now()

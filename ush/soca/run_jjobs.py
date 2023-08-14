@@ -15,23 +15,37 @@ components_short = {'ocean': 'ocn', 'ice': 'ice'}  # Short names for components
 
 class JobCard:
 
-    def __init__(self, scriptname, config):
+    def __init__(self, scriptname, config, ctest=False):
         """
         Constructor for the JobCard class.
         :param scriptname: name of the script file
         :param config: dictionary containing configuration information
         """
         self.name = scriptname
+        self.config = config
+        self.machine = config['machine']
         self.f = open(self.name, "w")
         self.f.write("#!/usr/bin/env bash\n")
+        self.f.write(f"# Running on {self.machine} \n")
+
+        # Exit early if not testing a gw jjob
+        print(config)
+        if ctest:
+            self.header()
+            # Hard coded to one task for now
+            mpiexec = "mpirun -np 1"
+            if self.machine != "container":
+                mpiexec = "srun -n 1"
+            command = f"{mpiexec} {config['ctest command']['executable']} {config['ctest command']['yaml input']}"
+            self.f.write(f"{command} \n")
+            return
+
         self.pslot = config['gw environement']['experiment identifier']['PSLOT']
         self.homegfs = config['gw environement']['experiment identifier']['HOMEgfs']
         self.stmp = config['gw environement']['working directories']['STMP']
         self.rotdirs = config['gw environement']['working directories']['ROTDIRS']
         self.rotdir = os.path.join(self.rotdirs, self.pslot)
         self.expdirs = config['gw environement']['working directories']['EXPDIRS']
-        self.config = config
-        self.machine = config['machine']
 
         # get cycle info
         self.PDY = config['gw environement']['cycle info']['PDY']
@@ -81,7 +95,7 @@ class JobCard:
         self.f.write(f"export CDATE='{CDATE}'\n")
 
         # Add to python environement
-        self.f.write("PYTHONPATH=${HOMEgfs}/ush/python/pygw/src:${PYTHONPATH}\n")
+        self.f.write("PYTHONPATH=${HOMEgfs}/ush/python/wxflow/src:${PYTHONPATH}\n")
 
     def setupexpt(self):
         """
@@ -138,8 +152,10 @@ class JobCard:
         """
         if self.machine != "container":
             if jjob in ENVS:
-                # TODO: This does nothing for now. Make the conda activate work!
-                self.f.write(f"# conda activate {ENVS[jjob]} \n")
+                # set +/-u is a workaround for an apparent conda bug
+                self.f.write(f"set +u \n")
+                self.f.write(f"conda activate {ENVS[jjob]} \n")
+                self.f.write(f"set -u \n")
 
     def precom(self, com, tmpl):
         cmd = f"RUN={self.RUN} YMD={self.gPDY} HH={self.gcyc} generate_com -xr {com}:{tmpl}"
@@ -233,6 +249,7 @@ def main():
                                      epilog=os.linesep.join(epilog))
     parser.add_argument("-y", "--yaml", required=True, help="The YAML file")
     parser.add_argument("-s", "--skip", action='store_true', default=False, help="Skip setup_expt.sh if present")
+    parser.add_argument("-c", "--ctest", default=False, help="If true, the test is not a jjob (default)")
     args = parser.parse_args()
 
     # Get the experiment configuration
@@ -248,13 +265,19 @@ def main():
         setup_card.close()     # flush to file, close and make it executable
         setup_card.execute()   # run the setup card
 
-    # Write the j-jobs card
-    run_card = JobCard("run_jjobs.sh", exp_config)
-    run_card.fixconfigs()                # over-write some of the config variables
-    run_card.header()                    # prepare a machine dependent header (SLURM or nothing)
-    run_card.export_env_vars_script()
-    run_card.copy_bkgs()
-    run_card.jjobs()
+    if args.ctest:
+        # Write the ctest card
+        run_card = JobCard("run_jjobs.sh", exp_config, ctest=True)
+    else:
+        # Write the j-jobs card
+        run_card = JobCard("run_jjobs.sh", exp_config)
+        run_card.fixconfigs()                # over-write some of the config variables
+        run_card.header()                    # prepare a machine dependent header (SLURM or nothing)
+        run_card.export_env_vars_script()
+        run_card.copy_bkgs()
+        run_card.jjobs()
+        run_card.close()
+
     run_card.close()
 
     # Submit/Run the j-jobs card

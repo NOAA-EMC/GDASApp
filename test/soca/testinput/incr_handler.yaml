@@ -1,0 +1,54 @@
+geometry:
+  mom6_input_nml: mom_input.nml
+  fields metadata: ./fields_metadata.yaml
+
+date: 2018-04-15T09:00:00Z
+
+layers variable: [hocn]
+
+increment variables: [tocn, socn, uocn, vocn, ssh, hocn]
+
+set increment variables to zero: [uocn, vocn, ssh]
+
+vertical geometry:
+  date: 2018-04-15T09:00:00Z
+  basename: ./INPUT/
+  ocn_filename: MOM.res.nc
+  read_from_file: 1
+
+soca increment:
+  date: 2018-04-15T09:00:00Z
+  basename: ./Data/
+  ocn_filename: 'ocn.3dvarfgat_pseudo.incr.2018-04-15T12:00:00Z.nc'
+  read_from_file: 1
+
+#TODO: add one more ctest to check the snippet below 
+#soca increments:
+#  number of increments: 1
+#  pattern: incr
+#  template:
+#    date: 2018-04-15T09:00:00Z
+#    basename: ./static_ens/
+#    ocn_filename: 'ocn.1.nc'
+#    read_from_file: 1
+
+linear variable change:
+  linear variable changes:
+  - linear variable change name: BkgErrFILT
+    ocean_depth_min: 500  # zero where ocean is shallower than 500m
+    rescale_bkgerr: 1.0   # rescale perturbation
+    efold_z: 1500.0       # Apply exponential decay
+  - linear variable change name: BalanceSOCA
+  trajectory:
+    state variables: [tocn, socn, uocn, vocn, ssh, hocn, layer_depth, mld]
+    date: 2018-04-15T09:00:00Z
+    basename: ./INPUT/
+    ocn_filename: MOM.res.nc
+    read_from_file: 1
+
+output increment:
+  datadir: ./
+  date: 2018-04-15T09:00:00Z
+  exp: mom6_iau
+  type: incr
+  output file: inc.nc #inc.%mem%.nc

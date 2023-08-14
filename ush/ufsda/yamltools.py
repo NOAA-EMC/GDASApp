@@ -5,7 +5,7 @@ import logging
 from solo.yaml_file import YAMLFile
 from solo.template import TemplateConstants, Template
 from ufsda.misc_utils import isTrue
-import pygw
+import wxflow
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -36,7 +36,7 @@ def save_check(config, target, app='var'):
     config['cost function']['observations']['observers'] = cleaned_obs_spaces
 
     # save cleaned yaml
-    pygw.yaml_file.save_as_yaml(config, target)
+    wxflow.save_as_yaml(config, target)
 
 
 def parse_config(input_config_dict, template=None, clean=True):
@@ -135,7 +135,7 @@ def fv3atm_geom_dict(case, levs, ntiles, layout, io_layout):
         'npy': str(case+1),
         'npz': str(levs-1),
         'ntiles': str(ntiles),
-        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/gfs-restart.yaml'
+        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/fv3jedi_fieldmetadata_restart.yaml'
     }
     return outdict
 
@@ -154,7 +154,7 @@ def fv3land_geom_dict(case, levs, ntiles, layout, io_layout):
         'npy': str(case+1),
         'npz': str(levs-1),
         'ntiles': str(ntiles),
-        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/gfs-land.yaml',
+        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/fv3jedi_fieldmetadata_restart.yaml',
 
         'time invariant fields': {
             'state fields': {
@@ -184,7 +184,7 @@ def fv3aero_geom_dict(case, levs, ntiles, layout, io_layout):
         'npy': str(case+1),
         'npz': str(levs-1),
         'ntiles': str(ntiles),
-        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/gfs-aero.yaml',
+        'field metadata override': '$(fv3jedi_fieldmetadata_dir)/fv3jedi_fieldmetadata_restart.yaml',
 
     }
     return outdict
