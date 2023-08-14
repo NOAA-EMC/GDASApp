@@ -12,6 +12,7 @@ from wxflow import add_to_datetime, to_timedelta
 # Initialize root logger
 logger = Logger(level='DEBUG', colored_log=True)
 
+
 def gen_bufr_json(config, template, output):
     # read in templated JSON and do substitution
     logger.info(f"Using {template} as input")
