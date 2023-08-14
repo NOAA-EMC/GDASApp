@@ -49,6 +49,7 @@ fi
 BUFR_py="satwind_amv_goes"
 
 for obtype in $BUFR_py; do
+  cd $COM_OBS # TEMPORARY
   # this loop assumes that there is a python script and template with the same name
   echo "Processing ${obtype}..."
 
@@ -56,6 +57,7 @@ for obtype in $BUFR_py; do
   ${BUFRJSONGEN} -t ${config_template_dir}/bufr2ioda_${obtype}.json -o ${COM_OBS}/${obtype}_${PDY}${cyc}.json
 
   # now use the converter script for the ob type
+  python3 $USH_IODA/bufr2ioda_${obtype}.py
 
   # check if converter was successful
   if [ $? == 0 ]; then
