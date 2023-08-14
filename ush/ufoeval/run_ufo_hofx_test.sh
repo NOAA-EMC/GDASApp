@@ -14,9 +14,10 @@
 usage() {
   set +x
   echo
-  echo "Usage: $0 [-c cycle] [-x] [-s] [-k] [-h] instrument"
+  echo "Usage: $0 [-c cycle] [-q] [-x] [-s] [-k] [-h] instrument"
   echo
   echo "  -c  cycle to run DEFAULT=2021080100"
+  echo "  -q  run without data filtering"
   echo "  -x  don't run eva DEFAULT=run eva"
   echo "  -s  just produce eva stats plots DEFAULT=produce lots of plots"
   echo "  -k  keep output directory"
@@ -28,14 +29,18 @@ usage() {
 # ==============================================================================
 
 cycle=2021080100
+run_filtering=YES
 run_eva=YES
 eva_stats_only=NO
 keep_output=NO 
- 
-while getopts "c:hsx" opt; do
+
+while getopts "c:hsxq" opt; do
   case $opt in
     c)
       cycle=$OPTARG
+      ;;
+    q)
+      run_filtering=NO
       ;;
     x)
       run_eva=NO 
@@ -65,7 +70,13 @@ obtype=$1
 machine=${machine:-orion} 
 
 if [ $machine = orion ]; then
-   workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
+#  workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
+   if [ $run_filtering == NO ]; then
+      workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
+      echo "Run without data filtering"
+   else
+      workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/${obtype}
+   fi
    GDASApp=${GDASApp:-/work2/noaa/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
 elif [ $machine = hera ]; then
    workdir=/scratch1/NCEPDEV/stmp2/$LOGNAME/ufoeval/$cycle/$obtype
@@ -80,13 +91,18 @@ if [ $keep_output = YES ]; then
   workdir=${workdir}_datetime
 fi
 
-yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}.yaml
+if [ $run_filtering == NO ]; then
+   yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}_noqc.yaml
+else
+   yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}.yaml
+fi
+
 exename=test_ObsFilters.x
 
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
 
-dataprocdate=20230309 # Production date of test data
+dataprocdate=20230811 # Production date of test data
 
 obtype_short=${obtype:0:4}
 if [ $obtype_short = "cris" ] || [ $obtype_short = "iasi" ] || [ $obtype_short = "hirs" ] || [ $obtype_short = "sevi" ] || \
