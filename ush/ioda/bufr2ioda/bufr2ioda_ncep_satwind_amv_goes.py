@@ -16,13 +16,13 @@ import calendar
 import json
 import time
 import math
-import datetime 
+import datetime
 from pyioda import ioda_obs_space as ioda_ospace
 
 # ====================================================================
 # Satellite Winds (AMV) BUFR dump file for GOES
 # =====================================================================
-# Subset    |  Spectral Band              |  Code (002023) |  ObsType 
+# Subset    |  Spectral Band              |  Code (002023) |  ObsType
 # ---------------------------------------------------------------------
 # NC005030  |    IRLW  (Freq < 5E+13)     |    Method 1    |   245
 # NC005031  |    WV Clear Sky/ Deep Layer |    Method 5    |   247
@@ -37,17 +37,19 @@ global int32_fill_value
 global int64_fill_value
 
 float32_fill_value = np.float32(0)
-int32_fill_value   = np.int32(0)
-int64_fill_value   = np.int64(0)
+int32_fill_value = np.int32(0)
+int64_fill_value = np.int64(0)
 
-def  Compute_WindComponents_from_WindDirection_and_WindSpeed(wdir, wspd):
+
+def Compute_WindComponents_from_WindDirection_and_WindSpeed(wdir, wspd):
 
     uob = (-wspd * np.sin(np.radians(wdir))).astype(np.float32)
     vob = (-wspd * np.cos(np.radians(wdir))).astype(np.float32)
 
     return uob, vob
 
-def  Get_ObsType(swcm, chanfreq):
+
+def Get_ObsType(swcm, chanfreq):
 
     obstype = swcm.copy()
 
@@ -64,6 +66,7 @@ def  Get_ObsType(swcm, chanfreq):
         raise ValueError("Error: Unassigned ObsType found ... ")
 
     return obstype
+
 
 def bufr_to_ioda(config):
 
@@ -84,15 +87,15 @@ def bufr_to_ioda(config):
     hh = cycle[8:10]
 
     satellite_info_array = config["satellite_info"]
-    sensor_name = config["sensor_info"]["sensor_name"] 
-    sensor_full_name = config["sensor_info"]["sensor_full_name"] 
-    sensor_id = config["sensor_info"]["sensor_id"] 
+    sensor_name = config["sensor_info"]["sensor_name"]
+    sensor_full_name = config["sensor_info"]["sensor_full_name"]
+    sensor_id = config["sensor_info"]["sensor_id"]
 
     print('sensor_name = ', sensor_name)
     print('sensor_full_name = ', sensor_full_name)
     print('sensor_id = ', sensor_id)
 
-    bufrfile = cycle_type + '.t' + hh + 'z.'+data_type + '.tm00.' + data_format 
+    bufrfile = cycle_type + '.t' + hh + 'z.'+data_type + '.tm00.' + data_format
     DATA_PATH = dump_dir + '/' + cycle_type + '.' + yyyymmdd  +'/' + hh + '/' + bufrfile
 
     # ============================================
@@ -108,33 +111,33 @@ def bufr_to_ioda(config):
     # MetaData
     q.add('latitude', '*/CLATH')
     q.add('longitude', '*/CLONH')
-    q.add('satelliteId', '*/SAID') 
-    q.add('year', '*/YEAR') 
-    q.add('month', '*/MNTH') 
-    q.add('day', '*/DAYS') 
-    q.add('hour', '*/HOUR') 
-    q.add('minute', '*/MINU') 
-    q.add('second', '*/SECO') 
-    q.add('sensorZenithAngle', '*/SAZA') 
-    q.add('sensorCentralFrequency', '*/SCCF') 
-    q.add('pressure', '*/PRLC[1]') 
+    q.add('satelliteId', '*/SAID')
+    q.add('year', '*/YEAR')
+    q.add('month', '*/MNTH')
+    q.add('day', '*/DAYS')
+    q.add('hour', '*/HOUR')
+    q.add('minute', '*/MINU')
+    q.add('second', '*/SECO')
+    q.add('sensorZenithAngle', '*/SAZA')
+    q.add('sensorCentralFrequency', '*/SCCF')
+    q.add('pressure', '*/PRLC[1]')
 
     # Processing Center
-    q.add('dataProviderOrigin', '*/OGCE[1]') 
-#   q.add('windGeneratingApplication', '*/AMVQIC/GNAPS') 
+    q.add('dataProviderOrigin', '*/OGCE[1]')
+#   q.add('windGeneratingApplication', '*/AMVQIC/GNAPS')
 
 #   # Quality Infomation (Quality Inficator and Expecter Error)
-#   q.add('windPercentConfidence', '*/AMVQIC/PCCF') 
-    q.add('qualityInformationWithoutForecast', '*/AMVQIC{2}/PCCF') 
-    q.add('expectedError', '*/AMVQIC{4}/PCCF') 
+#   q.add('windPercentConfidence', '*/AMVQIC/PCCF')
+    q.add('qualityInformationWithoutForecast', '*/AMVQIC{2}/PCCF')
+    q.add('expectedError', '*/AMVQIC{4}/PCCF')
 
-#   # Derived Motion Wind (DMW) Intermediate Vectors - Coefficient of Variation 
-#   q.add('coefficientOfVariation', '*/AMVIVR/CVWD') 
-    q.add('coefficientOfVariation', '*/AMVIVR{1}/CVWD') 
+#   # Derived Motion Wind (DMW) Intermediate Vectors - Coefficient of Variation
+#   q.add('coefficientOfVariation', '*/AMVIVR/CVWD')
+    q.add('coefficientOfVariation', '*/AMVIVR{1}/CVWD')
 
     # Wind Retrieval Method Information
-    q.add('windComputationMethod', '*/SWCM') 
-    q.add('windHeightAssignMethod', '*/EHAM') 
+    q.add('windComputationMethod', '*/SWCM')
+    q.add('windHeightAssignMethod', '*/EHAM')
 
     # ObsValue
     q.add('windDirection', '*/WDIR')
@@ -142,7 +145,7 @@ def bufr_to_ioda(config):
 
     end_time = time.time()
     running_time = end_time - start_time
-    print('Running time for making QuerySet : ', running_time, 'seconds') 
+    print('Running time for making QuerySet : ', running_time, 'seconds')
 
     # ==============================================================
     # Open the BUFR file and execute the QuerySet to get ResultSet
@@ -171,15 +174,15 @@ def bufr_to_ioda(config):
 
     print(' ... Executing QuerySet: get metadata: processing center ...')
     # Processing Center
-    ogce  = r.get('dataProviderOrigin')
+    ogce = r.get('dataProviderOrigin')
 
     print(' ... Executing QuerySet: get metadata: data quality information ...')
-    # Quality Information 
+    # Quality Information
     qifn = r.get('qualityInformationWithoutForecast', type='float')
     ee = r.get('expectedError', type='float')
 
     print(' ... Executing QuerySet: get metadata: intermediate vector information ...')
-    # Derived Motion Wind (DMW) Intermediate Vectors 
+    # Derived Motion Wind (DMW) Intermediate Vectors
     cvwd = r.get('coefficientOfVariation')
 
     print(' ... Executing QuerySet: get metadata: wind retrieval method ...')
@@ -210,7 +213,7 @@ def bufr_to_ioda(config):
 
     print('     ogce      shape = ', ogce.shape)
     print('     qifn      shape = ', qifn.shape)
-    print('     ee        shape = ',   ee.shape)
+    print('     ee        shape = ', ee.shape)
 
     print('     cvwd      shape = ', cvwd.shape)
 
@@ -228,7 +231,7 @@ def bufr_to_ioda(config):
 
     print('     ogce      type  = ', ogce.dtype)
     print('     qifn      type  = ', qifn.dtype)
-    print('     ee        type  = ',   ee.dtype)
+    print('     ee        type  = ', ee.dtype)
 
     print('     cvwd      type  = ', cvwd.dtype)
 
@@ -271,7 +274,7 @@ def bufr_to_ioda(config):
     print('     vob      type = ', vob.dtype)
     print('     obstype  type = ', obstype.dtype)
 
-    height  = np.full_like(pressure, fill_value=pressure.fill_value, dtype=np.float32)
+    height = np.full_like(pressure, fill_value=pressure.fill_value, dtype=np.float32)
     stnelev = np.full_like(pressure, fill_value=pressure.fill_value, dtype=np.float32)
 
     end_time = time.time()
@@ -299,7 +302,7 @@ def bufr_to_ioda(config):
         for satellite_info in satellite_info_array:
             if (satellite_info["satellite_id"] == sat):
                 matched = True
-                satellite_id  = satellite_info["satellite_id"]
+                satellite_id = satellite_info["satellite_id"]
                 satellite_name = satellite_info["satellite_name"]
                 satinst = sensor_name.lower()+'_'+satellite_name.lower()
                 print(' ... Split data for', satinst, 'satid = ', sat)
@@ -364,13 +367,13 @@ def bufr_to_ioda(config):
             print(' ... Create ObsSpae for', satinst, 'satid = ', sat)
             # Create the dimensions
             dims = {
-               'Location'   : np.arange(0, wdir2.shape[0]),
+               'Location' : np.arange(0, wdir2.shape[0]),
 #              'Confidence' : np.arange(0, pccf2.shape[1]),
 #              'Vector'     : np.arange(0, tcov2.shape[1]),
             }
-    
+
             # Create IODA ObsSpace
-            iodafile = cycle_type + '.t' + hh + 'z.' + data_type + '.'+ satinst + '.tm00.nc'
+            iodafile = cycle_type + '.t' + hh + 'z.' + data_type + '.' + satinst + '.tm00.nc'
             OUTPUT_PATH = ioda_dir + '/' + cycle + '/' + iodafile
             print(' ... ... Create output file ...', OUTPUT_PATH)
             obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
@@ -391,7 +394,7 @@ def bufr_to_ioda(config):
                 .write_attr('long_name', 'Longitude') \
                 .write_data(lon2)
 
-            # Latitude 
+            # Latitude
             obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat2.fill_value) \
                 .write_attr('units', 'degrees_north') \
                 .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
@@ -514,20 +517,18 @@ def bufr_to_ioda(config):
 
     print("All Done!")
 
+
 if __name__ == '__main__':
 
     start_time = time.time()
 
     with open("bufr2ioda_ncep_satwind_amv_goes.json", "r") as json_file:
-       config = json.load(json_file)
+        config = json.load(json_file)
 
     print('emily checking config = ', config)
 
     bufr_to_ioda(config)
 
     end_time = time.time()
-    running_time = end_time -start_time
+    running_time = end_time - start_time
     print('Total running time: ', running_time, 'seconds')
-
-
-
