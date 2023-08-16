@@ -34,7 +34,6 @@ variational:
       fields metadata: ./fields_metadata.yaml
     ninner: !ENV ${SOCA_NINNER}
     gradient norm reduction: 1e-10
-    test: on
     diagnostics:
       departures: ombg
 

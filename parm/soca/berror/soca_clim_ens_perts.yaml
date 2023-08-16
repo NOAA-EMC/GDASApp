@@ -30,6 +30,6 @@ ensemble:
 
 recentered output:
   datadir: ./static_ens
-  exp: bal
+  exp: pert
   type: ens
   date: '{{ATM_WINDOW_BEGIN}}'
