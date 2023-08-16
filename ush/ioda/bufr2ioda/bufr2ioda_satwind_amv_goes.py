@@ -1,14 +1,4 @@
-# (C) Copyright 2023 NOAA/NWS/NCEP/EMC
-#
-# This software is licensed under the terms of the Apache Licence Version 2.0
-# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-
-import sys
-
-sys.path.append('/work/noaa/da/eliu/JEDI-iodaconv/ioda-bundle/build/lib/')
-sys.path.append('/work/noaa/da/eliu/JEDI-iodaconv/ioda-bundle/build/lib/pyiodaconv/')
-sys.path.append('/work/noaa/da/eliu/JEDI-iodaconv/ioda-bundle/build/lib/python3.9/')
-
+import argparse
 import numpy as np
 import numpy.ma as ma
 from pyiodaconv import bufr
@@ -18,6 +8,7 @@ import time
 import math
 import datetime
 from pyioda import ioda_obs_space as ioda_ospace
+from wxflow import Logger
 
 # ====================================================================
 # Satellite Winds (AMV) BUFR dump file for GOES
@@ -68,7 +59,7 @@ def Get_ObsType(swcm, chanfreq):
     return obstype
 
 
-def bufr_to_ioda(config):
+def bufr_to_ioda(config, logger):
 
     subsets = config["subsets"]
     print('Checking subsets = ', subsets)
@@ -518,13 +509,22 @@ if __name__ == '__main__':
 
     start_time = time.time()
 
-    with open("bufr2ioda_ncep_satwind_amv_goes.json", "r") as json_file:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', type=str, help='Input JSON configuration', required=True)
+    parser.add_argument('-v', '--verbose', help='print debug logging information',
+                        action='store_true')
+    args = parser.parse_args()
+
+    log_level = 'DEBUG' if args.verbose else 'INFO'
+    logger = Logger(level=log_level, colored_log=False)
+
+    with open(args.config, "r") as json_file:
         config = json.load(json_file)
 
-    print('emily checking config = ', config)
+    logger.info('input config = ', config)
 
-    bufr_to_ioda(config)
+    bufr_to_ioda(config, logger)
 
     end_time = time.time()
     running_time = end_time - start_time
-    print('Total running time: ', running_time, 'seconds')
+    logger.info(f"Total running time: {running_time} seconds")
