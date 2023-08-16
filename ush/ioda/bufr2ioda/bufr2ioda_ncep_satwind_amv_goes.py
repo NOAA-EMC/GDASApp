@@ -365,7 +365,7 @@ def bufr_to_ioda(config):
             print(' ... Create ObsSpae for', satinst, 'satid = ', sat)
             # Create the dimensions
             dims = {
-                'Location' : np.arange(0, wdir2.shape[0])
+                'Location': np.arange(0, wdir2.shape[0])
             }
 
             # Create IODA ObsSpace
