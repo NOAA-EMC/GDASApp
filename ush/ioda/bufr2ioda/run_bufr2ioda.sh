@@ -29,7 +29,7 @@ export cyc=$(echo $CDATE | cut -c9-10)
 # get gdasapp root directory
 readonly DIR_ROOT=$(cd "$(dirname "$(readlink -f -n "${BASH_SOURCE[0]}" )" )/../.." && pwd -P)
 BUFR2IODA=$DIR_ROOT/build/bin/bufr2ioda.x
-USH_IODA=$DIR_ROOT/ush/ioda
+USH_IODA=$DIR_ROOT/ush/ioda/bufr2ioda
 BUFRYAMLGEN=$USH_IODA/gen_bufr2ioda_yaml.py
 BUFRJSONGEN=$USH_IODA/gen_bufr2ioda_json.py
 

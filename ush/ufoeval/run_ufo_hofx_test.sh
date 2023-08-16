@@ -70,7 +70,6 @@ obtype=$1
 machine=${machine:-orion} 
 
 if [ $machine = orion ]; then
-#  workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/$obtype
    if [ $run_filtering == NO ]; then
       workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
       echo "Run without data filtering"
@@ -79,7 +78,11 @@ if [ $machine = orion ]; then
    fi
    GDASApp=${GDASApp:-/work2/noaa/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
 elif [ $machine = hera ]; then
-   workdir=/scratch1/NCEPDEV/stmp2/$LOGNAME/ufoeval/$cycle/$obtype
+   if [ $run_filtering == NO ]; then
+      workdir=/scratch1/NCEPDEV/stmp2/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
+   else
+      workdir=/scratch1/NCEPDEV/stmp2/$LOGNAME/ufoeval/$cycle/${obtype}
+   fi
    GDASApp=${GDASApp:-/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
 else
    echo "Machine " $machine "not found"
