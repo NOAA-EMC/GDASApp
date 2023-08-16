@@ -95,7 +95,7 @@ def bufr_to_ioda(config):
     print('sensor_id = ', sensor_id)
 
     bufrfile = cycle_type + '.t' + hh + 'z.'+data_type + '.tm00.' + data_format
-    DATA_PATH = dump_dir + '/' + cycle_type + '.' + yyyymmdd +'/' + hh + '/' + bufrfile
+    DATA_PATH = dump_dir + '/' + cycle_type + '.' + yyyymmdd + '/' + hh + '/' + bufrfile
 
     # ============================================
     # Make the QuerySet for all the data we want
@@ -365,7 +365,7 @@ def bufr_to_ioda(config):
             print(' ... Create ObsSpae for', satinst, 'satid = ', sat)
             # Create the dimensions
             dims = {
-               'Location' : np.arange(0, wdir2.shape[0])
+                'Location' : np.arange(0, wdir2.shape[0])
             }
 
             # Create IODA ObsSpace
