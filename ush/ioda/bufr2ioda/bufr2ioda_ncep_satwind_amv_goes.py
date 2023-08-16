@@ -21,9 +21,9 @@ from pyioda import ioda_obs_space as ioda_ospace
 
 # ====================================================================
 # Satellite Winds (AMV) BUFR dump file for GOES
-# =====================================================================
+# ====================================================================
 # Subset    |  Spectral Band              |  Code (002023) |  ObsType
-# ---------------------------------------------------------------------
+# --------------------------------------------------------------------
 # NC005030  |    IRLW  (Freq < 5E+13)     |    Method 1    |   245
 # NC005031  |    WV Clear Sky/ Deep Layer |    Method 5    |   247
 # NC005032  |    VIS                      |    Method 2    |   251
@@ -70,9 +70,8 @@ def Get_ObsType(swcm, chanfreq):
 
 def bufr_to_ioda(config):
 
-
     subsets = config["subsets"]
-    print('emily checking subsets = ', subsets)
+    print('Checking subsets = ', subsets)
 
     # Get parameters from configuration
     data_format = config["data_format"]
@@ -96,7 +95,7 @@ def bufr_to_ioda(config):
     print('sensor_id = ', sensor_id)
 
     bufrfile = cycle_type + '.t' + hh + 'z.'+data_type + '.tm00.' + data_format
-    DATA_PATH = dump_dir + '/' + cycle_type + '.' + yyyymmdd  +'/' + hh + '/' + bufrfile
+    DATA_PATH = dump_dir + '/' + cycle_type + '.' + yyyymmdd +'/' + hh + '/' + bufrfile
 
     # ============================================
     # Make the QuerySet for all the data we want
@@ -105,7 +104,6 @@ def bufr_to_ioda(config):
 
     print('Making QuerySet ...')
 #   q = bufr.QuerySet()
-#   q = bufr.QuerySet(['NC005030', 'NC005031', 'NC005032', 'NC005034', 'NC005039'])
     q = bufr.QuerySet(subsets)
 
     # MetaData
@@ -367,9 +365,7 @@ def bufr_to_ioda(config):
             print(' ... Create ObsSpae for', satinst, 'satid = ', sat)
             # Create the dimensions
             dims = {
-               'Location' : np.arange(0, wdir2.shape[0]),
-#              'Confidence' : np.arange(0, pccf2.shape[1]),
-#              'Vector'     : np.arange(0, tcov2.shape[1]),
+               'Location' : np.arange(0, wdir2.shape[0])
             }
 
             # Create IODA ObsSpace
