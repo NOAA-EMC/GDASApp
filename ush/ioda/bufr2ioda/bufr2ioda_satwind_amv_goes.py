@@ -7,6 +7,7 @@ import json
 import time
 import math
 import datetime
+import os
 from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
@@ -62,7 +63,7 @@ def Get_ObsType(swcm, chanfreq):
 def bufr_to_ioda(config, logger):
 
     subsets = config["subsets"]
-    print('Checking subsets = ', subsets)
+    logger.debug(f"Checking subsets = {subsets}")
 
     # Get parameters from configuration
     data_format = config["data_format"]
@@ -81,20 +82,19 @@ def bufr_to_ioda(config, logger):
     sensor_full_name = config["sensor_info"]["sensor_full_name"]
     sensor_id = config["sensor_info"]["sensor_id"]
 
-    print('sensor_name = ', sensor_name)
-    print('sensor_full_name = ', sensor_full_name)
-    print('sensor_id = ', sensor_id)
+    logger.info(f"sensor_name = {sensor_name}")
+    logger.info(f"sensor_full_name = {sensor_full_name}")
+    logger.info(f"sensor_id = {sensor_id}")
 
-    bufrfile = cycle_type + '.t' + hh + 'z.'+data_type + '.tm00.' + data_format
-    DATA_PATH = dump_dir + '/' + cycle_type + '.' + yyyymmdd + '/' + hh + '/' + bufrfile
+    bufrfile = f"{cycle_type}.t{hh}z.{data_type}.tm00.{data_format}"
+    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), bufrfile)
 
     # ============================================
     # Make the QuerySet for all the data we want
     # ============================================
     start_time = time.time()
 
-    print('Making QuerySet ...')
-#   q = bufr.QuerySet()
+    logger.info('Making QuerySet')
     q = bufr.QuerySet(subsets)
 
     # MetaData
@@ -134,7 +134,7 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    print('Running time for making QuerySet : ', running_time, 'seconds')
+    logger.debug(f'Running time for making QuerySet : {running_time} seconds')
 
     # ==============================================================
     # Open the BUFR file and execute the QuerySet to get ResultSet
@@ -142,11 +142,11 @@ def bufr_to_ioda(config, logger):
     # ==============================================================
     start_time = time.time()
 
-    print('Executing QuerySet to get ResultSet ...')
+    logger.info('Executing QuerySet to get ResultSet')
     with bufr.File(DATA_PATH) as f:
         r = f.execute(q)
 
-    print(' ... Executing QuerySet: get metadata: basic ...')
+    logger.info('Executing QuerySet: get metadata')
     # MetaData
     satid = r.get('satelliteId')
     year = r.get('year')
@@ -161,130 +161,124 @@ def bufr_to_ioda(config, logger):
     pressure = r.get('pressure', type='float')
     chanfreq = r.get('sensorCentralFrequency', type='float')
 
-    print(' ... Executing QuerySet: get metadata: processing center ...')
     # Processing Center
     ogce = r.get('dataProviderOrigin')
 
-    print(' ... Executing QuerySet: get metadata: data quality information ...')
     # Quality Information
     qifn = r.get('qualityInformationWithoutForecast', type='float')
     ee = r.get('expectedError', type='float')
 
-    print(' ... Executing QuerySet: get metadata: intermediate vector information ...')
     # Derived Motion Wind (DMW) Intermediate Vectors
     cvwd = r.get('coefficientOfVariation')
 
-    print(' ... Executing QuerySet: get metadata: wind retrieval method ...')
     # Wind Retrieval Method Information
     swcm = r.get('windComputationMethod')
     eham = r.get('windHeightAssignMethod')
 
-    print(' ... Executing QuerySet: get obsvalue: wind direction and speed ...')
     # ObsValue
     # Wind direction and Speed
     wdir = r.get('windDirection', type='float')
     wspd = r.get('windSpeed')
 
-    print(' ... Executing QuerySet: get datatime: observation time ...')
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
     timestamp = r.get_datetime('year', 'month', 'day', 'hour', 'minute', 'second').astype(np.int64)
 
-    print(' ... Executing QuerySet: Done!')
+    logger.info('Executing QuerySet Done!')
 
-    print(' ... Executing QuerySet: Check BUFR variable generic dimension and type ...')
+    logger.debug('Executing QuerySet: Check BUFR variable generic dimension and type')
     # Check BUFR variable generic dimension and type
-    print('     timestamp shape = ', timestamp.shape)
-    print('     satid     shape = ', satid.shape)
-    print('     lon       shape = ', lon.shape)
-    print('     chanfreq  shape = ', chanfreq.shape)
-    print('     swcm      shape = ', swcm.shape)
+    logger.debug(f'     timestamp shape = {timestamp.shape}')
+    logger.debug(f'     satid     shape = {satid.shape}')
+    logger.debug(f'     lon       shape = {lon.shape}')
+    logger.debug(f'     chanfreq  shape = {chanfreq.shape}')
+    logger.debug(f'     swcm      shape = {swcm.shape}')
 
-    print('     ogce      shape = ', ogce.shape)
-    print('     qifn      shape = ', qifn.shape)
-    print('     ee        shape = ', ee.shape)
+    logger.debug(f'     ogce      shape = {ogce.shape}')
+    logger.debug(f'     qifn      shape = {qifn.shape}')
+    logger.debug(f'     ee        shape = {ee.shape}')
 
-    print('     cvwd      shape = ', cvwd.shape)
+    logger.debug(f'     cvwd      shape = {cvwd.shape}')
 
-    print('     eham      shape = ', eham.shape)
-    print('     pressure  shape = ', pressure.shape)
-    print('     wdir      shape = ', wdir.shape)
-    print('     wspd      shape = ', wspd.shape)
+    logger.debug(f'     eham      shape = {eham.shape}')
+    logger.debug(f'     pressure  shape = {pressure.shape}')
+    logger.debug(f'     wdir      shape = {wdir.shape}')
+    logger.debug(f'     wspd      shape = {wspd.shape}')
 
-    print('     timestamp type  = ', timestamp.dtype)
-    print('     satid     type  = ', satid.dtype)
-    print('     lon       type  = ', lon.dtype)
-    print('     chanfreq  type  = ', chanfreq.dtype)
-    print('     swcm      type  = ', swcm.dtype)
-    print('     satzenang type  = ', satzenang.dtype)
+    logger.debug(f'     timestamp type  = {timestamp.dtype}')
+    logger.debug(f'     satid     type  = {satid.dtype}')
+    logger.debug(f'     lon       type  = {lon.dtype}')
+    logger.debug(f'     chanfreq  type  = {chanfreq.dtype}')
+    logger.debug(f'     swcm      type  = {swcm.dtype}')
+    logger.debug(f'     satzenang type  = {satzenang.dtype}')
 
-    print('     ogce      type  = ', ogce.dtype)
-    print('     qifn      type  = ', qifn.dtype)
-    print('     ee        type  = ', ee.dtype)
+    logger.debug(f'     ogce      type  = {ogce.dtype}')
+    logger.debug(f'     qifn      type  = {qifn.dtype}')
+    logger.debug(f'     ee        type  = {ee.dtype}')
 
-    print('     cvwd      type  = ', cvwd.dtype)
+    logger.debug(f'     cvwd      type  = {cvwd.dtype}')
 
-    print('     eham      type  = ', eham.dtype)
-    print('     pressure  type  = ', pressure.dtype)
-    print('     wdir      type  = ', wdir.dtype)
-    print('     wspd      type  = ', wspd.dtype)
+    logger.debug(f'     eham      type  = {eham.dtype}')
+    logger.debug(f'     pressure  type  = {pressure.dtype}')
+    logger.debug(f'     wdir      type  = {wdir.dtype}')
+    logger.debug(f'     wspd      type  = {wspd.dtype}')
 
     # Global variables declaration
     # Set global fill values
     float32_fill_value = satzenang.fill_value
     int32_fill_value = satid.fill_value
     int64_fill_value = timestamp.fill_value.astype(np.int64)
-    print('     float32_fill_value  = ', float32_fill_value)
-    print('     int32_fill_value    = ', int32_fill_value)
-    print('     int64_fill_value    = ', int64_fill_value)
+    logger.debug(f'     float32_fill_value  = {float32_fill_value}')
+    logger.debug(f'     int32_fill_value    = {int32_fill_value}')
+    logger.debug(f'     int64_fill_value    = {int64_fill_value}')
 
     end_time = time.time()
     running_time = end_time - start_time
-    print('Running time for executing QuerySet to get ResultSet : ', running_time, 'seconds')
+    logger.info(f"Running time for executing QuerySet to get ResultSet : {running_time} seconds")
 
     # =========================
     # Create derived variables
     # =========================
     start_time = time.time()
 
-    print('Creating derived variables - wind components (uob and vob) ...')
+    logger.info('Creating derived variables - wind components (uob and vob)')
 
     uob, vob = Compute_WindComponents_from_WindDirection_and_WindSpeed(wdir, wspd)
 
-    print('     uob min/max = ', uob.min(), uob.max())
-    print('     vob min/max = ', vob.min(), vob.max())
+    logger.debug(f'     uob min/max = {uob.min()} {uob.max()}')
+    logger.debug(f'     vob min/max = {vob.min()} {vob.max()}')
 
     obstype = Get_ObsType(swcm, chanfreq)
 
-    print('     obstype min/max = ', obstype.min(), obstype.max())
+    logger.debug(f'     obstype min/max = {obstype.min()} {obstype.max()}')
 
-    print('     Check drived variables type ... ')
-    print('     uob      type = ', uob.dtype)
-    print('     vob      type = ', vob.dtype)
-    print('     obstype  type = ', obstype.dtype)
+    logger.debug('     Check derived variables type ... ')
+    logger.debug(f'     uob      type = {uob.dtype}')
+    logger.debug(f'     vob      type = {vob.dtype}')
+    logger.debug(f'     obstype  type = {obstype.dtype}')
 
     height = np.full_like(pressure, fill_value=pressure.fill_value, dtype=np.float32)
     stnelev = np.full_like(pressure, fill_value=pressure.fill_value, dtype=np.float32)
 
     end_time = time.time()
     running_time = end_time - start_time
-    print('Running time for creating derived variables : ', running_time, 'seconds')
+    logger.info(f"Running time for creating derived variables : {running_time} seconds")
 
     # =====================================
     # Split output based on satellite id
     # Create IODA ObsSpace
     # Write IODA output
     # =====================================
-    print('Split data based on satellite id, Create IODA ObsSpace and Write IODA output')
+    logger.info('Split data based on satellite id, Create IODA ObsSpace and Write IODA output')
 
     # Find unique satellite identifiers in data to process
     unique_satids = np.unique(satid)
-    print(' ... Number of Unique satellite identifiers: ', len(unique_satids))
-    print(' ... Unique satellite identifiers: ', unique_satids)
+    logger.info(f"Number of Unique satellite identifiers: {len(unique_satids)}")
+    logger.info(f"Unique satellite identifiers: {unique_satids}")
 
-    print(' ... Loop through unique satellite identifier ... : ', unique_satids)
+    logger.debug(f"Loop through unique satellite identifier {unique_satids}")
     for sat in unique_satids.tolist():
-        print(' ... ... Processing output for satid ...  : ', sat)
+        logger.debug(f"Processing output for satid {sat}")
         start_time = time.time()
 
         matched = False
@@ -294,7 +288,7 @@ def bufr_to_ioda(config, logger):
                 satellite_id = satellite_info["satellite_id"]
                 satellite_name = satellite_info["satellite_name"]
                 satinst = sensor_name.lower()+'_'+satellite_name.lower()
-                print(' ... Split data for', satinst, 'satid = ', sat)
+                logger.debug("Split data for {satinst} satid = {sat}")
 
         if matched:
 
@@ -332,48 +326,48 @@ def bufr_to_ioda(config, logger):
 
             # Check unique observation time
             unique_timestamp2 = np.unique(timestamp2)
-            print(' ... Number of Unique observation timestamp: ', len(unique_timestamp2))
-            print(' ... Unique observation timestamp: ', unique_timestamp2)
+            logger.info(f"Number of Unique observation timestamp: {len(unique_timestamp2)}")
+            logger.debug(f' ... Unique observation timestamp: {unique_timestamp2}')
 
-            print(' ... Check drived variables type for subset ... ')
-            print('     uob2       type  = ', uob.dtype)
-            print('     vob2       type  = ', vob.dtype)
-            print('     wdir2      type  = ', wdir2.dtype)
-            print('     wspd2      type  = ', wspd2.dtype)
-            print('     pressure2  type  = ', pressure2.dtype)
-            print('     height2    type  = ', height2.dtype)
-            print('     stnelev2   type  = ', stnelev2.dtype)
-            print('     qifn2      type  = ', qifn2.dtype)
-            print('     ee         type  = ', ee.dtype)
-            print('     cvwd2      type  = ', cvwd2.dtype)
-            print('     ogce2      type  = ', ogce2.dtype)
-            print('     obstype2   type  = ', obstype2.dtype)
+            logger.debug(' ... Check derived variables type for subset ... ')
+            logger.debug(f'     uob2       type  = {uob.dtype}')
+            logger.debug(f'     vob2       type  = {vob.dtype}')
+            logger.debug(f'     wdir2      type  = {wdir2.dtype}')
+            logger.debug(f'     wspd2      type  = {wspd2.dtype}')
+            logger.debug(f'     pressure2  type  = {pressure2.dtype}')
+            logger.debug(f'     height2    type  = {height2.dtype}')
+            logger.debug(f'     stnelev2   type  = {stnelev2.dtype}')
+            logger.debug(f'     qifn2      type  = {qifn2.dtype}')
+            logger.debug(f'     ee         type  = {ee.dtype}')
+            logger.debug(f'     cvwd2      type  = {cvwd2.dtype}')
+            logger.debug(f'     ogce2      type  = {ogce2.dtype}')
+            logger.debug(f'     obstype2   type  = {obstype2.dtype}')
 
-            print('     qifn2      shape = ', qifn2.shape)
-            print('     ee2        shape = ', ee2.shape)
-            print('     cvwd2      shape = ', cvwd2.shape)
+            logger.debug(f'     qifn2      shape = {qifn2.shape}')
+            logger.debug(f'     ee2        shape = {ee2.shape}')
+            logger.debug(f'     cvwd2      shape = {cvwd2.shape}')
 
-            print(' ... Create ObsSpae for', satinst, 'satid = ', sat)
+            logger.info(f"Create ObsSpae for {satinst} satid = {sat}")
             # Create the dimensions
             dims = {
                 'Location': np.arange(0, wdir2.shape[0])
             }
 
             # Create IODA ObsSpace
-            iodafile = cycle_type + '.t' + hh + 'z.' + data_type + '.' + satinst + '.tm00.nc'
-            OUTPUT_PATH = ioda_dir + '/' + cycle + '/' + iodafile
-            print(' ... ... Create output file ...', OUTPUT_PATH)
+            iodafile = f"{cycle_type}.t{hh}z.{data_type}.{satinst}.tm00.nc"
+            OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
+            logger.info(f"Create output file: {OUTPUT_PATH}")
             obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
             # Create Global attributes
-            print(' ... ... Create global attributes')
+            logger.debug(' ... ... Create global attributes')
             obsspace.write_attr('sensor', sensor_id)
             obsspace.write_attr('platform', satellite_id)
             obsspace.write_attr('dataProviderOrigin', data_provider)
             obsspace.write_attr('description', data_description)
 
             # Create IODA variables
-            print(' ... ... Create variables: name, type, units, and attributes')
+            logger.debug(' ... ... Create variables: name, type, units, and attributes')
             # Longitude
             obsspace.create_var('MetaData/longitude', dtype=lon2.dtype, fillval=lon2.fill_value) \
                 .write_attr('units', 'degrees_east') \
@@ -497,12 +491,12 @@ def bufr_to_ioda(config, logger):
 
             end_time = time.time()
             running_time = end_time - start_time
-            print('Running time for splitting and output IODA for', satinst, running_time, 'seconds')
+            logger.info(f"Running time for splitting and output IODA for {satinst}: {running_time} seconds")
 
         else:
-            print("Do not find this satellite id in the configuration: satid = ", sat)
+            logger.info(f"Do not find this satellite id in the configuration: satid = {sat}")
 
-    print("All Done!")
+    logger.info("All Done!")
 
 
 if __name__ == '__main__':
