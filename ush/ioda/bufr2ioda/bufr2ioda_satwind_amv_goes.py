@@ -510,7 +510,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger(level=log_level, colored_log=False)
+    logger = Logger('BUFR2IODA_satwind_amv_goes.py', level=log_level, colored_log=True)
 
     with open(args.config, "r") as json_file:
         config = json.load(json_file)

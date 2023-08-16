@@ -10,7 +10,7 @@ from wxflow import Logger, parse_j2yaml, cast_strdict_as_dtypedict
 from wxflow import add_to_datetime, to_timedelta
 
 # Initialize root logger
-logger = Logger(level='DEBUG', colored_log=True)
+logger = Logger('gen_bufr2ioda_json.py', level='INFO', colored_log=True)
 
 
 def gen_bufr_json(config, template, output):
