@@ -74,8 +74,8 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG 36452cc )
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG d6f5419 )
   ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG cb8a074 )
-  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG 43dd7dd  )
-  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG d98de90 )
+  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG 1210ac0  )
+  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG deb2777 )
 
 # FMS and FV3 dynamical core
   ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" TAG 1f73914 )
@@ -94,7 +94,7 @@ if(BUILD_GDASBUNDLE)
   endif()
   ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" TAG 1a02eba )
   ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" TAG 51ec489 RECURSIVE )
-  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" TAG d1fae8d )
+  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" TAG cf2a3d4 )
 
   # Build JEDI/DA or other peripherals
   ecbuild_bundle( PROJECT gdas-utils SOURCE "./utils" )
@@ -102,7 +102,7 @@ if(BUILD_GDASBUNDLE)
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
   if(BUILD_IODA_CONVERTERS)
-    ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" TAG aa38b19 )
+    ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" BRANCH develop )
   endif()
 
 # Land associated repositories
