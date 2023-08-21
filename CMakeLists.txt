@@ -94,7 +94,7 @@ if(BUILD_GDASBUNDLE)
   endif()
   ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" BRANCH develop )
   ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" BRANCH main-ecbuild RECURSIVE )
-  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" BRANCH feature/change_mask_value )
+  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" BRANCH develop )
 
   # Build JEDI/DA or other peripherals
   ecbuild_bundle( PROJECT gdas-utils SOURCE "./utils" )
