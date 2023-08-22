@@ -393,33 +393,6 @@ if __name__ == '__main__':
         config = json.load(json_file)
 
     bufr_to_ioda(config)
-######
-#    parser = argparse.ArgumentParser()
-#    description=(
-#            'Reads NCEP PREPBUFR formated ADPsurface input files'
-#            ' convert into IODA formatted output files. '
-#    )
-#
-##    DATA_PATH = './testinput/gdas.t12z.adpsfc.prepbufr'
-##    DATA_PATH = '/scratch1/NCEPDEV/da/Nicholas.Esposito/JEDI/pyapi_fromOrion_20230627/testinput/2021080100/SFCSHP.prepbufr'
-#    DATA_PATH = '/work2/noaa/da/nesposito/NewConv/api_convert/testinput/2021080100/SFCSHP.prepbufr'
-##    OUTPUT_PATH = './testrun/prepbufr_adpsfc_api.nc'
-##    OUTPUT_PATH = '/scratch1/NCEPDEV/da/Nicholas.Esposito/JEDI/pyapi_fromOrion_20230627/testoutput/2021080100/sfcshp_v2.nc'
-#    OUTPUT_PATH = '/work2/noaa/da/nesposito/NewConv/api_convert/testoutput/2021080100/sfcshp_v2.nc'
-#
-#    optional = parser.add_argument_group(title='optional arguments')
-#    optional.add_argument('-f', '--filename', type=str, default=DATA_PATH,
-#                          dest='filename', help='sfcshp prepbufr file name')
-#    optional.add_argument('-o', '--output', type=str, default=OUTPUT_PATH,
-#                          dest='output', help='output filename')
-#    optional.add_argument('-d', '--date', type=str, default='202108010000',
-#                          dest='date', metavar='YYYYmmddHHMM', help='analysis cycle date')
-#
-#    args = parser.parse_args()
-#
-#    bufr_to_ioda(args.filename, args.output, args.date)
-#####################
-
 
     end_time = time.time()
     running_time = end_time - start_time
