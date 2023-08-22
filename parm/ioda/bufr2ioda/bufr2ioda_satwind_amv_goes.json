@@ -10,8 +10,8 @@
   "data_provider"    : "U.S. NOAA/NESDIS",
   "sensor_info"      : { "sensor_name": "ABI",  "sensor_full_name": "Advanced Baseline Imager",  "sensor_id": 617 },
   "satellite_info"   : [
-                          { "satellite_name": "GOES-16", "satellite_full_name": "Geostationary Operational Satellite - 16", "satellite_id": 270, "Launch time": "20161119" },
-                          { "satellite_name": "GOES-17", "satellite_full_name": "Geostationary Operational Satellite - 17", "satellite_id": 271, "Launch time": "20180301" },
+                          { "satellite_name": "GOES-16", "satellite_full_name": "Geostationary Operational Satellite - 16", "satellite_id": 270, "launch time": "20161119" },
+                          { "satellite_name": "GOES-17", "satellite_full_name": "Geostationary Operational Satellite - 17", "satellite_id": 271, "launch time": "20180301" },
                           { "satellite_name": "GOES-18", "satellite_full_name": "Geostationary Operational Satellite - 18", "satellite_id": 272, "launch time": "20220301" }
                        ]
 }
