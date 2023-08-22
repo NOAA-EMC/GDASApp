@@ -1,12 +1,12 @@
 {
   "data_format"      : "prepbufr",
-  "subsets"          : [ "SFCSHP" ],
+  "subsets"          : [ "AIRCFT", "AIRCAR" ],
   "source"           : "prepBUFR",
-  "data_type"        : "SFCSHP",
+  "data_type"        : "AIRCFT",
   "cycle_type"       : "{{ DUMP }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
   "ioda_directory"   : "{{ COM_OBS }}",
-  "data_description" : "SFCSHP_prepbufr",
+  "data_description" : "ACFT_PROFILES_prepbufr",
   "data_provider"    : "U.S. NOAA/NESDIS"
 }
