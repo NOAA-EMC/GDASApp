@@ -84,17 +84,18 @@ def bufr_to_ioda(config, logger):
     sensor_full_name = config["sensor_info"]["sensor_full_name"]
     sensor_id = config["sensor_info"]["sensor_id"]
 
-    # Get derived parameters 
+    # Get derived parameters
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
     reference_time = datetime.strptime(cycle, "%Y%m%d%H")
     reference_time = reference_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # General informaton 
+    # General informaton
     converter = 'BUFR to IODA Converter'
     process_level = 'Level-2'
     platform_description = 'NOAA Series of Geostationary Operational Environmental Satellites - 3rd generation since 2016'
-    sensor_description = '16 channels, balaned visible, near IR, short-wave IR, mid-wave IR, and thermal IR; central wavelentgh ranges from 470 nm to 13.3 micrion'
+    sensor_description = '16 channels, balaned visible, near IR, short-wave IR, mid-wave IR, and thermal IR; \
+                         central wavelentgh ranges from 470 nm to 13.3 micron'
 
     logger.info(f"sensor_name = {sensor_name}")
     logger.info(f"sensor_full_name = {sensor_full_name}")
@@ -391,7 +392,7 @@ def bufr_to_ioda(config, logger):
             obsspace.write_attr('sensorCommonName', sensor_name)
             obsspace.write_attr('processingLevel', process_level)
             obsspace.write_attr('platformLongDescription', platform_description)
-            obsspace.write_attr('sensorLongDescription',   sensor_description)
+            obsspace.write_attr('sensorLongDescription', sensor_description)
 
             # Create IODA variables
             logger.debug(' ... ... Create variables: name, type, units, and attributes')
