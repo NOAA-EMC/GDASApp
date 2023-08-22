@@ -1,0 +1,12 @@
+{
+  "data_format"      : "prepbufr",
+  "subsets"          : [ "SFCSHP" ],
+  "source"           : "prepBUFR",
+  "data_type"        : "SFCSHP",
+  "cycle_type"       : "{{ DUMP }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "data_description" : "SFCSHP_prepbufr",
+  "data_provider"    : "U.S. NOAA/NESDIS"
+}

@@ -1,0 +1,9 @@
+Needed to make a sfcshp-specific run_bufr2ioda.sh script because I needed to change a variable.
+
+To run: use command:
+./run_bufr2ioda.sh 20210801 gdas /work/noaa/rstprod/dump/ /work2/noaa/da/nesposito/GDASApp_20230822/parm/ioda/bufr2ioda/ /work2/noaa/da/nesposito/NewConv/api_convert/json/json_outputs/
+
+Outputs (and plots) are in:
+/work2/noaa/da/nesposito/NewConv/api_convert/json/json_outputs
+
+
