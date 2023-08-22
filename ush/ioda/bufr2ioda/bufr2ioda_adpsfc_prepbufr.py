@@ -4,10 +4,6 @@
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
 import sys
-sys.path.append('/work2/noaa/da/nesposito/ioda-bundle_20230712/build/lib/python3.9/')
-sys.path.append('/work2/noaa/da/nesposito/ioda-bundle_20230712/build/lib/python3.9/pyiodaconv/')
-sys.path.append('/work2/noaa/da/nesposito/ioda-bundle_20230712/build/lib/python3.9/pyioda/')
-
 import numpy as np
 import os
 import argparse
