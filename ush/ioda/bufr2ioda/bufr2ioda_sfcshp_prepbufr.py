@@ -14,8 +14,8 @@ import argparse
 import math
 import calendar
 import time
-from datetime import datetime 
-import json 
+from datetime import datetime
+import json
 from pyiodaconv import bufr
 from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
@@ -106,9 +106,7 @@ def bufr_to_ioda(config):
 
     print('Executing QuerySet to get ResultSet ...')
     with bufr.File(DATA_PATH) as f:
-#       print("hello")
        r = f.execute(q)
-
  
     print(' ... Executing QuerySet: get metadata: basic ...')
     # MetaData
@@ -213,7 +211,7 @@ def bufr_to_ioda(config):
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(reference_time_full, '%Y%m%d%H%M')))
     dateTime = Compute_dateTime(cycleTimeSinceEpoch, dhr)
 
-    print('     Check drived variables type ... ')
+    print('     Check derived variables type ... ')
     print('     dateTime shape = ', dateTime.shape)
     print('     dateTime type = ',  dateTime.dtype)
 
