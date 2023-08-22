@@ -172,21 +172,19 @@ echo "Generating YAML"
 
 # Copy/generate YAML for test executable
 # First, create the input YAMLs for the genYAML script
-cat > $workdir/obslist.yaml << EOF
+export DATA=./
+export COMPONENT=atmos
+export OPREFIX=gdas.t${cyc}z
+export APREFIX=gdas.t${cyc}z
+export GPREFIX=gdas.t${gcyc}z
+
+cat > $workdir/temp.yaml << EOF
+window begin: '{{ATM_WINDOW_BEGIN}}'
+window end: '{{ATM_WINDOW_END}}'
+observations:
 - !INC $yamlpath
 EOF
-cat > $workdir/temp.yaml << EOF
-template: $GDASApp/parm/atm/hofx/hofx_ufotest.yaml
-output: $workdir/${obtype}_${cycle}.yaml
-config:
-  COMPONENT: atmos
-  OBS_LIST: $workdir/obslist.yaml
-  DATA: ./
-  OPREFIX: gdas.t${cyc}z
-  APREFIX: gdas.t${cyc}z
-  GPREFIX: gdas.t${gcyc}z
-EOF
-$GDASApp/ush/genYAML --config $workdir/temp.yaml
+$GDASApp/ush/genYAML --input $workdir/temp.yaml --output $workdir/${obtype}_${cycle}.yaml
 
 if [ $? -ne 0 ]; then
    echo "YAML creation failed"

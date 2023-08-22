@@ -532,7 +532,8 @@ for varchgyaml in varchgyamls:
     f = open('tmp.yaml', 'w')
     # TODO: use YAMLFile instead
     yaml.dump(soca2cice_cfg, f, sort_keys=False, default_flow_style=False)
-    ufsda.genYAML.genYAML('tmp.yaml', output=varchgyaml)
+    outyaml = YAMLFile('tmp.yaml')
+    outyaml.save(varchgyaml)
 
 # prepare yaml for soca to MOM6 IAU increment
 logging.info(f"---------------- generate soca to MOM6 IAU yaml")
