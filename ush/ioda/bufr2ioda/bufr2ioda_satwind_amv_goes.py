@@ -8,6 +8,7 @@ import time
 import math
 import datetime
 import os
+from datetime import datetime
 from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
@@ -66,6 +67,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Checking subsets = {subsets}")
 
     # Get parameters from configuration
+    subsets = config["subsets"]
     data_format = config["data_format"]
     data_type = config["data_type"]
     data_description = config["data_description"]
@@ -82,9 +84,22 @@ def bufr_to_ioda(config, logger):
     sensor_full_name = config["sensor_info"]["sensor_full_name"]
     sensor_id = config["sensor_info"]["sensor_id"]
 
+    # Get derived parameters 
+    yyyymmdd = cycle[0:8]
+    hh = cycle[8:10]
+    reference_time = datetime.strptime(cycle, "%Y%m%d%H")
+    reference_time = reference_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    # General informaton 
+    converter = 'BUFR to IODA Converter'
+    process_level = 'Level-2'
+    platform_description = 'NOAA Series of Geostationary Operational Environmental Satellites - 3rd generation since 2016'
+    sensor_description = '16 channels, balaned visible, near IR, short-wave IR, mid-wave IR, and thermal IR; central wavelentgh ranges from 470 nm to 13.3 micrion'
+
     logger.info(f"sensor_name = {sensor_name}")
     logger.info(f"sensor_full_name = {sensor_full_name}")
     logger.info(f"sensor_id = {sensor_id}")
+    logger.info(f"reference_time = {reference_time}")
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_type}.tm00.{data_format}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), 'atmos', bufrfile)
@@ -324,6 +339,10 @@ def bufr_to_ioda(config, logger):
             uob2 = uob[mask]
             vob2 = vob[mask]
 
+            # Timestamp Range
+            timestamp2_min = datetime.fromtimestamp(timestamp2.min())
+            timestamp2_max = datetime.fromtimestamp(timestamp2.max())
+
             # Check unique observation time
             unique_timestamp2 = np.unique(timestamp2)
             logger.info(f"Number of Unique observation timestamp: {len(unique_timestamp2)}")
@@ -342,7 +361,6 @@ def bufr_to_ioda(config, logger):
             logger.debug(f'     cvwd2      type  = {cvwd2.dtype}')
             logger.debug(f'     ogce2      type  = {ogce2.dtype}')
             logger.debug(f'     obstype2   type  = {obstype2.dtype}')
-
             logger.debug(f'     qifn2      shape = {qifn2.shape}')
             logger.debug(f'     ee2        shape = {ee2.shape}')
             logger.debug(f'     cvwd2      shape = {cvwd2.shape}')
@@ -361,10 +379,19 @@ def bufr_to_ioda(config, logger):
 
             # Create Global attributes
             logger.debug(' ... ... Create global attributes')
-            obsspace.write_attr('sensor', sensor_id)
-            obsspace.write_attr('platform', satellite_id)
+            obsspace.write_attr('Converter', converter)
+            obsspace.write_attr('sourceFiles', bufrfile)
             obsspace.write_attr('dataProviderOrigin', data_provider)
             obsspace.write_attr('description', data_description)
+            obsspace.write_attr('datetimeReference', reference_time)
+            obsspace.write_attr('datetimeRange', [str(timestamp2_min), str(timestamp2_max)])
+            obsspace.write_attr('sensor', sensor_id)
+            obsspace.write_attr('platform', satellite_id)
+            obsspace.write_attr('platformCommonName', satellite_name)
+            obsspace.write_attr('sensorCommonName', sensor_name)
+            obsspace.write_attr('processingLevel', process_level)
+            obsspace.write_attr('platformLongDescription', platform_description)
+            obsspace.write_attr('sensorLongDescription',   sensor_description)
 
             # Create IODA variables
             logger.debug(' ... ... Create variables: name, type, units, and attributes')
@@ -514,8 +541,6 @@ if __name__ == '__main__':
 
     with open(args.config, "r") as json_file:
         config = json.load(json_file)
-
-    logger.info('input config = ', config)
 
     bufr_to_ioda(config, logger)
 
