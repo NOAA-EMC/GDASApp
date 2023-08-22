@@ -88,7 +88,6 @@ def plotHorizontalSlice(config):
 
     bounds = config['bounds']
 
-
     fig, ax = plt.subplots(figsize=(8, 5), subplot_kw={'projection': projs[config['proj']]})
     plt.pcolormesh(np.squeeze(grid.lon),
                    np.squeeze(grid.lat),
