@@ -30,7 +30,6 @@ comout = os.getenv('COM_OCEAN_ANALYSIS')
 com_ice_history = os.getenv('COM_ICE_HISTORY_PREV')
 com_ocean_history = os.getenv('COM_OCEAN_HISTORY_PREV')
 cyc = os.getenv('cyc')
-PDY = os.getenv('PDY')
 RUN = os.getenv('RUN')
 gcyc = str((int(cyc) - 6) % 24).zfill(2)
 
@@ -41,9 +40,6 @@ grid_file = os.path.join(comout, f'{RUN}.t'+bcyc+'z.ocngrid.nc')
 diagdir = os.path.join(comout, 'diags')
 HOMEgfs = os.getenv('HOMEgfs')
 
-exp = os.getenv('PSLOT')
-if not exp:
-    exp = 'WCDA'
 
 #######################################
 # ocean increment
@@ -52,9 +48,6 @@ if not exp:
 data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
-                    exp=exp,
-                    PDY=PDY,
-                    cyc=cyc,
                     lats=np.arange(-60, 60, 10),
                     variables_zonal={'Temp': [-0.5, 0.5],
                                      'Salt': [-0.1, 0.1]},
@@ -73,9 +66,6 @@ ocnIncPlotter.plot()
 data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
-                    exp=exp,
-                    PDY=PDY,
-                    cyc=cyc,
                     lats=np.arange(-60, 60, 10),
                     variables_horiz={'aicen': [-0.2, 0.2],
                                      'hicen': [-0.5, 0.5],
@@ -93,9 +83,6 @@ iceIncPlotter.plot()
 data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.iceana.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
-                    exp=exp,
-                    PDY=PDY,
-                    cyc=cyc,
                     variables_horiz={'aicen': [0.0, 1.0],
                                      'hicen': [0.0, 4.0],
                                      'hsnon': [0.0, 0.5]},
@@ -112,9 +99,6 @@ iceAnaPlotter.plot()
 data_file = os.path.join(com_ice_history, f'{RUN}.t{gcyc}z.icef006.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
-                    exp=exp,
-                    PDY=PDY,
-                    cyc=cyc,
                     variables_horiz={'aice_h': [0.0, 1.0],
                                      'hs_h': [0.0, 4.0],
                                      'hi_h': [0.0, 0.5]},
@@ -131,9 +115,6 @@ iceBkgPlotter.plot()
 data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocnana.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
-                    exp=exp,
-                    PDY=PDY,
-                    cyc=cyc,
                     variables_horiz={'ave_ssh': [-1.8, 1.3],
                                      'Temp': [-1.8, 34.0],
                                      'Salt': [30, 38]},
@@ -149,9 +130,6 @@ ocnAnaPlotter.plot()
 data_file = os.path.join(com_ocean_history, f'{RUN}.t{gcyc}z.ocnf006.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
-                    exp=exp,
-                    PDY=PDY,
-                    cyc=cyc,
                     variables_horiz={'ave_ssh': [-1.8, 1.3],
                                      'Temp': [-1.8, 34.0],
                                      'Salt': [30, 38]},
@@ -167,9 +145,6 @@ ocnBkgPlotter.plot()
 data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
-                    exp=exp,
-                    PDY=PDY,
-                    cyc=cyc,
                     lats=np.arange(-60, 60, 10),
                     variables_zonal={'Temp': [0, 2],
                                      'Salt': [0, 0.2]},
