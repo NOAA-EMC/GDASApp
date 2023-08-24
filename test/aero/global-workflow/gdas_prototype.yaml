@@ -1,0 +1,2 @@
+observers:
+- !INC ${OBS_YAML_DIR}/viirs_npp.yaml
