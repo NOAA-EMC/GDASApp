@@ -1,0 +1,24 @@
+# Create Data directory for test input config and symlink all files
+list( APPEND utils_test_input
+  testinput/gdas_meanioda.yaml
+)
+
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testrun)
+CREATE_SYMLINK( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${utils_test_input} )
+
+# copy the cpp linter script
+execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cpplint.py ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_cpplint.py)
+
+# add linter for the utils
+ecbuild_add_test( TARGET test_gdasapp_util_coding_norms
+                  TYPE SCRIPT
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_cpplint.py
+                  ARGS --quiet --recursive ${CMAKE_CURRENT_SOURCE_DIR}/../
+                  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
+
+# Test example IODA utility that computes the mean of a variable
+ecbuild_add_test( TARGET  test_gdasapp_util_ioda_example
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_meanioda.x
+                  ARGS    "testinput/gdas_meanioda.yaml"
+                  LIBS    gdas-utils)

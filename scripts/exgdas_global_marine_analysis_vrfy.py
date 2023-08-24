@@ -40,6 +40,7 @@ grid_file = os.path.join(comout, f'{RUN}.t'+bcyc+'z.ocngrid.nc')
 diagdir = os.path.join(comout, 'diags')
 HOMEgfs = os.getenv('HOMEgfs')
 
+
 #######################################
 # ocean increment
 #######################################
