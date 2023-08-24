@@ -6,7 +6,11 @@ add_test(NAME test_gdasapp_aero_gen_3dvar_yaml
          WORKING DIRECTORY ${PROJECT_BINARY_DIR}/test/testrun/)
 
 # tests that require the full build
-#if(BUILD_GDASBUNDLE)
-#endif(BUILD_GDASBUNDLE)
+if(BUILD_GDASBUNDLE)
+    # Test exgdas scripts from the global-worflow
+    if (WORKFLOW_TESTS)
+        add_subdirectory(global-workflow)
+    endif()
+endif(BUILD_GDASBUNDLE)
 
 
