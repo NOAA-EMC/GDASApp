@@ -153,16 +153,16 @@ def plotMeridionalSlice(config):
     """
     pcolormesh of a Meridional slice of an ocean field
     """
-    lon = float(config['lon']) 
+    lon = float(config['lon'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
-    lon_index = np.argmin(np.array(np.abs(np.squeeze(grid.lon)[:, 0]-lon))) 
-    slice_data = np.squeeze(np.array(data[config['variable']]))[:, lon_index, :] 
+    lon_index = np.argmin(np.array(np.abs(np.squeeze(grid.lon)[:, 0]-lon)))
+    slice_data = np.squeeze(np.array(data[config['variable']]))[:, lon_index, :]
     depth = np.squeeze(np.array(grid['h']))[:, lon_index, :]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
-    bounds = config['bounds']  
-    y = np.tile(np.squeeze(grid.lon[:, lon_index]), (np.shape(depth)[0], 1)) 
+    bounds = config['bounds']
+    y = np.tile(np.squeeze(grid.lon[:, lon_index]), (np.shape(depth)[0], 1))
     fig, ax = plt.subplots(figsize=(8, 5))
     plt.pcolormesh(y, -depth, slice_data,
                    vmin=bounds[0], vmax=bounds[1],
@@ -200,8 +200,7 @@ class statePlotter:
                     self.config.update({'variable': variable, 'bounds': bounds})
                     plotZonalSlice(self.config)
 
-        
-        ###################################### 
+        #######################################
         # Meridional slices
 
         for lon in self.config['lons']:
@@ -215,7 +214,7 @@ class statePlotter:
                     bounds = variableBounds[variable]
                     self.config.update({'variable': variable, 'bounds': bounds})
                     plotMeridionalSlice(self.config)
-          
+
         #######################################
         # Horizontal slices
         for proj in self.config['projs']:
