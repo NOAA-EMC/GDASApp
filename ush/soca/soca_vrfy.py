@@ -26,9 +26,7 @@ def plotConfig(grid_file=[],
                comout=[],
                variables_horiz={},
                variables_zonal={},
-               #--------------------------
                variables_meridional={},
-               #--------------------------
                lat=np.nan,
                lats=np.arange(-60, 60, 10),
                lon=np.nan,
@@ -54,9 +52,7 @@ def plotConfig(grid_file=[],
     config['max depth'] = max_depth  # the max depth currently plotted
     config['horiz variables'] = variables_horiz  # all the vars for horiz plots
     config['zonal variables'] = variables_zonal  # all the vars for zonal plots
-    #--------------------------
     config['meridional variables'] = variables_meridional  # all the vars for meridional plots
-    #--------------------------
     config['variable'] = variable  # the variable currently plotted
     config['projs'] = projs  # all the projections etc.
     config['proj'] = proj
@@ -94,7 +90,7 @@ def plotHorizontalSlice(config):
                    cmap=config['colormap'])
 
     plt.colorbar(label=label_colorbar, shrink=0.5, orientation='horizontal')
-    #ax.coastlines()  # TODO: make this work on hpc
+    # ax.coastlines()  # TODO: make this work on hpc
     ax.gridlines(draw_labels=True)
     if config['proj'] == 'South':
         ax.set_extent([-180, 180, -90, -50], ccrs.PlateCarree())
@@ -132,26 +128,21 @@ def plotZonalSlice(config):
     plt.savefig(figname, bbox_inches='tight', dpi=600)
     plt.close(fig)
 
-##########################################################################################
-#
+
 def plotMeridionalSlice(config):
     """
     pcolormesh of a Meridional slice of an ocean field
     """
-    lon = float(config['lon'])   # <- changed lat to lon
+    lon = float(config['lon']) 
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
-    # lat_index = np.argmin(np.array(np.abs(np.squeeze(grid.lat)[:, 0]-lat)))
-    lon_index = np.argmin(np.array(np.abs(np.squeeze(grid.lon)[:, 0]-lon)))    # <- changed lat to lon
-    #
-    slice_data = np.squeeze(np.array(data[config['variable']]))[:, lon_index, :]    # <- changed lat to lon0
-    depth = np.squeeze(np.array(grid['h']))[:, lon_index, :]    # <- changed lat to lon
+    lon_index = np.argmin(np.array(np.abs(np.squeeze(grid.lon)[:, 0]-lon))) 
+    slice_data = np.squeeze(np.array(data[config['variable']]))[:, lon_index, :] 
+    depth = np.squeeze(np.array(grid['h']))[:, lon_index, :]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
     bounds = config['bounds']  
-    #
-    y = np.tile(np.squeeze(grid.lon[:, lon_index]), (np.shape(depth)[0], 1))    # <- changed lat to lon NEED to be attention
-    #
+    y = np.tile(np.squeeze(grid.lon[:, lon_index]), (np.shape(depth)[0], 1)) 
     fig, ax = plt.subplots(figsize=(8, 5))
     plt.pcolormesh(y, -depth, slice_data,
                    vmin=bounds[0], vmax=bounds[1],
@@ -164,8 +155,7 @@ def plotMeridionalSlice(config):
                            'meridional_lon_'+str(int(lon)) + '_' + str(int(config['max depth'])) + 'm')
     plt.savefig(figname, bbox_inches='tight', dpi=600)
     plt.close(fig)
-#    
-##########################################################################################
+
 
 class statePlotter:
 

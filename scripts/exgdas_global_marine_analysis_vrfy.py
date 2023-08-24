@@ -48,18 +48,14 @@ data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
                     lats=np.arange(-60, 60, 10),
-                    ###
                     lons=np.arange(-280, 80, 10),
-                    ###
                     variables_zonal={'Temp': [-0.5, 0.5],
                                      'Salt': [-0.1, 0.1]},
                     variables_horiz={'Temp': [-0.5, 0.5],
                                      'Salt': [-0.1, 0.1],
                                      'ave_ssh': [-0.1, 0.1]},
-                    ### Added lines for meridional
                     variables_meridional={'Temp': [-0.5, 0.5],
                                           'Salt': [-0.1, 0.1]},
-                    ###
                     colormap='RdBu',
                     comout=os.path.join(comout, 'vrfy', 'incr'))
 ocnIncPlotter = statePlotter(config)
@@ -152,18 +148,14 @@ data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
                     lats=np.arange(-60, 60, 10),
-                    ###
                     lons=np.arange(-280, 80, 10),
-                    ###
                     variables_zonal={'Temp': [0, 2],
                                      'Salt': [0, 0.2]},
                     variables_horiz={'Temp': [0, 2],
                                      'Salt': [0, 0.2],
                                      'ave_ssh': [0, 0.1]},
-                    ### Added lines for meridional
-                    variables_meridional={'Temp': [0, 2], ####
-                                          'Salt': [0, 0.2]}, ####
-                    ###
+                    variables_meridional={'Temp': [0, 2],
+                                          'Salt': [0, 0.2]},
                     colormap='jet',
                     comout=os.path.join(comout, 'vrfy', 'bkgerr'))
 bkgErrPlotter = statePlotter(config)
