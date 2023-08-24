@@ -161,9 +161,7 @@ config = plotConfig(grid_file=grid_file,
                     comout=os.path.join(comout, 'vrfy', 'bkgerr'))
 bkgErrPlotter = statePlotter(config)
 bkgErrPlotter.plot()
-#
-quit()   # for quick vrty working with ctest
-#
+
 #######################################
 # eva plots
 #######################################

@@ -103,7 +103,7 @@ def plotHorizontalSlice(config):
                    cmap=config['colormap'])
 
     plt.colorbar(label=label_colorbar, shrink=0.5, orientation='horizontal')
-    # ax.coastlines()  # TODO: make this work on hpc
+    ax.coastlines()  # TODO: make this work on hpc
     ax.gridlines(draw_labels=True)
     ax.set_title(title)
     if config['proj'] == 'South':
