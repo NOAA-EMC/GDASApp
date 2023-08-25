@@ -69,7 +69,7 @@ RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} generate_com -rx \
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
 mkdir -p $COM_OBS
-flist="viirs_aod_npp.$CDATE.nc4"
+flist="viirs_npp.$CDATE.nc4"
 for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.$file $COM_OBS/
 done

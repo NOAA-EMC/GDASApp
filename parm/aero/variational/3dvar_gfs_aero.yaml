@@ -15,18 +15,18 @@ cost function:
                        mass_fraction_of_sea_salt004_in_air]
   geometry:
     fms initialization:
-      namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
-      field table filename: $(DATA)/fv3jedi/field_table
-    akbk: $(DATA)/fv3jedi/akbk.nc4
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table
+    akbk: ./fv3jedi/akbk.nc4
     layout:
     - $(layout_x)
     - $(layout_y)
     npx: $(npx_ges)
     npy: $(npy_ges)
     npz: $(npz_ges)
-    field metadata override: $(DATA)/fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
   background:
-    datapath: $(DATA)/bkg
+    datapath: ./bkg
     filetype: fms restart
     datetime: '{{ current_cycle | to_isotime }}'
     filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
@@ -46,16 +46,16 @@ variational:
     test: on
     geometry:
       fms initialization:
-        namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
-        field table filename: $(DATA)/fv3jedi/field_table
-      akbk: $(DATA)/fv3jedi/akbk.nc4
+        namelist filename: ./fv3jedi/fmsmpp.nml
+        field table filename: ./fv3jedi/field_table
+      akbk: ./fv3jedi/akbk.nc4
       layout:
       - $(layout_x)
       - $(layout_y)
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
-      field metadata override: $(DATA)/fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
     diagnostics:
       departures: bkgmob
   - ninner: 35
@@ -63,16 +63,16 @@ variational:
     test: on
     geometry:
       fms initialization:
-        namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
-        field table filename: $(DATA)/fv3jedi/field_table
-      akbk: $(DATA)/fv3jedi/akbk.nc4
+        namelist filename: ./fv3jedi/fmsmpp.nml
+        field table filename: ./fv3jedi/field_table
+      akbk: ./fv3jedi/akbk.nc4
       layout:
       - $(layout_x)
       - $(layout_y)
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
-      field metadata override: $(DATA)/fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
     diagnostics:
       departures: bkgmob1
 final:
@@ -81,18 +81,18 @@ final:
   increment:
     geometry:
       fms initialization:
-        namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
-        field table filename: $(DATA)/fv3jedi/field_table
-      akbk: $(DATA)/fv3jedi/akbk.nc4
+        namelist filename: ./fv3jedi/fmsmpp.nml
+        field table filename: ./fv3jedi/field_table
+      akbk: ./fv3jedi/akbk.nc4
       layout:
       - $(layout_x)
       - $(layout_y)
       npx: $(npx_ges)
       npy: $(npy_ges)
       npz: $(npz_ges)
-      field metadata override: $(DATA)/fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
     output:
-      datapath: $(DATA)/anl
+      datapath: ./anl
       prefix: aeroinc
       filetype: fms restart
       filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
