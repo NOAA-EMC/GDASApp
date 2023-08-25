@@ -525,7 +525,8 @@ soca2cice_cfg = {
 varchgyamls = ['soca_2cice_arctic.yaml', 'soca_2cice_antarctic.yaml']
 for varchgyaml in varchgyamls:
     soca2cice_cfg_template = os.path.join(gdas_home, 'parm', 'soca', 'varchange', varchgyaml)
-    outyaml = YAMLFile(soca2cice_cfg, path=soca2cice_cfg_template)
+    outyaml = YAMLFile(path=soca2cice_cfg_template)
+    outyaml = Template.substitute_structure(outyaml, TemplateConstants.DOLLAR_PARENTHESES, soca2cice_cfg.get)
     outyaml.save(varchgyaml)
 
 # prepare yaml for soca to MOM6 IAU increment
