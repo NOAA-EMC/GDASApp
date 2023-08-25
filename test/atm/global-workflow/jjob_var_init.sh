@@ -100,6 +100,30 @@ for file in $flist; do
 done
 
 
+# Link member atmospheric background on tiles and atmf006
+dpath=enkfgdas.$gPDY/$gcyc
+for imem in $(seq 1 $NMEM_ENS); do
+    memchar="mem"$(printf %03i $imem)
+
+    MEMDIR=${memchar} RUN=${RUN} YMD=${gPDY} HH=${gcyc} generate_com -x \
+	COM_ATMOS_HISTORY_PREV_ENS:COM_ATMOS_HISTORY_TMPL \
+	COM_ATMOS_RESTART_PREV_ENS:COM_ATMOS_RESTART_TMPL
+    COM_ATMOS_RESTART_PREV_DIRNAME_ENS=$(dirname $COM_ATMOS_RESTART_PREV_ENS)
+
+    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model_data/atmos
+    target=$COM_ATMOS_RESTART_PREV_DIRNAME_ENS
+    mkdir -p $target
+    rm -rf $target/restart
+    ln -fs $source/restart $target/
+
+    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model_data/atmos/history
+    target=$COM_ATMOS_HISTORY_PREV_ENS
+    mkdir -p $target
+    rm -rf $target/enkfgdas.t${gcyc}z.atmf006.nc
+    ln -fs $source/enkfgdas.t${gcyc}z.atmf006.nc $target/
+done
+
+
 # Execute j-job
 if [ $machine = 'HERA' ]; then
     sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
