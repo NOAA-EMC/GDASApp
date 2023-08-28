@@ -21,7 +21,7 @@ export COMIN_GES=${bindir}/test/atm/bkg
 export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
-export NMEM_ENS=0
+export NMEM_ENS=3
 export ACCOUNT=da-cpu
 export COM_TOP=$ROTDIR
 
@@ -105,7 +105,7 @@ dpath=enkfgdas.$gPDY/$gcyc
 for imem in $(seq 1 $NMEM_ENS); do
     memchar="mem"$(printf %03i $imem)
 
-    MEMDIR=${memchar} RUN=${RUN} YMD=${gPDY} HH=${gcyc} generate_com -x \
+    MEMDIR=${memchar} RUN=enkf${RUN} YMD=${gPDY} HH=${gcyc} generate_com -x \
 	COM_ATMOS_HISTORY_PREV_ENS:COM_ATMOS_HISTORY_TMPL \
 	COM_ATMOS_RESTART_PREV_ENS:COM_ATMOS_RESTART_TMPL
     COM_ATMOS_RESTART_PREV_DIRNAME_ENS=$(dirname $COM_ATMOS_RESTART_PREV_ENS)
