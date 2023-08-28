@@ -7,12 +7,21 @@ import datetime as dt
 import logging
 import os
 import re
-import yaml
+from wxflow, import parse_j2yaml, cast_strdict_as_dtypedict, save_as_yaml
 
-from ufsda.genYAML import genYAML
+
+def genYAML(input_yaml, output_yaml, config):
+    # read in YAML/Jinja template
+    final_config = parse_j2yaml(input_yaml, config)
+    save_as_yaml(final_config, output_yaml)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', type=str, help='Input YAML Configuration', required=True)
+    parser.add_argument('-i', '--input', type=str, help='Input YAML Template', required=True)
+    parser.add_argument('-o', '--output', type=str, help='Output YAML File', required=True)
     args = parser.parse_args()
-    genYAML(args.config)
+
+    # Take configuration from environment and cast it as python dictionary
+    config = cast_strdict_as_dtypedict(os.environ)
+
+    genYAML(args.input, args.output, config)
