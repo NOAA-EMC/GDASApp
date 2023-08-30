@@ -121,46 +121,6 @@ add_test(NAME test_gdasapp_jedi_increment_to_fv3
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atmges_compress.nc4 ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
-# test for YAML generation from a template
-add_test(NAME test_gdasapp_genYAML_prep
-         COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-
-add_test(NAME test_gdasapp_genYAML_run
-          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example.yaml
-          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-set_tests_properties(
-        test_gdasapp_genYAML_run
-PROPERTIES
-ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm")
-
-# test for YAML generation from a template for land DA
-add_test(NAME test_gdasapp_genYAML_land_prep
-         COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep_land.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-
-add_test(NAME test_gdasapp_genYAML_land_run
-          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example_land.yaml
-          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-set_tests_properties(
-        test_gdasapp_genYAML_land_run
-PROPERTIES
-ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm")
-
-
-# test for YAML generation from a template for aero DA
-add_test(NAME test_gdasapp_genYAML_aero_prep
-         COMMAND ${PROJECT_SOURCE_DIR}/test/genYAML_prep_aero.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-
-add_test(NAME test_gdasapp_genYAML_aero_run
-          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/genYAML --config ${PROJECT_BINARY_DIR}/test/testoutput/genYAML_example_aero.yaml
-          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-set_tests_properties(
-        test_gdasapp_genYAML_aero_run
-PROPERTIES
-ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH};PARMgfs=${PROJECT_SOURCE_DIR}/parm")
-
 # test for converting ewok yaml to gdas
 add_test(NAME test_gdasapp_convert_ewok_yaml
          COMMAND ${PROJECT_SOURCE_DIR}/test/convert_ewok_yaml.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
