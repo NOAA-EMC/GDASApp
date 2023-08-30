@@ -24,7 +24,6 @@ namespace gdasapp {
 
 class PostProcIncr {
  public:
-
   // -----------------------------------------------------------------------------
   // Constructor
 

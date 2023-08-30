@@ -69,7 +69,6 @@ namespace gdasapp {
 
   class SocaEnsHandler : public oops::Application {
    public:
-
     // -----------------------------------------------------------------------------
 
     explicit SocaEnsHandler(const eckit::mpi::Comm & comm = oops::mpi::world())

@@ -62,7 +62,6 @@ namespace gdasapp {
         incrWithLayer = postProcIncr.setToZero(incrWithLayer);
 
         // Apply linear change of variables
-        // TODO (Guillaume): Remove this, var change should be limited to ens_handler
         if ( fullConfig.has("linear variable change") ) {
           soca::State traj = postProcIncr.getTraj(fullConfig, geom);
           eckit::LocalConfiguration lvcConfig(fullConfig, "linear variable change");
