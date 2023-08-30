@@ -18,6 +18,9 @@ projs = {'North': ccrs.NorthPolarStereo(),
 def plotConfig(grid_file=[],
                data_file=[],
                variable=[],
+               PDY=os.getenv('PDY'),
+               cyc=os.getenv('cyc'),
+               exp=os.getenv('PSLOT'),
                levels=[],
                bounds=[],
                colormap=[],
@@ -38,6 +41,9 @@ def plotConfig(grid_file=[],
     config['comout'] = comout  # output directory
     config['grid file'] = grid_file
     config['fields file'] = data_file
+    config['PDY'] = PDY
+    config['cyc'] = cyc
+    config['exp'] = exp
     config['levels'] = [1]
     config['colormap'] = colormap
     config['bounds'] = bounds
@@ -63,15 +69,22 @@ def plotHorizontalSlice(config):
     dirname = os.path.join(config['comout'], config['variable'])
     os.makedirs(dirname, exist_ok=True)
 
-    if config['variable'] in ['Temp', 'Salt', 'u', 'v']:
+    variable = config['variable']
+    exp = config['exp']
+    PDY = config['PDY']
+    cyc = config['cyc']
+
+    if variable in ['Temp', 'Salt', 'u', 'v']:
         level = config['levels'][0]
-        slice_data = np.squeeze(data[config['variable']])[level, :, :]
-        label_colorbar = config['variable']+' Level '+str(level)
-        figname = os.path.join(dirname, config['variable']+'_Level_'+str(level))
+        slice_data = np.squeeze(data[variable])[level, :, :]
+        label_colorbar = variable+' Level '+str(level)
+        figname = os.path.join(dirname, variable+'_Level_'+str(level))
+        title = f"{exp} {PDY} {cyc} {variable} Level {level}"
     else:
-        slice_data = np.squeeze(data[config['variable']])
-        label_colorbar = config['variable']
-        figname = os.path.join(dirname, config['variable']+'_'+config['proj'])
+        slice_data = np.squeeze(data[variable])
+        label_colorbar = variable
+        figname = os.path.join(dirname, variable+'_'+config['proj'])
+        title = f"{exp} {PDY} {cyc} {variable}"
 
     bounds = config['bounds']
 
@@ -86,6 +99,7 @@ def plotHorizontalSlice(config):
     plt.colorbar(label=label_colorbar, shrink=0.5, orientation='horizontal')
     ax.coastlines()  # TODO: make this work on hpc
     ax.gridlines(draw_labels=True)
+    ax.set_title(title)
     if config['proj'] == 'South':
         ax.set_extent([-180, 180, -90, -50], ccrs.PlateCarree())
     if config['proj'] == 'North':
@@ -98,11 +112,15 @@ def plotZonalSlice(config):
     """
     pcolormesh of a zonal slice of an ocean field
     """
+    variable = config['variable']
+    exp = config['exp']
+    PDY = config['PDY']
+    cyc = config['cyc']
     lat = float(config['lat'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
     lat_index = np.argmin(np.array(np.abs(np.squeeze(grid.lat)[:, 0]-lat)))
-    slice_data = np.squeeze(np.array(data[config['variable']]))[:, lat_index, :]
+    slice_data = np.squeeze(np.array(data[variable]))[:, lat_index, :]
     depth = np.squeeze(np.array(grid['h']))[:, lat_index, :]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
@@ -112,11 +130,13 @@ def plotZonalSlice(config):
     plt.pcolormesh(x, -depth, slice_data,
                    vmin=bounds[0], vmax=bounds[1],
                    cmap=config['colormap'])
-    plt.colorbar(label=config['variable']+' Lat '+str(lat), shrink=0.5, orientation='horizontal')
+    plt.colorbar(label=variable+' Lat '+str(lat), shrink=0.5, orientation='horizontal')
     ax.set_ylim(-config['max depth'], 0)
-    dirname = os.path.join(config['comout'], config['variable'])
+    title = f"{exp} {PDY} {cyc} {variable} lat {int(lat)}"
+    ax.set_title(title)
+    dirname = os.path.join(config['comout'], variable)
     os.makedirs(dirname, exist_ok=True)
-    figname = os.path.join(dirname, config['variable'] +
+    figname = os.path.join(dirname, variable +
                            'zonal_lat_'+str(int(lat)) + '_' + str(int(config['max depth'])) + 'm')
     plt.savefig(figname, bbox_inches='tight', dpi=600)
 

@@ -9,19 +9,19 @@ export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
 
 # Set variables for ctest
 export PSLOT=gdas_test
-export EXPDIR=$bindir/test/atm/global-workflow/testrun/experiments/$PSLOT
+export EXPDIR=$bindir/test/aero/global-workflow/testrun/experiments/$PSLOT
 export PDY=20210323
 export cyc=18
 export CDATE=${PDY}${cyc}
-export ROTDIR=$bindir/test/atm/global-workflow/testrun/ROTDIRS/$PSLOT
+export ROTDIR=$bindir/test/aero/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=gdas
 export CDUMP=gdas
-export DATAROOT=$bindir/test/atm/global-workflow/testrun/RUNDIRS/$PSLOT
-export COMIN_GES=${bindir}/test/atm/bkg
+export DATAROOT=$bindir/test/aero/global-workflow/testrun/RUNDIRS/$PSLOT
+export COMIN_GES=${bindir}/test/aero/bkg
 export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
-export NMEM_ENS=3
+export NMEM_ENS=0
 export ACCOUNT=da-cpu
 export COM_TOP=$ROTDIR
 
@@ -62,35 +62,20 @@ oprefix=$CDUMP.t${cyc}z
 # Generate COM variables from templates
 YMD=${PDY} HH=${cyc} generate_com -rx COM_OBS
 RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} generate_com -rx \
-    COM_ATMOS_ANALYSIS_PREV:COM_ATMOS_ANALYSIS_TMPL \
-    COM_ATMOS_HISTORY_PREV:COM_ATMOS_HISTORY_TMPL \
+    COM_CHEM_ANALYSIS_PREV:COM_CHEM_ANALYSIS_TMPL \
+    COM_CHEM_HISTORY_PREV:COM_CHEM_HISTORY_TMPL \
     COM_ATMOS_RESTART_PREV:COM_ATMOS_RESTART_TMPL
 
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
 mkdir -p $COM_OBS
-flist="amsua_n19.$CDATE.nc4 sondes.$CDATE.nc4"
+flist="viirs_npp.$CDATE.nc4"
 for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.$file $COM_OBS/
 done
 
-# Link radiance bias correction files
-dpath=gdas.$gPDY/$gcyc/analysis/atmos
-mkdir -p $COM_ATMOS_ANALYSIS_PREV
-flist="amsua_n19.satbias.nc4 amsua_n19.satbias_cov.nc4 amsua_n19.tlapse.txt"
-for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.$file $COM_ATMOS_ANALYSIS_PREV/
-done
 
-# Link atmospheric background on gaussian grid
-dpath=gdas.$gPDY/$gcyc/model_data/atmos/history
-mkdir -p $COM_ATMOS_HISTORY_PREV
-flist="atmf006.nc"
-for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${gprefix}.${file} $COM_ATMOS_HISTORY_PREV/
-done
-
-# Link atmospheric bacgkround on tiles
+# Link model bacgkround on tiles
 dpath=gdas.$gPDY/$gcyc/model_data/atmos
 COM_ATMOS_RESTART_PREV_DIRNAME=$(dirname $COM_ATMOS_RESTART_PREV)
 mkdir -p $COM_ATMOS_RESTART_PREV_DIRNAME
@@ -100,35 +85,11 @@ for file in $flist; do
 done
 
 
-# Link member atmospheric background on tiles and atmf006
-dpath=enkfgdas.$gPDY/$gcyc
-for imem in $(seq 1 $NMEM_ENS); do
-    memchar="mem"$(printf %03i $imem)
-
-    MEMDIR=${memchar} RUN=enkf${RUN} YMD=${gPDY} HH=${gcyc} generate_com -x \
-	COM_ATMOS_HISTORY_PREV_ENS:COM_ATMOS_HISTORY_TMPL \
-	COM_ATMOS_RESTART_PREV_ENS:COM_ATMOS_RESTART_TMPL
-    COM_ATMOS_RESTART_PREV_DIRNAME_ENS=$(dirname $COM_ATMOS_RESTART_PREV_ENS)
-
-    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model_data/atmos
-    target=$COM_ATMOS_RESTART_PREV_DIRNAME_ENS
-    mkdir -p $target
-    rm -rf $target/restart
-    ln -fs $source/restart $target/
-
-    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model_data/atmos/history
-    target=$COM_ATMOS_HISTORY_PREV_ENS
-    mkdir -p $target
-    rm -rf $target/enkfgdas.t${gcyc}z.atmf006.nc
-    ln -fs $source/enkfgdas.t${gcyc}z.atmf006.nc $target/
-done
-
-
 # Execute j-job
 if [ $machine = 'HERA' ]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_AERO_ANALYSIS_INITIALIZE
 elif [ $machine = 'ORION' ]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --partition=orion --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --partition=orion --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_AERO_ANALYSIS_INITIALIZE
 else
-    ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
+    ${HOMEgfs}/jobs/JGLOBAL_AERO_ANALYSIS_INITIALIZE
 fi
