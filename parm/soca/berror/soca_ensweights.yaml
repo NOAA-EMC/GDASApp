@@ -18,7 +18,7 @@ background:
 weights:
   # Need to provide weights^2 when reading from file
   ice: 0.0025   #  5% of original variance
-  ocean: 1.0   # 10%      "       "
+  ocean: 0.01   # 10%      "       "
 
 output:
   datadir: ./
