@@ -9,11 +9,11 @@ corr variables: [tocn, cicen]
 scales:
   vert layers: 70 # in units of layer
   tocn:
-    rossby mult: 1.00
-    min grid mult: 2.0
+    rossby mult: 5.0 #1.00
+    min grid mult: 10.0 #2.0
   cicen:
-    rossby mult: 1.00
-    min grid mult: 2.0
+    rossby mult: 5.0 #1.00
+    min grid mult: 10.0 #2.0
 
 rh output:
   datadir: ./

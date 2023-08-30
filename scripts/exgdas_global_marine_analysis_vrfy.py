@@ -42,6 +42,61 @@ HOMEgfs = os.getenv('HOMEgfs')
 
 
 #######################################
+# recentering error
+#######################################
+string = 'recentering_error'
+data_file = os.path.join(comout, f'{RUN}.t{cyc}z.ocn.{string}.nc')
+config = plotConfig(grid_file=grid_file,
+                    data_file=data_file,
+                    variables_horiz={'ave_ssh': [-1, 1]},
+                    colormap='gist_ncar',
+                    comout=os.path.join(comout, 'vrfy', 'recentering_error'))
+recErrPlotter = statePlotter(config)
+recErrPlotter.plot()
+
+#######################################
+# background error
+#######################################
+
+for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev']:
+    data_file = os.path.join(comout, f'{RUN}.t{cyc}z.ocn.{string}.nc')
+    config = plotConfig(grid_file=grid_file,
+                        data_file=data_file,
+                        variables_horiz={'ave_ssh': [0, 0.8]},
+                        colormap='gist_ncar',
+                        comout=os.path.join(comout, 'vrfy', 'bkgerr', string))
+    bkgErrPlotter = statePlotter(config)
+    bkgErrPlotter.plot()
+
+string = 'steric_explained_variance'
+data_file = os.path.join(comout, f'{RUN}.t{cyc}z.ocn.{string}.nc')
+config = plotConfig(grid_file=grid_file,
+                    data_file=data_file,
+                    variables_horiz={'ave_ssh': [0, 1]},
+                    colormap='seismic',
+                    comout=os.path.join(comout, 'vrfy', 'bkgerr', string))
+bkgErrPlotter = statePlotter(config)
+bkgErrPlotter.plot()
+
+data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
+config = plotConfig(grid_file=grid_file,
+                    data_file=data_file,
+                    lats=np.arange(-60, 60, 10),
+                    variables_zonal={'Temp': [0, 2],
+                                     'Salt': [0, 0.2],
+                                     'u': [0, 0.2],
+                                     'v': [0, 0.2]},
+                    variables_horiz={'Temp': [0, 2],
+                                     'Salt': [0, 0.2],
+                                     'u': [0, 0.2],
+                                     'v': [0, 0.2],
+                                     'ave_ssh': [0, 0.1]},
+                    colormap='jet',
+                    comout=os.path.join(comout, 'vrfy', 'bkgerr'))
+bkgErrPlotter = statePlotter(config)
+bkgErrPlotter.plot()
+
+#######################################
 # ocean increment
 #######################################
 
@@ -140,27 +195,6 @@ config = plotConfig(grid_file=grid_file,
                     comout=os.path.join(comout, 'vrfy', 'bkg'))
 ocnBkgPlotter = statePlotter(config)
 ocnBkgPlotter.plot()
-
-#######################################
-# background error
-#######################################
-
-data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
-config = plotConfig(grid_file=grid_file,
-                    data_file=data_file,
-                    lats=np.arange(-60, 60, 10),
-                    lons=np.arange(-280, 80, 10),
-                    variables_zonal={'Temp': [0, 2],
-                                     'Salt': [0, 0.2]},
-                    variables_horiz={'Temp': [0, 2],
-                                     'Salt': [0, 0.2],
-                                     'ave_ssh': [0, 0.1]},
-                    variables_meridional={'Temp': [0, 2],
-                                          'Salt': [0, 0.2]},
-                    colormap='jet',
-                    comout=os.path.join(comout, 'vrfy', 'bkgerr'))
-bkgErrPlotter = statePlotter(config)
-bkgErrPlotter.plot()
 
 #######################################
 # eva plots

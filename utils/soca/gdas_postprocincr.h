@@ -24,14 +24,16 @@ namespace gdasapp {
 
 class PostProcIncr {
  public:
+
+  // -----------------------------------------------------------------------------
   // Constructor
+
   PostProcIncr(const eckit::Configuration & fullConfig, const soca::Geometry& geom,
                const eckit::mpi::Comm & comm)
     : dt_(getDate(fullConfig)),
       layerVar_(getLayerVar(fullConfig)),
       geom_(geom),
       Layers_(getLayerThickness(fullConfig, geom)),
-      xTraj_(getTraj(fullConfig, geom)),
       comm_(comm),
       ensSize_(1),
       pattern_() {
@@ -63,21 +65,14 @@ class PostProcIncr {
       socaZeroIncrVar_ = socaZeroIncrVar;
       setToZero_ = true;
     }
-
-    // Linear variable changes
-    doLVC_ = false;
-    if ( fullConfig.has("linear variable change") ) {
-      eckit::LocalConfiguration lvcConfig(fullConfig, "linear variable change");
-      lvcConfig_ = lvcConfig;
-      doLVC_ = true;
-    }
   }
 
-  // Append layer thicknesses to increment
-  // TODO(guillaume): There's got to be a better way to append a variable.
-  soca::Increment appendLayer(const int n) {
+  // -----------------------------------------------------------------------------
+  // Read ensemble member n
+
+  soca::Increment read(const int n) {
     oops::Log::info() << "==========================================" << std::endl;
-    oops::Log::info() << "======  Append Layers" << std::endl;
+    oops::Log::info() << "======  Reading ensemble member " << n << std::endl;
 
     // initialize the soca increment
     soca::Increment socaIncr(geom_, socaIncrVar_, dt_);
@@ -87,19 +82,29 @@ class PostProcIncr {
     // replace templated string if necessary
     if (!pattern_.empty()) {
       util::seekAndReplace(memberConfig, pattern_, std::to_string(n));
-      oops::Log::info() << "oooooooooooooooooooooooooooooooooooo" << memberConfig << std::endl;
     }
 
     // read the soca increment
     socaIncr.read(memberConfig);
-    oops::Log::info() << "-------------------- input increment: " << std::endl;
-    oops::Log::info() << socaIncr << std::endl;
+    oops::Log::debug() << "-------------------- input increment: " << std::endl;
+    oops::Log::debug() << socaIncr << std::endl;
+
+    return socaIncr;
+  }
+
+  // -----------------------------------------------------------------------------
+  // Append layer thicknesses to increment
+  // TODO(guillaume): There's got to be a better way to append a variable.
+
+  soca::Increment appendLayer(soca::Increment socaIncr) {
+    oops::Log::info() << "==========================================" << std::endl;
+    oops::Log::info() << "======  Append Layers" << std::endl;
 
     // concatenate variables
     oops::Variables outputIncrVar(socaIncrVar_);
     outputIncrVar += layerVar_;
-    oops::Log::info() << "-------------------- outputIncrVar: " << std::endl;
-    oops::Log::info() << outputIncrVar << std::endl;
+    oops::Log::debug() << "-------------------- outputIncrVar: " << std::endl;
+    oops::Log::debug() << outputIncrVar << std::endl;
 
     // append layer variable to the soca increment
     atlas::FieldSet socaIncrFs;
@@ -109,20 +114,22 @@ class PostProcIncr {
     // pad layer increment with zeros
     soca::Increment layerThick(Layers_);
     atlas::FieldSet socaLayerThickFs;
-    oops::Log::info() << "-------------------- thickness field: " << std::endl;
-    oops::Log::info() << layerThick << std::endl;
+    oops::Log::debug() << "-------------------- thickness field: " << std::endl;
+    oops::Log::debug() << layerThick << std::endl;
     layerThick.toFieldSet(socaLayerThickFs);
     layerThick.updateFields(outputIncrVar);
 
     // append layer thinckness to increment
     socaIncr += layerThick;
-    oops::Log::info() << "-------------------- output increment: " << std::endl;
-    oops::Log::info() << socaIncr << std::endl;
+    oops::Log::debug() << "-------------------- output increment: " << std::endl;
+    oops::Log::debug() << socaIncr << std::endl;
 
     return socaIncr;
   }
 
+  // -----------------------------------------------------------------------------
   // Set specified variables to 0
+
   soca::Increment setToZero(soca::Increment socaIncr) {
     oops::Log::info() << "==========================================" << std::endl;
     if (!this->setToZero_) {
@@ -147,30 +154,29 @@ class PostProcIncr {
       }
     }
     socaIncr.fromFieldSet(socaIncrFs);
-    oops::Log::info() << "-------------------- increment with zero'ed out fields: " << std::endl;
-    oops::Log::info() << socaIncr << std::endl;
+    oops::Log::debug() << "-------------------- increment with zero'ed out fields: " << std::endl;
+    oops::Log::debug() << socaIncr << std::endl;
     return socaIncr;
   }
 
+  // -----------------------------------------------------------------------------
   // Apply linear variable changes
-  soca::Increment applyLinVarChange(soca::Increment socaIncr) {
+
+  soca::Increment applyLinVarChange(soca::Increment socaIncr,
+                                    const eckit::LocalConfiguration lvcConfig,
+                                    const soca::State xTraj) {
     oops::Log::info() << "==========================================" << std::endl;
-    if (!this->doLVC_) {
-      return socaIncr;
-    }
     oops::Log::info() << "======      applying specified change of variables" << std::endl;
-    oops::Log::info() <<  lvcConfig_ << std::endl;
-    eckit::LocalConfiguration lvcConfig_;
-    soca::LinearVariableChange lvc(this->geom_, lvcConfig_);
-    oops::Log::info() <<  "traj: " << xTraj_ << std::endl;
-    lvc.changeVarTraj(xTraj_, socaIncrVar_);
+    soca::LinearVariableChange lvc(this->geom_, lvcConfig);
+    lvc.changeVarTraj(xTraj, socaIncrVar_);
     lvc.changeVarTL(socaIncr, socaIncrVar_);
-    oops::Log::info() << "incr after var change: " << std::endl << socaIncr << std::endl;
 
     return socaIncr;
   }
 
+  // -----------------------------------------------------------------------------
   // Save increment
+
   int save(soca::Increment socaIncr, int ensMem = 1) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "-------------------- save increment: " << std::endl;
@@ -193,7 +199,6 @@ class PostProcIncr {
           std::string pattern;
           outputIncrConfig_.get("pattern", pattern);
           outputFileName = this->swapPattern(outputFileName, pattern, std::to_string(ensMem));
-          oops::Log::info() << "-------------------- pattern: " << pattern << std::endl;
         }
       const char* charPtrOut = outputFileName.c_str();
 
@@ -228,16 +233,16 @@ class PostProcIncr {
     soca::Increment layerThick(geom, getLayerVar(fullConfig), getDate(fullConfig));
     const eckit::LocalConfiguration vertGeomConfig(fullConfig, "vertical geometry");
     layerThick.read(vertGeomConfig);
-    oops::Log::info() << "layerThick: " << std::endl << layerThick << std::endl;
+    oops::Log::debug() << "layerThick: " << std::endl << layerThick << std::endl;
     return layerThick;
   }
   // Initialize the trajectory
   soca::State getTraj(const eckit::Configuration& fullConfig,
                       const soca::Geometry& geom) const {
     if ( fullConfig.has("linear variable change") ) {
-      const eckit::LocalConfiguration trajConfig(fullConfig, "linear variable change.trajectory");
+      const eckit::LocalConfiguration trajConfig(fullConfig, "trajectory");
       soca::State traj(geom, trajConfig);
-      oops::Log::info() << "traj:" << traj << std::endl;
+      oops::Log::debug() << "traj:" << traj << std::endl;
       return traj;
     } else {
       oops::Variables tmpVar(fullConfig, "layers variable");
@@ -298,7 +303,6 @@ class PostProcIncr {
   oops::Variables socaIncrVar_;
   bool setToZero_;
   bool doLVC_;
-  const soca::State xTraj_;
   oops::Variables socaZeroIncrVar_;
   int ensSize_;
   std::string pattern_;

@@ -104,7 +104,6 @@ def plotHorizontalSlice(config):
 
     plt.colorbar(label=label_colorbar, shrink=0.5, orientation='horizontal')
     ax.coastlines()  # TODO: make this work on hpc
-    ax.gridlines(draw_labels=True)
     ax.set_title(title)
     if config['proj'] == 'South':
         ax.set_extent([-180, 180, -90, -50], ccrs.PlateCarree())
