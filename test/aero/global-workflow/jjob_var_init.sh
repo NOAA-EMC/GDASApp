@@ -75,13 +75,16 @@ for file in $flist; do
 done
 
 
-# Link model bacgkround on tiles
+# Copy model bacgkround on tiles
 dpath=gdas.$gPDY/$gcyc/model_data/atmos
 COM_ATMOS_RESTART_PREV_DIRNAME=$(dirname $COM_ATMOS_RESTART_PREV)
-mkdir -p $COM_ATMOS_RESTART_PREV_DIRNAME
-flist="restart"
+if [ -d $COM_ATMOS_RESTART_PREV_DIRNAME/restart ]; then
+    rm -rf $COM_ATMOS_RESTART_PREV_DIRNAME/restart
+fi
+mkdir -p $COM_ATMOS_RESTART_PREV_DIRNAME/restart
+flist="restart/*"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$file $COM_ATMOS_RESTART_PREV_DIRNAME/
+   cp $GDASAPP_TESTDATA/lowres/$dpath/$file $COM_ATMOS_RESTART_PREV_DIRNAME/restart/
 done
 
 
