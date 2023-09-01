@@ -36,6 +36,7 @@ if __name__ == "__main__":
     # Change the obs file name format
     obsdir = os.getenv('SOCA_TEST_OBS')
     cdl2nc(os.path.join(obsdir, 'adt.nc.cdl'), 'adt_j3_20180415.nc4')
+    cdl2nc(os.path.join(obsdir, 'adt.nc.cdl'), 'adt_j2_20180415.nc4')
     cdl2nc(os.path.join(obsdir, 'sst.nc.cdl'), 'sst_noaa19_l3u_20180415.nc4')
     cdl2nc(os.path.join(obsdir, 'sss.nc.cdl'), 'sss_smap_20180415.nc4')
     cdl2nc(os.path.join(obsdir, 'prof.nc.cdl'), 'temp_profile_fnmoc_20180415.nc4')
@@ -53,6 +54,7 @@ if __name__ == "__main__":
                          'provider': 'gdasapp',
                          'experiment': 'soca',
                          'obs_types': ['adt_j3',
+                                       'adt_j2',
                                        'sst_noaa19_l3u',
                                        'sss_smap',
                                        'temp_profile_fnmoc',
