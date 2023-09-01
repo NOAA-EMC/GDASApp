@@ -2,6 +2,7 @@
 import os
 import subprocess
 
+
 def main():
     # Check command line arguments
     if len(sys.argv) != 6:
@@ -52,6 +53,7 @@ def main():
             os.remove(json_output_file)
         else:
             print(f"Problem running converter script for {obtype}")
+
 
 if __name__ == "__main__":
     import sys
