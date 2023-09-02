@@ -268,6 +268,11 @@ stage_cfg['r2d2_obs_out'] = os.getenv('COM_OBS')
 # stage observations from R2D2 COMIN_OBS to COM_OBS
 ufsda.stage.obs(stage_cfg)
 
+# concatenate altimeters into one obs space
+# TODO (SAMG)temporary, move this into the obs procecing eventually
+adt_obs = f"{os.getenv('COM_OBS')}/{RUN}.t{cyc}z.adt"
+ufsda.soca_utils.concatenate_ioda(adt_obs, wildcard="*.nc4", output_suffix=f"_all.{PDY}{cyc}.nc4", clean=True)
+
 # get the list of observations
 obs_files = []
 for ob in stage_cfg['observations']['observers']:
