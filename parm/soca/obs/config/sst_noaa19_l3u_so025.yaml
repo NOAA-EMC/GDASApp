@@ -13,6 +13,7 @@ obs space:
     max pool size: 1
 obs operator:
   name: Identity
+  observation alias file: obsop_name_map.yaml
 obs error:
   covariance model: diagonal
 obs filters:
@@ -28,15 +29,15 @@ obs filters:
 - filter: Domain Check
   where:
   - variable: {name: ObsError/seaSurfaceTemperature}
-    minvalue: 0.001
+    minvalue: 1.0e-8
 - filter: Domain Check
   where:
   - variable: { name: GeoVaLs/sea_ice_area_fraction}
-    maxvalue: 0.00001
+    maxvalue: 1.0e-5
 - filter: Domain Check
   where:
   - variable: {name: GeoVaLs/sea_surface_temperature}
-    minvalue: 5.0
+    minvalue: -1.0
 - filter: Domain Check
   where:
   - variable: {name: GeoVaLs/distance_from_coast}

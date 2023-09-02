@@ -1,0 +1,15 @@
+obs space:
+  name: adt_j2
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}adt_j2.${PDY}${cyc}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/diags/adt_j3.${PDY}${cyc}.nc4
+  simulated variables: [absoluteDynamicTopography]
+obs operator:
+  name: ADT
+obs error:
+  covariance model: diagonal
