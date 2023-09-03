@@ -153,6 +153,10 @@ def plotMeridionalSlice(config):
     """
     pcolormesh of a Meridional slice of an ocean field
     """
+    variable = config['variable']
+    exp = config['exp']
+    PDY = config['PDY']
+    cyc = config['cyc']
     lon = float(config['lon'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
@@ -169,6 +173,8 @@ def plotMeridionalSlice(config):
                    cmap=config['colormap'])
     plt.colorbar(label=config['variable']+' Lon '+str(lon), shrink=0.5, orientation='horizontal')
     ax.set_ylim(-config['max depth'], 0)
+    title = f"{exp} {PDY} {cyc} {variable} lon {int(lon)}"
+    ax.set_title(title)
     dirname = os.path.join(config['comout'], config['variable'])
     os.makedirs(dirname, exist_ok=True)
     figname = os.path.join(dirname, config['variable'] +
