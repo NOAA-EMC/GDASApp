@@ -1,7 +1,7 @@
 {
   "data_format"      : "bufr_d",
   "data_type"        : "satwnd",
-  "cycle_type"       : "{{ CDUMP }}",
+  "cycle_type"       : "{{ RUN }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
   "ioda_directory"   : "{{ COM_OBS }}",
