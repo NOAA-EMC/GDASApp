@@ -69,10 +69,10 @@ background error output:
 
 linear variable change:
   linear variable changes:
-  - linear variable change name: BkgErrFILT
-    ocean_depth_min: 500  # zero where ocean is shallower than 500m
-    rescale_bkgerr: 1.0   # rescale perturbation
-    efold_z: 1500.0       # Apply exponential decay
+#  - linear variable change name: BkgErrFILT
+#    ocean_depth_min: 500  # zero where ocean is shallower than 500m
+#    rescale_bkgerr: 1.0   # rescale perturbation
+#    efold_z: 1500.0       # Apply exponential decay
   - linear variable change name: BalanceSOCA
 
 trajectory:

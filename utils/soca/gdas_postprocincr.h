@@ -95,7 +95,7 @@ class PostProcIncr {
   // Append layer thicknesses to increment
   // TODO(guillaume): There's got to be a better way to append a variable.
 
-  soca::Increment appendLayer(soca::Increment socaIncr) {
+  soca::Increment appendLayer(soca::Increment& socaIncr) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======  Append Layers" << std::endl;
 
@@ -129,7 +129,7 @@ class PostProcIncr {
   // -----------------------------------------------------------------------------
   // Set specified variables to 0
 
-  soca::Increment setToZero(soca::Increment socaIncr) {
+  soca::Increment setToZero(soca::Increment& socaIncr) {
     oops::Log::info() << "==========================================" << std::endl;
     if (!this->setToZero_) {
       oops::Log::info() << "======      no variables to set to 0.0" << std::endl;
@@ -161,22 +161,22 @@ class PostProcIncr {
   // -----------------------------------------------------------------------------
   // Apply linear variable changes
 
-  soca::Increment applyLinVarChange(soca::Increment socaIncr,
-                                    const eckit::LocalConfiguration lvcConfig,
-                                    const soca::State xTraj) {
+  void applyLinVarChange(soca::Increment& socaIncr,
+                         const eckit::LocalConfiguration& lvcConfig,
+                         const soca::State& xTraj) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======      applying specified change of variables" << std::endl;
     soca::LinearVariableChange lvc(this->geom_, lvcConfig);
     lvc.changeVarTraj(xTraj, socaIncrVar_);
     lvc.changeVarTL(socaIncr, socaIncrVar_);
-
-    return socaIncr;
+    oops::Log::info() << "$%^#& in var change:" << socaIncr << std::endl;
+    //return socaIncr;
   }
 
   // -----------------------------------------------------------------------------
   // Save increment
 
-  int save(soca::Increment socaIncr, int ensMem = 1) {
+  int save(soca::Increment& socaIncr, int ensMem = 1) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "-------------------- save increment: " << std::endl;
     socaIncr.write(outputIncrConfig_);

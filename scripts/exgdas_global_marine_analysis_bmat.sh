@@ -123,7 +123,7 @@ fi
 # 3 - Copy h from deterministic to unbalanced perturbations
 # 4 - Compute moments of converted ensemble perturbations
 
-# Process climatological ensemble
+# Process static ensemble
 clean_yaml soca_clim_ens_moments.yaml
 $APRUN_OCNANAL $JEDI_BIN/gdas_ens_handler.x soca_ensb.yaml
 export err=$?; err_chk

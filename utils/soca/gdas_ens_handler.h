@@ -1,7 +1,5 @@
 #pragma once
 
-#include <netcdf>
-
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -115,8 +113,8 @@ namespace gdasapp {
 
       // Get the steric variable change configuration
       eckit::LocalConfiguration stericVarChangeConfig;
-      fullConfig.get("steric variable change", stericVarChangeConfig);
-
+      fullConfig.get("steric height", stericVarChangeConfig);
+      oops::Log::info() << "steric config 0000: " << stericVarChangeConfig << std::endl;
       // Initialize trajectories
       const eckit::LocalConfiguration trajConfig(fullConfig, "trajectory");
       soca::State cycleTraj(geom, trajConfig);  // trajectory of the cycle
@@ -128,6 +126,9 @@ namespace gdasapp {
       soca::Increment deterministicError(geom, postProcIncr.socaIncrVar_, postProcIncr.dt_);
       deterministicError.diff(cycleTraj, meanTraj);
       eckit::LocalConfiguration sshRecErrOutputConfig(fullConfig, "ssh output.recentering error");
+      deterministicError = postProcIncr.setToZero(deterministicError);
+      oops::Log::info() << "steric config : " << stericVarChangeConfig << std::endl;
+      postProcIncr.applyLinVarChange(deterministicError, stericVarChangeConfig, cycleTraj);
       oops::Log::info() << "ensemble mean: " << meanTraj << std::endl;
       oops::Log::info() << "deterministic: " << cycleTraj << std::endl;
       oops::Log::info() << "error: " << deterministicError << std::endl;
@@ -159,7 +160,7 @@ namespace gdasapp {
 
         // Compute the original steric height perturbation from T and S
         eckit::LocalConfiguration stericConfig(fullConfig, "steric height");
-        incr = postProcIncr.applyLinVarChange(incr, stericConfig, meanTraj);
+        postProcIncr.applyLinVarChange(incr, stericConfig, meanTraj);
         ssh_tmp = incr;
         sshSteric.push_back(ssh_tmp);
 
@@ -179,7 +180,7 @@ namespace gdasapp {
         // Filter ensemble member and recompute ssh, recentering around the cycle's trajectory
         if ( fullConfig.has("linear variable change") ) {
           eckit::LocalConfiguration lvcConfig(fullConfig, "linear variable change");
-          incr = postProcIncr.applyLinVarChange(incr, lvcConfig, cycleTraj);
+          postProcIncr.applyLinVarChange(incr, lvcConfig, cycleTraj);
         }
 
         // Save final perturbation, used in the offline EnVAR

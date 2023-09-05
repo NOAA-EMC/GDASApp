@@ -1,7 +1,5 @@
 #pragma once
 
-#include <netcdf>
-
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -65,7 +63,7 @@ namespace gdasapp {
         if ( fullConfig.has("linear variable change") ) {
           soca::State traj = postProcIncr.getTraj(fullConfig, geom);
           eckit::LocalConfiguration lvcConfig(fullConfig, "linear variable change");
-          incrWithLayer = postProcIncr.applyLinVarChange(incrWithLayer, lvcConfig, traj);
+          postProcIncr.applyLinVarChange(incrWithLayer, lvcConfig, traj);
         }
 
         // Save final increment
