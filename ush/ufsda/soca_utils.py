@@ -53,8 +53,8 @@ def obs_specs(iodafname):
     raise Exception(f"No known obs type in {iodafname}.")
 
 
-def concatenate_ioda(iodafname):
-    flist = glob.glob(iodafname+'.*')
+def concatenate_ioda(iodafname, wildcard=".*", output_suffix="", clean=False):
+    flist = glob.glob(f"{iodafname}{wildcard}")
     flist.sort()
     nfiles = len(flist)
     if nfiles == 0:
@@ -63,7 +63,7 @@ def concatenate_ioda(iodafname):
 
     if len(flist) == 1:
         logging.info(f"Only file is {flist[0]}, rename to {iodafname}. No need to concatenate.")
-        shutil.move(flist[0], iodafname)
+        shutil.move(flist[0], iodafname+output_suffix)
         return
 
     logging.info(f"Concatenating {nfiles} files from globbing {iodafname}.*")
@@ -107,7 +107,12 @@ def concatenate_ioda(iodafname):
     globalattrs = {}
 
     # Write
-    writer = iconv.IodaWriter(iodafname, locationkeylist, dimdict)
+    writer = iconv.IodaWriter(iodafname+output_suffix, locationkeylist, dimdict)
     writer.BuildIoda(outdata, vardims, varattrs, globalattrs)
+
+    # Remove files
+    if clean:
+        for file in flist:
+            os.remove(file)
 
     return
