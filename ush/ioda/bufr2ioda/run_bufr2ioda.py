@@ -9,6 +9,7 @@ from wxflow import add_to_datetime, to_timedelta
 # Initialize root logger
 logger = Logger('run_bufr2ioda.py', level='INFO', colored_log=True)
 
+
 def bufr2ioda(CDATE, RUN, DMPDIR, config_template_dir, COM_OBS):
     logger.info(f"Process {CDATE} {RUN} from {DMPDIR} to {COM_OBS} using {config_template_dir}")
 
@@ -57,4 +58,3 @@ if __name__ == "__main__":
     parser.add_argument('COM_OBS', type=str, help='path to output ioda format dump files')
     args = parser.parse_args()
     bufr2ioda(args.CDATE, args.RUN, args.DMPDIR, args.config_template_dir, args.COM_OBS)
-
