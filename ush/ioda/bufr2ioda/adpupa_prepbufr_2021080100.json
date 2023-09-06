@@ -1,0 +1,13 @@
+{
+    "data_format": "prepbufr",
+    "data_type": "prepbufr",
+    "cycle_type": "gdas",
+    "cycle_datetime": "2021080100",
+    "dump_directory": "/work2/noaa/da/pkumar/dump",
+    "ioda_directory": ".",
+    "subsets": [
+        "ADPUPA"
+    ],
+    "data_provider": "U.S. NOAA/NESDIS",
+    "data_description": "UPPER-AIR (RAOB, PIBAL, RECCO, DROPS) REPORTS"
+}
