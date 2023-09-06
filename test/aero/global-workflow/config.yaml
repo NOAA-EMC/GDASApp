@@ -1,0 +1,8 @@
+base:
+  DATAPATH: "@bindir@/test/aero/global-workflow/testrun"
+  DUMPDIR: "@dumpdir@"
+  STMP: "@bindir@/test/aero/global-workflow/testrun"
+  PTMP: "@bindir@/test/aero/global-workflow/testrun"
+aeroanl:
+  OBS_LIST: "@srcdir@/test/aero/global-workflow/gdas_prototype.yaml"
+  ATMRES_ANL: "C48"
