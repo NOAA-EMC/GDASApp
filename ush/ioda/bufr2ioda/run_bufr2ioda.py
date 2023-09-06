@@ -1,29 +1,25 @@
 #!/usr/bin/env python3
 import argparse
 import os
+from pathlib import Path
 from gen_bufr2ioda_json import gen_bufr_json
-from wxflow import Logger, Executable, cast_as_dtype
+from wxflow import Logger, Executable, cast_as_dtype, logit, to_datetime, datetime_to_YMDH
 
 # Initialize root logger
 logger = Logger('run_bufr2ioda.py', level='INFO', colored_log=True)
 
 
-def bufr2ioda(CDATE, RUN, DMPDIR, config_template_dir, COM_OBS):
-    logger.info(f"Process {CDATE} {RUN} from {DMPDIR} to {COM_OBS} using {config_template_dir}")
-
-    # Derived parameters
-    PDY = CDATE[:8]
-    cyc = CDATE[8:10]
+@logit(logger)
+def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
+    logger.info(f"Process {current_cycle} {RUN} from {DMPDIR} to {COM_OBS} using {config_template_dir}")
 
     # Load configuration
     config = {
         'RUN': RUN,
-        'PDY': PDY,
-        'cyc': cyc,
+        'current_cycle': current_cycle,
         'DMPDIR': DMPDIR,
         'COM_OBS': COM_OBS
     }
-    config['current_cycle'] = cast_as_dtype(CDATE)
 
     # Get gdasapp root directory
     DIR_ROOT = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../.."))
@@ -37,8 +33,9 @@ def bufr2ioda(CDATE, RUN, DMPDIR, config_template_dir, COM_OBS):
 
     for obtype in BUFR_py:
         logger.info(f"Convert {obtype}...")
-        json_output_file = os.path.join(COM_OBS, f"{obtype}_{PDY}{cyc}.json")
-        template = config_template_dir + '/bufr2ioda_' + obtype + '.json'
+        json_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
+        filename = 'bufr2ioda_' + obtype + '.json'
+        template = os.path.join(config_template_dir, filename)
         gen_bufr_json(config, template, json_output_file)
 
         # Use the converter script for the ob type
@@ -49,19 +46,13 @@ def bufr2ioda(CDATE, RUN, DMPDIR, config_template_dir, COM_OBS):
         logger.info(f"Executing {cmd}")
         cmd()
 
-        # Check if the converter was successful
-        if os.path.exists(json_output_file):
-            os.remove(json_output_file)
-        else:
-            print(f"Problem running converter script for {obtype}")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Convert bufr dump file to ioda format')
-    parser.add_argument('CDATE', type=str, help='YYYYMMDDHH date to process')
+    parser.add_argument('current_cycle', help='current cycle to process', type=lambda dd: to_datetime(dd))
     parser.add_argument('RUN', type=str, help='dump to process, either gdas or gdas')
-    parser.add_argument('DMPDIR', type=str, help='path to bufr dump files')
-    parser.add_argument('config_template_dir', type=str, help='path to templates')
-    parser.add_argument('COM_OBS', type=str, help='path to output ioda format dump files')
+    parser.add_argument('DMPDIR', type=Path, help='path to bufr dump files')
+    parser.add_argument('config_template_dir', type=Path, help='path to templates')
+    parser.add_argument('COM_OBS', type=Path, help='path to output ioda format dump files')
     args = parser.parse_args()
-    bufr2ioda(args.CDATE, args.RUN, args.DMPDIR, args.config_template_dir, args.COM_OBS)
+    bufr2ioda(args.current_cycle, args.RUN, args.DMPDIR, args.config_template_dir, args.COM_OBS)
