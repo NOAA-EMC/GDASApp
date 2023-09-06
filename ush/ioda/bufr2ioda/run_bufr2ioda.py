@@ -3,7 +3,8 @@ import argparse
 import os
 from pathlib import Path
 from gen_bufr2ioda_json import gen_bufr_json
-from wxflow import Logger, Executable, cast_as_dtype, logit, to_datetime, datetime_to_YMDH
+from wxflow import (Logger, Executable, cast_as_dtype, logit,
+                    to_datetime, datetime_to_YMDH, Task, rm_p)
 
 # Initialize root logger
 logger = Logger('run_bufr2ioda.py', level='INFO', colored_log=True)
@@ -13,6 +14,13 @@ logger = Logger('run_bufr2ioda.py', level='INFO', colored_log=True)
 def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     logger.info(f"Process {current_cycle} {RUN} from {DMPDIR} to {COM_OBS} using {config_template_dir}")
 
+    # Get gdasapp root directory
+    DIR_ROOT = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../.."))
+    USH_IODA = os.path.join(DIR_ROOT, "ush", "ioda", "bufr2ioda")
+
+    # Create output directory if it doesn't exist
+    os.makedirs(COM_OBS, exist_ok=True)
+
     # Load configuration
     config = {
         'RUN': RUN,
@@ -20,13 +28,6 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         'DMPDIR': DMPDIR,
         'COM_OBS': COM_OBS
     }
-
-    # Get gdasapp root directory
-    DIR_ROOT = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../.."))
-    USH_IODA = os.path.join(DIR_ROOT, "ush", "ioda", "bufr2ioda")
-
-    # Create output directory if it doesn't exist
-    os.makedirs(COM_OBS, exist_ok=True)
 
     # Specify observation types to be processed by a script
     BUFR_py = ["satwind_amv_goes"]
@@ -45,6 +46,10 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         cmd.add_default_arg(json_output_file)
         logger.info(f"Executing {cmd}")
         cmd()
+
+        # Check if the converter was successful
+        if os.path.exists(json_output_file):
+            rm_p(json_output_file)
 
 
 if __name__ == "__main__":
