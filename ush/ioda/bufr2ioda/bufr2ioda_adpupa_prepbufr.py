@@ -29,13 +29,13 @@ from collections import namedtuple
 #|------------------------------------------------------------------------------|
 
 # Define and initialize  global variables
-global float32_fill_value
-global int32_fill_value
-global int64_fill_value
+#global float32_fill_value
+#global int32_fill_value
+#global int64_fill_value
 
-float32_fill_value = np.float32(0)
-int32_fill_value = np.int32(0)
-int64_fill_value = np.int64(0)
+#float32_fill_value = np.float32(0)
+#int32_fill_value = np.int32(0)
+#int64_fill_value = np.int64(0)
 
 
 def Compute_dateTime(cycleTimeSinceEpoch, hrdr):
@@ -241,14 +241,14 @@ def bufr_to_ioda(config, logger):
 
     # Global variables declaration
     # Set global fill values
-    float32_fill_value = lat.fill_value
-    int32_fill_value = tobqm.fill_value
-    int64_fill_value = hrdr.fill_value.astype(np.int64)
-    string_fill_value  = sid.fill_value
-    logger.debug(f'     float32_fill_value  = {float32_fill_value}')
-    logger.debug(f'     int32_fill_value    = {int32_fill_value}')
-    logger.debug(f'     int64_fill_value    = {int64_fill_value}')
-    logger.debug(f'     string_fill_value    = {string_fill_value}')
+    #float32_fill_value = lat.fill_value
+    #int32_fill_value = tobqm.fill_value
+    #int64_fill_value = hrdr.fill_value.astype(np.int64)
+    #string_fill_value  = sid.fill_value
+    #logger.debug(f'     float32_fill_value  = {float32_fill_value}')
+    #logger.debug(f'     int32_fill_value    = {int32_fill_value}')
+    #logger.debug(f'     int64_fill_value    = {int64_fill_value}')
+    #logger.debug(f'     string_fill_value    = {string_fill_value}')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -343,13 +343,13 @@ def bufr_to_ioda(config, logger):
         .write_data(pob)
 
     # Datetime
-    obsspace.create_var('MetaData/dateTime', dtype=np.int64, fillval=int64_fill_value) \
+    obsspace.create_var('MetaData/dateTime', dtype=np.int64, fillval=hrdr.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Datetime') \
         .write_data(hrdr)
 
     # releaseTime
-    obsspace.create_var('MetaData/releaseTime', dtype=np.int64, fillval=int64_fill_value) \
+    obsspace.create_var('MetaData/releaseTime', dtype=np.int64, fillval=hrdr.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Release Time') \
         .write_data(ulan)
