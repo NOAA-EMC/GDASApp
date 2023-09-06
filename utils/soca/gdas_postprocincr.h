@@ -159,10 +159,9 @@ class PostProcIncr {
       return socaIncr;
     }
     oops::Log::info() << "======      applying specified change of variables" << std::endl;
-    soca::LinearVariableChangeParameters params;
-    params.deserialize(lvcConfig_);
-    oops::Log::info() <<  params << std::endl;
-    soca::LinearVariableChange lvc(this->geom_, params);
+    oops::Log::info() <<  lvcConfig_ << std::endl;
+    eckit::LocalConfiguration lvcConfig_;
+    soca::LinearVariableChange lvc(this->geom_, lvcConfig_);
     oops::Log::info() <<  "traj: " << xTraj_ << std::endl;
     lvc.changeVarTraj(xTraj_, socaIncrVar_);
     lvc.changeVarTL(socaIncr, socaIncrVar_);

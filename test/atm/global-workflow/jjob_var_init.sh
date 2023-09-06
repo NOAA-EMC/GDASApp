@@ -21,7 +21,7 @@ export COMIN_GES=${bindir}/test/atm/bkg
 export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
-export NMEM_ENS=0
+export NMEM_ENS=3
 export ACCOUNT=da-cpu
 export COM_TOP=$ROTDIR
 
@@ -97,6 +97,30 @@ mkdir -p $COM_ATMOS_RESTART_PREV_DIRNAME
 flist="restart"
 for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$file $COM_ATMOS_RESTART_PREV_DIRNAME/
+done
+
+
+# Link member atmospheric background on tiles and atmf006
+dpath=enkfgdas.$gPDY/$gcyc
+for imem in $(seq 1 $NMEM_ENS); do
+    memchar="mem"$(printf %03i $imem)
+
+    MEMDIR=${memchar} RUN=enkf${RUN} YMD=${gPDY} HH=${gcyc} generate_com -x \
+	COM_ATMOS_HISTORY_PREV_ENS:COM_ATMOS_HISTORY_TMPL \
+	COM_ATMOS_RESTART_PREV_ENS:COM_ATMOS_RESTART_TMPL
+    COM_ATMOS_RESTART_PREV_DIRNAME_ENS=$(dirname $COM_ATMOS_RESTART_PREV_ENS)
+
+    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model_data/atmos
+    target=$COM_ATMOS_RESTART_PREV_DIRNAME_ENS
+    mkdir -p $target
+    rm -rf $target/restart
+    ln -fs $source/restart $target/
+
+    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model_data/atmos/history
+    target=$COM_ATMOS_HISTORY_PREV_ENS
+    mkdir -p $target
+    rm -rf $target/enkfgdas.t${gcyc}z.atmf006.nc
+    ln -fs $source/enkfgdas.t${gcyc}z.atmf006.nc $target/
 done
 
 

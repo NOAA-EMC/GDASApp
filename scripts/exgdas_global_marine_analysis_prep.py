@@ -268,6 +268,11 @@ stage_cfg['r2d2_obs_out'] = os.getenv('COM_OBS')
 # stage observations from R2D2 COMIN_OBS to COM_OBS
 ufsda.stage.obs(stage_cfg)
 
+# concatenate altimeters into one obs space
+# TODO (SAMG)temporary, move this into the obs procecing eventually
+adt_obs = f"{os.getenv('COM_OBS')}/{RUN}.t{cyc}z.adt"
+ufsda.soca_utils.concatenate_ioda(adt_obs, wildcard="*.nc4", output_suffix=f"_all.{PDY}{cyc}.nc4", clean=True)
+
 # get the list of observations
 obs_files = []
 for ob in stage_cfg['observations']['observers']:
@@ -517,22 +522,17 @@ FileHandler({'copy': [[ice_rst, ice_rst_ana]]}).sync()
 # write the two seaice analysis to model change of variable yamls
 varchgyamls = ['soca_2cice_arctic.yaml', 'soca_2cice_antarctic.yaml']
 soca2cice_cfg = {
-    "template": "",
-    "output": "",
-    "config": {
-        "OCN_ANA": "./Data/ocn.3dvarfgat_pseudo.an."+window_middle_iso+".nc",
-        "ICE_ANA": "./Data/ice.3dvarfgat_pseudo.an."+window_middle_iso+".nc",
-        "ICE_RST": ice_rst_ana,
-        "FCST_BEGIN": fcst_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
-    }
+    "OCN_ANA": "./Data/ocn.3dvarfgat_pseudo.an."+window_middle_iso+".nc",
+    "ICE_ANA": "./Data/ice.3dvarfgat_pseudo.an."+window_middle_iso+".nc",
+    "ICE_RST": ice_rst_ana,
+    "FCST_BEGIN": fcst_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
 }
 varchgyamls = ['soca_2cice_arctic.yaml', 'soca_2cice_antarctic.yaml']
 for varchgyaml in varchgyamls:
-    soca2cice_cfg['template'] = os.path.join(gdas_home, 'parm', 'soca', 'varchange', varchgyaml)
-    f = open('tmp.yaml', 'w')
-    # TODO: use YAMLFile instead
-    yaml.dump(soca2cice_cfg, f, sort_keys=False, default_flow_style=False)
-    ufsda.genYAML.genYAML('tmp.yaml', output=varchgyaml)
+    soca2cice_cfg_template = os.path.join(gdas_home, 'parm', 'soca', 'varchange', varchgyaml)
+    outyaml = YAMLFile(path=soca2cice_cfg_template)
+    outyaml = Template.substitute_structure(outyaml, TemplateConstants.DOLLAR_PARENTHESES, soca2cice_cfg.get)
+    outyaml.save(varchgyaml)
 
 # prepare yaml for soca to MOM6 IAU increment
 logging.info(f"---------------- generate soca to MOM6 IAU yaml")
