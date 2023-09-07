@@ -88,7 +88,7 @@ def bufr_to_ioda(config, logger):
     q = bufr.QuerySet(subsets)
 
     # MetaData
-    q.add('prepbufrDataLevelCategory', 			'*/PRSLEVEL/CAT')
+    q.add('verticalSignificance', 			'*/PRSLEVEL/CAT')
     q.add('latitude', 					'*/PRSLEVEL/DRFTINFO/YDR')
     q.add('longitude', 					'*/PRSLEVEL/DRFTINFO/XDR')
     q.add('stationIdentification', 			'*/SID')
@@ -105,7 +105,7 @@ def bufr_to_ioda(config, logger):
     q.add('specificHumidity', 				'*/PRSLEVEL/Q___INFO/Q__EVENT{1}/QOB')
     q.add('windEastward', 				'*/PRSLEVEL/W___INFO/W__EVENT{1}/UOB')
     q.add('windNorthward', 				'*/PRSLEVEL/W___INFO/W__EVENT{1}/VOB')
-    q.add('heightOfObservation', 			'*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
+    q.add('height', 					'*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
 
     # QualityMark
     q.add('pressureQM', 				'*/PRSLEVEL/P___INFO/P__EVENT{1}/PQM')
@@ -131,18 +131,18 @@ def bufr_to_ioda(config, logger):
 
     logger.info('Executing QuerySet: get metadata')
     # MetaData
-    cat = r.get('prepbufrDataLevelCategory', 		'prepbufrDataLevelCategory')
-    lat = r.get('latitude', 				'prepbufrDataLevelCategory')
-    lon = r.get('longitude', 				'prepbufrDataLevelCategory')
+    cat = r.get('verticalSignificance', 		'verticalSignificance')
+    lat = r.get('latitude', 				'verticalSignificance')
+    lon = r.get('longitude', 				'verticalSignificance')
     lon[lon>180] -= 360  				# Convert Longitude from [0,360] to [-180,180]
-    sid = r.get('stationIdentification', 		'prepbufrDataLevelCategory')
-    elv = r.get('stationElevation', 			'prepbufrDataLevelCategory', type='float')
-    tpc = r.get('temperatureEventProgramCode', 		'prepbufrDataLevelCategory')
-    pob = r.get('pressure', 				'prepbufrDataLevelCategory')
+    sid = r.get('stationIdentification', 		'verticalSignificance')
+    elv = r.get('stationElevation', 			'verticalSignificance', type='float')
+    tpc = r.get('temperatureEventProgramCode', 		'verticalSignificance')
+    pob = r.get('pressure', 				'verticalSignificance')
     pob *= 100
 
     # Time variable
-    hrdr = r.get('timeOffset', 				'prepbufrDataLevelCategory')
+    hrdr = r.get('timeOffset', 				'verticalSignificance')
     ulan = r.get('releaseTime')
     ulan = np.int64(ulan*3600)
 
@@ -154,30 +154,30 @@ def bufr_to_ioda(config, logger):
     # ObsValue
     ps   = np.full(pob.shape[0], pob.fill_value) 	# Extract stationPressure from pressure, which belongs to CAT=1
     ps   = np.where(cat == 0, pob, ps)
-    tob = r.get('airTemperature', 			'prepbufrDataLevelCategory')
+    tob = r.get('airTemperature', 			'verticalSignificance')
     tob += 273.15
     tsen = np.full(tob.shape[0], tob.fill_value) 	# Extract sensible temperature from tob, which belongs to TPC=1
     tsen = np.where(tpc == 1, tob, tsen)
     tvo   = np.full(tob.shape[0], tob.fill_value) 	# Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
     tvo   = np.where(((tpc <= 8) & (tpc > 1)), tob, tvo)
-    qob = r.get('specificHumidity', 			'prepbufrDataLevelCategory', type='float')
+    qob = r.get('specificHumidity', 			'verticalSignificance', type='float')
     qob *= 1.0e-6
-    uob = r.get('windEastward', 			'prepbufrDataLevelCategory')
-    vob = r.get('windNorthward', 			'prepbufrDataLevelCategory')
-    zob = r.get('heightOfObservation', 			'prepbufrDataLevelCategory')
+    uob = r.get('windEastward', 			'verticalSignificance')
+    vob = r.get('windNorthward', 			'verticalSignificance')
+    zob = r.get('height',	 			'verticalSignificance')
 
     # QualityMark                    
-    pobqm = r.get('pressureQM', 			'prepbufrDataLevelCategory')
+    pobqm = r.get('pressureQM', 			'verticalSignificance')
     psqm = np.full(pobqm.shape[0], pobqm.fill_value) 	# Extract stationPressureQM from pressureQM
     psqm   = np.where(cat == 0, pobqm, psqm)
-    tobqm = r.get('airTemperatureQM', 			'prepbufrDataLevelCategory')
+    tobqm = r.get('airTemperatureQM', 			'verticalSignificance')
     tsenqm = np.full(tobqm.shape[0], tobqm.fill_value) # Extract airTemperature from tobqm, which belongs to TPC=1
     tsenqm = np.where(tpc == 1, tobqm, tsenqm)
     tvoqm   = np.full(tobqm.shape[0], tobqm.fill_value) # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
     tvoqm   = np.where(((tpc <= 8) & (tpc > 1)), tobqm, tvoqm)
-    qobqm = r.get('specificHumidityQM', 		'prepbufrDataLevelCategory')
-    uobqm = r.get('windEastwardQM', 			'prepbufrDataLevelCategory')
-    vobqm = r.get('windNorthwardQM', 			'prepbufrDataLevelCategory')
+    qobqm = r.get('specificHumidityQM', 		'verticalSignificance')
+    uobqm = r.get('windEastwardQM', 			'verticalSignificance')
+    vobqm = r.get('windNorthwardQM', 			'verticalSignificance')
 
     logger.info('Executing QuerySet Done!')
 
@@ -291,7 +291,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(' ... ... Create global attributes')
     #obsspace.write_attr('Converter', converter)
     obsspace.write_attr('sourceFiles', bufrfile)
-    obsspace.write_attr('dataProviderOrigin', data_provider)
+    #obsspace.write_attr('dataProviderOrigin', data_provider)
     obsspace.write_attr('description', data_description)
     #obsspace.write_attr('datetimeReference', reference_time)
     #obsspace.write_attr('datetimeRange', [ str(hrdr.min()), str(hrdr.max())] )
@@ -300,10 +300,9 @@ def bufr_to_ioda(config, logger):
     # Create IODA variables
     logger.debug(' ... ... Create variables: name, type, units, and attributes')
     # Prepbufr Data Level Category
-    obsspace.create_var('MetaData/prepbufrDataLevelCategory', dtype=cat.dtype, fillval=cat.fill_value) \
-        .write_attr('units', '1') \
-        .write_attr('long_name', 'Prepbufr Data Level Category') \
-        .write_data(cat)
+    #obsspace.create_var('MetaData/verticalSignificance', dtype=cat.dtype, fillval=cat.fill_value) \
+        #.write_attr('long_name', 'Prepbufr Data Level Category') \
+        #.write_data(cat)
 
     # Latitude
     obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \
@@ -331,8 +330,7 @@ def bufr_to_ioda(config, logger):
         .write_data(elv)
 
     # Temperature Event Program Code
-    obsspace.create_var('MetaData/temperatureEventProgramCode', dtype=tpc.dtype, fillval=tpc.fill_value) \
-        .write_attr('units', '1') \
+    obsspace.create_var('QCFlags/qualityFlags', dtype=tpc.dtype, fillval=tpc.fill_value) \
         .write_attr('long_name', 'Temperature Event Program Code') \
         .write_data(tpc)
 
@@ -355,6 +353,11 @@ def bufr_to_ioda(config, logger):
         .write_data(ulan)
 
     print("Create ObsValue group variables")
+    # Prepbufr Data Level Category
+    obsspace.create_var('ObsValue/verticalSignificance', dtype=cat.dtype, fillval=cat.fill_value) \
+        .write_attr('long_name', 'Prepbufr Data Level Category') \
+        .write_data(cat)
+
     # Station Pressure
     obsspace.create_var('ObsValue/stationPressure', dtype=pob.dtype, fillval=pob.fill_value) \
         .write_attr('units', 'Pa') \
@@ -392,7 +395,7 @@ def bufr_to_ioda(config, logger):
         .write_data(vob)
 
     # Height of Observation
-    obsspace.create_var('ObsValue/heightOfObservation', dtype=zob.dtype, fillval=zob.fill_value) \
+    obsspace.create_var('ObsValue/height', dtype=zob.dtype, fillval=zob.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Height of Observation') \
         .write_data(zob)
@@ -400,43 +403,36 @@ def bufr_to_ioda(config, logger):
     print("Create QualityMarker group variables")
     # Pressure Quality Marker
     obsspace.create_var('QualityMarker/pressure', dtype=pobqm.dtype, fillval=pobqm.fill_value) \
-        .write_attr('units', '1') \
         .write_attr('long_name', 'Pressure Quality Marker') \
         .write_data(pobqm)
 
     # Station Pressure Quality Marker
     obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype, fillval=pobqm.fill_value) \
-        .write_attr('units', '1') \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
         .write_data(psqm)
 
     # Air Temperature Quality Marker
     obsspace.create_var('QualityMarker/airTemperature', dtype=tobqm.dtype, fillval=tobqm.fill_value) \
-        .write_attr('units', '1') \
         .write_attr('long_name', 'Temperature Quality Marker') \
         .write_data(tobqm)
 
     # Virtual Temperature Quality Marker
     obsspace.create_var('QualityMarker/virtualTemperature', dtype=tobqm.dtype, fillval=tobqm.fill_value) \
-        .write_attr('units', '1') \
         .write_attr('long_name', 'Virtual Temperature Quality Marker') \
         .write_data(tvoqm)
 
     # Specific Humidity Quality Marker
     obsspace.create_var('QualityMarker/specificHumidity', dtype=qobqm.dtype, fillval=qobqm.fill_value) \
-        .write_attr('units', '1') \
         .write_attr('long_name', 'Specific Humidity Quality Marker') \
         .write_data(qobqm)
 
     # Eastward Wind Quality Marker
     obsspace.create_var('QualityMarker/windEastward', dtype=uobqm.dtype, fillval=uobqm.fill_value) \
-        .write_attr('units', '1') \
         .write_attr('long_name', 'Eastward Wind Quality Marker') \
         .write_data(uobqm)
 
     # Northward Wind Quality Marker
     obsspace.create_var('QualityMarker/windNorthward', dtype=vobqm.dtype, fillval=vobqm.fill_value) \
-        .write_attr('units', '1') \
         .write_attr('long_name', 'Northward Wind Quality Marker') \
         .write_data(vobqm)
 
