@@ -74,11 +74,11 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" TAG 1a02eba )
 
 # Core JEDI repositories
-  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG 0cc138f )
+  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG 48a5be5 )
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG 8b58dc0 )
   ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 8dbcb71 )
   ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG 2dc6edc  )
-  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG 1f7ff52 )
+  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG d66b6ba )
 
 # FMS and FV3 dynamical core
   ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" TAG 1f73914 )
@@ -87,7 +87,7 @@ if(BUILD_GDASBUNDLE)
 # fv3-jedi and associated repositories
   ecbuild_bundle( PROJECT femps       GIT "https://github.com/jcsda/femps.git"                TAG cb39681 )
   ecbuild_bundle( PROJECT fv3-jedi-lm GIT "https://github.com/jcsda/fv3-jedi-linearmodel.git" TAG 9b1c793 )
-  ecbuild_bundle( PROJECT fv3-jedi    GIT "https://github.com/jcsda/fv3-jedi.git"             TAG 34c4da5 )
+  ecbuild_bundle( PROJECT fv3-jedi    GIT "https://github.com/jcsda/fv3-jedi.git"             TAG a3c4a0f )
 
 # SOCA associated repositories
 # TODO: Move the Icepack fork to EMC github
