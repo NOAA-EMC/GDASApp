@@ -28,15 +28,6 @@ from collections import namedtuple
 #| ADPUPA   | A48102 | UPPER-AIR (RAOB, PIBAL, RECCO, DROPS) REPORTS            |
 #|------------------------------------------------------------------------------|
 
-# Define and initialize  global variables
-#global float32_fill_value
-#global int32_fill_value
-#global int64_fill_value
-
-#float32_fill_value = np.float32(0)
-#int32_fill_value = np.int32(0)
-#int64_fill_value = np.int64(0)
-
 
 def Compute_dateTime(cycleTimeSinceEpoch, hrdr):
 
@@ -88,7 +79,6 @@ def bufr_to_ioda(config, logger):
     q = bufr.QuerySet(subsets)
 
     # MetaData
-    q.add('verticalSignificance', 			'*/PRSLEVEL/CAT')
     q.add('latitude', 					'*/PRSLEVEL/DRFTINFO/YDR')
     q.add('longitude', 					'*/PRSLEVEL/DRFTINFO/XDR')
     q.add('stationIdentification', 			'*/SID')
@@ -99,6 +89,7 @@ def bufr_to_ioda(config, logger):
     q.add('pressure', 					'*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
 
     # ObsValue
+    q.add('verticalSignificance', 			'*/PRSLEVEL/CAT')
     q.add('stationPressure', 				'*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
     q.add('airTemperature', 				'*/PRSLEVEL/T___INFO/T__EVENT{1}/TOB')
     q.add('virtualTemperature', 			'*/PRSLEVEL/T___INFO/TVO')
@@ -131,7 +122,6 @@ def bufr_to_ioda(config, logger):
 
     logger.info('Executing QuerySet: get metadata')
     # MetaData
-    cat = r.get('verticalSignificance', 		'verticalSignificance')
     lat = r.get('latitude', 				'verticalSignificance')
     lon = r.get('longitude', 				'verticalSignificance')
     lon[lon>180] -= 360  				# Convert Longitude from [0,360] to [-180,180]
@@ -152,6 +142,7 @@ def bufr_to_ioda(config, logger):
     ulan = ulan.reshape(ulan.shape)
 
     # ObsValue
+    cat = r.get('verticalSignificance', 		'verticalSignificance')
     ps   = np.full(pob.shape[0], pob.fill_value) 	# Extract stationPressure from pressure, which belongs to CAT=1
     ps   = np.where(cat == 0, pob, ps)
     tob = r.get('airTemperature', 			'verticalSignificance')
@@ -239,16 +230,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f'     uobqm     type = {uobqm.dtype}')
     logger.debug(f'     vobqm     type = {vobqm.dtype}')
 
-    # Global variables declaration
-    # Set global fill values
-    #float32_fill_value = lat.fill_value
-    #int32_fill_value = tobqm.fill_value
-    #int64_fill_value = hrdr.fill_value.astype(np.int64)
-    #string_fill_value  = sid.fill_value
-    #logger.debug(f'     float32_fill_value  = {float32_fill_value}')
-    #logger.debug(f'     int32_fill_value    = {int32_fill_value}')
-    #logger.debug(f'     int64_fill_value    = {int64_fill_value}')
-    #logger.debug(f'     string_fill_value    = {string_fill_value}')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -289,20 +270,11 @@ def bufr_to_ioda(config, logger):
 
     # Create Global attributes
     logger.debug(' ... ... Create global attributes')
-    #obsspace.write_attr('Converter', converter)
     obsspace.write_attr('sourceFiles', bufrfile)
-    #obsspace.write_attr('dataProviderOrigin', data_provider)
     obsspace.write_attr('description', data_description)
-    #obsspace.write_attr('datetimeReference', reference_time)
-    #obsspace.write_attr('datetimeRange', [ str(hrdr.min()), str(hrdr.max())] )
-    #obsspace.write_attr('source', 'UPPER-AIR (RAOB, PIBAL, RECCO, DROPS) REPORTS ')
 
     # Create IODA variables
     logger.debug(' ... ... Create variables: name, type, units, and attributes')
-    # Prepbufr Data Level Category
-    #obsspace.create_var('MetaData/verticalSignificance', dtype=cat.dtype, fillval=cat.fill_value) \
-        #.write_attr('long_name', 'Prepbufr Data Level Category') \
-        #.write_data(cat)
 
     # Latitude
     obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \
