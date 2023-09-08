@@ -11,6 +11,8 @@ gw environement:
     HOMEgfs: @HOMEgfs@
     COMPONENT: ocean
     RUN: gdas
+    CDUMP: gdas
+    COMROOT: dummy_COMROOT
 
   cycle info:
     PDY: 20180415

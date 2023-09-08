@@ -76,17 +76,36 @@ foreach(jjob ${jjob_list})
                       # waiting for standard input from setup_expt.py
 endforeach()
 
-set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP
-  PROPERTIES
-  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=dummy_CDUMP")
-
-set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT
-  PROPERTIES
-  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=dummy_CDUMP")
-
+#set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP
+#  PROPERTIES
+##  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas")
+#  ENVIRONMENT "COMROOT=dummy_COMROOT")
+#
+#set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT
+#  PROPERTIES
+##  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas")
+#  ENVIRONMENT "COMROOT=dummy_COMROOT")
+#
 #set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN
 #  PROPERTIES
-#  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=dummy_CDUMP")
+##  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas")
+#  ENVIRONMENT "COMROOT=dummy_COMROOT")
+#
+#set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT
+#  PROPERTIES
+##  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas")
+#  ENVIRONMENT "COMROOT=dummy_COMROOT")
+#
+#set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_POST
+#  PROPERTIES
+##  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas")
+#  ENVIRONMENT "COMROOT=dummy_COMROOT")
+#
+set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY
+  PROPERTIES
+  #ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas;jobid=dummy_jobid")
+  #ENVIRONMENT "COMROOT=dummy_COMROOT;jobid=dummy_jobid")
+  ENVIRONMENT "jobid=dummy_jobid")
 
 # Test gdas/oops applications
 set(ctest_list "socahybridweights" "incr_handler")
