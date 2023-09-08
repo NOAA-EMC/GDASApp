@@ -25,10 +25,6 @@ ecbuild_add_test( TARGET  test_gdasapp_util_ioda_example
                   LIBS    gdas-utils)
 
 # Prepare data for the IODA converters
-message("----------------")
-message(${CMAKE_BINARY_DIR})
-message(${CMAKE_CURRENT_BINARY_DIR})
-message("----------------")
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 ecbuild_add_test( TARGET  test_gdasapp_util_prepdata
                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/test/prepdata.sh

@@ -31,7 +31,6 @@ namespace gdasapp {
 
     // get input netcdf files
     fullConfig.get("input files", this->inputFilenames_);
-    std::cout << this->inputFilenames_ << std::endl;
 
     // ioda output file name
     this->outputFilename_ = fullConfig.getString("output file");
