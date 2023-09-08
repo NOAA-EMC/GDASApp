@@ -1,0 +1,110 @@
+netcdf output {
+dimensions:
+	time = UNLIMITED ; // (11 currently)
+variables:
+	int adt_egm2008(time) ;
+		adt_egm2008:_FillValue = 2147483647 ;
+		adt_egm2008:long_name = "absolute dynamic topography (EGM2008)" ;
+		adt_egm2008:standard_name = "absolute_dynamic_topography_egm2008" ;
+		adt_egm2008:units = "m" ;
+		adt_egm2008:scale_factor = 0.0001 ;
+		adt_egm2008:coordinates = "lon lat" ;
+	int adt_xgm2016(time) ;
+		adt_xgm2016:_FillValue = 2147483647 ;
+		adt_xgm2016:long_name = "absolute dynamic topography (XGM2016)" ;
+		adt_xgm2016:standard_name = "absolute_dynamic_topography_xgm2016" ;
+		adt_xgm2016:units = "m" ;
+		adt_xgm2016:scale_factor = 0.0001 ;
+		adt_xgm2016:coordinates = "lon lat" ;
+	int cycle(time) ;
+		cycle:_FillValue = 2147483647 ;
+		cycle:long_name = "cycle number" ;
+		cycle:field = 9905s ;
+	int lat(time) ;
+		lat:_FillValue = 2147483647 ;
+		lat:long_name = "latitude" ;
+		lat:standard_name = "latitude" ;
+		lat:units = "degrees_north" ;
+		lat:scale_factor = 1.e-06 ;
+		lat:field = 201s ;
+		lat:comment = "Positive latitude is North latitude, negative latitude is South latitude" ;
+	int lon(time) ;
+		lon:_FillValue = 2147483647 ;
+		lon:long_name = "longitude" ;
+		lon:standard_name = "longitude" ;
+		lon:units = "degrees_east" ;
+		lon:scale_factor = 1.e-06 ;
+		lon:field = 301s ;
+		lon:comment = "East longitude relative to Greenwich meridian" ;
+	int pass(time) ;
+		pass:_FillValue = 2147483647 ;
+		pass:long_name = "pass number" ;
+		pass:field = 9906s ;
+	short sla(time) ;
+		sla:_FillValue = 32767s ;
+		sla:long_name = "sea level anomaly" ;
+		sla:standard_name = "sea_surface_height_above_sea_level" ;
+		sla:units = "m" ;
+		sla:quality_flag = "swh sig0 range_rms range_numval flags swh_rms sig0_rms attitude" ;
+		sla:scale_factor = 0.0001 ;
+		sla:coordinates = "lon lat" ;
+		sla:field = 0s ;
+		sla:comment = "Sea level determined from satellite altitude - range - all altimetric corrections" ;
+	double time_dtg(time) ;
+		time_dtg:long_name = "time_dtg" ;
+		time_dtg:standard_name = "time_dtg" ;
+		time_dtg:units = "yyyymmddhhmmss" ;
+		time_dtg:coordinates = "lon lat" ;
+		time_dtg:comment = "UTC time formatted as yyyymmddhhmmss" ;
+	double time_mjd(time) ;
+		time_mjd:long_name = "Modified Julian Days" ;
+		time_mjd:standard_name = "time" ;
+		time_mjd:units = "days since 1858-11-17 00:00:00 UTC" ;
+		time_mjd:field = 105s ;
+		time_mjd:comment = "UTC time of measurement expressed in Modified Julian Days" ;
+
+// global attributes:
+		:Conventions = "CF-1.7" ;
+		:title = "RADS 4 pass file" ;
+		:institution = "EUMETSAT / NOAA / TU Delft" ;
+		:source = "radar altimeter" ;
+		:references = "RADS Data Manual, Version 4.2 or later" ;
+		:featureType = "trajectory" ;
+		:ellipsoid = "TOPEX" ;
+		:ellipsoid_axis = 6378136.3 ;
+		:ellipsoid_flattening = 0.00335281317789691 ;
+		:filename = "rads_adt_j3_2021182.nc" ;
+		:mission_name = "JASON-3" ;
+		:mission_phase = "a" ;
+		:log01 = "2021-07-03 | /Users/rads/bin/rads2nc --ymd=20210701000000,20210702000000 -C1,1000 -Sj3 -Vsla,adt_egm2008,adt_xgm2016,time_mjd,time_dtg,lon,lat,cycle,pass -X/Users/rads/cron/xgm2016 -X/Users/rads/cron/adt -X/Users/rads/cron/time_dtg -o/ftp/rads/adt//2021/rads_adt_j3_2021182.nc: RAW data from" ;
+		:history = "Thu Sep  7 14:43:07 2023: ncks -d time,0,10 rads_adt_j3_2021182.nc output.nc\n",
+			"2021-07-03 20:56:20 : /Users/rads/bin/rads2nc --ymd=20210701000000,20210702000000 -C1,1000 -Sj3 -Vsla,adt_egm2008,adt_xgm2016,time_mjd,time_dtg,lon,lat,cycle,pass -X/Users/rads/cron/xgm2016 -X/Users/rads/cron/adt -X/Users/rads/cron/time_dtg -o/ftp/rads/adt//2021/rads_adt_j3_2021182.nc" ;
+		:NCO = "netCDF Operators version 5.0.6 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
+data:
+
+ adt_egm2008 = -7884, -10580, -7180, -8899, -9341, -8404, -8400, -9468, 
+    -8810, -10000, -8592 ;
+
+ adt_xgm2016 = -8097, -10657, -7368, -9127, -9540, -8536, -8406, -9285, 
+    -8232, -9248, -7758 ;
+
+ cycle = 198, 198, 198, 198, 198, 198, 198, 198, 198, 198, 198 ;
+
+ lat = -65447761, -65484640, -65496721, -65508694, -65520561, -65532322, 
+    -65543975, -65555521, -65578291, -65589514, -65600630 ;
+
+ lon = -84965810, -84597998, -84475158, -84352200, -84229127, -84105938, 
+    -83982635, -83859219, -83612050, -83488298, -83364437 ;
+
+ pass = 184, 184, 184, 184, 184, 184, 184, 184, 184, 184, 184 ;
+
+ sla = 141, -2275, 1208, -498, -849, 25, 91, -893, -315, -1329, 126 ;
+
+ time_dtg = 20210701000000, 20210701000003, 20210701000004, 20210701000005, 
+    20210701000006, 20210701000007, 20210701000008, 20210701000009, 
+    20210701000011, 20210701000012, 20210701000013 ;
+
+ time_mjd = 59396.0000038319, 59396.0000392038, 59396.0000509944, 
+    59396.0000627851, 59396.0000745757, 59396.0000863663, 59396.0000981569, 
+    59396.0001099476, 59396.0001335288, 59396.0001453194, 59396.0001571101 ;
+}
