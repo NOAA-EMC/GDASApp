@@ -170,7 +170,6 @@ class PostProcIncr {
     lvc.changeVarTraj(xTraj, socaIncrVar_);
     lvc.changeVarTL(socaIncr, socaIncrVar_);
     oops::Log::info() << "$%^#& in var change:" << socaIncr << std::endl;
-    //return socaIncr;
   }
 
   // -----------------------------------------------------------------------------
