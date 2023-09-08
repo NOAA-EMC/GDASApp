@@ -21,9 +21,9 @@ namespace gdasapp {
    public:
     explicit Rads2Ioda(const eckit::Configuration & fullConfig)
     : NetCDFToIodaConverter(fullConfig) {
-    oops::Log::info() << this->windowBegin_ << std::endl;
-    oops::Log::info() << this->windowEnd_ << std::endl;
-    oops::Log::info() << this->outputFilename_ << std::endl;
+    oops::Log::info() << "Window begin: " << this->windowBegin_ << std::endl;
+    oops::Log::info() << "Window end: " << this->windowEnd_ << std::endl;
+    oops::Log::info() << "IODA output file name: " << this->outputFilename_ << std::endl;
     }
 
     // Read netcdf file and populate group
