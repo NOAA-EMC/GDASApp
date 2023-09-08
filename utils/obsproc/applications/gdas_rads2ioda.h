@@ -23,7 +23,7 @@ namespace gdasapp {
     // -----------------------------------------------------------------------------
    private:
     std::string appname() const {
-      return "gdasapp::IodaExample";
+      return "gdasapp::Rads2IodaApp";
     }
     // -----------------------------------------------------------------------------
   };

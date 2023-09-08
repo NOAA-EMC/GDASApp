@@ -3,12 +3,13 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 
+#include "ioda/Engines/HH.h"
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
-#include "ioda/Engines/HH.h"
 
 #include "oops/mpi/mpi.h"
 #include "oops/util/DateTime.h"
@@ -28,6 +29,10 @@ namespace gdasapp {
     this->windowBegin_ = util::DateTime(winbegin);
     this->windowEnd_ = util::DateTime(winend);
 
+    // get input netcdf files
+    fullConfig.get("input files", this->inputFilenames_);
+    std::cout << this->inputFilenames_ << std::endl;
+
     // ioda output file name
     this->outputFilename_ = fullConfig.getString("output file");
   }
@@ -35,12 +40,14 @@ namespace gdasapp {
     // Method to write out a IODA file
     void WriteToIoda() {
       // Create empty group backed by HDF file
-      ioda::Group group = ioda::Engines::HH::createFile(this->outputFilename_,
-                                                        ioda::Engines::BackendCreateModes::Truncate_If_Exists);
+      ioda::Group group =
+        ioda::Engines::HH::createFile(
+                                      this->outputFilename_,
+                                      ioda::Engines::BackendCreateModes::Truncate_If_Exists);
       this->ReadFromNetCDF(group);
-    };
+    }
 
-  private:
+   private:
     // Virtual method to read a netcdf file and store the relevant info in a group
     virtual void ReadFromNetCDF(ioda::Group &) = 0;
 
@@ -48,6 +55,7 @@ namespace gdasapp {
    protected:
     util::DateTime windowBegin_;
     util::DateTime windowEnd_;
+    std::vector<std::string> inputFilenames_;
     std::string outputFilename_;
   };
 }  // namespace gdasapp

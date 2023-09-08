@@ -33,8 +33,9 @@ if __name__ == "__main__":
     # Setup the shared R2D2 databases
     ufsda.r2d2.setup(r2d2_config_yaml=r2d2_config_yaml, shared_root=shared_root)
 
-    # Change the obs file name format
+    # Convert the cdl files to netcdf
     obsdir = os.getenv('SOCA_TEST_OBS')
+    # ioda formatted
     cdl2nc(os.path.join(obsdir, 'adt.nc.cdl'), 'adt_j3_20180415.nc4')
     cdl2nc(os.path.join(obsdir, 'adt.nc.cdl'), 'adt_j2_20180415.nc4')
     cdl2nc(os.path.join(obsdir, 'sst.nc.cdl'), 'sst_noaa19_l3u_20180415.nc4')
@@ -42,6 +43,9 @@ if __name__ == "__main__":
     cdl2nc(os.path.join(obsdir, 'prof.nc.cdl'), 'temp_profile_fnmoc_20180415.nc4')
     cdl2nc(os.path.join(obsdir, 'prof.nc.cdl'), 'salt_profile_fnmoc_20180415.nc4')
     cdl2nc(os.path.join(obsdir, 'icec.nc.cdl'), 'icec_EMC_20180415.nc4')
+
+    # not ioda, should not be in the data base
+    cdl2nc(os.path.join(obsdir, 'rads_adt_j3_2021182.cdl'), 'rads_adt_j3_2021182.nc')
 
     # Create the test R2D2 database
     obsstore = NiceDict({'start': '2018-04-15T00:00:00Z',
