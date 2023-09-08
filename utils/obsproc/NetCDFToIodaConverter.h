@@ -1,5 +1,4 @@
-#ifndef GDAS_UTILS_OBSPROC_NETCDFTOIODACONVERTER_H_  //NOLINT
-#define GDAS_UTILS_OBSPROC_NETCDFTOIODACONVERTER_H_  //NOLINT
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -58,4 +57,3 @@ namespace gdasapp {
     std::string outputFilename_;
   };
 }  // namespace gdasapp
-#endif  // UTILS_OBSPROC_NETCDFTOIODACONVERTER_H_  //NOLINT
