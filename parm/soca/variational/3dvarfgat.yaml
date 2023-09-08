@@ -33,7 +33,7 @@ variational:
       mom6_input_nml: mom_input.nml
       fields metadata: ./fields_metadata.yaml
     ninner: !ENV ${SOCA_NINNER}
-    gradient norm reduction: 1e-10
+    gradient norm reduction: 1e-7
     diagnostics:
       departures: ombg
 

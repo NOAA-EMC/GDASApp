@@ -108,7 +108,7 @@ set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY
   ENVIRONMENT "jobid=dummy_jobid")
 
 # Test gdas/oops applications
-set(ctest_list "socahybridweights" "incr_handler")
+set(ctest_list "socahybridweights" "incr_handler" "ens_handler")
 foreach(ctest ${ctest_list})
   set(TEST ${ctest})
   set(EXEC ${PROJECT_BINARY_DIR}/bin/gdas_${ctest}.x)
