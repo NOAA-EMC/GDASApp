@@ -1,5 +1,5 @@
-#ifndef GDAS_UTILS_OBSPROC_RADS2IODA_H_
-#define GDAS_UTILS_OBSPROC_RADS2IODA_H_
+#ifndef GDAS_UTILS_OBSPROC_RADS2IODA_H_  // NOLINT
+#define GDAS_UTILS_OBSPROC_RADS2IODA_H_  // NOLINT
 
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
@@ -86,4 +86,4 @@ namespace gdasapp {
     };
   };
 }  // namespace gdasapp
-#endif  // GDAS_UTILS_OBSPROC_RADS2IODA_H_
+#endif  // GDAS_UTILS_OBSPROC_RADS2IODA_H_  // NOLINT
