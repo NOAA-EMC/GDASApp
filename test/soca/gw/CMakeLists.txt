@@ -72,10 +72,21 @@ foreach(jjob ${jjob_list})
     PROPERTIES
     ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}")
 
-
   set(setup "--skip") # Only run the setup of the first test, if not, it will hang
                       # waiting for standard input from setup_expt.py
 endforeach()
+
+set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP
+  PROPERTIES
+  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=dummy_CDUMP")
+
+set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT
+  PROPERTIES
+  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=dummy_CDUMP")
+
+#set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN
+#  PROPERTIES
+#  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=dummy_CDUMP")
 
 # Test gdas/oops applications
 set(ctest_list "socahybridweights" "incr_handler")
