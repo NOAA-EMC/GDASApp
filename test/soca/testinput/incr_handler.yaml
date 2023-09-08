@@ -22,7 +22,7 @@ soca increment:
   ocn_filename: 'ocn.3dvarfgat_pseudo.incr.2018-04-15T12:00:00Z.nc'
   read_from_file: 1
 
-#TODO: add one more ctest to check the snippet below 
+#TODO: add one more ctest to check the snippet below
 #soca increments:
 #  number of increments: 1
 #  pattern: incr
@@ -39,12 +39,13 @@ linear variable change:
     rescale_bkgerr: 1.0   # rescale perturbation
     efold_z: 1500.0       # Apply exponential decay
   - linear variable change name: BalanceSOCA
-  trajectory:
-    state variables: [tocn, socn, uocn, vocn, ssh, hocn, layer_depth, mld]
-    date: 2018-04-15T09:00:00Z
-    basename: ./INPUT/
-    ocn_filename: MOM.res.nc
-    read_from_file: 1
+
+trajectory:
+  state variables: [tocn, socn, uocn, vocn, ssh, hocn, layer_depth, mld]
+  date: 2018-04-15T09:00:00Z
+  basename: ./INPUT/
+  ocn_filename: MOM.res.nc
+  read_from_file: 1
 
 output increment:
   datadir: ./
