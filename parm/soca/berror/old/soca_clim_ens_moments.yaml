@@ -11,7 +11,6 @@ ensemble:
       basename: ./static_ens/
       ocn_filename: ocn.%mem%.nc
       ice_filename: ice.%mem%.nc
-      remap_filename: ./INPUT/MOM.res.nc
       state variables: [tocn, socn, ssh, uocn, vocn, hocn, cicen, hicen, hsnon]
     pattern: '%mem%'
     nmembers: ${CLIM_ENS_SIZE}

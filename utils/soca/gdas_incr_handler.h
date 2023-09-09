@@ -1,7 +1,5 @@
 #pragma once
 
-#include <netcdf>
-
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -50,17 +48,28 @@ namespace gdasapp {
       for (size_t i = 1; i < postProcIncr.ensSize_+1; ++i) {
         oops::Log::info() << postProcIncr.inputIncrConfig_ << std::endl;
 
+        // Read increment from file
+        soca::Increment incr = postProcIncr.read(i);
+
         // At the very minimum, we run this script to append the layers state, so do that!
-        soca::Increment incr = postProcIncr.appendLayer(i);
+        soca::Increment incrWithLayer = postProcIncr.appendLayer(incr);
+        oops::Log::debug() << "========= after appending layer:" << std::endl;
+        oops::Log::debug() << incrWithLayer << std::endl;
 
         // Zero out specified fields
-        incr = postProcIncr.setToZero(incr);
+        incrWithLayer = postProcIncr.setToZero(incrWithLayer);
 
         // Apply linear change of variables
-        incr = postProcIncr.applyLinVarChange(incr);
+        if ( fullConfig.has("linear variable change") ) {
+          soca::State traj = postProcIncr.getTraj(fullConfig, geom);
+          eckit::LocalConfiguration lvcConfig(fullConfig, "linear variable change");
+          postProcIncr.applyLinVarChange(incrWithLayer, lvcConfig, traj);
+        }
 
         // Save final increment
-        result = postProcIncr.save(incr, i);
+        result = postProcIncr.save(incrWithLayer, i);
+        oops::Log::debug() << "========= after appending layer and after saving:" << std::endl;
+        oops::Log::debug() << incrWithLayer << std::endl;
       }
       return result;
     }
