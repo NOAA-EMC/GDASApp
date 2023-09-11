@@ -6,3 +6,5 @@ gtsbufr:
 gtsioda:
   copy:
     - [$(DATA)/$(OPREFIX)adpsfc_snow.nc4, $(COM_OBS)/$(OPREFIX)adpsfc_snow.nc4]
+bufr2ioda:
+     adpsfc: {{ HOMEgfs }}/sorc/gdas.cd/test/testinput/bufr_adpsfc_snow.yaml
