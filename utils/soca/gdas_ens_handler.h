@@ -177,7 +177,8 @@ namespace gdasapp {
         // Zero out specified fields (again, steric heigh is now in ssh from the previous step)
         incr = postProcIncr.setToZero(incr);
 
-        // Filter ensemble member and recompute steric ssh, recentering around the cycle's trajectory
+        // Filter ensemble member and recompute steric ssh, recentering around
+        // the cycle's trajectory
         if ( fullConfig.has("linear variable change") ) {
           eckit::LocalConfiguration lvcConfig(fullConfig, "linear variable change");
           postProcIncr.applyLinVarChange(incr, lvcConfig, cycleTraj);
