@@ -51,12 +51,11 @@ obs filters:
         name: GeoVaLs/vtype
       minvalue: 14.5
       maxvalue: 15.5
-  - filter: BlackList
-    where:
-    - variable:
-        name: MetaData/stationIdentification
-      is_in: [71120,71397,71621,71727,71816]
-      size where true: 5
+  - filter: Temporal Thinning
+    min_spacing: PT02H
+    seed_time: 2021-11-10T00:00:00Z
+    category_variable:
+      name: MetaData/stationIdentification
   - filter: Background Check # gross error check
     filter variables:
     - name: totalSnowDepth
