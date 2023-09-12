@@ -123,39 +123,13 @@ fi
 # 3 - Copy h from deterministic to unbalanced perturbations
 # 4 - Compute moments of converted ensemble perturbations
 
-# Compute ensemble moments
+# Process static ensemble
 clean_yaml soca_clim_ens_moments.yaml
-$APRUN_OCNANAL $JEDI_BIN/soca_ensmeanandvariance.x soca_clim_ens_moments.yaml
+$APRUN_OCNANAL $JEDI_BIN/gdas_ens_handler.x soca_ensb.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err
 fi
-
-# Zero out std. dev of ssh to use the balance as a strong constraint
-# TODO: Apply the inverse of the balance
-clean_yaml soca_clim_ens_moments.yaml
-$APRUN_OCNANAL $JEDI_BIN/gdas_incr_handler.x soca_postproc_stddev.yaml
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
-fi
-
-# Compute ensemble perturbations, vertically remap to cycle's vertical geometry
-clean_yaml soca_clim_ens_perts.yaml
-$APRUN_OCNANAL $JEDI_BIN/soca_ensrecenter.x soca_clim_ens_perts.yaml
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
-fi
-
-# Vertical filtering of the 3D perturbations and recompute the steric height perturbation
-clean_yaml soca_apply_steric.yaml
-$APRUN_OCNANAL $JEDI_BIN/gdas_incr_handler.x soca_apply_steric.yaml
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
-fi
-
 
 ################################################################################
 # Correlation and Localization operators
@@ -223,14 +197,6 @@ export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err
 fi
-
-################################################################################
-# Create ensemble of perturbations for the cycle
-
-# Use ensemble recenter with "zerocenter"
-
-# Apply inverse balance to perturbations, use deterministic background as trajectory
-
 
 ################################################################################
 set +x
