@@ -43,7 +43,8 @@ set(jjob_list "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_POST"
-              "JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY")
+              "JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY"
+              "JGLOBAL_PREP_OCEAN_OBS")
 
 set(setup "")
 foreach(jjob ${jjob_list})
@@ -78,7 +79,7 @@ foreach(jjob ${jjob_list})
 endforeach()
 
 # Test gdas/oops applications
-set(ctest_list "socahybridweights" "incr_handler")
+set(ctest_list "socahybridweights" "incr_handler" "ens_handler")
 foreach(ctest ${ctest_list})
   set(TEST ${ctest})
   set(EXEC ${PROJECT_BINARY_DIR}/bin/gdas_${ctest}.x)

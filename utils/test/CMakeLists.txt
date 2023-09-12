@@ -1,6 +1,7 @@
 # Create Data directory for test input config and symlink all files
 list( APPEND utils_test_input
   testinput/gdas_meanioda.yaml
+  testinput/gdas_rads2ioda.yaml
 )
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
@@ -22,3 +23,17 @@ ecbuild_add_test( TARGET  test_gdasapp_util_ioda_example
                   COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_meanioda.x
                   ARGS    "testinput/gdas_meanioda.yaml"
                   LIBS    gdas-utils)
+
+# Prepare data for the IODA converters
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+ecbuild_add_test( TARGET  test_gdasapp_util_prepdata
+                  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/test/prepdata.sh
+                  ARGS    ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/test
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+
+# Test the RADS to IODA converter
+ecbuild_add_test( TARGET  test_gdasapp_util_rads2ioda
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_rads2ioda.x
+                  ARGS    "../testinput/gdas_rads2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)

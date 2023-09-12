@@ -1,7 +1,5 @@
 #pragma once
 
-#include <netcdf>
-
 #include <filesystem>
 #include <iostream>
 #include <string>
