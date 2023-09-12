@@ -5,7 +5,7 @@ observations:
   - obs space:
       name: bufr
 
-      obsdatain: '{{ DATA }}/obs/{{ OPREFIX }}adpsfc.tm00.bufr_d'
+      obsdatain: '{{ DATA }}/obs/{{ OPREFIX }}snocvr.tm00.bufr_d'
 
       exports:
         variables:
@@ -22,14 +22,14 @@ observations:
           longitude:
             query: "[*/CLON, */CLONH]"
           stationIdentification:
-            query: "*/RPID"
+            query: "*/WGOSLID"
 
           height:
             query: "[*/SELV, */HSMSL]"
 
           # ObsValue
           totalSnowDepth:
-            query: "[*/SNWSQ1/TOSD, */MTRMSC/TOSD, */STGDSNDM/TOSD]"
+            query: "*/TOSD"
             transforms:
               - scale: 1000.0
         filters:
@@ -39,13 +39,13 @@ observations:
 
     ioda:
       backend: netcdf
-      obsdataout: '{{ DATA }}/{{ OPREFIX }}adpsfc_snow.nc4'
+      obsdataout: '{{ DATA }}/{{ OPREFIX }}snocvr_snow.nc4'
 
       variables:
 
         # MetaData
         - name: "MetaData/dateTime"
-          coordinates: "longitude latitude"        
+          coordinates: "longitude latitude"
           source: variables/timestamp
           longName: "Datetime"
           units: "seconds since 1970-01-01T00:00:00Z"
