@@ -52,8 +52,8 @@ obs filters:
       minvalue: 14.5
       maxvalue: 15.5
   - filter: Temporal Thinning
-    min_spacing: PT02H
-    seed_time: 2021-11-10T00:00:00Z
+    min_spacing: $(LAND_WINDOW_LENGTH)
+    seed_time: '{{ current_cycle | to_isotime }}'
     category_variable:
       name: MetaData/stationIdentification
   - filter: Background Check # gross error check
