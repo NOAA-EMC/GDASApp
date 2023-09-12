@@ -6,11 +6,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)snocvr_snow.nc4
+      obsfile: '{{ DATA }}/obs/{{ OPREFIX }}snocvr_snow.nc4'
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_snocvr_snow.nc4
+      obsfile: '{{ DATA }}/diags/diag_snocvr_snow.nc4'
   simulated variables: [totalSnowDepth]
 obs operator:
   name: Composite
@@ -51,12 +51,11 @@ obs filters:
         name: GeoVaLs/vtype
       minvalue: 14.5
       maxvalue: 15.5
-  - filter: BlackList
-    where:
-    - variable:
-        name: MetaData/stationIdentification
-      is_in: [71120,71397,71621,71727,71816]
-      size where true: 5
+  - filter: Temporal Thinning
+    min_spacing: '{{ LAND_WINDOW_LENGTH }}'
+    seed_time: '{{ current_cycle | to_isotime }}'
+    category_variable:
+      name: MetaData/stationIdentification
   - filter: Background Check # gross error check
     filter variables:
     - name: totalSnowDepth
