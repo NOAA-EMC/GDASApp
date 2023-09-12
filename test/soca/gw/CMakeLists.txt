@@ -43,7 +43,8 @@ set(jjob_list "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_POST"
-              "JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY")
+              "JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY"
+              "JGLOBAL_PREP_OCEAN_OBS")
 
 set(setup "")
 foreach(jjob ${jjob_list})
