@@ -17,7 +17,7 @@ fi
 # some of these need exported to be picked up by the python script below
 # input parameters
 CDATE=${CDATE:-$1}
-export DUMP=${RUN:-$2}
+export RUN=${RUN:-$2}
 export DMPDIR=${DMPDIR:-$3}
 config_template_dir=${config_template_dir:-$4}
 export COM_OBS=${COM_OBS:-$5}
@@ -59,9 +59,12 @@ for obtype in $BUFR_py; do
 
   # first generate a JSON from the template
   ${BUFRJSONGEN} -t ${config_template_dir}/bufr2ioda_${obtype}.json -o ${COM_OBS}/${obtype}_${PDY}${cyc}.json
+#  ${BUFRJSONGEN} -t ${config_template_dir}/bufr2ioda_${obtype}.json -c bufr2ioda_${obtype}.json -o ${COM_OBS}/${obtype}_${PDY}${cyc}.json
+  echo "1 done"
 
   # now use the converter script for the ob type
   python3 $USH_IODA/bufr2ioda_${obtype}.py -c ${COM_OBS}/${obtype}_${PDY}${cyc}.json
+  echo "2 done"
 
   # check if converter was successful
   if [ $? == 0 ]; then
