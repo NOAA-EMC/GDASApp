@@ -1,9 +1,12 @@
-Needed to make a sfcshp-specific run_bufr2ioda.sh script because I needed to change a variable.
+
+Load the modules for the gdasapp first
 
 To run: use command:
-./run_bufr2ioda_gpsro.sh 20210801 gdas /work/noaa/rstprod/dump/ /work2/noaa/da/nesposito/GDASApp_20230822/parm/ioda/bufr2ioda/ /work2/noaa/da/nesposito/NewConv/api_convert/json/json_outputs/
+
+#This works
+./run_bufr2ioda_gpsro_bufr.sh 2021080100 gdas /work/noaa/rstprod/dump/ /work2/noaa/da/nesposito/GDASApp_20230907/parm/ioda/bufr2ioda/ /work2/noaa/da/nesposito/NewConv/api_convert/json/json_gdasapp
+
 
 Outputs (and plots) are in:
-/work2/noaa/da/nesposito/NewConv/api_convert/json/json_outputs
-
+/work2/noaa/da/nesposito/NewConv/api_convert/json/json_gdasapp
 
