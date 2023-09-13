@@ -75,38 +75,8 @@ foreach(jjob ${jjob_list})
 
   set(setup "--skip") # Only run the setup of the first test, if not, it will hang
                       # waiting for standard input from setup_expt.py
-endforeach()
 
-#set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP
-#  PROPERTIES
-##  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas")
-#  ENVIRONMENT "COMROOT=dummy_COMROOT")
-#
-#set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT
-#  PROPERTIES
-##  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas")
-#  ENVIRONMENT "COMROOT=dummy_COMROOT")
-#
-#set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN
-#  PROPERTIES
-##  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas")
-#  ENVIRONMENT "COMROOT=dummy_COMROOT")
-#
-#set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT
-#  PROPERTIES
-##  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas")
-#  ENVIRONMENT "COMROOT=dummy_COMROOT")
-#
-#set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_POST
-#  PROPERTIES
-##  ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas")
-#  ENVIRONMENT "COMROOT=dummy_COMROOT")
-#
-set_tests_properties(test_gdasapp_soca_JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY
-  PROPERTIES
-  #ENVIRONMENT "COMROOT=dummy_COMROOT;CDUMP=gdas;jobid=dummy_jobid")
-  #ENVIRONMENT "COMROOT=dummy_COMROOT;jobid=dummy_jobid")
-  ENVIRONMENT "jobid=dummy_jobid")
+endforeach()
 
 # Test gdas/oops applications
 set(ctest_list "socahybridweights" "incr_handler" "ens_handler")
