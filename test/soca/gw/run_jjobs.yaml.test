@@ -13,6 +13,7 @@ gw environement:
     RUN: gdas
     CDUMP: gdas
     COMROOT: dummy_COMROOT
+    jobid: dummy_jobid
 
   cycle info:
     PDY: 20180415
