@@ -48,7 +48,7 @@ data_file = os.path.join(comout, f'{RUN}.t{cyc}z.ocn.recentering_error.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
                     variables_horiz={'ave_ssh': [-1, 1]},
-                    colormap='gist_ncar',
+                    colormap='seismic',
                     comout=os.path.join(comout, 'vrfy', 'recentering_error'))
 recErrPlotter = statePlotter(config)
 recErrPlotter.plot()
