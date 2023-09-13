@@ -73,9 +73,9 @@ foreach(jjob ${jjob_list})
     PROPERTIES
     ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}")
 
+
   set(setup "--skip") # Only run the setup of the first test, if not, it will hang
                       # waiting for standard input from setup_expt.py
-
 endforeach()
 
 # Test gdas/oops applications
