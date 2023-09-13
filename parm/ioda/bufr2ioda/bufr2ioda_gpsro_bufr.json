@@ -5,7 +5,7 @@
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
   "ioda_directory"   : "{{ COM_OBS }}",
-  "subsets"          : [ "GPS-RO" ],
+  "subsets"          : [ "NC003010" ],
   "data_description" : "MSG TYPE 003-010 NESDIS GPS-RO", 
   "data_provider"    : "U.S. NOAA/NESDIS",
   "sensor_satellite_info" : [ 
