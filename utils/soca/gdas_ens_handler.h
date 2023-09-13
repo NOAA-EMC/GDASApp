@@ -231,7 +231,7 @@ namespace gdasapp {
       oops::Log::info() << "mean non-steric ssh: " << sshMean << std::endl;
       oops::Log::info() << "std non-steric ssh: " << sshNonStericStd << std::endl;
       eckit::LocalConfiguration nonStericSshOutputConfig(fullConfig, "ssh output.unbalanced");
-      sshNonSteric.write(nonStericSshOutputConfig);
+      sshNonStericStd.write(nonStericSshOutputConfig);
 
       // Compute filtered ensemble moments
       ensMean.zero();
