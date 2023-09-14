@@ -30,9 +30,12 @@ from pyioda import ioda_obs_space as ioda_ospace
 
 def Compute_Grid_Location(degrees):
 
-    rad = np.deg2rad(degrees) 
+    for i in range(len(degrees)):
+       if degrees[i] < 180 and degrees[i] > -180 :
+          degrees[i] = np.deg2rad(degrees[i])
+    rad = degrees
 
-    return rad 
+    return rad
 
 def Compute_imph(impp, elrc, geodu):
 
