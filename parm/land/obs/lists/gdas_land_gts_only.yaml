@@ -1,3 +1,2 @@
 observers:
 - !INC ${OBS_YAML_DIR}/adpsfc_snow.yaml
-- !INC ${OBS_YAML_DIR}/snocvr_snow.yaml
