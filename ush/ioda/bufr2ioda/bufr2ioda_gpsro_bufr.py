@@ -58,47 +58,10 @@ def bufr_to_ioda(config):
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
 
-    print("NE data_type", data_type)
-
     sensor_satellite_info_array = config["sensor_satellite_info"]
-    print("NE", sensor_satellite_info_array)
-#    sensor_name = config["sensor_name"]#["satellite_id"]
-#    print("NE SENSOR NAME", sensor_name)
-#    print("NE sensorname: ",sensor_name)
-#    sensor_full_name = config["sensor_satellite_info"]["sensor_full_name"]
-#    sensor_id = config["sensor_satellite_info"]["sensor_id"]
-#    satellite_name = config["sensor_satellite_info"]["satellite_name"]
-#    satellite_full_name = config["sensor_satellite_info"]["satellite_full_name"]
-#    satellite_id = config["sensor_satellite_info"]["satellite_id"]
-
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_type}.tm00.{data_format}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), 'atmos', bufrfile)
-
-    # ===================================================
-    # Define instrument sensor and satellite information
-    # ===================================================
-
-#    print('Instrument: Sensor/Platform Specification...')
-#
-#    print('Instrument Info ... ')
-#    print(sensor_satellite_info_array)
-#    print('Total number of instrument = ', len(sensor_satellite_info_array))
-#
-#    for sats_sensors in sensor_satellite_info_array:  
-#        print('Sensor Name =          ', sensor_satellite_info_array.sensor_name)
-#        print('Sensor Full Name =     ', sensor_satellite_info_array.sensor_full_name)
-#        print('Sensor ID =            ', sensor_satellite_info_array.sensor_id)
-#        print('Satellite Name =       ', sensor_satellite_info_array.satellite_name)
-#        print('Satellite Full Name =  ', sensor_satellite_info_array.satellite_full_name)
-#        print('Satellite ID =         ', sensor_satellite_info_array.satellite_id)
-#
-#    print('Sensor Name =              ', sensor_satellite_info_array[0].sensor_name)
-#    print('Sensor Full Name =         ', sensor_satellite_info_array[0].sensor_full_name)
-#    print('Sensor ID =                ', sensor_satellite_info_array[0].sensor_id)
-#    print('Satellite Name =           ', sensor_satellite_info_array[0].satellite_name)
-#    print('Satellite Full Name =      ', sensor_satellite_info_array[0].satellite_full_name)
-#    print('Satellite ID =             ', sensor_satellite_info_array[0].satellite_id)
 
     # ============================================
     # Make the QuerySet for all the data we want
@@ -123,7 +86,7 @@ def bufr_to_ioda(config):
     q.add('satelliteIdentifier',           '*/SAID' )
     q.add('satelliteInstrument',           '*/SIID' )
     q.add('satelliteConstellationRO',      '*/SCLF' )
-    q.add('platformTransmitterId',         '*/PTID' )
+    q.add('satelliteTransmitterId',         '*/PTID' )
     q.add('earthRadiusCurvature',          '*/ELRC' )
     #q.add('observationSequenceNum',        '*/SEQNUM' )
     q.add('geoidUndulation',               '*/GEODU' )
@@ -151,12 +114,13 @@ def bufr_to_ioda(config):
     q.add('atmosphericRefractivity',       '*/ROSEQ3/ARFR[1]' )
 
     # ObsError
-    q.add('obsErrorBendingAngle1',          '*/ROSEQ1/ROSEQ2{1}/BNDA[2]')
-    q.add('obsErrorBendingAngle3',          '*/ROSEQ1/ROSEQ2{3}/BNDA[2]')
+    q.add('obsErrorBendingAngle1',           '*/ROSEQ1/ROSEQ2{1}/BNDA[2]')
+    q.add('obsErrorBendingAngle3',           '*/ROSEQ1/ROSEQ2{3}/BNDA[2]')
     q.add('obsErrorAtmosphericRefractivity', '*/ROSEQ3/ARFR[2]')
 
     # ObsType
-    q.add('obsTypeBendingAngle',           '*/SAID' )
+    q.add('obsTypeBendingAngle',             '*/SAID' )
+    q.add('obsTypeAtmosphericRefractivity',  '*/SAID' )
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -188,7 +152,7 @@ def bufr_to_ioda(config):
     said       = r.get('satelliteIdentifier',           'latitude')
     siid       = r.get('satelliteInstrument',           'latitude')
     sclf       = r.get('satelliteConstellationRO',      'latitude')
-    ptid       = r.get('platformTransmitterId',         'latitude')
+    ptid       = r.get('satelliteTransmitterId',         'latitude')
     elrc       = r.get('earthRadiusCurvature',          'latitude')
     #seqnum     = r.get('observationSequenceNum')
     geodu      = r.get('geoidUndulation',               'latitude')
@@ -221,14 +185,14 @@ def bufr_to_ioda(config):
 
     # ObsError
     # Bending Angle
-    oebnda1    = r.get('obsErrorBendingAngle1',          'latitude')
-    oebnda3    = r.get('obsErrorBendingAngle3',          'latitude')
-    oearfr     = r.get('obsErrorAtmosphericRefractivity','height')
+    bndaoe1    = r.get('obsErrorBendingAngle1',          'latitude')
+    bndaoe3    = r.get('obsErrorBendingAngle3',          'latitude')
+    arfroe     = r.get('obsErrorAtmosphericRefractivity','height')
 
     # ObsType
     # Bending Angle
-    otbnda     = r.get('obsTypeBendingAngle',           'latitude')
-    otarfr     = r.get('obsTypeBendingAngle',           'latitude')
+    bndaot     = r.get('obsTypeBendingAngle',           'latitude')
+    arfrot     = r.get('obsTypeBendingAngle',           'latitude')
 
     print(' ... Executing QuerySet: get datatime: observation time ...')
     # DateTime: seconds since Epoch time
@@ -287,11 +251,11 @@ def bufr_to_ioda(config):
     print('     bnda3     shape,type = ', bnda3.shape,   bnda3.dtype)
     print('     arfr      shape,type = ', arfr.shape,    arfr.dtype)
 
-    print('     oebnda1   shape,type = ', oebnda1.shape,   oebnda1.dtype)
-    print('     oebnda3   shape,type = ', oebnda3.shape,   oebnda3.dtype)
-    print('     oearfr    shape,type = ', arfr.shape,   arfr.dtype)
+    print('     bndaoe1   shape,type = ', bndaoe1.shape,   bndaoe1.dtype)
+    print('     bndaoe3   shape,type = ', bndaoe3.shape,   bndaoe3.dtype)
+    print('     arfroe    shape,type = ', arfr.shape,   arfr.dtype)
 
-    print('     otbnda    shape,type = ', otbnda.shape, otbnda.dtype)
+    print('     bndaot    shape,type = ', bndaot.shape, bndaot.dtype)
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -348,10 +312,10 @@ def bufr_to_ioda(config):
                matched = True
                sensor_id = sensor_satellite_info["sensor_id"]
                sensor_full_name = sensor_satellite_info["sensor_full_name"]
-               sensor_id = sensor_satellite_info["sensor_id"]
-               satellite_name = sensor_satellite_info["satellite_name"]
-               satellite_full_name = sensor_satellite_info["satellite_full_name"]
+               sensor_name = sensor_satellite_info["sensor_name"]
                satellite_id = sensor_satellite_info["satellite_id"]
+               satellite_full_name = sensor_satellite_info["satellite_full_name"]
+               satellite_name = sensor_satellite_info["satellite_name"]
 
         
         if matched:    
@@ -396,12 +360,13 @@ def bufr_to_ioda(config):
            arfr2        = arfr[mask]
    
            # ObsError
-           oebnda1_2  = oebnda1[mask]
-           oebnda3_2  = oebnda3[mask]
-           oearfr2    = arfr[mask]
+           bndaoe1_2  = bndaoe1[mask]
+           bndaoe3_2  = bndaoe3[mask]
+           arfroe2    = arfr[mask]
    
            # ObsType
-           otbnda2    = otbnda[mask]
+           bndaot2    = bndaot[mask]
+           arfrot2    = arfrot[mask]
     
            # Choose bnda, mefr, impp, imph
            if ((sat == 44) or (sat == 825)):
@@ -409,13 +374,13 @@ def bufr_to_ioda(config):
              mefr2    = mefr1_2
              impp2    = impp1_2
              imph2    = imph1_2
-             oebnda2  = oebnda1_2
+             bndaoe2  = bndaoe1_2
            else:
              bnda2    = bnda3_2
              mefr2    = mefr3_2
              impp2    = impp3_2
              imph2    = imph3_2 
-             oebnda2  = oebnda3_2
+             bndaoe2  = bndaoe3_2
     
            # Check unique observation time
            unique_timestamp2 = np.unique(timestamp2)
@@ -446,7 +411,11 @@ def bufr_to_ioda(config):
            # Create Global attributes
            print(' ... ... Create global attributes')
            obsspace.write_attr('sensor', sensor_id)
-           obsspace.write_attr('platform', satellite_id)
+           obsspace.write_attr('satellite', satellite_id)
+           obsspace.write_attr('sensorName', sensor_name)
+           obsspace.write_attr('satelliteName', satellite_name)
+           obsspace.write_attr('sensorFullName', sensor_full_name)
+           obsspace.write_attr('satelliteFullName', satellite_full_name)
            obsspace.write_attr('dataProviderOrigin', 'U.S. NOAA/NESDIS')
            obsspace.write_attr('description', 'MSG TYPE 003-010 NESDIS GPS-RO')
    
@@ -501,9 +470,9 @@ def bufr_to_ioda(config):
                .write_attr('long_name', 'Satellite Constellation RO') \
                .write_data(sclf2)
    
-           # Platform Transmitter ID
-           obsspace.create_var('MetaData/platformTransmitterId', dtype=ptid2.dtype, fillval=ptid2.fill_value) \
-               .write_attr('long_name', 'Platform Transmitter Id') \
+           # Satellite Transmitter ID
+           obsspace.create_var('MetaData/satelliteTransmitterId', dtype=ptid2.dtype, fillval=ptid2.fill_value) \
+               .write_attr('long_name', 'Satellite Transmitter Id') \
                .write_data(ptid2)
    
            # Earth Radius Curvature
@@ -587,23 +556,27 @@ def bufr_to_ioda(config):
                .write_attr('long_name', 'Atmospheric Refractivity ObsError') \
                .write_data(arfr2)
    
-           # ObsValue: Bending Angle
-           obsspace.create_var('ObsError/bendingAngle', dtype=oebnda2.dtype, fillval=oebnda2.fill_value) \
+           # ObsError: Bending Angle
+           obsspace.create_var('ObsError/bendingAngle', dtype=bndaoe2.dtype, fillval=bndaoe2.fill_value) \
                .write_attr('units', 'radians') \
                .write_attr('long_name', 'Bending Angle Obs Error') \
-               .write_data(oebnda2)
+               .write_data(bndaoe2)
    
            # ObsError: Atmospheric Refractivity
-           obsspace.create_var('ObsError/atmosphericRefractivity', dtype=oearfr2.dtype, fillval=oearfr2.fill_value) \
+           obsspace.create_var('ObsError/atmosphericRefractivity', dtype=arfroe2.dtype, fillval=arfroe2.fill_value) \
                .write_attr('units', 'N-units') \
                .write_attr('long_name', 'Atmospheric Refractivity ObsError') \
-               .write_data(oearfr2)
+               .write_data(arfroe2)
    
            # ObsType
-           obsspace.create_var('ObsType/BendingAngle', dtype=otbnda2.dtype, fillval=otbnda2.fill_value) \
+           obsspace.create_var('ObsType/BendingAngle', dtype=bndaot2.dtype, fillval=bndaot2.fill_value) \
                .write_attr('long_name', 'Bending Angle ObsType') \
-               .write_data(otbnda2)
-   
+               .write_data(bndaot2)
+  
+           # ObsType: Atmospheric Refractivity
+           obsspace.create_var('ObsType/atmosphericRefractivity', dtype=arfrot2.dtype, fillval=arfrot2.fill_value) \
+               .write_attr('long_name', 'Atmospheric Refractivity ObsType') \
+               .write_data(arfrot2) 
    
            end_time = time.time()
            running_time = end_time - start_time
