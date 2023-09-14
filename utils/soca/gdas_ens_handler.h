@@ -177,11 +177,23 @@ namespace gdasapp {
         // Zero out specified fields (again, steric heigh is now in ssh from the previous step)
         incr = postProcIncr.setToZero(incr);
 
-        // Filter ensemble member and recompute ssh, recentering around the cycle's trajectory
+        // Filter ensemble member and recompute steric ssh, recentering around
+        // the cycle's trajectory
         if ( fullConfig.has("linear variable change") ) {
           eckit::LocalConfiguration lvcConfig(fullConfig, "linear variable change");
           postProcIncr.applyLinVarChange(incr, lvcConfig, cycleTraj);
         }
+
+        // Add the unbalanced ssh to the recentered perturbation
+        // this assumes ssh_u is independent of the trajectory
+        oops::Log::info() << "&&&&& before adding ssh_u " << incr << std::endl;
+        atlas::FieldSet incrFs;
+        incr.toFieldSet(incrFs);
+        atlas::FieldSet sshNonStericFs;
+        sshNonSteric[i].toFieldSet(sshNonStericFs);
+        util::addFieldSets(incrFs, sshNonStericFs);
+        incr.fromFieldSet(incrFs);
+        oops::Log::info() << "&&&&& after adding ssh_u " << incr << std::endl;
 
         // Save final perturbation, used in the offline EnVAR
         result = postProcIncr.save(incr, i+1);
@@ -212,21 +224,32 @@ namespace gdasapp {
 
       // Compute ensemble moments for non-steric ssh
       sshMean.zero();
-      sshStd.zero();
       soca::Increment sshNonStericVariance(geom, socaSshVar, postProcIncr.dt_);
-      gdasapp_ens_utils::ensMoments(sshNonSteric, sshMean, sshStd, sshNonStericVariance);
+      soca::Increment sshNonStericStd(geom, socaSshVar, postProcIncr.dt_);
+      sshNonStericStd.zero();
+      gdasapp_ens_utils::ensMoments(sshNonSteric, sshMean, sshNonStericStd, sshNonStericVariance);
       oops::Log::info() << "mean non-steric ssh: " << sshMean << std::endl;
-      oops::Log::info() << "std non-steric ssh: " << sshStd << std::endl;
+      oops::Log::info() << "std non-steric ssh: " << sshNonStericStd << std::endl;
       eckit::LocalConfiguration nonStericSshOutputConfig(fullConfig, "ssh output.unbalanced");
-      sshStd.write(nonStericSshOutputConfig);
+      sshNonStericStd.write(nonStericSshOutputConfig);
 
-      // Compute filtered ensemble moments, used in the static B
+      // Compute filtered ensemble moments
       ensMean.zero();
       ensStd.zero();
       ensVariance.zero();
       gdasapp_ens_utils::ensMoments(ensMembers, ensMean, ensStd, ensVariance);
       oops::Log::info() << "filtered mean: " << ensMean << std::endl;
       oops::Log::info() << "filtered std: " << ensStd << std::endl;
+
+      // Prepare D (diag of the static B): replace sigma ssh with sigma ssh_u
+      ensStd = postProcIncr.setToZero(ensStd);  // Set ssh (and other specified fields to zero)
+      atlas::FieldSet ensStdFs;
+      ensStd.toFieldSet(ensStdFs);
+      atlas::FieldSet sshNonStericStdFs;
+      sshNonStericStd.toFieldSet(sshNonStericStdFs);
+      util::addFieldSets(ensStdFs, sshNonStericStdFs);
+      ensStd.fromFieldSet(ensStdFs);
+      oops::Log::info() << "std with ssh_u: " << ensStd << std::endl;
       eckit::LocalConfiguration bkgErrOutputConfig(fullConfig, "background error output");
       ensStd.write(bkgErrOutputConfig);
 
