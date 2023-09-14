@@ -509,7 +509,7 @@ def bufr_to_ioda(config):
            obsspace.create_var('MetaData/frequency', dtype=mefr2.dtype, fillval=mefr2.fill_value) \
                .write_attr('units', 'Hz') \
                .write_attr('long_name', 'Frequency') \
-               .write_data(imph2)
+               .write_data(mefr2)
    
            # PCCF Percent Confidence
            obsspace.create_var('MetaData/pccf', dtype=pccf2.dtype, fillval=pccf2.fill_value) \
