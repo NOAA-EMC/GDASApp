@@ -43,7 +43,6 @@ def Compute_imph(impp, elrc, geodu):
 def bufr_to_ioda(config):
 
     subsets = config["subsets"]
-    print("NE subsets", subsets)
     # =========================================
     # Get parameters from configuration
     # =========================================
@@ -57,8 +56,6 @@ def bufr_to_ioda(config):
     cycle = config["cycle_datetime"]
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
-
-    sensor_satellite_info_array = config["sensor_satellite_info"]
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_type}.tm00.{data_format}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), 'atmos', bufrfile)
@@ -284,6 +281,21 @@ def bufr_to_ioda(config):
     print('     imph1 min/max = ', imph1.min(), imph1.max())
     print('     imph3 min/max = ', imph3.min(), imph3.max())
 
+    print('Editing some derived variables if SAID is not 44 or 825')
+    for i in range(len(said)):
+       if (said[i] != 44) or (said[i] != 825):
+          bnda1[i] = bnda3[i]
+          mefr1[i] = mefr3[i]
+          impp1[i] = impp3[i]
+          imph1[i] = imph3[i]
+          bndaoe1[i] = bndaoe3[i]
+
+    print('     new bnda1 shape, type, min, max', bnda1.shape, bnda1.dtype, bnda1.min(), bnda1.max())
+    print('     new mefr1 shape, type, min, max', mefr1.shape, mefr1.dtype, mefr1.min(), mefr1.max())
+    print('     new impp1 shape, type, min, max', impp1.shape, impp1.dtype, impp1.min(), impp1.max())
+    print('     new imph1 shape, type, min, max', imph1.shape, imph1.dtype, imph1.min(), imph1.max())
+    print('     new bndaoe1 shape, type, min, max', bndaoe1.shape, bndaoe1.dtype, bndaoe1.min(), bndaoe1.max())
+
     end_time = time.time()
     running_time = end_time - start_time
     print('Running time for creating derived variables : ', running_time, 'seconds')
@@ -292,302 +304,199 @@ def bufr_to_ioda(config):
     # Create IODA ObsSpace
     # Write IODA output
     # =====================================
-    
-    print('Split data based on satellite id, Create IODA ObsSpace and Write IODA output')
 
     # Find unique satellite identifiers in data to process
     unique_satids = np.unique(said)
     print(' ... Number of Unique satellite identifiers: ', len(unique_satids))
     print(' ... Unique satellite identifiers: ', unique_satids)
 
-    print(' ... Loop through unique satellite identifier ... : ', unique_satids)
-    for sat in unique_satids.tolist():
-        print("Processing output for said: ", sat)
-        start_time = time.time()
-
-        # Find matched sensor_satellite_info from sensor_satellite_info namedtuple
-        matched = False
-        for sensor_satellite_info in sensor_satellite_info_array:
-            if (sensor_satellite_info["satellite_id"] == sat):
-               matched = True
-               sensor_id = sensor_satellite_info["sensor_id"]
-               sensor_full_name = sensor_satellite_info["sensor_full_name"]
-               sensor_name = sensor_satellite_info["sensor_name"]
-               satellite_id = sensor_satellite_info["satellite_id"]
-               satellite_full_name = sensor_satellite_info["satellite_full_name"]
-               satellite_name = sensor_satellite_info["satellite_name"]
-
-        
-        if matched:    
-
-           print(' ... Split data for satid = ', sat)
+    # Write the data to an IODA file
+    OUTPUT_PATH = '/work2/noaa/da/nesposito/NewConv/api_convert/json/json_gdasapp/gdas.t00z.gpsro.tm00.nc'
+    path, fname = os.path.split(OUTPUT_PATH)
+    if path and not os.path.exists(path):
+        os.makedirs(path)
    
-           # Define a boolean mask to subset data from the original data object
-           mask       = said == sat
-           # MetaData
-           clonh2     = clonh[mask]
-           clath2     = clath[mask]
-           gclonh2    = gclonh[mask]
-           gclath2    = gclath[mask]
-           timestamp2 = timestamp[mask]
-           said2      = said[mask]
-           siid2      = siid[mask]
-           sclf2      = sclf[mask]
-           ptid2      = ptid[mask]
-           elrc2      = elrc[mask]
-           geodu2     = geodu[mask]
-           heit2      = heit[mask]
-           impp1_2    = impp1[mask]
-           impp3_2    = impp3[mask]
-           imph1_2    = imph1[mask]
-           imph3_2    = imph3[mask]
-           mefr1_2    = mefr1[mask]
-           mefr3_2    = mefr3[mask]
-           pccf2      = pccf[mask]
-           ref_pccf2  = ref_pccf[mask]
-           bearaz2    = bearaz[mask]
-   
-           # Processing Center
-           ogce2      = ogce[mask]
-   
-           # QC Info
-           qfro2      = qfro[mask]
-           satasc2    = satasc[mask]
-   
-           # ObsValue
-           bnda1_2      = bnda1[mask]
-           bnda3_2      = bnda3[mask]
-           arfr2        = arfr[mask]
-   
-           # ObsError
-           bndaoe1_2  = bndaoe1[mask]
-           bndaoe3_2  = bndaoe3[mask]
-           arfroe2    = arfr[mask]
-   
-           # ObsType
-           bndaot2    = bndaot[mask]
-           arfrot2    = arfrot[mask]
-    
-           # Choose bnda, mefr, impp, imph
-           if ((sat == 44) or (sat == 825)):
-             bnda2    = bnda1_2
-             mefr2    = mefr1_2
-             impp2    = impp1_2
-             imph2    = imph1_2
-             bndaoe2  = bndaoe1_2
-           else:
-             bnda2    = bnda3_2
-             mefr2    = mefr3_2
-             impp2    = impp3_2
-             imph2    = imph3_2 
-             bndaoe2  = bndaoe3_2
-    
-           # Check unique observation time
-           unique_timestamp2 = np.unique(timestamp2)
-           print(' ... Number of Unique observation timestamp: ', len(unique_timestamp2))
-           print(' ... Unique observation timestamp: ', unique_timestamp2)
-   
-           print(' ... Create ObsSpae for satid = ', sat)
-    
-           # =====================================
-           # Create IODA ObsSpace
-           # Write IODA output
-           # =====================================
-    
-           # Write the data to an IODA file
-           OUTPUT_PATH = '/work2/noaa/da/nesposito/NewConv/api_convert/json/json_gdasapp/gdas.t00z.gpsro_'+str(sat)+'.tm00.nc'
-           path, fname = os.path.split(OUTPUT_PATH)
-           if path and not os.path.exists(path):
-               os.makedirs(path)
-   
-           # Create the dimensions
-           dims = {
-              'Location'   : np.arange(0, clath2.shape[0]),
-           }
+    # Create the dimensions
+    dims = {
+       'Location'   : np.arange(0, clath.shape[0]),
+    }
        
-           # Create IODA ObsSpace 
-           obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
+    # Create IODA ObsSpace 
+    obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
    
-           # Create Global attributes
-           print(' ... ... Create global attributes')
-           obsspace.write_attr('data_format', data_format)
-           obsspace.write_attr('data_type', data_type)
-           obsspace.write_attr('subsets', subsets)
-           obsspace.write_attr('cycle_type', cycle_type)
-           obsspace.write_attr('cycle_datetime', cycle)
-           obsspace.write_attr('dataProviderOrigin', data_provider)
-           obsspace.write_attr('converter', os.path.basename(__file__))
-
-           obsspace.write_attr('description', data_description)
-           obsspace.write_attr('sensor', sensor_id)
-           obsspace.write_attr('satellite', satellite_id)
-           obsspace.write_attr('sensorName', sensor_name)
-           obsspace.write_attr('satelliteName', satellite_name)
-           obsspace.write_attr('sensorFullName', sensor_full_name)
-           obsspace.write_attr('satelliteFullName', satellite_full_name)
+    # Create Global attributes
+    print(' ... ... Create global attributes')
+    obsspace.write_attr('data_format', data_format)
+    obsspace.write_attr('data_type', data_type)
+    obsspace.write_attr('subsets', subsets)
+    obsspace.write_attr('cycle_type', cycle_type)
+    obsspace.write_attr('cycle_datetime', cycle)
+    obsspace.write_attr('dataProviderOrigin', data_provider)
+    obsspace.write_attr('description', data_description)
+    obsspace.write_attr('converter', os.path.basename(__file__))
    
-           # Create IODA variables
-           print(' ... ... Create variables: name, type, units, and attributes')
-           # Longitude
-           obsspace.create_var('MetaData/longitude', dtype=clonh2.dtype, fillval=clonh2.fill_value) \
-               .write_attr('units', 'degrees_east') \
-               .write_attr('valid_range', np.array([-180, 180], dtype=np.float32)) \
-               .write_attr('long_name', 'Longitude') \
-               .write_data(clonh2)
+    # Create IODA variables
+    print(' ... ... Create variables: name, type, units, and attributes')
+    # Longitude
+    obsspace.create_var('MetaData/longitude', dtype=clonh.dtype, fillval=clonh.fill_value) \
+        .write_attr('units', 'degrees_east') \
+        .write_attr('valid_range', np.array([-180, 180], dtype=np.float32)) \
+        .write_attr('long_name', 'Longitude') \
+        .write_data(clonh)
    
-           # Latitude 
-           obsspace.create_var('MetaData/latitude', dtype=clath.dtype, fillval=clath2.fill_value) \
-               .write_attr('units', 'degrees_north') \
-               .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
-               .write_attr('long_name', 'Latitude') \
-               .write_data(clath2)
+    # Latitude 
+    obsspace.create_var('MetaData/latitude', dtype=clath.dtype, fillval=clath.fill_value) \
+        .write_attr('units', 'degrees_north') \
+        .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
+        .write_attr('long_name', 'Latitude') \
+        .write_data(clath)
    
-           # Grid Longitude
-           obsspace.create_var('MetaData/gridLongitude', dtype=gclonh2.dtype, fillval=gclonh2.fill_value) \
-               .write_attr('units', 'radians') \
-               .write_attr('valid_range', np.array([-3.14159265, 3.14159265], dtype=np.float32)) \
-               .write_attr('long_name', 'Grid Longitude') \
-               .write_data(gclonh2)
+    # Grid Longitude
+    obsspace.create_var('MetaData/gridLongitude', dtype=gclonh.dtype, fillval=gclonh.fill_value) \
+        .write_attr('units', 'radians') \
+        .write_attr('valid_range', np.array([-3.14159265, 3.14159265], dtype=np.float32)) \
+        .write_attr('long_name', 'Grid Longitude') \
+        .write_data(gclonh)
    
-           # Grid Latitude
-           obsspace.create_var('MetaData/gridLatitude', dtype=gclath.dtype, fillval=gclath2.fill_value) \
-               .write_attr('units', 'radians') \
-               .write_attr('valid_range', np.array([-1.570796325, 1.570796325], dtype=np.float32)) \
-               .write_attr('long_name', 'Grid Latitude') \
-               .write_data(gclath2)
+    # Grid Latitude
+    obsspace.create_var('MetaData/gridLatitude', dtype=gclath.dtype, fillval=gclath.fill_value) \
+        .write_attr('units', 'radians') \
+        .write_attr('valid_range', np.array([-1.570796325, 1.570796325], dtype=np.float32)) \
+        .write_attr('long_name', 'Grid Latitude') \
+        .write_data(gclath)
    
-           # Datetime
-           obsspace.create_var('MetaData/dateTime', dtype=np.int64, fillval=timestamp2.fill_value) \
-               .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
-               .write_attr('long_name', 'Datetime') \
-               .write_data(timestamp2)
+    # Datetime
+    obsspace.create_var('MetaData/dateTime', dtype=np.int64, fillval=timestamp.fill_value) \
+        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
+        .write_attr('long_name', 'Datetime') \
+        .write_data(timestamp)
    
-           # Satellite Identifier  
-           obsspace.create_var('MetaData/satelliteIdentifier', dtype=said2.dtype, fillval=said2.fill_value) \
-               .write_attr('long_name', 'Satellite Identifier') \
-               .write_data(said2)
+    # Satellite Identifier  
+    obsspace.create_var('MetaData/satelliteIdentifier', dtype=said.dtype, fillval=said.fill_value) \
+        .write_attr('long_name', 'Satellite Identifier') \
+        .write_data(said)
    
-           # Satellite Instrument
-           obsspace.create_var('MetaData/satelliteInstrument', dtype=siid2.dtype, fillval=siid2.fill_value) \
-               .write_attr('long_name', 'Satellite Instrument') \
-               .write_data(siid2)
+    # Satellite Instrument
+    obsspace.create_var('MetaData/satelliteInstrument', dtype=siid.dtype, fillval=siid.fill_value) \
+        .write_attr('long_name', 'Satellite Instrument') \
+        .write_data(siid)
    
-           # Satellite Constellation RO
-           obsspace.create_var('MetaData/satelliteConstellationRO', dtype=sclf2.dtype, fillval=sclf2.fill_value) \
-               .write_attr('long_name', 'Satellite Constellation RO') \
-               .write_data(sclf2)
+    # Satellite Constellation RO
+    obsspace.create_var('MetaData/satelliteConstellationRO', dtype=sclf.dtype, fillval=sclf.fill_value) \
+        .write_attr('long_name', 'Satellite Constellation RO') \
+        .write_data(sclf)
    
-           # Satellite Transmitter ID
-           obsspace.create_var('MetaData/satelliteTransmitterId', dtype=ptid2.dtype, fillval=ptid2.fill_value) \
-               .write_attr('long_name', 'Satellite Transmitter Id') \
-               .write_data(ptid2)
+    # Satellite Transmitter ID
+    obsspace.create_var('MetaData/satelliteTransmitterId', dtype=ptid.dtype, fillval=ptid.fill_value) \
+        .write_attr('long_name', 'Satellite Transmitter Id') \
+        .write_data(ptid)
    
-           # Earth Radius Curvature
-           obsspace.create_var('MetaData/earthRadiusCurvature', dtype=elrc2.dtype, fillval=elrc2.fill_value) \
-               .write_attr('units', 'm') \
-               .write_attr('long_name', 'Earth Radius of Curvature') \
-               .write_data(elrc2)
+    # Earth Radius Curvature
+    obsspace.create_var('MetaData/earthRadiusCurvature', dtype=elrc.dtype, fillval=elrc.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Earth Radius of Curvature') \
+        .write_data(elrc)
    
-           # Geoid Undulation
-           obsspace.create_var('MetaData/geoidUndulation', dtype=geodu2.dtype, fillval=geodu2.fill_value) \
-               .write_attr('units', 'm') \
-               .write_attr('long_name', 'Geoid Undulation') \
-               .write_data(geodu2)
+    # Geoid Undulation
+    obsspace.create_var('MetaData/geoidUndulation', dtype=geodu.dtype, fillval=geodu.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Geoid Undulation') \
+        .write_data(geodu)
    
-           # Height
-           obsspace.create_var('MetaData/height', dtype=heit2.dtype, fillval=heit2.fill_value) \
-               .write_attr('units', 'm') \
-               .write_attr('long_name', 'Height' ) \
-               .write_data(heit2) 
+    # Height
+    obsspace.create_var('MetaData/height', dtype=heit.dtype, fillval=heit.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Height' ) \
+        .write_data(heit) 
    
-          # Impact Parameter RO
-           obsspace.create_var('MetaData/impactParameterRO', dtype=impp2.dtype, fillval=impp2.fill_value) \
-               .write_attr('units', 'm') \
-               .write_attr('long_name', 'Impact Parameter RO') \
-               .write_data(impp2)
+   # Impact Parameter RO
+    obsspace.create_var('MetaData/impactParameterRO', dtype=impp1.dtype, fillval=impp1.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Impact Parameter RO') \
+        .write_data(impp1)
    
-           # Impact Height RO
-           obsspace.create_var('MetaData/impactHeightRO', dtype=imph2.dtype, fillval=imph2.fill_value) \
-               .write_attr('units', 'm') \
-               .write_attr('long_name', 'Impact Height RO') \
-               .write_data(imph2)
+    # Impact Height RO
+    obsspace.create_var('MetaData/impactHeightRO', dtype=imph1.dtype, fillval=imph1.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Impact Height RO') \
+        .write_data(imph1)
    
-           # Impact Height RO
-           obsspace.create_var('MetaData/frequency', dtype=mefr2.dtype, fillval=mefr2.fill_value) \
-               .write_attr('units', 'Hz') \
-               .write_attr('long_name', 'Frequency') \
-               .write_data(mefr2)
+    # Impact Height RO
+    obsspace.create_var('MetaData/frequency', dtype=mefr1.dtype, fillval=mefr1.fill_value) \
+        .write_attr('units', 'Hz') \
+        .write_attr('long_name', 'Frequency') \
+        .write_data(mefr1)
    
-           # PCCF Percent Confidence
-           obsspace.create_var('MetaData/pccf', dtype=pccf2.dtype, fillval=pccf2.fill_value) \
-               .write_attr('units', '%') \
-               .write_attr('long_name', 'Percent Confidence') \
-               .write_data(pccf2)
+    # PCCF Percent Confidence
+    obsspace.create_var('MetaData/pccf', dtype=pccf.dtype, fillval=pccf.fill_value) \
+        .write_attr('units', '%') \
+        .write_attr('long_name', 'Percent Confidence') \
+        .write_data(pccf)
    
-           # PCCF Ref Percent Confidence
-           obsspace.create_var('MetaData/percentConfidence', dtype=ref_pccf2.dtype, fillval=ref_pccf2.fill_value) \
-               .write_attr('units', '%') \
-               .write_attr('long_name', 'Ref Percent Confidence') \
-               .write_data(ref_pccf2)
+    # PCCF Ref Percent Confidence
+    obsspace.create_var('MetaData/percentConfidence', dtype=ref_pccf.dtype, fillval=ref_pccf.fill_value) \
+        .write_attr('units', '%') \
+        .write_attr('long_name', 'Ref Percent Confidence') \
+        .write_data(ref_pccf)
    
-           # Azimuth Angle
-           obsspace.create_var('MetaData/sensorAzimuthAngle', dtype=bearaz2.dtype, fillval=bearaz2.fill_value) \
-               .write_attr('units', 'degree') \
-               .write_attr('long_name', 'Percent Confidence') \
-               .write_data(pccf2)
+    # Azimuth Angle
+    obsspace.create_var('MetaData/sensorAzimuthAngle', dtype=bearaz.dtype, fillval=bearaz.fill_value) \
+        .write_attr('units', 'degree') \
+        .write_attr('long_name', 'Percent Confidence') \
+        .write_data(pccf)
    
-           # Data Provider 
-           obsspace.create_var('MetaData/dataProviderOrigin', dtype=ogce2.dtype, fillval=ogce2.fill_value) \
-               .write_attr('long_name', 'Identification of Originating/Generating Center') \
-               .write_data(ogce2)
+    # Data Provider 
+    obsspace.create_var('MetaData/dataProviderOrigin', dtype=ogce.dtype, fillval=ogce.fill_value) \
+        .write_attr('long_name', 'Identification of Originating/Generating Center') \
+        .write_data(ogce)
    
-           # Quality: Quality Flags
-           obsspace.create_var('MetaData/qualityFlags', dtype=qfro2.dtype, fillval=qfro2.fill_value) \
-               .write_attr('long_name', 'Quality Flags') \
-               .write_data(qfro2)
+    # Quality: Quality Flags
+    obsspace.create_var('MetaData/qualityFlags', dtype=qfro.dtype, fillval=qfro.fill_value) \
+        .write_attr('long_name', 'Quality Flags') \
+        .write_data(qfro)
    
-           # Quality: Satellite Ascending Flag
-           obsspace.create_var('MetaData/satelliteAscendingFlag', dtype=satasc2.dtype, fillval=satasc2.fill_value) \
-               .write_attr('long_name', 'Satellite Ascending Flag') \
-               .write_data(satasc2)
+    # Quality: Satellite Ascending Flag
+    obsspace.create_var('MetaData/satelliteAscendingFlag', dtype=satasc.dtype, fillval=satasc.fill_value) \
+        .write_attr('long_name', 'Satellite Ascending Flag') \
+        .write_data(satasc)
    
-           # ObsValue: Bending Angle
-           obsspace.create_var('ObsValue/bendingAngle', dtype=bnda2.dtype, fillval=bnda2.fill_value) \
-               .write_attr('units', 'radians') \
-               .write_attr('long_name', 'Bending Angle') \
-               .write_data(bnda2)
+    # ObsValue: Bending Angle
+    obsspace.create_var('ObsValue/bendingAngle', dtype=bnda1.dtype, fillval=bnda1.fill_value) \
+        .write_attr('units', 'radians') \
+        .write_attr('long_name', 'Bending Angle') \
+        .write_data(bnda1)
    
-           # ObsValue: Atmospheric Refractivity 
-           obsspace.create_var('ObsValue/atmosphericRefractivity', dtype=arfr2.dtype, fillval=arfr2.fill_value) \
-               .write_attr('units', 'N-units') \
-               .write_attr('long_name', 'Atmospheric Refractivity ObsError') \
-               .write_data(arfr2)
+    # ObsValue: Atmospheric Refractivity 
+    obsspace.create_var('ObsValue/atmosphericRefractivity', dtype=arfr.dtype, fillval=arfr.fill_value) \
+        .write_attr('units', 'N-units') \
+        .write_attr('long_name', 'Atmospheric Refractivity ObsError') \
+        .write_data(arfr)
    
-           # ObsError: Bending Angle
-           obsspace.create_var('ObsError/bendingAngle', dtype=bndaoe2.dtype, fillval=bndaoe2.fill_value) \
-               .write_attr('units', 'radians') \
-               .write_attr('long_name', 'Bending Angle Obs Error') \
-               .write_data(bndaoe2)
+    # ObsError: Bending Angle
+    obsspace.create_var('ObsError/bendingAngle', dtype=bndaoe1.dtype, fillval=bndaoe1.fill_value) \
+        .write_attr('units', 'radians') \
+        .write_attr('long_name', 'Bending Angle Obs Error') \
+        .write_data(bndaoe1)
    
-           # ObsError: Atmospheric Refractivity
-           obsspace.create_var('ObsError/atmosphericRefractivity', dtype=arfroe2.dtype, fillval=arfroe2.fill_value) \
-               .write_attr('units', 'N-units') \
-               .write_attr('long_name', 'Atmospheric Refractivity ObsError') \
-               .write_data(arfroe2)
+    # ObsError: Atmospheric Refractivity
+    obsspace.create_var('ObsError/atmosphericRefractivity', dtype=arfroe.dtype, fillval=arfroe.fill_value) \
+        .write_attr('units', 'N-units') \
+        .write_attr('long_name', 'Atmospheric Refractivity ObsError') \
+        .write_data(arfroe)
    
-           # ObsType
-           obsspace.create_var('ObsType/BendingAngle', dtype=bndaot2.dtype, fillval=bndaot2.fill_value) \
-               .write_attr('long_name', 'Bending Angle ObsType') \
-               .write_data(bndaot2)
+    # ObsType: Bending Angle
+    obsspace.create_var('ObsType/BendingAngle', dtype=bndaot.dtype, fillval=bndaot.fill_value) \
+        .write_attr('long_name', 'Bending Angle ObsType') \
+        .write_data(bndaot)
   
-           # ObsType: Atmospheric Refractivity
-           obsspace.create_var('ObsType/atmosphericRefractivity', dtype=arfrot2.dtype, fillval=arfrot2.fill_value) \
-               .write_attr('long_name', 'Atmospheric Refractivity ObsType') \
-               .write_data(arfrot2) 
+    # ObsType: Atmospheric Refractivity
+    obsspace.create_var('ObsType/atmosphericRefractivity', dtype=arfrot.dtype, fillval=arfrot.fill_value) \
+        .write_attr('long_name', 'Atmospheric Refractivity ObsType') \
+        .write_data(arfrot) 
    
-           end_time = time.time()
-           running_time = end_time - start_time
-           print('Running time for splitting and output IODA for', str(sat), running_time, 'seconds')
+    end_time = time.time()
+    running_time = end_time - start_time
+    print('Running time for splitting and output IODA for gpsro bufr ', running_time, 'seconds')
 
     print("All Done!")
 
