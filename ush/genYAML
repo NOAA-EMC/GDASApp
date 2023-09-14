@@ -7,7 +7,7 @@ import datetime as dt
 import logging
 import os
 import re
-from wxflow, import parse_j2yaml, cast_strdict_as_dtypedict, save_as_yaml
+from wxflow import parse_j2yaml, cast_strdict_as_dtypedict, save_as_yaml
 
 
 def genYAML(input_yaml, output_yaml, config):
