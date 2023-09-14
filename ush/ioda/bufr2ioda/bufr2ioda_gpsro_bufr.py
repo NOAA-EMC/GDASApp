@@ -534,7 +534,7 @@ def bufr_to_ioda(config):
            obsspace.create_var('MetaData/sensorAzimuthAngle', dtype=bearaz2.dtype, fillval=bearaz2.fill_value) \
                .write_attr('units', 'degree') \
                .write_attr('long_name', 'Percent Confidence') \
-               .write_data(pccf2)
+               .write_data(bearaz2)
    
            # Data Provider 
            obsspace.create_var('MetaData/dataProviderOrigin', dtype=ogce2.dtype, fillval=ogce2.fill_value) \
