@@ -18,6 +18,10 @@ from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 from pyiodaconv import bufr
 from collections import namedtuple
+import warnings
+  
+# suppress warnings
+warnings.filterwarnings('ignore')
 
 #|------------------------------------------------------------------------------|
 #|            gdas prepbufr file                                                |                    
