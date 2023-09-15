@@ -71,7 +71,7 @@ machine=${machine:-orion}
 
 if [ $machine = orion ]; then
    if [ $run_filtering == NO ]; then
-      workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
+      workdir=/work2/noaa/da/$LOGNAME/ufoeval_conv_ps/$cycle/${obtype}_noqc
       echo "Run without data filtering"
    else
       workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/${obtype}
@@ -100,7 +100,12 @@ else
    yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}.yaml
 fi
 
-exename=test_ObsFilters.x
+#exename=test_ObsFilters.x
+if [ $run_filtering == NO ]; then
+   exename=test_ObsOperator.x
+else
+   exename=test_ObsFilters.x
+fi
 
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
