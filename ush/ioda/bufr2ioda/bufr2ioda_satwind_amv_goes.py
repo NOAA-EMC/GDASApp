@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import argparse
 import numpy as np
 import numpy.ma as ma
@@ -548,3 +549,4 @@ if __name__ == '__main__':
     end_time = time.time()
     running_time = end_time - start_time
     logger.info(f"Total running time: {running_time} seconds")
+
