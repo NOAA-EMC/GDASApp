@@ -15,13 +15,13 @@ print("OBS_YAML:",OBS_YAML)
 COM_OBSDMP_BASE='/scratch1/NCEPDEV/stmp4/Shastri.Paturi/forAndrew/'
 
 # Variables of convenience - raided from scripts/exgdas_global_marine_analysis_prep.py
-# TODO: maybe make a module out of these
 RUN = os.getenv('RUN')
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
-DUMP = 'gdas'
-PDY = '20210701'
-cyc = '12'
+CDUMP = os.getenv('CDUMP')
+#DUMP = 'gdas'
+#PDY = '20210701'
+#cyc = '12'
 half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
 window_middle = datetime.strptime(PDY+cyc, '%Y%m%d%H')
 window_begin = datetime.strptime(PDY+cyc, '%Y%m%d%H') - half_assim_freq
@@ -41,10 +41,11 @@ for observer in data['observers']:
    print(observer['obs space']['name'])
 
 
-#filepattern='AMSR2-SEAICE-NH_v2r2_GW1_s202107011426180_e202107011605170_c202107011642250.nc'
+#           'AMSR2-SEAICE-NH_v2r2_GW1_s202107011426180_e202107011605170_c202107011642250.nc'
 filepattern='AMSR2-SEAICE-NH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc'
-cycdir=os.path.join(COM_OBSDMP_BASE,DUMP + '.' + str(PDY), str(cyc))
 subdir='icec'
+
+cycdir=os.path.join(COM_OBSDMP_BASE,CDUMP + '.' + str(PDY), str(cyc))
 datadir=os.path.join(cycdir,subdir)
 #TODO: check the existence of this
 print('datadir:',datadir)
