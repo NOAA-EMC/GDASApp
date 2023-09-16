@@ -144,12 +144,12 @@ obs post filters:
           variable: windNorthward
           inflation factor: 4.0
   # All scatwinds subject to a gross error check. This is contained within
-  # the SatWindsSPDBCheck, although it is not exclusive to satwinds.
+  # the WindsSPDBCheck, although it is not exclusive to satwinds.
   - filter: Background Check
     filter variables:
     - name: windEastward
     function absolute threshold:
-    - name: ObsFunction/SatWindsSPDBCheck
+    - name: ObsFunction/WindsSPDBCheck
       options:
         wndtype: [  290,  291]
         cgross:  [  5.0,  5.0]
@@ -163,7 +163,7 @@ obs post filters:
     filter variables:
     - name: windNorthward
     function absolute threshold:
-    - name: ObsFunction/SatWindsSPDBCheck
+    - name: ObsFunction/WindsSPDBCheck
       options:
         wndtype: [  290,  291]
         cgross:  [  5.0,  5.0]
@@ -175,7 +175,7 @@ obs post filters:
   # The last error inflation check is for duplicate observations. This one needs
   # to come last, because we don't want to inflate errors for duplication if one
   # of the duplicates should be rejected.
-  - filter: BlackList
+  - filter: RejectList
     filter variables:
     - name: windEastward
     action:
@@ -185,7 +185,7 @@ obs post filters:
         options:
           use_air_pressure: true
           variable: windEastward
-  - filter: BlackList
+  - filter: RejectList
     filter variables:
     - name: windNorthward
     action:
@@ -229,7 +229,8 @@ obs post filters:
 #      inflation factor: 1.25
 linear obs operator:
   name: Identity
-passedBenchmark: 52097 # 2 variables (u,v), u=26087 passing, v=26010 passing
+#passedBenchmark: 52097 # 2 variables (u,v), u=26087 passing, v=26010 passing
+passedBenchmark: 52109 # 2 variables (u,v), u=26093 passing, v=26016 passing
                        # GSI rejects both u- and v-component in first-guess check, UFO does not, but when UFO rej is reconciled btwn u and v these match GSI rej
                        #   u: 207 obs pass with corresponding v being rejected, 25880 obs in UFO/GSI agreement
                        #   v: 130 obs pass with corresponding u being rejected, 25880 obs in UFO/GSI agreement
