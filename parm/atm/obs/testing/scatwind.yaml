@@ -229,7 +229,6 @@ obs post filters:
 #      inflation factor: 1.25
 linear obs operator:
   name: Identity
-
 #passedBenchmark: 52097 # 2 variables (u,v), u=26087 passing, v=26010 passing
 passedBenchmark: 52109 # 2 variables (u,v), u=26093 passing, v=26016 passing
                        # GSI rejects both u- and v-component in first-guess check, UFO does not, but when UFO rej is reconciled btwn u and v these match GSI rej
