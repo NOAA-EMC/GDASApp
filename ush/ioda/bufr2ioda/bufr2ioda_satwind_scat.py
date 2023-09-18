@@ -14,24 +14,26 @@ from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
 # ==============================================================================================
-# Subset    |  Description                                              |  PrepBUFR Report Type 
+# Subset    |  Description                                              |  PrepBUFR Report Type
 # ----------------------------------------------------------------------------------------------
 # NC012122  |  Level-2 ocean surface wind vector retrievals and         |  290
 #           |  derived wind components from the Advanced Scatterometer  |
 #           |  (ASCAT) on MetOp satellites at 50-km sampling resolution |
 # ==============================================================================================
 
+
 def Compute_WindComponents_from_WindDirection_and_WindSpeed(wdir, wspd):
 
     # Initialize
     uob = np.full_like(wspd, wspd.fill_value)
-    vob = np.full_like(wspd, wspd.fill_value) 
+    vob = np.full_like(wspd, wspd.fill_value)
 
     # Compute wind components from wind speed and direction
     uob = -wspd * np.sin(np.radians(wdir))
     vob = -wspd * np.cos(np.radians(wdir))
 
     return uob, vob
+
 
 def bufr_to_ioda(config, logger):
 
@@ -86,26 +88,26 @@ def bufr_to_ioda(config, logger):
     q = bufr.QuerySet(subsets)
 
     # MetaData
-    q.add('latitude',                          '*/CLAT')
-    q.add('longitude',                         '*/CLON')
-    q.add('satelliteId',                       '*/SAID') 
-    q.add('year',                              '*/YEAR') 
-    q.add('month',                             '*/MNTH') 
-    q.add('day',                               '*/DAYS') 
-    q.add('hour',                              '*/HOUR') 
-    q.add('minute',                            '*/MINU') 
-    q.add('second',                            '*/SECO') 
+    q.add('latitude', '*/CLAT')
+    q.add('longitude', '*/CLON')
+    q.add('satelliteId', '*/SAID')
+    q.add('year', '*/YEAR')
+    q.add('month', '*/MNTH')
+    q.add('day', '*/DAYS')
+    q.add('hour', '*/HOUR')
+    q.add('minute', '*/MINU')
+    q.add('second', '*/SECO')
 
     # Quality
-    q.add('qualityFlags',                      '*/WVCQ')
- 
+    q.add('qualityFlags', '*/WVCQ')
+
     # ObsValue
-    q.add('windDirectionAt10M',                '*/WD10')
-    q.add('windSpeedAt10M',                    '*/WS10')
+    q.add('windDirectionAt10M', '*/WD10')
+    q.add('windSpeedAt10M', '*/WS10')
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.debug(f'Processing time for making QuerySet : {running_time} seconds') 
+    logger.debug(f'Processing time for making QuerySet : {running_time} seconds')
 
     # ==============================================================
     # Open the BUFR file and execute the QuerySet to get ResultSet
@@ -115,30 +117,30 @@ def bufr_to_ioda(config, logger):
 
     logger.info('Executing QuerySet to get ResultSet')
     with bufr.File(DATA_PATH) as f:
-       r = f.execute(q)
- 
-    # MetaData
-    satid     = r.get('satelliteId')  
-    year      = r.get('year'       ) 
-    month     = r.get('month'      ) 
-    day       = r.get('day'        ) 
-    hour      = r.get('hour'       ) 
-    minute    = r.get('minute'     ) 
-    second    = r.get('second'     ) 
-    lat       = r.get('latitude'   )
-    lon       = r.get('longitude'  )
+        r = f.execute(q)
 
-    # Quality Information 
-    wvcq      = r.get('qualityFlags')
+    # MetaData
+    satid = r.get('satelliteId')
+    year = r.get('year')
+    month = r.get('month')
+    day = r.get('day')
+    hour = r.get('hour')
+    minute = r.get('minute')
+    second = r.get('second')
+    lat = r.get('latitude')
+    lon = r.get('longitude')
+
+    # Quality Information
+    wvcq = r.get('qualityFlags')
 
     # ObsValue
     # 10-m Wind direction and Speed
-    wdir      = r.get('windDirectionAt10M', type='float')
-    wspd      = r.get('windSpeedAt10M'                  )
+    wdir = r.get('windDirectionAt10M', type='float')
+    wspd = r.get('windSpeedAt10M')
 
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
-    timestamp = r.get_datetime('year','month','day','hour','minute','second').astype(np.int64)
+    timestamp = r.get_datetime('year', 'month', 'day', 'hour', 'minute', 'second').astype(np.int64)
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -199,24 +201,24 @@ def bufr_to_ioda(config, logger):
         if matched:
 
             # Define a boolean mask to subset data from the original data object
-            mask       = satid == sat
+            mask = satid == sat
             # MetaData
-            lon2       = lon[mask]
-            lat2       = lat[mask]
-            satid2     = satid[mask]
+            lon2 = lon[mask]
+            lat2 = lat[mask]
+            satid2 = satid[mask]
             timestamp2 = timestamp[mask]
-            pressure2  = pressure[mask]
-            height2    = height[mask]
-            obstype2   = obstype[mask]
+            pressure2 = pressure[mask]
+            height2 = height[mask]
+            obstype2 = obstype[mask]
 
             # QC Info
-            wvcq2      = wvcq[mask]
+            wvcq2 = wvcq[mask]
 
             # ObsValue
-            wdir2      = wdir[mask]
-            wspd2      = wspd[mask]
-            uob2       = uob[mask]
-            vob2       = vob[mask]
+            wdir2 = wdir[mask]
+            wspd2 = wspd[mask]
+            uob2 = uob[mask]
+            vob2 = vob[mask]
 
             # Timestamp Range
             timestamp2_min = datetime.fromtimestamp(timestamp2.min())
@@ -228,10 +230,10 @@ def bufr_to_ioda(config, logger):
 
             # Create the dimensions
             dims = {
-               'Location'   : np.arange(0, wdir2.shape[0]),
+                'Location': np.arange(0, wdir2.shape[0]),
             }
 
-            # Create IODA ObsSpace 
+            # Create IODA ObsSpace
             iodafile = f"{cycle_type}.t{hh}z.{data_type}.{satinst}.tm00.nc"
             OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
             logger.info(f"Create output file : {OUTPUT_PATH}")
@@ -262,7 +264,7 @@ def bufr_to_ioda(config, logger):
                 .write_attr('long_name', 'Longitude') \
                 .write_data(lon2)
 
-            # Latitude 
+            # Latitude
             obsspace.create_var('MetaData/latitude', dtype=lat2.dtype, fillval=lat2.fill_value) \
                 .write_attr('units', 'degrees_north') \
                 .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
@@ -275,7 +277,7 @@ def bufr_to_ioda(config, logger):
                 .write_attr('long_name', 'Unix Epoch') \
                 .write_data(timestamp2)
 
-            # Satellite Identifier  
+            # Satellite Identifier
             obsspace.create_var('MetaData/satelliteIdentifier', dtype=satid2.dtype, fillval=satid2.fill_value) \
                 .write_attr('long_name', 'Satellite Identifier') \
                 .write_data(satid2)
@@ -284,48 +286,48 @@ def bufr_to_ioda(config, logger):
             obsspace.create_var('MetaData/qualityFlags', dtype=wvcq2.dtype, fillval=wvcq2.fill_value) \
                 .write_attr('long_name', 'Wind Vector Cell Quality') \
                 .write_data(wvcq2)
-    
-            # Pressure 
+
+            # Pressure
             obsspace.create_var('MetaData/pressure', dtype=pressure2.dtype, fillval=pressure2.fill_value) \
                 .write_attr('units', 'pa') \
                 .write_attr('long_name', 'Pressure') \
                 .write_data(pressure2)
-    
-            # Height 
+
+            # Height
             obsspace.create_var('MetaData/height', dtype=height2.dtype, fillval=height2.fill_value) \
                 .write_attr('units', 'm') \
                 .write_attr('long_name', 'Height of Observation') \
                 .write_data(height2)
 
-            # ObsType based on sensor type 
+            # ObsType based on sensor type
             obsspace.create_var('ObsType/windEastward', dtype=obstype2.dtype, fillval=obstype2.fill_value) \
                 .write_attr('long_name', 'PrepBUFR Report Type') \
                 .write_data(obstype2)
 
-            # ObsType based on sensor type 
+            # ObsType based on sensor type
             obsspace.create_var('ObsType/windNorthward', dtype=obstype2.dtype, fillval=obstype2.fill_value) \
                 .write_attr('long_name', 'PrepBUFR Report Type') \
                 .write_data(obstype2)
 
-            # Wind Speed 
+            # Wind Speed
             obsspace.create_var('ObsValue/windSpeed', dtype=wspd2.dtype, fillval=wspd2.fill_value) \
                 .write_attr('units', 'm s-1') \
                 .write_attr('long_name', 'Wind Speed at 10 Meters') \
                 .write_data(wspd2)
 
-            # Wind Direction 
+            # Wind Direction
             obsspace.create_var('ObsValue/windDirection', dtype=wdir2.dtype, fillval=wdir2.fill_value) \
                 .write_attr('units', 'degrees') \
                 .write_attr('long_name', 'Wind Direction at 10 Meters') \
                 .write_data(wdir2)
 
-            # U-Wind Component 
+            # U-Wind Component
             obsspace.create_var('ObsValue/windEastward', dtype=uob2.dtype, fillval=uob2.fill_value) \
                 .write_attr('units', 'm s-1') \
                 .write_attr('long_name', 'Eastward Wind Component at 10 Meters') \
                 .write_data(uob2)
 
-            # V-Wind Component 
+            # V-Wind Component
             obsspace.create_var('ObsValue/windNorthward', dtype=vob2.dtype, fillval=vob2.fill_value) \
                 .write_attr('units', 'm s-1') \
                 .write_attr('long_name', 'Northward Wind Component at 10 Meters') \
@@ -337,11 +339,12 @@ def bufr_to_ioda(config, logger):
             logger.debug(f'Number of observation processed : {len(satid2)}')
             logger.debug(f'Processing time for splitting and output IODA for {satinst} : {running_time} seconds')
 
-        else:    
+        else:
             logger.info(f'Do not find this satellite id in the configuration: satid = {sat}')
 
     logger.info('All Done!')
     logger.info(f'Total number of observation processed : {total_ob_processed}')
+
 
 if __name__ == '__main__':
 
