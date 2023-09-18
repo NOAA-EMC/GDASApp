@@ -28,6 +28,15 @@ from pyioda import ioda_obs_space as ioda_ospace
 # NC003010  |    GPS-RO
 # ====================================================================
 
+def Derive_stationIdentification(said,ptid,stid):
+    stid = stid.astype('str')
+    for i in range(len(said)):
+       stid[i] = str(said[i]).zfill(4)+str(ptid[i]).zfill(4)
+       print('NE STID: ', str(said[i]).zfill(4), str(ptid[i]).zfill(4))
+       print("NE i STID: ", i, stid[i])
+
+    return stid
+
 def Compute_Grid_Location(degrees):
 
     for i in range(len(degrees)):
@@ -149,6 +158,7 @@ def bufr_to_ioda(config):
     hour       = r.get('hour',                          'latitude')
     minu       = r.get('minute',                        'latitude')
     seco       = r.get('second',                        'latitude')
+    stid       = r.get('satelliteIdentifier',           'latitude')
     said       = r.get('satelliteIdentifier',           'latitude')
     siid       = r.get('satelliteInstrument',           'latitude')
     sclf       = r.get('satelliteConstellationRO',      'latitude')
@@ -161,9 +171,9 @@ def bufr_to_ioda(config):
     impp3      = r.get('impactParameterRO_roseq2repl3', 'latitude')
     imph1      = r.get('impactHeightRO_roseq2repl1',    'latitude')
     imph3      = r.get('impactHeightRO_roseq2repl3',    'latitude')
-    mefr1      = r.get('frequency__roseq2repl1',        'latitude')
-    mefr3      = r.get('frequency__roseq2repl3',        'latitude')
-    pccf       = r.get('pccf',                          'latitude')
+    mefr1      = r.get('frequency__roseq2repl1',        'latitude', type='float')
+    mefr3      = r.get('frequency__roseq2repl3',        'latitude', type='float')
+    pccf       = r.get('pccf',                          'latitude', type='float')
     ref_pccf   = r.get('percentConfidence',             'height' )
     bearaz     = r.get('sensorAzimuthAngle',            'latitude')
 
@@ -225,6 +235,7 @@ def bufr_to_ioda(config):
     print('     hour      shape,type = ', hour.shape,   hour.dtype)
     print('     minu      shape,type = ', minu.shape,   minu.dtype)
     print('     seco      shape,type = ', seco.shape,   seco.dtype)
+    print('     stid      shape,type = ', stid.shape,   stid.dtype)
     print('     said      shape,type = ', said.shape,   said.dtype)
     print('     siid      shape,type = ', siid.shape,   siid.dtype)
     print('     sclf      shape,type = ', sclf.shape,   sclf.dtype)
@@ -265,6 +276,12 @@ def bufr_to_ioda(config):
     # Create derived variables
     # =========================
     start_time = time.time()
+
+    print('Creating derived variables - stationIdentification')
+    stid = Derive_stationIdentification(said,ptid,stid)
+    
+    print('     stid shape,type = ', stid.shape, stid.dtype)
+    print('     stid[0] = ', stid[0])
 
     print('Creating derived variables - Grid Latitude / Longitude ...')
     gclonh = Compute_Grid_Location(gclonh)
@@ -373,6 +390,11 @@ def bufr_to_ioda(config):
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Datetime') \
         .write_data(timestamp)
+
+    # Station Identification
+    obsspace.create_var('MetaData/stationIdentification', dtype=stid.dtype, fillval=stid.fill_value) \
+        .write_attr('long_name', 'Station Identification') \
+        .write_data(stid)
    
     # Satellite Identifier  
     obsspace.create_var('MetaData/satelliteIdentifier', dtype=said.dtype, fillval=said.fill_value) \
