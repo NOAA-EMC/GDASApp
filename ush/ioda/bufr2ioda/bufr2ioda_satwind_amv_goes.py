@@ -258,7 +258,7 @@ def bufr_to_ioda(config, logger):
                 satellite_id = satellite_info["satellite_id"]
                 satellite_name = satellite_info["satellite_name"]
                 satinst = sensor_name.lower()+'_'+satellite_name.lower()
-                logger.debug('Split data for {satinst} satid = {sat}')
+                logger.debug(f'Split data for {satinst} satid = {sat}')
 
         if matched:
 
