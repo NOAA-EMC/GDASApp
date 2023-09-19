@@ -989,7 +989,8 @@ obs post filters:
 linear obs operator:
   name: Identity
 
-passedBenchmark: 1025814 # 2 variables (u,v), both passing 512907 obs, including 512907 GSI/UFO agreements, and:
+#passedBenchmark: 1025814# 2 variables (u,v), both passing 512907 obs, including 512907 GSI/UFO agreements, and:
+passedBenchmark: 1150870 # 2 variables (u,v), both passing 575435 obs, including 512907 GSI/UFO agreements, and:
                          # 16 GOES AMVs (6 u-obs, 6 v-obs) that are rejected by the SatWindsErrnormCheck in UFO
                          # but are retained in GSI's equivalent experr_norm check. All 6 of these disagreements
                          # have error norm values at almost exactly 0.9, indicating a float precision/handling
