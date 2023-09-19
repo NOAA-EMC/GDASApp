@@ -18,7 +18,7 @@ for observer in data['observers']:
     print(obs_source_name)
     obs_source_name = obs_source_name + '_obs'
     try:
-        obs_source = getattr(prep_marine_obs, obs_source_name) 
+        obs_source = getattr(prep_marine_obs, obs_source_name)
     except AttributeError:
         print("WARNING: No class", obs_source_name, "in prep_marine_obs")
         continue

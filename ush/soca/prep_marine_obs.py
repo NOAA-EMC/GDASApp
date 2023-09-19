@@ -32,7 +32,7 @@ class ocean_observation:
     def fetch(self, subdir, filepattern):
 
         datadir = os.path.join(self.cycdir, subdir)
-        #TODO: check the existence of this
+        # TODO: check the existence of this
         print('datadir:', datadir)
         matching_files = []
 
@@ -47,8 +47,8 @@ class ocean_observation:
             obs_cpy.append([obs_path, obs_dst])
 
         print(obs_cpy)
- 
-        FileHandler({'copy': obs_cpy}).sync())
+
+        FileHandler({'copy': obs_cpy}).sync()
 
     def convert(self):
         # Call ioda converter
