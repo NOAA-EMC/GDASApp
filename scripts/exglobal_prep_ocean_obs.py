@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-
+# exglobal_prep_ocean_obs.py
+# Pepares observations for coupled ocean DA
 import os
 from wxflow import YAMLFile
 import prep_marine_obs
