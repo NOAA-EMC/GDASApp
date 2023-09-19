@@ -6,68 +6,84 @@ import os
 import yaml
 import fnmatch
 
-#COM_OBSDMP_TMPL=getenv('COM_OBSDMP_TMPL')
-#print(COM_OBSDMP_TMPL)
-COM_OBSDMP=os.getenv('COM_OBSDMP')
-OBS_YAML=os.getenv('OBS_YAML')
-print("COM_OBSDMP:",COM_OBSDMP)
-print("OBS_YAML:",OBS_YAML)
-COM_OBSDMP_BASE='/scratch1/NCEPDEV/stmp4/Shastri.Paturi/forAndrew/'
+class ocean_observation:
+
+    DMPDIR = os.getenv('DMPDIR')
+    cyc = os.getenv('cyc')
+    PDY = os.getenv('PDY')
+    CDUMP = os.getenv('CDUMP')
+    COMIN_OBS = os.getenv('COMIN_OBS')
 
 # Variables of convenience - raided from scripts/exgdas_global_marine_analysis_prep.py
-RUN = os.getenv('RUN')
-cyc = os.getenv('cyc')
-PDY = os.getenv('PDY')
-CDUMP = os.getenv('CDUMP')
-#DUMP = 'gdas'
-#PDY = '20210701'
-#cyc = '12'
-half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
-window_middle = datetime.strptime(PDY+cyc, '%Y%m%d%H')
-window_begin = datetime.strptime(PDY+cyc, '%Y%m%d%H') - half_assim_freq
-window_end = datetime.strptime(PDY+cyc, '%Y%m%d%H') + half_assim_freq
-window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
-window_middle_iso = window_middle.strftime('%Y-%m-%dT%H:%M:%SZ')
-fcst_begin = datetime.strptime(PDY+cyc, '%Y%m%d%H')
-
-print('window_middle:',window_middle)
-print('window_middle_iso:',window_middle_iso)
-print('PDY:',PDY)
-print('cyc:',cyc)
-
-data = YAMLFile(OBS_YAML)
-
-for observer in data['observers']:
-   print(observer['obs space']['name'])
+    half_assim_freq = timedelta(hours=int(os.getenv('assim_freq'))/2)
+    window_length = timedelta(hours=int(os.getenv('assim_freq')))
+    window_middle = datetime.strptime(PDY+cyc, '%Y%m%d%H')
+    window_begin = datetime.strptime(PDY+cyc, '%Y%m%d%H') - half_assim_freq
+    window_end = datetime.strptime(PDY+cyc, '%Y%m%d%H') + half_assim_freq
+    window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
+    window_middle_iso = window_middle.strftime('%Y-%m-%dT%H:%M:%SZ')
+    fcst_begin = datetime.strptime(PDY+cyc, '%Y%m%d%H')
 
 
-#           'AMSR2-SEAICE-NH_v2r2_GW1_s202107011426180_e202107011605170_c202107011642250.nc'
-filepattern='AMSR2-SEAICE-NH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc'
-subdir='icec'
+    def __init__(self):
 
-cycdir=os.path.join(COM_OBSDMP_BASE,CDUMP + '.' + str(PDY), str(cyc))
-datadir=os.path.join(cycdir,subdir)
-#TODO: check the existence of this
-print('datadir:',datadir)
-matching_files=[]
+        self.cycdir=os.path.join(self.DMPDIR,self.CDUMP + '.' + str(self.PDY), str(self.cyc))
 
-for root, _, files in os.walk(datadir):
-    for filename in fnmatch.filter(files, filepattern):
-        matching_files.append(os.path.join(root, filename))
+    def fetch(self,subdir,filepattern):
 
-# Print the list of matching files
-for file_path in matching_files:
-    print(file_path)
+        datadir=os.path.join(self.cycdir,subdir)
+        #TODO: check the existence of this
+        print('datadir:',datadir)
+        matching_files=[]
+
+        for root, _, files in os.walk(datadir):
+            for filename in fnmatch.filter(files, filepattern):
+                matching_files.append((root,filename))
+
+        obs_cpy=[]
+        for obs_src in matching_files:
+            obs_path = os.path.join(obs_src[0],obs_src[1])
+            obs_dst = os.path.join(self.COMIN_OBS,obs_src[1])
+            obs_cpy.append([obs_path,obs_dst])
+
+        print(obs_cpy)
+ 
+        FileHandler({'copy': obs_cpy}).sync()    
+
+    def convert(self):
+         # do common generic stuff
+         # Call ioda converter 
+        pass
+
+    def concatenate(self):
+         # 
+         pass
 
 
+class icec_amsr2_north_obs(ocean_observation):
 
-class OceanObservations:
-    def __init__(self, window_begin, window_length, DMPDIR, COM_OBS):
-        self.window_begin = window_begin
-        self.window_length = window_length
-        self.DMPDIR = DMPDIR
-        self.COM_OBS = COM_OBS
+    def __init__(self): 
+        super().__init__() 
+
+    def fetch(self):
+        
+        subdir='icec'
+#       'AMSR2-SEAICE-NH_v2r2_GW1_s202107011426180_e202107011605170_c202107011642250.nc'
+        filepattern='AMSR2-SEAICE-NH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc'
+
+        super().fetch(subdir, filepattern)
 
 
+class icec_amsr2_south_obs(ocean_observation):
 
-FileHandler({'copy': post_file_list}).sync()    
+    def __init__(self):
+        super().__init__()
+
+    def fetch(self):
+        
+        subdir='icec'
+#                   'AMSR2-SEAICE-SH_v2r2_GW1_s202107011426180_e202107011605170_c202107011642250.nc'
+        filepattern='AMSR2-SEAICE-SH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc'
+
+        super().fetch(subdir, filepattern)
+
