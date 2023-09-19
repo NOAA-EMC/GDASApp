@@ -74,11 +74,11 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" TAG 1a02eba )
 
 # Core JEDI repositories
-  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG 812ce65)
+  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG f09288b)
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG b707645 )
-  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 3e049a8 )
+  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 30f98d6 )
   ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG 723dd94  )
-  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG e139c1c )
+  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG 106d081 )
 
 # FMS and FV3 dynamical core
   ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" TAG 1f73914 )
