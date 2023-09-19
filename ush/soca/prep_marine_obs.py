@@ -51,13 +51,11 @@ class ocean_observation:
         FileHandler({'copy': obs_cpy}).sync()    
 
     def convert(self):
-         # do common generic stuff
          # Call ioda converter 
         pass
 
     def concatenate(self):
-         # 
-         pass
+        pass
 
 class adt_j2_obs(ocean_observation):
 
@@ -73,13 +71,12 @@ class adt_j2_obs(ocean_observation):
         super().fetch(subdir, filepattern)
 
     def convert(self):
-         # do common generic stuff
          # Call ioda converter 
         pass
 
     def concatenate(self):
-         # 
-         pass
+
+        pass
 
 
 class adt_j3_obs(ocean_observation):
@@ -96,13 +93,12 @@ class adt_j3_obs(ocean_observation):
         super().fetch(subdir, filepattern)
 
     def convert(self):
-         # do common generic stuff
          # Call ioda converter 
         pass
 
     def concatenate(self):
-         # 
-         pass
+
+        pass
 
 
 class icec_amsr2_north_obs(ocean_observation):
@@ -119,13 +115,12 @@ class icec_amsr2_north_obs(ocean_observation):
         super().fetch(subdir, filepattern)
 
     def convert(self):
-         # do common generic stuff
          # Call ioda converter 
         pass
 
     def concatenate(self):
-         # 
-         pass
+
+        pass
 
 
 class icec_amsr2_south_obs(ocean_observation):
@@ -142,13 +137,12 @@ class icec_amsr2_south_obs(ocean_observation):
         super().fetch(subdir, filepattern)
 
     def convert(self):
-         # do common generic stuff
          # Call ioda converter 
         pass
 
     def concatenate(self):
-         # 
-         pass
+
+        pass
 
 class sss_smap_obs(ocean_observation):
 
@@ -164,13 +158,12 @@ class sss_smap_obs(ocean_observation):
         super().fetch(subdir, filepattern)
 
     def convert(self):
-         # do common generic stuff
          # Call ioda converter 
         pass
 
     def concatenate(self):
-         # 
-         pass
+
+        pass
 
 
 
