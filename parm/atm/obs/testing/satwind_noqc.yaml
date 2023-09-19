@@ -1,0 +1,18 @@
+obs space:
+  name: satwind
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV satwind_obs_${CDATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV satwind_diag_${CDATE}.nc4
+  simulated variables: [windEastward, windNorthward]
+geovals:
+  filename: !ENV satwind_geoval_${CDATE}.nc4
+obs operator:
+  name: VertInterp
+
+vector ref: GsiHofXBc
+tolerance: 1.e-5
