@@ -58,6 +58,72 @@ class ocean_observation:
         pass
 
 
+class adt_3a_egm2008_obs(ocean_observation):
+
+    def __init__(self):
+        super().__init__()
+
+    def fetch(self):
+
+        subdir = 'ADT'
+#                   'rads_adt_3a_2021182.nc'
+        filepattern = 'rads_adt_3a_???????.nc'
+
+        super().fetch(subdir, filepattern)
+
+    def convert(self):
+        # Call ioda converter
+        pass
+
+    def concatenate(self):
+
+        pass
+
+
+class adt_3b_egm2008_obs(ocean_observation):
+
+    def __init__(self):
+        super().__init__()
+
+    def fetch(self):
+
+        subdir = 'ADT'
+#                   'rads_adt_3b_2021182.nc'
+        filepattern = 'rads_adt_3b_???????.nc'
+
+        super().fetch(subdir, filepattern)
+
+    def convert(self):
+        # Call ioda converter
+        pass
+
+    def concatenate(self):
+
+        pass
+
+
+class adt_c2_egm2008_obs(ocean_observation):
+
+    def __init__(self):
+        super().__init__()
+
+    def fetch(self):
+
+        subdir = 'ADT'
+#                   'rads_adt_c2_2021182.nc'
+        filepattern = 'rads_adt_c2_???????.nc'
+
+        super().fetch(subdir, filepattern)
+
+    def convert(self):
+        # Call ioda converter
+        pass
+
+    def concatenate(self):
+
+        pass
+
+
 class adt_j2_obs(ocean_observation):
 
     def __init__(self):
@@ -90,6 +156,28 @@ class adt_j3_obs(ocean_observation):
         subdir = 'ADT'
 #                   'rads_adt_j3_2021182.nc'
         filepattern = 'rads_adt_j3_???????.nc'
+
+        super().fetch(subdir, filepattern)
+
+    def convert(self):
+        # Call ioda converter
+        pass
+
+    def concatenate(self):
+
+        pass
+
+
+class adt_sa_egm2008_obs(ocean_observation):
+
+    def __init__(self):
+        super().__init__()
+
+    def fetch(self):
+
+        subdir = 'ADT'
+#                   'rads_adt_sa_2021182.nc'
+        filepattern = 'rads_adt_sa_???????.nc'
 
         super().fetch(subdir, filepattern)
 
@@ -156,6 +244,28 @@ class sss_smap_obs(ocean_observation):
         subdir = 'SSS'
 #                   'SMAP_L2B_SSS_NRT_34268_A_20210701T153914.h5'
         filepattern = 'SMAP_L2B_SSS_NRT_?????_[AD]_????????T??????.h5'
+
+        super().fetch(subdir, filepattern)
+
+    def convert(self):
+        # Call ioda converter
+        pass
+
+    def concatenate(self):
+
+        pass
+
+
+class sst_viirs_n20_l3u_so025(ocean_observation):
+
+    def __init__(self):
+        super().__init__()
+
+    def fetch(self):
+
+        subdir = 'sst'
+#                     '20210701150000-OSPO-L3U_GHRSST-SSTsubskin-VIIRS_N20-ACSPO_V2.61-v02.0-fv01.0.nc'
+        filepattern = '??????????????-OSPO-L3U_GHRSST-SSTsubskin-VIIRS_N20-ACSPO_V2.61-v02.0-fv01.0.nc'
 
         super().fetch(subdir, filepattern)
 
