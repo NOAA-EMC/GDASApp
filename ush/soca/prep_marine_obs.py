@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
-from wxflow import FileHandler, YAMLFile
+from wxflow import FileHandler
 from datetime import datetime, timedelta
 import os
-import yaml
 import fnmatch
 
 
@@ -27,7 +26,8 @@ class ocean_observation:
 
     def __init__(self):
 
-        self.cycdir = os.path.join(self.DMPDIR, self.CDUMP + '.' + str(self.PDY), str(self.cyc))
+        self.cycdir = os.path.join(
+            self.DMPDIR, self.CDUMP + '.' + str(self.PDY), str(self.cyc))
 
     def fetch(self, subdir, filepattern):
 
@@ -64,15 +64,15 @@ class adt_j2_obs(ocean_observation):
         super().__init__()
 
     def fetch(self):
-        
-        subdir='ADT'
+
+        subdir = 'ADT'
 #                   'rads_adt_j2_2021182.nc'
-        filepattern='rads_adt_j2_???????.nc'
+        filepattern = 'rads_adt_j2_???????.nc'
 
         super().fetch(subdir, filepattern)
 
     def convert(self):
-        # Call ioda converter 
+        # Call ioda converter
         pass
 
     def concatenate(self):
@@ -86,15 +86,15 @@ class adt_j3_obs(ocean_observation):
         super().__init__()
 
     def fetch(self):
-        
-        subdir='ADT'
+
+        subdir = 'ADT'
 #                   'rads_adt_j3_2021182.nc'
-        filepattern='rads_adt_j3_???????.nc'
+        filepattern = 'rads_adt_j3_???????.nc'
 
         super().fetch(subdir, filepattern)
 
     def convert(self):
-        # Call ioda converter 
+        # Call ioda converter
         pass
 
     def concatenate(self):
@@ -104,19 +104,19 @@ class adt_j3_obs(ocean_observation):
 
 class icec_amsr2_north_obs(ocean_observation):
 
-    def __init__(self): 
-        super().__init__() 
+    def __init__(self):
+        super().__init__()
 
     def fetch(self):
-        
-        subdir='icec'
+
+        subdir = 'icec'
 #       'AMSR2-SEAICE-NH_v2r2_GW1_s202107011426180_e202107011605170_c202107011642250.nc'
-        filepattern='AMSR2-SEAICE-NH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc'
+        filepattern = 'AMSR2-SEAICE-NH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc'
 
         super().fetch(subdir, filepattern)
 
     def convert(self):
-        # Call ioda converter 
+        # Call ioda converter
         pass
 
     def concatenate(self):
@@ -130,15 +130,15 @@ class icec_amsr2_south_obs(ocean_observation):
         super().__init__()
 
     def fetch(self):
-        
-        subdir='icec'
+
+        subdir = 'icec'
 #                   'AMSR2-SEAICE-SH_v2r2_GW1_s202107011426180_e202107011605170_c202107011642250.nc'
-        filepattern='AMSR2-SEAICE-SH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc'
+        filepattern = 'AMSR2-SEAICE-SH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc'
 
         super().fetch(subdir, filepattern)
 
     def convert(self):
-        # Call ioda converter 
+        # Call ioda converter
         pass
 
     def concatenate(self):
@@ -152,15 +152,15 @@ class sss_smap_obs(ocean_observation):
         super().__init__()
 
     def fetch(self):
-        
-        subdir='SSS'
+
+        subdir = 'SSS'
 #                   'SMAP_L2B_SSS_NRT_34268_A_20210701T153914.h5'
-        filepattern='SMAP_L2B_SSS_NRT_?????_[AD]_????????T??????.h5'
+        filepattern = 'SMAP_L2B_SSS_NRT_?????_[AD]_????????T??????.h5'
 
         super().fetch(subdir, filepattern)
 
     def convert(self):
-        # Call ioda converter 
+        # Call ioda converter
         pass
 
     def concatenate(self):
