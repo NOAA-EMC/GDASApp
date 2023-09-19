@@ -6,6 +6,7 @@ import os
 import yaml
 import fnmatch
 
+
 class ocean_observation:
 
     DMPDIR = os.getenv('DMPDIR')
@@ -24,38 +25,38 @@ class ocean_observation:
     window_middle_iso = window_middle.strftime('%Y-%m-%dT%H:%M:%SZ')
     fcst_begin = datetime.strptime(PDY+cyc, '%Y%m%d%H')
 
-
     def __init__(self):
 
-        self.cycdir=os.path.join(self.DMPDIR,self.CDUMP + '.' + str(self.PDY), str(self.cyc))
+        self.cycdir = os.path.join(self.DMPDIR, self.CDUMP + '.' + str(self.PDY), str(self.cyc))
 
-    def fetch(self,subdir,filepattern):
+    def fetch(self, subdir, filepattern):
 
-        datadir=os.path.join(self.cycdir,subdir)
+        datadir = os.path.join(self.cycdir, subdir)
         #TODO: check the existence of this
-        print('datadir:',datadir)
-        matching_files=[]
+        print('datadir:', datadir)
+        matching_files = []
 
         for root, _, files in os.walk(datadir):
             for filename in fnmatch.filter(files, filepattern):
-                matching_files.append((root,filename))
+                matching_files.append((root, filename))
 
-        obs_cpy=[]
+        obs_cpy = []
         for obs_src in matching_files:
-            obs_path = os.path.join(obs_src[0],obs_src[1])
-            obs_dst = os.path.join(self.COMIN_OBS,obs_src[1])
-            obs_cpy.append([obs_path,obs_dst])
+            obs_path = os.path.join(obs_src[0], obs_src[1])
+            obs_dst = os.path.join(self.COMIN_OBS, obs_src[1])
+            obs_cpy.append([obs_path, obs_dst])
 
         print(obs_cpy)
  
-        FileHandler({'copy': obs_cpy}).sync()    
+        FileHandler({'copy': obs_cpy}).sync())
 
     def convert(self):
-         # Call ioda converter 
+        # Call ioda converter
         pass
 
     def concatenate(self):
         pass
+
 
 class adt_j2_obs(ocean_observation):
 
@@ -71,7 +72,7 @@ class adt_j2_obs(ocean_observation):
         super().fetch(subdir, filepattern)
 
     def convert(self):
-         # Call ioda converter 
+        # Call ioda converter 
         pass
 
     def concatenate(self):
@@ -93,7 +94,7 @@ class adt_j3_obs(ocean_observation):
         super().fetch(subdir, filepattern)
 
     def convert(self):
-         # Call ioda converter 
+        # Call ioda converter 
         pass
 
     def concatenate(self):
@@ -115,7 +116,7 @@ class icec_amsr2_north_obs(ocean_observation):
         super().fetch(subdir, filepattern)
 
     def convert(self):
-         # Call ioda converter 
+        # Call ioda converter 
         pass
 
     def concatenate(self):
@@ -137,12 +138,13 @@ class icec_amsr2_south_obs(ocean_observation):
         super().fetch(subdir, filepattern)
 
     def convert(self):
-         # Call ioda converter 
+        # Call ioda converter 
         pass
 
     def concatenate(self):
 
         pass
+
 
 class sss_smap_obs(ocean_observation):
 
@@ -158,13 +160,9 @@ class sss_smap_obs(ocean_observation):
         super().fetch(subdir, filepattern)
 
     def convert(self):
-         # Call ioda converter 
+        # Call ioda converter 
         pass
 
     def concatenate(self):
 
         pass
-
-
-
-
