@@ -32,8 +32,6 @@ def Derive_stationIdentification(said,ptid,stid):
     stid = stid.astype('str')
     for i in range(len(said)):
        stid[i] = str(said[i]).zfill(4)+str(ptid[i]).zfill(4)
-       print('NE STID: ', str(said[i]).zfill(4), str(ptid[i]).zfill(4))
-       print("NE i STID: ", i, stid[i])
 
     return stid
 
