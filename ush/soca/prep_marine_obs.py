@@ -59,6 +59,51 @@ class ocean_observation:
          # 
          pass
 
+class adt_j2_obs(ocean_observation):
+
+    def __init__(self):
+        super().__init__()
+
+    def fetch(self):
+        
+        subdir='ADT'
+#                   'rads_adt_j2_2021182.nc'
+        filepattern='rads_adt_j2_???????.nc'
+
+        super().fetch(subdir, filepattern)
+
+    def convert(self):
+         # do common generic stuff
+         # Call ioda converter 
+        pass
+
+    def concatenate(self):
+         # 
+         pass
+
+
+class adt_j3_obs(ocean_observation):
+
+    def __init__(self):
+        super().__init__()
+
+    def fetch(self):
+        
+        subdir='ADT'
+#                   'rads_adt_j3_2021182.nc'
+        filepattern='rads_adt_j3_???????.nc'
+
+        super().fetch(subdir, filepattern)
+
+    def convert(self):
+         # do common generic stuff
+         # Call ioda converter 
+        pass
+
+    def concatenate(self):
+         # 
+         pass
+
 
 class icec_amsr2_north_obs(ocean_observation):
 
@@ -73,6 +118,15 @@ class icec_amsr2_north_obs(ocean_observation):
 
         super().fetch(subdir, filepattern)
 
+    def convert(self):
+         # do common generic stuff
+         # Call ioda converter 
+        pass
+
+    def concatenate(self):
+         # 
+         pass
+
 
 class icec_amsr2_south_obs(ocean_observation):
 
@@ -86,4 +140,38 @@ class icec_amsr2_south_obs(ocean_observation):
         filepattern='AMSR2-SEAICE-SH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc'
 
         super().fetch(subdir, filepattern)
+
+    def convert(self):
+         # do common generic stuff
+         # Call ioda converter 
+        pass
+
+    def concatenate(self):
+         # 
+         pass
+
+class sss_smap_obs(ocean_observation):
+
+    def __init__(self):
+        super().__init__()
+
+    def fetch(self):
+        
+        subdir='SSS'
+#                   'SMAP_L2B_SSS_NRT_34268_A_20210701T153914.h5'
+        filepattern='SMAP_L2B_SSS_NRT_?????_[AD]_????????T??????.h5'
+
+        super().fetch(subdir, filepattern)
+
+    def convert(self):
+         # do common generic stuff
+         # Call ioda converter 
+        pass
+
+    def concatenate(self):
+         # 
+         pass
+
+
+
 
