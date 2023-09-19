@@ -72,8 +72,6 @@ def bufr_to_ioda(config, logger):
 
     bufrfile 			= f"{cycle_type}.t{hh}z.{data_type}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), 'atmos', bufrfile)
-    #gdas.t18z.prepbufr  gdas.t18z.satwnd.tm00.bufr_d
-    #bufrfile = f"{cycle_type}.t{hh}z.{data_type}.tm00.{data_format}"
 
     # ============================================
     # Make the QuerySet for all the data we want
@@ -248,13 +246,11 @@ def bufr_to_ioda(config, logger):
     logger.info('Creating derived variables - dateTime from hrdr')
 
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(reference_time, '%Y-%m-%dT%H:%M:%SZ')))
-    #cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime('2021 08 01 00 00 00', '%Y %m %d %H %M %S')))
     hrdr = Compute_dateTime(cycleTimeSinceEpoch, hrdr)
  
 
     logger.debug('     Check derived variables type ... ')
     logger.debug(f'     hrdr      type = {hrdr.dtype}')
-    #logger.debug(f'     ulan      type = {ulan.dtype}')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -268,7 +264,6 @@ def bufr_to_ioda(config, logger):
 
     # Create IODA ObsSpace
     iodafile = f"{cycle_type}.t{hh}z.{data_type}.nc"
-    #iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.tm00.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
     logger.info(f"Create output file: {OUTPUT_PATH}")
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
@@ -329,7 +324,6 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Release Time') \
         .write_data(ulan)
 
-    print("Create ObsValue group variables")
     # Prepbufr Data Level Category
     obsspace.create_var('ObsValue/verticalSignificance', dtype=cat.dtype, fillval=cat.fill_value) \
         .write_attr('long_name', 'Prepbufr Data Level Category') \
@@ -377,7 +371,6 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Height of Observation') \
         .write_data(zob)
 
-    print("Create QualityMarker group variables")
     # Pressure Quality Marker
     obsspace.create_var('QualityMarker/pressure', dtype=pobqm.dtype, fillval=pobqm.fill_value) \
         .write_attr('long_name', 'Pressure Quality Marker') \
