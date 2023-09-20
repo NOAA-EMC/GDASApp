@@ -97,7 +97,7 @@ def bufr_to_ioda(config, logger):
     q.add('specificHumidity', '*/PRSLEVEL/Q___INFO/Q__EVENT{1}/QOB')
     q.add('windEastward', '*/PRSLEVEL/W___INFO/W__EVENT{1}/UOB')
     q.add('windNorthward', '*/PRSLEVEL/W___INFO/W__EVENT{1}/VOB')
-    q.add('height', 					'*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
+    q.add('height', '*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
 
     # QualityMark
     q.add('pressureQM', '*/PRSLEVEL/P___INFO/P__EVENT{1}/PQM')
@@ -125,7 +125,7 @@ def bufr_to_ioda(config, logger):
     # MetaData
     lat = r.get('latitude', 'verticalSignificance')
     lon = r.get('longitude', 'verticalSignificance')
-    lon[lon>180] -= 360  				# Convert Longitude from [0,360] to [-180,180]
+    lon[lon>180] -= 360  # Convert Longitude from [0,360] to [-180,180]
     sid = r.get('stationIdentification', 'verticalSignificance')
     elv = r.get('stationElevation', 'verticalSignificance', type='float')
     tpc = r.get('temperatureEventProgramCode', 'verticalSignificance')
@@ -139,7 +139,7 @@ def bufr_to_ioda(config, logger):
 
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(reference_time, '%Y-%m-%dT%H:%M:%SZ')))
     ulan += cycleTimeSinceEpoch
-    ulan = np.repeat(ulan[:,0], ulan.shape[1])
+    ulan = np.repeat(ulan[:,0],ulan.shape[1])
     ulan = ulan.reshape(ulan.shape)
 
     # ObsValue
@@ -162,7 +162,7 @@ def bufr_to_ioda(config, logger):
     pobqm = r.get('pressureQM', 'verticalSignificance')
     psqm = np.full(pobqm.shape[0], pobqm.fill_value) 	# Extract stationPressureQM from pressureQM
     psqm = np.where(cat == 0, pobqm, psqm)
-    tobqm = r.get('airTemperatureQM', 			'verticalSignificance')
+    tobqm = r.get('airTemperatureQM', 'verticalSignificance')
     tsenqm = np.full(tobqm.shape[0], tobqm.fill_value)  # Extract airTemperature from tobqm, which belongs to TPC=1
     tsenqm = np.where(tpc == 1, tobqm, tsenqm)
     tvoqm = np.full(tobqm.shape[0], tobqm.fill_value)  # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
