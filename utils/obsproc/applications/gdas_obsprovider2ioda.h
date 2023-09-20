@@ -16,16 +16,18 @@ namespace gdasapp {
     static const std::string classname() {return "gdasapp::ObsProvider2IodaApp";}
 
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
-      // TODO(Guillaume) A factory would be nice but no clue how to do this.
-      // Use conditionals in the meantime
-
-      // Get the provider from the config
+      // Get the file provider string identifier from the config
       std::string provider;
       fullConfig.get("provider", provider);
 
       if (provider == "RADS") {
         Rads2Ioda conv2ioda(fullConfig);
         conv2ioda.WriteToIoda();
+      } else if (provider == "GHRSST") {
+        oops::Log::info() << "Comming soon!" << std::endl;
+      } else {
+        oops::Log::info() << "Provider not implemented" << std::endl;
+        return 1;
       }
       return 0;
     }

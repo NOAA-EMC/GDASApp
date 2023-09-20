@@ -64,16 +64,14 @@ namespace gdasapp {
                                       this->outputFilename_,
                                       ioda::Engines::BackendCreateModes::Truncate_If_Exists);
 
-
-      std::string fileName = this->inputFilenames_[0];  // TODO(Guillaume): make it work for a list
-
       // Extract ioda variables from the provider's files
+      std::string fileName = this->inputFilenames_[0];  // TODO(Guillaume): make it work for a list
       gdasapp::IodaVars iodaVars;
       this->ProviderToIodaVars(fileName, iodaVars);
       oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
       oops::Log::debug() << "--- iodaVars.obsVal: " << iodaVars.obsVal << std::endl;
 
-      // Update the group with 1 dimension: location
+      // Update the group with the location dimension
       ioda::NewDimensionScales_t
         newDims {ioda::NewDimensionScale<int>("Location", iodaVars.location)};
       ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
@@ -108,7 +106,7 @@ namespace gdasapp {
 
    private:
     // Virtual method that reads the provider's netcdf file and store the relevant
-    // info in a group
+    // info in a IodaVars struct
     virtual void ProviderToIodaVars(std::string fileName, gdasapp::IodaVars & iodaVars) = 0;
 
    protected:
