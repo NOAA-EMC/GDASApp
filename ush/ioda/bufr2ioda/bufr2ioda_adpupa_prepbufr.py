@@ -35,7 +35,7 @@ warnings.filterwarnings('ignore')
 def Compute_dateTime(cycleTimeSinceEpoch, hrdr):
 
     hrdr = np.int64(hrdr*3600)
-    hrdr = hrdr+ cycleTimeSinceEpoch
+    hrdr += cycleTimeSinceEpoch
 
     return hrdr
 
@@ -46,29 +46,29 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Checking subsets = {subsets}")
 
     # Get parameters from configuration
-    subsets 		= config["subsets"]
-    data_format 	= config["data_format"]
-    data_type 		= config["data_type"]
-    data_description 	= config["data_description"]
-    data_provider 	= config["data_provider"]
-    cycle_type 		= config["cycle_type"]
-    dump_dir 		= config["dump_directory"]
-    ioda_dir 		= config["ioda_directory"]
-    cycle 		= config["cycle_datetime"]
+    subsets = config["subsets"]
+    data_format = config["data_format"]
+    data_type = config["data_type"]
+    data_description = config["data_description"]
+    data_provider = config["data_provider"]
+    cycle_type = config["cycle_type"]
+    dump_dir = config["dump_directory"]
+    ioda_dir = config["ioda_directory"]
+    cycle = config["cycle_datetime"]
 
     # Get derived parameters
-    yyyymmdd 		= cycle[0:8]
-    hh 			= cycle[8:10]
-    reference_time 	= datetime.strptime(cycle, "%Y%m%d%H")
-    reference_time 	= reference_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+    yyyymmdd = cycle[0:8]
+    hh = cycle[8:10]
+    reference_time = datetime.strptime(cycle, "%Y%m%d%H")
+    reference_time = reference_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # General informaton
-    converter 			= 'prepBUFR to IODA Converter'
-    platform_description 	= 'ADPUPA prepbufr'
+    converter = 'prepBUFR to IODA Converter'
+    platform_description = 'ADPUPA prepbufr'
 
     logger.info(f"reference_time = {reference_time}")
 
-    bufrfile 			= f"{cycle_type}.t{hh}z.{data_type}"
+    bufrfile = f"{cycle_type}.t{hh}z.{data_type}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), 'atmos', bufrfile)
 
     # ============================================
@@ -80,32 +80,32 @@ def bufr_to_ioda(config, logger):
     q = bufr.QuerySet(subsets)
 
     # MetaData
-    q.add('latitude', 					'*/PRSLEVEL/DRFTINFO/YDR')
-    q.add('longitude', 					'*/PRSLEVEL/DRFTINFO/XDR')
-    q.add('stationIdentification', 			'*/SID')
-    q.add('stationElevation', 				'*/ELV')
-    q.add('timeOffset', 				'*/PRSLEVEL/DRFTINFO/HRDR')
-    q.add('releaseTime', 				'*/PRSLEVEL/DRFTINFO/HRDR')
-    q.add('temperatureEventProgramCode',		'*/PRSLEVEL/T___INFO/T__EVENT{1}/TPC')
-    q.add('pressure', 					'*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
+    q.add('latitude', '*/PRSLEVEL/DRFTINFO/YDR')
+    q.add('longitude', '*/PRSLEVEL/DRFTINFO/XDR')
+    q.add('stationIdentification', '*/SID')
+    q.add('stationElevation', '*/ELV')
+    q.add('timeOffset', '*/PRSLEVEL/DRFTINFO/HRDR')
+    q.add('releaseTime', '*/PRSLEVEL/DRFTINFO/HRDR')
+    q.add('temperatureEventProgramCode', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TPC')
+    q.add('pressure', '*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
 
     # ObsValue
-    q.add('verticalSignificance', 			'*/PRSLEVEL/CAT')
-    q.add('stationPressure', 				'*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
-    q.add('airTemperature', 				'*/PRSLEVEL/T___INFO/T__EVENT{1}/TOB')
-    q.add('virtualTemperature', 			'*/PRSLEVEL/T___INFO/TVO')
-    q.add('specificHumidity', 				'*/PRSLEVEL/Q___INFO/Q__EVENT{1}/QOB')
-    q.add('windEastward', 				'*/PRSLEVEL/W___INFO/W__EVENT{1}/UOB')
-    q.add('windNorthward', 				'*/PRSLEVEL/W___INFO/W__EVENT{1}/VOB')
+    q.add('verticalSignificance', '*/PRSLEVEL/CAT')
+    q.add('stationPressure', '*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
+    q.add('airTemperature', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TOB')
+    q.add('virtualTemperature', '*/PRSLEVEL/T___INFO/TVO')
+    q.add('specificHumidity', '*/PRSLEVEL/Q___INFO/Q__EVENT{1}/QOB')
+    q.add('windEastward', '*/PRSLEVEL/W___INFO/W__EVENT{1}/UOB')
+    q.add('windNorthward', '*/PRSLEVEL/W___INFO/W__EVENT{1}/VOB')
     q.add('height', 					'*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
 
     # QualityMark
-    q.add('pressureQM', 				'*/PRSLEVEL/P___INFO/P__EVENT{1}/PQM')
-    q.add('airTemperatureQM', 				'*/PRSLEVEL/T___INFO/T__EVENT{1}/TQM')
-    q.add('virtualTemperatureQM', 			'*/PRSLEVEL/T___INFO/T__EVENT{1}/TQM')
-    q.add('specificHumidityQM', 			'*/PRSLEVEL/Q___INFO/Q__EVENT{1}/QQM')
-    q.add('windEastwardQM', 				'*/PRSLEVEL/W___INFO/W__EVENT{1}/WQM')
-    q.add('windNorthwardQM', 				'*/PRSLEVEL/W___INFO/W__EVENT{1}/WQM')
+    q.add('pressureQM', '*/PRSLEVEL/P___INFO/P__EVENT{1}/PQM')
+    q.add('airTemperatureQM', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TQM')
+    q.add('virtualTemperatureQM', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TQM')
+    q.add('specificHumidityQM', '*/PRSLEVEL/Q___INFO/Q__EVENT{1}/QQM')
+    q.add('windEastwardQM', '*/PRSLEVEL/W___INFO/W__EVENT{1}/WQM')
+    q.add('windNorthwardQM', '*/PRSLEVEL/W___INFO/W__EVENT{1}/WQM')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -123,17 +123,17 @@ def bufr_to_ioda(config, logger):
 
     logger.info('Executing QuerySet: get metadata')
     # MetaData
-    lat = r.get('latitude', 				'verticalSignificance')
-    lon = r.get('longitude', 				'verticalSignificance')
+    lat = r.get('latitude', 'verticalSignificance')
+    lon = r.get('longitude', 'verticalSignificance')
     lon[lon>180] -= 360  				# Convert Longitude from [0,360] to [-180,180]
-    sid = r.get('stationIdentification', 		'verticalSignificance')
-    elv = r.get('stationElevation', 			'verticalSignificance', type='float')
-    tpc = r.get('temperatureEventProgramCode', 		'verticalSignificance')
-    pob = r.get('pressure', 				'verticalSignificance')
+    sid = r.get('stationIdentification', 'verticalSignificance')
+    elv = r.get('stationElevation', 'verticalSignificance', type='float')
+    tpc = r.get('temperatureEventProgramCode', 'verticalSignificance')
+    pob = r.get('pressure', 'verticalSignificance')
     pob *= 100
 
     # Time variable
-    hrdr = r.get('timeOffset', 				'verticalSignificance')
+    hrdr = r.get('timeOffset', 'verticalSignificance')
     ulan = r.get('releaseTime')
     ulan = np.int64(ulan*3600)
 
@@ -143,33 +143,33 @@ def bufr_to_ioda(config, logger):
     ulan = ulan.reshape(ulan.shape)
 
     # ObsValue
-    cat = r.get('verticalSignificance', 		'verticalSignificance')
-    ps   = np.full(pob.shape[0], pob.fill_value) 	# Extract stationPressure from pressure, which belongs to CAT=1
-    ps   = np.where(cat == 0, pob, ps)
-    tob = r.get('airTemperature', 			'verticalSignificance')
+    cat = r.get('verticalSignificance', 'verticalSignificance')
+    ps = np.full(pob.shape[0], pob.fill_value) 	# Extract stationPressure from pressure, which belongs to CAT=1
+    ps = np.where(cat == 0, pob, ps)
+    tob = r.get('airTemperature', 'verticalSignificance')
     tob += 273.15
     tsen = np.full(tob.shape[0], tob.fill_value) 	# Extract sensible temperature from tob, which belongs to TPC=1
     tsen = np.where(tpc == 1, tob, tsen)
-    tvo   = np.full(tob.shape[0], tob.fill_value) 	# Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
-    tvo   = np.where(((tpc <= 8) & (tpc > 1)), tob, tvo)
-    qob = r.get('specificHumidity', 			'verticalSignificance', type='float')
+    tvo = np.full(tob.shape[0], tob.fill_value) 	# Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
+    tvo = np.where(((tpc <= 8) & (tpc > 1)), tob, tvo)
+    qob = r.get('specificHumidity', 'verticalSignificance', type='float')
     qob *= 1.0e-6
-    uob = r.get('windEastward', 			'verticalSignificance')
-    vob = r.get('windNorthward', 			'verticalSignificance')
-    zob = r.get('height',	 			'verticalSignificance')
+    uob = r.get('windEastward', 'verticalSignificance')
+    vob = r.get('windNorthward', 'verticalSignificance')
+    zob = r.get('height', 'verticalSignificance')
 
     # QualityMark
-    pobqm = r.get('pressureQM', 			'verticalSignificance')
+    pobqm = r.get('pressureQM', 'verticalSignificance')
     psqm = np.full(pobqm.shape[0], pobqm.fill_value) 	# Extract stationPressureQM from pressureQM
-    psqm   = np.where(cat == 0, pobqm, psqm)
+    psqm = np.where(cat == 0, pobqm, psqm)
     tobqm = r.get('airTemperatureQM', 			'verticalSignificance')
-    tsenqm = np.full(tobqm.shape[0], tobqm.fill_value) # Extract airTemperature from tobqm, which belongs to TPC=1
+    tsenqm = np.full(tobqm.shape[0], tobqm.fill_value)  # Extract airTemperature from tobqm, which belongs to TPC=1
     tsenqm = np.where(tpc == 1, tobqm, tsenqm)
-    tvoqm   = np.full(tobqm.shape[0], tobqm.fill_value) # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
-    tvoqm   = np.where(((tpc <= 8) & (tpc > 1)), tobqm, tvoqm)
-    qobqm = r.get('specificHumidityQM', 		'verticalSignificance')
-    uobqm = r.get('windEastwardQM', 			'verticalSignificance')
-    vobqm = r.get('windNorthwardQM', 			'verticalSignificance')
+    tvoqm = np.full(tobqm.shape[0], tobqm.fill_value)  # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
+    tvoqm = np.where(((tpc <= 8) & (tpc > 1)), tobqm, tvoqm)
+    qobqm = r.get('specificHumidityQM', 'verticalSignificance')
+    uobqm = r.get('windEastwardQM', 'verticalSignificance')
+    vobqm = r.get('windNorthwardQM', 'verticalSignificance')
 
     logger.info('Executing QuerySet Done!')
 
@@ -254,7 +254,7 @@ def bufr_to_ioda(config, logger):
 
     # Create the dimensions
     dims = {
-       'Location': np.arange(0, lat.shape[0])
+        'Location': np.arange(0, lat.shape[0])
     }
 
     # Create IODA ObsSpace
