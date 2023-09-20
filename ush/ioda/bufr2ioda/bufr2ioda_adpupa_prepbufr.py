@@ -20,18 +20,16 @@ from wxflow import Logger
 from pyiodaconv import bufr
 from collections import namedtuple
 import warnings
-  
 # suppress warnings
 warnings.filterwarnings('ignore')
 
-#|------------------------------------------------------------------------------|
-#|            gdas prepbufr file                                                |                    
-#|------------------------------------------------------------------------------|
-#| MNEMONIC | NUMBER | DESCRIPTION                                              |
-#|----------|--------|----------------------------------------------------------|
-#|          |        |                                                          |
-#| ADPUPA   | A48102 | UPPER-AIR (RAOB, PIBAL, RECCO, DROPS) REPORTS            |
-#|------------------------------------------------------------------------------|
+# ====================================================================
+#            gdas prepbufr file
+# ====================================================================
+# MNEMONIC | NUMBER | DESCRIPTION
+# ---------|--------|-------------------------------------------------
+# ADPUPA   | A48102 | UPPER-AIR (RAOB, PIBAL, RECCO, DROPS) REPORTS
+# ====================================================================
 
 
 def Compute_dateTime(cycleTimeSinceEpoch, hrdr):
@@ -160,7 +158,7 @@ def bufr_to_ioda(config, logger):
     vob = r.get('windNorthward', 			'verticalSignificance')
     zob = r.get('height',	 			'verticalSignificance')
 
-    # QualityMark                    
+    # QualityMark
     pobqm = r.get('pressureQM', 			'verticalSignificance')
     psqm = np.full(pobqm.shape[0], pobqm.fill_value) 	# Extract stationPressureQM from pressureQM
     psqm   = np.where(cat == 0, pobqm, psqm)
@@ -233,7 +231,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f'     uobqm     type = {uobqm.dtype}')
     logger.debug(f'     vobqm     type = {vobqm.dtype}')
 
-
     end_time = time.time()
     running_time = end_time - start_time
     logger.info(f"Running time for executing QuerySet to get ResultSet : {running_time} seconds")
@@ -247,7 +244,6 @@ def bufr_to_ioda(config, logger):
 
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(reference_time, '%Y-%m-%dT%H:%M:%SZ')))
     hrdr = Compute_dateTime(cycleTimeSinceEpoch, hrdr)
- 
 
     logger.debug('     Check derived variables type ... ')
     logger.debug(f'     hrdr      type = {hrdr.dtype}')
@@ -255,7 +251,6 @@ def bufr_to_ioda(config, logger):
     end_time = time.time()
     running_time = end_time - start_time
     logger.info(f"Running time for creating derived variables : {running_time} seconds")
-
 
     # Create the dimensions
     dims = {
@@ -275,7 +270,6 @@ def bufr_to_ioda(config, logger):
 
     # Create IODA variables
     logger.debug(' ... ... Create variables: name, type, units, and attributes')
-
     # Latitude
     obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \
         .write_attr('units', 'degrees_north') \
@@ -405,7 +399,6 @@ def bufr_to_ioda(config, logger):
     obsspace.create_var('QualityMarker/windNorthward', dtype=vobqm.dtype, fillval=vobqm.fill_value) \
         .write_attr('long_name', 'Northward Wind Quality Marker') \
         .write_data(vobqm)
-
 
     end_time = time.time()
     running_time = end_time - start_time
