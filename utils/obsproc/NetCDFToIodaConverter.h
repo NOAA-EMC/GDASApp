@@ -22,9 +22,9 @@ namespace gdasapp {
   struct IodaVars {
     int location;
     int nVars;
-    Eigen::ArrayXf* obsVal;
-    Eigen::ArrayXf* obsError;
-    Eigen::ArrayXi* preQc;
+    Eigen::ArrayXf obsVal;
+    Eigen::ArrayXf obsError;
+    Eigen::ArrayXi preQc;
     std::string units;  // reference date for epoch time
   };
 
@@ -40,34 +40,34 @@ namespace gdasapp {
       fullConfig.get("window begin", winbegin);
       fullConfig.get("window end", winend);
       fullConfig.get("variable", obsvar);
-      this->windowBegin_ = util::DateTime(winbegin);
-      this->windowEnd_ = util::DateTime(winend);
-      this->variable_ = obsvar;
+      windowBegin_ = util::DateTime(winbegin);
+      windowEnd_ = util::DateTime(winend);
+      variable_ = obsvar;
       oops::Log::info() << "--- Window begin: " << winbegin << std::endl;
       oops::Log::info() << "--- Window end: " << winend << std::endl;
       oops::Log::info() << "--- Variable: " << obsvar << std::endl;
 
       // get input netcdf files
-      fullConfig.get("input files", this->inputFilenames_);
-      oops::Log::info() << "--- Input files: " << this->inputFilenames_ << std::endl;
+      fullConfig.get("input files", inputFilenames_);
+      oops::Log::info() << "--- Input files: " << inputFilenames_ << std::endl;
 
       // ioda output file name
-      this->outputFilename_ = fullConfig.getString("output file");
-      oops::Log::info() << "--- Output files: " << this->outputFilename_ << std::endl;
+      outputFilename_ = fullConfig.getString("output file");
+      oops::Log::info() << "--- Output files: " << outputFilename_ << std::endl;
     }
 
     // Method to write out a IODA file (writter called in destructor)
-    void WriteToIoda() {
+    void writeToIoda() {
       // Create empty group backed by HDF file
       ioda::Group group =
         ioda::Engines::HH::createFile(
-                                      this->outputFilename_,
+                                      outputFilename_,
                                       ioda::Engines::BackendCreateModes::Truncate_If_Exists);
 
       // Extract ioda variables from the provider's files
-      std::string fileName = this->inputFilenames_[0];  // TODO(Guillaume): make it work for a list
+      std::string fileName = inputFilenames_[0];  // TODO(Guillaume): make it work for a list
       gdasapp::IodaVars iodaVars;
-      this->ProviderToIodaVars(fileName, iodaVars);
+      providerToIodaVars(fileName, iodaVars);
       oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
       oops::Log::debug() << "--- iodaVars.obsVal: " << iodaVars.obsVal << std::endl;
 
@@ -91,23 +91,23 @@ namespace gdasapp {
       adtIodaDatetime.atts.add<std::string>("units", {"seconds since 9999-04-15T12:00:00Z"}, {1});
 
       ioda::Variable adtIodaObsVal =
-        ogrp.vars.createWithScales<float>("ObsValue/"+this->variable_,
+        ogrp.vars.createWithScales<float>("ObsValue/"+variable_,
                                           {ogrp.vars["Location"]}, float_params);
       ioda::Variable adtIodaObsErr =
-        ogrp.vars.createWithScales<float>("ObsError/"+this->variable_,
+        ogrp.vars.createWithScales<float>("ObsError/"+variable_,
                                           {ogrp.vars["Location"]}, float_params);
 
       // Write adt obs value to group
-      adtIodaObsVal.writeWithEigenRegular(*iodaVars.obsVal);
+      adtIodaObsVal.writeWithEigenRegular(iodaVars.obsVal);
 
       // Write adt obs error to group
-      adtIodaObsErr.writeWithEigenRegular(*iodaVars.obsError);
+      adtIodaObsErr.writeWithEigenRegular(iodaVars.obsError);
     }
 
    private:
     // Virtual method that reads the provider's netcdf file and store the relevant
     // info in a IodaVars struct
-    virtual void ProviderToIodaVars(std::string fileName, gdasapp::IodaVars & iodaVars) = 0;
+    virtual void providerToIodaVars(const std::string fileName, gdasapp::IodaVars & iodaVars) = 0;
 
    protected:
     util::DateTime windowBegin_;

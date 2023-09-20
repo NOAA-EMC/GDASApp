@@ -22,7 +22,7 @@ namespace gdasapp {
     }
 
     // Read netcdf file and populate iodaVars
-    void ProviderToIodaVars(std::string fileName, gdasapp::IodaVars & iodaVars) override {
+    void providerToIodaVars(const std::string fileName, gdasapp::IodaVars & iodaVars) override {
       oops::Log::info() << "Processing files provided by the RADS" << std::endl;
 
       // Set nVars to 1
@@ -36,9 +36,9 @@ namespace gdasapp {
       oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
 
       // Allocate memory
-      iodaVars.obsVal = new Eigen::ArrayXf(iodaVars.location);
-      iodaVars.obsError = new Eigen::ArrayXf(iodaVars.location);
-      iodaVars.preQc = new Eigen::ArrayXi(iodaVars.location);
+      iodaVars.obsVal = Eigen::ArrayXf(iodaVars.location);
+      iodaVars.obsError = Eigen::ArrayXf(iodaVars.location);
+      iodaVars.preQc = Eigen::ArrayXi(iodaVars.location);
 
       // Get adt_egm2008 obs values and attributes
       netCDF::NcVar adtNcVar = ncFile.getVar("adt_egm2008");
@@ -49,12 +49,12 @@ namespace gdasapp {
       float scaleFactor;
       adtNcVar.getAtt("scale_factor").getValues(&scaleFactor);
       for (int i = 0; i <= iodaVars.location; i++) {
-        (*iodaVars.obsVal)(i) = static_cast<float>(adtObsVal[i])*scaleFactor;
+        iodaVars.obsVal(i) = static_cast<float>(adtObsVal[i])*scaleFactor;
       }
 
       // Do something for obs error
       for (int i = 0; i <= iodaVars.location; i++) {
-        (*iodaVars.obsError)(i) = 0.1;
+        iodaVars.obsError(i) = 0.1;
       }
     };
   };  // class Rads2Ioda

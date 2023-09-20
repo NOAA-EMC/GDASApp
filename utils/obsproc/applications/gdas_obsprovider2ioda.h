@@ -22,7 +22,7 @@ namespace gdasapp {
 
       if (provider == "RADS") {
         Rads2Ioda conv2ioda(fullConfig);
-        conv2ioda.WriteToIoda();
+        conv2ioda.writeToIoda();
       } else if (provider == "GHRSST") {
         oops::Log::info() << "Comming soon!" << std::endl;
       } else {
