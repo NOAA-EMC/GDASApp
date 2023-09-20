@@ -13,6 +13,5 @@ print(data)
 
 for observer in data['observers']:
     obs_source_name = observer['obs space']['name']
-    dwprint(obs_source_name)
     logging.info(f"obs_source_name: {obs_source_name}")
     prep_marine_obs.obs_fetch(obs_source_name)
