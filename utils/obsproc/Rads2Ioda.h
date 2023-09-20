@@ -22,7 +22,7 @@ namespace gdasapp {
     }
 
     // Read netcdf file and populate iodaVars
-    void providerToIodaVars(const std::string fileName, gdasapp::IodaVars & iodaVars) override {
+    void providerToIodaVars(const std::string fileName, gdasapp::IodaVars & iodaVars) final {
       oops::Log::info() << "Processing files provided by the RADS" << std::endl;
 
       // Set nVars to 1
