@@ -8,6 +8,7 @@ import logging
 import os
 import re
 from wxflow import parse_j2yaml, cast_strdict_as_dtypedict, save_as_yaml
+from wxflow import add_to_datetime, to_timedelta
 
 
 def genYAML(input_yaml, output_yaml, config):
@@ -23,5 +24,10 @@ if __name__ == "__main__":
 
     # Take configuration from environment and cast it as python dictionary
     config = cast_strdict_as_dtypedict(os.environ)
+
+    # need to get window begin from pdy, cyc, assim_freq
+    current_cycle = add_to_datetime(config['PDY'], to_timedelta(f"{config.cyc}H"))
+    config['WINDOW_BEGIN'] = add_to_datetime(current_cycle, to_timedelta(f"-{int(config.assim_freq/2)}H"))
+    config['WINDOW_END'] = add_to_datetime(config['WINDOW_BEGIN'], to_timedelta(f"{config.assim_freq}H"))
 
     genYAML(args.input, args.output, config)
