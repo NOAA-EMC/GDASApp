@@ -125,7 +125,7 @@ def bufr_to_ioda(config, logger):
     # MetaData
     lat = r.get('latitude', 'verticalSignificance')
     lon = r.get('longitude', 'verticalSignificance')
-    lon[lon>180] -= 360  # Convert Longitude from [0,360] to [-180,180]
+    lon[lon > 180] -= 360  # Convert Longitude from [0,360] to [-180,180]
     sid = r.get('stationIdentification', 'verticalSignificance')
     elv = r.get('stationElevation', 'verticalSignificance', type='float')
     tpc = r.get('temperatureEventProgramCode', 'verticalSignificance')
@@ -139,7 +139,7 @@ def bufr_to_ioda(config, logger):
 
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(reference_time, '%Y-%m-%dT%H:%M:%SZ')))
     ulan += cycleTimeSinceEpoch
-    ulan = np.repeat(ulan[:,0],ulan.shape[1])
+    ulan = np.repeat(ulan[:, 0], ulan.shape[1])
     ulan = ulan.reshape(ulan.shape)
 
     # ObsValue
