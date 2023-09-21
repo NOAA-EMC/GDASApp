@@ -1,0 +1,19 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "ascatw",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC012122" ],
+  "data_description" : "Level-2 ocean surface wind vector retrievals and derived wind components from ASCAT on MetOp satellites at 50-km sampling resolution",
+  "data_provider"    : "U.S. NOAA/NDESDIS",
+  "sensor_info"      : { "sensor_name": "ASCAT",  "sensor_full_name": "Advanced Scatterometer",  "sensor_id": 0 },
+  "satellite_info"   : [
+                          { "satellite_name": "MetOp-A", "satellite_full_name": "Meteorological Operational Satellite - A", "satellite_id": 4 },
+                          { "satellite_name": "MetOp-B", "satellite_full_name": "Meteorological Operational Satellite - B", "satellite_id": 3 },
+                          { "satellite_name": "MEtOp-C", "satellite_full_name": "Meteorological Operational Satellite - C", "satellite_id": 5 }
+                       ]
+}
+
+

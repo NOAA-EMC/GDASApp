@@ -1,0 +1,21 @@
+obs space:
+  name: scatwind
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV scatwind_obs_${CDATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV scatwind_diag_${CDATE}.nc4 
+  simulated variables: [windEastward, windNorthward]
+geovals:
+  filename: !ENV scatwind_geoval_${CDATE}.nc4
+vector ref: GsiHofXBc
+tolerance: 0.01
+obs operator:
+  name: VertInterp
+  apply near surface wind scaling: true
+
+vector ref: GsiHofXBc
+tolerance: 1.e-5
