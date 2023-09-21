@@ -1,9 +1,8 @@
+#!/usr/bin/env python3
 # (C) Copyright 2023 NOAA/NWS/NCEP/EMC
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-
-#!/usr/bin/env python3
 
 import sys
 import numpy as np
@@ -18,15 +17,16 @@ from pyiodaconv import bufr
 from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
 
+
 def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
     dhr = np.int64(dhr*3600)
     dateTime = dhr + cycleTimeSinceEpoch
 
-    return dateTime 
+    return dateTime
+
 
 def bufr_to_ioda(config):
-
 
     subsets = config["subsets"]
 
@@ -55,7 +55,8 @@ def bufr_to_ioda(config):
     platform_description = 'SFCSHP data from prepBUFR format'
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}"
-    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), bufrfile)
+    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}",
+                             str(hh), bufrfile)
 
     print("The DATA_PATH is: "+str(DATA_PATH))
 
@@ -72,19 +73,19 @@ def bufr_to_ioda(config):
     q.add('latitude',                          '*/YOB')
     q.add('longitude',                         '*/XOB')
     q.add('obsTimeMinusCycleTime',             '*/DHR')
-    q.add('stationElevation',                  '*/ELV') 
-    q.add('observationType',                   '*/TYP') 
+    q.add('stationElevation',                  '*/ELV')
+    q.add('observationType',                   '*/TYP')
     q.add('pressure',                          '*/P___INFO/P__EVENT{1}/POB')
 
 #   # Quality Infomation (Quality Indicator)
     q.add('qualityMarkerStationPressure',      '*/P___INFO/P__EVENT{1}/PQM')
 
     # ObsValue
-    q.add('stationPressure',                   '*/P___INFO/P__EVENT{1}/POB') 
+    q.add('stationPressure',                   '*/P___INFO/P__EVENT{1}/POB')
 
     end_time = time.time()
     running_time = end_time - start_time
-    print('Running time for making QuerySet : ', running_time, 'seconds') 
+    print('Running time for making QuerySet : ', running_time, 'seconds')
 
     # ==============================================================
     # Open the BUFR file and execute the QuerySet to get ResultSet
@@ -94,36 +95,37 @@ def bufr_to_ioda(config):
 
     print('Executing QuerySet to get ResultSet ...')
     with bufr.File(DATA_PATH) as f:
-       r = f.execute(q)
- 
+        r = f.execute(q)
+
     print(' ... Executing QuerySet: get metadata: basic ...')
     # MetaData
-    sid       = r.get('stationIdentification')
-    lat       = r.get('latitude')
-    lon       = r.get('longitude')
-    lon[lon>180] -=360
-    elv       = r.get('stationElevation')
-    typ       = r.get('observationType')
-    pressure  = r.get('pressure')
+    sid = r.get('stationIdentification')
+    lat = r.get('latitude')
+    lon = r.get('longitude')
+    lon[lon > 180] -= 360
+    elv = r.get('stationElevation')
+    typ = r.get('observationType')
+    pressure = r.get('pressure')
     pressure *= 100
-    
+
     print(' ... Executing QuerySet: get QualityMarker information ...')
-    # Quality Information 
-    pobqm     = r.get('qualityMarkerStationPressure')
+    # Quality Information
+    pobqm = r.get('qualityMarkerStationPressure')
 
     print(' ... Executing QuerySet: get obsvalue: stationPressure ...')
     # ObsValue
-    pob       = r.get('stationPressure')
-    pob      *= 100    
+    pob = r.get('stationPressure')
+    pob *= 100
 
     print(' ... Executing QuerySet: get datatime: observation time ...')
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
-    dhr       = r.get('obsTimeMinusCycleTime', type='int64')
+    dhr = r.get('obsTimeMinusCycleTime', type='int64')
 
     print(' ... Executing QuerySet: Done!')
 
-    print(' ... Executing QuerySet: Check BUFR variable generic dimension and type ...')
+    print(' ... Executing QuerySet: Check BUFR variable generic
+          dimension and type ...')
     # Check BUFR variable generic dimension and type
     print('     sid       shape = ', sid.shape)
     print('     dhr       shape = ', dhr.shape)
@@ -136,20 +138,21 @@ def bufr_to_ioda(config):
     print('     pobqm     shape = ', pobqm.shape)
     print('     pob       shape = ', pob.shape)
 
-    print('     sid       type  = ', sid.dtype)  
-    print('     dhr       type  = ', dhr.dtype)  
-    print('     lat       type  = ', lat.dtype)  
-    print('     lon       type  = ', lon.dtype)  
-    print('     elv       type  = ', elv.dtype)  
-    print('     typ       type  = ', typ.dtype)  
-    print('     pressure  type  = ', pressure.dtype)  
+    print('     sid       type  = ', sid.dtype)
+    print('     dhr       type  = ', dhr.dtype)
+    print('     lat       type  = ', lat.dtype)
+    print('     lon       type  = ', lon.dtype)
+    print('     elv       type  = ', elv.dtype)
+    print('     typ       type  = ', typ.dtype)
+    print('     pressure  type  = ', pressure.dtype)
 
-    print('     pobqm     type  = ', pobqm.dtype)  
-    print('     pob       type  = ', pob.dtype)  
+    print('     pobqm     type  = ', pobqm.dtype)
+    print('     pob       type  = ', pob.dtype)
 
     end_time = time.time()
     running_time = end_time - start_time
-    print('Running time for executing QuerySet to get ResultSet : ', running_time, 'seconds')
+    print('Running time for executing QuerySet to get ResultSet : ',
+          running_time, 'seconds')
 
     # =========================
     # Create derived variables
@@ -158,7 +161,8 @@ def bufr_to_ioda(config):
 
     print('Creating derived variables - dateTime ...')
 
-    cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(reference_time_full, '%Y%m%d%H%M')))
+    cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(
+                          reference_time_full, '%Y%m%d%H%M')))
     dateTime = Compute_dateTime(cycleTimeSinceEpoch, dhr)
 
     print('     Check derived variables type ... ')
@@ -167,16 +171,17 @@ def bufr_to_ioda(config):
 
     end_time = time.time()
     running_time = end_time - start_time
-    print('Running time for creating derived variables : ', running_time, 'seconds')
+    print('Running time for creating derived variables : ',
+          running_time, 'seconds')
 
     # =====================================
     # Create IODA ObsSpace
     # Write IODA output
     # =====================================
-   
+
     # Create the dimensions
     dims = {
-       'Location'   : np.arange(0, lat.shape[0]),
+       'Location': np.arange(0, lat.shape[0]),
     }
 
     iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
@@ -198,77 +203,92 @@ def bufr_to_ioda(config):
     obsspace.write_attr('dataProviderOrigin', data_provider)
     obsspace.write_attr('description', data_description)
     obsspace.write_attr('datetimeReference', reference_time)
-    obsspace.write_attr('datetimeRange', [str(min(dateTime)), str(max(dateTime))])
+    obsspace.write_attr('datetimeRange',
+                        [str(min(dateTime)), str(max(dateTime))])
     obsspace.write_attr('platformLongDescription', platform_description)
 
     # Create IODA variables
     print(' ... ... Create variables: name, type, units, and attributes')
     # Longitude
-    obsspace.create_var('MetaData/longitude', dtype=lon.dtype, fillval=lon.fill_value) \
+    obsspace.create_var('MetaData/longitude', dtype=lon.dtype,
+                        fillval=lon.fill_value) \
         .write_attr('units', 'degrees_east') \
         .write_attr('valid_range', np.array([-180, 180], dtype=np.float32)) \
         .write_attr('long_name', 'Longitude') \
         .write_data(lon)
 
-    # Latitude 
-    obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \
+    # Latitude
+    obsspace.create_var('MetaData/latitude', dtype=lat.dtype,
+                        fillval=lat.fill_value) \
         .write_attr('units', 'degrees_north') \
         .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
         .write_attr('long_name', 'Latitude') \
         .write_data(lat)
 
     # Datetime
-    obsspace.create_var('MetaData/dateTime',  dtype=dateTime.dtype, fillval=dateTime.fill_value) \
+    obsspace.create_var('MetaData/dateTime',  dtype=dateTime.dtype,
+                        fillval=dateTime.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Datetime') \
         .write_data(dateTime)
 
     # Station Identification
-    obsspace.create_var('MetaData/stationIdentification',  dtype=sid.dtype, fillval=sid.fill_value) \
+    obsspace.create_var('MetaData/stationIdentification',  dtype=sid.dtype,
+                        fillval=sid.fill_value) \
         .write_attr('long_name', 'Station Identification') \
         .write_data(sid)
 
     # Station Elevation
-    obsspace.create_var('MetaData/stationElevation',  dtype=elv.dtype, fillval=elv.fill_value) \
+    obsspace.create_var('MetaData/stationElevation',  dtype=elv.dtype,
+                        fillval=elv.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Station Elevation') \
         .write_data(elv)
 
-    # Observation Type 
-    obsspace.create_var('MetaData/observationType',  dtype=typ.dtype, fillval=typ.fill_value) \
+    # Observation Type
+    obsspace.create_var('MetaData/observationType',  dtype=typ.dtype,
+                        fillval=typ.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ)
 
     # Pressure
-    obsspace.create_var('MetaData/pressure',  dtype=pressure.dtype, fillval=pressure.fill_value) \
+    obsspace.create_var('MetaData/pressure',  dtype=pressure.dtype,
+                        fillval=pressure.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Pressure') \
         .write_data(pressure)
 
     # Quality: Percent Confidence - Quality Information Without Forecast
-    obsspace.create_var('QualityMarker/stationPressure',  dtype=pobqm.dtype, fillval=pobqm.fill_value) \
+    obsspace.create_var('QualityMarker/stationPressure',  dtype=pobqm.dtype,
+                        fillval=pobqm.fill_value) \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
         .write_data(pobqm)
 
-    # Station Pressure 
-    obsspace.create_var('ObsValue/pressure',  dtype=pob.dtype, fillval=pob.fill_value) \
+    # Station Pressure
+    obsspace.create_var('ObsValue/pressure',  dtype=pob.dtype,
+                        fillval=pob.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Station Pressure') \
         .write_data(pob)
 
     end_time = time.time()
     running_time = end_time - start_time
-    print('Running time for splitting and output IODA:', running_time, 'seconds')
+    print('Running time for splitting and output IODA:', running_time,
+          'seconds')
 
     print("All Done!")
+
 
 if __name__ == '__main__':
 
     start_time = time.time()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', type=str, help='Input JSON configuration', required=True)
-    parser.add_argument('-v', '--verbose', help='print debug logging information',
+    parser.add_argument('-c', '--config', type=str,
+                        help='Input JSON configuration',
+                        required=True)
+    parser.add_argument('-v', '--verbose',
+                        help='print debug logging information',
                         action='store_true')
     args = parser.parse_args()
 
@@ -279,4 +299,4 @@ if __name__ == '__main__':
 
     end_time = time.time()
     running_time = end_time - start_time
-    print('Total running time: ', running_time, 'seconds') 
+    print('Total running time: ', running_time, 'seconds')
