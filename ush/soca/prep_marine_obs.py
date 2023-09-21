@@ -33,12 +33,6 @@ obs_dict = {
     #                   'rads_adt_c2_2021182.nc'
     'adt_c2_egm2008': ('ADT', 'rads_adt_c2_???????.nc'),
 
-    #                   'rads_adt_j2_2021182.nc'
-    'adt_j2': ('ADT', 'rads_adt_j2_???????.nc'),
-
-    #                   'rads_adt_j3_2021182.nc'
-    'adt_j3': ('ADT', 'rads_adt_j3_???????.nc'),
-
     #                   'rads_adt_sa_2021182.nc'
     'adt_sa_egm2008': ('ADT', 'rads_adt_sa_???????.nc'),
 
