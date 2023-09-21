@@ -52,6 +52,7 @@ def bufr_to_ioda(config, logger):
     reference_time = datetime.strptime(cycle, "%Y%m%d%H")
     reference_time = reference_time.strftime("%Y-%m-%dT%H:%M:%SZ")
     reference_time_full = f"{yyyymmdd}{hh}00"
+    logger.info(f"Reference time = {reference_time}")
 
     # General informaton
     converter = 'BUFR to IODA Converter'
