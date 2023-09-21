@@ -98,10 +98,10 @@ def bufr_to_ioda(config, logger):
     sensor_description = '16 channels, balaned visible, near IR, short-wave IR, mid-wave IR, and thermal IR; \
                          central wavelentgh ranges from 470 nm to 13.3 micron'
 
-    logger.info(f"sensor_name = {sensor_name}")
-    logger.info(f"sensor_full_name = {sensor_full_name}")
-    logger.info(f"sensor_id = {sensor_id}")
-    logger.info(f"reference_time = {reference_time}")
+    logger.info(f'sensor_name = {sensor_name}')
+    logger.info(f'sensor_full_name = {sensor_full_name}')
+    logger.info(f'sensor_id = {sensor_id}')
+    logger.info(f'reference_time = {reference_time}')
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_type}.tm00.{data_format}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), 'atmos', bufrfile)
@@ -151,7 +151,7 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.debug(f'Running time for making QuerySet : {running_time} seconds')
+    logger.debug(f'Processing time for making QuerySet : {running_time} seconds')
 
     # ==============================================================
     # Open the BUFR file and execute the QuerySet to get ResultSet
@@ -163,7 +163,6 @@ def bufr_to_ioda(config, logger):
     with bufr.File(DATA_PATH) as f:
         r = f.execute(q)
 
-    logger.info('Executing QuerySet: get metadata')
     # MetaData
     satid = r.get('satelliteId')
     year = r.get('year')
@@ -201,101 +200,55 @@ def bufr_to_ioda(config, logger):
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
     timestamp = r.get_datetime('year', 'month', 'day', 'hour', 'minute', 'second').astype(np.int64)
 
-    logger.info('Executing QuerySet Done!')
-
-    logger.debug('Executing QuerySet: Check BUFR variable generic dimension and type')
     # Check BUFR variable generic dimension and type
-    logger.debug(f'     timestamp shape = {timestamp.shape}')
-    logger.debug(f'     satid     shape = {satid.shape}')
-    logger.debug(f'     lon       shape = {lon.shape}')
-    logger.debug(f'     chanfreq  shape = {chanfreq.shape}')
-    logger.debug(f'     swcm      shape = {swcm.shape}')
-
-    logger.debug(f'     ogce      shape = {ogce.shape}')
-    logger.debug(f'     qifn      shape = {qifn.shape}')
-    logger.debug(f'     ee        shape = {ee.shape}')
-
-    logger.debug(f'     cvwd      shape = {cvwd.shape}')
-
-    logger.debug(f'     eham      shape = {eham.shape}')
-    logger.debug(f'     pressure  shape = {pressure.shape}')
-    logger.debug(f'     wdir      shape = {wdir.shape}')
-    logger.debug(f'     wspd      shape = {wspd.shape}')
-
-    logger.debug(f'     timestamp type  = {timestamp.dtype}')
-    logger.debug(f'     satid     type  = {satid.dtype}')
-    logger.debug(f'     lon       type  = {lon.dtype}')
-    logger.debug(f'     chanfreq  type  = {chanfreq.dtype}')
-    logger.debug(f'     swcm      type  = {swcm.dtype}')
-    logger.debug(f'     satzenang type  = {satzenang.dtype}')
-
-    logger.debug(f'     ogce      type  = {ogce.dtype}')
-    logger.debug(f'     qifn      type  = {qifn.dtype}')
-    logger.debug(f'     ee        type  = {ee.dtype}')
-
-    logger.debug(f'     cvwd      type  = {cvwd.dtype}')
-
-    logger.debug(f'     eham      type  = {eham.dtype}')
-    logger.debug(f'     pressure  type  = {pressure.dtype}')
-    logger.debug(f'     wdir      type  = {wdir.dtype}')
-    logger.debug(f'     wspd      type  = {wspd.dtype}')
 
     # Global variables declaration
     # Set global fill values
     float32_fill_value = satzenang.fill_value
     int32_fill_value = satid.fill_value
     int64_fill_value = timestamp.fill_value.astype(np.int64)
-    logger.debug(f'     float32_fill_value  = {float32_fill_value}')
-    logger.debug(f'     int32_fill_value    = {int32_fill_value}')
-    logger.debug(f'     int64_fill_value    = {int64_fill_value}')
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for executing QuerySet to get ResultSet : {running_time} seconds")
+    logger.info(f'Processing time for executing QuerySet to get ResultSet : {running_time} seconds')
 
     # =========================
     # Create derived variables
     # =========================
     start_time = time.time()
 
-    logger.info('Creating derived variables - wind components (uob and vob)')
+    logger.info('Creating derived variables')
+    logger.debug('Creating derived variables - wind components (uob and vob)')
 
     uob, vob = Compute_WindComponents_from_WindDirection_and_WindSpeed(wdir, wspd)
 
-    logger.debug(f'     uob min/max = {uob.min()} {uob.max()}')
-    logger.debug(f'     vob min/max = {vob.min()} {vob.max()}')
+    logger.debug(f'   uob min/max = {uob.min()} {uob.max()}')
+    logger.debug(f'   vob min/max = {vob.min()} {vob.max()}')
 
     obstype = Get_ObsType(swcm, chanfreq)
-
-    logger.debug(f'     obstype min/max = {obstype.min()} {obstype.max()}')
-
-    logger.debug('     Check derived variables type ... ')
-    logger.debug(f'     uob      type = {uob.dtype}')
-    logger.debug(f'     vob      type = {vob.dtype}')
-    logger.debug(f'     obstype  type = {obstype.dtype}')
 
     height = np.full_like(pressure, fill_value=pressure.fill_value, dtype=np.float32)
     stnelev = np.full_like(pressure, fill_value=pressure.fill_value, dtype=np.float32)
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for creating derived variables : {running_time} seconds")
+    logger.info(f'Processing time for creating derived variables : {running_time} seconds')
 
     # =====================================
     # Split output based on satellite id
     # Create IODA ObsSpace
     # Write IODA output
     # =====================================
-    logger.info('Split data based on satellite id, Create IODA ObsSpace and Write IODA output')
+    logger.info('Create IODA ObsSpace and Write IODA output based on satellite ID')
 
     # Find unique satellite identifiers in data to process
     unique_satids = np.unique(satid)
-    logger.info(f"Number of Unique satellite identifiers: {len(unique_satids)}")
-    logger.info(f"Unique satellite identifiers: {unique_satids}")
+    logger.info(f'Number of Unique satellite identifiers: {len(unique_satids)}')
+    logger.info(f'Unique satellite identifiers: {unique_satids}')
 
-    logger.debug(f"Loop through unique satellite identifier {unique_satids}")
+    logger.debug(f'Loop through unique satellite identifier {unique_satids}')
+    total_ob_processed = 0
     for sat in unique_satids.tolist():
-        logger.debug(f"Processing output for satid {sat}")
         start_time = time.time()
 
         matched = False
@@ -305,7 +258,7 @@ def bufr_to_ioda(config, logger):
                 satellite_id = satellite_info["satellite_id"]
                 satellite_name = satellite_info["satellite_name"]
                 satinst = sensor_name.lower()+'_'+satellite_name.lower()
-                logger.debug("Split data for {satinst} satid = {sat}")
+                logger.debug(f'Split data for {satinst} satid = {sat}')
 
         if matched:
 
@@ -347,27 +300,8 @@ def bufr_to_ioda(config, logger):
 
             # Check unique observation time
             unique_timestamp2 = np.unique(timestamp2)
-            logger.info(f"Number of Unique observation timestamp: {len(unique_timestamp2)}")
-            logger.debug(f' ... Unique observation timestamp: {unique_timestamp2}')
+            logger.debug(f'Processing output for satid {sat}')
 
-            logger.debug(' ... Check derived variables type for subset ... ')
-            logger.debug(f'     uob2       type  = {uob.dtype}')
-            logger.debug(f'     vob2       type  = {vob.dtype}')
-            logger.debug(f'     wdir2      type  = {wdir2.dtype}')
-            logger.debug(f'     wspd2      type  = {wspd2.dtype}')
-            logger.debug(f'     pressure2  type  = {pressure2.dtype}')
-            logger.debug(f'     height2    type  = {height2.dtype}')
-            logger.debug(f'     stnelev2   type  = {stnelev2.dtype}')
-            logger.debug(f'     qifn2      type  = {qifn2.dtype}')
-            logger.debug(f'     ee         type  = {ee.dtype}')
-            logger.debug(f'     cvwd2      type  = {cvwd2.dtype}')
-            logger.debug(f'     ogce2      type  = {ogce2.dtype}')
-            logger.debug(f'     obstype2   type  = {obstype2.dtype}')
-            logger.debug(f'     qifn2      shape = {qifn2.shape}')
-            logger.debug(f'     ee2        shape = {ee2.shape}')
-            logger.debug(f'     cvwd2      shape = {cvwd2.shape}')
-
-            logger.info(f"Create ObsSpae for {satinst} satid = {sat}")
             # Create the dimensions
             dims = {
                 'Location': np.arange(0, wdir2.shape[0])
@@ -376,11 +310,11 @@ def bufr_to_ioda(config, logger):
             # Create IODA ObsSpace
             iodafile = f"{cycle_type}.t{hh}z.{data_type}.{satinst}.tm00.nc"
             OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
-            logger.info(f"Create output file: {OUTPUT_PATH}")
+            logger.info(f'Create output file : {OUTPUT_PATH}')
             obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
             # Create Global attributes
-            logger.debug(' ... ... Create global attributes')
+            logger.debug('Write global attributes')
             obsspace.write_attr('Converter', converter)
             obsspace.write_attr('sourceFiles', bufrfile)
             obsspace.write_attr('dataProviderOrigin', data_provider)
@@ -396,7 +330,7 @@ def bufr_to_ioda(config, logger):
             obsspace.write_attr('sensorLongDescription', sensor_description)
 
             # Create IODA variables
-            logger.debug(' ... ... Create variables: name, type, units, and attributes')
+            logger.debug('Write variables: name, type, units, and attributes')
             # Longitude
             obsspace.create_var('MetaData/longitude', dtype=lon2.dtype, fillval=lon2.fill_value) \
                 .write_attr('units', 'degrees_east') \
@@ -520,12 +454,15 @@ def bufr_to_ioda(config, logger):
 
             end_time = time.time()
             running_time = end_time - start_time
-            logger.info(f"Running time for splitting and output IODA for {satinst}: {running_time} seconds")
+            total_ob_processed += len(satid2)
+            logger.debug(f'Number of observation processed : {len(satid2)}')
+            logger.debug(f'Processing time for splitting and output IODA for {satinst} : {running_time} seconds')
 
         else:
             logger.info(f"Do not find this satellite id in the configuration: satid = {sat}")
 
     logger.info("All Done!")
+    logger.info(f'Total number of observation processed : {total_ob_processed}')
 
 
 if __name__ == '__main__':

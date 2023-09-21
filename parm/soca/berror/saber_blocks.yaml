@@ -32,11 +32,11 @@ components:
         ice_filename: 'ice.bkgerr_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
         date: '{{ATM_WINDOW_MIDDLE}}'
         t_min: 0.1
-        t_max: 10.0
+        t_max: 5.0
         s_min: 0.1
-        s_max: 10.0
+        s_max: 1.0
         ssh_min: 0.0 # std ssh=0 => ssh balance applied as
-        ssh_max: 0.0 #              strong constraint
+        ssh_max: 1.0 #              strong constraint
         cicen_min: 0.1
         cicen_max: 0.5
         hicen_min: 0.0
@@ -44,9 +44,11 @@ components:
         standard deviation: true
 
       - linear variable change name: BalanceSOCA
+        ksshts:
+          nlayers: 10
 
   weight:
-    value: 1.0
+    value: 0.25
 - covariance:
     covariance model: ensemble
     members from template:
