@@ -51,8 +51,8 @@ export PYTHONPATH=${PYIODALIB}:${PYTHONPATH}
 #---------------------------
 #----- python and json -----
 # first specify what observation types will be processed by a script
-BUFR_py="gpsro_bufr_split"
-#BUFR_py="gpsro_bufr_combined"
+#BUFR_py="gpsro_bufr_split"
+BUFR_py="gpsro_bufr_combined"
 
 for obtype in $BUFR_py; do
   # this loop assumes that there is a python script and template with the same name
@@ -60,7 +60,6 @@ for obtype in $BUFR_py; do
 
   # first generate a JSON from the template
   ${BUFRJSONGEN} -t ${config_template_dir}/bufr2ioda_${obtype}.json -o ${COM_OBS}/${obtype}_${PDY}${cyc}.json
-#  ${BUFRJSONGEN} -t ${config_template_dir}/bufr2ioda_${obtype}.json -c bufr2ioda_${obtype}.json -o ${COM_OBS}/${obtype}_${PDY}${cyc}.json
   echo "1 done"
 
   # now use the converter script for the ob type

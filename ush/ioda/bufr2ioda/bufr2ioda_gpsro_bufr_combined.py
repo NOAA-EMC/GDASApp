@@ -29,6 +29,7 @@ from pyioda import ioda_obs_space as ioda_ospace
 # ====================================================================
 
 def Derive_stationIdentification(said,ptid,stid):
+
     stid = stid.astype('str')
     for i in range(len(said)):
        stid[i] = str(said[i]).zfill(4)+str(ptid[i]).zfill(4)
@@ -38,15 +39,21 @@ def Derive_stationIdentification(said,ptid,stid):
 def Compute_Grid_Location(degrees):
 
     for i in range(len(degrees)):
-       if degrees[i] < 180 and degrees[i] > -180 :
-          degrees[i] = np.deg2rad(degrees[i]) 
+       if degrees[i] <= 360 and degrees[i] >= -180 :
+          degrees[i] = np.deg2rad(degrees[i])
+#       else:
+#          degrees[i] = np.float32(0) 
     rad = degrees
     
     return rad 
 
-def Compute_imph(impp, elrc, geodu):
+def Compute_imph(impp, elrc):#, geodu, imph):
 
-    imph = impp - elrc - geodu
+    imph=(impp-elrc).astype(np.float32)
+#    for i in range(len(impp)):
+##       imph = imph.astype('float')
+#       imph[i]=impp[i]-elrc[i]#-geodu[i]
+##       print("NE i impp elrc imph", i, impp[i], elrc[i], imph[i])
 
     return imph
 
@@ -98,8 +105,8 @@ def bufr_to_ioda(config):
     #q.add('observationSequenceNum',        '*/SEQNUM' )
     q.add('geoidUndulation',               '*/GEODU' )
     q.add('height',                        '*/ROSEQ3/HEIT' )
-    q.add('impactHeightRO_roseq2repl1',    '*/ROSEQ1/ROSEQ2{1}/IMPP' )
-    q.add('impactHeightRO_roseq2repl3',    '*/ROSEQ1/ROSEQ2{3}/IMPP' )
+#    q.add('impactHeightRO_roseq2repl1',    '*/ROSEQ1/ROSEQ2{1}/IMPP' )
+#    q.add('impactHeightRO_roseq2repl3',    '*/ROSEQ1/ROSEQ2{3}/IMPP' )
     q.add('impactParameterRO_roseq2repl1', '*/ROSEQ1/ROSEQ2{1}/IMPP' )
     q.add('impactParameterRO_roseq2repl3', '*/ROSEQ1/ROSEQ2{3}/IMPP' )
     q.add('frequency__roseq2repl1',        '*/ROSEQ1/ROSEQ2{1}/MEFR' ) 
@@ -164,14 +171,14 @@ def bufr_to_ioda(config):
     elrc       = r.get('earthRadiusCurvature',          'latitude')
     #seqnum     = r.get('observationSequenceNum')
     geodu      = r.get('geoidUndulation',               'latitude')
-    heit       = r.get('height',                        'height', type='float')
+    heit       = r.get('height',                        'height', type='float32').astype(np.float32)
     impp1      = r.get('impactParameterRO_roseq2repl1', 'latitude')
     impp3      = r.get('impactParameterRO_roseq2repl3', 'latitude')
-    imph1      = r.get('impactHeightRO_roseq2repl1',    'latitude')
-    imph3      = r.get('impactHeightRO_roseq2repl3',    'latitude')
-    mefr1      = r.get('frequency__roseq2repl1',        'latitude', type='float')
-    mefr3      = r.get('frequency__roseq2repl3',        'latitude', type='float')
-    pccf       = r.get('pccf',                          'latitude', type='float')
+#    imph1      = r.get('impactHeightRO_roseq2repl1',    'latitude')
+#    imph3      = r.get('impactHeightRO_roseq2repl3',    'latitude')
+    mefr1      = r.get('frequency__roseq2repl1',        'latitude', type='float32').astype(np.float32)
+    mefr3      = r.get('frequency__roseq2repl3',        'latitude', type='float32').astype(np.float32)
+    pccf       = r.get('pccf',                          'latitude', type='float32').astype(np.float32)
     ref_pccf   = r.get('percentConfidence',             'height' )
     bearaz     = r.get('sensorAzimuthAngle',            'latitude')
 
@@ -243,8 +250,8 @@ def bufr_to_ioda(config):
     print('     heit      shape,type = ', heit.shape,   heit.dtype)
     print('     impp1     shape,type = ', impp1.shape,   impp1.dtype)
     print('     impp3     shape,type = ', impp3.shape,   impp3.dtype)
-    print('     imph1     shape,type = ', imph1.shape,   imph1.dtype)
-    print('     imph3     shape,type = ', imph3.shape,   imph3.dtype)
+#    print('     imph1     shape,type = ', imph1.shape,   imph1.dtype)
+#    print('     imph3     shape,type = ', imph3.shape,   imph3.dtype)
     print('     mefr1     shape,type = ', mefr1.shape,   mefr1.dtype)
     print('     mefr3     shape,type = ', mefr3.shape,   mefr3.dtype)
     print('     pccf      shape,type = ', pccf.shape,   pccf.dtype)
@@ -291,8 +298,8 @@ def bufr_to_ioda(config):
     print('     gclath min/max = ', gclath.min(), gclath.max())
 
     print('Creating derived variables - imph ...')
-    imph1 = Compute_imph(impp1, elrc, geodu)
-    imph3 = Compute_imph(impp3, elrc, geodu)
+    imph1 = Compute_imph(impp1, elrc)
+    imph3 = Compute_imph(impp3, elrc)
 
     print('     imph1 shape,type = ', imph1.shape, imph1.dtype)
     print('     imph3 shape,type = ', imph3.shape, imph3.dtype)
@@ -352,6 +359,11 @@ def bufr_to_ioda(config):
     obsspace.write_attr('dataProviderOrigin', data_provider)
     obsspace.write_attr('description', data_description)
     obsspace.write_attr('converter', os.path.basename(__file__))
+
+
+    for i in range(len(elrc)):
+       if i > 0 and i < 10:
+           print("NE elrc 0-10", elrc[i])
    
     # Create IODA variables
     print(' ... ... Create variables: name, type, units, and attributes')
@@ -415,6 +427,7 @@ def bufr_to_ioda(config):
         .write_data(ptid)
    
     # Earth Radius Curvature
+#    obsspace.create_var('MetaData/earthRadiusCurvature', dtype=elrc.dtype, fillval=elrc.fill_value) \
     obsspace.create_var('MetaData/earthRadiusCurvature', dtype=elrc.dtype, fillval=elrc.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Earth Radius of Curvature') \
