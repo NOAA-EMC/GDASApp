@@ -181,7 +181,7 @@ def bufr_to_ioda(config):
 
     # Create the dimensions
     dims = {
-            'Location': np.arange(0, lat.shape[0]),
+             'Location': np.arange(0, lat.shape[0]),
     }
 
     iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
