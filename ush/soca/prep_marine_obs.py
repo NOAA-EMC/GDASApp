@@ -21,8 +21,11 @@ obs_dict = {
     #                  '20210630210000-STAR-L3C_GHRSST-SSTsubskin-ABI_G17-ACSPO_V2.71-v02.0-fv01.0.nc'
     'ABI_G17': ('sst', '??????????????-STAR-L3C_GHRSST-SSTsubskin-ABI_G17-ACSPO_V2.71-v02.0-fv01.0.nc '),
 
-    #                  '20210630210000-STAR-L3C_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc'
-    'AHI_H08': ('sst', '??????????????-STAR-L3C_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc '),
+    #                  '20210630210000-STAR-L3C_GHRSST-SSTsubskin-ABI_G18-ACSPO_V2.71-v02.0-fv01.0.nc'
+    'ABI_G18': ('sst', '??????????????-STAR-L3C_GHRSST-SSTsubskin-ABI_G18-ACSPO_V2.71-v02.0-fv01.0.nc '),
+
+    #                  '20210630210000-STAR-L3C_GHRSST-SSTsubskin-AHI_H09-ACSPO_V2.70-v02.0-fv01.0.nc'
+    'AHI_H09': ('sst', '??????????????-STAR-L3C_GHRSST-SSTsubskin-AHI_H09-ACSPO_V2.70-v02.0-fv01.0.nc '),
 
     #                   'rads_adt_3b_2021182.nc'
     'adt_3b_egm2008': ('ADT', 'rads_adt_3b_???????.nc'),
