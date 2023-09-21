@@ -235,7 +235,7 @@ def bufr_to_ioda(config, logger):
 
     iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
-    print(" ... ... Create OUTPUT file: ", OUTPUT_PATH)
+    logger.info(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
 
     path, fname = os.path.split(OUTPUT_PATH)
     if path and not os.path.exists(path):
@@ -398,7 +398,7 @@ def bufr_to_ioda(config, logger):
     logger.info(f"Running time for splitting and output IODA: {running_time} \
                 seconds")
 
-    print("All Done!")
+    logger.info("All Done!")
 
 
 if __name__ == '__main__':
