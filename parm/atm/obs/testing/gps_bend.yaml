@@ -1,0 +1,84 @@
+obs space:
+  name: gnssrobndnbam
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV gps_bend_obs_${CDATE}.nc4 
+    obsgrouping:
+      group variables: [ 'sequenceNumber' ]
+      sort variable: 'impactHeightRO'
+      sort order: 'ascending'
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV gps_bend_diag_${CDATE}.nc4 
+  simulated variables: [bendingAngle]
+geovals:
+  filename: !ENV gps_bend_geoval_${CDATE}.nc4
+obs operator:
+  name: GnssroBndNBAM
+  obs options:
+    use_compress: 1
+    sr_steps: 2
+    vertlayer: full
+    super_ref_qc: NBAM
+obs filters:
+#1. gpstop
+- filter: Domain Check
+  filter variables:
+  - name: bendingAngle
+  where:
+  - variable:
+      name: MetaData/impactHeightRO
+    minvalue: 0
+    maxvalue: 55000.1
+  action:
+    name: reject
+#2. commgpstop
+- filter: Bounds Check
+  filter variables:
+  - name: bendingAngle
+  where:
+  - variable:
+      name: MetaData/satelliteIdentifier
+    is_in: 265,266,267,268,269
+  test variables:
+  - name: MetaData/impactHeightRO
+  maxvalue: 45000.1
+  action:
+    name: reject
+#3. metop below 8 km
+- filter: Bounds Check
+  filter variables:
+  - name: bendingAngle
+  where:
+  - variable:
+      name: MetaData/satelliteIdentifier
+    is_in: 3-5
+  test variables:
+  - name: MetaData/impactHeightRO
+  minvalue: 8000.1
+  action:
+    name: reject
+#4. assign obs error 
+- filter: ROobserror
+  filter variables:
+  - name: bendingAngle
+  errmodel: NBAM
+#5. RONBAM cut off check
+- filter: Background Check RONBAM
+  filter variables:
+  - name: bendingAngle
+#6. Obs error inflate
+- filter: Background Check RONBAM
+  filter variables:
+  - name: bendingAngle
+  action:
+    name: RONBAMErrInflate
+#7. Background check
+#- filter: Background Check
+#  filter variables:
+#  - name: bendingAngle
+#  threshold: 10
+#  action:
+#    name: reject
