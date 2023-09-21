@@ -327,7 +327,7 @@ def bufr_to_ioda(config, logger):
         .write_data(tqm)
 
     # Quality Marker: Specific Humidity
-    obsspace.create_var('QualityMarker/specificHumidity',  dtype=qqm.dtype,
+    obsspace.create_var('QualityMarker/specificHumidity', dtype=qqm.dtype,
                         fillval=qqm.fill_value) \
         .write_attr('long_name', 'Specific Humidity Quality Marker') \
         .write_data(qqm)
@@ -340,54 +340,54 @@ def bufr_to_ioda(config, logger):
 
     # Quality Marker: Sea Surface Temperature
     obsspace.create_var('QualityMarker/seaSurfaceTemperature',
-                        dtype=sstqm.dtype, fillval=sstqm.fill_value) \
+                       dtype=sstqm.dtype, fillval=sstqm.fill_value) \
         .write_attr('long_name', 'Sea Surface Temperature Quality Marker') \
         .write_data(sstqm)
 
     # Station Pressure
-    obsspace.create_var('ObsValue/pressure',  dtype=pob.dtype,
+    obsspace.create_var('ObsValue/pressure', dtype=pob.dtype,
                         fillval=pob.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Station Pressure') \
         .write_data(pob)
 
     # Air Temperature
-    obsspace.create_var('ObsValue/airTemperature',  dtype=tob.dtype,
+    obsspace.create_var('ObsValue/airTemperature', dtype=tob.dtype,
                         fillval=tob.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Air Temperature') \
         .write_data(tob)
 
     # Virtual Temperature
-    obsspace.create_var('ObsValue/virtualTemperature',  dtype=tvo.dtype,
+    obsspace.create_var('ObsValue/virtualTemperature', dtype=tvo.dtype,
                         fillval=tvo.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Virtual Temperature') \
         .write_data(tvo)
 
     # Specific Humidity
-    obsspace.create_var('ObsValue/specificHumidity',  dtype=qob.dtype,
+    obsspace.create_var('ObsValue/specificHumidity', dtype=qob.dtype,
                         fillval=qob.fill_value) \
         .write_attr('units', 'kg kg-1') \
         .write_attr('long_name', 'Specific Humidity') \
         .write_data(qob)
 
     # Eastward Wind
-    obsspace.create_var('ObsValue/windEastward',  dtype=uob.dtype,
+    obsspace.create_var('ObsValue/windEastward', dtype=uob.dtype,
                         fillval=uob.fill_value) \
         .write_attr('units', 'm s-1') \
         .write_attr('long_name', 'Eastward Wind') \
         .write_data(uob)
 
     # Northward Wind
-    obsspace.create_var('ObsValue/windNorthward',  dtype=vob.dtype,
+    obsspace.create_var('ObsValue/windNorthward', dtype=vob.dtype,
                         fillval=vob.fill_value) \
         .write_attr('units', 'm s-1') \
         .write_attr('long_name', 'Northward Wind') \
         .write_data(vob)
 
     # Sea Surface Temperature
-    obsspace.create_var('ObsValue/seaSurfaceTemperature',  dtype=sst1.dtype,
+    obsspace.create_var('ObsValue/seaSurfaceTemperature', dtype=sst1.dtype,
                         fillval=sst1.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Sea Surface Temperature') \
