@@ -82,4 +82,3 @@ obs filters:
 #  threshold: 10
 #  action:
 #    name: reject
-passedBenchmark: 393457
