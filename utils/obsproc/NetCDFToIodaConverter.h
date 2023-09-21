@@ -26,6 +26,13 @@ namespace gdasapp {
     Eigen::ArrayXf obsError;
     Eigen::ArrayXi preQc;
     std::string units;  // reference date for epoch time
+
+    IodaVars(const int nobs=0) : location(nobs),
+                                 nVars(1),
+                                 obsVal(location),
+                                 obsError(location),
+                                 preQc(location)
+    {}
   };
 
   // Base class for the converters
@@ -58,19 +65,37 @@ namespace gdasapp {
 
     // Method to write out a IODA file (writter called in destructor)
     void writeToIoda() {
-      // Extract ioda variables from the provider's files
-      std::string fileName = inputFilenames_[0];  // TODO(Guillaume): make it work for a list
-      gdasapp::IodaVars iodaVars;
-      int myrank  = oops::mpi::world().rank();
+      // Get communicator
+      const eckit::mpi::Comm & comm = oops::mpi::world();
 
-      oops::Log::debug() << "ooooooooooooo my rank : " << myrank << oops::mpi::world().size() << std::endl;
+      // Extract ioda variables from the provider's files
+      gdasapp::IodaVars iodaVars;
+      int myrank  = comm.rank();
+      int nobs(0);
+      oops::Log::debug() << "ooooooooooooo my rank : " << myrank << comm.size() << std::endl;
       if (myrank <= inputFilenames_.size()-1) {
         providerToIodaVars(inputFilenames_[myrank], iodaVars);
+        nobs = iodaVars.location;
         oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
         oops::Log::debug() << "--- iodaVars.obsVal: " << iodaVars.obsVal << std::endl;
       }
 
-      // TODO(Guillaume):Use collective communication to concatenate the iodaVars
+      // Get the total number of obs across pe's
+      comm.allReduce(nobs, nobs, eckit::mpi::sum());
+      oops::Log::debug() << " my rank : " << myrank
+                         << " Num pe's: " << comm.size()
+                         << " nobs: " << nobs << std::endl;
+      gdasapp::IodaVars iodaVarsAll(nobs);
+
+      // Gather obsVal's
+      std::vector<double> tmpVec(iodaVars.obsVal.data(), iodaVars.obsVal.data() + iodaVars.obsVal.size());
+      oops::mpi::allGatherv(comm, tmpVec);
+      for (int i = 0; i < tmpVec.size(); ++i) {
+        iodaVarsAll.obsVal(i) = tmpVec[i];
+      }
+      oops::Log::debug() << "--- all obsVal: " << iodaVarsAll.obsVal.size() << std::endl;
+
+      //oops::mpi::allGatherv(comm, x);
 
       // Create empty group backed by HDF file
       if (oops::mpi::world().rank() == 0) {
