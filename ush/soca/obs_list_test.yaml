@@ -6,9 +6,7 @@ observers:
 - !INC ${OBS_YAML_DIR}/adt_c2_egm2008.yaml
 - !INC ${OBS_YAML_DIR}/adt_coperl4.yaml
 - !INC ${OBS_YAML_DIR}/adt_j2_egm2008.yaml
-- !INC ${OBS_YAML_DIR}/adt_j2.yaml
 - !INC ${OBS_YAML_DIR}/adt_j3_egm2008.yaml
-- !INC ${OBS_YAML_DIR}/adt_j3.yaml
 - !INC ${OBS_YAML_DIR}/adt_sa_egm2008.yaml
 - !INC ${OBS_YAML_DIR}/bufr_sfcshipsu.yaml
 - !INC ${OBS_YAML_DIR}/bufr_sfcships.yaml
@@ -22,10 +20,7 @@ observers:
 - !INC ${OBS_YAML_DIR}/icec_ssmis_f18_north.yaml
 - !INC ${OBS_YAML_DIR}/icec_ssmis_f18_south.yaml
 - !INC ${OBS_YAML_DIR}/icefb_gdr.yaml
-- !INC ${OBS_YAML_DIR}/oc_aqua.yaml
-- !INC ${OBS_YAML_DIR}/oc_dineof3.yaml
 - !INC ${OBS_YAML_DIR}/oc_noaa20.yaml
-- !INC ${OBS_YAML_DIR}/oc_snpp.yaml
 - !INC ${OBS_YAML_DIR}/salt_bufr_dbuoyprof.yaml
 - !INC ${OBS_YAML_DIR}/salt_bufr_mbuoybprof.yaml
 - !INC ${OBS_YAML_DIR}/salt_profile_fnmoc_godas.yaml
@@ -56,3 +51,10 @@ observers:
 - !INC ${OBS_YAML_DIR}/temp_profile_fnmoc_godas.yaml
 - !INC ${OBS_YAML_DIR}/temp_profile_fnmoc.yaml
 - !INC ${OBS_YAML_DIR}/temp_profile_wod.yaml
+- !INC ${OBS_YAML_DIR}/argo_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/glider_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/bathy_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/tesac_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/xbtctd_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/dbuoy_profile_YYYYMMDD.yaml,
+- !INC ${OBS_YAML_DIR}/mbuoy_profile_YYYYMMDD.yaml
