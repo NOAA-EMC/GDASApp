@@ -340,7 +340,7 @@ def bufr_to_ioda(config, logger):
 
     # Quality Marker: Sea Surface Temperature
     obsspace.create_var('QualityMarker/seaSurfaceTemperature',
-                       dtype=sstqm.dtype, fillval=sstqm.fill_value) \
+                        dtype=sstqm.dtype, fillval=sstqm.fill_value) \
         .write_attr('long_name', 'Sea Surface Temperature Quality Marker') \
         .write_data(sstqm)
 
