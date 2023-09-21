@@ -27,7 +27,7 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
     return dateTime
 
 
-def bufr_to_ioda(config):
+def bufr_to_ioda(config, logger):
 
     subsets = config["subsets"]
     logger.debug(f"Checking subsets = {subsets}")
@@ -128,8 +128,8 @@ def bufr_to_ioda(config):
 
     logger.info(f" ... Executing QuerySet: Done!")
 
-    logger.info(f" ... Executing QuerySet: Check BUFR variable generic
-                dimension and type ...")
+    logger.info(f" ... Executing QuerySet: Check BUFR variable generic " \
+                "dimension and type ...")
     # Check BUFR variable generic dimension and type
     logger.info(f"     sid       shape = {sid.shape}")
     logger.info(f"     dhr       shape = {dhr.shape}")
@@ -155,8 +155,8 @@ def bufr_to_ioda(config):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for executing QuerySet to get ResultSet:
-                {running_time} seconds")
+    logger.info(f"Running time for executing QuerySet to get ResultSet: " \
+                "{running_time} seconds")
 
     # =========================
     # Create derived variables
@@ -175,8 +175,8 @@ def bufr_to_ioda(config):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for creating derived variables:
-                {running_time} seconds")
+    logger.info(f"Running time for creating derived variables: " \
+                "{running_time} seconds")
 
     # =====================================
     # Create IODA ObsSpace
@@ -275,8 +275,8 @@ def bufr_to_ioda(config):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for splitting and output IODA:
-                {running_time} seconds")
+    logger.info(f"Running time for splitting and output IODA: " \
+                "{running_time} seconds")
 
     print("All Done!")
 
