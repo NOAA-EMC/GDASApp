@@ -58,50 +58,59 @@ namespace gdasapp {
 
     // Method to write out a IODA file (writter called in destructor)
     void writeToIoda() {
-      // Create empty group backed by HDF file
-      ioda::Group group =
-        ioda::Engines::HH::createFile(
-                                      outputFilename_,
-                                      ioda::Engines::BackendCreateModes::Truncate_If_Exists);
-
       // Extract ioda variables from the provider's files
       std::string fileName = inputFilenames_[0];  // TODO(Guillaume): make it work for a list
       gdasapp::IodaVars iodaVars;
-      providerToIodaVars(fileName, iodaVars);
-      oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
-      oops::Log::debug() << "--- iodaVars.obsVal: " << iodaVars.obsVal << std::endl;
+      int myrank  = oops::mpi::world().rank();
 
-      // Update the group with the location dimension
-      ioda::NewDimensionScales_t
-        newDims {ioda::NewDimensionScale<int>("Location", iodaVars.location)};
-      ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
+      oops::Log::debug() << "ooooooooooooo my rank : " << myrank << oops::mpi::world().size() << std::endl;
+      if (myrank <= inputFilenames_.size()-1) {
+        providerToIodaVars(inputFilenames_[myrank], iodaVars);
+        oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
+        oops::Log::debug() << "--- iodaVars.obsVal: " << iodaVars.obsVal << std::endl;
+      }
 
-      // Set up the float creation parameters
-      ioda::VariableCreationParameters float_params;
-      float_params.chunk = true;               // allow chunking
-      float_params.compressWithGZIP();         // compress using gzip
-      float missing_value = util::missingValue(missing_value);
-      float_params.setFillValue<float>(missing_value);
+      // TODO(Guillaume):Use collective communication to concatenate the iodaVars
 
-      // Create the IODA variables
-      ioda::Variable adtIodaDatetime =
-        ogrp.vars.createWithScales<float>("Metadata/dateTime",
-                                          {ogrp.vars["Location"]}, float_params);
-      // TODO(Mindo): Get the date info from the netcdf file
-      adtIodaDatetime.atts.add<std::string>("units", {"seconds since 9999-04-15T12:00:00Z"}, {1});
+      // Create empty group backed by HDF file
+      if (oops::mpi::world().rank() == 0) {
+        ioda::Group group =
+          ioda::Engines::HH::createFile(
+                                        outputFilename_,
+                                        ioda::Engines::BackendCreateModes::Truncate_If_Exists);
 
-      ioda::Variable adtIodaObsVal =
-        ogrp.vars.createWithScales<float>("ObsValue/"+variable_,
-                                          {ogrp.vars["Location"]}, float_params);
-      ioda::Variable adtIodaObsErr =
-        ogrp.vars.createWithScales<float>("ObsError/"+variable_,
-                                          {ogrp.vars["Location"]}, float_params);
+        // Update the group with the location dimension
+        ioda::NewDimensionScales_t
+          newDims {ioda::NewDimensionScale<int>("Location", iodaVars.location)};
+        ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
 
-      // Write adt obs value to group
-      adtIodaObsVal.writeWithEigenRegular(iodaVars.obsVal);
+        // Set up the float creation parameters
+        ioda::VariableCreationParameters float_params;
+        float_params.chunk = true;               // allow chunking
+        float_params.compressWithGZIP();         // compress using gzip
+        float missing_value = util::missingValue(missing_value);
+        float_params.setFillValue<float>(missing_value);
 
-      // Write adt obs error to group
-      adtIodaObsErr.writeWithEigenRegular(iodaVars.obsError);
+        // Create the IODA variables
+        ioda::Variable adtIodaDatetime =
+          ogrp.vars.createWithScales<float>("Metadata/dateTime",
+                                            {ogrp.vars["Location"]}, float_params);
+        // TODO(Mindo): Get the date info from the netcdf file
+        adtIodaDatetime.atts.add<std::string>("units", {"seconds since 9999-04-15T12:00:00Z"}, {1});
+
+        ioda::Variable adtIodaObsVal =
+          ogrp.vars.createWithScales<float>("ObsValue/"+variable_,
+                                            {ogrp.vars["Location"]}, float_params);
+        ioda::Variable adtIodaObsErr =
+          ogrp.vars.createWithScales<float>("ObsError/"+variable_,
+                                            {ogrp.vars["Location"]}, float_params);
+
+        // Write adt obs value to group
+        adtIodaObsVal.writeWithEigenRegular(iodaVars.obsVal);
+
+        // Write adt obs error to group
+        adtIodaObsErr.writeWithEigenRegular(iodaVars.obsError);
+      }
     }
 
    private:
