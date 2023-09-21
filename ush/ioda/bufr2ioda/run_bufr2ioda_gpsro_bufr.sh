@@ -52,7 +52,7 @@ export PYTHONPATH=${PYIODALIB}:${PYTHONPATH}
 #----- python and json -----
 # first specify what observation types will be processed by a script
 #BUFR_py="gpsro_bufr_split"
-BUFR_py="gpsro_bufr_combined"
+BUFR_py="gpsro_bufr_split"
 
 for obtype in $BUFR_py; do
   # this loop assumes that there is a python script and template with the same name
