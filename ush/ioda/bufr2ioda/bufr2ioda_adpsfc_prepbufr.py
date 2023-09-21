@@ -69,19 +69,19 @@ def bufr_to_ioda(config):
     q = bufr.QuerySet(subsets)
 
     # MetaData
-    q.add('stationIdentification',             '*/SID')
-    q.add('latitude',                          '*/YOB')
-    q.add('longitude',                         '*/XOB')
-    q.add('obsTimeMinusCycleTime',             '*/DHR')
-    q.add('stationElevation',                  '*/ELV')
-    q.add('observationType',                   '*/TYP')
-    q.add('pressure',                          '*/P___INFO/P__EVENT{1}/POB')
+    q.add('stationIdentification', '*/SID')
+    q.add('latitude', '*/YOB')
+    q.add('longitude', '*/XOB')
+    q.add('obsTimeMinusCycleTime', '*/DHR')
+    q.add('stationElevation', '*/ELV')
+    q.add('observationType', '*/TYP')
+    q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
 
 #   # Quality Infomation (Quality Indicator)
-    q.add('qualityMarkerStationPressure',      '*/P___INFO/P__EVENT{1}/PQM')
+    q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
 
     # ObsValue
-    q.add('stationPressure',                   '*/P___INFO/P__EVENT{1}/POB')
+    q.add('stationPressure', '*/P___INFO/P__EVENT{1}/POB')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -162,12 +162,12 @@ def bufr_to_ioda(config):
     print('Creating derived variables - dateTime ...')
 
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(
-                          reference_time_full, '%Y%m%d%H%M')))
+                                   reference_time_full, '%Y%m%d%H%M')))
     dateTime = Compute_dateTime(cycleTimeSinceEpoch, dhr)
 
     print('     Check derived variables type ... ')
     print('     dateTime shape = ', dateTime.shape)
-    print('     dateTime type = ',  dateTime.dtype)
+    print('     dateTime type = ', dateTime.dtype)
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -181,7 +181,7 @@ def bufr_to_ioda(config):
 
     # Create the dimensions
     dims = {
-       'Location': np.arange(0, lat.shape[0]),
+            'Location': np.arange(0, lat.shape[0]),
     }
 
     iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
@@ -226,46 +226,46 @@ def bufr_to_ioda(config):
         .write_data(lat)
 
     # Datetime
-    obsspace.create_var('MetaData/dateTime',  dtype=dateTime.dtype,
+    obsspace.create_var('MetaData/dateTime', dtype=dateTime.dtype,
                         fillval=dateTime.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Datetime') \
         .write_data(dateTime)
 
     # Station Identification
-    obsspace.create_var('MetaData/stationIdentification',  dtype=sid.dtype,
+    obsspace.create_var('MetaData/stationIdentification', dtype=sid.dtype,
                         fillval=sid.fill_value) \
         .write_attr('long_name', 'Station Identification') \
         .write_data(sid)
 
     # Station Elevation
-    obsspace.create_var('MetaData/stationElevation',  dtype=elv.dtype,
+    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
                         fillval=elv.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Station Elevation') \
         .write_data(elv)
 
     # Observation Type
-    obsspace.create_var('MetaData/observationType',  dtype=typ.dtype,
+    obsspace.create_var('MetaData/observationType', dtype=typ.dtype,
                         fillval=typ.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ)
 
     # Pressure
-    obsspace.create_var('MetaData/pressure',  dtype=pressure.dtype,
+    obsspace.create_var('MetaData/pressure', dtype=pressure.dtype,
                         fillval=pressure.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Pressure') \
         .write_data(pressure)
 
     # Quality: Percent Confidence - Quality Information Without Forecast
-    obsspace.create_var('QualityMarker/stationPressure',  dtype=pobqm.dtype,
+    obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype,
                         fillval=pobqm.fill_value) \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
         .write_data(pobqm)
 
     # Station Pressure
-    obsspace.create_var('ObsValue/pressure',  dtype=pob.dtype,
+    obsspace.create_var('ObsValue/pressure', dtype=pob.dtype,
                         fillval=pob.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Station Pressure') \
