@@ -20,7 +20,6 @@ observers:
 - !INC ${OBS_YAML_DIR}/icec_ssmis_f18_north.yaml
 - !INC ${OBS_YAML_DIR}/icec_ssmis_f18_south.yaml
 - !INC ${OBS_YAML_DIR}/icefb_gdr.yaml
-- !INC ${OBS_YAML_DIR}/oc_noaa20.yaml
 - !INC ${OBS_YAML_DIR}/salt_bufr_dbuoyprof.yaml
 - !INC ${OBS_YAML_DIR}/salt_bufr_mbuoybprof.yaml
 - !INC ${OBS_YAML_DIR}/salt_profile_fnmoc_godas.yaml
@@ -51,10 +50,17 @@ observers:
 - !INC ${OBS_YAML_DIR}/temp_profile_fnmoc_godas.yaml
 - !INC ${OBS_YAML_DIR}/temp_profile_fnmoc.yaml
 - !INC ${OBS_YAML_DIR}/temp_profile_wod.yaml
-- !INC ${OBS_YAML_DIR}/argo_profile_YYYYMMDD.yaml
-- !INC ${OBS_YAML_DIR}/glider_profile_YYYYMMDD.yaml
-- !INC ${OBS_YAML_DIR}/bathy_profile_YYYYMMDD.yaml
-- !INC ${OBS_YAML_DIR}/tesac_profile_YYYYMMDD.yaml
-- !INC ${OBS_YAML_DIR}/xbtctd_profile_YYYYMMDD.yaml
-- !INC ${OBS_YAML_DIR}/dbuoy_profile_YYYYMMDD.yaml,
-- !INC ${OBS_YAML_DIR}/mbuoy_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/insitu_argo_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/insitu_glider_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/insitu_bathy_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/insitu_tesac_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/insitu_xbtctd_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/insitu_dbuoy_profile_YYYYMMDD.yaml,
+- !INC ${OBS_YAML_DIR}/insitu_mbuoy_profile_YYYYMMDD.yaml
+- !INC ${OBS_YAML_DIR}/insitu_trkob_surface.yaml
+- !INC ${OBS_YAML_DIR}/insitu_altkob_surface.yaml
+- !INC ${OBS_YAML_DIR}/insitu_ships_surface.yaml
+- !INC ${OBS_YAML_DIR}/insitu shipsu_surface.yaml
+- !INC ${OBS_YAML_DIR}/insitu_marinemammal_profile.yaml
+- !INC ${OBS_YAML_DIR}/insitu_saldrn_profile.yaml
+- !INC ${OBS_YAML_DIR}/insitu_axbt_profile.yaml`
