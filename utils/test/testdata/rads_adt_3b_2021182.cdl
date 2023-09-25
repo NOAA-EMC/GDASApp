@@ -1,4 +1,4 @@
-netcdf rads_adt_j3_2021182 {
+netcdf rads_adt_3b_2021182 {
 dimensions:
 	time = UNLIMITED ; // (11 currently)
 variables:
@@ -45,7 +45,7 @@ variables:
 		sla:long_name = "sea level anomaly" ;
 		sla:standard_name = "sea_surface_height_above_sea_level" ;
 		sla:units = "m" ;
-		sla:quality_flag = "swh sig0 range_rms range_numval flags swh_rms sig0_rms attitude" ;
+		sla:quality_flag = "swh sig0 range_rms range_numval flags swh_rms sig0_rms" ;
 		sla:scale_factor = 0.0001 ;
 		sla:coordinates = "lon lat" ;
 		sla:field = 0s ;
@@ -73,38 +73,38 @@ variables:
 		:ellipsoid = "TOPEX" ;
 		:ellipsoid_axis = 6378136.3 ;
 		:ellipsoid_flattening = 0.00335281317789691 ;
-		:filename = "rads_adt_j3_2021182.nc" ;
-		:mission_name = "JASON-3" ;
-		:mission_phase = "a" ;
-		:log01 = "2021-07-02 | /Users/rads/bin/rads2nc --ymd=20210701000000,20210702000000 -C1,1000 -Sj3 -Vsla,adt_egm2008,adt_xgm2016,time_mjd,time_dtg,lon,lat,cycle,pass -X/Users/rads/cron/xgm2016 -X/Users/rads/cron/adt -X/Users/rads/cron/time_dtg -o/Users/rads/adt/2021/182/rads_adt_j3_2021182.nc: RAW data from" ;
-		:history = "Mon Sep 25 17:01:32 2023: ncks -d time,0,10 rads_adt_j3_2021182.nc rads_adt_j3_2021182.ncn\n",
-			"2021-07-02 20:55:26 : /Users/rads/bin/rads2nc --ymd=20210701000000,20210702000000 -C1,1000 -Sj3 -Vsla,adt_egm2008,adt_xgm2016,time_mjd,time_dtg,lon,lat,cycle,pass -X/Users/rads/cron/xgm2016 -X/Users/rads/cron/adt -X/Users/rads/cron/time_dtg -o/Users/rads/adt/2021/182/rads_adt_j3_2021182.nc" ;
+		:filename = "rads_adt_3b_2021182.nc" ;
+		:mission_name = "SNTNL-3B" ;
+		:mission_phase = "b" ;
+		:log01 = "2021-07-02 | /Users/rads/bin/rads2nc --ymd=20210701000000,20210702000000 -S3b -Vsla,adt_egm2008,adt_xgm2016,time_mjd,time_dtg,lon,lat,cycle,pass -X/Users/rads/cron/xgm2016 -X/Users/rads/cron/adt -X/Users/rads/cron/time_dtg -o/Users/rads/adt/2021/182/rads_adt_3b_2021182.nc: RAW data from" ;
+		:history = "Mon Sep 25 17:01:31 2023: ncks -d time,0,10 rads_adt_3b_2021182.nc rads_adt_3b_2021182.ncn\n",
+			"2021-07-02 21:24:20 : /Users/rads/bin/rads2nc --ymd=20210701000000,20210702000000 -S3b -Vsla,adt_egm2008,adt_xgm2016,time_mjd,time_dtg,lon,lat,cycle,pass -X/Users/rads/cron/xgm2016 -X/Users/rads/cron/adt -X/Users/rads/cron/time_dtg -o/Users/rads/adt/2021/182/rads_adt_3b_2021182.nc" ;
 		:NCO = "netCDF Operators version 5.0.6 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
 data:
 
- adt_egm2008 = -7884, -10580, -7180, -8899, -9341, -8404, -8400, -9468, 
-    -8810, -10000, -8592 ;
+ adt_egm2008 = 13573, 14370, 14492, 14194, 12885, 12678, 12231, 11978, 12275, 
+    12531, 12080 ;
 
- adt_xgm2016 = -8097, -10657, -7368, -9127, -9540, -8536, -8406, -9285, 
-    -8232, -9248, -7758 ;
+ adt_xgm2016 = 14082, 14083, 13290, 12316, 12689, 12129, 11817, 11410, 11362, 
+    11910, 12138 ;
 
- cycle = 198, 198, 198, 198, 198, 198, 198, 198, 198, 198, 198 ;
+ cycle = 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54 ;
 
- lat = -65447761, -65484640, -65496721, -65508694, -65520561, -65532322, 
-    -65543975, -65555521, -65578291, -65589514, -65600630 ;
+ lat = -10235206, -10294249, -10353292, -10412335, -10648497, -10707536, 
+    -10766575, -10825612, -10943685, -11002721, -11061755 ;
 
- lon = -84965810, -84597998, -84475158, -84352200, -84229127, -84105938, 
-    -83982635, -83859219, -83612050, -83488298, -83364437 ;
+ lon = 148437742, 148424367, 148410988, 148397606, 148344044, 148330645, 
+    148317242, 148303836, 148277013, 148263596, 148250175 ;
 
- pass = 184, 184, 184, 184, 184, 184, 184, 184, 184, 184, 184 ;
+ pass = 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260 ;
 
- sla = 141, -2275, 1208, -498, -849, 25, 91, -893, -315, -1329, 126 ;
+ sla = 1972, 900, 783, 796, 479, 646, 542, 521, 649, 885, 757 ;
 
- time_dtg = 20210701000000, 20210701000003, 20210701000004, 20210701000005, 
-    20210701000006, 20210701000007, 20210701000008, 20210701000009, 
-    20210701000011, 20210701000012, 20210701000013 ;
+ time_dtg = 20210701000012, 20210701000013, 20210701000014, 20210701000015, 
+    20210701000019, 20210701000020, 20210701000021, 20210701000022, 
+    20210701000024, 20210701000025, 20210701000026 ;
 
- time_mjd = 59396.0000038319, 59396.0000392038, 59396.0000509944, 
-    59396.0000627851, 59396.0000745757, 59396.0000863663, 59396.0000981569, 
-    59396.0001099476, 59396.0001335288, 59396.0001453194, 59396.0001571101 ;
+ time_mjd = 59396.0001388889, 59396.000150463, 59396.000162037, 
+    59396.0001736111, 59396.0002199074, 59396.0002314815, 59396.0002430556, 
+    59396.0002546296, 59396.0002777778, 59396.0002893519, 59396.0003009259 ;
 }
