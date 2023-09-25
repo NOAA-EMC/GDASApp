@@ -73,7 +73,7 @@ namespace gdasapp {
       int myrank  = comm.rank();
       int nobs(0);
       oops::Log::debug() << "ooooooooooooo my rank : " << myrank << comm.size() << std::endl;
-      if (myrank <= inputFilenames_.size()-1) {
+      if (myrank <= inputFilenames_.size() - 1) {
         providerToIodaVars(inputFilenames_[myrank], iodaVars);
         nobs = iodaVars.location;
         oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
@@ -106,7 +106,7 @@ namespace gdasapp {
 
         // Update the group with the location dimension
         ioda::NewDimensionScales_t
-          newDims {ioda::NewDimensionScale<int>("Location", iodaVars.location)};
+          newDims {ioda::NewDimensionScale<int>("Location", iodaVarsAll.location)};
         ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
 
         // Set up the creation parameters
@@ -132,9 +132,9 @@ namespace gdasapp {
                                             {ogrp.vars["Location"]}, int_params);
 
         // Write adt obs info to group
-        adtIodaObsVal.writeWithEigenRegular(iodaVars.obsVal);
-        adtIodaObsErr.writeWithEigenRegular(iodaVars.obsError);
-        adtIodaPreQc.writeWithEigenRegular(iodaVars.preQc);
+        adtIodaObsVal.writeWithEigenRegular(iodaVarsAll.obsVal);
+        adtIodaObsErr.writeWithEigenRegular(iodaVarsAll.obsError);
+        adtIodaPreQc.writeWithEigenRegular(iodaVarsAll.preQc);
       }
     }
 
@@ -161,8 +161,7 @@ namespace gdasapp {
       ioda::VariableCreationParameters params;
       params.chunk = true;               // allow chunking
       params.compressWithGZIP();         // compress using gzip
-      T missingValue = util::missingValue(missingValue);
-      params.setFillValue<T>(missingValue);
+      params.setFillValue<T>(util::missingValue<T>());
 
       return params;
     }
