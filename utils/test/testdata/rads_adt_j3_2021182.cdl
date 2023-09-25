@@ -1,4 +1,4 @@
-netcdf output {
+netcdf rads_adt_j3_2021182 {
 dimensions:
 	time = UNLIMITED ; // (11 currently)
 variables:
@@ -76,9 +76,9 @@ variables:
 		:filename = "rads_adt_j3_2021182.nc" ;
 		:mission_name = "JASON-3" ;
 		:mission_phase = "a" ;
-		:log01 = "2021-07-03 | /Users/rads/bin/rads2nc --ymd=20210701000000,20210702000000 -C1,1000 -Sj3 -Vsla,adt_egm2008,adt_xgm2016,time_mjd,time_dtg,lon,lat,cycle,pass -X/Users/rads/cron/xgm2016 -X/Users/rads/cron/adt -X/Users/rads/cron/time_dtg -o/ftp/rads/adt//2021/rads_adt_j3_2021182.nc: RAW data from" ;
-		:history = "Thu Sep  7 14:43:07 2023: ncks -d time,0,10 rads_adt_j3_2021182.nc output.nc\n",
-			"2021-07-03 20:56:20 : /Users/rads/bin/rads2nc --ymd=20210701000000,20210702000000 -C1,1000 -Sj3 -Vsla,adt_egm2008,adt_xgm2016,time_mjd,time_dtg,lon,lat,cycle,pass -X/Users/rads/cron/xgm2016 -X/Users/rads/cron/adt -X/Users/rads/cron/time_dtg -o/ftp/rads/adt//2021/rads_adt_j3_2021182.nc" ;
+		:log01 = "2021-07-02 | /Users/rads/bin/rads2nc --ymd=20210701000000,20210702000000 -C1,1000 -Sj3 -Vsla,adt_egm2008,adt_xgm2016,time_mjd,time_dtg,lon,lat,cycle,pass -X/Users/rads/cron/xgm2016 -X/Users/rads/cron/adt -X/Users/rads/cron/time_dtg -o/Users/rads/adt/2021/182/rads_adt_j3_2021182.nc: RAW data from" ;
+		:history = "Mon Sep 25 17:01:32 2023: ncks -d time,0,10 rads_adt_j3_2021182.nc rads_adt_j3_2021182.ncn\n",
+			"2021-07-02 20:55:26 : /Users/rads/bin/rads2nc --ymd=20210701000000,20210702000000 -C1,1000 -Sj3 -Vsla,adt_egm2008,adt_xgm2016,time_mjd,time_dtg,lon,lat,cycle,pass -X/Users/rads/cron/xgm2016 -X/Users/rads/cron/adt -X/Users/rads/cron/time_dtg -o/Users/rads/adt/2021/182/rads_adt_j3_2021182.nc" ;
 		:NCO = "netCDF Operators version 5.0.6 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
 data:
 
