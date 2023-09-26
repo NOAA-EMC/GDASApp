@@ -134,27 +134,27 @@ def bufr_to_ioda(config, logger):
             logger.info(f" ... Executing QuerySet: Check BUFR variable generic \
                         dimension and type ...")
             # Check BUFR variable generic dimension and type
-            logger.info(f"     sid       shape = {sid.shape}")
-            logger.info(f"     dhr       shape = {dhr.shape}")
-            logger.info(f"     lat       shape = {lat.shape}")
-            logger.info(f"     lon       shape = {lon.shape}")
-            logger.info(f"     elv       shape = {elv.shape}")
-            logger.info(f"     typ       shape = {typ.shape}")
-            logger.info(f"     pressure  shape = {pressure.shape}")
+            logger.info(f"     sid       shape = {sid_var1.shape}")
+            logger.info(f"     dhr       shape = {dhr_var1.shape}")
+            logger.info(f"     lat       shape = {lat_var1.shape}")
+            logger.info(f"     lon       shape = {lon_var1.shape}")
+            logger.info(f"     elv       shape = {elv_var1.shape}")
+            logger.info(f"     typ       shape = {typ_var1.shape}")
+            logger.info(f"     pressure  shape = {pressure_var1.shape}")
         
-            logger.info(f"     pobqm     shape = {pobqm.shape}")
-            logger.info(f"     pob       shape = {pob.shape}")
+            logger.info(f"     pobqm     shape = {pobqm_var1.shape}")
+            logger.info(f"     pob       shape = {pob_var1.shape}")
         
-            logger.info(f"     sid       type  = {sid.dtype}")
-            logger.info(f"     dhr       type  = {dhr.dtype}")
-            logger.info(f"     lat       type  = {lat.dtype}")
-            logger.info(f"     lon       type  = {lon.dtype}")
-            logger.info(f"     elv       type  = {elv.dtype}")
-            logger.info(f"     typ       type  = {typ.dtype}")
-            logger.info(f"     pressure  type  = {pressure.dtype}")
+            logger.info(f"     sid       type  = {sid_var1.dtype}")
+            logger.info(f"     dhr       type  = {dhr_var1.dtype}")
+            logger.info(f"     lat       type  = {lat_var1.dtype}")
+            logger.info(f"     lon       type  = {lon_var1.dtype}")
+            logger.info(f"     elv       type  = {elv_var1.dtype}")
+            logger.info(f"     typ       type  = {typ_var1.dtype}")
+            logger.info(f"     pressure  type  = {pressure_var1.dtype}")
         
-            logger.info(f"     pobqm     type  = {pobqm.dtype}")
-            logger.info(f"     pob       type  = {pob.dtype}")
+            logger.info(f"     pobqm     type  = {pobqm_var1.dtype}")
+            logger.info(f"     pob       type  = {pob_var1.dtype}")
         
             end_time = time.time()
             running_time = end_time - start_time
@@ -170,11 +170,11 @@ def bufr_to_ioda(config, logger):
         
             cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(
                                            reference_time_full, '%Y%m%d%H%M')))
-            dateTime = Compute_dateTime(cycleTimeSinceEpoch, dhr)
+            dateTime_var1 = Compute_dateTime(cycleTimeSinceEpoch, dhr)
         
             logger.info(f"     Check derived variables type ... ")
-            logger.info(f"     dateTime shape = {dateTime.shape}")
-            logger.info(f"     dateTime type = {dateTime.dtype}")
+            logger.info(f"     dateTime shape = {dateTime_var1.shape}")
+            logger.info(f"     dateTime type = {dateTime_var1.dtype}")
         
         elif subsets[i] == "SFCSHP":
             # MetaData
@@ -220,37 +220,37 @@ def bufr_to_ioda(config, logger):
             logger.info(f" ... Executing QuerySet: Check BUFR variable generic  \
                         dimension and type ...")
             # Check BUFR variable generic dimension and type
-            logger.info(f"     sid       shape = {sid.shape}")
-            logger.info(f"     dhr       shape = {dhr.shape}")
-            logger.info(f"     lat       shape = {lat.shape}")
-            logger.info(f"     lon       shape = {lon.shape}")
-            logger.info(f"     elv       shape = {elv.shape}")
-            logger.info(f"     typ       shape = {typ.shape}")
-            logger.info(f"     pressure  shape = {pressure.shape}")
-            logger.info(f"     tpc       shape = {tpc.shape}")
+            logger.info(f"     sid       shape = {sid_var1.shape}")
+            logger.info(f"     dhr       shape = {dhr_var1.shape}")
+            logger.info(f"     lat       shape = {lat_var1.shape}")
+            logger.info(f"     lon       shape = {lon_var1.shape}")
+            logger.info(f"     elv       shape = {elv_var1.shape}")
+            logger.info(f"     typ       shape = {typ_var1.shape}")
+            logger.info(f"     pressure  shape = {pressure_var1.shape}")
+            logger.info(f"     tpc       shape = {tpc_var1.shape}")
          
-            logger.info(f"     pqm       shape = {pqm.shape}")
-            logger.info(f"     tqm       shape = {tqm.shape}")
+            logger.info(f"     pqm       shape = {pqm_var1.shape}")
+            logger.info(f"     tqm       shape = {tqm_var1.shape}")
          
-            logger.info(f"     pob       shape = {pob.shape}")
-            logger.info(f"     tob       shape = {pob.shape}")
-            logger.info(f"     tvo       shape = {tvo.shape}")
+            logger.info(f"     pob       shape = {pob_var1.shape}")
+            logger.info(f"     tob       shape = {pob_var1.shape}")
+            logger.info(f"     tvo       shape = {tvo_var1.shape}")
          
-            logger.info(f"     sid       type  = {sid.dtype}")
-            logger.info(f"     dhr       type  = {dhr.dtype}")
-            logger.info(f"     lat       type  = {lat.dtype}")
-            logger.info(f"     lon       type  = {lon.dtype}")
-            logger.info(f"     elv       type  = {elv.dtype}")
-            logger.info(f"     typ       type  = {typ.dtype}")
-            logger.info(f"     pressure  type  = {pressure.dtype}")
-            logger.info(f"     tpc       type  = {tpc.dtype}")
+            logger.info(f"     sid       type  = {sid_var1.dtype}")
+            logger.info(f"     dhr       type  = {dhr_var1.dtype}")
+            logger.info(f"     lat       type  = {lat_var1.dtype}")
+            logger.info(f"     lon       type  = {lon_var1.dtype}")
+            logger.info(f"     elv       type  = {elv_var1.dtype}")
+            logger.info(f"     typ       type  = {typ_var1.dtype}")
+            logger.info(f"     pressure  type  = {pressure_var1.dtype}")
+            logger.info(f"     tpc       type  = {tpc_var1.dtype}")
          
-            logger.info(f"     pqm       type  = {pqm.dtype}")
-            logger.info(f"     tqm       type  = {tqm.dtype}")
+            logger.info(f"     pqm       type  = {pqm_var1.dtype}")
+            logger.info(f"     tqm       type  = {tqm_var1.dtype}")
          
-            logger.info(f"     pob       type  = {pob.dtype}")
-            logger.info(f"     tob       type  = {tob.dtype}")
-            logger.info(f"     tvo       type  = {tvo.dtype}")
+            logger.info(f"     pob       type  = {pob_var1.dtype}")
+            logger.info(f"     tob       type  = {tob_var1.dtype}")
+            logger.info(f"     tvo       type  = {tvo_var1.dtype}")
 
         elif subsets[i] == "ADPUPA":
             q.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
@@ -291,18 +291,11 @@ def bufr_to_ioda(config, logger):
             pob_var3 = r.get('pressure', 'prepbufrDataLevelCategory')
             pob_var3 *= 100
         
-            print('lat shape = ', lat.shape)
-            print('lon shape = ', lon.shape)
-        
             # Time variable
             hrdr_var3 = r.get('timeOffset', 'prepbufrDataLevelCategory')
-            print("cycleTimeSinceEpoch")
             cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime('2021 08 01 00 00 00', '%Y %m %d %H %M %S')))
             hrdr_var3 = np.int64(hrdr_var3*3600)
             hrdr_var3 += cycleTimeSinceEpoch
-        
-            # releaseTime
-            print('hrdr', hrdr)
         
             # ObsValue
             pob_ps_var3 = np.full(pob.shape[0], pob.fill_value) # Extract stationPressure from pressure, which belongs to CAT=1
