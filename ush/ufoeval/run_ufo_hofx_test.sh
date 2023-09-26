@@ -179,8 +179,8 @@ export APREFIX=gdas.t${cyc}z
 export GPREFIX=gdas.t${gcyc}z
 
 cat > $workdir/temp.yaml << EOF
-window begin: '{{ATM_WINDOW_BEGIN}}'
-window end: '{{ATM_WINDOW_END}}'
+window begin: '{{ WINDOW_BEGIN | to_isotime }}'
+window end: '{{ WINDOW_END | to_isotime }}'
 observations:
 - !INC $yamlpath
 EOF

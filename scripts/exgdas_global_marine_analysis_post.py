@@ -59,27 +59,32 @@ post_file_list = []
 post_file_list.append([os.path.join(anl_dir, 'inc.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ocninc.nc')])
 
-# Copy of the diagonal of the background error for the cycle
-post_file_list.append([os.path.join(anl_dir, 'static_ens', f'ocn.orig_ens_stddev.incr.{bdate}.nc'),
-                       os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ocn.bkgerr_stddev.nc')])
-post_file_list.append([os.path.join(anl_dir, 'static_ens', f'ice.orig_ens_stddev.incr.{bdate}.nc'),
-                       os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ice.bkgerr_stddev.nc')])
+domains = ['ocn', 'ice']
+for domain in domains:
+    # Copy of the diagonal of the background error for the cycle
+    post_file_list.append([os.path.join(anl_dir, 'static_ens', f'{domain}.bkgerr_stddev.incr.{bdate}.nc'),
+                           os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.{domain}.bkgerr_stddev.nc')])
 
-# Copy the ice and ocean increments
-post_file_list.append([os.path.join(anl_dir, 'Data', f'ocn.3dvarfgat_pseudo.incr.{mdate}.nc'),
-                       os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ocn.incr.nc')])
-post_file_list.append([os.path.join(anl_dir, 'Data', f'ice.3dvarfgat_pseudo.incr.{mdate}.nc'),
-                       os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ice.incr.nc')])
+    # Copy the recentering error
+    post_file_list.append([os.path.join(anl_dir, 'static_ens', f'{domain}.ssh_recentering_error.incr.{bdate}.nc'),
+                           os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.{domain}.recentering_error.nc')])
+
+    # Copy the ice and ocean increments
+    post_file_list.append([os.path.join(anl_dir, 'Data', f'{domain}.3dvarfgat_pseudo.incr.{mdate}.nc'),
+                           os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.{domain}.incr.nc')])
+
+    # Copy the analysis at the start of the window
+    post_file_list.append([os.path.join(anl_dir, 'Data', f'{domain}.3dvarfgat_pseudo.an.{mdate}.nc'),
+                           os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.{domain}ana.nc')])
+
+# Copy of the ssh diagnostics
+for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev', 'steric_explained_variance']:
+    post_file_list.append([os.path.join(anl_dir, 'static_ens', f'ocn.{string}.incr.{bdate}.nc'),
+                           os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ocn.{string}.nc')])
 
 # Copy DA grid (computed for the start of the window)
 post_file_list.append([os.path.join(anl_dir, 'soca_gridspec.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{bcyc}z.ocngrid.nc')])
-
-# Copy the analysis at the start of the window
-post_file_list.append([os.path.join(anl_dir, 'Data', f'ocn.3dvarfgat_pseudo.an.{mdate}.nc'),
-                       os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ocnana.nc')])
-post_file_list.append([os.path.join(anl_dir, 'Data', f'ice.3dvarfgat_pseudo.an.{mdate}.nc'),
-                       os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.iceana.nc')])
 
 # Copy the CICE analysis restart
 cdateice = pdy + '.' + cyc + '0000'
@@ -96,10 +101,6 @@ FileHandler({'mkdir': [os.path.join(com_ocean_analysis, 'diags'),
 # ioda output files
 fh_list = list_all_files(os.path.join(anl_dir, 'diags'),
                          os.path.join(com_ocean_analysis, 'diags'))
-
-# localization and correlation operators
-fh_list = list_all_files(os.path.join(anl_dir, 'bump'),
-                         os.path.join(com_ocean_analysis, 'bump'), fh_list=fh_list)
 
 # yaml configurations
 fh_list = list_all_files(os.path.join(anl_dir),

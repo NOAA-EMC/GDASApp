@@ -28,16 +28,15 @@ components:
       - linear variable change name: BkgErrSOCA
         read_from_file: 3
         basename: ./static_ens/
-        ocn_filename: 'ocn.orig_ens_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
-        ice_filename: 'ice.orig_ens_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
-        #remap_filename: ./INPUT/MOM.res.nc
+        ocn_filename: 'ocn.bkgerr_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
+        ice_filename: 'ice.bkgerr_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
         date: '{{ATM_WINDOW_MIDDLE}}'
         t_min: 0.1
-        t_max: 10.0
+        t_max: 5.0
         s_min: 0.1
-        s_max: 10.0
+        s_max: 1.0
         ssh_min: 0.0 # std ssh=0 => ssh balance applied as
-        ssh_max: 0.0 #              strong constraint
+        ssh_max: 1.0 #              strong constraint
         cicen_min: 0.1
         cicen_max: 0.5
         hicen_min: 0.0
@@ -47,8 +46,9 @@ components:
       - linear variable change name: BalanceSOCA
         ksshts:
           nlayers: 10
+
   weight:
-    value: 1.0
+    value: 0.25
 - covariance:
     covariance model: ensemble
     members from template:
@@ -56,8 +56,8 @@ components:
         read_from_file: 1
         date: '{{ATM_WINDOW_MIDDLE}}'
         basename: ./static_ens/
-        ocn_filename: 'ocn.pert.steric.%mem%.{{ATM_WINDOW_BEGIN}}.nc'
-        ice_filename: 'ice.pert.ens.%mem%.{{ATM_WINDOW_BEGIN}}.PT0S.nc'
+        ocn_filename: 'ocn.pert.steric.%mem%.nc'
+        ice_filename: 'ice.%mem%.nc'
         state variables: [tocn, socn, ssh, uocn, vocn, cicen, hicen, hsnon]
       pattern: '%mem%'
       nmembers: ${CLIM_ENS_SIZE}
