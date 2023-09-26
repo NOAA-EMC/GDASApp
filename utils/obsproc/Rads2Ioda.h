@@ -22,23 +22,23 @@ namespace gdasapp {
     }
 
     // Read netcdf file and populate iodaVars
-    void providerToIodaVars(const std::string fileName, gdasapp::IodaVars & iodaVars) final {
+    gdasapp::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by the RADS" << std::endl;
-
-      // Set nVars to 1
-      iodaVars.nVars = 1;
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
 
-      // Get dimensions
-      iodaVars.location = ncFile.getDim("time").getSize();
-      oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
+      // Get the number of obs in the file
+      int nobs = ncFile.getDim("time").getSize();
 
-      // Allocate memory
-      iodaVars.obsVal = Eigen::ArrayXf(iodaVars.location);
-      iodaVars.obsError = Eigen::ArrayXf(iodaVars.location);
-      iodaVars.preQc = Eigen::ArrayXi(iodaVars.location);
+      // Set the int metadata names
+      std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
+
+      // Set the float metadata name
+      std::vector<std::string> floatMetadataNames = {"mdt"};
+
+      // Create instance of iodaVars object
+      gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       // Get adt_egm2008 obs values and attributes
       netCDF::NcVar adtNcVar = ncFile.getVar("adt_egm2008");
@@ -56,6 +56,15 @@ namespace gdasapp {
       for (int i = 0; i <= iodaVars.location; i++) {
         iodaVars.obsError(i) = 0.1;
       }
+
+      // Read mission metadata
+      int mission_index(3); // TODO(Guillaume): read from file and
+                            //                  create a mapping from name to indices
+      Eigen::VectorXi mission(iodaVars.location);
+      mission.setOnes() *= mission_index;
+      iodaVars.intMetadata;
+
+      return iodaVars;
     };
   };  // class Rads2Ioda
 }  // namespace gdasapp

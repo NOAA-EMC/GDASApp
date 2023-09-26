@@ -20,18 +20,35 @@ namespace gdasapp {
   // A simple data structure to organize the info to provide to the ioda
   // writter
   struct IodaVars {
-    int location;
-    int nVars;
-    Eigen::ArrayXf obsVal;
-    Eigen::ArrayXf obsError;
-    Eigen::ArrayXi preQc;
-    std::string units;  // reference date for epoch time
+    int location;      // Number of observation per variable
+    int nVars;         // number of obs variables, should be set to
+                       // for now in the children classes
+    int nfMetadata;    // number of float metadata fields
+    int niMetadata;    // number of int metadata fields
+    Eigen::ArrayXf obsVal;     // Observation value
+    Eigen::ArrayXf obsError;   //      "      error
+    Eigen::ArrayXi preQc;      // Quality control flag
+    Eigen::ArrayXf floatMetadata;                // Optional array of float metadata
+    std::vector<std::string> floatMetadataName;  // String descriptor of the float metadata
+    Eigen::ArrayXf intMetadata;                  // Optional array of integer metadata
+    std::vector<std::string> intMetadataName;    // String descriptor of the integer metadata
+    std::string units;  // TODO(Guillaume) Change the name to something more descriptive
+                        // (reference date for epoch time)
 
-    explicit IodaVars(const int nobs = 0) : location(nobs),
-                                            nVars(1),
-                                            obsVal(location),
-                                            obsError(location),
-                                            preQc(location)
+    explicit IodaVars(const int nobs = 0,
+                      const std::vector<std::string> fmnames= {},
+                      const std::vector<std::string> imnames= {}) :
+      location(nobs),
+      nVars(1),
+      nfMetadata(fmnames.size()),
+      niMetadata(imnames.size()),
+      obsVal(location),
+      obsError(location),
+      preQc(location),
+      floatMetadata(location, fmnames.size()),
+      floatMetadataName(fmnames),
+      intMetadata(location, imnames.size()),
+      intMetadataName(imnames)
     {}
   };
 
@@ -69,25 +86,29 @@ namespace gdasapp {
       const eckit::mpi::Comm & comm = oops::mpi::world();
 
       // Extract ioda variables from the provider's files
-      gdasapp::IodaVars iodaVars;
+      //gdasapp::IodaVars iodaVars;
       int myrank  = comm.rank();
       int nobs(0);
-      oops::Log::debug() << "ooooooooooooo my rank : " << myrank << comm.size() << std::endl;
-      if (myrank <= inputFilenames_.size() - 1) {
-        providerToIodaVars(inputFilenames_[myrank], iodaVars);
-        nobs = iodaVars.location;
-        oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
-        oops::Log::debug() << "--- iodaVars.obsVal: " << iodaVars.obsVal << std::endl;
-      }
+
+      // Currently need 1 PE per file, abort if not the case
+      ASSERT(comm.size() == inputFilenames_.size());
+
+      // Read the provider's netcdf file
+      gdasapp::IodaVars iodaVars = providerToIodaVars(inputFilenames_[myrank]);
+      nobs = iodaVars.location;
 
       // Get the total number of obs across pe's
       comm.allReduce(nobs, nobs, eckit::mpi::sum());
       oops::Log::debug() << " my rank : " << myrank
                          << " Num pe's: " << comm.size()
+                         << " nfm: " << iodaVars.nfMetadata
+                         << " nim: " << iodaVars.niMetadata
                          << " nobs: " << nobs << std::endl;
-      gdasapp::IodaVars iodaVarsAll(nobs);
+      oops::Log::debug() << " float metadata : " << iodaVars.floatMetadataName << std::endl;
+      oops::Log::debug() << " int metadata : " << iodaVars.intMetadataName << std::endl;
+      gdasapp::IodaVars iodaVarsAll(nobs, iodaVars.floatMetadataName, iodaVars.intMetadataName);
 
-      // Gather obsVal's
+      // Gather iodaVars arrays
       gatherObs(comm, iodaVars.obsVal, iodaVarsAll.obsVal);
       gatherObs(comm, iodaVars.obsError, iodaVarsAll.obsError);
       gatherObs(comm, iodaVars.preQc, iodaVarsAll.preQc);
@@ -141,7 +162,7 @@ namespace gdasapp {
    private:
     // Virtual method that reads the provider's netcdf file and store the relevant
     // info in a IodaVars struct
-    virtual void providerToIodaVars(const std::string fileName, gdasapp::IodaVars & iodaVars) = 0;
+    virtual gdasapp::IodaVars  providerToIodaVars(const std::string fileName) = 0;
 
     // Gather for eigen array
     template <typename T>
