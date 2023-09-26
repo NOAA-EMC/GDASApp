@@ -48,11 +48,7 @@ def Compute_Grid_Location(degrees):
 
 def Compute_imph(impp, elrc):  # , geodu, imph):
 
-    imph = (impp - elrc).astype(np.float32)
-#    for i in range(len(impp)):
-#  #       imph = imph.astype('float')
-#       imph[i]=impp[i]-elrc[i]#-geodu[i]
-#  #       print("NE i impp elrc imph", i, impp[i], elrc[i], imph[i])
+    imph = impp - elrc).astype(np.float32)
 
     return imph
 
@@ -366,10 +362,6 @@ def bufr_to_ioda(config, logger):
     obsspace.write_attr('description', data_description)
     obsspace.write_attr('converter', os.path.basename(__file__))
 
-    for i in range(len(elrc)):
-        if i > 0 and i < 10:
-            print("NE elrc 0-10", elrc[i])
-
     # Create IODA variables
     logger.info(f" ... ... Create variables: name, type, units, & attributes")
     # Longitude
@@ -569,7 +561,7 @@ def bufr_to_ioda(config, logger):
     logger.info(f"Running time for splitting and output IODA for gpsro bufr: \
                 {running_time} seconds")
 
-    print("All Done!")
+    logger.info("All Done!")
 
 
 if __name__ == '__main__':
