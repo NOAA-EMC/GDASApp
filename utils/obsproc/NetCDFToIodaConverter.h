@@ -140,6 +140,12 @@ namespace gdasapp {
                                             {ogrp.vars["Location"]}, float_params);
         // TODO(All): Decide on what to use for the Epoch date
         adtIodaDatetime.atts.add<std::string>("units", {"seconds since 9999-04-15T12:00:00Z"}, {1});
+      ioda::Variable latIodaVal =
+        ogrp.vars.createWithScales<float>("MetaData/latitude",
+                                          {ogrp.vars["Location"]}, float_params);
+      ioda::Variable lonIodaVal =
+        ogrp.vars.createWithScales<float>("MetaData/longitude",
+                                          {ogrp.vars["Location"]}, float_params);
 
         ioda::Variable adtIodaObsVal =
           ogrp.vars.createWithScales<float>("ObsValue/"+variable_,

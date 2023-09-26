@@ -40,6 +40,19 @@ namespace gdasapp {
       // Create instance of iodaVars object
       gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
+      // Read non-optional metadata: datetime, longitude and latitude
+      netCDF::NcVar latNcVar = ncFile.getVar("lat");
+      int latVal[iodaVars.location];  // NOLINT (can't pass vector to getVar below)
+      latNcVar.getVar(latVal);
+
+      netCDF::NcVar lonNcVar = ncFile.getVar("lon");
+      int lonVal[iodaVars.location];  // NOLINT (can't pass vector to getVar below)
+      lonNcVar.getVar(lonVal);
+      std::string geounits;
+      lonNcVar.getAtt("units").getValues(geounits);
+      float geoscaleFactor;
+      lonNcVar.getAtt("scale_factor").getValues(&geoscaleFactor);
+
       // Get adt_egm2008 obs values and attributes
       netCDF::NcVar adtNcVar = ncFile.getVar("adt_egm2008");
       int adtObsVal[iodaVars.location];  // NOLINT (can't pass vector to getVar below)
