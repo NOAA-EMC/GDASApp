@@ -29,7 +29,7 @@ namespace gdasapp {
     // Non optional metadata
     Eigen::ArrayXf longitude;  //
     Eigen::ArrayXf latitude;   //      "      error
-    Eigen::Array<long, Eigen::Dynamic, 1> datetime;   // Epoch date in seconds
+    Eigen::Array<int64_t, Eigen::Dynamic, 1> datetime;   // Epoch date in seconds
     std::string referenceDate;                        // Reference date for epoch time
 
     // Obs info
@@ -44,8 +44,8 @@ namespace gdasapp {
     std::vector<std::string> intMetadataName;    // String descriptor of the integer metadata
 
     explicit IodaVars(const int nobs = 0,
-                      const std::vector<std::string> fmnames= {},
-                      const std::vector<std::string> imnames= {}) :
+                      const std::vector<std::string> fmnames = {},
+                      const std::vector<std::string> imnames = {}) :
       location(nobs), nVars(1), nfMetadata(fmnames.size()), niMetadata(imnames.size()),
       longitude(location), latitude(location), datetime(location),
       obsVal(location),
@@ -66,16 +66,13 @@ namespace gdasapp {
       // time window info
       std::string winbegin;
       std::string winend;
-      std::string obsvar;
       fullConfig.get("window begin", winbegin);
       fullConfig.get("window end", winend);
-      fullConfig.get("variable", obsvar);
       windowBegin_ = util::DateTime(winbegin);
       windowEnd_ = util::DateTime(winend);
-      variable_ = obsvar;
+      variable_ = "None";
       oops::Log::info() << "--- Window begin: " << winbegin << std::endl;
       oops::Log::info() << "--- Window end: " << winend << std::endl;
-      oops::Log::info() << "--- Variable: " << obsvar << std::endl;
 
       // get input netcdf files
       fullConfig.get("input files", inputFilenames_);
@@ -92,7 +89,6 @@ namespace gdasapp {
       const eckit::mpi::Comm & comm = oops::mpi::world();
 
       // Extract ioda variables from the provider's files
-      //gdasapp::IodaVars iodaVars;
       int myrank  = comm.rank();
       int nobs(0);
 
@@ -122,8 +118,8 @@ namespace gdasapp {
       gatherObs(comm, iodaVars.obsError, iodaVarsAll.obsError);
       gatherObs(comm, iodaVars.preQc, iodaVarsAll.preQc);
 
-      //Eigen::ArrayXXi tmpXX
-      //gatherObs(comm,
+      // Eigen::ArrayXXi tmpXX
+      // gatherObs(comm,
       //          iodaVars.intMetadata.reshaped(iodaVars.intMetadata.size(), 1),
       //          iodaVarsAll.intMetadata.reshaped(iodaVarsAll.intMetadata.size(), 1));
 
@@ -148,11 +144,11 @@ namespace gdasapp {
         // Set up the creation parameters
         ioda::VariableCreationParameters float_params = createVariableParams<float>();
         ioda::VariableCreationParameters int_params = createVariableParams<int>();
-        ioda::VariableCreationParameters long_params = createVariableParams<long>();
+        ioda::VariableCreationParameters long_params = createVariableParams<int64_t>();
 
         // Create the mendatory IODA variables
         ioda::Variable iodaDatetime =
-          ogrp.vars.createWithScales<long>("MetaData/dateTime",
+          ogrp.vars.createWithScales<int64_t>("MetaData/dateTime",
                                           {ogrp.vars["Location"]}, long_params);
         iodaDatetime.atts.add<std::string>("units", {iodaVars.referenceDate}, {1});
         ioda::Variable iodaLat =

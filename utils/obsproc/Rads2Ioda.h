@@ -1,8 +1,10 @@
 #pragma once
 
 #include <iostream>
+#include <map>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
+#include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -18,7 +20,8 @@ namespace gdasapp {
   class Rads2Ioda : public NetCDFToIodaConverter {
    public:
     explicit Rads2Ioda(const eckit::Configuration & fullConfig)
-    : NetCDFToIodaConverter(fullConfig) {
+      : NetCDFToIodaConverter(fullConfig) {
+      variable_ = "absoluteDynamicTopography";
     }
 
     // Read netcdf file and populate iodaVars
@@ -52,7 +55,7 @@ namespace gdasapp {
 
       float datetime[iodaVars.location];  // NOLINT
       ncFile.getVar("time_mjd").getVar(datetime);
-      iodaVars.referenceDate = "seconds since 1858-11-17T00:00:00Z";  // TODO(Guillaume) get it from the file
+      iodaVars.referenceDate = "seconds since 1858-11-17T00:00:00Z";
 
       // Read optional integer metadata "mission"
       std::string mission_name;
@@ -86,7 +89,7 @@ namespace gdasapp {
       for (int i = 0; i < iodaVars.location; i++) {
         iodaVars.longitude(i) = static_cast<float>(lon[i])*geoscaleFactor;
         iodaVars.latitude(i) = static_cast<float>(lat[i])*geoscaleFactor;
-        iodaVars.datetime(i) = static_cast<long>(datetime[i]*86400.0f);
+        iodaVars.datetime(i) = static_cast<int64_t>(datetime[i]*86400.0f);
         iodaVars.obsVal(i) = static_cast<float>(adt[i])*scaleFactor;
         iodaVars.obsError(i) = 0.1;  // Do something for obs error
         iodaVars.preQc(i) = 0;
