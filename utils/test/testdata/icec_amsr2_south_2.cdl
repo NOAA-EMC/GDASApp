@@ -1,0 +1,306 @@
+netcdf icec_amsr2_south_2 {
+dimensions:
+	Number_of_X_Dimension = 8 ;
+	Number_of_Y_Dimension = 8 ;
+	QM = 1 ;
+	Time_Dimension = 6 ;
+variables:
+	short Across_X_Dimension(Number_of_X_Dimension) ;
+		Across_X_Dimension:long_name = " Across X Dimension" ;
+		Across_X_Dimension:coordinates = "" ;
+		Across_X_Dimension:units = "1" ;
+		Across_X_Dimension:_FillValue = -9999s ;
+	short Along_Y_Dimension(Number_of_Y_Dimension) ;
+		Along_Y_Dimension:long_name = " Along Y Dimension" ;
+		Along_Y_Dimension:coordinates = "" ;
+		Along_Y_Dimension:units = "1" ;
+		Along_Y_Dimension:_FillValue = -9999s ;
+	int Bootstrap_Ice_Concentration(Number_of_Y_Dimension, Number_of_X_Dimension) ;
+		Bootstrap_Ice_Concentration:long_name = "Bootstrap Ice Concentration (Fraction)" ;
+		Bootstrap_Ice_Concentration:units = "1" ;
+		Bootstrap_Ice_Concentration:coordinates = "Latitude Longitude" ;
+		Bootstrap_Ice_Concentration:_FillValue = -9999 ;
+	short Flags(Number_of_Y_Dimension, Number_of_X_Dimension) ;
+		Flags:long_name = "Quality Flags" ;
+		Flags:units = "1" ;
+		Flags:coordinate = "Latitude Longitude" ;
+		Flags:_FillValue = -9999s ;
+		Flags:comment = "0: good, 4: SST missing, 8: Weather, 16: spillover, 32: filled, 64: NT2 Missing" ;
+	int Latency(Number_of_Y_Dimension, Number_of_X_Dimension) ;
+		Latency:long_name = "Time in seconds from most current time" ;
+		Latency:units = "seconds" ;
+		Latency:coordinate = "Latitude Longitude" ;
+		Latency:_FillValue = -9999 ;
+	float Latitude(Number_of_Y_Dimension, Number_of_X_Dimension) ;
+		Latitude:long_name = "Latitude for EASE-2 grid" ;
+		Latitude:units = "degrees_north" ;
+		Latitude:valid_range = -90.f, 90.f ;
+		Latitude:_FillValue = -9999.f ;
+		Latitude:standard_name = "latitude" ;
+	float Longitude(Number_of_Y_Dimension, Number_of_X_Dimension) ;
+		Longitude:long_name = "Longitude for EASE-2 grid" ;
+		Longitude:units = "degrees_east" ;
+		Longitude:valid_range = -180.f, 180.f ;
+		Longitude:_FillValue = -9999.f ;
+		Longitude:standard_name = "longitude" ;
+	int NASA_Team_2_Ice_Concentration(Number_of_Y_Dimension, Number_of_X_Dimension) ;
+		NASA_Team_2_Ice_Concentration:long_name = "NASA Team 2 Ice Concentration (Fraction)" ;
+		NASA_Team_2_Ice_Concentration:units = "1" ;
+		NASA_Team_2_Ice_Concentration:coordinates = "Latitude Longitude" ;
+		NASA_Team_2_Ice_Concentration:_FillValue = -9999 ;
+	int NASA_Team_2_Multiyear_Ice(Number_of_Y_Dimension, Number_of_X_Dimension) ;
+		NASA_Team_2_Multiyear_Ice:long_name = "NASA Team 2 Multiyear Ice (Fraction)" ;
+		NASA_Team_2_Multiyear_Ice:units = "1" ;
+		NASA_Team_2_Multiyear_Ice:coordinates = "Latitude Longitude" ;
+		NASA_Team_2_Multiyear_Ice:_FillValue = -9999 ;
+	int NT2_minus_Bootstrap(Number_of_Y_Dimension, Number_of_X_Dimension) ;
+		NT2_minus_Bootstrap:long_name = "NT2 minus Bootstrap (Fraction)" ;
+		NT2_minus_Bootstrap:units = "1" ;
+		NT2_minus_Bootstrap:coordinates = "Latitude Longitude" ;
+		NT2_minus_Bootstrap:_FillValue = -9999 ;
+	float QM_Num_Grid_Range_25(QM) ;
+		QM_Num_Grid_Range_25:long_name = "Quality Monitoring: Number of Grid Boxes    with Range > 25%" ;
+		QM_Num_Grid_Range_25:units = "1" ;
+		QM_Num_Grid_Range_25:_FillValue = -9999.f ;
+	float QM_Num_Grid_Range_50(QM) ;
+		QM_Num_Grid_Range_50:long_name = "Quality Monitoring: Number of Grid Boxes    with Range > 50%" ;
+		QM_Num_Grid_Range_50:units = "1" ;
+		QM_Num_Grid_Range_50:_FillValue = -9999.f ;
+	float QM_Total_Ice(QM) ;
+		QM_Total_Ice:long_name = "Quality Monitoring: Total Ice Extent" ;
+		QM_Total_Ice:units = "1" ;
+		QM_Total_Ice:_FillValue = -9999.f ;
+	float QM_Total_Pixels(QM) ;
+		QM_Total_Pixels:long_name = "Quality Monitoring: Total Number of Pixels" ;
+		QM_Total_Pixels:units = "1" ;
+		QM_Total_Pixels:_FillValue = -9999.f ;
+	int Range_of_Ice_Concentration(Number_of_Y_Dimension, Number_of_X_Dimension) ;
+		Range_of_Ice_Concentration:long_name = "Range of Ice Concentration (Fraction)" ;
+		Range_of_Ice_Concentration:units = "1" ;
+		Range_of_Ice_Concentration:coordinates = "Latitude Longitude" ;
+		Range_of_Ice_Concentration:_FillValue = -9999 ;
+	float Scan_Time(Number_of_Y_Dimension, Number_of_X_Dimension, Time_Dimension) ;
+		Scan_Time:long_name = "Scan line Start Time 6-D for (YYYY, MM, DD, HH, MM,    SS) in GMT" ;
+		Scan_Time:units = "1" ;
+		Scan_Time:_FillValue = -9999.f ;
+
+// global attributes:
+		:Conventions = "CF-1.5" ;
+		:Metadata_Conventions = "CF-1.5, Unidata Datasset Discovery v1.0" ;
+		:standard_name_vocabulary = "CF Standard Name Table (version 17, 24 March 2011)" ;
+		:project = "NPP Data Exploitation: NOAA GCOM-W1 AMSR2" ;
+		:title = "AMSR2_SEAICE_SH" ;
+		:summary = "GCOM Seaice Southern Hemisphere Products" ;
+		:institution = "DOC/NOAA/NESDIS/OSPO > Office of Satellite and Product Operations,     NESDIS, NOAA, U.S. Department of Commerce" ;
+		:naming_authority = "gov.noaa.nesdis.nde" ;
+		:platform_name = "GCOM-W1" ;
+		:instrument_name = "AMSR2" ;
+		:creator_name = "DOC/NOAA/NESDIS/STAR > IOSSPDT Algorithm Team, Center for Satellite   Applications and Research, NESDIS, NOAA, U.S. Department of Commerce" ;
+		:creator_email = "espcoperations@noaa.gov" ;
+		:creator_url = "http://www.star.nesdis.noaa.gov" ;
+		:publisher_name = "DOC/NOAA/NESDIS/NDE > NPP Data Exploitation, Center for Satellite Applications and Research, NESDIS, NOAA, U.S. Department of Commerce" ;
+		:publisher_email = "espcoperations@noaa.gov" ;
+		:publisher_url = "http://www.ospo.noaa.gov/" ;
+		:references = "Contact the OSPO PAL to request the ATBD." ;
+		:processing_level = "NOAA Level 2 data" ;
+		:cdm_data_type = "Grid" ;
+		:geospatial_lat_min = -89.9367f ;
+		:geospatial_lat_max = -34.6223f ;
+		:geospatial_lon_min = -179.932f ;
+		:geospatial_lon_max = 179.932f ;
+		:geospatial_lat_units = "degrees_north" ;
+		:geospatial_lon_units = "degrees_east" ;
+		:date_created = "2021-07-01T03:40:15Z" ;
+		:id = "d4079f1c-3c57-46b3-ac1d-d650937aebde" ;
+		:Metadata_Link = "AMSR2-SEAICE-SH_v2r2_GW1_s202107010120180_e202107010259170_c202107010340150.nc" ;
+		:history = "Mon Sep 25 15:42:01 2023: ncks -d Number_of_X_Dimension,100,800,100 -d Number_of_Y_Dimension,100,800,100 /scratch1/NCEPDEV/stmp4/Shastri.Paturi/forAndrew/gdas.20210701/00/icec/AMSR2-SEAICE-SH_v2r2_GW1_s202107010120180_e202107010259170_c202107010340150.nc icec_amsr2_south_2.nc\nCreated by GAASP Version 2.0, Release 2.0" ;
+		:source = "GAASP-L1R_v2r2_GW1_s202107010120180_e202107010259170_c202107010336520.h5, GAASP-L1R_v2r2_GW1_s202106302341190_e202107010120160_c202107010159060.h5, GAASP-L1R_v2r2_GW1_s202106302202190_e202106302341170_c202107010019490.h5, GAASP-L1R_v2r2_GW1_s202106302020180_e202106302202180_c202106302237500.h5, GAASP-L1R_v2r2_GW1_s202106301838190_e202106302020170_c202106302057270.h5, GAASP-L1R_v2r2_GW1_s202106301659190_e202106301838170_c202106301916000.h5, GAASP-L1R_v2r2_GW1_s202106301520170_e202106301659180_c202106301736190.h5, GAASP-L1R_v2r2_GW1_s202106301341160_e202106301520150_c202106301558020.h5, GAASP-L1R_v2r2_GW1_s202106301205160_e202106301341140_c202106301416190.h5, GAASP-L1R_v2r2_GW1_s202106301026170_e202106301205150_c202106301238160.h5, GAASP-L1R_v2r2_GW1_s202106300847160_e202106301026160_c202106301101410.h5, GAASP-L1R_v2r2_GW1_s202106300711170_e202106300847150_c202106300921380.h5, GAASP-L1R_v2r2_GW1_s202106300532170_e202106300711150_c202106300744420.h5, GAASP-L1R_v2r2_GW1_s202106300356160_e202106300532160_c202106300607150.h5, GAASP-L1R_v2r2_GW1_s202106300217170_e202106300356150_c202106300428400.h5, GAASP-L1R_v2r2_GW1_s202106300038170_e202106300217150_c202106300252420.h5" ;
+		:production_site = "NSOF" ;
+		:production_environment = "OE" ;
+		:time_coverage_start = "2021-07-01T01:20:18.440Z" ;
+		:time_coverage_end = "2021-07-01T02:59:17.876Z" ;
+		:start_orbit_number = 48514 ;
+		:end_orbit_number = 48515 ;
+		:ascend_descend_data_flag = 2 ;
+		:day_night_data_flag = 2 ;
+		:NCO = "netCDF Operators version 5.0.6 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
+data:
+
+ Across_X_Dimension = 101, 201, 301, 401, 501, 601, 701, 801 ;
+
+ Along_Y_Dimension = 101, 201, 301, 401, 501, 601, 701, 801 ;
+
+ Bootstrap_Ice_Concentration =
+  0, 0, 0, 100, 94, 0, 0, 0,
+  0, 94, 100, 82, 95, 84, 0, 0,
+  0, _, 99, _, _, _, 97, 0,
+  0, 100, _, _, _, _, 100, 0,
+  0, 99, _, _, _, _, 95, 0,
+  0, 0, 94, 96, _, _, 0, 0,
+  0, 0, 0, 0, 91, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0 ;
+
+ Flags =
+  4, 8, 8, 0, 0, 8, 8, 4,
+  8, 0, 0, 0, 0, 0, 8, 8,
+  8, 120, 0, 120, 120, 120, 0, 8,
+  8, 0, 120, 120, 120, 120, 0, 8,
+  8, 0, 120, 120, 120, 120, 0, 8,
+  4, 8, 0, 0, 120, 120, 8, 8,
+  4, 8, 8, 8, 0, 8, 8, 4,
+  4, 4, 4, 4, 4, 4, 4, 4 ;
+
+ Latency =
+  _, 636, 61, 159, 159, 259, 261, _,
+  537, 540, 58, 156, 256, 257, 358, 360,
+  440, 2000, 56, 2000, 2000, 2000, 356, 457,
+  341, 344, 2000, 2000, 2000, 2000, 455, 457,
+  341, 245, 2000, 2000, 2000, 2000, 554, 1131,
+  _, 144, 48, 48, 2000, 2000, 654, 557,
+  _, 143, 45, 46, 751, 752, 656, _,
+  _, _, _, _, _, _, _, _ ;
+
+ Latitude =
+  -48.58855, -54.69889, -59.05717, -61.01042, -60.13906, -56.64225, 
+    -51.14237, -44.22784,
+  -54.69889, -61.90622, -67.46837, -70.16405, -68.94062, -64.3263, -57.65202, 
+    -49.79427,
+  -59.05717, -67.46837, -74.82165, -79.14207, -77.07041, -70.51806, 
+    -62.41702, -53.64244,
+  -61.01042, -70.16405, -79.14207, -87.5308, -82.57877, -73.68634, -64.60285, 
+    -55.3238,
+  -60.13906, -68.94062, -77.07041, -82.57877, -79.79292, -72.22871, 
+    -63.62301, -54.57748,
+  -56.64225, -64.3263, -70.51806, -73.68634, -72.22871, -66.97952, -59.76062, 
+    -51.52504,
+  -51.14237, -57.65202, -62.41702, -64.60285, -63.62301, -59.76062, 
+    -53.84447, -46.57473,
+  -44.22784, -49.79427, -53.64244, -55.3238, -54.57748, -51.52504, -46.57473, 
+    -40.16538 ;
+
+ Longitude =
+  -45, -34.48949, -20.5069, -3.492593, 14.14168, 29.46407, 41.28101, 49.98034,
+  -55.51051, -45, -28.56472, -5.07673, 20.14014, 39.43126, 51.95571, 60.02053,
+  -69.4931, -61.43528, -45, -9.267837, 33.96579, 56.49345, 66.92478, 72.56456,
+  -86.50741, -84.92327, -80.73216, -45, 76.38319, 83.83407, 86.02327, 87.06625,
+  -104.1417, -110.1401, -123.9658, -166.3832, 135, 114.0361, 106.0128, 
+    101.9456,
+  -119.4641, -129.4313, -146.4935, -173.8341, 155.9639, 135, 122.761, 115.3785,
+  -131.281, -141.9557, -156.9248, -176.0233, 163.9872, 147.239, 135, 126.3972,
+  -139.9803, -150.0205, -162.5646, -177.0663, 168.0544, 154.6215, 143.6028, 
+    135 ;
+
+ NASA_Team_2_Ice_Concentration =
+  0, 0, 0, 100, 100, 0, 0, 0,
+  0, 100, 100, 100, 100, 99, 0, 0,
+  0, _, 100, _, _, _, 100, 0,
+  0, 99, _, _, _, _, 100, 0,
+  0, 100, _, _, _, _, 100, 0,
+  0, 0, 100, 100, _, _, 0, 0,
+  0, 0, 0, 0, 100, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0 ;
+
+ NASA_Team_2_Multiyear_Ice =
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, _, 0, _, _, _, 0, 0,
+  0, 0, _, _, _, _, 0, 0,
+  0, 57, _, _, _, _, 0, 0,
+  0, 0, 0, 0, _, _, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0 ;
+
+ NT2_minus_Bootstrap =
+  0, 0, 0, 0, 6, 0, 0, 0,
+  0, 6, 0, 18, 5, 15, 0, 0,
+  0, _, 1, _, _, _, 3, 0,
+  0, 0, _, _, _, _, 0, 0,
+  0, 1, _, _, _, _, 5, 0,
+  0, 0, 6, 4, _, _, 0, 0,
+  0, 0, 0, 0, 9, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0 ;
+
+ QM_Num_Grid_Range_25 = 3269 ;
+
+ QM_Num_Grid_Range_50 = 775 ;
+
+ QM_Total_Ice = 148706 ;
+
+ QM_Total_Pixels = 705600 ;
+
+ Range_of_Ice_Concentration =
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 2, 0, 0, 1, 0, 0,
+  0, _, 0, _, _, _, 0, 0,
+  0, 1, _, _, _, _, 0, 0,
+  0, 4, _, _, _, _, 0, 0,
+  0, 0, 0, 0, _, _, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0 ;
+
+ Scan_Time =
+  _, _, _, _, _, _,
+  2021, 6, 30, 16, 22, 42.51182,
+  2021, 7, 1, 1, 57, 58.72683,
+  2021, 7, 1, 0, 20, 8.284265,
+  2021, 7, 1, 0, 19, 36.78727,
+  2021, 6, 30, 22, 39, 34.35703,
+  2021, 6, 30, 22, 38, 11.86481,
+  _, _, _, _, _, _,
+  2021, 6, 30, 18, 1, 22.44809,
+  2021, 6, 30, 17, 59, 8.96092,
+  2021, 7, 1, 2, 0, 28.71251,
+  2021, 7, 1, 0, 22, 18.77182,
+  2021, 6, 30, 22, 43, 5.836905,
+  2021, 6, 30, 22, 42, 7.342505,
+  2021, 6, 30, 21, 1, 4.91956,
+  2021, 6, 30, 20, 58, 39.43348,
+  2021, 6, 30, 19, 38, 54.88971,
+  _, _, _, _, _, _,
+  2021, 7, 1, 2, 2, 57.19851,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  2021, 6, 30, 21, 3, 9.407737,
+  2021, 6, 30, 19, 21, 51.98771,
+  2021, 6, 30, 21, 17, 33.32495,
+  2021, 6, 30, 21, 14, 22.84327,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  2021, 6, 30, 19, 24, 8.474729,
+  2021, 6, 30, 19, 21, 23.49041,
+  2021, 6, 30, 21, 17, 42.32409,
+  2021, 6, 30, 22, 53, 38.77679,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  2021, 6, 30, 17, 44, 46.54345,
+  2021, 6, 30, 8, 8, 10.83098,
+  _, _, _, _, _, _,
+  2021, 7, 1, 0, 34, 26.20252,
+  2021, 7, 1, 2, 10, 45.15401,
+  2021, 7, 1, 2, 10, 49.65358,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  2021, 6, 30, 16, 5, 11.11222,
+  2021, 6, 30, 17, 41, 39.06126,
+  _, _, _, _, _, _,
+  2021, 7, 1, 0, 36, 8.19276,
+  2021, 7, 1, 2, 14, 3.135001,
+  2021, 7, 1, 2, 13, 6.140425,
+  2021, 6, 30, 14, 27, 37.16796,
+  2021, 6, 30, 14, 26, 19.1754,
+  2021, 6, 30, 16, 3, 8.123897,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _,
+  _, _, _, _, _, _ ;
+}
