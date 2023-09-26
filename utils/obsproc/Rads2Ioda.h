@@ -41,43 +41,68 @@ namespace gdasapp {
       gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       // Read non-optional metadata: datetime, longitude and latitude
-      netCDF::NcVar latNcVar = ncFile.getVar("lat");
-      int latVal[iodaVars.location];  // NOLINT (can't pass vector to getVar below)
-      latNcVar.getVar(latVal);
+      int lat[iodaVars.location];  // NOLINT
+      ncFile.getVar("lat").getVar(lat);
 
-      netCDF::NcVar lonNcVar = ncFile.getVar("lon");
-      int lonVal[iodaVars.location];  // NOLINT (can't pass vector to getVar below)
-      lonNcVar.getVar(lonVal);
-      std::string geounits;
-      lonNcVar.getAtt("units").getValues(geounits);
+      int lon[iodaVars.location];  // NOLINT
+      ncFile.getVar("lon").getVar(lon);
+
       float geoscaleFactor;
-      lonNcVar.getAtt("scale_factor").getValues(&geoscaleFactor);
+      ncFile.getVar("lon").getAtt("scale_factor").getValues(&geoscaleFactor);
+
+      float datetime[iodaVars.location];  // NOLINT
+      ncFile.getVar("time_mjd").getVar(datetime);
+      iodaVars.referenceDate = "seconds since 1858-11-17T00:00:00Z";  // TODO(Guillaume) get it from the file
+
+      // Read optional integer metadata "mission"
+      std::string mission_name;
+      ncFile.getAtt("mission_name").getValues(mission_name);
+      int mission_index = altimeterMissions(mission_name);   // mission name mapped to integer
+      Eigen::VectorXi mission(iodaVars.location);
+
+      // Read optional integer metadata "pass" and "cycle"
+      int pass[iodaVars.location];  // NOLINT
+      ncFile.getVar("pass").getVar(pass);
+      int cycle[iodaVars.location];  // NOLINT
+      ncFile.getVar("cycle").getVar(cycle);
+
+      for (int i = 0; i < iodaVars.location; i++) {
+        iodaVars.intMetadata(i, 0) = pass[i];
+        iodaVars.intMetadata(i, 1) = cycle[i];
+        iodaVars.intMetadata(i, 2) = mission_index;
+      }
 
       // Get adt_egm2008 obs values and attributes
-      netCDF::NcVar adtNcVar = ncFile.getVar("adt_egm2008");
-      int adtObsVal[iodaVars.location];  // NOLINT (can't pass vector to getVar below)
-      adtNcVar.getVar(adtObsVal);
-      std::string units;
-      adtNcVar.getAtt("units").getValues(units);
+      int adt[iodaVars.location];  // NOLINT
+      ncFile.getVar("adt_egm2008").getVar(adt);
       float scaleFactor;
-      adtNcVar.getAtt("scale_factor").getValues(&scaleFactor);
-      for (int i = 0; i <= iodaVars.location; i++) {
-        iodaVars.obsVal(i) = static_cast<float>(adtObsVal[i])*scaleFactor;
+      ncFile.getVar("adt_egm2008").getAtt("scale_factor").getValues(&scaleFactor);
+
+      // Read sla
+      int sla[iodaVars.location];  // NOLINT
+      ncFile.getVar("sla").getVar(sla);
+
+      // Update non-optional Eigen arrays
+      for (int i = 0; i < iodaVars.location; i++) {
+        iodaVars.longitude(i) = static_cast<float>(lon[i])*geoscaleFactor;
+        iodaVars.latitude(i) = static_cast<float>(lat[i])*geoscaleFactor;
+        iodaVars.datetime(i) = static_cast<long>(datetime[i]*86400.0f);
+        iodaVars.obsVal(i) = static_cast<float>(adt[i])*scaleFactor;
+        iodaVars.obsError(i) = 0.1;  // Do something for obs error
+        iodaVars.preQc(i) = 0;
+        iodaVars.floatMetadata(i, 0) = iodaVars.obsVal(i) - static_cast<float>(sla[i])*scaleFactor;
       }
-
-      // Do something for obs error
-      for (int i = 0; i <= iodaVars.location; i++) {
-        iodaVars.obsError(i) = 0.1;
-      }
-
-      // Read mission metadata
-      int mission_index(3); // TODO(Guillaume): read from file and
-                            //                  create a mapping from name to indices
-      Eigen::VectorXi mission(iodaVars.location);
-      mission.setOnes() *= mission_index;
-      iodaVars.intMetadata;
-
       return iodaVars;
     };
+    int altimeterMissions(std::string missionName) {
+      std::map<std::string, int> altimeterMap;
+      // TODO(All): This is incomplete, add missions to the list below
+      altimeterMap["SNTNL-3A"] = 1;
+      altimeterMap["SNTNL-3B"] = 2;
+      altimeterMap["JASON-1"] = 3;
+      altimeterMap["JASON-2"] = 4;
+      altimeterMap["JASON-3"] = 5;
+      return altimeterMap[missionName];
+    }
   };  // class Rads2Ioda
 }  // namespace gdasapp

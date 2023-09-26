@@ -25,23 +25,29 @@ namespace gdasapp {
                        // for now in the children classes
     int nfMetadata;    // number of float metadata fields
     int niMetadata;    // number of int metadata fields
+
+    // Non optional metadata
+    Eigen::ArrayXf longitude;  //
+    Eigen::ArrayXf latitude;   //      "      error
+    Eigen::Array<long, Eigen::Dynamic, 1> datetime;   // Epoch date in seconds
+    std::string referenceDate;                        // Reference date for epoch time
+
+    // Obs info
     Eigen::ArrayXf obsVal;     // Observation value
     Eigen::ArrayXf obsError;   //      "      error
     Eigen::ArrayXi preQc;      // Quality control flag
-    Eigen::ArrayXf floatMetadata;                // Optional array of float metadata
+
+    // Optional metadata
+    Eigen::ArrayXXf floatMetadata;                // Optional array of float metadata
     std::vector<std::string> floatMetadataName;  // String descriptor of the float metadata
-    Eigen::ArrayXf intMetadata;                  // Optional array of integer metadata
+    Eigen::ArrayXXf intMetadata;                  // Optional array of integer metadata
     std::vector<std::string> intMetadataName;    // String descriptor of the integer metadata
-    std::string units;  // TODO(Guillaume) Change the name to something more descriptive
-                        // (reference date for epoch time)
 
     explicit IodaVars(const int nobs = 0,
                       const std::vector<std::string> fmnames= {},
                       const std::vector<std::string> imnames= {}) :
-      location(nobs),
-      nVars(1),
-      nfMetadata(fmnames.size()),
-      niMetadata(imnames.size()),
+      location(nobs), nVars(1), nfMetadata(fmnames.size()), niMetadata(imnames.size()),
+      longitude(location), latitude(location), datetime(location),
       obsVal(location),
       obsError(location),
       preQc(location),
@@ -109,14 +115,23 @@ namespace gdasapp {
       gdasapp::IodaVars iodaVarsAll(nobs, iodaVars.floatMetadataName, iodaVars.intMetadataName);
 
       // Gather iodaVars arrays
+      gatherObs(comm, iodaVars.longitude, iodaVarsAll.longitude);
+      gatherObs(comm, iodaVars.latitude, iodaVarsAll.latitude);
+      gatherObs(comm, iodaVars.datetime, iodaVarsAll.datetime);
       gatherObs(comm, iodaVars.obsVal, iodaVarsAll.obsVal);
       gatherObs(comm, iodaVars.obsError, iodaVarsAll.obsError);
       gatherObs(comm, iodaVars.preQc, iodaVarsAll.preQc);
+
+      //Eigen::ArrayXXi tmpXX
+      //gatherObs(comm,
+      //          iodaVars.intMetadata.reshaped(iodaVars.intMetadata.size(), 1),
+      //          iodaVarsAll.intMetadata.reshaped(iodaVarsAll.intMetadata.size(), 1));
 
       oops::Log::debug() << "--- all nobs: " << iodaVarsAll.obsVal.size() << std::endl;
       oops::Log::debug() << "--- all obsVal: " << iodaVarsAll.obsVal << std::endl;
       oops::Log::debug() << "--- all obsError: " << iodaVarsAll.obsError << std::endl;
       oops::Log::debug() << "--- all preQc: " << iodaVarsAll.preQc << std::endl;
+      oops::Log::debug() << "--- all longitude: " << iodaVarsAll.longitude << std::endl;
 
       // Create empty group backed by HDF file
       if (oops::mpi::world().rank() == 0) {
@@ -133,35 +148,60 @@ namespace gdasapp {
         // Set up the creation parameters
         ioda::VariableCreationParameters float_params = createVariableParams<float>();
         ioda::VariableCreationParameters int_params = createVariableParams<int>();
+        ioda::VariableCreationParameters long_params = createVariableParams<long>();
 
-        // Create the IODA variables
-        ioda::Variable adtIodaDatetime =
-          ogrp.vars.createWithScales<float>("Metadata/dateTime",
+        // Create the mendatory IODA variables
+        ioda::Variable iodaDatetime =
+          ogrp.vars.createWithScales<long>("MetaData/dateTime",
+                                          {ogrp.vars["Location"]}, long_params);
+        iodaDatetime.atts.add<std::string>("units", {iodaVars.referenceDate}, {1});
+        ioda::Variable iodaLat =
+          ogrp.vars.createWithScales<float>("MetaData/latitude",
                                             {ogrp.vars["Location"]}, float_params);
-        // TODO(All): Decide on what to use for the Epoch date
-        adtIodaDatetime.atts.add<std::string>("units", {"seconds since 9999-04-15T12:00:00Z"}, {1});
-      ioda::Variable latIodaVal =
-        ogrp.vars.createWithScales<float>("MetaData/latitude",
-                                          {ogrp.vars["Location"]}, float_params);
-      ioda::Variable lonIodaVal =
-        ogrp.vars.createWithScales<float>("MetaData/longitude",
-                                          {ogrp.vars["Location"]}, float_params);
+        ioda::Variable iodaLon =
+          ogrp.vars.createWithScales<float>("MetaData/longitude",
+                                            {ogrp.vars["Location"]}, float_params);
 
-        ioda::Variable adtIodaObsVal =
+        ioda::Variable iodaObsVal =
           ogrp.vars.createWithScales<float>("ObsValue/"+variable_,
                                             {ogrp.vars["Location"]}, float_params);
-        ioda::Variable adtIodaObsErr =
+        ioda::Variable iodaObsErr =
           ogrp.vars.createWithScales<float>("ObsError/"+variable_,
                                             {ogrp.vars["Location"]}, float_params);
 
-        ioda::Variable adtIodaPreQc =
+        ioda::Variable iodaPreQc =
           ogrp.vars.createWithScales<int>("PreQC/"+variable_,
                                             {ogrp.vars["Location"]}, int_params);
 
-        // Write adt obs info to group
-        adtIodaObsVal.writeWithEigenRegular(iodaVarsAll.obsVal);
-        adtIodaObsErr.writeWithEigenRegular(iodaVarsAll.obsError);
-        adtIodaPreQc.writeWithEigenRegular(iodaVarsAll.preQc);
+        // Create the optional IODA integer metadata
+        ioda::Variable tmpIntMeta;
+        int count = 0;
+        for (const std::string& strMeta : iodaVars.intMetadataName) {
+          std::cout << strMeta << std::endl;
+          tmpIntMeta = ogrp.vars.createWithScales<float>("MetaData/"+strMeta,
+                                                         {ogrp.vars["Location"]}, int_params);
+          tmpIntMeta.writeWithEigenRegular(iodaVars.intMetadata.col(count));
+          count++;
+        }
+
+        // Create the optional IODA float metadata
+        ioda::Variable tmpFloatMeta;
+        count = 0;
+        for (const std::string& strMeta : iodaVars.floatMetadataName) {
+          std::cout << strMeta << std::endl;
+          tmpFloatMeta = ogrp.vars.createWithScales<float>("MetaData/"+strMeta,
+                                                      {ogrp.vars["Location"]}, int_params);
+          tmpFloatMeta.writeWithEigenRegular(iodaVars.floatMetadata.col(count));
+          count++;
+        }
+
+        // Write obs info to group
+        iodaLon.writeWithEigenRegular(iodaVarsAll.longitude);
+        iodaLat.writeWithEigenRegular(iodaVarsAll.latitude);
+        iodaDatetime.writeWithEigenRegular(iodaVarsAll.datetime);
+        iodaObsVal.writeWithEigenRegular(iodaVarsAll.obsVal);
+        iodaObsErr.writeWithEigenRegular(iodaVarsAll.obsError);
+        iodaPreQc.writeWithEigenRegular(iodaVarsAll.preQc);
       }
     }
 
