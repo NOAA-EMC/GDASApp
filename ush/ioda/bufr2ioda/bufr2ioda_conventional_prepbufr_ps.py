@@ -458,7 +458,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger('bufr2ioda_adpsfc_prepbufr.py', level=log_level,
+    logger = Logger('bufr2ioda_conventional_prepbufr_ps.py', level=log_level,
                     colored_log=True)
 
     with open(args.config, "r") as json_file:
