@@ -48,7 +48,7 @@ def Compute_Grid_Location(degrees):
 
 def Compute_imph(impp, elrc):  # , geodu, imph):
 
-    imph = impp - elrc).astype(np.float32)
+    imph = (impp - elrc).astype(np.float32)
 
     return imph
 
