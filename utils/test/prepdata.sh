@@ -13,5 +13,5 @@ ncgen -o sss_smap_1.nc4 ${project_source_dir}/testdata/sss_smap_1.cdl
 ncgen -o sss_smap_2.nc4 ${project_source_dir}/testdata/sss_smap_2.cdl
 ncgen -o sss_smos_1.nc4 ${project_source_dir}/testdata/sss_smos_1.cdl
 ncgen -o sss_smos_2.nc4 ${project_source_dir}/testdata/sss_smos_2.cdl
-ncgen -o ghrsst_sst_mb_202107010000.cdl ${project_source_dir}/testdata/ghrsst_sst_mb_202107010000.cdl
-ncgen -o ghrsst_sst_mb_202107010100.cdl ${project_source_dir}/testdata/ghrsst_sst_mb_202107010100.cdl
+ncgen -o ghrsst_sst_mb_202107010000.nc4 ${project_source_dir}/testdata/ghrsst_sst_mb_202107010000.cdl
+ncgen -o ghrsst_sst_mb_202107010100.nc4 ${project_source_dir}/testdata/ghrsst_sst_mb_202107010100.cdl
