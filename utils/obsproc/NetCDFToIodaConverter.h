@@ -26,6 +26,13 @@ namespace gdasapp {
     Eigen::ArrayXf obsError;
     Eigen::ArrayXi preQc;
     std::string units;  // reference date for epoch time
+
+    explicit IodaVars(const int nobs = 0) : location(nobs),
+                                            nVars(1),
+                                            obsVal(location),
+                                            obsError(location),
+                                            preQc(location)
+    {}
   };
 
   // Base class for the converters
@@ -58,56 +65,106 @@ namespace gdasapp {
 
     // Method to write out a IODA file (writter called in destructor)
     void writeToIoda() {
-      // Create empty group backed by HDF file
-      ioda::Group group =
-        ioda::Engines::HH::createFile(
-                                      outputFilename_,
-                                      ioda::Engines::BackendCreateModes::Truncate_If_Exists);
+      // Get communicator
+      const eckit::mpi::Comm & comm = oops::mpi::world();
 
       // Extract ioda variables from the provider's files
-      std::string fileName = inputFilenames_[0];  // TODO(Guillaume): make it work for a list
       gdasapp::IodaVars iodaVars;
-      providerToIodaVars(fileName, iodaVars);
-      oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
-      oops::Log::debug() << "--- iodaVars.obsVal: " << iodaVars.obsVal << std::endl;
+      int myrank  = comm.rank();
+      int nobs(0);
+      oops::Log::debug() << "ooooooooooooo my rank : " << myrank << comm.size() << std::endl;
+      if (myrank <= inputFilenames_.size() - 1) {
+        providerToIodaVars(inputFilenames_[myrank], iodaVars);
+        nobs = iodaVars.location;
+        oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
+        oops::Log::debug() << "--- iodaVars.obsVal: " << iodaVars.obsVal << std::endl;
+      }
 
-      // Update the group with the location dimension
-      ioda::NewDimensionScales_t
-        newDims {ioda::NewDimensionScale<int>("Location", iodaVars.location)};
-      ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
+      // Get the total number of obs across pe's
+      comm.allReduce(nobs, nobs, eckit::mpi::sum());
+      oops::Log::debug() << " my rank : " << myrank
+                         << " Num pe's: " << comm.size()
+                         << " nobs: " << nobs << std::endl;
+      gdasapp::IodaVars iodaVarsAll(nobs);
 
-      // Set up the float creation parameters
-      ioda::VariableCreationParameters float_params;
-      float_params.chunk = true;               // allow chunking
-      float_params.compressWithGZIP();         // compress using gzip
-      float missing_value = util::missingValue(missing_value);
-      float_params.setFillValue<float>(missing_value);
+      // Gather obsVal's
+      gatherObs(comm, iodaVars.obsVal, iodaVarsAll.obsVal);
+      gatherObs(comm, iodaVars.obsError, iodaVarsAll.obsError);
+      gatherObs(comm, iodaVars.preQc, iodaVarsAll.preQc);
 
-      // Create the IODA variables
-      ioda::Variable adtIodaDatetime =
-        ogrp.vars.createWithScales<float>("Metadata/dateTime",
-                                          {ogrp.vars["Location"]}, float_params);
-      // TODO(Mindo): Get the date info from the netcdf file
-      adtIodaDatetime.atts.add<std::string>("units", {"seconds since 9999-04-15T12:00:00Z"}, {1});
+      oops::Log::debug() << "--- all nobs: " << iodaVarsAll.obsVal.size() << std::endl;
+      oops::Log::debug() << "--- all obsVal: " << iodaVarsAll.obsVal << std::endl;
+      oops::Log::debug() << "--- all obsError: " << iodaVarsAll.obsError << std::endl;
+      oops::Log::debug() << "--- all preQc: " << iodaVarsAll.preQc << std::endl;
 
-      ioda::Variable adtIodaObsVal =
-        ogrp.vars.createWithScales<float>("ObsValue/"+variable_,
-                                          {ogrp.vars["Location"]}, float_params);
-      ioda::Variable adtIodaObsErr =
-        ogrp.vars.createWithScales<float>("ObsError/"+variable_,
-                                          {ogrp.vars["Location"]}, float_params);
+      // Create empty group backed by HDF file
+      if (oops::mpi::world().rank() == 0) {
+        ioda::Group group =
+          ioda::Engines::HH::createFile(
+                                        outputFilename_,
+                                        ioda::Engines::BackendCreateModes::Truncate_If_Exists);
 
-      // Write adt obs value to group
-      adtIodaObsVal.writeWithEigenRegular(iodaVars.obsVal);
+        // Update the group with the location dimension
+        ioda::NewDimensionScales_t
+          newDims {ioda::NewDimensionScale<int>("Location", iodaVarsAll.location)};
+        ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
 
-      // Write adt obs error to group
-      adtIodaObsErr.writeWithEigenRegular(iodaVars.obsError);
+        // Set up the creation parameters
+        ioda::VariableCreationParameters float_params = createVariableParams<float>();
+        ioda::VariableCreationParameters int_params = createVariableParams<int>();
+
+        // Create the IODA variables
+        ioda::Variable adtIodaDatetime =
+          ogrp.vars.createWithScales<float>("Metadata/dateTime",
+                                            {ogrp.vars["Location"]}, float_params);
+        // TODO(All): Decide on what to use for the Epoch date
+        adtIodaDatetime.atts.add<std::string>("units", {"seconds since 9999-04-15T12:00:00Z"}, {1});
+
+        ioda::Variable adtIodaObsVal =
+          ogrp.vars.createWithScales<float>("ObsValue/"+variable_,
+                                            {ogrp.vars["Location"]}, float_params);
+        ioda::Variable adtIodaObsErr =
+          ogrp.vars.createWithScales<float>("ObsError/"+variable_,
+                                            {ogrp.vars["Location"]}, float_params);
+
+        ioda::Variable adtIodaPreQc =
+          ogrp.vars.createWithScales<int>("PreQC/"+variable_,
+                                            {ogrp.vars["Location"]}, int_params);
+
+        // Write adt obs info to group
+        adtIodaObsVal.writeWithEigenRegular(iodaVarsAll.obsVal);
+        adtIodaObsErr.writeWithEigenRegular(iodaVarsAll.obsError);
+        adtIodaPreQc.writeWithEigenRegular(iodaVarsAll.preQc);
+      }
     }
 
    private:
     // Virtual method that reads the provider's netcdf file and store the relevant
     // info in a IodaVars struct
     virtual void providerToIodaVars(const std::string fileName, gdasapp::IodaVars & iodaVars) = 0;
+
+    // Gather for eigen array
+    template <typename T>
+    void gatherObs(const eckit::mpi::Comm & comm,
+                   const Eigen::Array<T, Eigen::Dynamic, 1> & obsPe,
+                   Eigen::Array<T, Eigen::Dynamic, 1> & obsAllPes) {
+      std::vector<T> tmpVec(obsPe.data(), obsPe.data() + obsPe.size());
+      oops::mpi::allGatherv(comm, tmpVec);
+      for (int i = 0; i < tmpVec.size(); ++i) {
+        obsAllPes(i) = tmpVec[i];
+      }
+    }
+
+    // Short-cut to create type dependent VariableCreationParameters
+    template <typename T>
+    ioda::VariableCreationParameters createVariableParams() {
+      ioda::VariableCreationParameters params;
+      params.chunk = true;               // allow chunking
+      params.compressWithGZIP();         // compress using gzip
+      params.setFillValue<T>(util::missingValue<T>());
+
+      return params;
+    }
 
    protected:
     util::DateTime windowBegin_;
