@@ -42,17 +42,22 @@ namespace gdasapp {
       iodaVars.preQc = Eigen::ArrayXi(iodaVars.location);
 
       // Get SSS_corr obs values and attributes
-      netCDF::NcVar smosNcVar = ncFile.getVar("SSS_corr");
+      netCDF::NcVar smosSSSNcVar = ncFile.getVar("SSS_corr");
+      netCDF::NcVar smosErrNcVar = ncFile.getVar("Sigma_SSS_corr");
+      netCDF::NcVar smosQcNcVar = ncFile.getVar("Dg_quality_SSS_corr");
       float smosObsVal[iodaVars.location];  // NOLINT (can't pass vector to getVar below)
-      smosNcVar.getVar(smosObsVal);
+      float smosErrVal[iodaVars.location];  // NOLINT (can't pass vector to getVar below)
+      // TODO AFE: the following appears to work, but somebody judge if it is Correct
+      unsigned short smosQcVal[iodaVars.location]; // NOLINT 
+      smosSSSNcVar.getVar(smosObsVal);
+      smosErrNcVar.getVar(smosErrVal);
+      smosQcNcVar.getVar(smosQcVal);
       for (int i = 0; i < iodaVars.location; i++) {
         iodaVars.obsVal(i) = smosObsVal[i];
+        iodaVars.obsError(i) = smosErrVal[i];
+        iodaVars.preQc(i) = smosQcVal[i];
       }
 
-      // Do something for obs error
-      for (int i = 0; i < iodaVars.location; i++) {
-        iodaVars.obsError(i) = 0.1;
-      }
     };
   };  // class Smos2Ioda
 }  // namespace gdasapp
