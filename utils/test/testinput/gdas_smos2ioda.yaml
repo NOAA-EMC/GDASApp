@@ -5,4 +5,4 @@ variable: Salinity
 output file: sss_smos.ioda.nc4
 input files:
 - sss_smos_1.nc4
-- sss_smos_2.nc4
+#  - sss_smos_2.nc4

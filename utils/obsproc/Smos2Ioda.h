@@ -3,6 +3,7 @@
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
+#include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -19,45 +20,52 @@ namespace gdasapp {
    public:
     explicit Smos2Ioda(const eckit::Configuration & fullConfig)
     : NetCDFToIodaConverter(fullConfig) {
+      variable_ = "Salinity";
     }
 
     // Read netcdf file and populate iodaVars
-    void providerToIodaVars(const std::string fileName, gdasapp::IodaVars & iodaVars) final {
+    gdasapp::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by SMOS" << std::endl;
 
-      // Set nVars to 1
-      iodaVars.nVars = 1;
-
       // Open the NetCDF file in read-only mode
-      oops::Log::info() << "Opening file" << std::endl;
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
 
-      // Get dimensions
-      iodaVars.location = ncFile.getDim("n_grid_points").getSize();
-      oops::Log::info() << "--- iodaVars.location: " << iodaVars.location << std::endl;
+      // Get number of obs
+      int nobs = ncFile.getDim("n_grid_points").getSize();
 
-      // Allocate memory
-      iodaVars.obsVal = Eigen::ArrayXf(iodaVars.location);
-      iodaVars.obsError = Eigen::ArrayXf(iodaVars.location);
-      iodaVars.preQc = Eigen::ArrayXi(iodaVars.location);
+      // Set the int metadata names
+      // std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
+      std::vector<std::string> intMetadataNames = {};
 
-      // Get SSS_corr obs values and attributes
-      netCDF::NcVar smosSSSNcVar = ncFile.getVar("SSS_corr");
-      netCDF::NcVar smosErrNcVar = ncFile.getVar("Sigma_SSS_corr");
-      netCDF::NcVar smosQcNcVar = ncFile.getVar("Dg_quality_SSS_corr");
-      float smosObsVal[iodaVars.location];  // NOLINT (can't pass vector to getVar below)
-      float smosErrVal[iodaVars.location];  // NOLINT (can't pass vector to getVar below)
-      // TODO AFE: the following appears to work, but somebody judge if it is Correct
-      unsigned short smosQcVal[iodaVars.location]; // NOLINT 
-      smosSSSNcVar.getVar(smosObsVal);
-      smosErrNcVar.getVar(smosErrVal);
-      smosQcNcVar.getVar(smosQcVal);
+      // Set the float metadata name
+      // std::vector<std::string> floatMetadataNames = {"mdt"};
+      std::vector<std::string> floatMetadataNames = {};
+      // Create instance of iodaVars object
+      gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
+
+      float lat[iodaVars.location];  // NOLINT
+      ncFile.getVar("Latitude").getVar(lat);
+
+      float lon[iodaVars.location];  // NOLINT
+      ncFile.getVar("Longitude").getVar(lon);
+
+      float sss[iodaVars.location];  // NOLINT
+      ncFile.getVar("SSS_corr").getVar(sss);
+
+      float sss_error[iodaVars.location];  // NOLINT
+      ncFile.getVar("Sigma_SSS_corr").getVar(sss_error);
+
+      unsigned short sss_qc[iodaVars.location];  // NOLINT
+      ncFile.getVar("Dg_quality_SSS_corr").getVar(sss_qc);
+
       for (int i = 0; i < iodaVars.location; i++) {
-        iodaVars.obsVal(i) = smosObsVal[i];
-        iodaVars.obsError(i) = smosErrVal[i];
-        iodaVars.preQc(i) = smosQcVal[i];
+        iodaVars.longitude(i) = lon[i];
+        iodaVars.latitude(i) = lat[i];
+        iodaVars.obsVal(i) = sss[i];
+        iodaVars.obsError(i) = sss_error[i];  // Do something for obs error
+        iodaVars.preQc(i) = sss_qc[i];
       }
-
+      return iodaVars;
     };
   };  // class Smos2Ioda
 }  // namespace gdasapp
