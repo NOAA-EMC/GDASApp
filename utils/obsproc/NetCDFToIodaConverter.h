@@ -101,13 +101,6 @@ namespace gdasapp {
 
       // Get the total number of obs across pe's
       comm.allReduce(nobs, nobs, eckit::mpi::sum());
-      oops::Log::debug() << " my rank : " << myrank
-                         << " Num pe's: " << comm.size()
-                         << " nfm: " << iodaVars.nfMetadata
-                         << " nim: " << iodaVars.niMetadata
-                         << " nobs: " << nobs << std::endl;
-      oops::Log::debug() << " float metadata : " << iodaVars.floatMetadataName << std::endl;
-      oops::Log::debug() << " int metadata : " << iodaVars.intMetadataName << std::endl;
       gdasapp::IodaVars iodaVarsAll(nobs, iodaVars.floatMetadataName, iodaVars.intMetadataName);
 
       // Gather iodaVars arrays
@@ -117,17 +110,6 @@ namespace gdasapp {
       gatherObs(comm, iodaVars.obsVal, iodaVarsAll.obsVal);
       gatherObs(comm, iodaVars.obsError, iodaVarsAll.obsError);
       gatherObs(comm, iodaVars.preQc, iodaVarsAll.preQc);
-
-      // Eigen::ArrayXXi tmpXX
-      // gatherObs(comm,
-      //          iodaVars.intMetadata.reshaped(iodaVars.intMetadata.size(), 1),
-      //          iodaVarsAll.intMetadata.reshaped(iodaVarsAll.intMetadata.size(), 1));
-
-      oops::Log::debug() << "--- all nobs: " << iodaVarsAll.obsVal.size() << std::endl;
-      oops::Log::debug() << "--- all obsVal: " << iodaVarsAll.obsVal << std::endl;
-      oops::Log::debug() << "--- all obsError: " << iodaVarsAll.obsError << std::endl;
-      oops::Log::debug() << "--- all preQc: " << iodaVarsAll.preQc << std::endl;
-      oops::Log::debug() << "--- all longitude: " << iodaVarsAll.longitude << std::endl;
 
       // Create empty group backed by HDF file
       if (oops::mpi::world().rank() == 0) {

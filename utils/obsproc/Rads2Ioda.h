@@ -61,7 +61,6 @@ namespace gdasapp {
       std::string mission_name;
       ncFile.getAtt("mission_name").getValues(mission_name);
       int mission_index = altimeterMissions(mission_name);   // mission name mapped to integer
-      Eigen::VectorXi mission(iodaVars.location);
 
       // Read optional integer metadata "pass" and "cycle"
       int pass[iodaVars.location];  // NOLINT
@@ -99,12 +98,15 @@ namespace gdasapp {
     };
     int altimeterMissions(std::string missionName) {
       std::map<std::string, int> altimeterMap;
-      // TODO(All): This is incomplete, add missions to the list below
+      // TODO(All): This is incomplete, add missions to the list below 
+      //            and add to global attribute
       altimeterMap["SNTNL-3A"] = 1;
       altimeterMap["SNTNL-3B"] = 2;
       altimeterMap["JASON-1"] = 3;
       altimeterMap["JASON-2"] = 4;
       altimeterMap["JASON-3"] = 5;
+      altimeterMap["CRYOSAT2"] = 6;
+      altimeterMap["SARAL"] = 7;
       return altimeterMap[missionName];
     }
   };  // class Rads2Ioda
