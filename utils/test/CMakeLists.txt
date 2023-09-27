@@ -2,6 +2,7 @@
 list( APPEND utils_test_input
   testinput/gdas_meanioda.yaml
   testinput/gdas_rads2ioda.yaml
+  testinput/gdas_amsr2ioda.yaml
 )
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
@@ -37,3 +38,11 @@ ecbuild_add_test( TARGET  test_gdasapp_util_rads2ioda
                   ARGS    "../testinput/gdas_rads2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+
+# Test the ASMR2 to IODA converter
+ecbuild_add_test( TARGET  test_gdasapp_util_amsr2ioda
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  ARGS    "../testinput/gdas_amsr2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+

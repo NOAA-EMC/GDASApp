@@ -6,6 +6,7 @@
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 
+#include "../Amsr2Ioda.h"
 #include "../Rads2Ioda.h"
 
 namespace gdasapp {
@@ -20,9 +21,12 @@ namespace gdasapp {
       std::string provider;
       fullConfig.get("provider", provider);
 
-      if (provider == "RADS") {
-        Rads2Ioda conv2ioda(fullConfig);
+      if (provider == "AMSR2") {
+        Amsr2Ioda conv2ioda(fullConfig);
         conv2ioda.writeToIoda();
+      } else if (provider == "RADS") {
+        Rads2Ioda conv2ioda(fullConfig);
+        conv2ioda.writeToIoda(); 
       } else if (provider == "GHRSST") {
         oops::Log::info() << "Comming soon!" << std::endl;
       } else {
