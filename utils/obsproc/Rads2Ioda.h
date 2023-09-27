@@ -69,9 +69,7 @@ namespace gdasapp {
       ncFile.getVar("cycle").getVar(cycle);
 
       for (int i = 0; i < iodaVars.location; i++) {
-        iodaVars.intMetadata(i, 0) = pass[i];
-        iodaVars.intMetadata(i, 1) = cycle[i];
-        iodaVars.intMetadata(i, 2) = mission_index;
+        iodaVars.intMetadata.row(i) << pass[i], cycle[i], mission_index;
       }
 
       // Get adt_egm2008 obs values and attributes
@@ -92,13 +90,14 @@ namespace gdasapp {
         iodaVars.obsVal(i) = static_cast<float>(adt[i])*scaleFactor;
         iodaVars.obsError(i) = 0.1;  // Do something for obs error
         iodaVars.preQc(i) = 0;
+        // Save MDT in optional floatMetadata
         iodaVars.floatMetadata(i, 0) = iodaVars.obsVal(i) - static_cast<float>(sla[i])*scaleFactor;
       }
       return iodaVars;
     };
     int altimeterMissions(std::string missionName) {
       std::map<std::string, int> altimeterMap;
-      // TODO(All): This is incomplete, add missions to the list below 
+      // TODO(All): This is incomplete, add missions to the list below
       //            and add to global attribute
       altimeterMap["SNTNL-3A"] = 1;
       altimeterMap["SNTNL-3B"] = 2;
