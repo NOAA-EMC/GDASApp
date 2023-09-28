@@ -7,6 +7,7 @@
 #include "oops/runs/Application.h"
 
 #include "../Rads2Ioda.h"
+#include "../Ghrsst2Ioda.h"
 
 namespace gdasapp {
   class ObsProvider2IodaApp : public oops::Application {
@@ -24,7 +25,9 @@ namespace gdasapp {
         Rads2Ioda conv2ioda(fullConfig);
         conv2ioda.writeToIoda();
       } else if (provider == "GHRSST") {
-        oops::Log::info() << "Comming soon!" << std::endl;
+        oops::Log::info() << "GHRSST!" << std::endl;
+        Ghrsst2Ioda conv2ioda(fullConfig);
+        conv2ioda.writeToIoda();
       } else {
         oops::Log::info() << "Provider not implemented" << std::endl;
         return 1;
