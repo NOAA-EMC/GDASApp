@@ -58,12 +58,22 @@ namespace gdasapp {
       unsigned short sss_qc[iodaVars.location];  // NOLINT
       ncFile.getVar("Dg_quality_SSS_corr").getVar(sss_qc);
 
+      // according to https://earth.esa.int/eogateway/documents/20142/0/SMOS-L2-Aux-Data-Product-Specification.pdf,
+      // this is UTC decimal days after MJD2000 (51544.0), which is
+      // Jan 01 2000 00:00:00 GMT+0000
+      float datetime[iodaVars.location];  // NOLINT
+      ncFile.getVar("Mean_acq_time").getVar(datetime);
+
+      // unix epoch at Jan 01 2000 00:00:00 GMT+0000
+      const int mjd2000 = 946684800;
+
       for (int i = 0; i < iodaVars.location; i++) {
         iodaVars.longitude(i) = lon[i];
         iodaVars.latitude(i) = lat[i];
         iodaVars.obsVal(i) = sss[i];
         iodaVars.obsError(i) = sss_error[i];  // Do something for obs error
         iodaVars.preQc(i) = sss_qc[i];
+        iodaVars.datetime(i) =  static_cast<int64_t>(datetime[i]*86400.0f) + mjd2000;
       }
       return iodaVars;
     };
