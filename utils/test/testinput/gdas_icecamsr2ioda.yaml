@@ -5,4 +5,3 @@ variable: NASA_Team_2_Ice_Concentration
 output file: icec_amsr2_north_1.ioda.nc
 input files:
 - icec_amsr2_north_1.nc4
-- icec_amsr2_north_1.nc4
