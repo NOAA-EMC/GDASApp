@@ -1,7 +1,6 @@
 provider: AMSR2
 window begin: 2018-04-15T06:00:00Z
 window end: 2018-04-15T12:00:00Z
-variable: NASA_Team_2_Ice_Concentration
 output file: icec_amsr2_north_1.ioda.nc
 input files:
 - icec_amsr2_north_1.nc4
