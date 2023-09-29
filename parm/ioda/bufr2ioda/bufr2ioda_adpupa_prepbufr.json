@@ -1,0 +1,11 @@
+{
+    "data_format": "prepbufr",
+    "data_type": "prepbufr",
+    "cycle_type": "{{ RUN }}",
+    "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+    "dump_directory": "{{ DMPDIR }}",
+    "ioda_directory": "{{ COM_OBS }}",
+    "subsets": [ "ADPUPA" ],
+    "data_provider": "U.S. NOAA",
+    "data_description": "UPPER-AIR (RAOB, PIBAL, RECCO, DROPS) REPORTS",
+}
