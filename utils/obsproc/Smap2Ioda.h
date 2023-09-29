@@ -3,6 +3,7 @@
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
+#include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -19,43 +20,66 @@ namespace gdasapp {
    public:
     explicit Smap2Ioda(const eckit::Configuration & fullConfig)
     : NetCDFToIodaConverter(fullConfig) {
+      variable_ = "Salinity";
     }
 
     // Read netcdf file and populate iodaVars
-    void providerToIodaVars(const std::string fileName, gdasapp::IodaVars & iodaVars) final {
-      oops::Log::info() << "Processing files provided by SMAP" << std::endl;
-
-      // Set nVars to 1
-      iodaVars.nVars = 1;
+    gdasapp::IodaVars providerToIodaVars(const std::string fileName) final {
+      oops::Log::info() << "Processing files provided by SMOS" << std::endl;
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
 
-      // Get dimensions
-      iodaVars.location = ncFile.getDim("time").getSize();
-      oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
+      // Get number of obs
+      int dim0  = ncFile.getDim("phony_dim_0").getSize();
+      int dim1  = ncFile.getDim("phony_dim_1").getSize();
+      int nobs = dim0 * dim1;
 
-      // Allocate memory
-      iodaVars.obsVal = Eigen::ArrayXf(iodaVars.location);
-      iodaVars.obsError = Eigen::ArrayXf(iodaVars.location);
-      iodaVars.preQc = Eigen::ArrayXi(iodaVars.location);
+      // Set the int metadata names
+      // std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
+      std::vector<std::string> intMetadataNames = {};
 
-      // Get adt_egm2008 obs values and attributes
-      netCDF::NcVar adtNcVar = ncFile.getVar("adt_egm2008");
-      int adtObsVal[iodaVars.location];  // NOLINT (can't pass vector to getVar below)
-      adtNcVar.getVar(adtObsVal);
-      std::string units;
-      adtNcVar.getAtt("units").getValues(units);
-      float scaleFactor;
-      adtNcVar.getAtt("scale_factor").getValues(&scaleFactor);
-      for (int i = 0; i <= iodaVars.location; i++) {
-        iodaVars.obsVal(i) = static_cast<float>(adtObsVal[i])*scaleFactor;
+      // Set the float metadata name
+      // std::vector<std::string> floatMetadataNames = {"mdt"};
+      std::vector<std::string> floatMetadataNames = {};
+      // Create instance of iodaVars object
+      gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
+
+      float lat[dim0][dim1];  // NOLINT
+      ncFile.getVar("lat").getVar(lat);
+
+      float lon[dim0][dim1];  // NOLINT
+      ncFile.getVar("lon").getVar(lon);
+
+      float sss[dim0][dim1];  // NOLINT
+      ncFile.getVar("smap_sss").getVar(sss);
+
+      float sss_error[dim0][dim1];  // NOLINT
+      ncFile.getVar("map_sss_uncertainty").getVar(sss_error);
+
+      unsigned short sss_qc[dim0][dim1];  // NOLINT
+      ncFile.getVar("quality_flag").getVar(sss_qc);
+
+      // "UTC seconds of day"
+      float datetime[dim1];  // NOLINT
+      ncFile.getVar("row_time").getVar(datetime);
+
+      // unix epoch at Jan 01 2000 00:00:00 GMT+0000
+      const int mjd2000 = 946684800;
+
+      int loc;
+      for (int i = 0; i < dim0; i++) {
+        for (int j = 0; j < dim1; j++) {
+          loc = i * dim1 + j;
+          iodaVars.longitude(loc) = lon[i][j];
+          iodaVars.latitude(loc) = lat[i][j];
+          iodaVars.obsVal(loc) = sss[i][j];
+          iodaVars.obsError(loc) = sss_error[i][j];
+          iodaVars.preQc(loc) = sss_qc[i][j];
+        // iodaVars.datetime(i) =  static_cast<int64_t>(datetime[i]*86400.0f) + mjd2000;
+        }
       }
-
-      // Do something for obs error
-      for (int i = 0; i <= iodaVars.location; i++) {
-        iodaVars.obsError(i) = 0.1;
-      }
+      return iodaVars;
     };
   };  // class Smap2Ioda
 }  // namespace gdasapp
