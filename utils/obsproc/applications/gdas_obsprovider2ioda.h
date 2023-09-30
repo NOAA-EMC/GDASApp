@@ -6,8 +6,8 @@
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 
-#include "../Rads2Ioda.h"
 #include "../Ghrsst2Ioda.h"
+#include "../Rads2Ioda.h"
 
 namespace gdasapp {
   class ObsProvider2IodaApp : public oops::Application {
