@@ -25,7 +25,7 @@ namespace gdasapp {
 
     // Read netcdf file and populate iodaVars
     gdasapp::IodaVars providerToIodaVars(const std::string fileName) final {
-      oops::Log::info() << "Processing files provided by SMOS" << std::endl;
+      oops::Log::info() << "Processing files provided by SMAP" << std::endl;
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
@@ -55,7 +55,7 @@ namespace gdasapp {
       ncFile.getVar("smap_sss").getVar(sss);
 
       float sss_error[dim0][dim1];  // NOLINT
-      ncFile.getVar("map_sss_uncertainty").getVar(sss_error);
+      ncFile.getVar("smap_sss_uncertainty").getVar(sss_error);
 
       unsigned short sss_qc[dim0][dim1];  // NOLINT
       ncFile.getVar("quality_flag").getVar(sss_qc);
