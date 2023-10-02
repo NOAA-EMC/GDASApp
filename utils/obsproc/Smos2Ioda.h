@@ -61,12 +61,15 @@ namespace gdasapp {
       ncFile.getVar("Dg_quality_SSS_corr").getVar(sss_qc);
 
       // according to https://earth.esa.int/eogateway/documents/20142/0/SMOS-L2-Aux-Data-Product-Specification.pdf,
-      // this is UTC decimal days after MJD2000 (51544.0), which is
+      // this is UTC decimal days after MJD2000 which is
       // Jan 01 2000 00:00:00 GMT+0000
       float datetime[iodaVars.location];  // NOLINT
       ncFile.getVar("Mean_acq_time").getVar(datetime);
 
-      // unix epoch at Jan 01 2000 00:00:00 GMT+0000
+      iodaVars.referenceDate = "seconds since 1970-01-01T00:00:00Z";
+
+      // unix epoch (seconds after iodaVars.referenceDate) at
+      // Jan 01 2000 00:00:00 GMT+0000
       const int mjd2000 = 946684800;
 
       for (int i = 0; i < iodaVars.location; i++) {
