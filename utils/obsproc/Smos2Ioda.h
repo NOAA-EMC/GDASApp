@@ -34,11 +34,11 @@ namespace gdasapp {
       int nobs = ncFile.getDim("n_grid_points").getSize();
 
       // Set the int metadata names
-      // std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
+      // TODO(AFE): add other metadata std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
       std::vector<std::string> intMetadataNames = {};
 
       // Set the float metadata name
-      // std::vector<std::string> floatMetadataNames = {"mdt"};
+      // TODO(AFE): add other metadata std::vector<std::string> floatMetadataNames = {"mdt"};
       std::vector<std::string> floatMetadataNames = {};
       // Create instance of iodaVars object
       gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
