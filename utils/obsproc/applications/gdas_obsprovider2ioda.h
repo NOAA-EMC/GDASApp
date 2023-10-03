@@ -27,7 +27,7 @@ namespace gdasapp {
       } else if (provider == "GHRSST") {
         oops::Log::info() << "Comming soon!" << std::endl;
       } else if (provider == "SMOS") {
-        Smos2Ioda conv2ioda(fullConfig);
+        Smos2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else {
         oops::Log::info() << "Provider not implemented" << std::endl;
