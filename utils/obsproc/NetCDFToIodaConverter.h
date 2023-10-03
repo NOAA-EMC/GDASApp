@@ -27,10 +27,10 @@ namespace gdasapp {
     int niMetadata;    // number of int metadata fields
 
     // Non optional metadata
-    Eigen::ArrayXf longitude;  //
-    Eigen::ArrayXf latitude;   //      "      error
+    Eigen::ArrayXf longitude;  // geo-location
+    Eigen::ArrayXf latitude;   //     "
     Eigen::Array<int64_t, Eigen::Dynamic, 1> datetime;   // Epoch date in seconds
-    std::string referenceDate;                        // Reference date for epoch time
+    std::string referenceDate;                           // Reference date for epoch time
 
     // Obs info
     Eigen::ArrayXf obsVal;     // Observation value
@@ -154,7 +154,7 @@ namespace gdasapp {
         ioda::Variable tmpIntMeta;
         int count = 0;
         for (const std::string& strMeta : iodaVars.intMetadataName) {
-          std::cout << strMeta << std::endl;
+          oops::Log::info() << strMeta << std::endl;
           tmpIntMeta = ogrp.vars.createWithScales<float>("MetaData/"+strMeta,
                                                          {ogrp.vars["Location"]}, int_params);
           tmpIntMeta.writeWithEigenRegular(iodaVars.intMetadata.col(count));
@@ -165,7 +165,7 @@ namespace gdasapp {
         ioda::Variable tmpFloatMeta;
         count = 0;
         for (const std::string& strMeta : iodaVars.floatMetadataName) {
-          std::cout << strMeta << std::endl;
+          oops::Log::info() << strMeta << std::endl;
           tmpFloatMeta = ogrp.vars.createWithScales<float>("MetaData/"+strMeta,
                                                       {ogrp.vars["Location"]}, int_params);
           tmpFloatMeta.writeWithEigenRegular(iodaVars.floatMetadata.col(count));
@@ -194,16 +194,16 @@ namespace gdasapp {
       // define root pe
       const size_t root = 0;
 
-      // pointer to the send buffer
+      // send pointer to the PE's data
       std::vector<T> send(obsPe.data(), obsPe.data() + obsPe.size());
       size_t ntasks = comm_.size();
 
       // gather the sizes of the send buffers
-      int mysize = send.size();
+      int localnobs = send.size();
       std::vector<int> sizes(ntasks);
-      comm_.allGather(mysize, sizes.begin(), sizes.end());
+      comm_.allGather(localnobs, sizes.begin(), sizes.end());
 
-      // get the index location
+      // displacement for the received data
       std::vector<int> displs(ntasks);
       size_t rcvsz = sizes[0];
       displs[0] = 0;
@@ -212,20 +212,16 @@ namespace gdasapp {
         rcvsz += sizes[jj];
       }
 
-      // allocate memory for the receiving buffer
+      // create receiving buffer
       std::vector<T> recv(0);
 
-      std::cout << "BEFORE comm.gather, rank: "<< comm_.rank() << std::endl;
-      comm_.barrier();
-
+      // gather all send buffers
       if (comm_.rank() == root) recv.resize(rcvsz);
       comm_.gatherv(send, recv, sizes, displs, root);
-      std::cout << "AFTER comm.gather, rank: "<< comm_.rank() << std::endl;
 
       if (comm_.rank() == root) {
-        for (int i = 0; i < recv.size(); ++i) {
-          obsAllPes(i) = recv[i];
-        }
+        obsAllPes.segment(0, recv.size()) =
+          Eigen::Map<Eigen::Array<T, Eigen::Dynamic, 1>>(recv.data(), recv.size());
       }
     }
 
