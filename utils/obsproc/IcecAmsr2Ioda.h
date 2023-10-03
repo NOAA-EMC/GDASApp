@@ -1,11 +1,11 @@
 #pragma once
 
+#include <ctime>
 #include <iostream>
 #include <map>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
 #include <vector>
-#include <chrono>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -40,15 +40,15 @@ namespace gdasapp {
       int ntimes = dimxSize * dimySize * dimTimeSize;
 
       // Set the int metadata names
-      std::vector<std::string> intMetadataNames = {"Flags"};
+      std::vector<std::string> intMetadataNames = {};
       // std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
 
       // Set the float metadata name
-      // std::vector<std::string> floatMetadataNames = {"mdt"};
       std::vector<std::string> floatMetadataNames = {};
+      // std::vector<std::string> floatMetadataNames = {"mdt"};
       // Create instance of iodaVars object
       gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
-      // iodaVars.location = dimxSize * dimySize;
+
       oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
 
       // Read non-optional metadata: datetime, longitude and latitude
@@ -70,63 +70,38 @@ namespace gdasapp {
       std::vector<int> oneDimObsVal(iodaVars.location);
       icecNcVar.getVar(oneDimObsVal.data());
 
-      // std::vector<float> result(ntimes);
-      oops::Log::info() << "Processed right BEFORE datetime" << std::endl;
+      // Read and process the dateTime
       netCDF::NcVar dateTimeNcVar = ncFile.getVar("Scan_Time");
-      std::vector<float> oneTmpdateTimeVal(ntimes);
+      std::vector<int> oneTmpdateTimeVal(ntimes);
       dateTimeNcVar.getVar(oneTmpdateTimeVal.data());
       iodaVars.referenceDate = "seconds since 1970-01-01T00:00:00Z";
-      oops::Log::info() << "Processed right AFTER datetime" << std::endl;
-      // oops::Log::debug() << "--- checking datetime: " <<  << std::endl;
 
       std::tm timeinfo = {};
       for (int i = 0; i < ntimes; i += dimTimeSize) {
-        // result(i) = static_cast<float>(oneTmpdateTimeVal[i]);
-
-        std::cout << i << " ";
-
         for (int j = 0; j < dimTimeSize && i + j < ntimes; j++) {
-        //std::cout << i+j << " ";
-        std::cout << j << " ";
-        std::cout << oneTmpdateTimeVal[i+j] << " ";
-        // result[] = oneTmpdateTimeVal[i+j];
         }
-        //int k = i*6;
-        timeinfo.tm_year = oneTmpdateTimeVal[i] - 1900; //Year since 1900
-        timeinfo.tm_mon = oneTmpdateTimeVal[i + 1] - 1; // Months are 0-based
+        timeinfo.tm_year = oneTmpdateTimeVal[i] - 1900;  // Year since 1900
+        timeinfo.tm_mon = oneTmpdateTimeVal[i + 1] - 1;  // 0-based; 8 represents Sep
         timeinfo.tm_mday = oneTmpdateTimeVal[i + 2];
         timeinfo.tm_hour = oneTmpdateTimeVal[i + 3];
         timeinfo.tm_min = oneTmpdateTimeVal[i + 4];
         timeinfo.tm_sec = oneTmpdateTimeVal[i + 5];
-        std::cout << std::endl;
-        std::cout << timeinfo.tm_year << " ";
-        std::cout << timeinfo.tm_mon << " ";
-        std::cout << timeinfo.tm_mday << " ";
-        std::cout << timeinfo.tm_hour << " ";
-        std::cout << timeinfo.tm_min << " ";
-        std::cout << timeinfo.tm_sec << " ";
-        std::cout << '\n';
-        
+
+        // Calculate and store the seconds since the Unix epoch
+        time_t epochtime = std::mktime(&timeinfo);
+        iodaVars.datetime(i/6) = static_cast<int64_t>(epochtime);
       }
-      oops::Log::info() << "Processed timeinfo loops" << std::endl;
 
       // Update non-optional Eigen arrays
       for (int i = 0; i < iodaVars.location; i++) {
         iodaVars.longitude(i) = oneDimLonVal[i];
         iodaVars.latitude(i) = oneDimLatVal[i];
-      //  iodaVars.datetime(i) = static_cast<int64_t>(datetime[i]*86400.0f);
-        iodaVars.obsVal(i) = oneDimObsVal[i];
+        iodaVars.obsVal(i) = static_cast<int64_t>(oneDimObsVal[i]*0.01);
         iodaVars.obsError(i) = 0.1;  // Do something for obs error
-        iodaVars.preQc(i) = 0;
+        iodaVars.preQc(i) = oneDimFlagsVal[i];
         // Save QC Flags in optional floatMetadata
-        iodaVars.intMetadata(i, 0) = oneDimFlagsVal[i];
+        // iodaVars.intMetadata(i, 0) = oneDimFlagsVal[i];
       }
-
-      // netCDF::NcVar dateTime - ncFile.getVar("Scan_Time");
-      // std::vector<float> oneTmpdateTimeVal(iodaVars.location);
-      // latNcVar.getVar(oneDimLatVal.data());
-      // iodaVars.referenceDate = "seconds since 1970-01-01T00:00:00Z";
-
 
       return iodaVars;
     };
