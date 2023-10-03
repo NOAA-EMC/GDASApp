@@ -51,9 +51,59 @@ namespace gdasapp {
       gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       // Create a 2D array to store the data
-      // std::vector<std::vector<float>> data(dimlon, std::vector<float>(dimlat));
-      // oops::Log::info() << "--- 2D vector: " << data << std::endl;
+      std::vector<std::vector<float>> data(dimLon, std::vector<float>(dimLat));
+      oops::Log::info() << "--- iodaVars.location: " << iodaVars.location << std::endl;
       oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
+
+      // Read non-optional metadata: datetime, longitude and latitude
+      // float lat[dimLon][dimLat]
+      // netCDF::NcVar latNcVar = ncFile.getVar("lat");
+      // std::vector<float> oneDimLatVal(iodaVars.location);
+      // latNcVar.getVar(oneDimLatVal.data());
+      // oops::Log::info() << "--- latNcVar: " << oneDimLatVal << std::endl;
+
+      // netCDF::NcVar lonNcVar = ncFile.getVar("lon");
+      // std::vector<float> oneDimLonVal(iodaVars.location);
+      // lonNcVar.getVar(oneDimLonVal.data());      
+
+      // unix epoch at Jan 01 1970 00:00:00 GMT+0000
+      // int dimTime = ncFile.getDim("lat").getSize();
+      // int refTime; // [dimTime];
+      // ncFile.getVar("time").getVar(refTime);
+      // ToDO : delete
+      // ncFile.getVar("time").getVar(refTime).getValues(&refTime);
+      // oops::Log::info() << "--- Reference time: " << refTime << std::endl;
+
+      std::string units;
+      ncFile.getVar("time").getAtt("units").getValues(units);
+      iodaVars.referenceDate = units;
+      oops::Log::info() << "--- time: " << iodaVars.referenceDate << std::endl;
+
+      int sstdTime[dimLat,dimLon];
+      ncFile.getVar("sst_dtime").getVar(sstdTime);
+      // 
+      // Read ObsValuenetCDF::NcVar sstNcVar = ncFile.getVar("sea_surface_temperature");
+      short sstObsVal[dimLat][dimLon];
+      ncFile.getVar("sea_surface_temperature").getVar(sstObsVal);
+
+      uint8_t sstObsErr[dimLat][dimLon];
+      ncFile.getVar("sses_standard_deviation").getVar(sstObsErr);
+      float scaleFactor;
+      ncFile.getVar("sses_standard_deviation").getAtt("scale_factor").getValues(&scaleFactor);
+      //
+      int loc;
+      for (int i = 0; i < dimLat; i++) {
+        for (int j = 0; j < dimLon; j++) {
+          loc = i * dimLon + j;
+        // iodaVars.longitude(i) = oneDimLonVal[i]; // static_cast<float>(oneDimLonVal[i]);
+        // iodaVars.latitude(i) = oneDimLatVal[i]; // static_cast<float>(oneDimLatVal[i]);      
+          iodaVars.obsVal(loc) = sstObsVal[i][j];
+          iodaVars.obsError(loc) = static_cast<float>(sstObsErr[i][j])*scaleFactor;
+          iodaVars.datetime(loc) = static_cast<int64_t>(sstdTime[i][j]); // + refTime; 
+        };
+      };
+      //
+
       return iodaVars;
     };
   };  // class Ghrsst2Ioda
