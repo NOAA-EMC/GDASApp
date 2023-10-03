@@ -68,7 +68,7 @@ load("py-pybind11/2.8.1")
 load("rocoto/1.3.3")
 
 load("hpc/1.2.0")
-unload("python")
+unload("python/3.10.8")
 load("miniconda3/4.6.14")
 load("gdasapp/1.0.0")
 
