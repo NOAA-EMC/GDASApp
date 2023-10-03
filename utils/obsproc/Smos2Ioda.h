@@ -45,26 +45,26 @@ namespace gdasapp {
       // Create instance of iodaVars object
       gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
-      float lat[iodaVars.location];  // NOLINT
-      ncFile.getVar("Latitude").getVar(lat);
+      std::vector<float> lat(iodaVars.location);
+      ncFile.getVar("Latitude").getVar(lat.data());
 
-      float lon[iodaVars.location];  // NOLINT
-      ncFile.getVar("Longitude").getVar(lon);
+      std::vector<float> lon(iodaVars.location);
+      ncFile.getVar("Longitude").getVar(lon.data());
 
-      float sss[iodaVars.location];  // NOLINT
-      ncFile.getVar("SSS_corr").getVar(sss);
+      std::vector<float> sss(iodaVars.location);
+      ncFile.getVar("SSS_corr").getVar(sss.data());
 
-      float sss_error[iodaVars.location];  // NOLINT
-      ncFile.getVar("Sigma_SSS_corr").getVar(sss_error);
+      std::vector<float> sss_error(iodaVars.location);
+      ncFile.getVar("Sigma_SSS_corr").getVar(sss_error.data());
 
-      unsigned short sss_qc[iodaVars.location];  // NOLINT
-      ncFile.getVar("Dg_quality_SSS_corr").getVar(sss_qc);
+      std::vector< uint16_t > sss_qc(iodaVars.location);
+      ncFile.getVar("Dg_quality_SSS_corr").getVar(sss_qc.data());
 
       // according to https://earth.esa.int/eogateway/documents/20142/0/SMOS-L2-Aux-Data-Product-Specification.pdf,
       // this is UTC decimal days after MJD2000 which is
       // Jan 01 2000 00:00:00 GMT+0000
-      float datetime[iodaVars.location];  // NOLINT
-      ncFile.getVar("Mean_acq_time").getVar(datetime);
+      std::vector<float> datetime(iodaVars.location);
+      ncFile.getVar("Mean_acq_time").getVar(datetime.data());
 
       iodaVars.referenceDate = "seconds since 1970-01-01T00:00:00Z";
 
@@ -76,7 +76,7 @@ namespace gdasapp {
         iodaVars.longitude(i) = lon[i];
         iodaVars.latitude(i) = lat[i];
         iodaVars.obsVal(i) = sss[i];
-        iodaVars.obsError(i) = sss_error[i];  // Do something for obs error
+        iodaVars.obsError(i) = sss_error[i];
         iodaVars.preQc(i) = sss_qc[i];
         iodaVars.datetime(i) =  static_cast<int64_t>(datetime[i]*86400.0f) + mjd2000;
       }
