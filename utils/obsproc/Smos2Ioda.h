@@ -72,6 +72,7 @@ namespace gdasapp {
       // Jan 01 2000 00:00:00 GMT+0000
       const int mjd2000 = 946684800;
 
+      // TODO(AFE) maybe use Eigen Maps here
       for (int i = 0; i < iodaVars.location; i++) {
         iodaVars.longitude(i) = lon[i];
         iodaVars.latitude(i) = lat[i];
