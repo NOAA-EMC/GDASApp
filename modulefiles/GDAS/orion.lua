@@ -13,7 +13,6 @@ prepend_path("MODULEPATH", '/work2/noaa/da/python/opt/modulefiles/stack')
 -- below two lines get us access to the spack-stack modules
 load("stack-intel/2022.0.2")
 load("stack-intel-oneapi-mpi/2021.5.1")
-load("stack-python/3.10.8")
 -- JCSDA has 'jedi-fv3-env/unified-dev', but we should load these manually as needed
 load("cmake/3.22.1")
 load("zlib/1.2.13")
@@ -64,8 +63,10 @@ load("noaatools/3.1")
 load("rocoto/1.3.3")
 
 load("hpc/1.2.0")
-load("miniconda/4.12.0")
---load("gdasapp/1.0.0")
+unload("python/3.10.8")
+unload("python/3.9.2")
+load("hpc-miniconda3/4.6.14")
+load("gdasapp/1.0.0")
 
 -- below is a hack because of cmake finding the wrong python...
 setenv("CONDA_PREFIX", "/work2/noaa/da/python/opt/core/miniconda3/4.6.14/envs/gdasapp/")
