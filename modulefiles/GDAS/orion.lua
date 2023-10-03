@@ -6,7 +6,7 @@ local pkgName    = myModuleName()
 local pkgVersion = myModuleVersion()
 local pkgNameVer = myModuleFullName()
 
-prepend_path("MODULEPATH", '/work/noaa/epic-ps/role-epic-ps/spack-stack/spack-stack-1.5.0/envs/unified-env/install/modulefiles/Core')
+prepend_path("MODULEPATH", '/work/noaa/epic/role-epic/spack-stack/orion/spack-stack-1.5.0/envs/unified-env/install/modulefiles/Core')
 prepend_path("MODULEPATH", '/work2/noaa/da/python/opt/modulefiles/stack')
 
 -- below two lines get us access to the spack-stack modules
