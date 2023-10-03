@@ -19,8 +19,8 @@ namespace gdasapp {
 
   class Rads2Ioda : public NetCDFToIodaConverter {
    public:
-    explicit Rads2Ioda(const eckit::Configuration & fullConfig)
-      : NetCDFToIodaConverter(fullConfig) {
+    explicit Rads2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
+      : NetCDFToIodaConverter(fullConfig, comm) {
       variable_ = "absoluteDynamicTopography";
     }
 
