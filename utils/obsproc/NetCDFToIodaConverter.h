@@ -156,7 +156,7 @@ namespace gdasapp {
         int count = 0;
         for (const std::string& strMeta : iodaVars.intMetadataName) {
           std::cout << strMeta << std::endl;
-          tmpIntMeta = ogrp.vars.createWithScales<float>("MetaData/"+strMeta,
+          tmpIntMeta = ogrp.vars.createWithScales<int>("MetaData/"+strMeta,
                                                          {ogrp.vars["Location"]}, int_params);
           tmpIntMeta.writeWithEigenRegular(iodaVars.intMetadata.col(count));
           count++;
@@ -168,7 +168,7 @@ namespace gdasapp {
         for (const std::string& strMeta : iodaVars.floatMetadataName) {
           std::cout << strMeta << std::endl;
           tmpFloatMeta = ogrp.vars.createWithScales<float>("MetaData/"+strMeta,
-                                                      {ogrp.vars["Location"]}, int_params);
+                                                      {ogrp.vars["Location"]}, float_params);
           tmpFloatMeta.writeWithEigenRegular(iodaVars.floatMetadata.col(count));
           count++;
         }

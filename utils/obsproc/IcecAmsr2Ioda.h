@@ -5,6 +5,7 @@
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -21,7 +22,7 @@ namespace gdasapp {
    public:
     explicit IcecAmsr2Ioda(const eckit::Configuration & fullConfig)
       : NetCDFToIodaConverter(fullConfig) {
-      variable_ = "NASA_Team_2_Ice_Concentration";
+      variable_ = "seaIceFraction";
     }
 
     // Read netcdf file and populate iodaVars
@@ -34,11 +35,13 @@ namespace gdasapp {
       // Get the number of obs in the file
       int dimxSize = ncFile.getDim("Number_of_X_Dimension").getSize();
       int dimySize = ncFile.getDim("Number_of_Y_Dimension").getSize();
+      int dimTimeSize = ncFile.getDim("Time_Dimension").getSize();
       int nobs = dimxSize * dimySize;
+      int ntimes = dimxSize * dimySize * dimTimeSize;
 
       // Set the int metadata names
       std::vector<std::string> intMetadataNames = {"Flags"};
-      // std::vector<std::string> intMetadataNames = {};
+      // std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
 
       // Set the float metadata name
       // std::vector<std::string> floatMetadataNames = {"mdt"};
@@ -54,31 +57,81 @@ namespace gdasapp {
       latNcVar.getVar(oneDimLatVal.data());
 
       netCDF::NcVar lonNcVar = ncFile.getVar("Longitude");
-      std::vector<int> oneDimLonVal(iodaVars.location);
+      std::vector<float> oneDimLonVal(iodaVars.location);
       lonNcVar.getVar(oneDimLonVal.data());
 
-      // float datetime[iodaVars.location];  // NOLINT
-      // ncFile.getVar("Scan_Time").getVar(datetime);
-      // iodaVars.referenceDate = "seconds since 1858-11-17T00:00:00Z";
+      // Read optional integer metadata "Flags"
+      netCDF::NcVar flagsNcVar = ncFile.getVar("Flags");
+      std::vector<int64_t> oneDimFlagsVal(iodaVars.location);
+      flagsNcVar.getVar(oneDimFlagsVal.data());
 
       // Get Ice_Concentration obs values and attributes
       netCDF::NcVar icecNcVar = ncFile.getVar("NASA_Team_2_Ice_Concentration");
       std::vector<int> oneDimObsVal(iodaVars.location);
       icecNcVar.getVar(oneDimObsVal.data());
 
+      // std::vector<float> result(ntimes);
+      oops::Log::info() << "Processed right BEFORE datetime" << std::endl;
+      netCDF::NcVar dateTimeNcVar = ncFile.getVar("Scan_Time");
+      std::vector<float> oneTmpdateTimeVal(ntimes);
+      dateTimeNcVar.getVar(oneTmpdateTimeVal.data());
+      iodaVars.referenceDate = "seconds since 1970-01-01T00:00:00Z";
+      oops::Log::info() << "Processed right AFTER datetime" << std::endl;
+      // oops::Log::debug() << "--- checking datetime: " <<  << std::endl;
+
+      std::tm timeinfo = {};
+      for (int i = 0; i < ntimes; i += dimTimeSize) {
+        // result(i) = static_cast<float>(oneTmpdateTimeVal[i]);
+
+        std::cout << i << " ";
+
+        for (int j = 0; j < dimTimeSize && i + j < ntimes; j++) {
+        //std::cout << i+j << " ";
+        std::cout << j << " ";
+        std::cout << oneTmpdateTimeVal[i+j] << " ";
+        // result[] = oneTmpdateTimeVal[i+j];
+        }
+        //int k = i*6;
+        timeinfo.tm_year = oneTmpdateTimeVal[i] - 1900; //Year since 1900
+        timeinfo.tm_mon = oneTmpdateTimeVal[i + 1] - 1; // Months are 0-based
+        timeinfo.tm_mday = oneTmpdateTimeVal[i + 2];
+        timeinfo.tm_hour = oneTmpdateTimeVal[i + 3];
+        timeinfo.tm_min = oneTmpdateTimeVal[i + 4];
+        timeinfo.tm_sec = oneTmpdateTimeVal[i + 5];
+        std::cout << std::endl;
+        std::cout << timeinfo.tm_year << " ";
+        std::cout << timeinfo.tm_mon << " ";
+        std::cout << timeinfo.tm_mday << " ";
+        std::cout << timeinfo.tm_hour << " ";
+        std::cout << timeinfo.tm_min << " ";
+        std::cout << timeinfo.tm_sec << " ";
+        std::cout << '\n';
+        
+      }
+      oops::Log::info() << "Processed timeinfo loops" << std::endl;
+
       // Update non-optional Eigen arrays
       for (int i = 0; i < iodaVars.location; i++) {
-        iodaVars.longitude(i) = static_cast<float>(oneDimLonVal[i]);
-        iodaVars.latitude(i) = static_cast<float>(oneDimLatVal[i]);
+        iodaVars.longitude(i) = oneDimLonVal[i];
+        iodaVars.latitude(i) = oneDimLatVal[i];
       //  iodaVars.datetime(i) = static_cast<int64_t>(datetime[i]*86400.0f);
-        iodaVars.obsVal(i) = static_cast<int>(oneDimObsVal[i]);
+        iodaVars.obsVal(i) = oneDimObsVal[i];
         iodaVars.obsError(i) = 0.1;  // Do something for obs error
         iodaVars.preQc(i) = 0;
+        // Save QC Flags in optional floatMetadata
+        iodaVars.intMetadata(i, 0) = oneDimFlagsVal[i];
       }
+
+      // netCDF::NcVar dateTime - ncFile.getVar("Scan_Time");
+      // std::vector<float> oneTmpdateTimeVal(iodaVars.location);
+      // latNcVar.getVar(oneDimLatVal.data());
+      // iodaVars.referenceDate = "seconds since 1970-01-01T00:00:00Z";
+
+
       return iodaVars;
     };
     int altimeterMissions(std::string missionName) {
-      std::map<std::string, int> altimeterMap;
+      std::map<std::string, int64_t> altimeterMap;
       // TODO(All): This is incomplete, add missions to the list below
       //            and add to global attribute
       altimeterMap["SNTNL-3A"] = 1;
