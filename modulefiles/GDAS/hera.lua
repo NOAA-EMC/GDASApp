@@ -6,22 +6,19 @@ local pkgName    = myModuleName()
 local pkgVersion = myModuleVersion()
 local pkgNameVer = myModuleFullName()
 
-conflict(pkgName)
-
 prepend_path("MODULEPATH", '/scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.5.0/envs/unified-env/install/modulefiles/Core')
 prepend_path("MODULEPATH", '/scratch1/NCEPDEV/da/python/opt/modulefiles/stack')
 
 -- below two lines get us access to the spack-stack modules
 load("stack-intel/2021.5.0")
 load("stack-intel-oneapi-mpi/2021.5.1")
---load("stack-python/3.10.8")
 -- JCSDA has 'jedi-fv3-env/unified-dev', but we should load these manually as needed
 load("cmake/3.23.1")
-load("curl/7.29.0")
 load("gettext/0.19.8.1")
 load("libunistring/1.1")
 load("libidn2/2.3.4")
 load("pcre2/10.42")
+load("curl/7.29.0")
 load("zlib/1.2.13")
 load("git/2.40.0")
 load("pkg-config/0.27.1")
@@ -69,6 +66,7 @@ load("rocoto/1.3.3")
 
 load("hpc/1.2.0")
 unload("python/3.10.8")
+unload("python/3.9.2")
 load("miniconda3/4.6.14")
 load("gdasapp/1.0.0")
 
@@ -87,6 +85,6 @@ setenv("GDASAPP_TESTDATA","/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data")
 prepend_path("PATH","/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/intel-18.0.5.274/prod_util/1.2.2/bin")
 
 whatis("Name: ".. pkgName)
---whatis("Version: ".. pkgVersion)
+whatis("Version: ".. pkgVersion)
 whatis("Category: GDASApp")
 whatis("Description: Load all libraries needed for GDASApp")
