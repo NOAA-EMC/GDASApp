@@ -52,23 +52,28 @@ namespace gdasapp {
       oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
 
       // Read non-optional metadata: datetime, longitude and latitude
+      // netCDF::NcVar latNcVar = ncFile.getVar("Latitude");
       std::vector<float> oneDimLatVal(iodaVars.location);
       ncFile.getVar("Latitude").getVar(oneDimLatVal.data());
 
+      netCDF::NcVar lonNcVar = ncFile.getVar("Longitude");
       std::vector<float> oneDimLonVal(iodaVars.location);
-      ncFile.getVar("Longitude").getVar(oneDimLonVal.data());
+      lonNcVar.getVar(oneDimLonVal.data());
 
       // Read optional integer metadata "Flags"
+      netCDF::NcVar flagsNcVar = ncFile.getVar("Flags");
       std::vector<int64_t> oneDimFlagsVal(iodaVars.location);
-      ncFile.getVar("Flags").getVar(oneDimFlagsVal.data());
+      flagsNcVar.getVar(oneDimFlagsVal.data());
 
       // Get Ice_Concentration obs values and attributes
+      netCDF::NcVar icecNcVar = ncFile.getVar("NASA_Team_2_Ice_Concentration");
       std::vector<int> oneDimObsVal(iodaVars.location);
-      ncFile.getVar("NASA_Team_2_Ice_Concentration").getVar(oneDimObsVal.data());
+      icecNcVar.getVar(oneDimObsVal.data());
 
       // Read and process the dateTime
+      netCDF::NcVar dateTimeNcVar = ncFile.getVar("Scan_Time");
       std::vector<int> oneTmpdateTimeVal(ntimes);
-      ncFile.getVar("Scan_Time").getVar(oneTmpdateTimeVal.data());
+      dateTimeNcVar.getVar(oneTmpdateTimeVal.data());
       iodaVars.referenceDate = "seconds since 1970-01-01T00:00:00Z";
 
       std::tm timeinfo = {};

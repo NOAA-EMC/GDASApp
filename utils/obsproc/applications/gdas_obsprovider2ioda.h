@@ -25,9 +25,6 @@ namespace gdasapp {
       if (provider == "RADS") {
         Rads2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
-      } else if (provider == "AMSR2") {
-        IcecAmsr2Ioda conv2ioda(fullConfig);
-        conv2ioda.writeToIoda();
       } else if (provider == "GHRSST") {
         oops::Log::info() << "Comming soon!" << std::endl;
       } else if (provider == "SMOS") {
