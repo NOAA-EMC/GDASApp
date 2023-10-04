@@ -113,8 +113,7 @@ namespace gdasapp {
       // Create empty group backed by HDF file
       if (oops::mpi::world().rank() == 0) {
         ioda::Group group =
-          ioda::Engines::HH::createFile(
-                                        outputFilename_,
+          ioda::Engines::HH::createFile(outputFilename_,
                                         ioda::Engines::BackendCreateModes::Truncate_If_Exists);
 
         // Update the group with the location dimension
@@ -217,6 +216,7 @@ namespace gdasapp {
 
       // gather all send buffers
       if (comm_.rank() == root) recv.resize(rcvsz);
+      comm_.barrier();
       comm_.gatherv(send, recv, sizes, displs, root);
 
       if (comm_.rank() == root) {
