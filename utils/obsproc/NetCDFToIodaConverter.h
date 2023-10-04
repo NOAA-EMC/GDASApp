@@ -43,6 +43,7 @@ namespace gdasapp {
     Eigen::ArrayXXf intMetadata;                  // Optional array of integer metadata
     std::vector<std::string> intMetadataName;    // String descriptor of the integer metadata
 
+    // Constructor
     explicit IodaVars(const int nobs = 0,
                       const std::vector<std::string> fmnames = {},
                       const std::vector<std::string> imnames = {}) :
@@ -55,7 +56,43 @@ namespace gdasapp {
       floatMetadataName(fmnames),
       intMetadata(location, imnames.size()),
       intMetadataName(imnames)
-    {}
+    {
+      oops::Log::trace() << "IodaVars::IodaVars created." << std::endl;
+    }
+
+    // Append an other instance of IodaVars
+    void append(const IodaVars& other) {
+      // Check if the two instances can be concatenated
+      ASSERT(nVars == other.nVars);
+      ASSERT(nfMetadata == other.nfMetadata);
+      ASSERT(niMetadata == other.niMetadata);
+      ASSERT(floatMetadataName == floatMetadataName);
+      ASSERT(intMetadataName == intMetadataName);
+
+      // Concatenate Eigen arrays and vectors
+      longitude.conservativeResize(location + other.location);
+      latitude.conservativeResize(location + other.location);
+      datetime.conservativeResize(location + other.location);
+      obsVal.conservativeResize(location + other.location);
+      obsError.conservativeResize(location + other.location);
+      preQc.conservativeResize(location + other.location);
+      floatMetadata.conservativeResize(location + other.location, nfMetadata);
+      intMetadata.conservativeResize(location + other.location, niMetadata);
+
+      // Copy data from the 'other' object to this object
+      longitude.tail(other.location) = other.longitude;
+      latitude.tail(other.location) = other.latitude;
+      datetime.tail(other.location) = other.datetime;
+      obsVal.tail(other.location) = other.obsVal;
+      obsError.tail(other.location) = other.obsError;
+      preQc.tail(other.location) = other.preQc;
+      floatMetadata.bottomRows(other.location) = other.floatMetadata;
+      intMetadata.bottomRows(other.location) = other.intMetadata;
+
+      // Update obs count
+      location += other.location;
+      oops::Log::trace() << "IodaVars::IodaVars done appending." << std::endl;
+    }
   };
 
   // Base class for the converters
@@ -82,6 +119,7 @@ namespace gdasapp {
       // ioda output file name
       outputFilename_ = fullConfig.getString("output file");
       oops::Log::info() << "--- Output files: " << outputFilename_ << std::endl;
+      oops::Log::trace() << "NetCDFToIodaConverter::NetCDFToIodaConverter created." << std::endl;
     }
 
     // Method to write out a IODA file (writter called in destructor)
@@ -90,11 +128,16 @@ namespace gdasapp {
       int myrank  = comm_.rank();
       int nobs(0);
 
-      // Currently need 1 PE per file, abort if not the case
-      ASSERT(comm_.size() == inputFilenames_.size());
+      // Currently need the PE count to be less than the number of files
+      ASSERT(comm_.size() <= inputFilenames_.size());
 
       // Read the provider's netcdf file
       gdasapp::IodaVars iodaVars = providerToIodaVars(inputFilenames_[myrank]);
+      for (int i = myrank + comm_.size(); i < inputFilenames_.size(); i += comm_.size()) {
+        iodaVars.append(providerToIodaVars(inputFilenames_[i]));
+        oops::Log::info() << " appending: " << inputFilenames_[i] << std::endl;
+        oops::Log::info() << " obs count: " << iodaVars.location << std::endl;
+      }
       nobs = iodaVars.location;
 
       // Get the total number of obs across pe's
@@ -153,7 +196,6 @@ namespace gdasapp {
         ioda::Variable tmpIntMeta;
         int count = 0;
         for (const std::string& strMeta : iodaVars.intMetadataName) {
-          oops::Log::info() << strMeta << std::endl;
           tmpIntMeta = ogrp.vars.createWithScales<float>("MetaData/"+strMeta,
                                                          {ogrp.vars["Location"]}, int_params);
           tmpIntMeta.writeWithEigenRegular(iodaVars.intMetadata.col(count));
@@ -164,7 +206,6 @@ namespace gdasapp {
         ioda::Variable tmpFloatMeta;
         count = 0;
         for (const std::string& strMeta : iodaVars.floatMetadataName) {
-          oops::Log::info() << strMeta << std::endl;
           tmpFloatMeta = ogrp.vars.createWithScales<float>("MetaData/"+strMeta,
                                                       {ogrp.vars["Location"]}, float_params);
           tmpFloatMeta.writeWithEigenRegular(iodaVars.floatMetadata.col(count));
@@ -172,6 +213,7 @@ namespace gdasapp {
         }
 
         // Write obs info to group
+        oops::Log::info() << "Writting ioda file" << std::endl;
         iodaLon.writeWithEigenRegular(iodaVarsAll.longitude);
         iodaLat.writeWithEigenRegular(iodaVarsAll.latitude);
         iodaDatetime.writeWithEigenRegular(iodaVarsAll.datetime);
