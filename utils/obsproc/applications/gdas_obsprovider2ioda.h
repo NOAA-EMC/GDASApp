@@ -6,7 +6,6 @@
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 
-#include "../IcecAmsr2Ioda.h"
 #include "../Rads2Ioda.h"
 #include "../Smos2Ioda.h"
 
@@ -30,10 +29,6 @@ namespace gdasapp {
       } else if (provider == "SMOS") {
         Smos2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
-      } else if (provider == "AMSR2") {
-        IcecAmsr2Ioda conv2ioda(fullConfig, this->getComm());
-        conv2ioda.writeToIoda();
-
       } else {
         oops::Log::info() << "Provider not implemented" << std::endl;
         return 1;
