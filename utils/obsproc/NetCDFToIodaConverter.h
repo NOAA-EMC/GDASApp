@@ -128,7 +128,7 @@ namespace gdasapp {
       int myrank  = comm_.rank();
       int nobs(0);
 
-      // Currently need 1 PE per file, abort if not the case
+      // Currently need the PE count to be less than the number of files
       ASSERT(comm_.size() <= inputFilenames_.size());
 
       // Read the provider's netcdf file
