@@ -20,8 +20,8 @@ namespace gdasapp {
 
   class IcecAmsr2Ioda : public NetCDFToIodaConverter {
    public:
-    explicit IcecAmsr2Ioda(const eckit::Configuration & fullConfig)
-      : NetCDFToIodaConverter(fullConfig) {
+    explicit IcecAmsr2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
+      : NetCDFToIodaConverter(fullConfig, comm) {
       variable_ = "seaIceFraction";
     }
 
