@@ -18,8 +18,10 @@ namespace gdasapp {
 
   class Smap2Ioda : public NetCDFToIodaConverter {
    public:
-    explicit Smap2Ioda(const eckit::Configuration & fullConfig)
-    : NetCDFToIodaConverter(fullConfig) {
+    // explicit Smap2Ioda(const eckit::Configuration & fullConfig)
+    // : NetCDFToIodaConverter(fullConfig) {
+    explicit Smap2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
+      : NetCDFToIodaConverter(fullConfig, comm) {
       variable_ = "Salinity";
     }
 
