@@ -2,6 +2,7 @@
 list( APPEND utils_test_input
   testinput/gdas_meanioda.yaml
   testinput/gdas_rads2ioda.yaml
+  testinput/gdas_smap2ioda.yaml
   testinput/gdas_smos2ioda.yaml
   testinput/gdas_icecamsr2ioda.yaml
 )
@@ -37,6 +38,13 @@ ecbuild_add_test( TARGET  test_gdasapp_util_prepdata
 ecbuild_add_test( TARGET  test_gdasapp_util_rads2ioda
                   COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_rads2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+
+# Test the SMAP to IODA converter
+ecbuild_add_test( TARGET  test_gdasapp_util_smap2ioda
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  ARGS    "../testinput/gdas_smap2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 

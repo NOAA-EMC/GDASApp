@@ -1,90 +1,8 @@
-netcdf sss_smap_2 {
+netcdf sss_smap_2_sub {
 dimensions:
 	phony_dim_0 = 3 ;
 	phony_dim_1 = 20 ;
-	phony_dim_2 = 1 ;
 variables:
-	float anc_dir(phony_dim_0, phony_dim_1) ;
-		anc_dir:long_name = "NCEP wind direction (oceanographic convention)" ;
-		anc_dir:units = "Degrees" ;
-		anc_dir:_FillValue = -9999.f ;
-		anc_dir:valid_max = 180.f ;
-		anc_dir:valid_min = -180.f ;
-	float anc_spd(phony_dim_0, phony_dim_1) ;
-		anc_spd:long_name = "10 meter NCEP wind speed (scaled by 1.03)" ;
-		anc_spd:units = "Meters/second" ;
-		anc_spd:_FillValue = -9999.f ;
-		anc_spd:valid_max = 100.f ;
-		anc_spd:valid_min = 0.f ;
-	float anc_sss(phony_dim_0, phony_dim_1) ;
-		anc_sss:long_name = "HYCOM salinity" ;
-		anc_sss:units = "PSU" ;
-		anc_sss:_FillValue = -9999.f ;
-		anc_sss:valid_max = 45.f ;
-		anc_sss:valid_min = 0.f ;
-	float anc_sst(phony_dim_0, phony_dim_1) ;
-		anc_sst:long_name = "NOAA Optimum Interpolation sea surface temperature" ;
-		anc_sst:units = "Degrees kelvin" ;
-		anc_sst:_FillValue = -9999.f ;
-		anc_sst:valid_max = 340.f ;
-		anc_sst:valid_min = 0.f ;
-	float anc_swh(phony_dim_0, phony_dim_1) ;
-		anc_swh:long_name = "NOAA WaveWatch III significant wave height" ;
-		anc_swh:units = "Meters" ;
-		anc_swh:_FillValue = -9999.f ;
-		anc_swh:valid_max = 25.f ;
-		anc_swh:valid_min = 0.f ;
-	float antazi_aft(phony_dim_0, phony_dim_1) ;
-		antazi_aft:long_name = "Antenna azimuth angle aft look" ;
-		antazi_aft:units = "Degrees" ;
-		antazi_aft:_FillValue = -9999.f ;
-		antazi_aft:valid_max = 360.f ;
-		antazi_aft:valid_min = 0.f ;
-	float antazi_fore(phony_dim_0, phony_dim_1) ;
-		antazi_fore:long_name = "Antenna azimuth angle fore look" ;
-		antazi_fore:_FillValue = -9999.f ;
-		antazi_fore:valid_max = 360.f ;
-		antazi_fore:valid_min = 0.f ;
-		antazi_fore:units = "Degrees" ;
-	float azi_aft(phony_dim_0, phony_dim_1) ;
-		azi_aft:long_name = "Cell azimuth angle aft look" ;
-		azi_aft:units = "Degrees" ;
-		azi_aft:_FillValue = -9999.f ;
-		azi_aft:valid_max = 180.f ;
-		azi_aft:valid_min = -180.f ;
-	float azi_fore(phony_dim_0, phony_dim_1) ;
-		azi_fore:long_name = "Cell azimuth angle fore look" ;
-		azi_fore:units = "Degrees" ;
-		azi_fore:_FillValue = -9999.f ;
-		azi_fore:valid_max = 180.f ;
-		azi_fore:valid_min = -180.f ;
-	float ice_concentration(phony_dim_0, phony_dim_1) ;
-		ice_concentration:_FillValue = -9999.f ;
-		ice_concentration:long_name = "Ice concentration" ;
-		ice_concentration:valid_max = 1.f ;
-		ice_concentration:valid_min = 0.f ;
-	float inc_aft(phony_dim_0, phony_dim_1) ;
-		inc_aft:long_name = "Cell incidence angle aft look" ;
-		inc_aft:units = "Degrees" ;
-		inc_aft:_FillValue = -9999.f ;
-		inc_aft:valid_max = 90.f ;
-		inc_aft:valid_min = 0.f ;
-	float inc_fore(phony_dim_0, phony_dim_1) ;
-		inc_fore:long_name = "Cell incidence angle fore look" ;
-		inc_fore:units = "Degrees" ;
-		inc_fore:_FillValue = -9999.f ;
-		inc_fore:valid_max = 90.f ;
-		inc_fore:valid_min = 0.f ;
-	float land_fraction_aft(phony_dim_0, phony_dim_1) ;
-		land_fraction_aft:_FillValue = -9999.f ;
-		land_fraction_aft:long_name = "Average land fraction for aft look" ;
-		land_fraction_aft:valid_max = 1.f ;
-		land_fraction_aft:valid_min = 0.f ;
-	float land_fraction_fore(phony_dim_0, phony_dim_1) ;
-		land_fraction_fore:_FillValue = -9999.f ;
-		land_fraction_fore:long_name = "Average land fraction for fore look" ;
-		land_fraction_fore:valid_max = 1.f ;
-		land_fraction_fore:valid_min = 0.f ;
 	float lat(phony_dim_0, phony_dim_1) ;
 		lat:long_name = "latitude" ;
 		lat:units = "Degrees" ;
@@ -97,98 +15,23 @@ variables:
 		lon:_FillValue = -9999.f ;
 		lon:valid_max = 180.f ;
 		lon:valid_min = -180.f ;
-	ubyte n_h_aft(phony_dim_0, phony_dim_1) ;
-		n_h_aft:long_name = "Number of L1B TBs aggregated into H-pol aft look" ;
-		n_h_aft:_FillValue = 0UB ;
-	ubyte n_h_fore(phony_dim_0, phony_dim_1) ;
-		n_h_fore:long_name = "Number of L1B TBs aggregated into H-pol fore look" ;
-		n_h_fore:_FillValue = 0UB ;
-	ubyte n_v_aft(phony_dim_0, phony_dim_1) ;
-		n_v_aft:long_name = "Number of L1B TBs aggregated into V-pol aft look" ;
-		n_v_aft:_FillValue = 0UB ;
-	ubyte n_v_fore(phony_dim_0, phony_dim_1) ;
-		n_v_fore:long_name = "Number of L1B TBs aggregated into V-pol fore look" ;
-		n_v_fore:_FillValue = 0UB ;
-	float nedt_h_aft(phony_dim_0, phony_dim_1) ;
-		nedt_h_aft:long_name = "Aggregated noise equivilent Delta T for H-pol aft look" ;
-		nedt_h_aft:units = "Degrees kelvin" ;
-		nedt_h_aft:_FillValue = -9999.f ;
-		nedt_h_aft:valid_max = 3.f ;
-		nedt_h_aft:valid_min = 0.f ;
-	float nedt_h_fore(phony_dim_0, phony_dim_1) ;
-		nedt_h_fore:long_name = "Aggregated noise equivilent Delta T for H-pol fore look" ;
-		nedt_h_fore:units = "Degrees kelvin" ;
-		nedt_h_fore:_FillValue = -9999.f ;
-		nedt_h_fore:valid_max = 3.f ;
-		nedt_h_fore:valid_min = 0.f ;
-	float nedt_v_aft(phony_dim_0, phony_dim_1) ;
-		nedt_v_aft:long_name = "Aggregated noise equivilent Delta T for V-pol aft look" ;
-		nedt_v_aft:units = "Degrees kelvin" ;
-		nedt_v_aft:_FillValue = -9999.f ;
-		nedt_v_aft:valid_max = 3.f ;
-		nedt_v_aft:valid_min = 0.f ;
-	float nedt_v_fore(phony_dim_0, phony_dim_1) ;
-		nedt_v_fore:long_name = "Aggregated noise equivilent Delta T for V-pol fore look" ;
-		nedt_v_fore:units = "Degrees kelvin" ;
-		nedt_v_fore:_FillValue = -9999.f ;
-		nedt_v_fore:valid_max = 3.f ;
-		nedt_v_fore:valid_min = 0.f ;
-	ubyte num_ambiguities(phony_dim_0, phony_dim_1) ;
-		num_ambiguities:long_name = "Number of wind vector ambiguties" ;
-		num_ambiguities:_FillValue = 0UB ;
-	ushort quality_flag(phony_dim_0, phony_dim_1) ;
+	short quality_flag(phony_dim_0, phony_dim_1) ;
 		quality_flag:long_name = "Quality flag" ;
-		quality_flag:QUAL_FLAG_SSS_USEABLE = 1US ;
-		quality_flag:QUAL_FLAG_FOUR_LOOKS = 2US ;
-		quality_flag:QUAL_FLAG_POINTING = 4US ;
-		quality_flag:QUAL_FLAG_LARGE_GALAXY_CORRECTION = 16US ;
-		quality_flag:QUAL_FLAG_ROUGHNESS_CORRECTION = 32US ;
-		quality_flag:QUAL_FLAG_LAND = 128US ;
-		quality_flag:QUAL_FLAG_ICE = 256US ;
-		quality_flag:QUAL_FLAG_SST_TOO_COLD = 64US ;
-		quality_flag:QUAL_FLAG_HIGH_SPEED_USEABLE = 512US ;
-		quality_flag:_FillValue = 65535US ;
+		quality_flag:QUAL_FLAG_SSS_USEABLE = 1s ;
+		quality_flag:QUAL_FLAG_FOUR_LOOKS = 2s ;
+		quality_flag:QUAL_FLAG_POINTING = 4s ;
+		quality_flag:QUAL_FLAG_LARGE_GALAXY_CORRECTION = 16s ;
+		quality_flag:QUAL_FLAG_ROUGHNESS_CORRECTION = 32s ;
+		quality_flag:QUAL_FLAG_LAND = 128s ;
+		quality_flag:QUAL_FLAG_ICE = 256s ;
+		quality_flag:QUAL_FLAG_SST_TOO_COLD = 64s ;
+		quality_flag:QUAL_FLAG_HIGH_SPEED_USEABLE = 512s ;
+		quality_flag:_FillValue = 65535s ;
 	float row_time(phony_dim_1) ;
 		row_time:long_name = "Approximate observation time for each row" ;
 		row_time:units = "UTC seconds of day" ;
 		row_time:valid_max = 86400.f ;
 		row_time:valid_min = 0.f ;
-	float smap_ambiguity_dir(phony_dim_0, phony_dim_1, phony_dim_2) ;
-		smap_ambiguity_dir:long_name = "SMAP ambiguity wind direction using ancillary SSS" ;
-		smap_ambiguity_dir:units = "Degrees" ;
-		smap_ambiguity_dir:_FillValue = -9999.f ;
-		smap_ambiguity_dir:valid_max = 180.f ;
-		smap_ambiguity_dir:valid_min = -180.f ;
-	float smap_ambiguity_spd(phony_dim_0, phony_dim_1, phony_dim_2) ;
-		smap_ambiguity_spd:long_name = "SMAP ambiguity wind speed using ancillary SSS" ;
-		smap_ambiguity_spd:units = "Meters/second" ;
-		smap_ambiguity_spd:_FillValue = -9999.f ;
-		smap_ambiguity_spd:valid_max = 100.f ;
-		smap_ambiguity_spd:valid_min = 0.f ;
-	float smap_high_dir(phony_dim_0, phony_dim_1) ;
-		smap_high_dir:long_name = "SMAP wind direction using ancillary SSS" ;
-		smap_high_dir:units = "Degrees" ;
-		smap_high_dir:_FillValue = -9999.f ;
-		smap_high_dir:valid_max = 180.f ;
-		smap_high_dir:valid_min = -180.f ;
-	float smap_high_dir_smooth(phony_dim_0, phony_dim_1) ;
-		smap_high_dir_smooth:long_name = "SMAP wind direction using ancillary SSS and DIRTH smoothing" ;
-		smap_high_dir_smooth:units = "Degrees" ;
-		smap_high_dir_smooth:_FillValue = -9999.f ;
-		smap_high_dir_smooth:valid_max = 180.f ;
-		smap_high_dir_smooth:valid_min = -180.f ;
-	float smap_high_spd(phony_dim_0, phony_dim_1) ;
-		smap_high_spd:long_name = "SMAP wind speed using ancillary SSS" ;
-		smap_high_spd:units = "Meters/second" ;
-		smap_high_spd:_FillValue = -9999.f ;
-		smap_high_spd:valid_max = 100.f ;
-		smap_high_spd:valid_min = 0.f ;
-	float smap_spd(phony_dim_0, phony_dim_1) ;
-		smap_spd:long_name = "SMAP wind speed" ;
-		smap_spd:valid_min = 0.f ;
-		smap_spd:units = "Meters/second" ;
-		smap_spd:_FillValue = -9999.f ;
-		smap_spd:valid_max = 100.f ;
 	float smap_sss(phony_dim_0, phony_dim_1) ;
 		smap_sss:long_name = "SMAP sea surface salinity" ;
 		smap_sss:units = "PSU" ;
@@ -201,42 +44,6 @@ variables:
 		smap_sss_uncertainty:_FillValue = -9999.f ;
 		smap_sss_uncertainty:valid_max = 50.f ;
 		smap_sss_uncertainty:valid_min = 0.f ;
-	float tb_h_aft(phony_dim_0, phony_dim_1) ;
-		tb_h_aft:long_name = "Average brightness temperature for all H-pol aft looks" ;
-		tb_h_aft:units = "Degrees kelvin" ;
-		tb_h_aft:_FillValue = -9999.f ;
-		tb_h_aft:valid_max = 340.f ;
-		tb_h_aft:valid_min = 0.f ;
-	float tb_h_bias_adj(phony_dim_0, phony_dim_1) ;
-		tb_h_bias_adj:long_name = "Brightness temperature bias adjustment for H-pol" ;
-		tb_h_bias_adj:units = "Degrees kelvin" ;
-		tb_h_bias_adj:_FillValue = -9999.f ;
-		tb_h_bias_adj:valid_max = 3.f ;
-		tb_h_bias_adj:valid_min = -3.f ;
-	float tb_h_fore(phony_dim_0, phony_dim_1) ;
-		tb_h_fore:long_name = "Average brightness temperature for all H-pol fore looks" ;
-		tb_h_fore:units = "Degrees kelvin" ;
-		tb_h_fore:_FillValue = -9999.f ;
-		tb_h_fore:valid_max = 340.f ;
-		tb_h_fore:valid_min = 0.f ;
-	float tb_v_aft(phony_dim_0, phony_dim_1) ;
-		tb_v_aft:long_name = "Average brightness temperature for all V-pol aft looks" ;
-		tb_v_aft:units = "Degrees kelvin" ;
-		tb_v_aft:_FillValue = -9999.f ;
-		tb_v_aft:valid_max = 340.f ;
-		tb_v_aft:valid_min = 0.f ;
-	float tb_v_bias_adj(phony_dim_0, phony_dim_1) ;
-		tb_v_bias_adj:long_name = "Brightness temperature bias adjustment for V-pol" ;
-		tb_v_bias_adj:units = "Degrees kelvin" ;
-		tb_v_bias_adj:_FillValue = -9999.f ;
-		tb_v_bias_adj:valid_max = 3.f ;
-		tb_v_bias_adj:valid_min = -3.f ;
-	float tb_v_fore(phony_dim_0, phony_dim_1) ;
-		tb_v_fore:long_name = "Average brightness temperature for all V-pol fore looks" ;
-		tb_v_fore:units = "Degrees kelvin" ;
-		tb_v_fore:_FillValue = -9999.f ;
-		tb_v_fore:valid_max = 340.f ;
-		tb_v_fore:valid_min = 0.f ;
 
 // global attributes:
 		:REVNO = "34258" ;
@@ -265,109 +72,9 @@ variables:
 		:ANC_SWH_FILE = "" ;
 		:CROSSTRACK_RESOLUTION = "25  <km>" ;
 		:ALONGTRACK_RESOLUTION = "25  <km>" ;
-		:history = "Mon Sep 25 18:22:29 2023: ncks -d phony_dim_0,20,70,25 -d phony_dim_1,30,800,40 -d phony_dim_2,2 /scratch1/NCEPDEV/stmp4/Shastri.Paturi/forAndrew/gdas.20210701/00/SSS/SMAP_L2B_SSS_NRT_34258_A_20210630T231436.h5 sss_smap_2.nc" ;
+		:history = "Mon Oct  2 18:36:57 2023: ncks -d phony_dim_0,20,70,25 -d phony_dim_1,30,800,40 -d phony_dim_2,2 -v lat,lon,smap_sss,smap_sss_uncertainty,quality_flag,row_time /scratch1/NCEPDEV/stmp4/Shastri.Paturi/forAndrew/gdas.20210701/00/SSS/SMAP_L2B_SSS_NRT_34258_A_20210630T231436.h5 sss_smap_2_sub.nc" ;
 		:NCO = "netCDF Operators version 5.0.6 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
 data:
-
- anc_dir =
-  _, _, _, 133.9092, 160.72, 74.87418, 42.39687, -37.21365, -40.86459, 
-    -20.64766, 50.31609, -11.37054, -92.2356, -98.04512, -118.6062, 
-    -102.5452, 33.90721, 168.6383, _, _,
-  _, _, _, -163.3098, 154.1484, -174.6241, 29.24811, -28.71294, -38.08297, 
-    17.77446, 38.63403, -104.3617, -52.15567, -104.4132, 116.0518, 167.5574, 
-    4.864107, -139.6474, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- anc_spd =
-  _, _, _, 10.23163, 13.78047, 11.21042, 5.378672, 5.116645, 7.20214, 
-    6.893003, 4.369149, 0.6729634, 2.600461, 3.78183, 2.664555, 4.833544, 
-    6.224308, 7.514698, _, _,
-  _, _, _, 4.988135, 1.323287, 6.012539, 3.828412, 6.315978, 6.75882, 
-    6.264137, 4.492401, 1.615732, 5.310974, 1.851686, 1.942299, 3.721304, 
-    8.063778, 2.472878, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- anc_sss =
-  _, _, _, 34.08549, 33.86372, 33.93216, 34.66872, 35.32089, 35.59516, 
-    34.92286, 33.1524, 33.79899, 36.17197, NaNf, NaNf, NaNf, NaNf, NaNf, _, _,
-  _, _, _, 33.95075, NaNf, 33.94342, 34.45991, 35.15104, 35.34013, 35.08928, 
-    32.4746, NaNf, 36.21872, NaNf, NaNf, NaNf, NaNf, NaNf, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- anc_sst =
-  _, _, _, 278.4586, 281.8379, 286.6391, 290.9675, 292.5248, 294.8246, 
-    296.547, 300.9958, 302.7772, 301.8353, NaNf, NaNf, NaNf, NaNf, NaNf, _, _,
-  _, _, _, 281.1157, NaNf, 285.5868, 290.272, 292.0281, 292.1976, 294.2015, 
-    301.4986, NaNf, 301.3539, NaNf, NaNf, NaNf, NaNf, NaNf, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- anc_swh =
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- antazi_aft =
-  _, _, _, 236.4798, 236.5479, 236.6078, 237.0774, 235.8586, 236.835, 
-    238.001, 236.3912, 237.5595, 237.1667, _, _, _, _, _, _, _,
-  _, _, _, 155.7053, _, _, 155.0802, 154.1021, 154.9854, 154.5094, 154.0459, 
-    _, 154.3002, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- antazi_fore =
-  _, _, _, _, 298.4366, 297.9861, 297.6181, 296.1794, 296.0893, 295.9993, 
-    292.5591, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, 17.7723, 17.46558, 18.54043, 18.10616, 17.62487, _, 
-    18.27662, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- azi_aft =
-  _, _, _, -132.505, -131.3909, -130.8464, -130.2022, -131.5204, -130.7674, 
-    -130.0079, -132.2052, -131.8379, -133.3025, _, _, _, _, _, _, _,
-  _, _, _, 138.4608, _, _, 144.7162, 144.7434, 146.3616, 146.374, 146.198, _, 
-    146.3979, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- azi_fore =
-  _, _, _, _, -69.07497, -69.0895, -69.34338, -70.88467, -71.27363, 
-    -71.82231, -75.90945, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, 7.569777, 8.196639, 9.878628, 9.847222, 9.547672, _, 
-    9.970035, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- ice_concentration =
-  _, _, _, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NaNf, NaNf, NaNf, NaNf, NaNf, _, _,
-  _, _, _, 0, NaNf, NaNf, 0, 0, 0, 0, 0, NaNf, 0, NaNf, NaNf, NaNf, NaNf, 
-    NaNf, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- inc_aft =
-  _, _, _, 40.05983, 40.04097, 40.02207, 40.00284, 39.98508, 39.96991, 
-    39.95802, 39.95288, 39.9507, 39.95218, _, _, _, _, _, _, _,
-  _, _, _, 40.05751, _, _, 40.00628, 39.98964, 39.97545, 39.96652, 39.96035, 
-    _, 39.96014, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- inc_fore =
-  _, _, _, _, 40.04726, 40.02607, 40.00423, 39.98264, 39.96535, 39.95167, 
-    39.9408, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, 40.02915, 40.0113, 39.99512, 39.98133, 39.97119, _, 
-    39.96084, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- land_fraction_aft =
-  _, _, _, 0.0007418957, 0.001828612, 0.0005927554, 0.0002577719, 
-    4.832234e-06, 0, 0.0003605516, 0.0003490494, 0.004810533, 0.003575866, _, 
-    _, _, _, _, _, _,
-  _, _, _, 0.006514254, _, _, 0.001305242, 0.0007498517, 0.001773704, 
-    0.002323115, 0.001478088, _, 0.001693928, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- land_fraction_fore =
-  _, _, _, _, 0.001509945, 0.000433696, 0.0003219767, 4.273503e-06, 0, 
-    0.0003892605, 0.0003989853, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, 0.00150829, 0.0006850367, 0.002124636, 0.002646365, 
-    0.001124227, _, 0.002091165, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  lat =
   _, _, _, -56.78064, -47.99857, -39.24957, -30.44938, -21.60299, -12.80137, 
@@ -387,59 +94,6 @@ data:
     -95.45746, -99.08664, -104.5898, _, _,
   _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- n_h_aft =
-  _, _, _, 9, 6, 10, 8, 9, 10, 8, 9, 11, 6, _, _, _, _, _, _, _,
-  _, _, _, 3, _, _, 3, 4, 3, 6, 3, _, 6, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- n_h_fore =
-  _, _, _, _, 8, 7, 9, 9, 8, 9, 4, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, 6, 3, 6, 3, 6, _, 6, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- n_v_aft =
-  _, _, _, 9, 6, 10, 8, 9, 10, 8, 9, 11, 6, _, _, _, _, _, _, _,
-  _, _, _, 3, _, _, 6, 4, 3, 6, 3, _, 6, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- n_v_fore =
-  _, _, _, _, 8, 7, 9, 9, 8, 9, 4, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, 6, 3, 6, 3, 6, _, 6, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- nedt_h_aft =
-  _, _, _, 0.2585592, 0.3277722, 0.2341173, 0.2599981, 0.2567678, 0.2430711, 
-    0.2675493, 0.2480033, 0.2406336, 0.3154362, _, _, _, _, _, _, _,
-  _, _, _, 0.4511043, _, _, 0.4782529, 0.36592, 0.4816373, 0.3071361, 
-    0.4199952, _, 0.3117481, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- nedt_h_fore =
-  _, _, _, _, 0.277771, 0.2722999, 0.258379, 0.2502153, 0.263352, 0.2477157, 
-    0.3696479, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, 0.2950425, 0.4340732, 0.3134927, 0.4434385, 0.3162379, _, 
-    0.3050339, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- nedt_v_aft =
-  _, _, _, 0.2698491, 0.3398187, 0.2606671, 0.3041282, 0.2870797, 0.2700762, 
-    0.3000298, 0.275411, 0.2626024, 0.3441684, _, _, _, _, _, _, _,
-  _, _, _, 0.4944875, _, _, 0.3518775, 0.4323088, 0.4625379, 0.3487195, 
-    0.5013941, _, 0.3288266, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- nedt_v_fore =
-  _, _, _, _, 0.2885012, 0.3082967, 0.2820557, 0.2699178, 0.2921926, 
-    0.2804058, 0.3938146, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, 0.3446728, 0.4824119, 0.338706, 0.4919791, 0.3485001, _, 
-    0.323507, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- num_ambiguities =
-  _, _, _, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, _, _, _, _, _, _, _,
-  _, _, _, 2, _, _, 2, 2, 1, 2, 2, _, 2, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
  quality_flag =
   _, _, _, 2, 0, 0, 0, 0, 0, 0, 0, 2, 2, _, _, _, _, _, _, _,
   _, _, _, 643, _, _, 0, 0, 0, 0, 0, _, 0, _, _, _, _, _, _, _,
@@ -448,156 +102,6 @@ data:
  row_time = 83785.12, 83930.61, 84076.1, 84221.59, 84367.09, 84512.59, 
     84658.08, 84803.57, 84949.06, 85094.55, 85240.05, 85385.54, 85531.03, 
     85676.52, 85822.02, 85967.51, 86113, 86258.49, 86403.98, 86549.48 ;
-
- smap_ambiguity_dir =
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  46,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _ ;
-
- smap_ambiguity_spd =
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  4.842301,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _,
-  _ ;
-
- smap_high_dir =
-  _, _, _, 150, 44, 68, 6, -24, -94, 42, 36, 48, -86, _, _, _, _, _, _, _,
-  _, _, _, 36, _, _, -54, -60, 32, 28, -98, _, -90, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- smap_high_dir_smooth =
-  0, 0, 0, 170.3554, 128, 94.98854, 21.36911, -47.81168, -59.46152, 
-    -21.65259, 47.81644, -24.43387, -69.30728, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 124.4186, 0, 0, 23.31274, -7.519836, -35.84729, 19.13541, -6, 0, 
-    -62.68173, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
-
- smap_high_spd =
-  _, _, _, 10.87193, 15.13902, 11.92596, 5.231346, 6.128865, 6.975855, 
-    5.050497, 5.273639, 2.100063, 5.231518, _, _, _, _, _, _, _,
-  _, _, _, 7.391337, _, _, 4.146093, 5.296692, 6.60041, 4.960471, 3.710313, 
-    _, 5.110247, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- smap_spd =
-  _, _, _, 10.34533, 13.74761, 11.27931, 5.029773, 4.993748, 8.278768, 
-    7.059045, 4.509632, 1.147639, 3.42385, _, _, _, _, _, _, _,
-  _, _, _, 4.737801, _, _, 4.340526, 6.435837, 6.661925, 6.220681, 4.28861, 
-    _, 4.650516, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  smap_sss =
   _, _, _, 34.39155, 31.83677, 33.38619, 34.6546, 34.85755, 36.14845, 
@@ -611,49 +115,5 @@ data:
     0.5849838, 0.5199394, 0.4813118, 0.7109833, _, _, _, _, _, _, _,
   _, _, _, 1.937714, _, _, 0.7213058, 0.8434753, 0.7709923, 0.7338829, 
     0.5765152, _, 0.5295067, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- tb_h_aft =
-  _, _, _, 77.56077, 78.28034, 77.8764, 76.18681, 75.78055, 76.5167, 
-    76.17175, 76.39256, 74.40428, 74.64547, _, _, _, _, _, _, _,
-  _, _, _, 76.18787, _, _, 76.68268, 76.69926, 76.10619, 75.5326, 76.83755, 
-    _, 74.60305, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- tb_h_bias_adj =
-  _, _, _, -0.2992235, -0.2041177, -0.1128207, -0.04059969, 0.02871453, 
-    0.06205554, 0.06097478, 0.06179707, 0.05668855, 0.03873153, _, _, _, _, 
-    _, _, _,
-  _, _, _, -0.2867877, _, _, -0.03349074, 0.03520399, 0.06131657, 0.06110214, 
-    0.06210677, _, 0.0419666, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- tb_h_fore =
-  _, _, _, _, 79.73653, 78.39787, 76.00336, 75.92786, 76.13841, 75.7118, 
-    76.314, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, 75.83504, 74.89901, 75.91525, 76.36111, 75.96697, _, 
-    73.96935, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- tb_v_aft =
-  _, _, _, 115.9042, 118.7346, 117.4414, 115.9425, 115.6133, 114.87, 
-    115.1508, 115.9651, 115.0563, 113.7444, _, _, _, _, _, _, _,
-  _, _, _, 116.379, _, _, 115.7184, 114.7934, 115.8353, 115.1496, 115.9903, 
-    _, 113.9498, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- tb_v_bias_adj =
-  _, _, _, -0.1854459, -0.1564507, -0.1107376, -0.02630021, 0.06849431, 
-    0.1201262, 0.1239815, 0.1135842, 0.09077054, 0.04637649, _, _, _, _, _, 
-    _, _,
-  _, _, _, -0.1830721, _, _, -0.01664356, 0.07690189, 0.1208269, 0.123587, 
-    0.112451, _, 0.04482929, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
-
- tb_v_fore =
-  _, _, _, _, 117.9442, 117.5644, 115.6287, 115.3041, 114.385, 114.9613, 
-    116.8273, _, _, _, _, _, _, _, _, _,
-  _, _, _, _, _, _, 115.2824, 115.713, 115.1827, 115.0133, 116.5645, _, 
-    114.2423, _, _, _, _, _, _, _,
   _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
 }
