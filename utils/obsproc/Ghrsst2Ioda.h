@@ -56,6 +56,7 @@ namespace gdasapp {
         }
       }
       std::vector<std::vector<float>> Xs = gdasapp::superobutils::subsample2D(X, 2);
+      std::vector<std::vector<float>> Ys = gdasapp::superobutils::subsample2D(Y, 2);
 
       std::string units;
       ncFile.getVar("time").getAtt("units").getValues(units);
