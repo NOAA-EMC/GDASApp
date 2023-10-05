@@ -34,15 +34,16 @@ namespace gdasapp {
       // Get number of obs
       int dimLon = ncFile.getDim("lon").getSize();
       int dimLat = ncFile.getDim("lat").getSize();
-      int nobs = dimLon * dimLat;
+      int dimTime = ncFile.getDim("time").getSize();
+      int nobs = dimTime * dimLat * dimLon;
 
-      // iodaVars.location = ncFile.getDim("lon").getSize();
-      oops::Log::info() << "--- dimensions size: " << dimLon << ", " << dimLat << std::endl;
+      oops::Log::info() << "--- dimensions size: " << dimTime << ", " << dimLon << ", " 
+                        << dimLat << ", " << nobs << std::endl;
 
       // Set the int metadata names
       // std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
       std::vector<std::string> intMetadataNames = {};
-
+      
       // Set the float metadata name
       // std::vector<std::string> floatMetadataNames = {"mdt"};
       std::vector<std::string> floatMetadataNames = {};
@@ -50,60 +51,104 @@ namespace gdasapp {
       // Create instance of iodaVars object
       gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
-      // Create a 2D array to store the data
-      std::vector<std::vector<float>> data(dimLon, std::vector<float>(dimLat));
-      oops::Log::info() << "--- iodaVars.location: " << iodaVars.location << std::endl;
-      oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
-
       // Read non-optional metadata: datetime, longitude and latitude
-      // float lat[dimLon][dimLat]
-      // netCDF::NcVar latNcVar = ncFile.getVar("lat");
-      // std::vector<float> oneDimLatVal(iodaVars.location);
-      // latNcVar.getVar(oneDimLatVal.data());
-      // oops::Log::info() << "--- latNcVar: " << oneDimLatVal << std::endl;
+      // latitude
+      float lat[dimLat];
+      ncFile.getVar("lat").getVar(lat);
 
-      // netCDF::NcVar lonNcVar = ncFile.getVar("lon");
-      // std::vector<float> oneDimLonVal(iodaVars.location);
-      // lonNcVar.getVar(oneDimLonVal.data());      
+      // longitude
+      float lon[dimLon];
+      ncFile.getVar("lon").getVar(lon);
 
-      // unix epoch at Jan 01 1970 00:00:00 GMT+0000
-      // int dimTime = ncFile.getDim("lat").getSize();
-      // int refTime; // [dimTime];
-      // ncFile.getVar("time").getVar(refTime);
-      // ToDO : delete
-      // ncFile.getVar("time").getVar(refTime).getValues(&refTime);
-      // oops::Log::info() << "--- Reference time: " << refTime << std::endl;
+      // Create a 2D array to store the longitude and latitude
+      std::vector<std::vector<float>> dataLat(dimLon, std::vector<float>(dimLat));
+      std::vector<std::vector<float>> dataLon(dimLon, std::vector<float>(dimLat));
 
+      // std::copy(lat.begin(), lat.end(), dataLat[0].begin()); 
+      // TODO: seg-faulting here. working on
+//      for (int i = 0; i < dimLat; i++) {
+//        for (int j = 0; j < dimLon; j++) {
+//           dataLat[i][j] = lat[i];
+//           dataLon[i][j] = lon[j];
+//        };
+//      };
+
+      // unix epoch at Jan 01 1981 00:00:00 GMT+0000
+      // datetime: Read Reference Time
+      int refTime[dimTime];
+      ncFile.getVar("time").getVar(refTime);
+      // const int refTime = 1277942400;
       std::string units;
       ncFile.getVar("time").getAtt("units").getValues(units);
       iodaVars.referenceDate = units;
       oops::Log::info() << "--- time: " << iodaVars.referenceDate << std::endl;
 
-      int sstdTime[dimLat,dimLon];
+      // Read sst_dtime to add to the reference time
+      int sstdTime[dimTime][dimLat][dimLon];
       ncFile.getVar("sst_dtime").getVar(sstdTime);
-      // 
-      // Read ObsValuenetCDF::NcVar sstNcVar = ncFile.getVar("sea_surface_temperature");
-      short sstObsVal[dimLat][dimLon];
-      ncFile.getVar("sea_surface_temperature").getVar(sstObsVal);
+      float dtimeOffSet;
+      ncFile.getVar("sst_dtime").getAtt("add_offset").getValues(&dtimeOffSet);
+      float dtimeScaleFactor;
+      ncFile.getVar("sst_dtime").getAtt("scale_factor").getValues(&dtimeScaleFactor);
 
-      uint8_t sstObsErr[dimLat][dimLon];
+      oops::Log::info() << "--- sst_dtime: " << std::endl;
+
+      // Read SST obs Value, bias, Error and quality flag
+      // ObsValue
+      short sstObsVal[dimTime][dimLat][dimLon];
+      ncFile.getVar("sea_surface_temperature").getVar(sstObsVal);
+      float sstOffSet;
+      ncFile.getVar("sea_surface_temperature").getAtt("add_offset").getValues(&sstOffSet);
+      float sstScaleFactor;
+      ncFile.getVar("sea_surface_temperature").getAtt("scale_factor").getValues(&sstScaleFactor);
+
+      oops::Log::info() << "--- sst_ObsValue: " << std::endl;
+
+      // Bias
+      uint8_t sstObsBias[dimTime][dimLat][dimLon];
+      ncFile.getVar("sses_bias").getVar(sstObsBias);
+      float biasOffSet;
+      ncFile.getVar("sses_bias").getAtt("add_offset").getValues(&biasOffSet);
+      float biasScaleFactor;
+      ncFile.getVar("sses_bias").getAtt("scale_factor").getValues(&biasScaleFactor);
+
+      oops::Log::info() << "--- sst_bias: " << std::endl;
+
+      // Error
+      uint8_t sstObsErr[dimTime][dimLat][dimLon];
       ncFile.getVar("sses_standard_deviation").getVar(sstObsErr);
-      float scaleFactor;
-      ncFile.getVar("sses_standard_deviation").getAtt("scale_factor").getValues(&scaleFactor);
-      //
+      float errOffSet;
+      ncFile.getVar("sses_standard_deviation").getAtt("add_offset").getValues(&errOffSet);
+      float errScaleFactor;
+      ncFile.getVar("sses_standard_deviation").getAtt("scale_factor").getValues(&errScaleFactor);
+
+      oops::Log::info() << "--- sst_Error: " << std::endl;
+
+      // preQc
+      uint8_t sstPreQC[dimTime][dimLat][dimLon];
+      ncFile.getVar("quality_level").getVar(sstPreQC);
+
+      oops::Log::info() << "--- sst_preQc: " << std::endl;
+
+
+      // Write the data in IODA format
       int loc;
       for (int i = 0; i < dimLat; i++) {
         for (int j = 0; j < dimLon; j++) {
           loc = i * dimLon + j;
-        // iodaVars.longitude(i) = oneDimLonVal[i]; // static_cast<float>(oneDimLonVal[i]);
-        // iodaVars.latitude(i) = oneDimLatVal[i]; // static_cast<float>(oneDimLatVal[i]);      
-          iodaVars.obsVal(loc) = sstObsVal[i][j];
-          iodaVars.obsError(loc) = static_cast<float>(sstObsErr[i][j])*scaleFactor;
-          iodaVars.datetime(loc) = static_cast<int64_t>(sstdTime[i][j]); // + refTime; 
+//          iodaVars.longitude(loc) = dataLon[i][j];
+//          iodaVars.latitude(loc)  = dataLat[i][j];      
+          iodaVars.obsVal(loc)    = (static_cast<float>(sstObsVal[0][i][j]) + sstOffSet)   * sstScaleFactor
+                                  - (static_cast<float>(sstObsBias[0][i][j]) + biasOffSet) * biasScaleFactor;
+          iodaVars.obsError(loc)  = (static_cast<float>(sstObsErr[0][i][j]) + errOffSet)   * errScaleFactor;
+          // Note: the qc flags in GDS2.0 run from 0 to 5, with higher numbers being better. 
+          // IODA typically expects 0 to be good, and higher numbers are bad, so the qc flags flipped here.
+          iodaVars.preQc(loc)     = 5 - static_cast<int>(sstPreQC[0][i][j]);
+          iodaVars.datetime(loc)  = static_cast<int64_t>((sstdTime[0][i][j] + dtimeOffSet)  * dtimeScaleFactor) 
+                                  + static_cast<int64_t>(refTime[0]); 
         };
       };
       //
-
       return iodaVars;
     };
   };  // class Ghrsst2Ioda
