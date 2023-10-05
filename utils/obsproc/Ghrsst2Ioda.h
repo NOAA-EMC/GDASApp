@@ -18,8 +18,8 @@ namespace gdasapp {
 
   class Ghrsst2Ioda : public NetCDFToIodaConverter {
    public:
-    explicit Ghrsst2Ioda(const eckit::Configuration & fullConfig)
-    : NetCDFToIodaConverter(fullConfig) {
+    explicit Ghrsst2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
+      : NetCDFToIodaConverter(fullConfig, comm) {
       variable_ = "seaSurfaceTemperature";
     }
 
@@ -36,73 +36,55 @@ namespace gdasapp {
       int dimLat = ncFile.getDim("lat").getSize();
       int nobs = dimLon * dimLat;
 
-      // iodaVars.location = ncFile.getDim("lon").getSize();
-      oops::Log::info() << "--- dimensions size: " << dimLon << ", " << dimLat << std::endl;
-
-      // Set the int metadata names
-      // std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
-      std::vector<std::string> intMetadataNames = {};
-
-      // Set the float metadata name
-      // std::vector<std::string> floatMetadataNames = {"mdt"};
-      std::vector<std::string> floatMetadataNames = {};
-
       // Create instance of iodaVars object
-      gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
-
-      // Create a 2D array to store the data
-      std::vector<std::vector<float>> data(dimLon, std::vector<float>(dimLat));
-      oops::Log::info() << "--- iodaVars.location: " << iodaVars.location << std::endl;
-      oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
+      gdasapp::IodaVars iodaVars(nobs, {}, {});
 
       // Read non-optional metadata: datetime, longitude and latitude
-      // float lat[dimLon][dimLat]
-      // netCDF::NcVar latNcVar = ncFile.getVar("lat");
-      // std::vector<float> oneDimLatVal(iodaVars.location);
-      // latNcVar.getVar(oneDimLatVal.data());
-      // oops::Log::info() << "--- latNcVar: " << oneDimLatVal << std::endl;
+      float lat[dimLat];
+      ncFile.getVar("lat").getVar(lat);
 
-      // netCDF::NcVar lonNcVar = ncFile.getVar("lon");
-      // std::vector<float> oneDimLonVal(iodaVars.location);
-      // lonNcVar.getVar(oneDimLonVal.data());      
+      float lon[dimLon];
+      ncFile.getVar("lon").getVar(lon);
 
-      // unix epoch at Jan 01 1970 00:00:00 GMT+0000
-      // int dimTime = ncFile.getDim("lat").getSize();
-      // int refTime; // [dimTime];
-      // ncFile.getVar("time").getVar(refTime);
-      // ToDO : delete
-      // ncFile.getVar("time").getVar(refTime).getValues(&refTime);
-      // oops::Log::info() << "--- Reference time: " << refTime << std::endl;
+      // Generate the lat-lon grid
+      std::vector<std::vector<float>> X(dimLon, std::vector<float>(dimLat));
+      std::vector<std::vector<float>> Y(dimLon, std::vector<float>(dimLat));
+      for (int i = 0; i < dimLon; ++i) {
+        for (int j = 0; j < dimLat; ++j) {
+          X[i][j] = lon[i];
+          Y[i][j] = lat[j];
+        }
+      }
+      std::vector<std::vector<float>> Xs = gdasapp::superobutils::subsample2D(X, 2);
 
       std::string units;
       ncFile.getVar("time").getAtt("units").getValues(units);
       iodaVars.referenceDate = units;
-      oops::Log::info() << "--- time: " << iodaVars.referenceDate << std::endl;
-
-      int sstdTime[dimLat,dimLon];
+      int sstdTime[dimLat][dimLon];
       ncFile.getVar("sst_dtime").getVar(sstdTime);
-      // 
+
       // Read ObsValuenetCDF::NcVar sstNcVar = ncFile.getVar("sea_surface_temperature");
       short sstObsVal[dimLat][dimLon];
       ncFile.getVar("sea_surface_temperature").getVar(sstObsVal);
+
 
       uint8_t sstObsErr[dimLat][dimLon];
       ncFile.getVar("sses_standard_deviation").getVar(sstObsErr);
       float scaleFactor;
       ncFile.getVar("sses_standard_deviation").getAtt("scale_factor").getValues(&scaleFactor);
       //
-      int loc;
+      int loc(0);
       for (int i = 0; i < dimLat; i++) {
         for (int j = 0; j < dimLon; j++) {
-          loc = i * dimLon + j;
-        // iodaVars.longitude(i) = oneDimLonVal[i]; // static_cast<float>(oneDimLonVal[i]);
-        // iodaVars.latitude(i) = oneDimLatVal[i]; // static_cast<float>(oneDimLatVal[i]);      
+          iodaVars.longitude(i) = X[i][j];
+          iodaVars.latitude(i) = Y[i][j];
+          // TODO: nothing is properly scaled yet
           iodaVars.obsVal(loc) = sstObsVal[i][j];
           iodaVars.obsError(loc) = static_cast<float>(sstObsErr[i][j])*scaleFactor;
-          iodaVars.datetime(loc) = static_cast<int64_t>(sstdTime[i][j]); // + refTime; 
+          iodaVars.datetime(loc) = static_cast<int64_t>(sstdTime[i][j]);
+          loc += 1;
         };
       };
-      //
 
       return iodaVars;
     };

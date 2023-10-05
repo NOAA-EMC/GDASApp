@@ -17,6 +17,75 @@
 #include "oops/util/missingValues.h"
 
 namespace gdasapp {
+  namespace superobutils {
+    // Function to perform subsampling with a given stride
+    template <typename T>
+    std::vector<std::vector<T>> subsample2D(const std::vector<std::vector<T>>& inputArray,
+                                            int stride) {
+      int numRows = inputArray.size();
+      int numCols = inputArray[0].size();
+
+      // Calculate the dimensions of the subsampled array
+      int subsampledRows = (numRows + stride - 1) / stride;
+      int subsampledCols = (numCols + stride - 1) / stride;
+
+      // Initialize the subsampled array with the correct dimensions
+      std::vector<std::vector<T>> subsampled(subsampledRows, std::vector<T>(subsampledCols));
+
+      // Perform subsampling
+      for (int i = 0; i < subsampledRows; ++i) {
+        for (int j = 0; j < subsampledCols; ++j) {
+          int sum = 0;
+          int count = 0;
+
+          // Compute the average within the stride
+          for (int si = 0; si < stride; ++si) {
+            for (int sj = 0; sj < stride; ++sj) {
+              int row = i * stride + si;
+              int col = j * stride + sj;
+              //std::cout << "------- i, j : " << i << ", " << j << std::endl;
+              if (row < numRows && col < numCols) {
+                //std::cout << "            r, c : " << row << ", " << col << std::endl;
+                //std::cout << "            input : " << inputArray[row][col] << std::endl;
+                sum += inputArray[row][col];
+                count++;
+              }
+            }
+          }
+
+          // Calculate the average and store it in the subsampled array
+          subsampled[i][j] = sum / count;
+          //subsampled[i][j] = inputArray[i * stride][j * stride];
+        }
+      }
+
+      return subsampled;
+    }
+
+    /*int main() {
+    std::vector<std::vector<int>> inputArray = {
+        {1, 2, 3, 4},
+        {5, 6, 7, 8},
+        {9, 10, 11, 12}
+    };
+
+    int stride = 2;
+
+    std::vector<std::vector<int>> subsampledArray = subsample2DArray(inputArray, stride);
+
+    // Print the subsampled array
+    for (const auto& row : subsampledArray) {
+        for (int value : row) {
+            std::cout << value << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    return 0;
+    }*/
+
+  }  // namespace superobutils
+
   // A simple data structure to organize the info to provide to the ioda
   // writter
   struct IodaVars {
@@ -27,10 +96,10 @@ namespace gdasapp {
     int niMetadata;    // number of int metadata fields
 
     // Non optional metadata
-    Eigen::ArrayXf longitude;  //
-    Eigen::ArrayXf latitude;   //      "      error
+    Eigen::ArrayXf longitude;  // geo-location
+    Eigen::ArrayXf latitude;   //     "
     Eigen::Array<int64_t, Eigen::Dynamic, 1> datetime;   // Epoch date in seconds
-    std::string referenceDate;                        // Reference date for epoch time
+    std::string referenceDate;                           // Reference date for epoch time
 
     // Obs info
     Eigen::ArrayXf obsVal;     // Observation value
@@ -43,6 +112,7 @@ namespace gdasapp {
     Eigen::ArrayXXf intMetadata;                  // Optional array of integer metadata
     std::vector<std::string> intMetadataName;    // String descriptor of the integer metadata
 
+    // Constructor
     explicit IodaVars(const int nobs = 0,
                       const std::vector<std::string> fmnames = {},
                       const std::vector<std::string> imnames = {}) :
@@ -55,14 +125,51 @@ namespace gdasapp {
       floatMetadataName(fmnames),
       intMetadata(location, imnames.size()),
       intMetadataName(imnames)
-    {}
+    {
+      oops::Log::trace() << "IodaVars::IodaVars created." << std::endl;
+    }
+
+    // Append an other instance of IodaVars
+    void append(const IodaVars& other) {
+      // Check if the two instances can be concatenated
+      ASSERT(nVars == other.nVars);
+      ASSERT(nfMetadata == other.nfMetadata);
+      ASSERT(niMetadata == other.niMetadata);
+      ASSERT(floatMetadataName == floatMetadataName);
+      ASSERT(intMetadataName == intMetadataName);
+
+      // Concatenate Eigen arrays and vectors
+      longitude.conservativeResize(location + other.location);
+      latitude.conservativeResize(location + other.location);
+      datetime.conservativeResize(location + other.location);
+      obsVal.conservativeResize(location + other.location);
+      obsError.conservativeResize(location + other.location);
+      preQc.conservativeResize(location + other.location);
+      floatMetadata.conservativeResize(location + other.location, nfMetadata);
+      intMetadata.conservativeResize(location + other.location, niMetadata);
+
+      // Copy data from the 'other' object to this object
+      longitude.tail(other.location) = other.longitude;
+      latitude.tail(other.location) = other.latitude;
+      datetime.tail(other.location) = other.datetime;
+      obsVal.tail(other.location) = other.obsVal;
+      obsError.tail(other.location) = other.obsError;
+      preQc.tail(other.location) = other.preQc;
+      floatMetadata.bottomRows(other.location) = other.floatMetadata;
+      intMetadata.bottomRows(other.location) = other.intMetadata;
+
+      // Update obs count
+      location += other.location;
+      oops::Log::trace() << "IodaVars::IodaVars done appending." << std::endl;
+    }
   };
 
   // Base class for the converters
   class NetCDFToIodaConverter {
    public:
     // Constructor: Stores the configuration as a data members
-    explicit NetCDFToIodaConverter(const eckit::Configuration & fullConfig) {
+    explicit NetCDFToIodaConverter(const eckit::Configuration & fullConfig,
+                                   const eckit::mpi::Comm & comm): comm_(comm) {
       // time window info
       std::string winbegin;
       std::string winend;
@@ -81,41 +188,44 @@ namespace gdasapp {
       // ioda output file name
       outputFilename_ = fullConfig.getString("output file");
       oops::Log::info() << "--- Output files: " << outputFilename_ << std::endl;
+      oops::Log::trace() << "NetCDFToIodaConverter::NetCDFToIodaConverter created." << std::endl;
     }
 
     // Method to write out a IODA file (writter called in destructor)
     void writeToIoda() {
-      // Get communicator
-      const eckit::mpi::Comm & comm = oops::mpi::world();
-
       // Extract ioda variables from the provider's files
-      int myrank  = comm.rank();
+      int myrank  = comm_.rank();
       int nobs(0);
 
-      // Currently need 1 PE per file, abort if not the case
-      ASSERT(comm.size() == inputFilenames_.size());
+      // Currently need the PE count to be less than the number of files
+      ASSERT(comm_.size() <= inputFilenames_.size());
 
       // Read the provider's netcdf file
       gdasapp::IodaVars iodaVars = providerToIodaVars(inputFilenames_[myrank]);
+      for (int i = myrank + comm_.size(); i < inputFilenames_.size(); i += comm_.size()) {
+        iodaVars.append(providerToIodaVars(inputFilenames_[i]));
+        oops::Log::info() << " appending: " << inputFilenames_[i] << std::endl;
+        oops::Log::info() << " obs count: " << iodaVars.location << std::endl;
+      }
       nobs = iodaVars.location;
 
       // Get the total number of obs across pe's
-      comm.allReduce(nobs, nobs, eckit::mpi::sum());
-      gdasapp::IodaVars iodaVarsAll(nobs, iodaVars.floatMetadataName, iodaVars.intMetadataName);
+      int nobsAll(0);
+      comm_.allReduce(nobs, nobsAll, eckit::mpi::sum());
+      gdasapp::IodaVars iodaVarsAll(nobsAll, iodaVars.floatMetadataName, iodaVars.intMetadataName);
 
       // Gather iodaVars arrays
-      gatherObs(comm, iodaVars.longitude, iodaVarsAll.longitude);
-      gatherObs(comm, iodaVars.latitude, iodaVarsAll.latitude);
-      gatherObs(comm, iodaVars.datetime, iodaVarsAll.datetime);
-      gatherObs(comm, iodaVars.obsVal, iodaVarsAll.obsVal);
-      gatherObs(comm, iodaVars.obsError, iodaVarsAll.obsError);
-      gatherObs(comm, iodaVars.preQc, iodaVarsAll.preQc);
+      gatherObs(iodaVars.longitude, iodaVarsAll.longitude);
+      gatherObs(iodaVars.latitude, iodaVarsAll.latitude);
+      gatherObs(iodaVars.datetime, iodaVarsAll.datetime);
+      gatherObs(iodaVars.obsVal, iodaVarsAll.obsVal);
+      gatherObs(iodaVars.obsError, iodaVarsAll.obsError);
+      gatherObs(iodaVars.preQc, iodaVarsAll.preQc);
 
       // Create empty group backed by HDF file
       if (oops::mpi::world().rank() == 0) {
         ioda::Group group =
-          ioda::Engines::HH::createFile(
-                                        outputFilename_,
+          ioda::Engines::HH::createFile(outputFilename_,
                                         ioda::Engines::BackendCreateModes::Truncate_If_Exists);
 
         // Update the group with the location dimension
@@ -155,7 +265,6 @@ namespace gdasapp {
         ioda::Variable tmpIntMeta;
         int count = 0;
         for (const std::string& strMeta : iodaVars.intMetadataName) {
-          std::cout << strMeta << std::endl;
           tmpIntMeta = ogrp.vars.createWithScales<float>("MetaData/"+strMeta,
                                                          {ogrp.vars["Location"]}, int_params);
           tmpIntMeta.writeWithEigenRegular(iodaVars.intMetadata.col(count));
@@ -166,7 +275,6 @@ namespace gdasapp {
         ioda::Variable tmpFloatMeta;
         count = 0;
         for (const std::string& strMeta : iodaVars.floatMetadataName) {
-          std::cout << strMeta << std::endl;
           tmpFloatMeta = ogrp.vars.createWithScales<float>("MetaData/"+strMeta,
                                                       {ogrp.vars["Location"]}, int_params);
           tmpFloatMeta.writeWithEigenRegular(iodaVars.floatMetadata.col(count));
@@ -174,6 +282,7 @@ namespace gdasapp {
         }
 
         // Write obs info to group
+        oops::Log::info() << "Writting ioda file" << std::endl;
         iodaLon.writeWithEigenRegular(iodaVarsAll.longitude);
         iodaLat.writeWithEigenRegular(iodaVarsAll.latitude);
         iodaDatetime.writeWithEigenRegular(iodaVarsAll.datetime);
@@ -190,13 +299,40 @@ namespace gdasapp {
 
     // Gather for eigen array
     template <typename T>
-    void gatherObs(const eckit::mpi::Comm & comm,
-                   const Eigen::Array<T, Eigen::Dynamic, 1> & obsPe,
+    void gatherObs(const Eigen::Array<T, Eigen::Dynamic, 1> & obsPe,
                    Eigen::Array<T, Eigen::Dynamic, 1> & obsAllPes) {
-      std::vector<T> tmpVec(obsPe.data(), obsPe.data() + obsPe.size());
-      oops::mpi::allGatherv(comm, tmpVec);
-      for (int i = 0; i < tmpVec.size(); ++i) {
-        obsAllPes(i) = tmpVec[i];
+      // define root pe
+      const size_t root = 0;
+
+      // send pointer to the PE's data
+      std::vector<T> send(obsPe.data(), obsPe.data() + obsPe.size());
+      size_t ntasks = comm_.size();
+
+      // gather the sizes of the send buffers
+      int localnobs = send.size();
+      std::vector<int> sizes(ntasks);
+      comm_.allGather(localnobs, sizes.begin(), sizes.end());
+
+      // displacement for the received data
+      std::vector<int> displs(ntasks);
+      size_t rcvsz = sizes[0];
+      displs[0] = 0;
+      for (size_t jj = 1; jj < ntasks; ++jj) {
+        displs[jj] = displs[jj - 1] + sizes[jj - 1];
+        rcvsz += sizes[jj];
+      }
+
+      // create receiving buffer
+      std::vector<T> recv(0);
+
+      // gather all send buffers
+      if (comm_.rank() == root) recv.resize(rcvsz);
+      comm_.barrier();
+      comm_.gatherv(send, recv, sizes, displs, root);
+
+      if (comm_.rank() == root) {
+        obsAllPes.segment(0, recv.size()) =
+          Eigen::Map<Eigen::Array<T, Eigen::Dynamic, 1>>(recv.data(), recv.size());
       }
     }
 
@@ -217,5 +353,6 @@ namespace gdasapp {
     std::vector<std::string> inputFilenames_;
     std::string outputFilename_;
     std::string variable_;
+    const eckit::mpi::Comm & comm_;
   };
 }  // namespace gdasapp

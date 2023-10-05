@@ -4,5 +4,6 @@ window end: 2018-04-15T12:00:00Z
 variable: seaSurfaceTemperature
 output file: ghrsst_sst_mb_20210701.ioda.nc
 input files:
-- ghrsst_sst_mb_202107010000.nc4
+- /home/gvernier/runs/data/20210630220000-OSPO-L3U_GHRSST-SSTsubskin-VIIRS_N20-ACSPO_V2.61-v02.0-fv01.0.nc
+#- ghrsst_sst_mb_202107010000.nc4
 #- ghrsst_sst_mb_202107010100.nc4
