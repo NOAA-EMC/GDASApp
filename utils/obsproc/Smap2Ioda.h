@@ -11,6 +11,7 @@
 
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
+#include "oops/util/DateTime.h"
 
 #include "NetCDFToIodaConverter.h"
 
@@ -66,8 +67,24 @@ namespace gdasapp {
       float datetime[dim1];  // NOLINT
       ncFile.getVar("row_time").getVar(datetime);
 
-      // unix epoch at Jan 01 2000 00:00:00 GMT+0000
-      const int mjd2000 = 946684800;
+      int startYear;
+      std::string attributeNameYear = "REV_START_YEAR";
+      netCDF::NcGroupAtt attributeYear = ncFile.getAtt(attributeNameYear);
+      attributeYear.getValues(&startYear);
+
+      int startDay;
+      std::string attributeNameDay = "REV_START_DAY_OF_YEAR";
+      netCDF::NcGroupAtt attributeDay = ncFile.getAtt(attributeNameDay);
+      attributeDay.getValues(&startDay);
+
+      // calculate the seconds of Jan 1 of startyear since unix epoch
+      std::tm tm{};
+      // defaults are zero, Jan is zero
+      tm.tm_year = startYear - 1900;
+      tm.tm_mday = 1;
+      time_t unixStartYear = mktime(&tm);     
+
+      int unixStartDay = unixStartYear + startDay * 86400;
 
       int loc;
       for (int i = 0; i < dim0; i++) {
@@ -78,7 +95,7 @@ namespace gdasapp {
           iodaVars.obsVal(loc) = sss[i][j];
           iodaVars.obsError(loc) = sss_error[i][j];
           iodaVars.preQc(loc) = sss_qc[i][j];
-        // iodaVars.datetime(i) =  static_cast<int64_t>(datetime[i]*86400.0f) + mjd2000;
+          iodaVars.datetime(loc) =  static_cast<int64_t>(datetime[j] + unixStartDay);
         }
       }
       return iodaVars;

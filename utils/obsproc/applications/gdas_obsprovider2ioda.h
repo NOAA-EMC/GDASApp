@@ -29,6 +29,7 @@ namespace gdasapp {
         oops::Log::info() << "Comming soon!" << std::endl;
       } else if (provider == "SMAP") {
         Smap2Ioda conv2ioda(fullConfig, this->getComm());
+        conv2ioda.writeToIoda();
       } else if (provider == "SMOS") {
         Smos2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
