@@ -5,4 +5,4 @@ variable: seaSurfaceTemperature
 output file: ghrsst_sst_mb_20210701.ioda.nc
 input files:
 - ghrsst_sst_mb_202107010000.nc4
-#- ghrsst_sst_mb_202107010100.nc4
+- ghrsst_sst_mb_202107010100.nc4
