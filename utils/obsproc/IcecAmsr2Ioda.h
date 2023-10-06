@@ -44,8 +44,7 @@ namespace gdasapp {
 
       oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
 
-      // Read non-optional metadata: datetime, longitude and latitude
-      // netCDF::NcVar latNcVar = ncFile.getVar("Latitude");
+      // Read non-optional metadata: longitude and latitude
       std::vector<float> oneDimLatVal(iodaVars.location);
       ncFile.getVar("Latitude").getVar(oneDimLatVal.data());
 
