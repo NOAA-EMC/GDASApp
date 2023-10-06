@@ -39,15 +39,17 @@ namespace gdasapp {
       int nobs = dim0 * dim1;
 
       // Set the int metadata names
-      // std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
+      // TODO(AFE) fill this in: intMetadataNames = {"pass", "cycle", "mission"};
       std::vector<std::string> intMetadataNames = {};
 
       // Set the float metadata name
-      // std::vector<std::string> floatMetadataNames = {"mdt"};
+      // TODO(AFE) fill this in:  floatMetadataNames = {"mdt"};
       std::vector<std::string> floatMetadataNames = {};
       // Create instance of iodaVars object
       gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
+      // TODO(AFE): these arrays can be done as 1D vectors, but those need proper ushorts in
+      // the input files, at odd with the current ctests
       float lat[dim0][dim1];  // NOLINT
       ncFile.getVar("lat").getVar(lat);
 
@@ -64,25 +66,25 @@ namespace gdasapp {
       ncFile.getVar("quality_flag").getVar(sss_qc);
 
       // "UTC seconds of day"
-      float datetime[dim1];  // NOLINT
-      ncFile.getVar("row_time").getVar(datetime);
+      float obsTime[dim1];  // NOLINT
+      ncFile.getVar("row_time").getVar(obsTime);
 
       int startYear;
-      std::string attributeNameYear = "REV_START_YEAR";
-      netCDF::NcGroupAtt attributeYear = ncFile.getAtt(attributeNameYear);
-      attributeYear.getValues(&startYear);
+      // std::string attributeNameStartYear = "REV_START_YEAR";
+      netCDF::NcGroupAtt attributeStartYear = ncFile.getAtt("REV_START_YEAR");
+      attributeStartYear.getValues(&startYear);
 
       int startDay;
-      std::string attributeNameDay = "REV_START_DAY_OF_YEAR";
-      netCDF::NcGroupAtt attributeDay = ncFile.getAtt(attributeNameDay);
-      attributeDay.getValues(&startDay);
+      // std::string attributeNameDay = "REV_START_DAY_OF_YEAR";
+      netCDF::NcGroupAtt attributeStartDay = ncFile.getAtt("REV_START_DAY_OF_YEAR");
+      attributeStartDay.getValues(&startDay);
 
       // calculate the seconds of Jan 1 of startyear since unix epoch
       std::tm tm{};
       // defaults are zero, Jan is zero
       tm.tm_year = startYear - 1900;
       tm.tm_mday = 1;
-      time_t unixStartYear = mktime(&tm);     
+      time_t unixStartYear = mktime(&tm);
 
       int unixStartDay = unixStartYear + startDay * 86400;
 
@@ -95,7 +97,7 @@ namespace gdasapp {
           iodaVars.obsVal(loc) = sss[i][j];
           iodaVars.obsError(loc) = sss_error[i][j];
           iodaVars.preQc(loc) = sss_qc[i][j];
-          iodaVars.datetime(loc) =  static_cast<int64_t>(datetime[j] + unixStartDay);
+          iodaVars.datetime(loc) =  static_cast<int64_t>(obsTime[j] + unixStartDay);
         }
       }
       return iodaVars;
