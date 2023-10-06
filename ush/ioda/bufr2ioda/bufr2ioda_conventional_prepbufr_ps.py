@@ -32,12 +32,9 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
 def bufr_to_ioda(config, logger):
 
-    subsets1 = config["subsets1"]
-    subsets2 = config["subsets2"]
-    logger.debug(f"Checking subsets1 = {subsets1}")
-    logger.debug(f"Checking subsets2 = {subsets2}")
-    logger.info(f"Checking subsets1 = {subsets1}")
-    logger.info(f"Checking subsets2 = {subsets2}")
+    subsets = config["subsets"]
+    logger.debug(f"Checking subsets = {subsets}")
+    logger.info(f"Checking subsets = {subsets}")
 
     # Get parameters from configuration
     data_format = config["data_format"]
