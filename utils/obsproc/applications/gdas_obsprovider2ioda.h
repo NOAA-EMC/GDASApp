@@ -26,7 +26,7 @@ namespace gdasapp {
         Rads2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else if (provider == "GHRSST") {
-        Ghrsst2Ioda conv2ioda(fullConfig);
+        Ghrsst2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else if (provider == "SMOS") {
         Smos2Ioda conv2ioda(fullConfig, this->getComm());
