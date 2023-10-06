@@ -61,29 +61,6 @@ namespace gdasapp {
 
       return subsampled;
     }
-
-    /*int main() {
-    std::vector<std::vector<int>> inputArray = {
-        {1, 2, 3, 4},
-        {5, 6, 7, 8},
-        {9, 10, 11, 12}
-    };
-
-    int stride = 2;
-
-    std::vector<std::vector<int>> subsampledArray = subsample2DArray(inputArray, stride);
-
-    // Print the subsampled array
-    for (const auto& row : subsampledArray) {
-        for (int value : row) {
-            std::cout << value << " ";
-        }
-        std::cout << std::endl;
-    }
-
-    return 0;
-    }*/
-
   }  // namespace superobutils
 
   // A simple data structure to organize the info to provide to the ioda
