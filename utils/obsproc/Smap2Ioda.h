@@ -70,12 +70,10 @@ namespace gdasapp {
       ncFile.getVar("row_time").getVar(obsTime);
 
       int startYear;
-      // std::string attributeNameStartYear = "REV_START_YEAR";
       netCDF::NcGroupAtt attributeStartYear = ncFile.getAtt("REV_START_YEAR");
       attributeStartYear.getValues(&startYear);
 
       int startDay;
-      // std::string attributeNameDay = "REV_START_DAY_OF_YEAR";
       netCDF::NcGroupAtt attributeStartDay = ncFile.getAtt("REV_START_DAY_OF_YEAR");
       attributeStartDay.getValues(&startDay);
 
