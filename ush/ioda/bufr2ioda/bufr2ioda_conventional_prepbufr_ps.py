@@ -95,7 +95,7 @@ def bufr_to_ioda(config, logger):
 #    q.add('temperatureEventCode', 'SFCSHP/T___INFO/T__EVENT{1}/TPC') # Cworks
 #    q.add('temperatureEventCode', 'ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC') # C works
     q.add('temperatureEventCode', "[ADPSFC/T___INFO/T__EVENT{1}/TPC, SFCSHP/T___INFO/T__EVENT{1}/TPC]")
-    q.add('temperatureEventCode2', "ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC")
+    s.add('temperatureEventCode2', "ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC")
 #    q.add('temperatureEventCode', "[ADPSFC/T___INFO/T__EVENT{1}/TPC, SFCSHP/T___INFO/T__EVENT{1}/TPC, ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC]")
 
 
@@ -127,9 +127,9 @@ def bufr_to_ioda(config, logger):
     sid1 = t.get('stationIdentification1')
     sid2 = u.get('stationIdentification2')
     sid3 = v.get('stationIdentification3')
-    cat = r.get('prepbufrDataLevelCategory')
-    tpc = r.get('temperatureEventCode')
-    tpc2 = r.get('temperatureEventCode2', 'prepbufrDataLevelCategory')
+    cat = s.get('prepbufrDataLevelCategory')
+    tpc = t.get('temperatureEventCode')
+    tpc2 = s.get('temperatureEventCode2', 'prepbufrDataLevelCategory')
 
     logger.info(f" ... Executing QuerySet: Done!")
 
