@@ -36,15 +36,7 @@ namespace gdasapp {
       int dim1  = ncFile.getDim("phony_dim_1").getSize();
       int nobs = dim0 * dim1;
 
-      // Set the int metadata names
-      // TODO(AFE) fill this in: intMetadataNames = {"pass", "cycle", "mission"};
-      std::vector<std::string> intMetadataNames = {};
-
-      // Set the float metadata name
-      // TODO(AFE) fill this in:  floatMetadataNames = {"mdt"};
-      std::vector<std::string> floatMetadataNames = {};
-      // Create instance of iodaVars object
-      gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
+      gdasapp::IodaVars iodaVars(nobs, {}, {});
 
       // TODO(AFE): these arrays can be done as 1D vectors, but those need proper ushorts in
       // the input files, at odd with the current ctests
