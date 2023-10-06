@@ -1,0 +1,31 @@
+obs space:
+  name: surface_ps 
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV conv_ps_obs_${CDATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV  conv_ps_diag_${CDATE}.nc4
+      overwrite: true
+  simulated variables: [stationPressure]
+geovals:
+  filename: !ENV conv_ps_geoval_${CDATE}.nc4
+
+obs operator:
+  name: SfcPCorrected
+  variables:
+  - name: stationPressure
+  da_psfc_scheme: GSI
+  station_altitude: height
+  geovar_sfc_geomz: surface_altitude
+  geovar_geomz: geopotential_height
+
+vector ref: GsiHofXBc
+tolerance: 1.e-4 
+#linear obs operator test:
+#  coef TL: 0.1
+#  tolerance TL: 1.0e-13
+#  tolerance AD: 1.0e-11
+
