@@ -36,6 +36,9 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Checking subsets = {subsets}")
     logger.info(f"Checking subsets = {subsets}")
 
+    for i in range(len(subsets)):
+       print("NE subsets: ", i, subsets[i])
+
     # Get parameters from configuration
     data_format = config["data_format"]
     source = config["source"]
@@ -75,11 +78,27 @@ def bufr_to_ioda(config, logger):
 
     logger.info('Making QuerySet ...')
 #    q = bufr.QuerySet(subsets)   #### A B C works 
-    q = bufr.QuerySet()
-    r = bufr.QuerySet()
-    s = bufr.QuerySet()
-   
+    q = bufr.QuerySet(["ADPSFC"])
+    r = bufr.QuerySet(["SFCSHP"])
+    s = bufr.QuerySet(["ADPUPA"])
+    new = bufr.QuerySet()   
 
+    for i in range(len(subsets)):
+        if subsets[i] == "ADPSFC":
+            print("NE ADPSFC")
+            q.add('stationIdentification', '*/SID')
+            q.add('prepbufrDataLevelCategory', '*/CAT')
+            q.add('temperatureEventCode', "*/T___INFO/T__EVENT{1}/TPC")
+        elif subsets[i] == "SFCSHP":
+            print("NE SFCSHP")
+            r.add('stationIdentification', '*/SID')
+            r.add('prepbufrDataLevelCategory', '*/CAT')
+            r.add('temperatureEventCode', "*/T___INFO/T__EVENT{1}/TPC")
+        elif subsets[i] == "ADPUPA":
+            print("NE ADPUPA")
+            s.add('stationIdentification', 'ADPUPA/SID')    # B WORKS
+            s.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
+            s.add('temperatureEventCode', "*/PRSLEVEL/T___INFO/T__EVENT{1}/TPC")
 
 #    for i in range(len(subsets)):
 #        print("NE 0 1 2", subsets[0],subsets[1],subsets[2], len(subsets))
@@ -87,16 +106,19 @@ def bufr_to_ioda(config, logger):
     logger.info("NE ADPSFC")
     # MetaData
 #    q.add('stationIdentification', '*/SID, */SID, */SID')   #### A WORKS
-    q.add('stationIdentification1', 'ADPSFC/SID')
-    r.add('stationIdentification2', 'SFCSHP/SID')    # B WORKS
-    s.add('stationIdentification3', 'ADPUPA/SID')    # B WORKS
-    s.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
+#    q.add('stationIdentification1', 'ADPSFC/SID')
+#    r.add('stationIdentification2', 'SFCSHP/SID')    # B WORKS
+#    s.add('stationIdentification3', 'ADPUPA/SID')    # B WORKS
+#    s.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
 #    q.add('temperatureEventCode', '/T___INFO/T__EVENT{1}/TPC')
 #    q.add('temperatureEventCode', 'SFCSHP/T___INFO/T__EVENT{1}/TPC') # Cworks
 #    q.add('temperatureEventCode', 'ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC') # C works
-    q.add('temperatureEventCode', "[ADPSFC/T___INFO/T__EVENT{1}/TPC, SFCSHP/T___INFO/T__EVENT{1}/TPC]")
-    s.add('temperatureEventCode2', "ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC")
-#    q.add('temperatureEventCode', "[ADPSFC/T___INFO/T__EVENT{1}/TPC, SFCSHP/T___INFO/T__EVENT{1}/TPC, ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC]")
+#    q.add('temperatureEventCode', "[ADPSFC/T___INFO/T__EVENT{1}/TPC, SFCSHP/T___INFO/T__EVENT{1}/TPC]")
+#    s.add('temperatureEventCode2', "ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC")
+
+#    new.add('stationIdentification', '*/SID')
+#    new.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
+#    new.add('temperatureEventCode', "[ADPSFC/T___INFO/T__EVENT{1}/TPC, SFCSHP/T___INFO/T__EVENT{1}/TPC, ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC]")
 
 
        
@@ -117,19 +139,30 @@ def bufr_to_ioda(config, logger):
     logger.info(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
         t = f.execute(q)
+
+    with bufr.File(DATA_PATH) as f:
         u = f.execute(r)
+
+    with bufr.File(DATA_PATH) as f:
         v = f.execute(s)
+
+    with bufr.File(DATA_PATH) as f:
+        n = f.execute(new)
+
 #        r0 = f.execute(q0)
 #        r1 = f.execute(q1)
    
     logger.info(" ... Executing QuerySet for ADPSFC: get MetaData: basic ...")
     # MetaData
-    sid1 = t.get('stationIdentification1')
-    sid2 = u.get('stationIdentification2')
-    sid3 = v.get('stationIdentification3')
-    cat = s.get('prepbufrDataLevelCategory')
-    tpc = t.get('temperatureEventCode')
-    tpc2 = s.get('temperatureEventCode2', 'prepbufrDataLevelCategory')
+    sid1 = t.get('stationIdentification')
+    sid2 = u.get('stationIdentification')
+    sid3 = v.get('stationIdentification', 'prepbufrDataLevelCategory')
+    cat1 = t.get('prepbufrDataLevelCategory')
+    cat2 = u.get('prepbufrDataLevelCategory')
+    cat3 = v.get('prepbufrDataLevelCategory', 'prepbufrDataLevelCategory')
+    tpc1 = t.get('temperatureEventCode')
+    tpc2 = u.get('temperatureEventCode')
+    tpc3 = v.get('temperatureEventCode', 'prepbufrDataLevelCategory')
 
     logger.info(f" ... Executing QuerySet: Done!")
 
@@ -141,9 +174,37 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     sid1       shape = {sid1.shape}")
     logger.info(f"     sid2       shape = {sid2.shape}")
     logger.info(f"     sid3       shape = {sid3.shape}")
-    logger.info(f"     cat       shape = {cat.shape}")
-    logger.info(f"     tpc       shape = {tpc.shape}")
-    logger.info(f"     tpc2      shape = {tpc2.shape}")
+    logger.info(f"     cat1       shape = {cat1.shape}")
+    logger.info(f"     cat2       shape = {cat2.shape}")
+    logger.info(f"     cat3       shape = {cat3.shape}")
+    logger.info(f"     tpc1       shape = {tpc1.shape}")
+    logger.info(f"     tpc2       shape = {tpc2.shape}")
+    logger.info(f"     tpc3       shape = {tpc3.shape}")
+
+    print(sid1[0],sid1[1],sid1[2])
+
+    if isinstance(sid1, np.ndarray):
+        print("sid1 is a list")
+    else:
+        print("sid1 is not a list")
+    if isinstance(sid2, np.ndarray):
+        print("sid2 is a list")
+    else:
+        print("sid2 is not a list")
+    if isinstance(sid3, np.ndarray):
+        print("sid3 is a list")
+    else:
+        print("sid3 is not a list")
+
+    sid = np.concatenate((sid1,sid2,sid3), axis=0)
+    print(sid[0],sid[1],sid[2])
+    cat = np.concatenate((cat1,cat2,cat3), axis=0)
+    tpc = np.concatenate((tpc1,tpc2,tpc3), axis=0)
+
+    logger.info(f"  new sid       shape = {sid.shape}")
+    logger.info(f"  new cat       shape = {cat.shape}")
+    logger.info(f"  new tpc       shape = {tpc.shape}") 
+
 #            logger.info(f"     dhr       shape = {dhr_var0.shape}")
 #            logger.info(f"     lat       shape = {lat_var0.shape}")
 #            logger.info(f"     lon       shape = {lon_var0.shape}")
@@ -372,18 +433,18 @@ def bufr_to_ioda(config, logger):
 #    # =====================================
 #
 #    # Create the dimensions
-#    dims = {'Location': np.arange(0, lat.shape[0])}
-#
-#    iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
-#    OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
-#    logger.info(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
-#
-#    path, fname = os.path.split(OUTPUT_PATH)
-#    if path and not os.path.exists(path):
-#        os.makedirs(path)
-#
-#    obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
-#
+    dims = {'Location': np.arange(0, sid.shape[0])}    ###### NI CK CHANGE THIS BACK TO lat
+
+    iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
+    OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
+    logger.info(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
+
+    path, fname = os.path.split(OUTPUT_PATH)
+    if path and not os.path.exists(path):
+        os.makedirs(path)
+
+    obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
+
 #    # Create Global attributes
 #    logger.info(f" ... ... Create global attributes")
 #
@@ -421,13 +482,25 @@ def bufr_to_ioda(config, logger):
 #        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
 #        .write_attr('long_name', 'Datetime') \
 #        .write_data(dateTime)
-#
-#    # Station Identification
-#    obsspace.create_var('MetaData/stationIdentification', dtype=sid.dtype,
-#                        fillval=sid.fill_value) \
-#        .write_attr('long_name', 'Station Identification') \
-#        .write_data(sid)
-#
+
+    # Station Identification
+    obsspace.create_var('MetaData/stationIdentification', dtype=sid.dtype,
+                        fillval=sid.fill_value) \
+        .write_attr('long_name', 'Station Identification') \
+        .write_data(sid)
+
+    obsspace.create_var('MetaData/prepbufrDataLevelCategory', dtype=cat.dtype,
+                        fillval=cat.fill_value) \
+        .write_attr('long_name', 'prepBUFR Data Level Category') \
+        .write_data(cat)
+
+    obsspace.create_var('MetaData/temperatureEventCode', dtype=tpc.dtype,
+                        fillval=tpc.fill_value) \
+        .write_attr('long_name', 'temperatureEventCode') \
+        .write_data(tpc)
+
+
+
 #    # Station Elevation
 #    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
 #                        fillval=elv.fill_value) \
