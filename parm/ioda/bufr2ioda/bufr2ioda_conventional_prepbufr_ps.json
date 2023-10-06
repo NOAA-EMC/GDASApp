@@ -1,6 +1,7 @@
 {
   "data_format"      : "prepbufr",
-  "subsets"          : [ "ADPSFC", "SFCSHP", "ADPUPA" ],
+  "subsets1"         : [ "ADPSFC", "SFCSHP" ],
+  "subsets2"         : [ "ADPUPA" ],
   "source"           : "prepBUFR",
   "data_type"        : "ADPSFC SFCSHP ADPUPA",
   "cycle_type"       : "{{ RUN }}",
