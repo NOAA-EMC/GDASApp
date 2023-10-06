@@ -4,6 +4,7 @@ list( APPEND utils_test_input
   testinput/gdas_rads2ioda.yaml
   testinput/gdas_smap2ioda.yaml
   testinput/gdas_smos2ioda.yaml
+  testinput/gdas_icecamsr2ioda.yaml
 )
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
@@ -51,5 +52,12 @@ ecbuild_add_test( TARGET  test_gdasapp_util_smap2ioda
 ecbuild_add_test( TARGET  test_gdasapp_util_smos2ioda
                   COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_smos2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+
+# Test the AMSR2 to IODA converter
+ecbuild_add_test( TARGET  test_gdasapp_util_icecamsr2ioda
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  ARGS    "../testinput/gdas_icecamsr2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
