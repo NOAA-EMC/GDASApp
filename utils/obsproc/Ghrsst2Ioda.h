@@ -35,7 +35,7 @@ namespace gdasapp {
       int dimLon = ncFile.getDim("lon").getSize();
       int dimLat = ncFile.getDim("lat").getSize();
       int dimTime = ncFile.getDim("time").getSize();
-      AASERT(dimTime == 1);  // Hard-coded to 1 for now. 
+      ASSERT(dimTime == 1);  // Hard-coded to 1 for now. 
       int nobs = dimTime * dimLat * dimLon;
 
       // Create instance of iodaVars object
