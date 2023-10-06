@@ -5,6 +5,9 @@
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
 import sys
+sys.path.append('/work2/noaa/da/nesposito/ioda_bundle_readlc/build/lib/python3.7/')
+sys.path.append('/work2/noaa/da/nesposito/ioda_bundle_readlc/build/lib/python3.7/pyioda')
+sys.path.append('/work2/noaa/da/nesposito/ioda_bundle_readlc/build/lib/python3.7/pyiodaconv')
 import numpy as np
 import os
 import argparse
@@ -29,8 +32,12 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
 def bufr_to_ioda(config, logger):
 
-    subsets = config["subsets"]
-    logger.debug(f"Checking subsets = {subsets}")
+    subsets1 = config["subsets1"]
+    subsets2 = config["subsets2"]
+    logger.debug(f"Checking subsets1 = {subsets1}")
+    logger.debug(f"Checking subsets2 = {subsets2}")
+    logger.info(f"Checking subsets1 = {subsets1}")
+    logger.info(f"Checking subsets2 = {subsets2}")
 
     # Get parameters from configuration
     data_format = config["data_format"]
@@ -70,369 +77,397 @@ def bufr_to_ioda(config, logger):
     start_time = time.time()
 
     logger.info('Making QuerySet ...')
-    q = bufr.QuerySet(subsets)
-
-    for i in range(len(subsets)):
-        if subsets[i] == "ADPSFC":
-
-            # MetaData
-            q.add('stationIdentification', '*/SID')
-            q.add('latitude', '*/YOB')
-            q.add('longitude', '*/XOB')
-            q.add('obsTimeMinusCycleTime', '*/DHR')
-            q.add('stationElevation', '*/ELV')
-            q.add('observationType', '*/TYP')
-            q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
-        
-           # Quality Infomation (Quality Indicator)
-            q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
-        
-            # ObsValue
-            q.add('stationPressure', '*/P___INFO/P__EVENT{1}/POB')
-        
-            end_time = time.time()
-            running_time = end_time - start_time
-            logger.info(f"Running time for making QuerySet: {running_time} seconds")
-        
-            # ==============================================================
-            # Open the BUFR file and execute the QuerySet to get ResultSet
-            # Use the ResultSet returned to get numpy arrays of the data
-            # ==============================================================
-            start_time = time.time()
-        
-            logger.info(f"Executing QuerySet to get ResultSet ...")
-            with bufr.File(DATA_PATH) as f:
-                r = f.execute(q)
-        
-            logger.info(" ... Executing QuerySet: get MetaData: basic ...")
-            # MetaData
-            sid_var1 = r.get('stationIdentification')
-            lat_var1 = r.get('latitude')
-            lon_var1 = r.get('longitude')
-            lon_var1[lon_var1 > 180] -= 360
-            elv_var1 = r.get('stationElevation')
-            typ_var1 = r.get('observationType')
-            pressure_var1 = r.get('pressure')
-            pressure_var1 *= 100
-        
-            logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
-            # Quality Information
-            pobqm_var1 = r.get('qualityMarkerStationPressure')
-        
-            logger.info(f" ... Executing QuerySet: get obsvalue: stationPressure ...")
-            # ObsValue
-            pob_var1 = r.get('stationPressure')
-            pob_var1 *= 100
-        
-            logger.info(f" ... Executing QuerySet: get datatime: observation time ...")
-            # DateTime: seconds since Epoch time
-            # IODA has no support for numpy datetime arrays dtype=datetime64[s]
-            dhr_var1 = r.get('obsTimeMinusCycleTime', type='int64')
-        
-            logger.info(f" ... Executing QuerySet: Done!")
-        
-            logger.info(f" ... Executing QuerySet: Check BUFR variable generic \
-                        dimension and type ...")
-            # Check BUFR variable generic dimension and type
-            logger.info(f"     sid       shape = {sid_var1.shape}")
-            logger.info(f"     dhr       shape = {dhr_var1.shape}")
-            logger.info(f"     lat       shape = {lat_var1.shape}")
-            logger.info(f"     lon       shape = {lon_var1.shape}")
-            logger.info(f"     elv       shape = {elv_var1.shape}")
-            logger.info(f"     typ       shape = {typ_var1.shape}")
-            logger.info(f"     pressure  shape = {pressure_var1.shape}")
-        
-            logger.info(f"     pobqm     shape = {pobqm_var1.shape}")
-            logger.info(f"     pob       shape = {pob_var1.shape}")
-        
-            logger.info(f"     sid       type  = {sid_var1.dtype}")
-            logger.info(f"     dhr       type  = {dhr_var1.dtype}")
-            logger.info(f"     lat       type  = {lat_var1.dtype}")
-            logger.info(f"     lon       type  = {lon_var1.dtype}")
-            logger.info(f"     elv       type  = {elv_var1.dtype}")
-            logger.info(f"     typ       type  = {typ_var1.dtype}")
-            logger.info(f"     pressure  type  = {pressure_var1.dtype}")
-        
-            logger.info(f"     pobqm     type  = {pobqm_var1.dtype}")
-            logger.info(f"     pob       type  = {pob_var1.dtype}")
-        
-            end_time = time.time()
-            running_time = end_time - start_time
-            logger.info(f"Running time for executing QuerySet to get ResultSet: \
-                        {running_time} seconds")
-        
-            # =========================
-            # Create derived variables
-            # =========================
-            start_time = time.time()
-        
-            logger.info(f"Creating derived variables - dateTime ...")
-        
-            cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(
-                                           reference_time_full, '%Y%m%d%H%M')))
-            dateTime_var1 = Compute_dateTime(cycleTimeSinceEpoch, dhr)
-        
-            logger.info(f"     Check derived variables type ... ")
-            logger.info(f"     dateTime shape = {dateTime_var1.shape}")
-            logger.info(f"     dateTime type = {dateTime_var1.dtype}")
-        
-        elif subsets[i] == "SFCSHP":
-            # MetaData
-            sid_var2 = r.get('stationIdentification')
-            lat_var2 = r.get('latitude')
-            lon_var2 = r.get('longitude')
-            lon_var2[lon_var2 > 180] -= 360
-            elv_var2 = r.get('stationElevation', type='float')
-            typ_var2 = r.get('observationType')
-            pressure_var2 = r.get('pressure')
-            pressure_var2 *= 100
-            tpc_var2 = r.get('temperatureEventCode')
-         
-            logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
-            # Quality Information
-            pqm_var2 = r.get('qualityMarkerStationPressure')
-            tqm_var2 = r.get('qualityMarkerAirTemperature')
-            qqm_var2 = r.get('qualityMarkerSpecificHumidity')
-            wqm_var2 = r.get('qualityMarkerWindNorthward')
-            sstqm_var2 = r.get('qualityMarkerSeaSurfaceTemperature')
-         
-            logger.info(f" ... Executing QuerySet: get obsvalue: stationPressure ...")
-            # ObsValue
-            pob_var2 = r.get('stationPressure')
-            pob_var2 *= 100
-            tob_var2 = r.get('airTemperature')
-            tob_var2 += 273.15
-            tvo_var2 = r.get('virtualTemperature')
-            tvo_var2 += 273.15
-            qob_var2 = r.get('specificHumidity', type='float')
-            qob_var2 *= 0.000001
-            uob_var2 = r.get('windEastward')
-            vob_var2 = r.get('windNorthward')
-            sst1_var2 = r.get('seaSurfaceTemperature')
-         
-            logger.info(f" ... Executing QuerySet: get datatime: observation time ...")
-            # DateTime: seconds since Epoch time
-            # IODA has no support for numpy datetime arrays dtype=datetime64[s]
-            dhr_var2 = r.get('obsTimeMinusCycleTime', type='int64')
-         
-            logger.info(f" ... Executing QuerySet: Done!")
-         
-            logger.info(f" ... Executing QuerySet: Check BUFR variable generic  \
-                        dimension and type ...")
-            # Check BUFR variable generic dimension and type
-            logger.info(f"     sid       shape = {sid_var1.shape}")
-            logger.info(f"     dhr       shape = {dhr_var1.shape}")
-            logger.info(f"     lat       shape = {lat_var1.shape}")
-            logger.info(f"     lon       shape = {lon_var1.shape}")
-            logger.info(f"     elv       shape = {elv_var1.shape}")
-            logger.info(f"     typ       shape = {typ_var1.shape}")
-            logger.info(f"     pressure  shape = {pressure_var1.shape}")
-            logger.info(f"     tpc       shape = {tpc_var1.shape}")
-         
-            logger.info(f"     pqm       shape = {pqm_var1.shape}")
-            logger.info(f"     tqm       shape = {tqm_var1.shape}")
-         
-            logger.info(f"     pob       shape = {pob_var1.shape}")
-            logger.info(f"     tob       shape = {pob_var1.shape}")
-            logger.info(f"     tvo       shape = {tvo_var1.shape}")
-         
-            logger.info(f"     sid       type  = {sid_var1.dtype}")
-            logger.info(f"     dhr       type  = {dhr_var1.dtype}")
-            logger.info(f"     lat       type  = {lat_var1.dtype}")
-            logger.info(f"     lon       type  = {lon_var1.dtype}")
-            logger.info(f"     elv       type  = {elv_var1.dtype}")
-            logger.info(f"     typ       type  = {typ_var1.dtype}")
-            logger.info(f"     pressure  type  = {pressure_var1.dtype}")
-            logger.info(f"     tpc       type  = {tpc_var1.dtype}")
-         
-            logger.info(f"     pqm       type  = {pqm_var1.dtype}")
-            logger.info(f"     tqm       type  = {tqm_var1.dtype}")
-         
-            logger.info(f"     pob       type  = {pob_var1.dtype}")
-            logger.info(f"     tob       type  = {tob_var1.dtype}")
-            logger.info(f"     tvo       type  = {tvo_var1.dtype}")
-
-        elif subsets[i] == "ADPUPA":
-            q.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
-            q.add('latitude', '*/PRSLEVEL/DRFTINFO/YDR')
-            q.add('longitude', '*/PRSLEVEL/DRFTINFO/XDR')
-            q.add('stationIdentification', '*/SID')
-            q.add('stationElevation', '*/ELV')
-            q.add('timeOffset', '*/PRSLEVEL/DRFTINFO/HRDR')
-            q.add('temperatureEventCode','*/PRSLEVEL/T___INFO/T__EVENT{1}/TPC')
-            q.add('pressure', '*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
-        
-            # ObsValue
-            q.add('stationPressure', '*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
-            q.add('airTemperature', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TOB')
-            #q.add('virtualTemperature', '*/PRSLEVEL/T___INFO/TVO')
-            q.add('specificHumidity', '*/PRSLEVEL/Q___INFO/Q__EVENT{1}/QOB')
-            q.add('windEastward', '*/PRSLEVEL/W___INFO/W__EVENT{1}/UOB')
-            q.add('windNorthward', '*/PRSLEVEL/W___INFO/W__EVENT{1}/VOB')
-            q.add('heightOfObservation', '*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
-        
-            # QualityMark
-            q.add('pressureQM', '*/PRSLEVEL/P___INFO/P__EVENT{1}/PQM')
-            q.add('airTemperatureQM', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TQM')
-            q.add('virtualTemperatureQM', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TQM')
-            q.add('specificHumidityQM', '*/PRSLEVEL/Q___INFO/Q__EVENT{1}/QQM')
-            q.add('windEastwardQM', '*/PRSLEVEL/W___INFO/W__EVENT{1}/WQM')
-            q.add('windNorthwardQM', '*/PRSLEVEL/W___INFO/W__EVENT{1}/WQM')
-        
-            # Use the ResultSet returned to get numpy arrays of the data
-            # MetaData
-            cat_var3 = r.get('prepbufrDataLevelCategory', 'prepbufrDataLevelCategory')
-            lat_var3 = r.get('latitude', 'prepbufrDataLevelCategory')
-            lon_var3 = r.get('longitude', 'prepbufrDataLevelCategory')
-            lon_var3[lon_var3>180] -= 360  # Convert Longitude from [0,360] to [-180,180]
-            sid_var3 = r.get('stationIdentification', 'prepbufrDataLevelCategory')
-            elv_var3 = r.get('stationElevation', 'prepbufrDataLevelCategory')
-            tpc_var3 = r.get('temperatureEventCode', 'prepbufrDataLevelCategory')
-            pob_var3 = r.get('pressure', 'prepbufrDataLevelCategory')
-            pob_var3 *= 100
-        
-            # Time variable
-            hrdr_var3 = r.get('timeOffset', 'prepbufrDataLevelCategory')
-            cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime('2021 08 01 00 00 00', '%Y %m %d %H %M %S')))
-            hrdr_var3 = np.int64(hrdr_var3*3600)
-            hrdr_var3 += cycleTimeSinceEpoch
-        
-            # ObsValue
-            pob_ps_var3 = np.full(pob.shape[0], pob.fill_value) # Extract stationPressure from pressure, which belongs to CAT=1
-            pob_ps_var3 = np.where(cat == 0, pob, pob_ps)
-            tob_var3 = r.get('airTemperature', 'prepbufrDataLevelCategory')
-            tob_var3 += 273.15
-            tsen_var3 = np.full(tob.shape[0], tob.fill_value) # Extract sensible temperature from tob, which belongs to TPC=1
-            tsen_var3 = np.where(tpc == 1, tob, tsen)
-            tvo_var3 = np.full(tob.shape[0], tob.fill_value) # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
-            tvo_var3 = np.where(((tpc <= 8) & (tpc > 1)), tob, tvo)
-            qob_var3 = r.get('specificHumidity', 'prepbufrDataLevelCategory', type='float')
-            qob_var3 *= 1.0e-6
-            uob_var3 = r.get('windEastward', 'prepbufrDataLevelCategory')
-            vob_var3 = r.get('windNorthward', 'prepbufrDataLevelCategory')
-        
-            # QualityMark
-            pobqm_var3 = r.get('pressureQM', 'prepbufrDataLevelCategory')
-            pob_psqm_var3 = np.full(pobqm.shape[0], pobqm.fill_value) # Extract stationPressureQM from pressureQM
-            pob_psqm_var3 = np.where(cat == 0, pobqm, pob_psqm)
-            tobqm_var3 = r.get('airTemperatureQM', 'prepbufrDataLevelCategory')
-            tsenqm_var3 = np.full(tobqm.shape[0], tobqm.fill_value) # Extract airTemperature from tobqm, which belongs to TPC=1
-            tsenqm_var3 = np.where(tpc == 1, tobqm, tsenqm)
-            tvoqm_var3 = np.full(tobqm.shape[0], tobqm.fill_value) # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
-            tvoqm_var3 = np.where(((tpc <= 8) & (tpc > 1)), tobqm, tvoqm)
-            qobqm_var3 = r.get('specificHumidityQM', 'prepbufrDataLevelCategory')
-            uobqm_var3 = r.get('windEastwardQM', 'prepbufrDataLevelCategory')
-            vobqm_var3 = r.get('windNorthwardQM', 'prepbufrDataLevelCategory')
+#    q = bufr.QuerySet(subsets)   #### A B C works 
+    q = bufr.QuerySet()
+    r = bufr.QuerySet()
+    s = bufr.QuerySet()
+   
 
 
-    #Put all the arrays together
+#    for i in range(len(subsets)):
+#        print("NE 0 1 2", subsets[0],subsets[1],subsets[2], len(subsets))
+#        if subsets[i] == "ADPSFC":
+    logger.info("NE ADPSFC")
+    # MetaData
+#    q.add('stationIdentification', '*/SID, */SID, */SID')   #### A WORKS
+    q.add('stationIdentification1', 'ADPSFC/SID')
+    r.add('stationIdentification2', 'SFCSHP/SID')    # B WORKS
+    s.add('stationIdentification3', 'ADPUPA/SID')    # B WORKS
+    s.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
+#    q.add('temperatureEventCode', '/T___INFO/T__EVENT{1}/TPC')
+#    q.add('temperatureEventCode', 'SFCSHP/T___INFO/T__EVENT{1}/TPC') # Cworks
+#    q.add('temperatureEventCode', 'ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC') # C works
+    q.add('temperatureEventCode', "[ADPSFC/T___INFO/T__EVENT{1}/TPC, SFCSHP/T___INFO/T__EVENT{1}/TPC]")
+    q.add('temperatureEventCode2', "ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC")
+#    q.add('temperatureEventCode', "[ADPSFC/T___INFO/T__EVENT{1}/TPC, SFCSHP/T___INFO/T__EVENT{1}/TPC, ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC]")
 
-    #End
 
+       
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for creating derived variables: \
-                {running_time} seconds")
+    logger.info(f"Running time for making QuerySet: {running_time} seconds")
 
-    # =====================================
-    # Create IODA ObsSpace
-    # Write IODA output
-    # =====================================
+    # ==============================================================
+    # Open the BUFR file and execute the QuerySet to get ResultSet
+    # Use the ResultSet returned to get numpy arrays of the data
+    # ==============================================================
+    start_time = time.time()
 
-    # Create the dimensions
-    dims = {'Location': np.arange(0, lat.shape[0])}
+#    print("NE q0", q0.dir())
+#    print("NE q1", q1.type(), q1.dir())
+#    print("NE q2", q2.type(), q2.dir())
 
-    iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
-    OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
-    logger.info(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
+    logger.info(f"Executing QuerySet to get ResultSet ...")
+    with bufr.File(DATA_PATH) as f:
+        t = f.execute(q)
+        u = f.execute(r)
+        v = f.execute(s)
+#        r0 = f.execute(q0)
+#        r1 = f.execute(q1)
+   
+    logger.info(" ... Executing QuerySet for ADPSFC: get MetaData: basic ...")
+    # MetaData
+    sid1 = t.get('stationIdentification1')
+    sid2 = u.get('stationIdentification2')
+    sid3 = v.get('stationIdentification3')
+    cat = r.get('prepbufrDataLevelCategory')
+    tpc = r.get('temperatureEventCode')
+    tpc2 = r.get('temperatureEventCode2', 'prepbufrDataLevelCategory')
 
-    path, fname = os.path.split(OUTPUT_PATH)
-    if path and not os.path.exists(path):
-        os.makedirs(path)
+    logger.info(f" ... Executing QuerySet: Done!")
 
-    obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
-    # Create Global attributes
-    logger.info(f" ... ... Create global attributes")
 
-    obsspace.write_attr('Converter', converter)
-    obsspace.write_attr('source', source)
-    obsspace.write_attr('sourceFiles', bufrfile)
-    obsspace.write_attr('dataProviderOrigin', data_provider)
-    obsspace.write_attr('description', data_description)
-    obsspace.write_attr('datetimeReference', reference_time)
-    obsspace.write_attr('datetimeRange',
-                        [str(min(dateTime)), str(max(dateTime))])
-    obsspace.write_attr('platformLongDescription', platform_description)
-
-    # Create IODA variables
-    logger.info(f" ... ... Create variables: name, type, units, & attributes")
-    # Longitude
-    obsspace.create_var('MetaData/longitude', dtype=lon.dtype,
-                        fillval=lon.fill_value) \
-        .write_attr('units', 'degrees_east') \
-        .write_attr('valid_range', np.array([-180, 180], dtype=np.float32)) \
-        .write_attr('long_name', 'Longitude') \
-        .write_data(lon)
-
-    # Latitude
-    obsspace.create_var('MetaData/latitude', dtype=lat.dtype,
-                        fillval=lat.fill_value) \
-        .write_attr('units', 'degrees_north') \
-        .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
-        .write_attr('long_name', 'Latitude') \
-        .write_data(lat)
-
-    # Datetime
-    obsspace.create_var('MetaData/dateTime', dtype=dateTime.dtype,
-                        fillval=dateTime.fill_value) \
-        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
-        .write_attr('long_name', 'Datetime') \
-        .write_data(dateTime)
-
-    # Station Identification
-    obsspace.create_var('MetaData/stationIdentification', dtype=sid.dtype,
-                        fillval=sid.fill_value) \
-        .write_attr('long_name', 'Station Identification') \
-        .write_data(sid)
-
-    # Station Elevation
-    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
-                        fillval=elv.fill_value) \
-        .write_attr('units', 'm') \
-        .write_attr('long_name', 'Station Elevation') \
-        .write_data(elv)
-
-    # Observation Type
-    obsspace.create_var('MetaData/observationType', dtype=typ.dtype,
-                        fillval=typ.fill_value) \
-        .write_attr('long_name', 'Observation Type') \
-        .write_data(typ)
-
-    # Pressure
-    obsspace.create_var('MetaData/pressure', dtype=pressure.dtype,
-                        fillval=pressure.fill_value) \
-        .write_attr('units', 'Pa') \
-        .write_attr('long_name', 'Pressure') \
-        .write_data(pressure)
-
-    # Quality: Percent Confidence - Quality Information Without Forecast
-    obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype,
-                        fillval=pobqm.fill_value) \
-        .write_attr('long_name', 'Station Pressure Quality Marker') \
-        .write_data(pobqm)
-
-    # Station Pressure
-    obsspace.create_var('ObsValue/pressure', dtype=pob.dtype,
-                        fillval=pob.fill_value) \
-        .write_attr('units', 'Pa') \
-        .write_attr('long_name', 'Station Pressure') \
-        .write_data(pob)
-
-    end_time = time.time()
-    running_time = end_time - start_time
-    logger.info(f"Running time for splitting and output IODA: \
-                {running_time} seconds")
+#            logger.info(f" ... Executing QuerySet: Check BUFR variable generic \
+#                        dimension and type ...")
+#            # Check BUFR variable generic dimension and type
+    logger.info(f"     sid1       shape = {sid1.shape}")
+    logger.info(f"     sid2       shape = {sid2.shape}")
+    logger.info(f"     sid3       shape = {sid3.shape}")
+    logger.info(f"     cat       shape = {cat.shape}")
+    logger.info(f"     tpc       shape = {tpc.shape}")
+    logger.info(f"     tpc2      shape = {tpc2.shape}")
+#            logger.info(f"     dhr       shape = {dhr_var0.shape}")
+#            logger.info(f"     lat       shape = {lat_var0.shape}")
+#            logger.info(f"     lon       shape = {lon_var0.shape}")
+#            logger.info(f"     elv       shape = {elv_var0.shape}")
+#            logger.info(f"     typ       shape = {typ_var0.shape}")
+#            logger.info(f"     pressure  shape = {pressure_var0.shape}")
+#        
+#            logger.info(f"     pobqm     shape = {pobqm_var0.shape}")
+#            logger.info(f"     pob       shape = {pob_var0.shape}")
+#        
+#            logger.info(f"     sid       type  = {sid_var0.dtype}")
+#            logger.info(f"     dhr       type  = {dhr_var0.dtype}")
+#            logger.info(f"     lat       type  = {lat_var0.dtype}")
+#            logger.info(f"     lon       type  = {lon_var0.dtype}")
+#            logger.info(f"     elv       type  = {elv_var0.dtype}")
+#            logger.info(f"     typ       type  = {typ_var0.dtype}")
+#            logger.info(f"     pressure  type  = {pressure_var0.dtype}")
+#        
+#            logger.info(f"     pobqm     type  = {pobqm_var0.dtype}")
+#            logger.info(f"     pob       type  = {pob_var0.dtype}")
+#        
+#            end_time = time.time()
+#            running_time = end_time - start_time
+#            logger.info(f"Running time for executing QuerySet to get ResultSet: \
+#                        {running_time} seconds")
+#######        
+#            # =========================
+#            # Create derived variables
+#            # =========================
+#            start_time = time.time()
+#        
+#            logger.info(f"Creating derived variables - dateTime ...")
+#        
+#            cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(
+#                                           reference_time_full, '%Y%m%d%H%M')))
+#            dateTime_var0 = Compute_dateTime(cycleTimeSinceEpoch, dhr_var0)
+#        
+#            logger.info(f"     Check derived variables type ... ")
+#            logger.info(f"     dateTime shape = {dateTime_var0.shape}")
+#            logger.info(f"     dateTime type = {dateTime_var0.dtype}")
+############        
+#        elif subsets[i] == "SFCSHP":
+#            logger.info("NE SFCSHP")
+#            # MetaData
+#            q.add('stationIdentification', 'SFCSHP/SID')
+#            q.add('latitude', 'SFCSHP/YOB')
+#            q.add('longitude', 'SFCSHP/XOB')
+#            q.add('obsTimeMinusCycleTime', 'SFCSHP/DHR')
+#            q.add('stationElevation', 'SFCSHP/ELV')
+#            q.add('observationType', 'SFCSHP/TYP')
+#            q.add('pressure', 'SFCSHP/P___INFO/P__EVENT{1}/POB')
+#            q.add('temperatureEventCode', 'SFCSHP/T___INFO/T__EVENT{1}/TPC')
+#        
+#            # Quality Infomation (Quality Indicator)
+#            q.add('qualityMarkerStationPressure', 'SFCSHP/P___INFO/P__EVENT{1}/PQM')
+#            q.add('qualityMarkerAirTemperature', 'SFCSHP/T___INFO/T__EVENT{1}/TQM')
+#        
+#            # ObsValue
+#            q.add('stationPressure', 'SFCSHP/P___INFO/P__EVENT{1}/POB')
+#            q.add('airTemperature', 'SFCSHP/T___INFO/T__EVENT{1}/TOB')
+#            q.add('virtualTemperature', 'SFCSHP/T___INFO/TVO')
+#
+#            # MetaData
+#            sid_var1 = r.get('stationIdentification')
+#            lat_var1 = r.get('latitude')
+#            lon_var1 = r.get('longitude')
+#            lon_var1[lon_var1 > 180] -= 360
+#            elv_var1 = r.get('stationElevation', type='float')
+#            typ_var1 = r.get('observationType')
+#            pressure_var1 = r.get('pressure')
+#            pressure_var1 *= 100
+#            tpc_var1 = r.get('temperatureEventCode')
+#         
+#            logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
+#            # Quality Information
+#            pqm_var1 = r.get('qualityMarkerStationPressure')
+#            tqm_var1 = r.get('qualityMarkerAirTemperature')
+#            qqm_var1 = r.get('qualityMarkerSpecificHumidity')
+#            wqm_var1 = r.get('qualityMarkerWindNorthward')
+#            sstqm_var1 = r.get('qualityMarkerSeaSurfaceTemperature')
+#         
+#            logger.info(f" ... Executing QuerySet: get obsvalue: stationPressure ...")
+#            # ObsValue
+#            pob_var1 = r.get('stationPressure')
+#            pob_var1 *= 100
+#            tob_var1 = r.get('airTemperature')
+#            tob_var1 += 273.15
+#            tvo_var1 = r.get('virtualTemperature')
+#            tvo_var1 += 273.15
+#            qob_var1 = r.get('specificHumidity', type='float')
+#            qob_var1 *= 0.000001
+#            uob_var1 = r.get('windEastward')
+#            vob_var1 = r.get('windNorthward')
+#            sst1_var1 = r.get('seaSurfaceTemperature')
+#         
+#            logger.info(f" ... Executing QuerySet: get datatime: observation time ...")
+#            # DateTime: seconds since Epoch time
+#            # IODA has no support for numpy datetime arrays dtype=datetime64[s]
+#            dhr_var1 = r.get('obsTimeMinusCycleTime', type='int64')
+#         
+#            logger.info(f" ... Executing QuerySet: Done!")
+#         
+#            logger.info(f" ... Executing QuerySet: Check BUFR variable generic  \
+#                        dimension and type ...")
+#            # Check BUFR variable generic dimension and type
+#            logger.info(f"     sid       shape = {sid_var0.shape}")
+#            logger.info(f"     dhr       shape = {dhr_var0.shape}")
+#            logger.info(f"     lat       shape = {lat_var0.shape}")
+#            logger.info(f"     lon       shape = {lon_var0.shape}")
+#            logger.info(f"     elv       shape = {elv_var0.shape}")
+#            logger.info(f"     typ       shape = {typ_var0.shape}")
+#            logger.info(f"     pressure  shape = {pressure_var0.shape}")
+#            logger.info(f"     tpc       shape = {tpc_var0.shape}")
+#         
+#            logger.info(f"     pqm       shape = {pqm_var0.shape}")
+#            logger.info(f"     tqm       shape = {tqm_var0.shape}")
+#         
+#            logger.info(f"     pob       shape = {pob_var0.shape}")
+#            logger.info(f"     tob       shape = {pob_var0.shape}")
+#            logger.info(f"     tvo       shape = {tvo_var0.shape}")
+#         
+#            logger.info(f"     sid       type  = {sid_var0.dtype}")
+#            logger.info(f"     dhr       type  = {dhr_var0.dtype}")
+#            logger.info(f"     lat       type  = {lat_var0.dtype}")
+#            logger.info(f"     lon       type  = {lon_var0.dtype}")
+#            logger.info(f"     elv       type  = {elv_var0.dtype}")
+#            logger.info(f"     typ       type  = {typ_var0.dtype}")
+#            logger.info(f"     pressure  type  = {pressure_var0.dtype}")
+#            logger.info(f"     tpc       type  = {tpc_var0.dtype}")
+#         
+#            logger.info(f"     pqm       type  = {pqm_var0.dtype}")
+#            logger.info(f"     tqm       type  = {tqm_var0.dtype}")
+#         
+#            logger.info(f"     pob       type  = {pob_var0.dtype}")
+#            logger.info(f"     tob       type  = {tob_var0.dtype}")
+#            logger.info(f"     tvo       type  = {tvo_var0.dtype}")
+#
+#
+# ############## put a timer?
+#
+#
+#        elif subsets[i] == "ADPUPA":
+#            logger.info("NE ADPUPA")
+#
+#            q.add('prepbufrDataLevelCategory', 'ADPUPA/PRSLEVEL/CAT')
+#            q.add('latitude', 'ADPUPA/PRSLEVEL/DRFTINFO/YDR')
+#            q.add('longitude', 'ADPUPA/PRSLEVEL/DRFTINFO/XDR')
+#            q.add('stationIdentification', 'ADPUPA/SID')
+#            q.add('stationElevation', 'ADPUPA/ELV')
+#            q.add('timeOffset', 'ADPUPA/PRSLEVEL/DRFTINFO/HRDR')
+#            q.add('temperatureEventCode','ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TPC')
+#            q.add('pressure', 'ADPUPA/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
+#        
+#            # ObsValue
+#            q.add('stationPressure', 'ADPUPA/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
+#            q.add('airTemperature', 'ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TOB')
+#            #q.add('virtualTemperature', 'ADPUPA/PRSLEVEL/T___INFO/TVO')
+#            q.add('heightOfObservation', 'ADPUPA/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
+#        
+#            # QualityMark
+#            q.add('pressureQM', 'ADPUPA/PRSLEVEL/P___INFO/P__EVENT{1}/PQM')
+#            q.add('airTemperatureQM', 'ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TQM')
+#            q.add('virtualTemperatureQM', 'ADPUPA/PRSLEVEL/T___INFO/T__EVENT{1}/TQM')
+#        
+#            # Use the ResultSet returned to get numpy arrays of the data
+#            # MetaData
+#            cat_var2 = r.get('prepbufrDataLevelCategory', 'prepbufrDataLevelCategory')
+#            lat_var2 = r.get('latitude', 'prepbufrDataLevelCategory')
+#            lon_var2 = r.get('longitude', 'prepbufrDataLevelCategory')
+#            lon_var2[lon_var2>180] -= 360  # Convert Longitude from [0,360] to [-180,180]
+#            sid_var2 = r.get('stationIdentification', 'prepbufrDataLevelCategory')
+#            elv_var2 = r.get('stationElevation', 'prepbufrDataLevelCategory')
+#            tpc_var2 = r.get('temperatureEventCode', 'prepbufrDataLevelCategory')
+#            pob_var2 = r.get('pressure', 'prepbufrDataLevelCategory')
+#            pob_var2 *= 100
+#        
+#            # Time variable
+#            hrdr_var2 = r.get('timeOffset', 'prepbufrDataLevelCategory')
+#            cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime('2021 08 01 00 00 00', '%Y %m %d %H %M %S')))
+#            hrdr_var2 = np.int64(hrdr_var2*3600)
+#            hrdr_var2 += cycleTimeSinceEpoch
+#        
+#            # ObsValue
+#            pob_ps_var2 = np.full(pob.shape[0], pob.fill_value) # Extract stationPressure from pressure, which belongs to CAT=1
+#            pob_ps_var2 = np.where(cat == 0, pob, pob_ps)
+#            tob_var2 = r.get('airTemperature', 'prepbufrDataLevelCategory')
+#            tob_var2 += 273.15
+#            tsen_var2 = np.full(tob.shape[0], tob.fill_value) # Extract sensible temperature from tob, which belongs to TPC=1
+#            tsen_var2 = np.where(tpc == 1, tob, tsen)
+#            tvo_var2 = np.full(tob.shape[0], tob.fill_value) # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
+#            tvo_var2 = np.where(((tpc <= 8) & (tpc > 1)), tob, tvo)
+#            qob_var2 = r.get('specificHumidity', 'prepbufrDataLevelCategory', type='float')
+#            qob_var2 *= 1.0e-6
+#            uob_var2 = r.get('windEastward', 'prepbufrDataLevelCategory')
+#            vob_var2 = r.get('windNorthward', 'prepbufrDataLevelCategory')
+#        
+#            # QualityMark
+#            pobqm_var2 = r.get('pressureQM', 'prepbufrDataLevelCategory')
+#            pob_psqm_var2 = np.full(pobqm.shape[0], pobqm.fill_value) # Extract stationPressureQM from pressureQM
+#            pob_psqm_var2 = np.where(cat == 0, pobqm, pob_psqm)
+#            tobqm_var2 = r.get('airTemperatureQM', 'prepbufrDataLevelCategory')
+#            tsenqm_var2 = np.full(tobqm.shape[0], tobqm.fill_value) # Extract airTemperature from tobqm, which belongs to TPC=1
+#            tsenqm_var2 = np.where(tpc == 1, tobqm, tsenqm)
+#            tvoqm_var2 = np.full(tobqm.shape[0], tobqm.fill_value) # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
+#            tvoqm_var2 = np.where(((tpc <= 8) & (tpc > 1)), tobqm, tvoqm)
+#            qobqm_var2 = r.get('specificHumidityQM', 'prepbufrDataLevelCategory')
+#            uobqm_var2 = r.get('windEastwardQM', 'prepbufrDataLevelCategory')
+#            vobqm_var2 = r.get('windNorthwardQM', 'prepbufrDataLevelCategory')
+#
+#            # put a timer ? 
+#            #convert time and prob location and whatever else
+#
+#
+#    #Put all the arrays together
+#
+#    #End
+#
+#    end_time = time.time()
+#    running_time = end_time - start_time
+#    logger.info(f"Running time for creating derived variables: \
+#                {running_time} seconds")
+#
+#    # =====================================
+#    # Create IODA ObsSpace
+#    # Write IODA output
+#    # =====================================
+#
+#    # Create the dimensions
+#    dims = {'Location': np.arange(0, lat.shape[0])}
+#
+#    iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
+#    OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
+#    logger.info(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
+#
+#    path, fname = os.path.split(OUTPUT_PATH)
+#    if path and not os.path.exists(path):
+#        os.makedirs(path)
+#
+#    obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
+#
+#    # Create Global attributes
+#    logger.info(f" ... ... Create global attributes")
+#
+#    obsspace.write_attr('Converter', converter)
+#    obsspace.write_attr('source', source)
+#    obsspace.write_attr('sourceFiles', bufrfile)
+#    obsspace.write_attr('dataProviderOrigin', data_provider)
+#    obsspace.write_attr('description', data_description)
+#    obsspace.write_attr('datetimeReference', reference_time)
+#    obsspace.write_attr('datetimeRange',
+#                        [str(min(dateTime)), str(max(dateTime))])
+#    obsspace.write_attr('platformLongDescription', platform_description)
+#
+#    # Create IODA variables
+#    logger.info(f" ... ... Create variables: name, type, units, & attributes")
+#    # Longitude
+#    obsspace.create_var('MetaData/longitude', dtype=lon.dtype,
+#                        fillval=lon.fill_value) \
+#        .write_attr('units', 'degrees_east') \
+#        .write_attr('valid_range', np.array([-180, 180], dtype=np.float32)) \
+#        .write_attr('long_name', 'Longitude') \
+#        .write_data(lon)
+#
+#    # Latitude
+#    obsspace.create_var('MetaData/latitude', dtype=lat.dtype,
+#                        fillval=lat.fill_value) \
+#        .write_attr('units', 'degrees_north') \
+#        .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
+#        .write_attr('long_name', 'Latitude') \
+#        .write_data(lat)
+#
+#    # Datetime
+#    obsspace.create_var('MetaData/dateTime', dtype=dateTime.dtype,
+#                        fillval=dateTime.fill_value) \
+#        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
+#        .write_attr('long_name', 'Datetime') \
+#        .write_data(dateTime)
+#
+#    # Station Identification
+#    obsspace.create_var('MetaData/stationIdentification', dtype=sid.dtype,
+#                        fillval=sid.fill_value) \
+#        .write_attr('long_name', 'Station Identification') \
+#        .write_data(sid)
+#
+#    # Station Elevation
+#    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
+#                        fillval=elv.fill_value) \
+#        .write_attr('units', 'm') \
+#        .write_attr('long_name', 'Station Elevation') \
+#        .write_data(elv)
+#
+#    # Observation Type
+#    obsspace.create_var('MetaData/observationType', dtype=typ.dtype,
+#                        fillval=typ.fill_value) \
+#        .write_attr('long_name', 'Observation Type') \
+#        .write_data(typ)
+#
+#    # Pressure
+#    obsspace.create_var('MetaData/pressure', dtype=pressure.dtype,
+#                        fillval=pressure.fill_value) \
+#        .write_attr('units', 'Pa') \
+#        .write_attr('long_name', 'Pressure') \
+#        .write_data(pressure)
+#
+#    # Quality: Percent Confidence - Quality Information Without Forecast
+#    obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype,
+#                        fillval=pobqm.fill_value) \
+#        .write_attr('long_name', 'Station Pressure Quality Marker') \
+#        .write_data(pobqm)
+#
+#    # Station Pressure
+#    obsspace.create_var('ObsValue/pressure', dtype=pob.dtype,
+#                        fillval=pob.fill_value) \
+#        .write_attr('units', 'Pa') \
+#        .write_attr('long_name', 'Station Pressure') \
+#        .write_data(pob)
+#
+#    end_time = time.time()
+#    running_time = end_time - start_time
+#    logger.info(f"Running time for splitting and output IODA: \
+#                {running_time} seconds")
 
     logger.info("All Done!")
 
