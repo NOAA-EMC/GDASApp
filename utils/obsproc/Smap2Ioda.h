@@ -75,6 +75,8 @@ namespace gdasapp {
       netCDF::NcGroupAtt attributeStartDay = ncFile.getAtt("REV_START_DAY_OF_YEAR");
       attributeStartDay.getValues(&startDay);
 
+      iodaVars.referenceDate = "seconds since 1970-01-01T00:00:00Z";
+
       // calculate the seconds of Jan 1 of startyear since unix epoch
       std::tm tm{};
       // defaults are zero, Jan is zero
