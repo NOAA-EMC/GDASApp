@@ -18,8 +18,8 @@ namespace gdasapp {
 
   class Ghrsst2Ioda : public NetCDFToIodaConverter {
    public:
-    explicit Ghrsst2Ioda(const eckit::Configuration & fullConfig)
-    : NetCDFToIodaConverter(fullConfig) {
+    explicit Ghrsst2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
+      : NetCDFToIodaConverter(fullConfig, comm) {
       variable_ = "seaSurfaceTemperature";
     }
 
@@ -35,8 +35,8 @@ namespace gdasapp {
       int dimLon = ncFile.getDim("lon").getSize();
       int dimLat = ncFile.getDim("lat").getSize();
       int dimTime = ncFile.getDim("time").getSize();
-      ASSERT(dimTime == 1);  // Hard-coded to 1 for now. 
-      int nobs = dimTime * dimLat * dimLon;
+      ASSERT(dimTime == 1);  // Hard-coded to 1 for now.
+      int nobs = dimLon * dimLat;
 
       // Create instance of iodaVars object
       gdasapp::IodaVars iodaVars(nobs, {}, {});
@@ -50,16 +50,15 @@ namespace gdasapp {
       float lon[dimLon];
       ncFile.getVar("lon").getVar(lon);
 
-      // Generate the lat-lom grid
+      // Generate the lat-lon grid
       std::vector<std::vector<float>> X(dimLon, std::vector<float>(dimLat));
       std::vector<std::vector<float>> Y(dimLon, std::vector<float>(dimLat));
-
-      for (int i = 0; i < dimLon; i++) {
-        for (int j = 0; j < dimLat; j++) {
-           X[i][j] = lat[i];
-           Y[i][j] = lon[j];
-        };
-      };
+      for (int i = 0; i < dimLon; ++i) {
+        for (int j = 0; j < dimLat; ++j) {
+          X[i][j] = lon[i];
+          Y[i][j] = lat[j];
+        }
+      }
 
       // unix epoch at Jan 01 1981 00:00:00 GMT+0000
       // datetime: Read Reference Time
@@ -118,27 +117,25 @@ namespace gdasapp {
 
       oops::Log::info() << "--- sst_preQc: " << std::endl;
 
-
-      // Write the data in IODA format
+      // Store into eigen arrays
       int loc(0);
       for (int i = 0; i < dimLat; i++) {
         for (int j = 0; j < dimLon; j++) {
-//          loc = i * dimLon + j;
           iodaVars.longitude(loc) = X[i][j];
-          iodaVars.latitude(loc)  = Y[i][j];      
+          iodaVars.latitude(loc)  = Y[i][j];
           iodaVars.obsVal(loc)    = (static_cast<float>(sstObsVal[0][i][j]) + sstOffSet)   * sstScaleFactor
                                   - (static_cast<float>(sstObsBias[0][i][j]) + biasOffSet) * biasScaleFactor;
           iodaVars.obsError(loc)  = (static_cast<float>(sstObsErr[0][i][j]) + errOffSet)   * errScaleFactor;
-          // Note: the qc flags in GDS2.0 run from 0 to 5, with higher numbers being better. 
+          // Note: the qc flags in GDS2.0 run from 0 to 5, with higher numbers being better.
           // IODA typically expects 0 to be good, and higher numbers are bad, so the qc flags flipped here.
           iodaVars.preQc(loc)     = 5 - static_cast<int>(sstPreQC[0][i][j]);
-          iodaVars.datetime(loc)  = static_cast<int64_t>((sstdTime[0][i][j] + dtimeOffSet)  * dtimeScaleFactor) 
-                                  + static_cast<int64_t>(refTime[0]); 
+          iodaVars.datetime(loc)  = static_cast<int64_t>((sstdTime[0][i][j] + dtimeOffSet)  * dtimeScaleFactor)
+                                  + static_cast<int64_t>(refTime[0]);
           loc += 1;
-        };
-      };
+        }
+      }
       //
       return iodaVars;
-    };
+    }
   };  // class Ghrsst2Ioda
-}  // namespace gdasapp
+};  // namespace gdasapp

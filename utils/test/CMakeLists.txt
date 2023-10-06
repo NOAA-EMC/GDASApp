@@ -6,6 +6,7 @@ list( APPEND utils_test_input
   testinput/gdas_smap2ioda.yaml
   testinput/gdas_smos2ioda.yaml
   testinput/gdas_icecamsr2ioda.yaml
+  testinput/gdas_smos2ioda.yaml
 )
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)

@@ -30,7 +30,6 @@ namespace gdasapp {
       } else if (provider == "GHRSST") {
         Ghrsst2Ioda conv2ioda(fullConfig);
         conv2ioda.writeToIoda();
-        oops::Log::info() << "Comming soon!" << std::endl;
       } else if (provider == "SMAP") {
         Smap2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
