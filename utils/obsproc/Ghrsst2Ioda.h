@@ -124,7 +124,7 @@ namespace gdasapp {
       for (int i = 0; i < dimLat; i++) {
         for (int j = 0; j < dimLon; j++) {
           iodaVars.longitude(loc) = X[i][j];
-          iodaVars.latitude(loc)  = X[i][j];
+          iodaVars.latitude(loc)  = Y[i][j];
           iodaVars.obsVal(loc)    = (static_cast<float>(sstObsVal[0][i][j]) + sstOffSet)   * sstScaleFactor
                                   - (static_cast<float>(sstObsBias[0][i][j]) + biasOffSet) * biasScaleFactor;
           iodaVars.obsError(loc)  = (static_cast<float>(sstObsErr[0][i][j]) + errOffSet)   * errScaleFactor;
