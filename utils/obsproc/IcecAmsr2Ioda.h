@@ -39,15 +39,8 @@ namespace gdasapp {
       int nobs = dimxSize * dimySize;
       int ntimes = dimxSize * dimySize * dimTimeSize;
 
-      // Set the int metadata names
-      std::vector<std::string> intMetadataNames = {};
-      // std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
-
-      // Set the float metadata name
-      std::vector<std::string> floatMetadataNames = {};
-      // std::vector<std::string> floatMetadataNames = {"mdt"};
       // Create instance of iodaVars object
-      gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
+      gdasapp::IodaVars iodaVars(nobs, {}, {});
 
       oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
 
@@ -56,24 +49,20 @@ namespace gdasapp {
       std::vector<float> oneDimLatVal(iodaVars.location);
       ncFile.getVar("Latitude").getVar(oneDimLatVal.data());
 
-      netCDF::NcVar lonNcVar = ncFile.getVar("Longitude");
       std::vector<float> oneDimLonVal(iodaVars.location);
-      lonNcVar.getVar(oneDimLonVal.data());
+      ncFile.getVar("Longitude").getVar(oneDimLonVal.data());
 
-      // Read optional integer metadata "Flags"
-      netCDF::NcVar flagsNcVar = ncFile.getVar("Flags");
+      // Read Quality Flags as a preQc
       std::vector<int64_t> oneDimFlagsVal(iodaVars.location);
-      flagsNcVar.getVar(oneDimFlagsVal.data());
+      ncFile.getVar("Flags").getVar(oneDimFlagsVal.data());
 
-      // Get Ice_Concentration obs values and attributes
-      netCDF::NcVar icecNcVar = ncFile.getVar("NASA_Team_2_Ice_Concentration");
+      // Get Ice_Concentration obs values
       std::vector<int> oneDimObsVal(iodaVars.location);
-      icecNcVar.getVar(oneDimObsVal.data());
+      ncFile.getVar("NASA_Team_2_Ice_Concentration").getVar(oneDimObsVal.data());
 
       // Read and process the dateTime
-      netCDF::NcVar dateTimeNcVar = ncFile.getVar("Scan_Time");
       std::vector<int> oneTmpdateTimeVal(ntimes);
-      dateTimeNcVar.getVar(oneTmpdateTimeVal.data());
+      ncFile.getVar("Scan_Time").getVar(oneTmpdateTimeVal.data());
       iodaVars.referenceDate = "seconds since 1970-01-01T00:00:00Z";
 
       std::tm timeinfo = {};
@@ -99,24 +88,8 @@ namespace gdasapp {
         iodaVars.obsVal(i) = static_cast<int64_t>(oneDimObsVal[i]*0.01);
         iodaVars.obsError(i) = 0.1;  // Do something for obs error
         iodaVars.preQc(i) = oneDimFlagsVal[i];
-        // Save QC Flags in optional floatMetadata
-        // iodaVars.intMetadata(i, 0) = oneDimFlagsVal[i];
       }
-
       return iodaVars;
     };
-    int altimeterMissions(std::string missionName) {
-      std::map<std::string, int64_t> altimeterMap;
-      // TODO(All): This is incomplete, add missions to the list below
-      //            and add to global attribute
-      altimeterMap["SNTNL-3A"] = 1;
-      altimeterMap["SNTNL-3B"] = 2;
-      altimeterMap["JASON-1"] = 3;
-      altimeterMap["JASON-2"] = 4;
-      altimeterMap["JASON-3"] = 5;
-      altimeterMap["CRYOSAT2"] = 6;
-      altimeterMap["SARAL"] = 7;
-      return altimeterMap[missionName];
-    }
   };  // class IcecAmsr2Ioda
 }  // namespace gdasapp
