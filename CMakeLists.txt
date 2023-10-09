@@ -78,7 +78,7 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG 24a77ff )
   ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG db0e690 )
   ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG 7deca0e  )
-  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG d7ccfec )
+  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG dcfbdbf )
 
 # FMS and FV3 dynamical core
   ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" TAG 1f73914 )
