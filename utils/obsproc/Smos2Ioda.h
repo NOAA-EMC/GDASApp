@@ -81,6 +81,11 @@ namespace gdasapp {
         iodaVars.preQc(i) = sss_qc[i];
         iodaVars.datetime(i) =  static_cast<int64_t>(datetime[i]*86400.0f) + mjd2000;
       }
+
+      // basic test for iodaVars.trim
+      Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal > 0.0);
+      iodaVars.trim(mask);
+
       return iodaVars;
     };
   };  // class Smos2Ioda
