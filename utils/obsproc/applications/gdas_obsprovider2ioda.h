@@ -7,7 +7,9 @@
 #include "oops/runs/Application.h"
 
 #include "../Ghrsst2Ioda.h"
+#include "../IcecAmsr2Ioda.h"
 #include "../Rads2Ioda.h"
+#include "../Smap2Ioda.h"
 #include "../Smos2Ioda.h"
 
 namespace gdasapp {
@@ -28,8 +30,14 @@ namespace gdasapp {
       } else if (provider == "GHRSST") {
         Ghrsst2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
+      } else if (provider == "SMAP") {
+        Smap2Ioda conv2ioda(fullConfig, this->getComm());
+        conv2ioda.writeToIoda();
       } else if (provider == "SMOS") {
         Smos2Ioda conv2ioda(fullConfig, this->getComm());
+        conv2ioda.writeToIoda();
+      } else if (provider == "AMSR2") {
+        IcecAmsr2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else {
         oops::Log::info() << "Provider not implemented" << std::endl;
