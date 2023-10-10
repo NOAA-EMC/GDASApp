@@ -17,52 +17,6 @@
 #include "oops/util/missingValues.h"
 
 namespace gdasapp {
-  namespace superobutils {
-    // Function to perform subsampling with a given stride
-    template <typename T>
-    std::vector<std::vector<T>> subsample2D(const std::vector<std::vector<T>>& inputArray,
-                                            int stride) {
-      int numRows = inputArray.size();
-      int numCols = inputArray[0].size();
-
-      // Calculate the dimensions of the subsampled array
-      int subsampledRows = (numRows + stride - 1) / stride;
-      int subsampledCols = (numCols + stride - 1) / stride;
-
-      // Initialize the subsampled array with the correct dimensions
-      std::vector<std::vector<T>> subsampled(subsampledRows, std::vector<T>(subsampledCols));
-
-      // Perform subsampling
-      for (int i = 0; i < subsampledRows; ++i) {
-        for (int j = 0; j < subsampledCols; ++j) {
-          int sum = 0;
-          int count = 0;
-
-          // Compute the average within the stride
-          for (int si = 0; si < stride; ++si) {
-            for (int sj = 0; sj < stride; ++sj) {
-              int row = i * stride + si;
-              int col = j * stride + sj;
-              //std::cout << "------- i, j : " << i << ", " << j << std::endl;
-              if (row < numRows && col < numCols) {
-                //std::cout << "            r, c : " << row << ", " << col << std::endl;
-                //std::cout << "            input : " << inputArray[row][col] << std::endl;
-                sum += inputArray[row][col];
-                count++;
-              }
-            }
-          }
-
-          // Calculate the average and store it in the subsampled array
-          subsampled[i][j] = sum / count;
-          //subsampled[i][j] = inputArray[i * stride][j * stride];
-        }
-      }
-
-      return subsampled;
-    }
-  }  // namespace superobutils
-
   // A simple data structure to organize the info to provide to the ioda
   // writter
   struct IodaVars {
@@ -146,7 +100,8 @@ namespace gdasapp {
    public:
     // Constructor: Stores the configuration as a data members
     explicit NetCDFToIodaConverter(const eckit::Configuration & fullConfig,
-                                   const eckit::mpi::Comm & comm): comm_(comm) {
+                                   const eckit::mpi::Comm & comm): comm_(comm),
+                                                                   fullConfig_(fullConfig) {
       // time window info
       std::string winbegin;
       std::string winend;
@@ -331,5 +286,6 @@ namespace gdasapp {
     std::string outputFilename_;
     std::string variable_;
     const eckit::mpi::Comm & comm_;
+    const eckit::Configuration & fullConfig_;
   };
 }  // namespace gdasapp
