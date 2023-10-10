@@ -183,6 +183,12 @@ namespace gdasapp {
           loc += 1;
         }
       }
+
+      // Remove
+      Eigen::Array<bool, Eigen::Dynamic, 1> boundsCheck =
+        (iodaVars.obsVal > -3.0 && iodaVars.obsVal < 50.0);
+      iodaVars.trim(boundsCheck);
+
       return iodaVars;
     };
   };  // class Ghrsst2Ioda
