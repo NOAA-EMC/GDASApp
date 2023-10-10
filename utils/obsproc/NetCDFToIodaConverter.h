@@ -96,47 +96,39 @@ namespace gdasapp {
     void trim(const Eigen::Array<bool, Eigen::Dynamic, 1>& mask ) {
       int newlocation = mask.count();
 
-      Eigen::ArrayXf longitudeMasked(newlocation);
-      Eigen::ArrayXf latitudeMasked(newlocation);
-      Eigen::Array<int64_t, Eigen::Dynamic, 1> datetimeMasked(newlocation);
-      Eigen::ArrayXf obsValMasked(newlocation);
-      Eigen::ArrayXf obsErrorMasked(newlocation);
-      Eigen::ArrayXi preQcMasked(newlocation);
-
-      Eigen::ArrayXXf floatMetadataMasked(newlocation, nfMetadata);
-      Eigen::ArrayXXf intMetadataMasked(newlocation, niMetadata);
+      IodaVars iodaVarsMasked(newlocation,  this->floatMetadataName, this->intMetadataName);
 
       // this feels downright crude, but apparently numpy-type masks are on the todo list for Eigen
       int j = 0;
-      for (int i = 0; i < location; i++) {
+      for (int i = 0; i < this->location; i++) {
         if (mask(i)) {
-          longitudeMasked(j) = longitude(i);
-          latitudeMasked(j) = latitude(i);
-          obsValMasked(j) = obsVal(i);
-          obsErrorMasked(j) = obsError(i);
-          preQcMasked(j) = preQc(i);
-          datetimeMasked(j) = datetime(i);
-          for (int k = 0; k < nfMetadata; k++) {
-            intMetadataMasked(j, k) = intMetadata(i, k);
+          iodaVarsMasked.longitude(j) = this->longitude(i);
+          iodaVarsMasked.latitude(j) = this->latitude(i);
+          iodaVarsMasked.obsVal(j) = this->obsVal(i);
+          iodaVarsMasked.obsError(j) = this->obsError(i);
+          iodaVarsMasked.preQc(j) = this->preQc(i);
+          iodaVarsMasked.datetime(j) = this->datetime(i);
+          for (int k = 0; k < this->nfMetadata; k++) {
+            iodaVarsMasked.intMetadata(j, k) = this->intMetadata(i, k);
             }
-          for (int k = 0; k < niMetadata; k++) {
-            intMetadataMasked(j, k) = intMetadata(i, k);
+          for (int k = 0; k < this->niMetadata; k++) {
+            iodaVarsMasked.intMetadata(j, k) = this->intMetadata(i, k);
             }
         j++;
         }  // end if (mask(i))
       }
 
-      longitude = longitudeMasked;
-      latitude = latitudeMasked;
-      datetime = datetimeMasked;
-      obsVal = obsValMasked;
-      obsError = obsErrorMasked;
-      preQc = preQcMasked;
-      floatMetadata = floatMetadataMasked;
-      intMetadata = intMetadataMasked;
+      this->longitude = iodaVarsMasked.longitude;
+      this->latitude = iodaVarsMasked.latitude;
+      this->datetime = iodaVarsMasked.datetime;
+      this->obsVal = iodaVarsMasked.obsVal;
+      this->obsError = iodaVarsMasked.obsError;
+      this->preQc = iodaVarsMasked.preQc;
+      this->floatMetadata = iodaVarsMasked.floatMetadata;
+      this->intMetadata = iodaVarsMasked.intMetadata;
 
       // Update obs count
-      location = newlocation;
+      this->location = iodaVarsMasked.location;
       oops::Log::info() << "IodaVars::IodaVars done masking." << std::endl;
     }
   };
