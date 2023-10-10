@@ -3,8 +3,8 @@ list( APPEND utils_test_input
   testinput/gdas_meanioda.yaml
   testinput/gdas_rads2ioda.yaml
   testinput/gdas_ghrsst2ioda.yaml
-  testinput/gdas_smos2ioda.yaml
   testinput/gdas_smap2ioda.yaml
+  testinput/gdas_smos2ioda.yaml
   testinput/gdas_icecamsr2ioda.yaml
 )
 
