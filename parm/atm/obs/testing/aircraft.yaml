@@ -3,7 +3,6 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-#      obsfile: !ENV ${DATA}/obs/${OPREFIX}aircraft.${CDATE}.nc4
       obsfile: !ENV aircraft_obs_${CDATE}.nc4
     obsgrouping:
       group variables: ["stationIdentification"]
@@ -12,7 +11,6 @@ obs space:
   obsdataout:
     engine:
       type: H5File
-#      obsfile: !ENV ${DATA}/diags/diag_aircraft_${CDATE}.nc4
       obsfile: !ENV diag_aircraft_${CDATE}.nc4
   io pool:
     max pool size: 1

@@ -1,0 +1,932 @@
+obs space:
+  name: Surface Marine Stations
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: '{{cycle_dir}}/sfcship.{{window_begin}}.nc4'
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: '{{cycle_dir}}/{{experiment_id}}.sfcship.{{window_begin}}.nc4'
+  simulated variables: [windEastward, windNorthward, virtualTemperature, airTemperature,
+                        specificHumidity, stationPressure]
+
+obs operator:
+  name: Composite
+  components:
+
+   - name: VertInterp
+     observation alias file: '{{experiment_root}}/{{experiment_id}}/configuration/jedi/interfaces/{{model_component}}/observations/obsop_name_map.yaml'
+     apply near surface wind scaling: true
+     variables:
+     - name: airTemperature
+     - name: virtualTemperature
+
+   - name: Product
+     observation alias file: '{{experiment_root}}/{{experiment_id}}/configuration/jedi/interfaces/{{model_component}}/observations/obsop_name_map.yaml'
+     geovals to scale hofx by: wind_reduction_factor_at_10m
+     variables:
+     - name: windEastward
+     - name: windNorthward
+
+   # Surface pressure is handled using the correction scheme
+   - name: SfcPCorrected
+     variables:
+     - name: stationPressure
+     da_psfc_scheme: GSI
+     geovar_geomz: geopotential_height
+     geovar_sfc_geomz: surface_geometric_height
+     station_altitude: height
+
+   # Specific humidity is using the lowest model level (identity)
+   - name: Identity
+     variables:
+     - name: specificHumidity
+
+obs filters:
+
+# ------------------
+# stationPressure (surface pressure)
+# ------------------
+# PreUseFlag is assigned in reading programs in GSI.
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  where:
+  - variable: PreUseFlag/stationPressure
+    # PreUseFlag should =< ijter ( # of outloop(0,1,2) + 1) in GSI
+    minvalue: 1
+  action:
+    name: reject
+# PrepBUFR check to be supplemented later
+- filter: RejectList
+  where:
+  - variable:
+      name: PreQC/stationPressure
+    is_in: 4-15
+# error assignments
+# Original error interpolated from the error table
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  where:
+  - variable: ObsType/stationPressure
+    is_in: [180]
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/ObsErrorModelStepwiseLinear
+      options:
+        xvar:
+          name: ObsValue/stationPressure
+        xvals: [ 80000, 75000, 70000, 65000, 60000, 55000]
+        errors: [100,   100,   110,   120,   120,   1.0e+11]
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  where:
+  - variable: ObsType/stationPressure
+    is_in: [183]
+  action:
+    name: assign error
+    error parameter: 1.0e+11
+# GSI says this adjustment is for buoys type(180) & subtype (0) in setupps.f90
+# Note, types of drifting buoys are re-set to 199/299 in read_prepbufr.f90 when id_drifter=TRUE.
+- filter: Perform Action
+  action:
+    name: inflate error
+    inflation factor: 0.7
+  where:
+  - variable: ObsType/stationPressure
+    is_in: [180]
+  - variable: ObsSubType/stationPressure
+    is_in: [0]
+# Ajusted error after reading prep_bufr
+- filter: Perform Action
+  action:
+    name: inflate error
+    inflation factor: 1.2
+  where:
+  - variable: PreQC/stationPressure
+    is_in: [3]
+# error inflation based on Ps correction
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorSfcPressure
+      options:
+        geovar_geomz: geopotential_height
+        geovar_sfc_geomz: surface_geometric_height
+        station_altitude: height
+# assign TempObsErrorData/stationPressure <--- ObsErrorData before changing its Min and Max
+- filter: Variable Assignment
+  assignments:
+  - name: TempObsErrorData/stationPressure
+    type: float
+    function:
+      name: ObsFunction/Arithmetic
+      options:
+        variables:
+        - name: ObsErrorData/stationPressure
+  defer to post: true
+# set ObsErrorData 100 Pa if it < 100 Pa.
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  action:
+    name: assign error
+    error parameter: 100
+  where:
+  - variable:
+      name: TempObsErrorData/stationPressure
+    maxvalue: 100
+  - variable:
+      name: TempObsErrorData/stationPressure
+    is_defined:
+  defer to post: true
+# set ObsErrorData 300 Pa if it > 300 Pa.
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  action:
+    name: assign error
+    error parameter: 300
+  where:
+  - variable:
+      name: TempObsErrorData/stationPressure
+    minvalue: 300
+  - variable:
+      name: TempObsErrorData/stationPressure
+    is_defined:
+  defer to post: true
+# Background  check
+# background check for obstype 180,183:
+# threshold 4.0 if PreQC /= 3
+- filter: Background Check
+  filter variables:
+  - name: stationPressure
+  threshold: 4.0
+  action:
+    name: reject
+  where:
+  - variable: PreQC/stationPressure
+    is_not_in: [3]
+  - variable: ObsType/stationPressure
+    is_in: 180,183
+  defer to post: true
+# threshold * 0.7 if PreQC=3
+- filter: Background Check
+  filter variables:
+  - name: stationPressure
+  threshold: 2.8
+  action:
+    name: reject
+  where:
+  - variable: PreQC/stationPressure
+    is_in: [3]
+  - variable: ObsType/stationPressure
+    is_in: 180,183
+  defer to post: true
+# Re-assign error ObsErrorData/stationPressure <--- TempObsErrorData/stationPressure
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  action:
+    name: assign error
+    error function: TempObsErrorData/stationPressure
+  where:
+  - variable:
+      name: TempObsErrorData/stationPressure
+    is_defined:
+  defer to post: true
+# # Duplicate factor
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorDuplicateCheck
+      options:
+        use_air_pressure: false
+        variable: stationPressure
+  defer to post: true
+
+# ------------------
+# airTemperature
+# ------------------
+# Error assignments
+## All airTemperature data with ObsType=183 are passive in GSI.
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  where:
+  - variable: ObsType/airTemperature
+    is_in: [183]
+  action:
+    name: assign error
+    error parameter: 1.0e+11
+## Reject airTemperature with ObsType=183
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  where:
+  - variable: ObsType/airTemperature
+    is_in: [183]
+  action:
+    name: reject
+## airTemperature data with ObsType=180
+# initial error
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  where:
+  - variable: ObsType/airTemperature
+    is_in: [180]
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/ObsErrorModelStepwiseLinear
+      options:
+        xvar:
+          name: MetaData/pressure
+        xvals: [ 80000,75000, 70000, 65000]
+        errors: [ 1.75, 1.95,  2.25,   1.0]
+# Ajusted error after initial assignment
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorConventional
+      options:
+        test QCflag: PreQC
+        test QCthreshold: 3
+        inflate variables: [airTemperature]
+        pressure: MetaData/pressure
+        distance threshold: -1.
+  defer to post: true
+# inflate error, x1.2 for PreQC = 3,7
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  action:
+    name: inflate error
+    inflation factor: 1.2
+  where:
+  - variable: PreQC/airTemperature
+    is_in: [3 7]
+  defer to post: true
+# inflate error, x1.2  at pressure < 10000 Pa.
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  action:
+    name: inflate error
+    inflation factor: 1.2
+  where:
+  - variable: MetaData/pressure
+    minvalue: 0
+    maxvalue: 9999
+  defer to post: true
+## a tempporary solution: Replace error by GsiAdjustObsError
+## overwite above error assignments and inflation.
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  action:
+    name: assign error
+    error function: GsiAdjustObsError/airTemperature
+  where:
+  - variable:
+      name: GsiAdjustObsError/airTemperature
+    is_defined:
+  defer to post: true
+# error inflation based on pressure check
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorPressureCheck
+      options:
+        variable: airTemperature
+        inflation factor: 8.0
+        geovar_sfc_geomz: surface_geometric_height
+  defer to post: true
+# assign TempObsErrorData/airTemperature  <--- ObsErrorData before changing its Min and Max
+- filter: Variable Assignment
+  assignments:
+  - name: TempObsErrorData/airTemperature
+    type: float
+    function:
+      name: ObsFunction/Arithmetic
+      options:
+        variables:
+        - name: ObsErrorData/airTemperature
+  defer to post: true
+# set ObsErrorData 1.3 K if it < 1.3 K
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  action:
+    name: assign error
+    error parameter: 1.3
+  where:
+  - variable:
+      name: TempObsErrorData/airTemperature
+    maxvalue: 1.3
+  - variable:
+      name: TempObsErrorData/airTemperature
+    is_defined:
+  defer to post: true
+# set ObsErrorData 5.6 K if it > 5.6 K.
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  action:
+    name: assign error
+    error parameter: 5.6
+  where:
+  - variable:
+      name: TempObsErrorData/airTemperature
+    minvalue: 5.6
+  - variable:
+      name: TempObsErrorData/airTemperature
+    is_defined:
+  defer to post: true
+
+# Screen data by PreUseFlag
+# PreUseFlag is assigned in reading programs in GSI.
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  where:
+  - variable: PreUseFlag/airTemperature
+    # PreUseFlag should =< ijter ( # of outloop(0,1,2) + 1) in GSI
+    minvalue: 1
+  action:
+    name: reject
+# Background  check
+# ratio threshold 7.0 if PreQC /= 3
+- filter: Background Check
+  filter variables:
+  - name: airTemperature
+  threshold: 7.0
+  action:
+    name: reject
+  where:
+  - variable: PreQC/airTemperature
+    is_not_in: [3]
+  defer to post: true
+# ratio threshold * 0.7 if PreQC=3
+- filter: Background Check
+  filter variables:
+  - name: airTemperature
+  threshold: 4.9
+  action:
+    name: reject
+  where:
+  - variable: PreQC/airTemperature
+    is_in: [3]
+  defer to post: true
+# Re-assign error ObsErrorData/aireTemperature <--- TempObsErrorData/aireTemperature
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  action:
+    name: assign error
+    error function: TempObsErrorData/airTemperature
+  where:
+  - variable:
+      name: TempObsErrorData/airTemperature
+    is_defined:
+  defer to post: true
+## Duplicate factor
+- filter: Perform Action
+  filter variables:
+  - name: airTemperature
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorDuplicateCheck
+      options:
+        use_air_pressure: true
+        variable: airTemperature
+  defer to post: true
+
+# ------------------
+# virtualTemperature
+# ------------------
+## All virtualTemperature data with ObsType=183 are passive in GSI.
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  where:
+  - variable: ObsType/virtualTemperature
+    is_in: [183]
+  action:
+    name: assign error
+    error parameter: 1.0e+11
+## Reject virtualTemperature with ObsType=183
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  where:
+  - variable: ObsType/virtualTemperature
+    is_in: [183]
+  action:
+    name: reject
+## virtualTemperature data with ObsType=180
+# Error assignments
+# initial error
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  where:
+  - variable: ObsType/virtualTemperature
+    is_in: [180]
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/ObsErrorModelStepwiseLinear
+      options:
+        xvar:
+          name: MetaData/pressure
+        xvals: [ 80000,75000, 70000, 65000]
+        errors: [ 1.75, 1.95,  2.25,   1.0]
+# Ajusted error after initial assignment
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorConventional
+      options:
+        test QCflag: PreQC
+        test QCthreshold: 3
+        inflate variables: [virtualTemperature]
+        pressure: MetaData/pressure
+        distance threshold: -1.
+  defer to post: true
+# inflate error, x1.2 for PreQC = 3,7
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  action:
+    name: inflate error
+    inflation factor: 1.2
+  where:
+  - variable: PreQC/virtualTemperature
+    is_in: [3 7]
+  defer to post: true
+# inflate error, x1.2  at pressure < 10000 Pa.
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  action:
+    name: inflate error
+    inflation factor: 1.2
+  where:
+  - variable: MetaData/pressure
+    minvalue: 0
+    maxvalue: 9999
+  defer to post: true
+## a tempporary solution: Replace error by GsiAdjustObsError
+## overwite above error assignments and inflation.
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  action:
+    name: assign error
+    error function: GsiAdjustObsError/virtualTemperature
+  where:
+  - variable:
+      name: GsiAdjustObsError/virtualTemperature
+    is_defined:
+  defer to post: true
+# error inflation based on pressure check
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorPressureCheck
+      options:
+        variable: virtualTemperature
+        inflation factor: 8.0
+        geovar_sfc_geomz: surface_geometric_height
+  defer to post: true
+
+# assign TempObsErrorData/virtualTemperature  <--- ObsErrorData before changing its Min and Max
+- filter: Variable Assignment
+  assignments:
+  - name: TempObsErrorData/virtualTemperature
+    type: float
+    function:
+      name: ObsFunction/Arithmetic
+      options:
+        variables:
+        - name: ObsErrorData/virtualTemperature
+  defer to post: true
+# set ObsErrorData 1.3 K if it < 1.3 K
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  action:
+    name: assign error
+    error parameter: 1.3
+  where:
+  - variable:
+      name: TempObsErrorData/virtualTemperature
+    maxvalue: 1.3
+  - variable:
+      name: TempObsErrorData/virtualTemperature
+    is_defined:
+  defer to post: true
+# set ObsErrorData 5.6 K if it > 5.6 K.
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  action:
+    name: assign error
+    error parameter: 5.6
+  where:
+  - variable:
+      name: TempObsErrorData/virtualTemperature
+    minvalue: 5.6
+  - variable:
+      name: TempObsErrorData/virtualTemperature
+    is_defined:
+  defer to post: true
+# Screen data by PreUseFlag
+# PreUseFlag is assigned in reading programs in GSI.
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  where:
+  - variable: PreUseFlag/virtualTemperature
+    # PreUseFlag should =< ijter ( # of outloop(0,1,2) + 1) in GSI
+    minvalue: 1
+  action:
+    name: reject
+# Background  check
+# ratio threshold 7.0 if PreQC /= 3
+- filter: Background Check
+  filter variables:
+  - name: virtualTemperature
+  threshold: 7.0
+  action:
+    name: reject
+  where:
+  - variable: PreQC/virtualTemperature
+    is_not_in: [3]
+  defer to post: true
+# ratio threshold * 0.7 if PreQC=3
+- filter: Background Check
+  filter variables:
+  - name: virtualTemperature
+  threshold: 4.9
+  action:
+    name: reject
+  where:
+  - variable: PreQC/virtualTemperature
+    is_in: [3]
+  defer to post: true
+# Re-assign error ObsErrorData/aireTemperature <--- TempObsErrorData/aireTemperature
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  action:
+    name: assign error
+    error function: TempObsErrorData/virtualTemperature
+  where:
+  - variable:
+      name: TempObsErrorData/virtualTemperature
+    is_defined:
+  defer to post: true
+## Duplicate factor
+- filter: Perform Action
+  filter variables:
+  - name: virtualTemperature
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorDuplicateCheck
+      options:
+        use_air_pressure: true
+        variable: virtualTemperature
+  defer to post: true
+
+
+# ------------------
+# specificHumidity
+# ------------------
+- filter: Perform Action
+  filter variables:
+  - name: specificHumidity
+  where:
+  - variable: PreUseFlag/specificHumidity
+   # PreUseFlag should =< ijter (1,2,or 3) in GSI
+    minvalue: 1
+  action:
+    name: reject
+
+# All specificHumidity data with ObsType=183 are passive in GSI.
+- filter: Perform Action
+  filter variables:
+  - name: specificHumidity
+  where:
+  - variable: ObsType/specificHumidity
+    is_in: [183]
+  action:
+    name: assign error
+    error parameter: 1.0e+11
+
+# Reject specificHumidity with ObsType=183
+- filter: Perform Action
+  filter variables:
+  - name: specificHumidity
+  where:
+  - variable: ObsType/specificHumidity
+    is_in: [183]
+  action:
+    name: reject
+
+# Ships data (kx=180)
+# Modify error
+- filter: Perform Action
+  filter variables:
+  - name: specificHumidity
+  where:
+  - variable: ObsType/specificHumidity
+    is_in: [180]
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/ObsErrorSatSpecHumidity
+      options:
+        variable: specificHumidity
+        input_error_name: GsiInputObsError
+
+# Pressure check
+- filter: BlackList
+  filter variables:
+  - name: specificHumidity
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorPressureCheck
+      options:
+        variable: specificHumidity
+        inflation factor: 8
+        adjusted_error_name: GsiAdjustObsError
+        geovar_sfc_geomz: surface_geometric_height
+
+# Background  check
+# ratio threshold 8.0 PreQC /= 3
+- filter: Background Check
+  filter variables:
+  - name: specificHumidity
+  threshold: 8.0
+  action:
+    name: reject
+  where:
+  - variable: PreQC/specificHumidity
+    is_not_in: [3]
+  defer to post: true
+#   #ratio threshold * 0.7 if PreQC=3
+- filter: Background Check
+  filter variables:
+  - name: specificHumidity
+  threshold: 5.6
+  action:
+    name: reject
+  where:
+  - variable: PreQC/specificHumidity
+    is_in: [3]
+  defer to post: true
+
+# Duplicate factor
+- filter: BlackList
+  filter variables:
+  - name: specificHumidity
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorDuplicateCheck
+      options:
+        use_air_pressure: true
+        variable: specificHumidity
+  defer to post: true
+
+# ------------------
+# Winds
+# ------------------
+
+- filter: Perform Action
+  filter variables:
+  - name: windEastward
+  where:
+  - variable: ObsType/windEastward
+    is_in: [284]
+  action:
+    name: assign error
+    error parameter: 1.0e+11
+
+- filter: Perform Action
+  filter variables:
+  - name: windEastward
+  where:
+  - variable: ObsType/windEastward
+    is_in: [284]
+  action:
+    name: reject
+
+- filter: Perform Action #280
+  filter variables:
+  - name: windEastward
+  - name: windNorthward
+  where:
+  - variable: ObsType/windEastward
+    is_in: [280]
+  action:
+    name: assign error
+    error parameter: 2.5
+
+- filter: Perform Action #282
+  filter variables:
+  - name: windEastward
+  - name: windNorthward
+  where:
+  - variable: ObsType/windEastward
+    is_in: [282]
+  action:
+    name: assign error
+    error parameter: 2.2
+
+- filter: Perform Action
+  filter variables:
+  - name: windEastward
+  where:
+  - variable: PreUseFlag/windEastward
+   # PreUseFlag should =< ijter (1,2,or 3) in GSI
+    minvalue: 1
+  action:
+    name: reject
+
+- filter: Perform Action
+  filter variables:
+  - name: windNorthward
+  where:
+  - variable: PreUseFlag/windNorthward
+   # PreUseFlag should =< ijter (1,2,or 3) in GSI
+    minvalue: 1
+  action:
+    name: reject
+
+# Pressure check
+- filter: BlackList
+  filter variables:
+  - name: windEastward
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorPressureCheck
+      options:
+        variable: windEastward
+        inflation factor: 4.0
+        adjusted_error_name: GsiAdjustObsError
+        geovar_sfc_geomz: surface_geometric_height
+
+# Pressure check
+- filter: BlackList
+  filter variables:
+  - name: windNorthward
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorPressureCheck
+      options:
+        variable: windNorthward
+        inflation factor: 4.0
+        adjusted_error_name: GsiAdjustObsError
+        geovar_sfc_geomz: surface_geometric_height
+
+# Background  check
+# ratio threshold 6.0 if PreQC /= 3
+- filter: Background Check
+  filter variables:
+  - name: windEastward
+  threshold: 6.0
+  action:
+    name: reject
+  where:
+  - variable: PreQC/windEastward
+    is_not_in: [3]
+  defer to post: true
+# ratio threshold * 0.7 if PreQC=3
+- filter: Background Check
+  filter variables:
+  - name: windEastward
+  threshold: 4.2
+  action:
+    name: reject
+  where:
+  - variable: PreQC/windEastward
+    is_in: [3]
+  defer to post: true
+
+# Background  check
+# ratio threshold 6.0 if PreQC /= 3
+- filter: Background Check
+  filter variables:
+  - name: windNorthward
+  threshold: 6.0
+  action:
+    name: reject
+  where:
+  - variable: PreQC/windNorthward
+    is_not_in: [3]
+  defer to post: true
+# ratio threshold * 0.7 if PreQC=3
+- filter: Background Check
+  filter variables:
+  - name: windNorthward
+  threshold: 4.2
+  action:
+    name: reject
+  where:
+  - variable: PreQC/windNorthward
+    is_in: [3]
+  defer to post: true
+
+#wgu
+# Gross Check
+- filter: Background Check
+  filter variables:
+  - name: windEastward
+  function absolute threshold:
+  - name: ObsFunction/WindsSPDBCheck
+    options:
+      satwndtype: [  280, 282, 284 ]
+      error_min: [ 1.4, 1.4, 1.4 ]
+      error_max: [ 6.1, 6.1, 6.1 ]
+      cgross:    [ 6.0, 6.0, 6.0 ]
+      wndtype:  [ 280, 282, 284 ]
+      variable: windEastward
+  action:
+    name: reject
+  defer to post: true
+
+#wgu
+# Gross Check
+- filter: Background Check
+  filter variables:
+  - name: windNorthward
+  function absolute threshold:
+  - name: ObsFunction/WindsSPDBCheck
+    options:
+      satwndtype: [  280, 282, 284 ]
+      error_min: [ 1.4, 1.4, 1.4 ]
+      error_max: [ 6.1, 6.1, 6.1 ]
+      cgross:    [ 6.0, 6.0, 6.0 ]
+      wndtype:  [ 280, 282, 284 ]
+      variable: windNorthward
+  action:
+    name: reject
+  defer to post: true
+
+# Duplicate factor
+- filter: BlackList
+  filter variables:
+  - name: windEastward
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorDuplicateCheck
+      options:
+        use_air_pressure: true
+        variable: windEastward
+  defer to post: true
+
+# Duplicate factor
+- filter: BlackList
+  filter variables:
+  - name: windNorthward
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorDuplicateCheck
+      options:
+        use_air_pressure: true
+        variable: windNorthward
+  defer to post: true
+

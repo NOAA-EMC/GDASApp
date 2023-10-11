@@ -1,0 +1,39 @@
+variable maps:
+  - name: airTemperature
+    alias: air_temperature
+  - name: windEastward
+    alias: eastward_wind
+  - name: windNorthward
+    alias: northward_wind
+  - name: specificHumidity
+    alias: specific_humidity
+  - name: relativeHumidity
+    alias: relative_humidity
+  - name: pressure
+    alias: air_pressure
+  - name: virtualTemperature
+    alias: virtual_temperature
+  - name: stationPressure
+    alias: surface_pressure
+  - name: depthBelowWaterSurface
+    alias: ocean_depth
+  - name: waterTemperature
+    alias: ocean_temperature
+  - name: surfacePressure
+    alias: surface_pressure
+  - name: seaSurfaceTemperature
+    alias: sea_surface_temperature
+  - name: equivalentReflectivityFactor
+    alias: equivalent_reflectivity_factor
+  - name: salinity
+    alias: sea_water_salinity
+  - name: seaSurfaceTemperature
+    alias: sea_surface_temperature
+  - name: ozoneLayer
+    alias: mole_fraction_of_ozone_in_air
+  - name: ozoneTotal
+    alias: integrated_layer_ozone_in_air
+  # This came from fv3-jedi but not sure it is needed and it seems to be the same maping as
+  # ozoneLayer
+  #- name: ozoneProfile
+  #  alias: mole_fraction_of_ozone_in_air

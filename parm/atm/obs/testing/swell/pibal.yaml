@@ -1,0 +1,35 @@
+obs space:
+  name: Pilot Balloon
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: '{{cycle_dir}}/pibal.{{window_begin}}.nc4'
+    obsgrouping:
+      group variables: ["stationIdentification", "releaseTime"]
+      sort variable: "pressure"
+      sort order: "descending"
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: '{{cycle_dir}}/{{experiment_id}}.pibal.{{window_begin}}.nc4'
+  simulated variables: [windEastward, windNorthward]
+
+obs operator:
+  name: Composite
+  components:
+   - name: VertInterp
+     observation alias file: '{{experiment_root}}/{{experiment_id}}/configuration/jedi/interfaces/{{model_component}}/observations/obsop_name_map.yaml'
+     variables:
+     - name: windEastward
+     - name: windNorthward
+
+obs filters:
+  # Reject all observations that are not Pibal
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    where:
+    - variable: ObsType/windEastward
+      is_not_in: 221
+    action:
+      name: reject
