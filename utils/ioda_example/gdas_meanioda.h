@@ -17,6 +17,7 @@
 #include "oops/util/DateTime.h"
 #include "oops/util/Duration.h"
 #include "oops/util/Logger.h"
+#include "oops/util/TimeWindow.h"
 
 namespace gdasapp {
   // this is an example of how one can use OOPS and IODA to do something
@@ -44,6 +45,10 @@ namespace gdasapp {
       std::string winend;
       fullConfig.get("window begin", winbegin);
       fullConfig.get("window end", winend);
+      bool shift;
+      fullConfig.get("window shift", shift);
+      const util::TimeWindow timeWindow(util::DateTime(winbegin), util::DateTime(winend),
+                                        util::boolToWindowBound(shift));
 
       // what variable to get the mean of
       std::string group;
@@ -59,8 +64,8 @@ namespace gdasapp {
       // Note, the below line does a lot of heavy lifting
       // we can probably go to a lower level function
       // (and more of them) to accomplish the same thing
-      ioda::ObsSpace ospace(obsparams, oops::mpi::world(), util::DateTime(winbegin),
-                            util::DateTime(winend), oops::mpi::myself());
+      ioda::ObsSpace ospace(obsparams, oops::mpi::world(), timeWindow,
+                            oops::mpi::myself());
       const size_t nlocs = ospace.nlocs();
       oops::Log::info() << "nlocs =" << nlocs << std::endl;
       std::vector<float> buffer(nlocs);
