@@ -44,18 +44,18 @@ namespace gdasapp {
       gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       // Read non-optional metadata: datetime, longitude and latitude
-      int lat[iodaVars.location];  // NOLINT
+      int lat[iodaVars.location_];  // NOLINT
       ncFile.getVar("lat").getVar(lat);
 
-      int lon[iodaVars.location];  // NOLINT
+      int lon[iodaVars.location_];  // NOLINT
       ncFile.getVar("lon").getVar(lon);
 
       float geoscaleFactor;
       ncFile.getVar("lon").getAtt("scale_factor").getValues(&geoscaleFactor);
 
-      float datetime[iodaVars.location];  // NOLINT
+      float datetime[iodaVars.location_];  // NOLINT
       ncFile.getVar("time_mjd").getVar(datetime);
-      iodaVars.referenceDate = "seconds since 1858-11-17T00:00:00Z";
+      iodaVars.referenceDate_ = "seconds since 1858-11-17T00:00:00Z";
 
       // Read optional integer metadata "mission"
       std::string mission_name;
@@ -63,35 +63,36 @@ namespace gdasapp {
       int mission_index = altimeterMissions(mission_name);   // mission name mapped to integer
 
       // Read optional integer metadata "pass" and "cycle"
-      int pass[iodaVars.location];  // NOLINT
+      int pass[iodaVars.location_];  // NOLINT
       ncFile.getVar("pass").getVar(pass);
-      int cycle[iodaVars.location];  // NOLINT
+      int cycle[iodaVars.location_];  // NOLINT
       ncFile.getVar("cycle").getVar(cycle);
 
-      for (int i = 0; i < iodaVars.location; i++) {
-        iodaVars.intMetadata.row(i) << pass[i], cycle[i], mission_index;
+      for (int i = 0; i < iodaVars.location_; i++) {
+        iodaVars.intMetadata_.row(i) << pass[i], cycle[i], mission_index;
       }
 
       // Get adt_egm2008 obs values and attributes
-      int adt[iodaVars.location];  // NOLINT
+      int adt[iodaVars.location_];  // NOLINT
       ncFile.getVar("adt_egm2008").getVar(adt);
       float scaleFactor;
       ncFile.getVar("adt_egm2008").getAtt("scale_factor").getValues(&scaleFactor);
 
       // Read sla
-      int sla[iodaVars.location];  // NOLINT
+      int sla[iodaVars.location_];  // NOLINT
       ncFile.getVar("sla").getVar(sla);
 
       // Update non-optional Eigen arrays
-      for (int i = 0; i < iodaVars.location; i++) {
-        iodaVars.longitude(i) = static_cast<float>(lon[i])*geoscaleFactor;
-        iodaVars.latitude(i) = static_cast<float>(lat[i])*geoscaleFactor;
-        iodaVars.datetime(i) = static_cast<int64_t>(datetime[i]*86400.0f);
-        iodaVars.obsVal(i) = static_cast<float>(adt[i])*scaleFactor;
-        iodaVars.obsError(i) = 0.1;  // Do something for obs error
-        iodaVars.preQc(i) = 0;
+      for (int i = 0; i < iodaVars.location_; i++) {
+        iodaVars.longitude_(i) = static_cast<float>(lon[i])*geoscaleFactor;
+        iodaVars.latitude_(i) = static_cast<float>(lat[i])*geoscaleFactor;
+        iodaVars.datetime_(i) = static_cast<int64_t>(datetime[i]*86400.0f);
+        iodaVars.obsVal_(i) = static_cast<float>(adt[i])*scaleFactor;
+        iodaVars.obsError_(i) = 0.1;  // Do something for obs error
+        iodaVars.preQc_(i) = 0;
         // Save MDT in optional floatMetadata
-        iodaVars.floatMetadata(i, 0) = iodaVars.obsVal(i) - static_cast<float>(sla[i])*scaleFactor;
+        iodaVars.floatMetadata_(i, 0) = iodaVars.obsVal_(i) -
+                                        static_cast<float>(sla[i])*scaleFactor;
       }
       return iodaVars;
     };
