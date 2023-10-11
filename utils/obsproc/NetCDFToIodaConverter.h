@@ -138,7 +138,8 @@ namespace gdasapp {
    public:
     // Constructor: Stores the configuration as a data members
     explicit NetCDFToIodaConverter(const eckit::Configuration & fullConfig,
-                                   const eckit::mpi::Comm & comm): comm_(comm) {
+                                   const eckit::mpi::Comm & comm): comm_(comm),
+                                                                   fullConfig_(fullConfig) {
       // time window info
       std::string winbegin;
       std::string winend;
@@ -323,5 +324,6 @@ namespace gdasapp {
     std::string outputFilename_;
     std::string variable_;
     const eckit::mpi::Comm & comm_;
+    const eckit::Configuration & fullConfig_;
   };
 }  // namespace gdasapp
