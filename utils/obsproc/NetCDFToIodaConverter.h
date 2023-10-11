@@ -93,6 +93,44 @@ namespace gdasapp {
       location += other.location;
       oops::Log::trace() << "IodaVars::IodaVars done appending." << std::endl;
     }
+    void trim(const Eigen::Array<bool, Eigen::Dynamic, 1>& mask ) {
+      int newlocation = mask.count();
+
+      IodaVars iodaVarsMasked(newlocation,  this->floatMetadataName, this->intMetadataName);
+
+      // this feels downright crude, but apparently numpy-type masks are on the todo list for Eigen
+      int j = 0;
+      for (int i = 0; i < this->location; i++) {
+        if (mask(i)) {
+          iodaVarsMasked.longitude(j) = this->longitude(i);
+          iodaVarsMasked.latitude(j) = this->latitude(i);
+          iodaVarsMasked.obsVal(j) = this->obsVal(i);
+          iodaVarsMasked.obsError(j) = this->obsError(i);
+          iodaVarsMasked.preQc(j) = this->preQc(i);
+          iodaVarsMasked.datetime(j) = this->datetime(i);
+          for (int k = 0; k < this->nfMetadata; k++) {
+            iodaVarsMasked.intMetadata(j, k) = this->intMetadata(i, k);
+            }
+          for (int k = 0; k < this->niMetadata; k++) {
+            iodaVarsMasked.intMetadata(j, k) = this->intMetadata(i, k);
+            }
+        j++;
+        }  // end if (mask(i))
+      }
+
+      this->longitude = iodaVarsMasked.longitude;
+      this->latitude = iodaVarsMasked.latitude;
+      this->datetime = iodaVarsMasked.datetime;
+      this->obsVal = iodaVarsMasked.obsVal;
+      this->obsError = iodaVarsMasked.obsError;
+      this->preQc = iodaVarsMasked.preQc;
+      this->floatMetadata = iodaVarsMasked.floatMetadata;
+      this->intMetadata = iodaVarsMasked.intMetadata;
+
+      // Update obs count
+      this->location = iodaVarsMasked.location;
+      oops::Log::info() << "IodaVars::IodaVars done masking." << std::endl;
+    }
   };
 
   // Base class for the converters
@@ -100,7 +138,8 @@ namespace gdasapp {
    public:
     // Constructor: Stores the configuration as a data members
     explicit NetCDFToIodaConverter(const eckit::Configuration & fullConfig,
-                                   const eckit::mpi::Comm & comm): comm_(comm) {
+                                   const eckit::mpi::Comm & comm): comm_(comm),
+                                                                   fullConfig_(fullConfig) {
       // time window info
       std::string winbegin;
       std::string winend;
@@ -285,5 +324,6 @@ namespace gdasapp {
     std::string outputFilename_;
     std::string variable_;
     const eckit::mpi::Comm & comm_;
+    const eckit::Configuration & fullConfig_;
   };
 }  // namespace gdasapp

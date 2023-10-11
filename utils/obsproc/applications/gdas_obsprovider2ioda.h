@@ -6,6 +6,7 @@
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 
+#include "../Ghrsst2Ioda.h"
 #include "../IcecAmsr2Ioda.h"
 #include "../Rads2Ioda.h"
 #include "../Smap2Ioda.h"
@@ -27,7 +28,8 @@ namespace gdasapp {
         Rads2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else if (provider == "GHRSST") {
-        oops::Log::info() << "Comming soon!" << std::endl;
+        Ghrsst2Ioda conv2ioda(fullConfig, this->getComm());
+        conv2ioda.writeToIoda();
       } else if (provider == "SMAP") {
         Smap2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
