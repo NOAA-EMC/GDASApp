@@ -84,7 +84,7 @@ def bufr_to_ioda(config, logger):
     for i in range(len(subsets)):
         if subsets[i] == "ADPSFC":
             logger.info("Making QuerySet for ADPSFC")
-            #MetaData
+            # MetaData
             q.add('stationIdentification', '*/SID')
             q.add('prepbufrDataLevelCategory', '*/CAT')
             q.add('temperatureEventCode', "*/T___INFO/T__EVENT{1}/TPC")
@@ -94,7 +94,7 @@ def bufr_to_ioda(config, logger):
             q.add('stationElevation', '*/ELV')
             q.add('observationType', '*/TYP')
             q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
-        
+
             # Quality Infomation (Quality Indicator)
             q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
             q.add('qualityMarkerAirTemperature', '*/T___INFO/T__EVENT{1}/TQM')
@@ -107,7 +107,7 @@ def bufr_to_ioda(config, logger):
 
         elif subsets[i] == "SFCSHP":
             logger.info("Making QuerySet for SFCSHP")
-            #MetaData
+            # MetaData
             r.add('stationIdentification', '*/SID')
             r.add('prepbufrDataLevelCategory', '*/CAT')
             r.add('temperatureEventCode', "*/T___INFO/T__EVENT{1}/TPC")
@@ -129,7 +129,7 @@ def bufr_to_ioda(config, logger):
 
         elif subsets[i] == "ADPUPA":
             logger.info("Making QuerySet for ADPUPA")
-            #MetaData
+            # MetaData
             s.add('stationIdentification', 'ADPUPA/SID')
             s.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
             s.add('temperatureEventCode', "*/PRSLEVEL/T___INFO/T__EVENT{1}/TPC")
@@ -235,7 +235,7 @@ def bufr_to_ioda(config, logger):
 
     # ADPUPA
     logger.info(" ... Executing QuerySet for ADPUPA: get MetaData ...")
-    #MetaData
+    # MetaData
     sid3 = v.get('stationIdentification', 'prepbufrDataLevelCategory')
     cat3 = v.get('prepbufrDataLevelCategory', 'prepbufrDataLevelCategory')
     tpc3 = v.get('temperatureEventCode', 'prepbufrDataLevelCategory')
@@ -324,24 +324,22 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     tvo2       shape, type = {tvo2.shape}, {tvo2.dtype}")
     logger.info(f"     tvo3       shape, type = {tvo3.shape}, {tvo3.dtype}")
 
-
-
     logger.info(f"  ... Concatenate the variables")
-    sid = np.concatenate((sid1,sid2,sid3), axis=0)
-    cat = np.concatenate((cat1,cat2,cat3), axis=0)
-    tpc = np.concatenate((tpc1,tpc2,tpc3), axis=0)
-    lat = np.concatenate((lat1,lat2,lat3), axis=0)
-    lon = np.concatenate((lon1,lon2,lon3), axis=0)
-    dhr = np.concatenate((dhr1,dhr2,dhr3), axis=0)
-    elv = np.concatenate((elv1,elv2,elv3), axis=0)
-    typ = np.concatenate((typ1,typ2,typ3), axis=0)
-    pressure = np.concatenate((pressure1,pressure2,pressure3), axis=0)
-    pobqm = np.concatenate((pobqm1,pobqm2,pobqm3), axis=0)
-    tobqm = np.concatenate((tobqm1,tobqm2,tobqm3), axis=0)
-    tvoqm = np.concatenate((tvoqm1,tvoqm2,tvoqm3), axis=0)
-    pob = np.concatenate((pob1,pob2,pob3), axis=0)
-    tob = np.concatenate((tob1,tob2,tob3), axis=0)
-    tvo = np.concatenate((tvo1,tvo2,tvo3), axis=0)
+    sid = np.concatenate((sid1, sid2, sid3), axis=0)
+    cat = np.concatenate((cat1, cat2, cat3), axis=0)
+    tpc = np.concatenate((tpc1, tpc2, tpc3), axis=0)
+    lat = np.concatenate((lat1, lat2, lat3), axis=0)
+    lon = np.concatenate((lon1, lon2, lon3), axis=0)
+    dhr = np.concatenate((dhr1, dhr2, dhr3), axis=0)
+    elv = np.concatenate((elv1, elv2, elv3), axis=0)
+    typ = np.concatenate((typ1, typ2, typ3), axis=0)
+    pressure = np.concatenate((pressure1, pressure2, pressure3), axis=0)
+    pobqm = np.concatenate((pobqm1, pobqm2, pobqm3), axis=0)
+    tobqm = np.concatenate((tobqm1, tobqm2, tobqm3), axis=0)
+    tvoqm = np.concatenate((tvoqm1, tvoqm2, tvoqm3), axis=0)
+    pob = np.concatenate((pob1, pob2, pob3), axis=0)
+    tob = np.concatenate((tob1, tob2, tob3), axis=0)
+    tvo = np.concatenate((tvo1, tvo2, tvo3), axis=0)
 
     logger.info(f"  ... Concatenated array shapes:")
     logger.info(f"  new sid       shape = {sid.shape}")
@@ -379,7 +377,6 @@ def bufr_to_ioda(config, logger):
     running_time = end_time - start_time
     logger.info(f"Running time for creating derived variables: \
                 {running_time} seconds")
-
 
     # =====================================
     # Create IODA ObsSpace
