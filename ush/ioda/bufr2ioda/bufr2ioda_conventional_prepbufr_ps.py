@@ -77,7 +77,6 @@ def bufr_to_ioda(config, logger):
     start_time = time.time()
 
     logger.info('Making QuerySet ...')
-#    q = bufr.QuerySet(subsets)   #### A B C works 
     q = bufr.QuerySet(["ADPSFC"])
     r = bufr.QuerySet(["SFCSHP"])
     s = bufr.QuerySet(["ADPUPA"])
@@ -138,8 +137,8 @@ def bufr_to_ioda(config, logger):
             s.add('longitude', '*/PRSLEVEL/DRFTINFO/XDR')
             s.add('stationElevation', '*/ELV')
             s.add('observationType', '*/TYP')
-#            s.add('timeOffset', '*/PRSLEVEL/DRFTINFO/HRDR')
-#            s.add('releaseTime', '*/PRSLEVEL/DRFTINFO/HRDR')
+            s.add('timeOffset', '*/PRSLEVEL/DRFTINFO/HRDR')
+            s.add('releaseTime', '*/PRSLEVEL/DRFTINFO/HRDR')
             s.add('pressure', '*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
 
             # ObsValue
@@ -174,6 +173,7 @@ def bufr_to_ioda(config, logger):
     with bufr.File(DATA_PATH) as f:
         v = f.execute(s)
 
+    # ADPSFC
     logger.info(" ... Executing QuerySet for ADPSFC: get MetaData ...")
     # MetaData
     sid1 = t.get('stationIdentification')
@@ -182,6 +182,7 @@ def bufr_to_ioda(config, logger):
     lat1 = t.get('latitude')
     lon1 = t.get('longitude')
     lon1[lon1 > 180] -= 360
+    dhr1 = t.get('obsTimeMinusCycleTime')
     elv1 = t.get('stationElevation')
     typ1 = t.get('observationType')
     pressure1 = t.get('pressure')
@@ -202,14 +203,16 @@ def bufr_to_ioda(config, logger):
     tvo1 = t.get('virtualTemperature')
     tvo1 += 273.15
 
-
+    # SFCSHP
     logger.info(" ... Executing QuerySet for SFCSHP: get MetaData ...")
+    # MetaData
     sid2 = u.get('stationIdentification')
     cat2 = u.get('prepbufrDataLevelCategory')
     tpc2 = u.get('temperatureEventCode')
     lat2 = u.get('latitude')
     lon2 = u.get('longitude')
     lon2[lon2 > 180] -= 360
+    dhr2 = u.get('obsTimeMinusCycleTime')
     elv2 = u.get('stationElevation', type='float')
     typ2 = u.get('observationType')
     pressure2 = u.get('pressure')
@@ -230,8 +233,7 @@ def bufr_to_ioda(config, logger):
     tvo2 = u.get('virtualTemperature')
     tvo2 += 273.15
 
-
-
+    # ADPUPA
     logger.info(" ... Executing QuerySet for ADPUPA: get MetaData ...")
     #MetaData
     sid3 = v.get('stationIdentification', 'prepbufrDataLevelCategory')
@@ -240,6 +242,7 @@ def bufr_to_ioda(config, logger):
     lat3 = v.get('latitude', 'prepbufrDataLevelCategory')
     lon3 = v.get('longitude', 'prepbufrDataLevelCategory')
     lon3[lon3 > 180] -= 360  # Convert Longitude from [0,360] to [-180,180]
+    dhr3 = v.get('timeOffset', 'prepbufrDataLevelCategory')
     elv3 = v.get('stationElevation', 'prepbufrDataLevelCategory', type='float')
     typ3 = v.get('observatoinType', 'prepbufrDataLevelCategory')
     pressure3 = r.get('pressure', 'prepbufrDataLevelCategory')
@@ -266,14 +269,11 @@ def bufr_to_ioda(config, logger):
     tvoqm3 = np.full(tobqm3.shape[0], tobqm3.fill_value)  # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
     tvoqm3 = np.where(((tpc3 <= 8) & (tpc3 > 1)), tobqm3, tvoqm3)
 
-
     logger.info(f" ... Executing QuerySet: Done!")
+    running_time = end_time - start_time
+    logger.info(f"Running time for executing QuerySet: {running_time} seconds")
 
-
-
-#            logger.info(f" ... Executing QuerySet: Check BUFR variable generic \
-#                        dimension and type ...")
-#            # Check BUFR variable generic dimension and type
+    # Check BUFR variable dimension and type
     logger.info(f"     The shapes and dtypes of all 3 variables")
     logger.info(f"     sid1       shape, type = {sid1.shape}, {sid1.dtype}")
     logger.info(f"     sid2       shape, type = {sid2.shape}, {sid2.dtype}")
@@ -290,6 +290,9 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     lon1       shape, type = {lon1.shape}, {lon1.dtype}")
     logger.info(f"     lon2       shape, type = {lon2.shape}, {lon2.dtype}")
     logger.info(f"     lon3       shape, type = {lon3.shape}, {lon3.dtype}")
+    logger.info(f"     dhr1       shape, type = {dhr1.shape}, {dhr1.dtype}")
+    logger.info(f"     dhr2       shape, type = {dhr2.shape}, {dhr2.dtype}")
+    logger.info(f"     dhr3       shape, type = {dhr3.shape}, {dhr3.dtype}")
     logger.info(f"     elv1       shape, type = {elv1.shape}, {elv1.dtype}")
     logger.info(f"     elv2       shape, type = {elv2.shape}, {elv2.dtype}")
     logger.info(f"     elv3       shape, type = {elv3.shape}, {elv3.dtype}")
@@ -322,12 +325,14 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     tvo3       shape, type = {tvo3.shape}, {tvo3.dtype}")
 
 
+
     logger.info(f"  ... Concatenate the variables")
     sid = np.concatenate((sid1,sid2,sid3), axis=0)
     cat = np.concatenate((cat1,cat2,cat3), axis=0)
     tpc = np.concatenate((tpc1,tpc2,tpc3), axis=0)
     lat = np.concatenate((lat1,lat2,lat3), axis=0)
     lon = np.concatenate((lon1,lon2,lon3), axis=0)
+    dhr = np.concatenate((dhr1,dhr2,dhr3), axis=0)
     elv = np.concatenate((elv1,elv2,elv3), axis=0)
     typ = np.concatenate((typ1,typ2,typ3), axis=0)
     pressure = np.concatenate((pressure1,pressure2,pressure3), axis=0)
@@ -337,13 +342,14 @@ def bufr_to_ioda(config, logger):
     pob = np.concatenate((pob1,pob2,pob3), axis=0)
     tob = np.concatenate((tob1,tob2,tob3), axis=0)
     tvo = np.concatenate((tvo1,tvo2,tvo3), axis=0)
-    
-    logger.info(f"  ... Concatenated array shapes, types:"
+
+    logger.info(f"  ... Concatenated array shapes:")
     logger.info(f"  new sid       shape = {sid.shape}")
     logger.info(f"  new cat       shape = {cat.shape}")
     logger.info(f"  new tpc       shape = {tpc.shape}")
     logger.info(f"  new lat       shape = {lat.shape}")
     logger.info(f"  new lon       shape = {lon.shape}")
+    logger.info(f"  new dhr       shape = {dhr.shape}")
     logger.info(f"  new elv       shape = {elv.shape}")
     logger.info(f"  new typ       shape = {typ.shape}")
     logger.info(f"  new pressure  shape = {pressure.shape}")
@@ -354,14 +360,34 @@ def bufr_to_ioda(config, logger):
     logger.info(f"  new tob       shape = {tob.shape}")
     logger.info(f"  new tvo       shape = {tvo.shape}")
 
+    # =========================
+    # Create derived variables
+    # =========================
+    start_time = time.time()
 
-#    # =====================================
-#    # Create IODA ObsSpace
-#    # Write IODA output
-#    # =====================================
-#
-#    # Create the dimensions
-    dims = {'Location': np.arange(0, sid.shape[0])}    ###### NI CK CHANGE THIS BACK TO lat
+    logger.info(f"Creating derived variables - dateTime ...")
+
+    cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(
+                                   reference_time_full, '%Y%m%d%H%M')))
+    dateTime = Compute_dateTime(cycleTimeSinceEpoch, dhr)
+
+    logger.info(f"     Check derived variables type ... ")
+    logger.info(f"     dateTime shape = {dateTime.shape}")
+    logger.info(f"     dateTime type = {dateTime.dtype}")
+
+    end_time = time.time()
+    running_time = end_time - start_time
+    logger.info(f"Running time for creating derived variables: \
+                {running_time} seconds")
+
+
+    # =====================================
+    # Create IODA ObsSpace
+    # Write IODA output
+    # =====================================
+
+    # Create the dimensions
+    dims = {'Location': np.arange(0, lat.shape[0])}
 
     iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
@@ -377,39 +403,16 @@ def bufr_to_ioda(config, logger):
     logger.info(f" ... ... Create global attributes")
 
 #    obsspace.write_attr('Converter', converter)
-#    obsspace.write_attr('source', source)
-#    obsspace.write_attr('sourceFiles', bufrfile)
-#    obsspace.write_attr('dataProviderOrigin', data_provider)
-#    obsspace.write_attr('description', data_description)
-#    obsspace.write_attr('datetimeReference', reference_time)
-#    obsspace.write_attr('datetimeRange',
-#                        [str(min(dateTime)), str(max(dateTime))])
-#    obsspace.write_attr('platformLongDescription', platform_description)
+    obsspace.write_attr('source', source)
+    obsspace.write_attr('sourceFiles', bufrfile)
+    obsspace.write_attr('dataProviderOrigin', data_provider)
+    obsspace.write_attr('description', data_description)
+    obsspace.write_attr('datetimeReference', reference_time)
+    obsspace.write_attr('datetimeRange',
+                        [str(min(dateTime)), str(max(dateTime))])
 
     # Create IODA variables
     logger.info(f" ... ... Create variables: name, type, units, & attributes")
-#    # Longitude
-#    obsspace.create_var('MetaData/longitude', dtype=lon.dtype,
-#                        fillval=lon.fill_value) \
-#        .write_attr('units', 'degrees_east') \
-#        .write_attr('valid_range', np.array([-180, 180], dtype=np.float32)) \
-#        .write_attr('long_name', 'Longitude') \
-#        .write_data(lon)
-#
-#    # Latitude
-#    obsspace.create_var('MetaData/latitude', dtype=lat.dtype,
-#                        fillval=lat.fill_value) \
-#        .write_attr('units', 'degrees_north') \
-#        .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
-#        .write_attr('long_name', 'Latitude') \
-#        .write_data(lat)
-#
-#    # Datetime
-#    obsspace.create_var('MetaData/dateTime', dtype=dateTime.dtype,
-#                        fillval=dateTime.fill_value) \
-#        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
-#        .write_attr('long_name', 'Datetime') \
-#        .write_data(dateTime)
 
     # Station Identification
     obsspace.create_var('MetaData/stationIdentification', dtype=sid.dtype,
@@ -417,7 +420,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Station Identification') \
         .write_data(sid)
 
-    # Prebufr Data Level Category
+    # PrepBUFR Data Level Category
     obsspace.create_var('MetaData/prepbufrDataLevelCategory', dtype=cat.dtype,
                         fillval=cat.fill_value) \
         .write_attr('long_name', 'prepBUFR Data Level Category') \
@@ -444,6 +447,13 @@ def bufr_to_ioda(config, logger):
         .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
         .write_attr('long_name', 'Latitude') \
         .write_data(lat)
+
+    # Datetime
+    obsspace.create_var('MetaData/dateTime', dtype=dateTime.dtype,
+                        fillval=dateTime.fill_value) \
+        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
+        .write_attr('long_name', 'Datetime') \
+        .write_data(dateTime)
 
     # Station Elevation
     obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
