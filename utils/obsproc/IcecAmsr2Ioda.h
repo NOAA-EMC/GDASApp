@@ -42,27 +42,27 @@ namespace gdasapp {
       // Create instance of iodaVars object
       gdasapp::IodaVars iodaVars(nobs, {}, {});
 
-      oops::Log::debug() << "--- iodaVars.location: " << iodaVars.location << std::endl;
+      oops::Log::debug() << "--- iodaVars.location_: " << iodaVars.location_ << std::endl;
 
       // Read non-optional metadata: longitude and latitude
-      std::vector<float> oneDimLatVal(iodaVars.location);
+      std::vector<float> oneDimLatVal(iodaVars.location_);
       ncFile.getVar("Latitude").getVar(oneDimLatVal.data());
 
-      std::vector<float> oneDimLonVal(iodaVars.location);
+      std::vector<float> oneDimLonVal(iodaVars.location_);
       ncFile.getVar("Longitude").getVar(oneDimLonVal.data());
 
       // Read Quality Flags as a preQc
-      std::vector<int64_t> oneDimFlagsVal(iodaVars.location);
+      std::vector<int64_t> oneDimFlagsVal(iodaVars.location_);
       ncFile.getVar("Flags").getVar(oneDimFlagsVal.data());
 
       // Get Ice_Concentration obs values
-      std::vector<int> oneDimObsVal(iodaVars.location);
+      std::vector<int> oneDimObsVal(iodaVars.location_);
       ncFile.getVar("NASA_Team_2_Ice_Concentration").getVar(oneDimObsVal.data());
 
       // Read and process the dateTime
       std::vector<int> oneTmpdateTimeVal(ntimes);
       ncFile.getVar("Scan_Time").getVar(oneTmpdateTimeVal.data());
-      iodaVars.referenceDate = "seconds since 1970-01-01T00:00:00Z";
+      iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
       std::tm timeinfo = {};
       for (int i = 0; i < ntimes; i += dimTimeSize) {
@@ -77,16 +77,16 @@ namespace gdasapp {
 
         // Calculate and store the seconds since the Unix epoch
         time_t epochtime = std::mktime(&timeinfo);
-        iodaVars.datetime(i/6) = static_cast<int64_t>(epochtime);
+        iodaVars.datetime_(i/6) = static_cast<int64_t>(epochtime);
       }
 
       // Update non-optional Eigen arrays
-      for (int i = 0; i < iodaVars.location; i++) {
-        iodaVars.longitude(i) = oneDimLonVal[i];
-        iodaVars.latitude(i) = oneDimLatVal[i];
-        iodaVars.obsVal(i) = static_cast<int64_t>(oneDimObsVal[i]*0.01);
-        iodaVars.obsError(i) = 0.1;  // Do something for obs error
-        iodaVars.preQc(i) = oneDimFlagsVal[i];
+      for (int i = 0; i < iodaVars.location_; i++) {
+        iodaVars.longitude_(i) = oneDimLonVal[i];
+        iodaVars.latitude_(i) = oneDimLatVal[i];
+        iodaVars.obsVal_(i) = static_cast<int64_t>(oneDimObsVal[i]*0.01);
+        iodaVars.obsError_(i) = 0.1;  // Do something for obs error
+        iodaVars.preQc_(i) = oneDimFlagsVal[i];
       }
       return iodaVars;
     };
