@@ -36,9 +36,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Checking subsets = {subsets}")
     logger.info(f"Checking subsets = {subsets}")
 
-    for i in range(len(subsets)):
-       print("NE subsets: ", i, subsets[i])
-
     # Get parameters from configuration
     data_format = config["data_format"]
     source = config["source"]
