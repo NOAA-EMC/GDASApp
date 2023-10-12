@@ -167,26 +167,26 @@ namespace gdasapp {
       gdasapp::IodaVars iodaVars(nobs, {}, {});
 
       // unix epoch at Jan 01 1981 00:00:00 GMT+0000
-      iodaVars.referenceDate = refDate;
-      oops::Log::info() << "--- time: " << iodaVars.referenceDate << std::endl;
+      iodaVars.referenceDate_ = refDate;
+      oops::Log::info() << "--- time: " << iodaVars.referenceDate_ << std::endl;
 
       // Store into eigen arrays
       int loc(0);
       for (int i = 0; i < sst_s.size(); i++) {
         for (int j = 0; j < sst_s[0].size(); j++) {
-          iodaVars.longitude(loc) = lon2d_s[i][j];
-          iodaVars.latitude(loc)  = lat2d_s[i][j];
-          iodaVars.obsVal(loc)    = sst_s[i][j];
-          iodaVars.obsError(loc)  = obserror_s[i][j];
-          iodaVars.preQc(loc)     = 0;
-          iodaVars.datetime(loc)  = seconds_s[i][j];
+          iodaVars.longitude_(loc) = lon2d_s[i][j];
+          iodaVars.latitude_(loc)  = lat2d_s[i][j];
+          iodaVars.obsVal_(loc)    = sst_s[i][j];
+          iodaVars.obsError_(loc)  = obserror_s[i][j];
+          iodaVars.preQc_(loc)     = 0;
+          iodaVars.datetime_(loc)  = seconds_s[i][j];
           loc += 1;
         }
       }
 
       // Remove
       Eigen::Array<bool, Eigen::Dynamic, 1> boundsCheck =
-        (iodaVars.obsVal > -3.0 && iodaVars.obsVal < 50.0);
+        (iodaVars.obsVal_ > -3.0 && iodaVars.obsVal_ < 50.0);
       iodaVars.trim(boundsCheck);
 
       return iodaVars;

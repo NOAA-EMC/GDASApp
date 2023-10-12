@@ -67,7 +67,7 @@ namespace gdasapp {
       netCDF::NcGroupAtt attributeStartDay = ncFile.getAtt("REV_START_DAY_OF_YEAR");
       attributeStartDay.getValues(&startDay);
 
-      iodaVars.referenceDate = "seconds since 1970-01-01T00:00:00Z";
+      iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
       // calculate the seconds of Jan 1 of startyear since unix epoch
       std::tm tm{};
@@ -82,12 +82,12 @@ namespace gdasapp {
       for (int i = 0; i < dim0; i++) {
         for (int j = 0; j < dim1; j++) {
           loc = i * dim1 + j;
-          iodaVars.longitude(loc) = lon[i][j];
-          iodaVars.latitude(loc) = lat[i][j];
-          iodaVars.obsVal(loc) = sss[i][j];
-          iodaVars.obsError(loc) = sss_error[i][j];
-          iodaVars.preQc(loc) = sss_qc[i][j];
-          iodaVars.datetime(loc) =  static_cast<int64_t>(obsTime[j] + unixStartDay);
+          iodaVars.longitude_(loc) = lon[i][j];
+          iodaVars.latitude_(loc) = lat[i][j];
+          iodaVars.obsVal_(loc) = sss[i][j];
+          iodaVars.obsError_(loc) = sss_error[i][j];
+          iodaVars.preQc_(loc) = sss_qc[i][j];
+          iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + unixStartDay);
         }
       }
       return iodaVars;
