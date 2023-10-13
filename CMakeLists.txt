@@ -76,7 +76,7 @@ if(BUILD_GDASBUNDLE)
 # Core JEDI repositories
   ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG b26281b)
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG f5af894 )
-  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 32a9e38 )
+  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 5c574e9 )
   ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG c5bf709  )
   ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG 1865911 )
 
