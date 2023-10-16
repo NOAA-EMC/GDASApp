@@ -1,5 +1,5 @@
 cost function:
-  cost type: 3D-Var
+  cost type: 3D-FGAT
   window begin: '{{ AERO_WINDOW_BEGIN | to_isotime }}'
   window length: $(AERO_WINDOW_LENGTH)
   analysis variables: &3dvars
