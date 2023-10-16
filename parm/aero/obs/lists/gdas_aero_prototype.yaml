@@ -1,5 +1,3 @@
-get values:
-  linear time interpolation: true
 observers:
 - !INC ${OBS_YAML_DIR}/viirs_n20_aod.yaml
 - !INC ${OBS_YAML_DIR}/viirs_npp_aod.yaml
