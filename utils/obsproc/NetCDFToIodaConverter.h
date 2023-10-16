@@ -25,6 +25,7 @@ namespace gdasapp {
                        // for now in the children classes
     int nfMetadata_;    // number of float metadata fields
     int niMetadata_;    // number of int metadata fields
+    int nsGlobalAttr_;  // number of str global attribute fields
 
     // Non optional metadata
     Eigen::ArrayXf longitude_;  // geo-location_
@@ -43,10 +44,15 @@ namespace gdasapp {
     Eigen::ArrayXXf intMetadata_;                  // Optional array of integer metadata
     std::vector<std::string> intMetadataName_;    // String descriptor of the integer metadata
 
+    // Optional global attributes
+    Eigen::Array<std::string, Eigen::Dynamic, 1> strGlobalAttr_;
+    std::vector<std::string> strGlobalAttrName_;  // String descriptor of the float metadata
+
     // Constructor
     explicit IodaVars(const int nobs = 0,
                       const std::vector<std::string> fmnames = {},
-                      const std::vector<std::string> imnames = {}) :
+                      const std::vector<std::string> imnames = {},
+                      const std::vector<std::string> sganames = {}) :
       location_(nobs), nVars_(1), nfMetadata_(fmnames.size()), niMetadata_(imnames.size()),
       longitude_(location_), latitude_(location_), datetime_(location_),
       obsVal_(location_),
@@ -55,7 +61,8 @@ namespace gdasapp {
       floatMetadata_(location_, fmnames.size()),
       floatMetadataName_(fmnames),
       intMetadata_(location_, imnames.size()),
-      intMetadataName_(imnames)
+      intMetadataName_(imnames),
+      strGlobalAttrName_(sganames)
     {
       oops::Log::trace() << "IodaVars::IodaVars created." << std::endl;
     }
@@ -233,6 +240,8 @@ namespace gdasapp {
           ogrp.vars.createWithScales<int>("PreQC/"+variable_,
                                             {ogrp.vars["Location"]}, int_params);
 
+        ogrp.atts.add<std::string>("obs_source_files", inputFilenames_);
+
         // Create the optional IODA integer metadata
         ioda::Variable tmpIntMeta;
         int count = 0;
@@ -254,7 +263,7 @@ namespace gdasapp {
         }
 
         // Write obs info to group
-        oops::Log::info() << "Writting ioda file" << std::endl;
+        oops::Log::info() << "Writing ioda file" << std::endl;
         iodaLon.writeWithEigenRegular(iodaVarsAll.longitude_);
         iodaLat.writeWithEigenRegular(iodaVarsAll.latitude_);
         iodaDatetime.writeWithEigenRegular(iodaVarsAll.datetime_);

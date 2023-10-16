@@ -40,8 +40,11 @@ namespace gdasapp {
       // Set the float metadata name
       std::vector<std::string> floatMetadataNames = {"mdt"};
 
+      // Set the float metadata name
+      std::vector<std::string> strGlobalAttrNames = {"testing"};
+
       // Create instance of iodaVars object
-      gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
+      gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames, strGlobalAttrNames);
 
       // Read non-optional metadata: datetime, longitude and latitude
       int lat[iodaVars.location_];  // NOLINT
