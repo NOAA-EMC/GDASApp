@@ -25,7 +25,6 @@ namespace gdasapp {
                        // for now in the children classes
     int nfMetadata_;    // number of float metadata fields
     int niMetadata_;    // number of int metadata fields
-    int nsGlobalAttr_;  // number of str global attribute fields
 
     // Non optional metadata
     Eigen::ArrayXf longitude_;  // geo-location_
@@ -45,8 +44,7 @@ namespace gdasapp {
     std::vector<std::string> intMetadataName_;    // String descriptor of the integer metadata
 
     // Optional global attributes
-    Eigen::Array<std::string, Eigen::Dynamic, 1> strGlobalAttr_;
-    std::vector<std::string> strGlobalAttrName_;  // String descriptor of the float metadata
+    std::map<std::string, std::string> strGlobalAttr_;
 
     // Constructor
     explicit IodaVars(const int nobs = 0,
@@ -61,11 +59,10 @@ namespace gdasapp {
       floatMetadata_(location_, fmnames.size()),
       floatMetadataName_(fmnames),
       intMetadata_(location_, imnames.size()),
-      intMetadataName_(imnames),
-      strGlobalAttrName_(sganames)
-    {
-      oops::Log::trace() << "IodaVars::IodaVars created." << std::endl;
-    }
+      intMetadataName_(imnames)
+      { 
+        oops::Log::trace() << "IodaVars::IodaVars created." << std::endl;
+      }
 
     // Append an other instance of IodaVars
     void append(const IodaVars& other) {
@@ -240,7 +237,13 @@ namespace gdasapp {
           ogrp.vars.createWithScales<int>("PreQC/"+variable_,
                                             {ogrp.vars["Location"]}, int_params);
 
+        // add input filenames to IODA file global attributes
         ogrp.atts.add<std::string>("obs_source_files", inputFilenames_);
+
+        for (const auto& globalAttr : iodaVars.strGlobalAttr_) {
+          ogrp.atts.add<std::string>(globalAttr.first , globalAttr.second);
+        }
+
 
         // Create the optional IODA integer metadata
         ioda::Variable tmpIntMeta;
