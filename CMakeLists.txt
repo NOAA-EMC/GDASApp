@@ -74,7 +74,7 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" TAG 1a02eba )
 
 # Core JEDI repositories
-  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG 6b268e8)
+  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG 695ad95)
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG f5af894 )
   ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 5c574e9 )
   ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG ed54d1a  )
@@ -104,7 +104,7 @@ if(BUILD_GDASBUNDLE)
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
   if(BUILD_IODA_CONVERTERS)
-    ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" TAG ff38595 )
+    ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" TAG f37cd37 )
   endif()
 
 # Land associated repositories
