@@ -104,6 +104,10 @@ namespace gdasapp {
       gdasapp_ens_utils::ensMoments(ensMembers, ensMean, ensStd, ensVariance);
       oops::Log::info() << "mean: " << ensMean << std::endl;
       oops::Log::info() << "std: " << ensStd << std::endl;
+      if ( fullConfig.has("ensemble mean output") ) {
+        const eckit::LocalConfiguration ensMeanOutputConfig(fullConfig, "ensemble mean output");
+        ensMean.write(ensMeanOutputConfig);
+      }
 
       // Remove mean from ensemble members
       for (size_t i = 0; i < postProcIncr.ensSize_; ++i) {
@@ -115,6 +119,7 @@ namespace gdasapp {
       eckit::LocalConfiguration stericVarChangeConfig;
       fullConfig.get("steric height", stericVarChangeConfig);
       oops::Log::info() << "steric config 0000: " << stericVarChangeConfig << std::endl;
+
       // Initialize trajectories
       const eckit::LocalConfiguration trajConfig(fullConfig, "trajectory");
       soca::State cycleTraj(geom, trajConfig);  // trajectory of the cycle
@@ -148,7 +153,7 @@ namespace gdasapp {
         soca::Increment incr = postProcIncr.appendLayer(ensMembers[i]);
 
         // Save total ssh
-        oops::Log::info() << "ssh ensemble memnber "  << i << std::endl;
+        oops::Log::info() << "ssh ensemble member "  << i << std::endl;
         soca::Increment ssh_tmp(geom, socaSshVar, postProcIncr.dt_);
         ssh_tmp = ensMembers[i];
         sshTotal.push_back(ssh_tmp);
@@ -186,21 +191,21 @@ namespace gdasapp {
 
         // Add the unbalanced ssh to the recentered perturbation
         // this assumes ssh_u is independent of the trajectory
-        oops::Log::info() << "&&&&& before adding ssh_u " << incr << std::endl;
+        oops::Log::debug() << "&&&&& before adding ssh_u " << incr << std::endl;
         atlas::FieldSet incrFs;
         incr.toFieldSet(incrFs);
         atlas::FieldSet sshNonStericFs;
         sshNonSteric[i].toFieldSet(sshNonStericFs);
         util::addFieldSets(incrFs, sshNonStericFs);
         incr.fromFieldSet(incrFs);
-        oops::Log::info() << "&&&&& after adding ssh_u " << incr << std::endl;
+        oops::Log::debug() << "&&&&& after adding ssh_u " << incr << std::endl;
 
         // Save final perturbation, used in the offline EnVAR
         result = postProcIncr.save(incr, i+1);
 
         // Update ensemble
         ensMembers[i] = incr;
-        }
+      }
 
       // Compute ensemble moments for total ssh
       soca::Increment sshMean(geom, socaSshVar, postProcIncr.dt_);
