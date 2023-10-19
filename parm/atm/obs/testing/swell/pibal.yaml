@@ -17,13 +17,27 @@ obs space:
 obs operator:
   name: Composite
   components:
-   - name: VertInterp
-     observation alias file: '{{experiment_root}}/{{experiment_id}}/configuration/jedi/interfaces/{{model_component}}/observations/obsop_name_map.yaml'
-     variables:
-     - name: windEastward
-     - name: windNorthward
+    - name: VertInterp
+      observation alias file: '{{experiment_root}}/{{experiment_id}}/configuration/jedi/interfaces/{{model_component}}/observations/obsop_name_map.yaml'
 
-obs filters:
+      # Use height vertical coordinate first
+      vertical coordinate: geopotential_height
+      observation vertical coordinate group: DerivedVariables
+      observation vertical coordinate: adjustedHeight
+      interpolation method: linear
+
+      # Use pressure vertical coordinate backup
+      vertical coordinate backup: air_pressure
+      observation vertical coordinate group backup: MetaData
+      observation vertical coordinate backup: pressure
+      interpolation method backup: log-linear
+
+      # Hofx scaling
+      hofx scaling field: SurfaceWindScalingCombined
+      hofx scaling field group: DerivedVariables
+
+obs pre filters:
+
   # Reject all observations that are not Pibal
   - filter: Perform Action
     filter variables:
@@ -33,3 +47,234 @@ obs filters:
       is_not_in: 221
     action:
       name: reject
+
+  - filter: Perform Action
+    filter variables:
+    - name: windNorthward
+    where:
+    - variable: ObsType/windNorthward
+      is_not_in: 221
+    action:
+      name: reject
+
+obs prior filters:
+
+  # Apply variable changes needed for rescaled height coordinate
+  # ------------------------------------------------------------
+  - filter: Variable Transforms
+    Transform: AdjustedHeightCoordinate
+    SkipWhenNoObs: False
+
+  # Apply variable changes needed wind scaling
+  # ------------------------------------------
+  - filter: Variable Transforms
+    Transform: SurfaceWindScalingHeight
+    SkipWhenNoObs: False
+  - filter: Variable Transforms
+    Transform: SurfaceWindScalingPressure
+    SkipWhenNoObs: False
+
+  # Combining to use pressure where height is missing
+  # -------------------------------------------------
+  - filter: Variable Transforms
+    Transform: SurfaceWindScalingCombined
+    SkipWhenNoObs: False
+
+obs post filters:
+
+# Assign the initial observation error, based on height/pressure
+- filter: Bounds Check
+  filter variables:
+  - name: windEastward
+  - name: windNorthward
+  minvalue: -135
+  maxvalue: 135
+  action:
+    name: assign error
+    error function:
+      name: ObsErrorModelStepwiseLinear@ObsFunction
+      options:
+        xvar:
+          name: MetaData/pressure
+        xvals: [110000, 105000, 100000, 95000, 90000, 85000, 80000, 75000, 70000, 65000,
+                 60000,  55000,  50000, 45000, 40000, 35000, 30000, 25000, 20000, 15000,
+                 10000,   7500,   5000,  4000,  3000,  2000,  1000,   500,   400,   300,
+                   200,    100,      0 ]   #Pressure (Pa)
+        errors: [1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.6, 1.7, 1.8,
+                 1.9, 2.0, 2.1, 2.2, 2.2, 2.3, 2.3, 2.4, 2.4, 2.4,
+                 2.4, 2.4, 2.4, 2.4, 2.5, 2.7, 2.9, 3.1, 3.3, 3.5,
+                 3.7, 3.9, 4.1]
+- filter: Perform Action
+  filter variables:
+  - name: windEastward
+  where:
+  - variable: PreUseFlag/windEastward
+    is_in: 100
+  action:
+    name: reject
+- filter: Perform Action
+  filter variables:
+  - name: windNorthward
+  where:
+  - variable: PreUseFlag/windNorthward
+    is_in: 100
+  action:
+    name: reject
+## a temporary solution: Replace error by GsiAdjustObsError
+## overwite above error assignments.
+- filter: Perform Action
+  filter variables:
+  - name: windEastward
+  action:
+    name: assign error
+    error function: GsiAdjustObsError/windEastward
+  where:
+  - variable:
+      name: GsiAdjustObsError/windEastward
+    is_defined:
+
+- filter: Perform Action
+  filter variables:
+  - name: windNorthward
+  action:
+    name: assign error
+    error function: GsiAdjustObsError/windNorthward
+  where:
+  - variable:
+      name: GsiAdjustObsError/windNorthward
+    is_defined:
+
+- filter: Perform Action
+  filter variables:
+  - name: windEastward
+  where:
+    - variable:
+        name: ObsType/windEastward
+      is_in: 221
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorPressureCheck
+      options:
+        variable: windEastward
+        inflation factor: 4.0
+        adjusted_error_name: GsiAdjustObsError
+        geovar_sfc_geomz: surface_geometric_height
+- filter: Perform Action
+  filter variables:
+  - name: windNorthward
+  where:
+    - variable:
+        name: ObsType/windNorthward
+      is_in: 221
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorPressureCheck
+      options:
+        variable: windNorthward
+        inflation factor: 4.0
+        adjusted_error_name: GsiAdjustObsError
+        geovar_sfc_geomz: surface_geometric_height
+  # Gross Check
+- filter: Background Check
+  filter variables:
+  - name: windEastward
+  function absolute threshold:
+  - name: ObsFunction/WindsSPDBCheck
+    options:
+      wndtype:    [ 221 ]
+      cgross:     [ 8.0 ]
+      error_min:  [ 1.4 ]
+      error_max:  [ 6.1 ]
+      variable: windEastward
+  action:
+    name: reject
+# Gross Check
+- filter: Background Check
+  filter variables:
+  - name: windNorthward
+  function absolute threshold:
+  - name: ObsFunction/WindsSPDBCheck
+    options:
+      wndtype:    [ 221 ]
+      cgross:     [ 8.0 ]
+      error_min:  [ 1.4 ]
+      error_max:  [ 6.1 ]
+      variable: windNorthward
+  action:
+    name: reject
+
+- filter: Bounds Check
+  filter variables:
+  - name: windEastward
+  test variables:
+  - name: ObsErrorData/windEastward
+  maxvalue: 100.0
+  action:
+    name: reject
+  defer to post: true
+
+# assign TempObsErrorData/stationPressure <--- ObsErrorData
+- filter: Variable Assignment
+  assignments:
+  - name: TempObsErrorData/windEastward
+    type: float
+    function:
+      name: ObsFunction/Arithmetic
+      options:
+        variables:
+        - name: ObsErrorData/windEastward
+  defer to post: true
+# assign TempObsErrorData/stationPressure <--- ObsErrorData
+- filter: Variable Assignment
+  assignments:
+  - name: TempObsErrorData/windNorthward
+    type: float
+    function:
+      name: ObsFunction/Arithmetic
+      options:
+        variables:
+        - name: ObsErrorData/windNorthward
+  defer to post: true
+
+- filter: Bounds Check
+  filter variables:
+  - name: windNorthward
+  test variables:
+  - name: ObsErrorData/windNorthward
+  maxvalue: 100.0
+  action:
+    name: reject
+  defer to post: true
+
+- filter: BlackList
+  filter variables:
+  - name: windEastward
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsErrorFactorDuplicateCheck@ObsFunction
+      options:
+        use_air_pressure: true
+        variable: windEastward
+  where:
+    - variable:
+        name: ObsType/windEastward
+      is_in: 221
+  defer to post: true
+- filter: BlackList
+  filter variables:
+  - name: windNorthward
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsErrorFactorDuplicateCheck@ObsFunction
+      options:
+        use_air_pressure: true
+        variable: windNorthward
+  where:
+    - variable:
+        name: ObsType/windNorthward
+      is_in: 221
+  defer to post: true

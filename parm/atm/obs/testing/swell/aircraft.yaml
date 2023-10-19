@@ -3,28 +3,43 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV aircraft_obs_${CDATE}.nc4
+      obsfile: '{{cycle_dir}}/aircraft.{{window_begin}}.nc4'
     obsgrouping:
-      group variables: ["stationIdentification"]
+      group variables: ["stationIdentification", "releaseTime"]
       sort variable: "pressure"
       sort order: "descending"
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV diag_aircraft_${CDATE}.nc4
-  io pool:
-    max pool size: 1
-  simulated variables: [windEastward, windNorthward, airTemperature, specificHumidity]
-geovals:
-  filename: !ENV aircraft_geoval_${CDATE}.nc4
+      obsfile: '{{cycle_dir}}/{{experiment_id}}.aircraft.{{window_begin}}.nc4'
+  simulated variables: [airTemperature, windEastward, windNorthward]
 
 obs operator:
-  name: VertInterp
-  #observation alias file: '{{experiment_root}}/{{experiment_id}}/configuration/jedi/interfaces/{{model_component}}/observations/obsop_name_map.yaml'
-  observation alias file: '/work2/noaa/da/acollard/git/GDASApp/parm/atm/obs/testing/swell/obsop_name_map.yaml' # Hard coded name to test
-  apply near surface wind scaling: true
+  name: Composite
+  components:
 
-obs filters:
+  - name: VertInterp
+    variables:
+    - name: windEastward
+    - name: windNorthward
+
+    # Hofx scaling
+    hofx scaling field: SurfaceWindScalingPressure
+    hofx scaling field group: DerivedVariables
+
+  - name: VertInterp
+    observation alias file: '{{experiment_root}}/{{experiment_id}}/configuration/jedi/interfaces/{{model_component}}/observations/obsop_name_map.yaml'
+    variables: [airTemperature]
+
+obs prior filters:
+
+# Apply variable changes needed for performing wind scaling
+# ---------------------------------------------------------
+- filter: Variable Transforms
+  Transform: SurfaceWindScalingPressure
+  SkipWhenNoObs: False
+
+obs post filters:
 
 # ------------------
 # airTemperature BC
@@ -49,7 +64,7 @@ obs filters:
     function:
       name: ObsFunction/DrawValueFromFile
       options:
-        file: !ENV aircraft_abias_air_constant.${GDATE}.csv
+        file: '{{cycle_dir}}/aircraft_abias_air_constant.{{background_time}}.csv'
         group: BiasCoefficientValue
         interpolation:
         - name: MetaData/stationIdentification
@@ -66,7 +81,7 @@ obs filters:
     function:
       name: ObsFunction/DrawValueFromFile
       options:
-        file: !ENV aircraft_abias_air_ascent.${GDATE}.csv
+        file: '{{cycle_dir}}/aircraft_abias_air_ascent.{{background_time}}.csv'
         group: BiasCoefficientValue
         interpolation:
         - name: MetaData/stationIdentification
@@ -83,7 +98,7 @@ obs filters:
     function:
       name: ObsFunction/DrawValueFromFile
       options:
-        file: !ENV aircraft_abias_air_ascentSquared.${GDATE}.csv
+        file: '{{cycle_dir}}/aircraft_abias_air_ascentSquared.{{background_time}}.csv'
         group: BiasCoefficientValue
         interpolation:
         - name: MetaData/stationIdentification
@@ -129,7 +144,7 @@ obs filters:
 # HofX
 - filter: Variable Assignment
   assignments:
-  - name: hofx/airTemperature
+  - name: HofXBc/airTemperature
     type: float
     function:
       name: ObsFunction/LinearCombination
@@ -323,8 +338,7 @@ obs filters:
         inflation factor: 8.0
         surface_obs: false
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_altitude #ADC
-        # geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: surface_geometric_height
   defer to post: true
 
 # inflate error for tails with uninitialized bias coefficients (i.e. all coefficients equal to zero)
@@ -408,7 +422,7 @@ obs filters:
 # Background  check
 # ratio threshold 7.0
 - filter: Background Check
-  test_hofx: hofx
+  test_hofx: HofXBc
   filter variables:
   - name: airTemperature
   threshold: 7.0
@@ -421,7 +435,7 @@ obs filters:
 
 # ratio threshold * 0.7 if PreQC=3
 - filter: Background Check
-  test_hofx: hofx
+  test_hofx: HofXBc
   filter variables:
   - name: airTemperature
   threshold: 4.9
@@ -641,8 +655,7 @@ obs filters:
         inflation factor: 4.0
         surface_obs: false
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_altitude #ADC
-        #geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: surface_geometric_height
   defer to post: true
 
 # Error inflation based on pressure check
@@ -658,8 +671,7 @@ obs filters:
         inflation factor: 4.0
         surface_obs: false
         adjusted_error_name: GsiAdjustObsError
-        geovar_sfc_geomz: surface_altitude #ADC
-        #geovar_sfc_geomz: surface_geometric_height
+        geovar_sfc_geomz: surface_geometric_height
   defer to post: true
 
   # Gross Check
