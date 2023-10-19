@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -49,8 +50,7 @@ namespace gdasapp {
     // Constructor
     explicit IodaVars(const int nobs = 0,
                       const std::vector<std::string> fmnames = {},
-                      const std::vector<std::string> imnames = {},
-                      const std::vector<std::string> sganames = {}) :
+                      const std::vector<std::string> imnames = {}) :
       location_(nobs), nVars_(1), nfMetadata_(fmnames.size()), niMetadata_(imnames.size()),
       longitude_(location_), latitude_(location_), datetime_(location_),
       obsVal_(location_),
@@ -60,9 +60,9 @@ namespace gdasapp {
       floatMetadataName_(fmnames),
       intMetadata_(location_, imnames.size()),
       intMetadataName_(imnames)
-      { 
-        oops::Log::trace() << "IodaVars::IodaVars created." << std::endl;
-      }
+    {
+      oops::Log::trace() << "IodaVars::IodaVars created." << std::endl;
+    }
 
     // Append an other instance of IodaVars
     void append(const IodaVars& other) {
@@ -240,10 +240,10 @@ namespace gdasapp {
         // add input filenames to IODA file global attributes
         ogrp.atts.add<std::string>("obs_source_files", inputFilenames_);
 
+        // add global attributes collected from the specific converter
         for (const auto& globalAttr : iodaVars.strGlobalAttr_) {
           ogrp.atts.add<std::string>(globalAttr.first , globalAttr.second);
         }
-
 
         // Create the optional IODA integer metadata
         ioda::Variable tmpIntMeta;

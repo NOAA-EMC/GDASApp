@@ -66,17 +66,22 @@ namespace gdasapp {
       altimeterMap["JASON-3"] = 5;
       altimeterMap["CRYOSAT2"] = 6;
       altimeterMap["SARAL"] = 7;
- 
+
       // Read optional integer metadata "mission"
       std::string mission_name;
       ncFile.getAtt("mission_name").getValues(mission_name);
       int mission_index = altimeterMap[mission_name];   // mission name mapped to integer
 
+      // convert mission map to string to add to global attributes
       std::stringstream mapStr;
       for (const auto& mapEntry : altimeterMap) {
-        mapStr << mapEntry.first << " = " << mapEntry.second << " : " ;
+        mapStr << mapEntry.first << " = " << mapEntry.second << " ";
       }
       iodaVars.strGlobalAttr_["mission_index"] = mapStr.str();
+
+      std::string references;
+      ncFile.getAtt("references").getValues(references);
+      iodaVars.strGlobalAttr_["references"] = references;
 
       // Read optional integer metadata "pass" and "cycle"
       int pass[iodaVars.location_];  // NOLINT
