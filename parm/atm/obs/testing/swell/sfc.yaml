@@ -16,16 +16,21 @@ obs operator:
   components:
 
    # Wind fields are handled using wind reduction factor applied to the lowest level.
-   - name: Product
-     geovals to scale hofx by: wind_reduction_factor_at_10m
+   - name: VertInterp
      variables:
      - name: windEastward
      - name: windNorthward
+     # Use height vertical coordinate first
+     vertical coordinate: geopotential_height
+     observation vertical coordinate group: DerivedVariables
+     observation vertical coordinate: adjustedHeight
+     interpolation method: linear
+     hofx scaling field: SurfaceWindScalingHeight
+     hofx scaling field group: DerivedVariables
 
    # Temperatures use vertical interpolation
    - name: VertInterp
-     observation alias file: /discover/nobackup/jjin3/jedi/JediUfoTests_iodav3/Config/obsop_name_map.yaml
-     apply near surface wind scaling: true
+     observation alias file: '{{experiment_root}}/{{experiment_id}}/configuration/jedi/interfaces/{{model_component}}/observations/obsop_name_map.yaml'
      variables:
      - name: airTemperature
      - name: virtualTemperature
@@ -41,11 +46,25 @@ obs operator:
 
    # Specific humidity is using the lowest model level (identity)
    - name: Identity
-     observation alias file: /discover/nobackup/jjin3/jedi/JediUfoTests_iodav3/Config/obsop_name_map.yaml
+     observation alias file: '{{experiment_root}}/{{experiment_id}}/configuration/jedi/interfaces/{{model_component}}/observations/obsop_name_map.yaml'
      variables:
      - name: specificHumidity
 
-obs filters:
+obs prior filters:
+
+# Apply variable changes needed for rescaled height coordinate
+# ------------------------------------------------------------
+- filter: Variable Transforms
+  Transform: AdjustedHeightCoordinate
+  SkipWhenNoObs: False
+
+# Apply variable changes needed wind scaling
+# ------------------------------------------
+- filter: Variable Transforms
+  Transform: SurfaceWindScalingHeight
+  SkipWhenNoObs: False
+
+obs post filters:
 
 # ------------------
 # stationPressure (surface pressure)

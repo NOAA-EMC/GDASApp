@@ -34,7 +34,7 @@ run_eva=YES
 eva_stats_only=NO
 keep_output=NO 
 
-while getopts "c:hsxq" opt; do
+while getopts "c:hsxqk" opt; do
   case $opt in
     c)
       cycle=$OPTARG
