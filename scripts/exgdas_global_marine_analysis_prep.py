@@ -129,7 +129,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
     fcst_hrs = list(range(3, 10, dt_pseudo))
     files = []
     for fcst_hr in fcst_hrs:
-        files.append(os.path.join(bkg_path, f'{RUN}.t'+gcyc+'z.ocnf'+str(fcst_hr).zfill(3)+'.nc'))
+        files.append(os.path.join(bkg_path, 'gdas.t'+gcyc+'z.ocnf'+str(fcst_hr).zfill(3)+'.nc'))
 
     # Identify the ocean background that will be used for the  vertical coordinate remapping
     ocn_filename_ic = os.path.splitext(os.path.basename(files[0]))[0]+'.nc'
@@ -507,12 +507,12 @@ s2mconfig.save(socaincr2mom6_yaml)
 # Copy initial condition
 ics_list = []
 # ocean IC's
-mom_ic_src = glob.glob(os.path.join(bkg_dir, f'{RUN}.*.ocnf003.nc'))[0]
+mom_ic_src = glob.glob(os.path.join(bkg_dir, 'gdas.*.ocnf003.nc'))[0]
 mom_ic_dst = os.path.join(anl_dir, 'INPUT', 'MOM.res.nc')
 ics_list.append([mom_ic_src, mom_ic_dst])
 
 # seaice IC's
-cice_ic_src = glob.glob(os.path.join(bkg_dir, f'{RUN}.*.agg_icef003.nc'))[0]
+cice_ic_src = glob.glob(os.path.join(bkg_dir, 'gdas.*.agg_icef003.nc'))[0]
 cice_ic_dst = os.path.join(anl_dir, 'INPUT', 'cice.res.nc')
 ics_list.append([cice_ic_src, cice_ic_dst])
 FileHandler({'copy': ics_list}).sync()
