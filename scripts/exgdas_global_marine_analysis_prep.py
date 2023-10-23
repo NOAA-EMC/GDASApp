@@ -123,7 +123,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
     bkg_date = window_begin
 
     # Construct list of background file names
-    RUN = os.getenv('RUN')
+    GDUMP = os.getenv('GDUMP')
     cyc = str(os.getenv('cyc')).zfill(2)
     gcyc = str((int(cyc) - 6) % 24).zfill(2)  # previous cycle
     fcst_hrs = list(range(3, 10, dt_pseudo))
@@ -506,6 +506,7 @@ s2mconfig.save(socaincr2mom6_yaml)
 ################################################################################
 # Copy initial condition
 ics_list = []
+GDUMP = os.getenv('GDUMP')
 # ocean IC's
 mom_ic_src = glob.glob(os.path.join(bkg_dir, f'{GDUMP}.*.ocnf003.nc'))[0]
 mom_ic_dst = os.path.join(anl_dir, 'INPUT', 'MOM.res.nc')
