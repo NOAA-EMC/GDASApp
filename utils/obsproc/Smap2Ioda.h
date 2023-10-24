@@ -90,6 +90,11 @@ namespace gdasapp {
           iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + unixStartDay);
         }
       }
+
+      // basic test for iodaVars.trim
+      Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ > 0.0);
+      iodaVars.trim(mask);
+
       return iodaVars;
     };
   };  // class Smap2Ioda
