@@ -176,42 +176,90 @@ def bufr_to_ioda(config, logger):
     # ADPSFC
     logger.info(" ... Executing QuerySet for ADPSFC: get MetaData ...")
     # MetaData
-    sid1 = t.get('stationIdentification')
-    cat1 = t.get('prepbufrDataLevelCategory')
-    tpc1 = t.get('temperatureEventCode')
-    lat1 = t.get('latitude')
-    lon1 = t.get('longitude')
-    lon1[lon1 > 180] -= 360
-    dhr1 = t.get('obsTimeMinusCycleTime', type='int64')
-    elv1 = t.get('stationElevation', type='float')
-    typ1 = t.get('observationType')
-    pressure1 = t.get('pressure')
-    pressure1 *= 100
+    typorig1 = t.get('observationType')
+    sidorig1 = t.get('stationIdentification')
+    catorig1 = t.get('prepbufrDataLevelCategory')
+    tpcorig1 = t.get('temperatureEventCode')
+    latorig1 = t.get('latitude')
+    lonorig1 = t.get('longitude')
+    lonorig1[lonorig1 > 180] -= 360
+    dhrorig1 = t.get('obsTimeMinusCycleTime', type='int64')
+    elvorig1 = t.get('stationElevation', type='float')
+    pressureorig1 = t.get('pressure')
+    pressureorig1 *= 100
 
     logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
     # QualityMarker
-    pobqm1 = t.get('qualityMarkerStationPressure')
-    tobqm1 = t.get('qualityMarkerAirTemperature')
-    tsenqm1 = np.full(tobqm1.shape[0], tobqm1.fill_value) 
-    tsenqm1 = np.where(((tpc1 >= 1) & (tpc1 < 8)), tobqm1, tsenqm1)
-    tvoqm1 = np.full(tobqm1.shape[0], tobqm1.fill_value)
-    tvoqm1 = np.where((tpc1 == 8), tobqm1, tvoqm1)
+    pobqmorig1 = t.get('qualityMarkerStationPressure')
+    tobqmorig1 = t.get('qualityMarkerAirTemperature')
+    tsenqmorig1 = np.full(tobqmorig1.shape[0], tobqmorig1.fill_value) 
+    tsenqmorig1 = np.where(((tpcorig1 >= 1) & (tpcorig1 < 8)), tobqmorig1, tsenqmorig1)
+    tvoqmorig1 = np.full(tobqmorig1.shape[0], tobqmorig1.fill_value)
+    tvoqmorig1 = np.where((tpcorig1 == 8), tobqmorig1, tvoqmorig1)
 
     logger.info(f" ... Executing QuerySet: get ObsValues ...")
     # ObsValue
-    zob1 = t.get('heightOfObservation', type='float')
-    pob1 = t.get('stationPressure')
-    pob1 *= 100
-    tob1 = t.get('airTemperature')
-    tob1 += 273.15
-    tsen1 = np.full(tob1.shape[0], tob1.fill_value)
-    tsen1 = np.where(((tpc1 >= 1) & (tpc1 < 8)), tob1, tsen1)
-    tvo1 = np.full(tob1.shape[0], tob1.fill_value)
-    tvo1 = np.where((tpc1 == 8), tob1, tvo1)
+    zoborig1 = t.get('heightOfObservation', type='float')
+    poborig1 = t.get('stationPressure')
+    poborig1 *= 100
+    toborig1 = t.get('airTemperature')
+    toborig1 += 273.15
+    tsenorig1 = np.full(toborig1.shape[0], toborig1.fill_value)
+    tsenorig1 = np.where(((tpcorig1 >= 1) & (tpcorig1 < 8)), toborig1, tsenorig1)
+    tvoorig1 = np.full(toborig1.shape[0], toborig1.fill_value)
+    tvoorig1 = np.where((tpcorig1 == 8), toborig1, tvoorig1)
+
+    typ1 = [] 
+    sid1 = [] 
+    cat1 = []
+    tpc1 = []
+    lat1 = []
+    lon1 = []
+    dhr1 = []
+    elv1 = []
+    pressure1 = []
+    pobqm1 = []
+    tobqm1 = []
+    tsenqm1 = []
+    tvoqm1 = []
+    zob1 = []
+    pob1 = []
+    tob1 = []
+    tsen1 = []
+    tvo1 = []
+
+#    for i in range(len(typorig1)):
+#        print("FUCK ", typorig1[1])
+
+    for i in range(len(typorig1)):
+        if typorig1[i] < int(200):
+            print("NE ", typorig1[i])
+            np.append(typ1, typorig1[i])
+#            typ1.append(typorig1[i])
+            np.append(sid1, sidorig1[i])
+            cat1.append(catorig1[i])
+            tpc1.append(tpcorig1[i])
+            lat1.append(latorig1[i])
+            lon1.append(lonorig1[i])
+            dhr1.append(dhrorig1[i])
+            elv1.append(elvorig1[i])
+            pressure1.append(pressureorig1[i])
+            pobqm1.append(pobqmorig1[i])
+            tobqm1.append(tobqmorig1[i])
+            tsenqm1.append(tsenqmorig1[i])
+            tvoqm1.append(tvoqmorig1[i])
+            zob1.append(zoborig1[i])
+            pob1.append(poborig1[i])
+            tsen1.append(tsenorig1[i])
+            tvo1.append(tvoorig1[i])
+
+    for i in range(len(typ1)):
+        print("NE typ1 ", typ1[i])
 
     # SFCSHP
     logger.info(" ... Executing QuerySet for SFCSHP: get MetaData ...")
     # MetaData
+    typ2 = u.get('observationType')
     sid2 = u.get('stationIdentification')
     cat2 = u.get('prepbufrDataLevelCategory')
     tpc2 = u.get('temperatureEventCode')
@@ -220,7 +268,6 @@ def bufr_to_ioda(config, logger):
     lon2[lon2 > 180] -= 360
     dhr2 = u.get('obsTimeMinusCycleTime', type='int64')
     elv2 = u.get('stationElevation', type='float')
-    typ2 = u.get('observationType')
     pressure2 = u.get('pressure')
     pressure2 *= 100
 
@@ -244,8 +291,6 @@ def bufr_to_ioda(config, logger):
     tsen2 = np.where(((tpc2 >= 1) & (tpc2 < 8)), tob2, tsen2)
     tvo2 = np.full(tob2.shape[0], tob2.fill_value)
     tvo2 = np.where((tpc2 == 8), tob2, tvo2)
-
-
 
     # ADPUPA
     logger.info(" ... Executing QuerySet for ADPUPA: get MetaData ...")
