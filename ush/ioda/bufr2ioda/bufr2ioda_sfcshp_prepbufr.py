@@ -72,17 +72,20 @@ def bufr_to_ioda(config, logger):
     logger.info(f"Making QuerySet ...")
     q = bufr.QuerySet(subsets)
 
+    # ObsType
+    q.add('observationType', '*/TYP')
+    
     # MetaData
     q.add('stationIdentification', '*/SID')
     q.add('latitude', '*/YOB')
     q.add('longitude', '*/XOB')
     q.add('obsTimeMinusCycleTime', '*/DHR')
-    q.add('stationElevation', '*/ELV')
-    q.add('observationType', '*/TYP')
+    q.add('heightOfStation', '*/Z___INFO/Z__EVENT{1}/ZOB')
     q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
     q.add('temperatureEventCode', '*/T___INFO/T__EVENT{1}/TPC')
 
 #   # Quality Infomation (Quality Indicator)
+    q.add('qualityMarkerStationHeight', '*/Z___INFO/Z__EVENT{1}/ZQM')
     q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
     q.add('qualityMarkerAirTemperature', '*/T___INFO/T__EVENT{1}/TQM')
     q.add('qualityMarkerSpecificHumidity', '*/Q___INFO/Q__EVENT{1}/QQM')
@@ -90,6 +93,7 @@ def bufr_to_ioda(config, logger):
     q.add('qualityMarkerSeaSurfaceTemperature', '*/SST_INFO/SSTEVENT{1}/SSTQM')
 
     # ObsValue
+    q.add('stationElevation', '*/ELV')
     q.add('stationPressure', '*/P___INFO/P__EVENT{1}/POB')
     q.add('airTemperature', '*/T___INFO/T__EVENT{1}/TOB')
     q.add('virtualTemperature', '*/T___INFO/TVO')
@@ -113,19 +117,22 @@ def bufr_to_ioda(config, logger):
         r = f.execute(q)
 
     logger.info(f" ... Executing QuerySet: get metadata: basic ...")
+    # ObsType
+    typ = r.get('observationType')
+    
     # MetaData
     sid = r.get('stationIdentification')
     lat = r.get('latitude')
     lon = r.get('longitude')
     lon[lon > 180] -= 360
-    elv = r.get('stationElevation', type='float')
-    typ = r.get('observationType')
+    zob = r.get('heightOfStation', type='float')
     pressure = r.get('pressure')
     pressure *= 100
     tpc = r.get('temperatureEventCode')
 
     logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
     # Quality Information
+    zqm = r.get('qualityMarkerStationHeight')
     pqm = r.get('qualityMarkerStationPressure')
     tqm = r.get('qualityMarkerAirTemperature')
     qqm = r.get('qualityMarkerSpecificHumidity')
@@ -134,6 +141,7 @@ def bufr_to_ioda(config, logger):
 
     logger.info(f" ... Executing QuerySet: get obsvalue: stationPressure ...")
     # ObsValue
+    elv = r.get('stationElevation', type='float')
     pob = r.get('stationPressure')
     pob *= 100
     tob = r.get('airTemperature')
@@ -156,12 +164,12 @@ def bufr_to_ioda(config, logger):
     logger.info(f" ... Executing QuerySet: Check BUFR variable generic  \
                 dimension and type ...")
     # Check BUFR variable generic dimension and type
+    logger.info(f"     typ       shape = {typ.shape}")
     logger.info(f"     sid       shape = {sid.shape}")
     logger.info(f"     dhr       shape = {dhr.shape}")
     logger.info(f"     lat       shape = {lat.shape}")
     logger.info(f"     lon       shape = {lon.shape}")
-    logger.info(f"     elv       shape = {elv.shape}")
-    logger.info(f"     typ       shape = {typ.shape}")
+    logger.info(f"     zob       shape = {zob.shape}")
     logger.info(f"     pressure  shape = {pressure.shape}")
     logger.info(f"     tpc       shape = {tpc.shape}")
 
@@ -171,6 +179,7 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     wqm       shape = {wqm.shape}")
     logger.info(f"     sstqm     shape = {sstqm.shape}")
 
+    logger.info(f"     elv       shape = {elv.shape}")
     logger.info(f"     pob       shape = {pob.shape}")
     logger.info(f"     tob       shape = {pob.shape}")
     logger.info(f"     tvo       shape = {tvo.shape}")
@@ -179,12 +188,12 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     vob       shape = {vob.shape}")
     logger.info(f"     sst1      shape = {sst1.shape}")
 
+    logger.info(f"     typ       type  = {typ.dtype}")
     logger.info(f"     sid       type  = {sid.dtype}")
     logger.info(f"     dhr       type  = {dhr.dtype}")
     logger.info(f"     lat       type  = {lat.dtype}")
     logger.info(f"     lon       type  = {lon.dtype}")
-    logger.info(f"     elv       type  = {elv.dtype}")
-    logger.info(f"     typ       type  = {typ.dtype}")
+    logger.info(f"     zob       type  = {zob.dtype}")
     logger.info(f"     pressure  type  = {pressure.dtype}")
     logger.info(f"     tpc       type  = {tpc.dtype}")
 
@@ -194,6 +203,7 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     wqm       type  = {wqm.dtype}")
     logger.info(f"     sstqm     type  = {sstqm.dtype}")
 
+    logger.info(f"     elv       type  = {elv.dtype}")
     logger.info(f"     pob       type  = {pob.dtype}")
     logger.info(f"     tob       type  = {tob.dtype}")
     logger.info(f"     tvo       type  = {tvo.dtype}")
@@ -260,6 +270,55 @@ def bufr_to_ioda(config, logger):
 
     # Create IODA variables
     logger.info(f" ... ... Create variables: name, type, units, & attributes")
+
+    # ObsType: station Elevation
+    obsspace.create_var('ObsType/stationElevation', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Station Elevation Observation Type') \
+        .write_data(typ)
+
+    # ObsType: stationPressure
+    obsspace.create_var('ObsType/stationPressure', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Station Pressure Observation Type') \
+        .write_data(typ)
+
+    # ObsType: air Temperature
+    obsspace.create_var('ObsType/airTemperature', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Air Temperature Observation Type') \
+        .write_data(typ)
+
+    # ObsType: virtual Temperature
+    obsspace.create_var('ObsType/virtualTemperature', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Virtual Temperature Observation Type') \
+        .write_data(typ)
+
+    # ObsType: Specific Humidity
+    obsspace.create_var('ObsType/specificHumidity', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Specific Humidity Observation Type') \
+        .write_data(typ)
+
+    # ObsType: wind Eastward
+    obsspace.create_var('ObsType/windEastward', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Wind Eastward Observation Type') \
+        .write_data(typ)
+
+    # ObsType: wind Northward
+    obsspace.create_var('ObsType/windNorthward', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Wind Northward Observation Type') \
+        .write_data(typ)
+
+    # ObsType: Sea Surface Temperature
+    obsspace.create_var('ObsType/seaSurfaceTemperature', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Sea Surface Temperature Observation Type') \
+        .write_data(typ)
+
     # Longitude
     obsspace.create_var('MetaData/longitude', dtype=lon.dtype,
                         fillval=lon.fill_value) \
@@ -297,12 +356,6 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Station Elevation') \
         .write_data(elv)
 
-    # Observation Type
-    obsspace.create_var('MetaData/observationType', dtype=typ.dtype,
-                        fillval=typ.fill_value) \
-        .write_attr('long_name', 'Observation Type') \
-        .write_data(typ)
-
     # Pressure
     obsspace.create_var('MetaData/pressure', dtype=pressure.dtype,
                         fillval=pressure.fill_value) \
@@ -334,6 +387,12 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Specific Humidity Quality Marker') \
         .write_data(qqm)
 
+    # Quality Marker: Eastward Wind
+    obsspace.create_var('QualityMarker/windEastward', dtype=wqm.dtype,
+                        fillval=wqm.fill_value) \
+        .write_attr('long_name', 'Eastward Wind Quality Marker') \
+        .write_data(wqm)
+
     # Quality Marker: Northward Wind
     obsspace.create_var('QualityMarker/windNorthward', dtype=wqm.dtype,
                         fillval=wqm.fill_value) \
@@ -346,8 +405,15 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Sea Surface Temperature Quality Marker') \
         .write_data(sstqm)
 
+    # Station Elevation
+    obsspace.create_var('ObsValue/stationElevation', dtype=elv.dtype,
+                        fillval=elv.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Station Elevation') \
+        .write_data(zob)
+
     # Station Pressure
-    obsspace.create_var('ObsValue/pressure', dtype=pob.dtype,
+    obsspace.create_var('ObsValue/stationPressure', dtype=pob.dtype,
                         fillval=pob.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Station Pressure') \
