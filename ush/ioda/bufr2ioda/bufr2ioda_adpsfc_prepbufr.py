@@ -72,20 +72,24 @@ def bufr_to_ioda(config, logger):
     logger.info('Making QuerySet ...')
     q = bufr.QuerySet(subsets)
 
+    # ObsType
+    q.add('observationType', '*/TYP')
+    
     # MetaData
     q.add('stationIdentification', '*/SID')
     q.add('latitude', '*/YOB')
     q.add('longitude', '*/XOB')
     q.add('obsTimeMinusCycleTime', '*/DHR')
-    q.add('stationElevation', '*/ELV')
-    q.add('observationType', '*/TYP')
+    q.add('heightOfStation', '*/Z___INFO/Z__EVENT{1}/ZOB')
     q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
 
 #   # Quality Infomation (Quality Indicator)
     q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
-
+    q.add('qualityMarkerStationElevation', '*/Z___INFO/Z__EVENT{1}/ZQM')
+    
     # ObsValue
     q.add('stationPressure', '*/P___INFO/P__EVENT{1}/POB')
+    q.add('stationElevation', '*/ELV')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -100,24 +104,29 @@ def bufr_to_ioda(config, logger):
     logger.info(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
         r = f.execute(q)
+    
+    logger.info(" ... Executing QuerySet: get ObsType ...")
+    # ObsType
+    typ = r.get('observationType')
 
-    logger.info(" ... Executing QuerySet: get MetaData: basic ...")
+    logger.info(" ... Executing QuerySet: get MetaData ...")
     # MetaData
     sid = r.get('stationIdentification')
     lat = r.get('latitude')
     lon = r.get('longitude')
     lon[lon > 180] -= 360
-    elv = r.get('stationElevation')
-    typ = r.get('observationType')
+    elv = r.get('heightOfStation', type='float')
     pressure = r.get('pressure')
     pressure *= 100
 
     logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
     # Quality Information
     pobqm = r.get('qualityMarkerStationPressure')
-
+    pobqm = r.get('qualityMarkerStationPressure')
+    
     logger.info(f" ... Executing QuerySet: get obsvalue: stationPressure ...")
     # ObsValue
+    zob = r.get('stationElevation', type='float')
     pob = r.get('stationPressure')
     pob *= 100
 
@@ -131,15 +140,17 @@ def bufr_to_ioda(config, logger):
     logger.info(f" ... Executing QuerySet: Check BUFR variable generic \
                 dimension and type ...")
     # Check BUFR variable generic dimension and type
+    logger.info(f"     typ       shape = {typ.shape}")
     logger.info(f"     sid       shape = {sid.shape}")
     logger.info(f"     dhr       shape = {dhr.shape}")
     logger.info(f"     lat       shape = {lat.shape}")
     logger.info(f"     lon       shape = {lon.shape}")
-    logger.info(f"     elv       shape = {elv.shape}")
-    logger.info(f"     typ       shape = {typ.shape}")
+    logger.info(f"     zob       shape = {zob.shape}")
     logger.info(f"     pressure  shape = {pressure.shape}")
 
     logger.info(f"     pobqm     shape = {pobqm.shape}")
+    logger.info(f"     zobqm     shape = {zobqm.shape}")
+    logger.info(f"     elv       shape = {elv.shape}")
     logger.info(f"     pob       shape = {pob.shape}")
 
     logger.info(f"     sid       type  = {sid.dtype}")
@@ -151,6 +162,8 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     pressure  type  = {pressure.dtype}")
 
     logger.info(f"     pobqm     type  = {pobqm.dtype}")
+    logger.info(f"     zobqm     type  = {zobqm.dtype}")
+    logger.info(f"     elv       type  = {elv.dtype}")
     logger.info(f"     pob       type  = {pob.dtype}")
 
     end_time = time.time()
@@ -211,6 +224,19 @@ def bufr_to_ioda(config, logger):
 
     # Create IODA variables
     logger.info(f" ... ... Create variables: name, type, units, & attributes")
+
+    # Observation Type - Station Elevation
+    obsspace.create_var('ObsType/stationElevation', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Station Elevation Observation Type') \
+        .write_data(typ)
+
+    # Observation Type - Station Pressure
+    obsspace.create_var('ObsType/stationPressure', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Station Pressure Observation Type') \
+        .write_data(typ)
+
     # Longitude
     obsspace.create_var('MetaData/longitude', dtype=lon.dtype,
                         fillval=lon.fill_value) \
@@ -240,18 +266,12 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Station Identification') \
         .write_data(sid)
 
-    # Station Elevation
-    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
-                        fillval=elv.fill_value) \
+    # Height Of Station
+    obsspace.create_var('MetaData/heightOfStation', dtype=zob.dtype,
+                        fillval=zob.fill_value) \
         .write_attr('units', 'm') \
-        .write_attr('long_name', 'Station Elevation') \
+        .write_attr('long_name', 'Height Of Station') \
         .write_data(elv)
-
-    # Observation Type
-    obsspace.create_var('MetaData/observationType', dtype=typ.dtype,
-                        fillval=typ.fill_value) \
-        .write_attr('long_name', 'Observation Type') \
-        .write_data(typ)
 
     # Pressure
     obsspace.create_var('MetaData/pressure', dtype=pressure.dtype,
@@ -260,14 +280,27 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Pressure') \
         .write_data(pressure)
 
-    # Quality: Percent Confidence - Quality Information Without Forecast
+    # QualityMarker - Station Elevation
+    obsspace.create_var('QualityMarker/stationElevation', dtype=zobqm.dtype,
+                        fillval=zobqm.fill_value) \
+        .write_attr('long_name', 'Station Elevation Quality Marker') \
+        .write_data(zobqm)
+
+    # QualityMarker - Station Pressure
     obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype,
                         fillval=pobqm.fill_value) \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
         .write_data(pobqm)
 
+    # Station Elevation
+    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
+                        fillval=elv.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Station Elevation') \
+        .write_data(elv)
+
     # Station Pressure
-    obsspace.create_var('ObsValue/pressure', dtype=pob.dtype,
+    obsspace.create_var('ObsValue/stationPressure', dtype=pob.dtype,
                         fillval=pob.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Station Pressure') \
