@@ -357,14 +357,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Station Identification') \
         .write_data(sid)
 
-    # Station Elevation
-    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
-                        fillval=elv.fill_value) \
-        .write_attr('units', 'm') \
-        .write_attr('long_name', 'Station Elevation') \
-        .write_data(elv)
-
-    # AircraftFlightLevel
+    # AircraftFlightLevel (also known as HeightOfStation)
     obsspace.create_var('MetaData/aircraftFlightLevel', dtype=zob.dtype,
                         fillval=zob.fill_value) \
         .write_attr('units', 'm') \
@@ -419,6 +412,13 @@ def bufr_to_ioda(config, logger):
                         fillval=wqm.fill_value) \
         .write_attr('long_name', 'Northward Wind Quality Marker') \
         .write_data(wqm)
+
+    # Station Elevation
+    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
+                        fillval=elv.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Station Elevation') \
+        .write_data(elv)
 
     # Station Pressure
     obsspace.create_var('ObsValue/pressure', dtype=pob.dtype,
