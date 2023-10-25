@@ -209,89 +209,122 @@ def bufr_to_ioda(config, logger):
     tvoorig1 = np.full(toborig1.shape[0], toborig1.fill_value)
     tvoorig1 = np.where((tpcorig1 == 8), toborig1, tvoorig1)
 
-    typ1 = [] 
-    sid1 = [] 
-    cat1 = []
-    tpc1 = []
-    lat1 = []
-    lon1 = []
-    dhr1 = []
-    elv1 = []
-    pressure1 = []
-    pobqm1 = []
-    tobqm1 = []
-    tsenqm1 = []
-    tvoqm1 = []
-    zob1 = []
-    pob1 = []
-    tob1 = []
-    tsen1 = []
-    tvo1 = []
-
-#    for i in range(len(typorig1)):
-#        print("FUCK ", typorig1[1])
-
+    typ1 = np.array([]) 
+    sid1 = np.array([]) 
+    cat1 = np.array([])
+    tpc1 = np.array([])
+    lat1 = np.array([])
+    lon1 = np.array([])
+    dhr1 = np.array([])
+    elv1 = np.array([])
+    pressure1 = np.array([])
+    pobqm1 = np.array([])
+    tobqm1 = np.array([])
+    tsenqm1 = np.array([])
+    tvoqm1 = np.array([])
+    zob1 = np.array([])
+    pob1 = np.array([])
+    tob1 = np.array([])
+    tsen1 = np.array([])
+    tvo1 = np.array([])
+    
     for i in range(len(typorig1)):
-        if typorig1[i] < int(200):
-            print("NE ", typorig1[i])
-            np.append(typ1, typorig1[i])
-#            typ1.append(typorig1[i])
-            np.append(sid1, sidorig1[i])
-            cat1.append(catorig1[i])
-            tpc1.append(tpcorig1[i])
-            lat1.append(latorig1[i])
-            lon1.append(lonorig1[i])
-            dhr1.append(dhrorig1[i])
-            elv1.append(elvorig1[i])
-            pressure1.append(pressureorig1[i])
-            pobqm1.append(pobqmorig1[i])
-            tobqm1.append(tobqmorig1[i])
-            tsenqm1.append(tsenqmorig1[i])
-            tvoqm1.append(tvoqmorig1[i])
-            zob1.append(zoborig1[i])
-            pob1.append(poborig1[i])
-            tsen1.append(tsenorig1[i])
-            tvo1.append(tvoorig1[i])
+        if typorig1[i] < 200:
+            typ1 = np.append(typ1, typorig1[i])
+            sid1 = np.append(sid1, sidorig1[i])
+            cat1 = np.append(cat1, catorig1[i])
+            tpc1 = np.append(tpc1, tpcorig1[i])
+            lat1 = np.append(lat1, latorig1[i])
+            lon1 = np.append(lon1, lonorig1[i])
+            dhr1 = np.append(dhr1, dhrorig1[i])
+            elv1 = np.append(elv1, elvorig1[i])
+            pressure1 = np.append(pressure1, pressureorig1[i])
+            pobqm1 = np.append(pobqm1, pobqmorig1[i])
+            tobqm1 = np.append(tobqm1, tobqmorig1[i])
+            tsenqm1 = np.append(tsenqm1, tsenqmorig1[i])
+            tvoqm1 = np.append(tvoqm1, tvoqmorig1[i])
+            zob1 = np.append(zob1, zoborig1[i])
+            pob1 = np.append(pob1, poborig1[i])
+            tsen1 = np.append(tsen1, tsenorig1[i])
+            tvo1 = np.append(tvo1, tvoorig1[i])
 
-    for i in range(len(typ1)):
-        print("NE typ1 ", typ1[i])
 
+    
     # SFCSHP
     logger.info(" ... Executing QuerySet for SFCSHP: get MetaData ...")
     # MetaData
-    typ2 = u.get('observationType')
-    sid2 = u.get('stationIdentification')
-    cat2 = u.get('prepbufrDataLevelCategory')
-    tpc2 = u.get('temperatureEventCode')
-    lat2 = u.get('latitude')
-    lon2 = u.get('longitude')
-    lon2[lon2 > 180] -= 360
-    dhr2 = u.get('obsTimeMinusCycleTime', type='int64')
-    elv2 = u.get('stationElevation', type='float')
-    pressure2 = u.get('pressure')
-    pressure2 *= 100
+    typorig2 = u.get('observationType')
+    sidorig2 = u.get('stationIdentification')
+    catorig2 = u.get('prepbufrDataLevelCategory')
+    tpcorig2 = u.get('temperatureEventCode')
+    latorig2 = u.get('latitude')
+    lonorig2 = u.get('longitude')
+    lonorig2[lonorig2 > 180] -= 360
+    dhrorig2 = u.get('obsTimeMinusCycleTime', type='int64')
+    elvorig2 = u.get('stationElevation', type='float')
+    pressureorig2 = u.get('pressure')
+    pressureorig2 *= 100
 
     logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
     # QualityMarker
-    pobqm2 = u.get('qualityMarkerStationPressure')
-    tobqm2 = u.get('qualityMarkerAirTemperature')
-    tsenqm2 = np.full(tobqm2.shape[0], tobqm2.fill_value)
-    tsenqm2 = np.where(((tpc2 >= 1) & (tpc2 < 8)), tobqm2, tsenqm2)
-    tvoqm2 = np.full(tobqm2.shape[0], tobqm2.fill_value)
-    tvoqm2 = np.where((tpc2 == 8), tobqm2, tvoqm2)
+    pobqmorig2 = u.get('qualityMarkerStationPressure')
+    tobqmorig2 = u.get('qualityMarkerAirTemperature')
+    tsenqmorig2 = np.full(tobqmorig2.shape[0], tobqmorig2.fill_value)
+    tsenqmorig2 = np.where(((tpcorig2 >= 1) & (tpcorig2 < 8)), tobqmorig2, tsenqmorig2)
+    tvoqmorig2 = np.full(tobqmorig2.shape[0], tobqmorig2.fill_value)
+    tvoqmorig2 = np.where((tpcorig2 == 8), tobqmorig2, tvoqmorig2)
 
     logger.info(f" ... Executing QuerySet: get ObsValues ...")
     # ObsValue
-    zob2 = u.get('heightOfObservation', type='float')
-    pob2 = u.get('stationPressure')
-    pob2 *= 100
-    tob2 = u.get('airTemperature')
-    tob2 += 273.15
-    tsen2 = np.full(tob2.shape[0], tob2.fill_value)
-    tsen2 = np.where(((tpc2 >= 1) & (tpc2 < 8)), tob2, tsen2)
-    tvo2 = np.full(tob2.shape[0], tob2.fill_value)
-    tvo2 = np.where((tpc2 == 8), tob2, tvo2)
+    zoborig2 = u.get('heightOfObservation', type='float')
+    poborig2 = u.get('stationPressure')
+    poborig2 *= 100
+    toborig2 = u.get('airTemperature')
+    toborig2 += 273.15
+    tsenorig2 = np.full(toborig2.shape[0], toborig2.fill_value)
+    tsenorig2 = np.where(((tpcorig2 >= 1) & (tpcorig2 < 8)), toborig2, tsenorig2)
+    tvoorig2 = np.full(toborig2.shape[0], toborig2.fill_value)
+    tvoorig2 = np.where((tpcorig2 == 8), toborig2, tvoorig2)
 
+    typ2 = np.array([]) 
+    sid2 = np.array([]) 
+    cat2 = np.array([])
+    tpc2 = np.array([])
+    lat2 = np.array([])
+    lon2 = np.array([])
+    dhr2 = np.array([])
+    elv2 = np.array([])
+    pressure2 = np.array([])
+    pobqm2 = np.array([])
+    tobqm2 = np.array([])
+    tsenqm2 = np.array([])
+    tvoqm2 = np.array([])
+    zob2 = np.array([])
+    pob2 = np.array([])
+    tob2 = np.array([])
+    tsen2 = np.array([])
+    tvo2 = np.array([])
+    
+    for i in range(len(typorig2)):
+        if typorig2[i] < 200:
+            typ2 = np.append(typ2, typorig2[i])
+            sid2 = np.append(sid2, sidorig2[i])
+            cat2 = np.append(cat2, catorig2[i])
+            tpc2 = np.append(tpc2, tpcorig2[i])
+            lat2 = np.append(lat2, latorig2[i])
+            lon2 = np.append(lon2, lonorig2[i])
+            dhr2 = np.append(dhr2, dhrorig2[i])
+            elv2 = np.append(elv2, elvorig2[i])
+            pressure2 = np.append(pressure2, pressureorig2[i])
+            pobqm2 = np.append(pobqm2, pobqmorig2[i])
+            tobqm2 = np.append(tobqm2, tobqmorig2[i])
+            tsenqm2 = np.append(tsenqm2, tsenqmorig2[i])
+            tvoqm2 = np.append(tvoqm2, tvoqmorig2[i])
+            zob2 = np.append(zob2, zoborig2[i])
+            pob2 = np.append(pob2, poborig2[i])
+            tsen2 = np.append(tsen2, tsenorig2[i])
+            tvo2 = np.append(tvo2, tvoorig2[i])
+    
     # ADPUPA
     logger.info(" ... Executing QuerySet for ADPUPA: get MetaData ...")
     # MetaData
