@@ -119,7 +119,7 @@ def bufr_to_ioda(config, logger):
     logger.info(f" ... Executing QuerySet: get MetaData: basic ...")
 
     # ObsType
-    typ = r.get('observationType", 'prepbufrDataLevelCategory')
+    typ = r.get('observationType', 'prepbufrDataLevelCategory')
     
     # MetaData
     cat = r.get('prepbufrDataLevelCategory', 'prepbufrDataLevelCategory')
