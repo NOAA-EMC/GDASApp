@@ -109,7 +109,7 @@ def bufr_to_ioda(config, logger):
             logger.info("Making QuerySet for SFCSHP")
             
             # ObsType
-            r.add('observationType', '*/TYP')
+            r.add('ationType', '*/TYP')
 
             # MetaData
             r.add('stationIdentification', '*/SID')
@@ -134,7 +134,7 @@ def bufr_to_ioda(config, logger):
         elif subsets[i] == "ADPUPA":
             logger.info("Making QuerySet for ADPUPA")
             # ObsType
-            s.add('observationType', '*/TYP')
+            s.add('ationType', '*/TYP')
             
             # MetaData
             s.add('stationIdentification', 'ADPUPA/SID')
@@ -142,7 +142,7 @@ def bufr_to_ioda(config, logger):
             s.add('temperatureEventCode', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TPC')
             s.add('latitude', '*/PRSLEVEL/DRFTINFO/YDR')
             s.add('longitude', '*/PRSLEVEL/DRFTINFO/XDR')
-            s.add('heightOfObservation', '*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
+            s.add('heightOfStation', '*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
             s.add('timeOffset', '*/PRSLEVEL/DRFTINFO/HRDR')
             s.add('releaseTime', '*/PRSLEVEL/DRFTINFO/HRDR')
             s.add('pressure', '*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
@@ -154,7 +154,6 @@ def bufr_to_ioda(config, logger):
 
             # ObsValue
             s.add('stationElevation', '*/ELV')
-            s.add('heightOfObservation', '*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
             s.add('stationPressure', '*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
             s.add('airTemperature', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TOB')
 
@@ -192,7 +191,7 @@ def bufr_to_ioda(config, logger):
     lonorig1 = t.get('longitude')
     lonorig1[lonorig1 > 180] -= 360
     dhrorig1 = t.get('obsTimeMinusCycleTime', type='int64')
-    elvorig1 = t.get('stationElevation', type='float')
+    zoborig1 = t.get('heightOfStation', type='float')
     pressureorig1 = t.get('pressure')
     pressureorig1 *= 100
 
@@ -207,7 +206,7 @@ def bufr_to_ioda(config, logger):
 
     logger.info(f" ... Executing QuerySet: get ObsValues ...")
     # ObsValue
-    zoborig1 = t.get('heightOfObservation', type='float')
+    elvorig1 = t.get('stationElevation', type='float')
     poborig1 = t.get('stationPressure')
     poborig1 *= 100
     toborig1 = t.get('airTemperature')
@@ -223,6 +222,7 @@ def bufr_to_ioda(config, logger):
     tpc1 = np.array([])
     lat1 = np.array([])
     lon1 = np.array([])
+    zob1 = np.array([])
     dhr1 = np.array([])
     elv1 = np.array([])
     pressure1 = np.array([])
@@ -230,7 +230,7 @@ def bufr_to_ioda(config, logger):
     tobqm1 = np.array([])
     tsenqm1 = np.array([])
     tvoqm1 = np.array([])
-    zob1 = np.array([])
+    elv1 = np.array([])
     pob1 = np.array([])
     tob1 = np.array([])
     tsen1 = np.array([])
@@ -244,14 +244,14 @@ def bufr_to_ioda(config, logger):
             tpc1 = np.append(tpc1, tpcorig1[i])
             lat1 = np.append(lat1, latorig1[i])
             lon1 = np.append(lon1, lonorig1[i])
+            zob1 = np.append(zob1, zoborig1[i])
             dhr1 = np.append(dhr1, dhrorig1[i])
-            elv1 = np.append(elv1, elvorig1[i])
             pressure1 = np.append(pressure1, pressureorig1[i])
             pobqm1 = np.append(pobqm1, pobqmorig1[i])
             tobqm1 = np.append(tobqm1, tobqmorig1[i])
             tsenqm1 = np.append(tsenqm1, tsenqmorig1[i])
             tvoqm1 = np.append(tvoqm1, tvoqmorig1[i])
-            zob1 = np.append(zob1, zoborig1[i])
+            elv1 = np.append(elv1, elvorig1[i])
             pob1 = np.append(pob1, poborig1[i])
             tsen1 = np.append(tsen1, tsenorig1[i])
             tvo1 = np.append(tvo1, tvoorig1[i])
@@ -268,8 +268,8 @@ def bufr_to_ioda(config, logger):
     latorig2 = u.get('latitude')
     lonorig2 = u.get('longitude')
     lonorig2[lonorig2 > 180] -= 360
+    zoborig2 = u.get('heightOfStation', type='float')
     dhrorig2 = u.get('obsTimeMinusCycleTime', type='int64')
-    elvorig2 = u.get('stationElevation', type='float')
     pressureorig2 = u.get('pressure')
     pressureorig2 *= 100
 
@@ -284,7 +284,7 @@ def bufr_to_ioda(config, logger):
 
     logger.info(f" ... Executing QuerySet: get ObsValues ...")
     # ObsValue
-    zoborig2 = u.get('heightOfObservation', type='float')
+    elvorig2 = u.get('stationElevation', type='float')
     poborig2 = u.get('stationPressure')
     poborig2 *= 100
     toborig2 = u.get('airTemperature')
@@ -300,14 +300,14 @@ def bufr_to_ioda(config, logger):
     tpc2 = np.array([])
     lat2 = np.array([])
     lon2 = np.array([])
+    zob2 = np.array([])
     dhr2 = np.array([])
-    elv2 = np.array([])
     pressure2 = np.array([])
     pobqm2 = np.array([])
     tobqm2 = np.array([])
     tsenqm2 = np.array([])
     tvoqm2 = np.array([])
-    zob2 = np.array([])
+    elv2 = np.array([])
     pob2 = np.array([])
     tob2 = np.array([])
     tsen2 = np.array([])
@@ -321,13 +321,14 @@ def bufr_to_ioda(config, logger):
             tpc2 = np.append(tpc2, tpcorig2[i])
             lat2 = np.append(lat2, latorig2[i])
             lon2 = np.append(lon2, lonorig2[i])
+            zob2 = np.append(zob2, zoborig2[i])
             dhr2 = np.append(dhr2, dhrorig2[i])
-            elv2 = np.append(elv2, elvorig2[i])
             pressure2 = np.append(pressure2, pressureorig2[i])
             pobqm2 = np.append(pobqm2, pobqmorig2[i])
             tobqm2 = np.append(tobqm2, tobqmorig2[i])
             tsenqm2 = np.append(tsenqm2, tsenqmorig2[i])
             tvoqm2 = np.append(tvoqm2, tvoqmorig2[i])
+            elv2 = np.append(elv2, elvorig2[i])
             zob2 = np.append(zob2, zoborig2[i])
             pob2 = np.append(pob2, poborig2[i])
             tsen2 = np.append(tsen2, tsenorig2[i])
@@ -337,6 +338,9 @@ def bufr_to_ioda(config, logger):
     
     # ADPUPA
     logger.info(" ... Executing QuerySet for ADPUPA: get MetaData ...")
+    # ObsType 
+    typ3 = v.get('observationType', 'prepbufrDataLevelCategory')
+
     # MetaData
     sid3 = v.get('stationIdentification', 'prepbufrDataLevelCategory')
     cat3 = v.get('prepbufrDataLevelCategory', 'prepbufrDataLevelCategory')
@@ -344,9 +348,8 @@ def bufr_to_ioda(config, logger):
     lat3 = v.get('latitude', 'prepbufrDataLevelCategory')
     lon3 = v.get('longitude', 'prepbufrDataLevelCategory')
     lon3[lon3 > 180] -= 360
+    zob3 = v.get('heightOfStation', 'prepbufrDataLevelCategory', type='float')
     dhr3 = v.get('timeOffset', 'prepbufrDataLevelCategory', type='int64')
-    elv3 = v.get('stationElevation', 'prepbufrDataLevelCategory', type='float')
-    typ3 = v.get('observationType', 'prepbufrDataLevelCategory')
     pressure3 = v.get('pressure', 'prepbufrDataLevelCategory')
     pressure3 *= 100
 
@@ -361,7 +364,7 @@ def bufr_to_ioda(config, logger):
     tvoqm3 = np.where(((tpc3 == 8) & (cat3 == 0)), tobqm3, tvoqm3)
 
     # ObsValue
-    zob3 = v.get('heightOfObservation', 'prepbufrDataLevelCategory', type='float')
+    elv3 = v.get('stationElevation', 'prepbufrDataLevelCategory', type='float')
     pob3 = v.get('stationPressure', 'prepbufrDataLevelCategory')
     ps3 = np.full(pressure3.shape[0], pressure3.fill_value)
     ps3 = np.where(cat3 == 0, pressure3, ps3)
@@ -380,6 +383,9 @@ def bufr_to_ioda(config, logger):
 
     # Check BUFR variable dimension and type
     logger.info(f"     The shapes and dtypes of all 3 variables")
+    logger.info(f"     typ1       shape, type = {typ1.shape}, {typ1.dtype}")
+    logger.info(f"     typ2       shape, type = {typ2.shape}, {typ2.dtype}")
+    logger.info(f"     typ3       shape, type = {typ3.shape}, {typ3.dtype}")
     logger.info(f"     sid1       shape, type = {sid1.shape}, {sid1.dtype}")
     logger.info(f"     sid2       shape, type = {sid2.shape}, {sid2.dtype}")
     logger.info(f"     sid3       shape, type = {sid3.shape}, {sid3.dtype}")
@@ -395,15 +401,12 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     lon1       shape, type = {lon1.shape}, {lon1.dtype}")
     logger.info(f"     lon2       shape, type = {lon2.shape}, {lon2.dtype}")
     logger.info(f"     lon3       shape, type = {lon3.shape}, {lon3.dtype}")
+    logger.info(f"     zob1       shape, type = {zob1.shape}, {zob1.dtype}")
+    logger.info(f"     zob2       shape, type = {zob2.shape}, {zob2.dtype}")
+    logger.info(f"     zob3       shape, type = {zob3.shape}, {zob3.dtype}")
     logger.info(f"     dhr1       shape, type = {dhr1.shape}, {dhr1.dtype}")
     logger.info(f"     dhr2       shape, type = {dhr2.shape}, {dhr2.dtype}")
     logger.info(f"     dhr3       shape, type = {dhr3.shape}, {dhr3.dtype}")
-    logger.info(f"     elv1       shape, type = {elv1.shape}, {elv1.dtype}")
-    logger.info(f"     elv2       shape, type = {elv2.shape}, {elv2.dtype}")
-    logger.info(f"     elv3       shape, type = {elv3.shape}, {elv3.dtype}")
-    logger.info(f"     typ1       shape, type = {typ1.shape}, {typ1.dtype}")
-    logger.info(f"     typ2       shape, type = {typ2.shape}, {typ2.dtype}")
-    logger.info(f"     typ3       shape, type = {typ3.shape}, {typ3.dtype}")
     logger.info(f"     pressure1  shape, type = {pressure1.shape}, {pressure1.dtype}")
     logger.info(f"     pressure2  shape, type = {pressure2.shape}, {pressure2.dtype}")
     logger.info(f"     pressure3  shape, type = {pressure3.shape}, {pressure3.dtype}")
@@ -420,9 +423,9 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     tvoqm1     shape, type = {tvoqm1.shape}, {tvoqm1.dtype}")
     logger.info(f"     tvoqm2     shape, type = {tvoqm2.shape}, {tvoqm2.dtype}")
     logger.info(f"     tvoqm3     shape, type = {tvoqm3.shape}, {tvoqm3.dtype}")
-    logger.info(f"     zob1       shape, type = {zob1.shape}, {zob1.dtype}")
-    logger.info(f"     zob2       shape, type = {zob2.shape}, {zob2.dtype}")
-    logger.info(f"     zob3       shape, type = {zob3.shape}, {zob3.dtype}")
+    logger.info(f"     elv1       shape, type = {elv1.shape}, {elv1.dtype}")
+    logger.info(f"     elv2       shape, type = {elv2.shape}, {elv2.dtype}")
+    logger.info(f"     elv3       shape, type = {elv3.shape}, {elv3.dtype}")
     logger.info(f"     pob1       shape, type = {pob1.shape}, {pob1.dtype}")
     logger.info(f"     pob2       shape, type = {pob2.shape}, {pob2.dtype}")
     logger.info(f"     pob3       shape, type = {pob3.shape}, {pob3.dtype}")
