@@ -109,7 +109,7 @@ def bufr_to_ioda(config, logger):
             logger.info("Making QuerySet for SFCSHP")
             
             # ObsType
-            r.add('ationType', '*/TYP')
+            r.add('observationType', '*/TYP')
 
             # MetaData
             r.add('stationIdentification', '*/SID')
@@ -134,7 +134,7 @@ def bufr_to_ioda(config, logger):
         elif subsets[i] == "ADPUPA":
             logger.info("Making QuerySet for ADPUPA")
             # ObsType
-            s.add('ationType', '*/TYP')
+            s.add('observationType', '*/TYP')
             
             # MetaData
             s.add('stationIdentification', 'ADPUPA/SID')
@@ -178,12 +178,12 @@ def bufr_to_ioda(config, logger):
         v = f.execute(s)
 
     # ADPSFC
-    logger.info(" ... Executing QuerySet for ADPSFC: get ObsType ...")
     # ObsType
+    logger.info(" ... Executing QuerySet for ADPSFC: get ObsType ...")
     typorig1 = t.get('observationType')
 
-    logger.info(" ... Executing QuerySet for ADPSFC: get MetaData ...")    
     # MetaData
+    logger.info(" ... Executing QuerySet for ADPSFC: get MetaData ...")
     sidorig1 = t.get('stationIdentification')
     catorig1 = t.get('prepbufrDataLevelCategory')
     tpcorig1 = t.get('temperatureEventCode')
@@ -195,8 +195,8 @@ def bufr_to_ioda(config, logger):
     pressureorig1 = t.get('pressure')
     pressureorig1 *= 100
 
-    logger.info(f" ... Executing QuerySet: get QualityMarker ...")
     # QualityMarker
+    logger.info(f" ... Executing QuerySet for ADPSFC: get QualityMarker ...")
     pobqmorig1 = t.get('qualityMarkerStationPressure')
     tobqmorig1 = t.get('qualityMarkerAirTemperature')
     tsenqmorig1 = np.full(tobqmorig1.shape[0], tobqmorig1.fill_value) 
@@ -204,8 +204,8 @@ def bufr_to_ioda(config, logger):
     tvoqmorig1 = np.full(tobqmorig1.shape[0], tobqmorig1.fill_value)
     tvoqmorig1 = np.where((tpcorig1 == 8), tobqmorig1, tvoqmorig1)
 
-    logger.info(f" ... Executing QuerySet: get ObsValues ...")
     # ObsValue
+    logger.info(f" ... Executing QuerySet for ADPSFC: get ObsValues ...")
     elvorig1 = t.get('stationElevation', type='float')
     poborig1 = t.get('stationPressure')
     poborig1 *= 100
@@ -216,6 +216,7 @@ def bufr_to_ioda(config, logger):
     tvoorig1 = np.full(toborig1.shape[0], toborig1.fill_value)
     tvoorig1 = np.where((tpcorig1 == 8), toborig1, tvoorig1)
 
+    logger.info(f" ... Make new arrays for certain Obstypes of ADSPFC")
     typ1 = np.array([]) 
     sid1 = np.array([]) 
     cat1 = np.array([])
@@ -253,15 +254,19 @@ def bufr_to_ioda(config, logger):
             tvoqm1 = np.append(tvoqm1, tvoqmorig1[i])
             elv1 = np.append(elv1, elvorig1[i])
             pob1 = np.append(pob1, poborig1[i])
+            tob1 = np.append(tob1, toborig1[i])
             tsen1 = np.append(tsen1, tsenorig1[i])
             tvo1 = np.append(tvo1, tvoorig1[i])
 
     logger.info(" ... QuerySet execution for ADPSFC ... done!")
 
     # SFCSHP
-    logger.info(" ... Executing QuerySet for SFCSHP: get MetaData ...")
-    # MetaData
+    # ObsType
+    logger.info(" ... Executing QuerySet for SFCSHP: get ObsType ...")
     typorig2 = u.get('observationType')
+
+    # MetaData
+    logger.info(" ... Executing QuerySet for SFCSHP: get MetaData ...")
     sidorig2 = u.get('stationIdentification')
     catorig2 = u.get('prepbufrDataLevelCategory')
     tpcorig2 = u.get('temperatureEventCode')
@@ -273,7 +278,7 @@ def bufr_to_ioda(config, logger):
     pressureorig2 = u.get('pressure')
     pressureorig2 *= 100
 
-    logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
+    logger.info(f" ... Executing QuerySet for SFCSHP: get QualityMarker ...")
     # QualityMarker
     pobqmorig2 = u.get('qualityMarkerStationPressure')
     tobqmorig2 = u.get('qualityMarkerAirTemperature')
@@ -282,7 +287,7 @@ def bufr_to_ioda(config, logger):
     tvoqmorig2 = np.full(tobqmorig2.shape[0], tobqmorig2.fill_value)
     tvoqmorig2 = np.where((tpcorig2 == 8), tobqmorig2, tvoqmorig2)
 
-    logger.info(f" ... Executing QuerySet: get ObsValues ...")
+    logger.info(f" ... Executing QuerySet for SFCSHP: get ObsValues ...")
     # ObsValue
     elvorig2 = u.get('stationElevation', type='float')
     poborig2 = u.get('stationPressure')
@@ -294,6 +299,7 @@ def bufr_to_ioda(config, logger):
     tvoorig2 = np.full(toborig2.shape[0], toborig2.fill_value)
     tvoorig2 = np.where((tpcorig2 == 8), toborig2, tvoorig2)
 
+    logger.info(f" ... Make new arrays for certain ObsTypes of SFCSHP")
     typ2 = np.array([]) 
     sid2 = np.array([]) 
     cat2 = np.array([])
@@ -329,19 +335,20 @@ def bufr_to_ioda(config, logger):
             tsenqm2 = np.append(tsenqm2, tsenqmorig2[i])
             tvoqm2 = np.append(tvoqm2, tvoqmorig2[i])
             elv2 = np.append(elv2, elvorig2[i])
-            zob2 = np.append(zob2, zoborig2[i])
             pob2 = np.append(pob2, poborig2[i])
+            tob2 = np.append(tob2, toborig2[i])
             tsen2 = np.append(tsen2, tsenorig2[i])
             tvo2 = np.append(tvo2, tvoorig2[i])
 
     logger.info(f" ... QuerySet execution for SFCSHP ... done!")
     
     # ADPUPA
-    logger.info(" ... Executing QuerySet for ADPUPA: get MetaData ...")
-    # ObsType 
+    # ObsType
+    logger.info(" ... Executing QuerySet for ADPUPA: get ObsType ...")
     typ3 = v.get('observationType', 'prepbufrDataLevelCategory')
 
     # MetaData
+    logger.info(" ... Executing QuerySet for ADPUPA: get MetaData ...")
     sid3 = v.get('stationIdentification', 'prepbufrDataLevelCategory')
     cat3 = v.get('prepbufrDataLevelCategory', 'prepbufrDataLevelCategory')
     tpc3 = v.get('temperatureEventCode', 'prepbufrDataLevelCategory')
@@ -354,6 +361,7 @@ def bufr_to_ioda(config, logger):
     pressure3 *= 100
 
     # QualityMark
+    logger.info(" ... Executing QuerySet for ADPUPA: get QualityMarker ...")
     pobqm3 = v.get('qualityMarkerStationPressure', 'prepbufrDataLevelCategory')
     psqm3 = np.full(pobqm3.shape[0], pobqm3.fill_value)
     psqm3 = np.where(cat3 == 0, pobqm3, psqm3)
@@ -364,6 +372,7 @@ def bufr_to_ioda(config, logger):
     tvoqm3 = np.where(((tpc3 == 8) & (cat3 == 0)), tobqm3, tvoqm3)
 
     # ObsValue
+    logger.info(" ... Executing QuerySet for ADPUPA: get ObsValues ...")
     elv3 = v.get('stationElevation', 'prepbufrDataLevelCategory', type='float')
     pob3 = v.get('stationPressure', 'prepbufrDataLevelCategory')
     ps3 = np.full(pressure3.shape[0], pressure3.fill_value)
@@ -376,8 +385,10 @@ def bufr_to_ioda(config, logger):
     tvo3 = np.where(((tpc3 == 8) & (cat3 == 0)), tob3, tvo3)
 
     
-    logger.info(f" ... QuerySet execution for ADPSFC ... done!")
+    logger.info(f" ... QuerySet execution for ADPUPA ... done!")
     logger.info(f" ... Executing QuerySet: Done!")
+
+    end_time = time.time()
     running_time = end_time - start_time
     logger.info(f"Running time for executing QuerySet: {running_time} seconds")
 
@@ -541,120 +552,120 @@ def bufr_to_ioda(config, logger):
     logger.info(f" ... ... Create variables: name, type, units, & attributes")
 
     # Observation Type - airTemperature
-    obsspace.create_var('ObsType/airTemperature', dtype=typ1.dtype,
-                        fillval=typ1.fill_value) \
+    obsspace.create_var('ObsType/airTemperature', dtype=typorig1.dtype,
+                        fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ)
     
     # Observation Type - virtualTemperature
-    obsspace.create_var('ObsType/virtualTemperature', dtype=typ1.dtype,
-                        fillval=typ1.fill_value) \
+    obsspace.create_var('ObsType/virtualTemperature', dtype=typorig1.dtype,
+                        fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ)
     
     # Observation Type - stationPressure
-    obsspace.create_var('ObsType/stationPressure', dtype=typ1.dtype,
-                        fillval=typ1.fill_value) \
+    obsspace.create_var('ObsType/stationPressure', dtype=typorig1.dtype,
+                        fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ)
     
     # Station Identification
-    obsspace.create_var('MetaData/stationIdentification', dtype=sid1.dtype,
-                        fillval=sid1.fill_value) \
+    obsspace.create_var('MetaData/stationIdentification', dtype=sidorig1.dtype,
+                        fillval=sidorig1.fill_value) \
         .write_attr('long_name', 'Station Identification') \
         .write_data(sid)
 
     # PrepBUFR Data Level Category
-    obsspace.create_var('MetaData/prepbufrDataLevelCategory', dtype=cat1.dtype,
-                        fillval=cat1.fill_value) \
+    obsspace.create_var('MetaData/prepbufrDataLevelCategory', dtype=catorig1.dtype,
+                        fillval=catorig1.fill_value) \
         .write_attr('long_name', 'prepBUFR Data Level Category') \
         .write_data(cat)
 
     # Temperature Event Code
-    obsspace.create_var('MetaData/temperatureEventCode', dtype=tpc1.dtype,
-                        fillval=tpc1.fill_value) \
+    obsspace.create_var('MetaData/temperatureEventCode', dtype=tpcorig1.dtype,
+                        fillval=tpcorig1.fill_value) \
         .write_attr('long_name', 'temperatureEventCode') \
         .write_data(tpc)
 
     # Longitude
-    obsspace.create_var('MetaData/longitude', dtype=lon1.dtype,
-                        fillval=lon1.fill_value) \
+    obsspace.create_var('MetaData/longitude', dtype=lonorig1.dtype,
+                        fillval=lonorig1.fill_value) \
         .write_attr('units', 'degrees_east') \
         .write_attr('valid_range', np.array([-180, 180], dtype=np.float32)) \
         .write_attr('long_name', 'Longitude') \
         .write_data(lon)
 
     # Latitude
-    obsspace.create_var('MetaData/latitude', dtype=lat1.dtype,
-                        fillval=lat1.fill_value) \
+    obsspace.create_var('MetaData/latitude', dtype=latorig1.dtype,
+                        fillval=latorig1.fill_value) \
         .write_attr('units', 'degrees_north') \
         .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
         .write_attr('long_name', 'Latitude') \
         .write_data(lat)
 
     # MetaData: Height Of Station
-    obsspace.create_var('MetaData/heightOfStation', dtype=zob1.dtype,
-                        fillval=zob1.fill_value) \
+    obsspace.create_var('MetaData/heightOfStation', dtype=zoborig1.dtype,
+                        fillval=zoborig1.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Height Of Station') \
         .write_data(zob)
     
     # Datetime
-    obsspace.create_var('MetaData/dateTime', dtype=dhr1.dtype,
-                        fillval=dhr1.fill_value) \
+    obsspace.create_var('MetaData/dateTime', dtype=dhrorig1.dtype,
+                        fillval=dhrorig1.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Datetime') \
         .write_data(dateTime)
 
     # Pressure
-    obsspace.create_var('MetaData/pressure', dtype=pressure1.dtype,
-                        fillval=pressure1.fill_value) \
+    obsspace.create_var('MetaData/pressure', dtype=pressureorig1.dtype,
+                        fillval=pressureorig1.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Pressure') \
         .write_data(pressure)
 
     # Quality Marker: Station Pressure
-    obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm1.dtype,
-                        fillval=pobqm1.fill_value) \
+    obsspace.create_var('QualityMarker/stationPressure', dtype=pobqmorig1.dtype,
+                        fillval=pobqmorig1.fill_value) \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
         .write_data(psqm)
 
     # Quality Marker: Air Temperature
-    obsspace.create_var('QualityMarker/airTemperature', dtype=tobqm1.dtype,
-                        fillval=tobqm1.fill_value) \
+    obsspace.create_var('QualityMarker/airTemperature', dtype=tobqmorig1.dtype,
+                        fillval=tobqmorig1.fill_value) \
         .write_attr('long_name', 'Air Temperature Quality Marker') \
         .write_data(tsenqm)
 
     # Quality Marker: Virtual Temperature
-    obsspace.create_var('QualityMarker/virtualTemperature', dtype=tobqm1.dtype,
-                        fillval=tobqm1.fill_value) \
+    obsspace.create_var('QualityMarker/virtualTemperature', dtype=tobqmorig1.dtype,
+                        fillval=tobqmorig1.fill_value) \
         .write_attr('long_name', 'Virtual Temperature Quality Marker') \
         .write_data(tvoqm)
 
     # ObsValue: Station Elevation
-    obsspace.create_var('ObsValue/stationElevation', dtype=elv1.dtype,
-                        fillval=elv1.fill_value) \
+    obsspace.create_var('ObsValue/stationElevation', dtype=elvorig1.dtype,
+                        fillval=elvorig1.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Station Elevation') \
         .write_data(elv)
     
     # ObsValue: Station Pressure
-    obsspace.create_var('ObsValue/stationPressure', dtype=pob1.dtype,
-                        fillval=pob1.fill_value) \
+    obsspace.create_var('ObsValue/stationPressure', dtype=poborig1.dtype,
+                        fillval=poborig1.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Station Pressure') \
         .write_data(ps)
 
     # ObsValue: Air Temperature
-    obsspace.create_var('ObsValue/airTemperature', dtype=tob1.dtype,
-                        fillval=tob1.fill_value) \
+    obsspace.create_var('ObsValue/airTemperature', dtype=toborig1.dtype,
+                        fillval=toborig1.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Air Temperature') \
         .write_data(tsen)
 
     # ObsValue: Virtual Temperature
-    obsspace.create_var('ObsValue/virtualTemperature', dtype=tvo1.dtype,
-                        fillval=tob1.fill_value) \
+    obsspace.create_var('ObsValue/virtualTemperature', dtype=toborig1.dtype,
+                        fillval=toborig1.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Virtual Temperature') \
         .write_data(tvo)
