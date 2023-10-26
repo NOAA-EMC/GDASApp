@@ -84,10 +84,15 @@ namespace gdasapp {
       for (int i = 0; i < iodaVars.location_; i++) {
         iodaVars.longitude_(i) = oneDimLonVal[i];
         iodaVars.latitude_(i) = oneDimLatVal[i];
-        iodaVars.obsVal_(i) = static_cast<int64_t>(oneDimObsVal[i]*0.01);
+        iodaVars.obsVal_(i) = static_cast<float>(oneDimObsVal[i]*0.01);
         iodaVars.obsError_(i) = 0.1;  // Do something for obs error
         iodaVars.preQc_(i) = oneDimFlagsVal[i];
       }
+
+      // basic test for iodaVars.trim
+      Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ >= 0.0);
+      iodaVars.trim(mask);
+
       return iodaVars;
     };
   };  // class IcecAmsr2Ioda

@@ -44,7 +44,7 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/testinput)
 
 # list of test input files to install
 list(APPEND test_input
-  ${PROJECT_SOURCE_DIR}/parm/soca/obs/obs_list.yaml
+  ${PROJECT_SOURCE_DIR}/parm/soca/obs/obs_list_small.yaml
   ${PROJECT_SOURCE_DIR}/test/soca/testinput/dumy.yaml
   )
 
