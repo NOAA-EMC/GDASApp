@@ -1,5 +1,5 @@
 obs space:
-  name: icec_ssmis_f17_south
+  name: icec_amsr2_south
   obsdatain:
     engine:
       type: H5File
