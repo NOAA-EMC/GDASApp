@@ -14,6 +14,7 @@ obs space:
   channels: 4
 get values:
   interpolation method: barycentric
+  time interpolation: linear
 obs operator:
   name: AodCRTM
   Absorbers: [H2O,O3]

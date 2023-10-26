@@ -101,6 +101,12 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_BUILD}"
 
+# JCSDA changed test data things, need to make a dummy CRTM directory
+if [[ $BUILD_TARGET == 'hera' ]]; then
+  mkdir -p $dir_root/test-data-release/
+  ln -sf $GDASAPP_TESTDATA/crtm $dir_root/test-data-release/crtm
+fi
+
 # Configure
 echo "Configuring ..."
 set -x
