@@ -1,8 +1,15 @@
 observers:
 - !INC ${OBS_YAML_DIR}/adt_all.yaml
-- !INC ${OBS_YAML_DIR}/adt_j3.yaml
-- !INC ${OBS_YAML_DIR}/adt_j2.yaml
-#- !INC ${OBS_YAML_DIR}/salt_profile_fnmoc.yaml
-- !INC ${OBS_YAML_DIR}/sss_smap.yaml
-- !INC ${OBS_YAML_DIR}/sst_noaa19_l3u.yaml
-- !INC ${OBS_YAML_DIR}/icec_emc.yaml
+- !INC ${OBS_YAML_DIR}/adt_j3_egm2008.yaml
+- !INC ${OBS_YAML_DIR}/adt_3a_egm2008.yaml
+- !INC ${OBS_YAML_DIR}/adt_3b_egm2008.yaml
+- !INC ${OBS_YAML_DIR}/adt_c2_egm2008.yaml
+- !INC ${OBS_YAML_DIR}/adt_sa_egm2008.yaml
+- !INC ${OBS_YAML_DIR}/sst_viirs_npp_l3u_so025.yaml
+#- !INC ${OBS_YAML_DIR}/sst_metopa_l3u_so025.yaml
+#- !INC ${OBS_YAML_DIR}/sst_metopb_l3u_so025.yaml
+#- !INC ${OBS_YAML_DIR}/sst_metopc_l3u_so025.yaml
+- !INC ${OBS_YAML_DIR}/icec_ssmis_f17_north.yaml
+#- !INC ${OBS_YAML_DIR}/icec_ssmis_f17_south.yaml
+#- !INC ${OBS_YAML_DIR}/icec_ssmis_f18_north.yaml
+- !INC ${OBS_YAML_DIR}/icec_ssmis_f18_south.yaml
