@@ -1,7 +1,6 @@
 provider: RADS
 window begin: 2018-04-15T06:00:00Z
 window end: 2018-04-15T12:00:00Z
-variable: absoluteDynamicTopography
-output file: rads_adt_j3_2021182.ioda.nc
+output file: rads_adt_3b_2021181.ioda.nc
 input files:
-- rads_adt_j3_2021182.nc4
+- rads_adt_3b_2021181.nc4
