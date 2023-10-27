@@ -78,7 +78,7 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG f5af894 )
   ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG f117ec0 )
   option(ENABLE_IODA_DATA "Obtain ioda test data from ioda-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG e8f9062  )
+  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG 755d867  )
   option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG 6e9b56a )
 
