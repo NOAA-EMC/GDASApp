@@ -11,11 +11,40 @@ obs space:
   simulated variables: [windEastward, windNorthward]
 geovals:
   filename: !ENV satwind_geoval_${CDATE}.nc4
-vector ref: GsiHofXBc
-tolerance: 0.01
 obs operator:
   name: VertInterp
-obs pre filters:
+  hofx scaling field: SurfaceWindScalingPressure
+  hofx scaling field group: DerivedVariables
+
+obs prior filters:
+  # Apply variable changes needed for wind scaling
+  # For wind observations with pressure provided
+  - filter: Variable Transforms
+    Transform: SurfaceWindScalingPressure
+    SkipWhenNoObs: False
+
+  # Calculate obs error inflation factors for duplicated observations at the same location
+#  - filter: Variable Assignment
+#    assignments:
+#    - name: ObsErrorFactorDuplicateCheck/windEastward
+#      type: float
+#      function:
+#        name: ObsFunction/ObsErrorFactorDuplicateCheck
+#        options:
+#          use_air_pressure: true 
+#          variable: windEastward 
+
+#  - filter: Variable Assignment
+#    assignments:
+#    - name: ObsErrorFactorDuplicateCheck/windNorthward
+#      type: float
+#      function:
+#        name: ObsFunction/ObsErrorFactorDuplicateCheck
+#        options:
+#          use_air_pressure: true 
+#          variable: windNorthward 
+
+obs post filters:
 # Assign the initial observation error, based on height/pressure
 # Hard-wiring to prepobs_errtable.global by Type
 # ObsError is currently not updating in diag file, but passes directly to EffectiveError when no inflation is specified in YAML
@@ -27,8 +56,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 240
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -46,8 +73,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 241
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -65,8 +90,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 242
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -84,8 +107,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 243
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -103,8 +124,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 244
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -122,8 +141,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 245
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -141,8 +158,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 246
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -160,8 +175,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 247
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -179,8 +192,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 248
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -198,8 +209,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 249
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -217,8 +226,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 250
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -236,8 +243,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 251
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -255,8 +260,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 252
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -274,8 +277,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 253
-    minvalue: -135.
-    maxvalue: 135.
     action: 
       name: assign error
       error function:
@@ -293,8 +294,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 254
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -312,8 +311,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 255
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -331,8 +328,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 256
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -350,8 +345,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 257
-    minvalue: -135.
-    maxvalue: 135.
     action: 
       name: assign error
       error function:
@@ -369,8 +362,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 258
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -388,8 +379,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 259
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -409,8 +398,6 @@ obs pre filters:
     where:
     - variable: ObsType/windEastward
       is_in: 260
-    minvalue: -135.
-    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -420,7 +407,7 @@ obs pre filters:
             name: MetaData/pressure
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
-obs prior filters:
+
   #
   # sanity-check criteria
   #
@@ -620,7 +607,10 @@ obs prior filters:
     - variable: MetaData/satelliteIdentifier
       is_in: 250-299
     - variable: GeoVaLs/land_area_fraction
-      minvalue: 0.999
+      minvalue: 0.99
+#    - variable: GeoVaLs/dominant_surface_type
+#      maxvalue: 1.0001
+#      minvalue: 0.9999
     test variables:
     - name: MetaData/pressure
     maxvalue: 85000.
@@ -811,7 +801,9 @@ obs prior filters:
     where:
     - variable:
         name: GeoVaLs/water_area_fraction
-      maxvalue: 0.001
+      maxvalue: 0.99
+#        name: GeoVaLs/dominant_surface_type
+#      minvalue: 0.001
     - variable:
         name: ObsType/windEastward
       is_in: 247
@@ -831,7 +823,9 @@ obs prior filters:
     where:
     - variable:
         name: GeoVaLs/water_area_fraction
-      maxvalue: 0.001
+      maxvalue: 0.99
+#        name: GeoVaLs/dominant_surface_type
+#      minvalue: 0.001
     - variable:
         name: ObsType/windEastward
       is_in: 244, 257-260
@@ -840,7 +834,7 @@ obs prior filters:
     maxvalue: -20000.                   # within 200 hPa above surface pressure, negative p-diff
     action:
       name: reject
-obs post filters:
+
   # Reject GOES (247) when difference of wind direction is more than 50 degrees.
   # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
   - filter: Bounds Check
@@ -938,26 +932,24 @@ obs post filters:
   # The last error inflation check is for duplicate observations. This one needs
   # to come last, because we don't want to inflate errors for duplication if one
   # of the duplicates should be rejected.
-  - filter: RejectList
-    filter variables:
-    - name: windEastward
-    action:
-      name: inflate error
-      inflation variable:
-        name: ObsFunction/ObsErrorFactorDuplicateCheck
-        options:
-          use_air_pressure: true
-          variable: windEastward
-  - filter: RejectList
-    filter variables:
-    - name: windNorthward
-    action:
-      name: inflate error
-      inflation variable:
-        name: ObsFunction/ObsErrorFactorDuplicateCheck
-        options:
-          use_air_pressure: true
-          variable: windNorthward
+  # Inflate obs error for duplicated observations at the same location
+#  - filter: Perform Action
+#    filter variables:
+#    - name: windEastward 
+#    action:
+#      name: inflate error
+#      inflation variable:
+#        name: ObsErrorFactorDuplicateCheck/windEastward
+
+  # Inflate obs error for duplicated observations at the same location
+#  - filter: Perform Action
+#    filter variables:
+#    - name: windNorthward 
+#    action:
+#      name: inflate error
+#      inflation variable:
+#        name: ObsErrorFactorDuplicateCheck/windNorthward
+
   # We are extending this to an additional filter that inflates final ob-errors across-the-board by
   # 1/0.8 = 1.25. This is caused by the GSI value of nvqc being set to .true. in the global operational
   # configuration, see: https://github.com/NOAA-EMC/global-workflow/blob/d5ae3328fa4041b177357b1133f6b92e81c859d7/scripts/exglobal_atmos_analysis.sh#L750
@@ -966,30 +958,27 @@ obs post filters:
   #
   # If this nvqc functionality were to be switched off (i.e. if variational qc were to be turned off),
   # you would want to remove this last inflation filter.
-  - filter: Perform Action
-    filter variables:
-    - name: windEastward
-    where:
-    - variable: ObsType/windEastward
-      is_in: 240-260
-    action:
-      name: inflate error
-      inflation factor: 1.25
-#
-  - filter: Perform Action
-    filter variables:
-    - name: windNorthward
-    where:
-    - variable: ObsType/windNorthward
-      is_in: 240-260
-    action:
-      name: inflate error
-      inflation factor: 1.25
-# END OF FILTERS
-linear obs operator:
-  name: Identity
+#  - filter: Perform Action
+#    filter variables:
+#    - name: windEastward
+#    where:
+#    - variable: ObsType/windEastward
+#      is_in: 240-260
+#    action:
+#      name: inflate error
+#      inflation factor: 1.25
 
-#passedBenchmark: 1025814# 2 variables (u,v), both passing 512907 obs, including 512907 GSI/UFO agreements, and:
+#  - filter: Perform Action
+#    filter variables:
+#    - name: windNorthward
+#    where:
+#    - variable: ObsType/windNorthward
+#      is_in: 240-260
+#    action:
+#      name: inflate error
+#      inflation factor: 1.25
+# END OF FILTERS
+
 passedBenchmark: 1150870 # 2 variables (u,v), both passing 575435 obs, including 512907 GSI/UFO agreements, and:
                          # 16 GOES AMVs (6 u-obs, 6 v-obs) that are rejected by the SatWindsErrnormCheck in UFO
                          # but are retained in GSI's equivalent experr_norm check. All 6 of these disagreements
