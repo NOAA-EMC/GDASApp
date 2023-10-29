@@ -45,6 +45,5 @@ obs prior filters:
 
 passedBenchmark: 53546 
 #passedBenchmark: 53558 
-#passedBenchmark: 55232 
 #vector ref: GsiHofXBc
 #tolerance: 1.e-5

@@ -82,7 +82,8 @@ obs post filters:
     where:
     - variable: ObsType/windEastward
       is_in: 290
-    - variable: GeoVaLs/surface_temperature
+#   - variable: GeoVaLs/surface_temperature
+    - variable: GeoVaLs/surface_temperature_where_land
       maxvalue: 273.
     action:
       name: reject
@@ -102,27 +103,12 @@ obs post filters:
 #      minvalue: 0.001
     action:
       name: reject
-
 #passedBenchmark: 53558 # 2 variables (u,v), u=26779 passing, v=26779 passing
 
   # Reject ASCAT (Type 290) when observed component deviates from background by more than 5.0 m/s
   # NOTE: This check can reject a u- or v-component of the same observation independently, which
   #       is fundamentally different from how GSI rejects obs (both components are rejected if
   #       either component fails a check).
-#>>orig 
-#  - filter: Background Check
-#    filter variables:
-#    - name: windEastward
-#    - name: windNorthward
-#    threshold: 5.
-#    absolute threshold: 5.
-#    where:
-#    - variable: ObsType/windEastward
-#      is_in: 290
-#    action:
-#      name: reject
-#<<orig 
-#>>GMAO
   - filter: Bounds Check
     filter variables:
     - name: windEastward
@@ -150,7 +136,6 @@ obs post filters:
         coefs: [1.0, -1.0]
     minvalue: -5.0
     maxvalue: 5.0
-#<<MAO
 #passedBenchmark: 52362 # 2 variables (u,v), u=26181 passing, v=26181 passing
 
   # Reject OSCAT (Type 291) when observed component deviates from background by more than 6.0 m/s
@@ -218,7 +203,6 @@ obs post filters:
         options:
           variable: windNorthward
           inflation factor: 4.0
-
 #passedBenchmark: 51776 # 2 variables (u,v), u=25888 passing, v=25888 passing
 
   # All scatwinds subject to a gross error check. This is contained within
@@ -250,7 +234,6 @@ obs post filters:
         variable: windNorthward
     action:
       name: reject
-
 #passedBenchmark: 51776 # 2 variables (u,v), u=25888 passing, v=25888 passing
 
   # The last error inflation check is for duplicate observations. This one needs
