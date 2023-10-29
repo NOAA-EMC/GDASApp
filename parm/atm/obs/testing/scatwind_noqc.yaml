@@ -11,11 +11,40 @@ obs space:
   simulated variables: [windEastward, windNorthward]
 geovals:
   filename: !ENV scatwind_geoval_${CDATE}.nc4
-vector ref: GsiHofXBc
-tolerance: 0.01
+
 obs operator:
   name: VertInterp
-  apply near surface wind scaling: true
+  # Use height vertical coordinate first
+# vertical coordinate: geometric_height
+  vertical coordinate: geopotential_height
+  observation vertical coordinate group: DerivedVariables
+  observation vertical coordinate: adjustedHeight
+  interpolation method: linear
+  hofx scaling field: SurfaceWindScalingHeight
+  hofx scaling field group: DerivedVariables 
 
-vector ref: GsiHofXBc
-tolerance: 1.e-5
+obs prior filters:
+  # Apply variable changes needed for rescaled height coordinate
+  - filter: Variable Transforms
+    Transform: AdjustedHeightCoordinate
+    SkipWhenNoObs: False
+
+  # Apply variable changes needed for wind scaling
+  - filter: Variable Transforms
+    Transform: SurfaceWindScalingHeight
+    SkipWhenNoObs: False
+
+  # Assign the initial observation error (constant value, 1.5 m/s)
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    action:
+      name: assign error
+      error parameter: 1.5
+
+passedBenchmark: 53546 
+#passedBenchmark: 53558 
+#passedBenchmark: 55232 
+#vector ref: GsiHofXBc
+#tolerance: 1.e-5
