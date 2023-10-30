@@ -8,7 +8,6 @@ obs space:
     engine:
       type: H5File
       obsfile: !ENV  conv_ps_diag_${CDATE}.nc4
-      overwrite: true
   simulated variables: [stationPressure]
 geovals:
   filename: !ENV conv_ps_geoval_${CDATE}.nc4
@@ -21,6 +20,88 @@ obs operator:
   station_altitude: height
   geovar_sfc_geomz: surface_altitude
   geovar_geomz: geopotential_height
+
+obs prior filters:
+  # Initial Error Assignments for SFC Observatoins
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: ObsType/stationPressure
+      is_in: [181]
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          round_to_the_nearest_integer: true
+          xvar:
+            name: ObsValue/stationPressure
+          xvals:  [80000, 75000, 70000, 65000, 60000, 55000  ]
+          errors: [110,    120,    120,   120,   120, 1.0e+11]
+
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: ObsType/stationPressure
+      is_in: [187]
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          round_to_the_nearest_integer: true
+          xvar:
+            name: ObsValue/stationPressure
+          xvals:  [85000, 80000, 75000, 70000, 65000, 60000, 55000  ]
+          errors: [  120,   140,   140,   140,   140,   140, 1.0e+11]
+
+  # Initial Error Assignments for SFCSHIP Observatoins
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: ObsType/stationPressure
+      is_in: [180]
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          round_to_the_nearest_integer: true
+          xvar:
+            name: ObsValue/stationPressure
+          xvals:  [60000, 55000  ]
+          errors: [  130, 1.0e+11]
+
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: ObsType/stationPressure
+      is_in: [183]
+    action:
+      name: assign error
+      error parameter: 1.0e+11
+
+  # Initial Error Assignments for Radiosonde
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: ObsType/stationPressure
+      is_in: [120]
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          round_to_the_nearest_integer: true
+          xvar:
+            name: ObsValue/stationPressure
+          xvals:  [80000, 75000, 70000, 65000, 60000, 55000  ]
+          errors: [  110,   120,   120,   120,   120, 1.0e+11]
 
 obs post filters:
   # Observation range sanity check
@@ -120,6 +201,8 @@ obs post filters:
         name: ObsFunction/ObsErrorFactorSfcPressure
         options:
           geovar_sfc_geomz: surface_altitude
+          geovar_geomz: geopotential_height
+          station_altitude: height 
 
   # Inflate surface pressure observation based on discrepancies between
   # model and observations due to terrian
