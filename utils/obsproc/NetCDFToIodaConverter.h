@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -42,6 +43,9 @@ namespace gdasapp {
     std::vector<std::string> floatMetadataName_;  // String descriptor of the float metadata
     Eigen::ArrayXXf intMetadata_;                  // Optional array of integer metadata
     std::vector<std::string> intMetadataName_;    // String descriptor of the integer metadata
+
+    // Optional global attributes
+    std::map<std::string, std::string> strGlobalAttr_;
 
     // Constructor
     explicit IodaVars(const int nobs = 0,
@@ -233,6 +237,14 @@ namespace gdasapp {
           ogrp.vars.createWithScales<int>("PreQC/"+variable_,
                                             {ogrp.vars["Location"]}, int_params);
 
+        // add input filenames to IODA file global attributes
+        ogrp.atts.add<std::string>("obs_source_files", inputFilenames_);
+
+        // add global attributes collected from the specific converter
+        for (const auto& globalAttr : iodaVars.strGlobalAttr_) {
+          ogrp.atts.add<std::string>(globalAttr.first , globalAttr.second);
+        }
+
         // Create the optional IODA integer metadata
         ioda::Variable tmpIntMeta;
         int count = 0;
@@ -254,7 +266,7 @@ namespace gdasapp {
         }
 
         // Write obs info to group
-        oops::Log::info() << "Writting ioda file" << std::endl;
+        oops::Log::info() << "Writing ioda file" << std::endl;
         iodaLon.writeWithEigenRegular(iodaVarsAll.longitude_);
         iodaLat.writeWithEigenRegular(iodaVarsAll.latitude_);
         iodaDatetime.writeWithEigenRegular(iodaVarsAll.datetime_);
