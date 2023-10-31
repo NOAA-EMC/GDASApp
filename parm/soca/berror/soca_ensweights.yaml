@@ -19,6 +19,16 @@ weights:
   # Need to provide weights^2 when reading from file
   ice: 0.0025   #  5% of original variance
   ocean: 0.0625   # 25%      "       "
+  # Apply localized weights to the ocean ens. B
+  ocean local weights:
+  - lon: -200.0
+    lat: 10.0
+    amplitude: -1.0
+    length scale: 5000.0
+  - lon: -100.0
+    lat: 10.0
+    amplitude: -1.0
+    length scale: 5000.0
 
 output:
   datadir: ./
