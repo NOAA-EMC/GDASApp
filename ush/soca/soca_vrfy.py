@@ -33,7 +33,7 @@ def plotConfig(grid_file=[],
                lat=np.nan,
                lats=np.arange(-60, 60, 10),
                lon=np.nan,
-               lons=np.arange(-280, 80, 10),
+               lons=np.arange(-280, 80, 30),
                proj='set me',
                projs=['Global']):
 
@@ -52,8 +52,8 @@ def plotConfig(grid_file=[],
     config['bounds'] = bounds
     config['lats'] = lats  # all the lats to plot
     config['lat'] = lat  # the lat being currently plotted
-    config['lons'] = lons
-    config['lon'] = lon
+    config['lons'] = lons  # all the lons to plot
+    config['lon'] = lon  # the lon being currently plotted
     config['max depths'] = max_depths  # all the max depths to plot
     config['max depth'] = max_depth  # the max depth currently plotted
     config['horiz variables'] = variables_horiz  # all the vars for horiz plots
@@ -159,13 +159,13 @@ def plotMeridionalSlice(config):
     lon = float(config['lon'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
-    lon_index = np.argmin(np.array(np.abs(np.squeeze(grid.lon)[:, 0]-lon)))
-    slice_data = np.squeeze(np.array(data[config['variable']]))[:, lon_index, :]
-    depth = np.squeeze(np.array(grid['h']))[:, lon_index, :]
+    lon_index = np.argmin(np.array(np.abs(np.squeeze(grid.lon)[0, :]-lon)))
+    slice_data = np.squeeze(np.array(data[config['variable']]))[:, :, lon_index]
+    depth = np.squeeze(np.array(grid['h']))[:, :, lon_index]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
     bounds = config['bounds']
-    y = np.tile(np.squeeze(grid.lon[:, lon_index]), (np.shape(depth)[0], 1))
+    y = np.tile(np.squeeze(grid.lat)[:, lon_index], (np.shape(depth)[0], 1))
     fig, ax = plt.subplots(figsize=(8, 5))
     plt.pcolormesh(y, -depth, slice_data,
                    vmin=bounds[0], vmax=bounds[1],
