@@ -293,7 +293,7 @@ def bufr_to_ioda(config, logger):
         .write_data(pobqm)
 
     # Station Elevation
-    obsspace.create_var('ObaValue/stationElevation', dtype=elv.dtype,
+    obsspace.create_var('ObsValue/stationElevation', dtype=elv.dtype,
                         fillval=elv.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Station Elevation') \
