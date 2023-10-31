@@ -9,6 +9,7 @@ obs space:
       type: H5File
       obsfile: !ENV scatwind_diag_${CDATE}.nc4 
   simulated variables: [windEastward, windNorthward]
+
 geovals:
   filename: !ENV scatwind_geoval_${CDATE}.nc4
 
@@ -24,24 +25,24 @@ obs operator:
   hofx scaling field group: DerivedVariables 
 
 obs prior filters:
-  # Apply variable changes needed for rescaled height coordinate
-  - filter: Variable Transforms
-    Transform: AdjustedHeightCoordinate
-    SkipWhenNoObs: False
+# Apply variable changes needed for rescaled height coordinate
+- filter: Variable Transforms
+  Transform: AdjustedHeightCoordinate
+  SkipWhenNoObs: False
 
-  # Apply variable changes needed for wind scaling
-  - filter: Variable Transforms
-    Transform: SurfaceWindScalingHeight
-    SkipWhenNoObs: False
+# Apply variable changes needed for wind scaling
+- filter: Variable Transforms
+  Transform: SurfaceWindScalingHeight
+  SkipWhenNoObs: False
 
-  # Assign the initial observation error (constant value, 1.5 m/s)
-  - filter: Perform Action
-    filter variables:
-    - name: windEastward
-    - name: windNorthward
-    action:
-      name: assign error
-      error parameter: 1.5
+# Assign the initial observation error (constant value, 1.5 m/s)
+- filter: Perform Action
+  filter variables:
+  - name: windEastward
+  - name: windNorthward
+  action:
+    name: assign error
+    error parameter: 1.5
 
 passedBenchmark: 53546 
 #passedBenchmark: 53558 
