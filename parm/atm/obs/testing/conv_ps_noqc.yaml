@@ -23,7 +23,7 @@ obs operator:
   geovar_geomz: geopotential_height
 
 obs prior filters:
-# Initial Error Assignments for SFC Observatoins
+# Initial Error Assignments for SFC Observations
 - filter: Perform Action
   filter variables:
   - name: stationPressure
@@ -58,7 +58,7 @@ obs prior filters:
         xvals:  [85000, 80000, 75000, 70000, 65000, 60000, 55000  ]
         errors: [  120,   140,   140,   140,   140,   140, 1.0e+11]
 
-# Initial Error Assignments for SFCSHIP Observatoins
+# Initial Error Assignments for SFCSHIP Observations
 - filter: Perform Action
   filter variables:
   - name: stationPressure
