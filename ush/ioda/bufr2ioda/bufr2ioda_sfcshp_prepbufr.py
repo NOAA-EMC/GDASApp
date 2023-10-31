@@ -345,16 +345,15 @@ def bufr_to_ioda(config, logger):
     # Station Identification
     obsspace.create_var('MetaData/stationIdentification', dtype=sid.dtype,
                         fillval=sid.fill_value) \
-        .write_attr('units', '1') \
         .write_attr('long_name', 'Station Identification') \
         .write_data(sid)
 
     # Station Elevation
-    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
-                        fillval=elv.fill_value) \
+    obsspace.create_var('MetaData/heightOfStation', dtype=zob.dtype,
+                        fillval=zob.fill_value) \
         .write_attr('units', 'm') \
-        .write_attr('long_name', 'Station Elevation') \
-        .write_data(elv)
+        .write_attr('long_name', 'Height Of Station') \
+        .write_data(zob)
 
     # Pressure
     obsspace.create_var('MetaData/pressure', dtype=pressure.dtype,
