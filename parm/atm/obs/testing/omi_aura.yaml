@@ -11,8 +11,10 @@ obs space:
   io pool:
     max pool size: 1
   simulated variables: [ozoneTotal]
+
 geovals:
   filename: !ENV omi_aura_geoval_${CDATE}.nc4
+
 obs operator:
   name: AtmVertInterpLay
   geovals: [mole_fraction_of_ozone_in_air]
@@ -85,4 +87,5 @@ obs post filters:
   action:
     name: reject
 
-passedBenchmark: 1182 
+# End of Filters
+passedBenchmark: 1170
