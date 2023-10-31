@@ -22,11 +22,23 @@ obs operator:
   geovals: [mole_fraction_of_ozone_in_air]
   coefficients: [0.007886131] # convert from ppmv to DU
   nlevels: [22]
- 
-vector ref: GsiHofXBc
-tolerance: 1.e-5
-#linear obs operator test:
-#  coef TL: 0.1
-#  tolerance TL: 1.0e-13
-#  tolerance AD: 1.0e-11
+
+# Observation Error Assignment
+obs pre filters:
+- filter: Perform Action
+  filter variables:
+  - name: ozoneLayer
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/ObsErrorModelStepwiseLinear
+      options:
+        xvar:
+          name: MetaData/pressure
+        xvals: [0.001, 10.1325, 16.00935, 25.43258, 40.32735, 63.93607, 101.325, 160.0935, 254.3257, 403.2735, 639.3608, 1013.25, 1600.935, 2543.258, 4032.735, 6393.607, 10132.5, 16009.35, 25432.57, 40327.35, 63936.07, 101325]
+        errors: [7.7236, 0.02, 0.02, 0.025, 0.08, 0.15, 0.056, 0.125, 0.2, 0.299, 0.587, 0.864, 1.547, 2.718, 3.893, 4.353, 3.971, 4.407, 4.428, 3.312, 2.198, 2.285]
+
+passedBenchmark: 6314  # total:6314; missing:0 
+#vector ref: GsiHofXBc
+#tolerance: 1.e-5
 

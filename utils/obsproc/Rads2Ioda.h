@@ -57,10 +57,31 @@ namespace gdasapp {
       ncFile.getVar("time_mjd").getVar(datetime);
       iodaVars.referenceDate_ = "seconds since 1858-11-17T00:00:00Z";
 
+      std::map<std::string, int> altimeterMap;
+      // TODO(All): This is incomplete, add missions to the list below
+      altimeterMap["SNTNL-3A"] = 1;
+      altimeterMap["SNTNL-3B"] = 2;
+      altimeterMap["JASON-1"] = 3;
+      altimeterMap["JASON-2"] = 4;
+      altimeterMap["JASON-3"] = 5;
+      altimeterMap["CRYOSAT2"] = 6;
+      altimeterMap["SARAL"] = 7;
+
       // Read optional integer metadata "mission"
       std::string mission_name;
       ncFile.getAtt("mission_name").getValues(mission_name);
-      int mission_index = altimeterMissions(mission_name);   // mission name mapped to integer
+      int mission_index = altimeterMap[mission_name];   // mission name mapped to integer
+
+      // convert mission map to string to add to global attributes
+      std::stringstream mapStr;
+      for (const auto& mapEntry : altimeterMap) {
+        mapStr << mapEntry.first << " = " << mapEntry.second << " ";
+      }
+      iodaVars.strGlobalAttr_["mission_index"] = mapStr.str();
+
+      std::string references;
+      ncFile.getAtt("references").getValues(references);
+      iodaVars.strGlobalAttr_["references"] = references;
 
       // Read optional integer metadata "pass" and "cycle"
       int pass[iodaVars.location_];  // NOLINT
@@ -96,18 +117,5 @@ namespace gdasapp {
       }
       return iodaVars;
     };
-    int altimeterMissions(std::string missionName) {
-      std::map<std::string, int> altimeterMap;
-      // TODO(All): This is incomplete, add missions to the list below
-      //            and add to global attribute
-      altimeterMap["SNTNL-3A"] = 1;
-      altimeterMap["SNTNL-3B"] = 2;
-      altimeterMap["JASON-1"] = 3;
-      altimeterMap["JASON-2"] = 4;
-      altimeterMap["JASON-3"] = 5;
-      altimeterMap["CRYOSAT2"] = 6;
-      altimeterMap["SARAL"] = 7;
-      return altimeterMap[missionName];
-    }
   };  // class Rads2Ioda
 }  // namespace gdasapp
