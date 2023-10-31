@@ -122,7 +122,7 @@ def bufr_to_ioda(config, logger):
     logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
     # Quality Information
     pobqm = r.get('qualityMarkerStationPressure')
-    pobqm = r.get('qualityMarkerStationPressure')
+    zobqm = r.get('qualityMarkerStationElevation')
     
     logger.info(f" ... Executing QuerySet: get obsvalue: stationPressure ...")
     # ObsValue
