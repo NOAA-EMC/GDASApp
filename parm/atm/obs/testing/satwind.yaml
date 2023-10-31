@@ -1024,8 +1024,7 @@ obs post filters:
 #    name: inflate error
 #    inflation factor: 1.25
 
-# END OF FILTERS
-
+# End of Filters  
 #passedBenchmark: 1150870 # 2 variables (u,v), both passing 575435 obs, including 575435 GSI/UFO agreements, and:
 passedBenchmark: 1025814 # 2 variables (u,v), both passing 512907 obs, including 512907 GSI/UFO agreements, and:
                          # 16 GOES AMVs (6 u-obs, 6 v-obs) that are rejected by the SatWindsErrnormCheck in UFO
