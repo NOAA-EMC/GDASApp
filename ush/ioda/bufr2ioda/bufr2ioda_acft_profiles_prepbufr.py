@@ -86,6 +86,8 @@ def bufr_to_ioda(config, logger):
     q.add('aircraftFlightPhase', '*/PRSLEVLA/ACFT_SEQ/POAF')
 
 #   # Quality Infomation (Quality Indicator)
+    q.add('qualityMarkerStationElevation',
+          '*/PRSLEVLA/Z___INFO/Z__EVENT{1}/ZQM')
     q.add('qualityMarkerStationPressure',
           '*/PRSLEVLA/P___INFO/P__EVENT{1}/PQM')
     q.add('qualityMarkerAirTemperature', '*/PRSLEVLA/T___INFO/T__EVENT{1}/TQM')
@@ -136,10 +138,11 @@ def bufr_to_ioda(config, logger):
 
     logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
     # Quality Information
-    pqm = r.get('qualityMarkerStationPressure', 'prepbufrDataLevelCategory')
-    tqm = r.get('qualityMarkerAirTemperature', 'prepbufrDataLevelCategory')
-    qqm = r.get('qualityMarkerSpecificHumidity', 'prepbufrDataLevelCategory')
-    wqm = r.get('qualityMarkerWindNorthward', 'prepbufrDataLevelCategory')
+    zobqm = r.get('qualityMarkerStationElevation', 'prepbufrDataLevelCategory')
+    pobqm = r.get('qualityMarkerStationPressure', 'prepbufrDataLevelCategory')
+    tobqm = r.get('qualityMarkerAirTemperature', 'prepbufrDataLevelCategory')
+    qobqm = r.get('qualityMarkerSpecificHumidity', 'prepbufrDataLevelCategory')
+    wobqm = r.get('qualityMarkerWindNorthward', 'prepbufrDataLevelCategory')
 
     logger.info(f" ... Executing QuerySet: get ObsValue: stationPressure ...")
     # ObsValue
@@ -178,10 +181,11 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     ialr      shape = {ialr.shape}")
     logger.info(f"     poaf      shape = {poaf.shape}")
 
-    logger.info(f"     pqm       shape = {pqm.shape}")
-    logger.info(f"     tqm       shape = {tqm.shape}")
-    logger.info(f"     qqm       shape = {qqm.shape}")
-    logger.info(f"     wqm       shape = {wqm.shape}")
+    logger.info(f"     zobqm     shape = {zobqm.shape}")
+    logger.info(f"     pobqm     shape = {pobqm.shape}")
+    logger.info(f"     tobqm     shape = {tobqm.shape}")
+    logger.info(f"     qobqm     shape = {qobqm.shape}")
+    logger.info(f"     wobqm     shape = {wobqm.shape}")
 
     logger.info(f"     elv       shape = {elv.shape}")    
     logger.info(f"     pob       shape = {pob.shape}")
@@ -203,10 +207,10 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     ialr      type  = {ialr.dtype}")
     logger.info(f"     poaf      type  = {poaf.dtype}")
 
-    logger.info(f"     pqm       type  = {pqm.dtype}")
-    logger.info(f"     tqm       type  = {tqm.dtype}")
-    logger.info(f"     qqm       type  = {qqm.dtype}")
-    logger.info(f"     wqm       type  = {wqm.dtype}")
+    logger.info(f"     pobqm     type  = {pobqm.dtype}")
+    logger.info(f"     tobqm     type  = {tobqm.dtype}")
+    logger.info(f"     qobqm     type  = {qobqm.dtype}")
+    logger.info(f"     wobqm     type  = {wobqm.dtype}")
 
     logger.info(f"     elv       type  = {elv.dtype}")
     logger.info(f"     pob       type  = {pob.dtype}")
@@ -390,31 +394,31 @@ def bufr_to_ioda(config, logger):
         .write_data(poaf)
 
     # Quality Marker: Station Pressure
-    obsspace.create_var('QualityMarker/stationPressure', dtype=pqm.dtype,
-                        fillval=pqm.fill_value) \
+    obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype,
+                        fillval=pobqm.fill_value) \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
-        .write_data(pqm)
+        .write_data(pobqm)
 
     # Quality Marker: Air Temperature
-    obsspace.create_var('QualityMarker/airTemperature', dtype=tqm.dtype,
-                        fillval=tqm.fill_value) \
+    obsspace.create_var('QualityMarker/airTemperature', dtype=tobqm.dtype,
+                        fillval=tobqm.fill_value) \
         .write_attr('long_name', 'Air Temperature Quality Marker') \
-        .write_data(tqm)
+        .write_data(tobqm)
 
     # Quality Marker: Specific Humidity
-    obsspace.create_var('QualityMarker/specificHumidity', dtype=qqm.dtype,
-                        fillval=qqm.fill_value) \
+    obsspace.create_var('QualityMarker/specificHumidity', dtype=qobqm.dtype,
+                        fillval=qobqm.fill_value) \
         .write_attr('long_name', 'Specific Humidity Quality Marker') \
-        .write_data(qqm)
+        .write_data(qobqm)
 
     # Quality Marker: Northward Wind
-    obsspace.create_var('QualityMarker/windNorthward', dtype=wqm.dtype,
-                        fillval=wqm.fill_value) \
+    obsspace.create_var('QualityMarker/windNorthward', dtype=wobqm.dtype,
+                        fillval=wobqm.fill_value) \
         .write_attr('long_name', 'Northward Wind Quality Marker') \
-        .write_data(wqm)
+        .write_data(wobqm)
 
     # Station Elevation
-    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
+    obsspace.create_var('ObsValue/stationElevation', dtype=elv.dtype,
                         fillval=elv.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Station Elevation') \
