@@ -115,7 +115,7 @@ def bufr_to_ioda(config, logger):
     lat = r.get('latitude')
     lon = r.get('longitude')
     lon[lon > 180] -= 360
-    elv = r.get('heightOfStation', type='float')
+    zob = r.get('heightOfStation', type='float')
     pressure = r.get('pressure')
     pressure *= 100
 
@@ -126,7 +126,7 @@ def bufr_to_ioda(config, logger):
     
     logger.info(f" ... Executing QuerySet: get obsvalue: stationPressure ...")
     # ObsValue
-    zob = r.get('stationElevation', type='float')
+    elv = r.get('stationElevation', type='float')
     pob = r.get('stationPressure')
     pob *= 100
 
