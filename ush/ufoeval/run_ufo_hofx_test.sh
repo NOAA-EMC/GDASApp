@@ -100,12 +100,7 @@ else
    yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}.yaml
 fi
 
-#exename=test_ObsFilters.x
-if [ $run_filtering == NO ]; then
-   exename=test_ObsOperator.x
-else
-   exename=test_ObsFilters.x
-fi
+exename=test_ObsFilters.x
 
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
