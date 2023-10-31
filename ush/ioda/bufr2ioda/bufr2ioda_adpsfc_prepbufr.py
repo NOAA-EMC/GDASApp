@@ -157,7 +157,7 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     dhr       type  = {dhr.dtype}")
     logger.info(f"     lat       type  = {lat.dtype}")
     logger.info(f"     lon       type  = {lon.dtype}")
-    logger.info(f"     elv       type  = {elv.dtype}")
+    logger.info(f"     zob       type  = {zob.dtype}")
     logger.info(f"     typ       type  = {typ.dtype}")
     logger.info(f"     pressure  type  = {pressure.dtype}")
 
@@ -271,7 +271,7 @@ def bufr_to_ioda(config, logger):
                         fillval=zob.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Height Of Station') \
-        .write_data(elv)
+        .write_data(zob)
 
     # Pressure
     obsspace.create_var('MetaData/pressure', dtype=pressure.dtype,
@@ -293,7 +293,7 @@ def bufr_to_ioda(config, logger):
         .write_data(pobqm)
 
     # Station Elevation
-    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
+    obsspace.create_var('ObaValue/stationElevation', dtype=elv.dtype,
                         fillval=elv.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Station Elevation') \
