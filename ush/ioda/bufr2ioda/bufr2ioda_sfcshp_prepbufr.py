@@ -59,17 +59,17 @@ def bufr_to_ioda(config, logger):
     platform_description = 'SFCSHP data from prepBUFR format'
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}"
-    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh),
-                             bufrfile)
+    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", 
+                             str(hh), bufrfile)
 
-    logger.info("The DATA_PATH is: {DATA_PATH}")
+    logger.info(f"The DATA_PATH is: {DATA_PATH}")
 
     # ============================================
     # Make the QuerySet for all the data we want
     # ============================================
     start_time = time.time()
 
-    logger.info(f"Making QuerySet ...")
+    logger.info("Making QuerySet ...")
     q = bufr.QuerySet(subsets)
 
     # ObsType
@@ -85,7 +85,7 @@ def bufr_to_ioda(config, logger):
     q.add('temperatureEventCode', '*/T___INFO/T__EVENT{1}/TPC')
 
 #   # Quality Infomation (Quality Indicator)
-    q.add('qualityMarkerStationHeight', '*/Z___INFO/Z__EVENT{1}/ZQM')
+    q.add('qualityMarkerStationElevation', '*/Z___INFO/Z__EVENT{1}/ZQM')
     q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
     q.add('qualityMarkerAirTemperature', '*/T___INFO/T__EVENT{1}/TQM')
     q.add('qualityMarkerSpecificHumidity', '*/Q___INFO/Q__EVENT{1}/QQM')
@@ -104,7 +104,7 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for making QuerySet : {running_time} seconds")
+    logger.info(f"Running time for making QuerySet: {running_time} seconds")
 
     # ==============================================================
     # Open the BUFR file and execute the QuerySet to get ResultSet
@@ -118,9 +118,11 @@ def bufr_to_ioda(config, logger):
 
     logger.info(f" ... Executing QuerySet: get metadata: basic ...")
     # ObsType
+    logger.info(" ... Executing QuerySet: get ObsType ...")
     typ = r.get('observationType')
     
     # MetaData
+    logger.info(" ... Executing QuerySet: MetaData ...")
     sid = r.get('stationIdentification')
     lat = r.get('latitude')
     lon = r.get('longitude')
@@ -130,16 +132,16 @@ def bufr_to_ioda(config, logger):
     pressure *= 100
     tpc = r.get('temperatureEventCode')
 
-    logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
     # Quality Information
-    zqm = r.get('qualityMarkerStationHeight')
-    pqm = r.get('qualityMarkerStationPressure')
-    tqm = r.get('qualityMarkerAirTemperature')
-    qqm = r.get('qualityMarkerSpecificHumidity')
-    wqm = r.get('qualityMarkerWindNorthward')
+    logger.info(f" ... Executing QuerySet: QualityMarker ...")
+    zobqm = r.get('qualityMarkerStationElevation')
+    pobqm = r.get('qualityMarkerStationPressure')
+    tobqm = r.get('qualityMarkerAirTemperature')
+    qobqm = r.get('qualityMarkerSpecificHumidity')
+    wobqm = r.get('qualityMarkerWindNorthward')
     sstqm = r.get('qualityMarkerSeaSurfaceTemperature')
 
-    logger.info(f" ... Executing QuerySet: get obsvalue: stationPressure ...")
+    logger.info(f" ... Executing QuerySet: ObsValue ...")
     # ObsValue
     elv = r.get('stationElevation', type='float')
     pob = r.get('stationPressure')
@@ -161,7 +163,7 @@ def bufr_to_ioda(config, logger):
 
     logger.info(f" ... Executing QuerySet: Done!")
 
-    logger.info(f" ... Executing QuerySet: Check BUFR variable generic  \
+    logger.info(f" ... Executing QuerySet: Check BUFR variable generic \
                 dimension and type ...")
     # Check BUFR variable generic dimension and type
     logger.info(f"     typ       shape = {typ.shape}")
@@ -173,10 +175,11 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     pressure  shape = {pressure.shape}")
     logger.info(f"     tpc       shape = {tpc.shape}")
 
-    logger.info(f"     pqm       shape = {pqm.shape}")
-    logger.info(f"     tqm       shape = {tqm.shape}")
-    logger.info(f"     qqm       shape = {qqm.shape}")
-    logger.info(f"     wqm       shape = {wqm.shape}")
+    logger.info(f"     zobqm     shape = {zobqm.shape}")
+    logger.info(f"     pobqm     shape = {pobqm.shape}")
+    logger.info(f"     tobqm     shape = {tobqm.shape}")
+    logger.info(f"     qobqm     shape = {qobqm.shape}")
+    logger.info(f"     wobqm     shape = {wobqm.shape}")
     logger.info(f"     sstqm     shape = {sstqm.shape}")
 
     logger.info(f"     elv       shape = {elv.shape}")
@@ -197,10 +200,10 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     pressure  type  = {pressure.dtype}")
     logger.info(f"     tpc       type  = {tpc.dtype}")
 
-    logger.info(f"     pqm       type  = {pqm.dtype}")
-    logger.info(f"     tqm       type  = {tqm.dtype}")
-    logger.info(f"     qqm       type  = {qqm.dtype}")
-    logger.info(f"     wqm       type  = {wqm.dtype}")
+    logger.info(f"     pobqm     type  = {pobqm.dtype}")
+    logger.info(f"     tobqm     type  = {tobqm.dtype}")
+    logger.info(f"     qobqm     type  = {qobqm.dtype}")
+    logger.info(f"     wobqm     type  = {wobqm.dtype}")
     logger.info(f"     sstqm     type  = {sstqm.dtype}")
 
     logger.info(f"     elv       type  = {elv.dtype}")
@@ -214,7 +217,7 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for executing QuerySet to get ResultSet : \
+    logger.info(f"Running time for executing QuerySet to get ResultSet: \
                 {running_time} seconds")
 
     # =========================
@@ -264,14 +267,14 @@ def bufr_to_ioda(config, logger):
     obsspace.write_attr('dataProviderOrigin', data_provider)
     obsspace.write_attr('description', data_description)
     obsspace.write_attr('datetimeReference', reference_time)
-    obsspace.write_attr('datetimeRange', [str(min(dateTime)),
-                        str(max(dateTime))])
+    obsspace.write_attr('datetimeRange',
+                        [str(min(dateTime)),str(max(dateTime))])
     obsspace.write_attr('platformLongDescription', platform_description)
 
     # Create IODA variables
     logger.info(f" ... ... Create variables: name, type, units, & attributes")
 
-    # ObsType: station Elevation
+    # ObsType: stationElevation
     obsspace.create_var('ObsType/stationElevation', dtype=typ.dtype,
                         fillval=typ.fill_value) \
         .write_attr('long_name', 'Station Elevation Observation Type') \
@@ -369,34 +372,34 @@ def bufr_to_ioda(config, logger):
         .write_data(typ)
 
     # Quality Marker: Station Pressure
-    obsspace.create_var('QualityMarker/stationPressure', dtype=pqm.dtype,
-                        fillval=pqm.fill_value) \
+    obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype,
+                        fillval=pobqm.fill_value) \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
-        .write_data(pqm)
+        .write_data(pobqm)
 
     # Quality Marker: Air Temperature
-    obsspace.create_var('QualityMarker/airTemperature', dtype=tqm.dtype,
-                        fillval=tqm.fill_value) \
+    obsspace.create_var('QualityMarker/airTemperature', dtype=tobqm.dtype,
+                        fillval=tobqm.fill_value) \
         .write_attr('long_name', 'Air Temperature Quality Marker') \
-        .write_data(tqm)
+        .write_data(tobqm)
 
     # Quality Marker: Specific Humidity
-    obsspace.create_var('QualityMarker/specificHumidity', dtype=qqm.dtype,
-                        fillval=qqm.fill_value) \
+    obsspace.create_var('QualityMarker/specificHumidity', dtype=qobqm.dtype,
+                        fillval=qobqm.fill_value) \
         .write_attr('long_name', 'Specific Humidity Quality Marker') \
-        .write_data(qqm)
+        .write_data(qobqm)
 
     # Quality Marker: Eastward Wind
-    obsspace.create_var('QualityMarker/windEastward', dtype=wqm.dtype,
-                        fillval=wqm.fill_value) \
+    obsspace.create_var('QualityMarker/windEastward', dtype=wobqm.dtype,
+                        fillval=wobqm.fill_value) \
         .write_attr('long_name', 'Eastward Wind Quality Marker') \
-        .write_data(wqm)
+        .write_data(wobqm)
 
     # Quality Marker: Northward Wind
-    obsspace.create_var('QualityMarker/windNorthward', dtype=wqm.dtype,
-                        fillval=wqm.fill_value) \
+    obsspace.create_var('QualityMarker/windNorthward', dtype=wobqm.dtype,
+                        fillval=wobqm.fill_value) \
         .write_attr('long_name', 'Northward Wind Quality Marker') \
-        .write_data(wqm)
+        .write_data(wobqm)
 
     # Quality Marker: Sea Surface Temperature
     obsspace.create_var('QualityMarker/seaSurfaceTemperature',
@@ -462,8 +465,8 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for splitting and output IODA: {running_time} \
-                seconds")
+    logger.info(f"Running time for splitting and output IODA: \
+                {running_time} seconds")
 
     logger.info("All Done!")
 
@@ -474,7 +477,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str,
-                        help='Input JSON configuration', required=True)
+                        help='Input JSON configuration',
+                        required=True)
     parser.add_argument('-v', '--verbose',
                         help='print debug logging information',
                         action='store_true')
