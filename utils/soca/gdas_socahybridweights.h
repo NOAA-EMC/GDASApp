@@ -45,7 +45,7 @@ namespace gdasapp {
 
       // Recompute weights
       for (auto & field : gaussIncrFs) {
-        std::cout << "---------- Field name: " << field.name() << std::endl;
+        oops::Log::info() << "---------- Field name: " << field.name() << std::endl;
         auto view = atlas::array::make_view<double, 2>(field);
         for (int jnode = 0; jnode < field.shape(0); ++jnode) {
           atlas::PointLonLat p1(lons[jnode], lats[jnode]);
@@ -107,7 +107,7 @@ namespace gdasapp {
       soca::Increment socaOcnHW(geom, socaOcnVars, dt);
       socaOcnHW.ones();
 
-      // Apply localized gaussians to the weights
+      /// Apply localized gaussians to the weights
       eckit::LocalConfiguration localWeightsConfigs(fullConfig, "weights.ocean local weights");
       std::vector<eckit::LocalConfiguration> localWeightsList =
         localWeightsConfigs.getSubConfigurations();
