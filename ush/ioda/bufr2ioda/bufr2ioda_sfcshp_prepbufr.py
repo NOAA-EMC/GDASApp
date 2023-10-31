@@ -410,7 +410,7 @@ def bufr_to_ioda(config, logger):
                         fillval=elv.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Station Elevation') \
-        .write_data(zob)
+        .write_data(elv)
 
     # Station Pressure
     obsspace.create_var('ObsValue/stationPressure', dtype=pob.dtype,
