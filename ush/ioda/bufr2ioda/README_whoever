@@ -4,7 +4,7 @@ Load the modules for the gdasapp first
 To run: use command:
 
 #This works
-./run_bufr2ioda_sfcshp.sh 2021080100 gdas /work/noaa/rstprod/dump/ /work2/noaa/da/nesposito/GDASApp_20230907/parm/ioda/bufr2ioda/ /work2/noaa/da/nesposito/NewConv/api_convert/json/json_gdasapp
+./run_bufr2ioda_sfcshp.sh 2021080100 gdas /work/noaa/rstprod/dump/ /work2/noaa/da/nesposito/GDASApp_20231012/parm/ioda/bufr2ioda/ /work2/noaa/da/nesposito/NewConv/api_convert/json/json_gdasapp
 
 
 Outputs (and plots) are in:
