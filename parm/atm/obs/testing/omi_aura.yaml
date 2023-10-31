@@ -85,4 +85,4 @@ obs post filters:
   action:
     name: reject
 
-passedBenchmark: 1182 
+passedBenchmark: 1170
