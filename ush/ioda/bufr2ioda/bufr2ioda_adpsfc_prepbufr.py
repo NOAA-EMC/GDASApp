@@ -74,7 +74,7 @@ def bufr_to_ioda(config, logger):
 
     # ObsType
     q.add('observationType', '*/TYP')
-    
+
     # MetaData
     q.add('stationIdentification', '*/SID')
     q.add('latitude', '*/YOB')
@@ -86,7 +86,7 @@ def bufr_to_ioda(config, logger):
 #   # Quality Infomation (Quality Indicator)
     q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
     q.add('qualityMarkerStationElevation', '*/Z___INFO/Z__EVENT{1}/ZQM')
-    
+ 
     # ObsValue
     q.add('stationPressure', '*/P___INFO/P__EVENT{1}/POB')
     q.add('stationElevation', '*/ELV')
@@ -104,7 +104,7 @@ def bufr_to_ioda(config, logger):
     logger.info(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
         r = f.execute(q)
-    
+ 
     logger.info(" ... Executing QuerySet: get ObsType ...")
     # ObsType
     typ = r.get('observationType')
@@ -123,7 +123,7 @@ def bufr_to_ioda(config, logger):
     # Quality Information
     pobqm = r.get('qualityMarkerStationPressure')
     zobqm = r.get('qualityMarkerStationElevation')
-    
+ 
     logger.info(f" ... Executing QuerySet: get obsvalue: stationPressure ...")
     # ObsValue
     elv = r.get('stationElevation', type='float')
