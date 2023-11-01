@@ -177,21 +177,13 @@ export OPREFIX=gdas.t${cyc}z
 export APREFIX=gdas.t${cyc}z
 export GPREFIX=gdas.t${gcyc}z
 
-if [ $obtype = "conv_ps" ]; then
-cat > $workdir/temp.yaml << EOF
-window begin: '2021-07-31T00:00:00Z'
-window end: '2021-08-01T21:00:00Z'
-observations:
-- !INC $yamlpath
-EOF
-else
 cat > $workdir/temp.yaml << EOF
 window begin: '{{ WINDOW_BEGIN | to_isotime }}'
 window end: '{{ WINDOW_END | to_isotime }}'
 observations:
 - !INC $yamlpath
+window shift: True
 EOF
-fi
 $GDASApp/ush/genYAML --input $workdir/temp.yaml --output $workdir/${obtype}_${cycle}.yaml
 
 if [ $? -ne 0 ]; then
