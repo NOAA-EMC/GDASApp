@@ -52,7 +52,7 @@ def bufr_to_ioda(config, logger):
     reference_time = reference_time.strftime("%Y-%m-%dT%H:%M:%SZ")
     reference_time_full = f"{yyyymmdd}{hh}00"
 
-    logger.info(f"reference_time = {reference_time}")
+    logger.debug(f"reference_time = {reference_time}")
 
     # General informaton
     converter = 'BUFR to IODA Converter'
@@ -62,14 +62,14 @@ def bufr_to_ioda(config, logger):
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}",
                              str(hh), bufrfile)
 
-    logger.info(f"The DATA_PATH is: {DATA_PATH}")
+    logger.debug(f"The DATA_PATH is: {DATA_PATH}")
 
     # ============================================
     # Make the QuerySet for all the data we want
     # ============================================
     start_time = time.time()
 
-    logger.info('Making QuerySet ...')
+    logger.debug('Making QuerySet ...')
     q = bufr.QuerySet(subsets)
 
     # ObsType
@@ -93,7 +93,7 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for making QuerySet: {running_time} seconds")
+    logger.debug(f"Running time for making QuerySet: {running_time} seconds")
 
     # ==============================================================
     # Open the BUFR file and execute the QuerySet to get ResultSet
@@ -101,15 +101,15 @@ def bufr_to_ioda(config, logger):
     # ==============================================================
     start_time = time.time()
 
-    logger.info(f"Executing QuerySet to get ResultSet ...")
+    logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
         r = f.execute(q)
 
-    logger.info(" ... Executing QuerySet: get ObsType ...")
+    logger.debug(" ... Executing QuerySet: get ObsType ...")
     # ObsType
     typ = r.get('observationType')
 
-    logger.info(" ... Executing QuerySet: get MetaData ...")
+    logger.debug(" ... Executing QuerySet: get MetaData ...")
     # MetaData
     sid = r.get('stationIdentification')
     lat = r.get('latitude')
@@ -119,56 +119,62 @@ def bufr_to_ioda(config, logger):
     pressure = r.get('pressure')
     pressure *= 100
 
-    logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
+    logger.debug(f" ... Executing QuerySet: get QualityMarker information ...")
     # Quality Information
     pobqm = r.get('qualityMarkerStationPressure')
     zobqm = r.get('qualityMarkerStationElevation')
 
-    logger.info(f" ... Executing QuerySet: get obsvalue: stationPressure ...")
+    logger.debug(f" ... Executing QuerySet: get ObsValue ...")
     # ObsValue
     elv = r.get('stationElevation', type='float')
     pob = r.get('stationPressure')
     pob *= 100
 
-    logger.info(f" ... Executing QuerySet: get datatime: observation time ...")
+    logger.debug(f" ... Executing QuerySet: get dateTime ...")
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
     dhr = r.get('obsTimeMinusCycleTime', type='int64')
 
-    logger.info(f" ... Executing QuerySet: Done!")
+    logger.debug(f" ... Executing QuerySet: Done!")
 
-    logger.info(f" ... Executing QuerySet: Check BUFR variable generic \
+    logger.debug(f" ... Executing QuerySet: Check BUFR variable generic \
                 dimension and type ...")
     # Check BUFR variable generic dimension and type
-    logger.info(f"     typ       shape = {typ.shape}")
-    logger.info(f"     sid       shape = {sid.shape}")
-    logger.info(f"     dhr       shape = {dhr.shape}")
-    logger.info(f"     lat       shape = {lat.shape}")
-    logger.info(f"     lon       shape = {lon.shape}")
-    logger.info(f"     zob       shape = {zob.shape}")
-    logger.info(f"     pressure  shape = {pressure.shape}")
+    logger.debug(f"     typ       shape = {typ.shape}")
+    logger.debug(f"     sid       shape = {sid.shape}")
+    logger.debug(f"     dhr       shape = {dhr.shape}")
+    logger.debug(f"     lat       shape = {lat.shape}")
+    logger.debug(f"     lon       shape = {lon.shape}")
+    logger.debug(f"     zob       shape = {zob.shape}")
+    logger.debug(f"     pressure  shape = {pressure.shape}")
 
-    logger.info(f"     pobqm     shape = {pobqm.shape}")
-    logger.info(f"     zobqm     shape = {zobqm.shape}")
-    logger.info(f"     elv       shape = {elv.shape}")
-    logger.info(f"     pob       shape = {pob.shape}")
+    logger.debug(f"     pobqm     shape = {pobqm.shape}")
+    logger.debug(f"     zobqm     shape = {zobqm.shape}")
 
-    logger.info(f"     sid       type  = {sid.dtype}")
-    logger.info(f"     dhr       type  = {dhr.dtype}")
-    logger.info(f"     lat       type  = {lat.dtype}")
-    logger.info(f"     lon       type  = {lon.dtype}")
-    logger.info(f"     zob       type  = {zob.dtype}")
-    logger.info(f"     typ       type  = {typ.dtype}")
-    logger.info(f"     pressure  type  = {pressure.dtype}")
+    logger.debug(f"     elv       shape = {elv.shape}")
+    logger.debug(f"     pob       shape = {pob.shape}")
 
-    logger.info(f"     pobqm     type  = {pobqm.dtype}")
-    logger.info(f"     zobqm     type  = {zobqm.dtype}")
-    logger.info(f"     elv       type  = {elv.dtype}")
-    logger.info(f"     pob       type  = {pob.dtype}")
+    logger.debug(f"     dhr       type  = {dhr.shape}")
+
+    logger.debug(f"     sid       type  = {sid.dtype}")
+    logger.debug(f"     dhr       type  = {dhr.dtype}")
+    logger.debug(f"     lat       type  = {lat.dtype}")
+    logger.debug(f"     lon       type  = {lon.dtype}")
+    logger.debug(f"     zob       type  = {zob.dtype}")
+    logger.debug(f"     typ       type  = {typ.dtype}")
+    logger.debug(f"     pressure  type  = {pressure.dtype}")
+
+    logger.debug(f"     pobqm     type  = {pobqm.dtype}")
+    logger.debug(f"     zobqm     type  = {zobqm.dtype}")
+
+    logger.debug(f"     elv       type  = {elv.dtype}")
+    logger.debug(f"     pob       type  = {pob.dtype}")
+
+    logger.debug(f"     dhr       type  = {dhr.dtype}")
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for executing QuerySet to get ResultSet: \
+    logger.debug(f"Running time for executing QuerySet to get ResultSet: \
                 {running_time} seconds")
 
     # =========================
@@ -176,19 +182,19 @@ def bufr_to_ioda(config, logger):
     # =========================
     start_time = time.time()
 
-    logger.info(f"Creating derived variables - dateTime ...")
+    logger.debug(f"Creating derived variables - dateTime ...")
 
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(
                                    reference_time_full, '%Y%m%d%H%M')))
     dateTime = Compute_dateTime(cycleTimeSinceEpoch, dhr)
 
-    logger.info(f"     Check derived variables type ... ")
-    logger.info(f"     dateTime shape = {dateTime.shape}")
-    logger.info(f"     dateTime type = {dateTime.dtype}")
+    logger.debug(f"     Check derived variables type ... ")
+    logger.debug(f"     dateTime shape = {dateTime.shape}")
+    logger.debug(f"     dateTime type = {dateTime.dtype}")
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for creating derived variables: \
+    logger.debug(f"Running time for creating derived variables: \
                 {running_time} seconds")
 
     # =====================================
@@ -201,7 +207,7 @@ def bufr_to_ioda(config, logger):
 
     iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
-    logger.info(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
+    logger.debug(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
 
     path, fname = os.path.split(OUTPUT_PATH)
     if path and not os.path.exists(path):
@@ -210,7 +216,7 @@ def bufr_to_ioda(config, logger):
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
     # Create Global attributes
-    logger.info(f" ... ... Create global attributes")
+    logger.debug(f" ... ... Create global attributes")
 
     obsspace.write_attr('Converter', converter)
     obsspace.write_attr('source', source)
@@ -223,7 +229,7 @@ def bufr_to_ioda(config, logger):
     obsspace.write_attr('platformLongDescription', platform_description)
 
     # Create IODA variables
-    logger.info(f" ... ... Create variables: name, type, units, & attributes")
+    logger.debug(f" ... ... Create variables: name, type, units, & attributes")
 
     # Observation Type - Station Elevation
     obsspace.create_var('ObsType/stationElevation', dtype=typ.dtype,
@@ -308,10 +314,10 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for splitting and output IODA: \
+    logger.debug(f"Running time for splitting and output IODA: \
                 {running_time} seconds")
 
-    logger.info("All Done!")
+    logger.debug("All Done!")
 
 
 if __name__ == '__main__':
@@ -338,4 +344,4 @@ if __name__ == '__main__':
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Total running time: {running_time} seconds")
+    logger.debug(f"Total running time: {running_time} seconds")
