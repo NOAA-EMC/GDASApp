@@ -15,8 +15,10 @@ obs space:
   io pool:
     max pool size: 1
   simulated variables: [ozoneLayer]
+
 geovals:
   filename: !ENV ompsnp_npp_geoval_${CDATE}.nc4
+
 obs operator:
   name: AtmVertInterpLay
   geovals: [mole_fraction_of_ozone_in_air]
@@ -285,4 +287,5 @@ obs post filters:
         name: MetaData/pressure
       maxvalue:    30.0
 
+# End of Filters
 passedBenchmark: 4914
