@@ -99,6 +99,7 @@ if [ $run_filtering == NO ]; then
 else
    yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}.yaml
 fi
+
 exename=test_ObsFilters.x
 
 #-------------- Do not modify below this line ----------------
