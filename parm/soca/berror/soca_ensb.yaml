@@ -30,6 +30,12 @@ steric height:
   linear variable changes:
   - linear variable change name: BalanceSOCA  # Only the steric balance is applied
 
+ensemble mean output:
+  datadir: ./static_ens
+  date: '{{ATM_WINDOW_BEGIN}}'
+  exp: ens_mean
+  type: incr
+
 ssh output:
   unbalanced:
     datadir: ./static_ens
