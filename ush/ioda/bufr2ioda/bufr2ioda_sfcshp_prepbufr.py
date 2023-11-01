@@ -137,9 +137,14 @@ def bufr_to_ioda(config, logger):
     zobqm = r.get('qualityMarkerStationElevation')
     pobqm = r.get('qualityMarkerStationPressure')
     tobqm = r.get('qualityMarkerAirTemperature')
+    tsenqm = np.full(tobqm.shape[0], tobqm.fill_value)
+    tsenqm = np.where(((tpc >= 1) & (tpc < 8)), tobqm, tsenqm)
+    tvoqm = np.full(tobqm.shape[0], tobqm.fill_value)
+    tvoqm = np.where((tpc == 8), tobqm, tvoqm)
     qobqm = r.get('qualityMarkerSpecificHumidity')
     wobqm = r.get('qualityMarkerWindNorthward')
     sstqm = r.get('qualityMarkerSeaSurfaceTemperature')
+
 
     logger.info(f" ... Executing QuerySet: ObsValue ...")
     # ObsValue
@@ -148,8 +153,15 @@ def bufr_to_ioda(config, logger):
     pob *= 100
     tob = r.get('airTemperature')
     tob += 273.15
-    tvo = r.get('virtualTemperature')
-    tvo += 273.15
+    tsen = np.full(tob.shape[0], tob.fill_value)
+#    tsen = np.where(((tpc >= 1) & (tpc < 8) & (typ < 200)), tob, tsen)
+    tsen = np.where(((tpc >= 1) & (tpc < 8)), tob, tsen)
+    tvo = np.full(tob.shape[0], tob.fill_value)
+#    tvo = r.get('virtualTemperature')
+#    tvo += 273.15
+    tvo = np.where((tpc == 8), tob, tvo)
+#    tvo = r.get('virtualTemperature')
+#    tvo += 273.15
     qob = r.get('specificHumidity', type='float')
     qob *= 0.000001
     uob = r.get('windEastward')
@@ -369,7 +381,7 @@ def bufr_to_ioda(config, logger):
     obsspace.create_var('MetaData/temperatureEventCode', dtype=tpc.dtype,
                         fillval=tpc.fill_value) \
         .write_attr('long_name', 'Temperature Event Code') \
-        .write_data(typ)
+        .write_data(tpc)
 
     # Quality Marker: Station Pressure
     obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype,
@@ -381,7 +393,13 @@ def bufr_to_ioda(config, logger):
     obsspace.create_var('QualityMarker/airTemperature', dtype=tobqm.dtype,
                         fillval=tobqm.fill_value) \
         .write_attr('long_name', 'Air Temperature Quality Marker') \
-        .write_data(tobqm)
+        .write_data(tsenqm)
+
+    # Quality Marker: Virtual Temperature
+    obsspace.create_var('QualityMarker/virtualTemperature', dtype=tobqm.dtype,
+                        fillval=tobqm.fill_value) \
+        .write_attr('long_name', 'Virtual Temperature Quality Marker') \
+        .write_data(tvoqm)
 
     # Quality Marker: Specific Humidity
     obsspace.create_var('QualityMarker/specificHumidity', dtype=qobqm.dtype,
@@ -426,11 +444,11 @@ def bufr_to_ioda(config, logger):
                         fillval=tob.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Air Temperature') \
-        .write_data(tob)
+        .write_data(tsen)
 
     # Virtual Temperature
-    obsspace.create_var('ObsValue/virtualTemperature', dtype=tvo.dtype,
-                        fillval=tvo.fill_value) \
+    obsspace.create_var('ObsValue/virtualTemperature', dtype=tob.dtype,
+                        fillval=tob.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Virtual Temperature') \
         .write_data(tvo)
