@@ -96,7 +96,6 @@ def bufr_to_ioda(config, logger):
     q.add('stationElevation', '*/ELV')
     q.add('stationPressure', '*/P___INFO/P__EVENT{1}/POB')
     q.add('airTemperature', '*/T___INFO/T__EVENT{1}/TOB')
-    q.add('virtualTemperature', '*/T___INFO/TVO')
     q.add('specificHumidity', '*/Q___INFO/Q__EVENT{1}/QOB')
     q.add('windNorthward', '*/W___INFO/W__EVENT{1}/VOB')
     q.add('windEastward', '*/W___INFO/W__EVENT{1}/UOB')
@@ -154,14 +153,9 @@ def bufr_to_ioda(config, logger):
     tob = r.get('airTemperature')
     tob += 273.15
     tsen = np.full(tob.shape[0], tob.fill_value)
-#    tsen = np.where(((tpc >= 1) & (tpc < 8) & (typ < 200)), tob, tsen)
     tsen = np.where(((tpc >= 1) & (tpc < 8)), tob, tsen)
     tvo = np.full(tob.shape[0], tob.fill_value)
-#    tvo = r.get('virtualTemperature')
-#    tvo += 273.15
     tvo = np.where((tpc == 8), tob, tvo)
-#    tvo = r.get('virtualTemperature')
-#    tvo += 273.15
     qob = r.get('specificHumidity', type='float')
     qob *= 0.000001
     uob = r.get('windEastward')
@@ -190,13 +184,16 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     zobqm     shape = {zobqm.shape}")
     logger.info(f"     pobqm     shape = {pobqm.shape}")
     logger.info(f"     tobqm     shape = {tobqm.shape}")
+    logger.info(f"     tsenqm    shape = {tsenqm.shape}")
+    logger.info(f"     tvoqm     shape = {tvoqm.shape}")
     logger.info(f"     qobqm     shape = {qobqm.shape}")
     logger.info(f"     wobqm     shape = {wobqm.shape}")
     logger.info(f"     sstqm     shape = {sstqm.shape}")
 
     logger.info(f"     elv       shape = {elv.shape}")
     logger.info(f"     pob       shape = {pob.shape}")
-    logger.info(f"     tob       shape = {pob.shape}")
+    logger.info(f"     tob       shape = {tob.shape}")
+    logger.info(f"     tsen      shape = {tsen.shape}")
     logger.info(f"     tvo       shape = {tvo.shape}")
     logger.info(f"     qob       shape = {qob.shape}")
     logger.info(f"     uob       shape = {uob.shape}")
@@ -214,6 +211,8 @@ def bufr_to_ioda(config, logger):
 
     logger.info(f"     pobqm     type  = {pobqm.dtype}")
     logger.info(f"     tobqm     type  = {tobqm.dtype}")
+    logger.info(f"     tsenqm    type  = {tsenqm.dtype}")
+    logger.info(f"     tvoqm     type  = {tvoqm.dtype}")
     logger.info(f"     qobqm     type  = {qobqm.dtype}")
     logger.info(f"     wobqm     type  = {wobqm.dtype}")
     logger.info(f"     sstqm     type  = {sstqm.dtype}")
@@ -221,6 +220,7 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     elv       type  = {elv.dtype}")
     logger.info(f"     pob       type  = {pob.dtype}")
     logger.info(f"     tob       type  = {tob.dtype}")
+    logger.info(f"     tsen      type  = {tsen.dtype}")
     logger.info(f"     tvo       type  = {tvo.dtype}")
     logger.info(f"     qob       type  = {qob.dtype}")
     logger.info(f"     uob       type  = {uob.dtype}")
