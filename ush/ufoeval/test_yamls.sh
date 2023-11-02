@@ -19,7 +19,7 @@ for file in `find ../../parm/atm/obs/testing/*.yaml -type f -not -name "*noqc*"`
    obtype="${basefile%.*}"
    echo $basefile
    echo $obtype
-   ./run_ufo_hofx_test_emily.sh -x $obtype > $WORKDIR/$obtype.log 2> $WORKDIR/$obtype.err
+   ./run_ufo_hofx_test.sh -x $obtype > $WORKDIR/$obtype.log 2> $WORKDIR/$obtype.err
    if [ $? == 0 ]; then
      echo $basefile Passes \(yay!\)
    else
@@ -33,7 +33,7 @@ for file in `ls ../../parm/atm/obs/testing/*_noqc.yaml`; do
    obtype="${basefile%_noqc.*}"
    echo $basefile
    echo $obtype
-   ./run_ufo_hofx_test_emily.sh -x -q $obtype > $WORKDIR/${obtype}_noqc.log 2> $WORKDIR/${obtype}_noqc.err
+   ./run_ufo_hofx_test.sh -x -q $obtype > $WORKDIR/${obtype}_noqc.log 2> $WORKDIR/${obtype}_noqc.err
    if [ $? == 0 ]; then
      echo $basefile Passes \(yay!\)
    else
