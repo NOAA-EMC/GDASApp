@@ -13,3 +13,10 @@ observers:
 #- !INC ${OBS_YAML_DIR}/icec_ssmis_f17_south.yaml
 #- !INC ${OBS_YAML_DIR}/icec_ssmis_f18_north.yaml
 - !INC ${OBS_YAML_DIR}/icec_ssmis_f18_south.yaml
+#- !INC ${OBS_YAML_DIR}/temp_profile_argo.yaml
+#- !INC ${OBS_YAML_DIR}/temp_profile_bathy.yaml
+#- !INC ${OBS_YAML_DIR}/temp_profile_glider.yaml
+#- !INC ${OBS_YAML_DIR}/temp_profile_tesac.yaml
+#- !INC ${OBS_YAML_DIR}/salt_profile_argo.yaml
+#- !INC ${OBS_YAML_DIR}/salt_profile_glider.yaml
+#- !INC ${OBS_YAML_DIR}/salt_profile_tesac.yaml
