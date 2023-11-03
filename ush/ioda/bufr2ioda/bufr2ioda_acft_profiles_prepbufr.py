@@ -85,7 +85,7 @@ def bufr_to_ioda(config, logger):
     q.add('instantaneousAltitudeRate', '*/PRSLEVLA/IALR')
     q.add('aircraftFlightPhase', '*/PRSLEVLA/ACFT_SEQ/POAF')
 
-#   # Quality Infomation (Quality Indicator)
+    # Quality Infomation (Quality Indicator)
     q.add('qualityMarkerStationElevation',
           '*/PRSLEVLA/Z___INFO/Z__EVENT{1}/ZQM')
     q.add('qualityMarkerStationPressure',
