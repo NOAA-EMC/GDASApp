@@ -64,7 +64,7 @@ observations:
       where:
       - minvalue: '-999.0'
         variable:
-          name: MetaData/height
+          name: MetaData/stationElevation
     - filter: Domain Check
       where:
       - maxvalue: '1.5'
