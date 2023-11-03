@@ -14,6 +14,7 @@ obs space:
   channels: 4
 get values:
   interpolation method: barycentric
+  time interpolation: linear
 obs operator:
   name: AodCRTM
   Absorbers: [H2O,O3]
@@ -24,3 +25,19 @@ obs operator:
     AerosolOption: aerosols_gocart_default
 obs error:
   covariance model: diagonal
+obs filters:
+  - filter: PreQC
+    maxvalue: 1
+  - filter: Bounds Check
+    filter variables:
+    - name: aerosolOpticalDepth
+      channels: 4
+    minvalue: 0
+    action:
+      name: reject
+  - filter: Background Check
+    channels: 4
+    threshold: 3.0
+    action:
+      name: inflate error
+      inflation factor: 3.0

@@ -11,81 +11,45 @@ obs space:
   io pool:
     max pool size: 1
   simulated variables: [ozoneTotal]
+
 geovals:
   filename: !ENV omi_aura_geoval_${CDATE}.nc4
+
 obs operator:
   name: AtmVertInterpLay
   geovals: [mole_fraction_of_ozone_in_air]
   coefficients: [0.007886131] # convert from ppmv to DU
   nlevels: [1]
 
-obs filters:
+obs pre filters:
+- filter: Perform Action
+  filter variables:
+  - name: ozoneTotal
+  action:
+    name: assign error
+    error parameter: 6.0
+
+obs prior filters:
+# GSI read routine QC
 # range sanity check
 - filter: Bounds Check
   filter variables:
   - name: ozoneTotal
   minvalue: 0
-  maxvalue: 1000
+  maxvalue: 10000
   action:
     name: reject
 
-# Toss observations for which the profile ozone error code is neither 0 nor 1
+# Do not use the data if row anomaly (bit 10)is 1
 - filter: RejectList
   filter variables:
   - name: ozoneTotal
   where:
   - variable:
-      name: MetaData/total_ozone_error_flag
-    minvalue: 0.1
-  action:
-    name: reject
-#
-- filter: AcceptList
-  filter variables:
-  - name: ozoneTotal
-  where:
-  - variable:
-      name: MetaData/total_ozone_error_flag
-    minvalue: 0.9
-    maxvalue: 1.1
-  action:
-    name: accept
+      name: MetaData/totalOzoneQualityFlag
+    any_bit_set_of: 9 
 
-#exclude afbo=3 or 13
-- filter: RejectList
-  filter variables:
-  - name: ozoneTotal
-  where:
-  - variable:
-      name: MetaData/bestOzoneAlgorithmFlag
-    minvalue: 2.9
-    maxvalue: 3.1
-  action:
-    name: reject
-- filter: RejectList
-  filter variables:
-  - name: ozoneTotal
-  where:
-  - variable:
-      name: MetaData/bestOzoneAlgorithmFlag
-    minvalue: 12.9
-    maxvalue: 13.1
-  action:
-    name: reject
-
-#Do not use the data if row anomaly (bit 10)is 1
-- filter: RejectList
-  filter variables:
-  - name: ozoneTotal
-  where:
-  - variable:
-      name: MetaData/row_anomaly_index
-    minvalue: 0.9
-    maxvalue: 1.1
-  action:
-    name: reject
-
-#scan position check
+# Scan position check: reject scan position >= 25
 - filter: RejectList
   filter variables:
   - name: ozoneTotal
@@ -93,15 +57,35 @@ obs filters:
   - variable:
       name: MetaData/sensorScanPosition
     minvalue: 25
-  action:
-    name: reject
 
- # Gross check
+# Accept total_ozone_error_flag values of 0 and 1, but not any others.
+- filter: RejectList 
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/totalOzoneQualityCode
+    is_not_in: 0, 1
+
+# Use data with best ozone algorighm
+- filter: RejectList
+  filter variables:
+  - name: ozoneTotal
+  where:
+  - variable:
+      name: MetaData/bestOzoneAlgorithmFlag
+    is_in: 3, 13
+
+obs post filters:
+# GSI setup routine QC
+# Gross check
 - filter: Background Check
   filter variables:
   - name: ozoneTotal
-  threshold: 5.0
+  threshold: 10.0
+  absolute threshold: 300.0
   action:
     name: reject
 
-passedBenchmark: 2329
+# End of Filters
+passedBenchmark: 1170

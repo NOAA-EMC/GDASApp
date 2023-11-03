@@ -1,0 +1,32 @@
+obs space:
+  name: omi_aura
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV omi_aura_obs_${CDATE}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV omi_aura_diag_${CDATE}.nc4
+  io pool:
+    max pool size: 1
+  simulated variables: [ozoneTotal]
+geovals:
+  filename: !ENV omi_aura_geoval_${CDATE}.nc4
+obs operator:
+  name: AtmVertInterpLay
+  geovals: [mole_fraction_of_ozone_in_air]
+  coefficients: [0.007886131] # convert from ppmv to DU
+  nlevels: [1]
+
+obs pre filters:
+- filter: Perform Action
+  filter variables:
+  - name: ozoneTotal
+  action:
+    name: assign error
+    error parameter: 6.0
+
+passedBenchmark: 4927  # total:6082; missing:1155 
+#vector ref: GsiHofXBc
+#tolerance: 1.e-5

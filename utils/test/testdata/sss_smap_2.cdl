@@ -1,0 +1,119 @@
+netcdf sss_smap_2_sub {
+dimensions:
+	phony_dim_0 = 3 ;
+	phony_dim_1 = 20 ;
+variables:
+	float lat(phony_dim_0, phony_dim_1) ;
+		lat:long_name = "latitude" ;
+		lat:units = "Degrees" ;
+		lat:_FillValue = -9999.f ;
+		lat:valid_max = 90.f ;
+		lat:valid_min = -90.f ;
+	float lon(phony_dim_0, phony_dim_1) ;
+		lon:long_name = "longitude" ;
+		lon:units = "Degrees" ;
+		lon:_FillValue = -9999.f ;
+		lon:valid_max = 180.f ;
+		lon:valid_min = -180.f ;
+	short quality_flag(phony_dim_0, phony_dim_1) ;
+		quality_flag:long_name = "Quality flag" ;
+		quality_flag:QUAL_FLAG_SSS_USEABLE = 1s ;
+		quality_flag:QUAL_FLAG_FOUR_LOOKS = 2s ;
+		quality_flag:QUAL_FLAG_POINTING = 4s ;
+		quality_flag:QUAL_FLAG_LARGE_GALAXY_CORRECTION = 16s ;
+		quality_flag:QUAL_FLAG_ROUGHNESS_CORRECTION = 32s ;
+		quality_flag:QUAL_FLAG_LAND = 128s ;
+		quality_flag:QUAL_FLAG_ICE = 256s ;
+		quality_flag:QUAL_FLAG_SST_TOO_COLD = 64s ;
+		quality_flag:QUAL_FLAG_HIGH_SPEED_USEABLE = 512s ;
+		quality_flag:_FillValue = 65535s ;
+	float row_time(phony_dim_1) ;
+		row_time:long_name = "Approximate observation time for each row" ;
+		row_time:units = "UTC seconds of day" ;
+		row_time:valid_max = 86400.f ;
+		row_time:valid_min = 0.f ;
+	float smap_sss(phony_dim_0, phony_dim_1) ;
+		smap_sss:long_name = "SMAP sea surface salinity" ;
+		smap_sss:units = "PSU" ;
+		smap_sss:_FillValue = -9999.f ;
+		smap_sss:valid_max = 45.f ;
+		smap_sss:valid_min = 0.f ;
+	float smap_sss_uncertainty(phony_dim_0, phony_dim_1) ;
+		smap_sss_uncertainty:long_name = "SMAP sea surface salinity uncertainty" ;
+		smap_sss_uncertainty:units = "PSU" ;
+		smap_sss_uncertainty:_FillValue = -9999.f ;
+		smap_sss_uncertainty:valid_max = 50.f ;
+		smap_sss_uncertainty:valid_min = 0.f ;
+
+// global attributes:
+		:REVNO = "34258" ;
+		:REV_START_YEAR = 2021 ;
+		:REV_START_DAY_OF_YEAR = 181 ;
+		:Number\ of\ Cross\ Track\ Bins = 76 ;
+		:Number\ of\ Along\ Track\ Bins = 812 ;
+		:REV_START_TIME = "2021-181T23:14:36.000" ;
+		:REV_STOP_TIME = "2021-182T00:53:03.000" ;
+		:L1B_TB_LORES_ASC_FILE = "/mirror/opsLOM/PRODUCTS/L1B_TB/005/2021/06/30/SMAP_L1B_TB_34258_A_20210630T231238_R17030_001.h5" ;
+		:Delta\ TBH\ Fore\ Ascending = -1.240263f ;
+		:Delta\ TBH\ Aft\ Ascending = -1.240263f ;
+		:Delta\ TBV\ Fore\ Ascending = -1.455056f ;
+		:Delta\ TBV\ Aft\ Ascending = -1.455056f ;
+		:Delta\ TBH\ Fore\ Decending = -1.240263f ;
+		:Delta\ TBH\ Aft\ Decending = -1.240263f ;
+		:Delta\ TBV\ Fore\ Decending = -1.455056f ;
+		:Delta\ TBV\ Aft\ Decending = -1.455056f ;
+		:QS_ICEMAP_FILE = "/testbed/saline/fore/smap-ancillary/ice/NCEP_SEAICE_2021181" ;
+		:TB_FLAT_MODEL_FILE = "/home/fore/smap-sds/config/dat/LBandTBFlat-v4.0.dat" ;
+		:TB_ROUGH_MODEL_FILE = "/testbed/saline/fore/winds-salinity/tb-winds-ops-v5.0/tables/LBandSMAPCAPGMFRadiometerSWH-NCEP-V4.2.dat" ;
+		:ANC_U10_FILE = "/testbed/saline/fore/winds-salinity/tb-winds-nrt/anc/u10m/L2B_34258_2021181.u10m" ;
+		:ANC_V10_FILE = "/testbed/saline/fore/winds-salinity/tb-winds-nrt/anc/v10m/L2B_34258_2021181.v10m" ;
+		:ANC_SSS_FILE = "/testbed/saline/fore/winds-salinity/tb-winds-nrt/anc/SSS/L2B_34258_2021181.sss" ;
+		:ANC_SST_FILE = "/testbed/saline/fore/winds-salinity/tb-winds-nrt/anc/SST/L2B_34258_2021181.sst" ;
+		:ANC_SWH_FILE = "" ;
+		:CROSSTRACK_RESOLUTION = "25  <km>" ;
+		:ALONGTRACK_RESOLUTION = "25  <km>" ;
+		:history = "Mon Oct  2 18:36:57 2023: ncks -d phony_dim_0,20,70,25 -d phony_dim_1,30,800,40 -d phony_dim_2,2 -v lat,lon,smap_sss,smap_sss_uncertainty,quality_flag,row_time /scratch1/NCEPDEV/stmp4/Shastri.Paturi/forAndrew/gdas.20210701/00/SSS/SMAP_L2B_SSS_NRT_34258_A_20210630T231436.h5 sss_smap_2_sub.nc" ;
+		:NCO = "netCDF Operators version 5.0.6 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
+data:
+
+ lat =
+  _, _, _, -56.78064, -47.99857, -39.24957, -30.44938, -21.60299, -12.80137, 
+    -3.973182, 4.856546, 13.62325, 22.3863, 31.12898, 39.72594, 48.26671, 
+    56.654, 64.63419, _, _,
+  _, _, _, -55.47943, -46.92077, -38.29865, -29.56304, -20.79545, -12.03365, 
+    -3.191893, 5.667945, 14.51602, 23.29982, 32.11063, 40.85494, 49.60744, 
+    58.25707, 66.80912, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
+
+ lon =
+  _, _, _, -76.08206, -78.78165, -80.95508, -82.89758, -84.71982, -86.50854, 
+    -88.3179, -90.19495, -92.18497, -94.37238, -96.89828, -99.94656, 
+    -103.7749, -109.0665, -117.2155, _, _,
+  _, _, _, -66.1951, -70.6123, -73.8316, -76.50867, -78.75427, -80.78757, 
+    -82.73605, -84.60666, -86.43759, -88.34851, -90.4014, -92.70157, 
+    -95.45746, -99.08664, -104.5898, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
+
+ quality_flag =
+  _, _, _, 2, 0, 0, 0, 0, 0, 0, 0, 2, 2, _, _, _, _, _, _, _,
+  _, _, _, 643, _, _, 0, 0, 0, 0, 0, _, 0, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
+
+ row_time = 83785.12, 83930.61, 84076.1, 84221.59, 84367.09, 84512.59, 
+    84658.08, 84803.57, 84949.06, 85094.55, 85240.05, 85385.54, 85531.03, 
+    85676.52, 85822.02, 85967.51, 86113, 86258.49, 86403.98, 86549.48 ;
+
+ smap_sss =
+  _, _, _, 34.39155, 31.83677, 33.38619, 34.6546, 34.85755, 36.14845, 
+    35.34869, 32.8823, 33.38189, 35.5774, _, _, _, _, _, _, _,
+  _, _, _, 33.10388, _, _, 34.7429, 35.60239, 35.20469, 35.37663, 32.66939, 
+    _, 35.96003, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
+
+ smap_sss_uncertainty =
+  _, _, _, 1.900635, 1.52496, 1.022217, 0.6385422, 0.5814781, 0.6336861, 
+    0.5849838, 0.5199394, 0.4813118, 0.7109833, _, _, _, _, _, _, _,
+  _, _, _, 1.937714, _, _, 0.7213058, 0.8434753, 0.7709923, 0.7338829, 
+    0.5765152, _, 0.5295067, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
+}

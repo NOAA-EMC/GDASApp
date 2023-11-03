@@ -48,7 +48,7 @@ data_file = os.path.join(comout, f'{RUN}.t{cyc}z.ocn.recentering_error.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
                     variables_horiz={'ave_ssh': [-1, 1]},
-                    colormap='gist_ncar',
+                    colormap='seismic',
                     comout=os.path.join(comout, 'vrfy', 'recentering_error'))
 recErrPlotter = statePlotter(config)
 recErrPlotter.plot()
@@ -81,10 +81,15 @@ data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
                     lats=np.arange(-60, 60, 10),
+                    lons=np.arange(-280, 80, 30),
                     variables_zonal={'Temp': [0, 2],
                                      'Salt': [0, 0.2],
                                      'u': [0, 0.2],
                                      'v': [0, 0.2]},
+                    variables_meridional={'Temp': [0, 2],
+                                          'Salt': [0, 0.2],
+                                          'u': [0, 0.2],
+                                          'v': [0, 0.2]},
                     variables_horiz={'Temp': [0, 2],
                                      'Salt': [0, 0.2],
                                      'u': [0, 0.2],
@@ -103,7 +108,7 @@ data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
 config = plotConfig(grid_file=grid_file,
                     data_file=data_file,
                     lats=np.arange(-60, 60, 10),
-                    lons=np.arange(-280, 80, 10),
+                    lons=np.arange(-280, 80, 30),
                     variables_zonal={'Temp': [-0.5, 0.5],
                                      'Salt': [-0.1, 0.1]},
                     variables_horiz={'Temp': [-0.5, 0.5],

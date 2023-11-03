@@ -20,5 +20,3 @@ observers:
 #- !INC ${OBS_YAML_DIR}/salt_profile_argo.yaml
 #- !INC ${OBS_YAML_DIR}/salt_profile_glider.yaml
 #- !INC ${OBS_YAML_DIR}/salt_profile_tesac.yaml
-
-

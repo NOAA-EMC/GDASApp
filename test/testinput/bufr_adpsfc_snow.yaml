@@ -1,13 +1,11 @@
 # (C) Copyright 2021-2022 NOAA/NWS/NCEP/EMC
 #
-# This software is licensed under the terms of the Apache Licence Version 2.0
-# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
 observations:
   - obs space:
       name: bufr
 
-      obsdatain: $(DATA)/obs/$(OPREFIX)adpsfc.tm00.bufr_d
+      obsdatain: '{{ DATA }}/obs/{{ OPREFIX }}adpsfc.tm00.bufr_d'
 
       exports:
         variables:
@@ -41,7 +39,7 @@ observations:
 
     ioda:
       backend: netcdf
-      obsdataout: $(DATA)/$(OPREFIX)adpsfc_snow.nc4
+      obsdataout: '{{ DATA }}/{{ OPREFIX }}adpsfc_snow.nc4'
 
       variables:
 

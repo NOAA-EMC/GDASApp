@@ -33,6 +33,7 @@ run_filtering=YES
 run_eva=YES
 eva_stats_only=NO
 keep_output=NO 
+window_shift=False
 
 while getopts "c:hsxq" opt; do
   case $opt in
@@ -99,7 +100,6 @@ if [ $run_filtering == NO ]; then
 else
    yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}.yaml
 fi
-
 exename=test_ObsFilters.x
 
 #-------------- Do not modify below this line ----------------
@@ -178,11 +178,13 @@ export OPREFIX=gdas.t${cyc}z
 export APREFIX=gdas.t${cyc}z
 export GPREFIX=gdas.t${gcyc}z
 
+if [ $obtype == "conv_ps" ]; then window_shift=True; fi
 cat > $workdir/temp.yaml << EOF
-window begin: '{{ATM_WINDOW_BEGIN}}'
-window end: '{{ATM_WINDOW_END}}'
+window begin: '{{ WINDOW_BEGIN | to_isotime }}'
+window end: '{{ WINDOW_END | to_isotime }}'
 observations:
 - !INC $yamlpath
+window shift: ${window_shift} 
 EOF
 $GDASApp/ush/genYAML --input $workdir/temp.yaml --output $workdir/${obtype}_${cycle}.yaml
 
