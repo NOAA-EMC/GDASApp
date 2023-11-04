@@ -8,8 +8,8 @@ obs space:
     engine:
       type: H5File
       obsfile: !ENV  conv_ps_diag_${CDATE}.nc4
-      overwrite: true
   simulated variables: [stationPressure]
+
 geovals:
   filename: !ENV conv_ps_geoval_${CDATE}.nc4
 
@@ -22,10 +22,89 @@ obs operator:
   geovar_sfc_geomz: surface_altitude
   geovar_geomz: geopotential_height
 
-vector ref: GsiHofXBc
-tolerance: 1.e-4 
-#linear obs operator test:
-#  coef TL: 0.1
-#  tolerance TL: 1.0e-13
-#  tolerance AD: 1.0e-11
+obs prior filters:
+# Initial Error Assignments for SFC Observations
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  where:
+  - variable: ObsType/stationPressure
+    is_in: [181]
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/ObsErrorModelStepwiseLinear
+      options:
+        round_to_the_nearest_integer: true
+        xvar:
+          name: ObsValue/stationPressure
+        xvals:  [80000, 75000, 70000, 65000, 60000, 55000  ]
+        errors: [110,    120,    120,   120,   120, 1.0e+11]
+
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  where:
+  - variable: ObsType/stationPressure
+    is_in: [187]
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/ObsErrorModelStepwiseLinear
+      options:
+        round_to_the_nearest_integer: true
+        xvar:
+          name: ObsValue/stationPressure
+        xvals:  [85000, 80000, 75000, 70000, 65000, 60000, 55000  ]
+        errors: [  120,   140,   140,   140,   140,   140, 1.0e+11]
+
+# Initial Error Assignments for SFCSHIP Observations
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  where:
+  - variable: ObsType/stationPressure
+    is_in: [180]
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/ObsErrorModelStepwiseLinear
+      options:
+        round_to_the_nearest_integer: true
+        xvar:
+          name: ObsValue/stationPressure
+        xvals:  [60000, 55000  ]
+        errors: [  130, 1.0e+11]
+
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  where:
+  - variable: ObsType/stationPressure
+    is_in: [183]
+  action:
+    name: assign error
+    error parameter: 1.0e+11
+
+ # Initial Error Assignments for Radiosonde 
+- filter: Perform Action
+  filter variables:
+  - name: stationPressure
+  where:
+  - variable: ObsType/stationPressure
+    is_in: [120]
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/ObsErrorModelStepwiseLinear
+      options:
+        round_to_the_nearest_integer: true
+        xvar:
+          name: ObsValue/stationPressure
+        xvals:  [80000, 75000, 70000, 65000, 60000, 55000  ]
+        errors: [  110,   120,   120,   120,   120, 1.0e+11]
+
+passedBenchmark: 92824  # total: 92842; missing: 18
+#vector ref: GsiHofXBc
+#tolerance: 1.e-4 
 

@@ -33,6 +33,9 @@ gw environement:
     OOPS_DEBUG: 1
     OMP_NUM_THREADS: 1
 
+  run scripts:
+    GDASPREPOCNOBSPY: @HOMEgfs@/sorc/gdas.cd/scripts/exglobal_prep_ocean_obs.py
+
 setup_expt config:
   base:
     DO_JEDIATMVAR: "NO"
@@ -51,6 +54,8 @@ setup_expt config:
     SABER_BLOCKS_YAML: @HOMEgfs@/sorc/gdas.cd/parm/soca/berror/saber_blocks.yaml
     NICAS_RESOL: 1
     NICAS_GRID_SIZE: 150
+  prepoceanobs:
+    SOCA_OBS_LIST: @HOMEgfs@/sorc/gdas.cd/parm/soca/obs/obs_list_small.yaml
 
 job options:
   account: da-cpu

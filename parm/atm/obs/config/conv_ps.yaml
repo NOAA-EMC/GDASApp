@@ -1,17 +1,16 @@
 obs space:
-  name: surface_ps
+  name: surface_ps 
   obsdatain:
-    engine:
+    engine: 
       type: H5File
-      obsfile: !ENV conv_ps_obs_${CDATE}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)sondes.{{ current_cycle | to_YMDH }}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV  conv_ps_diag_${CDATE}.nc4
+      obsfile: $(DATA)/diags/diag_sondes_{{ current_cycle | to_YMDH }}.nc4
+  io pool:
+    max pool size: 1
   simulated variables: [stationPressure]
-
-geovals:
-  filename: !ENV conv_ps_geoval_${CDATE}.nc4
 
 obs operator:
   name: SfcPCorrected
@@ -23,7 +22,7 @@ obs operator:
   geovar_geomz: geopotential_height
 
 obs prior filters:
-# Initial Error Assignments for SFC Observations
+# Initial Error Assignments for SFC Observations 
 - filter: Perform Action
   filter variables:
   - name: stationPressure
@@ -58,7 +57,7 @@ obs prior filters:
         xvals:  [85000, 80000, 75000, 70000, 65000, 60000, 55000  ]
         errors: [  120,   140,   140,   140,   140,   140, 1.0e+11]
 
-# Initial Error Assignments for SFCSHIP Observations
+# Initial Error Assignments for SFCSHIP Observations 
 - filter: Perform Action
   filter variables:
   - name: stationPressure
@@ -292,6 +291,5 @@ obs post filters:
   action:
     name: reject 
 
-# End of Filters
-passedBenchmark: 85378 
+# End of Filters 
 
