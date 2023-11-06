@@ -149,16 +149,24 @@ namespace gdasapp {
 
       // TODO(Guillaume): check periodic BC, use sampling std dev of sst as a proxi for obs error
       //                  should the sst mean be weighted by the provided obs error?
-      std::vector<std::vector<float>> lon2d_s =
-        gdasapp::superobutils::subsample2D(lon2d, mask, fullConfig_);
-      std::vector<std::vector<float>> lat2d_s =
-        gdasapp::superobutils::subsample2D(lat2d, mask, fullConfig_);
-      std::vector<std::vector<float>> sst_s =
-        gdasapp::superobutils::subsample2D(sst, mask, fullConfig_);
-      std::vector<std::vector<float>> obserror_s =
-        gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_);
-      std::vector<std::vector<float>> seconds_s =
-        gdasapp::superobutils::subsample2D(seconds, mask, fullConfig_);
+      std::vector<std::vector<float>> sst_s;
+      std::vector<std::vector<float>> lon2d_s;
+      std::vector<std::vector<float>> lat2d_s;
+      std::vector<std::vector<float>> obserror_s;
+      std::vector<std::vector<float>> seconds_s;
+      if ( fullConfig_.has("binning") ) {
+        sst_s = gdasapp::superobutils::subsample2D(sst, mask, fullConfig_);
+        lon2d_s = gdasapp::superobutils::subsample2D(lon2d, mask, fullConfig_);
+        lat2d_s = gdasapp::superobutils::subsample2D(lat2d, mask, fullConfig_);
+        obserror_s = gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_);
+        seconds_s = gdasapp::superobutils::subsample2D(seconds, mask, fullConfig_);
+      } else {
+        sst_s = sst;
+        lon2d_s = lon2d;
+        lat2d_s = lat2d;
+        obserror_s = obserror;
+        seconds_s = seconds;
+      }
 
       // number of obs after subsampling
       int nobs = sst_s.size() * sst_s[0].size();

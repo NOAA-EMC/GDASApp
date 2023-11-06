@@ -35,6 +35,7 @@ namespace gdasapp {
         for (int j = 0; j < subsampledCols; ++j) {
           count = 0;
           sum = static_cast<T>(0);
+
           // Compute the average within the stride
           for (int si = 0; si < stride; ++si) {
             for (int sj = 0; sj < stride; ++sj) {
@@ -48,7 +49,7 @@ namespace gdasapp {
           }
 
           // Calculate the average and store it in the subsampled array
-          if ( count < 1 ) {
+          if ( count < minNumObs ) {
             subsampled[i][j] = static_cast<T>(-9999);
           } else {
             subsampled[i][j] = sum / static_cast<T>(count);
