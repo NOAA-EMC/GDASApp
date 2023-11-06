@@ -107,6 +107,24 @@ transforms:
     for:
       variable: *variables
 
+  # Obs Error that passed QC for JEDI
+  - transform: accept where
+    new name: experiment::EffectiveErrorQc::${variable}
+    starting field: experiment::EffectiveError::${variable}
+    where:
+      - experiment::EffectiveQC::${variable} == 0
+    for:
+      variable: *variables
+
+  # ObsError that passed QC for GSI
+  - transform: accept where
+    new name: experiment::GsiFinalObsErrorQc::${variable}
+    starting field: experiment::GsiFinalObsError::${variable}
+    where:
+      - experiment::GsiEffectiveQC::${variable} == 0
+    for:
+      variable: *variables
+
 graphics:
 
   # ---------- Scatter Plots ----------
@@ -276,6 +294,7 @@ graphics:
           markersize: 5
           color: 'red'
           label: 'hofxdiff vs pressure'
+          do_linear_regression: False
         statistics:
           fields:
             - field_name: experiment::HofXDiff::${variable}
@@ -354,6 +373,42 @@ graphics:
           markersize: 5
           color: 'red'
           label: 'errordiff vs pressure'
+          do_linear_regression: False
+  # Error comparison as a function of pressure
+  - batch figure:
+      variables: *variables
+      @CHANNELSKEY@
+    figure:
+      layout: [1,1]
+      title: 'JEDI-GSI Comparison (Passed QC) | @NAME@ @CYCLE@ | ${variable_title}'
+      output name: observation_scatter_plots/errorcomp_vs_pressure_@CYCLE@_@NAME@_${variable}@CHANNELVAR@.png
+    plots:
+      - add_xlabel: 'Observation Error'
+        add_ylabel: 'Observation Pressure'
+        add_grid:
+        add_legend:
+          loc: 'lower left'
+        layers:
+        - type: Scatter
+          x:
+            variable: experiment::GsiFinalObsErrorQc::${variable}
+          y:
+            variable: experiment::MetaData::pressure
+          @CHANNELKEY@
+          markersize: 3
+          color: 'red'
+          label: 'GSI Error'
+          do_linear_regression: False
+        - type: Scatter
+          x:
+            variable: experiment::EffectiveErrorQc::${variable}
+          y:
+            variable: experiment::MetaData::pressure
+          @CHANNELKEY@
+          markersize: 5
+          color: 'green'
+          label: 'JEDI Error'
+          do_linear_regression: False
 
   # ---------- Histograms ----------
   # Histogram of h(x) difference
