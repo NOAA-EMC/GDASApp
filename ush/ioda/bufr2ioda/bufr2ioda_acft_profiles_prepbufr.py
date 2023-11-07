@@ -28,6 +28,7 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
     return dateTime
 
+
 def Compute_typ_other(typ_other, var):
 
     typ_var = copy.deepcopy(typ_other)
@@ -51,10 +52,11 @@ def Compute_typ_other(typ_other, var):
     typ_var[typ_var == 535] = 135
 
     for i in range(len(typ_var)):
-       if ma.is_masked(var[i]):
-          typ_var[i] = typ_var.fill_value
+        if ma.is_masked(var[i]):
+            typ_var[i] = typ_var.fill_value
 
     return typ_var
+
 
 def Compute_typ_uv(typ_uv, var):
 
@@ -79,10 +81,11 @@ def Compute_typ_uv(typ_uv, var):
     typ_var[typ_var == 535] = 235
 
     for i in range(len(typ_var)):
-       if ma.is_masked(var[i]):
-          typ_var[i] = typ_var.fill_value
+        if ma.is_masked(var[i]):
+            typ_var[i] = typ_var.fill_value
 
     return typ_var
+
 
 def bufr_to_ioda(config, logger):
 
