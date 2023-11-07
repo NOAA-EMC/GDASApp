@@ -29,27 +29,12 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
     return dateTime
 
 
-def Compute_typ_other(typ_other, var):
+def Compute_typ_other(typ, var):
 
-    typ_var = copy.deepcopy(typ_other)
-    typ_var[typ_var == 330] = 130
-    typ_var[typ_var == 331] = 131
-    typ_var[typ_var == 332] = 132
-    typ_var[typ_var == 333] = 133
-    typ_var[typ_var == 334] = 134
-    typ_var[typ_var == 335] = 135
-    typ_var[typ_var == 430] = 130
-    typ_var[typ_var == 431] = 131
-    typ_var[typ_var == 432] = 132
-    typ_var[typ_var == 433] = 133
-    typ_var[typ_var == 434] = 134
-    typ_var[typ_var == 435] = 135
-    typ_var[typ_var == 530] = 130
-    typ_var[typ_var == 531] = 131
-    typ_var[typ_var == 532] = 132
-    typ_var[typ_var == 533] = 133
-    typ_var[typ_var == 534] = 134
-    typ_var[typ_var == 535] = 135
+    typ_var = copy.deepcopy(typ)
+    typ_var[(typ_var > 300) & (typ_var < 400)] -= 200
+    typ_var[(typ_var > 400) & (typ_var < 500)] -= 300
+    typ_var[(typ_var > 500) & (typ_var < 600)] -= 400
 
     for i in range(len(typ_var)):
         if ma.is_masked(var[i]):
@@ -58,27 +43,12 @@ def Compute_typ_other(typ_other, var):
     return typ_var
 
 
-def Compute_typ_uv(typ_uv, var):
+def Compute_typ_uv(typ, var):
 
-    typ_var = copy.deepcopy(typ_uv)
-    typ_var[typ_var == 330] = 230
-    typ_var[typ_var == 331] = 231
-    typ_var[typ_var == 332] = 232
-    typ_var[typ_var == 333] = 233
-    typ_var[typ_var == 334] = 234
-    typ_var[typ_var == 335] = 235
-    typ_var[typ_var == 430] = 230
-    typ_var[typ_var == 431] = 231
-    typ_var[typ_var == 432] = 232
-    typ_var[typ_var == 433] = 233
-    typ_var[typ_var == 434] = 234
-    typ_var[typ_var == 435] = 235
-    typ_var[typ_var == 530] = 230
-    typ_var[typ_var == 531] = 231
-    typ_var[typ_var == 532] = 232
-    typ_var[typ_var == 533] = 233
-    typ_var[typ_var == 534] = 234
-    typ_var[typ_var == 535] = 235
+    typ_var = copy.deepcopy(typ)
+    typ_var[(typ_var > 300) & (typ_var < 400)] -= 100
+    typ_var[(typ_var > 400) & (typ_var < 500)] -= 200
+    typ_var[(typ_var > 500) & (typ_var < 600)] -= 300
 
     for i in range(len(typ_var)):
         if ma.is_masked(var[i]):
@@ -181,8 +151,7 @@ def bufr_to_ioda(config, logger):
 
     # ObsType
     logger.debug(f" ... Executing QuerySet: get ObsType ...")
-    typ_other = r.get('observationType', 'prepbufrDataLevelCategory')
-    typ_uv = r.get('observationType', 'prepbufrDataLevelCategory')
+    typ = r.get('observationType', 'prepbufrDataLevelCategory')
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
@@ -231,8 +200,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" ... Executing QuerySet: Check BUFR variable generic \
                 dimension and type ...")
     # Check BUFR variable generic dimension and type
-    logger.debug(f"     typ_other shape = {typ_other.shape}")
-    logger.debug(f"     typ_uv    shape = {typ_uv.shape}")
+    logger.debug(f"     typ       shape = {typ.shape}")
     logger.debug(f"     cat       shape = {cat.shape}")
     logger.debug(f"     sid       shape = {sid.shape}")
     logger.debug(f"     dhr       shape = {dhr.shape}")
@@ -258,8 +226,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     uob       shape = {uob.shape}")
     logger.debug(f"     vob       shape = {vob.shape}")
 
-    logger.debug(f"     typ_other type  = {typ_other.dtype}")
-    logger.debug(f"     typ_uv    type  = {typ_uv.dtype}")
+    logger.debug(f"     typ       type  = {typ.dtype}")
     logger.debug(f"     cat       type  = {cat.dtype}")
     logger.debug(f"     sid       type  = {sid.dtype}")
     logger.debug(f"     dhr       type  = {dhr.dtype}")
@@ -308,12 +275,12 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     dateTime max = {dateTime_max}")
     logger.debug(f"     dateTime min = {dateTime_min}")
 
-    typ_zob = Compute_typ_other(typ_other, zob)
-    typ_pob = Compute_typ_other(typ_other, pob)
-    typ_tob = Compute_typ_other(typ_other, tob)
-    typ_tvo = Compute_typ_other(typ_other, tvo)
-    typ_qob = Compute_typ_other(typ_other, qob)
-    typ_uv = Compute_typ_uv(typ_uv, uob)
+    typ_zob = Compute_typ_other(typ, zob)
+    typ_pob = Compute_typ_other(typ, pob)
+    typ_tob = Compute_typ_other(typ, tob)
+    typ_tvo = Compute_typ_other(typ, tvo)
+    typ_qob = Compute_typ_other(typ, qob)
+    typ_uv = Compute_typ_uv(typ, uob)
 
     logger.debug(f"     Check drived variables (typ*) shape & type ... ")
     logger.debug(f"     typ_zob shape = {typ_zob.shape}")
