@@ -12,6 +12,7 @@ import argparse
 import math
 import calendar
 import time
+import copy
 from datetime import datetime
 import json
 from pyiodaconv import bufr
@@ -27,6 +28,61 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
     return dateTime
 
+def Compute_typ_other(typ_other, var):
+
+    typ_var = copy.deepcopy(typ_other)
+    typ_var[typ_var == 330] = 130
+    typ_var[typ_var == 331] = 131
+    typ_var[typ_var == 332] = 132
+    typ_var[typ_var == 333] = 133
+    typ_var[typ_var == 334] = 134
+    typ_var[typ_var == 335] = 135
+    typ_var[typ_var == 430] = 130
+    typ_var[typ_var == 431] = 131
+    typ_var[typ_var == 432] = 132
+    typ_var[typ_var == 433] = 133
+    typ_var[typ_var == 434] = 134
+    typ_var[typ_var == 435] = 135
+    typ_var[typ_var == 530] = 130
+    typ_var[typ_var == 531] = 131
+    typ_var[typ_var == 532] = 132
+    typ_var[typ_var == 533] = 133
+    typ_var[typ_var == 534] = 134
+    typ_var[typ_var == 535] = 135
+
+    for i in range(len(typ_var)):
+       if ma.is_masked(var[i]):
+          typ_var[i] = typ_var.fill_value
+
+    return typ_var
+
+def Compute_typ_uv(typ_uv, var):
+
+    typ_var = copy.deepcopy(typ_uv)
+    typ_var[typ_var == 330] = 230
+    typ_var[typ_var == 331] = 231
+    typ_var[typ_var == 332] = 232
+    typ_var[typ_var == 333] = 233
+    typ_var[typ_var == 334] = 234
+    typ_var[typ_var == 335] = 235
+    typ_var[typ_var == 430] = 230
+    typ_var[typ_var == 431] = 231
+    typ_var[typ_var == 432] = 232
+    typ_var[typ_var == 433] = 233
+    typ_var[typ_var == 434] = 234
+    typ_var[typ_var == 435] = 235
+    typ_var[typ_var == 530] = 230
+    typ_var[typ_var == 531] = 231
+    typ_var[typ_var == 532] = 232
+    typ_var[typ_var == 533] = 233
+    typ_var[typ_var == 534] = 234
+    typ_var[typ_var == 535] = 235
+
+    for i in range(len(typ_var)):
+       if ma.is_masked(var[i]):
+          typ_var[i] = typ_var.fill_value
+
+    return typ_var
 
 def bufr_to_ioda(config, logger):
 
@@ -56,7 +112,7 @@ def bufr_to_ioda(config, logger):
 
     # General informaton
     converter = 'BUFR to IODA Converter'
-    platform_description = 'SFCSHP data from prepBUFR format'
+    platform_description = 'acft_profiles data from prepBUFR format'
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.acft_profiles"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh),
@@ -122,7 +178,8 @@ def bufr_to_ioda(config, logger):
 
     # ObsType
     logger.debug(f" ... Executing QuerySet: get ObsType ...")
-    typ = r.get('observationType', 'prepbufrDataLevelCategory')
+    typ_other = r.get('observationType', 'prepbufrDataLevelCategory')
+    typ_uv = r.get('observationType', 'prepbufrDataLevelCategory')
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
@@ -171,7 +228,8 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" ... Executing QuerySet: Check BUFR variable generic \
                 dimension and type ...")
     # Check BUFR variable generic dimension and type
-    logger.debug(f"     typ       shape = {typ.shape}")
+    logger.debug(f"     typ_other shape = {typ_other.shape}")
+    logger.debug(f"     typ_uv    shape = {typ_uv.shape}")
     logger.debug(f"     cat       shape = {cat.shape}")
     logger.debug(f"     sid       shape = {sid.shape}")
     logger.debug(f"     dhr       shape = {dhr.shape}")
@@ -197,7 +255,8 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     uob       shape = {uob.shape}")
     logger.debug(f"     vob       shape = {vob.shape}")
 
-    logger.debug(f"     typ       type  = {typ.dtype}")
+    logger.debug(f"     typ_other type  = {typ_other.dtype}")
+    logger.debug(f"     typ_uv    type  = {typ_uv.dtype}")
     logger.debug(f"     cat       type  = {cat.dtype}")
     logger.debug(f"     sid       type  = {sid.dtype}")
     logger.debug(f"     dhr       type  = {dhr.dtype}")
@@ -240,11 +299,32 @@ def bufr_to_ioda(config, logger):
     dateTime_max = ma.MaskedArray.max(dateTime)
     dateTime_min = ma.MaskedArray.min(dateTime)
 
-    logger.debug(f"     Check drived variables type ... ")
+    logger.debug(f"     Check drived variables (dateTime) shape & type ... ")
     logger.debug(f"     dateTime shape = {dateTime.shape}")
     logger.debug(f"     dateTime type = {dateTime.dtype}")
     logger.debug(f"     dateTime max = {dateTime_max}")
     logger.debug(f"     dateTime min = {dateTime_min}")
+
+    typ_zob = Compute_typ_other(typ_other, zob)
+    typ_pob = Compute_typ_other(typ_other, pob)
+    typ_tob = Compute_typ_other(typ_other, tob)
+    typ_tvo = Compute_typ_other(typ_other, tvo)
+    typ_qob = Compute_typ_other(typ_other, qob)
+    typ_uv = Compute_typ_uv(typ_uv, uob)
+
+    logger.debug(f"     Check drived variables (typ*) shape & type ... ")
+    logger.debug(f"     typ_zob shape = {typ_zob.shape}")
+    logger.debug(f"     typ_zob type = {typ_zob.dtype}")
+    logger.debug(f"     typ_pob shape = {typ_pob.shape}")
+    logger.debug(f"     typ_pob type = {typ_pob.dtype}")
+    logger.debug(f"     typ_tob shape = {typ_tob.shape}")
+    logger.debug(f"     typ_tob type = {typ_tob.dtype}")
+    logger.debug(f"     typ_tvo shape = {typ_tvo.shape}")
+    logger.debug(f"     typ_tvo type = {typ_tvo.dtype}")
+    logger.debug(f"     typ_qob shape = {typ_qob.shape}")
+    logger.debug(f"     typ_qob type = {typ_qob.dtype}")
+    logger.debug(f"     typ_uv shape = {dateTime.shape}")
+    logger.debug(f"     typ_uv type = {dateTime.dtype}")
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -259,7 +339,7 @@ def bufr_to_ioda(config, logger):
     # Create the dimensions
     dims = {'Location': np.arange(0, lat.shape[0])}
 
-    iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
+    iodafile = f"{cycle_type}.t{hh}z.acft_profiles.{data_format}.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
     logger.debug(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
 
@@ -285,46 +365,46 @@ def bufr_to_ioda(config, logger):
     # Create IODA variables
     logger.debug(f" ... ... Create variables: name, type, units, & attributes")
     # ObsType: station Elevation
-    obsspace.create_var('ObsType/stationElevation', dtype=typ.dtype,
-                        fillval=typ.fill_value) \
+    obsspace.create_var('ObsType/stationElevation', dtype=typ_zob.dtype,
+                        fillval=typ_zob.fill_value) \
         .write_attr('long_name', 'Station Elevation Observation Type') \
-        .write_data(typ)
+        .write_data(typ_zob)
 
     # ObsType: stationPressure
-    obsspace.create_var('ObsType/stationPressure', dtype=typ.dtype,
-                        fillval=typ.fill_value) \
+    obsspace.create_var('ObsType/stationPressure', dtype=typ_pob.dtype,
+                        fillval=typ_pob.fill_value) \
         .write_attr('long_name', 'Station Pressure Observation Type') \
-        .write_data(typ)
+        .write_data(typ_pob)
 
     # ObsType: air Temperature
-    obsspace.create_var('ObsType/airTemperature', dtype=typ.dtype,
-                        fillval=typ.fill_value) \
+    obsspace.create_var('ObsType/airTemperature', dtype=typ_tob.dtype,
+                        fillval=typ_tob.fill_value) \
         .write_attr('long_name', 'Air Temperature Observation Type') \
-        .write_data(typ)
+        .write_data(typ_tob)
 
     # ObsType: virtual Temperature
-    obsspace.create_var('ObsType/virtualTemperature', dtype=typ.dtype,
-                        fillval=typ.fill_value) \
+    obsspace.create_var('ObsType/virtualTemperature', dtype=typ_tvo.dtype,
+                        fillval=typ_tvo.fill_value) \
         .write_attr('long_name', 'Virtual Temperature Observation Type') \
-        .write_data(typ)
+        .write_data(typ_tvo)
 
     # ObsType: Specific Humidity
-    obsspace.create_var('ObsType/specificHumidity', dtype=typ.dtype,
-                        fillval=typ.fill_value) \
+    obsspace.create_var('ObsType/specificHumidity', dtype=typ_qob.dtype,
+                        fillval=typ_qob.fill_value) \
         .write_attr('long_name', 'Specific Humidity Observation Type') \
-        .write_data(typ)
+        .write_data(typ_qob)
 
     # ObsType: wind Eastward
-    obsspace.create_var('ObsType/windEastward', dtype=typ.dtype,
-                        fillval=typ.fill_value) \
+    obsspace.create_var('ObsType/windEastward', dtype=typ_uv.dtype,
+                        fillval=typ_uv.fill_value) \
         .write_attr('long_name', 'Wind Eastward Observation Type') \
-        .write_data(typ)
+        .write_data(typ_uv)
 
     # ObsType: wind Northward
-    obsspace.create_var('ObsType/windNorthward', dtype=typ.dtype,
-                        fillval=typ.fill_value) \
+    obsspace.create_var('ObsType/windNorthward', dtype=typ_uv.dtype,
+                        fillval=typ_uv.fill_value) \
         .write_attr('long_name', 'Wind Northward Observation Type') \
-        .write_data(typ)
+        .write_data(typ_uv)
 
     # PrepBUFR Data Level Category
     obsspace.create_var('MetaData/prepbufrDataLevelCategory', dtype=cat.dtype,
