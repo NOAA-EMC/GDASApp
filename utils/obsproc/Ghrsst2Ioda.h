@@ -59,18 +59,16 @@ namespace gdasapp {
       // datetime: Read Reference Time
       std::vector<int> refTime(dimTime);
       ncFile.getVar("time").getVar(refTime.data());
+      oops::Log::info() << "time: " << refTime << " seconds" << std::endl;
       std::string refDate;
       ncFile.getVar("time").getAtt("units").getValues(refDate);
 
       // Read sst_dtime to add to the reference time
       int sstdTime[dimTime][dimLat][dimLon];  // NOLINT
       ncFile.getVar("sst_dtime").getVar(sstdTime);
-      float dtimeOffSet;
-      ncFile.getVar("sst_dtime").getAtt("add_offset").getValues(&dtimeOffSet);
+      std::cout <<  sstdTime << std::endl;
       float dtimeScaleFactor;
       ncFile.getVar("sst_dtime").getAtt("scale_factor").getValues(&dtimeScaleFactor);
-
-      oops::Log::info() << "--- sst_dtime: " << std::endl;
 
       // Read SST obs Value, bias, Error and quality flag
       // ObsValue
@@ -81,33 +79,23 @@ namespace gdasapp {
       float sstScaleFactor;
       ncFile.getVar("sea_surface_temperature").getAtt("scale_factor").getValues(&sstScaleFactor);
 
-      oops::Log::info() << "--- sst_ObsValue: " << std::endl;
-
       // Bias
-      uint8_t sstObsBias[dimTime][dimLat][dimLon];
+      signed char sstObsBias[dimTime][dimLat][dimLon];
       ncFile.getVar("sses_bias").getVar(sstObsBias);
-      float biasOffSet;
-      ncFile.getVar("sses_bias").getAtt("add_offset").getValues(&biasOffSet);
       float biasScaleFactor;
       ncFile.getVar("sses_bias").getAtt("scale_factor").getValues(&biasScaleFactor);
 
-      oops::Log::info() << "--- sst_bias: " << std::endl;
-
       // Error
-      uint8_t sstObsErr[dimTime][dimLat][dimLon];
+      signed char sstObsErr[dimTime][dimLat][dimLon];
       ncFile.getVar("sses_standard_deviation").getVar(sstObsErr);
       float errOffSet;
       ncFile.getVar("sses_standard_deviation").getAtt("add_offset").getValues(&errOffSet);
       float errScaleFactor;
       ncFile.getVar("sses_standard_deviation").getAtt("scale_factor").getValues(&errScaleFactor);
 
-      oops::Log::info() << "--- sst_Error: " << std::endl;
-
       // preQc
-      uint8_t sstPreQC[dimTime][dimLat][dimLon];
+      signed char sstPreQC[dimTime][dimLat][dimLon];
       ncFile.getVar("quality_level").getVar(sstPreQC);
-
-      oops::Log::info() << "--- sst_preQc: " << std::endl;
 
       // Apply scaling/unit change and compute the necessary fields
       std::vector<std::vector<int>> mask(dimLat, std::vector<int>(dimLon));
@@ -124,8 +112,8 @@ namespace gdasapp {
           preqc[i][j] = 5 - static_cast<int>(sstPreQC[0][i][j]);
 
           // bias corrected sst, regressed to the drifter depth
-          sst[i][j] = (static_cast<float>(sstObsVal[0][i][j]) + sstOffSet)   * sstScaleFactor
-                    - (static_cast<float>(sstObsBias[0][i][j]) + biasOffSet) * biasScaleFactor;
+          sst[i][j] = static_cast<float>(sstObsVal[0][i][j]) * sstScaleFactor
+            - static_cast<float>(sstObsBias[0][i][j]) * biasScaleFactor;
 
           // mask
           // TODO(Somebody): pass the QC flag theashold through the config.
@@ -138,17 +126,19 @@ namespace gdasapp {
 
           // obs error
           // TODO(Somebody): add sampled std. dev. of sst to the total obs error
-          obserror[i][j] = (static_cast<float>(sstObsErr[0][i][j]) + errOffSet) * errScaleFactor;
+          obserror[i][j] = static_cast<float>(sstObsErr[0][i][j]) * errScaleFactor + errOffSet;
 
           // epoch time in seconds
-          seconds[i][j]  = static_cast<int64_t>((sstdTime[0][i][j] + dtimeOffSet)
-                                                * dtimeScaleFactor)
-                         + static_cast<int64_t>(refTime[0]);
+          //
+          //if (sstdTime[0][i][j]>0) { std::cout << static_cast<double>(sstdTime[0][i][j]) * 0.25 << std::endl;}
+          //* dtimeScaleFactor
+          seconds[i][j]  = static_cast<float>(sstdTime[0][i][j])*0.25 + static_cast<float>(refTime[0]);
+
         }
       }
 
-      // TODO(Guillaume): check periodic BC, use sampling std dev of sst as a proxi for obs error
-      //                  should the sst mean be weighted by the provided obs error?
+      // Superobing
+      // TODO(Guillaume): Save the sampling std dev of sst so it can be used as a proxi for obs error
       std::vector<std::vector<float>> sst_s;
       std::vector<std::vector<float>> lon2d_s;
       std::vector<std::vector<float>> lat2d_s;
