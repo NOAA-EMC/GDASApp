@@ -293,8 +293,8 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     typ_tvo type = {typ_tvo.dtype}")
     logger.debug(f"     typ_qob shape = {typ_qob.shape}")
     logger.debug(f"     typ_qob type = {typ_qob.dtype}")
-    logger.debug(f"     typ_uv shape = {dateTime.shape}")
-    logger.debug(f"     typ_uv type = {dateTime.dtype}")
+    logger.debug(f"     typ_uv shape = {typ_uv.shape}")
+    logger.debug(f"     typ_uv type = {typ_uv.dtype}")
 
     end_time = time.time()
     running_time = end_time - start_time
