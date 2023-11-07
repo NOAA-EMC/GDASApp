@@ -39,8 +39,6 @@ def Compute_Grid_Location(degrees):
     for i in range(len(degrees)):
         if degrees[i] <= 360 and degrees[i] >= -180:
             degrees[i] = np.deg2rad(degrees[i])
-#       else:
-#          degrees[i] = np.float32(0)
     rad = degrees
 
     return rad
@@ -162,7 +160,7 @@ def bufr_to_ioda(config, logger):
     hour = r.get('hour', 'latitude')
     minu = r.get('minute', 'latitude')
     seco = r.get('second', 'latitude')
-    stid = r.get('satelliteIdentifier', 'latitude')
+    stid = r.get('stationIdentification', 'latitude')
     said = r.get('satelliteIdentifier', 'latitude')
     siid = r.get('satelliteInstrument', 'latitude')
     sclf = r.get('satelliteConstellationRO', 'latitude')
