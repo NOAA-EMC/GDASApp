@@ -8,5 +8,5 @@
   "dump_directory"   : "{{ DMPDIR }}",
   "ioda_directory"   : "{{ COM_OBS }}",
   "data_description" : "conventional_prepbufr_ps",
-  "data_provider"    : "U.S. NOAA/NESDIS"
+  "data_provider"    : "U.S. NOAA"
 }
