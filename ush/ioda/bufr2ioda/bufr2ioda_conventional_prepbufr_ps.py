@@ -467,7 +467,7 @@ def bufr_to_ioda(config, logger):
     pob = np.concatenate((pob1, pob2, pob3), axis=0).astype(pob1.dtype)
     ps = np.concatenate((pob1, pob2, ps3), axis=0).astype(pob1.dtype)
     elv = np.concatenate((elv1, elv2, elv3), axis=0)
-    tob =  np.concatenate((tob1, tob2, tob3), axis=0).astype(tob1.dtype)
+    tob = np.concatenate((tob1, tob2, tob3), axis=0).astype(tob1.dtype)
     tsen = np.concatenate((tsen1, tsen2, tsen3), axis=0).astype(tob1.dtype)
     tvo = np.concatenate((tvo1, tvo2, tvo3), axis=0).astype(tvo1.dtype)
 
