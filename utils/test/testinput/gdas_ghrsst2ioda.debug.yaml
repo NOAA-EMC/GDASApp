@@ -3,9 +3,9 @@ window begin: 2018-04-15T06:00:00Z
 window end: 2018-04-15T12:00:00Z
 variable: seaSurfaceTemperature
 #binning:
-#  stride: 5
+#  stride: 10
 #  min number of obs: 3
-output file: test.ioda.new.nc
+output file: sst.ioda.new.nc
 input files:
 - /home/gvernier/data/obs/20210630220000-OSPO-L3U_GHRSST-SSTsubskin-VIIRS_N20-ACSPO_V2.61-v02.0-fv01.0.nc
 #- ghrsst_sst_mb_202107010000.nc4

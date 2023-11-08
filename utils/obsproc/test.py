@@ -24,6 +24,13 @@ def get_sst(file_path = "ghrsst_sst_mb_20210701.ioda.bin10.nc", group='ObsValue'
     dataset.close()
     return sst_data
 
+def get_geo(fname="sst.ioda.new.nc"):
+    lon = get_sst(file_path = fname, group="MetaData", var="longitude")
+    lat = get_sst(file_path = fname, group="MetaData", var="latitude")
+    sst = get_sst(file_path = fname, group="ObsValue", var="seaSurfaceTemperature")
+    time = get_sst(file_path = fname, group="MetaData", var="dateTime")
+    return lon, lat, sst, time
+
 seconds_since_reference = 1277935232
 reference_date = datetime(1981, 1, 1, 0, 0, 0)
 result_date = reference_date + timedelta(seconds=seconds_since_reference)
@@ -40,9 +47,9 @@ plt.figure(figsize=(18, 10))
 cnt = 1
 var='seaSurfaceTemperature'
 for group in ['ObsValue', 'ObsError', 'PreQC']:
-    plt.subplot(3,3,cnt)
+    plt.subplot(4,3,cnt)
     # New converter
-    new = get_sst(file_path = "test.ioda.new.nc", group=group, var=var)
+    new = get_sst(file_path = "sst.ioda.new.nc", group=group, var=var)
     str_label=f'New: min={np.min(new)}, max={np.max(new)}, nobs={len(new)}'
     plt.hist(new, bins=150, color='b', alpha=0.2, label=str_label)
 
@@ -57,9 +64,9 @@ for group in ['ObsValue', 'ObsError', 'PreQC']:
 
 group = 'MetaData'
 for var in ['dateTime', 'longitude', 'latitude']:
-    plt.subplot(3,3,cnt)
+    plt.subplot(4,3,cnt)
     # New converter
-    new = get_sst(file_path = "test.ioda.new.nc", group=group, var=var)
+    new = get_sst(file_path = "sst.ioda.new.nc", group=group, var=var)
     str_label=f'New: min={np.min(new)}, max={np.max(new)}, nobs={len(new)}'
     plt.hist(new, bins=150, color='b', alpha=0.2, label=str_label)
 
@@ -75,18 +82,27 @@ for var in ['dateTime', 'longitude', 'latitude']:
     plt.legend(prop={'size': 6})
     cnt += 1
 
-# Scatter plots
-lon = get_sst(file_path = "test.ioda.new.nc", group="MetaData", var="longitude")
-lat = get_sst(file_path = "test.ioda.new.nc", group="MetaData", var="latitude")
-sst = get_sst(file_path = "test.ioda.new.nc", group="ObsValue", var="seaSurfaceTemperature")
-time = get_sst(file_path = "test.ioda.new.nc", group="MetaData", var="dateTime")
-plt.subplot(3,3,7)
-sc0 = plt.scatter(lon, lat, c=sst, cmap='viridis', s=1, marker='.')
+# Scatter plots, New
+lon, lat, sst, time = get_geo(fname="sst.ioda.new.nc")
+plt.subplot(4,3,7)
+sc0 = plt.scatter(lon, lat, c=sst, cmap='viridis', s=.1, marker='s')
 plt.colorbar(sc0, orientation='horizontal', shrink=0.5)
 plt.title('sst')
 
-plt.subplot(3,3,8)
-sc1 = plt.scatter(lon, lat, c=time, cmap='viridis', s=1, marker='.')
+plt.subplot(4,3,8)
+sc1 = plt.scatter(lon, lat, c=time, cmap='viridis', s=.1, marker='s')
+plt.colorbar(sc1, orientation='horizontal', shrink=0.5)
+plt.title('dateTime')
+
+# Scatter plots, Old
+lon, lat, sst, time = get_geo(fname="sst.ioda.old.nc")
+plt.subplot(4,3,9)
+sc0 = plt.scatter(lon, lat, c=sst, cmap='viridis', s=.1, marker='s')
+plt.colorbar(sc0, orientation='horizontal', shrink=0.5)
+plt.title('sst')
+
+plt.subplot(4,3,10)
+sc1 = plt.scatter(lon, lat, c=time, cmap='viridis', s=.1, marker='s')
 plt.colorbar(sc1, orientation='horizontal', shrink=0.5)
 plt.title('dateTime')
 

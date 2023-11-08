@@ -1,5 +1,6 @@
 #pragma once
 
+//#include <hdf5_hl.h>
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
@@ -27,6 +28,22 @@ namespace gdasapp {
     // Read netcdf file and populate iodaVars
     gdasapp::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by GHRSST" << std::endl;
+
+      // Open the HDF file in read-only mode
+      //hid_t hdfFile = H5Fopen(fileName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+      //hid_t dataset_id = H5Dopen2(hdfFile, "sst_dtime", H5P_DEFAULT);
+      //hid_t dataspace_id = H5Dget_space(dataset_id);
+      // Get the dimensions of the dataset
+      //hsize_t dims[3];
+      //H5Sget_simple_extent_dims(dataspace_id, dims, NULL);
+      //std::vector<int> sstdTime(dims[0] * dims[1] * dims[2]);
+      //herr_t status = H5Dread(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
+      //                        H5P_DEFAULT, sstdTime.data());
+
+      //std::vector<int> sstdTime;
+      //herr_t status = H5LTread_dataset_int(hdfFile, "sst_dtime", sstdTime.data());
+      //hdfFile.read(variableName, sstdTime);
+      //H5Fclose(hdfFile);
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
@@ -64,30 +81,31 @@ namespace gdasapp {
       ncFile.getVar("time").getAtt("units").getValues(refDate);
 
       // Read sst_dtime to add to the reference time
-      int sstdTime[dimTime][dimLat][dimLon];  // NOLINT
-      ncFile.getVar("sst_dtime").getVar(sstdTime);
-      std::cout <<  sstdTime << std::endl;
+      // TODO(AMG): What's below does not read the field the same
+      //       way python does
+      std::vector<int> sstdTime(dimTime*dimLat*dimLon);
+      ncFile.getVar("sst_dtime").getVar(sstdTime.data());
       float dtimeScaleFactor;
       ncFile.getVar("sst_dtime").getAtt("scale_factor").getValues(&dtimeScaleFactor);
 
       // Read SST obs Value, bias, Error and quality flag
       // ObsValue
-      short sstObsVal[dimTime][dimLat][dimLon];  // NOLINT
-      ncFile.getVar("sea_surface_temperature").getVar(sstObsVal);
+      std::vector<short> sstObsVal(dimTime*dimLat*dimLon);
+      ncFile.getVar("sea_surface_temperature").getVar(sstObsVal.data());
       float sstOffSet;
       ncFile.getVar("sea_surface_temperature").getAtt("add_offset").getValues(&sstOffSet);
       float sstScaleFactor;
       ncFile.getVar("sea_surface_temperature").getAtt("scale_factor").getValues(&sstScaleFactor);
 
       // Bias
-      signed char sstObsBias[dimTime][dimLat][dimLon];
-      ncFile.getVar("sses_bias").getVar(sstObsBias);
+      std::vector<signed char> sstObsBias(dimTime*dimLat*dimLon);
+      ncFile.getVar("sses_bias").getVar(sstObsBias.data());
       float biasScaleFactor;
       ncFile.getVar("sses_bias").getAtt("scale_factor").getValues(&biasScaleFactor);
 
       // Error
-      signed char sstObsErr[dimTime][dimLat][dimLon];
-      ncFile.getVar("sses_standard_deviation").getVar(sstObsErr);
+      std::vector<signed char> sstObsErr(dimTime*dimLat*dimLon);
+      ncFile.getVar("sses_standard_deviation").getVar(sstObsErr.data());
       float errOffSet;
       ncFile.getVar("sses_standard_deviation").getAtt("add_offset").getValues(&errOffSet);
       float errScaleFactor;
@@ -103,6 +121,7 @@ namespace gdasapp {
       std::vector<std::vector<float>> obserror(dimLat, std::vector<float>(dimLon));
       std::vector<std::vector<int>> preqc(dimLat, std::vector<int>(dimLon));
       std::vector<std::vector<float>> seconds(dimLat, std::vector<float>(dimLon));
+      size_t index = 0;
       for (int i = 0; i < dimLat; i++) {
         for (int j = 0; j < dimLon; j++) {
           // provider's QC flag
@@ -112,8 +131,8 @@ namespace gdasapp {
           preqc[i][j] = 5 - static_cast<int>(sstPreQC[0][i][j]);
 
           // bias corrected sst, regressed to the drifter depth
-          sst[i][j] = static_cast<float>(sstObsVal[0][i][j]) * sstScaleFactor
-            - static_cast<float>(sstObsBias[0][i][j]) * biasScaleFactor;
+          sst[i][j] = static_cast<float>(sstObsVal[index]) * sstScaleFactor
+            - static_cast<float>(sstObsBias[index]) * biasScaleFactor;
 
           // mask
           // TODO(Somebody): pass the QC flag theashold through the config.
@@ -126,14 +145,14 @@ namespace gdasapp {
 
           // obs error
           // TODO(Somebody): add sampled std. dev. of sst to the total obs error
-          obserror[i][j] = static_cast<float>(sstObsErr[0][i][j]) * errScaleFactor + errOffSet;
+          obserror[i][j] = static_cast<float>(sstObsErr[index]) * errScaleFactor + errOffSet;
 
           // epoch time in seconds
           //
           //if (sstdTime[0][i][j]>0) { std::cout << static_cast<double>(sstdTime[0][i][j]) * 0.25 << std::endl;}
           //* dtimeScaleFactor
-          seconds[i][j]  = static_cast<float>(sstdTime[0][i][j])*0.25 + static_cast<float>(refTime[0]);
-
+          seconds[i][j]  = static_cast<float>(sstdTime[index]) * 0.25 + static_cast<float>(refTime[0]);
+          index++;
         }
       }
 
