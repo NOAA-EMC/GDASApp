@@ -34,7 +34,7 @@ def bufr_to_ioda(config, logger):
 
     subsets = config["subsets"]
     logger.debug(f"Checking subsets = {subsets}")
-    logger.info(f"Checking subsets = {subsets}")
+    logger.debug(f"Checking subsets = {subsets}")
 
     # Get parameters from configuration
     data_format = config["data_format"]
@@ -56,7 +56,7 @@ def bufr_to_ioda(config, logger):
     reference_time = reference_time.strftime("%Y-%m-%dT%H:%M:%SZ")
     reference_time_full = f"{yyyymmdd}{hh}00"
 
-    logger.info(f"reference_time = {reference_time}")
+    logger.debug(f"reference_time = {reference_time}")
 
     # General informaton
     converter = 'BUFR to IODA Converter'
@@ -66,25 +66,25 @@ def bufr_to_ioda(config, logger):
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}",
                              str(hh), bufrfile)
 
-    logger.info(f"The DATA_PATH is: {DATA_PATH}")
+    logger.debug(f"The DATA_PATH is: {DATA_PATH}")
 
     # ============================================
     # Make the QuerySet for all the data we want
     # ============================================
     start_time = time.time()
 
-    logger.info('Making QuerySet ...')
+    logger.debug('Making QuerySet ...')
     q = bufr.QuerySet(["ADPSFC"])
     r = bufr.QuerySet(["SFCSHP"])
     s = bufr.QuerySet(["ADPUPA"])
 
     for i in range(len(subsets)):
         if subsets[i] == "ADPSFC":
-            logger.info("Making QuerySet for ADPSFC")
-            
+            logger.debug("Making QuerySet for ADPSFC")
+
             # ObsType
             q.add('observationType', '*/TYP')
-            
+
             # MetaData
             q.add('stationIdentification', '*/SID')
             q.add('prepbufrDataLevelCategory', '*/CAT')
@@ -106,8 +106,8 @@ def bufr_to_ioda(config, logger):
             q.add('airTemperature', '*/T___INFO/T__EVENT{1}/TOB')
 
         elif subsets[i] == "SFCSHP":
-            logger.info("Making QuerySet for SFCSHP")
-            
+            logger.debug("Making QuerySet for SFCSHP")
+
             # ObsType
             r.add('observationType', '*/TYP')
 
@@ -121,7 +121,7 @@ def bufr_to_ioda(config, logger):
             r.add('heightOfStation', '*/Z___INFO/Z__EVENT{1}/ZOB')
             r.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
 
-            # QualityMarker 
+            # QualityMarker
             r.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
             r.add('qualityMarkerAirTemperature', '*/T___INFO/T__EVENT{1}/TQM')
             r.add('qualityMarkerVirtualTemperature', '*/T___INFO/T__EVENT{1}/TQM')
@@ -132,10 +132,10 @@ def bufr_to_ioda(config, logger):
             r.add('airTemperature', '*/T___INFO/T__EVENT{1}/TOB')
 
         elif subsets[i] == "ADPUPA":
-            logger.info("Making QuerySet for ADPUPA")
+            logger.debug("Making QuerySet for ADPUPA")
             # ObsType
             s.add('observationType', '*/TYP')
-            
+
             # MetaData
             s.add('stationIdentification', 'ADPUPA/SID')
             s.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
@@ -159,7 +159,7 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for making QuerySet: {running_time} seconds")
+    logger.debug(f"Running time for making QuerySet: {running_time} seconds")
 
     # ==============================================================
     # Open the BUFR file and execute the QuerySet to get ResultSet
@@ -167,7 +167,7 @@ def bufr_to_ioda(config, logger):
     # ==============================================================
     start_time = time.time()
 
-    logger.info(f"Executing QuerySet to get ResultSet ...")
+    logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
         t = f.execute(q)
 
@@ -179,11 +179,11 @@ def bufr_to_ioda(config, logger):
 
     # ADPSFC
     # ObsType
-    logger.info(" ... Executing QuerySet for ADPSFC: get ObsType ...")
+    logger.debug(" ... Executing QuerySet for ADPSFC: get ObsType ...")
     typorig1 = t.get('observationType')
 
     # MetaData
-    logger.info(" ... Executing QuerySet for ADPSFC: get MetaData ...")
+    logger.debug(" ... Executing QuerySet for ADPSFC: get MetaData ...")
     sidorig1 = t.get('stationIdentification')
     catorig1 = t.get('prepbufrDataLevelCategory')
     tpcorig1 = t.get('temperatureEventCode')
@@ -196,16 +196,16 @@ def bufr_to_ioda(config, logger):
     pressureorig1 *= 100
 
     # QualityMarker
-    logger.info(f" ... Executing QuerySet for ADPSFC: get QualityMarker ...")
+    logger.debug(f" ... Executing QuerySet for ADPSFC: get QualityMarker ...")
     pobqmorig1 = t.get('qualityMarkerStationPressure')
     tobqmorig1 = t.get('qualityMarkerAirTemperature')
-    tsenqmorig1 = np.full(tobqmorig1.shape[0], tobqmorig1.fill_value) 
+    tsenqmorig1 = np.full(tobqmorig1.shape[0], tobqmorig1.fill_value)
     tsenqmorig1 = np.where(((tpcorig1 >= 1) & (tpcorig1 < 8)), tobqmorig1, tsenqmorig1)
     tvoqmorig1 = np.full(tobqmorig1.shape[0], tobqmorig1.fill_value)
     tvoqmorig1 = np.where((tpcorig1 == 8), tobqmorig1, tvoqmorig1)
 
     # ObsValue
-    logger.info(f" ... Executing QuerySet for ADPSFC: get ObsValues ...")
+    logger.debug(f" ... Executing QuerySet for ADPSFC: get ObsValues ...")
     elvorig1 = t.get('stationElevation', type='float')
     poborig1 = t.get('stationPressure')
     poborig1 *= 100
@@ -216,9 +216,9 @@ def bufr_to_ioda(config, logger):
     tvoorig1 = np.full(toborig1.shape[0], toborig1.fill_value)
     tvoorig1 = np.where((tpcorig1 == 8), toborig1, tvoorig1)
 
-    logger.info(f" ... Make new arrays for certain Obstypes of ADSPFC")
-    typ1 = np.array([]) 
-    sid1 = np.array([]) 
+    logger.debug(f" ... Make new arrays for certain Obstypes of ADSPFC")
+    typ1 = np.array([])
+    sid1 = np.array([])
     cat1 = np.array([])
     tpc1 = np.array([])
     lat1 = np.array([])
@@ -236,7 +236,7 @@ def bufr_to_ioda(config, logger):
     tob1 = np.array([])
     tsen1 = np.array([])
     tvo1 = np.array([])
-    
+
     for i in range(len(typorig1)):
         if typorig1[i] < 200:
             typ1 = np.append(typ1, typorig1[i])
@@ -258,15 +258,15 @@ def bufr_to_ioda(config, logger):
             tsen1 = np.append(tsen1, tsenorig1[i])
             tvo1 = np.append(tvo1, tvoorig1[i])
 
-    logger.info(" ... QuerySet execution for ADPSFC ... done!")
+    logger.debug(" ... QuerySet execution for ADPSFC ... done!")
 
     # SFCSHP
     # ObsType
-    logger.info(" ... Executing QuerySet for SFCSHP: get ObsType ...")
+    logger.debug(" ... Executing QuerySet for SFCSHP: get ObsType ...")
     typorig2 = u.get('observationType')
 
     # MetaData
-    logger.info(" ... Executing QuerySet for SFCSHP: get MetaData ...")
+    logger.debug(" ... Executing QuerySet for SFCSHP: get MetaData ...")
     sidorig2 = u.get('stationIdentification')
     catorig2 = u.get('prepbufrDataLevelCategory')
     tpcorig2 = u.get('temperatureEventCode')
@@ -278,7 +278,7 @@ def bufr_to_ioda(config, logger):
     pressureorig2 = u.get('pressure')
     pressureorig2 *= 100
 
-    logger.info(f" ... Executing QuerySet for SFCSHP: get QualityMarker ...")
+    logger.debug(f" ... Executing QuerySet for SFCSHP: get QualityMarker ...")
     # QualityMarker
     pobqmorig2 = u.get('qualityMarkerStationPressure')
     tobqmorig2 = u.get('qualityMarkerAirTemperature')
@@ -287,7 +287,7 @@ def bufr_to_ioda(config, logger):
     tvoqmorig2 = np.full(tobqmorig2.shape[0], tobqmorig2.fill_value)
     tvoqmorig2 = np.where((tpcorig2 == 8), tobqmorig2, tvoqmorig2)
 
-    logger.info(f" ... Executing QuerySet for SFCSHP: get ObsValues ...")
+    logger.debug(f" ... Executing QuerySet for SFCSHP: get ObsValues ...")
     # ObsValue
     elvorig2 = u.get('stationElevation', type='float')
     poborig2 = u.get('stationPressure')
@@ -299,9 +299,9 @@ def bufr_to_ioda(config, logger):
     tvoorig2 = np.full(toborig2.shape[0], toborig2.fill_value)
     tvoorig2 = np.where((tpcorig2 == 8), toborig2, tvoorig2)
 
-    logger.info(f" ... Make new arrays for certain ObsTypes of SFCSHP")
-    typ2 = np.array([]) 
-    sid2 = np.array([]) 
+    logger.debug(f" ... Make new arrays for certain ObsTypes of SFCSHP")
+    typ2 = np.array([])
+    sid2 = np.array([])
     cat2 = np.array([])
     tpc2 = np.array([])
     lat2 = np.array([])
@@ -318,7 +318,7 @@ def bufr_to_ioda(config, logger):
     tob2 = np.array([])
     tsen2 = np.array([])
     tvo2 = np.array([])
-    
+
     for i in range(len(typorig2)):
         if typorig2[i] < 200:
             typ2 = np.append(typ2, typorig2[i])
@@ -340,15 +340,15 @@ def bufr_to_ioda(config, logger):
             tsen2 = np.append(tsen2, tsenorig2[i])
             tvo2 = np.append(tvo2, tvoorig2[i])
 
-    logger.info(f" ... QuerySet execution for SFCSHP ... done!")
-    
+    logger.debug(f" ... QuerySet execution for SFCSHP ... done!")
+
     # ADPUPA
     # ObsType
-    logger.info(" ... Executing QuerySet for ADPUPA: get ObsType ...")
+    logger.debug(" ... Executing QuerySet for ADPUPA: get ObsType ...")
     typ3 = v.get('observationType', 'prepbufrDataLevelCategory')
 
     # MetaData
-    logger.info(" ... Executing QuerySet for ADPUPA: get MetaData ...")
+    logger.debug(" ... Executing QuerySet for ADPUPA: get MetaData ...")
     sid3 = v.get('stationIdentification', 'prepbufrDataLevelCategory')
     cat3 = v.get('prepbufrDataLevelCategory', 'prepbufrDataLevelCategory')
     tpc3 = v.get('temperatureEventCode', 'prepbufrDataLevelCategory')
@@ -361,7 +361,7 @@ def bufr_to_ioda(config, logger):
     pressure3 *= 100
 
     # QualityMark
-    logger.info(" ... Executing QuerySet for ADPUPA: get QualityMarker ...")
+    logger.debug(" ... Executing QuerySet for ADPUPA: get QualityMarker ...")
     pobqm3 = v.get('qualityMarkerStationPressure', 'prepbufrDataLevelCategory')
     psqm3 = np.full(pobqm3.shape[0], pobqm3.fill_value)
     psqm3 = np.where(cat3 == 0, pobqm3, psqm3)
@@ -372,7 +372,7 @@ def bufr_to_ioda(config, logger):
     tvoqm3 = np.where(((tpc3 == 8) & (cat3 == 0)), tobqm3, tvoqm3)
 
     # ObsValue
-    logger.info(" ... Executing QuerySet for ADPUPA: get ObsValues ...")
+    logger.debug(" ... Executing QuerySet for ADPUPA: get ObsValues ...")
     elv3 = v.get('stationElevation', 'prepbufrDataLevelCategory', type='float')
     pob3 = v.get('stationPressure', 'prepbufrDataLevelCategory')
     ps3 = np.full(pressure3.shape[0], pressure3.fill_value)
@@ -384,73 +384,72 @@ def bufr_to_ioda(config, logger):
     tvo3 = np.full(tob3.shape[0], tob3.fill_value)
     tvo3 = np.where(((tpc3 == 8) & (cat3 == 0)), tob3, tvo3)
 
-    
-    logger.info(f" ... QuerySet execution for ADPUPA ... done!")
-    logger.info(f" ... Executing QuerySet: Done!")
+    logger.debug(f" ... QuerySet execution for ADPUPA ... done!")
+    logger.debug(f" ... Executing QuerySet: Done!")
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for executing QuerySet: {running_time} seconds")
+    logger.debug(f"Running time for executing QuerySet: {running_time} seconds")
 
     # Check BUFR variable dimension and type
-    logger.info(f"     The shapes and dtypes of all 3 variables")
-    logger.info(f"     typ1       shape, type = {typ1.shape}, {typ1.dtype}")
-    logger.info(f"     typ2       shape, type = {typ2.shape}, {typ2.dtype}")
-    logger.info(f"     typ3       shape, type = {typ3.shape}, {typ3.dtype}")
-    logger.info(f"     sid1       shape, type = {sid1.shape}, {sid1.dtype}")
-    logger.info(f"     sid2       shape, type = {sid2.shape}, {sid2.dtype}")
-    logger.info(f"     sid3       shape, type = {sid3.shape}, {sid3.dtype}")
-    logger.info(f"     cat1       shape, type = {cat1.shape}, {cat1.dtype}")
-    logger.info(f"     cat2       shape, type = {cat2.shape}, {cat2.dtype}")
-    logger.info(f"     cat3       shape, type = {cat3.shape}, {cat3.dtype}")
-    logger.info(f"     tpc1       shape, type = {tpc1.shape}, {tpc1.dtype}")
-    logger.info(f"     tpc2       shape, type = {tpc2.shape}, {tpc2.dtype}")
-    logger.info(f"     tpc3       shape, type = {tpc3.shape}, {tpc3.dtype}")
-    logger.info(f"     lat1       shape, type = {lat1.shape}, {lat1.dtype}")
-    logger.info(f"     lat2       shape, type = {lat2.shape}, {lat2.dtype}")
-    logger.info(f"     lat3       shape, type = {lat3.shape}, {lat3.dtype}")
-    logger.info(f"     lon1       shape, type = {lon1.shape}, {lon1.dtype}")
-    logger.info(f"     lon2       shape, type = {lon2.shape}, {lon2.dtype}")
-    logger.info(f"     lon3       shape, type = {lon3.shape}, {lon3.dtype}")
-    logger.info(f"     zob1       shape, type = {zob1.shape}, {zob1.dtype}")
-    logger.info(f"     zob2       shape, type = {zob2.shape}, {zob2.dtype}")
-    logger.info(f"     zob3       shape, type = {zob3.shape}, {zob3.dtype}")
-    logger.info(f"     dhr1       shape, type = {dhr1.shape}, {dhr1.dtype}")
-    logger.info(f"     dhr2       shape, type = {dhr2.shape}, {dhr2.dtype}")
-    logger.info(f"     dhr3       shape, type = {dhr3.shape}, {dhr3.dtype}")
-    logger.info(f"     pressure1  shape, type = {pressure1.shape}, {pressure1.dtype}")
-    logger.info(f"     pressure2  shape, type = {pressure2.shape}, {pressure2.dtype}")
-    logger.info(f"     pressure3  shape, type = {pressure3.shape}, {pressure3.dtype}")
-    logger.info(f"     pobqm1     shape, type = {pobqm1.shape}, {pobqm1.dtype}")
-    logger.info(f"     pobqm2     shape, type = {pobqm2.shape}, {pobqm2.dtype}")
-    logger.info(f"     pobqm3     shape, type = {pobqm3.shape}, {pobqm3.dtype}")
-    logger.info(f"     psqm3      shape, type = {psqm3.shape}, {psqm3.dtype}")
-    logger.info(f"     tobqm1     shape, type = {tobqm1.shape}, {tobqm1.dtype}")
-    logger.info(f"     tobqm2     shape, type = {tobqm2.shape}, {tobqm2.dtype}")
-    logger.info(f"     tobqm3     shape, type = {tobqm3.shape}, {tobqm3.dtype}")
-    logger.info(f"     tsenqm1    shape, type = {tsenqm1.shape}, {tsenqm1.dtype}")
-    logger.info(f"     tsenqm2    shape, type = {tsenqm2.shape}, {tsenqm2.dtype}")
-    logger.info(f"     tsenqm3    shape, type = {tsenqm3.shape}, {tsenqm3.dtype}")
-    logger.info(f"     tvoqm1     shape, type = {tvoqm1.shape}, {tvoqm1.dtype}")
-    logger.info(f"     tvoqm2     shape, type = {tvoqm2.shape}, {tvoqm2.dtype}")
-    logger.info(f"     tvoqm3     shape, type = {tvoqm3.shape}, {tvoqm3.dtype}")
-    logger.info(f"     elv1       shape, type = {elv1.shape}, {elv1.dtype}")
-    logger.info(f"     elv2       shape, type = {elv2.shape}, {elv2.dtype}")
-    logger.info(f"     elv3       shape, type = {elv3.shape}, {elv3.dtype}")
-    logger.info(f"     pob1       shape, type = {pob1.shape}, {pob1.dtype}")
-    logger.info(f"     pob2       shape, type = {pob2.shape}, {pob2.dtype}")
-    logger.info(f"     pob3       shape, type = {pob3.shape}, {pob3.dtype}")
-    logger.info(f"     tob1       shape, type = {tob1.shape}, {tob1.dtype}")
-    logger.info(f"     tob2       shape, type = {tob2.shape}, {tob2.dtype}")
-    logger.info(f"     tob3       shape, type = {tob3.shape}, {tob3.dtype}")
-    logger.info(f"     tsen1      shape, type = {tsen1.shape}, {tsen1.dtype}")
-    logger.info(f"     tsen2      shape, type = {tsen2.shape}, {tsen2.dtype}")
-    logger.info(f"     tsen3      shape, type = {tsen3.shape}, {tsen3.dtype}")
-    logger.info(f"     tvo1       shape, type = {tvo1.shape}, {tvo1.dtype}")
-    logger.info(f"     tvo2       shape, type = {tvo2.shape}, {tvo2.dtype}")
-    logger.info(f"     tvo3       shape, type = {tvo3.shape}, {tvo3.dtype}")
+    logger.debug(f"     The shapes and dtypes of all 3 variables")
+    logger.debug(f"     typ1       shape, type = {typ1.shape}, {typ1.dtype}")
+    logger.debug(f"     typ2       shape, type = {typ2.shape}, {typ2.dtype}")
+    logger.debug(f"     typ3       shape, type = {typ3.shape}, {typ3.dtype}")
+    logger.debug(f"     sid1       shape, type = {sid1.shape}, {sid1.dtype}")
+    logger.debug(f"     sid2       shape, type = {sid2.shape}, {sid2.dtype}")
+    logger.debug(f"     sid3       shape, type = {sid3.shape}, {sid3.dtype}")
+    logger.debug(f"     cat1       shape, type = {cat1.shape}, {cat1.dtype}")
+    logger.debug(f"     cat2       shape, type = {cat2.shape}, {cat2.dtype}")
+    logger.debug(f"     cat3       shape, type = {cat3.shape}, {cat3.dtype}")
+    logger.debug(f"     tpc1       shape, type = {tpc1.shape}, {tpc1.dtype}")
+    logger.debug(f"     tpc2       shape, type = {tpc2.shape}, {tpc2.dtype}")
+    logger.debug(f"     tpc3       shape, type = {tpc3.shape}, {tpc3.dtype}")
+    logger.debug(f"     lat1       shape, type = {lat1.shape}, {lat1.dtype}")
+    logger.debug(f"     lat2       shape, type = {lat2.shape}, {lat2.dtype}")
+    logger.debug(f"     lat3       shape, type = {lat3.shape}, {lat3.dtype}")
+    logger.debug(f"     lon1       shape, type = {lon1.shape}, {lon1.dtype}")
+    logger.debug(f"     lon2       shape, type = {lon2.shape}, {lon2.dtype}")
+    logger.debug(f"     lon3       shape, type = {lon3.shape}, {lon3.dtype}")
+    logger.debug(f"     zob1       shape, type = {zob1.shape}, {zob1.dtype}")
+    logger.debug(f"     zob2       shape, type = {zob2.shape}, {zob2.dtype}")
+    logger.debug(f"     zob3       shape, type = {zob3.shape}, {zob3.dtype}")
+    logger.debug(f"     dhr1       shape, type = {dhr1.shape}, {dhr1.dtype}")
+    logger.debug(f"     dhr2       shape, type = {dhr2.shape}, {dhr2.dtype}")
+    logger.debug(f"     dhr3       shape, type = {dhr3.shape}, {dhr3.dtype}")
+    logger.debug(f"     pressure1  shape, type = {pressure1.shape}, {pressure1.dtype}")
+    logger.debug(f"     pressure2  shape, type = {pressure2.shape}, {pressure2.dtype}")
+    logger.debug(f"     pressure3  shape, type = {pressure3.shape}, {pressure3.dtype}")
+    logger.debug(f"     pobqm1     shape, type = {pobqm1.shape}, {pobqm1.dtype}")
+    logger.debug(f"     pobqm2     shape, type = {pobqm2.shape}, {pobqm2.dtype}")
+    logger.debug(f"     pobqm3     shape, type = {pobqm3.shape}, {pobqm3.dtype}")
+    logger.debug(f"     psqm3      shape, type = {psqm3.shape}, {psqm3.dtype}")
+    logger.debug(f"     tobqm1     shape, type = {tobqm1.shape}, {tobqm1.dtype}")
+    logger.debug(f"     tobqm2     shape, type = {tobqm2.shape}, {tobqm2.dtype}")
+    logger.debug(f"     tobqm3     shape, type = {tobqm3.shape}, {tobqm3.dtype}")
+    logger.debug(f"     tsenqm1    shape, type = {tsenqm1.shape}, {tsenqm1.dtype}")
+    logger.debug(f"     tsenqm2    shape, type = {tsenqm2.shape}, {tsenqm2.dtype}")
+    logger.debug(f"     tsenqm3    shape, type = {tsenqm3.shape}, {tsenqm3.dtype}")
+    logger.debug(f"     tvoqm1     shape, type = {tvoqm1.shape}, {tvoqm1.dtype}")
+    logger.debug(f"     tvoqm2     shape, type = {tvoqm2.shape}, {tvoqm2.dtype}")
+    logger.debug(f"     tvoqm3     shape, type = {tvoqm3.shape}, {tvoqm3.dtype}")
+    logger.debug(f"     elv1       shape, type = {elv1.shape}, {elv1.dtype}")
+    logger.debug(f"     elv2       shape, type = {elv2.shape}, {elv2.dtype}")
+    logger.debug(f"     elv3       shape, type = {elv3.shape}, {elv3.dtype}")
+    logger.debug(f"     pob1       shape, type = {pob1.shape}, {pob1.dtype}")
+    logger.debug(f"     pob2       shape, type = {pob2.shape}, {pob2.dtype}")
+    logger.debug(f"     pob3       shape, type = {pob3.shape}, {pob3.dtype}")
+    logger.debug(f"     tob1       shape, type = {tob1.shape}, {tob1.dtype}")
+    logger.debug(f"     tob2       shape, type = {tob2.shape}, {tob2.dtype}")
+    logger.debug(f"     tob3       shape, type = {tob3.shape}, {tob3.dtype}")
+    logger.debug(f"     tsen1      shape, type = {tsen1.shape}, {tsen1.dtype}")
+    logger.debug(f"     tsen2      shape, type = {tsen2.shape}, {tsen2.dtype}")
+    logger.debug(f"     tsen3      shape, type = {tsen3.shape}, {tsen3.dtype}")
+    logger.debug(f"     tvo1       shape, type = {tvo1.shape}, {tvo1.dtype}")
+    logger.debug(f"     tvo2       shape, type = {tvo2.shape}, {tvo2.dtype}")
+    logger.debug(f"     tvo3       shape, type = {tvo3.shape}, {tvo3.dtype}")
 
-    logger.info(f"  ... Concatenate the variables")
+    logger.debug(f"  ... Concatenate the variables")
     typ = np.concatenate((typ1, typ2, typ3), axis=0)
     sid = np.concatenate((sid1, sid2, sid3), axis=0)
     cat = np.concatenate((cat1, cat2, cat3), axis=0)
@@ -472,34 +471,34 @@ def bufr_to_ioda(config, logger):
     tsen = np.concatenate((tsen1, tsen2, tsen3), axis=0).astype(tob1.dtype)
     tvo = np.concatenate((tvo1, tvo2, tvo3), axis=0).astype(tvo1.dtype)
 
-    logger.info(f"  ... Concatenated array shapes:")
-    logger.info(f"  new typ       shape = {typ.shape}")
-    logger.info(f"  new sid       shape = {sid.shape}")
-    logger.info(f"  new cat       shape = {cat.shape}")
-    logger.info(f"  new tpc       shape = {tpc.shape}")
-    logger.info(f"  new lat       shape = {lat.shape}")
-    logger.info(f"  new lon       shape = {lon.shape}")
-    logger.info(f"  new zob       shape = {zob.shape}")
-    logger.info(f"  new dhr       shape = {dhr.shape}")
-    logger.info(f"  new pressure  shape = {pressure.shape}")
-    logger.info(f"  new pobqm     shape = {pobqm.shape}")
-    logger.info(f"  new psqm      shape = {psqm.shape}")
-    logger.info(f"  new tobqm     shape = {tobqm.shape}")
-    logger.info(f"  new tsenqm    shape = {tsenqm.shape}")
-    logger.info(f"  new tvoqm     shape = {tvoqm.shape}")
-    logger.info(f"  new pob       shape = {pob.shape}")
-    logger.info(f"  new ps        shape = {ps.shape}")
-    logger.info(f"  new elv       shape = {elv.shape}")
-    logger.info(f"  new tob       shape = {tob.shape}")
-    logger.info(f"  new tsen      shape = {tsen.shape}")
-    logger.info(f"  new tvo       shape = {tvo.shape}")
+    logger.debug(f"  ... Concatenated array shapes:")
+    logger.debug(f"  new typ       shape = {typ.shape}")
+    logger.debug(f"  new sid       shape = {sid.shape}")
+    logger.debug(f"  new cat       shape = {cat.shape}")
+    logger.debug(f"  new tpc       shape = {tpc.shape}")
+    logger.debug(f"  new lat       shape = {lat.shape}")
+    logger.debug(f"  new lon       shape = {lon.shape}")
+    logger.debug(f"  new zob       shape = {zob.shape}")
+    logger.debug(f"  new dhr       shape = {dhr.shape}")
+    logger.debug(f"  new pressure  shape = {pressure.shape}")
+    logger.debug(f"  new pobqm     shape = {pobqm.shape}")
+    logger.debug(f"  new psqm      shape = {psqm.shape}")
+    logger.debug(f"  new tobqm     shape = {tobqm.shape}")
+    logger.debug(f"  new tsenqm    shape = {tsenqm.shape}")
+    logger.debug(f"  new tvoqm     shape = {tvoqm.shape}")
+    logger.debug(f"  new pob       shape = {pob.shape}")
+    logger.debug(f"  new ps        shape = {ps.shape}")
+    logger.debug(f"  new elv       shape = {elv.shape}")
+    logger.debug(f"  new tob       shape = {tob.shape}")
+    logger.debug(f"  new tsen      shape = {tsen.shape}")
+    logger.debug(f"  new tvo       shape = {tvo.shape}")
 
     # =========================
     # Create derived variables
     # =========================
     start_time = time.time()
 
-    logger.info(f"Creating derived variables - dateTime ...")
+    logger.debug(f"Creating derived variables - dateTime ...")
 
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(
                                    reference_time_full, '%Y%m%d%H%M')))
@@ -509,13 +508,13 @@ def bufr_to_ioda(config, logger):
 
     dateTime = np.concatenate((dateTime1, dateTime2, dateTime3), axis=0).astype(np.int64)
 
-    logger.info(f"     Check derived variables type ... ")
-    logger.info(f"     dateTime shape = {dateTime.shape}")
-    logger.info(f"     dateTime type = {dateTime.dtype}")
+    logger.debug(f"     Check derived variables type ... ")
+    logger.debug(f"     dateTime shape = {dateTime.shape}")
+    logger.debug(f"     dateTime type = {dateTime.dtype}")
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for creating derived variables: \
+    logger.debug(f"Running time for creating derived variables: \
                 {running_time} seconds")
 
     # =====================================
@@ -528,7 +527,7 @@ def bufr_to_ioda(config, logger):
 
     iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
-    logger.info(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
+    logger.debug(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
 
     path, fname = os.path.split(OUTPUT_PATH)
     if path and not os.path.exists(path):
@@ -537,7 +536,7 @@ def bufr_to_ioda(config, logger):
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
     # Create Global attributes
-    logger.info(f" ... ... Create global attributes")
+    logger.debug(f" ... ... Create global attributes")
 
 #    obsspace.write_attr('Converter', converter)
     obsspace.write_attr('source', source)
@@ -549,26 +548,26 @@ def bufr_to_ioda(config, logger):
                         [str(min(dateTime)), str(max(dateTime))])
 
     # Create IODA variables
-    logger.info(f" ... ... Create variables: name, type, units, & attributes")
+    logger.debug(f" ... ... Create variables: name, type, units, & attributes")
 
     # Observation Type - airTemperature
     obsspace.create_var('ObsType/airTemperature', dtype=typorig1.dtype,
                         fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ)
-    
+
     # Observation Type - virtualTemperature
     obsspace.create_var('ObsType/virtualTemperature', dtype=typorig1.dtype,
                         fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ)
-    
+
     # Observation Type - stationPressure
     obsspace.create_var('ObsType/stationPressure', dtype=typorig1.dtype,
                         fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ)
-    
+
     # Station Identification
     obsspace.create_var('MetaData/stationIdentification', dtype=sidorig1.dtype,
                         fillval=sidorig1.fill_value) \
@@ -609,7 +608,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Height Of Station') \
         .write_data(zob)
-    
+
     # Datetime
     obsspace.create_var('MetaData/dateTime', dtype=dhrorig1.dtype,
                         fillval=dhrorig1.fill_value) \
@@ -648,7 +647,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Station Elevation') \
         .write_data(elv)
-    
+
     # ObsValue: Station Pressure
     obsspace.create_var('ObsValue/stationPressure', dtype=poborig1.dtype,
                         fillval=poborig1.fill_value) \
@@ -670,7 +669,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Virtual Temperature') \
         .write_data(tvo)
 
-    logger.info("All Done!")
+    logger.debug("All Done!")
 
 
 if __name__ == '__main__':
@@ -697,4 +696,4 @@ if __name__ == '__main__':
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Total running time: {running_time} seconds")
+    logger.debug(f"Total running time: {running_time} seconds")
