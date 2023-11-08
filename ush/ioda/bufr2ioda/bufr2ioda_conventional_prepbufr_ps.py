@@ -9,12 +9,14 @@ sys.path.append('/work2/noaa/da/nesposito/ioda_bundle_readlc_20231012/build/lib/
 sys.path.append('/work2/noaa/da/nesposito/ioda_bundle_readlc_20231012/build/lib/python3.7/pyioda')
 sys.path.append('/work2/noaa/da/nesposito/ioda_bundle_readlc_20231012/build/lib/python3.7/pyiodaconv')
 import numpy as np
+import numpy.ma as ma
 import os
 import argparse
 import math
 import calendar
 import time
 from datetime import datetime
+import copy
 import json
 from pyiodaconv import bufr
 from collections import namedtuple
@@ -28,6 +30,20 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
     dateTime = dhr + cycleTimeSinceEpoch
 
     return dateTime
+
+
+def Mask_typ_for_var(typ, var):
+
+    typ_var = copy.deepcopy(typ)
+    typ_var = ma.array(typ_var)
+    for i in range(len(typ_var)):
+        if i < 300: 
+           print("NE try", i, var[i], typ_var[i])
+        if ma.is_masked(var[i]):
+           print("NE should be filled")
+           typ_var[i] = typ_var.fill_value
+
+    return typ_var
 
 
 def bufr_to_ioda(config, logger):
@@ -512,6 +528,18 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     dateTime shape = {dateTime.shape}")
     logger.debug(f"     dateTime type = {dateTime.dtype}")
 
+    typ_ps = Mask_typ_for_var(typ, ps)
+    typ_tsen = Mask_typ_for_var(typ, tsen)
+    typ_tvo = Mask_typ_for_var(typ, tvo)
+
+    logger.debug(f"     Check drived variables (typ*) shape & type ... ")
+    logger.debug(f"     typ_ps shape = {typ_ps.shape}")
+    logger.debug(f"     typ_ps type = {typ_ps.dtype}")
+    logger.debug(f"     typ_tsen shape = {typ_tsen.shape}")
+    logger.debug(f"     typ_tsen type = {typ_tsen.dtype}")
+    logger.debug(f"     typ_tvo shape = {typ_tvo.shape}")
+    logger.debug(f"     typ_tvo type = {typ_tvo.dtype}")
+
     end_time = time.time()
     running_time = end_time - start_time
     logger.debug(f"Running time for creating derived variables: \
@@ -538,7 +566,6 @@ def bufr_to_ioda(config, logger):
     # Create Global attributes
     logger.debug(f" ... ... Create global attributes")
 
-#    obsspace.write_attr('Converter', converter)
     obsspace.write_attr('source', source)
     obsspace.write_attr('sourceFiles', bufrfile)
     obsspace.write_attr('dataProviderOrigin', data_provider)
@@ -554,19 +581,19 @@ def bufr_to_ioda(config, logger):
     obsspace.create_var('ObsType/airTemperature', dtype=typorig1.dtype,
                         fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
-        .write_data(typ)
+        .write_data(typ_tsen)
 
     # Observation Type - virtualTemperature
     obsspace.create_var('ObsType/virtualTemperature', dtype=typorig1.dtype,
                         fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
-        .write_data(typ)
+        .write_data(typ_tvo)
 
     # Observation Type - stationPressure
     obsspace.create_var('ObsType/stationPressure', dtype=typorig1.dtype,
                         fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
-        .write_data(typ)
+        .write_data(typ_ps)
 
     # Station Identification
     obsspace.create_var('MetaData/stationIdentification', dtype=sidorig1.dtype,
