@@ -28,14 +28,14 @@ from wxflow import Logger
 
 def Derive_stationIdentification(said, ptid):
 
-    stid=[]
+    stid = []
     for i in range(len(said)):
         newval = str(said[i]).zfill(4)+str(ptid[i]).zfill(4)
         stid.append(str(newval))
     stid = np.array(stid).astype(dtype='str')
     stid = ma.array(stid)
     ma.set_fill_value(stid, "")
- 
+
     return stid
 
 
