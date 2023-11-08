@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # (C) Copyright 2023 NOAA/NWS/NCEP/EMC
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
@@ -25,12 +26,16 @@ from wxflow import Logger
 # ====================================================================
 
 
-def Derive_stationIdentification(said, ptid, stid):
+def Derive_stationIdentification(said, ptid):
 
-    stid = stid.astype('str')
+    stid=[]
     for i in range(len(said)):
-        stid[i] = str(said[i]).zfill(4)+str(ptid[i]).zfill(4)
-
+        newval = str(said[i]).zfill(4)+str(ptid[i]).zfill(4)
+        stid.append(str(newval))
+    stid = np.array(stid).astype(dtype='str')
+    stid = ma.array(stid)
+    ma.set_fill_value(stid, "")
+ 
     return stid
 
 
@@ -44,7 +49,7 @@ def Compute_Grid_Location(degrees):
     return rad
 
 
-def Compute_imph(impp, elrc):  # , geodu, imph):
+def Compute_imph(impp, elrc):
 
     imph = (impp - elrc).astype(np.float32)
 
@@ -102,8 +107,6 @@ def bufr_to_ioda(config, logger):
 #    q.add('observationSequenceNum', '*/SEQNUM')
     q.add('geoidUndulation', '*/GEODU')
     q.add('height', '*/ROSEQ3/HEIT')
-#    q.add('impactHeightRO_roseq2repl1', '*/ROSEQ1/ROSEQ2{1}/IMPP')
-#    q.add('impactHeightRO_roseq2repl3', '*/ROSEQ1/ROSEQ2{3}/IMPP')
     q.add('impactParameterRO_roseq2repl1', '*/ROSEQ1/ROSEQ2{1}/IMPP')
     q.add('impactParameterRO_roseq2repl3', '*/ROSEQ1/ROSEQ2{3}/IMPP')
     q.add('frequency__roseq2repl1', '*/ROSEQ1/ROSEQ2{1}/MEFR')
@@ -160,7 +163,6 @@ def bufr_to_ioda(config, logger):
     hour = r.get('hour', 'latitude')
     minu = r.get('minute', 'latitude')
     seco = r.get('second', 'latitude')
-    stid = r.get('stationIdentification', 'latitude')
     said = r.get('satelliteIdentifier', 'latitude')
     siid = r.get('satelliteInstrument', 'latitude')
     sclf = r.get('satelliteConstellationRO', 'latitude')
@@ -171,8 +173,6 @@ def bufr_to_ioda(config, logger):
     heit = r.get('height', 'height', type='float32').astype(np.float32)
     impp1 = r.get('impactParameterRO_roseq2repl1', 'latitude')
     impp3 = r.get('impactParameterRO_roseq2repl3', 'latitude')
-#    imph1 = r.get('impactHeightRO_roseq2repl1', 'latitude')
-#    imph3 = r.get('impactHeightRO_roseq2repl3', 'latitude')
     mefr1 = r.get('frequency__roseq2repl1', 'latitude',
                   type='float32').astype(np.float32)
     mefr3 = r.get('frequency__roseq2repl3', 'latitude',
@@ -230,7 +230,6 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     hour      shape, type = {hour.shape}, {hour.dtype}")
     logger.info(f"     minu      shape, type = {minu.shape}, {minu.dtype}")
     logger.info(f"     seco      shape, type = {seco.shape}, {seco.dtype}")
-    logger.info(f"     stid      shape, type = {stid.shape}, {stid.dtype}")
     logger.info(f"     said      shape, type = {said.shape}, {said.dtype}")
     logger.info(f"     siid      shape, type = {siid.shape}, {siid.dtype}")
     logger.info(f"     sclf      shape, type = {sclf.shape}, {sclf.dtype}")
@@ -240,8 +239,6 @@ def bufr_to_ioda(config, logger):
     logger.info(f"     heit      shape, type = {heit.shape}, {heit.dtype}")
     logger.info(f"     impp1     shape, type = {impp1.shape}, {impp1.dtype}")
     logger.info(f"     impp3     shape, type = {impp3.shape}, {impp3.dtype}")
-#    logger.info(f"     imph1     shape, {type = {imph1.shape,   imph1.dtype}")
-#    logger.info(f"     imph3     shape, {type = {imph3.shape,   imph3.dtype}")
     logger.info(f"     mefr1     shape, type = {mefr1.shape}, {mefr1.dtype}")
     logger.info(f"     mefr3     shape, type = {mefr3.shape}, {mefr3.dtype}")
     logger.info(f"     pccf      shape, type = {pccf.shape}, {pccf.dtype}")
@@ -277,7 +274,7 @@ def bufr_to_ioda(config, logger):
     start_time = time.time()
 
     logger.info(f"Creating derived variables - stationIdentification")
-    stid = Derive_stationIdentification(said, ptid, stid)
+    stid = Derive_stationIdentification(said, ptid)
 
     logger.info(f"     stid shape,type = {stid.shape}, {stid.dtype}")
 
