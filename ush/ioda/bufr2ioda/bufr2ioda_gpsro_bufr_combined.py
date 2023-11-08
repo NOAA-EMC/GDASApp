@@ -84,7 +84,7 @@ def bufr_to_ioda(config, logger):
     # ============================================
     start_time = time.time()
 
-    logger.info(f"Making QuerySet ...")
+    logger.debug(f"Making QuerySet ...")
     q = bufr.QuerySet(subsets)
 
     # MetaData
@@ -138,7 +138,7 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for making QuerySet: {running_time} seconds")
+    logger.debug(f"Running time for making QuerySet: {running_time} seconds")
 
     # ==============================================================
     # Open the BUFR file and execute the QuerySet to get ResultSet
@@ -146,11 +146,11 @@ def bufr_to_ioda(config, logger):
     # ==============================================================
     start_time = time.time()
 
-    logger.info(f"Executing QuerySet to get ResultSet ...")
+    logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
         r = f.execute(q)
 
-    logger.info(f" ... Executing QuerySet: get MetaData: basic ...")
+    logger.debug(f" ... Executing QuerySet: get MetaData: basic ...")
     # MetaData
     clath = r.get('latitude', 'latitude')
     clonh = r.get('longitude', 'latitude')
@@ -181,17 +181,17 @@ def bufr_to_ioda(config, logger):
     ref_pccf = r.get('percentConfidence', 'height')
     bearaz = r.get('sensorAzimuthAngle', 'latitude')
 
-    logger.info(f" ... Executing QuerySet: get MetaData: processing center...")
+    logger.debug(f" ... Executing QuerySet: get MetaData: processing center...")
     # Processing Center
     ogce = r.get('dataProviderOrigin', 'latitude')
 
-    logger.info(f" ... Executing QuerySet: get metadata: data quality \
+    logger.debug(f" ... Executing QuerySet: get metadata: data quality \
                 information ...")
     # Quality Information
     qfro = r.get('qualityFlags', 'latitude')
     satasc = r.get('satelliteAscendingFlag', 'latitude')
 
-    logger.info(f" ... Executing QuerySet: get ObsValue: Bending Angle ...")
+    logger.debug(f" ... Executing QuerySet: get ObsValue: Bending Angle ...")
     # ObsValue
     # Bending Angle
     bnda1 = r.get('bendingAngle_roseq2repl1', 'latitude')
@@ -209,63 +209,63 @@ def bufr_to_ioda(config, logger):
     bndaot = r.get('obsTypeBendingAngle', 'latitude')
     arfrot = r.get('obsTypeBendingAngle', 'latitude')
 
-    logger.info(f" ... Executing QuerySet: get datatime: observation time ...")
+    logger.debug(f" ... Executing QuerySet: get datatime: observation time ...")
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
     timestamp = r.get_datetime('year', 'month', 'day', 'hour', 'minute',
                                'second', 'latitude').astype(np.int64)
 
-    logger.info(f" ... Executing QuerySet: Done!")
+    logger.debug(f" ... Executing QuerySet: Done!")
 
-    logger.info(f" ... Executing QuerySet: Check BUFR variable generic \
+    logger.debug(f" ... Executing QuerySet: Check BUFR variable generic \
                 dimension and type ...")
     # Check BUFR variable generic dimension and type
-    logger.info(f"     clath     shape, type = {clath.shape}, {clath.dtype}")
-    logger.info(f"     clonh     shape, type = {clonh.shape}, {clonh.dtype}")
-    logger.info(f"     gclath    shape, type = {gclath.shape}, {gclath.dtype}")
-    logger.info(f"     gclonh    shape, type = {gclonh.shape}, {gclonh.dtype}")
-    logger.info(f"     year      shape, type = {year.shape}, {year.dtype}")
-    logger.info(f"     mnth      shape, type = {mnth.shape}, {mnth.dtype}")
-    logger.info(f"     days      shape, type = {days.shape}, {days.dtype}")
-    logger.info(f"     hour      shape, type = {hour.shape}, {hour.dtype}")
-    logger.info(f"     minu      shape, type = {minu.shape}, {minu.dtype}")
-    logger.info(f"     seco      shape, type = {seco.shape}, {seco.dtype}")
-    logger.info(f"     said      shape, type = {said.shape}, {said.dtype}")
-    logger.info(f"     siid      shape, type = {siid.shape}, {siid.dtype}")
-    logger.info(f"     sclf      shape, type = {sclf.shape}, {sclf.dtype}")
-    logger.info(f"     ptid      shape, type = {ptid.shape}, {ptid.dtype}")
-    logger.info(f"     elrc      shape, type = {elrc.shape}, {elrc.dtype}")
-    logger.info(f"     geodu     shape, type = {geodu.shape}, {geodu.dtype}")
-    logger.info(f"     heit      shape, type = {heit.shape}, {heit.dtype}")
-    logger.info(f"     impp1     shape, type = {impp1.shape}, {impp1.dtype}")
-    logger.info(f"     impp3     shape, type = {impp3.shape}, {impp3.dtype}")
-    logger.info(f"     mefr1     shape, type = {mefr1.shape}, {mefr1.dtype}")
-    logger.info(f"     mefr3     shape, type = {mefr3.shape}, {mefr3.dtype}")
-    logger.info(f"     pccf      shape, type = {pccf.shape}, {pccf.dtype}")
-    logger.info(f"     ref_pccf  shape, type = {ref_pccf.shape}, \
+    logger.debug(f"     clath     shape, type = {clath.shape}, {clath.dtype}")
+    logger.debug(f"     clonh     shape, type = {clonh.shape}, {clonh.dtype}")
+    logger.debug(f"     gclath    shape, type = {gclath.shape}, {gclath.dtype}")
+    logger.debug(f"     gclonh    shape, type = {gclonh.shape}, {gclonh.dtype}")
+    logger.debug(f"     year      shape, type = {year.shape}, {year.dtype}")
+    logger.debug(f"     mnth      shape, type = {mnth.shape}, {mnth.dtype}")
+    logger.debug(f"     days      shape, type = {days.shape}, {days.dtype}")
+    logger.debug(f"     hour      shape, type = {hour.shape}, {hour.dtype}")
+    logger.debug(f"     minu      shape, type = {minu.shape}, {minu.dtype}")
+    logger.debug(f"     seco      shape, type = {seco.shape}, {seco.dtype}")
+    logger.debug(f"     said      shape, type = {said.shape}, {said.dtype}")
+    logger.debug(f"     siid      shape, type = {siid.shape}, {siid.dtype}")
+    logger.debug(f"     sclf      shape, type = {sclf.shape}, {sclf.dtype}")
+    logger.debug(f"     ptid      shape, type = {ptid.shape}, {ptid.dtype}")
+    logger.debug(f"     elrc      shape, type = {elrc.shape}, {elrc.dtype}")
+    logger.debug(f"     geodu     shape, type = {geodu.shape}, {geodu.dtype}")
+    logger.debug(f"     heit      shape, type = {heit.shape}, {heit.dtype}")
+    logger.debug(f"     impp1     shape, type = {impp1.shape}, {impp1.dtype}")
+    logger.debug(f"     impp3     shape, type = {impp3.shape}, {impp3.dtype}")
+    logger.debug(f"     mefr1     shape, type = {mefr1.shape}, {mefr1.dtype}")
+    logger.debug(f"     mefr3     shape, type = {mefr3.shape}, {mefr3.dtype}")
+    logger.debug(f"     pccf      shape, type = {pccf.shape}, {pccf.dtype}")
+    logger.debug(f"     ref_pccf  shape, type = {ref_pccf.shape}, \
                 {ref_pccf.dtype}")
-    logger.info(f"     bearaz    shape, type = {bearaz.shape}, {bearaz.dtype}")
+    logger.debug(f"     bearaz    shape, type = {bearaz.shape}, {bearaz.dtype}")
 
-    logger.info(f"     ogce      shape, type = {ogce.shape}, {ogce.dtype}")
+    logger.debug(f"     ogce      shape, type = {ogce.shape}, {ogce.dtype}")
 
-    logger.info(f"     qfro      shape, type = {qfro.shape}, {qfro.dtype}")
-    logger.info(f"     satasc    shape, type = {satasc.shape}, {satasc.dtype}")
+    logger.debug(f"     qfro      shape, type = {qfro.shape}, {qfro.dtype}")
+    logger.debug(f"     satasc    shape, type = {satasc.shape}, {satasc.dtype}")
 
-    logger.info(f"     bnda1     shape, type = {bnda1.shape}, {bnda1.dtype}")
-    logger.info(f"     bnda3     shape, type = {bnda3.shape}, {bnda3.dtype}")
-    logger.info(f"     arfr      shape, type = {arfr.shape}, {arfr.dtype}")
+    logger.debug(f"     bnda1     shape, type = {bnda1.shape}, {bnda1.dtype}")
+    logger.debug(f"     bnda3     shape, type = {bnda3.shape}, {bnda3.dtype}")
+    logger.debug(f"     arfr      shape, type = {arfr.shape}, {arfr.dtype}")
 
-    logger.info(f"     bndaoe1   shape, type = {bndaoe1.shape}, \
+    logger.debug(f"     bndaoe1   shape, type = {bndaoe1.shape}, \
                 {bndaoe1.dtype}")
-    logger.info(f"     bndaoe3   shape, type = {bndaoe3.shape}, \
+    logger.debug(f"     bndaoe3   shape, type = {bndaoe3.shape}, \
                 {bndaoe3.dtype}")
-    logger.info(f"     arfroe    shape, type = {arfr.shape}, {arfr.dtype}")
+    logger.debug(f"     arfroe    shape, type = {arfr.shape}, {arfr.dtype}")
 
-    logger.info(f"     bndaot    shape, type = {bndaot.shape}, {bndaot.dtype}")
+    logger.debug(f"     bndaot    shape, type = {bndaot.shape}, {bndaot.dtype}")
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for executing QuerySet to get ResultSet: \
+    logger.debug(f"Running time for executing QuerySet to get ResultSet: \
                 {running_time} seconds")
 
     # =========================
@@ -273,30 +273,30 @@ def bufr_to_ioda(config, logger):
     # =========================
     start_time = time.time()
 
-    logger.info(f"Creating derived variables - stationIdentification")
+    logger.debug(f"Creating derived variables - stationIdentification")
     stid = Derive_stationIdentification(said, ptid)
 
-    logger.info(f"     stid shape,type = {stid.shape}, {stid.dtype}")
+    logger.debug(f"     stid shape,type = {stid.shape}, {stid.dtype}")
 
-    logger.info(f"Creating derived variables - Grid Latitude / Longitude ...")
+    logger.debug(f"Creating derived variables - Grid Latitude / Longitude ...")
     gclonh = Compute_Grid_Location(gclonh)
     gclath = Compute_Grid_Location(gclath)
 
-    logger.info(f"     gclonh shape,type = {gclonh.shape}, {gclonh.dtype}")
-    logger.info(f"     gclath shape,type = {gclath.shape}, {gclath.dtype}")
-    logger.info(f"     gclonh min/max = {gclonh.min()}, {gclonh.max()}")
-    logger.info(f"     gclath min/max = {gclath.min()}, {gclath.max()}")
+    logger.debug(f"     gclonh shape,type = {gclonh.shape}, {gclonh.dtype}")
+    logger.debug(f"     gclath shape,type = {gclath.shape}, {gclath.dtype}")
+    logger.debug(f"     gclonh min/max = {gclonh.min()}, {gclonh.max()}")
+    logger.debug(f"     gclath min/max = {gclath.min()}, {gclath.max()}")
 
-    logger.info(f"Creating derived variables - imph ...")
+    logger.debug(f"Creating derived variables - imph ...")
     imph1 = Compute_imph(impp1, elrc)
     imph3 = Compute_imph(impp3, elrc)
 
-    logger.info(f"     imph1 shape,type = {imph1.shape}, {imph1.dtype}")
-    logger.info(f"     imph3 shape,type = {imph3.shape}, {imph3.dtype}")
-    logger.info(f"     imph1 min/max = {imph1.min()}, {imph1.max()}")
-    logger.info(f"     imph3 min/max = {imph3.min()}, {imph3.max()}")
+    logger.debug(f"     imph1 shape,type = {imph1.shape}, {imph1.dtype}")
+    logger.debug(f"     imph3 shape,type = {imph3.shape}, {imph3.dtype}")
+    logger.debug(f"     imph1 min/max = {imph1.min()}, {imph1.max()}")
+    logger.debug(f"     imph3 min/max = {imph3.min()}, {imph3.max()}")
 
-    logger.info(f"Editing some derived variables if SAID is not 44 or 825")
+    logger.debug(f"Editing some derived variables if SAID is not 44 or 825")
     for i in range(len(said)):
         if (said[i] != 44) or (said[i] != 825):
             bnda1[i] = bnda3[i]
@@ -305,20 +305,20 @@ def bufr_to_ioda(config, logger):
             imph1[i] = imph3[i]
             bndaoe1[i] = bndaoe3[i]
 
-    logger.info(f"     new bnda1 shape, type, min/max {bnda1.shape}, \
+    logger.debug(f"     new bnda1 shape, type, min/max {bnda1.shape}, \
                 {bnda1.dtype}, {bnda1.min()}, {bnda1.max()}")
-    logger.info(f"     new mefr1 shape, type, min/max {mefr1.shape}, \
+    logger.debug(f"     new mefr1 shape, type, min/max {mefr1.shape}, \
                 {mefr1.dtype}, {mefr1.min()}, {mefr1.max()}")
-    logger.info(f"     new impp1 shape, type, min/max {impp1.shape}, \
+    logger.debug(f"     new impp1 shape, type, min/max {impp1.shape}, \
                 {impp1.dtype}, {impp1.min()}, {impp1.max()}")
-    logger.info(f"     new imph1 shape, type, min/max {imph1.shape}, \
+    logger.debug(f"     new imph1 shape, type, min/max {imph1.shape}, \
                 {imph1.dtype}, {imph1.min()}, {imph1.max()}")
-    logger.info(f"     new bndaoe1 shape, type, min/max {bndaoe1.shape}, \
+    logger.debug(f"     new bndaoe1 shape, type, min/max {bndaoe1.shape}, \
                 {bndaoe1.dtype}, {bndaoe1.min()}, {bndaoe1.max()}")
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for creating derived variables: {running_time} \
+    logger.debug(f"Running time for creating derived variables: {running_time} \
                 seconds")
 
     # =====================================
@@ -328,16 +328,16 @@ def bufr_to_ioda(config, logger):
 
     # Find unique satellite identifiers in data to process
     unique_satids = np.unique(said)
-    logger.info(f" ... Number of Unique satellite identifiers: \
+    logger.debug(f" ... Number of Unique satellite identifiers: \
                 {len(unique_satids)}")
-    logger.info(f" ... Unique satellite identifiers: {unique_satids}")
+    logger.debug(f" ... Unique satellite identifiers: {unique_satids}")
 
     # Create the dimensions
     dims = {'Location': np.arange(0, clath.shape[0])}
 
     iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
-    logger.info(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
+    logger.debug(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
 
     path, fname = os.path.split(OUTPUT_PATH)
     if path and not os.path.exists(path):
@@ -347,7 +347,7 @@ def bufr_to_ioda(config, logger):
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
     # Create Global attributes
-    logger.info(f" ... ... Create global attributes")
+    logger.debug(f" ... ... Create global attributes")
     obsspace.write_attr('data_format', data_format)
     obsspace.write_attr('data_type', data_type)
     obsspace.write_attr('subsets', subsets)
@@ -358,7 +358,7 @@ def bufr_to_ioda(config, logger):
     obsspace.write_attr('converter', os.path.basename(__file__))
 
     # Create IODA variables
-    logger.info(f" ... ... Create variables: name, type, units, & attributes")
+    logger.debug(f" ... ... Create variables: name, type, units, & attributes")
     # Longitude
     obsspace.create_var('MetaData/longitude', dtype=clonh.dtype,
                         fillval=clonh.fill_value) \
@@ -553,10 +553,10 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for splitting and output IODA for gpsro bufr: \
+    logger.debug(f"Running time for splitting and output IODA for gpsro bufr: \
                 {running_time} seconds")
 
-    logger.info("All Done!")
+    logger.debug("All Done!")
 
 
 if __name__ == '__main__':
@@ -582,4 +582,4 @@ if __name__ == '__main__':
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Total running time: {running_time} seconds")
+    logger.debug(f"Total running time: {running_time} seconds")
