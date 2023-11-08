@@ -52,37 +52,40 @@ def bufr_to_ioda(config, logger):
     reference_time = reference_time.strftime("%Y-%m-%dT%H:%M:%SZ")
     reference_time_full = f"{yyyymmdd}{hh}00"
 
-    logger.info(f"Reference time = {reference_time}")
+    logger.debug(f"Reference time = {reference_time}")
 
     # General informaton
     converter = 'BUFR to IODA Converter'
     platform_description = 'SFCSHP data from prepBUFR format'
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}"
-    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh),
-                             bufrfile)
+    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}",
+                             str(hh), bufrfile)
 
-    logger.info("The DATA_PATH is: {DATA_PATH}")
+    logger.debug(f"The DATA_PATH is: {DATA_PATH}")
 
     # ============================================
     # Make the QuerySet for all the data we want
     # ============================================
     start_time = time.time()
 
-    logger.info(f"Making QuerySet ...")
+    logger.debug("Making QuerySet ...")
     q = bufr.QuerySet(subsets)
+
+    # ObsType
+    q.add('observationType', '*/TYP')
 
     # MetaData
     q.add('stationIdentification', '*/SID')
     q.add('latitude', '*/YOB')
     q.add('longitude', '*/XOB')
     q.add('obsTimeMinusCycleTime', '*/DHR')
-    q.add('stationElevation', '*/ELV')
-    q.add('observationType', '*/TYP')
+    q.add('heightOfStation', '*/Z___INFO/Z__EVENT{1}/ZOB')
     q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
     q.add('temperatureEventCode', '*/T___INFO/T__EVENT{1}/TPC')
 
 #   # Quality Infomation (Quality Indicator)
+    q.add('qualityMarkerStationElevation', '*/Z___INFO/Z__EVENT{1}/ZQM')
     q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
     q.add('qualityMarkerAirTemperature', '*/T___INFO/T__EVENT{1}/TQM')
     q.add('qualityMarkerSpecificHumidity', '*/Q___INFO/Q__EVENT{1}/QQM')
@@ -90,9 +93,9 @@ def bufr_to_ioda(config, logger):
     q.add('qualityMarkerSeaSurfaceTemperature', '*/SST_INFO/SSTEVENT{1}/SSTQM')
 
     # ObsValue
+    q.add('stationElevation', '*/ELV')
     q.add('stationPressure', '*/P___INFO/P__EVENT{1}/POB')
     q.add('airTemperature', '*/T___INFO/T__EVENT{1}/TOB')
-    q.add('virtualTemperature', '*/T___INFO/TVO')
     q.add('specificHumidity', '*/Q___INFO/Q__EVENT{1}/QOB')
     q.add('windNorthward', '*/W___INFO/W__EVENT{1}/VOB')
     q.add('windEastward', '*/W___INFO/W__EVENT{1}/UOB')
@@ -100,7 +103,7 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for making QuerySet : {running_time} seconds")
+    logger.debug(f"Running time for making QuerySet: {running_time} seconds")
 
     # ==============================================================
     # Open the BUFR file and execute the QuerySet to get ResultSet
@@ -108,103 +111,124 @@ def bufr_to_ioda(config, logger):
     # ==============================================================
     start_time = time.time()
 
-    logger.info(f"Executing QuerySet to get ResultSet ...")
+    logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
         r = f.execute(q)
 
-    logger.info(f" ... Executing QuerySet: get metadata: basic ...")
+    logger.debug(f" ... Executing QuerySet: get metadata: basic ...")
+    # ObsType
+    logger.debug(" ... Executing QuerySet: get ObsType ...")
+    typ = r.get('observationType')
+
     # MetaData
+    logger.debug(" ... Executing QuerySet: MetaData ...")
     sid = r.get('stationIdentification')
     lat = r.get('latitude')
     lon = r.get('longitude')
     lon[lon > 180] -= 360
-    elv = r.get('stationElevation', type='float')
-    typ = r.get('observationType')
+    zob = r.get('heightOfStation', type='float')
     pressure = r.get('pressure')
     pressure *= 100
     tpc = r.get('temperatureEventCode')
 
-    logger.info(f" ... Executing QuerySet: get QualityMarker information ...")
     # Quality Information
-    pqm = r.get('qualityMarkerStationPressure')
-    tqm = r.get('qualityMarkerAirTemperature')
-    qqm = r.get('qualityMarkerSpecificHumidity')
-    wqm = r.get('qualityMarkerWindNorthward')
+    logger.debug(f" ... Executing QuerySet: QualityMarker ...")
+    zobqm = r.get('qualityMarkerStationElevation')
+    pobqm = r.get('qualityMarkerStationPressure')
+    tobqm = r.get('qualityMarkerAirTemperature')
+    tsenqm = np.full(tobqm.shape[0], tobqm.fill_value)
+    tsenqm = np.where(((tpc >= 1) & (tpc < 8)), tobqm, tsenqm)
+    tvoqm = np.full(tobqm.shape[0], tobqm.fill_value)
+    tvoqm = np.where((tpc == 8), tobqm, tvoqm)
+    qobqm = r.get('qualityMarkerSpecificHumidity')
+    wobqm = r.get('qualityMarkerWindNorthward')
     sstqm = r.get('qualityMarkerSeaSurfaceTemperature')
 
-    logger.info(f" ... Executing QuerySet: get obsvalue: stationPressure ...")
+    logger.debug(f" ... Executing QuerySet: ObsValue ...")
     # ObsValue
+    elv = r.get('stationElevation', type='float')
     pob = r.get('stationPressure')
     pob *= 100
     tob = r.get('airTemperature')
     tob += 273.15
-    tvo = r.get('virtualTemperature')
-    tvo += 273.15
+    tsen = np.full(tob.shape[0], tob.fill_value)
+    tsen = np.where(((tpc >= 1) & (tpc < 8)), tob, tsen)
+    tvo = np.full(tob.shape[0], tob.fill_value)
+    tvo = np.where((tpc == 8), tob, tvo)
     qob = r.get('specificHumidity', type='float')
     qob *= 0.000001
     uob = r.get('windEastward')
     vob = r.get('windNorthward')
     sst1 = r.get('seaSurfaceTemperature')
 
-    logger.info(f" ... Executing QuerySet: get datatime: observation time ...")
+    logger.debug(f" ... Executing QuerySet: get datatime: observation time ...")
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
     dhr = r.get('obsTimeMinusCycleTime', type='int64')
 
-    logger.info(f" ... Executing QuerySet: Done!")
+    logger.debug(f" ... Executing QuerySet: Done!")
 
-    logger.info(f" ... Executing QuerySet: Check BUFR variable generic  \
+    logger.debug(f" ... Executing QuerySet: Check BUFR variable generic \
                 dimension and type ...")
     # Check BUFR variable generic dimension and type
-    logger.info(f"     sid       shape = {sid.shape}")
-    logger.info(f"     dhr       shape = {dhr.shape}")
-    logger.info(f"     lat       shape = {lat.shape}")
-    logger.info(f"     lon       shape = {lon.shape}")
-    logger.info(f"     elv       shape = {elv.shape}")
-    logger.info(f"     typ       shape = {typ.shape}")
-    logger.info(f"     pressure  shape = {pressure.shape}")
-    logger.info(f"     tpc       shape = {tpc.shape}")
+    logger.debug(f"     typ       shape = {typ.shape}")
+    logger.debug(f"     sid       shape = {sid.shape}")
+    logger.debug(f"     dhr       shape = {dhr.shape}")
+    logger.debug(f"     lat       shape = {lat.shape}")
+    logger.debug(f"     lon       shape = {lon.shape}")
+    logger.debug(f"     zob       shape = {zob.shape}")
+    logger.debug(f"     pressure  shape = {pressure.shape}")
+    logger.debug(f"     tpc       shape = {tpc.shape}")
 
-    logger.info(f"     pqm       shape = {pqm.shape}")
-    logger.info(f"     tqm       shape = {tqm.shape}")
-    logger.info(f"     qqm       shape = {qqm.shape}")
-    logger.info(f"     wqm       shape = {wqm.shape}")
-    logger.info(f"     sstqm     shape = {sstqm.shape}")
+    logger.debug(f"     zobqm     shape = {zobqm.shape}")
+    logger.debug(f"     pobqm     shape = {pobqm.shape}")
+    logger.debug(f"     tobqm     shape = {tobqm.shape}")
+    logger.debug(f"     tsenqm    shape = {tsenqm.shape}")
+    logger.debug(f"     tvoqm     shape = {tvoqm.shape}")
+    logger.debug(f"     qobqm     shape = {qobqm.shape}")
+    logger.debug(f"     wobqm     shape = {wobqm.shape}")
+    logger.debug(f"     sstqm     shape = {sstqm.shape}")
 
-    logger.info(f"     pob       shape = {pob.shape}")
-    logger.info(f"     tob       shape = {pob.shape}")
-    logger.info(f"     tvo       shape = {tvo.shape}")
-    logger.info(f"     qob       shape = {qob.shape}")
-    logger.info(f"     uob       shape = {uob.shape}")
-    logger.info(f"     vob       shape = {vob.shape}")
-    logger.info(f"     sst1      shape = {sst1.shape}")
+    logger.debug(f"     elv       shape = {elv.shape}")
+    logger.debug(f"     pob       shape = {pob.shape}")
+    logger.debug(f"     tob       shape = {tob.shape}")
+    logger.debug(f"     tsen      shape = {tsen.shape}")
+    logger.debug(f"     tvo       shape = {tvo.shape}")
+    logger.debug(f"     qob       shape = {qob.shape}")
+    logger.debug(f"     uob       shape = {uob.shape}")
+    logger.debug(f"     vob       shape = {vob.shape}")
+    logger.debug(f"     sst1      shape = {sst1.shape}")
 
-    logger.info(f"     sid       type  = {sid.dtype}")
-    logger.info(f"     dhr       type  = {dhr.dtype}")
-    logger.info(f"     lat       type  = {lat.dtype}")
-    logger.info(f"     lon       type  = {lon.dtype}")
-    logger.info(f"     elv       type  = {elv.dtype}")
-    logger.info(f"     typ       type  = {typ.dtype}")
-    logger.info(f"     pressure  type  = {pressure.dtype}")
-    logger.info(f"     tpc       type  = {tpc.dtype}")
+    logger.debug(f"     typ       type  = {typ.dtype}")
+    logger.debug(f"     sid       type  = {sid.dtype}")
+    logger.debug(f"     dhr       type  = {dhr.dtype}")
+    logger.debug(f"     lat       type  = {lat.dtype}")
+    logger.debug(f"     lon       type  = {lon.dtype}")
+    logger.debug(f"     zob       type  = {zob.dtype}")
+    logger.debug(f"     pressure  type  = {pressure.dtype}")
+    logger.debug(f"     tpc       type  = {tpc.dtype}")
 
-    logger.info(f"     pqm       type  = {pqm.dtype}")
-    logger.info(f"     tqm       type  = {tqm.dtype}")
-    logger.info(f"     qqm       type  = {qqm.dtype}")
-    logger.info(f"     wqm       type  = {wqm.dtype}")
-    logger.info(f"     sstqm     type  = {sstqm.dtype}")
+    logger.debug(f"     pobqm     type  = {pobqm.dtype}")
+    logger.debug(f"     tobqm     type  = {tobqm.dtype}")
+    logger.debug(f"     tsenqm    type  = {tsenqm.dtype}")
+    logger.debug(f"     tvoqm     type  = {tvoqm.dtype}")
+    logger.debug(f"     qobqm     type  = {qobqm.dtype}")
+    logger.debug(f"     wobqm     type  = {wobqm.dtype}")
+    logger.debug(f"     sstqm     type  = {sstqm.dtype}")
 
-    logger.info(f"     pob       type  = {pob.dtype}")
-    logger.info(f"     tob       type  = {tob.dtype}")
-    logger.info(f"     tvo       type  = {tvo.dtype}")
-    logger.info(f"     qob       type  = {qob.dtype}")
-    logger.info(f"     uob       type  = {uob.dtype}")
-    logger.info(f"     vob       type  = {vob.dtype}")
-    logger.info(f"     sst1      type  = {sst1.dtype}")
+    logger.debug(f"     elv       type  = {elv.dtype}")
+    logger.debug(f"     pob       type  = {pob.dtype}")
+    logger.debug(f"     tob       type  = {tob.dtype}")
+    logger.debug(f"     tsen      type  = {tsen.dtype}")
+    logger.debug(f"     tvo       type  = {tvo.dtype}")
+    logger.debug(f"     qob       type  = {qob.dtype}")
+    logger.debug(f"     uob       type  = {uob.dtype}")
+    logger.debug(f"     vob       type  = {vob.dtype}")
+    logger.debug(f"     sst1      type  = {sst1.dtype}")
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for executing QuerySet to get ResultSet : \
+    logger.debug(f"Running time for executing QuerySet to get ResultSet: \
                 {running_time} seconds")
 
     # =========================
@@ -212,19 +236,19 @@ def bufr_to_ioda(config, logger):
     # =========================
     start_time = time.time()
 
-    logger.info(f"Creating derived variables - dateTime ...")
+    logger.debug(f"Creating derived variables - dateTime ...")
 
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(
                                    reference_time_full, '%Y%m%d%H%M')))
     dateTime = Compute_dateTime(cycleTimeSinceEpoch, dhr)
 
-    logger.info(f"     Check derived variables type ... ")
-    logger.info(f"     dateTime shape = {dateTime.shape}")
-    logger.info(f"     dateTime type = {dateTime.dtype}")
+    logger.debug(f"     Check derived variables type ... ")
+    logger.debug(f"     dateTime shape = {dateTime.shape}")
+    logger.debug(f"     dateTime type = {dateTime.dtype}")
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for creating derived variables: {running_time} \
+    logger.debug(f"Running time for creating derived variables: {running_time} \
                  seconds")
 
     # =====================================
@@ -237,7 +261,7 @@ def bufr_to_ioda(config, logger):
 
     iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
-    logger.info(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
+    logger.debug(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
 
     path, fname = os.path.split(OUTPUT_PATH)
     if path and not os.path.exists(path):
@@ -246,7 +270,7 @@ def bufr_to_ioda(config, logger):
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
     # Create Global attributes
-    logger.info(f" ... ... Create global attributes")
+    logger.debug(f" ... ... Create global attributes")
 
     obsspace.write_attr('Converter', converter)
     obsspace.write_attr('source', source)
@@ -254,12 +278,61 @@ def bufr_to_ioda(config, logger):
     obsspace.write_attr('dataProviderOrigin', data_provider)
     obsspace.write_attr('description', data_description)
     obsspace.write_attr('datetimeReference', reference_time)
-    obsspace.write_attr('datetimeRange', [str(min(dateTime)),
-                        str(max(dateTime))])
+    obsspace.write_attr('datetimeRange',
+                        [str(min(dateTime)), str(max(dateTime))])
     obsspace.write_attr('platformLongDescription', platform_description)
 
     # Create IODA variables
-    logger.info(f" ... ... Create variables: name, type, units, & attributes")
+    logger.debug(f" ... ... Create variables: name, type, units, & attributes")
+
+    # ObsType: stationElevation
+    obsspace.create_var('ObsType/stationElevation', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Station Elevation Observation Type') \
+        .write_data(typ)
+
+    # ObsType: stationPressure
+    obsspace.create_var('ObsType/stationPressure', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Station Pressure Observation Type') \
+        .write_data(typ)
+
+    # ObsType: air Temperature
+    obsspace.create_var('ObsType/airTemperature', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Air Temperature Observation Type') \
+        .write_data(typ)
+
+    # ObsType: virtual Temperature
+    obsspace.create_var('ObsType/virtualTemperature', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Virtual Temperature Observation Type') \
+        .write_data(typ)
+
+    # ObsType: Specific Humidity
+    obsspace.create_var('ObsType/specificHumidity', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Specific Humidity Observation Type') \
+        .write_data(typ)
+
+    # ObsType: wind Eastward
+    obsspace.create_var('ObsType/windEastward', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Wind Eastward Observation Type') \
+        .write_data(typ)
+
+    # ObsType: wind Northward
+    obsspace.create_var('ObsType/windNorthward', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Wind Northward Observation Type') \
+        .write_data(typ)
+
+    # ObsType: Sea Surface Temperature
+    obsspace.create_var('ObsType/seaSurfaceTemperature', dtype=typ.dtype,
+                        fillval=typ.fill_value) \
+        .write_attr('long_name', 'Sea Surface Temperature Observation Type') \
+        .write_data(typ)
+
     # Longitude
     obsspace.create_var('MetaData/longitude', dtype=lon.dtype,
                         fillval=lon.fill_value) \
@@ -286,22 +359,15 @@ def bufr_to_ioda(config, logger):
     # Station Identification
     obsspace.create_var('MetaData/stationIdentification', dtype=sid.dtype,
                         fillval=sid.fill_value) \
-        .write_attr('units', '1') \
         .write_attr('long_name', 'Station Identification') \
         .write_data(sid)
 
     # Station Elevation
-    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
-                        fillval=elv.fill_value) \
+    obsspace.create_var('MetaData/heightOfStation', dtype=zob.dtype,
+                        fillval=zob.fill_value) \
         .write_attr('units', 'm') \
-        .write_attr('long_name', 'Station Elevation') \
-        .write_data(elv)
-
-    # Observation Type
-    obsspace.create_var('MetaData/observationType', dtype=typ.dtype,
-                        fillval=typ.fill_value) \
-        .write_attr('long_name', 'Observation Type') \
-        .write_data(typ)
+        .write_attr('long_name', 'Height Of Station') \
+        .write_data(zob)
 
     # Pressure
     obsspace.create_var('MetaData/pressure', dtype=pressure.dtype,
@@ -314,31 +380,43 @@ def bufr_to_ioda(config, logger):
     obsspace.create_var('MetaData/temperatureEventCode', dtype=tpc.dtype,
                         fillval=tpc.fill_value) \
         .write_attr('long_name', 'Temperature Event Code') \
-        .write_data(typ)
+        .write_data(tpc)
 
     # Quality Marker: Station Pressure
-    obsspace.create_var('QualityMarker/stationPressure', dtype=pqm.dtype,
-                        fillval=pqm.fill_value) \
+    obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype,
+                        fillval=pobqm.fill_value) \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
-        .write_data(pqm)
+        .write_data(pobqm)
 
     # Quality Marker: Air Temperature
-    obsspace.create_var('QualityMarker/airTemperature', dtype=tqm.dtype,
-                        fillval=tqm.fill_value) \
+    obsspace.create_var('QualityMarker/airTemperature', dtype=tobqm.dtype,
+                        fillval=tobqm.fill_value) \
         .write_attr('long_name', 'Air Temperature Quality Marker') \
-        .write_data(tqm)
+        .write_data(tsenqm)
+
+    # Quality Marker: Virtual Temperature
+    obsspace.create_var('QualityMarker/virtualTemperature', dtype=tobqm.dtype,
+                        fillval=tobqm.fill_value) \
+        .write_attr('long_name', 'Virtual Temperature Quality Marker') \
+        .write_data(tvoqm)
 
     # Quality Marker: Specific Humidity
-    obsspace.create_var('QualityMarker/specificHumidity', dtype=qqm.dtype,
-                        fillval=qqm.fill_value) \
+    obsspace.create_var('QualityMarker/specificHumidity', dtype=qobqm.dtype,
+                        fillval=qobqm.fill_value) \
         .write_attr('long_name', 'Specific Humidity Quality Marker') \
-        .write_data(qqm)
+        .write_data(qobqm)
+
+    # Quality Marker: Eastward Wind
+    obsspace.create_var('QualityMarker/windEastward', dtype=wobqm.dtype,
+                        fillval=wobqm.fill_value) \
+        .write_attr('long_name', 'Eastward Wind Quality Marker') \
+        .write_data(wobqm)
 
     # Quality Marker: Northward Wind
-    obsspace.create_var('QualityMarker/windNorthward', dtype=wqm.dtype,
-                        fillval=wqm.fill_value) \
+    obsspace.create_var('QualityMarker/windNorthward', dtype=wobqm.dtype,
+                        fillval=wobqm.fill_value) \
         .write_attr('long_name', 'Northward Wind Quality Marker') \
-        .write_data(wqm)
+        .write_data(wobqm)
 
     # Quality Marker: Sea Surface Temperature
     obsspace.create_var('QualityMarker/seaSurfaceTemperature',
@@ -346,8 +424,15 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Sea Surface Temperature Quality Marker') \
         .write_data(sstqm)
 
+    # Station Elevation
+    obsspace.create_var('ObsValue/stationElevation', dtype=elv.dtype,
+                        fillval=elv.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Station Elevation') \
+        .write_data(elv)
+
     # Station Pressure
-    obsspace.create_var('ObsValue/pressure', dtype=pob.dtype,
+    obsspace.create_var('ObsValue/stationPressure', dtype=pob.dtype,
                         fillval=pob.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Station Pressure') \
@@ -358,11 +443,11 @@ def bufr_to_ioda(config, logger):
                         fillval=tob.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Air Temperature') \
-        .write_data(tob)
+        .write_data(tsen)
 
     # Virtual Temperature
-    obsspace.create_var('ObsValue/virtualTemperature', dtype=tvo.dtype,
-                        fillval=tvo.fill_value) \
+    obsspace.create_var('ObsValue/virtualTemperature', dtype=tob.dtype,
+                        fillval=tob.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Virtual Temperature') \
         .write_data(tvo)
@@ -397,10 +482,10 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Running time for splitting and output IODA: {running_time} \
-                seconds")
+    logger.debug(f"Running time for splitting and output IODA: \
+                {running_time} seconds")
 
-    logger.info("All Done!")
+    logger.debug("All Done!")
 
 
 if __name__ == '__main__':
@@ -409,7 +494,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str,
-                        help='Input JSON configuration', required=True)
+                        help='Input JSON configuration',
+                        required=True)
     parser.add_argument('-v', '--verbose',
                         help='print debug logging information',
                         action='store_true')
@@ -426,4 +512,4 @@ if __name__ == '__main__':
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.info(f"Total running time: {running_time} seconds")
+    logger.debug(f"Total running time: {running_time} seconds")
