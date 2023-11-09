@@ -32,19 +32,20 @@ for observer in obsConfig['observers']:
     print(f"obsSpaceName: {obsSpaceName}")
 
     for observation in obsprocConfig['observations']:
-
-        obsprocSpaceName = observation['obs space']['name']
+        
+        obsprocSpace = observation['obs space']
+        obsprocSpaceName = obsprocSpace['name']
         print(f"obsprocSpaceName: {obsprocSpaceName}")
 
         if obsprocSpaceName == obsSpaceName:
 
-           matchingFiles = prep_marine_obs.obs_fetch(observation['obs space'])
-           observation['obs space']['input files'] = matchingFiles
-           observation['obs space']['window begin'] = windowBegin 
-           observation['obs space']['window end'] = windowEnd
+           matchingFiles = prep_marine_obs.obs_fetch(obsprocSpace)
+           obsprocSpace['input files'] = matchingFiles
+           obsprocSpace['window begin'] = windowBegin 
+           obsprocSpace['window end'] = windowEnd
 
            iodaYamlFilename = obsprocSpaceName + '2ioda.yaml'
-           save_as_yaml(observation['obs space'], iodaYamlFilename)
+           save_as_yaml(obsprocSpace, iodaYamlFilename)
 
            subprocess.run([obsprocexec, iodaYamlFilename], check=True)
 
