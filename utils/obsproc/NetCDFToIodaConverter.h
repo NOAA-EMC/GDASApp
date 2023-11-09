@@ -36,7 +36,7 @@ namespace gdasapp {
       }
       return result.str();
     }
-  } // namespace testutils
+  }  // namespace testutils
 
   // A simple data structure to organize the info to provide to the ioda
   // writter

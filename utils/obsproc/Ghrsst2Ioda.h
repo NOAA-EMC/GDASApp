@@ -1,6 +1,5 @@
 #pragma once
 
-//#include <hdf5_hl.h>
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
@@ -76,13 +75,13 @@ namespace gdasapp {
 
       // Read sst_dtime to add to the reference time
       // TODO(AMG): What's below does not read the field the same way python does
-      std::vector<long> sstdTime(dimTime*dimLat*dimLon);
+      std::vector<int16_t> sstdTime(dimTime*dimLat*dimLon);
       ncFile.getVar("sst_dtime").getVar(sstdTime.data());
       float dtimeScaleFactor;
       ncFile.getVar("sst_dtime").getAtt("scale_factor").getValues(&dtimeScaleFactor);
 
       // Read SST ObsValue
-      std::vector<short> sstObsVal(dimTime*dimLat*dimLon);
+      std::vector<int16_t> sstObsVal(dimTime*dimLat*dimLon);
       ncFile.getVar("sea_surface_temperature").getVar(sstObsVal.data());
       float sstOffSet;
       ncFile.getVar("sea_surface_temperature").getAtt("add_offset").getValues(&sstOffSet);
@@ -125,7 +124,7 @@ namespace gdasapp {
           // bias corrected sst, regressed to the drifter depth
           sst[i][j] = static_cast<float>(sstObsVal[index]) * sstScaleFactor + sstOffSet
                     - static_cast<float>(sstObsBias[index]) * biasScaleFactor;
-          std::cout << sst[i][j] << std::endl;
+
           // mask
           if (sst[i][j] >= sstMin && sst[i][j] <= sstMax && preqc[i][j] ==0) {
             mask[i][j] = 1;
@@ -138,13 +137,15 @@ namespace gdasapp {
           obserror[i][j] = static_cast<float>(sstObsErr[index]) * errScaleFactor + errOffSet;
 
           // epoch time in seconds
-          seconds[i][j]  = static_cast<float>(sstdTime[index]) * dtimeScaleFactor + static_cast<float>(refTime[0]);
+          seconds[i][j]  = static_cast<float>(sstdTime[index]) * dtimeScaleFactor
+                         + static_cast<float>(refTime[0]);
           index++;
         }
       }
 
       // Superobing
-      // TODO(Guillaume): Save the sampling std dev of sst so it can be used as a proxi for obs error
+      // TODO(Guillaume): Save the sampling std dev of sst so it can be used
+      //                  as a proxi for obs error
       std::vector<std::vector<float>> sst_s;
       std::vector<std::vector<float>> lon2d_s;
       std::vector<std::vector<float>> lat2d_s;
