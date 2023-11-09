@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)satwind.abi_goes-17.{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)satwnd.abi_goes-16.tm00.nc
   obsdataout:
     engine:
       type: H5File
