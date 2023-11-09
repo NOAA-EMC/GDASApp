@@ -18,7 +18,6 @@ windowBegin = '2018-04-15T06:00:00Z'
 windowEnd = '2018-04-15T12:00:00Z'
 
 OBS_YAML = os.getenv('OBS_YAML')
-
 obsConfig = YAMLFile(OBS_YAML)
 print(obsConfig)
 
@@ -35,7 +34,6 @@ for observer in obsConfig['observers']:
         
         obsprocSpace = observation['obs space']
         obsprocSpaceName = obsprocSpace['name']
-        print(f"obsprocSpaceName: {obsprocSpaceName}")
 
         if obsprocSpaceName == obsSpaceName:
 
@@ -48,4 +46,7 @@ for observer in obsConfig['observers']:
            save_as_yaml(obsprocSpace, iodaYamlFilename)
 
            subprocess.run([obsprocexec, iodaYamlFilename], check=True)
+
+#        else:
+#           print(f"WARNING: obsSpaceName {obsSpaceName} not found in OBSPROC_YAML, skipping")
 
