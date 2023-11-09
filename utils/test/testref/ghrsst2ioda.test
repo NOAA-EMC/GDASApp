@@ -1,0 +1,50 @@
+Reading ghrsst_sst_mb_202107010000.nc4
+obsVal:
+    Min: 276.708
+    Max: 276.9
+    Sum: 4982.63
+obsError:
+    Min: 0.32
+    Max: 0.32
+    Sum: 5.76
+preQc:
+    Min: 0
+    Max: 0
+    Sum: 0
+longitude:
+    Min: 131.52
+    Max: 131.71
+    Sum: 2369.13
+latitude:
+    Min: -55.5
+    Max: -55.42
+    Sum: -998.28
+datetime:
+    Min: 1277942528
+    Max: 1277942528
+    Sum: 23002965504
+Reading ghrsst_sst_mb_202107010100.nc4
+obsVal:
+    Min: 281.547
+    Max: 281.714
+    Sum: 5069.06
+obsError:
+    Min: 0.58
+    Max: 0.61
+    Sum: 10.8225
+preQc:
+    Min: 0
+    Max: 0
+    Sum: 0
+longitude:
+    Min: 151.12
+    Max: 151.31
+    Sum: 2721.93
+latitude:
+    Min: 56.62
+    Max: 56.7
+    Sum: 1019.88
+datetime:
+    Min: 1277946624
+    Max: 1277946624
+    Sum: 23003039232

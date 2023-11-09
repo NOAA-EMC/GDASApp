@@ -35,7 +35,6 @@ namespace gdasapp {
         for (int j = 0; j < subsampledCols; ++j) {
           count = 0;
           sum = static_cast<T>(0);
-
           // Compute the average within the stride
           for (int si = 0; si < stride; ++si) {
             for (int sj = 0; sj < stride; ++sj) {

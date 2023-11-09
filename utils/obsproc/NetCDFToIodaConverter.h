@@ -18,6 +18,26 @@
 #include "oops/util/missingValues.h"
 
 namespace gdasapp {
+  namespace testutils {
+    template <typename Derived>
+    std::string checksum(const Eigen::ArrayBase<Derived>& arr, const std::string varname) {
+      std::stringstream result;
+      if (arr.size() == 0) {
+        result << varname << " is empty" << "\n";
+      } else {
+        auto minElement = arr.minCoeff();
+        auto maxElement = arr.maxCoeff();
+        auto sumElements = arr.sum();
+
+        result << varname << ":" << "\n";
+        result << "    Min: " << minElement << "\n";
+        result << "    Max: " << maxElement << "\n";
+        result << "    Sum: " << sumElements;
+      }
+      return result.str();
+    }
+  } // namespace testutils
+
   // A simple data structure to organize the info to provide to the ioda
   // writter
   struct IodaVars {
@@ -134,6 +154,22 @@ namespace gdasapp {
       // Update obs count
       location_ = iodaVarsMasked.location_;
       oops::Log::info() << "IodaVars::IodaVars done masking." << std::endl;
+    }
+
+    // Testing
+    void testOutput() {
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(obsVal_, "obsVal") << std::endl;
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(obsError_, "obsError") << std::endl;
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(preQc_, "preQc") << std::endl;
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(longitude_, "longitude") << std::endl;
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(latitude_, "latitude") << std::endl;
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(datetime_, "datetime") << std::endl;
     }
   };
 
