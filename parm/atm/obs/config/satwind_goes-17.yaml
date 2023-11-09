@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)satwnd.abi_goes-16.tm00.nc
+      obsfile: $(DATA)/obs/$(OPREFIX)satwnd.abi_goes-17.tm00.nc
   obsdataout:
     engine:
       type: H5File
