@@ -7,15 +7,19 @@ import prep_marine_obs
 import logging
 import subprocess
 
+# set up logger
+logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
+
 OBS_YAML = os.getenv('OBS_YAML')
 
-data = YAMLFile(OBS_YAML)
-print(data)
+obsConfig = YAMLFile(OBS_YAML)
+print(obsConfig)
 
-for observer in data['observers']:
-    obs_source_name = observer['obs space']['name']
-    logging.info(f"obs_source_name: {obs_source_name}")
-    prep_marine_obs.obs_fetch(obs_source_name)
+for observer in obsConfig['observers']:
+    obsSpaceName = observer['obs space']['name']
+    #logging.info(f"obsSpaceName: {obsSpaceName}")
+    print(f"obsSpaceName: {obsSpaceName}")
+    prep_marine_obs.obs_fetch(obsSpaceName)
 
 # TODO (AFE): ideally this should be an env var
 obsprocexec = "/scratch1/NCEPDEV/da/Andrew.Eichmann/fv3gfs/newoceaanobs/global-workflow/sorc/gdas.cd/build/bin/gdas_obsprovider2ioda.x"
