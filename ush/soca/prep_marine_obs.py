@@ -63,32 +63,29 @@ obs_dict = {
 }
 
 
-def obs_fetch(obs_source_name):
+def obs_fetch(obsprocSpace):
 
-    try:
-        obs_source = obs_dict[obs_source_name]
-    except KeyError:
-        print(f'WARNING: no obs source {obs_source_name} defined, skipping')
-        return
-
-    subdir = obs_source[0]
-    filepattern = obs_source[1]
+    subdir = obsprocSpace['obsproc subdir']
+    filepattern = obsprocSpace['obsproc regex']
 
     datadir = os.path.join(cycdir, subdir)
     # TODO: check the existence of this
     print('datadir:', datadir)
-    matching_files = []
+    matchingFiles = []
 
     for root, _, files in os.walk(datadir):
         for filename in fnmatch.filter(files, filepattern):
-            matching_files.append((root, filename))
+            matchingFiles.append(filename)
 
     obs_cpy = []
-    for obs_src in matching_files:
-        obs_path = os.path.join(obs_src[0], obs_src[1])
-        obs_dst = os.path.join(COMIN_OBS, obs_src[1])
+    for obs_src in matchingFiles:
+        obs_path = os.path.join(datadir, obs_src)
+        obs_dst = os.path.join(COMIN_OBS, obs_src)
         obs_cpy.append([obs_path, obs_dst])
 
-    print(obs_cpy)
+    print(f"obs_cpy: {obs_cpy}")
+    print(f"matchingFiles: {matchingFiles}")
 
     FileHandler({'copy': obs_cpy}).sync()
+    
+    return matchingFiles

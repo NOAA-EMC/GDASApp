@@ -1,0 +1,7 @@
+observations:
+- obs space:
+    name: sss_smap
+    obsproc subdir: SSS
+    obsproc regex: SMAP_L2B_SSS_NRT_?????_[AD]_????????T??????.h5
+    provider: SMAP
+    output file: sss_smap.ioda.nc

@@ -2,7 +2,7 @@
 # exglobal_prep_ocean_obs.py
 # Pepares observations for marine DA
 import os
-from wxflow import YAMLFile
+from wxflow import YAMLFile, save_as_yaml
 import prep_marine_obs
 import logging
 import subprocess
@@ -10,23 +10,41 @@ import subprocess
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 
+# TODO (AFE): ideally this should be an env var
+obsprocexec = "/scratch1/NCEPDEV/da/Andrew.Eichmann/fv3gfs/newoceaanobs/global-workflow/sorc/gdas.cd/build/bin/gdas_obsprovider2ioda.x"
+
+# TODO (AFE): set dynamically, obvs
+windowBegin = '2018-04-15T06:00:00Z'
+windowEnd = '2018-04-15T12:00:00Z'
+
 OBS_YAML = os.getenv('OBS_YAML')
 
 obsConfig = YAMLFile(OBS_YAML)
 print(obsConfig)
 
+# TODO (AFE): set dynamically, obvs
+obsprocConfig = YAMLFile('/scratch1/NCEPDEV/da/Andrew.Eichmann/fv3gfs/newoceaanobs/global-workflow/sorc/gdas.cd/parm/soca/obsproc/obsproc_config.yaml')
+print(obsprocConfig)
+
 for observer in obsConfig['observers']:
+
     obsSpaceName = observer['obs space']['name']
-    #logging.info(f"obsSpaceName: {obsSpaceName}")
     print(f"obsSpaceName: {obsSpaceName}")
-    prep_marine_obs.obs_fetch(obsSpaceName)
 
-# TODO (AFE): ideally this should be an env var
-obsprocexec = "/scratch1/NCEPDEV/da/Andrew.Eichmann/fv3gfs/newoceaanobs/global-workflow/sorc/gdas.cd/build/bin/gdas_obsprovider2ioda.x"
+    for observation in obsprocConfig['observations']:
 
-# TODO (AFE): to be selected according to obs source? dynamically generate, so...
-obsprocyaml = "/scratch1/NCEPDEV/da/Andrew.Eichmann/fv3gfs/newoceaanobs/global-workflow/sorc/gdas.cd/gdas_smap2ioda.yaml"
+        obsprocSpaceName = observation['obs space']['name']
+        print(f"obsprocSpaceName: {obsprocSpaceName}")
 
-subprocess.run([obsprocexec, obsprocyaml], check=True)
+        if obsprocSpaceName == obsSpaceName:
 
+           matchingFiles = prep_marine_obs.obs_fetch(observation['obs space'])
+           observation['obs space']['input files'] = matchingFiles
+           observation['obs space']['window begin'] = windowBegin 
+           observation['obs space']['window end'] = windowEnd
+
+           iodaYamlFilename = obsprocSpaceName + '2ioda.yaml'
+           save_as_yaml(observation['obs space'], iodaYamlFilename)
+
+           subprocess.run([obsprocexec, iodaYamlFilename], check=True)
 
