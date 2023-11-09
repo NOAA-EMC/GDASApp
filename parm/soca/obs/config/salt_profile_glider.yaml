@@ -1,0 +1,31 @@
+obs space:
+  name: salt_profile_glider
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}salt_profile_glider.${PDY}${cyc}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/diags/salt_profile_glider.${PDY}${cyc}.nc4
+  simulated variables: [salinity]
+  io pool:
+    max pool size: 1
+obs operator:
+  name: VertInterp
+  observation alias file: ./obsop_name_map.yaml
+  vertical coordinate: sea_water_depth
+  observation vertical coordinate: depth
+  interpolation method: linear
+obs error:
+  covariance model: diagonal
+
+obs filter:
+  # Passivate obs where ocean fraction is > 90%
+  - filter: Domain Check
+    action:
+      name: passivate
+    where:
+    - variable: {name: GeoVaLs/sea_area_fraction}
+      maxvalue: 0.9
+
