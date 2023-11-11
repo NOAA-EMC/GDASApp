@@ -427,7 +427,6 @@ obs post filters:
   action:
     name: reject
 
-obs post filters:
 # Reject GOES (247) when difference of wind direction is more than 50 degrees.
 # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
 - filter: Bounds Check
