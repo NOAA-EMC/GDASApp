@@ -211,10 +211,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" ... Executing QuerySet for ADPSFC: get QualityMarker ...")
     pobqmorig1 = t.get('qualityMarkerStationPressure').astype('int32')
     tobqmorig1 = t.get('qualityMarkerAirTemperature').astype('int32')
-#    tsenqmorig1 = ma.array(np.full(tobqmorig1.shape[0], tobqmorig1.fill_value))
-#    tsenqmorig1 = ma.where(((tpcorig1 >= 1) & (tpcorig1 < 8)), tobqmorig1, tsenqmorig1)
-#    tvoqmorig1 = ma.array(np.full(tobqmorig1.shape[0], tobqmorig1.fill_value))
-#    tvoqmorig1 = ma.where((tpcorig1 == 8), tobqmorig1, tvoqmorig1)
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet for ADPSFC: get ObsValues ...")
@@ -223,10 +219,6 @@ def bufr_to_ioda(config, logger):
     poborig1 *= 100
     toborig1 = t.get('airTemperature')
     toborig1 += 273.15
-#    tsenorig1 = ma.array(np.full(toborig1.shape[0], toborig1.fill_value))
-#    tsenorig1 = ma.where(((tpcorig1 >= 1) & (tpcorig1 < 8)), toborig1, tsenorig1)
-#    tvoorig1 = ma.array(np.full(toborig1.shape[0], toborig1.fill_value))
-#    tvoorig1 = ma.where((tpcorig1 == 8), toborig1, tvoorig1)
 
     logger.debug(f" ... Make new arrays for certain Obstypes of ADSPFC")
     typ1 = np.array([], dtype=np.int32)
@@ -240,13 +232,9 @@ def bufr_to_ioda(config, logger):
     pressure1 = np.array([], dtype=np.float32)
     pobqm1 = np.array([], dtype=np.int32)
     tobqm1 = np.array([], dtype=np.int32)
-#    tsenqm1 = np.array([], dtype=np.int32)
-#    tvoqm1 = np.array([], dtype=np.int32)
     elv1 = np.array([], dtype=np.float32)
     pob1 = np.array([], dtype=np.float32)
     tob1 = np.array([], dtype=np.float32)
-#    tsen1 = np.array([], dtype=np.float32)
-#    tvo1 = np.array([], dtype=np.float32)
 
     for i in range(len(typorig1)):
         if typorig1[i] < 200:
@@ -261,13 +249,9 @@ def bufr_to_ioda(config, logger):
             pressure1 = np.append(pressure1, pressureorig1[i])
             pobqm1 = np.append(pobqm1, pobqmorig1[i]).astype('int32')
             tobqm1 = np.append(tobqm1, tobqmorig1[i]).astype('int32')
- #           tsenqm1 = np.append(tsenqm1, tsenqmorig1[i])
- #           tvoqm1 = np.append(tvoqm1, tvoqmorig1[i])
             elv1 = np.append(elv1, elvorig1[i])
             pob1 = np.append(pob1, poborig1[i])
             tob1 = np.append(tob1, toborig1[i])
-#            tsen1 = np.append(tsen1, tsenorig1[i])
-#            tvo1 = np.append(tvo1, tvoorig1[i])
 
     typ1 = ma.array(typ1)
     typ1 = ma.masked_values(typ1, typorig1.fill_value)
@@ -301,11 +285,6 @@ def bufr_to_ioda(config, logger):
     pob1 = ma.masked_values(pob1, poborig1.fill_value)
     tob1 = ma.array(tob1).astype('float32')
     tob1 = ma.masked_values(tob1, toborig1.fill_value)
-#    tsen1 = ma.array(tsen1).astype('float32')
-#    tsen1 = ma.masked_values(tsen1, toborig1.fill_value)
-#    tvo1 = ma.array(tvo1).astype('float32')
-#    tvo1 = ma.masked_values(tvo1, toborig1.fill_value)
-#    tsen1 = ma.array(np.full(tob1.shape[0], tob1.fill_value))
     tsen1 = copy.deepcopy(tob1)
     tsen1f = ma.array(np.full(tob1.shape[0], tob1.fill_value))
     tsen1 = ma.where(((tpc1 >= 1) & (tpc1 < 8)), tob1, tsen1f)
@@ -337,10 +316,6 @@ def bufr_to_ioda(config, logger):
     # QualityMarker
     pobqmorig2 = u.get('qualityMarkerStationPressure').astype('int32')
     tobqmorig2 = u.get('qualityMarkerAirTemperature').astype('int32')
-#    tsenqmorig2 = ma.array(np.full(tobqmorig2.shape[0], tobqmorig2.fill_value))
-#    tsenqmorig2 = ma.where(((tpcorig2 >= 1) & (tpcorig2 < 8)), tobqmorig2, tsenqmorig2)
-#    tvoqmorig2 = ma.array(np.full(tobqmorig2.shape[0], tobqmorig2.fill_value))
-#    tvoqmorig2 = ma.where((tpcorig2 == 8), tobqmorig2, tvoqmorig2)
 
     logger.debug(f" ... Executing QuerySet for SFCSHP: get ObsValues ...")
     # ObsValue
@@ -349,10 +324,6 @@ def bufr_to_ioda(config, logger):
     poborig2 *= 100
     toborig2 = u.get('airTemperature')
     toborig2 += 273.15
-#    tsenorig2 = ma.array(np.full(toborig2.shape[0], toborig2.fill_value))
-#    tsenorig2 = ma.where(((tpcorig2 >= 1) & (tpcorig2 < 8)), toborig2, tsenorig2)
-#    tvoorig2 = ma.array(np.full(toborig2.shape[0], toborig2.fill_value))
-#    tvoorig2 = ma.where((tpcorig2 == 8), toborig2, tvoorig2)
 
     logger.debug(f" ... Make new arrays for certain ObsTypes of SFCSHP")
     typ2 = np.array([], dtype=np.int32)
@@ -366,13 +337,9 @@ def bufr_to_ioda(config, logger):
     pressure2 = np.array([], dtype=np.float32)
     pobqm2 = np.array([], dtype=np.int32)
     tobqm2 = np.array([], dtype=np.int32)
-#    tsenqm2 = np.array([], dtype=np.int32)
-#    tvoqm2 = np.array([], dtype=np.int32)
     elv2 = np.array([], dtype=np.float32)
     pob2 = np.array([], dtype=np.float32)
     tob2 = np.array([], dtype=np.float32)
-#    tsen2 = np.array([], dtype=np.float32)
-#    tvo2 = np.array([], dtype=np.float32)
 
     for i in range(len(typorig2)):
         if typorig2[i] < 200:
@@ -387,13 +354,9 @@ def bufr_to_ioda(config, logger):
             pressure2 = np.append(pressure2, pressureorig2[i])
             pobqm2 = np.append(pobqm2, pobqmorig2[i])
             tobqm2 = np.append(tobqm2, tobqmorig2[i])
-#            tsenqm2 = np.append(tsenqm2, tsenqmorig2[i])
-#            tvoqm2 = np.append(tvoqm2, tvoqmorig2[i])
             elv2 = np.append(elv2, elvorig2[i])
             pob2 = np.append(pob2, poborig2[i])
             tob2 = np.append(tob2, toborig2[i])
-#            tsen2 = np.append(tsen2, tsenorig2[i])
-#            tvo2 = np.append(tvo2, tvoorig2[i])
 
     typ2 = ma.array(typ2)
     typ2 = ma.masked_values(typ2, typorig2.fill_value)
@@ -415,10 +378,6 @@ def bufr_to_ioda(config, logger):
     pobqm2 = ma.masked_values(pobqm2, pobqmorig2.fill_value)
     tobqm2 = ma.array(tobqm2).astype('int32')
     tobqm2 = ma.masked_values(tobqm2, tobqmorig2.fill_value)
-#    tsenqm2 = ma.array(tsenqm2).astype('int32')
-#    tsenqm2 = ma.masked_values(tsenqm2, tobqmorig2.fill_value)
-#    tvoqm2 = ma.array(tvoqm2).astype('int32')
-#    tvoqm2 = ma.masked_values(tvoqm2, tobqmorig2.fill_value)
     tsenqm2 = copy.deepcopy(tobqm2)
     tsenqmorig2f = ma.array(np.full(tobqmorig2.shape[0], tobqmorig2.fill_value))
     tsenqmorig2 = ma.where(((tpcorig2 >= 1) & (tpcorig2 < 8)), tobqmorig2, tsenqmorig2f)
@@ -431,10 +390,6 @@ def bufr_to_ioda(config, logger):
     pob2 = ma.masked_values(pob2, poborig2.fill_value)
     tob2 = ma.array(tob2).astype('float32')
     tob2 = ma.masked_values(tob2, toborig2.fill_value)
-#    tsen2 = ma.array(tsen2).astype('float32')
-#    tsen2 = ma.masked_values(tsen2, toborig2.fill_value)
-#    tvo2 = ma.array(tvo2).astype('float32')
-#    tvo2 = ma.masked_values(tvo2, toborig2.fill_value)
     tsen2 = copy.deepcopy(tob2)
     tsen2f = ma.array(np.full(tob2.shape[0], tob2.fill_value))
     tsen2 = ma.where(((tpc2 >= 2) & (tpc2 < 8)), tob2, tsen2f)
@@ -597,10 +552,6 @@ def bufr_to_ioda(config, logger):
     tsen = ma.masked_values(tsen, toborig1.fill_value)
     tvo = ma.concatenate((tvo1, tvo2, tvo3), axis=0).astype(tvo1.dtype)
     tvo = ma.masked_values(tvo, toborig1.fill_value)
-
-    for i in range(len(typ)):
-        print("NE check", typ[i], tob[i], tsen[i], tvo[i])
-
 
     logger.debug(f"  ... Concatenated array shapes, dtype and some fill_values:")
     logger.debug(f"  new typ       shape = {typ.shape}, {typ.dtype}, {typ.fill_value}")
