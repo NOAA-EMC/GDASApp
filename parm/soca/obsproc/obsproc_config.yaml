@@ -16,7 +16,7 @@ observations:
     obsproc subdir: ADT
     obsproc regex: rads_adt_3b_???????.nc
     provider: RADS
-    output file: rads_adt_3b_2021181.ioda.nc
+    output file: adt_all.nc4
 - obs space:
     name: icec_amsr2_north
     provider: AMSR2
