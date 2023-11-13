@@ -1,0 +1,12 @@
+{
+  "data_format"      : "prepbufr",
+  "subsets"          : [ "AIRCFT", "AIRCAR" ],
+  "source"           : "prepBUFR",
+  "data_type"        : "AIRCFT",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "data_description" : "ACFT_PROFILES_prepbufr",
+  "data_provider"    : "U.S. NOAA"
+}
