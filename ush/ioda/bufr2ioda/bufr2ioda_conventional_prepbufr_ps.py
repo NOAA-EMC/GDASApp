@@ -392,7 +392,7 @@ def bufr_to_ioda(config, logger):
     tob2 = ma.masked_values(tob2, toborig2.fill_value)
     tsen2 = copy.deepcopy(tob2)
     tsen2f = ma.array(np.full(tob2.shape[0], tob2.fill_value))
-    tsen2 = ma.where(((tpc2 >= 2) & (tpc2 < 8)), tob2, tsen2f)
+    tsen2 = ma.where(((tpc2 >= 1) & (tpc2 < 8)), tob2, tsen2f)
     tvo2 = ma.array(np.full(tob2.shape[0], tob2.fill_value))
     tvo2f = ma.array(np.full(tob2.shape[0], tob2.fill_value))
     tvo2 = ma.where((tpc2 == 8), tob2, tvo2f)
