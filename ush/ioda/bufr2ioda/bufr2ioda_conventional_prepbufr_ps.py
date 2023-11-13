@@ -616,7 +616,7 @@ def bufr_to_ioda(config, logger):
 
     typ_ps = Mask_typ_for_var(typ, ps)
     typ_tsen = Mask_typ_for_var(typ, tsen)
-    typ_tvo = Mask_typ_for_var(typ, tvo)
+    typ_tvo = Mask_typ_for_var(typ, tvo).astype('float32')
 
     logger.debug(f"     Check drived variables (typ*) shape & type ... ")
     logger.debug(f"     typ_ps shape = {typ_ps.shape}")
