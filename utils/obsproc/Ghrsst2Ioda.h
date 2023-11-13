@@ -194,7 +194,7 @@ namespace gdasapp {
       iodaVars.trim(boundsCheck);
 
       // Replace datime by its mean
-      // TODO (ASGM): Remove when the time reading is fixed
+      // TODO(ASGM): Remove when the time reading is fixed
       int64_t mean = iodaVars.datetime_.sum() / iodaVars.datetime_.size();
       iodaVars.datetime_.setConstant(mean);
 
