@@ -31,7 +31,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
 
     # Specify observation types to be processed by a script
 
-    BUFR_py = ["satwind_amv_goes", "satwind_scat", "adpupa_prepbufr", "adpsfc_prepbufr", "sfcshp_prepbufr", "acft_profiles_prepbufr", 
+    BUFR_py = ["satwind_amv_goes", "satwind_scat", "adpupa_prepbufr", "adpsfc_prepbufr", "sfcshp_prepbufr", "acft_profiles_prepbufr",
                "gpsro_bufr", "conventional_prepbufr_ps"]
 
     for obtype in BUFR_py:
