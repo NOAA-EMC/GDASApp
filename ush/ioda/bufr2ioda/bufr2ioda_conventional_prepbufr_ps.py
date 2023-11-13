@@ -36,7 +36,7 @@ def Mask_typ_for_var(typ, var):
 
     typ_var = copy.deepcopy(typ)
     for i in range(len(typ_var)):
-        if ma.is_masked(var[i]): 
+        if ma.is_masked(var[i]):
             typ_var[i] = typ.fill_value
 
     return typ_var
