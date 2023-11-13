@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -67,11 +68,23 @@ namespace gdasapp {
         }
       }
 
-      // datetime: Read Reference Time
+      // Read the reference time
       std::vector<int32_t> refTime(dimTime);
       ncFile.getVar("time").getVar(refTime.data());
       std::string refDate;
       ncFile.getVar("time").getAtt("units").getValues(refDate);
+
+      // Reformat the reference time
+      std::regex dateRegex(R"(\b\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\b)");
+      std::smatch match;
+      std::regex_search(refDate, match, dateRegex);
+      refDate = match.str();
+      std::tm tmStruct = {};
+      std::istringstream ss(refDate);
+      ss >> std::get_time(&tmStruct, "%Y-%m-%d %H:%M:%S");
+      std::ostringstream isoFormatted;
+      isoFormatted << std::put_time(&tmStruct, "seconds since %Y-%m-%dT%H:%M:%SZ");
+      refDate = isoFormatted.str();
 
       // Read sst_dtime to add to the reference time
       // TODO(AMG): What's below does not read the field the same way python does

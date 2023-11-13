@@ -158,6 +158,7 @@ namespace gdasapp {
 
     // Testing
     void testOutput() {
+      oops::Log::test() << referenceDate_ << std::endl;
       oops::Log::test() <<
         gdasapp::testutils::checksum(obsVal_, "obsVal") << std::endl;
       oops::Log::test() <<
