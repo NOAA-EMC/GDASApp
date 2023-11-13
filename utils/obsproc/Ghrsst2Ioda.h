@@ -68,14 +68,14 @@ namespace gdasapp {
       }
 
       // datetime: Read Reference Time
-      std::vector<int> refTime(dimTime);
+      std::vector<int32_t> refTime(dimTime);
       ncFile.getVar("time").getVar(refTime.data());
       std::string refDate;
       ncFile.getVar("time").getAtt("units").getValues(refDate);
 
       // Read sst_dtime to add to the reference time
       // TODO(AMG): What's below does not read the field the same way python does
-      std::vector<int16_t> sstdTime(dimTime*dimLat*dimLon);
+      std::vector<int32_t> sstdTime(dimTime*dimLat*dimLon);
       ncFile.getVar("sst_dtime").getVar(sstdTime.data());
       float dtimeScaleFactor;
       ncFile.getVar("sst_dtime").getAtt("scale_factor").getValues(&dtimeScaleFactor);
@@ -171,7 +171,7 @@ namespace gdasapp {
       // Create instance of iodaVars object
       gdasapp::IodaVars iodaVars(nobs, {}, {});
 
-      // unix epoch at Jan 01 1981 00:00:00 GMT+0000
+      // Reference time is Jan 01 1981 00:00:00 GMT+0000
       iodaVars.referenceDate_ = refDate;
 
       // Store into eigen arrays
@@ -192,6 +192,11 @@ namespace gdasapp {
       Eigen::Array<bool, Eigen::Dynamic, 1> boundsCheck =
         (iodaVars.obsVal_ > sstMin && iodaVars.obsVal_ < sstMax);
       iodaVars.trim(boundsCheck);
+
+      // Replace datime by its mean
+      // TODO (ASGM): Remove when the time reading is fixed
+      int64_t mean = iodaVars.datetime_.sum() / iodaVars.datetime_.size();
+      iodaVars.datetime_.setConstant(mean);
 
       // Test output
       iodaVars.testOutput();
