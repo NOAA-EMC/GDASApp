@@ -44,6 +44,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         # Use the converter script for the ob type
         bufr2iodapy = USH_IODA + '/bufr2ioda_' + obtype + ".py"
         cmd = Executable(bufr2iodapy)
+        cmd.add_default_arg('-v')
         cmd.add_default_arg('-c')
         cmd.add_default_arg(json_output_file)
         logger.info(f"Executing {cmd}")
