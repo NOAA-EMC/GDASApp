@@ -184,7 +184,7 @@ obs post filters:
   - name: windEastward
   - name: windNorthward
   test variables:
-  - name: MetaData/sensorZenithAngle
+  - name: MetaData/satelliteZenithAngle
   maxvalue: 68.
   action:
     name: reject
