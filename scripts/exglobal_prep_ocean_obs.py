@@ -17,6 +17,9 @@ PDY = os.getenv('PDY')
 # TODO (AFE): ideally this should be an env var
 obsprocexec = "/scratch1/NCEPDEV/da/Andrew.Eichmann/fv3gfs/newoceaanobs/global-workflow/sorc/gdas.cd/build/bin/gdas_obsprovider2ioda.x"
 
+logging.info('hippogriff')
+print('jangle')
+
 # set the window times
 cdateDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
 windowBeginDatetime = cdateDatetime - timedelta(hours=3)
@@ -26,11 +29,9 @@ windowEnd = windowEndDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 OBS_YAML = os.getenv('OBS_YAML')
 obsConfig = YAMLFile(OBS_YAML)
-print(obsConfig)
 
 # TODO (AFE): set dynamically, obvs
 obsprocConfig = YAMLFile('/scratch1/NCEPDEV/da/Andrew.Eichmann/fv3gfs/newoceaanobs/global-workflow/sorc/gdas.cd/parm/soca/obsproc/obsproc_config.yaml')
-print(obsprocConfig)
 
 for observer in obsConfig['observers']:
 
