@@ -14,15 +14,18 @@ obs space:
 
 obs operator:
   name: VertInterp
-#  hofx scaling field: SurfaceWindScalingPressure
-#  hofx scaling field group: DerivedVariables
+  hofx scaling field: SurfaceWindScalingPressure
+  hofx scaling field group: DerivedVariables
 
-#obs prior filters:
+linear obs operator:
+  name: VertInterp  
+
+obs prior filters:
 # Apply variable changes needed for wind scaling
 # For wind observations with pressure provided
-#- filter: Variable Transforms
-#  Transform: SurfaceWindScalingPressure
-#  SkipWhenNoObs: False
+- filter: Variable Transforms
+  Transform: SurfaceWindScalingPressure
+  SkipWhenNoObs: False
 
 # Calculate error inflation factor for duplicate observations 
 #- filter: Variable Assignment
