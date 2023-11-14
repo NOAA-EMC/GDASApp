@@ -14,9 +14,6 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=loggin
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
 
-# TODO (AFE): ideally this should be an env var
-obsprocexec = "/scratch1/NCEPDEV/da/Andrew.Eichmann/fv3gfs/newoceaanobs/global-workflow/sorc/gdas.cd/build/bin/gdas_obsprovider2ioda.x"
-
 logging.info('hippogriff')
 print('jangle')
 
@@ -27,11 +24,14 @@ windowEndDatetime = cdateDatetime + timedelta(hours=3)
 windowBegin = windowBeginDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 windowEnd = windowEndDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
+OCNOBS2IODAEXEC = os.getenv('OCNOBS2IODAEXEC')
+
 OBS_YAML = os.getenv('OBS_YAML')
 obsConfig = YAMLFile(OBS_YAML)
 
-# TODO (AFE): set dynamically, obvs
-obsprocConfig = YAMLFile('/scratch1/NCEPDEV/da/Andrew.Eichmann/fv3gfs/newoceaanobs/global-workflow/sorc/gdas.cd/parm/soca/obsproc/obsproc_config.yaml')
+OBSPROC_YAML = os.getenv('OBSPROC_YAML')
+obsprocConfig = YAMLFile(OBSPROC_YAML)
+
 
 for observer in obsConfig['observers']:
 
@@ -53,7 +53,7 @@ for observer in obsConfig['observers']:
            iodaYamlFilename = obsprocSpaceName + '2ioda.yaml'
            save_as_yaml(obsprocSpace, iodaYamlFilename)
 
-           subprocess.run([obsprocexec, iodaYamlFilename], check=True)
+           subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
 
 #        else:
 #           print(f"WARNING: obsSpaceName {obsSpaceName} not found in OBSPROC_YAML, skipping")
