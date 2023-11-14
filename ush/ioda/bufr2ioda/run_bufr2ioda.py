@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import glob
 import os
 from pathlib import Path
 from gen_bufr2ioda_json import gen_bufr_json
@@ -30,8 +31,9 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     }
 
     # Specify observation types to be processed by a script
-    BUFR_py = ["satwind_amv_goes", "satwind_scat", "adpupa_prepbufr", "adpsfc_prepbufr", "sfcshp_prepbufr", "acft_profiles_prepbufr",
-               "gpsro_bufr", "conventional_prepbufr_ps"]
+    BUFR_py_files = glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py'))
+    BUFR_py_files = [os.path.basename(f) for f in BUFR_py_files]
+    BUFR_py = [f.replace('bufr2ioda_', '').replace('.py', '') for f in BUFR_py_files]
 
     for obtype in BUFR_py:
         logger.info(f"Convert {obtype}...")
