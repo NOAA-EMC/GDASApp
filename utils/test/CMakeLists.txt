@@ -8,8 +8,16 @@ list( APPEND utils_test_input
   testinput/gdas_icecamsr2ioda.yaml
 )
 
+set( gdas_utils_test_ref
+  testref/ghrsst2ioda.test
+)
+
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testrun)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc/testref)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc/testoutput)
+
+CREATE_SYMLINK( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/obsproc ${gdas_utils_test_ref} )
 CREATE_SYMLINK( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${utils_test_input} )
 
 # copy the cpp linter script
