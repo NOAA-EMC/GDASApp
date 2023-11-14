@@ -31,7 +31,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     }
 
     # Specify observation types to be processed by a script
-    BUFR_py_file = glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py'))
+    BUFR_py_files = glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py'))
     BUFR_py_files = [os.path.basename(f) for f in BUFR_py_files]
     BUFR_py = [f.replace('bufr2ioda_', '').replace('.py', '') for f in BUFR_py_files]
 
