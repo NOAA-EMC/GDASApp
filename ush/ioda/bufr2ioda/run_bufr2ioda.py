@@ -4,6 +4,7 @@ import glob
 import os
 from pathlib import Path
 from gen_bufr2ioda_json import gen_bufr_json
+from gen_bufr2ioda_yaml import gen_bufr_yaml
 from wxflow import (Logger, Executable, cast_as_dtype, logit,
                     to_datetime, datetime_to_YMDH, Task, rm_p)
 
@@ -36,6 +37,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     BUFR_py_files = [os.path.basename(f) for f in BUFR_py_files]
     BUFR_py = [f.replace('bufr2ioda_', '').replace('.py', '') for f in BUFR_py_files]
 
+    # NOTE or TODO - how to parallelize these loops????
     for obtype in BUFR_py:
         logger.info(f"Convert {obtype}...")
         json_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
