@@ -7,7 +7,7 @@ obs space:
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_satwind_abi_goes-17_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_satwind_abi_goes-17_{{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [windEastward, windNorthward]

@@ -169,6 +169,9 @@ def bufr_to_ioda(config, logger):
     logger.debug('Creating derived variables - observation height')
     height = np.full_like(lat, 10.)
 
+    logger.debug('Creating derived variables - station elevation')
+    stnelv = np.full_like(lat, 0.)
+
     end_time = time.time()
     running_time = end_time - start_time
     logger.debug(f'Processing time for creating derived variables : {running_time} seconds')
@@ -209,6 +212,7 @@ def bufr_to_ioda(config, logger):
             timestamp2 = timestamp[mask]
             pressure2 = pressure[mask]
             height2 = height[mask]
+            stnelv2 = stnelv[mask]
             obstype2 = obstype[mask]
 
             # QC Info
@@ -299,6 +303,12 @@ def bufr_to_ioda(config, logger):
                 .write_attr('long_name', 'Height of Observation') \
                 .write_data(height2)
 
+            # Station Elevation 
+            obsspace.create_var('MetaData/stationElevation', dtype=stnelv2.dtype, fillval=stnelv2.fill_value) \
+                .write_attr('units', 'm') \
+                .write_attr('long_name', 'Station Elevation') \
+                .write_data(stnelv2)
+
             # ObsType based on sensor type
             obsspace.create_var('ObsType/windEastward', dtype=obstype2.dtype, fillval=obstype2.fill_value) \
                 .write_attr('long_name', 'PrepBUFR Report Type') \
@@ -308,18 +318,6 @@ def bufr_to_ioda(config, logger):
             obsspace.create_var('ObsType/windNorthward', dtype=obstype2.dtype, fillval=obstype2.fill_value) \
                 .write_attr('long_name', 'PrepBUFR Report Type') \
                 .write_data(obstype2)
-
-            # Wind Speed
-            obsspace.create_var('ObsValue/windSpeed', dtype=wspd2.dtype, fillval=wspd2.fill_value) \
-                .write_attr('units', 'm s-1') \
-                .write_attr('long_name', 'Wind Speed at 10 Meters') \
-                .write_data(wspd2)
-
-            # Wind Direction
-            obsspace.create_var('ObsValue/windDirection', dtype=wdir2.dtype, fillval=wdir2.fill_value) \
-                .write_attr('units', 'degrees') \
-                .write_attr('long_name', 'Wind Direction at 10 Meters') \
-                .write_data(wdir2)
 
             # U-Wind Component
             obsspace.create_var('ObsValue/windEastward', dtype=uob2.dtype, fillval=uob2.fill_value) \
