@@ -23,6 +23,20 @@ obs operator:
   hofx scaling field: SurfaceWindScalingHeight
   hofx scaling field group: DerivedVariables
 
+linear obs operator:
+  name: VertInterp
+  vertical coordinate: geopotential_height
+  observation vertical coordinate group: DerivedVariables
+  observation vertical coordinate: adjustedHeight
+  interpolation method: linear
+
+obs pre filters:
+- filter: Gaussian Thinning
+  horizontal_mesh: 75
+  use_reduced_horizontal_grid: true
+  round_horizontal_bin_count_to_nearest: true
+  partition_longitude_bins_using_mesh: true
+
 obs prior filters:
 # Apply variable changes needed for rescaled height coordinate
 - filter: Variable Transforms

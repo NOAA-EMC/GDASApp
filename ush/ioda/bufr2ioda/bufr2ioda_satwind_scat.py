@@ -303,7 +303,7 @@ def bufr_to_ioda(config, logger):
                 .write_attr('long_name', 'Height of Observation') \
                 .write_data(height2)
 
-            # Station Elevation 
+            # Station Elevation
             obsspace.create_var('MetaData/stationElevation', dtype=stnelv2.dtype, fillval=stnelv2.fill_value) \
                 .write_attr('units', 'm') \
                 .write_attr('long_name', 'Station Elevation') \
