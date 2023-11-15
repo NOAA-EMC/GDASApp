@@ -6,19 +6,6 @@ import numpy as np
 import logging
 import os
 
-vardict = {
-    'ua': 'u_inc',
-    'va': 'v_inc',
-    't': 'T_inc',
-    'T': 'T_inc',
-    'sphum': 'sphum_inc',
-    'liq_wat': 'liq_wat_inc',
-    'o3mr': 'o3mr_inc',
-    'ice_wat': 'icmr_inc',
-    'lat': 'lat',
-    'lon': 'lon',
-}
-
 
 def jedi_inc_to_fv3(FV3ges, FV3JEDIinc, FV3inc):
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -39,55 +26,29 @@ def create_fv3inc(ncges, ncin, ncout):
 
     # Copy over dimensions
     for name, dimension in ncin.dimensions.items():
-        if name == 'time':
-            continue
-        elif name == 'edge':
-            nameout = 'ilev'
-        else:
-            nameout = name
-        ncout.createDimension(nameout,
+        ncout.createDimension(name,
                               (len(dimension) if not dimension.isunlimited() else None))
     # Some global attributes
-    ncout.source = 'jediinc2fv3.py'
+    ncout.source = 'jediinc2fv3_cube.py'
     ncout.comment = 'Increment produced by FV3-JEDI and modified for use by FV3 read'
 
     # Create all the dummy vertical coordinate variables
-    nlevs = len(ncin.dimensions['lev'])
-    nlats = len(ncin.dimensions['lat'])
-    nlons = len(ncin.dimensions['lon'])
-    pfull = range(1, nlevs+1)
-    phalf = range(1, nlevs+2)
-    levvar = ncout.createVariable('lev', 'f4', ('lev'))
-    levvar[:] = pfull
-    pfullvar = ncout.createVariable('pfull', 'f4', ('lev'))
-    pfullvar[:] = pfull
-    ilevvar = ncout.createVariable('ilev', 'f4', ('ilev'))
-    ilevvar[:] = phalf
-    hyaivar = ncout.createVariable('hyai', 'f4', ('ilev'))
-    hyaivar[:] = phalf
-    hybivar = ncout.createVariable('hybi', 'f4', ('ilev'))
-    hybivar[:] = phalf
+    nlevs = len(ncin.dimensions['pfull'])
+    nx = len(ncin.dimensions['grid_xt'])
+    ny = len(ncin.dimensions['grid_yt'])
 
     # Rename and change dimensionality of fields
     for name, variable in ncin.variables.items():
-        if len(variable.dimensions) in [4]:
-            dimsout = variable.dimensions[1:]
+        dimsout = variable.dimensions[:]
+        if len(variable.dimensions) == 5:
             dimsout_inc = dimsout
+
+        if name == 'time_iso':
+            x = ncout.createVariable(name, 'S1', dimsout)
         else:
-            dimsout = variable.dimensions
+            x = ncout.createVariable(name, 'f4', dimsout)
 
-        if name in vardict:
-            # The temperature increment is needed to compute the delz
-            # increment.  Either T or t may be used in jedi increment
-            # files.  Set tinc to the appropriate case.
-            if name in ['T', 't']:
-                tinc = name
-
-            x = ncout.createVariable(vardict[name], 'f4', dimsout)
-            if len(variable.dimensions) in [4]:
-                ncout[vardict[name]][:] = ncin[name][0, ...]
-            else:
-                ncout[vardict[name]][:] = ncin[name][:]
+        ncout[name][:] = ncin[name][:]
 
     # Populate increment and guess fields
     #   Note:  increment and guess fields have same shape
@@ -98,12 +59,11 @@ def create_fv3inc(ncges, ncin, ncout):
     t_ges = ncges.variables['tmp'][:]
     q_ges = ncges.variables['spfh'][:]
 
-    ps_inc = ncin.variables['ps'][:]
-    t_inc = ncin.variables[tinc][:]
-    q_inc = ncin.variables['sphum'][:]
+    ps_inc = ncin.variables['pressfc'][:]
+    t_inc = ncin.variables['tmp'][:]
+    q_inc = ncin.variables['spfh'][:]
 
     # Compute analysis ps
-    ps_anl = np.zeros((nlats, nlons), float)
     ps_anl = ps_ges + ps_inc
 
     # Set constants and compute derived constants
@@ -126,56 +86,52 @@ def create_fv3inc(ncges, ncin, ncout):
     bk = ncges.getncattr('bk')
 
     # Compute guess and analysis interface pressures
-    prsi_ges = np.zeros((nlevs+1, nlats, nlons), float)
-    prsi_anl = np.zeros((nlevs+1, nlats, nlons), float)
+    prsi_ges = np.empty((1, 6, nlevs+1, ny, nx), float)
+    prsi_anl = np.empty((1, 6, nlevs+1, ny, nx), float)
     for k in range(0, nlevs+1):
-        prsi_ges[k, :, :] = ak[k]+bk[k]*ps_ges[:, :]
-        prsi_anl[k, :, :] = ak[k]+bk[k]*ps_anl[:, :]
+        prsi_ges[:, :, k, :, :] = ak[k] + bk[k]*ps_ges[:, :, :, :]
+        prsi_anl[:, :, k, :, :] = ak[k] + bk[k]*ps_anl[:, :, :, :]
 
     # Compute pressure increment (delp_inc).  Compute
     # guess and analysis layer pressures using Philips method
-    delp_inc = np.zeros((nlevs, nlats, nlons), float)
-    prsl_ges = np.zeros((nlevs, nlats, nlons), float)
-    prsl_anl = np.zeros((nlevs, nlats, nlons), float)
+    delp_inc = np.empty((1, 6, nlevs, ny, nx), float)
+    prsl_ges = np.zeros((1, 6, nlevs, ny, nx), float)
+    prsl_anl = np.zeros((1, 6, nlevs, ny, nx), float)
     for k in range(0, nlevs):
         dbk = bk[k+1] - bk[k]
-        delp_inc[k, :, :] = ps_inc[:, :] * dbk
-        prsl_ges[k, :, :] = ((prsi_ges[k+1, :, :]**kap1 - prsi_ges[k, :, :]**kap1) / (kap1*(prsi_ges[k+1, :, :] - prsi_ges[k, :, :])))**kapr
-        prsl_anl[k, :, :] = ((prsi_anl[k+1, :, :]**kap1 - prsi_anl[k, :, :]**kap1) / (kap1*(prsi_anl[k+1, :, :] - prsi_anl[k, :, :])))**kapr
+        delp_inc[:, :, k, :, :] = ps_inc[:, :, :, :] * dbk
+        prsl_ges[:, :, k, :, :] = ((prsi_ges[:, :, k+1, :, :]**kap1 - prsi_ges[:, :, k, :, :]**kap1) / (kap1*(prsi_ges[:, :, k+1, :, :] - prsi_ges[:, :, k, :, :])))**kapr
+        prsl_anl[:, :, k, :, :] = ((prsi_anl[:, :, k+1, :, :]**kap1 - prsi_anl[:, :, k, :, :]**kap1) / (kap1*(prsi_anl[:, :, k+1, :, :] - prsi_anl[:, :, k, :, :])))**kapr
 
     # Write delp increment to output file
-    x = ncout.createVariable('delp_inc', 'f4', dimsout_inc)
-    ncout['delp_inc'][:] = delp_inc[:]
+    x = ncout.createVariable('delp', 'f4', dimsout)
+    ncout['delp'][:] = delp_inc[:]
 
     # Compute analysis temperature andl specific humidity
-    t_anl = np.zeros((nlevs, nlats, nlons), float)
-    q_anl = np.zeros((nlevs, nlats, nlons), float)
     t_anl = t_ges + t_inc
     q_anl = q_ges + q_inc
 
     # Compute guess and analysis virtual temperature
-    tv_ges = np.zeros((nlevs, nlats, nlons), float)
-    tv_anl = np.zeros((nlevs, nlats, nlons), float)
-    tv_ges = t_ges * (1.0 + fv*q_ges)
-    tv_anl = t_anl * (1.0 + fv*q_anl)
+    tv_ges = t_ges * ( 1. + fv*q_ges )
+    tv_anl = t_anl * ( 1. + fv*q_anl )
 
     # Compute guess and analysis delz and delz increment
-    delz_ges = np.zeros((nlevs, nlats, nlons), float)
-    delz_anl = np.zeros((nlevs, nlats, nlons), float)
-    delz_inc = np.zeros((nlevs, nlats, nlons), float)
+    delz_ges = np.zeros((1, 6, nlevs, ny, nx), float)
+    delz_anl = np.zeros((1, 6, nlevs, ny, nx), float)
+    delz_inc = np.zeros((1, 6, nlevs, ny, nx), float)
     for k in range(0, nlevs):
         if k == 0:
-            delz_ges[k, :, :] = rdog * tv_ges[:, k, :, :] * np.log(prsl_ges[k, :, :]/prsi_ges[k+1, :, :])
-            delz_anl[k, :, :] = rdog * tv_anl[:, k, :, :] * np.log(prsl_anl[k, :, :]/prsi_anl[k+1, :, :])
+            delz_ges[:, :, k, :, :] = rdog * tv_ges[:, :, k, :, :] * np.log(prsl_ges[:, :, k, :, :]/prsi_ges[:, :, k+1, :, :])
+            delz_anl[:, :, k, :, :] = rdog * tv_anl[:, :, k, :, :] * np.log(prsl_anl[:, :, k, :, :]/prsi_anl[:, :, k+1, :, :])
         else:
-            delz_ges[k, :, :] = rdog * tv_ges[:, k, :, :] * np.log(prsi_ges[k, :, :]/prsi_ges[k+1, :, :])
-            delz_anl[k, :, :] = rdog * tv_anl[:, k, :, :] * np.log(prsi_anl[k, :, :]/prsi_anl[k+1, :, :])
+            delz_ges[:, :, k, :, :] = rdog * tv_ges[:, :, k, :, :] * np.log(prsi_ges[:, :, k, :, :]/prsi_ges[:, :, k+1, :, :])
+            delz_anl[:, :, k, :, :] = rdog * tv_anl[:, :, k, :, :] * np.log(prsi_anl[:, :, k, :, :]/prsi_anl[:, :, k+1, :, :])
 
-        delz_inc[k, :, :] = delz_anl[k, :, :] - delz_ges[k, :, :]
+        delz_inc[:, :, k, :, :] = delz_anl[:, :, k, :, :] - delz_ges[:, :, k, :, :]
 
     # Write delz increment to output file
-    x = ncout.createVariable('delz_inc', 'f4', dimsout_inc)
-    ncout['delz_inc'][:] = delz_inc[:]
+    x = ncout.createVariable('delz', 'f4', dimsout)
+    ncout['delz'][:] = delz_inc[:]
 
 
 if __name__ == "__main__":
