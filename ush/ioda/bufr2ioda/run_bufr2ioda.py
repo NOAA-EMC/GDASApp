@@ -2,6 +2,7 @@
 import argparse
 import glob
 import os
+import shutil
 from pathlib import Path
 from gen_bufr2ioda_json import gen_bufr_json
 from gen_bufr2ioda_yaml import gen_bufr_yaml
@@ -33,6 +34,10 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         'PDY': current_cycle.strftime('%Y%m%d'),
         'cyc': current_cycle.strftime('%H'),
     }
+
+    # copy necessary fix files to runtime directory
+    shutil.copy(os.path.join(config_template_dir, "atms_beamwidth.txt"),
+                os.path.join(os.getcwd(), "atms_beamwidth.txt"))
 
     # Specify observation types to be processed by a script
     BUFR_py_files = glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py'))

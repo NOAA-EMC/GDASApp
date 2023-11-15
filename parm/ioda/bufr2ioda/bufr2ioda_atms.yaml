@@ -54,6 +54,7 @@ observations:
               heightOfStation: "*/HMSL"
               scanStart: -52.725
               scanStep: 1.110
+              sensor: atms
 
           sensorChannelNumber:
             query: "*/ATMSCH/CHNM"
