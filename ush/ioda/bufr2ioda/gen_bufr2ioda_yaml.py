@@ -6,12 +6,19 @@
 import argparse
 import os
 from wxflow import Logger, parse_j2yaml, cast_strdict_as_dtypedict, save_as_yaml
+from wxflow import Template, TemplateConstants
+
+# initialize root logger
+logger = Logger('gen_bufr2ioda_yaml.py', level='INFO', colored_log=True)
 
 
 def gen_bufr_yaml(config, template, output):
     # read in templated YAML and do substitution
     logger.info(f"Using {template} as input")
     bufr_config = parse_j2yaml(template, config)
+    # need to do some special manipulation for the splits
+    substitutions = {'splitvar': '{{splits/satId}}'}
+    bufr_config = Template.substitute_structure(bufr_config, TemplateConstants.DOLLAR_PARENTHESES, substitutions.get)
     save_as_yaml(bufr_config, output)
     logger.info(f"Wrote to {output}")
 
