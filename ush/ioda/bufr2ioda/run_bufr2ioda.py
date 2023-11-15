@@ -89,7 +89,6 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     with mp.Pool(num_cores) as pool:
         pool.starmap(mp_bufr_py, zip(scripts, json_files))
 
-
     # Specify observation types to be processed by the bufr2ioda executable
     BUFR_yaml_files = glob.glob(os.path.join(config_template_dir, '*.yaml'))
     BUFR_yaml_files = [os.path.basename(f) for f in BUFR_yaml_files]
