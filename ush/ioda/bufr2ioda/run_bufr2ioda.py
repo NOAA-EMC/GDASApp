@@ -56,8 +56,8 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         cmd()
 
         # Check if the converter was successful
-        #if os.path.exists(json_output_file):
-        #    rm_p(json_output_file)
+        # if os.path.exists(json_output_file):
+        #     rm_p(json_output_file)
 
     # Specify observation types to be processed by the bufr2ioda executable
     BUFR_yaml_files = glob.glob(os.path.join(config_template_dir, '*.yaml'))
@@ -79,8 +79,8 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         cmd()
 
         # Check if the converter was successful
-        #if os.path.exists(yaml_output_file):
-        #    rm_p(yaml_output_file)
+        # if os.path.exists(yaml_output_file):
+        #     rm_p(yaml_output_file)
 
 
 if __name__ == "__main__":
