@@ -51,7 +51,6 @@ observations:
           sensorScanAngle:
             sensorScanAngle:
               fieldOfViewNumber: "*/FOVN"
-              heightOfStation: "*/HMSL"
               scanStart: -52.725
               scanStep: 1.110
               sensor: atms
@@ -81,6 +80,7 @@ observations:
               map:
                 _224: npp
                 _225: n20
+#               _226: n21
 
     ioda:
       backend: netcdf
