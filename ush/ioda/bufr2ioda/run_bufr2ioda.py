@@ -19,7 +19,6 @@ num_cores = mp.cpu_count()
 
 
 def mp_bufr_py(script, infile):
-    print(script, infile)
     cmd = Executable(script)
     cmd.add_default_arg('-c')
     cmd.add_default_arg(infile)
