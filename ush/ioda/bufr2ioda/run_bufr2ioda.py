@@ -18,6 +18,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     # Get gdasapp root directory
     DIR_ROOT = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../.."))
     USH_IODA = os.path.join(DIR_ROOT, "ush", "ioda", "bufr2ioda")
+    BIN_GDAS = os.path.join(DIR_ROOT, "build", "bin")
 
     # Create output directory if it doesn't exist
     os.makedirs(COM_OBS, exist_ok=True)
@@ -51,8 +52,31 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         cmd()
 
         # Check if the converter was successful
-        if os.path.exists(json_output_file):
-            rm_p(json_output_file)
+        #if os.path.exists(json_output_file):
+        #    rm_p(json_output_file)
+
+    # Specify observation types to be processed by the bufr2ioda executable
+    BUFR_yaml_files = glob.glob(os.path.join(config_template_dir, '*.yaml'))
+    BUFR_py_files = [os.path.basename(f) for f in BUFR_yaml_files]
+    BUFR_yaml = [f.replace('bufr2ioda_', '').replace('.yaml', '') for f in BUFR_yaml_files]
+
+    for obtype in BUFR_yaml:
+        logger.info(f"Convert {obtype}...")
+        yaml_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.yaml")
+        filename = 'bufr2ioda_' + obtype + '.yaml'
+        template = os.path.join(config_template_dir, filename)
+        gen_bufr_yaml(config, template, yaml_output_file)
+
+        # use the bufr2ioda executable for the ob type
+        bufr2iodaexe = BIN_GDAS + '/bufr2ioda.x'
+        cmd = Executable(bufr2iodaexe)
+        cmd.add_default_arg(yaml_output_file)
+        logger.info(f"Executing {cmd}")
+        cmd()
+
+        # Check if the converter was successful
+        #if os.path.exists(yaml_output_file):
+        #    rm_p(yaml_output_file)
 
 
 if __name__ == "__main__":
