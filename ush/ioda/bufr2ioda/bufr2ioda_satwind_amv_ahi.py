@@ -185,15 +185,15 @@ def bufr_to_ioda(config, logger):
     # 2. Initialize gnap and qifn as None, and search for dimension of
     #    ga with values of 102. If the same column exists for qi, assign
     #    gnap to ga[:,i] and qifn to qi[:,i], else raise warning that no
-    #    appropriate GNAP/PCCF combination was found 
+    #    appropriate GNAP/PCCF combination was found
     gnap = None
     qifn = None
     for i in range(gDim2):
-        if np.unique(ga[:,i].squeeze()) == 102:
+        if np.unique(ga[:, i].squeeze()) == 102:
             if i <= qDim2:
                 logger.info(f'GNAP/PCCF found for column {i}')
-                gnap = ga[:,i].squeeze()
-                qifn = qi[:,i].squeeze()
+                gnap = ga[:, i].squeeze()
+                qifn = qi[:, i].squeeze()
             else:
                 logger.info(f'ERROR: GNAP column {i} outside of PCCF dimension {qDim2}')
     if (gnap is None) & (qifn is None):
