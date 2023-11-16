@@ -44,16 +44,16 @@ namespace gdasapp {
       gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       // Read non-optional metadata: datetime, longitude and latitude
-      std::vector<int> lat(iodaVars.location_);  // NOLINT
+      std::vector<int> lat(iodaVars.location_);
       ncFile.getVar("lat").getVar(lat.data());
 
-      std::vector<int> lon(iodaVars.location_);  // NOLINT
+      std::vector<int> lon(iodaVars.location_);
       ncFile.getVar("lon").getVar(lon.data());
 
       float geoscaleFactor;
       ncFile.getVar("lon").getAtt("scale_factor").getValues(&geoscaleFactor);
 
-      std::vector<float> datetime(iodaVars.location_);  // NOLINT
+      std::vector<float> datetime(iodaVars.location_);
       ncFile.getVar("time_mjd").getVar(datetime.data());
       iodaVars.referenceDate_ = "seconds since 1858-11-17T00:00:00Z";
 
@@ -84,9 +84,9 @@ namespace gdasapp {
       iodaVars.strGlobalAttr_["references"] = references;
 
       // Read optional integer metadata "pass" and "cycle"
-      std::vector<int> pass(iodaVars.location_);  // NOLINT
+      std::vector<int> pass(iodaVars.location_);
       ncFile.getVar("pass").getVar(pass.data());
-      std::vector<int> cycle(iodaVars.location_);  // NOLINT
+      std::vector<int> cycle(iodaVars.location_);
       ncFile.getVar("cycle").getVar(cycle.data());
 
       // Store optional metadata, set ocean basins to -999 for now
@@ -95,13 +95,13 @@ namespace gdasapp {
       }
 
       // Get adt_egm2008 obs values and attributes
-      std::vector<int> adt(iodaVars.location_);  // NOLINT
+      std::vector<int> adt(iodaVars.location_);
       ncFile.getVar("adt_egm2008").getVar(adt.data());
       float scaleFactor;
       ncFile.getVar("adt_egm2008").getAtt("scale_factor").getValues(&scaleFactor);
 
       // Read sla
-      std::vector<int> sla(iodaVars.location_);  // NOLINT
+      std::vector<int> sla(iodaVars.location_);
       ncFile.getVar("sla").getVar(sla.data());
 
       // Update non-optional Eigen arrays
