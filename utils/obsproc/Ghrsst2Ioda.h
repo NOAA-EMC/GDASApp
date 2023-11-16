@@ -26,7 +26,7 @@ namespace gdasapp {
     }
 
     // Read netcdf file and populate iodaVars
-    gdasapp::IodaVars providerToIodaVars(const std::string fileName) final {
+    gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by GHRSST" << std::endl;
 
       // Get the sst bounds from the configuration
@@ -182,7 +182,7 @@ namespace gdasapp {
       int nobs = sst_s.size() * sst_s[0].size();
 
       // Create instance of iodaVars object
-      gdasapp::IodaVars iodaVars(nobs, {}, {});
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, {}, {});
 
       // Reference time is Jan 01 1981 00:00:00 GMT+0000
       iodaVars.referenceDate_ = refDate;

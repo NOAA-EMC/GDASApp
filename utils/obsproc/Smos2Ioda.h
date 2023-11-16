@@ -24,7 +24,7 @@ namespace gdasapp {
     }
 
     // Read netcdf file and populate iodaVars
-    gdasapp::IodaVars providerToIodaVars(const std::string fileName) final {
+    gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by SMOS" << std::endl;
 
       // Open the NetCDF file in read-only mode
@@ -43,7 +43,7 @@ namespace gdasapp {
       // std::vector<std::string> floatMetadataNames = {"mdt"};
       std::vector<std::string> floatMetadataNames = {};
       // Create instance of iodaVars object
-      gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       std::vector<float> lat(iodaVars.location_);
       ncFile.getVar("Latitude").getVar(lat.data());

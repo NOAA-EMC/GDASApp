@@ -26,7 +26,7 @@ namespace gdasapp {
     }
 
     // Read netcdf file and populate iodaVars
-    gdasapp::IodaVars providerToIodaVars(const std::string fileName) final {
+    gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by the AMSR2" << std::endl;
 
       // Open the NetCDF file in read-only mode
@@ -40,7 +40,7 @@ namespace gdasapp {
       int ntimes = dimxSize * dimySize * dimTimeSize;
 
       // Create instance of iodaVars object
-      gdasapp::IodaVars iodaVars(nobs, {}, {});
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, {}, {});
 
       oops::Log::debug() << "--- iodaVars.location_: " << iodaVars.location_ << std::endl;
 
