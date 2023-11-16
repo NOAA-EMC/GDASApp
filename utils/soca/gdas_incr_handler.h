@@ -59,13 +59,6 @@ namespace gdasapp {
         // Zero out specified fields
         incrWithLayer = postProcIncr.setToZero(incrWithLayer);
 
-        // Apply linear change of variables
-        if ( fullConfig.has("linear variable change") ) {
-          soca::State traj = postProcIncr.getTraj(fullConfig, geom);
-          eckit::LocalConfiguration lvcConfig(fullConfig, "linear variable change");
-          postProcIncr.applyLinVarChange(incrWithLayer, lvcConfig, traj);
-        }
-
         // Save final increment
         result = postProcIncr.save(incrWithLayer, i);
         oops::Log::debug() << "========= after appending layer and after saving:" << std::endl;
