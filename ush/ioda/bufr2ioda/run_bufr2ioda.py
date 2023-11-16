@@ -32,7 +32,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     # Specify observation types to be processed by a script
 
     BUFR_py = ["satwind_amv_goes", "satwind_scat", "adpupa_prepbufr", "adpsfc_prepbufr", "sfcshp_prepbufr"]
-
+    BUFR_py = ["ncep_amsua",]
     for obtype in BUFR_py:
         logger.info(f"Convert {obtype}...")
         json_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
