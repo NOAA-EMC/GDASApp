@@ -101,7 +101,7 @@ namespace gdasapp {
       ncFile.getVar("adt_egm2008").getAtt("scale_factor").getValues(&scaleFactor);
 
       // Read sla
-      std::vector<int> sla(iodaVars.location_);
+      std::vector<short> sla(iodaVars.location_);
       ncFile.getVar("sla").getVar(sla.data());
 
       // Update non-optional Eigen arrays
