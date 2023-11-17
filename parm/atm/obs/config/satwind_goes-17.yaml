@@ -17,7 +17,7 @@ obs operator:
   hofx scaling field: SurfaceWindScalingPressure
   hofx scaling field group: DerivedVariables
 
-obs linear operator:
+linear obs operator:
   name: VertInterp
 
 obs prior filters:
