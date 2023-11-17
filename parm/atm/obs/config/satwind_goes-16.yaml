@@ -7,7 +7,7 @@ obs space:
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_satwind_abi_goes-16_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_satwind_abi_goes-16_{{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [windEastward, windNorthward]
@@ -16,6 +16,9 @@ obs operator:
   name: VertInterp
   hofx scaling field: SurfaceWindScalingPressure
   hofx scaling field group: DerivedVariables
+
+linear obs operator:
+  name: VertInterp
 
 obs prior filters:
 # Apply variable changes needed for wind scaling
@@ -181,7 +184,7 @@ obs post filters:
   - name: windEastward
   - name: windNorthward
   test variables:
-  - name: MetaData/sensorZenithAngle
+  - name: MetaData/satelliteZenithAngle
   maxvalue: 68.
   action:
     name: reject

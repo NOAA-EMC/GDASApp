@@ -21,7 +21,7 @@ namespace gdasapp {
    public:
     explicit Smap2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
       : NetCDFToIodaConverter(fullConfig, comm) {
-      variable_ = "Salinity";
+      variable_ = "seaSurfaceSalinity";
     }
 
     // Read netcdf file and populate iodaVars

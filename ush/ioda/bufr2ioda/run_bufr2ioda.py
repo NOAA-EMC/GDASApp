@@ -1,13 +1,36 @@
 #!/usr/bin/env python3
 import argparse
+import glob
+import multiprocessing as mp
 import os
+import shutil
+from itertools import repeat
 from pathlib import Path
 from gen_bufr2ioda_json import gen_bufr_json
+from gen_bufr2ioda_yaml import gen_bufr_yaml
 from wxflow import (Logger, Executable, cast_as_dtype, logit,
                     to_datetime, datetime_to_YMDH, Task, rm_p)
 
 # Initialize root logger
 logger = Logger('run_bufr2ioda.py', level='INFO', colored_log=True)
+
+# get parallel processing info
+num_cores = mp.cpu_count()
+
+
+def mp_bufr_py(script, infile):
+    cmd = Executable(script)
+    cmd.add_default_arg('-c')
+    cmd.add_default_arg(infile)
+    logger.info(f"Executing {cmd}")
+    cmd()
+
+
+def mp_bufr_yaml(bufr2iodaexe, yamlfile):
+    cmd = Executable(bufr2iodaexe)
+    cmd.add_default_arg(yamlfile)
+    logger.info(f"Executing {cmd}")
+    cmd()
 
 
 @logit(logger)
@@ -17,6 +40,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     # Get gdasapp root directory
     DIR_ROOT = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../.."))
     USH_IODA = os.path.join(DIR_ROOT, "ush", "ioda", "bufr2ioda")
+    BIN_GDAS = os.path.join(DIR_ROOT, "build", "bin")
 
     # Create output directory if it doesn't exist
     os.makedirs(COM_OBS, exist_ok=True)
@@ -26,13 +50,22 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         'RUN': RUN,
         'current_cycle': current_cycle,
         'DMPDIR': DMPDIR,
-        'COM_OBS': COM_OBS
+        'COM_OBS': COM_OBS,
+        'PDY': current_cycle.strftime('%Y%m%d'),
+        'cyc': current_cycle.strftime('%H'),
     }
 
+    # copy necessary fix files to runtime directory
+    shutil.copy(os.path.join(config_template_dir, "atms_beamwidth.txt"),
+                os.path.join(os.getcwd(), "atms_beamwidth.txt"))
+
     # Specify observation types to be processed by a script
+    BUFR_py_files = glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py'))
+    BUFR_py_files = [os.path.basename(f) for f in BUFR_py_files]
+    BUFR_py = [f.replace('bufr2ioda_', '').replace('.py', '') for f in BUFR_py_files]
 
-    BUFR_py = ["satwind_amv_ahi", "satwind_amv_goes", "satwind_scat", "adpupa_prepbufr", "adpsfc_prepbufr", "sfcshp_prepbufr"]
-
+    json_files = []
+    scripts = []
     for obtype in BUFR_py:
         logger.info(f"Convert {obtype}...")
         json_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
@@ -42,15 +75,45 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
 
         # Use the converter script for the ob type
         bufr2iodapy = USH_IODA + '/bufr2ioda_' + obtype + ".py"
-        cmd = Executable(bufr2iodapy)
-        cmd.add_default_arg('-c')
-        cmd.add_default_arg(json_output_file)
-        logger.info(f"Executing {cmd}")
-        cmd()
+
+        # append the values to the lists
+        json_files.append(json_output_file)
+        scripts.append(bufr2iodapy)
 
         # Check if the converter was successful
-        if os.path.exists(json_output_file):
-            rm_p(json_output_file)
+        # if os.path.exists(json_output_file):
+        #     rm_p(json_output_file)
+
+    # run all python scripts in parallel
+    with mp.Pool(num_cores) as pool:
+        pool.starmap(mp_bufr_py, zip(scripts, json_files))
+
+    # Specify observation types to be processed by the bufr2ioda executable
+    BUFR_yaml_files = glob.glob(os.path.join(config_template_dir, '*.yaml'))
+    BUFR_yaml_files = [os.path.basename(f) for f in BUFR_yaml_files]
+    BUFR_yaml = [f.replace('bufr2ioda_', '').replace('.yaml', '') for f in BUFR_yaml_files]
+
+    yaml_files = []
+    for obtype in BUFR_yaml:
+        logger.info(f"Convert {obtype}...")
+        yaml_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.yaml")
+        filename = 'bufr2ioda_' + obtype + '.yaml'
+        template = os.path.join(config_template_dir, filename)
+        gen_bufr_yaml(config, template, yaml_output_file)
+
+        # use the bufr2ioda executable for the ob type
+        bufr2iodaexe = BIN_GDAS + '/bufr2ioda.x'
+
+        # append the values to the lists
+        yaml_files.append(yaml_output_file)
+
+        # Check if the converter was successful
+        # if os.path.exists(yaml_output_file):
+        #     rm_p(yaml_output_file)
+
+    # run all bufr2ioda yamls in parallel
+    with mp.Pool(num_cores) as pool:
+        pool.starmap(mp_bufr_yaml, zip(repeat(bufr2iodaexe), yaml_files))
 
 
 if __name__ == "__main__":
