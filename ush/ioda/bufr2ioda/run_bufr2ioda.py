@@ -18,17 +18,12 @@ logger = Logger('run_bufr2ioda.py', level='INFO', colored_log=True)
 num_cores = mp.cpu_count()
 
 
-def mp_bufr_py(script, infile):
-    cmd = Executable(script)
-    cmd.add_default_arg('-c')
-    cmd.add_default_arg(infile)
-    logger.info(f"Executing {cmd}")
-    cmd()
-
-
-def mp_bufr_yaml(bufr2iodaexe, yamlfile):
-    cmd = Executable(bufr2iodaexe)
-    cmd.add_default_arg(yamlfile)
+def mp_bufr_converter(exename, configfile):
+    cmd = Executable(exename)
+    filetype = Path(configfile).suffix
+    if filetype == '.json':
+        cmd.add_default_arg('-c')
+    cmd.add_default_arg(configfile)
     logger.info(f"Executing {cmd}")
     cmd()
 
@@ -64,8 +59,8 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     BUFR_py_files = [os.path.basename(f) for f in BUFR_py_files]
     BUFR_py = [f.replace('bufr2ioda_', '').replace('.py', '') for f in BUFR_py_files]
 
-    json_files = []
-    scripts = []
+    config_files = []
+    exename = []
     for obtype in BUFR_py:
         logger.info(f"Convert {obtype}...")
         json_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
@@ -77,23 +72,18 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         bufr2iodapy = USH_IODA + '/bufr2ioda_' + obtype + ".py"
 
         # append the values to the lists
-        json_files.append(json_output_file)
-        scripts.append(bufr2iodapy)
+        config_files.append(json_output_file)
+        exename.append(bufr2iodapy)
 
         # Check if the converter was successful
         # if os.path.exists(json_output_file):
         #     rm_p(json_output_file)
-
-    # run all python scripts in parallel
-    with mp.Pool(num_cores) as pool:
-        pool.starmap(mp_bufr_py, zip(scripts, json_files))
 
     # Specify observation types to be processed by the bufr2ioda executable
     BUFR_yaml_files = glob.glob(os.path.join(config_template_dir, '*.yaml'))
     BUFR_yaml_files = [os.path.basename(f) for f in BUFR_yaml_files]
     BUFR_yaml = [f.replace('bufr2ioda_', '').replace('.yaml', '') for f in BUFR_yaml_files]
 
-    yaml_files = []
     for obtype in BUFR_yaml:
         logger.info(f"Convert {obtype}...")
         yaml_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.yaml")
@@ -105,15 +95,16 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         bufr2iodaexe = BIN_GDAS + '/bufr2ioda.x'
 
         # append the values to the lists
-        yaml_files.append(yaml_output_file)
+        config_files.append(yaml_output_file)
+        exename.append(bufr2iodaexe)
 
         # Check if the converter was successful
         # if os.path.exists(yaml_output_file):
         #     rm_p(yaml_output_file)
 
-    # run all bufr2ioda yamls in parallel
+    # run everything in parallel
     with mp.Pool(num_cores) as pool:
-        pool.starmap(mp_bufr_yaml, zip(repeat(bufr2iodaexe), yaml_files))
+        pool.starmap(mp_bufr_converter, zip(exename, config_files))
 
 
 if __name__ == "__main__":
