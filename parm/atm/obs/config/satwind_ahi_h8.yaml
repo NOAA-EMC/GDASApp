@@ -20,6 +20,19 @@ obs operator:
 linear obs operator:
   name: VertInterp
 
+# NOTE: Tests using the Gaussian Thinning filter (below) to duplicate GSI's thinning of AHI/Himawari-8 satwinds
+#       results in more JEDI satwinds in the diag file than in GSI, but far fewer JEDI satwinds assimilated than
+#       GSI. JEDI under-counts assimilated winds by roughly 25-40%, relative to GSI, and this under-count is not
+#       even including the temporal thinning which is applied in GSI but not JEDI (by this filter below). See
+#       GDASApp Issue #741 for details: https://github.com/NOAA-EMC/GDASApp/issues/741
+#obs pre filters:
+#- filter: Gaussian Thinning
+#  horizontal_mesh: 200
+#  vertical_mesh: 10000
+#  use_reduced_horizontal_grid: true
+#  round_horizontal_bin_count_to_nearest: true
+#  partition_longitude_bins_using_mesh: true
+  
 obs prior filters:
 # Apply variable changes needed for wind scaling
 # For wind observations with pressure provided
