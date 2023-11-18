@@ -1,5 +1,7 @@
 obs space:
   name: sss_smap
+  get values:
+    time interpolation: linear
   obsdatain:
     engine:
       type: H5File
