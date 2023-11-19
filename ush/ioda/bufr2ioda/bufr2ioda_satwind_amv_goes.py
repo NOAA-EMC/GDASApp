@@ -124,7 +124,7 @@ def bufr_to_ioda(config, logger):
     q.add('hour', '*/HOUR')
     q.add('minute', '*/MINU')
     q.add('second', '*/SECO')
-    q.add('sensorZenithAngle', '*/SAZA')
+    q.add('satelliteZenithAngle', '*/SAZA')
     q.add('sensorCentralFrequency', '*/SCCF')
     q.add('pressure', '*/PRLC[1]')
 
@@ -173,7 +173,7 @@ def bufr_to_ioda(config, logger):
     second = r.get('second')
     lat = r.get('latitude')
     lon = r.get('longitude')
-    satzenang = r.get('sensorZenithAngle')
+    satzenang = r.get('satelliteZenithAngle')
     pressure = r.get('pressure', type='float')
     chanfreq = r.get('sensorCentralFrequency', type='float')
 
@@ -357,10 +357,10 @@ def bufr_to_ioda(config, logger):
                 .write_data(satid2)
 
             # Sensor Zenith Angle
-            obsspace.create_var('MetaData/sensorZenithAngle', dtype=satzenang2.dtype, fillval=satzenang2.fill_value) \
+            obsspace.create_var('MetaData/satelliteZenithAngle', dtype=satzenang2.dtype, fillval=satzenang2.fill_value) \
                 .write_attr('units', 'degree') \
                 .write_attr('valid_range', np.array([0, 90], dtype=np.float32)) \
-                .write_attr('long_name', 'Sensor Zenith Angle') \
+                .write_attr('long_name', 'Satellite Zenith Angle') \
                 .write_data(satzenang2)
 
             # Sensor Centrall Frequency
@@ -427,18 +427,6 @@ def bufr_to_ioda(config, logger):
                 .write_attr('units', 'm') \
                 .write_attr('long_name', 'Station Elevation') \
                 .write_data(stnelev2)
-
-            # Wind Speed
-            obsspace.create_var('ObsValue/windSpeed', dtype=wspd2.dtype, fillval=wspd2.fill_value) \
-                .write_attr('units', 'm s-1') \
-                .write_attr('long_name', 'Wind Speed') \
-                .write_data(wspd2)
-
-            # Wind Direction
-            obsspace.create_var('ObsValue/windDirection', dtype=wdir2.dtype, fillval=wdir2.fill_value) \
-                .write_attr('units', 'degrees') \
-                .write_attr('long_name', 'Wind Direction') \
-                .write_data(wdir2)
 
             # U-Wind Component
             obsspace.create_var('ObsValue/windEastward', dtype=uob2.dtype, fillval=wspd2.fill_value) \
