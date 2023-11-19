@@ -56,37 +56,11 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     }
 
     # copy necessary fix files to runtime directory
-<<<<<<< HEAD
     fix_files = ["atms_beamwidth.txt",
                  "amsua_metop-c_v2.ACCoeff.nc"
                  ]
     for fix_file in fix_files:
         shutil.copy(os.path.join(config_template_dir, fix_file), os.path.join(os.getcwd(), fix_file))
-
-    script_type = 'bufr2ioda_combine_'
-    # Specify observation types to be processed by the bufr2ioda_ executable
-    BUFR_yml_files = glob.glob(os.path.join(config_template_dir, '*.yml'))
-    BUFR_yml_files = [os.path.basename(f) for f in BUFR_yml_files]
-    BUFR_yml = [f.replace(script_type, '').replace('.yml', '') for f in BUFR_yml_files]
-
-    for obtype in BUFR_yml:
-        logger.info(f"Convert {obtype}...")
-        yaml_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.yaml")
-        filename = script_type + obtype + '.yml'
-        template = os.path.join(config_template_dir, filename)
-        gen_bufr_yaml(config, template, yaml_output_file)
-
-# Specify observation types to be processed by a script with combined methods
-    BUFR_combine_files = glob.glob(os.path.join(USH_IODA, script_type + '*.py'))
-    BUFR_combine_files = [os.path.basename(f) for f in BUFR_combine_files]
-    BUFR_combine = [f.replace(script_type, '').replace('.py', '') for f in BUFR_combine_files]
-
-    json_files = []
-    scripts = []
-    for obtype in BUFR_combine:
-=======
-    shutil.copy(os.path.join(config_template_dir, "atms_beamwidth.txt"),
-                os.path.join(os.getcwd(), "atms_beamwidth.txt"))
 
     # Specify observation types to be processed by a script
     BUFR_py_files = glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py'))
@@ -96,7 +70,6 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     json_files = []
     scripts = []
     for obtype in BUFR_py:
->>>>>>> feature/gdas-validation
         logger.info(f"Convert {obtype}...")
         json_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
         filename = 'bufr2ioda_' + obtype + '.json'
@@ -104,25 +77,11 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         gen_bufr_json(config, template, json_output_file)
 
         # Use the converter script for the ob type
-<<<<<<< HEAD
-        bufr2iodapy = os.path.join(USH_IODA, script_type + obtype + ".py")
-=======
         bufr2iodapy = USH_IODA + '/bufr2ioda_' + obtype + ".py"
->>>>>>> feature/gdas-validation
 
         # append the values to the lists
         json_files.append(json_output_file)
         scripts.append(bufr2iodapy)
-<<<<<<< HEAD
-
-        # Check if the converter was successful
-        # if os.path.exists(json_output_file):
-        #     rm_p(json_output_file)
-
-    # run all python scripts in parallel
-    with mp.Pool(num_cores) as pool:
-        pool.starmap(mp_bufr_py, zip(scripts, json_files))
-=======
 
         # Check if the converter was successful
         # if os.path.exists(json_output_file):
@@ -158,7 +117,49 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     # run all bufr2ioda yamls in parallel
     with mp.Pool(num_cores) as pool:
         pool.starmap(mp_bufr_yaml, zip(repeat(bufr2iodaexe), yaml_files))
->>>>>>> feature/gdas-validation
+
+    script_type = 'bufr2ioda_combine_'
+    # Specify observation types to be processed by the bufr2ioda_ executable
+    BUFR_yml_files = glob.glob(os.path.join(config_template_dir, '*.yml'))
+    BUFR_yml_files = [os.path.basename(f) for f in BUFR_yml_files]
+    BUFR_yml = [f.replace(script_type, '').replace('.yml', '') for f in BUFR_yml_files]
+
+    for obtype in BUFR_yml:
+        logger.info(f"Convert {obtype}...")
+        yaml_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.yaml")
+        filename = script_type + obtype + '.yml'
+        template = os.path.join(config_template_dir, filename)
+        gen_bufr_yaml(config, template, yaml_output_file)
+
+
+# Specify observation types to be processed by a script with combined methods
+    BUFR_combine_files = glob.glob(os.path.join(USH_IODA, script_type + '*.py'))
+    BUFR_combine_files = [os.path.basename(f) for f in BUFR_combine_files]
+    BUFR_combine = [f.replace(script_type, '').replace('.py', '') for f in BUFR_combine_files]
+
+    json_files = []
+    scripts = []
+    for obtype in BUFR_combine:
+        logger.info(f"Convert {obtype}...")
+        json_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
+        filename = 'bufr2ioda_' + obtype + '.json'
+        template = os.path.join(config_template_dir, filename)
+        gen_bufr_json(config, template, json_output_file)
+
+        # Use the converter script for the ob type
+        bufr2iodapy = os.path.join(USH_IODA, script_type + obtype + ".py")
+
+        # append the values to the lists
+        json_files.append(json_output_file)
+        scripts.append(bufr2iodapy)
+
+        # Check if the converter was successful
+        # if os.path.exists(json_output_file):
+        #     rm_p(json_output_file)
+
+    # run all python scripts in parallel
+    with mp.Pool(num_cores) as pool:
+        pool.starmap(mp_bufr_py, zip(scripts, json_files))
 
 
 if __name__ == "__main__":
