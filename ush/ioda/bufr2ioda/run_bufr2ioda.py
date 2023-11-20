@@ -36,6 +36,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     DIR_ROOT = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../.."))
     USH_IODA = os.path.join(DIR_ROOT, "ush", "ioda", "bufr2ioda")
     BIN_GDAS = os.path.join(DIR_ROOT, "build", "bin")
+    DATA = os.getcwd()
 
     # Create output directory if it doesn't exist
     os.makedirs(COM_OBS, exist_ok=True)
@@ -52,7 +53,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
 
     # copy necessary fix files to runtime directory
     shutil.copy(os.path.join(config_template_dir, "atms_beamwidth.txt"),
-                os.path.join(os.getcwd(), "atms_beamwidth.txt"))
+                os.path.join(DATA, "atms_beamwidth.txt"))
 
     # Specify observation types to be processed by a script
     BUFR_py_files = glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py'))
@@ -63,7 +64,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     exename = []
     for obtype in BUFR_py:
         logger.info(f"Convert {obtype}...")
-        json_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
+        json_output_file = os.path.join(DATA, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
         filename = 'bufr2ioda_' + obtype + '.json'
         template = os.path.join(config_template_dir, filename)
         gen_bufr_json(config, template, json_output_file)
@@ -86,7 +87,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
 
     for obtype in BUFR_yaml:
         logger.info(f"Convert {obtype}...")
-        yaml_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.yaml")
+        yaml_output_file = os.path.join(DATA, f"{obtype}_{datetime_to_YMDH(current_cycle)}.yaml")
         filename = 'bufr2ioda_' + obtype + '.yaml'
         template = os.path.join(config_template_dir, filename)
         gen_bufr_yaml(config, template, yaml_output_file)
