@@ -64,24 +64,24 @@ def bufr_to_ioda(config, logger):
     q = bufr.QuerySet() #(subsets)
 
     # MetaData
-    q.add('year',            '*/YEAR')
-    q.add('month',           '*/MNTH')
-    q.add('day',             '*/DAYS')
-    q.add('hour',            '*/HOUR')
-    q.add('minute',          '*/MINU')
-    q.add('ryear',           '*/RCYR')
-    q.add('rmonth',          '*/RCMO')
-    q.add('rday',            '*/RCDY')
-    q.add('rhour',           '*/RCHR')
-    q.add('rminute',         '*/RCMI')
-    q.add('stationID',       '*/WMOP')
-    q.add('latitude',        '*/CLATH')
-    q.add('longitude',       '*/CLONH')
-    q.add('pressure',        '*/GLPFDATA/WPRES')
+    q.add('year', '*/YEAR')
+    q.add('month', '*/MNTH')
+    q.add('day', '*/DAYS')
+    q.add('hour', '*/HOUR')
+    q.add('minute', '*/MINU')
+    q.add('ryear', '*/RCYR')
+    q.add('rmonth', '*/RCMO')
+    q.add('rday', '*/RCDY')
+    q.add('rhour', '*/RCHR')
+    q.add('rminute', '*/RCMI')
+    q.add('stationID', '*/WMOP')
+    q.add('latitude', '*/CLATH')
+    q.add('longitude', '*/CLONH')
+    q.add('pressure', '*/GLPFDATA/WPRES')
 
     # ObsValue
-    q.add('temp',            '*/GLPFDATA/SSTH')
-    q.add('saln',            '*/GLPFDATA/SALNH')
+    q.add('temp', '*/GLPFDATA/SSTH')
+    q.add('saln', '*/GLPFDATA/SALNH')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -115,7 +115,7 @@ def bufr_to_ioda(config, logger):
     temp -= 273.15
     saln      = r.get('saln',group_by='pressure')
 
-    #    print ("masking temp & saln ...")
+    # print ("masking temp & saln ...")
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
     temp      = temp[mask]
     lat       = lat[mask]
@@ -126,7 +126,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
     
-
     #=================================================
     # Separate ARGO profiles from subpfl tank
     #=================================================
@@ -154,12 +153,12 @@ def bufr_to_ioda(config, logger):
 
     # ObsError
     logger.debug(f"Generating ObsError array with constant value (instrument error)...") 
-    ObsError_temp = np.float32( np.ma.masked_array(np.full((len(index_list)), 0.02)) )
-    ObsError_saln = np.float32( np.ma.masked_array(np.full((len(index_list)), 0.01)) )
+    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(index_list)), 0.02)))
+    ObsError_saln = np.float32(np.ma.masked_array(np.full((len(index_list)), 0.01)))
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")    
-    PreQC         = ( np.ma.masked_array(np.full((len(index_list)), 0)) ).astype(np.int32)
+    PreQC         = (np.ma.masked_array(np.full((len(index_list)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -209,26 +208,20 @@ def bufr_to_ioda(config, logger):
     obsspace.write_attr('sourceFiles', bufrfile)
     obsspace.write_attr('dataProviderOrigin', data_provider)
     obsspace.write_attr('description', data_description)
-    #obsspace.write_attr('datetimeReference', reference_time)
-    obsspace.write_attr('datetimeRange', [str(dateTime.min()),
-                        str(dateTime.max())])
-    obsspace.write_attr('platformLongDescription', platform_description)
-#    obsspace.write_attr('platforms', PLATFORM + ': temperature and salinity')
-#    obsspace.write_attr('datetimeReference', date)
-#    obsspace.write_attr('dataProviderOrigin', 'GTS/NCEP data tank')
-#    obsspace.write_attr('description', '24-hrly from 6-hourly dumps')
-#
-     # Create IODA variables
+    obsspace.write_attr('datetimeRange', [str(dateTime.min()), str(dateTime.max())])
+    obsspace.write_attr('platformLongDescription', platform_description)   
+    
+# Create IODA variables
     logger.debug(f" ... ... Create variables: name, type, units, and attributes")
 
     # Datetime
-    obsspace.create_var('MetaData/dateTime',  dtype=dateTime.dtype, fillval=dateTime.fill_value) \
+    obsspace.create_var('MetaData/dateTime', dtype=dateTime.dtype, fillval=dateTime.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Datetime') \
         .write_data(dateTime)
 
     # rcptDatetime
-    obsspace.create_var('MetaData/rcptdateTime',  dtype=dateTime.dtype, fillval=dateTime.fill_value) \
+    obsspace.create_var('MetaData/rcptdateTime', dtype=dateTime.dtype, fillval=dateTime.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'receipt Datetime') \
         .write_data(rcptdateTime)
@@ -240,7 +233,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Longitude') \
         .write_data(lon)
 
-    # Latitude 
+    # Latitude
     obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \
         .write_attr('units', 'degrees_north') \
         .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
@@ -248,22 +241,22 @@ def bufr_to_ioda(config, logger):
         .write_data(lat)
 
     # Station Identification
-    obsspace.create_var('MetaData/stationID',  dtype=stationID.dtype, fillval=stationID.fill_value) \
+    obsspace.create_var('MetaData/stationID', dtype=stationID.dtype, fillval=stationID.fill_value) \
         .write_attr('long_name', 'Station Identification') \
         .write_data(stationID)
 
     # Depth
-    obsspace.create_var('MetaData/depth',  dtype=pressure.dtype, fillval=pressure.fill_value) \
+    obsspace.create_var('MetaData/depth', dtype=pressure.dtype, fillval=pressure.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Water depth') \
         .write_data(pressure)
 
     # Sequence Number
-    obsspace.create_var('MetaData/sequenceNumber',  dtype=PreQC.dtype, fillval=PreQC.fill_value) \
+    obsspace.create_var('MetaData/sequenceNumber', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
         .write_attr('long_name', 'Sequence Number') \
         .write_data(seqNum)
 
-    # PreQC 
+    # PreQC
     obsspace.create_var('PreQC/waterTemperature', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
         .write_attr('long_name', 'PreQC') \
         .write_data(PreQC)
@@ -272,7 +265,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'PreQC') \
         .write_data(PreQC)
 
-    # ObsError 
+    # ObsError
     obsspace.create_var('ObsError/waterTemperature', dtype=ObsError_temp.dtype, fillval=ObsError_temp.fill_value) \
         .write_attr('units', 'degC') \
         .write_attr('long_name', 'ObsError') \
@@ -303,12 +296,20 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"All Done!")
 
-if __name__ == '__main__':
-    
-    start_time = time.time()
-    config = "bufr2ioda_subpfl_argo_profiles.json"
 
-    log_level = 'DEBUG' #if args.verbose else 'INFO'
+if __name__ == '__main__':
+
+    start_time = time.time()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', type=str,
+                        help='Input JSON configuration', required=True)
+    parser.add_argument('-v', '--verbose',
+                        help='print debug logging information',
+                        action='store_true')
+    args = parser.parse_args()
+
+    log_level = 'DEBUG' if args.verbose else 'INFO'
     logger = Logger('bufr2ioda_subpfl_argo_profiles.py', level=log_level,
                     colored_log=True)
 
@@ -319,5 +320,4 @@ if __name__ == '__main__':
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.debug(f"Total running time: {running_time} seconds")    
-
+    logger.debug(f"Total running time: {running_time} seconds") 
