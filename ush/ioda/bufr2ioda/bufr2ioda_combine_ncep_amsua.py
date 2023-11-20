@@ -92,4 +92,3 @@ if __name__ == '__main__':
     print('--start to merge--')
     merge(amsua_files)
     print('--Finished merge--')
-

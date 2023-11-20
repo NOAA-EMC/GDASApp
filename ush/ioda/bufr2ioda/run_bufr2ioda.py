@@ -139,4 +139,3 @@ if __name__ == "__main__":
     parser.add_argument('COM_OBS', type=Path, help='path to output ioda format dump files')
     args = parser.parse_args()
     bufr2ioda(args.current_cycle, args.RUN, args.DMPDIR, args.config_template_dir, args.COM_OBS)
-
