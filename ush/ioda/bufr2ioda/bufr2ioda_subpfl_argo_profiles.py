@@ -4,15 +4,6 @@
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
-#----------------------------------------------------------------------------
-# To delete
-import sys
-#
-sys.path.append('/work2/noaa/da/spaturi/sandbox/CDA_testbed/global-workflow_ocnda/sorc/gdas.cd/build/lib/python3.7/')
-sys.path.append('/work2/noaa/da/spaturi/sandbox/CDA_testbed/global-workflow_ocnda/sorc/gdas.cd/build/lib/python3.7/pyiodaconv/')
-sys.path.append('/work2/noaa/da/spaturi/sandbox/CDA_testbed/global-workflow_ocnda/sorc/gdas.cd/build/lib/python3.7/pyioda/')
-#----------------------------------------------------------------------------
-
 import sys
 import numpy as np
 import numpy.ma as ma
@@ -63,8 +54,6 @@ def bufr_to_ioda(config, logger):
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos",
                              bufrfile)
-    logger.debug(f"{bufrfile}, {DATA_PATH}")
-    #print(platform_description)
 
     #===========================================
     # Make the QuerySet for all the data we want
