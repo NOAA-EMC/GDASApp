@@ -1,0 +1,12 @@
+{
+  "data_format"      : "prepbufr",
+  "subsets"         : [ "ADPSFC", "SFCSHP", "ADPUPA" ],
+  "source"           : "prepBUFR",
+  "data_type"        : "ADPSFC SFCSHP ADPUPA",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "data_description" : "conventional_ps",
+  "data_provider"    : "U.S. NOAA"
+}

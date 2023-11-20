@@ -25,7 +25,7 @@ namespace gdasapp {
     }
 
     // Read netcdf file and populate iodaVars
-    gdasapp::IodaVars providerToIodaVars(const std::string fileName) final {
+    gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by the RADS" << std::endl;
 
       // Open the NetCDF file in read-only mode
@@ -35,26 +35,26 @@ namespace gdasapp {
       int nobs = ncFile.getDim("time").getSize();
 
       // Set the int metadata names
-      std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
+      std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission", "oceanBasin"};
 
       // Set the float metadata name
       std::vector<std::string> floatMetadataNames = {"mdt"};
 
       // Create instance of iodaVars object
-      gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       // Read non-optional metadata: datetime, longitude and latitude
-      int lat[iodaVars.location_];  // NOLINT
-      ncFile.getVar("lat").getVar(lat);
+      std::vector<int> lat(iodaVars.location_);
+      ncFile.getVar("lat").getVar(lat.data());
 
-      int lon[iodaVars.location_];  // NOLINT
-      ncFile.getVar("lon").getVar(lon);
+      std::vector<int> lon(iodaVars.location_);
+      ncFile.getVar("lon").getVar(lon.data());
 
       float geoscaleFactor;
       ncFile.getVar("lon").getAtt("scale_factor").getValues(&geoscaleFactor);
 
-      float datetime[iodaVars.location_];  // NOLINT
-      ncFile.getVar("time_mjd").getVar(datetime);
+      std::vector<float> datetime(iodaVars.location_);
+      ncFile.getVar("time_mjd").getVar(datetime.data());
       iodaVars.referenceDate_ = "seconds since 1858-11-17T00:00:00Z";
 
       std::map<std::string, int> altimeterMap;
@@ -84,24 +84,25 @@ namespace gdasapp {
       iodaVars.strGlobalAttr_["references"] = references;
 
       // Read optional integer metadata "pass" and "cycle"
-      int pass[iodaVars.location_];  // NOLINT
-      ncFile.getVar("pass").getVar(pass);
-      int cycle[iodaVars.location_];  // NOLINT
-      ncFile.getVar("cycle").getVar(cycle);
+      std::vector<int> pass(iodaVars.location_);
+      ncFile.getVar("pass").getVar(pass.data());
+      std::vector<int> cycle(iodaVars.location_);
+      ncFile.getVar("cycle").getVar(cycle.data());
 
+      // Store optional metadata, set ocean basins to -999 for now
       for (int i = 0; i < iodaVars.location_; i++) {
-        iodaVars.intMetadata_.row(i) << pass[i], cycle[i], mission_index;
+        iodaVars.intMetadata_.row(i) << pass[i], cycle[i], mission_index, -999;
       }
 
       // Get adt_egm2008 obs values and attributes
-      int adt[iodaVars.location_];  // NOLINT
-      ncFile.getVar("adt_egm2008").getVar(adt);
+      std::vector<int> adt(iodaVars.location_);
+      ncFile.getVar("adt_egm2008").getVar(adt.data());
       float scaleFactor;
       ncFile.getVar("adt_egm2008").getAtt("scale_factor").getValues(&scaleFactor);
 
       // Read sla
-      int sla[iodaVars.location_];  // NOLINT
-      ncFile.getVar("sla").getVar(sla);
+      std::vector<int16_t> sla(iodaVars.location_);
+      ncFile.getVar("sla").getVar(sla.data());
 
       // Update non-optional Eigen arrays
       for (int i = 0; i < iodaVars.location_; i++) {
@@ -112,9 +113,28 @@ namespace gdasapp {
         iodaVars.obsError_(i) = 0.1;  // Do something for obs error
         iodaVars.preQc_(i) = 0;
         // Save MDT in optional floatMetadata
-        iodaVars.floatMetadata_(i, 0) = iodaVars.obsVal_(i) -
+        iodaVars.floatMetadata_.row(i) << iodaVars.obsVal_(i) -
                                         static_cast<float>(sla[i])*scaleFactor;
       }
+
+      // Basic QC
+      Eigen::Array<bool, Eigen::Dynamic, 1> boundsCheck =
+        (iodaVars.obsVal_ > -4.0 && iodaVars.obsVal_ < 4.0);
+      iodaVars.trim(boundsCheck);
+
+      // get ocean basin masks if asked in the config
+      obsproc::oceanmask::OceanMask* oceanMask = nullptr;
+      if (fullConfig_.has("ocean basin")) {
+          std::string fileName;
+          fullConfig_.get("ocean basin", fileName);
+          oceanMask = new obsproc::oceanmask::OceanMask(fileName);
+
+          for (int i = 0; i < iodaVars.location_; i++) {
+            iodaVars.intMetadata_.coeffRef(i, 3) =
+              oceanMask->getOceanMask(iodaVars.longitude_[i], iodaVars.latitude_[i]);
+          }
+      }
+
       return iodaVars;
     };
   };  // class Rads2Ioda
