@@ -15,3 +15,4 @@ observers:
 ##- !INC ${OBS_YAML_DIR}/cris-fsr_npp.yaml
 ##- !INC ${OBS_YAML_DIR}/sfc.yaml
 ##- !INC ${OBS_YAML_DIR}/sfcship.yaml
+##- !INC ${OBS_YAML_DIR}/gnssro.yaml
