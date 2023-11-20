@@ -126,7 +126,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
-    
+
     # =================================================
     # Separate ARGO profiles from subpfl tank
     # =================================================
@@ -140,7 +140,7 @@ def bufr_to_ioda(config, logger):
         if number_str[1] == '9':
             index_list.append(index)
     logger.debug(f"Indexing Done...")
-    
+
     # Apply index
     stationID = stationID[index_list]
     lat = lat[index_list]
@@ -153,12 +153,12 @@ def bufr_to_ioda(config, logger):
     rcptdateTime = rcptdateTime[index_list]
 
     # ObsError
-    logger.debug(f"Generating ObsError array with constant value (instrument error)...") 
+    logger.debug(f"Generating ObsError array with constant value (instrument error)...")
     ObsError_temp = np.float32(np.ma.masked_array(np.full((len(index_list)), 0.02)))
     ObsError_saln = np.float32(np.ma.masked_array(np.full((len(index_list)), 0.01)))
 
     # PreQC
-    logger.debug(f"Generating PreQC array with 0...")    
+    logger.debug(f"Generating PreQC array with 0...")
     PreQC = (np.ma.masked_array(np.full((len(index_list)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
@@ -178,7 +178,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" ObsError_temp min, max, length, dtype = {ObsError_temp.min()}, {ObsError_temp.max()}, {len(ObsError_temp)}, {ObsError_temp.dtype}")
     logger.debug(f" ObsError_saln min, max, length, dtype = {ObsError_saln.min()}, {ObsError_saln.max()}, {len(ObsError_saln)}, {ObsError_saln.dtype}")
 
-    logger.debug(f" stationID                shape, dtype = {stationID.shape}, {stationID.astype(str).dtype}")    
+    logger.debug(f" stationID                shape, dtype = {stationID.shape}, {stationID.astype(str).dtype}")
     logger.debug(f" dateTime                 shape, dtype = {dateTime.shape}, {dateTime.dtype}")
     logger.debug(f" rcptdateTime             shape, dytpe = {rcptdateTime.shape}, {rcptdateTime.dtype}")
     logger.debug(f" sequence Num             shape, dtype = {seqNum.shape}, {seqNum.dtype}")
@@ -187,7 +187,7 @@ def bufr_to_ioda(config, logger):
     # Create IODA ObsSpace
     # Write IODA output
     # =====================================
-   
+
     # Create the dimensions
     dims = {'Location': np.arange(0, lat.shape[0])}
 
@@ -198,7 +198,7 @@ def bufr_to_ioda(config, logger):
     path, fname = os.path.split(OUTPUT_PATH)
     if path and not os.path.exists(path):
         os.makedirs(path)
-    
+
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
     # Create Global attributes
@@ -209,8 +209,8 @@ def bufr_to_ioda(config, logger):
     obsspace.write_attr('dataProviderOrigin', data_provider)
     obsspace.write_attr('description', data_description)
     obsspace.write_attr('datetimeRange', [str(dateTime.min()), str(dateTime.max())])
-    obsspace.write_attr('platformLongDescription', platform_description)   
-    
+    obsspace.write_attr('platformLongDescription', platform_description)
+
 # Create IODA variables
     logger.debug(f" ... ... Create variables: name, type, units, and attributes")
 
@@ -320,4 +320,4 @@ if __name__ == '__main__':
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.debug(f"Total running time: {running_time} seconds") 
+    logger.debug(f"Total running time: {running_time} seconds")
