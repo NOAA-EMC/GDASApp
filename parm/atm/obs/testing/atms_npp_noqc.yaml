@@ -18,7 +18,7 @@ obs space:
         type: H5File
         obsfile: !ENV atms_npp_diag_${CDATE}.nc4
   simulated variables: [brightnessTemperature]
-  channels: &all_channels 1-22
+  channels: &atms_npp_channels 1-22
 geovals:
   filename: !ENV atms_npp_geoval_${CDATE}.nc4
 obs bias:
@@ -99,13 +99,13 @@ obs post filters:
 - filter: Variable Assignment
   assignments:
   - name: InitialObsError@DerivedMetaData
-    channels: *all_channels
+    channels: *atms_npp_channels
     type: float
     function:
       name: ObsErrorModelRamp@ObsFunction
-      channels: *all_channels
+      channels: *atms_npp_channels
       options:
-        channels: *all_channels
+        channels: *atms_npp_channels
         xvar:
           name: CLWRetSymmetric@DerivedMetaData
         x0:    [ 0.030,  0.030,  0.030,  0.020,  0.030,
@@ -133,12 +133,12 @@ obs post filters:
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature
-    channels: *all_channels
+    channels: *atms_npp_channels
   action:
     name: assign error
     error function:
       name: InitialObsError@DerivedMetaData
-      channels: *all_channels
+      channels: *atms_npp_channels
 
 passedBenchmark: 247947 
 #vector ref: GsiHofXBc
