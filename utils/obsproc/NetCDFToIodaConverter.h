@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -17,6 +18,26 @@
 #include "oops/util/missingValues.h"
 
 namespace gdasapp {
+  namespace testutils {
+    template <typename Derived>
+    std::string checksum(const Eigen::ArrayBase<Derived>& arr, const std::string varname) {
+      std::stringstream result;
+      if (arr.size() == 0) {
+        result << varname << " is empty" << "\n";
+      } else {
+        auto minElement = arr.minCoeff();
+        auto maxElement = arr.maxCoeff();
+        auto sumElements = arr.sum();
+
+        result << varname << ":" << "\n";
+        result << "    Min: " << minElement << "\n";
+        result << "    Max: " << maxElement << "\n";
+        result << "    Sum: " << sumElements;
+      }
+      return result.str();
+    }
+  }  // namespace testutils
+
   // A simple data structure to organize the info to provide to the ioda
   // writter
   struct IodaVars {
@@ -42,6 +63,9 @@ namespace gdasapp {
     std::vector<std::string> floatMetadataName_;  // String descriptor of the float metadata
     Eigen::ArrayXXf intMetadata_;                  // Optional array of integer metadata
     std::vector<std::string> intMetadataName_;    // String descriptor of the integer metadata
+
+    // Optional global attributes
+    std::map<std::string, std::string> strGlobalAttr_;
 
     // Constructor
     explicit IodaVars(const int nobs = 0,
@@ -130,6 +154,23 @@ namespace gdasapp {
       // Update obs count
       location_ = iodaVarsMasked.location_;
       oops::Log::info() << "IodaVars::IodaVars done masking." << std::endl;
+    }
+
+    // Testing
+    void testOutput() {
+      oops::Log::test() << referenceDate_ << std::endl;
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(obsVal_, "obsVal") << std::endl;
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(obsError_, "obsError") << std::endl;
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(preQc_, "preQc") << std::endl;
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(longitude_, "longitude") << std::endl;
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(latitude_, "latitude") << std::endl;
+      oops::Log::test() <<
+        gdasapp::testutils::checksum(datetime_, "datetime") << std::endl;
     }
   };
 
@@ -233,6 +274,14 @@ namespace gdasapp {
           ogrp.vars.createWithScales<int>("PreQC/"+variable_,
                                             {ogrp.vars["Location"]}, int_params);
 
+        // add input filenames to IODA file global attributes
+        ogrp.atts.add<std::string>("obs_source_files", inputFilenames_);
+
+        // add global attributes collected from the specific converter
+        for (const auto& globalAttr : iodaVars.strGlobalAttr_) {
+          ogrp.atts.add<std::string>(globalAttr.first , globalAttr.second);
+        }
+
         // Create the optional IODA integer metadata
         ioda::Variable tmpIntMeta;
         int count = 0;
@@ -254,7 +303,7 @@ namespace gdasapp {
         }
 
         // Write obs info to group
-        oops::Log::info() << "Writting ioda file" << std::endl;
+        oops::Log::info() << "Writing ioda file" << std::endl;
         iodaLon.writeWithEigenRegular(iodaVarsAll.longitude_);
         iodaLat.writeWithEigenRegular(iodaVarsAll.latitude_);
         iodaDatetime.writeWithEigenRegular(iodaVarsAll.datetime_);

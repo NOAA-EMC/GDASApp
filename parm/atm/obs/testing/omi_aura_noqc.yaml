@@ -19,9 +19,14 @@ obs operator:
   coefficients: [0.007886131] # convert from ppmv to DU
   nlevels: [1]
 
-vector ref: GsiHofXBc
-tolerance: 1.e-5
-#linear obs operator test:
-##  coef TL: 0.1
-##  tolerance TL: 1.0e-13
-##  tolerance AD: 1.0e-11
+obs pre filters:
+- filter: Perform Action
+  filter variables:
+  - name: ozoneTotal
+  action:
+    name: assign error
+    error parameter: 6.0
+
+passedBenchmark: 4927  # total:6082; missing:1155 
+#vector ref: GsiHofXBc
+#tolerance: 1.e-5

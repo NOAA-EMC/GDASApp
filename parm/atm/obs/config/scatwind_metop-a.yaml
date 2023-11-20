@@ -1,17 +1,16 @@
 obs space:
-  name: scatwind
+  name: ascatw_ascat_metop-a
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV scatwind_obs_${CDATE}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)ascatw.ascat_metop-a.{{ current_cycle | to_YMDH }}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV scatwind_diag_${CDATE}.nc4 
+      obsfile: $(DATA)/diags/diag_ascatw_ascat_metop-a_{{ current_cycle | to_YMDH }}.nc4
+  io pool:
+    max pool size: 1
   simulated variables: [windEastward, windNorthward]
-
-geovals:
-  filename: !ENV scatwind_geoval_${CDATE}.nc4
 
 obs operator:
   name: VertInterp
@@ -97,11 +96,8 @@ obs post filters:
     is_in: 290
   - variable: GeoVaLs/water_area_fraction
     maxvalue: 0.99 
-#    - variable: GeoVaLs/surface_type
-#      minvalue: 0.001
   action:
     name: reject
-#passedBenchmark: 53558 # 2 variables (u,v), u=26779 passing, v=26779 passing
 
 # Reject ASCAT (Type 290) when observed component deviates from background by more than 5.0 m/s
 # NOTE: This check can reject a u- or v-component of the same observation independently, which
@@ -134,7 +130,6 @@ obs post filters:
       coefs: [1.0, -1.0]
   minvalue: -5.0
   maxvalue: 5.0
-#passedBenchmark: 52362 # 2 variables (u,v), u=26181 passing, v=26181 passing
 
 # Reject OSCAT (Type 291) when observed component deviates from background by more than 6.0 m/s
 # NOTE: This check can reject a u- or v-component of the same observation independently, which
@@ -163,12 +158,10 @@ obs post filters:
   test variables:
   - name: ObsFunction/ScatWindsAmbiguityCheck
     options:
-#       test_hofx: GsiHofX
       minimum_uv: 0.0001 # hard-coding a minimum-uv for transparancy, want this to basically be zero
   maxvalue: 0.  
   action:
     name: reject
-#passedBenchmark: 51776 # 2 variables (u,v), u=25888 passing, v=25888 passing
 
 # All scatwinds must adjust errors based on ObsErrorFactorPressureCheck.
 # This check will inflate errors for obs that are too close to either
@@ -202,7 +195,6 @@ obs post filters:
       options:
         variable: windNorthward
         inflation factor: 4.0
-#passedBenchmark: 51776 # 2 variables (u,v), u=25888 passing, v=25888 passing
 
 # All scatwinds subject to a gross error check. This is contained within
 # the WindsSPDBCheck, although it is not exclusive to satwinds.
@@ -233,7 +225,6 @@ obs post filters:
       variable: windNorthward
   action:
     name: reject
-#passedBenchmark: 51776 # 2 variables (u,v), u=25888 passing, v=25888 passing
 
 # The last error inflation check is for duplicate observations. This one needs
 # to come last, because we don't want to inflate errors for duplication if one
@@ -285,14 +276,5 @@ obs post filters:
 #  action:
 #    name: inflate error
 #    inflation factor: 1.25
-passedBenchmark: 51764 # 2 variables (u,v), u=25882 passing, v=25882 passing
-                       # GSI rejects both u- and v-component in first-guess check, UFO does not, but when UFO rej is reconciled btwn u and v these match GSI rej
-                       #   u: 207 obs pass with corresponding v being rejected, 25880 obs in UFO/GSI agreement
-                       #   v: 130 obs pass with corresponding u being rejected, 25880 obs in UFO/GSI agreement
-                       # 2 u- and 2 v-component obs pass in UFO that fail in GSI, only due to differences in assumed land-surface type (GSI=0, UFO=3)
-                       #
-                       # NOTE: These benchmark numbersare for a 6-hour time-window using the JEDI time-window convention only. The JEDI time-window convention
-                       #       differs from GSI and is less inclusive for observations at the beginning of the window. This can affect how the two systems
-                       #       employ ob-error inflation from duplicate observations, as the GSI has more observations at the beginning of the time-window to
-                       #       find duplicates. This can result in UFO ob-errors being smaller for some obs at the beginning of the UFO's JEDI-convention
-                       #       time-window.
+
+# END OF FILTERS#
