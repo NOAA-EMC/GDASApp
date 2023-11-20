@@ -20,12 +20,14 @@ from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
+
 def Compute_sequenceNumber(lon):
     lon_u, seqNum = np.unique(lon, return_inverse=True)
     seqNum = seqNum.astype(np.int64)
     logger.debug(f"Len of Sequence Number: {len(seqNum)}")
 
     return seqNum
+
 
 def bufr_to_ioda(config, logger):
 
@@ -48,20 +50,19 @@ def bufr_to_ioda(config, logger):
     hh = cycle[8:10]
     
     # General Information
-    converter = 'BUFR to IODA Converter'    
+    converter = 'BUFR to IODA Converter'
     platform_description = 'ARGO profiles from subpfl: temperature and salinity'
-    
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos",
                              bufrfile)
 
-    #===========================================
+    # ===========================================
     # Make the QuerySet for all the data we want
-    #===========================================
+    # ===========================================
     start_time = time.time()
 
     logger.debug(f"Making QuerySet ...")
-    q = bufr.QuerySet() #(subsets)
+    q = bufr.QuerySet()
 
     # MetaData
     q.add('year', '*/YEAR')
@@ -87,7 +88,7 @@ def bufr_to_ioda(config, logger):
     running_time = end_time - start_time
     logger.debug(f"Running time for making QuerySet: {running_time} seconds")
 
-    #===============================================================
+    # ===============================================================
     # Open the BUFR file and execute the QuerySet
     # Use the ResultSet returned to get numpy arrays of the data
     # ==============================================================
@@ -98,29 +99,29 @@ def bufr_to_ioda(config, logger):
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
-    dateTime     = r.get_datetime('year', 'month', 'day', 'hour', 'minute',group_by='pressure')
-    dateTime     = dateTime.astype(np.int64)
+    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute',group_by='pressure')
+    dateTime = dateTime.astype(np.int64)
     rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute',group_by='pressure')
     rcptdateTime = rcptdateTime.astype(np.int64)
-    stationID = r.get('stationID',group_by='pressure')
-    lat       = r.get('latitude',group_by='pressure')
-    lon       = r.get('longitude',group_by='pressure')
-    pressure  = r.get('pressure',group_by='pressure')
+    stationID = r.get('stationID', group_by='pressure')
+    lat = r.get('latitude', group_by='pressure')
+    lon = r.get('longitude', group_by='pressure')
+    pressure = r.get('pressure', group_by='pressure')
     # convert pressure to depth : rho * g * h
-    pressure  = np.float32( pressure.astype(float) * 0.0001 )
+    pressure = np.float32(pressure.astype(float) * 0.0001)
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
-    temp      = r.get('temp',group_by='pressure')
+    temp = r.get('temp', group_by='pressure')
     temp -= 273.15
-    saln      = r.get('saln',group_by='pressure')
+    saln = r.get('saln', group_by='pressure')
 
     # print ("masking temp & saln ...")
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
-    temp      = temp[mask]
-    lat       = lat[mask]
-    lon       = lon[mask]
-    pressure  = pressure[mask]
+    temp = temp[mask]
+    lat = lat[mask]
+    lon = lon[mask]
+    pressure = pressure[mask]
     stationID = stationID[mask]
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
@@ -130,26 +131,26 @@ def bufr_to_ioda(config, logger):
     # Separate ARGO profiles from subpfl tank
     #=================================================
     logger.debug(f"Finding index for ARGO floats where the second number of the stationID=9...")
-    index_list=[]
+    index_list = []
     for index, number in enumerate(stationID):
     # Convert the number to a string
-      number_str = str(number)
+        number_str = str(number)
 
-    # Check if the second character is equal to '9'
-      if number_str[1] == '9':
-        index_list.append(index)
+        # Check if the second character is equal to '9'
+        if number_str[1] == '9':
+            index_list.append(index)
     logger.debug(f"Indexing Done...")
     
     # Apply index
-    stationID      = stationID[index_list]
-    lat            = lat[index_list]
-    lon            = lon[index_list]
-    pressure       = pressure[index_list]
-    temp           = temp[index_list]
-    saln           = saln[index_list]
-    seqNum         = seqNum[index_list]
-    dateTime       = dateTime[index_list]
-    rcptdateTime   = rcptdateTime[index_list]
+    stationID = stationID[index_list]
+    lat = lat[index_list]
+    lon = lon[index_list]
+    pressure = pressure[index_list]
+    temp = temp[index_list]
+    saln = saln[index_list]
+    seqNum = seqNum[index_list]
+    dateTime = dateTime[index_list]
+    rcptdateTime = rcptdateTime[index_list]
 
     # ObsError
     logger.debug(f"Generating ObsError array with constant value (instrument error)...") 
@@ -158,7 +159,7 @@ def bufr_to_ioda(config, logger):
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")    
-    PreQC         = (np.ma.masked_array(np.full((len(index_list)), 0))).astype(np.int32)
+    PreQC = (np.ma.masked_array(np.full((len(index_list)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
