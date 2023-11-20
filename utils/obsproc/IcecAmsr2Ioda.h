@@ -64,10 +64,9 @@ namespace gdasapp {
       ncFile.getVar("Scan_Time").getVar(oneTmpdateTimeVal.data());
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
+      size_t index = 0;
       std::tm timeinfo = {};
       for (int i = 0; i < ntimes; i += dimTimeSize) {
-        for (int j = 0; j < dimTimeSize && i + j < ntimes; j++) {
-        }
         timeinfo.tm_year = oneTmpdateTimeVal[i] - 1900;  // Year since 1900
         timeinfo.tm_mon = oneTmpdateTimeVal[i + 1] - 1;  // 0-based; 8 represents Sep
         timeinfo.tm_mday = oneTmpdateTimeVal[i + 2];
@@ -77,20 +76,22 @@ namespace gdasapp {
 
         // Calculate and store the seconds since the Unix epoch
         time_t epochtime = std::mktime(&timeinfo);
-        iodaVars.datetime_(i/6) = static_cast<int64_t>(epochtime);
+        iodaVars.datetime_(index) = static_cast<int64_t>(epochtime);
+        index++;
       }
 
       // Update non-optional Eigen arrays
       for (int i = 0; i < iodaVars.location_; i++) {
         iodaVars.longitude_(i) = oneDimLonVal[i];
         iodaVars.latitude_(i) = oneDimLatVal[i];
-        iodaVars.obsVal_(i) = static_cast<float>(oneDimObsVal[i]*0.01);
+        iodaVars.obsVal_(i) = static_cast<float>(oneDimObsVal[i]*0.01f);
         iodaVars.obsError_(i) = 0.1;  // Do something for obs error
         iodaVars.preQc_(i) = oneDimFlagsVal[i];
       }
 
       // basic test for iodaVars.trim
-      Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ >= 0.0);
+      Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ >= 0.0
+        && iodaVars.datetime_ > 0.0);
       iodaVars.trim(mask);
 
       return iodaVars;
