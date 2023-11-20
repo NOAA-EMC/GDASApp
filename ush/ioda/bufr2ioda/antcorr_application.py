@@ -37,4 +37,3 @@ def apply_ant_corr(AC, iFOV, T):
     iFOV = iFOV - 1
     T = (T - AC.A_space[:, iFOV] * TSPACE) / (AC.A_earth[:, iFOV] + AC.A_platform[:, iFOV])
     return T
-

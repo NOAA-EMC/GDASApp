@@ -3,8 +3,7 @@
 import argparse
 import os
 from bufr2ioda_base import Bufr2IodaBase
-#from wxflow import Logger
-from logging import Logger
+from wxflow import Logger
 from antcorr_application import ACCoeff, apply_ant_corr
 from utils import timing_decorator, nc_merge
 
@@ -20,7 +19,7 @@ ioda_files = [(f'esamua.{x}.tm00.nc', f'amsua.{x}_ta.tm00.nc', f'amsua.{x}.tm00.
 class Bufr2IodaAmusa(Bufr2IodaBase):
     def get_yaml_file(self):
         return self.config['yaml_file'][0]
-    
+
 
 class Bufr2IodaEbmua(Bufr2IodaBase):
 
@@ -43,7 +42,7 @@ class Bufr2IodaEbmua(Bufr2IodaBase):
                 container.replace('variables/antennaTemperature', tb, sat_id)
 
     def apply_ant_corr(self, sat_id, ta, ifov):
-        ac = ACCoeff()  #  TODO add later
+        ac = ACCoeff()  # TODO add later
         llll = 1  # TODO how to set this
         if llll == 1:
             if sat_id not in ['n15', 'n16']:
@@ -55,6 +54,7 @@ class Bufr2IodaEbmua(Bufr2IodaBase):
         else:
             pass  # TODO after know how to set llll
         return ta
+
 
 @timing_decorator
 def merge(amsua_files):
@@ -70,7 +70,7 @@ def merge(amsua_files):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    #parser.add_argument('-t', '--type', type=str, help='Input Satellite type a/e', required=True)
+    # parser.add_argument('-t', '--type', type=str, help='Input Satellite type a/e', required=True)
     parser.add_argument('-c', '--config', type=str, help='Input JSON configuration', required=True)
     parser.add_argument('-v', '--verbose', help='print debug logging information',
                         action='store_true')
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         print(sat_type)
         if sat_type == 'a':
             convert = Bufr2IodaAmusa(args.config)
-        else: 
+        else:
             convert = Bufr2IodaEbmua(args.config)
         convert.execute()
         amsua_files.append(convert.split_files)

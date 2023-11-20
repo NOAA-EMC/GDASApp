@@ -4,8 +4,7 @@ import yaml
 
 from pyiodaconv import bufr
 
-#from wxflow import Logger
-from logging import Logger
+from wxflow import Logger
 
 from utils import timing_decorator
 
@@ -36,10 +35,10 @@ class Bufr2IodaBase:
 
     def get_data_container(self):
         pass
-    
+
     def get_yaml_file(self):
         return self.config['yaml_file']
-        
+
     def get_yaml_config(self, config):
         # TODO  add and/or modify ymal contents from config json file. e.g. file names, etc.
         # What does en_bufr2ioda_yaml.py do?   connection to this?
@@ -66,4 +65,3 @@ class Bufr2IodaBase:
             self.make_split_files(container.allSubCategories())
         self.re_map_variable(container, ioda_description)
         bufr.IodaEncoder(ioda_description).encode(container)
-
