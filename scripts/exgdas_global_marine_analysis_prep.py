@@ -224,6 +224,11 @@ logging.info(f"---------------- Setup runtime environement")
 comin_obs = os.getenv('COMIN_OBS')  # R2D2 DB for now
 anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
+if os.getenv('DOHYBVAR') == "YES":
+    dohybvar = True
+    nmem_ens = int(os.getenv('NMEM_ENS'))
+else:
+    dohybvar = False
 
 # create analysis directories
 diags = os.path.join(anl_dir, 'diags')            # output dir for soca DA obs space
@@ -310,21 +315,24 @@ for domain in ['ocn', 'ice']:
 FileHandler({'copy': bkgerr_list}).sync()
 
 ################################################################################
-# stage static ensemble
+# stage ensemble members
+if dohybvar:
+    logging.info(f"---------------- Stage ensemble members")
 
-logging.info(f"---------------- Stage climatological ensemble")
-clim_ens_member_list = []
-clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
-clim_ens_size = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
-os.environ['CLIM_ENS_SIZE'] = str(clim_ens_size)
+else:
+    logging.info(f"---------------- Stage climatological ensemble")
+    clim_ens_member_list = []
+    clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
+    clim_ens_size = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
+    os.environ['CLIM_ENS_SIZE'] = str(clim_ens_size)
 
-for domain in ['ocn', 'ice']:
-    for mem in range(1, clim_ens_size+1):
-        fname = domain+"."+str(mem)+".nc"
-        fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
-        fname_out = os.path.abspath(os.path.join(static_ens, fname))
-        clim_ens_member_list.append([fname_in, fname_out])
-FileHandler({'copy': clim_ens_member_list}).sync()
+    for domain in ['ocn', 'ice']:
+        for mem in range(1, clim_ens_size+1):
+            fname = domain+"."+str(mem)+".nc"
+            fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
+            fname_out = os.path.abspath(os.path.join(static_ens, fname))
+            clim_ens_member_list.append([fname_in, fname_out])
+    FileHandler({'copy': clim_ens_member_list}).sync()
 
 ################################################################################
 # prepare JEDI yamls
