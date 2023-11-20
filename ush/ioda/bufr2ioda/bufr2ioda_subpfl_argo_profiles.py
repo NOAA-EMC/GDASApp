@@ -48,7 +48,7 @@ def bufr_to_ioda(config, logger):
 
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
-    
+
     # General Information
     converter = 'BUFR to IODA Converter'
     platform_description = 'ARGO profiles from subpfl: temperature and salinity'
@@ -99,9 +99,9 @@ def bufr_to_ioda(config, logger):
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
-    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute',group_by='pressure')
+    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute', group_by='pressure')
     dateTime = dateTime.astype(np.int64)
-    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute',group_by='pressure')
+    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute', group_by='pressure')
     rcptdateTime = rcptdateTime.astype(np.int64)
     stationID = r.get('stationID', group_by='pressure')
     lat = r.get('latitude', group_by='pressure')
@@ -127,13 +127,13 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
     
-    #=================================================
+    # =================================================
     # Separate ARGO profiles from subpfl tank
-    #=================================================
+    # =================================================
     logger.debug(f"Finding index for ARGO floats where the second number of the stationID=9...")
     index_list = []
     for index, number in enumerate(stationID):
-    # Convert the number to a string
+        # Convert the number to a string
         number_str = str(number)
 
         # Check if the second character is equal to '9'
