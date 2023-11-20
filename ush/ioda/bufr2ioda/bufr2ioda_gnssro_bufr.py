@@ -200,7 +200,7 @@ def bufr_to_ioda(config, logger):
                 information ...")
     # Quality Information
     qfro = r.get('qualityFlags', 'latitude')
-    qfro2 = r.get('qualityFlags', 'latitude',type='float32').astype(np.float32)
+    qfro2 = r.get('qualityFlags', 'latitude', type='float32').astype(np.float32)
     satasc = r.get('satelliteAscendingFlag', 'latitude')
 
     logger.debug(f" ... Executing QuerySet: get ObsValue: Bending Angle ...")
@@ -314,13 +314,13 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Keep bending angle with Freq = 0.0")
     for i in range(len(said)):
-        if (mefr2[i] == 0.0) :
+        if (mefr2[i] == 0.0):
             bnda1[i] = bnda2[i]
             mefr1[i] = mefr2[i]
             impp1[i] = impp2[i]
             imph1[i] = imph2[i]
             bndaoe1[i] = bndaoe2[i]
-        if (mefr3[i] == 0.0) :
+        if (mefr3[i] == 0.0):
             bnda1[i] = bnda3[i]
             mefr1[i] = mefr3[i]
             impp1[i] = impp3[i]
@@ -338,7 +338,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     new bndaoe1 shape, type, min/max {bndaoe1.shape}, \
                 {bndaoe1.dtype}, {bndaoe1.min()}, {bndaoe1.max()}")
 
-#   find ibit for qfro (16bit from left to right) 
+#   find ibit for qfro (16bit from left to right)
     bit3 = []
     bit5 = []
     bit6 = []
@@ -368,9 +368,9 @@ def bufr_to_ioda(config, logger):
         satasc[quality] = 0
         qfro2[quality] = 0.0
         if bit3[quality] == 1:
-           satasc[quality] = 1
+            satasc[quality] = 1
         if (bit5[quality] == 1) or (bit6[quality] == 1):
-           qfro2[quality] = 1.0
+            qfro2[quality] = 1.0
 
     logger.debug(f"     new satasc shape, type, min/max {satasc.shape}, \
                 {satasc.dtype}, {satasc.min()}, {satasc.max()}")
