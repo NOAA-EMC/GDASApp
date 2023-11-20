@@ -199,7 +199,6 @@ def bufr_to_ioda(config, logger):
     if path and not os.path.exists(path):
         os.makedirs(path)
     
-#    logger.debug(f" ... ... Create output file ...', OUTPUT_PATH)
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
     # Create Global attributes
