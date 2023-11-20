@@ -31,7 +31,7 @@ observations:
           # However, UFO/CRTM requred this variable to be float
           fieldOfViewNumber:
             query: "*/FOVN"
-            type: float
+#           type: float
 
           heightOfStation:
             query: "*/HMSL"
@@ -64,7 +64,7 @@ observations:
             remappedBrightnessTemperature:
               fieldOfViewNumber: "*/FOVN"
               sensorChannelNumber: "*/ATMSCH/CHNM"
-              brightnessTemperature: "*/ATMSCH/TMBR"
+              brightnessTemperature: "*/ATMSCH/TMANT"
               obsTime:
                 year: "*/YEAR"
                 month: "*/MNTH"
@@ -84,7 +84,7 @@ observations:
 
     ioda:
       backend: netcdf
-      obsdataout: "{{ COM_OBS }}/{{ RUN }}.t{{ cyc }}z.atms.$(splitvar).tm00.nc"
+      obsdataout: "{{ COM_OBS }}/{{ RUN }}.t{{ cyc }}z.atms_$(splitvar).tm00.nc"
 
       dimensions:
         - name: Channel

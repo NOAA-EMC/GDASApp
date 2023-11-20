@@ -282,7 +282,7 @@ obs post filters:
       channels: *all_channels
       obserr_clearsky:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
                           0.300,  0.300,  0.400,  0.400,  0.400,
-                          0.450,  0.450,  0.550,  0.800,  3.000,
+                          0.450,  0.450,  0.550,  0.800,  4.000,
                           4.000,  4.000,  3.500,  3.000,  3.000,
                           3.000,  3.000]
       clwret_function:
@@ -394,7 +394,7 @@ obs post filters:
           channels: *all_channels
         obserr_clearsky:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
                             0.300,  0.300,  0.400,  0.400,  0.400,
-                            0.450,  0.450,  0.550,  0.800,  3.000,
+                            0.450,  0.450,  0.550,  0.800,  4.000,
                             4.000,  4.000,  3.500,  3.000,  3.000,
                             3.000,  3.000]
 
@@ -448,8 +448,7 @@ obs post filters:
                            1.0, 1.0, 1.0, 1.0, 1.0,
                            1.0, 1.0, 1.0, 2.0, 4.5,
                            4.5, 2.0, 2.0, 2.0, 2.0,
-                           2.0, 2.0]
-
+                           2.0, 2.0]# 
 - filter: Background Check
   filter variables:
   - name: brightnessTemperature
@@ -476,7 +475,7 @@ obs post filters:
       use passive_bc: true
       sensor: *Sensor_ID
       use_flag: [ 1,  1,  1,  1,  1,
-                  1,  1,  1,  1,  1,
+                 1,  1,  1,  1,  1,
                   1,  1,  1,  1,  1,
                   1,  1,  1,  1,  1,
                   1,  1]
@@ -486,6 +485,5 @@ obs post filters:
       flag: InterChannelCheckReject
       ignore: rejected observations
     - name: reject
-passedBenchmark: 169997 # GSI: 169998
-# Notes: one point difference in HydrometeorCheck for channel 7
+passedBenchmark: 182751 # GSI: 182751
 

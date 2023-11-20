@@ -282,7 +282,7 @@ obs post filters:
       channels: *all_channels
       obserr_clearsky:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
                           0.300,  0.300,  0.400,  0.400,  0.400,
-                          0.450,  0.450,  0.550,  0.800,  3.000,
+                          0.450,  0.450,  0.550,  0.800,  4.000,
                           4.000,  4.000,  3.500,  3.000,  3.000,
                           3.000,  3.000]
       clwret_function:
@@ -394,7 +394,7 @@ obs post filters:
           channels: *all_channels
         obserr_clearsky:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
                             0.300,  0.300,  0.400,  0.400,  0.400,
-                            0.450,  0.450,  0.550,  0.800,  3.000,
+                            0.450,  0.450,  0.550,  0.800,  4.000,
                             4.000,  4.000,  3.500,  3.000,  3.000,
                             3.000,  3.000]
 
@@ -486,6 +486,5 @@ obs post filters:
       flag: InterChannelCheckReject
       ignore: rejected observations
     - name: reject
-passedBenchmark: 171071 # GSI: 171076 
-# Notes: one point difference in HydrometeorCheck for channel 7
+passedBenchmark: 181401 # GSI: 181403 (difference is in channel 7)
 
