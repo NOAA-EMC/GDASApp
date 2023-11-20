@@ -125,7 +125,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         # append the values to the lists
         config_files.append(json_output_file)
         exename.append(bufr2iodapy)
-   
+ 
     # run everything in parallel
     with mp.Pool(num_cores) as pool:
         pool.starmap(mp_bufr_converter, zip(exename, config_files))
