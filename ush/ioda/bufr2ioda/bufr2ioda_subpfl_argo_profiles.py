@@ -51,7 +51,7 @@ def bufr_to_ioda(config, logger):
 
     # General Information
     converter = 'BUFR to IODA Converter'
-    platform_description = 'ARGO profiles from subpfl: temperature and salinity'
+    platform_description = 'ARGO profiles from ' + subsets + ': temperature and salinity'
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos",
                              bufrfile)
@@ -78,7 +78,7 @@ def bufr_to_ioda(config, logger):
     q.add('stationID', '*/WMOP')
     q.add('latitude', '*/CLATH')
     q.add('longitude', '*/CLONH')
-    q.add('pressure', '*/GLPFDATA/WPRES')
+    q.add('depth', '*/GLPFDATA/WPRES')
 
     # ObsValue
     q.add('temp', '*/GLPFDATA/SSTH')
@@ -99,29 +99,29 @@ def bufr_to_ioda(config, logger):
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
-    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute', group_by='pressure')
+    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute', group_by='depth')
     dateTime = dateTime.astype(np.int64)
-    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute', group_by='pressure')
+    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute', group_by='depth')
     rcptdateTime = rcptdateTime.astype(np.int64)
-    stationID = r.get('stationID', group_by='pressure')
-    lat = r.get('latitude', group_by='pressure')
-    lon = r.get('longitude', group_by='pressure')
-    pressure = r.get('pressure', group_by='pressure')
-    # convert pressure to depth : rho * g * h
-    pressure = np.float32(pressure.astype(float) * 0.0001)
+    stationID = r.get('stationID', group_by='depth')
+    lat = r.get('latitude', group_by='depth')
+    lon = r.get('longitude', group_by='depth')
+    depth = r.get('depth', group_by='depth')
+    # convert depth in pressure units to meters (rho * g * h)
+    depth = np.float32(depth.astype(float) * 0.0001)
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
-    temp = r.get('temp', group_by='pressure')
+    temp = r.get('temp', group_by='depth')
     temp -= 273.15
-    saln = r.get('saln', group_by='pressure')
+    saln = r.get('saln', group_by='depth')
 
     # print ("masking temp & saln ...")
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
     temp = temp[mask]
     lat = lat[mask]
     lon = lon[mask]
-    pressure = pressure[mask]
+    depth = depth[mask]
     stationID = stationID[mask]
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
@@ -130,7 +130,7 @@ def bufr_to_ioda(config, logger):
     # =================================================
     # Separate ARGO profiles from subpfl tank
     # =================================================
-    logger.debug(f"Finding index for ARGO floats where the second number of the stationID=9...")
+    logger.debug(f"Finding index for ARGO floats where the second number of the stationID = 9...")
     index_list = []
     for index, number in enumerate(stationID):
         # Convert the number to a string
@@ -145,7 +145,7 @@ def bufr_to_ioda(config, logger):
     stationID = stationID[index_list]
     lat = lat[index_list]
     lon = lon[index_list]
-    pressure = pressure[index_list]
+    depth = depth[index_list]
     temp = temp[index_list]
     saln = saln[index_list]
     seqNum = seqNum[index_list]
@@ -173,7 +173,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" saln          min, max, length, dtype = {saln.min()}, {saln.max()}, {len(saln)}, {saln.dtype}")
     logger.debug(f" lon           min, max, length, dtype = {lon.min()}, {lon.max()}, {len(lon)}, {lon.dtype}")
     logger.debug(f" lat           min, max, length, dtype = {lat.min()}, {lat.max()}, {len(lat)}, {lat.dtype}")
-    logger.debug(f" depth         min, max, length, dtype = {pressure.min()}, {pressure.max()}, {len(pressure)}, {pressure.dtype}")
+    logger.debug(f" depth         min, max, length, dtype = {depth.min()}, {depth.max()}, {len(depth)}, {depth.dtype}")
     logger.debug(f" PreQC         min, max, length, dtype = {PreQC.min()}, {PreQC.max()}, {len(PreQC)}, {PreQC.dtype}")
     logger.debug(f" ObsError_temp min, max, length, dtype = {ObsError_temp.min()}, {ObsError_temp.max()}, {len(ObsError_temp)}, {ObsError_temp.dtype}")
     logger.debug(f" ObsError_saln min, max, length, dtype = {ObsError_saln.min()}, {ObsError_saln.max()}, {len(ObsError_saln)}, {ObsError_saln.dtype}")
@@ -246,10 +246,10 @@ def bufr_to_ioda(config, logger):
         .write_data(stationID)
 
     # Depth
-    obsspace.create_var('MetaData/depth', dtype=pressure.dtype, fillval=pressure.fill_value) \
+    obsspace.create_var('MetaData/depth', dtype=depth.dtype, fillval=depth.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Water depth') \
-        .write_data(pressure)
+        .write_data(depth)
 
     # Sequence Number
     obsspace.create_var('MetaData/sequenceNumber', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
