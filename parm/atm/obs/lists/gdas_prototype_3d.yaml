@@ -1,5 +1,10 @@
 observers:
 ##- !INC ${OBS_YAML_DIR}/amsua_n19.yaml
+##- !INC ${OBS_YAML_DIR}/amsua_n18.yaml
+##- !INC ${OBS_YAML_DIR}/amsua_n15.yaml
+##- !INC ${OBS_YAML_DIR}/amsua_metop-a.yaml
+##- !INC ${OBS_YAML_DIR}/amsua_metop-b.yaml
+##- !INC ${OBS_YAML_DIR}/amsua_metop-c.yaml
 ##- !INC ${OBS_YAML_DIR}/sondes_prepbufr.yaml
 ##- !INC ${OBS_YAML_DIR}/atms_n20.yaml
 ##- !INC ${OBS_YAML_DIR}/atms_npp.yaml
