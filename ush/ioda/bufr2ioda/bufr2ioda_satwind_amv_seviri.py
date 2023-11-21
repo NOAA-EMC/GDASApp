@@ -320,7 +320,7 @@ def bufr_to_ioda(config, logger):
                 .write_data(lon2)
 
             # Latitude
-            obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat2.fill_value) \
+            obsspace.create_var('MetaData/latitude', dtype=lat2.dtype, fillval=lat2.fill_value) \
                 .write_attr('units', 'degrees_north') \
                 .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
                 .write_attr('long_name', 'Latitude') \
