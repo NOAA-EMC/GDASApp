@@ -54,48 +54,36 @@ obs bias:
         ratio for small dataset: 2.0
     output file: $(DATA)/bc/$(APREFIX)amsua_n15.satbias_cov.nc4
 
-obs post filters: 
+obs pre filters:
 # Step 0-A: Create Diagnostic Flags
-# Diagnostic flag for CLW retrieval
 - filter: Create Diagnostic Flags
-  filter variables:  
-  - name: brightnessTemperature 
+  filter variables:
+  - name: brightnessTemperature
     channels: *amsua_n15_channels
   flags:
-  - name: CLWRetrievalReject
-    initial value: false 
-    force reinitialization: true 
+  - name: ScanEdgeRemoval
+    initial value: false
+    force reinitialization: false
+  - name: Thinning
+    initial value: false
+    force reinitialization: false
+  - name: CLWRetrievalCheck
+    initial value: false
+    force reinitialization: false
+  - name: WindowChannelExtremeResidual
+    initial value: false
+    force reinitialization: false
+  - name: HydrometeorCheck
+    initial value: false
+    force reinitialization: false
+  - name: GrossCheck
+    initial value: false
+    force reinitialization: false
+  - name: InterChannelConsistency
+    initial value: false
+    force reinitialization: false
 
-# Diagnostic flag for hydrometeor check 
-- filter: Create Diagnostic Flags
-  filter variables:  
-  - name: brightnessTemperature 
-    channels: *amsua_n15_channels
-  flags:
-  - name: HydrometeorCheckReject
-    initial value: false 
-    force reinitialization: true 
-
-# Diagnostic flag for gross check 
-- filter: Create Diagnostic Flags
-  filter variables:  
-  - name: brightnessTemperature 
-    channels: *amsua_n15_channels
-  flags:
-  - name: GrossCheckReject
-    initial value: false 
-    force reinitialization: true 
-
-# Diagnostic flag for inter-channel consistency check 
-- filter: Create Diagnostic Flags
-  filter variables:  
-  - name: brightnessTemperature 
-    channels: *amsua_n15_channels
-  flags:
-  - name: InterChannelCheckReject
-    initial value: false 
-    force reinitialization: true 
-
+obs post filters:
 # Step 0-B: Calculate derived variables
 # Calculate CLW retrieved from observation 
 - filter: Variable Assignment
@@ -225,7 +213,7 @@ obs post filters:
           channels: *amsua_n15_channels
         coefs: [1, -1]
 
-# Step 1: Assign initial all-sky observation error
+# Step 0-C: Assign initial all-sky observation error
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature 
@@ -236,7 +224,32 @@ obs post filters:
       name: DerivedMetaData/InitialObsError
       channels: *amsua_n15_channels
 
-# Step 2: CLW Retrieval Check (observation_based)
+# Step 1: Remove observations from the edge of the scan
+- filter: Domain Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: 1-15
+  where:
+  - variable:
+      name: MetaData/sensorScanPosition
+    is_in: 4-27
+  actions:
+    - name: set
+      flag: ScanEdgeRemoval
+    - name: reject
+
+# Step 2: Data Thinning
+- filter: Gaussian Thinning
+  horizontal_mesh: 145
+  use_reduced_horizontal_grid: true
+  round_horizontal_bin_count_to_nearest: true
+  partition_longitude_bins_using_mesh: true
+  actions:
+    - name: set
+      flag: Thinning
+    - name: reject
+
+# Step 3A: CLW Retrieval Check (observation_based)
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
@@ -246,10 +259,10 @@ obs post filters:
   maxvalue: 999.0
   actions:
     - name: set
-      flag: CLWRetrievalReject
+      flag: CLWRetrievalCheck
     - name: reject
 
-# Step 3: CLW Retrieval Check (background_based)
+# Step 3B: CLW Retrieval Check (background_based)
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
@@ -259,7 +272,7 @@ obs post filters:
   maxvalue: 999.0
   actions:
     - name: set
-      flag: CLWRetrievalReject
+      flag: CLWRetrievalCheck
     - name: reject
 
 # Step 4: Window channel sanity check
@@ -295,7 +308,7 @@ obs post filters:
   maxvalue: 0.0
   actions:
     - name: set
-      flag: HydrometeorCheckReject
+      flag: HydrometeorCheck
       ignore: rejected observations
     - name: reject
 
@@ -456,7 +469,7 @@ obs post filters:
     channels: *amsua_n15_channels
   actions:
     - name: set
-      flag: GrossCheckReject
+      flag: GrossCheck
       ignore: rejected observations
     - name: reject
 
@@ -478,6 +491,6 @@ obs post filters:
   maxvalue: 1.0e-12
   actions:
     - name: set
-      flag: InterChannelCheckReject
+      flag: InterChannelConsistency
       ignore: rejected observations
     - name: reject
