@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)amsua_metop-a.{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)amsua_metop-a.tm00.nc
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_amsua_metop-a_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_amsua_metop-a_{{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [brightnessTemperature]
@@ -19,7 +19,7 @@ obs operator:
   Clouds: [Water, Ice]
   Cloud_Fraction: 1.0
   obs options:
-    Sensor_ID: amsua_metop-a
+    Sensor_ID: &Sensor_ID amsua_metop-a
     EndianType: little_endian
     CoefficientPath: $(DATA)/crtm/
 
