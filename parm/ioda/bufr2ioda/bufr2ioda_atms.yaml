@@ -27,11 +27,8 @@ observations:
           satelliteInstrument:
             query: "*/SIID"
 
-          # The type should be integer.
-          # However, UFO/CRTM requred this variable to be float
           fieldOfViewNumber:
             query: "*/FOVN"
-#           type: float
 
           heightOfStation:
             query: "*/HMSL"
