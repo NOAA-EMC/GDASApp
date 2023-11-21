@@ -56,7 +56,6 @@ obs bias:
 
 obs pre filters:
 # Step 0-A: Create Diagnostic Flags
-# Diagnostic flag for CLW retrieval
 - filter: Create Diagnostic Flags
   filter variables:
   - name: brightnessTemperature
