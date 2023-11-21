@@ -1,17 +1,17 @@
 obs space:
-  name: amsua_n19
+  name: amsua_n18
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)amsua_n19.{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)amsua_n18.{{ current_cycle | to_YMDH }}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_amsua_n19_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_amsua_n18_{{ current_cycle | to_YMDH }}.nc4
   io pool:
     max pool size: 1
   simulated variables: [brightnessTemperature]
-  channels: &amsua_n19_channels 1-15
+  channels: &amsua_n18_channels 1-15
 
 obs operator:
   name: CRTM
@@ -19,21 +19,21 @@ obs operator:
   Clouds: [Water, Ice]
   Cloud_Fraction: 1.0
   obs options:
-    Sensor_ID: amsua_n19
+    Sensor_ID: amsua_n18
     EndianType: little_endian
     CoefficientPath: $(DATA)/crtm/
 
 obs bias:
-  input file: $(DATA)/obs/$(GPREFIX)amsua_n19.satbias.nc4
-  output file: $(DATA)/bc/$(APREFIX)amsua_n19.satbias.nc4
+  input file: $(DATA)/obs/$(GPREFIX)amsua_n18.satbias.nc4
+  output file: $(DATA)/bc/$(APREFIX)amsua_n18.satbias.nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &amsua_n19_tlapse $(DATA)/obs/$(GPREFIX)amsua_n19.tlapse.txt
+      tlapse: &amsua_n18_tlapse $(DATA)/obs/$(GPREFIX)amsua_n18.tlapse.txt
     - name: lapse_rate
-      tlapse: *amsua_n19_tlapse
+      tlapse: *amsua_n18_tlapse
     - name: emissivity
     - name: scan_angle
       order: 4
@@ -48,11 +48,11 @@ obs bias:
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: $(DATA)/obs/$(GPREFIX)amsua_n19.satbias_cov.nc4
+      input file: $(DATA)/obs/$(GPREFIX)amsua_n18.satbias_cov.nc4
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0
-    output file: $(DATA)/bc/$(APREFIX)amsua_n19.satbias_cov.nc4
+    output file: $(DATA)/bc/$(APREFIX)amsua_n18.satbias_cov.nc4
 
 obs post filters: 
 # Step 0-A: Create Diagnostic Flags
@@ -60,7 +60,7 @@ obs post filters:
 - filter: Create Diagnostic Flags
   filter variables:  
   - name: brightnessTemperature 
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   flags:
   - name: CLWRetrievalReject
     initial value: false 
@@ -70,7 +70,7 @@ obs post filters:
 - filter: Create Diagnostic Flags
   filter variables:  
   - name: brightnessTemperature 
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   flags:
   - name: HydrometeorCheckReject
     initial value: false 
@@ -80,7 +80,7 @@ obs post filters:
 - filter: Create Diagnostic Flags
   filter variables:  
   - name: brightnessTemperature 
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   flags:
   - name: GrossCheckReject
     initial value: false 
@@ -90,7 +90,7 @@ obs post filters:
 - filter: Create Diagnostic Flags
   filter variables:  
   - name: brightnessTemperature 
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   flags:
   - name: InterChannelCheckReject
     initial value: false 
@@ -167,13 +167,13 @@ obs post filters:
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/CLWMatchIndex
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
     type: float 
     function:
       name: ObsFunction/CLWMatchIndexMW
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
       options:
-        channels: *amsua_n19_channels
+        channels: *amsua_n18_channels
         clwobs_function:
           name: DerivedMetaData/CLWRetFromObs
         clwbkg_function:
@@ -186,13 +186,13 @@ obs post filters:
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/InitialObsError
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
     type: float
     function:
       name: ObsFunction/ObsErrorModelRamp
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
       options:
-        channels: *amsua_n19_channels
+        channels: *amsua_n18_channels
         xvar:
           name: DerivedMetaData/CLWRetSymmetric
         x0:    [ 0.050,  0.030,  0.030,  0.020,  0.000,
@@ -212,29 +212,29 @@ obs post filters:
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/Innovation
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
     type: float
     function:
       name: ObsFunction/Arithmetic
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
       options:
         variables:
         - name: ObsValue/brightnessTemperature
-          channels: *amsua_n19_channels
+          channels: *amsua_n18_channels
         - name: HofX/brightnessTemperature
-          channels: *amsua_n19_channels
+          channels: *amsua_n18_channels
         coefs: [1, -1]
 
 # Step 1: Assign initial all-sky observation error
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature 
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   action: 
     name: assign error
     error function: 
       name: DerivedMetaData/InitialObsError
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
 
 # Step 2: CLW Retrieval Check (observation_based)
 - filter: Bounds Check
@@ -266,10 +266,10 @@ obs post filters:
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: 1-6, 15
+    channels: 1-6, 15 
   test variables:
   - name: DerivedMetaData/Innovation
-    channels: 1, 2 4-6, 15
+    channels: 1, 2, 4-6, 15 
   maxvalue: 200.0
   minvalue: -200.0
   flag all filter variables if any test variable is out of bounds: true
@@ -278,12 +278,12 @@ obs post filters:
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   test variables:
   - name: ObsFunction/HydrometeorCheckAMSUA
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
     options:
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
       obserr_clearsky: [ 2.500, 2.200, 2.000, 0.550, 0.300,
                          0.230, 0.230, 0.250, 0.250, 0.350,
                          0.400, 0.550, 0.800, 4.000, 3.500]
@@ -291,7 +291,7 @@ obs post filters:
         name: DerivedMetaData/CLWRetFromObs
       obserr_function:
         name: DerivedMetaData/InitialObsError
-        channels: *amsua_n19_channels
+        channels: *amsua_n18_channels
   maxvalue: 0.0
   actions:
     - name: set
@@ -303,84 +303,84 @@ obs post filters:
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/ObsErrorFactorTopo
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
     type: float
     function:
       name: ObsFunction/ObsErrorFactorTopoRad
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
       options:
         sensor: *Sensor_ID
-        channels: *amsua_n19_channels
+        channels: *amsua_n18_channels
 
 - filter: Perform Action 
   filter variables:
   - name: brightnessTemperature
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   action:
     name: inflate error
     inflation variable:
       name: DerivedMetaData/ObsErrorFactorTopo
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
 
 # Step 7: Obs error inflation based on TOA transmittancec check
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/ObsErrorFactorTransmitTop
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
     type: float
     function:
       name: ObsFunction/ObsErrorFactorTransmitTopRad
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
       options:
-        channels: *amsua_n19_channels
+        channels: *amsua_n18_channels
 
 - filter: Perform Action 
   filter variables:
   - name: brightnessTemperature
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   action:
     name: inflate error
     inflation variable:
       name: DerivedMetaData/ObsErrorFactorTransmitTop
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
 
 # Step 8: Observation error inflation based on surface jacobian check 
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/ObsErrorFactorSurfJacobian
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
     type: float
     function:
       name: ObsFunction/ObsErrorFactorSurfJacobianRad
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
       options:
         sensor: *Sensor_ID
-        channels: *amsua_n19_channels
+        channels: *amsua_n18_channels
         obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
         obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
 
 - filter: Perform Action 
   filter variables:
   - name: brightnessTemperature
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   action:
     name: inflate error
     inflation variable:
       name: DerivedMetaData/ObsErrorFactorSurfJacobian
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
 
 # Step 9: Situation dependent check
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/ObsErrorFactorSituDepend
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
     type: float
     function:
-      name: ObsFunction/ObsErrorFactorSituDependMW 
-      channels: *amsua_n19_channels
+      name: ObsFunction/ObsErrorFactorSituDependMW       
+      channels: *amsua_n18_channels
       options:
         sensor: *Sensor_ID
-        channels: *amsua_n19_channels
+        channels: *amsua_n18_channels
         clwbkg_function:
           name: DerivedMetaData/CLWRetFromBkg
         clwobs_function:
@@ -389,10 +389,10 @@ obs post filters:
           name: DerivedMetaData/SIRetFromObs
         clwmatchidx_function:
           name: DerivedMetaData/CLWMatchIndex
-          channels: *amsua_n19_channels
+          channels: *amsua_n18_channels
         obserr_function:
           name: DerivedMetaData/InitialObsError
-          channels: *amsua_n19_channels
+          channels: *amsua_n18_channels
         obserr_clearsky: [2.500, 2.200, 2.000, 0.550, 0.300,
                           0.230, 0.230, 0.250, 0.250, 0.350,
                           0.400, 0.550, 0.800, 4.000, 3.500]
@@ -400,12 +400,12 @@ obs post filters:
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature
-    channels: *amsua_n19_channels 
+    channels: *amsua_n18_channels 
   action:
     name: inflate error
     inflation variable:
       name: DerivedMetaData/ObsErrorFactorSituDepend
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
 
 # Step 10: Gross check 
 # Remove data if abs(Obs-HofX) > absolute threhold 
@@ -421,27 +421,27 @@ obs post filters:
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/ObsErrorBound
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
     type: float
     function:
       name: ObsFunction/ObsErrorBoundMW
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
       options:
         sensor: *Sensor_ID
-        channels: *amsua_n19_channels
+        channels: *amsua_n18_channels
         obserr_bound_latitude:
           name: DerivedMetaData/ObsErrorFactorLat
         obserr_bound_transmittop:
           name: DerivedMetaData/ObsErrorFactorTransmitTop
-          channels: *amsua_n19_channels
+          channels: *amsua_n18_channels
           options:
-            channels: *amsua_n19_channels
+            channels: *amsua_n18_channels
         obserr_bound_topo:
           name: DerivedMetaData/ObsErrorFactorTopo
-          channels: *amsua_n19_channels
+          channels: *amsua_n18_channels
         obserr_function:
           name: DerivedMetaData/InitialObsError
-          channels: *amsua_n19_channels
+          channels: *amsua_n18_channels
           threhold: 3
         obserr_bound_max: [4.5, 4.5, 4.5, 2.5, 2.0,
                            2.0, 2.0, 2.0, 2.0, 2.0,
@@ -450,10 +450,10 @@ obs post filters:
 - filter: Background Check
   filter variables:
   - name: brightnessTemperature
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   function absolute threshold:
   - name: DerivedMetaData/ObsErrorBound
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   actions:
     - name: set
       flag: GrossCheckReject
@@ -464,16 +464,16 @@ obs post filters:
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
   test variables:
   - name: ObsFunction/InterChannelConsistencyCheck
-    channels: *amsua_n19_channels
+    channels: *amsua_n18_channels
     options:
-      channels: *amsua_n19_channels
+      channels: *amsua_n18_channels
       use passive_bc: true
       sensor: *Sensor_ID
-      use_flag: [ 1,  1,  1,  1,  1,
-                  1, -1, -1,  1,  1,
+      use_flag: [ 1,  1,  1,  1, -1,
+                  1,  1, -1, -1,  1,
                   1,  1,  1,  1,  1 ]
   maxvalue: 1.0e-12
   actions:
@@ -481,3 +481,4 @@ obs post filters:
       flag: InterChannelCheckReject
       ignore: rejected observations
     - name: reject
+
