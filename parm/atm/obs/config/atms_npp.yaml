@@ -18,6 +18,10 @@ obs operator:
   Absorbers: [H2O,O3]
   Clouds: [Water, Ice]
   Cloud_Fraction: 1.0
+<<<<<<< Updated upstream
+=======
+  Cloud_Seeding: true 
+>>>>>>> Stashed changes
   obs options:
     Sensor_ID: &Sensor_ID atms_npp
     EndianType: little_endian
@@ -56,7 +60,10 @@ obs bias:
 
 obs pre filters:
 # Step 0-A: Create Diagnostic Flags
+<<<<<<< Updated upstream
 # Diagnostic flag for CLW retrieval
+=======
+>>>>>>> Stashed changes
 - filter: Create Diagnostic Flags
   filter variables:
   - name: brightnessTemperature
@@ -224,7 +231,11 @@ obs post filters:
           channels: *atms_npp_channels
         coefs: [1, -1]
 
+<<<<<<< Updated upstream
 # Step 0-C: Assign initial all-sky observation error
+=======
+# Step 0-C: Assign Initial All-Sky Observation Error
+>>>>>>> Stashed changes
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature
@@ -235,7 +246,11 @@ obs post filters:
       name: InitialObsError@DerivedMetaData
       channels: *atms_npp_channels
 
+<<<<<<< Updated upstream
 # Step 1: Remove observations from the edge of the scan
+=======
+# Step 1: Remove Observations from the Edge of the Scan
+>>>>>>> Stashed changes
 - filter: Domain Check
   filter variables:
   - name: brightnessTemperature
@@ -250,6 +265,7 @@ obs post filters:
     - name: reject
 
 # Step 2: Data Thinning
+<<<<<<< Updated upstream
 #- filter: Gaussian Thinning
 #  horizontal_mesh: 145 
 #  use_reduced_horizontal_grid: true
@@ -259,6 +275,18 @@ obs post filters:
 #    - name: set
 #      flag: Thinning 
 #    - name: reject
+=======
+- filter: Gaussian Thinning
+  horizontal_mesh: 145 
+  use_reduced_horizontal_grid: true
+  distance_norm: geodesic
+#  round_horizontal_bin_count_to_nearest: true
+#  partition_longitude_bins_using_mesh: true
+  actions:
+    - name: set
+      flag: Thinning 
+    - name: reject
+>>>>>>> Stashed changes
 
 # Step 3A: CLW Retrieval Check (observation_based)
 - filter: Bounds Check
@@ -286,7 +314,11 @@ obs post filters:
       flag: CLWRetrievalCheck
     - name: reject
 
+<<<<<<< Updated upstream
 # Step 4: Window channel sanity check
+=======
+# Step 4: Window Channel Sanity Check
+>>>>>>> Stashed changes
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
@@ -338,7 +370,11 @@ obs post filters:
       ignore: rejected observations
     - name: reject
 
+<<<<<<< Updated upstream
 # Step 6: Observation error inflation based on topography check
+=======
+# Step 6: Observation Error Inflation based on Topography Check
+>>>>>>> Stashed changes
 - filter: Variable Assignment
   assignments:
   - name: ObsErrorFactorTopo@DerivedMetaData
@@ -361,7 +397,11 @@ obs post filters:
       name: ObsErrorFactorTopo@DerivedMetaData
       channels: *atms_npp_channels
 
+<<<<<<< Updated upstream
 # Step 7: Obs error inflation based on TOA transmittancec check
+=======
+# Step 7: Obs Error Inflation based on TOA Transmittancec Check
+>>>>>>> Stashed changes
 - filter: Variable Assignment
   assignments:
   - name: ObsErrorFactorTransmitTop@DerivedMetaData
@@ -383,7 +423,11 @@ obs post filters:
       name: ObsErrorFactorTransmitTop@DerivedMetaData
       channels: *atms_npp_channels
 
+<<<<<<< Updated upstream
 # Step 8: Observation error inflation based on surface jacobian check
+=======
+# Step 8: Observation Error Inflation based on Surface Jacobian Check
+>>>>>>> Stashed changes
 - filter: Variable Assignment
   assignments:
   - name: ObsErrorFactorSurfJacobian@DerivedMetaData
@@ -409,7 +453,11 @@ obs post filters:
       name: ObsErrorFactorSurfJacobian@DerivedMetaData
       channels: *atms_npp_channels
 
+<<<<<<< Updated upstream
 # Step 9: Situation dependent check
+=======
+# Step 9: Situation Dependent Check
+>>>>>>> Stashed changes
 - filter: Variable Assignment
   assignments:
   - name: ObsErrorFactorSituDepend@DerivedMetaData
@@ -504,7 +552,11 @@ obs post filters:
       ignore: rejected observations
     - name: reject
 
+<<<<<<< Updated upstream
 # Step 11: Inter-channel check
+=======
+# Step 11: Inter-Channel Check
+>>>>>>> Stashed changes
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
