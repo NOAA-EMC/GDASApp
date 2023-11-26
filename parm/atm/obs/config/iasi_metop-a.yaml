@@ -1,16 +1,19 @@
 obs space:
-  name: iasi_metop-b
+  name: iasi_metop-a
   obsdatain:
-      engine:
-        type: H5File
-        obsfile: iasi_metop-b_obs_${CDATE}_subset.nc4
-  _source: gdas
+    engine:
+      type: H5File
+      obsfile: $(DATA)/obs/$(OPREFIX)mtiasi_metop-a.tm00.nc
   obsdataout:
-      engine:
-        type: H5File
-        obsfile: iasi_metop-b_diag_${CDATE}.nc4
+    engine:
+      type: H5File
+      obsfile: $(DATA)/diags/diag_iasi_metop-a_{{ current_cycle | to_YMDH }}.nc
+  io pool:
+    max pool size: 1
+  observed variables: [radiance]
   simulated variables: [brightnessTemperature]
-  channels: &iasi_metop-b_channels 16, 29, 32, 35, 38, 41, 44, 47, 49, 50, 51, 53,
+  derived variables: [brightnessTemperature]
+  channels: &iasi_metop-a_channels 16, 29, 32, 35, 38, 41, 44, 47, 49, 50, 51, 53,
             55, 56, 57, 59, 61, 62, 63, 66, 68, 70, 72, 74, 76, 78, 79, 81, 82, 83,
             84, 85, 86, 87, 89, 92, 93, 95, 97, 99, 101, 103, 104, 106, 109, 110,
             111, 113, 116, 119, 122, 125, 128, 131, 133, 135, 138, 141, 144, 146,
@@ -59,25 +62,25 @@ obs space:
             7267, 7269, 7284, 7389, 7419, 7423, 7424, 7426, 7428, 7431, 7436, 7444,
             7475, 7549, 7584, 7665, 7666, 7831, 7836, 7853, 7865, 7885, 7888, 7912,
             7950, 7972, 7980, 7995, 8007, 8015, 8055, 8078
-geovals:
-  filename: iasi_metop-b_geoval_${CDATE}_subset.nc4
+
 obs operator:
   name: CRTM
   Absorbers: [H2O,O3,CO2]
   obs options:
-    Sensor_ID: iasi_metop-b
+    Sensor_ID: iasi_metop-a 
     EndianType: little_endian
-    CoefficientPath: crtm/
+    CoefficientPath: $(DATA)/crtm/
 obs bias:
-  input file: iasi_metop-b_satbias_${GDATE}.nc4
+  input file: $(DATA)/obs/$(GPREFIX)iasi_metop-a.satbias.nc4
+  output file: $(DATA)/bc/$(APREFIX)iasi_metop-a.satbias.nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &iasi_metop-b_tlap iasi_metop-b_tlapmean_${GDATE}.txt
+      tlapse: &iasi_metop-a_tlapse $(DATA)/obs/$(GPREFIX)iasi_metop-a.tlapse.txt
     - name: lapse_rate
-      tlapse: *iasi_metop-b_tlap
+      tlapse: *iasi_metop-a_tlapse
     - name: emissivity
     - name: scan_angle
       order: 4
@@ -86,24 +89,92 @@ obs bias:
     - name: scan_angle
       order: 2
     - name: scan_angle
-#  covariance:
-#    minimal required obs number: 20
-#    variance range: [1.0e-6, 10.0]
-#    step size: 1.0e-4
-#    largest analysis variance: 10000.0
-#    prior:
-#      inflation:
-#        ratio: 1.1
-#        ratio for small dataset: 2.0
+  covariance:
+    minimal required obs number: 20
+    variance range: [1.0e-6, 10.0]
+    step size: 1.0e-4
+    largest analysis variance: 10000.0
+    prior:
+      input file: $(DATA)/obs/$(GPREFIX)iasi_metop-a.satbias_cov.nc4
+      inflation:
+        ratio: 1.1
+        ratio for small dataset: 2.0
+    output file: $(DATA)/bc/$(APREFIX)iasi_metop-a.satbias_cov.nc4
 
+obs pre filters:
+# Step 0-A: Create Diagnostic Flags
+- filter: Create Diagnostic Flags
+  filter variables:
+  - name: brightnessTemperature
+    channels: *iasi_metop-a_channels
+  flags:
+  - name: ScanEdgeRemoval
+    initial value: false
+    force reinitialization: false
+  - name: Thinning
+    initial value: false
+    force reinitialization: false
+  - name: ShortwaveIRCheck
+    initial value: false
+    force reinitialization: false
+  - name: ObsValueRangeCheck
+    initial value: false
+    force reinitialization: false
+  - name: CloudDetection
+    initial value: false
+    force reinitialization: false
+  - name: NSSTCheck
+    initial value: false
+    force reinitialization: false
+  - name: GrossCheck
+    initial value: false
+    force reinitialization: false
+  - name: InterChannelConsistency
+    initial value: false
+    force reinitialization: false
+  - name: UseFlagCheck
+    initial value: false
+    force reinitialization: false
+
+# Step 0-B: Create Derived Variables
+# Assign channel wavenumbers in m-1
+- filter: Variable Assignment
+  assignments:
+  - name: MetaData/sensorCentralWavenumber
+    type: float
+    channels: *iasi_metop-a_channels
+    function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables:
+        - name: ObsValue/radiance
+          channels: *iasi_metop-a_channels
+        coefs: [25.0]
+        intercept: 64475.0
+        use channel numbers: true
+
+# Transform radiance to brightness temperature 
+- filter: Variable Transforms
+  Transform: SatBrightnessTempFromRad
+  transform from:
+    name: ObsValue/radiance
+    channels: *iasi_metop-a_channels
+  spectral variable:
+    name: MetaData/sensorCentralWavenumber
+    channels: *iasi_metop-a_channels
+  radiance units: wavenumber
+  planck1: 1.191042953e-16
+  planck2: 1.4387774e-2
+
+# Step 0-C: Assign Observation Error
 obs prior filters:
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature
-    channels:  *iasi_metop-b_channels
+    channels:  *iasi_metop-a_channels
   action:
     name: assign error
-    error parameter vector: &iasi_metop-b_oberr [ 1.38, 0.81, 0.75, 0.79, 0.72, 0.74, 0.68, 0.72, 0.65, 0.65, 
+    error parameter vector: &iasi_metop-a_oberr [ 1.38, 0.81, 0.75, 0.79, 0.72, 0.74, 0.68, 0.72, 0.65, 0.65, 
                             0.65, 0.69, 0.64, 0.64, 0.65, 0.67, 0.62, 0.61, 0.62, 0.64, 0.59, 0.76, 
                             1.22, 0.78, 0.64, 0.62, 0.61, 0.69, 0.65, 0.59, 0.61, 0.59, 0.68, 0.62, 
                             0.68, 4.38, 3.05, 2.31, 1.56, 1.33, 1.58, 0.93, 1.67, 0.72, 0.57, 0.58, 
@@ -157,7 +228,37 @@ obs prior filters:
                             2.53, 9 ]
 
 obs post filters:
-#  Wavenumber Check
+# Step 1: Remove Observations from the Edge of the Scan
+- filter: Domain Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: *iasi_metop-a_channels
+  where:
+  - variable:
+      name: MetaData/sensorScanPosition
+    is_in: 5-56
+  actions:
+    - name: set
+      flag: ScanEdgeRemoval
+    - name: reject
+
+# Step 2: Data Thinning
+- filter: Gaussian Thinning
+  filter variables:
+  - name: brightnessTemperature
+    channels: *iasi_metop-a_channels
+  horizontal_mesh: 145
+  use_reduced_horizontal_grid: true
+  distance_norm: geodesic
+  priority_variable: MetaData/fractionOfClearPixelsInFOV 
+#  round_horizontal_bin_count_to_nearest: true
+#  partition_longitude_bins_using_mesh: true
+  actions:
+    - name: set
+      flag: Thinning
+    - name: reject
+
+# Step 3: Wavenumber Check
 - filter: Perform Action 
   filter variables:
   - name: brightnessTemperature
@@ -174,69 +275,74 @@ obs post filters:
   - variable:
       name: water_area_fraction@GeoVaLs
     minvalue: 1.0e-12
-  action:
-    name: reject
+  actions:
+    - name: set
+      flag: ShortwaveIRCheck
+    - name: reject
 
+# Step 4: Observation Error Inflation based on Wavenumber
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature
-    channels: *iasi_metop-b_channels
+    channels: *iasi_metop-a_channels
   action:
     name: inflate error
     inflation variable:
       name: ObsErrorFactorWavenumIR@ObsFunction
-      channels: *iasi_metop-b_channels
+      channels: *iasi_metop-a_channels
       options:
-        channels: *iasi_metop-b_channels
+        channels: *iasi_metop-a_channels
 
-#  Observation Range Sanity Check
+# Step 5: Observation Range Sanity Check
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: *iasi_metop-b_channels
+    channels: *iasi_metop-a_channels
   minvalue: 50.00001
   maxvalue: 449.99999
 #  maxvalue: 100.00000
-  action:
-    name: reject
+  actions:
+    - name: set
+      flag: ObsValueRangeCheck
+    - name: reject
 
-#  Topography Check
+# Step 6: Topography Check
 - filter: Perform Action 
   filter variables:
   - name: brightnessTemperature
-    channels: *iasi_metop-b_channels
+    channels: *iasi_metop-a_channels
   action:
     name: inflate error
     inflation variable:
       name: ObsFunction/ObsErrorFactorTopoRad
-      channels: *iasi_metop-b_channels
+      channels: *iasi_metop-a_channels
       options:
-        channels: *iasi_metop-b_channels
-        sensor: iasi_metop-b
+        channels: *iasi_metop-a_channels
+        sensor: iasi_metop-a
 
-#  Transmittance Top Check
+# Step 7: Transmittance Top Check
 - filter: Perform Action 
   filter variables:
   - name: brightnessTemperature
-    channels: *iasi_metop-b_channels
+    channels: *iasi_metop-a_channels
   action:
     name: inflate error
     inflation variable:
       name: ObsFunction/ObsErrorFactorTransmitTopRad
-      channels: *iasi_metop-b_channels
+      channels: *iasi_metop-a_channels
       options:
-        channels: *iasi_metop-b_channels
+        channels: *iasi_metop-a_channels
 
-#  Cloud Detection Check
+# Step 8: Cloud Detection Check
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: *iasi_metop-b_channels
+    channels: *iasi_metop-a_channels
   test variables:
   - name: ObsFunction/CloudDetectMinResidualIR
-    channels: *iasi_metop-b_channels
+    channels: *iasi_metop-a_channels
     options:
-      channels: *iasi_metop-b_channels
+      channels: *iasi_metop-a_channels
       use_flag: [ 1, -1, -1, -1,  1, -1, -1, -1,  1, -1,
                   1, -1,  1, -1,  1,  1,  1, -1,  1,  1,
                  -1,  1,  1,  1, -1, -1,  1,  1, -1,  1,
@@ -362,21 +468,23 @@ obs post filters:
                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                         -1, -1, -1, -1, -1, -1]
       obserr_dtempf: [0.50,2.00,4.00,2.00,4.00]
-      error parameter vector: *iasi_metop-b_oberr
+      error parameter vector: *iasi_metop-a_oberr
   maxvalue: 1.0e-12
-  action:
-    name: reject
+  actions:
+    - name: set
+      flag: CloudDetection
+    - name: reject
 
-#  NSST Retrieval Check
+# Step 9: NSST Retrieval Check
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: *iasi_metop-b_channels
+    channels: *iasi_metop-a_channels
   test variables:
   - name: NearSSTRetCheckIR@ObsFunction
-    channels: *iasi_metop-b_channels
+    channels: *iasi_metop-a_channels
     options:
-      channels: *iasi_metop-b_channels
+      channels: *iasi_metop-a_channels
       use_flag: [ 1, -1, -1, -1,  1, -1, -1, -1,  1, -1,
                   1, -1,  1, -1,  1,  1,  1, -1,  1,  1,
                  -1,  1,  1,  1, -1, -1,  1,  1, -1,  1,
@@ -442,44 +550,46 @@ obs post filters:
       obserr_demisf: [0.01,0.02,0.03,0.02,0.03]
       obserr_dtempf: [0.50,2.00,4.00,2.00,4.00]
   maxvalue: 1.0e-12
-  action:
-    name: reject
+  actions:
+    - name: set
+      flag: NSSTCheck
+    - name: reject
 
-#  Surface Jacobians Check
+# Step 10: Surface Jacobians Check
 - filter: Perform Action 
   filter variables:
   - name: brightnessTemperature
-    channels: *iasi_metop-b_channels
+    channels: *iasi_metop-a_channels
   action:
     name: inflate error
     inflation variable:
       name: ObsFunction/ObsErrorFactorSurfJacobianRad
-      channels: *iasi_metop-b_channels
+      channels: *iasi_metop-a_channels
       options:
-        channels: *iasi_metop-b_channels
+        channels: *iasi_metop-a_channels
         obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
         obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
-        sensor: iasi_metop-b
+        sensor: iasi_metop-a
 
-#  Gross check
+# Step 11: Gross check
 - filter: Background Check
   filter variables:
   - name: brightnessTemperature
-    channels: *iasi_metop-b_channels
+    channels: *iasi_metop-a_channels
   function absolute threshold:
   - name: ObsFunction/ObsErrorBoundIR
-    channels: *iasi_metop-b_channels
+    channels: *iasi_metop-a_channels
     options:
-      channels: *iasi_metop-b_channels
+      channels: *iasi_metop-a_channels
       obserr_bound_latitude:
         name: ObsFunction/ObsErrorFactorLatRad
         options:
           latitude_parameters: [25.0, 0.5, 0.04, 1.0]
       obserr_bound_transmittop:
         name: ObsFunction/ObsErrorFactorTransmitTopRad
-        channels: *iasi_metop-b_channels
+        channels: *iasi_metop-a_channels
         options:
-          channels: *iasi_metop-b_channels
+          channels: *iasi_metop-a_channels
       obserr_bound_max: [ 3.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
                           2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
                           2.0, 2.0, 4.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
@@ -542,84 +652,86 @@ obs post filters:
                           6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
                           6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
                           6.0, 6.0, 6.0, 6.0, 6.0, 6.0]
-      error parameter vector: *iasi_metop-b_oberr
-  action:
-    name: reject
+      error parameter vector: *iasi_metop-a_oberr
+  actions:
+    - name: set
+      flag: GrossCheck
+    - name: reject
 
 #  Useflag Check
-- filter: Bounds Check
-  filter variables:
-  - name: brightnessTemperature
-    channels: *iasi_metop-b_channels
-  test variables:
-  - name: ObsFunction/ChannelUseflagCheckRad
-    channels: *iasi_metop-b_channels
-    options:
-      channels: *iasi_metop-b_channels
-      use_flag: [ 1, -1, -1, -1,  1, -1, -1, -1,  1, -1,
-                  1, -1,  1, -1,  1,  1,  1, -1,  1,  1,
-                 -1,  1,  1,  1, -1, -1,  1,  1, -1,  1,
-                 -1,  1, -1,  1, -1, -1, -1, -1, -1, -1,
-                 -1, -1,  1,  1,  1, -1,  1,  1,  1,  1,
-                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-                  1, -1,  1,  1,  1,  1, -1,  1,  1,  1,
-                  1,  1,  1, -1,  1,  1,  1, -1,  1, -1,
-                  1, -1, -1, -1,  1,  1,  1,  1, -1,  1,
-                  1, -1,  1,  1,  1, -1,  1, -1,  1, -1,
-                  1,  1, -1,  1,  1,  1,  1,  1,  1, -1,
-                  1,  1,  1,  1, -1,  1, -1,  1, -1,  1,
-                  1,  1, -1,  1,  1, -1, -1, -1,  1, -1,
-                  1,  1, -1,  1,  1,  1,  1,  1,  1,  1,
-                 -1,  1,  1, -1,  1,  1,  1,  1,  1,  1,
-                  1,  1,  1,  1,  1, -1,  1, -1,  1, -1,
-                  1,  1, -1, -1,  1,  1,  1, -1,  1,  1,
-                 -1,  1, -1,  1, -1, -1, -1, -1, -1,  1,
-                  1,  1,  1,  1,  1,  1, -1, -1, -1, -1,
-                  1,  1,  1, -1, -1,  1, -1,  1,  1,  1,
-                  1,  1, -1, -1,  1,  1, -1,  1,  1, -1,
-                  1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,
-                 -1, -1, -1, -1, -1, -1,  1, -1,  1, -1,
-                  1, -1, -1, -1,  1, -1, -1, -1, -1, -1,
-                 -1, -1,  1,  1, -1,  1,  1, -1,  1,  1,
-                  1,  1,  1, -1, -1,  1, -1, -1, -1, -1,
-                 -1,  1, -1,  1, -1,  1, -1, -1, -1,  1,
-                  1,  1,  1,  1,  1,  1, -1,  1, -1, -1,
-                 -1, -1, -1, -1, -1,  1, -1, -1,  1, -1,
-                 -1, -1, -1,  1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1,  1, -1, -1, -1, -1, -1, -1,
-                  1,  1, -1, -1, -1, -1, -1, -1, -1,  1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,
-                 -1,  1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1,  1, -1,
-                 -1,  1, -1, -1, -1, -1, -1, -1,  1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 -1, -1, -1, -1, -1, -1]
-  minvalue: 1.0e-12
-  action:
-    name: reject
-passedBenchmark: 124731
-
+#- filter: Bounds Check
+#  filter variables:
+#  - name: brightnessTemperature
+#    channels: *iasi_metop-a_channels
+#  test variables:
+#  - name: ObsFunction/ChannelUseflagCheckRad
+#    channels: *iasi_metop-a_channels
+#    options:
+#      channels: *iasi_metop-a_channels
+#      use_flag: [ 1, -1, -1, -1,  1, -1, -1, -1,  1, -1,
+#                  1, -1,  1, -1,  1,  1,  1, -1,  1,  1,
+#                 -1,  1,  1,  1, -1, -1,  1,  1, -1,  1,
+#                 -1,  1, -1,  1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1,  1,  1,  1, -1,  1,  1,  1,  1,
+#                  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+#                  1, -1,  1,  1,  1,  1, -1,  1,  1,  1,
+#                  1,  1,  1, -1,  1,  1,  1, -1,  1, -1,
+#                  1, -1, -1, -1,  1,  1,  1,  1, -1,  1,
+#                  1, -1,  1,  1,  1, -1,  1, -1,  1, -1,
+#                  1,  1, -1,  1,  1,  1,  1,  1,  1, -1,
+#                  1,  1,  1,  1, -1,  1, -1,  1, -1,  1,
+#                  1,  1, -1,  1,  1, -1, -1, -1,  1, -1,
+#                  1,  1, -1,  1,  1,  1,  1,  1,  1,  1,
+#                 -1,  1,  1, -1,  1,  1,  1,  1,  1,  1,
+#                  1,  1,  1,  1,  1, -1,  1, -1,  1, -1,
+#                  1,  1, -1, -1,  1,  1,  1, -1,  1,  1,
+#                 -1,  1, -1,  1, -1, -1, -1, -1, -1,  1,
+#                  1,  1,  1,  1,  1,  1, -1, -1, -1, -1,
+#                  1,  1,  1, -1, -1,  1, -1,  1,  1,  1,
+#                  1,  1, -1, -1,  1,  1, -1,  1,  1, -1,
+#                  1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,
+#                 -1, -1, -1, -1, -1, -1,  1, -1,  1, -1,
+#                  1, -1, -1, -1,  1, -1, -1, -1, -1, -1,
+#                 -1, -1,  1,  1, -1,  1,  1, -1,  1,  1,
+#                  1,  1,  1, -1, -1,  1, -1, -1, -1, -1,
+#                 -1,  1, -1,  1, -1,  1, -1, -1, -1,  1,
+#                  1,  1,  1,  1,  1,  1, -1,  1, -1, -1,
+#                 -1, -1, -1, -1, -1,  1, -1, -1,  1, -1,
+#                 -1, -1, -1,  1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1,  1, -1, -1, -1, -1, -1, -1,
+#                  1,  1, -1, -1, -1, -1, -1, -1, -1,  1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,
+#                 -1,  1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1,  1, -1,
+#                 -1,  1, -1, -1, -1, -1, -1, -1,  1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+#                 -1, -1, -1, -1, -1, -1]
+#  minvalue: 1.0e-12
+  actions:
+    - name: set
+      flag: UseFlagCheck 
+    - name: reject
