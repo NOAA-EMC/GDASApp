@@ -320,16 +320,16 @@ FileHandler({'copy': bkgerr_list}).sync()
 if dohybvar:
     logging.info("---------------- Stage ensemble members")
     nmem_ens = int(os.getenv('NMEM_ENS'))
-    longname={'ocn': 'ocean', 'ice': 'ice'}
+    longname = {'ocn': 'ocean', 'ice': 'ice'}
     ens_member_list = []
     for mem in range(1, nmem_ens+1):
         for domain in ['ocn', 'ice']:
             # TODO(Guillaume): make use and define ensemble COM in the j-job
-            ensdir=os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
-                                          f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
-                                          'model_data', longname[domain], 'history')
-            ensdir=os.path.normpath(ensdir)
-            f009=f'enkfgdas.t{cyc}z.{domain}f009.nc'
+            ensdir = os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
+                                  f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
+                                  'model_data', longname[domain], 'history')
+            ensdir = os.path.normpath(ensdir)
+            f009 = f'enkfgdas.t{cyc}z.{domain}f009.nc'
 
             fname_in = os.path.abspath(os.path.join(ensdir, f009))
             fname_out = os.path.abspath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
