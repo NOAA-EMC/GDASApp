@@ -60,3 +60,21 @@ ice_files=$(ls ${clim_ens_dir}/ice.*.nc)
 for ice_file in ${ice_files}; do
     ncrename -O -d ni,xaxis_1 -d nj,yaxis_1 -v aice_h,aicen -v hi_h,hicen -v hs_h,hsnon ${ice_file}
 done
+
+# Invent ensemble forecast for f009
+fake_ocean_members=`ls`
+fake_ice_members=`ls ${clim_ens_dir/ice.*.nc}`
+COMENS=${project_binary_dir}/test/soca/gw/COM/enkfgdas.20180415
+for mem in  {1..4}
+do
+    echo "member: $mem"
+    # ocean member
+    oceandir=${COMENS}/06/mem00${mem}/model_data/ocean/history
+    mkdir -p $oceandir
+    cp ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.t12z.ocnf009.nc
+    echo ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.t12z.ocnf009.nc
+    # ice member
+    icedir=${COMENS}/06/mem00${mem}/model_data/ice/history
+    mkdir -p $icedir
+    cp ${clim_ens_dir}/ice.${mem}.nc $icedir/enkfgdas.t12z.icef009.nc
+done

@@ -247,6 +247,7 @@ window_middle_iso = window_middle.strftime('%Y-%m-%dT%H:%M:%SZ')
 fcst_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')
 RUN = os.getenv('RUN')
 cyc = os.getenv('cyc')
+gcyc = os.getenv('gcyc')
 PDY = os.getenv('PDY')
 
 ################################################################################
@@ -317,22 +318,36 @@ FileHandler({'copy': bkgerr_list}).sync()
 ################################################################################
 # stage ensemble members
 if dohybvar:
-    logging.info(f"---------------- Stage ensemble members")
+    logging.info("---------------- Stage ensemble members")
+    nmem_ens = int(os.getenv('NMEM_ENS'))
+    longname={'ocn': 'ocean', 'ice': 'ice'}
+    ens_member_list = []
+    for mem in range(1, nmem_ens+1):
+        for domain in ['ocn', 'ice']:
+            # TODO(Guillaume): make use and define ensemble COM in the j-job
+            ensdir=os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
+                                          f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
+                                          'model_data', longname[domain], 'history')
+            ensdir=os.path.normpath(ensdir)
+            f009=f'enkfgdas.t{cyc}z.{domain}f009.nc'
 
+            fname_in = os.path.abspath(os.path.join(ensdir, f009))
+            fname_out = os.path.abspath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
+            ens_member_list.append([fname_in, fname_out])
+    FileHandler({'copy': ens_member_list}).sync()
 else:
-    logging.info(f"---------------- Stage climatological ensemble")
-    clim_ens_member_list = []
+    logging.info("---------------- Stage offline ensemble members")
+    ens_member_list = []
     clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
-    clim_ens_size = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
-    os.environ['CLIM_ENS_SIZE'] = str(clim_ens_size)
-
+    nmem_ens = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
     for domain in ['ocn', 'ice']:
-        for mem in range(1, clim_ens_size+1):
+        for mem in range(1, nmem_ens+1):
             fname = domain+"."+str(mem)+".nc"
             fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
             fname_out = os.path.abspath(os.path.join(static_ens, fname))
-            clim_ens_member_list.append([fname_in, fname_out])
-    FileHandler({'copy': clim_ens_member_list}).sync()
+            ens_member_list.append([fname_in, fname_out])
+    FileHandler({'copy': ens_member_list}).sync()
+os.environ['ENS_SIZE'] = str(nmem_ens)
 
 ################################################################################
 # prepare JEDI yamls
@@ -464,7 +479,6 @@ if 'SABER_BLOCKS_YAML' in os.environ and os.environ['SABER_BLOCKS_YAML']:
 else:
     logging.info(f"using default SABER blocks yaml")
     os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
-os.environ['CLIM_ENS_SIZE'] = str(clim_ens_size)
 
 # substitute templated variables in the var config
 logging.info(f"{config}")
