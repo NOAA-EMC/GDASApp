@@ -30,6 +30,7 @@ namespace gdasapp {
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
+      oops::Log::test() << "Reading " << fileName << std::endl;
 
       // Get number of obs
       int dim0  = ncFile.getDim("phony_dim_0").getSize();
@@ -94,6 +95,9 @@ namespace gdasapp {
       // basic test for iodaVars.trim
       Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ > 0.0);
       iodaVars.trim(mask);
+
+      // Test output
+      iodaVars.testOutput();
 
       return iodaVars;
     };

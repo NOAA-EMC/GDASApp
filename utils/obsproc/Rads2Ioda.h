@@ -30,6 +30,7 @@ namespace gdasapp {
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
+      oops::Log::test() << "Reading... " << fileName << std::endl;
 
       // Get the number of obs in the file
       int nobs = ncFile.getDim("time").getSize();
@@ -134,6 +135,9 @@ namespace gdasapp {
               oceanMask->getOceanMask(iodaVars.longitude_[i], iodaVars.latitude_[i]);
           }
       }
+
+       // Test output
+       iodaVars.testOutput();
 
       return iodaVars;
     };
