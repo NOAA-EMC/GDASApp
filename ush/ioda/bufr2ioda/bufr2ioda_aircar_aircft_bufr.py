@@ -22,8 +22,51 @@ from datetime import datetime
 from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
+np.set_printoptions(threshold=7000)
+
 global int64_fill_value
 int64_fill_value = np.int64(0)
+
+
+def AircraftFlightLevel(lat, prlc=None, ialt=None, flvl=None, flvlst=None, heit=None, hmsl=None, psal=None):
+
+    print("NE lat fill value", lat.fill_value)
+    AircraftFlightLevel = np.full(lat.shape[0], lat.fill_value)
+    print("NE AircraftFlightLevel[0]", AircraftFlightLevel[0])
+
+    for i in range(len(lat)):
+        if (prlc is not None) and (not ma.is_masked(prlc[i])):
+            print("NE we're doing prlc")
+            if (prlc[i]) < 22630:
+                print('prlc 1')
+            else:
+                print('prlc 2')
+        elif (ialt is not None) and (not ma.is_masked(ialt[i])):
+#            print("NE AircraftFlightLevel is ialt")
+            AircraftFlightLevel[i] = ialt[i]
+
+        if (psal is not None) and (not ma.is_masked(psal[i])):
+#            print("NE AircraftFlightLevel is psal")
+            AircraftFlightLevel[i] = psal[i]
+        elif (flvl is not None) and (not ma.is_masked(flvl[i])):
+#            print("NE AircraftFlightLevel is flvl")
+            AircraftFlightLevel[i] = flvl[i]
+        elif (heit is not None) and (not ma.is_masked(heit[i])):
+#            print("NE AircraftFlightLevel is heit")
+            AircraftFlightLevel[i] = heit[i]
+        elif (hmsl is not None) and (not ma.is_masked(hmsl[i])):
+#            print("NE AircraftFlightLevel is hmsl")
+            AircraftFlightLevel[i] = hmsl[i]
+        elif (flvlst is not None) and (not ma.is_masked(flvlst[i])):
+#            print("NE AircraftFlightLevel is flvlst")
+            AircraftFlightLevel[i] = flvlst[i]
+
+#    print("NE AircraftFlightLevel data")
+#    for i in range(len(AircraftFlightLevel)):
+#         print(AircraftFlightLevel[i])
+
+    return AircraftFlightLevel
+
 
 def bufr_to_ioda(config, logger):
 
@@ -217,7 +260,12 @@ def bufr_to_ioda(config, logger):
     acrn_aircar = t.get('aircraftIdentifier')
     poaf_aircar = t.get('aircraftFlightPhase')
     prlc_aircar = t.get('pressure', type='float')
+#    print("NE prlc_aircar")
+#    print(prlc_aircar)
     ialt_aircar = t.get('aircraftIndicatedAltitude', type='float')
+#    print("NE ialt_aircar")
+#    print(ialt_aircar)
+
 
     # ObsValue
     tmdb_aircar = t.get('airTemperature', type='float')
@@ -250,6 +298,19 @@ def bufr_to_ioda(config, logger):
     hmsl_aircft = u.get('heightOrAltitude', type='float')
     psal_aircft = u.get('pressureAltitudeRelativeToMeanSeaLevel', type='float')
     pccf_aircft = u.get('percentConfidenceRH', type='int')
+
+#    for i in range(len(lat_aircft)):
+#       print("NE aircftt ", flvl_aircft[i], flvlst_aircft[i], heit_aircft[i], hmsl_aircft[i], psal_aircft[i])
+#    print("NE flvl_aircft")
+#    print(flvl_aircft)
+#    print("NE flvlst_aircft")
+#    print(flvlst_aircft)
+#    print("NE heit_aircft")
+#    print(heit_aircft)
+#    print("NE hmsl_aircft")
+#    print(hmsl_aircft)
+#    print("NE psal_aircft")
+#    print(psal_aircft)
 
     # ObsValue
     tmdb_aircft = u.get('airTemperature', type='float')
@@ -285,6 +346,9 @@ def bufr_to_ioda(config, logger):
     acns_amdar = v.get('aircraftNavigationalSystem', 'latitudeSeq')
     acrn_amdar = v.get('aircraftIdentifier', 'latitudeSeq')
     flvlst_amdar = v.get('flightLevelST', 'latitudeSeq', type='float')
+#    print("NE flvlst_amdar")
+#    print(flvlst_amdar)
+
 
     # ObsValue
     tmdb_amdar = v.get('airTemperature', 'latitudeSeq', type='float')
@@ -369,11 +433,11 @@ def bufr_to_ioda(config, logger):
 
     # Concatenate
     logger.debug("Concatenate the variables ... ")
-    year = np.concatenate((year_aircar, year_aircft, year_amdar), axis=0).astype(np.float32)
-    month = np.concatenate((mnth_aircar, mnth_aircft, mnth_amdar), axis=0).astype(np.float32)
-    day = np.concatenate((days_aircar, days_aircft, days_amdar), axis=0).astype(np.float32)
-    hour = np.concatenate((hour_aircar, hour_aircft, hour_amdar), axis=0).astype(np.float32)
-    minute = np.concatenate((minu_aircar, minu_aircft, minu_amdar), axis=0).astype(np.float32)
+#    year = np.concatenate((year_aircar, year_aircft, year_amdar), axis=0).astype(np.float32)
+#    mnth = np.concatenate((mnth_aircar, mnth_aircft, mnth_amdar), axis=0).astype(np.float32)
+#    days = np.concatenate((days_aircar, days_aircft, days_amdar), axis=0).astype(np.float32)
+#    hour = np.concatenate((hour_aircar, hour_aircft, hour_amdar), axis=0).astype(np.float32)
+#    minu = np.concatenate((minu_aircar, minu_aircft, minu_amdar), axis=0).astype(np.float32)
     lat = ma.concatenate((lat_aircar, lat_aircft, lat_amdar), axis=0).astype(np.float32)
     lat = ma.masked_values(lat, lat_aircar.fill_value)
     lon = ma.concatenate((lat_aircar, lat_aircft, lat_amdar), axis=0).astype(np.float32)
@@ -381,11 +445,11 @@ def bufr_to_ioda(config, logger):
 
 
     logger.debug(f" ... Check the concatenated array shapes, dtypes, some fill_values  ... ")
-    logger.debug(f"     concatenated year size = {year.shape}, {year.fill_value}")
-    logger.debug(f"     concatenated mnth size = {mnth.shape}, {mnth.fill_value}")
-    logger.debug(f"     concatenated days size = {days.shape}, {days.fill_value}")
-    logger.debug(f"     concatenated hour size = {hour.shape}, {hour.fill_value}")
-    logger.debug(f"     concatenated minu size = {minu.shape}, {minu.fill_value}")
+#    logger.debug(f"     concatenated year size = {year.shape}, {year.fill_value}")
+#    logger.debug(f"     concatenated mnth size = {month.shape}, {month.fill_value}")
+#    logger.debug(f"     concatenated days size = {day.shape}, {day.fill_value}")
+#    logger.debug(f"     concatenated hour size = {hour.shape}, {hour.fill_value}")
+#    logger.debug(f"     concatenated minu size = {minute.shape}, {minu.fill_value}")
     logger.debug(f"     concatenated lat size = {lat.shape}, {lat.dtype}, {lat.fill_value}")
     logger.debug(f"     concatenated lon size = {lon.shape}, {lon.dtype}, {lon.fill_value}")
      
@@ -396,11 +460,9 @@ def bufr_to_ioda(config, logger):
     dateTime_aircft = u.get_datetime('year', 'month', 'day', 'hour', 'minute').astype(np.int64)
     dateTime_amdar = v.get_datetime('year', 'month', 'day', 'hour', 'minute', group_by='latitudeSeq').astype(np.int64)
 
-#    dateTime_aircar.fill_value.astype(np.int64)
-
-    logger.debug(f"     datetime aircar = {dateTime_aircar.shape}, {dateTime_aircar.dtype}")
-    logger.debug(f"     datetime aircft = {dateTime_aircft.shape}, {dateTime_aircft.dtype}")
-    logger.debug(f"     datetime amdar = {dateTime_amdar.shape}, {dateTime_amdar.dtype}")
+    logger.debug(f"     dateTime_aircar = {dateTime_aircar.shape}, {dateTime_aircar.dtype}")
+    logger.debug(f"     dateTime_aircft = {dateTime_aircft.shape}, {dateTime_aircft.dtype}")
+    logger.debug(f"     dateTime_amdar = {dateTime_amdar.shape}, {dateTime_amdar.dtype}")
 
     dateTime = ma.concatenate((dateTime_aircar, dateTime_aircft, dateTime_amdar),axis=0).astype(np.int64)
     dateTime = ma.masked_values(dateTime, dateTime_aircar.fill_value)
@@ -408,7 +470,16 @@ def bufr_to_ioda(config, logger):
 
 
     # Derive aircraftFlightLevel
+    acftflvl_aircar = AircraftFlightLevel(lat=lat_aircar, prlc=prlc_aircar, ialt=ialt_aircar, flvl=None, flvlst=None,
+                                          heit=None, hmsl=None, psal=None)
+    acftflvl_aircft = AircraftFlightLevel(lat=lat_aircft, prlc=None, ialt=None, flvl=flvl_aircft, flvlst=flvlst_aircft,
+                                          heit=heit_aircft, hmsl=hmsl_aircft, psal=psal_aircft)
+    acftflvl_amdar = AircraftFlightLevel(lat=lat_amdar, prlc=None, ialt=None, flvl=None, flvlst=flvlst_amdar,
+                                         heit=None, hmsl=None, psal=None)
 
+    aircraftFlightLevel = ma.concatenate((acftflvl_aircar, acftflvl_aircft, acftflvl_amdar), axis=0).astype(np.float32)
+    aircraftFlightLevel = ma.masked_values(aircraftFlightLevel, lat.fill_value)
+    
 
     # =====================================
     # Create IODA ObsSpace
@@ -464,6 +535,12 @@ def bufr_to_ioda(config, logger):
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Datetime') \
         .write_data(dateTime)
+
+    # AircraftFlightLevel
+    obsspace.create_var('MetaData/aircraftFlightLevel', dtype=aircraftFlightLevel.dtype, fillval=aircraftFlightLevel.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'aircraftFlightLevel') \
+        .write_data(aircraftFlightLevel)
 
 
 
