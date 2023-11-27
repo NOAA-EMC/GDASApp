@@ -24,3 +24,30 @@ datetime:
     Min: 1625066557
     Max: 1625120334
     Sum: 14625923278
+Reading icec_amsr2_north_2.nc4
+seconds since 1970-01-01T00:00:00Z
+obsVal:
+    Min: 0
+    Max: 1
+    Sum: 5.94
+obsError:
+    Min: 0.1
+    Max: 0.1
+    Sum: 0.8
+preQc:
+    Min: 0
+    Max: 8
+    Sum: 16
+longitude:
+    Min: -168.867
+    Max: 148.766
+    Sum: -163.048
+latitude:
+    Min: 74.0798
+    Max: 86.8975
+    Sum: 636.918
+datetime:
+    Min: 1625082071
+    Max: 1625126209
+    Sum: 13000874421
+

@@ -9,5 +9,5 @@ input files:
 
 test:
   reference filename: testref/rads2ioda.test
-  test output filename: testoutput/rad2ioda.test
+  test output filename: testoutput/rads2ioda.test
   float relative tolerance: 1e-6
