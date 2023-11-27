@@ -621,5 +621,4 @@ obs post filters:
   minvalue: 1.0e-12
   action:
     name: reject
-passedBenchmark: 124731
-
+passedBenchmark: 142616 # 124731
