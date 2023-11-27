@@ -1,0 +1,53 @@
+Reading sss_smos_1.nc4
+seconds since 1970-01-01T00:00:00Z
+obsVal:
+    Min: 28.73
+    Max: 38.2628
+    Sum: 964.103
+obsError:
+    Min: 0.508775
+    Max: 4.28997
+    Sum: 44.5864
+preQc:
+    Min: 56
+    Max: 999
+    Sum: 13389
+longitude:
+    Min: -86.052
+    Max: -7.968
+    Sum: -1334.98
+latitude:
+    Min: -64.333
+    Max: 73.646
+    Sum: 626.283
+datetime:
+    Min: 1625087616
+    Max: 1625090176
+    Sum: 45502481152
+Reading sss_smos_2.nc4
+seconds since 1970-01-01T00:00:00Z
+obsVal:
+    Min: 0.994212
+    Max: 38.3212
+    Sum: 623.365
+obsError:
+    Min: 0.5504
+    Max: 213.003
+    Sum: 249.833
+preQc:
+    Min: 57
+    Max: 999
+    Sum: 7307
+longitude:
+    Min: 37.611
+    Max: 137.108
+    Sum: 2175.51
+latitude:
+    Min: -55.638
+    Max: 77.959
+    Sum: -215.115
+datetime:
+    Min: 1625091008
+    Max: 1625093440
+    Sum: 32501836352
+

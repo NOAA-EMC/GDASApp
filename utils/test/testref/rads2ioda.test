@@ -1,0 +1,27 @@
+Reading... rads_adt_3b_2021181.nc4
+seconds since 1858-11-17T00:00:00Z
+obsVal:
+    Min: 0.4283
+    Max: 0.7307
+    Sum: 5.9241
+obsError:
+    Min: 0.1
+    Max: 0.1
+    Sum: 1.1
+preQc:
+    Min: 0
+    Max: 0
+    Sum: 0
+longitude:
+    Min: 162.477
+    Max: 163.417
+    Sum: 1790.29
+latitude:
+    Min: 58.3126
+    Max: 59.7327
+    Sum: 646.1
+datetime:
+    Min: 5131728384
+    Max: 5131728384
+    Sum: 56449012224
+
