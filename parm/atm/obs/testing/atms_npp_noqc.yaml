@@ -1,12 +1,3 @@
-obs operator:
-  name: CRTM
-  Absorbers: [H2O,O3]
-  Clouds: [Water, Ice]
-  Cloud_Fraction: 1.0
-  obs options:
-    Sensor_ID: &Sensor_ID atms_npp 
-    EndianType: little_endian
-    CoefficientPath: crtm/
 obs space:
   name: atms_npp 
   obsdatain:
@@ -19,8 +10,20 @@ obs space:
         obsfile: !ENV atms_npp_diag_${CDATE}.nc4
   simulated variables: [brightnessTemperature]
   channels: &atms_npp_channels 1-22
+
 geovals:
   filename: !ENV atms_npp_geoval_${CDATE}.nc4
+
+obs operator:
+  name: CRTM
+  Absorbers: [H2O,O3]
+  Clouds: [Water, Ice]
+  Cloud_Fraction: 1.0
+  obs options:
+    Sensor_ID: &Sensor_ID atms_npp
+    EndianType: little_endian
+    CoefficientPath: crtm/
+
 obs bias:
   input file: !ENV atms_npp_satbias_${GDATE}.nc4
   variational bc:
