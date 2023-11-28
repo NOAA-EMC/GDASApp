@@ -89,6 +89,10 @@ def cice_hist2fms(input_filename, output_filename):
     # open the CICE history file
     ds = xr.open_dataset(input_filename)
 
+    if 'aicen' in ds.variables and 'hicen' in ds.variables and 'hsnon' in ds.variables:
+        logging.info(f"*** Already reformatted, skipping.")
+        return
+
     # rename the dimensions to xaxis_1 and yaxis_1
     ds = ds.rename({'ni': 'xaxis_1', 'nj': 'yaxis_1'})
 

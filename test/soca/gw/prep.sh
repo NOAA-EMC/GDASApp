@@ -71,10 +71,10 @@ do
     # ocean member
     oceandir=${COMENS}/06/mem00${mem}/model_data/ocean/history
     mkdir -p $oceandir
-    cp ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.t12z.ocnf009.nc
-    echo ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.t12z.ocnf009.nc
+    cp ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.t06z.ocnf009.nc
+    echo ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.t06z.ocnf009.nc
     # ice member
     icedir=${COMENS}/06/mem00${mem}/model_data/ice/history
     mkdir -p $icedir
-    cp ${clim_ens_dir}/ice.${mem}.nc $icedir/enkfgdas.t12z.icef009.nc
+    cp ${clim_ens_dir}/ice.${mem}.nc $icedir/enkfgdas.t06z.icef009.nc
 done
