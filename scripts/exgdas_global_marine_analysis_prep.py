@@ -329,12 +329,17 @@ if dohybvar:
                                   f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
                                   'model_data', longname[domain], 'history')
             ensdir = os.path.normpath(ensdir)
-            f009 = f'enkfgdas.t{cyc}z.{domain}f009.nc'
+            f009 = f'enkfgdas.t{gcyc}z.{domain}f009.nc'
 
             fname_in = os.path.abspath(os.path.join(ensdir, f009))
             fname_out = os.path.abspath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
             ens_member_list.append([fname_in, fname_out])
     FileHandler({'copy': ens_member_list}).sync()
+
+    # reformat the cice history output
+    for mem in range(1, nmem_ens+1):
+        cice_fname = os.path.abspath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
+        cice_hist2fms(cice_fname, cice_fname)
 else:
     logging.info("---------------- Stage offline ensemble members")
     ens_member_list = []
