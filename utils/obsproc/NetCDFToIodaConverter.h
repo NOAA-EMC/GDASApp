@@ -73,7 +73,6 @@ namespace gdasapp {
       gdasapp::obsproc::iodavars::IodaVars iodaVarsAll(nobsAll,
                                     iodaVars.floatMetadataName_,
                                     iodaVars.intMetadataName_);
-      // iodaVarsAll.referenceDate_ = iodaVars.referenceDate_;
 
       // Gather iodaVars arrays
       gatherObs(iodaVars.longitude_, iodaVarsAll.longitude_);
