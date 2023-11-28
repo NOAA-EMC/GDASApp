@@ -84,13 +84,10 @@ def bufr_to_ioda(config, logger):
     q.add('day', '*/DAYS')
     q.add('hour', '*/HOUR')
     q.add('minute', '*/MINU')
-    q.add('second', '*/SECO')
-#azadeh added   
+    q.add('second', '*/SECO')  
     q.add('sensorId', '*/SIID[1]')
     q.add('sensorZenithAngle', '*/SAZA')
-    q.add('sensorCentralFrequency', '*/SCCF')
-
-# azadeh added:    
+    q.add('sensorCentralFrequency', '*/SCCF')    
     q.add('solarZenithAngle', '*/SOZA')
     q.add('cloudFree', '*/NCLDMNT')
     # ObsValue
@@ -150,7 +147,6 @@ def bufr_to_ioda(config, logger):
     # Create derived variables
     # =========================
     start_time = time.time()
-#azadeh added
     if np.ma.is_masked(satzenang[0]):
     # Handle the masked value
         scanpos = np.array([int32_fill_value], dtype=np.int64)
@@ -161,6 +157,9 @@ def bufr_to_ioda(config, logger):
 
     cloudAmount=1-cldFree
     channum=12
+
+    sataziang=np.array([float32_fill_value], dtype=np.float32)
+
 
     logger.info('Creating derived variables')
   
@@ -207,7 +206,6 @@ def bufr_to_ioda(config, logger):
             satzenang2 = satzenang[mask]
             chanfreq2 = chanfreq[mask]
            # obstype2 = obstype[mask]
-#azadeh added
             solzenang2 = solzenang[mask]
             cldFree2 = cldFree[mask]
             cloudAmount2 = cloudAmount[mask]
@@ -287,7 +285,7 @@ def bufr_to_ioda(config, logger):
                 .write_data(instid2)
 
 
-        # Scan Position (derived variable, need to specified fill value explicitly)Azadeh
+        # Scan Position (derived variable, need to specified fill value explicitly)
             obsspace.create_var('MetaData/sensorScanPosition', dtype=scanpos.dtype, fillval=int32_fill_value) \
                .write_attr('long_name', 'Sensor Scan Position') \
                .write_data(scanpos)
@@ -301,20 +299,28 @@ def bufr_to_ioda(config, logger):
                 .write_data(satzenang2)
 
 
+           # Sensor Azimuth Angle
+            obsspace.create_var('MetaData/sensorAzimuthAngle', dtype=np.float32, fillval=float32_fill_value) \
+                .write_attr('units', 'degree') \
+                .write_attr('valid_range', np.array([0, 360], dtype=np.float32)) \
+                .write_attr('long_name', 'Sensor Azimuth Angle') \
+                .write_data(sataziang)
+
+
             # Sensor Centrall Frequency
             obsspace.create_var('MetaData/sensorCentralFrequency', dtype=chanfreq2.dtype, fillval=chanfreq2.fill_value) \
                 .write_attr('units', 'Hz') \
                 .write_attr('long_name', 'Satellite Channel Center Frequency') \
                 .write_data(chanfreq2)
 
-            # Solar Zenith Angle azadeh
+            # Solar Zenith Angle 
             obsspace.create_var('MetaData/solarZenithAngle', dtype=solzenang2.dtype, fillval=solzenang2.fill_value) \
                 .write_attr('units', 'degree') \
                 .write_attr('valid_range', np.array([0, 180], dtype=np.float32)) \
                 .write_attr('long_name', 'Solar Zenith Angle') \
                 .write_data(solzenang2)
 
-            # Cloud free Azadeh
+            # Cloud free 
             obsspace.create_var('MetaData/cloudFree', dtype=cldFree2.dtype, fillval=cldFree2.fill_value) \
                .write_attr('units', '1') \
                .write_attr('valid_range', np.array([0, 1], dtype=np.float32)) \
@@ -322,7 +328,7 @@ def bufr_to_ioda(config, logger):
                .write_data(cldFree2)
 
 
-            # Cloud amount based on computation Azadeh
+            # Cloud amount based on computation 
             obsspace.create_var('MetaData/cloudAmount', dtype=cloudAmount2.dtype, fillval=cloudAmount2.fill_value) \
                .write_attr('units', '1') \
                .write_attr('valid_range', np.array([0, 1], dtype=np.float32)) \

@@ -1,0 +1,328 @@
+obs operator:
+  name: CRTM
+  Absorbers: [H2O,O3,CO2]
+  obs options:
+    Sensor_ID: seviri_m08
+    EndianType: little_endian
+    CoefficientPath: $(DATA)/crtm/
+obs space:
+  name: seviri_m08
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: $(DATA)/obs/$(OPREFIX)seviri_m08.tm00.nc
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: $(DATA)/diags/diag_seviri_m08_${{ current_cycle | to_YMDH }}.nc
+  simulated variables: [brightnessTemperature]
+  channels: 4-11 
+obs bias:
+  input file: $(DATA)/obs/$(GPREFIX)seviri_m08.satbias.nc4
+  output file: $(DATA)/bc/$(APREFIX)seviri_m08.satbias.nc4
+  variational bc:
+    predictors:
+    - name: constant
+    - name: lapse_rate
+      order: 2
+      tlapse: &seviri_m08_tlapse $(DATA)/obs/$(GPREFIX)seviri_m08.tlapse.txt
+    - name: lapse_rate
+      tlapse: *seviri_m08_tlapse
+    - name: emissivity
+    - name: scan_angle
+      var_name: sensorScanPosition
+      order: 4
+    - name: scan_angle
+      var_name: sensorScanPosition
+      order: 3
+    - name: scan_angle
+      var_name: sensorScanPosition
+      order: 2
+    - name: scan_angle
+      var_name: sensorScanPosition
+
+obs prior filters:
+# Step 1: Assign obs error for each channel
+- filter: Perform Action
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4-11
+  action:
+    name: assign error
+    error parameter vector: [0.75, 2.50, 2.25, 1.25, 1.25, 0.75, 0.80, 1.25]
+
+obs post filters:
+# Step 2: Surface type check
+# Reject channels 5-6 over land-dominant area 
+- filter: RejectList
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4, 7-11 
+  where:
+  - variable:
+      name: GeoVaLs/land_area_fraction
+    minvalue: 0.99
+
+# Reject all channels over snow-dominant area
+- filter: RejectList
+  filter variables:
+  - name: brightnessTemperature
+    channels: 
+  where:
+  - variable:
+      name: GeoVaLs/surface_snow_area_fraction
+    minvalue: 0.99 
+
+# Reject all channels over ice-dominant area
+- filter: RejectList
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4-11
+  where:
+  - variable:
+      name: GeoVaLs/ice_area_fraction
+    minvalue: 0.99 
+
+# Reject all channelsover mixed surface
+- filter: RejectList
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4-11
+  where:
+  - variable:
+      name: GeoVaLs/land_area_fraction
+    maxvalue: 0.99
+    max_exclusive: true 
+  - variable:
+      name: GeoVaLs/water_area_fraction
+    maxvalue: 0.99
+    max_exclusive: true 
+  - variable:
+      name: GeoVaLs/ice_area_fraction
+    maxvalue: 0.99
+    max_exclusive: true 
+  - variable:
+      name: GeoVaLs/surface_snow_area_fraction
+    maxvalue: 0.99
+    max_exclusive: true 
+
+# Step 3: Terrain Check: Do not use when height > 1km 
+- filter: Domain Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4-11
+  where:
+  - variable:
+      name: GeoVaLs/surface_geopotential_height 
+    maxvalue: 1000.0
+
+# Step 4: Observation Range Sanity Check
+- filter: Bounds Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4-11
+  minvalue: 0.0000
+  maxvalue: 1000.0
+  action:
+    name: reject
+
+# Step 5: Error Inflation based on topography
+- filter: Variable Assignment
+  assignments:
+  - name: DerivedMetaData/ObsErrorFactorTopo
+    channels: 4-11
+    type: float
+    function:
+      name: ObsFunction/ObsErrorFactorTopoRad
+      channels: 4-11
+      options:
+        sensor: seviri_m08
+        channels: 4-11
+
+- filter: Perform Action
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4-11
+  action:
+    name: inflate error
+    inflation variable:
+      name: DerivedMetaData/ObsErrorFactorTopo
+      channels: 4-11
+
+# Step 6: Error Inflation based on TOA transmittance 
+- filter: Perform Action
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4-11
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorTransmitTopRad
+      channels: 4-11
+      options:
+        channels: 4-11
+
+# Step 7: Cloud detection check 
+- filter: Bounds Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4-11
+  test variables:
+  - name: ObsFunction/CloudDetectMinResidualIR
+    channels: 4-11
+    options:
+      channels: 4-11
+      use_flag: [ -1, 1, 1, -1,  -1, -1, -1, -1 ]
+      use_flag_clddet: [ -1, -2, -2, -2,  -2, -2, -2, -2 ]
+      obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+      error parameter vector: [0.75, 2.50, 2.25, 1.25, 1.25, 0.75, 0.80, 1.25]
+  maxvalue: 1.0e-12
+  action:
+      name: reject
+
+# Step 8: Scene consistency check using channel 9 
+#         Reject channels 4, 6-11 if channel 9 if scene consistency is greated than 0.5
+- filter: Domain Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4, 6-11
+  where:
+  - variable:
+      name: ClearSkyStdDev/brightnessTemperature
+      channels: 9
+    maxvalue: 0.5 
+    max_exclusive: true
+
+# Step 9: Gross check 
+#         Reject channels 4, 6-11 if omf > 2
+- filter: Background Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4, 6-11
+  absolute threshold: 2.0
+  action:
+    name: reject
+
+# Step 10: Error inflation for channels 3-4 based on scene consistency from channel 5
+- filter: Perform Action 
+  filter variables: 
+  - name: brightnessTemperature
+    channels: 6-7
+  where: 
+  - variable:
+      name: ClearSkyStdDev/brightnessTemperature_5
+    maxvalue: 0.5
+    minvalue: 0.4 
+    min_exclusive: true 
+  action:
+    name: inflate error
+    inflation factor: 1.14891
+
+- filter: Perform Action 
+  filter variables: 
+  - name: brightnessTemperature
+    channels: 6-7
+  where: 
+  - variable:
+      name: ClearSkyStdDev/brightnessTemperature_5
+    maxvalue: 0.6
+    max_exclusive: true 
+    minvalue: 0.5 
+    min_exclusive: true 
+  action:
+    name: inflate error
+    inflation factor: 1.29228
+
+- filter: Perform Action 
+  filter variables: 
+  - name: brightnessTemperature
+    channels: 6-7
+  where: 
+  - variable:
+      name: ClearSkyStdDev/brightnessTemperature_5
+    maxvalue: 0.7
+    max_exclusive: true 
+    minvalue: 0.6 
+  action:
+    name: inflate error
+    inflation factor: 1.49666  
+
+- filter: Perform Action 
+  filter variables: 
+  - name: brightnessTemperature
+    channels: 6-7
+  where: 
+  - variable:
+      name: ClearSkyStdDev/brightnessTemperature_5
+    minvalue: 0.7 
+  action:
+    name: inflate error
+    inflation factor: 1.51987
+
+# Step 11:
+- filter: Bounds Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4-11
+  test variables:
+  - name: ObsFunction/NearSSTRetCheckIR
+    channels: 4-11
+    options:
+      channels: 4-11
+      use_flag: [ -1, 1, 1, -1,  -1, -1, -1, -1 ]
+  maxvalue: 1.0e-12
+  action:
+    name: reject
+
+# Step 12: Error inflation based on surface jacobian check
+- filter: Perform Action 
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4-11
+  action:
+    name: inflate error
+    inflation variable:
+      name: ObsFunction/ObsErrorFactorSurfJacobianRad
+      channels: 4-11
+      options:
+        channels: 4-11
+        sensor: seviri_m08 
+        obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
+        obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+
+# Step 13: Cloud fraction cehck
+#          Reject channels 4, 6-11 if Cloud fraction (percent) > 2
+- filter: Domain Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4, 6-11
+  where:
+  - variable:
+      name: MetaData/cloudAmount
+    maxvalue: 2
+
+# Step14: Final gross check
+- filter: Background Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: 4-11
+  function absolute threshold:
+  - name: ObsFunction/ObsErrorBoundIR
+    channels: 4-11
+    options:
+      sensor: seviri_m08
+      channels: 4-11
+      obserr_bound_latitude:
+        name: ObsFunction/ObsErrorFactorLatRad
+        options:
+          latitude_parameters: [0.0, 0.0, 0.0, 0.0]
+      obserr_bound_transmittop:
+        name: ObsFunction/ObsErrorFactorTransmitTopRad
+        channels: 4-11
+        options:
+          channels: 4-11
+      obserr_boundax: [ 2.0, 4.0, 3.5, 2.0, 2.0, 2.0, 2.0, 3.0 ]
+      error parameter vector: [0.75, 2.50, 2.25, 1.25, 1.25, 0.75, 0.80, 1.25]
+  action:
+    name: reject
+
