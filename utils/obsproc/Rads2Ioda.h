@@ -136,9 +136,6 @@ namespace gdasapp {
           }
       }
 
-       // Test output
-       iodaVars.testOutput();
-
       return iodaVars;
     };
   };  // class Rads2Ioda

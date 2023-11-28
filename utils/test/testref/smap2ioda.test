@@ -1,52 +1,28 @@
 Reading sss_smap_1.nc4
-seconds since 1970-01-01T00:00:00Z
-obsVal:
-    Min: 32.1062
-    Max: 37.4915
-    Sum: 457.023
-obsError:
-    Min: 0.571152
-    Max: 2.62376
-    Sum: 14.8705
-preQc:
-    Min: 0
-    Max: 66
-    Sum: 138
-longitude:
-    Min: -72.3046
-    Max: -41.5933
-    Sum: -767.694
-latitude:
-    Min: -56.7617
-    Max: 40.8618
-    Sum: -106.768
-datetime:
-    Min: 1625197568
-    Max: 1625199104
-    Sum: 21127578368
 Reading sss_smap_2.nc4
 seconds since 1970-01-01T00:00:00Z
 obsVal:
     Min: 31.8368
-    Max: 36.1484
-    Sum: 585.125
+    Max: 37.4915
+    Sum: 1042.15
 obsError:
     Min: 0.481312
-    Max: 1.93771
-    Sum: 14.7121
+    Max: 2.62376
+    Sum: 29.5826
 preQc:
     Min: 0
     Max: 643
-    Sum: 649
+    Sum: 787
 longitude:
     Min: -94.3724
-    Max: -66.1951
-    Sum: -1412.95
+    Max: -41.5933
+    Sum: -2180.65
 latitude:
     Min: -56.7806
-    Max: 23.2998
-    Sum: -264.085
+    Max: 40.8618
+    Sum: -370.853
 datetime:
-    Min: 1625203456
+    Min: 1625197568
     Max: 1625204736
-    Sum: 27628470272
+    Sum: 48756048640
+

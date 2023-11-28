@@ -95,9 +95,6 @@ namespace gdasapp {
         && iodaVars.datetime_ > 0.0);
       iodaVars.trim(mask);
 
-      // Test output
-      iodaVars.testOutput();
-
       return iodaVars;
     };
   };  // class IcecAmsr2Ioda

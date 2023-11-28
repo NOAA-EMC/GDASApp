@@ -211,9 +211,6 @@ namespace gdasapp {
       int64_t mean = iodaVars.datetime_.sum() / iodaVars.datetime_.size();
       iodaVars.datetime_.setConstant(mean);
 
-      // Test output
-      iodaVars.testOutput();
-
       return iodaVars;
     };
   };  // class Ghrsst2Ioda

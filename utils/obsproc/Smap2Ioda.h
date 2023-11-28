@@ -96,9 +96,6 @@ namespace gdasapp {
       Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ > 0.0);
       iodaVars.trim(mask);
 
-      // Test output
-      iodaVars.testOutput();
-
       return iodaVars;
     };
   };  // class Smap2Ioda
