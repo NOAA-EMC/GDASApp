@@ -2,7 +2,7 @@
 
 import argparse
 import os
-from bufr2ioda_base import Bufr2IodaBase
+from bufr2ioda_base import Bufr2IodaBase, CPP
 from wxflow import Logger
 from antcorr_application import ACCoeff, apply_ant_corr
 from utils import timing_decorator, nc_merge
@@ -14,6 +14,8 @@ R1000000 = 1000000.0
 
 SPLIT = ('metop-a', 'metop-b', 'metop-c', 'n17', 'n18', 'n19')
 ioda_files = [(f'esamua.{x}.tm00.nc', f'amsua.{x}_ta.tm00.nc', f'amsua.{x}.tm00.nc') for x in SPLIT]
+
+BACKEND = CPP
 
 
 class Bufr2IodaAmusa(Bufr2IodaBase):
@@ -27,19 +29,18 @@ class Bufr2IodaEbmua(Bufr2IodaBase):
         return self.config['yaml_file'][1]
 
     @timing_decorator
-    def re_map_variable(self, container, ioda_description):
+    def re_map_variable(self, container):
         #  TODO replace this follow that in GSI
         # read_bufrtovs.f90
         # antcorr_application.f90
         # search the keyword “ta2tb” for details
 
-        sat_ids = container.allSubCategories()
-        for sat_id in sat_ids:
-            ta = container.get('variables/antennaTemperature', sat_id)
+        for sat_id in self.sat_ids:
+            ta = self.get_container_variable(container, 'ObsValue/brightnessTemperature', sat_id)
             if ta.shape[0]:
-                ifov = container.get('variables/fieldOfViewNumber', sat_id)
+                ifov = self.get_container_variable(container, 'MetaData/sensorScanPosition', sat_id)
                 tb = self.apply_ant_corr(sat_id, ta, ifov)
-                container.replace('variables/antennaTemperature', tb, sat_id)
+                self.replace_container_variable(container, 'ObsValue/brightnessTemperature', tb, sat_id)
 
     def apply_ant_corr(self, sat_id, ta, ifov):
         ac = ACCoeff()  # TODO add later
@@ -81,9 +82,10 @@ if __name__ == '__main__':
     for sat_type in ['a', 'e']:
         print(sat_type)
         if sat_type == 'a':
-            convert = Bufr2IodaAmusa(args.config)
+            convert = Bufr2IodaAmusa(args.config, backend=BACKEND)
         else:
-            convert = Bufr2IodaEbmua(args.config)
+            convert = Bufr2IodaEbmua(args.config, backend=BACKEND)
+
         convert.execute()
         amsua_files.append(convert.split_files)
         print(amsua_files)

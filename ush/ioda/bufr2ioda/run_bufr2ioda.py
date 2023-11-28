@@ -56,7 +56,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
                  "amsua_metop-c_v2.ACCoeff.nc"
                  ]
     for fix_file in fix_files:
-        shutil.copy(os.path.join(config_template_dir, fix_file), os.path.join(os.getcwd(), fix_file))
+        shutil.copy(os.path.join(config_template_dir, fix_file), os.path.join(DATA, fix_file))
 
     # Specify observation types to be processed by a script
     BUFR_py_files = glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py'))
@@ -106,7 +106,13 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         # if os.path.exists(yaml_output_file):
         #     rm_p(yaml_output_file)
 
-        # Specify observation types to be processed by a script with combined methods
+        # run everything in parallel
+    with mp.Pool(num_cores) as pool:
+        pool.starmap(mp_bufr_converter, zip(exename, config_files))
+
+    config_files = []
+    exename = []
+    # Specify observation types to be processed by a script with combined methods
     script_type = 'bufr2ioda_combine_'
     BUFR_combine_files = glob.glob(os.path.join(USH_IODA, script_type + '*.py'))
     BUFR_combine_files = [os.path.basename(f) for f in BUFR_combine_files]
@@ -114,7 +120,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
 
     for obtype in BUFR_combine:
         logger.info(f"Convert {obtype}...")
-        json_output_file = os.path.join(COM_OBS, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
+        json_output_file = os.path.join(DATA, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
         filename = 'bufr2ioda_' + obtype + '.json'
         template = os.path.join(config_template_dir, filename)
         gen_bufr_json(config, template, json_output_file)
@@ -125,6 +131,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         # append the values to the lists
         config_files.append(json_output_file)
         exename.append(bufr2iodapy)
+
     # run everything in parallel
     with mp.Pool(num_cores) as pool:
         pool.starmap(mp_bufr_converter, zip(exename, config_files))
