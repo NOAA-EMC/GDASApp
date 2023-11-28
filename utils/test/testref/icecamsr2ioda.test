@@ -1,5 +1,4 @@
-Reading icec_amsr2_north_1.nc4
-Reading icec_amsr2_north_2.nc4
+Reading: [icec_amsr2_north_1.nc4,icec_amsr2_north_2.nc4]
 seconds since 1970-01-01T00:00:00Z
 obsVal:
     Min: 0
@@ -25,4 +24,3 @@ datetime:
     Min: 1625066557
     Max: 1625126209
     Sum: 27626797699
-

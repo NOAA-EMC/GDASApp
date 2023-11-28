@@ -1,5 +1,4 @@
-Reading sss_smap_1.nc4
-Reading sss_smap_2.nc4
+Reading: [sss_smap_1.nc4,sss_smap_2.nc4]
 seconds since 1970-01-01T00:00:00Z
 obsVal:
     Min: 31.8368
@@ -25,4 +24,3 @@ datetime:
     Min: 1625197568
     Max: 1625204736
     Sum: 48756048640
-

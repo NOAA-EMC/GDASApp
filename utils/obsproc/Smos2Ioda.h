@@ -29,7 +29,7 @@ namespace gdasapp {
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
-      oops::Log::test() << "Reading " << fileName << std::endl;
+      oops::Log::info() << "Reading... " << fileName << std::endl;
 
       // Get number of obs
       int nobs = ncFile.getDim("n_grid_points").getSize();

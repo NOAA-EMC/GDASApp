@@ -1,5 +1,4 @@
-Reading ghrsst_sst_mb_202107010000.nc4
-Reading ghrsst_sst_mb_202107010100.nc4
+Reading: [ghrsst_sst_mb_202107010000.nc4,ghrsst_sst_mb_202107010100.nc4]
 seconds since 1981-01-01T00:00:00Z
 obsVal:
     Min: 276.708
@@ -25,4 +24,3 @@ datetime:
     Min: 1277942528
     Max: 1277946624
     Sum: 46006004736
-
