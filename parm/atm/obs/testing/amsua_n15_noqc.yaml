@@ -1,12 +1,3 @@
-obs operator:
-  name: CRTM
-  Absorbers: [H2O,O3]
-  Clouds: [Water, Ice]
-  Cloud_Fraction: 1.0
-  obs options:
-    Sensor_ID: &Sensor_ID amsua_n15
-    EndianType: little_endian
-    CoefficientPath: crtm/
 obs space:
   name: amsua_n15
   obsdatain:
@@ -19,8 +10,20 @@ obs space:
         obsfile: !ENV amsua_n15_diag_${CDATE}.nc4
   simulated variables: [brightnessTemperature]
   channels: &amsua_n15_channels 1-15
+
 geovals:
   filename: !ENV amsua_n15_geoval_${CDATE}.nc4
+
+obs operator:
+  name: CRTM
+  Absorbers: [H2O,O3]
+  Clouds: [Water, Ice]
+  Cloud_Fraction: 1.0
+  obs options:
+    Sensor_ID: &Sensor_ID amsua_n15
+    EndianType: little_endian
+    CoefficientPath: crtm/
+
 obs bias:
   input file: !ENV amsua_n15_satbias_${GDATE}.nc4
   variational bc:

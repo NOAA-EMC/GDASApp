@@ -82,9 +82,12 @@ obs pre filters:
   - name: InterChannelConsistency
     initial value: false
     force reinitialization: false
+  - name: UseflagCheck
+    initial value: false
+    force reinitialization: false
 
 obs post filters:
-# Step 0-B: Calculate derived variables
+# Step 0-B: Calculate Derived Variables
 # Calculate CLW retrieved from observation 
 - filter: Variable Assignment
   assignments: 
@@ -213,7 +216,7 @@ obs post filters:
           channels: *amsua_n15_channels
         coefs: [1, -1]
 
-# Step 0-C: Assign initial all-sky observation error
+# Step 0-C: Assign Initial All-Sky Observation Error
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature 
@@ -224,7 +227,7 @@ obs post filters:
       name: DerivedMetaData/InitialObsError
       channels: *amsua_n15_channels
 
-# Step 1: Remove observations from the edge of the scan
+# Step 1: Remove Observations from the Edge of the Scan
 - filter: Domain Check
   filter variables:
   - name: brightnessTemperature
@@ -242,8 +245,9 @@ obs post filters:
 - filter: Gaussian Thinning
   horizontal_mesh: 145
   use_reduced_horizontal_grid: true
-  round_horizontal_bin_count_to_nearest: true
-  partition_longitude_bins_using_mesh: true
+  distance_norm: geodesic
+#  round_horizontal_bin_count_to_nearest: true
+#  partition_longitude_bins_using_mesh: true
   actions:
     - name: set
       flag: Thinning
@@ -275,7 +279,7 @@ obs post filters:
       flag: CLWRetrievalCheck
     - name: reject
 
-# Step 4: Window channel sanity check
+# Step 4: Window Channel Sanity Check
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
@@ -286,6 +290,10 @@ obs post filters:
   maxvalue: 200.0
   minvalue: -200.0
   flag all filter variables if any test variable is out of bounds: true
+  actions:
+    - name: set
+      flag: WindowChannelExtremeResidual
+    - name: reject
 
 # Step 5: Hydrometeor Check (cloud/precipitation affected chanels)
 - filter: Bounds Check
@@ -312,7 +320,7 @@ obs post filters:
       ignore: rejected observations
     - name: reject
 
-# Step 6: Observation error inflation based on topography check
+# Step 6: Observation Error Inflation based on Topography Check
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/ObsErrorFactorTopo
@@ -335,7 +343,7 @@ obs post filters:
       name: DerivedMetaData/ObsErrorFactorTopo
       channels: *amsua_n15_channels
 
-# Step 7: Obs error inflation based on TOA transmittancec check
+# Step 7: Obs Error Inflation based on TOA Transmittancec Check
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/ObsErrorFactorTransmitTop
@@ -357,7 +365,7 @@ obs post filters:
       name: DerivedMetaData/ObsErrorFactorTransmitTop
       channels: *amsua_n15_channels
 
-# Step 8: Observation error inflation based on surface jacobian check 
+# Step 8: Observation Error Inflation based on Surface Jacobian Check 
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/ObsErrorFactorSurfJacobian
@@ -382,7 +390,7 @@ obs post filters:
       name: DerivedMetaData/ObsErrorFactorSurfJacobian
       channels: *amsua_n15_channels
 
-# Step 9: Situation dependent check
+# Step 9: Situation Dependent Check
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/ObsErrorFactorSituDepend
@@ -420,7 +428,7 @@ obs post filters:
       name: DerivedMetaData/ObsErrorFactorSituDepend
       channels: *amsua_n15_channels
 
-# Step 10: Gross check 
+# Step 10: Gross Check 
 # Remove data if abs(Obs-HofX) > absolute threhold 
 - filter: Variable Assignment
   assignments:
@@ -473,7 +481,7 @@ obs post filters:
       ignore: rejected observations
     - name: reject
 
-# Step 11: Inter-channel check
+# Step 11: Inter-Channel Check
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
@@ -492,5 +500,25 @@ obs post filters:
   actions:
     - name: set
       flag: InterChannelConsistency
+      ignore: rejected observations
+    - name: reject
+
+# Step 12: Useflag Check
+- filter: Bounds Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: *amsua_n15_channels
+  test variables:
+  - name: ObsFunction/ChannelUseflagCheckRad
+    channels: *amsua_n15_channels
+    options:
+      channels: *amsua_n15_channels
+      use_flag: [ 1,  1,  1,  1,  1,
+                 -1,  1,  1,  1,  1,
+                 -1,  1,  1, -1,  1 ]
+  minvalue: 1.0e-12
+  actions:
+    - name: set
+      flag: UseflagCheck
       ignore: rejected observations
     - name: reject
