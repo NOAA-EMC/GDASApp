@@ -17,7 +17,7 @@ vertical geometry:
   read_from_file: 3
 
 soca increments:
-  number of increments: ${CLIM_ENS_SIZE}
+  number of increments: ${ENS_SIZE}
   pattern: '%mem%'
   template:
     date: '{{ATM_WINDOW_BEGIN}}'
