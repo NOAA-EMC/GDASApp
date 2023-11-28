@@ -43,7 +43,7 @@ obs bias:
       order: 2
     - name: scan_angle
 
-obs post filters: 
+obs pre filters: 
 # Step 0-A: Create Diagnostic Flags
 - filter: Create Diagnostic Flags
   filter variables:
@@ -75,6 +75,7 @@ obs post filters:
     initial value: false
     force reinitialization: false
 
+obs post filters: 
 # Step 0-B: Calculate Derived Variables
 # Calculate CLW retrieved from observation 
 - filter: Variable Assignment
