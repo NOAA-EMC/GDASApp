@@ -48,7 +48,6 @@ add_test(NAME test_gdasapp_soca_setup_obsproc
 set(jjob_list "JGLOBAL_PREP_OCEAN_OBS"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT"
-#              "JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT_VRFY"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_POST"

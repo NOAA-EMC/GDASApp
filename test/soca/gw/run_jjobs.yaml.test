@@ -43,6 +43,8 @@ setup_expt config:
     DO_JEDIOCNVAR: "YES"
     DO_JEDILANDDA: "NO"
     DO_MERGENSST: "NO"
+    NMEM_ENS: "4"
+    DOHYBVAR: "YES"
   ocnanal:
     SOCA_INPUT_FIX_DIR: @HOMEgfs@/sorc/gdas.cd/build/soca_static
     CASE_ANL: C48
