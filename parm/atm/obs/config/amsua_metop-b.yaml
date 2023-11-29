@@ -1,18 +1,17 @@
 obs space:
   name: amsua_metop-b
   obsdatain:
-      engine:
-        type: H5File
-        obsfile: !ENV amsua_metop-b_obs_${CDATE}.nc4
+    engine:
+      type: H5File
+      obsfile: $(DATA)/obs/$(OPREFIX)amsua_metop-b.tm00.nc
   obsdataout:
-      engine:
-        type: H5File
-        obsfile: !ENV amsua_metop-b_diag_${CDATE}.nc4
+    engine:
+      type: H5File
+      obsfile: $(DATA)/diags/diag_amsua_metop-b_{{ current_cycle | to_YMDH }}.nc
+  io pool:
+    max pool size: 1
   simulated variables: [brightnessTemperature]
   channels: &amsua_metop-b_channels 1-15
-
-geovals:
-  filename: !ENV amsua_metop-b_geoval_${CDATE}.nc4
 
 obs operator:
   name: CRTM
@@ -22,18 +21,19 @@ obs operator:
   obs options:
     Sensor_ID: &Sensor_ID amsua_metop-b
     EndianType: little_endian
-    CoefficientPath: crtm/
+    CoefficientPath: $(DATA)/crtm/
 
 obs bias:
-  input file: !ENV amsua_metop-b_satbias_${GDATE}.nc4
+  input file: $(DATA)/obs/$(GPREFIX)amsua_metop-b.satbias.nc4
+  output file: $(DATA)/bc/$(APREFIX)amsua_metop-b.satbias.nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &amsua_metop-b_tlap !ENV amsua_metop-b_tlapmean_${GDATE}.txt
+      tlapse: &amsua_metop-b_tlapse $(DATA)/obs/$(GPREFIX)amsua_metop-b.tlapse.txt
     - name: lapse_rate
-      tlapse: *amsua_metop-b_tlap
+      tlapse: *amsua_metop-b_tlapse
     - name: emissivity
     - name: scan_angle
       order: 4
@@ -42,8 +42,19 @@ obs bias:
     - name: scan_angle
       order: 2
     - name: scan_angle
+  covariance:
+    minimal required obs number: 20
+    variance range: [1.0e-6, 10.0]
+    step size: 1.0e-4
+    largest analysis variance: 10000.0
+    prior:
+      input file: $(DATA)/obs/$(GPREFIX)amsua_metop-b.satbias_cov.nc4
+      inflation:
+        ratio: 1.1
+        ratio for small dataset: 2.0
+    output file: $(DATA)/bc/$(APREFIX)amsua_metop-b.satbias_cov.nc4
 
-obs pre filters: 
+obs pre filters:
 # Step 0-A: Create Diagnostic Flags
 - filter: Create Diagnostic Flags
   filter variables:
@@ -205,7 +216,7 @@ obs post filters:
           channels: *amsua_metop-b_channels
         coefs: [1, -1]
 
-# Step 1: Assign Initial All-Sky Observation Error
+# Step 0-C: Assign Initial All-Sky Observation Error
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature 
@@ -216,7 +227,33 @@ obs post filters:
       name: DerivedMetaData/InitialObsError
       channels: *amsua_metop-b_channels
 
-# Step 2: CLW Retrieval Check (observation_based)
+# Step 1: Remove Observations from the Edge of the Scan
+- filter: Domain Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: 1-15
+  where:
+  - variable:
+      name: MetaData/sensorScanPosition
+    is_in: 4-27
+  actions:
+    - name: set
+      flag: ScanEdgeRemoval
+    - name: reject
+
+# Step 2: Data Thinning
+- filter: Gaussian Thinning
+  horizontal_mesh: 145
+  use_reduced_horizontal_grid: true
+  distance_norm: geodesic
+#  round_horizontal_bin_count_to_nearest: true
+#  partition_longitude_bins_using_mesh: true
+  actions:
+    - name: set
+      flag: Thinning
+    - name: reject
+
+# Step 3A: CLW Retrieval Check (observation_based)
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
@@ -229,7 +266,7 @@ obs post filters:
       flag: CLWRetrievalCheck
     - name: reject
 
-# Step 3: CLW Retrieval Check (background_based)
+# Step 3B: CLW Retrieval Check (background_based)
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
@@ -456,9 +493,9 @@ obs post filters:
       channels: *amsua_metop-b_channels
       use passive_bc: true
       sensor: *Sensor_ID
-      use_flag: [ -1, -1, -1, -1, -1,
-                  -1, -1,  1,  1,  1,
-                   1,  1,  1,  1, -1 ]
+      use_flag: [ -1, -1, -1,  -1, -1,
+                  -1, -1,  1,  1,   1,
+                  1,  1,   1,  1,  -1 ]
   maxvalue: 1.0e-12
   actions:
     - name: set
@@ -485,7 +522,3 @@ obs post filters:
       flag: UseflagCheck
       ignore: rejected observations
     - name: reject
-
-passedBenchmark: 62069 
-#passedBenchmark: 70974 # no useflag check 
-
