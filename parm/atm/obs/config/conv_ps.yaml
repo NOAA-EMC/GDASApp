@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine: 
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)sondes.{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)conventional_ps.prepbufr.nc
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_sondes_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_conventional_ps_prepbufr_{{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [stationPressure]
@@ -20,6 +20,11 @@ obs operator:
   station_altitude: height
   geovar_sfc_geomz: surface_altitude
   geovar_geomz: geopotential_height
+
+linear obs operator:
+  name: Identity
+  variables:
+  - name: stationPressure
 
 obs prior filters:
 # Initial Error Assignments for SFC Observations 
@@ -102,6 +107,27 @@ obs prior filters:
           name: ObsValue/stationPressure
         xvals:  [80000, 75000, 70000, 65000, 60000, 55000  ]
         errors: [  110,   120,   120,   120,   120, 1.0e+11]
+
+# Create PreQC group variable 
+- filter: Variable Assignment
+  assignments:
+  - name: PreQC/stationPressure
+    type: int 
+    source variable: QualityMarker/stationPressure
+
+# Create PreUseFlag group variable 
+- filter: Variable Assignment
+  assignments:
+  - name: PreUseFlag/stationPressure
+    type: int 
+    value: 0 
+
+# Create ObsSubType group variable 
+- filter: Variable Assignment
+  assignments:
+  - name: ObsSubType/stationPressure
+    type: int 
+    value: 1 
 
 obs post filters:
 # Observation range sanity check

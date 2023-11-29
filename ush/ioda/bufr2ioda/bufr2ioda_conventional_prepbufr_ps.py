@@ -693,7 +693,8 @@ def bufr_to_ioda(config, logger):
         .write_data(lat)
 
     # MetaData: Height Of Station
-    obsspace.create_var('MetaData/heightOfStation', dtype=zoborig1.dtype,
+#   obsspace.create_var('MetaData/heightOfStation', dtype=zoborig1.dtype,
+    obsspace.create_var('MetaData/height', dtype=zoborig1.dtype,
                         fillval=zoborig1.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Height Of Station') \
