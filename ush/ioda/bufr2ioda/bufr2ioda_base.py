@@ -1,5 +1,6 @@
 import json
-import netCDF4 as nc
+import os
+import xarray as xr
 import re
 import yaml
 
@@ -11,8 +12,9 @@ from utils import timing_decorator
 
 CPP = 1
 PYTHON = 2
+GROUPS = ['MetaData', 'ObsValue']
 
-logger = Logger('BUFR2IODA_satwind_amv_goes.py', level='DEBUG')
+logger = Logger(os.path.basename(__file__), level='DEBUG')
 
 
 class Bufr2IodaBase:
@@ -28,7 +30,7 @@ class Bufr2IodaBase:
         self.splits = yaml_config['observations'][0]['obs space']['exports'].get('splits')
         self.sat_ids = None
         if self.splits:
-            self.sat_ids = self.splits['satId']['category']['map'].values()
+            self.sat_ids = [x for x in self.splits['satId']['category']['map'].values()]
         logger.info(self.splits)
         self.split_files = {}
         self.yaml_path = None
@@ -51,32 +53,38 @@ class Bufr2IodaBase:
         elif self.backend == CPP:
             container = {}
             for sat_id in self.sat_ids:
+                logger.info(f'Processing sat_id: {sat_id}')
                 try:
-                    container[sat_id] = nc.Dataset(self.split_files[sat_id], 'r+')
+                    container[sat_id] = {}
+                    file_name = self.split_files[sat_id]
+                    container[sat_id]['dset'] = xr.open_dataset(file_name)
+                    for group in GROUPS:
+                        container[sat_id][group] = xr.open_dataset(file_name, group=group)
                 except FileNotFoundError as e:
-                    logger.info(e)
+                    logger.info(f'File not existed exception for sat id: {sat_id} with error msg: {e}')
+                    container.pop(sat_id)
+            self.sat_ids = container.keys()
+            logger.info(f'sat_ids included in the container: {container.keys()}')
         return container
 
-    def get_container_variable(self, container, variable, sat_id):
+    def get_container_variable(self, container, group, variable, sat_id):
         ret = None
         if self.backend == PYTHON:
-            ret = container.get(variable, sat_id)
+            ret = container.get(group + '/' + variable, sat_id)
         elif self.backend == CPP:
-            ret = container[sat_id][variable][:]
+            ret = container[sat_id][group][variable]
         return ret
 
-    def replace_container_variable(self, container, variable, var, sat_id):
+    def replace_container_variable(self, container, group, variable, var, sat_id):
         if self.backend == PYTHON:
-            container.replace(variable, sat_id)
+            container.replace(group + '/' + variable, sat_id)
         elif self.backend == CPP:
-            container[sat_id][variable][:] = var
+            container[sat_id][group][variable] = var
 
     def get_yaml_file(self):
         return self.config['yaml_file']
 
     def get_yaml_config(self):
-        # TODO  add and/or modify ymal contents from config json file. e.g. file names, etc.
-        # What does en_bufr2ioda_yaml.py do?   connection to this?
         yaml_file = self.get_yaml_file()
         with open(yaml_file, 'r') as file:
             yaml_config = yaml.load(file, Loader=yaml.FullLoader)
@@ -97,8 +105,13 @@ class Bufr2IodaBase:
             ioda_description = bufr.IodaDescription(self.yaml_path)
             bufr.IodaEncoder(ioda_description).encode(container)
         elif self.backend == CPP:
-            for item in container:
-                container[item].close()
+            for sat_id in container:
+                logger.info(f'Encode for {sat_id}')
+                container[sat_id]['dset'].close()
+                file_name = self.split_files[sat_id] + 'c'
+                container[sat_id]['dset'].to_netcdf(file_name)
+                for group in GROUPS:
+                    container[sat_id][group].to_netcdf(file_name, mode='a', group=group)
 
     @timing_decorator
     def execute(self):

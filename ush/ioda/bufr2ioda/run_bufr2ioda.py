@@ -53,7 +53,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
 
     # copy necessary fix files to runtime directory
     fix_files = ["atms_beamwidth.txt",
-                 "amsua_metop-c_v2.ACCoeff.nc"
+                 "amsua_metop-c_v2.ACCoeff.nc"  # TODO need to find a place for this .nc file.
                  ]
     for fix_file in fix_files:
         shutil.copy(os.path.join(config_template_dir, fix_file), os.path.join(DATA, fix_file))

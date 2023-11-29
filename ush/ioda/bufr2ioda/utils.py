@@ -1,6 +1,9 @@
 import netCDF4 as nc
 import numpy as np
+import os
 import time
+from wxflow import Logger
+logger = Logger(os.path.basename(__file__), level='INFO')
 
 
 def nc_merge(file_name1, file_name2, target_name):
@@ -21,7 +24,7 @@ def nc_merge(file_name1, file_name2, target_name):
 
     # Create groups
     for grp in ncf1.groups:
-        print(grp)
+        logger.info(grp)
         ncf.createGroup(grp)
 
     # Create dimensions
@@ -37,7 +40,7 @@ def nc_merge(file_name1, file_name2, target_name):
                 dim_size = dim1.size
             ncf.createDimension(dim1.name, dim_size)
         else:
-            print('error: dimension mismatch')  # TODO throw an exception
+            logger.info('error: dimension mismatch')  # TODO throw an exception
 
     # Create Dimension variables
     vars2 = ncf2.variables
@@ -63,7 +66,7 @@ def nc_merge(file_name1, file_name2, target_name):
             if vars2.get(key):
                 var2 = vars2[key]
             else:
-                print(f"-----------Warning: {key} is not existed in ncf2, skip -----------------")
+                logger.info(f"-----------Warning: {key} is not existed in ncf2, skip -----------------")
                 continue
             var_array = np.concatenate((var, var2))
             var_path = f"{grp1[k].path}/{var.name}"
@@ -82,6 +85,6 @@ def timing_decorator(func):
         result = func(*args, **kwargs)
         end_time = time.time()
         execution_time = end_time - start_time
-        print(f"Function '{func.__name__}' took {execution_time:.6f} seconds to execute.")
+        logger.info(f"Function '{func.__name__}' took {execution_time:.6f} seconds to execute.")
         return result
     return wrapper
