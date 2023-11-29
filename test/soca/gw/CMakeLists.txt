@@ -36,15 +36,24 @@ add_test(NAME test_gdasapp_soca_run_clean
 # Create scratch for testing apps
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/apps_scratch)
 
+# Create scratch for obs prep task
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/obsproc)
+
+# Set up obsproc, based on test_gdasapp_util_prepdata
+add_test(NAME test_gdasapp_soca_setup_obsproc
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/gw/setup_obsproc.sh ${PROJECT_SOURCE_DIR}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/obsproc)
+
 # Test JGDAS_GLOBAL_OCEAN_ANALYSIS_*
-set(jjob_list "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
+#set(jjob_list "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
+set(jjob_list "JGLOBAL_PREP_OCEAN_OBS"
+              "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT"
 #              "JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT_VRFY"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_POST"
-              "JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY"
-              "JGLOBAL_PREP_OCEAN_OBS")
+              "JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY")
 
 set(setup "")
 foreach(jjob ${jjob_list})

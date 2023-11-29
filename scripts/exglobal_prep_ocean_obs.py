@@ -14,9 +14,6 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=loggin
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
 
-logging.info('hippogriff')
-print('jangle')
-
 # set the window times
 cdateDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
 windowBeginDatetime = cdateDatetime - timedelta(hours=3)

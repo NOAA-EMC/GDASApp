@@ -1,0 +1,27 @@
+observations:
+- obs space:
+    name: sss_smap
+    obsproc subdir: '' 
+    obsproc regex: sss_smap_?.nc4
+    provider: SMAP
+    output file: sss_smap.ioda.nc
+- obs space:
+    name: sss_smos
+    provider: SMOS
+    #obsproc subdir: SSS
+    obsproc subdir: ''
+    output file: sss_smos.ioda.nc
+    obsproc regex: sss_smos_?.nc4
+- obs space:
+    name: adt_3b_egm2008
+    #obsproc subdir: ADT
+    obsproc subdir: ''
+    obsproc regex: rads_adt_??_??????.nc
+    provider: RADS
+    output file: adt_all.nc4
+- obs space:
+    name: icec_amsr2_north
+    provider: AMSR2
+    obsproc subdir: ''
+    output file: icec_amsr2_north_1.ioda.nc
+    obsproc regex: AMSR2-SEAICE-NH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc
