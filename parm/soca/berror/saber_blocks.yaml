@@ -60,7 +60,7 @@ components:
         ice_filename: 'ice.%mem%.nc'
         state variables: [tocn, socn, ssh, uocn, vocn, cicen, hicen, hsnon]
       pattern: '%mem%'
-      nmembers: ${CLIM_ENS_SIZE}
+      nmembers: ${ENS_SIZE}
     localization:
       localization method: SABER
       saber central block:
