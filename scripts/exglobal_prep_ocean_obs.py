@@ -29,29 +29,25 @@ obsConfig = YAMLFile(OBS_YAML)
 OBSPROC_YAML = os.getenv('OBSPROC_YAML')
 obsprocConfig = YAMLFile(OBSPROC_YAML)
 
-
+# TODO (AFE): needs more error handling (missing sources, missing files)
 for observer in obsConfig['observers']:
 
     obsSpaceName = observer['obs space']['name']
     print(f"obsSpaceName: {obsSpaceName}")
 
     for observation in obsprocConfig['observations']:
-        
+
         obsprocSpace = observation['obs space']
         obsprocSpaceName = obsprocSpace['name']
 
         if obsprocSpaceName == obsSpaceName:
 
-           matchingFiles = prep_marine_obs.obs_fetch(obsprocSpace)
-           obsprocSpace['input files'] = matchingFiles
-           obsprocSpace['window begin'] = windowBegin
-           obsprocSpace['window end'] = windowEnd
+            matchingFiles = prep_marine_obs.obs_fetch(obsprocSpace)
+            obsprocSpace['input files'] = matchingFiles
+            obsprocSpace['window begin'] = windowBegin
+            obsprocSpace['window end'] = windowEnd
 
-           iodaYamlFilename = obsprocSpaceName + '2ioda.yaml'
-           save_as_yaml(obsprocSpace, iodaYamlFilename)
+            iodaYamlFilename = obsprocSpaceName + '2ioda.yaml'
+            save_as_yaml(obsprocSpace, iodaYamlFilename)
 
-           subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
-
-#        else:
-#           print(f"WARNING: obsSpaceName {obsSpaceName} not found in OBSPROC_YAML, skipping")
-
+            subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)

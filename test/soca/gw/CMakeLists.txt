@@ -45,7 +45,6 @@ add_test(NAME test_gdasapp_soca_setup_obsproc
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/obsproc)
 
 # Test JGDAS_GLOBAL_OCEAN_ANALYSIS_*
-#set(jjob_list "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
 set(jjob_list "JGLOBAL_PREP_OCEAN_OBS"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT"

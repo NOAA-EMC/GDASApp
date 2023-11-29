@@ -213,7 +213,6 @@ class JobCard:
         # needed for this ctest at least until R2D2 goes away
         if 'JGLOBAL_PREP_OCEAN_OBS' in self.config['jjobs']:
             dmpdir = self.config['setup_expt config']['prepoceanobs']['DMPDIR']
-            #var2replace.update( ('DMPDIR', dmpdir) )
             var2replace['DMPDIR'] =  dmpdir
 
         with open(configbase, 'r') as f:

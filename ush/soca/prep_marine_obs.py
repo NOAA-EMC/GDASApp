@@ -87,5 +87,5 @@ def obs_fetch(obsprocSpace):
     print(f"matchingFiles: {matchingFiles}")
 
     FileHandler({'copy': obs_cpy}).sync()
-    
+
     return matchingFiles
