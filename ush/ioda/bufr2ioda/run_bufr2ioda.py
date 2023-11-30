@@ -58,10 +58,17 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     for fix_file in fix_files:
         shutil.copy(os.path.join(config_template_dir, fix_file), os.path.join(DATA, fix_file))
 
+    # get all observation types to be processed by python
+    BUFR_total_py_files = set(glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py')))
+    combine_type = 'bufr2ioda_combine_'
+    BUFR_combine_files = set(glob.glob(os.path.join(USH_IODA, combine_type + '*.py')))
+
     # Specify observation types to be processed by a script
-    BUFR_py_files = glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py'))
+    BUFR_py_files = BUFR_total_py_files.difference(BUFR_combine_files)
+
     BUFR_py_files = [os.path.basename(f) for f in BUFR_py_files]
     BUFR_py = [f.replace('bufr2ioda_', '').replace('.py', '') for f in BUFR_py_files]
+    logger.info(f'All obs type processed by python: {BUFR_py}')
 
     config_files = []
     exename = []
@@ -87,6 +94,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     BUFR_yaml_files = glob.glob(os.path.join(config_template_dir, '*.yaml'))
     BUFR_yaml_files = [os.path.basename(f) for f in BUFR_yaml_files]
     BUFR_yaml = [f.replace('bufr2ioda_', '').replace('.yaml', '') for f in BUFR_yaml_files]
+    logger.info(f'All obs type processed by yaml: {BUFR_yaml}')
 
     for obtype in BUFR_yaml:
         logger.info(f"Convert {obtype}...")
@@ -99,8 +107,8 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         bufr2iodaexe = BIN_GDAS + '/bufr2ioda.x'
 
         # append the values to the lists
-        config_files.append(yaml_output_file)
-        exename.append(bufr2iodaexe)
+        #config_files.append(yaml_output_file)
+        #exename.append(bufr2iodaexe)
 
         # Check if the converter was successful
         # if os.path.exists(yaml_output_file):
@@ -113,10 +121,9 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     config_files = []
     exename = []
     # Specify observation types to be processed by a script with combined methods
-    script_type = 'bufr2ioda_combine_'
-    BUFR_combine_files = glob.glob(os.path.join(USH_IODA, script_type + '*.py'))
     BUFR_combine_files = [os.path.basename(f) for f in BUFR_combine_files]
-    BUFR_combine = [f.replace(script_type, '').replace('.py', '') for f in BUFR_combine_files]
+    BUFR_combine = [f.replace(combine_type, '').replace('.py', '') for f in BUFR_combine_files]
+    logger.info(f'All obs type processed by combine: {BUFR_combine}')
 
     for obtype in BUFR_combine:
         logger.info(f"Convert {obtype}...")
@@ -126,7 +133,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         gen_bufr_json(config, template, json_output_file)
 
         # Use the converter script for the ob type
-        bufr2iodapy = os.path.join(USH_IODA, script_type + obtype + ".py")
+        bufr2iodapy = os.path.join(USH_IODA, combine_type + obtype + ".py")
 
         # append the values to the lists
         config_files.append(json_output_file)

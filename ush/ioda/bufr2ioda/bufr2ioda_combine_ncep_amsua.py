@@ -2,7 +2,7 @@
 
 import argparse
 import os
-from bufr2ioda_base import Bufr2IodaBase, CPP
+from combine_base import Bufr2IodaBase, CPP
 from wxflow import Logger
 from antcorr_application import ACCoeff, apply_ant_corr
 from utils import timing_decorator, nc_merge
@@ -35,10 +35,10 @@ class Bufr2IodaEbmua(Bufr2IodaBase):
         for sat_id in self.sat_ids:
             logger.info(f'Converting for {sat_id}, ...')
             ta = self.get_container_variable(container, 'ObsValue', 'brightnessTemperature', sat_id)
-            if ta.shape[0]:
-                ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
-                tb = self.apply_ant_corr(sat_id, ta, ifov)
-                self.replace_container_variable(container, 'ObsValue', 'brightnessTemperature', tb, sat_id)
+            # if ta.shape[0]:
+            #    ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
+            #    tb = self.apply_ant_corr(sat_id, ta, ifov)
+            #    self.replace_container_variable(container, 'ObsValue', 'brightnessTemperature', tb, sat_id)
 
     def apply_ant_corr(self, sat_id, ta, ifov):
         ac = ACCoeff()  # TODO add later
