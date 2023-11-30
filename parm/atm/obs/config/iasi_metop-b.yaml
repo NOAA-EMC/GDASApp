@@ -70,6 +70,9 @@ obs operator:
     Sensor_ID: iasi_metop-b 
     EndianType: little_endian
     CoefficientPath: $(DATA)/crtm/
+  linear obs operator:
+    Absorbers: [H2O,O3]
+
 obs bias:
   input file: $(DATA)/obs/$(GPREFIX)iasi_metop-b.satbias.nc4
   output file: $(DATA)/bc/$(APREFIX)iasi_metop-b.satbias.nc4
