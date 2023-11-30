@@ -10,6 +10,10 @@ list( APPEND utils_test_input
 
 set( gdas_utils_test_ref
   testref/ghrsst2ioda.test
+  testref/rads2ioda.test
+  testref/smap2ioda.test
+  testref/smos2ioda.test
+  testref/icecamsr2ioda.test
 )
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
