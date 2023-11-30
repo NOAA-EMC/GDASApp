@@ -45,6 +45,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     config = {
         'RUN': RUN,
         'current_cycle': current_cycle,
+        'DATA': DATA,
         'DMPDIR': DMPDIR,
         'COM_OBS': COM_OBS,
         'PDY': current_cycle.strftime('%Y%m%d'),
@@ -107,8 +108,8 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         bufr2iodaexe = BIN_GDAS + '/bufr2ioda.x'
 
         # append the values to the lists
-        #config_files.append(yaml_output_file)
-        #exename.append(bufr2iodaexe)
+        config_files.append(yaml_output_file)
+        exename.append(bufr2iodaexe)
 
         # Check if the converter was successful
         # if os.path.exists(yaml_output_file):

@@ -25,6 +25,9 @@ class Bufr2IodaEbmua(Bufr2IodaBase):
     def get_yaml_file(self):
         return self.config['yaml_file'][1]
 
+    def get_ac_dir(self):
+        return self.config['ac_dir']
+
     @timing_decorator
     def re_map_variable(self, container):
         #  TODO replace this follow that in GSI
@@ -35,13 +38,13 @@ class Bufr2IodaEbmua(Bufr2IodaBase):
         for sat_id in self.sat_ids:
             logger.info(f'Converting for {sat_id}, ...')
             ta = self.get_container_variable(container, 'ObsValue', 'brightnessTemperature', sat_id)
-            # if ta.shape[0]:
-            #    ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
-            #    tb = self.apply_ant_corr(sat_id, ta, ifov)
-            #    self.replace_container_variable(container, 'ObsValue', 'brightnessTemperature', tb, sat_id)
+            if ta.shape[0]:
+               ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
+               tb = self.apply_ant_corr(sat_id, ta, ifov)
+               self.replace_container_variable(container, 'ObsValue', 'brightnessTemperature', tb, sat_id)
 
     def apply_ant_corr(self, sat_id, ta, ifov):
-        ac = ACCoeff()  # TODO add later
+        ac = ACCoeff(self.get_ac_dir())  # TODO add later
         llll = 1  # TODO how to set this
         if llll == 1:
             if sat_id not in ['n15', 'n16']:

@@ -1,4 +1,5 @@
 import netCDF4 as nc
+import os
 import numpy as np
 
 INVALID = -1.0
@@ -8,8 +9,8 @@ TSPACE = 2.7253
 
 
 class ACCoeff:
-    def __init__(self, sat_id='metop-c'):
-        file_name = 'amsua_' + sat_id + '_v2.ACCoeff.nc'
+    def __init__(self, ac_dir, sat_id='metop-c'):
+        file_name = os.path.join(ac_dir, 'amsua_' + sat_id + '_v2.ACCoeff.nc')
         nc_file = nc.Dataset(file_name)
         self.n_FOVS = len(nc_file.dimensions['n_FOVs'])
         self.n_Channels = len(nc_file.dimensions['n_Channels'])

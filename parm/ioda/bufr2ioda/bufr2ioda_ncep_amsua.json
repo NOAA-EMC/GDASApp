@@ -14,6 +14,8 @@
                           { "satellite_name": "GOES-17", "satellite_full_name": "Geostationary Operational Satellite - 17", "satellite_id": 271 }, 
                           { "satellite_name": "GOES-18", "satellite_full_name": "Geostationary Operational Satellite - 18", "satellite_id": 272 } 
                        ],
-  "yaml_file"        : ["{{ COM_OBS }}/ncep_esamua_{{ current_cycle | to_YMDH }}.yaml", 
-                        "{{ COM_OBS }}/ncep_1bamua_ta_{{ current_cycle | to_YMDH }}.yaml"]
+  "yaml_file"        : ["{{ DATA }}/ncep_esamua_{{ current_cycle | to_YMDH }}.yaml",
+                        "{{ DATA }}/ncep_1bamua_ta_{{ current_cycle | to_YMDH }}.yaml"],
+  "ac_dir"          :  "{{ DATA }}"
+
 }
