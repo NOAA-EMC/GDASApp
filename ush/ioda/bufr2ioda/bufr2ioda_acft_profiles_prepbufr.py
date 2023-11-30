@@ -436,6 +436,7 @@ def bufr_to_ioda(config, logger):
     # Instantaneous Altitude Rate
     obsspace.create_var('MetaData/instantaneousAltitudeRate', dtype=ialr.dtype,
                         fillval=ialr.fill_value) \
+        .write_attr('units', 'm s-1') \
         .write_attr('long_name', 'Instantaneous Altitude Rate') \
         .write_data(ialr)
 
