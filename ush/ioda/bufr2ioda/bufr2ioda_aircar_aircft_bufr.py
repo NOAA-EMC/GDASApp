@@ -30,9 +30,7 @@ int64_fill_value = np.int64(0)
 
 def AircraftFlightLevel(lat, prlc=None, ialt=None, flvl=None, flvlst=None, heit=None, hmsl=None, psal=None):
 
-    print("NE lat fill value", lat.fill_value)
     AircraftFlightLevel = np.full(lat.shape[0], lat.fill_value)
-    print("NE AircraftFlightLevel[0]", AircraftFlightLevel[0])
 
     for i in range(len(lat)):
         if (prlc is not None) and (not ma.is_masked(prlc[i])):
@@ -42,30 +40,60 @@ def AircraftFlightLevel(lat, prlc=None, ialt=None, flvl=None, flvlst=None, heit=
             else:
                 print('prlc 2')
         elif (ialt is not None) and (not ma.is_masked(ialt[i])):
-#            print("NE AircraftFlightLevel is ialt")
             AircraftFlightLevel[i] = ialt[i]
 
         if (psal is not None) and (not ma.is_masked(psal[i])):
-#            print("NE AircraftFlightLevel is psal")
             AircraftFlightLevel[i] = psal[i]
         elif (flvl is not None) and (not ma.is_masked(flvl[i])):
-#            print("NE AircraftFlightLevel is flvl")
             AircraftFlightLevel[i] = flvl[i]
         elif (heit is not None) and (not ma.is_masked(heit[i])):
-#            print("NE AircraftFlightLevel is heit")
             AircraftFlightLevel[i] = heit[i]
         elif (hmsl is not None) and (not ma.is_masked(hmsl[i])):
-#            print("NE AircraftFlightLevel is hmsl")
             AircraftFlightLevel[i] = hmsl[i]
         elif (flvlst is not None) and (not ma.is_masked(flvlst[i])):
-#            print("NE AircraftFlightLevel is flvlst")
             AircraftFlightLevel[i] = flvlst[i]
 
-#    print("NE AircraftFlightLevel data")
-#    for i in range(len(AircraftFlightLevel)):
-#         print(AircraftFlightLevel[i])
-
     return AircraftFlightLevel
+
+
+def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_aircft,
+                       qmrkh2_aircft, qmrkh3_aircft, qmrkh4_aircft):
+    for i in range(len(qmat_aircft)):
+        TQM = np.int32(0)
+        if (not ma.is_masked(qmrkh2_aircft[i])) and (qmrkh2_aircft[i] >= 3):
+            TQM = np.int32(13)
+        else:
+            if (not ma.is_masked(qmrkh2_aircft[i])) and (qmrkh2_aircft[i] >= 1):
+                TQM = np.int32(3)
+            if (not ma.is_masked(qmrkh2_aircft[i])) and (qmrkh2_aircft[i] == 0):
+                TQM = np.int32(2)
+        if (not ma.is_masked(tmdb_aircft[i]) and (qmat_aircft[i] == 2):
+            qmat_aircft[i] = TQM
+
+        if (not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i]) 
+            and (qmwn_aircft[i] == 2):
+            WQM = TQM # yes, I meant TQM
+            qmwn_aircft[i] = max(
+        
+
+    print("1")
+
+
+def PCCF_to_QMDD(qmdd_aircft, pccf_aircft):
+    print("3")
+    for i in range(qmdd_aircft):
+        if (not ma.is_masked(pccf_aircft[i]) and 
+
+
+         IF((QOB(1).LT.BMISS).AND.(QQM(1).EQ.2)) THEN
+! Always set QQM to 13 if TQM was set to 13 above (regardless of PCCF)
+         IF((RQCD_8.LT.80.0).OR.(RQCD_8.GT.100.0)
+     &      .OR.(TQM(1).EQ.13.0)) THEN
+          QQM(1) = 13.0
+         ELSE
+          QQM(1) = 2.0
+         ENDIF
+
 
 
 def bufr_to_ioda(config, logger):
@@ -163,6 +191,7 @@ def bufr_to_ioda(config, logger):
     r.add("minute",  "*/MINU")
     r.add("latitude", "[*/CLATH, */CLAT]")
     r.add("longitude", "[*/CLON, */CLONH]")
+    r.add("seqnum", "*/SEQNUM")
     r.add("aircraftFlightNumber", "*/ACID")
     r.add("aircraftFlightPhase", "*/POAF")
     r.add("aircraftIdentifier", "[*/RPID, */ACRN]")
@@ -194,8 +223,8 @@ def bufr_to_ioda(config, logger):
 
     #QualityMarker
     r.add("airTemperatureQM", "*/QMAT")
-    r.add("relativeHumidityQM", "[NC004010/QMDD, NC004003/AFMST/QMDD]")
-    r.add("waterVaporMixingRatioQM", "NC004006/QMDD")
+    r.add("humidityQM", "[*/AFMST/QMDD, */QMDD]")
+#    r.add("waterVaporMixingRatioQM", "NC004006/QMDD")
     r.add("windQM", "*/QMWN")
 
 
@@ -299,19 +328,6 @@ def bufr_to_ioda(config, logger):
     psal_aircft = u.get('pressureAltitudeRelativeToMeanSeaLevel', type='float')
     pccf_aircft = u.get('percentConfidenceRH', type='int')
 
-#    for i in range(len(lat_aircft)):
-#       print("NE aircftt ", flvl_aircft[i], flvlst_aircft[i], heit_aircft[i], hmsl_aircft[i], psal_aircft[i])
-#    print("NE flvl_aircft")
-#    print(flvl_aircft)
-#    print("NE flvlst_aircft")
-#    print(flvlst_aircft)
-#    print("NE heit_aircft")
-#    print(heit_aircft)
-#    print("NE hmsl_aircft")
-#    print(hmsl_aircft)
-#    print("NE psal_aircft")
-#    print(psal_aircft)
-
     # ObsValue
     tmdb_aircft = u.get('airTemperature', type='float')
     rehu_aircft = u.get('relativeHumidity', type='float')
@@ -327,8 +343,13 @@ def bufr_to_ioda(config, logger):
 
     # Quality Marker
     qmat_aircft = u.get('airTemperatureQM')
-    qmddrehu_aircft = u.get('relativeHumidityQM')
-    qmddmixr_aircft = u.get('waterVaporMixingRatioQM')
+    seqnum_aircft = u.get('seqnum')
+#    qmddrehu_aircft = u.get('relativeHumidityQM')
+#    qmddmixr_aircft = u.get('waterVaporMixingRatioQM')
+    qmdd_aircft = u.get('humidityQM')
+    print("NE qmdd check: ")
+    for i in range(len(lat_aircft)):
+        print(seqnum_aircft[i], lat_aircft[i], lon_aircft[i], qmdd_aircft[i])
     qmwn_aircft = u.get('windQM')
 
 
@@ -407,8 +428,9 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     qmrkh3_aircft    shape, type = {qmrkh3_aircft.shape}, {qmrkh3_aircft.dtype}")
     logger.debug(f"     qmrkh4_aircft    shape, type = {qmrkh4_aircft.shape}, {qmrkh4_aircft.dtype}")
     logger.debug(f"     qmat_aircft      shape, type = {qmat_aircft.shape}, {qmat_aircft.dtype}")
-    logger.debug(f"     qmddrehu_aircft  shape, type = {qmddrehu_aircft.shape}, {qmddrehu_aircft.dtype}")
-    logger.debug(f"     qmddmixr_aircft  shape, type = {qmddmixr_aircft.shape}, {qmddmixr_aircft.dtype}")
+#    logger.debug(f"     qmddrehu_aircft  shape, type = {qmddrehu_aircft.shape}, {qmddrehu_aircft.dtype}")
+#    logger.debug(f"     qmddrehu_aircft  shape, type = {qmddrehu_aircft.shape}, {qmddrehu_aircft.dtype}")
+    logger.debug(f"     qmdd_aircft  shape, type = {qmdd_aircft.shape}, {qmdd_aircft.dtype}")
     logger.debug(f"     qmwn_aircft      shape, type = {qmwn_aircft.shape}, {qmwn_aircft.dtype}")
     logger.debug(f"     year_amdar       shape, type = {year_amdar.shape}, {year_amdar.dtype}")
     logger.debug(f"     mnth_amdar       shape, type = {mnth_amdar.shape}, {mnth_amdar.dtype}")
@@ -431,13 +453,15 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     qmdd_amdar       shape, type = {qmdd_amdar.shape}, {qmdd_amdar.dtype}")
     logger.debug(f"     qmwn_amdar       shape, type = {qmwn_amdar.shape}, {qmwn_amdar.dtype}")
 
+    # Derive QM values in aircft
+    logger.debug("Convert variables for QMRKH to QMAT/QMDD/QMWN")
+    qmat_aircft, qmwn_aircft = QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, 
+                                                   wspd_aircft, wdir_aircft,
+                                                   qmrkh2_aircft, qmrkh3_aircft, qmrkh4_aircft)
+    qmdd_aircft = PCCF_to_QMDD(qmdd_aircft, pccf_aircft)
+
     # Concatenate
     logger.debug("Concatenate the variables ... ")
-#    year = np.concatenate((year_aircar, year_aircft, year_amdar), axis=0).astype(np.float32)
-#    mnth = np.concatenate((mnth_aircar, mnth_aircft, mnth_amdar), axis=0).astype(np.float32)
-#    days = np.concatenate((days_aircar, days_aircft, days_amdar), axis=0).astype(np.float32)
-#    hour = np.concatenate((hour_aircar, hour_aircft, hour_amdar), axis=0).astype(np.float32)
-#    minu = np.concatenate((minu_aircar, minu_aircft, minu_amdar), axis=0).astype(np.float32)
     lat = ma.concatenate((lat_aircar, lat_aircft, lat_amdar), axis=0).astype(np.float32)
     lat = ma.masked_values(lat, lat_aircar.fill_value)
     lon = ma.concatenate((lat_aircar, lat_aircft, lat_amdar), axis=0).astype(np.float32)
@@ -445,11 +469,6 @@ def bufr_to_ioda(config, logger):
 
 
     logger.debug(f" ... Check the concatenated array shapes, dtypes, some fill_values  ... ")
-#    logger.debug(f"     concatenated year size = {year.shape}, {year.fill_value}")
-#    logger.debug(f"     concatenated mnth size = {month.shape}, {month.fill_value}")
-#    logger.debug(f"     concatenated days size = {day.shape}, {day.fill_value}")
-#    logger.debug(f"     concatenated hour size = {hour.shape}, {hour.fill_value}")
-#    logger.debug(f"     concatenated minu size = {minute.shape}, {minu.fill_value}")
     logger.debug(f"     concatenated lat size = {lat.shape}, {lat.dtype}, {lat.fill_value}")
     logger.debug(f"     concatenated lon size = {lon.shape}, {lon.dtype}, {lon.fill_value}")
      
@@ -466,7 +485,7 @@ def bufr_to_ioda(config, logger):
 
     dateTime = ma.concatenate((dateTime_aircar, dateTime_aircft, dateTime_amdar),axis=0).astype(np.int64)
     dateTime = ma.masked_values(dateTime, dateTime_aircar.fill_value)
-    logger.debug(f"     datetime concatenated info = {dateTime.shape}, {dateTime.dtype}, {dateTime.fill_value}")
+    logger.debug(f"     dateTime concatenated info = {dateTime.shape}, {dateTime.dtype}, {dateTime.fill_value}")
 
 
     # Derive aircraftFlightLevel
@@ -479,6 +498,7 @@ def bufr_to_ioda(config, logger):
 
     aircraftFlightLevel = ma.concatenate((acftflvl_aircar, acftflvl_aircft, acftflvl_amdar), axis=0).astype(np.float32)
     aircraftFlightLevel = ma.masked_values(aircraftFlightLevel, lat.fill_value)
+    logger.debug(f"     aircraftFlightLevel concatenated info = {aircraftFlightLevel.shape}, {aircraftFlightLevel.dtype}, {aircraftFlightLevel.fill_value}")
     
 
     # =====================================
