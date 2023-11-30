@@ -1,7 +1,5 @@
 obs space:
   name: sss_smos_esa
-  get values:
-    time interpolation: linear
   obsdatain:
     engine:
       type: H5File
@@ -13,6 +11,8 @@ obs space:
   simulated variables: [sea_surface_salinity]
   io pool:
     max pool size: 1
+get values:
+  time interpolation: linear
 obs operator:
   name: Identity
 obs error:
