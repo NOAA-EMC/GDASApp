@@ -190,6 +190,14 @@ class JobCard:
         self.f.write(f"cp {com_ice_history_src}/*icef*.nc $COM_ICE_HISTORY_PREV \n")
         self.f.write(f"cp {com_ice_restart_src}/*cice_model*.nc $COM_ICE_RESTART_PREV \n")
 
+        # copy ensemble members
+        ensbkgs = os.path.join(self.com_src, f"enkf{self.RUN}.{self.gPDY}")
+        if os.path.exists(os.path.join(ensbkgs, self.gcyc)):
+            self.f.write(f"cp -r {ensbkgs} $ROTDIR \n")
+        else:
+            print('Aborting, ensemble backgrounds not found')
+            sys.exit()
+
     def fixconfigs(self):
         """
         Replace cone of the env. var. in the configs
@@ -209,6 +217,12 @@ class JobCard:
                        'STMP': self.stmp,
                        'ROTDIR': self.rotdir,
                        'EXPDIRS': self.expdirs}
+
+        # needed for this ctest at least until R2D2 goes away
+        if 'JGLOBAL_PREP_OCEAN_OBS' in self.config['jjobs']:
+            dmpdir = self.config['setup_expt config']['prepoceanobs']['DMPDIR']
+            var2replace['DMPDIR'] = dmpdir
+
         with open(configbase, 'r') as f:
             newconfigbase = f.read()
         for key, value in var2replace.items():

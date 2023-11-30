@@ -5,3 +5,8 @@ output file: sss_smap.ioda.nc
 input files:
 - sss_smap_1.nc4
 - sss_smap_2.nc4
+
+test:
+  reference filename: testref/smap2ioda.test
+  test output filename: testoutput/smap2ioda.test
+  float relative tolerance: 1e-6
