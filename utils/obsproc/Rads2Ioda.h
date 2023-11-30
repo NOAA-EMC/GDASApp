@@ -30,6 +30,7 @@ namespace gdasapp {
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
+      oops::Log::info() << "Reading... " << fileName << std::endl;
 
       // Get the number of obs in the file
       int nobs = ncFile.getDim("time").getSize();
