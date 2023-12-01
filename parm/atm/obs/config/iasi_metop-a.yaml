@@ -106,38 +106,38 @@ obs bias:
 
 obs pre filters:
 # Step 0-A: Create Diagnostic Flags
-- filter: Create Diagnostic Flags
-  filter variables:
-  - name: brightnessTemperature
-    channels: *iasi_metop-a_channels
-  flags:
-  - name: ScanEdgeRemoval
-    initial value: false
-    force reinitialization: false
-  - name: Thinning
-    initial value: false
-    force reinitialization: false
-  - name: ShortwaveIRCheck
-    initial value: false
-    force reinitialization: false
-  - name: ObsValueRangeCheck
-    initial value: false
-    force reinitialization: false
-  - name: CloudDetection
-    initial value: false
-    force reinitialization: false
-  - name: NSSTCheck
-    initial value: false
-    force reinitialization: false
-  - name: GrossCheck
-    initial value: false
-    force reinitialization: false
-  - name: InterChannelConsistency
-    initial value: false
-    force reinitialization: false
-  - name: UseFlagCheck
-    initial value: false
-    force reinitialization: false
+#- filter: Create Diagnostic Flags
+#  filter variables:
+#  - name: brightnessTemperature
+#    channels: *iasi_metop-a_channels
+#  flags:
+#  - name: ScanEdgeRemoval
+#    initial value: false
+#    force reinitialization: false
+#  - name: Thinning
+#    initial value: false
+#    force reinitialization: false
+#  - name: ShortwaveIRCheck
+#    initial value: false
+#    force reinitialization: false
+#  - name: ObsValueRangeCheck
+#    initial value: false
+#    force reinitialization: false
+#  - name: CloudDetection
+#    initial value: false
+#    force reinitialization: false
+#  - name: NSSTCheck
+#    initial value: false
+#    force reinitialization: false
+#  - name: GrossCheck
+#    initial value: false
+#    force reinitialization: false
+#  - name: InterChannelConsistency
+#    initial value: false
+#    force reinitialization: false
+#  - name: UseFlagCheck
+#    initial value: false
+#    force reinitialization: false
 
 # Step 0-B: Create Derived Variables
 # Assign channel wavenumbers in m-1
@@ -240,10 +240,12 @@ obs post filters:
   - variable:
       name: MetaData/sensorScanPosition
     is_in: 5-56
-  actions:
-    - name: set
-      flag: ScanEdgeRemoval
-    - name: reject
+  action:
+    name: reject
+#  actions:
+#    - name: set
+#      flag: ScanEdgeRemoval
+#    - name: reject
 
 # Step 2: Data Thinning
 - filter: Gaussian Thinning
@@ -256,10 +258,12 @@ obs post filters:
   priority_variable: MetaData/fractionOfClearPixelsInFOV 
 #  round_horizontal_bin_count_to_nearest: true
 #  partition_longitude_bins_using_mesh: true
-  actions:
-    - name: set
-      flag: Thinning
-    - name: reject
+  action:
+    name: reject
+#  actions:
+#    - name: set
+#      flag: Thinning
+#    - name: reject
 
 # Step 3: Wavenumber Check
 - filter: Perform Action 
@@ -278,10 +282,12 @@ obs post filters:
   - variable:
       name: water_area_fraction@GeoVaLs
     minvalue: 1.0e-12
-  actions:
-    - name: set
-      flag: ShortwaveIRCheck
-    - name: reject
+  action:
+    name: reject
+#  actions:
+#    - name: set
+#      flag: ShortwaveIRCheck
+#    - name: reject
 
 # Step 4: Observation Error Inflation based on Wavenumber
 - filter: Perform Action
@@ -304,10 +310,12 @@ obs post filters:
   minvalue: 50.00001
   maxvalue: 449.99999
 #  maxvalue: 100.00000
-  actions:
-    - name: set
-      flag: ObsValueRangeCheck
-    - name: reject
+  action:
+    name: reject
+#  actions:
+#    - name: set
+#      flag: ObsValueRangeCheck
+#    - name: reject
 
 # Step 6: Topography Check
 - filter: Perform Action 
@@ -473,10 +481,12 @@ obs post filters:
       obserr_dtempf: [0.50,2.00,4.00,2.00,4.00]
       error parameter vector: *iasi_metop-a_oberr
   maxvalue: 1.0e-12
-  actions:
-    - name: set
-      flag: CloudDetection
-    - name: reject
+  action:
+    name: reject
+#  actions:
+#    - name: set
+#      flag: CloudDetection
+#    - name: reject
 
 # Step 9: NSST Retrieval Check
 - filter: Bounds Check
@@ -553,10 +563,12 @@ obs post filters:
       obserr_demisf: [0.01,0.02,0.03,0.02,0.03]
       obserr_dtempf: [0.50,2.00,4.00,2.00,4.00]
   maxvalue: 1.0e-12
-  actions:
-    - name: set
-      flag: NSSTCheck
-    - name: reject
+  action:
+    name: reject
+#  actions:
+#    - name: set
+#      flag: NSSTCheck
+#    - name: reject
 
 # Step 10: Surface Jacobians Check
 - filter: Perform Action 
@@ -656,10 +668,12 @@ obs post filters:
                           6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
                           6.0, 6.0, 6.0, 6.0, 6.0, 6.0]
       error parameter vector: *iasi_metop-a_oberr
-  actions:
-    - name: set
-      flag: GrossCheck
-    - name: reject
+  action:
+    name: reject
+#  actions:
+#    - name: set
+#      flag: GrossCheck
+#    - name: reject
 
 # Step 12: Useflag Check
 - filter: Bounds Check
@@ -734,7 +748,9 @@ obs post filters:
                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                  -1, -1, -1, -1, -1, -1]
   minvalue: 1.0e-12
-  actions:
-    - name: set
-      flag: UseFlagCheck 
-    - name: reject
+  action:
+    name: reject
+#  actions:
+#    - name: set
+#      flag: UseFlagCheck 
+#    - name: reject
