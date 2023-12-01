@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdio>
+#include <ctime>
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
@@ -69,6 +71,10 @@ namespace gdasapp {
       attributeStartDay.getValues(&startDay);
 
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
+
+      // Set the time zone (UTC)
+      putenv("TZ=UTC");
+      tzset();
 
       // calculate the seconds of Jan 1 of startyear since unix epoch
       std::tm tm{};

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdio>
 #include <ctime>
 #include <iostream>
 #include <map>
@@ -65,6 +66,10 @@ namespace gdasapp {
       ncFile.getVar("Scan_Time").getVar(oneTmpdateTimeVal.data());
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
+      // Set the time zone (UTC)
+      putenv("TZ=UTC");
+      tzset();
+
       size_t index = 0;
       std::tm timeinfo = {};
       for (int i = 0; i < ntimes; i += dimTimeSize) {
@@ -73,7 +78,7 @@ namespace gdasapp {
         timeinfo.tm_mday = oneTmpdateTimeVal[i + 2];
         timeinfo.tm_hour = oneTmpdateTimeVal[i + 3];
         timeinfo.tm_min = oneTmpdateTimeVal[i + 4];
-        timeinfo.tm_sec = oneTmpdateTimeVal[i + 5];
+        timeinfo.tm_sec = static_cast<int64_t>(oneTmpdateTimeVal[i + 5]);
 
         // Calculate and store the seconds since the Unix epoch
         time_t epochtime = std::mktime(&timeinfo);
