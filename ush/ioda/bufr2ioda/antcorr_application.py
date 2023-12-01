@@ -12,29 +12,26 @@ class ACCoeff:
     def __init__(self, ac_dir, sat_id='metop-c'):
         file_name = os.path.join(ac_dir, 'amsua_' + sat_id + '_v2.ACCoeff.nc')
         nc_file = nc.Dataset(file_name)
-        self.n_FOVS = len(nc_file.dimensions['n_FOVs'])
-        self.n_Channels = len(nc_file.dimensions['n_Channels'])
-        self.A_earth = nc_file.variables['A_earth'][:]
-        self.A_platform = nc_file.variables['A_platform'][:]
-        self.A_space = nc_file.variables['A_space'][:]
+        self.n_fovs = len(nc_file.dimensions['n_FOVs'])
+        self.n_channels = len(nc_file.dimensions['n_Channels'])
+        self.a_earth = nc_file.variables['A_earth'][:]
+        self.a_platform = nc_file.variables['A_platform'][:]
+        self.a_space = nc_file.variables['A_space'][:]
+        self.a_ep = self.a_earth + self.a_platform
+        self.a_sp = self.a_space * TSPACE
 
 
-def remove_ant_corr(AC, iFOV, T):
+def remove_ant_corr(i, ac, ifov, t):
     # AC:             Structure containing the antenna correction coefficients for the sensor of interest.
     # iFOV:           The FOV index for a scanline of the sensor of interest.
     # T:              On input, this argument contains the brightness
-
-    if iFOV < 1 or iFOV > AC.n_FOVS or len(T) != AC.n_Channels:
-        return [INVALID] * len(T)
-    iFOV = iFOV - 1
-    T = AC.A_earth[:, iFOV] * T + AC.A_platform[:, iFOV] * T + AC.A_space[:, iFOV] * TSPACE
-    return T
+    t = ac.a_ep[i, ifov] * t + ac.a_sp[i, ifov]
+    t[(ifov < 1) | (ifov > ac.n_fovs)] = [INVALID]
+    return t
 
 
-def apply_ant_corr(AC, iFOV, T):
-    # T:              On input, this argument contains the antenna temperatures for the sensor channels.
-    if iFOV < 1 or iFOV > AC.n_FOVS or len(T) != AC.n_Channels:
-        return [INVALID] * len(T)
-    iFOV = iFOV - 1
-    T = (T - AC.A_space[:, iFOV] * TSPACE) / (AC.A_earth[:, iFOV] + AC.A_platform[:, iFOV])
-    return T
+def apply_ant_corr(i, ac, ifov, t):
+    # t:              on input, this argument contains the antenna temperatures for the sensor channels.
+    t = (t - ac.a_sp[i, ifov]) / ac.a_ep[i, ifov]
+    t[(ifov < 1) | (ifov > ac.n_fovs)] = [INVALID]
+    return t

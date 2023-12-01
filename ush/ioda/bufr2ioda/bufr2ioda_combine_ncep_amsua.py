@@ -49,9 +49,10 @@ class Bufr2IodaEbmua(Bufr2IodaBase):
         if llll == 1:
             if sat_id not in ['n15', 'n16']:
                 # Convert antenna temperature to brightness temperature
-                for i in range(ta.shape[0]):
-                    x = ta[i, :]
-                    apply_ant_corr(ac, int(ifov[i]), x)  # TODO if this is too slow we might need to optimize it
+                ifov = ifov.astype(int) - 1
+                for i in range(ta.shape[1]):
+                    x = ta[:, i]
+                    apply_ant_corr(i, ac, ifov, x)
                     x[x > R1000] = R1000000
         else:
             pass  # TODO after know how to set llll
