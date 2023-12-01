@@ -80,12 +80,15 @@ def bufr_to_ioda(config, logger):
     q.add('latitude', '*/YOB')
     q.add('longitude', '*/XOB')
     q.add('obsTimeMinusCycleTime', '*/DHR')
-    q.add('heightOfStation', '*/Z___INFO/Z__EVENT{1}/ZOB')
+    q.add('height', '*/Z___INFO/Z__EVENT{1}/ZOB')
     q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
 
-#   # Quality Infomation (Quality Indicator)
+    # Quality Marker
     q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
     q.add('qualityMarkerStationElevation', '*/Z___INFO/Z__EVENT{1}/ZQM')
+
+    # ObsError
+    q.add('obsErrorStationPressure', '*/P___INFO/P__BACKG{1}/POE')
 
     # ObsValue
     q.add('stationPressure', '*/P___INFO/P__EVENT{1}/POB')
@@ -107,25 +110,30 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(" ... Executing QuerySet: get ObsType ...")
     # ObsType
+    logger.debug(" ... Executing QuerySet: get ObsType ...")
     typ = r.get('observationType')
 
-    logger.debug(" ... Executing QuerySet: get MetaData ...")
     # MetaData
+    logger.debug(" ... Executing QuerySet: get MetaData ...")
     sid = r.get('stationIdentification')
     lat = r.get('latitude')
     lon = r.get('longitude')
     lon[lon > 180] -= 360
-    zob = r.get('heightOfStation', type='float')
+    zob = r.get('height', type='float')
     pressure = r.get('pressure')
     pressure *= 100
 
-    logger.debug(f" ... Executing QuerySet: get QualityMarker information ...")
     # Quality Information
+    logger.debug(f" ... Executing QuerySet: get QualityMarker information ...")
     pobqm = r.get('qualityMarkerStationPressure')
     zobqm = r.get('qualityMarkerStationElevation')
 
-    logger.debug(f" ... Executing QuerySet: get ObsValue ...")
+    # ObsError
+    logger.debug(f" ... Executing QuerySet: get ObsError ...")
+    poboe = r.get('obsErrorStationPressure')
+
     # ObsValue
+    logger.debug(f" ... Executing QuerySet: get ObsValue ...")
     elv = r.get('stationElevation', type='float')
     pob = r.get('stationPressure')
     pob *= 100
@@ -151,6 +159,8 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     pobqm     shape = {pobqm.shape}")
     logger.debug(f"     zobqm     shape = {zobqm.shape}")
 
+    logger.debug(f"     poboe     shape = {poboe.shape}")
+
     logger.debug(f"     elv       shape = {elv.shape}")
     logger.debug(f"     pob       shape = {pob.shape}")
 
@@ -166,6 +176,8 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"     pobqm     type  = {pobqm.dtype}")
     logger.debug(f"     zobqm     type  = {zobqm.dtype}")
+
+    logger.debug(f"     poboe     shape = {poboe.dtype}")
 
     logger.debug(f"     elv       type  = {elv.dtype}")
     logger.debug(f"     pob       type  = {pob.dtype}")
@@ -272,11 +284,18 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Station Identification') \
         .write_data(sid)
 
-    # Height Of Station
-    obsspace.create_var('MetaData/heightOfStation', dtype=zob.dtype,
+    # Station Elevation
+    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
+                        fillval=elv.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Station Elevation') \
+        .write_data(elv)
+
+    # Height
+    obsspace.create_var('MetaData/height', dtype=zob.dtype,
                         fillval=zob.fill_value) \
         .write_attr('units', 'm') \
-        .write_attr('long_name', 'Height Of Station') \
+        .write_attr('long_name', 'Height') \
         .write_data(zob)
 
     # Pressure
@@ -297,6 +316,12 @@ def bufr_to_ioda(config, logger):
                         fillval=pobqm.fill_value) \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
         .write_data(pobqm)
+
+    # ObsError - station Pressure
+    obsspace.create_var('ObsError/stationPressure', dtype=poboe.dtype,
+                        fillval=poboe.fill_value) \
+        .write_attr('long_name', 'Station Pressure ObsError') \
+        .write_data(poboe)
 
     # Station Elevation
     obsspace.create_var('ObsValue/stationElevation', dtype=elv.dtype,
