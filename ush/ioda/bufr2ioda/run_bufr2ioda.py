@@ -30,8 +30,9 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     }
 
     # Specify observation types to be processed by a script
-    BUFR_py = ["satwind_amv_goes", "satwind_scat", "adpupa_prepbufr", "adpsfc_prepbufr", "sfcshp_prepbufr", "acft_profiles_prepbufr",
-               "gpsro_bufr", "conventional_prepbufr_ps", "bufr2ioda_subpfl_argo_profiles.py"]
+#    BUFR_py = ["satwind_amv_goes", "satwind_scat", "adpupa_prepbufr", "adpsfc_prepbufr", "sfcshp_prepbufr", "acft_profiles_prepbufr",
+    BUFR_py = ["conventional_prepbufr_ps"]
+#               "gpsro_bufr", "conventional_prepbufr_ps", "bufr2ioda_subpfl_argo_profiles.py"]
 
     for obtype in BUFR_py:
         logger.info(f"Convert {obtype}...")
@@ -43,6 +44,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         # Use the converter script for the ob type
         bufr2iodapy = USH_IODA + '/bufr2ioda_' + obtype + ".py"
         cmd = Executable(bufr2iodapy)
+#        cmd.add_default_arg('-v')
         cmd.add_default_arg('-c')
         cmd.add_default_arg(json_output_file)
         logger.info(f"Executing {cmd}")

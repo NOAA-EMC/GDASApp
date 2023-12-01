@@ -38,6 +38,31 @@ def Mask_typ_for_var(typ, var):
 
     return typ_var
 
+   
+def Compute_ObsSubType(typ, t29, sid):
+
+    obssubtype = ma.array(np.full(typ.shape[0], 0))
+    for i in range(len(typ)):
+        if ((typ[i]==180) or (typ[i]==280)) and (t29[i]==562):
+            newval=0
+            try:
+                newval = int(sid[i][-3:])
+            except:
+#                print("NE sid cant be integers")
+                pass
+            print("NE newval", newval)
+            if newval > 500:
+                print("NE sid >500") 
+                obssubtype[i] = 1
+
+        if ((typ[i] == 180) and ((t29[i] == 522) or (t29[i] == 523))):
+            print("NE subtype 2")
+            obssubtype[i] = 1
+
+    for i in range(len(obssubtype)):
+        print("NE final", typ[i], t29[i], sid[i], 'subtype: ', obssubtype[i])
+
+    return obssubtype
 
 def bufr_to_ioda(config, logger):
 
@@ -100,6 +125,7 @@ def bufr_to_ioda(config, logger):
             q.add('temperatureEventCode', '*/T___INFO/T__EVENT{1}/TPC')
             q.add('latitude', '*/YOB')
             q.add('longitude', '*/XOB')
+            q.add('t29', '*/T29')
             q.add('obsTimeMinusCycleTime', '*/DHR')
             q.add('heightOfStation', '*/Z___INFO/Z__EVENT{1}/ZOB')
             q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
@@ -126,6 +152,7 @@ def bufr_to_ioda(config, logger):
             r.add('temperatureEventCode', '*/T___INFO/T__EVENT{1}/TPC')
             r.add('latitude', '*/YOB')
             r.add('longitude', '*/XOB')
+            r.add('t29', '*/T29')
             r.add('obsTimeMinusCycleTime', '*/DHR')
             r.add('heightOfStation', '*/Z___INFO/Z__EVENT{1}/ZOB')
             r.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
@@ -151,6 +178,7 @@ def bufr_to_ioda(config, logger):
             s.add('temperatureEventCode', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TPC')
             s.add('latitude', '*/PRSLEVEL/DRFTINFO/YDR')
             s.add('longitude', '*/PRSLEVEL/DRFTINFO/XDR')
+            s.add('t29', '*/T29')
             s.add('heightOfStation', '*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
             s.add('timeOffset', '*/PRSLEVEL/DRFTINFO/HRDR')
             s.add('releaseTime', '*/PRSLEVEL/DRFTINFO/HRDR')
@@ -167,6 +195,7 @@ def bufr_to_ioda(config, logger):
             s.add('airTemperature', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TOB')
 
     end_time = time.time()
+
     running_time = end_time - start_time
     logger.debug(f"Running time for making QuerySet: {running_time} seconds")
 
@@ -199,6 +228,7 @@ def bufr_to_ioda(config, logger):
     latorig1 = t.get('latitude')
     lonorig1 = t.get('longitude')
     lonorig1[lonorig1 > 180] -= 360
+    t29orig1 = t.get('t29')
     dhrorig1 = t.get('obsTimeMinusCycleTime', type='int64')
     zoborig1 = t.get('heightOfStation', type='float')
     pressureorig1 = t.get('pressure')
@@ -224,6 +254,7 @@ def bufr_to_ioda(config, logger):
     tpc1 = np.array([], dtype=np.int32)
     lat1 = np.array([], dtype=np.float32)
     lon1 = np.array([], dtype=np.float32)
+    t291 = np.array([], dtype=np.int32)
     zob1 = np.array([], dtype=np.float32)
     dhr1 = np.array([], dtype=np.int64)
     pressure1 = np.array([], dtype=np.float32)
@@ -241,6 +272,7 @@ def bufr_to_ioda(config, logger):
             tpc1 = np.append(tpc1, tpcorig1[i])
             lat1 = np.append(lat1, latorig1[i])
             lon1 = np.append(lon1, lonorig1[i])
+            t291 = np.append(t291, t29orig1[i])
             zob1 = np.append(zob1, zoborig1[i])
             dhr1 = np.append(dhr1, dhrorig1[i])
             pressure1 = np.append(pressure1, pressureorig1[i])
@@ -260,6 +292,8 @@ def bufr_to_ioda(config, logger):
     lat1 = ma.masked_values(lat1, latorig1.fill_value)
     lon1 = ma.array(lon1)
     lon1 = ma.masked_values(lon1, lonorig1.fill_value)
+    t291 = ma.array(t291)
+    t291 = ma.masked_values(t291, t29orig1.fill_value)
     zob1 = ma.array(zob1)
     zob1 = ma.masked_values(zob1, zoborig1.fill_value)
     dhr1 = ma.array(dhr1)
@@ -304,6 +338,7 @@ def bufr_to_ioda(config, logger):
     latorig2 = u.get('latitude')
     lonorig2 = u.get('longitude')
     lonorig2[lonorig2 > 180] -= 360
+    t29orig2 = u.get('t29')
     zoborig2 = u.get('heightOfStation', type='float')
     dhrorig2 = u.get('obsTimeMinusCycleTime', type='int64')
     pressureorig2 = u.get('pressure')
@@ -329,6 +364,7 @@ def bufr_to_ioda(config, logger):
     tpc2 = np.array([], dtype=np.int32)
     lat2 = np.array([], dtype=np.float32)
     lon2 = np.array([], dtype=np.float32)
+    t292 = np.array([], dtype=np.int32)
     zob2 = np.array([], dtype=np.float32)
     dhr2 = np.array([], dtype=np.int64)
     pressure2 = np.array([], dtype=np.float32)
@@ -346,6 +382,7 @@ def bufr_to_ioda(config, logger):
             tpc2 = np.append(tpc2, tpcorig2[i])
             lat2 = np.append(lat2, latorig2[i])
             lon2 = np.append(lon2, lonorig2[i])
+            t292 = np.append(t292, t29orig2[i])
             zob2 = np.append(zob2, zoborig2[i])
             dhr2 = np.append(dhr2, dhrorig2[i])
             pressure2 = np.append(pressure2, pressureorig2[i])
@@ -365,6 +402,8 @@ def bufr_to_ioda(config, logger):
     lat2 = ma.masked_values(lat2, latorig2.fill_value)
     lon2 = ma.array(lon2)
     lon2 = ma.masked_values(lon2, lonorig2.fill_value)
+    t292 = ma.array(t292)
+    t292 = ma.masked_values(t292, t29orig2.fill_value)
     zob2 = ma.array(zob2)
     zob2 = ma.masked_values(zob2, zoborig2.fill_value)
     dhr2 = ma.array(dhr2)
@@ -410,6 +449,7 @@ def bufr_to_ioda(config, logger):
     lat3 = v.get('latitude', 'prepbufrDataLevelCategory')
     lon3 = v.get('longitude', 'prepbufrDataLevelCategory')
     lon3[lon3 > 180] -= 360
+    t293 = v.get('t29', 'prepbufrDataLevelCategory')
     zob3 = v.get('heightOfStation', 'prepbufrDataLevelCategory', type='float')
     dhr3 = v.get('timeOffset', 'prepbufrDataLevelCategory', type='int64')
     pressure3 = v.get('pressure', 'prepbufrDataLevelCategory')
@@ -470,6 +510,9 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     lon1       shape, type = {lon1.shape}, {lon1.dtype}")
     logger.debug(f"     lon2       shape, type = {lon2.shape}, {lon2.dtype}")
     logger.debug(f"     lon3       shape, type = {lon3.shape}, {lon3.dtype}")
+    logger.debug(f"     t291       shape, type = {t291.shape}, {t291.dtype}")
+    logger.debug(f"     t292       shape, type = {t292.shape}, {t292.dtype}")
+    logger.debug(f"     t293       shape, type = {t293.shape}, {t293.dtype}")
     logger.debug(f"     zob1       shape, type = {zob1.shape}, {zob1.dtype}")
     logger.debug(f"     zob2       shape, type = {zob2.shape}, {zob2.dtype}")
     logger.debug(f"     zob3       shape, type = {zob3.shape}, {zob3.dtype}")
@@ -521,6 +564,8 @@ def bufr_to_ioda(config, logger):
     lat = ma.masked_values(lat, latorig1.fill_value)
     lon = ma.concatenate((lon1, lon2, lon3), axis=0)
     lon = ma.masked_values(lon, lonorig1.fill_value)
+    t29 = ma.concatenate((t291, t292, t293), axis=0)
+    t29 = ma.masked_values(t29, t29orig1.fill_value)
     zob = ma.concatenate((zob1, zob2, zob3), axis=0).astype(zob1.dtype)
     zob = ma.masked_values(zob, zoborig1.fill_value)
     dhr = ma.concatenate((dhr1, dhr2, dhr3), axis=0).astype(dhr1.dtype)
@@ -557,6 +602,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"  new tpc       shape = {tpc.shape}, {tpc.dtype}")
     logger.debug(f"  new lat       shape = {lat.shape}, {lat.dtype}")
     logger.debug(f"  new lon       shape = {lon.shape}, {lon.dtype}")
+    logger.debug(f"  new t29       shape = {t29.shape}, {t29.dtype}")
     logger.debug(f"  new zob       shape = {zob.shape}, {zob.dtype}")
     logger.debug(f"  new dhr       shape = {dhr.shape}, {dhr.dtype}")
     logger.debug(f"  new pressure  shape = {pressure.shape}, {pressure.dtype}")
@@ -587,10 +633,22 @@ def bufr_to_ioda(config, logger):
 
     dateTime = ma.concatenate((dateTime1, dateTime2, dateTime3), axis=0).astype(np.int64)
 
-    logger.debug(f"     Check derived variables type ... ")
+    logger.debug(f"     Check dateTime shape & type ... ")
     logger.debug(f"     dateTime shape = {dateTime.shape}")
     logger.debug(f"     dateTime type = {dateTime.dtype}")
 
+    logger.debug(f"Creating derived variables - ObsSubType ... ")
+
+    ObsSubType = Compute_ObsSubType(typ, t29, sid)
+    
+    logger.debug(f"     Check ObsSubType shape & type ...")
+
+
+    # =========================
+    # Mask Certain Variables
+    # =========================
+
+    logger.debug(f"Mask typ for certain variables where data is available...")
     typ_ps = Mask_typ_for_var(typ, ps)
     typ_tsen = Mask_typ_for_var(typ, tsen)
     typ_tvo = Mask_typ_for_var(typ, tvo)
