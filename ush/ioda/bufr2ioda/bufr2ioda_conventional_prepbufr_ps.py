@@ -38,21 +38,20 @@ def Mask_typ_for_var(typ, var):
 
     return typ_var
 
-   
+
 def Compute_ObsSubType(typ, t29, sid):
 
     obssubtype = ma.array(np.full(typ.shape[0], 0))
     for i in range(len(typ)):
-        if ((typ[i]==180) or (typ[i]==280)) and (t29[i]==562):
+        if ((typ[i] == 180) or (typ[i] == 280)) and (t29[i] == 562):
             newval=0
             try:
                 newval = int(sid[i][-3:])
             except:
-#                print("NE sid cant be integers")
                 pass
             print("NE newval", newval)
             if newval > 500:
-                print("NE sid >500") 
+                print("NE sid >500")
                 obssubtype[i] = 1
 
         if ((typ[i] == 180) and ((t29[i] == 522) or (t29[i] == 523))):
@@ -63,6 +62,7 @@ def Compute_ObsSubType(typ, t29, sid):
         print("NE final", typ[i], t29[i], sid[i], 'subtype: ', obssubtype[i])
 
     return obssubtype
+
 
 def bufr_to_ioda(config, logger):
 
@@ -640,9 +640,8 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Creating derived variables - ObsSubType ... ")
 
     ObsSubType = Compute_ObsSubType(typ, t29, sid)
-    
-    logger.debug(f"     Check ObsSubType shape & type ...")
 
+    logger.debug(f"     Check ObsSubType shape & type ...")
 
     # =========================
     # Mask Certain Variables
