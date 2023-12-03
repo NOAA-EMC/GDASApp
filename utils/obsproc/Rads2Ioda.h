@@ -30,6 +30,7 @@ namespace gdasapp {
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
+      oops::Log::info() << "Reading... " << fileName << std::endl;
 
       // Get the number of obs in the file
       int nobs = ncFile.getDim("time").getSize();
@@ -44,17 +45,17 @@ namespace gdasapp {
       gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       // Read non-optional metadata: datetime, longitude and latitude
-      int lat[iodaVars.location_];  // NOLINT
-      ncFile.getVar("lat").getVar(lat);
+      std::vector<int> lat(iodaVars.location_);
+      ncFile.getVar("lat").getVar(lat.data());
 
-      int lon[iodaVars.location_];  // NOLINT
-      ncFile.getVar("lon").getVar(lon);
+      std::vector<int> lon(iodaVars.location_);
+      ncFile.getVar("lon").getVar(lon.data());
 
       float geoscaleFactor;
       ncFile.getVar("lon").getAtt("scale_factor").getValues(&geoscaleFactor);
 
-      float datetime[iodaVars.location_];  // NOLINT
-      ncFile.getVar("time_mjd").getVar(datetime);
+      std::vector<float> datetime(iodaVars.location_);
+      ncFile.getVar("time_mjd").getVar(datetime.data());
       iodaVars.referenceDate_ = "seconds since 1858-11-17T00:00:00Z";
 
       std::map<std::string, int> altimeterMap;
@@ -84,10 +85,10 @@ namespace gdasapp {
       iodaVars.strGlobalAttr_["references"] = references;
 
       // Read optional integer metadata "pass" and "cycle"
-      int pass[iodaVars.location_];  // NOLINT
-      ncFile.getVar("pass").getVar(pass);
-      int cycle[iodaVars.location_];  // NOLINT
-      ncFile.getVar("cycle").getVar(cycle);
+      std::vector<int> pass(iodaVars.location_);
+      ncFile.getVar("pass").getVar(pass.data());
+      std::vector<int> cycle(iodaVars.location_);
+      ncFile.getVar("cycle").getVar(cycle.data());
 
       // Store optional metadata, set ocean basins to -999 for now
       for (int i = 0; i < iodaVars.location_; i++) {
@@ -95,14 +96,14 @@ namespace gdasapp {
       }
 
       // Get adt_egm2008 obs values and attributes
-      int adt[iodaVars.location_];  // NOLINT
-      ncFile.getVar("adt_egm2008").getVar(adt);
+      std::vector<int> adt(iodaVars.location_);
+      ncFile.getVar("adt_egm2008").getVar(adt.data());
       float scaleFactor;
       ncFile.getVar("adt_egm2008").getAtt("scale_factor").getValues(&scaleFactor);
 
       // Read sla
-      short sla[iodaVars.location_];  // NOLINT
-      ncFile.getVar("sla").getVar(sla);
+      std::vector<int16_t> sla(iodaVars.location_);
+      ncFile.getVar("sla").getVar(sla.data());
 
       // Update non-optional Eigen arrays
       for (int i = 0; i < iodaVars.location_; i++) {

@@ -1,7 +1,5 @@
 obs space:
   name: sss_smap
-  get values:
-    time interpolation: linear
   obsdatain:
     engine:
       type: H5File
@@ -11,6 +9,8 @@ obs space:
       type: H5File
       obsfile: !ENV ${DATA}/diags/sss_smap.${PDY}${cyc}.nc4
   simulated variables: [seaSurfaceSalinity]
+get values:
+  time interpolation: linear
 obs operator:
   name: Identity
   observation alias file: ./obsop_name_map.yaml

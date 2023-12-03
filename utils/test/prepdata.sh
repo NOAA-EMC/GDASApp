@@ -1,4 +1,8 @@
 #!/bin/bash
+# called for test_gdasapp_util_prepdata, and by
+# test/soca/gw/setup_obsproc.sh for test_gdasapp_soca_setup_obsproc
+
+
 set -e
 
 cdl2nc4() {
