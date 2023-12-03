@@ -4,7 +4,7 @@ observers:
 ##- !INC ${OBS_YAML_DIR}/atms_n20.yaml
 ##- !INC ${OBS_YAML_DIR}/atms_npp.yaml
 ##- !INC ${OBS_YAML_DIR}/aircraft.yaml
-##- !INC ${OBS_YAML_DIR}/satwind_goes-16.yaml
+- !INC ${OBS_YAML_DIR}/satwind_goes-16.yaml
 ##- !INC ${OBS_YAML_DIR}/satwind_goes-17.yaml
 ##- !INC ${OBS_YAML_DIR}/scatwind_metop-a.yaml
 ##- !INC ${OBS_YAML_DIR}/scatwind_metop-b.yaml
@@ -15,5 +15,5 @@ observers:
 ##- !INC ${OBS_YAML_DIR}/cris-fsr_npp.yaml
 ##- !INC ${OBS_YAML_DIR}/sfc.yaml
 ##- !INC ${OBS_YAML_DIR}/sfcship.yaml
-- !INC ${OBS_YAML_DIR}/conv_ps.yaml
+##- !INC ${OBS_YAML_DIR}/conv_ps.yaml
 ##- !INC ${OBS_YAML_DIR}/gnssro.yaml
