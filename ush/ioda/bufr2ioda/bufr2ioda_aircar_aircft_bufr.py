@@ -79,7 +79,7 @@ def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_
     print("1")
 
 
-def PCCF_to_QMDD(qmdd_aircft, pccf_aircft):
+def PCCF_to_QMDD(qob_aircft, qmdd_aircft, pccf_aircft):
     print("3")
     for i in range(qmdd_aircft):
         if (not ma.is_masked(pccf_aircft[i]) and 
