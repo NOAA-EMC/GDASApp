@@ -33,7 +33,6 @@ set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
 
 # Handle user options.
 option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
-option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
 
 # Initialize bundle
@@ -44,8 +43,8 @@ ecbuild_bundle_initialize()
 if(BUILD_GDASBUNDLE)
 
 # jedi-cmake
-  ecbuild_bundle( PROJECT jedicmake GIT "https://github.com/jcsda/jedi-cmake.git" TAG 1.4.0 RECURSIVE )
-  include( jedicmake/cmake/Functions/git_functions.cmake )
+  ecbuild_bundle( PROJECT jedicmake SOURCE "./sorc/jedicmake" )
+  include( sorc/jedicmake/cmake/Functions/git_functions.cmake )
 
 # ECMWF libraries
   option("BUNDLE_SKIP_ECKIT" "Don't build eckit" "ON" ) # Skip eckit build unless user passes -DBUNDLE_SKIP_ECKIT=OFF
@@ -67,39 +66,39 @@ if(BUILD_GDASBUNDLE)
 # Build GSI-B
   option(BUILD_GSIBEC "Build GSI-B" OFF)
   if(BUILD_GSIBEC)
-    ecbuild_bundle( PROJECT gsibec GIT "https://github.com/GEOS-ESM/GSIbec.git" TAG 1.1.2 )
+    ecbuild_bundle( PROJECT gsibec SOURCE "./sorc/gsibec" )
   endif()
 
 # Gibbs seawater
-  ecbuild_bundle( PROJECT gsw GIT "https://github.com/jcsda-internal/GSW-Fortran.git" BRANCH develop )
+  ecbuild_bundle( PROJECT gsw SOURCE "./sorc/gsw" )
 
 # Core JEDI repositories
-  ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  BRANCH develop)
-  ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" BRANCH develop )
-  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" BRANCH develop )
+  ecbuild_bundle( PROJECT oops SOURCE "./sorc/oops" )
+  ecbuild_bundle( PROJECT vader SOURCE "./sorc/vader" )
+  ecbuild_bundle( PROJECT saber SOURCE "./sorc/saber" )
   option(ENABLE_IODA_DATA "Obtain ioda test data from ioda-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" BRANCH develop  )
+  ecbuild_bundle( PROJECT ioda SOURCE "./sorc/ioda" )
   option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" BRANCH develop )
+  ecbuild_bundle( PROJECT ufo SOURCE "./sorc/ufo" )
 
 # FMS and FV3 dynamical core
   ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" BRANCH release-stable )
-  ecbuild_bundle( PROJECT fv3 GIT "https://github.com/jcsda/GFDL_atmos_cubed_sphere.git" BRANCH release-stable )
+  ecbuild_bundle( PROJECT fv3 SOURCE "./sorc/fv3" )
 
 # fv3-jedi and associated repositories
-  ecbuild_bundle( PROJECT femps       GIT "https://github.com/jcsda/femps.git"                BRANCH develop )
-  ecbuild_bundle( PROJECT fv3-jedi-lm GIT "https://github.com/jcsda/fv3-jedi-linearmodel.git" BRANCH develop )
+  ecbuild_bundle( PROJECT femps SOURCE "./sorc/femps" )
+  ecbuild_bundle( PROJECT fv3-jedi-lm SOURCE "./sorc/fv3-jedi-lm" )
   option(ENABLE_FV3_JEDI_DATA "Obtain fv3-jedi test data from fv3-jedi-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT fv3-jedi    GIT "https://github.com/jcsda/fv3-jedi.git"             BRANCH develop )
+  ecbuild_bundle( PROJECT fv3-jedi SOURCE "./sorc/fv3-jedi" )
 
 # SOCA associated repositories
 # TODO: Move the Icepack fork to EMC github
   set(BUILD_ICEPACK "ON" CACHE STRING "Build the icepack library")
   if ( BUILD_ICEPACK )
-    ecbuild_bundle( PROJECT icepack GIT "https://github.com/JCSDA-internal/Icepack.git" BRANCH feature/ecbuild-new )
+    ecbuild_bundle( PROJECT icepack SOURCE "./sorc/icepack" )
   endif()
-  ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" BRANCH main-ecbuild RECURSIVE )
-  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" BRANCH develop )
+  ecbuild_bundle( PROJECT mom6 SOURCE "./sorc/mom6" )
+  ecbuild_bundle( PROJECT soca SOURCE "./sorc/soca" )
 
   # Build JEDI/DA or other peripherals
   ecbuild_bundle( PROJECT gdas-utils SOURCE "./utils" )
@@ -107,55 +106,12 @@ if(BUILD_GDASBUNDLE)
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
   if(BUILD_IODA_CONVERTERS)
-    ecbuild_bundle( PROJECT iodaconv GIT "https://github.com/JCSDA-internal/ioda-converters.git" BRANCH develop )
+    ecbuild_bundle( PROJECT iodaconv SOURCE "./sorc/iodaconv" )
   endif()
 
 # Land associated repositories
-  ecbuild_bundle( PROJECT land-imsproc  GIT "https://github.com/NOAA-PSL/land-IMS_proc.git"  TAG 6373819 )
-  ecbuild_bundle( PROJECT land-jediincr GIT "https://github.com/NOAA-PSL/land-apply_jedi_incr.git"  TAG 2923344)
-
-# ioda, ufo, fv3-jedi, and saber test data
-#---------------------------------
-if(CLONE_JCSDADATA)
-
-  # If IODA branch is being built set GIT_BRANCH_FUNC to IODA's current branch.
-  # If a tagged version of IODA is being built set GIT_TAG_FUNC to ioda's current tag. In this case,
-  # IODA test files will be download from UCAR DASH and ioda-data repo will not be cloned.
-  # When LOCAL_PATH_JEDI_TESTFILES is set to the directory of IODA test files stored
-  # in a local directory, ioda-data repo will not be cloned
-
-    find_branch_name(REPO_DIR_NAME ioda)
-  # When LOCAL_PATH_JEDI_TESTFILES is set to the directory of IODA test files stored
-  # in a local directory, ioda-data repo will not be cloned
-    if( NOT DEFINED ENV{LOCAL_PATH_JEDI_TESTFILES} AND NOT DEFINED GIT_TAG_FUNC )
-      ecbuild_bundle( PROJECT ioda-data GIT "https://github.com/JCSDA-internal/ioda-data.git" BRANCH develop )
-
-      # If IODA's current branch is available in ioda-data repo, that branch will be checked out
-      branch_checkout (REPO_DIR_NAME ioda-data
-                      BRANCH ${GIT_BRANCH_FUNC} )
-    endif()
-
-  # same procedure for ufo-data
-    find_branch_name(REPO_DIR_NAME ufo)
-    if( NOT DEFINED ENV{LOCAL_PATH_JEDI_TESTFILES} AND NOT DEFINED GIT_TAG_FUNC )
-      ecbuild_bundle( PROJECT ufo-data GIT "https://github.com/JCSDA-internal/ufo-data.git" BRANCH develop )
-
-      # If UFO's current branch is available in ioda-data repo, that branch will be checked out
-      branch_checkout (REPO_DIR_NAME ufo-data
-                      BRANCH ${GIT_BRANCH_FUNC} )
-    endif()
-
-  # same procedure for fv3-jedi-data
-    find_branch_name(REPO_DIR_NAME fv3-jedi)
-    if( NOT DEFINED ENV{LOCAL_PATH_JEDI_TESTFILES} AND NOT DEFINED GIT_TAG_FUNC )
-      ecbuild_bundle( PROJECT fv3-jedi-data GIT "https://github.com/JCSDA-internal/fv3-jedi-data.git" BRANCH develop )
-
-      # If fv3-jedi's current branch is available in ioda-data repo, that branch will be checked out
-      branch_checkout (REPO_DIR_NAME fv3-jedi-data
-                      BRANCH ${GIT_BRANCH_FUNC} )
-    endif()
-
-  endif(CLONE_JCSDADATA)
+  ecbuild_bundle( PROJECT land-imsproc SOURCE "./sorc/land-imsproc" )
+  ecbuild_bundle( PROJECT land-jediincr SOURCE "./sorc/land-jediincr" )
 
 endif(BUILD_GDASBUNDLE)
 
