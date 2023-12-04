@@ -39,7 +39,7 @@ def Mask_typ_for_var(typ, var):
     return typ_var
 
 
-def Compute_ObsSubType(typ, t29, sid):
+def Compute_obsSubType(typ, t29, sid):
 
     obssubtype = ma.array(np.full(typ.shape[0], 0))
     for i in range(len(typ)):
@@ -48,13 +48,11 @@ def Compute_ObsSubType(typ, t29, sid):
             newval = 0
             try:
                 newval = int(sid[i][-3:])
-            except:
-                newval = 0 
+            except Exception:
+                newval = 0
 
             if newval > 500:
                 newtyp == typ[i] + 19
-#            else:
-#                newtyp = newtyp
 
         if ((typ[i] == 180) and ((t29[i] == 522) or (t29[i] == 523))):
             newtyp == typ[i] + 18
@@ -64,9 +62,6 @@ def Compute_ObsSubType(typ, t29, sid):
                 obssubtype[i] = 0
             else:
                 obssubtype[i] = 1
-
-    for i in range(len(obssubtype)):
-        print("NE obssubtype:  ", obssubtype[i])
 
     return obssubtype
 
@@ -646,9 +641,10 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Creating derived variables - ObsSubType ... ")
 
-    ObsSubType = Compute_ObsSubType(typ, t29, sid)
+    obsSubType = Compute_obsSubType(typ, t29, sid)
 
-    logger.debug(f"     Check ObsSubType shape & type ...")
+    logger.debug(f"     Check obsSubType shape & type ...")
+    logger.debug(f"     obsSubType shape, type = {obsSubType.shape}, {obsSubType.dtype}")
 
     # =========================
     # Mask Certain Variables
@@ -733,6 +729,12 @@ def bufr_to_ioda(config, logger):
                         fillval=catorig1.fill_value) \
         .write_attr('long_name', 'prepBUFR Data Level Category') \
         .write_data(cat)
+
+    # ObsSubType
+    obsspace.create_var('MetaData/obsSubType', dtype=obsSubType.dtype,
+                        fillval=obsSubType.fill_value) \
+        .write_attr('long_name', 'Observation SubType') \
+        .write_data(obsSubType)
 
     # Temperature Event Code
     obsspace.create_var('MetaData/temperatureEventCode', dtype=tpcorig1.dtype,
