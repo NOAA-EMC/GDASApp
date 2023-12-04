@@ -6,10 +6,7 @@ import logging
 import os
 import prep_marine_obs
 import subprocess
-<<<<<<< HEAD
 import sys
-=======
->>>>>>> develop
 from wxflow import YAMLFile, save_as_yaml
 
 # set up logger
@@ -37,6 +34,7 @@ obsprocConfig = YAMLFile(OBSPROC_YAML)
 
 # TODO (AFE): needs more error handling (missing sources, missing files)
 try:
+# For each of the observation sources (observers) specificed in the OBS_YAML...
     for observer in obsConfig['observers']:
 
         try:
@@ -47,25 +45,31 @@ try:
             continue # to next observer
 
         print(f"obsSpaceName: {obsSpaceName}") 
-
+# ...look through the observations in OBSPROC_YAML... 
         for observation in obsprocConfig['observations']:
-    
+
             obsprocSpace = observation['obs space']
             obsprocSpaceName = obsprocSpace['name']
-    
+
+# ...for a matching name, and process the observation source
             if obsprocSpaceName == obsSpaceName:
-    
+
                 print(f"obsprocSpaceName: {obsSpaceName}")
 
                 # fetch the obs files from DMPDIR to RUNDIR
                 matchingFiles = prep_marine_obs.obs_fetch(obsprocSpace)
+
+                if not matchingFiles:
+                    print("WARNING: No files found for obs source , skipping")
+                    break # to next observation source in OBS_YAML
+
                 obsprocSpace['input files'] = matchingFiles
                 obsprocSpace['window begin'] = windowBegin
                 obsprocSpace['window end'] = windowEnd
-    
+
                 iodaYamlFilename = obsprocSpaceName + '2ioda.yaml'
                 save_as_yaml(obsprocSpace, iodaYamlFilename)
-    
+
                 subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
 except TypeError: 
     sys.exit("CRITICAL: Ill-formed OBS_YAML file, exiting")
