@@ -6,7 +6,10 @@ import logging
 import os
 import prep_marine_obs
 import subprocess
+<<<<<<< HEAD
 import sys
+=======
+>>>>>>> develop
 from wxflow import YAMLFile, save_as_yaml
 
 # set up logger
