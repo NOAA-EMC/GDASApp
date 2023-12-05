@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 import argparse
+import json
 import os
 from combine_base import Bufr2IodaBase, CPP
 from wxflow import Logger
-from antcorr_application import ACCoeff, apply_ant_corr
+from antcorr_application import ACCoeff, apply_ant_corr, remove_ant_corr
 from utils import timing_decorator, nc_merge
 
 logger = Logger(os.path.basename(__file__), level='INFO')
@@ -14,16 +15,31 @@ R1000000 = 1000000.0
 
 BACKEND = CPP
 
+AMSUA_TYPE_CHANGE_DATETIME = "2022120000"
+
+YAML_NORMAL = True  #  current as normal
+
 
 class Bufr2IodaAmusa(Bufr2IodaBase):
+
+    def __init__(self, yaml_order, *args, **kwargs):
+        self.yaml_order = yaml_order
+        super().__init__(*args, **kwargs)
+
     def get_yaml_file(self):
-        return self.config['yaml_file'][0]
+        if self.yaml_order:
+            return self.config['yaml_file'][0]
+        else:
+            return self.config['yaml_file'][1]
 
 
-class Bufr2IodaEbmua(Bufr2IodaBase):
+class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
 
     def get_yaml_file(self):
-        return self.config['yaml_file'][1]
+        if self.yaml_order:
+            return self.config['yaml_file'][1]
+        else:
+            return self.config['yaml_file'][0]
 
     def get_ac_dir(self):
         return self.config['ac_dir']
@@ -39,11 +55,14 @@ class Bufr2IodaEbmua(Bufr2IodaBase):
             logger.info(f'Converting for {sat_id}, ...')
             ta = self.get_container_variable(container, 'ObsValue', 'brightnessTemperature', sat_id)
             if ta.shape[0]:
-               ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
-               tb = self.apply_ant_corr(sat_id, ta, ifov)
-               self.replace_container_variable(container, 'ObsValue', 'brightnessTemperature', tb, sat_id)
+                if self.yaml_order:
+                    ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
+                else:
+                    ifov = self.get_container_variable(container, 'MetaData', 'fieldOfViewNumber', sat_id)
+                tb = self.apply_corr(sat_id, ta, ifov)
+                self.replace_container_variable(container, 'ObsValue', 'brightnessTemperature', tb, sat_id)
 
-    def apply_ant_corr(self, sat_id, ta, ifov):
+    def apply_corr(self, sat_id, ta, ifov):
         ac = ACCoeff(self.get_ac_dir())  # TODO add later
         llll = 1  # TODO how to set this
         if llll == 1:
@@ -52,7 +71,10 @@ class Bufr2IodaEbmua(Bufr2IodaBase):
                 ifov = ifov.astype(int) - 1
                 for i in range(ta.shape[1]):
                     x = ta[:, i]
-                    apply_ant_corr(i, ac, ifov, x)
+                    if self.yaml_order:
+                        apply_ant_corr(i, ac, ifov, x)
+                    else:
+                        remove_ant_corr(i, ac, ifov, x)
                     x[x > R1000] = R1000000
         else:
             pass  # TODO after know how to set llll
@@ -87,12 +109,22 @@ if __name__ == '__main__':
     logger = Logger(os.path.basename(__file__), level=log_level)
     amsua_files = []
     splits = set()
+    json_file_name = args.config
+    with open(json_file_name, "r") as json_file:
+        config = json.load(json_file)
+
+    cycle_datetime = config["cycle_datetime"]
+    if cycle_datetime >= AMSUA_TYPE_CHANGE_DATETIME:
+        yaml_order = YAML_NORMAL
+    else:
+        yaml_order = not YAML_NORMAL
+
     for sat_type in ['a', 'e']:
         logger.info(f'Processing sat type: {sat_type}')
         if sat_type == 'a':
-            convert = Bufr2IodaAmusa(args.config, backend=BACKEND)
+            convert = Bufr2IodaAmusa(yaml_order, args.config, backend=BACKEND)
         else:
-            convert = Bufr2IodaEbmua(args.config, backend=BACKEND)
+            convert = Bufr2IodaAmusaChange(yaml_order, args.config, backend=BACKEND)
 
         convert.execute()
         amsua_files.append(convert.split_files)
