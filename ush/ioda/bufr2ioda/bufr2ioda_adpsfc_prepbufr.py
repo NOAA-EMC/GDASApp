@@ -108,7 +108,6 @@ def bufr_to_ioda(config, logger):
     with bufr.File(DATA_PATH) as f:
         r = f.execute(q)
 
-    logger.debug(" ... Executing QuerySet: get ObsType ...")
     # ObsType
     logger.debug(" ... Executing QuerySet: get ObsType ...")
     typ = r.get('observationType')
@@ -124,7 +123,7 @@ def bufr_to_ioda(config, logger):
     pressure *= 100
 
     # Quality Information
-    logger.debug(f" ... Executing QuerySet: get QualityMarker information ...")
+    logger.debug(f" ... Executing QuerySet: get QualityMarker ...")
     pobqm = r.get('qualityMarkerStationPressure')
     zobqm = r.get('qualityMarkerStationElevation')
 
