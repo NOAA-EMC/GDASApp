@@ -144,12 +144,12 @@ def bufr_to_ioda(config, logger):
     ulan = ulan.reshape(ulan.shape)
 
     # ObsValue
-    ps = np.full(pob.shape[0], pob.fill_value) 	# Extract stationPressure from pressure, which belongs to CAT=1
+    ps = np.full(pob.shape[0], pob.fill_value) #Extract stationPressure from pressure, which belongs to CAT=1
     ps = np.where(cat == 0, pob, ps)
     tob = r.get('airTemperature', 'prepbufrDataLevelCategory')
     tob += 273.15
-    tsen = np.full(tob.shape[0], tob.fill_value) 	# Extract sensible temperature from tob, which belongs to TPC=1
-    tsen = np.where(((tpc >= 1) & (tpc <8)), tob, tsen)
+    tsen = np.full(tob.shape[0], tob.fill_value) #Extract sensible temperature from tob, which belongs to TPC=1
+    tsen = np.where(((tpc>=1)&(tpc<8)), tob, tsen)
     tvo = np.full(tob.shape[0], tob.fill_value) 	# Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
     tvo = np.where((tpc == 8), tob, tvo)
     qob = r.get('specificHumidity', 'prepbufrDataLevelCategory', type='float')
@@ -162,8 +162,8 @@ def bufr_to_ioda(config, logger):
     psqm = np.full(pobqm.shape[0], pobqm.fill_value) 	# Extract stationPressureQM from pressureQM
     psqm = np.where(cat == 0, pobqm, psqm)
     tobqm = r.get('airTemperatureQM', 'prepbufrDataLevelCategory')
-    tsenqm = np.full(tobqm.shape[0], tobqm.fill_value)  # Extract airTemperature from tobqm, which belongs to TPC=1
-    tsenqm = np.where(((tpc >= 1) & (tpc <8)), tobqm, tsenqm)
+    tsenqm = np.full(tobqm.shape[0], tobqm.fill_value) #Extract airTemperature from tobqm, which belongs to TPC=1
+    tsenqm = np.where(((tpc>=1)&(tpc<8)), tobqm, tsenqm)
     tvoqm = np.full(tobqm.shape[0], tobqm.fill_value)  # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
     tvoqm = np.where((tpc == 8), tobqm, tvoqm)
     qobqm = r.get('specificHumidityQM', 'prepbufrDataLevelCategory')
