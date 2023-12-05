@@ -162,7 +162,7 @@ def bufr_to_ioda(config, logger):
     psqm = np.full(pobqm.shape[0], pobqm.fill_value) 	# Extract stationPressureQM from pressureQM
     psqm = np.where(cat == 0, pobqm, psqm)
     tobqm = r.get('airTemperatureQM', 'prepbufrDataLevelCategory')
-    tsenqm = np.full(tobqm.shape[0], tobqm.fill_value) # Extract airTemperature from tobqm, which belongs to TPC=1
+    tsenqm = np.full(tobqm.shape[0], tobqm.fill_value)  # Extract airTemperature from tobqm, which belongs to TPC=1
     tsenqm = np.where(((tpc >= 1) & (tpc < 8)), tobqm, tsenqm)
     tvoqm = np.full(tobqm.shape[0], tobqm.fill_value)  # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
     tvoqm = np.where((tpc == 8), tobqm, tvoqm)
