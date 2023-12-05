@@ -15,7 +15,7 @@ obs space:
 
 obs operator:
   name: CRTM
-  Absorbers: [H2O,O3]
+  Absorbers: [H2O,O3,CO2]
   Clouds: [Water, Ice]
   Cloud_Fraction: 1.0
   Cloud_Seeding: true 
@@ -23,6 +23,8 @@ obs operator:
     Sensor_ID: &Sensor_ID atms_npp
     EndianType: little_endian
     CoefficientPath: $(DATA)/crtm/
+  linear obs operator:
+    Absorbers: [H2O, O3]
 
 obs bias:
   input file: $(DATA)/obs/$(GPREFIX)atms_npp.satbias.nc4

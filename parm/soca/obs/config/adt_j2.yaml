@@ -11,6 +11,8 @@ obs space:
       type: H5File
       obsfile: !ENV ${DATA}/diags/adt_j3.${PDY}${cyc}.nc4
   simulated variables: [absoluteDynamicTopography]
+get values:
+  time interpolation: linear
 obs operator:
   name: ADT
 obs error:
