@@ -48,7 +48,7 @@ def Compute_obsSubType(typ, t29, sid):
             newval = 0
             try:
                 newval = int(sid[i][-3:])
-            except Exception:
+            except ValueError:
                 newval = 0
 
             if newval > 500:
