@@ -718,6 +718,24 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ_ps)
 
+    # ObsSubType - airTemperature
+    obsspace.create_var('obsSubType/airTemperature', dtype=obsSubType.dtype,
+                        fillval=obsSubType.fill_value) \
+        .write_attr('long_name', 'Observation SubType') \
+        .write_data(obsSubType)
+
+    # ObsSubType - virtualTemperature
+    obsspace.create_var('obsSubType/virtualTemperature', dtype=obsSubType.dtype,
+                        fillval=obsSubType.fill_value) \
+        .write_attr('long_name', 'Observation SubType') \
+        .write_data(obsSubType)
+
+    # ObsSubType - stationPressure
+    obsspace.create_var('obsSubType/stationPressure', dtype=obsSubType.dtype,
+                        fillval=obsSubType.fill_value) \
+        .write_attr('long_name', 'Observation SubType') \
+        .write_data(obsSubType)
+
     # Station Identification
     obsspace.create_var('MetaData/stationIdentification', dtype=sidorig1.dtype,
                         fillval=sidorig1.fill_value) \
@@ -729,12 +747,6 @@ def bufr_to_ioda(config, logger):
                         fillval=catorig1.fill_value) \
         .write_attr('long_name', 'prepBUFR Data Level Category') \
         .write_data(cat)
-
-    # ObsSubType
-    obsspace.create_var('MetaData/obsSubType', dtype=obsSubType.dtype,
-                        fillval=obsSubType.fill_value) \
-        .write_attr('long_name', 'Observation SubType') \
-        .write_data(obsSubType)
 
     # Temperature Event Code
     obsspace.create_var('MetaData/temperatureEventCode', dtype=tpcorig1.dtype,
