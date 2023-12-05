@@ -35,9 +35,9 @@ warnings.filterwarnings('ignore')
 def Compute_dateTime(cycleTimeSinceEpoch, hrdr):
 
     hrdr = np.int64(hrdr*3600)
-    hrdr += cycleTimeSinceEpoch
+    dateTime = hrdr + cycleTimeSinceEpoch
 
-    return hrdr
+    return dateTime
 
 
 def bufr_to_ioda(config, logger):
@@ -46,7 +46,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Checking subsets = {subsets}")
 
     # Get parameters from configuration
-    subsets = config["subsets"]
     data_format = config["data_format"]
     data_type = config["data_type"]
     data_description = config["data_description"]
@@ -68,7 +67,7 @@ def bufr_to_ioda(config, logger):
 
     logger.info(f"reference_time = {reference_time}")
 
-    bufrfile = f"{cycle_type}.t{hh}z.{data_type}"
+    bufrfile = f"{cycle_type}.t{hh}z.{data_format}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), 'atmos', bufrfile)
 
     # ============================================
@@ -80,6 +79,7 @@ def bufr_to_ioda(config, logger):
     q = bufr.QuerySet(subsets)
 
     # MetaData
+    q.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
     q.add('latitude', '*/PRSLEVEL/DRFTINFO/YDR')
     q.add('longitude', '*/PRSLEVEL/DRFTINFO/XDR')
     q.add('stationIdentification', '*/SID')
@@ -88,16 +88,15 @@ def bufr_to_ioda(config, logger):
     q.add('releaseTime', '*/PRSLEVEL/DRFTINFO/HRDR')
     q.add('temperatureEventProgramCode', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TPC')
     q.add('pressure', '*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
+    q.add('height', '*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
 
     # ObsValue
-    q.add('verticalSignificance', '*/PRSLEVEL/CAT')
     q.add('stationPressure', '*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
     q.add('airTemperature', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TOB')
     q.add('virtualTemperature', '*/PRSLEVEL/T___INFO/TVO')
     q.add('specificHumidity', '*/PRSLEVEL/Q___INFO/Q__EVENT{1}/QOB')
     q.add('windEastward', '*/PRSLEVEL/W___INFO/W__EVENT{1}/UOB')
     q.add('windNorthward', '*/PRSLEVEL/W___INFO/W__EVENT{1}/VOB')
-    q.add('height', '*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
 
     # QualityMark
     q.add('pressureQM', '*/PRSLEVEL/P___INFO/P__EVENT{1}/PQM')
@@ -123,17 +122,19 @@ def bufr_to_ioda(config, logger):
 
     logger.info('Executing QuerySet: get metadata')
     # MetaData
-    lat = r.get('latitude', 'verticalSignificance')
-    lon = r.get('longitude', 'verticalSignificance')
+    cat = r.get('prepbufrDataLevelCategory', 'prepbufrDataLevelCategory')
+    lat = r.get('latitude', 'prepbufrDataLevelCategory')
+    lon = r.get('longitude', 'prepbufrDataLevelCategory')
     lon[lon > 180] -= 360  # Convert Longitude from [0,360] to [-180,180]
-    sid = r.get('stationIdentification', 'verticalSignificance')
-    elv = r.get('stationElevation', 'verticalSignificance', type='float')
-    tpc = r.get('temperatureEventProgramCode', 'verticalSignificance')
-    pob = r.get('pressure', 'verticalSignificance')
+    sid = r.get('stationIdentification', 'prepbufrDataLevelCategory')
+    elv = r.get('stationElevation', 'prepbufrDataLevelCategory', type='float')
+    tpc = r.get('temperatureEventProgramCode', 'prepbufrDataLevelCategory')
+    pob = r.get('pressure', 'prepbufrDataLevelCategory')
     pob *= 100
+    zob = r.get('height', 'prepbufrDataLevelCategory', type='float')
 
     # Time variable
-    hrdr = r.get('timeOffset', 'verticalSignificance')
+    hrdr = r.get('timeOffset', 'prepbufrDataLevelCategory', type='int64')
     ulan = r.get('releaseTime')
     ulan = np.int64(ulan*3600)
 
@@ -143,33 +144,31 @@ def bufr_to_ioda(config, logger):
     ulan = ulan.reshape(ulan.shape)
 
     # ObsValue
-    cat = r.get('verticalSignificance', 'verticalSignificance')
     ps = np.full(pob.shape[0], pob.fill_value) 	# Extract stationPressure from pressure, which belongs to CAT=1
     ps = np.where(cat == 0, pob, ps)
-    tob = r.get('airTemperature', 'verticalSignificance')
+    tob = r.get('airTemperature', 'prepbufrDataLevelCategory')
     tob += 273.15
     tsen = np.full(tob.shape[0], tob.fill_value) 	# Extract sensible temperature from tob, which belongs to TPC=1
-    tsen = np.where(tpc == 1, tob, tsen)
+    tsen = np.where(((tpc >= 1) & (tpc <8)), tob, tsen)
     tvo = np.full(tob.shape[0], tob.fill_value) 	# Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
-    tvo = np.where(((tpc <= 8) & (tpc > 1)), tob, tvo)
-    qob = r.get('specificHumidity', 'verticalSignificance', type='float')
+    tvo = np.where((tpc == 8), tob, tvo)
+    qob = r.get('specificHumidity', 'prepbufrDataLevelCategory', type='float')
     qob *= 1.0e-6
-    uob = r.get('windEastward', 'verticalSignificance')
-    vob = r.get('windNorthward', 'verticalSignificance')
-    zob = r.get('height', 'verticalSignificance')
+    uob = r.get('windEastward', 'prepbufrDataLevelCategory')
+    vob = r.get('windNorthward', 'prepbufrDataLevelCategory')
 
     # QualityMark
-    pobqm = r.get('pressureQM', 'verticalSignificance')
+    pobqm = r.get('pressureQM', 'prepbufrDataLevelCategory')
     psqm = np.full(pobqm.shape[0], pobqm.fill_value) 	# Extract stationPressureQM from pressureQM
     psqm = np.where(cat == 0, pobqm, psqm)
-    tobqm = r.get('airTemperatureQM', 'verticalSignificance')
+    tobqm = r.get('airTemperatureQM', 'prepbufrDataLevelCategory')
     tsenqm = np.full(tobqm.shape[0], tobqm.fill_value)  # Extract airTemperature from tobqm, which belongs to TPC=1
-    tsenqm = np.where(tpc == 1, tobqm, tsenqm)
+    tsenqm = np.where(((tpc >= 1) & (tpc <8)), tobqm, tsenqm)
     tvoqm = np.full(tobqm.shape[0], tobqm.fill_value)  # Extract virtual temperature from tob, which belongs to TPC <= 8 and TPC>1
-    tvoqm = np.where(((tpc <= 8) & (tpc > 1)), tobqm, tvoqm)
-    qobqm = r.get('specificHumidityQM', 'verticalSignificance')
-    uobqm = r.get('windEastwardQM', 'verticalSignificance')
-    vobqm = r.get('windNorthwardQM', 'verticalSignificance')
+    tvoqm = np.where((tpc == 8), tobqm, tvoqm)
+    qobqm = r.get('specificHumidityQM', 'prepbufrDataLevelCategory')
+    uobqm = r.get('windEastwardQM', 'prepbufrDataLevelCategory')
+    vobqm = r.get('windNorthwardQM', 'prepbufrDataLevelCategory')
 
     logger.info('Executing QuerySet Done!')
 
@@ -184,6 +183,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f'     pob       shape = {pob.shape}')
     logger.debug(f'     hrdr      shape = {hrdr.shape}')
     logger.debug(f'     ulan      shape = {ulan.shape}')
+    logger.debug(f'     zob       shape = {zob.shape}')
 
     logger.debug(f'     ps    	  shape = {ps.shape}')
     logger.debug(f'     tob       shape = {tob.shape}')
@@ -192,7 +192,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f'     qob       shape = {qob.shape}')
     logger.debug(f'     uob       shape = {uob.shape}')
     logger.debug(f'     vob       shape = {vob.shape}')
-    logger.debug(f'     zob       shape = {zob.shape}')
 
     logger.debug(f'     pobqm     shape = {pobqm.shape}')
     logger.debug(f'     psqm      shape = {psqm.shape}')
@@ -212,6 +211,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f'     pob       type  = {pob.dtype}')
     logger.debug(f'     hrdr      type  = {hrdr.dtype}')
     logger.debug(f'     ulan      type  = {ulan.dtype}')
+    logger.debug(f'     zob       type = {zob.dtype}')
 
     logger.debug(f'     ps        type = {ps.dtype}')
     logger.debug(f'     tob       type = {tob.dtype}')
@@ -220,7 +220,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f'     qob       type = {qob.dtype}')
     logger.debug(f'     uob       type = {uob.dtype}')
     logger.debug(f'     vob       type = {vob.dtype}')
-    logger.debug(f'     zob       type = {zob.dtype}')
 
     logger.debug(f'     pobqm     type = {pobqm.dtype}')
     logger.debug(f'     psqm      type = {psqm.dtype}')
@@ -243,22 +242,20 @@ def bufr_to_ioda(config, logger):
     logger.info('Creating derived variables - dateTime from hrdr')
 
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(reference_time, '%Y-%m-%dT%H:%M:%SZ')))
-    hrdr = Compute_dateTime(cycleTimeSinceEpoch, hrdr)
+    dateTime = Compute_dateTime(cycleTimeSinceEpoch, hrdr)
 
     logger.debug('     Check derived variables type ... ')
-    logger.debug(f'     hrdr      type = {hrdr.dtype}')
+    logger.debug(f'    dateTime      type = {dateTime.dtype}')
 
     end_time = time.time()
     running_time = end_time - start_time
     logger.info(f"Running time for creating derived variables : {running_time} seconds")
 
     # Create the dimensions
-    dims = {
-        'Location': np.arange(0, lat.shape[0])
-    }
+    dims = {'Location': np.arange(0, lat.shape[0])}
 
     # Create IODA ObsSpace
-    iodafile = f"{cycle_type}.t{hh}z.{data_type}.nc"
+    iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.{cycle}.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
     logger.info(f"Create output file: {OUTPUT_PATH}")
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
@@ -270,6 +267,12 @@ def bufr_to_ioda(config, logger):
 
     # Create IODA variables
     logger.debug(' ... ... Create variables: name, type, units, and attributes')
+    # Prepbufr Data Level Category
+    obsspace.create_var('MetaData/prepbufrDataLevelCategory', dtype=cat.dtype, fillval=cat.fill_value) \
+        .write_attr('units', '1') \
+        .write_attr('long_name', 'Prepbufr Data Level Category') \
+        .write_data(cat)
+
     # Latitude
     obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \
         .write_attr('units', 'degrees_north') \
@@ -306,22 +309,23 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Pressure') \
         .write_data(pob)
 
+    # Height of Observation
+    obsspace.create_var('MetaData/height', dtype=zob.dtype, fillval=zob.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Height of Observation') \
+        .write_data(zob)
+
     # Datetime
-    obsspace.create_var('MetaData/dateTime', dtype=np.int64, fillval=hrdr.fill_value) \
+    obsspace.create_var('MetaData/dateTime', dtype=dateTime.dtype, fillval=dateTime.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Datetime') \
-        .write_data(hrdr)
+        .write_data(dateTime)
 
     # releaseTime
-    obsspace.create_var('MetaData/releaseTime', dtype=np.int64, fillval=hrdr.fill_value) \
+    obsspace.create_var('MetaData/releaseTime', dtype=dateTime.dtype, fillval=dateTime.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Release Time') \
         .write_data(ulan)
-
-    # Prepbufr Data Level Category
-    obsspace.create_var('ObsValue/verticalSignificance', dtype=cat.dtype, fillval=cat.fill_value) \
-        .write_attr('long_name', 'Prepbufr Data Level Category') \
-        .write_data(cat)
 
     # Station Pressure
     obsspace.create_var('ObsValue/stationPressure', dtype=pob.dtype, fillval=pob.fill_value) \
@@ -358,12 +362,6 @@ def bufr_to_ioda(config, logger):
         .write_attr('units', 'm s-1') \
         .write_attr('long_name', 'Northward Wind') \
         .write_data(vob)
-
-    # Height of Observation
-    obsspace.create_var('ObsValue/height', dtype=zob.dtype, fillval=zob.fill_value) \
-        .write_attr('units', 'm') \
-        .write_attr('long_name', 'Height of Observation') \
-        .write_data(zob)
 
     # Pressure Quality Marker
     obsspace.create_var('QualityMarker/pressure', dtype=pobqm.dtype, fillval=pobqm.fill_value) \
