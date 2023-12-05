@@ -63,6 +63,7 @@ namespace gdasapp {
         iodaVars.append(providerToIodaVars(inputFilenames_[i]));
         oops::Log::info() << " appending: " << inputFilenames_[i] << std::endl;
         oops::Log::info() << " obs count: " << iodaVars.location_ << std::endl;
+        oops::Log::test() << "Reading: " << inputFilenames_ << std::endl;
       }
       nobs = iodaVars.location_;
 
@@ -101,7 +102,7 @@ namespace gdasapp {
         ioda::Variable iodaDatetime =
           ogrp.vars.createWithScales<int64_t>("MetaData/dateTime",
                                           {ogrp.vars["Location"]}, long_params);
-        iodaDatetime.atts.add<std::string>("units", {iodaVars.referenceDate_}, {1});
+        iodaDatetime.atts.add<std::string>("units", {iodaVarsAll.referenceDate_}, {1});
         ioda::Variable iodaLat =
           ogrp.vars.createWithScales<float>("MetaData/latitude",
                                             {ogrp.vars["Location"]}, float_params);
@@ -147,6 +148,9 @@ namespace gdasapp {
           tmpFloatMeta.writeWithEigenRegular(iodaVars.floatMetadata_.col(count));
           count++;
         }
+
+        // Test output
+        iodaVars.testOutput();
 
         // Write obs info to group
         oops::Log::info() << "Writing ioda file" << std::endl;

@@ -57,7 +57,9 @@ setup_expt config:
     NICAS_RESOL: 1
     NICAS_GRID_SIZE: 150
   prepoceanobs:
-    SOCA_OBS_LIST: @HOMEgfs@/sorc/gdas.cd/parm/soca/obs/obs_list_small.yaml
+    SOCA_OBS_LIST: @HOMEgfs@/sorc/gdas.cd/parm/soca/obsproc/obs_list_obsproc.yaml
+    OBSPROC_CONFIG: @HOMEgfs@/sorc/gdas.cd/parm/soca/obsproc/obsproc_config_test.yaml
+    DMPDIR: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/obsproc
 
 job options:
   account: da-cpu
