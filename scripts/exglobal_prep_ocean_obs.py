@@ -34,18 +34,18 @@ obsprocConfig = YAMLFile(OBSPROC_YAML)
 
 # TODO (AFE): needs more error handling (missing sources, missing files)
 try:
-# For each of the observation sources (observers) specificed in the OBS_YAML...
+    # For each of the observation sources (observers) specificed in the OBS_YAML...
     for observer in obsConfig['observers']:
 
         try:
             obsSpaceName = observer['obs space']['name']
         except KeyError:
-            print(f"observer: {observer}") 
+            print(f"observer: {observer}")
             print("WARNING: Ill-formed observer yaml file, skipping")
-            continue # to next observer
+            continue  # to next observer
 
-        print(f"obsSpaceName: {obsSpaceName}") 
-# ...look through the observations in OBSPROC_YAML... 
+        print(f"obsSpaceName: {obsSpaceName}")
+# ...look through the observations in OBSPROC_YAML...
         for observation in obsprocConfig['observations']:
 
             obsprocSpace = observation['obs space']
@@ -61,7 +61,7 @@ try:
 
                 if not matchingFiles:
                     print("WARNING: No files found for obs source , skipping")
-                    break # to next observation source in OBS_YAML
+                    break  # to next observation source in OBS_YAML
 
                 obsprocSpace['input files'] = matchingFiles
                 obsprocSpace['window begin'] = windowBegin
@@ -71,5 +71,5 @@ try:
                 save_as_yaml(obsprocSpace, iodaYamlFilename)
 
                 subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
-except TypeError: 
+except TypeError:
     sys.exit("CRITICAL: Ill-formed OBS_YAML file, exiting")
