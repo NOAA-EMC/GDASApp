@@ -92,4 +92,3 @@ ecbuild_add_test( TARGET  test_gdasapp_util_viirsaod2ioda
 #                  ARGS    "../testinput/gdas_icecamsr2ioda.yaml"
 #                  LIBS    gdas-utils
 #                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
-

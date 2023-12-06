@@ -36,36 +36,6 @@ pwd=$(pwd)
 #  Utilities
 export NLN=${NLN:-"/bin/ln -sf"}
 
-
-function bump_vars()
-{
-    tmp=$(ls -d ${1}_* )
-    lov=()
-    for v in $tmp; do
-        lov[${#lov[@]}]=${v#*_}
-    done
-    echo "$lov"
-}
-
-function concatenate_bump()
-{
-    bumpdim=$1
-    # Concatenate the bump files
-    vars=$(bump_vars $bumpdim)
-    n=$(wc -w <<< "$vars")
-    echo "concatenating $n variables: $vars"
-    lof=$(ls ${bumpdim}_${vars[0]})
-    echo $lof
-    for f in $lof; do
-        bumpbase=${f#*_}
-        output=bump/${bumpdim}_$bumpbase
-        lob=$(ls ${bumpdim}_*/*$bumpbase)
-        for b in $lob; do
-            ncks -A $b $output
-        done
-    done
-}
-
 function clean_yaml()
 {
     mv $1 tmp_yaml;
@@ -87,23 +57,6 @@ else
 fi
 
 ################################################################################
-# Prepare the diagonal of the parametric B
-shopt -s nullglob
-files=(ocn.bkgerr_stddev.incr.*.nc)
-echo $files
-if [ ${#files[@]} -gt 0 ]; then
-  echo "Diag of B already staged, skipping the parametric diag B"
-else
-    # TODO: this step should be replaced by a post processing step of the ens. derived std. dev.
-    $APRUN_OCNANAL $JEDI_BIN/soca_convertincrement.x parametric_stddev_b.yaml > parametric_stddev_b.out 2>&1
-    export err=$?; err_chk
-    if [ $err -gt 0  ]; then
-        exit $err
-    fi
-fi
-shopt -u nullglob
-
-################################################################################
 # Write ensemble weights for the hybrid envar
 $APRUN_OCNANAL $JEDI_BIN/gdas_socahybridweights.x soca_ensweights.yaml
 export err=$?; err_chk
@@ -112,16 +65,18 @@ if [ $err -gt 0  ]; then
 fi
 
 ################################################################################
-# Compute the ens std. dev, ignore ssh variance
-# TODO (G): Implement what's below into one single oops application
-# 0 - Compute moments of original ensemble, used at the diag of the first
-#     component of the hybrid B
-# 1 - Ensemble perturbations:
-#       o Vertically Interpolate to the deterministic layers
-#       o Recenter around 0 to create an ensemble of perurbations
-# 2 - Filter members and apply the linear steric height balance to each members
-# 3 - Copy h from deterministic to unbalanced perturbations
-# 4 - Compute moments of converted ensemble perturbations
+# Ensemble perturbations for the EnVAR and diagonal of static B
+# Static B:
+#   - Compute moments of original ensemble with the balanced ssh removed
+#     from the statistics
+#
+# Ensemble of perturbations:
+#   - apply the linear steric height balance to each members, using the
+#     deterministic for trajectory.
+#   - add the unblanced ssh to the steric ssh field
+# Diagnostics:
+#   - variance explained by the steric heigh
+#   - moments
 
 # Process static ensemble
 clean_yaml soca_clim_ens_moments.yaml
@@ -147,46 +102,11 @@ if [ ${#files[@]} -gt 0 ]; then
 fi
 
 ################################################################################
-# Set decorrelation scales for bump C
-$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
-fi
-
-################################################################################
 # Set localization scales for the hybrid en. var.
 $APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setlocscales.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err
-fi
-
-################################################################################
-# Compute convolution coefs for C
-# TODO (G, C, R, ...): problem with ' character when reading yaml, removing from file for now
-# 2D C from bump
-if false; then
-    # TODO: resurect this section when making use of bump 3D in the static B, skip for now
-    yaml_bump2d=soca_bump2d.yaml
-    clean_yaml $yaml_bump2d
-    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x $yaml_bump2d 2>$yaml_bump2d.err
-    export err=$?; err_chk
-    if [ $err -gt 0  ]; then
-        exit $err
-    fi
-
-    # 3D C from bump
-    yaml_list=`ls soca_bump3d_*.yaml`
-    for yaml in $yaml_list; do
-        clean_yaml $yaml
-        $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x $yaml 2>$yaml.err
-        export err=$?; err_chk
-        if [ $err -gt 0  ]; then
-            exit $err
-        fi
-    done
-    concatenate_bump 'bump3d'
 fi
 
 ################################################################################

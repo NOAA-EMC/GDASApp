@@ -97,6 +97,12 @@ namespace gdasapp {
         ensMembers.push_back(postProcIncr.read(i));
       }
 
+      // Check if we need to recenter the increment around the deterministic
+      bool addRecenterIncr(false);
+      if ( fullConfig.has("add recentering increment") ) {
+        fullConfig.get("add recentering increment", addRecenterIncr);
+      }
+
       // Compute ensemble moments
       soca::Increment ensMean(geom, postProcIncr.socaIncrVar_, postProcIncr.dt_);
       soca::Increment ensStd(geom, postProcIncr.socaIncrVar_, postProcIncr.dt_);
@@ -120,24 +126,25 @@ namespace gdasapp {
       fullConfig.get("steric height", stericVarChangeConfig);
       oops::Log::info() << "steric config 0000: " << stericVarChangeConfig << std::endl;
 
-      // Initialize trajectories
+      // Initialize the trajectories used in the linear variable changes
       const eckit::LocalConfiguration trajConfig(fullConfig, "trajectory");
-      soca::State cycleTraj(geom, trajConfig);  // trajectory of the cycle
-      soca::State meanTraj(cycleTraj);          // trajectory defined as the ens. mean
-      meanTraj.zero();
-      meanTraj += ensMean;
+      soca::State determTraj(geom, trajConfig);     // deterministic trajectory
+      soca::State ensMeanTraj(determTraj);          // trajectory defined as the ens. mean
+      ensMeanTraj.zero();
+      ensMeanTraj += ensMean;
 
-      // Compute the error between the ensemble mean and the deterministic
-      soca::Increment deterministicError(geom, postProcIncr.socaIncrVar_, postProcIncr.dt_);
-      deterministicError.diff(cycleTraj, meanTraj);
+      // Compute the recentering increment as the difference between
+      // the ensemble mean and the deterministic
+      soca::Increment recenteringIncr(geom, postProcIncr.socaIncrVar_, postProcIncr.dt_);
+      recenteringIncr.diff(determTraj, ensMeanTraj);
       eckit::LocalConfiguration sshRecErrOutputConfig(fullConfig, "ssh output.recentering error");
-      deterministicError = postProcIncr.setToZero(deterministicError);
+      recenteringIncr = postProcIncr.setToZero(recenteringIncr);
       oops::Log::info() << "steric config : " << stericVarChangeConfig << std::endl;
-      postProcIncr.applyLinVarChange(deterministicError, stericVarChangeConfig, cycleTraj);
-      oops::Log::info() << "ensemble mean: " << meanTraj << std::endl;
-      oops::Log::info() << "deterministic: " << cycleTraj << std::endl;
-      oops::Log::info() << "error: " << deterministicError << std::endl;
-      deterministicError.write(sshRecErrOutputConfig);
+      postProcIncr.applyLinVarChange(recenteringIncr, stericVarChangeConfig, determTraj);
+      oops::Log::info() << "ensemble mean: " << ensMeanTraj << std::endl;
+      oops::Log::info() << "deterministic: " << determTraj << std::endl;
+      oops::Log::info() << "error: " << recenteringIncr << std::endl;
+      recenteringIncr.write(sshRecErrOutputConfig);
 
       // Re-process the ensemble of perturbations
       int result = 0;
@@ -165,7 +172,7 @@ namespace gdasapp {
 
         // Compute the original steric height perturbation from T and S
         eckit::LocalConfiguration stericConfig(fullConfig, "steric height");
-        postProcIncr.applyLinVarChange(incr, stericConfig, meanTraj);
+        postProcIncr.applyLinVarChange(incr, stericConfig, ensMeanTraj);
         ssh_tmp = incr;
         sshSteric.push_back(ssh_tmp);
 
@@ -183,10 +190,10 @@ namespace gdasapp {
         incr = postProcIncr.setToZero(incr);
 
         // Filter ensemble member and recompute steric ssh, recentering around
-        // the cycle's trajectory
+        // the deterministic trajectory
         if ( fullConfig.has("linear variable change") ) {
           eckit::LocalConfiguration lvcConfig(fullConfig, "linear variable change");
-          postProcIncr.applyLinVarChange(incr, lvcConfig, cycleTraj);
+          postProcIncr.applyLinVarChange(incr, lvcConfig, determTraj);
         }
 
         // Add the unbalanced ssh to the recentered perturbation
@@ -200,12 +207,23 @@ namespace gdasapp {
         incr.fromFieldSet(incrFs);
         oops::Log::debug() << "&&&&& after adding ssh_u " << incr << std::endl;
 
-        // Save final perturbation, used in the offline EnVAR
+        // Save final perturbation, used in the EnVAR or to initialize the ensemble forecast
+        if (addRecenterIncr) {
+          // Add the recentering increment to the increment ensemble members.
+          // This is generally used to recenter the ensemble fcst around the
+          // deterministic
+          incr += recenteringIncr;
+        }
         result = postProcIncr.save(incr, i+1);
 
         // Update ensemble
         ensMembers[i] = incr;
-        }
+      }
+
+      // Exit early if only recentering around the deterministic
+      if (addRecenterIncr) {
+        return 0;
+      }
 
       // Compute ensemble moments for total ssh
       soca::Increment sshMean(geom, socaSshVar, postProcIncr.dt_);
