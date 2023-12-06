@@ -76,11 +76,11 @@ if(BUILD_GDASBUNDLE)
 # Core JEDI repositories
   ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG 1aa83c9)
   ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG 099cb5d )
-  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 660bdae )
+  ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 31a9339 )
   option(ENABLE_IODA_DATA "Obtain ioda test data from ioda-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG b27373f  )
   option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG 3eda06c )
+  ecbuild_bundle( PROJECT ufo   GIT "https://github.com/jcsda/ufo.git" TAG bf397e9 )
 
 # FMS and FV3 dynamical core
   ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" TAG 1f73914 )
