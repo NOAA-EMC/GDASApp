@@ -8,10 +8,10 @@ import fnmatch
 DMPDIR = os.getenv('DMPDIR')
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
-CDUMP = os.getenv('CDUMP')
+RUN = os.getenv('RUN')
 COMIN_OBS = os.getenv('COMIN_OBS')
 
-cycDir = os.path.join(DMPDIR, CDUMP + '.' + str(PDY), str(cyc))
+cycDir = os.path.join(DMPDIR, RUN + '.' + str(PDY), str(cyc))
 
 # TODO: this looks good for a yaml
 obs_dict = {

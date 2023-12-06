@@ -9,6 +9,7 @@ import subprocess
 import sys
 from wxflow import YAMLFile, save_as_yaml
 
+# TODO (AFE) figure out why logger is not logging
 # set up logger
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 
@@ -39,12 +40,12 @@ try:
 
         try:
             obsSpaceName = observer['obs space']['name']
+            print(f"obsSpaceName: {obsSpaceName}")
         except KeyError:
             print(f"observer: {observer}")
             print("WARNING: Ill-formed observer yaml file, skipping")
             continue  # to next observer
 
-        print(f"obsSpaceName: {obsSpaceName}")
 # ...look through the observations in OBSPROC_YAML...
         for observation in obsprocConfig['observations']:
 
@@ -72,4 +73,5 @@ try:
 
                 subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
 except TypeError:
-    sys.exit("CRITICAL: Ill-formed OBS_YAML file, exiting")
+    print("CRITICAL: Ill-formed OBS_YAML file, exiting")
+    raise
