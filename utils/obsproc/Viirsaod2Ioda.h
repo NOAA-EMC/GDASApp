@@ -129,7 +129,7 @@ namespace gdasapp {
                 // bright land
                 if (qcpath[i][j] % 4 == 2) {
                    obserrorValue = 0.0550472 + 0.299558 *  static_cast<float>(aod550[i][j]);
-                } 
+                }
                 obserror[i][j] = obserrorValue;
                 mask[i][j] = 1;
                 nobs += 1;
