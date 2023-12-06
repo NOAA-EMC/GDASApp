@@ -120,13 +120,16 @@ namespace gdasapp {
                 obsvalue[i][j] = static_cast<float>(aod550[i][j]);
                 lat[i][j] = lat2d[i][j];
                 lon[i][j] = lon2d[i][j];
+                // dark land
                 float obserrorValue = 0.111431 + 0.128699 * static_cast<float>(aod550[i][j]);
+                // ocean
                 if (qcpath[i][j] % 2 == 1) {
                     obserrorValue = 0.00784394 + 0.219923 * static_cast<float>(aod550[i][j]);
                 }
+                // bright land
                 if (qcpath[i][j] % 4 == 2) {
                    obserrorValue = 0.0550472 + 0.299558 *  static_cast<float>(aod550[i][j]);
-                }
+                } 
                 obserror[i][j] = obserrorValue;
                 mask[i][j] = 1;
                 nobs += 1;
