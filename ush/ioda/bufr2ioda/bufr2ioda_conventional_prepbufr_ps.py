@@ -43,21 +43,7 @@ def Compute_obsSubType(typ, t29, sid):
 
     obssubtype = ma.array(np.full(typ.shape[0], 0))
     for i in range(len(typ)):
-        newtyp = typ[i]
-        if ((typ[i] == 180) or (typ[i] == 280)) and (t29[i] == 562):
-            newval = 0
-            try:
-                newval = int(sid[i][-3:])
-            except ValueError:
-                newval = 0
-
-            if newval > 500:
-                newtyp == typ[i] + 19
-
-        if ((typ[i] == 180) and ((t29[i] == 522) or (t29[i] == 523))):
-            newtyp == typ[i] + 18
-
-        if (newtyp == 180) or (newtyp == 280):
+        if ((typ[i] == 180) or (typ[i] == 280)):
             if (t29[i] > 555) and (t29[i] < 565):
                 obssubtype[i] = 0
             else:
