@@ -39,15 +39,21 @@ def Mask_typ_for_var(typ, var):
     return typ_var
 
 
-def Compute_ObsSubType(typ, t29, sid):
+def Compute_ObsSubType(typ, t29):
 
-    obssubtype = ma.array(np.full(typ.shape[0], 0))
+    obssubtype1 = np.array([], dtype=np.int32)
+
     for i in range(len(typ)):
         if ((typ[i] == 180) or (typ[i] == 280)):
             if (t29[i] > 555) and (t29[i] < 565):
-                obssubtype[i] = 0
+                obssubtype1 = np.append(obssubtype1, 0)
             else:
-                obssubtype[i] = 1
+                obssubtype1 = np.append(obssubtype1, 1)
+        else:
+            obssubtype1 = np.append(obssubtype1, 0)
+
+    obssubtype = ma.array(obssubtype1)
+    obssubtype = ma.masked_values(obssubtype, typ.fill_value)
 
     return obssubtype
 
@@ -627,7 +633,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Creating derived variables - ObsSubType ... ")
 
-    ObsSubType = Compute_ObsSubType(typ, t29, sid)
+    ObsSubType = Compute_ObsSubType(typ, t29)
 
     logger.debug(f"     Check ObsSubType shape & type ...")
     logger.debug(f"     ObsSubType shape, type = {ObsSubType.shape}, {ObsSubType.dtype}")
