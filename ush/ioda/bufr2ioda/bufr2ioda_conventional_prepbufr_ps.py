@@ -633,7 +633,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Creating derived variables - ObsSubType ... ")
 
-    ObsSubType = Compute_ObsSubType(typ, t29)
+    ObsSubType = Compute_ObsSubType(typ, t29).astype('int32')
 
     logger.debug(f"     Check ObsSubType shape & type ...")
     logger.debug(f"     ObsSubType shape, type = {ObsSubType.shape}, {ObsSubType.dtype}")
