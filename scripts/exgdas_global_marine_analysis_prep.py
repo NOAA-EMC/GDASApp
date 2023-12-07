@@ -308,16 +308,6 @@ FileHandler({'copy': obs_list}).sync()
 logging.info(f"---------------- Stage static files")
 ufsda.stage.soca_fix(stage_cfg)
 
-################################################################################
-# stage background error files
-
-logging.info(f"---------------- Stage static files")
-bkgerr_list = []
-for domain in ['ocn', 'ice']:
-    fname_stddev = find_bkgerr(pytz.utc.localize(window_begin, is_dst=None), domain=domain)
-    fname_out = domain+'.bkgerr_stddev.incr.'+window_begin_iso+'.nc'
-    bkgerr_list.append([fname_stddev, fname_out])
-FileHandler({'copy': bkgerr_list}).sync()
 
 ################################################################################
 # stage ensemble members
@@ -390,14 +380,6 @@ config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BR
 config.save(berr_yaml)
 
 ################################################################################
-# copy yaml for decorrelation length scales
-
-logging.info(f"---------------- generate soca_setcorscales.yaml")
-corscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setcorscales.yaml')
-corscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml')
-FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
-
-################################################################################
 # copy yaml for localization length scales
 
 logging.info(f"---------------- generate soca_setlocscales.yaml")
@@ -408,49 +390,7 @@ FileHandler({'copy': [[locscales_yaml_src, locscales_yaml_dst]]}).sync()
 ################################################################################
 # generate yaml for bump/nicas (used for correlation and/or localization)
 
-logging.info(f"---------------- generate BUMP/NICAS yamls")
-# TODO (Guillaume): move the possible vars somewhere else
-vars3d = ['tocn', 'socn', 'uocn', 'vocn', 'chl', 'biop']
-vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
-          'sw', 'lw', 'lw_rad', 'lhf', 'shf', 'us']
-
-# 2d bump yaml (all 2d vars at once)
-bumpdir = 'bump'
-ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
-bump_yaml = os.path.join(anl_dir, 'soca_bump2d.yaml')
-bump_yaml_template = os.path.join(gdas_home,
-                                  'parm',
-                                  'soca',
-                                  'berror',
-                                  'soca_bump2d.yaml')
-config = YAMLFile(path=bump_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-config.save(bump_yaml)
-
-# 3d bump yaml, 1 yaml per variable
-soca_vars = ['tocn', 'socn', 'uocn', 'vocn']
-for v in soca_vars:
-    logging.info(f"creating the yaml to initialize bump for {v}")
-    if v in vars2d:
-        continue
-    else:
-        dim = '3d'
-    bump_yaml = os.path.join(anl_dir, 'soca_bump'+dim+'_'+v+'.yaml')
-    bump_yaml_template = os.path.join(gdas_home,
-                                      'parm',
-                                      'soca',
-                                      'berror',
-                                      'soca_bump_split.yaml')
-    bumpdir = 'bump'+dim+'_'+v
-    os.environ['BUMPDIR'] = bumpdir
-    ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
-    os.environ['CVAR'] = v
-    config = YAMLFile(path=bump_yaml_template)
-    config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-    config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-    config.save(bump_yaml)
-
+logging.info(f"---------------- generate BUMP/NICAS localization yamls")
 # localization bump yaml
 bumpdir = 'bump'
 ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
