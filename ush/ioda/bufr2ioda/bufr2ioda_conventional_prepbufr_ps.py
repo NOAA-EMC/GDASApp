@@ -121,7 +121,7 @@ def bufr_to_ioda(config, logger):
             q.add('longitude', '*/XOB')
             q.add('t29', '*/T29')
             q.add('obsTimeMinusCycleTime', '*/DHR')
-            q.add('heightOfStation', '*/Z___INFO/Z__EVENT{1}/ZOB')
+            q.add('height', '*/Z___INFO/Z__EVENT{1}/ZOB')
             q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
 
             # QualityMarker
@@ -148,7 +148,7 @@ def bufr_to_ioda(config, logger):
             r.add('longitude', '*/XOB')
             r.add('t29', '*/T29')
             r.add('obsTimeMinusCycleTime', '*/DHR')
-            r.add('heightOfStation', '*/Z___INFO/Z__EVENT{1}/ZOB')
+            r.add('height', '*/Z___INFO/Z__EVENT{1}/ZOB')
             r.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
 
             # QualityMarker
@@ -173,7 +173,7 @@ def bufr_to_ioda(config, logger):
             s.add('latitude', '*/PRSLEVEL/DRFTINFO/YDR')
             s.add('longitude', '*/PRSLEVEL/DRFTINFO/XDR')
             s.add('t29', '*/T29')
-            s.add('heightOfStation', '*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
+            s.add('height', '*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB')
             s.add('timeOffset', '*/PRSLEVEL/DRFTINFO/HRDR')
             s.add('releaseTime', '*/PRSLEVEL/DRFTINFO/HRDR')
             s.add('pressure', '*/PRSLEVEL/P___INFO/P__EVENT{1}/POB')
@@ -224,7 +224,7 @@ def bufr_to_ioda(config, logger):
     lonorig1[lonorig1 > 180] -= 360
     t29orig1 = t.get('t29')
     dhrorig1 = t.get('obsTimeMinusCycleTime', type='int64')
-    zoborig1 = t.get('heightOfStation', type='float')
+    zoborig1 = t.get('height', type='float')
     pressureorig1 = t.get('pressure')
     pressureorig1 *= 100
 
@@ -333,7 +333,7 @@ def bufr_to_ioda(config, logger):
     lonorig2 = u.get('longitude')
     lonorig2[lonorig2 > 180] -= 360
     t29orig2 = u.get('t29')
-    zoborig2 = u.get('heightOfStation', type='float')
+    zoborig2 = u.get('height', type='float')
     dhrorig2 = u.get('obsTimeMinusCycleTime', type='int64')
     pressureorig2 = u.get('pressure')
     pressureorig2 *= 100
@@ -444,7 +444,7 @@ def bufr_to_ioda(config, logger):
     lon3 = v.get('longitude', 'prepbufrDataLevelCategory')
     lon3[lon3 > 180] -= 360
     t293 = v.get('t29', 'prepbufrDataLevelCategory')
-    zob3 = v.get('heightOfStation', 'prepbufrDataLevelCategory', type='float')
+    zob3 = v.get('height', 'prepbufrDataLevelCategory', type='float')
     dhr3 = v.get('timeOffset', 'prepbufrDataLevelCategory', type='int64')
     pressure3 = v.get('pressure', 'prepbufrDataLevelCategory')
     pressure3 *= 100
@@ -762,11 +762,11 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Latitude') \
         .write_data(lat)
 
-    # MetaData: Height Of Station
-    obsspace.create_var('MetaData/heightOfStation', dtype=zoborig1.dtype,
+    # MetaData: Height
+    obsspace.create_var('MetaData/height', dtype=zoborig1.dtype,
                         fillval=zoborig1.fill_value) \
         .write_attr('units', 'm') \
-        .write_attr('long_name', 'Height Of Station') \
+        .write_attr('long_name', 'Height') \
         .write_data(zob)
 
     # Datetime
