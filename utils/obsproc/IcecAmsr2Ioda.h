@@ -1,10 +1,12 @@
 #pragma once
 
-#include <cstdio>
+#include <chrono>
 #include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <netcdf>    // NOLINT (using C API)
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -66,23 +68,44 @@ namespace gdasapp {
       ncFile.getVar("Scan_Time").getVar(oneTmpdateTimeVal.data());
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
-      // Set the time zone (UTC)
-      putenv("TZ=UTC");
-      tzset();
-
       size_t index = 0;
-      std::tm timeinfo = {};
       for (int i = 0; i < ntimes; i += dimTimeSize) {
-        timeinfo.tm_year = oneTmpdateTimeVal[i] - 1900;  // Year since 1900
-        timeinfo.tm_mon = oneTmpdateTimeVal[i + 1] - 1;  // 0-based; 8 represents Sep
-        timeinfo.tm_mday = oneTmpdateTimeVal[i + 2];
-        timeinfo.tm_hour = oneTmpdateTimeVal[i + 3];
-        timeinfo.tm_min = oneTmpdateTimeVal[i + 4];
-        timeinfo.tm_sec = static_cast<int64_t>(oneTmpdateTimeVal[i + 5]);
+        std::ostringstream timeinfo;
+        timeinfo << std::setfill('0');
+        timeinfo << std::setw(4) << oneTmpdateTimeVal[i] << '-';
+        timeinfo << std::setw(2) << oneTmpdateTimeVal[i+1] << '-';
+        timeinfo << std::setw(2) << oneTmpdateTimeVal[i+2] << ' ';
+        timeinfo << std::setw(2) << oneTmpdateTimeVal[i+3] << ':';
+        timeinfo << std::setw(2) << oneTmpdateTimeVal[i+4] << ':';
+        timeinfo << std::setw(2) << oneTmpdateTimeVal[i+5];
 
-        // Calculate and store the seconds since the Unix epoch
-        time_t epochtime = std::mktime(&timeinfo);
-        iodaVars.datetime_(index) = static_cast<int64_t>(epochtime);
+        // Print out the formatted time
+        oops::Log::info() << "Converted and Formatted time: " << timeinfo.str() << std::endl;
+
+        // Parse the formatted string from the product
+        std::tm t2 = {};
+        std::istringstream ss(timeinfo.str());
+        ss >> std::get_time(&t2, "%Y-%m-%d %H:%M:%S");
+
+        auto time_point2 = std::chrono::system_clock::from_time_t(std::mktime(&t2));
+
+        //  Print out the formatted time in seconds
+        oops::Log::info() << "time point2: " << std::chrono::system_clock::to_time_t(time_point2)
+            << std::endl;
+
+        // Convert the formatted string from iso8601_string
+        std::tm t1 = {};
+        std::istringstream epoch("1970-01-01 00:00:00");
+        epoch >> std::get_time(&t1, "%Y-%m-%d %H:%M:%S");
+
+        auto time_point1 = std::chrono::system_clock::from_time_t(std::mktime(&t1));
+
+        // Calculate the duration between the two time points
+        auto duration = time_point2 - time_point1;
+        auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+
+        // Write the duration in seconds to IODA since the Unix epoch
+        iodaVars.datetime_(index) = seconds;
         index++;
       }
 

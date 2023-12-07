@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdio>
-#include <ctime>
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
@@ -72,18 +70,36 @@ namespace gdasapp {
 
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
-      // Set the time zone (UTC)
-      putenv("TZ=UTC");
-      tzset();
-
       // calculate the seconds of Jan 1 of startyear since unix epoch
-      std::tm tm{};
-      // defaults are zero, Jan is zero
-      tm.tm_year = startYear - 1900;
-      tm.tm_mday = 1;
-      time_t unixStartYear = mktime(&tm);
+      std::ostringstream timeinfo;
+      timeinfo << std::setfill('0');
+      timeinfo << std::setw(4) << startYear << '-';
+      timeinfo << std::setw(2) << 1 << '-';
+      timeinfo << std::setw(2) << 1 << ' ';
+      timeinfo << std::setw(2) << 0 << ':';
+      timeinfo << std::setw(2) << 0 << ':';
+      timeinfo << std::setw(2) << 0;
 
-      int unixStartDay = unixStartYear + startDay * 86400;
+      // Print out the formatted time
+      oops::Log::info() << "Converted and Formatted time: " << timeinfo.str() << std::endl;
+
+      std::tm t2 = {};
+      std::istringstream ss(timeinfo.str());
+      ss >> std::get_time(&t2, "%Y-%m-%d %H:%M:%S");
+
+      auto time_point2 = std::chrono::system_clock::from_time_t(std::mktime(&t2));
+      // Print out the formatted time in seconds
+      oops::Log::info() << "time point2: " << std::chrono::system_clock::to_time_t(time_point2)
+          << std::endl;
+      // Convert the formatted string from iso8601_string
+      std::tm t1 = {};
+      std::istringstream epoch("1970-01-01 00:00:00");
+      epoch >> std::get_time(&t1, "%Y-%m-%d %H:%M:%S");
+      auto time_point1 = std::chrono::system_clock::from_time_t(std::mktime(&t1));
+      // Calculate the duration between the two time points
+      auto duration = time_point2 - time_point1;
+      auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+      int unixStartDay = seconds + (startDay * 86400);
 
       int loc;
       for (int i = 0; i < dim0; i++) {
