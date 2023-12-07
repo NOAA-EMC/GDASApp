@@ -62,12 +62,11 @@ ecbuild_add_test( TARGET  test_gdasapp_util_ghrsst2ioda
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
 # Test the SMAP to IODA converter
-# TODO(Mindo): Turn back on when date is fixed
-#ecbuild_add_test( TARGET  test_gdasapp_util_smap2ioda
-#                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
-#                  ARGS    "../testinput/gdas_smap2ioda.yaml"
-#                  LIBS    gdas-utils
-#                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+ecbuild_add_test( TARGET  test_gdasapp_util_smap2ioda
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  ARGS    "../testinput/gdas_smap2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
 # Test the SMOS to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_smos2ioda
@@ -77,9 +76,8 @@ ecbuild_add_test( TARGET  test_gdasapp_util_smos2ioda
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
 # Test the AMSR2 to IODA converter
-# TODO(Mindo): Turn back on when date is fixed
-#ecbuild_add_test( TARGET  test_gdasapp_util_icecamsr2ioda
-#                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
-#                  ARGS    "../testinput/gdas_icecamsr2ioda.yaml"
-#                  LIBS    gdas-utils
-#                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+ecbuild_add_test( TARGET  test_gdasapp_util_icecamsr2ioda
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  ARGS    "../testinput/gdas_icecamsr2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
