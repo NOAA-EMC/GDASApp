@@ -83,7 +83,7 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
 
 @timing_decorator
 def merge(amsua_files, splits):
-    ioda_files = [(f'esamua.{x}.tm00.ncc', f'amsua.{x}_ta.tm00.ncc', f'amsua.{x}.tm00.nc') for x in splits]
+    ioda_files = [(f'esamua.{x}.tm00.ncc', f'amsua.{x}_ta.tm00.ncc', f'amsua_{x}.tm00.nc') for x in splits]
     logger.info(f'Ioda files: {ioda_files}')
     file1 = [f for f in amsua_files[0].values()]
     file2 = [f for f in amsua_files[1].values()]

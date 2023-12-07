@@ -7,9 +7,9 @@ observers:
 ##- !INC ${OBS_YAML_DIR}/amsua_metop-c.yaml
 ##- !INC ${OBS_YAML_DIR}/sondes_prepbufr.yaml
 ##- !INC ${OBS_YAML_DIR}/atms_n20.yaml
-##- !INC ${OBS_YAML_DIR}/atms_npp.yaml
+- !INC ${OBS_YAML_DIR}/atms_npp.yaml
 ##- !INC ${OBS_YAML_DIR}/aircraft.yaml
-- !INC ${OBS_YAML_DIR}/satwind_goes-16.yaml
+## - !INC ${OBS_YAML_DIR}/satwind_goes-16.yaml
 ##- !INC ${OBS_YAML_DIR}/satwind_goes-17.yaml
 ##- !INC ${OBS_YAML_DIR}/scatwind_metop-a.yaml
 ##- !INC ${OBS_YAML_DIR}/scatwind_metop-b.yaml
