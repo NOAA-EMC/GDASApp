@@ -1,0 +1,26 @@
+Reading: [sss_smos_1.nc4,sss_smos_2.nc4]
+seconds since 1970-01-01T00:00:00Z
+obsVal:
+    Min: 0.994212
+    Max: 38.3212
+    Sum: 1587.47
+obsError:
+    Min: 0.508775
+    Max: 213.003
+    Sum: 294.419
+preQc:
+    Min: 56
+    Max: 999
+    Sum: 20696
+longitude:
+    Min: -86.052
+    Max: 137.108
+    Sum: 840.527
+latitude:
+    Min: -64.333
+    Max: 77.959
+    Sum: 411.168
+datetime:
+    Min: 1625087616
+    Max: 1625093440
+    Sum: 78004317504
