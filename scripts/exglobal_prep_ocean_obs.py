@@ -6,7 +6,6 @@ import logging
 import os
 import prep_marine_obs
 import subprocess
-import sys
 from wxflow import YAMLFile, save_as_yaml
 
 # TODO (AFE) figure out why logger is not logging
