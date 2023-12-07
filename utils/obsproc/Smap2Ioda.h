@@ -1,7 +1,10 @@
 #pragma once
 
+#include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
+#include <sstream>
 #include <string>
 #include <vector>
 
