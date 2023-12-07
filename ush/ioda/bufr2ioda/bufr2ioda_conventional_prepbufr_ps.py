@@ -39,7 +39,7 @@ def Mask_typ_for_var(typ, var):
     return typ_var
 
 
-def Compute_obsSubType(typ, t29, sid):
+def Compute_ObsSubType(typ, t29, sid):
 
     obssubtype = ma.array(np.full(typ.shape[0], 0))
     for i in range(len(typ)):
@@ -627,10 +627,10 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Creating derived variables - ObsSubType ... ")
 
-    obsSubType = Compute_obsSubType(typ, t29, sid)
+    ObsSubType = Compute_ObsSubType(typ, t29, sid)
 
-    logger.debug(f"     Check obsSubType shape & type ...")
-    logger.debug(f"     obsSubType shape, type = {obsSubType.shape}, {obsSubType.dtype}")
+    logger.debug(f"     Check ObsSubType shape & type ...")
+    logger.debug(f"     ObsSubType shape, type = {ObsSubType.shape}, {ObsSubType.dtype}")
 
     # =========================
     # Mask Certain Variables
@@ -705,22 +705,22 @@ def bufr_to_ioda(config, logger):
         .write_data(typ_ps)
 
     # ObsSubType - airTemperature
-    obsspace.create_var('obsSubType/airTemperature', dtype=obsSubType.dtype,
-                        fillval=obsSubType.fill_value) \
+    obsspace.create_var('ObsSubType/airTemperature', dtype=ObsSubType.dtype,
+                        fillval=ObsSubType.fill_value) \
         .write_attr('long_name', 'Observation SubType') \
-        .write_data(obsSubType)
+        .write_data(ObsSubType)
 
     # ObsSubType - virtualTemperature
-    obsspace.create_var('obsSubType/virtualTemperature', dtype=obsSubType.dtype,
-                        fillval=obsSubType.fill_value) \
+    obsspace.create_var('ObsSubType/virtualTemperature', dtype=ObsSubType.dtype,
+                        fillval=ObsSubType.fill_value) \
         .write_attr('long_name', 'Observation SubType') \
-        .write_data(obsSubType)
+        .write_data(ObsSubType)
 
     # ObsSubType - stationPressure
-    obsspace.create_var('obsSubType/stationPressure', dtype=obsSubType.dtype,
-                        fillval=obsSubType.fill_value) \
+    obsspace.create_var('ObsSubType/stationPressure', dtype=ObsSubType.dtype,
+                        fillval=ObsSubType.fill_value) \
         .write_attr('long_name', 'Observation SubType') \
-        .write_data(obsSubType)
+        .write_data(ObsSubType)
 
     # Station Identification
     obsspace.create_var('MetaData/stationIdentification', dtype=sidorig1.dtype,
