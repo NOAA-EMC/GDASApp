@@ -1,7 +1,8 @@
 cost function:
   cost type: 3D-Var
-  window begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
-  window length: $(ATM_WINDOW_LENGTH)
+  time window:
+    begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
+    length: $(ATM_WINDOW_LENGTH)
   analysis variables: &3dvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
   geometry:
     fms initialization:
