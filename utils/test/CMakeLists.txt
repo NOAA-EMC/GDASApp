@@ -6,6 +6,7 @@ list( APPEND utils_test_input
   testinput/gdas_smap2ioda.yaml
   testinput/gdas_smos2ioda.yaml
   testinput/gdas_icecamsr2ioda.yaml
+  testinput/gdas_viirsaod2ioda.yaml
 )
 
 set( gdas_utils_test_ref
@@ -14,6 +15,7 @@ set( gdas_utils_test_ref
   testref/smap2ioda.test
   testref/smos2ioda.test
   testref/icecamsr2ioda.test
+  testref/viirsaod2ioda.test
 )
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
@@ -72,6 +74,13 @@ ecbuild_add_test( TARGET  test_gdasapp_util_smap2ioda
 ecbuild_add_test( TARGET  test_gdasapp_util_smos2ioda
                   COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_smos2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+
+# Test the VIIRS AOD to IODA converter
+ecbuild_add_test( TARGET  test_gdasapp_util_viirsaod2ioda
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  ARGS    "../testinput/gdas_viirsaod2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
