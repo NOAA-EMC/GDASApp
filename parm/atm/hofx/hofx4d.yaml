@@ -1,5 +1,6 @@
-window begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
-window length: $(ATM_WINDOW_LENGTH)
+time window:
+  begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
+  length: $(ATM_WINDOW_LENGTH)
 forecast length: $(ATM_WINDOW_LENGTH)
 geometry:
   fms initialization:
