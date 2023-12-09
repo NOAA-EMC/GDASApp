@@ -25,7 +25,10 @@ def mp_bufr_converter(exename, configfile):
         cmd.add_default_arg('-c')
     cmd.add_default_arg(configfile)
     logger.info(f"Executing {cmd}")
-    cmd()
+    try:
+        cmd()
+    except Exception as e:
+        logger.info(f' Exception: {e}')
 
 
 @logit(logger)
@@ -84,8 +87,8 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         bufr2iodapy = USH_IODA + '/bufr2ioda_' + obtype + ".py"
 
         # append the values to the lists
-        config_files.append(json_output_file)
-        exename.append(bufr2iodapy)
+        # config_files.append(json_output_file)
+        # exename.append(bufr2iodapy)
 
         # Check if the converter was successful
         # if os.path.exists(json_output_file):
@@ -96,6 +99,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     BUFR_yaml_files = [os.path.basename(f) for f in BUFR_yaml_files]
     BUFR_yaml = [f.replace('bufr2ioda_', '').replace('.yaml', '') for f in BUFR_yaml_files]
     logger.info(f'All obs type processed by yaml: {BUFR_yaml}')
+    BUFR_yaml =  ['ncep_1bamua_ta', 'ncep_esamua']
 
     for obtype in BUFR_yaml:
         logger.info(f"Convert {obtype}...")

@@ -59,7 +59,7 @@ class Bufr2IodaBase:
                     file_name = self.split_files[sat_id]
                     container[sat_id]['dset'] = xr.open_dataset(file_name)
                     for group in GROUPS:
-                        container[sat_id][group] = xr.open_dataset(file_name, group=group)
+                        container[sat_id][group] = xr.open_dataset(file_name, group=group, decode_times=False)
                 except FileNotFoundError as e:
                     logger.info(f'File not existed exception for sat id: {sat_id} with error msg: {e}')
                     container.pop(sat_id)

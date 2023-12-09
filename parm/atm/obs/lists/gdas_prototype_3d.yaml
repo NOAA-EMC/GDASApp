@@ -1,5 +1,5 @@
 observers:
-##- !INC ${OBS_YAML_DIR}/amsua_n19.yaml
+- !INC ${OBS_YAML_DIR}/amsua_n19.yaml
 ##- !INC ${OBS_YAML_DIR}/amsua_n18.yaml
 ##- !INC ${OBS_YAML_DIR}/amsua_n15.yaml
 ##- !INC ${OBS_YAML_DIR}/amsua_metop-a.yaml

@@ -126,7 +126,7 @@ observations:
           source: variables/satelliteAntennaCorrectionsVersionNumber
           longName: "Satellite Antenna Corrections Version Number"
 
-        - name: "MetaData/fieldOfViewNumber"
+        - name: "MetaData/sensorScanPosition"
           source: variables/fieldOfViewNumber
           longName: "Field Of View Number"
 

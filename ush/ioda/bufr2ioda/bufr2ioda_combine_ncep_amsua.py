@@ -15,7 +15,7 @@ R1000000 = 1000000.0
 
 BACKEND = CPP
 
-AMSUA_TYPE_CHANGE_DATETIME = "2022120000"
+AMSUA_TYPE_CHANGE_DATETIME = "2000120000"
 
 YAML_NORMAL = True  #  current as normal
 
@@ -58,7 +58,7 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
                 if self.yaml_order:
                     ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
                 else:
-                    ifov = self.get_container_variable(container, 'MetaData', 'fieldOfViewNumber', sat_id)
+                    ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
                 tb = self.apply_corr(sat_id, ta, ifov)
                 self.replace_container_variable(container, 'ObsValue', 'brightnessTemperature', tb, sat_id)
 
@@ -83,7 +83,7 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
 
 @timing_decorator
 def merge(amsua_files, splits):
-    ioda_files = [(f'esamua.{x}.tm00.ncc', f'amsua.{x}_ta.tm00.ncc', f'amsua_{x}.tm00.nc') for x in splits]
+    ioda_files = [(f'amsua.{x}_ta.tm00.ncc', f'esamua.{x}.tm00.ncc',  f'amsua_{x}.tm00.nc') for x in splits]
     logger.info(f'Ioda files: {ioda_files}')
     file1 = [f for f in amsua_files[0].values()]
     file2 = [f for f in amsua_files[1].values()]
