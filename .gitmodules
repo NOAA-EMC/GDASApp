@@ -4,6 +4,7 @@
 [submodule "sorc/gsibec"]
 	path = sorc/gsibec
 	url = https://github.com/GEOS-ESM/GSIbec.git
+  branch = develop
 [submodule "sorc/gsw"]
 	path = sorc/gsw
 	url = https://github.com/jcsda-internal/GSW-Fortran.git
@@ -31,12 +32,15 @@
 [submodule "sorc/fv3"]
 	path = sorc/fv3
 	url = https://github.com/jcsda/GFDL_atmos_cubed_sphere.git
+  branch = release-stable
 [submodule "sorc/femps"]
 	path = sorc/femps
 	url = https://github.com/jcsda/femps.git
+  branch = develop
 [submodule "sorc/fv3-jedi-lm"]
 	path = sorc/fv3-jedi-lm
 	url = https://github.com/jcsda/fv3-jedi-linearmodel.git
+  branch = develop
 [submodule "sorc/fv3-jedi"]
 	path = sorc/fv3-jedi
 	url = https://github.com/jcsda/fv3-jedi.git
@@ -44,9 +48,11 @@
 [submodule "sorc/icepack"]
 	path = sorc/icepack
 	url = https://github.com/JCSDA-internal/Icepack.git
+  branch = feature/ecbuild-new
 [submodule "sorc/mom6"]
 	path = sorc/mom6
 	url = https://github.com/jcsda-internal/MOM6.git
+  branch = main-ecbuild
 [submodule "sorc/soca"]
 	path = sorc/soca
 	url = https://github.com/jcsda-internal/soca.git
@@ -58,6 +64,8 @@
 [submodule "sorc/land-imsproc"]
 	path = sorc/land-imsproc
 	url = https://github.com/NOAA-PSL/land-IMS_proc.git
+	branch = develop
 [submodule "sorc/land-jediincr"]
 	path = sorc/land-jediincr
 	url = https://github.com/NOAA-PSL/land-apply_jedi_incr.git
+	branch = develop
