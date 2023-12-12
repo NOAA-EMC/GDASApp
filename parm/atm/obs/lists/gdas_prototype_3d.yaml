@@ -17,4 +17,5 @@ observers:
 ##- !INC ${OBS_YAML_DIR}/iasi_metop-b.yaml
 ##- !INC ${OBS_YAML_DIR}/sfc.yaml
 ##- !INC ${OBS_YAML_DIR}/sfcship.yaml
+##- !INC ${OBS_YAML_DIR}/conv_ps.yaml
 ##- !INC ${OBS_YAML_DIR}/gnssro.yaml
