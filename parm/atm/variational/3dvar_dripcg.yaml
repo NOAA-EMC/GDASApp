@@ -2,6 +2,7 @@ cost function:
   cost type: 3D-Var
   window begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
   window length: $(ATM_WINDOW_LENGTH)
+  window shift: true
   analysis variables: &3dvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
   geometry:
     fms initialization:
@@ -33,7 +34,7 @@ variational:
   minimizer:
     algorithm: DRIPCG
   iterations:
-  - ninner: 2
+  - ninner: 1
     gradient norm reduction: 1e-10
     test: on
     geometry:
@@ -50,40 +51,6 @@ variational:
       field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
     diagnostics:
       departures: bkgmob
-  - ninner: 4
-    gradient norm reduction: 1e-10
-    test: on
-    geometry:
-      fms initialization:
-        namelist filename: ./fv3jedi/fmsmpp.nml
-        field table filename: ./fv3jedi/field_table
-      akbk: ./fv3jedi/akbk.nc4
-      layout:
-      - $(layout_x)
-      - $(layout_y)
-      npx: $(npx_anl)
-      npy: $(npy_anl)
-      npz: $(npz_anl)
-      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
-    diagnostics:
-      departures: bkgmob1
 final:
   diagnostics:
     departures: anlmob
-  increment:
-    output:
-      filetype: auxgrid
-      gridtype: gaussian
-      filename: ./anl/atminc.
-    geometry:
-      fms initialization:
-        namelist filename: ./fv3jedi/fmsmpp.nml
-        field table filename: ./fv3jedi/field_table
-      akbk: ./fv3jedi/akbk.nc4
-      layout:
-      - $(layout_x)
-      - $(layout_y)
-      npx: $(npx_anl)
-      npy: $(npy_anl)
-      npz: $(npz_anl)
-      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
