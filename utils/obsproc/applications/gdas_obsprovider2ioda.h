@@ -11,6 +11,7 @@
 #include "../Rads2Ioda.h"
 #include "../Smap2Ioda.h"
 #include "../Smos2Ioda.h"
+#include "../Viirsaod2Ioda.h"
 
 namespace gdasapp {
   class ObsProvider2IodaApp : public oops::Application {
@@ -38,6 +39,9 @@ namespace gdasapp {
         conv2ioda.writeToIoda();
       } else if (provider == "AMSR2") {
         IcecAmsr2Ioda conv2ioda(fullConfig, this->getComm());
+        conv2ioda.writeToIoda();
+      } else if (provider == "VIIRSAOD") {
+        Viirsaod2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else {
         oops::Log::info() << "Provider not implemented" << std::endl;
