@@ -68,17 +68,9 @@ git checkout develop
 git pull
 
 # ==============================================================================
-# run ecbuild to get the repos cloned
-mkdir -p build
-cd build
-ecbuild ../
-cd ..
-rm -rf build
-
-# ==============================================================================
 # update the hashes to the most recent
 gdasdir=$stableroot/$datestr/global-workflow/sorc/gdas.cd
-$my_dir/stable_mark.sh $gdasdir
+$my_dir/../ush/submodules/update_develop.sh $gdasdir/sorc
 
 # ==============================================================================
 # run the automated testing
@@ -87,12 +79,6 @@ ci_status=$?
 total=0
 if [ $ci_status -eq 0 ]; then
   cd $gdasdir
-  # copy the CMakeLists file for safe keeping
-  cp $gdasdir/CMakeLists.txt $gdasdir/CMakeLists.txt.new
-  total=$(($total+$?))
-  if [ $total -ne 0 ]; then
-    echo "Unable to cp CMakeLists" >> $stableroot/$datestr/output
-  fi
   # checkout feature/stable-nightly
   git stash
   total=$(($total+$?))
@@ -109,12 +95,6 @@ if [ $ci_status -eq 0 ]; then
   total=$(($total+$?))
   if [ $total -ne 0 ]; then
     echo "Unable to merge develop" >> $stableroot/$datestr/output
-  fi
-  # force move the copy to the original path of CMakeLists.txt
-  /bin/mv -f $gdasdir/CMakeLists.txt.new $gdasdir/CMakeLists.txt
-  total=$(($total+$?))
-  if [ $total -ne 0 ]; then
-    echo "Unable to mv CMakeLists" >> $stableroot/$datestr/output
   fi
   # commit this change and push
   git add CMakeLists.txt
