@@ -19,5 +19,6 @@ sorcdir=${1:-${my_dir}/../../sorc}
 
 for r in $repos; do
   echo "Updating ${sorcdir}/${r}"
+  cd ${sorcdir}/${r}
   git submodule update --remote --merge
 done
