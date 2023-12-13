@@ -33,6 +33,7 @@ set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
 
 # Handle user options.
 option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
+option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
 
 # Initialize bundle
@@ -112,6 +113,16 @@ if(BUILD_GDASBUNDLE)
 # Land associated repositories
   ecbuild_bundle( PROJECT land-imsproc SOURCE "./sorc/land-imsproc" )
   ecbuild_bundle( PROJECT land-jediincr SOURCE "./sorc/land-jediincr" )
+
+# ioda, ufo, fv3-jedi, and saber test data
+#---------------------------------
+  if(CLONE_JCSDADATA)
+
+   ecbuild_bundle( PROJECT ioda-data SOURCE "./test/jcsda/ioda-data" )
+   ecbuild_bundle( PROJECT ufo-data SOURCE "./test/jcsda/ufo-data" )
+   ecbuild_bundle( PROJECT fv3-jedi-data SOURCE "./test/jcsda/fv3-jedi-data" )
+
+  endif(CLONE_JCSDADATA)
 
 endif(BUILD_GDASBUNDLE)
 
