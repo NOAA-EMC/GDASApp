@@ -15,10 +15,22 @@ iodaconv
 
 my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd )"
 
-sorcdir=${1:-${my_dir}/../../sorc}
+gdasdir=${1:-${my_dir}/../../}
 
 for r in $repos; do
-  echo "Updating ${sorcdir}/${r}"
-  cd ${sorcdir}/${r}
+  echo "Updating ${gdasdir}/sorc/${r}"
+  cd ${gdasdir}/sorc/${r}
+  git submodule update --remote --merge
+done
+
+datarepos="
+ufo-data
+ioda-data
+fv3-jedi-data
+"
+
+for r in $datarepos; do
+  echo "Updating ${gdasdir}/test/jcsda/${r}"
+  cd ${gdasdir}/test/jcsda/${r}
   git submodule update --remote --merge
 done

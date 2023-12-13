@@ -70,7 +70,7 @@ git pull
 # ==============================================================================
 # update the hashes to the most recent
 gdasdir=$stableroot/$datestr/global-workflow/sorc/gdas.cd
-$my_dir/../ush/submodules/update_develop.sh $gdasdir/sorc
+$my_dir/../ush/submodules/update_develop.sh $gdasdir
 
 # ==============================================================================
 # run the automated testing
