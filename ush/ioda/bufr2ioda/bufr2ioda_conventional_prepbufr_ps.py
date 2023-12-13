@@ -23,9 +23,19 @@ from wxflow import Logger
 
 def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
-    dhr = np.int64(dhr*3600)
-    dateTime = dhr + cycleTimeSinceEpoch
+    int64_fill_value = np.int64(0)
 
+    dateTime = np.array([], dtype=np.int64)
+    for i in range(len(dhr)):
+        if ma.is_masked(dhr[i]):
+            dateTime = np.append(dateTime, int64_fill_value)
+        else:
+            dhr2 = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
+            dateTime = np.append(dateTime, np.int64(dhr2))
+
+    dateTime = ma.array(dateTime)
+    dateTime = ma.masked_values(dateTime, dhr.fill_value)
+ 
     return dateTime
 
 
@@ -128,6 +138,12 @@ def bufr_to_ioda(config, logger):
             q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
             q.add('qualityMarkerAirTemperature', '*/T___INFO/T__EVENT{1}/TQM')
             q.add('qualityMarkerVirtualTemperature', '*/T___INFO/T__EVENT{1}/TQM')
+            q.add('qualityMarkerStationElevation', '*/Z___INFO/Z__EVENT{1}/ZQM')
+
+            # ObsError
+            q.add('obsErrorStationPressure', '*/P___INFO/P__BACKG{1}/POE')
+            q.add('obsErrorAirTemperature', '*/T___INFO/T__BACKG{1}/TOE')
+            q.add('obsErrorVirtualTemperature', '*/T___INFO/T__BACKG{1}/TOE')
 
             # ObsValue
             q.add('stationElevation', '*/ELV')
@@ -155,6 +171,12 @@ def bufr_to_ioda(config, logger):
             r.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
             r.add('qualityMarkerAirTemperature', '*/T___INFO/T__EVENT{1}/TQM')
             r.add('qualityMarkerVirtualTemperature', '*/T___INFO/T__EVENT{1}/TQM')
+            r.add('qualityMarkerStationElevation', '*/Z___INFO/Z__EVENT{1}/ZQM')
+
+            # ObsError
+            r.add('obsErrorStationPressure', '*/P___INFO/P__BACKG{1}/POE')
+            r.add('obsErrorAirTemperature', '*/T___INFO/T__BACKG{1}/TOE')
+            r.add('obsErrorVirtualTemperature', '*/T___INFO/T__BACKG{1}/TOE')
 
             # ObsValue
             r.add('stationElevation', '*/ELV')
@@ -180,8 +202,13 @@ def bufr_to_ioda(config, logger):
 
             # QualityMarker
             s.add('qualityMarkerStationPressure', '*/PRSLEVEL/P___INFO/P__EVENT{1}/PQM')
+            s.add('qualityMarkerStationElevation', '*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZQM')
             s.add('qualityMarkerAirTemperature', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TQM')
             s.add('qualityMarkerVirtualTemperature', '*/PRSLEVEL/T___INFO/T__EVENT{1}/TQM')
+
+            # ObsError
+            s.add('obsErrorStationPressure', '*/PRSLEVEL/P___INFO/P__BACKG{1}/POE')
+            s.add('obsErrorAirTemperature', '*/PRSLEVEL/T___INFO/T__BACKG{1}/TOE')
 
             # ObsValue
             s.add('stationElevation', '*/ELV')
@@ -223,7 +250,7 @@ def bufr_to_ioda(config, logger):
     lonorig1 = t.get('longitude')
     lonorig1[lonorig1 > 180] -= 360
     t29orig1 = t.get('t29')
-    dhrorig1 = t.get('obsTimeMinusCycleTime', type='int64')
+    dhrorig1 = t.get('obsTimeMinusCycleTime', type='float')
     zoborig1 = t.get('height', type='float')
     pressureorig1 = t.get('pressure')
     pressureorig1 *= 100
@@ -231,7 +258,18 @@ def bufr_to_ioda(config, logger):
     # QualityMarker
     logger.debug(f" ... Executing QuerySet for ADPSFC: get QualityMarker ...")
     pobqmorig1 = t.get('qualityMarkerStationPressure').astype('int32')
+    zobqmorig1 = t.get('qualityMarkerStationElevation').astype('int32')
     tobqmorig1 = t.get('qualityMarkerAirTemperature').astype('int32')
+
+    # ObsError
+    logger.debug(f" ... Executing QuerySet for ADPSFC: get ObsError ...")
+    poboeorig1 = t.get('obsErrorStationPressure', type='float32')
+    poboeorig1 *= 100
+    toboeorig1 = t.get('obsErrorAirTemperature', type='float32')
+
+#    for i in range(len(toboeorig1)):
+#        print("NE toboeorig1 ", i, toboeorig1[i])
+
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet for ADPSFC: get ObsValues ...")
@@ -243,6 +281,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f" ... Make new arrays for certain Obstypes of ADSPFC")
     typ1 = np.array([], dtype=np.int32)
+
     sid1 = np.array([]).astype('str')
     cat1 = np.array([], dtype=np.int32)
     tpc1 = np.array([], dtype=np.int32)
@@ -250,17 +289,25 @@ def bufr_to_ioda(config, logger):
     lon1 = np.array([], dtype=np.float32)
     t291 = np.array([], dtype=np.int32)
     zob1 = np.array([], dtype=np.float32)
-    dhr1 = np.array([], dtype=np.int64)
+    dhr1 = np.array([], dtype=np.float32)
     pressure1 = np.array([], dtype=np.float32)
+
     pobqm1 = np.array([], dtype=np.int32)
+    zobqm1 = np.array([], dtype=np.int32)
     tobqm1 = np.array([], dtype=np.int32)
+
+    poboe1 = np.array([], dtype=np.float32)
+    toboe1 = ma.array([], dtype=np.float32)
+
     elv1 = np.array([], dtype=np.float32)
     pob1 = np.array([], dtype=np.float32)
     tob1 = np.array([], dtype=np.float32)
 
     for i in range(len(typorig1)):
         if typorig1[i] < 200:
+           # print("NE omg i ", str(i))
             typ1 = np.append(typ1, typorig1[i])
+
             sid1 = np.append(sid1, sidorig1[i])
             cat1 = np.append(cat1, catorig1[i])
             tpc1 = np.append(tpc1, tpcorig1[i])
@@ -270,14 +317,25 @@ def bufr_to_ioda(config, logger):
             zob1 = np.append(zob1, zoborig1[i])
             dhr1 = np.append(dhr1, dhrorig1[i])
             pressure1 = np.append(pressure1, pressureorig1[i])
+
             pobqm1 = np.append(pobqm1, pobqmorig1[i]).astype('int32')
+            zobqm1 = np.append(pobqm1, pobqmorig1[i]).astype('int32')
             tobqm1 = np.append(tobqm1, tobqmorig1[i]).astype('int32')
+
+            poboe1 = np.append(poboe1, poboeorig1[i])#.astype('float32')
+            toboe1 = ma.append(toboe1, toboeorig1[i])#.astype('float32')
+            #print("NE appended2 ", toboeorig1[i])
+
             elv1 = np.append(elv1, elvorig1[i])
             pob1 = np.append(pob1, poborig1[i])
             tob1 = np.append(tob1, toborig1[i])
 
+#    for i in range(len(toboe1)):
+        #print("NE toboe1 ", i, toboe1[i])
+
     typ1 = ma.array(typ1)
     typ1 = ma.masked_values(typ1, typorig1.fill_value)
+
     sid1 = ma.array(sid1)
     ma.set_fill_value(sid1, "")
     tpc1 = ma.array(tpc1)
@@ -294,8 +352,11 @@ def bufr_to_ioda(config, logger):
     dhr1 = ma.masked_values(dhr1, dhrorig1.fill_value)
     pressure1 = ma.array(pressure1).astype('float32')
     pressure1 = ma.masked_values(pressure1, pressureorig1.fill_value)
+
     pobqm1 = ma.array(pobqm1).astype('int32')
     pobqm1 = ma.masked_values(pobqm1, pobqmorig1.fill_value)
+    zobqm1 = ma.array(zobqm1).astype('int32')
+    zobqm1 = ma.masked_values(zobqm1, zobqmorig1.fill_value)
     tobqm1 = ma.array(tobqm1).astype('int32')
     tobqm1 = ma.masked_values(tobqm1, tobqmorig1.fill_value)
     tsenqm1 = copy.deepcopy(tobqm1)
@@ -304,6 +365,31 @@ def bufr_to_ioda(config, logger):
     tvoqm1 = copy.deepcopy(tobqm1)
     tvoqm1f = ma.array(np.full(tobqm1.shape[0], tobqm1.fill_value))
     tvoqm1 = ma.where((tpc1 == 8), tobqm1, tvoqm1f)
+
+    poboe1 = ma.array(poboe1).astype('float32')
+    poboe1 = ma.masked_values(poboe1, poboeorig1.fill_value)
+    toboe1 = ma.array(toboe1).astype('float32')
+    print("NE 29", toboe1[29])
+    toboe1a = ma.array(toboe1)#.astype('float32')
+    print("NE aaa", toboe1.dtype, toboe1a.dtype)
+    print("NE 29 2", toboe1a[29])
+    toboe1 = ma.masked_values(toboe1, toboeorig1.fill_value)
+    print("NE 29 3", toboe1[29])
+    tsenoe1 = copy.deepcopy(toboe1)
+    print("NE 29 4", tsenoe1[29])
+    print("NE toboeorig1 fill ", toboeorig1.fill_value)
+    tsenoe1f = ma.array(np.full(toboe1.shape[0], toboe1.fill_value))
+    print("NE 29 5", tsenoe1f[29])
+    tsenoe1 = ma.where(((tpc1 >= 1) & (tpc1 < 8)), toboe1, tsenoe1f)
+#    print("NE 29 6", tsenoe1a[29])
+    tvooe1 = ma.array(np.full(toboe1.shape[0], toboe1.fill_value))
+    tvooe1f = ma.array(np.full(toboe1.shape[0], toboe1.fill_value))
+    tvooe1 = ma.where((tpc1 == 8), toboe1, tvooe1f)
+
+    for i in range(len(toboe1)):
+        if (i > 27) and (i < 33):
+            print("NE toboe1, sen, tvo ", i, toboe1[i], toboe1a[i], tsenoe1[i], tvooe1[i])
+
     elv1 = ma.array(elv1).astype('float32')
     elv1 = ma.masked_values(elv1, elvorig1.fill_value)
     pob1 = ma.array(pob1).astype('float32')
@@ -334,17 +420,24 @@ def bufr_to_ioda(config, logger):
     lonorig2[lonorig2 > 180] -= 360
     t29orig2 = u.get('t29')
     zoborig2 = u.get('height', type='float')
-    dhrorig2 = u.get('obsTimeMinusCycleTime', type='int64')
+    dhrorig2 = u.get('obsTimeMinusCycleTime', type='float')
     pressureorig2 = u.get('pressure')
     pressureorig2 *= 100
 
-    logger.debug(f" ... Executing QuerySet for SFCSHP: get QualityMarker ...")
     # QualityMarker
+    logger.debug(f" ... Executing QuerySet for SFCSHP: get QualityMarker ...")
     pobqmorig2 = u.get('qualityMarkerStationPressure').astype('int32')
+    zobqmorig2 = u.get('qualityMarkerStationElevation').astype('int32')
     tobqmorig2 = u.get('qualityMarkerAirTemperature').astype('int32')
 
-    logger.debug(f" ... Executing QuerySet for SFCSHP: get ObsValues ...")
+    # ObsError
+    logger.debug(f" ... Executing QuerySet for SFCSHP: get ObsError ...")
+    poboeorig2 = u.get('obsErrorStationPressure', type='float32')
+    poboeorig2 *= 100
+    toboeorig2 = u.get('obsErrorAirTemperature', type='float32')
+
     # ObsValue
+    logger.debug(f" ... Executing QuerySet for SFCSHP: get ObsValues ...")
     elvorig2 = u.get('stationElevation', type='float32')
     poborig2 = u.get('stationPressure')
     poborig2 *= 100
@@ -353,6 +446,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f" ... Make new arrays for certain ObsTypes of SFCSHP")
     typ2 = np.array([], dtype=np.int32)
+
     sid2 = np.array([]).astype('str')
     cat2 = np.array([], dtype=np.int32)
     tpc2 = np.array([], dtype=np.int32)
@@ -360,10 +454,16 @@ def bufr_to_ioda(config, logger):
     lon2 = np.array([], dtype=np.float32)
     t292 = np.array([], dtype=np.int32)
     zob2 = np.array([], dtype=np.float32)
-    dhr2 = np.array([], dtype=np.int64)
+    dhr2 = np.array([], dtype=np.float32)
     pressure2 = np.array([], dtype=np.float32)
+
     pobqm2 = np.array([], dtype=np.int32)
+    zobqm2 = np.array([], dtype=np.int32)
     tobqm2 = np.array([], dtype=np.int32)
+
+    poboe2 = np.array([], dtype=np.float32)
+    toboe2 = np.array([], dtype=np.float32)
+
     elv2 = np.array([], dtype=np.float32)
     pob2 = np.array([], dtype=np.float32)
     tob2 = np.array([], dtype=np.float32)
@@ -380,14 +480,21 @@ def bufr_to_ioda(config, logger):
             zob2 = np.append(zob2, zoborig2[i])
             dhr2 = np.append(dhr2, dhrorig2[i])
             pressure2 = np.append(pressure2, pressureorig2[i])
+
             pobqm2 = np.append(pobqm2, pobqmorig2[i])
+            zobqm2 = np.append(zobqm2, pobqmorig2[i])
             tobqm2 = np.append(tobqm2, tobqmorig2[i])
+
+            poboe2 = np.append(poboe2, pobqmorig2[i])
+            toboe2 = np.append(toboe2, tobqmorig2[i])
+
             elv2 = np.append(elv2, elvorig2[i])
             pob2 = np.append(pob2, poborig2[i])
             tob2 = np.append(tob2, toborig2[i])
 
     typ2 = ma.array(typ2)
     typ2 = ma.masked_values(typ2, typorig2.fill_value)
+
     sid2 = ma.array(sid2)
     ma.set_fill_value(sid2, "")
     tpc2 = ma.array(tpc2)
@@ -404,8 +511,11 @@ def bufr_to_ioda(config, logger):
     dhr2 = ma.masked_values(dhr2, dhrorig2.fill_value)
     pressure2 = ma.array(pressure2).astype('float32')
     pressure2 = ma.masked_values(pressure2, pressureorig2.fill_value)
+
     pobqm2 = ma.array(pobqm2).astype('int32')
     pobqm2 = ma.masked_values(pobqm2, pobqmorig2.fill_value)
+    zobqm2 = ma.array(zobqm2).astype('int32')
+    zobqm2 = ma.masked_values(zobqm2, zobqmorig2.fill_value)
     tobqm2 = ma.array(tobqm2).astype('int32')
     tobqm2 = ma.masked_values(tobqm2, tobqmorig2.fill_value)
     tsenqm2 = copy.deepcopy(tobqm2)
@@ -414,6 +524,18 @@ def bufr_to_ioda(config, logger):
     tvoqm2 = copy.deepcopy(tobqm2)
     tvoqmorig2f = ma.array(np.full(tobqmorig2.shape[0], tobqmorig2.fill_value))
     tvoqmorig2 = ma.where((tpcorig2 == 8), tobqmorig2, tvoqmorig2f)
+
+    poboe2 = ma.array(poboe2).astype('float32')
+    poboe2 = ma.masked_values(poboe2, poboeorig1.fill_value)
+    toboe2 = ma.array(toboe2).astype('float32')
+    toboe2 = ma.masked_values(toboe2, toboeorig1.fill_value)
+    tsenoe2 = copy.deepcopy(toboe2)
+    tsenoe2f = ma.array(np.full(toboe2.shape[0], toboe2.fill_value))
+    tsenoe2 = ma.where(((tpc2 >= 1) & (tpc2 < 8)), toboe2, tsenoe2f)
+    tvooe2 = ma.array(np.full(toboe2.shape[0], toboe2.fill_value))
+    tvooe2f = ma.array(np.full(toboe2.shape[0], toboe2.fill_value))
+    tvooe2 = ma.where((tpc2 == 8), toboe2, tvooe2f)
+
     elv2 = ma.array(elv2).astype('float32')
     elv2 = ma.masked_values(elv2, elvorig2.fill_value)
     pob2 = ma.array(pob2).astype('float32')
@@ -437,7 +559,6 @@ def bufr_to_ioda(config, logger):
     # MetaData
     logger.debug(" ... Executing QuerySet for ADPUPA: get MetaData ...")
     sid3 = v.get('stationIdentification', 'prepbufrDataLevelCategory').astype('str')
-
     cat3 = v.get('prepbufrDataLevelCategory', 'prepbufrDataLevelCategory')
     tpc3 = v.get('temperatureEventCode', 'prepbufrDataLevelCategory')
     lat3 = v.get('latitude', 'prepbufrDataLevelCategory')
@@ -445,7 +566,7 @@ def bufr_to_ioda(config, logger):
     lon3[lon3 > 180] -= 360
     t293 = v.get('t29', 'prepbufrDataLevelCategory')
     zob3 = v.get('height', 'prepbufrDataLevelCategory', type='float')
-    dhr3 = v.get('timeOffset', 'prepbufrDataLevelCategory', type='int64')
+    dhr3 = v.get('timeOffset', 'prepbufrDataLevelCategory', type='float')
     pressure3 = v.get('pressure', 'prepbufrDataLevelCategory')
     pressure3 *= 100
 
@@ -454,6 +575,7 @@ def bufr_to_ioda(config, logger):
     pobqm3 = v.get('qualityMarkerStationPressure', 'prepbufrDataLevelCategory')
     psqm3 = ma.array(np.full(pobqm3.shape[0], pobqm3.fill_value))
     psqm3 = ma.where(cat3 == 0, pobqm3, psqm3)
+    zobqm3 = v.get('qualityMarkerStationElevation', 'prepbufrDataLevelCategory')
     tobqm3 = v.get('qualityMarkerAirTemperature', 'prepbufrDataLevelCategory')
     tsenqm3 = copy.deepcopy(tobqm3)
     tsenqm3f = ma.array(np.full(tobqm3.shape[0], tobqm3.fill_value))
@@ -462,10 +584,25 @@ def bufr_to_ioda(config, logger):
     tvoqm3f = ma.array(np.full(tobqm3.shape[0], tobqm3.fill_value))
     tvoqm3 = ma.where(((tpc3 == 8) & (cat3 == 0)), tobqm3, tvoqm3f)
 
+    # ObsError
+    logger.debug(f" ... Executing QuerySet for ADPUPA: get ObsError ...")
+    poboe3 = v.get('obsErrorStationPressure', 'prepbufrDataLevelCategory', type='float32')
+    poboe3 *= 100
+    psoe3 = ma.array(np.full(poboe3.shape[0], poboe3.fill_value))
+    psoe3 = ma.where(cat3 == 0, poboe3, psoe3)
+    toboe3 = v.get('obsErrorAirTemperature', 'prepbufrDataLevelCategory',type='float32')
+    tsenoe3 = copy.deepcopy(toboe3)
+    tsenoe3f = ma.array(np.full(toboe3.shape[0], toboe3.fill_value))
+    tsenoe3 = ma.where(((tpc3 >= 1) & (tpc3 < 8) & (cat3 == 0)), toboe3, tsenoe3f)
+    tvooe3 = copy.deepcopy(toboe3)
+    tvooe3f = ma.array(np.full(toboe3.shape[0], toboe3.fill_value))
+    tvooe3 = ma.where(((tpc3 == 8) & (cat3 == 0)), toboe3, tvooe3f)
+
     # ObsValue
     logger.debug(" ... Executing QuerySet for ADPUPA: get ObsValues ...")
     elv3 = v.get('stationElevation', 'prepbufrDataLevelCategory', type='float32')
     pob3 = v.get('stationPressure', 'prepbufrDataLevelCategory', type='float32')
+    pob3 *= 100
     ps3 = ma.array(np.full(pressure3.shape[0], pressure3.fill_value))
     ps3 = ma.where(cat3 == 0, pressure3, ps3)
     tob3 = v.get('airTemperature', 'prepbufrDataLevelCategory', type='float32')
@@ -485,10 +622,11 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Running time for executing QuerySet: {running_time} seconds")
 
     # Check BUFR variable dimension and type
-    logger.debug(f"     The shapes and dtypes of all 3 variables")
+    logger.debug(f"     Check shapes and dtypes of all 3 variables")
     logger.debug(f"     typ1       shape, type = {typ1.shape}, {typ1.dtype}, {typ1.fill_value}")
     logger.debug(f"     typ2       shape, type = {typ2.shape}, {typ2.dtype}, {typ2.fill_value}")
     logger.debug(f"     typ3       shape, type = {typ3.shape}, {typ3.dtype}, {typ3.fill_value}")
+
     logger.debug(f"     sid1       shape, type = {sid1.shape}, {sid1.dtype}")
     logger.debug(f"     sid2       shape, type = {sid2.shape}, {sid2.dtype}")
     logger.debug(f"     sid3       shape, type = {sid3.shape}, {sid3.dtype}")
@@ -516,10 +654,14 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     pressure1  shape, type = {pressure1.shape}, {pressure1.dtype}")
     logger.debug(f"     pressure2  shape, type = {pressure2.shape}, {pressure2.dtype}")
     logger.debug(f"     pressure3  shape, type = {pressure3.shape}, {pressure3.dtype}")
+
     logger.debug(f"     pobqm1     shape, type = {pobqm1.shape}, {pobqm1.dtype}")
     logger.debug(f"     pobqm2     shape, type = {pobqm2.shape}, {pobqm2.dtype}")
     logger.debug(f"     pobqm3     shape, type = {pobqm3.shape}, {pobqm3.dtype}")
     logger.debug(f"     psqm3      shape, type = {psqm3.shape}, {psqm3.dtype}")
+    logger.debug(f"     zobqm1     shape, type = {zobqm1.shape}, {zobqm1.dtype}")
+    logger.debug(f"     zobqm2     shape, type = {zobqm2.shape}, {zobqm2.dtype}")
+    logger.debug(f"     zobqm3     shape, type = {zobqm3.shape}, {zobqm3.dtype}")
     logger.debug(f"     tobqm1     shape, type = {tobqm1.shape}, {tobqm1.dtype}")
     logger.debug(f"     tobqm2     shape, type = {tobqm2.shape}, {tobqm2.dtype}")
     logger.debug(f"     tobqm3     shape, type = {tobqm3.shape}, {tobqm3.dtype}")
@@ -529,6 +671,21 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     tvoqm1     shape, type = {tvoqm1.shape}, {tvoqm1.dtype}")
     logger.debug(f"     tvoqm2     shape, type = {tvoqm2.shape}, {tvoqm2.dtype}")
     logger.debug(f"     tvoqm3     shape, type = {tvoqm3.shape}, {tvoqm3.dtype}")
+
+    logger.debug(f"     poboe1     shape, type = {poboe1.shape}, {poboe1.dtype}")
+    logger.debug(f"     poboe2     shape, type = {poboe2.shape}, {poboe2.dtype}")
+    logger.debug(f"     poboe3     shape, type = {poboe3.shape}, {poboe3.dtype}")
+    logger.debug(f"     psoe3      shape, type = {psoe3.shape}, {psoe3.dtype}")
+    logger.debug(f"     toboe1     shape, type = {toboe1.shape}, {toboe1.dtype}")
+    logger.debug(f"     toboe2     shape, type = {toboe2.shape}, {toboe2.dtype}")
+    logger.debug(f"     toboe3     shape, type = {toboe3.shape}, {toboe3.dtype}")
+    logger.debug(f"     tsenoe1    shape, type = {tsenoe1.shape}, {tsenoe1.dtype}")
+    logger.debug(f"     tsenoe2    shape, type = {tsenoe2.shape}, {tsenoe2.dtype}")
+    logger.debug(f"     tsenoe3    shape, type = {tsenoe3.shape}, {tsenoe3.dtype}")
+    logger.debug(f"     tvooe1     shape, type = {tvooe1.shape}, {tvooe1.dtype}")
+    logger.debug(f"     tvooe2     shape, type = {tvooe2.shape}, {tvooe2.dtype}")
+    logger.debug(f"     tvooe3     shape, type = {tvooe3.shape}, {tvooe3.dtype}")
+
     logger.debug(f"     elv1       shape, type = {elv1.shape}, {elv1.dtype}")
     logger.debug(f"     elv2       shape, type = {elv2.shape}, {elv2.dtype}")
     logger.debug(f"     elv3       shape, type = {elv3.shape}, {elv3.dtype}")
@@ -566,16 +723,31 @@ def bufr_to_ioda(config, logger):
     dhr = ma.masked_values(dhr, dhrorig1.fill_value)
     pressure = ma.concatenate((pressure1, pressure2, pressure3), axis=0)
     pressure = ma.masked_values(pressure, pressureorig1.fill_value)
+
     pobqm = ma.concatenate((pobqm1, pobqm2, pobqm3), axis=0)
     pobqm = ma.masked_values(pobqm, pobqmorig1.fill_value)
     psqm = ma.concatenate((pobqm1, pobqm2, psqm3), axis=0)
     psqm = ma.masked_values(psqm, pobqmorig1.fill_value)
+    zobqm =  ma.concatenate((zobqm1, zobqm2, zobqm3), axis=0)
+    zobqm = ma.masked_values(zobqm, zobqmorig1.fill_value)
     tobqm = ma.concatenate((tobqm1, tobqm2, tobqm3), axis=0)
     tobqm = ma.masked_values(tobqm, tobqmorig1.fill_value)
     tsenqm = ma.concatenate((tsenqm1, tsenqm2, tsenqm3), axis=0)
     tsenqm = ma.masked_values(tsenqm, tobqmorig1.fill_value)
     tvoqm = ma.concatenate((tvoqm1, tvoqm2, tvoqm3), axis=0)
     tvoqm = ma.masked_values(tvoqm, tobqmorig1.fill_value)
+
+    poboe = ma.concatenate((poboe1, poboe2, poboe3), axis=0)
+    poboe = ma.masked_values(poboe, poboeorig1.fill_value)
+    psoe = ma.concatenate((poboe1, poboe2, psoe3), axis=0)
+    psoe = ma.masked_values(psoe, poboeorig1.fill_value)
+    toboe = ma.concatenate((toboe1, toboe2, toboe3), axis=0)
+    toboe = ma.masked_values(toboe, toboeorig1.fill_value)
+    tsenoe = ma.concatenate((tsenoe1, tsenoe2, tsenoe3), axis=0)
+    tsenoe = ma.masked_values(tsenoe, toboeorig1.fill_value)
+    tvooe = ma.concatenate((tvooe1, tvooe2, tvooe3), axis=0)
+    tvooe = ma.masked_values(tvooe, toboeorig1.fill_value)
+
     pob = ma.concatenate((pob1, pob2, pob3), axis=0).astype(pob1.dtype)
     pob = ma.masked_values(pob, poborig1.fill_value)
     ps = ma.concatenate((pob1, pob2, ps3), axis=0).astype(pob1.dtype)
@@ -590,7 +762,8 @@ def bufr_to_ioda(config, logger):
     tvo = ma.masked_values(tvo, toborig1.fill_value)
 
     logger.debug(f"  ... Concatenated array shapes, dtype and some fill_values:")
-    logger.debug(f"  new typ       shape = {typ.shape}, {typ.dtype}, {typ.fill_value}")
+    logger.debug(f"  new typ       shape = {typ.shape}, {typ.dtype},")
+
     logger.debug(f"  new sid       shape = {sid.shape}, {sid.dtype}")
     logger.debug(f"  new cat       shape = {cat.shape}, {cat.dtype}")
     logger.debug(f"  new tpc       shape = {tpc.shape}, {tpc.dtype}")
@@ -600,11 +773,19 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"  new zob       shape = {zob.shape}, {zob.dtype}")
     logger.debug(f"  new dhr       shape = {dhr.shape}, {dhr.dtype}")
     logger.debug(f"  new pressure  shape = {pressure.shape}, {pressure.dtype}")
+
     logger.debug(f"  new pobqm     shape = {pobqm.shape}, {pobqm.dtype}")
     logger.debug(f"  new psqm      shape = {psqm.shape}, {psqm.dtype}")
     logger.debug(f"  new tobqm     shape = {tobqm.shape}, {tobqm.dtype}")
     logger.debug(f"  new tsenqm    shape = {tsenqm.shape}, {tsenqm.dtype}")
     logger.debug(f"  new tvoqm     shape = {tvoqm.shape}, {tvoqm.dtype}")
+
+    logger.debug(f"  new poboe     shape = {poboe.shape}, {poboe.dtype}")
+    logger.debug(f"  new psoe      shape = {psoe.shape}, {psoe.dtype}")
+    logger.debug(f"  new toboe     shape = {toboe.shape}, {toboe.dtype}")
+    logger.debug(f"  new tsenoe    shape = {tsenoe.shape}, {tsenoe.dtype}")
+    logger.debug(f"  new tvooe     shape = {tvooe.shape}, {tvooe.dtype}")
+
     logger.debug(f"  new pob       shape = {pob.shape}, {pob.dtype}")
     logger.debug(f"  new ps        shape = {ps.shape}, {ps.dtype}")
     logger.debug(f"  new elv       shape = {elv.shape}, {elv.dtype}")
@@ -625,7 +806,7 @@ def bufr_to_ioda(config, logger):
     dateTime2 = Compute_dateTime(cycleTimeSinceEpoch, dhr2)
     dateTime3 = Compute_dateTime(cycleTimeSinceEpoch, dhr3)
 
-    dateTime = ma.concatenate((dateTime1, dateTime2, dateTime3), axis=0).astype(np.int64)
+    dateTime = ma.concatenate((dateTime1, dateTime2, dateTime3), axis=0)#.astype(np.int64)
 
     logger.debug(f"     Check dateTime shape & type ... ")
     logger.debug(f"     dateTime shape = {dateTime.shape}")
@@ -646,14 +827,13 @@ def bufr_to_ioda(config, logger):
     typ_ps = Mask_typ_for_var(typ, ps)
     typ_tsen = Mask_typ_for_var(typ, tsen)
     typ_tvo = Mask_typ_for_var(typ, tvo)
+    typ_zob = Mask_typ_for_var(typ, zob)
 
     logger.debug(f"     Check drived variables (typ*) shape & type ... ")
-    logger.debug(f"     typ_ps shape = {typ_ps.shape}")
-    logger.debug(f"     typ_ps type = {typ_ps.dtype}")
-    logger.debug(f"     typ_tsen shape = {typ_tsen.shape}")
-    logger.debug(f"     typ_tsen type = {typ_tsen.dtype}")
-    logger.debug(f"     typ_tvo shape = {typ_tvo.shape}")
-    logger.debug(f"     typ_tvo type = {typ_tvo.dtype}")
+    logger.debug(f"     typ_ps shape, type = {typ_ps.shape}, {typ_ps.dtype}")
+    logger.debug(f"     typ_tsen shape, type = {typ_tsen.shape}, {typ_tsen.dtype}")
+    logger.debug(f"     typ_tvo shape, type = {typ_tvo.shape}, {typ_tvo.dtype}")
+    logger.debug(f"     typ_zob shape, type = {typ_zob.shape}, {typ_zob.dtype}")
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -692,38 +872,50 @@ def bufr_to_ioda(config, logger):
     # Create IODA variables
     logger.debug(f" ... ... Create variables: name, type, units, & attributes")
 
-    # Observation Type - airTemperature
+    # Observation Type: airTemperature
     obsspace.create_var('ObsType/airTemperature', dtype=typorig1.dtype,
                         fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ_tsen)
 
-    # Observation Type - virtualTemperature
+    # Observation Type: virtualTemperature
     obsspace.create_var('ObsType/virtualTemperature', dtype=typorig1.dtype,
                         fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ_tvo)
 
-    # Observation Type - stationPressure
+    # Observation Type: stationPressure
     obsspace.create_var('ObsType/stationPressure', dtype=typorig1.dtype,
                         fillval=typorig1.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ_ps)
 
-    # ObsSubType - airTemperature
+    # Observation Type: stationElevation
+    obsspace.create_var('ObsType/stationElevation', dtype=typorig1.dtype,
+                        fillval=typorig1.fill_value) \
+        .write_attr('long_name', 'Observation Type') \
+        .write_data(typ_zob)
+
+    # ObsSubType: airTemperature
     obsspace.create_var('ObsSubType/airTemperature', dtype=ObsSubType.dtype,
                         fillval=ObsSubType.fill_value) \
         .write_attr('long_name', 'Observation SubType') \
         .write_data(ObsSubType)
 
-    # ObsSubType - virtualTemperature
+    # ObsSubType: virtualTemperature
     obsspace.create_var('ObsSubType/virtualTemperature', dtype=ObsSubType.dtype,
                         fillval=ObsSubType.fill_value) \
         .write_attr('long_name', 'Observation SubType') \
         .write_data(ObsSubType)
 
-    # ObsSubType - stationPressure
+    # ObsSubType: stationPressure
     obsspace.create_var('ObsSubType/stationPressure', dtype=ObsSubType.dtype,
+                        fillval=ObsSubType.fill_value) \
+        .write_attr('long_name', 'Observation SubType') \
+        .write_data(ObsSubType)
+
+    # ObsSubType: stationElevation
+    obsspace.create_var('ObsSubType/stationElevation', dtype=ObsSubType.dtype,
                         fillval=ObsSubType.fill_value) \
         .write_attr('long_name', 'Observation SubType') \
         .write_data(ObsSubType)
@@ -762,18 +954,24 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Latitude') \
         .write_data(lat)
 
-    # MetaData: Height
+    # Height
     obsspace.create_var('MetaData/height', dtype=zoborig1.dtype,
                         fillval=zoborig1.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Height') \
         .write_data(zob)
 
-    # Datetime
-    obsspace.create_var('MetaData/dateTime', dtype=dhrorig1.dtype,
-                        fillval=dhrorig1.fill_value) \
-        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
+    # Station Elevation
+    obsspace.create_var('MetaData/stationElevation', dtype=elvorig1.dtype,
+                        fillval=elvorig1.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Station Elevation') \
+        .write_data(elv)
+
+    obsspace.create_var('MetaData/dateTime', dtype=dateTime.dtype,
+                        fillval=dateTime.fill_value) \
         .write_attr('long_name', 'Datetime') \
+        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_data(dateTime)
 
     # Pressure
@@ -789,6 +987,12 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Station Pressure Quality Marker') \
         .write_data(psqm)
 
+    # Quality Marker: Station Elevation
+    obsspace.create_var('QualityMarker/stationElevation', dtype=zobqmorig1.dtype,
+                        fillval=zobqmorig1.fill_value) \
+        .write_attr('long_name', 'Station Elevation Quality Marker') \
+        .write_data(zobqm)
+
     # Quality Marker: Air Temperature
     obsspace.create_var('QualityMarker/airTemperature', dtype=tobqmorig1.dtype,
                         fillval=tobqmorig1.fill_value) \
@@ -800,6 +1004,27 @@ def bufr_to_ioda(config, logger):
                         fillval=tobqmorig1.fill_value) \
         .write_attr('long_name', 'Virtual Temperature Quality Marker') \
         .write_data(tvoqm)
+
+    # ObsError: stationPressure
+    obsspace.create_var('ObsError/stationPressure', dtype=poboeorig1.dtype,
+                        fillval=poboeorig1.fill_value) \
+        .write_attr('units', 'Pa') \
+        .write_attr('long_name', 'Station Pressure ObsError') \
+        .write_data(poboe)
+
+    # ObsError: airTemperature
+    obsspace.create_var('ObsError/airTemperature', dtype=tsenoe.dtype,
+                        fillval=toboeorig1.fill_value) \
+        .write_attr('units', 'K') \
+        .write_attr('long_name', 'Air Temperature ObsError') \
+        .write_data(tsenoe)
+
+    # ObsError: virtualTemperature
+    obsspace.create_var('ObsError/virtualTemperature', dtype=tvooe.dtype,
+                        fillval=toboeorig1.fill_value) \
+        .write_attr('units', 'K') \
+        .write_attr('long_name', 'Virtual Temperature ObsError') \
+        .write_data(tvooe)
 
     # ObsValue: Station Elevation
     obsspace.create_var('ObsValue/stationElevation', dtype=elvorig1.dtype,

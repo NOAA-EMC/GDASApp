@@ -242,13 +242,13 @@ def bufr_to_ioda(config, logger):
     # Create IODA variables
     logger.debug(f" ... ... Create variables: name, type, units, & attributes")
 
-    # Observation Type - Station Elevation
+    # Observation Type: Station Elevation
     obsspace.create_var('ObsType/stationElevation', dtype=typ.dtype,
                         fillval=typ.fill_value) \
         .write_attr('long_name', 'Station Elevation Observation Type') \
         .write_data(typ)
 
-    # Observation Type - Station Pressure
+    # Observation Type: Station Pressure
     obsspace.create_var('ObsType/stationPressure', dtype=typ.dtype,
                         fillval=typ.fill_value) \
         .write_attr('long_name', 'Station Pressure Observation Type') \
@@ -304,32 +304,33 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Pressure') \
         .write_data(pressure)
 
-    # QualityMarker - Station Elevation
+    # QualityMarker: Station Elevation
     obsspace.create_var('QualityMarker/stationElevation', dtype=zobqm.dtype,
                         fillval=zobqm.fill_value) \
         .write_attr('long_name', 'Station Elevation Quality Marker') \
         .write_data(zobqm)
 
-    # QualityMarker - Station Pressure
+    # QualityMarker: Station Pressure
     obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype,
                         fillval=pobqm.fill_value) \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
         .write_data(pobqm)
 
-    # ObsError - station Pressure
+    # ObsError: station Pressure
     obsspace.create_var('ObsError/stationPressure', dtype=poboe.dtype,
                         fillval=poboe.fill_value) \
+        .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Station Pressure ObsError') \
         .write_data(poboe)
 
-    # Station Elevation
+    # ObsValue: Station Elevation
     obsspace.create_var('ObsValue/stationElevation', dtype=elv.dtype,
                         fillval=elv.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Station Elevation') \
         .write_data(elv)
 
-    # Station Pressure
+    # ObsValue: Station Pressure
     obsspace.create_var('ObsValue/stationPressure', dtype=pob.dtype,
                         fillval=pob.fill_value) \
         .write_attr('units', 'Pa') \
