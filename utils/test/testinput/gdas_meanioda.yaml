@@ -1,7 +1,8 @@
 # the window is 30 years long to capture anything we can throw at it in this input file
-window begin: 2000-11-01T09:00:00Z
-window end: 2030-11-01T15:00:00Z
-window shift: false
+time window:
+  begin: 2000-11-01T09:00:00Z
+  end: 2030-11-01T15:00:00Z
+  bound to include: begin 
 obs space:
   name: gmi_gpm_test_mean
   obsdatain:
