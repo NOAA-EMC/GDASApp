@@ -1,0 +1,16 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "satwnd",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC005067", "NC005068", "NC005069" ],
+  "data_description" : "EUMETSAT SATWIND, SEVIRI IR(LW);  EUMETSAT SATWIND, SEVIRI WV-IMG/DL; EUMETSAT SATWIND, SEVIRI VIS", 
+  "data_provider"    : "EUMETSAT",
+  "sensor_info"      : { "sensor_name": "SEVIRI",  "sensor_full_name": "Spinning Enhanced Visible and InfraRed Imager",  "sensor_id": 999 },
+  "satellite_info"   : [
+                          { "satellite_name": "M8", "satellite_full_name": "METEOSAT-8", "satellite_id": 55, "launch time": "YYYYMMDD" },
+                          { "satellite_name": "M11", "satellite_full_name": "METEOSAT-11", "satellite_id": 70, "launch time": "YYYYMMDD" },
+                       ]
+}

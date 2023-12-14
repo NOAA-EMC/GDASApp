@@ -29,3 +29,5 @@ cdl2nc4 sss_smos_1.nc4 ${project_source_dir}/testdata/sss_smos_1.cdl
 cdl2nc4 sss_smos_2.nc4 ${project_source_dir}/testdata/sss_smos_2.cdl
 cdl2nc4 ghrsst_sst_mb_202107010000.nc4 ${project_source_dir}/testdata/ghrsst_sst_mb_202107010000.cdl
 cdl2nc4 ghrsst_sst_mb_202107010100.nc4 ${project_source_dir}/testdata/ghrsst_sst_mb_202107010100.cdl
+cdl2nc4 viirs_aod_1.nc4 ${project_source_dir}/testdata/viirs_aod_1.cdl
+cdl2nc4 viirs_aod_2.nc4 ${project_source_dir}/testdata/viirs_aod_2.cdl
