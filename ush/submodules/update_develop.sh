@@ -22,15 +22,3 @@ for r in $repos; do
   cd ${gdasdir}/sorc/${r}
   git submodule update --remote --merge
 done
-
-datarepos="
-ufo-data
-ioda-data
-fv3-jedi-data
-"
-
-for r in $datarepos; do
-  echo "Updating ${gdasdir}/test/jcsda/${r}"
-  cd ${gdasdir}/test/jcsda/${r}
-  git submodule update --remote --merge
-done
