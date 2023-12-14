@@ -14,15 +14,16 @@ from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
 # ====================================================================
-# Satellite Winds (AMV) BUFR dump file for GOES
+# Satellite Winds (AMV) BUFR dump file for SEVIRI/METEOSAT
 # ====================================================================
-# Subset    |  Spectral Band              |  Code (002023) |  ObsType
+# All subsets contain all spectral bands: NC005067 NC005068 NC005069
+# ====================================================================
+# Spectral Band                 | Code (002023) | ObsType
 # --------------------------------------------------------------------
-# NC005030  |    IRLW  (Freq < 5E+13)     |    Method 1    |   245
-# NC005031  |    WV Clear Sky/ Deep Layer |    Method 5    |   247
-# NC005032  |    VIS                      |    Method 2    |   251
-# NC005034  |    WV Cloud Top             |    Method 3    |   246
-# NC005039  |    IRSW  (Freq > 5E+13 )    |    Method 1    |   240
+# IRLW  (Freq < 5E+13)          |    Method 1   | 253
+# VIS                           |    Method 2   | 243
+# WV Cloud Top                  |    Method 3   | 254
+# WV Clear Sky/ Deep Layer      |    Method 5   | 254
 # ====================================================================
 
 # Define and initialize  global variables
@@ -48,15 +49,12 @@ def Get_ObsType(swcm, chanfreq):
     obstype = swcm.copy()
 
     # Use numpy vectorized operations
-    obstype = np.where(swcm == 5, 247, obstype)  # WVCA/DL
-    obstype = np.where(swcm == 3, 246, obstype)  # WVCT
-    obstype = np.where(swcm == 2, 251, obstype)  # VIS
-    obstype = np.where(swcm == 1, 245, obstype)  # IRLW
+    obstype = np.where(swcm == 5, 254, obstype)  # WVCA/DL
+    obstype = np.where(swcm == 3, 254, obstype)  # WVCT
+    obstype = np.where(swcm == 2, 243, obstype)  # VIS
+    obstype = np.where(swcm == 1, 253, obstype)  # IRLW
 
-    condition = np.logical_and(swcm == 1, chanfreq >= 50000000000000.0)  # IRSW
-    obstype = np.where(condition, 240, obstype)
-
-    if not np.any(np.isin(obstype, [247, 246, 251, 245, 240])):
+    if not np.any(np.isin(obstype, [243, 253, 254])):
         raise ValueError("Error: Unassigned ObsType found ... ")
 
     return obstype
@@ -94,9 +92,8 @@ def bufr_to_ioda(config, logger):
     # General informaton
     converter = 'BUFR to IODA Converter'
     process_level = 'Level-2'
-    platform_description = 'NOAA Series of Geostationary Operational Environmental Satellites - 3rd generation since 2016'
-    sensor_description = '16 channels, balaned visible, near IR, short-wave IR, mid-wave IR, and thermal IR; \
-                         central wavelentgh ranges from 470 nm to 13.3 micron'
+    platform_description = 'METEOSAT-8'
+    sensor_description = 'Spinning Enhanced Visible and InfraRed Imager'
 
     logger.info(f'sensor_name = {sensor_name}')
     logger.info(f'sensor_full_name = {sensor_full_name}')
@@ -129,21 +126,13 @@ def bufr_to_ioda(config, logger):
     q.add('pressure', '*/PRLC[1]')
 
     # Processing Center
-    q.add('dataProviderOrigin', '*/OGCE[1]')
-#   q.add('windGeneratingApplication', '*/AMVQIC/GNAPS')
+    q.add('dataProviderOrigin', '*/OGCE')
 
-#   # Quality Infomation (Quality Inficator and Expecter Error)
-#   q.add('windPercentConfidence', '*/AMVQIC/PCCF')
+#   # Quality Infomation (Quality Indicator w/o forecast)
     q.add('qualityInformationWithoutForecast', '*/AMVQIC{2}/PCCF')
-    q.add('expectedError', '*/AMVQIC{4}/PCCF')
-
-#   # Derived Motion Wind (DMW) Intermediate Vectors - Coefficient of Variation
-#   q.add('coefficientOfVariation', '*/AMVIVR/CVWD')
-    q.add('coefficientOfVariation', '*/AMVIVR{1}/CVWD')
 
     # Wind Retrieval Method Information
     q.add('windComputationMethod', '*/SWCM')
-    q.add('windHeightAssignMethod', '*/EHAM')
 
     # ObsValue
     q.add('windDirection', '*/WDIR')
@@ -182,14 +171,9 @@ def bufr_to_ioda(config, logger):
 
     # Quality Information
     qifn = r.get('qualityInformationWithoutForecast', type='float')
-    ee = r.get('expectedError', type='float')
-
-    # Derived Motion Wind (DMW) Intermediate Vectors
-    cvwd = r.get('coefficientOfVariation')
 
     # Wind Retrieval Method Information
     swcm = r.get('windComputationMethod')
-    eham = r.get('windHeightAssignMethod')
 
     # ObsValue
     # Wind direction and Speed
@@ -280,13 +264,10 @@ def bufr_to_ioda(config, logger):
             ogce2 = ogce[mask]
 
             # QC Info
-            cvwd2 = cvwd[mask]
             qifn2 = qifn[mask]
-            ee2 = ee[mask]
 
             # Method
             swcm2 = swcm[mask]
-            eham2 = eham[mask]
 
             # ObsValue
             wdir2 = wdir[mask]
@@ -339,7 +320,7 @@ def bufr_to_ioda(config, logger):
                 .write_data(lon2)
 
             # Latitude
-            obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat2.fill_value) \
+            obsspace.create_var('MetaData/latitude', dtype=lat2.dtype, fillval=lat2.fill_value) \
                 .write_attr('units', 'degrees_north') \
                 .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
                 .write_attr('long_name', 'Latitude') \
@@ -379,26 +360,10 @@ def bufr_to_ioda(config, logger):
                 .write_attr('long_name', 'Quality Information Without Forecast') \
                 .write_data(qifn2)
 
-            # Quality: Percent Confidence - Expected Error
-            obsspace.create_var('MetaData/expectedError', dtype=ee2.dtype, fillval=ee2.fill_value) \
-                .write_attr('units', 'm/s') \
-                .write_attr('long_name', 'Expected Error') \
-                .write_data(ee2)
-
-            # Derived Motion Wind (DMW) Intermediate Vectors - Coefficient of Variation
-            obsspace.create_var('MetaData/coefficientOfVariation', dtype=cvwd2.dtype, fillval=cvwd2.fill_value) \
-                .write_attr('long_name', 'Coefficient of Variation') \
-                .write_data(cvwd2)
-
             # Wind Computation Method
             obsspace.create_var('MetaData/windComputationMethod', dtype=swcm2.dtype, fillval=swcm2.fill_value) \
                 .write_attr('long_name', 'Satellite-derived Wind Computation Method') \
                 .write_data(swcm2)
-
-            # Wind Height Assignment Method
-            obsspace.create_var('MetaData/windHeightAssignMethod', dtype=eham2.dtype, fillval=eham2.fill_value) \
-                .write_attr('long_name', 'Wind Height Assignment Method') \
-                .write_data(eham2)
 
             # ObsType based on computation method/spectral band
             obsspace.create_var('ObsType/windEastward', dtype=obstype2.dtype, fillval=swcm2.fill_value) \
@@ -464,7 +429,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger('BUFR2IODA_satwind_amv_goes.py', level=log_level, colored_log=True)
+    logger = Logger('BUFR2IODA_satwind_amv_ahi.py', level=log_level, colored_log=True)
 
     with open(args.config, "r") as json_file:
         config = json.load(json_file)

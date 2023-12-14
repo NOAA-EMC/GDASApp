@@ -5,52 +5,30 @@
 # and certain configuration parameters
 import argparse
 import os
-from wxflow import Template, TemplateConstants, YAMLFile
+from wxflow import Logger, parse_j2yaml, cast_strdict_as_dtypedict, save_as_yaml
+from wxflow import Template, TemplateConstants
+
+# initialize root logger
+logger = Logger('gen_bufr2ioda_yaml.py', level='INFO', colored_log=True)
 
 
-# list of satellite radiance BUFR files that need split by SatId
-sat_list = [
-    'atms',
-    '1bamua',
-    '1bmhs',
-    'crisf4',
-    'iasidb',
-]
-
-
-def gen_bufr_yaml(config):
-    # open the template input file
-    bufr_yaml = YAMLFile(path=config['template yaml'])
-    # determine if splits need in the output file path
-    obtype = config['obtype']
-    if obtype in sat_list:
-        # split by satellite platform
-        obtype_out = f"{obtype}_{{splits/satId}}"
-    else:
-        obtype_out = obtype
-    # construct the output IODA file path
-    output_ioda = [
-        config['run'],
-        f"t{config['cyc']:02}z",
-        obtype_out,
-        'nc',
-    ]
-    output_ioda_str = '.'.join(output_ioda)
-    output_ioda_file = os.path.join(config['output dir'], output_ioda_str)
-    # construct the template substitution dict
-    substitutions = {
-        'BUFR_in': config['input file'],
-        'IODA_out': output_ioda_file,
-    }
-    # substitue templates
-    bufr_yaml = Template.substitute_structure(bufr_yaml, TemplateConstants.DOLLAR_PARENTHESES, substitutions.get)
-    # write out BUFR converter YAML file
-    bufr_yaml.save(config['output yaml file'])
+def gen_bufr_yaml(config, template, output):
+    # read in templated YAML and do substitution
+    logger.info(f"Using {template} as input")
+    bufr_config = parse_j2yaml(template, config)
+    # need to do some special manipulation for the splits
+    substitutions = {'splitvar': '{splits/satId}'}
+    bufr_config = Template.substitute_structure(bufr_config, TemplateConstants.DOLLAR_PARENTHESES, substitutions.get)
+    save_as_yaml(bufr_config, output)
+    logger.info(f"Wrote to {output}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', type=str, help='Input YAML Configuration', required=True)
+    parser.add_argument('-t', '--template', type=str, help='Input YAML template', required=True)
+    parser.add_argument('-o', '--output', type=str, help='Output YAML file', required=True)
     args = parser.parse_args()
-    config = YAMLFile(path=args.config)
-    gen_bufr_yaml(config)
+    # get the config from your environment
+    config = cast_strdict_as_dtypedict(os.environ)
+    # call the parsing function
+    gen_bufr_yaml(config, args.template, args.output)

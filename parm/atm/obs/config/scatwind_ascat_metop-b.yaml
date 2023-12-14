@@ -1,13 +1,13 @@
 obs space:
-  name: ascatw_ascat_metop-a
+  name: ascatw_ascat_metop-b
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)ascatw.ascat_metop-a.{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)ascatw.ascat_metop-b.tm00.nc
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_ascatw_ascat_metop-a_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_ascatw_ascat_metop-b_{{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [windEastward, windNorthward]
@@ -22,6 +22,20 @@ obs operator:
   interpolation method: linear
   hofx scaling field: SurfaceWindScalingHeight
   hofx scaling field group: DerivedVariables
+
+linear obs operator:
+  name: VertInterp
+  vertical coordinate: geopotential_height
+  observation vertical coordinate group: DerivedVariables
+  observation vertical coordinate: adjustedHeight
+  interpolation method: linear
+
+obs pre filters:
+- filter: Gaussian Thinning
+  horizontal_mesh: 75
+  use_reduced_horizontal_grid: true
+  round_horizontal_bin_count_to_nearest: true
+  partition_longitude_bins_using_mesh: true
 
 obs prior filters:
 # Apply variable changes needed for rescaled height coordinate

@@ -1,7 +1,7 @@
 observations:
   - obs space:
       name: bufr
-      obsdatain: "$(BUFR_in)"
+      obsdatain: "{{ DMPDIR }}/{{ RUN }}.{{ PDY }}/{{ cyc }}/atmos/{{ RUN }}.t{{ cyc }}z.atms.tm00.bufr_d"
 
       exports:
         variables:
@@ -31,7 +31,7 @@ observations:
           # However, UFO/CRTM requred this variable to be float
           fieldOfViewNumber:
             query: "*/FOVN"
-            type: float
+#           type: float
 
           heightOfStation:
             query: "*/HMSL"
@@ -51,9 +51,9 @@ observations:
           sensorScanAngle:
             sensorScanAngle:
               fieldOfViewNumber: "*/FOVN"
-              heightOfStation: "*/HMSL"
               scanStart: -52.725
               scanStep: 1.110
+              sensor: atms
 
           sensorChannelNumber:
             query: "*/ATMSCH/CHNM"
@@ -64,7 +64,7 @@ observations:
             remappedBrightnessTemperature:
               fieldOfViewNumber: "*/FOVN"
               sensorChannelNumber: "*/ATMSCH/CHNM"
-              brightnessTemperature: "*/ATMSCH/TMBR"
+              brightnessTemperature: "*/ATMSCH/TMANT"
               obsTime:
                 year: "*/YEAR"
                 month: "*/MNTH"
@@ -80,10 +80,11 @@ observations:
               map:
                 _224: npp
                 _225: n20
+#               _226: n21
 
     ioda:
       backend: netcdf
-      obsdataout: "$(IODA_out)"
+      obsdataout: "{{ COM_OBS }}/{{ RUN }}.t{{ cyc }}z.atms_$(splitvar).tm00.nc"
 
       dimensions:
         - name: Channel
