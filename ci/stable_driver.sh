@@ -83,12 +83,12 @@ if [ $ci_status -eq 0 ]; then
   git stash
   total=$(($total+$?))
   if [ $total -ne 0 ]; then
-    echo "Unable to cp CMakeLists" >> $stableroot/$datestr/output
+    echo "Unable to git stash" >> $stableroot/$datestr/output
   fi
   git checkout feature/stable-nightly
   total=$(($total+$?))
   if [ $total -ne 0 ]; then
-    echo "Unable to cp CMakeLists" >> $stableroot/$datestr/output
+    echo "Unable to checkout feature/stable-nightly" >> $stableroot/$datestr/output
   fi
   # merge in develop
   git merge develop
@@ -96,11 +96,16 @@ if [ $ci_status -eq 0 ]; then
   if [ $total -ne 0 ]; then
     echo "Unable to merge develop" >> $stableroot/$datestr/output
   fi
-  # commit this change and push
-  git add CMakeLists.txt
+  # add in submodules
+  git stash pop
   total=$(($total+$?))
   if [ $total -ne 0 ]; then
-    echo "Unable to add CMakeLists to commit" >> $stableroot/$datestr/output
+    echo "Unable to git stash pop" >> $stableroot/$datestr/output
+  fi
+  $my_dir/../ush/submodules/add_submodules.sh $gdasdir
+  total=$(($total+$?))
+  if [ $total -ne 0 ]; then
+    echo "Unable to add updated submodules to commit" >> $stableroot/$datestr/output
   fi
   git diff-index --quiet HEAD || git commit -m "Update to new stable build on $datestr"
   total=$(($total+$?))

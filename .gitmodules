@@ -69,18 +69,6 @@
 	path = sorc/land-jediincr
 	url = https://github.com/NOAA-PSL/land-apply_jedi_incr.git
 	branch = develop
-[submodule "test/jcsda/ioda-data"]
-	path = test/jcsda/ioda-data
-	url = https://github.com/JCSDA-internal/ioda-data.git
-	branch = develop
-[submodule "test/jcsda/ufo-data"]
-	path = test/jcsda/ufo-data
-	url = https://github.com/JCSDA-internal/ufo-data.git
-	branch = develop
-[submodule "test/jcsda/fv3-jedi-data"]
-	path = test/jcsda/fv3-jedi-data
-	url = https://github.com/JCSDA-internal/fv3-jedi-data.git
-	branch = develop
 [submodule "sorc/crtm"]
 	path = sorc/crtm
 	url = https://github.com/jcsda/crtm.git
