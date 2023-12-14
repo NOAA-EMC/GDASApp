@@ -81,3 +81,6 @@
 	path = test/jcsda/fv3-jedi-data
 	url = https://github.com/JCSDA-internal/fv3-jedi-data.git
 	branch = develop
+[submodule "sorc/crtm"]
+	path = sorc/crtm
+	url = https://github.com/jcsda/crtm.git
