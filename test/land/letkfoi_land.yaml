@@ -164,6 +164,5 @@ observations:
 output increment:
   filename_sfcd: xainc.sfc_data.nc
   filetype: fms restart
-time window:
-  begin: '2021-03-23T15:00:00Z'
-  length: PT6H
+window begin: '2021-03-23T15:00:00Z'
+window length: PT6H
