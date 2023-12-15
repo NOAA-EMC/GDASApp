@@ -112,7 +112,7 @@ echo "Configuring ..."
 set -x
 cmake \
   ${CMAKE_OPTS:-} \
-  $dir_root
+  $dir_root/sorc
 set +x
 
 # Build
