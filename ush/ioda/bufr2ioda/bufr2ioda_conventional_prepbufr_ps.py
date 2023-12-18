@@ -35,7 +35,7 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
     dateTime = ma.array(dateTime)
     dateTime = ma.masked_values(dateTime, dhr.fill_value)
- 
+
     return dateTime
 
 
@@ -346,10 +346,10 @@ def bufr_to_ioda(config, logger):
 
     pobqm1 = ma.array(pobqm1).astype('int32')
     pobqm1 = ma.masked_values(pobqm1, pobqmorig1.fill_value)
-    pobqm1 = ma.masked_values(pobqm1, 0) 
+    pobqm1 = ma.masked_values(pobqm1, 0)
     zobqm1 = ma.array(zobqm1).astype('int32')
     zobqm1 = ma.masked_values(zobqm1, zobqmorig1.fill_value)
-    zobqm1 = ma.masked_values(zobqm1, 0) 
+    zobqm1 = ma.masked_values(zobqm1, 0)
     tobqm1 = ma.array(tobqm1).astype('int32')
     tobqm1 = ma.masked_values(tobqm1, tobqmorig1.fill_value)
     tsenqm1 = copy.deepcopy(tobqm1)
@@ -500,13 +500,13 @@ def bufr_to_ioda(config, logger):
 
     pobqm2 = ma.array(pobqm2).astype('int32')
     pobqm2 = ma.masked_values(pobqm2, pobqmorig2.fill_value)
-    pobqm2 = ma.masked_values(pobqm2, 0) 
+    pobqm2 = ma.masked_values(pobqm2, 0)
     zobqm2 = ma.array(zobqm2).astype('int32')
     zobqm2 = ma.masked_values(zobqm2, zobqmorig2.fill_value)
-    zobqm2 = ma.masked_values(zobqm2, 0) 
+    zobqm2 = ma.masked_values(zobqm2, 0)
     tobqm2 = ma.array(tobqm2).astype('int32')
     tobqm2 = ma.masked_values(tobqm2, tobqmorig2.fill_value)
-    tobqm2 = ma.masked_values(tobqm2, 0) 
+    tobqm2 = ma.masked_values(tobqm2, 0)
     tsenqm2 = copy.deepcopy(tobqm2)
     tsenqmorig2f = ma.array(np.full(tobqmorig2.shape[0], tobqmorig2.fill_value))
     tsenqmorig2 = ma.where(((tpcorig2 >= 1) & (tpcorig2 < 8)), tobqmorig2, tsenqmorig2f)
@@ -530,7 +530,6 @@ def bufr_to_ioda(config, logger):
     tvooe2f = ma.array(np.full(toboe2.shape[0], toboe2.fill_value))
     tvooe2 = ma.where((tpc2 == 8), toboe2, tvooe2f)
     tvooe2 = ma.masked_values(tvooe2, 0)
-
 
     elv2 = ma.array(elv2).astype('float32')
     elv2 = ma.masked_values(elv2, elvorig2.fill_value)
