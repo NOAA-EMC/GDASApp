@@ -19,6 +19,6 @@ gdasdir=${1:-${my_dir}/../../}
 
 for r in $repos; do
   echo "Updating ${gdasdir}/sorc/${r}"
-  cd ${gdasdir}/sorc/${r}
-  git submodule update --remote --merge
+  cd ${gdasdir}/sorc
+  git submodule update --remote --merge ${r}
 done
