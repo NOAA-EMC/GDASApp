@@ -56,7 +56,7 @@ mkdir -p $stableroot/$datestr
 cd $stableroot/$datestr
 
 # clone global workflow develop branch
-git clone $workflow_url
+git clone --recursive $workflow_url
 
 # run checkout script for all other components
 cd $stableroot/$datestr/global-workflow/sorc

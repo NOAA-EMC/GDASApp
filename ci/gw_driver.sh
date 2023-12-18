@@ -65,7 +65,7 @@ for pr in $open_pr_list; do
   cd $GDAS_CI_ROOT/workflow/PR/$pr
 
   # clone global workflow develop branch
-  git clone $workflow_url
+  git clone --recursive $workflow_url
 
   # run checkout script for all other components
   cd $GDAS_CI_ROOT/workflow/PR/$pr/global-workflow/sorc
