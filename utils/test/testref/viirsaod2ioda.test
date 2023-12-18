@@ -1,0 +1,26 @@
+Reading: [viirs_aod_1.nc4,viirs_aod_2.nc4]
+1970-01-01 00:00:00
+obsVal:
+    Min: 0.00219523
+    Max: 0.163349
+    Sum: 11.8086
+obsError:
+    Min: 0.00885619
+    Max: 0.130309
+    Sum: 8.75665
+preQc:
+    Min: 0
+    Max: 2
+    Sum: 105
+longitude:
+    Min: 141.747
+    Max: 142.872
+    Sum: 19953.1
+latitude:
+    Min: 50.2839
+    Max: 51.3225
+    Sum: 7140.63
+datetime:
+    Min: 1523765998
+    Max: 1523765998
+    Sum: 213327239720
