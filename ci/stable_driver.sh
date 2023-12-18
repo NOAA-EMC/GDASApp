@@ -70,6 +70,9 @@ git pull
 # ==============================================================================
 # run ecbuild to get the repos cloned
 mkdir -p build
+mkdir -p test-data-release
+ln -sf $GDASAPP_TESTDATA/crtm test-data-release/crtm
+
 cd build
 ecbuild ../
 cd ..
