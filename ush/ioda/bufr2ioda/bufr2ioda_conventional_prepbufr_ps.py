@@ -267,10 +267,6 @@ def bufr_to_ioda(config, logger):
     poboeorig1 *= 100
     toboeorig1 = t.get('obsErrorAirTemperature', type='float32')
 
-#    for i in range(len(toboeorig1)):
-#        print("NE toboeorig1 ", i, toboeorig1[i])
-
-
     # ObsValue
     logger.debug(f" ... Executing QuerySet for ADPSFC: get ObsValues ...")
     elvorig1 = t.get('stationElevation', type='float32')
@@ -305,7 +301,6 @@ def bufr_to_ioda(config, logger):
 
     for i in range(len(typorig1)):
         if typorig1[i] < 200:
-           # print("NE omg i ", str(i))
             typ1 = np.append(typ1, typorig1[i])
 
             sid1 = np.append(sid1, sidorig1[i])
@@ -322,16 +317,12 @@ def bufr_to_ioda(config, logger):
             zobqm1 = np.append(pobqm1, pobqmorig1[i]).astype('int32')
             tobqm1 = np.append(tobqm1, tobqmorig1[i]).astype('int32')
 
-            poboe1 = np.append(poboe1, poboeorig1[i])#.astype('float32')
-            toboe1 = ma.append(toboe1, toboeorig1[i])#.astype('float32')
-            #print("NE appended2 ", toboeorig1[i])
+            poboe1 = np.append(poboe1, poboeorig1[i])
+            toboe1 = np.append(toboe1, toboeorig1[i])
 
             elv1 = np.append(elv1, elvorig1[i])
             pob1 = np.append(pob1, poborig1[i])
             tob1 = np.append(tob1, toborig1[i])
-
-#    for i in range(len(toboe1)):
-        #print("NE toboe1 ", i, toboe1[i])
 
     typ1 = ma.array(typ1)
     typ1 = ma.masked_values(typ1, typorig1.fill_value)
@@ -355,40 +346,35 @@ def bufr_to_ioda(config, logger):
 
     pobqm1 = ma.array(pobqm1).astype('int32')
     pobqm1 = ma.masked_values(pobqm1, pobqmorig1.fill_value)
+    pobqm1 = ma.masked_values(pobqm1, 0) 
     zobqm1 = ma.array(zobqm1).astype('int32')
     zobqm1 = ma.masked_values(zobqm1, zobqmorig1.fill_value)
+    zobqm1 = ma.masked_values(zobqm1, 0) 
     tobqm1 = ma.array(tobqm1).astype('int32')
     tobqm1 = ma.masked_values(tobqm1, tobqmorig1.fill_value)
     tsenqm1 = copy.deepcopy(tobqm1)
     tsenqm1f = ma.array(np.full(tobqm1.shape[0], tobqm1.fill_value))
     tsenqm1 = ma.where(((tpc1 >= 1) & (tpc1 < 8)), tobqm1, tsenqm1f)
+    tsenqm1 = ma.masked_values(tsenqm1, 0)
     tvoqm1 = copy.deepcopy(tobqm1)
     tvoqm1f = ma.array(np.full(tobqm1.shape[0], tobqm1.fill_value))
     tvoqm1 = ma.where((tpc1 == 8), tobqm1, tvoqm1f)
+    tvoqm1 = ma.masked_values(tvoqm1, 0)
 
     poboe1 = ma.array(poboe1).astype('float32')
     poboe1 = ma.masked_values(poboe1, poboeorig1.fill_value)
+    poboe1 = ma.masked_values(poboe1, 0)
     toboe1 = ma.array(toboe1).astype('float32')
-    print("NE 29", toboe1[29])
-    toboe1a = ma.array(toboe1)#.astype('float32')
-    print("NE aaa", toboe1.dtype, toboe1a.dtype)
-    print("NE 29 2", toboe1a[29])
+    toboe1a = ma.array(toboe1)
     toboe1 = ma.masked_values(toboe1, toboeorig1.fill_value)
-    print("NE 29 3", toboe1[29])
     tsenoe1 = copy.deepcopy(toboe1)
-    print("NE 29 4", tsenoe1[29])
-    print("NE toboeorig1 fill ", toboeorig1.fill_value)
     tsenoe1f = ma.array(np.full(toboe1.shape[0], toboe1.fill_value))
-    print("NE 29 5", tsenoe1f[29])
     tsenoe1 = ma.where(((tpc1 >= 1) & (tpc1 < 8)), toboe1, tsenoe1f)
-#    print("NE 29 6", tsenoe1a[29])
+    tsenoe1 = ma.masked_values(tsenoe1, 0)
     tvooe1 = ma.array(np.full(toboe1.shape[0], toboe1.fill_value))
     tvooe1f = ma.array(np.full(toboe1.shape[0], toboe1.fill_value))
     tvooe1 = ma.where((tpc1 == 8), toboe1, tvooe1f)
-
-    for i in range(len(toboe1)):
-        if (i > 27) and (i < 33):
-            print("NE toboe1, sen, tvo ", i, toboe1[i], toboe1a[i], tsenoe1[i], tvooe1[i])
+    tvooe1 = ma.masked_values(tvooe1, 0)
 
     elv1 = ma.array(elv1).astype('float32')
     elv1 = ma.masked_values(elv1, elvorig1.fill_value)
@@ -485,8 +471,8 @@ def bufr_to_ioda(config, logger):
             zobqm2 = np.append(zobqm2, pobqmorig2[i])
             tobqm2 = np.append(tobqm2, tobqmorig2[i])
 
-            poboe2 = np.append(poboe2, pobqmorig2[i])
-            toboe2 = np.append(toboe2, tobqmorig2[i])
+            poboe2 = np.append(poboe2, poboeorig2[i])
+            toboe2 = np.append(toboe2, toboeorig2[i])
 
             elv2 = np.append(elv2, elvorig2[i])
             pob2 = np.append(pob2, poborig2[i])
@@ -514,27 +500,37 @@ def bufr_to_ioda(config, logger):
 
     pobqm2 = ma.array(pobqm2).astype('int32')
     pobqm2 = ma.masked_values(pobqm2, pobqmorig2.fill_value)
+    pobqm2 = ma.masked_values(pobqm2, 0) 
     zobqm2 = ma.array(zobqm2).astype('int32')
     zobqm2 = ma.masked_values(zobqm2, zobqmorig2.fill_value)
+    zobqm2 = ma.masked_values(zobqm2, 0) 
     tobqm2 = ma.array(tobqm2).astype('int32')
     tobqm2 = ma.masked_values(tobqm2, tobqmorig2.fill_value)
+    tobqm2 = ma.masked_values(tobqm2, 0) 
     tsenqm2 = copy.deepcopy(tobqm2)
     tsenqmorig2f = ma.array(np.full(tobqmorig2.shape[0], tobqmorig2.fill_value))
     tsenqmorig2 = ma.where(((tpcorig2 >= 1) & (tpcorig2 < 8)), tobqmorig2, tsenqmorig2f)
+    tsenqmorig2 = ma.masked_values(tsenqmorig2, 0)
     tvoqm2 = copy.deepcopy(tobqm2)
     tvoqmorig2f = ma.array(np.full(tobqmorig2.shape[0], tobqmorig2.fill_value))
     tvoqmorig2 = ma.where((tpcorig2 == 8), tobqmorig2, tvoqmorig2f)
+    tvoqmorig2 = ma.masked_values(tvoqmorig2, 0)
 
     poboe2 = ma.array(poboe2).astype('float32')
-    poboe2 = ma.masked_values(poboe2, poboeorig1.fill_value)
+    poboe2 = ma.masked_values(poboe2, poboeorig2.fill_value)
+    poboe2 = ma.masked_values(poboe2, 0)
     toboe2 = ma.array(toboe2).astype('float32')
-    toboe2 = ma.masked_values(toboe2, toboeorig1.fill_value)
+    toboe2 = ma.masked_values(toboe2, toboeorig2.fill_value)
+    toboe2 = ma.masked_values(toboe2, 0)
     tsenoe2 = copy.deepcopy(toboe2)
     tsenoe2f = ma.array(np.full(toboe2.shape[0], toboe2.fill_value))
     tsenoe2 = ma.where(((tpc2 >= 1) & (tpc2 < 8)), toboe2, tsenoe2f)
+    tsenoe2 = ma.masked_values(tsenoe2, 0)
     tvooe2 = ma.array(np.full(toboe2.shape[0], toboe2.fill_value))
     tvooe2f = ma.array(np.full(toboe2.shape[0], toboe2.fill_value))
     tvooe2 = ma.where((tpc2 == 8), toboe2, tvooe2f)
+    tvooe2 = ma.masked_values(tvooe2, 0)
+
 
     elv2 = ma.array(elv2).astype('float32')
     elv2 = ma.masked_values(elv2, elvorig2.fill_value)
@@ -575,14 +571,17 @@ def bufr_to_ioda(config, logger):
     pobqm3 = v.get('qualityMarkerStationPressure', 'prepbufrDataLevelCategory')
     psqm3 = ma.array(np.full(pobqm3.shape[0], pobqm3.fill_value))
     psqm3 = ma.where(cat3 == 0, pobqm3, psqm3)
+    psqm3 = ma.masked_values(psqm3, 0)
     zobqm3 = v.get('qualityMarkerStationElevation', 'prepbufrDataLevelCategory')
     tobqm3 = v.get('qualityMarkerAirTemperature', 'prepbufrDataLevelCategory')
     tsenqm3 = copy.deepcopy(tobqm3)
     tsenqm3f = ma.array(np.full(tobqm3.shape[0], tobqm3.fill_value))
     tsenqm3 = ma.where(((tpc3 >= 1) & (tpc3 < 8) & (cat3 == 0)), tobqm3, tsenqm3f)
+    tsenqm3 = ma.masked_values(tsenqm3, 0)
     tvoqm3 = copy.deepcopy(tobqm3)
     tvoqm3f = ma.array(np.full(tobqm3.shape[0], tobqm3.fill_value))
     tvoqm3 = ma.where(((tpc3 == 8) & (cat3 == 0)), tobqm3, tvoqm3f)
+    tvoqm3 = ma.masked_values(tvoqm3, 0)
 
     # ObsError
     logger.debug(f" ... Executing QuerySet for ADPUPA: get ObsError ...")
@@ -590,13 +589,17 @@ def bufr_to_ioda(config, logger):
     poboe3 *= 100
     psoe3 = ma.array(np.full(poboe3.shape[0], poboe3.fill_value))
     psoe3 = ma.where(cat3 == 0, poboe3, psoe3)
-    toboe3 = v.get('obsErrorAirTemperature', 'prepbufrDataLevelCategory',type='float32')
+    psoe3 = ma.masked_values(psoe3, 0)
+    toboe3 = v.get('obsErrorAirTemperature', 'prepbufrDataLevelCategory', type='float32')
+    toboe3 = ma.masked_values(toboe3, 0)
     tsenoe3 = copy.deepcopy(toboe3)
     tsenoe3f = ma.array(np.full(toboe3.shape[0], toboe3.fill_value))
     tsenoe3 = ma.where(((tpc3 >= 1) & (tpc3 < 8) & (cat3 == 0)), toboe3, tsenoe3f)
+    tsenoe3 = ma.masked_values(tsenoe3, 0)
     tvooe3 = copy.deepcopy(toboe3)
     tvooe3f = ma.array(np.full(toboe3.shape[0], toboe3.fill_value))
     tvooe3 = ma.where(((tpc3 == 8) & (cat3 == 0)), toboe3, tvooe3f)
+    tvooe3 = ma.masked_values(tvooe3, 0)
 
     # ObsValue
     logger.debug(" ... Executing QuerySet for ADPUPA: get ObsValues ...")
@@ -728,7 +731,7 @@ def bufr_to_ioda(config, logger):
     pobqm = ma.masked_values(pobqm, pobqmorig1.fill_value)
     psqm = ma.concatenate((pobqm1, pobqm2, psqm3), axis=0)
     psqm = ma.masked_values(psqm, pobqmorig1.fill_value)
-    zobqm =  ma.concatenate((zobqm1, zobqm2, zobqm3), axis=0)
+    zobqm = ma.concatenate((zobqm1, zobqm2, zobqm3), axis=0)
     zobqm = ma.masked_values(zobqm, zobqmorig1.fill_value)
     tobqm = ma.concatenate((tobqm1, tobqm2, tobqm3), axis=0)
     tobqm = ma.masked_values(tobqm, tobqmorig1.fill_value)
@@ -806,7 +809,7 @@ def bufr_to_ioda(config, logger):
     dateTime2 = Compute_dateTime(cycleTimeSinceEpoch, dhr2)
     dateTime3 = Compute_dateTime(cycleTimeSinceEpoch, dhr3)
 
-    dateTime = ma.concatenate((dateTime1, dateTime2, dateTime3), axis=0)#.astype(np.int64)
+    dateTime = ma.concatenate((dateTime1, dateTime2, dateTime3), axis=0)
 
     logger.debug(f"     Check dateTime shape & type ... ")
     logger.debug(f"     dateTime shape = {dateTime.shape}")
