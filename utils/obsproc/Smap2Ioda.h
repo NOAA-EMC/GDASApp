@@ -14,6 +14,7 @@
 
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
+#include "oops/util/dateFunctions.h"
 #include "oops/util/DateTime.h"
 
 #include "NetCDFToIodaConverter.h"
@@ -73,36 +74,23 @@ namespace gdasapp {
 
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
-      // calculate the seconds of Jan 1 of startyear since unix epoch
-      std::ostringstream timeinfo;
-      timeinfo << std::setfill('0');
-      timeinfo << std::setw(4) << startYear << '-';
-      timeinfo << std::setw(2) << 1 << '-';
-      timeinfo << std::setw(2) << 1 << ' ';
-      timeinfo << std::setw(2) << 0 << ':';
-      timeinfo << std::setw(2) << 0 << ':';
-      timeinfo << std::setw(2) << 0;
+      int year = startYear;
+      int month = 1;
+      int day = 1;
 
-      // Print out the formatted time
-      oops::Log::info() << "Converted and Formatted time: " << timeinfo.str() << std::endl;
+      // Bypassing validYYYYMMDD function within dateToJulian
+      if (year == -9999) {
+        year = 1970;
+      }
 
-      std::tm t2 = {};
-      std::istringstream ss(timeinfo.str());
-      ss >> std::get_time(&t2, "%Y-%m-%d %H:%M:%S");
+      uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
 
-      auto time_point2 = std::chrono::system_clock::from_time_t(std::mktime(&t2));
-      // Print out the formatted time in seconds
-      oops::Log::info() << "time point2: " << std::chrono::system_clock::to_time_t(time_point2)
-          << std::endl;
-      // Convert the formatted string from iso8601_string
-      std::tm t1 = {};
-      std::istringstream epoch("1970-01-01 00:00:00");
-      epoch >> std::get_time(&t1, "%Y-%m-%d %H:%M:%S");
-      auto time_point1 = std::chrono::system_clock::from_time_t(std::mktime(&t1));
-      // Calculate the duration between the two time points
-      auto duration = time_point2 - time_point1;
-      auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-      int unixStartDay = seconds + (startDay * 86400);
+      // Convert a date to Julian date
+      // Subtract Julian date for January 1, 1970 (epoch)
+      int daysSinceEpoch = julianDate - 2440588;
+
+      // Calculate seconds
+      int unixStartDay = (daysSinceEpoch + startDay) * 86400;
 
       int loc;
       for (int i = 0; i < dim0; i++) {

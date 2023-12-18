@@ -15,6 +15,7 @@
 
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
+#include "oops/util/dateFunctions.h"
 
 #include "NetCDFToIodaConverter.h"
 
@@ -69,42 +70,30 @@ namespace gdasapp {
 
       size_t index = 0;
       for (int i = 0; i < ntimes; i += dimTimeSize) {
-        std::ostringstream timeinfo;
-        timeinfo << std::setfill('0');
-        timeinfo << std::setw(4) << oneTmpdateTimeVal[i] << '-';
-        timeinfo << std::setw(2) << oneTmpdateTimeVal[i+1] << '-';
-        timeinfo << std::setw(2) << oneTmpdateTimeVal[i+2] << ' ';
-        timeinfo << std::setw(2) << oneTmpdateTimeVal[i+3] << ':';
-        timeinfo << std::setw(2) << oneTmpdateTimeVal[i+4] << ':';
-        timeinfo << std::setw(2) << oneTmpdateTimeVal[i+5];
+        int year = oneTmpdateTimeVal[i];
+        int month = oneTmpdateTimeVal[i+1];
+        int day = oneTmpdateTimeVal[i+2];
+        int hour = oneTmpdateTimeVal[i+3];
+        int minute =  oneTmpdateTimeVal[i+4];
+        int second = static_cast<int>(oneTmpdateTimeVal[i+5]);
 
-        // Print out the formatted time
-        oops::Log::info() << "Converted and Formatted time: " << timeinfo.str() << std::endl;
+        // Bypassing validYYYYMMDD function within dateToJulian
+        if (year == -9999 && month == -9999 && day == -9999 &&
+             hour == -9999 && minute == -9999 && second == -9999) {
+          year = 0, month = 0, day = 0;
+          hour = 0, minute = 0, second = 0;
+        }
 
-        // Parse the formatted string from the product
-        std::tm t2 = {};
-        std::istringstream ss(timeinfo.str());
-        ss >> std::get_time(&t2, "%Y-%m-%d %H:%M:%S");
+        uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
 
-        auto time_point2 = std::chrono::system_clock::from_time_t(std::mktime(&t2));
+        // Convert a date to Julian date
+        // Subtract Julian date for January 1, 1970 (epoch)
+        int daysSinceEpoch = julianDate - 2440588;
 
-        //  Print out the formatted time in seconds
-        oops::Log::info() << "time point2: " << std::chrono::system_clock::to_time_t(time_point2)
-            << std::endl;
+        // Calculate seconds only from HHMMSS
+        int secondsOffset = util::datefunctions::hmsToSeconds(hour, minute, second);
 
-        // Convert the formatted string from iso8601_string
-        std::tm t1 = {};
-        std::istringstream epoch("1970-01-01 00:00:00");
-        epoch >> std::get_time(&t1, "%Y-%m-%d %H:%M:%S");
-
-        auto time_point1 = std::chrono::system_clock::from_time_t(std::mktime(&t1));
-
-        // Calculate the duration between the two time points
-        auto duration = time_point2 - time_point1;
-        auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-
-        // Write the duration in seconds to IODA since the Unix epoch
-        iodaVars.datetime_(index) = seconds;
+        iodaVars.datetime_(index) = static_cast<int64_t>(daysSinceEpoch*86400.0f) + secondsOffset;
         index++;
       }
 
