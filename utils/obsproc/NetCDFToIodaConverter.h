@@ -91,7 +91,25 @@ namespace gdasapp {
         // Update the group with the location dimension
         ioda::NewDimensionScales_t
           newDims {ioda::NewDimensionScale<int>("Location", iodaVarsAll.location_)};
+
+        // Update the group with the location and channel dimension (if channel value is assigned)
+        if (iodaVars.channelValues_(0) > 0) {
+           newDims = {
+                 ioda::NewDimensionScale<int>("Location", iodaVarsAll.location_),
+                 ioda::NewDimensionScale<int>("Channel", iodaVarsAll.channel_)
+           };
+        }
         ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
+
+        // Create different dimensionScales for data w/wo channel info
+        std::vector<ioda::Variable> dimensionScales {
+            ogrp.vars["Location"]
+        };
+        if (iodaVars.channelValues_(0) > 0) {
+           dimensionScales = {ogrp.vars["Location"], ogrp.vars["Channel"]};
+           ogrp.vars["Channel"].writeWithEigenRegular(iodaVars.channelValues_);
+        }
+
 
         // Set up the creation parameters
         ioda::VariableCreationParameters float_params = createVariableParams<float>();
@@ -112,14 +130,14 @@ namespace gdasapp {
 
         ioda::Variable iodaObsVal =
           ogrp.vars.createWithScales<float>("ObsValue/"+variable_,
-                                            {ogrp.vars["Location"]}, float_params);
+                                            dimensionScales, float_params);
         ioda::Variable iodaObsErr =
           ogrp.vars.createWithScales<float>("ObsError/"+variable_,
-                                            {ogrp.vars["Location"]}, float_params);
+                                            dimensionScales, float_params);
 
         ioda::Variable iodaPreQc =
           ogrp.vars.createWithScales<int>("PreQC/"+variable_,
-                                            {ogrp.vars["Location"]}, int_params);
+                                          dimensionScales, int_params);
 
         // add input filenames to IODA file global attributes
         ogrp.atts.add<std::string>("obs_source_files", inputFilenames_);
