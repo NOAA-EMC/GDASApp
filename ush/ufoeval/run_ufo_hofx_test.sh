@@ -33,7 +33,6 @@ run_filtering=YES
 run_eva=YES
 eva_stats_only=NO
 keep_output=NO 
-window_shift=False
 
 while getopts "c:hsxq" opt; do
   case $opt in
@@ -178,13 +177,13 @@ export OPREFIX=gdas.t${cyc}z
 export APREFIX=gdas.t${cyc}z
 export GPREFIX=gdas.t${gcyc}z
 
-if [ $obtype == "conv_ps" ]; then window_shift=True; fi
 cat > $workdir/temp.yaml << EOF
-window begin: '{{ WINDOW_BEGIN | to_isotime }}'
-window end: '{{ WINDOW_END | to_isotime }}'
+time window:
+  begin: '{{ WINDOW_BEGIN | to_isotime }}'
+  end: '{{ WINDOW_END | to_isotime }}'
+  bound to include: begin
 observations:
 - !INC $yamlpath
-window shift: ${window_shift} 
 EOF
 $GDASApp/ush/genYAML --input $workdir/temp.yaml --output $workdir/${obtype}_${cycle}.yaml
 
