@@ -85,7 +85,7 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT ufo SOURCE "./ufo" )
 
 # FMS and FV3 dynamical core
-  ecbuild_bundle( PROJECT fms GIT "https://github.com/jcsda/FMS.git" BRANCH release-stable )
+  ecbuild_bundle( PROJECT fms SOURCE "./fms" )
   ecbuild_bundle( PROJECT fv3 SOURCE "./fv3" )
 
 # fv3-jedi and associated repositories
