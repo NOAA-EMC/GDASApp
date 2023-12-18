@@ -137,4 +137,4 @@ add_subdirectory(test)
 
 # Finalize bundle
 # ---------------
-ecbuild_bundle_finalize()
+#ecbuild_bundle_finalize()

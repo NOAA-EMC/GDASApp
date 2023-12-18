@@ -45,7 +45,7 @@ if(BUILD_GDASBUNDLE)
 
 # jedi-cmake
   ecbuild_bundle( PROJECT jedicmake SOURCE "./jedicmake" )
-  include( sorc/jedicmake/cmake/Functions/git_functions.cmake )
+  include( jedicmake/cmake/Functions/git_functions.cmake )
 
 # ECMWF libraries
   option("BUNDLE_SKIP_ECKIT" "Don't build eckit" "ON" ) # Skip eckit build unless user passes -DBUNDLE_SKIP_ECKIT=OFF
