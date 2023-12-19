@@ -28,41 +28,14 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
     dateTime = np.zeros(dhr.shape, dtype=np.int64) 
     for i in range(len(dateTime)):
         if ma.is_masked(dhr[i]):
-             print("NE ignore ", str(i))
-#            continue
+#             print("NE ignore ", str(i))
+            continue
         else:
             dateTime[i] = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
             print("NE add ", str(i), dhr[i], dateTime[i])
 
- 
-#    dateTime = np.array([], dtype=np.int64)
-#    for i in range(len(dhr)):
-#        if ma.is_masked(dhr[i]):
-#            dateTime = np.append(dateTime, int64_fill_value)
-#            print ("NE ignore ", str(i), dhr[i], int64_fill_value)
-#        else:
-#            dhr2 = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
-#            print("NE add ", str(i), dhr[i], dhr2)
-#            dateTime = np.append(dateTime, np.int64(dhr2))
-
-
-
-
-#        if ma.is_masked(dhr[i]):
-#            print("NE problem 0")
-#            dateTime = np.append(dateTime, int64_fill_value)
-#            print("NE problem 1")
-#        else:
-#            print("NE problem 2")
-#            dhr2 = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
-#            print("NE problem 3" )
-#            dateTime = np.append(dateTime, np.int64(dhr2))
-#            print("NE problem 4")
-
     dateTime = ma.array(dateTime)
-    print("NE problem 5")
     dateTime = ma.masked_values(dateTime, int64_fill_value)
-    print("NE problem 6")
 
     return dateTime
 

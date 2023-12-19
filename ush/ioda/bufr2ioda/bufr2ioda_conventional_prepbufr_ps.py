@@ -25,18 +25,35 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
     int64_fill_value = np.int64(0)
 
-    dateTime = np.array([], dtype=np.int64)
-    for i in range(len(dhr)):
+    dateTime = np.zeros(dhr.shape, dtype=np.int64)
+    for i in range(len(dateTime)):
         if ma.is_masked(dhr[i]):
-            dateTime = np.append(dateTime, int64_fill_value)
+#             print("NE ignore ", str(i))
+            continue
         else:
-            dhr2 = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
-            dateTime = np.append(dateTime, np.int64(dhr2))
+            dateTime[i] = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
+#            print("NE add ", str(i), dhr[i], dateTime[i])
 
     dateTime = ma.array(dateTime)
-    dateTime = ma.masked_values(dateTime, dhr.fill_value)
+    dateTime = ma.masked_values(dateTime, int64_fill_value)
 
     return dateTime
+
+
+#    int64_fill_value = np.int64(0)
+#
+#    dateTime = np.array([], dtype=np.int64)
+#    for i in range(len(dhr)):
+#        if ma.is_masked(dhr[i]):
+#            dateTime = np.append(dateTime, int64_fill_value)
+#        else:
+#            dhr2 = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
+#            dateTime = np.append(dateTime, np.int64(dhr2))
+#
+#    dateTime = ma.array(dateTime)
+#    dateTime = ma.masked_values(dateTime, dhr.fill_value)
+#
+#    return dateTime
 
 
 def Mask_typ_for_var(typ, var):
@@ -809,6 +826,7 @@ def bufr_to_ioda(config, logger):
     dateTime3 = Compute_dateTime(cycleTimeSinceEpoch, dhr3)
 
     dateTime = ma.concatenate((dateTime1, dateTime2, dateTime3), axis=0)
+    dateTime = ma.masked_values(dateTime, 0)
 
     logger.debug(f"     Check dateTime shape & type ... ")
     logger.debug(f"     dateTime shape = {dateTime.shape}")
