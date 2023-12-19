@@ -73,9 +73,10 @@ final:
     departures: anlmob
   increment:
     output:
-      filetype: auxgrid
-      gridtype: gaussian
-      filename: ./anl/atminc.
+      state component:
+        filetype: auxgrid
+        gridtype: gaussian
+        filename: ./anl/atminc.
     geometry:
       fms initialization:
         namelist filename: ./fv3jedi/fmsmpp.nml
