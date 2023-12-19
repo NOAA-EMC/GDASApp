@@ -25,7 +25,7 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
     int64_fill_value = np.int64(0)
 
-    dateTime = np.zeros(dhr.shape, dtype=np.int64) 
+    dateTime = np.zeros(dhr.shape, dtype=np.int64)
     for i in range(len(dateTime)):
         if ma.is_masked(dhr[i]):
             continue
