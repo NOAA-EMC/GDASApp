@@ -56,7 +56,7 @@ mkdir -p $stableroot/$datestr
 cd $stableroot/$datestr
 
 # clone global workflow develop branch
-git clone $workflow_url
+git clone --recursive $workflow_url
 
 # checkout develop
 cd $stableroot/$datestr/global-workflow/sorc/gdas.cd
