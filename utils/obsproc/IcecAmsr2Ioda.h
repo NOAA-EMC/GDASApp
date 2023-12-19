@@ -78,10 +78,9 @@ namespace gdasapp {
         int second = static_cast<int>(oneTmpdateTimeVal[i+5]);
 
         // Replace Fillvalue -9999 to 0 to avoid crash in dateToJulian
-        if (year == -9999 && month == -9999 && day == -9999 &&
-             hour == -9999 && minute == -9999 && second == -9999) {
-          year = 0, month = 0, day = 0;
-          hour = 0, minute = 0, second = 0;
+        if (year == -9999 || month == -9999 || day == -9999 ||
+          hour == -9999 || minute == -9999 || second == -9999) {
+          year = month = day = hour = minute = second = 0;
         }
 
         // Convert a date to Julian date
