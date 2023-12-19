@@ -23,8 +23,46 @@ from wxflow import Logger
 
 def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
-    dhr = np.int64(dhr*3600)
-    dateTime = dhr + cycleTimeSinceEpoch
+    int64_fill_value = np.int64(0)
+
+    dateTime = np.zeros(dhr.shape, dtype=np.int64) 
+    for i in range(len(dateTime)):
+        if ma.is_masked(dhr[i]):
+             print("NE ignore ", str(i))
+#            continue
+        else:
+            dateTime[i] = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
+            print("NE add ", str(i), dhr[i], dateTime[i])
+
+ 
+#    dateTime = np.array([], dtype=np.int64)
+#    for i in range(len(dhr)):
+#        if ma.is_masked(dhr[i]):
+#            dateTime = np.append(dateTime, int64_fill_value)
+#            print ("NE ignore ", str(i), dhr[i], int64_fill_value)
+#        else:
+#            dhr2 = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
+#            print("NE add ", str(i), dhr[i], dhr2)
+#            dateTime = np.append(dateTime, np.int64(dhr2))
+
+
+
+
+#        if ma.is_masked(dhr[i]):
+#            print("NE problem 0")
+#            dateTime = np.append(dateTime, int64_fill_value)
+#            print("NE problem 1")
+#        else:
+#            print("NE problem 2")
+#            dhr2 = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
+#            print("NE problem 3" )
+#            dateTime = np.append(dateTime, np.int64(dhr2))
+#            print("NE problem 4")
+
+    dateTime = ma.array(dateTime)
+    print("NE problem 5")
+    dateTime = ma.masked_values(dateTime, int64_fill_value)
+    print("NE problem 6")
 
     return dateTime
 
@@ -114,15 +152,18 @@ def bufr_to_ioda(config, logger):
     q.add('instantaneousAltitudeRate', '*/PRSLEVLA/IALR')
     q.add('aircraftFlightPhase', '*/PRSLEVLA/ACFT_SEQ/POAF')
 
-    # Quality Infomation (Quality Indicator)
-    q.add('qualityMarkerStationElevation',
-          '*/PRSLEVLA/Z___INFO/Z__EVENT{1}/ZQM')
-    q.add('qualityMarkerStationPressure',
-          '*/PRSLEVLA/P___INFO/P__EVENT{1}/PQM')
+    # QualityMarker
+    q.add('qualityMarkerStationElevation', '*/PRSLEVLA/Z___INFO/Z__EVENT{1}/ZQM')
+    q.add('qualityMarkerStationPressure', '*/PRSLEVLA/P___INFO/P__EVENT{1}/PQM')
     q.add('qualityMarkerAirTemperature', '*/PRSLEVLA/T___INFO/T__EVENT{1}/TQM')
-    q.add('qualityMarkerSpecificHumidity',
-          '*/PRSLEVLA/Q___INFO/Q__EVENT{1}/QQM')
+    q.add('qualityMarkerSpecificHumidity', '*/PRSLEVLA/Q___INFO/Q__EVENT{1}/QQM')
     q.add('qualityMarkerWindNorthward', '*/PRSLEVLA/W___INFO/W__EVENT{1}/WQM')
+
+    # ObsError
+    q.add('obsErrorStationPressure', '*/PRSLEVLA/P___INFO/P__BACKG/POE')
+    q.add('obsErrorAirTemperature', '*/PRSLEVLA/T___INFO/T__BACKG/TOE')
+    q.add('obsErrorSpecificHumidity', '*/PRSLEVLA/Q___INFO/Q__BACKG/QOE')
+    q.add('obsErrorWindNorthward', '*/PRSLEVLA/W___INFO/W__BACKG/WOE')
 
     # ObsValue
     q.add('stationElevation', '*/ELV')
@@ -167,16 +208,23 @@ def bufr_to_ioda(config, logger):
     ialr = r.get('instantaneousAltitudeRate', 'prepbufrDataLevelCategory')
     poaf = r.get('aircraftFlightPhase', 'prepbufrDataLevelCategory')
 
+    # QualityMarker
     logger.debug(f" ... Executing QuerySet: get QualityMarker ...")
-    # Quality Information
     zobqm = r.get('qualityMarkerStationElevation', 'prepbufrDataLevelCategory')
     pobqm = r.get('qualityMarkerStationPressure', 'prepbufrDataLevelCategory')
     tobqm = r.get('qualityMarkerAirTemperature', 'prepbufrDataLevelCategory')
     qobqm = r.get('qualityMarkerSpecificHumidity', 'prepbufrDataLevelCategory')
     wobqm = r.get('qualityMarkerWindNorthward', 'prepbufrDataLevelCategory')
 
-    logger.debug(f" ... Executing QuerySet: get ObsValue ...")
+    # ObsError
+    logger.debug(f" ... Executing QuerySet: get ObsError ...")
+    poboe = r.get('obsErrorStationPressure', 'prepbufrDataLevelCategory')
+    toboe = r.get('obsErrorAirTemperature', 'prepbufrDataLevelCategory')
+    qoboe = r.get('obsErrorSpecificHumidity', 'prepbufrDataLevelCategory')
+    woboe = r.get('obsErrorWindNorthward', 'prepbufrDataLevelCategory')
+
     # ObsValue
+    logger.debug(f" ... Executing QuerySet: get ObsValue ...")
     elv = r.get('stationElevation', 'prepbufrDataLevelCategory', type='float')
     pob = r.get('stationPressure', 'prepbufrDataLevelCategory')
     pob *= 100
@@ -193,7 +241,7 @@ def bufr_to_ioda(config, logger):
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
     dhr = r.get('obsTimeMinusCycleTime', 'prepbufrDataLevelCategory',
-                type='int64')
+                type='float')
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -242,6 +290,11 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     tobqm     type  = {tobqm.dtype}")
     logger.debug(f"     qobqm     type  = {qobqm.dtype}")
     logger.debug(f"     wobqm     type  = {wobqm.dtype}")
+
+    logger.debug(f"     poboe     type  = {poboe.dtype}")
+    logger.debug(f"     toboe     type  = {toboe.dtype}")
+    logger.debug(f"     qoboe     type  = {qoboe.dtype}")
+    logger.debug(f"     woboe     type  = {woboe.dtype}")
 
     logger.debug(f"     elv       type  = {elv.dtype}")
     logger.debug(f"     pob       type  = {pob.dtype}")
@@ -469,6 +522,42 @@ def bufr_to_ioda(config, logger):
                         fillval=wobqm.fill_value) \
         .write_attr('long_name', 'Northward Wind Quality Marker') \
         .write_data(wobqm)
+
+    # Quality Marker: Eastward Wind
+    obsspace.create_var('QualityMarker/windEastward', dtype=wobqm.dtype,
+                        fillval=wobqm.fill_value) \
+        .write_attr('long_name', 'Eastward Wind Quality Marker') \
+        .write_data(wobqm)
+
+    # ObsError: Station Pressure
+    obsspace.create_var('ObsError/stationPressure', dtype=poboe.dtype,
+                        fillval=poboe.fill_value) \
+        .write_attr('long_name', 'Station Pressure ObsError') \
+        .write_data(poboe)
+
+    # ObsError: Air Temperature
+    obsspace.create_var('ObsError/airTemperature', dtype=toboe.dtype,
+                        fillval=toboe.fill_value) \
+        .write_attr('long_name', 'Air Temperature ObsError') \
+        .write_data(toboe)
+
+    # ObsError: Specific Humidity
+    obsspace.create_var('ObsError/specificHumidity', dtype=qoboe.dtype,
+                        fillval=qoboe.fill_value) \
+        .write_attr('long_name', 'Specific Humidity ObsError') \
+        .write_data(qoboe)
+
+    # ObsError: Northward Wind
+    obsspace.create_var('ObsError/windNorthward', dtype=woboe.dtype,
+                        fillval=woboe.fill_value) \
+        .write_attr('long_name', 'Northward Wind ObsError') \
+        .write_data(woboe)
+
+    # ObsError: Eastward Wind
+    obsspace.create_var('ObsError/windEastward', dtype=woboe.dtype,
+                        fillval=woboe.fill_value) \
+        .write_attr('long_name', 'Eastward Wind ObsError') \
+        .write_data(woboe)
 
     # Station Elevation
     obsspace.create_var('ObsValue/stationElevation', dtype=elv.dtype,
