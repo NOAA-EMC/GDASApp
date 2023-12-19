@@ -78,19 +78,19 @@ namespace gdasapp {
       int month = 1;
       int day = 1;
 
-      // Bypassing validYYYYMMDD function within dateToJulian
+      // Replace Fillvalue -9999 to 0 to avoid crash in dateToJulian
       if (year == -9999) {
-        year = 1970;
+        year = 0;
       }
 
+      // Convert a date to Julian date
       uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
 
-      // Convert a date to Julian date
-      // Subtract Julian date for January 1, 1970 (epoch)
+      // Subtract Julian day from January 1, 1970 (convert to epoch)
       int daysSinceEpoch = julianDate - 2440588;
 
       // Calculate seconds
-      int unixStartDay = (daysSinceEpoch + startDay) * 86400;
+      int secondsSinceEpoch = (daysSinceEpoch + startDay) * 86400;
 
       int loc;
       for (int i = 0; i < dim0; i++) {
@@ -101,7 +101,7 @@ namespace gdasapp {
           iodaVars.obsVal_(loc) = sss[i][j];
           iodaVars.obsError_(loc) = sss_error[i][j];
           iodaVars.preQc_(loc) = sss_qc[i][j];
-          iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + unixStartDay);
+          iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + secondsSinceEpoch);
         }
       }
 

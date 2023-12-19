@@ -77,17 +77,17 @@ namespace gdasapp {
         int minute =  oneTmpdateTimeVal[i+4];
         int second = static_cast<int>(oneTmpdateTimeVal[i+5]);
 
-        // Bypassing validYYYYMMDD function within dateToJulian
+        // Replace Fillvalue -9999 to 0 to avoid crash in dateToJulian
         if (year == -9999 && month == -9999 && day == -9999 &&
              hour == -9999 && minute == -9999 && second == -9999) {
           year = 0, month = 0, day = 0;
           hour = 0, minute = 0, second = 0;
         }
 
+        // Convert a date to Julian date
         uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
 
-        // Convert a date to Julian date
-        // Subtract Julian date for January 1, 1970 (epoch)
+        // Subtract Julian day from January 1, 1970 (convert to epoch)
         int daysSinceEpoch = julianDate - 2440588;
 
         // Calculate seconds only from HHMMSS
