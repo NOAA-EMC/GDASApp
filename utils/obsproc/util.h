@@ -92,6 +92,10 @@ namespace gdasapp {
         int nfMetadata_;    // number of float metadata fields
         int niMetadata_;    // number of int metadata fields
 
+        // Channels
+        int channel_;       // Number of channels
+        Eigen::ArrayXi channelValues_;  // Values specific to channels
+
         // Non optional metadata
         Eigen::ArrayXf longitude_;  // geo-location_
         Eigen::ArrayXf latitude_;   //     "
@@ -115,16 +119,18 @@ namespace gdasapp {
         // Constructor
         explicit IodaVars(const int nobs = 0,
                           const std::vector<std::string> fmnames = {},
-                          const std::vector<std::string> imnames = {}) :
+                          const std::vector<std::string> imnames = {}):
         location_(nobs), nVars_(1), nfMetadata_(fmnames.size()), niMetadata_(imnames.size()),
           longitude_(location_), latitude_(location_), datetime_(location_),
-          obsVal_(location_),
-          obsError_(location_),
-          preQc_(location_),
+          obsVal_(location_*channel_),
+          obsError_(location_*channel_),
+          preQc_(location_*channel_),
           floatMetadata_(location_, fmnames.size()),
           floatMetadataName_(fmnames),
           intMetadata_(location_, imnames.size()),
-          intMetadataName_(imnames)
+          intMetadataName_(imnames),
+          channel_(1),
+          channelValues_(Eigen::ArrayXi::Constant(channel_, -1))
         {
           oops::Log::trace() << "IodaVars::IodaVars created." << std::endl;
         }
@@ -142,9 +148,9 @@ namespace gdasapp {
           longitude_.conservativeResize(location_ + other.location_);
           latitude_.conservativeResize(location_ + other.location_);
           datetime_.conservativeResize(location_ + other.location_);
-          obsVal_.conservativeResize(location_ + other.location_);
-          obsError_.conservativeResize(location_ + other.location_);
-          preQc_.conservativeResize(location_ + other.location_);
+          obsVal_.conservativeResize(location_ * channel_ + other.location_ * other.channel_);
+          obsError_.conservativeResize(location_  * channel_ + other.location_ * other.channel_);
+          preQc_.conservativeResize(location_ * channel_ + other.location_ * other.channel_);
           floatMetadata_.conservativeResize(location_ + other.location_, nfMetadata_);
           intMetadata_.conservativeResize(location_ + other.location_, niMetadata_);
 
