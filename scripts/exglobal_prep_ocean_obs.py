@@ -76,9 +76,9 @@ try:
                 subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
 
                 filesToSave.append([obsprocSpace['output file'],
-                                    os.path.join(COMOUT_OBS,obsprocSpace['output file'])])
+                                    os.path.join(COMOUT_OBS, obsprocSpace['output file'])])
                 filesToSave.append([iodaYamlFilename,
-                                    os.path.join(COMOUT_OBS,iodaYamlFilename)])
+                                    os.path.join(COMOUT_OBS, iodaYamlFilename)])
 except TypeError:
     print("CRITICAL: Ill-formed OBS_YAML file, exiting")
     raise
