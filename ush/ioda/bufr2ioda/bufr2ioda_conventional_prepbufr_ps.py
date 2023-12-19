@@ -28,32 +28,14 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
     dateTime = np.zeros(dhr.shape, dtype=np.int64)
     for i in range(len(dateTime)):
         if ma.is_masked(dhr[i]):
-#             print("NE ignore ", str(i))
             continue
         else:
             dateTime[i] = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
-#            print("NE add ", str(i), dhr[i], dateTime[i])
 
     dateTime = ma.array(dateTime)
     dateTime = ma.masked_values(dateTime, int64_fill_value)
 
     return dateTime
-
-
-#    int64_fill_value = np.int64(0)
-#
-#    dateTime = np.array([], dtype=np.int64)
-#    for i in range(len(dhr)):
-#        if ma.is_masked(dhr[i]):
-#            dateTime = np.append(dateTime, int64_fill_value)
-#        else:
-#            dhr2 = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
-#            dateTime = np.append(dateTime, np.int64(dhr2))
-#
-#    dateTime = ma.array(dateTime)
-#    dateTime = ma.masked_values(dateTime, dhr.fill_value)
-#
-#    return dateTime
 
 
 def Mask_typ_for_var(typ, var):

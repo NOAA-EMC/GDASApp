@@ -28,7 +28,6 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
     dateTime = np.zeros(dhr.shape, dtype=np.int64) 
     for i in range(len(dateTime)):
         if ma.is_masked(dhr[i]):
-#             print("NE ignore ", str(i))
             continue
         else:
             dateTime[i] = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
