@@ -53,10 +53,11 @@ final:
     departures: oman
   increment:
     output:
-      datadir: Data
-      date: '{{ATM_WINDOW_BEGIN}}'
-      exp: 3dvarfgat_pseudo
-      type: incr
+      state component:
+        datadir: Data
+        date: '{{ATM_WINDOW_BEGIN}}'
+        exp: 3dvarfgat_pseudo
+        type: incr
     geometry:
       mom6_input_nml: mom_input.nml
       fields metadata: ./fields_metadata.yaml
