@@ -6,6 +6,7 @@
 
 import sys
 import numpy as np
+import numpy.ma as ma
 import os
 import argparse
 import math
@@ -21,10 +22,24 @@ from wxflow import Logger
 
 def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
-    dhr = np.int64(dhr*3600)
-    dateTime = dhr + cycleTimeSinceEpoch
+    int64_fill_value = np.int64(0)
+
+    dateTime = np.zeros(dhr.shape, dtype=np.int64)
+    for i in range(len(dateTime)):
+        if ma.is_masked(dhr[i]):
+            continue
+        else:
+            dateTime[i] = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
+
+    dateTime = ma.array(dateTime)
+    dateTime = ma.masked_values(dateTime, int64_fill_value)
 
     return dateTime
+
+#    dhr = np.int64(dhr*3600)
+#    dateTime = dhr + cycleTimeSinceEpoch
+#
+#    return dateTime
 
 
 def bufr_to_ioda(config, logger):
@@ -140,7 +155,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" ... Executing QuerySet: get dateTime ...")
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
-    dhr = r.get('obsTimeMinusCycleTime', type='int64')
+    dhr = r.get('obsTimeMinusCycleTime', type='float')
 
     logger.debug(f" ... Executing QuerySet: Done!")
 

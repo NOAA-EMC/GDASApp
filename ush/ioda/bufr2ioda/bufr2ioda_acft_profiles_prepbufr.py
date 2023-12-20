@@ -31,7 +31,6 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
             continue
         else:
             dateTime[i] = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
-            print("NE add ", str(i), dhr[i], dateTime[i])
 
     dateTime = ma.array(dateTime)
     dateTime = ma.masked_values(dateTime, int64_fill_value)
