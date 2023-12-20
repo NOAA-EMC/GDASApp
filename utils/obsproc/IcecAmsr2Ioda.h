@@ -43,8 +43,14 @@ namespace gdasapp {
       int nobs = dimxSize * dimySize;
       int ntimes = dimxSize * dimySize * dimTimeSize;
 
+      // Set the int metadata names
+      std::vector<std::string> intMetadataNames = {"oceanBasin"};
+
+      // Set the float metadata name
+      std::vector<std::string> floatMetadataNames = {};
+
       // Create instance of iodaVars object
-      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, {}, {});
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       oops::Log::debug() << "--- iodaVars.location_: " << iodaVars.location_ << std::endl;
 
@@ -103,6 +109,8 @@ namespace gdasapp {
         iodaVars.obsVal_(i) = static_cast<float>(oneDimObsVal[i]*0.01f);
         iodaVars.obsError_(i) = 0.1;  // Do something for obs error
         iodaVars.preQc_(i) = oneDimFlagsVal[i];
+        // Store optional metadata, set ocean basins to -999 for now
+        iodaVars.intMetadata_.row(i) << -999;
       }
 
       // basic test for iodaVars.trim
