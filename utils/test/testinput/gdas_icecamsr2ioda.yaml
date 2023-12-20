@@ -2,7 +2,7 @@ provider: AMSR2
 window begin: 2018-04-15T06:00:00Z
 window end: 2018-04-15T12:00:00Z
 output file: icec_amsr2_north.ioda.nc
-ocean basin: RECCAP2_region_masks_all_v20221025.nc
+#ocean basin: RECCAP2_region_masks_all_v20221025.nc
 input files:
 - icec_amsr2_north_1.nc4
 - icec_amsr2_north_2.nc4
