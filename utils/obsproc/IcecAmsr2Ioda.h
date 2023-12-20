@@ -1,9 +1,11 @@
 #pragma once
 
 #include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <netcdf>    // NOLINT (using C API)
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -13,6 +15,7 @@
 
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
+#include "oops/util/dateFunctions.h"
 
 #include "NetCDFToIodaConverter.h"
 
@@ -66,18 +69,30 @@ namespace gdasapp {
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
       size_t index = 0;
-      std::tm timeinfo = {};
       for (int i = 0; i < ntimes; i += dimTimeSize) {
-        timeinfo.tm_year = oneTmpdateTimeVal[i] - 1900;  // Year since 1900
-        timeinfo.tm_mon = oneTmpdateTimeVal[i + 1] - 1;  // 0-based; 8 represents Sep
-        timeinfo.tm_mday = oneTmpdateTimeVal[i + 2];
-        timeinfo.tm_hour = oneTmpdateTimeVal[i + 3];
-        timeinfo.tm_min = oneTmpdateTimeVal[i + 4];
-        timeinfo.tm_sec = oneTmpdateTimeVal[i + 5];
+        int year = oneTmpdateTimeVal[i];
+        int month = oneTmpdateTimeVal[i+1];
+        int day = oneTmpdateTimeVal[i+2];
+        int hour = oneTmpdateTimeVal[i+3];
+        int minute =  oneTmpdateTimeVal[i+4];
+        int second = static_cast<int>(oneTmpdateTimeVal[i+5]);
 
-        // Calculate and store the seconds since the Unix epoch
-        time_t epochtime = std::mktime(&timeinfo);
-        iodaVars.datetime_(index) = static_cast<int64_t>(epochtime);
+        // Replace Fillvalue -9999 to 0 to avoid crash in dateToJulian
+        if (year == -9999 || month == -9999 || day == -9999 ||
+          hour == -9999 || minute == -9999 || second == -9999) {
+          year = month = day = hour = minute = second = 0;
+        }
+
+        // Convert a date to Julian date
+        uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
+
+        // Subtract Julian day from January 1, 1970 (convert to epoch)
+        int daysSinceEpoch = julianDate - 2440588;
+
+        // Calculate seconds only from HHMMSS
+        int secondsOffset = util::datefunctions::hmsToSeconds(hour, minute, second);
+
+        iodaVars.datetime_(index) = static_cast<int64_t>(daysSinceEpoch*86400.0f) + secondsOffset;
         index++;
       }
 
