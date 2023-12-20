@@ -1,7 +1,10 @@
 #pragma once
 
+#include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -11,6 +14,7 @@
 
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
+#include "oops/util/dateFunctions.h"
 #include "oops/util/DateTime.h"
 
 #include "NetCDFToIodaConverter.h"
@@ -70,14 +74,23 @@ namespace gdasapp {
 
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
-      // calculate the seconds of Jan 1 of startyear since unix epoch
-      std::tm tm{};
-      // defaults are zero, Jan is zero
-      tm.tm_year = startYear - 1900;
-      tm.tm_mday = 1;
-      time_t unixStartYear = mktime(&tm);
+      int year = startYear;
+      int month = 1;
+      int day = 1;
 
-      int unixStartDay = unixStartYear + startDay * 86400;
+      // Replace Fillvalue -9999 to 0 to avoid crash in dateToJulian
+      if (year == -9999) {
+        year = 0;
+      }
+
+      // Convert a date to Julian date
+      uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
+
+      // Subtract Julian day from January 1, 1970 (convert to epoch)
+      int daysSinceEpoch = julianDate - 2440588;
+
+      // Calculate seconds
+      int secondsSinceEpoch = (daysSinceEpoch + startDay) * 86400;
 
       int loc;
       for (int i = 0; i < dim0; i++) {
@@ -88,7 +101,7 @@ namespace gdasapp {
           iodaVars.obsVal_(loc) = sss[i][j];
           iodaVars.obsError_(loc) = sss_error[i][j];
           iodaVars.preQc_(loc) = sss_qc[i][j];
-          iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + unixStartDay);
+          iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + secondsSinceEpoch);
         }
       }
 

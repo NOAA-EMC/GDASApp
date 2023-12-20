@@ -6,6 +6,7 @@
 
 import sys
 import numpy as np
+import numpy.ma as ma
 import os
 import argparse
 import math
@@ -21,8 +22,17 @@ from wxflow import Logger
 
 def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
-    dhr = np.int64(dhr*3600)
-    dateTime = dhr + cycleTimeSinceEpoch
+    int64_fill_value = np.int64(0)
+
+    dateTime = np.zeros(dhr.shape, dtype=np.int64)
+    for i in range(len(dateTime)):
+        if ma.is_masked(dhr[i]):
+            continue
+        else:
+            dateTime[i] = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
+
+    dateTime = ma.array(dateTime)
+    dateTime = ma.masked_values(dateTime, int64_fill_value)
 
     return dateTime
 
@@ -83,7 +93,7 @@ def bufr_to_ioda(config, logger):
     q.add('height', '*/Z___INFO/Z__EVENT{1}/ZOB')
     q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
 
-    # Quality Marker
+    # QualityMarker
     q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
     q.add('qualityMarkerStationElevation', '*/Z___INFO/Z__EVENT{1}/ZQM')
 
@@ -122,7 +132,7 @@ def bufr_to_ioda(config, logger):
     pressure = r.get('pressure')
     pressure *= 100
 
-    # Quality Information
+    # QualityMarker
     logger.debug(f" ... Executing QuerySet: get QualityMarker ...")
     pobqm = r.get('qualityMarkerStationPressure')
     zobqm = r.get('qualityMarkerStationElevation')
@@ -130,6 +140,7 @@ def bufr_to_ioda(config, logger):
     # ObsError
     logger.debug(f" ... Executing QuerySet: get ObsError ...")
     poboe = r.get('obsErrorStationPressure')
+    poboe *= 100
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
@@ -139,8 +150,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f" ... Executing QuerySet: get dateTime ...")
     # DateTime: seconds since Epoch time
-    # IODA has no support for numpy datetime arrays dtype=datetime64[s]
-    dhr = r.get('obsTimeMinusCycleTime', type='int64')
+    dhr = r.get('obsTimeMinusCycleTime', type='float')
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -242,13 +252,13 @@ def bufr_to_ioda(config, logger):
     # Create IODA variables
     logger.debug(f" ... ... Create variables: name, type, units, & attributes")
 
-    # Observation Type - Station Elevation
+    # Observation Type: Station Elevation
     obsspace.create_var('ObsType/stationElevation', dtype=typ.dtype,
                         fillval=typ.fill_value) \
         .write_attr('long_name', 'Station Elevation Observation Type') \
         .write_data(typ)
 
-    # Observation Type - Station Pressure
+    # Observation Type: Station Pressure
     obsspace.create_var('ObsType/stationPressure', dtype=typ.dtype,
                         fillval=typ.fill_value) \
         .write_attr('long_name', 'Station Pressure Observation Type') \
@@ -304,32 +314,33 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Pressure') \
         .write_data(pressure)
 
-    # QualityMarker - Station Elevation
+    # QualityMarker: Station Elevation
     obsspace.create_var('QualityMarker/stationElevation', dtype=zobqm.dtype,
                         fillval=zobqm.fill_value) \
         .write_attr('long_name', 'Station Elevation Quality Marker') \
         .write_data(zobqm)
 
-    # QualityMarker - Station Pressure
+    # QualityMarker: Station Pressure
     obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype,
                         fillval=pobqm.fill_value) \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
         .write_data(pobqm)
 
-    # ObsError - station Pressure
+    # ObsError: station Pressure
     obsspace.create_var('ObsError/stationPressure', dtype=poboe.dtype,
                         fillval=poboe.fill_value) \
+        .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Station Pressure ObsError') \
         .write_data(poboe)
 
-    # Station Elevation
+    # ObsValue: Station Elevation
     obsspace.create_var('ObsValue/stationElevation', dtype=elv.dtype,
                         fillval=elv.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Station Elevation') \
         .write_data(elv)
 
-    # Station Pressure
+    # ObsValue: Station Pressure
     obsspace.create_var('ObsValue/stationPressure', dtype=pob.dtype,
                         fillval=pob.fill_value) \
         .write_attr('units', 'Pa') \
