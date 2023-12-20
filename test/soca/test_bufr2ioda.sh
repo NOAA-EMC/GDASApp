@@ -4,7 +4,7 @@ set -x
 
 PROJECT_BINARY_DIR=${1}
 OBSSOURCE=${2}
-CMD=${PROJECT_BINARY_DIR}/bin/bufr2ioda.x
+CMD=${CMAKE_BINARY_DIR}/bin/bufr2ioda.x
 OBSYAML=${PROJECT_BINARY_DIR}/test/testinput/${OBSSOURCE}.yaml
 
 OUTFILE=`grep obsdataout ${OBSYAML} | cut -d'"' -f2`
