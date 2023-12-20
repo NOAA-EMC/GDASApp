@@ -66,7 +66,7 @@ fi
 mkdir -p Data diags
 mkdir -p Data/fieldmetadata
 ln -s ${project_source_dir}/parm/io/fv3jedi_fieldmetadata_restart.yaml Data/fieldmetadata/.
-ln -s ${project_binary_dir}/fv3-jedi/test/Data/fv3files Data/fv3files
+ln -s ${project_source_dir}/sorc/fv3-jedi/test/Data/fv3files Data/fv3files
 ln -s ${project_source_dir}/test/land/letkfoi_land.yaml letkf_land.yaml
 ln -s ${OBSDIR}/snow_depth/GTS/202103/adpsfc_snow_2021032318.nc4 adpsfc_snow.nc4
 ln -s ${OBSDIR} Data/land
