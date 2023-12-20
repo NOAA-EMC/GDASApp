@@ -192,6 +192,7 @@ def bufr_to_ioda(config, logger):
     poboe = r.get('obsErrorStationPressure', 'prepbufrDataLevelCategory')
     toboe = r.get('obsErrorAirTemperature', 'prepbufrDataLevelCategory')
     qoboe = r.get('obsErrorSpecificHumidity', 'prepbufrDataLevelCategory')
+    qoboe *= 10
     woboe = r.get('obsErrorWindNorthward', 'prepbufrDataLevelCategory')
 
     # ObsValue
@@ -503,30 +504,35 @@ def bufr_to_ioda(config, logger):
     # ObsError: Station Pressure
     obsspace.create_var('ObsError/stationPressure', dtype=poboe.dtype,
                         fillval=poboe.fill_value) \
+        .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Station Pressure ObsError') \
         .write_data(poboe)
 
     # ObsError: Air Temperature
     obsspace.create_var('ObsError/airTemperature', dtype=toboe.dtype,
                         fillval=toboe.fill_value) \
+        .write_attr('units', 'K') \
         .write_attr('long_name', 'Air Temperature ObsError') \
         .write_data(toboe)
 
     # ObsError: Specific Humidity
     obsspace.create_var('ObsError/specificHumidity', dtype=qoboe.dtype,
                         fillval=qoboe.fill_value) \
-        .write_attr('long_name', 'Specific Humidity ObsError') \
+        .write_attr('units', 'Percent') \
+        .write_attr('long_name', 'Relative Humidity ObsError') \
         .write_data(qoboe)
 
     # ObsError: Northward Wind
     obsspace.create_var('ObsError/windNorthward', dtype=woboe.dtype,
                         fillval=woboe.fill_value) \
+        .write_attr('units', 'm s-1') \
         .write_attr('long_name', 'Northward Wind ObsError') \
         .write_data(woboe)
 
     # ObsError: Eastward Wind
     obsspace.create_var('ObsError/windEastward', dtype=woboe.dtype,
                         fillval=woboe.fill_value) \
+        .write_attr('units', 'm s-1') \
         .write_attr('long_name', 'Eastward Wind ObsError') \
         .write_data(woboe)
 

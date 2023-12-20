@@ -36,11 +36,6 @@ def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
     return dateTime
 
-#    dhr = np.int64(dhr*3600)
-#    dateTime = dhr + cycleTimeSinceEpoch
-#
-#    return dateTime
-
 
 def bufr_to_ioda(config, logger):
 
@@ -145,6 +140,7 @@ def bufr_to_ioda(config, logger):
     # ObsError
     logger.debug(f" ... Executing QuerySet: get ObsError ...")
     poboe = r.get('obsErrorStationPressure')
+    poboe *= 100
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
@@ -154,7 +150,6 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f" ... Executing QuerySet: get dateTime ...")
     # DateTime: seconds since Epoch time
-    # IODA has no support for numpy datetime arrays dtype=datetime64[s]
     dhr = r.get('obsTimeMinusCycleTime', type='float')
 
     logger.debug(f" ... Executing QuerySet: Done!")
