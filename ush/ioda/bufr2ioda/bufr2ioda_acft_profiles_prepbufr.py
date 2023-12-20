@@ -518,8 +518,7 @@ def bufr_to_ioda(config, logger):
     # ObsError: Specific Humidity
     obsspace.create_var('ObsError/specificHumidity', dtype=qoboe.dtype,
                         fillval=qoboe.fill_value) \
-        .write_attr('units', 'Percent') \
-        .write_attr('long_name', 'Relative Humidity ObsError') \
+        .write_attr('long_name', 'Specific Humidity ObsError') \
         .write_data(qoboe)
 
     # ObsError: Northward Wind
