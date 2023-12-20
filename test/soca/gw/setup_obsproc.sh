@@ -13,7 +13,7 @@ cd ${test_dmpdir}
 
 mkdir SSS ADT icec sst
 
-${project_source_dir}/utils/test/prepdata.sh ${project_source_dir}/utils/test/
+${project_source_dir}/test/soca/gw/prepdata.sh ${project_source_dir}/utils/test/
 
 
 
