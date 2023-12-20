@@ -45,8 +45,8 @@ ecbuild_add_test( TARGET  test_gdasapp_util_ioda_example
 # Prepare data for the IODA converters
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 ecbuild_add_test( TARGET  test_gdasapp_util_prepdata
-                  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../../gdas-utils/test/prepdata.sh
-                  ARGS    ${CMAKE_CURRENT_SOURCE_DIR}/../../gdas-utils/test
+                  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/prepdata.sh
+                  ARGS    ${CMAKE_CURRENT_SOURCE_DIR}
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
 # Test the RADS to IODA converter
