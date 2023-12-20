@@ -93,7 +93,7 @@ def bufr_to_ioda(config, logger):
     q.add('height', '*/Z___INFO/Z__EVENT{1}/ZOB')
     q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
 
-    # Quality Marker
+    # QualityMarker
     q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
     q.add('qualityMarkerStationElevation', '*/Z___INFO/Z__EVENT{1}/ZQM')
 
@@ -132,7 +132,7 @@ def bufr_to_ioda(config, logger):
     pressure = r.get('pressure')
     pressure *= 100
 
-    # Quality Information
+    # QualityMarker
     logger.debug(f" ... Executing QuerySet: get QualityMarker ...")
     pobqm = r.get('qualityMarkerStationPressure')
     zobqm = r.get('qualityMarkerStationElevation')
