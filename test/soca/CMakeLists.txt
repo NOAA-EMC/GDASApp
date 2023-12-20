@@ -6,35 +6,35 @@ set( TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
 # test convert BUFR to IODA
 
 add_test(NAME test_gdasapp_convert_bufr_temp_dbuoy
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} temp_bufr_dbuoyprof
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} ${CMAKE_BINARY_DIR} temp_bufr_dbuoyprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_salt_dbuoy
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} salt_bufr_dbuoyprof
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} ${CMAKE_BINARY_DIR} salt_bufr_dbuoyprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_temp_mbuoyb
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} temp_bufr_mbuoybprof
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} ${CMAKE_BINARY_DIR} temp_bufr_mbuoybprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_salt_mbuoyb
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} salt_bufr_mbuoybprof
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} ${CMAKE_BINARY_DIR} salt_bufr_mbuoybprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_tesacprof
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} bufr_tesacprof
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} ${CMAKE_BINARY_DIR} bufr_tesacprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_trkobprof
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} bufr_trkobprof
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} ${CMAKE_BINARY_DIR} bufr_trkobprof
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_sfcships
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} bufr_sfcships
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} ${CMAKE_BINARY_DIR} bufr_sfcships
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 add_test(NAME test_gdasapp_convert_bufr_sfcshipsu
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} bufr_sfcshipsu
+         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} ${CMAKE_BINARY_DIR} bufr_sfcshipsu
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 # Symlink test input yaml files
