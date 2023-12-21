@@ -46,6 +46,7 @@ case ${TARGET} in
     ;;
 esac
 
+set -x
 # ==============================================================================
 datestr="$(date +%Y%m%d)"
 repo_url="https://github.com/NOAA-EMC/GDASApp.git"
@@ -66,8 +67,6 @@ git pull
 # ==============================================================================
 # run ecbuild to get the repos cloned
 mkdir -p build
-mkdir -p test-data-release
-ln -sf $GDASAPP_TESTDATA/crtm test-data-release/crtm
 
 cd build
 ecbuild ../
