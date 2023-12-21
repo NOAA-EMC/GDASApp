@@ -28,4 +28,8 @@ observations:
     provider: GHRSST
     obsproc subdir: 'sst'
     output file: sst_metopb_l3u_so025.ioda.nc
-    obsproc regex: '??????????????-OSPO-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.70-v02.0-fv01.0.nc'
+    obsproc regex: '??????????????-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.nc'
+    bounds:
+      units: C
+      min: -3.0
+      max: 50.0

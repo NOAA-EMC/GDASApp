@@ -16,7 +16,6 @@ cdl2nc4() {
 
 project_source_dir=$1
 
-#
 #cdl2nc4 ADT/rads_adt_3a_2021181.nc4 ${project_source_dir}/testdata/rads_adt_3a_2021181.cdl
 #cdl2nc4 ADT/rads_adt_3b_2021181.nc4 ${project_source_dir}/testdata/rads_adt_3b_2021181.cdl
 #cdl2nc4 icec/icec_amsr2_north_1.nc4 ${project_source_dir}/testdata/icec_amsr2_north_1.cdl
@@ -31,9 +30,9 @@ project_source_dir=$1
 #cdl2nc4 sst/ghrsst_sst_mb_202107010100.nc4 ${project_source_dir}/testdata/ghrsst_sst_mb_202107010100.cdl
 #cdl2nc4 sst/viirs_aod_1.nc4 ${project_source_dir}/testdata/viirs_aod_1.cdl
 #cdl2nc4 sst/viirs_aod_2.nc4 ${project_source_dir}/testdata/viirs_aod_2.cdl
-#
-cdl2nc4 sst/20180414210000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.cdl.nc ${project_source_dir}/test/soca/testdata/20180414210000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.cdl
-cdl2nc4 sst/20180414211000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.cdl.nc ${project_source_dir}/test/soca/testdata/20180414211000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.cdl
-cdl2nc4 sst/20180415000000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.cdl.nc ${project_source_dir}/test/soca/testdata/20180415000000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.cdl
+
+cdl2nc4 sst/20180415114000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.nc ${project_source_dir}/test/soca/testdata/20180415114000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.cdl
+cdl2nc4 sst/20180415132000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.nc ${project_source_dir}/test/soca/testdata/20180415132000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.cdl
+cdl2nc4 sst/20180415095000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.nc ${project_source_dir}/test/soca/testdata/20180415095000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.cdl
 
 
