@@ -3,10 +3,11 @@
 set -x
 
 PROJECT_BINARY_DIR=${1}
-CMAKE_BINARY_DIR=${1}
-OBSSOURCE=${3}
+PROJECT_SOURCE_DIR=${2}
+CMAKE_BINARY_DIR=${3}
+OBSSOURCE=${4}
 CMD=${CMAKE_BINARY_DIR}/bin/bufr2ioda.x
-OBSYAML=${PROJECT_BINARY_DIR}/../ush/land/${OBSSOURCE}.yaml
+OBSYAML=${PROJECT_SOURCE_DIR}/ush/land/${OBSSOURCE}.yaml
 
 OUTFILE=`grep obsdataout ${OBSYAML} | cut -d'"' -f2`
 

@@ -4,7 +4,7 @@
 if (BUILD_GDASBUNDLE)
 
   # link input file from iodaconv to test directory
-  file(CREATE_LINK ${CMAKE_SOURCE_DIR}/sorc/iodaconv/test/testinput/gdas.t06z.adpsfc.tm00.bufr_d ${PROJECT_BINARY_DIR}/test/testdata/gdas.t06z.adpsfc.tm00.bufr_d SYMBOLIC)
+  file(CREATE_LINK ${CMAKE_SOURCE_DIR}/iodaconv/test/testinput/gdas.t06z.adpsfc.tm00.bufr_d ${PROJECT_BINARY_DIR}/test/testdata/gdas.t06z.adpsfc.tm00.bufr_d SYMBOLIC)
   # test convert BUFR to IODA
   add_test(NAME test_gdasapp_convert_bufr_adpsfc
            COMMAND ${CMAKE_BINARY_DIR}/bin/bufr2ioda.x ${PROJECT_BINARY_DIR}/test/testinput/bufr_adpsfc.yaml
