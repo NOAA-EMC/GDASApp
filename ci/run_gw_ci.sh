@@ -42,7 +42,7 @@ export WORKFLOW_BUILD="ON"
 cd $repodir/sorc
 module purge
 rm -rf log.build
-./build_all.sh &>> log.build
+./build_all.sh -u &>> log.build
 build_status=$?
 if [ $build_status -eq 0 ]; then
   echo "Build:                                 *SUCCESS*" >> $outfile

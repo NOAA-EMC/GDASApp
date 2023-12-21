@@ -6,7 +6,7 @@ import logging
 import os
 import prep_marine_obs
 import subprocess
-from wxflow import YAMLFile, save_as_yaml
+from wxflow import YAMLFile, save_as_yaml, FileHandler
 
 # TODO (AFE) figure out why logger is not logging
 # set up logger
@@ -23,6 +23,7 @@ windowBegin = windowBeginDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 windowEnd = windowEndDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 OCNOBS2IODAEXEC = os.getenv('OCNOBS2IODAEXEC')
+COMOUT_OBS = os.getenv('COMOUT_OBS')
 
 OBS_YAML = os.getenv('OBS_YAML')
 # this will fail with FileNotFoundError if all yaml files in OBS_YAML are not
@@ -31,6 +32,8 @@ obsConfig = YAMLFile(OBS_YAML)
 
 OBSPROC_YAML = os.getenv('OBSPROC_YAML')
 obsprocConfig = YAMLFile(OBSPROC_YAML)
+
+filesToSave = []
 
 # TODO (AFE): needs more error handling (missing sources, missing files)
 try:
@@ -71,6 +74,13 @@ try:
                 save_as_yaml(obsprocSpace, iodaYamlFilename)
 
                 subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
+
+                filesToSave.append([obsprocSpace['output file'],
+                                    os.path.join(COMOUT_OBS, obsprocSpace['output file'])])
+                filesToSave.append([iodaYamlFilename,
+                                    os.path.join(COMOUT_OBS, iodaYamlFilename)])
 except TypeError:
     print("CRITICAL: Ill-formed OBS_YAML file, exiting")
     raise
+
+FileHandler({'copy': filesToSave}).sync()
