@@ -64,7 +64,7 @@ observations:
       where:
       - minvalue: '-999.0'
         variable:
-          name: MetaData/height
+          name: MetaData/stationElevation
     - filter: Domain Check
       where:
       - maxvalue: '1.5'
@@ -164,5 +164,6 @@ observations:
 output increment:
   filename_sfcd: xainc.sfc_data.nc
   filetype: fms restart
-window begin: '2021-03-23T15:00:00Z'
-window length: PT6H
+time window:
+  begin: '2021-03-23T15:00:00Z'
+  length: PT6H

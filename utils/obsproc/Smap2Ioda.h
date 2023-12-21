@@ -1,7 +1,10 @@
 #pragma once
 
+#include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -11,6 +14,7 @@
 
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
+#include "oops/util/dateFunctions.h"
 #include "oops/util/DateTime.h"
 
 #include "NetCDFToIodaConverter.h"
@@ -21,22 +25,30 @@ namespace gdasapp {
    public:
     explicit Smap2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
       : NetCDFToIodaConverter(fullConfig, comm) {
-      variable_ = "Salinity";
+      variable_ = "seaSurfaceSalinity";
     }
 
     // Read netcdf file and populate iodaVars
-    gdasapp::IodaVars providerToIodaVars(const std::string fileName) final {
+    gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by SMAP" << std::endl;
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
+      oops::Log::info() << "Reading... " << fileName << std::endl;
 
       // Get number of obs
       int dim0  = ncFile.getDim("phony_dim_0").getSize();
       int dim1  = ncFile.getDim("phony_dim_1").getSize();
       int nobs = dim0 * dim1;
 
-      gdasapp::IodaVars iodaVars(nobs, {}, {});
+      // Set the int metadata names
+      std::vector<std::string> intMetadataNames = {"oceanBasin"};
+
+      // Set the float metadata name
+      std::vector<std::string> floatMetadataNames = {};
+
+      // Create instance of iodaVars object
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       // TODO(AFE): these arrays can be done as 1D vectors, but those need proper ushorts in
       // the input files, at odd with the current ctests
@@ -69,14 +81,23 @@ namespace gdasapp {
 
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
-      // calculate the seconds of Jan 1 of startyear since unix epoch
-      std::tm tm{};
-      // defaults are zero, Jan is zero
-      tm.tm_year = startYear - 1900;
-      tm.tm_mday = 1;
-      time_t unixStartYear = mktime(&tm);
+      int year = startYear;
+      int month = 1;
+      int day = 1;
 
-      int unixStartDay = unixStartYear + startDay * 86400;
+      // Replace Fillvalue -9999 to 0 to avoid crash in dateToJulian
+      if (year == -9999) {
+        year = 0;
+      }
+
+      // Convert a date to Julian date
+      uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
+
+      // Subtract Julian day from January 1, 1970 (convert to epoch)
+      int daysSinceEpoch = julianDate - 2440588;
+
+      // Calculate seconds
+      int secondsSinceEpoch = (daysSinceEpoch + startDay) * 86400;
 
       int loc;
       for (int i = 0; i < dim0; i++) {
@@ -87,9 +108,16 @@ namespace gdasapp {
           iodaVars.obsVal_(loc) = sss[i][j];
           iodaVars.obsError_(loc) = sss_error[i][j];
           iodaVars.preQc_(loc) = sss_qc[i][j];
-          iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + unixStartDay);
+          iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + secondsSinceEpoch);
+          // Store optional metadata, set ocean basins to -999 for now
+          iodaVars.intMetadata_.row(loc) << -999;
         }
       }
+
+      // basic test for iodaVars.trim
+      Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ > 0.0);
+      iodaVars.trim(mask);
+
       return iodaVars;
     };
   };  // class Smap2Ioda

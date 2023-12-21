@@ -9,6 +9,8 @@ obs space:
       type: H5File
       obsfile: !ENV ${DATA}/diags/icec_emc.${PDY}${cyc}.nc4
   simulated variables: [seaIceFraction]
+get values:
+  time interpolation: linear
 obs operator:
   name: Identity
   observation alias file: ./obsop_name_map.yaml

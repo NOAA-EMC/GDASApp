@@ -33,6 +33,9 @@ gw environement:
     OOPS_DEBUG: 1
     OMP_NUM_THREADS: 1
 
+  run scripts:
+    GDASPREPOCNOBSPY: @HOMEgfs@/sorc/gdas.cd/scripts/exglobal_prep_ocean_obs.py
+
 setup_expt config:
   base:
     DO_JEDIATMVAR: "NO"
@@ -40,10 +43,12 @@ setup_expt config:
     DO_JEDIOCNVAR: "YES"
     DO_JEDILANDDA: "NO"
     DO_MERGENSST: "NO"
+    NMEM_ENS: "4"
+    DOHYBVAR: "YES"
   ocnanal:
     SOCA_INPUT_FIX_DIR: @HOMEgfs@/sorc/gdas.cd/build/soca_static
     CASE_ANL: C48
-    SOCA_OBS_LIST: @HOMEgfs@/sorc/gdas.cd/parm/soca/obs/obs_list.yaml
+    SOCA_OBS_LIST: @HOMEgfs@/sorc/gdas.cd/parm/soca/obs/obs_list_small.yaml
     COMIN_OBS: @HOMEgfs@/sorc/gdas.cd/build/test/soca/obs/r2d2-shared
     SOCA_NINNER: 1
     R2D2_OBS_SRC: gdasapp
@@ -51,6 +56,10 @@ setup_expt config:
     SABER_BLOCKS_YAML: @HOMEgfs@/sorc/gdas.cd/parm/soca/berror/saber_blocks.yaml
     NICAS_RESOL: 1
     NICAS_GRID_SIZE: 150
+  prepoceanobs:
+    SOCA_OBS_LIST: @HOMEgfs@/sorc/gdas.cd/parm/soca/obsproc/obs_list_obsproc.yaml
+    OBSPROC_CONFIG: @HOMEgfs@/sorc/gdas.cd/parm/soca/obsproc/obsproc_config_test.yaml
+    DMPDIR: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/obsproc
 
 job options:
   account: da-cpu

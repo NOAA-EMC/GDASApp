@@ -3,12 +3,17 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 
 #include "atlas/field.h"
+#include "atlas/util/Earth.h"
+#include "atlas/util/Geometry.h"
+#include "atlas/util/Point.h"
 
 #include "oops/base/PostProcessor.h"
+#include "oops/generic/gc99.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
@@ -20,6 +25,38 @@
 #include "soca/State/State.h"
 
 namespace gdasapp {
+  // Create a simple mask based on a Gaussian function
+  void gaussianMask(const soca::Geometry & geom, soca::Increment & gaussIncr,
+                    eckit::LocalConfiguration conf) {
+      // Get the 2D grid
+      std::vector<double> lats;
+      std::vector<double> lons;
+      bool halo = true;
+      geom.latlon(lats, lons, halo);
+
+      // Prepare fieldset from increment
+      atlas::FieldSet gaussIncrFs;
+      gaussIncr.toFieldSet(gaussIncrFs);
+
+      // Get the GC99 parameters from config
+      double amp = conf.getDouble("amplitude");
+      double scale = conf.getDouble("length scale");
+      const atlas::PointLonLat p0(conf.getDouble("lon"), conf.getDouble("lat"));
+
+      // Recompute weights
+      for (auto & field : gaussIncrFs) {
+        oops::Log::info() << "---------- Field name: " << field.name() << std::endl;
+        auto view = atlas::array::make_view<double, 2>(field);
+        for (int jnode = 0; jnode < field.shape(0); ++jnode) {
+          atlas::PointLonLat p1(lons[jnode], lats[jnode]);
+          double d = atlas::util::Earth::distance(p0, p1)/1000.0;
+          for (int jlevel = 0; jlevel < field.shape(1); ++jlevel) {
+            view(jnode, jlevel) += amp * oops::gc99(d/scale);
+          }
+        }
+      }
+      gaussIncr.fromFieldSet(gaussIncrFs);
+  }
 
   class SocaHybridWeights : public oops::Application {
    public:
@@ -45,8 +82,7 @@ namespace gdasapp {
       socaVars += socaOcnVars;
 
       /// Read the background
-      // TODO(guillaume): Use the ice extent to set the weights ... no clue if this is
-      //       possible at this level
+      // TODO(guillaume): Use the ice extent to set the weights
       soca::State socaBkg(geom, socaVars, dt);
       const eckit::LocalConfiguration socaBkgConfig(fullConfig, "background");
       socaBkg.read(socaBkgConfig);
@@ -70,6 +106,17 @@ namespace gdasapp {
       /// Create fields of weights for the ocean
       soca::Increment socaOcnHW(geom, socaOcnVars, dt);
       socaOcnHW.ones();
+
+      /// Apply localized gaussians to the weights
+      eckit::LocalConfiguration localWeightsConfigs(fullConfig, "weights.ocean local weights");
+      std::vector<eckit::LocalConfiguration> localWeightsList =
+        localWeightsConfigs.getSubConfigurations();
+      for (auto & conf : localWeightsList) {
+        gaussianMask(geom, socaOcnHW, conf);
+        oops::Log::info() << "Local weights for socaOcnHW: " << std::endl << conf << std::endl;
+        oops::Log::info() << socaOcnHW << std::endl;
+      }
+
       socaOcnHW *= wOcean;
       oops::Log::info() << "socaOcnHW: " << std::endl << socaOcnHW << std::endl;
       socaOcnHW.write(socaHWOutConfig);

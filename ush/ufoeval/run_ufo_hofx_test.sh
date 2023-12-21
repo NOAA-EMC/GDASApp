@@ -99,13 +99,7 @@ if [ $run_filtering == NO ]; then
 else
    yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}.yaml
 fi
-
-#exename=test_ObsFilters.x
-if [ $run_filtering == NO ]; then
-   exename=test_ObsOperator.x
-else
-   exename=test_ObsFilters.x
-fi
+exename=test_ObsFilters.x
 
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
@@ -184,8 +178,10 @@ export APREFIX=gdas.t${cyc}z
 export GPREFIX=gdas.t${gcyc}z
 
 cat > $workdir/temp.yaml << EOF
-window begin: '{{ WINDOW_BEGIN | to_isotime }}'
-window end: '{{ WINDOW_END | to_isotime }}'
+time window:
+  begin: '{{ WINDOW_BEGIN | to_isotime }}'
+  end: '{{ WINDOW_END | to_isotime }}'
+  bound to include: begin
 observations:
 - !INC $yamlpath
 EOF

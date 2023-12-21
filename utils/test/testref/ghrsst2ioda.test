@@ -1,0 +1,26 @@
+Reading: [ghrsst_sst_mb_202107010000.nc4,ghrsst_sst_mb_202107010100.nc4]
+seconds since 1981-01-01T00:00:00Z
+obsVal:
+    Min: 276.708
+    Max: 281.714
+    Sum: 10051.7
+obsError:
+    Min: 0.32
+    Max: 0.61
+    Sum: 16.5825
+preQc:
+    Min: 0
+    Max: 0
+    Sum: 0
+longitude:
+    Min: 131.52
+    Max: 151.31
+    Sum: 5091.06
+latitude:
+    Min: -55.5
+    Max: 56.7
+    Sum: 21.6
+datetime:
+    Min: 1277942528
+    Max: 1277946624
+    Sum: 46006004736

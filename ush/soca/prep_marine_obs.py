@@ -8,10 +8,10 @@ import fnmatch
 DMPDIR = os.getenv('DMPDIR')
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
-CDUMP = os.getenv('CDUMP')
+RUN = os.getenv('RUN')
 COMIN_OBS = os.getenv('COMIN_OBS')
 
-cycdir = os.path.join(DMPDIR, CDUMP + '.' + str(PDY), str(cyc))
+cycDir = os.path.join(DMPDIR, RUN + '.' + str(PDY), str(cyc))
 
 # TODO: this looks good for a yaml
 obs_dict = {
@@ -63,32 +63,29 @@ obs_dict = {
 }
 
 
-def obs_fetch(obs_source_name):
+def obs_fetch(obsprocSpace):
 
-    try:
-        obs_source = obs_dict[obs_source_name]
-    except KeyError:
-        print(f'WARNING: no obs source {obs_source_name} defined, skipping')
-        return
+    subDir = obsprocSpace['obsproc subdir']
+    filepattern = obsprocSpace['obsproc regex']
 
-    subdir = obs_source[0]
-    filepattern = obs_source[1]
-
-    datadir = os.path.join(cycdir, subdir)
+    dataDir = os.path.join(cycDir, subDir)
     # TODO: check the existence of this
-    print('datadir:', datadir)
-    matching_files = []
+    print('dataDir:', dataDir)
+    matchingFiles = []
 
-    for root, _, files in os.walk(datadir):
+    for root, _, files in os.walk(dataDir):
         for filename in fnmatch.filter(files, filepattern):
-            matching_files.append((root, filename))
+            matchingFiles.append(filename)
 
-    obs_cpy = []
-    for obs_src in matching_files:
-        obs_path = os.path.join(obs_src[0], obs_src[1])
-        obs_dst = os.path.join(COMIN_OBS, obs_src[1])
-        obs_cpy.append([obs_path, obs_dst])
+    obsCopy = []
+    for obsSource in matchingFiles:
+        obsPath = os.path.join(dataDir, obsSource)
+        obsDestination = os.path.join(COMIN_OBS, obsSource)
+        obsCopy.append([obsPath, obsDestination])
 
-    print(obs_cpy)
+    print(f"obsCopy: {obsCopy}")
+    print(f"matchingFiles: {matchingFiles}")
 
-    FileHandler({'copy': obs_cpy}).sync()
+    FileHandler({'copy': obsCopy}).sync()
+
+    return matchingFiles

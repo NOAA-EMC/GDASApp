@@ -16,122 +16,9 @@
 #include "oops/util/Logger.h"
 #include "oops/util/missingValues.h"
 
+# include "util.h"
+
 namespace gdasapp {
-  // A simple data structure to organize the info to provide to the ioda
-  // writter
-  struct IodaVars {
-    int location_;      // Number of observation per variable
-    int nVars_;         // number of obs variables, should be set to
-                       // for now in the children classes
-    int nfMetadata_;    // number of float metadata fields
-    int niMetadata_;    // number of int metadata fields
-
-    // Non optional metadata
-    Eigen::ArrayXf longitude_;  // geo-location_
-    Eigen::ArrayXf latitude_;   //     "
-    Eigen::Array<int64_t, Eigen::Dynamic, 1> datetime_;   // Epoch date in seconds
-    std::string referenceDate_;                           // Reference date for epoch time
-
-    // Obs info
-    Eigen::ArrayXf obsVal_;     // Observation value
-    Eigen::ArrayXf obsError_;   //      "      error
-    Eigen::ArrayXi preQc_;      // Quality control flag
-
-    // Optional metadata
-    Eigen::ArrayXXf floatMetadata_;                // Optional array of float metadata
-    std::vector<std::string> floatMetadataName_;  // String descriptor of the float metadata
-    Eigen::ArrayXXf intMetadata_;                  // Optional array of integer metadata
-    std::vector<std::string> intMetadataName_;    // String descriptor of the integer metadata
-
-    // Constructor
-    explicit IodaVars(const int nobs = 0,
-                      const std::vector<std::string> fmnames = {},
-                      const std::vector<std::string> imnames = {}) :
-      location_(nobs), nVars_(1), nfMetadata_(fmnames.size()), niMetadata_(imnames.size()),
-      longitude_(location_), latitude_(location_), datetime_(location_),
-      obsVal_(location_),
-      obsError_(location_),
-      preQc_(location_),
-      floatMetadata_(location_, fmnames.size()),
-      floatMetadataName_(fmnames),
-      intMetadata_(location_, imnames.size()),
-      intMetadataName_(imnames)
-    {
-      oops::Log::trace() << "IodaVars::IodaVars created." << std::endl;
-    }
-
-    // Append an other instance of IodaVars
-    void append(const IodaVars& other) {
-      // Check if the two instances can be concatenated
-      ASSERT(nVars_ == other.nVars_);
-      ASSERT(nfMetadata_ == other.nfMetadata_);
-      ASSERT(niMetadata_ == other.niMetadata_);
-      ASSERT(floatMetadataName_ == floatMetadataName_);
-      ASSERT(intMetadataName_ == intMetadataName_);
-
-      // Concatenate Eigen arrays and vectors
-      longitude_.conservativeResize(location_ + other.location_);
-      latitude_.conservativeResize(location_ + other.location_);
-      datetime_.conservativeResize(location_ + other.location_);
-      obsVal_.conservativeResize(location_ + other.location_);
-      obsError_.conservativeResize(location_ + other.location_);
-      preQc_.conservativeResize(location_ + other.location_);
-      floatMetadata_.conservativeResize(location_ + other.location_, nfMetadata_);
-      intMetadata_.conservativeResize(location_ + other.location_, niMetadata_);
-
-      // Copy data from the 'other' object to this object
-      longitude_.tail(other.location_) = other.longitude_;
-      latitude_.tail(other.location_) = other.latitude_;
-      datetime_.tail(other.location_) = other.datetime_;
-      obsVal_.tail(other.location_) = other.obsVal_;
-      obsError_.tail(other.location_) = other.obsError_;
-      preQc_.tail(other.location_) = other.preQc_;
-      floatMetadata_.bottomRows(other.location_) = other.floatMetadata_;
-      intMetadata_.bottomRows(other.location_) = other.intMetadata_;
-
-      // Update obs count
-      location_ += other.location_;
-      oops::Log::trace() << "IodaVars::IodaVars done appending." << std::endl;
-    }
-    void trim(const Eigen::Array<bool, Eigen::Dynamic, 1>& mask ) {
-      int newlocation = mask.count();
-
-      IodaVars iodaVarsMasked(newlocation,  floatMetadataName_, intMetadataName_);
-
-      // this feels downright crude, but apparently numpy-type masks are on the todo list for Eigen
-      int j = 0;
-      for (int i = 0; i < location_; i++) {
-        if (mask(i)) {
-          iodaVarsMasked.longitude_(j) = longitude_(i);
-          iodaVarsMasked.latitude_(j) = latitude_(i);
-          iodaVarsMasked.obsVal_(j) = obsVal_(i);
-          iodaVarsMasked.obsError_(j) = obsError_(i);
-          iodaVarsMasked.preQc_(j) = preQc_(i);
-          iodaVarsMasked.datetime_(j) = datetime_(i);
-          for (int k = 0; k < nfMetadata_; k++) {
-            iodaVarsMasked.intMetadata_(j, k) = intMetadata_(i, k);
-            }
-          for (int k = 0; k < niMetadata_; k++) {
-            iodaVarsMasked.intMetadata_(j, k) = intMetadata_(i, k);
-            }
-        j++;
-        }  // end if (mask(i))
-      }
-
-      longitude_ = iodaVarsMasked.longitude_;
-      latitude_ = iodaVarsMasked.latitude_;
-      datetime_ = iodaVarsMasked.datetime_;
-      obsVal_ = iodaVarsMasked.obsVal_;
-      obsError_ = iodaVarsMasked.obsError_;
-      preQc_ = iodaVarsMasked.preQc_;
-      floatMetadata_ = iodaVarsMasked.floatMetadata_;
-      intMetadata_ = iodaVarsMasked.intMetadata_;
-
-      // Update obs count
-      location_ = iodaVarsMasked.location_;
-      oops::Log::info() << "IodaVars::IodaVars done masking." << std::endl;
-    }
-  };
 
   // Base class for the converters
   class NetCDFToIodaConverter {
@@ -171,18 +58,19 @@ namespace gdasapp {
       ASSERT(comm_.size() <= inputFilenames_.size());
 
       // Read the provider's netcdf file
-      gdasapp::IodaVars iodaVars = providerToIodaVars(inputFilenames_[myrank]);
+      gdasapp::obsproc::iodavars::IodaVars iodaVars = providerToIodaVars(inputFilenames_[myrank]);
       for (int i = myrank + comm_.size(); i < inputFilenames_.size(); i += comm_.size()) {
         iodaVars.append(providerToIodaVars(inputFilenames_[i]));
         oops::Log::info() << " appending: " << inputFilenames_[i] << std::endl;
         oops::Log::info() << " obs count: " << iodaVars.location_ << std::endl;
+        oops::Log::test() << "Reading: " << inputFilenames_ << std::endl;
       }
       nobs = iodaVars.location_;
 
       // Get the total number of obs across pe's
       int nobsAll(0);
       comm_.allReduce(nobs, nobsAll, eckit::mpi::sum());
-      gdasapp::IodaVars iodaVarsAll(nobsAll,
+      gdasapp::obsproc::iodavars::IodaVars iodaVarsAll(nobsAll,
                                     iodaVars.floatMetadataName_,
                                     iodaVars.intMetadataName_);
 
@@ -203,7 +91,25 @@ namespace gdasapp {
         // Update the group with the location dimension
         ioda::NewDimensionScales_t
           newDims {ioda::NewDimensionScale<int>("Location", iodaVarsAll.location_)};
+
+        // Update the group with the location and channel dimension (if channel value is assigned)
+        if (iodaVars.channelValues_(0) > 0) {
+           newDims = {
+                 ioda::NewDimensionScale<int>("Location", iodaVarsAll.location_),
+                 ioda::NewDimensionScale<int>("Channel", iodaVarsAll.channel_)
+           };
+        }
         ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
+
+        // Create different dimensionScales for data w/wo channel info
+        std::vector<ioda::Variable> dimensionScales {
+            ogrp.vars["Location"]
+        };
+        if (iodaVars.channelValues_(0) > 0) {
+           dimensionScales = {ogrp.vars["Location"], ogrp.vars["Channel"]};
+           ogrp.vars["Channel"].writeWithEigenRegular(iodaVars.channelValues_);
+        }
+
 
         // Set up the creation parameters
         ioda::VariableCreationParameters float_params = createVariableParams<float>();
@@ -214,7 +120,7 @@ namespace gdasapp {
         ioda::Variable iodaDatetime =
           ogrp.vars.createWithScales<int64_t>("MetaData/dateTime",
                                           {ogrp.vars["Location"]}, long_params);
-        iodaDatetime.atts.add<std::string>("units", {iodaVars.referenceDate_}, {1});
+        iodaDatetime.atts.add<std::string>("units", {iodaVarsAll.referenceDate_}, {1});
         ioda::Variable iodaLat =
           ogrp.vars.createWithScales<float>("MetaData/latitude",
                                             {ogrp.vars["Location"]}, float_params);
@@ -224,14 +130,22 @@ namespace gdasapp {
 
         ioda::Variable iodaObsVal =
           ogrp.vars.createWithScales<float>("ObsValue/"+variable_,
-                                            {ogrp.vars["Location"]}, float_params);
+                                            dimensionScales, float_params);
         ioda::Variable iodaObsErr =
           ogrp.vars.createWithScales<float>("ObsError/"+variable_,
-                                            {ogrp.vars["Location"]}, float_params);
+                                            dimensionScales, float_params);
 
         ioda::Variable iodaPreQc =
           ogrp.vars.createWithScales<int>("PreQC/"+variable_,
-                                            {ogrp.vars["Location"]}, int_params);
+                                          dimensionScales, int_params);
+
+        // add input filenames to IODA file global attributes
+        ogrp.atts.add<std::string>("obs_source_files", inputFilenames_);
+
+        // add global attributes collected from the specific converter
+        for (const auto& globalAttr : iodaVars.strGlobalAttr_) {
+          ogrp.atts.add<std::string>(globalAttr.first , globalAttr.second);
+        }
 
         // Create the optional IODA integer metadata
         ioda::Variable tmpIntMeta;
@@ -239,6 +153,18 @@ namespace gdasapp {
         for (const std::string& strMeta : iodaVars.intMetadataName_) {
           tmpIntMeta = ogrp.vars.createWithScales<int>("MetaData/"+strMeta,
                                                          {ogrp.vars["Location"]}, int_params);
+          // get ocean basin masks if asked in the config
+          obsproc::oceanmask::OceanMask* oceanMask = nullptr;
+          if (fullConfig_.has("ocean basin")) {
+             std::string fileName;
+             fullConfig_.get("ocean basin", fileName);
+             oceanMask = new obsproc::oceanmask::OceanMask(fileName);
+
+             for (int i = 0; i < iodaVars.location_; i++) {
+               iodaVars.intMetadata_.coeffRef(i, size(iodaVars.intMetadataName_)-1) =
+                 oceanMask->getOceanMask(iodaVars.longitude_[i], iodaVars.latitude_[i]);
+             }
+          }
           tmpIntMeta.writeWithEigenRegular(iodaVars.intMetadata_.col(count));
           count++;
         }
@@ -253,8 +179,11 @@ namespace gdasapp {
           count++;
         }
 
+        // Test output
+        iodaVars.testOutput();
+
         // Write obs info to group
-        oops::Log::info() << "Writting ioda file" << std::endl;
+        oops::Log::info() << "Writing ioda file" << std::endl;
         iodaLon.writeWithEigenRegular(iodaVarsAll.longitude_);
         iodaLat.writeWithEigenRegular(iodaVarsAll.latitude_);
         iodaDatetime.writeWithEigenRegular(iodaVarsAll.datetime_);
@@ -267,7 +196,8 @@ namespace gdasapp {
    private:
     // Virtual method that reads the provider's netcdf file and store the relevant
     // info in a IodaVars struct
-    virtual gdasapp::IodaVars  providerToIodaVars(const std::string fileName) = 0;
+    virtual gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(
+                                                        const std::string fileName) = 0;
 
     // Gather for eigen array
     template <typename T>

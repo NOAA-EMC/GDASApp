@@ -1,0 +1,26 @@
+Reading: [icec_amsr2_north_1.nc4,icec_amsr2_north_2.nc4]
+seconds since 1970-01-01T00:00:00Z
+obsVal:
+    Min: 0
+    Max: 1
+    Sum: 11.91
+obsError:
+    Min: 0.1
+    Max: 0.1
+    Sum: 1.7
+preQc:
+    Min: 0
+    Max: 8
+    Sum: 40
+longitude:
+    Min: -168.867
+    Max: 148.766
+    Sum: -302.819
+latitude:
+    Min: 72.8259
+    Max: 86.8975
+    Sum: 1346.66
+datetime:
+    Min: 1625048557
+    Max: 1625108209
+    Sum: 27626462899

@@ -11,6 +11,8 @@ obs space:
   simulated variables: [sea_ice_area_fraction]
   io pool:
     max pool size: 1
+get values:
+  time interpolation: linear
 obs operator:
   name: Identity
 obs error:

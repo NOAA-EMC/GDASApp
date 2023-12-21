@@ -20,15 +20,16 @@ namespace gdasapp {
    public:
     explicit Smos2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
       : NetCDFToIodaConverter(fullConfig, comm) {
-      variable_ = "Salinity";
+      variable_ = "seaSurfaceSalinity";
     }
 
     // Read netcdf file and populate iodaVars
-    gdasapp::IodaVars providerToIodaVars(const std::string fileName) final {
+    gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by SMOS" << std::endl;
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
+      oops::Log::info() << "Reading... " << fileName << std::endl;
 
       // Get number of obs
       int nobs = ncFile.getDim("n_grid_points").getSize();
@@ -36,14 +37,14 @@ namespace gdasapp {
       // Set the int metadata names
       // TODO(AFE): add other metadata in form of
       // std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
-      std::vector<std::string> intMetadataNames = {};
+      std::vector<std::string> intMetadataNames = {"oceanBasin"};
 
       // Set the float metadata name
       // TODO(AFE): add other metadata in form of
       // std::vector<std::string> floatMetadataNames = {"mdt"};
       std::vector<std::string> floatMetadataNames = {};
       // Create instance of iodaVars object
-      gdasapp::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       std::vector<float> lat(iodaVars.location_);
       ncFile.getVar("Latitude").getVar(lat.data());
@@ -80,6 +81,8 @@ namespace gdasapp {
         iodaVars.obsError_(i) = sss_error[i];
         iodaVars.preQc_(i) = sss_qc[i];
         iodaVars.datetime_(i) =  static_cast<int64_t>(datetime_[i]*86400.0f) + mjd2000;
+        // Store optional metadata, set ocean basins to -999 for now
+        iodaVars.intMetadata_.row(i) << -999;
       }
 
       // basic test for iodaVars.trim

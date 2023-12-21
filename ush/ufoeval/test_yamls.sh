@@ -13,10 +13,23 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-for file in `ls ../../parm/atm/obs/testing/*yaml`; do
+# Process tests wiht QC
+for file in `find ../../parm/atm/obs/testing/*.yaml -type f -not -name "*noqc*"`; do
    basefile=${file##*/}
-   inst="${basefile%.*}"
-   ./run_ufo_hofx_test.sh -x $inst > $WORKDIR/$inst.log 2> $WORKDIR/$inst.err
+   obtype="${basefile%.*}"
+   ./run_ufo_hofx_test.sh -x $obtype > $WORKDIR/$obtype.log 2> $WORKDIR/$obtype.err
+   if [ $? == 0 ]; then
+     echo $basefile Passes \(yay!\)
+   else
+     echo $basefile Fails \(boo!\)
+   fi
+done
+
+# Process tests without QC (HofX + Observation error assignment)
+for file in `ls ../../parm/atm/obs/testing/*_noqc.yaml`; do
+   basefile=${file##*/}
+   obtype="${basefile%_noqc.*}"
+   ./run_ufo_hofx_test.sh -x -q $obtype > $WORKDIR/${obtype}_noqc.log 2> $WORKDIR/${obtype}_noqc.err
    if [ $? == 0 ]; then
      echo $basefile Passes \(yay!\)
    else
