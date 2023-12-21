@@ -181,8 +181,14 @@ namespace gdasapp {
       // number of obs after subsampling
       int nobs = sst_s.size() * sst_s[0].size();
 
+      // Set the int metadata names
+      std::vector<std::string> intMetadataNames = {"oceanBasin"};
+
+      // Set the float metadata name
+      std::vector<std::string> floatMetadataNames = {};
+
       // Create instance of iodaVars object
-      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, {}, {});
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       // Reference time is Jan 01 1981 00:00:00 GMT+0000
       iodaVars.referenceDate_ = refDate;
@@ -197,6 +203,8 @@ namespace gdasapp {
           iodaVars.obsError_(loc)  = obserror_s[i][j];
           iodaVars.preQc_(loc)     = 0;
           iodaVars.datetime_(loc)  = seconds_s[i][j];
+          // Store optional metadata, set ocean basins to -999 for now
+          iodaVars.intMetadata_.row(loc) << -999;
           loc += 1;
         }
       }

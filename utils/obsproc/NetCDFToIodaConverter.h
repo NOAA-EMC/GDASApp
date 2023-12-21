@@ -153,6 +153,18 @@ namespace gdasapp {
         for (const std::string& strMeta : iodaVars.intMetadataName_) {
           tmpIntMeta = ogrp.vars.createWithScales<int>("MetaData/"+strMeta,
                                                          {ogrp.vars["Location"]}, int_params);
+          // get ocean basin masks if asked in the config
+          obsproc::oceanmask::OceanMask* oceanMask = nullptr;
+          if (fullConfig_.has("ocean basin")) {
+             std::string fileName;
+             fullConfig_.get("ocean basin", fileName);
+             oceanMask = new obsproc::oceanmask::OceanMask(fileName);
+
+             for (int i = 0; i < iodaVars.location_; i++) {
+               iodaVars.intMetadata_.coeffRef(i, size(iodaVars.intMetadataName_)-1) =
+                 oceanMask->getOceanMask(iodaVars.longitude_[i], iodaVars.latitude_[i]);
+             }
+          }
           tmpIntMeta.writeWithEigenRegular(iodaVars.intMetadata_.col(count));
           count++;
         }
