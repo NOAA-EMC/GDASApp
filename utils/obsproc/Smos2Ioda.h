@@ -37,7 +37,7 @@ namespace gdasapp {
       // Set the int metadata names
       // TODO(AFE): add other metadata in form of
       // std::vector<std::string> intMetadataNames = {"pass", "cycle", "mission"};
-      std::vector<std::string> intMetadataNames = {};
+      std::vector<std::string> intMetadataNames = {"oceanBasin"};
 
       // Set the float metadata name
       // TODO(AFE): add other metadata in form of
@@ -81,6 +81,8 @@ namespace gdasapp {
         iodaVars.obsError_(i) = sss_error[i];
         iodaVars.preQc_(i) = sss_qc[i];
         iodaVars.datetime_(i) =  static_cast<int64_t>(datetime_[i]*86400.0f) + mjd2000;
+        // Store optional metadata, set ocean basins to -999 for now
+        iodaVars.intMetadata_.row(i) << -999;
       }
 
       // basic test for iodaVars.trim

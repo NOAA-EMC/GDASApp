@@ -41,7 +41,14 @@ namespace gdasapp {
       int dim1  = ncFile.getDim("phony_dim_1").getSize();
       int nobs = dim0 * dim1;
 
-      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, {}, {});
+      // Set the int metadata names
+      std::vector<std::string> intMetadataNames = {"oceanBasin"};
+
+      // Set the float metadata name
+      std::vector<std::string> floatMetadataNames = {};
+
+      // Create instance of iodaVars object
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       // TODO(AFE): these arrays can be done as 1D vectors, but those need proper ushorts in
       // the input files, at odd with the current ctests
@@ -102,6 +109,8 @@ namespace gdasapp {
           iodaVars.obsError_(loc) = sss_error[i][j];
           iodaVars.preQc_(loc) = sss_qc[i][j];
           iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + secondsSinceEpoch);
+          // Store optional metadata, set ocean basins to -999 for now
+          iodaVars.intMetadata_.row(loc) << -999;
         }
       }
 
