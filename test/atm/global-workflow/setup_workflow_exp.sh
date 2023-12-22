@@ -3,6 +3,7 @@ set -x
 # ctest to create an experiment directory for global-workflow
 bindir=$1
 srcdir=$2
+topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
 
 # test experiment variables
 idate=2021032312
@@ -27,14 +28,12 @@ cp $srcdir/test/atm/global-workflow/config.atmanl       config/
 cp $srcdir/test/atm/global-workflow/config.yaml .
 
 # update paths in config.yaml
+sed -i -e "s~@topdir@~${topdir}~g" config.yaml
 sed -i -e "s~@bindir@~${bindir}~g" config.yaml
 sed -i -e "s~@srcdir@~${srcdir}~g" config.yaml
 sed -i -e "s~@dumpdir@~${GDASAPP_TESTDATA}/lowres~g" config.yaml
 
 # run the script
-ln -sf $srcdir/../../workflow/setup_expt.py .
-
-
 echo "Running global-workflow experiment generation script"
 $srcdir/../../workflow/setup_expt.py gfs cycled --idate $idate  \
                        --edate $edate \
