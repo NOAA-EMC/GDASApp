@@ -104,15 +104,14 @@ obs prior filters:
         xvals:  [80000, 75000, 70000, 65000, 60000, 55000  ]
         errors: [  110,   120,   120,   120,   120, 1.0e+11]
 
-obs post filters:
-# Observation range sanity check
-- filter: Bounds Check
-  filter variables:
-  - name: stationPressure
-  minvalue: 37499.0
-  maxvalue: 106999.0
-  action:
-    name: reject
+## Observation range sanity check
+#- filter: Bounds Check
+#  filter variables:
+#  - name: stationPressure
+#  minvalue: 37499.0
+#  maxvalue: 106999.0
+#  action:
+#    name: reject
 
 # Reject all ObsType 183
 - filter: RejectList
@@ -121,19 +120,19 @@ obs post filters:
       name: ObsType/stationPressure
     is_in: 183
 
-# Reject surface pressure below 500 hPa 
-- filter: Bounds Check
-  filter variables:
-  - name: stationPressure
-  minvalue: 50000.00
-  action:
-    name: reject
+## Reject surface pressure below 500 hPa 
+#- filter: Bounds Check
+#  filter variables:
+#  - name: stationPressure
+#  minvalue: 50000.00
+#  action:
+#    name: reject
 
-- filter: RejectList
-  where:
-  - variable:
-      name: PreQC/stationPressure
-    is_in: 4-15
+#- filter: RejectList
+#  where:
+#  - variable:
+#      name: PreQC/stationPressure
+#    is_in: 4-15
 
 # Inflate obs error based on obs type
 - filter: Perform Action 
@@ -146,6 +145,7 @@ obs post filters:
     name: inflate error
     inflation factor: 1.2  
 
+obs post filters:
 # Calculate obs error inflation factors for duplicated observations at the same location
 - filter: Variable Assignment
   assignments:
@@ -172,26 +172,6 @@ obs post filters:
   action:
     name: inflate error
     inflation factor: 0.7
-
-# Reduce original observation error based on obs type and subtype
-# In this case: reduce original obs error for buoy 
-- filter: Variable Assignment
-  where:
-  - variable:
-      name: ObsType/stationPressure
-    is_in: 180
-  - variable:
-      name: ObsSubType/stationPressure
-    is_in: 0
-  assignments:
-  - name: ObsError/stationPressure
-    type: float
-    function:
-      name: ObsFunction/Arithmetic 
-      options: 
-        variables:
-        - name: ObsError/stationPressure
-        coefs: [0.7]
 
 # Calculate obs error inflation factors for large discrepancies between model and observations 
 - filter: Variable Assignment

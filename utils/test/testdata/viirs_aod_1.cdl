@@ -1,0 +1,180 @@
+netcdf viirs_aod {
+dimensions:
+	Rows = 10 ;
+	Columns = 10 ;
+variables:
+	float AOD550(Rows, Columns) ;
+		AOD550:long_name = "Aerosol optical depth at 550 nm" ;
+		AOD550:coordinates = "Longitude Latitude" ;
+		AOD550:units = "1" ;
+		AOD550:_FillValue = -999.999f ;
+		AOD550:valid_range = -0.05f, 5.f ;
+	float Latitude(Rows, Columns) ;
+		Latitude:long_name = "Latitude" ;
+		Latitude:units = "degrees_north" ;
+		Latitude:comments = "Pixel latitude in field Latitude (degree)" ;
+		Latitude:_FillValue = -999.f ;
+		Latitude:valid_range = -90.f, 90.f ;
+	float Longitude(Rows, Columns) ;
+		Longitude:long_name = "Longitude" ;
+		Longitude:units = "degrees_east" ;
+		Longitude:comments = "Pixel longitude in field Longitude (degree)" ;
+		Longitude:_FillValue = -999.f ;
+		Longitude:valid_range = -180.f, 180.f ;
+	byte QCAll(Rows, Columns) ;
+		QCAll:long_name = "Retrieval quality:  0: high; 1: medium; 2: low; 3: no retrieval" ;
+		QCAll:coordinates = "Longitude Latitude" ;
+		QCAll:units = "1" ;
+		QCAll:_FillValue = -128b ;
+		QCAll:valid_range = 0b, 3b ;
+	byte QCPath(Rows, Columns) ;
+		QCPath:long_name = "Flags for retrieval path (0-No/1-Yes): bit 0: retrieval over water; bit 1: over bright land; bit 2: over glint water; bit 3: retrieval with SW scheme over land; bit 4: retrieval with SWIR scheme over land; bit 5: retrieval over bright-land algorithm" ;
+		QCPath:coordinates = "Longitude Latitude" ;
+		QCPath:units = "1" ;
+		QCPath:_FillValue = -128b ;
+		QCPath:valid_range = 0b, 31b ;
+	float Residual(Rows, Columns) ;
+		Residual:long_name = "Retrieval residual of the best solution" ;
+		Residual:coordinates = "Longitude Latitude" ;
+		Residual:units = "1" ;
+		Residual:_FillValue = -999.999f ;
+		Residual:valid_range = 0.f, 999.f ;
+
+// global attributes:
+		:Conventions = "CF-1.5" ;
+		:Metadata_Conventions = "CF-1.5, Unidata Dataset Discovery v1.0" ;
+		:standard_name_vocabulary = "CF Standard Name Table (version 17, 24 March 2011)" ;
+		:project = "S-NPP Data Exploitation" ;
+		:institution = "DOC/NOAA/NESDIS/NDE->S-NPP Data Exploitation, NESDIS, NOAA, U.S. Department of Commerce" ;
+		:naming_authority = "gov.noaa.nesdis.nde" ;
+		:satellite_name = "NPP" ;
+		:instrument_name = "VIIRS" ;
+		:title = "JPSS Risk Reduction Unique Aerosol Optical Depth" ;
+		:summary = "Aerosol Optical Depth" ;
+		:history = "Tue May 19 10:48:26 2020: ncks -v Latitude,Longitude,AOD550,QCPath,Residual,QCAll -d Columns,337,346 -d Rows,268,277 sample_viirs_class.nc sample_subset_testcase.nc\nVIIRS AOD Version 1.0" ;
+		:processing_level = "NOAA Level 2" ;
+		:references = "" ;
+		:id = "ad1a951f-cc67-45d5-ab9d-b7be77d6a055" ;
+		:Metadata_Link = "JRR-AOD_v1r1_npp_s201804150418347_e201804150419589_c201804150512090.nc" ;
+		:start_orbit_number = 33494 ;
+		:end_orbit_number = 33494 ;
+		:day_night_data_flag = "day" ;
+		:ascend_descend_data_flag = 0 ;
+		:time_coverage_start = "2018-04-15T04:18:34Z" ;
+		:time_coverage_end = "2018-04-15T04:19:58Z" ;
+		:date_created = "2018-04-15T05:12:12Z" ;
+		:cdm_data_type = "swath" ;
+		:geospatial_first_scanline_first_fov_lat = 48.43998f ;
+		:geospatial_first_scanline_last_fov_lat = 42.56979f ;
+		:geospatial_last_scanline_first_fov_lat = 53.45447f ;
+		:geospatial_last_scanline_last_fov_lat = 47.02182f ;
+		:geospatial_first_scanline_first_fov_lon = 147.643f ;
+		:geospatial_first_scanline_last_fov_lon = 108.7127f ;
+		:geospatial_last_scanline_first_fov_lon = 147.7868f ;
+		:geospatial_last_scanline_last_fov_lon = 105.0699f ;
+		:geospatial_lat_units = "degrees_north" ;
+		:geospatial_lon_units = "degrees_east" ;
+		:geospatial_bounds = "POLYGON((147.643 48.44,108.713 42.5698,105.07 47.0218,147.787 53.4545,147.643 48.44))" ;
+		:NCO = "netCDF Operators version 4.9.1 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
+data:
+
+ AOD550 =
+  0.1204824, 0.1181651, 0.1153356, 0.1151632, 0.113657, 0.1331273, 0.1048789, 
+    0.1148486, 0.133357, 0.1349388,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  0.1216023, 0.1633492, 0.1189802, 0.1597583, 0.104865, 0.1156261, 0.1624881, 
+    0.1063675, 0.1329711, 0.1083063,
+  0.1617547, 0.1069087, 0.1154101, 0.1578954, 0.1340958, 0.1618325, 
+    0.1060463, 0.134523, 0.1330938, 0.09775206,
+  0.1156879, 0.1049347, 0.0976741, 0.1123927, 0.1133153, 0.1134829, 0.112356, 
+    0.1141562, 0.1297655, 0.105854 ;
+
+ Latitude =
+  50.28726, 50.28702, 50.28678, 50.28655, 50.28631, 50.28606, 50.28583, 
+    50.28558, 50.28534, 50.2851,
+  50.299, 50.29874, 50.29851, 50.29826, 50.29802, 50.29776, 50.29752, 
+    50.29727, 50.29702, 50.29676,
+  50.31073, 50.31047, 50.31023, 50.30998, 50.30972, 50.30947, 50.30921, 
+    50.30896, 50.3087, 50.30844,
+  50.32247, 50.32221, 50.32196, 50.3217, 50.32143, 50.32117, 50.32091, 
+    50.32065, 50.32038, 50.32011,
+  50.25031, 50.25015, 50.24999, 50.24984, 50.24968, 50.24952, 50.24934, 
+    50.24919, 50.24903, 50.24885,
+  50.26204, 50.26187, 50.26171, 50.26155, 50.26138, 50.26121, 50.26104, 
+    50.26087, 50.26069, 50.26053,
+  50.27377, 50.27361, 50.27343, 50.27325, 50.27308, 50.27291, 50.27274, 
+    50.27255, 50.27237, 50.27219,
+  50.2855, 50.28532, 50.28515, 50.28497, 50.28478, 50.28461, 50.28442, 
+    50.28424, 50.28405, 50.28386,
+  50.29723, 50.29705, 50.29686, 50.29668, 50.29649, 50.2963, 50.29611, 
+    50.29593, 50.29573, 50.29554,
+  50.30896, 50.30877, 50.30858, 50.30839, 50.3082, 50.308, 50.3078, 50.30761, 
+    50.30741, 50.30721 ;
+
+ Longitude =
+  141.8715, 141.8586, 141.8457, 141.8328, 141.82, 141.8071, 141.7943, 
+    141.7815, 141.7687, 141.7559,
+  141.8712, 141.8583, 141.8454, 141.8325, 141.8196, 141.8068, 141.794, 
+    141.7811, 141.7684, 141.7556,
+  141.8709, 141.858, 141.8451, 141.8322, 141.8193, 141.8065, 141.7937, 
+    141.7808, 141.7681, 141.7553,
+  141.8706, 141.8577, 141.8448, 141.8319, 141.819, 141.8062, 141.7933, 
+    141.7805, 141.7677, 141.7549,
+  141.8644, 141.8515, 141.8386, 141.8257, 141.8129, 141.8, 141.7872, 
+    141.7744, 141.7617, 141.7489,
+  141.864, 141.8511, 141.8382, 141.8253, 141.8125, 141.7997, 141.7868, 
+    141.774, 141.7612, 141.7485,
+  141.8637, 141.8508, 141.8379, 141.825, 141.8121, 141.7993, 141.7865, 
+    141.7736, 141.7608, 141.7481,
+  141.8633, 141.8504, 141.8375, 141.8246, 141.8118, 141.7989, 141.7861, 
+    141.7733, 141.7605, 141.7477,
+  141.8629, 141.85, 141.8371, 141.8242, 141.8114, 141.7985, 141.7857, 
+    141.7729, 141.7601, 141.7473,
+  141.8626, 141.8497, 141.8368, 141.8239, 141.811, 141.7981, 141.7853, 
+    141.7725, 141.7597, 141.7469 ;
+
+ QCAll =
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+
+ QCPath =
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;
+
+ Residual =
+  0.01209862, 0.003792281, 0.008564534, 0.01330118, 0.01130516, 0.008588978, 
+    0.01217207, 0.01069431, 0.01022208, 0.02603927,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  0.01604747, 0.007362799, 0.01586136, 0.01100692, 0.009566146, 0.01119804, 
+    0.01212741, 0.01139778, 0.008210129, 0.0106705,
+  0.01781144, 0.01445681, 0.01132793, 0.01064146, 0.009726279, 0.007063937, 
+    0.01453139, 0.01188723, 0.01142784, 0.01012625,
+  0.007868396, 0.01640957, 0.0178295, 0.01041934, 0.008885228, 0.01041434, 
+    0.01380985, 0.01131611, 0.01026587, 0.01259002 ;
+}
