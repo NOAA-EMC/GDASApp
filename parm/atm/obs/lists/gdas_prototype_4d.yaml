@@ -6,7 +6,7 @@ observers:
 ##- !INC ${OBS_YAML_DIR}/satwind.yaml
 ##- !INC ${OBS_YAML_DIR}/omi_aura.yaml
 ##- !INC ${OBS_YAML_DIR}/ompsnp_npp.yaml
-##- !INC ${OBS_YAML_DIR}/ompstc8_npp.yaml
+##- !INC ${OBS_YAML_DIR}/ompstc_npp.yaml
 ##- !INC ${OBS_YAML_DIR}/cris-fsr_n20.yaml
 ##- !INC ${OBS_YAML_DIR}/cris-fsr_npp.yaml
 ##- !INC ${OBS_YAML_DIR}/sfc.yaml

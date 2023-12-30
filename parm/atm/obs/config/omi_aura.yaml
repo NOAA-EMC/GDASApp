@@ -1,13 +1,13 @@
 obs space:
   name: omi_aura
   obsdatain:
-    engine:
+   engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)omi_aura.${{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)omi_aura.tm00.nc
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_omi_aura_${{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_omi_aura_{{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [ozoneTotal]
@@ -18,6 +18,16 @@ obs operator:
   coefficients: [0.007886131] # convert from ppmv to DU
   nlevels: [1]
 
+#obs operator:
+#  name: ColumnRetrieval
+#  nlayers_retrieval: 1
+#  tracer variables: [mole_fraction_of_ozone_in_air]
+#  isApriori: false
+#  isAveragingKernel: false
+#  totalNoVertice: true
+#  stretchVertices: topbottom #options: top, bottom, topbottom, none
+#  model units coeff: 2.241398632746E-3
+
 obs pre filters:
 - filter: Perform Action
   filter variables:
@@ -25,6 +35,32 @@ obs pre filters:
   action:
     name: assign error
     error parameter: 6.0
+
+- filter: Create Diagnostic Flags
+  filter variables:
+  - name: ozoneTotal 
+  flags:
+  - name: ObsValueSanityCheck 
+    initial value: false
+    force reinitialization: false
+  - name: RowAnomaly 
+    initial value: false
+    force reinitialization: false
+  - name: BadScan 
+    initial value: false
+    force reinitialization: false
+  - name: Thinning
+    initial value: false
+    force reinitialization: false
+  - name: RetrievalQualityCodeFlag 
+    initial value: false
+    force reinitialization: false
+  - name: RetrievalQualityAlgorithmFlag 
+    initial value: false
+    force reinitialization: false
+  - name: GrossCheck
+    initial value: false
+    force reinitialization: false
 
 obs prior filters:
 # GSI read routine QC
@@ -34,8 +70,19 @@ obs prior filters:
   - name: ozoneTotal
   minvalue: 0
   maxvalue: 10000
-  action:
-    name: reject
+  actions:
+    - name: set
+      flag: ObsValueSanityCheck 
+    - name: reject
+
+- filter: Gaussian Thinning
+  horizontal_mesh: 150
+  use_reduced_horizontal_grid: true
+  distance_norm: geodesic
+  actions:
+    - name: set
+      flag: Thinning
+    - name: reject
 
 # Do not use the data if row anomaly (bit 10)is 1
 - filter: RejectList
@@ -45,6 +92,10 @@ obs prior filters:
   - variable:
       name: MetaData/totalOzoneQualityFlag
     any_bit_set_of: 9 
+  actions:
+    - name: set
+      flag: RowAnomaly 
+    - name: reject
 
 # Scan position check: reject scan position >= 25
 - filter: RejectList
@@ -54,6 +105,10 @@ obs prior filters:
   - variable:
       name: MetaData/sensorScanPosition
     minvalue: 25
+  actions:
+    - name: set
+      flag: BadScan 
+    - name: reject
 
 # Accept total_ozone_error_flag values of 0 and 1, but not any others.
 - filter: RejectList 
@@ -63,6 +118,10 @@ obs prior filters:
   - variable:
       name: MetaData/totalOzoneQualityCode
     is_not_in: 0, 1
+  actions:
+    - name: set
+      flag: RetrievalQualityCodeFlag 
+    - name: reject
 
 # Use data with best ozone algorighm
 - filter: RejectList
@@ -72,6 +131,20 @@ obs prior filters:
   - variable:
       name: MetaData/bestOzoneAlgorithmFlag
     is_in: 3, 13
+  actions:
+    - name: set
+      flag: RetrievalQualityAlgorithmFlag 
+    - name: reject
+
+## Data Thinning
+#- filter: Gaussian Thinning
+#  horizontal_mesh: 150 
+#  use_reduced_horizontal_grid: true
+#  distance_norm: geodesic
+#  actions:
+#    - name: set
+#      flag: Thinning 
+#    - name: reject
 
 obs post filters:
 # GSI setup routine QC
@@ -81,8 +154,10 @@ obs post filters:
   - name: ozoneTotal
   threshold: 10.0
   absolute threshold: 300.0
-  action:
-    name: reject
+  actions:
+    - name: set
+      flag: GrossCheck 
+    - name: reject
 
 # End of Filters
 

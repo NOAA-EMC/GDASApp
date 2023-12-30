@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)ompsnp_npp.${{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)ompsnp_npp.tm00.nc
     obsgrouping:
       group variables: ["latitude"]
       sort variable: "pressure"
@@ -11,7 +11,7 @@ obs space:
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_ompsnp_npp_${{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_ompsnp_npp_{{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [ozoneLayer]
@@ -21,7 +21,23 @@ obs operator:
   geovals: [mole_fraction_of_ozone_in_air]
   coefficients: [0.007886131] # convert from ppmv to DU
   nlevels: [22]
-  
+
+#obs operator:
+#  name: ColumnRetrieval
+#  nlayers_retrieval: 1
+#  tracer variables: [mole_fraction_of_ozone_in_air]
+#  isApriori: false
+#  isAveragingKernel: false
+#  totalNoVertice: false
+#  stretchVertices: none #options: top, bottom, topbottom, none
+## model units coeff: 2.240013904035E-3 # this number to match the gsihofx values
+#  model units coeff: 2.241398632746E-3 # this number to match the gsihofx values (use this)
+#                                       # the actual scientific conversion factor is
+#                                       # 2.1415E-3 kg[O3]/m-2 to DU
+#                                       # so the name of the geovals
+#                                       # is also likely wrong, as it apprears to be a mass
+#                                       # fraction given the conversion factor needed
+
 obs pre filters:
 # Observation error assignment
 - filter: Perform Action

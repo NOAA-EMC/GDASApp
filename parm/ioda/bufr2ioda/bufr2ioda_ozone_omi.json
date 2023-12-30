@@ -1,0 +1,20 @@
+{
+  "data_format"          : "bufr_d",
+  "data_type"            : "omi",
+  "cycle_type"           : "{{ RUN }}",
+  "cycle_datetime"       : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"       : "{{ DMPDIR }}",
+  "ioda_directory"       : "{{ COM_OBS }}",
+  "ioda_type"            : "omi",
+  "subsets"              : "NC008013",
+  "source"               : "MTYP 008-013 OZONE MONITORING INSTRUMENT (OMI) Total Column Ozone",
+  "process_level"        : "Level-2",
+  "platform_description" : "NASA EOS program for atmospheric chemistry monitoriny - 3rd flight unit since 2004",
+  "sensor_description"   : "UV/VIS grating imaging spectrometer, three bands, 1560 channels total",
+  "data_description"     : "Level-2 retrieved total zone from Ozone Monitoring Instrument (OMI)", 
+  "data_provider"        : "U.S. NOAA/NESDIS",
+  "sensor_info"          : { "sensor_name": "OMI",  "sensor_full_name": "Ozone Monitoring Instrument",  "sensor_id": 394 },
+  "satellite_info"       : [
+                              { "satellite_name": "AURA", "satellite_full_name": "Earth Observation System - Aura", "satellite_id": 785, "launch time": "20040715" }
+                           ]
+}
