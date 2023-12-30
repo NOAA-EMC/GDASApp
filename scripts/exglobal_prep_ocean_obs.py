@@ -69,6 +69,8 @@ try:
                 obsprocSpace['input files'] = matchingFiles
                 obsprocSpace['window begin'] = windowBegin
                 obsprocSpace['window end'] = windowEnd
+                outputFilename = f"gdas.t{cyc}z.{obsSpaceName}.{PDY}{cyc}.nc4"
+                obsprocSpace['output file'] = outputFilename
 
                 iodaYamlFilename = obsprocSpaceName + '2ioda.yaml'
                 save_as_yaml(obsprocSpace, iodaYamlFilename)
