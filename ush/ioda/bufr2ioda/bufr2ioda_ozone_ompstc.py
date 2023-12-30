@@ -14,12 +14,13 @@ from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
 # ==================================================================================================
-# Subset    |  Description (OMPS TC)                                                               |  
+# Subset    |  Description (OMPS TC)                                                               |
 # --------------------------------------------------------------------------------------------------
 # NC008018  |  OMPS TC is the Total Column Ozone derived from the ultraviolet, visible and         |
 #           |  near-infrared observations (between 300-380 nm) made by the OMPS Nadir Total Column |
 #           |  Mapper on Suomi-NPP and JPSS at a spatial resolution of 50 km at nadir.             |
 # ==================================================================================================
+
 
 def bufr_to_ioda(config, logger):
 
@@ -51,8 +52,8 @@ def bufr_to_ioda(config, logger):
 
     # General informaton for global attribute
     converter = 'BUFR to IODA Converter'
-    process_level = config["process_level"] 
-    platform_description = config["platform_description"] 
+    process_level = config["process_level"]
+    platform_description = config["platform_description"]
     sensor_description = config["sensor_description"]
 
     logger.info(f'Processing {data_description}')
@@ -91,7 +92,7 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.debug(f'Processing time for making QuerySet : {running_time} seconds') 
+    logger.debug(f'Processing time for making QuerySet : {running_time} seconds')
 
     # ==============================================================
     # Open the BUFR file and execute the QuerySet to get ResultSet
@@ -101,7 +102,7 @@ def bufr_to_ioda(config, logger):
 
     logger.info('Executing QuerySet to get ResultSet')
     with bufr.File(DATA_PATH) as f:
-       r = f.execute(q)
+        r = f.execute(q)
 
     # MetaData
     satid = r.get('satelliteId')
@@ -116,17 +117,17 @@ def bufr_to_ioda(config, logger):
     solzenang = r.get('solarZenithAngle')
     scanpos = r.get('sensorScanPosition')
 
-    # Quality Information 
+    # Quality Information
     toqc = r.get('qualityFlags')
     afbo = r.get('bestOzoneAlgorithmFlag')
 
     # ObsValue
-    # Total Ozone 
+    # Total Ozone
     o3val = r.get('ozoneTotal', type='float')
- 
+
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
-    timestamp = r.get_datetime('year','month','day','hour','minute','second').astype(np.int64)
+    timestamp = r.get_datetime('year', 'month', 'day', 'hour', 'minute', 'second').astype(np.int64)
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -175,7 +176,7 @@ def bufr_to_ioda(config, logger):
         if matched:
 
             # Define a boolean mask to subset data from the original data object
-            mask       = satid == sat
+            mask = satid == sat
             # MetaData
             lon2 = lon[mask]
             lat2 = lat[mask]
@@ -197,10 +198,10 @@ def bufr_to_ioda(config, logger):
 
             # Create the dimensions
             dims = {
-               'Location' : np.arange(0, lat2.shape[0]),
+                'Location': np.arange(0, lat2.shape[0]),
             }
 
-            # Create IODA ObsSpace 
+            # Create IODA ObsSpace
             sat = satellite_name.lower()
             iodafile = f"{cycle_type}.t{hh}z.{ioda_type}_{sat}.tm00.nc"
             OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
@@ -211,17 +212,17 @@ def bufr_to_ioda(config, logger):
             logger.debug('Create global attributes')
             obsspace.write_attr('sourceFiles', bufrfile)
             obsspace.write_attr('source', source)
-            obsspace.write_attr('description', data_description)  
+            obsspace.write_attr('description', data_description)
             obsspace.write_attr('datetimeReference', reference_time)
-            obsspace.write_attr('Converter', converter)  
+            obsspace.write_attr('Converter', converter)
             obsspace.write_attr('platformLongDescription', platform_description)
             obsspace.write_attr('platformCommonName', satellite_name)
             obsspace.write_attr('platform', satellite_id)
-            obsspace.write_attr('sensorLongDescription',sensor_description)
+            obsspace.write_attr('sensorLongDescription', sensor_description)
             obsspace.write_attr('sensorCommonName', sensor_name)
             obsspace.write_attr('sensor', sensor_id)
             obsspace.write_attr('dataProviderOrigin', data_provider)
-            obsspace.write_attr('processingLevel', process_level) 
+            obsspace.write_attr('processingLevel', process_level)
             obsspace.write_attr('datetimeRange', [str(timestamp2_min), str(timestamp2_max)])
 
             # Create IODA variables
@@ -233,7 +234,7 @@ def bufr_to_ioda(config, logger):
                 .write_attr('long_name', 'Longitude') \
                 .write_data(lon2)
 
-            # Latitude 
+            # Latitude
             obsspace.create_var('MetaData/latitude', dtype=lat2.dtype, fillval=lat2.fill_value) \
                 .write_attr('units', 'degrees_north') \
                 .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
@@ -246,39 +247,39 @@ def bufr_to_ioda(config, logger):
                 .write_attr('long_name', 'Unix Epoch') \
                 .write_data(timestamp2)
 
-            # Satellite Identifier  
+            # Satellite Identifier
             obsspace.create_var('MetaData/satelliteIdentifier', dtype=satid2.dtype, fillval=satid2.fill_value) \
                 .write_attr('long_name', 'Satellite Identifier') \
                 .write_data(satid2)
 
-            # Total Ozone Quality Code 
+            # Total Ozone Quality Code
             obsspace.create_var('MetaData/totalOzoneQualityCode', dtype=toqc2.dtype, fillval=toqc2.fill_value) \
                 .write_attr('long_name', 'OMI Total Ozone Quality Code') \
                 .write_data(toqc2)
 
-            # Pressure 
+            # Pressure
             obsspace.create_var('MetaData/pressure', dtype=pressure2.dtype, fillval=pressure2.fill_value) \
                 .write_attr('units', 'pa') \
                 .write_attr('long_name', 'Pressure') \
                 .write_data(pressure2)
-   
-            # Algorithm Flag for Best Ozone 
+
+            # Algorithm Flag for Best Ozone
             obsspace.create_var('MetaData/bestOzoneAlgorithmFlag', dtype=afbo2.dtype, fillval=afbo2.fill_value) \
                 .write_attr('long_name', 'Algorithm Flag for Best Ozone') \
                 .write_data(afbo2)
 
-            # Solar Zenith Angle 
+            # Solar Zenith Angle
             obsspace.create_var('MetaData/solarZenithAngle', dtype=solzenang2.dtype, fillval=solzenang2.fill_value) \
                 .write_attr('units', 'm') \
                 .write_attr('long_name', 'Solar Zenith Angle') \
                 .write_data(solzenang2)
 
-            # Sensor Scan Position 
+            # Sensor Scan Position
             obsspace.create_var('MetaData/sensorScanPosition', dtype=scanpos2.dtype, fillval=scanpos2.fill_value) \
                 .write_attr('long_name', 'Sensor Scan Position') \
                 .write_data(scanpos2)
 
-            # Total Ozone 
+            # Total Ozone
             obsspace.create_var('ObsValue/ozoneTotal', dtype=o3val2.dtype, fillval=o3val2.fill_value) \
                 .write_attr('units', 'DU') \
                 .write_attr('long_name', 'Total Column Ozone') \
@@ -294,6 +295,7 @@ def bufr_to_ioda(config, logger):
 
     logger.info('All Done!')
     logger.info(f'Total number of observation processed : {total_ob_processed}')
+
 
 if __name__ == '__main__':
 
