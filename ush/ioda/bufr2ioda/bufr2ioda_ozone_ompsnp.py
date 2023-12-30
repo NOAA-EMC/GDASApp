@@ -244,7 +244,7 @@ def bufr_to_ioda(config, logger):
                             o3val1[i, k], toqc1[i, k], poqc1[i, k], solzenang1[i, k]])
             frow = [format_element(x) for x in row.flatten()]
             row = ' '.join(frow)
-            logger.log(row)
+            logger.debug(row)
 
     # Update the variables with the modified arrays
     lat1 = arrays_dict['lat'].flatten()
