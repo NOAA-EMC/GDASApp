@@ -120,7 +120,7 @@ namespace gdasapp {
         ioda::Variable iodaDatetime =
           ogrp.vars.createWithScales<int64_t>("MetaData/dateTime",
                                           {ogrp.vars["Location"]}, long_params);
-        iodaDatetime.atts.add<std::string>("units", {iodaVarsAll.referenceDate_}, {1});
+        iodaDatetime.atts.add<std::string>("units", {iodaVars.referenceDate_}, {1});
         ioda::Variable iodaLat =
           ogrp.vars.createWithScales<float>("MetaData/latitude",
                                             {ogrp.vars["Location"]}, float_params);

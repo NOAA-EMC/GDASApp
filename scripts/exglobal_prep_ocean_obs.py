@@ -85,4 +85,7 @@ except TypeError:
     print("CRITICAL: Ill-formed OBS_YAML file, exiting")
     raise
 
+if not os.path.exists(COMOUT_OBS):
+    os.makedirs(COMOUT_OBS)
+
 FileHandler({'copy': filesToSave}).sync()
