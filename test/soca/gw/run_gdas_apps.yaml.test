@@ -6,7 +6,7 @@ ctest command:
 
 job options:
   account: da-cpu
-  qos: batch
+  qos: debug
   output: @TEST@.out
   nodes: 1
   ntasks: 1

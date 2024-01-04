@@ -1,4 +1,4 @@
-working directory: /work2/noaa/da/gvernier/runs/test-gdasapp/test-025deg
+2orking directory: /work2/noaa/da/gvernier/runs/test-gdasapp/test-025deg
 GDASApp home: /work2/noaa/da/gvernier/GDASApp
 GDASApp mode: gw_scripts
 GDASApp bin: /work2/noaa/da/gvernier/GDASApp/build/bin
@@ -30,9 +30,6 @@ jedi static:
 
 model background:
     ocn: /work2/noaa/da/gvernier/data/test_bkg/1440x1080x75/
-
-r2d2 options:
-    root: /work2/noaa/da/gvernier/data/static/r2d2-shared
 
 fms:
     domain_stack_size: 5832000
