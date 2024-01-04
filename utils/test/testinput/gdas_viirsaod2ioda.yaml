@@ -1,0 +1,17 @@
+provider: VIIRSAOD
+window begin: '2018-04-15T03:00:00Z'
+window end: '2018-04-15T09:00:00Z'
+variable: aerosolOpticalDepth
+output file: viirs_out_2018061506.ioda.nc
+input files:
+- viirs_aod_1.nc4
+- viirs_aod_2.nc4
+thinning:
+  threshold: 0
+channel: 4
+
+test: 
+  reference filename: testref/viirsaod2ioda.test
+  test output filename: testoutput/viirsaod2ioda.test
+  float relative tolerance: 1e-6
+

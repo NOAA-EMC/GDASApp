@@ -55,7 +55,7 @@ mkdir -p $GDAS_CI_ROOT/validation/$today
 cd $GDAS_CI_ROOT/validation/$today
 
 # clone copy of repo
-git clone $repo_url
+git clone --recursive $repo_url
 cd GDASApp
 
 # load modules
