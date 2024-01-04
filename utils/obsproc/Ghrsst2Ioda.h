@@ -36,10 +36,6 @@ namespace gdasapp {
       fullConfig_.get("bounds.min", sstMin);
       float sstMax;
       fullConfig_.get("bounds.max", sstMax);
-      if ( sstUnits == "C" ) {
-        sstMin += 0.0;
-        sstMax += 0.0;
-      }
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
