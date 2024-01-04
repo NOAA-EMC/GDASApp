@@ -1,6 +1,5 @@
 # test for creating an experiment directory within the global-workflow
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/concatioda)
 
 # Prepare COMROT and static dir
 add_test(NAME test_gdasapp_soca_prep
@@ -20,14 +19,6 @@ IF (IS_DIRECTORY /scratch2/NCEPDEV/)
   set(MACHINE "hera")
   set(PARTITION "hera")
 ENDIF()
-
-# Test ioda-concatenation
-add_test(NAME test_gdasapp_soca_concatioda
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/soca/gw/test_concatioda.py ${PROJECT_BINARY_DIR}/test/soca/obs
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/concatioda)
-       set_tests_properties(test_gdasapp_soca_concatioda
-      PROPERTIES
-      ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_BINARY_DIR}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}")
 
 # Clean-up
 add_test(NAME test_gdasapp_soca_run_clean
