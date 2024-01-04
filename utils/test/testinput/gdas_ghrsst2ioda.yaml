@@ -5,7 +5,6 @@ binning:
   stride: 2
   min number of obs: 1
 bounds:
-  units: C
   min: -3.0
   max: 50.0
 output file: ghrsst_sst_mb_20210701.ioda.nc
