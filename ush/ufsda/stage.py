@@ -335,44 +335,6 @@ def background(config):
     mkdir(jedi_anl_dir)
 
 
-def obs(config):
-    """
-    Stage observations using R2D2
-    based on input `config` dict
-    """
-    for ob in config['observations']['observers']:
-        obname = ob['obs space']['name'].lower()
-        outfile = os.path.join(config['r2d2_obs_out'],
-                               os.path.basename(ob['obs space']['obsdatain']['engine']['obsfile']))
-
-        # grab obs using R2D2
-        window_begin = config['window begin']
-        window_begin = parser.parse(window_begin, fuzzy=True)
-        window_end = window_begin + timedelta(hours=6)
-        steps = ['P1D', 'PT10M']
-        for step in steps:
-            if step == 'P1D':
-                dates = date_sequence(window_begin.strftime('%Y%m%d'), window_end.strftime('%Y%m%d'), step)
-            if step == "PT10M":
-                dates = date_sequence(window_begin.strftime('%Y%m%d%H%M'), window_end.strftime('%Y%m%d%H%M'), step)
-            count = 0
-            for date in dates:
-                fetch(
-                    type='ob',
-                    provider=config['r2d2_obs_src'],
-                    experiment=config['r2d2_obs_dump'],
-                    date=date,
-                    obs_type=obname,
-                    time_window=step,
-                    target_file=outfile+'.'+str(count),
-                    ignore_missing=True,
-                    database=config['r2d2_obs_db']
-                )
-                count += 1
-            # Concatenate ioda files
-            ufsda.soca_utils.concatenate_ioda(outfile)
-
-
 def fv3jedi(config):
     """
     fv3jedi(config)
