@@ -26,7 +26,22 @@ obs localizations:
     max nobs: 50
   - localization method: Vertical Brasnett
     vertical lengthscale: 700
-obs filters:
+obs pre filters:
+  - filter: Perform Action
+    filter variables:
+    - name: totalSnowDepth
+    action:
+      name: assign error
+      error parameter: 40.0
+  - filter: Variable Assignment
+    assignments:
+    - name: GrossErrorProbability/totalSnowDepth
+      type: float
+      value: 0.02
+    - name: BkgError/totalSnowDepth_background_error
+      type: float
+      value: 30.0
+obs prior filters:
   - filter: Bounds Check
     filter variables:
     - name: totalSnowDepth
@@ -57,12 +72,18 @@ obs filters:
         name: MetaData/stationIdentification
       is_in: [71120,71397,71621,71727,71816]
       size where true: 5
+obs post filters:
   - filter: Background Check # gross error check
     filter variables:
     - name: totalSnowDepth
     threshold: 6.25
     action:
       name: reject
+  - filter: Temporal Thinning
+    min_spacing: '{{ LAND_WINDOW_LENGTH }}'
+    seed_time: '{{ current_cycle | to_isotime }}'
+    category_variable:
+      name: MetaData/stationIdentification
   - filter: Met Office Buddy Check
     filter variables:
     - name: totalSnowDepth
@@ -86,18 +107,4 @@ obs filters:
       damping_factor_1: 1.0
       damping_factor_2: 1.0
       background_error_group: BkgError
-  - filter: Perform Action
-    filter variables:
-    - name: totalSnowDepth
-    action:
-      name: assign error
-      error parameter: 40.0
-  - filter: Variable Assignment
-    assignments:
-    - name: GrossErrorProbability/totalSnowDepth
-      type: float
-      value: 0.02
-    - name: BkgError/totalSnowDepth_background_error
-      type: float
-      value: 30.0
 
