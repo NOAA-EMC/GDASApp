@@ -90,7 +90,7 @@ def cice_hist2fms(input_filename, output_filename):
     ds = xr.open_dataset(input_filename)
 
     if 'aicen' in ds.variables and 'hicen' in ds.variables and 'hsnon' in ds.variables:
-        print(f"*** Already reformatted, skipping.")
+        logging.info(f"*** Already reformatted, skipping.")
         return
 
     # rename the dimensions to xaxis_1 and yaxis_1
@@ -112,7 +112,7 @@ def test_hist_date(histfile, ref_date):
     ncf = Dataset(histfile, 'r')
     hist_date = dparser.parse(ncf.variables['time'].units, fuzzy=True) + timedelta(hours=int(ncf.variables['time'][0]))
     ncf.close()
-    print(f"*** history file date: {hist_date} expected date: {ref_date}")
+    logging.info(f"*** history file date: {hist_date} expected date: {ref_date}")
     assert hist_date == ref_date, 'Inconsistent bkg date'
 
 
@@ -223,7 +223,7 @@ def find_clim_ens(input_date):
 ################################################################################
 # runtime environment variables, create directories
 
-print(f"---------------- Setup runtime environement")
+logging.info(f"---------------- Setup runtime environement")
 
 comin_obs = os.getenv('COMIN_OBS')  # R2D2 DB for now
 anl_dir = os.getenv('DATA')
@@ -257,7 +257,7 @@ PDY = os.getenv('PDY')
 ################################################################################
 # fetch observations
 
-print(f"---------------- Stage observations")
+logging.info(f"---------------- Stage observations")
 
 # create config dict from runtime env
 envconfig = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
@@ -281,29 +281,29 @@ obs_list = []
 
 # copy obs from COM_OBS to DATA/obs
 for obs_file in obs_files:
-    print(f"******* {obs_file}")
+    logging.info(f"******* {obs_file}")
     obs_src = os.path.join(os.getenv('COM_OBS'), obs_file)
     obs_dst = os.path.join(os.path.abspath(obs_in), obs_file)
-    print(f"******* {obs_src}")
+    logging.info(f"******* {obs_src}")
     if os.path.exists(obs_src):
-        print(f"******* fetching {obs_file}")
+        logging.info(f"******* fetching {obs_file}")
         obs_list.append([obs_src, obs_dst])
     else:
-        print(f"******* {obs_file} is not in the database")
+        logging.info(f"******* {obs_file} is not in the database")
 
 FileHandler({'copy': obs_list}).sync()
 
 ################################################################################
 # stage static files
 
-print(f"---------------- Stage static files")
+logging.info(f"---------------- Stage static files")
 ufsda.stage.soca_fix(stage_cfg)
 
 
 ################################################################################
 # stage ensemble members
 if dohybvar:
-    print("---------------- Stage ensemble members")
+    logging.info("---------------- Stage ensemble members")
     nmem_ens = int(os.getenv('NMEM_ENS'))
     longname = {'ocn': 'ocean', 'ice': 'ice'}
     ens_member_list = []
@@ -326,7 +326,7 @@ if dohybvar:
         cice_fname = os.path.abspath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
         cice_hist2fms(cice_fname, cice_fname)
 else:
-    print("---------------- Stage offline ensemble members")
+    logging.info("---------------- Stage offline ensemble members")
     ens_member_list = []
     clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
     nmem_ens = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
@@ -342,12 +342,12 @@ os.environ['ENS_SIZE'] = str(nmem_ens)
 ################################################################################
 # prepare JEDI yamls
 
-print(f"---------------- Generate JEDI yaml files")
+logging.info(f"---------------- Generate JEDI yaml files")
 
 ################################################################################
 # copy yaml for grid generation
 
-print(f"---------------- generate gridgen.yaml")
+logging.info(f"---------------- generate gridgen.yaml")
 gridgen_yaml_src = os.path.abspath(os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'))
 gridgen_yaml_dst = os.path.abspath(os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
 FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
@@ -356,14 +356,14 @@ FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
 # generate the YAML file for the post processing of the clim. ens. B
 berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
 
-print(f"---------------- generate soca_ensb.yaml")
+logging.info(f"---------------- generate soca_ensb.yaml")
 berr_yaml = os.path.join(anl_dir, 'soca_ensb.yaml')
 berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_ensb.yaml')
 config = YAMLFile(path=berr_yaml_template)
 config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 config.save(berr_yaml)
 
-print(f"---------------- generate soca_ensweights.yaml")
+logging.info(f"---------------- generate soca_ensweights.yaml")
 berr_yaml = os.path.join(anl_dir, 'soca_ensweights.yaml')
 berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_ensweights.yaml')
 config = YAMLFile(path=berr_yaml_template)
@@ -373,7 +373,7 @@ config.save(berr_yaml)
 ################################################################################
 # copy yaml for localization length scales
 
-print(f"---------------- generate soca_setlocscales.yaml")
+logging.info(f"---------------- generate soca_setlocscales.yaml")
 locscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setlocscales.yaml')
 locscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setlocscales.yaml')
 FileHandler({'copy': [[locscales_yaml_src, locscales_yaml_dst]]}).sync()
@@ -381,7 +381,7 @@ FileHandler({'copy': [[locscales_yaml_src, locscales_yaml_dst]]}).sync()
 ################################################################################
 # generate yaml for bump/nicas (used for correlation and/or localization)
 
-print(f"---------------- generate BUMP/NICAS localization yamls")
+logging.info(f"---------------- generate BUMP/NICAS localization yamls")
 # localization bump yaml
 bumpdir = 'bump'
 ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
@@ -399,7 +399,7 @@ config.save(bump_yaml)
 ################################################################################
 # generate yaml for soca_var
 
-print(f"---------------- generate var.yaml")
+logging.info(f"---------------- generate var.yaml")
 var_yaml = os.path.join(anl_dir, 'var.yaml')
 var_yaml_template = os.path.join(gdas_home,
                                  'parm',
@@ -415,13 +415,13 @@ os.environ['BKG_LIST'] = 'bkg_list.yaml'
 # select the SABER BLOCKS to use
 if 'SABER_BLOCKS_YAML' in os.environ and os.environ['SABER_BLOCKS_YAML']:
     saber_blocks_yaml = os.getenv('SABER_BLOCKS_YAML')
-    print(f"using non-default SABER blocks yaml: {saber_blocks_yaml}")
+    logging.info(f"using non-default SABER blocks yaml: {saber_blocks_yaml}")
 else:
-    print(f"using default SABER blocks yaml")
+    logging.info(f"using default SABER blocks yaml")
     os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
 
 # substitute templated variables in the var config
-print(f"{config}")
+logging.info(f"{config}")
 varconfig = YAMLFile(path=var_yaml_template)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, config.get)
@@ -435,7 +435,7 @@ ufsda.yamltools.save_check(varconfig.as_dict(), target=var_yaml, app='var')
 # Prepare the yamls for the "checkpoint" jjob
 # prepare yaml and CICE restart for soca to cice change of variable
 
-print(f"---------------- generate soca to cice yamls")
+logging.info(f"---------------- generate soca to cice yamls")
 # make a copy of the CICE6 restart
 rst_date = fcst_begin.strftime('%Y%m%d.%H%M%S')
 ice_rst = os.path.join(os.getenv('COM_ICE_RESTART_PREV'), f'{rst_date}.cice_model.res.nc')
@@ -458,7 +458,7 @@ for varchgyaml in varchgyamls:
     outyaml.save(varchgyaml)
 
 # prepare yaml for soca to MOM6 IAU increment
-print(f"---------------- generate soca to MOM6 IAU yaml")
+logging.info(f"---------------- generate soca to MOM6 IAU yaml")
 socaincr2mom6_yaml = os.path.join(anl_dir, 'socaincr2mom6.yaml')
 socaincr2mom6_yaml_template = os.path.join(gdas_home, 'parm', 'soca', 'variational', 'socaincr2mom6.yaml')
 s2mconfig = YAMLFile(path=socaincr2mom6_yaml_template)
