@@ -3,8 +3,11 @@ gtsbufr:
     - $(DATA)/obs
   copy:
     - [{{ COM_OBS }}/{{ OPREFIX }}adpsfc.tm00.bufr_d, {{ DATA }}/obs/]
+    - [{{ COM_OBS }}/{{ OPREFIX }}snocvr.tm00.bufr_d, {{ DATA }}/obs/]
 gtsioda:
   copy:
     - [{{ DATA }}/{{ OPREFIX }}adpsfc_snow.nc4, {{ COM_OBS }}/{{ OPREFIX }}adpsfc_snow.nc4]
+    - [{{ DATA }}/{{ OPREFIX }}snocvr_snow.nc4, {{ COM_OBS }}/{{ OPREFIX }}snocvr_snow.nc4]
 bufr2ioda:
      adpsfc: {{ HOMEgfs }}/sorc/gdas.cd/test/testinput/bufr_adpsfc_snow.yaml
+     snocvr: {{ HOMEgfs }}/sorc/gdas.cd/test/testinput/bufr_snocvr_snow.yaml
