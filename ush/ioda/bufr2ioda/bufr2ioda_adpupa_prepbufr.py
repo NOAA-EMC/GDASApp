@@ -203,7 +203,7 @@ def bufr_to_ioda(config, logger):
     tvooe = ma.where(((tpc == 8)), toboe, tvooef)
     tvooe = ma.masked_values(tvooe, 0)
     qoboe = r.get('specificHumidityOE', 'prepbufrDataLevelCategory')
-    qoboe *= 10 
+    qoboe *= 10
     uoboe = r.get('windEastwardOE', 'prepbufrDataLevelCategory')
     voboe = r.get('windNorthwardOE', 'prepbufrDataLevelCategory')
 
