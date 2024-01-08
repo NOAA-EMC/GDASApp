@@ -36,7 +36,6 @@ warnings.filterwarnings('ignore')
 def Compute_dateTime(cycleTimeSinceEpoch, hrdr):
 
     int64_fill_value = np.int64(0)
-
     dateTime = np.zeros(hrdr.shape, dtype=np.int64)
     for i in range(len(dateTime)):
         if ma.is_masked(hrdr[i]):
@@ -207,7 +206,6 @@ def bufr_to_ioda(config, logger):
     qoboe *= 10 
     uoboe = r.get('windEastwardOE', 'prepbufrDataLevelCategory')
     voboe = r.get('windNorthwardOE', 'prepbufrDataLevelCategory')
-
 
     logger.info('Executing QuerySet Done!')
 
@@ -456,56 +454,48 @@ def bufr_to_ioda(config, logger):
         .write_data(vobqm)
 
     # Pressure Observation Error
-    obsspace.create_var('ObsError/pressure', dtype=poboe.dtype,
-                        fillval=poboe.fill_value) \
+    obsspace.create_var('ObsError/pressure', dtype=poboe.dtype, fillval=poboe.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Pressure Observation Error') \
         .write_data(poboe)
 
     # Station Pressure Observation Error
-    obsspace.create_var('ObsError/stationPressure', dtype=psoe.dtype,
-                        fillval=psoe.fill_value) \
+    obsspace.create_var('ObsError/stationPressure', dtype=psoe.dtype, fillval=psoe.fill_value) \
         .write_attr('units', 'Pa') \
         .write_attr('long_name', 'Station Pressure Observation Error') \
         .write_data(psoe)
 
     # Air Temperature Observation Error
-    obsspace.create_var('ObsError/airTemperature', dtype=toboe.dtype,
-                        fillval=toboe.fill_value) \
+    obsspace.create_var('ObsError/airTemperature', dtype=toboe.dtype, fillval=toboe.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Air Temperature Observation Error') \
         .write_data(toboe)
 
     # Sensible Temperature Observation Error
-    obsspace.create_var('ObsError/sensibleTemperature', dtype=tsenoe.dtype,
-                        fillval=tsenoe.fill_value) \
+    obsspace.create_var('ObsError/sensibleTemperature', dtype=tsenoe.dtype, fillval=tsenoe.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Sensible Temperature Observation Error') \
         .write_data(tsenoe)
 
     # Virtual Temperature Observation Error
-    obsspace.create_var('ObsError/virtualTemperature', dtype=tvooe.dtype,
-                        fillval=tvooe.fill_value) \
+    obsspace.create_var('ObsError/virtualTemperature', dtype=tvooe.dtype, fillval=tvooe.fill_value) \
         .write_attr('units', 'K') \
         .write_attr('long_name', 'Virtual Temperature Observation Error') \
         .write_data(tvooe)
 
     # Specific Humidity Observation Error
-    obsspace.create_var('ObsError/specificHumidity', dtype=qoboe.dtype,
-                        fillval=qoboe.fill_value) \
+    obsspace.create_var('ObsError/specificHumidity', dtype=qoboe.dtype, fillval=qoboe.fill_value) \
         .write_attr('long_name', 'Specific Humidity Observation Error') \
         .write_data(qoboe)
 
     # Eastward Wind Observation Error
-    obsspace.create_var('ObsError/windEastward', dtype=uoboe.dtype,
-                        fillval=uoboe.fill_value) \
+    obsspace.create_var('ObsError/windEastward', dtype=uoboe.dtype, fillval=uoboe.fill_value) \
         .write_attr('units', 'm s-1') \
         .write_attr('long_name', 'Eastward Wind Observation Error') \
         .write_data(uoboe)
 
     # Northward Wind Observation Error
-    obsspace.create_var('ObsError/windNorthward', dtype=voboe.dtype,
-                        fillval=voboe.fill_value) \
+    obsspace.create_var('ObsError/windNorthward', dtype=voboe.dtype, fillval=voboe.fill_value) \
         .write_attr('units', 'm s-1') \
         .write_attr('long_name', 'Northward Wind Observation Error') \
         .write_data(voboe)
