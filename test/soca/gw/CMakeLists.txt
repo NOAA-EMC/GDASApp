@@ -12,9 +12,14 @@ add_test(NAME test_gdasapp_soca_prep
 
 # Identify machine
 set(MACHINE "container")
-IF (IS_DIRECTORY /work2/noaa/da)
-  set(MACHINE "orion")
-  set(PARTITION "orion")
+IF (IS_DIRECTORY /work2)
+  IF (IS_DIRECTORY /apps/other)
+    set(MACHINE "hercules")
+    set(PARTITION "hercules")
+  ELSE()
+    set(MACHINE "orion")
+    set(PARTITION "orion")
+  ENDIF()
 ENDIF()
 IF (IS_DIRECTORY /scratch2/NCEPDEV/)
   set(MACHINE "hera")

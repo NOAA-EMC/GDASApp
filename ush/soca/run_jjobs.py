@@ -6,7 +6,7 @@ import subprocess
 import argparse
 from datetime import datetime, timedelta
 
-machines = {"container", "hera", "orion"}
+machines = {"container", "hera", "orion", "hercules"}
 
 # Assume the default conda environement is gdassapp
 ENVS = {'JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY': 'eva'}
