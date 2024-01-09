@@ -46,6 +46,7 @@ case ${TARGET} in
     ;;
 esac
 
+set -x
 # ==============================================================================
 datestr="$(date +%Y%m%d)"
 repo_url="https://github.com/NOAA-EMC/GDASApp.git"
@@ -56,20 +57,17 @@ mkdir -p $stableroot/$datestr
 cd $stableroot/$datestr
 
 # clone global workflow develop branch
-git clone $workflow_url
-
-# run checkout script for all other components
-cd $stableroot/$datestr/global-workflow/sorc
-./checkout.sh -u
+git clone --recursive $workflow_url
 
 # checkout develop
-cd gdas.cd
+cd $stableroot/$datestr/global-workflow/sorc/gdas.cd
 git checkout develop
 git pull
 
 # ==============================================================================
 # run ecbuild to get the repos cloned
 mkdir -p build
+
 cd build
 ecbuild ../
 cd ..

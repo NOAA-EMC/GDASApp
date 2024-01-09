@@ -11,7 +11,9 @@ mkdir -p ${test_dmpdir}
 
 cd ${test_dmpdir}
 
-${project_source_dir}/utils/test/prepdata.sh ${project_source_dir}/utils/test/
+mkdir SSS ADT icec sst
+
+${project_source_dir}/test/soca/gw/prepdata.sh ${project_source_dir}
 
 
 

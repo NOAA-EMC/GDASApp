@@ -6,6 +6,7 @@ observers:
 - !INC ${OBS_YAML_DIR}/sss_smap.yaml
 - !INC ${OBS_YAML_DIR}/sss_smos.yaml
 - !INC ${OBS_YAML_DIR}/sst_noaa19_l3u.yaml
+- !INC ${OBS_YAML_DIR}/sst_metopb_l3u_so025.yaml
 - !INC ${OBS_YAML_DIR}/icec_emc.yaml
 - !INC ${OBS_YAML_DIR}/adt_3b_egm2008.yaml
 - !INC ${OBS_YAML_DIR}/icec_amsr2_north.yaml
