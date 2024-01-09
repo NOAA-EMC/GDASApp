@@ -36,10 +36,6 @@ namespace gdasapp {
       fullConfig_.get("bounds.min", sstMin);
       float sstMax;
       fullConfig_.get("bounds.max", sstMax);
-      if ( sstUnits == "C" ) {
-        sstMin += 273.15;
-        sstMax += 273.15;
-      }
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
@@ -135,9 +131,9 @@ namespace gdasapp {
           preqc[i][j] = 5 - static_cast<int>(sstPreQC[0][i][j]);
 
           // bias corrected sst, regressed to the drifter depth
-          sst[i][j] = static_cast<float>(sstObsVal[index]) * sstScaleFactor + sstOffSet
+          // Remove added sstOffSet for Celsius
+          sst[i][j] = static_cast<float>(sstObsVal[index]) * sstScaleFactor
                     - static_cast<float>(sstObsBias[index]) * biasScaleFactor;
-
           // mask
           if (sst[i][j] >= sstMin && sst[i][j] <= sstMax && preqc[i][j] ==0) {
             mask[i][j] = 1;
