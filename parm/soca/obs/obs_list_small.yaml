@@ -4,5 +4,6 @@ observers:
 - !INC ${OBS_YAML_DIR}/adt_j2.yaml
 #- !INC ${OBS_YAML_DIR}/salt_profile_fnmoc.yaml
 - !INC ${OBS_YAML_DIR}/sss_smap.yaml
+- !INC ${OBS_YAML_DIR}/sst_metopb_l3u_so025.yaml
 - !INC ${OBS_YAML_DIR}/sst_noaa19_l3u.yaml
 - !INC ${OBS_YAML_DIR}/icec_emc.yaml
