@@ -20,12 +20,15 @@ from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
+
 def Compute_sequenceNumber(lon):
+
     lon_u, seqNum = np.unique(lon, return_inverse=True)
     seqNum = seqNum.astype(np.int64)
     logger.debug(f"Len of Sequence Number: {len(seqNum)}")
 
     return seqNum
+
 
 def bufr_to_ioda(config, logger):
 
@@ -56,9 +59,9 @@ def bufr_to_ioda(config, logger):
                              bufrfile)
     logger.debug(f"{bufrfile}, {DATA_PATH}")
 
-    #===========================================
+    # ==========================================
     # Make the QuerySet for all the data we want
-    #===========================================
+    # ==========================================
     start_time = time.time()
 
     logger.debug(f"Making QuerySet ...")
@@ -88,11 +91,11 @@ def bufr_to_ioda(config, logger):
     running_time = end_time - start_time
     logger.debug(f"Running time for making QuerySet: {running_time} seconds")
 
-    #===============================================================
+    # ==========================================================
     # Open the BUFR file and execute the QuerySet
     # Use the ResultSet returned to get numpy arrays of the data
-    # ==============================================================
-
+    # ==========================================================
+    start_time = time.time()
     logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
         r = f.execute(q)
@@ -128,9 +131,9 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
     
-    #=================================================
+    # =======================================
     # Separate marine mammals from TESAC tank
-    #=================================================
+    # =======================================
     logger.debug(f"Creating the mask for marine mammals from TESAC floats based on station ID ...")
    
     alpha_mask = [item.isalpha() for item in stationID]
@@ -160,10 +163,9 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f" ... Executing QuerySet: Check BUFR variable generic \
                 dimension and type ...")
-#    #================================
-#    # Check values of BUFR variables, dimension and type
-#    #================================
-
+    # ==================================================
+    # Check values of BUFR variables, dimension and type
+    # ==================================================
     logger.debug(f" temp          min, max, length, dtype = {temp.min()}, {temp.max()}, {len(temp)}, {temp.dtype}")
     logger.debug(f" saln          min, max, length, dtype = {saln.min()}, {saln.max()}, {len(saln)}, {saln.dtype}")
     logger.debug(f" lon           min, max, length, dtype = {lon.min()}, {lon.max()}, {len(lon)}, {lon.dtype}")

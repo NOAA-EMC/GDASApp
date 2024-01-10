@@ -5,10 +5,6 @@
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
 import sys
-sys.path.append('/work2/noaa/da/spaturi/sandbox/CDA_testbed/global-workflow/sorc/gdas.cd/build/lib/python3.7/')
-sys.path.append('/work2/noaa/da/spaturi/sandbox/CDA_testbed/global-workflow/sorc/gdas.cd/build/lib/python3.7/pyiodaconv/')
-sys.path.append('/work2/noaa/da/spaturi/sandbox/CDA_testbed/global-workflow/sorc/gdas.cd/build/lib/python3.7/pyioda/')
-
 import numpy as np
 import numpy.ma as ma
 import os
@@ -24,12 +20,15 @@ from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
+
 def Compute_sequenceNumber(lon):
+
     lon_u, seqNum = np.unique(lon, return_inverse=True)
     seqNum = seqNum.astype(np.int64)
     logger.debug(f"Len of Sequence Number: {len(seqNum)}")
 
     return seqNum
+
 
 def bufr_to_ioda(config, logger):
 
@@ -50,7 +49,7 @@ def bufr_to_ioda(config, logger):
 
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
-    
+
     # General Information
     converter = 'BUFR to IODA Converter'    
     platform_description = 'Surface obs from ALTKOB: temperature and salinity'
@@ -59,15 +58,14 @@ def bufr_to_ioda(config, logger):
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos",
                              bufrfile)
     logger.debug(f"{bufrfile}, {DATA_PATH}")
-    #print(platform_description)
 
-    #===========================================
+    # ===========================================
     # Make the QuerySet for all the data we want
-    #===========================================
+    # ===========================================
     start_time = time.time()
 
     logger.debug(f"Making QuerySet ...")
-    q = bufr.QuerySet() #(subsets)
+    q = bufr.QuerySet()
 
     # MetaData
     q.add('year',            '*/YEAR')
@@ -91,10 +89,11 @@ def bufr_to_ioda(config, logger):
     running_time = end_time - start_time
     logger.debug(f"Running time for making QuerySet: {running_time} seconds")
 
-    #===============================================================
+    # ===============================================================
     # Open the BUFR file and execute the QuerySet
     # Use the ResultSet returned to get numpy arrays of the data
     # ==============================================================
+    start_time = time.time()
 
     logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
@@ -115,7 +114,7 @@ def bufr_to_ioda(config, logger):
     temp -= 273.15
     saln      = r.get('saln',group_by='depth')
 
-    #    print ("masking temp & saln ...")
+    # Add mask based on min, max values
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
     lat          = lat[mask]
     lon          = lon[mask]
@@ -137,10 +136,9 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f" ... Executing QuerySet: Check BUFR variable generic \
                 dimension and type ...")
-#    #================================
-#    # Check values of BUFR variables, dimension and type
-#    #================================
-
+    # ==================================================
+    # Check values of BUFR variables, dimension and type
+    # ==================================================
     logger.debug(f" temp          min, max, length, dtype = {temp.min()}, {temp.max()}, {len(temp)}, {temp.dtype}")
     logger.debug(f" saln          min, max, length, dtype = {saln.min()}, {saln.max()}, {len(saln)}, {saln.dtype}")
     logger.debug(f" lon           min, max, length, dtype = {lon.min()}, {lon.max()}, {len(lon)}, {lon.dtype}")
@@ -153,7 +151,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" stationID                shape, dtype = {stationID.shape}, {stationID.astype(str).dtype}")    
     logger.debug(f" dateTime                 shape, dtype = {dateTime.shape}, {dateTime.dtype}")
     logger.debug(f" rcptdateTime             shape, dytpe = {rcptdateTime.shape}, {rcptdateTime.dtype}")
-#    logger.debug(f" sequence Num             shape, dtype = {seqNum.shape}, {seqNum.dtype}")
 
     # =====================================
     # Create IODA ObsSpace
@@ -171,7 +168,6 @@ def bufr_to_ioda(config, logger):
     if path and not os.path.exists(path):
         os.makedirs(path)
     
-#    logger.debug(f" ... ... Create output file ...', OUTPUT_PATH)
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
     # Create Global attributes
@@ -181,16 +177,10 @@ def bufr_to_ioda(config, logger):
     obsspace.write_attr('sourceFiles', bufrfile)
     obsspace.write_attr('dataProviderOrigin', data_provider)
     obsspace.write_attr('description', data_description)
-    #obsspace.write_attr('datetimeReference', reference_time)
-    obsspace.write_attr('datetimeRange', [str(dateTime.min()),
-                        str(dateTime.max())])
+    obsspace.write_attr('datetimeRange', [str(dateTime.min()), str(dateTime.max())])
     obsspace.write_attr('platformLongDescription', platform_description)
-#    obsspace.write_attr('platforms', PLATFORM + ': temperature and salinity')
-#    obsspace.write_attr('datetimeReference', date)
-#    obsspace.write_attr('dataProviderOrigin', 'GTS/NCEP data tank')
-#    obsspace.write_attr('description', '24-hrly from 6-hourly dumps')
-#
-     # Create IODA variables
+
+    # Create IODA variables
     logger.debug(f" ... ... Create variables: name, type, units, and attributes")
 
     # Datetime
@@ -223,17 +213,6 @@ def bufr_to_ioda(config, logger):
     obsspace.create_var('MetaData/stationID',  dtype=stationID.dtype, fillval=stationID.fill_value) \
         .write_attr('long_name', 'Station Identification') \
         .write_data(stationID)
-
-#    # Depth
-#    obsspace.create_var('MetaData/depth',  dtype=depth.dtype, fillval=depth.fill_value) \
-#        .write_attr('units', 'm') \
-#        .write_attr('long_name', 'Water depth') \
-#        .write_data(depth)
-
- #   # Sequence Number
- #   obsspace.create_var('MetaData/sequenceNumber',  dtype=PreQC.dtype, fillval=PreQC.fill_value) \
- #       .write_attr('long_name', 'Sequence Number') \
- #       .write_data(seqNum)
 
     # PreQC 
     obsspace.create_var('PreQC/seaSurfaceTemperature', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
@@ -275,6 +254,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"All Done!")
 
+
 if __name__ == '__main__':
     
     start_time = time.time()
@@ -284,7 +264,7 @@ if __name__ == '__main__':
     logger = Logger('bufr2ioda_trackob_surface.py', level=log_level,
                     colored_log=True)
 
-    with open(config, "r") as json_file:
+    with open(args.config, "r") as json_file:
         config = json.load(json_file)
 
     bufr_to_ioda(config, logger)

@@ -20,12 +20,14 @@ from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
+
 def Compute_sequenceNumber(lon):
     lon_u, seqNum = np.unique(lon, return_inverse=True)
     seqNum = seqNum.astype(np.int64)
     logger.debug(f"Len of Sequence Number: {len(seqNum)}")
 
     return seqNum
+
 
 def bufr_to_ioda(config, logger):
 
@@ -52,17 +54,16 @@ def bufr_to_ioda(config, logger):
     platform_description = 'Profiles from BATHYthermal: temperature'
     
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
-    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos",
-                             bufrfile)
+    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos",bufrfile)
     logger.debug(f"{bufrfile}, {DATA_PATH}")
 
-    #===========================================
+    # ==========================================
     # Make the QuerySet for all the data we want
-    #===========================================
+    # ==========================================
     start_time = time.time()
 
     logger.debug(f"Making QuerySet ...")
-    q = bufr.QuerySet() #(subsets)
+    q = bufr.QuerySet()
 
     # MetaData
     q.add('year',            '*/YEAR')
@@ -87,10 +88,11 @@ def bufr_to_ioda(config, logger):
     running_time = end_time - start_time
     logger.debug(f"Running time for making QuerySet: {running_time} seconds")
 
-    #===============================================================
+    # ==========================================================
     # Open the BUFR file and execute the QuerySet
     # Use the ResultSet returned to get numpy arrays of the data
-    # ==============================================================
+    # ==========================================================
+    start_time = time.time()
 
     logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
@@ -181,8 +183,8 @@ def bufr_to_ioda(config, logger):
     obsspace.write_attr('description', data_description)
     obsspace.write_attr('datetimeRange', [str(dateTime.min()), str(dateTime.max())])
     obsspace.write_attr('platformLongDescription', platform_description)
-#
-     # Create IODA variables
+
+    # Create IODA variables
     logger.debug(f" ... ... Create variables: name, type, units, and attributes")
 
     # Datetime
