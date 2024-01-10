@@ -45,7 +45,7 @@ gdas_home = os.path.join(os.getenv('HOMEgfs'), 'sorc', 'gdas.cd')
 
 # import UFSDA utilities
 import ufsda
-from ufsda.stage import obs, soca_fix
+from ufsda.stage import soca_fix
 
 
 def agg_seaice(fname_in, fname_out):
@@ -259,24 +259,14 @@ PDY = os.getenv('PDY')
 
 logging.info(f"---------------- Stage observations")
 
-# setup the archive, local and shared R2D2 databases
-ufsda.r2d2.setup(r2d2_config_yaml=os.path.join(anl_dir, 'r2d2_config.yaml'), shared_root=comin_obs)
-
 # create config dict from runtime env
 envconfig = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
-             'r2d2_obs_src': os.getenv('R2D2_OBS_SRC'),
-             'r2d2_obs_dump': os.getenv('R2D2_OBS_DUMP'),
-             'r2d2_obs_db': os.getenv('R2D2_OBS_DB'),
              'ATM_WINDOW_BEGIN': window_begin_iso,
              'ATM_WINDOW_MIDDLE': window_middle_iso,
              'ATM_WINDOW_LENGTH': f"PT{os.getenv('assim_freq')}H"}
 stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'stage.yaml'))
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-stage_cfg['r2d2_obs_out'] = os.getenv('COM_OBS')
-
-# stage observations from R2D2 COMIN_OBS to COM_OBS
-ufsda.stage.obs(stage_cfg)
 
 # concatenate altimeters into one obs space
 # TODO (SAMG)temporary, move this into the obs procecing eventually
@@ -294,6 +284,7 @@ for obs_file in obs_files:
     logging.info(f"******* {obs_file}")
     obs_src = os.path.join(os.getenv('COM_OBS'), obs_file)
     obs_dst = os.path.join(os.path.abspath(obs_in), obs_file)
+    logging.info(f"******* {obs_src}")
     if os.path.exists(obs_src):
         logging.info(f"******* fetching {obs_file}")
         obs_list.append([obs_src, obs_dst])
