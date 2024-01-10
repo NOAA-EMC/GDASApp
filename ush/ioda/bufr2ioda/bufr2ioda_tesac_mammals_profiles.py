@@ -49,11 +49,11 @@ def bufr_to_ioda(config, logger):
 
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
-    
+
     # General Information
-    converter = 'BUFR to IODA Converter'    
+    converter = 'BUFR to IODA Converter'
     platform_description = 'Profiles from TESAC: temperature and salinity'
-    
+
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
     logger.debug(f"{bufrfile}, {DATA_PATH}")
@@ -67,24 +67,24 @@ def bufr_to_ioda(config, logger):
     q = bufr.QuerySet()
 
     # MetaData
-    q.add('year',            '*/YEAR')
-    q.add('month',           '*/MNTH')
-    q.add('day',             '*/DAYS')
-    q.add('hour',            '*/HOUR')
-    q.add('minute',          '*/MINU')
-    q.add('ryear',           '*/RCYR')
-    q.add('rmonth',          '*/RCMO')
-    q.add('rday',            '*/RCDY')
-    q.add('rhour',           '*/RCHR')
-    q.add('rminute',         '*/RCMI')
-    q.add('stationID',       '*/RPID')
-    q.add('latitude',        '*/CLAT')
-    q.add('longitude',       '*/CLON')
-    q.add('depth',           '*/BTOCN/DBSS')
+    q.add('year', '*/YEAR')
+    q.add('month', '*/MNTH')
+    q.add('day', '*/DAYS')
+    q.add('hour', '*/HOUR')
+    q.add('minute', '*/MINU')
+    q.add('ryear', '*/RCYR')
+    q.add('rmonth', '*/RCMO')
+    q.add('rday', '*/RCDY')
+    q.add('rhour', '*/RCHR')
+    q.add('rminute', '*/RCMI')
+    q.add('stationID', '*/RPID')
+    q.add('latitude', '*/CLAT')
+    q.add('longitude', '*/CLON')
+    q.add('depth', '*/BTOCN/DBSS')
 
     # ObsValue
-    q.add('temp',            '*/BTOCN/STMP')
-    q.add('saln',            '*/BTOCN/SALN')
+    q.add('temp', '*/BTOCN/STMP')
+    q.add('saln', '*/BTOCN/SALN')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -101,20 +101,20 @@ def bufr_to_ioda(config, logger):
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
-    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute',group_by='depth')
+    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute', group_by='depth')
     dateTime = dateTime.astype(np.int64)
-    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute',group_by='depth')
+    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute', group_by='depth')
     rcptdateTime = rcptdateTime.astype(np.int64)
-    stationID = r.get('stationID',group_by='depth')
-    lat = r.get('latitude',group_by='depth')
-    lon = r.get('longitude',group_by='depth')
-    depth = r.get('depth',group_by='depth')
+    stationID = r.get('stationID', group_by='depth')
+    lat = r.get('latitude', group_by='depth')
+    lon = r.get('longitude', group_by='depth')
+    depth = r.get('depth', group_by='depth')
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
-    temp = r.get('temp',group_by='depth')
+    temp = r.get('temp', group_by='depth')
     temp -= 273.15
-    saln = r.get('saln',group_by='depth')
+    saln = r.get('saln', group_by='depth')
 
     # Add mask based on min, max values
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
@@ -122,22 +122,22 @@ def bufr_to_ioda(config, logger):
     lon = lon[mask]
     depth = depth[mask]
     stationID = stationID[mask]
-    dateTime = dateTime[mask] 
+    dateTime = dateTime[mask]
     rcptdateTime = rcptdateTime[mask]
     temp = temp[mask]
     saln = saln[mask]
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
-    
+
     # =======================================
     # Separate marine mammals from TESAC tank
     # =======================================
     logger.debug(f"Creating the mask for marine mammals from TESAC floats based on station ID ...")
    
     alpha_mask = [item.isalpha() for item in stationID]
-    indices_true = [index for index, value in enumerate(alpha_mask) if value]   
-    
+    indices_true = [index for index, value in enumerate(alpha_mask) if value]
+
     # Apply index
     stationID = stationID[indices_true]
     lat = lat[indices_true]
@@ -150,18 +150,19 @@ def bufr_to_ioda(config, logger):
     rcptdateTime = rcptdateTime[indices_true]
 
     # ObsError
-    logger.debug(f"Generating ObsError array with constant value (instrument error)...") 
-    ObsError_temp = np.float32( np.ma.masked_array(np.full((len(indices_true)), 0.02)) )
-    ObsError_saln = np.float32( np.ma.masked_array(np.full((len(indices_true)), 0.01)) )
+    logger.debug(f"Generating ObsError array with constant value (instrument error)...")
+    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(indices_true)), 0.02)))
+    ObsError_saln = np.float32(np.ma.masked_array(np.full((len(indices_true)), 0.01)))
 
     # PreQC
-    logger.debug(f"Generating PreQC array with 0...")    
-    PreQC = ( np.ma.masked_array(np.full((len(indices_true)), 0)) ).astype(np.int32)
+    logger.debug(f"Generating PreQC array with 0...")
+    PreQC = (np.ma.masked_array(np.full((len(indices_true)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
     logger.debug(f" ... Executing QuerySet: Check BUFR variable generic \
                 dimension and type ...")
+
     # ==================================================
     # Check values of BUFR variables, dimension and type
     # ==================================================
@@ -294,7 +295,7 @@ def bufr_to_ioda(config, logger):
 
 
 if __name__ == '__main__':
-    
+
     start_time = time.time()
     config = "bufr2ioda_tesac_mammals_profiles.json"
 

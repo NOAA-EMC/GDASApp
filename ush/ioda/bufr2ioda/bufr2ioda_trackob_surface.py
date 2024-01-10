@@ -67,23 +67,23 @@ def bufr_to_ioda(config, logger):
     q = bufr.QuerySet()
 
     # MetaData
-    q.add('year',            '*/YEAR')
-    q.add('month',           '*/MNTH')
-    q.add('day',             '*/DAYS')
-    q.add('hour',            '*/HOUR')
-    q.add('minute',          '*/MINU')
-    q.add('ryear',           '*/RCYR')
-    q.add('rmonth',          '*/RCMO')
-    q.add('rday',            '*/RCDY')
-    q.add('rhour',           '*/RCHR')
-    q.add('rminute',         '*/RCMI')
-    q.add('stationID',       '*/RPID')
-    q.add('latitude',        '*/CLAT')
-    q.add('longitude',       '*/CLON')
+    q.add('year', '*/YEAR')
+    q.add('month', '*/MNTH')
+    q.add('day', '*/DAYS')
+    q.add('hour', '*/HOUR')
+    q.add('minute', '*/MINU')
+    q.add('ryear', '*/RCYR')
+    q.add('rmonth', '*/RCMO')
+    q.add('rday', '*/RCDY')
+    q.add('rhour', '*/RCHR')
+    q.add('rminute', '*/RCMI')
+    q.add('stationID', '*/RPID')
+    q.add('latitude', '*/CLAT')
+    q.add('longitude', '*/CLON')
 
     # ObsValue
-    q.add('temp',            '*/BTOCN/STMP')
-    q.add('saln',            '*/BTOCN/SALN')
+    q.add('temp', '*/BTOCN/STMP')
+    q.add('saln', '*/BTOCN/SALN')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -100,38 +100,38 @@ def bufr_to_ioda(config, logger):
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
-    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute',group_by='depth')
+    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute', group_by='depth')
     dateTime = dateTime.astype(np.int64)
-    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute',group_by='depth')
+    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute', group_by='depth')
     rcptdateTime = rcptdateTime.astype(np.int64)
-    stationID = r.get('stationID',group_by='depth')
-    lat = r.get('latitude',group_by='depth')
-    lon = r.get('longitude',group_by='depth')
+    stationID = r.get('stationID', group_by='depth')
+    lat = r.get('latitude', group_by='depth')
+    lon = r.get('longitude', group_by='depth')
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
-    temp = r.get('temp',group_by='depth')
+    temp = r.get('temp', group_by='depth')
     temp -= 273.15
-    saln = r.get('saln',group_by='depth')
+    saln = r.get('saln', group_by='depth')
 
     # Add mask based on min, max values
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
     lat = lat[mask]
     lon = lon[mask]
     stationID = stationID[mask]
-    dateTime = dateTime[mask] 
+    dateTime = dateTime[mask]
     rcptdateTime = rcptdateTime[mask]
     temp = temp[mask]
     saln = saln[mask]
 
     # ObsError
     logger.debug(f"Generating ObsError array with constant value (instrument error)...") 
-    ObsError_temp = np.float32( np.ma.masked_array(np.full((len(mask)), 0.30)) )
-    ObsError_saln = np.float32( np.ma.masked_array(np.full((len(mask)), 1.00)) )
+    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(mask)), 0.30)))
+    ObsError_saln = np.float32(np.ma.masked_array(np.full((len(mask)), 1.00)))
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")    
-    PreQC = ( np.ma.masked_array(np.full((len(mask)), 0)) ).astype(np.int32)
+    PreQC = (np.ma.masked_array(np.full((len(mask)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -148,7 +148,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" PreQC         min, max, length, dtype = {PreQC.min()}, {PreQC.max()}, {len(PreQC)}, {PreQC.dtype}")
     logger.debug(f" ObsError_temp min, max, length, dtype = {ObsError_temp.min()}, {ObsError_temp.max()}, {len(ObsError_temp)}, {ObsError_temp.dtype}")
     logger.debug(f" ObsError_saln min, max, length, dtype = {ObsError_saln.min()}, {ObsError_saln.max()}, {len(ObsError_saln)}, {ObsError_saln.dtype}")
-
     logger.debug(f" stationID                shape, dtype = {stationID.shape}, {stationID.astype(str).dtype}")    
     logger.debug(f" dateTime                 shape, dtype = {dateTime.shape}, {dateTime.dtype}")
     logger.debug(f" rcptdateTime             shape, dytpe = {rcptdateTime.shape}, {rcptdateTime.dtype}")
@@ -168,7 +167,7 @@ def bufr_to_ioda(config, logger):
     path, fname = os.path.split(OUTPUT_PATH)
     if path and not os.path.exists(path):
         os.makedirs(path)
-    
+
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
     # Create Global attributes
@@ -257,7 +256,7 @@ def bufr_to_ioda(config, logger):
 
 
 if __name__ == '__main__':
-    
+
     start_time = time.time()
     config = "bufr2ioda_trackob_surface.json"
 

@@ -64,27 +64,27 @@ def bufr_to_ioda(config, logger):
     start_time = time.time()
 
     logger.debug(f"Making QuerySet ...")
-    q = bufr.QuerySet() #(subsets)
+    q = bufr.QuerySet()
 
     # MetaData
-    q.add('year',            '*/YEAR')
-    q.add('month',           '*/MNTH')
-    q.add('day',             '*/DAYS')
-    q.add('hour',            '*/HOUR')
-    q.add('minute',          '*/MINU')
-    q.add('ryear',           '*/RCYR')
-    q.add('rmonth',          '*/RCMO')
-    q.add('rday',            '*/RCDY')
-    q.add('rhour',           '*/RCHR')
-    q.add('rminute',         '*/RCMI')
-    q.add('stationID',       '*/WMOP')
-    q.add('latitude',        '*/CLATH')
-    q.add('longitude',       '*/CLONH')
-    q.add('pressure',        '*/GLPFDATA/WPRES')
+    q.add('year', '*/YEAR')
+    q.add('month', '*/MNTH')
+    q.add('day', '*/DAYS')
+    q.add('hour', '*/HOUR')
+    q.add('minute', '*/MINU')
+    q.add('ryear', '*/RCYR')
+    q.add('rmonth', '*/RCMO')
+    q.add('rday', '*/RCDY')
+    q.add('rhour', '*/RCHR')
+    q.add('rminute', '*/RCMI')
+    q.add('stationID', '*/WMOP')
+    q.add('latitude', '*/CLATH')
+    q.add('longitude', '*/CLONH')
+    q.add('pressure', '*/GLPFDATA/WPRES')
 
     # ObsValue
-    q.add('temp',            '*/GLPFDATA/SSTH')
-    q.add('saln',            '*/GLPFDATA/SALNH')
+    q.add('temp', '*/GLPFDATA/SSTH')
+    q.add('saln', '*/GLPFDATA/SALNH')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -101,16 +101,16 @@ def bufr_to_ioda(config, logger):
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
-    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute',group_by='pressure')
+    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute', group_by='pressure')
     dateTime = dateTime.astype(np.int64)
-    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute',group_by='pressure')
+    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute', group_by='pressure')
     rcptdateTime = rcptdateTime.astype(np.int64)
-    stationID = r.get('stationID',group_by='pressure')
-    lat = r.get('latitude',group_by='pressure')
-    lon = r.get('longitude',group_by='pressure')
-    pressure = r.get('pressure',group_by='pressure')
+    stationID = r.get('stationID', group_by='pressure')
+    lat = r.get('latitude', group_by='pressure')
+    lon = r.get('longitude', group_by='pressure')
+    pressure = r.get('pressure', group_by='pressure')
     # convert pressure to depth : rho * g * h
-    pressure = np.float32( pressure.astype(float) * 0.0001 )
+    pressure = np.float32(pressure.astype(float) * 0.0001)
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
@@ -131,7 +131,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
-    
+
     # =========================================
     # Separate GLIDER profiles from subpfl tank
     # =========================================
@@ -156,13 +156,13 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"masking Done...")
 
     # ObsError
-    logger.debug(f"Generating ObsError array with constant value (instrument error)...") 
-    ObsError_temp = np.float32( np.ma.masked_array(np.full((len(mask_gldr)), 0.02)) )
-    ObsError_saln = np.float32( np.ma.masked_array(np.full((len(mask_gldr)), 0.01)) )
+    logger.debug(f"Generating ObsError array with constant value (instrument error)...")
+    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(mask_gldr)), 0.02)))
+    ObsError_saln = np.float32(np.ma.masked_array(np.full((len(mask_gldr)), 0.01)))
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")    
-    PreQC = ( np.ma.masked_array(np.full((len(mask_gldr)), 0)) ).astype(np.int32)
+    PreQC = (np.ma.masked_array(np.full((len(mask_gldr)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -180,7 +180,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" PreQC         min, max, length, dtype = {PreQC.min()}, {PreQC.max()}, {len(PreQC)}, {PreQC.dtype}")
     logger.debug(f" ObsError_temp min, max, length, dtype = {ObsError_temp.min()}, {ObsError_temp.max()}, {len(ObsError_temp)}, {ObsError_temp.dtype}")
     logger.debug(f" ObsError_saln min, max, length, dtype = {ObsError_saln.min()}, {ObsError_saln.max()}, {len(ObsError_saln)}, {ObsError_saln.dtype}")
-
     logger.debug(f" stationID                shape, dtype = {stationID.shape}, {stationID.astype(str).dtype}")    
     logger.debug(f" dateTime                 shape, dtype = {dateTime.shape}, {dateTime.dtype}")
     logger.debug(f" rcptdateTime             shape, dytpe = {rcptdateTime.shape}, {rcptdateTime.dtype}")
@@ -201,7 +200,7 @@ def bufr_to_ioda(config, logger):
     path, fname = os.path.split(OUTPUT_PATH)
     if path and not os.path.exists(path):
         os.makedirs(path)
-    
+
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
     # Create Global attributes
@@ -301,7 +300,7 @@ def bufr_to_ioda(config, logger):
 
 
 if __name__ == '__main__':
-    
+
     start_time = time.time()
     config = "bufr2ioda_subpfl_glider_profiles.json"
 
