@@ -55,8 +55,7 @@ def bufr_to_ioda(config, logger):
     platform_description = 'Profiles from XBT/CTD: temperature and salinity'
     
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
-    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos",
-                             bufrfile)
+    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
     logger.debug(f"{bufrfile}, {DATA_PATH}")
 
     # ==========================================
@@ -102,31 +101,31 @@ def bufr_to_ioda(config, logger):
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
-    dateTime     = r.get_datetime('year', 'month', 'day', 'hour', 'minute',group_by='depth')
-    dateTime     = dateTime.astype(np.int64)
+    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute',group_by='depth')
+    dateTime = dateTime.astype(np.int64)
     rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute',group_by='depth')
     rcptdateTime = rcptdateTime.astype(np.int64)
-    stationID    = r.get('stationID',group_by='depth')
-    lat          = r.get('latitude',group_by='depth')
-    lon          = r.get('longitude',group_by='depth')
-    depth        = r.get('depth',group_by='depth')
+    stationID = r.get('stationID',group_by='depth')
+    lat = r.get('latitude',group_by='depth')
+    lon = r.get('longitude',group_by='depth')
+    depth = r.get('depth',group_by='depth')
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
-    temp      = r.get('temp',group_by='depth')
+    temp = r.get('temp',group_by='depth')
     temp -= 273.15
-    saln      = r.get('saln',group_by='depth')
+    saln = r.get('saln',group_by='depth')
 
     # Add mask based on min, max values
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
-    lat          = lat[mask]
-    lon          = lon[mask]
-    depth        = depth[mask]
-    stationID    = stationID[mask]
-    dateTime     = dateTime[mask] 
+    lat = lat[mask]
+    lon = lon[mask]
+    depth = depth[mask]
+    stationID = stationID[mask]
+    dateTime = dateTime[mask] 
     rcptdateTime = rcptdateTime[mask]
-    temp         = temp[mask]
-    saln         = saln[mask]
+    temp = temp[mask]
+    saln = saln[mask]
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
@@ -138,7 +137,7 @@ def bufr_to_ioda(config, logger):
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")    
-    PreQC         = ( np.ma.masked_array(np.full((len(temp)), 0)) ).astype(np.int32)
+    PreQC = ( np.ma.masked_array(np.full((len(temp)), 0)) ).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -275,6 +274,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"All Done!")
 
+
 if __name__ == '__main__':
     
     start_time = time.time()
@@ -291,5 +291,4 @@ if __name__ == '__main__':
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.debug(f"Total running time: {running_time} seconds")    
-
+    logger.debug(f"Total running time: {running_time} seconds")

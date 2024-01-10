@@ -55,8 +55,7 @@ def bufr_to_ioda(config, logger):
     platform_description = 'GLIDER profiles from subpfl: temperature and salinity'
     
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
-    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos",
-                             bufrfile)
+    DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
     logger.debug(f"{bufrfile}, {DATA_PATH}")
 
     # ==========================================
@@ -102,32 +101,32 @@ def bufr_to_ioda(config, logger):
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
-    dateTime     = r.get_datetime('year', 'month', 'day', 'hour', 'minute',group_by='pressure')
-    dateTime     = dateTime.astype(np.int64)
+    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute',group_by='pressure')
+    dateTime = dateTime.astype(np.int64)
     rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute',group_by='pressure')
     rcptdateTime = rcptdateTime.astype(np.int64)
     stationID = r.get('stationID',group_by='pressure')
-    lat       = r.get('latitude',group_by='pressure')
-    lon       = r.get('longitude',group_by='pressure')
-    pressure  = r.get('pressure',group_by='pressure')
+    lat = r.get('latitude',group_by='pressure')
+    lon = r.get('longitude',group_by='pressure')
+    pressure = r.get('pressure',group_by='pressure')
     # convert pressure to depth : rho * g * h
-    pressure  = np.float32( pressure.astype(float) * 0.0001 )
+    pressure = np.float32( pressure.astype(float) * 0.0001 )
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
-    temp      = r.get('temp',group_by='pressure')
+    temp = r.get('temp',group_by='pressure')
     temp -= 273.15
-    saln      = r.get('saln',group_by='pressure')
+    saln = r.get('saln',group_by='pressure')
 
     # Add mask based on min, max values
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
-    temp         = temp[mask]
-    saln         = saln[mask]
-    lat          = lat[mask]
-    lon          = lon[mask]
-    pressure     = pressure[mask]
-    stationID    = stationID[mask]
-    dateTime     = dateTime[mask]
+    temp = temp[mask]
+    saln = saln[mask]
+    lat = lat[mask]
+    lon = lon[mask]
+    pressure = pressure[mask]
+    stationID = stationID[mask]
+    dateTime = dateTime[mask]
     rcptdateTime = rcptdateTime[mask]
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
@@ -144,15 +143,15 @@ def bufr_to_ioda(config, logger):
            | (stationID >= 6800000) & (stationID <= 6809999) | (stationID >= 7800000) & (stationID <= 7809999)
 
     # Apply mask
-    stationID      = stationID[mask_gldr]
-    lat            = lat[mask_gldr]
-    lon            = lon[mask_gldr]
-    pressure       = pressure[mask_gldr]
-    temp           = temp[mask_gldr]
-    saln           = saln[mask_gldr]
-    seqNum         = seqNum[mask_gldr]
-    dateTime       = dateTime[mask_gldr]
-    rcptdateTime   = rcptdateTime[mask_gldr]
+    stationID = stationID[mask_gldr]
+    lat = lat[mask_gldr]
+    lon = lon[mask_gldr]
+    pressure = pressure[mask_gldr]
+    temp = temp[mask_gldr]
+    saln = saln[mask_gldr]
+    seqNum = seqNum[mask_gldr]
+    dateTime = dateTime[mask_gldr]
+    rcptdateTime = rcptdateTime[mask_gldr]
 
     logger.debug(f"masking Done...")
 
@@ -163,7 +162,7 @@ def bufr_to_ioda(config, logger):
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")    
-    PreQC         = ( np.ma.masked_array(np.full((len(mask_gldr)), 0)) ).astype(np.int32)
+    PreQC = ( np.ma.masked_array(np.full((len(mask_gldr)), 0)) ).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -300,6 +299,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"All Done!")
 
+
 if __name__ == '__main__':
     
     start_time = time.time()
@@ -316,5 +316,4 @@ if __name__ == '__main__':
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.debug(f"Total running time: {running_time} seconds")    
-
+    logger.debug(f"Total running time: {running_time} seconds")
