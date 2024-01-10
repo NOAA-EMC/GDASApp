@@ -27,7 +27,7 @@ add_test(NAME test_gdasapp_soca_concatioda
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/concatioda)
        set_tests_properties(test_gdasapp_soca_concatioda
       PROPERTIES
-      ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_BINARY_DIR}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}")
+      ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_BINARY_DIR}/../lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}")
 
 # Clean-up
 add_test(NAME test_gdasapp_soca_run_clean
@@ -78,7 +78,7 @@ foreach(jjob ${jjob_list})
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
   set_tests_properties(${test_name}
     PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}")
+    ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/ush:${PROJECT_BINARY_DIR}/../lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}")
 
 
   set(setup "--skip") # Only run the setup of the first test, if not, it will hang
@@ -89,7 +89,7 @@ endforeach()
 set(ctest_list "socahybridweights" "incr_handler" "ens_handler")
 foreach(ctest ${ctest_list})
   set(TEST ${ctest})
-  set(EXEC ${PROJECT_BINARY_DIR}/bin/gdas_${ctest}.x)
+  set(EXEC ${PROJECT_BINARY_DIR}/../bin/gdas_${ctest}.x)
   set(YAML ${PROJECT_SOURCE_DIR}/test/soca/testinput/${ctest}.yaml)
   configure_file(${PROJECT_SOURCE_DIR}/test/soca/gw/run_gdas_apps.yaml.test
                  ${PROJECT_BINARY_DIR}/test/soca/gw/testrun/run_gdas_apps_${ctest}.yaml)
@@ -102,5 +102,5 @@ foreach(ctest ${ctest_list})
 
   set_tests_properties(${test_name}
       PROPERTIES
-      ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}")
+      ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/../lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}")
 endforeach()

@@ -4,7 +4,7 @@
 from datetime import datetime, timedelta
 import logging
 import os
-import prep_marine_obs
+from soca import prep_marine_obs
 import subprocess
 from wxflow import YAMLFile, save_as_yaml, FileHandler
 

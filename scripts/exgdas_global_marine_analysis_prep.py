@@ -85,9 +85,10 @@ def cice_hist2fms(input_filename, output_filename):
     """
     Simple reformatting utility to allow soca/fms to read CICE's history
     """
+    input_filename_real = os.path.realpath(input_filename)
 
     # open the CICE history file
-    ds = xr.open_dataset(input_filename)
+    ds = xr.open_dataset(input_filename_real)
 
     if 'aicen' in ds.variables and 'hicen' in ds.variables and 'hsnon' in ds.variables:
         logging.info(f"*** Already reformatted, skipping.")
@@ -100,7 +101,8 @@ def cice_hist2fms(input_filename, output_filename):
     ds = ds.rename({'aice_h': 'aicen', 'hi_h': 'hicen', 'hs_h': 'hsnon'})
 
     # Save the new netCDF file
-    ds.to_netcdf(output_filename, mode='w')
+    output_filename_real = os.path.realpath(output_filename)
+    ds.to_netcdf(output_filename_real, mode='w')
 
 
 def test_hist_date(histfile, ref_date):
@@ -280,7 +282,8 @@ ufsda.stage.obs(stage_cfg)
 
 # concatenate altimeters into one obs space
 # TODO (SAMG)temporary, move this into the obs procecing eventually
-adt_obs = f"{os.getenv('COM_OBS')}/{RUN}.t{cyc}z.adt"
+com_obs = os.path.realpath(f"{os.getenv('COM_OBS')}")
+adt_obs = f"{com_obs}/{RUN}.t{cyc}z.adt"
 ufsda.soca_utils.concatenate_ioda(adt_obs, wildcard="*.nc4", output_suffix=f"_all.{PDY}{cyc}.nc4", clean=True)
 
 # get the list of observations
@@ -293,7 +296,7 @@ obs_list = []
 for obs_file in obs_files:
     logging.info(f"******* {obs_file}")
     obs_src = os.path.join(os.getenv('COM_OBS'), obs_file)
-    obs_dst = os.path.join(os.path.abspath(obs_in), obs_file)
+    obs_dst = os.path.join(os.path.realpath(obs_in), obs_file)
     if os.path.exists(obs_src):
         logging.info(f"******* fetching {obs_file}")
         obs_list.append([obs_src, obs_dst])
@@ -319,20 +322,21 @@ if dohybvar:
     for mem in range(1, nmem_ens+1):
         for domain in ['ocn', 'ice']:
             # TODO(Guillaume): make use and define ensemble COM in the j-job
+            ensroot = os.getenv('COM_OCEAN_HISTORY_PREV')
             ensdir = os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
                                   f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
                                   'model_data', longname[domain], 'history')
-            ensdir = os.path.normpath(ensdir)
+            ensdir_real = os.path.realpath(ensdir)
             f009 = f'enkfgdas.t{gcyc}z.{domain}f009.nc'
 
-            fname_in = os.path.abspath(os.path.join(ensdir, f009))
-            fname_out = os.path.abspath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
+            fname_in = os.path.abspath(os.path.join(ensdir_real, f009))
+            fname_out = os.path.realpath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
             ens_member_list.append([fname_in, fname_out])
     FileHandler({'copy': ens_member_list}).sync()
 
     # reformat the cice history output
     for mem in range(1, nmem_ens+1):
-        cice_fname = os.path.abspath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
+        cice_fname = os.path.realpath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
         cice_hist2fms(cice_fname, cice_fname)
 else:
     logging.info("---------------- Stage offline ensemble members")
@@ -357,8 +361,8 @@ logging.info(f"---------------- Generate JEDI yaml files")
 # copy yaml for grid generation
 
 logging.info(f"---------------- generate gridgen.yaml")
-gridgen_yaml_src = os.path.abspath(os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'))
-gridgen_yaml_dst = os.path.abspath(os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
+gridgen_yaml_src = os.path.realpath(os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'))
+gridgen_yaml_dst = os.path.realpath(os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
 FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
 
 ################################################################################
