@@ -49,7 +49,7 @@ def bufr_to_ioda(config, logger):
     
     # General Information
     converter = 'BUFR to IODA Converter'    
-    platform_description = 'ARGO profiles from subpfl: temperature and salinity'
+    platform_description = 'GLIDER profiles from subpfl: temperature and salinity'
     
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos",
@@ -118,54 +118,55 @@ def bufr_to_ioda(config, logger):
 
     # Add mask based on min, max values
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
-    temp      = temp[mask]
-    lat       = lat[mask]
-    lon       = lon[mask]
-    pressure  = pressure[mask]
-    stationID = stationID[mask]
+    temp         = temp[mask]
+    saln         = saln[mask]
+    lat          = lat[mask]
+    lon          = lon[mask]
+    pressure     = pressure[mask]
+    stationID    = stationID[mask]
+    dateTime     = dateTime[mask]
+    rcptdateTime = rcptdateTime[mask]
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
     
-
     #=================================================
-    # Separate ARGO profiles from subpfl tank
+    # Separate GLIDER profiles from subpfl tank
     #=================================================
-    logger.debug(f"Finding index for ARGO floats where the second number of the stationID=9...")
-    index_list=[]
-    for index, number in enumerate(stationID):
-      # Convert the number to a string
-      number_str = str(number)
+    logger.debug(f"Creating the mask for GLIDER floats based on station ID numbers ...")
 
-      # Check if the second character is equal to '9'
-      if number_str[1] == '9':
-        index_list.append(index)
-    logger.debug(f"Indexing Done...")
-    
-    # Apply index
-    stationID      = stationID[index_list]
-    lat            = lat[index_list]
-    lon            = lon[index_list]
-    pressure       = pressure[index_list]
-    temp           = temp[index_list]
-    saln           = saln[index_list]
-    seqNum         = seqNum[index_list]
-    dateTime       = dateTime[index_list]
-    rcptdateTime   = rcptdateTime[index_list]
+    mask_gldr = (stationID >= 68900) & (stationID <= 68999) | (stationID >= 1800000) & (stationID <= 1809999) \
+           | (stationID >= 2800000) & (stationID <= 2809999) | (stationID >= 3800000) & (stationID <= 3809999) \
+           | (stationID >= 4800000) & (stationID <= 4809999) | (stationID >= 5800000) & (stationID <= 5809999) \
+           | (stationID >= 6800000) & (stationID <= 6809999) | (stationID >= 7800000) & (stationID <= 7809999)
+
+    # Apply mask
+    stationID      = stationID[mask_gldr]
+    lat            = lat[mask_gldr]
+    lon            = lon[mask_gldr]
+    pressure       = pressure[mask_gldr]
+    temp           = temp[mask_gldr]
+    saln           = saln[mask_gldr]
+    seqNum         = seqNum[mask_gldr]
+    dateTime       = dateTime[mask_gldr]
+    rcptdateTime   = rcptdateTime[mask_gldr]
+
+    logger.debug(f"masking Done...")
 
     # ObsError
     logger.debug(f"Generating ObsError array with constant value (instrument error)...") 
-    ObsError_temp = np.float32( np.ma.masked_array(np.full((len(index_list)), 0.02)) )
-    ObsError_saln = np.float32( np.ma.masked_array(np.full((len(index_list)), 0.01)) )
+    ObsError_temp = np.float32( np.ma.masked_array(np.full((len(mask_gldr)), 0.02)) )
+    ObsError_saln = np.float32( np.ma.masked_array(np.full((len(mask_gldr)), 0.01)) )
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")    
-    PreQC         = ( np.ma.masked_array(np.full((len(index_list)), 0)) ).astype(np.int32)
+    PreQC         = ( np.ma.masked_array(np.full((len(mask_gldr)), 0)) ).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
     logger.debug(f" ... Executing QuerySet: Check BUFR variable generic \
                 dimension and type ...")
+
     #================================
     # Check values of BUFR variables, dimension and type
     #================================
@@ -200,7 +201,6 @@ def bufr_to_ioda(config, logger):
     if path and not os.path.exists(path):
         os.makedirs(path)
     
-#    logger.debug(f" ... ... Create output file ...', OUTPUT_PATH)
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
     # Create Global attributes
@@ -301,10 +301,10 @@ def bufr_to_ioda(config, logger):
 if __name__ == '__main__':
     
     start_time = time.time()
-    config = "bufr2ioda_subpfl_argo_profiles.json"
+    config = "bufr2ioda_subpfl_glider_profiles.json"
 
     log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger('bufr2ioda_subpfl_argo_profiles.py', level=log_level,
+    logger = Logger('bufr2ioda_subpfl_glider_profiles.py', level=log_level,
                     colored_log=True)
 
     with open(args.config, "r") as json_file:
