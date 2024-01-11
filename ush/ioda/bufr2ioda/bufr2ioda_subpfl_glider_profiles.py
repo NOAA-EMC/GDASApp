@@ -49,7 +49,7 @@ def bufr_to_ioda(config, logger):
 
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
- 
+
     # General Information
     converter = 'BUFR to IODA Converter'
     platform_description = 'GLIDER profiles from subpfl: temperature and salinity'
@@ -138,9 +138,9 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Creating the mask for GLIDER floats based on station ID numbers ...")
 
     mask_gldr = (stationID >= 68900) & (stationID <= 68999) | (stationID >= 1800000) & (stationID <= 1809999) \
-          | (stationID >= 2800000) & (stationID <= 2809999) | (stationID >= 3800000) & (stationID <= 3809999) \
-          | (stationID >= 4800000) & (stationID <= 4809999) | (stationID >= 5800000) & (stationID <= 5809999) \
-          | (stationID >= 6800000) & (stationID <= 6809999) | (stationID >= 7800000) & (stationID <= 7809999)
+              | (stationID >= 2800000) & (stationID <= 2809999) | (stationID >= 3800000) & (stationID <= 3809999) \
+              | (stationID >= 4800000) & (stationID <= 4809999) | (stationID >= 5800000) & (stationID <= 5809999) \
+              | (stationID >= 6800000) & (stationID <= 6809999) | (stationID >= 7800000) & (stationID <= 7809999)
 
     # Apply mask
     stationID = stationID[mask_gldr]

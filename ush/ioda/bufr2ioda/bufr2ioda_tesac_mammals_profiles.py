@@ -134,7 +134,7 @@ def bufr_to_ioda(config, logger):
     # Separate marine mammals from TESAC tank
     # =======================================
     logger.debug(f"Creating the mask for marine mammals from TESAC floats based on station ID ...")
- 
+
     alpha_mask = [item.isalpha() for item in stationID]
     indices_true = [index for index, value in enumerate(alpha_mask) if value]
 
@@ -262,7 +262,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'PreQC') \
         .write_data(PreQC)
 
-    # ObsError 
+    # ObsError
     obsspace.create_var('ObsError/waterTemperature', dtype=ObsError_temp.dtype, fillval=ObsError_temp.fill_value) \
         .write_attr('units', 'degC') \
         .write_attr('long_name', 'ObsError') \

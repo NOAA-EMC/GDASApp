@@ -129,7 +129,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
- 
+
     # ==================================
     # Separate TESAC profiles tesac tank
     # ==================================

@@ -49,7 +49,7 @@ def bufr_to_ioda(config, logger):
 
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
- 
+
     # General Information
     converter = 'BUFR to IODA Converter'
     platform_description = 'Surface obs from TRACKOB: temperature and salinity'
