@@ -18,8 +18,9 @@ from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
+
 def bufr_to_ioda(config, logger):
-        
+
     subsets = config["subsets"]
     logger.debug(f"Checking subsets = {subsets}")
 
@@ -98,7 +99,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f" ... Repalcing missed WGOSLID with local Sation ID ...")
     for i in range(len(sid)):
-        if(str(sid[i]) == "--"):
+        if (str(sid[i]) == "--"):
             sid[i] = sidl[i]
 
     logger.debug(f" ... Convering snow depth unit from m into mm ...")
@@ -120,8 +121,7 @@ def bufr_to_ioda(config, logger):
     # =====================================
    
     start_time = time.time()
-    logger.debug(f" ... executing IODA output ...")
-   
+    logger.debug(f" ... executing IODA output ...") 
     # Create the dimensions
     dims = {'Location': snod.shape[0]}
 
@@ -174,7 +174,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Station Identification') \
         .write_data(sid)
 
-    obsspace.create_var('ObsValue/totalSnowDepth',  dtype=snod.dtype,
+    obsspace.create_var('ObsValue/totalSnowDepth', dtype=snod.dtype,
                         dim_list=['Location'], fillval=snod.fill_value) \
         .write_attr('units', 'mm') \
         .write_attr('long_name', 'Total Snow Depth') \
@@ -189,7 +189,7 @@ def bufr_to_ioda(config, logger):
 
 
 if __name__ == '__main__':
- 
+
     start_time = time.time()
 
     parser = argparse.ArgumentParser()
@@ -209,7 +209,7 @@ if __name__ == '__main__':
         config = json.load(json_file)
 
     bufr_to_ioda(config, logger)
- 
+
     end_time = time.time()
     running_time = end_time - start_time
     logger.debug(f"Total running time: {running_time} seconds")
