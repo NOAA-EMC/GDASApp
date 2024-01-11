@@ -33,7 +33,7 @@ cdl2nc4 icec/AMSR2-SEAICE-NH_v2r2_GW1_s201804151014190_e201804151150170_c2018041
         ${project_source_dir}/test/soca/testdata/icec_amsr2_north_2.cdl
 cdl2nc4 icec/AMSR2-SEAICE-SH_v2r2_GW1_s201804150835180_e201804151014170_c201804151052280.nc \
         ${project_source_dir}/test/soca/testdata/icec_amsr2_south_1.cdl
-cdl2nc4 icec/AMSR2-SEAICE-NH_v2r2_GW1_s201804151014190_e201804151150170_c201804151309570.nc \
+cdl2nc4 icec/AMSR2-SEAICE-SH_v2r2_GW1_s201804151014190_e201804151150170_c201804151309570.nc \
         ${project_source_dir}/test/soca/testdata/icec_amsr2_south_2.cdl
 
 # Fake RADS ADT
