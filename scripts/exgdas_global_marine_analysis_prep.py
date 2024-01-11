@@ -225,7 +225,7 @@ def find_clim_ens(input_date):
 
 logging.info(f"---------------- Setup runtime environement")
 
-comin_obs = os.getenv('COMIN_OBS')  # R2D2 DB for now
+comin_obs = os.getenv('COMIN_OBS')
 anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
 if os.getenv('DOHYBVAR') == "YES":
@@ -267,11 +267,6 @@ envconfig = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
 stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'stage.yaml'))
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-
-# concatenate altimeters into one obs space
-# TODO (SAMG)temporary, move this into the obs procecing eventually
-adt_obs = f"{os.getenv('COM_OBS')}/{RUN}.t{cyc}z.adt"
-ufsda.soca_utils.concatenate_ioda(adt_obs, wildcard="*.nc4", output_suffix=f"_all.{PDY}{cyc}.nc4", clean=True)
 
 # get the list of observations
 obs_files = []
