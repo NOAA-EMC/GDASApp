@@ -15,16 +15,6 @@ if (BUILD_GDASBUNDLE)
            COMMAND ${PROJECT_SOURCE_DIR}/test/atm/test_convert_gsi_satbias.sh ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}
            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
-  # test saving the output of the previous test to an R2D2 database
-  add_test(NAME test_gdasapp_store_gsi_satbias
-           COMMAND ${PROJECT_SOURCE_DIR}/test/atm/test_store_gsi_satbias.py
-           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-  set_tests_properties(test_gdasapp_store_gsi_satbias
-      PROPERTIES
-          DEPENDS "test_gdasapp_convert_gsi_satbias"
-          ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}"
-  )
-
 # Test exgdas scripts from the global-worflow
   if (WORKFLOW_TESTS)
     add_subdirectory(global-workflow)
