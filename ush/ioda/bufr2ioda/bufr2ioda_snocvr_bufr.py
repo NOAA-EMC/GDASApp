@@ -119,9 +119,9 @@ def bufr_to_ioda(config, logger):
     # Create IODA ObsSpace
     # Write IODA output
     # =====================================
-   
+
     start_time = time.time()
-    logger.debug(f" ... executing IODA output ...") 
+    logger.debug(f" ... executing IODA output ...")
     # Create the dimensions
     dims = {'Location': snod.shape[0]}
 
