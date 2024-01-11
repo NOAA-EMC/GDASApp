@@ -51,7 +51,7 @@ def bufr_to_ioda(config, logger):
     hh = cycle[8:10]
 
     # General Information
-    converter = 'BUFR to IODA Converter' 
+    converter = 'BUFR to IODA Converter'
     platform_description = 'Surface obs from ALTKOB: temperature and salinity'
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"

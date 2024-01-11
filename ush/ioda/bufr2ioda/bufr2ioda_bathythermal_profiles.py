@@ -129,7 +129,7 @@ def bufr_to_ioda(config, logger):
 
     # ObsError
     logger.debug(f"Generating ObsError array with constant value (instrument error)...")
-    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(temp)), 0.24))
+    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(temp)), 0.24)))
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")
