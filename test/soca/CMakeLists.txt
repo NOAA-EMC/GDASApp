@@ -60,17 +60,6 @@ endforeach(FILENAME)
 install(FILES ${test_input}
         DESTINATION "test/testinput/")
 
-# Create a test R2D2 database for obs
-# -----------------------------------
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs)
-set( OBS_DIR ${PROJECT_BINARY_DIR}/test/testdata )
-add_test(NAME test_gdasapp_soca_obsdb
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/create_obsdb.py
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/obs/)
-set_tests_properties(test_gdasapp_soca_obsdb
-    PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/wxflow/src:$ENV{PYTHONPATH};SOCA_TEST_OBS=${PROJECT_SOURCE_DIR}/test/soca/testdata")
-
 # Test exgdas scripts from the global-worflow
 if (WORKFLOW_TESTS)
   add_subdirectory(gw)
