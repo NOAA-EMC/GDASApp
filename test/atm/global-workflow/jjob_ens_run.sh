@@ -37,11 +37,11 @@ export PYTHONPATH
 machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
 
 # Set NETCDF and UTILROOT variables (used in config.base)
-if [ $machine = 'HERA' ]; then
+if [[ $machine = 'HERA' ]]; then
     NETCDF=$( which ncdump )
     export NETCDF
     export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
-elif [ $machine = 'ORION' ]; then
+elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     ncdump=$( which ncdump )
     NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
     export NETCDF
@@ -49,10 +49,10 @@ elif [ $machine = 'ORION' ]; then
 fi
 
 # Execute j-job
-if [ $machine = 'HERA' ]; then
+if [[ $machine = 'HERA' ]]; then
     sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
-elif [ $machine = 'ORION' ]; then
-    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --partition=orion --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
+elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
+    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
 fi
