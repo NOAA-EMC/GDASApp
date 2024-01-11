@@ -99,7 +99,7 @@ if(BUILD_GDASBUNDLE)
     ecbuild_bundle( PROJECT icepack GIT "https://github.com/JCSDA-internal/Icepack.git" BRANCH feature/ecbuild-new )
   endif()
   ecbuild_bundle( PROJECT mom6 GIT "https://github.com/jcsda-internal/MOM6.git" BRANCH main-ecbuild RECURSIVE )
-  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" BRANCH feature/soca2cice-mpi )
+  ecbuild_bundle( PROJECT soca GIT "https://github.com/jcsda-internal/soca.git" BRANCH develop )
 
   # Build JEDI/DA or other peripherals
   ecbuild_bundle( PROJECT gdas-utils SOURCE "./utils" )
