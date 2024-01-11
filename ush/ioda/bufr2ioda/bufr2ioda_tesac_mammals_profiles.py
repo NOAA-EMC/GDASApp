@@ -134,7 +134,7 @@ def bufr_to_ioda(config, logger):
     # Separate marine mammals from TESAC tank
     # =======================================
     logger.debug(f"Creating the mask for marine mammals from TESAC floats based on station ID ...")
-   
+ 
     alpha_mask = [item.isalpha() for item in stationID]
     indices_true = [index for index, value in enumerate(alpha_mask) if value]
 
@@ -175,7 +175,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" ObsError_temp min, max, length, dtype = {ObsError_temp.min()}, {ObsError_temp.max()}, {len(ObsError_temp)}, {ObsError_temp.dtype}")
     logger.debug(f" ObsError_saln min, max, length, dtype = {ObsError_saln.min()}, {ObsError_saln.max()}, {len(ObsError_saln)}, {ObsError_saln.dtype}")
 
-    logger.debug(f" stationID                shape, dtype = {stationID.shape}, {stationID.astype(str).dtype}")    
+    logger.debug(f" stationID                shape, dtype = {stationID.shape}, {stationID.astype(str).dtype}")
     logger.debug(f" dateTime                 shape, dtype = {dateTime.shape}, {dateTime.dtype}")
     logger.debug(f" rcptdateTime             shape, dytpe = {rcptdateTime.shape}, {rcptdateTime.dtype}")
     logger.debug(f" sequence Num             shape, dtype = {seqNum.shape}, {seqNum.dtype}")
@@ -184,7 +184,7 @@ def bufr_to_ioda(config, logger):
     # Create IODA ObsSpace
     # Write IODA output
     # =====================================
-   
+
     # Create the dimensions
     dims = {'Location': np.arange(0, lat.shape[0])}
 
@@ -195,7 +195,7 @@ def bufr_to_ioda(config, logger):
     path, fname = os.path.split(OUTPUT_PATH)
     if path and not os.path.exists(path):
         os.makedirs(path)
-    
+
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
 
     # Create Global attributes
@@ -212,13 +212,13 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" ... ... Create variables: name, type, units, and attributes")
 
     # Datetime
-    obsspace.create_var('MetaData/dateTime',  dtype=dateTime.dtype, fillval=dateTime.fill_value) \
+    obsspace.create_var('MetaData/dateTime', dtype=dateTime.dtype, fillval=dateTime.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Datetime') \
         .write_data(dateTime)
 
     # rcptDatetime
-    obsspace.create_var('MetaData/rcptdateTime',  dtype=dateTime.dtype, fillval=dateTime.fill_value) \
+    obsspace.create_var('MetaData/rcptdateTime', dtype=dateTime.dtype, fillval=dateTime.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'receipt Datetime') \
         .write_data(rcptdateTime)
@@ -230,7 +230,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Longitude') \
         .write_data(lon)
 
-    # Latitude 
+    # Latitude
     obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \
         .write_attr('units', 'degrees_north') \
         .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
@@ -238,22 +238,22 @@ def bufr_to_ioda(config, logger):
         .write_data(lat)
 
     # Station Identification
-    obsspace.create_var('MetaData/stationID',  dtype=stationID.dtype, fillval=stationID.fill_value) \
+    obsspace.create_var('MetaData/stationID', dtype=stationID.dtype, fillval=stationID.fill_value) \
         .write_attr('long_name', 'Station Identification') \
         .write_data(stationID)
 
     # Depth
-    obsspace.create_var('MetaData/depth',  dtype=depth.dtype, fillval=depth.fill_value) \
+    obsspace.create_var('MetaData/depth', dtype=depth.dtype, fillval=depth.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Water depth') \
         .write_data(depth)
 
     # Sequence Number
-    obsspace.create_var('MetaData/sequenceNumber',  dtype=PreQC.dtype, fillval=PreQC.fill_value) \
+    obsspace.create_var('MetaData/sequenceNumber', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
         .write_attr('long_name', 'Sequence Number') \
         .write_data(seqNum)
 
-    # PreQC 
+    # PreQC
     obsspace.create_var('PreQC/waterTemperature', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
         .write_attr('long_name', 'PreQC') \
         .write_data(PreQC)

@@ -49,11 +49,11 @@ def bufr_to_ioda(config, logger):
 
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
-    
+ 
     # General Information
-    converter = 'BUFR to IODA Converter'    
+    converter = 'BUFR to IODA Converter'
     platform_description = 'GLIDER profiles from subpfl: temperature and salinity'
-    
+
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
     logger.debug(f"{bufrfile}, {DATA_PATH}")
@@ -114,9 +114,9 @@ def bufr_to_ioda(config, logger):
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
-    temp = r.get('temp',group_by='pressure')
+    temp = r.get('temp', group_by='pressure')
     temp -= 273.15
-    saln = r.get('saln',group_by='pressure')
+    saln = r.get('saln', group_by='pressure')
 
     # Add mask based on min, max values
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
@@ -138,9 +138,9 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Creating the mask for GLIDER floats based on station ID numbers ...")
 
     mask_gldr = (stationID >= 68900) & (stationID <= 68999) | (stationID >= 1800000) & (stationID <= 1809999) \
-           | (stationID >= 2800000) & (stationID <= 2809999) | (stationID >= 3800000) & (stationID <= 3809999) \
-           | (stationID >= 4800000) & (stationID <= 4809999) | (stationID >= 5800000) & (stationID <= 5809999) \
-           | (stationID >= 6800000) & (stationID <= 6809999) | (stationID >= 7800000) & (stationID <= 7809999)
+          | (stationID >= 2800000) & (stationID <= 2809999) | (stationID >= 3800000) & (stationID <= 3809999) \
+          | (stationID >= 4800000) & (stationID <= 4809999) | (stationID >= 5800000) & (stationID <= 5809999) \
+          | (stationID >= 6800000) & (stationID <= 6809999) | (stationID >= 7800000) & (stationID <= 7809999)
 
     # Apply mask
     stationID = stationID[mask_gldr]
@@ -161,7 +161,7 @@ def bufr_to_ioda(config, logger):
     ObsError_saln = np.float32(np.ma.masked_array(np.full((len(mask_gldr)), 0.01)))
 
     # PreQC
-    logger.debug(f"Generating PreQC array with 0...")    
+    logger.debug(f"Generating PreQC array with 0...")
     PreQC = (np.ma.masked_array(np.full((len(mask_gldr)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
@@ -180,7 +180,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" PreQC         min, max, length, dtype = {PreQC.min()}, {PreQC.max()}, {len(PreQC)}, {PreQC.dtype}")
     logger.debug(f" ObsError_temp min, max, length, dtype = {ObsError_temp.min()}, {ObsError_temp.max()}, {len(ObsError_temp)}, {ObsError_temp.dtype}")
     logger.debug(f" ObsError_saln min, max, length, dtype = {ObsError_saln.min()}, {ObsError_saln.max()}, {len(ObsError_saln)}, {ObsError_saln.dtype}")
-    logger.debug(f" stationID                shape, dtype = {stationID.shape}, {stationID.astype(str).dtype}")    
+    logger.debug(f" stationID                shape, dtype = {stationID.shape}, {stationID.astype(str).dtype}")
     logger.debug(f" dateTime                 shape, dtype = {dateTime.shape}, {dateTime.dtype}")
     logger.debug(f" rcptdateTime             shape, dytpe = {rcptdateTime.shape}, {rcptdateTime.dtype}")
     logger.debug(f" sequence Num             shape, dtype = {seqNum.shape}, {seqNum.dtype}")
@@ -189,7 +189,7 @@ def bufr_to_ioda(config, logger):
     # Create IODA ObsSpace
     # Write IODA output
     # =====================================
-   
+
     # Create the dimensions
     dims = {'Location': np.arange(0, lat.shape[0])}
 
@@ -217,13 +217,13 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" ... ... Create variables: name, type, units, and attributes")
 
     # Datetime
-    obsspace.create_var('MetaData/dateTime',  dtype=dateTime.dtype, fillval=dateTime.fill_value) \
+    obsspace.create_var('MetaData/dateTime', dtype=dateTime.dtype, fillval=dateTime.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'Datetime') \
         .write_data(dateTime)
 
     # rcptDatetime
-    obsspace.create_var('MetaData/rcptdateTime',  dtype=dateTime.dtype, fillval=dateTime.fill_value) \
+    obsspace.create_var('MetaData/rcptdateTime', dtype=dateTime.dtype, fillval=dateTime.fill_value) \
         .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
         .write_attr('long_name', 'receipt Datetime') \
         .write_data(rcptdateTime)
@@ -235,7 +235,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Longitude') \
         .write_data(lon)
 
-    # Latitude 
+    # Latitude
     obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \
         .write_attr('units', 'degrees_north') \
         .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
@@ -243,22 +243,22 @@ def bufr_to_ioda(config, logger):
         .write_data(lat)
 
     # Station Identification
-    obsspace.create_var('MetaData/stationID',  dtype=stationID.dtype, fillval=stationID.fill_value) \
+    obsspace.create_var('MetaData/stationID', dtype=stationID.dtype, fillval=stationID.fill_value) \
         .write_attr('long_name', 'Station Identification') \
         .write_data(stationID)
 
     # Depth
-    obsspace.create_var('MetaData/depth',  dtype=pressure.dtype, fillval=pressure.fill_value) \
+    obsspace.create_var('MetaData/depth', dtype=pressure.dtype, fillval=pressure.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Water depth') \
         .write_data(pressure)
 
     # Sequence Number
-    obsspace.create_var('MetaData/sequenceNumber',  dtype=PreQC.dtype, fillval=PreQC.fill_value) \
+    obsspace.create_var('MetaData/sequenceNumber', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
         .write_attr('long_name', 'Sequence Number') \
         .write_data(seqNum)
 
-    # PreQC 
+    # PreQC
     obsspace.create_var('PreQC/waterTemperature', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
         .write_attr('long_name', 'PreQC') \
         .write_data(PreQC)
@@ -267,7 +267,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'PreQC') \
         .write_data(PreQC)
 
-    # ObsError 
+    # ObsError
     obsspace.create_var('ObsError/waterTemperature', dtype=ObsError_temp.dtype, fillval=ObsError_temp.fill_value) \
         .write_attr('units', 'degC') \
         .write_attr('long_name', 'ObsError') \

@@ -51,9 +51,9 @@ def bufr_to_ioda(config, logger):
     hh = cycle[8:10]
 
     # General Information
-    converter = 'BUFR to IODA Converter'    
+    converter = 'BUFR to IODA Converter' 
     platform_description = 'Surface obs from ALTKOB: temperature and salinity'
-    
+
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
     logger.debug(f"{bufrfile}, {DATA_PATH}")
@@ -128,7 +128,7 @@ def bufr_to_ioda(config, logger):
     ObsError_saln = np.float32(np.ma.masked_array(np.full((len(mask)), 1.00)))
 
     # PreQC
-    logger.debug(f"Generating PreQC array with 0...")    
+    logger.debug(f"Generating PreQC array with 0...")
     PreQC = (np.ma.masked_array(np.full((len(mask)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
@@ -155,7 +155,7 @@ def bufr_to_ioda(config, logger):
     # Create IODA ObsSpace
     # Write IODA output
     # =====================================
-   
+
     # Create the dimensions
     dims = {'Location': np.arange(0, lat.shape[0])}
 
@@ -201,7 +201,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Longitude') \
         .write_data(lon)
 
-    # Latitude 
+    # Latitude
     obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \
         .write_attr('units', 'degrees_north') \
         .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
@@ -213,7 +213,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Station Identification') \
         .write_data(stationID)
 
-    # PreQC 
+    # PreQC
     obsspace.create_var('PreQC/seaSurfaceTemperature', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
         .write_attr('long_name', 'PreQC') \
         .write_data(PreQC)
@@ -222,7 +222,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'PreQC') \
         .write_data(PreQC)
 
-    # ObsError 
+    # ObsError
     obsspace.create_var('ObsError/seaSurfaceTemperature', dtype=ObsError_temp.dtype, fillval=ObsError_temp.fill_value) \
         .write_attr('units', 'degC') \
         .write_attr('long_name', 'ObsError') \
@@ -255,7 +255,7 @@ def bufr_to_ioda(config, logger):
 
 
 if __name__ == '__main__':
-    
+
     start_time = time.time()
     config = "bufr2ioda_trackob_surface.json"
 

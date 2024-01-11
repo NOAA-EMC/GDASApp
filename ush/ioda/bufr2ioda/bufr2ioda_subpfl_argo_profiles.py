@@ -49,11 +49,11 @@ def bufr_to_ioda(config, logger):
 
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
-    
+ 
     # General Information
-    converter = 'BUFR to IODA Converter'    
+    converter = 'BUFR to IODA Converter'
     platform_description = 'ARGO profiles from subpfl: temperature and salinity'
-    
+
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
     logger.debug(f"{bufrfile}, {DATA_PATH}")
@@ -64,7 +64,7 @@ def bufr_to_ioda(config, logger):
     start_time = time.time()
 
     logger.debug(f"Making QuerySet ...")
-    q = bufr.QuerySet() #(subsets)
+    q = bufr.QuerySet()
 
     # MetaData
     q.add('year', '*/YEAR')
@@ -133,14 +133,14 @@ def bufr_to_ioda(config, logger):
     # Separate ARGO profiles from subpfl tank
     # =======================================
     logger.debug(f"Finding index for ARGO floats where the second number of the stationID=9...")
-    index_list=[]
+    index_list = []
     for index, number in enumerate(stationID):
-      # Convert the number to a string
-      number_str = str(number)
+        # Convert the number to a string
+        number_str = str(number)
 
-      # Check if the second character is equal to '9'
-      if number_str[1] == '9':
-        index_list.append(index)
+        # Check if the second character is equal to '9'
+        if number_str[1] == '9':
+            index_list.append(index)
     logger.debug(f"Indexing Done...")
 
     # Apply index
@@ -156,7 +156,7 @@ def bufr_to_ioda(config, logger):
 
     # ObsError
     logger.debug(f"Generating ObsError array with constant value (instrument error)...")
-    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(index_list)), 0.02))) 
+    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(index_list)), 0.02)))
     ObsError_saln = np.float32(np.ma.masked_array(np.full((len(index_list)), 0.01)))
 
     # PreQC
@@ -189,7 +189,7 @@ def bufr_to_ioda(config, logger):
     # Create IODA ObsSpace
     # Write IODA output
     # =====================================
-   
+
     # Create the dimensions
     dims = {'Location': np.arange(0, lat.shape[0])}
 
@@ -235,7 +235,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Longitude') \
         .write_data(lon)
 
-    # Latitude 
+    # Latitude
     obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \
         .write_attr('units', 'degrees_north') \
         .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \

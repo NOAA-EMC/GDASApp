@@ -48,11 +48,11 @@ def bufr_to_ioda(config, logger):
 
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
-    
+
     # General Information
-    converter = 'BUFR to IODA Converter'    
+    converter = 'BUFR to IODA Converter'
     platform_description = 'Profiles from BATHYthermal: temperature'
-    
+
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
     logger.debug(f"{bufrfile}, {DATA_PATH}")
@@ -128,12 +128,12 @@ def bufr_to_ioda(config, logger):
     seqNum = Compute_sequenceNumber(lon)
 
     # ObsError
-    logger.debug(f"Generating ObsError array with constant value (instrument error)...") 
-    ObsError_temp = np.float32( np.ma.masked_array(np.full((len(temp)), 0.24)) )
+    logger.debug(f"Generating ObsError array with constant value (instrument error)...")
+    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(temp)), 0.24))
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")
-    PreQC = ( np.ma.masked_array(np.full((len(temp)), 0)) ).astype(np.int32)
+    PreQC = (np.ma.masked_array(np.full((len(temp)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -159,7 +159,7 @@ def bufr_to_ioda(config, logger):
     # Create IODA ObsSpace
     # Write IODA output
     # =====================================
-   
+
     # Create the dimensions
     dims = {'Location': np.arange(0, lat.shape[0])}
 
@@ -205,7 +205,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Longitude') \
         .write_data(lon)
 
-    # Latitude 
+    # Latitude
     obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \
         .write_attr('units', 'degrees_north') \
         .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
@@ -228,7 +228,7 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Sequence Number') \
         .write_data(seqNum)
 
-    # PreQC 
+    # PreQC
     obsspace.create_var('PreQC/waterTemperature', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
         .write_attr('long_name', 'PreQC') \
         .write_data(PreQC)
@@ -249,7 +249,7 @@ def bufr_to_ioda(config, logger):
 
 
 if __name__ == '__main__':
-    
+
     start_time = time.time()
     config = "bufr2ioda_bathythermal_profiles.json"
 
