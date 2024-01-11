@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# (C) Copyright 2023 NOAA/NWS/NCEP/EMC
+# (C) Copyright 2024 NOAA/NWS/NCEP/EMC
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -24,7 +24,7 @@ from wxflow import Logger
 def Compute_sequenceNumber(lon):
 
     lon_u, seqNum = np.unique(lon, return_inverse=True)
-    seqNum = seqNum.astype(np.int64)
+    seqNum = seqNum.astype(np.int32)
     logger.debug(f"Len of Sequence Number: {len(seqNum)}")
 
     return seqNum
@@ -257,13 +257,13 @@ def bufr_to_ioda(config, logger):
     obsspace.create_var('ObsValue/waterTemperature', dtype=temp.dtype, fillval=temp.fill_value) \
         .write_attr('units', 'degC') \
         .write_attr('valid_range', np.array([-10.0, 50.0], dtype=np.float32)) \
-        .write_attr('long_name', 'Temperature below surface') \
+        .write_attr('long_name', 'water Temperature') \
         .write_data(temp)
 
     obsspace.create_var('ObsValue/salinity', dtype=saln.dtype, fillval=saln.fill_value) \
         .write_attr('units', 'psu') \
         .write_attr('valid_range', np.array([0.0, 45.0], dtype=np.float32)) \
-        .write_attr('long_name', 'Salinity below surface') \
+        .write_attr('long_name', 'salinity') \
         .write_data(saln)
 
     end_time = time.time()

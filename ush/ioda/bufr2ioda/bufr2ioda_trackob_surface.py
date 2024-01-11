@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# (C) Copyright 2023 NOAA/NWS/NCEP/EMC
+# (C) Copyright 2024 NOAA/NWS/NCEP/EMC
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -24,7 +24,7 @@ from wxflow import Logger
 def Compute_sequenceNumber(lon):
 
     lon_u, seqNum = np.unique(lon, return_inverse=True)
-    seqNum = seqNum.astype(np.int64)
+    seqNum = seqNum.astype(np.int32)
     logger.debug(f"Len of Sequence Number: {len(seqNum)}")
 
     return seqNum
