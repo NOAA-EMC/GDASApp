@@ -374,6 +374,33 @@ locscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setlocscales.yam
 FileHandler({'copy': [[locscales_yaml_src, locscales_yaml_dst]]}).sync()
 
 ################################################################################
+# copy yaml for correlation length scales
+
+logging.info(f"---------------- generate soca_setcorscales.yaml")
+corscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setcorscales.yaml')
+corscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml')
+FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
+
+################################################################################
+# copy yaml for diffusion initialization
+
+logging.info(f"---------------- generate soca_parameters_diffusion_hz.yaml")
+diffu_hz_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_hz.yaml')
+diffu_hz_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
+diffu_hz_yaml_template = os.path.join(berror_yaml_dir, 'soca_parameters_diffusion_hz.yaml')
+config = YAMLFile(path=diffu_hz_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config.save(diffu_hz_yaml)
+
+logging.info(f"---------------- generate soca_parameters_diffusion_vt.yaml")
+diffu_vt_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_vt.yaml')
+diffu_vt_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
+diffu_vt_yaml_template = os.path.join(berror_yaml_dir, 'soca_parameters_diffusion_vt.yaml')
+config = YAMLFile(path=diffu_vt_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config.save(diffu_vt_yaml)
+
+################################################################################
 # generate yaml for bump/nicas (used for correlation and/or localization)
 
 logging.info(f"---------------- generate BUMP/NICAS localization yamls")
