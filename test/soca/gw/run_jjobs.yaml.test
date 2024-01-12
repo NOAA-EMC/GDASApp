@@ -1,6 +1,6 @@
 machine: @MACHINE@
-resdet: 48
-resens: 48
+resdetatmos: 48
+resensatmos: 48
 
 jjobs:
  - @JJOB@
