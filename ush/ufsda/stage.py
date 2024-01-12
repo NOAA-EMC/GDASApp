@@ -12,7 +12,6 @@ import logging
 import glob
 import numpy as np
 from wxflow import YAMLFile, parse_yaml, parse_j2yaml
-import ufsda.soca_utils
 
 __all__ = ['atm_background', 'atm_obs', 'bias_obs', 'background', 'background_ens', 'fv3jedi', 'obs', 'berror', 'gdas_fix', 'gdas_single_cycle']
 
