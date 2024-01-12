@@ -56,7 +56,7 @@ setup_expt config:
   prepoceanobs:
     SOCA_OBS_LIST: @HOMEgfs@/sorc/gdas.cd/parm/soca/obs/obs_list.yaml
     OBSPROC_CONFIG: @HOMEgfs@/sorc/gdas.cd/parm/soca/obsproc/obsproc_config.yaml
-    DMPDIR: @HOMEgfs@/sorc/gdas.cd/build/test/soca/gw/obsproc
+    DMPDIR: @HOMEgfs@/sorc/gdas.cd/build/gdas/test/soca/gw/obsproc
 
 job options:
   account: da-cpu
