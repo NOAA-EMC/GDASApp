@@ -75,7 +75,7 @@ if(BUILD_GDASBUNDLE)
 
 # Core JEDI repositories
   ecbuild_bundle( PROJECT oops  GIT "https://github.com/jcsda/oops.git"  TAG 60f9392)
-  ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG 8dd0ae6 )
+  ecbuild_bundle( PROJECT vader GIT "https://github.com/jcsda/vader.git" TAG 2baeb8d )
   ecbuild_bundle( PROJECT saber GIT "https://github.com/jcsda/saber.git" TAG 4f1956c )
   option(ENABLE_IODA_DATA "Obtain ioda test data from ioda-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT ioda  GIT "https://github.com/jcsda/ioda.git" TAG f395e1d  )
