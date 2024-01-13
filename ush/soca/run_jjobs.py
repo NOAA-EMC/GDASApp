@@ -213,7 +213,8 @@ class JobCard:
             print(f"Probably does not work for {machine} yet")
 
         # swap a few variables in config.base
-        var2replace = {'HOMEgfs': self.homegfs,
+        self.homegfs_real = os.path.realpath(self.homegfs)
+        var2replace = {'HOMEgfs': self.homegfs_real,
                        'STMP': self.stmp,
                        'ROTDIR': self.rotdir,
                        'EXPDIRS': self.expdirs}
