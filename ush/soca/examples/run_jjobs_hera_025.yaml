@@ -1,5 +1,5 @@
 machine: hera
-resdet: 48
+resdetatmos: 48
 
 jjobs:
  - JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP
