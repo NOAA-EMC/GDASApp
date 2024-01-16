@@ -32,6 +32,6 @@ background error:
       - name: ice
         horizontal:
           as gaussian: true
-          fixed value: 200000.0
+          fixed value: 50000.0
         write:
           filename: hz_ice.nc
