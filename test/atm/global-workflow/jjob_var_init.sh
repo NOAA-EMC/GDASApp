@@ -5,7 +5,8 @@ bindir=$1
 srcdir=$2
 
 # Set g-w HOMEgfs
-export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
+topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
+export HOMEgfs=$topdir
 
 # Set variables for ctest
 export PSLOT=gdas_test
@@ -30,7 +31,7 @@ source "${HOMEgfs}/ush/preamble.sh"
 source "${HOMEgfs}/parm/config/gfs/config.com"
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow/src"
+wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
