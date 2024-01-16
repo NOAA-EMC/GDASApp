@@ -26,9 +26,9 @@ from soca_vrfy import statePlotter, plotConfig
 import subprocess
 from datetime import datetime, timedelta
 
-comout = os.getenv('COM_OCEAN_ANALYSIS')
-com_ice_history = os.getenv('COM_ICE_HISTORY_PREV')
-com_ocean_history = os.getenv('COM_OCEAN_HISTORY_PREV')
+comout = os.path.realpath(os.getenv('COM_OCEAN_ANALYSIS'))
+com_ice_history = os.path.realpath(os.getenv('COM_ICE_HISTORY_PREV'))
+com_ocean_history = os.path.realpath(os.getenv('COM_OCEAN_HISTORY_PREV'))
 cyc = os.getenv('cyc')
 RUN = os.getenv('RUN')
 gcyc = str((int(cyc) - 6) % 24).zfill(2)
