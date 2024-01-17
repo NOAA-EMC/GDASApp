@@ -30,8 +30,13 @@ OBS_YAML = os.getenv('OBS_YAML')
 # present in OBS_YAML_DIR
 obsConfig = YAMLFile(OBS_YAML)
 
-OBSPROC_YAML = os.getenv('OBSPROC_YAML')
-obsprocConfig = YAMLFile(OBSPROC_YAML)
+OBSPREP_YAML = os.getenv('OBSPREP_YAML')
+
+if os.path.exists(OBSPREP_YAML):
+    obsprepConfig = YAMLFile(OBSPREP_YAML)
+else:
+    print(f"CRITICAL: OBSPREP_YAML file {OBSPREP_YAML} does not exist")
+    raise FileNotFoundError
 
 filesToSave = []
 
@@ -48,41 +53,41 @@ try:
             print("WARNING: Ill-formed observer yaml file, skipping")
             continue  # to next observer
 
-# ...look through the observations in OBSPROC_YAML...
-        for observation in obsprocConfig['observations']:
+# ...look through the observations in OBSPREP_YAML...
+        for observation in obsprepConfig['observations']:
 
-            obsprocSpace = observation['obs space']
-            obsprocSpaceName = obsprocSpace['name']
+            obsprepSpace = observation['obs space']
+            obsprepSpaceName = obsprepSpace['name']
 
 # ...for a matching name, and process the observation source
-            if obsprocSpaceName == obsSpaceName:
+            if obsprepSpaceName == obsSpaceName:
 
-                print(f"obsprocSpaceName: {obsSpaceName}")
+                print(f"obsprepSpaceName: {obsSpaceName}")
 
                 # fetch the obs files from DMPDIR to RUNDIR
-                matchingFiles = prep_marine_obs.obs_fetch(obsprocSpace)
+                matchingFiles = prep_marine_obs.obs_fetch(obsprepSpace)
 
                 if not matchingFiles:
                     print("WARNING: No files found for obs source , skipping")
                     break  # to next observation source in OBS_YAML
 
-                obsprocSpace['input files'] = matchingFiles
-                obsprocSpace['window begin'] = windowBegin
-                obsprocSpace['window end'] = windowEnd
+                obsprepSpace['input files'] = matchingFiles
+                obsprepSpace['window begin'] = windowBegin
+                obsprepSpace['window end'] = windowEnd
                 outputFilename = f"gdas.t{cyc}z.{obsSpaceName}.{PDY}{cyc}.nc4"
-                obsprocSpace['output file'] = outputFilename
+                obsprepSpace['output file'] = outputFilename
 
-                iodaYamlFilename = obsprocSpaceName + '2ioda.yaml'
-                save_as_yaml(obsprocSpace, iodaYamlFilename)
+                iodaYamlFilename = obsprepSpaceName + '2ioda.yaml'
+                save_as_yaml(obsprepSpace, iodaYamlFilename)
 
                 subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
 
-                filesToSave.append([obsprocSpace['output file'],
-                                    os.path.join(COMOUT_OBS, obsprocSpace['output file'])])
+                filesToSave.append([obsprepSpace['output file'],
+                                    os.path.join(COMOUT_OBS, obsprepSpace['output file'])])
                 filesToSave.append([iodaYamlFilename,
                                     os.path.join(COMOUT_OBS, iodaYamlFilename)])
 except TypeError:
-    print("CRITICAL: Ill-formed OBS_YAML file, exiting")
+    print("CRITICAL: Ill-formed OBS_YAML or OBSPREP_YAML file, exiting")
     raise
 
 if not os.path.exists(COMOUT_OBS):
