@@ -10,16 +10,16 @@ edate=2021032318
 app=ATMA
 starttype='warm'
 gfscyc='4'
-resdet='48'
-resens='48'
+resdetatmos='48'
+resensatmos='48'
 nens=0
 pslot='gdas_test'
 configdir=$srcdir/../../parm/config/gfs
-comrot=$bindir/test/aero/global-workflow/testrun/ROTDIRS
+comroot=$bindir/test/aero/global-workflow/testrun/ROTDIRS
 expdir=$bindir/test/aero/global-workflow/testrun/experiments
 
 # clean previous experiment
-rm -rf $comrot $expdir config
+rm -rf $comroot $expdir config
 
 # copy config.yaml to local config
 cp -r $configdir config
@@ -41,12 +41,12 @@ $srcdir/../../workflow/setup_expt.py gfs cycled --idate $idate  \
                        --app $app \
                        --start $starttype \
                        --gfs_cyc $gfscyc \
-                       --resdet $resdet \
-                       --resens $resens \
+                       --resdetatmos $resdetatmos \
+                       --resensatmos $resensatmos \
                        --nens $nens \
                        --pslot $pslot \
                        --configdir $expdir/../config \
-                       --comrot $comrot \
+                       --comroot $comroot \
                        --expdir $expdir \
                        --yaml $expdir/../config.yaml
 

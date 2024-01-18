@@ -2,6 +2,7 @@ provider: SMAP
 window begin: 2018-04-15T06:00:00Z
 window end: 2018-04-15T12:00:00Z
 output file: sss_smap.ioda.nc
+#ocean basin: RECCAP2_region_masks_all_v20221025.nc
 input files:
 - sss_smap_1.nc4
 - sss_smap_2.nc4
