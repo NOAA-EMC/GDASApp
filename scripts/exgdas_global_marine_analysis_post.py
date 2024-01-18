@@ -23,7 +23,9 @@ import glob
 import shutil
 import logging
 from datetime import datetime, timedelta
-from wxflow import FileHandler
+from wxflow import FileHandler, Logger
+
+logger = Logger()
 
 
 # TODO: Move this somewhere else?
@@ -35,9 +37,7 @@ def list_all_files(dir_in, dir_out, wc='*', fh_list=[]):
     return fh_list
 
 
-# set up logger
-logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
-logging.info(f"---------------- Copy from RUNDIR to COMOUT")
+logger.info(f"---------------- Copy from RUNDIR to COMOUT")
 
 com_ocean_analysis = os.getenv('COM_OCEAN_ANALYSIS')
 com_ice_restart = os.getenv('COM_ICE_RESTART')
