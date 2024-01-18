@@ -33,7 +33,7 @@ cost function:
   observations: !INC ${OBS_LIST}
 variational:
   minimizer:
-    algorithm: DRIPCG
+    algorithm: DRPCG
   iterations:
   - ninner: 2
     gradient norm reduction: 1e-10
@@ -74,9 +74,10 @@ final:
     departures: anlmob
   increment:
     output:
-      filetype: auxgrid
-      gridtype: gaussian
-      filename: ./anl/atminc.
+      state component:
+        filetype: auxgrid
+        gridtype: gaussian
+        filename: ./anl/atminc.
     geometry:
       fms initialization:
         namelist filename: ./fv3jedi/fmsmpp.nml

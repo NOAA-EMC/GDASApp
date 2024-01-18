@@ -1,24 +1,34 @@
 covariance model: hybrid
 components:
 - covariance:
+    # This will setup B = K D C_v C_h C_h^{T} C_v^{T} D K^{T}
     covariance model: SABER
     saber central block:
-      saber block name: ID
-    # This will setup B = K D C_v C_h C_h^{T} C_v^{T} D K^{T}
+      saber block name: EXPLICIT_DIFFUSION
+      active variables: [tocn, socn, ssh]
+      geometry:
+        mom6_input_nml: mom_input.nml
+        fields metadata: ./fields_metadata.yaml
+      group mapping:
+      - name: ocean
+        variables: [tocn, socn, socn, ssh]
+      - name: ice
+        variables: [cicen]
+      read:
+        groups:
+        - name: ocean
+          horizontal:
+            filename: hz_ocean.nc
+          vertical:
+            filename: vt_ocean.nc
+        - name: ice
+          horizontal:
+            filename: hz_ice.nc
+
     linear variable change:
       input variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
       output variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
       linear variable changes:
-
-      - linear variable change name: HorizFiltSOCA
-        niter: 5
-        filter variables: [cicen, socn, tocn, ssh]
-
-      - linear variable change name: VertConvSOCA
-        Lz_min: 10.0
-        Lz_mld: 0
-        Lz_mld_max: 1.0
-        scale_layer_thick: 5
 
       - linear variable change name: BkgErrFILT
         ocean_depth_min: 500 # [m]

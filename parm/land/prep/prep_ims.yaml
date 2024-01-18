@@ -6,5 +6,5 @@ calcfims:
     - [$(COM_OBS)/$(OPREFIX)IMS4km_to_FV3_mapping.$(CASE)_oro_data.nc, $(DATA)/obs/IMS4km_to_FV3_mapping.$(CASE)_oro_data.nc]
 ims2ioda:
   copy:
-    - [$(DATA)/ims_snow_{{ current_cycle | to_YMDH }}.nc4, $(COM_OBS)/$(OPREFIX)ims_snow.nc4]
+    - [$(DATA)/ims_snow_{{ current_cycle | to_YMDH }}.nc4, $(DATA)/obs/$(OPREFIX)ims_snow.nc4]
 

@@ -9,3 +9,9 @@ input files:
 thinning:
   threshold: 0
 channel: 4
+
+test: 
+  reference filename: testref/viirsaod2ioda.test
+  test output filename: testoutput/viirsaod2ioda.test
+  float relative tolerance: 1e-6
+

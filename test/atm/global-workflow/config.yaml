@@ -1,4 +1,5 @@
 base:
+  HOMEgfs: "@topdir@"
   DO_JEDIATMVAR: "YES"
   DO_JEDIATMENS: "YES"
   DATAPATH: "@bindir@/test/atm/global-workflow/testrun"
