@@ -52,7 +52,7 @@ def bufr_to_ioda(config, logger):
 
     # General Information
     converter = 'BUFR to IODA Converter'
-    platform_description = 'ARGO profiles from subpfl: temperature and salinity'
+    platform_description = 'Profiles from TESAC: temperature and salinity'
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
@@ -77,14 +77,14 @@ def bufr_to_ioda(config, logger):
     q.add('rday', '*/RCDY')
     q.add('rhour', '*/RCHR')
     q.add('rminute', '*/RCMI')
-    q.add('stationID', '*/WMOP')
-    q.add('latitude', '*/CLATH')
-    q.add('longitude', '*/CLONH')
-    q.add('depth', '*/GLPFDATA/WPRES')
+    q.add('stationID', '*/RPID')
+    q.add('latitude', '*/CLAT')
+    q.add('longitude', '*/CLON')
+    q.add('depth', '*/BTOCN/DBSS')
 
     # ObsValue
-    q.add('temp', '*/GLPFDATA/SSTH')
-    q.add('saln', '*/GLPFDATA/SALNH')
+    q.add('temp', '*/BTOCN/STMP')
+    q.add('saln', '*/BTOCN/SALN')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -109,8 +109,6 @@ def bufr_to_ioda(config, logger):
     lat = r.get('latitude', group_by='depth')
     lon = r.get('longitude', group_by='depth')
     depth = r.get('depth', group_by='depth')
-    # convert depth in pressure units to meters (rho * g * h)
-    depth = np.float32(depth.astype(float) * 0.0001)
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
@@ -120,48 +118,45 @@ def bufr_to_ioda(config, logger):
 
     # Add mask based on min, max values
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
-    temp = temp[mask]
     lat = lat[mask]
     lon = lon[mask]
     depth = depth[mask]
     stationID = stationID[mask]
+    dateTime = dateTime[mask]
+    rcptdateTime = rcptdateTime[mask]
+    temp = temp[mask]
+    saln = saln[mask]
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
 
     # =======================================
-    # Separate ARGO profiles from subpfl tank
+    # Separate marine mammals from TESAC tank
     # =======================================
-    logger.debug(f"Finding index for ARGO floats where the second number of the stationID=9...")
-    index_list = []
-    for index, number in enumerate(stationID):
-        # Convert the number to a string
-        number_str = str(number)
+    logger.debug(f"Creating the mask for marine mammals from TESAC floats based on station ID ...")
 
-        # Check if the second character is equal to '9'
-        if number_str[1] == '9':
-            index_list.append(index)
-    logger.debug(f"Indexing Done...")
+    alpha_mask = [item.isalpha() for item in stationID]
+    indices_true = [index for index, value in enumerate(alpha_mask) if value]
 
     # Apply index
-    stationID = stationID[index_list]
-    lat = lat[index_list]
-    lon = lon[index_list]
-    depth = depth[index_list]
-    temp = temp[index_list]
-    saln = saln[index_list]
-    seqNum = seqNum[index_list]
-    dateTime = dateTime[index_list]
-    rcptdateTime = rcptdateTime[index_list]
+    stationID = stationID[indices_true]
+    lat = lat[indices_true]
+    lon = lon[indices_true]
+    depth = depth[indices_true]
+    temp = temp[indices_true]
+    saln = saln[indices_true]
+    seqNum = seqNum[indices_true]
+    dateTime = dateTime[indices_true]
+    rcptdateTime = rcptdateTime[indices_true]
 
     # ObsError
     logger.debug(f"Generating ObsError array with constant value (instrument error)...")
-    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(index_list)), 0.02)))
-    ObsError_saln = np.float32(np.ma.masked_array(np.full((len(index_list)), 0.01)))
+    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(indices_true)), 0.02)))
+    ObsError_saln = np.float32(np.ma.masked_array(np.full((len(indices_true)), 0.01)))
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")
-    PreQC = (np.ma.masked_array(np.full((len(index_list)), 0))).astype(np.int32)
+    PreQC = (np.ma.masked_array(np.full((len(indices_true)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -301,10 +296,10 @@ def bufr_to_ioda(config, logger):
 if __name__ == '__main__':
 
     start_time = time.time()
-    config = "bufr2ioda_subpfl_argo_profiles.json"
+    config = "bufr2ioda_tesac_mammals_profiles.json"
 
     log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger('bufr2ioda_subpfl_argo_profiles.py', level=log_level,
+    logger = Logger('bufr2ioda_tesac_mammals_profiles.py', level=log_level,
                     colored_log=True)
 
     with open(args.config, "r") as json_file:

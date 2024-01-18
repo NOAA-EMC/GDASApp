@@ -2,11 +2,11 @@
   "data_format"      : "subpfl",
   "subsets"          : "SUBPFL",
   "source"           : "NCEP data tank",
-  "data_type"        : "argo",
+  "data_type"        : "glider",
   "cycle_type"       : "{{ RUN }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
   "ioda_directory"   : "{{ COM_OBS }}",
-  "data_description" : "6-hrly in situ ARGO profiles",
+  "data_description" : "6-hrly in situ GLIDER profiles",
   "data_provider"    : "U.S. NOAA"
 }
