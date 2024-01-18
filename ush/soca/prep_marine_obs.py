@@ -13,6 +13,7 @@ COMIN_OBS = os.getenv('COMIN_OBS')
 
 cycDir = os.path.join(DMPDIR, RUN + '.' + str(PDY), str(cyc))
 
+
 def obs_fetch(obsprepSpace):
 
     subDir = obsprepSpace['dmpdir subdir']
