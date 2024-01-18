@@ -39,3 +39,53 @@ observations:
       units: C
       min: -3.0
       max: 50.0
+- obs space:
+    dmpdir regex: ??????????????-STAR-L3C_GHRSST-SSTsubskin-ABI_G16-ACSPO_V2.70-v02.0-fv01.0.nc
+    dmpdir subdir: sst
+    name: ABI_G16
+    provider: GHRSST
+- obs space:
+    dmpdir regex: ??????????????-STAR-L3C_GHRSST-SSTsubskin-ABI_G17-ACSPO_V2.71-v02.0-fv01.0.nc
+    dmpdir subdir: sst
+    name: ABI_G17
+    provider: GHRSST
+- obs space:
+    dmpdir regex: ??????????????-STAR-L3C_GHRSST-SSTsubskin-ABI_G18-ACSPO_V2.71-v02.0-fv01.0.nc
+    dmpdir subdir: sst
+    name: ABI_G18
+    provider: GHRSST
+- obs space:
+    dmpdir regex: ??????????????-STAR-L3C_GHRSST-SSTsubskin-AHI_H09-ACSPO_V2.70-v02.0-fv01.0.nc
+    dmpdir subdir: sst
+    name: AHI_H09
+    provider: GHRSST
+- obs space:
+    dmpdir regex: rads_adt_3b_???????.nc
+    dmpdir subdir: ADT
+    name: adt_3b_egm2008
+    provider: RADS
+- obs space:
+    dmpdir regex: rads_adt_c2_???????.nc
+    dmpdir subdir: ADT
+    name: adt_c2_egm2008
+    provider: RADS
+- obs space:
+    dmpdir regex: rads_adt_sa_???????.nc
+    dmpdir subdir: ADT
+    name: adt_sa_egm2008
+    provider: RADS
+- obs space:
+    dmpdir regex: ??????????????-OSPO-L3U_GHRSST-SSTsubskin-AVHRRF_MA-ACSPO_V2.70-v02.0-fv01.0.nc
+    dmpdir subdir: sst
+    name: sst_metopa_l3u_so025
+    provider: GHRSST
+- obs space:
+    dmpdir regex: ??????????????-OSPO-L3U_GHRSST-SSTsubskin-VIIRS_N20-ACSPO_V2.61-v02.0-fv01.0.nc
+    dmpdir subdir: sst
+    name: sst_viirs_n20_l3u_so025
+    provider: GHRSST
+- obs space:
+    dmpdir regex: ??????????????-OSPO-L3U_GHRSST-SSTsubskin-VIIRS_NPP-ACSPO_V2.61-v02.0-fv01.0.nc
+    dmpdir subdir: sst
+    name: sst_viirs_npp_l3u_so025
+    provider: GHRSST
