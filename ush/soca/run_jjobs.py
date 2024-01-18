@@ -125,12 +125,12 @@ class JobCard:
             "app": "ATM",
             "start": "warm",
             "gfs_cyc": "0",
-            "resdet": self.config['resdet'],
-            "resens": self.config['resens'],
+            "resdetatmos": self.config['resdetatmos'],
+            "resensatmos": self.config['resensatmos'],
             "nens": "0",
             "pslot": "${PSLOT}",
             "configdir": "${PWD}/config/gfs",
-            "comrot": self.rotdir,
+            "comroot": self.rotdir,
             "expdir": "${EXPDIRS}",
             "yaml": "overwrite_defaults.yaml"}
 
@@ -164,7 +164,7 @@ class JobCard:
     def copy_bkgs(self):
         """
         Fill the ROTDIR with backgrounds
-        TODO: replace by fill comrot?
+        TODO: replace by fill comroot?
         """
         print(f"gPDY: {self.gPDY}")
         print(f"gcyc: {self.gcyc}")
@@ -213,7 +213,8 @@ class JobCard:
             print(f"Probably does not work for {machine} yet")
 
         # swap a few variables in config.base
-        var2replace = {'HOMEgfs': self.homegfs,
+        self.homegfs_real = os.path.realpath(self.homegfs)
+        var2replace = {'HOMEgfs': self.homegfs_real,
                        'STMP': self.stmp,
                        'ROTDIR': self.rotdir,
                        'EXPDIRS': self.expdirs}
@@ -254,7 +255,7 @@ class JobCard:
 
 
 def main():
-    epilog = ["Make sure the comrot, experiment and config directories are removed before running this script",
+    epilog = ["Make sure the comroot, experiment and config directories are removed before running this script",
               "Examples:",
               "   ./run_jjobs.py -y run_jjobs_orion.yaml",
               "   ./run_jjobs.py -h"]
@@ -272,7 +273,7 @@ def main():
         exp_config = yaml.safe_load(file)
 
     if not args.skip:
-        # Write a setup card (prepare COMROT, configs, ...)
+        # Write a setup card (prepare COMROOT, configs, ...)
         setup_card = JobCard("setup_expt.sh", exp_config)
         setup_card.export_env_vars_script()
         setup_card.setupexpt()
