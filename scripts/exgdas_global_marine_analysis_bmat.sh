@@ -87,6 +87,30 @@ if [ $err -gt 0  ]; then
 fi
 
 ################################################################################
+# Set decorrelation scales for the static B
+$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+################################################################################
+# Initialize diffusion blocks
+clean_yaml soca_parameters_diffusion_hz.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_hz.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+clean_yaml soca_parameters_diffusion_vt.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_vt.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+################################################################################
 # Correlation and Localization operators
 shopt -s nullglob
 files=(./bump/*.nc)

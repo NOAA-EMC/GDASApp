@@ -85,9 +85,10 @@ def cice_hist2fms(input_filename, output_filename):
     """
     Simple reformatting utility to allow soca/fms to read CICE's history
     """
+    input_filename_real = os.path.realpath(input_filename)
 
     # open the CICE history file
-    ds = xr.open_dataset(input_filename)
+    ds = xr.open_dataset(input_filename_real)
 
     if 'aicen' in ds.variables and 'hicen' in ds.variables and 'hsnon' in ds.variables:
         logging.info(f"*** Already reformatted, skipping.")
@@ -100,7 +101,8 @@ def cice_hist2fms(input_filename, output_filename):
     ds = ds.rename({'aice_h': 'aicen', 'hi_h': 'hicen', 'hs_h': 'hsnon'})
 
     # Save the new netCDF file
-    ds.to_netcdf(output_filename, mode='w')
+    output_filename_real = os.path.realpath(output_filename)
+    ds.to_netcdf(output_filename_real, mode='w')
 
 
 def test_hist_date(histfile, ref_date):
@@ -278,7 +280,7 @@ obs_list = []
 for obs_file in obs_files:
     logging.info(f"******* {obs_file}")
     obs_src = os.path.join(os.getenv('COM_OBS'), obs_file)
-    obs_dst = os.path.join(os.path.abspath(obs_in), obs_file)
+    obs_dst = os.path.join(os.path.realpath(obs_in), obs_file)
     logging.info(f"******* {obs_src}")
     if os.path.exists(obs_src):
         logging.info(f"******* fetching {obs_file}")
@@ -305,20 +307,21 @@ if dohybvar:
     for mem in range(1, nmem_ens+1):
         for domain in ['ocn', 'ice']:
             # TODO(Guillaume): make use and define ensemble COM in the j-job
+            ensroot = os.getenv('COM_OCEAN_HISTORY_PREV')
             ensdir = os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
                                   f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
                                   'model_data', longname[domain], 'history')
-            ensdir = os.path.normpath(ensdir)
+            ensdir_real = os.path.realpath(ensdir)
             f009 = f'enkfgdas.t{gcyc}z.{domain}f009.nc'
 
-            fname_in = os.path.abspath(os.path.join(ensdir, f009))
-            fname_out = os.path.abspath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
+            fname_in = os.path.abspath(os.path.join(ensdir_real, f009))
+            fname_out = os.path.realpath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
             ens_member_list.append([fname_in, fname_out])
     FileHandler({'copy': ens_member_list}).sync()
 
     # reformat the cice history output
     for mem in range(1, nmem_ens+1):
-        cice_fname = os.path.abspath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
+        cice_fname = os.path.realpath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
         cice_hist2fms(cice_fname, cice_fname)
 else:
     logging.info("---------------- Stage offline ensemble members")
@@ -343,8 +346,8 @@ logging.info(f"---------------- Generate JEDI yaml files")
 # copy yaml for grid generation
 
 logging.info(f"---------------- generate gridgen.yaml")
-gridgen_yaml_src = os.path.abspath(os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'))
-gridgen_yaml_dst = os.path.abspath(os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
+gridgen_yaml_src = os.path.realpath(os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'))
+gridgen_yaml_dst = os.path.realpath(os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
 FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
 
 ################################################################################
@@ -372,6 +375,33 @@ logging.info(f"---------------- generate soca_setlocscales.yaml")
 locscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setlocscales.yaml')
 locscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setlocscales.yaml')
 FileHandler({'copy': [[locscales_yaml_src, locscales_yaml_dst]]}).sync()
+
+################################################################################
+# copy yaml for correlation length scales
+
+logging.info(f"---------------- generate soca_setcorscales.yaml")
+corscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setcorscales.yaml')
+corscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml')
+FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
+
+################################################################################
+# copy yaml for diffusion initialization
+
+logging.info(f"---------------- generate soca_parameters_diffusion_hz.yaml")
+diffu_hz_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_hz.yaml')
+diffu_hz_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
+diffu_hz_yaml_template = os.path.join(berror_yaml_dir, 'soca_parameters_diffusion_hz.yaml')
+config = YAMLFile(path=diffu_hz_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config.save(diffu_hz_yaml)
+
+logging.info(f"---------------- generate soca_parameters_diffusion_vt.yaml")
+diffu_vt_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_vt.yaml')
+diffu_vt_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
+diffu_vt_yaml_template = os.path.join(berror_yaml_dir, 'soca_parameters_diffusion_vt.yaml')
+config = YAMLFile(path=diffu_vt_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config.save(diffu_vt_yaml)
 
 ################################################################################
 # generate yaml for bump/nicas (used for correlation and/or localization)
