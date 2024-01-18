@@ -3,7 +3,7 @@ set -ex
 
 project_source_dir=$1
 
-# working directory should be ${PROJECT_BINARY_DIR}/test/soca/gw/obsproc, set in ctest command
+# working directory should be ${PROJECT_BINARY_DIR}/test/soca/gw/obsprep, set in ctest command
 test_dmpdir="gdas.20180415/12"
 
 rm -rf ${test_dmpdir}
