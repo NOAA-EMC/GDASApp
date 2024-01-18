@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# (C) Copyright 2023 NOAA/NWS/NCEP/EMC
+# (C) Copyright 2024 NOAA/NWS/NCEP/EMC
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -11,6 +11,7 @@ import numpy.ma as ma
 import calendar
 import json
 import time
+import copy
 import math
 import datetime
 import os
@@ -34,8 +35,16 @@ warnings.filterwarnings('ignore')
 
 def Compute_dateTime(cycleTimeSinceEpoch, hrdr):
 
-    hrdr = np.int64(hrdr*3600)
-    dateTime = hrdr + cycleTimeSinceEpoch
+    int64_fill_value = np.int64(0)
+    dateTime = np.zeros(hrdr.shape, dtype=np.int64)
+    for i in range(len(dateTime)):
+        if ma.is_masked(hrdr[i]):
+            continue
+        else:
+            dateTime[i] = np.int64(hrdr[i]*3600) + cycleTimeSinceEpoch
+
+    dateTime = ma.array(dateTime)
+    dateTime = ma.masked_values(dateTime, int64_fill_value)
 
     return dateTime
 
@@ -106,6 +115,13 @@ def bufr_to_ioda(config, logger):
     q.add('windEastwardQM', '*/PRSLEVEL/W___INFO/W__EVENT{1}/WQM')
     q.add('windNorthwardQM', '*/PRSLEVEL/W___INFO/W__EVENT{1}/WQM')
 
+    # ObsError
+    q.add('pressureOE', '*/PRSLEVEL/P___INFO/P__BACKG/POE')
+    q.add('airTemperatureOE', '*/PRSLEVEL/T___INFO/T__BACKG/TOE')
+    q.add('specificHumidityOE', '*/PRSLEVEL/Q___INFO/Q__BACKG/QOE')
+    q.add('windEastwardOE', '*/PRSLEVEL/W___INFO/W__BACKG/WOE')
+    q.add('windNorthwardOE', '*/PRSLEVEL/W___INFO/W__BACKG/WOE')
+
     end_time = time.time()
     running_time = end_time - start_time
     logger.debug(f'Running time for making QuerySet : {running_time} seconds')
@@ -134,7 +150,7 @@ def bufr_to_ioda(config, logger):
     zob = r.get('height', 'prepbufrDataLevelCategory', type='float')
 
     # Time variable
-    hrdr = r.get('timeOffset', 'prepbufrDataLevelCategory', type='int64')
+    hrdr = r.get('timeOffset', 'prepbufrDataLevelCategory', type='float')
     ulan = r.get('releaseTime')
     ulan = np.int64(ulan*3600)
 
@@ -170,6 +186,27 @@ def bufr_to_ioda(config, logger):
     uobqm = r.get('windEastwardQM', 'prepbufrDataLevelCategory')
     vobqm = r.get('windNorthwardQM', 'prepbufrDataLevelCategory')
 
+    # ObsError
+    poboe = r.get('pressureOE', 'prepbufrDataLevelCategory', type='float32')
+    poboe *= 100
+    psoe = ma.array(np.full(poboe.shape[0], poboe.fill_value))
+    psoe = ma.where(cat == 0, poboe, psoe)
+    psoe = ma.masked_values(psoe, 0)
+    toboe = r.get('airTemperatureOE', 'prepbufrDataLevelCategory', type='float32')
+    toboe = ma.masked_values(toboe, 0)
+    tsenoe = copy.deepcopy(toboe)
+    tsenoef = ma.array(np.full(toboe.shape[0], toboe.fill_value))
+    tsenoe = ma.where(((tpc >= 1) & (tpc < 8)), toboe, tsenoef)
+    tsenoe = ma.masked_values(tsenoe, 0)
+    tvooe = copy.deepcopy(toboe)
+    tvooef = ma.array(np.full(toboe.shape[0], toboe.fill_value))
+    tvooe = ma.where(((tpc == 8)), toboe, tvooef)
+    tvooe = ma.masked_values(tvooe, 0)
+    qoboe = r.get('specificHumidityOE', 'prepbufrDataLevelCategory')
+    qoboe *= 10
+    uoboe = r.get('windEastwardOE', 'prepbufrDataLevelCategory')
+    voboe = r.get('windNorthwardOE', 'prepbufrDataLevelCategory')
+
     logger.info('Executing QuerySet Done!')
 
     logger.debug('Executing QuerySet: Check BUFR variable generic dimension and type')
@@ -202,6 +239,15 @@ def bufr_to_ioda(config, logger):
     logger.debug(f'     uobqm     shape = {uobqm.shape}')
     logger.debug(f'     vobqm     shape = {vobqm.shape}')
 
+    logger.debug(f"     poboe     shape = {poboe.shape}")
+    logger.debug(f"     psoe      shape = {psoe.shape}")
+    logger.debug(f"     toboe     shape = {toboe.shape}")
+    logger.debug(f"     tsenoe    shape = {tsenoe.shape}")
+    logger.debug(f"     tvooe     shape = {tvooe.shape}")
+    logger.debug(f"     qoboe     shape = {qoboe.shape}")
+    logger.debug(f"     uoboe     shape = {uoboe.shape}")
+    logger.debug(f"     voboe     shape = {voboe.shape}")
+
     logger.debug(f'     cat       type  = {cat.dtype}')
     logger.debug(f'     lat       type  = {lat.dtype}')
     logger.debug(f'     lon       type  = {lon.dtype}')
@@ -229,6 +275,15 @@ def bufr_to_ioda(config, logger):
     logger.debug(f'     qobqm     type = {qobqm.dtype}')
     logger.debug(f'     uobqm     type = {uobqm.dtype}')
     logger.debug(f'     vobqm     type = {vobqm.dtype}')
+
+    logger.debug(f"     poboe     type  = {poboe.dtype}")
+    logger.debug(f"     psoe      type  = {psoe.dtype}")
+    logger.debug(f"     toboe     type  = {toboe.dtype}")
+    logger.debug(f"     tsenoe    type  = {tsenoe.dtype}")
+    logger.debug(f"     tvooe     type  = {tvooe.dtype}")
+    logger.debug(f"     qoboe     type  = {qoboe.dtype}")
+    logger.debug(f"     uoboe     type  = {uoboe.dtype}")
+    logger.debug(f"     voboe     type  = {voboe.dtype}")
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -397,6 +452,53 @@ def bufr_to_ioda(config, logger):
     obsspace.create_var('QualityMarker/windNorthward', dtype=vobqm.dtype, fillval=vobqm.fill_value) \
         .write_attr('long_name', 'Northward Wind Quality Marker') \
         .write_data(vobqm)
+
+    # Pressure Observation Error
+    obsspace.create_var('ObsError/pressure', dtype=poboe.dtype, fillval=poboe.fill_value) \
+        .write_attr('units', 'Pa') \
+        .write_attr('long_name', 'Pressure Observation Error') \
+        .write_data(poboe)
+
+    # Station Pressure Observation Error
+    obsspace.create_var('ObsError/stationPressure', dtype=psoe.dtype, fillval=psoe.fill_value) \
+        .write_attr('units', 'Pa') \
+        .write_attr('long_name', 'Station Pressure Observation Error') \
+        .write_data(psoe)
+
+    # Air Temperature Observation Error
+    obsspace.create_var('ObsError/airTemperature', dtype=toboe.dtype, fillval=toboe.fill_value) \
+        .write_attr('units', 'K') \
+        .write_attr('long_name', 'Air Temperature Observation Error') \
+        .write_data(toboe)
+
+    # Sensible Temperature Observation Error
+    obsspace.create_var('ObsError/sensibleTemperature', dtype=tsenoe.dtype, fillval=tsenoe.fill_value) \
+        .write_attr('units', 'K') \
+        .write_attr('long_name', 'Sensible Temperature Observation Error') \
+        .write_data(tsenoe)
+
+    # Virtual Temperature Observation Error
+    obsspace.create_var('ObsError/virtualTemperature', dtype=tvooe.dtype, fillval=tvooe.fill_value) \
+        .write_attr('units', 'K') \
+        .write_attr('long_name', 'Virtual Temperature Observation Error') \
+        .write_data(tvooe)
+
+    # Specific Humidity Observation Error
+    obsspace.create_var('ObsError/specificHumidity', dtype=qoboe.dtype, fillval=qoboe.fill_value) \
+        .write_attr('long_name', 'Specific Humidity Observation Error') \
+        .write_data(qoboe)
+
+    # Eastward Wind Observation Error
+    obsspace.create_var('ObsError/windEastward', dtype=uoboe.dtype, fillval=uoboe.fill_value) \
+        .write_attr('units', 'm s-1') \
+        .write_attr('long_name', 'Eastward Wind Observation Error') \
+        .write_data(uoboe)
+
+    # Northward Wind Observation Error
+    obsspace.create_var('ObsError/windNorthward', dtype=voboe.dtype, fillval=voboe.fill_value) \
+        .write_attr('units', 'm s-1') \
+        .write_attr('long_name', 'Northward Wind Observation Error') \
+        .write_data(voboe)
 
     end_time = time.time()
     running_time = end_time - start_time
