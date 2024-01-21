@@ -116,6 +116,9 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT land-imsproc SOURCE "./land-imsproc" )
   ecbuild_bundle( PROJECT land-jediincr SOURCE "./land-jediincr" )
 
+# DAML
+  ecbuild_bundle( PROJECT daml SOURCE "./daml" )
+
 # GDASApp
   ecbuild_bundle( PROJECT gdas SOURCE "../")
 
