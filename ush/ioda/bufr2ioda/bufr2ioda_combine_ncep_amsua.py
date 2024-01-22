@@ -5,23 +5,22 @@ import json
 import os
 from combine_base import Bufr2IodaBase, CPP
 from wxflow import Logger
-from antcorr_application import ACCoeff, apply_ant_corr, remove_ant_corr
+from antcorr_application import ACCoeff, apply_ant_corr, remove_ant_corr, R1000, R1000000
 from utils import timing_decorator, nc_merge
 
 logger = Logger(os.path.basename(__file__), level='INFO')
 
-R1000 = 1000.0
-R1000000 = 1000000.0
-
 BACKEND = CPP
 
-AMSUA_TYPE_CHANGE_DATETIME = "2000120000"
+AMSUA_TYPE_CHANGE_DATETIME = "2023120000"
 
-YAML_NORMAL = True  #  current as normal
+BAMUA = '1BAMUA'
+ESAMUA  = 'ESAMUA'
+
+YAML_NORMAL = True  # current as normal
 
 
 class Bufr2IodaAmusa(Bufr2IodaBase):
-
     def __init__(self, yaml_order, *args, **kwargs):
         self.yaml_order = yaml_order
         super().__init__(*args, **kwargs)
@@ -34,7 +33,6 @@ class Bufr2IodaAmusa(Bufr2IodaBase):
 
 
 class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
-
     def get_yaml_file(self):
         if self.yaml_order:
             return self.config['yaml_file'][1]
@@ -59,7 +57,9 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
                     ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
                 else:
                     ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
+                logger.info(f'ta before correction1: {ta[:100, :]}')
                 tb = self.apply_corr(sat_id, ta, ifov)
+                logger.info(f'tb after correction1: {tb[:100, :]}')
                 self.replace_container_variable(container, 'ObsValue', 'brightnessTemperature', tb, sat_id)
 
     def apply_corr(self, sat_id, ta, ifov):
@@ -70,12 +70,16 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
                 # Convert antenna temperature to brightness temperature
                 ifov = ifov.astype(int) - 1
                 for i in range(ta.shape[1]):
+                    logger.info(f'inside loop for allpy ta to tb: i = {i}')
                     x = ta[:, i]
+                    # logger.info(f'ta before correction: {x[:100]}')
                     if self.yaml_order:
-                        apply_ant_corr(i, ac, ifov, x)
+                        x = apply_ant_corr(i, ac, ifov, x)
                     else:
-                        remove_ant_corr(i, ac, ifov, x)
-                    x[x > R1000] = R1000000
+                        x = remove_ant_corr(i, ac, ifov, x)
+                    # logger.info(f'ta after correction: {x[:100]}')
+                    x[x >= R1000] = R1000000
+                    ta[:, i] = x
         else:
             pass  # TODO after know how to set llll
         return ta
@@ -118,10 +122,12 @@ if __name__ == '__main__':
         yaml_order = YAML_NORMAL
     else:
         yaml_order = not YAML_NORMAL
-
-    for sat_type in ['a', 'e']:
+    logger.info(f'yaml order is {yaml_order}')
+    BAMUA = '1BAMUA'
+    ESAMUA = 'ESAMUA'
+    for sat_type in [BAMUA, ESAMUA]:
         logger.info(f'Processing sat type: {sat_type}')
-        if sat_type == 'a':
+        if sat_type == BAMUA:
             convert = Bufr2IodaAmusa(yaml_order, args.config, backend=BACKEND)
         else:
             convert = Bufr2IodaAmusaChange(yaml_order, args.config, backend=BACKEND)

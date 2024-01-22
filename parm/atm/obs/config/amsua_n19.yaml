@@ -18,6 +18,7 @@ obs operator:
   Absorbers: [H2O,O3]
   Clouds: [Water, Ice]
   Cloud_Fraction: 1.0
+  Cloud_Seeding: true
   obs options:
     Sensor_ID: &Sensor_ID amsua_n19
     EndianType: little_endian
@@ -99,6 +100,48 @@ obs post filters:
         clwret_ch238: 1
         clwret_ch314: 2
         clwret_types: [ObsValue]
+
+- filter: Variable Assignment
+  assignments:
+  - name: DerivedMetaData/surfaceParam
+    type: int
+    function:
+      name: IntObsFunction/Conditional
+      options:
+        defaultvalue: 0
+        firstmatchingcase: true
+        cases:
+        - where:
+          - variable:
+              name: GeoVaLs/water_area_fraction
+            minvalue: 0.99
+          value: 100
+        - where:
+          - variable:
+              name: GeoVaLs/land_area_fraction
+            minvalue: 0.99
+          value: 85
+        - where:
+          - variable:
+              name: GeoVaLs/ice_area_fraction
+            minvalue: 0.99
+          value: 90
+        - where:
+          - variable:
+              name: GeoVaLs/surface_snow_area_fraction
+            minvalue: 0.99
+          value: 85
+
+- filter: Variable Assignment
+  assignments:
+  - name: DerivedMetaData/thinningCriteria
+    type: int
+    function:
+      name: IntObsFunction/Arithmetic
+      options:
+        variables:
+        - name: DerivedMetaData/surfaceParam
+        coefs: [1]
 
 # Calculate CLW retrieved from background 
 - filter: Variable Assignment 
@@ -246,6 +289,7 @@ obs post filters:
   horizontal_mesh: 145
   use_reduced_horizontal_grid: true
   distance_norm: geodesic
+  priority_variable: DerivedMetaData/thinningCriteria
 #  round_horizontal_bin_count_to_nearest: true
 #  partition_longitude_bins_using_mesh: true
   actions:
