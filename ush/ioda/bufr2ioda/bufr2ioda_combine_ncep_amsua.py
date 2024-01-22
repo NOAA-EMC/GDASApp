@@ -15,7 +15,7 @@ BACKEND = CPP
 AMSUA_TYPE_CHANGE_DATETIME = "2023120000"
 
 BAMUA = '1BAMUA'
-ESAMUA  = 'ESAMUA'
+ESAMUA = 'ESAMUA'
 
 YAML_NORMAL = True  # current as normal
 
@@ -87,7 +87,7 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
 
 @timing_decorator
 def merge(amsua_files, splits):
-    ioda_files = [(f'amsua.{x}_ta.tm00.ncc', f'esamua.{x}.tm00.ncc',  f'amsua_{x}.tm00.nc') for x in splits]
+    ioda_files = [(f'amsua.{x}_ta.tm00.ncc', f'esamua.{x}.tm00.ncc', f'amsua_{x}.tm00.nc') for x in splits]
     logger.info(f'Ioda files: {ioda_files}')
     file1 = [f for f in amsua_files[0].values()]
     file2 = [f for f in amsua_files[1].values()]

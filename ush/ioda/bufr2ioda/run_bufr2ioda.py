@@ -99,7 +99,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     BUFR_yaml_files = [os.path.basename(f) for f in BUFR_yaml_files]
     BUFR_yaml = [f.replace('bufr2ioda_', '').replace('.yaml', '') for f in BUFR_yaml_files]
     logger.info(f'All obs type processed by yaml: {BUFR_yaml}')
-    BUFR_yaml =  ['ncep_1bamua_ta', 'ncep_esamua']
+    BUFR_yaml = ['ncep_1bamua_ta', 'ncep_esamua']
 
     for obtype in BUFR_yaml:
         logger.info(f"Convert {obtype}...")
