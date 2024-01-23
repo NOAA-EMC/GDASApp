@@ -149,9 +149,6 @@ configs = [plotConfig(grid_file=grid_file,
                       colormap='jet',
                       comout=os.path.join(comout, 'vrfy', 'bkg'))]   # ocean surface background
 
-# List of functions
-# plot_functions = [plot_parallel] * len(configs)
-
 # Number of processes (adjust as needed)
 num_processes = len(configs)
 
