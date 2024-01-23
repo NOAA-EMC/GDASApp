@@ -6,10 +6,11 @@
   "dump_directory"   : "{{ DMPDIR }}",
   "ioda_directory"   : "{{ COM_OBS }}",
   "subsets"          : [  ],
-  "data_description" : "NC021043 SEVIRI, Meteosat-11;  NC021043 SEVIRI, Meteosat-08", 
+  "data_description" : "NC021043 SEVIRI, Meteosat-11; NC021043 SEVIRI, Meteosat-10,  NC021043 SEVIRI, Meteosat-08", 
   "data_provider"    : "U.S. NOAA/NESDIS",
-  "sensor_info"      : { "sensor_name": "SEVIRI",  "sensor_full_name": "Spinning Enhanced Visible Infra-Red Imager",  "sensor_id": 617 },
+  "sensor_info"      : { "sensor_name": "SEVIRI",  "sensor_full_name": "Spinning Enhanced Visible Infra-Red Imager",  "sensor_id": 207 },
   "satellite_info"   : [
                           { "satellite_name": "m11", "satellite_full_name": "Meteosat-11", "satellite_id": 70, "launch time": "20150715" },
+                          { "satellite_name": "m10", "satellite_full_name": "Meteosat-10", "satellite_id": 57, "launch time": "20120705" },
                           { "satellite_name": "m08", "satellite_full_name": "Meteosat-08", "satellite_id": 55, "launch time": "20020828" } ]
 }
