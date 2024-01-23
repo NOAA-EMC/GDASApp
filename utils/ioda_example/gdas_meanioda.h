@@ -41,14 +41,8 @@ namespace gdasapp {
       oops::Log::info() << "obs space: " << std::endl << obsConfig << std::endl;
 
       // time window stuff
-      std::string winbegin;
-      std::string winend;
-      fullConfig.get("window begin", winbegin);
-      fullConfig.get("window end", winend);
-      bool shift;
-      fullConfig.get("window shift", shift);
-      const util::TimeWindow timeWindow(util::DateTime(winbegin), util::DateTime(winend),
-                                        util::boolToWindowBound(shift));
+      const eckit::LocalConfiguration timeWindowConf(fullConfig, "time window");
+      const util::TimeWindow timeWindow(timeWindowConf);
 
       // what variable to get the mean of
       std::string group;
