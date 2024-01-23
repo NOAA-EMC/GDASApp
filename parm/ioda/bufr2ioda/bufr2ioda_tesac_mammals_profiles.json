@@ -1,0 +1,12 @@
+{
+  "data_format"      : "tesac",
+  "subsets"          : "TESAC",
+  "source"           : "NCEP data tank",
+  "data_type"        : "mammals",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "data_description" : "6-hrly in situ marine mammals from TESAC profiles",
+  "data_provider"    : "U.S. NOAA"
+}

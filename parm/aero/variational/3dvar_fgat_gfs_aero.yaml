@@ -49,7 +49,7 @@ cost function:
   observations: !INC ${OBS_LIST}
 variational:
   minimizer:
-    algorithm: DRIPCG
+    algorithm: DRPCG
   iterations:
   - ninner: 35
     gradient norm reduction: 1e-10

@@ -91,7 +91,25 @@ namespace gdasapp {
         // Update the group with the location dimension
         ioda::NewDimensionScales_t
           newDims {ioda::NewDimensionScale<int>("Location", iodaVarsAll.location_)};
+
+        // Update the group with the location and channel dimension (if channel value is assigned)
+        if (iodaVars.channelValues_(0) > 0) {
+           newDims = {
+                 ioda::NewDimensionScale<int>("Location", iodaVarsAll.location_),
+                 ioda::NewDimensionScale<int>("Channel", iodaVarsAll.channel_)
+           };
+        }
         ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
+
+        // Create different dimensionScales for data w/wo channel info
+        std::vector<ioda::Variable> dimensionScales {
+            ogrp.vars["Location"]
+        };
+        if (iodaVars.channelValues_(0) > 0) {
+           dimensionScales = {ogrp.vars["Location"], ogrp.vars["Channel"]};
+           ogrp.vars["Channel"].writeWithEigenRegular(iodaVars.channelValues_);
+        }
+
 
         // Set up the creation parameters
         ioda::VariableCreationParameters float_params = createVariableParams<float>();
@@ -102,7 +120,8 @@ namespace gdasapp {
         ioda::Variable iodaDatetime =
           ogrp.vars.createWithScales<int64_t>("MetaData/dateTime",
                                           {ogrp.vars["Location"]}, long_params);
-        iodaDatetime.atts.add<std::string>("units", {iodaVarsAll.referenceDate_}, {1});
+        // TODO(MD): Make sure units with iodaVarsAll when applying mpi
+        iodaDatetime.atts.add<std::string>("units", {iodaVars.referenceDate_}, {1});
         ioda::Variable iodaLat =
           ogrp.vars.createWithScales<float>("MetaData/latitude",
                                             {ogrp.vars["Location"]}, float_params);
@@ -112,14 +131,14 @@ namespace gdasapp {
 
         ioda::Variable iodaObsVal =
           ogrp.vars.createWithScales<float>("ObsValue/"+variable_,
-                                            {ogrp.vars["Location"]}, float_params);
+                                            dimensionScales, float_params);
         ioda::Variable iodaObsErr =
           ogrp.vars.createWithScales<float>("ObsError/"+variable_,
-                                            {ogrp.vars["Location"]}, float_params);
+                                            dimensionScales, float_params);
 
         ioda::Variable iodaPreQc =
           ogrp.vars.createWithScales<int>("PreQC/"+variable_,
-                                            {ogrp.vars["Location"]}, int_params);
+                                          dimensionScales, int_params);
 
         // add input filenames to IODA file global attributes
         ogrp.atts.add<std::string>("obs_source_files", inputFilenames_);
@@ -135,6 +154,18 @@ namespace gdasapp {
         for (const std::string& strMeta : iodaVars.intMetadataName_) {
           tmpIntMeta = ogrp.vars.createWithScales<int>("MetaData/"+strMeta,
                                                          {ogrp.vars["Location"]}, int_params);
+          // get ocean basin masks if asked in the config
+          obsproc::oceanmask::OceanMask* oceanMask = nullptr;
+          if (fullConfig_.has("ocean basin")) {
+             std::string fileName;
+             fullConfig_.get("ocean basin", fileName);
+             oceanMask = new obsproc::oceanmask::OceanMask(fileName);
+
+             for (int i = 0; i < iodaVars.location_; i++) {
+               iodaVars.intMetadata_.coeffRef(i, size(iodaVars.intMetadataName_)-1) =
+                 oceanMask->getOceanMask(iodaVars.longitude_[i], iodaVars.latitude_[i]);
+             }
+          }
           tmpIntMeta.writeWithEigenRegular(iodaVars.intMetadata_.col(count));
           count++;
         }

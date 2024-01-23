@@ -12,20 +12,20 @@
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
 
-#include "NetCDFToIodaConverter2D.h"
+#include "NetCDFToIodaConverter.h"
 #include "superob.h"
 
 namespace gdasapp {
 
-  class Viirsaod2Ioda : public NetCDFToIodaConverter2d {
+  class Viirsaod2Ioda : public NetCDFToIodaConverter {
    public:
     explicit Viirsaod2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
-      : NetCDFToIodaConverter2d(fullConfig, comm) {
+      : NetCDFToIodaConverter(fullConfig, comm) {
       variable_ = "aerosolOpticalDepth";
     }
 
     // Read netcdf file and populate iodaVars
-    gdasapp::IodaVars2d providerToIodaVars(const std::string fileName) final {
+    gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by VIIRSAOD" << std::endl;
 
       // Open the NetCDF file in read-only mode
@@ -153,12 +153,12 @@ namespace gdasapp {
       int nchan(channelNumber.size());
       oops::Log::info() << " number of channels " << nchan << std::endl;
       // Create instance of iodaVars object
-      gdasapp::IodaVars2d iodaVars(nobs, nchan, {}, {});
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, {}, {});
 
-      oops::Log::info() << " eigen... " << std::endl;
+      oops::Log::info() << " eigen... " << dimRow << dimCol << std::endl;
       // Store into eigen arrays
       for (int k = 0; k < nchan; k++) {
-          iodaVars.channelNumber_(k) = channelNumber[k];
+          iodaVars.channelValues_(k) = channelNumber[k];
           int loc(0);
           for (int i = 0; i < dimRow; i++) {
               for (int j = 0; j < dimCol; j++) {

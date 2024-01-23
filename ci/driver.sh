@@ -64,7 +64,7 @@ for pr in $open_pr_list; do
   cd $GDAS_CI_ROOT/PR/$pr
 
   # clone copy of repo
-  git clone $repo_url
+  git clone --recursive $repo_url
   cd GDASApp
 
   # checkout pull request

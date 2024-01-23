@@ -7,13 +7,6 @@ COMOUT: !ENV ${COMOUT}
 DATA: !ENV ${DATA}
 background_time: '{{background_time}}'
 dump: !ENV ${CDUMP}
-r2d2_obs_db: !ENV ${R2D2_OBS_DB}
-r2d2_obs_dump: !ENV ${R2D2_OBS_DUMP}
-r2d2_obs_src: !ENV ${R2D2_OBS_SRC}
-r2d2_bc_src: !ENV ${R2D2_BC_SRC}
-r2d2_bc_dump: !ENV ${R2D2_BC_DUMP}
-r2d2 window length: !ENV ${R2D2_OBS_WINDOW}
-r2d2 window begin: '{{r2d2_window_begin}}'
 fv3jedi_stage_files: !ENV ${FV3JEDI_STAGE_YAML}
 fv3jedi_stage: !ENV ${FV3JEDI_STAGE_YAML}
 stage_dir: !ENV ${DATA}

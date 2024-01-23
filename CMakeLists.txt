@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------- #
-# Application for all the components needed for the GDAS system             #
+# Application for the GDAS system             #
 # ------------------------------------------------------------------------- #
 
 # Check for minimim cmake requirement
@@ -164,7 +164,3 @@ add_subdirectory(ush)
 
 # Include testing.
 add_subdirectory(test)
-
-# Finalize bundle
-# ---------------
-ecbuild_bundle_finalize()

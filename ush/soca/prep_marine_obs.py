@@ -63,10 +63,10 @@ obs_dict = {
 }
 
 
-def obs_fetch(obsprocSpace):
+def obs_fetch(obsprepSpace):
 
-    subDir = obsprocSpace['obsproc subdir']
-    filepattern = obsprocSpace['obsproc regex']
+    subDir = obsprepSpace['dmpdir subdir']
+    filepattern = obsprepSpace['dmpdir regex']
 
     dataDir = os.path.join(cycDir, subDir)
     # TODO: check the existence of this
