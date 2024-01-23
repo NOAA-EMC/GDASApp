@@ -43,7 +43,7 @@ namespace gdasapp {
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
-      oops::Log::test() << "Reading " << fileName << std::endl;
+      oops::Log::info() << "Reading... " << fileName << std::endl;
       // Get number of obs
       int dimLon = ncFile.getDim("lon").getSize();
       int dimLat = ncFile.getDim("lat").getSize();
@@ -210,9 +210,6 @@ namespace gdasapp {
       // TODO(ASGM): Remove when the time reading is fixed
       int64_t mean = iodaVars.datetime_.sum() / iodaVars.datetime_.size();
       iodaVars.datetime_.setConstant(mean);
-
-      // Test output
-      iodaVars.testOutput();
 
       return iodaVars;
     };

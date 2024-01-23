@@ -1,5 +1,6 @@
-window begin: '{{ LAND_WINDOW_BEGIN | to_isotime }}'
-window length: $(LAND_WINDOW_LENGTH)
+time window:
+  begin: '{{ LAND_WINDOW_BEGIN | to_isotime }}'
+  length: $(LAND_WINDOW_LENGTH)
 geometry:
   fms initialization:
     namelist filename: $(DATA)/fv3jedi/fmsmpp.nml

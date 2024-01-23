@@ -357,7 +357,7 @@ obs filters:
   - name: ObsFunction/ChannelUseflagCheckRad
     channels: *amsua_n19_channels
     options:
-      sensor: amaua_n19
+      sensor: amsua_n19
       channels: *amsua_n19_channels
       use_flag: [ 1,  1,  1,  1,  1,
                   1, -1, -1,  1,  1,

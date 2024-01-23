@@ -15,13 +15,16 @@ obs space:
 
 obs operator:
   name: CRTM
-  Absorbers: [H2O,O3]
+  Absorbers: [H2O, O3, CO2]
   Clouds: [Water, Ice]
   Cloud_Fraction: 1.0
+  Cloud_Seeding: true 
   obs options:
     Sensor_ID: &Sensor_ID atms_n20
     EndianType: little_endian
     CoefficientPath: $(DATA)/crtm/
+  linear obs operator:
+    Absorbers: [H2O, O3]
 
 obs bias:
   input file: $(DATA)/obs/$(GPREFIX)atms_n20.satbias.nc4
@@ -56,7 +59,6 @@ obs bias:
 
 obs pre filters:
 # Step 0-A: Create Diagnostic Flags
-# Diagnostic flag for CLW retrieval
 - filter: Create Diagnostic Flags
   filter variables:
   - name: brightnessTemperature
@@ -81,6 +83,9 @@ obs pre filters:
     initial value: false
     force reinitialization: false 
   - name: InterChannelConsistency
+    initial value: false
+    force reinitialization: false 
+  - name: UseflagCheck 
     initial value: false
     force reinitialization: false 
 
@@ -224,7 +229,7 @@ obs post filters:
           channels: *atms_n20_channels
         coefs: [1, -1]
 
-# Step 0-C: Assign initial all-sky observation error
+# Step 0-C: Assign Initial All-Sky Observation Error
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature
@@ -235,7 +240,7 @@ obs post filters:
       name: InitialObsError@DerivedMetaData
       channels: *atms_n20_channels
 
-# Step 1: Remove observations from the edge of the scan
+# Step 1: Remove Observations from the Edge of the Scan
 - filter: Domain Check
   filter variables:
   - name: brightnessTemperature
@@ -250,15 +255,16 @@ obs post filters:
     - name: reject
 
 # Step 2: Data Thinning
-#- filter: Gaussian Thinning
-#  horizontal_mesh: 145 
-#  use_reduced_horizontal_grid: true
-##  round_horizontal_bin_count_to_nearest: true
-##  partition_longitude_bins_using_mesh: true
-#  actions:
-#    - name: set
-#      flag: Thinning 
-#    - name: reject
+- filter: Gaussian Thinning
+  horizontal_mesh: 145 
+  use_reduced_horizontal_grid: true
+  distance_norm: geodesic
+#  round_horizontal_bin_count_to_nearest: true
+#  partition_longitude_bins_using_mesh: true
+  actions:
+    - name: set
+      flag: Thinning 
+    - name: reject
 
 # Step 3A: CLW Retrieval Check (observation_based)
 - filter: Bounds Check
@@ -286,7 +292,7 @@ obs post filters:
       flag: CLWRetrievalCheck
     - name: reject
 
-# Step 4: Window channel sanity check
+# Step 4: Window Channel Sanity Check
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
@@ -338,7 +344,7 @@ obs post filters:
       ignore: rejected observations
     - name: reject
 
-# Step 6: Observation error inflation based on topography check
+# Step 6: Observation Error Inflation based on Topography Check
 - filter: Variable Assignment
   assignments:
   - name: ObsErrorFactorTopo@DerivedMetaData
@@ -361,7 +367,7 @@ obs post filters:
       name: ObsErrorFactorTopo@DerivedMetaData
       channels: *atms_n20_channels
 
-# Step 7: Obs error inflation based on TOA transmittancec check
+# Step 7: Obs Error Inflation based on TOA Transmittancec Check
 - filter: Variable Assignment
   assignments:
   - name: ObsErrorFactorTransmitTop@DerivedMetaData
@@ -383,7 +389,7 @@ obs post filters:
       name: ObsErrorFactorTransmitTop@DerivedMetaData
       channels: *atms_n20_channels
 
-# Step 8: Observation error inflation based on surface jacobian check
+# Step 8: Observation Error Inflation based on Surface Jacobian Check
 - filter: Variable Assignment
   assignments:
   - name: ObsErrorFactorSurfJacobian@DerivedMetaData
@@ -409,7 +415,7 @@ obs post filters:
       name: ObsErrorFactorSurfJacobian@DerivedMetaData
       channels: *atms_n20_channels
 
-# Step 9: Situation dependent check
+# Step 9: Situation Dependent Check
 - filter: Variable Assignment
   assignments:
   - name: ObsErrorFactorSituDepend@DerivedMetaData
@@ -504,7 +510,7 @@ obs post filters:
       ignore: rejected observations
     - name: reject
 
-# Step 11: Inter-channel check
+# Step 11: Inter-Channel Check
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
@@ -518,7 +524,7 @@ obs post filters:
       sensor: *Sensor_ID
       use_flag: [ 1,  1,  1,  1,  1,
                   1,  1,  1,  1,  1,
-                  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  4,
                   1,  1,  1,  1,  1,
                   1,  1]
   maxvalue: 1.0e-12
@@ -528,3 +534,24 @@ obs post filters:
       ignore: rejected observations
     - name: reject
 
+# Step 12: Useflag Check
+- filter: Bounds Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: *atms_n20_channels
+  test variables:
+  - name: ObsFunction/ChannelUseflagCheckRad
+    channels: *atms_n20_channels
+    options:
+      channels: *atms_n20_channels
+      use_flag: [ 1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  1,
+                  1,  1,  1,  1,  4,
+                  1,  1,  1,  1,  1,
+                  1,  1]
+  minvalue: 1.0e-12
+  actions:
+    - name: set
+      flag: UseflagCheck 
+      ignore: rejected observations
+    - name: reject

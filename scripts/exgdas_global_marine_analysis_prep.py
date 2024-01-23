@@ -89,6 +89,10 @@ def cice_hist2fms(input_filename, output_filename):
     # open the CICE history file
     ds = xr.open_dataset(input_filename)
 
+    if 'aicen' in ds.variables and 'hicen' in ds.variables and 'hsnon' in ds.variables:
+        logging.info(f"*** Already reformatted, skipping.")
+        return
+
     # rename the dimensions to xaxis_1 and yaxis_1
     ds = ds.rename({'ni': 'xaxis_1', 'nj': 'yaxis_1'})
 
@@ -224,6 +228,11 @@ logging.info(f"---------------- Setup runtime environement")
 comin_obs = os.getenv('COMIN_OBS')  # R2D2 DB for now
 anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
+if os.getenv('DOHYBVAR') == "YES":
+    dohybvar = True
+    nmem_ens = int(os.getenv('NMEM_ENS'))
+else:
+    dohybvar = False
 
 # create analysis directories
 diags = os.path.join(anl_dir, 'diags')            # output dir for soca DA obs space
@@ -242,6 +251,7 @@ window_middle_iso = window_middle.strftime('%Y-%m-%dT%H:%M:%SZ')
 fcst_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')
 RUN = os.getenv('RUN')
 cyc = os.getenv('cyc')
+gcyc = os.getenv('gcyc')
 PDY = os.getenv('PDY')
 
 ################################################################################
@@ -298,33 +308,45 @@ FileHandler({'copy': obs_list}).sync()
 logging.info(f"---------------- Stage static files")
 ufsda.stage.soca_fix(stage_cfg)
 
-################################################################################
-# stage background error files
-
-logging.info(f"---------------- Stage static files")
-bkgerr_list = []
-for domain in ['ocn', 'ice']:
-    fname_stddev = find_bkgerr(pytz.utc.localize(window_begin, is_dst=None), domain=domain)
-    fname_out = domain+'.bkgerr_stddev.incr.'+window_begin_iso+'.nc'
-    bkgerr_list.append([fname_stddev, fname_out])
-FileHandler({'copy': bkgerr_list}).sync()
 
 ################################################################################
-# stage static ensemble
+# stage ensemble members
+if dohybvar:
+    logging.info("---------------- Stage ensemble members")
+    nmem_ens = int(os.getenv('NMEM_ENS'))
+    longname = {'ocn': 'ocean', 'ice': 'ice'}
+    ens_member_list = []
+    for mem in range(1, nmem_ens+1):
+        for domain in ['ocn', 'ice']:
+            # TODO(Guillaume): make use and define ensemble COM in the j-job
+            ensdir = os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
+                                  f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
+                                  'model_data', longname[domain], 'history')
+            ensdir = os.path.normpath(ensdir)
+            f009 = f'enkfgdas.t{gcyc}z.{domain}f009.nc'
 
-logging.info(f"---------------- Stage climatological ensemble")
-clim_ens_member_list = []
-clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
-clim_ens_size = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
-os.environ['CLIM_ENS_SIZE'] = str(clim_ens_size)
+            fname_in = os.path.abspath(os.path.join(ensdir, f009))
+            fname_out = os.path.abspath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
+            ens_member_list.append([fname_in, fname_out])
+    FileHandler({'copy': ens_member_list}).sync()
 
-for domain in ['ocn', 'ice']:
-    for mem in range(1, clim_ens_size+1):
-        fname = domain+"."+str(mem)+".nc"
-        fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
-        fname_out = os.path.abspath(os.path.join(static_ens, fname))
-        clim_ens_member_list.append([fname_in, fname_out])
-FileHandler({'copy': clim_ens_member_list}).sync()
+    # reformat the cice history output
+    for mem in range(1, nmem_ens+1):
+        cice_fname = os.path.abspath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
+        cice_hist2fms(cice_fname, cice_fname)
+else:
+    logging.info("---------------- Stage offline ensemble members")
+    ens_member_list = []
+    clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
+    nmem_ens = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
+    for domain in ['ocn', 'ice']:
+        for mem in range(1, nmem_ens+1):
+            fname = domain+"."+str(mem)+".nc"
+            fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
+            fname_out = os.path.abspath(os.path.join(static_ens, fname))
+            ens_member_list.append([fname_in, fname_out])
+    FileHandler({'copy': ens_member_list}).sync()
+os.environ['ENS_SIZE'] = str(nmem_ens)
 
 ################################################################################
 # prepare JEDI yamls
@@ -358,14 +380,6 @@ config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BR
 config.save(berr_yaml)
 
 ################################################################################
-# copy yaml for decorrelation length scales
-
-logging.info(f"---------------- generate soca_setcorscales.yaml")
-corscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setcorscales.yaml')
-corscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml')
-FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
-
-################################################################################
 # copy yaml for localization length scales
 
 logging.info(f"---------------- generate soca_setlocscales.yaml")
@@ -376,49 +390,7 @@ FileHandler({'copy': [[locscales_yaml_src, locscales_yaml_dst]]}).sync()
 ################################################################################
 # generate yaml for bump/nicas (used for correlation and/or localization)
 
-logging.info(f"---------------- generate BUMP/NICAS yamls")
-# TODO (Guillaume): move the possible vars somewhere else
-vars3d = ['tocn', 'socn', 'uocn', 'vocn', 'chl', 'biop']
-vars2d = ['ssh', 'cicen', 'hicen', 'hsnon', 'swh',
-          'sw', 'lw', 'lw_rad', 'lhf', 'shf', 'us']
-
-# 2d bump yaml (all 2d vars at once)
-bumpdir = 'bump'
-ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
-bump_yaml = os.path.join(anl_dir, 'soca_bump2d.yaml')
-bump_yaml_template = os.path.join(gdas_home,
-                                  'parm',
-                                  'soca',
-                                  'berror',
-                                  'soca_bump2d.yaml')
-config = YAMLFile(path=bump_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-config.save(bump_yaml)
-
-# 3d bump yaml, 1 yaml per variable
-soca_vars = ['tocn', 'socn', 'uocn', 'vocn']
-for v in soca_vars:
-    logging.info(f"creating the yaml to initialize bump for {v}")
-    if v in vars2d:
-        continue
-    else:
-        dim = '3d'
-    bump_yaml = os.path.join(anl_dir, 'soca_bump'+dim+'_'+v+'.yaml')
-    bump_yaml_template = os.path.join(gdas_home,
-                                      'parm',
-                                      'soca',
-                                      'berror',
-                                      'soca_bump_split.yaml')
-    bumpdir = 'bump'+dim+'_'+v
-    os.environ['BUMPDIR'] = bumpdir
-    ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
-    os.environ['CVAR'] = v
-    config = YAMLFile(path=bump_yaml_template)
-    config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-    config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-    config.save(bump_yaml)
-
+logging.info(f"---------------- generate BUMP/NICAS localization yamls")
 # localization bump yaml
 bumpdir = 'bump'
 ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
@@ -456,7 +428,6 @@ if 'SABER_BLOCKS_YAML' in os.environ and os.environ['SABER_BLOCKS_YAML']:
 else:
     logging.info(f"using default SABER blocks yaml")
     os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
-os.environ['CLIM_ENS_SIZE'] = str(clim_ens_size)
 
 # substitute templated variables in the var config
 logging.info(f"{config}")
