@@ -22,7 +22,6 @@ from wxflow import Logger
 
 
 def Compute_sequenceNumber(lon):
-
     lon_u, seqNum = np.unique(lon, return_inverse=True)
     seqNum = seqNum.astype(np.int32)
     logger.debug(f"Len of Sequence Number: {len(seqNum)}")
@@ -52,7 +51,7 @@ def bufr_to_ioda(config, logger):
 
     # General Information
     converter = 'BUFR to IODA Converter'
-    platform_description = 'ARGO profiles from subpfl: temperature and salinity'
+    platform_description = 'Profiles from BATHYthermal: temperature'
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
@@ -77,14 +76,13 @@ def bufr_to_ioda(config, logger):
     q.add('rday', '*/RCDY')
     q.add('rhour', '*/RCHR')
     q.add('rminute', '*/RCMI')
-    q.add('stationID', '*/WMOP')
-    q.add('latitude', '*/CLATH')
-    q.add('longitude', '*/CLONH')
-    q.add('depth', '*/GLPFDATA/WPRES')
+    q.add('stationID', '*/RPID')
+    q.add('latitude', '*/CLAT')
+    q.add('longitude', '*/CLON')
+    q.add('depth', '*/BTOCN/DBSS')
 
     # ObsValue
-    q.add('temp', '*/GLPFDATA/SSTH')
-    q.add('saln', '*/GLPFDATA/SALNH')
+    q.add('temp', '*/BTOCN/STMP')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -95,6 +93,7 @@ def bufr_to_ioda(config, logger):
     # Use the ResultSet returned to get numpy arrays of the data
     # ==========================================================
     start_time = time.time()
+
     logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
         r = f.execute(q)
@@ -109,59 +108,32 @@ def bufr_to_ioda(config, logger):
     lat = r.get('latitude', group_by='depth')
     lon = r.get('longitude', group_by='depth')
     depth = r.get('depth', group_by='depth')
-    # convert depth in pressure units to meters (rho * g * h)
-    depth = np.float32(depth.astype(float) * 0.0001)
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
     temp = r.get('temp', group_by='depth')
     temp -= 273.15
-    saln = r.get('saln', group_by='depth')
 
     # Add mask based on min, max values
-    mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
-    temp = temp[mask]
+    mask = ((temp > -10.0) & (temp <= 50.0))
     lat = lat[mask]
     lon = lon[mask]
     depth = depth[mask]
     stationID = stationID[mask]
+    dateTime = dateTime[mask]
+    rcptdateTime = rcptdateTime[mask]
+    temp = temp[mask]
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
 
-    # =======================================
-    # Separate ARGO profiles from subpfl tank
-    # =======================================
-    logger.debug(f"Finding index for ARGO floats where the second number of the stationID=9...")
-    index_list = []
-    for index, number in enumerate(stationID):
-        # Convert the number to a string
-        number_str = str(number)
-
-        # Check if the second character is equal to '9'
-        if number_str[1] == '9':
-            index_list.append(index)
-    logger.debug(f"Indexing Done...")
-
-    # Apply index
-    stationID = stationID[index_list]
-    lat = lat[index_list]
-    lon = lon[index_list]
-    depth = depth[index_list]
-    temp = temp[index_list]
-    saln = saln[index_list]
-    seqNum = seqNum[index_list]
-    dateTime = dateTime[index_list]
-    rcptdateTime = rcptdateTime[index_list]
-
     # ObsError
     logger.debug(f"Generating ObsError array with constant value (instrument error)...")
-    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(index_list)), 0.02)))
-    ObsError_saln = np.float32(np.ma.masked_array(np.full((len(index_list)), 0.01)))
+    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(temp)), 0.24)))
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")
-    PreQC = (np.ma.masked_array(np.full((len(index_list)), 0))).astype(np.int32)
+    PreQC = (np.ma.masked_array(np.full((len(temp)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -171,14 +143,13 @@ def bufr_to_ioda(config, logger):
     # ==================================================
     # Check values of BUFR variables, dimension and type
     # ==================================================
+
     logger.debug(f" temp          min, max, length, dtype = {temp.min()}, {temp.max()}, {len(temp)}, {temp.dtype}")
-    logger.debug(f" saln          min, max, length, dtype = {saln.min()}, {saln.max()}, {len(saln)}, {saln.dtype}")
     logger.debug(f" lon           min, max, length, dtype = {lon.min()}, {lon.max()}, {len(lon)}, {lon.dtype}")
     logger.debug(f" lat           min, max, length, dtype = {lat.min()}, {lat.max()}, {len(lat)}, {lat.dtype}")
     logger.debug(f" depth         min, max, length, dtype = {depth.min()}, {depth.max()}, {len(depth)}, {depth.dtype}")
     logger.debug(f" PreQC         min, max, length, dtype = {PreQC.min()}, {PreQC.max()}, {len(PreQC)}, {PreQC.dtype}")
     logger.debug(f" ObsError_temp min, max, length, dtype = {ObsError_temp.min()}, {ObsError_temp.max()}, {len(ObsError_temp)}, {ObsError_temp.dtype}")
-    logger.debug(f" ObsError_saln min, max, length, dtype = {ObsError_saln.min()}, {ObsError_saln.max()}, {len(ObsError_saln)}, {ObsError_saln.dtype}")
     logger.debug(f" stationID                shape, dtype = {stationID.shape}, {stationID.astype(str).dtype}")
     logger.debug(f" dateTime                 shape, dtype = {dateTime.shape}, {dateTime.dtype}")
     logger.debug(f" rcptdateTime             shape, dytpe = {rcptdateTime.shape}, {rcptdateTime.dtype}")
@@ -262,33 +233,12 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'PreQC') \
         .write_data(PreQC)
 
-    obsspace.create_var('PreQC/salinity', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
-        .write_attr('long_name', 'PreQC') \
-        .write_data(PreQC)
-
-    # ObsError
-    obsspace.create_var('ObsError/waterTemperature', dtype=ObsError_temp.dtype, fillval=ObsError_temp.fill_value) \
-        .write_attr('units', 'degC') \
-        .write_attr('long_name', 'ObsError') \
-        .write_data(ObsError_temp)
-
-    obsspace.create_var('ObsError/salinity', dtype=ObsError_saln.dtype, fillval=ObsError_saln.fill_value) \
-        .write_attr('units', 'psu') \
-        .write_attr('long_name', 'ObsError') \
-        .write_data(ObsError_saln)
-
     # ObsValue
     obsspace.create_var('ObsValue/waterTemperature', dtype=temp.dtype, fillval=temp.fill_value) \
         .write_attr('units', 'degC') \
         .write_attr('valid_range', np.array([-10.0, 50.0], dtype=np.float32)) \
         .write_attr('long_name', 'water Temperature') \
         .write_data(temp)
-
-    obsspace.create_var('ObsValue/salinity', dtype=saln.dtype, fillval=saln.fill_value) \
-        .write_attr('units', 'psu') \
-        .write_attr('valid_range', np.array([0.0, 45.0], dtype=np.float32)) \
-        .write_attr('long_name', 'salinity') \
-        .write_data(saln)
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -301,10 +251,10 @@ def bufr_to_ioda(config, logger):
 if __name__ == '__main__':
 
     start_time = time.time()
-    config = "bufr2ioda_subpfl_argo_profiles.json"
+    config = "bufr2ioda_bathythermal_profiles.json"
 
     log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger('bufr2ioda_subpfl_argo_profiles.py', level=log_level,
+    logger = Logger('bufr2ioda_bathythermal_profiles.py', level=log_level,
                     colored_log=True)
 
     with open(args.config, "r") as json_file:

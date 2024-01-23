@@ -1,12 +1,12 @@
 {
-  "data_format"      : "subpfl",
-  "subsets"          : "SUBPFL",
+  "data_format"      : "tesac",
+  "subsets"          : "TESAC",
   "source"           : "NCEP data tank",
-  "data_type"        : "argo",
+  "data_type"        : "tesac",
   "cycle_type"       : "{{ RUN }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
   "ioda_directory"   : "{{ COM_OBS }}",
-  "data_description" : "6-hrly in situ ARGO profiles",
+  "data_description" : "6-hrly in situ TESAC profiles",
   "data_provider"    : "U.S. NOAA"
 }
