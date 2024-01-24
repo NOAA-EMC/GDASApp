@@ -14,8 +14,8 @@ edate=2021080118
 app="ATM"
 starttype="cold"
 gfscyc=0
-resdet=96
-resens=96
+resdetatmos=96
+resdetatmos=96
 nens=0
 # config.* options
 DO_JEDIATMVAR="YES"
