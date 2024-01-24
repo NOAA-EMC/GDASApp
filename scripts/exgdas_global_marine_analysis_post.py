@@ -21,7 +21,6 @@
 import os
 import glob
 import shutil
-import logging
 from datetime import datetime, timedelta
 from wxflow import FileHandler, Logger
 
