@@ -25,8 +25,6 @@ import diag_statistics
 from multiprocessing import Process
 from soca_vrfy import statePlotter, plotConfig
 import subprocess
-from datetime import datetime, timedelta
-import time
 
 comout = os.path.realpath(os.getenv('COM_OCEAN_ANALYSIS'))
 com_ice_history = os.path.realpath(os.getenv('COM_ICE_HISTORY_PREV'))
@@ -149,15 +147,15 @@ configs = [plotConfig(grid_file=grid_file,
                       colormap='jet',
                       comout=os.path.join(comout, 'vrfy', 'bkg'))]   # ocean surface background
 
-# Number of processes (adjust as needed)
+# Number of processes
 num_processes = len(configs)
 
 # Create a list to store the processes
 processes = []
 
-# Iterate over pairs of elements from configs and plot_functions
+# Iterate over configs
 for config in configs[:num_processes]:
-    process = Process(target=plot_marine_vrfy, args=(config,))  # Pass the entire config as an argument
+    process = Process(target=plot_marine_vrfy, args=(config,))
     process.start()
     processes.append(process)
 
