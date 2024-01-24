@@ -29,7 +29,7 @@ def marine_eva_post(inputyaml, outputdir, diagdir):
             newfilename = os.path.join(diagdir, os.path.basename(filename))
             newfilenames.append(newfilename)
         dataset['filenames'] = newfilenames
-    for graphic in input_yaml_dict['graphics']:
+    for graphic in input_yaml_dict['graphics']['figure_list']:
         # this assumes that there is only one variable, or that the
         # variables are all the same
         variable = graphic['batch figure']['variables'][0]

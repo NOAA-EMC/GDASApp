@@ -24,7 +24,7 @@ observations:
           stationIdentification:
             query: "*/WGOSLID"
 
-          height:
+          stationElevation:
             query: "[*/SELV, */HSMSL]"
 
           # ObsValue
@@ -64,9 +64,9 @@ observations:
           units: "degree_east"
           range: [-180, 180]
 
-        - name: "MetaData/height"
+        - name: "MetaData/stationElevation"
           coordinates: "longitude latitude"
-          source: variables/height
+          source: variables/stationElevation
           longName: "Height of Station"
 
         - name: "MetaData/stationIdentification"

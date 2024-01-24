@@ -36,10 +36,6 @@ namespace gdasapp {
       fullConfig_.get("bounds.min", sstMin);
       float sstMax;
       fullConfig_.get("bounds.max", sstMax);
-      if ( sstUnits == "C" ) {
-        sstMin += 273.15;
-        sstMax += 273.15;
-      }
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
@@ -135,9 +131,9 @@ namespace gdasapp {
           preqc[i][j] = 5 - static_cast<int>(sstPreQC[0][i][j]);
 
           // bias corrected sst, regressed to the drifter depth
-          sst[i][j] = static_cast<float>(sstObsVal[index]) * sstScaleFactor + sstOffSet
+          // Remove added sstOffSet for Celsius
+          sst[i][j] = static_cast<float>(sstObsVal[index]) * sstScaleFactor
                     - static_cast<float>(sstObsBias[index]) * biasScaleFactor;
-
           // mask
           if (sst[i][j] >= sstMin && sst[i][j] <= sstMax && preqc[i][j] ==0) {
             mask[i][j] = 1;
@@ -181,8 +177,14 @@ namespace gdasapp {
       // number of obs after subsampling
       int nobs = sst_s.size() * sst_s[0].size();
 
+      // Set the int metadata names
+      std::vector<std::string> intMetadataNames = {"oceanBasin"};
+
+      // Set the float metadata name
+      std::vector<std::string> floatMetadataNames = {};
+
       // Create instance of iodaVars object
-      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, {}, {});
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
       // Reference time is Jan 01 1981 00:00:00 GMT+0000
       iodaVars.referenceDate_ = refDate;
@@ -197,6 +199,8 @@ namespace gdasapp {
           iodaVars.obsError_(loc)  = obserror_s[i][j];
           iodaVars.preQc_(loc)     = 0;
           iodaVars.datetime_(loc)  = seconds_s[i][j];
+          // Store optional metadata, set ocean basins to -999 for now
+          iodaVars.intMetadata_.row(loc) << -999;
           loc += 1;
         }
       }

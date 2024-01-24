@@ -123,19 +123,6 @@ namespace gdasapp {
         (iodaVars.obsVal_ > -4.0 && iodaVars.obsVal_ < 4.0);
       iodaVars.trim(boundsCheck);
 
-      // get ocean basin masks if asked in the config
-      obsproc::oceanmask::OceanMask* oceanMask = nullptr;
-      if (fullConfig_.has("ocean basin")) {
-          std::string fileName;
-          fullConfig_.get("ocean basin", fileName);
-          oceanMask = new obsproc::oceanmask::OceanMask(fileName);
-
-          for (int i = 0; i < iodaVars.location_; i++) {
-            iodaVars.intMetadata_.coeffRef(i, 3) =
-              oceanMask->getOceanMask(iodaVars.longitude_[i], iodaVars.latitude_[i]);
-          }
-      }
-
       return iodaVars;
     };
   };  // class Rads2Ioda

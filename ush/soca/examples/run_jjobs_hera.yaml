@@ -1,5 +1,5 @@
 machine: hera
-resdet: 48
+resdetatmos: 48
 
 jjobs:
  - JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP
@@ -37,8 +37,6 @@ setup_expt config:
     SOCA_OBS_LIST: ''
     COMIN_OBS:  /scratch2/NCEPDEV/marineda/r2d2
     SOCA_NINNER: 3
-    R2D2_OBS_SRC: 'gdas_marine'
-    R2D2_OBS_DUMP: 's2s_v1'
     SABER_BLOCKS_YAML: ''
     NICAS_RESOL: 1
     NICAS_GRID_SIZE: 15000
