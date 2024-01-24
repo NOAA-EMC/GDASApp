@@ -22,9 +22,9 @@ import numpy as np
 import gen_eva_obs_yaml
 import marine_eva_post
 import diag_statistics
+from multiprocessing import Process
 from soca_vrfy import statePlotter, plotConfig
 import subprocess
-from datetime import datetime, timedelta
 
 comout = os.path.realpath(os.getenv('COM_OCEAN_ANALYSIS'))
 com_ice_history = os.path.realpath(os.getenv('COM_ICE_HISTORY_PREV'))
@@ -41,164 +41,127 @@ diagdir = os.path.join(comout, 'diags')
 HOMEgfs = os.getenv('HOMEgfs')
 
 
-#######################################
-# recentering error
-#######################################
-data_file = os.path.join(comout, f'{RUN}.t{cyc}z.ocn.recentering_error.nc')
-config = plotConfig(grid_file=grid_file,
-                    data_file=data_file,
-                    variables_horiz={'ave_ssh': [-1, 1]},
-                    colormap='seismic',
-                    comout=os.path.join(comout, 'vrfy', 'recentering_error'))
-recErrPlotter = statePlotter(config)
-recErrPlotter.plot()
+# plot marine analysis vrfy
 
-#######################################
-# background error
-#######################################
+def plot_marine_vrfy(config):
+    ocnvrfyPlotter = statePlotter(config)
+    ocnvrfyPlotter.plot()
 
-for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev']:
-    data_file = os.path.join(comout, f'{RUN}.t{cyc}z.ocn.{string}.nc')
-    config = plotConfig(grid_file=grid_file,
-                        data_file=data_file,
-                        variables_horiz={'ave_ssh': [0, 0.8]},
-                        colormap='gist_ncar',
-                        comout=os.path.join(comout, 'vrfy', 'bkgerr', string))
-    bkgErrPlotter = statePlotter(config)
-    bkgErrPlotter.plot()
+# Define configurations dynamically
 
-string = 'steric_explained_variance'
-data_file = os.path.join(comout, f'{RUN}.t{cyc}z.ocn.{string}.nc')
-config = plotConfig(grid_file=grid_file,
-                    data_file=data_file,
-                    variables_horiz={'ave_ssh': [0, 1]},
-                    colormap='seismic',
-                    comout=os.path.join(comout, 'vrfy', 'bkgerr', string))
-bkgErrPlotter = statePlotter(config)
-bkgErrPlotter.plot()
 
-data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc')
-config = plotConfig(grid_file=grid_file,
-                    data_file=data_file,
-                    lats=np.arange(-60, 60, 10),
-                    lons=np.arange(-280, 80, 30),
-                    variables_zonal={'Temp': [0, 2],
-                                     'Salt': [0, 0.2],
-                                     'u': [0, 0.2],
-                                     'v': [0, 0.2]},
-                    variables_meridional={'Temp': [0, 2],
-                                          'Salt': [0, 0.2],
-                                          'u': [0, 0.2],
-                                          'v': [0, 0.2]},
-                    variables_horiz={'Temp': [0, 2],
-                                     'Salt': [0, 0.2],
-                                     'u': [0, 0.2],
-                                     'v': [0, 0.2],
-                                     'ave_ssh': [0, 0.1]},
-                    colormap='jet',
-                    comout=os.path.join(comout, 'vrfy', 'bkgerr'))
-bkgErrPlotter = statePlotter(config)
-bkgErrPlotter.plot()
+configs = [plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(comout, f'{RUN}.t{cyc}z.ocn.recentering_error.nc'),
+                      variables_horiz={'ave_ssh': [-1, 1]},
+                      colormap='seismic',
+                      comout=os.path.join(comout, 'vrfy', 'recentering_error')),   # recentering error
+           plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(comout, f'{RUN}.t{cyc}z.ocn.ssh_steric_stddev.nc'),
+                      variables_horiz={'ave_ssh': [0, 0.8]},
+                      colormap='gist_ncar',
+                      comout=os.path.join(comout, 'vrfy', 'bkgerr', 'ssh_steric_stddev')),   # ssh steric stddev
+           plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(comout, f'{RUN}.t{cyc}z.ocn.ssh_unbal_stddev.nc'),
+                      variables_horiz={'ave_ssh': [0, 0.8]},
+                      colormap='gist_ncar',
+                      comout=os.path.join(comout, 'vrfy', 'bkgerr', 'ssh_unbal_stddev')),   # ssh unbal stddev
+           plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(comout, f'{RUN}.t{cyc}z.ocn.ssh_total_stddev.nc'),
+                      variables_horiz={'ave_ssh': [0, 0.8]},
+                      colormap='gist_ncar',
+                      comout=os.path.join(comout, 'vrfy', 'bkgerr', 'ssh_total_stddev')),   # ssh total stddev
+           plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(comout, f'{RUN}.t{cyc}z.ocn.steric_explained_variance.nc'),
+                      variables_horiz={'ave_ssh': [0, 1]},
+                      colormap='seismic',
+                      comout=os.path.join(comout, 'vrfy', 'bkgerr', 'steric_explained_variance')),   # steric explained variance
+           plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc'),
+                      lats=np.arange(-60, 60, 10),
+                      lons=np.arange(-280, 80, 30),
+                      variables_zonal={'Temp': [0, 2],
+                                       'Salt': [0, 0.2],
+                                       'u': [0, 0.2],
+                                       'v': [0, 0.2]},
+                      variables_meridional={'Temp': [0, 2],
+                                            'Salt': [0, 0.2],
+                                            'u': [0, 0.2],
+                                            'v': [0, 0.2]},
+                      variables_horiz={'Temp': [0, 2],
+                                       'Salt': [0, 0.2],
+                                       'u': [0, 0.2],
+                                       'v': [0, 0.2],
+                                       'ave_ssh': [0, 0.1]},
+                      colormap='jet',
+                      comout=os.path.join(comout, 'vrfy', 'bkgerr')),   # ocn bkgerr stddev
+           plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc'),
+                      lats=np.arange(-60, 60, 10),
+                      lons=np.arange(-280, 80, 30),
+                      variables_zonal={'Temp': [-0.5, 0.5],
+                                       'Salt': [-0.1, 0.1]},
+                      variables_horiz={'Temp': [-0.5, 0.5],
+                                       'Salt': [-0.1, 0.1],
+                                       'ave_ssh': [-0.1, 0.1]},
+                      variables_meridional={'Temp': [-0.5, 0.5],
+                                            'Salt': [-0.1, 0.1]},
+                      colormap='RdBu',
+                      comout=os.path.join(comout, 'vrfy', 'incr')),   # ocean increment
+           plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc'),
+                      lats=np.arange(-60, 60, 10),
+                      variables_horiz={'aicen': [-0.2, 0.2],
+                                       'hicen': [-0.5, 0.5],
+                                       'hsnon': [-0.1, 0.1]},
+                      colormap='RdBu',
+                      projs=['North', 'South'],
+                      comout=os.path.join(comout, 'vrfy', 'incr')),   # sea ice increment
+           plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.iceana.nc'),
+                      variables_horiz={'aicen': [0.0, 1.0],
+                                       'hicen': [0.0, 4.0],
+                                       'hsnon': [0.0, 0.5]},
+                      colormap='jet',
+                      projs=['North', 'South', 'Global'],
+                      comout=os.path.join(comout, 'vrfy', 'ana')),   # sea ice analysis
+           plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(com_ice_history, f'{RUN}.t{gcyc}z.icef006.nc'),
+                      variables_horiz={'aice_h': [0.0, 1.0],
+                                       'hs_h': [0.0, 4.0],
+                                       'hi_h': [0.0, 0.5]},
+                      colormap='jet',
+                      projs=['North', 'South', 'Global'],
+                      comout=os.path.join(comout, 'vrfy', 'bkg')),   # sea ice background
+           plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ocnana.nc'),
+                      variables_horiz={'ave_ssh': [-1.8, 1.3],
+                                       'Temp': [-1.8, 34.0],
+                                       'Salt': [30, 38]},
+                      colormap='jet',
+                      comout=os.path.join(comout, 'vrfy', 'ana')),   # ocean surface analysis
+           plotConfig(grid_file=grid_file,
+                      data_file=os.path.join(com_ocean_history, f'{RUN}.t{gcyc}z.ocnf006.nc'),
+                      variables_horiz={'ave_ssh': [-1.8, 1.3],
+                                       'Temp': [-1.8, 34.0],
+                                       'Salt': [30, 38]},
+                      colormap='jet',
+                      comout=os.path.join(comout, 'vrfy', 'bkg'))]   # ocean surface background
 
-#######################################
-# ocean increment
-#######################################
+# Number of processes
+num_processes = len(configs)
 
-data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
-config = plotConfig(grid_file=grid_file,
-                    data_file=data_file,
-                    lats=np.arange(-60, 60, 10),
-                    lons=np.arange(-280, 80, 30),
-                    variables_zonal={'Temp': [-0.5, 0.5],
-                                     'Salt': [-0.1, 0.1]},
-                    variables_horiz={'Temp': [-0.5, 0.5],
-                                     'Salt': [-0.1, 0.1],
-                                     'ave_ssh': [-0.1, 0.1]},
-                    variables_meridional={'Temp': [-0.5, 0.5],
-                                          'Salt': [-0.1, 0.1]},
-                    colormap='RdBu',
-                    comout=os.path.join(comout, 'vrfy', 'incr'))
-ocnIncPlotter = statePlotter(config)
-ocnIncPlotter.plot()
+# Create a list to store the processes
+processes = []
 
-#######################################
-# sea ice increment
-#######################################
+# Iterate over configs
+for config in configs[:num_processes]:
+    process = Process(target=plot_marine_vrfy, args=(config,))
+    process.start()
+    processes.append(process)
 
-data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc')
-config = plotConfig(grid_file=grid_file,
-                    data_file=data_file,
-                    lats=np.arange(-60, 60, 10),
-                    variables_horiz={'aicen': [-0.2, 0.2],
-                                     'hicen': [-0.5, 0.5],
-                                     'hsnon': [-0.1, 0.1]},
-                    colormap='RdBu',
-                    projs=['North', 'South'],
-                    comout=os.path.join(comout, 'vrfy', 'incr'))
-iceIncPlotter = statePlotter(config)
-iceIncPlotter.plot()
-
-#######################################
-# sea ice analysis
-#######################################
-
-data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.iceana.nc')
-config = plotConfig(grid_file=grid_file,
-                    data_file=data_file,
-                    variables_horiz={'aicen': [0.0, 1.0],
-                                     'hicen': [0.0, 4.0],
-                                     'hsnon': [0.0, 0.5]},
-                    colormap='jet',
-                    projs=['North', 'South', 'Global'],
-                    comout=os.path.join(comout, 'vrfy', 'ana'))
-iceAnaPlotter = statePlotter(config)
-iceAnaPlotter.plot()
-
-#######################################
-# sea ice background
-#######################################
-
-data_file = os.path.join(com_ice_history, f'{RUN}.t{gcyc}z.icef006.nc')
-config = plotConfig(grid_file=grid_file,
-                    data_file=data_file,
-                    variables_horiz={'aice_h': [0.0, 1.0],
-                                     'hs_h': [0.0, 4.0],
-                                     'hi_h': [0.0, 0.5]},
-                    colormap='jet',
-                    projs=['North', 'South', 'Global'],
-                    comout=os.path.join(comout, 'vrfy', 'bkg'))
-iceBkgPlotter = statePlotter(config)
-iceBkgPlotter.plot()
-
-#######################################
-# ocean surface analysis
-#######################################
-
-data_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocnana.nc')
-config = plotConfig(grid_file=grid_file,
-                    data_file=data_file,
-                    variables_horiz={'ave_ssh': [-1.8, 1.3],
-                                     'Temp': [-1.8, 34.0],
-                                     'Salt': [30, 38]},
-                    colormap='jet',
-                    comout=os.path.join(comout, 'vrfy', 'ana'))
-ocnAnaPlotter = statePlotter(config)
-ocnAnaPlotter.plot()
-
-#######################################
-# ocean surface background
-#######################################
-
-data_file = os.path.join(com_ocean_history, f'{RUN}.t{gcyc}z.ocnf006.nc')
-config = plotConfig(grid_file=grid_file,
-                    data_file=data_file,
-                    variables_horiz={'ave_ssh': [-1.8, 1.3],
-                                     'Temp': [-1.8, 34.0],
-                                     'Salt': [30, 38]},
-                    colormap='jet',
-                    comout=os.path.join(comout, 'vrfy', 'bkg'))
-ocnBkgPlotter = statePlotter(config)
-ocnBkgPlotter.plot()
+# Wait for all processes to finish
+for process in processes:
+    process.join()
 
 #######################################
 # eva plots
