@@ -68,25 +68,28 @@ def obs_fetch(obsprepSpace, cycles):
     filepattern = obsprepSpace['dmpdir regex']
     matchingFiles = []
     fileCopy = []
+    targetFiles = []
 
     for cycle in cycles:
 
         cycleDate = cycle.strftime('%Y%m%d')
         cycleHour = cycle.strftime('%H')
 
-        cycDir = os.path.join(DMPDIR, RUN + '.' + cycleDate, cycleHour)
-        dataDir = os.path.join(cycDir, subDir)
+        #cycDir = os.path.join(DMPDIR, RUN + '.' + cycleDate, cycleHour)
+        #dataDir = os.path.join(cycDir, subDir)
+        dataDir = os.path.join(DMPDIR, RUN + '.' + cycleDate, cycleHour, subDir)
 
         # TODO: check the existence of this
         print('dataDir:', dataDir)
 
         for root, _, files in os.walk(dataDir):
             for filename in fnmatch.filter(files, filepattern):
-                matchingFiles.append((dataDir, filename))
+                targetFile = cycleDate + cycleHour + '-' + filename
+                matchingFiles.append((dataDir, filename, targetFile))
 
     for matchingFile in matchingFiles:
         filePath = os.path.join(matchingFile[0], matchingFile[1])
-        fileDestination = os.path.join(COMIN_OBS,  matchingFile[1] )
+        fileDestination = os.path.join(COMIN_OBS,  matchingFile[2])
         fileCopy.append([filePath, fileDestination])
 
     print(f"fileCopy: {fileCopy}")
@@ -94,5 +97,5 @@ def obs_fetch(obsprepSpace, cycles):
 
     FileHandler({'copy': fileCopy}).sync()
 
-    # return just the file names, not the original paths
-    return [f[1] for f in matchingFiles]
+    # return the modified file names for the IODA converters
+    return [f[2] for f in matchingFiles]
