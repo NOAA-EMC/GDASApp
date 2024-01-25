@@ -1,7 +1,7 @@
 &fIMS_nml
   idim = {{ CASE[1:] }},
   jdim = {{ CASE[1:] }},
-  otype = "{{ CASE }}.mx{{ OCNRES }}_oro_data",
+  otype = "{{ CASE }}_oro_data",
   jdate = "{{ current_cycle | to_julian }}",
   yyyymmddhh = "{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}",
   imsformat = 2,
