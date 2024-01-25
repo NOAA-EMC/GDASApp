@@ -9,6 +9,10 @@ from wxflow import YAMLFile, save_as_yaml, FileHandler, Logger
 
 logger = Logger()
 
+obsWindowBefore = 8
+obsWindowAfter = 4
+
+
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
 
@@ -61,8 +65,16 @@ try:
 
                 logger.info(f"obsprepSpaceName: {obsSpaceName}")
 
+                pdyDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
+                cycles = []
+
+                for i in range(-obsWindowBefore, obsWindowAfter+1):
+                    interval = timedelta(hours=6 * i)
+                    cycles.append(pdyDatetime + interval)
+
+
                 # fetch the obs files from DMPDIR to RUNDIR
-                matchingFiles = prep_marine_obs.obs_fetch(obsprepSpace)
+                matchingFiles = prep_marine_obs.obs_fetch(obsprepSpace, cycles)
 
                 if not matchingFiles:
                     logger.warning("No files found for obs source , skipping")

@@ -11,7 +11,6 @@ PDY = os.getenv('PDY')
 RUN = os.getenv('RUN')
 COMIN_OBS = os.getenv('COMIN_OBS')
 
-cycDir = os.path.join(DMPDIR, RUN + '.' + str(PDY), str(cyc))
 
 # TODO: this looks good for a yaml
 obs_dict = {
@@ -63,29 +62,37 @@ obs_dict = {
 }
 
 
-def obs_fetch(obsprepSpace):
+def obs_fetch(obsprepSpace, cycles):
 
     subDir = obsprepSpace['dmpdir subdir']
     filepattern = obsprepSpace['dmpdir regex']
-
-    dataDir = os.path.join(cycDir, subDir)
-    # TODO: check the existence of this
-    print('dataDir:', dataDir)
     matchingFiles = []
+    fileCopy = []
 
-    for root, _, files in os.walk(dataDir):
-        for filename in fnmatch.filter(files, filepattern):
-            matchingFiles.append(filename)
+    for cycle in cycles:
 
-    obsCopy = []
-    for obsSource in matchingFiles:
-        obsPath = os.path.join(dataDir, obsSource)
-        obsDestination = os.path.join(COMIN_OBS, obsSource)
-        obsCopy.append([obsPath, obsDestination])
+        cycleDate = cycle.strftime('%Y%m%d')
+        cycleHour = cycle.strftime('%H')
 
-    print(f"obsCopy: {obsCopy}")
+        cycDir = os.path.join(DMPDIR, RUN + '.' + cycleDate, cycleHour)
+        dataDir = os.path.join(cycDir, subDir)
+
+        # TODO: check the existence of this
+        print('dataDir:', dataDir)
+
+        for root, _, files in os.walk(dataDir):
+            for filename in fnmatch.filter(files, filepattern):
+                matchingFiles.append((dataDir, filename))
+
+    for matchingFile in matchingFiles:
+        filePath = os.path.join(matchingFile[0], matchingFile[1])
+        fileDestination = os.path.join(COMIN_OBS,  matchingFile[1] )
+        fileCopy.append([filePath, fileDestination])
+
+    print(f"fileCopy: {fileCopy}")
     print(f"matchingFiles: {matchingFiles}")
 
-    FileHandler({'copy': obsCopy}).sync()
+    FileHandler({'copy': fileCopy}).sync()
 
-    return matchingFiles
+    # return just the file names, not the original paths
+    return [f[1] for f in matchingFiles]
