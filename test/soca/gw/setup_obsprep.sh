@@ -11,9 +11,13 @@ mkdir -p ${test_dmpdir}
 
 cd ${test_dmpdir}
 
-mkdir SSS ADT icec sst
+mkdir atmos SSS ADT icec sst
 
 ${project_source_dir}/test/soca/gw/prepdata.sh ${project_source_dir}
 
+echo "Copy subsampled BUFR into atmos directory..."
+for f in $PWD/../../../../../testdata/*_subsampled; do
+    cp -p $f atmos/
+done
 
 
