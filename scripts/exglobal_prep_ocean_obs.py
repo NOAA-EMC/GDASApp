@@ -2,15 +2,12 @@
 # exglobal_prep_ocean_obs.py
 # Pepares observations for marine DA
 from datetime import datetime, timedelta
-import logging
 import os
 from soca import prep_marine_obs
 import subprocess
-from wxflow import YAMLFile, save_as_yaml, FileHandler
+from wxflow import YAMLFile, save_as_yaml, FileHandler, Logger
 
-# TODO (AFE) figure out why logger is not logging
-# set up logger
-logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
+logger = Logger()
 
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
@@ -35,7 +32,7 @@ OBSPREP_YAML = os.getenv('OBSPREP_YAML')
 if os.path.exists(OBSPREP_YAML):
     obsprepConfig = YAMLFile(OBSPREP_YAML)
 else:
-    print(f"CRITICAL: OBSPREP_YAML file {OBSPREP_YAML} does not exist")
+    logger.critical(f"OBSPREP_YAML file {OBSPREP_YAML} does not exist")
     raise FileNotFoundError
 
 filesToSave = []
@@ -47,10 +44,10 @@ try:
 
         try:
             obsSpaceName = observer['obs space']['name']
-            print(f"obsSpaceName: {obsSpaceName}")
+            logger.info(f"obsSpaceName: {obsSpaceName}")
         except KeyError:
-            print(f"observer: {observer}")
-            print("WARNING: Ill-formed observer yaml file, skipping")
+            logger.warning(f"observer: {observer}")
+            logger.warning("Ill-formed observer yaml file, skipping")
             continue  # to next observer
 
 # ...look through the observations in OBSPREP_YAML...
@@ -62,13 +59,13 @@ try:
 # ...for a matching name, and process the observation source
             if obsprepSpaceName == obsSpaceName:
 
-                print(f"obsprepSpaceName: {obsSpaceName}")
+                logger.info(f"obsprepSpaceName: {obsSpaceName}")
 
                 # fetch the obs files from DMPDIR to RUNDIR
                 matchingFiles = prep_marine_obs.obs_fetch(obsprepSpace)
 
                 if not matchingFiles:
-                    print("WARNING: No files found for obs source , skipping")
+                    logger.warning("No files found for obs source , skipping")
                     break  # to next observation source in OBS_YAML
 
                 obsprepSpace['input files'] = matchingFiles
@@ -87,7 +84,7 @@ try:
                 filesToSave.append([iodaYamlFilename,
                                     os.path.join(COMOUT_OBS, iodaYamlFilename)])
 except TypeError:
-    print("CRITICAL: Ill-formed OBS_YAML or OBSPREP_YAML file, exiting")
+    logger.critical("Ill-formed OBS_YAML or OBSPREP_YAML file, exiting")
     raise
 
 if not os.path.exists(COMOUT_OBS):
