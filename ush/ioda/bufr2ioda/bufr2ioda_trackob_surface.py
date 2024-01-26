@@ -83,6 +83,7 @@ def bufr_to_ioda(config, logger):
     q.add('stationID', '*/RPID')
     q.add('latitude', '*/CLAT')
     q.add('longitude', '*/CLON')
+    q.add('depth', '*/BTOCN/DBSS')
 
     # ObsValue
     q.add('temp', '*/BTOCN/STMP')
