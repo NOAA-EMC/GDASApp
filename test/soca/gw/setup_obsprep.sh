@@ -1,6 +1,10 @@
 #!/bin/bash
 set -ex
 
+# working directory as set in cmake assumed to be ${PROJECT_BINARY_DIR}/test/soca/gw/obsprep
+# which is the soca ctest's fake dmpdir
+
+
 # Ensure project source directory is provided as argument
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <project_source_dir>"
@@ -9,6 +13,9 @@ fi
 
 project_source_dir="$1"
 testdatadir="${project_source_dir}/test/soca/testdata"
+
+#clean up previous attempts
+rm -r gdas.20180414  gdas.20180415
 
 # Define PDYs, cycs, and obstypes
 PDYs=("20180414" "20180415")
