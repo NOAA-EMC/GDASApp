@@ -48,7 +48,8 @@ for PDY in "${PDYs[@]}"; do
                  if [ -f "$file" ]; then
                       filename=$(basename -- "$file")
                       filename_noext="${filename%.cdl}"
-                      cp "$file" $fullsubdir/"${filename_noext}.nc"
+                      #cp "$file" $fullsubdir/"${filename_noext}.nc"
+                      ncgen -o $fullsubdir/"${filename_noext}.nc" "$file"
                  fi
             done
         done
