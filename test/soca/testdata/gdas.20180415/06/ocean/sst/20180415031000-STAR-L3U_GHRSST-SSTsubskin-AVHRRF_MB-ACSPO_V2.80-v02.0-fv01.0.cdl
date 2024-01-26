@@ -188,7 +188,7 @@ variables:
 		:geospatial_lat_units = "degrees_north" ;
 		:geospatial_lon_resolution = 0.02f ;
 		:geospatial_lon_units = "degrees_east" ;
-		:history = "Fri Jan 26 16:43:08 2024: ncks -C -x -v crs -d lat,50,9000,100 -d lon,50,18000,100 /scratch1/NCEPDEV/stmp4/Shastri.Paturi/forAndrew//gdas.20180415/06/sst/20180415031000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.nc /scratch1/NCEPDEV/da/Andrew.Eichmann/fv3gfs/myfork/global-workflow/sorc/gdas.cd/test/soca/testdata//gdas.20180415/06/sst/20180415031000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.tmp.nc\nCreated by the L2-to-L3 conversion tool,  which was developed and provided by NOAA/NESDIS/STAR and CCNY. The version is 4.6.7" ;
+		:history = "Fri Jan 26 21:09:29 2024: ncks -C -x -v crs -d lat,50,9000,100 -d lon,50,18000,100 /scratch1/NCEPDEV/stmp4/Shastri.Paturi/forAndrew//gdas.20180415/06/sst/20180415031000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.nc /scratch1/NCEPDEV/da/Andrew.Eichmann/fv3gfs/myfork/global-workflow/sorc/gdas.cd/test/soca/testdata//gdas.20180415/06/ocean/sst/20180415031000-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.tmp.nc\nCreated by the L2-to-L3 conversion tool,  which was developed and provided by NOAA/NESDIS/STAR and CCNY. The version is 4.6.7" ;
 		:id = "AVHRRF_MB-STAR-L3U-v2.8" ;
 		:institution = "NOAA/NESDIS/STAR" ;
 		:keywords = "Oceans > Ocean Temperature > Sea Surface Temperature" ;

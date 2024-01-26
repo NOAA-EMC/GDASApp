@@ -15,12 +15,12 @@ project_source_dir="$1"
 testdatadir="${project_source_dir}/test/soca/testdata"
 
 #clean up previous attempts
-rm -r gdas.20180414  gdas.20180415
+rm -rf gdas.20180414  gdas.20180415
 
 # Define PDYs, cycs, and obstypes
 PDYs=("20180414" "20180415")
 cycs=("00" "06" "12" "18")
-obstypes=("SSS" "ADT" "icec" "sst")
+obstypes=("SSS" "adt" "icec" "sst")
 
 # Convert cdl files into nc for all cycles and obstypes
 for PDY in "${PDYs[@]}"; do
