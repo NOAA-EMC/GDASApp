@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # exglobal_prep_ocean_obs.py
-# Pepares observations for marine DA
+# Prepares observations for marine DA
 from datetime import datetime, timedelta
 import os
-from soca import prep_marine_obs
 import subprocess
+from soca import prep_marine_obs
 from wxflow import YAMLFile, save_as_yaml, FileHandler, Logger
 
 logger = Logger()
@@ -12,7 +12,7 @@ logger = Logger()
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
 
-# set the window times
+# Set the window times
 cdateDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
 windowBeginDatetime = cdateDatetime - timedelta(hours=3)
 windowEndDatetime = cdateDatetime + timedelta(hours=3)
@@ -23,8 +23,7 @@ OCNOBS2IODAEXEC = os.getenv('OCNOBS2IODAEXEC')
 COMOUT_OBS = os.getenv('COMOUT_OBS')
 
 OBS_YAML = os.getenv('OBS_YAML')
-# this will fail with FileNotFoundError if all yaml files in OBS_YAML are not
-# present in OBS_YAML_DIR
+
 obsConfig = YAMLFile(OBS_YAML)
 
 OBSPREP_YAML = os.getenv('OBSPREP_YAML')
@@ -35,31 +34,24 @@ else:
     logger.critical(f"OBSPREP_YAML file {OBSPREP_YAML} does not exist")
     raise FileNotFoundError
 
-filesToSave = []
+files_to_save = []
 
-# TODO (AFE): needs more error handling (missing sources, missing files)
 try:
-    # For each of the observation sources (observers) specificed in the OBS_YAML...
     for observer in obsConfig['observers']:
-
         try:
-            obsSpaceName = observer['obs space']['name']
-            logger.info(f"obsSpaceName: {obsSpaceName}")
+            obs_space_name = observer['obs space']['name']
+            logger.info(f"obsSpaceName: {obs_space_name}")
         except KeyError:
             logger.warning(f"observer: {observer}")
             logger.warning("Ill-formed observer yaml file, skipping")
-            continue  # to next observer
+            continue
 
-# ...look through the observations in OBSPREP_YAML...
         for observation in obsprepConfig['observations']:
-
             obsprepSpace = observation['obs space']
             obsprepSpaceName = obsprepSpace['name']
 
-# ...for a matching name, and process the observation source
-            if obsprepSpaceName == obsSpaceName:
-
-                logger.info(f"obsprepSpaceName: {obsSpaceName}")
+            if obsprepSpaceName == obs_space_name:
+                logger.info(f"obsprepSpaceName: {obs_space_name}")
 
                 pdyDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
                 cycles = []
@@ -67,26 +59,24 @@ try:
                 try:
                     obsWindowBack = obsprepSpace['window']['back']
                     obsWindowForward = obsprepSpace['window']['forward']
-                except KeyError: # if not indicated, use defaults
+                except KeyError:
                     obsWindowBack = 0
                     obsWindowForward = 0
 
-                for i in range(-obsWindowBack, obsWindowForward+1):
+                for i in range(-obsWindowBack, obsWindowForward + 1):
                     interval = timedelta(hours=6 * i)
                     cycles.append(pdyDatetime + interval)
 
-
-                # fetch the obs files from DMPDIR to RUNDIR
                 matchingFiles = prep_marine_obs.obs_fetch(obsprepSpace, cycles)
 
                 if not matchingFiles:
-                    logger.warning("No files found for obs source , skipping")
-                    break  # to next observation source in OBS_YAML
+                    logger.warning("No files found for obs source, skipping")
+                    break
 
                 obsprepSpace['input files'] = matchingFiles
                 obsprepSpace['window begin'] = windowBegin
                 obsprepSpace['window end'] = windowEnd
-                outputFilename = f"gdas.t{cyc}z.{obsSpaceName}.{PDY}{cyc}.nc4"
+                outputFilename = f"gdas.t{cyc}z.{obs_space_name}.{PDY}{cyc}.nc4"
                 obsprepSpace['output file'] = outputFilename
 
                 iodaYamlFilename = obsprepSpaceName + '2ioda.yaml'
@@ -94,10 +84,10 @@ try:
 
                 subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
 
-                filesToSave.append([obsprepSpace['output file'],
-                                    os.path.join(COMOUT_OBS, obsprepSpace['output file'])])
-                filesToSave.append([iodaYamlFilename,
-                                    os.path.join(COMOUT_OBS, iodaYamlFilename)])
+                files_to_save.append([obsprepSpace['output file'],
+                                      os.path.join(COMOUT_OBS, obsprepSpace['output file'])])
+                files_to_save.append([iodaYamlFilename,
+                                      os.path.join(COMOUT_OBS, iodaYamlFilename)])
 except TypeError:
     logger.critical("Ill-formed OBS_YAML or OBSPREP_YAML file, exiting")
     raise
@@ -105,4 +95,4 @@ except TypeError:
 if not os.path.exists(COMOUT_OBS):
     os.makedirs(COMOUT_OBS)
 
-FileHandler({'copy': filesToSave}).sync()
+FileHandler({'copy': files_to_save}).sync()
