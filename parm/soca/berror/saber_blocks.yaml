@@ -74,15 +74,24 @@ components:
     localization:
       localization method: SABER
       saber central block:
-        saber block name: BUMP_NICAS
+        saber block name: EXPLICIT_DIFFUSION
+        active variables: [tocn, socn, ssh]
+        geometry:
+          mom6_input_nml: mom_input.nml
+          fields metadata: ./fields_metadata.yaml
+        group mapping:
+        - name: ocean
+          variables: [tocn, socn, socn, ssh]
+        - name: ice
+          variables: [cicen]
         read:
-          io:
-            data directory: bump
-          drivers:
-            multivariate strategy: duplicated
-            read local nicas: true
-          model:
-            do not cross mask boundaries: false
+          groups:
+          - name: ocean
+            horizontal:
+              filename: hz_ocean.nc
+          - name: ice
+            horizontal:
+              filename: hz_ice.nc
 
   weight:
     read_from_file: 3

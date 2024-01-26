@@ -402,24 +402,6 @@ config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BR
 config.save(diffu_vt_yaml)
 
 ################################################################################
-# generate yaml for bump/nicas (used for correlation and/or localization)
-
-logger.info(f"---------------- generate BUMP/NICAS localization yamls")
-# localization bump yaml
-bumpdir = 'bump'
-ufsda.disk_utils.mkdir(os.path.join(anl_dir, bumpdir))
-bump_yaml = os.path.join(anl_dir, 'soca_bump_loc.yaml')
-bump_yaml_template = os.path.join(gdas_home,
-                                  'parm',
-                                  'soca',
-                                  'berror',
-                                  'soca_bump_loc.yaml')
-config = YAMLFile(path=bump_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-config.save(bump_yaml)
-
-################################################################################
 # generate yaml for soca_var
 
 logger.info(f"---------------- generate var.yaml")
