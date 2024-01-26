@@ -17,6 +17,9 @@ observations:
     dmpdir regex: rads_adt_??_???????.nc
     provider: RADS
     output file: adt_rads_all.nc4
+    window:
+       back: 8         # look back 8 six-hourly obs dumps
+       forward: 1    #  look forward 1 six-hourly bin 
 - obs space:
     name: icec_amsr2_north
     provider: AMSR2
@@ -39,3 +42,6 @@ observations:
       units: C
       min: -3.0
       max: 50.0
+    window:
+       back: 4
+       forward: 0   

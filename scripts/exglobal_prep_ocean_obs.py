@@ -9,10 +9,6 @@ from wxflow import YAMLFile, save_as_yaml, FileHandler, Logger
 
 logger = Logger()
 
-obsWindowBefore = 8
-obsWindowAfter = 4
-
-
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
 
@@ -68,7 +64,14 @@ try:
                 pdyDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
                 cycles = []
 
-                for i in range(-obsWindowBefore, obsWindowAfter+1):
+                try:
+                    obsWindowBack = obsprepSpace['window']['back']
+                    obsWindowForward = obsprepSpace['window']['forward']
+                except KeyError: # if not indicated, use defaults
+                    obsWindowBack = 0
+                    obsWindowForward = 0
+
+                for i in range(-obsWindowBack, obsWindowForward+1):
                     interval = timedelta(hours=6 * i)
                     cycles.append(pdyDatetime + interval)
 
