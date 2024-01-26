@@ -27,7 +27,7 @@ for PDY in "${PDYs[@]}"; do
     PDYdir="gdas.${PDY}"
     for cyc in "${cycs[@]}"; do
         for obstype in "${obstypes[@]}"; do
-            fullsubdir="$PDYdir/$cyc/$obstype"
+            fullsubdir="$PDYdir/$cyc/ocean/$obstype"
             mkdir -p "$fullsubdir"
 
             indir="${testdatadir}/${fullsubdir}"
