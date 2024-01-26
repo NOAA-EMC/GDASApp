@@ -75,8 +75,6 @@ def obs_fetch(obsprepSpace, cycles):
         cycleDate = cycle.strftime('%Y%m%d')
         cycleHour = cycle.strftime('%H')
 
-        #cycDir = os.path.join(DMPDIR, RUN + '.' + cycleDate, cycleHour)
-        #dataDir = os.path.join(cycDir, subDir)
         dataDir = os.path.join(DMPDIR, RUN + '.' + cycleDate, cycleHour, subDir)
 
         # TODO: check the existence of this
@@ -89,7 +87,7 @@ def obs_fetch(obsprepSpace, cycles):
 
     for matchingFile in matchingFiles:
         filePath = os.path.join(matchingFile[0], matchingFile[1])
-        fileDestination = os.path.join(COMIN_OBS,  matchingFile[2])
+        fileDestination = os.path.join(COMIN_OBS, matchingFile[2])
         fileCopy.append([filePath, fileDestination])
 
     print(f"fileCopy: {fileCopy}")
