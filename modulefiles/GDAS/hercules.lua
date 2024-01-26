@@ -68,12 +68,6 @@ unload("py-numpy/1.22.3")
 load("miniconda3/4.6.14")
 load("gdasapp/1.0.0")
 
-load("boost/1.83.0")
-load("bufr/12.0.1")
-load("fckit/0.11.0")
-load("atlas/0.35.1")
-load("py-pybind11/2.11.0")
-
 -- below is a hack because of cmake finding the wrong python...
 setenv("CONDA_PREFIX", "/work2/noaa/da/python/opt/core/miniconda3/4.6.14/envs/gdasapp/")
 
@@ -85,7 +79,6 @@ local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
-setenv('R2D2_CONFIG', '/work2/noaa/da/cmartin/GDASApp/R2D2_SHARED/config_orion.yaml')
 setenv("CRTM_FIX","/work2/noaa/da/cmartin/GDASApp/fix/crtm/2.4.0")
 setenv("GDASAPP_TESTDATA","/work2/noaa/da/cmartin/CI/GDASApp/data")
 prepend_path("PATH","/apps/contrib/NCEP/libs/hpc-stack/intel-2018.4/prod_util/1.2.2/bin")
