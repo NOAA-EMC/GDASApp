@@ -80,7 +80,7 @@ def obs_fetch(obsprepSpace, cycles):
         dataDir = os.path.join(DMPDIR, RUN + '.' + cycleDate, cycleHour, subDir)
 
         # TODO: check the existence of this
-        logger.info('dataDir:', dataDir)
+        logger.info(f"dataDir: {dataDir}")
 
         for root, _, files in os.walk(dataDir):
             for filename in fnmatch.filter(files, filepattern):
