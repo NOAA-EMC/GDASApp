@@ -11,9 +11,7 @@ mkdir -p ${test_dmpdir}
 
 cd ${test_dmpdir}
 
-mkdir SSS ADT icec sst
+mkdir -p ocean/sss ocean/adt ocean/icec ocean/sst
 
 ${project_source_dir}/test/soca/gw/prepdata.sh ${project_source_dir}
-
-
 
