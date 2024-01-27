@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-from wxflow import FileHandler
 import os
 import fnmatch
+from wxflow import FileHandler, Logger
+
+logger = Logger()
 
 
 DMPDIR = os.getenv('DMPDIR')
@@ -78,7 +80,7 @@ def obs_fetch(obsprepSpace, cycles):
         dataDir = os.path.join(DMPDIR, RUN + '.' + cycleDate, cycleHour, subDir)
 
         # TODO: check the existence of this
-        print('dataDir:', dataDir)
+        logger.info('dataDir:', dataDir)
 
         for root, _, files in os.walk(dataDir):
             for filename in fnmatch.filter(files, filepattern):
@@ -90,8 +92,8 @@ def obs_fetch(obsprepSpace, cycles):
         fileDestination = os.path.join(COMIN_OBS, matchingFile[2])
         fileCopy.append([filePath, fileDestination])
 
-    print(f"fileCopy: {fileCopy}")
-    print(f"matchingFiles: {matchingFiles}")
+    logger.info(f"fileCopy: {fileCopy}")
+    logger.info(f"matchingFiles: {matchingFiles}")
 
     FileHandler({'copy': fileCopy}).sync()
 
