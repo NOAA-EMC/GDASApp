@@ -1,5 +1,5 @@
 observers:
 - !INC ${OBS_YAML_DIR}/adt_rads_all.yaml
-#- !INC ${OBS_YAML_DIR}/sst_metopb_l3u.yaml
+- !INC ${OBS_YAML_DIR}/sst_metopb_l3u.yaml
 - !INC ${OBS_YAML_DIR}/icec_amsr2_north.yaml
 - !INC ${OBS_YAML_DIR}/icec_amsr2_south.yaml
