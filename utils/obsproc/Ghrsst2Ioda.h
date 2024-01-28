@@ -212,9 +212,10 @@ namespace gdasapp {
 
       // Replace datime by its mean
       // TODO(ASGM): Remove when the time reading is fixed
-      int64_t mean = iodaVars.datetime_.sum() / iodaVars.datetime_.size();
-      iodaVars.datetime_.setConstant(mean);
-
+      if  (iodaVars.datetime_.size() > 0) {
+        int64_t mean = iodaVars.datetime_.sum() / iodaVars.datetime_.size();
+        iodaVars.datetime_.setConstant(mean);
+      }
       return iodaVars;
     };
   };  // class Ghrsst2Ioda
