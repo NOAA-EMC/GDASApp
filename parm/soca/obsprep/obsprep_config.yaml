@@ -4,7 +4,6 @@ observations:
     dmpdir subdir: ocean/sss
     dmpdir regex: SMAP_L2B_SSS_NRT_*.h5
     provider: SMAP
-    output file: sss_smap.ioda.nc
 - obs space:
     name: sss_smos
     provider: SMOS
