@@ -12,6 +12,7 @@ PDY = os.getenv('PDY')
 RUN = os.getenv('RUN')
 COMIN_OBS = os.getenv('COMIN_OBS')
 
+
 def obs_fetch(obsprepSpace, cycles):
 
     subDir = obsprepSpace['dmpdir subdir']
