@@ -35,6 +35,7 @@ else:
     logger.critical(f"OBSPREP_YAML file {OBSPREP_YAML} does not exist")
     raise FileNotFoundError
 
+
 def run_netcdf_to_ioda(obsspace_to_convert):
     name, iodaYamlFilename = obsspace_to_convert
     try:
@@ -44,6 +45,7 @@ def run_netcdf_to_ioda(obsspace_to_convert):
         logger.info(f"ioda converter failed with error {e}, \
             return code {e.returncode}")
         return e.returncode
+
 
 files_to_save = []
 obsspaces_to_convert = []
