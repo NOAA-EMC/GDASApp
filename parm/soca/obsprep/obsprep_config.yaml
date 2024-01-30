@@ -40,10 +40,10 @@ observations:
 
 # SST
 - obs space:
-    name: sst_metopa_l3u
+    name: sst_avhrr_ma_l3u
     provider: GHRSST
     dmpdir subdir: 'ocean/sst'
-    output file: sst_metopa_l3u.ioda.nc
+    output file: sst_avhrr_ma_l3u.ioda.nc
     dmpdir regex: '*-L3U_GHRSST-SSTsubskin-AVHRRF_MA-ACSPO_V*.nc'
     bounds:
       units: C
@@ -54,10 +54,10 @@ observations:
       min number of obs: 10
 
 - obs space:
-    name: sst_metopb_l3u
+    name: sst_avhrr_mb_l3u
     provider: GHRSST
     dmpdir subdir: 'ocean/sst'
-    output file: sst_metopb_l3u.ioda.nc
+    output file: sst_avhrr_mb_l3u.ioda.nc
     dmpdir regex: '*-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V*.nc'
     bounds:
       units: C
@@ -68,10 +68,10 @@ observations:
       min number of obs: 10
 
 - obs space:
-    name: sst_metopc_l3u
+    name: sst_avhrr_mc_l3u
     provider: GHRSST
     dmpdir subdir: 'ocean/sst'
-    output file: sst_metopc_l3u.ioda.nc
+    output file: sst_avhrr_mc_l3u.ioda.nc
     dmpdir regex: '*-L3U_GHRSST-SSTsubskin-AVHRRF_MC-ACSPO_V*.nc'
     bounds:
       units: C

@@ -3,9 +3,9 @@ observers:
 - !INC ${OBS_YAML_DIR}/adt_rads_all.yaml
 
 # SST
-- !INC ${OBS_YAML_DIR}/sst_metopa_l3u.yaml
-- !INC ${OBS_YAML_DIR}/sst_metopb_l3u.yaml
-- !INC ${OBS_YAML_DIR}/sst_metopc_l3u.yaml
+- !INC ${OBS_YAML_DIR}/sst_avhrr_ma_l3u.yaml
+- !INC ${OBS_YAML_DIR}/sst_avhrr_mb_l3u.yaml
+- !INC ${OBS_YAML_DIR}/sst_avhrr_mc_l3u.yaml
 - !INC ${OBS_YAML_DIR}/sst_viirs_npp_l3u.yaml
 - !INC ${OBS_YAML_DIR}/sst_viirs_n20_l3u.yaml
 - !INC ${OBS_YAML_DIR}/sst_abi_g16_l3c.yaml

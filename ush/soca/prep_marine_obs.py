@@ -50,10 +50,10 @@ obs_dict = {
     'sss_smap': ('SSS', 'SMAP_L2B_SSS_NRT_?????_[AD]_????????T??????.h5'),
 
     #                               '20210701145000-OSPO-L3U_GHRSST-SSTsubskin-AVHRRF_MA-ACSPO_V2.70-v02.0-fv01.0.nc'
-    'sst_metopa_l3u_so025': ('sst', '??????????????-OSPO-L3U_GHRSST-SSTsubskin-AVHRRF_MA-ACSPO_V2.70-v02.0-fv01.0.nc'),
+    'sst_avhrr_ma_l3u_so025': ('sst', '??????????????-OSPO-L3U_GHRSST-SSTsubskin-AVHRRF_MA-ACSPO_V2.70-v02.0-fv01.0.nc'),
 
     #                               '20210701145000-OSPO-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.70-v02.0-fv01.0.nc'
-    'sst_metopb_l3u_so025': ('sst', '??????????????-OSPO-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.70-v02.0-fv01.0.nc'),
+    'sst_avhrr_mb_l3u_so025': ('sst', '??????????????-OSPO-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.70-v02.0-fv01.0.nc'),
 
     #                     '20210701150000-OSPO-L3U_GHRSST-SSTsubskin-VIIRS_N20-ACSPO_V2.61-v02.0-fv01.0.nc'
     'sst_viirs_n20_l3u_so025': ('sst', '??????????????-OSPO-L3U_GHRSST-SSTsubskin-VIIRS_N20-ACSPO_V2.61-v02.0-fv01.0.nc'),
