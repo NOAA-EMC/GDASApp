@@ -1,41 +1,50 @@
 observations:
 - obs space:
     name: sss_smap
-    dmpdir subdir: SSS
-    dmpdir regex: SMAP_L2B_SSS_NRT_?????_[AD]_????????T??????.h5
+    dmpdir subdir: ocean/sss
+    dmpdir regex: SMAP_L2B_SSS_NRT_*.h5
     provider: SMAP
     output file: sss_smap.ioda.nc
 - obs space:
     name: sss_smos
     provider: SMOS
-    dmpdir subdir: SSS
+    dmpdir subdir: ocean/sss
     output file: sss_smos.ioda.nc
-    dmpdir regex: SM_OPER_MIR_OSUDP2_????????T??????_????????T??????_700_001_1.nc
+    dmpdir regex: SM_OPER_MIR_OSUDP2_*.nc
 - obs space:
     name: adt_rads_all
-    dmpdir subdir: ADT
-    dmpdir regex: rads_adt_??_???????.nc
+    dmpdir subdir: ocean/adt
+    dmpdir regex: rads_adt_*.nc
     provider: RADS
     output file: adt_rads_all.nc4
+    window:
+       back: 8         # look back 8 six-hourly obs dumps
+       forward: 1    #  look forward 1 six-hourly bin 
 - obs space:
     name: icec_amsr2_north
     provider: AMSR2
-    dmpdir subdir: icec
+    dmpdir subdir: ocean/icec
     output file: icec_amsr2_north.ioda.nc
-    dmpdir regex: AMSR2-SEAICE-NH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc
+    dmpdir regex: AMSR2-SEAICE-NH_v2r2_GW1_s*.nc
 - obs space:
     name: icec_amsr2_south
     provider: AMSR2
-    dmpdir subdir: icec
+    dmpdir subdir: ocean/icec
     output file: icec_amsr2_south.ioda.nc
-    dmpdir regex: AMSR2-SEAICE-SH_v2r2_GW1_s???????????????_e???????????????_c???????????????.nc
+    dmpdir regex: AMSR2-SEAICE-SH_v2r2_GW1_s*.nc
 - obs space:
     name: sst_metopb_l3u
     provider: GHRSST
-    dmpdir subdir: 'sst'
+    dmpdir subdir: 'ocean/sst'
     output file: sst_metopb_l3u.ioda.nc
-    dmpdir regex: '??????????????-STAR-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.80-v02.0-fv01.0.nc'
+    dmpdir regex: '*-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V*.nc'
     bounds:
       units: C
       min: -3.0
       max: 50.0
+    window:
+       back: 4
+       forward: 0   
+    binning:
+      stride: 5
+      min number of obs: 10
