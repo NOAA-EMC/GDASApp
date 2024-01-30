@@ -6,13 +6,11 @@ from wxflow import FileHandler, Logger
 
 logger = Logger()
 
-
 DMPDIR = os.getenv('DMPDIR')
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
 RUN = os.getenv('RUN')
 COMIN_OBS = os.getenv('COMIN_OBS')
-
 
 
 def obs_fetch(obsprepSpace, cycles):
