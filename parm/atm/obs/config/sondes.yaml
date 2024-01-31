@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine: 
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)sondes.{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)ADPUPA.prepbufr.nc
     obsgrouping:
       group variables: ["stationIdentification"]
       sort variable: "pressure"
@@ -42,7 +42,43 @@ linear obs operator:
    - name: Identity
      variables:
      - name: stationPressure
-obs filters:
+obs prior filters:
+# Create PreQC group variable
+  - filter: Variable Assignment
+    assignments:
+    - name: PreQC/stationPressure
+      type: int
+      source variable: QualityMarker/stationPressure
+  - filter: Variable Assignment
+    assignments:
+    - name: PreQC/airTemperature
+      type: int
+      source variable: QualityMarker/airTemperature
+  - filter: Variable Assignment
+    assignments:
+    - name: PreQC/virtualTemperature
+      type: int
+      source variable: QualityMarker/virtualTemperature
+  - filter: Variable Assignment
+    assignments:
+    - name: PreQC/windEastward
+      type: int
+      source variable: QualityMarker/windEastward
+  - filter: Variable Assignment
+    assignments:
+    - name: PreQC/windNorthward
+      type: int
+      source variable: QualityMarker/windNorthward
+  - filter: Variable Assignment
+    assignments:
+    - name: PreQC/specificHumidity
+      type: int
+      source variable: QualityMarker/specificHumidity
+
+
+
+obs post filters:
+  #
   #
   # Reject all obs with PreQC mark already set above 3
   - filter: PreQC
