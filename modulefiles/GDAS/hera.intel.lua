@@ -62,7 +62,7 @@ load("netcdf-cxx4/4.3.1")
 load("json/3.10.5")
 load("py-pybind11/2.11.0")
 --load("crtm/v2.4_jedi")
-load("rocoto/1.3.3")
+load("rocoto/1.3.6")
 
 load("hpc/1.2.0")
 unload("python/3.10.13")

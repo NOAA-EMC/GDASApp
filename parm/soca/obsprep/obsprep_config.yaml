@@ -1,16 +1,18 @@
 observations:
+# SSS
 - obs space:
     name: sss_smap
     dmpdir subdir: ocean/sss
     dmpdir regex: SMAP_L2B_SSS_NRT_*.h5
     provider: SMAP
-    output file: sss_smap.ioda.nc
 - obs space:
     name: sss_smos
     provider: SMOS
     dmpdir subdir: ocean/sss
     output file: sss_smos.ioda.nc
     dmpdir regex: SM_OPER_MIR_OSUDP2_*.nc
+
+# ADT
 - obs space:
     name: adt_rads_all
     dmpdir subdir: ocean/adt
@@ -19,7 +21,9 @@ observations:
     output file: adt_rads_all.nc4
     window:
        back: 8         # look back 8 six-hourly obs dumps
-       forward: 1    #  look forward 1 six-hourly bin 
+       forward: 1    #  look forward 1 six-hourly bin
+
+# Ice concentration
 - obs space:
     name: icec_amsr2_north
     provider: AMSR2
@@ -32,18 +36,118 @@ observations:
     dmpdir subdir: ocean/icec
     output file: icec_amsr2_south.ioda.nc
     dmpdir regex: AMSR2-SEAICE-SH_v2r2_GW1_s*.nc
+
+# SST
 - obs space:
-    name: sst_metopb_l3u
+    name: sst_avhrr_ma_l3u
     provider: GHRSST
     dmpdir subdir: 'ocean/sst'
-    output file: sst_metopb_l3u.ioda.nc
+    output file: sst_avhrr_ma_l3u.ioda.nc
+    dmpdir regex: '*-L3U_GHRSST-SSTsubskin-AVHRRF_MA-ACSPO_V*.nc'
+    bounds:
+      units: C
+      min: -3.0
+      max: 50.0
+    binning:
+      stride: 15
+      min number of obs: 10
+
+- obs space:
+    name: sst_avhrr_mb_l3u
+    provider: GHRSST
+    dmpdir subdir: 'ocean/sst'
+    output file: sst_avhrr_mb_l3u.ioda.nc
     dmpdir regex: '*-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V*.nc'
     bounds:
       units: C
       min: -3.0
       max: 50.0
     binning:
-      stride: 5
+      stride: 15
+      min number of obs: 10
+
+- obs space:
+    name: sst_avhrr_mc_l3u
+    provider: GHRSST
+    dmpdir subdir: 'ocean/sst'
+    output file: sst_avhrr_mc_l3u.ioda.nc
+    dmpdir regex: '*-L3U_GHRSST-SSTsubskin-AVHRRF_MC-ACSPO_V*.nc'
+    bounds:
+      units: C
+      min: -3.0
+      max: 50.0
+    binning:
+      stride: 15
+      min number of obs: 10
+
+- obs space:
+    name: sst_viirs_npp_l3u
+    provider: GHRSST
+    dmpdir subdir: 'ocean/sst'
+    output file: sst_viirs_npp_l3u.ioda.nc
+    dmpdir regex: '*-L3U_GHRSST-SSTsubskin-VIIRS_NPP-ACSPO_V*.nc'
+    bounds:
+      units: C
+      min: -3.0
+      max: 50.0
+    binning:
+      stride: 15
+      min number of obs: 10
+
+- obs space:
+    name: sst_viirs_n20_l3u
+    provider: GHRSST
+    dmpdir subdir: 'ocean/sst'
+    output file: sst_viirs_n20_l3u.ioda.nc
+    dmpdir regex: '*-L3U_GHRSST-SSTsubskin-VIIRS_N20-ACSPO_V*.nc'
+    bounds:
+      units: C
+      min: -3.0
+      max: 50.0
+    binning:
+      stride: 15
+      min number of obs: 10
+
+- obs space:
+    name: sst_abi_g16_l3c
+    provider: GHRSST
+    dmpdir subdir: 'ocean/sst'
+    output file: sst_abi_g16_l3c.ioda.nc
+    dmpdir regex: '*-L3C_GHRSST-SSTsubskin-ABI_G16-ACSPO_V*.nc'
+    bounds:
+      units: C
+      min: -3.0
+      max: 50.0
+    binning:
+      stride: 15
+      min number of obs: 10
+
+- obs space:
+    name: sst_abi_g17_l3c
+    provider: GHRSST
+    dmpdir subdir: 'ocean/sst'
+    output file: sst_abi_g17_l3c.ioda.nc
+    dmpdir regex: '*-L3C_GHRSST-SSTsubskin-ABI_G17-ACSPO_V*.nc'
+    bounds:
+      units: C
+      min: -3.0
+      max: 50.0
+    binning:
+      stride: 15
+      min number of obs: 10
+
+- obs space:
+    name: sst_ahi_h08_l3c
+    provider: GHRSST
+    dmpdir subdir: 'ocean/sst'
+    output file: sst_ahi_h08_l3c.ioda.nc
+    dmpdir regex: '*-L3C_GHRSST-SSTsubskin-AHI_H08-ACSPO_V*.nc'
+    bounds:
+      units: C
+      min: -3.0
+      max: 50.0
+    binning:
+      stride: 15
       min number of obs: 10
 - obs space:
     name: insitu_profile_bathy
