@@ -6,7 +6,6 @@ from wxflow import FileHandler, Logger
 
 logger = Logger()
 
-
 DMPDIR = os.getenv('DMPDIR')
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
