@@ -42,9 +42,24 @@ observations:
       units: C
       min: -3.0
       max: 50.0
-    window:
-       back: 4
-       forward: 0   
     binning:
       stride: 5
       min number of obs: 10
+- obs space:
+    name: insitu_profile_bathy
+    provider: GTS
+    dmpdir subdir: atmos
+    output file: gdas.t00z.bathy_profile.tesac.nc
+    dmpdir regex: 'bathy.*.dcom_subsampled'
+- obs space:
+    name: insitu_profile_tesac
+    provider: GTS
+    dmpdir subdir: atmos
+    output file: gdas.t00z.tesac_profile.tesac.nc
+    dmpdir regex: 'tesac.*.dcom_subsampled'
+- obs space:
+    name: insitu_surface_trkob
+    provider: GTS
+    dmpdir subdir: atmos
+    output file: gdas.t00z.trkob_surface.trkob.nc
+    dmpdir regex: 'trkob.*.dcom_subsampled'

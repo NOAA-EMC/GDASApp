@@ -52,7 +52,6 @@ try:
 
             if obsprepSpaceName == obs_space_name:
                 logger.info(f"obsprepSpaceName: {obs_space_name}")
-
                 pdyDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
                 cycles = []
 
@@ -66,9 +65,9 @@ try:
                 for i in range(-obsWindowBack, obsWindowForward + 1):
                     interval = timedelta(hours=6 * i)
                     cycles.append(pdyDatetime + interval)
-
+                
                 matchingFiles = prep_marine_obs.obs_fetch(obsprepSpace, cycles)
-
+                
                 if not matchingFiles:
                     logger.warning("No files found for obs source, skipping")
                     break
@@ -78,16 +77,20 @@ try:
                 obsprepSpace['window end'] = windowEnd
                 outputFilename = f"gdas.t{cyc}z.{obs_space_name}.{PDY}{cyc}.nc4"
                 obsprepSpace['output file'] = outputFilename
+                
+                # Skip in situ IODA conversion for now
+                if obsprepSpaceName.split('_')[0] == 'insitu':
+                    logger.info("Skipping insitu conversion for now") 
+                else:
+                    iodaYamlFilename = obsprepSpaceName + '2ioda.yaml'
+                    save_as_yaml(obsprepSpace, iodaYamlFilename)
 
-                iodaYamlFilename = obsprepSpaceName + '2ioda.yaml'
-                save_as_yaml(obsprepSpace, iodaYamlFilename)
+                    subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
 
-                subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
-
-                files_to_save.append([obsprepSpace['output file'],
-                                      os.path.join(COMOUT_OBS, obsprepSpace['output file'])])
-                files_to_save.append([iodaYamlFilename,
-                                      os.path.join(COMOUT_OBS, iodaYamlFilename)])
+                    files_to_save.append([obsprepSpace['output file'],
+                                          os.path.join(COMOUT_OBS, obsprepSpace['output file'])])
+                    files_to_save.append([iodaYamlFilename,
+                                          os.path.join(COMOUT_OBS, iodaYamlFilename)])
 except TypeError:
     logger.critical("Ill-formed OBS_YAML or OBSPREP_YAML file, exiting")
     raise
