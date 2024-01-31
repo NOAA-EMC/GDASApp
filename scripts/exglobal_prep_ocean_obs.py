@@ -2,6 +2,7 @@
 # exglobal_prep_ocean_obs.py
 # Prepares observations for marine DA
 from datetime import datetime, timedelta
+from multiprocessing import Process
 import os
 import subprocess
 from soca import prep_marine_obs
@@ -34,7 +35,20 @@ else:
     logger.critical(f"OBSPREP_YAML file {OBSPREP_YAML} does not exist")
     raise FileNotFoundError
 
+
+def run_netcdf_to_ioda(obsspace_to_convert):
+    name, iodaYamlFilename = obsspace_to_convert
+    try:
+        subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
+        logger.info(f"ran ioda converter on obs space {name} successfully")
+    except subprocess.CalledProcessError as e:
+        logger.info(f"ioda converter failed with error {e}, \
+            return code {e.returncode}")
+        return e.returncode
+
+
 files_to_save = []
+obsspaces_to_convert = []
 
 try:
     for observer in obsConfig['observers']:
@@ -46,6 +60,8 @@ try:
             logger.warning("Ill-formed observer yaml file, skipping")
             continue
 
+        # find match to the obs space from OBS_YAML in OBSPREP_YAML
+        # this is awkward and unpythonic, so feel free to improve
         for observation in obsprepConfig['observations']:
             obsprepSpace = observation['obs space']
             obsprepSpaceName = obsprepSpace['name']
@@ -82,15 +98,26 @@ try:
                 iodaYamlFilename = obsprepSpaceName + '2ioda.yaml'
                 save_as_yaml(obsprepSpace, iodaYamlFilename)
 
-                subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
-
                 files_to_save.append([obsprepSpace['output file'],
                                       os.path.join(COMOUT_OBS, obsprepSpace['output file'])])
                 files_to_save.append([iodaYamlFilename,
                                       os.path.join(COMOUT_OBS, iodaYamlFilename)])
+
+                obsspaces_to_convert.append((obs_space_name, iodaYamlFilename))
+
 except TypeError:
     logger.critical("Ill-formed OBS_YAML or OBSPREP_YAML file, exiting")
     raise
+
+processes = []
+for obsspace_to_convert in obsspaces_to_convert:
+    process = Process(target=run_netcdf_to_ioda, args=(obsspace_to_convert,))
+    process.start()
+    processes.append(process)
+
+# Wait for all processes to finish
+for process in processes:
+    process.join()
 
 if not os.path.exists(COMOUT_OBS):
     os.makedirs(COMOUT_OBS)
