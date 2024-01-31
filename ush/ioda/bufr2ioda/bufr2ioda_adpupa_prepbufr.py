@@ -77,6 +77,7 @@ def Compute_ObsSubType(typ, t29):
 
     return obssubtype
 
+
 def bufr_to_ioda(config, logger):
 
     subsets = config["subsets"]
@@ -122,6 +123,7 @@ def bufr_to_ioda(config, logger):
     q.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
     q.add('latitude', '*/PRSLEVEL/DRFTINFO/YDR')
     q.add('longitude', '*/PRSLEVEL/DRFTINFO/XDR')
+    q.add('t29', '*/T29')
     q.add('stationIdentification', '*/SID')
     q.add('stationElevation', '*/ELV')
     q.add('timeOffset', '*/PRSLEVEL/DRFTINFO/HRDR')
@@ -178,6 +180,7 @@ def bufr_to_ioda(config, logger):
     lon = r.get('longitude', 'prepbufrDataLevelCategory')
     lon[lon > 180] -= 360  # Convert Longitude from [0,360] to [-180,180]
     sid = r.get('stationIdentification', 'prepbufrDataLevelCategory')
+    t29 = r.get('t29', 'prepbufrDataLevelCategory')
     elv = r.get('stationElevation', 'prepbufrDataLevelCategory', type='float')
     tpc = r.get('temperatureEventProgramCode', 'prepbufrDataLevelCategory')
     pob = r.get('pressure', 'prepbufrDataLevelCategory')
@@ -343,7 +346,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Creating derived variables - ObsSubType ... ")
 
-    ObsSubType = Compute_ObsSubType(typ, t29).astype('int32')
+    ObsSubType = Compute_ObsSubType(obstyp, t29).astype('int32')
 
     logger.debug(f"     Check ObsSubType shape & type ...")
 
@@ -427,7 +430,6 @@ def bufr_to_ioda(config, logger):
                         fillval=obstyp.fill_value) \
         .write_attr('long_name', 'Observation Type') \
         .write_data(typ_vob)
-
 
     # ObsSubType: airTemperature
     obsspace.create_var('ObsSubType/airTemperature', dtype=ObsSubType.dtype,
