@@ -18,20 +18,5 @@ obs operator:
   - name: InsituTemperature
     variables:
     - name: waterTemperature
-#  - name: VertInterp
-#    observation alias file: ./obsop_name_map.yaml
-#    - name: salinity
-#    vertical coordinate: sea_water_depth
-#    observation vertical coordinate: depth
-#    interpolation method: linear
 obs error:
   covariance model: diagonal
-obs filters:
-  # Passivate obs where ocean fraction is > 90%
-  - filter: Domain Check
-    action:
-      name: passivate
-    where:
-    - variable: {name: GeoVaLs/sea_area_fraction}
-      maxvalue: 0.9
-
