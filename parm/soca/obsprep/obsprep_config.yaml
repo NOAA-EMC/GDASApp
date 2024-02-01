@@ -149,25 +149,21 @@ observations:
     binning:
       stride: 15
       min number of obs: 10
-
-# insitu
 - obs space:
     name: insitu_profile_bathy
     provider: GTS
     dmpdir subdir: atmos
-    output file: 'bathy_profile.ioda.nc'
+    output file: '*.bathy_profile.ioda.nc'
     dmpdir regex: 'bathy.*.dcom_subsampled'
-
 - obs space:
     name: insitu_profile_tesac
     provider: GTS
     dmpdir subdir: atmos
-    output file: 'tesac_profile.ioda.nc'
+    output file: '*.tesac_profile.ioda.nc'
     dmpdir regex: 'tesac.*.dcom_subsampled'
-
 - obs space:
     name: insitu_surface_trkob
     provider: GTS
     dmpdir subdir: atmos
-    output file: 'trkob_surface.ioda.nc'
+    output file: '*.trkob_surface.ioda.nc'
     dmpdir regex: 'trkob.*.dcom_subsampled'
