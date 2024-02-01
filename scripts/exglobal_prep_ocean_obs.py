@@ -101,12 +101,12 @@ try:
                     iodaYamlFilename = obsprepSpaceName + '2ioda.yaml'
                     save_as_yaml(obsprepSpace, iodaYamlFilename)
 
-                files_to_save.append([obsprepSpace['output file'],
-                                      os.path.join(COMOUT_OBS, obsprepSpace['output file'])])
-                files_to_save.append([iodaYamlFilename,
-                                      os.path.join(COMOUT_OBS, iodaYamlFilename)])
+                    files_to_save.append([obsprepSpace['output file'],
+                                          os.path.join(COMOUT_OBS, obsprepSpace['output file'])])
+                    files_to_save.append([iodaYamlFilename,
+                                          os.path.join(COMOUT_OBS, iodaYamlFilename)])
 
-                obsspaces_to_convert.append((obs_space_name, iodaYamlFilename))
+                    obsspaces_to_convert.append((obs_space_name, iodaYamlFilename))
 
 except TypeError:
     logger.critical("Ill-formed OBS_YAML or OBSPREP_YAML file, exiting")
