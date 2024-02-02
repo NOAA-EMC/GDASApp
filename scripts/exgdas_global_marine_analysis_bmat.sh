@@ -13,7 +13,7 @@
 #           - generates the DA grid
 #           - computes diagonal of B based on the background if a std. dev. file
 #             was not staged. TODO: Remove this option in the future
-#           - creates the bump correlation operators
+#           - initialize the loacalization and correlation operator
 #
 # $Id$
 #
@@ -87,32 +87,24 @@ if [ $err -gt 0  ]; then
 fi
 
 ################################################################################
-# Correlation and Localization operators
-shopt -s nullglob
-files=(./bump/*.nc)
-echo $files
-if [ ${#files[@]} -gt 0 ]; then
-    echo "BUMP/NICAS correlation and localization already staged, skipping BUMP initialization"
-    set +x
-    if [ $VERBOSE = "YES" ]; then
-        echo $(date) EXITING $0 with return code $err >&2
-    fi
-    exit $err  # Exit early, we're done with B
-    shopt -u nullglob
-fi
-
-################################################################################
-# Set localization scales for the hybrid en. var.
-$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setlocscales.yaml
+# Set decorrelation scales for the static B
+$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err
 fi
 
 ################################################################################
-# Compute convolution coefs for L
-clean_yaml soca_bump_loc.yaml
-$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_bump_loc.yaml
+# Initialize diffusion blocks
+clean_yaml soca_parameters_diffusion_hz.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_hz.yaml
+export err=$?; err_chk
+if [ $err -gt 0  ]; then
+    exit $err
+fi
+
+clean_yaml soca_parameters_diffusion_vt.yaml
+$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_vt.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err

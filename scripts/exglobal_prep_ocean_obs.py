@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 # exglobal_prep_ocean_obs.py
-# Pepares observations for marine DA
+# Prepares observations for marine DA
 from datetime import datetime, timedelta
-import logging
+from multiprocessing import Process
 import os
-import prep_marine_obs
 import subprocess
-from wxflow import YAMLFile, save_as_yaml, FileHandler
+from soca import prep_marine_obs
+from wxflow import YAMLFile, save_as_yaml, FileHandler, Logger
 
-# TODO (AFE) figure out why logger is not logging
-# set up logger
-logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
+logger = Logger()
 
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
 
-# set the window times
+# Set the window times
 cdateDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
 windowBeginDatetime = cdateDatetime - timedelta(hours=3)
 windowEndDatetime = cdateDatetime + timedelta(hours=3)
@@ -26,63 +24,105 @@ OCNOBS2IODAEXEC = os.getenv('OCNOBS2IODAEXEC')
 COMOUT_OBS = os.getenv('COMOUT_OBS')
 
 OBS_YAML = os.getenv('OBS_YAML')
-# this will fail with FileNotFoundError if all yaml files in OBS_YAML are not
-# present in OBS_YAML_DIR
+
 obsConfig = YAMLFile(OBS_YAML)
 
-OBSPROC_YAML = os.getenv('OBSPROC_YAML')
-obsprocConfig = YAMLFile(OBSPROC_YAML)
+OBSPREP_YAML = os.getenv('OBSPREP_YAML')
 
-filesToSave = []
+if os.path.exists(OBSPREP_YAML):
+    obsprepConfig = YAMLFile(OBSPREP_YAML)
+else:
+    logger.critical(f"OBSPREP_YAML file {OBSPREP_YAML} does not exist")
+    raise FileNotFoundError
 
-# TODO (AFE): needs more error handling (missing sources, missing files)
+
+def run_netcdf_to_ioda(obsspace_to_convert):
+    name, iodaYamlFilename = obsspace_to_convert
+    try:
+        subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
+        logger.info(f"ran ioda converter on obs space {name} successfully")
+    except subprocess.CalledProcessError as e:
+        logger.info(f"ioda converter failed with error {e}, \
+            return code {e.returncode}")
+        return e.returncode
+
+
+files_to_save = []
+obsspaces_to_convert = []
+
 try:
-    # For each of the observation sources (observers) specificed in the OBS_YAML...
     for observer in obsConfig['observers']:
-
         try:
-            obsSpaceName = observer['obs space']['name']
-            print(f"obsSpaceName: {obsSpaceName}")
+            obs_space_name = observer['obs space']['name']
+            logger.info(f"obsSpaceName: {obs_space_name}")
         except KeyError:
-            print(f"observer: {observer}")
-            print("WARNING: Ill-formed observer yaml file, skipping")
-            continue  # to next observer
+            logger.warning(f"observer: {observer}")
+            logger.warning("Ill-formed observer yaml file, skipping")
+            continue
 
-# ...look through the observations in OBSPROC_YAML...
-        for observation in obsprocConfig['observations']:
+        # find match to the obs space from OBS_YAML in OBSPREP_YAML
+        # this is awkward and unpythonic, so feel free to improve
+        for observation in obsprepConfig['observations']:
+            obsprepSpace = observation['obs space']
+            obsprepSpaceName = obsprepSpace['name']
 
-            obsprocSpace = observation['obs space']
-            obsprocSpaceName = obsprocSpace['name']
+            if obsprepSpaceName == obs_space_name:
+                logger.info(f"obsprepSpaceName: {obs_space_name}")
+                pdyDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
+                cycles = []
 
-# ...for a matching name, and process the observation source
-            if obsprocSpaceName == obsSpaceName:
+                try:
+                    obsWindowBack = obsprepSpace['window']['back']
+                    obsWindowForward = obsprepSpace['window']['forward']
+                except KeyError:
+                    obsWindowBack = 0
+                    obsWindowForward = 0
 
-                print(f"obsprocSpaceName: {obsSpaceName}")
+                for i in range(-obsWindowBack, obsWindowForward + 1):
+                    interval = timedelta(hours=6 * i)
+                    cycles.append(pdyDatetime + interval)
 
-                # fetch the obs files from DMPDIR to RUNDIR
-                matchingFiles = prep_marine_obs.obs_fetch(obsprocSpace)
+                matchingFiles = prep_marine_obs.obs_fetch(obsprepSpace, cycles)
 
                 if not matchingFiles:
-                    print("WARNING: No files found for obs source , skipping")
-                    break  # to next observation source in OBS_YAML
+                    logger.warning("No files found for obs source, skipping")
+                    break
 
-                obsprocSpace['input files'] = matchingFiles
-                obsprocSpace['window begin'] = windowBegin
-                obsprocSpace['window end'] = windowEnd
-                outputFilename = f"gdas.t{cyc}z.{obsSpaceName}.{PDY}{cyc}.nc4"
-                obsprocSpace['output file'] = outputFilename
+                obsprepSpace['input files'] = matchingFiles
+                obsprepSpace['window begin'] = windowBegin
+                obsprepSpace['window end'] = windowEnd
+                outputFilename = f"gdas.t{cyc}z.{obs_space_name}.{PDY}{cyc}.nc4"
+                obsprepSpace['output file'] = outputFilename
 
-                iodaYamlFilename = obsprocSpaceName + '2ioda.yaml'
-                save_as_yaml(obsprocSpace, iodaYamlFilename)
+                # Skip in situ IODA conversion for now
+                if obsprepSpaceName.split('_')[0] == 'insitu':
+                    logger.info("Skipping insitu conversion for now")
+                else:
+                    iodaYamlFilename = obsprepSpaceName + '2ioda.yaml'
+                    save_as_yaml(obsprepSpace, iodaYamlFilename)
 
-                subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
+                    files_to_save.append([obsprepSpace['output file'],
+                                          os.path.join(COMOUT_OBS, obsprepSpace['output file'])])
+                    files_to_save.append([iodaYamlFilename,
+                                          os.path.join(COMOUT_OBS, iodaYamlFilename)])
 
-                filesToSave.append([obsprocSpace['output file'],
-                                    os.path.join(COMOUT_OBS, obsprocSpace['output file'])])
-                filesToSave.append([iodaYamlFilename,
-                                    os.path.join(COMOUT_OBS, iodaYamlFilename)])
+                    obsspaces_to_convert.append((obs_space_name, iodaYamlFilename))
+
 except TypeError:
-    print("CRITICAL: Ill-formed OBS_YAML file, exiting")
+    logger.critical("Ill-formed OBS_YAML or OBSPREP_YAML file, exiting")
     raise
 
-FileHandler({'copy': filesToSave}).sync()
+processes = []
+for obsspace_to_convert in obsspaces_to_convert:
+    process = Process(target=run_netcdf_to_ioda, args=(obsspace_to_convert,))
+    process.start()
+    processes.append(process)
+
+# Wait for all processes to finish
+for process in processes:
+    process.join()
+
+if not os.path.exists(COMOUT_OBS):
+    os.makedirs(COMOUT_OBS)
+
+FileHandler({'copy': files_to_save}).sync()

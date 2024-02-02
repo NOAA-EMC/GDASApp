@@ -5,7 +5,8 @@ bindir=$1
 srcdir=$2
 
 # Set g-w HOMEgfs
-export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
+topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
+export HOMEgfs=$topdir
 
 # Set variables for ctest
 export PSLOT=gdas_test
@@ -30,7 +31,7 @@ source "${HOMEgfs}/ush/preamble.sh"
 source "${HOMEgfs}/parm/config/gfs/config.com"
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow/src"
+wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
@@ -38,11 +39,11 @@ export PYTHONPATH
 machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
 
 # Set NETCDF and UTILROOT variables (used in config.base)
-if [ $machine = 'HERA' ]; then
+if [[ $machine = 'HERA' ]]; then
     NETCDF=$( which ncdump )
     export NETCDF
     export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
-elif [ $machine = 'ORION' ]; then
+elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     ncdump=$( which ncdump )
     NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
     export NETCDF
@@ -71,7 +72,7 @@ dpath=gdas.$PDY/$cyc/obs
 mkdir -p $COM_OBS
 flist="amsua_n19.$CDATE.nc4 sondes.$CDATE.nc4"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.$file $COM_OBS/
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.$file $COM_OBS/${oprefix}.$file
 done
 
 # Link radiance bias correction files
@@ -79,7 +80,7 @@ dpath=gdas.$gPDY/$gcyc/analysis/atmos
 mkdir -p $COM_ATMOS_ANALYSIS_PREV
 flist="amsua_n19.satbias.nc4 amsua_n19.satbias_cov.nc4 amsua_n19.tlapse.txt"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.$file $COM_ATMOS_ANALYSIS_PREV/
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.$file $COM_ATMOS_ANALYSIS_PREV/$gprefix.$file
 done
 
 # Link atmospheric background on gaussian grid
@@ -87,7 +88,7 @@ dpath=gdas.$gPDY/$gcyc/model_data/atmos/history
 mkdir -p $COM_ATMOS_HISTORY_PREV
 flist="atmf006.nc"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${gprefix}.${file} $COM_ATMOS_HISTORY_PREV/
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${gprefix}.${file} $COM_ATMOS_HISTORY_PREV/${gprefix}.${file}
 done
 
 # Link atmospheric bacgkround on tiles
@@ -96,7 +97,7 @@ COM_ATMOS_RESTART_PREV_DIRNAME=$(dirname $COM_ATMOS_RESTART_PREV)
 mkdir -p $COM_ATMOS_RESTART_PREV_DIRNAME
 flist="restart"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$file $COM_ATMOS_RESTART_PREV_DIRNAME/
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$file $COM_ATMOS_RESTART_PREV_DIRNAME/$file
 done
 
 
@@ -125,10 +126,10 @@ done
 
 
 # Execute j-job
-if [ $machine = 'HERA' ]; then
+if [[ $machine = 'HERA' ]]; then
     sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
-elif [ $machine = 'ORION' ]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --partition=orion --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
+elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
 fi

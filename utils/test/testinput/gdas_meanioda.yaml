@@ -8,7 +8,7 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: ../../../soca/test/Data/obs/gmi_gpm_obs.nc
+      obsfile: ../../../sorc/soca/test/Data/obs/gmi_gpm_obs.nc
   # the below 2 lines are not used but needed by the IODA obsspace it seems...
   simulated variables: [brightnessTemperature]
   observed variables: [brightnessTemperature]

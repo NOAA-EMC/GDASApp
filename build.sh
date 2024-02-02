@@ -39,6 +39,7 @@ BUILD_VERBOSE="NO"
 CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
 BUILD_JCSDA="NO"
+COMPILER="${COMPILER:-intel}"
 
 while getopts "p:t:c:hvdfa" opt; do
   case $opt in
@@ -70,11 +71,11 @@ while getopts "p:t:c:hvdfa" opt; do
 done
 
 case ${BUILD_TARGET} in
-  hera | orion)
+  hera | orion | hercules)
     echo "Building GDASApp on $BUILD_TARGET"
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
-    module load GDAS/$BUILD_TARGET
+    module load GDAS/$BUILD_TARGET.$COMPILER
     CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=ON"
     module list
     ;;
@@ -113,7 +114,7 @@ echo "Configuring ..."
 set -x
 cmake \
   ${CMAKE_OPTS:-} \
-  $dir_root
+  $dir_root/sorc
 set +x
 
 # Build

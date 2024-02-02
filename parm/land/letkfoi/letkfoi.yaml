@@ -17,11 +17,12 @@ geometry:
       skip coupler file: true
       state variables: [orog_filt]
       datapath: $(FIXgfs)/orog/${CASE}/
-      filename_orog: $(CASE)_oro_data.nc
+      filename_orog: $(CASE).mx$(OCNRES)_oro_data.nc
 
 time window:
   begin: '{{ LAND_WINDOW_BEGIN | to_isotime }}'
   length: $(LAND_WINDOW_LENGTH)
+  bound to include: begin
 
 background:
    datetime: '{{ current_cycle | to_isotime }}'
