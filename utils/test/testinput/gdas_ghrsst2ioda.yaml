@@ -1,6 +1,6 @@
 provider: GHRSST
-window begin: 2018-04-15T06:00:00Z
-window end: 2018-04-15T12:00:00Z
+window begin: 2021-06-30T21:00:00Z
+window end: 2021-07-01T03:00:00Z
 binning:
   stride: 2
   min number of obs: 1
