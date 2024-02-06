@@ -42,20 +42,20 @@ def ORDERS(IN,ISORT,IDATA,INDEX,N,M,I1,I2):
             if ITYPE == 2:
                 RCHEK = RCHEK + SMAL
             IDATA[0, I] = ICHEK
-    
+
     for IBYT in range(I1):
         KNDX[0] = 1
         for I in range(256):
             INDX[I] = 0
-    
+
         for I in range(N):
             JBYT = (IData[0,INDEX[I]] >> (IBYT*8)) & 255
             INDX[JBYT] = INDX[JBYT] + 1
             ISORT[I] = INDEX[I]
-        
+
         for I in range(1, 256):
             KNDX[I] = KNDX[I-1] + INDX[I-1]
-        
+
         for I in range(N):
             JBYT = (IData[0,ISORT[I]] >> (IBYT*8)) & 255
             INDEX[KNDX[JBYT]] = ISORT[I]
@@ -74,10 +74,10 @@ def ORDERS(IN,ISORT,IDATA,INDEX,N,M,I1,I2):
 def order4(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
     """
     Sorts the IDATA array using 4-byte integers.
-    
+
     Args:
     Same as the ORDERS function
-    
+
     Returns:
     None
     """
@@ -132,10 +132,10 @@ def order4(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
 def ordec8(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
     """
     Sorts the IDATA array using 8-byte characters.
-    
+
     Args:
     Same as the ORDERS function
-    
+
     Returns:
     None
     """
@@ -165,10 +165,10 @@ def ordec8(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
 def ordec4(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
     """
     Sorts the IDATA array using 4-byte characters.
-    
+
     Args:
     Same as the ORDERS function
-    
+
     Returns:
     None
     """

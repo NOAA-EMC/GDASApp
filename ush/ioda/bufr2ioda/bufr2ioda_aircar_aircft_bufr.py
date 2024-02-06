@@ -70,11 +70,11 @@ def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_
         if (not ma.is_masked(tmdb_aircft[i]) and (qmat_aircft[i] == 2):
             qmat_aircft[i] = TQM
 
-        if (not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i]) 
+        if (not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i])
             and (qmwn_aircft[i] == 2):
             WQM = TQM # yes, I meant TQM
             qmwn_aircft[i] = max(
-        
+
 
     print("1")
 
@@ -82,7 +82,7 @@ def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_
 def PCCF_to_QMDD(qob_aircft, qmdd_aircft, pccf_aircft):
     print("3")
     for i in range(qmdd_aircft):
-        if (not ma.is_masked(pccf_aircft[i]) and 
+        if (not ma.is_masked(pccf_aircft[i]) and
 
 
          IF((QOB(1).LT.BMISS).AND.(QQM(1).EQ.2)) THEN
@@ -152,7 +152,7 @@ def bufr_to_ioda(config, logger):
     q = bufr.QuerySet(subsets_aircar) #AIRCAR
     r = bufr.QuerySet(subsets_aircft) #AIRCFT, no amdar
     s = bufr.QuerySet(subsets_amdar)  #AIRCFT, amdar only
- 
+
 
     logger.debug('Making QuerySet for AIRCAR ...')
     # MetaData
@@ -337,7 +337,7 @@ def bufr_to_ioda(config, logger):
     wspd_aircft = u.get('windSpeed', type='float')
 
     # Quality Information
-    qmrkh2_aircft = u.get('airTemperatureQualityInformation') 
+    qmrkh2_aircft = u.get('airTemperatureQualityInformation')
     qmrkh3_aircft = u.get('windDirectionQualityInformation')
     qmrkh4_aircft = u.get('windSpeedQualityInformation')
 
@@ -455,7 +455,7 @@ def bufr_to_ioda(config, logger):
 
     # Derive QM values in aircft
     logger.debug("Convert variables for QMRKH to QMAT/QMDD/QMWN")
-    qmat_aircft, qmwn_aircft = QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, 
+    qmat_aircft, qmwn_aircft = QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft,
                                                    wspd_aircft, wdir_aircft,
                                                    qmrkh2_aircft, qmrkh3_aircft, qmrkh4_aircft)
     qmdd_aircft = PCCF_to_QMDD(qmdd_aircft, pccf_aircft)
@@ -471,7 +471,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" ... Check the concatenated array shapes, dtypes, some fill_values  ... ")
     logger.debug(f"     concatenated lat size = {lat.shape}, {lat.dtype}, {lat.fill_value}")
     logger.debug(f"     concatenated lon size = {lon.shape}, {lon.dtype}, {lon.fill_value}")
-     
+
 
     # Derive time/date   #check to see if this isactually dateTime
     logger.debug(f"     Derive the dateTime variable")
@@ -499,7 +499,7 @@ def bufr_to_ioda(config, logger):
     aircraftFlightLevel = ma.concatenate((acftflvl_aircar, acftflvl_aircft, acftflvl_amdar), axis=0).astype(np.float32)
     aircraftFlightLevel = ma.masked_values(aircraftFlightLevel, lat.fill_value)
     logger.debug(f"     aircraftFlightLevel concatenated info = {aircraftFlightLevel.shape}, {aircraftFlightLevel.dtype}, {aircraftFlightLevel.fill_value}")
-    
+
 
     # =====================================
     # Create IODA ObsSpace
@@ -509,7 +509,7 @@ def bufr_to_ioda(config, logger):
     # Create the dimensions
     dims = {'Location': np.arange(0, lat.shape[0])}
 
-    iodafile = f"{cycle_type}.t{hh}z.{data_type[0]}_{data_type[1]}.tm00.{data_format}.nc" 
+    iodafile = f"{cycle_type}.t{hh}z.{data_type[0]}_{data_type[1]}.tm00.{data_format}.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
     logger.debug(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
 
