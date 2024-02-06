@@ -1,0 +1,238 @@
+# (C) Copyright 2022 NOAA/NWS/NCEP/EMC
+# # #
+# # # This software is licensed under the terms of the Apache Licence Version 2.0
+# # # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+# 
+observations:
+  - obs space:
+      name: bufr_aircft_no_amdar
+
+      obsdatain: "testinput/gdas.t12z.aircft.tm00.bufr_d"
+
+      exports:
+        subsets:
+          - NC004001
+          - NC004002
+          - NC004003
+          - NC004006
+          - NC004009
+          - NC004010
+          - NC004011
+
+        #MetaData
+        variables:
+          timestamp:
+            datetime:
+              year: "*/YEAR"
+              month: "*/MNTH"
+              day: "*/DAYS"
+              hour: "*/HOUR"
+              minute: "*/MINU"
+          latitude:
+            query: "[*/CLATH, */CLAT]"
+          longitude:
+            query: "[*/CLON, */CLONH]"
+
+          aircraftFlightNumber:
+            query: "*/ACID"
+          aircraftNavigationalSystem:
+            query: "*/ACNS"
+          commercialAircraftType:
+            query: "*/ACTP"
+          aircraftFlightPhase:
+            query: "*/POAF"
+          aircraftIdentifier:
+            query: "[*/RPID, */ACRN]"
+
+          dataProviderRestricted:
+            query: "*/RSRD"
+          dataRestrictedExpiration:
+            query: "*/EXPRSRD"
+          dataReceiptTimeHour:
+            query: "*/RCHR"
+          dataReceiptTimeMinute:
+            query: "*/RCMI"
+          dataReceiptTimeSignificance:
+            query: "*/RCTS"
+
+          aircraftAltitude:
+            aircraftAltitude:
+              flightLevel: "[*/FLVL]"
+              flightLevelST: "[*/FLVLST]"
+              height: "[*/HEIT]"
+              heightOrAltitude: "[*/HMSL]"
+              pressureAltitudeRelativeToMeanSeaLevel: "[*/PSAL]"
+
+          percentConfidenceRH:
+            query: "*/PCCF"
+            type: int
+
+          #ObsValue
+          airTemperature:
+            query: "[*/TMDB, */TMDBST]"
+          relativeHumidity:
+            query: "[*/AFMST/REHU, */ACMST2/REHU, */RAWHU]"
+            type: float
+            transforms:
+              - scale: .01
+          waterVaporMixingRatio:
+            query: "[*/ACMST2/MIXR, */MIXR]"
+          windDirection:
+            query: "*/WDIR"
+            type: float
+          windSpeed:
+            query: "*/WSPD"
+
+          #QualityInformation
+          airTemperatureQualityInformation:
+            query: "*/QMRKH[2]"
+          windDirectionQualityInformation:
+            query: "*/QMRKH[3]"
+          windSpeedQualityInformation:
+            query: "*/QMRKH[4]"
+
+          #QualityMarker
+          airTemperatureQM:
+            query: "*/QMAT"
+          relativeHumidityQM:
+            query: "[NC004010/QMDD, NC004003/AFMST/QMDD]"
+          waterVaporMixingRatioQM:
+            query: "NC004006/QMDD"
+          windQM:
+            query: "*/QMWN"
+
+    ioda:
+      backend: netcdf
+      obsdataout: "testrun/gdas.t12z.aircft_noAMDAR103.tm00.nc"
+
+      #MetaData
+      variables:
+        - name: "MetaData/dateTime"
+          source: variables/timestamp
+          longName: "Datetime"
+          units: "seconds since 1970-01-01T00:00:00Z"
+
+        - name: "MetaData/latitude"
+          source: variables/latitude
+          longName: "Latitude"
+          units: "degree_north"
+          range: [-90, 90]
+
+        - name: "MetaData/longitude"
+          source: variables/longitude
+          longName: "Longitude"
+          units: "degree_east"
+          range: [-180, 180]
+
+        - name: "MetaData/aircraftFlightNumber"
+          source: variables/aircraftFlightNumber
+          longName: "Aircraft Flight Number"
+
+        # - name: "MetaData/aircraftNavigationalSystem"
+        #   source: variables/aircraftNavigationalSystem
+        #   longName: "Aircraft Navigational System"
+
+        # - name: "MetaData/commercialAircraftType"
+        #   source: variables/commercialAircraftType
+        #   longName: "Commercial Aircraft Type"
+
+        - name: "MetaData/aircraftFlightPhase"
+          source: variables/aircraftFlightPhase
+          longName: "Aircraft Flight Phase"
+
+        - name: "MetaData/aircraftIdentifier"
+          source: variables/aircraftIdentifier
+          longName: "Aircraft Identifier (Station Identification)"
+
+        - name: "MetaData/dataProviderRestricted"
+          source: variables/dataProviderRestricted
+          longName: "Data Provider Restricted"
+
+        # - name: "MetaData/dataRestrictedExpiration"
+        #   source: variables/dataRestrictedExpiration
+        #   longName: "Restricted Data Expiration"
+        #   units: "Hour"
+
+        # - name: "MetaData/dataReceiptTimeHour"
+        #   source: variables/dataReceiptTimeHour
+        #   longName: "Receipt Time (Hour)"
+        #   units: "Hour"
+
+        # - name: "MetaData/dataReceiptTimeMinute"
+        #   source: variables/dataReceiptTimeMinute
+        #   longName: "Data Receipt Time (Minute)"
+        #   units: "Minute"
+
+        # - name: "MetaData/dataReceiptTimeSignificance"
+        #   source: variables/dataReceiptTimeSignificance
+        #   longName: "Data Receipt Time Significance"
+
+        - name: "MetaData/height"
+          source: variables/aircraftAltitude
+          longName: "Aircraft Altitude"
+          units: "m"
+
+        - name: "MetaData/humidityPercentConfidence"
+          source: variables/percentConfidenceRH
+          longName: "Percent Confidence of Relative Humidity Quality"
+          units: "percent"
+
+        # ObsValue
+        - name: "ObsValue/airTemperature"
+          source: variables/airTemperature
+          longName: "Air Temperature"
+          units: "K"
+
+        - name: "ObsValue/relativeHumidity"
+          source: variables/relativeHumidity
+          longName: "Relative Humidity"
+          units: "1"
+
+        - name: "ObsValue/waterVaporMixingRatio"
+          source: variables/waterVaporMixingRatio
+          longName: "Water Vapor Mixing Ratio"
+          units: "kg kg-1"
+
+        - name: "ObsValue/windDirection"
+          source: variables/windDirection
+          longName: "Wind Direction"
+          units: "degree"
+
+        - name: "ObsValue/windSpeed"
+          source: variables/windSpeed
+          longName: "Wind Speed"
+          units: "m s-1"
+
+        # QualityInformation
+        - name: "QualityInformation/airTemperature"
+          source: variables/airTemperatureQualityInformation
+          longName: "Air Temperature Quality Information"
+
+        - name: "QualityInformation/windDirection"
+          source: variables/windDirectionQualityInformation
+          longName: "Wind Direction Quality Information"
+
+        - name: "QualityInformation/windSpeed"
+          source: variables/windSpeedQualityInformation
+          longName: "Wind Speed Quality Information"
+
+        #QualityMarker
+        - name: "QualityMarker/airTemperature"
+          source: variables/airTemperatureQM
+          longName: "Quality Indicator for Atmospheric Temperature"
+
+        - name: "QualityMarker/relativeHumidity"
+          source: variables/relativeHumidityQM
+          longName: "Quality Indicator for Relative Humidity"
+
+        - name: "QualityMarker/waterVaporMixingRatio"
+          source: variables/waterVaporMixingRatioQM
+          longName: "Quality Indicator for Water Vapor Mixing Ratio"
+
+        - name: "QualityMarker/windSpeed"
+          source: variables/windQM
+          longName: "Quality Indicator for Wind Speed"
+
+        - name: "QualityMarker/windDirection"
+          source: variables/windQM
+          longName: "Quality Indicator for Wind Direction"
