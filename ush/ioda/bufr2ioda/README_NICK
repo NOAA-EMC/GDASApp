@@ -1,1 +1,19 @@
 python run_bufr2ioda.py 2021080100 gdas /work/noaa/rstprod/dump/ /work2/noaa/da/nesposito/GDASApp_20231012/parm/ioda/bufr2ioda/ /work2/noaa/da/nesposito/NewConv/api_convert/json/json_gdasapp
+
+###########################################
+1. pspl.f90 -> pspl_combined.py
+   This is complete in a sense that everything looks good. Whether or not
+   it runs well remains to be seen.
+
+2. pmat2.py is two subroutines from pmat2.f90 that were used in the
+   pspl.f77 code but it has been converted and looks fine.
+
+3. sub2mem_mer.f  is in the process of being converted
+   - Definitely need to replace subroutine calls from pspl
+
+4. orders.f is from NCEPLIBS-w3emc
+https://github.com/NOAA-EMC/NCEPLIBS-w3emc/blob/develop/src/orders.f
+   Somewhat converted but I don't like the new output.
+   Maybe redo with codeconvertai.
+   For now, it's in orders.py
+
