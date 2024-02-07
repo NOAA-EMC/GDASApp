@@ -2,6 +2,7 @@ import numpy as np
 
 # line 587 of sub2mem_mer.f
 
+
 def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, hdr2wrt,
                 acid1, c_acftid1, c_acftreg1, rct_accum, drinfo_accum, acft_seq_accum,
                 mstq_accum, cat_accum, elv_accum, rpt_accum, tcor_accum,
@@ -43,7 +44,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                     if lvlsinprof[jj] < mandlvls[i] and lvlsinprof[jjp1] > mandlvls[i]:
                         if nlvinprof + nmandlvls + 1 > mxlv:
                             # There are more levels in profile than "mxlv" -- do not process any more levels
-                            print(' #####> WARNING: THERE ARE MORE THAN ', mxlv, ' LEVELS IN THIS PROFILE -- \\
+                            print(' #####> WARNING: THERE ARE MORE THAN ', mxlv, ' LEVELS IN THIS PROFILE -- \
                                   WILL CONTINUE ON PROCESSING ONLY ', mxlv, ' LEVELS FOR THIS PROFILE')
                             cmxlv = str(mxlv)
                             break
@@ -166,11 +167,9 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
         # Re-sort pressures (now with mandatory levels inclded) from lowest to highest
         orders(1, iwork, lvlsinprof, iord, nlv2wrt_tot, 1, lwr, 2)
 
-    ### NickE what do i do with write 41)
+    # NickE what do i do with write 41)
     print('nlv2wrt_tot=', nlv2wrt_tot, 'c_acftreg=', c_acftreg1)
     err_tspline = 0
-
-    #### where 3 ended and 4 began
 
     # Calculate vertical velocity rate_accum
     # add ascent/descent rate here
@@ -329,7 +328,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                     c2_jk += 1
                     dt_new = dt
                     while (jkp + c1_jk <= nlv2wrt_tot and iord[jkp + c1_jk] > nlvinprof):
-                        c1_jk += 1   #skip mandatory level
+                        c1_jk += 1   # skip mandatory level
                     if (jkp + c1_jk <= nlv2wrt_tot and iord[jkp + c1_jk] <= nlvinprof):
                         jjp = iord[jkp + c1_jk]
                         if (ibfms[drinfo_accum[3, jjp]] == 0):
@@ -340,7 +339,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                             jjp1 = jjp2
                         break
                     while (jkm - c2_jk >= 1 and iord[jkm - c2_jk] > nlvinprof):
-                        c2_jk += 1  #skip mandatory level
+                        c2_jk += 1  # skip mandatory level
                     if (jkm - c2_jk >= 1 and iord[jkm - c2_jk] <= nlvinprof):
                         jjm = iord[jkm - c2_jk]
                         if (ibfms[drinfo_accum[3, jjm]] == 0):
@@ -361,12 +360,10 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                 dt = (drinfo_accum[3, jjp1] - drinfo_accum[3, jjm1]) * 3600.
                 zul = zevn_accum[1, jjp1, 1]
                 zll = zevn_accum[1, jjm1, 1]
-                if (abs(dt) > 0.): #avoid divide by 0
+                if (abs(dt) > 0.): # avoid divide by 0
                     rate_accum[jj] = (zul - zll) / dt
                 print('fj,dt,rate_accum=', j, dt, rate_accum[jj])
                 print('')
-
-    ### where 5 originally started
 
     # Interpolate position and time to mandatory level (will be stored in XDR YDR HRDR) (need to
     # have mandatory levels inserted into the profile before this step)
@@ -380,7 +377,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                 ibfms[drinfo_accum[3, jj]] != 0):
                 # all obs in drift sequence missing likely  means this is a mandatory level for
                 # which these obs must be filled via interpolation
-                nmNbtw = 1  #reset 'number of mandatory levels in-between' counter
+                nmNbtw = 1  # reset 'number of mandatory levels in-between' counter
                 # see if there is more than one mandatory level in a row for which we need to calculate XDR,
                 # YDR and HRDR values
                 for k in range(j + 1, nlv2wrt_tot + 1):
@@ -388,7 +385,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                     if (ibfms[drinfo_accum[1, kk]] != 0 and
                         ibfms[drinfo_accum[2, kk]] != 0 and
                         ibfms[drinfo_accum[3, kk]] != 0):
-                        #another mandatory levelw/ missing XDR, YDR and HRDR
+                        # another mandatory levelw/ missing XDR, YDR and HRDR
                         nmNbtw = nmNbtw + 1
                     else:
                         break
@@ -485,8 +482,8 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
             hdr2wrt[12] = rpt_accum[1, jjmaxp]
             hdr2wrt[13] = tcor_accum[1, jjmaxp]
         elif (nlv2wrt_tot > 1 and
-            # Make sure the header information for the descent is the coordinates, etc., present at the
-            # "launch" level (lowest pressure/highest altitude)
+              # Make sure the header information for the descent is the coordinates, etc., present at the
+              # "launch" level (lowest pressure/highest altitude)
               (c_qc_accum[jjmaxp][10] == 'd' or
                c_qc_accum[jjmaxp][10] == 'D')):
             hdr2wrt[6] = 500 + (int(hdr2wrt[6]) % 100)
@@ -500,6 +497,6 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
         hdr2wrt[10] = bmiss   # NickE
         hdr2wrt[11] = bmiss   # NickE
 
-    #line 1347 of sub2mem_mer.f
+    # line 1347 of sub2mem_mer.f
     # The next section of the sub2mem_mer.f code writes header info and all that to the
     # prepbufr so I don't think I need it
