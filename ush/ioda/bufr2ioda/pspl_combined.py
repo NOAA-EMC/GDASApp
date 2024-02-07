@@ -40,25 +40,25 @@
 #
 import numpy as np
 
-halfgate  =  np.float(30.0)
-bigT  =  np.float(120.0)
-heps  =  np.float(0.01)
+halfgate = np.float(30.0)
+bigT = np.float(120.0)
+heps = np.float(0.01)
 
 
 def expm(x):
     # exp(x)-1 (approximately x for small x)
-    #  =  I^(1)exp(x), where I^(p) is the integral iterated p times
+    # = I^(1)exp(x), where I^(p) is the integral iterated p times
 
-    eps  =  np.finfo(float).eps
+    eps = np.finfo(float).eps
     if abs(x) > 0.5:
-        e  =  np.exp(x) - 1.0
+        e = np.exp(x) - 1.0
     else:
-        p  =  np.float(x)
-        e  =  np.float(p)
+        p = np.float(x)
+        e = np.float(p)
         for i in range(2, 20):
-            p  =  (p * x) / i
-            e + =  p
-            if abs(p) < =  abs(e * eps):
+            p = (p * x) / i
+            e += p
+            if abs(p) <= abs(e * eps):
                 break
 
     return np.float(e)
@@ -66,22 +66,22 @@ def expm(x):
 
 def expmm(x):
     # exp(x)-1-x (approximately x^2/2 for small x)
-    #  =  I^(2)exp(x), where I^(p) is the integral iterated p times
+    # = I^(2)exp(x), where I^(p) is the integral iterated p times
 
     # Define the machine epsilon for floating-point arithmetic
-    eps  =  sys.float_info.epsilon
+    eps = sys.float_info.epsilon
     if abs(x) > 0.5:
         # For larger values of x, use the direct calculation
-        e  =  np.exp(x) - 1.0 - x
+        e = np.exp(x) - 1.0 - x
     else:
-        p  =  np.float(x * x * 0.5)
-        e  =  np.float(p)
+        p = np.float(x * x * 0.5)
+        e = np.float(p)
         for i in range(3, 26):
-            p  =  (p * x) / i
-            e + =  p
+            p = (p * x) / i
+            e += p
             # If the addition of the new term does not change the result,
             # it means we've reached the precision limit
-            if abs(p) < =  abs(e * eps):
+            if abs(p) <= abs(e * eps):
                 break
 
     return np.float(e)
@@ -90,28 +90,28 @@ def expmm(x):
 def coshm(x):
     # Calculate a modified hyperbolic cosine value.
     # exp(x)-1-x (approximately x^2/2 for small x)
-    #  =  I^(2)exp(x), where I^(p) is the integral iterated p times
-    x  =  np.float(x)
+    # = I^(2)exp(x), where I^(p) is the integral iterated p times
+    x = np.float(x)
     return 2 * np.sinh(x * 0.5) ** 2
 
 
 def sinhm(x):
     # Calculate a modified hyperbolic sine of x.
     # sinh(x)-x (approximately x**3/6 for small x)
-    #  =  I^(3)cosh(x), where I^(p) is the integral iterated p times
+    # = I^(3)cosh(x), where I^(p) is the integral iterated p times
     # Input x and output s should be float
-    eps  =  np.finfo(float).eps
+    eps = np.finfo(float).eps
 
     if abs(x) > 0.5:
-        s  =  np.sinh(x) - x
+        s = np.sinh(x) - x
     else:
-        p  =  np.float(x) ** 3 / 6
-        s  =  p
-        xx  =  x * x
+        p = np.float(x) ** 3 / 6
+        s = p
+        xx = x * x
         for i in range(5, 20, 2):
-            p  =  p * xx / (i * (i - 1.0))
-            s + =  p
-            if abs(p) < =  abs(s * eps):
+            p = p * xx / (i * (i - 1.0))
+            s += p
+            if abs(p) <= abs(s * eps):
                 break
 
     return s
@@ -119,9 +119,9 @@ def sinhm(x):
 
 def coshmm(x):
     # cosh(x)-1-x^2/2  (approximately x**4/24 for small x)
-    #  = I^(4)cosh(x), where I^(p) is the integral iterated p times
-    xh  =  x * 0.5
-    c  =  sinhm(xh) * (2 * np.sinh(xh) + x)
+    # =I^(4)cosh(x), where I^(p) is the integral iterated p times
+    xh = x * 0.5
+    c = sinhm(xh) * (2 * np.sinh(xh) + x)
     return c
 
 
@@ -130,20 +130,20 @@ def xcms(x):
     # NICKE : x might need to be double precison depending on if
     # it is a time variable and what time is (time since
     # or more recent where it shouldn't matter as much
-    x  =  np.float(x)   #might not need this?
-    eps  =  np.finfo(float).eps
+    x = np.float(x)   # might not need this?
+    eps = np.finfo(float).eps
 
     if abs(x) > 0.5:
-        e  =  np.float(x) * coshm(x) - sinhm(x))
+        e = np.float(x) * coshm(x) - sinhm(x)
     else:
-        p  =  np.float(x) ** 3 / 3
-        e  =  p
-        xx  =  x * x
+        p = np.float(x) ** 3 / 3
+        e = p
+        xx = x * x
         for i in range(2, 16):
-            i2  =  i * 2
-            p  =  p * xx / (i2 * (i2 + 1))
-            e  =  e + i * p
-            if abs(p) < =  abs(e * eps):
+            i2 = i * 2
+            p = p * xx / (i2 * (i2 + 1))
+            e = e + i * p
+            if abs(p) <= abs(e * eps):
                 break
 
     return e
