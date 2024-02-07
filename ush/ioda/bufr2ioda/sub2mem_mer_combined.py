@@ -381,7 +381,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                 # YDR and HRDR values
                 for k in range(j + 1, nlv2wrt_tot + 1):
                     kk = iord[k]
-                    if (ibfms[drinfo_accum[1, kk]] != 0 and ibfms[drinfo_accum[2, kk]] != 0 and 
+                    if (ibfms[drinfo_accum[1, kk]] != 0 and ibfms[drinfo_accum[2, kk]] != 0 and
                             ibfms[drinfo_accum[3, kk]] != 0):
                         # another mandatory levelw/ missing XDR, YDR and HRDR
                         nmNbtw = nmNbtw + 1
@@ -421,10 +421,10 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                     dist_pul_pll = radius_e * abs(lat_pul - lat_pll) * deg2rad
                 elif (int(lat_pul * 100) == int(lat_pll * 100)):
                     dist_pul_pll = 2.0 * radius_e * asin(min(1.0, abs(cos(lat_pul * deg2rad) *
-                                                                       sin((lon_pul - lon_pll) * 0.5 * deg2rad))))
+                        sin((lon_pul - lon_pll) * 0.5 * deg2rad))))
                 else:
                     dist_pul_pll = 2.0 * radius_e * asin(min(1.0, sqrt(
-                        (sin((lat_pul - lat_pll) * 0.5 * deg2rad)) ** 2 + 
+                        (sin((lat_pul - lat_pll) * 0.5 * deg2rad)) ** 2 +
                         cos(lat_pul * deg2rad) * cos(lat_pll * deg2rad) *
                         (sin((lon_pul - lon_pll) * 0.5 * deg2rad)) ** 2
                     )))
