@@ -1,4 +1,4 @@
-def ORDERS(IN,ISORT,IDATA,INDEX,N,M,I1,I2):
+def ORDERS(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
     import numpy as np
 
     ICHEK = np.zeros(1, dtype=np.int64)
@@ -13,13 +13,13 @@ def ORDERS(IN,ISORT,IDATA,INDEX,N,M,I1,I2):
 
     if I1 == 4:
         if ITYPE == 0:
-            IDATA = ORDEC4(IN,ISORT,IDATA,INDEX,N,M,I1,I2)
+            IDATA = ORDEC4(IN, ISORT, IDATA, INDEX, N, M, I1, I2)
         else:
-            IDATA = ORDER4(IN,ISORT,IDATA,INDEX,N,M,I1,I2)
+            IDATA = ORDER4(IN, ISORT, IDATA, INDEX, N, M, I1, I2)
         return IDATA
     elif I1 == 8:
         if ITYPE == 0:
-            IDATA = ORDEC8(IN,ISORT,IDATA,INDEX,N,M,I1,I2)
+            IDATA = ORDEC8(IN, ISORT, IDATA, INDEX, N, M, I1, I2)
         if ITYPE == 0:
             return
     elif I1 != 8:
@@ -34,8 +34,8 @@ def ORDERS(IN,ISORT,IDATA,INDEX,N,M,I1,I2):
                 SMAL = ICHEK
             if ITYPE == 2 and RCHEK < SMAL:
                 SMAL = RCHEK
-       SMAL = 1 - SMAL
-       for I in range(N):
+        SMAL = 1 - SMAL
+        for I in range(N):
             ICHEK = IDATA[0, I]
             if ITYPE == 1:
                 ICHEK = ICHEK + SMAL
