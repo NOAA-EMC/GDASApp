@@ -70,9 +70,9 @@ def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_
         if (not ma.is_masked(tmdb_aircft[i]) and (qmat_aircft[i] == 2)):
             qmat_aircft[i] = TQM
 
-        if (not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i]))
-            and (qmwn_aircft[i] == 2):
-                WQM = TQM  # yes, I meant TQM
+        if (not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i])) and
+                (qmwn_aircft[i] == 2):
+            WQM = TQM  # yes, I meant TQM
 #            qmwn_aircft[i] = max(
 
     print("1")
@@ -176,8 +176,7 @@ def bufr_to_ioda(config, logger):
     # Quality Marker
     q.add("airTemperatureQM", "*/QMAT")
     q.add("waterVaporMixingRatioQM", "*/ACMST2/QMDD")
-    q.add("windQM","*/QMWN")
-
+    q.add("windQM", "*/QMWN")
 
     logger.debug('Making QuerySet for AIRCAR (no amdar)...')
     # MetaData
@@ -471,7 +470,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     dateTime_aircft = {dateTime_aircft.shape}, {dateTime_aircft.dtype}")
     logger.debug(f"     dateTime_amdar = {dateTime_amdar.shape}, {dateTime_amdar.dtype}")
 
-    dateTime = ma.concatenate((dateTime_aircar, dateTime_aircft, dateTime_amdar),axis=0).astype(np.int64)
+    dateTime = ma.concatenate((dateTime_aircar, dateTime_aircft, dateTime_amdar), axis=0).astype(np.int64)
     dateTime = ma.masked_values(dateTime, dateTime_aircar.fill_value)
     logger.debug(f"     dateTime concatenated info = {dateTime.shape}, {dateTime.dtype}, {dateTime.fill_value}")
 
