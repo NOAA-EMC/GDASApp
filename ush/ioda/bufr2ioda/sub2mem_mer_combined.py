@@ -421,7 +421,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                     dist_pul_pll = radius_e * abs(lat_pul - lat_pll) * deg2rad
                 elif (int(lat_pul * 100) == int(lat_pll * 100)):
                     dist_pul_pll = 2.0 * radius_e * asin(min(1.0, abs(cos(lat_pul * deg2rad) *
-                        sin((lon_pul - lon_pll) * 0.5 * deg2rad))))
+                                                         sin((lon_pul - lon_pll) * 0.5 * deg2rad))))
                 else:
                     dist_pul_pll = 2.0 * radius_e * asin(min(1.0, sqrt(
                         (sin((lat_pul - lat_pll) * 0.5 * deg2rad)) ** 2 +

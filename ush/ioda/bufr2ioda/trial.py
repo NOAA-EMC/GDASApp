@@ -1,7 +1,6 @@
 import numpy as np
 
 
-
 def aplusb(a, b):
 
     c = a + b
@@ -9,7 +8,6 @@ def aplusb(a, b):
     f = a + a + a
 
     return c, f
-
 
 
 a = [1, 2, 3, 4, 5]

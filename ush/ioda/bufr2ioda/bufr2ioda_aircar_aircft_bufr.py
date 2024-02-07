@@ -67,7 +67,7 @@ def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_
                 TQM = np.int32(3)
             if (not ma.is_masked(qmrkh2_aircft[i])) and (qmrkh2_aircft[i] == 0):
                 TQM = np.int32(2)
-        if (not ma.is_masked(tmdb_aircft[i]) and (qmat_aircft[i] == 2):
+        if (not ma.is_masked(tmdb_aircft[i]) and (qmat_aircft[i] == 2)):
             qmat_aircft[i] = TQM
 
         if (not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i])
@@ -81,8 +81,8 @@ def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_
 
 def PCCF_to_QMDD(qob_aircft, qmdd_aircft, pccf_aircft):
     print("3")
-    for i in range(qmdd_aircft):
-        if (not ma.is_masked(pccf_aircft[i]) and
+#    for i in range(qmdd_aircft):
+#        if (not ma.is_masked(pccf_aircft[i]) and
 
 
 #         IF((QOB(1).LT.BMISS).AND.(QQM(1).EQ.2)) THEN
