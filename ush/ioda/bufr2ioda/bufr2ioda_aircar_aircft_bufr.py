@@ -73,7 +73,7 @@ def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_
         if (not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i])
             and (qmwn_aircft[i] == 2):
             WQM = TQM # yes, I meant TQM
-            qmwn_aircft[i] = max(
+#            qmwn_aircft[i] = max(
 
 
     print("1")
@@ -85,14 +85,14 @@ def PCCF_to_QMDD(qob_aircft, qmdd_aircft, pccf_aircft):
         if (not ma.is_masked(pccf_aircft[i]) and
 
 
-         IF((QOB(1).LT.BMISS).AND.(QQM(1).EQ.2)) THEN
-! Always set QQM to 13 if TQM was set to 13 above (regardless of PCCF)
-         IF((RQCD_8.LT.80.0).OR.(RQCD_8.GT.100.0)
-     &      .OR.(TQM(1).EQ.13.0)) THEN
-          QQM(1) = 13.0
-         ELSE
-          QQM(1) = 2.0
-         ENDIF
+#         IF((QOB(1).LT.BMISS).AND.(QQM(1).EQ.2)) THEN
+# ! Always set QQM to 13 if TQM was set to 13 above (regardless of PCCF)
+#         IF((RQCD_8.LT.80.0).OR.(RQCD_8.GT.100.0)
+#     &      .OR.(TQM(1).EQ.13.0)) THEN
+#          QQM(1) = 13.0
+#         ELSE
+#          QQM(1) = 2.0
+#         ENDIF
 
 
 
@@ -149,9 +149,9 @@ def bufr_to_ioda(config, logger):
     start_time = time.time()
 
     logger.debug(f"Making QuerySets ...")
-    q = bufr.QuerySet(subsets_aircar) #AIRCAR
-    r = bufr.QuerySet(subsets_aircft) #AIRCFT, no amdar
-    s = bufr.QuerySet(subsets_amdar)  #AIRCFT, amdar only
+    q = bufr.QuerySet(subsets_aircar)  # AIRCAR
+    r = bufr.QuerySet(subsets_aircft)  # AIRCFT, no amdar
+    s = bufr.QuerySet(subsets_amdar)  # AIRCFT, amdar only
 
 
     logger.debug('Making QuerySet for AIRCAR ...')
@@ -176,7 +176,7 @@ def bufr_to_ioda(config, logger):
     q.add("windDirection", "*/WDIR")
     q.add("windSpeed", "*/WSPD")
 
-    #Quality Marker
+    # Quality Marker
     q.add("airTemperatureQM", "*/QMAT")
     q.add("waterVaporMixingRatioQM", "*/ACMST2/QMDD")
     q.add("windQM","*/QMWN")
@@ -201,7 +201,7 @@ def bufr_to_ioda(config, logger):
     r.add("dataReceiptTimeMinute", "*/RCMI")
     r.add("dataReceiptTimeSignificance", "*/RCTS")
 
-#MetaData/height
+    # MetaData/height
     r.add("flightLevel", "[*/FLVL]")
     r.add("flightLevelST", "[*/FLVLST]")
     r.add("height", "[*/HEIT]")
@@ -209,19 +209,19 @@ def bufr_to_ioda(config, logger):
     r.add("pressureAltitudeRelativeToMeanSeaLevel", "[*/PSAL]")
     r.add("percentConfidenceRH", "*/PCCF")
 
-    #ObsValue
+    # ObsValue
     r.add("airTemperature", "[*/TMDB, */TMDBST]")
     r.add("relativeHumidity", "[*/AFMST/REHU, */ACMST2/REHU, */RAWHU]")
     r.add("waterVaporMixingRatio", "[*/ACMST2/MIXR, */MIXR]")
     r.add("windDirection", "*/WDIR")
     r.add("windSpeed", "*/WSPD")
 
-    #QualityInformation
+    # QualityInformation
     r.add("airTemperatureQualityInformation", "*/QMRKH[2]")
     r.add("windDirectionQualityInformation", "*/QMRKH[3]")
     r.add("windSpeedQualityInformation", "*/QMRKH[4]")
 
-    #QualityMarker
+    # QualityMarker
     r.add("airTemperatureQM", "*/QMAT")
     r.add("humidityQM", "[*/AFMST/QMDD, */QMDD]")
 #    r.add("waterVaporMixingRatioQM", "NC004006/QMDD")
@@ -243,14 +243,14 @@ def bufr_to_ioda(config, logger):
     s.add("aircraftIdentifier", "*/ACRN")
     s.add("flightLevelST", "*/ADRBLSEQ/FLVLST")
 
-    #ObsValue
+    # ObsValue
     s.add("airTemperature", "*/ADRBLSEQ/TMDB")
     s.add("dewpointTemperature", "*/ADRBLSEQ/TMDP")
     s.add("waterVaporMixingRatio", "*/ADRBLSEQ/MIXR")
     s.add("windDirection", "*/ADRBLSEQ/WDIR")
     s.add("windSpeed", "*/ADRBLSEQ/WSPD")
 
-    #QualityMarker
+    # QualityMarker
     s.add("airTemperatureQM", "*/QMAT")
     s.add("relativeHumidityQM", "*/QMDD")
     s.add("windQM", "*/QMWN")
