@@ -1046,7 +1046,6 @@ def eval_usplineddd(n, xs, p, q, x):
     chh = 1
     sh = xr
     ch = 1
-    # NickE I think also issues here
     shm = xr**3 / 6
     chm = xr**2 * 0.5
     shhm = xh**3 / 6
@@ -1429,7 +1428,6 @@ def set_posts(mh, mode, hgtn, hn): # , bend, hgtp, hp, off):
         i2 = i * 2
         i2m = i2 - 1
         i2mm = i2 - 2
-    ##### stopped here.
         hgtp[i2m] = hgtn[0][i]  # NickE if these don't work, use hgtn[0,i] for this
         hgtp[i2] = hgtn[1][i]   # this too
         hp[i2m] = hn[0][modei][i]  # this too
@@ -1457,7 +1455,7 @@ def set_posts(mh, mode, hgtn, hn): # , bend, hgtp, hp, off):
 
     return bend, hgtp, hp, off
 
-def count_routes(n, code): # count, FF):
+def count_routes(n, code):
     # Given the route code array, "code", list all the allowed combinations
     # of passage modes (descending == =  1; ascending  ==  =  2) through the sequence
     # of slalom gates.
@@ -1476,6 +1474,7 @@ def count_routes(n, code): # count, FF):
 
     return count, FF
 
+
 def list_routes(n, code):
     # Given the route code array, "code", list all the allowed combinations
     # of passage modes (descending == =  1; ascending  ==  =  2) through the sequence
@@ -1493,6 +1492,7 @@ def list_routes(n, code):
 
     if i > 1025:
         print("i > ihu or 1025. List may not necessarily be complete")
+
 
 def next_route(n, code, mode, flag):
     # Given the combinatoric specification of sequentially-conditional
@@ -1547,6 +1547,7 @@ def next_route(n, code, mode, flag):
 
     flag = True
     return mode, flag
+
 
 def slalom_tspline(n, bend, hgxn, yn, off, bigX): 
     # NickE some are inout so I have to edit the line above
@@ -1647,9 +1648,9 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX):
     for ita in range(50):
         q = qt
         ya = yat
-    # Determine whether there exists sign-violations in any active "jumps"
-    # of the 3rd derviative and, if so, inactivate (on==F) the constraints
-    # at those points. Also, count the number, j, of such violations.
+        # Determine whether there exists sign-violations in any active "jumps"
+        # of the 3rd derviative and, if so, inactivate (on==F) the constraints
+        # at those points. Also, count the number, j, of such violations.
         j = 0
         k = 0
         sjmin = 0
@@ -1666,8 +1667,8 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX):
             break
         if k == 0:
             on[j] = True
-    # Begin a new "B" iteration that adds as many new constraints as needed
-    # to keep the new conditional minimum energy spline in the feasible region:
+        # Begin a new "B" iteration that adds as many new constraints as needed
+        # to keep the new conditional minimum energy spline in the feasible region:
         for itb in range(80):
             qt, jump, yat, en, FF = fit_gtspline(n, xs, yn, on)
             if FF:
@@ -1676,12 +1677,12 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX):
                 return q, ya, en, ita, ittot, max(itb, 80), FF  # NickE
             ittot + =  1
 
-    # Determine whether this "solution" wanders outside any slalom gates at
-    # the unconstrained locations and identify and calibrate the worst violation.
-    # In this case, sjmin, ends up being the under-relaxation coefficient
-    # by which we need to multiply this new increment in order to just stay
-    # within the feasible region of spline space, and constraint j must be
-    # switched "on":
+            # Determine whether this "solution" wanders outside any slalom gates at
+            # the unconstrained locations and identify and calibrate the worst violation.
+            # In this case, sjmin, ends up being the under-relaxation coefficient
+            # by which we need to multiply this new increment in order to just stay
+            # within the feasible region of spline space, and constraint j must be
+            # switched "on":
             j = 0
             sjmin = u1
             for i in range(n):
@@ -1696,9 +1697,9 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX):
             if j == 0:
                 break
 
-    # Back off to best feasible solution along this path, which modulates the
-    # change just made by an underrelaxation factor, sjmin, and activate
-    # constraint j
+            # Back off to best feasible solution along this path, which modulates the
+            # change just made by an underrelaxation factor, sjmin, and activate
+            # constraint j
             ya = ya + sjmin * (yat - ya)
             q = q + sjmin * (qt - q)
             on[j] = True
@@ -1759,9 +1760,9 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
     for ita in range(1, 51): # 51 = nita + 1 = 50 + 1
         q = qt.copy() # Copy solution vector q of nodal 1st-derivatives
         ya = yat.copy() # Copy nodal intercepts
-    # Determine whether there exists sign-violations in any active "jumps"
-    # of the 3rd derviative and, if so, inactivate (on==F) the constraints
-    # at those points. Also, count the number, j, of such violations.
+        # Determine whether there exists sign-violations in any active "jumps"
+        # of the 3rd derviative and, if so, inactivate (on==F) the constraints
+        # at those points. Also, count the number, j, of such violations.
         j = -1
         k = 0
         sjmin = 0
@@ -1780,10 +1781,10 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
         if k == 0:
             # must leave at least one constraint "on"
             on[j] = True
+
         # Begin a new "B" iteration that adds as many new constraints as
         # needed to keep the new conditional minimum energy spline in the
         # feasible region:
-
         for itb in range(1, 81): # 81 from nitb + 1
             qt, jump, yat, en, FF = fit_guspline(n, xs, yn, on) # qt, jump, yat, en, FF)
             if FF:
@@ -1792,12 +1793,12 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
                 return
             ittot + =  1 # Increment the running total of calls to fit_uspline
 
-    # Determine whether this "solution" wanders outside any slalom gates at
-    # the unconstrained locations and identify and calibrate the worst violation.
-    # In this case, sjmin, ends up being the under-relaxation coefficient
-    # by which we need to multiply this new increment in order to just stay
-    # within the feasible region of spline space, and constraint j must be
-    # switched "on":
+            # Determine whether this "solution" wanders outside any slalom gates at
+            # the unconstrained locations and identify and calibrate the worst violation.
+            # In this case, sjmin, ends up being the under-relaxation coefficient
+            # by which we need to multiply this new increment in order to just stay
+            # within the feasible region of spline space, and constraint j must be
+            # switched "on":
             j = -1
             sjmin = 1.0
             for i in range(n):
