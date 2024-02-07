@@ -1,9 +1,7 @@
 import numpy as np
 
 def ldltb(m, mah1, a):
-    """
-    float version of [ldltb]
-    """
+    # float version of [ldltb]
     for j in range(m):
         imost = min(m, j + mah1)
         jp = j + 1
@@ -21,10 +19,9 @@ def ldltb(m, mah1, a):
 
     return a
 
+
 def ltdlbv(m, mah1, a, v):
-    """
-    Function equivalent of the Fortran subroutine [ltdlbv]
-    """
+    # Function equivalent of the Fortran subroutine [ltdlbv]
     a = a
     for j in range(m):
         vj = v[j]
