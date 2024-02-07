@@ -164,7 +164,7 @@ def enbase_t(tspan, hspan):
         return 1.0
 
     # Calculate
-    r  =  hspan**2 / expmm(-tspan) * 0.5
+    r = hspan**2 / expmm(-tspan) * 0.5
 
     return r
 
@@ -222,13 +222,12 @@ def tbnewton(nh, m, hgts, hs, hgtp, p, q):
             it = it + 1
         FF = it > nit
         if FF:
-            print("In tbnewton; Newton iterations seem not to be converging \\
-                   at i = ", i)
-            print("tee,he,hac,heps,dhadt:", tee, he, hac, np.finfo(float).eps,
-                   dhadt)
+            print("In tbnewton; Newton iterations seem not to be converging at i = ", i)
+            print("tee,he,hac,heps,dhadt:", tee, he, hac, np.finfo(float).eps, dhadt)
         te[i] = tee
 
     return te, dhdt, FF
+
 
 def ubnewton(nh, m, hgts, hs, hgtp, p, q):
     # Like tbnewton, but for the case of untensioned (i.e., cubic) splines
@@ -241,12 +240,12 @@ def ubnewton(nh, m, hgts, hs, hgtp, p, q):
     for i in range(nh):
         tee = hgts[i] * halfgate
         he = hs[i]
-          # Use Newton iterations to estimate the rescaled time, tee, at which the
-          # height is he
+        # Use Newton iterations to estimate the rescaled time, tee, at which the
+        # height is he
         it = 1
         while it < =  nit:
-            hac, dhadt = eval_uspline(m, tr, p, q, tee) #, hac, dhadt)  eval_uspline does not return dhadt....
-    # NickE gotta fiture this out
+            hac, dhadt = eval_uspline(m, tr, p, q, tee)
+            # NickE gotta fiture this out
             if it == 1:
                 dhdt[i] = dhadt
             if dhadt == 0:
@@ -263,12 +262,12 @@ def ubnewton(nh, m, hgts, hs, hgtp, p, q):
             it = it + 1
         FF = it > nit
         if FF:
-            print("In ubnewton; Newton iterations seem not to be converging \\
-                  at i = ", i)
+            print("In ubnewton; Newton iterations seem not to be converging at i = ", i)
             print("tee,he,hac,heps,dhadt:", tee, he, hac, heps, dhadt)
         te[i] = tee
 
     return te, dhdt, FF
+
 
 def fit_gtspline(n, xs, ys, on):
     # Fit the gappy tensioned spline, where only those nodes flagged "on"
@@ -285,7 +284,7 @@ def fit_gtspline(n, xs, ys, on):
             xa[m] = xs[i]
             ya[m] = ys[i]
     # NickE #####################
-    qa, ja, en, FF = fit_tspline(m, xa[:m], ya[:m]) #, qa[:m], ja[:m], en, FF)
+    qa, ja, en, FF = fit_tspline(m, xa[:m], ya[:m])
     if FF:
         print("In fit_gtspline; failure flag raised at call to fit_tspline")
         return q, j, yac, en, FF
@@ -297,11 +296,12 @@ def fit_gtspline(n, xs, ys, on):
             j[i] = ja[k]
             yac[i] = ys[i]
         else:
-    #NickE
+    # NickE
             yac[i], q[i] = eval_tsplined(m, xa[:m], ya[:m], qa[:m], xs[i])
             j[i] = 0
 
     return q, j, yac, en, FF
+
 
 def fit_tspline(n, xs, p):# , q, j, en, FF):
     # Solve for the coefficients, the 3rd-derivative jumps, and the energy,
@@ -362,8 +362,9 @@ def fit_tspline(n, xs, p):# , q, j, en, FF):
         if xs[i-1] > =  xs[i]:
             FF = True
             print("In fit_tspline; xs data must increase strictly monotonically")
-    # NickE what I return??????
+            # NickE what I return??????
             return None, None, None, FF
+
     # Initialize tri-diagonal kernels for the energy definition:
     # qq = np.zeroes((n,2)) initialize symmetric tridiagonal, kernel for q^T*QQ*q
     #      where "q" are the dp/dx at each node.
@@ -387,15 +388,15 @@ def fit_tspline(n, xs, p):# , q, j, en, FF):
         ch = np.cosh(x)
         sh = np.sinh(x)
         xcmsx2 = xcms(x) * 2
-    # egg relates to the odd-g-basis function's energy integral coefficient
-    # ehh relates to the even-g-basis function's energy integral coefficient
+        # egg relates to the odd-g-basis function's energy integral coefficient
+        # ehh relates to the even-g-basis function's energy integral coefficient
         egg = x * sh / xcmsx2
         ehh = ch / (2 * sh)
-    # ccc is the coefficient of energy integral coupling g(i)*g(i) and g(ip)*g(ip)
+        # ccc is the coefficient of energy integral coupling g(i)*g(i) and g(ip)*g(ip)
         ccc = egg + ehh
-    #ccp[i] is  Energy coefficient for difp(i)*difp(i)...
+        # ccp[i] is  Energy coefficient for difp(i)*difp(i)...
         cpp[i] = ch / xcmsx2
-    # cqp[i] is for difp(i)*sumq(i)
+        # cqp[i] is for difp(i)*sumq(i)
         cqp[i] = -difp[i] * sh / xcmsx2
         qq[i, 0] = qq[i, 0] + ccc
         qq[ip, -1] = qq[ip, -1] + egg - ehh
@@ -409,7 +410,7 @@ def fit_tspline(n, xs, p):# , q, j, en, FF):
     q[n-1] = 0
     q[1:n] = q[1:n] - cqp
     # The following 2 lines solve the tridiagonal system for q:
-    #NickE these are called by pmat2. figure out the outputs.
+    # NickE these are called by pmat2. figure out the outputs.
     qq = ldltb(n, 1, qq)
     qq, q = ltdlbv(n, 1, qq, q)
 
@@ -436,7 +437,7 @@ def fit_tspline(n, xs, p):# , q, j, en, FF):
     # Final "sa" is just q(n) for the right exterior
     j[n-1] = q[n-1] - sb
 
-    #NickE do I return something??
+    # NickE do I return something??
     return q, j, en, False
 
 
@@ -463,9 +464,9 @@ def int_tspline(n, xs, p, q):# , m):
         pd = (p[ip] - p[i]) * 0.5 / x
         qa = (q[ip] + q[i]) * 0.5
         qd = (q[ip] - q[i]) * 0.5 / shx
-    # a,b,c,d are analogous to the Taylor coefficients of a cubic about the
-    # interval midpoint, but more precisely, c and d relate to basis functions
-    # coshm and sinhm (instead of x**2/2 and x**3/6 for the perfect cubic).
+        # a,b,c,d are analogous to the Taylor coefficients of a cubic about the
+        # interval midpoint, but more precisely, c and d relate to basis functions
+        # coshm and sinhm (instead of x**2/2 and x**3/6 for the perfect cubic).
         c = qd
         a = pa - c * chmx
         d = (qa - pd) * x / xcmsx
@@ -476,7 +477,7 @@ def int_tspline(n, xs, p, q):# , m):
 
     return m
 
-def fit_guspline(n, xs, ys, on): #, q, j, yac, en, FF):
+def fit_guspline(n, xs, ys, on):
     # Fit the gappy untensioned spline, where only those nodes flagged "on"
     # are effective in the fitting procedure. Owing to the fact that, where
     # constraints are not "on" the spline will generally depart from ys, the
@@ -493,7 +494,7 @@ def fit_guspline(n, xs, ys, on): #, q, j, yac, en, FF):
             xa[m] = xs[i]
             ya[m] = ys[i]
             m + =  1
-    qa, ja, en, FF = fit_uspline(m, xa[:m], ya[:m]) #, qa[:m], ja[:m], en, FF)
+    qa, ja, en, FF = fit_uspline(m, xa[:m], ya[:m])
     if FF:
         print("In fit_guspline; failure flag raised at call to fit_uspline")
         return
@@ -505,7 +506,7 @@ def fit_guspline(n, xs, ys, on): #, q, j, yac, en, FF):
             yac[i] = ys[i]
             k + =  1
         else:
-            yac[i], q[i] = eval_usplined(m, xa[:m], ya[:m], qa[:m], xs[i]) #, yac[i], q[i])
+            yac[i], q[i] = eval_usplined(m, xa[:m], ya[:m], qa[:m], xs[i])
             j[i] = 0
 
     return q, j, yac, en, FF
@@ -537,6 +538,7 @@ def fit_uspline(n, xs, p):
             FF = True
             print("In fit_uspline; xs data must increase strictly monotonically")
             return None, None, None, FF
+
     # Initialize qq = np.zeros((n, 2)) b/c symmetric tridiagonal, kernel for
     #    q^T*QQ*q where "q" are the dp/dx at each node.
     # The coefficients in the quadratic form defining the spline energy also
@@ -563,16 +565,16 @@ def fit_uspline(n, xs, p):
         ccc = 2 / x
         cpp[i] = 1 / xcmsx2
         cqp[i] = -difp[i] * x / xcmsx2
-        qq[i, 0] + =  ccc   #NickE not sure about this
+        qq[i, 0] + =  ccc   # NickE not sure about this
         if ip < n-1:       # NickE not sure about this
-            qq[ip, 0] + =  1 / x  #NickE not sure about this
-        qq[ip, 0] + =  ccc   #NickE not sure about this
+            qq[ip, 0] + =  1 / x  # NickE not sure about this
+        qq[ip, 0] + =  ccc   # NickE not sure about this
 
     # Solve the tridiagonal system for q
     q[:-1] = -cqp
     q[1:] - =  cqp
-    qq = ldltb(n, 1, qq) #NickE this should be good
-    q = ltdlbv(n, 1, qq, q)  #NickE this should be good
+    qq = ldltb(n, 1, qq) # NickE this should be good
+    q = ltdlbv(n, 1, qq, q)  # NickE this should be good
     #    q = solve_tridiagonal(qq, q)
     sumq = q[:-1] + q[1:]
 
@@ -1141,7 +1143,7 @@ def best_tslalom(nh, mh, doru, hgts, hs):
     if FF:
         print('In best_tslalom; failure flag was raised in call to set_gates')
         return  # NickE return
-    route_count, FF = count_routes(mh, code) #, route_count, FF)
+    route_count, FF = count_routes(mh, code)
     maxrts = max(maxrts, route_count)
 
     if FF:
@@ -1195,12 +1197,12 @@ def best_uslalom(nh, mh, doru, hgts, hs):
     ya = np.zeros(mh*2)
     flag = True
 
-    hgtn, hn, code, FF = set_gates(nh, mh, doru, hgts, hs) #, hgtn, hn, code, FF)
+    hgtn, hn, code, FF = set_gates(nh, mh, doru, hgts, hs)
     if FF:
         print('In best_uslalom; failure flag was raised in call to set_gates')
         return hgtp, hp, qbest, yabest, enbest, modebest, maxita, maxitb, maxit, maxrts, FF
 
-    route_count, FF = count_routes(mh, code) #, route_count, FF)
+    route_count, FF = count_routes(mh, code)
     maxrts = max(maxrts, route_count)
     if FF:
         print('In best_uslalom; failure flag raised in call to count_routes')
@@ -1208,7 +1210,7 @@ def best_uslalom(nh, mh, doru, hgts, hs):
 
     if route_count > 4:
         list_routes(mh, code)
-    enbest = float('inf') #NickE max_float * 0.5again
+    enbest = float('inf') # NickE max_float * 0.5again
     flag = True
 
     for k in range(1, 1026): # ihu = 1025 + 1 = 1026
@@ -1250,7 +1252,7 @@ def count_gates(nh, hgts):
         hgtp = hgts[i]
     return mh
 
-def set_gates(nh, mh, doru, hgts, hs): #, hgtn, hn, code, FF):
+def set_gates(nh, mh, doru, hgts, hs): 
     # Be sure to precede this routine by a call to "count_gates" to get a
     # consistent tally of the number of time gates, mh.
     # Set the locations of the "gateposts" and the routing codes of allowed
@@ -1319,7 +1321,7 @@ def set_gates(nh, mh, doru, hgts, hs): #, hgtn, hn, code, FF):
     # doru = 1 ==> descending
     # doru = 2 ==> ascending
 
-    #NickE this missed a lot. smh fml
+    # NickE this missed a lot. smh fml
     hgtn = np.zeros((2, mh), dtype = int)
     hn = np.zeros((2,2,mh))
     code = np.zeros(np, dtype = int)
@@ -1428,7 +1430,7 @@ def set_posts(mh, mode, hgtn, hn): # , bend, hgtp, hp, off):
         i2m = i2 - 1
         i2mm = i2 - 2
     ##### stopped here.
-        hgtp[i2m] = hgtn[0][i]  #NickE if these don't work, use hgtn[0,i] for this
+        hgtp[i2m] = hgtn[0][i]  # NickE if these don't work, use hgtn[0,i] for this
         hgtp[i2] = hgtn[1][i]   # this too
         hp[i2m] = hn[0][modei][i]  # this too
         hp[i2] = hn[1][modei][i]   # this too
@@ -1546,7 +1548,7 @@ def next_route(n, code, mode, flag):
     flag = True
     return mode, flag
 
-def slalom_tspline(n, bend, hgxn, yn, off, bigX) #, q, ya, en, ita, maxitb, ittot, FF):
+def slalom_tspline(n, bend, hgxn, yn, off, bigX): 
     # NickE some are inout so I have to edit the line above
 
     # Fit a tensioned spline, characteristic abscissa scale, bigX, between the
@@ -1625,7 +1627,7 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX) #, q, ya, en, ita, maxitb, itto
     # "gateposts" as is possible with distinct xs. A constraint i is signified
     # to be activated when logical array element, on(i), is true:
     hgxp = hgxn[0] - 1
-    on = [False] * n        ####NickE choosing not to trust codingfleet
+    on = [False] * n        #### NickE choosing not to trust codingfleet
     for i in range(n):
         if off[i]:
             on[i] = False
@@ -1634,13 +1636,13 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX) #, q, ya, en, ita, maxitb, itto
         if on[i]:
             hgxp = hgxn[i]
     ittot = 1
-    # Make the initial fit      #####NickE end choosing not to trust codingfleet
-    qt, jump, yat, en, FF = fit_gtspline(n, xs, yn, on) # NickE #, qt, jump, yat, en, FF)
+    # Make the initial fit      ##### NickE end choosing not to trust codingfleet
+    qt, jump, yat, en, FF = fit_gtspline(n, xs, yn, on) # NickE
     ena = en
     if FF:
         print('In slalom_tspline; failure flag raised in call to fit_gtspline')
         print('at initialization of A loop')
-        return 0.0, 0.0, en, 0, ittot, 0, FF  #NickE closest i can get
+        return 0.0, 0.0, en, 0, ittot, 0, FF  # NickE closest i can get
     # loop over steps of iteration "A" to check for jump-sign violations
     for ita in range(50):
         q = qt
@@ -1667,11 +1669,11 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX) #, q, ya, en, ita, maxitb, itto
     # Begin a new "B" iteration that adds as many new constraints as needed
     # to keep the new conditional minimum energy spline in the feasible region:
         for itb in range(80):
-            qt, jump, yat, en, FF = fit_gtspline(n, xs, yn, on) #, qt, jump, yat, en, FF)
+            qt, jump, yat, en, FF = fit_gtspline(n, xs, yn, on)
             if FF:
                 print('In slalom_tspline; failure flag raised in call to fit_gtspline')
                 print('at B loop, iterations ita, itb  = ', ita, itb)
-                return q, ya, en, ita, ittot, max(itb, 80), FF  #NickE
+                return q, ya, en, ita, ittot, max(itb, 80), FF  # NickE
             ittot + =  1
 
     # Determine whether this "solution" wanders outside any slalom gates at
@@ -1716,7 +1718,7 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX) #, q, ya, en, ita, maxitb, itto
         print('In slalom_tspline; exceeding the allocation of A iterations')
         return q, ya, en, ita, ittot, max(itb, 80), FF
 
-    #NickE might not need the line below
+    # NickE might not need the line below
     return q, ya, en, ita, ittot, max(itb, 80), FF
 
 def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
@@ -1726,7 +1728,7 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
     # (or exponential) function. In other respects, the logic follows that of
     # subroutine slalom_tsline.
 
-    #NickE like preious, check alls, inout, missing
+    # NickE like preious, check alls, inout, missing
     nita = 50
     nitb = 80
     halfgate = np.float(30.0)
@@ -1833,7 +1835,7 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
     return q, ya, en, ita, ittot, maxitb, FF
 
 
-def convertd(n, tdata, hdata, phof): #, doru, idx, hgts, hs, descending, FF):
+def convertd(n, tdata, hdata, phof):
     # tdata (in single precision real hours) is discretized into bins of size
     # gate = 2*halfgate (in units of seconds) and expressed as even integer units
     # hgts of halfgate that correspond to the mid-time of each bin. (The two
