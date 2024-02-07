@@ -204,7 +204,7 @@ def tbnewton(nh, m, hgts, hs, hgtp, p, q):
         #  Use Newton iterations to estimate the rescaled time, tee, at which the
         #  height is he
         it = 1
-        while it <=  nit:
+        while it <= nit:
             hac, dhadt = eval_tsplined(m, tr, p, q, tee)
             if it == 1:
                 dhdt[i] = dhadt / bigT
@@ -243,7 +243,7 @@ def ubnewton(nh, m, hgts, hs, hgtp, p, q):
         # Use Newton iterations to estimate the rescaled time, tee, at which the
         # height is he
         it = 1
-        while it <=  nit:
+        while it <= nit:
             hac, dhadt = eval_uspline(m, tr, p, q, tee)
             # NickE gotta fiture this out
             if it == 1:
@@ -359,7 +359,7 @@ def fit_tspline(n, xs, p):
         return q, j, en, FF
     # apply a strict monotonicity check on the xs
     for i in range(1, n):
-        if xs[i-1] >=  xs[i]:
+        if xs[i-1] >= xs[i]:
             FF = True
             print("In fit_tspline; xs data must increase strictly monotonically")
             # NickE what I return??????
@@ -441,7 +441,7 @@ def fit_tspline(n, xs, p):
     return q, j, en, False
 
 
-def int_tspline(n, xs, p, q):# , m):
+def int_tspline(n, xs, p, q):
     # Take the sets of n parameters p and q of the tensioned spline
     # and return the values of its integral at the n-1 interval midpoints, and
     # the value at the last node, assuming that the integral at the first node
@@ -494,7 +494,7 @@ def fit_guspline(n, xs, ys, on):
         if on[i]:
             xa[m] = xs[i]
             ya[m] = ys[i]
-            m +=  1
+            m += 1
     qa, ja, en, FF = fit_uspline(m, xa[:m], ya[:m])
     if FF:
         print("In fit_guspline; failure flag raised at call to fit_uspline")
@@ -505,7 +505,7 @@ def fit_guspline(n, xs, ys, on):
             q[i] = qa[k]
             j[i] = ja[k]
             yac[i] = ys[i]
-            k +=  1
+            k += 1
         else:
             yac[i], q[i] = eval_usplined(m, xa[:m], ya[:m], qa[:m], xs[i])
             j[i] = 0
@@ -535,7 +535,7 @@ def fit_uspline(n, xs, p):
         return q, j, en, FF
     # apply a strict monotonicity check on the xs:
     for i in range(1, n):
-        if xs[i-1] >=  xs[i]:
+        if xs[i-1] >= xs[i]:
             FF = True
             print("In fit_uspline; xs data must increase strictly monotonically")
             return None, None, None, FF
@@ -566,14 +566,14 @@ def fit_uspline(n, xs, p):
         ccc = 2 / x
         cpp[i] = 1 / xcmsx2
         cqp[i] = -difp[i] * x / xcmsx2
-        qq[i, 0] +=  ccc   # NickE not sure about this
+        qq[i, 0] += ccc   # NickE not sure about this
         if ip < n-1:       # NickE not sure about this
-            qq[ip, 0] +=  1 / x  # NickE not sure about this
-        qq[ip, 0] +=  ccc   # NickE not sure about this
+            qq[ip, 0] += 1 / x  # NickE not sure about this
+        qq[ip, 0] += ccc   # NickE not sure about this
 
     # Solve the tridiagonal system for q
     q[:-1] = -cqp
-    q[1:] -=  cqp
+    q[1:] -= cqp
     qq = ldltb(n, 1, qq)  # NickE this should be good
     q = ltdlbv(n, 1, qq, q)  # NickE this should be good
     #    q = solve_tridiagonal(qq, q)
@@ -623,7 +623,7 @@ def int_uspline(n, xs, p, q):
         # Calculate the integral over the interval
         m[i] = e + a * x - b * t2 + c * t3 - d * t4
         # Update the running integral
-        e +=   2 * (a * x + c * t3)
+        e +=  2 * (a * x + c * t3)
 
     # Set the last element to the total integral
     m[n-1] = e
@@ -640,19 +640,19 @@ def eval_tspline(n, xs, p, q, x):
     # single interval endpoint when it is exterior.
     y = 0.0
 
-    if x <=  xs[0]:
+    if x <= xs[0]:
         xr = x - xs[0]
         y = p[0] + q[0] * expm(xr)
         return y
-    if x >=  xs[n-1]:
+    if x >= xs[n-1]:
         xr = x - xs[n-1]
         y = p[n-1] - q[n-1] * expm(-xr)
         return y
     for ib in range(1, n):
-        if xs[ib] <=  xs[ib-1]:
+        if xs[ib] <= xs[ib-1]:
             # only consider intervals of positive width
             continue
-        if xs[ib] >=  x:
+        if xs[ib] >= x:
             # exit once finite interval straddling x is found
             break
     ia = ib - 1
@@ -683,23 +683,23 @@ def eval_tsplined(n, xs, p, q, x):
     # Like eval_tspline, but also return the derivative dy/dx
     y = 0.0
     dydx = 0.0
-    if x <=  xs[0]:
+    if x <= xs[0]:
         xr = x - xs[0]
         qemxr = q[0] * expm(xr)
         y = p[0] + qemxr
         dydx = qemxr + q[0]
         return y, dydx
-    if x >=  xs[n-1]:
+    if x >= xs[n-1]:
         xr = x - xs[n-1]
         qemxr = q[n-1] * expm(-xr)
         y = p[n-1] - qemxr
         dydx = qemxr + q[n-1]
         return y, dydx
     for ib in range(1, n):
-        if xs[ib] <=  xs[ib-1]:
+        if xs[ib] <= xs[ib-1]:
             # Skip intervals of non-positive width
             continue
-        if xs[ib] >=  x:
+        if xs[ib] >= x:
             # exit once finite interval straddling x is found
             break
     ia = ib - 1
@@ -733,14 +733,14 @@ def eval_tsplinedd(n, xs, p, q, x):
     dydx = 0.0
     ddyddx = 0.0
 
-    if x <=  xs[0]:
+    if x <= xs[0]:
         xr = x - xs[0]
         qemxr = q[0] * expm(xr)
         y = p[0] + qemxr
         dydx = qemxr + q[0]
         ddydxx = dydx
         return y, dydx, ddydxx
-    if x >=  xs[n-1]:
+    if x >= xs[n-1]:
         xr = x - xs[n-1]
         qemxr = q[n-1] * expm(-xr)
         y = p[n-1] - qemxr
@@ -748,9 +748,9 @@ def eval_tsplinedd(n, xs, p, q, x):
         ddydxx = -dydx
         return y, dydx, ddydxx
     for ib in range(1, n):
-        if xs[ib] <=  xs[ib-1]:
+        if xs[ib] <= xs[ib-1]:
             continue
-        if xs[ib] >=  x:
+        if xs[ib] >= x:
             break
     ia = ib - 1
     xh = (xs[ib] - xs[ia]) * 0.5
@@ -780,7 +780,7 @@ def eval_tsplinedd(n, xs, p, q, x):
 
 def eval_tsplineddd(n, xs, p, q, x):
     # Like eval_tspline, but also return the derivative dy/dx
-    if x <=  xs[0]:
+    if x <= xs[0]:
         xr = x - xs[0]
         qemxr = q[0] * expm(xr)
         y = p[0] + qemxr
@@ -788,7 +788,7 @@ def eval_tsplineddd(n, xs, p, q, x):
         ddydxx = dydx
         dddydxxx = dydx
         return y, dydx, ddydxx, dddydxxx
-    if x >=  xs[n-1]:
+    if x >= xs[n-1]:
         xr = x - xs[n-1]
         qemxr = q[n-1] * expm(-xr)
         y = p[n-1] - qemxr
@@ -797,9 +797,9 @@ def eval_tsplineddd(n, xs, p, q, x):
         dddydxxx = dydx
         return y, dydx, ddydxx, dddydxxx
     for ib in range(1, n):
-        if xs[ib] <=  xs[ib-1]:
+        if xs[ib] <= xs[ib-1]:
             continue
-        if xs[ib] >=  x:
+        if xs[ib] >= x:
             break
     ia = ib - 1
     xh = (xs[ib] - xs[ia]) * 0.5
@@ -830,19 +830,19 @@ def eval_tsplineddd(n, xs, p, q, x):
 
 def eval_itspline(n, xs, p, q, m, x):
     # Evaluate the integrated tension spline at x, returning the value, y.
-    if x <=  xs[0]:
+    if x <= xs[0]:
         xr = x - xs[0]
         y = p[0] * xr + q[0] * expmm(xr)
         return y
-    if x >=  xs[n-1]:
+    if x >= xs[n-1]:
         xr = x - xs[n-1]
         y = m[n-1] + p[n-1] * xr + q[n-1] * expmm(-xr)
         return y
     for ib in range(1, n):
-        if xs[ib] <=  xs[ib-1]:
+        if xs[ib] <= xs[ib-1]:
             # only consider intervals of positive width
             continue
-        if xs[ib] >=  x:
+        if xs[ib] >= x:
             # exit once finite interval straddling x is found
             break
     ia = ib - 1
@@ -875,21 +875,21 @@ def eval_uspline(n, xs, p, q, x):
     # using the interval midpoint as local origin when x is interior, or the
     # single interval endpoint when it is exterior.
 
-    if x <=  xs[0]:
+    if x <= xs[0]:
         xr = x - xs[0]
         y = p[0] + q[0] * xr
         return y
 
-    if x >=  xs[n-1]:
+    if x >= xs[n-1]:
         xr = x - xs[n-1]
         y = p[n-1] + q[n-1] * xr
         return y
 
     # Find the interval containing x
     for ib in range(1, n):
-        if xs[ib] <=  xs[ib-1]:
+        if xs[ib] <= xs[ib-1]:
             continue
-        if xs[ib] >=  x:
+        if xs[ib] >= x:
             break
 
     ia = ib - 1
@@ -920,22 +920,22 @@ def eval_uspline(n, xs, p, q, x):
 def eval_usplined(n, xs, p, q, x):
     # Like eval_uspline, but also return the derivative dy/dx
 
-    if x <=  xs[0]:
+    if x <= xs[0]:
         xr = x - xs[0]
         y = p[0] + q[0] * xr
         dydx = q[0]
         return y, dydx
 
-    if x >=  xs[n-1]:
+    if x >= xs[n-1]:
         xr = x - xs[n-1]
         y = p[n-1] + q[n-1] * xr
         dydx = q[n-1]
         return y, dydx
 
     for ib in range(1, n):
-        if xs[ib] <=  xs[ib-1]:
+        if xs[ib] <= xs[ib-1]:
             continue
-        if xs[ib] >=  x:
+        if xs[ib] >= x:
             break
 
     ia = ib - 1
@@ -967,14 +967,14 @@ def eval_usplined(n, xs, p, q, x):
 def eval_usplinedd(n, xs, p, q, x):
     # Like eval_uspline, but also return the derivative dy/dx
 
-    if x <=  xs[0]:
+    if x <= xs[0]:
         xr = x - xs[0]
         y = p[0] + q[0] * xr
         dydx = q[0]
         ddydxx = 0
         return y, dydx, ddydxx
 
-    if x >=  xs[n-1]:
+    if x >= xs[n-1]:
         xr = x - xs[n-1]
         y = p[n-1] + q[n-1] * xr
         dydx = q[n-1]
@@ -982,9 +982,9 @@ def eval_usplinedd(n, xs, p, q, x):
         return y, dydx, ddydxx
 
     for ib in range(1, n):
-        if xs[ib] <=  xs[ib-1]:
+        if xs[ib] <= xs[ib-1]:
             continue
-        if xs[ib] >=  x:
+        if xs[ib] >= x:
             break
 
     ia = ib - 1
@@ -1017,7 +1017,7 @@ def eval_usplinedd(n, xs, p, q, x):
 def eval_usplineddd(n, xs, p, q, x):
     # Like eval_uspline, but also return the derivative dy/dx
 
-    if x <=  xs[0]:
+    if x <= xs[0]:
         xr = x - xs[0]
         y = p[0] + q[0] * xr
         dydx = q[0]
@@ -1025,7 +1025,7 @@ def eval_usplineddd(n, xs, p, q, x):
         dddydxxx = 0
         return y, dydx, ddydxx, dddydxxx
 
-    if x >=  xs[n-1]:
+    if x >= xs[n-1]:
         xr = x - xs[n-1]
         y = p[n-1] + q[n-1] * xr
         dydx = q[n-1]
@@ -1034,9 +1034,9 @@ def eval_usplineddd(n, xs, p, q, x):
         return y, dydx, ddydxx, dddydxxx
 
     for ib in range(1, n):
-        if xs[ib] <=  xs[ib-1]:
+        if xs[ib] <= xs[ib-1]:
             continue
-        if xs[ib] >=  x:
+        if xs[ib] >= x:
             break
 
     ia = ib - 1
@@ -1069,20 +1069,20 @@ def eval_usplineddd(n, xs, p, q, x):
 
 def eval_iuspline(n, xs, p, q, m, x):
     # valuate the integrated untensioned spline at x, returning the value, y.
-    if x <=  xs[0]:
+    if x <= xs[0]:
         xr = x - xs[0]
         y = p[0] * xr + q[0] * xr**2 * 0.5
         return y
-    if x >=  xs[n-1]:
+    if x >= xs[n-1]:
         xr = x - xs[n-1]
         y = m[n-1] + p[n-1] * xr + q[n-1] * xr**2 * 0.5
         return y
 
     # Find the interval that contains x
     for ib in range(1, n):
-        if xs[ib] <=  xs[ib-1]:
+        if xs[ib] <= xs[ib-1]:
             continue
-        if xs[ib] >=  x:
+        if xs[ib] >= x:
             break
     ia = ib - 1
     xh = (xs[ib] - xs[ia]) * 0.5
@@ -1250,11 +1250,11 @@ def count_gates(nh, hgts):
     mh = 0
 
     for i in range(nh):
-        if hgts[i] <=  hgtp:
+        if hgts[i] <= hgtp:
             continue
 
         # A new nominal time of observation aka increment the count of gates
-        mh +=  1
+        mh += 1
         # Update the previous height to the current height
         hgtp = hgts[i]
     return mh
@@ -1343,7 +1343,7 @@ def set_gates(nh, mh, doru, hgts, hs):
         i2m = i2 - 1
         hp = hs[i]
         if hgts[i] > hgtp:
-            imh +=  1
+            imh += 1
             hgtp = hgts[i]
             hgtn[0][imh-1] = hgtp - 1
             hgtn[1][imh-1] = hgtp + 1
@@ -1357,7 +1357,7 @@ def set_gates(nh, mh, doru, hgts, hs):
             hn[0][1][imh-1] = min(hn[0][1][imh-1], hp)
             hn[1][1][imh-1] = max(hn[1][1][imh-1], hp)
             hn[1][0][imh-1] = min(hn[1][0][imh-1], hp)
-    if imh ! =  mh:
+    if imh ! = mh:
         # When consecutive gates' post times overlap, adjust their hn if the height
         # ranges also overlap:
         raise ValueError('In set_gates; inconsistent gate tallies, imh and mh')
@@ -1371,33 +1371,33 @@ def set_gates(nh, mh, doru, hgts, hs):
     for i in range(1, mh):
         atti = 0  # default until more definite information is available
         im = i - 1
-        if hgtn[0, i] <=  hgtn[1, im]:
-            if hn[1, 1, im] <=  hn[0, 1, i]:
+        if hgtn[0, i] <= hgtn[1, im]:
+            if hn[1, 1, im] <= hn[0, 1, i]:
                 atti = 2  # ascending attitude at common time
                 code[i] = 2
                 if attim == 2 and (codeim == 0 or codeim == 2):
                     code[im] = 8
-            elif hn[1, 0, im] >=  hn[0, 0, i]:
+            elif hn[1, 0, im] >= hn[0, 0, i]:
                 atti = 1  # descending attitude at common time
                 code[i] = 3
                 if attim == 1 and (codeim == 0 or codeim == 3):
                     code[im] = 4
             else:
                 code[i] = 5
-                if hn[1, 0, im] <=  hn[0, 1, i]:
+                if hn[1, 0, im] <= hn[0, 1, i]:
                     hn[0, 1, i] = hn[1, 0, im]
                 else:
                     hn[1, 0, im] = hn[0, 1, i]
-                if hn[1, 1, im] <=  hn[0, 0, i]:
+                if hn[1, 1, im] <= hn[0, 0, i]:
                     hn[1, 1, im] = hn[0, 0, i]
                 else:
                     hn[0, 0, i] = hn[1, 1, im]
         else:
-            if hn[1, 1, im] <=  hn[0, 1, i]:
+            if hn[1, 1, im] <= hn[0, 1, i]:
                 atti = 2  # ascending attitude at intermission
                 if attim == 2 and (codeim == 0 or codeim == 2):
                     code[im] = 8
-            elif hn[1, 0, im] >=  hn[0, 0, i]:
+            elif hn[1, 0, im] >= hn[0, 0, i]:
                 atti = 1  # descending attitude at intermission
                 if attim == 1 and (codeim == 0 or codeim == 3):
                     code[im] = 4
@@ -1447,12 +1447,12 @@ def set_posts(mh, mode, hgtn, hn):
                 if hprev == hp[i2m]:
                     off[i2m] = True
                 if mode[im] == 2 and modei == 1:
-                    if hprev <=  hp[i2m]:
+                    if hprev <= hp[i2m]:
                         off[i2mm] = True
                     else:
                         off[i2m] = True
                 elif mode[im] == 1 and modei == 2:
-                    if hprev <=  hp[i2m]:
+                    if hprev <= hp[i2m]:
                         off[i2m] = True
                     else:
                         off[i2mm] = True
@@ -1466,17 +1466,17 @@ def set_posts(mh, mode, hgtn, hn):
 
 def count_routes(n, code):
     # Given the route code array, "code", list all the allowed combinations
-    # of passage modes (descending == 1; ascending ==  2) through the sequence
+    # of passage modes (descending == 1; ascending == 2) through the sequence
     # of slalom gates.
     FF = False
     flag = True
     count = 0
-    while count <=  1025:
+    while count <= 1025:
         mode = [0] * n
         mode, flag = next_route(n, code, mode, flag)
         if flag:
             return count, FF  # NickE might be break
-        count +=  1
+        count += 1
     FF = (count > 1025)
     if FF:
         print('In count_routes; number of routes exceeds allowance = 1025')
@@ -1486,7 +1486,7 @@ def count_routes(n, code):
 
 def list_routes(n, code):
     # Given the route code array, "code", list all the allowed combinations
-    # of passage modes (descending == =  1; ascending == =  2) through the sequence
+    # of passage modes (descending == = 1; ascending == = 2) through the sequence
     # of slalom gates.
     print('List all route combinations of', n, 'allowed passage modes')
     flag = True
@@ -1671,7 +1671,7 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX):
                 j = i
                 on[i] = False
             else:
-                k +=  1
+                k += 1
         if j == 0:
             break
         if k == 0:
@@ -1684,7 +1684,7 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX):
                 print('In slalom_tspline; failure flag raised in call to fit_gtspline')
                 print('at B loop, iterations ita, itb  = ', ita, itb)
                 return q, ya, en, ita, ittot, max(itb, 80), FF  # NickE
-            ittot +=  1
+            ittot += 1
 
             # Determine whether this "solution" wanders outside any slalom gates at
             # the unconstrained locations and identify and calibrate the worst violation.
@@ -1719,7 +1719,7 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX):
             return q, ya, en, ita, ittot, max(itb, 80), FF
         q = qt
         ya = yat
-        if en >=  ena:
+        if en >= ena:
             print('In slalom_tspline; energy failed to decrease')
             break
         ena = en
@@ -1784,7 +1784,7 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
                 j = i
                 on[i] = False
             else:
-                k +=  1  # new tally of constraints switched "on"
+                k += 1  # new tally of constraints switched "on"
         if j == -1:
             # Proper conditions for a solution are met
             break
@@ -1801,7 +1801,7 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
                 print('In slalom_uspline; failure flag raised in call to fit_guspline')
                 print('at B loop, iterations ita,itb = ', ita, itb)
                 return
-            ittot +=  1  # Increment the running total of calls to fit_uspline
+            ittot += 1  # Increment the running total of calls to fit_uspline
 
             # Determine whether this "solution" wanders outside any slalom gates at
             # the unconstrained locations and identify and calibrate the worst violation.
@@ -1834,7 +1834,7 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
             return None
         q = qt.copy()
         ya = yat.copy()
-        if en >=  ena:
+        if en >= ena:
             print('In slalom_uspline; energy failed to decrease')
             break
         ena = en
@@ -1855,9 +1855,9 @@ def convertd(n, tdata, hdata, phof):
     hour = 3600
     FF = False
 
-    if len(hdata) ! =  n:
+    if len(hdata) ! = n:
         raise ValueError('In convertd; inconsistent dimensions of hdata')
-    if len(tdata) ! =  n:
+    if len(tdata) ! = n:
         raise ValueError('In convertd; inconsistent dimensions of tdata')
 
     hs = hdata[:]
@@ -1926,11 +1926,11 @@ def convertd(n, tdata, hdata, phof):
 def convertd_back(n, wdata, tdata, ws, hgts, idx, descending):
     halfgate = np.float(30)
 
-    if len(ws) ! =  n:
+    if len(ws) ! = n:
         raise ValueError('In convertd; inconsistent dimensions of ws')
-    if len(hgts) ! =  n:
+    if len(hgts) ! = n:
         raise ValueError('In convertd; inconsistent dimensions of hgts')
-    if len(idx) ! =  n:
+    if len(idx) ! = n:
         raise ValueError('In convertd; inconsistent dimensions of idx')
 
     wdata = np.zeros(n)
