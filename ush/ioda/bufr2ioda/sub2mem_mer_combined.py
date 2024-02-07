@@ -133,7 +133,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                             zevn_accum[3, nlvinprof + nmandlvls, 1] = nrlacqc_pc
                             zevn_accum[4, nlvinprof + nmandlvls, 1] = 98
                         # u and v components of wind
-                        if ibfms[wuvevn_accum[1, jj, 1]] == 0 and ibfms[wuvevn_accum[1, jjp1, 1]] == 0 and 
+                        if ibfms[wuvevn_accum[1, jj, 1]] == 0 and ibfms[wuvevn_accum[1, jjp1, 1]] == 0 and
                         ibfms[wuvevn_accum[2, jj, 1]] == 0 and ibfms[wuvevn_accum[2, jjp1, 1]] == 0:
                             for iii in range(mxe4prof, 0, -1):
                                 if ibfms[wuvevn_accum[1, jj, iii]] != 0 or ibfms[wuvevn_accum[2, jj, iii]] != 0:
@@ -311,7 +311,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
             else:
                 for jk in range(j - 1, 0, -1):
                     jjm = iord[jk]
-                    if (jjm > nlvinprof): # Use real obs only
+                    if (jjm > nlvinprof):  # Use real obs only
                         continue
                     if (ibfms[drinfo_accum[3, jjm]] == 0):
                         jjm1 = jjm
@@ -360,7 +360,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                 dt = (drinfo_accum[3, jjp1] - drinfo_accum[3, jjm1]) * 3600.
                 zul = zevn_accum[1, jjp1, 1]
                 zll = zevn_accum[1, jjm1, 1]
-                if (abs(dt) > 0.): # avoid divide by 0
+                if (abs(dt) > 0.):  # avoid divide by 0
                     rate_accum[jj] = (zul - zll) / dt
                 print('fj,dt,rate_accum=', j, dt, rate_accum[jj])
                 print('')
@@ -372,9 +372,8 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
         for j in range(1, nlv2wrt_tot + 1):
             jj = iord[j]
             nmNbtw = 0
-            if (ibfms[drinfo_accum[1, jj]] != 0 and
-                ibfms[drinfo_accum[2, jj]] != 0 and
-                ibfms[drinfo_accum[3, jj]] != 0):
+            if (ibfms[drinfo_accum[1, jj]] != 0 and ibfms[drinfo_accum[2, jj]] != 0 and
+                    ibfms[drinfo_accum[3, jj]] != 0):
                 # all obs in drift sequence missing likely  means this is a mandatory level for
                 # which these obs must be filled via interpolation
                 nmNbtw = 1  # reset 'number of mandatory levels in-between' counter
@@ -382,9 +381,8 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                 # YDR and HRDR values
                 for k in range(j + 1, nlv2wrt_tot + 1):
                     kk = iord[k]
-                    if (ibfms[drinfo_accum[1, kk]] != 0 and
-                        ibfms[drinfo_accum[2, kk]] != 0 and
-                        ibfms[drinfo_accum[3, kk]] != 0):
+                    if (ibfms[drinfo_accum[1, kk]] != 0 and ibfms[drinfo_accum[2, kk]] != 0 and 
+                            ibfms[drinfo_accum[3, kk]] != 0):
                         # another mandatory levelw/ missing XDR, YDR and HRDR
                         nmNbtw = nmNbtw + 1
                     else:
@@ -426,15 +424,14 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                                                                        sin((lon_pul - lon_pll) * 0.5 * deg2rad))))
                 else:
                     dist_pul_pll = 2.0 * radius_e * asin(min(1.0, sqrt(
-                        (sin((lat_pul - lat_pll) * 0.5 * deg2rad)) ** 2
-                        + cos(lat_pul * deg2rad) *
-                        cos(lat_pll * deg2rad) *
+                        (sin((lat_pul - lat_pll) * 0.5 * deg2rad)) ** 2 + 
+                        cos(lat_pul * deg2rad) * cos(lat_pll * deg2rad) *
                         (sin((lon_pul - lon_pll) * 0.5 * deg2rad)) ** 2
                     )))
                 # Check if times are equal, then interpolate lat/lon - assume aircraft is traveling at a
                 # constant speed between the locations where pul and pll are observed
                 if (int(drinfo_accum[3, jjpnmNbtw] * 100000) != int(drinfo_accum[3, jjm1] * 100000) and
-                    dist_pul_pll != 0):
+                        dist_pul_pll != 0):
                     spd_pul_pll = dist_pul_pll / abs((drinfo_accum[3, jjpnmNbtw] -
                                                       drinfo_accum[3, jjm1]) * 3600)
                     for k in range(nmNbtw):
@@ -445,10 +442,10 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                         dist2pml = spd_pul_pll * abs(drinfo_accum[3, jjpk] - drinfo_accum[3, jjm1]) * 3600
                         # lat
                         drinfo_accum[2, jjpk] = drinfo_accum[2, jjm1] + dist2pml / dist_pul_pll * (
-                                drinfo_accum[2, jjpnmNbtw] - drinfo_accum[2, jjm1])
+                            drinfo_accum[2, jjpnmNbtw] - drinfo_accum[2, jjm1])
                         # lon
                         drinfo_accum[1, jjpk] = drinfo_accum[1, jjm1] + dist2pml / dist_pul_pll * (
-                                drinfo_accum[1, jjpnmNbtw] - drinfo_accum[1, jjm1])
+                            rinfo_accum[1, jjpnmNbtw] - drinfo_accum[1, jjm1])
                 else:
                     # times are equal; assume groundspeed varies linearly -- or, dist_pul_pll=0
                     # and lat/lons of pul and pll are either equal or very very close
