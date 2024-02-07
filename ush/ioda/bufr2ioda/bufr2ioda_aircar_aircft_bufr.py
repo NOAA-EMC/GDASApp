@@ -71,7 +71,7 @@ def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_
             qmat_aircft[i] = TQM
 
         if (not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i])) and
-                (qmwn_aircft[i] == 2):
+            qmwn_aircft[i] == 2:
             WQM = TQM  # yes, I meant TQM
 #            qmwn_aircft[i] = max(
 
