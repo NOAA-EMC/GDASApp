@@ -72,9 +72,8 @@ def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_
 
         if (not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i]))
             and (qmwn_aircft[i] == 2):
-                WQM = TQM # yes, I meant TQM
+                WQM = TQM  # yes, I meant TQM
 #            qmwn_aircft[i] = max(
-
 
     print("1")
 
@@ -93,7 +92,6 @@ def PCCF_to_QMDD(qob_aircft, qmdd_aircft, pccf_aircft):
 #         ELSE
 #          QQM(1) = 2.0
 #         ENDIF
-
 
 
 def bufr_to_ioda(config, logger):
@@ -153,14 +151,13 @@ def bufr_to_ioda(config, logger):
     r = bufr.QuerySet(subsets_aircft)  # AIRCFT, no amdar
     s = bufr.QuerySet(subsets_amdar)  # AIRCFT, amdar only
 
-
     logger.debug('Making QuerySet for AIRCAR ...')
     # MetaData
     q.add("year", "*/YEAR")
     q.add("month", "*/MNTH")
     q.add("day", "*/DAYS")
     q.add("hour", "*/HOUR")
-    q.add("minute",  "*/MINU")
+    q.add("minute", "*/MINU")
     q.add("second", "*/SECO")
     q.add("latitude", "*/CLAT")
     q.add("longitude", "*/CLON")
@@ -188,7 +185,7 @@ def bufr_to_ioda(config, logger):
     r.add("month", "*/MNTH")
     r.add("day", "*/DAYS")
     r.add("hour", "*/HOUR")
-    r.add("minute",  "*/MINU")
+    r.add("minute", "*/MINU")
     r.add("latitude", "[*/CLATH, */CLAT]")
     r.add("longitude", "[*/CLON, */CLONH]")
     r.add("seqnum", "*/SEQNUM")
@@ -227,13 +224,12 @@ def bufr_to_ioda(config, logger):
 #    r.add("waterVaporMixingRatioQM", "NC004006/QMDD")
     r.add("windQM", "*/QMWN")
 
-
     logger.debug('Making QuerySet for AIRCFT (amdar) ...')
     s.add("year", "*/YEAR")
     s.add("month", "*/MNTH")
     s.add("day", "*/DAYS")
     s.add("hour", "*/HOUR")
-    s.add("minute",  "*/MINU")
+    s.add("minute", "*/MINU")
     s.add("latitude", "*/CLATH")
     s.add("longitude", "*/CLONH")
     s.add("latitudeSeq", "*/ADRBLSEQ/CLATH")
@@ -254,8 +250,6 @@ def bufr_to_ioda(config, logger):
     s.add("airTemperatureQM", "*/QMAT")
     s.add("relativeHumidityQM", "*/QMDD")
     s.add("windQM", "*/QMWN")
-
-
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -295,7 +289,6 @@ def bufr_to_ioda(config, logger):
 #    print("NE ialt_aircar")
 #    print(ialt_aircar)
 
-
     # ObsValue
     tmdb_aircar = t.get('airTemperature', type='float')
     rehu_aircar = t.get('relativeHumidity', type='float')
@@ -308,7 +301,6 @@ def bufr_to_ioda(config, logger):
     qmat_aircar = t.get('airTemperatureQM')
     qmdd_aircar = t.get('waterVaporMixingRatioQM')
     qmwn_aircar = t.get('windQM')
-
 
     logger.debug(f"Executing QuerySet for AIRCFT (no amdar) ...")
     # MetaData
@@ -352,7 +344,6 @@ def bufr_to_ioda(config, logger):
         print(seqnum_aircft[i], lat_aircft[i], lon_aircft[i], qmdd_aircft[i])
     qmwn_aircft = u.get('windQM')
 
-
     logger.debug(f"Executing QuerySet for AIRCFT (amdar) ...")
     # MetaData
     year_amdar = v.get('year', 'latitudeSeq')
@@ -369,7 +360,6 @@ def bufr_to_ioda(config, logger):
     flvlst_amdar = v.get('flightLevelST', 'latitudeSeq', type='float')
 #    print("NE flvlst_amdar")
 #    print(flvlst_amdar)
-
 
     # ObsValue
     tmdb_amdar = v.get('airTemperature', 'latitudeSeq', type='float')
@@ -456,8 +446,8 @@ def bufr_to_ioda(config, logger):
     # Derive QM values in aircft
     logger.debug("Convert variables for QMRKH to QMAT/QMDD/QMWN")
     qmat_aircft, qmwn_aircft = QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft,
-                                                   wspd_aircft, wdir_aircft,
-                                                   qmrkh2_aircft, qmrkh3_aircft, qmrkh4_aircft)
+                                                  wspd_aircft, wdir_aircft, qmrkh2_aircft,
+                                                  qmrkh3_aircft, qmrkh4_aircft)
     qmdd_aircft = PCCF_to_QMDD(qmdd_aircft, pccf_aircft)
 
     # Concatenate
@@ -467,11 +457,9 @@ def bufr_to_ioda(config, logger):
     lon = ma.concatenate((lat_aircar, lat_aircft, lat_amdar), axis=0).astype(np.float32)
     lon = ma.masked_values(lon, lon_aircar.fill_value)
 
-
     logger.debug(f" ... Check the concatenated array shapes, dtypes, some fill_values  ... ")
     logger.debug(f"     concatenated lat size = {lat.shape}, {lat.dtype}, {lat.fill_value}")
     logger.debug(f"     concatenated lon size = {lon.shape}, {lon.dtype}, {lon.fill_value}")
-
 
     # Derive time/date   #check to see if this isactually dateTime
     logger.debug(f"     Derive the dateTime variable")
@@ -487,7 +475,6 @@ def bufr_to_ioda(config, logger):
     dateTime = ma.masked_values(dateTime, dateTime_aircar.fill_value)
     logger.debug(f"     dateTime concatenated info = {dateTime.shape}, {dateTime.dtype}, {dateTime.fill_value}")
 
-
     # Derive aircraftFlightLevel
     acftflvl_aircar = AircraftFlightLevel(lat=lat_aircar, prlc=prlc_aircar, ialt=ialt_aircar, flvl=None, flvlst=None,
                                           heit=None, hmsl=None, psal=None)
@@ -499,7 +486,6 @@ def bufr_to_ioda(config, logger):
     aircraftFlightLevel = ma.concatenate((acftflvl_aircar, acftflvl_aircft, acftflvl_amdar), axis=0).astype(np.float32)
     aircraftFlightLevel = ma.masked_values(aircraftFlightLevel, lat.fill_value)
     logger.debug(f"     aircraftFlightLevel concatenated info = {aircraftFlightLevel.shape}, {aircraftFlightLevel.dtype}, {aircraftFlightLevel.fill_value}")
-
 
     # =====================================
     # Create IODA ObsSpace
@@ -562,9 +548,6 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'aircraftFlightLevel') \
         .write_data(aircraftFlightLevel)
 
-
-
-
     end_time = time.time()
     running_time = end_time - start_time
     logger.debug(f"Running time for splitting and output IODA: {running_time} \
@@ -597,4 +580,3 @@ if __name__ == '__main__':
     end_time = time.time()
     running_time = end_time - start_time
     logger.debug(f"Total running time: {running_time} seconds")
-
