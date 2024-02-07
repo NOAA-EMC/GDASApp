@@ -453,7 +453,7 @@ def int_tspline(n, xs, p, q):# , m):
     # loop over intervals
     for i in range(n-1):
         ip = i + 1
-        x = (xs[ip] - xs[i]) * 0.5 # interval half-width
+        x = (xs[ip] - xs[i]) * 0.5  # interval half-width
         t2 = x * x * 0.5
         shx = np.sinh(x)
         chmx = coshm(x)
@@ -595,7 +595,7 @@ def fit_uspline(n, xs, p):
     return q, j, en, FF
 
 
-def int_uspline(n, xs, p, q): # m
+def int_uspline(n, xs, p, q)
     # Take the sets of n parameters p and q of the untensioned cubic spline
     # and return the values of its integral at the n-1 interval midpoints, and
     # the value at the last node, assuming that the integral at the first node
@@ -628,7 +628,7 @@ def int_uspline(n, xs, p, q): # m
     m[n-1] = e
     return m
 
-def eval_tspline(n, xs, p, q, x): # y
+def eval_tspline(n, xs, p, q, x):
     # Assuming the 1st derivatives, q, are correctly given at the n nodes, xs,
     # of the standardized tensioned spline, where p are the nodal values,
     # evaluate the spline function y at the location x.
@@ -887,14 +887,14 @@ def eval_uspline(n, xs, p, q, x):
             break
 
     ia = ib - 1
-    xh = (xs[ib] - xs[ia]) * 0.5 # halfwidth of interval
-    xr = x - xs[ia] - xh # x relative to interval midpoint
-    pm = (p[ib] + p[ia]) * 0.5 # average of end values
-    qm = (p[ib] - p[ia]) / (2 * xh) # average gradient
+    xh = (xs[ib] - xs[ia]) * 0.5  # halfwidth of interval
+    xr = x - xs[ia] - xh  # x relative to interval midpoint
+    pm = (p[ib] + p[ia]) * 0.5  # average of end values
+    qm = (p[ib] - p[ia]) / (2 * xh)  # average gradient
     qah = q[ia] * 0.5
     qbh = q[ib] * 0.5
-    qxh = qah + qbh - qm # Half the total excess q at interval ends
-    qdh = qbh - qah # Half the difference of q at interval ends
+    qxh = qah + qbh - qm  # Half the total excess q at interval ends
+    qdh = qbh - qah  # Half the difference of q at interval ends
     shh = xh
     chh = 1
     sh = xr
@@ -904,8 +904,8 @@ def eval_uspline(n, xs, p, q, x):
     chm = xr ** 2 * 0.5
     shhm = xh ** 3 / 6
     chhm = xh ** 2 * 0.5
-    qdh = qdh / shh # rescale
-    qxh = qxh / xcmsh # rescale
+    qdh = qdh / shh  # rescale
+    qxh = qxh / xcmsh  # rescale
     y = pm + xr * qm + qdh * (chm - chhm) + qxh * (xh * shm - xr * shhm)
 
     return y
@@ -1151,10 +1151,10 @@ def best_tslalom(nh, mh, doru, hgts, hs):
 
     if route_count > 4:
         list_routes(mh, code)
-    enbest = float('inf') ### NickE change to float_max * 0.5 i think
+    enbest = float('inf')  ### NickE change to float_max * 0.5 i think
     flag = True
 
-    for k in range(1, 1026): # 1026 is from ihu ( = 1025) + 1
+    for k in range(1, 1026):  # 1026 is from ihu ( = 1025) + 1
         mode, flag = next_route(mh, code, mode, flag)
         if flag:
             flag = False
@@ -1209,10 +1209,10 @@ def best_uslalom(nh, mh, doru, hgts, hs):
 
     if route_count > 4:
         list_routes(mh, code)
-    enbest = float('inf') # NickE max_float * 0.5again
+    enbest = float('inf')  # NickE max_float * 0.5again
     flag = True
 
-    for k in range(1, 1026): # ihu = 1025 + 1 = 1026
+    for k in range(1, 1026):  # ihu = 1025 + 1 = 1026
         mode, flag = next_route(mh, code)
         if flag:
             flag = False
@@ -1399,7 +1399,7 @@ def set_gates(nh, mh, doru, hgts, hs):
     return hgtn, hn, code, FF
 
 
-def set_posts(mh, mode, hgtn, hn): # , bend, hgtp, hp, off):
+def set_posts(mh, mode, hgtn, hn)
     # Given a set of mh double-gates (both descending and ascending types) and
     # the array of actual passage modes (i.e., the actual route threading
     # the sequence of gates), set the array of actual gateposts coordinates,
@@ -1638,7 +1638,7 @@ def slalom_tspline(n, bend, hgxn, yn, off, bigX):
             hgxp = hgxn[i]
     ittot = 1
     # Make the initial fit      ##### NickE end choosing not to trust codingfleet
-    qt, jump, yat, en, FF = fit_gtspline(n, xs, yn, on) # NickE
+    qt, jump, yat, en, FF = fit_gtspline(n, xs, yn, on)  # NickE
     ena = en
     if FF:
         print('In slalom_tspline; failure flag raised in call to fit_gtspline')
@@ -1757,9 +1757,9 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
         print('at initialization of A loop')
         return None
     # loop over steps of iteration "A" to check for jump-sign violations
-    for ita in range(1, 51): # 51 = nita + 1 = 50 + 1
-        q = qt.copy() # Copy solution vector q of nodal 1st-derivatives
-        ya = yat.copy() # Copy nodal intercepts
+    for ita in range(1, 51):  # 51 = nita + 1 = 50 + 1
+        q = qt.copy()  # Copy solution vector q of nodal 1st-derivatives
+        ya = yat.copy()  # Copy nodal intercepts
         # Determine whether there exists sign-violations in any active "jumps"
         # of the 3rd derviative and, if so, inactivate (on==F) the constraints
         # at those points. Also, count the number, j, of such violations.
@@ -1774,7 +1774,7 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
                 j = i
                 on[i] = False
             else:
-                k + =  1 # new tally of constraints switched "on"
+                k + =  1  # new tally of constraints switched "on"
         if j == -1:
             # Proper conditions for a solution are met
             break
@@ -1785,13 +1785,13 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
         # Begin a new "B" iteration that adds as many new constraints as
         # needed to keep the new conditional minimum energy spline in the
         # feasible region:
-        for itb in range(1, 81): # 81 from nitb + 1
-            qt, jump, yat, en, FF = fit_guspline(n, xs, yn, on) # qt, jump, yat, en, FF)
+        for itb in range(1, 81):  # 81 from nitb + 1
+            qt, jump, yat, en, FF = fit_guspline(n, xs, yn, on)
             if FF:
                 print('In slalom_uspline; failure flag raised in call to fit_guspline')
                 print('at B loop, iterations ita,itb = ', ita, itb)
                 return
-            ittot + =  1 # Increment the running total of calls to fit_uspline
+            ittot + =  1  # Increment the running total of calls to fit_uspline
 
             # Determine whether this "solution" wanders outside any slalom gates at
             # the unconstrained locations and identify and calibrate the worst violation.
@@ -1813,7 +1813,7 @@ def slalom_uspline(n, bend, hgxn, yn, off, q, ya, en, ita, ittot, FF):
             if j == 0:
                 # spline is feasible, exit B loop and adopt solution as A
                 break
-            # solution as A # NICKE OMG
+            # solution as A  # NICKE OMG
             ya = ya + sjmin * (yat - ya)
             q = q + sjmin * (qt - q)
             on[j] = True
@@ -1859,9 +1859,9 @@ def convertd(n, tdata, hdata, phof):
 
     for i in range(n):
         if phof[i] == 5:
-            upsign = 1 # ascending
+            upsign = 1  # ascending
         if phof[i] == 6:
-            upsign = -1 # descending
+            upsign = -1  # descending
 
     if upsign > 0:
         doru = 2
@@ -1871,10 +1871,10 @@ def convertd(n, tdata, hdata, phof):
     if n == 1:
         return doru, np.array([1]), hgts, hs, False, FF
 
-    if hgts[0] > hgts[n - 1]: # Reverse order
+    if hgts[0] > hgts[n - 1]:  # Reverse order
     if hgts[0] > hgts[-1]:
-        hgts = hgts[::-1] # swap integer heights
-        hs = hs[::-1] # swap real hs
+        hgts = hgts[::-1]  # swap integer heights
+        hs = hs[::-1]  # swap real hs
 
     descending = False
     if upsign == 1:
@@ -1938,7 +1938,7 @@ def convertd_back(n, wdata, tdata, ws, hgts, idx, descending):
         return wdata, tdata
 
     # Reverse the data
-    for i in range(n /* 0.5):
+    for i in range(n / 0.5):
         j = n - 1 - i
         # Swap the data
         tdata[i], tdata[j] = tdata[j], tdata[i]
