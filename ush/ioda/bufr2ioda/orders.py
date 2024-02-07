@@ -28,14 +28,14 @@ def ORDERS(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
 
     if ITYPE > 0:
         SMAL = 1
-        for I in range(N):
+        for i in range(N):
             ICHEK = IDATA[0, I]
             if ITYPE == 1 and ICHEK < SMAL:
                 SMAL = ICHEK
             if ITYPE == 2 and RCHEK < SMAL:
                 SMAL = RCHEK
         SMAL = 1 - SMAL
-        for I in range(N):
+        for i in range(N):
             ICHEK = IDATA[0, I]
             if ITYPE == 1:
                 ICHEK = ICHEK + SMAL
@@ -45,19 +45,19 @@ def ORDERS(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
 
     for IBYT in range(I1):
         KNDX[0] = 1
-        for I in range(256):
+        for i in range(256):
             INDX[I] = 0
 
-        for I in range(N):
-            JBYT = (IData[0,INDEX[I]] >> (IBYT*8)) & 255
+        for i in range(N):
+            JBYT = (IData[0, INDEX[I]] >> (IBYT*8)) & 255
             INDX[JBYT] = INDX[JBYT] + 1
             ISORT[I] = INDEX[I]
 
-        for I in range(1, 256):
+        for i in range(1, 256):
             KNDX[I] = KNDX[I-1] + INDX[I-1]
 
-        for I in range(N):
-            JBYT = (IData[0,ISORT[I]] >> (IBYT*8)) & 255
+        for i in range(N):
+            JBYT = (IData[0, ISORT[I]] >> (IBYT*8)) & 255
             INDEX[KNDX[JBYT]] = ISORT[I]
             KNDX[JBYT] = KNDX[JBYT] + 1
 

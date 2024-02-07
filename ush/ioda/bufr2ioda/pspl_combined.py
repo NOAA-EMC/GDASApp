@@ -623,7 +623,7 @@ def int_uspline(n, xs, p, q):
         # Calculate the integral over the interval
         m[i] = e + a * x - b * t2 + c * t3 - d * t4
         # Update the running integral
-        e +=  2 * (a * x + c * t3)
+        e += 2 * (a * x + c * t3)
 
     # Set the last element to the total integral
     m[n-1] = e

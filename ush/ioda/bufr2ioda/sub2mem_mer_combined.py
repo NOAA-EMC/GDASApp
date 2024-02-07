@@ -1,6 +1,6 @@
+import numpy as np
 
-
-### line 587 of sub2mem_mer.f
+# line 587 of sub2mem_mer.f
 
 def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, hdr2wrt,
                 acid1, c_acftid1, c_acftreg1, rct_accum, drinfo_accum, acft_seq_accum,
@@ -11,7 +11,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                 c_qc_accum, num_events_prof, lvlsinprof, nlvinprof, nrlacqc_pc,
                 l_mandlvl, tsplines, l_operational, lwr):
 
-    rate_accum = bmiss #NickE prob need to change to float missing
+    rate_accum = bmiss  # NickE prob need to change to float missing
     if nlvinprof == 0:
         print('### PROBLEM - into subr, sub2mem_mer with nlvinprof = 0')
         print('              this should never happen')
@@ -22,7 +22,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
     # First sort pressures from lowest to highest, this will also determine the
     # maximum and minimum pressure values in this profile
 
-    #NickE
+    # NickE
     orders(1, iwork, lvlsinprof, iord, nlvinprof, 1, lwr, 2)
 
     # Interpolate z,t,q,u,v values to mandatory levels
@@ -43,7 +43,8 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                     if lvlsinprof[jj] < mandlvls[i] and lvlsinprof[jjp1] > mandlvls[i]:
                         if nlvinprof + nmandlvls + 1 > mxlv:
                             # There are more levels in profile than "mxlv" -- do not process any more levels
-                            print(' #####> WARNING: THERE ARE MORE THAN ', mxlv, ' LEVELS IN THIS PROFILE -- WILL CONTINUE ON PROCESSING ONLY ', mxlv, ' LEVELS FOR THIS PROFILE')
+                            print(' #####> WARNING: THERE ARE MORE THAN ', mxlv, ' LEVELS IN THIS PROFILE -- \\
+                                  WILL CONTINUE ON PROCESSING ONLY ', mxlv, ' LEVELS FOR THIS PROFILE')
                             cmxlv = str(mxlv)
                             break
                         nmandlvls = nmandlvls + 1
@@ -131,7 +132,8 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                             zevn_accum[3, nlvinprof + nmandlvls, 1] = nrlacqc_pc
                             zevn_accum[4, nlvinprof + nmandlvls, 1] = 98
                         # u and v components of wind
-                        if ibfms[wuvevn_accum[1, jj, 1]] == 0 and ibfms[wuvevn_accum[1, jjp1, 1]] == 0 and ibfms[wuvevn_accum[2, jj, 1]] == 0 and ibfms[wuvevn_accum[2, jjp1, 1]] == 0:
+                        if ibfms[wuvevn_accum[1, jj, 1]] == 0 and ibfms[wuvevn_accum[1, jjp1, 1]] == 0 and 
+                        ibfms[wuvevn_accum[2, jj, 1]] == 0 and ibfms[wuvevn_accum[2, jjp1, 1]] == 0:
                             for iii in range(mxe4prof, 0, -1):
                                 if ibfms[wuvevn_accum[1, jj, iii]] != 0 or ibfms[wuvevn_accum[2, jj, iii]] != 0:
                                     nevents_w = iii
@@ -213,7 +215,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                 print('set descending')
             else:
                 print('set ascending')
-           # NickE
+            # NickE
             count_gates(nh, hgts[0:nh], mh)
             m = mh * 2
             hgtp = [0] * m
@@ -221,14 +223,14 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
             qbest = [0] * m
             habest = [0] * m
             modebest = [0] * mh
-            #NickE
+            # NickE
             best_slalom(nh, mh, doru, hgts, hs, halfgate, bigT, hgtp, hp, qbest, habest, enbest, modebest, maxita, maxitb, maxit, maxrts, FF)
             print('maxita,maxitb,maxit,maxrts=', maxita, maxitb, maxit, maxrts)
             if not (FF):
-                #NickE
+                # NickE
                 bnewton(nh, m, bigT, halfgate, hgts, hs, hgtp, habest, qbest, te[0:nh], dhdt[0:nh], FF)
                 if not (FF):
-                    #NickE
+                    # NickE
                     convertd_back(nh, halfgate, wdata, tdata, dhdt, hgts, idx, descending)
                     for j in range(1, nh + 1):
                         print('hgts,hs,dhdt,wdata=', j, hgts[j], hs[j], dhdt[j], wdata[j])
@@ -338,7 +340,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                             jjp1 = jjp2
                         break
                     while (jkm - c2_jk >= 1 and iord[jkm - c2_jk] > nlvinprof):
-                        c2_jk += 1 #skip mandatory level
+                        c2_jk += 1  #skip mandatory level
                     if (jkm - c2_jk >= 1 and iord[jkm - c2_jk] <= nlvinprof):
                         jjm = iord[jkm - c2_jk]
                         if (ibfms[drinfo_accum[3, jjm]] == 0):
@@ -401,7 +403,7 @@ def sub2mem_mer(proflun, bmiss, mxlv, mxnmev, maxmandlvls, mandlvls, mesgtype, h
                     print('### PROBLEM - j <= 1 (=', j, ') in subr. ',
                           'sub2mem_mer, iord array underflow')
                     print('              this should never happen')
-                    #NickE
+                    # NickE
                     w3tage('PREPOBS_PREPACQC')
                     errexit(61)
                 jjm1 = iord[j - 1]
