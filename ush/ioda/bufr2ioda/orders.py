@@ -25,7 +25,7 @@ def ORDERS(IN,ISORT,IDATA,INDEX,N,M,I1,I2):
     elif I1 != 8:
         print('ORDERS argument i1 (keyword size) can be 4 or 8, but here it is ', i1)
         exit()
-###
+
     if ITYPE > 0:
         SMAL = 1
         for I in range(N):
@@ -72,15 +72,9 @@ def ORDERS(IN,ISORT,IDATA,INDEX,N,M,I1,I2):
 
 
 def order4(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
-    """
-    Sorts the IDATA array using 4-byte integers.
-
-    Args:
-    Same as the ORDERS function
-
-    Returns:
-    None
-    """
+    # Sorts the IDATA array using 4-byte integers.
+    # Args Same as the ORDERS function
+    # Returns None
     ITYPE = IN % 10
     if IN < 10:
         INDEX = [i for i in range(1, N + 1)]
@@ -130,15 +124,9 @@ def order4(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
 
 
 def ordec8(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
-    """
-    Sorts the IDATA array using 8-byte characters.
-
-    Args:
-    Same as the ORDERS function
-
-    Returns:
-    None
-    """
+    # Sorts the IDATA array using 8-byte characters.
+    # Args Same as the ORDERS function
+    # Returns: None
     ITYPE = IN % 10
     if IN < 10:
         INDEX = [i for i in range(1, N + 1)]
@@ -163,15 +151,9 @@ def ordec8(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
 
 
 def ordec4(IN, ISORT, IDATA, INDEX, N, M, I1, I2):
-    """
-    Sorts the IDATA array using 4-byte characters.
-
-    Args:
-    Same as the ORDERS function
-
-    Returns:
-    None
-    """
+    # Sorts the IDATA array using 4-byte characters.
+    # Args Same as the ORDERS function
+    # Returns None
     ITYPE = IN % 10
     if IN < 10:
         INDEX = [i for i in range(1, N + 1)]
