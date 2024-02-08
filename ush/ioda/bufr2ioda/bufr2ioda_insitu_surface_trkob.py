@@ -274,7 +274,7 @@ if __name__ == '__main__':
     with open(args.config, "r") as json_file:
         config = json.load(json_file)
 
-    bufr_to_ioda(config, logger) 
+    bufr_to_ioda(config, logger)
 
     end_time = time.time()
     running_time = end_time - start_time
