@@ -61,7 +61,7 @@ def bufr2ioda(obtype, PDY, cyc, RUN, COMIN_OBS, COMOUT_OBS):
 
     json_output_file = os.path.join(COMOUT_OBS, f"{obtype}_{datetime_to_YMDH(cdateDatetime)}.json")
     filename = 'bufr2ioda_' + obtype + '.json'
-    template = os.path.join(JSON_TMPL_DIR,filename)
+    template = os.path.join(JSON_TMPL_DIR, filename)
 
     # Generate cycle specific json from TEMPLATE
     gen_bufr_json(config, template, json_output_file)
