@@ -3,11 +3,8 @@
 #include <iostream>
 #include <map>
 #include <netcdf>    // NOLINT (using C API)
-#include <sstream>
 #include <string>
 #include <vector>
-
-#include "oops/util/dateFunctions.h"
 
 namespace gdasapp {
   namespace obsproc {
@@ -222,70 +219,23 @@ namespace gdasapp {
           oops::Log::test() << checksum(datetime_, "datetime") << std::endl;
         }
 
-        void reDate(const std::string& provider, const std::string& dabegin,
-                    const std::string& daend) {  // daend not used yet now
-          char dash, colon, T, Z;
-          int jday, year, month, day, hour, minute, second;
-
-          if (provider == "GHRSST") {
-            jday = 2444606;  // Julian days 1970-01-01
-          } else if (provider == "RADS") {
-            jday = 2400002;  // Julian Days 1858-11-17
-          } else {
-            jday = 2440588;  // Julian days 1970-01-01 AMSR2, SMAP, SMOS and VIIRSAOD
-          }
-
-          oops::Log::info() << "Provider = " << provider << std::endl;
-          oops::Log::info() << "Julian Days = " << jday << std::endl;
-
-          std::istringstream ss(dabegin);
-          // std::istringstream ssend(daend);
-
-          ss >> year >> dash >> month >> dash >> day >> T
-             >> hour >> colon >> minute >> colon >> second >> Z;
-
-          uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
-          int daysSinceEpoch = julianDate - jday;  // Since Epoch
-          int secondsOffset = util::datefunctions::hmsToSeconds(hour, minute, second);
-          int windowcyc = 6;
-
-          if (datetime_.size() == 0) {
-            oops::Log::info() << "datetime_ is empty" << std::endl;
-          } else {
-            auto minObsDatetime = datetime_.minCoeff();
-            auto maxObsDatetime = datetime_.maxCoeff();
-
-            oops::Log::info() << referenceDate_ << std::endl;  // For info
-            oops::Log::info() << "datetime_:" << std::endl;  // For info
-            oops::Log::info() << "    Min: " << minObsDatetime << std::endl;
-            oops::Log::info() << "    Max: " << maxObsDatetime << std::endl;
-
-            // DA windows's Datetime for comparison +- 6hours
-            int64_t minDAwindow = (daysSinceEpoch*86400) + secondsOffset;
-            // DA ends at hours of windowcyc later
-            int64_t maxDAwindow = (daysSinceEpoch*86400) + secondsOffset + windowcyc*3600;
-            oops::Log::info() << " DA Min: " << minDAwindow << std::endl;
-            oops::Log::info() << " DA Max: " << maxDAwindow << std::endl;
-
-            // Compare with certain values
-            if (minObsDatetime < minDAwindow) {
-              oops::Log::info() << "Min datetime is below threshold" << std::endl;
-              for (std::size_t i = 0; i < datetime_.size(); ++i) {
-                datetime_[i] -= windowcyc * 3600;
-                oops::Log::info() << "New datetime_: " << datetime_[i] << std::endl;
-              }
-              // std::exit(EXIT_FAILURE);  // Terminate the script
-            }
-            if (maxObsDatetime > maxDAwindow) {
-              oops::Log::info() << "Max datetime is above threshold" << std::endl;
-              for (std::size_t i = 0; i < datetime_.size(); ++i) {
-                datetime_[i] += windowcyc * 3600;
-                oops::Log::info() << "New datetime_: " << datetime_[i] << std::endl;
-              }
-              // std::exit(EXIT_FAILURE);  // Terminate the script
-            }
-          }
-        }
+       // Swap the date
+       void reDate(int64_t minDAwindow, int64_t maxDAwindow, int windowcyc) {
+         for (int i = 0; i < location_; i++) {
+           if (datetime_(i) < minDAwindow) {
+             int timelatency = minDAwindow - datetime_(i);
+             datetime_(i) = minDAwindow + 1;  // for safety 1 sec
+             obsError_(i) += 0.1 / (3600 * windowcyc) * timelatency;
+           } else if (maxDAwindow < datetime_(i)) {
+             int timelatency = datetime_(i) - maxDAwindow;
+             datetime_(i) = maxDAwindow - 1;  // for safety 1 sec
+             obsError_(i) += 0.1 / (3600 * windowcyc) * timelatency;
+             // Errors are adjusted based on 0.1 meter per 6 hours
+             // From initial 0.1 meter in Rads2ioda converter
+           }
+         }
+         oops::Log::info() << "IodaVars::IodaVars done redating & adjsting errors." << std::endl;
+       }
       };
     }  // namespace iodavars
   }  // namespace obsproc

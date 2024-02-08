@@ -30,13 +30,10 @@ namespace gdasapp {
       // time window info
       std::string winbegin;
       std::string winend;
-      std::string provider;
       fullConfig.get("window begin", winbegin);
       fullConfig.get("window end", winend);
-      fullConfig.get("provider", provider);
       windowBegin_ = util::DateTime(winbegin);
       windowEnd_ = util::DateTime(winend);
-      provider_ = provider;
       variable_ = "None";
       oops::Log::info() << "--- Window begin: " << winbegin << std::endl;
       oops::Log::info() << "--- Window end: " << winend << std::endl;
@@ -185,8 +182,6 @@ namespace gdasapp {
 
         // Test output
         iodaVars.testOutput();
-
-        iodaVars.reDate(provider_, windowBegin_.toString(), windowEnd_.toString());
 
         // Write obs info to group
         oops::Log::info() << "Writing ioda file" << std::endl;
