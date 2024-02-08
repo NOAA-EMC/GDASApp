@@ -115,7 +115,6 @@ namespace gdasapp {
         iodaVars.longitude_(i) = static_cast<float>(lon[i])*geoscaleFactor;
         iodaVars.latitude_(i) = static_cast<float>(lat[i])*geoscaleFactor;
         iodaVars.datetime_(i) = static_cast<int64_t>(datetime[i]*86400.0f);
-        // oops::Log::info() << "Within loop for datetime_:" << iodaVars.datetime_(i) << std::endl;
         iodaVars.obsVal_(i) = static_cast<float>(adt[i])*scaleFactor;
         iodaVars.obsError_(i) = 0.1;  // Do something for obs error
         iodaVars.preQc_(i) = 0;
