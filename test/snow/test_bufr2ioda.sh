@@ -7,7 +7,7 @@ PROJECT_SOURCE_DIR=${2}
 CMAKE_BINARY_DIR=${3}
 OBSSOURCE=${4}
 CMD=${CMAKE_BINARY_DIR}/bin/bufr2ioda.x
-OBSYAML=${PROJECT_SOURCE_DIR}/ush/land/${OBSSOURCE}.yaml
+OBSYAML=${PROJECT_SOURCE_DIR}/ush/snow/${OBSSOURCE}.yaml
 
 OUTFILE=`grep obsdataout ${OBSYAML} | cut -d'"' -f2`
 

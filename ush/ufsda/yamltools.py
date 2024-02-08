@@ -60,12 +60,12 @@ def parse_config(input_config_dict, template=None, clean=True):
     # add input_config_dict vars to config for substitutions
     config_out.update(input_config_dict)
     # compute common resolution variables
-    if config_out.get('atm', True) or config_out.get('land', True) or config_out.get('aero', True):
+    if config_out.get('atm', True) or config_out.get('snow', True) or config_out.get('aero', True):
         config_out = fv3anl_case(config_out)
     else:
-        raise KeyError("Neither $(atm), $(land) nor $(aero) defined")
+        raise KeyError("Neither $(atm), $(snow) nor $(aero) defined")
     config_out.pop('atm', None)  # pop out boolean variable that will cause issues later
-    config_out.pop('land', None)  # pop out boolean variable that will cause issues later
+    config_out.pop('snow', None)  # pop out boolean variable that will cause issues later
     config_out.pop('aero', None)  # pop out boolean variable that will cause issues later
     # do a first round of substitutions first
     config_out = replace_vars(config_out)
@@ -110,14 +110,14 @@ def fv3anl_case(config):
     if config.get('atm', True):
         config['GEOM_BKG'] = fv3atm_geom_dict(case, levs, ntiles, layout, io_layout)
         config['GEOM_ANL'] = fv3atm_geom_dict(case_anl, levs, ntiles, layout, io_layout)
-    elif config.get('land', True):
-        config['GEOM_BKG'] = fv3land_geom_dict(case, levs, ntiles, layout, io_layout)
-        config['GEOM_ANL'] = fv3land_geom_dict(case_anl, levs, ntiles, layout, io_layout)
+    elif config.get('snow', True):
+        config['GEOM_BKG'] = fv3snow_geom_dict(case, levs, ntiles, layout, io_layout)
+        config['GEOM_ANL'] = fv3snow_geom_dict(case_anl, levs, ntiles, layout, io_layout)
     elif config.get('aero', True):
         config['GEOM_BKG'] = fv3aero_geom_dict(case, levs, ntiles, layout, io_layout)
         config['GEOM_ANL'] = fv3aero_geom_dict(case_anl, levs, ntiles, layout, io_layout)
     else:
-        raise KeyError("Neither $(atm), $(land) nor $(aero) defined")
+        raise KeyError("Neither $(atm), $(snow) nor $(aero) defined")
     return config
 
 
@@ -140,7 +140,7 @@ def fv3atm_geom_dict(case, levs, ntiles, layout, io_layout):
     return outdict
 
 
-def fv3land_geom_dict(case, levs, ntiles, layout, io_layout):
+def fv3snow_geom_dict(case, levs, ntiles, layout, io_layout):
     # returns a dictionary matching FV3-JEDI global geometry entries
     outdict = {
         'fms initialization': {
@@ -158,7 +158,7 @@ def fv3land_geom_dict(case, levs, ntiles, layout, io_layout):
 
         'time invariant fields': {
             'state fields': {
-                'datetime': '$(LAND_WINDOW_BEGIN)',
+                'datetime': '$(SNOW_WINDOW_BEGIN)',
                 'filetype': 'fms restart',
                 'skip coupler file': 'true',
                 'state variables': '[orog_filt]',
@@ -206,8 +206,8 @@ def calc_time_vars(config):
     bkg_time_obj = valid_time_obj
     config['BKG_YYYYmmddHHMMSS'] = bkg_time_obj.strftime('%Y%m%d.%H%M%S')
     config['BKG_ISOTIME'] = bkg_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
-    config['LAND_BKG_YYYYmmddHHMMSS'] = bkg_time_obj.strftime('%Y%m%d.%H%M%S')
-    config['LAND_BKG_ISOTIME'] = bkg_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
+    config['snow_BKG_YYYYmmddHHMMSS'] = bkg_time_obj.strftime('%Y%m%d.%H%M%S')
+    config['snow_BKG_ISOTIME'] = bkg_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
     config['AERO_BKG_YYYYmmddHHMMSS'] = bkg_time_obj.strftime('%Y%m%d.%H%M%S')
     config['AERO_BKG_ISOTIME'] = bkg_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
     if 'assim_freq' in os.environ:
@@ -223,15 +223,15 @@ def calc_time_vars(config):
     config['ATM_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
     config['ATM_WINDOW_END'] = win_end.strftime('%Y-%m-%dT%H:%M:%SZ')
     config['ATM_BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
-    # get land window begin
-    if 'land_window_length' in config.keys():
-        config['LAND_WINDOW_LENGTH'] = config['land_window_length']
-        h = re.findall('PT(\\d+)H', config['LAND_WINDOW_LENGTH'])[0]
+    # get snow window begin
+    if 'snow_window_length' in config.keys():
+        config['SNOW_WINDOW_LENGTH'] = config['snow_window_length']
+        h = re.findall('PT(\\d+)H', config['SNOW_WINDOW_LENGTH'])[0]
         win_begin = valid_time_obj - datetime.timedelta(hours=int(h)/2)
         win_end = valid_time_obj + datetime.timedelta(hours=int(h)/2)
-        config['LAND_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
-        config['LAND_WINDOW_END'] = win_end.strftime('%Y-%m-%dT%H:%M:%SZ')
-        config['LAND_BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
+        config['SNOW_WINDOW_BEGIN'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
+        config['SNOW_WINDOW_END'] = win_end.strftime('%Y-%m-%dT%H:%M:%SZ')
+        config['SNOW_BEGIN_YYYYmmddHHMMSS'] = win_begin.strftime('%Y%m%d.%H%M%S')
     return config
     # get aero window begin
     if 'aero_window_length' in config.keys():
