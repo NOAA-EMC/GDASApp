@@ -136,7 +136,7 @@ try:
                 outputFilename = f"gdas.t{cyc}z.{obs_space_name}.{PDY}{cyc}.nc4"
                 obsprepSpace['output file'] = outputFilename
 
-                if obsprepSpaceName.split('_')[0] == 'insitu':
+                if obsprepSpace['type'] == 'bufr':
                     bufr2ioda(obsprepSpaceName, PDY, cyc, RUN, COMIN_OBS, COMOUT_OBS)
                 else:
                     iodaYamlFilename = obsprepSpaceName + '2ioda.yaml'
