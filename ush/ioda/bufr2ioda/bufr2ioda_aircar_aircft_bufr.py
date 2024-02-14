@@ -307,9 +307,9 @@ def bufr_to_ioda(config, logger):
         f.rewind()
         try:
             u001 = f.execute(r001)
-        except:
+        except ValueError:
             u001_try = False
-            pass
+#            pass
         else:
             u001_try = True
         f.rewind()
