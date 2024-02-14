@@ -21,8 +21,10 @@ import os
 from datetime import datetime
 from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
+from operator import itemgetter
 
-np.set_printoptions(threshold=7000)
+# NickE I forget why I added this
+#np.set_printoptions(threshold=7000)
 
 global int64_fill_value
 int64_fill_value = np.int64(0)
@@ -34,7 +36,7 @@ def AircraftFlightLevel(lat, prlc=None, ialt=None, flvl=None, flvlst=None, heit=
 
     for i in range(len(lat)):
         if (prlc is not None) and (not ma.is_masked(prlc[i])):
-            print("NE we're doing prlc")
+            print("NickE we're doing prlc")
             if (prlc[i]) < 22630:
                 print('prlc 1')
             else:
@@ -56,8 +58,9 @@ def AircraftFlightLevel(lat, prlc=None, ialt=None, flvl=None, flvlst=None, heit=
     return AircraftFlightLevel
 
 
-def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_aircft,
-                       qmrkh2_aircft, qmrkh3_aircft, qmrkh4_aircft):
+def QMRKH_to_QM(qmat_aircft, qmwn_aircft, qmdd_aircft, tmdb_aircft, wspd_aircft, wdir_aircft,
+                qob_aircft, qmrkh2_aircft, qmrkh3_aircft, qmrkh4_aircft, pccf_aircft):
+
     for i in range(len(qmat_aircft)):
         TQM = np.int32(0)
         if (not ma.is_masked(qmrkh2_aircft[i])) and (qmrkh2_aircft[i] >= 3):
@@ -70,28 +73,45 @@ def QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft, wspd_aircft, wdir_
         if (not ma.is_masked(tmdb_aircft[i]) and (qmat_aircft[i] == 2)):
             qmat_aircft[i] = TQM
 
-        if (not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i])) and
-        qmwn_aircft[i] == 2:
-            WQM = TQM  # yes, I meant TQM
-#            qmwn_aircft[i] = max(
+        TQM1 = np.int32(0)
+        if qmrkh2_aircft[i] >= 3:
+            TQM1 = 13
+        else:
+            if (qmrkh2_aircft[i] >= 1):
+                TQM1 = 3
+            if (qmrkh2_aircft[i] == 0):
+                TQM1 = 2
+        if (not ma.is_masked(tmdb_aircft[i]) and TQM[i] == 2):
+            qmat_aircft[i] = TQM1
 
-    print("1")
+        WDIRQM = np.int32(0)
+        if (qmrkh3_aircft[i] >= 3):
+            WDIRQM1 = np.int32(13)
+        else:
+            if (not ma.is_masked(qmrkh3_aircft[i])) and (qmrkh3_aircft[i] >= 1):
+                WDIRQM1 = np.int32(3)
+            if (not ma.is_masked(qmrkh3_aircft[i])) and (qmrkh3_aircft[i] == 0):
+                WDIRQM1 = np.int32(2)
+        if ((not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i])) and qmwn_aircft[i] == 2):
+            WQM1 = WDIRQM1
 
+        WQM2 = np.int32(0)
+        if (qmrkh4_aircft[i] >=3):
+            WQM2 = np.int32(13)
+        else:
+            if (not ma.is_masked(qmrkh4_aircft[i])) and (qmrkh4_aircft[i] >= 1):
+                WQM2 = np.int32(3)
+            if (not ma.is_masked(qmrkh4_aircft[i])) and (qmrkh4_aircft[i] == 0):
+                WQM2 = np.int32(2)
+        if ((not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i])) and qmwn_aircft[i] == 2):
+            qmwn_aircft[i] = max(WQM1,WQM2) 
 
-def PCCF_to_QMDD(qob_aircft, qmdd_aircft, pccf_aircft):
-    print("3")
-#    for i in range(qmdd_aircft):
-#        if (not ma.is_masked(pccf_aircft[i]) and
-
-
-#         IF((QOB(1).LT.BMISS).AND.(QQM(1).EQ.2)) THEN
-# ! Always set QQM to 13 if TQM was set to 13 above (regardless of PCCF)
-#         IF((RQCD_8.LT.80.0).OR.(RQCD_8.GT.100.0)
-#     &      .OR.(TQM(1).EQ.13.0)) THEN
-#          QQM(1) = 13.0
-#         ELSE
-#          QQM(1) = 2.0
-#         ENDIF
+        QQM1 = np.int32(0)
+        if (not ma.is_masked(qob_aircft[i])) and (qmdd_aircft[i] == 2):
+            if pccf_aircft[i] > 80.0 or pccf_aircft[i] > 100.0:
+                qmdd_aircft[i] = np.int32(13)
+            else:
+                qmdd_aircft[i] = np.int32(2)
 
 
 def bufr_to_ioda(config, logger):
@@ -444,10 +464,10 @@ def bufr_to_ioda(config, logger):
 
     # Derive QM values in aircft
     logger.debug("Convert variables for QMRKH to QMAT/QMDD/QMWN")
-    qmat_aircft, qmwn_aircft = QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, tmdb_aircft,
-                                                  wspd_aircft, wdir_aircft, qmrkh2_aircft,
-                                                  qmrkh3_aircft, qmrkh4_aircft)
-    qmdd_aircft = PCCF_to_QMDD(qmdd_aircft, pccf_aircft)
+    qmat_aircft, qmwn_aircft, qmdd_aircft = QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, qmdd_aircft, 
+                                                tmdb_aircft, wspd_aircft, wdir_aircft, qob_aircft, 
+                                                qmrkh2_aircft, qmrkh3_aircft, qmrkh4_aircft, qmdd_aircft, 
+                                                pccf_aircft)
 
     # Concatenate
     logger.debug("Concatenate the variables ... ")
@@ -486,6 +506,51 @@ def bufr_to_ioda(config, logger):
     aircraftFlightLevel = ma.masked_values(aircraftFlightLevel, lat.fill_value)
     logger.debug(f"     aircraftFlightLevel concatenated info = {aircraftFlightLevel.shape}, {aircraftFlightLevel.dtype}, {aircraftFlightLevel.fill_value}")
 
+    # NickE SORT HERE
+    # Something like this
+    tuple_merged = list(zip(acrn, year, mnth, days, hour, minu, lat, lon))
+    print("merged tuples")
+#    print(merged_tuples)
+
+    tuple_sorted = sorted(tuple_merged, key=itemgetter(0,1,2,3,4,5))
+    print("tuple_sorted")
+#    print(tuple_sorted)
+
+    acrn = [t[0] for t in tuple_sorted]
+    year = [t[1] for t in tuple_sorted]
+    mnth = [t[2] for t in tuple_sorted]
+    days = [t[3] for t in tuple_sorted]
+    hour = [t[4] for t in tuple_sorted]
+    minu = [t[5] for t in tuple_sorted]
+    lat = [t[6] for t in tuple_sorted]
+    lon = [t[7] for t in tuple_sorted]
+    # NickE add the rest of the variables
+
+    # NickE COMPUTE SEQNUM HERE
+    # This works, but replace arr1 with actual name of RPID variable
+    # Almost certainly make this a function
+    SEQNUM = np.array([], dtype=int)
+    num=0
+    for i in range(len(year)):
+        if i == 0:
+            num += 1
+#            print("a", num)
+            SEQNUM = np.append(SEQNUM, num)
+        elif (acrn[i-1] != acrn[i]):
+            num += 1
+#            print("b", num)
+            SEQNUM = np.append(SEQNUM, [num])
+        else:
+#            print("c", num)
+            SEQNUM = np.append(SEQNUM, [num])
+
+    print("lenyear", len(year))
+    print("lenSEQ", len(SEQNUM))
+
+    # Will need to re-make sure masked values stayed masked
+    
+    # NickE add the logger info about SEQNUM and add to the outputs at the bottom
+    
     # =====================================
     # Create IODA ObsSpace
     # Write IODA output
