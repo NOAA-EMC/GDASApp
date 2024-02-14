@@ -169,6 +169,15 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Making QuerySets ...")
     q = bufr.QuerySet(subsets_aircar)  # AIRCAR
     r = bufr.QuerySet(subsets_aircft)  # AIRCFT, no amdar
+    r001 = bufr.QuerySet(["NC004001"]) # individual for SID
+    r002 = bufr.QuerySet(["NC004002"])
+    r003 = bufr.QuerySet(["NC004003"])
+    r005 = bufr.QuerySet(["NC004005"])
+    r006 = bufr.QuerySet(["NC004006"])
+    r009 = bufr.QuerySet(["NC004009"])
+    r010 = bufr.QuerySet(["NC004010"])
+    r011 = bufr.QuerySet(["NC004011"])
+    r015 = bufr.QuerySet(["NC004015"])
     s = bufr.QuerySet(subsets_amdar)  # AIRCFT, amdar only
 
     logger.debug('Making QuerySet for AIRCAR ...')
@@ -201,6 +210,15 @@ def bufr_to_ioda(config, logger):
     logger.debug('Making QuerySet for AIRCAR (no amdar)...')
     # MetaData
     r.add("year", "*/YEAR")
+    r001.add("year", "*/YEAR")
+    r002.add("year", "*/YEAR")
+    r003.add("year", "*/YEAR")
+    r005.add("year", "*/YEAR")
+    r006.add("year", "*/YEAR")
+    r009.add("year", "*/YEAR")
+    r010.add("year", "*/YEAR")
+    r011.add("year", "*/YEAR")
+    r015.add("year", "*/YEAR")
     r.add("month", "*/MNTH")
     r.add("day", "*/DAYS")
     r.add("hour", "*/HOUR")
@@ -286,6 +304,69 @@ def bufr_to_ioda(config, logger):
 
     with bufr.File(DATA_PATH_aircft) as f:
         u = f.execute(r)
+        f.rewind()
+        try:
+           u001 = f.execute(r001)
+        except:
+           u001_try = False
+        else:
+           u001_try = True
+        f.rewind()
+        try:
+           u002 = f.execute(r002)
+        except:
+           u002_try = False
+        else:
+           u002_try = True
+        f.rewind()
+        try:
+           u003 = f.execute(r003)
+        except:
+           u003_try = False
+        else:
+           u003_try = True
+        f.rewind()
+        try:
+           u005 = f.execute(r005)
+        except:
+           u005_try = False
+        else:
+           u005_try = True
+        f.rewind()
+        try:
+           u006 = f.execute(r006)
+        except:
+           u006_try = False
+        else:
+           u006_try = True
+        f.rewind()
+        try:
+           u009 = f.execute(r009)
+        except:
+           u009_try = False
+        else:
+           u009_try = True
+        f.rewind()
+        try:
+           u010 = f.execute(r010)
+        except:
+           u010_try = False
+        else:
+           u010_try = True
+        f.rewind()
+        try:
+           u011 = f.execute(r011)
+        except:
+           u011_try = False
+        else:
+           u011_try = True
+        f.rewind()
+        try:
+           u015 = f.execute(r015)
+        except:
+           u015_try = False
+        else:
+           u015_try = True
 
     with bufr.File(DATA_PATH_aircft) as f:
         v = f.execute(s)
@@ -358,9 +439,9 @@ def bufr_to_ioda(config, logger):
 #    qmddrehu_aircft = u.get('relativeHumidityQM')
 #    qmddmixr_aircft = u.get('waterVaporMixingRatioQM')
     qmdd_aircft = u.get('humidityQM')
-    print("NE qmdd check: ")
-    for i in range(len(lat_aircft)):
-        print(seqnum_aircft[i], lat_aircft[i], lon_aircft[i], qmdd_aircft[i])
+#    print("NE qmdd check: ")
+#    for i in range(len(lat_aircft)):
+#        print(seqnum_aircft[i], lat_aircft[i], lon_aircft[i], qmdd_aircft[i])
     qmwn_aircft = u.get('windQM')
 
     logger.debug(f"Executing QuerySet for AIRCFT (amdar) ...")
@@ -462,12 +543,69 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     qmdd_amdar       shape, type = {qmdd_amdar.shape}, {qmdd_amdar.dtype}")
     logger.debug(f"     qmwn_amdar       shape, type = {qmwn_amdar.shape}, {qmwn_amdar.dtype}")
 
+
+    logger.debug(f"     Retrieve variable lengths to generate SID")
+    if u001_try == True :
+       len001 = len(u001.get('year'))
+       print(len001)
+    else:
+       len001 = 0
+    if u002_try == True :
+       len002 = len(u002.get('year'))
+       print(len002)
+    else:
+       len001 = 0
+    if u003_try == True :
+       len003 = len(u003.get('year'))
+       print(len003)
+    else:
+       len005 = 0
+    if u005_try == True :
+       len005 = len(u005.get('year'))
+       print(len005)
+    else:
+       len005 = 0
+    if u006_try == True :
+       len006 = len(u006.get('year'))
+       print(len006)
+    else:
+       len006 = 0
+    if u009_try == True :
+       len009 = len(u009.get('year'))
+       print(len009)
+    else:
+       len009 = 0
+    if u010_try == True :
+       len010 = len(u010.get('year'))
+       print(len010)
+    else:
+       len010 = 0
+    if u011_try == True :
+       len011 = len(u011.get('year'))
+       print(len011)
+    else:
+       len011 = 0
+    if u015_try == True :
+       len015 = len(u015.get('year'))
+       print(len015)
+    else:
+       len015 = 0
+
+    SID_aircar = ['NC004004'] * len(year_aircar)
+    SID_aircft = ( ['NC004001'] * len001 + ['NC004002'] * len002 + ['NC004003'] * len003 
+                  + ['NC004005'] * len005 + ['NC004006'] * len006 + ['NC004009'] * len009 
+                  + ['NC004010'] * len010 + ['NC004011'] * len011 + ['NC004015'] * len015 )
+    SID_amdar = ['NC004103'] * len(year_amdar) 
+
+    sid = SID_aircar + SID_aircft + SID_amdar
+    print("SID len is ", len(sid))
+
     # Derive QM values in aircft
     logger.debug("Convert variables for QMRKH to QMAT/QMDD/QMWN")
-    qmat_aircft, qmwn_aircft, qmdd_aircft = QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, qmdd_aircft,
-                                                               tmdb_aircft, wspd_aircft, wdir_aircft,
-                                                               qob_aircft, qmrkh2_aircft, qmrkh3_aircft,
-                                                               qmrkh4_aircft, qmdd_aircft, pccf_aircft)
+#    qmat_aircft, qmwn_aircft, qmdd_aircft = QMRKH_to_QM(qmat_aircft, qmwn_aircft, qmdd_aircft,
+#                                                               tmdb_aircft, wspd_aircft, wdir_aircft,
+#                                                               qob_aircft, qmrkh2_aircft, qmrkh3_aircft,
+#                                                               qmrkh4_aircft, qmdd_aircft, pccf_aircft)
 
     # Concatenate
     logger.debug("Concatenate the variables ... ")
@@ -508,11 +646,11 @@ def bufr_to_ioda(config, logger):
 
     # NickE SORT HERE
     # Something like this
-    tuple_merged = list(zip(acrn, year, mnth, days, hour, minu, lat, lon))
+#    tuple_merged = list(zip(acrn, year, mnth, days, hour, minu, lat, lon))
     print("merged tuples")
 #    print(merged_tuples)
 
-    tuple_sorted = sorted(tuple_merged, key=itemgetter(0, 1, 2, 3, 4, 5))
+#    tuple_sorted = sorted(tuple_merged, key=itemgetter(0, 1, 2, 3, 4, 5))
     print("tuple_sorted")
 #    print(tuple_sorted)
 
