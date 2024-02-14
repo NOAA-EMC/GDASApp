@@ -1,0 +1,15 @@
+{
+  "data_format"      : "bufr_d",
+  "subsets"          : [ "NC004001", "NC004002", "NC004003", "NC004004", "NC004005", "NC004006", "NC004009", "NC004010", "NC004011", "NC004015", "NC004103" ],
+  "subsets_aircar"   : [ "NC004004" ],
+  "subsets_aircft"   : [ "NC004001", "NC004002", "NC004003", "NC004005", "NC004006", "NC004009", "NC004010", "NC004011", "NC004015" ],
+  "subsets_amdar"    : [ "NC004103" ],
+  "source"           : "BUFR",
+  "data_type"        : [ "aircar", "aircft" ],
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "data_description" : "aircar and aircft bufr",
+  "data_provider"    : "U.S. NOAA"
+}
