@@ -196,7 +196,7 @@ class JobCard:
             self.f.write(f"cp -r {ensbkgs} $ROTDIR \n")
         else:
             print('Aborting, ensemble backgrounds not found')
-            sys.exit()
+            sys.exit(1)
 
     def fixconfigs(self):
         """

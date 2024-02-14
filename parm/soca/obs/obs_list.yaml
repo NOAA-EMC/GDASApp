@@ -15,3 +15,6 @@ observers:
 # Ice concentration
 - !INC ${OBS_YAML_DIR}/icec_amsr2_north.yaml
 - !INC ${OBS_YAML_DIR}/icec_amsr2_south.yaml
+- !INC ${OBS_YAML_DIR}/insitu_profile_bathy.yaml
+- !INC ${OBS_YAML_DIR}/insitu_profile_tesac.yaml
+- !INC ${OBS_YAML_DIR}/insitu_surface_trkob.yaml
