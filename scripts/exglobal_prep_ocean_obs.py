@@ -49,17 +49,17 @@ if not os.path.exists(COMOUT_OBS):
 
 
 def bufr2ioda(obtype, PDY, cyc, RUN, COMIN_OBS, COMOUT_OBS):
-    logger.info(f"Process {obtype} for {RUN}.{PDY}/{cyc} from {COMIN_OBS} to {COMOUT_OBS}")
+    logger.info(f"Process {obtype} for {RUN}.{PDY}/{cyc} from {COMIN_OBS} to {COMIN_OBS}")
 
     # Load configuration
     config = {
         'RUN': RUN,
         'current_cycle': cdateDatetime,
         'DMPDIR': COMIN_OBS,
-        'COM_OBS': COMOUT_OBS,
+        'COM_OBS': COMIN_OBS,
     }
 
-    json_output_file = os.path.join(COMOUT_OBS, f"{obtype}_{datetime_to_YMDH(cdateDatetime)}.json")
+    json_output_file = os.path.join(COMIN_OBS, f"{obtype}_{datetime_to_YMDH(cdateDatetime)}.json")
     filename = 'bufr2ioda_' + obtype + '.json'
     template = os.path.join(JSON_TMPL_DIR, filename)
 
@@ -137,7 +137,9 @@ try:
                 obsprepSpace['output file'] = outputFilename
 
                 if obsprepSpace['type'] == 'bufr':
-                    bufr2ioda(obsprepSpaceName, PDY, cyc, RUN, COMIN_OBS, COMOUT_OBS)
+                    bufr2ioda(obsprepSpaceName, PDY, cyc, RUN, COMIN_OBS, COMIN_OBS)
+                    files_to_save.append([obsprepSpace['output file'],
+                                          os.path.join(COMOUT_OBS, obsprepSpace['output file'])])
                 else:
                     iodaYamlFilename = obsprepSpaceName + '2ioda.yaml'
                     save_as_yaml(obsprepSpace, iodaYamlFilename)
