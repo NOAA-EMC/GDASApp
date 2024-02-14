@@ -169,7 +169,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"Making QuerySets ...")
     q = bufr.QuerySet(subsets_aircar)  # AIRCAR
     r = bufr.QuerySet(subsets_aircft)  # AIRCFT, no amdar
-    r001 = bufr.QuerySet(["NC004001"]) # individual for SID
+    r001 = bufr.QuerySet(["NC004001"])  # individual for SID
     r002 = bufr.QuerySet(["NC004002"])
     r003 = bufr.QuerySet(["NC004003"])
     r005 = bufr.QuerySet(["NC004005"])
@@ -306,67 +306,68 @@ def bufr_to_ioda(config, logger):
         u = f.execute(r)
         f.rewind()
         try:
-           u001 = f.execute(r001)
+            u001 = f.execute(r001)
         except:
-           u001_try = False
+            u001_try = False
+            pass
         else:
-           u001_try = True
+            u001_try = True
         f.rewind()
         try:
-           u002 = f.execute(r002)
+            u002 = f.execute(r002)
         except:
-           u002_try = False
+            u002_try = False
         else:
-           u002_try = True
+            u002_try = True
         f.rewind()
         try:
-           u003 = f.execute(r003)
+            u003 = f.execute(r003)
         except:
-           u003_try = False
+            u003_try = False
         else:
-           u003_try = True
+            u003_try = True
         f.rewind()
         try:
-           u005 = f.execute(r005)
+            u005 = f.execute(r005)
         except:
-           u005_try = False
+            u005_try = False
         else:
-           u005_try = True
+            u005_try = True
         f.rewind()
         try:
-           u006 = f.execute(r006)
+            u006 = f.execute(r006)
         except:
-           u006_try = False
+            u006_try = False
         else:
-           u006_try = True
+            u006_try = True
         f.rewind()
         try:
-           u009 = f.execute(r009)
+            u009 = f.execute(r009)
         except:
-           u009_try = False
+            u009_try = False
         else:
-           u009_try = True
+            u009_try = True
         f.rewind()
         try:
-           u010 = f.execute(r010)
+            u010 = f.execute(r010)
         except:
-           u010_try = False
+            u010_try = False
         else:
-           u010_try = True
+            u010_try = True
         f.rewind()
         try:
-           u011 = f.execute(r011)
+            u011 = f.execute(r011)
         except:
-           u011_try = False
+            u011_try = False
         else:
-           u011_try = True
+            u011_try = True
         f.rewind()
         try:
-           u015 = f.execute(r015)
+            u015 = f.execute(r015)
         except:
-           u015_try = False
+            u015_try = False
         else:
-           u015_try = True
+            u015_try = True
 
     with bufr.File(DATA_PATH_aircft) as f:
         v = f.execute(s)
@@ -545,51 +546,51 @@ def bufr_to_ioda(config, logger):
 
 
     logger.debug(f"     Retrieve variable lengths to generate SID")
-    if u001_try == True :
-       len001 = len(u001.get('year'))
-       print(len001)
+    if u001_try:
+        len001 = len(u001.get('year'))
+        print(len001)
     else:
-       len001 = 0
-    if u002_try == True :
-       len002 = len(u002.get('year'))
-       print(len002)
+        len001 = 0
+    if u002_try:
+        len002 = len(u002.get('year'))
+        print(len002)
     else:
-       len001 = 0
-    if u003_try == True :
-       len003 = len(u003.get('year'))
-       print(len003)
+        len001 = 0
+    if u003_try:
+        len003 = len(u003.get('year'))
+        print(len003)
     else:
-       len005 = 0
-    if u005_try == True :
-       len005 = len(u005.get('year'))
-       print(len005)
+        len005 = 0
+    if u005_try:
+        len005 = len(u005.get('year'))
+        print(len005)
     else:
-       len005 = 0
-    if u006_try == True :
-       len006 = len(u006.get('year'))
-       print(len006)
+        len005 = 0
+    if u006_try:
+        len006 = len(u006.get('year'))
+        print(len006)
     else:
-       len006 = 0
-    if u009_try == True :
-       len009 = len(u009.get('year'))
-       print(len009)
+        len006 = 0
+    if u009_try:
+        len009 = len(u009.get('year'))
+        print(len009)
     else:
-       len009 = 0
-    if u010_try == True :
-       len010 = len(u010.get('year'))
-       print(len010)
+        len009 = 0
+    if u010_try:
+        len010 = len(u010.get('year'))
+        print(len010)
     else:
-       len010 = 0
-    if u011_try == True :
-       len011 = len(u011.get('year'))
-       print(len011)
+        len010 = 0
+    if u011_try:
+        len011 = len(u011.get('year'))
+        print(len011)
     else:
-       len011 = 0
-    if u015_try == True :
-       len015 = len(u015.get('year'))
-       print(len015)
+        len011 = 0
+    if u015_try:
+        len015 = len(u015.get('year'))
+        print(len015)
     else:
-       len015 = 0
+        len015 = 0
 
     SID_aircar = ['NC004004'] * len(year_aircar)
     SID_aircft = ( ['NC004001'] * len001 + ['NC004002'] * len002 + ['NC004003'] * len003 
