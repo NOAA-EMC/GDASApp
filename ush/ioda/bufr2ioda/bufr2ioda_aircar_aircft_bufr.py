@@ -544,7 +544,6 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     qmdd_amdar       shape, type = {qmdd_amdar.shape}, {qmdd_amdar.dtype}")
     logger.debug(f"     qmwn_amdar       shape, type = {qmwn_amdar.shape}, {qmwn_amdar.dtype}")
 
-
     logger.debug(f"     Retrieve variable lengths to generate SID")
     if u001_try:
         len001 = len(u001.get('year'))
@@ -593,10 +592,10 @@ def bufr_to_ioda(config, logger):
         len015 = 0
 
     SID_aircar = ['NC004004'] * len(year_aircar)
-    SID_aircft = ( ['NC004001'] * len001 + ['NC004002'] * len002 + ['NC004003'] * len003 
-                  + ['NC004005'] * len005 + ['NC004006'] * len006 + ['NC004009'] * len009 
-                  + ['NC004010'] * len010 + ['NC004011'] * len011 + ['NC004015'] * len015 )
-    SID_amdar = ['NC004103'] * len(year_amdar) 
+    SID_aircft = (['NC004001'] * len001 + ['NC004002'] * len002 + ['NC004003'] * len003 +
+                  ['NC004005'] * len005 + ['NC004006'] * len006 + ['NC004009'] * len009 +
+                  ['NC004010'] * len010 + ['NC004011'] * len011 + ['NC004015'] * len015)
+    SID_amdar = ['NC004103'] * len(year_amdar)
 
     sid = SID_aircar + SID_aircft + SID_amdar
     print("SID len is ", len(sid))
