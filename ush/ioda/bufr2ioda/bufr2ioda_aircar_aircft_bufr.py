@@ -24,7 +24,7 @@ from wxflow import Logger
 from operator import itemgetter
 
 # NickE I forget why I added this
-#np.set_printoptions(threshold=7000)
+# np.set_printoptions(threshold=7000)
 
 global int64_fill_value
 int64_fill_value = np.int64(0)
@@ -96,7 +96,7 @@ def QMRKH_to_QM(qmat_aircft, qmwn_aircft, qmdd_aircft, tmdb_aircft, wspd_aircft,
             WQM1 = WDIRQM1
 
         WQM2 = np.int32(0)
-        if (qmrkh4_aircft[i] >=3):
+        if (qmrkh4_aircft[i] >= 3):
             WQM2 = np.int32(13)
         else:
             if (not ma.is_masked(qmrkh4_aircft[i])) and (qmrkh4_aircft[i] >= 1):
@@ -104,7 +104,7 @@ def QMRKH_to_QM(qmat_aircft, qmwn_aircft, qmdd_aircft, tmdb_aircft, wspd_aircft,
             if (not ma.is_masked(qmrkh4_aircft[i])) and (qmrkh4_aircft[i] == 0):
                 WQM2 = np.int32(2)
         if ((not ma.is_masked(wspd_aircft[i])) and (not ma.is_masked(wdir_aircft[i])) and qmwn_aircft[i] == 2):
-            qmwn_aircft[i] = max(WQM1,WQM2) 
+            qmwn_aircft[i] = max(WQM1, WQM2)
 
         QQM1 = np.int32(0)
         if (not ma.is_masked(qob_aircft[i])) and (qmdd_aircft[i] == 2):
@@ -464,10 +464,10 @@ def bufr_to_ioda(config, logger):
 
     # Derive QM values in aircft
     logger.debug("Convert variables for QMRKH to QMAT/QMDD/QMWN")
-    qmat_aircft, qmwn_aircft, qmdd_aircft = QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, qmdd_aircft, 
-                                                tmdb_aircft, wspd_aircft, wdir_aircft, qob_aircft, 
-                                                qmrkh2_aircft, qmrkh3_aircft, qmrkh4_aircft, qmdd_aircft, 
-                                                pccf_aircft)
+    qmat_aircft, qmwn_aircft, qmdd_aircft = QMRKH_to_QMAT_QMWN(qmat_aircft, qmwn_aircft, qmdd_aircft,
+                                                               tmdb_aircft, wspd_aircft, wdir_aircft,
+                                                               qob_aircft, qmrkh2_aircft, qmrkh3_aircft,
+                                                               qmrkh4_aircft, qmdd_aircft, pccf_aircft)
 
     # Concatenate
     logger.debug("Concatenate the variables ... ")
@@ -512,7 +512,7 @@ def bufr_to_ioda(config, logger):
     print("merged tuples")
 #    print(merged_tuples)
 
-    tuple_sorted = sorted(tuple_merged, key=itemgetter(0,1,2,3,4,5))
+    tuple_sorted = sorted(tuple_merged, key=itemgetter(0, 1, 2, 3, 4, 5))
     print("tuple_sorted")
 #    print(tuple_sorted)
 
@@ -541,16 +541,15 @@ def bufr_to_ioda(config, logger):
 #            print("b", num)
             SEQNUM = np.append(SEQNUM, [num])
         else:
-#            print("c", num)
             SEQNUM = np.append(SEQNUM, [num])
 
     print("lenyear", len(year))
     print("lenSEQ", len(SEQNUM))
 
     # Will need to re-make sure masked values stayed masked
-    
+
     # NickE add the logger info about SEQNUM and add to the outputs at the bottom
-    
+
     # =====================================
     # Create IODA ObsSpace
     # Write IODA output
