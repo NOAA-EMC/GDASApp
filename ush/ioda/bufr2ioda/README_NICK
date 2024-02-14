@@ -1,4 +1,4 @@
-python run_bufr2ioda.py 2021080100 gdas /work/noaa/rstprod/dump/ /work2/noaa/da/nesposito/GDASApp_20231012/parm/ioda/bufr2ioda/ /work2/noaa/da/nesposito/NewConv/api_convert/json/json_gdasapp
+python old_run_bufr2ioda.py 2021080100 gdas /work/noaa/rstprod/dump/ /work2/noaa/da/nesposito/GDASApp_20240206/parm/ioda/bufr2ioda/ /work2/noaa/da/nesposito/NewConv/api_convert/json/json_gdasapp
 
 ###########################################
 1. pspl.f90 -> pspl_combined.py

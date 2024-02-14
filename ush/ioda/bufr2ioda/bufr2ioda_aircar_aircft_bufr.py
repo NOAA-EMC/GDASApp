@@ -530,7 +530,7 @@ def bufr_to_ioda(config, logger):
     # This works, but replace arr1 with actual name of RPID variable
     # Almost certainly make this a function
     SEQNUM = np.array([], dtype=int)
-    num=0
+    num = 0
     for i in range(len(year)):
         if i == 0:
             num += 1
