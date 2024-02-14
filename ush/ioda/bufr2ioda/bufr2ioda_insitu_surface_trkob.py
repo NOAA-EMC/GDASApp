@@ -83,6 +83,7 @@ def bufr_to_ioda(config, logger):
     q.add('stationID', '*/RPID')
     q.add('latitude', '*/CLAT')
     q.add('longitude', '*/CLON')
+    q.add('depth', '*/BTOCN/DBSS')
 
     # ObsValue
     q.add('temp', '*/BTOCN/STMP')
@@ -163,7 +164,7 @@ def bufr_to_ioda(config, logger):
     # Create the dimensions
     dims = {'Location': np.arange(0, lat.shape[0])}
 
-    iodafile = f"{cycle_type}.t{hh}z.{data_type}_profiles.{data_format}.nc"
+    iodafile = f"{cycle_type}.t{hh}z.insitu_surface_{data_format}.{cycle_datetime}.nc4"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
     logger.debug(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
 
