@@ -308,63 +308,82 @@ def bufr_to_ioda(config, logger):
         try:
             u001 = f.execute(r001)
         except ValueError:
+            print("a")
+            pass
             u001_try = False
-#            pass
         else:
             u001_try = True
         f.rewind()
         try:
             u002 = f.execute(r002)
-        except:
+        except ValueError:
+            print("a")
+            pass
             u002_try = False
         else:
             u002_try = True
         f.rewind()
         try:
             u003 = f.execute(r003)
-        except:
+        except ValueError:
             u003_try = False
+            print("a")
+            pass
+
         else:
             u003_try = True
         f.rewind()
         try:
             u005 = f.execute(r005)
-        except:
+        except ValueError:
+            print("a")
+            pass
+
             u005_try = False
         else:
             u005_try = True
         f.rewind()
         try:
             u006 = f.execute(r006)
-        except:
+        except ValueError:
+            print("a")
+            pass
             u006_try = False
         else:
             u006_try = True
         f.rewind()
         try:
             u009 = f.execute(r009)
-        except:
+        except ValueError:
+            print("a")
+            pass
             u009_try = False
         else:
             u009_try = True
         f.rewind()
         try:
             u010 = f.execute(r010)
-        except:
+        except ValueError:
+            print("a")
+            pass
             u010_try = False
         else:
             u010_try = True
         f.rewind()
         try:
             u011 = f.execute(r011)
-        except:
+        except ValueError:
+            print("a")
+            pass
             u011_try = False
         else:
             u011_try = True
         f.rewind()
         try:
             u015 = f.execute(r015)
-        except:
+        except ValueError:
+            print("a")
+            pass
             u015_try = False
         else:
             u015_try = True
