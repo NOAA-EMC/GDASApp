@@ -10,20 +10,17 @@ logger = getLogger(__name__.split('.')[-1])
 
 class MarineRecenter():
 
-   def __init__(self, config):
-      logger.info("init")
+    def __init__(self, config):
+        logger.info("init")
 
-   @logit(logger)
-   def initialize(self):
-      logger.info("initialize")
+    @logit(logger)
+    def initialize(self):
+        logger.info("initialize")
 
-   @logit(logger)
-   def execute(self):
-      logger.info("execute")
+    @logit(logger)
+    def execute(self):
+        logger.info("execute")
 
-   @logit(logger)
-   def finalize(self):
-      logger.info("finalize")
-
-
-
+    @logit(logger)
+    def finalize(self):
+        logger.info("finalize")
