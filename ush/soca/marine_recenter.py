@@ -18,8 +18,8 @@ class MarineRecenter():
         logger.info("initialize")
 
     @logit(logger)
-    def execute(self):
-        logger.info("execute")
+    def run(self):
+        logger.info("run")
 
     @logit(logger)
     def finalize(self):

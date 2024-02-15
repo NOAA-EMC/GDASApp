@@ -20,5 +20,5 @@ if __name__ == '__main__':
     # Instantiate the aerosol analysis task
     MarineRecen = MarineRecenter(config)
     MarineRecen.initialize()
-    MarineRecen.execute()
+    MarineRecen.run()
     MarineRecen.finalize()
