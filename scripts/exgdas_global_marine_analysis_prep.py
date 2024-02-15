@@ -134,6 +134,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
     files = []
     for fcst_hr in fcst_hrs:
         files.append(os.path.join(bkg_path, f'{GDUMP}.t'+gcyc+'z.ocnf'+str(fcst_hr).zfill(3)+'.nc'))
+        files.append(os.path.join(bkg_path, f'{GDUMP}.ocean.t'+gcyc+'z.inst.f'+str(fcst_hr).zfill(3)+'.nc'))
 
     # Identify the ocean background that will be used for the  vertical coordinate remapping
     ocn_filename_ic = os.path.splitext(os.path.basename(files[0]))[0]+'.nc'
@@ -149,8 +150,8 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
         ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'
 
         # prepare the seaice background, aggregate if the backgrounds are CICE restarts
-        ice_filename = ocn_filename.replace("ocn", "ice")
-        agg_ice_filename = ocn_filename.replace("ocn", "agg_ice")
+        ice_filename = ocn_filename.replace("ocean", "ice")
+        agg_ice_filename = ocn_filename.replace("ocean", "agg_ice")
         if ice_rst:
             # if this is a CICE restart, aggregate seaice variables and dump
             # aggregated ice bkg in out_path
@@ -172,8 +173,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
                     'basename': './bkg/',
                     'ocn_filename': ocn_filename,
                     'ice_filename': agg_ice_filename,
-                    'read_from_file': 1,
-                    '#remap_filename': './bkg/'+ocn_filename_ic}  # TODO: Remapping bug in soca. Switch to z*
+                    'read_from_file': 1}
 
         bkg_date = bkg_date + timedelta(hours=dt_pseudo)  # TODO: make the bkg interval a configurable
         bkg_list.append(bkg_dict)
@@ -300,20 +300,20 @@ ufsda.stage.soca_fix(stage_cfg)
 if dohybvar:
     logger.info("---------------- Stage ensemble members")
     nmem_ens = int(os.getenv('NMEM_ENS'))
-    longname = {'ocn': 'ocean', 'ice': 'ice'}
+    shortname = {'ocean': 'ocn', 'ice': 'ice'}
     ens_member_list = []
     for mem in range(1, nmem_ens+1):
-        for domain in ['ocn', 'ice']:
+        for domain in ['ocean', 'ice']:
             # TODO(Guillaume): make use and define ensemble COM in the j-job
             ensroot = os.getenv('COM_OCEAN_HISTORY_PREV')
             ensdir = os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
                                   f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
-                                  'model_data', longname[domain], 'history')
+                                  'model_data', domain, 'history')
             ensdir_real = os.path.realpath(ensdir)
-            f009 = f'enkfgdas.t{gcyc}z.{domain}f009.nc'
+            f009 = f'enkfgdas.{domain}.t{gcyc}z.inst.f009.nc'
 
             fname_in = os.path.abspath(os.path.join(ensdir_real, f009))
-            fname_out = os.path.realpath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
+            fname_out = os.path.realpath(os.path.join(static_ens, shortname[domain]+"."+str(mem)+".nc"))
             ens_member_list.append([fname_in, fname_out])
     FileHandler({'copy': ens_member_list}).sync()
 
@@ -475,7 +475,7 @@ s2mconfig.save(socaincr2mom6_yaml)
 ics_list = []
 GDUMP = os.getenv('GDUMP')
 # ocean IC's
-mom_ic_src = glob.glob(os.path.join(bkg_dir, f'{GDUMP}.*.ocnf003.nc'))[0]
+mom_ic_src = glob.glob(os.path.join(bkg_dir, f'{GDUMP}.ocean.*.inst.f003.nc'))[0]
 mom_ic_dst = os.path.join(anl_dir, 'INPUT', 'MOM.res.nc')
 ics_list.append([mom_ic_src, mom_ic_dst])
 

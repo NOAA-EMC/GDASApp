@@ -26,14 +26,14 @@ cp ${ice_rst} ${COM}/06/model_data/ice/restart/20180415.120000.cice_model.res.nc
 i=3
 lof=`ls ${project_binary_dir}/test/testdata/ocn_da_*`
 for ocnf in $lof; do
-  cp $ocnf ${COM}/06/model_data/ocean/history/gdas.t06z.ocnf00$i.nc
-  cp $hist_icef ${COM}/06/model_data/ice/history/gdas.t06z.icef00$i.nc
+  cp $ocnf ${COM}/06/model_data/ocean/history/gdas.ocean.t06z.inst.f00$i.nc
+  cp $hist_icef ${COM}/06/model_data/ice/history/gdas.ice.t06z.inst.f00$i.nc
   i=$(($i+1))
 done
 
 # invent background error
 for day in $(seq 1 2 9); do
-    cp ${COM}/06/model_data/ocean/history/gdas.t06z.ocnf003.nc \
+    cp ${COM}/06/model_data/ocean/history/gdas.ocean.t06z.inst.f003.nc \
        ${project_binary_dir}/soca_static/bkgerr/stddev/ocn.ensstddev.fc.2019-04-0${day}T00:00:00Z.PT0S.nc
     cp ${project_source_dir}/sorc/soca/test/Data/72x35x25/ice.bkgerror.nc \
        ${project_binary_dir}/soca_static/bkgerr/stddev/ice.ensstddev.fc.2019-04-0${day}T00:00:00Z.PT0S.nc
@@ -45,9 +45,8 @@ mkdir -p ${clim_ens_dir}
 declare -A domain_long_names
 domain_long_names["ocn"]="ocean"
 domain_long_names["ice"]="ice"
-for domain in "ocn" "ice"; do
-    domain_long_name=${domain_long_names[${domain}]}
-    list_of_ocn_fcst=$(ls ${COM}/06/model_data/${domain_long_name}/history/gdas.t06z.${domain}f*.nc)
+for domain in "ocean" "ice"; do
+    list_of_ocn_fcst=$(ls ${COM}/06/model_data/${domain}/history/gdas.${domain}.t06z.inst.f*.nc)
     counter=1
     for file in ${list_of_ocn_fcst}; do
         file_name=${domain}.${counter}.nc
@@ -71,10 +70,10 @@ do
     # ocean member
     oceandir=${COMENS}/06/mem00${mem}/model_data/ocean/history
     mkdir -p $oceandir
-    cp ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.t06z.ocnf009.nc
-    echo ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.t06z.ocnf009.nc
+    cp ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.ocean.t06z.inst.f009.nc
+    echo ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.ocean.t06z.inst.f009.nc
     # ice member
     icedir=${COMENS}/06/mem00${mem}/model_data/ice/history
     mkdir -p $icedir
-    cp ${clim_ens_dir}/ice.${mem}.nc $icedir/enkfgdas.t06z.icef009.nc
+    cp ${clim_ens_dir}/ice.${mem}.nc $icedir/enkfgdas.ice.t06z.inst.f009.nc
 done
