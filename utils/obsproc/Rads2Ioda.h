@@ -3,7 +3,6 @@
 #include <iostream>
 #include <map>
 #include <netcdf>    // NOLINT (using C API)
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -13,6 +12,7 @@
 
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
+#include "oops/util/dateFunctions.h"
 
 #include "NetCDFToIodaConverter.h"
 
@@ -30,8 +30,10 @@ namespace gdasapp {
       oops::Log::info() << "Processing files provided by the RADS" << std::endl;
 
       // Get the window cycle from the configuration
-      int windowcyc;
-      fullConfig_.get("window cycle", windowcyc);
+      float errInitial;
+      fullConfig_.get("error.initial", errInitial);
+      int64_t errDuration;
+      fullConfig_.get("error.duration of hours", errDuration);
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
@@ -116,7 +118,7 @@ namespace gdasapp {
         iodaVars.latitude_(i) = static_cast<float>(lat[i])*geoscaleFactor;
         iodaVars.datetime_(i) = static_cast<int64_t>(datetime[i]*86400.0f);
         iodaVars.obsVal_(i) = static_cast<float>(adt[i])*scaleFactor;
-        iodaVars.obsError_(i) = 0.1;  // Do something for obs error
+        iodaVars.obsError_(i) = static_cast<float>(errInitial);  // Initial error
         iodaVars.preQc_(i) = 0;
         // Save MDT in optional floatMetadata
         iodaVars.floatMetadata_.row(i) << iodaVars.obsVal_(i) -
@@ -129,26 +131,20 @@ namespace gdasapp {
       iodaVars.trim(boundsCheck);
 
       // Redating and adjusting Errors
-      char dash, colon, T, Z;
-      int jday, year, month, day, hour, minute, second;
-
-      std::istringstream dabegin(windowBegin_.toString());
-      dabegin >> year >> dash >> month >> dash >> day >> T
-         >> hour >> colon >> minute >> colon >> second >> Z;
-
-      uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
-      int daysSinceEpoch = julianDate - 2400002;  // Since Epoch 1858-11-17
-      int secondsOffset = util::datefunctions::hmsToSeconds(hour, minute, second);
-
       if (iodaVars.datetime_.size() == 0) {
         oops::Log::info() << "datetime_ is empty" << std::endl;
       } else {
-        // DA window begins
-        int64_t minDAwindow = (daysSinceEpoch*86400) + secondsOffset;
-        // DA window ends at hours of windowcyc later
-        int64_t maxDAwindow = minDAwindow + (windowcyc * 3600);
+        int64_t DAwindow;
+        // Calculate seconds at DA window begins
+        iodaVars.JulianDateTime(windowBegin_.toString(), DAwindow);
+        int64_t minDAwindow = DAwindow;
 
-        iodaVars.reDate(minDAwindow, maxDAwindow, windowcyc);
+        // Calculate seconds at DA window ends
+        iodaVars.JulianDateTime(windowEnd_.toString(), DAwindow);
+        int64_t maxDAwindow = DAwindow;
+
+        // Redating and Adjusting Error
+        iodaVars.reDate(minDAwindow, maxDAwindow, errInitial, errDuration);
 
         return iodaVars;
       }

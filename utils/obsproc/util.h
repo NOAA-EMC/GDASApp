@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "oops/util/dateFunctions.h"
+
 namespace gdasapp {
   namespace obsproc {
     namespace oceanmask {
@@ -219,19 +221,33 @@ namespace gdasapp {
           oops::Log::test() << checksum(datetime_, "datetime") << std::endl;
         }
 
-       // Swap the date
-       void reDate(int64_t minDAwindow, int64_t maxDAwindow, int windowcyc) {
+       // Convert JulianDate and second
+       void JulianDateTime(const std::string & str, int64_t & DAwindow) {
+         int year, month, day, hour, minute, second;
+         util::datefunctions::stringToYYYYMMDDhhmmss(str, year, month, day, hour, minute, second);
+         uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
+         // Since Epoch 1858-11-17
+         int daysSinceEpoch = julianDate - 2400002;
+         int secondsOffset = util::datefunctions::hmsToSeconds(hour, minute, second);
+         DAwindow = (daysSinceEpoch * 86400) + secondsOffset;
+       }
+
+       // Changing the date and Adjusting Errors
+       void reDate(int64_t minDAwindow, int64_t maxDAwindow,
+                   float errInitial, int64_t errDuration) {
          for (int i = 0; i < location_; i++) {
            if (datetime_(i) < minDAwindow) {
-             int timelatency = minDAwindow - datetime_(i);
-             datetime_(i) = minDAwindow + 1;  // for safety 1 sec
-             obsError_(i) += 0.1 / (3600 * windowcyc) * timelatency;
-           } else if (maxDAwindow < datetime_(i)) {
-             int timelatency = datetime_(i) - maxDAwindow;
-             datetime_(i) = maxDAwindow - 1;  // for safety 1 sec
-             obsError_(i) += 0.1 / (3600 * windowcyc) * timelatency;
-             // Errors are adjusted based on 0.1 meter per 6 hours
-             // From initial 0.1 meter in Rads2ioda converter
+             int delta_t = minDAwindow - datetime_(i);
+             datetime_(i) = minDAwindow + 1;
+             // one second is used for safety falling in min Da window
+             obsError_(i) += errInitial / (3600 * errDuration) * delta_t;
+           }
+           if (maxDAwindow < datetime_(i)) {
+             int delta_t = datetime_(i) - maxDAwindow;
+             datetime_(i) = maxDAwindow - 1;
+             // one second is used for safety falling in max Da window
+             obsError_(i) += errInitial / (3600 * errDuration) * delta_t;
+             // Errors are adjusted linearly based on 0.1 meter (initial) per 6 (duration) hours
            }
          }
          oops::Log::info() << "IodaVars::IodaVars done redating & adjsting errors." << std::endl;

@@ -255,7 +255,6 @@ namespace gdasapp {
     util::DateTime windowEnd_;
     std::vector<std::string> inputFilenames_;
     std::string outputFilename_;
-    std::string provider_;
     std::string variable_;
     const eckit::mpi::Comm & comm_;
     const eckit::Configuration & fullConfig_;
