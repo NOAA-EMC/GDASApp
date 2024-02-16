@@ -153,13 +153,27 @@ observations:
       stride: 15
       min number of obs: 10
 
-# in situ
+# in situ: monthly
 - obs space:
     name: insitu_profile_bathy
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
     dmpdir regex: 'gdas.*.bathy.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_argo
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.argo.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_glider
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.glider.*.bufr_d'
 
 - obs space:
     name: insitu_profile_tesac
@@ -169,8 +183,60 @@ observations:
     dmpdir regex: 'gdas.*.tesac.*.bufr_d'
 
 - obs space:
+    name: insitu_profile_marinemammal
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.marinemammal.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_xbtctd
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.xbtctd.*.bufr_d'
+
+- obs space:
+    name: insitu_surface_altkob
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.altkob.*.bufr_d'
+
+- obs space:
     name: insitu_surface_trkob
     provider: GTS
     dmpdir subdir: atmos
     type: bufr 
     dmpdir regex: 'gdas.*.trkob.*.bufr_d'
+
+# in situ: daily
+- obs space:
+    name: insitu_profile_dbuoy
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.dbuoy.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_dbuoyb
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.dbuoyb.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_mbuoy
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.mbuoy.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_mbuoyb
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.mbuoyb.*.bufr_d'
+
+
