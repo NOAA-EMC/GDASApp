@@ -32,7 +32,7 @@ from wxflow import parse_j2yaml
 import os
 import datetime
 
-config = parse_j2yaml('$YAMLin', os.environ)
+
 valid_time_obj = datetime.datetime.strptime('$CDATE','%Y%m%d%H')
 winlen = $assim_freq
 win_begin = valid_time_obj - datetime.timedelta(hours=int(winlen)/2)
@@ -59,8 +59,7 @@ exp_dict = {
 }
 
 
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, cycle_dict.get)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, exp_dict.get)
+config_out = parse_j2yaml('$YAMLin', {**os.environ, **cycle_dict, **exp_dict})
+save_as_yaml(config_out, '$YAMLout')
 
-config.save('$YAMLout')
 EOF
