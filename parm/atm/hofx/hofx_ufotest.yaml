@@ -1,4 +1,4 @@
 time window:
-  begin: '{{ATM_WINDOW_BEGIN}}'
-  end: '{{ATM_WINDOW_END}}'
+  begin: '{{ ATM_WINDOW_BEGIN }}'
+  end: '{{ ATM_WINDOW_END }}'
 observations: !INC ${OBS_LIST}

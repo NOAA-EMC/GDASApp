@@ -7,7 +7,7 @@ background:
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
   ice_filename: cice.res.nc
-  date: '{{ATM_WINDOW_BEGIN}}'
+  date: '{{ ATM_WINDOW_BEGIN }}'
   state variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
 
 background error:

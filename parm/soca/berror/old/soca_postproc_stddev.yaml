@@ -3,7 +3,7 @@ geometry:
   mom6_input_nml: mom_input.nml
   fields metadata: fields_metadata.yaml
 
-date: '{{ATM_WINDOW_BEGIN}}'
+date: '{{ ATM_WINDOW_BEGIN }}'
 
 layers variable: [hocn]
 
@@ -15,17 +15,17 @@ vertical geometry:
   read_from_file: 1
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
-  date: '{{ATM_WINDOW_BEGIN}}'
+  date: '{{ ATM_WINDOW_BEGIN }}'
 
 soca increment:
-  date: '{{ATM_WINDOW_BEGIN}}'
+  date: '{{ ATM_WINDOW_BEGIN }}'
   basename: ./static_ens/
-  ocn_filename: 'ocn.orig_ens_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
+  ocn_filename: 'ocn.orig_ens_stddev.incr.{{ ATM_WINDOW_BEGIN }}.nc'
   read_from_file: 1
 
 output increment:
   datadir: ./
-  date: '{{ATM_WINDOW_BEGIN}}'
+  date: '{{ ATM_WINDOW_BEGIN }}'
   exp: filtered
   type: incr
-  output file: 'ocn.orig_ens_stddev.incr.{{ATM_WINDOW_BEGIN}}.nc'
+  output file: 'ocn.orig_ens_stddev.incr.{{ ATM_WINDOW_BEGIN }}.nc'
