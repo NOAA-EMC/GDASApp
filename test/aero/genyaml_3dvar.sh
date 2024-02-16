@@ -43,9 +43,8 @@ npy = case + 1
 npz = levs - 1
 
 cycle_dict = {
-    'AERO_WINDOW_BEGIN': win_begin.strftime('%Y-%m-%dT%H:%M:%SZ'),
-    'BKG_ISOTIME': valid_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ'),
-    'BKG_YYYYmmddHHMMSS': valid_time_obj.strftime('%Y%m%d.%H%M%S'),
+    'AERO_WINDOW_BEGIN': win_begin,
+    'current_cycle': valid_time_obj,
 }
 
 exp_dict = {
