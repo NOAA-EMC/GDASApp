@@ -299,7 +299,6 @@ ufsda.stage.soca_fix(stage_cfg)
 if dohybvar:
     logger.info("---------------- Stage ensemble members")
     nmem_ens = int(os.getenv('NMEM_ENS'))
-    shortname = {'ocean': 'ocn', 'ice': 'ice'}
     ens_member_list = []
     for mem in range(1, nmem_ens+1):
         for domain in ['ocean', 'ice']:
@@ -312,7 +311,7 @@ if dohybvar:
             f009 = f'enkfgdas.{domain}.t{gcyc}z.inst.f009.nc'
 
             fname_in = os.path.abspath(os.path.join(ensdir_real, f009))
-            fname_out = os.path.realpath(os.path.join(static_ens, shortname[domain]+"."+str(mem)+".nc"))
+            fname_out = os.path.realpath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
             ens_member_list.append([fname_in, fname_out])
     FileHandler({'copy': ens_member_list}).sync()
 
