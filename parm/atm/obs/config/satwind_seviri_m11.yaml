@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)satwnd.seviri_m11.tm00.nc
+      obsfile: {{ DATA }}/obs/{{ OPREFIX }}satwnd.seviri_m11.tm00.nc
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_satwind_seviri_m11_{{ current_cycle | to_YMDH }}.nc
+      obsfile: {{ DATA }}/diags/diag_satwind_seviri_m11_{{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [windEastward, windNorthward]

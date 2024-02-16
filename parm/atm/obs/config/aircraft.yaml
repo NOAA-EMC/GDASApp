@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)aircraft.${{ current_cycle | to_YMDH }}.nc4
+      obsfile: {{ DATA }}/obs/{{ OPREFIX }}aircraft.${{ current_cycle | to_YMDH }}.nc4
     obsgrouping:
       group variables: ["stationIdentification"]
       sort variable: "pressure"
@@ -11,7 +11,7 @@ obs space:
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_aircraft_${{ current_cycle | to_YMDH }}.nc4
+      obsfile: {{ DATA }}/diags/diag_aircraft_${{ current_cycle | to_YMDH }}.nc4
   io pool:
     max pool size: 1
   simulated variables: [windEastward, windNorthward, airTemperature, specificHumidity]

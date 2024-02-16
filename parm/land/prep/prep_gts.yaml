@@ -1,6 +1,6 @@
 gtsbufr:
   mkdir:
-    - $(DATA)/obs
+    - {{ DATA }}/obs
   copy:
     - [{{ COM_OBS }}/{{ OPREFIX }}adpsfc.tm00.bufr_d, {{ DATA }}/obs/]
 gtsioda:

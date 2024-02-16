@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine: 
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)conventional_ps.prepbufr.nc
+      obsfile: {{ DATA }}/obs/{{ OPREFIX }}conventional_ps.prepbufr.nc
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_conventional_ps_prepbufr_{{ current_cycle | to_YMDH }}.nc
+      obsfile: {{ DATA }}/diags/diag_conventional_ps_prepbufr_{{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [stationPressure]

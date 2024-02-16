@@ -10,7 +10,7 @@ components:
       active variables: &active_vars [psi,chi,t,ps,rh,liq_wat,o3mr]
       bump:
         io:
-          data directory: &staticb_dir $(DATA)/berror
+          data directory: &staticb_dir {{ DATA }}/berror
         drivers:
           multivariate strategy: specific_univariate
           read local nicas: true
@@ -105,7 +105,7 @@ components:
         filename_sfcw: '{{ current_cycle | to_fv3time }}.fv_srf_wnd.res.nc'
         filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
       pattern: '%mem%'
-      nmembers: $(NMEM_ENS)
+      nmembers: {{ NMEM_ENS }}
       zero padding: 3
 #    localization:
 #      localization method: SABER

@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)amsua_n19.{{ current_cycle | to_YMDH }}.nc4
+      obsfile: {{ DATA }}/obs/{{ OPREFIX }}amsua_n19.{{ current_cycle | to_YMDH }}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_amsua_n19_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: {{ DATA }}/diags/diag_amsua_n19_{{ current_cycle | to_YMDH }}.nc4
   io pool:
     max pool size: 1
   simulated variables: [brightnessTemperature]
@@ -20,16 +20,16 @@ obs operator:
   obs options:
     Sensor_ID: amsua_n19
     EndianType: little_endian
-    CoefficientPath: $(DATA)/crtm/
+    CoefficientPath: {{ DATA }}/crtm/
 obs bias:
-  input file: $(DATA)/obs/$(GPREFIX)amsua_n19.satbias.nc4
-  output file: $(DATA)/bc/$(APREFIX)amsua_n19.satbias.nc4
+  input file: {{ DATA }}/obs/{{ GPREFIX }}amsua_n19.satbias.nc4
+  output file: {{ DATA }}/bc/{{ APREFIX }}amsua_n19.satbias.nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &amsua_n19_tlapse $(DATA)/obs/$(GPREFIX)amsua_n19.tlapse.txt
+      tlapse: &amsua_n19_tlapse {{ DATA }}/obs/{{ GPREFIX }}amsua_n19.tlapse.txt
     - name: lapse_rate
       tlapse: *amsua_n19_tlapse
     - name: emissivity
@@ -46,11 +46,11 @@ obs bias:
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: $(DATA)/obs/$(GPREFIX)amsua_n19.satbias_cov.nc4
+      input file: {{ DATA }}/obs/{{ GPREFIX }}amsua_n19.satbias_cov.nc4
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0
-    output file: $(DATA)/bc/$(APREFIX)amsua_n19.satbias_cov.nc4
+    output file: {{ DATA }}/bc/{{ APREFIX }}amsua_n19.satbias_cov.nc4
 obs filters:
 - filter: BlackList
   filter variables:

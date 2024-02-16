@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)mtiasi_metop-b.tm00.nc
+      obsfile: {{ DATA }}/obs/{{ OPREFIX }}mtiasi_metop-b.tm00.nc
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_iasi_metop-b_{{ current_cycle | to_YMDH }}.nc
+      obsfile: {{ DATA }}/diags/diag_iasi_metop-b_{{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   observed variables: [radiance]
@@ -69,19 +69,19 @@ obs operator:
   obs options:
     Sensor_ID: iasi_metop-b 
     EndianType: little_endian
-    CoefficientPath: $(DATA)/crtm/
+    CoefficientPath: {{ DATA }}/crtm/
   linear obs operator:
     Absorbers: [H2O,O3]
 
 obs bias:
-  input file: $(DATA)/obs/$(GPREFIX)iasi_metop-b.satbias.nc4
-  output file: $(DATA)/bc/$(APREFIX)iasi_metop-b.satbias.nc4
+  input file: {{ DATA }}/obs/{{ GPREFIX }}iasi_metop-b.satbias.nc4
+  output file: {{ DATA }}/bc/{{ APREFIX }}iasi_metop-b.satbias.nc4
   variational bc:
     predictors:
     - name: constant
     - name: lapse_rate
       order: 2
-      tlapse: &iasi_metop-b_tlapse $(DATA)/obs/$(GPREFIX)iasi_metop-b.tlapse.txt
+      tlapse: &iasi_metop-b_tlapse {{ DATA }}/obs/{{ GPREFIX }}iasi_metop-b.tlapse.txt
     - name: lapse_rate
       tlapse: *iasi_metop-b_tlapse
     - name: emissivity
@@ -98,11 +98,11 @@ obs bias:
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: $(DATA)/obs/$(GPREFIX)iasi_metop-b.satbias_cov.nc4
+      input file: {{ DATA }}/obs/{{ GPREFIX }}iasi_metop-b.satbias_cov.nc4
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0
-    output file: $(DATA)/bc/$(APREFIX)iasi_metop-b.satbias_cov.nc4
+    output file: {{ DATA }}/bc/{{ APREFIX }}iasi_metop-b.satbias_cov.nc4
 
 obs pre filters:
 # Step 0-A: Create Diagnostic Flags

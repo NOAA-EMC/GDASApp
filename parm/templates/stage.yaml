@@ -1,5 +1,5 @@
 window begin: '{{window_begin}}'
-window length: $(window_length)
+window length: {{ window_length }}
 observations: !INC ${OBS_YAML}
 background_dir: '{{background_dir}}'
 staticb_dir: !ENV ${STATICB_DIR}

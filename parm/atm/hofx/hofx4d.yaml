@@ -1,21 +1,21 @@
 time window:
   begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
-  length: $(ATM_WINDOW_LENGTH)
-forecast length: $(ATM_WINDOW_LENGTH)
+  length: {{ ATM_WINDOW_LENGTH }}
+forecast length: {{ ATM_WINDOW_LENGTH }}
 geometry:
   fms initialization:
-    namelist filename: $(DATA)/fv3jedi/fmsmpp.nml
-    field table filename: $(DATA)/fv3jedi/field_table
-  akbk: $(DATA)/fv3jedi/akbk.nc4
+    namelist filename: {{ DATA }}/fv3jedi/fmsmpp.nml
+    field table filename: {{ DATA }}/fv3jedi/field_table
+  akbk: {{ DATA }}/fv3jedi/akbk.nc4
   layout:
-  - $(layout_x)
-  - $(layout_y)
-  npx: $(npx_ges)
-  npy: $(npy_ges)
-  npz: $(npz_ges)
-  field metadata override: $(DATA)/fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+  - {{ layout_x }}
+  - {{ layout_y }}
+  npx: {{ npx_ges }}
+  npy: {{ npy_ges }}
+  npz: {{ npz_ges }}
+  field metadata override: {{ DATA }}/fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 initial condition:
-  datapath: $(DATA)/bkg
+  datapath: {{ DATA }}/bkg
   filetype: fms restart
   datetime: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
   filename_core: '{{ ATM_WINDOW_BEGIN | to_fv3time }}.fv_core.res.nc'
@@ -28,7 +28,7 @@ initial condition:
                     u_srf,v_srf,f10m]
 model:
   name: PSEUDO
-  datapath: $(DATA)/bkg
+  datapath: {{ DATA }}/bkg
   filetype: fms restart
   datetime: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
   filename is datetime templated: true
@@ -37,7 +37,7 @@ model:
   filename_sfcd: '%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc'
   filename_sfcw: '%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc'
   filename_cplr: '%yyyy%mm%dd.%hh%MM%ss.coupler.res'
-  tstep: $(BKG_TSTEP)
+  tstep: {{ BKG_TSTEP }}
   model variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
                     slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                     u_srf,v_srf,f10m]

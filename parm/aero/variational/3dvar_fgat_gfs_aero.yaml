@@ -2,7 +2,7 @@ cost function:
   cost type: 3D-FGAT
   time window:
     begin: '{{ AERO_WINDOW_BEGIN | to_isotime }}'
-    length: $(AERO_WINDOW_LENGTH)
+    length: {{ AERO_WINDOW_LENGTH }}
   analysis variables: &3dvars
                       [mass_fraction_of_sulfate_in_air,
                        mass_fraction_of_hydrophobic_black_carbon_in_air,
@@ -20,11 +20,11 @@ cost function:
       field table filename: ./fv3jedi/field_table
     akbk: ./fv3jedi/akbk.nc4
     layout:
-    - $(layout_x)
-    - $(layout_y)
-    npx: $(npx_ges)
-    npy: $(npy_ges)
-    npz: $(npz_ges)
+    - {{ layout_x }}
+    - {{ layout_y }}
+    npx: {{ npx_ges }}
+    npy: {{ npy_ges }}
+    npz: {{ npz_ges }}
     field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
   model:
     name: PSEUDO
@@ -60,11 +60,11 @@ variational:
         field table filename: ./fv3jedi/field_table
       akbk: ./fv3jedi/akbk.nc4
       layout:
-      - $(layout_x)
-      - $(layout_y)
-      npx: $(npx_anl)
-      npy: $(npy_anl)
-      npz: $(npz_anl)
+      - {{ layout_x }}
+      - {{ layout_y }}
+      npx: {{ npx_anl }}
+      npy: {{ npy_anl }}
+      npz: {{ npz_anl }}
       field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
     diagnostics:
       departures: bkgmob
@@ -77,11 +77,11 @@ variational:
         field table filename: ./fv3jedi/field_table
       akbk: ./fv3jedi/akbk.nc4
       layout:
-      - $(layout_x)
-      - $(layout_y)
-      npx: $(npx_anl)
-      npy: $(npy_anl)
-      npz: $(npz_anl)
+      - {{ layout_x }}
+      - {{ layout_y }}
+      npx: {{ npx_anl }}
+      npy: {{ npy_anl }}
+      npz: {{ npz_anl }}
       field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
     diagnostics:
       departures: bkgmob1
@@ -95,11 +95,11 @@ final:
         field table filename: ./fv3jedi/field_table
       akbk: ./fv3jedi/akbk.nc4
       layout:
-      - $(layout_x)
-      - $(layout_y)
-      npx: $(npx_ges)
-      npy: $(npy_ges)
-      npz: $(npz_ges)
+      - {{ layout_x }}
+      - {{ layout_y }}
+      npx: {{ npx_ges }}
+      npy: {{ npy_ges }}
+      npz: {{ npz_ges }}
       field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
     output:
       state component:
