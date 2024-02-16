@@ -42,9 +42,6 @@ done
 # invent static ensemble
 clim_ens_dir=${project_binary_dir}/soca_static/bkgerr/ens/2019-07-10T00Z
 mkdir -p ${clim_ens_dir}
-declare -A domain_long_names
-domain_long_names["ocn"]="ocean"
-domain_long_names["ice"]="ice"
 for domain in "ocean" "ice"; do
     list_of_ocn_fcst=$(ls ${COM}/06/model_data/${domain}/history/gdas.${domain}.t06z.inst.f*.nc)
     counter=1
@@ -70,8 +67,8 @@ do
     # ocean member
     oceandir=${COMENS}/06/mem00${mem}/model_data/ocean/history
     mkdir -p $oceandir
-    cp ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.ocean.t06z.inst.f009.nc
-    echo ${clim_ens_dir}/ocn.${mem}.nc $oceandir/enkfgdas.ocean.t06z.inst.f009.nc
+    cp ${clim_ens_dir}/ocean.${mem}.nc $oceandir/enkfgdas.ocean.t06z.inst.f009.nc
+
     # ice member
     icedir=${COMENS}/06/mem00${mem}/model_data/ice/history
     mkdir -p $icedir
