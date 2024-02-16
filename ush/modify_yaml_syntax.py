@@ -4,10 +4,12 @@ import sys
 import re
 fname = sys.argv[1]
 
+
 def get_word_in_dollar_parentheses(text):
     pattern = r'\$\((.*?)\)'
     matches = re.findall(pattern, text)
     return matches
+
 
 with open(fname, 'r') as file:
     filedata = file.readlines()
