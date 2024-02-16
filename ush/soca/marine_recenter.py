@@ -36,13 +36,6 @@ class MarineRecenter(Task):
     def initialize(self):
         logger.info("initialize")
 
-        FileHandler({'mkdir': [self.task_config.diags,
-                               self.task_config.obs_in,
-                               self.task_config.bkg_dir,
-                               self.task_config.anl_out,
-                               self.task_config.static_ens]}).sync()
-
-
 
     @logit(logger)
     def run(self):

@@ -35,6 +35,7 @@ gw environement:
 
   run scripts:
     GDASPREPOCNOBSPY: @HOMEgfs@/sorc/gdas.cd/scripts/exglobal_prep_ocean_obs.py
+    GDASOCNCENPY: @HOMEgfs@/sorc/gdas.cd/scripts/exgdas_global_marine_analysis_ecen.py
 
 setup_expt config:
   base:

@@ -6,6 +6,7 @@
 import os
 
 from wxflow import Logger, cast_strdict_as_dtypedict
+# TODO (AFE): change to from pygfs.task.marine_recenter import MarineRecenter
 from soca.marine_recenter import MarineRecenter
 
 # Initialize root logger
