@@ -133,7 +133,7 @@ try:
                 obsprepSpace['input files'] = matchingFiles
                 obsprepSpace['window begin'] = windowBegin
                 obsprepSpace['window end'] = windowEnd
-                outputFilename = f"gdas.t{cyc}z.{obs_space_name}.{PDY}{cyc}.nc4"
+                outputFilename = f"{RUN}.t{cyc}z.{obs_space_name}.{PDY}{cyc}.nc4"
                 obsprepSpace['output file'] = outputFilename
 
                 if obsprepSpace['type'] == 'bufr':
