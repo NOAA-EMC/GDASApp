@@ -28,9 +28,11 @@ mkdir -p $DATA
 # run some python code to generate the YAML
 python3 - <<EOF
 from wxflow import AttrDict, Template, TemplateConstants, YAMLFile
+from wxflow import parse_j2yaml
+import os
 import datetime
 
-config = YAMLFile(path='$YAMLin')
+config = parse_j2yaml('$YAMLin', os.environ)
 valid_time_obj = datetime.datetime.strptime('$CDATE','%Y%m%d%H')
 winlen = $assim_freq
 win_begin = valid_time_obj - datetime.timedelta(hours=int(winlen)/2)
@@ -58,7 +60,7 @@ exp_dict = {
 
 
 config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, cycle_dict.get)
-config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, exp_dict.get)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, exp_dict.get)
 
 config.save('$YAMLout')
 EOF
