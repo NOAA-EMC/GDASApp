@@ -22,7 +22,7 @@ soca increments:
   template:
     date: 2018-04-15T09:00:00Z
     basename: ./static_ens/
-    ocn_filename: 'ocn.%mem%.nc'
+    ocn_filename: 'ocean.%mem%.nc'
     read_from_file: 3
 
 steric height:
