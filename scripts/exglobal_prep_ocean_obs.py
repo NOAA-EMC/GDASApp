@@ -7,8 +7,13 @@ import os
 from pathlib import Path
 import subprocess
 from soca import prep_marine_obs
-from wxflow import YAMLFile, save_as_yaml, FileHandler, Logger
-from wxflow import add_to_datetime, to_timedelta, datetime_to_YMDH
+from wxflow import add_to_datetime, \
+                   datetime_to_YMDH, \
+                   FileHandler, \
+                   Logger, \
+                   save_as_yaml, \
+                   to_timedelta, \
+                   YAMLFile
 from gen_bufr2ioda_json import gen_bufr_json
 
 logger = Logger()
@@ -22,7 +27,7 @@ COMIN_OBS = os.getenv('COMIN_OBS')
 cdateDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
 windowBeginDatetime = cdateDatetime - timedelta(hours=3)
 windowEndDatetime = cdateDatetime + timedelta(hours=3)
-windowBegin = windowBeginDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
+
 windowEnd = windowEndDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 OCNOBS2IODAEXEC = os.getenv('OCNOBS2IODAEXEC')
