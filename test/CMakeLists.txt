@@ -140,9 +140,9 @@ if (${BUILD_GDASBUNDLE})
   add_subdirectory(soca)
 endif()
 
-# land tests
+# snow da tests
 if (${BUILD_GDASBUNDLE})
-  add_subdirectory(land)
+  add_subdirectory(snow)
 endif()
 
 # gdas atm tests

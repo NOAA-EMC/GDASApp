@@ -36,7 +36,7 @@ geometry:
   ntiles: '6'
   time invariant fields:
     state fields:
-      datapath: Data/land/C48
+      datapath: Data/snow/C48
       datetime: '2021-03-23T15:00:00Z'
       filename_orog: C48_oro_data
       filetype: fms restart

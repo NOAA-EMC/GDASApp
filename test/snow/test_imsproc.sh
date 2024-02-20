@@ -16,10 +16,10 @@ GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 DOY=$(date +%j -d "$YY$MM$DD + 1 day")
 
 EXECDIR=$project_source_dir/build/bin
-WORKDIR=$project_binary_dir/test/land/ims_proc
+WORKDIR=$project_binary_dir/test/snow/ims_proc
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model_data/atmos/restart
 
-export OBSDIR=$GDASAPP_TESTDATA/land/snow_ice_cover
+export OBSDIR=$GDASAPP_TESTDATA/snow/snow_ice_cover
 export TSTUB="oro_C${RES}.mx100"
 
 if [[ -e $WORKDIR ]]; then
@@ -59,7 +59,7 @@ ${EXECDIR}/calcfIMS.exe
 export PYTHONPATH=$PYTHONPATH:${project_source_dir}/iodaconv/src/:${project_source_dir}/build/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}
 IMS_IODA=${EXECDIR}/imsfv3_scf2ioda.py
 
-echo 'do_landDA: calling ioda converter'
+echo 'do_snowDA: calling ioda converter'
 python ${IMS_IODA} -i IMSscf.${YY}${MM}${DD}.${TSTUB}.nc -o ioda.IMSscf.${YY}${MM}${DD}.${TSTUB}.nc
 
 rc=$?
