@@ -80,7 +80,7 @@ obs post filters:
     action:
       name: reject
   - filter: Temporal Thinning
-    min_spacing: '{{ LAND_WINDOW_LENGTH }}'
+    min_spacing: '{{ SNOW_WINDOW_LENGTH }}'
     seed_time: '{{ current_cycle | to_isotime }}'
     category_variable:
       name: MetaData/stationIdentification
