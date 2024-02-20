@@ -221,33 +221,32 @@ namespace gdasapp {
           oops::Log::test() << checksum(datetime_, "datetime") << std::endl;
         }
 
-       // Convert JulianDate and second
-       void JulianDateTime(const std::string & str, int64_t & DAwindow) {
+       // Convert ISO 8601 formatted datetime to epoch seconds
+       void DateToSeconds(const std::string & str, int64_t & start_end_seconds) {
          int year, month, day, hour, minute, second;
          util::datefunctions::stringToYYYYMMDDhhmmss(str, year, month, day, hour, minute, second);
          uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
          // Since Epoch 1858-11-17
          int daysSinceEpoch = julianDate - 2400002;
          int secondsOffset = util::datefunctions::hmsToSeconds(hour, minute, second);
-         DAwindow = (daysSinceEpoch * 86400) + secondsOffset;
+         start_end_seconds = (daysSinceEpoch * 86400) + secondsOffset;
        }
 
        // Changing the date and Adjusting Errors
-       void reDate(int64_t minDAwindow, int64_t maxDAwindow,
-                   float errInitial, int64_t errDuration) {
+       void reDate(int64_t minDAwindow, int64_t maxDAwindow, float errRatio) {
          for (int i = 0; i < location_; i++) {
            if (datetime_(i) < minDAwindow) {
              int delta_t = minDAwindow - datetime_(i);
              datetime_(i) = minDAwindow + 1;
              // one second is used for safety falling in min Da window
-             obsError_(i) += errInitial / (3600 * errDuration) * delta_t;
+             obsError_(i) += errRatio * delta_t;
            }
            if (maxDAwindow < datetime_(i)) {
              int delta_t = datetime_(i) - maxDAwindow;
              datetime_(i) = maxDAwindow - 1;
              // one second is used for safety falling in max Da window
-             obsError_(i) += errInitial / (3600 * errDuration) * delta_t;
-             // Errors are adjusted linearly based on 0.1 meter (initial) per 6 (duration) hours
+             obsError_(i) += errRatio * delta_t;
+             // Error Ratio comes from configuration based on 0.1 meter per 6 hours
            }
          }
          oops::Log::info() << "IodaVars::IodaVars done redating & adjsting errors." << std::endl;

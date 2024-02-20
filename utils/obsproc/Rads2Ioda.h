@@ -30,10 +30,8 @@ namespace gdasapp {
       oops::Log::info() << "Processing files provided by the RADS" << std::endl;
 
       // Get the window cycle from the configuration
-      float errInitial;
-      fullConfig_.get("error.initial", errInitial);
-      int64_t errDuration;
-      fullConfig_.get("error.duration of hours", errDuration);
+      float errRatio;
+      fullConfig_.get("error ratio", errRatio);
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
@@ -118,7 +116,7 @@ namespace gdasapp {
         iodaVars.latitude_(i) = static_cast<float>(lat[i])*geoscaleFactor;
         iodaVars.datetime_(i) = static_cast<int64_t>(datetime[i]*86400.0f);
         iodaVars.obsVal_(i) = static_cast<float>(adt[i])*scaleFactor;
-        iodaVars.obsError_(i) = static_cast<float>(errInitial);  // Initial error
+        iodaVars.obsError_(i) = 0.1;  // only within DA window
         iodaVars.preQc_(i) = 0;
         // Save MDT in optional floatMetadata
         iodaVars.floatMetadata_.row(i) << iodaVars.obsVal_(i) -
@@ -134,17 +132,17 @@ namespace gdasapp {
       if (iodaVars.datetime_.size() == 0) {
         oops::Log::info() << "datetime_ is empty" << std::endl;
       } else {
-        int64_t DAwindow;
+        int64_t start_end_seconds;
         // Calculate seconds at DA window begins
-        iodaVars.JulianDateTime(windowBegin_.toString(), DAwindow);
-        int64_t minDAwindow = DAwindow;
+        iodaVars.DateToSeconds(windowBegin_.toString(), start_end_seconds);
+        int64_t minDAwindow = start_end_seconds;
 
         // Calculate seconds at DA window ends
-        iodaVars.JulianDateTime(windowEnd_.toString(), DAwindow);
-        int64_t maxDAwindow = DAwindow;
+        iodaVars.DateToSeconds(windowEnd_.toString(), start_end_seconds);
+        int64_t maxDAwindow = start_end_seconds;
 
         // Redating and Adjusting Error
-        iodaVars.reDate(minDAwindow, maxDAwindow, errInitial, errDuration);
+        iodaVars.reDate(minDAwindow, maxDAwindow, errRatio);
 
         return iodaVars;
       }

@@ -5,9 +5,9 @@ obsVal:
     Max: 1.3761
     Sum: 27.6532
 obsError:
-    Min: 0.407333
-    Max: 0.419185
-    Sum: 9.0917
+    Min: 0.407358
+    Max: 0.419211
+    Sum: 9.09225
 preQc:
     Min: 0
     Max: 0
