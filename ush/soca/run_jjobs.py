@@ -186,8 +186,8 @@ class JobCard:
         com_ocean_history_src = os.path.join(model_data, 'ocean', 'history')
         com_ice_history_src = os.path.join(model_data, 'ice', 'history')
         com_ice_restart_src = os.path.join(model_data, 'ice', 'restart')
-        self.f.write(f"cp {com_ocean_history_src}/*ocnf*.nc $COM_OCEAN_HISTORY_PREV \n")
-        self.f.write(f"cp {com_ice_history_src}/*icef*.nc $COM_ICE_HISTORY_PREV \n")
+        self.f.write(f"cp {com_ocean_history_src}/*.ocean.*.nc $COM_OCEAN_HISTORY_PREV \n")
+        self.f.write(f"cp {com_ice_history_src}/*.ice.*.nc $COM_ICE_HISTORY_PREV \n")
         self.f.write(f"cp {com_ice_restart_src}/*cice_model*.nc $COM_ICE_RESTART_PREV \n")
 
         # copy ensemble members
