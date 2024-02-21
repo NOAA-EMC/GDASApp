@@ -104,9 +104,9 @@ CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_BUILD}"
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [[ $BUILD_TARGET == 'hera' ]]; then
-  if [ -d "$dir_root/test-data-release/" ]; then rm -rf $dir_root/test-data-release/; fi
-  mkdir -p $dir_root/test-data-release/
-  ln -sf $GDASAPP_TESTDATA/crtm $dir_root/test-data-release/crtm
+  if [ -d "$dir_root/fix/test-data-release/" ]; then rm -rf $dir_root/fix/test-data-release/; fi
+  mkdir -p $dir_root/fix/test-data-release/
+  ln -sf $GDASAPP_TESTDATA/crtm $dir_root/fix/test-data-release/crtm
 fi
 
 # Configure
