@@ -114,7 +114,7 @@ echo "Configuring ..."
 set -x
 cmake \
   ${CMAKE_OPTS:-} \
-  $dir_root/sorc
+  $dir_root/bundle
 set +x
 
 # Build
