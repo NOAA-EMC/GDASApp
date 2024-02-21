@@ -42,7 +42,7 @@ namespace gdasapp {
       const fv3jedi::Increment dx(geom, incrConfig, xxBkg.validTime());
       oops::Log::info() << "Increment: " << std::endl << dx << std::endl;
 
-      // Setup variables change 
+      // Setup variables change
       std::unique_ptr<fv3jedi::VariableChange> vc;
       const eckit::LocalConfiguration varChangeConfig(fullConfig, "variable change");
       oops::Variables varout(varChangeConfig, "output variables");
@@ -55,7 +55,7 @@ namespace gdasapp {
       // Add increment to background to get analysis
       fv3jedi::State xxAnl(geom, xxBkg);
       xxAnl += dx;
-       
+
       // Perform variables change on background and analysis
       vc->changeVar(xxBkg, varout);
       vc->changeVar(xxAnl, varout);
