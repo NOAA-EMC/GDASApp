@@ -7,13 +7,15 @@ import os
 from pathlib import Path
 import subprocess
 from soca import prep_marine_obs
-from wxflow import (add_to_datetime,
+from wxflow import (
+add_to_datetime,
 datetime_to_YMDH,
 FileHandler,
 Logger,
 save_as_yaml,
 to_timedelta,
-YAMLFile)
+YAMLFile
+)
 from gen_bufr2ioda_json import gen_bufr_json
 
 logger = Logger()
