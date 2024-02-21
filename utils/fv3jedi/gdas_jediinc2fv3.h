@@ -2,19 +2,20 @@
 
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <string>
 
 #include "eckit/config/LocalConfiguration.h"
 
-#include "oops/runs/Application.h"
+#include "fv3jedi/Geometry/Geometry.h"
+#include "fv3jedi/Increment/Increment.h"
+#include "fv3jedi/State/State.h"
+#include "fv3jedi/VariableChange/VariableChange.h"
+
 #include "oops/mpi/mpi.h"
+#include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Logger.h"
-
-#include "fv3jedi/Geometry/Geometry.h"
-#include "fv3jedi/State/State.h"
-#include "fv3jedi/Increment/Increment.h"
-#include "fv3jedi/VariableChange/VariableChange.h"
 
 namespace gdasapp {
 
