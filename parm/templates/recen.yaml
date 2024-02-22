@@ -1,0 +1,12 @@
+window begin: '{{window_begin}}'
+window length: $(window_length)
+background_dir: '{{background_dir}}'
+staticb_dir: !ENV ${STATICB_DIR}
+COMOUT: !ENV ${COMOUT}
+DATA: !ENV ${DATA}
+background_time: '{{background_time}}'
+dump: !ENV ${CDUMP}
+fv3jedi_stage_files: !ENV ${FV3JEDI_STAGE_YAML}
+fv3jedi_stage: !ENV ${FV3JEDI_STAGE_YAML}
+stage_dir: !ENV ${DATA}
+soca_input_fix_dir: !ENV ${SOCA_INPUT_FIX_DIR}
