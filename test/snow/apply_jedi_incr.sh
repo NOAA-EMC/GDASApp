@@ -15,11 +15,11 @@ GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
 GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 
 EXECDIR=$project_source_dir/build/bin
-WORKDIR=$project_binary_dir/test/land/apply_jedi_incr
+WORKDIR=$project_binary_dir/test/snow/apply_jedi_incr
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model_data/atmos/restart
-INCDIR=$GDASAPP_TESTDATA/land/C${RES}
+INCDIR=$GDASAPP_TESTDATA/snow/C${RES}
 
-export TPATH="$GDASAPP_TESTDATA/land/C${RES}"
+export TPATH="$GDASAPP_TESTDATA/snow/C${RES}"
 export TSTUB="C${RES}_oro_data"
 
 if [[ -e $WORKDIR ]]; then
@@ -58,13 +58,13 @@ done
 # stage increments
 for tile in 1 2 3 4 5 6
 do
-  if [[ ! -e landinc.${FILEDATE}.sfc_data.tile${tile}.nc ]]; then
-    cp ${INCDIR}/${FILEDATE}.xainc.sfc_data.tile${tile}.nc landinc.${FILEDATE}.sfc_data.tile${tile}.nc
+  if [[ ! -e snowinc.${FILEDATE}.sfc_data.tile${tile}.nc ]]; then
+    cp ${INCDIR}/${FILEDATE}.xainc.sfc_data.tile${tile}.nc snowinc.${FILEDATE}.sfc_data.tile${tile}.nc
   fi
 done
 
 
-echo 'do_landDA: calling apply snow increment'
+echo 'do_snowDA: calling apply snow increment'
 
 # (n=6) -> this is fixed, at one task per tile (with minor code change, could run on a single proc).
 srun '--export=ALL' -n 6 ${EXECDIR}/apply_incr.exe ${WORKDIR}/apply_incr.log

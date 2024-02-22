@@ -12,6 +12,7 @@ logger = Logger()
 
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
+RUN = os.getenv('RUN')
 
 # Set the window times
 cdateDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
@@ -91,7 +92,7 @@ try:
                 obsprepSpace['input files'] = matchingFiles
                 obsprepSpace['window begin'] = windowBegin
                 obsprepSpace['window end'] = windowEnd
-                outputFilename = f"gdas.t{cyc}z.{obs_space_name}.{PDY}{cyc}.nc4"
+                outputFilename = f"{RUN}.t{cyc}z.{obs_space_name}.{PDY}{cyc}.nc4"
                 obsprepSpace['output file'] = outputFilename
 
                 # Skip in situ IODA conversion for now

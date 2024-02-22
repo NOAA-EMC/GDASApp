@@ -1,13 +1,12 @@
 #!/bin/bash
-set -e
-################################################
-# 4. CREATE BACKGROUND ENSEMBLE (LETKFOI)
+set -xe
 ################################################
 YY=2021
 MM=03
 DD=23
 HH=18
 FILEDATE=$YY$MM$DD.${HH}0000
+RES=48
 
 project_binary_dir=$1
 project_source_dir=$2
@@ -15,9 +14,12 @@ project_source_dir=$2
 GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
 GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 
-WORKDIR=$project_binary_dir/test/land/create_jedi_ens
+EXECDIR=$project_source_dir/build/bin
+WORKDIR=$project_binary_dir/test/snow/letkfoi_snowda
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model_data/atmos/restart
-GFSv17=NO
+export OBSDIR=$GDASAPP_TESTDATA/snow
+
+GFSv17=${GFSv17:-"YES"}
 DAtype=letkfoi_snow
 
 if [ $GFSv17 == "YES" ]; then
@@ -25,6 +27,12 @@ if [ $GFSv17 == "YES" ]; then
 else
     SNOWDEPTHVAR="snwdph"
 fi
+
+if [[ -e $WORKDIR ]]; then
+  rm -rf $WORKDIR
+fi
+mkdir -p $WORKDIR
+cd $WORKDIR
 
 if [[ ${DAtype} == 'letkfoi_snow' ]]; then
 
@@ -47,13 +55,26 @@ if [[ ${DAtype} == 'letkfoi_snow' ]]; then
     done
 
 
-    echo 'do_landDA: calling create ensemble'
+    echo 'do_snowDA: calling create ensemble'
 
-    python ${project_source_dir}/ush/land/letkf_create_ens.py $FILEDATE $SNOWDEPTHVAR $B $WORKDIR
-
-    rc=$?
-
-    exit $rc
+    python ${project_source_dir}/ush/snow/letkf_create_ens.py $FILEDATE $SNOWDEPTHVAR $B $WORKDIR
 
 fi
+############################################
+# Prepare and Run JEDI
+############################################
+mkdir -p Data diags
+mkdir -p Data/fieldmetadata
+ln -s ${project_source_dir}/parm/io/fv3jedi_fieldmetadata_restart.yaml Data/fieldmetadata/.
+ln -s ${project_source_dir}/sorc/fv3-jedi/test/Data/fv3files Data/fv3files
+ln -s ${project_source_dir}/test/snow/letkfoi_snow.yaml letkf_snow.yaml
+ln -s ${OBSDIR}/snow_depth/GTS/202103/adpsfc_snow_2021032318.nc4 adpsfc_snow.nc4
+ln -s ${OBSDIR} Data/snow
+echo 'do_snowDA: calling fv3-jedi'
+
+srun '--export=ALL' -n 6 ${EXECDIR}/${JEDI_EXEC} letkf_snow.yaml
+
+rc=$?
+
+exit $rc
 
