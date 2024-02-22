@@ -12,7 +12,6 @@
 
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
-#include "oops/util/dateFunctions.h"
 
 #include "NetCDFToIodaConverter.h"
 
@@ -29,7 +28,7 @@ namespace gdasapp {
     gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by the RADS" << std::endl;
 
-      // Get the window cycle from the configuration
+      // Get the obs. error ratio from the configuration
       float errRatio;
       fullConfig_.get("error ratio", errRatio);
 
@@ -132,17 +131,8 @@ namespace gdasapp {
       if (iodaVars.datetime_.size() == 0) {
         oops::Log::info() << "datetime_ is empty" << std::endl;
       } else {
-        int64_t start_end_seconds;
-        // Calculate seconds at DA window begins
-        iodaVars.DateToSeconds(windowBegin_.toString(), start_end_seconds);
-        int64_t minDAwindow = start_end_seconds;
-
-        // Calculate seconds at DA window ends
-        iodaVars.DateToSeconds(windowEnd_.toString(), start_end_seconds);
-        int64_t maxDAwindow = start_end_seconds;
-
         // Redating and Adjusting Error
-        iodaVars.reDate(minDAwindow, maxDAwindow, errRatio);
+        iodaVars.reDate(windowBegin_, windowEnd_, errRatio);
 
         return iodaVars;
       }

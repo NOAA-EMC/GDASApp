@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "ioda/../../../../core/IodaUtils.h"
 #include "oops/util/dateFunctions.h"
 
 namespace gdasapp {
@@ -221,30 +222,30 @@ namespace gdasapp {
           oops::Log::test() << checksum(datetime_, "datetime") << std::endl;
         }
 
-       // Convert ISO 8601 formatted datetime to epoch seconds
-       void DateToSeconds(const std::string & str, int64_t & start_end_seconds) {
-         int year, month, day, hour, minute, second;
-         util::datefunctions::stringToYYYYMMDDhhmmss(str, year, month, day, hour, minute, second);
-         uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
-         // Since Epoch 1858-11-17
-         int daysSinceEpoch = julianDate - 2400002;
-         int secondsOffset = util::datefunctions::hmsToSeconds(hour, minute, second);
-         start_end_seconds = (daysSinceEpoch * 86400) + secondsOffset;
-       }
-
        // Changing the date and Adjusting Errors
-       void reDate(int64_t minDAwindow, int64_t maxDAwindow, float errRatio) {
+       void reDate(const util::DateTime & windowBegin, const util::DateTime & windowEnd,
+                   float errRatio) {
+         // windowBegin and End into DAwindowTimes
+         std::vector<util::DateTime> DAwindowTimes = {windowBegin, windowEnd};
+         // Epoch DateTime from Provider
+         util::DateTime epochDtime("1858-11-17T00:00:00Z");
+         // Convert DA Window DateTime objects to epoch time offsets in seconds
+         std::vector<int64_t> timeOffsets
+                               = ioda::convertDtimeToTimeOffsets(epochDtime, DAwindowTimes);
+
+         int64_t minDAwindow = timeOffsets[0];
+         int64_t maxDAwindow = timeOffsets[1];
          for (int i = 0; i < location_; i++) {
            if (datetime_(i) < minDAwindow) {
              int delta_t = minDAwindow - datetime_(i);
              datetime_(i) = minDAwindow + 1;
-             // one second is used for safety falling in min Da window
+             // one second is used for safety falling in min DA window
              obsError_(i) += errRatio * delta_t;
            }
            if (maxDAwindow < datetime_(i)) {
              int delta_t = datetime_(i) - maxDAwindow;
              datetime_(i) = maxDAwindow - 1;
-             // one second is used for safety falling in max Da window
+             // one second is used for safety falling in max DA window
              obsError_(i) += errRatio * delta_t;
              // Error Ratio comes from configuration based on 0.1 meter per 6 hours
            }
