@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 
-import os
-from logging import getLogger
 from datetime import datetime, timedelta
+import f90nml
+from logging import getLogger
+import os
 from typing import Dict
 import ufsda
 from ufsda.stage import soca_fix
 from wxflow import (chdir,
                     Executable,
+                    FileHandler,
                     logit,
                     Task,
                     Template,
@@ -58,6 +60,11 @@ class MarineRecenter(Task):
         stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, self.window_config.get)
         self.stage_cfg = stage_cfg
 
+        self.config['window_begin'] = window_begin
+        self.config['mom_input_nml_src'] = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
+        self.config['mom_input_nml_tmpl'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml.tmpl')
+        self.config['mom_input_nml'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
+
         self.config['gridgen_yaml'] = os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml')
 
     @logit(logger)
@@ -74,6 +81,20 @@ class MarineRecenter(Task):
         logger.info("initialize")
 
         ufsda.stage.soca_fix(self.stage_cfg)
+
+        ################################################################################
+        # prepare input.nml
+        FileHandler({'copy': [[self.config.mom_input_nml_src, self.config.mom_input_nml_tmpl]]}).sync()
+
+        # swap date and stack size
+        domain_stack_size = self.config.DOMAIN_STACK_SIZE
+        ymdhms = [int(s) for s in self.config.window_begin.strftime('%Y,%m,%d,%H,%M,%S').split(',')]
+        with open(self.config.mom_input_nml_tmpl, 'r') as nml_file:
+            nml = f90nml.read(nml_file)
+            nml['ocean_solo_nml']['date_init'] = ymdhms
+            nml['fms_nml']['domains_stack_size'] = int(domain_stack_size)
+            ufsda.disk_utils.removefile(self.config.mom_input_nml)
+            nml.write(self.config.mom_input_nml)
 
     @logit(logger)
     def run(self):
