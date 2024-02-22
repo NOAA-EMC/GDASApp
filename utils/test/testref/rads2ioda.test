@@ -5,9 +5,9 @@ obsVal:
     Max: 1.3761
     Sum: 27.6532
 obsError:
-    Min: 0.407358
-    Max: 0.419211
-    Sum: 9.09225
+    Min: 0.1
+    Max: 0.1
+    Sum: 2.2
 preQc:
     Min: 0
     Max: 0
@@ -21,6 +21,6 @@ latitude:
     Max: 27.313
     Sum: 63.7285
 datetime:
-    Min: 5131738799
-    Max: 5131738799
-    Sum: 112898253578
+    Min: 5131805184
+    Max: 5131807744
+    Sum: 112899742208
