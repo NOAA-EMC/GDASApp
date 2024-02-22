@@ -6,7 +6,7 @@
 #
 # This code uses the python API to converter aircft and aircar bufr data into IODA.
 # The QC done was taken from the prepobs code, specifically iw3unpbf.f
-# Some of the rounding / was not done, such as multipying specific humidity by 1000 
+# Some of the rounding / was not done, such as multipying specific humidity by 1000
 # to make the units "g kg-1", or to multiply Temperature by 1000 (I don't know why it
 # was done to begin with, but IODA needs them in regular units so they stayed here.
 # There is Pressure in the prepbufr file but not in the bufr file and the iw3unpbf code
