@@ -6,7 +6,14 @@ from datetime import datetime, timedelta
 from typing import Dict
 import ufsda
 from ufsda.stage import soca_fix
-from wxflow import logit, Task, Template, TemplateConstants, YAMLFile
+from wxflow import (chdir,
+                    Executable,
+                    logit,
+                    Task,
+                    Template,
+                    TemplateConstants,
+                    WorkflowException,
+                    YAMLFile)
 
 logger = getLogger(__name__.split('.')[-1])
 
@@ -40,7 +47,6 @@ class MarineRecenter(Task):
         window_begin = cdate - half_assim_freq
         window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
         window_middle_iso = cdate.strftime('%Y-%m-%dT%H:%M:%SZ')
-        # fcst_begin = datetime.strptime(cdate, '%Y%m%d%H')
 
         self.window_config = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
                               'ATM_WINDOW_BEGIN': window_begin_iso,
@@ -51,6 +57,8 @@ class MarineRecenter(Task):
         stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, self.window_config.get)
         stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, self.window_config.get)
         self.stage_cfg = stage_cfg
+
+        self.config['gridgen_yaml'] = os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml')
 
     @logit(logger)
     def initialize(self):
@@ -79,6 +87,23 @@ class MarineRecenter(Task):
         """
 
         logger.info("run")
+
+        chdir(self.config.DATA)
+
+        exec_cmd = Executable(self.config.APRUN_OCNANALECEN)
+        exec_name = os.path.join(self.config.JEDI_BIN, 'soca_gridgen.x')
+        exec_cmd.add_default_arg(exec_name)
+        exec_cmd.add_default_arg(self.config.gridgen_yaml)
+
+        try:
+            logger.debug(f"Executing {exec_cmd}")
+            exec_cmd()
+        except OSError:
+            raise OSError(f"Failed to execute {exec_cmd}")
+        except Exception:
+            raise WorkflowException(f"An error occured during execution of {exec_cmd}")
+
+        pass
 
     @logit(logger)
     def finalize(self):
