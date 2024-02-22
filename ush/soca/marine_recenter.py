@@ -2,10 +2,11 @@
 
 import os
 from logging import getLogger
-from wxflow import logit, Task, YAMLFile
 from datetime import datetime, timedelta
 from typing import Dict
 import ufsda
+from ufsda.stage import soca_fix
+from wxflow import logit, Task, Template, TemplateConstants, YAMLFile
 
 logger = getLogger(__name__.split('.')[-1])
 
@@ -47,7 +48,7 @@ class MarineRecenter(Task):
              'ATM_WINDOW_MIDDLE': window_middle_iso,
              'ATM_WINDOW_LENGTH': f"PT{config['assim_freq']}H"}
 
-        stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'stage.yaml'))
+        stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'recen.yaml'))
         stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, self.window_config.get)
         stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, self.window_config.get)
         self.stage_cfg = stage_cfg
