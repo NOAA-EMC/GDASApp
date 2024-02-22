@@ -16,7 +16,6 @@ class MarineRecenter(Task):
     Class for global ocean analysis recentering task
     """
 
-
     @logit(logger, name="MarineRecenter")
     def __init__(self, config: Dict) -> None:
         """Constructor for ocean recentering task
@@ -26,7 +25,7 @@ class MarineRecenter(Task):
             configuration, namely evironment variables
         Returns:
         --------
-        None 
+        None
         """
 
         logger.info("init")
@@ -44,41 +43,39 @@ class MarineRecenter(Task):
         # fcst_begin = datetime.strptime(cdate, '%Y%m%d%H')
 
         self.window_config = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
-             'ATM_WINDOW_BEGIN': window_begin_iso,
-             'ATM_WINDOW_MIDDLE': window_middle_iso,
-             'ATM_WINDOW_LENGTH': f"PT{config['assim_freq']}H"}
+                              'ATM_WINDOW_BEGIN': window_begin_iso,
+                              'ATM_WINDOW_MIDDLE': window_middle_iso,
+                              'ATM_WINDOW_LENGTH': f"PT{config['assim_freq']}H"}
 
         stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'recen.yaml'))
         stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, self.window_config.get)
         stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, self.window_config.get)
         self.stage_cfg = stage_cfg
 
-
     @logit(logger)
     def initialize(self):
         """Method initialize for ocean recentering task
         Parameters:
         ------------
-        None 
+        None
         Returns:
         --------
-        None 
+        None
         """
 
         logger.info("initialize")
 
         ufsda.stage.soca_fix(self.stage_cfg)
 
-
     @logit(logger)
     def run(self):
         """Method run for ocean recentering task
         Parameters:
         ------------
-        None 
+        None
         Returns:
         --------
-        None 
+        None
         """
 
         logger.info("run")
@@ -88,10 +85,10 @@ class MarineRecenter(Task):
         """Method finalize for ocean recentering task
         Parameters:
         ------------
-        None 
+        None
         Returns:
         --------
-        None 
+        None
         """
 
         logger.info("finalize")
