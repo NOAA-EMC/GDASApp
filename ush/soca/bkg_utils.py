@@ -35,6 +35,7 @@ my_dir = os.path.dirname(__file__)
 my_home = os.path.dirname(os.path.dirname(my_dir))
 gdas_home = os.path.join(os.getenv('HOMEgfs'), 'sorc', 'gdas.cd')
 
+
 def agg_seaice(fname_in, fname_out):
     """
     Aggregates seaice variables from a CICE restart fname_in and save in fname_out.

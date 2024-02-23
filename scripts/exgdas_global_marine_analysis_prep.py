@@ -38,6 +38,7 @@ gdas_home = os.path.join(os.getenv('HOMEgfs'), 'sorc', 'gdas.cd')
 import ufsda
 from ufsda.stage import soca_fix
 
+
 def nearest_date(strings, input_date):
     closest_str = ""
     closest_diff = float("inf")
