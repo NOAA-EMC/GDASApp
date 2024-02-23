@@ -259,14 +259,14 @@ config.save(diffu_vt_yaml)
 logger.info(f"---------------- generate var.yaml")
 var_yaml = os.path.join(anl_dir, 'var.yaml')
 var_yaml_template = os.path.join(gdas_home,
-                                  'parm',
-                                  'soca',
-                                  'variational',
-                                  '3dvarfgat.yaml')
+                                 'parm',
+                                 'soca',
+                                 'variational',
+                                 '3dvarfgat.yaml')
 bkg_utils.gen_bkg_list(bkg_path=os.getenv('COM_OCEAN_HISTORY_PREV'),
-             out_path=bkg_dir,
-             window_begin=window_begin,
-             yaml_name='bkg_list.yaml')
+                       out_path=bkg_dir,
+                       window_begin=window_begin,
+                       yaml_name='bkg_list.yaml')
 os.environ['BKG_LIST'] = 'bkg_list.yaml'
 
 # select the SABER BLOCKS to use
