@@ -12,7 +12,7 @@ geometry:
   field metadata override: $(DATA)/fv3jedi/fv3jedi_fieldmetadata_restart.yaml
   time invariant fields:
     state fields:
-      datetime: '{{ LAND_WINDOW_BEGIN | to_isotime }}'
+      datetime: '{{ SNOW_WINDOW_BEGIN | to_isotime }}'
       filetype: fms restart
       skip coupler file: true
       state variables: [orog_filt]
@@ -20,8 +20,8 @@ geometry:
       filename_orog: $(CASE).mx$(OCNRES)_oro_data.nc
 
 time window:
-  begin: '{{ LAND_WINDOW_BEGIN | to_isotime }}'
-  length: $(LAND_WINDOW_LENGTH)
+  begin: '{{ SNOW_WINDOW_BEGIN | to_isotime }}'
+  length: $(SNOW_WINDOW_LENGTH)
   bound to include: begin
 
 background:
@@ -54,7 +54,7 @@ local ensemble DA:
 
 output increment:
   datapath: $(DATA)/anl
-  prefix: landinc
+  prefix: snowinc
   filetype: fms restart
   filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
   filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'

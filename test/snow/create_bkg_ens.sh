@@ -1,12 +1,13 @@
 #!/bin/bash
-set -xe
+set -e
+################################################
+# 4. CREATE BACKGROUND ENSEMBLE (LETKFOI)
 ################################################
 YY=2021
 MM=03
 DD=23
 HH=18
 FILEDATE=$YY$MM$DD.${HH}0000
-RES=48
 
 project_binary_dir=$1
 project_source_dir=$2
@@ -14,12 +15,9 @@ project_source_dir=$2
 GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
 GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 
-EXECDIR=$project_source_dir/build/bin
-WORKDIR=$project_binary_dir/test/land/letkfoi_snowda
+WORKDIR=$project_binary_dir/test/snow/create_jedi_ens
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model_data/atmos/restart
-export OBSDIR=$GDASAPP_TESTDATA/land
-
-GFSv17=${GFSv17:-"YES"}
+GFSv17=NO
 DAtype=letkfoi_snow
 
 if [ $GFSv17 == "YES" ]; then
@@ -27,12 +25,6 @@ if [ $GFSv17 == "YES" ]; then
 else
     SNOWDEPTHVAR="snwdph"
 fi
-
-if [[ -e $WORKDIR ]]; then
-  rm -rf $WORKDIR
-fi
-mkdir -p $WORKDIR
-cd $WORKDIR
 
 if [[ ${DAtype} == 'letkfoi_snow' ]]; then
 
@@ -55,26 +47,13 @@ if [[ ${DAtype} == 'letkfoi_snow' ]]; then
     done
 
 
-    echo 'do_landDA: calling create ensemble'
+    echo 'do_snowDA: calling create ensemble'
 
-    python ${project_source_dir}/ush/land/letkf_create_ens.py $FILEDATE $SNOWDEPTHVAR $B $WORKDIR
+    python ${project_source_dir}/ush/snow/letkf_create_ens.py $FILEDATE $SNOWDEPTHVAR $B $WORKDIR
+
+    rc=$?
+
+    exit $rc
 
 fi
-############################################
-# Prepare and Run JEDI
-############################################
-mkdir -p Data diags
-mkdir -p Data/fieldmetadata
-ln -s ${project_source_dir}/parm/io/fv3jedi_fieldmetadata_restart.yaml Data/fieldmetadata/.
-ln -s ${project_source_dir}/sorc/fv3-jedi/test/Data/fv3files Data/fv3files
-ln -s ${project_source_dir}/test/land/letkfoi_land.yaml letkf_land.yaml
-ln -s ${OBSDIR}/snow_depth/GTS/202103/adpsfc_snow_2021032318.nc4 adpsfc_snow.nc4
-ln -s ${OBSDIR} Data/land
-echo 'do_landDA: calling fv3-jedi'
-
-srun '--export=ALL' -n 6 ${EXECDIR}/${JEDI_EXEC} letkf_land.yaml
-
-rc=$?
-
-exit $rc
 
