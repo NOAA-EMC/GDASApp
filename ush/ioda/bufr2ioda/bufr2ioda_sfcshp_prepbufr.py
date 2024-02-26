@@ -60,7 +60,7 @@ def bufr_to_ioda(config, logger):
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}",
-                             str(hh), bufrfile)
+                             str(hh), 'atmos', bufrfile)
 
     logger.debug(f"The DATA_PATH is: {DATA_PATH}")
 
