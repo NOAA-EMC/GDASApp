@@ -1,22 +1,6 @@
 #!/usr/bin/env python3
-################################################################################
-#  UNIX Script Documentation Block
-#                      .                                             .
 # Script name:         ush/soca/bkg_utils.py
 # Script description:  Utilities for staging SOCA background
-#
-# Author: Guillaume Vernieres, Andrew Eichmann Org: NCEP/EMC     Date: 2024-02-28
-#
-# Abstract: Utility function for staging background files for SOCA in the context of
-#           global-workflow and GDASApp. Used by prep and recentering tasks.
-#           Fuction code originally from script/exufsda_global_marine_analysis_prep.py
-#
-# $Id$
-#
-# Attributes:
-#   Language: Python3
-#
-################################################################################
 
 import os
 import yaml

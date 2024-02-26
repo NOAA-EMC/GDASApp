@@ -1,21 +1,6 @@
 #!/usr/bin/env python3
-################################################################################
-#  UNIX Script Documentation Block
-#                      .                                             .
 # Script name:         exufsda_global_marine_analysis_prep.py
 # Script description:  Stages files and generates YAML for UFS Global Marine Analysis
-#
-# Author: Guillaume Vernieres      Org: NCEP/EMC     Date: 2022-03-23
-#
-# Abstract: This script stages the marine observations, backgrounds and prepares
-#           the variational yaml necessary to produce a UFS Global Marine Analysis.
-#
-# $Id$
-#
-# Attributes:
-#   Language: Python3
-#
-################################################################################
 
 # import os to add ush to path
 import os
