@@ -68,15 +68,19 @@ RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} generate_com -rx \
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
 mkdir -p $COM_OBS
-flist="amsua_n19.$CDATE.nc4 sondes.$CDATE.nc4"
+flist="amsua_n19.$CDATE sondes.$CDATE"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.$file $COM_OBS/${oprefix}.$file
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.nc4 $COM_OBS/${oprefix}.${file}.nc
 done
 
 # Link radiance bias correction files
 dpath=gdas.$gPDY/$gcyc/analysis/atmos
 mkdir -p $COM_ATMOS_ANALYSIS_PREV
-flist="amsua_n19.satbias.nc4 amsua_n19.satbias_cov.nc4 amsua_n19.tlapse.txt"
+flist="amsua_n19.satbias amsua_n19.satbias_cov"
+for file in $flist; do
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.${file}.nc4 $COM_ATMOS_ANALYSIS_PREV/$gprefix.${file}.nc
+done
+flist="amsua_n19.tlapse.txt"
 for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.$file $COM_ATMOS_ANALYSIS_PREV/$gprefix.$file
 done
