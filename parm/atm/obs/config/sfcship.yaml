@@ -3,12 +3,12 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)sfcship.${{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)sfcship.${{ current_cycle | to_YMDH }}.nc
   obsdataout:
     engine:
       type: H5File
       overwrite: true
-      obsfile: $(DATA)/diags/diag_sfcship_${{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_sfcship_${{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [stationPressure, airTemperature, specificHumidity]

@@ -6,11 +6,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: ./obs/$(OPREFIX)sondes.{{ current_cycle | to_YMDH }}.nc4
+      obsfile: ./obs/$(OPREFIX)sondes.{{ current_cycle | to_YMDH }}.nc
   obsdataout:
     engine:
       type: H5File
-      obsfile: ./diags/diag_sondes_lgetkf_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: ./diags/diag_sondes_lgetkf_{{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [windEastward, windNorthward, airTemperature]
