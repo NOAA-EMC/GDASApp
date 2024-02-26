@@ -98,7 +98,7 @@ def bufr_to_ioda(config, logger):
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.acft_profiles"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh),
-                             bufrfile)
+                             'atmos', bufrfile)
 
     # ============================================
     # Make the QuerySet for all the data we want
