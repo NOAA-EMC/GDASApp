@@ -18,7 +18,7 @@ obs space:
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_gnssro_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_gnssro_{{ current_cycle | to_YMDH }}.nc
   simulated variables: [bendingAngle]
 
 obs filters:

@@ -9,3 +9,13 @@ base:
 atmanl:
   OBS_LIST: "@srcdir@/test/atm/global-workflow/gdas_prototype.yaml"
   ATMRES_ANL: "C48"
+  LAYOUT_X_ATMANL: 1
+  LAYOUT_Y_ATMANL: 1
+  IO_LAYOUT_X: 1
+  IO_LAYOUT_Y: 1
+
+atmensanl:
+  LAYOUT_X_ATMENSANL: 1
+  LAYOUT_Y_ATMENSANL: 1
+  IO_LAYOUT_X: 1
+  IO_LAYOUT_Y: 1

@@ -27,8 +27,8 @@ obs operator:
     Absorbers: [H2O, O3]
 
 obs bias:
-  input file: $(DATA)/obs/$(GPREFIX)atms_n20.satbias.nc4
-  output file: $(DATA)/bc/$(APREFIX)atms_n20.satbias.nc4
+  input file: $(DATA)/obs/$(GPREFIX)atms_n20.satbias.nc
+  output file: $(DATA)/bc/$(APREFIX)atms_n20.satbias.nc
   variational bc:
     predictors:
     - name: constant
@@ -51,11 +51,11 @@ obs bias:
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: $(DATA)/obs/$(GPREFIX)atms_n20.satbias_cov.nc4
+      input file: $(DATA)/obs/$(GPREFIX)atms_n20.satbias_cov.nc
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0
-    output file: $(DATA)/bc/$(APREFIX)atms_n20.satbias_cov.nc4
+    output file: $(DATA)/bc/$(APREFIX)atms_n20.satbias_cov.nc
 
 obs pre filters:
 # Step 0-A: Create Diagnostic Flags
