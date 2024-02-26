@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)cris-fsr_npp.${{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/obs/$(OPREFIX)cris-fsr_npp.${{ current_cycle | to_YMDH }}.nc
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_cris-fsr_npp_${{ current_cycle | to_YMDH }}.nc4
+      obsfile: $(DATA)/diags/diag_cris-fsr_npp_${{ current_cycle | to_YMDH }}.nc
   io pool:
     max pool size: 1
   simulated variables: [brightness_temperature]
@@ -53,8 +53,8 @@ obs operator:
     EndianType: little_endian
     CoefficientPath: $(DATA)/crtm/
 obs bias:
-  input file: $(DATA)/obs/$(GPREFIX)cris-fsr_npp.satbias.nc4
-  output file: $(DATA)/bc/$(APREFIX)cris-fsr_npp.satbias.nc4
+  input file: $(DATA)/obs/$(GPREFIX)cris-fsr_npp.satbias.nc
+  output file: $(DATA)/bc/$(APREFIX)cris-fsr_npp.satbias.nc
   variational bc:
     predictors:
     - name: constant
@@ -77,11 +77,11 @@ obs bias:
     step size: 1.0e-4
     largest analysis variance: 10000.0
     prior:
-      input file: $(DATA)/obs/$(GPREFIX)cris-fsr_npp.satbias_cov.nc4
+      input file: $(DATA)/obs/$(GPREFIX)cris-fsr_npp.satbias_cov.nc
       inflation:
         ratio: 1.1
         ratio for small dataset: 2.0
-    output file: $(DATA)/bc/$(APREFIX)cris-fsr_npp.satbias_cov.nc4
+    output file: $(DATA)/bc/$(APREFIX)cris-fsr_npp.satbias_cov.nc
 #obs filters:
 ##  Wavenumber Check
 #- filter: BlackList
