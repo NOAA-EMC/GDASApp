@@ -29,7 +29,7 @@ COMIN_OBS = os.getenv('COMIN_OBS')
 cdateDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
 windowBeginDatetime = cdateDatetime - timedelta(hours=3)
 windowEndDatetime = cdateDatetime + timedelta(hours=3)
-
+windowBegin = windowBeginDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 windowEnd = windowEndDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 OCNOBS2IODAEXEC = os.getenv('OCNOBS2IODAEXEC')

@@ -86,7 +86,7 @@ observations:
 - obs space:
     name: sst_viirs_npp_l3u
     provider: GHRSST
-    dmpdir subdir: 'ocean/sst'
+    dmpdir subdir: ocean/sst
     type: nc 
     dmpdir regex: '*-L3U_GHRSST-SSTsubskin-VIIRS_NPP-ACSPO_V*.nc'
     bounds:
