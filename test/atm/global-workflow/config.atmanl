@@ -13,11 +13,11 @@ export STATICB_TYPE="identity"
 export BERROR_YAML=${HOMEgfs}/sorc/gdas.cd/parm/atm/berror/staticb_${STATICB_TYPE}.yaml
 export INTERP_METHOD='barycentric'
 
-export layout_x=1
-export layout_y=1
+export layout_x_atmanl=@LAYOUT_X_ATMANL@
+export layout_y_atmanl=@LAYOUT_Y_ATMANL@
 
-export io_layout_x=1
-export io_layout_y=1
+export io_layout_x=@IO_LAYOUT_X@
+export io_layout_y=@IO_LAYOUT_Y@
 
 export JEDIEXE=${HOMEgfs}/exec/fv3jedi_var.x
 export crtm_VERSION="2.4.0"
