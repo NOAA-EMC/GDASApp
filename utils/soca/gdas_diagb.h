@@ -59,7 +59,8 @@ namespace gdasapp {
       atlas::FieldSet xbFs;
       xb.toFieldSet(xbFs);
 
-      // Create the GeometryData object
+      /// Create the GeometryData object
+      // This is used to initialize a local KD-Tree
       oops::Log::info() << "====================== geometryData" << std::endl;
       oops::GeometryData geometryData(geom.functionSpace(), xbFs["tocn"], true, this->getComm());
 
@@ -78,8 +79,8 @@ namespace gdasapp {
 
       /// Compute local std. dev. as a proxy of the bkg error
       oops::Log::info() << "====================== std dev " << xbFs["tocn"].shape(0) << std::endl;
-      int nb = 4;  // Number of closest point (horizontal)
-      int nbz = 2;  // Number of closest point (vertical)
+      int nbh = 8;  // Number of closest point (horizontal)
+      int nbz = 1;  // Number of closest point (vertical)
       const auto ghostView =
         atlas::array::make_view<int, 1>(geom.functionSpace().ghost());
 
@@ -101,10 +102,10 @@ namespace gdasapp {
         }
 
         // Ocean or ice node, do something
-        auto jn = geometryData.closestPoints(lonlat(jnode, 1), lonlat(jnode, 0), nb);
+        auto jn = geometryData.closestPoints(lonlat(jnode, 1), lonlat(jnode, 0), nbh);
         std::vector<double> local;
         std::vector<double> amIG;
-        for (int nn = 0; nn < nb; ++nn) {
+        for (int nn = 0; nn < nbh; ++nn) {
           auto nbNode = jn[nn].payload();
           for (int ll = level - nbz; ll < level + nbz; ++ll) {
             if (ghostView(nbNode) > 0 || abs(h(nbNode, ll)) <= 0.1 ) {
@@ -122,7 +123,7 @@ namespace gdasapp {
 
           // Standard deviation
           double stdDev(0);
-          for (int nn = 0; nn < nb; ++nn) {
+          for (int nn = 0; nn < nbh; ++nn) {
             stdDev += std::pow(local[nn] - mean, 2.0);
           }
           stdDevBkg(jnode, level)  = std::sqrt(stdDev / local.size());
