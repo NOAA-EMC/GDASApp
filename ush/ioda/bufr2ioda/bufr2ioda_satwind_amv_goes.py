@@ -163,7 +163,7 @@ def bufr_to_ioda(config, logger):
     with bufr.File(DATA_PATH) as f:
         try:
             r = f.execute(q)
-        except:
+        except RuntimeError:
             logger.info(f'Querried subset not found')
             return
 
