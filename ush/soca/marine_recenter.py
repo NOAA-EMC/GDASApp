@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import f90nml
 from logging import getLogger
 import os
+from soca import bkg_utils
 from typing import Dict
 import ufsda
 from ufsda.stage import soca_fix
@@ -64,8 +65,10 @@ class MarineRecenter(Task):
         self.config['mom_input_nml_src'] = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
         self.config['mom_input_nml_tmpl'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml.tmpl')
         self.config['mom_input_nml'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
+        self.config['bkg_dir'] = os.path.join(self.config.DATA, 'bkg')
 
         self.config['gridgen_yaml'] = os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml')
+        self.config['BKG_LIST'] = 'bkg_list.yaml'
 
     @logit(logger)
     def initialize(self):
@@ -95,6 +98,12 @@ class MarineRecenter(Task):
             nml['fms_nml']['domains_stack_size'] = int(domain_stack_size)
             ufsda.disk_utils.removefile(self.config.mom_input_nml)
             nml.write(self.config.mom_input_nml)
+
+        FileHandler({'mkdir': [self.config.bkg_dir]}).sync()
+        bkg_utils.gen_bkg_list(bkg_path=self.config.COM_OCEAN_HISTORY_PREV,
+                               out_path=self.config.bkg_dir,
+                               window_begin=self.config.window_begin,
+                               yaml_name=self.config.BKG_LIST)
 
     @logit(logger)
     def run(self):
