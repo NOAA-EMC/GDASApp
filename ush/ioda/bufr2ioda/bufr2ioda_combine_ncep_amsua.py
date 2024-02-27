@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import argparse
 import json
 import os
@@ -9,11 +8,7 @@ from antcorr_application import ACCoeff, apply_ant_corr, remove_ant_corr, R1000,
 from utils import timing_decorator, nc_merge
 
 logger = Logger(os.path.basename(__file__), level='INFO')
-
-BACKEND = CPP
-
 AMSUA_TYPE_CHANGE_DATETIME = "2023120000"
-
 BAMUA = '1BAMUA'
 ESAMUA = 'ESAMUA'
 
@@ -53,10 +48,7 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
             logger.info(f'Converting for {sat_id}, ...')
             ta = self.get_container_variable(container, 'ObsValue', 'brightnessTemperature', sat_id)
             if ta.shape[0]:
-                if self.yaml_order:
-                    ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
-                else:
-                    ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
+                ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
                 logger.info(f'ta before correction1: {ta[:100, :]}')
                 tb = self.apply_corr(sat_id, ta, ifov)
                 logger.info(f'tb after correction1: {tb[:100, :]}')
