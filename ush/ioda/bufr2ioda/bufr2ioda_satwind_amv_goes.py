@@ -161,7 +161,11 @@ def bufr_to_ioda(config, logger):
 
     logger.info('Executing QuerySet to get ResultSet')
     with bufr.File(DATA_PATH) as f:
-        r = f.execute(q)
+        try:
+            r = f.execute(q)
+        except:
+            logger.info(f'Querried subset not found')
+            return
 
     # MetaData
     satid = r.get('satelliteId')
