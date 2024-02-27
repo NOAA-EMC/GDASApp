@@ -19,6 +19,9 @@ from pyiodaconv import bufr
 from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
+import warnings
+# suppress warnings
+warnings.filterwarnings('ignore')
 
 
 def Compute_sequenceNumber(lon):
@@ -56,6 +59,9 @@ def bufr_to_ioda(config, logger):
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
+    if not os.path.isfile(DATA_PATH):
+        logger.info(f"DATA_PATH {DATA_PATH} does not exist")
+        return
     logger.debug(f"{bufrfile}, {DATA_PATH}")
 
     # ===========================================
@@ -100,18 +106,18 @@ def bufr_to_ioda(config, logger):
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
-    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute', group_by='depth')
+    dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute')
     dateTime = dateTime.astype(np.int64)
-    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute', group_by='depth')
+    rcptdateTime = r.get_datetime('ryear', 'rmonth', 'rday', 'rhour', 'rminute')
     rcptdateTime = rcptdateTime.astype(np.int64)
-    lat = r.get('latitude', group_by='depth')
-    lon = r.get('longitude', group_by='depth')
+    lat = r.get('latitude')
+    lon = r.get('longitude')
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
-    temp = r.get('temp', group_by='depth')
+    temp = r.get('temp')
     temp -= 273.15
-    saln = r.get('saln', group_by='depth')
+    saln = r.get('saln')
 
     # Add mask based on min, max values
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
@@ -142,11 +148,9 @@ def bufr_to_ioda(config, logger):
     logger.debug(f" saln          min, max, length, dtype = {saln.min()}, {saln.max()}, {len(saln)}, {saln.dtype}")
     logger.debug(f" lon           min, max, length, dtype = {lon.min()}, {lon.max()}, {len(lon)}, {lon.dtype}")
     logger.debug(f" lat           min, max, length, dtype = {lat.min()}, {lat.max()}, {len(lat)}, {lat.dtype}")
-    logger.debug(f" depth         min, max, length, dtype = {depth.min()}, {depth.max()}, {len(depth)}, {depth.dtype}")
     logger.debug(f" PreQC         min, max, length, dtype = {PreQC.min()}, {PreQC.max()}, {len(PreQC)}, {PreQC.dtype}")
     logger.debug(f" ObsError_temp min, max, length, dtype = {ObsError_temp.min()}, {ObsError_temp.max()}, {len(ObsError_temp)}, {ObsError_temp.dtype}")
     logger.debug(f" ObsError_saln min, max, length, dtype = {ObsError_saln.min()}, {ObsError_saln.max()}, {len(ObsError_saln)}, {ObsError_saln.dtype}")
-    logger.debug(f" stationID                shape, dtype = {stationID.shape}, {stationID.astype(str).dtype}")
     logger.debug(f" dateTime                 shape, dtype = {dateTime.shape}, {dateTime.dtype}")
     logger.debug(f" rcptdateTime             shape, dytpe = {rcptdateTime.shape}, {rcptdateTime.dtype}")
 
@@ -207,11 +211,6 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Latitude') \
         .write_data(lat)
 
-    # Station Identification
-    obsspace.create_var('MetaData/stationID', dtype=stationID.dtype, fillval=stationID.fill_value) \
-        .write_attr('long_name', 'Station Identification') \
-        .write_data(stationID)
-
     # PreQC
     obsspace.create_var('PreQC/seaSurfaceTemperature', dtype=PreQC.dtype, fillval=PreQC.fill_value) \
         .write_attr('long_name', 'PreQC') \
@@ -256,11 +255,15 @@ def bufr_to_ioda(config, logger):
 if __name__ == '__main__':
 
     start_time = time.time()
-    config = "bufr2ioda_trackob_surface.json"
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', type=str, help='Input JSON configuration', required=True)
+    parser.add_argument('-v', '--verbose', help='print debug logging information',
+                        action='store_true')
+    args = parser.parse_args()
 
     log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger('bufr2ioda_trackob_surface.py', level=log_level,
-                    colored_log=True)
+    logger = Logger('bufr2ioda_trackob_surface.py', level=log_level, colored_log=True)
 
     with open(args.config, "r") as json_file:
         config = json.load(json_file)

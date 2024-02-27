@@ -19,6 +19,9 @@ from pyiodaconv import bufr
 from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
+import warnings
+# suppress warnings
+warnings.filterwarnings('ignore')
 
 
 def Compute_sequenceNumber(lon):
@@ -56,6 +59,9 @@ def bufr_to_ioda(config, logger):
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
+    if not os.path.isfile(DATA_PATH):
+        logger.info(f"DATA_PATH {DATA_PATH} does not exist")
+        return
     logger.debug(f"{bufrfile}, {DATA_PATH}")
 
     # ==========================================
@@ -301,11 +307,15 @@ def bufr_to_ioda(config, logger):
 if __name__ == '__main__':
 
     start_time = time.time()
-    config = "bufr2ioda_subpfl_argo_profiles.json"
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', type=str, help='Input JSON configuration', required=True)
+    parser.add_argument('-v', '--verbose', help='print debug logging information',
+                        action='store_true')
+    args = parser.parse_args()
 
     log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger('bufr2ioda_subpfl_argo_profiles.py', level=log_level,
-                    colored_log=True)
+    logger = Logger('bufr2ioda_subpfl_argo_profiles.py', level=log_level, colored_log=True)
 
     with open(args.config, "r") as json_file:
         config = json.load(json_file)
