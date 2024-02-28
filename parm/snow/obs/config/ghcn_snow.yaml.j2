@@ -6,11 +6,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: $(DATA)/obs/$(OPREFIX)ghcn_snow_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: '{{ DATA }}/obs/{{ OPREFIX }}ghcn_snow_{{ current_cycle | to_YMDH }}.nc4'
   obsdataout:
     engine:
       type: H5File
-      obsfile: $(DATA)/diags/diag_ghcn_snow_{{ current_cycle | to_YMDH }}.nc4
+      obsfile: '{{ DATA }}/diags/diag_ghcn_snow_{{ current_cycle | to_YMDH }}.nc4'
 
 obs operator:
   name: Identity
