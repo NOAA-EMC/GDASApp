@@ -45,9 +45,12 @@ mkdir -p ${clim_ens_dir}
 for domain in "ocean" "ice"; do
     list_of_ocn_fcst=$(ls ${COM}/06/model_data/${domain}/history/gdas.${domain}.t06z.inst.f*.nc)
     counter=1
+    echo $list_of_ocn_fcst
     for file in ${list_of_ocn_fcst}; do
+        echo "static member: $counter"
         file_name=${domain}.${counter}.nc
         cp ${file} ${clim_ens_dir}/${file_name}
+        echo ${file} ${clim_ens_dir}/${file_name}
         ((counter++))
     done
 done
