@@ -160,13 +160,13 @@ def TFRMQP(Q, P):
 
 def HGTF_HI(P):
     # Calculate Z from P < 22630 Pa
-    height = 11000 - math.log(p / 226.3) / 0.001576106
+    height = 11000 - math.log(P / 226.3) / 0.001576106
     return height
 
 
 def HGTF_LO(P):
     # Calculate Z from P > 22630 Pa
-    height = (1. - (p / 1013.25) ** (1. / 5.256)) * (288.15 / 0.0065)
+    height = (1. - (P / 1013.25) ** (1. / 5.256)) * (288.15 / 0.0065)
     return height
 
 
@@ -197,8 +197,10 @@ def Derive_ObsValues(prlc, tmdb, mixr, rehu, mstq, aircraftFlightLevel, dateTime
                     subset[i] == 'NC004012' or subset[i] == 'NC004013' or subset[i] == 'NC004103'):
                 if pob[i] >= prlc.fill_value:
                     if aircraftFlightLevel[i] <= 11000.0:
+                        pob[i] = PR_Z(aircraftFlightLevel[i]) * 100
                         p = PR_Z(aircraftFlightLevel[i])
                     else:
+                        pob[i] = PRS_Z(aircraftFlightLevel[i]) * 100
                         p = PRS_Z(aircraftFlightLevel[i])
                 else:
                     p = pob[i]*0.1
