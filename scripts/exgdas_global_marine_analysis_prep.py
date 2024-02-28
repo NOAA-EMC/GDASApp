@@ -163,8 +163,6 @@ else:
     ens_member_list = []
     clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
     nmem_ens = len(glob.glob(os.path.join(clim_ens_dir, 'ocean.*.nc')))
-    crap=glob.glob(os.path.join(clim_ens_dir, 'ocean.*.nc'))
-    print(f'list of members: {crap}')
     for domain in ['ocean', 'ice']:
         for mem in range(1, nmem_ens+1):
             fname = domain+"."+str(mem)+".nc"
