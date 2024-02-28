@@ -6,6 +6,9 @@
 #include <string>
 #include <vector>
 
+#include "ioda/../../../../core/IodaUtils.h"
+#include "oops/util/dateFunctions.h"
+
 namespace gdasapp {
   namespace obsproc {
     namespace oceanmask {
@@ -218,6 +221,37 @@ namespace gdasapp {
           oops::Log::test() << checksum(latitude_, "latitude") << std::endl;
           oops::Log::test() << checksum(datetime_, "datetime") << std::endl;
         }
+
+       // Changing the date and Adjusting Errors
+       void reDate(const util::DateTime & windowBegin, const util::DateTime & windowEnd,
+                   float errRatio) {
+         // windowBegin and End into DAwindowTimes
+         std::vector<util::DateTime> DAwindowTimes = {windowBegin, windowEnd};
+         // Epoch DateTime from Provider
+         util::DateTime epochDtime("1858-11-17T00:00:00Z");
+         // Convert DA Window DateTime objects to epoch time offsets in seconds
+         std::vector<int64_t> timeOffsets
+                               = ioda::convertDtimeToTimeOffsets(epochDtime, DAwindowTimes);
+
+         int64_t minDAwindow = timeOffsets[0];
+         int64_t maxDAwindow = timeOffsets[1];
+         for (int i = 0; i < location_; i++) {
+           if (datetime_(i) < minDAwindow) {
+             int delta_t = minDAwindow - datetime_(i);
+             datetime_(i) = minDAwindow + 1;
+             // one second is used for safety falling in min DA window
+             obsError_(i) += errRatio * delta_t;
+           }
+           if (maxDAwindow < datetime_(i)) {
+             int delta_t = datetime_(i) - maxDAwindow;
+             datetime_(i) = maxDAwindow - 1;
+             // one second is used for safety falling in max DA window
+             obsError_(i) += errRatio * delta_t;
+             // Error Ratio comes from configuration based on 0.1 meter per 6 hours
+           }
+         }
+         oops::Log::info() << "IodaVars::IodaVars done redating & adjsting errors." << std::endl;
+       }
       };
     }  // namespace iodavars
   }  // namespace obsproc
