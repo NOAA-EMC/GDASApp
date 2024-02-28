@@ -182,4 +182,5 @@ install*/
 /sorc/test-data-release
 /sorc/gdas
 /sorc/gdas-utils
-
+!/bundle/CMakeLists.txt
+/bundle/*
