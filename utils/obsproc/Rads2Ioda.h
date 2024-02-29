@@ -135,9 +135,10 @@ namespace gdasapp {
       } else {
         // Redating and Adjusting Error
         iodaVars.reDate(windowBegin_, windowEnd_, errRatio);
-
-        return iodaVars;
       }
+
+     return iodaVars;
+
     };
   };  // class Rads2Ioda
 }  // namespace gdasapp
