@@ -2,15 +2,16 @@
 # Script name:         ush/soca/bkg_utils.py
 # Script description:  Utilities for staging SOCA background
 
-import os
-import yaml
 import dateutil.parser as dparser
-import shutil
 from datetime import datetime, timedelta
+import glob
 from netCDF4 import Dataset
-import xarray as xr
+import os
+import shutil
 import numpy as np
 from wxflow import (Logger, FileHandler)
+import yaml
+import xarray as xr
 
 logger = Logger()
 
@@ -157,3 +158,18 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
 
     # copy ocean backgrounds to RUNDIR
     FileHandler({'copy': bkg_list_src_dst}).sync()
+
+def rename_bkg(bkg_dir, anl_dir, RUN):
+
+    # Copy and rename initial condition
+    ics_list = []
+    # ocean IC's
+    mom_ic_src = glob.glob(os.path.join(bkg_dir, f'{RUN}.ocean.*.inst.f003.nc'))[0]
+    mom_ic_dst = os.path.join(anl_dir, 'INPUT', 'MOM.res.nc')
+    ics_list.append([mom_ic_src, mom_ic_dst])
+    
+    # seaice IC's
+    cice_ic_src = glob.glob(os.path.join(bkg_dir, f'{RUN}.agg_ice.*.inst.f003.nc'))[0]
+    cice_ic_dst = os.path.join(anl_dir, 'INPUT', 'cice.res.nc')
+    ics_list.append([cice_ic_src, cice_ic_dst])
+    FileHandler({'copy': ics_list}).sync()
