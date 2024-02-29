@@ -59,4 +59,4 @@ fv3 increment:
   output:
     filetype: auxgrid
     gridtype: gaussian
-    filename: ./anl/gdas.t${cyc}z.atminc.
+    filename: ./anl/atminc.
