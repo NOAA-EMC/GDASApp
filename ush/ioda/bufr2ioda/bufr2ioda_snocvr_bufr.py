@@ -85,7 +85,11 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f" ... Executing QuerySet: get data ...")
     with bufr.File(DATA_PATH) as f:
-        r = f.execute(q)
+        try:
+            r = f.execute(q)
+        except Exception as err:
+            logger.info(f'Return with {err}')
+            return
 
     # Use the ResultSet returned to get numpy arrays of the data
     logger.debug(f" ... Executing QuerySet: get MetaData ...")

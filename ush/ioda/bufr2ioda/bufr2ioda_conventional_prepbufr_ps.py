@@ -102,7 +102,9 @@ def bufr_to_ioda(config, logger):
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}",
                              str(hh), 'atmos', bufrfile)
-
+    if not os.path.isfile(DATA_PATH):
+        logger.info(f"DATA_PATH {DATA_PATH} does not exist")
+        return
     logger.debug(f"The DATA_PATH is: {DATA_PATH}")
 
     # ============================================
@@ -227,13 +229,25 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
-        t = f.execute(q)
+        try:
+            t = f.execute(q)
+        except Exception as err:
+            logger.info(f'Return t with {err}')
+            return
 
     with bufr.File(DATA_PATH) as f:
-        u = f.execute(r)
+        try:
+            u = f.execute(r)
+        except Exception as err:
+            logger.info(f'Return u with {err}')
+            return
 
     with bufr.File(DATA_PATH) as f:
-        v = f.execute(s)
+        try:
+            v = f.execute(s)
+        except Exception as err:
+            logger.info(f'Return v with {err}')
+            return
 
     # ADPSFC
     # ObsType
