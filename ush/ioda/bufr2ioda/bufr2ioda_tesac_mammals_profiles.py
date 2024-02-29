@@ -57,7 +57,7 @@ def bufr_to_ioda(config, logger):
     converter = 'BUFR to IODA Converter'
     platform_description = 'Profiles from TESAC: temperature and salinity'
 
-    bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm{hh}.bufr_d"
+    bufrfile = f"{cycle_type}.t{hh}z.{data_format}.tm00.bufr_d"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), f"atmos", bufrfile)
     if not os.path.isfile(DATA_PATH):
         logger.info(f"DATA_PATH {DATA_PATH} does not exist")
@@ -103,7 +103,11 @@ def bufr_to_ioda(config, logger):
     start_time = time.time()
     logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
-        r = f.execute(q)
+        try:
+            r = f.execute(q)
+        except Exception as err:
+            logger.info(f'Return with {err}')
+            return
 
     # MetaData
     logger.debug(f" ... Executing QuerySet: get MetaData ...")
@@ -143,6 +147,9 @@ def bufr_to_ioda(config, logger):
 
     alpha_mask = [item.isalpha() for item in stationID]
     indices_true = [index for index, value in enumerate(alpha_mask) if value]
+    if len(indices_true) is 0:
+        logger.info(f"No marine mammals in {DATA_PATH}")
+        return
 
     # Apply index
     stationID = stationID[indices_true]
