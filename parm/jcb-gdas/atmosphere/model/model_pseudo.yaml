@@ -1,0 +1,14 @@
+name: PSEUDO
+datapath: {{data}}/bkg
+filetype: fms restart
+datetime: '{{atm_window_begin_isotime}}'
+filename is datetime templated: true
+filename_core: '%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc'
+filename_trcr: '%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc'
+filename_sfcd: '%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc'
+filename_sfcw: '%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc'
+filename_cplr: '%yyyy%mm%dd.%hh%MM%ss.coupler.res'
+tstep: {{bkg_tstep}}
+model variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
+                  slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
+                  u_srf,v_srf,f10m]
