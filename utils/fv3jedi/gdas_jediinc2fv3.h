@@ -29,8 +29,8 @@ namespace gdasapp {
     int execute(const eckit::Configuration & fullConfig, bool validate) const {
       // Setup variable change
       const eckit::LocalConfiguration varChangeConfig(fullConfig, "variable change");
-      oops::Variables varin(varChangeConfig, "input variables");
-      oops::Variables varout(varChangeConfig, "output variables");
+      oops::Variables stateVarin(varChangeConfig, "input variables");
+      oops::Variables stateVarout(varChangeConfig, "output variables");
 
       // Setup background
       const eckit::LocalConfiguration bkgConfig(fullConfig, "background");
@@ -43,10 +43,11 @@ namespace gdasapp {
 
       // Setup increment
       const eckit::LocalConfiguration incrConfig(fullConfig, "increment");
+      oops::Variables incrVarin(incrConfig, "input variables");
       const eckit::LocalConfiguration incrGeomConfig(incrConfig, "geometry");
       const eckit::LocalConfiguration incrInputConfig(incrConfig, "input");
       const fv3jedi::Geometry incrGeom(incrGeomConfig, this->getComm());
-      fv3jedi::Increment dx(incrGeom, varin, xxBkg.validTime());
+      fv3jedi::Increment dx(incrGeom, incrVarin, xxBkg.validTime());
       dx.read(incrInputConfig);
       oops::Log::info() << "Increment Geometry: " << std::endl << incrGeom << std::endl;
       oops::Log::info() << "Increment: " << std::endl << dx << std::endl;
@@ -65,11 +66,11 @@ namespace gdasapp {
       xxAnl += dx;
 
       // Perform variables change on background and analysis
-      vc->changeVar(xxBkg, varout);
-      vc->changeVar(xxAnl, varout);
+      vc->changeVar(xxBkg, stateVarout);
+      vc->changeVar(xxAnl, stateVarout);
 
       // Get final FV3 increment
-      fv3jedi::Increment dxFV3(incrGeom, varout, xxBkg.validTime());
+      fv3jedi::Increment dxFV3(incrGeom, stateVarout, xxBkg.validTime());
       dxFV3.diff(xxAnl, xxBkg);
       oops::Log::info() << "FV3 increment: " << std::endl << dx << std::endl;
 
