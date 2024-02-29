@@ -159,6 +159,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
     # copy ocean backgrounds to RUNDIR
     FileHandler({'copy': bkg_list_src_dst}).sync()
 
+
 def rename_bkg(bkg_dir, anl_dir, RUN):
 
     # Copy and rename initial condition
@@ -167,7 +168,7 @@ def rename_bkg(bkg_dir, anl_dir, RUN):
     mom_ic_src = glob.glob(os.path.join(bkg_dir, f'{RUN}.ocean.*.inst.f003.nc'))[0]
     mom_ic_dst = os.path.join(anl_dir, 'INPUT', 'MOM.res.nc')
     ics_list.append([mom_ic_src, mom_ic_dst])
-    
+   
     # seaice IC's
     cice_ic_src = glob.glob(os.path.join(bkg_dir, f'{RUN}.agg_ice.*.inst.f003.nc'))[0]
     cice_ic_dst = os.path.join(anl_dir, 'INPUT', 'cice.res.nc')
