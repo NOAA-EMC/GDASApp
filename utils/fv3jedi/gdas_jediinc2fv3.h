@@ -41,23 +41,27 @@ namespace gdasapp {
       oops::Log::info() << "Background Geometry: " << std::endl << stateGeom << std::endl;
       oops::Log::info() << "Background State: " << std::endl << xxBkg << std::endl;
 
-      // Setup increment
-      const eckit::LocalConfiguration incrConfig(fullConfig, "increment");
-      oops::Variables incrVarin(incrConfig, "input variables");
-      const eckit::LocalConfiguration incrGeomConfig(incrConfig, "geometry");
-      const eckit::LocalConfiguration incrInputConfig(incrConfig, "input");
-      const fv3jedi::Geometry incrGeom(incrGeomConfig, this->getComm());
-      fv3jedi::Increment dx(incrGeom, incrVarin, xxBkg.validTime());
-      dx.read(incrInputConfig);
-      oops::Log::info() << "Increment Geometry: " << std::endl << incrGeom << std::endl;
-      oops::Log::info() << "Increment: " << std::endl << dx << std::endl;
+      // Setup JEDI increment
+      const eckit::LocalConfiguration jediIncrConfig(fullConfig, "jedi increment");
+      const eckit::LocalConfiguration jediIncrGeomConfig(jediIncrConfig, "geometry");
+      const eckit::LocalConfiguration jediIncrInputConfig(jediIncrConfig, "input");
+      oops::Variables jediIncrVarin(jediIncrConfig, "input variables");
+      const fv3jedi::Geometry jediIncrGeom(jediIncrGeomConfig, this->getComm());
+      fv3jedi::Increment dx(jediIncrGeom, jediIncrVarin, xxBkg.validTime());
+      dx.read(jediIncrInputConfig);
+      oops::Log::info() << "JEDI Increment Geometry: " << std::endl << jediIncrGeom << std::endl;
+      oops::Log::info() << "JEDI Increment: " << std::endl << dx << std::endl;
+
+      // Setup FV3 increment
+      const eckit::LocalConfiguration fv3IncrConfig(fullConfig, "fv3 increment");
+      const eckit::LocalConfiguration fv3IncrGeomConfig(fv3IncrConfig, "geometry");
+      const eckit::LocalConfiguration fv3IncrOuputConfig(fv3IncrConfig, "output");
+      const fv3jedi::Geometry fv3IncrGeom(fv3IncrGeomConfig, this->getComm());
+      oops::Log::info() << "FV3 Increment Geometry: " << std::endl << fv3IncrGeom << std::endl;
 
       //
       std::unique_ptr<fv3jedi::VariableChange> vc;
       vc.reset(new fv3jedi::VariableChange(varChangeConfig, stateGeom));
-
-      // Setup output config
-      const eckit::LocalConfiguration outputConfig(fullConfig, "output");
 
       // ----------------------------------------------------------------------------
 
@@ -70,12 +74,12 @@ namespace gdasapp {
       vc->changeVar(xxAnl, stateVarout);
 
       // Get final FV3 increment
-      fv3jedi::Increment dxFV3(incrGeom, stateVarout, xxBkg.validTime());
+      fv3jedi::Increment dxFV3(fv3IncrGeom, stateVarout, xxBkg.validTime());
       dxFV3.diff(xxAnl, xxBkg);
-      oops::Log::info() << "FV3 increment: " << std::endl << dx << std::endl;
+      oops::Log::info() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
 
       // Write FV3 increment
-      dxFV3.write(outputConfig);
+      dxFV3.write(fv3IncrOuputConfig);
 
       return 0;
     }

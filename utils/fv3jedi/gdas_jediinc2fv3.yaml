@@ -1,7 +1,7 @@
 variable change:
   variable change name: Model2GeoVaLs
   input variables: &inputvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,phis]
-  output variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,delp,hydrostatic_delz]
+  output variables: [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,hydrostatic_delz]
 background:
   geometry:
     fms initialization:
@@ -25,7 +25,7 @@ background:
     filename_sfcw: '{{ current_cycle | to_fv3time }}.fv_srf_wnd.res.nc'
     filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
     state variables: *inputvars
-increment:
+jedi increment:
   input variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
   geometry:
     fms initialization:
@@ -43,7 +43,20 @@ increment:
     filetype: cube sphere history
     filename: ./anl/atminc.{{ current_cycle | to_fv3time }}.nc4
     provider: ufs
-output:
-  filetype: auxgrid
-  gridtype: gaussian
-  filename: ./anl/gdas.t${cyc}z.atminc.nc
+fv3 increment:
+  geometry:
+    fms initialization:
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table
+    akbk: ./fv3jedi/akbk.nc4
+    layout:
+    - $(layout_x)
+    - $(layout_y)
+    npx: $(npx_ges)
+    npy: $(npy_ges)
+    npz: $(npz_ges)
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
+  output:
+    filetype: auxgrid
+    gridtype: gaussian
+    filename: ./anl/gdas.t${cyc}z.atminc.
