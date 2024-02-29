@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--template', type=str, help='Input JSON template', required=True)
     parser.add_argument('-o', '--output', type=str, help='Output JSON file', required=True)
     args = parser.parse_args()
-    # get the config from your environmentgg
+    # get the config from your environment
     config = cast_strdict_as_dtypedict(os.environ)
     logger.info(f"Config: {config}")
     # we need to add in current cycle from PDYcyc
