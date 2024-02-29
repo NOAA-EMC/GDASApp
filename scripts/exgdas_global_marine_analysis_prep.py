@@ -162,12 +162,12 @@ else:
     logger.info("---------------- Stage offline ensemble members")
     ens_member_list = []
     clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
-    nmem_ens = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
-    for domain in ['ocn', 'ice']:
+    nmem_ens = len(glob.glob(os.path.join(clim_ens_dir, 'ocean.*.nc')))
+    for domain in ['ocean', 'ice']:
         for mem in range(1, nmem_ens+1):
             fname = domain+"."+str(mem)+".nc"
-            fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
-            fname_out = os.path.abspath(os.path.join(static_ens, fname))
+            fname_in = os.path.join(clim_ens_dir, fname)
+            fname_out = os.path.join(static_ens, fname)
             ens_member_list.append([fname_in, fname_out])
     FileHandler({'copy': ens_member_list}).sync()
 os.environ['ENS_SIZE'] = str(nmem_ens)
