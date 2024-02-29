@@ -79,7 +79,7 @@ namespace gdasapp {
       // Lambda function to get the neighbors of a node
       const auto get_neighbors_of_node = [&](const int node) {
         std::vector<int> neighbors{};
-        neighbors.reserve(6);
+        neighbors.reserve(8);
         if (node >= mesh.nodes().size()) {
           std::cout << "Node " << node << " is out of bounds!" << std::endl;
           return neighbors;
@@ -132,7 +132,7 @@ namespace gdasapp {
           for (int nn = 0; nn < neighbors.size(); ++nn) {
             int nbNode = neighbors[nn];
             for (int ll = level - nbz; ll < level + nbz; ++ll) {
-              if (ghostView(nbNode) > 0 || abs(h(nbNode, ll)) <= 0.1 ) {
+              if ( abs(h(nbNode, ll)) <= 0.1 ) {
                 continue;
               }
               local.push_back(bkg(nbNode, ll));
@@ -149,11 +149,17 @@ namespace gdasapp {
               stdDev += std::pow(local[nn] - mean, 2.0);
             }
             if (stdDev > 0.0 || local.size() != 0) {
-              std::cout << "stddev: " << std::sqrt(stdDev / local.size()) << std::endl;
-              std::cout << "h: " << h(jnode, 0) << std::endl;
-              stdDevBkg(jnode, level)  = stdDev;  //std::sqrt(stdDev / local.size());
+              //std::cout << "stddev: " << std::sqrt(stdDev / local.size()) << std::endl;
+              //std::cout << "h: " << h(jnode, 0) << std::endl;
+              stdDevBkg(jnode, level)  = std::sqrt(stdDev / (local.size() - 1));
             }
 
+	    // Extrapolate upper levels
+	    for (int ll = 0; ll < nbz; ++ll) {
+              stdDevBkg(jnode, ll) = stdDevBkg(jnode, nbz);
+	    }
+
+	    /*
             if (stdDevBkg(jnode, level) > 5.0 ) {
               std::cout << " ------------------------- " << std::endl;
               std::cout << "mean : " << mean << std::endl;
@@ -161,9 +167,11 @@ namespace gdasapp {
                         << " " << ghostView(jnode) << " " << h(jnode, level) << std::endl;
               std::cout << "local : " << local << std::endl;
             }
+	    */
           }
         }
       }
+      
       bkgErr.fromFieldSet(bkgErrFs);
 
       // Save the background error
