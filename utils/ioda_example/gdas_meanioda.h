@@ -36,8 +36,6 @@ namespace gdasapp {
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
       // get the obs space configuration
       const eckit::LocalConfiguration obsConfig(fullConfig, "obs space");
-      ioda::ObsTopLevelParameters obsparams;
-      obsparams.validateAndDeserialize(obsConfig);
       oops::Log::info() << "obs space: " << std::endl << obsConfig << std::endl;
 
       // time window stuff
@@ -58,7 +56,7 @@ namespace gdasapp {
       // Note, the below line does a lot of heavy lifting
       // we can probably go to a lower level function
       // (and more of them) to accomplish the same thing
-      ioda::ObsSpace ospace(obsparams, oops::mpi::world(), timeWindow,
+      ioda::ObsSpace ospace(obsConfig, oops::mpi::world(), timeWindow,
                             oops::mpi::myself());
       const size_t nlocs = ospace.nlocs();
       oops::Log::info() << "nlocs =" << nlocs << std::endl;
