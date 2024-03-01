@@ -45,6 +45,9 @@ class MarineRecenter(Task):
         PDY = config['PDY']
         cyc = config['cyc']
         cdate = PDY + timedelta(hours=cyc)
+        gdate = cdate - timedelta(hours=6)
+        self.runtime_config['gcyc'] = gdate.strftime("%H")
+
         gdas_home = os.path.join(config['HOMEgfs'], 'sorc', 'gdas.cd')
         half_assim_freq = timedelta(hours=int(config['assim_freq'])/2)
         window_begin = cdate - half_assim_freq
@@ -65,7 +68,7 @@ class MarineRecenter(Task):
         self.config['mom_input_nml_src'] = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
         self.config['mom_input_nml_tmpl'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml.tmpl')
         self.config['mom_input_nml'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
-        self.config['bkg_dir'] = os.path.join(self.config.DATA, 'bkg')
+        self.config['bkg_dir'] = os.path.join(self.runtime_config.DATA, 'INPUT')
 
         self.config['gridgen_yaml'] = os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml')
         self.config['BKG_LIST'] = 'bkg_list.yaml'
@@ -84,6 +87,7 @@ class MarineRecenter(Task):
         logger.info("initialize")
 
         ufsda.stage.soca_fix(self.stage_cfg)
+
 
         ################################################################################
         # prepare input.nml
@@ -105,6 +109,11 @@ class MarineRecenter(Task):
                                window_begin=self.config.window_begin,
                                yaml_name=self.config.BKG_LIST)
 
+        ################################################################################
+        # Copy initial condition
+
+        bkg_utils.stage_ic(self.config.bkg_dir, self.runtime_config.DATA, self.runtime_config.RUN, self.runtime_config.gcyc)
+
     @logit(logger)
     def run(self):
         """Method run for ocean recentering task
@@ -118,7 +127,7 @@ class MarineRecenter(Task):
 
         logger.info("run")
 
-        chdir(self.config.DATA)
+        chdir(self.runtime_config.DATA)
 
         exec_cmd = Executable(self.config.APRUN_OCNANALECEN)
         exec_name = os.path.join(self.config.JEDI_BIN, 'soca_gridgen.x')
