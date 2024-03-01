@@ -6,8 +6,9 @@ observers:
 ##- !INC ${OBS_YAML_DIR}/aircraft.yaml
 ##- !INC ${OBS_YAML_DIR}/satwind_abi_goes-16.yaml
 ##- !INC ${OBS_YAML_DIR}/satwind_abi_goes-17.yaml
+- !INC ${OBS_YAML_DIR}/satwind_ahi_h8.yaml
 ##- !INC ${OBS_YAML_DIR}/scatwind_ascat_metop-a.yaml
-##- !INC ${OBS_YAML_DIR}/scatwind_ascat_metop-b.yaml
+- !INC ${OBS_YAML_DIR}/scatwind_ascat_metop-b.yaml
 ##- !INC ${OBS_YAML_DIR}/omi_aura.yaml
 ##- !INC ${OBS_YAML_DIR}/ompsnp_npp.yaml
 ##- !INC ${OBS_YAML_DIR}/ompstc8_npp.yaml
@@ -17,5 +18,5 @@ observers:
 ##- !INC ${OBS_YAML_DIR}/iasi_metop-b.yaml
 ##- !INC ${OBS_YAML_DIR}/sfc.yaml
 ##- !INC ${OBS_YAML_DIR}/sfcship.yaml
-##- !INC ${OBS_YAML_DIR}/conv_ps.yaml
-##- !INC ${OBS_YAML_DIR}/gnssro.yaml
+- !INC ${OBS_YAML_DIR}/conv_ps.yaml
+- !INC ${OBS_YAML_DIR}/gnssro.yaml
