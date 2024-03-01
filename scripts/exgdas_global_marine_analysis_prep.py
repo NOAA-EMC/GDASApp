@@ -309,18 +309,8 @@ s2mconfig.save(socaincr2mom6_yaml)
 
 ################################################################################
 # Copy initial condition
-ics_list = []
-GDUMP = os.getenv('GDUMP')
-# ocean IC's
-mom_ic_src = glob.glob(os.path.join(bkg_dir, f'{GDUMP}.ocean.*.inst.f003.nc'))[0]
-mom_ic_dst = os.path.join(anl_dir, 'INPUT', 'MOM.res.nc')
-ics_list.append([mom_ic_src, mom_ic_dst])
 
-# seaice IC's
-cice_ic_src = glob.glob(os.path.join(bkg_dir, f'{GDUMP}.agg_ice.*.inst.f003.nc'))[0]
-cice_ic_dst = os.path.join(anl_dir, 'INPUT', 'cice.res.nc')
-ics_list.append([cice_ic_src, cice_ic_dst])
-FileHandler({'copy': ics_list}).sync()
+bkg_utils.stage_ic(bkg_dir, anl_dir, RUN, gcyc)
 
 ################################################################################
 # prepare input.nml
