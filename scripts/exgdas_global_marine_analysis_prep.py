@@ -162,12 +162,12 @@ else:
     logger.info("---------------- Stage offline ensemble members")
     ens_member_list = []
     clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
-    nmem_ens = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
-    for domain in ['ocn', 'ice']:
+    nmem_ens = len(glob.glob(os.path.join(clim_ens_dir, 'ocean.*.nc')))
+    for domain in ['ocean', 'ice']:
         for mem in range(1, nmem_ens+1):
             fname = domain+"."+str(mem)+".nc"
-            fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
-            fname_out = os.path.abspath(os.path.join(static_ens, fname))
+            fname_in = os.path.join(clim_ens_dir, fname)
+            fname_out = os.path.join(static_ens, fname)
             ens_member_list.append([fname_in, fname_out])
     FileHandler({'copy': ens_member_list}).sync()
 os.environ['ENS_SIZE'] = str(nmem_ens)
@@ -309,18 +309,8 @@ s2mconfig.save(socaincr2mom6_yaml)
 
 ################################################################################
 # Copy initial condition
-ics_list = []
-GDUMP = os.getenv('GDUMP')
-# ocean IC's
-mom_ic_src = glob.glob(os.path.join(bkg_dir, f'{GDUMP}.ocean.*.inst.f003.nc'))[0]
-mom_ic_dst = os.path.join(anl_dir, 'INPUT', 'MOM.res.nc')
-ics_list.append([mom_ic_src, mom_ic_dst])
 
-# seaice IC's
-cice_ic_src = glob.glob(os.path.join(bkg_dir, f'{GDUMP}.agg_ice.*.inst.f003.nc'))[0]
-cice_ic_dst = os.path.join(anl_dir, 'INPUT', 'cice.res.nc')
-ics_list.append([cice_ic_src, cice_ic_dst])
-FileHandler({'copy': ics_list}).sync()
+bkg_utils.stage_ic(bkg_dir, anl_dir, RUN, gcyc)
 
 ################################################################################
 # prepare input.nml
