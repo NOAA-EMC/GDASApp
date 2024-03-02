@@ -28,6 +28,10 @@ namespace gdasapp {
     gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by the RADS" << std::endl;
 
+      // Get the obs. error ratio from the configuration
+      float errRatio;
+      fullConfig_.get("error ratio", errRatio);
+
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
       oops::Log::info() << "Reading... " << fileName << std::endl;
@@ -111,7 +115,7 @@ namespace gdasapp {
         iodaVars.latitude_(i) = static_cast<float>(lat[i])*geoscaleFactor;
         iodaVars.datetime_(i) = static_cast<int64_t>(datetime[i]*86400.0f);
         iodaVars.obsVal_(i) = static_cast<float>(adt[i])*scaleFactor;
-        iodaVars.obsError_(i) = 0.1;  // Do something for obs error
+        iodaVars.obsError_(i) = 0.1;  // only within DA window
         iodaVars.preQc_(i) = 0;
         // Save MDT in optional floatMetadata
         iodaVars.floatMetadata_.row(i) << iodaVars.obsVal_(i) -
@@ -123,7 +127,15 @@ namespace gdasapp {
         (iodaVars.obsVal_ > -4.0 && iodaVars.obsVal_ < 4.0);
       iodaVars.trim(boundsCheck);
 
-      return iodaVars;
+      // Redating and adjusting Errors
+      if (iodaVars.datetime_.size() == 0) {
+        oops::Log::info() << "datetime_ is empty" << std::endl;
+      } else {
+        // Redating and Adjusting Error
+        iodaVars.reDate(windowBegin_, windowEnd_, errRatio);
+      }
+
+     return iodaVars;
     };
   };  // class Rads2Ioda
 }  // namespace gdasapp
