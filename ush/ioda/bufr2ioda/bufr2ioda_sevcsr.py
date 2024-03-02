@@ -462,7 +462,9 @@ def bufr_to_ioda(config, logger):
 
                 # Cloud free
                 obsspace.create_var(
-                    "MetaData/cloudFree", dtype=cldFree2.dtype, fillval=int32_fill_value
+                    "MetaData/cloudFree",
+                    dim_list=["Location", "Channel"],
+                dtype=cldFree2.dtype, fillval=int32_fill_value
                 ).write_attr("units", "1").write_attr(
                     "valid_range", np.array([0, 100], dtype=np.int32)
                 ).write_attr(
@@ -474,6 +476,7 @@ def bufr_to_ioda(config, logger):
                 # Cloud amount based on computation
                 obsspace.create_var(
                     "MetaData/cloudAmount",
+                    dim_list=["Location", "Channel"],
                     dtype=cloudAmount2.dtype,
                     fillval=cloudAmount2.fill_value,
                 ).write_attr("units", "1").write_attr(
