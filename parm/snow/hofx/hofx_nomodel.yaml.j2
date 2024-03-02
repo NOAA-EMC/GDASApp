@@ -30,6 +30,6 @@ state:
   state variables: [snwdph,vtype,slmsk]
 observations:
 {% filter indent(width=2) %}
-{% set obs_list = 'OBS_LIST' | getenv('snow/obs/lists/gdas_snow_prototype.yaml') %}
-{% include obs_list %}
+{% set snow_obs_list = 'OBS_LIST' | getenv('snow/obs/lists/gdas_snow.yaml.j2') %}
+{% include snow_obs_list %}
 {% endfilter %}
