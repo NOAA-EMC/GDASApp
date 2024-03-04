@@ -42,8 +42,8 @@ class MarineRecenter(Task):
         super().__init__(config)
 
         # Variables of convenience
-        PDY = config['PDY']
-        cyc = config['cyc']
+        PDY = self.runtime_config['PDY']
+        cyc = self.runtime_config['cyc']
         cdate = PDY + timedelta(hours=cyc)
         gdate = cdate - timedelta(hours=6)
         self.runtime_config['gcyc'] = gdate.strftime("%H")
@@ -69,6 +69,7 @@ class MarineRecenter(Task):
         self.config['mom_input_nml_tmpl'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml.tmpl')
         self.config['mom_input_nml'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
         self.config['bkg_dir'] = os.path.join(self.runtime_config.DATA, 'INPUT')
+        self.config['ens_dir'] = os.path.join(self.runtime_config.DATA, 'ens')
 
         self.config['gridgen_yaml'] = os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml')
         self.config['BKG_LIST'] = 'bkg_list.yaml'
@@ -113,6 +114,36 @@ class MarineRecenter(Task):
         # Copy initial condition
 
         bkg_utils.stage_ic(self.config.bkg_dir, self.runtime_config.DATA, self.runtime_config.RUN, self.runtime_config.gcyc)
+
+        ################################################################################
+        # stage ensemble members
+        logger.info("---------------- Stage ensemble members")
+        FileHandler({'mkdir': [self.config.ens_dir]}).sync()
+        nmem_ens = self.config.NMEM_ENS
+        PDYstr = self.runtime_config.PDY.strftime("%Y%m%d")
+        ens_member_list = []
+        for mem in range(1, nmem_ens+1):
+            for domain in ['ocean', 'ice']:
+                # TODO(Guillaume): make use and define ensemble COM in the j-job
+                ensdir = os.path.join(self.config.COM_OCEAN_HISTORY_PREV,
+                                      '..', '..', '..', '..', '..',
+                                      f'enkf{self.runtime_config.RUN}.{PDYstr}',
+                                      f'{self.runtime_config.gcyc}',
+                                      f'mem{str(mem).zfill(3)}',
+                                      'model_data',
+                                      domain,
+                                      'history')
+                ensdir_real = os.path.realpath(ensdir)
+                f009 = f'enkfgdas.{domain}.t{self.runtime_config.gcyc}z.inst.f009.nc'
+
+                fname_in = os.path.abspath(os.path.join(ensdir_real, f009))
+                fname_out = os.path.realpath(os.path.join(self.config.ens_dir,
+                                             domain+"."+str(mem)+".nc"))
+                ens_member_list.append([fname_in, fname_out])
+        FileHandler({'copy': ens_member_list}).sync()
+
+
+
 
     @logit(logger)
     def run(self):
