@@ -44,7 +44,7 @@ ecbuild_bundle_initialize()
 if(BUILD_GDASBUNDLE)
 
 # jedi-cmake
-  ecbuild_bundle( PROJECT jedicmake SOURCE "./jedicmake" )
+  ecbuild_bundle( PROJECT jedicmake SOURCE "../sorc/jedicmake" )
   include( jedicmake/cmake/Functions/git_functions.cmake )
 
 # ECMWF libraries
@@ -64,44 +64,44 @@ if(BUILD_GDASBUNDLE)
   # TODO remove the CRTM from here and use it as a library
   #option("BUNDLE_SKIP_CRTM" "Don't build CRTM" "OFF") # Don't build crtm unless user passes -DBUNDLE_SKIP_CRTM=OFF
   #ecbuild_bundle( PROJECT crtm GIT "https://github.com/JCSDA/crtm.git"   TAG v2.4.1-jedi.1 )
-  ecbuild_bundle( PROJECT crtm SOURCE "./crtm" )
+  ecbuild_bundle( PROJECT crtm SOURCE "../sorc/crtm" )
 
 # Build GSI-B
   option(BUILD_GSIBEC "Build GSI-B" OFF)
   if(BUILD_GSIBEC)
-    ecbuild_bundle( PROJECT gsibec SOURCE "./gsibec" )
+    ecbuild_bundle( PROJECT gsibec SOURCE "../sorc/gsibec" )
   endif()
 
 # Gibbs seawater
-  ecbuild_bundle( PROJECT gsw SOURCE "./gsw" )
+  ecbuild_bundle( PROJECT gsw SOURCE "../sorc/gsw" )
 
 # Core JEDI repositories
-  ecbuild_bundle( PROJECT oops SOURCE "./oops" )
-  ecbuild_bundle( PROJECT vader SOURCE "./vader" )
-  ecbuild_bundle( PROJECT saber SOURCE "./saber" )
+  ecbuild_bundle( PROJECT oops SOURCE "../sorc/oops" )
+  ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
+  ecbuild_bundle( PROJECT saber SOURCE "../sorc/saber" )
   option(ENABLE_IODA_DATA "Obtain ioda test data from ioda-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT ioda SOURCE "./ioda" )
+  ecbuild_bundle( PROJECT ioda SOURCE "../sorc/ioda" )
   option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT ufo SOURCE "./ufo" )
+  ecbuild_bundle( PROJECT ufo SOURCE "../sorc/ufo" )
 
 # FMS and FV3 dynamical core
-  ecbuild_bundle( PROJECT fms SOURCE "./fms" )
-  ecbuild_bundle( PROJECT fv3 SOURCE "./fv3" )
+  ecbuild_bundle( PROJECT fms SOURCE "../sorc/fms" )
+  ecbuild_bundle( PROJECT fv3 SOURCE "../sorc/fv3" )
 
 # fv3-jedi and associated repositories
-  ecbuild_bundle( PROJECT femps SOURCE "./femps" )
-  ecbuild_bundle( PROJECT fv3-jedi-lm SOURCE "./fv3-jedi-lm" )
+  ecbuild_bundle( PROJECT femps SOURCE "../sorc/femps" )
+  ecbuild_bundle( PROJECT fv3-jedi-lm SOURCE "../sorc/fv3-jedi-lm" )
   option(ENABLE_FV3_JEDI_DATA "Obtain fv3-jedi test data from fv3-jedi-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT fv3-jedi SOURCE "./fv3-jedi" )
+  ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
 
 # SOCA associated repositories
 # TODO: Move the Icepack fork to EMC github
   set(BUILD_ICEPACK "ON" CACHE STRING "Build the icepack library")
   if ( BUILD_ICEPACK )
-    ecbuild_bundle( PROJECT icepack SOURCE "./icepack" )
+    ecbuild_bundle( PROJECT icepack SOURCE "../sorc/icepack" )
   endif()
-  ecbuild_bundle( PROJECT mom6 SOURCE "./mom6" )
-  ecbuild_bundle( PROJECT soca SOURCE "./soca" )
+  ecbuild_bundle( PROJECT mom6 SOURCE "../sorc/mom6" )
+  ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
 
   # Build JEDI/DA or other peripherals
   ecbuild_bundle( PROJECT gdas-utils SOURCE "../utils" )
@@ -109,12 +109,12 @@ if(BUILD_GDASBUNDLE)
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
   if(BUILD_IODA_CONVERTERS)
-    ecbuild_bundle( PROJECT iodaconv SOURCE "./iodaconv" )
+    ecbuild_bundle( PROJECT iodaconv SOURCE "../sorc/iodaconv" )
   endif()
 
 # Land associated repositories
-  ecbuild_bundle( PROJECT land-imsproc SOURCE "./land-imsproc" )
-  ecbuild_bundle( PROJECT land-jediincr SOURCE "./land-jediincr" )
+  ecbuild_bundle( PROJECT land-imsproc SOURCE "../sorc/land-imsproc" )
+  ecbuild_bundle( PROJECT land-jediincr SOURCE "../sorc/land-jediincr" )
 
 # GDASApp
   ecbuild_bundle( PROJECT gdas SOURCE "../")

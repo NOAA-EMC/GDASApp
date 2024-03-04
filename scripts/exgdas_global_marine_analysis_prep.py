@@ -1,38 +1,16 @@
 #!/usr/bin/env python3
-################################################################################
-#  UNIX Script Documentation Block
-#                      .                                             .
 # Script name:         exufsda_global_marine_analysis_prep.py
 # Script description:  Stages files and generates YAML for UFS Global Marine Analysis
-#
-# Author: Guillaume Vernieres      Org: NCEP/EMC     Date: 2022-03-28
-#
-# Abstract: This script stages the marine observations, backgrounds and prepares
-#           the variational yaml necessary to produce a UFS Global Marine Analysis.
-#
-# $Id$
-#
-# Attributes:
-#   Language: Python3
-#
-################################################################################
 
-# import os and sys to add ush to path
+# import os to add ush to path
 import os
-import sys
-import yaml
 import glob
-import copy
 import dateutil.parser as dparser
 import f90nml
-import shutil
-import subprocess
+from soca import bkg_utils
 from datetime import datetime, timedelta
 import pytz
-from netCDF4 import Dataset
-import xarray as xr
-import numpy as np
-from wxflow import (AttrDict, Logger, Template, TemplateConstants, YAMLFile, FileHandler)
+from wxflow import (Logger, Template, TemplateConstants, YAMLFile, FileHandler)
 
 logger = Logger()
 
@@ -44,145 +22,6 @@ gdas_home = os.path.join(os.getenv('HOMEgfs'), 'sorc', 'gdas.cd')
 # import UFSDA utilities
 import ufsda
 from ufsda.stage import soca_fix
-
-
-def agg_seaice(fname_in, fname_out):
-    """
-    Aggregates seaice variables from a CICE restart fname_in and save in fname_out.
-    """
-
-    soca2cice_vars = {'aicen': 'aicen',
-                      'hicen': 'vicen',
-                      'hsnon': 'vsnon'}
-
-    # read CICE restart
-    ds = xr.open_dataset(fname_in)
-    nj = np.shape(ds['aicen'])[1]
-    ni = np.shape(ds['aicen'])[2]
-
-    # populate xarray with aggregated quantities
-    aggds = xr.merge([xr.DataArray(
-                      name=varname,
-                      data=np.reshape(np.sum(ds[soca2cice_vars[varname]].values, axis=0), (1, nj, ni)),
-                      dims=['time', 'yaxis_1', 'xaxis_1']) for varname in soca2cice_vars.keys()])
-
-    # remove fill value
-    encoding = {varname: {'_FillValue': False} for varname in soca2cice_vars.keys()}
-
-    # save datasets
-    aggds.to_netcdf(fname_out, format='NETCDF4', unlimited_dims='time', encoding=encoding)
-
-    # xarray doesn't allow variables and dim that have the same name, switch to netCDF4
-    ncf = Dataset(fname_out, 'a')
-    t = ncf.createVariable('time', 'f8', ('time'))
-    t[:] = 1.0
-    ncf.close()
-
-
-def cice_hist2fms(input_filename, output_filename):
-    """
-    Simple reformatting utility to allow soca/fms to read CICE's history
-    """
-    input_filename_real = os.path.realpath(input_filename)
-
-    # open the CICE history file
-    ds = xr.open_dataset(input_filename_real)
-
-    if 'aicen' in ds.variables and 'hicen' in ds.variables and 'hsnon' in ds.variables:
-        logger.info(f"*** Already reformatted, skipping.")
-        return
-
-    # rename the dimensions to xaxis_1 and yaxis_1
-    ds = ds.rename({'ni': 'xaxis_1', 'nj': 'yaxis_1'})
-
-    # rename the variables
-    ds = ds.rename({'aice_h': 'aicen', 'hi_h': 'hicen', 'hs_h': 'hsnon'})
-
-    # Save the new netCDF file
-    output_filename_real = os.path.realpath(output_filename)
-    ds.to_netcdf(output_filename_real, mode='w')
-
-
-def test_hist_date(histfile, ref_date):
-    """
-    Check that the date in the MOM6 history file is the expected one for the cycle.
-    TODO: Implement the same for seaice
-    """
-
-    ncf = Dataset(histfile, 'r')
-    hist_date = dparser.parse(ncf.variables['time'].units, fuzzy=True) + timedelta(hours=int(ncf.variables['time'][0]))
-    ncf.close()
-    logger.info(f"*** history file date: {hist_date} expected date: {ref_date}")
-    assert hist_date == ref_date, 'Inconsistent bkg date'
-
-
-def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice_rst=False):
-    """
-    Generate a YAML of the list of backgrounds for the pseudo model
-    """
-
-    # Pseudo model parameters (time step, start date)
-    # TODO: make this a parameter
-    dt_pseudo = 3
-    bkg_date = window_begin
-
-    # Construct list of background file names
-    GDUMP = os.getenv('GDUMP')
-    cyc = str(os.getenv('cyc')).zfill(2)
-    gcyc = str((int(cyc) - 6) % 24).zfill(2)  # previous cycle
-    fcst_hrs = list(range(3, 10, dt_pseudo))
-    files = []
-    for fcst_hr in fcst_hrs:
-        files.append(os.path.join(bkg_path, f'{GDUMP}.ocean.t'+gcyc+'z.inst.f'+str(fcst_hr).zfill(3)+'.nc'))
-
-    # Identify the ocean background that will be used for the  vertical coordinate remapping
-    ocn_filename_ic = os.path.splitext(os.path.basename(files[0]))[0]+'.nc'
-    test_hist_date(os.path.join(bkg_path, ocn_filename_ic), bkg_date)  # assert date of the history file is correct
-
-    # Copy/process backgrounds and generate background yaml list
-    bkg_list_src_dst = []
-    bkg_list = []
-    for bkg in files:
-
-        # assert validity of the ocean bkg date, remove basename
-        test_hist_date(bkg, bkg_date)
-        ocn_filename = os.path.splitext(os.path.basename(bkg))[0]+'.nc'
-
-        # prepare the seaice background, aggregate if the backgrounds are CICE restarts
-        ice_filename = ocn_filename.replace("ocean", "ice")
-        agg_ice_filename = ocn_filename.replace("ocean", "agg_ice")
-        if ice_rst:
-            # if this is a CICE restart, aggregate seaice variables and dump
-            # aggregated ice bkg in out_path
-            # TODO: This option is turned off for now, figure out what to do with it.
-            agg_seaice(os.path.join(bkg_path, ice_filename),
-                       os.path.join(out_path, agg_ice_filename))
-        else:
-            # Process the CICE history file so they can be read by soca/fms
-            # TODO: Add date check of the cice history
-            # TODO: bkg_path should be 1 level up
-            cice_hist2fms(os.path.join(os.getenv('COM_ICE_HISTORY_PREV'), ice_filename),
-                          os.path.join(out_path, agg_ice_filename))
-
-        # prepare list of ocean bkg to be copied to RUNDIR
-        bkg_list_src_dst.append([os.path.join(bkg_path, ocn_filename),
-                                 os.path.join(out_path, ocn_filename)])
-
-        bkg_dict = {'date': bkg_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                    'basename': './bkg/',
-                    'ocn_filename': ocn_filename,
-                    'ice_filename': agg_ice_filename,
-                    'read_from_file': 1}
-
-        bkg_date = bkg_date + timedelta(hours=dt_pseudo)  # TODO: make the bkg interval a configurable
-        bkg_list.append(bkg_dict)
-
-    # save pseudo model yaml configuration
-    f = open(yaml_name, 'w')
-    yaml.dump(bkg_list[1:], f, sort_keys=False, default_flow_style=False)
-
-    # copy ocean backgrounds to RUNDIR
-    FileHandler({'copy': bkg_list_src_dst}).sync()
 
 
 def nearest_date(strings, input_date):
@@ -318,17 +157,17 @@ if dohybvar:
     # reformat the cice history output
     for mem in range(1, nmem_ens+1):
         cice_fname = os.path.realpath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
-        cice_hist2fms(cice_fname, cice_fname)
+        bkg_utils.cice_hist2fms(cice_fname, cice_fname)
 else:
     logger.info("---------------- Stage offline ensemble members")
     ens_member_list = []
     clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
-    nmem_ens = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
-    for domain in ['ocn', 'ice']:
+    nmem_ens = len(glob.glob(os.path.join(clim_ens_dir, 'ocean.*.nc')))
+    for domain in ['ocean', 'ice']:
         for mem in range(1, nmem_ens+1):
             fname = domain+"."+str(mem)+".nc"
-            fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
-            fname_out = os.path.abspath(os.path.join(static_ens, fname))
+            fname_in = os.path.join(clim_ens_dir, fname)
+            fname_out = os.path.join(static_ens, fname)
             ens_member_list.append([fname_in, fname_out])
     FileHandler({'copy': ens_member_list}).sync()
 os.environ['ENS_SIZE'] = str(nmem_ens)
@@ -409,10 +248,10 @@ var_yaml_template = os.path.join(gdas_home,
                                  'soca',
                                  'variational',
                                  '3dvarfgat.yaml')
-gen_bkg_list(bkg_path=os.getenv('COM_OCEAN_HISTORY_PREV'),
-             out_path=bkg_dir,
-             window_begin=window_begin,
-             yaml_name='bkg_list.yaml')
+bkg_utils.gen_bkg_list(bkg_path=os.getenv('COM_OCEAN_HISTORY_PREV'),
+                       out_path=bkg_dir,
+                       window_begin=window_begin,
+                       yaml_name='bkg_list.yaml')
 os.environ['BKG_LIST'] = 'bkg_list.yaml'
 
 # select the SABER BLOCKS to use
@@ -470,18 +309,8 @@ s2mconfig.save(socaincr2mom6_yaml)
 
 ################################################################################
 # Copy initial condition
-ics_list = []
-GDUMP = os.getenv('GDUMP')
-# ocean IC's
-mom_ic_src = glob.glob(os.path.join(bkg_dir, f'{GDUMP}.ocean.*.inst.f003.nc'))[0]
-mom_ic_dst = os.path.join(anl_dir, 'INPUT', 'MOM.res.nc')
-ics_list.append([mom_ic_src, mom_ic_dst])
 
-# seaice IC's
-cice_ic_src = glob.glob(os.path.join(bkg_dir, f'{GDUMP}.agg_ice.*.inst.f003.nc'))[0]
-cice_ic_dst = os.path.join(anl_dir, 'INPUT', 'cice.res.nc')
-ics_list.append([cice_ic_src, cice_ic_dst])
-FileHandler({'copy': ics_list}).sync()
+bkg_utils.stage_ic(bkg_dir, anl_dir, RUN, gcyc)
 
 ################################################################################
 # prepare input.nml
