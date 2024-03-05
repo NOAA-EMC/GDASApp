@@ -1,24 +1,27 @@
-obs operator:
-  name: CRTM
-  Absorbers: [H2O,O3,CO2]
-  obs options:
-    Sensor_ID: seviri_m11
-    EndianType: little_endian
-    CoefficientPath: $(DATA)/crtm/
-  linear obs operator:
-    Absorbers: [H2O,O3]
 obs space:
   name: seviri_m11
   obsdatain:
     engine:
       type: H5File
       obsfile: $(DATA)/obs/$(OPREFIX)seviri_m11.tm00.nc
+#     obsfile: $(DATA)/obs/seviri_m11_obsall_2021080100.nc4
   obsdataout:
     engine:
       type: H5File
       obsfile: $(DATA)/diags/diag_seviri_m11_{{ current_cycle | to_YMDH }}.nc
   simulated variables: [brightnessTemperature]
-  channels: 4-11 
+  channels: &seviri_m11_channels 4-11 
+
+obs operator:
+  name: CRTM
+  Absorbers: [H2O,O3,CO2]
+  obs options:
+    Sensor_ID: &Sensor_ID seviri_m11
+    EndianType: little_endian
+    CoefficientPath: $(DATA)/crtm/
+  linear obs operator:
+    Absorbers: [H2O,O3]
+
 obs bias:
   input file: $(DATA)/obs/$(GPREFIX)seviri_m11.satbias.nc4
   output file: $(DATA)/bc/$(APREFIX)seviri_m11.satbias.nc4
@@ -55,69 +58,161 @@ obs bias:
         ratio for small dataset: 2.0
     output file: $(DATA)/bc/$(APREFIX)seviri_m11.satbias_cov.nc4
 
-
-
 obs prior filters:
-# Step 1: Assign obs error for each channel
+# Step 0: Assign obs error for each channel
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   action:
     name: assign error
     error parameter vector: [0.75, 2.50, 2.25, 1.25, 1.25, 0.75, 0.80, 1.25]
 
+- filter: Variable Assignment
+  assignments:
+  - name: DerivedMetaData/surfaceFlag
+    type: int
+    function:
+      name: IntObsFunction/Conditional
+      options:
+        defaultvalue: 4
+        firstmatchingcase: true
+        cases:
+        - where:
+          - variable:
+              name: GeoVaLs/water_area_fraction
+            minvalue: 0.99
+          value: 0
+        - where:
+          - variable:
+              name: GeoVaLs/land_area_fraction
+            minvalue: 0.99
+          value: 1
+        - where:
+          - variable:
+              name: GeoVaLs/ice_area_fraction
+            minvalue: 0.99
+          value: 2
+        - where:
+          - variable:
+              name: GeoVaLs/surface_snow_area_fraction
+            minvalue: 0.99
+          value: 3
+
+- filter: Variable Assignment
+  assignments:
+  - name: DerivedMetaData/surfaceParam
+    type: int
+    function:
+      name: IntObsFunction/Conditional
+      options:
+        defaultvalue: 0
+        firstmatchingcase: true
+        cases:
+        - where:
+          - variable:
+              name: GeoVaLs/water_area_fraction
+            minvalue: 0.99
+          value: 30
+        - where:
+          - variable:
+              name: GeoVaLs/land_area_fraction
+            minvalue: 0.99
+          value: 15
+        - where:
+          - variable:
+              name: GeoVaLs/ice_area_fraction
+            minvalue: 0.99
+          value: 20
+        - where:
+          - variable:
+              name: GeoVaLs/surface_snow_area_fraction
+            minvalue: 0.99
+          value: 15
+
+- filter: Variable Assignment
+  assignments:
+  - name: DerivedMetaData/thinningCriteria
+    type: int
+    function:
+      name: IntObsFunction/Arithmetic
+      options:
+        variables:
+        - name: DerivedMetaData/surfaceParam
+#       - name: MetaData/fractionOfClearPixelsInFOV
+        coefs: [1]
+#       intercept: 300
+
 obs post filters:
-
-# Data Thining
-- filter: Gaussian Thinning
-  filter variables:
-  - name: brightnessTemperature
-    channels: 4-11
-  horizontal_mesh: 145
-  use_reduced_horizontal_grid: true
-  distance_norm: geodesic
-  priority_variable: MetaData/cloudFree 
-  action:
-    name: reject
-
-# Reject when sensorZenithAngle is more than 65
+# Step 1: Satellite Zenith Angle Check
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   test variables:
   - name: MetaData/sensorZenithAngle
   maxvalue: 65.
   action:
     name: reject
 
-# Reject when cloud fraction is more than 30
+# Step 2: Clear-sky fraction check
+- filter: Bounds Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: *seviri_m11_channels
+  test variables:
+  - name: MetaData/cloudAmount
+  maxvalue: 30.
+  action:
+    name: reject
+
+# Step 3: Scene homogeneous check
 - filter: Domain Check
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
-  where:
-  - variable:
-      name: MetaData/cloudAmount
-      channels: 5
-    maxvalue: 30
-
-
-# WV Channels 5-6 scene consistency check SDTB>1.3
-- filter: Domain Check
-  filter variables:
-  - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   where:
   - variable:
       name: ClearSkyStdDev/brightnessTemperature
-      channels: 5,6
-    maxvalue: 1.3 
+      channels: 5
+    is_defined:
+  where:
+  - variable:
+      name: ClearSkyStdDev/brightnessTemperature
+      channels: 6
+    is_defined:
+    where operator: and
 
+- filter: Domain Check
+  filter variables:
+  - name: brightnessTemperature
+    channels: *seviri_m11_channels
+  where:
+  - variable:
+      name: ClearSkyStdDev/brightnessTemperature
+      channels: 5
+    maxvalue: 1.3
+  - variable:
+      name: ClearSkyStdDev/brightnessTemperature
+      channels: 6
+    maxvalue: 1.3
+  where operator: and
 
+## Step 4: Thinning
+- filter: Gaussian Thinning
+  filter variables:
+  - name: brightnessTemperature
+    channels: *seviri_m11_channels 
+  horizontal_mesh: 145
+  use_reduced_horizontal_grid: true
+  distance_norm: maximum
+  time_mesh: 'PT06H'
+  time_min: '2021-07-31T21:00:00Z'
+  time_max: '2021-08-01T03:00:00Z'
+  action:
+    name: reject
 
-# Surface type check
+# Step 5: Surface type check
 # Reject channels 5-6 over land-dominant area 
 - filter: RejectList
   filter variables:
@@ -132,7 +227,7 @@ obs post filters:
 - filter: RejectList
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11 
+    channels: *seviri_m11_channels
   where:
   - variable:
       name: GeoVaLs/surface_snow_area_fraction
@@ -142,17 +237,17 @@ obs post filters:
 - filter: RejectList
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   where:
   - variable:
       name: GeoVaLs/ice_area_fraction
     minvalue: 0.99 
 
-# Reject all channels over mixed surface
+# Reject all channelsover mixed surface
 - filter: RejectList
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   where:
   - variable:
       name: GeoVaLs/land_area_fraction
@@ -171,81 +266,81 @@ obs post filters:
     maxvalue: 0.99
     max_exclusive: true 
 
-# Step 3: Terrain Check: Do not use when height > 1km 
+# Step 6: Terrain Check: Do not use when height > 1km 
 - filter: Domain Check
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   where:
   - variable:
       name: GeoVaLs/surface_geopotential_height 
     maxvalue: 1000.0
 
-# Step 4: Observation Range Sanity Check
+# Step 7: Observation Range Sanity Check
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   minvalue: 0.0000
   maxvalue: 1000.0
   action:
     name: reject
 
-# Step 5: Error Inflation based on topography
+# Step 8: Error Inflation based on topography
 - filter: Variable Assignment
   assignments:
   - name: DerivedMetaData/ObsErrorFactorTopo
-    channels: 4-11
+    channels: *seviri_m11_channels
     type: float
     function:
       name: ObsFunction/ObsErrorFactorTopoRad
-      channels: 4-11
+      channels: *seviri_m11_channels
       options:
-        sensor: seviri_m11
-        channels: 4-11
+        sensor: *Sensor_ID
+        channels: *seviri_m11_channels
 
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   action:
     name: inflate error
     inflation variable:
       name: DerivedMetaData/ObsErrorFactorTopo
-      channels: 4-11
+      channels: *seviri_m11_channels
 
-# Step 6: Error Inflation based on TOA transmittance 
+# Step 9: Error Inflation based on TOA transmittance 
 - filter: Perform Action
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   action:
     name: inflate error
     inflation variable:
       name: ObsFunction/ObsErrorFactorTransmitTopRad
-      channels: 4-11
+      channels: *seviri_m11_channels
       options:
-        channels: 4-11
+        channels: *seviri_m11_channels
 
-# Step 7: Cloud detection check 
+# Step 10: Cloud detection check 
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   test variables:
   - name: ObsFunction/CloudDetectMinResidualIR
-    channels: 4-11
+    channels: *seviri_m11_channels
     options:
-      channels: 4-11
+      channels: *seviri_m11_channels
       use_flag: [ -1, 1, 1, -1,  -1, -1, -1, -1 ]
-      use_flag_clddet: [ -1, -2, -2, -2,  -2, -2, -2, -2 ]
+      use_flag_clddet: [ -2, -2, -2, -2,  -2, -2, -2, -2 ]
       obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
       error parameter vector: [0.75, 2.50, 2.25, 1.25, 1.25, 0.75, 0.80, 1.25]
   maxvalue: 1.0e-12
   action:
       name: reject
 
-# Step 8: Scene consistency check using channel 9 
+# Step 11: Scene consistency check using channel 9 
 #         Reject channels 4, 6-11 if channel 9 if scene consistency is greated than 0.5
 - filter: Domain Check
   filter variables:
@@ -258,7 +353,7 @@ obs post filters:
     maxvalue: 0.5 
     max_exclusive: true
 
-# Step 9: Gross check 
+# Step 12: Gross check 
 #         Reject channels 4, 6-11 if omf > 2
 - filter: Background Check
   filter variables:
@@ -268,7 +363,7 @@ obs post filters:
   action:
     name: reject
 
-# Step 10: Error inflation for channels 3-4 based on scene consistency from channel 5
+# Step 13: Error inflation for channels 3-4 based on scene consistency from channel 5
 - filter: Perform Action 
   filter variables: 
   - name: brightnessTemperature
@@ -324,38 +419,38 @@ obs post filters:
     name: inflate error
     inflation factor: 1.51987
 
-# Step 11:
+# Step 14:
 - filter: Bounds Check
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   test variables:
   - name: ObsFunction/NearSSTRetCheckIR
-    channels: 4-11
+    channels: *seviri_m11_channels
     options:
-      channels: 4-11
+      channels: *seviri_m11_channels
       use_flag: [ -1, 1, 1, -1,  -1, -1, -1, -1 ]
   maxvalue: 1.0e-12
   action:
     name: reject
 
-# Step 12: Error inflation based on surface jacobian check
+# Step 15: Error inflation based on surface jacobian check
 - filter: Perform Action 
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   action:
     name: inflate error
     inflation variable:
       name: ObsFunction/ObsErrorFactorSurfJacobianRad
-      channels: 4-11
+      channels: *seviri_m11_channels
       options:
-        channels: 4-11
+        channels: *seviri_m11_channels
         sensor: seviri_m11 
         obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
         obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
 
-# Step 13: Cloud fraction cehck
+# Step 16: Cloud fraction cehck
 #          Reject channels 4, 6-11 if Cloud fraction (percent) > 2
 - filter: Domain Check
   filter variables:
@@ -366,28 +461,27 @@ obs post filters:
       name: MetaData/cloudAmount
     maxvalue: 2
 
-# Step14: Final gross check
+# Step 17: Final gross check
 - filter: Background Check
   filter variables:
   - name: brightnessTemperature
-    channels: 4-11
+    channels: *seviri_m11_channels
   function absolute threshold:
   - name: ObsFunction/ObsErrorBoundIR
-    channels: 4-11
+    channels: *seviri_m11_channels
     options:
-      sensor: seviri_m11
-      channels: 4-11
+      sensor: *Sensor_ID
+      channels: *seviri_m11_channels
       obserr_bound_latitude:
         name: ObsFunction/ObsErrorFactorLatRad
         options:
           latitude_parameters: [0.0, 0.0, 0.0, 0.0]
       obserr_bound_transmittop:
         name: ObsFunction/ObsErrorFactorTransmitTopRad
-        channels: 4-11
+        channels: *seviri_m11_channels
         options:
-          channels: 4-11
+          channels: *seviri_m11_channels
       obserr_bound_max: [ 2.0, 4.0, 3.5, 2.0, 2.0, 2.0, 2.0, 3.0 ]
       error parameter vector: [0.75, 2.50, 2.25, 1.25, 1.25, 0.75, 0.80, 1.25]
   action:
     name: reject
-

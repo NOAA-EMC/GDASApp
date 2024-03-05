@@ -91,7 +91,7 @@ def bufr_to_ioda(config, logger):
     q.add("sensorZenithAngle", "*/SAZA")
     q.add("sensorCentralFrequency", "*/RPSEQ7/SCCF")
     q.add("solarZenithAngle", "*/SOZA")
-    q.add("cloudFree", "*/RPSEQ7/NCLDMNT")
+    q.add("cloudFree", "*/RPSEQ7{5}/NCLDMNT")
     q.add("brightnessTemperature", "*/RPSEQ7/TMBRST")
     q.add("ClearSkyStdDev", "*/RPSEQ7/SDTB")
 
@@ -124,7 +124,7 @@ def bufr_to_ioda(config, logger):
     chanfreq = r.get("sensorCentralFrequency", type="float")
     BT = r.get("brightnessTemperature")
     clrStdDev = r.get("ClearSkyStdDev")
-    cldFree = r.get("cloudFree")
+    cldFree = r.get("cloudFree", type="float")
     solzenang = r.get("solarZenithAngle")
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
@@ -153,7 +153,7 @@ def bufr_to_ioda(config, logger):
     scanpos = np.zeros(nfov, dtype=np.int32)
     scanpos = satzenang.astype(np.int32) + 1
 
-    cloudAmount = 100 - cldFree
+    cloudAmount = 100. - cldFree
 
     sataziang = np.full_like(solzenang, float32_fill_value, dtype=np.float32)
     solaziang = np.full_like(solzenang, float32_fill_value, dtype=np.float32)
@@ -258,9 +258,7 @@ def bufr_to_ioda(config, logger):
             scanpos2 = np.where(scanpos2.mask, int32_fill_value, scanpos2)
             solzenang2 = solzenang[combined_mask]
             cldFree2 = cldFree[combined_mask]
-            cldFree2 = cldFree2[:, 3:11]
             cloudAmount2 = cloudAmount[combined_mask]
-            cloudAmount2 = cloudAmount2[:, 3:11]
             BT2 = BT[combined_mask]
 
             # Extract only channels 4 to 11
@@ -277,6 +275,8 @@ def bufr_to_ioda(config, logger):
             # Check unique observation time
             unique_timestamp2 = np.unique(timestamp2)
             logger.debug(f"Processing output for satid {sat}")
+            logger.info(f"number of unique_timestamp2 {len(unique_timestamp2)}")
+            logger.info(f"unique_timestamp2 {unique_timestamp2}")
 
             # Create the dimensions
             dims = {
@@ -463,8 +463,7 @@ def bufr_to_ioda(config, logger):
                 # Cloud free
                 obsspace.create_var(
                     "MetaData/cloudFree",
-                    dim_list=["Location", "Channel"],
-                dtype=cldFree2.dtype, fillval=int32_fill_value
+                    dtype=cldFree2.dtype, fillval=int32_fill_value
                 ).write_attr("units", "1").write_attr(
                     "valid_range", np.array([0, 100], dtype=np.int32)
                 ).write_attr(
@@ -476,7 +475,6 @@ def bufr_to_ioda(config, logger):
                 # Cloud amount based on computation
                 obsspace.create_var(
                     "MetaData/cloudAmount",
-                    dim_list=["Location", "Channel"],
                     dtype=cloudAmount2.dtype,
                     fillval=cloudAmount2.fill_value,
                 ).write_attr("units", "1").write_attr(
