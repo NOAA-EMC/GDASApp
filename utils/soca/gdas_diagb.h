@@ -17,7 +17,7 @@
 #include "atlas/functionspace/NodeColumns.h"
 
 #include "oops/base/FieldSet3D.h"
-//#include "oops/base/GeometryData.h"
+#include "oops/base/GeometryData.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
@@ -28,6 +28,8 @@
 #include "soca/Geometry/Geometry.h"
 #include "soca/Increment/Increment.h"
 #include "soca/State/State.h"
+#include "soca/ExplicitDiffusion/ExplicitDiffusion.h"
+#include "soca/ExplicitDiffusion/ExplicitDiffusionParameters.h"
 
 namespace gdasapp {
 
@@ -53,6 +55,10 @@ namespace gdasapp {
       oops::Log::info() << "====================== variables" << std::endl;
       oops::Variables socaVars(fullConfig, "variables.name");
 
+      /// Read rescaling factor
+      double rescale;
+      fullConfig.get("rescale", rescale);
+
       /// Read the background
       oops::Log::info() << "====================== read bkg" << std::endl;
       soca::State xb(geom, socaVars, cycleDate);
@@ -62,11 +68,7 @@ namespace gdasapp {
       atlas::FieldSet xbFs;
       xb.toFieldSet(xbFs);
 
-      /// Create the GeometryData object
-      // This is used to initialize a local KD-Tree
-      oops::Log::info() << "====================== geometryData" << std::endl;
-
-      /// Create the mesh connectivity (Copy/past of Francois's stuff)
+      /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // Build edges, then connections between nodes and edges
       atlas::functionspace::NodeColumns test = geom.functionSpace();
       atlas::Mesh mesh = test.mesh();
@@ -102,9 +104,8 @@ namespace gdasapp {
       };
 
       /// Compute local std. dev. as a proxy of the bkg error
-      oops::Log::info() << "====================== std dev " << xbFs["tocn"].shape(0) << std::endl;
       //int nbh = 8;  // Number of closest point (horizontal)
-      int nbz = 1;  // Number of closest point (vertical)
+
       const auto ghostView =
         atlas::array::make_view<int, 1>(geom.functionSpace().ghost());
 
@@ -114,14 +115,82 @@ namespace gdasapp {
       atlas::FieldSet bkgErrFs;
       bkgErr.toFieldSet(bkgErrFs);
 
-      // TODO(G): Need to loop through variables
-      auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs["tocn"]);
-      auto bkg = atlas::array::make_view<double, 2>(xbFs["tocn"]);
+      // Loop through variables
       auto h = atlas::array::make_view<double, 2>(xbFs["hocn"]);
-      for (atlas::idx_t level = nbz; level < xbFs["tocn"].shape(1) - nbz; ++level) {
-        for (atlas::idx_t jnode = 1; jnode < xbFs["tocn"].shape(0)-1; ++jnode) {
+
+      for (auto & var : socaVars.variables()) {      
+	oops::Log::info() << "====================== std dev for " << var << std::endl;
+	auto bkg = atlas::array::make_view<double, 2>(xbFs[var]);
+	auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
+
+	int nbz = 1;  // Number of closest point in the vertical, above and below
+	nbz = std::min(nbz, xbFs[var].shape(1) - 1);
+	for (atlas::idx_t level = nbz; level < xbFs[var].shape(1) - nbz; ++level) {
+	  oops::Log::info() << "                       level: " << level << std::endl;
+	  for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
+	    // Early exit if thickness is 0 or on a ghost cell
+	    if (ghostView(jnode) > 0 || abs(h(jnode, 0)) <= 0.1) {
+	      continue;
+	    }
+
+	    // Ocean or ice node, do something
+	    std::vector<double> local;
+	    auto neighbors = get_neighbors_of_node(jnode);
+	    int nbh = neighbors.size();
+	    for (int nn = 0; nn < neighbors.size(); ++nn) {
+	      int nbNode = neighbors[nn];
+	      for (int ll = level - nbz; ll <= level + nbz; ++ll) {
+		if ( abs(h(nbNode, ll)) <= 0.1 ) {
+		  continue;
+		}
+		local.push_back(bkg(nbNode, ll));
+	      }
+	    }
+
+	    if (local.size() > 3) {
+	      // Mean
+	      double mean = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
+
+	      // Standard deviation
+	      double stdDev(0.0);
+	      for (int nn = 0; nn < nbh; ++nn) {
+		stdDev += std::pow(local[nn] - mean, 2.0);
+	      }
+	      if (stdDev > 0.0 || local.size() != 0) {
+		//std::cout << "stddev: " << std::sqrt(stdDev / local.size()) << std::endl;
+		//std::cout << "h: " << h(jnode, 0) << std::endl;
+		stdDevBkg(jnode, level)  = rescale * std::sqrt(stdDev / (local.size() - 1));
+	      }
+
+	      // Extrapolate upper levels
+	      for (int ll = 0; ll < nbz; ++ll) {
+		stdDevBkg(jnode, ll) = stdDevBkg(jnode, nbz);
+	      }
+
+	      /*
+		if (stdDevBkg(jnode, level) > 5.0 ) {
+		std::cout << " ------------------------- " << std::endl;
+		std::cout << "mean : " << mean << std::endl;
+		std::cout << "stdDev : " << stdDevBkg(jnode, level)
+		<< " " << ghostView(jnode) << " " << h(jnode, level) << std::endl;
+		std::cout << "local : " << local << std::endl;
+		}
+	      */
+	    }
+	  }
+	}
+      } 
+
+      // TODO(G): Assume that the steric balance explains 97% of ssh ... or do it properly ... maybe
+      
+      /*
+      bkgErrFs["tocn"].haloExchange();
+      
+      /// Smooth the fields 
+      for (atlas::idx_t level = 0; level < xbFs["tocn"].shape(1); ++level) {
+        for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
           // Early exit if thickness is 0 or on a ghost cell
-          if (ghostView(jnode) > 0 || abs(h(jnode, 0)) <= 0.1) {
+          if (abs(h(jnode, 0)) <= 0.1) {
             continue;
           }
 
@@ -131,47 +200,38 @@ namespace gdasapp {
           int nbh = neighbors.size();
           for (int nn = 0; nn < neighbors.size(); ++nn) {
             int nbNode = neighbors[nn];
-            for (int ll = level - nbz; ll < level + nbz; ++ll) {
-              if ( abs(h(nbNode, ll)) <= 0.1 ) {
+	    if ( abs(h(nbNode, level)) <= 0.1 ) {
                 continue;
-              }
-              local.push_back(bkg(nbNode, ll));
-            }
-          }
-
-          if (local.size() > 3) {
-            // Mean
-            double mean = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
-
-            // Standard deviation
-            double stdDev(0.0);
-            for (int nn = 0; nn < nbh; ++nn) {
-              stdDev += std::pow(local[nn] - mean, 2.0);
-            }
-            if (stdDev > 0.0 || local.size() != 0) {
-              //std::cout << "stddev: " << std::sqrt(stdDev / local.size()) << std::endl;
-              //std::cout << "h: " << h(jnode, 0) << std::endl;
-              stdDevBkg(jnode, level)  = std::sqrt(stdDev / (local.size() - 1));
-            }
-
-	    // Extrapolate upper levels
-	    for (int ll = 0; ll < nbz; ++ll) {
-              stdDevBkg(jnode, ll) = stdDevBkg(jnode, nbz);
 	    }
+	    local.push_back(stdDevBkg(nbNode, level));
+	  }
 
-	    /*
-            if (stdDevBkg(jnode, level) > 5.0 ) {
-              std::cout << " ------------------------- " << std::endl;
-              std::cout << "mean : " << mean << std::endl;
-              std::cout << "stdDev : " << stdDevBkg(jnode, level)
-                        << " " << ghostView(jnode) << " " << h(jnode, level) << std::endl;
-              std::cout << "local : " << local << std::endl;
-            }
-	    */
-          }
-        }
+          if (local.size() > 2) {
+            stdDevBkg(jnode, level) = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
+	  }
+	}
       }
-      
+      */
+      /// Smooth the background error
+      // That doesn't seem to work, the output is in [0, ~1000]
+      // Initialize the diffusion central block
+      if (fullConfig.has("diffusion")) {
+	const eckit::LocalConfiguration diffusionConfig(fullConfig, "diffusion");
+	soca::ExplicitDiffusionParameters params;
+	params.deserialize(diffusionConfig);
+	oops::GeometryData geometryData(geom.functionSpace(), bkgErrFs["tocn"], true, this->getComm());
+	const oops::FieldSet3D dumyXb(cycleDate, this->getComm());
+	soca::ExplicitDiffusion diffuse(geometryData, socaVars, diffusionConfig, params, dumyXb, dumyXb);
+	diffuse.read();
+
+	// Smooth the field
+	oops::FieldSet3D dx(cycleDate, this->getComm());
+	dx.deepCopy(bkgErrFs);
+	diffuse.multiply(dx);
+	bkgErrFs = dx.fieldSet();
+      }
+
+      // We want to write with soca, not atlas: Syncronize with soca Increment
       bkgErr.fromFieldSet(bkgErrFs);
 
       // Save the background error
