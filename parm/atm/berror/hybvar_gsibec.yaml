@@ -61,6 +61,8 @@ components:
             level for 2d variables: last
           nicas:
             resolution: 6
+            min effective resolution: 0.2  # Note: this is very much not recommended (resolution too low), only
+                                           # used because covariance quality is not important for CI tests
             explicit length-scales: true
             horizontal length-scale:
             - groups:

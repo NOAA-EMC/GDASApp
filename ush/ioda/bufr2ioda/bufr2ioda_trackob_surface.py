@@ -133,6 +133,9 @@ def bufr_to_ioda(config, logger):
     dateTime = dateTime[mask]
     rcptdateTime = rcptdateTime[mask]
     temp = temp[mask]
+    if len(temp) is 0:
+        logger.info(f"trackob_surface temp array is {len(temp)} after applying mask.  Return.")
+        return
     saln = saln[mask]
 
     # ObsError

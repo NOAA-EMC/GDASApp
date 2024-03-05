@@ -4,9 +4,8 @@ observers:
 ##- !INC ${OBS_YAML_DIR}/atms_n20.yaml
 ##- !INC ${OBS_YAML_DIR}/atms_npp.yaml
 ##- !INC ${OBS_YAML_DIR}/aircraft.yaml
-##- !INC ${OBS_YAML_DIR}/satwind_abi_goes-16.yaml
+- !INC ${OBS_YAML_DIR}/satwind_abi_goes-16.yaml
 ##- !INC ${OBS_YAML_DIR}/satwind_abi_goes-17.yaml
-- !INC ${OBS_YAML_DIR}/satwind_ahi_h8.yaml
 ##- !INC ${OBS_YAML_DIR}/scatwind_ascat_metop-a.yaml
 - !INC ${OBS_YAML_DIR}/scatwind_ascat_metop-b.yaml
 ##- !INC ${OBS_YAML_DIR}/omi_aura.yaml
