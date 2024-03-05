@@ -58,11 +58,11 @@ fi
 
 ################################################################################
 # Write ensemble weights for the hybrid envar
-$APRUN_OCNANAL $JEDI_BIN/gdas_socahybridweights.x soca_ensweights.yaml
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
-fi
+#$APRUN_OCNANAL $JEDI_BIN/gdas_socahybridweights.x soca_ensweights.yaml
+#export err=$?; err_chk
+#if [ $err -gt 0  ]; then
+#    exit $err
+#fi
 
 ################################################################################
 # Ensemble perturbations for the EnVAR and diagonal of static B
@@ -79,8 +79,17 @@ fi
 #   - moments
 
 # Process static ensemble
-clean_yaml soca_clim_ens_moments.yaml
-$APRUN_OCNANAL $JEDI_BIN/gdas_ens_handler.x soca_ensb.yaml
+#clean_yaml soca_clim_ens_moments.yaml
+#$APRUN_OCNANAL $JEDI_BIN/gdas_ens_handler.x soca_ensb.yaml
+#export err=$?; err_chk
+#if [ $err -gt 0  ]; then
+#    exit $err
+#fi
+
+################################################################################
+# Compute the parametric diag of B
+echo "++++++++++++++++++++++++++++++ $APRUN_OCNANAL"
+$APRUN_OCNANAL $JEDI_BIN/gdas_diagb.x soca_diagb.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err

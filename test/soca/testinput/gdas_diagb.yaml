@@ -18,4 +18,4 @@ background error:
   type: incr
 
 variables:
-  name: [tocn, socn, hocn, ssh, cicen, hicen, hsnon]
+  name: [tocn, socn, uocn, vocn, hocn, ssh, cicen, hicen, hsnon]

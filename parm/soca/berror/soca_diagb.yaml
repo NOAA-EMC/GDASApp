@@ -1,0 +1,23 @@
+geometry:
+  mom6_input_nml: mom_input.nml
+  fields metadata: ./fields_metadata.yaml
+
+date: '{{ATM_WINDOW_MIDDLE}}'
+
+background:
+  date: '{{ATM_WINDOW_MIDDLE}}'
+  basename: ./bkg/
+  ocn_filename: '{{RUN}}.ocean.t{{gcyc}}z.inst.f009.nc'
+  ice_filename: '{{RUN}}.agg_ice.t{{gcyc}}z.inst.f009.nc'
+  read_from_file: 1
+
+background error:
+  datadir: ./
+  date: '{{ATM_WINDOW_MIDDLE}}'
+  exp: bkgerr_stddev
+  type: incr
+
+variables:
+  name: [tocn, socn, uocn, vocn, hocn, ssh, cicen, hicen, hsnon]
+
+rescale: 2.0

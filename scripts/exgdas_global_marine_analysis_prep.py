@@ -101,7 +101,9 @@ logger.info(f"---------------- Stage observations")
 envconfig = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
              'ATM_WINDOW_BEGIN': window_begin_iso,
              'ATM_WINDOW_MIDDLE': window_middle_iso,
-             'ATM_WINDOW_LENGTH': f"PT{os.getenv('assim_freq')}H"}
+             'ATM_WINDOW_LENGTH': f"PT{os.getenv('assim_freq')}H",
+             'gcyc': gcyc,
+             'RUN': RUN}
 stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'stage.yaml'))
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
@@ -158,18 +160,20 @@ if dohybvar:
     for mem in range(1, nmem_ens+1):
         cice_fname = os.path.realpath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
         bkg_utils.cice_hist2fms(cice_fname, cice_fname)
-else:
-    logger.info("---------------- Stage offline ensemble members")
-    ens_member_list = []
-    clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
-    nmem_ens = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
-    for domain in ['ocn', 'ice']:
-        for mem in range(1, nmem_ens+1):
-            fname = domain+"."+str(mem)+".nc"
-            fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
-            fname_out = os.path.abspath(os.path.join(static_ens, fname))
-            ens_member_list.append([fname_in, fname_out])
-    FileHandler({'copy': ens_member_list}).sync()
+
+# Commented out while testing the parametric diagb
+#else:
+#    logger.info("---------------- Stage offline ensemble members")
+#    ens_member_list = []
+#    clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
+#    nmem_ens = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
+#    for domain in ['ocn', 'ice']:
+#        for mem in range(1, nmem_ens+1):
+#            fname = domain+"."+str(mem)+".nc"
+#            fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
+#            fname_out = os.path.abspath(os.path.join(static_ens, fname))
+#            ens_member_list.append([fname_in, fname_out])
+#    FileHandler({'copy': ens_member_list}).sync()
 os.environ['ENS_SIZE'] = str(nmem_ens)
 
 ################################################################################
@@ -188,6 +192,14 @@ FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
 ################################################################################
 # generate the YAML file for the post processing of the clim. ens. B
 berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
+
+logger.info(f"---------------- generate soca_diagb.yaml")
+diagb_yaml = os.path.join(anl_dir, 'soca_diagb.yaml')
+diagb_yaml_template = os.path.join(berror_yaml_dir, 'soca_diagb.yaml')
+config = YAMLFile(path=diagb_yaml_template)
+config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
+config.save(diagb_yaml)
 
 logger.info(f"---------------- generate soca_ensb.yaml")
 berr_yaml = os.path.join(anl_dir, 'soca_ensb.yaml')
