@@ -25,7 +25,6 @@ saber central block:
       horizontal:
         filename: hz_ice.nc
 
-
 saber outer blocks:
 - saber block name: StdDev
   read:
