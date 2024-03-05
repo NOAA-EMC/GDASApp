@@ -137,6 +137,7 @@ ufsda.stage.soca_fix(stage_cfg)
 
 ################################################################################
 # stage ensemble members
+nmem_ens = 0
 if dohybvar:
     logger.info("---------------- Stage ensemble members")
     nmem_ens = int(os.getenv('NMEM_ENS'))
@@ -162,7 +163,7 @@ if dohybvar:
         bkg_utils.cice_hist2fms(cice_fname, cice_fname)
 
 # Commented out while testing the parametric diagb
-#else:
+# else:
 #    logger.info("---------------- Stage offline ensemble members")
 #    ens_member_list = []
 #    clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))

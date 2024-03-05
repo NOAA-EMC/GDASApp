@@ -94,9 +94,6 @@ if(BUILD_GDASBUNDLE)
   option(ENABLE_FV3_JEDI_DATA "Obtain fv3-jedi test data from fv3-jedi-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
 
-# DAML
-  ecbuild_bundle( PROJECT daml SOURCE "../sorc/daml" )
-
 # SOCA associated repositories
 # TODO: Move the Icepack fork to EMC github
   set(BUILD_ICEPACK "ON" CACHE STRING "Build the icepack library")
