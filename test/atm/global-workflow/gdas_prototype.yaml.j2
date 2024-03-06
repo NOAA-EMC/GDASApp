@@ -1,0 +1,6 @@
+observers:
+{% filter indent(width=2) %}
+{% include 'atm/obs/config/amsua_n19.yaml.j2' %}
+{% include 'atm/obs/config/sondes.yaml.j2' %}
+{% set cycle = current_cycle | strftime("t%Hz") %}
+{% endfilter %}

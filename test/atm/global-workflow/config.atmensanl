@@ -5,9 +5,8 @@
 
 echo "BEGIN: config.atmensanl"
 
-export OBS_YAML_DIR=${HOMEgfs}/sorc/gdas.cd/parm/atm/obs/config/
 export OBS_LIST=@OBS_LIST@
-export ATMENSYAML=${HOMEgfs}/sorc/gdas.cd/parm/atm/lgetkf/lgetkf.yaml
+export ATMENSYAML="${HOMEgfs}/parm/gdas/atm/lgetkf/lgetkf.yaml.j2"
 export INTERP_METHOD='barycentric'
 
 export layout_x_atmensanl=@LAYOUT_X_ATMENSANL@
