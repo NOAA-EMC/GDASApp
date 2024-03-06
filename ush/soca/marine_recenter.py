@@ -63,7 +63,7 @@ class MarineRecenter(Task):
 
         stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'recen.yaml'))
         stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, self.window_config.get)
-        stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, self.window_config.get)
+        stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_CURLY_BRACE, self.window_config.get)
         self.stage_cfg = stage_cfg
 
         self.config['window_begin'] = window_begin
@@ -156,6 +156,9 @@ class MarineRecenter(Task):
         berr_yaml = YAMLFile(path=self.config.berr_yaml_template)
         berr_yaml = Template.substitute_structure(berr_yaml,
                                                   TemplateConstants.DOUBLE_CURLY_BRACES,
+                                                  self.window_config.get)
+        berr_yaml = Template.substitute_structure(berr_yaml,
+                                                  TemplateConstants.DOLLAR_CURLY_BRACE,
                                                   self.window_config.get)
         berr_yaml.save(self.config.berr_yaml_file)
 
