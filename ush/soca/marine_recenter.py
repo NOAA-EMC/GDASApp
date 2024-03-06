@@ -49,6 +49,7 @@ class MarineRecenter(Task):
         self.runtime_config['gcyc'] = gdate.strftime("%H")
 
         gdas_home = os.path.join(config['HOMEgfs'], 'sorc', 'gdas.cd')
+        
         half_assim_freq = timedelta(hours=int(config['assim_freq'])/2)
         window_begin = cdate - half_assim_freq
         window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -57,6 +58,7 @@ class MarineRecenter(Task):
         self.window_config = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
                               'ATM_WINDOW_BEGIN': window_begin_iso,
                               'ATM_WINDOW_MIDDLE': window_middle_iso,
+                              'ENS_SIZE': self.config.NMEM_ENS,
                               'ATM_WINDOW_LENGTH': f"PT{config['assim_freq']}H"}
 
         stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'recen.yaml'))
@@ -70,6 +72,9 @@ class MarineRecenter(Task):
         self.config['mom_input_nml'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
         self.config['bkg_dir'] = os.path.join(self.runtime_config.DATA, 'INPUT')
         self.config['ens_dir'] = os.path.join(self.runtime_config.DATA, 'ens')
+        berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
+        self.config['berr_yaml_template'] = os.path.join(berror_yaml_dir, 'soca_ensb.yaml')
+        self.config['berr_yaml_file'] = os.path.join(self.runtime_config.DATA, 'soca_ensb.yaml')
 
         self.config['gridgen_yaml'] = os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml')
         self.config['BKG_LIST'] = 'bkg_list.yaml'
@@ -140,7 +145,19 @@ class MarineRecenter(Task):
                 fname_out = os.path.realpath(os.path.join(self.config.ens_dir,
                                              domain+"."+str(mem)+".nc"))
                 ens_member_list.append([fname_in, fname_out])
+        # TODO(AFE) any reason not to make this a link?
         FileHandler({'copy': ens_member_list}).sync()
+
+        ################################################################################
+        # generate the YAML file for the post processing of the clim. ens. B
+    
+        logger.info(f"---------------- generate soca_ensb.yaml")
+    
+        berr_yaml = YAMLFile(path=self.config.berr_yaml_template)
+        berr_yaml = Template.substitute_structure(berr_yaml,
+                                                  TemplateConstants.DOUBLE_CURLY_BRACES,
+                                                  self.window_config.get)
+        berr_yaml.save(self.config.berr_yaml_file)
 
 
 
