@@ -216,6 +216,7 @@ namespace gdasapp {
         }
       }
 
+      // Basic QC
       Eigen::Array<bool, Eigen::Dynamic, 1> boundsCheck =
         (iodaVars.obsVal_ > sstMin && iodaVars.obsVal_ < sstMax);
       iodaVars.trim(boundsCheck);
