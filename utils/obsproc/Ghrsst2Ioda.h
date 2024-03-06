@@ -150,9 +150,6 @@ namespace gdasapp {
         }
       }
 
-      oops::Log::info() << "from the origial datetime  :    " << seconds[1999][11999] << std::endl;
-      oops::Log::info() << "from the origial datetime  :    " << seconds[3000][6000] << std::endl;
-
       // Superobing
       // TODO(Guillaume): Save the sampling std dev of sst so it can be used
       //                  as a proxi for obs error
