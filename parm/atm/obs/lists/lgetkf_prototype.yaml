@@ -1,8 +1,0 @@
-observers:
-##- !INC ${OBS_YAML_DIR}/lgetkf_amsua_n19.yaml
-##- !INC ${OBS_YAML_DIR}/lgetkf_sondes.yaml
-- !INC ${OBS_YAML_DIR}/lgetkf_satwind_abi_goes-16.yaml
-- !INC ${OBS_YAML_DIR}/lgetkf_scatwind_ascat_metop-b.yaml
-- !INC ${OBS_YAML_DIR}/lgetkf_conv_ps.yaml
-- !INC ${OBS_YAML_DIR}/lgetkf_gnssro.yaml
-

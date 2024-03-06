@@ -1,0 +1,79 @@
+- obs space:
+    name: amsua_n19
+    distribution:
+      name: Halo
+      halo size: 1250e3
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: './obs/{{ OPREFIX }}amsua_n19.{{ current_cycle | to_YMDH }}.nc'
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: './diags/diag_amsua_n19_{{ current_cycle | to_YMDH }}.nc
+    io pool:
+      max pool size: 1
+    simulated variables: [brightnessTemperature]
+    channels: &amsua_n19_channels 4-6,9-14
+  obs operator:
+    name: CRTM
+    Absorbers: [H2O,O3]
+    Clouds: [Water, Ice]
+    Cloud_Fraction: 1.0
+    obs options:
+      Sensor_ID: amsua_n19
+      EndianType: little_endian
+      CoefficientPath: ./crtm/
+  obs error:
+    covariance model: diagonal
+  obs bias:
+    input file: '{{ DATA }}/obs/{{ GPREFIX }}amsua_n19.satbias.nc'
+    output file: '{{ DATA }}/bc/{{ APREFIX }}amsua_n19.satbias.nc'
+    variational bc:
+      predictors:
+      - name: constant
+      - name: lapse_rate
+        order: 2
+        tlapse: &amsua_n19_tlapse '{{ DATA }}/obs/{{ GPREFIX }}amsua_n19.tlapse.txt'
+      - name: lapse_rate
+        tlapse: *amsua_n19_tlapse
+      - name: emissivity
+      - name: scan_angle
+        order: 4
+      - name: scan_angle
+        order: 3
+      - name: scan_angle
+        order: 2
+      - name: scan_angle
+    covariance:
+      minimal required obs number: 20
+      variance range: [1.0e-6, 10.0]
+      step size: 1.0e-4
+      largest analysis variance: 10000.0
+      prior:
+        input file: '{{ DATA }}/obs/{{ GPREFIX }}amsua_n19.satbias_cov.nc'
+        inflation:
+          ratio: 1.1
+          ratio for small dataset: 2.0
+      output file: '{{ DATA }}/bc/{{ APREFIX }}amsua_n19.satbias_cov.nc'
+  obs filters:
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *amsua_n19_channels
+    minvalue: 100.0
+    maxvalue: 500.0
+    action:
+      name: reject
+  #  Gross check
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *amsua_n19_channels
+    threshold: 3.0
+    action:
+      name: reject
+  obs localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 1250e3
+    max nobs: 10000

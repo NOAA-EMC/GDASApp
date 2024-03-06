@@ -1,0 +1,8 @@
+observers:
+{% filter indent(width=2) %}
+{% include 'atm/obs/config/lgetkf_satwind_abi_goes-16.yaml.j2' %}
+{% include 'atm/obs/config/lgetkf_scatwind_ascat_metop-b.yaml.j2' %}
+{% include 'atm/obs/config/lgetkf_conv_ps.yaml.j2' %}
+{% include 'atm/obs/config/lgetkf_gnssro.yaml.j2' %}
+{% set cycle = current_cycle | strftime("t%Hz") %}
+{% endfilter %}
