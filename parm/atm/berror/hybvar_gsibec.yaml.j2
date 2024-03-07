@@ -9,8 +9,8 @@ components:
         gsi error covariance file: &gsiberr '{{ DATA }}/berror/gsi-coeffs-gfs-global.nc4'
 #       gsi error covariance file: &gsiberr '{{ DATA }}/berror/global_berror.f77'
         gsi berror namelist file: &gsibnml '{{ DATA }}/berror/gfs_gsi_global.nml'
-        processor layout x direction: &layout_gsib_x '{{ layout_gsib_x }}'
-        processor layout y direction: &layout_gsib_y '{{ layout_gsib_y }}'
+        processor layout x direction: &layout_gsib_x {{ layout_gsib_x }}
+        processor layout y direction: &layout_gsib_y {{ layout_gsib_y }}
         debugging mode: false
     saber outer blocks:
     - saber block name: gsi interpolation to model grid
@@ -42,7 +42,7 @@ components:
         filename_sfcw: '{{ current_cycle | to_fv3time }}.fv_srf_wnd.res.nc'
         filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
       pattern: '%mem%'
-      nmembers: '{{ NMEM_ENS }}'
+      nmembers: {{ NMEM_ENS }}
       zero padding: 3
     localization:
       localization method: SABER
