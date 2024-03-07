@@ -180,19 +180,32 @@ class MarineRecenter(Task):
 
         chdir(self.runtime_config.DATA)
 
-        exec_cmd = Executable(self.config.APRUN_OCNANALECEN)
-        exec_name = os.path.join(self.config.JEDI_BIN, 'soca_gridgen.x')
-        exec_cmd.add_default_arg(exec_name)
-        exec_cmd.add_default_arg(self.config.gridgen_yaml)
+        exec_cmd_gridgen = Executable(self.config.APRUN_OCNANALECEN)
+        exec_name_gridgen = os.path.join(self.config.JEDI_BIN, 'soca_gridgen.x')
+        exec_cmd_gridgen.add_default_arg(exec_name_gridgen)
+        exec_cmd_gridgen.add_default_arg(self.config.gridgen_yaml)
 
         try:
-            logger.debug(f"Executing {exec_cmd}")
-            exec_cmd()
+            logger.debug(f"Executing {exec_cmd_gridgen}")
+            exec_cmd_gridgen()
         except OSError:
-            raise OSError(f"Failed to execute {exec_cmd}")
+            raise OSError(f"Failed to execute {exec_cmd_gridgen}")
         except Exception:
-            raise WorkflowException(f"An error occured during execution of {exec_cmd}")
+            raise WorkflowException(f"An error occured during execution of {exec_cmd_gridgen}")
+        pass
 
+        exec_cmd_recen = Executable(self.config.APRUN_OCNANALECEN)
+        exec_name_recen = os.path.join(self.config.JEDI_BIN, 'gdas_ens_handler.x')
+        exec_cmd_recen.add_default_arg(exec_name_recen)
+        exec_cmd_recen.add_default_arg(self.config.gridgen_yaml)
+
+        try:
+            logger.debug(f"Executing {exec_cmd_recen}")
+            exec_cmd_recen()
+        except OSError:
+            raise OSError(f"Failed to execute {exec_cmd_recen}")
+        except Exception:
+            raise WorkflowException(f"An error occured during execution of {exec_cmd_recen}")
         pass
 
     @logit(logger)
