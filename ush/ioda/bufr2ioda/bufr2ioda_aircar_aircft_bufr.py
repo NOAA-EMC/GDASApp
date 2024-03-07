@@ -340,8 +340,15 @@ def bufr_to_ioda(config, logger):
     DATA_PATH_aircft = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh),
                                     bufrfile_aircft)
 
-    logger.debug(f"The aircar DATA_PATH is: {DATA_PATH_aircar}")
-    logger.debug(f"The aircft DATA_PATH is: {DATA_PATH_aircft}")
+    if not os.path.isfile(DATA_PATH_aircar):
+        logger.info(f"DATA_PATH_aircar {DATA_PATH_aircar} does not exist")
+        return
+    logger.debug(f"The DATA_PATH_aircar is: {DATA_PATH_aircar}")
+    if not os.path.isfile(DATA_PATH_aircft):
+        logger.info(f"DATA_PATH_aircft {DATA_PATH_aircft} does not exist")
+        return
+    logger.debug(f"The DATA_PATH_aircft is: {DATA_PATH_aircft}")
+
 
     # ============================================
     # Make the QuerySet for all the data we want
@@ -349,7 +356,7 @@ def bufr_to_ioda(config, logger):
     start_time = time.time()
 
     logger.debug(f"Making QuerySets ...")
-    q = bufr.QuerySet(subsets_aircar)  # AIRCAR
+    q = bufr.QuerySet(subsets_aircar)  # AIRCAR == NC004004
     r = bufr.QuerySet(subsets_aircft)  # AIRCFT, no amdar
     r001 = bufr.QuerySet(["NC004001"])  # individual for subset
     r002 = bufr.QuerySet(["NC004002"])
@@ -360,7 +367,7 @@ def bufr_to_ioda(config, logger):
     r010 = bufr.QuerySet(["NC004010"])
     r011 = bufr.QuerySet(["NC004011"])
     r015 = bufr.QuerySet(["NC004015"])
-    s = bufr.QuerySet(subsets_amdar)  # AIRCFT, amdar only
+    s = bufr.QuerySet(subsets_amdar)  # AIRCFT, amdar only (NC004103)
 
     logger.debug('Making QuerySet for AIRCAR ...')
     # MetaData
@@ -484,11 +491,22 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH_aircar) as f:
-        t = f.execute(q)
+        try:
+            t = f.execute(q)
+        except Exception as err:
+            logger.info(f'Return with {err}')
+            return
 
     with bufr.File(DATA_PATH_aircft) as f:
-        u = f.execute(r)
+        try:
+            u = f.execute(r)
+        except Exception as err:
+            logger.info(f'Return with {err}')
+            return
         f.rewind()
+        #  If we get here, we know this DATA_PATH exists. We merely check which NC types exist
+        #  for the try functions after this point. Rewinding is important to go back to the beginning
+        #  of the file
         try:
             u001 = f.execute(r001)
         except RuntimeError:
@@ -554,7 +572,11 @@ def bufr_to_ioda(config, logger):
         f.rewind()
 
     with bufr.File(DATA_PATH_aircft) as f:
-        v = f.execute(s)
+        try:
+            v = f.execute(s)
+        except Exception as err:
+            logger.info(f'Return with {err}')
+            return
 
     logger.debug(f"Executing QuerySet for AIRCAR ...")
     # MetaData
