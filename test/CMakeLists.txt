@@ -135,6 +135,11 @@ if (WORKFLOW_TESTS)
            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/testrun)
 endif()
 
+# fv3jedi tests
+if (${BUILD_GDASBUNDLE})
+  add_subdirectory(fv3jedi)
+endif()
+
 # soca tests
 if (${BUILD_GDASBUNDLE})
   add_subdirectory(soca)

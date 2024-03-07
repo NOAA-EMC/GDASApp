@@ -38,8 +38,7 @@ namespace gdasapp {
       const eckit::LocalConfiguration stateInputConfig(bkgConfig, "input");
       const fv3jedi::Geometry stateGeom(stateGeomConfig, this->getComm());
       fv3jedi::State xxBkg(stateGeom, stateInputConfig);
-      oops::Log::info() << "Background Geometry: " << std::endl << stateGeom << std::endl;
-      oops::Log::info() << "Background State: " << std::endl << xxBkg << std::endl;
+      oops::Log::test() << "Background State: " << std::endl << xxBkg << std::endl;
 
       // Setup JEDI increment
       const eckit::LocalConfiguration jediIncrConfig(fullConfig, "jedi increment");
@@ -49,15 +48,13 @@ namespace gdasapp {
       const fv3jedi::Geometry jediIncrGeom(jediIncrGeomConfig, this->getComm());
       fv3jedi::Increment dx(jediIncrGeom, jediIncrVarin, xxBkg.validTime());
       dx.read(jediIncrInputConfig);
-      oops::Log::info() << "JEDI Increment Geometry: " << std::endl << jediIncrGeom << std::endl;
-      oops::Log::info() << "JEDI Increment: " << std::endl << dx << std::endl;
+      oops::Log::test() << "JEDI Increment: " << std::endl << dx << std::endl;
 
       // Setup FV3 increment
       const eckit::LocalConfiguration fv3IncrConfig(fullConfig, "fv3 increment");
       const eckit::LocalConfiguration fv3IncrGeomConfig(fv3IncrConfig, "geometry");
       const eckit::LocalConfiguration fv3IncrOuputConfig(fv3IncrConfig, "output");
       const fv3jedi::Geometry fv3IncrGeom(fv3IncrGeomConfig, this->getComm());
-      oops::Log::info() << "FV3 Increment Geometry: " << std::endl << fv3IncrGeom << std::endl;
 
       //
       std::unique_ptr<fv3jedi::VariableChange> vc;
@@ -76,7 +73,7 @@ namespace gdasapp {
       // Get final FV3 increment
       fv3jedi::Increment dxFV3(fv3IncrGeom, stateVarout, xxBkg.validTime());
       dxFV3.diff(xxAnl, xxBkg);
-      oops::Log::info() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
+      oops::Log::test() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
 
       // Write FV3 increment
       dxFV3.write(fv3IncrOuputConfig);
