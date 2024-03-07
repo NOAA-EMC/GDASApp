@@ -335,10 +335,8 @@ def bufr_to_ioda(config, logger):
 
     bufrfile_aircar = f"{cycle_type}.t{hh}z.{data_type[0]}.tm00.{data_format}"
     bufrfile_aircft = f"{cycle_type}.t{hh}z.{data_type[1]}.tm00.{data_format}"
-    DATA_PATH_aircar = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh),
-                                    bufrfile_aircar)
-    DATA_PATH_aircft = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh),
-                                    bufrfile_aircft)
+    DATA_PATH_aircar = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), bufrfile_aircar)
+    DATA_PATH_aircft = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), bufrfile_aircft)
 
     if not os.path.isfile(DATA_PATH_aircar):
         logger.info(f"DATA_PATH_aircar {DATA_PATH_aircar} does not exist")
@@ -348,7 +346,6 @@ def bufr_to_ioda(config, logger):
         logger.info(f"DATA_PATH_aircft {DATA_PATH_aircft} does not exist")
         return
     logger.debug(f"The DATA_PATH_aircft is: {DATA_PATH_aircft}")
-
 
     # ============================================
     # Make the QuerySet for all the data we want
@@ -1106,8 +1103,7 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.debug(f"Running time for splitting and output IODA: {running_time} \
-                 seconds")
+    logger.debug(f"Running time for splitting and output IODA: {running_time} seconds")
 
     logger.debug(f"All Done!")
 
@@ -1117,16 +1113,12 @@ if __name__ == '__main__':
     start_time = time.time()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', type=str,
-                        help='Input JSON configuration', required=True)
-    parser.add_argument('-v', '--verbose',
-                        help='print debug logging information',
-                        action='store_true')
+    parser.add_argument('-c', '--config', type=str, help='Input JSON configuration', required=True)
+    parser.add_argument('-v', '--verbose', help='print debug logging information', action='store_true')
     args = parser.parse_args()
 
     log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger('bufr2ioda_aircar_aircft_bufr.py', level=log_level,
-                    colored_log=True)
+    logger = Logger('bufr2ioda_aircar_aircft_bufr.py', level=log_level, colored_log=True)
 
     with open(args.config, "r") as json_file:
         config = json.load(json_file)
