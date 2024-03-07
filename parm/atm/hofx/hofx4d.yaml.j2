@@ -37,7 +37,7 @@ model:
   filename_sfcd: '%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc'
   filename_sfcw: '%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc'
   filename_cplr: '%yyyy%mm%dd.%hh%MM%ss.coupler.res'
-  tstep: '{{ BKG_TSTEP }}'
+  tstep: {{ BKG_TSTEP }}
   model variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
                     slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                     u_srf,v_srf,f10m]
