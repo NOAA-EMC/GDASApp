@@ -42,11 +42,15 @@ class MarineRecenter(Task):
         super().__init__(config)
 
         # Variables of convenience
+        # TODO (AFE) maybe the g- vars should be done in the jjob
         PDY = self.runtime_config['PDY']
         cyc = self.runtime_config['cyc']
         cdate = PDY + timedelta(hours=cyc)
         gdate = cdate - timedelta(hours=6)
         self.runtime_config['gcyc'] = gdate.strftime("%H")
+        self.runtime_config['gPDY'] = datetime(gdate.year,
+                                               gdate.month,
+                                               gdate.day)
 
         gdas_home = os.path.join(config['HOMEgfs'], 'sorc', 'gdas.cd')
 
@@ -70,7 +74,8 @@ class MarineRecenter(Task):
         self.config['mom_input_nml_src'] = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
         self.config['mom_input_nml_tmpl'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml.tmpl')
         self.config['mom_input_nml'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
-        self.config['bkg_dir'] = os.path.join(self.runtime_config.DATA, 'INPUT')
+        self.config['bkg_dir'] = os.path.join(self.runtime_config.DATA, 'bkg')
+        self.config['INPUT'] = os.path.join(self.runtime_config.DATA, 'INPUT')
         self.config['ens_dir'] = os.path.join(self.runtime_config.DATA, 'ens')
         berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
         self.config['berr_yaml_template'] = os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml')
@@ -91,6 +96,8 @@ class MarineRecenter(Task):
 
         logger.info("initialize")
 
+        # save for debugging
+        self.stage_cfg.save('recen.yaml')
         ufsda.stage.soca_fix(self.stage_cfg)
 
 
@@ -124,14 +131,14 @@ class MarineRecenter(Task):
         logger.info("---------------- Stage ensemble members")
         FileHandler({'mkdir': [self.config.ens_dir]}).sync()
         nmem_ens = self.config.NMEM_ENS
-        PDYstr = self.runtime_config.PDY.strftime("%Y%m%d")
+        gPDYstr = self.runtime_config.gPDY.strftime("%Y%m%d")
         ens_member_list = []
         for mem in range(1, nmem_ens+1):
             for domain in ['ocean', 'ice']:
                 # TODO(Guillaume): make use and define ensemble COM in the j-job
                 ensdir = os.path.join(self.config.COM_OCEAN_HISTORY_PREV,
                                       '..', '..', '..', '..', '..',
-                                      f'enkf{self.runtime_config.RUN}.{PDYstr}',
+                                      f'enkf{self.runtime_config.RUN}.{gPDYstr}',
                                       f'{self.runtime_config.gcyc}',
                                       f'mem{str(mem).zfill(3)}',
                                       'model_data',
@@ -219,3 +226,28 @@ class MarineRecenter(Task):
         """
 
         logger.info("finalize")
+
+        # TODO(AFE) this has to be changed to whatever it's supposed to be
+        incr_file = f'gdas.ocean.t{self.runtime_config.cyc}z.incr.nc'
+        nmem_ens = self.config.NMEM_ENS
+        PDYstr = self.runtime_config.PDY.strftime("%Y%m%d")
+        mem_dir_list = []
+        copy_list = []
+        for mem in range(1, nmem_ens+1):
+            # TODO(Guillaume): make use and define ensemble COM in the j-job
+            mem_dir = os.path.join(self.config.COM_OCEAN_HISTORY_PREV,
+                                   '..', '..', '..', '..', '..',
+                                   f'enkf{self.runtime_config.RUN}.{PDYstr}',
+                                   f'{self.runtime_config.cyc}',
+                                   f'mem{str(mem).zfill(3)}',
+                                   'model_data',
+                                   'ocean',
+                                   'restarts')
+            mem_dir_real = os.path.realpath(mem_dir)
+            mem_dir_list.append(mem_dir_real)
+            
+            copy_list.append([f'ocn.pert.steric.{str(mem)}.nc',
+                          os.path.join(mem_dir_real,incr_file) ])
+
+        FileHandler({'mkdir': mem_dir_list}).sync()
+        FileHandler({'copy': copy_list}).sync()
