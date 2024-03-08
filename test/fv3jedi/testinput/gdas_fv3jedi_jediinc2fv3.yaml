@@ -5,16 +5,16 @@ variable change:
 background:
   geometry:
     fms initialization:
-      namelist filename: fmsmpp.nml
-      field table filename: field_table
-    akbk: akbk.nc4
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table_gfdl
+    akbk: ./fv3jedi/akbk127.nc4
     layout:
     - '1'
     - '1'
     npx: '97'
     npy: '97'
     npz: '127'
-    field metadata override: fv3jedi_fieldmetadata_history.yaml
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
   input:
     filetype: cube sphere history
     provider: ufs
@@ -25,16 +25,16 @@ jedi increment:
   input variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
   geometry:
     fms initialization:
-      namelist filename: fmsmpp.nml
-      field table filename: field_table
-    akbk: akbk.nc4
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table_gfdl
+    akbk: ./fv3jedi/akbk127.nc4
     layout:
     - '1'
     - '1'
     npx: '97'
     npy: '97'
     npz: '127'
-    field metadata override: fv3jedi_fieldmetadata_history.yaml
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
   input:
     filetype: cube sphere history
     filename: atminc.20210731.120000.nc4
@@ -42,22 +42,22 @@ jedi increment:
 fv3 increment:
   geometry:
     fms initialization:
-      namelist filename: fmsmpp.nml
-      field table filename: field_table
-    akbk: akbk.nc4
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table_gfdl
+    akbk: ./fv3jedi/akbk127.nc4
     layout:
     - '1'
     - '1'
     npx: '97'
     npy: '97'
     npz: '127'
-    field metadata override: fv3jedi_fieldmetadata_fv3inc.yaml
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
   output:
-    filetype: auxgrid
-    gridtype: gaussian
-    filename: atminc.
+    filetype: cube sphere history
+    filename: atminc.20210731_120000.nc4
+    provider: ufs
 
 test:
-  reference filename: testoutput/gdasapp_jedi_increment_to_fv3.ref
-  test output filename: testoutput/gdasapp_jedi_increment_to_fv3.test.out
+  reference filename: testoutput/gdasapp_fv3jedi_jediinc2fv3.ref
+  test output filename: testoutput/gdasapp_fv3jedi_jediinc2fv3.test.out
   float relative tolerance: 1.0e-3

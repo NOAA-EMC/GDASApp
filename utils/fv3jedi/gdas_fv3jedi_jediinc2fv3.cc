@@ -1,4 +1,4 @@
-#include "gdas_jediinc2fv3.h"
+#include "gdas_fv3jedi_jediinc2fv3.h"
 #include "oops/runs/Run.h"
 
 int main(int argc,  char ** argv) {
