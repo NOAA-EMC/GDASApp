@@ -64,6 +64,7 @@ load("json/3.10.5")
 load("rocoto/1.3.6")
 load("prod_util/2.1.1")
 
+load("py-jinja2/3.0.3")
 load("py-netcdf4/1.5.8")
 load("py-pybind11/2.11.0")
 load("py-pycodestyle/2.11.0")
