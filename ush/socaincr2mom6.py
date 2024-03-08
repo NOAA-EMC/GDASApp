@@ -6,8 +6,7 @@ import numpy as np
 from netCDF4 import Dataset
 from scipy.interpolate import griddata
 import ufsda
-from wxflow import YAMLFile
-
+from wxflow import (FileHandler, YAMLFile)
 
 def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
     """
@@ -26,7 +25,9 @@ def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
     # Make a copy of the incrememnt file
     # TODO: copying might not be necessary if we decide to not keep the
     #       original increment. TBD.
-    ufsda.disk_utils.copyfile(incr, incr_out)
+    incr_in_out = []
+    incr_in_out.append([incr, incr_out])
+    FileHandler({'copy': incr_in_out}).sync()
 
     # Open the input files as xarray datasets
     ds_incr = xr.open_dataset(incr_out)
