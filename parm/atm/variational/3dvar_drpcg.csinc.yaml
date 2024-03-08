@@ -75,9 +75,10 @@ final:
   increment:
     output:
       state component:
-        filetype: auxgrid
-        gridtype: gaussian
-        filename: ./anl/atminc.
+        filetype: cube sphere history
+        filename: ./anl/atminc.{{ current_cycle | to_fv3time }}.nc4
+        provider: ufs
+        fields to write: [ugrd,vgrd,tmp,pressfc,spfh,icmr,clwmr,o3mr]
     geometry:
       fms initialization:
         namelist filename: ./fv3jedi/fmsmpp.nml
@@ -89,4 +90,4 @@ final:
       npx: $(npx_anl)
       npy: $(npy_anl)
       npz: $(npz_anl)
-      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
