@@ -2,5 +2,4 @@ observers:
 {% filter indent(width=2) %}
 {% include 'atm/obs/config/lgetkf_amsua_n19.yaml.j2' %}
 {% include 'atm/obs/config/lgetkf_sondes.yaml.j2' %}
-{% set cycle = current_cycle | strftime("t%Hz") %}
 {% endfilter %}
