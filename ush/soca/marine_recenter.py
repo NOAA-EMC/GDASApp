@@ -74,9 +74,7 @@ class MarineRecenter(Task):
         self.config['ens_dir'] = os.path.join(self.runtime_config.DATA, 'ens')
         berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
         self.config['berr_yaml_template'] = os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml')
-        print(f'&&&&&&&&&&&&&&&&&& {self.runtime_config.DATA}')
         self.config['berr_yaml_file'] = os.path.join(self.runtime_config.DATA, 'soca_ensrecenter.yaml')
-        print(f'&&&&&&&&&&&&&&&&&& {self.config.berr_yaml_file}')
         self.config['gridgen_yaml'] = os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml')
         self.config['BKG_LIST'] = 'bkg_list.yaml'
 
