@@ -5,12 +5,12 @@ components:
     saber central block:
       saber block name: gsi covariance
       read:
-        gsi akbk: &akbk $(DATA)/fv3jedi/akbk.nc4
-        gsi error covariance file: &gsiberr $(DATA)/berror/gsi-coeffs-gfs-global.nc4
-#       gsi error covariance file: &gsiberr $(DATA)/berror/global_berror.f77
-        gsi berror namelist file: &gsibnml $(DATA)/berror/gfs_gsi_global.nml
-        processor layout x direction: &layout_gsib_x $(layout_gsib_x)
-        processor layout y direction: &layout_gsib_y $(layout_gsib_y)
+        gsi akbk: &akbk {{data}}/fv3jedi/akbk.nc4
+        gsi error covariance file: &gsiberr {{data}}/berror/gsi-coeffs-gfs-global.nc4
+#       gsi error covariance file: &gsiberr {{data}}/berror/global_berror.f77
+        gsi berror namelist file: &gsibnml {{data}}/berror/gfs_gsi_global.nml
+        processor layout x direction: &layout_gsib_x {{layout_gsib_x}}
+        processor layout y direction: &layout_gsib_y {{layout_gsib_y}}
         debugging mode: false
     saber outer blocks:
     - saber block name: gsi interpolation to model grid
@@ -42,7 +42,7 @@ components:
         filename_sfcw: '{{ current_cycle_fv3time }}.fv_srf_wnd.res.nc'
         filename_cplr: '{{ current_cycle_fv3time }}.coupler.res'
       pattern: '%mem%'
-      nmembers: $(NMEM_ENS)
+      nmembers: {{number_ensemble_members}}
       zero padding: 3
     localization:
       localization method: SABER
