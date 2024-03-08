@@ -43,9 +43,6 @@ def soca_fix(config):
                       os.path.join(config['stage_dir'], 'obsop_name_map.yaml')])
 
     # INPUT
-    #ufsda.disk_utils.copytree(os.path.join(config['soca_input_fix_dir'], 'INPUT'),
-    #                          os.path.join(config['stage_dir'], 'INPUT'))
-
     src_input_dir = os.path.join(config['soca_input_fix_dir'], 'INPUT')
     dst_input_dir = os.path.join(config['stage_dir'], 'INPUT')
     FileHandler({'mkdir': [dst_input_dir]}).sync()

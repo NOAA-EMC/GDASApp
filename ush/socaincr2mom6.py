@@ -8,6 +8,7 @@ from scipy.interpolate import griddata
 import ufsda
 from wxflow import (FileHandler, YAMLFile)
 
+
 def socaincr2mom6(incr, bkg, grid, incr_out, nsst_yaml=None):
     """
     Process the JEDI/SOCA increment file and create a MOM6 increment file
