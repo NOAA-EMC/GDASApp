@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <limits>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
 #include <vector>
@@ -82,7 +83,6 @@ namespace gdasapp {
       std::vector<std::vector<float>> obsvalue(dimRow, std::vector<float>(dimCol));
       std::vector<std::vector<float>> obserror(dimRow, std::vector<float>(dimCol));
       std::vector<std::vector<int>> preqc(dimRow, std::vector<int>(dimCol));
-//      std::vector<std::vector<float>> seconds(dimRow, std::vector<float>(dimCol));
       std::vector<std::vector<float>> lat(dimRow, std::vector<float>(dimCol));
       std::vector<std::vector<float>> lon(dimRow, std::vector<float>(dimCol));
 
@@ -126,7 +126,6 @@ namespace gdasapp {
         }
       }
 
-      // superobing, not work yet...
       std::vector<std::vector<float>> obsvalue_s;
       std::vector<std::vector<float>> lon2d_s;
       std::vector<std::vector<float>> lat2d_s;
@@ -135,10 +134,8 @@ namespace gdasapp {
 
       if ( fullConfig_.has("binning") ) {
         // deal with longitude when points cross the international date line
-        float minLon;
-        // = std::numeric_limits<float>::max();
-        float maxLon;
-        // = std::numeric_limits<float>::min();
+        float minLon = std::numeric_limits<float>::max();
+        float maxLon = std::numeric_limits<float>::min();
 
         for (const auto& row : lon) {
            minLon = std::min(minLon, *std::min_element(row.begin(), row.end()));
@@ -164,8 +161,9 @@ namespace gdasapp {
 
         lat2d_s = gdasapp::superobutils::subsample2D(lat, mask, fullConfig_);
         mask_s = gdasapp::superobutils::subsample2D(mask, mask, fullConfig_);
-        // implement weighted average
         if (fullConfig_.has("binning.cressman radius")) {
+        // Weighted-average (cressman) does not work yet. Need to develop subsample2D_cressman 
+        // function to superob.h or incorporate weighted average to subsample2D function.
         // obsvalue_s = gdasapp::superobutils::subsample2D_cressman(obsvalue, lat, lon,
         //              lat2d_s, lon2d_s, mask, fullConfig_);
         // obserror_s = gdasapp::superobutils::subsample2D_cressman(obserror, lat, lon,
