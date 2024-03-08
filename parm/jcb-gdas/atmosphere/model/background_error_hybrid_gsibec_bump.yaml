@@ -1,0 +1,205 @@
+covariance model: hybrid
+components:
+- covariance:
+    covariance model: SABER
+    saber central block:
+      saber block name: gsi covariance
+      read:
+        gsi akbk: &akbk $(DATA)/fv3jedi/akbk.nc4
+        gsi error covariance file: &gsiberr $(DATA)/berror/gsi-coeffs-gfs-global.nc4
+#       gsi error covariance file: &gsiberr $(DATA)/berror/global_berror.f77
+        gsi berror namelist file: &gsibnml $(DATA)/berror/gfs_gsi_global.nml
+        processor layout x direction: &layout_gsib_x $(layout_gsib_x)
+        processor layout y direction: &layout_gsib_y $(layout_gsib_y)
+        debugging mode: false
+    saber outer blocks:
+    - saber block name: gsi interpolation to model grid
+      gsi akbk: *akbk
+      gsi error covariance file: *gsiberr
+      gsi berror namelist file: *gsibnml
+      processor layout x direction: *layout_gsib_x
+      processor layout y direction: *layout_gsib_y
+      debugging mode: false
+    linear variable change:
+      linear variable change name: Control2Analysis
+      input variables: &control_vars [eastward_wind,northward_wind,air_temperature,surface_pressure,
+                                      specific_humidity,cloud_liquid_ice,cloud_liquid_water,
+                                      mole_fraction_of_ozone_in_air]
+      output variables: &3dvars_anal [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
+  weight:
+    value: 0.125
+- covariance:
+    covariance model: ensemble
+    members from template:
+      template:
+        datetime: '{{ current_cycle | to_isotime }}'
+        filetype: fms restart
+        state variables: *3dvars_anal
+        datapath: ens/mem%mem%
+        filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
+        filename_trcr: '{{ current_cycle | to_fv3time }}.fv_tracer.res.nc'
+        filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
+        filename_sfcw: '{{ current_cycle | to_fv3time }}.fv_srf_wnd.res.nc'
+        filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
+      pattern: '%mem%'
+      nmembers: $(NMEM_ENS)
+      zero padding: 3
+    localization:
+      localization method: SABER
+      saber central block:
+        saber block name: BUMP_NICAS
+        active variables: &3dvars_anal_long [eastward_wind,northward_wind,air_temperature,surface_pressure,
+                                             specific_humidity,cloud_liquid_ice,cloud_liquid_water,
+                                             ozone_mass_mixing_ratio ]
+        read:
+          general:
+            universe length-scale: 2500.0e3
+          drivers:
+            multivariate strategy: duplicated
+            compute nicas: true
+          model:
+            level for 2d variables: last
+          nicas:
+            resolution: 6
+            explicit length-scales: true
+            horizontal length-scale:
+            - groups:
+              - common
+              profile:
+              - 1300000.0
+              - 1300000.0
+              - 1300000.0
+              - 1300000.0
+              - 1300000.0
+              - 1300000.0
+              - 1300000.0
+              - 1300000.0
+              - 1300000.0
+              - 1300000.0
+              - 1300000.0
+              - 1250000.0
+              - 1250000.0
+              - 1200000.0
+              - 1200000.0
+              - 1150000.0
+              - 1150000.0
+              - 1100000.0
+              - 1100000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 1000000.0
+              - 950000.0
+              - 950000.0
+              - 900000.0
+              - 900000.0
+              - 850000.0
+              - 850000.0
+              - 800000.0
+              - 800000.0
+              - 750000.0
+              - 750000.0
+              - 665000.0
+              - 665000.0
+              - 585000.0
+              - 585000.0
+              - 510000.0
+              - 510000.0
+              - 440000.0
+              - 440000.0
+              - 390000.0
+              - 390000.0
+              - 380000.0
+              - 380000.0
+              - 370000.0
+              - 370000.0
+              - 360000.0
+              - 360000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+              - 350000.0
+            vertical length-scale:
+            - groups:
+              - common
+              value: 0.3
+    linear variable change:
+      linear variable change name: Control2Analysis
+      input variables: *3dvars_anal_long
+      output variables: *3dvars_anal
+  weight:
+    value: 0.875
