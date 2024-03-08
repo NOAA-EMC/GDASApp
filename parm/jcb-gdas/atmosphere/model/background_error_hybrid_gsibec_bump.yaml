@@ -32,15 +32,15 @@ components:
     covariance model: ensemble
     members from template:
       template:
-        datetime: '{{ current_cycle | to_isotime }}'
+        datetime: '{{ current_cycle_isotime }}'
         filetype: fms restart
         state variables: *3dvars_anal
         datapath: ens/mem%mem%
-        filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
-        filename_trcr: '{{ current_cycle | to_fv3time }}.fv_tracer.res.nc'
-        filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
-        filename_sfcw: '{{ current_cycle | to_fv3time }}.fv_srf_wnd.res.nc'
-        filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
+        filename_core: '{{ current_cycle_fv3time }}.fv_core.res.nc'
+        filename_trcr: '{{ current_cycle_fv3time }}.fv_tracer.res.nc'
+        filename_sfcd: '{{ current_cycle_fv3time }}.sfc_data.nc'
+        filename_sfcw: '{{ current_cycle_fv3time }}.fv_srf_wnd.res.nc'
+        filename_cplr: '{{ current_cycle_fv3time }}.coupler.res'
       pattern: '%mem%'
       nmembers: $(NMEM_ENS)
       zero padding: 3
