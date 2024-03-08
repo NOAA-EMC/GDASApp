@@ -162,7 +162,7 @@ namespace gdasapp {
         lat2d_s = gdasapp::superobutils::subsample2D(lat, mask, fullConfig_);
         mask_s = gdasapp::superobutils::subsample2D(mask, mask, fullConfig_);
         if (fullConfig_.has("binning.cressman radius")) {
-        // Weighted-average (cressman) does not work yet. Need to develop subsample2D_cressman 
+        // Weighted-average (cressman) does not work yet. Need to develop subsample2D_cressman
         // function to superob.h or incorporate weighted average to subsample2D function.
         // obsvalue_s = gdasapp::superobutils::subsample2D_cressman(obsvalue, lat, lon,
         //              lat2d_s, lon2d_s, mask, fullConfig_);
