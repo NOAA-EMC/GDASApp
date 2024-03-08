@@ -4,7 +4,7 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/fv3jedi/testoutput)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/fv3jedi/fv3jedi)
 
 # Test YAMLs
-file(CREATE_LINK ${PROJECT_SOURCE_DIR}/test/fv3jedi/testinput/gdas_fv3jedi_jediinc2fv3.yaml ${PROJECT_BINARY_DIR}/test/fv3jedi/testinput/gdas_fv3jedi_jediinc2fv3.yaml SYMBOLIC)
+file(CREATE_LINK ${PROJECT_SOURCE_DIR}/test/fv3jedi/testinput/gdasapp_fv3jedi_jediinc2fv3.yaml ${PROJECT_BINARY_DIR}/test/fv3jedi/testinput/gdasapp_fv3jedi_jediinc2fv3.yaml SYMBOLIC)
 
 # Test reference files
 file(CREATE_LINK ${PROJECT_SOURCE_DIR}/test/fv3jedi/testoutput/gdasapp_fv3jedi_jediinc2fv3.ref ${PROJECT_BINARY_DIR}/test/fv3jedi/testoutput/gdasapp_fv3jedi_jediinc2fv3.ref SYMBOLIC)
