@@ -49,7 +49,7 @@ class MarineRecenter(Task):
         self.runtime_config['gcyc'] = gdate.strftime("%H")
 
         gdas_home = os.path.join(config['HOMEgfs'], 'sorc', 'gdas.cd')
-        
+
         half_assim_freq = timedelta(hours=int(config['assim_freq'])/2)
         window_begin = cdate - half_assim_freq
         window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -73,9 +73,10 @@ class MarineRecenter(Task):
         self.config['bkg_dir'] = os.path.join(self.runtime_config.DATA, 'INPUT')
         self.config['ens_dir'] = os.path.join(self.runtime_config.DATA, 'ens')
         berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
-        self.config['berr_yaml_template'] = os.path.join(berror_yaml_dir, 'soca_ensb.yaml')
-        self.config['berr_yaml_file'] = os.path.join(self.runtime_config.DATA, 'soca_ensb.yaml')
-
+        self.config['berr_yaml_template'] = os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml')
+        print(f'&&&&&&&&&&&&&&&&&& {self.runtime_config.DATA}')
+        self.config['berr_yaml_file'] = os.path.join(self.runtime_config.DATA, 'soca_ensrecenter.yaml')
+        print(f'&&&&&&&&&&&&&&&&&& {self.config.berr_yaml_file}')
         self.config['gridgen_yaml'] = os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml')
         self.config['BKG_LIST'] = 'bkg_list.yaml'
 
@@ -150,9 +151,9 @@ class MarineRecenter(Task):
 
         ################################################################################
         # generate the YAML file for the post processing of the clim. ens. B
-    
+
         logger.info(f"---------------- generate soca_ensb.yaml")
-    
+
         berr_yaml = YAMLFile(path=self.config.berr_yaml_template)
         berr_yaml = Template.substitute_structure(berr_yaml,
                                                   TemplateConstants.DOUBLE_CURLY_BRACES,
@@ -197,7 +198,7 @@ class MarineRecenter(Task):
         exec_cmd_recen = Executable(self.config.APRUN_OCNANALECEN)
         exec_name_recen = os.path.join(self.config.JEDI_BIN, 'gdas_ens_handler.x')
         exec_cmd_recen.add_default_arg(exec_name_recen)
-        exec_cmd_recen.add_default_arg(self.config.gridgen_yaml)
+        exec_cmd_recen.add_default_arg(os.path.basename(self.config.berr_yaml_file))
 
         try:
             logger.debug(f"Executing {exec_cmd_recen}")

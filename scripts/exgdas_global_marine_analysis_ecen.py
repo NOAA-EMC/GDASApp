@@ -22,4 +22,4 @@ if __name__ == '__main__':
     MarineRecen = MarineRecenter(config)
     MarineRecen.initialize()
     MarineRecen.run()
-    MarineRecen.finalize()
+    #MarineRecen.finalize()
