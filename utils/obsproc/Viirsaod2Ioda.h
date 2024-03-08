@@ -209,6 +209,7 @@ namespace gdasapp {
       oops::Log::info() << " number of channels " << nchan << std::endl;
       // Create instance of iodaVars object
       gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, {}, {});
+      iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
       oops::Log::info() << " eigen... row and column:" << obsvalue_s.size() << " "
                         << obsvalue_s[0].size() << std::endl;
@@ -222,7 +223,6 @@ namespace gdasapp {
                     iodaVars.longitude_(loc) = lon2d_s[i][j];
                     iodaVars.latitude_(loc) = lat2d_s[i][j];
                     iodaVars.datetime_(loc) = secondsSinceReference;
-                    iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
                     // VIIRS AOD use only one channel (4)
                     iodaVars.obsVal_(nchan*loc+k) = obsvalue_s[i][j];
                     if ( fullConfig_.has("binning") ) {
