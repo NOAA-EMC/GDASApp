@@ -147,7 +147,12 @@ namespace gdasapp {
               }
             }
 
-            if (local.size() > 3) {
+            //Set the minimum number of points
+            int minn = 12;  /// probably should be passed through the config
+            if (xbFs[var].shape(1) == 1) {
+              minn = 4;
+            }
+            if (local.size() >= minn) {
               // Mean
               double mean = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
 
@@ -229,6 +234,45 @@ namespace gdasapp {
 
       return 0;
     }
+
+/*
+    // -----------------------------------------------------------------------------
+    std::vector<int> getHorizNeighbors(const soca::Geometry) {
+
+      /// Create the mesh connectivity (Copy/paste of Francois's stuff)
+      // Build edges, then connections between nodes and edges
+      atlas::functionspace::NodeColumns test = geom.functionSpace();
+      atlas::Mesh mesh = test.mesh();
+      atlas::mesh::actions::build_edges(mesh);
+      atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
+      const auto & node2edge = mesh.nodes().edge_connectivity();
+      const auto & edge2node = mesh.edges().node_connectivity();
+
+      oops::Log::info() << "====================== get neighbors" << std::endl;
+      // Lambda function to get the neighbors of a node
+      const auto get_neighbors_of_node = [&](const int node) {
+        std::vector<int> neighbors{};
+        neighbors.reserve(8);
+        if (node >= mesh.nodes().size()) {
+          return neighbors;
+        }
+        // Use node2edge and edge2node connectivities to find neighbors of node
+        const int nb_edges = node2edge.cols(node);
+        for (size_t ie = 0; ie < nb_edges; ++ie) {
+          const int edge = node2edge(node, ie);
+          ASSERT(edge2node.cols(edge) == 2);  // sanity check, maybe not in production/release build
+          const int node0 = edge2node(edge, 0);
+          const int node1 = edge2node(edge, 1);
+          ASSERT(node == node0 || node == node1);  // sanity check edge contains initial node
+          if (node != node0) {
+            neighbors.push_back(node0);
+          } else {
+            neighbors.push_back(node1);
+          }
+        }
+        return neighbors;
+      };
+*/
 
     // -----------------------------------------------------------------------------
    private:

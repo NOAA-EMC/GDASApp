@@ -19,6 +19,7 @@ observations:
     dmpdir regex: rads_adt_*.nc
     provider: RADS
     output file: adt_rads_all.nc4
+    error ratio: 0.00001157407407407407  # [m/s] correspond to 1.0m/day
     window:
        back: 8         # look back 8 six-hourly obs dumps
        forward: 1    #  look forward 1 six-hourly bin

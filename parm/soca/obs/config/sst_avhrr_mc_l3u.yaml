@@ -44,3 +44,13 @@ obs filters:
   where:
   - variable: {name: GeoVaLs/distance_from_coast}
     minvalue: 100e3
+- filter: Perform Action
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables:
+        - ObsError/seaSurfaceTemperature
+        coefs:
+        - 0.05
