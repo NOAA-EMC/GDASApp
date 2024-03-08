@@ -18,6 +18,6 @@ file(CREATE_LINK ${PROJECT_SOURCE_DIR}/sorc/fv3-jedi/test/Data/fv3files/field_ta
 
 # Tests
 add_test(NAME test_gdasapp_fv3jedi_jediinc2fv3
-         COMMAND srun -n6 ${CMAKE_BINARY_DIR}/bin/gdas_fv3jedi_jediinc2fv3.x ${PROJECT_BINARY_DIR}/test/fv3jedi/testinput/gdas_fv3jedi_jediinc2fv3.yaml
+         COMMAND srun -n6 ${CMAKE_BINARY_DIR}/bin/gdas_fv3jedi_jediinc2fv3.x ${PROJECT_BINARY_DIR}/test/fv3jedi/testinput/gdasapp_fv3jedi_jediinc2fv3.yaml
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/fv3jedi)
 
