@@ -135,19 +135,17 @@ class MarineRecenter(Task):
         ens_member_list = []
         for mem in range(1, nmem_ens+1):
             for domain in ['ocean', 'ice']:
-                # TODO(Guillaume): make use and define ensemble COM in the j-job
-                ensdir = os.path.join(self.config.COM_OCEAN_HISTORY_PREV,
-                                      '..', '..', '..', '..', '..',
+                mem_dir = os.path.join(self.config.ROTDIR,
                                       f'enkf{self.runtime_config.RUN}.{gPDYstr}',
                                       f'{self.runtime_config.gcyc}',
                                       f'mem{str(mem).zfill(3)}',
                                       'model_data',
                                       domain,
                                       'history')
-                ensdir_real = os.path.realpath(ensdir)
+                mem_dir_real = os.path.realpath(mem_dir)
                 f009 = f'enkfgdas.{domain}.t{self.runtime_config.gcyc}z.inst.f009.nc'
 
-                fname_in = os.path.abspath(os.path.join(ensdir_real, f009))
+                fname_in = os.path.abspath(os.path.join(mem_dir_real, f009))
                 fname_out = os.path.realpath(os.path.join(self.config.ens_dir,
                                              domain+"."+str(mem)+".nc"))
                 ens_member_list.append([fname_in, fname_out])
@@ -227,16 +225,13 @@ class MarineRecenter(Task):
 
         logger.info("finalize")
 
-        # TODO(AFE) this has to be changed to whatever it's supposed to be
         incr_file = f'enkf{self.runtime_config.RUN}.t{self.runtime_config.cyc}z.ocninc.nc'
         nmem_ens = self.config.NMEM_ENS
         PDYstr = self.runtime_config.PDY.strftime("%Y%m%d")
         mem_dir_list = []
         copy_list = []
         for mem in range(1, nmem_ens+1):
-            # TODO(Guillaume): make use and define ensemble COM in the j-job
-            mem_dir = os.path.join(self.config.COM_OCEAN_HISTORY_PREV,
-                                   '..', '..', '..', '..', '..',
+            mem_dir = os.path.join(self.config.ROTDIR,
                                    f'enkf{self.runtime_config.RUN}.{PDYstr}',
                                    f'{self.runtime_config.cyc}',
                                    f'mem{str(mem).zfill(3)}',
