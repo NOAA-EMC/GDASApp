@@ -9,11 +9,11 @@ background:
       field table filename: ./fv3jedi/field_table
     akbk: ./fv3jedi/akbk.nc4
     layout:
-    - $(layout_x)
-    - $(layout_y)
-    npx: $(npx_ges)
-    npy: $(npy_ges)
-    npz: $(npz_ges)
+    - ${{ layout_x }}
+    - ${{ layout_y }}
+    npx: ${{ npx_ges }}
+    npy: ${{ npy_ges }}
+    npz: ${{ npz_ges }}
     field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
   input:
     datapath: ./bkg
@@ -33,11 +33,11 @@ jedi increment:
       field table filename: ./fv3jedi/field_table
     akbk: ./fv3jedi/akbk.nc4
     layout:
-    - $(layout_x)
-    - $(layout_y)
-    npx: $(npx_ges)
-    npy: $(npy_ges)
-    npz: $(npz_ges)
+    - ${{ layout_x }}
+    - ${{ layout_y }}
+    npx: ${{ npx_ges }}
+    npy: ${{ npy_ges }}
+    npz: ${{ npz_ges }}
     field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
   input:
     filetype: cube sphere history
@@ -50,11 +50,11 @@ fv3 increment:
       field table filename: ./fv3jedi/field_table
     akbk: ./fv3jedi/akbk.nc4
     layout:
-    - $(layout_x)
-    - $(layout_y)
-    npx: $(npx_ges)
-    npy: $(npy_ges)
-    npz: $(npz_ges)
+    - ${{ layout_x }}
+    - ${{ layout_y }}
+    npx: ${{ npx_ges }}
+    npy: ${{ npy_ges }}
+    npz: ${{ npz_ges }}
     field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
   output:
     filetype: auxgrid

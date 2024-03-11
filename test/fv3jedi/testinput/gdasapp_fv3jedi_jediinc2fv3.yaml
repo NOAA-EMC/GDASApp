@@ -11,12 +11,13 @@ background:
     layout:
     - '1'
     - '1'
-    npx: '97'
-    npy: '97'
+    npx: '13'
+    npy: '13'
     npz: '127'
     field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
   input:
     filetype: cube sphere history
+    datapath: ../testdata/
     provider: ufs
     datetime: '2021-07-31T12:00:00Z'
     filename: gdas.t06z.atmf006.nc
@@ -31,12 +32,13 @@ jedi increment:
     layout:
     - '1'
     - '1'
-    npx: '97'
-    npy: '97'
+    npx: '13'
+    npy: '13'
     npz: '127'
     field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
   input:
     filetype: cube sphere history
+    datapath: ../testdata/
     filename: atminc.20210731.120000.nc4
     provider: ufs
 fv3 increment:
@@ -48,8 +50,8 @@ fv3 increment:
     layout:
     - '1'
     - '1'
-    npx: '97'
-    npy: '97'
+    npx: '13'
+    npy: '13'
     npz: '127'
     field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
   output:
