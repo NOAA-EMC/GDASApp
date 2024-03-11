@@ -2,8 +2,6 @@ import datetime
 import os
 import re
 import logging
-from solo.yaml_file import YAMLFile
-from solo.template import TemplateConstants, Template
 from ufsda.misc_utils import isTrue
 import wxflow
 

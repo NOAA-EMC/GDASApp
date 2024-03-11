@@ -1,7 +1,6 @@
 import datetime
 import os
-from solo.yaml_file import YAMLFile
-from solo.template import TemplateConstants, Template
+from wxflow import YAMLFile, TemplateConstants, Template
 
 
 def gen_yaml(outyaml, templateyaml):
