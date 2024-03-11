@@ -2,8 +2,6 @@ import datetime
 import os
 import re
 import logging
-from solo.yaml_file import YAMLFile
-from solo.template import TemplateConstants, Template
 from ufsda.misc_utils import isTrue
 import wxflow
 
@@ -307,7 +305,7 @@ def include_yaml(config):
 
 
 def replace_vars(config):
-    # use SOLO to replace variables in the configuration dictionary
+    # use wxflow to replace variables in the configuration dictionary
     # as appropriate with either other dictionary key/value pairs
     # or environment variables
     config = Template.substitute_structure_from_environment(config)
