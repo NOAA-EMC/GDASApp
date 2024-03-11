@@ -25,6 +25,7 @@ rm -rf $comroot $expdir config
 # copy config.yaml to local config
 cp -r $configdir config
 cp $srcdir/test/atm/global-workflow/config.atmanl       config/
+cp $srcdir/test/atm/global-workflow/config.atmensanl    config/
 cp $srcdir/test/atm/global-workflow/config.yaml .
 
 # update paths in config.yaml
