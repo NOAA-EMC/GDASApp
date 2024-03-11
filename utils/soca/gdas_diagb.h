@@ -123,9 +123,10 @@ namespace gdasapp {
         auto bkg = atlas::array::make_view<double, 2>(xbFs[var]);
         auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
 
-        int nbz = 1;  // Number of closest point in the vertical, above and below
+        int nbz = 2;  // Number of closest point in the vertical, above and below
+        int nzMld = 10;  // Vertical index for the mixed layer depth
         nbz = std::min(nbz, xbFs[var].shape(1) - 1);
-        for (atlas::idx_t level = nbz; level < xbFs[var].shape(1) - nbz; ++level) {
+        for (atlas::idx_t level = 0; level < xbFs[var].shape(1) - nbz; ++level) {
           oops::Log::info() << "                       level: " << level << std::endl;
           for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
             // Early exit if thickness is 0 or on a ghost cell
@@ -139,7 +140,13 @@ namespace gdasapp {
             int nbh = neighbors.size();
             for (int nn = 0; nn < neighbors.size(); ++nn) {
               int nbNode = neighbors[nn];
-              for (int ll = level - nbz; ll <= level + nbz; ++ll) {
+              int levelMin = level - nbz;
+              int levelMax = level + nbz;
+              if (level < nzMld) {
+                int levelMin = 0;
+                int levelMax = nzMld;
+              }
+              for (int ll = levelMin; ll <= levelMax; ++ll) {
                 if ( abs(h(nbNode, ll)) <= 0.1 ) {
                   continue;
                 }
@@ -166,8 +173,10 @@ namespace gdasapp {
               }
 
               // Extrapolate upper levels
-              for (int ll = 0; ll < nbz; ++ll) {
-                stdDevBkg(jnode, ll) = stdDevBkg(jnode, nbz);
+              double meanMld = std::accumulate(local.begin(), local.begin() + nzMld, 0.0) / nzMld;
+              for (int ll = 0; ll < nzMld; ++ll) {
+                //stdDevBkg(jnode, ll) = stdDevBkg(jnode, nbz);
+                stdDevBkg(jnode, ll) = meanMld;
               }
             }
           }
