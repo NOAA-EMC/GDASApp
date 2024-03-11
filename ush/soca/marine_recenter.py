@@ -228,7 +228,7 @@ class MarineRecenter(Task):
         logger.info("finalize")
 
         # TODO(AFE) this has to be changed to whatever it's supposed to be
-        incr_file = f'gdas.ocean.t{self.runtime_config.cyc}z.incr.nc'
+        incr_file = f'enkf{self.runtime_config.RUN}.t{self.runtime_config.cyc}z.ocninc.nc'
         nmem_ens = self.config.NMEM_ENS
         PDYstr = self.runtime_config.PDY.strftime("%Y%m%d")
         mem_dir_list = []
@@ -240,9 +240,9 @@ class MarineRecenter(Task):
                                    f'enkf{self.runtime_config.RUN}.{PDYstr}',
                                    f'{self.runtime_config.cyc}',
                                    f'mem{str(mem).zfill(3)}',
-                                   'model_data',
+                                   'analysis',
                                    'ocean',
-                                   'restarts')
+                                   'restart')
             mem_dir_real = os.path.realpath(mem_dir)
             mem_dir_list.append(mem_dir_real)
             
