@@ -1,3 +1,0 @@
-observers:
-- !INC ${OBS_YAML_DIR}/lgetkf_amsua_n19.yaml
-- !INC ${OBS_YAML_DIR}/lgetkf_sondes.yaml
