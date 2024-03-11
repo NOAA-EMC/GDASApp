@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
+#include <numeric>
 #include <regex>
 #include <string>
 #include <vector>
@@ -170,7 +171,8 @@ namespace gdasapp {
       }
 
       // Non-Superobing part only applied to datetime
-      // TODO(Mindo): Think superob datetime efficiently
+      // TODO(Mindo): superob will later be able to process all data
+      // Compute the sum of valid obs values where mask == 1
       int64_t sum = 0;
       int count = 0;
       for (size_t i = 0; i < seconds.size(); ++i) {
