@@ -1,0 +1,8 @@
+time window:
+  begin: '{{ ATM_WINDOW_BEGIN }}'
+  end: '{{ ATM_WINDOW_END }}'
+observations:
+{% filter indent(width=2) %}
+{% set atm_obs_list = 'OBS_LIST' | getenv('atm/obs/lists/gdas_prototype.yaml.j2') %}
+{% include atm_obs_list %}
+{% endfilter %}
