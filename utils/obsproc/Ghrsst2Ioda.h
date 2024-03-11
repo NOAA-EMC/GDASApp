@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <netcdf>    // NOLINT (using C API)
-#include <numeric>
 #include <regex>
 #include <string>
 #include <vector>
