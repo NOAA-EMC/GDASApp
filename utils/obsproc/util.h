@@ -238,16 +238,18 @@ namespace gdasapp {
           for (int i = 0; i < location_; i++) {
             if (datetime_(i) < minDAwindow) {
               int delta_t = minDAwindow - datetime_(i);
-              datetime_(i) = minDAwindow + 1;
               // one second is used for safety falling in min DA window
-              obsError_(i) += errRatio * delta_t;
+              datetime_(i) = minDAwindow + 1;
+              // Convert errRatio from day to sec
+              obsError_(i) += (errRatio / 86400) * delta_t;
             }
             if (maxDAwindow < datetime_(i)) {
               int delta_t = datetime_(i) - maxDAwindow;
+              // one second is used for safety falling in min DA window
               datetime_(i) = maxDAwindow - 1;
-              // one second is used for safety falling in max DA window
-              obsError_(i) += errRatio * delta_t;
-              // Error Ratio comes from configuration based on 0.1 meter per 6 hours
+              // Convert errRatio from day to sec
+              obsError_(i) += (errRatio / 86400) * delta_t;
+              // Error Ratio comes from configuration based on 0.4 meter per day
             }
           }
           oops::Log::info() << "IodaVars::IodaVars done redating & adjsting errors." << std::endl;
