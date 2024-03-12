@@ -328,3 +328,11 @@
       threshold: 8.0
       action:
         name: reject
+
+{% if algorithm == "test_obs_filters" %}
+
+  geovals:
+    filename: aircraft_geoval_{{ current_cycle_YMDH }}.nc4
+  passedBenchmark: 107747
+
+{% endif %}

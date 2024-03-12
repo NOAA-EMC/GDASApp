@@ -365,3 +365,11 @@
     minvalue: 1.0e-12
     action:
       name: reject
+
+{% if algorithm == "test_obs_filters" %}
+
+  geovals:
+    filename: amsua_n19_geoval_{{ current_cycle_YMDH }}.nc4
+  passedBenchmark: 107747
+
+{% endif %}

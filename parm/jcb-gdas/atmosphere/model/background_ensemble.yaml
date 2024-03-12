@@ -1,0 +1,17 @@
+datetime: '{{ current_cycle_isotime }}'
+members from template:
+  template:
+    datetime: '{{ current_cycle_isotime }}'
+    filetype: fms restart
+    state variables: [ua,va,t,DZ,delp,ps,sphum,ice_wat,liq_wat,o3mr,phis,
+                     slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
+                     u_srf,v_srf,f10m]
+    datapath: bkg/mem%mem%
+    filename_core: '{{ current_cycle_fv3time }}.fv_core.res.nc'
+    filename_trcr: '{{ current_cycle_fv3time }}.fv_tracer.res.nc'
+    filename_sfcd: '{{ current_cycle_fv3time }}.sfc_data.nc'
+    filename_sfcw: '{{ current_cycle_fv3time }}.fv_srf_wnd.res.nc'
+    filename_cplr: '{{ current_cycle_fv3time }}.coupler.res'
+  pattern: '%mem%'
+  nmembers: {{ number_ensemble_members }}
+  zero padding: 3
