@@ -2,7 +2,6 @@ import datetime as dt
 import logging
 import os
 import re
-import solo.date
 import stat
 import subprocess
 
@@ -11,27 +10,6 @@ scheduler = {
     'orion': 'slurm',
     'hera': 'slurm',
 }
-
-
-def calc_fcst_steps(fcst_step, win_length):
-    """
-    function to return a list of forecast steps
-    for a given fcst_step (forecast step)
-    and win_length (window length)
-    """
-    # need to get +- half of the window length
-    # assumes only hours for now, probably bad...
-    # also assumes the window is symmetric, probably also bad
-    h = int(re.findall('PT(\\d+)H', win_length)[0])
-    h2 = int(re.findall('PT(\\d+)H', fcst_step)[0])
-    assert h % h2 == 0, "win_length must be divisible by fcst_step"
-    if h2 > h//2:
-        return [fcst_step]
-    start = f'PT{h-h//2}H'
-    end = f'PT{h+h//2}H'
-    # solo has a nice utility for this
-    fcst_steps = solo.date.step_sequence(start, end, fcst_step)
-    return fcst_steps
 
 
 def isTrue(str_in):
