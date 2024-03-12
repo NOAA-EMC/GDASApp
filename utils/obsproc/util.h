@@ -240,16 +240,14 @@ namespace gdasapp {
               int delta_t = minDAwindow - datetime_(i);
               // one second is used for safety falling in min DA window
               datetime_(i) = minDAwindow + 1;
-              // Convert errRatio from day to sec
-              obsError_(i) += (errRatio / 86400) * delta_t;
+              obsError_(i) += errRatio * delta_t;
             }
             if (maxDAwindow < datetime_(i)) {
               int delta_t = datetime_(i) - maxDAwindow;
               // one second is used for safety falling in min DA window
               datetime_(i) = maxDAwindow - 1;
-              // Convert errRatio from day to sec
-              obsError_(i) += (errRatio / 86400) * delta_t;
-              // Error Ratio comes from configuration based on 0.4 meter per day
+              obsError_(i) += errRatio * delta_t;
+              // Error Ratio comes from configuration based on meter per day
             }
           }
           oops::Log::info() << "IodaVars::IodaVars done redating & adjsting errors." << std::endl;
