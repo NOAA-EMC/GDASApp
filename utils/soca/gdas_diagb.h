@@ -9,7 +9,9 @@
 #include "eckit/config/LocalConfiguration.h"
 
 #include "atlas/field.h"
+#include "atlas/mesh.h"
 #include "atlas/mesh/actions/BuildEdges.h"
+#include "atlas/mesh/actions/BuildHalo.h"
 #include "atlas/mesh/Mesh.h"
 #include "atlas/util/Earth.h"
 #include "atlas/util/Geometry.h"
@@ -69,18 +71,22 @@ namespace gdasapp {
 
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // Build edges, then connections between nodes and edges
-      atlas::functionspace::NodeColumns test = geom.functionSpace();
-      atlas::Mesh mesh = test.mesh();
+      int nbHalos(2);
+      fullConfig.get("number of halo points", nbHalos);
+      int nbNeighbors(4);
+      fullConfig.get("number of halo points", nbHalos);
+      atlas::functionspace::NodeColumns nodeColumns = geom.functionSpace();
+      atlas::Mesh mesh = nodeColumns.mesh();
       atlas::mesh::actions::build_edges(mesh);
       atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
+      atlas::mesh::actions::build_halo(mesh, nbHalos);
       const auto & node2edge = mesh.nodes().edge_connectivity();
       const auto & edge2node = mesh.edges().node_connectivity();
 
-      oops::Log::info() << "====================== get neighbors" << std::endl;
-      // Lambda function to get the neighbors of a node
+      // Lambda function to get the neighbors of a node (Copy/paste from Francois's un-merged oops branch)
       const auto get_neighbors_of_node = [&](const int node) {
         std::vector<int> neighbors{};
-        neighbors.reserve(8);
+        neighbors.reserve(nbNeighbors);
         if (node >= mesh.nodes().size()) {
           return neighbors;
         }
@@ -175,8 +181,8 @@ namespace gdasapp {
               // Extrapolate upper levels
               double meanMld = std::accumulate(local.begin(), local.begin() + nzMld, 0.0) / nzMld;
               for (int ll = 0; ll < nzMld; ++ll) {
-                //stdDevBkg(jnode, ll) = stdDevBkg(jnode, nbz);
-                stdDevBkg(jnode, ll) = meanMld;
+                stdDevBkg(jnode, ll) = stdDevBkg(jnode, nbz);
+                //stdDevBkg(jnode, ll) = meanMld;
               }
             }
           }
@@ -185,35 +191,48 @@ namespace gdasapp {
 
       // TODO(G): Assume that the steric balance explains 97% of ssh ... or do it properly ... maybe
 
-      /*
-      bkgErrFs["tocn"].haloExchange();
-
       /// Smooth the fields
-      for (atlas::idx_t level = 0; level < xbFs["tocn"].shape(1); ++level) {
-        for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
-          // Early exit if thickness is 0 or on a ghost cell
-          if (abs(h(jnode, 0)) <= 0.1) {
-            continue;
-          }
+      int niter(0);
+      fullConfig.get("smoothing iterations", niter);
+      for (auto & var : socaVars.variables()) {
+        // Skip the layer thickness variable
+        if (var == "hocn") {
+          continue;
+        }
 
-          // Ocean or ice node, do something
-          std::vector<double> local;
-          auto neighbors = get_neighbors_of_node(jnode);
-          int nbh = neighbors.size();
-          for (int nn = 0; nn < neighbors.size(); ++nn) {
-            int nbNode = neighbors[nn];
-            if ( abs(h(nbNode, level)) <= 0.1 ) {
+        for (int iter = 0; iter < niter; ++iter) {
+
+          // Update the halo points
+          nodeColumns.haloExchange(bkgErrFs[var]);
+          auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
+
+          // Loops through nodes and levels
+          for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
+            for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
+              // Early exit if thickness is 0 or on a ghost cell
+              if (abs(h(jnode, 0)) <= 0.1) {
                 continue;
-            }
-            local.push_back(stdDevBkg(nbNode, level));
-          }
+              }
 
-          if (local.size() > 2) {
-            stdDevBkg(jnode, level) = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
+              // Ocean or ice node, do something
+              std::vector<double> local;
+              auto neighbors = get_neighbors_of_node(jnode);
+              int nbh = neighbors.size();
+              for (int nn = 0; nn < neighbors.size(); ++nn) {
+                int nbNode = neighbors[nn];
+                if ( abs(h(nbNode, level)) <= 0.1 ) {
+                  continue;
+                }
+                local.push_back(stdDevBkg(nbNode, level));
+              }
+
+              if (local.size() > 2) {
+                stdDevBkg(jnode, level) = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
+              }
+            }
           }
         }
       }
-      */
 
       /// Smooth the background error
       // That doesn't seem to work, the output is in [0, ~1000]
@@ -244,7 +263,7 @@ namespace gdasapp {
       return 0;
     }
 
-/*
+    /*
     // -----------------------------------------------------------------------------
     std::vector<int> getHorizNeighbors(const soca::Geometry) {
 
@@ -281,7 +300,7 @@ namespace gdasapp {
         }
         return neighbors;
       };
-*/
+    */
 
     // -----------------------------------------------------------------------------
    private:

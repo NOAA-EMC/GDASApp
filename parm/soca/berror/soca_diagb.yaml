@@ -21,3 +21,6 @@ variables:
   name: [tocn, socn, uocn, vocn, hocn, ssh, cicen, hicen, hsnon]
 
 rescale: 2.0
+smoothing iterations: 1
+number of halo points: 5
+number of neighbors: 16
