@@ -66,3 +66,27 @@ field metadata:
 # Dummy IO name since stc and soilt are different in JEDI but same in UFS
 - long name: soilt
   io name: dummy_io_name
+
+- long name: slmsk
+  io name: land
+
+- long name: sheleg
+  io name: weasd
+
+- long name: sea_surface_temperature
+  io name: tmpsfc
+
+- long name: stype
+  io name: sotyp
+
+- long name: vfrac
+  io name: veg
+
+- long name: totalSnowDepth
+  io name: snod
+
+- long name: surface_eastward_wind
+  io name: ugrd_hyblev1
+
+- long name: surface_northward_wind
+  io name: vgrd_hyblev1
