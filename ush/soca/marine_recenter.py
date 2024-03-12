@@ -101,6 +101,9 @@ class MarineRecenter(Task):
 
         logger.info("initialize")
 
+        RUN = self.runtime_config.RUN
+        gcyc = self.runtime_config.gcyc
+
         ufsda.stage.soca_fix(self.recen_config)
 
         ################################################################################
@@ -126,7 +129,7 @@ class MarineRecenter(Task):
         ################################################################################
         # Copy initial condition
 
-        bkg_utils.stage_ic(self.config.bkg_dir, self.runtime_config.DATA, self.runtime_config.RUN, self.runtime_config.gcyc)
+        bkg_utils.stage_ic(self.config.bkg_dir, self.runtime_config.DATA, RUN, gcyc)
 
         ################################################################################
         # stage ensemble members
@@ -138,14 +141,14 @@ class MarineRecenter(Task):
         for mem in range(1, nmem_ens+1):
             for domain in ['ocean', 'ice']:
                 mem_dir = os.path.join(self.config.ROTDIR,
-                                      f'enkf{self.runtime_config.RUN}.{gPDYstr}',
-                                      f'{self.runtime_config.gcyc}',
+                                      f'enkf{RUN}.{gPDYstr}',
+                                      f'{gcyc}',
                                       f'mem{str(mem).zfill(3)}',
                                       'model_data',
                                       domain,
                                       'history')
                 mem_dir_real = os.path.realpath(mem_dir)
-                f009 = f'enkfgdas.{domain}.t{self.runtime_config.gcyc}z.inst.f009.nc'
+                f009 = f'enkf{RUN}.{domain}.t{gcyc}z.inst.f009.nc'
 
                 fname_in = os.path.abspath(os.path.join(mem_dir_real, f009))
                 fname_out = os.path.realpath(os.path.join(self.config.ens_dir,
@@ -219,15 +222,18 @@ class MarineRecenter(Task):
 
         logger.info("finalize")
 
-        incr_file = f'enkf{self.runtime_config.RUN}.t{self.runtime_config.cyc}z.ocninc.nc'
+        RUN = self.runtime_config.RUN
+        cyc = self.runtime_config.cyc
+        incr_file = f'enkf{RUN}.t{cyc}z.ocninc.nc'
         nmem_ens = self.config.NMEM_ENS
         PDYstr = self.runtime_config.PDY.strftime("%Y%m%d")
         mem_dir_list = []
         copy_list = []
+
         for mem in range(1, nmem_ens+1):
             mem_dir = os.path.join(self.config.ROTDIR,
-                                   f'enkf{self.runtime_config.RUN}.{PDYstr}',
-                                   f'{self.runtime_config.cyc}',
+                                   f'enkf{RUN}.{PDYstr}',
+                                   f'{cyc}',
                                    f'mem{str(mem).zfill(3)}',
                                    'analysis',
                                    'ocean',
