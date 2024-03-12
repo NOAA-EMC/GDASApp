@@ -100,7 +100,6 @@ class MarineRecenter(Task):
         """
 
         logger.info("initialize")
-
         RUN = self.runtime_config.RUN
         gcyc = self.runtime_config.gcyc
 
@@ -141,12 +140,12 @@ class MarineRecenter(Task):
         for mem in range(1, nmem_ens+1):
             for domain in ['ocean', 'ice']:
                 mem_dir = os.path.join(self.config.ROTDIR,
-                                      f'enkf{RUN}.{gPDYstr}',
-                                      f'{gcyc}',
-                                      f'mem{str(mem).zfill(3)}',
-                                      'model_data',
-                                      domain,
-                                      'history')
+                                       f'enkf{RUN}.{gPDYstr}',
+                                       f'{gcyc}',
+                                       f'mem{str(mem).zfill(3)}',
+                                       'model_data',
+                                       domain,
+                                       'history')
                 mem_dir_real = os.path.realpath(mem_dir)
                 f009 = f'enkf{RUN}.{domain}.t{gcyc}z.inst.f009.nc'
 
@@ -242,7 +241,7 @@ class MarineRecenter(Task):
             mem_dir_list.append(mem_dir_real)
             
             copy_list.append([f'ocn.pert.steric.{str(mem)}.nc',
-                          os.path.join(mem_dir_real,incr_file) ])
+                              os.path.join(mem_dir_real, incr_file)])
 
         FileHandler({'mkdir': mem_dir_list}).sync()
         FileHandler({'copy': copy_list}).sync()
