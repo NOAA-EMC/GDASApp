@@ -170,7 +170,8 @@ namespace gdasapp {
       }
 
       // Non-Superobing part only applied to datetime
-      // TODO(Mindo): superob will later be able to process all data
+      // TODO(Mindo): Refactor to make superob capable of processing all data
+      // TODO(ASGM) : Remove datetime mean when the time reading is fixed(L146)
       // Compute the sum of valid obs values where mask == 1
       int64_t sum = 0;
       int count = 0;
