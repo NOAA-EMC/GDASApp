@@ -31,10 +31,10 @@ namespace gdasapp {
       //  Abort the case where the 'error ratio' key is not found
       ASSERT(fullConfig_.has("error ratio"));
 
-      // Get the obs. error ratio from the configuration
+      // Get the obs. error ratio from the configuration (meters per day)
       float errRatio;
       fullConfig_.get("error ratio", errRatio);
-      // Convert errRatio from a day to a second
+      // Convert errRatio from meters per day to meters per second
       errRatio /= 86400.0;
 
       // Open the NetCDF file in read-only mode

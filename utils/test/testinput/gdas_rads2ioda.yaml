@@ -1,7 +1,7 @@
 provider: RADS
 window begin: 2021-06-30T21:00:00Z
 window end: 2021-07-01T03:00:00Z
-error ratio: 0.4  # meter per day 
+error ratio: 0.4  # meters per day 
 output file: rads_adt_3ab_2021181.ioda.nc
 #ocean basin: RECCAP2_region_masks_all_v20221025.nc
 input files:
