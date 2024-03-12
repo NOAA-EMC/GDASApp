@@ -62,18 +62,18 @@ class MarineRecenter(Task):
         window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
         window_middle_iso = cdate.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        self.recen_config = AttrDict( 
-                  {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
-                   'ATM_WINDOW_BEGIN': window_begin_iso,
-                   'ATM_WINDOW_MIDDLE': window_middle_iso,
-                   'DATA': DATA,
-                   'dump': self.runtime_config.RUN,
-                   'fv3jedi_stage_files': self.config.FV3JEDI_STAGE_YAML,
-                   'fv3jedi_stage': self.config.FV3JEDI_STAGE_YAML,
-                   'stage_dir': DATA,
-                   'soca_input_fix_dir': self.config.SOCA_INPUT_FIX_DIR,
-                   'NMEM_ENS': self.config.NMEM_ENS,
-                   'ATM_WINDOW_LENGTH': f"PT{config['assim_freq']}H"}
+        self.recen_config = AttrDict(
+             {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+              'ATM_WINDOW_BEGIN': window_begin_iso,
+              'ATM_WINDOW_MIDDLE': window_middle_iso,
+              'DATA': DATA,
+              'dump': self.runtime_config.RUN,
+              'fv3jedi_stage_files': self.config.FV3JEDI_STAGE_YAML,
+              'fv3jedi_stage': self.config.FV3JEDI_STAGE_YAML,
+              'stage_dir': DATA,
+              'soca_input_fix_dir': self.config.SOCA_INPUT_FIX_DIR,
+              'NMEM_ENS': self.config.NMEM_ENS,
+              'ATM_WINDOW_LENGTH': f"PT{config['assim_freq']}H"}
                          )
         berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
         self.config['recen_yaml_template'] = os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml')
@@ -164,7 +164,6 @@ class MarineRecenter(Task):
         recen_yaml = parse_j2yaml(self.config.recen_yaml_template, self.recen_config)
         recen_yaml.save(self.config.recen_yaml_file)
 
-
     @logit(logger)
     def run(self):
         """Method run for ocean recentering task
@@ -239,7 +238,7 @@ class MarineRecenter(Task):
                                    'restart')
             mem_dir_real = os.path.realpath(mem_dir)
             mem_dir_list.append(mem_dir_real)
-            
+
             copy_list.append([f'ocn.pert.steric.{str(mem)}.nc',
                               os.path.join(mem_dir_real, incr_file)])
 
