@@ -63,18 +63,18 @@ class MarineRecenter(Task):
         window_middle_iso = cdate.strftime('%Y-%m-%dT%H:%M:%SZ')
 
         self.recen_config = AttrDict(
-             {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
-              'ATM_WINDOW_BEGIN': window_begin_iso,
-              'ATM_WINDOW_MIDDLE': window_middle_iso,
-              'DATA': DATA,
-              'dump': self.runtime_config.RUN,
-              'fv3jedi_stage_files': self.config.FV3JEDI_STAGE_YAML,
-              'fv3jedi_stage': self.config.FV3JEDI_STAGE_YAML,
-              'stage_dir': DATA,
-              'soca_input_fix_dir': self.config.SOCA_INPUT_FIX_DIR,
-              'NMEM_ENS': self.config.NMEM_ENS,
-              'ATM_WINDOW_LENGTH': f"PT{config['assim_freq']}H"}
-                         )
+            {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+             'ATM_WINDOW_BEGIN': window_begin_iso,
+             'ATM_WINDOW_MIDDLE': window_middle_iso,
+             'DATA': DATA,
+             'dump': self.runtime_config.RUN,
+             'fv3jedi_stage_files': self.config.FV3JEDI_STAGE_YAML,
+             'fv3jedi_stage': self.config.FV3JEDI_STAGE_YAML,
+             'stage_dir': DATA,
+             'soca_input_fix_dir': self.config.SOCA_INPUT_FIX_DIR,
+             'NMEM_ENS': self.config.NMEM_ENS,
+             'ATM_WINDOW_LENGTH': f"PT{config['assim_freq']}H"})
+
         berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
         self.config['recen_yaml_template'] = os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml')
         self.config['recen_yaml_file'] = os.path.join(DATA, 'soca_ensrecenter.yaml')
