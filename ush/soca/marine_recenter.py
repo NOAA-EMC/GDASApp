@@ -8,7 +8,8 @@ from soca import bkg_utils
 from typing import Dict
 import ufsda
 from ufsda.stage import soca_fix
-from wxflow import (chdir,
+from wxflow import (AttrDict,
+                    chdir,
                     Executable,
                     FileHandler,
                     logit,
@@ -46,6 +47,7 @@ class MarineRecenter(Task):
         # TODO (AFE) maybe the g- vars should be done in the jjob
         PDY = self.runtime_config['PDY']
         cyc = self.runtime_config['cyc']
+        DATA = self.runtime_config.DATA
         cdate = PDY + timedelta(hours=cyc)
         gdate = cdate - timedelta(hours=6)
         self.runtime_config['gcyc'] = gdate.strftime("%H")
@@ -60,29 +62,31 @@ class MarineRecenter(Task):
         window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
         window_middle_iso = cdate.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        self.window_config = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
-                              'ATM_WINDOW_BEGIN': window_begin_iso,
-                              'ATM_WINDOW_MIDDLE': window_middle_iso,
-                              'ENS_SIZE': self.config.NMEM_ENS,
-                              'ATM_WINDOW_LENGTH': f"PT{config['assim_freq']}H"}
-
-        stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'recen.yaml'))
-        stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, self.window_config.get)
-        stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_CURLY_BRACE, self.window_config.get)
-        self.stage_cfg = stage_cfg
-
-        self.config['window_begin'] = window_begin
-        self.config['mom_input_nml_src'] = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
-        self.config['mom_input_nml_tmpl'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml.tmpl')
-        self.config['mom_input_nml'] = os.path.join(stage_cfg['stage_dir'], 'mom_input.nml')
-        self.config['bkg_dir'] = os.path.join(self.runtime_config.DATA, 'bkg')
-        self.config['INPUT'] = os.path.join(self.runtime_config.DATA, 'INPUT')
-        self.config['ens_dir'] = os.path.join(self.runtime_config.DATA, 'ens')
+        self.recen_config = AttrDict( 
+                  {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+                   'ATM_WINDOW_BEGIN': window_begin_iso,
+                   'ATM_WINDOW_MIDDLE': window_middle_iso,
+                   'DATA': DATA,
+                   'dump': self.runtime_config.RUN,
+                   'fv3jedi_stage_files': self.config.FV3JEDI_STAGE_YAML,
+                   'fv3jedi_stage': self.config.FV3JEDI_STAGE_YAML,
+                   'stage_dir': DATA,
+                   'soca_input_fix_dir': self.config.SOCA_INPUT_FIX_DIR,
+                   'NMEM_ENS': self.config.NMEM_ENS,
+                   'ATM_WINDOW_LENGTH': f"PT{config['assim_freq']}H"}
+                         )
         berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
         self.config['recen_yaml_template'] = os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml')
-        self.config['recen_yaml_file'] = os.path.join(self.runtime_config.DATA, 'soca_ensrecenter.yaml')
+        self.config['recen_yaml_file'] = os.path.join(DATA, 'soca_ensrecenter.yaml')
         self.config['gridgen_yaml'] = os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml')
         self.config['BKG_LIST'] = 'bkg_list.yaml'
+        self.config['window_begin'] = window_begin
+        self.config['mom_input_nml_src'] = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
+        self.config['mom_input_nml_tmpl'] = os.path.join(DATA, 'mom_input.nml.tmpl')
+        self.config['mom_input_nml'] = os.path.join(DATA, 'mom_input.nml')
+        self.config['bkg_dir'] = os.path.join(DATA, 'bkg')
+        self.config['INPUT'] = os.path.join(DATA, 'INPUT')
+        self.config['ens_dir'] = os.path.join(DATA, 'ens')
 
     @logit(logger)
     def initialize(self):
@@ -97,10 +101,7 @@ class MarineRecenter(Task):
 
         logger.info("initialize")
 
-        # save for debugging
-        self.stage_cfg.save('recen.yaml')
-        ufsda.stage.soca_fix(self.stage_cfg)
-
+        ufsda.stage.soca_fix(self.recen_config)
 
         ################################################################################
         # prepare input.nml
@@ -150,7 +151,7 @@ class MarineRecenter(Task):
                 fname_out = os.path.realpath(os.path.join(self.config.ens_dir,
                                              domain+"."+str(mem)+".nc"))
                 ens_member_list.append([fname_in, fname_out])
-        # TODO(AFE) any reason not to make this a link?
+
         FileHandler({'copy': ens_member_list}).sync()
 
         ################################################################################
@@ -158,10 +159,8 @@ class MarineRecenter(Task):
 
         logger.info(f"---------------- generate soca_ensrecenter.yaml")
 
-        recen_yaml = parse_j2yaml(self.config.recen_yaml_template, self.window_config)
+        recen_yaml = parse_j2yaml(self.config.recen_yaml_template, self.recen_config)
         recen_yaml.save(self.config.recen_yaml_file)
-
-
 
 
     @logit(logger)

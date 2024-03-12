@@ -21,8 +21,7 @@ vertical geometry:
 add recentering increment: false
 
 soca increments:  # Could also be states, but they are read as increments
-  #number of increments: 4 $${ENS_SIZE}
-  number of increments: 4 ${{ NMEM }}
+  number of increments: {{ NMEM_ENS }}
   pattern: '%mem%'
   template:
     date: '{{ ATM_WINDOW_BEGIN }}'
