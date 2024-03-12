@@ -3,7 +3,7 @@ import os
 import re
 import logging
 from ufsda.misc_utils import isTrue
-import wxflow
+from wxflow import YAMLFile, TemplateConstants, Template
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
