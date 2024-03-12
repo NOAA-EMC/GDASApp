@@ -28,9 +28,14 @@ namespace gdasapp {
     gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by the RADS" << std::endl;
 
-      // Get the obs. error ratio from the configuration
+      //  Abort the case where the 'error ratio' key is not found
+      ASSERT(fullConfig_.has("error ratio"));
+
+      // Get the obs. error ratio from the configuration (meters per day)
       float errRatio;
       fullConfig_.get("error ratio", errRatio);
+      // Convert errRatio from meters per day to meters per second
+      errRatio /= 86400.0;
 
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
