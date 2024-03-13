@@ -1,0 +1,3 @@
+filetype: auxgrid
+gridtype: gaussian
+filename: {{ensemble_increment_prefix}}

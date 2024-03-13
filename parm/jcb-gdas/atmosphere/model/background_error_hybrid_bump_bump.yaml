@@ -10,7 +10,7 @@ components:
       active variables: &active_vars [psi,chi,t,ps,rh,liq_wat,o3mr]
       bump:
         io:
-          data directory: &staticb_dir {{data}}/berror
+          data directory: &staticb_dir {{bump_data_directory}}
         drivers:
           multivariate strategy: specific_univariate
           read local nicas: true
@@ -95,16 +95,17 @@ components:
     covariance model: ensemble
     members from template:
       template:
-        datetime: '{{ current_cycle_isotime }}'
+        datetime: "{{ atm_background_time_iso }}"
         filetype: fms restart
         state variables: *3dvars
-        datapath: ens/mem%mem%/
-        filename_core: '{{ current_cycle_fv3time }}.fv_core.res.nc'
-        filename_trcr: '{{ current_cycle_fv3time }}.fv_tracer.res.nc'
-        filename_sfcd: '{{ current_cycle_fv3time }}.sfc_data.nc'
-        filename_sfcw: '{{ current_cycle_fv3time }}.fv_srf_wnd.res.nc'
-        filename_cplr: '{{ current_cycle_fv3time }}.coupler.res'
-      pattern: '%mem%'
+        datapath: {{ background_ensemble_path}}
+        filename is datetime templated: true
+        filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+        filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+        filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+        filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+        filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
+      pattern: "{{ ensemble_pattern | default("%mem%", true) }}"
       nmembers: {{number_ensemble_members}}
       zero padding: 3
 #    localization:

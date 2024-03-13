@@ -5,10 +5,9 @@ components:
     saber central block:
       saber block name: gsi covariance
       read:
-        gsi akbk: &akbk {{data}}/fv3jedi/akbk.nc4
-        gsi error covariance file: &gsiberr {{data}}/berror/gsi-coeffs-gfs-global.nc4
-#       gsi error covariance file: &gsiberr {{data}}/berror/global_berror.f77
-        gsi berror namelist file: &gsibnml {{data}}/berror/gfs_gsi_global.nml
+        gsi akbk: &akbk {{fv3jedi_files_path}}/akbk.nc4
+        gsi error covariance file: &gsiberr {{gsibec_path}}/gsi-coeffs-gfs-global.nc4
+        gsi berror namelist file: &gsibnml {{gsibec_path}}/gfs_gsi_global.nml
         processor layout x direction: &layout_gsib_x {{layout_gsib_x}}
         processor layout y direction: &layout_gsib_y {{layout_gsib_y}}
         debugging mode: false
@@ -32,16 +31,17 @@ components:
     covariance model: ensemble
     members from template:
       template:
-        datetime: '{{ current_cycle_isotime }}'
+        datetime: "{{ atm_background_time_iso }}"
         filetype: fms restart
         state variables: *3dvars_anal
-        datapath: ens/mem%mem%
-        filename_core: '{{ current_cycle_fv3time }}.fv_core.res.nc'
-        filename_trcr: '{{ current_cycle_fv3time }}.fv_tracer.res.nc'
-        filename_sfcd: '{{ current_cycle_fv3time }}.sfc_data.nc'
-        filename_sfcw: '{{ current_cycle_fv3time }}.fv_srf_wnd.res.nc'
-        filename_cplr: '{{ current_cycle_fv3time }}.coupler.res'
-      pattern: '%mem%'
+        datapath: {{ background_ensemble_path}}
+        filename is datetime templated: true
+        filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+        filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+        filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+        filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+        filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
+      pattern: "{{ ensemble_pattern | default("%mem%", true) }}"
       nmembers: {{number_ensemble_members}}
       zero padding: 3
     localization:

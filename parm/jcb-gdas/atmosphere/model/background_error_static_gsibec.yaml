@@ -3,10 +3,9 @@ full inverse: true
 saber central block:
   saber block name: gsi covariance
   read:
-    gsi akbk: &akbk {{data}}/fv3jedi/akbk.nc4
-    gsi error covariance file: &gsiberr {{data}}/berror/gsi-coeffs-gfs-global.nc4
-#   gsi error covariance file: &gsiberr {{data}}/berror/global_berror.f77
-    gsi berror namelist file: &gsibnml {{data}}/berror/gfs_gsi_global.nml
+    gsi akbk: &akbk {{fv3jedi_files_path}}/akbk.nc4
+    gsi error covariance file: &gsiberr {{gsibec_path}}/gsi-coeffs-gfs-global.nc4
+    gsi berror namelist file: &gsibnml {{gsibec_path}}/gfs_gsi_global.nml
     processor layout x direction: &layout_gsib_x {{layout_gsib_x}}
     processor layout y direction: &layout_gsib_y {{layout_gsib_y}}
     debugging mode: false

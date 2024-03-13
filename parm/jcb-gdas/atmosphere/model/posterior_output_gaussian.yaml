@@ -1,0 +1,3 @@
+filetype: auxgrid
+gridtype: gaussian
+filename: {{posterior_output_gaussian}}

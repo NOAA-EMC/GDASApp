@@ -1,0 +1,357 @@
+- obs space:
+    name: surface_ps
+    distribution:
+      name: Halo
+      halo size: 1250e3
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}conventional_ps{{atm_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: '{{ DATA }}/diags/diag_conventional_ps_prepbufr_{{ current_cycle | to_YMDH }}.nc'
+    io pool:
+      max pool size: 1
+    simulated variables: [stationPressure]
+
+  obs operator:
+    name: SfcPCorrected
+    variables:
+    - name: stationPressure
+    da_psfc_scheme: GSI
+    station_altitude: height
+    geovar_sfc_geomz: surface_altitude
+    geovar_geomz: geopotential_height
+
+  linear obs operator:
+    name: Identity
+    variables:
+    - name: stationPressure
+
+  obs prior filters:
+  # Initial Error Assignments for SFC Observations
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: ObsType/stationPressure
+      is_in: [181]
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          round_to_the_nearest_integer: true
+          xvar:
+            name: ObsValue/stationPressure
+          xvals:  [80000, 75000, 70000, 65000, 60000, 55000  ]
+          errors: [110,    120,    120,   120,   120, 1.0e+11]
+
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: ObsType/stationPressure
+      is_in: [187]
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          round_to_the_nearest_integer: true
+          xvar:
+            name: ObsValue/stationPressure
+          xvals:  [85000, 80000, 75000, 70000, 65000, 60000, 55000  ]
+          errors: [  120,   140,   140,   140,   140,   140, 1.0e+11]
+
+  # Initial Error Assignments for SFCSHIP Observations
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: ObsType/stationPressure
+      is_in: [180]
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          round_to_the_nearest_integer: true
+          xvar:
+            name: ObsValue/stationPressure
+          xvals:  [60000, 55000  ]
+          errors: [  130, 1.0e+11]
+
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: ObsType/stationPressure
+      is_in: [183]
+    action:
+      name: assign error
+      error parameter: 1.0e+11
+
+  # Initial Error Assignments for Radiosonde
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: ObsType/stationPressure
+      is_in: [120]
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          round_to_the_nearest_integer: true
+          xvar:
+            name: ObsValue/stationPressure
+          xvals:  [80000, 75000, 70000, 65000, 60000, 55000  ]
+          errors: [  110,   120,   120,   120,   120, 1.0e+11]
+
+  # Create PreQC group variable (pqm in GSI read_prepbufr)
+  - filter: Variable Assignment
+    assignments:
+    - name: InputObsError/stationPressure
+      type: float
+      source variable: ObsErrorData/stationPressure
+
+  # Set observation quality-realted variables
+  # Create PreQC group variable (pqm in GSI read_prepbufr)
+  - filter: Variable Assignment
+    assignments:
+    - name: PreQC/stationPressure
+      type: int
+      source variable: QualityMarker/stationPressure
+
+  # Create PreUseFlag group variable (usage in GSI read_prepbufr)
+  # Initialize
+  - filter: Variable Assignment
+    assignments:
+    - name: PreUseFlag/stationPressure
+      type: int
+      source variable: PreQC/stationPressure
+
+  - filter: Variable Assignment
+    where:
+    - variable:
+        name: PreUseFlag/stationPressure
+      is_in: 1-15
+    assignments:
+    - name: PreUseFlag/stationPressure
+      value: 0
+  # Re-assignment
+  - filter: Variable Assignment
+    where:
+    - variable:
+        name: ObsType/stationPressure
+      is_in: 183
+    assignments:
+    - name: PreUseFlag/stationPressure
+      value: 100
+
+  - filter: Variable Assignment
+    where:
+    - variable:
+        name:  ObsValue/stationPressure
+      is_defined:
+    - variable:
+        name:  ObsValue/stationPressure
+      maxvalue: 50000.00
+    where operator: and
+    assignments:
+    - name: PreUseFlag/stationPressure
+      value: 100
+
+  - filter: Variable Assignment
+    where:
+    - variable:
+        name: PreQC/stationPressure
+      is_in: 9, 12, 15
+    assignments:
+    - name: PreUseFlag/stationPressure
+      value: 100
+
+  - filter: Variable Assignment
+    where:
+    - variable:
+        name: PreQC/stationPressure
+      is_in: 4-15
+    assignments:
+    - name: PreUseFlag/stationPressure
+      value: 101
+
+  ## Observation range sanity check
+  #- filter: Bounds Check
+  #  filter variables:
+  #  - name: stationPressure
+  #  minvalue: 37499.0
+  #  maxvalue: 106999.0
+  #  action:
+  #    name: reject
+
+  ## Reject all ObsType 183
+  #- filter: RejectList
+  #  where:
+  #  - variable:
+  #      name: ObsType/stationPressure
+  #    is_in: 183
+
+  ## Reject surface pressure below 500 hPa
+  #- filter: Bounds Check
+  #  filter variables:
+  #  - name: stationPressure
+  #  minvalue: 50000.00
+  #  action:
+  #    name: reject
+
+  #- filter: RejectList
+  #  where:
+  #  - variable:
+  #      name: PreQC/stationPressure
+  #    is_in: 4-15
+
+  # Inflate obs error based on obs type
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: PreQC/stationPressure
+      is_in: 3, 7
+    action:
+      name: inflate error
+      inflation factor: 1.2
+
+  obs post filters:
+  # Calculate obs error inflation factors for duplicated observations at the same location
+  - filter: Variable Assignment
+    assignments:
+    - name: ObsErrorFactorDuplicateCheck/stationPressure
+      type: float
+      function:
+        name: ObsFunction/ObsErrorFactorDuplicateCheck
+        options:
+          use_air_pressure: false
+          variable: stationPressure
+
+  # Reduce effective observation error based on obs type and subtype
+  # In this case: reduce effective obs error for buoy
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable:
+        name: ObsType/stationPressure
+      is_in: 180
+    - variable:
+        name: ObsSubType/stationPressure
+      is_in: 0
+    action:
+      name: inflate error
+      inflation factor: 0.7
+
+  # Calculate obs error inflation factors for large discrepancies between model and observations
+  - filter: Variable Assignment
+    assignments:
+    - name: ObsErrorFactorSfcPressure/stationPressure
+      type: float
+      function:
+        name: ObsFunction/ObsErrorFactorSfcPressure
+        options:
+          geovar_sfc_geomz: surface_altitude
+          geovar_geomz: geopotential_height
+          station_altitude: height
+
+  # Inflate surface pressure observation based on discrepancies between
+  # model and observations due to terrian
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsErrorFactorSfcPressure/stationPressure
+
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/Innovation
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsValue/stationPressure
+          - name: HofX/stationPressure
+          coefs: [1, -1]
+
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/ObsErrorBoundSfcPressure1
+      type: float
+      function:
+        name: ObsFunction/ObsErrorBoundConventional
+        options:
+          obsvar: stationPressure
+          obserr_bound_min: 100
+          obserr_bound_max: 300
+          obserr_bound_factor: 5.0
+
+  - filter: Background Check
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: PreQC/stationPressure
+      is_not_in: 3
+    function absolute threshold:
+    - name: DerivedMetaData/ObsErrorBoundSfcPressure1
+    action:
+      name: reject
+
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/ObsErrorBoundSfcPressure2
+      type: float
+      function:
+        name: ObsFunction/ObsErrorBoundConventional
+        options:
+          obsvar: stationPressure
+          obserr_bound_min: 100
+          obserr_bound_max: 300
+          obserr_bound_factor: 3.5
+
+  - filter: Background Check
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: PreQC/stationPressure
+      is_in: 3
+    function absolute threshold:
+    - name: DerivedMetaData/ObsErrorBoundSfcPressure2
+    action:
+      name: reject
+
+  # Inflate obs error based on duplicate check
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsErrorFactorDuplicateCheck/stationPressure
+
+  # Reject data based on PreUseFlag (usage in GSI)
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: PreUseFlag/stationPressure
+      is_not_in: 0, 1
+    action:
+      name: reject
+  # End of Filters
+  obs localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 1250e3
+    max nobs: 10000

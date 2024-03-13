@@ -1,37 +1,37 @@
 - obs space:
-    name: amsua_n19
+    name: AMSU-A NOAA-19
     obsdatain:
       engine:
         type: H5File
-        obsfile: {{data}}/obs/{{oprefix}}amsua_n19.{{ current_cycle_YMDH }}.nc
+        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}{{atm_obsdatain_suffix}}"
     obsdataout:
       engine:
         type: H5File
-        obsfile: {{data}}/diags/diag_amsua_n19_{{ current_cycle_YMDH }}.nc
+        obsfile: "{{atm_obsdataout_path}}/{{atm_obsdataout_prefix}}{{observation_from_jcb}}{{atm_obsdataout_suffix}}"
     io pool:
       max pool size: 1
     simulated variables: [brightnessTemperature]
-    channels: &amsua_n19_channels 1-15
+    channels: &{{observation_from_jcb}}_channels 1-15
   obs operator:
     name: CRTM
     Absorbers: [H2O,O3]
     Clouds: [Water, Ice]
     Cloud_Fraction: 1.0
     obs options:
-      Sensor_ID: amsua_n19
+      Sensor_ID: {{observation_from_jcb}}
       EndianType: little_endian
-      CoefficientPath: {{data}}/crtm/
+      CoefficientPath: {{crtm_coefficient_path}}
   obs bias:
-    input file: {{data}}/obs/{{gprefix}}amsua_n19.satbias.nc
-    output file: {{data}}/bc/{{aprefix}}amsua_n19.satbias.nc
+    input file: "{{atm_obsbiasin_path}}/{{atm_obsbiasin_prefix}}{{observation_from_jcb}}{{atm_obsbiasin_suffix}}"
+    output file: "{{atm_obsbiasout_path}}/{{atm_obsbiasout_prefix}}{{observation_from_jcb}}{{atm_obsbiasout_suffix}}"
     variational bc:
       predictors:
       - name: constant
       - name: lapse_rate
         order: 2
-        tlapse: &amsua_n19_tlapse {{data}}/obs/{{gprefix}}amsua_n19.tlapse.txt
+        tlapse: &{{observation_from_jcb}}_tlapse "{{atm_obsbiasin_path}}/{{atm_obstlapsein_prefix}}{{observation_from_jcb}}{{atm_obstlapsein_suffix}}"
       - name: lapse_rate
-        tlapse: *amsua_n19_tlapse
+        tlapse: *{{observation_from_jcb}}_tlapse
       - name: emissivity
       - name: scan_angle
         order: 4
@@ -46,23 +46,23 @@
       step size: 1.0e-4
       largest analysis variance: 10000.0
       prior:
-        input file: {{data}}/obs/{{gprefix}}amsua_n19.satbias_cov.nc
+        input file: "{{atm_obsbiasin_path}}/{{atm_obsbiascovin_prefix}}{{observation_from_jcb}}{{atm_obsbiascovin_suffix}}"
         inflation:
           ratio: 1.1
           ratio for small dataset: 2.0
-      output file: {{data}}/bc/{{aprefix}}amsua_n19.satbias_cov.nc
+      output file: "{{atm_obsbiasout_path}}/{{atm_obsbiascovout_prefix}}{{observation_from_jcb}}{{atm_obsbiascovout_suffix}}"
   obs filters:
   - filter: BlackList
     filter variables:
     - name: brightnessTemperature
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
     action:
       name: assign error
       error function:
         name: ObsFunction/ObsErrorModelRamp
-        channels: *amsua_n19_channels
+        channels: *{{observation_from_jcb}}_channels
         options:
-          channels: *amsua_n19_channels
+          channels: *{{observation_from_jcb}}_channels
           xvar:
             name: ObsFunction/CLWRetSymmetricMW
             options:
@@ -113,12 +113,12 @@
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
     test variables:
     - name: ObsFunction/HydrometeorCheckAMSUA
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
       options:
-        channels: *amsua_n19_channels
+        channels: *{{observation_from_jcb}}_channels
         obserr_clearsky: [ 2.500, 2.200, 2.000, 0.550, 0.300,
                            0.230, 0.230, 0.250, 0.250, 0.350,
                            0.400, 0.550, 0.800, 3.000, 3.500]
@@ -130,9 +130,9 @@
             clwret_types: [ObsValue]
         obserr_function:
           name: ObsFunction/ObsErrorModelRamp
-          channels: *amsua_n19_channels
+          channels: *{{observation_from_jcb}}_channels
           options:
-            channels: *amsua_n19_channels
+            channels: *{{observation_from_jcb}}_channels
             xvar:
               name: ObsFunction/CLWRetSymmetricMW
               options:
@@ -158,56 +158,56 @@
   - filter: BlackList
     filter variables:
     - name: brightnessTemperature
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
     action:
       name: inflate error
       inflation variable:
         name: ObsFunction/ObsErrorFactorTopoRad
-        channels: *amsua_n19_channels
+        channels: *{{observation_from_jcb}}_channels
         options:
-          sensor: amsua_n19
-          channels: *amsua_n19_channels
+          sensor: {{observation_from_jcb}}
+          channels: *{{observation_from_jcb}}_channels
   #  Transmittnace Top Check
   - filter: BlackList
     filter variables:
     - name: brightnessTemperature
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
     action:
       name: inflate error
       inflation variable:
         name: ObsFunction/ObsErrorFactorTransmitTopRad
-        channels: *amsua_n19_channels
+        channels: *{{observation_from_jcb}}_channels
         options:
-          sensor: amsua_n19
-          channels: *amsua_n19_channels
+          sensor: {{observation_from_jcb}}
+          channels: *{{observation_from_jcb}}_channels
   #  Surface Jacobian check
   - filter: BlackList
     filter variables:
     - name: brightnessTemperature
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
     action:
       name: inflate error
       inflation variable:
         name: ObsFunction/ObsErrorFactorSurfJacobianRad
-        channels: *amsua_n19_channels
+        channels: *{{observation_from_jcb}}_channels
         options:
-          sensor: amsua_n19
-          channels: *amsua_n19_channels
+          sensor: {{observation_from_jcb}}
+          channels: *{{observation_from_jcb}}_channels
           obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
           obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
   #  Situation dependent Check
   - filter: BlackList
     filter variables:
     - name: brightnessTemperature
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
     action:
       name: inflate error
       inflation variable:
         name: ObsFunction/ObsErrorFactorSituDependMW
-        channels: *amsua_n19_channels
+        channels: *{{observation_from_jcb}}_channels
         options:
-          sensor: amsua_n19
-          channels: *amsua_n19_channels
+          sensor: {{observation_from_jcb}}
+          channels: *{{observation_from_jcb}}_channels
           clwobs_function:
             name: ObsFunction/CLWRetMW
             options:
@@ -231,9 +231,9 @@
               bias_application: HofX
           clwmatchidx_function:
             name: ObsFunction/CLWMatchIndexMW
-            channels: *amsua_n19_channels
+            channels: *{{observation_from_jcb}}_channels
             options:
-              channels: *amsua_n19_channels
+              channels: *{{observation_from_jcb}}_channels
               clwobs_function:
                 name: ObsFunction/CLWRetMW
                 options:
@@ -252,9 +252,9 @@
                                 0.000, 0.000, 0.000, 0.000, 0.030]
           obserr_function:
             name: ObsFunction/ObsErrorModelRamp
-            channels: *amsua_n19_channels
+            channels: *{{observation_from_jcb}}_channels
             options:
-              channels: *amsua_n19_channels
+              channels: *{{observation_from_jcb}}_channels
               xvar:
                 name: ObsFunction/CLWRetSymmetricMW
                 options:
@@ -280,33 +280,33 @@
   - filter: Background Check
     filter variables:
     - name: brightnessTemperature
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
     function absolute threshold:
     - name: ObsFunction/ObsErrorBoundMW
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
       options:
-        sensor: amsua_n19
-        channels: *amsua_n19_channels
+        sensor: {{observation_from_jcb}}
+        channels: *{{observation_from_jcb}}_channels
         obserr_bound_latitude:
           name: ObsFunction/ObsErrorFactorLatRad
           options:
             latitude_parameters: [25.0, 0.25, 0.04, 3.0]
         obserr_bound_transmittop:
           name: ObsFunction/ObsErrorFactorTransmitTopRad
-          channels: *amsua_n19_channels
+          channels: *{{observation_from_jcb}}_channels
           options:
-            channels: *amsua_n19_channels
+            channels: *{{observation_from_jcb}}_channels
         obserr_bound_topo:
           name: ObsFunction/ObsErrorFactorTopoRad
-          channels: *amsua_n19_channels
+          channels: *{{observation_from_jcb}}_channels
           options:
-            channels: *amsua_n19_channels
-            sensor: amsua_n19
+            channels: *{{observation_from_jcb}}_channels
+            sensor: {{observation_from_jcb}}
         obserr_function:
           name: ObsFunction/ObsErrorModelRamp
-          channels: *amsua_n19_channels
+          channels: *{{observation_from_jcb}}_channels
           options:
-            channels: *amsua_n19_channels
+            channels: *{{observation_from_jcb}}_channels
             xvar:
               name: ObsFunction/CLWRetSymmetricMW
               options:
@@ -335,13 +335,13 @@
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
     test variables:
     - name: ObsFunction/InterChannelConsistencyCheck
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
       options:
-        channels: *amsua_n19_channels
-        sensor: amsua_n19
+        channels: *{{observation_from_jcb}}_channels
+        sensor: {{observation_from_jcb}}
         use_flag: [ 1,  1,  1,  1,  1,
                     1, -1, -1,  1,  1,
                     1,  1,  1, -1,  1 ]
@@ -352,13 +352,13 @@
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
     test variables:
     - name: ObsFunction/ChannelUseflagCheckRad
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
       options:
-        sensor: amsua_n19
-        channels: *amsua_n19_channels
+        sensor: {{observation_from_jcb}}
+        channels: *{{observation_from_jcb}}_channels
         use_flag: [ 1,  1,  1,  1,  1,
                     1, -1, -1,  1,  1,
                     1,  1,  1, -1,  1 ]
@@ -369,7 +369,7 @@
 {% if algorithm == "test_obs_filters" %}
 
   geovals:
-    filename: amsua_n19_geoval_{{ current_cycle_YMDH }}.nc4
+    filename: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atm_obsdatain_suffix}}"
   passedBenchmark: 107747
 
 {% endif %}

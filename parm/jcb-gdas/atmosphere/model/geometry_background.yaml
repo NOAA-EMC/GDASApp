@@ -1,11 +1,11 @@
 fms initialization:
-  namelist filename: {{data}}/fv3jedi/fmsmpp.nml
-  field table filename: {{data}}/fv3jedi/field_table
-akbk: {{data}}/fv3jedi/akbk.nc4
+  namelist filename: "{{fv3jedi_files_path}}/fmsmpp.nml"
+  field table filename: "{{fv3jedi_files_path}}/field_table"
+akbk: "{{fv3jedi_files_path}}/akbk.nc4"
 layout:
 - {{layout_x}}
 - {{layout_y}}
 npx: {{npx_ges}}
 npy: {{npy_ges}}
 npz: {{npz_ges}}
-field metadata override: {{data}}/fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+field metadata override: "{{fv3jedi_files_path}}/fv3jedi_fieldmetadata_restart.yaml"

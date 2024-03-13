@@ -1,11 +1,12 @@
-datapath: {{data}}/bkg
+datapath: {{ background_path}}
 filetype: fms restart
-datetime: '{{ atm_window_begin_isotime }}'
-filename_core: '{{ atm_window_begin_fv3time }}.fv_core.res.nc'
-filename_trcr: '{{ atm_window_begin_fv3time }}.fv_tracer.res.nc'
-filename_sfcd: '{{ atm_window_begin_fv3time }}.sfc_data.nc'
-filename_sfcw: '{{ atm_window_begin_fv3time }}.fv_srf_wnd.res.nc'
-filename_cplr: '{{ atm_window_begin_fv3time }}.coupler.res'
+datetime: "{{ atm_background_time_iso }}"
+filename is datetime templated: true
+filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
 state variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
                   slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                   u_srf,v_srf,f10m]

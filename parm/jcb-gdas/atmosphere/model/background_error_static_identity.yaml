@@ -1,2 +1,2 @@
 covariance model: FV3JEDI-ID
-date: '{{ATM_WINDOW_BEGIN}}'
+date: "{{ atm_background_time_iso }}"

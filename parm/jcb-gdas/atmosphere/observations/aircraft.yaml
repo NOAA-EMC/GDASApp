@@ -3,7 +3,7 @@
     obsdatain:
       engine:
         type: H5File
-        obsfile: {{data}}/obs/{{oprefix}}aircraft.{{ current_cycle_YMDH }}.nc
+        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}{{atm_obsdatain_suffix}}"
       obsgrouping:
         group variables: ["stationIdentification"]
         sort variable: "pressure"
@@ -11,7 +11,7 @@
     obsdataout:
       engine:
         type: H5File
-        obsfile: {{data}}/diags/diag_aircraft_{{ current_cycle_YMDH }}.nc
+        obsfile: "{{atm_obsdataout_path}}/{{atm_obsdataout_prefix}}{{observation_from_jcb}}{{atm_obsdataout_suffix}}"
     io pool:
       max pool size: 1
     simulated variables: [windEastward, windNorthward, airTemperature, specificHumidity]
@@ -332,7 +332,7 @@
 {% if algorithm == "test_obs_filters" %}
 
   geovals:
-    filename: aircraft_geoval_{{ current_cycle_YMDH }}.nc4
+    filename: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atm_obsdatain_suffix}}"
   passedBenchmark: 107747
 
 {% endif %}

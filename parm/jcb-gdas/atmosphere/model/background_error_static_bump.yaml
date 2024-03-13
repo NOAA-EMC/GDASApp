@@ -8,7 +8,7 @@ saber blocks:
   active variables: &active_vars [psi,chi,t,ps,rh,liq_wat,o3mr]
   bump:
     io:
-      data directory: &staticb_dir {{data}}/berror
+      data directory: &staticb_dir {{bump_data_directory}}
     drivers:
       multivariate strategy: specific_univariate
       read local nicas: true
