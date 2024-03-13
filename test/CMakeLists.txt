@@ -1,7 +1,7 @@
 ##### get test data from EMC FTP server
 # set URL and hash
 set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
-set(SHA "0412bf1037a28bb66e849ee9e03aadab4d01cd73b6cbc25dfb6a293e694006dc")
+set(SHA "bda76f96666405f72abef56ad4d7d5b93ca153cd7d675853fbdb199096949f8a")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
 # download test files
@@ -133,6 +133,11 @@ if (WORKFLOW_TESTS)
   add_test(NAME test_gdasapp_setup_cycled_exp
            COMMAND ${PROJECT_SOURCE_DIR}/test/setup_workflow_exp.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/testrun)
+endif()
+
+# fv3jedi tests
+if (${BUILD_GDASBUNDLE})
+  add_subdirectory(fv3jedi)
 endif()
 
 # soca tests

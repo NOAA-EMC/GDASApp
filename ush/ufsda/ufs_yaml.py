@@ -1,7 +1,6 @@
 import datetime
 import os
-from solo.yaml_file import YAMLFile
-from solo.template import TemplateConstants, Template
+from wxflow import YAMLFile, TemplateConstants, Template
 
 
 def gen_yaml(outyaml, templateyaml):
@@ -121,7 +120,7 @@ def get_exp_vars():
 
 
 def replace_vars(config):
-    # use SOLO to replace variables in the configuration dictionary
+    # use wxflow to replace variables in the configuration dictionary
     # as appropriate with either other dictionary key/value pairs
     # or environment variables
     config = Template.substitute_structure_from_environment(config)

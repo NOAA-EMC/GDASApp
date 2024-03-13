@@ -2,10 +2,8 @@ import datetime
 import os
 import re
 import logging
-from solo.yaml_file import YAMLFile
-from solo.template import TemplateConstants, Template
 from ufsda.misc_utils import isTrue
-import wxflow
+from wxflow import save_as_yaml, YAMLFile, TemplateConstants, Template
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -36,7 +34,7 @@ def save_check(config, target, app='var'):
     config['cost function']['observations']['observers'] = cleaned_obs_spaces
 
     # save cleaned yaml
-    wxflow.save_as_yaml(config, target)
+    save_as_yaml(config, target)
 
 
 def parse_config(input_config_dict, template=None, clean=True):
@@ -307,7 +305,7 @@ def include_yaml(config):
 
 
 def replace_vars(config):
-    # use SOLO to replace variables in the configuration dictionary
+    # use wxflow to replace variables in the configuration dictionary
     # as appropriate with either other dictionary key/value pairs
     # or environment variables
     config = Template.substitute_structure_from_environment(config)

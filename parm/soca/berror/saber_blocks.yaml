@@ -5,13 +5,13 @@ components:
     covariance model: SABER
     saber central block:
       saber block name: EXPLICIT_DIFFUSION
-      active variables: [tocn, socn, ssh]
+      active variables: [tocn, socn, ssh, cicen]
       geometry:
         mom6_input_nml: mom_input.nml
         fields metadata: ./fields_metadata.yaml
       group mapping:
       - name: ocean
-        variables: [tocn, socn, socn, ssh]
+        variables: [tocn, socn, ssh]
       - name: ice
         variables: [cicen]
       read:
