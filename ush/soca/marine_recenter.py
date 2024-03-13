@@ -235,7 +235,6 @@ class MarineRecenter(Task):
                                    f'mem{str(mem).zfill(3)}',
                                    'analysis',
                                    'ocean',
-                                   'restart')
             mem_dir_real = os.path.realpath(mem_dir)
             mem_dir_list.append(mem_dir_real)
 
