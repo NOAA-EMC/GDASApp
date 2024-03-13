@@ -51,6 +51,8 @@ exp_dict = {
     'npx_anl': npx,
     'npy_anl': npy,
     'npz_anl': npz,
+    'layout_x': 1,
+    'layout_y': 1,
     'OPREFIX': '${OPREFIX}'
 }
 
