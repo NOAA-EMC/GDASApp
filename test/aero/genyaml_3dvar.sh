@@ -8,9 +8,8 @@ srcdir=$2
 export layout_x=1
 export layout_y=1
 export DATA=$bindir/test/testrun/aero/genyaml_3dvar
-export BERROR_YAML=$srcdir/parm/aero/berror/staticb_identity.yaml
-export OBS_LIST=$srcdir/parm/aero/obs/lists/gdas_aero_prototype.yaml
-export OBS_YAML_DIR=$srcdir/parm/aero/obs/config
+export BERROR_YAML=$srcdir/parm/aero/berror/staticb_identity.yaml.j2
+export OBS_LIST=$srcdir/parm/aero/obs/lists/gdas_aero.yaml.j2
 export LEVS=128
 export CASE=C48
 export CDATE=2021032118
@@ -18,7 +17,7 @@ export assim_freq=6
 export OPREFIX='gdas.t18z.'
 
 # input and output YAMLs
-export YAMLin=$srcdir/parm/aero/variational/3dvar_gfs_aero.yaml
+export YAMLin=$srcdir/parm/aero/variational/3dvar_gfs_aero.yaml.j2
 export YAMLout=$DATA/3dvar_gfs_aero.yaml
 
 # remove and make test directory
@@ -27,10 +26,9 @@ mkdir -p $DATA
 
 # run some python code to generate the YAML
 python3 - <<EOF
-from wxflow import AttrDict, Template, TemplateConstants, YAMLFile
+from wxflow import parse_j2yaml
 import datetime
 
-config = YAMLFile(path='$YAMLin')
 valid_time_obj = datetime.datetime.strptime('$CDATE','%Y%m%d%H')
 winlen = $assim_freq
 win_begin = valid_time_obj - datetime.timedelta(hours=int(winlen)/2)
@@ -44,6 +42,7 @@ cycle_dict = {
     'AERO_WINDOW_BEGIN': win_begin.strftime('%Y-%m-%dT%H:%M:%SZ'),
     'BKG_ISOTIME': valid_time_obj.strftime('%Y-%m-%dT%H:%M:%SZ'),
     'BKG_YYYYmmddHHMMSS': valid_time_obj.strftime('%Y%m%d.%H%M%S'),
+    'current_cycle': valid_time_obj
 }
 
 exp_dict = {
@@ -54,11 +53,11 @@ exp_dict = {
     'npx_anl': npx,
     'npy_anl': npy,
     'npz_anl': npz,
+    'OPREFIX': '${OPREFIX}'
 }
 
-
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, cycle_dict.get)
-config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, exp_dict.get)
+context = dict(cycle_dict, **exp_dict)
+config = parse_j2yaml('$YAMLin', context, searchpath='$srcdir/parm')
 
 config.save('$YAMLout')
 EOF
