@@ -22,6 +22,7 @@ observations:
     window:
        back: 8         # look back 8 six-hourly obs dumps
        forward: 1    #  look forward 1 six-hourly bin
+    error ratio: 0.4  # meters per day
 
 # Ice concentration
 - obs space:
