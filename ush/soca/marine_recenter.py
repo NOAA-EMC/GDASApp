@@ -238,7 +238,7 @@ class MarineRecenter(Task):
             mem_dir_real = os.path.realpath(mem_dir)
             mem_dir_list.append(mem_dir_real)
 
-            copy_list.append([f'ocn.pert.steric.{str(mem)}.nc',
+            copy_list.append([f'ocn.recenter.incr.{str(mem)}.nc',
                               os.path.join(mem_dir_real, incr_file)])
 
         FileHandler({'mkdir': mem_dir_list}).sync()
