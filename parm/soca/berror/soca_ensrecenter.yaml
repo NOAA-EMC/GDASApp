@@ -98,5 +98,5 @@ output increment:
   date: '{{ ATM_WINDOW_BEGIN }}'
   exp: trash
   type: incr
-  output file: 'ocn.pert.steric.%mem%.nc'
+  output file: 'ocn.recenter.incr.%mem%.nc'
   pattern: '%mem%'
