@@ -6,37 +6,37 @@
     obsdatain:
       engine:
         type: H5File
-        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}amsua_n19{{atm_obsdatain_suffix}}"
+        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}{{atm_obsdatain_suffix}}"
     obsdataout:
       engine:
         type: H5File
-        obsfile: './diags/diag_amsua_n19_{{ current_cycle | to_YMDH }}.nc'
+        obsfile: "{{atm_obsdataout_path}}/{{atm_obsdataout_prefix}}{{observation_from_jcb}}{{atm_obsdataout_suffix}}"
     io pool:
       max pool size: 1
     simulated variables: [brightnessTemperature]
-    channels: &amsua_n19_channels 4-6,9-14
+    channels: &{{observation_from_jcb}}_channels 4-6,9-14
   obs operator:
     name: CRTM
     Absorbers: [H2O,O3]
     Clouds: [Water, Ice]
     Cloud_Fraction: 1.0
     obs options:
-      Sensor_ID: amsua_n19
+      Sensor_ID: {{observation_from_jcb}}
       EndianType: little_endian
       CoefficientPath: ./crtm/
   obs error:
     covariance model: diagonal
   obs bias:
-    input file: "{{atm_obsbiasin_path}}/{{atm_obsbiasin_prefix}}amsua_n19{{atm_obsbiasin_suffix}}"
-    output file: "{{atm_obsbiasout_path}}/{{atm_obsbiasout_prefix}}amsua_n19{{atm_obsbiasout_suffix}}"
+    input file: "{{atm_obsbiasin_path}}/{{atm_obsbiasin_prefix}}{{observation_from_jcb}}{{atm_obsbiasin_suffix}}"
+    output file: "{{atm_obsbiasout_path}}/{{atm_obsbiasout_prefix}}{{observation_from_jcb}}{{atm_obsbiasout_suffix}}"
     variational bc:
       predictors:
       - name: constant
       - name: lapse_rate
         order: 2
-        tlapse: &amsua_n19_tlapse "{{atm_obsbiasin_path}}/{{atm_obstlapsein_prefix}}amsua_n19{{atm_obstlapsein_suffix}}"
+        tlapse: &{{observation_from_jcb}}_tlapse "{{atm_obsbiasin_path}}/{{atm_obstlapsein_prefix}}{{observation_from_jcb}}{{atm_obstlapsein_suffix}}"
       - name: lapse_rate
-        tlapse: *amsua_n19_tlapse
+        tlapse: *{{observation_from_jcb}}_tlapse
       - name: emissivity
       - name: scan_angle
         order: 4
@@ -51,16 +51,16 @@
       step size: 1.0e-4
       largest analysis variance: 10000.0
       prior:
-        input file: "{{atm_obsbiasin_path}}/{{atm_obsbiascovin_prefix}}amsua_n19{{atm_obsbiascovin_suffix}}"
+        input file: "{{atm_obsbiasin_path}}/{{atm_obsbiascovin_prefix}}{{observation_from_jcb}}{{atm_obsbiascovin_suffix}}"
         inflation:
           ratio: 1.1
           ratio for small dataset: 2.0
-      output file: "{{atm_obsbiasout_path}}/{{atm_obsbiascovout_prefix}}amsua_n19{{atm_obsbiascovout_suffix}}"
+      output file: "{{atm_obsbiasout_path}}/{{atm_obsbiascovout_prefix}}{{observation_from_jcb}}{{atm_obsbiascovout_suffix}}"
   obs filters:
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
     minvalue: 100.0
     maxvalue: 500.0
     action:
@@ -69,7 +69,7 @@
   - filter: Background Check
     filter variables:
     - name: brightnessTemperature
-      channels: *amsua_n19_channels
+      channels: *{{observation_from_jcb}}_channels
     threshold: 3.0
     action:
       name: reject

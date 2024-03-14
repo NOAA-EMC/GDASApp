@@ -1,5 +1,10 @@
 - obs space:
     name: Aircraft
+    {% if algorithm == "local_ensemble_da" %}
+    distribution:
+      name: Halo
+      halo size: 1250e3
+    {% endif %}
     obsdatain:
       engine:
         type: H5File
@@ -15,6 +20,14 @@
     io pool:
       max pool size: 1
     simulated variables: [windEastward, windNorthward, airTemperature, specificHumidity]
+
+  {% if algorithm == "local_ensemble_da" %}
+  obs localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 1250e3
+    max nobs: 10000]
+  {% endif %}
+
   #
   obs operator:
     name: VertInterp

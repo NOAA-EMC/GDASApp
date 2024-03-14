@@ -1,16 +1,16 @@
 - obs space:
-    name: surface_ps
+    name: Surface Pressure
     distribution:
       name: Halo
       halo size: 1250e3
     obsdatain:
       engine:
         type: H5File
-        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}conventional_ps{{atm_obsdatain_suffix}}"
+        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}{{atm_obsdatain_suffix}}"
     obsdataout:
       engine:
         type: H5File
-        obsfile: '{{ DATA }}/diags/diag_conventional_ps_prepbufr_{{ current_cycle | to_YMDH }}.nc'
+        obsfile: "{{atm_obsdataout_path}}/{{atm_obsdataout_prefix}}{{observation_from_jcb}}{{atm_obsdataout_suffix}}"
     io pool:
       max pool size: 1
     simulated variables: [stationPressure]
