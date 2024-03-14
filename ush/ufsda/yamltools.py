@@ -3,7 +3,7 @@ import os
 import re
 import logging
 from ufsda.misc_utils import isTrue
-from wxflow import YAMLFile, TemplateConstants, Template
+from wxflow import save_as_yaml, YAMLFile, TemplateConstants, Template
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
@@ -34,7 +34,7 @@ def save_check(config, target, app='var'):
     config['cost function']['observations']['observers'] = cleaned_obs_spaces
 
     # save cleaned yaml
-    wxflow.save_as_yaml(config, target)
+    save_as_yaml(config, target)
 
 
 def parse_config(input_config_dict, template=None, clean=True):
