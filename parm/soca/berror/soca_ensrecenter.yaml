@@ -8,7 +8,9 @@ date: '{{ ATM_WINDOW_BEGIN }}'
 
 layers variable: [hocn]
 
-increment variables: [tocn, socn, uocn, vocn, ssh, hocn, cicen, hicen, hsnon]
+# TODO(AFE) fix ice recentering in cycled da
+#increment variables: [tocn, socn, uocn, vocn, ssh, hocn, cicen, hicen, hsnon]
+increment variables: [tocn, socn, uocn, vocn, ssh, hocn]
 
 set increment variables to zero: [ssh]
 
@@ -27,7 +29,8 @@ soca increments:  # Could also be states, but they are read as increments
     date: '{{ ATM_WINDOW_BEGIN }}'
     basename: ./ens/
     ocn_filename: 'ocean.%mem%.nc'
-    ice_filename: 'ice.%mem%.nc'
+# TODO(AFE) fix ice recentering in cycled da
+    # ice_filename: 'ice.%mem%.nc'
     read_from_file: 3
 
 steric height:
@@ -86,11 +89,14 @@ background error output:
 #  - linear variable change name: BalanceSOCA
 
 trajectory:
-  state variables: [tocn, socn, uocn, vocn, ssh, hocn, layer_depth, mld, cicen, hicen, hsnon]
+# TODO(AFE) fix ice recentering in cycled da
+  # state variables: [tocn, socn, uocn, vocn, ssh, hocn, layer_depth, mld, cicen, hicen, hsnon]
+  state variables: [tocn, socn, uocn, vocn, ssh, hocn, layer_depth, mld]
   date: '{{ ATM_WINDOW_BEGIN }}'
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
-  ice_filename: cice.res.nc
+# TODO(AFE) fix ice recentering in cycled da
+  #ice_filename: cice.res.nc
   read_from_file: 1
 
 output increment:
