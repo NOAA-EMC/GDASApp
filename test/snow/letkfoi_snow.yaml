@@ -1,0 +1,169 @@
+background:
+  datetime: '2021-03-23T18:00:00Z'
+  members from template:
+    nmembers: '2'
+    pattern: '%mem%'
+    template:
+      datapath: mem%mem%
+      datetime: '2021-03-23T18:00:00Z'
+      filename_cplr: 20210323.180000.coupler.res
+      filename_sfcd: 20210323.180000.sfc_data.nc
+      filetype: fms restart
+      state variables:
+      - snodl
+      - vtype
+      - slmsk
+    zero padding: '3'
+driver:
+  save posterior ensemble: 'false'
+  save posterior mean: 'false'
+  save posterior mean increment: 'true'
+geometry:
+  akbk: Data/fv3files/akbk127.nc4
+  field metadata override: Data/fieldmetadata/fv3jedi_fieldmetadata_restart.yaml
+  fms initialization:
+    field table filename: Data/fv3files/field_table
+    namelist filename: Data/fv3files/fmsmpp.nml
+  io_layout:
+  - '1'
+  - '1'
+  layout:
+  - '1'
+  - '1'
+  npx: '49'
+  npy: '49'
+  npz: '127'
+  ntiles: '6'
+  time invariant fields:
+    state fields:
+      datapath: Data/snow/C48
+      datetime: '2021-03-23T15:00:00Z'
+      filename_orog: C48_oro_data
+      filetype: fms restart
+      skip coupler file: true
+      state variables: [orog_filt]
+local ensemble DA:
+  inflation:
+    mult: '1.0'
+    rtpp: '0.0'
+    rtps: '0.0'
+  solver: LETKF
+observations:
+  observers:
+  - obs error:
+      covariance model: diagonal
+    obs filters:
+    - action:
+        name: reject
+      filter: Bounds Check
+      filter variables:
+      - name: totalSnowDepth
+      maxvalue: '2000.0'
+      minvalue: '0.0'
+    - filter: Domain Check
+      where:
+      - minvalue: '-999.0'
+        variable:
+          name: MetaData/stationElevation
+    - filter: Domain Check
+      where:
+      - maxvalue: '1.5'
+        minvalue: '0.5'
+        variable:
+          name: GeoVaLs/slmsk
+    - filter: RejectList
+      where:
+      - maxvalue: '15.5'
+        minvalue: '14.5'
+        variable:
+          name: GeoVaLs/vtype
+    - filter: BlackList
+      where:
+      - is_in:
+        - '71120'
+        - '71397'
+        - '71621'
+        - '71727'
+        - '71816'
+        size where true: '5'
+        variable:
+          name: MetaData/stationIdentification
+    - action:
+        name: reject
+      filter: Background Check
+      filter variables:
+      - name: totalSnowDepth
+      threshold: '6.25'
+    - filter: Met Office Buddy Check
+      filter variables:
+      - background_error_group: BkgError
+        damping_factor_1: '1.0'
+        damping_factor_2: '1.0'
+        horizontal_correlation_scale:
+          '-90': '150'
+          '90': '150'
+        max_num_buddies_from_single_band: '10'
+        max_num_buddies_with_same_station_id: '5'
+        max_total_num_buddies: '15'
+        name: totalSnowDepth
+        num_zonal_bands: '24'
+        rejection_threshold: '0.5'
+        search_radius: '150'
+        sort_by_pressure: 'false'
+        station_id_variable:
+          name: MetaData/stationIdentification
+        temporal_correlation_scale: PT6H
+        traced_boxes:
+          max_latitude: '90'
+          max_longitude: '180'
+          min_latitude: '-90'
+          min_longitude: '-180'
+        use_legacy_buddy_collector: 'false'
+    # Assign obsError.
+    - filter: Perform Action
+      filter variables:
+      - name: totalSnowDepth
+      action:
+        name: assign error
+        error parameter: 40.0
+    - assignments:
+      - name: GrossErrorProbability/totalSnowDepth
+        type: float
+        value: '0.02'
+      - name: BkgError/totalSnowDepth_background_error
+        type: float
+        value: '30.0'
+      filter: Variable Assignment
+    obs localizations:
+    - lengthscale: 250e3
+      localization method: Horizontal SOAR
+      max nobs: '50'
+      soar horizontal decay: '0.000021'
+    - localization method: Vertical Brasnett
+      vertical lengthscale: '700'
+    obs operator:
+      components:
+      - name: Identity
+      - name: BackgroundErrorIdentity
+      name: Composite
+    obs space:
+      distribution:
+        halo size: 250e3
+        name: Halo
+      name: adpsfc_snow
+      obsdatain:
+        engine:
+          obsfile: adpsfc_snow.nc4
+          type: H5File
+      obsdataout:
+        engine:
+          obsfile: diags/diag_adpsfc_snow.nc4
+          type: H5File
+      simulated variables:
+      - totalSnowDepth
+output increment:
+  filename_sfcd: xainc.sfc_data.nc
+  filetype: fms restart
+time window:
+  begin: '2021-03-23T15:00:00Z'
+  length: PT6H
