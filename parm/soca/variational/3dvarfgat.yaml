@@ -2,7 +2,7 @@ cost function:
   cost type: 3D-FGAT
   time window:
     begin: '{{ ATM_WINDOW_BEGIN }}'
-    length: {{ ATM_WINDOW_LENGTH }}
+    length: '{{ ATM_WINDOW_LENGTH }}'
   analysis variables: &soca_ana_vars  [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
 
   geometry:

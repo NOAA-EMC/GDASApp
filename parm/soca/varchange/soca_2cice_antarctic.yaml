@@ -18,26 +18,26 @@ variable change:
     min hsno: 0.1
   domain: antarctic
   cice background state:
-    restart: {{ ICE_RST }}
+    restart: '{{ ICE_RST }}'
     grid: ' '
     ncat: 5
     ice_lev: 7
     sno_lev: 1
     tstep: PT1H
   cice output:
-    restart: {{ ICE_RST }}
+    restart: '{{ ICE_RST }}'
   output variables: [tocn, socn, hocn, cicen, hicen, hsnon]
 
 states:
 - input:
      read_from_file: 1
      basename: ./
-     ocn_filename: {{ OCN_ANA }}
-     ice_filename: {{ ICE_ANA }}
-     date: {{ FCST_BEGIN }}
+     ocn_filename: '{{ OCN_ANA }}'
+     ice_filename: '{{ ICE_ANA }}'
+     date: '{{ FCST_BEGIN }}'
      state variables: [tocn, socn, hocn, cicen, hicen, hsnon]
   output:
      datadir: Data
      exp: soca2cice
      type: fc
-     date: {{ FCST_BEGIN }}
+     date: '{{ FCST_BEGIN }}'
