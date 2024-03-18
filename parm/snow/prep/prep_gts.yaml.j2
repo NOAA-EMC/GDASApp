@@ -2,9 +2,17 @@ gtsbufr:
   mkdir:
     - '{{ DATA }}/obs'
   copy:
-    - ['{{ COM_OBS }}/{{ OPREFIX }}adpsfc.tm00.bufr_d', '{{ DATA }}/obs/']
+    - ['{{ COM_OBS_IN }}/{{ OPREFIX_IN }}adpsfc.tm00.bufr_d', '{{ DATA }}/obs/']
 gtsioda:
-  copy:
-    - ['{{ DATA }}/{{ OPREFIX }}adpsfc_snow.nc4', '{{ COM_OBS }}/{{ OPREFIX }}adpsfc_snow.nc4']
+  gfs:
+    copy:
+      - ['{{ DATA }}/{{ OPREFIX_OUT }}adpsfc_snow.nc4', '{{ COM_OBS_OUT }}/{{ OPREFIX_OUT }}adpsfc_snow.nc4']
+  gdas:
+    copy:
+      - ['{{ DATA }}/{{ OPREFIX_OUT }}adpsfc_snow.nc4', '{{ COM_OBS_OUT }}/{{ OPREFIX_OUT }}adpsfc_snow.nc4']
+  enkfgdas:
+    copy:
+      - ['{{ DATA }}/{{ OPREFIX_OUT }}adpsfc_snow.nc4', '{{ COM_OBS_OUT }}/{{ OPREFIX_OUT }}adpsfc_snow.nc4']
+      - ['{{ COM_OBS_IN }}/{{ OPREFIX_IN }}snocvr_snow.nc4', '{{ COM_OBS_OUT }}/{{ OPREFIX_OUT }}snocvr_snow.nc4']
 bufr2ioda:
      adpsfc: '{{ HOMEgfs }}/sorc/gdas.cd/test/testinput/bufr_adpsfc_snow.yaml'
