@@ -8,11 +8,24 @@ local pkgNameVer = myModuleFullName()
 
 conflict(pkgName)
 
-prepend_path("MODULEPATH", '/scratch1/NCEPDEV/da/python/opt/modulefiles/stack')
+prepend_path("MODULEPATH", "/scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core")
+load("stack-intel/2021.5.0")
+load("python/3.10.13")
+load("proj/9.2.1")
 
-load("hpc/1.2.0")
-load("miniconda3/4.6.14")
-load("eva/1.0.0")
+local pyenvpath = "/scratch1/NCEPDEV/da/python/envs/"
+local pyenvname = "eva"
+
+local pyenvactivate = pathJoin(pyenvpath, pyenvname, "bin/activate")
+if (mode() == "load") then
+  local activate_cmd = "source "..pyenvactivate
+  execute{cmd=activate_cmd, modeA={"load"}}
+else
+  if (mode() == "unload") then
+    local deactivate_cmd = "deactivate"
+    execute{cmd=deactivate_cmd, modeA={"unload"}}
+  end
+end
 
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)
