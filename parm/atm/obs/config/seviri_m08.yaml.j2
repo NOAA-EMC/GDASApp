@@ -1,0 +1,488 @@
+- obs space:
+    name: seviri_m08
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: '{{DATA}}/obs/{{OPREFIX}}seviri_m08.tm00.nc'
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: '{{DATA}}/diags/diag_seviri_m08.nc'
+    simulated variables: [brightnessTemperature]
+    channels: &seviri_m08_channels 4-11 
+  
+  obs operator:
+    name: CRTM
+    Absorbers: [H2O,O3,CO2]
+    obs options:
+      Sensor_ID: &Sensor_ID seviri_m08
+      EndianType: little_endian
+      CoefficientPath: {{DATA}}/crtm/
+    linear obs operator:
+      Absorbers: [H2O,O3]
+  
+  obs bias:
+    input file: '{{DATA}}/obs/{{GPREFIX}}seviri_m08.satbias.nc4'
+    output file: '{{DATA}}/bc/{{APREFIX}}seviri_m08.satbias.nc4'
+    variational bc:
+      predictors:
+      - name: constant
+      - name: lapse_rate
+        order: 2
+        tlapse: &seviri_m08_tlapse {{DATA}}/obs/{{GPREFIX}}seviri_m08.tlapse.txt
+      - name: lapse_rate
+        tlapse: *seviri_m08_tlapse
+      - name: emissivity
+      - name: scan_angle
+        var_name: sensorScanPosition
+        order: 4
+      - name: scan_angle
+        var_name: sensorScanPosition
+        order: 3
+      - name: scan_angle
+        var_name: sensorScanPosition
+        order: 2
+      - name: scan_angle
+        var_name: sensorScanPosition
+  
+    covariance:
+      minimal required obs number: 20
+      variance range: [1.0e-6, 10.0]
+      step size: 1.0e-4
+      largest analysis variance: 10000.0
+      prior:
+        input file: '{{DATA}}/obs/{{GPREFIX}}seviri_m08.satbias_cov.nc4'
+        inflation:
+          ratio: 1.1
+          ratio for small dataset: 2.0
+      output file: '{{DATA}}/bc/{{APREFIX}}seviri_m08.satbias_cov.nc4'
+  
+  obs prior filters:
+  # Step 0: Assign obs error for each channel
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    action:
+      name: assign error
+      error parameter vector: [1.80, 2.50, 2.25, 1.25, 1.25, 1.25, 1.45, 1.25]
+  
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/surfaceFlag
+      type: int
+      function:
+        name: IntObsFunction/Conditional
+        options:
+          defaultvalue: 4
+          firstmatchingcase: true
+          cases:
+          - where:
+            - variable:
+                name: GeoVaLs/water_area_fraction
+              minvalue: 0.99
+            value: 0
+          - where:
+            - variable:
+                name: GeoVaLs/land_area_fraction
+              minvalue: 0.99
+            value: 1
+          - where:
+            - variable:
+                name: GeoVaLs/ice_area_fraction
+              minvalue: 0.99
+            value: 2
+          - where:
+            - variable:
+                name: GeoVaLs/surface_snow_area_fraction
+              minvalue: 0.99
+            value: 3
+  
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/surfaceParam
+      type: int
+      function:
+        name: IntObsFunction/Conditional
+        options:
+          defaultvalue: 0
+          firstmatchingcase: true
+          cases:
+          - where:
+            - variable:
+                name: GeoVaLs/water_area_fraction
+              minvalue: 0.99
+            value: 30
+          - where:
+            - variable:
+                name: GeoVaLs/land_area_fraction
+              minvalue: 0.99
+            value: 15 
+          - where:
+            - variable:
+                name: GeoVaLs/ice_area_fraction
+              minvalue: 0.99
+            value: 20 
+          - where:
+            - variable:
+                name: GeoVaLs/surface_snow_area_fraction
+              minvalue: 0.99
+            value: 15 
+  
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/thinningCriteria
+      type: int
+      function:
+        name: IntObsFunction/Arithmetic
+        options:
+          variables:
+          - name: DerivedMetaData/surfaceParam
+  #       - name: MetaData/fractionOfClearPixelsInFOV
+          coefs: [1]
+  #       intercept: 300
+  
+  obs post filters:
+  # Step 1: Satellite Zenith Angle Check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    test variables:
+    - name: MetaData/sensorZenithAngle
+    maxvalue: 65.
+    action:
+      name: reject
+  
+  # Step 2: Clear-sky fraction check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    test variables:
+    - name: MetaData/cloudAmount
+    maxvalue: 30.
+    action:
+      name: reject
+  
+  # Step 3: Scene homogeneous check
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    where:
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature
+        channels: 5
+      is_defined:
+    where:
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature
+        channels: 6
+      is_defined:
+      where operator: and
+  
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    where:
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature
+        channels: 5
+      maxvalue: 1.3
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature
+        channels: 6
+      maxvalue: 1.3
+    where operator: and
+  
+  # Step 4: Thinning
+  - filter: Gaussian Thinning
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels 
+    horizontal_mesh: 145
+    use_reduced_horizontal_grid: true
+    distance_norm: maximum 
+    time_mesh: 'PT06H' 
+    time_min: '2021-07-31T21:00:00Z'
+    time_max: '2021-08-01T03:00:00Z'
+    priority_variable: DerivedMetaData/thinningCriteria
+    action:
+      name: reject
+  
+  
+  # Step 5: Surface type check
+  # Reject channels 5-6 over land-dominant area 
+  - filter: RejectList
+    filter variables:
+    - name: brightnessTemperature
+      channels: 4, 7-11 
+    where:
+    - variable:
+        name: GeoVaLs/land_area_fraction
+      minvalue: 0.99
+  
+  # Reject all channels over snow-dominant area
+  - filter: RejectList
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    where:
+    - variable:
+        name: GeoVaLs/surface_snow_area_fraction
+      minvalue: 0.99 
+  
+  # Reject all channels over ice-dominant area
+  - filter: RejectList
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    where:
+    - variable:
+        name: GeoVaLs/ice_area_fraction
+      minvalue: 0.99 
+  
+  # Reject all channelsover mixed surface
+  - filter: RejectList
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    where:
+    - variable:
+        name: GeoVaLs/land_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true 
+    - variable:
+        name: GeoVaLs/water_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true 
+    - variable:
+        name: GeoVaLs/ice_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true 
+    - variable:
+        name: GeoVaLs/surface_snow_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true 
+  
+  # Step 6: Terrain Check: Do not use when height > 1km 
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    where:
+    - variable:
+        name: GeoVaLs/surface_geopotential_height 
+      maxvalue: 1000.0
+  
+  # Step 7: Observation Range Sanity Check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    minvalue: 0.0000
+    maxvalue: 1000.0
+    action:
+      name: reject
+  
+  # Step 8: Error Inflation based on topography
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/ObsErrorFactorTopo
+      channels: *seviri_m08_channels
+      type: float
+      function:
+        name: ObsFunction/ObsErrorFactorTopoRad
+        channels: *seviri_m08_channels
+        options:
+          sensor: *Sensor_ID
+          channels: *seviri_m08_channels
+  
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: DerivedMetaData/ObsErrorFactorTopo
+        channels: *seviri_m08_channels
+  
+  # Step 9: Error Inflation based on TOA transmittance 
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorTransmitTopRad
+        channels: *seviri_m08_channels
+        options:
+          channels: *seviri_m08_channels
+  
+  # Step 10: Cloud detection check 
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    test variables:
+    - name: ObsFunction/CloudDetectMinResidualIR
+      channels: *seviri_m08_channels
+      options:
+        channels: *seviri_m08_channels
+        use_flag: [ -1, 1, 1, -1,  -1, -1, -1, -1 ]
+        use_flag_clddet: [ -2, -2, -2, -2,  -2, -2, -2, -2 ]
+        obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+        error parameter vector: [1.80, 2.50, 2.25, 1.25, 1.25, 1.25, 1.45, 1.25]
+    maxvalue: 1.0e-12
+    action:
+        name: reject
+  
+  # Step 11: Scene consistency check using channel 9 
+  #         Reject channels 4, 6-11 if channel 9 if scene consistency is greated than 0.5
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 4, 6-11
+    where:
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature
+        channels: 9
+      maxvalue: 0.5 
+      max_exclusive: true
+  
+  # Step 12: Gross check 
+  #         Reject channels 4, 6-11 if omf > 2
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 4, 6-11
+    absolute threshold: 2.0
+    action:
+      name: reject
+  
+  # Step 13: Error inflation for channels 3-4 based on scene consistency from channel 5
+  - filter: Perform Action 
+    filter variables: 
+    - name: brightnessTemperature
+      channels: 6-7
+    where: 
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature_5
+      maxvalue: 0.5
+      minvalue: 0.4 
+      min_exclusive: true 
+    action:
+      name: inflate error
+      inflation factor: 1.14891
+  
+  - filter: Perform Action 
+    filter variables: 
+    - name: brightnessTemperature
+      channels: 6-7
+    where: 
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature_5
+      maxvalue: 0.6
+      max_exclusive: true 
+      minvalue: 0.5 
+      min_exclusive: true 
+    action:
+      name: inflate error
+      inflation factor: 1.29228
+  
+  - filter: Perform Action 
+    filter variables: 
+    - name: brightnessTemperature
+      channels: 6-7
+    where: 
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature_5
+      maxvalue: 0.7
+      max_exclusive: true 
+      minvalue: 0.6 
+    action:
+      name: inflate error
+      inflation factor: 1.49666  
+  
+  - filter: Perform Action 
+    filter variables: 
+    - name: brightnessTemperature
+      channels: 6-7
+    where: 
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature_5
+      minvalue: 0.7 
+    action:
+      name: inflate error
+      inflation factor: 1.51987
+  
+  # Step 14:
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    test variables:
+    - name: ObsFunction/NearSSTRetCheckIR
+      channels: *seviri_m08_channels
+      options:
+        channels: *seviri_m08_channels
+        use_flag: [ -1, 1, 1, -1,  -1, -1, -1, -1 ]
+    maxvalue: 1.0e-12
+    action:
+      name: reject
+  
+  # Step 15: Error inflation based on surface jacobian check
+  - filter: Perform Action 
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorSurfJacobianRad
+        channels: *seviri_m08_channels
+        options:
+          channels: *seviri_m08_channels
+          sensor: seviri_m08 
+          obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
+          obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+  
+  # Step 16: Cloud fraction cehck
+  #          Reject channels 4, 6-11 if Cloud fraction (percent) > 2
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 4, 6-11
+    where:
+    - variable:
+        name: MetaData/cloudAmount
+      maxvalue: 2
+  
+  # Step 17: Final gross check
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *seviri_m08_channels
+    function absolute threshold:
+    - name: ObsFunction/ObsErrorBoundIR
+      channels: *seviri_m08_channels
+      options:
+        sensor: *Sensor_ID
+        channels: *seviri_m08_channels
+        obserr_bound_latitude:
+          name: ObsFunction/ObsErrorFactorLatRad
+          options:
+            latitude_parameters: [0.0, 0.0, 0.0, 0.0]
+        obserr_bound_transmittop:
+          name: ObsFunction/ObsErrorFactorTransmitTopRad
+          channels: *seviri_m08_channels
+          options:
+            channels: *seviri_m08_channels
+        obserr_bound_max: [ 2.0, 4.0, 3.5, 2.0, 2.0, 2.0, 2.0, 3.0 ]
+        error parameter vector: [1.80, 2.50, 2.25, 1.25, 1.25, 1.25, 1.45, 1.25]
+    action:
+      name: reject
