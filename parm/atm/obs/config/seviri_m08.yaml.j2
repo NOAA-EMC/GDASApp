@@ -7,7 +7,7 @@
     obsdataout:
       engine:
         type: H5File
-        obsfile: '{{DATA}}/diags/diag_seviri_m08.nc'
+        obsfile: '{{DATA}}/diags/diag_seviri_m08_{{ current_cycle | to_YMDH }}.nc'
     simulated variables: [brightnessTemperature]
     channels: &seviri_m08_channels 4-11 
   
