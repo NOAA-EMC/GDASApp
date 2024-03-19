@@ -170,6 +170,9 @@ transforms:
       variable: *variables
 
 graphics:
+  plotting_backend: Emcpy
+  figure_list:
+
   - figure:
       layout: [1,1]
       title: 'JEDI HofX - GSI HofX vs Channel | @NAME@ @CYCLE@'

@@ -1,9 +1,9 @@
-iReading: [rads_adt_3a_2021181.nc4,rads_adt_3b_2021181.nc4]
+Reading: [rads_adt_3a_2021181.nc4,rads_adt_3b_2021181.nc4]
 seconds since 1858-11-17T00:00:00Z
 obsVal:
-    Min: 0.1671
-    Max: 0.7307
-    Sum: 8.3145
+    Min: 1.1446
+    Max: 1.3761
+    Sum: 27.6532
 obsError:
     Min: 0.1
     Max: 0.1
@@ -13,14 +13,14 @@ preQc:
     Max: 0
     Sum: 0
 longitude:
-    Min: -21.761
-    Max: 163.417
-    Sum: 1552.07
+    Min: -177.787
+    Max: -173.391
+    Sum: -3862.91
 latitude:
-    Min: -43.9731
-    Max: 59.7327
-    Sum: 165.588
+    Min: -21.5196
+    Max: 27.313
+    Sum: 63.7285
 datetime:
-    Min: 5131727872
-    Max: 5131728384
-    Sum: 112898018816
+    Min: 5131805184
+    Max: 5131807744
+    Sum: 112899742208

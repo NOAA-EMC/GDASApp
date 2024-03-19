@@ -6,6 +6,7 @@
 
 import sys
 import numpy as np
+import numpy.ma as ma
 import os
 import argparse
 import math
@@ -21,8 +22,17 @@ from wxflow import Logger
 
 def Compute_dateTime(cycleTimeSinceEpoch, dhr):
 
-    dhr = np.int64(dhr*3600)
-    dateTime = dhr + cycleTimeSinceEpoch
+    int64_fill_value = np.int64(0)
+
+    dateTime = np.zeros(dhr.shape, dtype=np.int64)
+    for i in range(len(dateTime)):
+        if ma.is_masked(dhr[i]):
+            continue
+        else:
+            dateTime[i] = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
+
+    dateTime = ma.array(dateTime)
+    dateTime = ma.masked_values(dateTime, int64_fill_value)
 
     return dateTime
 
@@ -60,8 +70,10 @@ def bufr_to_ioda(config, logger):
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}",
-                             str(hh), bufrfile)
-
+                             str(hh), 'atmos', bufrfile)
+    if not os.path.isfile(DATA_PATH):
+        logger.info(f"DATA_PATH {DATA_PATH} does not exist")
+        return
     logger.debug(f"The DATA_PATH is: {DATA_PATH}")
 
     # ============================================
@@ -80,12 +92,15 @@ def bufr_to_ioda(config, logger):
     q.add('latitude', '*/YOB')
     q.add('longitude', '*/XOB')
     q.add('obsTimeMinusCycleTime', '*/DHR')
-    q.add('heightOfStation', '*/Z___INFO/Z__EVENT{1}/ZOB')
+    q.add('height', '*/Z___INFO/Z__EVENT{1}/ZOB')
     q.add('pressure', '*/P___INFO/P__EVENT{1}/POB')
 
-#   # Quality Infomation (Quality Indicator)
+    # Quality Marker
     q.add('qualityMarkerStationPressure', '*/P___INFO/P__EVENT{1}/PQM')
     q.add('qualityMarkerStationElevation', '*/Z___INFO/Z__EVENT{1}/ZQM')
+
+    # ObsError
+    q.add('obsErrorStationPressure', '*/P___INFO/P__BACKG{1}/POE')
 
     # ObsValue
     q.add('stationPressure', '*/P___INFO/P__EVENT{1}/POB')
@@ -103,37 +118,45 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
-        r = f.execute(q)
+        try:
+            r = f.execute(q)
+        except Exception as err:
+            logger.info(f'Return with {err}')
+            return
 
-    logger.debug(" ... Executing QuerySet: get ObsType ...")
     # ObsType
+    logger.debug(" ... Executing QuerySet: get ObsType ...")
     typ = r.get('observationType')
 
-    logger.debug(" ... Executing QuerySet: get MetaData ...")
     # MetaData
+    logger.debug(" ... Executing QuerySet: get MetaData ...")
     sid = r.get('stationIdentification')
     lat = r.get('latitude')
     lon = r.get('longitude')
     lon[lon > 180] -= 360
-    zob = r.get('heightOfStation', type='float')
+    zob = r.get('height', type='float')
     pressure = r.get('pressure')
     pressure *= 100
 
-    logger.debug(f" ... Executing QuerySet: get QualityMarker information ...")
     # Quality Information
+    logger.debug(f" ... Executing QuerySet: get QualityMarker ...")
     pobqm = r.get('qualityMarkerStationPressure')
     zobqm = r.get('qualityMarkerStationElevation')
 
-    logger.debug(f" ... Executing QuerySet: get ObsValue ...")
+    # ObsError
+    logger.debug(f" ... Executing QuerySet: get ObsError ...")
+    poboe = r.get('obsErrorStationPressure')
+    poboe *= 100
+
     # ObsValue
+    logger.debug(f" ... Executing QuerySet: get ObsValue ...")
     elv = r.get('stationElevation', type='float')
     pob = r.get('stationPressure')
     pob *= 100
 
     logger.debug(f" ... Executing QuerySet: get dateTime ...")
     # DateTime: seconds since Epoch time
-    # IODA has no support for numpy datetime arrays dtype=datetime64[s]
-    dhr = r.get('obsTimeMinusCycleTime', type='int64')
+    dhr = r.get('obsTimeMinusCycleTime', type='float')
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -151,6 +174,8 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     pobqm     shape = {pobqm.shape}")
     logger.debug(f"     zobqm     shape = {zobqm.shape}")
 
+    logger.debug(f"     poboe     shape = {poboe.shape}")
+
     logger.debug(f"     elv       shape = {elv.shape}")
     logger.debug(f"     pob       shape = {pob.shape}")
 
@@ -166,6 +191,8 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"     pobqm     type  = {pobqm.dtype}")
     logger.debug(f"     zobqm     type  = {zobqm.dtype}")
+
+    logger.debug(f"     poboe     shape = {poboe.dtype}")
 
     logger.debug(f"     elv       type  = {elv.dtype}")
     logger.debug(f"     pob       type  = {pob.dtype}")
@@ -231,13 +258,13 @@ def bufr_to_ioda(config, logger):
     # Create IODA variables
     logger.debug(f" ... ... Create variables: name, type, units, & attributes")
 
-    # Observation Type - Station Elevation
+    # Observation Type: Station Elevation
     obsspace.create_var('ObsType/stationElevation', dtype=typ.dtype,
                         fillval=typ.fill_value) \
         .write_attr('long_name', 'Station Elevation Observation Type') \
         .write_data(typ)
 
-    # Observation Type - Station Pressure
+    # Observation Type: Station Pressure
     obsspace.create_var('ObsType/stationPressure', dtype=typ.dtype,
                         fillval=typ.fill_value) \
         .write_attr('long_name', 'Station Pressure Observation Type') \
@@ -272,11 +299,18 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Station Identification') \
         .write_data(sid)
 
-    # Height Of Station
-    obsspace.create_var('MetaData/heightOfStation', dtype=zob.dtype,
+    # Station Elevation
+    obsspace.create_var('MetaData/stationElevation', dtype=elv.dtype,
+                        fillval=elv.fill_value) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Station Elevation') \
+        .write_data(elv)
+
+    # Height
+    obsspace.create_var('MetaData/height', dtype=zob.dtype,
                         fillval=zob.fill_value) \
         .write_attr('units', 'm') \
-        .write_attr('long_name', 'Height Of Station') \
+        .write_attr('long_name', 'Height') \
         .write_data(zob)
 
     # Pressure
@@ -286,26 +320,33 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Pressure') \
         .write_data(pressure)
 
-    # QualityMarker - Station Elevation
+    # QualityMarker: Station Elevation
     obsspace.create_var('QualityMarker/stationElevation', dtype=zobqm.dtype,
                         fillval=zobqm.fill_value) \
         .write_attr('long_name', 'Station Elevation Quality Marker') \
         .write_data(zobqm)
 
-    # QualityMarker - Station Pressure
+    # QualityMarker: Station Pressure
     obsspace.create_var('QualityMarker/stationPressure', dtype=pobqm.dtype,
                         fillval=pobqm.fill_value) \
         .write_attr('long_name', 'Station Pressure Quality Marker') \
         .write_data(pobqm)
 
-    # Station Elevation
+    # ObsError: station Pressure
+    obsspace.create_var('ObsError/stationPressure', dtype=poboe.dtype,
+                        fillval=poboe.fill_value) \
+        .write_attr('units', 'Pa') \
+        .write_attr('long_name', 'Station Pressure ObsError') \
+        .write_data(poboe)
+
+    # ObsValue: Station Elevation
     obsspace.create_var('ObsValue/stationElevation', dtype=elv.dtype,
                         fillval=elv.fill_value) \
         .write_attr('units', 'm') \
         .write_attr('long_name', 'Station Elevation') \
         .write_data(elv)
 
-    # Station Pressure
+    # ObsValue: Station Pressure
     obsspace.create_var('ObsValue/stationPressure', dtype=pob.dtype,
                         fillval=pob.fill_value) \
         .write_attr('units', 'Pa') \

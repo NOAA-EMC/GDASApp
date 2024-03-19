@@ -6,6 +6,9 @@
 #include <string>
 #include <vector>
 
+#include "ioda/../../../../core/IodaUtils.h"
+#include "oops/util/dateFunctions.h"
+
 namespace gdasapp {
   namespace obsproc {
     namespace oceanmask {
@@ -92,6 +95,10 @@ namespace gdasapp {
         int nfMetadata_;    // number of float metadata fields
         int niMetadata_;    // number of int metadata fields
 
+        // Channels
+        int channel_;       // Number of channels
+        Eigen::ArrayXi channelValues_;  // Values specific to channels
+
         // Non optional metadata
         Eigen::ArrayXf longitude_;  // geo-location_
         Eigen::ArrayXf latitude_;   //     "
@@ -115,16 +122,18 @@ namespace gdasapp {
         // Constructor
         explicit IodaVars(const int nobs = 0,
                           const std::vector<std::string> fmnames = {},
-                          const std::vector<std::string> imnames = {}) :
+                          const std::vector<std::string> imnames = {}):
         location_(nobs), nVars_(1), nfMetadata_(fmnames.size()), niMetadata_(imnames.size()),
           longitude_(location_), latitude_(location_), datetime_(location_),
-          obsVal_(location_),
-          obsError_(location_),
-          preQc_(location_),
+          obsVal_(location_*channel_),
+          obsError_(location_*channel_),
+          preQc_(location_*channel_),
           floatMetadata_(location_, fmnames.size()),
           floatMetadataName_(fmnames),
           intMetadata_(location_, imnames.size()),
-          intMetadataName_(imnames)
+          intMetadataName_(imnames),
+          channel_(1),
+          channelValues_(Eigen::ArrayXi::Constant(channel_, -1))
         {
           oops::Log::trace() << "IodaVars::IodaVars created." << std::endl;
         }
@@ -142,9 +151,9 @@ namespace gdasapp {
           longitude_.conservativeResize(location_ + other.location_);
           latitude_.conservativeResize(location_ + other.location_);
           datetime_.conservativeResize(location_ + other.location_);
-          obsVal_.conservativeResize(location_ + other.location_);
-          obsError_.conservativeResize(location_ + other.location_);
-          preQc_.conservativeResize(location_ + other.location_);
+          obsVal_.conservativeResize(location_ * channel_ + other.location_ * other.channel_);
+          obsError_.conservativeResize(location_  * channel_ + other.location_ * other.channel_);
+          preQc_.conservativeResize(location_ * channel_ + other.location_ * other.channel_);
           floatMetadata_.conservativeResize(location_ + other.location_, nfMetadata_);
           intMetadata_.conservativeResize(location_ + other.location_, niMetadata_);
 
@@ -211,6 +220,37 @@ namespace gdasapp {
           oops::Log::test() << checksum(longitude_, "longitude") << std::endl;
           oops::Log::test() << checksum(latitude_, "latitude") << std::endl;
           oops::Log::test() << checksum(datetime_, "datetime") << std::endl;
+        }
+
+        // Changing the date and Adjusting Errors
+        void reDate(const util::DateTime & windowBegin, const util::DateTime & windowEnd,
+                    float errRatio) {
+          // windowBegin and End into DAwindowTimes
+          std::vector<util::DateTime> DAwindowTimes = {windowBegin, windowEnd};
+          // Epoch DateTime from Provider
+          util::DateTime epochDtime("1858-11-17T00:00:00Z");
+          // Convert DA Window DateTime objects to epoch time offsets in seconds
+          std::vector<int64_t> timeOffsets
+                                = ioda::convertDtimeToTimeOffsets(epochDtime, DAwindowTimes);
+
+          int64_t minDAwindow = timeOffsets[0];
+          int64_t maxDAwindow = timeOffsets[1];
+          for (int i = 0; i < location_; i++) {
+            if (datetime_(i) < minDAwindow) {
+              int delta_t = minDAwindow - datetime_(i);
+              // one second is used for safety falling in min DA window
+              datetime_(i) = minDAwindow + 1;
+              obsError_(i) += errRatio * delta_t;
+            }
+            if (maxDAwindow < datetime_(i)) {
+              int delta_t = datetime_(i) - maxDAwindow;
+              // one second is used for safety falling in min DA window
+              datetime_(i) = maxDAwindow - 1;
+              obsError_(i) += errRatio * delta_t;
+              // Error Ratio comes from configuration based on meter per day
+            }
+          }
+          oops::Log::info() << "IodaVars::IodaVars done redating & adjsting errors." << std::endl;
         }
       };
     }  // namespace iodavars

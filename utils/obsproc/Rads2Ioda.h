@@ -28,6 +28,15 @@ namespace gdasapp {
     gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by the RADS" << std::endl;
 
+      //  Abort the case where the 'error ratio' key is not found
+      ASSERT(fullConfig_.has("error ratio"));
+
+      // Get the obs. error ratio from the configuration (meters per day)
+      float errRatio;
+      fullConfig_.get("error ratio", errRatio);
+      // Convert errRatio from meters per day to meters per second
+      errRatio /= 86400.0;
+
       // Open the NetCDF file in read-only mode
       netCDF::NcFile ncFile(fileName, netCDF::NcFile::read);
       oops::Log::info() << "Reading... " << fileName << std::endl;
@@ -111,7 +120,7 @@ namespace gdasapp {
         iodaVars.latitude_(i) = static_cast<float>(lat[i])*geoscaleFactor;
         iodaVars.datetime_(i) = static_cast<int64_t>(datetime[i]*86400.0f);
         iodaVars.obsVal_(i) = static_cast<float>(adt[i])*scaleFactor;
-        iodaVars.obsError_(i) = 0.1;  // Do something for obs error
+        iodaVars.obsError_(i) = 0.1;  // only within DA window
         iodaVars.preQc_(i) = 0;
         // Save MDT in optional floatMetadata
         iodaVars.floatMetadata_.row(i) << iodaVars.obsVal_(i) -
@@ -123,20 +132,15 @@ namespace gdasapp {
         (iodaVars.obsVal_ > -4.0 && iodaVars.obsVal_ < 4.0);
       iodaVars.trim(boundsCheck);
 
-      // get ocean basin masks if asked in the config
-      obsproc::oceanmask::OceanMask* oceanMask = nullptr;
-      if (fullConfig_.has("ocean basin")) {
-          std::string fileName;
-          fullConfig_.get("ocean basin", fileName);
-          oceanMask = new obsproc::oceanmask::OceanMask(fileName);
-
-          for (int i = 0; i < iodaVars.location_; i++) {
-            iodaVars.intMetadata_.coeffRef(i, 3) =
-              oceanMask->getOceanMask(iodaVars.longitude_[i], iodaVars.latitude_[i]);
-          }
+      // Redating and adjusting Errors
+      if (iodaVars.datetime_.size() == 0) {
+        oops::Log::info() << "datetime_ is empty" << std::endl;
+      } else {
+        // Redating and Adjusting Error
+        iodaVars.reDate(windowBegin_, windowEnd_, errRatio);
       }
 
-      return iodaVars;
+     return iodaVars;
     };
   };  // class Rads2Ioda
 }  // namespace gdasapp

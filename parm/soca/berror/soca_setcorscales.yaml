@@ -4,37 +4,13 @@ resolution:
 
 date: 0001-01-01T00:00:00Z
 
-corr variables: [socn, tocn, ssh, uocn, vocn, cicen, hicen, hsnon]
+corr variables: [ssh]
 
 scales:
   vert layers: 5 # in units of layer
-  socn:
-    rossby mult: 1.00
-    min grid mult: 2.0
-  tocn:
-    rossby mult: 1.00
-    min grid mult: 2.0
-  uocn:
-    rossby mult: 1.00
-    min grid mult: 2.0
-  vocn:
-    rossby mult: 1.00
-    min grid mult: 2.0
   ssh:
     rossby mult: 1.00
     min grid mult: 2.0
-  cicen:
-    rossby mult: 0.0
-    min grid mult: 2.0
-    min: 50.0
-  hicen:
-    rossby mult: 0.0
-    min grid mult: 4.0
-    min: 150000.0
-  hsnon:
-    rossby mult: 0.0
-    min grid mult: 4.0
-    min: 150000.0
 
 rh output:
   datadir: ./

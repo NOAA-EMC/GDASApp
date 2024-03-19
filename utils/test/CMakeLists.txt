@@ -1,4 +1,4 @@
-# Create Data directory for test input config and symlink all files
+#eT Create Data directory for test input config and symlink all files
 list( APPEND utils_test_input
   testinput/gdas_meanioda.yaml
   testinput/gdas_rads2ioda.yaml
@@ -45,8 +45,8 @@ ecbuild_add_test( TARGET  test_gdasapp_util_ioda_example
 # Prepare data for the IODA converters
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 ecbuild_add_test( TARGET  test_gdasapp_util_prepdata
-                  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/test/prepdata.sh
-                  ARGS    ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/test
+                  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/prepdata.sh
+                  ARGS    ${CMAKE_CURRENT_SOURCE_DIR}
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
 # Test the RADS to IODA converter
@@ -64,12 +64,11 @@ ecbuild_add_test( TARGET  test_gdasapp_util_ghrsst2ioda
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
 # Test the SMAP to IODA converter
-# TODO(Mindo): Turn back on when date is fixed
-#ecbuild_add_test( TARGET  test_gdasapp_util_smap2ioda
-#                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
-#                  ARGS    "../testinput/gdas_smap2ioda.yaml"
-#                  LIBS    gdas-utils
-#                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+ecbuild_add_test( TARGET  test_gdasapp_util_smap2ioda
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  ARGS    "../testinput/gdas_smap2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
 # Test the SMOS to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_smos2ioda
@@ -86,9 +85,8 @@ ecbuild_add_test( TARGET  test_gdasapp_util_viirsaod2ioda
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
 # Test the AMSR2 to IODA converter
-# TODO(Mindo): Turn back on when date is fixed
-#ecbuild_add_test( TARGET  test_gdasapp_util_icecamsr2ioda
-#                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
-#                  ARGS    "../testinput/gdas_icecamsr2ioda.yaml"
-#                  LIBS    gdas-utils
-#                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+ecbuild_add_test( TARGET  test_gdasapp_util_icecamsr2ioda
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  ARGS    "../testinput/gdas_icecamsr2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)

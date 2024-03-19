@@ -1,22 +1,20 @@
 observers:
-- !INC ${OBS_YAML_DIR}/adt_all.yaml
-- !INC ${OBS_YAML_DIR}/adt_j3_egm2008.yaml
-- !INC ${OBS_YAML_DIR}/adt_3a_egm2008.yaml
-- !INC ${OBS_YAML_DIR}/adt_3b_egm2008.yaml
-- !INC ${OBS_YAML_DIR}/adt_c2_egm2008.yaml
-- !INC ${OBS_YAML_DIR}/adt_sa_egm2008.yaml
-- !INC ${OBS_YAML_DIR}/sst_viirs_npp_l3u_so025.yaml
-#- !INC ${OBS_YAML_DIR}/sst_metopa_l3u_so025.yaml
-#- !INC ${OBS_YAML_DIR}/sst_metopb_l3u_so025.yaml
-#- !INC ${OBS_YAML_DIR}/sst_metopc_l3u_so025.yaml
-- !INC ${OBS_YAML_DIR}/icec_ssmis_f17_north.yaml
-#- !INC ${OBS_YAML_DIR}/icec_ssmis_f17_south.yaml
-#- !INC ${OBS_YAML_DIR}/icec_ssmis_f18_north.yaml
-- !INC ${OBS_YAML_DIR}/icec_ssmis_f18_south.yaml
-#- !INC ${OBS_YAML_DIR}/temp_profile_argo.yaml
-#- !INC ${OBS_YAML_DIR}/temp_profile_bathy.yaml
-#- !INC ${OBS_YAML_DIR}/temp_profile_glider.yaml
-#- !INC ${OBS_YAML_DIR}/temp_profile_tesac.yaml
-#- !INC ${OBS_YAML_DIR}/salt_profile_argo.yaml
-#- !INC ${OBS_YAML_DIR}/salt_profile_glider.yaml
-#- !INC ${OBS_YAML_DIR}/salt_profile_tesac.yaml
+# ADT
+- !INC ${OBS_YAML_DIR}/adt_rads_all.yaml
+
+# SST
+- !INC ${OBS_YAML_DIR}/sst_avhrr_ma_l3u.yaml
+- !INC ${OBS_YAML_DIR}/sst_avhrr_mb_l3u.yaml
+- !INC ${OBS_YAML_DIR}/sst_avhrr_mc_l3u.yaml
+- !INC ${OBS_YAML_DIR}/sst_viirs_npp_l3u.yaml
+- !INC ${OBS_YAML_DIR}/sst_viirs_n20_l3u.yaml
+- !INC ${OBS_YAML_DIR}/sst_abi_g16_l3c.yaml
+- !INC ${OBS_YAML_DIR}/sst_abi_g17_l3c.yaml
+- !INC ${OBS_YAML_DIR}/sst_ahi_h08_l3c.yaml
+
+# Ice concentration
+- !INC ${OBS_YAML_DIR}/icec_amsr2_north.yaml
+- !INC ${OBS_YAML_DIR}/icec_amsr2_south.yaml
+- !INC ${OBS_YAML_DIR}/insitu_profile_bathy.yaml
+- !INC ${OBS_YAML_DIR}/insitu_profile_tesac.yaml
+- !INC ${OBS_YAML_DIR}/insitu_surface_trkob.yaml

@@ -1,6 +1,8 @@
 #pragma once
 
+#include <algorithm>
 #include <iostream>
+#include <limits>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
 #include <vector>
@@ -12,20 +14,20 @@
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
 
-#include "NetCDFToIodaConverter2D.h"
+#include "NetCDFToIodaConverter.h"
 #include "superob.h"
 
 namespace gdasapp {
 
-  class Viirsaod2Ioda : public NetCDFToIodaConverter2d {
+  class Viirsaod2Ioda : public NetCDFToIodaConverter {
    public:
     explicit Viirsaod2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
-      : NetCDFToIodaConverter2d(fullConfig, comm) {
+      : NetCDFToIodaConverter(fullConfig, comm) {
       variable_ = "aerosolOpticalDepth";
     }
 
     // Read netcdf file and populate iodaVars
-    gdasapp::IodaVars2d providerToIodaVars(const std::string fileName) final {
+    gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
       oops::Log::info() << "Processing files provided by VIIRSAOD" << std::endl;
 
       // Open the NetCDF file in read-only mode
@@ -81,38 +83,25 @@ namespace gdasapp {
       std::vector<std::vector<float>> obsvalue(dimRow, std::vector<float>(dimCol));
       std::vector<std::vector<float>> obserror(dimRow, std::vector<float>(dimCol));
       std::vector<std::vector<int>> preqc(dimRow, std::vector<int>(dimCol));
-      std::vector<std::vector<float>> seconds(dimRow, std::vector<float>(dimCol));
       std::vector<std::vector<float>> lat(dimRow, std::vector<float>(dimCol));
       std::vector<std::vector<float>> lon(dimRow, std::vector<float>(dimCol));
 
 
-      // superobing, not work yet...
-      if (false) {
-         std::vector<std::vector<float>> lon2d_s =
-           gdasapp::superobutils::subsample2D(lon, mask, fullConfig_);
-         std::vector<std::vector<float>> lat2d_s =
-           gdasapp::superobutils::subsample2D(lat, mask, fullConfig_);
-         std::vector<std::vector<float>> obsvalue_s =
-           gdasapp::superobutils::subsample2D(obsvalue, mask, fullConfig_);
-         std::vector<std::vector<float>> obserror_s =
-           gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_);
-         std::vector<std::vector<float>> seconds_s =
-           gdasapp::superobutils::subsample2D(seconds, mask, fullConfig_);
-      }
 
       // Thinning
       float thinThreshold;
       fullConfig_.get("thinning.threshold", thinThreshold);
+      int preQcValue;
+      fullConfig_.get("preqc", preQcValue);
       oops::Log::info() << " thinthreshold " << thinThreshold << std::endl;
       std::random_device rd;
       std::mt19937 gen(rd());
       std::uniform_real_distribution<> dis(0.0, 1.0);
 
       // Create thinning and missing value mask
-      int nobs(0);
       for (int i = 0; i < dimRow; i++) {
         for (int j = 0; j < dimCol; j++) {
-          if (aod550[i][j] != missingValue) {
+          if (aod550[i][j] != missingValue && qcall[i][j] <= preQcValue) {
          // Random number generation for thinning
              float isThin = dis(gen);
              if (isThin > thinThreshold) {
@@ -132,9 +121,75 @@ namespace gdasapp {
                 }
                 obserror[i][j] = obserrorValue;
                 mask[i][j] = 1;
-                nobs += 1;
              }
           }
+        }
+      }
+
+      std::vector<std::vector<float>> obsvalue_s;
+      std::vector<std::vector<float>> lon2d_s;
+      std::vector<std::vector<float>> lat2d_s;
+      std::vector<std::vector<float>> obserror_s;
+      std::vector<std::vector<int>> mask_s;
+
+      if ( fullConfig_.has("binning") ) {
+        // deal with longitude when points cross the international date line
+        float minLon = std::numeric_limits<float>::max();
+        float maxLon = std::numeric_limits<float>::min();
+
+        for (const auto& row : lon) {
+           minLon = std::min(minLon, *std::min_element(row.begin(), row.end()));
+           maxLon = std::max(maxLon, *std::max_element(row.begin(), row.end()));
+        }
+
+        if (maxLon - minLon > 180) {
+        // Normalize longitudes to the range [0, 360)
+           for (auto& row : lon) {
+               for (float& lonValue : row) {
+                   lonValue = fmod(lonValue + 360, 360);
+               }
+           }
+        }
+
+        lon2d_s = gdasapp::superobutils::subsample2D(lon, mask, fullConfig_);
+        for (auto& row : lon2d_s) {
+            for (float& lonValue : row) {
+                lonValue = fmod(lonValue + 360, 360);
+            }
+        }
+
+
+        lat2d_s = gdasapp::superobutils::subsample2D(lat, mask, fullConfig_);
+        mask_s = gdasapp::superobutils::subsample2D(mask, mask, fullConfig_);
+        if (fullConfig_.has("binning.cressman radius")) {
+        // Weighted-average (cressman) does not work yet. Need to develop subsample2D_cressman
+        // function to superob.h or incorporate weighted average to subsample2D function.
+        // obsvalue_s = gdasapp::superobutils::subsample2D_cressman(obsvalue, lat, lon,
+        //              lat2d_s, lon2d_s, mask, fullConfig_);
+        // obserror_s = gdasapp::superobutils::subsample2D_cressman(obserror, lat, lon,
+        // lat2d_s, lon2d_s, mask, fullConfig_);
+          obsvalue_s = gdasapp::superobutils::subsample2D(obsvalue, mask, fullConfig_);
+          obserror_s = gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_);
+        } else {
+          obsvalue_s = gdasapp::superobutils::subsample2D(obsvalue, mask, fullConfig_);
+          obserror_s = gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_);
+        }
+      } else {
+        obsvalue_s = obsvalue;
+        lon2d_s = lon;
+        lat2d_s = lat;
+        obserror_s = obserror;
+        mask_s = mask;
+      }
+
+      int dimRow_s = obsvalue_s.size();
+      int dimCol_s = obsvalue_s[0].size();
+      int nobs(0);
+      for (int i = 0; i < dimRow_s; i++) {
+        for (int j = 0; j < dimCol_s; j++) {
+           if (mask_s[i][j] == 1) {
+              nobs += 1;
+           }
         }
       }
 
@@ -153,24 +208,29 @@ namespace gdasapp {
       int nchan(channelNumber.size());
       oops::Log::info() << " number of channels " << nchan << std::endl;
       // Create instance of iodaVars object
-      gdasapp::IodaVars2d iodaVars(nobs, nchan, {}, {});
+      gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, {}, {});
+      iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
-      oops::Log::info() << " eigen... " << std::endl;
+      oops::Log::info() << " eigen... row and column:" << obsvalue_s.size() << " "
+                        << obsvalue_s[0].size() << std::endl;
       // Store into eigen arrays
       for (int k = 0; k < nchan; k++) {
-          iodaVars.channelNumber_(k) = channelNumber[k];
+          iodaVars.channelValues_(k) = channelNumber[k];
           int loc(0);
-          for (int i = 0; i < dimRow; i++) {
-              for (int j = 0; j < dimCol; j++) {
-                 if (mask[i][j] == 1) {                             // mask apply to all channels
-                    iodaVars.longitude_(loc) = lon[i][j];
-                    iodaVars.latitude_(loc) = lat[i][j];
+          for (int i = 0; i < dimRow_s; i++) {
+              for (int j = 0; j < dimCol_s; j++) {
+                 if (mask_s[i][j] == 1) {                             // mask apply to all channels
+                    iodaVars.longitude_(loc) = lon2d_s[i][j];
+                    iodaVars.latitude_(loc) = lat2d_s[i][j];
                     iodaVars.datetime_(loc) = secondsSinceReference;
-                    iodaVars.referenceDate_ = "1970-01-01 00:00:00";
                     // VIIRS AOD use only one channel (4)
-                    iodaVars.obsVal_(nchan*loc+k) = obsvalue[i][j];
-                    iodaVars.preQc_(nchan*loc+k)     = preqc[i][j];
-                    iodaVars.obsError_(nchan*loc+k) = obserror[i][j];
+                    iodaVars.obsVal_(nchan*loc+k) = obsvalue_s[i][j];
+                    if ( fullConfig_.has("binning") ) {
+                       iodaVars.preQc_(nchan*loc+k)     = 0;
+                    } else {
+                       iodaVars.preQc_(nchan*loc+k)     = preqc[i][j];
+                    }
+                    iodaVars.obsError_(nchan*loc+k) = obserror_s[i][j];
                     loc += 1;
                  }
               }

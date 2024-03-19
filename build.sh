@@ -39,6 +39,7 @@ BUILD_VERBOSE="NO"
 CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
 BUILD_JCSDA="NO"
+COMPILER="${COMPILER:-intel}"
 
 while getopts "p:t:c:hvdfa" opt; do
   case $opt in
@@ -70,11 +71,11 @@ while getopts "p:t:c:hvdfa" opt; do
 done
 
 case ${BUILD_TARGET} in
-  hera | orion)
+  hera | orion | hercules)
     echo "Building GDASApp on $BUILD_TARGET"
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
-    module load GDAS/$BUILD_TARGET
+    module load GDAS/$BUILD_TARGET.$COMPILER
     CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=ON"
     module list
     ;;
@@ -103,8 +104,12 @@ CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_BUILD}"
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [[ $BUILD_TARGET == 'hera' ]]; then
-  mkdir -p $dir_root/test-data-release/
-  ln -sf $GDASAPP_TESTDATA/crtm $dir_root/test-data-release/crtm
+  if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
+  if [ -d "$dir_root/bundle/test-data-release/" ]; then rm -rf $dir_root/bundle/test-data-release/; fi
+  mkdir -p $dir_root/bundle/fix/test-data-release/
+  mkdir -p $dir_root/bundle/test-data-release/
+  ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
+  ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
 fi
 
 # Configure
@@ -112,7 +117,7 @@ echo "Configuring ..."
 set -x
 cmake \
   ${CMAKE_OPTS:-} \
-  $dir_root
+  $dir_root/bundle
 set +x
 
 # Build

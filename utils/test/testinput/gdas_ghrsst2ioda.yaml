@@ -1,14 +1,14 @@
 provider: GHRSST
-window begin: 2018-04-15T06:00:00Z
-window end: 2018-04-15T12:00:00Z
+window begin: 2021-06-30T21:00:00Z
+window end: 2021-07-01T03:00:00Z
 binning:
   stride: 2
   min number of obs: 1
 bounds:
-  units: C
   min: -3.0
   max: 50.0
 output file: ghrsst_sst_mb_20210701.ioda.nc
+#ocean basin: RECCAP2_region_masks_all_v20221025.nc
 input files:
 - ghrsst_sst_mb_202107010000.nc4
 - ghrsst_sst_mb_202107010100.nc4

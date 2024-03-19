@@ -78,7 +78,7 @@ base:
   DO_JEDIATMVAR: "${DO_JEDIATMVAR}"
   DO_JEDIATMENS: "${DO_JEDIATMENS}"
   DO_JEDIOCNVAR: "${DO_JEDIOCNVAR}"
-  DO_JEDILANDDA: "${DO_JEDILANDDA}"
+  DO_JEDISNOWDA: "${DO_JEDISNOWDA}"
   DO_MERGENSST: "${DO_MERGENSST}"
 EOF
 
@@ -89,8 +89,8 @@ cd $GWDIR/global-workflow/workflow
                            --app $app \
                            --start $starttype \
                            --gfs_cyc $gfscyc \
-                           --resdet $resdet \
-                           --resens $resens \
+                           --resdetatmos $resdetatmos \
+                           --resensatmos $resensatmos \
                            --nens $nens \
                            --pslot $PSLOT \
                            --configdir $GWDIR/global-workflow/parm/config/gfs \

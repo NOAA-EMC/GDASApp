@@ -58,6 +58,9 @@ transforms:
 
 graphics:
 
+  plotting_backend: Emcpy
+  figure_list:
+
   # ---------- Map Plots ----------
   # Map plot of OmBQC
   # --------

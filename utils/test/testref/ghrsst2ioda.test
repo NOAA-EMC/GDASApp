@@ -1,9 +1,9 @@
 Reading: [ghrsst_sst_mb_202107010000.nc4,ghrsst_sst_mb_202107010100.nc4]
 seconds since 1981-01-01T00:00:00Z
 obsVal:
-    Min: 276.708
-    Max: 281.714
-    Sum: 10051.7
+    Min: 3.558
+    Max: 8.5635
+    Sum: 218.297
 obsError:
     Min: 0.32
     Max: 0.61
@@ -21,6 +21,6 @@ latitude:
     Max: 56.7
     Sum: 21.6
 datetime:
-    Min: 1277942528
-    Max: 1277946624
-    Sum: 46006004736
+    Min: 1277943187
+    Max: 1277946538
+    Sum: 46006015050

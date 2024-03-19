@@ -5,7 +5,8 @@ bindir=$1
 srcdir=$2
 
 # Set g-w HOMEgfs
-export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
+topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
+export HOMEgfs=$topdir
 
 # Set variables for ctest
 export PSLOT=gdas_test
@@ -28,7 +29,7 @@ export NMEM_ENS=0
 export ACCOUNT=da-cpu
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow/src"
+wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
@@ -36,11 +37,11 @@ export PYTHONPATH
 machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
 
 # Set NETCDF and UTILROOT variables (used in config.base)
-if [ $machine = 'HERA' ]; then
+if [[ $machine = 'HERA' ]]; then
     NETCDF=$( which ncdump )
     export NETCDF
     export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
-elif [ $machine = 'ORION' ]; then
+elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     ncdump=$( which ncdump )
     NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
     export NETCDF
@@ -48,10 +49,10 @@ elif [ $machine = 'ORION' ]; then
 fi
 
 # Execute j-job
-if [ $machine = 'HERA' ]; then
+if [[ $machine = 'HERA' ]]; then
     sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_RUN
-elif [ $machine = 'ORION' ]; then
-    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --partition=orion --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_RUN
+elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
+    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_RUN
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_RUN
 fi
