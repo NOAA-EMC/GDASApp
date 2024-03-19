@@ -1,7 +1,7 @@
 - obs space:
     name: omi_aura
     obsdatain:
-     engine:
+      engine:
         type: H5File
         obsfile: '{{ DATA }}/obs/{{ OPREFIX }}omi_aura.tm00.nc'
     obsdataout:
@@ -18,15 +18,15 @@
     coefficients: [0.007886131] # convert from ppmv to DU
     nlevels: [1]
 
-#obs operator:
-#  name: ColumnRetrieval
-#  nlayers_retrieval: 1
-#  tracer variables: [mole_fraction_of_ozone_in_air]
-#  isApriori: false
-#  isAveragingKernel: false
-#  totalNoVertice: true
-#  stretchVertices: topbottom #options: top, bottom, topbottom, none
-#  model units coeff: 2.241398632746E-3
+  #obs operator:
+  #  name: ColumnRetrieval
+  #  nlayers_retrieval: 1
+  #  tracer variables: [mole_fraction_of_ozone_in_air]
+  #  isApriori: false
+  #  isAveragingKernel: false
+  #  totalNoVertice: true
+  #  stretchVertices: topbottom #options: top, bottom, topbottom, none
+  #  model units coeff: 2.241398632746E-3
 
   obs pre filters:
   - filter: Perform Action
@@ -63,8 +63,8 @@
       force reinitialization: false
 
   obs prior filters:
-# GSI read routine QC
-# range sanity check
+  # GSI read routine QC
+  # range sanity check
   - filter: Bounds Check
     filter variables:
     - name: ozoneTotal
@@ -75,16 +75,7 @@
         flag: ObsValueSanityCheck 
       - name: reject
 
-  - filter: Gaussian Thinning
-    horizontal_mesh: 150
-    use_reduced_horizontal_grid: true
-    distance_norm: geodesic
-    actions:
-      - name: set
-        flag: Thinning
-      - name: reject
-
-# Do not use the data if row anomaly (bit 10)is 1
+  # Do not use the data if row anomaly (bit 10)is 1
   - filter: RejectList
     filter variables:
     - name: ozoneTotal
@@ -97,7 +88,7 @@
         flag: RowAnomaly 
       - name: reject
 
-# Scan position check: reject scan position >= 25
+  # Scan position check: reject scan position >= 25
   - filter: RejectList
     filter variables:
     - name: ozoneTotal
@@ -110,7 +101,7 @@
         flag: BadScan 
       - name: reject
 
-# Accept total_ozone_error_flag values of 0 and 1, but not any others.
+  # Accept total_ozone_error_flag values of 0 and 1, but not any others.
   - filter: RejectList 
     filter variables:
     - name: ozoneTotal
@@ -123,7 +114,7 @@
         flag: RetrievalQualityCodeFlag 
       - name: reject
 
-# Use data with best ozone algorighm
+  # Use data with best ozone algorighm
   - filter: RejectList
     filter variables:
     - name: ozoneTotal
@@ -136,19 +127,19 @@
         flag: RetrievalQualityAlgorithmFlag 
       - name: reject
 
-## Data Thinning
-#- filter: Gaussian Thinning
-#  horizontal_mesh: 150 
-#  use_reduced_horizontal_grid: true
-#  distance_norm: geodesic
-#  actions:
-#    - name: set
-#      flag: Thinning 
-#    - name: reject
+  # Data Thinning
+  - filter: Gaussian Thinning
+    horizontal_mesh: 150 
+    use_reduced_horizontal_grid: true
+    distance_norm: geodesic
+    actions:
+      - name: set
+        flag: Thinning 
+      - name: reject
 
-obs post filters:
-# GSI setup routine QC
-# Gross check
+  obs post filters:
+  # GSI setup routine QC
+  # Gross check
   - filter: Background Check
     filter variables:
     - name: ozoneTotal
@@ -159,4 +150,4 @@ obs post filters:
         flag: GrossCheck 
       - name: reject
 
-# End of Filters
+  # End of Filters

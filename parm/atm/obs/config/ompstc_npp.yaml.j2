@@ -3,11 +3,11 @@
     obsdatain:
       engine:
         type: H5File
-        obsfile: '{{ DATA }}/obs/{{ OPREFIX }}ompstc_npp.tm00.nc
+        obsfile: '{{ DATA }}/obs/{{ OPREFIX }}ompstc_npp.tm00.nc'
     obsdataout:
       engine:
         type: H5File
-        obsfile: '{{ DATA }}/diags/diag_ompstc_npp_{{ current_cycle | to_YMDH }}.nc
+        obsfile: '{{ DATA }}/diags/diag_ompstc_npp_{{ current_cycle | to_YMDH }}.nc'
     io pool:
       max pool size: 1
     simulated variables: [ozoneTotal]
@@ -18,15 +18,15 @@
     coefficients: [0.007886131] # convert from ppmv to DU
     nlevels: [1]
 
-# obs operator:
-#   name: ColumnRetrieval
-#   nlayers_retrieval: 1
-#   tracer variables: [mole_fraction_of_ozone_in_air]
-#   isApriori: false
-#   isAveragingKernel: false
-#   totalNoVertice: true
-#   stretchVertices: topbottom #options: top, bottom, topbottom, none
-#   model units coeff: 2.241398632746E-3
+  #obs operator:
+  #  name: ColumnRetrieval
+  #  nlayers_retrieval: 1
+  #  tracer variables: [mole_fraction_of_ozone_in_air]
+  #  isApriori: false
+  #  isAveragingKernel: false
+  #  totalNoVertice: true
+  #  stretchVertices: topbottom #options: top, bottom, topbottom, none
+  #  model units coeff: 2.241398632746E-3
 
   obs pre filters:
   - filter: Perform Action
@@ -47,12 +47,12 @@
     action:
       name: reject
 
-# - filter: Gaussian Thinning
-#   horizontal_mesh: 150
-#   use_reduced_horizontal_grid: true
-#   distance_norm: geodesic
-#   action:
-#     name: reject
+  #- filter: Gaussian Thinning
+  #  horizontal_mesh: 150
+  #  use_reduced_horizontal_grid: true
+  #  distance_norm: geodesic
+  #  action:
+  #    name: reject
 
   # Accept total_ozone_error_flag values of 0 and 1, but not any others.
   - filter: RejectList
