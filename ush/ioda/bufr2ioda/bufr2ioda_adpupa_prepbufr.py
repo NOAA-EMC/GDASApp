@@ -49,6 +49,16 @@ def Compute_dateTime(cycleTimeSinceEpoch, hrdr):
     return dateTime
 
 
+def Mask_typ_for_var(typ, var):
+
+    typ_var = copy.deepcopy(typ)
+    for i in range(len(typ_var)):
+        if ma.is_masked(var[i]):
+            typ_var[i] = typ.fill_value
+
+    return typ_var
+
+
 def bufr_to_ioda(config, logger):
 
     subsets = config["subsets"]
@@ -78,6 +88,10 @@ def bufr_to_ioda(config, logger):
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh), 'atmos', bufrfile)
+    if not os.path.isfile(DATA_PATH):
+        logger.info(f"DATA_PATH {DATA_PATH} does not exist")
+        return
+    logger.debug(f"The DATA_PATH is: {DATA_PATH}")
 
     # ============================================
     # Make the QuerySet for all the data we want
@@ -86,6 +100,9 @@ def bufr_to_ioda(config, logger):
 
     logger.info('Making QuerySet')
     q = bufr.QuerySet(subsets)
+
+    # ObsType
+    q.add('observationType', '*/TYP')
 
     # MetaData
     q.add('prepbufrDataLevelCategory', '*/PRSLEVEL/CAT')
@@ -134,9 +151,17 @@ def bufr_to_ioda(config, logger):
 
     logger.info('Executing QuerySet to get ResultSet')
     with bufr.File(DATA_PATH) as f:
-        r = f.execute(q)
+        try:
+            r = f.execute(q)
+        except Exception as err:
+            logger.info(f'Return with {err}')
+            return
 
+    # ObsType
+    logger.debug(" ... Executing QuerySet for ADPUPA: get ObsType ...")
+    obstyp = r.get('observationType', 'prepbufrDataLevelCategory', type='int32')
     logger.info('Executing QuerySet: get metadata')
+
     # MetaData
     cat = r.get('prepbufrDataLevelCategory', 'prepbufrDataLevelCategory')
     lat = r.get('latitude', 'prepbufrDataLevelCategory')
@@ -306,6 +331,23 @@ def bufr_to_ioda(config, logger):
     running_time = end_time - start_time
     logger.info(f"Running time for creating derived variables : {running_time} seconds")
 
+    # Mask Certain Variables
+    logger.debug(f"Mask typ for certain variables where data is available...")
+    typ_ps = Mask_typ_for_var(obstyp, ps)
+    typ_tsen = Mask_typ_for_var(obstyp, tsen)
+    typ_tvo = Mask_typ_for_var(obstyp, tvo)
+    typ_qob = Mask_typ_for_var(obstyp, qob)
+    typ_uob = Mask_typ_for_var(obstyp, uob)
+    typ_vob = Mask_typ_for_var(obstyp, vob)
+
+    logger.debug(f"     Check drived variables (typ*) shape & type ... ")
+    logger.debug(f"     typ_ps shape, type = {typ_ps.shape}, {typ_ps.dtype}")
+    logger.debug(f"     typ_tsen shape, type = {typ_tsen.shape}, {typ_tsen.dtype}")
+    logger.debug(f"     typ_tvo shape, type = {typ_tvo.shape}, {typ_tvo.dtype}")
+    logger.debug(f"     typ_qob shape, type = {typ_qob.shape}, {typ_qob.dtype}")
+    logger.debug(f"     typ_uob shape, type = {typ_uob.shape}, {typ_uob.dtype}")
+    logger.debug(f"     typ_vob shape, type = {typ_vob.shape}, {typ_vob.dtype}")
+
     # Create the dimensions
     dims = {'Location': np.arange(0, lat.shape[0])}
 
@@ -327,6 +369,36 @@ def bufr_to_ioda(config, logger):
         .write_attr('units', '1') \
         .write_attr('long_name', 'Prepbufr Data Level Category') \
         .write_data(cat)
+
+    # Observation Type: airTemperature
+    obsspace.create_var('ObsType/airTemperature', dtype=obstyp.dtype, fillval=obstyp.fill_value) \
+        .write_attr('long_name', 'Observation Type') \
+        .write_data(typ_tsen)
+
+    # Observation Type: virtualTemperature
+    obsspace.create_var('ObsType/virtualTemperature', dtype=obstyp.dtype, fillval=obstyp.fill_value) \
+        .write_attr('long_name', 'Observation Type') \
+        .write_data(typ_tvo)
+
+    # Observation Type: stationPressure
+    obsspace.create_var('ObsType/stationPressure', dtype=obstyp.dtype, fillval=obstyp.fill_value) \
+        .write_attr('long_name', 'Observation Type') \
+        .write_data(typ_ps)
+
+    # Observation Type: specificHumidity
+    obsspace.create_var('ObsType/specificHumidity', dtype=obstyp.dtype, fillval=obstyp.fill_value) \
+        .write_attr('long_name', 'Observation Type') \
+        .write_data(typ_qob)
+
+    # Observation Type: windEastward
+    obsspace.create_var('ObsType/windEastward', dtype=obstyp.dtype, fillval=obstyp.fill_value) \
+        .write_attr('long_name', 'Observation Type') \
+        .write_data(typ_uob)
+
+    # Observation Type: windNorthward
+    obsspace.create_var('ObsType/windNorthward', dtype=obstyp.dtype, fillval=obstyp.fill_value) \
+        .write_attr('long_name', 'Observation Type') \
+        .write_data(typ_vob)
 
     # Latitude
     obsspace.create_var('MetaData/latitude', dtype=lat.dtype, fillval=lat.fill_value) \

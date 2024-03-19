@@ -29,7 +29,7 @@
       - name: constant
       - name: lapse_rate
         order: 2
-        tlapse: &seviri_m08_tlapse {{DATA}}/obs/{{GPREFIX}}seviri_m08.tlapse.txt
+        tlapse: &seviri_m08_tlapse '{{DATA}}/obs/{{GPREFIX}}seviri_m08.tlapse.txt'
       - name: lapse_rate
         tlapse: *seviri_m08_tlapse
       - name: emissivity

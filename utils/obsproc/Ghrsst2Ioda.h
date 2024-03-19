@@ -30,8 +30,6 @@ namespace gdasapp {
       oops::Log::info() << "Processing files provided by GHRSST" << std::endl;
 
       // Get the sst bounds from the configuration
-      std::string sstUnits;
-      fullConfig_.get("bounds.units", sstUnits);
       float sstMin;
       fullConfig_.get("bounds.min", sstMin);
       float sstMax;
@@ -159,20 +157,34 @@ namespace gdasapp {
       std::vector<std::vector<float>> lon2d_s;
       std::vector<std::vector<float>> lat2d_s;
       std::vector<std::vector<float>> obserror_s;
-      std::vector<std::vector<float>> seconds_s;
       if ( fullConfig_.has("binning") ) {
         sst_s = gdasapp::superobutils::subsample2D(sst, mask, fullConfig_);
         lon2d_s = gdasapp::superobutils::subsample2D(lon2d, mask, fullConfig_);
         lat2d_s = gdasapp::superobutils::subsample2D(lat2d, mask, fullConfig_);
         obserror_s = gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_);
-        seconds_s = gdasapp::superobutils::subsample2D(seconds, mask, fullConfig_);
       } else {
         sst_s = sst;
         lon2d_s = lon2d;
         lat2d_s = lat2d;
         obserror_s = obserror;
-        seconds_s = seconds;
       }
+
+      // Non-Superobing part only applied to datetime
+      // TODO(Mindo): Refactor to make superob capable of processing all data
+      // TODO(ASGM) : Remove datetime mean when the time reading is fixed(L146)
+      // Compute the sum of valid obs values where mask == 1
+      int64_t sum = 0;
+      int count = 0;
+      for (size_t i = 0; i < seconds.size(); ++i) {
+        for (size_t j = 0; j < seconds[0].size(); ++j) {
+          if (mask[i][j] == 1) {
+            sum += seconds[i][j];
+            count++;
+          }
+        }
+      }
+      // Calculate the average and store datetime
+      int64_t seconds_s = static_cast<int64_t>(sum / count);
 
       // number of obs after subsampling
       int nobs = sst_s.size() * sst_s[0].size();
@@ -198,7 +210,8 @@ namespace gdasapp {
           iodaVars.obsVal_(loc)    = sst_s[i][j];
           iodaVars.obsError_(loc)  = obserror_s[i][j];
           iodaVars.preQc_(loc)     = 0;
-          iodaVars.datetime_(loc)  = seconds_s[i][j];
+          // Store averaged datetime (seconds)
+          iodaVars.datetime_(loc)  = seconds_s;
           // Store optional metadata, set ocean basins to -999 for now
           iodaVars.intMetadata_.row(loc) << -999;
           loc += 1;
@@ -209,11 +222,6 @@ namespace gdasapp {
       Eigen::Array<bool, Eigen::Dynamic, 1> boundsCheck =
         (iodaVars.obsVal_ > sstMin && iodaVars.obsVal_ < sstMax);
       iodaVars.trim(boundsCheck);
-
-      // Replace datime by its mean
-      // TODO(ASGM): Remove when the time reading is fixed
-      int64_t mean = iodaVars.datetime_.sum() / iodaVars.datetime_.size();
-      iodaVars.datetime_.setConstant(mean);
 
       return iodaVars;
     };

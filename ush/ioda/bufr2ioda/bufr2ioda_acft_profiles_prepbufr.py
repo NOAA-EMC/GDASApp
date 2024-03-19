@@ -98,7 +98,11 @@ def bufr_to_ioda(config, logger):
 
     bufrfile = f"{cycle_type}.t{hh}z.{data_format}.acft_profiles"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh),
-                             bufrfile)
+                             'atmos', bufrfile)
+    if not os.path.isfile(DATA_PATH):
+        logger.info(f"DATA_PATH {DATA_PATH} does not exist")
+        return
+    logger.debug(f"The DATA_PATH is: {DATA_PATH}")
 
     # ============================================
     # Make the QuerySet for all the data we want
@@ -157,7 +161,11 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Executing QuerySet to get ResultSet ...")
     with bufr.File(DATA_PATH) as f:
-        r = f.execute(q)
+        try:
+            r = f.execute(q)
+        except Exception as err:
+            logger.info(f'Return with {err}')
+            return
 
     logger.debug(f" ... Executing QuerySet: get MetaData: basic ...")
 
