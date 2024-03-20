@@ -88,4 +88,6 @@ obs post filters:
     name: reject
 
 # End of Filters
-passedBenchmark: 1182
+passedBenchmark: 1182  # GSI modified : keep bad data and then thinned  ----- this is to check QC in the read routine
+                       # GSI original: remove bad data and then thinned 
+                       # original: thinned: 2402; unthinned: 53768
