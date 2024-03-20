@@ -14,7 +14,7 @@
     io pool:
       max pool size: 1
     simulated variables: [brightnessTemperature]
-    channels: &{{observation_from_jcb}}_channels 4-6,9-14
+    channels: &{{observation_from_jcb}}_channels {{ get_satellite_simulated_channels(observation_from_jcb) }}
   obs operator:
     name: CRTM
     Absorbers: [H2O,O3]

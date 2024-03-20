@@ -1,0 +1,33 @@
+# Mission time frame
+# ------------------
+commissioned: '2009-04-14T00:00:00'
+
+
+# Observer type
+# -------------
+observer_type: satellite
+
+
+# Initial channel usage
+# ---------------------
+simulated_channels: 1-15
+active_channels: 1-15
+observation_errors: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+
+
+# Chronicle of data use from this instrument
+# ------------------------------------------
+chronicles:
+
+- action_date: 2009-04-14T00:00:00
+  justification: 'Set active channels for JEDI'
+  action:
+    type: remove_active_channels
+    channels: 7-8,14
+
+- action_date: 2009-04-16T00:00:00
+  justification: 'Set active channels for JEDI'
+  action:
+    type: adjust_observation_errors
+    channels: [4,5,6]
+    adjusted_errors: [0.75, 0.75, 0.75]
