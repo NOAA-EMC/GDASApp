@@ -12,21 +12,21 @@
       max pool size: 1
     simulated variables: [ozoneTotal]
 
-  obs operator:
-    name: AtmVertInterpLay
-    geovals: [mole_fraction_of_ozone_in_air]
-    coefficients: [0.007886131] # convert from ppmv to DU
-    nlevels: [1]
-
   #obs operator:
-  #  name: ColumnRetrieval
-  #  nlayers_retrieval: 1
-  #  tracer variables: [mole_fraction_of_ozone_in_air]
-  #  isApriori: false
-  #  isAveragingKernel: false
-  #  totalNoVertice: true
-  #  stretchVertices: topbottom #options: top, bottom, topbottom, none
-  #  model units coeff: 2.241398632746E-3
+  #  name: AtmVertInterpLay
+  #  geovals: [mole_fraction_of_ozone_in_air]
+  #  coefficients: [0.007886131] # convert from ppmv to DU
+  #  nlevels: [1]
+
+  obs operator:
+    name: ColumnRetrieval
+    nlayers_retrieval: 1
+    tracer variables: [mole_fraction_of_ozone_in_air]
+    isApriori: false
+    isAveragingKernel: false
+    totalNoVertice: true
+    stretchVertices: topbottom #options: top, bottom, topbottom, none
+    model units coeff: 2.241398632746E-3
 
   obs pre filters:
   - filter: Perform Action

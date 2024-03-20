@@ -16,27 +16,27 @@
       max pool size: 1
     simulated variables: [ozoneLayer]
 
-  obs operator:
-    name: AtmVertInterpLay
-    geovals: [mole_fraction_of_ozone_in_air]
-    coefficients: [0.007886131] # convert from ppmv to DU
-    nlevels: [22]
-
   #obs operator:
-  #  name: ColumnRetrieval
-  #  nlayers_retrieval: 1
-  #  tracer variables: [mole_fraction_of_ozone_in_air]
-  #  isApriori: false
-  #  isAveragingKernel: false
-  #  totalNoVertice: false
-  #  stretchVertices: none #options: top, bottom, topbottom, none
-  ## model units coeff: 2.240013904035E-3 # this number to match the gsihofx values
-  #  model units coeff: 2.241398632746E-3 # this number to match the gsihofx values (use this)
-  #                                       # the actual scientific conversion factor is
-  #                                       # 2.1415E-3 kg[O3]/m-2 to DU
-  #                                       # so the name of the geovals
-  #                                       # is also likely wrong, as it apprears to be a mass
-  #                                       # fraction given the conversion factor needed
+  #  name: AtmVertInterpLay
+  #  geovals: [mole_fraction_of_ozone_in_air]
+  #  coefficients: [0.007886131] # convert from ppmv to DU
+  #  nlevels: [22]
+
+  obs operator:
+    name: ColumnRetrieval
+    nlayers_retrieval: 1
+    tracer variables: [mole_fraction_of_ozone_in_air]
+    isApriori: false
+    isAveragingKernel: false
+    totalNoVertice: false
+    stretchVertices: none #options: top, bottom, topbottom, none
+  # model units coeff: 2.240013904035E-3 # this number to match the gsihofx values
+    model units coeff: 2.241398632746E-3 # this number to match the gsihofx values (use this)
+                                         # the actual scientific conversion factor is
+                                         # 2.1415E-3 kg[O3]/m-2 to DU
+                                         # so the name of the geovals
+                                         # is also likely wrong, as it apprears to be a mass
+                                         # fraction given the conversion factor needed
 
   obs pre filters:
   # Observation error assignment
