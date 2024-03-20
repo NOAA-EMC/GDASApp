@@ -3,7 +3,7 @@ geometry:
   mom6_input_nml: mom_input.nml
   fields metadata: fields_metadata.yaml
 
-date: '{{ ATM_WINDOW_BEGIN }}'
+date: '{{ATM_WINDOW_BEGIN}}'
 
 layers variable: [hocn]
 
@@ -15,15 +15,15 @@ vertical geometry:
   read_from_file: 1
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
-  date: '{{ ATM_WINDOW_BEGIN }}'
+  date: '{{ATM_WINDOW_BEGIN}}'
 
 soca increments:
   number of increments: ${CLIM_ENS_SIZE}
   pattern: '%mem%'
   template:
-    date: '{{ ATM_WINDOW_BEGIN }}'
+    date: '{{ATM_WINDOW_BEGIN}}'
     basename: ./static_ens/
-    ocn_filename: 'ocn.pert.ens.%mem%.{{ ATM_WINDOW_BEGIN }}.PT0S.nc'
+    ocn_filename: 'ocn.pert.ens.%mem%.{{ATM_WINDOW_BEGIN}}.PT0S.nc'
     read_from_file: 1
 
 linear variable change:
@@ -36,15 +36,15 @@ linear variable change:
 
 trajectory:
   state variables: [tocn, socn, uocn, vocn, ssh, hocn, layer_depth, mld]
-  date: '{{ ATM_WINDOW_BEGIN }}'
+  date: '{{ATM_WINDOW_BEGIN}}'
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
   read_from_file: 1
 
 output increment:
   datadir: ./static_ens/
-  date: '{{ ATM_WINDOW_BEGIN }}'
+  date: '{{ATM_WINDOW_BEGIN}}'
   exp: tmp
   type: incr
-  output file: 'ocn.pert.steric.%mem%.{{ ATM_WINDOW_BEGIN }}.nc'
+  output file: 'ocn.pert.steric.%mem%.{{ATM_WINDOW_BEGIN}}.nc'
   pattern: '%mem%'
