@@ -1,0 +1,66 @@
+variable change:
+  variable change name: Model2GeoVaLs
+  input variables: &inputvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,phis]
+  output variables: [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,hydrostatic_delz]
+background:
+  geometry:
+    fms initialization:
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table_gfdl
+    akbk: ./fv3jedi/akbk127.nc4
+    layout:
+    - '1'
+    - '1'
+    npx: '13'
+    npy: '13'
+    npz: '127'
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+  input:
+    filetype: cube sphere history
+    datapath: ../testdata/
+    provider: ufs
+    datetime: '2021-07-31T12:00:00Z'
+    filename: gdas.t06z.atmf006.nc
+    state variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,phis]
+jedi increment:
+  input variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
+  geometry:
+    fms initialization:
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table_gfdl
+    akbk: ./fv3jedi/akbk127.nc4
+    layout:
+    - '1'
+    - '1'
+    npx: '13'
+    npy: '13'
+    npz: '127'
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+  input:
+    filetype: cube sphere history
+    datapath: ../testdata/
+    filename: atminc.20210731.120000.nc4
+    provider: ufs
+fv3 increment:
+  geometry:
+    fms initialization:
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table_gfdl
+    akbk: ./fv3jedi/akbk127.nc4
+    layout:
+    - '1'
+    - '1'
+    npx: '13'
+    npy: '13'
+    npz: '127'
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
+  output:
+    filetype: cube sphere history
+    filename: atminc.20210731_120000.nc4
+    provider: ufs
+
+test:
+  reference filename: testoutput/gdasapp_fv3jedi_fv3inc.ref
+  test output filename: testoutput/gdasapp_fv3jedi_fv3inc.test.out
+  float relative tolerance: 1.0e-3
+  
