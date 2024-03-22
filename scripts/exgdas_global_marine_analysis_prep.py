@@ -271,7 +271,7 @@ varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CU
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
 
 # Remove empty obs spaces in var_yaml
-ufsda.yamltools.save_check(varconfig.as_dict(), target=var_yaml, app='var')
+ufsda.yamltools.save_check(varconfig, target=var_yaml, app='var')
 
 ################################################################################
 # Prepare the yamls for the "checkpoint" jjob

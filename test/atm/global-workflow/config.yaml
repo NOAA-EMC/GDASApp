@@ -1,22 +1,21 @@
 base:
   HOMEgfs: "@topdir@"
+  DOHYBVAR: "NO"
   DO_JEDIATMVAR: "YES"
   DO_JEDIATMENS: "YES"
   DATAPATH: "@bindir@/test/atm/global-workflow/testrun"
   DUMPDIR: "@dumpdir@"
   STMP: "@bindir@/test/atm/global-workflow/testrun"
   PTMP: "@bindir@/test/atm/global-workflow/testrun"
+
 atmanl:
   OBS_LIST: "@srcdir@/test/atm/global-workflow/gdas_prototype.yaml.j2"
+  STATICB_TYPE: "identity"
   ATMRES_ANL: "C48"
   LAYOUT_X_ATMANL: 1
   LAYOUT_Y_ATMANL: 1
-  IO_LAYOUT_X: 1
-  IO_LAYOUT_Y: 1
 
 atmensanl:
   OBS_LIST: "@srcdir@/test/atm/global-workflow/lgetkf_prototype.yaml.j2"
   LAYOUT_X_ATMENSANL: 1
   LAYOUT_Y_ATMENSANL: 1
-  IO_LAYOUT_X: 1
-  IO_LAYOUT_Y: 1
