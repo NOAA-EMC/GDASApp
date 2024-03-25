@@ -71,6 +71,7 @@ load("py-pycodestyle/2.11.0")
 load("py-pyyaml/6.0")
 load("py-scipy/1.11.3")
 load("py-xarray/2023.7.0")
+load("py-f90nml/1.4.3")
 
 -- hack for wxflow
 prepend_path("PYTHONPATH", "/scratch1/NCEPDEV/da/python/gdasapp/wxflow/20240307/src")
