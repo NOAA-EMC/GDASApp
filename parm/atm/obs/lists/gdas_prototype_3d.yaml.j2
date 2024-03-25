@@ -1,0 +1,10 @@
+observers:
+{% filter indent(width=2) %}
+{% include 'atm/obs/config/satwind_abi_goes-16.yaml.j2' %}
+{% include 'atm/obs/config/scatwind_ascat_metop-b.yaml.j2' %}
+{% include 'atm/obs/config/conv_ps.yaml.j2' %}
+{% include 'atm/obs/config/gnssro.yaml.j2' %}
+{% include 'atm/obs/config/ompsnp_npp.yaml.j2' %}
+{% include 'atm/obs/config/ompstc_npp.yaml.j2' %}
+{% include 'atm/obs/config/omi_aura.yaml.j2' %}
+{% endfilter %}

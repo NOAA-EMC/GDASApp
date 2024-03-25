@@ -24,6 +24,7 @@ observations:
     window:
        back: 8         # look back 8 six-hourly obs dumps
        forward: 1    #  look forward 1 six-hourly bin
+    error ratio: 0.4  # meters per day
 
 # Ice concentration
 - obs space:
@@ -166,14 +167,14 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
-    dmpdir regex: 'gdas.*.argo.*.bufr_d'
+    dmpdir regex: 'gdas.*.subpfl.*.bufr_d'
 
 - obs space:
     name: insitu_profile_glider
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
-    dmpdir regex: 'gdas.*.glider.*.bufr_d'
+    dmpdir regex: 'gdas.*.subpfl.*.bufr_d'
 
 - obs space:
     name: insitu_profile_tesac
@@ -187,7 +188,7 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
-    dmpdir regex: 'gdas.*.marinemammal.*.bufr_d'
+    dmpdir regex: 'gdas.*.tesac.*.bufr_d'
 
 - obs space:
     name: insitu_profile_xbtctd
