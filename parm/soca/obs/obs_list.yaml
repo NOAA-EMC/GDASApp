@@ -29,7 +29,7 @@ observers:
 - !INC ${OBS_YAML_DIR}/insitu_surface_trkob_salinity.yaml
 
 # in situ: daily
-- !INC ${OBS_YAML_DIR}/insitu_profile_dbuoy.yaml
-- !INC ${OBS_YAML_DIR}/insitu_profile_dbuoyb.yaml
-- !INC ${OBS_YAML_DIR}/insitu_profile_mbuoy.yaml
-- !INC ${OBS_YAML_DIR}/insitu_profile_mbuoyb.yaml
+#- !INC ${OBS_YAML_DIR}/insitu_profile_dbuoy.yaml
+#- !INC ${OBS_YAML_DIR}/insitu_profile_dbuoyb.yaml
+#- !INC ${OBS_YAML_DIR}/insitu_profile_mbuoy.yaml
+#- !INC ${OBS_YAML_DIR}/insitu_profile_mbuoyb.yaml
