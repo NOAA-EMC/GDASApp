@@ -1,0 +1,21 @@
+{
+  "data_format"          : "bufr_d",
+  "data_type"            : "ompsn8",
+  "cycle_type"           : "{{ RUN }}",
+  "cycle_datetime"       : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"       : "{{ DMPDIR }}",
+  "ioda_directory"       : "{{ COM_OBS }}",
+  "ioda_type"            : "ompsnp",
+  "subsets"              : "NC008017",
+  "source"               : "MTYP 008-017 OMPS NADIR PROFILE OZONE (VERSION 8 BUFR)",
+  "process_level"        : "Level-2",
+  "platform_description" : "Joint Polar Satellite System operaring since 2011 from 833 km altitude in sunsychronous orbits",
+  "sensor_description"   : "UV grating spectrometer of spectral resolution 1 nm (sampling at 0.42 nm); Nadir-viewing ozone profiler: 250-310 nm; one along-track sounding every 38 s at 250 km resolution",
+  "data_description"     : "OMPS NP is the ozone profile derived from Nadir Profile Spectrometeor in a single ground pixel of 250x250 km at nadir from SNPP; 5 ground pixel of 50x50 km at nadir from JPSS", 
+  "data_provider"        : "U.S. NOAA/NESDIS",
+  "sensor_info"          : { "sensor_name": "ompsnp",  "sensor_full_name": "Ozone Mapping and Profiler Suite",  "sensor_id": 947 },
+  "satellite_info"       : [
+                              { "satellite_name": "NPP", "satellite_full_name": "Suomi National Polar-orbiting Partnership", "satellite_id": 224, "launch time": "20111028" },
+                              { "satellite_name": "N20", "satellite_full_name": "National Oceanic and Atmospheric Administration - 20", "satellite_id": 225, "launch time": "20171118" }
+                           ]
+}
