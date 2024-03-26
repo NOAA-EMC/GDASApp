@@ -1,0 +1,17 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "satwnd",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC005080" ],
+  "data_description" : "NC005081 EUMETSAT SATWIND, AVHRR NOAA-15/18/19 IR(LW)", 
+  "data_provider"    : "U.S. NOAA/NESDIS",
+  "sensor_info"      : { "sensor_name": "AVHRR",  "sensor_full_name": "Advanced Very High Resolution Radiometer",  "sensor_id": 999 },
+  "satellite_info"   : [
+                          { "satellite_name": "n15", "satellite_full_name": "NOAA-15", "satellite_id": 206, "launch time": "YYYYMMDD" },
+                          { "satellite_name": "n18", "satellite_full_name": "NOAA-18", "satellite_id": 209, "launch time": "YYYYMMDD" },
+                          { "satellite_name": "n19", "satellite_full_name": "NOAA-18", "satellite_id": 223, "launch time": "YYYYMMDD" },
+                      ]
+}
