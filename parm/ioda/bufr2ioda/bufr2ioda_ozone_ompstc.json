@@ -1,0 +1,21 @@
+{
+  "data_format"          : "bufr_d",
+  "data_type"            : "ompst8",
+  "cycle_type"           : "{{ RUN }}",
+  "cycle_datetime"       : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"       : "{{ DMPDIR }}",
+  "ioda_directory"       : "{{ COM_OBS }}",
+  "ioda_type"            : "ompstc",
+  "subsets"              : "NC008018",
+  "source"               : "MTYP 008-018 OMPS TOTAL COLUMN OZONE (VERSION 8 BUFR) ",
+  "process_level"        : "Level-2",
+  "platform_description" : "Joint Polar Satellite System operaring since 2011 from 833 km altitude in sunsychronous orbits",
+  "sensor_description"   : "UV grating spectrometer of spectral resolution 1 nm (sampling at 0.42 nm); corss-track mapper for total ozone: 300-380 nm; corss-track swath 2800 km; along-track one 50-km strip in 7.6 s",
+  "data_description"     : "OMPS TC is the Total Column Ozone derived from UV and near-infrared observations (between 300-380 nm) made by the OMPS Nadir Total Column Mapper S-NPP (50 km) and N-21 (10 km)",  
+  "data_provider"        : "U.S. NOAA/NESDIS",
+  "sensor_info"          : { "sensor_name": "OMPS-nadir Mapper",  "sensor_full_name": "Ozone Mapping and Profiler Suite",  "sensor_id": 947 },
+  "satellite_info"       : [
+                              { "satellite_name": "NPP", "satellite_full_name": "Suomi National Polar-orbiting Partnership", "satellite_id": 224, "launch time": "20111028" },
+                              { "satellite_name": "N20", "satellite_full_name": "National Oceanic and Atmospheric Administration - 20", "satellite_id": 225, "launch time": "20171118" }
+                           ]
+}

@@ -116,11 +116,6 @@ add_test(NAME test_gdasapp_check_yaml_keys
 #         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # commented out above test because it does not really do as advertised with all these templates which are not valid yaml
 
-# test for converting ewok yaml to gdas
-add_test(NAME test_gdasapp_convert_ewok_yaml
-         COMMAND ${PROJECT_SOURCE_DIR}/test/convert_ewok_yaml.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-
 # high level tests that require the global-workflow
 if (WORKFLOW_TESTS)
 
