@@ -9,30 +9,29 @@ geometry:
   npx: {{ npx_ges }}
   npy: {{ npy_ges }}
   npz: {{ npz_ges }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
 time window:
   begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
   length: '{{ ATM_WINDOW_LENGTH }}'
-increment variables: [ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
+increment variables: [ua,va,delz,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
 background:
-   datetime: '{{ current_cycle | to_isotime }}'
-   members from template:
-     template:
-       datetime: '{{ current_cycle | to_isotime }}'
-       filetype: fms restart
-       state variables: [ua,va,t,DZ,delp,ps,sphum,ice_wat,liq_wat,o3mr,phis,
+  datetime: '{{ current_cycle | to_isotime }}'
+  members from template:
+    template:
+      datetime: '{{ current_cycle | to_isotime }}'
+      filetype: cube sphere history
+      provider: ufs
+      datapath: bkg/mem%mem%
+      filenames: [ {{ GPREFIX }}atmf006.nc, {{ GPREFIX }}sfcf006.nc ]
+      ufs soil nlev: 4
+      ufs fields split by level: [smc,stc]
+      state variables: [ua,va,t,delz,delp,ps,sphum,ice_wat,liq_wat,o3mr,surface_geopotential_height,
                         slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                         u_srf,v_srf,f10m]
-       datapath: bkg/mem%mem%
-       filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
-       filename_trcr: '{{ current_cycle | to_fv3time }}.fv_tracer.res.nc'
-       filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
-       filename_sfcw: '{{ current_cycle | to_fv3time }}.fv_srf_wnd.res.nc'
-       filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
-     pattern: '%mem%'
-     nmembers: {{ NMEM_ENS }}
-     zero padding: 3
+    pattern: '%mem%'
+    nmembers: {{ NMEM_ENS }}
+    zero padding: 3
 
 observations:
 {% filter indent(width=2) %}

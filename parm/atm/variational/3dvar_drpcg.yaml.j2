@@ -18,13 +18,13 @@ cost function:
     npz: {{ npz_ges }}
     field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
   background:
+    datetime: '{{ current_cycle | to_isotime }}'
     filetype: cube sphere history
+    provider: ufs
     datapath: ./bkg
     filenames: [ {{ GPREFIX }}atmf006.nc, {{ GPREFIX }}sfcf006.nc ] 
-    provider: ufs
     ufs soil nlev: 4
     ufs fields split by level: [smc,stc]
-    datetime: '{{ current_cycle | to_isotime }}'
     state variables: [ua,va,t,delz,delp,ps,sphum,ice_wat,liq_wat,o3mr,surface_geopotential_height,
                       slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                       u_srf,v_srf,f10m]
