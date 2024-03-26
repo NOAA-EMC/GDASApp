@@ -1,27 +1,26 @@
 obs space:
-  name: ompstc8_npp
+  name: ompstc_npp
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ompstc8_npp_obs_${CDATE}.nc4
-    obsgrouping:
-      group variables: ["latitude"]
-      sort variable: "pressure"
-      sort order: "ascending"
+      obsfile: !ENV ompstc_npp_obs_${CDATE}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ompstc8_npp_diag_${CDATE}.nc4
+      obsfile: !ENV ompstc_npp_diag_${CDATE}.nc4
   io pool:
     max pool size: 1
   simulated variables: [ozoneTotal]
+
 geovals:
-  filename: !ENV ompstc8_npp_geoval_${CDATE}.nc4
+  filename: !ENV ompstc_npp_geoval_${CDATE}.nc4
+
 obs operator:
   name: AtmVertInterpLay
   geovals: [mole_fraction_of_ozone_in_air]
   coefficients: [0.007886131] # convert from ppmv to DU
   nlevels: [1]
+
 obs pre filters:
 - filter: Perform Action
   filter variables:
