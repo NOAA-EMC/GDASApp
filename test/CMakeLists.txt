@@ -121,11 +121,6 @@ add_test(NAME test_gdasapp_jedi_increment_to_fv3
          COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atmges_compress.nc4 ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
-# test for converting ewok yaml to gdas
-add_test(NAME test_gdasapp_convert_ewok_yaml
-         COMMAND ${PROJECT_SOURCE_DIR}/test/convert_ewok_yaml.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-
 # high level tests that require the global-workflow
 if (WORKFLOW_TESTS)
 

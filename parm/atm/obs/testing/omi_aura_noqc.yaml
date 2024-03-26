@@ -11,12 +11,15 @@ obs space:
   io pool:
     max pool size: 1
   simulated variables: [ozoneTotal]
+
 geovals:
   filename: !ENV omi_aura_geoval_${CDATE}.nc4
+
 obs operator:
   name: AtmVertInterpLay
   geovals: [mole_fraction_of_ozone_in_air]
   coefficients: [0.007886131] # convert from ppmv to DU
+# coefficients: [0.0078976797] # convert from ppmv to DU
   nlevels: [1]
 
 obs pre filters:
@@ -27,6 +30,6 @@ obs pre filters:
     name: assign error
     error parameter: 6.0
 
-passedBenchmark: 4927  # total:6082; missing:1155 
+passedBenchmark: 4980  # total:6140; missing:1180 
 #vector ref: GsiHofXBc
 #tolerance: 1.e-5
