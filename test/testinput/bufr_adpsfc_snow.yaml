@@ -5,7 +5,7 @@ observations:
   - obs space:
       name: bufr
 
-      obsdatain: '{{ DATA }}/obs/{{ OPREFIX }}adpsfc.tm00.bufr_d'
+      obsdatain: '{{ DATA }}/obs/{{ OPREFIX_IN }}adpsfc.tm00.bufr_d'
 
       exports:
         variables:
@@ -39,7 +39,7 @@ observations:
 
     ioda:
       backend: netcdf
-      obsdataout: '{{ DATA }}/{{ OPREFIX }}adpsfc_snow.nc4'
+      obsdataout: '{{ DATA }}/{{ OPREFIX_OUT }}adpsfc_snow.nc4'
 
       variables:
 
