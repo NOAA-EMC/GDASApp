@@ -424,13 +424,13 @@ def bufr_to_ioda(config, logger):
                 .write_data(stnelev2)
 
             # U-Wind Component
-            obsspace.create_var('ObsValue/windEastward', dtype=uob2.dtype, fillval=wspd2.fill_value) \
+            obsspace.create_var('ObsValue/windEastward', dtype=uob2.dtype, fillval=uob2.fill_value) \
                 .write_attr('units', 'm s-1') \
                 .write_attr('long_name', 'Eastward Wind Component') \
                 .write_data(uob2)
 
             # V-Wind Component
-            obsspace.create_var('ObsValue/windNorthward', dtype=vob2.dtype, fillval=wspd2.fill_value) \
+            obsspace.create_var('ObsValue/windNorthward', dtype=vob2.dtype, fillval=vob2.fill_value) \
                 .write_attr('units', 'm s-1') \
                 .write_attr('long_name', 'Northward Wind Component') \
                 .write_data(vob2)
