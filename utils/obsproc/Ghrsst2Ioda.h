@@ -184,7 +184,7 @@ namespace gdasapp {
         }
       }
       // Calculate the average and store datetime
-      // Replace the seconds_s to o when count is zero
+      // Replace the seconds_s to 0 when count is zero
       int64_t seconds_s = count != 0 ? static_cast<int64_t>(sum / count) : 0;
 
       // number of obs after subsampling
