@@ -41,11 +41,19 @@ for PDY in "${PDYs[@]}"; do
                 done
             else
                 # Copy subsampled monthly in situ BUFR
-                # Example filename: tesac.201804.dcom_subsampled
+                # Example filename: tesac.201804.dcom_subsampled are copied as
+                # gdas.t00z.tesac.tm00.bufr_d (the original filename)
+                for typ in bathy dbuoy dbuoyb mbuoy mbuoyb ships shipsu tesac trkob; do
+                    if [ $(ls $testdatadir_bufr/${typ}.*subsampled 2>/dev/null | wc -l) -gt 0 ]; then
+                        cp -p $testdatadir_bufr/${typ}.*subsampled \
+                              $testdatadir_bufr/gdas.t${cyc}z.${typ}.tm00.bufr_d
+                    fi
+                done
+
                 # TODO: SP to replace these with daily and monthly subsampled with proper dates 
                 fullsubdir="$PDYdir/$cyc/atmos"
                 mkdir -p "$fullsubdir"
-                for file in "$testdatadir_bufr/*.${PDY:0:6}.dcom_subsampled"; do
+                for file in "$testdatadir_bufr/*.bufr_d"; do
                     cp -p $file $fullsubdir
                 done
             fi
