@@ -60,7 +60,7 @@ fv3 increment:
     provider: ufs
 
 test:
-  reference filename: testoutput/gdasapp_fv3jedi_jediinc2fv3.ref
-  test output filename: testoutput/gdasapp_fv3jedi_jediinc2fv3.test.out
+  reference filename: testoutput/gdasapp_fv3jedi_fv3inc.ref
+  test output filename: testoutput/gdasapp_fv3jedi_fv3inc.test.out
   float relative tolerance: 1.0e-3
   
