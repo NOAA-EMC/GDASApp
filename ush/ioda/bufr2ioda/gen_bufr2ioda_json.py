@@ -15,7 +15,7 @@ logger = Logger('gen_bufr2ioda_json.py', level='INFO', colored_log=True)
 
 def gen_bufr_json(config, template, output):
     # read in templated JSON and do substitution
-    logger.info(f"Using {template} as input")
+    logger.info(f"Using {template} as input {config}")
     bufr_config = parse_j2yaml(template, config)
     # write out JSON
     json_object = json.dumps(bufr_config, indent=4)
@@ -31,6 +31,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     # get the config from your environment
     config = cast_strdict_as_dtypedict(os.environ)
+    logger.info(f"Config: {config}")
     # we need to add in current cycle from PDYcyc
     config['current_cycle'] = add_to_datetime(config['PDY'], to_timedelta(f"{config['cyc']}H"))
     # call the parsing function

@@ -1,0 +1,12 @@
+{
+  "data_format"      : "mbuoyb",
+  "subsets"          : "MBUOYB",
+  "source"           : "NCEP data tank",
+  "data_type"        : "mbuoyb",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "data_description" : "6-hrly in situ  moored buoy (BUFR:Tropical Mooring) profiles",
+  "data_provider"    : "U.S. NOAA"
+}
