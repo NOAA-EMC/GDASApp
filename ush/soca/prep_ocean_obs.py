@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 import f90nml
 from logging import getLogger
 import os
-from soca import bkg_utils
+#from soca import bkg_utils
+from soca import prep_marine_obs
 from typing import Dict
 import ufsda
 from ufsda.stage import soca_fix
@@ -43,17 +44,18 @@ class PrepOceanObs(Task):
         logger.info("init")
         super().__init__(config)
 
-        PDY = self.runtime_config['PDY']
-        cyc = self.runtime_config['cyc']
         DATA = self.runtime_config.DATA
 
         # Set the window times
-        cdate = datetime.strptime(PDY + cyc, '%Y%m%d%H')
+        PDY = self.runtime_config['PDY']
+        cyc = self.runtime_config['cyc']
+        cdate = PDY + timedelta(hours=cyc)
+
         self.runtime_config['cdate'] = cdate
         windowBeginDatetime = cdate - timedelta(hours=3)
         windowEndDatetime = cdate + timedelta(hours=3)
-        windowBegin = windowBeginDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
-        windowEnd = windowEndDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
+        self.windowBegin = windowBeginDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
+        self.windowEnd = windowEndDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     @logit(logger)
     def initialize(self):
@@ -69,6 +71,9 @@ class PrepOceanObs(Task):
         logger.info("initialize")
 
         cdate = self.runtime_config['cdate']
+        cdatestr = cdate.strftime('%Y%m%d%H')
+        RUN = self.runtime_config.RUN
+        cyc = self.runtime_config['cyc']
 
         OBS_YAML = self.config['OBS_YAML']
         obsConfig = YAMLFile(OBS_YAML)
@@ -126,10 +131,14 @@ class PrepOceanObs(Task):
                             break
         
                         obsprepSpace['input files'] = matchingFiles
-                        obsprepSpace['window begin'] = windowBegin
-                        obsprepSpace['window end'] = windowEnd
-                        outputFilename = f"{RUN}.t{cyc}z.{obs_space_name}.{PDY}{cyc}.nc4"
+                        obsprepSpace['window begin'] = self.windowBegin
+                        obsprepSpace['window end'] = self.windowEnd
+                        outputFilename = f"{RUN}.t{cyc}z.{obs_space_name}.{cdatestr}.nc4"
                         obsprepSpace['output file'] = outputFilename
+
+        except TypeError:
+            logger.critical("Ill-formed OBS_YAML or OBSPREP_YAML file, exiting")
+            raise
 
     @logit(logger)
     def run(self):
