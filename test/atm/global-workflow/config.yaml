@@ -3,6 +3,7 @@ base:
   DOHYBVAR: "NO"
   DO_JEDIATMVAR: "YES"
   DO_JEDIATMENS: "YES"
+  EUPD_CYC: "gdas"
   DATAPATH: "@bindir@/test/atm/global-workflow/testrun"
   DUMPDIR: "@dumpdir@"
   STMP: "@bindir@/test/atm/global-workflow/testrun"
