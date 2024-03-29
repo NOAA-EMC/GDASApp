@@ -35,6 +35,15 @@
 #include "soca/ExplicitDiffusion/ExplicitDiffusionParameters.h"
 
 namespace gdasapp {
+  /**
+   * DiagB Class Implementation
+   *
+   * Implements variance partitioning within the GDAS for the ocean and sea-ice. It is used as a proxy for the
+   * diagonal of B.
+   * This class is designed to partition the variance of ocean and sea-ice fields by analyzing the variance within
+   * predefined geographical bins.
+   * This approach allows for an ensemble-free estimate of a flow-dependent background error.
+   */
 
   class DiagB : public oops::Application {
    public:
@@ -68,6 +77,8 @@ namespace gdasapp {
       xb.read(bkgConfig);
       atlas::FieldSet xbFs;
       xb.toFieldSet(xbFs);
+      oops::Log::info() << "Background:" << std::endl;
+      oops::Log::info() << xb << std::endl;
 
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
@@ -128,7 +139,34 @@ namespace gdasapp {
       double sshMax(0.0);
       fullConfig.get("max ssh", sshMax);
 
+      // Get the layer thicknesses and convert to depth
       auto h = atlas::array::make_view<double, 2>(xbFs["hocn"]);
+      atlas::array::ArrayT<double> depth(h.shape(0), h.shape(1));
+      auto viewDepth = atlas::array::make_view<double, 2>(depth);
+
+      for (atlas::idx_t jnode = 0; jnode < h.shape(0); ++jnode) {
+        viewDepth(jnode, 0) = 0.5 * h(jnode, 0);
+        for (atlas::idx_t level = 1; level < h.shape(1); ++level) {
+          viewDepth(jnode, level) = viewDepth(jnode, level-1) +
+            0.5 * (h(jnode, level-1 ) + h(jnode, level));
+        }
+      }
+
+      // Get the mixed layer depth
+      auto mld = atlas::array::make_view<double, 2>(xbFs["mom6_mld"]);
+      atlas::array::ArrayT<int> mldindex(mld.shape(0), mld.shape(1));
+      auto viewMldindex = atlas::array::make_view<int, 2>(mldindex);
+
+      for (atlas::idx_t jnode = 0; jnode < h.shape(0); ++jnode) {
+        std::vector<double> testMld;
+        for (atlas::idx_t level = 0; level < viewDepth.shape(1); ++level) {
+          testMld.push_back(std::abs(viewDepth(jnode, level) - mld(jnode, 0)));
+        }
+        auto minVal = std::min_element(testMld.begin(), testMld.end());
+
+        viewMldindex(jnode, 0) = std::distance(testMld.begin(), minVal);
+      }
+
 
       // Loop through variables
       for (auto & var : socaVars.variables()) {
@@ -183,16 +221,16 @@ namespace gdasapp {
           } else {
             // 3D case
             int nbz = 1;  // Number of closest point in the vertical, above and below
-            int nzMld = 10;  // Vertical index for the mixed layer depth, hard-wired to the MOM6 UFS config
+            int nzMld = std::max(10, viewMldindex(jnode, 0));
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1) - nbz; ++level) {
               std::vector<double> local;
               for (int nn = 0; nn < neighbors.size(); ++nn) {
                 int levelMin = std::max(0, level - nbz);
                 int levelMax = level + nbz;
                 if (level < nzMld) {
-                  // If in the MLD, compute the std. dev. throughout the MLD water column
+                  // If in the MLD, compute the std. dev. throughout the MLD
                   levelMin = 0;
-                  levelMax = nzMld;
+                  levelMax = 1; //nzMld;
                 }
                 for (int ll = levelMin; ll <= levelMax; ++ll) {
                   if ( abs(h(neighbors[nn], ll)) <= 0.1 ) {
@@ -202,7 +240,7 @@ namespace gdasapp {
                 }
               }
               //Set the minimum number of points
-              int minn = 12;  /// probably should be passed through the config
+              int minn = 6;  /// probably should be passed through the config
               if (local.size() >= minn) {
                 // Mean
                 double mean = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
@@ -332,45 +370,6 @@ namespace gdasapp {
 
       return 0;
     }
-
-    /*
-    // -----------------------------------------------------------------------------
-    std::vector<int> getHorizNeighbors(const soca::Geometry) {
-
-      /// Create the mesh connectivity (Copy/paste of Francois's stuff)
-      // Build edges, then connections between nodes and edges
-      atlas::functionspace::NodeColumns test = geom.functionSpace();
-      atlas::Mesh mesh = test.mesh();
-      atlas::mesh::actions::build_edges(mesh);
-      atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
-      const auto & node2edge = mesh.nodes().edge_connectivity();
-      const auto & edge2node = mesh.edges().node_connectivity();
-
-      oops::Log::info() << "====================== get neighbors" << std::endl;
-      // Lambda function to get the neighbors of a node
-      const auto get_neighbors_of_node = [&](const int node) {
-        std::vector<int> neighbors{};
-        neighbors.reserve(8);
-        if (node >= mesh.nodes().size()) {
-          return neighbors;
-        }
-        // Use node2edge and edge2node connectivities to find neighbors of node
-        const int nb_edges = node2edge.cols(node);
-        for (size_t ie = 0; ie < nb_edges; ++ie) {
-          const int edge = node2edge(node, ie);
-          ASSERT(edge2node.cols(edge) == 2);  // sanity check, maybe not in production/release build
-          const int node0 = edge2node(edge, 0);
-          const int node1 = edge2node(edge, 1);
-          ASSERT(node == node0 || node == node1);  // sanity check edge contains initial node
-          if (node != node0) {
-            neighbors.push_back(node0);
-          } else {
-            neighbors.push_back(node1);
-          }
-        }
-        return neighbors;
-      };
-    */
 
     // -----------------------------------------------------------------------------
    private:

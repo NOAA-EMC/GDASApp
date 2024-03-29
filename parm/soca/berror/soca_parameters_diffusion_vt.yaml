@@ -25,6 +25,10 @@ background error:
       - name: vt_ocean
         vertical:
           as gaussian: true
-          fixed value: 5.0
+          from file:
+            filename: vt_scales.nc
+            variable name: vt
+          #as gaussian: true
+          #fixed value: 5.0
         write:
           filename: vt_ocean.nc

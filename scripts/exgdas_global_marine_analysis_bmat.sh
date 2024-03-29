@@ -88,7 +88,6 @@ fi
 
 ################################################################################
 # Compute the parametric diag of B
-echo "++++++++++++++++++++++++++++++ $APRUN_OCNANAL"
 $APRUN_OCNANAL $JEDI_BIN/gdas_diagb.x soca_diagb.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
@@ -104,7 +103,7 @@ if [ $err -gt 0  ]; then
 fi
 
 ################################################################################
-# Initialize diffusion blocks
+# Initialize the horizontal diffusion blocks
 clean_yaml soca_parameters_diffusion_hz.yaml
 $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_hz.yaml
 export err=$?; err_chk
@@ -112,7 +111,13 @@ if [ $err -gt 0  ]; then
     exit $err
 fi
 
+################################################################################
+# Initialize the vertical diffusion blocks
+# Compute the MLD dependent vertical scales
+python ${HOMEgfs}/sorc/gdas.cd/sorc/soca/tools/calc_scales.py soca_vtscales.yaml
 clean_yaml soca_parameters_diffusion_vt.yaml
+
+# Vertical fiffusion and normalization
 $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_vt.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
