@@ -9,6 +9,7 @@ input files:
 thinning:
   threshold: 0
 channel: 4
+preqc: 2
 
 test: 
   reference filename: testref/viirsaod2ioda.test
