@@ -101,13 +101,13 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
     bkg_date = window_begin
 
     # Construct list of background file names
-    GDUMP = os.getenv('GDUMP')
+    RUN = os.getenv('RUN')
     cyc = str(os.getenv('cyc')).zfill(2)
     gcyc = str((int(cyc) - 6) % 24).zfill(2)  # previous cycle
     fcst_hrs = list(range(3, 10, dt_pseudo))
     files = []
     for fcst_hr in fcst_hrs:
-        files.append(os.path.join(bkg_path, f'{GDUMP}.ocean.t'+gcyc+'z.inst.f'+str(fcst_hr).zfill(3)+'.nc'))
+        files.append(os.path.join(bkg_path, f'{RUN}.ocean.t'+gcyc+'z.inst.f'+str(fcst_hr).zfill(3)+'.nc'))
 
     # Identify the ocean background that will be used for the  vertical coordinate remapping
     ocn_filename_ic = os.path.splitext(os.path.basename(files[0]))[0]+'.nc'

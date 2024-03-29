@@ -3,46 +3,50 @@ observations:
 - obs space:
     name: sss_smap
     dmpdir subdir: ocean/sss
-    dmpdir regex: SMAP_L2B_SSS_NRT_*.h5
     provider: SMAP
+    type: nc
+    dmpdir regex: 'SMAP_L2B_SSS_NRT_*.h5'
+
 - obs space:
     name: sss_smos
     provider: SMOS
     dmpdir subdir: ocean/sss
-    output file: sss_smos.ioda.nc
-    dmpdir regex: SM_OPER_MIR_OSUDP2_*.nc
+    type: nc
+    dmpdir regex: 'SM_OPER_MIR_OSUDP2_*.nc'
 
 # ADT
 - obs space:
     name: adt_rads_all
     dmpdir subdir: ocean/adt
-    dmpdir regex: rads_adt_*.nc
     provider: RADS
-    output file: adt_rads_all.nc4
+    type: nc
+    dmpdir regex: 'rads_adt_*.nc'
     window:
        back: 8         # look back 8 six-hourly obs dumps
        forward: 1    #  look forward 1 six-hourly bin
+    error ratio: 0.4  # meters per day
 
 # Ice concentration
 - obs space:
     name: icec_amsr2_north
     provider: AMSR2
     dmpdir subdir: ocean/icec
-    output file: icec_amsr2_north.ioda.nc
-    dmpdir regex: AMSR2-SEAICE-NH_v2r2_GW1_s*.nc
+    type: nc
+    dmpdir regex: 'AMSR2-SEAICE-NH_v2r2_GW1_s*.nc'
+
 - obs space:
     name: icec_amsr2_south
     provider: AMSR2
     dmpdir subdir: ocean/icec
-    output file: icec_amsr2_south.ioda.nc
-    dmpdir regex: AMSR2-SEAICE-SH_v2r2_GW1_s*.nc
+    type: nc
+    dmpdir regex: 'AMSR2-SEAICE-SH_v2r2_GW1_s*.nc'
 
 # SST
 - obs space:
     name: sst_avhrr_ma_l3u
     provider: GHRSST
-    dmpdir subdir: 'ocean/sst'
-    output file: sst_avhrr_ma_l3u.ioda.nc
+    dmpdir subdir: ocean/sst
+    type: nc
     dmpdir regex: '*-L3U_GHRSST-SSTsubskin-AVHRRF_MA-ACSPO_V*.nc'
     bounds:
       units: C
@@ -55,8 +59,8 @@ observations:
 - obs space:
     name: sst_avhrr_mb_l3u
     provider: GHRSST
-    dmpdir subdir: 'ocean/sst'
-    output file: sst_avhrr_mb_l3u.ioda.nc
+    dmpdir subdir: ocean/sst
+    type: nc
     dmpdir regex: '*-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V*.nc'
     bounds:
       units: C
@@ -69,8 +73,8 @@ observations:
 - obs space:
     name: sst_avhrr_mc_l3u
     provider: GHRSST
-    dmpdir subdir: 'ocean/sst'
-    output file: sst_avhrr_mc_l3u.ioda.nc
+    dmpdir subdir: ocean/sst
+    type: nc
     dmpdir regex: '*-L3U_GHRSST-SSTsubskin-AVHRRF_MC-ACSPO_V*.nc'
     bounds:
       units: C
@@ -83,8 +87,8 @@ observations:
 - obs space:
     name: sst_viirs_npp_l3u
     provider: GHRSST
-    dmpdir subdir: 'ocean/sst'
-    output file: sst_viirs_npp_l3u.ioda.nc
+    dmpdir subdir: ocean/sst
+    type: nc 
     dmpdir regex: '*-L3U_GHRSST-SSTsubskin-VIIRS_NPP-ACSPO_V*.nc'
     bounds:
       units: C
@@ -97,8 +101,8 @@ observations:
 - obs space:
     name: sst_viirs_n20_l3u
     provider: GHRSST
-    dmpdir subdir: 'ocean/sst'
-    output file: sst_viirs_n20_l3u.ioda.nc
+    dmpdir subdir: ocean/sst
+    type: nc
     dmpdir regex: '*-L3U_GHRSST-SSTsubskin-VIIRS_N20-ACSPO_V*.nc'
     bounds:
       units: C
@@ -111,8 +115,8 @@ observations:
 - obs space:
     name: sst_abi_g16_l3c
     provider: GHRSST
-    dmpdir subdir: 'ocean/sst'
-    output file: sst_abi_g16_l3c.ioda.nc
+    dmpdir subdir: ocean/sst
+    type: nc
     dmpdir regex: '*-L3C_GHRSST-SSTsubskin-ABI_G16-ACSPO_V*.nc'
     bounds:
       units: C
@@ -125,8 +129,8 @@ observations:
 - obs space:
     name: sst_abi_g17_l3c
     provider: GHRSST
-    dmpdir subdir: 'ocean/sst'
-    output file: sst_abi_g17_l3c.ioda.nc
+    dmpdir subdir: ocean/sst
+    type: nc
     dmpdir regex: '*-L3C_GHRSST-SSTsubskin-ABI_G17-ACSPO_V*.nc'
     bounds:
       units: C
@@ -139,8 +143,8 @@ observations:
 - obs space:
     name: sst_ahi_h08_l3c
     provider: GHRSST
-    dmpdir subdir: 'ocean/sst'
-    output file: sst_ahi_h08_l3c.ioda.nc
+    dmpdir subdir: ocean/sst
+    type: nc
     dmpdir regex: '*-L3C_GHRSST-SSTsubskin-AHI_H08-ACSPO_V*.nc'
     bounds:
       units: C
@@ -149,21 +153,91 @@ observations:
     binning:
       stride: 15
       min number of obs: 10
+
+# in situ: monthly
 - obs space:
     name: insitu_profile_bathy
     provider: GTS
     dmpdir subdir: atmos
-    output file: '*.bathy_profile.ioda.nc'
-    dmpdir regex: 'bathy.*.dcom_subsampled'
+    type: bufr
+    dmpdir regex: 'gdas.*.bathy.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_argo
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.subpfl.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_glider
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.subpfl.*.bufr_d'
+
 - obs space:
     name: insitu_profile_tesac
     provider: GTS
     dmpdir subdir: atmos
-    output file: '*.tesac_profile.ioda.nc'
-    dmpdir regex: 'tesac.*.dcom_subsampled'
+    type: bufr
+    dmpdir regex: 'gdas.*.tesac.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_marinemammal
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.tesac.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_xbtctd
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.xbtctd.*.bufr_d'
+
+- obs space:
+    name: insitu_surface_altkob
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.altkob.*.bufr_d'
+
 - obs space:
     name: insitu_surface_trkob
     provider: GTS
     dmpdir subdir: atmos
-    output file: '*.trkob_surface.ioda.nc'
-    dmpdir regex: 'trkob.*.dcom_subsampled'
+    type: bufr 
+    dmpdir regex: 'gdas.*.trkob.*.bufr_d'
+
+# in situ: daily
+- obs space:
+    name: insitu_profile_dbuoy
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.dbuoy.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_dbuoyb
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.dbuoyb.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_mbuoy
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.mbuoy.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_mbuoyb
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.mbuoyb.*.bufr_d'
+
+
