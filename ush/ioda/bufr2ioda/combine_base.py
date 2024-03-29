@@ -19,9 +19,7 @@ logger = Logger(os.path.basename(__file__), level='DEBUG')
 
 class Bufr2IodaBase:
 
-    def __init__(self, file_name, backend=PYTHON):
-        with open(file_name, "r") as json_file:
-            config = json.load(json_file)
+    def __init__(self, config, backend=PYTHON):
         self.config = config
         yaml_config = self.get_yaml_config()
         self.yaml_config = yaml_config
@@ -35,15 +33,6 @@ class Bufr2IodaBase:
         self.split_files = {}
         self.yaml_path = None
         self.backend = backend
-
-    def check_yaml_config(yaml_config):
-        # TODO make some consistency check?
-        pass
-
-    def get_attr(self, config):
-        # TODO add more attr into the ioda file from config
-        obs_attr = {}
-        return obs_attr
 
     def get_container(self):
         container = {}

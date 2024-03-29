@@ -57,9 +57,9 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
                     ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
                 else:
                     ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
-                logger.info(f'ta before correction1: {ta[:100, :]}')
+                logger.debug(f'ta before correction1: {ta[:100, :]}')
                 tb = self.apply_corr(sat_id, ta, ifov)
-                logger.info(f'tb after correction1: {tb[:100, :]}')
+                logger.debug(f'tb after correction1: {tb[:100, :]}')
                 self.replace_container_variable(container, 'ObsValue', 'brightnessTemperature', tb, sat_id)
 
     def apply_corr(self, sat_id, ta, ifov):
@@ -70,7 +70,7 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
                 # Convert antenna temperature to brightness temperature
                 ifov = ifov.astype(int) - 1
                 for i in range(ta.shape[1]):
-                    logger.info(f'inside loop for allpy ta to tb: i = {i}')
+                    logger.debug(f'inside loop for allpy ta to tb: i = {i}')
                     x = ta[:, i]
                     # logger.info(f'ta before correction: {x[:100]}')
                     if self.yaml_order:
@@ -114,8 +114,12 @@ if __name__ == '__main__':
     amsua_files = []
     splits = set()
     json_file_name = args.config
-    with open(json_file_name, "r") as json_file:
-        config = json.load(json_file)
+    try:
+        with open(json_file_name, "r") as json_file:
+            config = json.load(json_file)
+    except FileNotFoundError as e:
+        logger.info(f'Json file not existed exception: {json_file_name} with error msg: {e}')
+        exit
 
     cycle_datetime = config["cycle_datetime"]
     if cycle_datetime >= AMSUA_TYPE_CHANGE_DATETIME:
@@ -128,9 +132,9 @@ if __name__ == '__main__':
     for sat_type in [BAMUA, ESAMUA]:
         logger.info(f'Processing sat type: {sat_type}')
         if sat_type == BAMUA:
-            convert = Bufr2IodaAmusa(yaml_order, args.config, backend=BACKEND)
+            convert = Bufr2IodaAmusa(yaml_order, config, backend=BACKEND)
         else:
-            convert = Bufr2IodaAmusaChange(yaml_order, args.config, backend=BACKEND)
+            convert = Bufr2IodaAmusaChange(yaml_order, config, backend=BACKEND)
 
         convert.execute()
         amsua_files.append(convert.split_files)

@@ -62,7 +62,6 @@ def nc_merge(file_name1, file_name2, target_name):
         vars1 = grp1[k].variables
         vars2 = grp2[k].variables
         for key in vars1:
-            logger.info(key)
             var = vars1[key]
             if vars2.get(key):
                 var2 = vars2[key]
