@@ -45,6 +45,50 @@ namespace gdasapp {
    * This approach allows for an ensemble-free estimate of a flow-dependent background error.
    */
 
+  void stdDevFilt(const int level,
+                  const int nbz,
+                  const std::vector<int> neighbors,
+                  const int nzMld,
+                  double stdDev) {
+
+    std::vector<double> local;
+    for (int nn = 0; nn < neighbors.size(); ++nn) {
+      int levelMin = std::max(0, level - nbz);
+      int levelMax = level + nbz;
+      if (level < nzMld) {
+        // If in the MLD, compute the std. dev. throughout the MLD
+        levelMin = 0;
+        levelMax = 1; //nzMld;
+      }
+      for (int ll = levelMin; ll <= levelMax; ++ll) {
+        if ( abs(h(neighbors[nn], ll)) <= 0.1 ) {
+          continue;
+        }
+        local.push_back(bkg(neighbors[nn], ll));
+      }
+    }
+    //Set the minimum number of points
+    int minn = 6;  /// probably should be passed through the config
+    if (local.size() >= minn) {
+      // Mean
+      double mean = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
+
+      // Standard deviation
+      double stdDev(0.0);
+      for (int nn = 0; nn < nbh; ++nn) {
+        stdDev += std::pow(local[nn] - mean, 2.0);
+      }
+      // Setup the additive variance (only used ofr sst)
+      double additiveStdDev(0.0);
+      if (var == "tocn" & level == 0) {
+        additiveStdDev = sstBkgErrMin;
+      }
+      if (stdDev > 0.0 || local.size() > 2) {
+        stdDevBkg(jnode, level)  = std::sqrt(stdDev / (local.size() - 1)) + additiveStdDev;
+      }
+    }
+  }
+
   class DiagB : public oops::Application {
    public:
     explicit DiagB(const eckit::mpi::Comm & comm = oops::mpi::world())
@@ -167,7 +211,6 @@ namespace gdasapp {
         viewMldindex(jnode, 0) = std::distance(testMld.begin(), minVal);
       }
 
-
       // Loop through variables
       for (auto & var : socaVars.variables()) {
         // Skip the layer thickness variable
@@ -288,8 +331,8 @@ namespace gdasapp {
             // Loops through nodes and levels
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
               for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
-                // Early exit if thickness is 0 or on a ghost cell
-                if (abs(h(jnode, level)) <= 0.1) {
+                // Early exit if on a ghost cell
+                if (ghostView(jnode) > 0) {
                   continue;
                 }
 
@@ -307,6 +350,11 @@ namespace gdasapp {
 
                 if (local.size() > 2) {
                   stdDevBkg(jnode, level) = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
+                }
+
+                // Reset to 0 over land
+                if (abs(h(jnode, level)) <= 0.1) {
+                  stdDevBkg(jnode, level) = 0.0;
                 }
               }
             }
