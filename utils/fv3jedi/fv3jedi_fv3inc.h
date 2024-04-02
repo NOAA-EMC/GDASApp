@@ -72,12 +72,12 @@ namespace gdasapp {
         int count = start;
         for ( int imem = 0; imem < nmem; imem++ ) {
           while (std::count(except.begin(), except.end(), count)) {
-	    count += 1;
-	  }
-	  eckit::LocalConfiguration memberConfig(templateConfig);
-	  util::seekAndReplace(memberConfig, pattern, count, zpad);  
-	  membersConfig.push_back(memberConfig);
-	  count += 1;
+            count += 1;
+          }
+          eckit::LocalConfiguration memberConfig(templateConfig);
+          util::seekAndReplace(memberConfig, pattern, count, zpad);  
+          membersConfig.push_back(memberConfig);
+          count += 1;
         }
       }
      
@@ -98,37 +98,37 @@ namespace gdasapp {
 
       for ( int imem = 0; imem < nmem; imem++ ) {
         // Configurations
-	eckit::LocalConfiguration stateInputConfig(membersConfig[imem], "background input");
-	eckit::LocalConfiguration jediIncrInputConfig(membersConfig[imem], "jedi increment input");
-	eckit::LocalConfiguration fv3IncrOuputConfig(membersConfig[imem], "fv3 increment output");
+        eckit::LocalConfiguration stateInputConfig(membersConfig[imem], "background input");
+        eckit::LocalConfiguration jediIncrInputConfig(membersConfig[imem], "jedi increment input");
+        eckit::LocalConfiguration fv3IncrOuputConfig(membersConfig[imem], "fv3 increment output");
 
         // Setup background
-	fv3jedi::State xxBkg(stateGeom, stateInputConfig);
+        fv3jedi::State xxBkg(stateGeom, stateInputConfig);
         oops::Log::test() << "Background State: " << std::endl << xxBkg << std::endl;
 
-	// Setup JEDI increment
-	fv3jedi::Increment dx(jediIncrGeom, jediIncrVarin, xxBkg.validTime());
-	dx.read(jediIncrInputConfig);
-	oops::Log::test() << "JEDI Increment: " << std::endl << dx << std::endl;           
+        // Setup JEDI increment
+        fv3jedi::Increment dx(jediIncrGeom, jediIncrVarin, xxBkg.validTime());
+        dx.read(jediIncrInputConfig);
+        oops::Log::test() << "JEDI Increment: " << std::endl << dx << std::endl;           
 
         // Increment conversion
-	// ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
-	// Add increment to background to get analysis
-	fv3jedi::State xxAnl(stateGeom, xxBkg);
-	xxAnl += dx;
+        // Add increment to background to get analysis
+        fv3jedi::State xxAnl(stateGeom, xxBkg);
+        xxAnl += dx;
 
-	// Perform variables change on background and analysis
-	vc->changeVar(xxBkg, stateVarout);
-	vc->changeVar(xxAnl, stateVarout);
+        // Perform variables change on background and analysis
+        vc->changeVar(xxBkg, stateVarout);
+        vc->changeVar(xxAnl, stateVarout);
 
-	// Get final FV3 increment
-	fv3jedi::Increment dxFV3(fv3IncrGeom, stateVarout, xxBkg.validTime());
-	dxFV3.diff(xxAnl, xxBkg);
-	oops::Log::test() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
+        // Get final FV3 increment
+        fv3jedi::Increment dxFV3(fv3IncrGeom, stateVarout, xxBkg.validTime());
+        dxFV3.diff(xxAnl, xxBkg);
+        oops::Log::test() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
 
-	// Write FV3 increment
-	dxFV3.write(fv3IncrOuputConfig);
+        // Write FV3 increment
+        dxFV3.write(fv3IncrOuputConfig);
       }
 
       return 0;
