@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -75,12 +76,12 @@ namespace gdasapp {
             count += 1;
           }
           eckit::LocalConfiguration memberConfig(templateConfig);
-          util::seekAndReplace(memberConfig, pattern, count, zpad);  
+          util::seekAndReplace(memberConfig, pattern, count, zpad);
           membersConfig.push_back(memberConfig);
           count += 1;
         }
       }
-     
+
       // Setup
       // ---------------------------------------------------------------------------------
 
@@ -89,12 +90,12 @@ namespace gdasapp {
       const fv3jedi::Geometry jediIncrGeom(jediIncrGeomConfig, this->getComm());
       const fv3jedi::Geometry fv3IncrGeom(fv3IncrGeomConfig, this->getComm());
 
-      // Variable change                                                                                                               
+      // Variable change
       std::unique_ptr<fv3jedi::VariableChange> vc;
       vc.reset(new fv3jedi::VariableChange(varChangeConfig, stateGeom));
 
       // Looping through ensemble member
-      // --------------------------------------------------------------------------------- 
+      // ---------------------------------------------------------------------------------
 
       for ( int imem = 0; imem < nmem; imem++ ) {
         // Configurations
@@ -109,7 +110,7 @@ namespace gdasapp {
         // Setup JEDI increment
         fv3jedi::Increment dx(jediIncrGeom, jediIncrVarin, xxBkg.validTime());
         dx.read(jediIncrInputConfig);
-        oops::Log::test() << "JEDI Increment: " << std::endl << dx << std::endl;           
+        oops::Log::test() << "JEDI Increment: " << std::endl << dx << std::endl; 
 
         // Increment conversion
         // ----------------------------------------------------------------------------
