@@ -35,6 +35,11 @@ gw environement:
 
   run scripts:
     GDASPREPOCNOBSPY: @HOMEgfs@/sorc/gdas.cd/scripts/exglobal_prep_ocean_obs.py
+    GDASOCNCENPY: @HOMEgfs@/sorc/gdas.cd/scripts/exgdas_global_marine_analysis_ecen.py
+
+  source directories:
+    JSON_TMPL_DIR: @HOMEgfs@/sorc/gdas.cd/parm/ioda/bufr2ioda
+    BUFR2IODA_PY_DIR: @HOMEgfs@/sorc/gdas.cd/ush/ioda/bufr2ioda
 
 setup_expt config:
   base:

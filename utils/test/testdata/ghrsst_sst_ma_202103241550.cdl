@@ -1,0 +1,286 @@
+netcdf ghrsst_sst_ma_202103241550 {
+dimensions:
+	time = 1 ;
+	lat = 5 ;
+	lon = 10 ;
+variables:
+	int crs ;
+		crs:grid_mapping_name = "latitude_longitude" ;
+		crs:horizontal_datum_name = "World Geodetic System 1984" ;
+	byte dt_analysis(time, lat, lon) ;
+		dt_analysis:add_offset = 0.f ;
+		dt_analysis:comment = "Deviation from reference SST, i.e., dt_analysis = SST - reference SST" ;
+		dt_analysis:coordinates = "lon lat" ;
+		dt_analysis:long_name = "deviation from SST reference" ;
+		dt_analysis:source = "CMC0.1deg-CMC-L4-GLOB-v2.0" ;
+		dt_analysis:scale_factor = 0.1f ;
+		dt_analysis:units = "kelvin" ;
+		dt_analysis:valid_max = 127b ;
+		dt_analysis:valid_min = -127b ;
+		dt_analysis:_FillValue = -128b ;
+		dt_analysis:grid_mapping = "crs" ;
+	short l2p_flags(time, lat, lon) ;
+		l2p_flags:comment = "L2P common flags in bits 1-6 and data provider flags (from ACSPO mask) in bits 9-16: bit01 (0=IR: 1=microwave); bit02 (0=ocean; 1=land); bit03 (0=no ice; 1=ice); bits04-08 (reserved,set to 0); bit09 (0=radiance valid; 1=invalid); bit10 (0=night; 1=day); bit11 (0=ocean; 1=land); bit12 (0=good quality data; 1=degraded quality data due to \"twilight\" region); bit13 (0=no glint; 1=glint); bit14 (0=no snow/ice; 1=snow/ice); bits15-16 (00=clear; 01=probably clear; 10=cloudy; 11=clear-sky mask undefined)" ;
+		l2p_flags:coordinates = "lon lat" ;
+		l2p_flags:flag_masks = 1s, 2s, 4s, 256s, 512s, 1024s, 2048s, 4096s, 8192s, -16384s ;
+		l2p_flags:flag_meanings = "microwave land ice invalid day land twilight glint ice probably_clear_or_cloudy_or_undefined" ;
+		l2p_flags:long_name = "L2P flags" ;
+		l2p_flags:valid_max = 32767s ;
+		l2p_flags:valid_min = -32768s ;
+		l2p_flags:grid_mapping = "crs" ;
+	float lat(lat) ;
+		lat:long_name = "latitude" ;
+		lat:comment = "Latitudes for locating data" ;
+		lat:units = "degrees_north" ;
+		lat:axis = "Y" ;
+		lat:valid_min = -90. ;
+		lat:valid_max = 90. ;
+		lat:standard_name = "latitude" ;
+	float lon(lon) ;
+		lon:long_name = "longitude" ;
+		lon:comment = "Longitude for locating data" ;
+		lon:units = "degrees_east" ;
+		lon:axis = "X" ;
+		lon:valid_min = -180. ;
+		lon:valid_max = 180. ;
+		lon:standard_name = "longitude" ;
+	short or_number_of_pixels(time, lat, lon) ;
+		or_number_of_pixels:_FillValue = 0s ;
+		or_number_of_pixels:long_name = "number of pixels from the L2Ps contributing to the SST value" ;
+		or_number_of_pixels:comment = "Original number of pixels from the L2Ps contributing to the SST value, not weighted" ;
+		or_number_of_pixels:units = "1" ;
+		or_number_of_pixels:coordinates = "lon lat" ;
+		or_number_of_pixels:valid_min = 1s ;
+		or_number_of_pixels:valid_max = 32767s ;
+		or_number_of_pixels:scale_factor = 1s ;
+		or_number_of_pixels:add_offset = 0s ;
+		or_number_of_pixels:grid_mapping = "crs" ;
+	byte quality_level(time, lat, lon) ;
+		quality_level:_FillValue = -128b ;
+		quality_level:valid_min = 0b ;
+		quality_level:valid_max = 5b ;
+		quality_level:long_name = "quality level of SST pixel" ;
+		quality_level:comment = "SST quality levels: 5 corresponds to “clear-sky” pixels and is recommended for operational applications and validation." ;
+		quality_level:coordinates = "lon lat" ;
+		quality_level:flag_meanings = "no_data bad_data not_used not_used not_used best_quality" ;
+		quality_level:flag_values = 1b, 2b, 3b, 4b, 5b ;
+		quality_level:grid_mapping = "crs" ;
+	byte satellite_zenith_angle(time, lat, lon) ;
+		satellite_zenith_angle:add_offset = 0.f ;
+		satellite_zenith_angle:comment = "satellite zenith angle" ;
+		satellite_zenith_angle:coordinates = "lon lat" ;
+		satellite_zenith_angle:long_name = "satellite zenith angle" ;
+		satellite_zenith_angle:scale_factor = 1.f ;
+		satellite_zenith_angle:units = "degrees" ;
+		satellite_zenith_angle:valid_max = 127b ;
+		satellite_zenith_angle:valid_min = -127b ;
+		satellite_zenith_angle:_FillValue = -128b ;
+		satellite_zenith_angle:grid_mapping = "crs" ;
+	short sea_surface_temperature(time, lat, lon) ;
+		sea_surface_temperature:add_offset = 273.15f ;
+		sea_surface_temperature:comment = "SST obtained by regression with buoy measurements, sensitive to skin SST. Further information at (Petrenko et al., JGR, 2014; doi:10.1002/2013JD020637)" ;
+		sea_surface_temperature:coordinates = "lon lat" ;
+		sea_surface_temperature:long_name = "sea surface sub-skin temperature" ;
+		sea_surface_temperature:scale_factor = 0.01f ;
+		sea_surface_temperature:source = "NOAA" ;
+		sea_surface_temperature:standard_name = "sea_surface_subskin_temperature" ;
+		sea_surface_temperature:units = "kelvin" ;
+		sea_surface_temperature:valid_max = 32767s ;
+		sea_surface_temperature:valid_min = -32767s ;
+		sea_surface_temperature:_FillValue = -32768s ;
+		sea_surface_temperature:grid_mapping = "crs" ;
+	byte sses_bias(time, lat, lon) ;
+		sses_bias:add_offset = 0.f ;
+		sses_bias:comment = "Bias is derived against Piecewise Regression SST produced by local regressions with buoys. Subtracting sses_bias from sea_surface_temperature produces more accurate estimate of SST at the depth of buoys. Further information at (Petrenko et al., JTECH, 2016; doi:10.1175/JTECH-D-15-0166.1)" ;
+		sses_bias:coordinates = "lon lat" ;
+		sses_bias:long_name = "SSES bias estimate" ;
+		sses_bias:scale_factor = 0.016f ;
+		sses_bias:units = "kelvin" ;
+		sses_bias:valid_max = 127b ;
+		sses_bias:valid_min = -127b ;
+		sses_bias:_FillValue = -128b ;
+		sses_bias:grid_mapping = "crs" ;
+	byte sses_standard_deviation(time, lat, lon) ;
+		sses_standard_deviation:add_offset = 1.f ;
+		sses_standard_deviation:comment = "Standard deviation of sea_surface_temperature from SST measured by drifting buoys. Further information at (Petrenko et al., JTECH, 2016; doi:10.1175/JTECH-D-15-0166.1)" ;
+		sses_standard_deviation:coordinates = "lon lat" ;
+		sses_standard_deviation:long_name = "SSES standard deviation" ;
+		sses_standard_deviation:scale_factor = 0.01f ;
+		sses_standard_deviation:units = "kelvin" ;
+		sses_standard_deviation:valid_max = 127b ;
+		sses_standard_deviation:valid_min = -127b ;
+		sses_standard_deviation:_FillValue = -128b ;
+		sses_standard_deviation:grid_mapping = "crs" ;
+	int sst_dtime(time, lat, lon) ;
+		sst_dtime:add_offset = 0.f ;
+		sst_dtime:comment = "time plus sst_dtime gives seconds since 1981-01-01 00:00:00 UTC" ;
+		sst_dtime:coordinates = "lon lat" ;
+		sst_dtime:long_name = "time difference from reference time" ;
+		sst_dtime:scale_factor = 0.25f ;
+		sst_dtime:units = "seconds" ;
+		sst_dtime:valid_max = 2147483647 ;
+		sst_dtime:valid_min = -2147483647 ;
+		sst_dtime:_FillValue = -2147483648 ;
+		sst_dtime:grid_mapping = "crs" ;
+	int time(time) ;
+		time:comment = "seconds since 1981-01-01 00:00:00" ;
+		time:long_name = "reference time of sst file" ;
+		time:standard_name = "time" ;
+		time:units = "seconds since 1981-01-01 00:00:00" ;
+		time:calendar = "Gregorian" ;
+		time:axis = "T" ;
+	byte wind_speed(time, lat, lon) ;
+		wind_speed:add_offset = 0.f ;
+		wind_speed:comment = "Typically represents surface winds (10 meters above the sea surface)" ;
+		wind_speed:coordinates = "lon lat" ;
+		wind_speed:height = "10 m" ;
+		wind_speed:long_name = "wind speed" ;
+		wind_speed:scale_factor = 0.15f ;
+		wind_speed:source = "Wind speed from NCEP GFS data" ;
+		wind_speed:standard_name = "wind_speed" ;
+		wind_speed:units = "m s-1" ;
+		wind_speed:valid_max = 127b ;
+		wind_speed:valid_min = -127b ;
+		wind_speed:_FillValue = -128b ;
+		wind_speed:grid_mapping = "crs" ;
+
+// global attributes:
+		:Conventions = "CF-1.6" ;
+		:Metadata_Conventions = "Unidata Dataset Discovery v1.0" ;
+		:acknowledgement = "Please acknowledge the use of these data with the following statement: These data were provided by Group for High Resolution Sea Surface Temperature (GHRSST) and the National Oceanic and Atmospheric Administration (NOAA)." ;
+		:cdm_data_type = "grid" ;
+		:comment = "SSTs are a weighted average of the SSTs of contributing pixels. WARNING: some applications are unable to properly handle signed byte values. If byte values > 127 are encountered, subtract 256 from this reported value." ;
+		:creator_email = "Alex.Ignatov@noaa.gov" ;
+		:creator_name = "Alex Ignatov" ;
+		:creator_url = "http://www.star.nesdis.noaa.gov" ;
+		:date_created = "20210324T180747Z" ;
+		:easternmost_longitude = -46.26001f ;
+		:file_quality_level = 2 ;
+		:gds_version_id = "02.0" ;
+		:geospatial_lat_max = 81.38f ;
+		:geospatial_lat_min = 40.46f ;
+		:geospatial_lat_resolution = 0.02f ;
+		:geospatial_lat_units = "degrees_north" ;
+		:geospatial_lon_max = -46.26001f ;
+		:geospatial_lon_min = -142.84f ;
+		:geospatial_lon_resolution = 0.02f ;
+		:geospatial_lon_units = "degrees_east" ;
+		:history = "Thu Mar 28 17:06:08 2024: ncks -d lon,11826,11835 -d lat,602,606 /scratch1/NCEPDEV/global/glopara/data/experimental_obs/gdas.20210324/18/ocean/sst/20210324155000-OSPO-L3U_GHRSST-SSTsubskin-AVHRRF_MA-ACSPO_V2.70-v02.0-fv01.0.nc ghrsst_sst_ma_202103241550.nc\nCreated by the L2P-to-L3U conversion tool,  which was developed and provided by NOAA/NESDIS/STAR and CCNY. The version is 4.1.5" ;
+		:id = "AVHRRF_MA-OSPO-L3U-v2.7" ;
+		:institution = "NOAA/NESDIS/OSPO" ;
+		:keywords = "Oceans > Ocean Temperature > Sea Surface Temperature" ;
+		:keywords_vocabulary = "NASA Global Change Master Directory (GCMD) Science Keywords" ;
+		:license = "GHRSST protocol describes data use as free and open" ;
+		:metadata_link = "http://podaac.jpl.nasa.gov/ws/metadata/dataset/?format=iso&shortName=AVHRRF_MA-OSPO-L2P-v2.7" ;
+		:naming_authority = "org.ghrsst" ;
+		:netcdf_version_id = "4.5.0 of Jul 23 2018 18:00:31 $" ;
+		:northernmost_latitude = 81.38f ;
+		:platform = "MetOpA" ;
+		:processing_level = "L3U" ;
+		:product_version = "L2P algorithm V2.70; L3U algorithm V4.1.5" ;
+		:project = "Group for High Resolution Sea Surface Temperature" ;
+		:publisher_email = "ghrsst-po@nceo.ac.uk" ;
+		:publisher_name = "The GHRSST Project Office" ;
+		:publisher_url = "http://www.ghrsst.org" ;
+		:references = "Data convention: GHRSST Data Specification (GDS) v2.0. Algorithms: ACSPO-AVHRR ATBD (NOAA/NESDIS/OSPO)" ;
+		:sensor = "AVHRR" ;
+		:source = "l2p_source : 20210324155000-OSPO-L2P_GHRSST-SSTsubskin-AVHRRF_MA-ACSPO_V2.70-v02.0-fv01.0.nc" ;
+		:southernmost_latitude = 40.46f ;
+		:spatial_resolution = "0.02 deg" ;
+		:standard_name_vocabulary = "CF Standard Name Table (v26, 08 November 2013)" ;
+		:start_time = "20210324T155000Z" ;
+		:stop_time = "20210324T155959Z" ;
+		:summary = "Sea surface temperature retrievals produced by NOAA/NESDIS/OSPO  office from AVHRR sensor" ;
+		:time_coverage_end = "20210324T155959Z" ;
+		:time_coverage_start = "20210324T155000Z" ;
+		:title = "AVHRR L3U SST" ;
+		:uuid = "a974c50a-64de-4678-b8f9-00d0faf39a62" ;
+		:westernmost_longitude = -142.84f ;
+		:sst_luts = "LUT_AVHRRF_MA_L2P_DEPTH_DAY_V01.01_20180507.txt, LUT_AVHRRF_MA_L2P_SKIN_DAYNIGHT_V01.00_20180408.txt, LUT_AVHRRF_MA_L2P_DEPTH_NIGHT_V01.01_20180507.txt, LUT_AVHRRF_MA_L2P_SKIN_NIGHT_V01.00_20180408.txt" ;
+		:geospatial_bounds = "POLYGON((-125.945  46.879, -142.521  80.299,  -46.600  66.944,  -91.299  40.553, -125.945  46.879))" ;
+		:row_start = 431 ;
+		:row_count = 2045 ;
+		:col_start = 1858 ;
+		:col_count = 4828 ;
+		:NCO = "netCDF Operators version 5.0.6 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
+data:
+
+ crs = 0 ;
+
+ dt_analysis =
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
+
+ l2p_flags =
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+
+ lat = 77.95, 77.93, 77.91, 77.89, 77.87 ;
+
+ lon = 56.52999, 56.55, 56.57, 56.59, 56.60999, 56.62999, 56.64999, 56.66999, 
+    56.68999, 56.71 ;
+
+ or_number_of_pixels =
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
+
+ quality_level =
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
+
+ satellite_zenith_angle =
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
+
+ sea_surface_temperature =
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
+
+ sses_bias =
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
+
+ sses_standard_deviation =
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
+
+ sst_dtime =
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
+
+ time = 1269445800 ;
+
+ wind_speed =
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
+}
