@@ -28,7 +28,6 @@ namespace gdasapp {
     static const std::string classname() {return "gdasapp::fv3inc";}
 
     int execute(const eckit::Configuration & fullConfig, bool validate) const {
-
       // Configurations
       // ---------------------------------------------------------------------------------
 
@@ -47,39 +46,39 @@ namespace gdasapp {
 
       // Ensemble Members
       int nmem;
-      std::vector<eckit::LocalConfiguration> membersConfig;    
+      std::vector<eckit::LocalConfiguration> membersConfig;
       if ( fullConfig.has("members") ) {
-	fullConfig.get("members", membersConfig);
+        fullConfig.get("members", membersConfig);
         nmem = membersConfig.size();
       } else {
-	eckit::LocalConfiguration membersFromTemplateConfig(fullConfig, "members from template");
-	eckit::LocalConfiguration templateConfig(membersFromTemplateConfig, "template");
-	std::string pattern;
+        eckit::LocalConfiguration membersFromTemplateConfig(fullConfig, "members from template");
+        eckit::LocalConfiguration templateConfig(membersFromTemplateConfig, "template");
+        std::string pattern;
         membersFromTemplateConfig.get("pattern", pattern);
         membersFromTemplateConfig.get("nmembers", nmem);
-	int start = 1;
-	if (membersFromTemplateConfig.has("start")) {
-	  membersFromTemplateConfig.get("start", start);
-	}
-	std::vector<int> except;
-	if (membersFromTemplateConfig.has("except")) {
-	  membersFromTemplateConfig.get("except", except);
-	}
+        int start = 1;
+        if (membersFromTemplateConfig.has("start")) {
+          membersFromTemplateConfig.get("start", start);
+        }
+        std::vector<int> except;
+        if (membersFromTemplateConfig.has("except")) {
+          membersFromTemplateConfig.get("except", except);
+        }
         int zpad = 0;
         if ( membersFromTemplateConfig.has("zero padding") ) {
-	  membersFromTemplateConfig.get("zero padding", zpad);
-	}
+          membersFromTemplateConfig.get("zero padding", zpad);
+        }
 
         int count = start;
         for ( int imem = 0; imem < nmem; imem++ ) {
-	  while (std::count(except.begin(), except.end(), count)) {
+          while (std::count(except.begin(), except.end(), count)) {
 	    count += 1;
 	  }
 	  eckit::LocalConfiguration memberConfig(templateConfig);
 	  util::seekAndReplace(memberConfig, pattern, count, zpad);  
 	  membersConfig.push_back(memberConfig);
 	  count += 1;
-	}
+        }
       }
      
       // Setup
