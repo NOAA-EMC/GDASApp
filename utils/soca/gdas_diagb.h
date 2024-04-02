@@ -62,10 +62,12 @@ namespace gdasapp {
                     const atlas::array::ArrayView<double, 2> h,
                     const atlas::array::ArrayView<double, 2> bkg,
                     const atlas::array::ArrayView<double, 2> bathy,
-                    atlas::array::ArrayView<double, 2>& stdDevBkg) const {
-
+                    atlas::array::ArrayView<double, 2>& stdDevBkg,
+		    bool doBathy = true) const {
+      
       // Early exit if too shallow
-      if ( bathy(jnode, 0) < depthMin ) {
+      
+      if ( doBathy & bathy(jnode, 0) < depthMin ) {
         stdDevBkg(jnode, level) = 0.0;
         return;
       }
@@ -78,7 +80,7 @@ namespace gdasapp {
         if (level < nzMld) {
           // If in the MLD, compute the std. dev. throughout the MLD
           levelMin = 0;
-          levelMax = 1; //nzMld;
+          levelMax = 1; //nzMld; Projecting the surface variance down the water column for now
         }
         for (int ll = levelMin; ll <= levelMax; ++ll) {
           if ( abs(h(neighbors[nn], ll)) <= 0.1 ) {
@@ -202,26 +204,25 @@ namespace gdasapp {
 
       // Get the layer thicknesses and convert to layer depth
       oops::Log::info() << "====================== calculate layer depth" << std::endl;
-      auto h = atlas::array::make_view<double, 2>(xbFs["hocn"]);
-      atlas::array::ArrayT<double> depth(h.shape(0), h.shape(1));
+      auto viewHocn = atlas::array::make_view<double, 2>(xbFs["hocn"]);
+      atlas::array::ArrayT<double> depth(viewHocn.shape(0), viewHocn.shape(1));
       auto viewDepth = atlas::array::make_view<double, 2>(depth);
-      oops::Log::info() << depth.shape() << std::endl;
-      oops::Log::info() << viewDepth.shape(0) << "-" << viewDepth.shape(1) << std::endl;
       for (atlas::idx_t jnode = 0; jnode < depth.shape(0); ++jnode) {
-        viewDepth(jnode, 0) = 0.5 * h(jnode, 0);
+        viewDepth(jnode, 0) = 0.5 * viewHocn(jnode, 0);
         for (atlas::idx_t level = 1; level < depth.shape(1); ++level) {
           viewDepth(jnode, level) = viewDepth(jnode, level-1) +
-            0.5 * (h(jnode, level-1 ) + h(jnode, level));
+            0.5 * (viewHocn(jnode, level-1 ) + viewHocn(jnode, level));
         }
       }
 
       // Compute the bathymetry
       oops::Log::info() << "====================== calculate bathymetry" << std::endl;
-      atlas::array::ArrayT<double> bathy(h.shape(0), 1);
+      atlas::array::ArrayT<double> bathy(viewHocn.shape(0), 1);
       auto viewBathy = atlas::array::make_view<double, 2>(bathy);
-      for (atlas::idx_t jnode = 0; jnode < h.shape(0); ++jnode) {
-        for (atlas::idx_t level = 0; level < h.shape(1); ++level) {
-          viewBathy(jnode, 0) += h(jnode, level);
+      for (atlas::idx_t jnode = 0; jnode < viewHocn.shape(0); ++jnode) {
+	viewBathy(jnode, 0) = 0.0;
+        for (atlas::idx_t level = 0; level < viewHocn.shape(1); ++level) {
+          viewBathy(jnode, 0) += viewHocn(jnode, level);
         }
       }
 
@@ -230,7 +231,7 @@ namespace gdasapp {
       atlas::array::ArrayT<int> mldindex(mld.shape(0), mld.shape(1));
       auto viewMldindex = atlas::array::make_view<int, 2>(mldindex);
 
-      for (atlas::idx_t jnode = 0; jnode < h.shape(0); ++jnode) {
+      for (atlas::idx_t jnode = 0; jnode < viewHocn.shape(0); ++jnode) {
         std::vector<double> testMld;
         for (atlas::idx_t level = 0; level < viewDepth.shape(1); ++level) {
           testMld.push_back(std::abs(viewDepth(jnode, level) - mld(jnode, 0)));
@@ -240,8 +241,14 @@ namespace gdasapp {
         viewMldindex(jnode, 0) = std::distance(testMld.begin(), minVal);
       }
 
+      // Update the layer thickness halo
+      nodeColumns.haloExchange(xbFs["hocn"]);
+
       // Loop through variables
       for (auto & var : socaVars.variables()) {
+	// Update the halo
+	nodeColumns.haloExchange(xbFs[var]);
+
         // Skip the layer thickness variable
         if (var == "hocn") {
           continue;
@@ -253,7 +260,7 @@ namespace gdasapp {
         // Loop through nodes
         for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
           // Early exit if thickness is 0 or on a ghost cell
-          if (ghostView(jnode) > 0 || abs(h(jnode, 0)) <= 0.1) {
+          if (ghostView(jnode) > 0 || abs(viewHocn(jnode, 0)) <= 0.1) {
             continue;
           }
 
@@ -265,7 +272,7 @@ namespace gdasapp {
           if (xbFs[var].shape(1) == 1) {
             std::vector<double> local;
             for (int nn = 0; nn < neighbors.size(); ++nn) {
-              if ( abs(h(neighbors[nn], 0)) <= 0.1 ) {
+              if ( abs(viewHocn(neighbors[nn], 0)) <= 0.1 ) {
                 continue;
               }
               local.push_back(bkg(neighbors[nn], 0));
@@ -296,11 +303,10 @@ namespace gdasapp {
             int nzMld = std::max(10, viewMldindex(jnode, 0));
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1) - nbz; ++level) {
               // Std. dev. of the partition
-              stdDevFilt(jnode, level, nbz, depthMin, neighbors, nzMld, h, bkg, viewBathy, stdDevBkg);
+              stdDevFilt(jnode, level, nbz, depthMin, neighbors, nzMld, viewHocn, bkg, viewBathy, stdDevBkg);
             }
           }  // end 3D case
         }  // end jnode
-        this->getComm().barrier();
       }  // end var
 
       // TODO(G): Assume that the steric balance explains 97% of ssh ... or do it properly ... maybe
@@ -338,7 +344,7 @@ namespace gdasapp {
                 int nbh = neighbors.size();
                 for (int nn = 0; nn < neighbors.size(); ++nn) {
                   int nbNode = neighbors[nn];
-                  if ( abs(h(nbNode, level)) <= 0.1 ) {
+                  if ( abs(viewHocn(nbNode, level)) <= 0.1 ) {
                     continue;
                   }
                   local.push_back(stdDevBkg(nbNode, level));
@@ -349,7 +355,7 @@ namespace gdasapp {
                 }
 
                 // Reset to 0 over land
-                if (abs(h(jnode, level)) <= 0.1) {
+                if (abs(viewHocn(jnode, level)) <= 0.1) {
                   stdDevBkg(jnode, level) = 0.0;
                 }
               }
@@ -399,7 +405,6 @@ namespace gdasapp {
         diffuse.multiply(dx);
         bkgErrFs = dx.fieldSet();
       }
-      this->getComm().barrier();
 
       // Rescale
       double rescale;
