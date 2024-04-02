@@ -1,0 +1,982 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: satwind
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}{{atm_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atm_obsdataout_path}}/{{atm_obsdataout_prefix}}{{observation_from_jcb}}{{atm_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [windEastward, windNorthward]
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: VertInterp
+
+  # Observation Pre Filters (QC)
+  # ----------------------------
+  obs pre filters:
+  # Assign the initial observation error, based on height/pressure
+  # Hard-wiring to prepobs_errtable.global by Type
+  # ObsError is currently not updating in diag file, but passes directly to EffectiveError when no inflation is specified in YAML
+    # Type 240 (GOES SWIR): Assigned all dummy values in prepobs_errtable.global
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 240
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 0.]    #Pressure (Pa)
+          errors: [1000000000., 1000000000.]
+    # Type 241 (Multi Spec. Imager LWIR): Assigned all dummy values
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 241
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 0.]    #Pressure (Pa)
+          errors: [1000000000., 1000000000.]
+    # Type 242 (Himawari VIS)
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 242
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
+            5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
+            7., 7., 7.]
+    # Type 243  (MVIRI/SEVIRI VIS)
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 243
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
+            5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
+            7., 7., 7.]
+    # Type 244 (AVHRR LWIR)
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 244
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
+            5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
+            7., 7., 7.]
+    # Type 245 (GOES LWIR): I am assuming these are halved relative to prepobs_errtable.global, based on read_satwnd.f90: L1410–1416
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 245
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.8, 7.8, 8., 8., 8.2,
+            10., 12., 12.6, 13.2, 14., 14., 14., 14., 14., 14., 14., 14., 14., 14.,
+            14., 14., 14., 14., 14., 14.]
+    # Type 246 (GOES cloud-top WV): I am assuming these are halved relative to prepobs_errtable.global, based on read_satwnd.f90: L1410–1416
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 246
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.8, 7.8, 8., 8., 8.2,
+            10., 12., 12.6, 13.2, 14., 14., 14., 14., 14., 14., 14., 14., 14., 14.,
+            14., 14., 14., 14., 14., 14.]
+    # Type 247 (GOES clear-sky WV): I am assuming these are halved relative to prepobs_errtable.global, based on read_satwnd.f90: L1410–1416
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 247
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.8, 7.8, 8., 8., 8.2,
+            10., 12., 12.6, 13.2, 14., 14., 14., 14., 14., 14., 14., 14., 14., 14.,
+            14., 14., 14., 14., 14., 14.]
+    # Type 248 (GOES Sounder cloud-top WV): Assigned all dummy values
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 248
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 0.]    #Pressure (Pa)
+          errors: [1000000000., 1000000000.]
+    # Type 249 (GOES Sounder clear-sky WV): Assigned all dummy values
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 249
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 0.]    #Pressure (Pa)
+          errors: [1000000000., 1000000000.]
+    # Type 250 (Himawari AHI WV, cloud-top or clear-sky)
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 250
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
+            5., 7., 7.3, 7.6, 8., 8., 8., 8., 8., 8., 8., 8., 8., 8., 8., 8., 8.,
+            8., 8., 8.]
+    # Type 251 (GOES VIS): Assigned all dummy values
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 251
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 0.]    #Pressure (Pa)
+          errors: [1000000000., 1000000000.]
+    # Type 252 (Himawari AHI LWIR)
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 252
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
+            5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
+            7., 7., 7.]
+    # Type 253 (MVIRI/SEVERI LWIR)
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 253
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
+            5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
+            7., 7., 7.]
+    # Type 254 (MVIRI/SEVIRI WV, both cloud-top and clear-sky)
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 254
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4.5, 6.1,
+            6., 6.5, 7.3, 7.6, 7., 7.5, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
+            7., 7., 7.]
+    # Type 255 (GOES low-level picture triplet cloud drift): According to prepbufr table this should no longer exist??
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 255
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
+            5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
+            7., 7., 7.]
+    # Type 256 (Multi Spec. Imager WV, both clear-sky and cloud-top): Assigned all dummy values
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 256
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 0.]    #Pressure (Pa)
+          errors: [1000000000., 1000000000.]
+    # Type 257 (MODIS LWIR)
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 257
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
+            5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
+            7., 7., 7.]
+    # Type 258 (MODIS cloud-top WV): Some levels assigned dummy values
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 258
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                               #Pressure (Pa)
+          errors: [1000000000., 1000000000., 4., 4.1, 5., 6., 6.3, 6.6, 7., 7., 7.,
+            7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.]
+    # Type 259 (MODIS clear-sky WV): Some levels assigned dummy values
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 259
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                               #Pressure (Pa)
+          errors: [1000000000., 1000000000., 4., 4.1, 5., 6., 6.3, 6.6, 7., 7., 7.,
+            7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.]
+    # Type 260 (VIIRS LWIR): All levels assigned dummy values in prepobs_errtable.global, HOWEVER the GSI values appear
+    #                        to be a standard profile (borrowed from e.g., Type=244). Using the standard profile here.
+    #                        It"s possibly that my prepobs_errtable.global file is out-of-date.
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 260
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                                #Pressure (Pa)
+          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
+            5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
+            7., 7., 7.]
+
+  # Observation Prior Filters (QC)
+  # ------------------------------
+  obs prior filters:
+    #
+    # sanity-check criteria
+    #
+    # Observation Range Sanity Check
+    # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    minvalue: -130.
+    maxvalue: 130.
+    action:
+      name: reject
+    # Velocity Sanity Check
+    # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    test variables:
+    - name: ObsFunction/Velocity
+    maxvalue: 130.
+    action:
+      name: reject
+  #
+  # preQC (read_satwnd) criteria
+  #
+  # EUMETSAT winds: satelliteIdentifer [50–79] (>49, <80)
+    # Reject obs with satelliteZenithAngle > 68 deg
+    # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 49.
+      maxvalue: 80.
+    test variables:
+    - name: MetaData/satelliteZenithAngle
+    maxvalue: 68.
+    action:
+      name: reject
+    # Reject obs with windComputationMethod = 5 (clear-sky WV AMV)
+    # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 49.
+      maxvalue: 80.
+    test variables:
+    - name: MetaData/windComputationMethod
+    maxvalue: 4.
+    action:
+      name: reject
+    # Reject obs with qualityInformationWithoutForecast < 85.
+    # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 49.
+      maxvalue: 80.
+    test variables:
+    - name: MetaData/qualityInformationWithoutForecast
+    minvalue: 85.
+    action:
+      name: reject
+  # JMA: satelliteIdentifier [100–199] (>99, <200)
+    # Reject obs with satelliteZenithAngle > 68 deg
+    # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 99.
+      maxvalue: 200.
+    test variables:
+    - name: MetaData/satelliteZenithAngle
+    maxvalue: 68.
+    action:
+      name: reject
+    # Reject obs with windComputationMethod = 5 (clear-sky WV AMV)
+    # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 99.
+      maxvalue: 200.
+    test variables:
+    - name: MetaData/windComputationMethod
+    maxvalue: 4.
+    action:
+      name: reject
+    # Reject obs with qualityInformationWithoutForecast < 85.
+    # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 99.
+      maxvalue: 200.
+    test variables:
+    - name: MetaData/qualityInformationWithoutForecast
+    minvalue: 85.
+    action:
+      name: reject
+  # NESDIS: satelliteIdentifier [250–299] (>249, <300)
+    # Reject obs with satelliteZenithAngle > 68 deg
+    # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249.
+      maxvalue: 300.
+    test variables:
+    - name: MetaData/satelliteZenithAngle
+    maxvalue: 68.
+    action:
+      name: reject
+    # Reject obs with qualityInformationWithoutForecast < 90. OR > 100.
+    # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249.
+      maxvalue: 300.
+    test variables:
+    - name: MetaData/qualityInformationWithoutForecast
+    minvalue: 90.
+    maxvalue: 100.
+    action:
+      name: reject
+    # Reject obs with pressure < 15000.
+    # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249.
+      maxvalue: 300.
+    test variables:
+    - name: MetaData/pressure
+    minvalue: 15000.
+    action:
+      name: reject
+    # Reject obs with pressure < 70000. when Type=251
+    # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249.
+      maxvalue: 300.
+    - variable: ObsType/windEastward
+      is_in: 251
+    test variables:
+    - name: MetaData/pressure
+    minvalue: 70000.
+    action:
+      name: reject
+    # Reject obs with pressure > 30000. when Type=246
+    # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249.
+      maxvalue: 300.
+    - variable: ObsType/windEastward
+      is_in: 246
+    test variables:
+    - name: MetaData/pressure
+    maxvalue: 30000.
+    action:
+      name: reject
+    # Reject obs with pressure > 85000. when isli=1 (land surface)
+    # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249.
+      maxvalue: 300.
+    - variable: GeoVaLs/land_type_index_NPOESS
+      minvalue: 1.
+      maxvalue: 1.
+    test variables:
+    - name: MetaData/pressure
+    maxvalue: 85000.
+    action:
+      name: reject
+    # Reject obs with pct1 (Coeff. of Var.) outside of 0.04–0.5, Type [240,245,246,251] ONLY
+    # CLEARED
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/satelliteIdentifier
+      minvalue: 249.
+      maxvalue: 300.
+    - variable: ObsType/windEastward
+      is_in: 240,245,246,251
+    test variables:
+    - name: MetaData/coefficientOfVariation
+    minvalue: 0.04
+    maxvalue: 0.5
+    action:
+      name: reject
+  # NESDIS obs are also subject to the experr_norm test defined as:
+  #
+  # if (10. - 0.1*(expectedError))/(ob_speed)>0.9, or ob_speed<0.1, reject, applies to Types [240,245,246,247,251]
+  #
+  # This is not implemented in the YAML file because we do not have the capability to compute
+  # the norm, lacking the required math operators. Instead, this will likely have to be
+  # implemented as an ObsFunction like the SatWindsLNVDCheck test.
+  #
+  # setupw criteria
+  #
+    # Reject any ob Type [240–260] when pressure greater than 950 mb.
+    # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 240-260
+    test variables:
+    - name: MetaData/pressure
+    maxvalue: 95001.
+    action:
+      name: reject
+    # GOES IR (245) reject when pressure between 399 and 801 mb.
+    # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/pressure
+      minvalue: 39901.
+      maxvalue: 80099.
+    - variable: ObsType/windEastward
+      is_in: 245
+    action:
+      name: reject
+    # JMA IR (252) reject when pressure between 499 and 801 mb.
+    # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/pressure
+      minvalue: 49901.
+      maxvalue: 80099.
+    - variable: ObsType/windEastward
+      is_in: 252
+    action:
+      name: reject
+    # EUMETSAT IR (253) reject when pressure between 401 and 801 mb.
+    # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: MetaData/pressure
+      minvalue: 40101.
+      maxvalue: 80099.
+    - variable: ObsType/windEastward
+      is_in: 253
+    action:
+      name: reject
+    # GOES WV (246, 250, 254), reject when pressure greater than 399 mb.
+    # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 246, 250, 254
+    test variables:
+    - name: MetaData/pressure
+    maxvalue: 39900.
+    action:
+      name: reject
+    # EUMET (242) and JMA (243) vis, reject when pressure less than 700 mb.
+    # CLEARED: minvalue is rejecting <, not <= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 242, 243
+    test variables:
+    - name: MetaData/pressure
+    minvalue: 70000.
+    action:
+      name: reject
+    # MODIS-Aqua/Terra (257) and (259), reject when pressure less than 249 mb.
+    # CLEARED: minvalue is rejecting <, not <= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 257,259
+    test variables:
+    - name: MetaData/pressure
+    minvalue: 24900.
+    action:
+      name: reject
+    # MODIS-Aqua/Terra (258) and (259), reject when pressure greater than 600 mb.
+    # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+    # maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 258, 259
+    test variables:
+    - name: MetaData/pressure
+    maxvalue: 60000.
+    action:
+      name: reject
+    # Multiple satellite platforms, reject when pressure is more than 50 mb above tropopause.
+    # CLEARED: minvalue is rejecting <, not <= as per a Perform Action, so threshold is unchanged
+  - filter: Difference Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    reference: GeoVaLs/tropopause_pressure
+    value: MetaData/pressure
+    minvalue: -5000.                     # 50 hPa above tropopause level, negative p-diff
+    action:
+      name: reject
+    # GOES (247) reject any observation with a /=0 surface type (non-water
+    # surface) within 110 hPa of the surface pressure (as part of the LNVD
+    # check).
+    # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+  - filter: Difference Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable:
+        name: GeoVaLs/land_type_index_NPOESS
+      minvalue: 1.
+    - variable:
+        name: ObsType/windEastward
+      is_in: 247
+    reference: GeoVaLs/surface_pressure
+    value: MetaData/pressure
+    maxvalue: -11000.                     # within 110 hPa above surface pressure, negative p-diff
+    action:
+      name: reject
+    # AVHRR (244), MODIS (257,258,259), and VIIRS (260) reject any
+    # observation with a /=0 surface type (non-water surface) within
+    # 200 hPa of the surface pressure (as part of the LNVD check).
+    # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+  - filter: Difference Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable:
+        name: GeoVaLs/land_type_index_NPOESS
+      minvalue: 1.
+    - variable:
+        name: ObsType/windEastward
+      is_in: 244, 257-260
+    reference: GeoVaLs/surface_pressure
+    value: MetaData/pressure
+    maxvalue: -20000.                     # within 200 hPa above surface pressure, negative p-diff
+    action:
+      name: reject
+
+  # Observation Post Filters (QC)
+  # -----------------------------
+  obs post filters:
+    # Reject GOES (247) when difference of wind direction is more than 50 degrees.
+    # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 247
+    test variables:
+    - name: ObsFunction/WindDirAngleDiff
+    maxvalue: 50.
+    action:
+      name: reject
+    # AVHRR (244), MODIS (257,258,259), VIIRS (260), GOES (247) use a LNVD check.
+    # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 244, 247, 257-260
+    test variables:
+    - name: ObsFunction/SatWindsLNVDCheck
+    maxvalue: 3.
+    action:
+      name: reject
+    #
+    # All satwinds subject to a SPDB check (function may be broken?)
+    #   We are ignoring this filter for now, and will come back to
+    #   the issue of how to handle this SPDB check later. For now,
+    #   observations that are GSI-rejected based on this test are
+    #   not being considered when checking acceptance compliance.
+    #- filter: Bounds Check
+    #  filter variables:
+    #  - name: windEastward
+    #  - name: windNorthward
+    #  test variables:
+    #  - name: ObsFunction/SatWindsSPDBCheck
+    #    options:
+    #      error_min: 1.4
+    #      error_max: 20.0
+    #  maxvalue: 1.75
+    #  action:
+    #    name: reject
+    #  defer to post: true
+
+  # Linear Observation Operator
+  # ---------------------------
+  linear obs operator:
+    name: Identity
+
+
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atm_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0

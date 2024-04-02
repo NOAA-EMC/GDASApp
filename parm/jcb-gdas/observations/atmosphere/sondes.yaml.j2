@@ -1,0 +1,128 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: sondes
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}{{atm_obsdatain_suffix}}"
+      obsgrouping:
+        group variables: ["stationIdentification"]
+        sort variable: "pressure"
+        sort order: "descending"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atm_obsdataout_path}}/{{atm_obsdataout_prefix}}{{observation_from_jcb}}{{atm_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [stationPressure, airTemperature, windEastward, windNorthward,
+      specificHumidity]
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: Composite
+    components:
+    - name: VertInterp
+      variables:
+      - name: airTemperature
+      - name: windEastward
+      - name: windNorthward
+      - name: specificHumidity
+    - name: SfcPCorrected
+      da_psfc_scheme: GSI
+      geovar_sfc_geomz: surface_geopotential_height
+      geovar_geomz: geopotential_height
+      variables:
+      - name: stationPressure
+
+  # Linear Observation Operator
+  # ---------------------------
+  linear obs operator:
+    name: Composite
+    components:
+    - name: VertInterp
+      variables:
+      - name: airTemperature
+      - name: windEastward
+      - name: windNorthward
+      - name: specificHumidity
+    - name: Identity
+      variables:
+      - name: stationPressure
+
+  # Observation Filters (QC)
+  # ------------------------
+  obs filters:
+    #
+    # Reject all obs with PreQC mark already set above 3
+  - filter: PreQC
+    maxvalue: 3.0
+    action:
+      name: reject
+    #
+    # Observation Range Sanity Check
+  - filter: Bounds Check
+    filter variables:
+    - name: stationPressure
+    minvalue: 37499.0
+    maxvalue: 106999.0
+    action:
+      name: reject
+    #
+    # Assign obsError
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    action:
+      name: assign error
+      error parameter: 100.0       # 1.0 hPa
+    #
+    # Assign the initial observation error, based on height/pressure
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    action:
+      name: assign error
+      error function:
+        name: ObsErrorModelStepwiseLinear@ObsFunction
+        options:
+          xvar:
+            name: ObsValue/stationPressure
+          xvals: [80000.0, 75000.0]
+          errors: [110.0, 120.0]          # 1.1 mb below 800 mb and 1.2 mb agove 750 mb
+    #
+  - filter: Perform Action
+    filter variables:
+    - name: stationPressure
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsErrorFactorSfcPressure@ObsFunction
+        options:
+          error_min: 100.0           # 1 mb
+          error_max: 300.0           # 3 mb
+          geovar_geomz: geopotential_height
+          geovar_sfc_geomz: surface_geopotential_height
+    #
+    # Gross error check with (O - B) / ObsError greater than threshold
+  - filter: Background Check
+    filter variables:
+    - name: stationPressure
+    threshold: 3.6
+    absolute threshold: 990.0
+    action:
+      name: reject
+
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atm_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0

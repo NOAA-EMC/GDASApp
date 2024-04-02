@@ -1,0 +1,59 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: sondes
+    distribution:
+      name: Halo
+      halo size: 1250e3
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}{{atm_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atm_obsdataout_path}}/{{atm_obsdataout_prefix}}{{observation_from_jcb}}{{atm_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [windEastward, windNorthward, airTemperature]
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: VertInterp
+
+  # Observation Error
+  # -----------------
+  obs error:
+    covariance model: diagonal
+
+  # Observation Filters (QC)
+  # ------------------------
+  obs filters:
+  - filter: PreQC
+    maxvalue: 3
+  - filter: Background Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    - name: airTemperature
+    threshold: 2.0
+
+  # Observation Localizations (LocalEnsembleDA)
+  # -------------------------------------------
+  obs localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 1250e3
+    max nobs: 10000
+
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atm_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0

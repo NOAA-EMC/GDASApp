@@ -1,0 +1,135 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: ompstc_npp
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}{{atm_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atm_obsdataout_path}}/{{atm_obsdataout_prefix}}{{observation_from_jcb}}{{atm_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [ozoneTotal]
+
+  #obs operator:
+  #  name: AtmVertInterpLay
+  #  geovals: [mole_fraction_of_ozone_in_air]
+  #  coefficients: [0.007886131] # convert from ppmv to DU
+  #  nlevels: [1]
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: ColumnRetrieval
+    nlayers_retrieval: 1
+    tracer variables: [mole_fraction_of_ozone_in_air]
+    isApriori: false
+    isAveragingKernel: false
+    totalNoVertice: true
+    stretchVertices: topbottom # options: top, bottom, topbottom, none
+    model units coeff: 2.241398632746E-3
+
+  # Observation Pre Filters (QC)
+  # ----------------------------
+  obs pre filters:
+  - filter: Perform Action
+    filter variables:
+    - name: ozoneTotal
+    action:
+      name: assign error
+      error parameter: 6.0
+
+  # Observation Prior Filters (QC)
+  # ------------------------------
+  obs prior filters:
+  # GSI read routine QC
+  # range sanity check
+  - filter: Bounds Check
+    filter variables:
+    - name: ozoneTotal
+    minvalue: 0
+    maxvalue: 1000
+    action:
+      name: reject
+
+  #- filter: Gaussian Thinning
+  #  horizontal_mesh: 150
+  #  use_reduced_horizontal_grid: true
+  #  distance_norm: geodesic
+  #  action:
+  #    name: reject
+
+  # Accept total_ozone_error_flag values of 0 and 1, but not any others.
+  - filter: RejectList
+    filter variables:
+    - name: ozoneTotal
+    where:
+    - variable:
+        name: MetaData/totalOzoneQualityCode
+      is_not_in: 0, 1
+
+  - filter: RejectList
+    filter variables:
+    - name: ozoneTotal
+    where:
+    - variable:
+        name: MetaData/bestOzoneAlgorithmFlag
+      is_in: 3, 13
+
+  # GSI setup routine QC
+  - filter: RejectList
+    filter variables:
+    - name: ozoneTotal
+    where:
+    - variable:
+        name: MetaData/sensorScanPosition
+      is_in: 1, 2, 3, 4, 35
+    - variable:
+        name: MetaData/latitude
+      minvalue: 50.0
+
+  - filter: RejectList
+    filter variables:
+    - name: ozoneTotal
+    where:
+    - variable:
+        name: MetaData/sensorScanPosition
+      is_in: 1, 2, 3, 4, 35
+    - variable:
+        name: MetaData/latitude
+      maxvalue: -50.0
+
+  - filter: Gaussian Thinning
+    horizontal_mesh: 150
+    use_reduced_horizontal_grid: true
+    distance_norm: geodesic
+    action:
+      name: reject
+
+  # Observation Post Filters (QC)
+  # -----------------------------
+  obs post filters:
+  - filter: Background Check
+    filter variables:
+    - name: ozoneTotal
+    threshold: 10.0
+    absolute threshold: 300.0
+    action:
+      name: reject
+
+  # End of Filters
+
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atm_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0

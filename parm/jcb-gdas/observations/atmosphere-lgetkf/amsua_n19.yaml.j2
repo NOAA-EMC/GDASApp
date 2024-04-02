@@ -1,5 +1,9 @@
-- obs space:
-    name: AMSU-A NOAA-19
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: AMSUA N19
     distribution:
       name: Halo
       halo size: 1250e3
@@ -14,18 +18,27 @@
     io pool:
       max pool size: 1
     simulated variables: [brightnessTemperature]
-    channels: &{{observation_from_jcb}}_channels {{ get_satellite_simulated_channels(observation_from_jcb) }}
+    channels: &{{observation_from_jcb}}_simulated_channels {{ get_satellite_simulated_channels(observation_from_jcb) }}
+
+  # Observation Operator
+  # --------------------
   obs operator:
     name: CRTM
-    Absorbers: [H2O,O3]
+    Absorbers: [H2O, O3]
     Clouds: [Water, Ice]
     Cloud_Fraction: 1.0
     obs options:
-      Sensor_ID: {{observation_from_jcb}}
+      Sensor_ID: &{{observation_from_jcb}}_sensor_id amsua_n19
       EndianType: little_endian
-      CoefficientPath: ./crtm/
+      CoefficientPath: "{{crtm_coefficient_path}}"
+
+  # Observation Error
+  # -----------------
   obs error:
     covariance model: diagonal
+
+  # Observation Bias Correction (VarBC)
+  # -----------------------------------
   obs bias:
     input file: "{{atm_obsbiasin_path}}/{{atm_obsbiasin_prefix}}{{observation_from_jcb}}{{atm_obsbiasin_suffix}}"
     output file: "{{atm_obsbiasout_path}}/{{atm_obsbiasout_prefix}}{{observation_from_jcb}}{{atm_obsbiasout_suffix}}"
@@ -56,11 +69,14 @@
           ratio: 1.1
           ratio for small dataset: 2.0
       output file: "{{atm_obsbiasout_path}}/{{atm_obsbiascovout_prefix}}{{observation_from_jcb}}{{atm_obsbiascovout_suffix}}"
+
+  # Observation Filters (QC)
+  # ------------------------
   obs filters:
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
-      channels: *{{observation_from_jcb}}_channels
+      channels: *{{observation_from_jcb}}_simulated_channels
     minvalue: 100.0
     maxvalue: 500.0
     action:
@@ -69,11 +85,24 @@
   - filter: Background Check
     filter variables:
     - name: brightnessTemperature
-      channels: *{{observation_from_jcb}}_channels
+      channels: *{{observation_from_jcb}}_simulated_channels
     threshold: 3.0
     action:
       name: reject
+
+  # Observation Localizations (LocalEnsembleDA)
+  # -------------------------------------------
   obs localizations:
   - localization method: Horizontal Gaspari-Cohn
     lengthscale: 1250e3
     max nobs: 10000
+
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atm_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0

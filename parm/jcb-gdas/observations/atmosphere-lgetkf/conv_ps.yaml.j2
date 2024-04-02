@@ -1,5 +1,9 @@
-- obs space:
-    name: Surface Pressure
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: surface_ps
     distribution:
       name: Halo
       halo size: 1250e3
@@ -15,6 +19,8 @@
       max pool size: 1
     simulated variables: [stationPressure]
 
+  # Observation Operator
+  # --------------------
   obs operator:
     name: SfcPCorrected
     variables:
@@ -24,13 +30,17 @@
     geovar_sfc_geomz: surface_altitude
     geovar_geomz: geopotential_height
 
+  # Linear Observation Operator
+  # ---------------------------
   linear obs operator:
     name: Identity
     variables:
     - name: stationPressure
 
+  # Observation Prior Filters (QC)
+  # ------------------------------
   obs prior filters:
-  # Initial Error Assignments for SFC Observations
+  # Initial Error Assignments for SFC Observations 
   - filter: Perform Action
     filter variables:
     - name: stationPressure
@@ -45,9 +55,8 @@
           round_to_the_nearest_integer: true
           xvar:
             name: ObsValue/stationPressure
-          xvals:  [80000, 75000, 70000, 65000, 60000, 55000  ]
-          errors: [110,    120,    120,   120,   120, 1.0e+11]
-
+          xvals: [80000, 75000, 70000, 65000, 60000, 55000]
+          errors: [110, 120, 120, 120, 120, 1.0e+11]
   - filter: Perform Action
     filter variables:
     - name: stationPressure
@@ -62,10 +71,9 @@
           round_to_the_nearest_integer: true
           xvar:
             name: ObsValue/stationPressure
-          xvals:  [85000, 80000, 75000, 70000, 65000, 60000, 55000  ]
-          errors: [  120,   140,   140,   140,   140,   140, 1.0e+11]
-
-  # Initial Error Assignments for SFCSHIP Observations
+          xvals: [85000, 80000, 75000, 70000, 65000, 60000, 55000]
+          errors: [120, 140, 140, 140, 140, 140, 1.0e+11]
+  # Initial Error Assignments for SFCSHIP Observations 
   - filter: Perform Action
     filter variables:
     - name: stationPressure
@@ -80,9 +88,8 @@
           round_to_the_nearest_integer: true
           xvar:
             name: ObsValue/stationPressure
-          xvals:  [60000, 55000  ]
-          errors: [  130, 1.0e+11]
-
+          xvals: [60000, 55000]
+          errors: [130, 1.0e+11]
   - filter: Perform Action
     filter variables:
     - name: stationPressure
@@ -108,9 +115,8 @@
           round_to_the_nearest_integer: true
           xvar:
             name: ObsValue/stationPressure
-          xvals:  [80000, 75000, 70000, 65000, 60000, 55000  ]
-          errors: [  110,   120,   120,   120,   120, 1.0e+11]
-
+          xvals: [80000, 75000, 70000, 65000, 60000, 55000]
+          errors: [110, 120, 120, 120, 120, 1.0e+11]
   # Create PreQC group variable (pqm in GSI read_prepbufr)
   - filter: Variable Assignment
     assignments:
@@ -118,7 +124,7 @@
       type: float
       source variable: ObsErrorData/stationPressure
 
-  # Set observation quality-realted variables
+  # Set observation quality-realted variables 
   # Create PreQC group variable (pqm in GSI read_prepbufr)
   - filter: Variable Assignment
     assignments:
@@ -155,10 +161,10 @@
   - filter: Variable Assignment
     where:
     - variable:
-        name:  ObsValue/stationPressure
+        name: ObsValue/stationPressure
       is_defined:
     - variable:
-        name:  ObsValue/stationPressure
+        name: ObsValue/stationPressure
       maxvalue: 50000.00
     where operator: and
     assignments:
@@ -191,28 +197,24 @@
   #  maxvalue: 106999.0
   #  action:
   #    name: reject
-
   ## Reject all ObsType 183
   #- filter: RejectList
   #  where:
   #  - variable:
   #      name: ObsType/stationPressure
   #    is_in: 183
-
-  ## Reject surface pressure below 500 hPa
+  ## Reject surface pressure below 500 hPa 
   #- filter: Bounds Check
   #  filter variables:
   #  - name: stationPressure
   #  minvalue: 50000.00
   #  action:
   #    name: reject
-
   #- filter: RejectList
   #  where:
   #  - variable:
   #      name: PreQC/stationPressure
   #    is_in: 4-15
-
   # Inflate obs error based on obs type
   - filter: Perform Action
     filter variables:
@@ -224,6 +226,8 @@
       name: inflate error
       inflation factor: 1.2
 
+  # Observation Post Filters (QC)
+  # -----------------------------
   obs post filters:
   # Calculate obs error inflation factors for duplicated observations at the same location
   - filter: Variable Assignment
@@ -237,7 +241,7 @@
           variable: stationPressure
 
   # Reduce effective observation error based on obs type and subtype
-  # In this case: reduce effective obs error for buoy
+  # In this case: reduce effective obs error for buoy  
   - filter: Perform Action
     filter variables:
     - name: stationPressure
@@ -252,7 +256,7 @@
       name: inflate error
       inflation factor: 0.7
 
-  # Calculate obs error inflation factors for large discrepancies between model and observations
+  # Calculate obs error inflation factors for large discrepancies between model and observations 
   - filter: Variable Assignment
     assignments:
     - name: ObsErrorFactorSfcPressure/stationPressure
@@ -285,7 +289,6 @@
           - name: ObsValue/stationPressure
           - name: HofX/stationPressure
           coefs: [1, -1]
-
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/ObsErrorBoundSfcPressure1
@@ -341,7 +344,7 @@
       inflation variable:
         name: ObsErrorFactorDuplicateCheck/stationPressure
 
-  # Reject data based on PreUseFlag (usage in GSI)
+  # Reject data based on PreUseFlag (usage in GSI) 
   - filter: Perform Action
     filter variables:
     - name: stationPressure
@@ -350,8 +353,21 @@
       is_not_in: 0, 1
     action:
       name: reject
-  # End of Filters
+  # End of Filters 
+
+  # Observation Localizations (LocalEnsembleDA)
+  # -------------------------------------------
   obs localizations:
   - localization method: Horizontal Gaspari-Cohn
     lengthscale: 1250e3
     max nobs: 10000
+
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atm_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0

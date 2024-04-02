@@ -1,0 +1,40 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: sfc
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}{{atm_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atm_obsdataout_path}}/{{atm_obsdataout_prefix}}{{observation_from_jcb}}{{atm_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [stationPressure]
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: SfcPCorrected
+    da_psfc_scheme: GSI
+    geovar_sfc_geomz: surface_geometric_height
+    geovar_geomz: geopotential_height
+
+  # Linear Observation Operator
+  # ---------------------------
+  linear obs operator:
+    name: Identity
+
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atm_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0
