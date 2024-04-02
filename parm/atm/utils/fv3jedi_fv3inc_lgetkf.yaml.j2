@@ -1,0 +1,64 @@
+variable change:
+  variable change name: Model2GeoVaLs
+  input variables: &inputvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,phis]
+  output variables: [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,hydrostatic_delz]
+increment variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
+background geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ layout_x }}
+  - {{ layout_y }}
+  npx: {{ npx_ges }}
+  npy: {{ npy_ges }}
+  npz: {{ npz_ges }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+jedi increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ layout_x }}
+  - {{ layout_y }}
+  npx: {{ npx_ges }}
+  npy: {{ npy_ges }}
+  npz: {{ npz_ges }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+fv3 increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ layout_x }}
+  - {{ layout_y }}
+  npx: {{ npx_ges }}
+  npy: {{ npy_ges }}
+  npz: {{ npz_ges }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
+members from template:
+  template:
+    background input:
+      datapath: ./bkg/mem%mem%
+      filetype: fms restart
+      datetime: '{{ current_cycle | to_isotime }}'
+      filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
+      filename_trcr: '{{ current_cycle | to_fv3time }}.fv_tracer.res.nc'
+      filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
+      filename_sfcw: '{{ current_cycle | to_fv3time }}.fv_srf_wnd.res.nc'
+      filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
+      state variables: *inputvars
+    jedi increment input:
+      filetype: cube sphere history
+      filename: ./anl/mem%mem%/atminc.{{ current_cycle | to_fv3time }}.nc4
+      provider: ufs
+    fv3 increment output:
+      filetype: auxgrid
+      gridtype: gaussian
+      filename: ./anl/mem%mem%/atminc.
+  pattern: '%mem%'
+  nmembers: {{ NMEM_ENS }}
+  zero padding: 3    
