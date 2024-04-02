@@ -110,7 +110,7 @@ namespace gdasapp {
         // Setup JEDI increment
         fv3jedi::Increment dx(jediIncrGeom, jediIncrVarin, xxBkg.validTime());
         dx.read(jediIncrInputConfig);
-        oops::Log::test() << "JEDI Increment: " << std::endl << dx << std::endl; 
+        oops::Log::test() << "JEDI Increment: " << std::endl << dx << std::endl;
 
         // Increment conversion
         // ----------------------------------------------------------------------------
