@@ -45,56 +45,66 @@ namespace gdasapp {
    * This approach allows for an ensemble-free estimate of a flow-dependent background error.
    */
 
-  void stdDevFilt(const int level,
-                  const int nbz,
-                  const std::vector<int> neighbors,
-                  const int nzMld,
-                  double stdDev) {
-
-    std::vector<double> local;
-    for (int nn = 0; nn < neighbors.size(); ++nn) {
-      int levelMin = std::max(0, level - nbz);
-      int levelMax = level + nbz;
-      if (level < nzMld) {
-        // If in the MLD, compute the std. dev. throughout the MLD
-        levelMin = 0;
-        levelMax = 1; //nzMld;
-      }
-      for (int ll = levelMin; ll <= levelMax; ++ll) {
-        if ( abs(h(neighbors[nn], ll)) <= 0.1 ) {
-          continue;
-        }
-        local.push_back(bkg(neighbors[nn], ll));
-      }
-    }
-    //Set the minimum number of points
-    int minn = 6;  /// probably should be passed through the config
-    if (local.size() >= minn) {
-      // Mean
-      double mean = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
-
-      // Standard deviation
-      double stdDev(0.0);
-      for (int nn = 0; nn < nbh; ++nn) {
-        stdDev += std::pow(local[nn] - mean, 2.0);
-      }
-      // Setup the additive variance (only used ofr sst)
-      double additiveStdDev(0.0);
-      if (var == "tocn" & level == 0) {
-        additiveStdDev = sstBkgErrMin;
-      }
-      if (stdDev > 0.0 || local.size() > 2) {
-        stdDevBkg(jnode, level)  = std::sqrt(stdDev / (local.size() - 1)) + additiveStdDev;
-      }
-    }
-  }
-
+  // -----------------------------------------------------------------------------
   class DiagB : public oops::Application {
    public:
     explicit DiagB(const eckit::mpi::Comm & comm = oops::mpi::world())
       : Application(comm) {}
     static const std::string classname() {return "gdasapp::DiagB";}
 
+    // -----------------------------------------------------------------------------
+    void stdDevFilt(const int jnode,
+                    const int level,
+                    const int nbz,
+                    const double depthMin,
+                    const std::vector<int> neighbors,
+                    const int nzMld,
+                    const atlas::array::ArrayView<double, 2> h,
+                    const atlas::array::ArrayView<double, 2> bkg,
+                    const atlas::array::ArrayView<double, 2> bathy,
+                    atlas::array::ArrayView<double, 2>& stdDevBkg) const {
+
+      // Early exit if too shallow
+      if ( bathy(jnode, 0) < depthMin ) {
+        stdDevBkg(jnode, level) = 0.0;
+        return;
+      }
+
+      int nbh = neighbors.size();
+      std::vector<double> local;
+      for (int nn = 0; nn < neighbors.size(); ++nn) {
+        int levelMin = std::max(0, level - nbz);
+        int levelMax = level + nbz;
+        if (level < nzMld) {
+          // If in the MLD, compute the std. dev. throughout the MLD
+          levelMin = 0;
+          levelMax = 1; //nzMld;
+        }
+        for (int ll = levelMin; ll <= levelMax; ++ll) {
+          if ( abs(h(neighbors[nn], ll)) <= 0.1 ) {
+            continue;
+          }
+          local.push_back(bkg(neighbors[nn], ll));
+        }
+      }
+      //Set the minimum number of points
+      int minn = 6;  /// probably should be passed through the config
+      if (local.size() >= minn) {
+        // Mean
+        double mean = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
+
+        // Standard deviation
+        double stdDev(0.0);
+        for (int nn = 0; nn < nbh; ++nn) {
+          stdDev += std::pow(local[nn] - mean, 2.0);
+        }
+        if (stdDev > 0.0 || local.size() > 2) {
+          stdDevBkg(jnode, level)  = std::sqrt(stdDev / (local.size() - 1));
+        }
+      }
+    }
+
+    // -----------------------------------------------------------------------------
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
       /// Setup the soca geometry
       oops::Log::info() << "====================== geometry" << std::endl;
@@ -127,6 +137,7 @@ namespace gdasapp {
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
       // Build edges, then connections between nodes and edges
+      oops::Log::info() << "====================== build mesh connectivity" << std::endl;
       int nbHalos(2);
       fullConfig.get("number of halo points", nbHalos);
       int nbNeighbors(4);
@@ -165,11 +176,13 @@ namespace gdasapp {
 
       /// Compute local std. dev. as a proxy of the bkg error
       // ----------------------------------------------------
+      oops::Log::info() << "====================== start variance partitioning" << std::endl;
       // Identify halo nodes
       const auto ghostView =
         atlas::array::make_view<int, 1>(geom.functionSpace().ghost());
 
       // Create the background error fieldset
+      oops::Log::info() << "====================== allocate std. dev. field set" << std::endl;
       soca::Increment bkgErr(geom, socaVars, cycleDate);
       bkgErr.zero();
       atlas::FieldSet bkgErrFs;
@@ -183,16 +196,32 @@ namespace gdasapp {
       double sshMax(0.0);
       fullConfig.get("max ssh", sshMax);
 
-      // Get the layer thicknesses and convert to depth
+      // Get the minimum depth for which to partition the 3D field's std. dev.
+      double depthMin(0.0);
+      fullConfig.get("min depth", depthMin);
+
+      // Get the layer thicknesses and convert to layer depth
+      oops::Log::info() << "====================== calculate layer depth" << std::endl;
       auto h = atlas::array::make_view<double, 2>(xbFs["hocn"]);
       atlas::array::ArrayT<double> depth(h.shape(0), h.shape(1));
       auto viewDepth = atlas::array::make_view<double, 2>(depth);
-
-      for (atlas::idx_t jnode = 0; jnode < h.shape(0); ++jnode) {
+      oops::Log::info() << depth.shape() << std::endl;
+      oops::Log::info() << viewDepth.shape(0) << "-" << viewDepth.shape(1) << std::endl;
+      for (atlas::idx_t jnode = 0; jnode < depth.shape(0); ++jnode) {
         viewDepth(jnode, 0) = 0.5 * h(jnode, 0);
-        for (atlas::idx_t level = 1; level < h.shape(1); ++level) {
+        for (atlas::idx_t level = 1; level < depth.shape(1); ++level) {
           viewDepth(jnode, level) = viewDepth(jnode, level-1) +
             0.5 * (h(jnode, level-1 ) + h(jnode, level));
+        }
+      }
+
+      // Compute the bathymetry
+      oops::Log::info() << "====================== calculate bathymetry" << std::endl;
+      atlas::array::ArrayT<double> bathy(h.shape(0), 1);
+      auto viewBathy = atlas::array::make_view<double, 2>(bathy);
+      for (atlas::idx_t jnode = 0; jnode < h.shape(0); ++jnode) {
+        for (atlas::idx_t level = 0; level < h.shape(1); ++level) {
+          viewBathy(jnode, 0) += h(jnode, level);
         }
       }
 
@@ -266,45 +295,12 @@ namespace gdasapp {
             int nbz = 1;  // Number of closest point in the vertical, above and below
             int nzMld = std::max(10, viewMldindex(jnode, 0));
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1) - nbz; ++level) {
-              std::vector<double> local;
-              for (int nn = 0; nn < neighbors.size(); ++nn) {
-                int levelMin = std::max(0, level - nbz);
-                int levelMax = level + nbz;
-                if (level < nzMld) {
-                  // If in the MLD, compute the std. dev. throughout the MLD
-                  levelMin = 0;
-                  levelMax = 1; //nzMld;
-                }
-                for (int ll = levelMin; ll <= levelMax; ++ll) {
-                  if ( abs(h(neighbors[nn], ll)) <= 0.1 ) {
-                    continue;
-                  }
-                  local.push_back(bkg(neighbors[nn], ll));
-                }
-              }
-              //Set the minimum number of points
-              int minn = 6;  /// probably should be passed through the config
-              if (local.size() >= minn) {
-                // Mean
-                double mean = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
-
-                // Standard deviation
-                double stdDev(0.0);
-                for (int nn = 0; nn < nbh; ++nn) {
-                  stdDev += std::pow(local[nn] - mean, 2.0);
-                }
-                // Setup the additive variance (only used ofr sst)
-                double additiveStdDev(0.0);
-                if (var == "tocn" & level == 0) {
-                    additiveStdDev = sstBkgErrMin;
-                  }
-                if (stdDev > 0.0 || local.size() > 2) {
-                  stdDevBkg(jnode, level)  = std::sqrt(stdDev / (local.size() - 1)) + additiveStdDev;
-                }
-              }
-            }  // end level
+              // Std. dev. of the partition
+              stdDevFilt(jnode, level, nbz, depthMin, neighbors, nzMld, h, bkg, viewBathy, stdDevBkg);
+            }
           }  // end 3D case
         }  // end jnode
+        this->getComm().barrier();
       }  // end var
 
       // TODO(G): Assume that the steric balance explains 97% of ssh ... or do it properly ... maybe
@@ -403,6 +399,7 @@ namespace gdasapp {
         diffuse.multiply(dx);
         bkgErrFs = dx.fieldSet();
       }
+      this->getComm().barrier();
 
       // Rescale
       double rescale;
@@ -420,11 +417,10 @@ namespace gdasapp {
     }
 
     // -----------------------------------------------------------------------------
-   private:
+  private:
     std::string appname() const {
       return "gdasapp::DiagB";
     }
     // -----------------------------------------------------------------------------
   };
-
 }  // namespace gdasapp
