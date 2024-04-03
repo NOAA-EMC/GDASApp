@@ -46,10 +46,76 @@ namespace gdasapp {
    */
 
   // -----------------------------------------------------------------------------
+  // Since we can't have useful data members in DiagB because execute is "const"
+  // and the constructor does not know about the configuration, 
+  // we're going around the issue with the use of a simple data structure 
+  struct DiagBConfig {
+    util::DateTime cycleDate;
+    oops::Variables socaVars;
+    double sshMax;         // poor man's alternative to limiting the unbalanced ssh variance
+    double depthMin;       // set the bkg error to 0 for depth < depthMin
+    bool diffusion;        // apply explicit diffusion to the std. dev. fields
+    bool simpleSmoothing;  // Simple spatial averaging
+    int niter;             // number of iterations for the horizontal averaging 
+    int niterVert;         // number of iterations for the vertical averaging 
+    double rescale;        // inflation/deflation of the variance after filtering
+  };
+
+  // -----------------------------------------------------------------------------
   class DiagB : public oops::Application {
-   public:
+  public:
+    // -----------------------------------------------------------------------------
     explicit DiagB(const eckit::mpi::Comm & comm = oops::mpi::world())
-      : Application(comm) {}
+      : Application(comm) {
+    }
+
+    // -----------------------------------------------------------------------------
+    DiagBConfig setup(const eckit::Configuration & fullConfig) const {
+
+      DiagBConfig diagBConfig;
+
+      /// Get the date
+      // -------------
+      oops::Log::info() << "====================== date" << std::endl;
+      std::string strdt;
+      fullConfig.get("date", strdt);
+      diagBConfig.cycleDate = util::DateTime(strdt);
+
+      /// Get the list of variables
+      // --------------------------
+      oops::Log::info() << "====================== variables" << std::endl;
+      oops::Variables vars(fullConfig, "variables.name");
+      diagBConfig.socaVars = vars;
+
+      // Get the max std dev for ssh
+      diagBConfig.sshMax = 0.0;
+      fullConfig.get("max ssh", diagBConfig.sshMax);
+
+      // Get the minimum depth for which to partition the 3D field's std. dev.
+      diagBConfig.depthMin = 0.0;
+      fullConfig.get("min depth", diagBConfig.depthMin);
+
+      // Explicit diffusion
+      diagBConfig.diffusion = false;
+      if (fullConfig.has("diffusion")) {
+	diagBConfig.diffusion = true;
+      }
+
+      // Simple smoothing parameters
+      diagBConfig.simpleSmoothing = false;
+      if (fullConfig.has("simple smoothing")) {
+	diagBConfig.simpleSmoothing = true;
+        fullConfig.get("simple smoothing.horizontal iterations", diagBConfig.niter);
+	fullConfig.get("simple smoothing.vertical iterations", diagBConfig.niterVert);
+      }
+
+      // Variance rescaling
+      fullConfig.get("rescale", diagBConfig.rescale);
+
+      return diagBConfig;
+    }
+
+    // -----------------------------------------------------------------------------
     static const std::string classname() {return "gdasapp::DiagB";}
 
     // -----------------------------------------------------------------------------
@@ -63,10 +129,10 @@ namespace gdasapp {
                     const atlas::array::ArrayView<double, 2> bkg,
                     const atlas::array::ArrayView<double, 2> bathy,
                     atlas::array::ArrayView<double, 2>& stdDevBkg,
-		    bool doBathy = true) const {
+		    bool doBathy = true,
+		    int minn = 6) const {
       
-      // Early exit if too shallow
-      
+      // Early exit if too shallow      
       if ( doBathy & bathy(jnode, 0) < depthMin ) {
         stdDevBkg(jnode, level) = 0.0;
         return;
@@ -77,11 +143,17 @@ namespace gdasapp {
       for (int nn = 0; nn < neighbors.size(); ++nn) {
         int levelMin = std::max(0, level - nbz);
         int levelMax = level + nbz;
+	// Do weird things withing the MLD
         if (level < nzMld) {
           // If in the MLD, compute the std. dev. throughout the MLD
           levelMin = 0;
           levelMax = 1; //nzMld; Projecting the surface variance down the water column for now
         }
+	// 2D case
+        if (bkg.shape(1) == 1) {
+          levelMin = 0;
+          levelMax = 0; //nzMld; Projecting the surface variance down the water column for now
+	}
         for (int ll = levelMin; ll <= levelMax; ++ll) {
           if ( abs(h(neighbors[nn], ll)) <= 0.1 ) {
             continue;
@@ -89,8 +161,6 @@ namespace gdasapp {
           local.push_back(bkg(neighbors[nn], ll));
         }
       }
-      //Set the minimum number of points
-      int minn = 6;  /// probably should be passed through the config
       if (local.size() >= minn) {
         // Mean
         double mean = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
@@ -108,27 +178,19 @@ namespace gdasapp {
 
     // -----------------------------------------------------------------------------
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
+
+      /// Initialize the paramters for D 
+      DiagBConfig configD = setup(fullConfig);
+
       /// Setup the soca geometry
       oops::Log::info() << "====================== geometry" << std::endl;
       const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");
       const soca::Geometry geom(geomConfig, this->getComm());
 
-      oops::Log::info() << "====================== date" << std::endl;
-      /// Get the date
-      // -------------
-      std::string strdt;
-      fullConfig.get("date", strdt);
-      util::DateTime cycleDate = util::DateTime(strdt);
-
-      /// Get the list of variables
-      // --------------------------
-      oops::Log::info() << "====================== variables" << std::endl;
-      oops::Variables socaVars(fullConfig, "variables.name");
-
       /// Read the background
       // --------------------
       oops::Log::info() << "====================== read bkg" << std::endl;
-      soca::State xb(geom, socaVars, cycleDate);
+      soca::State xb(geom, configD.socaVars, configD.cycleDate);
       const eckit::LocalConfiguration bkgConfig(fullConfig, "background");
       xb.read(bkgConfig);
       atlas::FieldSet xbFs;
@@ -185,22 +247,10 @@ namespace gdasapp {
 
       // Create the background error fieldset
       oops::Log::info() << "====================== allocate std. dev. field set" << std::endl;
-      soca::Increment bkgErr(geom, socaVars, cycleDate);
+      soca::Increment bkgErr(geom, configD.socaVars, configD.cycleDate);
       bkgErr.zero();
       atlas::FieldSet bkgErrFs;
       bkgErr.toFieldSet(bkgErrFs);
-
-      // Get the std dev to add to sst
-      double sstBkgErrMin(0.0);
-      fullConfig.get("min sst", sstBkgErrMin);
-
-      // Get the max std dev for ssh
-      double sshMax(0.0);
-      fullConfig.get("max ssh", sshMax);
-
-      // Get the minimum depth for which to partition the 3D field's std. dev.
-      double depthMin(0.0);
-      fullConfig.get("min depth", depthMin);
 
       // Get the layer thicknesses and convert to layer depth
       oops::Log::info() << "====================== calculate layer depth" << std::endl;
@@ -245,7 +295,7 @@ namespace gdasapp {
       nodeColumns.haloExchange(xbFs["hocn"]);
 
       // Loop through variables
-      for (auto & var : socaVars.variables()) {
+      for (auto & var : configD.socaVars.variables()) {
 	// Update the halo
 	nodeColumns.haloExchange(xbFs[var]);
 
@@ -264,67 +314,42 @@ namespace gdasapp {
             continue;
           }
 
-          // get indices of neighbor cells
+          // get indices of the cell's neighbors
           auto neighbors = get_neighbors_of_node(jnode);
-          int nbh = neighbors.size();
 
-          // 2D case
+          // 2D case 
           if (xbFs[var].shape(1) == 1) {
-            std::vector<double> local;
-            for (int nn = 0; nn < neighbors.size(); ++nn) {
-              if ( abs(viewHocn(neighbors[nn], 0)) <= 0.1 ) {
-                continue;
-              }
-              local.push_back(bkg(neighbors[nn], 0));
-            }
-            //Set the minimum number of points
-            int minn = 4;  /// probably should be passed through the config
-            if (local.size() >= minn) {
-              // Mean
-              double mean = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
-              // Standard deviation
-              double stdDev(0.0);
-              for (int nn = 0; nn < nbh; ++nn) {
-                stdDev += std::pow(local[nn] - mean, 2.0);
-              }
-
-              if (stdDev > 0.0 || local.size() > 2) {
-                stdDevBkg(jnode, 0)  = std::sqrt(stdDev / (local.size() - 1));
-              }
-              // Filter out ssh std. dev.
-              if (var == "ssh") {
-                stdDevBkg(jnode, 0) = std::min(stdDevBkg(jnode, 0), sshMax);
-              }
-            }
-            continue;  // early exit, no need to loop through levels
+	    // Std. dev. of the partition
+	    stdDevFilt(jnode, 0, 0, 
+		       configD.depthMin, neighbors, 0, viewHocn, bkg, viewBathy, stdDevBkg, false, 4);
+	    if (var == "ssh") {
+	      // TODO(G): Extract the unbalanced ssh variance, in the mean time, do this:
+	      stdDevBkg(jnode, 0) = std::min(configD.sshMax, stdDevBkg(jnode, 0));
+	    }      
           } else {
             // 3D case
             int nbz = 1;  // Number of closest point in the vertical, above and below
             int nzMld = std::max(10, viewMldindex(jnode, 0));
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1) - nbz; ++level) {
               // Std. dev. of the partition
-              stdDevFilt(jnode, level, nbz, depthMin, neighbors, nzMld, viewHocn, bkg, viewBathy, stdDevBkg);
+              stdDevFilt(jnode, level, nbz, 
+			 configD.depthMin, neighbors, nzMld, viewHocn, bkg, viewBathy, stdDevBkg, true, 6);
             }
           }  // end 3D case
         }  // end jnode
       }  // end var
 
-      // TODO(G): Assume that the steric balance explains 97% of ssh ... or do it properly ... maybe
-
-
       /// Smooth the fields
       // ------------------
-      if (fullConfig.has("simple smoothing")) {
-        int niter(0);
-        fullConfig.get("simple smoothing.horizontal iterations", niter);
-        for (auto & var : socaVars.variables()) {
+      if (configD.simpleSmoothing) {
+        for (auto & var : configD.socaVars.variables()) {
           // Skip the layer thickness variable
           if (var == "hocn") {
             continue;
           }
 
           // Horizontal averaging
-          for (int iter = 0; iter < niter; ++iter) {
+          for (int iter = 0; iter < configD.niter; ++iter) {
 
             // Update the halo points
             nodeColumns.haloExchange(bkgErrFs[var]);
@@ -366,12 +391,9 @@ namespace gdasapp {
           if (xbFs[var].shape(1) == 1) {
             oops::Log::info() << "skipping vertical smoothing for " << var << std::endl;
           } else {
-            int niterVert(0);
-            fullConfig.get("simple smoothing.vertical iterations", niterVert);
-
             auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
             auto tmpArray(stdDevBkg);
-            for (int iter = 0; iter < niterVert; ++iter) {
+            for (int iter = 0; iter < configD.niterVert; ++iter) {
               for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
                 for (atlas::idx_t level = 1; level < xbFs[var].shape(1)-1; ++level) {
                   stdDevBkg(jnode, level) = ( tmpArray(jnode, level-1) +
@@ -395,21 +417,19 @@ namespace gdasapp {
         soca::ExplicitDiffusionParameters params;
         params.deserialize(diffusionConfig);
         oops::GeometryData geometryData(geom.functionSpace(), bkgErrFs["tocn"], true, this->getComm());
-        const oops::FieldSet3D dumyXb(cycleDate, this->getComm());
-        soca::ExplicitDiffusion diffuse(geometryData, socaVars, diffusionConfig, params, dumyXb, dumyXb);
+        const oops::FieldSet3D dumyXb(configD.cycleDate, this->getComm());
+        soca::ExplicitDiffusion diffuse(geometryData, configD.socaVars, diffusionConfig, params, dumyXb, dumyXb);
         diffuse.read();
 
         // Smooth the field
-        oops::FieldSet3D dx(cycleDate, this->getComm());
+        oops::FieldSet3D dx(configD.cycleDate, this->getComm());
         dx.deepCopy(bkgErrFs);
         diffuse.multiply(dx);
         bkgErrFs = dx.fieldSet();
       }
 
       // Rescale
-      double rescale;
-      fullConfig.get("rescale", rescale);
-      util::multiplyFieldSet(bkgErrFs, rescale);
+      util::multiplyFieldSet(bkgErrFs, configD.rescale);
 
       // We want to write with soca, not atlas: Syncronize with soca Increment
       bkgErr.fromFieldSet(bkgErrFs);
@@ -422,10 +442,13 @@ namespace gdasapp {
     }
 
     // -----------------------------------------------------------------------------
+
   private:
     std::string appname() const {
       return "gdasapp::DiagB";
     }
+
     // -----------------------------------------------------------------------------
+
   };
 }  // namespace gdasapp

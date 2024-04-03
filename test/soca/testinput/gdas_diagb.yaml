@@ -19,3 +19,43 @@ background error:
 
 variables:
   name: [tocn, socn, uocn, vocn, hocn, ssh, cicen, hicen, hsnon]
+
+rescale: 2.0
+min sst: 0.0
+max ssh: 0.0
+min depth: 300.0
+number of halo points: 4
+number of neighbors: 16
+
+simple smoothing:
+  horizontal iterations: 1
+  vertical iterations: 1
+
+#diffusion:
+#   saber block name: EXPLICIT_DIFFUSION
+#   active variables: [tocn, socn, ssh, cicen, hicen, hsnon]
+#   geometry:
+#     mom6_input_nml: mom_input.nml
+#     fields metadata: ./fields_metadata.yaml
+#   group mapping:
+#   - name: ocean
+#     variables:
+#     - tocn
+#     - socn
+#     - ssh
+#   - name: ice
+#     variables:
+#     - cicen
+#     - hicen
+#     - hsnon
+#   read:
+#     groups:
+#     - name: ocean
+#       horizontal:
+#         filename: hz_ocean.nc
+#       vertical:
+#         filename: vt_ocean.nc
+#     - name: ice
+#       horizontal:
+#         filename: hz_ice.nc
+
