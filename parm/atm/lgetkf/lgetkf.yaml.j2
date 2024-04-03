@@ -9,7 +9,7 @@ geometry:
   npx: {{ npx_ges }}
   npy: {{ npy_ges }}
   npz: {{ npz_ges }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 time window:
   begin: '{{ ATM_WINDOW_BEGIN | to_isotime }}'
   length: '{{ ATM_WINDOW_LENGTH }}'
@@ -67,10 +67,6 @@ local ensemble DA:
 #  filename: ./mem%{member}%/atmanl.
 
 output ensemble increments:
-  filetype: cube sphere history
-  filename: ./anl/mem%{member}%/atminc.{{ current_cycle | to_fv3time }}.nc4
-  provider: ufs
-  fields to write: [ugrd,vgrd,tmp,pressfc,spfh,icmr,clwmr,o3mr]
-#  filetype: auxgrid
-#  gridtype: gaussian
-#  filename: ./anl/mem%{member}%/atminc.
+  filetype: auxgrid
+  gridtype: gaussian
+  filename: ./anl/mem%{member}%/atminc.
