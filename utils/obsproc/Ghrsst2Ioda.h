@@ -30,7 +30,7 @@ namespace gdasapp {
       oops::Log::info() << "Processing files provided by GHRSST" << std::endl;
 
       // Get the sst bounds from the configuration
-      float sstMin; 
+      float sstMin;
       fullConfig_.get("bounds.min", sstMin);
       float sstMax;
       fullConfig_.get("bounds.max", sstMax);
