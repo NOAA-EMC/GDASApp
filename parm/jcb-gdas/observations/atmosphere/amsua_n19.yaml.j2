@@ -335,7 +335,7 @@
       options:
         channels: *{{observation_from_jcb}}_simulated_channels
         sensor: *{{observation_from_jcb}}_sensor_id
-        use_flag: &{{observation_from_jcb}}_active_channels {{ get_satellite_variable(observation_from_jcb, "active") }}
+        use_flag: &{{observation_from_jcb}}_active_channels [{{ get_satellite_variable(observation_from_jcb, "active") }}]
     maxvalue: 1.0e-12
     action:
       name: reject
