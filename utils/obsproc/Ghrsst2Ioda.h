@@ -30,9 +30,7 @@ namespace gdasapp {
       oops::Log::info() << "Processing files provided by GHRSST" << std::endl;
 
       // Get the sst bounds from the configuration
-      std::string sstUnits;
-      fullConfig_.get("bounds.units", sstUnits);
-      float sstMin;
+      float sstMin; 
       fullConfig_.get("bounds.min", sstMin);
       float sstMax;
       fullConfig_.get("bounds.max", sstMax);
@@ -213,7 +211,7 @@ namespace gdasapp {
 
       // Basic QC
       Eigen::Array<bool, Eigen::Dynamic, 1> boundsCheck =
-        (iodaVars.obsVal_ > sstMin && iodaVars.obsVal_ < sstMax && iodaVars.datetime_ > 0);
+        (iodaVars.obsVal_ > sstMin && iodaVars.obsVal_ < sstMax && iodaVars.datetime_ > 0.0);
       iodaVars.trim(boundsCheck);
 
       return iodaVars;
