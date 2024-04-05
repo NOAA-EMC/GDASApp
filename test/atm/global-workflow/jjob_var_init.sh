@@ -61,8 +61,8 @@ gprefix=$GDUMP.t${gcyc}z
 oprefix=$CDUMP.t${cyc}z
 
 # Generate COM variables from templates
-YMD=${PDY} HH=${cyc} generate_com -rx COM_OBS
-RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} generate_com -rx \
+YMD=${PDY} HH=${cyc} declare_from_tmpl -rx COM_OBS
+RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
     COM_ATMOS_ANALYSIS_PREV:COM_ATMOS_ANALYSIS_TMPL \
     COM_ATMOS_HISTORY_PREV:COM_ATMOS_HISTORY_TMPL \
     COM_ATMOS_RESTART_PREV:COM_ATMOS_RESTART_TMPL
@@ -110,7 +110,7 @@ dpath=enkfgdas.$gPDY/$gcyc
 for imem in $(seq 1 $NMEM_ENS); do
     memchar="mem"$(printf %03i $imem)
 
-    MEMDIR=${memchar} RUN=enkf${RUN} YMD=${gPDY} HH=${gcyc} generate_com -x \
+    MEMDIR=${memchar} RUN=enkf${RUN} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -x \
 	COM_ATMOS_HISTORY_PREV_ENS:COM_ATMOS_HISTORY_TMPL \
 	COM_ATMOS_RESTART_PREV_ENS:COM_ATMOS_RESTART_TMPL
     COM_ATMOS_RESTART_PREV_DIRNAME_ENS=$(dirname $COM_ATMOS_RESTART_PREV_ENS)
