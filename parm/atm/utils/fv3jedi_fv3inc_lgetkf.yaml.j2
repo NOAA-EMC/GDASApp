@@ -1,6 +1,6 @@
 variable change:
   variable change name: Model2GeoVaLs
-  input variables: &inputvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,phis]
+  input variables: &inputvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,surface_geopotential_height]
   output variables: [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,hydrostatic_delz]
 increment variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 background geometry:
@@ -14,7 +14,7 @@ background geometry:
   npx: {{ npx_ges }}
   npy: {{ npy_ges }}
   npz: {{ npz_ges }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
 jedi increment geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -42,14 +42,11 @@ fv3 increment geometry:
 members from template:
   template:
     background input:
-      datapath: ./bkg/mem%mem%
-      filetype: fms restart
       datetime: '{{ current_cycle | to_isotime }}'
-      filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
-      filename_trcr: '{{ current_cycle | to_fv3time }}.fv_tracer.res.nc'
-      filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
-      filename_sfcw: '{{ current_cycle | to_fv3time }}.fv_srf_wnd.res.nc'
-      filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
+      filetype: cube sphere history
+      provider: ufs
+      datapath: ./bkg/mem%mem%
+      filename: {{ EPREFIX }}atmf006.nc
       state variables: *inputvars
     jedi increment input:
       filetype: cube sphere history
