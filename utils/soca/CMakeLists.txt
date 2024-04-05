@@ -15,3 +15,10 @@ ecbuild_add_executable( TARGET gdas_socahybridweights.x
                         SOURCES gdas_socahybridweights.cc )
 target_compile_features( gdas_socahybridweights.x PUBLIC cxx_std_17)
 target_link_libraries( gdas_socahybridweights.x PUBLIC NetCDF::NetCDF_CXX oops atlas soca)
+
+# Obs Stats
+ecbuild_add_executable( TARGET gdassoca_obsstats.x
+                        SOURCES gdas_obsstats.cc )
+
+target_compile_features( gdas_obsstats.x PUBLIC cxx_std_17)
+target_link_libraries( gdas_obsstats.x PUBLIC NetCDF::NetCDF_CXX oops ioda)
