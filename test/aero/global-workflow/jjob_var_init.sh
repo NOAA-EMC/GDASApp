@@ -60,8 +60,8 @@ gprefix=$GDUMP.t${gcyc}z
 oprefix=$CDUMP.t${cyc}z
 
 # Generate COM variables from templates
-YMD=${PDY} HH=${cyc} generate_com -rx COM_OBS
-RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} generate_com -rx \
+YMD=${PDY} HH=${cyc} declare_from_tmpl -rx COM_OBS
+RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
     COM_CHEM_ANALYSIS_PREV:COM_CHEM_ANALYSIS_TMPL \
     COM_CHEM_HISTORY_PREV:COM_CHEM_HISTORY_TMPL \
     COM_ATMOS_RESTART_PREV:COM_ATMOS_RESTART_TMPL
