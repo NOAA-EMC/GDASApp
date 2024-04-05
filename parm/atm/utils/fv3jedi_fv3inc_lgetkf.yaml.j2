@@ -1,8 +1,9 @@
 variable change:
   variable change name: Model2GeoVaLs
   input variables: &inputvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,surface_geopotential_height]
-  output variables: [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,hydrostatic_delz]
-increment variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
+  output variables: [delp,hydrostatic_delz]
+active increment variables: [t,ps,sphum]
+remaining increment variables: [ua,va,ice_wat,liq_wat,o3mr]
 background geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml

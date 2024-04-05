@@ -38,7 +38,8 @@ namespace gdasapp {
       oops::Variables stateVarout(varChangeConfig, "output variables");
 
       // Increment variables
-      oops::Variables jediIncrVarin(fullConfig, "increment variables");
+      oops::Variables activeIncrVars(fullConfig, "active increment variables");
+      oops::Variables remainingIncrVars(fullConfig, "remaining increment variables");
 
       // Geometries
       const eckit::LocalConfiguration stateGeomConfig(fullConfig, "background geometry");
@@ -108,16 +109,18 @@ namespace gdasapp {
         oops::Log::test() << "Background State: " << std::endl << xxBkg << std::endl;
 
         // Setup JEDI increment
-        fv3jedi::Increment dx(jediIncrGeom, jediIncrVarin, xxBkg.validTime());
-        dx.read(jediIncrInputConfig);
-        oops::Log::test() << "JEDI Increment: " << std::endl << dx << std::endl;
+        fv3jedi::Increment dxActive(jediIncrGeom, activeIncrVars, xxBkg.validTime());
+        fv3jedi::Increment dxRemaining(jediIncrGeom, remainingIncrVars, xxBkg.validTime());
+        dxActive.read(jediIncrInputConfig);
+        dxRemaining.read(jediIncrInputConfig);
+        oops::Log::test() << "JEDI Increment: " << std::endl << dxActive << dxRemaining << std::endl;
 
         // Increment conversion
         // ----------------------------------------------------------------------------
 
         // Add increment to background to get analysis
         fv3jedi::State xxAnl(stateGeom, xxBkg);
-        xxAnl += dx;
+        xxAnl += dxActive;
 
         // Perform variables change on background and analysis
         vc->changeVar(xxBkg, stateVarout);
@@ -128,7 +131,9 @@ namespace gdasapp {
         dxFV3.diff(xxAnl, xxBkg);
         oops::Log::test() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
 
-        // Write FV3 increment
+        // Write increments
+        dxActive.write(fv3IncrOuputConfig);
+        dxRemaining.write(fv3IncrOuputConfig);
         dxFV3.write(fv3IncrOuputConfig);
       }
 
