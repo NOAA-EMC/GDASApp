@@ -1,6 +1,5 @@
 #pragma once
 
-#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -34,12 +33,12 @@ namespace gdasapp {
 
       // Variable change
       const eckit::LocalConfiguration varChangeConfig(fullConfig, "variable change");
-      oops::Variables stateVarin(varChangeConfig, "input variables");
-      oops::Variables stateVarout(varChangeConfig, "output variables");
+      oops::Variables bkgVars(varChangeConfig, "input variables");
+      oops::Variables hydrostaticIncrVars(varChangeConfig, "output variables");
 
-      // Increment variables
-      oops::Variables activeIncrVars(fullConfig, "active increment variables");
-      oops::Variables remainingIncrVars(fullConfig, "remaining increment variables");
+      // JEDI increment variables
+      oops::Variables varChangeIncrVars(fullConfig, "variable change increment variables");
+      oops::Variables fv3IncrVars(fullConfig, "fv3 increment variables");
 
       // Geometries
       const eckit::LocalConfiguration stateGeomConfig(fullConfig, "background geometry");
@@ -108,32 +107,42 @@ namespace gdasapp {
         fv3jedi::State xxBkg(stateGeom, stateInputConfig);
         oops::Log::test() << "Background State: " << std::endl << xxBkg << std::endl;
 
-        // Setup JEDI increment
-        fv3jedi::Increment dxActive(jediIncrGeom, activeIncrVars, xxBkg.validTime());
+        // Get remaining variables
+	oops::Variables remainingIncrVars(fv3IncrVars);
+        remainingIncrVars -= hydrostaticIncrVars; 
+        remainingIncrVars -= varChangeIncrVars;
+
+        // Read JEDI increments
+        fv3jedi::Increment dxVarChange(jediIncrGeom, varChangeIncrVars, xxBkg.validTime());
         fv3jedi::Increment dxRemaining(jediIncrGeom, remainingIncrVars, xxBkg.validTime());
-        dxActive.read(jediIncrInputConfig);
+        dxVarChange.read(jediIncrInputConfig);
         dxRemaining.read(jediIncrInputConfig);
-        oops::Log::test() << "JEDI Increment: " << std::endl << dxActive << dxRemaining << std::endl;
+        oops::Log::test() << "JEDI Increment: " << std::endl << dxVarChange << dxRemaining << std::endl;
 
         // Increment conversion
         // ----------------------------------------------------------------------------
 
         // Add increment to background to get analysis
         fv3jedi::State xxAnl(stateGeom, xxBkg);
-        xxAnl += dxActive;
+        xxAnl += dxVarChange;
 
         // Perform variables change on background and analysis
-        vc->changeVar(xxBkg, stateVarout);
-        vc->changeVar(xxAnl, stateVarout);
+        vc->changeVar(xxBkg, hydrostaticIncrVars);
+        vc->changeVar(xxAnl, hydrostaticIncrVars);
 
-        // Get final FV3 increment
-        fv3jedi::Increment dxFV3(fv3IncrGeom, stateVarout, xxBkg.validTime());
-        dxFV3.diff(xxAnl, xxBkg);
+        // Get hydrostatic increment
+        fv3jedi::Increment dxHydrostatic(fv3IncrGeom, hydrostaticIncrVars, xxBkg.validTime());
+        dxHydrostatic.diff(xxAnl, xxBkg);
+
+        // Combine increments
+	fv3jedi::Increment dxFV3(jediIncrGeom, fv3IncrVars, xxBkg.validTime());        
+        dxFV3.zero();
+        dxFV3 += dxHydrostatic;
+        dxFV3 += dxVarChange;
+        dxFV3 += dxRemaining;
         oops::Log::test() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
 
-        // Write increments
-        dxActive.write(fv3IncrOuputConfig);
-        dxRemaining.write(fv3IncrOuputConfig);
+        // Write FV3 increment
         dxFV3.write(fv3IncrOuputConfig);
       }
 
