@@ -47,12 +47,13 @@ namespace gdasapp {
 
   class FV3ChemDiagB : public oops::Application {
    public:
-    explicit Fv3ChemDiagB(const eckit::mpi::Comm & comm = oops::mpi::world())
+    explicit FV3ChemDiagB(const eckit::mpi::Comm & comm = oops::mpi::world())
       : Application(comm) {}
     static const std::string classname() {return "gdasapp::FV3ChemDiagB";}
 
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
       /// Setup the fv3jedi geometry
+      std::cout << "int execute";
       oops::Log::info() << "====================== geometry" << std::endl;
       const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");
       const fv3jedi::Geometry geom(geomConfig, this->getComm());
@@ -71,8 +72,9 @@ namespace gdasapp {
 
       /// Read the background
       // --------------------
+      std::cout << "Read the background";
       oops::Log::info() << "====================== read bkg" << std::endl;
-      chem::State xb(geom, chemVars, cycleDate);
+      fv3jedi::State xb(geom, chemVars, cycleDate);
       const eckit::LocalConfiguration bkgConfig(fullConfig, "background");
       xb.read(bkgConfig);
       atlas::FieldSet xbFs;
@@ -83,6 +85,7 @@ namespace gdasapp {
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
       // Build edges, then connections between nodes and edges
+      std::cout << "Create the mesh connectivity"; 
       int nbHalos(2);
       fullConfig.get("number of halo points", nbHalos);
       int nbNeighbors(4);
@@ -126,7 +129,7 @@ namespace gdasapp {
         atlas::array::make_view<int, 1>(geom.functionSpace().ghost());
 
       // Create the background error fieldset
-      chem::Increment bkgErr(geom, chemVars, cycleDate);
+      fv3jedi::Increment bkgErr(geom, chemVars, cycleDate);
       bkgErr.zero();
       atlas::FieldSet bkgErrFs;
       bkgErr.toFieldSet(bkgErrFs);
@@ -140,32 +143,32 @@ namespace gdasapp {
       fullConfig.get("max ssh", sshMax);
 
       // Get the layer thicknesses and convert to depth
-      auto h = atlas::array::make_view<double, 2>(xbFs["hocn"]);
-      atlas::array::ArrayT<double> depth(h.shape(0), h.shape(1));
-      auto viewDepth = atlas::array::make_view<double, 2>(depth);
+//      auto h = atlas::array::make_view<double, 2>(xbFs["hocn"]);
+//      atlas::array::ArrayT<double> depth(h.shape(0), h.shape(1));
+//      auto viewDepth = atlas::array::make_view<double, 2>(depth);
 
-      for (atlas::idx_t jnode = 0; jnode < h.shape(0); ++jnode) {
-        viewDepth(jnode, 0) = 0.5 * h(jnode, 0);
-        for (atlas::idx_t level = 1; level < h.shape(1); ++level) {
-          viewDepth(jnode, level) = viewDepth(jnode, level-1) +
-            0.5 * (h(jnode, level-1 ) + h(jnode, level));
-        }
-      }
+//      for (atlas::idx_t jnode = 0; jnode < h.shape(0); ++jnode) {
+//        viewDepth(jnode, 0) = 0.5 * h(jnode, 0);
+//        for (atlas::idx_t level = 1; level < h.shape(1); ++level) {
+//          viewDepth(jnode, level) = viewDepth(jnode, level-1) +
+//            0.5 * (h(jnode, level-1 ) + h(jnode, level));
+//        }
+//      }
 
       // Get the mixed layer depth
-      auto mld = atlas::array::make_view<double, 2>(xbFs["mom6_mld"]);
-      atlas::array::ArrayT<int> mldindex(mld.shape(0), mld.shape(1));
-      auto viewMldindex = atlas::array::make_view<int, 2>(mldindex);
+//      auto mld = atlas::array::make_view<double, 2>(xbFs["mom6_mld"]);
+//      atlas::array::ArrayT<int> mldindex(mld.shape(0), mld.shape(1));
+//      auto viewMldindex = atlas::array::make_view<int, 2>(mldindex);
 
-      for (atlas::idx_t jnode = 0; jnode < h.shape(0); ++jnode) {
-        std::vector<double> testMld;
-        for (atlas::idx_t level = 0; level < viewDepth.shape(1); ++level) {
-          testMld.push_back(std::abs(viewDepth(jnode, level) - mld(jnode, 0)));
-        }
-        auto minVal = std::min_element(testMld.begin(), testMld.end());
+//      for (atlas::idx_t jnode = 0; jnode < h.shape(0); ++jnode) {
+//        std::vector<double> testMld;
+//        for (atlas::idx_t level = 0; level < viewDepth.shape(1); ++level) {
+//          testMld.push_back(std::abs(viewDepth(jnode, level) - mld(jnode, 0)));
+//        }
+//        auto minVal = std::min_element(testMld.begin(), testMld.end());
 
-        viewMldindex(jnode, 0) = std::distance(testMld.begin(), minVal);
-      }
+//        viewMldindex(jnode, 0) = std::distance(testMld.begin(), minVal);
+//      }
 
 
       // Loop through variables
@@ -181,9 +184,9 @@ namespace gdasapp {
         // Loop through nodes
         for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
           // Early exit if thickness is 0 or on a ghost cell
-          if (ghostView(jnode) > 0 || abs(h(jnode, 0)) <= 0.1) {
-            continue;
-          }
+//          if (ghostView(jnode) > 0 || abs(h(jnode, 0)) <= 0.1) {
+//           continue;
+//          }
 
           // get indices of neighbor cells
           auto neighbors = get_neighbors_of_node(jnode);
@@ -193,9 +196,9 @@ namespace gdasapp {
           if (xbFs[var].shape(1) == 1) {
             std::vector<double> local;
             for (int nn = 0; nn < neighbors.size(); ++nn) {
-              if ( abs(h(neighbors[nn], 0)) <= 0.1 ) {
-                continue;
-              }
+//              if ( abs(h(neighbors[nn], 0)) <= 0.1 ) {
+//               continue;
+//              }
               local.push_back(bkg(neighbors[nn], 0));
             }
             //Set the minimum number of points
@@ -221,21 +224,21 @@ namespace gdasapp {
           } else {
             // 3D case
             int nbz = 1;  // Number of closest point in the vertical, above and below
-            int nzMld = std::max(10, viewMldindex(jnode, 0));
+//            int nzMld = std::max(10, viewMldindex(jnode, 0));
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1) - nbz; ++level) {
               std::vector<double> local;
               for (int nn = 0; nn < neighbors.size(); ++nn) {
                 int levelMin = std::max(0, level - nbz);
                 int levelMax = level + nbz;
-                if (level < nzMld) {
+//                if (level < nzMld) {
                   // If in the MLD, compute the std. dev. throughout the MLD
                   levelMin = 0;
                   levelMax = 1; //nzMld;
-                }
+//                }
                 for (int ll = levelMin; ll <= levelMax; ++ll) {
-                  if ( abs(h(neighbors[nn], ll)) <= 0.1 ) {
-                    continue;
-                  }
+//                  if ( abs(h(neighbors[nn], ll)) <= 0.1 ) {
+//                    continue;
+//                  }
                   local.push_back(bkg(neighbors[nn], ll));
                 }
               }
@@ -252,9 +255,9 @@ namespace gdasapp {
                 }
                 // Setup the additive variance (only used ofr sst)
                 double additiveStdDev(0.0);
-                if (var == "tocn" & level == 0) {
-                    additiveStdDev = sstBkgErrMin;
-                  }
+//                if (var == "tocn" & level == 0) {
+//                    additiveStdDev = sstBkgErrMin;
+//                  }
                 if (stdDev > 0.0 || local.size() > 2) {
                   stdDevBkg(jnode, level)  = std::sqrt(stdDev / (local.size() - 1)) + additiveStdDev;
                 }
@@ -274,9 +277,9 @@ namespace gdasapp {
         fullConfig.get("simple smoothing.horizontal iterations", niter);
         for (auto & var : chemVars.variables()) {
           // Skip the layer thickness variable
-          if (var == "hocn") {
-            continue;
-          }
+//          if (var == "hocn") {
+//            continue;
+//          }
 
           // Horizontal averaging
           for (int iter = 0; iter < niter; ++iter) {
@@ -287,11 +290,12 @@ namespace gdasapp {
 
             // Loops through nodes and levels
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
-              for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
+//              for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
+              for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
                 // Early exit if thickness is 0 or on a ghost cell
-                if (abs(h(jnode, level)) <= 0.1) {
-                  continue;
-                }
+//                if (abs(h(jnode, level)) <= 0.1) {
+//                  continue;
+//                }
 
                 // Ocean or ice node, do something
                 std::vector<double> local;
@@ -299,9 +303,9 @@ namespace gdasapp {
                 int nbh = neighbors.size();
                 for (int nn = 0; nn < neighbors.size(); ++nn) {
                   int nbNode = neighbors[nn];
-                  if ( abs(h(nbNode, level)) <= 0.1 ) {
-                    continue;
-                  }
+//                  if ( abs(h(nbNode, level)) <= 0.1 ) {
+//                    continue;
+//                  }
                   local.push_back(stdDevBkg(nbNode, level));
                 }
 
@@ -322,7 +326,8 @@ namespace gdasapp {
             auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
             auto tmpArray(stdDevBkg);
             for (int iter = 0; iter < niterVert; ++iter) {
-              for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
+//              for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
+              for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
                 for (atlas::idx_t level = 1; level < xbFs[var].shape(1)-1; ++level) {
                   stdDevBkg(jnode, level) = ( tmpArray(jnode, level-1) +
                                               tmpArray(jnode, level) +
@@ -342,11 +347,11 @@ namespace gdasapp {
       // Initialize the diffusion central block
 //      if (fullConfig.has("diffusion")) {
 //        const eckit::LocalConfiguration diffusionConfig(fullConfig, "diffusion");
-//        chem::ExplicitDiffusionParameters params;
+//        fv3jedi::ExplicitDiffusionParameters params;
 //        params.deserialize(diffusionConfig);
 //        oops::GeometryData geometryData(geom.functionSpace(), bkgErrFs["tocn"], true, this->getComm());
 //        const oops::FieldSet3D dumyXb(cycleDate, this->getComm());
-//        chem::ExplicitDiffusion diffuse(geometryData, chemVars, diffusionConfig, params, dumyXb, dumyXb);
+//        fv3jedi::ExplicitDiffusion diffuse(geometryData, chemVars, diffusionConfig, params, dumyXb, dumyXb);
 //        diffuse.read();
 //
 //        // Smooth the field
@@ -357,17 +362,21 @@ namespace gdasapp {
 //      }
 
       // Rescale
+      std::cout << "Rescale";
       double rescale;
       fullConfig.get("rescale", rescale);
       util::multiplyFieldSet(bkgErrFs, rescale);
 
       // We want to write with fv3jedi, not atlas: Syncronize with fv3jedi Increment
+      std::cout << "write with fv3jedi";
       bkgErr.fromFieldSet(bkgErrFs);
 
       // Save the background error
+      std::cout << "save the background error";
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
       bkgErr.write(bkgErrorConfig);
 
+      std::cout << "after save background"; 
       return 0;
     }
 
