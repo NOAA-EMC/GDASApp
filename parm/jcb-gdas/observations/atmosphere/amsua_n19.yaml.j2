@@ -82,14 +82,10 @@
               clwret_ch238: 1
               clwret_ch314: 2
               clwret_types: [ObsValue, HofX]
-          x0: [0.050, 0.030, 0.030, 0.020, 0.000, 0.100, 0.000, 0.000, 0.000, 0.000,
-            0.000, 0.000, 0.000, 0.000, 0.030]
-          x1: [0.600, 0.450, 0.400, 0.450, 1.000, 1.500, 0.000, 0.000, 0.000, 0.000,
-            0.000, 0.000, 0.000, 0.000, 0.200]
-          err0: [2.500, 2.200, 2.000, 0.550, 0.300, 0.230, 0.230, 0.250, 0.250, 0.350,
-            0.400, 0.550, 0.800, 3.000, 3.500]
-          err1: [20.000, 18.000, 12.000, 3.000, 0.500, 0.300, 0.230, 0.250, 0.250,
-            0.350, 0.400, 0.550, 0.800, 3.000, 18.000]
+          x0: &{{observation_from_jcb}}_x0 [{{ get_satellite_variable(observation_from_jcb, "x0") }}]
+          x1: &{{observation_from_jcb}}_x1 [{{ get_satellite_variable(observation_from_jcb, "x1") }}]
+          err0: &{{observation_from_jcb}}_err0 [{{ get_satellite_variable(observation_from_jcb, "error") }}]
+          err1: &{{observation_from_jcb}}_err1 [{{ get_satellite_variable(observation_from_jcb, "error_cld") }}]
   #  CLW Retrieval Check
   - filter: Bounds Check
     filter variables:
@@ -128,8 +124,7 @@
       channels: *{{observation_from_jcb}}_simulated_channels
       options:
         channels: *{{observation_from_jcb}}_simulated_channels
-        obserr_clearsky: [2.500, 2.200, 2.000, 0.550, 0.300, 0.230, 0.230, 0.250,
-          0.250, 0.350, 0.400, 0.550, 0.800, 3.000, 3.500]
+        obserr_clearsky: *{{observation_from_jcb}}_err0
         clwret_function:
           name: ObsFunction/CLWRetMW
           options:
@@ -147,14 +142,10 @@
                 clwret_ch238: 1
                 clwret_ch314: 2
                 clwret_types: [ObsValue, HofX]
-            x0: [0.050, 0.030, 0.030, 0.020, 0.000, 0.100, 0.000, 0.000, 0.000, 0.000,
-              0.000, 0.000, 0.000, 0.000, 0.030]
-            x1: [0.600, 0.450, 0.400, 0.450, 1.000, 1.500, 0.000, 0.000, 0.000, 0.000,
-              0.000, 0.000, 0.000, 0.000, 0.200]
-            err0: [2.500, 2.200, 2.000, 0.550, 0.300, 0.230, 0.230, 0.250, 0.250,
-              0.350, 0.400, 0.550, 0.800, 3.000, 3.500]
-            err1: [20.000, 18.000, 12.000, 3.000, 0.500, 0.300, 0.230, 0.250, 0.250,
-              0.350, 0.400, 0.550, 0.800, 3.000, 18.000]
+            x0: *{{observation_from_jcb}}_x0
+            x1: *{{observation_from_jcb}}_x1
+            err0: *{{observation_from_jcb}}_err0
+            err1: *{{observation_from_jcb}}_err1
     maxvalue: 0.0
     action:
       name: reject
@@ -251,8 +242,7 @@
                   clwret_ch314: 2
                   clwret_types: [HofX]
                   bias_application: HofX
-              clwret_clearsky: [0.050, 0.030, 0.030, 0.020, 0.000, 0.100, 0.000, 0.000,
-                0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.030]
+              clwret_clearsky: *{{observation_from_jcb}}_x0
           obserr_function:
             name: ObsFunction/ObsErrorModelRamp
             channels: *{{observation_from_jcb}}_simulated_channels
@@ -264,16 +254,11 @@
                   clwret_ch238: 1
                   clwret_ch314: 2
                   clwret_types: [ObsValue, HofX]
-              x0: [0.050, 0.030, 0.030, 0.020, 0.000, 0.100, 0.000, 0.000, 0.000,
-                0.000, 0.000, 0.000, 0.000, 0.000, 0.030]
-              x1: [0.600, 0.450, 0.400, 0.450, 1.000, 1.500, 0.000, 0.000, 0.000,
-                0.000, 0.000, 0.000, 0.000, 0.000, 0.200]
-              err0: [2.500, 2.200, 2.000, 0.550, 0.300, 0.230, 0.230, 0.250, 0.250,
-                0.350, 0.400, 0.550, 0.800, 3.000, 3.500]
-              err1: [20.000, 18.000, 12.000, 3.000, 0.500, 0.300, 0.230, 0.250, 0.250,
-                0.350, 0.400, 0.550, 0.800, 3.000, 18.000]
-          obserr_clearsky: [2.500, 2.200, 2.000, 0.550, 0.300, 0.230, 0.230, 0.250,
-            0.250, 0.350, 0.400, 0.550, 0.800, 3.000, 3.500]
+              x0: *{{observation_from_jcb}}_x0
+              x1: *{{observation_from_jcb}}_x1
+              err0: *{{observation_from_jcb}}_err0
+              err1: *{{observation_from_jcb}}_err1
+          obserr_clearsky: *{{observation_from_jcb}}_err0
   #  Gross check
   - filter: Background Check
     filter variables:
@@ -312,16 +297,11 @@
                 clwret_ch314: 2
                 clwret_types: [ObsValue, HofX]
                 bias_application: HofX
-            x0: [0.050, 0.030, 0.030, 0.020, 0.000, 0.100, 0.000, 0.000, 0.000, 0.000,
-              0.000, 0.000, 0.000, 0.000, 0.030]
-            x1: [0.600, 0.450, 0.400, 0.450, 1.000, 1.500, 0.000, 0.000, 0.000, 0.000,
-              0.000, 0.000, 0.000, 0.000, 0.200]
-            err0: [2.500, 2.200, 2.000, 0.550, 0.300, 0.230, 0.230, 0.250, 0.250,
-              0.350, 0.400, 0.550, 0.800, 3.000, 3.500]
-            err1: [20.000, 18.000, 12.000, 3.000, 0.500, 0.300, 0.230, 0.250, 0.250,
-              0.350, 0.400, 0.550, 0.800, 3.000, 18.000]
-        obserr_bound_max: [4.5, 4.5, 4.5, 2.5, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.5,
-          3.5, 4.5, 4.5, 4.5]
+            x0: *{{observation_from_jcb}}_x0
+            x1: *{{observation_from_jcb}}_x1
+            err0: *{{observation_from_jcb}}_err0
+            err1: *{{observation_from_jcb}}_err1
+        obserr_bound_max: [{{ get_satellite_variable(observation_from_jcb, "ermax") }}]
     action:
       name: reject
   #  Inter-channel check

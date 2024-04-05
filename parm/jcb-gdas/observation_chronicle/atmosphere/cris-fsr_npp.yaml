@@ -1,6 +1,6 @@
 # Instrument metadata
 # -------------------
-commissioned: 2017-10-20T00:00:00
+commissioned: "2018-02-12T12:00:00"
 # decommissioned: 2021-05-22T00:00:00 (Effectively decommissioned since no active channels.)
 
 observer_type: satellite  # Type of chronicle to use
@@ -455,7 +455,7 @@ channel_values:
 
 # Chronicle of changes for this instrument
 # ----------------------------------------
-chronicle:
+chronicles:
 
 - action_date: "2019-03-26T00:00:00"
   justification: 'The CrIS instrument on NPP developed anomalies starting on 18Z of March 27, 2019.'
@@ -904,7 +904,7 @@ chronicle:
     variables: [active]
     values: [-1]
 
-- action_date: "2019-04-16T18:00:00"
+- action_date: "2019-06-26T18:00:00"
   justification: 'NPP out because of mid-wave failure 3/25/19 18z.  LW/SW data returns 4/16/19 18z but mid-wave channels missing'
   channel_values:
     19:   [1, -1, 1, 1.000, 0.000, 2.000, 10.000, 0.000, -1, -1, -1 ]
@@ -1339,7 +1339,7 @@ chronicle:
     2175: [1, -1, 1, 1.000, 0.000, 2.000, 10.000, 0.000, -1, -1, -1 ]
     2182: [1, -1, 1, 1.000, 0.000, 2.000, 10.000, 0.000, -1, -1, -1 ]
 
-- action_date: "2019-06-24T18:00:00"
+- action_date: "2021-05-22T18:00:00"
   justification: 'Side 2 long-wave failure. Never turned back on for GFS.'
   adjust_variable_for_all_channels:
     variables: [active]
