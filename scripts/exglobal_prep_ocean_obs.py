@@ -170,7 +170,16 @@ for obsspace_to_convert in obsspaces_to_convert:
     processes.append(process)
 
 # Wait for all processes to finish
+# TODO(AFE): add return value checking
 for process in processes:
     process.join()
 
-FileHandler({'copy': files_to_save}).sync()
+#TODO(AFE): Find a better way to do the "no file found" exception handling -
+# this way make individual calls to FileHandler for each file, instead of 
+# batching them.
+for file_to_save in files_to_save:
+    try:
+        FileHandler({'copy': [file_to_save]}).sync()
+    except OSError:
+        logger.warning(f"Obs file {file_to_save} not found, possible IODA converter failure)")
+        continue
