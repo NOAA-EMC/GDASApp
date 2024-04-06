@@ -174,8 +174,8 @@ for obsspace_to_convert in obsspaces_to_convert:
 for process in processes:
     process.join()
 
-#TODO(AFE): Find a better way to do the "no file found" exception handling -
-# this way make individual calls to FileHandler for each file, instead of 
+# TODO(AFE): Find a better way to do the "no file found" exception handling -
+# this way make individual calls to FileHandler for each file, instead of
 # batching them.
 for file_to_save in files_to_save:
     try:
