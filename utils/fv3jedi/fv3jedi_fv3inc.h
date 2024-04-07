@@ -132,20 +132,21 @@ namespace gdasapp {
         vc->changeVar(xxBkg, varChangeIncrVars);
         vc->changeVar(xxAnl, varChangeIncrVars);
 
-        // Note: We have to be careful here. We can't just change the state variables to 
-        // be the same variables as the FV3 increment, because any mixing-ratio variable
-        // will be set to zero in the analysis if the increment addition makes it negative.
+        // Note: 
+        // We have to be careful here. We can't just change the state variables to 
+        // be the same variables as the FV3 increment, because any mixing-ratio variables
+        // will be set to zero in the analysis if the increment addition makes them negative.
         // Thus, when we subtract the background and analysis, we won't get the same 
         // increment back out. Therefore, we have to separate the new variables resulting 
         // from the variable change from the rest of FV3 increment variables and set the 
-        // latter aside to save at the end.
+        // latter aside to save at the end along with the new increment variables.
 
         // Get hydrostatic increment
         fv3jedi::Increment dxVarChange(fv3IncrGeom, varChangeIncrVars, xxBkg.validTime());
         dxVarChange.diff(xxAnl, xxBkg);
 
         // Combine increments
-	fv3jedi::Increment dxFV3(jediIncrGeom, fv3IncrVars, xxBkg.validTime());        
+	fv3jedi::Increment dxFV3(fv3IncrGeom, fv3IncrVars, xxBkg.validTime());        
         dxFV3.zero();
         dxFV3 += dxVarChange;
         dxFV3 += dxRemaining;
