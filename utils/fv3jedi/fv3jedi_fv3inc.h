@@ -99,7 +99,7 @@ namespace gdasapp {
 
       for ( int imem = 0; imem < nmem; imem++ ) {
         // Inputs setup
-	// ---------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------
 
         // Get input configurations
         eckit::LocalConfiguration stateInputConfig(membersConfig[imem], "background input");
@@ -116,14 +116,14 @@ namespace gdasapp {
         oops::Log::test() << "JEDI Increment: " << std::endl << dxJEDI << std::endl;
 
         // Read JEDI sub-increment with variables in common with FV3 increment
-	oops::Variables remainingIncrVars(jediIncrVars);
+        oops::Variables remainingIncrVars(jediIncrVars);
         remainingIncrVars.intersection(fv3IncrVars);
-        fv3jedi::Increment dxRemaining(jediIncrGeom, remainingIncrVars, xxBkg.validTime());         
+        fv3jedi::Increment dxRemaining(jediIncrGeom, remainingIncrVars, xxBkg.validTime());
         dxRemaining.read(jediIncrInputConfig);
 
         // Increment conversion
         // ---------------------------------------------------------------------------------
- 
+
         // Add JEDI increment to background to get analysis
         fv3jedi::State xxAnl(stateGeom, xxBkg);
         xxAnl += dxJEDI;
@@ -132,13 +132,13 @@ namespace gdasapp {
         vc->changeVar(xxBkg, varChangeIncrVars);
         vc->changeVar(xxAnl, varChangeIncrVars);
 
-        // Note: 
-        // We have to be careful here. We can't just change the state variables to 
+        // Note:
+        // We have to be careful here. We can't just change the state variables to
         // be the same variables as the FV3 increment, because any mixing-ratio variables
         // will be set to zero in the analysis if the increment addition makes them negative.
-        // Thus, when we subtract the background and analysis, we won't get the same 
-        // increment back out. Therefore, we have to separate the new variables resulting 
-        // from the variable change from the rest of FV3 increment variables and set the 
+        // Thus, when we subtract the background and analysis, we won't get the same
+        // increment back out. Therefore, we have to separate the new variables resulting
+        // from the variable change from the rest of FV3 increment variables and set the
         // latter aside to save at the end along with the new increment variables.
 
         // Get hydrostatic increment
@@ -146,7 +146,7 @@ namespace gdasapp {
         dxVarChange.diff(xxAnl, xxBkg);
 
         // Combine increments
-	fv3jedi::Increment dxFV3(fv3IncrGeom, fv3IncrVars, xxBkg.validTime());        
+        fv3jedi::Increment dxFV3(fv3IncrGeom, fv3IncrVars, xxBkg.validTime());
         dxFV3.zero();
         dxFV3 += dxVarChange;
         dxFV3 += dxRemaining;
