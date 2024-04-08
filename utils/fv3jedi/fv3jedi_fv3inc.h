@@ -1,6 +1,5 @@
 #pragma once
 
-#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -20,11 +19,11 @@
 namespace gdasapp {
 
   // Main application class
-  class jediinc2fv3 : public oops::Application {
+  class fv3inc : public oops::Application {
    public:
-    explicit jediinc2fv3(const eckit::mpi::Comm & comm = oops::mpi::world())
+    explicit fv3inc(const eckit::mpi::Comm & comm = oops::mpi::world())
       : Application(comm) {}
-    static const std::string classname() {return "gdasapp::jediinc2fv3";}
+    static const std::string classname() {return "gdasapp::fv3inc";}
 
     int execute(const eckit::Configuration & fullConfig, bool validate) const {
       // Setup variable change
@@ -83,7 +82,7 @@ namespace gdasapp {
 
    private:
     std::string appname() const {
-      return "gdasapp::jediinc2fv3";
+      return "gdasapp::fv3inc";
     }
   };
 }  // namespace gdasapp

@@ -1,8 +1,8 @@
-netcdf sst_MB_202107010100 {
+netcdf ghrsst_sst_ma_202103241550 {
 dimensions:
 	time = 1 ;
-	lat = 6 ;
-	lon = 11 ;
+	lat = 5 ;
+	lon = 10 ;
 variables:
 	int crs ;
 		crs:grid_mapping_name = "latitude_longitude" ;
@@ -153,29 +153,29 @@ variables:
 		:creator_email = "Alex.Ignatov@noaa.gov" ;
 		:creator_name = "Alex Ignatov" ;
 		:creator_url = "http://www.star.nesdis.noaa.gov" ;
-		:date_created = "20210701T021440Z" ;
-		:easternmost_longitude = -179.98f ;
+		:date_created = "20210324T180747Z" ;
+		:easternmost_longitude = -46.26001f ;
 		:file_quality_level = 2 ;
 		:gds_version_id = "02.0" ;
-		:geospatial_lat_max = 89.f ;
-		:geospatial_lat_min = 52.9f ;
+		:geospatial_lat_max = 81.38f ;
+		:geospatial_lat_min = 40.46f ;
 		:geospatial_lat_resolution = 0.02f ;
 		:geospatial_lat_units = "degrees_north" ;
-		:geospatial_lon_max = -179.98f ;
-		:geospatial_lon_min = -180.f ;
+		:geospatial_lon_max = -46.26001f ;
+		:geospatial_lon_min = -142.84f ;
 		:geospatial_lon_resolution = 0.02f ;
 		:geospatial_lon_units = "degrees_east" ;
-		:history = "Thu Oct  5 16:24:08 2023: ncks -d lon,16555,16565 -d lat,1664,1669 /scratch1/NCEPDEV/stmp4/Shastri.Paturi/forAndrew/gdas.20210701/00/sst/20210701010000-OSPO-L3U_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.70-v02.0-fv01.0.nc sst_MB_202107010100.nc\nCreated by the L2P-to-L3U conversion tool,  which was developed and provided by NOAA/NESDIS/STAR and CCNY. The version is 4.1.5" ;
-		:id = "AVHRRF_MB-OSPO-L3U-v2.7" ;
+		:history = "Thu Mar 28 17:06:08 2024: ncks -d lon,11826,11835 -d lat,602,606 /scratch1/NCEPDEV/global/glopara/data/experimental_obs/gdas.20210324/18/ocean/sst/20210324155000-OSPO-L3U_GHRSST-SSTsubskin-AVHRRF_MA-ACSPO_V2.70-v02.0-fv01.0.nc ghrsst_sst_ma_202103241550.nc\nCreated by the L2P-to-L3U conversion tool,  which was developed and provided by NOAA/NESDIS/STAR and CCNY. The version is 4.1.5" ;
+		:id = "AVHRRF_MA-OSPO-L3U-v2.7" ;
 		:institution = "NOAA/NESDIS/OSPO" ;
 		:keywords = "Oceans > Ocean Temperature > Sea Surface Temperature" ;
 		:keywords_vocabulary = "NASA Global Change Master Directory (GCMD) Science Keywords" ;
 		:license = "GHRSST protocol describes data use as free and open" ;
-		:metadata_link = "http://podaac.jpl.nasa.gov/ws/metadata/dataset/?format=iso&shortName=AVHRRF_MB-OSPO-L2P-v2.7" ;
+		:metadata_link = "http://podaac.jpl.nasa.gov/ws/metadata/dataset/?format=iso&shortName=AVHRRF_MA-OSPO-L2P-v2.7" ;
 		:naming_authority = "org.ghrsst" ;
 		:netcdf_version_id = "4.5.0 of Jul 23 2018 18:00:31 $" ;
-		:northernmost_latitude = 89.f ;
-		:platform = "MetOpB" ;
+		:northernmost_latitude = 81.38f ;
+		:platform = "MetOpA" ;
 		:processing_level = "L3U" ;
 		:product_version = "L2P algorithm V2.70; L3U algorithm V4.1.5" ;
 		:project = "Group for High Resolution Sea Surface Temperature" ;
@@ -184,113 +184,103 @@ variables:
 		:publisher_url = "http://www.ghrsst.org" ;
 		:references = "Data convention: GHRSST Data Specification (GDS) v2.0. Algorithms: ACSPO-AVHRR ATBD (NOAA/NESDIS/OSPO)" ;
 		:sensor = "AVHRR" ;
-		:source = "l2p_source : 20210701010000-OSPO-L2P_GHRSST-SSTsubskin-AVHRRF_MB-ACSPO_V2.70-v02.0-fv01.0.nc" ;
-		:southernmost_latitude = 52.9f ;
+		:source = "l2p_source : 20210324155000-OSPO-L2P_GHRSST-SSTsubskin-AVHRRF_MA-ACSPO_V2.70-v02.0-fv01.0.nc" ;
+		:southernmost_latitude = 40.46f ;
 		:spatial_resolution = "0.02 deg" ;
 		:standard_name_vocabulary = "CF Standard Name Table (v26, 08 November 2013)" ;
-		:start_time = "20210701T010000Z" ;
-		:stop_time = "20210701T010959Z" ;
+		:start_time = "20210324T155000Z" ;
+		:stop_time = "20210324T155959Z" ;
 		:summary = "Sea surface temperature retrievals produced by NOAA/NESDIS/OSPO  office from AVHRR sensor" ;
-		:time_coverage_end = "20210701T010959Z" ;
-		:time_coverage_start = "20210701T010000Z" ;
+		:time_coverage_end = "20210324T155959Z" ;
+		:time_coverage_start = "20210324T155000Z" ;
 		:title = "AVHRR L3U SST" ;
-		:uuid = "02508803-88b0-49c3-8a26-5a4a0f33099a" ;
-		:westernmost_longitude = -180.f ;
-		:sst_luts = "LUT_AVHRRF_MB_L2P_DEPTH_DAY_V01.01_20180507.txt, LUT_AVHRRF_MB_L2P_SKIN_DAYNIGHT_V01.00_20180408.txt, LUT_AVHRRF_MB_L2P_DEPTH_NIGHT_V01.01_20180507.txt, LUT_AVHRRF_MB_L2P_SKIN_NIGHT_V01.00_20180408.txt" ;
-		:geospatial_bounds = "POLYGON(( 114.037  60.830,  -12.301  83.131, -127.738  67.699,  160.334  52.991,  114.037  60.830))" ;
-		:row_start = 50 ;
-		:row_count = 1804 ;
-		:col_start = 0 ;
-		:col_count = 18000 ;
-		:NCO = "netCDF Operators version 4.9.3 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
+		:uuid = "a974c50a-64de-4678-b8f9-00d0faf39a62" ;
+		:westernmost_longitude = -142.84f ;
+		:sst_luts = "LUT_AVHRRF_MA_L2P_DEPTH_DAY_V01.01_20180507.txt, LUT_AVHRRF_MA_L2P_SKIN_DAYNIGHT_V01.00_20180408.txt, LUT_AVHRRF_MA_L2P_DEPTH_NIGHT_V01.01_20180507.txt, LUT_AVHRRF_MA_L2P_SKIN_NIGHT_V01.00_20180408.txt" ;
+		:geospatial_bounds = "POLYGON((-125.945  46.879, -142.521  80.299,  -46.600  66.944,  -91.299  40.553, -125.945  46.879))" ;
+		:row_start = 431 ;
+		:row_count = 2045 ;
+		:col_start = 1858 ;
+		:col_count = 4828 ;
+		:NCO = "netCDF Operators version 5.0.6 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
 data:
 
  crs = 0 ;
 
  dt_analysis =
-  7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 7,
-  7, 7, 8, 8, 7, 7, 7, 7, 7, 7, 7,
-  8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-  8, 8, 7, 7, 7, 8, 8, 7, 7, 8, 8,
-  8, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 7, 7, 8, 8, 9, 8, 8, 8 ;
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
 
  l2p_flags =
-  4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608,
-  4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608,
-  4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608,
-  4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608,
-  4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608,
-  4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608, 4608 ;
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
- lat = 56.71, 56.69, 56.67, 56.65, 56.63, 56.61 ;
+ lat = 77.95, 77.93, 77.91, 77.89, 77.87 ;
 
- lon = 151.11, 151.13, 151.15, 151.17, 151.19, 151.21, 151.23, 151.25, 
-    151.27, 151.29, 151.31 ;
+ lon = 56.52999, 56.55, 56.57, 56.59, 56.60999, 56.62999, 56.64999, 56.66999, 
+    56.68999, 56.71 ;
 
  or_number_of_pixels =
-  11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
-  11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
-  11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
-  11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
-  11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
-  11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11 ;
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
 
  quality_level =
-  5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-  5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-  5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-  5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-  5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-  5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 ;
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
 
  satellite_zenith_angle =
-  -46, -46, -46, -46, -46, -46, -46, -46, -46, -46, -46,
-  -46, -46, -46, -46, -46, -46, -46, -46, -46, -46, -46,
-  -46, -46, -46, -46, -46, -46, -46, -46, -46, -46, -46,
-  -46, -46, -46, -46, -46, -46, -46, -46, -46, -46, -46,
-  -46, -46, -46, -46, -46, -46, -46, -46, -46, -46, -46,
-  -46, -46, -46, -46, -46, -46, -46, -46, -46, -46, -46 ;
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
 
  sea_surface_temperature =
-  982, 981, 981, 979, 975, 972, 968, 964, 961, 958, 958,
-  982, 981, 979, 977, 973, 972, 968, 966, 962, 960, 959,
-  982, 980, 974, 969, 969, 970, 969, 966, 962, 961, 959,
-  982, 979, 972, 970, 970, 971, 969, 963, 961, 960, 960,
-  974, 972, 969, 967, 968, 969, 970, 967, 962, 961, 961,
-  970, 970, 968, 966, 965, 968, 968, 969, 965, 963, 960 ;
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
 
  sses_bias =
-  83, 82, 80, 79, 78, 77, 77, 76, 74, 73, 73,
-  81, 80, 79, 79, 78, 77, 77, 75, 74, 73, 72,
-  78, 78, 78, 78, 78, 76, 75, 74, 74, 73, 73,
-  77, 78, 78, 77, 76, 75, 74, 73, 74, 74, 74,
-  78, 78, 78, 76, 75, 74, 74, 75, 74, 75, 75,
-  77, 78, 77, 75, 74, 75, 76, 76, 77, 77, 76 ;
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
 
  sses_standard_deviation =
-  -39, -39, -39, -39, -39, -39, -39, -39, -39, -39, -39,
-  -40, -40, -39, -39, -39, -39, -39, -39, -39, -39, -39,
-  -42, -41, -40, -39, -39, -39, -39, -39, -39, -39, -39,
-  -44, -41, -39, -39, -39, -40, -41, -41, -40, -39, -39,
-  -41, -40, -39, -39, -40, -40, -40, -40, -40, -41, -41,
-  -40, -39, -39, -42, -43, -45, -44, -41, -39, -40, -42 ;
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
 
  sst_dtime =
-  2382, 2382, 2381, 2381, 2381, 2380, 2380, 2380, 2379, 2379, 2378,
-  2383, 2383, 2382, 2382, 2382, 2381, 2381, 2381, 2380, 2380, 2380,
-  2384, 2384, 2384, 2383, 2383, 2383, 2382, 2382, 2382, 2381, 2381,
-  2386, 2385, 2385, 2384, 2384, 2384, 2383, 2383, 2383, 2382, 2382,
-  2387, 2386, 2386, 2386, 2385, 2385, 2384, 2384, 2384, 2384, 2383,
-  2388, 2388, 2387, 2387, 2386, 2386, 2386, 2385, 2385, 2385, 2384 ;
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
 
- time = 1277946000 ;
+ time = 1269445800 ;
 
  wind_speed =
-  43, 44, 44, 44, 44, 45, 45, 45, 45, 46, 46,
-  44, 44, 44, 45, 45, 45, 45, 46, 46, 46, 46,
-  44, 44, 45, 45, 45, 45, 46, 46, 46, 46, 47,
-  45, 45, 45, 45, 45, 46, 46, 46, 47, 47, 47,
-  45, 45, 45, 46, 46, 46, 46, 47, 47, 47, 47,
-  45, 45, 46, 46, 46, 46, 47, 47, 47, 47, 48 ;
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _ ;
 }
