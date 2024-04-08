@@ -70,6 +70,7 @@ for pr in $open_pr_list; do
   # checkout pull request
   git pull
   gh pr checkout $pr
+  git submodule update --init --recursive
 
   # get commit hash
   commit=$(git log --pretty=format:'%h' -n 1)

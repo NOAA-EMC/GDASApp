@@ -1,13 +1,13 @@
 obs space:
-  name: insitu_surface_trkob
+  name: insitu_surface_altkob
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_surface_trkob.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_surface_altkob.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/insitu_surface_trkob.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/diags/insitu_surface_altkob.${PDY}${cyc}.nc4
   simulated variables: [seaSurfaceTemperature]
   io pool:
     max pool size: 1

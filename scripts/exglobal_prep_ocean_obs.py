@@ -4,15 +4,26 @@
 from datetime import datetime, timedelta
 from multiprocessing import Process
 import os
+from pathlib import Path
 import subprocess
 from soca import prep_marine_obs
-from wxflow import YAMLFile, save_as_yaml, FileHandler, Logger
+from wxflow import (
+    add_to_datetime,
+    datetime_to_YMDH,
+    FileHandler,
+    Logger,
+    save_as_yaml,
+    to_timedelta,
+    YAMLFile
+)
+# from gen_bufr2ioda_json import gen_bufr_json
 
 logger = Logger()
 
 cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
 RUN = os.getenv('RUN')
+COMIN_OBS = os.getenv('COMIN_OBS')
 
 # Set the window times
 cdateDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
@@ -30,12 +41,49 @@ obsConfig = YAMLFile(OBS_YAML)
 
 OBSPREP_YAML = os.getenv('OBSPREP_YAML')
 
+# BUFR2IODA json and python scripts
+JSON_TMPL_DIR = os.getenv('JSON_TMPL_DIR')
+BUFR2IODA_PY_DIR = os.getenv('BUFR2IODA_PY_DIR')
+
 if os.path.exists(OBSPREP_YAML):
     obsprepConfig = YAMLFile(OBSPREP_YAML)
 else:
     logger.critical(f"OBSPREP_YAML file {OBSPREP_YAML} does not exist")
     raise FileNotFoundError
 
+if not os.path.exists(COMOUT_OBS):
+    os.makedirs(COMOUT_OBS)
+
+
+# def bufr2ioda(obtype, PDY, cyc, RUN, COMIN_OBS, COMOUT_OBS):
+#     logger.info(f"Process {obtype} for {RUN}.{PDY}/{cyc} from {COMIN_OBS} to {COMIN_OBS}")
+#
+#     # Load configuration
+#     config = {
+#         'RUN': RUN,
+#         'current_cycle': cdateDatetime,
+#         'DMPDIR': COMIN_OBS,
+#         'COM_OBS': COMIN_OBS,
+#     }
+#
+#     json_output_file = os.path.join(COMIN_OBS, f"{obtype}_{datetime_to_YMDH(cdateDatetime)}.json")
+#     filename = 'bufr2ioda_' + obtype + '.json'
+#     template = os.path.join(JSON_TMPL_DIR, filename)
+#
+#     # Generate cycle specific json from TEMPLATE
+#     gen_bufr_json(config, template, json_output_file)
+#
+#     bufr2iodapy = BUFR2IODA_PY_DIR + '/bufr2ioda_' + obtype + '.py'
+#     logger.info(f"BUFR2IODA python scripts: {bufr2iodapy}")
+#
+#     try:
+#         subprocess.run(['python', bufr2iodapy, '-c', json_output_file, '-v'])
+#         logger.info(f"BUFR2IODA python API converter on obs space {obtype} ran successfully")
+#     except subprocess.CalledProcessError as e:
+#         logger.info(f"BUFR2IODA python API converter failed with error {e}, \
+#             return code {e.returncode}")
+#         return e.returncode
+#
 
 def run_netcdf_to_ioda(obsspace_to_convert):
     name, iodaYamlFilename = obsspace_to_convert
@@ -95,9 +143,11 @@ try:
                 outputFilename = f"{RUN}.t{cyc}z.{obs_space_name}.{PDY}{cyc}.nc4"
                 obsprepSpace['output file'] = outputFilename
 
-                # Skip in situ IODA conversion for now
-                if obsprepSpaceName.split('_')[0] == 'insitu':
-                    logger.info("Skipping insitu conversion for now")
+                if obsprepSpace['type'] == 'bufr':
+                    logger.warning("bufr processing is not working yet")
+#                    bufr2ioda(obsprepSpaceName, PDY, cyc, RUN, COMIN_OBS, COMIN_OBS)
+#                    files_to_save.append([obsprepSpace['output file'],
+#                                          os.path.join(COMOUT_OBS, obsprepSpace['output file'])])
                 else:
                     iodaYamlFilename = obsprepSpaceName + '2ioda.yaml'
                     save_as_yaml(obsprepSpace, iodaYamlFilename)
@@ -122,8 +172,5 @@ for obsspace_to_convert in obsspaces_to_convert:
 # Wait for all processes to finish
 for process in processes:
     process.join()
-
-if not os.path.exists(COMOUT_OBS):
-    os.makedirs(COMOUT_OBS)
 
 FileHandler({'copy': files_to_save}).sync()
