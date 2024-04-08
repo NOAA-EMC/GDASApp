@@ -398,16 +398,6 @@ def bufr_to_ioda(config, logger):
                 .write_attr('long_name', 'Satellite-derived Wind Computation Method') \
                 .write_data(swcm2)
 
-            # ObsType based on computation method/spectral band
-            obsspace.create_var('ObsType/windEastward', dtype=obstype2.dtype, fillval=swcm2.fill_value) \
-                .write_attr('long_name', 'Observation Type based on Satellite-derived Wind Computation Method and Spectral Band') \
-                .write_data(obstype2)
-
-            # ObsType based on computation method/spectral band
-            obsspace.create_var('ObsType/windNorthward', dtype=obstype2.dtype, fillval=swcm2.fill_value) \
-                .write_attr('long_name', 'Observation Type based on Satellite-derived Wind Computation Method and Spectral Band') \
-                .write_data(obstype2)
-
             # Pressure
             obsspace.create_var('MetaData/pressure', dtype=pressure2.dtype, fillval=pressure2.fill_value) \
                 .write_attr('units', 'pa') \
@@ -425,6 +415,16 @@ def bufr_to_ioda(config, logger):
                 .write_attr('units', 'm') \
                 .write_attr('long_name', 'Station Elevation') \
                 .write_data(stnelev2)
+
+            # ObsType based on computation method/spectral band
+            obsspace.create_var('ObsType/windEastward', dtype=obstype2.dtype, fillval=swcm2.fill_value) \
+                .write_attr('long_name', 'Observation Type based on Satellite-derived Wind Computation Method and Spectral Band') \
+                .write_data(obstype2)
+
+            # ObsType based on computation method/spectral band
+            obsspace.create_var('ObsType/windNorthward', dtype=obstype2.dtype, fillval=swcm2.fill_value) \
+                .write_attr('long_name', 'Observation Type based on Satellite-derived Wind Computation Method and Spectral Band') \
+                .write_data(obstype2)
 
             # U-Wind Component
             obsspace.create_var('ObsValue/windEastward', dtype=uob2.dtype, fillval=uob2.fill_value) \
