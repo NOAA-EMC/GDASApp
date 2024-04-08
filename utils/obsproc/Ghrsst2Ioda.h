@@ -184,7 +184,8 @@ namespace gdasapp {
         }
       }
       // Calculate the average and store datetime
-      int64_t seconds_s = static_cast<int64_t>(sum / count);
+      // Replace the seconds_s to 0 when count is zero
+      int64_t seconds_s = count != 0 ? static_cast<int64_t>(sum / count) : 0;
 
       // number of obs after subsampling
       int nobs = sst_s.size() * sst_s[0].size();
@@ -220,7 +221,7 @@ namespace gdasapp {
 
       // Basic QC
       Eigen::Array<bool, Eigen::Dynamic, 1> boundsCheck =
-        (iodaVars.obsVal_ > sstMin && iodaVars.obsVal_ < sstMax);
+        (iodaVars.obsVal_ > sstMin && iodaVars.obsVal_ < sstMax && iodaVars.datetime_ > 0.0);
       iodaVars.trim(boundsCheck);
 
       return iodaVars;
