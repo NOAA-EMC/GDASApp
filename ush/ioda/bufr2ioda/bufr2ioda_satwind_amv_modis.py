@@ -50,7 +50,7 @@ def Get_ObsType(swcm, chanfreq):
     obstype = np.where(swcm == 3, 258, obstype)  # WVCT
     obstype = np.where(swcm >= 4, 259, obstype)  # WVDL
 
-    if not np.any(np.isin(obstype, [257,258,259])):
+    if not np.any(np.isin(obstype, [257, 258, 259])):
         raise ValueError("Error: Unassigned ObsType found ... ")
 
     return obstype
