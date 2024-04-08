@@ -1,7 +1,3 @@
-[submodule "parm/jcb-gdas"]
-  path = parm/jcb-gdas
-  url = https://github.com/noaa-emc/jcb-gdas
-  branch = develop
 [submodule "sorc/jedicmake"]
   path = sorc/jedicmake
   url = https://github.com/jcsda/jedi-cmake.git
@@ -84,3 +80,4 @@
 [submodule "parm/jcb-gdas"]
 	path = parm/jcb-gdas
 	url = https://github.com/noaa-emc/jcb-gdas
+  branch = develop
