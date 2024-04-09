@@ -10,7 +10,7 @@ base:
   PTMP: "@bindir@/test/atm/global-workflow/testrun"
 
 atmanl:
-  OBS_LIST: "amsua_n19, sondes"
+  JCB_ALGO_YAML: "@srcdir@/test/atm/global-workflow/jcb-prototype_3dvar.yaml.j2"
   STATICB_TYPE: "identity"
   ATMRES_ANL: "C48"
   LAYOUT_X_ATMANL: 1
