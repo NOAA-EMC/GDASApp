@@ -17,6 +17,6 @@ atmanl:
   LAYOUT_Y_ATMANL: 1
 
 atmensanl:
-  OBS_LIST: "@srcdir@/test/atm/global-workflow/lgetkf_prototype.yaml.j2"
+  JCB_ALGO_YAML: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf.yaml.j2"
   LAYOUT_X_ATMENSANL: 1
   LAYOUT_Y_ATMENSANL: 1
