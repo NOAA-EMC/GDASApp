@@ -5,7 +5,7 @@
 
 echo "BEGIN: config.atmensanl"
 
-export JCB_BASE_YAML="${PARMgfs}/gdas/atm.yaml.j2"
+export JCB_BASE_YAML="${PARMgfs}/gdas/atm/jcb-base.yaml.j2"
 export JCB_ALGO_YAML=@JCB_ALGO_YAML@
 
 export INTERP_METHOD='barycentric'
