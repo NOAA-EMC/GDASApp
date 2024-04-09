@@ -176,7 +176,7 @@ for process in processes:
 
 # TODO(AFE): Find a better way to do the "no file found" exception handling -
 # this way make individual calls to FileHandler for each file, instead of
-# batching them.
+# batching them. See issue https://github.com/NOAA-EMC/GDASApp/issues/1031
 for file_to_save in files_to_save:
     try:
         FileHandler({'copy': [file_to_save]}).sync()
