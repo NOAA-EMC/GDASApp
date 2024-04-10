@@ -100,6 +100,7 @@ namespace gdasapp {
       // ---------------------------------------------------------------------------------
 
       for ( int imem = 0; imem < nmem; imem++ ) {
+
         // Inputs setup
         // ---------------------------------------------------------------------------------
 
@@ -110,12 +111,10 @@ namespace gdasapp {
 
         // Read background state
         fv3jedi::State xxBkg(stateGeom, stateInputConfig);
-        oops::Log::test() << "Background State: " << std::endl << xxBkg << std::endl;
 
         // Read JEDI increment
         fv3jedi::Increment dxJEDI(jediIncrGeom, jediIncrVars, xxBkg.validTime());
         dxJEDI.read(jediIncrInputConfig);
-        oops::Log::test() << "JEDI Increment: " << std::endl << dxJEDI << std::endl;
 
         // Increment conversion
         // ---------------------------------------------------------------------------------
@@ -128,19 +127,15 @@ namespace gdasapp {
         vc->changeVar(xxBkg, varChangeIncrVars);
         vc->changeVar(xxAnl, varChangeIncrVars);
 
-        // Note:
-        // We have to be careful here. We can't just change the state variables to
-        // be the same variables as the FV3 increment, because any mixing-ratio variables
-        // will be set to zero in the analysis if the increment addition makes them negative.
-        // Thus, when we subtract the background and analysis, we won't get the same
-        // increment back out. Therefore, we have to separate the new variables resulting
-        // from the variable change from the rest of FV3 increment variables and set the
-        // latter aside to save at the end along with the new increment variables.
-
+        // Get FV3 increment by subtracting background and analysis after variable change
         fv3jedi::Increment dxFV3(fv3IncrGeom, fv3IncrVars, xxBkg.validTime());
         dxFV3.diff(xxAnl, xxBkg);
 
-        // 
+        // Put JEDI increment fields not created by variable change into FV3 increment
+        // because of interpolation between full and half resolution. Also,
+        // mixing-ratio variables may be set to zero in the analysis if the increment 
+        // addition makes them negative. In both cases, subtracting the background and 
+        // analysis won't yield back the same increment as we started with. 
 	atlas::FieldSet dxFsJEDI;
 	atlas::FieldSet dxFsFV3;
         dxJEDI.toFieldSet(dxFsJEDI);
@@ -150,14 +145,24 @@ namespace gdasapp {
             auto viewJEDI = atlas::array::make_view<double,2>(dxFsJEDI[dxFsFV3[iField].name()]);
 	    auto viewFV3 = atlas::array::make_view<double,2>(dxFsFV3[iField]);
 
-            viewFV3 = viewJEDI;
-          }
-        }            
+	    size_t gridSize = viewFV3.shape(0);
+            int nLevels = viewFV3.shape(1);
+            for (int iLevel = 0; iLevel < nLevels + 1; ++iLevel) {
+              for ( size_t jNode = 0; jNode < gridSize ; ++jNode ) {
+                viewFV3(jNode,iLevel) = viewJEDI(jNode,iLevel);
+              }
+            }
+          }    
+        }        
         dxFV3.fromFieldSet(dxFsFV3);
-        oops::Log::test() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
 
         // Write FV3 increment
         dxFV3.write(fv3IncrOuputConfig);
+
+        // Output for testing
+        oops::Log::test() << "Background State: " << std::endl << xxBkg << std::endl;
+        oops::Log::test() << "JEDI Increment: " << std::endl << dxJEDI << std::endl;
+        oops::Log::test() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
       }
 
       return 0;
