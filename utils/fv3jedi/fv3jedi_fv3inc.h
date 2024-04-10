@@ -141,14 +141,14 @@ namespace gdasapp {
         dxFV3.toFieldSet(dxFsFV3);
         for (size_t iField = 0; iField < dxFsFV3.size(); ++iField) {
           if ( dxFsJEDI.has(dxFsFV3[iField].name()) ) {
-            auto viewJEDI = atlas::array::make_view<double,2>(dxFsJEDI[dxFsFV3[iField].name()]);
-            auto viewFV3 = atlas::array::make_view<double,2>(dxFsFV3[iField]);
+            auto viewJEDI = atlas::array::make_view<double, 2>(dxFsJEDI[dxFsFV3[iField].name()]);
+            auto viewFV3 = atlas::array::make_view<double, 2>(dxFsFV3[iField]);
 
             size_t gridSize = viewFV3.shape(0);
             int nLevels = viewFV3.shape(1);
             for (int iLevel = 0; iLevel < nLevels + 1; ++iLevel) {
               for ( size_t jNode = 0; jNode < gridSize ; ++jNode ) {
-                viewFV3(jNode,iLevel) = viewJEDI(jNode, iLevel);
+                viewFV3(jNode, iLevel) = viewJEDI(jNode, iLevel);
               }
             }
           }
