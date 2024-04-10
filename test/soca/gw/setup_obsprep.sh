@@ -14,9 +14,7 @@ testdatadir="${project_source_dir}/test/soca/testdata"
 testdatadir_bufr="${project_source_dir}/build/gdas/test/testdata"
 
 # run the g-w link script so that the config files can be found
-cd ${project_source_dir}/../../..
-./link_workflow.sh
-cd -
+(cd ${project_source_dir}/../../.. && ./link_workflow.sh)
 
 # Clean up previous attempts
 rm -rf gdas.20180414  gdas.20180415
