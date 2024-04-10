@@ -100,7 +100,6 @@ namespace gdasapp {
       // ---------------------------------------------------------------------------------
 
       for ( int imem = 0; imem < nmem; imem++ ) {
-
         // Inputs setup
         // ---------------------------------------------------------------------------------
 
@@ -133,27 +132,27 @@ namespace gdasapp {
 
         // Put JEDI increment fields not created by variable change into FV3 increment
         // because of interpolation between full and half resolution. Also,
-        // mixing-ratio variables may be set to zero in the analysis if the increment 
-        // addition makes them negative. In both cases, subtracting the background and 
-        // analysis won't yield back the same increment as we started with. 
-	atlas::FieldSet dxFsJEDI;
-	atlas::FieldSet dxFsFV3;
+        // mixing-ratio variables may be set to zero in the analysis if the increment
+        // addition makes them negative. In both cases, subtracting the background and
+        // analysis won't yield back the same increment as we started with.
+        atlas::FieldSet dxFsJEDI;
+        atlas::FieldSet dxFsFV3;
         dxJEDI.toFieldSet(dxFsJEDI);
         dxFV3.toFieldSet(dxFsFV3);
         for (size_t iField = 0; iField < dxFsFV3.size(); ++iField) {
           if ( dxFsJEDI.has(dxFsFV3[iField].name()) ) {
             auto viewJEDI = atlas::array::make_view<double,2>(dxFsJEDI[dxFsFV3[iField].name()]);
-	    auto viewFV3 = atlas::array::make_view<double,2>(dxFsFV3[iField]);
+            auto viewFV3 = atlas::array::make_view<double,2>(dxFsFV3[iField]);
 
-	    size_t gridSize = viewFV3.shape(0);
+            size_t gridSize = viewFV3.shape(0);
             int nLevels = viewFV3.shape(1);
             for (int iLevel = 0; iLevel < nLevels + 1; ++iLevel) {
               for ( size_t jNode = 0; jNode < gridSize ; ++jNode ) {
-                viewFV3(jNode,iLevel) = viewJEDI(jNode,iLevel);
+                viewFV3(jNode,iLevel) = viewJEDI(jNode, iLevel);
               }
             }
-          }    
-        }        
+          }
+        }
         dxFV3.fromFieldSet(dxFsFV3);
 
         // Write FV3 increment
