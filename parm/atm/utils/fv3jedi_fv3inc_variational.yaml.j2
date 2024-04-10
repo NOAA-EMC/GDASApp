@@ -1,6 +1,6 @@
 variable change:
   variable change name: Model2GeoVaLs
-  input variables: &inputvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,phis]
+  input variables: &bkgvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,phis]
   output variables: &fv3incrvars [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,hydrostatic_delz]
 jedi increment variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 fv3 increment variables: *fv3incrvars
@@ -50,7 +50,7 @@ members:
     filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
     filename_sfcw: '{{ current_cycle | to_fv3time }}.fv_srf_wnd.res.nc'
     filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
-    state variables: *inputvars
+    state variables: *bkgvars
   jedi increment input:
     filetype: cube sphere history
     filename: ./anl/atminc.{{ current_cycle | to_fv3time }}.nc4
