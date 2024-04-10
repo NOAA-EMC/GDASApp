@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "atlas/field/FieldSet.h"
+
 #include "eckit/config/LocalConfiguration.h"
 
 #include "fv3jedi/Geometry/Geometry.h"
@@ -110,16 +112,16 @@ namespace gdasapp {
         fv3jedi::State xxBkg(stateGeom, stateInputConfig);
         oops::Log::test() << "Background State: " << std::endl << xxBkg << std::endl;
 
-        // Read JEDI increments
+        // Read JEDI increment
         fv3jedi::Increment dxJEDI(jediIncrGeom, jediIncrVars, xxBkg.validTime());
         dxJEDI.read(jediIncrInputConfig);
         oops::Log::test() << "JEDI Increment: " << std::endl << dxJEDI << std::endl;
 
         // Read JEDI sub-increment with variables in common with FV3 increment
-        oops::Variables remainingIncrVars(jediIncrVars);
-        remainingIncrVars.intersection(fv3IncrVars);
-        fv3jedi::Increment dxRemaining(jediIncrGeom, remainingIncrVars, xxBkg.validTime());
-        dxRemaining.read(jediIncrInputConfig);
+        //oops::Variables remainingIncrVars(jediIncrVars);
+        //remainingIncrVars.intersection(fv3IncrVars);
+        //fv3jedi::Increment dxRemaining(jediIncrGeom, remainingIncrVars, xxBkg.validTime());
+        //dxRemaining.read(jediIncrInputConfig);
 
         // Increment conversion
         // ---------------------------------------------------------------------------------
@@ -140,20 +142,53 @@ namespace gdasapp {
         // increment back out. Therefore, we have to separate the new variables resulting
         // from the variable change from the rest of FV3 increment variables and set the
         // latter aside to save at the end along with the new increment variables.
+        //
+        // Addendum:
+        // This all may not matter, since the increment is added back to the background.
+        // However, I don't know if this matters or not for IAU or if the FV3 increment 
+        // is used as a diagnostic for something else. We need to resolve these questions.
+        // For now, OOPS does not support merging of increments, so we'll just have to 
+        // accept this irreversiblity effect for now.  
 
         // Get hydrostatic increment
-        fv3jedi::Increment dxVarChange(fv3IncrGeom, varChangeIncrVars, xxBkg.validTime());
-        dxVarChange.diff(xxAnl, xxBkg);
+        //fv3jedi::Increment dxVarChange(fv3IncrGeom, varChangeIncrVars, xxBkg.validTime());
+        //dxVarChange.diff(xxAnl, xxBkg);
+        fv3jedi::Increment dxFV3(fv3IncrGeom, fv3IncrVars, xxBkg.validTime());
+        dxFV3.diff(xxAnl, xxBkg);
+
+        // 
+	atlas::FieldSet dxFsJEDI;
+	atlas::FieldSet dxFsFV3;
+        dxJEDI.toFieldSet(dxFsJEDI);
+        dxFV3.toFieldSet(dxFsFV3);
+	for (size_t iField = 0; iField < dxFsFV3.size(); ++iField) {
+          auto fieldFV3 = dxFsFV3[iField];
+          if ( dxFsJEDI.has(fieldFV3.name()) ) {
+            auto viewJEDI = atlas::array::make_view<double,2>(dxFsJEDI[fieldFV3.name()]);
+            auto viewFV3 = atlas::array::make_view<double,2>(fieldFV3);
+
+	    size_t gridSize = viewFV3.shape(0);
+            int nLevels = viewFV3.shape(1);
+            for (int iLevel = 0; iLevel < nLevels + 1; ++iLevel) {
+              for ( size_t jNode = 0; jNode < gridSize ; ++jNode ) {
+		oops::Log::info() << "Foo " << fieldFV3.name() << " " << viewFV3(jNode,iLevel) << " " << viewJEDI(jNode,iLevel) << std::endl;
+                viewFV3(jNode,iLevel) = viewJEDI(jNode,iLevel);
+	      }
+	    }
+          }
+        }
+        fv3jedi::Increment dxFV3_test(fv3IncrGeom, fv3IncrVars, xxBkg.validTime());
+        dxFV3_test.fromFieldSet(dxFsFV3);
 
         // Combine increments
-        fv3jedi::Increment dxFV3(fv3IncrGeom, fv3IncrVars, xxBkg.validTime());
-        dxFV3.zero();
-        dxFV3 += dxVarChange;
-        dxFV3 += dxRemaining;
+        //fv3jedi::Increment dxFV3(fv3IncrGeom, fv3IncrVars, xxBkg.validTime());
+        //dxFV3.zero();
+        //dxFV3 += dxVarChange;
+        //dxFV3 += dxRemaining;
         oops::Log::test() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
 
         // Write FV3 increment
-        dxFV3.write(fv3IncrOuputConfig);
+        dxFV3_test.write(fv3IncrOuputConfig);
       }
 
       return 0;
