@@ -2,6 +2,7 @@
 
 import os
 import fnmatch
+import subprocess
 from wxflow import FileHandler, Logger
 
 logger = Logger()
@@ -11,7 +12,7 @@ cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
 RUN = os.getenv('RUN')
 COMIN_OBS = os.getenv('COMIN_OBS')
-
+OCNOBS2IODAEXEC = os.getenv('OCNOBS2IODAEXEC')
 
 def obs_fetch(obsprepSpace, cycles):
 
@@ -48,3 +49,17 @@ def obs_fetch(obsprepSpace, cycles):
 
     # return the modified file names for the IODA converters
     return [f[2] for f in matchingFiles]
+
+def run_netcdf_to_ioda(obsspace_to_convert):
+    print("obsspace_to_convert:", obsspace_to_convert)
+    name = obsspace_to_convert
+    iodaYamlFilename = f"{name}2ioda.yaml"
+    try:
+        subprocess.run([OCNOBS2IODAEXEC, iodaYamlFilename], check=True)
+        logger.info(f"ran ioda converter on obs space {name} successfully")
+        return 0
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"ioda converter failed with error {e}, \
+            return code {e.returncode}")
+        return e.returncode
+
