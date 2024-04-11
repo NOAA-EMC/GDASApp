@@ -1,6 +1,6 @@
 #pragma once
 
-#include <filesystem>
+#include <experimental/filesystem>
 
 #include <iostream>
 #include <string>
@@ -260,12 +260,12 @@ class PostProcIncr {
   std::string socaFname() {
     std::string datadir;
     outputIncrConfig_.get("datadir", datadir);
-    std::filesystem::path pathToResolve = datadir;
+    std::experimental::filesystem::path pathToResolve(datadir);
     std::string exp;
     outputIncrConfig_.get("exp", exp);
     std::string outputType;
     outputIncrConfig_.get("type", outputType);
-    std::string incrFname = std::filesystem::canonical(pathToResolve);
+    std::string incrFname = std::experimental::filesystem::canonical(pathToResolve);
     incrFname += "/ocn." + exp + "." + outputType + "." + dt_.toString() + ".nc";
 
     return incrFname;
