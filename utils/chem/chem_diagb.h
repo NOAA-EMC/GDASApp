@@ -1,6 +1,5 @@
 #pragma once
 
-#include <filesystem>
 #include <iostream>
 #include <numeric>
 #include <string>
@@ -53,7 +52,6 @@ namespace gdasapp {
 
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
       /// Setup the fv3jedi geometry
-      std::cout << "int execute";
       oops::Log::info() << "====================== geometry" << std::endl;
       const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");
       const fv3jedi::Geometry geom(geomConfig, this->getComm());
@@ -72,7 +70,6 @@ namespace gdasapp {
 
       /// Read the background
       // --------------------
-      std::cout << "Read the background";
       oops::Log::info() << "====================== read bkg" << std::endl;
       fv3jedi::State xb(geom, chemVars, cycleDate);
       const eckit::LocalConfiguration bkgConfig(fullConfig, "background");
@@ -85,7 +82,6 @@ namespace gdasapp {
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
       // Build edges, then connections between nodes and edges
-      std::cout << "Create the mesh connectivity"; 
       int nbHalos(2);
       fullConfig.get("number of halo points", nbHalos);
       int nbNeighbors(4);
@@ -158,13 +154,11 @@ namespace gdasapp {
 
             // 3D case
           int nbz = 1;  // Number of closest point in the vertical, above and below
-          for (atlas::idx_t level = 0; level < xbFs[var].shape(1) - nbz; ++level) {
+          for (atlas::idx_t level = 0; level <= xbFs[var].shape(1) - nbz; ++level) {
             std::vector<double> local;
             for (int nn = 0; nn < neighbors.size(); ++nn) {
               int levelMin = std::max(0, level - nbz);
               int levelMax = level + nbz;
-                levelMin = 0;
-                levelMax = 1; //nzMld;
               for (int ll = levelMin; ll <= levelMax; ++ll) {
                 local.push_back(bkg(neighbors[nn], ll));
               }
@@ -183,14 +177,13 @@ namespace gdasapp {
               // Setup the additive variance (only used ofr sst)
               double additiveStdDev(0.0);
               if (stdDev > 0.0 || local.size() > 2) {
-                stdDevBkg(jnode, level)  = std::sqrt(stdDev / (local.size() - 1)) + additiveStdDev;
+                stdDevBkg(jnode, level)  = std::sqrt(stdDev / (local.size() - 1));
               }
             }
           }  // end level
         }  // end jnode
       }  // end var
 
-      // TODO(G): Assume that the steric balance explains 97% of ssh ... or do it properly ... maybe
 
 
       /// Smooth the fields
@@ -208,10 +201,9 @@ namespace gdasapp {
             auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
 
             // Loops through nodes and levels
-            for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
+            for (atlas::idx_t level = 0; level <= xbFs[var].shape(1); ++level) {
               for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
 
-                // Ocean or ice node, do something
                 std::vector<double> local;
                 auto neighbors = get_neighbors_of_node(jnode);
                 int nbh = neighbors.size();
@@ -251,21 +243,17 @@ namespace gdasapp {
       }
 
       // Rescale
-      std::cout << "Rescale";
       double rescale;
       fullConfig.get("rescale", rescale);
       util::multiplyFieldSet(bkgErrFs, rescale);
 
       // We want to write with fv3jedi, not atlas: Syncronize with fv3jedi Increment
-      std::cout << "write with fv3jedi";
       bkgErr.fromFieldSet(bkgErrFs);
 
       // Save the background error
-      std::cout << "save the background error";
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
       bkgErr.write(bkgErrorConfig);
 
-      std::cout << "after save background"; 
       return 0;
     }
 

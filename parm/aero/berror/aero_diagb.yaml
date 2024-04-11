@@ -1,0 +1,60 @@
+geometry:
+    fms initialization:
+    namelist filename: Data/fv3files/fmsmpp.nml
+    field table filename: Data/fv3files/field_table_gfdl
+  akbk: Data/fv3files/akbk64.nc4
+  layout: [1,2]
+  npx: 13
+  npy: 13
+  npz: 64
+  field metadata override: Data/fieldmetadata/gfs-aerosol.yaml
+background:
+  datetime: 2018-04-15T00:00:00Z
+  filetype: fms restart
+  state variables: [mass_fraction_of_sulfate_in_air,
+                    mass_fraction_of_hydrophobic_black_carbon_in_air,
+                    mass_fraction_of_hydrophilic_black_carbon_in_air,
+                    mass_fraction_of_hydrophobic_organic_carbon_in_air,
+                    mass_fraction_of_hydrophilic_organic_carbon_in_air,
+                    mass_fraction_of_dust001_in_air, mass_fraction_of_dust002_in_air,
+                    mass_fraction_of_dust003_in_air, mass_fraction_of_dust004_in_air,
+                    mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air,
+                    mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air,
+                    mass_fraction_of_sea_salt004_in_air]
+  datapath: Data/inputs/gfs_aero_c12/mem001
+  filename_core: 20180415.000000.fv_core.res.nc
+  filename_trcr: 20180415.000000.fv_tracer.res.nc
+  filename_sfcd: 20180415.000000.sfc_data.nc
+  filename_sfcw: 20180415.000000.fv_srf_wnd.res.nc
+  filename_cplr: 20180415.000000.coupler.res
+
+background error:
+  datadir: ./
+  date: 2018-04-15T00:00:00Z 
+  exp: bkgerr_stddev
+  type: incr
+
+variables:
+  - mass_fraction_of_sulfate_in_air
+  - mass_fraction_of_hydrophobic_black_carbon_in_air
+  - mass_fraction_of_hydrophilic_black_carbon_in_air
+  - mass_fraction_of_hydrophobic_organic_carbon_in_air
+  - mass_fraction_of_hydrophilic_organic_carbon_in_air
+  - mass_fraction_of_dust001_in_air
+  - mass_fraction_of_dust002_in_air
+  - mass_fraction_of_dust003_in_air
+  - mass_fraction_of_dust004_in_air
+  - mass_fraction_of_dust005_in_air
+  - mass_fraction_of_sea_salt001_in_air
+  - mass_fraction_of_sea_salt002_in_air
+  - mass_fraction_of_sea_salt003_in_air
+  - mass_fraction_of_sea_salt004_in_air
+
+rescale: 2.0    # rescales the filtered std. dev. by "rescale"
+min sst: 0.0    # Added to sst bkg. err.
+max ssh: 0.0    # Limits the amplitude of the unbalanced bkg err
+number of halo points: 4
+number of neighbors: 16
+simple smoothing:
+  horizontal iterations: 2
+  vertical iterations: 1
