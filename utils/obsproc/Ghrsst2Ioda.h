@@ -120,7 +120,7 @@ namespace gdasapp {
       std::vector<std::vector<float>> sst(dimLat, std::vector<float>(dimLon));
       std::vector<std::vector<float>> obserror(dimLat, std::vector<float>(dimLon));
       std::vector<std::vector<int>> preqc(dimLat, std::vector<int>(dimLon));
-      std::vector<std::vector<float>> seconds(dimLat, std::vector<float>(dimLon));
+      std::vector<std::vector<double>> seconds(dimLat, std::vector<double>(dimLon));
       size_t index = 0;
       for (int i = 0; i < dimLat; i++) {
         for (int j = 0; j < dimLon; j++) {
@@ -149,8 +149,8 @@ namespace gdasapp {
           if (sstdTime[index] == dtimeFillValue) {
             seconds[i][j] = 0;
           } else {
-            seconds[i][j]  = static_cast<float>(sstdTime[index]) * dtimeScaleFactor
-                           + static_cast<float>(refTime[0]);
+            seconds[i][j]  = static_cast<double>(sstdTime[index]) * dtimeScaleFactor
+                           + static_cast<double>(refTime[0]);
           }
           index++;
         }
@@ -163,7 +163,7 @@ namespace gdasapp {
       std::vector<std::vector<float>> lon2d_s;
       std::vector<std::vector<float>> lat2d_s;
       std::vector<std::vector<float>> obserror_s;
-      std::vector<std::vector<float>> seconds_s;
+      std::vector<std::vector<double>> seconds_s;
       if ( fullConfig_.has("binning") ) {
         sst_s = gdasapp::superobutils::subsample2D(sst, mask, fullConfig_);
         lon2d_s = gdasapp::superobutils::subsample2D(lon2d, mask, fullConfig_);
