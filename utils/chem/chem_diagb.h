@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <iostream>
 #include <numeric>
 #include <string>
@@ -94,7 +95,7 @@ namespace gdasapp {
       const auto & node2edge = mesh.nodes().edge_connectivity();
       const auto & edge2node = mesh.edges().node_connectivity();
 
-      // Lambda function to get the neighbors of a node 
+      // Lambda function to get the neighbors of a node
       // (Copy/paste from Francois's un-merged oops branch)
       const auto get_neighbors_of_node = [&](const int node) {
         std::vector<int> neighbors{};
@@ -210,7 +211,7 @@ namespace gdasapp {
                 }
 
                 if (local.size() > 2) {
-                  stdDevBkg(jnode, level) = std::accumulate(local.begin(), local.end(), 0.0) / 
+                  stdDevBkg(jnode, level) = std::accumulate(local.begin(), local.end(), 0.0) /
                   local.size();
                 }
               }
