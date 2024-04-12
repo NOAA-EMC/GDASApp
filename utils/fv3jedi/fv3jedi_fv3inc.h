@@ -160,7 +160,6 @@ namespace gdasapp {
 
         // Write FV3 increment
         dxFV3.write(fv3IncrOuputConfig);
-
       }
 
       return 0;
