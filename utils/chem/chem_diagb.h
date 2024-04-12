@@ -8,6 +8,7 @@
 #include "eckit/config/LocalConfiguration.h"
 
 #include "atlas/field.h"
+#include "atlas/functionspace/NodeColumns.h"
 #include "atlas/mesh.h"
 #include "atlas/mesh/actions/BuildEdges.h"
 #include "atlas/mesh/actions/BuildHalo.h"
@@ -15,7 +16,6 @@
 #include "atlas/util/Earth.h"
 #include "atlas/util/Geometry.h"
 #include "atlas/util/Point.h"
-#include "atlas/functionspace/NodeColumns.h"
 
 #include "oops/base/FieldSet3D.h"
 #include "oops/base/GeometryData.h"
@@ -30,8 +30,8 @@
 #include "fv3jedi/Geometry/Geometry.h"
 #include "fv3jedi/Increment/Increment.h"
 #include "fv3jedi/State/State.h"
-//#include "fv3jedi/ExplicitDiffusion/ExplicitDiffusion.h"
-//#include "fv3jedi/ExplicitDiffusion/ExplicitDiffusionParameters.h"
+// #include "fv3jedi/ExplicitDiffusion/ExplicitDiffusion.h"
+// #include "fv3jedi/ExplicitDiffusion/ExplicitDiffusionParameters.h"
 
 namespace gdasapp {
   /**
@@ -94,7 +94,8 @@ namespace gdasapp {
       const auto & node2edge = mesh.nodes().edge_connectivity();
       const auto & edge2node = mesh.edges().node_connectivity();
 
-      // Lambda function to get the neighbors of a node (Copy/paste from Francois's un-merged oops branch)
+      // Lambda function to get the neighbors of a node 
+      // (Copy/paste from Francois's un-merged oops branch)
       const auto get_neighbors_of_node = [&](const int node) {
         std::vector<int> neighbors{};
         neighbors.reserve(nbNeighbors);
@@ -147,7 +148,6 @@ namespace gdasapp {
 
         // Loop through nodes
         for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
-
           // get indices of neighbor cells
           auto neighbors = get_neighbors_of_node(jnode);
           int nbh = neighbors.size();
@@ -163,7 +163,7 @@ namespace gdasapp {
                 local.push_back(bkg(neighbors[nn], ll));
               }
             }
-            //Set the minimum number of points
+            // Set the minimum number of points
             int minn = 6;  /// probably should be passed through the config
             if (local.size() >= minn) {
               // Mean
@@ -192,10 +192,8 @@ namespace gdasapp {
         int niter(0);
         fullConfig.get("simple smoothing.horizontal iterations", niter);
         for (auto & var : chemVars.variables()) {
-
           // Horizontal averaging
           for (int iter = 0; iter < niter; ++iter) {
-
             // Update the halo points
             nodeColumns.haloExchange(bkgErrFs[var]);
             auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
@@ -203,7 +201,6 @@ namespace gdasapp {
             // Loops through nodes and levels
             for (atlas::idx_t level = 0; level <= xbFs[var].shape(1); ++level) {
               for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
-
                 std::vector<double> local;
                 auto neighbors = get_neighbors_of_node(jnode);
                 int nbh = neighbors.size();
@@ -213,7 +210,8 @@ namespace gdasapp {
                 }
 
                 if (local.size() > 2) {
-                  stdDevBkg(jnode, level) = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
+                  stdDevBkg(jnode, level) = std::accumulate(local.begin(), local.end(), 0.0) / 
+                  local.size();
                 }
               }
             }
@@ -231,9 +229,9 @@ namespace gdasapp {
             for (int iter = 0; iter < niterVert; ++iter) {
               for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
                 for (atlas::idx_t level = 1; level < xbFs[var].shape(1)-1; ++level) {
-                  stdDevBkg(jnode, level) = ( tmpArray(jnode, level-1) +
+                  stdDevBkg(jnode, level) = (tmpArray(jnode, level-1) +
                                               tmpArray(jnode, level) +
-                                              tmpArray(jnode, level+1) ) / 3.0;
+                                              tmpArray(jnode, level+1)) / 3.0;
                 }
                 stdDevBkg(jnode, 0) = stdDevBkg(jnode, 1);
               }
