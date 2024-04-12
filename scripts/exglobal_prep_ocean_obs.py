@@ -24,6 +24,7 @@ cyc = os.getenv('cyc')
 PDY = os.getenv('PDY')
 RUN = os.getenv('RUN')
 COMIN_OBS = os.getenv('COMIN_OBS')
+SOCA_FIX = os.getenv('SOCA_INPUT_FIX_DIR')
 
 # Set the window times
 cdateDatetime = datetime.strptime(PDY + cyc, '%Y%m%d%H')
@@ -50,6 +51,15 @@ if os.path.exists(OBSPREP_YAML):
 else:
     logger.critical(f"OBSPREP_YAML file {OBSPREP_YAML} does not exist")
     raise FileNotFoundError
+
+# Copy the ocean basin file
+src_file = os.path.join(SOCA_FIX, "RECCAP2_region_masks_all_v20221025.nc")
+dst_file = os.path.join(os.getenv('DATA'), "RECCAP2_region_masks_all_v20221025.nc")
+if (os.path.exists(src_file)):
+    ocean_basin_file = [[src_file, dst_file]]
+    FileHandler({'copy': ocean_basin_file}).sync()
+else:
+    logger.warning(f"{src_file} does not exist")
 
 if not os.path.exists(COMOUT_OBS):
     os.makedirs(COMOUT_OBS)

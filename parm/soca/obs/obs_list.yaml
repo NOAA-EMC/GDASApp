@@ -12,6 +12,9 @@ observers:
 #- !INC ${OBS_YAML_DIR}/sst_abi_g17_l3c.yaml
 #- !INC ${OBS_YAML_DIR}/sst_ahi_h08_l3c.yaml
 
+# SSS
+#- !INC ${OBS_YAML_DIR}/sss_smap_l2b.yaml
+
 # Ice concentration
 - !INC ${OBS_YAML_DIR}/icec_amsr2_north.yaml
 - !INC ${OBS_YAML_DIR}/icec_amsr2_south.yaml
