@@ -1,9 +1,11 @@
 #pragma once
 
+#include <mpi.h>
+
 #include <cmath>
 #include <fstream>
 #include <iostream>
-#include <mpi.h>
+#include <map>
 #include <numeric>
 #include <stdexcept>
 #include <string>
@@ -30,7 +32,6 @@
 namespace gdasapp {
   class ObsStats : public oops::Application {
    public:
-
     // -----------------------------------------------------------------------------
     explicit ObsStats(const eckit::mpi::Comm & comm = oops::mpi::world())
       : Application(comm), fillVal_(util::missingValue<float>()) {
@@ -43,7 +44,6 @@ namespace gdasapp {
 
     // -----------------------------------------------------------------------------
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
-
       // time window
       const eckit::LocalConfiguration timeWindowConf(fullConfig, "time window");
       const util::TimeWindow timeWindow(timeWindowConf);
@@ -140,7 +140,6 @@ namespace gdasapp {
                const std::string varname,
                const int dateint,
                const std::string expId) const {
-
       float rmseGlobal(0.0);
       float biasGlobal(0.0);
       int cntGlobal(0);
@@ -158,7 +157,7 @@ namespace gdasapp {
             cnt += 1;
           }
         }
-        if (cnt > 0) { // Ensure division by cnt is valid
+        if (cnt > 0) {  // Ensure division by cnt is valid
           rmseGlobal += rmse;
           biasGlobal += bias;
           cntGlobal += cnt;
@@ -174,7 +173,7 @@ namespace gdasapp {
                      << cnt << "\n";
         }
       }
-      if (cntGlobal > 0) { // Ensure division by cntGlobal is valid
+      if (cntGlobal > 0) {  // Ensure division by cntGlobal is valid
         outputFile << expId << ","
                    << varname << ","
                    << "Global,"
