@@ -1,135 +1,212 @@
 #pragma once
 
+#include <cmath>
+#include <fstream>
 #include <iostream>
+#include <mpi.h>
 #include <numeric>
+#include <stdexcept>
 #include <string>
 #include <vector>
+
 #include "eckit/config/LocalConfiguration.h"
+
 #include "ioda/Engines/EngineUtils.h"
 #include "ioda/Group.h"
 #include "ioda/ObsDataIoParameters.h"
 #include "ioda/ObsGroup.h"
 #include "ioda/ObsSpace.h"
 #include "ioda/ObsVector.h"
+
 #include "oops/base/PostProcessor.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Duration.h"
 #include "oops/util/Logger.h"
+#include "oops/util/missingValues.h"
 #include "oops/util/TimeWindow.h"
 
 namespace gdasapp {
-  // this is an example of how one can use OOPS and IODA to do something
-  // in this code, we will read in configuration from YAML
-  // and then use that configuration to read in a IODA formatted file,
-  // read one group/variable (with optional channel)
-  // and compute and print out the mean of the variable.
-  // Nothing fancy, but you can see how this could be expanded!
-
-  class IodaExample : public oops::Application {
+  class ObsStats : public oops::Application {
    public:
-    explicit IodaExample(const eckit::mpi::Comm & comm = oops::mpi::world())
-      : Application(comm) {}
-    static const std::string classname() {return "gdasapp::IodaExample";}
 
+    // -----------------------------------------------------------------------------
+    explicit ObsStats(const eckit::mpi::Comm & comm = oops::mpi::world())
+      : Application(comm), fillVal_(util::missingValue<float>()) {
+      oceans_["Atlantic"] = 1;
+      oceans_["Pacific"] = 2;
+      oceans_["Indian"] = 3;
+      oceans_["Arctic"] = 4;
+      oceans_["Southern"] = 5;
+    }
+
+    // -----------------------------------------------------------------------------
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
-      // get the obs space configuration
-      const eckit::LocalConfiguration obsConfig(fullConfig, "obs space");
-      oops::Log::info() << "obs space: " << std::endl << obsConfig << std::endl;
 
-      // time window stuff
+      // time window
       const eckit::LocalConfiguration timeWindowConf(fullConfig, "time window");
       const util::TimeWindow timeWindow(timeWindowConf);
 
-      // what variable to get the mean of
-      std::string group;
-      std::string variable;
-      fullConfig.get("group", group);
-      fullConfig.get("variable", variable);
-      int chan = 0;
-      if (fullConfig.has("channel")) {
-        fullConfig.get("channel", chan);
+      // get the list of obs spaces to process
+      std::vector<eckit::LocalConfiguration> obsSpaces;
+      fullConfig.get("obs spaces", obsSpaces);
+
+      // check if the number of workers is correct. Only the serial and 1 diag file
+      // per pe works for now
+      ASSERT(getComm().size() <= 1 || getComm().size() >= obsSpaces.size());
+
+      // initialize pe's color and communicator's name
+      int color(0);
+      std::string commNameStr = "comm_idle";
+      if (this->getComm().rank() < obsSpaces.size()) {
+        color = 1;
+        std::string commNameStr = "comm_work";
       }
 
-      // read the obs space
-      // Note, the below line does a lot of heavy lifting
-      // we can probably go to a lower level function
-      // (and more of them) to accomplish the same thing
-      ioda::ObsSpace ospace(obsConfig, oops::mpi::world(), timeWindow,
-                            oops::mpi::myself());
-      const size_t nlocs = ospace.nlocs();
-      oops::Log::info() << "nlocs =" << nlocs << std::endl;
-      std::vector<float> buffer(nlocs);
+      // Create the new communicator ()
+      char const *commName = commNameStr.c_str();
+      eckit::mpi::Comm & commObsSpace = this->getComm().split(color, commName);
 
-      // below is grabbing from the IODA obs space
-      // the specified group/variable and putting it into the buffer
-      if (chan == 0) {
-        // no channel is selected
-        ospace.get_db(group, variable, buffer);
-      } else {
-        // give it the channel as a single item list
-        ospace.get_db(group, variable, buffer, {chan});
+      // spread out the work over pes
+      if (color > 0) {
+        // get the obs space configuration
+        auto obsSpace = obsSpaces[commObsSpace.rank()];
+        eckit::LocalConfiguration obsConfig(obsSpace, "obs space");
+
+        // get the obs diag file
+        std::string obsFile;
+        obsConfig.get("obsdatain.engine.obsfile", obsFile);
+        oops::Log::info() << "========= Processing" << obsFile
+                          << "          date: " << extractDateFromFilename(obsFile)
+                          << std::endl;
+
+        // what variable to compute the stats for
+        std::string variable;
+        obsSpace.get("variable", variable);
+
+        // read the obs space
+        ioda::ObsSpace ospace(obsConfig, commObsSpace, timeWindow,
+                              oops::mpi::myself());
+        const size_t nlocs = ospace.nlocs();
+        oops::Log::info() << "nlocs =" << nlocs << std::endl;
+        std::vector<float> var(nlocs);
+        std::string group = "ombg";
+        ospace.get_db(group, variable, var);
+
+        // ocean basin partitioning
+        std::vector<int> oceanBasins(nlocs);
+        ospace.get_db("MetaData", "oceanBasin", oceanBasins);
+
+        // Open an ofstream for output and write header
+        std::string expId;
+        obsSpace.get("experiment identifier", expId);
+        std::string fileName;
+        obsSpace.get("csv output", fileName);
+        std::ofstream outputFile(fileName);
+        outputFile << "Exp,Variable,Ocean,date,RMSE,Bias,Count\n";
+
+        // get the date
+        int dateint = extractDateFromFilename(obsFile);
+
+        // Pre QC'd stats
+        oops::Log::info() << "========= Pre QC" << std::endl;
+        std::string varname = group+"_noqc";
+        std::vector<int> PreQC(nlocs);
+        ospace.get_db("PreQC", variable, PreQC);
+        stats(var, oceanBasins, PreQC, outputFile, varname, dateint, expId);
+
+        oops::Log::info() << "========= Effective QC" << std::endl;
+        varname = group+"_qc";
+        std::vector<int> eQC(nlocs);
+        ospace.get_db("EffectiveQC1", variable, eQC);
+        stats(var, oceanBasins, eQC, outputFile, varname, dateint, expId);
+
+        // Close the file
+        outputFile.close();
       }
+      getComm().barrier();
+      return EXIT_SUCCESS;
+    }
 
-      // the below line computes the mean, aka sum divided by count
-      const float mean = std::accumulate(buffer.begin(), buffer.end(), 0) /
-                         static_cast<float>(nlocs);
+    // -----------------------------------------------------------------------------
+    static const std::string classname() {return "gdasapp::IodaExample";}
 
-      // write the mean out to the stdout
-      oops::Log::info() << "mean value for " << group << "/" << variable
-                        << "=" << mean << std::endl;
+    // -----------------------------------------------------------------------------
+    void stats(const std::vector<float>& ombg,
+               const std::vector<int>& oceanBasins,
+               const std::vector<int>& qc,
+               std::ofstream& outputFile,
+               const std::string varname,
+               const int dateint,
+               const std::string expId) const {
 
-      // let's try writing the mean out to a IODA file now!
-      ////////////////////////////////////////////////////
-      // get the configuration for the obsdataout
-      eckit::LocalConfiguration outconf(fullConfig, "obsdataout");
-      ioda::ObsDataOutParameters outparams;
-      outparams.validateAndDeserialize(outconf);
+      float rmseGlobal(0.0);
+      float biasGlobal(0.0);
+      int cntGlobal(0);
 
-      // set up the backend
-      auto backendParams = ioda::Engines::BackendCreationParameters();
-      backendParams.fileName = outconf.getString("engine.obsfile");
-      backendParams.createMode = ioda::Engines::BackendCreateModes::Truncate_If_Exists;
-      backendParams.action = ioda::Engines::BackendFileActions::Create;
-      backendParams.flush = true;
-      backendParams.allocBytes = 1024*1024*50;  // no idea what this number should be
+      for (const auto& ocean : oceans_) {
+        float rmse(0.0);
+        float bias(0.0);
+        int cnt(0);
+        for (size_t i = 0; i < ombg.size(); ++i) {
+          if (ombg[i] != fillVal_ &&
+              oceanBasins[i] == ocean.second &&
+              qc[i] == 0) {
+            rmse += std::pow(ombg[i], 2);
+            bias += ombg[i];
+            cnt += 1;
+          }
+        }
+        if (cnt > 0) { // Ensure division by cnt is valid
+          rmseGlobal += rmse;
+          biasGlobal += bias;
+          cntGlobal += cnt;
+          rmse = std::sqrt(rmse / cnt);
+          bias = bias / cnt;
 
-      // construct the output group(s)
-      ioda::Group grpFromFile
-        = ioda::Engines::constructBackend(ioda::Engines::BackendNames::Hdf5File, backendParams);
-      const int numLocs = 1;
-      ioda::NewDimensionScales_t newDims;
-      newDims.push_back(ioda::NewDimensionScale<int>("Location",
-                                                     numLocs, ioda::Unlimited, numLocs));
-      ioda::ObsGroup og = ioda::ObsGroup::generate(grpFromFile, newDims);
+          outputFile << expId << ","
+                     << varname << ","
+                     << ocean.first << ","
+                     << dateint << ","
+                     << rmse << ","
+                     << bias << ","
+                     << cnt << "\n";
+        }
+      }
+      if (cntGlobal > 0) { // Ensure division by cntGlobal is valid
+        outputFile << expId << ","
+                   << varname << ","
+                   << "Global,"
+                   << dateint << ","
+                   << std::sqrt(rmseGlobal / cntGlobal) << ","
+                   << biasGlobal / cntGlobal << ","
+                   << cntGlobal << "\n";
+      }
+    }
 
-      // create the output variables
-      ioda::Variable LocationVar = og.vars["Location"];
-      std::string varname = "mean/" + group + "/" + variable;
-      ioda::VariableCreationParameters float_params;
-      float_params.chunk = true;               // allow chunking
-      float_params.compressWithGZIP();         // compress using gzip
-      float_params.setFillValue<float>(-999);  // set the fill value to -999
-      ioda::Variable outVar = og.vars.createWithScales<float>(varname, {LocationVar}, float_params);
+    // -----------------------------------------------------------------------------
+    // Function to extract the date from the filename
+    int extractDateFromFilename(const std::string& filename) const {
+      if (filename.length() < 14) {
+        throw std::invalid_argument("Filename is too short to contain a valid date.");
+      }
+      std::string dateString = filename.substr(filename.length() - 14, 10);
 
-      // write to file
-      std::vector<float> meanVec(numLocs);
-      meanVec[0] = mean;
-      outVar.write(meanVec);
-
-      // print a message
-      oops::Log::info() << "mean written to" << backendParams.fileName << std::endl;
-
-      // a better program should return a real exit code depending on result,
-      // but this is just an example!
-      return 0;
+      // Convert the extracted date string to an integer
+      int date = std::stoi(dateString);
+      return date;
     }
     // -----------------------------------------------------------------------------
    private:
     std::string appname() const {
-      return "gdasapp::IodaExample";
+      return "gdasapp::ObsStats";
     }
+
+    // -----------------------------------------------------------------------------
+    // Data members
+    std::map<std::string, int> oceans_;
+    double fillVal_;
     // -----------------------------------------------------------------------------
   };
 
