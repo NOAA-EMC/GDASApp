@@ -1,15 +1,17 @@
 geometry:
-    fms initialization:
-    namelist filename: Data/fv3files/fmsmpp.nml
-    field table filename: Data/fv3files/field_table_gfdl
-  akbk: Data/fv3files/akbk64.nc4
-  layout: [1,2]
-  npx: 13
-  npy: 13
-  npz: 64
-  field metadata override: Data/fieldmetadata/gfs-aerosol.yaml
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ layout_x }}
+  - {{ layout_y }}
+  npx: {{ npx_ges }}
+  npy: {{ npy_ges }}
+  npz: {{ npz_ges }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 background:
-  datetime: 2018-04-15T00:00:00Z
+  datetime: '{{ current_cycle | to_isotime }}' 
   filetype: fms restart
   state variables: [mass_fraction_of_sulfate_in_air,
                     mass_fraction_of_hydrophobic_black_carbon_in_air,
@@ -21,16 +23,14 @@ background:
                     mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air,
                     mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air,
                     mass_fraction_of_sea_salt004_in_air]
-  datapath: Data/inputs/gfs_aero_c12/mem001
-  filename_core: 20180415.000000.fv_core.res.nc
-  filename_trcr: 20180415.000000.fv_tracer.res.nc
-  filename_sfcd: 20180415.000000.sfc_data.nc
-  filename_sfcw: 20180415.000000.fv_srf_wnd.res.nc
-  filename_cplr: 20180415.000000.coupler.res
+  datapath: ./bkg
+  filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
+  filename_trcr: '{{ current_cycle | to_fv3time }}.fv_tracer.res.nc'
+  filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
 
 background error:
   datadir: ./
-  date: 2018-04-15T00:00:00Z 
+  date: '{{ current_cycle | to_isotime }}' 
   exp: bkgerr_stddev
   type: incr
 
