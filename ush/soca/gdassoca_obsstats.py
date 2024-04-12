@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-#creates figures of timeseries from the csv outputs computed by gdassoca_obsstats.x
+
+
+# creates figures of timeseries from the csv outputs computed by gdassoca_obsstats.x
 import argparse
 from itertools import product
 import os
@@ -7,7 +9,8 @@ import glob
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-g
+
+
 class ObsStats:
     def __init__(self):
         self.data = pd.DataFrame()
@@ -67,6 +70,7 @@ class ObsStats:
         # Improve layout and show plot
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plt.savefig(f'{ocean}_test.png')
+
 
 if __name__ == "__main__":
     epilog = ["Usage examples: ./gdassoca_obsstats.py --exp gdas.*.csv"]

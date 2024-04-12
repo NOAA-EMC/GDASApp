@@ -113,32 +113,29 @@ FileHandler({'copy': fh_list}).sync()
 
 # obs space statistics
 logger.info(f"---------------- Compute basic stats")
-diags_list = glob.glob(os.path.join(os.path.join(com_ocean_analysis, 'diags','*.nc4')))
+diags_list = glob.glob(os.path.join(os.path.join(com_ocean_analysis, 'diags', '*.nc4')))
 obsstats_j2yaml = str(os.path.join(os.getenv('HOMEgfs'), 'sorc', 'gdas.cd',
-                               'parm', 'soca', 'obs', 'obs_stats.yaml.j2'))
+                                   'parm', 'soca', 'obs', 'obs_stats.yaml.j2'))
 
-# lambda to create a minimalist ioda obs sapce
-create_obs_space = lambda data: {
-    "obs space": {
-        "name": data["obs_space"],
-        "obsdatain": {
-            "engine": {
-                "type": "H5File",
-                "obsfile": data["obsfile"]
-            }
-        },
-        "simulated variables": [data["variable"]]
-    },
-    "variable":  data["variable"],
-    "experiment identifier":  data["pslot"],
-    "csv output": data["csv_output"]
-}
+
+# function to create a minimalist ioda obs sapce
+def create_obs_space(data):
+    os_dict = {"obs space": {
+               "name": data["obs_space"],
+               "obsdatain": {
+                   "engine": {"type": "H5File", "obsfile": data["obsfile"]}
+               },
+               "simulated variables": [data["variable"]]
+               },
+               "variable": data["variable"],
+               "experiment identifier": data["pslot"],
+               "csv output": data["csv_output"]
+               }
+    return os_dict
+
 
 # attempt to extract the experiment id from the path
-try:
-    pslot = os.path.normpath(com_ocean_analysis).split(os.sep)[-5]
-except:
-    pslot = "no_id"
+pslot = os.path.normpath(com_ocean_analysis).split(os.sep)[-5]
 
 # iterate through the obs spaces and generate the yaml for gdassoca_obsstats.x
 obs_spaces = []
