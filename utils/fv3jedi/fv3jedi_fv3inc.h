@@ -148,7 +148,7 @@ namespace gdasapp {
 
             size_t gridSize = viewFV3.shape(0);
             int nLevels = viewFV3.shape(1);
-            for (int iLevel = 0; iLevel < nLevels + 1; ++iLevel) {
+            for (int iLevel = 0; iLevel < nLevels; ++iLevel) {
               for ( size_t jNode = 0; jNode < gridSize ; ++jNode ) {
                 viewFV3(jNode, iLevel) = viewJEDI(jNode, iLevel);
               }
