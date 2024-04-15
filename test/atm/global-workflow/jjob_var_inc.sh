@@ -14,9 +14,6 @@ export EXPDIR=$bindir/test/atm/global-workflow/testrun/experiments/$PSLOT
 export PDY=20210323
 export cyc=18
 export CDATE=${PDY}${cyc}
-export gPDY=20210323
-export gcyc=12
-export GDATE=${gPDY}${gcyc}
 export ROTDIR=$bindir/test/atm/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=gdas
 export CDUMP=gdas
@@ -50,9 +47,9 @@ fi
 
 # Execute j-job
 if [[ $machine = 'HERA' ]]; then
-    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
+    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FV3_INCREMENT
 elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
+    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FV3_INCREMENT
 else
-    ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
+    ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FV3_INCREMENT
 fi
