@@ -142,4 +142,4 @@ fi
 
 # ==============================================================================
 # scrub working directory for older files
-find $stableroot/* -maxdepth 1 -mtime +3 -exec $my_dir/rm_stable.sh $stableroot/latest-stable-date {} \;
+find $stableroot/* -maxdepth 0 -mtime +3 -exec $my_dir/rm_stable.sh $stableroot/latest-stable-date {} \;
