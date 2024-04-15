@@ -151,7 +151,6 @@ namespace gdasapp {
           auto neighbors = get_neighbors_of_node(jnode);
           int nbh = neighbors.size();
 
-            // 3D case
           int nbz = 1;  // Number of closest point in the vertical, above and below
           for (atlas::idx_t level = 0; level <= xbFs[var].shape(1) - nbz; ++level) {
             std::vector<double> local;
