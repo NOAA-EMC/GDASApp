@@ -51,6 +51,7 @@ def obs_fetch(obsprepSpace, cycles):
     return [f[2] for f in matchingFiles]
 
 def run_netcdf_to_ioda(obsspace_to_convert):
+    logger.info(f"running run_netcdf_to_ioda on {obsspace_to_convert['name']}")
     print("obsspace_to_convert:", obsspace_to_convert['name'])
     iodaYamlFilename = obsspace_to_convert['conversion config file']
     try:
@@ -95,6 +96,7 @@ def bufr2ioda(obtype, PDY, cyc, RUN, COMIN_OBS, COMOUT_OBS):
 
 def run_bufr_to_ioda(obsspace_to_convert):
     print("obsspace_to_convert:", obsspace_to_convert['name'])
+    logger.info(f"running run_bufr_to_ioda on {obsspace_to_convert['name']}")
     json_output_file = obsspace_to_convert['conversion config file']
     bufr2iodapy = obsspace_to_convert['bufr2ioda converter']
     try:

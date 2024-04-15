@@ -210,26 +210,22 @@ class PrepOceanObs(Task):
             obsspace = obs_to_convert['obs space']
             obtype = obsspace['name']
             logger.info(f"name: {obtype}")
-            process = Process(target=prep_ocean_obs_utils.run_netcdf_to_ioda, args=(obsspace,))
+            if obsspace["type"] == "nc":
+                process = Process(target=prep_ocean_obs_utils.run_netcdf_to_ioda, args=(obsspace,))
+            elif obsspace["type"] == "bufr":
+                process = Process(target=prep_ocean_obs_utils.run_bufr_to_ioda, args=(obsspace,))
+            else:
+                logger.warning(f"Invalid observation format {obsspace['type']}, skipping obtype {obtype}")
+                continue
             process.start()
             processes.append((process,obsspace))
 
         completed = []
-        result_queue = Queue()
         # Wait for all processes to finish
+        # TODO(AFE): add return value checking
         for process, obsspace in processes:
             process.join()
-#            logger.info("tuzex I bet we get here")
-#            result = result_queue.get()
-#            logger.info("tuzex and not here")
-            #if process.exitcode == 0:
-            if result == 0:
-                print("tuzex process.exitcode: ",process.exitcode)
-                #warning(f"tuzex this clames the exitcode is 0:", process.exitcode)
-                completed.append({'obs space':obsspace})
-            else:
-                logger.warning(f"IODA conversion of {obsspace['name']} failed, skipping")
-                continue
+            completed.append(obsspace)
 
         save_as_yaml({"observations" : completed }, "movetorotdir.yaml")
 
@@ -254,11 +250,17 @@ class PrepOceanObs(Task):
 
         for obsspace_to_save in obsspaces_to_save['observations']:
 
-            obsspace = obsspace_to_save['obs space']
-            output_file = obsspace['output file']
-            conv_config_file = obsspace['conversion config file']
+            #obsspace = obsspace_to_save['obs space']
+            #output_file = obsspace['output file']
+            output_file = obsspace_to_save['output file']
+            #conv_config_file = obsspace['conversion config file']
+            conv_config_file = obsspace_to_save['conversion config file']
             output_file_dest = os.path.join(COMOUT_OBS, output_file)
             conv_config_file_dest = os.path.join(COMOUT_OBS,conv_config_file)
 
-            FileHandler({'copy': [[output_file,output_file_dest]]}).sync()
-            FileHandler({'copy': [[conv_config_file,conv_config_file_dest]]}).sync()
+            try:
+                FileHandler({'copy': [[output_file,output_file_dest]]}).sync()
+                FileHandler({'copy': [[conv_config_file,conv_config_file_dest]]}).sync()
+            except OSError:
+                logger.warning(f"Obs file not found, possible IODA converter failure)")
+                continue
