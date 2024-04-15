@@ -130,9 +130,6 @@ namespace gdasapp {
       atlas::FieldSet bkgErrFs;
       bkgErr.toFieldSet(bkgErrFs);
 
-
-
-
       // Loop through variables
       for (auto & var : chemVars.variables()) {
         oops::Log::info() << "====================== std dev for " << var << std::endl;
