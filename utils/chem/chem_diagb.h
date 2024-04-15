@@ -130,13 +130,7 @@ namespace gdasapp {
       atlas::FieldSet bkgErrFs;
       bkgErr.toFieldSet(bkgErrFs);
 
-      // Get the std dev to add to sst
-      double sstBkgErrMin(0.0);
-      fullConfig.get("min sst", sstBkgErrMin);
 
-      // Get the max std dev for ssh
-      double sshMax(0.0);
-      fullConfig.get("max ssh", sshMax);
 
 
       // Loop through variables
