@@ -31,8 +31,6 @@
 #include "fv3jedi/Geometry/Geometry.h"
 #include "fv3jedi/Increment/Increment.h"
 #include "fv3jedi/State/State.h"
-// #include "fv3jedi/ExplicitDiffusion/ExplicitDiffusion.h"
-// #include "fv3jedi/ExplicitDiffusion/ExplicitDiffusionParameters.h"
 
 namespace gdasapp {
   /**
