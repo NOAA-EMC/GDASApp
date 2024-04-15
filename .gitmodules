@@ -81,3 +81,7 @@
   path = parm/jcb-gdas
   url = https://github.com/noaa-emc/jcb-gdas
   branch = develop
+[submodule "parm/jcb-algorithms"]
+  path = parm/jcb-algorithms
+  url = https://github.com/noaa-emc/jcb-algorithms
+  branch = develop
