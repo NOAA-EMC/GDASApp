@@ -95,10 +95,10 @@ if [ $ci_status -eq 0 ]; then
   fi
   # add in submodules
   git stash pop
-  total=$(($total+$?))
-  if [ $total -ne 0 ]; then
-    echo "Unable to git stash pop" >> $stableroot/$datestr/output
-  fi
+  #total=$(($total+$?))
+  #if [ $total -ne 0 ]; then
+  #  echo "Unable to git stash pop" >> $stableroot/$datestr/output
+  #fi
   $my_dir/../ush/submodules/add_submodules.sh $gdasdir
   total=$(($total+$?))
   if [ $total -ne 0 ]; then
@@ -117,7 +117,7 @@ if [ $ci_status -eq 0 ]; then
   fi
   if [ $total -ne 0 ]; then
     echo "Issue merging with develop. please manually fix"
-    PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov"
+    PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov Daniel.Holdaway@noaa.gov"
     SUBJECT="Problem updating feature/stable-nightly branch of GDASApp"
     BODY=$stableroot/$datestr/output_stable_nightly
     cat > $BODY << EOF
@@ -127,6 +127,10 @@ EOF
     mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
   else
     echo "Stable branch updated"
+    unlink $stableroot/latest-stable
+    ln -sf $stableroot/$datestr $stableroot/latest-stable
+    rm -rf $stableroot/latest-stable-date
+    echo $datestr > $stableroot/latest-stable-date
   fi
 else
   # do nothing
@@ -138,4 +142,4 @@ fi
 
 # ==============================================================================
 # scrub working directory for older files
-find $stableroot/* -maxdepth 1 -mtime +3 -exec rm -rf {} \;
+find $stableroot/* -maxdepth 1 -mtime +3 -exec $my_dir/rm_stable.sh $stableroot/latest-stable-date {} \;
