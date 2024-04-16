@@ -158,7 +158,7 @@ class JobCard:
                 self.f.write(f"set -u \n")
 
     def precom(self, com, tmpl):
-        cmd = f"RUN={self.RUN} YMD={self.gPDY} HH={self.gcyc} generate_com -xr {com}:{tmpl}"
+        cmd = f"RUN={self.RUN} YMD={self.gPDY} HH={self.gcyc} declare_from_tmpl -xr {com}:{tmpl}"
         self.f.write(f"{cmd}\n")
 
     def copy_bkgs(self):
