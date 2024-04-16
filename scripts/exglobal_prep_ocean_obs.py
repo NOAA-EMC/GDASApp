@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # exglobal_prep_ocean_obs.py
-# This script creates an PrepOceanObs class
-# and runs the initialize, run, and finalize  methods
+# This script instantiates a PrepOceanObs class
+# and runs the initialize, run, and finalize methods
 import os
 
 from wxflow import Logger, cast_strdict_as_dtypedict
@@ -16,7 +16,7 @@ if __name__ == '__main__':
     # Take configuration from environment and cast it as python dictionary
     config = cast_strdict_as_dtypedict(os.environ)
 
-    # Instantiate the aerosol analysis task
+    # Instantiate the prepocnobs task
     PrepOcnObs = PrepOceanObs(config)
     PrepOcnObs.initialize()
     PrepOcnObs.run()

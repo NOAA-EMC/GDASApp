@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import os
 import fnmatch
 import subprocess
@@ -63,37 +62,6 @@ def run_netcdf_to_ioda(obsspace_to_convert):
             return code {e.returncode}")
         return e.returncode
 
-
-def bufr2ioda(obtype, PDY, cyc, RUN, COMIN_OBS, COMOUT_OBS):
-    logger.info(f"Process {obtype} for {RUN}.{PDY}/{cyc} from {COMIN_OBS} to {COMIN_OBS}")
-
-    # Load configuration
-    config = {
-        'RUN': RUN,
-        'current_cycle': cdateDatetime,
-        'DMPDIR': COMIN_OBS,
-        'COM_OBS': COMIN_OBS,
-    }
-
-    json_output_file = os.path.join(COMIN_OBS, f"{obtype}_{datetime_to_YMDH(cdateDatetime)}.json")
-    filename = 'bufr2ioda_' + obtype + '.json'
-    template = os.path.join(JSON_TMPL_DIR, filename)
-
-    # Generate cycle specific json from TEMPLATE
-    gen_bufr_json(config, template, json_output_file)
-
-    bufr2iodapy = BUFR2IODA_PY_DIR + '/bufr2ioda_' + obtype + '.py'
-    logger.info(f"BUFR2IODA python scripts: {bufr2iodapy}")
-
-    try:
-        subprocess.run(['python', bufr2iodapy, '-c', json_output_file, '-v'])
-        logger.info(f"BUFR2IODA python API converter on obs space {obtype} ran successfully")
-    except subprocess.CalledProcessError as e:
-        logger.info(f"BUFR2IODA python API converter failed with error {e}, \
-            return code {e.returncode}")
-        #return e.returncode
-        return e
-
 def run_bufr_to_ioda(obsspace_to_convert):
     print("obsspace_to_convert:", obsspace_to_convert['name'])
     logger.info(f"running run_bufr_to_ioda on {obsspace_to_convert['name']}")
@@ -106,7 +74,4 @@ def run_bufr_to_ioda(obsspace_to_convert):
     except subprocess.CalledProcessError as e:
         logger.warning(f"bufr2ioda converter failed with error {e}, \
             return code {e.returncode}")
-        #return e.returncode
-        #return e
-        return -1
-
+        return e.returncode

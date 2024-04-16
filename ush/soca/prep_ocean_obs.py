@@ -47,18 +47,17 @@ class PrepOceanObs(Task):
 
         DATA = self.runtime_config.DATA
 
-        # Set the window times
         PDY = self.runtime_config['PDY']
         cyc = self.runtime_config['cyc']
         cdate = PDY + timedelta(hours=cyc)
 
         self.runtime_config['cdate'] = cdate
-        windowBeginDatetime = cdate - timedelta(hours=3)
-        windowEndDatetime = cdate + timedelta(hours=3)
-        self.windowBegin = windowBeginDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
-        self.windowEnd = windowEndDatetime.strftime('%Y-%m-%dT%H:%M:%SZ')
+        window_begin_datetime = cdate - timedelta(hours=3)
+        window_begin_datetime = cdate + timedelta(hours=3)
+        self.window_begin = window_begin_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
+        self.window_end = window_begin_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        self.config.conversionListFile = 'conversionList.yaml'
+        self.config.conversion_list_file = 'conversion_list.yaml'
 
     @logit(logger)
     def initialize(self):
@@ -79,11 +78,11 @@ class PrepOceanObs(Task):
         cyc = self.runtime_config['cyc']
 
         OBS_YAML = self.config['OBS_YAML']
-        obsConfig = YAMLFile(OBS_YAML)
+        observer_config = YAMLFile(OBS_YAML)
 
         OBSPREP_YAML = self.config['OBSPREP_YAML']
         if os.path.exists(OBSPREP_YAML):
-            obsprepConfig = YAMLFile(OBSPREP_YAML)
+            obsprep_config = YAMLFile(OBSPREP_YAML)
         else:
             logger.critical(f"OBSPREP_YAML file {OBSPREP_YAML} does not exist")
             raise FileNotFoundError
@@ -101,17 +100,17 @@ class PrepOceanObs(Task):
         
         try:
             # go through the sources in OBS_YAML
-            for observer in obsConfig['observers']:
+            for observer in observer_config['observers']:
                 try:
                     obs_space_name = observer['obs space']['name']
-                    logger.info(f"obsSpaceName: {obs_space_name}")
+                    logger.info(f"obs_space_name: {obs_space_name}")
                 except KeyError:
                     logger.warning("Ill-formed observer yaml file, skipping")
                     continue
         
                 # find match to the obs space from OBS_YAML in OBSPREP_YAML
                 # this is awkward and unpythonic, so feel free to improve
-                for observation in obsprepConfig['observations']:
+                for observation in obsprep_config['observers']:
                     obsprepSpace = observation['obs space']
                     obsprepSpaceName = obsprepSpace['name']
         
@@ -138,13 +137,12 @@ class PrepOceanObs(Task):
                             break
         
                         obsprepSpace['input files'] = matchingFiles
-                        obsprepSpace['window begin'] = self.windowBegin
-                        obsprepSpace['window end'] = self.windowEnd
+                        obsprepSpace['window begin'] = self.window_begin
+                        obsprepSpace['window end'] = self.window_end
                         outputFilename = f"{RUN}.t{cyc}z.{obs_space_name}.{cdatestr}.nc4"
                         obsprepSpace['output file'] = outputFilename
 
                         if obsprepSpace['type'] == 'bufr':
-                       #     bufr2ioda(obsprepSpaceName, PDY, cyc, RUN, COMIN_OBS, COMIN_OBS)
                             gen_bufr_json_config =  {
                                                      'RUN': RUN,
                                                      'current_cycle': cdate,
@@ -185,7 +183,7 @@ class PrepOceanObs(Task):
 
         # yes, there is redundancy between the yamls fed to the ioda converter and here,
         # this seems safer and easier than being selective about the fields
-        save_as_yaml({"observations" : obsspaces_to_convert}, self.config.conversionListFile )
+        save_as_yaml({"observers" : obsspaces_to_convert}, self.config.conversion_list_file )
          
     @logit(logger)
     def run(self):
@@ -202,10 +200,10 @@ class PrepOceanObs(Task):
 
         chdir(self.runtime_config.DATA)
 
-        obsspaces_to_convert = YAMLFile(self.config.conversionListFile)
+        obsspaces_to_convert = YAMLFile(self.config.conversion_list_file)
 
         processes = []
-        for obs_to_convert in obsspaces_to_convert['observations']:
+        for obs_to_convert in obsspaces_to_convert['observers']:
 
             obsspace = obs_to_convert['obs space']
             obtype = obsspace['name']
@@ -227,7 +225,7 @@ class PrepOceanObs(Task):
             process.join()
             completed.append(obsspace)
 
-        save_as_yaml({"observations" : completed }, "movetorotdir.yaml")
+        save_as_yaml({"observers" : completed }, "movetorotdir.yaml")
 
     @logit(logger)
     def finalize(self):
@@ -248,7 +246,7 @@ class PrepOceanObs(Task):
 
         obsspaces_to_save =  YAMLFile("movetorotdir.yaml")
 
-        for obsspace_to_save in obsspaces_to_save['observations']:
+        for obsspace_to_save in obsspaces_to_save['observers']:
 
             #obsspace = obsspace_to_save['obs space']
             #output_file = obsspace['output file']

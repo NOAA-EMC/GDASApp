@@ -1,4 +1,4 @@
-observations:
+observers:
 # SSS
 - obs space:
     name: sss_smap
