@@ -10,7 +10,8 @@ import f90nml
 from soca import bkg_utils
 from datetime import datetime, timedelta
 import pytz
-from wxflow import (Logger, Template, TemplateConstants, YAMLFile, FileHandler)
+from wxflow import (Logger, Template, TemplateConstants,
+                    YAMLFile, FileHandler, AttrDict, parse_j2yaml)
 
 logger = Logger()
 
@@ -196,12 +197,9 @@ FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
 berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
 
 logger.info(f"---------------- generate soca_diagb.yaml")
-diagb_yaml = os.path.join(anl_dir, 'soca_diagb.yaml')
-diagb_yaml_template = os.path.join(berror_yaml_dir, 'soca_diagb.yaml')
-config = YAMLFile(path=diagb_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config = Template.substitute_structure(config, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
-config.save(diagb_yaml)
+conf = parse_j2yaml(path=os.path.join(berror_yaml_dir, 'soca_diagb.yaml.j2'),
+                    data=envconfig)
+conf.save(os.path.join(anl_dir, 'soca_diagb.yaml'))
 
 logger.info(f"---------------- generate soca_ensb.yaml")
 berr_yaml = os.path.join(anl_dir, 'soca_ensb.yaml')
@@ -245,12 +243,9 @@ config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BR
 config.save(diffu_hz_yaml)
 
 logger.info(f"---------------- generate soca_vtscales.yaml")
-vtscales_yaml = os.path.join(anl_dir, 'soca_vtscales.yaml')
-vtscales_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
-vtscales_yaml_template = os.path.join(berror_yaml_dir, 'soca_vtscales.yaml')
-config = YAMLFile(path=vtscales_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config.save(vtscales_yaml)
+conf = parse_j2yaml(path=os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_vtscales.yaml.j2'),
+                    data=envconfig)
+conf.save(os.path.join(anl_dir, 'soca_vtscales.yaml'))
 
 logger.info(f"---------------- generate soca_parameters_diffusion_vt.yaml")
 diffu_vt_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_vt.yaml')

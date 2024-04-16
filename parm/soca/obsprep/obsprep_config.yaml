@@ -19,11 +19,12 @@ observations:
     name: adt_rads_all
     dmpdir subdir: ocean/adt
     provider: RADS
-    output file: adt_rads_all.nc4
-    error ratio: 1.0  # [m/s] correspond to 1.0m/day
+    type: nc
+    dmpdir regex: 'rads_adt_*.nc'
     window:
-       back: 0       # look back 8 six-hourly obs dumps
-       forward: 0    #  look forward 1 six-hourly bin
+       back: 0
+       forward: 0
+    error ratio: 0.4  # meters per day
 
 # Ice concentration
 - obs space:

@@ -88,7 +88,7 @@ fi
 
 ################################################################################
 # Compute the parametric diag of B
-$APRUN_OCNANAL $JEDI_BIN/gdas_diagb.x soca_diagb.yaml
+$APRUN_OCNANAL $JEDI_BIN/gdas_soca_diagb.x soca_diagb.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err
@@ -114,6 +114,7 @@ fi
 ################################################################################
 # Initialize the vertical diffusion blocks
 # Compute the MLD dependent vertical scales
+# TODO(G): Probably not the right way to execute this script
 python ${HOMEgfs}/sorc/gdas.cd/sorc/soca/tools/calc_scales.py soca_vtscales.yaml
 clean_yaml soca_parameters_diffusion_vt.yaml
 
