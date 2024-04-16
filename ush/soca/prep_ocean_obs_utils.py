@@ -8,8 +8,9 @@ logger = Logger()
 
 # finds files in DMPDIR matching the regex in an obtype's preobs config,
 # copies them to DATA, and returns a list of the files so handled
-def obs_fetch(config, runtime_config, obsprep_space, cycles):
 
+
+def obs_fetch(config, runtime_config, obsprep_space, cycles):
 
     DMPDIR = config.DMPDIR
     COMIN_OBS = config.COMIN_OBS

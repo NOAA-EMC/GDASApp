@@ -98,7 +98,7 @@ class PrepOceanObs(Task):
 
         files_to_save = []
         obsspaces_to_convert = []
-        
+
         try:
             # go through the sources in OBS_YAML
             for observer in observer_config['observers']:
@@ -108,38 +108,38 @@ class PrepOceanObs(Task):
                 except KeyError:
                     logger.warning("Ill-formed observer yaml file, skipping")
                     continue
-        
+
                 # find match to the obs space from OBS_YAML in OBSPREP_YAML
                 # this is awkward and unpythonic, so feel free to improve
                 for obsprep_entry in obsprep_config['observers']:
                     obsprep_space = obsprep_entry['obs space']
                     obsprep_space_name = obsprep_space['name']
-        
+
                     if obsprep_space_name == obs_space_name:
                         obtype = obsprep_space_name  # for brevity
                         logger.info(f"Observer {obtype} found in OBSPREP_YAML")
-        
+
                         try:
                             obs_window_back = obsprep_space['window']['back']
                             obs_window_forward = obsprep_space['window']['forward']
                         except KeyError:
                             obs_window_back = 0
                             obs_window_forward = 0
-        
+
                         window_cdates = []
                         for i in range(-obs_window_back, obs_window_forward + 1):
                             interval = timedelta(hours=6 * i)
                             window_cdates.append(cdate + interval)
-        
+
                         input_files = prep_ocean_obs_utils.obs_fetch(self.config,
                                                                      self.runtime_config,
                                                                      obsprep_space,
                                                                      window_cdates)
-        
+
                         if not input_files:
                             logger.warning(f"No files found for obs source {obtype}, skipping")
                             break
-        
+
                         obsprep_space['input files'] = input_files
                         obsprep_space['window begin'] = self.window_begin
                         obsprep_space['window end'] = self.window_end
@@ -150,10 +150,10 @@ class PrepOceanObs(Task):
                         # netcdf files respectively
                         if obsprep_space['type'] == 'bufr':
                             gen_bufr_json_config = {
-                                                    'RUN': RUN,
-                                                    'current_cycle': cdate,
-                                                    'DMPDIR': COMIN_OBS,
-                                                    'COM_OBS': COMIN_OBS,
+                                                   'RUN': RUN,
+                                                   'current_cycle': cdate,
+                                                   'DMPDIR': COMIN_OBS,
+                                                   'COM_OBS': COMIN_OBS,
                                                     }
                             json_config_file = os.path.join(COMIN_OBS,
                                                             f"{obtype}_{cdatestr}.json")
@@ -180,7 +180,7 @@ class PrepOceanObs(Task):
 
                         else:
                             logger.warning(f"obs space {obtype} has bad type {obsprep_space['type']}, skipping")
-                            
+
         except TypeError:
             logger.critical("Ill-formed OBS_YAML or OBSPREP_YAML file, exiting")
             raise
@@ -188,7 +188,7 @@ class PrepOceanObs(Task):
         # yes, there is redundancy between the yamls fed to the ioda converter and here,
         # this seems safer and easier than being selective about the fields
         save_as_yaml({"observers": obsspaces_to_convert}, self.config.conversion_list_file)
-         
+
     @logit(logger)
     def run(self):
         """Method run for ocean obs prep task
