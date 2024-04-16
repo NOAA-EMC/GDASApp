@@ -104,14 +104,14 @@ class PrepOceanObs(Task):
             for observer in observer_config['observers']:
                 try:
                     obs_space_name = observer['obs space']['name']
-                    logger.info(f"Trying to find observer {obs_space_name} in OBSPREP_YAML")
+                    logger.info(f"Trying to find observation {obs_space_name} in OBSPREP_YAML")
                 except KeyError:
                     logger.warning("Ill-formed observer yaml file, skipping")
                     continue
 
                 # find match to the obs space from OBS_YAML in OBSPREP_YAML
                 # this is awkward and unpythonic, so feel free to improve
-                for obsprep_entry in obsprep_config['observers']:
+                for obsprep_entry in obsprep_config['observations']:
                     obsprep_space = obsprep_entry['obs space']
                     obsprep_space_name = obsprep_space['name']
 
@@ -149,12 +149,10 @@ class PrepOceanObs(Task):
                         # set up the config file for conversion to IODA for bufr and
                         # netcdf files respectively
                         if obsprep_space['type'] == 'bufr':
-                            gen_bufr_json_config = {
-                                                  'RUN': RUN,
-                                                  'current_cycle': cdate,
-                                                  'DMPDIR': COMIN_OBS,
-                                                  'COM_OBS': COMIN_OBS,
-                                                   }
+                            gen_bufr_json_config = {'RUN': RUN,
+                                                    'current_cycle': cdate,
+                                                    'DMPDIR': COMIN_OBS,
+                                                    'COM_OBS': COMIN_OBS}
                             json_config_file = os.path.join(COMIN_OBS,
                                                             f"{obtype}_{cdatestr}.json")
                             obsprep_space['conversion config file'] = json_config_file
@@ -187,7 +185,7 @@ class PrepOceanObs(Task):
 
         # yes, there is redundancy between the yamls fed to the ioda converter and here,
         # this seems safer and easier than being selective about the fields
-        save_as_yaml({"observers": obsspaces_to_convert}, self.config.conversion_list_file)
+        save_as_yaml({"observations": obsspaces_to_convert}, self.config.conversion_list_file)
 
     @logit(logger)
     def run(self):
@@ -207,9 +205,9 @@ class PrepOceanObs(Task):
         obsspaces_to_convert = YAMLFile(self.config.conversion_list_file)
 
         processes = []
-        for observer in obsspaces_to_convert['observers']:
+        for observation in obsspaces_to_convert['observations']:
 
-            obs_space = observer['obs space']
+            obs_space = observation['obs space']
             obtype = obs_space['name']
             logger.info(f"Trying to convert {obtype} to IODA")
             if obs_space["type"] == "nc":
@@ -230,7 +228,7 @@ class PrepOceanObs(Task):
             process.join()
             completed.append(obs_space)
 
-        save_as_yaml({"observers": completed}, self.config.save_list_file)
+        save_as_yaml({"observations": completed}, self.config.save_list_file)
 
     @logit(logger)
     def finalize(self):
@@ -251,7 +249,7 @@ class PrepOceanObs(Task):
 
         obsspaces_to_save = YAMLFile(self.config.save_list_file)
 
-        for obsspace_to_save in obsspaces_to_save['observers']:
+        for obsspace_to_save in obsspaces_to_save['observations']:
 
             output_file = obsspace_to_save['output file']
             conv_config_file = obsspace_to_save['conversion config file']
