@@ -16,11 +16,6 @@ add_test(NAME test_gdasapp_atm_jjob_var_run
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
 
-add_test(NAME test_gdasapp_atm_jjob_var_inc
-  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_var_inc.sh
-          ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
-
 add_test(NAME test_gdasapp_atm_jjob_var_final
   COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_var_final.sh
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}

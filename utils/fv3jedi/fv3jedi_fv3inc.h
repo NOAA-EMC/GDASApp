@@ -110,12 +110,10 @@ namespace gdasapp {
 
         // Read background state
         fv3jedi::State xxBkg(stateGeom, stateInputConfig);
-        oops::Log::test() << "Background State: " << std::endl << xxBkg << std::endl;
 
         // Read JEDI increment
         fv3jedi::Increment dxJEDI(jediIncrGeom, jediIncrVars, xxBkg.validTime());
         dxJEDI.read(jediIncrInputConfig);
-        oops::Log::test() << "JEDI Increment: " << std::endl << dxJEDI << std::endl;
 
         // Increment conversion
         // ---------------------------------------------------------------------------------
@@ -148,7 +146,7 @@ namespace gdasapp {
 
             size_t gridSize = viewFV3.shape(0);
             int nLevels = viewFV3.shape(1);
-            for (int iLevel = 0; iLevel < nLevels; ++iLevel) {
+            for (int iLevel = 0; iLevel < nLevels + 1; ++iLevel) {
               for ( size_t jNode = 0; jNode < gridSize ; ++jNode ) {
                 viewFV3(jNode, iLevel) = viewJEDI(jNode, iLevel);
               }
@@ -156,10 +154,14 @@ namespace gdasapp {
           }
         }
         dxFV3.fromFieldSet(dxFsFV3);
-        oops::Log::test() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
 
         // Write FV3 increment
         dxFV3.write(fv3IncrOuputConfig);
+
+        // Output for testing
+        oops::Log::test() << "Background State: " << std::endl << xxBkg << std::endl;
+        oops::Log::test() << "JEDI Increment: " << std::endl << dxJEDI << std::endl;
+        oops::Log::test() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
       }
 
       return 0;
