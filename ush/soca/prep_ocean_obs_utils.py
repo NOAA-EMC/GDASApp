@@ -13,6 +13,8 @@ RUN = os.getenv('RUN')
 COMIN_OBS = os.getenv('COMIN_OBS')
 OCNOBS2IODAEXEC = os.getenv('OCNOBS2IODAEXEC')
 
+# finds files in DMPDIR matching the regex in an obtype's preobs config,
+# copies them to DATA, and returns a list of the files so handled
 def obs_fetch(obsprepSpace, cycles):
 
     subDir = obsprepSpace['dmpdir subdir']
