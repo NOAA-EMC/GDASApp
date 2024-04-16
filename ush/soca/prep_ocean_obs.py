@@ -116,7 +116,7 @@ class PrepOceanObs(Task):
                     obsprep_space_name = obsprep_space['name']
         
                     if obsprep_space_name == obs_space_name:
-                        obtype = obsprep_space_name # for clarity
+                        obtype = obsprep_space_name # for brevity
                         logger.info(f"Observer {obtype} found in OBSPREP_YAML")
         
                         try:
@@ -126,12 +126,15 @@ class PrepOceanObs(Task):
                             obs_window_back = 0
                             obs_window_forward = 0
         
-                        cycles = []
+                        window_cdates = []
                         for i in range(-obs_window_back, obs_window_forward + 1):
                             interval = timedelta(hours=6 * i)
-                            cycles.append(cdate + interval)
+                            window_cdates.append(cdate + interval)
         
-                        input_files = prep_ocean_obs_utils.obs_fetch(obsprep_space, cycles)
+                        input_files = prep_ocean_obs_utils.obs_fetch(self.config,
+                                                                     self.runtime_config,
+                                                                     obsprep_space,
+                                                                     window_cdates)
         
                         if not input_files:
                             logger.warning(f"No files found for obs source {obtype}, skipping")
@@ -210,7 +213,8 @@ class PrepOceanObs(Task):
             obtype = obs_space['name']
             logger.info(f"Trying to convert {obtype} to IODA")
             if obs_space["type"] == "nc":
-                process = Process(target=prep_ocean_obs_utils.run_netcdf_to_ioda, args=(obs_space,))
+                process = Process(target=prep_ocean_obs_utils.run_netcdf_to_ioda, args=(obs_space,
+                                                                                        self.config.OCNOBS2IODAEXEC))
             elif obs_space["type"] == "bufr":
                 process = Process(target=prep_ocean_obs_utils.run_bufr_to_ioda, args=(obs_space,))
             else:
