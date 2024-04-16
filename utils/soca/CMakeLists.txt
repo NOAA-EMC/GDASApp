@@ -23,3 +23,9 @@ ecbuild_add_executable( TARGET gdas_diagb.x
                         SOURCES gdas_diagb.cc )
 target_compile_features( gdas_diagb.x PUBLIC cxx_std_17)
 target_link_libraries( gdas_diagb.x PUBLIC NetCDF::NetCDF_CXX oops atlas soca)
+
+# Obs Stats
+ecbuild_add_executable( TARGET gdassoca_obsstats.x
+                        SOURCES gdassoca_obsstats.cc )
+target_compile_features( gdassoca_obsstats.x PUBLIC cxx_std_17)
+target_link_libraries( gdassoca_obsstats.x PUBLIC NetCDF::NetCDF_CXX oops ioda)
