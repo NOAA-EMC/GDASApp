@@ -150,11 +150,11 @@ class PrepOceanObs(Task):
                         # netcdf files respectively
                         if obsprep_space['type'] == 'bufr':
                             gen_bufr_json_config = {
-                                                   'RUN': RUN,
-                                                   'current_cycle': cdate,
-                                                   'DMPDIR': COMIN_OBS,
-                                                   'COM_OBS': COMIN_OBS,
-                                                    }
+                                                  'RUN': RUN,
+                                                  'current_cycle': cdate,
+                                                  'DMPDIR': COMIN_OBS,
+                                                  'COM_OBS': COMIN_OBS,
+                                                   }
                             json_config_file = os.path.join(COMIN_OBS,
                                                             f"{obtype}_{cdatestr}.json")
                             obsprep_space['conversion config file'] = json_config_file
