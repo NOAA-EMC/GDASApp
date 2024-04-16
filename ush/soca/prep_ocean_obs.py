@@ -95,7 +95,7 @@ class PrepOceanObs(Task):
         COMOUT_OBS = self.config['COMOUT_OBS']
         if not os.path.exists(COMOUT_OBS):
             os.makedirs(COMOUT_OBS)
-    
+
         files_to_save = []
         obsspaces_to_convert = []
         
@@ -116,7 +116,7 @@ class PrepOceanObs(Task):
                     obsprep_space_name = obsprep_space['name']
         
                     if obsprep_space_name == obs_space_name:
-                        obtype = obsprep_space_name # for brevity
+                        obtype = obsprep_space_name  # for brevity
                         logger.info(f"Observer {obtype} found in OBSPREP_YAML")
         
                         try:
@@ -149,14 +149,14 @@ class PrepOceanObs(Task):
                         # set up the config file for conversion to IODA for bufr and
                         # netcdf files respectively
                         if obsprep_space['type'] == 'bufr':
-                            gen_bufr_json_config =  {
-                                                     'RUN': RUN,
-                                                     'current_cycle': cdate,
-                                                     'DMPDIR': COMIN_OBS,
-                                                     'COM_OBS': COMIN_OBS,
-                                                     }
+                            gen_bufr_json_config = {
+                                                    'RUN': RUN,
+                                                    'current_cycle': cdate,
+                                                    'DMPDIR': COMIN_OBS,
+                                                    'COM_OBS': COMIN_OBS,
+                                                    }
                             json_config_file = os.path.join(COMIN_OBS,
-                                    f"{obtype}_{cdatestr}.json")
+                                                            f"{obtype}_{cdatestr}.json")
                             obsprep_space['conversion config file'] = json_config_file
                             bufr2iodapy = BUFR2IODA_PY_DIR + '/bufr2ioda_' + obtype + '.py'
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy
@@ -167,7 +167,7 @@ class PrepOceanObs(Task):
                             except Exception as e:
                                 logger.warning(f"An exeception {e} occured while trying to run gen_bufr_json")
                                 logger.warning(f"obtype {obtype} will be skipped")
-                                continue # to next obtype
+                                continue  # to next obtype
 
                             obsspaces_to_convert.append({"obs space": obsprep_space})
 
@@ -187,7 +187,7 @@ class PrepOceanObs(Task):
 
         # yes, there is redundancy between the yamls fed to the ioda converter and here,
         # this seems safer and easier than being selective about the fields
-        save_as_yaml({"observers" : obsspaces_to_convert}, self.config.conversion_list_file )
+        save_as_yaml({"observers": obsspaces_to_convert}, self.config.conversion_list_file)
          
     @logit(logger)
     def run(self):
@@ -221,7 +221,7 @@ class PrepOceanObs(Task):
                 logger.warning(f"Invalid observation format {obs_space['type']}, skipping obtype {obtype}")
                 continue
             process.start()
-            processes.append((process,obs_space))
+            processes.append((process, obs_space))
 
         completed = []
         # Wait for all processes to finish
@@ -230,7 +230,7 @@ class PrepOceanObs(Task):
             process.join()
             completed.append(obs_space)
 
-        save_as_yaml({"observers" : completed }, self.config.save_list_file)
+        save_as_yaml({"observers": completed}, self.config.save_list_file)
 
     @logit(logger)
     def finalize(self):
@@ -249,18 +249,18 @@ class PrepOceanObs(Task):
         cyc = self.runtime_config.cyc
         COMOUT_OBS = self.config.COMOUT_OBS
 
-        obsspaces_to_save =  YAMLFile(self.config.save_list_file)
+        obsspaces_to_save = YAMLFile(self.config.save_list_file)
 
         for obsspace_to_save in obsspaces_to_save['observers']:
 
             output_file = obsspace_to_save['output file']
             conv_config_file = obsspace_to_save['conversion config file']
             output_file_dest = os.path.join(COMOUT_OBS, output_file)
-            conv_config_file_dest = os.path.join(COMOUT_OBS,conv_config_file)
+            conv_config_file_dest = os.path.join(COMOUT_OBS, conv_config_file)
 
             try:
-                FileHandler({'copy': [[output_file,output_file_dest]]}).sync()
-                FileHandler({'copy': [[conv_config_file,conv_config_file_dest]]}).sync()
+                FileHandler({'copy': [[output_file, output_file_dest]]}).sync()
+                FileHandler({'copy': [[conv_config_file, conv_config_file_dest]]}).sync()
             except OSError:
                 logger.warning(f"Obs file not found, possible IODA converter failure)")
                 continue
