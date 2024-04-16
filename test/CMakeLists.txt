@@ -4,20 +4,23 @@ set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
 set(SHA "bda76f96666405f72abef56ad4d7d5b93ca153cd7d675853fbdb199096949f8a")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
-# download test files
-file(DOWNLOAD
-  ${URL}/${TAR}
-  ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
-  INACTIVITY_TIMEOUT 30
-  TIMEOUT 90
-  SHOW_PROGRESS
-  STATUS status
-  EXPECTED_HASH SHA256=${SHA}
-  )
-# Extract downloaded tarball.
+IF(DEFINED ENV{GDASAPP_UNIT_TEST_DATA_PATH})
+  file(COPY ENV{GDASAPP_UNIT_TEST_DATA_PATH}/${TAR} ${CMAKE_CURRENT_BINARY_DIR}/${TAR})
+ELSE()
+  # download test files
+  file(DOWNLOAD
+    ${URL}/${TAR}
+    ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
+    INACTIVITY_TIMEOUT 30
+    TIMEOUT 90
+    SHOW_PROGRESS
+    STATUS status
+    EXPECTED_HASH SHA256=${SHA}
+    )
+ENDIF()
+# Extract tarball.
 file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
   DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 # list of test binary/data files to install
 list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/atminc_compress.nc4
