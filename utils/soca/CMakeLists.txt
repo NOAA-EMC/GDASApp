@@ -18,7 +18,6 @@ ecbuild_add_executable( TARGET gdas_socahybridweights.x
 target_compile_features( gdas_socahybridweights.x PUBLIC cxx_std_17)
 target_link_libraries( gdas_socahybridweights.x PUBLIC NetCDF::NetCDF_CXX oops atlas soca)
 
-
 # Diag B
 ecbuild_add_executable( TARGET gdas_diagb.x
                         SOURCES gdas_diagb.cc )

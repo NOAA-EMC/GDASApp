@@ -77,7 +77,3 @@
 	path = sorc/fms
 	url = https://github.com/jcsda/fms.git
   branch = release-stable
-[submodule "sorc/daml"]
-  path = sorc/daml
-  url = https://github.com/NOAA-EMC/daml.git
-  branch = develop

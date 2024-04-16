@@ -17,7 +17,7 @@ find_package(soca REQUIRED)
 find_package(fv3jedi REQUIRED)
 
 add_subdirectory(soca)
-#add_subdirectory(ioda_example)
+add_subdirectory(ioda_example)
 add_subdirectory(test)
 add_subdirectory(obsproc)
 add_subdirectory(fv3jedi)
