@@ -118,7 +118,7 @@ fi
 python ${HOMEgfs}/sorc/gdas.cd/sorc/soca/tools/calc_scales.py soca_vtscales.yaml
 clean_yaml soca_parameters_diffusion_vt.yaml
 
-# Vertical fiffusion and normalization
+# Vertical diffusion and normalization
 $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_vt.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
