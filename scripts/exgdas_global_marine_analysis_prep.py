@@ -53,6 +53,7 @@ def find_clim_ens(input_date):
     """
     Find the clim. ens. that is the closest to the DA window
     """
+    logger.info(f"$$$$$$$$$$$$$$$$$$$$$$$  {os.getenv('SOCA_INPUT_FIX_DIR')}")
     ens_clim_dir = os.path.join(os.getenv('SOCA_INPUT_FIX_DIR'), 'bkgerr', 'ens')
     dirs = glob.glob(os.path.join(ens_clim_dir, '*'))
 
@@ -67,9 +68,10 @@ logger.info(f"---------------- Setup runtime environement")
 comin_obs = os.getenv('COMIN_OBS')
 anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
+nmem_ens = 0
+nmem_ens = int(os.getenv('NMEM_ENS'))
 if os.getenv('DOHYBVAR') == "YES":
     dohybvar = True
-    nmem_ens = int(os.getenv('NMEM_ENS'))
 else:
     dohybvar = False
 
@@ -138,10 +140,8 @@ ufsda.stage.soca_fix(stage_cfg)
 
 ################################################################################
 # stage ensemble members
-nmem_ens = 0
 if dohybvar:
     logger.info("---------------- Stage ensemble members")
-    nmem_ens = int(os.getenv('NMEM_ENS'))
     ens_member_list = []
     for mem in range(1, nmem_ens+1):
         for domain in ['ocean', 'ice']:
@@ -162,20 +162,20 @@ if dohybvar:
     for mem in range(1, nmem_ens+1):
         cice_fname = os.path.realpath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
         bkg_utils.cice_hist2fms(cice_fname, cice_fname)
-
-# Commented out while testing the parametric diagb
-# else:
-#    logger.info("---------------- Stage offline ensemble members")
-#    ens_member_list = []
-#    clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
-#    nmem_ens = len(glob.glob(os.path.abspath(os.path.join(clim_ens_dir, 'ocn.*.nc'))))
-#    for domain in ['ocn', 'ice']:
-#        for mem in range(1, nmem_ens+1):
-#            fname = domain+"."+str(mem)+".nc"
-#            fname_in = os.path.abspath(os.path.join(clim_ens_dir, fname))
-#            fname_out = os.path.abspath(os.path.join(static_ens, fname))
-#            ens_member_list.append([fname_in, fname_out])
-#    FileHandler({'copy': ens_member_list}).sync()
+else:
+    if nmem_ens >= 3:
+        logger.info("---------------- Stage offline ensemble members")
+        ens_member_list = []
+        clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
+        list_of_members = glob.glob(os.path.join(clim_ens_dir, 'ocean.*.nc'))
+        nmem_ens = min(nmem_ens, len(list_of_members))
+        for domain in ['ocean', 'ice']:
+            for mem in range(1, nmem_ens+1):
+                fname = domain+"."+str(mem)+".nc"
+                fname_in = os.path.join(clim_ens_dir, fname)
+                fname_out = os.path.join(static_ens, fname)
+                ens_member_list.append([fname_in, fname_out])
+        FileHandler({'copy': ens_member_list}).sync()
 
 os.environ['ENS_SIZE'] = str(nmem_ens)
 
@@ -271,13 +271,13 @@ bkg_utils.gen_bkg_list(bkg_path=os.getenv('COM_OCEAN_HISTORY_PREV'),
                        yaml_name='bkg_list.yaml')
 os.environ['BKG_LIST'] = 'bkg_list.yaml'
 
-# select the SABER BLOCKS to use
-if 'SABER_BLOCKS_YAML' in os.environ and os.environ['SABER_BLOCKS_YAML']:
-    saber_blocks_yaml = os.getenv('SABER_BLOCKS_YAML')
-    logger.info(f"using non-default SABER blocks yaml: {saber_blocks_yaml}")
+# select the B-matrix to use
+if nmem_ens > 3:
+    # Use a hybrid static-ensemble B
+    os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_hybrid_bmat.yaml')
 else:
-    logger.info(f"using default SABER blocks yaml")
-    os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
+    # Use a static B
+    os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_static_bmat.yaml')
 
 # substitute templated variables in the var config
 logger.info(f"{config}")
