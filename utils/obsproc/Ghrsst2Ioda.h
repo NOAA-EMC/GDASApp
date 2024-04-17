@@ -86,6 +86,8 @@ namespace gdasapp {
       ncFile.getVar("sst_dtime").getVar(sstdTime.data());
       float dtimeScaleFactor;
       ncFile.getVar("sst_dtime").getAtt("scale_factor").getValues(&dtimeScaleFactor);
+      int32_t dtimeFillValue;
+      ncFile.getVar("sst_dtime").getAtt("_FillValue").getValues(&dtimeFillValue);
 
       // Read SST ObsValue
       std::vector<int16_t> sstObsVal(dimTime*dimLat*dimLon);
@@ -118,7 +120,7 @@ namespace gdasapp {
       std::vector<std::vector<float>> sst(dimLat, std::vector<float>(dimLon));
       std::vector<std::vector<float>> obserror(dimLat, std::vector<float>(dimLon));
       std::vector<std::vector<int>> preqc(dimLat, std::vector<int>(dimLon));
-      std::vector<std::vector<float>> seconds(dimLat, std::vector<float>(dimLon));
+      std::vector<std::vector<double>> seconds(dimLat, std::vector<double>(dimLon));
       size_t index = 0;
       for (int i = 0; i < dimLat; i++) {
         for (int j = 0; j < dimLon; j++) {
@@ -143,9 +145,13 @@ namespace gdasapp {
           // TODO(Somebody): add sampled std. dev. of sst to the total obs error
           obserror[i][j] = static_cast<float>(sstObsErr[index]) * errScaleFactor + errOffSet;
 
-          // epoch time in seconds
-          seconds[i][j]  = static_cast<float>(sstdTime[index]) * dtimeScaleFactor
-                         + static_cast<float>(refTime[0]);
+          // epoch time in seconds and avoid to use FillValue in calculation
+          if (sstdTime[index] == dtimeFillValue) {
+            seconds[i][j] = 0;
+          } else {
+            seconds[i][j]  = static_cast<double>(sstdTime[index]) * dtimeScaleFactor
+                           + static_cast<double>(refTime[0]);
+          }
           index++;
         }
       }
@@ -157,35 +163,20 @@ namespace gdasapp {
       std::vector<std::vector<float>> lon2d_s;
       std::vector<std::vector<float>> lat2d_s;
       std::vector<std::vector<float>> obserror_s;
+      std::vector<std::vector<double>> seconds_s;
       if ( fullConfig_.has("binning") ) {
         sst_s = gdasapp::superobutils::subsample2D(sst, mask, fullConfig_);
         lon2d_s = gdasapp::superobutils::subsample2D(lon2d, mask, fullConfig_);
         lat2d_s = gdasapp::superobutils::subsample2D(lat2d, mask, fullConfig_);
         obserror_s = gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_);
+        seconds_s = gdasapp::superobutils::subsample2D(seconds, mask, fullConfig_);
       } else {
         sst_s = sst;
         lon2d_s = lon2d;
         lat2d_s = lat2d;
         obserror_s = obserror;
+        seconds_s = seconds;
       }
-
-      // Non-Superobing part only applied to datetime
-      // TODO(Mindo): Refactor to make superob capable of processing all data
-      // TODO(ASGM) : Remove datetime mean when the time reading is fixed(L146)
-      // Compute the sum of valid obs values where mask == 1
-      int64_t sum = 0;
-      int count = 0;
-      for (size_t i = 0; i < seconds.size(); ++i) {
-        for (size_t j = 0; j < seconds[0].size(); ++j) {
-          if (mask[i][j] == 1) {
-            sum += seconds[i][j];
-            count++;
-          }
-        }
-      }
-      // Calculate the average and store datetime
-      // Replace the seconds_s to 0 when count is zero
-      int64_t seconds_s = count != 0 ? static_cast<int64_t>(sum / count) : 0;
 
       // number of obs after subsampling
       int nobs = sst_s.size() * sst_s[0].size();
@@ -211,8 +202,7 @@ namespace gdasapp {
           iodaVars.obsVal_(loc)    = sst_s[i][j];
           iodaVars.obsError_(loc)  = obserror_s[i][j];
           iodaVars.preQc_(loc)     = 0;
-          // Store averaged datetime (seconds)
-          iodaVars.datetime_(loc)  = seconds_s;
+          iodaVars.datetime_(loc)  = seconds_s[i][j];
           // Store optional metadata, set ocean basins to -999 for now
           iodaVars.intMetadata_.row(loc) << -999;
           loc += 1;
