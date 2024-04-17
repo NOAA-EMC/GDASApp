@@ -127,7 +127,7 @@ class PrepOceanObs(Task):
 
                         if not input_files:
                             logger.warning(f"No files found for obs source {obtype}, skipping")
-                            break #  go to next observer in OBS_YAML
+                            break  # go to next observer in OBS_YAML
 
                         obsprep_space['input files'] = input_files
                         obsprep_space['window begin'] = self.window_begin
@@ -154,7 +154,7 @@ class PrepOceanObs(Task):
                             except Exception as e:
                                 logger.warning(f"An exeception {e} occured while trying to run gen_bufr_json")
                                 logger.warning(f"obtype {obtype} will be skipped")
-                                break #  go to next observer in OBS_YAML
+                                break  # go to next observer in OBS_YAML
 
                             obsspaces_to_convert.append({"obs space": obsprep_space})
 
