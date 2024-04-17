@@ -3,23 +3,15 @@
 from datetime import datetime, timedelta
 from gen_bufr2ioda_json import gen_bufr_json
 from logging import getLogger
-from multiprocessing import Process, Queue
+from multiprocessing import Process
 import os
 from soca import prep_ocean_obs_utils
 from typing import Dict
-import ufsda
-from ufsda.stage import soca_fix
-from wxflow import (AttrDict,
-                    chdir,
-                    Executable,
+from wxflow import (chdir,
                     FileHandler,
                     logit,
-                    parse_j2yaml,
                     save_as_yaml,
                     Task,
-                    Template,
-                    TemplateConstants,
-                    WorkflowException,
                     YAMLFile)
 
 logger = getLogger(__name__.split('.')[-1])
@@ -36,7 +28,7 @@ class PrepOceanObs(Task):
         Parameters:
         ------------
         config: Dict
-            configuration, namely evironment variables
+            configuration, namely environment variables
         Returns:
         --------
         None
@@ -44,8 +36,6 @@ class PrepOceanObs(Task):
 
         logger.info("init")
         super().__init__(config)
-
-        DATA = self.runtime_config.DATA
 
         PDY = self.runtime_config['PDY']
         cyc = self.runtime_config['cyc']
@@ -96,7 +86,6 @@ class PrepOceanObs(Task):
         if not os.path.exists(COMOUT_OBS):
             os.makedirs(COMOUT_OBS)
 
-        files_to_save = []
         obsspaces_to_convert = []
 
         try:
@@ -138,7 +127,7 @@ class PrepOceanObs(Task):
 
                         if not input_files:
                             logger.warning(f"No files found for obs source {obtype}, skipping")
-                            break
+                            break #  go to next observer in OBS_YAML
 
                         obsprep_space['input files'] = input_files
                         obsprep_space['window begin'] = self.window_begin
@@ -165,7 +154,7 @@ class PrepOceanObs(Task):
                             except Exception as e:
                                 logger.warning(f"An exeception {e} occured while trying to run gen_bufr_json")
                                 logger.warning(f"obtype {obtype} will be skipped")
-                                continue  # to next obtype
+                                break #  go to next observer in OBS_YAML
 
                             obsspaces_to_convert.append({"obs space": obsprep_space})
 
