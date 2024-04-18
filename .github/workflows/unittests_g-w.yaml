@@ -17,12 +17,6 @@ jobs:
 
     - name: Install other dependencies
       run: |
-        wget https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/r2d2-bb361c2.tar.gz
-        wget https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/solo-877b414.tar.gz
-        tar -xvf r2d2-bb361c2.tar.gz
-        tar -xvf solo-877b414.tar.gz
-        cd solo && pip install . && cd ..
-        cd r2d2 && pip install . && cd ..
         sudo mkdir -p /work/noaa # to trick workflow into thinking this is RDHPCS Orion
 
     - name: Checkout wxflow

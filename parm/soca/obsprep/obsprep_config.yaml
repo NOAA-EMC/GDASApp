@@ -22,8 +22,8 @@ observations:
     type: nc
     dmpdir regex: 'rads_adt_*.nc'
     window:
-       back: 8         # look back 8 six-hourly obs dumps
-       forward: 1    #  look forward 1 six-hourly bin
+       back: 0
+       forward: 0
     error ratio: 0.4  # meters per day
 
 # Ice concentration
