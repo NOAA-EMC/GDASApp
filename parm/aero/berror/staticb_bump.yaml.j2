@@ -14,12 +14,12 @@ saber outer blocks:
 - saber block name: StdDev
   read:
     model file:
-      datetime: '2021-02-27T00:00:00Z'
+      datetime: '{{ current_cycle | to_isotime }}' 
       set datetime on read: true
       filetype: fms restart
       psinfile: true
       datapath: "{{ DATA }}/berror"
-      filename_core: 20210227.000000.stddev.fv_core.res.nc
-      filename_trcr: 20210227.000000.stddev.fv_tracer.res.nc
-      filename_cplr: 20210227.000000.stddev.coupler.res
-      date: '2021-02-27T18:00:00Z'
+      filename_core: '{{ current_cycle | to_fv3time }}.stddev.fv_core.res.nc'
+      filename_trcr: '{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.nc'
+      filename_cplr: '{{ current_cycle | to_fv3time }}.stddev.coupler.res'
+      date: '{{ current_cycle | to_isotime }}' 
