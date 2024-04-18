@@ -29,7 +29,7 @@ def obs_fetch(config, runtime_config, obsprep_space, cycles):
         PDY = cycle.strftime('%Y%m%d')
         cyc = cycle.strftime('%H')
 
-        full_input_dir = os.path.join(DMPDIR, RUN + '.' + PDY, cyc, subdir)
+        full_input_dir = os.path.join(DMPDIR, f"{RUN}.{PDY}", cyc, subdir)
 
         # TODO: check the existence of this
         logger.info(f"full_input_dir: {full_input_dir}")

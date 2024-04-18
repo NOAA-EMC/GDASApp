@@ -40,10 +40,12 @@ class PrepOceanObs(Task):
         PDY = self.runtime_config['PDY']
         cyc = self.runtime_config['cyc']
         cdate = PDY + timedelta(hours=cyc)
+        assim_freq = self.config['assim_freq']
+        half_assim_freq = assim_freq/2
 
         self.runtime_config['cdate'] = cdate
-        window_begin_datetime = cdate - timedelta(hours=3)
-        window_begin_datetime = cdate + timedelta(hours=3)
+        window_begin_datetime = cdate - timedelta(hours=half_assim_freq)
+        window_begin_datetime = cdate + timedelta(hours=half_assim_freq)
         self.window_begin = window_begin_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
         self.window_end = window_begin_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
@@ -67,6 +69,7 @@ class PrepOceanObs(Task):
         cdatestr = cdate.strftime('%Y%m%d%H')
         RUN = self.runtime_config.RUN
         cyc = self.runtime_config['cyc']
+        assim_freq = self.config['assim_freq']
 
         OBS_YAML = self.config['OBS_YAML']
         observer_config = YAMLFile(OBS_YAML)
@@ -117,7 +120,7 @@ class PrepOceanObs(Task):
 
                         window_cdates = []
                         for i in range(-obs_window_back, obs_window_forward + 1):
-                            interval = timedelta(hours=6 * i)
+                            interval = timedelta(hours=assim_freq * i)
                             window_cdates.append(cdate + interval)
 
                         input_files = prep_ocean_obs_utils.obs_fetch(self.config,
