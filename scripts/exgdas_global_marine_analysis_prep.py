@@ -10,7 +10,8 @@ import f90nml
 from soca import bkg_utils
 from datetime import datetime, timedelta
 import pytz
-from wxflow import (Logger, Template, TemplateConstants, YAMLFile, FileHandler)
+from wxflow import (Logger, Template, TemplateConstants,
+                    YAMLFile, FileHandler, AttrDict, parse_j2yaml)
 
 logger = Logger()
 
@@ -52,6 +53,7 @@ def find_clim_ens(input_date):
     """
     Find the clim. ens. that is the closest to the DA window
     """
+    logger.info(f"$$$$$$$$$$$$$$$$$$$$$$$  {os.getenv('SOCA_INPUT_FIX_DIR')}")
     ens_clim_dir = os.path.join(os.getenv('SOCA_INPUT_FIX_DIR'), 'bkgerr', 'ens')
     dirs = glob.glob(os.path.join(ens_clim_dir, '*'))
 
@@ -66,9 +68,10 @@ logger.info(f"---------------- Setup runtime environement")
 comin_obs = os.getenv('COMIN_OBS')
 anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
+nmem_ens = 0
+nmem_ens = int(os.getenv('NMEM_ENS'))
 if os.getenv('DOHYBVAR') == "YES":
     dohybvar = True
-    nmem_ens = int(os.getenv('NMEM_ENS'))
 else:
     dohybvar = False
 
@@ -101,7 +104,9 @@ logger.info(f"---------------- Stage observations")
 envconfig = {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
              'ATM_WINDOW_BEGIN': window_begin_iso,
              'ATM_WINDOW_MIDDLE': window_middle_iso,
-             'ATM_WINDOW_LENGTH': f"PT{os.getenv('assim_freq')}H"}
+             'ATM_WINDOW_LENGTH': f"PT{os.getenv('assim_freq')}H",
+             'gcyc': gcyc,
+             'RUN': RUN}
 stage_cfg = YAMLFile(path=os.path.join(gdas_home, 'parm', 'templates', 'stage.yaml'))
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
@@ -137,7 +142,6 @@ ufsda.stage.soca_fix(stage_cfg)
 # stage ensemble members
 if dohybvar:
     logger.info("---------------- Stage ensemble members")
-    nmem_ens = int(os.getenv('NMEM_ENS'))
     ens_member_list = []
     for mem in range(1, nmem_ens+1):
         for domain in ['ocean', 'ice']:
@@ -159,17 +163,20 @@ if dohybvar:
         cice_fname = os.path.realpath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
         bkg_utils.cice_hist2fms(cice_fname, cice_fname)
 else:
-    logger.info("---------------- Stage offline ensemble members")
-    ens_member_list = []
-    clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
-    nmem_ens = len(glob.glob(os.path.join(clim_ens_dir, 'ocean.*.nc')))
-    for domain in ['ocean', 'ice']:
-        for mem in range(1, nmem_ens+1):
-            fname = domain+"."+str(mem)+".nc"
-            fname_in = os.path.join(clim_ens_dir, fname)
-            fname_out = os.path.join(static_ens, fname)
-            ens_member_list.append([fname_in, fname_out])
-    FileHandler({'copy': ens_member_list}).sync()
+    if nmem_ens >= 3:
+        logger.info("---------------- Stage offline ensemble members")
+        ens_member_list = []
+        clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
+        list_of_members = glob.glob(os.path.join(clim_ens_dir, 'ocean.*.nc'))
+        nmem_ens = min(nmem_ens, len(list_of_members))
+        for domain in ['ocean', 'ice']:
+            for mem in range(1, nmem_ens+1):
+                fname = domain+"."+str(mem)+".nc"
+                fname_in = os.path.join(clim_ens_dir, fname)
+                fname_out = os.path.join(static_ens, fname)
+                ens_member_list.append([fname_in, fname_out])
+        FileHandler({'copy': ens_member_list}).sync()
+
 os.environ['ENS_SIZE'] = str(nmem_ens)
 
 ################################################################################
@@ -188,6 +195,11 @@ FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
 ################################################################################
 # generate the YAML file for the post processing of the clim. ens. B
 berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
+
+logger.info(f"---------------- generate soca_diagb.yaml")
+conf = parse_j2yaml(path=os.path.join(berror_yaml_dir, 'soca_diagb.yaml.j2'),
+                    data=envconfig)
+conf.save(os.path.join(anl_dir, 'soca_diagb.yaml'))
 
 logger.info(f"---------------- generate soca_ensb.yaml")
 berr_yaml = os.path.join(anl_dir, 'soca_ensb.yaml')
@@ -230,6 +242,11 @@ config = YAMLFile(path=diffu_hz_yaml_template)
 config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 config.save(diffu_hz_yaml)
 
+logger.info(f"---------------- generate soca_vtscales.yaml")
+conf = parse_j2yaml(path=os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_vtscales.yaml.j2'),
+                    data=envconfig)
+conf.save(os.path.join(anl_dir, 'soca_vtscales.yaml'))
+
 logger.info(f"---------------- generate soca_parameters_diffusion_vt.yaml")
 diffu_vt_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_vt.yaml')
 diffu_vt_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
@@ -254,13 +271,13 @@ bkg_utils.gen_bkg_list(bkg_path=os.getenv('COM_OCEAN_HISTORY_PREV'),
                        yaml_name='bkg_list.yaml')
 os.environ['BKG_LIST'] = 'bkg_list.yaml'
 
-# select the SABER BLOCKS to use
-if 'SABER_BLOCKS_YAML' in os.environ and os.environ['SABER_BLOCKS_YAML']:
-    saber_blocks_yaml = os.getenv('SABER_BLOCKS_YAML')
-    logger.info(f"using non-default SABER blocks yaml: {saber_blocks_yaml}")
+# select the B-matrix to use
+if nmem_ens > 3:
+    # Use a hybrid static-ensemble B
+    os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_hybrid_bmat.yaml')
 else:
-    logger.info(f"using default SABER blocks yaml")
-    os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'saber_blocks.yaml')
+    # Use a static B
+    os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_static_bmat.yaml')
 
 # substitute templated variables in the var config
 logger.info(f"{config}")
