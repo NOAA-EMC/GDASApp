@@ -59,7 +59,7 @@ fi
 
 ################################################################################
 # Ensemble processing
-if [ "${NMEM_ENS}" -gt 3 ]; then
+if [ "${NMEM_ENS}" -ge 3 ]; then
     ################################################################################
     # Write ensemble weights for the hybrid envar
     $APRUN_OCNANAL $JEDI_BIN/gdas_socahybridweights.x soca_ensweights.yaml
