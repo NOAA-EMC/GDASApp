@@ -10,6 +10,7 @@ geometry:
   npy: {{ npy_ges }}
   npz: {{ npz_ges }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+date: '{{ current_cycle | to_isotime }}' 
 background:
   datetime: '{{ current_cycle | to_isotime }}' 
   filetype: fms restart
@@ -29,12 +30,13 @@ background:
   filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
 
 background error:
-  datadir: ./
-  date: '{{ current_cycle | to_isotime }}' 
-  exp: bkgerr_stddev
-  type: incr
+  filetype: fms restart
+  datapath: ./stddev
+  filename_trcr: stddev.fv_tracer.res.nc
+  filename_cplr: stddev.coupler.res
 
 variables:
+  name:
   - mass_fraction_of_sulfate_in_air
   - mass_fraction_of_hydrophobic_black_carbon_in_air
   - mass_fraction_of_hydrophilic_black_carbon_in_air
