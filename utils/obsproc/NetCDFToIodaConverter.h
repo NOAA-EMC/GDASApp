@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -159,12 +160,17 @@ namespace gdasapp {
           if (fullConfig_.has("ocean basin")) {
              std::string fileName;
              fullConfig_.get("ocean basin", fileName);
-             oceanMask = new obsproc::oceanmask::OceanMask(fileName);
 
-             for (int i = 0; i < iodaVars.location_; i++) {
-               iodaVars.intMetadata_.coeffRef(i, size(iodaVars.intMetadataName_)-1) =
-                 oceanMask->getOceanMask(iodaVars.longitude_[i], iodaVars.latitude_[i]);
-             }
+             // only apply the basin mask if the file exist
+             std::ifstream testFile(fileName.c_str());
+             if (testFile.good()) {
+              oceanMask = new obsproc::oceanmask::OceanMask(fileName);
+
+              for (int i = 0; i < iodaVars.location_; i++) {
+                iodaVars.intMetadata_.coeffRef(i, size(iodaVars.intMetadataName_)-1) =
+                  oceanMask->getOceanMask(iodaVars.longitude_[i], iodaVars.latitude_[i]);
+              }
+            }
           }
           tmpIntMeta.writeWithEigenRegular(iodaVars.intMetadata_.col(count));
           count++;
