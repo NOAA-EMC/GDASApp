@@ -6,6 +6,7 @@ observations:
     provider: SMAP
     type: nc
     dmpdir regex: 'SMAP_L2B_SSS_NRT_*.h5'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
     name: sss_smos
@@ -13,6 +14,7 @@ observations:
     dmpdir subdir: ocean/sss
     type: nc
     dmpdir regex: 'SM_OPER_MIR_OSUDP2_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 # ADT
 - obs space:
@@ -22,9 +24,10 @@ observations:
     type: nc
     dmpdir regex: 'rads_adt_*.nc'
     window:
-       back: 8         # look back 8 six-hourly obs dumps
-       forward: 1    #  look forward 1 six-hourly bin
+       back: 0
+       forward: 0
     error ratio: 0.4  # meters per day
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 # Ice concentration
 - obs space:
@@ -33,6 +36,7 @@ observations:
     dmpdir subdir: ocean/icec
     type: nc
     dmpdir regex: 'AMSR2-SEAICE-NH_v2r2_GW1_s*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
     name: icec_amsr2_south
@@ -40,6 +44,7 @@ observations:
     dmpdir subdir: ocean/icec
     type: nc
     dmpdir regex: 'AMSR2-SEAICE-SH_v2r2_GW1_s*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 # SST
 - obs space:
@@ -55,6 +60,7 @@ observations:
     binning:
       stride: 15
       min number of obs: 10
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
     name: sst_avhrr_mb_l3u
@@ -69,6 +75,7 @@ observations:
     binning:
       stride: 15
       min number of obs: 10
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
     name: sst_avhrr_mc_l3u
@@ -83,6 +90,7 @@ observations:
     binning:
       stride: 15
       min number of obs: 10
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
     name: sst_viirs_npp_l3u
@@ -97,6 +105,7 @@ observations:
     binning:
       stride: 15
       min number of obs: 10
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
     name: sst_viirs_n20_l3u
@@ -111,6 +120,7 @@ observations:
     binning:
       stride: 15
       min number of obs: 10
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
     name: sst_abi_g16_l3c
@@ -125,6 +135,7 @@ observations:
     binning:
       stride: 15
       min number of obs: 10
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
     name: sst_abi_g17_l3c
@@ -139,6 +150,7 @@ observations:
     binning:
       stride: 15
       min number of obs: 10
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
     name: sst_ahi_h08_l3c
@@ -153,7 +165,8 @@ observations:
     binning:
       stride: 15
       min number of obs: 10
-
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+    
 # in situ: monthly
 - obs space:
     name: insitu_profile_bathy

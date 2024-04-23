@@ -56,54 +56,75 @@ else
     fi
 fi
 
+
 ################################################################################
-# Write ensemble weights for the hybrid envar
-$APRUN_OCNANAL $JEDI_BIN/gdas_socahybridweights.x soca_ensweights.yaml
+# Ensemble processing
+if [ "${NMEM_ENS}" -ge 3 ]; then
+    ################################################################################
+    # Write ensemble weights for the hybrid envar
+    $APRUN_OCNANAL $JEDI_BIN/gdas_socahybridweights.x soca_ensweights.yaml
+    export err=$?; err_chk
+    if [ $err -gt 0  ]; then
+        exit $err
+    fi
+
+    ################################################################################
+    # Ensemble perturbations for the EnVAR
+    # Ensemble diagnostics:
+    #   - Compute moments of original ensemble with the balanced ssh removed
+    #     from the statistics
+    #
+    # Ensemble of perturbations:
+    #   - apply the linear steric height balance to each members, using the
+    #     deterministic for trajectory.
+    #   - add the unblanced ssh to the steric ssh field
+    # Diagnostics:
+    #   - variance explained by the steric heigh
+    #   - moments
+    clean_yaml soca_clim_ens_moments.yaml
+    $APRUN_OCNANAL $JEDI_BIN/gdas_ens_handler.x soca_ensb.yaml
+    export err=$?; err_chk
+    if [ $err -gt 0  ]; then
+        exit $err
+    fi
+fi
+
+################################################################################
+# Compute the parametric diag of B
+$APRUN_OCNANAL $JEDI_BIN/gdas_soca_diagb.x soca_diagb.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err
 fi
 
 ################################################################################
-# Ensemble perturbations for the EnVAR and diagonal of static B
-# Static B:
-#   - Compute moments of original ensemble with the balanced ssh removed
-#     from the statistics
-#
-# Ensemble of perturbations:
-#   - apply the linear steric height balance to each members, using the
-#     deterministic for trajectory.
-#   - add the unblanced ssh to the steric ssh field
-# Diagnostics:
-#   - variance explained by the steric heigh
-#   - moments
-
-# Process static ensemble
-clean_yaml soca_clim_ens_moments.yaml
-$APRUN_OCNANAL $JEDI_BIN/gdas_ens_handler.x soca_ensb.yaml
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
+# Horizontal diffusion
+if [ ! -f "ocn.cor_rh.incr.0001-01-01T00:00:00Z.nc" ]; then
+    # Set decorrelation scales for the static B
+    $APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml
+    export err=$?; err_chk
+    if [ $err -gt 0  ]; then
+        exit $err
+    fi
+    # Initialize the horizontal diffusion block and normalize
+    clean_yaml soca_parameters_diffusion_hz.yaml
+    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_hz.yaml
+    export err=$?; err_chk
+    if [ $err -gt 0  ]; then
+        exit $err
+    fi
+else
+    echo "Diffusion weights already calculated, skipping the init of the horizontal diffusion"
 fi
 
 ################################################################################
-# Set decorrelation scales for the static B
-$APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
-fi
-
-################################################################################
-# Initialize diffusion blocks
-clean_yaml soca_parameters_diffusion_hz.yaml
-$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_hz.yaml
-export err=$?; err_chk
-if [ $err -gt 0  ]; then
-    exit $err
-fi
-
+# Initialize the vertical diffusion block
+# Compute the MLD dependent vertical scales
+# TODO(G): Probably not the right way to execute this script
+python ${HOMEgfs}/sorc/gdas.cd/sorc/soca/tools/calc_scales.py soca_vtscales.yaml
 clean_yaml soca_parameters_diffusion_vt.yaml
+
+# Initialize the vertical diffusion block and normalize
 $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_vt.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then

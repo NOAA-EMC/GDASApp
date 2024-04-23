@@ -1,0 +1,60 @@
+geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ layout_x }}
+  - {{ layout_y }}
+  npx: {{ npx_ges }}
+  npy: {{ npy_ges }}
+  npz: {{ npz_ges }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+date: '{{ current_cycle | to_isotime }}' 
+background:
+  datetime: '{{ current_cycle | to_isotime }}' 
+  filetype: fms restart
+  state variables: [mass_fraction_of_sulfate_in_air,
+                    mass_fraction_of_hydrophobic_black_carbon_in_air,
+                    mass_fraction_of_hydrophilic_black_carbon_in_air,
+                    mass_fraction_of_hydrophobic_organic_carbon_in_air,
+                    mass_fraction_of_hydrophilic_organic_carbon_in_air,
+                    mass_fraction_of_dust001_in_air, mass_fraction_of_dust002_in_air,
+                    mass_fraction_of_dust003_in_air, mass_fraction_of_dust004_in_air,
+                    mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air,
+                    mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air,
+                    mass_fraction_of_sea_salt004_in_air]
+  datapath: ./bkg
+  filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
+  filename_trcr: '{{ current_cycle | to_fv3time }}.fv_tracer.res.nc'
+  filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
+
+background error:
+  filetype: fms restart
+  datapath: ./stddev
+  filename_trcr: stddev.fv_tracer.res.nc
+  filename_cplr: stddev.coupler.res
+
+variables:
+  name:
+  - mass_fraction_of_sulfate_in_air
+  - mass_fraction_of_hydrophobic_black_carbon_in_air
+  - mass_fraction_of_hydrophilic_black_carbon_in_air
+  - mass_fraction_of_hydrophobic_organic_carbon_in_air
+  - mass_fraction_of_hydrophilic_organic_carbon_in_air
+  - mass_fraction_of_dust001_in_air
+  - mass_fraction_of_dust002_in_air
+  - mass_fraction_of_dust003_in_air
+  - mass_fraction_of_dust004_in_air
+  - mass_fraction_of_dust005_in_air
+  - mass_fraction_of_sea_salt001_in_air
+  - mass_fraction_of_sea_salt002_in_air
+  - mass_fraction_of_sea_salt003_in_air
+  - mass_fraction_of_sea_salt004_in_air
+
+rescale: 2.0    # rescales the filtered std. dev. by "rescale"
+number of halo points: 4
+number of neighbors: 16
+simple smoothing:
+  horizontal iterations: 2
+  vertical iterations: 1

@@ -53,6 +53,7 @@ gcyc = str((int(cyc) - 6) % 24).zfill(2)  # previous cycle
 bdatedt = datetime.strptime(cdate, '%Y%m%d%H') - timedelta(hours=3)
 bdate = datetime.strftime(bdatedt, '%Y-%m-%dT%H:00:00Z')
 mdate = datetime.strftime(datetime.strptime(cdate, '%Y%m%d%H'), '%Y-%m-%dT%H:00:00Z')
+nmem_ens = int(os.getenv('NMEM_ENS'))
 
 logger.info(f"---------------- Copy from RUNDIR to COMOUT")
 
@@ -65,12 +66,13 @@ post_file_list.append([os.path.join(anl_dir, 'inc.nc'),
 domains = ['ocn', 'ice']
 for domain in domains:
     # Copy of the diagonal of the background error for the cycle
-    post_file_list.append([os.path.join(anl_dir, 'static_ens', f'{domain}.bkgerr_stddev.incr.{bdate}.nc'),
+    post_file_list.append([os.path.join(anl_dir, f'{domain}.bkgerr_stddev.incr.{mdate}.nc'),
                            os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.{domain}.bkgerr_stddev.nc')])
 
     # Copy the recentering error
-    post_file_list.append([os.path.join(anl_dir, 'static_ens', f'{domain}.ssh_recentering_error.incr.{bdate}.nc'),
-                           os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.{domain}.recentering_error.nc')])
+    if nmem_ens > 2:
+        post_file_list.append([os.path.join(anl_dir, 'static_ens', f'{domain}.ssh_recentering_error.incr.{bdate}.nc'),
+                               os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.{domain}.recentering_error.nc')])
 
     # Copy the ice and ocean increments
     post_file_list.append([os.path.join(anl_dir, 'Data', f'{domain}.3dvarfgat_pseudo.incr.{mdate}.nc'),
@@ -81,9 +83,10 @@ for domain in domains:
                            os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.{domain}ana.nc')])
 
 # Copy of the ssh diagnostics
-for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev', 'steric_explained_variance']:
-    post_file_list.append([os.path.join(anl_dir, 'static_ens', f'ocn.{string}.incr.{bdate}.nc'),
-                           os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ocn.{string}.nc')])
+if nmem_ens > 2:
+    for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev', 'steric_explained_variance']:
+        post_file_list.append([os.path.join(anl_dir, 'static_ens', f'ocn.{string}.incr.{bdate}.nc'),
+                               os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.ocn.{string}.nc')])
 
 # Copy DA grid (computed for the start of the window)
 post_file_list.append([os.path.join(anl_dir, 'soca_gridspec.nc'),
