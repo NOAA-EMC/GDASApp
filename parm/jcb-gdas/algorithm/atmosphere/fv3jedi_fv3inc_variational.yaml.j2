@@ -1,0 +1,62 @@
+variable change:
+  variable change name: Model2GeoVaLs
+  input variables: &bkgvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,phis]
+  output variables: &fv3incrvars [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,hydrostatic_delz]
+jedi increment variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
+fv3 increment variables: *fv3incrvars
+background geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ layout_x }}
+  - {{ layout_y }}
+  npx: {{ npx_ges }}
+  npy: {{ npy_ges }}
+  npz: {{ npz_ges }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+jedi increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ layout_x }}
+  - {{ layout_y }}
+  npx: {{ npx_anl }}
+  npy: {{ npy_anl }}
+  npz: {{ npz_anl }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+fv3 increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ layout_x }}
+  - {{ layout_y }}
+  npx: {{ npx_anl }}
+  npy: {{ npy_anl }}
+  npz: {{ npz_anl }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
+members:
+- background input:
+    datapath: ./bkg
+    filetype: fms restart
+    datetime: "{{ atm_background_time_iso }}"
+    filename is datetime templated: true
+    filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+    filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+    filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+    filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+    filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
+    state variables: *bkgvars
+  jedi increment input:
+    filetype: cube sphere history
+    filename: ./anl/atminc.%yyyy%mm%dd_%hh%MM%ssz.nc4
+    provider: ufs
+  fv3 increment output:
+    filetype: auxgrid
+    gridtype: gaussian
+    filename: ./anl/atminc.
