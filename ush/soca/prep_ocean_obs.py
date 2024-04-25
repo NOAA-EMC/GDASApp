@@ -71,6 +71,15 @@ class PrepOceanObs(Task):
         cyc = self.runtime_config['cyc']
         assim_freq = self.config['assim_freq']
 
+        SOCA_INPUT_FIX_DIR = self.config['SOCA_INPUT_FIX_DIR']
+        ocean_mask_src = os.path.join(SOCA_INPUT_FIX_DIR, 'RECCAP2_region_masks_all_v20221025.nc')
+        ocean_mask_dest = os.path.join(self.runtime_config.DATA, 'RECCAP2_region_masks_all_v20221025.nc')
+
+        try:
+            FileHandler({'copy': [[ocean_mask_src, ocean_mask_dest]]}).sync()
+        except OSError:
+            logger.warning("Could not copy RECCAP2_region_masks_all_v20221025.nc")
+
         OBS_YAML = self.config['OBS_YAML']
         observer_config = YAMLFile(OBS_YAML)
 
@@ -135,7 +144,7 @@ class PrepOceanObs(Task):
                         obsprep_space['input files'] = input_files
                         obsprep_space['window begin'] = self.window_begin
                         obsprep_space['window end'] = self.window_end
-                        ioda_filename = f"{RUN}.t{cyc}z.{obs_space_name}.{cdatestr}.nc4"
+                        ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc4"
                         obsprep_space['output file'] = ioda_filename
 
                         # set up the config file for conversion to IODA for bufr and
