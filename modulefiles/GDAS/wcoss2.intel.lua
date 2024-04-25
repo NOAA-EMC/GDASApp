@@ -36,18 +36,14 @@ setenv("pybind11_ROOT", "/apps/spack/python/3.8.6/intel/19.1.3.304/pjn2nzkjvqgmj
 -- hack for wxflow
 --prepend_path("PYTHONPATH", "/scratch1/NCEPDEV/da/python/gdasapp/wxflow/20240307/src")
 
---setenv("CC","mpiicc")
---setenv("FC","mpiifort")
---setenv("CXX","mpiicpc")
+local mpiexec = '/pe/intel/compilers_and_libraries_2020.4.304/linux/mpi/intel64/bin/mpirun'
+local mpinproc = '-n'
+setenv('MPIEXEC_EXEC', mpiexec)
+setenv('MPIEXEC_NPROC', mpinproc)
 
---local mpiexec = '/apps/slurm/default/bin/srun'
---local mpinproc = '-n'
---setenv('MPIEXEC_EXEC', mpiexec)
---setenv('MPIEXEC_NPROC', mpinproc)
-
---setenv("CRTM_FIX","/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix/crtm/2.4.0")
---setenv("GDASAPP_TESTDATA","/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data")
---setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data/test")
+setenv("CRTM_FIX","/lfs/h2/emc/da/noscrub/emc.da/GDASApp/fix/crtm/2.4.0")
+setenv("GDASAPP_TESTDATA","/lfs/h2/emc/da/noscrub/emc.da/GDASApp/data")
+setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/lfs/h2/emc/da/noscrub/emc.da/GDASApp/data/test")
 
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)
