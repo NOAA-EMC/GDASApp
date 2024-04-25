@@ -25,6 +25,10 @@ endif()
 # Find dependencies.
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
+# JEDI Dependendencies
+find_package( fv3jedi REQUIRED )
+find_package( soca REQUIRED )
+
 # Include ecbuild_bundle macro
 include( ecbuild_bundle )
 
@@ -35,6 +39,9 @@ set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
 option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
 option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
+
+# Build executables
+add_subdirectory( mains )
 
 # Install utility scripts.
 add_subdirectory(ush)
