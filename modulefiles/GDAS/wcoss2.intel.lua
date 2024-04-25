@@ -28,6 +28,7 @@ load("qhull/2020.2")
 load("eckit/1.24.4")
 load("fckit/0.11.0")
 load("atlas/0.35.0")
+load("nccmp")
 
 -- hack for pybind11
 setenv("pybind11_ROOT", "/apps/spack/python/3.8.6/intel/19.1.3.304/pjn2nzkjvqgmjw4hmyz43v5x4jbxjzpk/lib/python3.8/site-packages/pybind11/share/cmake/pybind11")
