@@ -85,13 +85,13 @@ namespace gdasapp {
         int minute =  oneTmpdateTimeVal[i+4];
         int second = static_cast<int>(oneTmpdateTimeVal[i+5]);
 
-	// Avoid crash util in ioda::convertDtimeToTimeOffsets
-	if (year == -9999 || month == -9999 || day == -9999 ||
+        // Avoid crash util in ioda::convertDtimeToTimeOffsets
+        if (year == -9999 || month == -9999 || day == -9999 ||
           hour == -9999 || minute == -9999 || second == -9999) {
-	  year = month = day = hour = minute = second = 0;
-	}
+          year = month = day = hour = minute = second = 0;
+        }
 
-	// Construct iso8601 string format for each dateTime
+        // Construct iso8601 string format for each dateTime
         std::stringstream ss;
         ss << std::setfill('0')
            << std::setw(4) << year << '-'
@@ -100,19 +100,19 @@ namespace gdasapp {
            << std::setw(2) << hour << ':'
            << std::setw(2) << minute << ':'
            << std::setw(2) << second << 'Z';
-	std::string formattedDateTime = ss.str();
+        std::string formattedDateTime = ss.str();
         util::DateTime dateTime(formattedDateTime);
 
-	// Set epoch time for AMSR2_ICEC 
-	util::DateTime epochDtime("1970-01-01T00:00:00Z");
+        // Set epoch time for AMSR2_ICEC
+        util::DateTime epochDtime("1970-01-01T00:00:00Z");
 
-	// Convert Obs DateTime objects to epoch time offsets in seconds
-	// 0000-00-00T00:00:00Z will be converterd to negative seconds
+        // Convert Obs DateTime objects to epoch time offsets in seconds
+        // 0000-00-00T00:00:00Z will be converterd to negative seconds
         int64_t timeOffsets
            = ioda::convertDtimeToTimeOffsets(epochDtime, {dateTime})[0];
 
-	// Update datetime Eigen Arrays
-	iodaVars.datetime_(index) = timeOffsets;
+        // Update datetime Eigen Arrays
+        iodaVars.datetime_(index) = timeOffsets;
         index++;
       }
 
