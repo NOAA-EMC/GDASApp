@@ -119,7 +119,7 @@ namespace gdasapp {
       // Create util::DateTime object from formatted string
       util::DateTime dateTime(formattedDateTime);
 
-      // Set epoch time for SMAP_SSS 
+      // Set epoch time for SMAP_SSS
       util::DateTime epochDtime("1970-01-01T00:00:00Z");
 
       // Convert Obs DateTime objects to epoch time offsets in seconds
