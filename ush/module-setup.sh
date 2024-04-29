@@ -106,7 +106,7 @@ elif [[ $MACHINE_ID = discover* ]]; then
     . $SPACK_ROOT/share/spack/setup-env.sh
 
 elif [[ $MACHINE_ID = noaacloud* ]]; then
-    # We are on NCCS discover
+    # We are on NOAA Cloud
     module purge
 
 else
