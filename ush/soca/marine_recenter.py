@@ -128,7 +128,7 @@ class MarineRecenter(Task):
         ################################################################################
         # Copy initial condition
 
-        bkg_utils.stage_ic(self.config.bkg_dir, self.runtime_config.DATA, RUN, gcyc)
+        bkg_utils.stage_ic(self.config.bkg_dir, self.runtime_config.DATA, gcyc)
 
         ################################################################################
         # stage ensemble members
