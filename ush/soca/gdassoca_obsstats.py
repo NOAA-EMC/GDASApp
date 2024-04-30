@@ -25,6 +25,7 @@ colors = [
     "lavender"
 ]
 
+
 class ObsStats:
     def __init__(self):
         self.data = pd.DataFrame()
@@ -38,7 +39,7 @@ class ObsStats:
             new_data['date'] = pd.to_datetime(new_data['date'], format='%Y%m%d%H')
             self.data = pd.concat([self.data, new_data], ignore_index=True)
             self.data.sort_values('date', inplace=True)
-            
+
     def plot_timeseries(self, ocean, variable, inst="", dirout=""):
         # Filter data for the given ocean and variable
         filtered_data = self.data[(self.data['Ocean'] == ocean) & (self.data['Variable'] == variable)]
@@ -48,7 +49,7 @@ class ObsStats:
 
         # Get unique experiments
         experiments = filtered_data['Exp'].unique()
-        
+
         # Plot settings
         fig, axs = plt.subplots(3, 1, figsize=(10, 15), sharex=True)
         fig.suptitle(f'{inst} {variable} statistics, {ocean} ocean', fontsize=16, fontweight='bold')
@@ -58,7 +59,7 @@ class ObsStats:
             exp_data = self.data[(self.data['Ocean'] == ocean) &
                                  (self.data['Variable'] == variable) &
                                  (self.data['Exp'] == exp)]
-            
+
             # Plot RMSE
             axs[0].plot(exp_data['date'], exp_data['RMSE'], marker='o', linestyle='-', color=colors[exp_counter], label=exp)
             axs[0].xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H'))
@@ -102,15 +103,14 @@ if __name__ == "__main__":
     flist = []
     inst = args.inst
     os.makedirs(args.dirout, exist_ok=True)
-    
+
     for exp in args.exps:
         wc = exp + f'/*.*/??/analysis/ocean/*{inst}*.stats.csv'
         flist.append(glob.glob(wc))
-        
+
     flist = sum(flist, [])
     obsStats = ObsStats()
     obsStats.read_csv(flist)
     for var, ocean in product(['ombg_noqc', 'ombg_qc'],
                               ['Atlantic', 'Pacific', 'Indian', 'Arctic', 'Southern']):
         obsStats.plot_timeseries(ocean, var, inst=inst, dirout=args.dirout)
-
