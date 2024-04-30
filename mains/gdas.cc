@@ -3,7 +3,9 @@
 #include <functional>
 #include <map>
 
+#include "fv3jedi/ObsLocalization/instantiateObsLocFactory.h"
 #include "fv3jedi/Utilities/Traits.h"
+
 #include "soca/Traits.h"
 
 #include "oops/generic/instantiateModelFactory.h"
@@ -12,22 +14,37 @@
 #include "ufo/instantiateObsFilterFactory.h"
 #include "ufo/ObsTraits.h"
 
+#include "oops/runs/ConvertState.h"
 #include "oops/runs/HofX4D.h"
+#include "oops/runs/LocalEnsembleDA.h"
 #include "oops/runs/Run.h"
 #include "oops/runs/Variational.h"
 
 // -------------------------------------------------------------------------------------------------
 
 template<typename Traits>
-int runApp(int argc, char** argv, std::string appName) {
+int runApp(int argc, char** argv, const std::string traits, const std::string appName) {
   // Create the Run object
   oops::Run run(argc, argv);
 
-  // Instantiate the factories
+  // Instantiate oops factories
+  oops::instantiateModelFactory<Traits>();
+
+  // Instantiate saber factories
   saber::instantiateCovarFactory<Traits>();
+
+  // Intantiate ufo factories
   ufo::instantiateObsErrorFactory();
   ufo::instantiateObsFilterFactory();
-  oops::instantiateModelFactory<Traits>();
+
+  // Localization for ensemble DA
+  if (appName == "localensembleda") {
+    if (traits == "fv3jedi") {
+      fv3jedi::instantiateObsLocFactory();
+    } else if (traits == "soca") {
+      ufo::instantiateObsLocFactory<soca::Traits>();
+    }
+  }
 
   // Application pointer
   std::unique_ptr<oops::Application> app;
@@ -35,11 +52,17 @@ int runApp(int argc, char** argv, std::string appName) {
   // Define a map from app names to lambda functions that create unique_ptr to Applications
   std::map<std::string, std::function<std::unique_ptr<oops::Application>()>> apps;
 
+  apps["convertstate"] = []() {
+      return std::make_unique<oops::ConvertState<Traits>>();
+  };
+  apps["hofx4d"] = []() {
+      return std::make_unique<oops::HofX4D<Traits, ufo::ObsTraits>>();
+  };
+  apps["localensembleda"] = []() {
+      return std::make_unique<oops::LocalEnsembleDA<fv3jedi::Traits, ufo::ObsTraits>>();
+  };
   apps["variational"] = []() {
     return std::make_unique<oops::Variational<Traits, ufo::ObsTraits>>();
-  };
-  apps["hofx"] = []() {
-      return std::make_unique<oops::HofX4D<Traits, ufo::ObsTraits>>();
   };
 
   // Create application object and point to it
@@ -58,11 +81,11 @@ int main(int argc,  char ** argv) {
 
   // Get traits from second argument passed to executable
   // ----------------------------------------------------
-  const std::string traits = argv[1];
+  std::string traits = argv[1];
   for (char &c : traits) {c = std::tolower(c);}
 
   // Get the application to be run
-  const std::string app = argv[2];
+  std::string app = argv[2];
   for (char &c : app) {c = std::tolower(c);}
 
   // Check that the traits are recognized
@@ -72,8 +95,13 @@ int main(int argc,  char ** argv) {
 
   // Check that the application is recognized
   // ----------------------------------------
-  const std::set<std::string> validApps = {"variational", "hofx4d"};
-  ASSERT_MSG(validApps.find(app) != validApps.end(), "Applicatin not recognized: " + app);
+  const std::set<std::string> validApps = {
+    "convertstate",
+    "hofx4d",
+    "localensembleda",
+    "variational"
+  };
+  ASSERT_MSG(validApps.find(app) != validApps.end(), "Application not recognized: " + app);
 
   // Remove traits and program from argc and argv
   // --------------------------------------------
@@ -84,9 +112,10 @@ int main(int argc,  char ** argv) {
   // Call application specific main functions
   // ----------------------------------------
   if (traits == "fv3jedi") {
-    return runApp<fv3jedi::Traits>(argc, argv, app);
+    fv3jedi::instantiateObsLocFactory();
+    return runApp<fv3jedi::Traits>(argc, argv, traits, app);
   } else if (traits == "soca") {
-    return runApp<soca::Traits>(argc, argv, app);
+    return runApp<soca::Traits>(argc, argv, traits, app);
   }
 }
 
