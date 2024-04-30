@@ -12,9 +12,6 @@ project(GDAS-bundle VERSION 1.0.0 LANGUAGES C CXX Fortran )
 include(GNUInstallDirs)
 enable_testing()
 
-# Print CMAKE_SOURCE_DIR
-message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
-
 # Build type.
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
   message(STATUS "Setting build type to 'Release' as none was specified.")
