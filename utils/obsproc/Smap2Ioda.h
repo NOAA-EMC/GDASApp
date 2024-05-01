@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/date_time/gregorian/gregorian.hpp>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
@@ -12,7 +13,6 @@
 
 #include <Eigen/Dense>    // NOLINT
 
-#include "ioda/../../../../core/IodaUtils.h"
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
 
@@ -84,48 +84,24 @@ namespace gdasapp {
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
       int year = startYear;
-      int month = 1;
-      int day = startDay;
-      while (day > 31) {
-          if (month == 4 || month == 6 || month == 9 || month == 11) {
-              day -= 30;
-          } else if (month == 2) {
-              day -= 28;  // Assuming not a leap year
-          } else {
-              day -= 31;
-          }
-          month++;
-      }
-
-      // Replace Fillvalue -9999 to 0 to avoid crash in dateToJulian
       if (year == -9999) {
-        year = month = day = 0;
+        // 1400 is given by boost library
+	// final seconds goes negative then trimmed
+	year = 1400;
       }
+      
+      // Define a date
+      boost::gregorian::date d(year, 1, 1);
 
-      // Set hour, minute, and second to 0
-      int hour = 0, minute = 0, second = 0;
+      // Add a startDay to the defined date
+      d += boost::gregorian::date_duration(startDay - 1);
 
-      // Construct iso8601 string format for each dateTime
-      std::stringstream ss;
-      ss << std::setfill('0')
-         << std::setw(4) << year << '-'
-         << std::setw(2) << month << '-'
-         << std::setw(2) << day << 'T'
-         << std::setw(2) << hour << ':'
-         << std::setw(2) << minute << ':'
-         << std::setw(2) << second << 'Z';
-      std::string formattedDateTime = ss.str();
+      // Set the targeted Epochdate
+      boost::gregorian::date epochDate(1970, 1, 1);
 
-      // Create util::DateTime object from formatted string
-      util::DateTime dateTime(formattedDateTime);
-
-      // Set epoch time for SMAP_SSS
-      util::DateTime epochDtime("1970-01-01T00:00:00Z");
-
-      // Convert Obs DateTime objects to epoch time offsets in seconds
-      // 0000-00-00T00:00:00Z will be converterd to negative seconds
-      int64_t timeOffsets
-           = ioda::convertDtimeToTimeOffsets(epochDtime, {dateTime})[0];
+      // Calculate the day number and its seconds
+      int dayNum = (d - epochDate).days();
+      int secondsSinceEpoch = dayNum * 86400;
 
       int loc;
       for (int i = 0; i < dim0; i++) {
@@ -136,14 +112,16 @@ namespace gdasapp {
           iodaVars.obsVal_(loc) = sss[i][j];
           iodaVars.obsError_(loc) = sss_error[i][j];
           iodaVars.preQc_(loc) = sss_qc[i][j];
-          iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + timeOffsets);
+          iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + secondsSinceEpoch);
+	  std::cout << "Obs Seconds:    " << obsTime[j] << std::endl;
           // Store optional metadata, set ocean basins to -999 for now
           iodaVars.intMetadata_.row(loc) << -999;
         }
       }
 
       // basic test for iodaVars.trim
-      Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ > 0.0);
+      Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ > 0.0
+        && iodaVars.datetime_ > 0.0);
       iodaVars.trim(mask);
 
       return iodaVars;
