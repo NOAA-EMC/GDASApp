@@ -24,13 +24,13 @@
             color: white;
             border: none;
             border-radius: 5px;
-            font-size: 0.6em; /* Smaller font size */	    
+            font-size: 0.6em; /* Smaller font size */
         }
         .button:hover, .active {
             background-color: #0056b3;
-        }	
+        }
         select {
-	    padding: 3px 10px; /* Reduced padding */
+            padding: 3px 10px; /* Reduced padding */
             font-size: 0.4em; /* Smaller font size */
             border-radius: 5px;
             cursor: pointer;
@@ -39,22 +39,22 @@
         input[type="text"] {
             width: 70%; /* Increased width */
             display: inline-block;
-            vertical-align: middle; /* Aligns label with input */	    
+            vertical-align: middle; /* Aligns label with input */
         }
         label {
             display: inline-block;
             vertical-align: bottom; /* Aligns label with input */
             padding-top: 12px; /* Aligns text vertically with input */
             margin-right: 5px; /* Adds some space between label and input */
-        }	
+        }
     </style>
 </head>
 <body>
     <div>
         <!-- Label and input for base path -->
         <label for="basePathInput">Path to figures: </label>
-        <input type="text" id="basePathInput" placeholder="Enter base path for images" value="/path/to/figures/">      
-    </div>  
+        <input type="text" id="basePathInput" placeholder="Enter base path for images" value="/path/to/figures/">
+    </div>
     <div>
         <!-- Buttons for selecting oceans -->
         <button class="button" id="Arctic" onclick="showImages(currentType, 'Arctic')">Arctic</button>
@@ -76,8 +76,8 @@
             <option value="sst_viirs_n20_l3u">SST VIIRS N20 L3C</option>
             <option value="sst_viirs_npp_l3u">SST VIIRS NPP L3C</option>
             <option value="icec_amsr2_north">ICEC AMSR2 NORTH</option>
-            <option value="icec_amsr2_south">ICEC AMSR2 SOUTH</option>	    	    
-	    
+            <option value="icec_amsr2_south">ICEC AMSR2 SOUTH</option>
+
         </select>
     </div>
 
@@ -96,7 +96,7 @@
 
         function showImages(type, ocean) {
             currentOcean = ocean;
-	    var basePath = document.getElementById('basePathInput').value; 
+            var basePath = document.getElementById('basePathInput').value;
             updateActiveButton(ocean, 'button'); // Update active state for ocean buttons
             var container = document.getElementById('imageContainer');
             container.innerHTML = `<div class="gallery" style="display: grid;">
