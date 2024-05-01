@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/date_time/gregorian/gregorian.hpp>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
@@ -9,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "boost/date_time/gregorian/gregorian.hpp"
 #include "eckit/config/LocalConfiguration.h"
 
 #include <Eigen/Dense>    // NOLINT
@@ -86,10 +86,10 @@ namespace gdasapp {
       int year = startYear;
       if (year == -9999) {
         // 1400 is given by boost library
-	// final seconds goes negative then trimmed
-	year = 1400;
+        // final seconds goes negative then trimmed
+        year = 1400;
       }
-      
+
       // Define a date
       boost::gregorian::date d(year, 1, 1);
 
@@ -113,7 +113,6 @@ namespace gdasapp {
           iodaVars.obsError_(loc) = sss_error[i][j];
           iodaVars.preQc_(loc) = sss_qc[i][j];
           iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + secondsSinceEpoch);
-	  std::cout << "Obs Seconds:    " << obsTime[j] << std::endl;
           // Store optional metadata, set ocean basins to -999 for now
           iodaVars.intMetadata_.row(loc) << -999;
         }
@@ -121,7 +120,7 @@ namespace gdasapp {
 
       // basic test for iodaVars.trim
       Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ > 0.0
-        && iodaVars.datetime_ > 0.0);
+        && iodaVars.datetime_ > 0);
       iodaVars.trim(mask);
 
       return iodaVars;
