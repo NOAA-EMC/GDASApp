@@ -86,8 +86,7 @@ class ObsStats:
 
         # Improve layout and show plot
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-        plt.savefig(f'{dirout}/{inst}_{variable}_{ocean}_test.png')
-
+        plt.savefig(f'{dirout}/{inst}_{variable}_{ocean}.png')
 
 if __name__ == "__main__":
     epilog = ["Usage examples: ./gdassoca_obsstats.py --exps cp1/COMROOT/cp1 cp2/COMROOT/cp2 --inst sst_abi_g16_l3c --dirout cp1vscp2"]
