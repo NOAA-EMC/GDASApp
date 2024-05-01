@@ -80,7 +80,7 @@ namespace gdasapp {
         iodaVars.obsVal_(i) = sss[i];
         iodaVars.obsError_(i) = sss_error[i];
         iodaVars.preQc_(i) = sss_qc[i];
-        iodaVars.datetime_(i) =  static_cast<int64_t>((datetime_[i]*86400.0f) + mjd2000);
+        iodaVars.datetime_(i) =  static_cast<int64_t>(datetime_[i]*86400.0f) + mjd2000;
         // Store optional metadata, set ocean basins to -999 for now
         iodaVars.intMetadata_.row(i) << -999;
       }
