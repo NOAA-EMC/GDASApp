@@ -11,14 +11,14 @@
             padding: 16px;
         }
         img {
-            width: 100%;
+            width: 90%;
             height: auto;
             border: 1px solid #ccc;
             box-shadow: 2px 2px 6px #888888;
         }
         .button {
             margin: 5px;
-            padding: 5px 15px;
+            padding: 3px 10px;
             cursor: pointer;
             background-color: #007BFF;
             color: white;
@@ -28,20 +28,32 @@
         }
         .button:hover, .active {
             background-color: #0056b3;
-        }
+        }	
         select {
-	    padding: 5px 10px; /* Reduced padding */
+	    padding: 3px 10px; /* Reduced padding */
             font-size: 0.4em; /* Smaller font size */
             border-radius: 5px;
             cursor: pointer;
             border: 1px solid #ccc;
         }
+        input[type="text"] {
+            width: 70%; /* Increased width */
+            display: inline-block;
+            vertical-align: middle; /* Aligns label with input */	    
+        }
+        label {
+            display: inline-block;
+            vertical-align: bottom; /* Aligns label with input */
+            padding-top: 12px; /* Aligns text vertically with input */
+            margin-right: 5px; /* Adds some space between label and input */
+        }	
     </style>
 </head>
 <body>
     <div>
-        <!-- Input for base path -->
-        <input type="text" id="basePathInput" placeholder="Enter base path for images" value="https://example.com/images/">
+        <!-- Label and input for base path -->
+        <label for="basePathInput">Path to figures: </label>
+        <input type="text" id="basePathInput" placeholder="Enter base path for images" value="/path/to/figures/">      
     </div>  
     <div>
         <!-- Buttons for selecting oceans -->
@@ -88,8 +100,8 @@
             updateActiveButton(ocean, 'button'); // Update active state for ocean buttons
             var container = document.getElementById('imageContainer');
             container.innerHTML = `<div class="gallery" style="display: grid;">
-                <img src="${basePath}${type}_ombg_noqc_${ocean}_test.png" alt="${ocean} No QC">
-                <img src="${basePath}${type}_ombg_qc_${ocean}_test.png" alt="${ocean} QC">
+                <img src="${basePath}${type}_ombg_noqc_${ocean}.png" alt="${ocean} No QC">
+                <img src="${basePath}${type}_ombg_qc_${ocean}.png" alt="${ocean} QC">
             </div>`;
         }
 
