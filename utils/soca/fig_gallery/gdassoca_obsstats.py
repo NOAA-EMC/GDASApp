@@ -69,7 +69,7 @@ class ObsStats:
 
         # Improve layout and show plot
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-        plt.savefig(f'{ocean}_test.png')
+        plt.savefig(f'{dirout}/{inst}_{variable}_{ocean}.png')
 
 
 if __name__ == "__main__":
