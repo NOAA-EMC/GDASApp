@@ -90,13 +90,11 @@ namespace gdasapp {
         year = 1400;
       }
 
-      // Define a date
+      // Create the observation date
       boost::gregorian::date gdate(year, 1, 1);
+      gdate += boost::gregorian::date_duration(startDay - 1);  // aligning with dates at 1/1
 
-      // Find the day and month for adding approx. observation time in seconds
-      gdate += boost::gregorian::date_duration(startDay - 1);
-
-      // Set the targeted Epochdate
+      // Set the reference date
       boost::gregorian::date epochDate(1970, 1, 1);
 
       // Calculate the day number and its seconds
