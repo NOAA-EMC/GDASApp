@@ -12,3 +12,6 @@ algorithm: local_ensemble_da
 observations:
   - amsua_n19
   - sondes
+
+# The observation files in the testing are appended using the yyymmddhh similar to JEDI tests
+atm_obsdatain_suffix: ".{{ current_cycle | to_YMDH }}.nc"
