@@ -91,16 +91,16 @@ namespace gdasapp {
       }
 
       // Define a date
-      boost::gregorian::date d(year, 1, 1);
+      boost::gregorian::date gdate(year, 1, 1);
 
-      // Add a startDay to the defined date
-      d += boost::gregorian::date_duration(startDay - 1);
+      // Find the day and month for adding approx. observation time in seconds
+      gdate += boost::gregorian::date_duration(startDay - 1);
 
       // Set the targeted Epochdate
       boost::gregorian::date epochDate(1970, 1, 1);
 
       // Calculate the day number and its seconds
-      int dayNum = (d - epochDate).days();
+      int dayNum = (gdate - epochDate).days();
       int secondsSinceEpoch = dayNum * 86400;
 
       int loc;
