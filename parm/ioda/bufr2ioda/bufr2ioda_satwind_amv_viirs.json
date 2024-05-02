@@ -1,0 +1,16 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "satwnd",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC005091" ],
+  "data_description" : "NC005091 S-NPP/NOAA-20 SATWIND VIIRS IR(LW)", 
+  "data_provider"    : "U.S. NOAA/NESDIS",
+  "sensor_info"      : { "sensor_name": "VIIRS",  "sensor_full_name": "Visible Infrared Imaging Radiometer Suite",  "sensor_id": 999 },
+  "satellite_info"   : [
+                          { "satellite_name": "npp", "satellite_full_name": "SUOMI-NPP", "satellite_id": 224, "launch time": "YYYYMMDD" },
+                          { "satellite_name": "n20", "satellite_full_name": "NOAA-20", "satellite_id": 225, "launch time": "YYYYMMDD" },
+                      ]
+}
