@@ -88,4 +88,3 @@ class MarineLETKF(Task):
 
         RUN = self.runtime_config.RUN
         cyc = self.runtime_config.cyc
-
