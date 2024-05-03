@@ -8,12 +8,14 @@
 #include <string>
 #include <vector>
 
+#include "boost/date_time/gregorian/gregorian.hpp"
 #include "eckit/config/LocalConfiguration.h"
 
 #include <Eigen/Dense>    // NOLINT
 
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
+
 #include "oops/util/dateFunctions.h"
 #include "oops/util/DateTime.h"
 
@@ -82,22 +84,22 @@ namespace gdasapp {
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
 
       int year = startYear;
-      int month = 1;
-      int day = 1;
-
-      // Replace Fillvalue -9999 to 0 to avoid crash in dateToJulian
       if (year == -9999) {
-        year = 0;
+        // 1400 is given by boost library
+        // final seconds goes negative then trimmed
+        year = 1400;
       }
 
-      // Convert a date to Julian date
-      uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
+      // Create the observation date
+      boost::gregorian::date gdate(year, 1, 1);
+      gdate += boost::gregorian::date_duration(startDay - 1);  // aligning with dates at 1/1
 
-      // Subtract Julian day from January 1, 1970 (convert to epoch)
-      int daysSinceEpoch = julianDate - 2440588;
+      // Set the reference date
+      boost::gregorian::date epochDate(1970, 1, 1);
 
-      // Calculate seconds
-      int secondsSinceEpoch = (daysSinceEpoch + startDay) * 86400;
+      // Calculate the day number and its seconds
+      int dayNum = (gdate - epochDate).days();
+      int secondsSinceEpoch = dayNum * 86400;
 
       int loc;
       for (int i = 0; i < dim0; i++) {
@@ -115,7 +117,8 @@ namespace gdasapp {
       }
 
       // basic test for iodaVars.trim
-      Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ > 0.0);
+      Eigen::Array<bool, Eigen::Dynamic, 1> mask = (iodaVars.obsVal_ > 0.0
+        && iodaVars.datetime_ > 0);
       iodaVars.trim(mask);
 
       return iodaVars;

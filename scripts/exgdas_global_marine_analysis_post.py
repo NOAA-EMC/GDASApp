@@ -176,7 +176,7 @@ conf.save(stats_yaml)
 # TODO(GorA): this should be setup properly in the g-w once gdassoca_obsstats is in develop
 gdassoca_obsstats_exec = os.path.join(os.getenv('HOMEgfs'),
                                       'sorc', 'gdas.cd', 'build', 'bin', 'gdassoca_obsstats.x')
-command = f"{os.getenv('launcher')} {gdassoca_obsstats_exec} {stats_yaml}"
+command = f"{os.getenv('launcher')} -n 1 {gdassoca_obsstats_exec} {stats_yaml}"
 logger.info(f"{command}")
 result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 

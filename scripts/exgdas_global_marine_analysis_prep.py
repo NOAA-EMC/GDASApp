@@ -336,7 +336,7 @@ s2mconfig.save(socaincr2mom6_yaml)
 ################################################################################
 # Copy initial condition
 
-bkg_utils.stage_ic(bkg_dir, anl_dir, RUN, gcyc)
+bkg_utils.stage_ic(bkg_dir, anl_dir, gcyc)
 
 ################################################################################
 # prepare input.nml
