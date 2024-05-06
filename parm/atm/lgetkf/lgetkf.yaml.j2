@@ -67,6 +67,7 @@ local ensemble DA:
 #  filename: ./mem%{member}%/atmanl.
 
 output ensemble increments:
-  filetype: auxgrid
-  gridtype: gaussian
-  filename: ./anl/mem%{member}%/atminc.
+  filetype: cube sphere history
+  filename: ./anl/mem%{member}%/atminc.{{ current_cycle | to_fv3time }}.nc4
+  provider: ufs
+#  fields to write: [ua,va,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
