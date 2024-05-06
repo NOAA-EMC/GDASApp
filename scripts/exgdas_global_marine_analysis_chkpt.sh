@@ -67,8 +67,8 @@ fi
 # TODO: This should probably be in a separate j-job, that includes
 #       the mom6 incr postprocessing from above.
 
-$APRUN_OCNANAL ${JEDI_BIN}/soca_convertstate.x soca_2cice_arctic.yaml
-$APRUN_OCNANAL ${JEDI_BIN}/soca_convertstate.x soca_2cice_antarctic.yaml
+$APRUN_OCNANAL ${JEDI_BIN}/gdas.x soca convertstate soca_2cice_arctic.yaml
+$APRUN_OCNANAL ${JEDI_BIN}/gdas.x soca convertstate soca_2cice_antarctic.yaml
 export err=$?; err_chk
 
 ################################################################################
