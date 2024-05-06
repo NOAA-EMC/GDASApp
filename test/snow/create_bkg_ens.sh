@@ -30,7 +30,7 @@ if [[ ${DAtype} == 'letkfoi_snow' ]]; then
 
     B=30  # background error std for LETKFOI
 
-    JEDI_EXEC="fv3jedi_letkf.x"
+    JEDI_EXEC="gdas.x fv3jedi localensembleda"
 
     # FOR LETKFOI, CREATE THE PSEUDO-ENSEMBLE
     for ens in 001 002
