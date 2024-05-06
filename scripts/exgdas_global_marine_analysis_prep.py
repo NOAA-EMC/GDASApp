@@ -53,7 +53,6 @@ def find_clim_ens(input_date):
     """
     Find the clim. ens. that is the closest to the DA window
     """
-    logger.info(f"$$$$$$$$$$$$$$$$$$$$$$$  {os.getenv('SOCA_INPUT_FIX_DIR')}")
     ens_clim_dir = os.path.join(os.getenv('SOCA_INPUT_FIX_DIR'), 'bkgerr', 'ens')
     dirs = glob.glob(os.path.join(ens_clim_dir, '*'))
 
