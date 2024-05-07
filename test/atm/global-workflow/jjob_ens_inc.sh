@@ -50,9 +50,9 @@ fi
 
 # Execute j-job
 if [[ $machine = 'HERA' ]]; then
-    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
+    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
 elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_RUN
+    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
 fi
