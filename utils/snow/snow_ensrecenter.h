@@ -10,7 +10,6 @@
 
 #include "oops/base/FieldSet3D.h"
 #include "oops/base/GeometryData.h"
-#include "oops/base/StateEnsemble.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
@@ -61,7 +60,15 @@ namespace gdasapp {
 
         /// Read the ensemble and get the mean
         const eckit::LocalConfiguration ensBkgConfig(fullConfig, "ensemble background");
-        oops::StateEnsemble<fv3jedi::Traits> ensState(geom, ensBkgConfig);
+        /// oops::StateEnsemble<fv3jedi::Traits> ensState(geom, ensBkgConfig);
 
-        oops::Log::info() << "Ensemble mean background: " << std::endl << ensmean << std::endl;
+        /// oops::Log::info() << "Ensemble mean background: " << std::endl << ensmean << std::endl;
     }
+    private:
+
+      // -----------------------------------------------------------------------------
+      std::string appname() const {
+        return "gdasapp::FV3SnowEnsRecenter";
+    }
+  };
+}  // namespace gdasapp
