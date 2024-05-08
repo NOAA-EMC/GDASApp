@@ -100,10 +100,6 @@ if os.getenv('DOIAU') == "YES":
 else:
     cice_rst_date = cdatedt.strftime('%Y%m%d.%H%M%S')
 
-logger.info(f"---------------- DOIAU {os.getenv('DOIAU')}")
-logger.info(f"---------------- out of chkpt {cice_rst_date}.cice_model.res.nc")
-logger.info(f"---------------- to COM {cdate}.cice_model_anl.res.nc")
-
 post_file_list.append([os.path.join(anl_dir, 'Data', f'{cice_rst_date}.cice_model.res.nc'),
                        os.path.join(com_ice_analysis, f'{cice_rst_date}.cice_model_anl.res.nc')])
 
