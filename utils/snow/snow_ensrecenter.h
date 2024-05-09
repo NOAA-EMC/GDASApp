@@ -12,6 +12,7 @@
 #include "oops/base/GeometryData.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
+#include "oops/util/ConfigFunctions.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Duration.h"
 #include "oops/util/FieldSetHelpers.h"
@@ -50,7 +51,7 @@ namespace gdasapp {
         util::DateTime cycleDate = util::DateTime(strdt);
 
         /// Get the list of variables to read from the background
-        oops::Variables varList(fullConfig, "variables.name");
+        oops::Variables varList(fullConfig, "variables");
 
         /// Read the determinstic background
         fv3jedi::State detbkg(geom, varList, cycleDate);
@@ -59,10 +60,29 @@ namespace gdasapp {
         oops::Log::info() << "Determinstic background: " << std::endl << detbkg << std::endl;
 
         /// Read the ensemble and get the mean
-        const eckit::LocalConfiguration ensBkgConfig(fullConfig, "ensemble background");
-        /// oops::StateEnsemble<fv3jedi::Traits> ensState(geom, ensBkgConfig);
+        const eckit::LocalConfiguration ensBkgConfig(fullConfig, "ensemble backgrounds");
+        std::vector<fv3jedi::State> ensMembers;
+        int nens = 0;
+        ensBkgConfig.get("number of members", nens);
+        std::string pattern;
+        ensBkgConfig.get("pattern", pattern);
+        size_t zpad = 0;
+        ensBkgConfig.get("zero padding", zpad);
+        eckit::LocalConfiguration ensMemConfig(ensBkgConfig, "template");
+        fv3jedi::State ensmean(geom, varList, cycleDate);
+        ensmean.zero();
+        const double rr = 1.0/static_cast<double>(nens);
+        for (size_t i = 1; i < nens+1; ++i) {
+          /// replace template as appropriate
+          if (!pattern.empty()) {
+            util::seekAndReplace(ensMemConfig, pattern, i, zpad);
+          }
+          fv3jedi::State ensmem(geom, varList, cycleDate);
+          ensmem.read(ensMemConfig);
+          ensmean.accumul(rr, ensmem);
+        }
 
-        /// oops::Log::info() << "Ensemble mean background: " << std::endl << ensmean << std::endl;
+        oops::Log::info() << "Ensemble mean background: " << std::endl << ensmean << std::endl;
     }
     private:
 
