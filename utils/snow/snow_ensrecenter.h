@@ -58,6 +58,7 @@ namespace gdasapp {
         const eckit::LocalConfiguration bkgConfig(fullConfig, "deterministic background");
         detbkg.read(bkgConfig);
         oops::Log::info() << "Determinstic background: " << std::endl << detbkg << std::endl;
+        oops::Log::info() << "=========================" << std::endl;
 
         /// Read the ensemble and get the mean
         const eckit::LocalConfiguration ensBkgConfig(fullConfig, "ensemble backgrounds");
@@ -81,8 +82,35 @@ namespace gdasapp {
           ensmem.read(ensMemConfig);
           ensmean.accumul(rr, ensmem);
         }
-
         oops::Log::info() << "Ensemble mean background: " << std::endl << ensmean << std::endl;
+        oops::Log::info() << "=========================" << std::endl;
+
+        /// Read the deterministic increment
+        fv3jedi::Increment detinc(geom, varList, cycleDate);
+        const eckit::LocalConfiguration detIncConfig(fullConfig, "deterministic increment");
+        detinc.read(detIncConfig);
+        oops::Log::info() << "Determinstic increment: " << std::endl << detinc << std::endl;
+        oops::Log::info() << "=========================" << std::endl;
+
+        /// Difference the deterministic and ensemble mean forecasts
+        fv3jedi::Increment recenter(geom, varList, cycleDate);
+        recenter.diff(detbkg, ensmean);
+        oops::Log::info() << "Difference between deterministic and ensemble mean forecasts: " << std::endl << recenter << std::endl;
+        oops::Log::info() << "=========================" << std::endl;
+
+        /// Add the difference to the deterministic increment
+        fv3jedi::Increment ensinc(geom, varList, cycleDate);
+        ensinc.zero();
+        ensinc += recenter;
+        ensinc += detinc;
+        oops::Log::info() << "Ensemble mean increment: " << std::endl << ensinc << std::endl;
+        oops::Log::info() << "=========================" << std::endl;
+
+        /// Write out the new ensemble mean increment
+        const eckit::LocalConfiguration outIncConfig(fullConfig, "output increment");
+        ensinc.write(outIncConfig);
+
+        return 0;
     }
     private:
 
