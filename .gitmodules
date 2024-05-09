@@ -74,6 +74,14 @@
   url = https://github.com/jcsda/crtm.git
   branch = release/crtm_jedi_v2.4.1
 [submodule "sorc/fms"]
-	path = sorc/fms
-	url = https://github.com/jcsda/fms.git
+  path = sorc/fms
+  url = https://github.com/jcsda/fms.git
   branch = release-stable
+[submodule "parm/jcb-gdas"]
+  path = parm/jcb-gdas
+  url = https://github.com/noaa-emc/jcb-gdas
+  branch = develop
+[submodule "parm/jcb-algorithms"]
+  path = parm/jcb-algorithms
+  url = https://github.com/noaa-emc/jcb-algorithms
+  branch = develop

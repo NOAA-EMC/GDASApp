@@ -1,0 +1,16 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "satwnd",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC005070", "NC005071" ],
+  "data_description" : "NC005070 AQUA/TERRA SATWIND MODIS IR(LW); NC005071 AQUA/TERRA SATWIND MODIS WVCT, WVDL", 
+  "data_provider"    : "U.S. NOAA/NESDIS",
+  "sensor_info"      : { "sensor_name": "MODIS",  "sensor_full_name": "Moderate Resolution Imaging Spectroradiometer",  "sensor_id": 999 },
+  "satellite_info"   : [
+                          { "satellite_name": "terra", "satellite_full_name": "TERRA", "satellite_id": 783, "launch time": "YYYYMMDD" },
+                          { "satellite_name": "aqua", "satellite_full_name": "AQUA", "satellite_id": 784, "launch time": "YYYYMMDD" },
+                      ]
+}
