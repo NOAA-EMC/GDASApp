@@ -95,7 +95,8 @@ namespace gdasapp {
         /// Difference the deterministic and ensemble mean forecasts
         fv3jedi::Increment recenter(geom, varList, cycleDate);
         recenter.diff(detbkg, ensmean);
-        oops::Log::info() << "Difference between deterministic and ensemble mean forecasts: " << std::endl << recenter << std::endl;
+        oops::Log::info() << "Difference between deterministic and ensemble mean forecasts: "
+                          << std::endl << recenter << std::endl;
         oops::Log::info() << "=========================" << std::endl;
 
         /// Add the difference to the deterministic increment
@@ -112,8 +113,8 @@ namespace gdasapp {
 
         return 0;
     }
-    private:
 
+   private:
       // -----------------------------------------------------------------------------
       std::string appname() const {
         return "gdasapp::FV3SnowEnsRecenter";
