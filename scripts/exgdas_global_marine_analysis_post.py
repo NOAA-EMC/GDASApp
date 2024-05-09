@@ -41,6 +41,7 @@ def list_all_files(dir_in, dir_out, wc='*', fh_list=[]):
 
 
 com_ocean_analysis = os.getenv('COM_OCEAN_ANALYSIS')
+com_ice_analysis = os.getenv('COM_ICE_ANALYSIS')
 com_ice_restart = os.getenv('COM_ICE_RESTART')
 anl_dir = os.getenv('DATA')
 cdate = os.getenv('CDATE')
@@ -100,7 +101,7 @@ else:
     cice_rst_date = cdatedt.strftime('%Y%m%d.%H%M%S')
 
 post_file_list.append([os.path.join(anl_dir, 'Data', f'{cice_rst_date}.cice_model.res.nc'),
-                       os.path.join(com_ice_restart, f'{cdate}.cice_model_anl.res.nc')])
+                       os.path.join(com_ice_analysis, f'{cice_rst_date}.cice_model_anl.res.nc')])
 
 FileHandler({'copy': post_file_list}).sync()
 
