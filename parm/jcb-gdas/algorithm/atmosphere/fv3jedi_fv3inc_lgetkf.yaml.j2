@@ -43,12 +43,16 @@ fv3 increment geometry:
 members from template:
   template:
     background input:
-      datetime: '{{ atm_background_time_iso }}'
-      filetype: cube sphere history
-      provider: ufs
       datapath: ./bkg/mem%mem%
-      filename: {{ EPREFIX }}atmf006.nc
-      state variables: *bkgvars
+      filetype: fms restart
+      datetime: '{{ atm_background_time_iso }}'
+      filename is datetime templated: true
+      filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+      filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+      filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+      filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+      filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
+      state variables: *bkgvars    
     jedi increment input:
       filetype: cube sphere history
       filename: ./anl/mem%mem%/atminc.%yyyy%mm%dd.%hh%MM%ssz.nc4
