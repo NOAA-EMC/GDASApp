@@ -241,6 +241,10 @@ namespace gdasapp {
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
       bkgErr.write(bkgErrorConfig);
 
+      // Write with Atlas
+      const eckit::LocalConfiguration atlasConfig(fullConfig, "atlas write");
+      util::writeFieldSet(this->getComm(), atlasConfig, bkgErrFs);
+
       return 0;
     }
 
