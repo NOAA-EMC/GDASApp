@@ -50,12 +50,12 @@ namespace gdasapp {
         fullConfig.get("date", strdt);
         util::DateTime cycleDate = util::DateTime(strdt);
 
-        /// Get the list of variables to read from the background
+        /// Get the list of variables to process
         oops::Variables varList(fullConfig, "variables");
 
         /// Read the determinstic background
-        fv3jedi::State detbkg(geom, varList, cycleDate);
         const eckit::LocalConfiguration bkgConfig(fullConfig, "deterministic background");
+        fv3jedi::State detbkg(geom, varList, cycleDate);
         detbkg.read(bkgConfig);
         oops::Log::info() << "Determinstic background: " << std::endl << detbkg << std::endl;
         oops::Log::info() << "=========================" << std::endl;
@@ -104,10 +104,41 @@ namespace gdasapp {
         ensinc.zero();
         ensinc += recenter;
         ensinc += detinc;
-        oops::Log::info() << "Ensemble mean increment: " << std::endl << ensinc << std::endl;
-        oops::Log::info() << "=========================" << std::endl;
+
+        /// Mask out the increment (if applicable)
+        if (fullConfig.has("increment mask")) {
+          /// Get the configuration
+          const eckit::LocalConfiguration incrMaskConfig(fullConfig, "increment mask");
+          std::string maskvarname;
+          incrMaskConfig.get("variable", maskvarname);
+          double minvalue = incrMaskConfig.getDouble("minvalue", -9e36);
+          double maxvalue = incrMaskConfig.getDouble("maxvalue", 9e36);
+          oops::Variables maskVars(incrMaskConfig, "variable");
+          fv3jedi::State maskbkg(geom, maskVars, cycleDate);
+          maskbkg.read(bkgConfig);
+          atlas::FieldSet xbFs;
+          maskbkg.toFieldSet(xbFs);
+          /// Create the atlas fieldset for the output increment
+          atlas::FieldSet ensincFs;
+          ensinc.toFieldSet(ensincFs);
+          /// Loop over all points, if the mask is in range, zero out the increments
+          auto bkgMask = atlas::array::make_view<double, 2>(xbFs[maskvarname]);
+          for (atlas::idx_t jnode = 0; jnode < bkgMask.shape(0); ++jnode) {
+            if (bkgMask(jnode, 0) > minvalue && bkgMask(jnode, 0) < maxvalue ) {
+              for (auto & var : varList.variables()){
+                auto inc = atlas::array::make_view<double, 2>(ensincFs[var]);
+                for (atlas::idx_t level = 0; level < ensincFs[var].shape(1); ++level) {
+                  inc(jnode, level) = 0;
+                }  
+              }
+            }
+          }
+          ensinc.fromFieldSet(ensincFs);
+        }
 
         /// Write out the new ensemble mean increment
+        oops::Log::info() << "Ensemble mean increment: " << std::endl << ensinc << std::endl;
+        oops::Log::info() << "=========================" << std::endl;
         const eckit::LocalConfiguration outIncConfig(fullConfig, "output increment");
         ensinc.write(outIncConfig);
 
