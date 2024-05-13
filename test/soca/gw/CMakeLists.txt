@@ -77,7 +77,7 @@ foreach(jjob ${jjob_list})
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
   set_tests_properties(${test_name}
     PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda::${PROJECT_SOURCE_DIR}/ush:${PROJECT_BINARY_DIR}/../lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}")
+    ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda::${PROJECT_SOURCE_DIR}/ush:${PROJECT_BINARY_DIR}/../lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}:${PROJECT_SOURCE_DIR}/../../../../ush/python")
 
 
   set(setup "--skip") # Only run the setup of the first test, if not, it will hang
