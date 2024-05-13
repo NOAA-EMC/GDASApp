@@ -26,18 +26,18 @@
 
 namespace gdasapp {
   /**
-   * FV3SnowEnsRecenter Class Implementation
+   * FV3LandEnsRecenter Class Implementation
    *
-   * Generates an analysis increment for the ensemble forecast of snow
+   * Generates an analysis increment for the ensemble forecast of land surface vars
    * based off of the difference between the forecast ensemble mean and the
-   * deterministic snow forecast plus the analysis increment.
+   * deterministic land surface forecast plus the analysis increment.
    */
 
-  class FV3SnowEnsRecenter : public oops::Application {
+  class FV3LandEnsRecenter : public oops::Application {
    public:
-    explicit FV3SnowEnsRecenter(const eckit::mpi::Comm & comm = oops::mpi::world())
+    explicit FV3LandEnsRecenter(const eckit::mpi::Comm & comm = oops::mpi::world())
       : Application(comm) {}
-    static const std::string classname() {return "gdasapp::FV3SnowEnsRecenter";}
+    static const std::string classname() {return "gdasapp::FV3LandEnsRecenter";}
 
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
         /// Setup the FV3 geometry, we are going to assume that things are on the same grid
@@ -117,7 +117,7 @@ namespace gdasapp {
    private:
       // -----------------------------------------------------------------------------
       std::string appname() const {
-        return "gdasapp::FV3SnowEnsRecenter";
+        return "gdasapp::FV3LandEnsRecenter";
     }
   };
 }  // namespace gdasapp
