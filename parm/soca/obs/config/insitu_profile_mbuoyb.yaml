@@ -1,15 +1,15 @@
 obs space:
-  name: insitu_profile_mbuoy
+  name: insitu_profile_mbuoyb
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_profile_mbuoy.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_profile_mbuoyb.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/insitu_profile_mbuoy.${PDY}${cyc}.nc4
-  simulated variables: [waterTemperature, salinity]
-  observed variables: [waterTemperature, salinity]
+      obsfile: !ENV ${DATA}/diags/insitu_profile_mbuoyb.${PDY}${cyc}.nc4
+  simulated variables: [waterTemperature]
+  observed variables: [waterTemperature]
   io pool:
     max pool size: 1
 obs operator:

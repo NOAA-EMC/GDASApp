@@ -1,0 +1,253 @@
+obs space:
+  name: insitu_profile_tesac_salinity
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_profile_tesac.${PDY}${cyc}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/diags/insitu_profile_tesac_salinity.${PDY}${cyc}.nc4
+  simulated variables: [salinity]
+  observed variables: [salinity]
+  io pool:
+    max pool size: 1
+obs operator:
+#----------------------------------------------------------------------------------------
+# composite obs operator is throwing an error looking for MetaData: air_pressure
+# Hence the lines below and above are commented out
+#  name: Composite
+#  components:
+#  - name: InsituTemperature
+#    variables:
+#    - name: waterTemperature
+#  - name: VertInterp
+#    observation alias file: ./obsop_name_map.yaml
+#    variables:
+#    - name: salinity
+#    vertical coornidate: sea_water_depth
+#    observation vertical coordinate: depth
+#    interpolation method: linear
+#---------------------------------------------------------------------------------------
+  name: VertInterp
+  observation alias file: ./obsop_name_map.yaml
+  vertical coordinate: sea_water_depth
+  observation vertical coordinate: depth
+  interpolation method: linear
+obs error:
+  covariance model: diagonal
+
+#--------------------------------------------------------------------------------------
+#                   START OF OBS FILTERS
+# The QC filters used here are based on the document by IODE that can be found at
+# https://cdn.ioos.noaa.gov/media/2017/12/recommendations_in_situ_data_real_time_qc.pdf
+#--------------------------------------------------------------------------------------
+#obs filters:
+#
+#  # Land Check
+#  - filter: Domain Check
+#    where:
+#    - variable: {name: GeoVaLs/sea_area_fraction}
+#      minvalue: 0.5
+#
+##-------------------------------------------------------------------------------
+### Filters for S:
+##-------------------------------------------------------------------------------
+#  #-----------------------------------------------------------------------------
+#  ### Global range test
+#  #-----------------------------------------------------------------------------
+#  - filter: Bounds Check
+#    filter variables: [{name: salinity}]
+#    minvalue: 2.0
+#    maxvalue: 41.0
+#
+#  #-----------------------------------------------------------------------------
+#  ### Regional range test
+#  #-----------------------------------------------------------------------------
+#  #### Red Sea
+#  #-----------------------------------------------------------------------------
+#  ####
+#  #### the document linked here describes Red sea as the are between 10N, 40E;
+#  #### 20N, 50E; 30N, 30E; 10N, 40E. But that would also include Gulf of Aden.
+#  #### A more reasonable choice seemed to be a box that extends from 10 N to
+#  #### 30 N and 30 E to 45 East .
+#
+#  - filter: Bounds Check
+#    filter variables: [{name: salinity}]
+#    minvalue: 2.0
+#    maxvalue: 41.0
+#    where:
+#    - variable:
+#        name: MetaData/latitude
+#      minvalue: 10
+#      maxvalue: 30
+#    - variable:
+#        name: MetaData/longitude
+#      minvalue: 30
+#      maxvalue: 45
+#
+#  #### Mediterranean Sea
+#  #-----------------------------------------------------------------------------
+#  ##### Area 1/3 for Mediterranean Sea
+#  - filter: Bounds Check
+#    filter variables: [{name: salinity}]
+#    minvalue: 2.0
+#    maxvalue: 40.0
+#    where:
+#    - variable:
+#        name: MetaData/latitude
+#      minvalue: 30
+#      maxvalue: 40
+#    - variable:
+#        name: MetaData/longitude
+#      minvalue: -6
+#      maxvalue: 40
+#  ##### Area 2/3 for Mediterranean Sea
+#  - filter: Bounds Check
+#    filter variables: [{name: salinity}]
+#    minvalue: 2.0
+#    maxvalue: 40.0
+#    where:
+#    - variable:
+#        name: MetaData/latitude
+#      minvalue: 40
+#      maxvalue: 41.5
+#    - variable:
+#        name: MetaData/longitude
+#      minvalue: 20
+#      maxvalue: 30
+#  ##### Area 3/3 for Mediterranean Sea
+#  - filter: Bounds Check
+#    filter variables: [{name: salinity}]
+#    minvalue: 2.0
+#    maxvalue: 40.0
+#    where:
+#    - variable:
+#        name: MetaData/latitude
+#      minvalue: 40
+#      maxvalue: 46
+#    - variable:
+#        name: MetaData/longitude
+#      minvalue: 0
+#      maxvalue: 20
+#
+#
+#  #### Northwestern shelves
+#  #-----------------------------------------------------------------------------
+#  - filter: Bounds Check
+#    filter variables: [{name: salinity}]
+#    minvalue: 0.0
+#    maxvalue: 37.0
+#    where:
+#    - variable:
+#        name: MetaData/latitude
+#      minvalue: 50
+#      maxvalue: 60
+#    - variable:
+#        name: MetaData/longitude
+#      minvalue: -20
+#      maxvalue: 10
+#
+#  #### Southwestern shelves
+#  #-----------------------------------------------------------------------------
+#  - filter: Bounds Check
+#    filter variables: [{name: salinity}]
+#    minvalue: 0.0
+#    maxvalue: 38
+#    where:
+#    - variable:
+#        name: MetaData/latitude
+#      minvalue: 25
+#      maxvalue: 50
+#    - variable:
+#        name: MetaData/longitude
+#      minvalue: -30
+#      maxvalue: 0
+#
+#  #### Arctic Sea
+#  #-----------------------------------------------------------------------------
+#  - filter: Bounds Check
+#    filter variables: [{name: salinity}]
+#    minvalue: 2.0
+#    maxvalue: 40.0
+#    where:
+#    - variable:
+#        name: MetaData/latitude
+#      minvalue: 60
+#
+#  - filter: Background Check
+#    filter variables: [{name: salinity}]
+#    threshold: 5.0
+#    absolute threshold: 5.0
+#
+## TODO: uncomment when there is data
+##  #-------------------------------------------------------------------------------
+##  ### Spike test
+##  #-----------------------------------------------------------------------------
+##  - filter: Spike and Step Check
+##    filter variables:
+##      - name: ObsValue/salinity
+##    dependent: ObsValue/salinity  # dy/
+##    independent: MetaData/depth   # dx
+##    count spikes: true
+##    count steps: true
+##    tolerance:
+##      nominal value: 1.0  # PSU nominal, in the case of salinity (not really)
+##      threshold: 0.6  # weird salinity thing
+##      factors: [1,1,0.2]     # multiply tolerance, for ranges bounded by...
+##      x boundaries: [0,200,600] # ...these values of x (depth in m)
+##    boundary layer:
+##      x range: [0.0,300.0] # when bounded by these x values (depth in m)...
+##      maximum x interval: [50.0,100.0]  # ...and ignore level if dx greater than this
+##    action:
+##      name: reject
+##
+##  #### Count spikes
+##  #-----------------------------------------------------------------------------
+##  - filter: Variable Assignment  # create derived obs value containing only S spikes
+##    assignments:
+##    - name: DerivedMetaData/salinity_spikes
+##      type: int
+##      function:
+##        name: IntObsFunction/ProfileLevelCount
+##        options:
+##          where:
+##            - variable:
+##                name: DiagnosticFlags/spike/salinity
+##              value: is_true
+##  #### Count steps
+##  #-----------------------------------------------------------------------------
+##  - filter: Variable Assignment  # create derived obs value containing only S steps
+##    assignments:
+##    - name: DerivedMetaData/salinity_steps
+##      type: int
+##      function:
+##        name: IntObsFunction/ProfileLevelCount
+##        options:
+##          where:
+##            - variable:
+##                name: DiagnosticFlags/step/salinity
+##              value: is_true
+##  #### Count  total rejections
+##  #-----------------------------------------------------------------------------
+##  - filter: Variable Assignment  # compute sum 2*spikes+steps
+##    assignments:
+##    - name: DerivedMetaData/salinity_rejections
+##      type: int
+##      function:
+##        name: IntObsFunction/LinearCombination
+##        options:
+##          variables: [DerivedMetaData/salinity_spikes, DerivedMetaData/salinity_steps]
+##          coefs: [2,1]
+##  #### Reject entire profile if total rejctions > threshold
+##  #-----------------------------------------------------------------------------
+##  - filter: Perform Action  # reject whole profile if 2*spikes+steps>=rejection threshold
+##    where:
+##    - variable:
+##        name: DerivedMetaData/salinity_rejections
+##      minvalue: 3
+##    action:
+##      name: reject
+##  #-------------------------------------------------------------------------------
+##  ### End of Spike test
+##  #-----------------------------------------------------------------------------
