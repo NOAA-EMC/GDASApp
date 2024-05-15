@@ -91,7 +91,7 @@ namespace gdasapp {
           const eckit::LocalConfiguration detIncConfig(fullConfig, "deterministic increment");
           detinc.read(detIncConfig);
         } else {
-          detinc.zero(); // assume no increment
+          detinc.zero();  // assume no increment
         }
         oops::Log::info() << "Determinstic increment: " << std::endl << detinc << std::endl;
         oops::Log::info() << "=========================" << std::endl;
@@ -118,7 +118,7 @@ namespace gdasapp {
           recenterstr = "Difference between ensemble mean and deterministic forecasts: ";
         }
         oops::Log::info() << recenterstr << std::endl << recenter << std::endl;
-        oops::Log::info() << "=========================" << std::endl;    
+        oops::Log::info() << "=========================" << std::endl;
         /// Add the difference to the deterministic increment
         fv3jedi::Increment ensinc(geom, varList, cycleDate);
         ensinc.zero();
@@ -144,12 +144,12 @@ namespace gdasapp {
           /// Loop over all points, if the mask is in range, zero out the increments
           auto bkgMask = atlas::array::make_view<double, 2>(xbFs[maskvarname]);
           for (atlas::idx_t jnode = 0; jnode < bkgMask.shape(0); ++jnode) {
-            if (bkgMask(jnode, 0) > minvalue && bkgMask(jnode, 0) < maxvalue ) {
-              for (auto & var : varList.variables()){
+            if (bkgMask(jnode, 0) > minvalue && bkgMask(jnode, 0) < maxvalue) {
+              for (auto & var : varList.variables()) {
                 auto inc = atlas::array::make_view<double, 2>(ensincFs[var]);
                 for (atlas::idx_t level = 0; level < ensincFs[var].shape(1); ++level) {
                   inc(jnode, level) = 0;
-                }  
+                }
               }
             }
           }
