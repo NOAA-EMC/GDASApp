@@ -1,10 +1,11 @@
 provider: RTOFS
 window begin: 2021-03-24T15:00:00Z
 window end: 2021-03-24T21:00:00Z
-output file: rtofsinsitu_2024032600.profile
+output file: rtofsinsitu_2024032600.profile.nc4
 input files:
-- 2024032600.profile
-- 2024032600.sfc
+- rtofsinsitu_2024032600.profile
+# - 2024032600.profile
+# - 2024032600.sfc
 
 # test:
  # reference filename: testref/rtofsinsitu.test
