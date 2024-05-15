@@ -1,3 +1,5 @@
+#include "util.h"
+
 // #define _BSD_SOURCE
 #include <endian.h>
 #include <sys/stat.h>                // used in file_exists
@@ -12,8 +14,6 @@ using std::ofstream;
 #include <iomanip>
 using std::setprecision;
 
-#include "util.h"
-
 
 namespace rtofs
 {
@@ -21,183 +21,172 @@ namespace rtofs
 
 void skip8bytes(FILE * f)
 {
-	fseek(f, 8, SEEK_CUR);
+    fseek(f, 8, SEEK_CUR);
 }
 
 
 void
-	read_float_array(FILE * f, float * a, int n)
+    read_float_array(FILE * f, float * a, int n)
 {
-	skip8bytes(f);
+    skip8bytes(f);
 
-	fread(a, sizeof(float), n, f);
+    fread(a, sizeof(float), n, f);
 
-	uint32_t * data = (uint32_t *) a;
+    // uint32_t * data = (uint32_t *) a;
+    uint32_t * data = reinterpret_cast<uint32_t *>(a);
 
-	for (int i = 0;  i < n;  i ++)
-		data[i] = be32toh(data[i]);
-
-}	// read_float_array
+    for (int i = 0;  i < n;  i ++)
+        data[i] = be32toh(data[i]);
+}    // read_float_array
 
 
 void
-	read_int_array(FILE * f, int * a, int n)
+    read_int_array(FILE * f, int * a, int n)
 {
-	skip8bytes(f);
+    skip8bytes(f);
 
-	fread(a, sizeof(int), n, f);
+    fread(a, sizeof(int), n, f);
 
-	uint32_t * data = (uint32_t *) a;
+    // uint32_t * data = (uint32_t *) a;
+    uint32_t * data = reinterpret_cast<uint32_t *>(a);
 
-	for (int i = 0;  i < n;  i ++)
-		data[i] = be32toh(data[i]);
-
-}	// read_int_array
-
+    for (int i = 0;  i < n;  i ++)
+        data[i] = be32toh(data[i]);
+}    // read_int_array
 
 
-void 
-	print_level(std::string filename, float ** a, int n, int level)
+
+void
+    print_level(std::string filename, float ** a, int n, int level)
 {
-	ofstream o(filename);
-	o
-		<< std::fixed
-		<< std::setprecision(9)
-	;
-	for (int i = 0;  i < n;  i ++)
-		o
-			<< a[i] [level]
-			<< endl
-		;	
-	o.close();
+    ofstream o(filename);
+    o
+        << std::fixed
+        << std::setprecision(9);
+
+    for (int i = 0;  i < n;  i ++)
+        o
+            << a[i] [level]
+            << endl;
+
+    o.close();
 }
 
 
-void 
-	print_int_array(std::string filename, int * a, int n)
+void
+    print_int_array(std::string filename, int * a, int n)
 {
-	ofstream o(filename);
-	for (int i = 0;  i < n;  i ++)
-		o
-			<< a[i] 
-			<< endl
-		;	
-	o.close();
+    ofstream o(filename);
+    for (int i = 0;  i < n;  i ++)
+        o
+            << a[i]
+            << endl;
+    o.close();
 }
 
 
-void 
-	print_float_array(std::string filename, float * a, int n)
+void
+    print_float_array(std::string filename, float * a, int n)
 {
-	ofstream o(filename);
-	o
-		<< std::fixed
-		<< std::setprecision(9)
-	;
-	for (int i = 0;  i < n;  i ++)
-		o
-			<< a[i] 
-			<< endl
-		;	
+    ofstream o(filename);
+    o
+        << std::fixed
+        << std::setprecision(9);
+    for (int i = 0;  i < n;  i ++)
+        o
+            << a[i]
+            << endl;
 }
 
-void 
-	print_2d_float_array(std::string filename, float ** a, int n, int * dim2)
+void
+    print_2d_float_array(std::string filename, float ** a, int n, int * dim2)
 {
-	ofstream o(filename);
-	o
-		<< std::fixed
-		<< std::setprecision(9)
-	;
-	for (int i = 0;  i < n;  i ++)
-	for (int j = 0;  j < dim2[i];  j ++)
-		o
-			<< a[i] [j]
-			<< endl
-		;	
+    ofstream o(filename);
+    o
+        << std::fixed
+        << std::setprecision(9);
+    for (int i = 0;  i < n;  i ++)
+    for (int j = 0;  j < dim2[i];  j ++)
+        o
+            << a[i] [j]
+            << endl;
 }
 
 
-bool 
-	file_exists (const std::string& name)
+bool
+    file_exists(const std::string& name)
 {
-	struct stat buffer;   
-	return (stat (name.c_str(), &buffer) == 0); 
+    struct stat buffer;
+    return (stat (name.c_str(), &buffer) == 0);
 }
 
 
 int
-	read_int(FILE * f)
+    read_int(FILE * f)
 {
-	int dummy;
-	fread(&dummy, sizeof(int), 1, f);
-	dummy = (int) be32toh(dummy);
-	return dummy;
-
-}	// read_int
+    int dummy;
+    fread(&dummy, sizeof(int), 1, f);
+    // dummy = (int) be32toh(dummy);
+    dummy = static_cast<int>(be32toh(dummy));
+    return dummy;
+}    // read_int
 
 
 
 void
-	read_real_array(FILE * f, float * a, int n)
+    read_real_array(FILE * f, float * a, int n)
 {
-	fread(a, sizeof(float), n, f);
+    fread(a, sizeof(float), n, f);
 
-	uint32_t * data = (uint32_t *) a;
+    // uint32_t * data = (uint32_t *) a;
+    uint32_t * data = reinterpret_cast<uint32_t *>(a);
 
-	for (int i = 0;  i < n;  i ++)
-		data[i] = be32toh(data[i]);
+    for (int i = 0;  i < n;  i ++)
+        data[i] = be32toh(data[i]);
+}    // read_real_array
 
-}	// read_real_array
 
-
-float * 
-	alloc_read_float_array(FILE * f, int n)
+float *
+    alloc_read_float_array(FILE * f, int n)
 {
-	float * a = new float[n];
-	skip8bytes(f);
-	read_real_array(f, a, n);
-	return a;
+    float * a = new float[n];
+    skip8bytes(f);
+    read_real_array(f, a, n);
+    return a;
 }
 
 
-void 
-	print_int_array(int * a, int n)
+void
+    print_int_array(int * a, int n)
 {
-	for (int i = 0;  i < n;  i ++)
-		cout
-			// << setw(12)
-			// << i + 1 
-			// << setw(12)
-			<< a[i] 
-			<< endl
-		;	
+    for (int i = 0;  i < n;  i ++)
+        cout
+            << a[i]
+            << endl;
 }
 
 
-int * 
-	alloc_read_int_array(FILE * f, int n)
+int *
+    alloc_read_int_array(FILE * f, int n)
 {
-	int * a = new int[n];
-	skip8bytes(f);
-	read_int_array(f, a, n);
-	return a;
+    int * a = new int[n];
+    skip8bytes(f);
+    read_int_array(f, a, n);
+    return a;
 }
 
 
-void 
-	print_real_array(float * a, int n)
+void
+    print_real_array(float * a, int n)
 {
-	cout
-		<< std::fixed
-		<< std::setprecision(9)
-	;
-	for (int i = 0;  i < n;  i ++)
-		cout
-			<< a[i] 
-			<< endl
-		;	
+    cout
+        << std::fixed
+        << std::setprecision(9);
+    for (int i = 0;  i < n;  i ++)
+        cout
+            << a[i]
+            << endl;
 }
 
 
-}	// namespace rtofs
+}    // namespace rtofs

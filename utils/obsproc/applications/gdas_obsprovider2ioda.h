@@ -8,8 +8,8 @@
 
 #include "../Ghrsst2Ioda.h"
 #include "../IcecAmsr2Ioda.h"
-#include "../RTOFSInSitu.h"
 #include "../Rads2Ioda.h"
+#include "../RTOFSInSitu.h"
 #include "../Smap2Ioda.h"
 #include "../Smos2Ioda.h"
 #include "../Viirsaod2Ioda.h"
