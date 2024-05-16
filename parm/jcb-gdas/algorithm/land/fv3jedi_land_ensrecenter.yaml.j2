@@ -1,0 +1,63 @@
+geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ layout_x }}
+  - {{ layout_y }}
+  npx: {{ npx_ges }}
+  npy: {{ npy_ges }}
+  npz: {{ npz_ges }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+date: "{{ atm_background_time_iso }}"
+variables: [totalSnowDepth]
+increment mask:
+  variable: [slmsk]
+  maxvalue: 0.99 
+deterministic increment:
+  datetime: "{{ atm_background_time_iso }}"
+  filetype: fms restart
+  state variables: [snodl,vtype,slmsk]
+  datapath: ./anl
+  filename_core: "%yyyy%mm%dd.%hh%MM%ss.snowinc.fv_core.res.nc"
+  filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.snowinc.fv_tracer.res.nc"
+  filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.snowinc.sfc_data.nc"
+  filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.snowinc.fv_srf_wnd.res.nc"
+  filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.snowinc.coupler.res"
+deterministic background:
+  datetime: "{{ atm_background_time_iso }}"
+  filetype: fms restart
+  state variables: [snodl,vtype,slmsk]
+  datapath: {{ background_path }}
+  filename is datetime templated: true
+  filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+  filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+  filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+  filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+  filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
+recenter to: deterministic
+output increment:
+  datapath: ./anl
+  datetime: "{{ atm_background_time_iso }}"
+  filetype: fms restart
+  filename_core: inc.fv_core.res.nc
+  filename_trcr: inc.fv_tracer.res.nc
+  filename_sfcd: inc.sfc_data.nc
+  filename_sfcw: inc.fv_srf_wnd.res.nc
+  filename_cplr: inc.coupler.res
+ensemble backgrounds:
+  pattern: "{{ ensemble_pattern | default("%mem%", true) }}"
+  number of members: {{ number_ensemble_members }}
+  zero padding: 3
+  template:
+    datetime: "{{ atm_background_time_iso }}"
+    filetype: fms restart
+    state variables: [snodl,vtype,slmsk]
+    datapath: {{ background_ensemble_path }}
+    filename is datetime templated: true
+    filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+    filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+    filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+    filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+    filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
