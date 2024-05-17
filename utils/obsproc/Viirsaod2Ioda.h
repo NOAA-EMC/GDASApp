@@ -159,15 +159,14 @@ namespace gdasapp {
             }
         }
 
-        
         lat2d_s = gdasapp::superobutils::subsample2D(lat, mask, fullConfig_);
         mask_s = gdasapp::superobutils::subsample2D(mask, mask, fullConfig_);
         if (fullConfig_.has("binning.cressman radius")) {
         // Weighted-average (cressman) superob
           bool useCressman = true;
-          obsvalue_s = gdasapp::superobutils::subsample2D(obsvalue, mask, fullConfig_, 
+          obsvalue_s = gdasapp::superobutils::subsample2D(obsvalue, mask, fullConfig_,
                        useCressman, lat, lon, lat2d_s, lon2d_s);
-          obserror_s = gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_, 
+          obserror_s = gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_,
                        useCressman, lat, lon, lat2d_s, lon2d_s);
         } else {
         // Simple-average superob

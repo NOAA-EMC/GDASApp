@@ -44,10 +44,10 @@ namespace gdasapp {
                                             const std::vector<std::vector<int>>& mask,
                                             const eckit::Configuration & fullConfig,
                                             bool useCressman = false,
-                                            const std::vector<std::vector<T>>& inputlat={},
-                                            const std::vector<std::vector<T>>& inputlon={},
-                                            const std::vector<std::vector<T>>& targetlat={},
-                                            const std::vector<std::vector<T>>& targetlon={}
+                                            const std::vector<std::vector<T>>& inputlat = {},
+                                            const std::vector<std::vector<T>>& inputlon = {},
+                                            const std::vector<std::vector<T>>& targetlat = {},
+                                            const std::vector<std::vector<T>>& targetlon = {}
 ) {
       // Get the binning configuration
       int stride;
@@ -67,7 +67,7 @@ namespace gdasapp {
       // Perform subsampling
       T sum;
       int count;
-      if (not useCressman) {
+      if (! useCressman) {
         for (int i = 0; i < subsampledRows; ++i) {
           for (int j = 0; j < subsampledCols; ++j) {
             count = 0;
@@ -109,14 +109,13 @@ namespace gdasapp {
                 int row = i * stride + si;
                 int col = j * stride + sj;
                 if (row < numRows && col < numCols && mask[row][col] == 1) {
-                  GeoPoint point1 = {inputlat[row][col], inputlon[row][col]};  
+                  GeoPoint point1 = {inputlat[row][col], inputlon[row][col]};
                   GeoPoint point2 = {targetlat[i][j], targetlon[i][j]};
                   double distance = haversineDistance(point1, point2);
                   double distance_sq = distance * distance;
                   double cressmanRadius_sq = cressmanRadius * cressmanRadius;
-                  double weight = (distance <= cressmanRadius) ? (cressmanRadius_sq - distance_sq ) / 
+                  double weight = (distance <= cressmanRadius) ? (cressmanRadius_sq - distance_sq ) /
                                   (cressmanRadius_sq + distance_sq) : 0.0;
-                  //double weight = (distance <= cressmanRadius) ? 1.0 / (distance * distance) : 0.0;
                   sum += inputArray[row][col] * weight;
                   sumWeights += weight;
                   count ++;
@@ -124,7 +123,6 @@ namespace gdasapp {
               }
             }
 
-           // std::cout << " YPW" << sumWeights << count << std::endl;
             // Update subsampled value with Cressman interpolation
             if (count < minNumObs || sumWeights == 0.0) {
               subsampled[i][j] = static_cast<T>(-9999);
