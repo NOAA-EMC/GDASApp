@@ -84,12 +84,12 @@ def bufr_to_ioda(config, logger):
     q.add('stationElevation', '*/SELV')
     q.add('pressure', '*/UARLV/PRLC')
     # MetaData/Observation Time
-    q.add('year', '*/YEAR') 
-    q.add('month', '*/MNTH') 
-    q.add('day', '*/DAYS') 
-    q.add('hour', '*/HOUR') 
-    q.add('minute', '*/MINU') 
-    #q.add('second', '*/SECO') 
+    q.add('year', '*/YEAR')
+    q.add('month', '*/MNTH')
+    q.add('day', '*/DAYS')
+    q.add('hour', '*/HOUR')
+    q.add('minute', '*/MINU')
+    #q.add('second', '*/SECO')
     # MetaData/Receipt Time
     q.add('receiptTimeSignificance', '*/RCPTIM{1}/RCTS')
     q.add('receiptYear', '*/RCPTIM{1}/RCYR')
@@ -140,11 +140,11 @@ def bufr_to_ioda(config, logger):
     prlc = r.get('pressure', group_by='pressure', type='float')
 
     # MetaData/Observation Time
-    year = r.get('year', group_by='pressure') 
-    month = r.get('month', group_by='pressure') 
-    day = r.get('day', group_by='pressure') 
-    hour = r.get('hour', group_by='pressure') 
-    #minute = r.get('minute', 'pressure') 
+    year = r.get('year', group_by='pressure')
+    month = r.get('month', group_by='pressure')
+    day = r.get('day', group_by='pressure')
+    hour = r.get('hour', group_by='pressure')
+    #minute = r.get('minute', 'pressure')
     #secoond = r.get('second', 'pressure')
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
