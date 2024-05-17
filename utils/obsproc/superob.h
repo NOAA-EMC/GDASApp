@@ -18,7 +18,7 @@ namespace gdasapp {
     // Function to convert degrees to radians
     double toRadians(double degree) {
         return degree * (M_PI / 180.0);
-    } 
+    }
 
     // Function to calculate the Haversine distance between two points
     double haversineDistance(const GeoPoint& point1, const GeoPoint& point2) {
@@ -67,7 +67,7 @@ namespace gdasapp {
       // Perform subsampling
       T sum;
       int count;
-      if (! useCressman) {
+      if (!useCressman) {
         for (int i = 0; i < subsampledRows; ++i) {
           for (int j = 0; j < subsampledCols; ++j) {
             count = 0;
@@ -114,11 +114,11 @@ namespace gdasapp {
                   double distance = haversineDistance(point1, point2);
                   double distance_sq = distance * distance;
                   double cressmanRadius_sq = cressmanRadius * cressmanRadius;
-                  double weight = (distance <= cressmanRadius) ? (cressmanRadius_sq - distance_sq ) /
-                                  (cressmanRadius_sq + distance_sq) : 0.0;
+                  double weight = (distance <= cressmanRadius) ? (cressmanRadius_sq - distance_sq )
+                                  / (cressmanRadius_sq + distance_sq) : 0.0;
                   sum += inputArray[row][col] * weight;
                   sumWeights += weight;
-                  count ++;
+                  count++;
                 }
               }
             }
