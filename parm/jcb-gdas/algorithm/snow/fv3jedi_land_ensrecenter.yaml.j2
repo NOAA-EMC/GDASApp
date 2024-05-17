@@ -20,6 +20,7 @@ deterministic increment:
   filetype: fms restart
   state variables: [snodl,vtype,slmsk]
   datapath: ./anl
+  filename is datetime templated: true
   filename_core: "%yyyy%mm%dd.%hh%MM%ss.snowinc.fv_core.res.nc"
   filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.snowinc.fv_tracer.res.nc"
   filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.snowinc.sfc_data.nc"
