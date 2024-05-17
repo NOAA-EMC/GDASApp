@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# (C) Copyright 2024 NOAA/NWS/NCEP/EMC
+# (C) Copyright 2024 NOAA/NWS/NCEP/EM
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -88,8 +88,6 @@ def bufr_to_ioda(config, logger):
     q.add('month', '*/MNTH')
     q.add('day', '*/DAYS')
     q.add('hour', '*/HOUR')
-    q.add('minute', '*/MINU')
-    #q.add('second', '*/SECO')
     # MetaData/Receipt Time
     q.add('receiptTimeSignificance', '*/RCPTIM{1}/RCTS')
     q.add('receiptYear', '*/RCPTIM{1}/RCYR')
@@ -144,8 +142,6 @@ def bufr_to_ioda(config, logger):
     month = r.get('month', group_by='pressure')
     day = r.get('day', group_by='pressure')
     hour = r.get('hour', group_by='pressure')
-    #minute = r.get('minute', 'pressure')
-    #secoond = r.get('second', 'pressure')
     # DateTime: seconds since Epoch time
     # IODA has no support for numpy datetime arrays dtype=datetime64[s]
     timestamp = r.get_datetime('year', 'month', 'day', 'hour', group_by='pressure').astype(np.int64)
