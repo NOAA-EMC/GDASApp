@@ -49,9 +49,10 @@ set(jjob_list "JGLOBAL_PREP_OCEAN_OBS"
 #	      "JGDAS_GLOBAL_OCEAN_ANALYSIS_LETKF"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT"
 # TODO(WaterPeople) Add back after g-w pr2584 is merged              
-#              "JGDAS_GLOBAL_OCEAN_ANALYSIS_POST")
+#              "JGDAS_GLOBAL_OCEAN_ANALYSIS_POST"
 # TODO(WaterPeople) Add back to the list of tested jobs once fixed
 #              "JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY")
+)
 
 set(setup "")
 foreach(jjob ${jjob_list})
