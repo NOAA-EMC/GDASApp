@@ -133,7 +133,8 @@ namespace gdasapp {
       std::vector<std::vector<int>> mask_s;
 
       if ( fullConfig_.has("binning") ) {
-        // deal with longitude when points cross the international date line
+        // Do superobbing
+        // Deal with longitude when points cross the international date line
         float minLon = std::numeric_limits<float>::max();
         float maxLon = std::numeric_limits<float>::min();
 
@@ -158,19 +159,18 @@ namespace gdasapp {
             }
         }
 
-
+        
         lat2d_s = gdasapp::superobutils::subsample2D(lat, mask, fullConfig_);
         mask_s = gdasapp::superobutils::subsample2D(mask, mask, fullConfig_);
         if (fullConfig_.has("binning.cressman radius")) {
-        // Weighted-average (cressman) does not work yet. Need to develop subsample2D_cressman
-        // function to superob.h or incorporate weighted average to subsample2D function.
-        // obsvalue_s = gdasapp::superobutils::subsample2D_cressman(obsvalue, lat, lon,
-        //              lat2d_s, lon2d_s, mask, fullConfig_);
-        // obserror_s = gdasapp::superobutils::subsample2D_cressman(obserror, lat, lon,
-        // lat2d_s, lon2d_s, mask, fullConfig_);
-          obsvalue_s = gdasapp::superobutils::subsample2D(obsvalue, mask, fullConfig_);
-          obserror_s = gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_);
+        // Weighted-average (cressman) superob
+          bool useCressman = true;
+          obsvalue_s = gdasapp::superobutils::subsample2D(obsvalue, mask, fullConfig_, 
+                       useCressman, lat, lon, lat2d_s, lon2d_s);
+          obserror_s = gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_, 
+                       useCressman, lat, lon, lat2d_s, lon2d_s);
         } else {
+        // Simple-average superob
           obsvalue_s = gdasapp::superobutils::subsample2D(obsvalue, mask, fullConfig_);
           obserror_s = gdasapp::superobutils::subsample2D(obserror, mask, fullConfig_);
         }
