@@ -1,0 +1,15 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "satwnd",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC005072" ],
+  "data_description" : "NC005072 LEOGEO SATWIND IR(LW)", 
+  "data_provider"    : "U.S. NOAA/NESDIS",
+  "sensor_info"      : { "sensor_name": "LEOGEO",  "sensor_full_name": "Combined Platform LEO/GEO",  "sensor_id": 999 },
+  "satellite_info"   : [
+                          { "satellite_name": "multi", "satellite_full_name": "MULTIPLE-SATS", "satellite_id": 854, "launch time": "YYYYMMDD" },
+                      ]
+}
