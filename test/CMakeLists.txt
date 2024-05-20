@@ -134,19 +134,11 @@ if (WORKFLOW_TESTS)
            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/testrun)
 endif()
 
-# fv3jedi tests
 if (${BUILD_GDASBUNDLE})
-  add_subdirectory(fv3jedi)
-endif()
-
-# soca tests
-if (${BUILD_GDASBUNDLE})
-  add_subdirectory(soca)
-endif()
-
-# snow da tests
-if (${BUILD_GDASBUNDLE})
-  add_subdirectory(snow)
+  add_subdirectory(fv3jedi)   # fv3jedi tests
+  add_subdirectory(soca)      # soca tests
+  add_subdirectory(snow)      # snow da tests
+  add_subdirectory(gw-ci)     # replicate the creation of some of the gw-ci tests
 endif()
 
 # gdas atm tests
