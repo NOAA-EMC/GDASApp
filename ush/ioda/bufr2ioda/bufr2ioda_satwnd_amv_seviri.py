@@ -373,19 +373,19 @@ def bufr_to_ioda(config, logger):
                 .write_attr('long_name', 'Satellite-derived Wind Computation Method') \
                 .write_data(swcm2)
 
-            # Pressure 
+            # Pressure
             obsspace.create_var('MetaData/pressure', dtype=pressure2.dtype, fillval=pressure2.fill_value) \
                 .write_attr('units', 'pa') \
                 .write_attr('long_name', 'Pressure') \
-                .write_data(pressure2) 
- 
-            # Height (mimic prepbufr) 
+                .write_data(pressure2)
+
+            # Height (mimic prepbufr)
             obsspace.create_var('MetaData/height', dtype=height2.dtype, fillval=height2.fill_value) \
                 .write_attr('units', 'm') \
                 .write_attr('long_name', 'Height of Observation') \
-                .write_data(height2) 
- 
-            # Station Elevation (mimic prepbufr) 
+                .write_data(height2)
+
+            # Station Elevation (mimic prepbufr)
             obsspace.create_var('MetaData/stationElevation', dtype=stnelev2.dtype, fillval=stnelev2.fill_value) \
                 .write_attr('units', 'm') \
                 .write_attr('long_name', 'Station Elevation') \
