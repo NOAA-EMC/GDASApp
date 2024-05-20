@@ -52,6 +52,7 @@ set(jjob_list "JGLOBAL_PREP_OCEAN_OBS"
 #              "JGDAS_GLOBAL_OCEAN_ANALYSIS_POST")
 # TODO(WaterPeople) Add back to the list of tested jobs once fixed
 #              "JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY")
+)
 
 set(setup "")
 foreach(jjob ${jjob_list})
