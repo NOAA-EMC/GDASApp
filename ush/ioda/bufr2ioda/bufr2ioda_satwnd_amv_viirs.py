@@ -385,8 +385,8 @@ def bufr_to_ioda(config, logger):
                 .write_data(ogce2)
 
             # Quality: Percent Confidence - Quality Information Without Forecast
-            obsspace.create_var('MetaData/qualityInformationWithoutForecast', dtype=qifn2.dtype, fillval=qifn2.fill_value) \
-                .write_attr('long_name', 'Quality Information Without Forecast') \
+            obsspace.create_var('MetaData/qiWithoutForecast', dtype=qifn2.dtype, fillval=qifn2.fill_value) \
+                .write_attr('long_name', 'QI Without Forecast') \
                 .write_data(qifn2)
 
             # Wind Computation Method
