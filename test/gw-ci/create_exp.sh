@@ -6,7 +6,7 @@ HOMEgfs="$3"
 source "${HOMEgfs}/ush/detect_machine.sh"
 source "${HOMEgfs}/ci/platforms/config.${MACHINE_ID}"
 
-# Arguments
+# Arguments for the exp setup
 expyaml="$1"
 export pslot="$2"
 export RUNTESTS="$4"/${pslot}
