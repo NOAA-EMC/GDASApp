@@ -14,11 +14,11 @@ rocotoboot -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$TASK_NAME" -c "$CYCLE"
 while true; do
   # Update the status of the task
   rocotorun -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$TASK_NAME" -c "$CYCLE"
-    
+
   # Check the task status
   OUTPUT=$(rocotostat -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$TASK_NAME" -c "$CYCLE")
   STATUS=$(echo "$OUTPUT" | awk '$2 == task {print $4}' task="$TASK_NAME")
-  
+
   if [[ "$STATUS" == "SUCCEEDED" ]]; then
       echo "The task succeeded."
       exit 0
