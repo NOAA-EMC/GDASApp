@@ -127,7 +127,7 @@ def plotZonalSlice(config):
     data = xr.open_dataset(config['fields file'])
     lat_index = np.argmin(np.array(np.abs(np.squeeze(grid.lat)[:, 0]-lat)))
     slice_data = np.squeeze(np.array(data[variable]))[:, lat_index, :]
-    depth = np.squeeze(np.array(grid['h']))[:, lat_index, :]
+    depth = np.squeeze(np.array(data['h']))[:, lat_index, :]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
     bounds = config['bounds']
@@ -161,7 +161,7 @@ def plotMeridionalSlice(config):
     data = xr.open_dataset(config['fields file'])
     lon_index = np.argmin(np.array(np.abs(np.squeeze(grid.lon)[0, :]-lon)))
     slice_data = np.squeeze(np.array(data[config['variable']]))[:, :, lon_index]
-    depth = np.squeeze(np.array(grid['h']))[:, :, lon_index]
+    depth = np.squeeze(np.array(data['h']))[:, :, lon_index]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
     bounds = config['bounds']
