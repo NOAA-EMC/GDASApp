@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "eckit/config/LocalConfiguration.h"
 #include "atlas/util/Earth.h"
 #include "atlas/util/Geometry.h"
 #include "atlas/util/Point.h"
+#include "eckit/config/LocalConfiguration.h"
 
 
 
@@ -84,9 +84,8 @@ namespace gdasapp {
                 int row = i * stride + si;
                 int col = j * stride + sj;
                 if (row < numRows && col < numCols && mask[row][col] == 1) {
-
-                  atlas::PointLonLat p0(inputlon[row][col],inputlat[row][col]);
-                  atlas::PointLonLat p1(targetlon[i][j],targetlat[i][j]);
+                  atlas::PointLonLat p0(inputlon[row][col], inputlat[row][col]);
+                  atlas::PointLonLat p1(targetlon[i][j], targetlat[i][j]);
                   double distance = atlas::util::Earth::distance(p0, p1)/1000.0;
 
                   double distance_sq = distance * distance;
