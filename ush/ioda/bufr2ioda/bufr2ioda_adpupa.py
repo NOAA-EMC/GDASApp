@@ -344,7 +344,7 @@ def bufr_to_ioda(config, logger):
     # Air Temperature
     obsspace.create_var('ObsValue/airTemperature', dtype=tmdb.dtype, fillval=tmdb.fill_value) \
         .write_attr('units', 'K') \
-        .write_attr('long_name', 'Sensible Temperature') \
+        .write_attr('long_name', 'Air Temperature') \
         .write_data(tmdb)
 
     # DewPoint Temperature
