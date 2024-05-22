@@ -128,7 +128,7 @@ class MarineRecenter(Task):
         ################################################################################
         # Copy initial condition
 
-        bkg_utils.stage_ic(self.config.bkg_dir, self.runtime_config.DATA, RUN, gcyc)
+        bkg_utils.stage_ic(self.config.bkg_dir, self.runtime_config.DATA, gcyc)
 
         ################################################################################
         # stage ensemble members
@@ -180,7 +180,7 @@ class MarineRecenter(Task):
         chdir(self.runtime_config.DATA)
 
         exec_cmd_gridgen = Executable(self.config.APRUN_OCNANALECEN)
-        exec_name_gridgen = os.path.join(self.config.JEDI_BIN, 'soca_gridgen.x')
+        exec_name_gridgen = os.path.join(self.config.JEDI_BIN, 'gdas_soca_gridgen.x')
         exec_cmd_gridgen.add_default_arg(exec_name_gridgen)
         exec_cmd_gridgen.add_default_arg(self.config.gridgen_yaml)
 

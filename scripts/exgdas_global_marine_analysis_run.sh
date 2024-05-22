@@ -41,7 +41,7 @@ function clean_yaml()
 # run the variational application
 cp var.yaml var_original.yaml
 clean_yaml var.yaml
-$APRUN_OCNANAL $JEDI_BIN/soca_var.x var.yaml
+$APRUN_OCNANAL $JEDI_BIN/gdas.x soca variational var.yaml
 export err=$?; err_chk
 
 ################################################################################
