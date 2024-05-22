@@ -77,6 +77,8 @@ if [ $machine = orion ]; then
       workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/${obtype}
    fi
    GDASApp=${GDASApp:-/work2/noaa/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
+   JCBinstall=${JCBinstall:-/work2/noaa/da/cmartin/CI/GDASApp/opt}
+   JCBpylib=$JCBinstall/lib/python3.7/site-packages
 elif [ $machine = hera ]; then
    if [ $run_filtering == NO ]; then
       workdir=/scratch1/NCEPDEV/stmp2/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
@@ -84,6 +86,8 @@ elif [ $machine = hera ]; then
       workdir=/scratch1/NCEPDEV/stmp2/$LOGNAME/ufoeval/$cycle/${obtype}
    fi
    GDASApp=${GDASApp:-/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
+   JCBinstall=${JCBinstall:-/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/opt}
+   JCBpylib=$JCBinstall/lib/python3.10/site-packages
 else
    echo "Machine " $machine "not found"
    exit 1
@@ -94,11 +98,6 @@ if [ $keep_output = YES ]; then
   workdir=${workdir}_datetime
 fi
 
-if [ $run_filtering == NO ]; then
-   yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}_noqc.yaml
-else
-   yamlpath=$GDASApp/parm/atm/obs/testing/${obtype}.yaml
-fi
 exename=test_ObsFilters.x
 
 #-------------- Do not modify below this line ----------------
@@ -170,7 +169,10 @@ ln -sf $GDASApp/build/bin/$exename $workdir/.
 echo "Generating YAML"
 
 # Copy/generate YAML for test executable
-# First, create the input YAMLs for the genYAML script
+# need to add JCB to PATH and PYTHONPATH
+export PYTHONPATH=$PYTHONPATH:$JCBpylib
+export PATH=$PATH:$JCBinstall/bin
+# First, create the input file for JCB
 export DATA=./
 export COMPONENT=atmos
 export OPREFIX=gdas.t${cyc}z
@@ -185,6 +187,7 @@ time window:
 observations:
 - !INC $yamlpath
 EOF
+# jcb render dictionary_of_templates.yaml jedi_config.yaml
 $GDASApp/ush/genYAML --input $workdir/temp.yaml --output $workdir/${obtype}_${cycle}.yaml
 
 if [ $? -ne 0 ]; then
