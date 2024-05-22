@@ -5,14 +5,38 @@ set(RUNTESTS ${CMAKE_CURRENT_BINARY_DIR}/../../test/gw-ci)
 # List of g-w ci test to create
 set(cycling_tests "C48mx500_3DVarAOWCDA" "C96_atmaerosnowDA" "C96C48_ufs_hybatmDA")
 
-# Prepare the cycling ctests
-# --------------------------
+# List of tasks to run for each test
+set(C48mx500_3DVarAOWCDA_tasks
+  "gdasprepoceanobs"
+  "gdasocnanalprep"
+  "gdasocnanalbmat"
+  "gdasocnanalrun"
+  "gdasocnanalchkpt"
+  "gdasocnanalpost")
+set(C96_atmaerosnowDA_tasks)     # empty list for now
+set(C96C48_ufs_hybatmDA_tasks)   # empty list for now
+
+# half-cycle and full cycle to run for each test
+set(C48mx500_3DVarAOWCDA_cycles "" "")
+set(C96_atmaerosnowDA_cycles)     # empty list for now
+set(C96C48_ufs_hybatmDA_cycles)   # empty list for now
+
+# Iterate through the list of cycling test
+# ----------------------------------------
 foreach(pslot ${cycling_tests})
+  # Prepare the cycling ctests
   set(YAML ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
   add_test(NAME ${pslot}
            COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/create_exp.sh ${YAML} ${pslot} ${HOMEgfs} ${RUNTESTS}"
            WORKING_DIRECTORY ${RUNTESTS})
   set_tests_properties(${pslot} PROPERTIES LABELS "manual")
+
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/get_cycles.py ${YAML_FILE}
+    OUTPUT_VARIABLE YAML_CONTENT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
 endforeach()
 
 # Run tasks for C48mx500_3DVarAOWCDA
