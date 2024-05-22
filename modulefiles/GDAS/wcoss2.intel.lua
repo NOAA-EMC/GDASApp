@@ -30,7 +30,7 @@ load("fckit/0.11.0")
 load("atlas/0.35.0")
 load("nccmp")
 
-# Remove HPC_OPT and prepend_patht once prod bufr/12.0.1 is installed
+-- Remove HPC_OPT and prepend_patht once prod bufr/12.0.1 is installed
 setenv("HPC_OPT", "/apps/ops/para/libs")
 prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304")
 load("bufr/12.0.1")
