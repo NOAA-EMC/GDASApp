@@ -41,9 +41,6 @@ setenv("pybind11_ROOT", "/apps/spack/python/3.8.6/intel/19.1.3.304/pjn2nzkjvqgmj
 -- hack for wxflow
 --prepend_path("PYTHONPATH", "/scratch1/NCEPDEV/da/python/gdasapp/wxflow/20240307/src")
 
--- WCOSS2 requires prod_util
-load(pathJoin("prod_util", (os.getenv("prod_util_ver") or "2.0.14")))
-
 local mpiexec = '/pe/intel/compilers_and_libraries_2020.4.304/linux/mpi/intel64/bin/mpirun'
 local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
