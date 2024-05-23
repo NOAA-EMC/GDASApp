@@ -2,6 +2,7 @@ import re
 import argparse
 from datetime import datetime, timedelta
 
+
 def read_idate_from_yaml(file_path):
     idate_value = None
     with open(file_path, 'r') as file:
@@ -13,6 +14,7 @@ def read_idate_from_yaml(file_path):
                 break
     return idate_value
 
+
 def format_dates(idate_str):
     date_obj = datetime.strptime(idate_str, '%Y%m%d%H')
     half_cycle = date_obj.strftime('%Y%m%d%H%M')
@@ -20,6 +22,7 @@ def format_dates(idate_str):
     full_cycle = new_date_obj.strftime('%Y%m%d%H%M')
 
     return half_cycle, full_cycle
+
 
 def main():
     parser = argparse.ArgumentParser(description="Extract and format idate.")
@@ -29,6 +32,7 @@ def main():
     idate_value = read_idate_from_yaml(args.yaml_file)
     half_cycle, full_cycle = format_dates(idate_value)
     print(f"{half_cycle},{full_cycle}")
+
 
 if __name__ == "__main__":
     main()
