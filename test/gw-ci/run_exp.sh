@@ -9,6 +9,10 @@ WORKFLOW_XML=${pslot}/EXPDIR/${pslot}/${pslot}.xml
 WORKFLOW_DB=${pslot}/EXPDIR/${pslot}/${pslot}.db
 
 # Boot the task
+echo "booting $TASK_NAME for cycle $CYCLE"
+if [[ ! -e "$WORKFLOW_DB" ]]; then
+    rocotorun -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$TASK_NAME" -c "$CYCLE"
+fi
 rocotoboot -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$TASK_NAME" -c "$CYCLE"
 
 while true; do
@@ -24,6 +28,9 @@ while true; do
       exit 0
   elif [[ "$STATUS" == "FAILED" ]]; then
       echo "The task failed."
+      exit 1
+  elif [[ "$STATUS" == "DEAD" ]]; then
+      echo "The task is dead."
       exit 1
   else
       echo "The task is in state: $STATUS"
