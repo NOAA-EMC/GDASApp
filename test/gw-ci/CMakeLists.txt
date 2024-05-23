@@ -25,8 +25,7 @@ foreach(pslot ${cycling_tests})
   # Prepare the COMROOT and EXPDIR for the cycling ctests
   set(YAML ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
   add_test(NAME ${pslot}
-    COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/create_exp.sh \
-                         ${YAML} ${pslot} ${HOMEgfs} ${RUNTESTS}"
+    COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/create_exp.sh ${YAML} ${pslot} ${HOMEgfs} ${RUNTESTS}"
     WORKING_DIRECTORY ${RUNTESTS})
   set_tests_properties(${pslot} PROPERTIES LABELS "manual")
 
@@ -44,8 +43,7 @@ foreach(pslot ${cycling_tests})
   # 1/2 cycle gdasfcst
   message(STATUS "preparing 1/2 cycle gdasfcst for ${pslot} ctest")
   add_test(NAME ${pslot}_gdasfcst_${HALF_CYCLE}
-           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh \
-                                ${pslot} gdasfcst ${HALF_CYCLE})"
+           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasfcst ${HALF_CYCLE}"
            WORKING_DIRECTORY ${RUNTESTS})
   set_tests_properties(${pslot}_gdasfcst_${HALF_CYCLE} PROPERTIES LABELS "manual")
 
@@ -57,8 +55,7 @@ foreach(pslot ${cycling_tests})
   foreach(task ${TASK_LIST})
     message(STATUS "preparing the full cycle ${task} for ${pslot} ctest")
     add_test(NAME ${pslot}_${task}_${FULL_CYCLE}
-             COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh \
-                                  ${pslot} ${task} ${FULL_CYCLE}"
+             COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} ${task} ${FULL_CYCLE}"
              WORKING_DIRECTORY ${RUNTESTS})
     set_tests_properties(${pslot}_${task}_${FULL_CYCLE} PROPERTIES LABELS "manual")
   endforeach()
