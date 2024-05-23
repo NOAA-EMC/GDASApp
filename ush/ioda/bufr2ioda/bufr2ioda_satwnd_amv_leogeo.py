@@ -14,13 +14,11 @@ from pyioda import ioda_obs_space as ioda_ospace
 from wxflow import Logger
 
 # ====================================================================
-# Satellite Winds (AMV) BUFR dump file for MODIS/TERRA,AQUA
+# Satellite Winds (AMV) BUFR dump file for multi-satellite LEOGEO
 # ====================================================================
 # Subset    |  Spectral Band              |  Code (002023) |  ObsType
 # --------------------------------------------------------------------
-# NC005070  |    IRLW  (Freq < 5E+13)     |    Method 1    |   257
-# NC005071  |    WV Cloud Top             |    Method 3    |   258
-#           |    WV Clear Sky/ Deep Layer |    Method 5    |   259
+# NC005072  |    IRLW  (Freq < 5E+13)     |    Method 1    |   255
 # ====================================================================
 
 # Define and initialize  global variables
@@ -46,11 +44,9 @@ def Get_ObsType(swcm, chanfreq):
     obstype = swcm.copy()
 
     # Use numpy vectorized operations
-    obstype = np.where(swcm == 1, 257, obstype)  # IRLW
-    obstype = np.where(swcm == 3, 258, obstype)  # WVCT
-    obstype = np.where(swcm >= 4, 259, obstype)  # WVDL
+    obstype = np.where(swcm == 1, 255, obstype)  # IRLW
 
-    if not np.any(np.isin(obstype, [257, 258, 259])):
+    if not np.any(np.isin(obstype, [255])):
         raise ValueError("Error: Unassigned ObsType found ... ")
 
     return obstype
@@ -112,8 +108,8 @@ def bufr_to_ioda(config, logger):
     q = bufr.QuerySet(subsets)
 
     # MetaData
-    q.add('latitude', '*/CLAT')
-    q.add('longitude', '*/CLON')
+    q.add('latitude', '*/CLATH')
+    q.add('longitude', '*/CLONH')
     q.add('satelliteId', '*/SAID')
     q.add('year', '*/YEAR')
     q.add('month', '*/MNTH')
@@ -123,14 +119,17 @@ def bufr_to_ioda(config, logger):
     q.add('second', '*/SECO')
     q.add('satelliteZenithAngle', '*/SAZA')
     q.add('sensorCentralFrequency', '*/SCCF')
-    q.add('pressure', '*/PRLC')
+    q.add('pressure', '*/PRLC[1]')
 
     # Processing Center
-    q.add('dataProviderOrigin', '*/OGCE')
-    q.add('windGeneratingApplication', '*/GQCPRMS[1]/GNAP')
+    # GCLONG takes place of OGCE in this subset
+    q.add('dataProviderOrigin', '*/GCLONG')
+    # There are 3 replications of GNAP, GNAP[1] appears to have values of 1 == EUMETSAT QI without forecast
+    q.add('windGeneratingApplication', 'GNAP[1]')
 
-#   # Quality Infomation (Quality Indicator w/o forecast)
-    q.add('qualityInformationWithoutForecast', '*/GQCPRMS[1]/PCCF')
+    # Quality Infomation (Quality Indicator w/o forecast)
+    # There are 3 replications of PCCF, PCCF[1] corresponds to GNAP[1] == EUMETSAT QI without forecast
+    q.add('qualityInformationWithoutForecast', '*/LGRSQ4[1]/PCCF')
 
     # Wind Retrieval Method Information
     q.add('windComputationMethod', '*/SWCM')
@@ -172,39 +171,11 @@ def bufr_to_ioda(config, logger):
     chanfreq = r.get('sensorCentralFrequency', type='float')
 
     # Processing Center
-    ogce = r.get('dataProviderOrigin')
-    ga = r.get('windGeneratingApplication')
+    ogce = r.get('dataProviderOrigin')  # drawn from GLONGC mnemonic, but OGCE == GLONGC
+    gnap = r.get('windGeneratingApplication')
 
     # Quality Information
-    qi = r.get('qualityInformationWithoutForecast', type='float')
-    # For TERRA/AQUA MODIS data, qi w/o forecast (qifn) is packaged in same
-    # vector of qi with ga = 1 (EUMETSAT QI without forecast), and EE is
-    # packaged in same vector of qi with ga=4 (Estimated Error (EE) in m/s
-    # converted to a percent confidence)shape (4,nobs). Must conduct a
-    # search and extract the correct vector for gnap and qi
-    # 1. Find dimension-sizes of ga and qi (should be the same!)
-    gDim1, gDim2 = np.shape(ga)
-    qDim1, qDim2 = np.shape(qi)
-    logger.info(f'Generating Application and Quality Information SEARCH:')
-    logger.info(f'Dimension size of GNAP ({gDim1},{gDim2})')
-    logger.info(f'Dimension size of PCCF ({qDim1},{qDim2})')
-    # 2. Initialize gnap and qifn as None, and search for dimension of
-    #    ga with values of 1. If the same column exists for qi, assign
-    #    gnap to ga[:,i] and qifn to qi[:,i], else raise warning that no
-    #    appropriate GNAP/PCCF combination was found
-    gnap = None
-    qifn = None
-    for i in range(gDim2):
-        if np.unique(ga[:, i].squeeze()) == 1:
-            if i <= qDim2:
-                logger.info(f'GNAP/PCCF found for column {i}')
-                gnap = ga[:, i].squeeze()
-                qifn = qi[:, i].squeeze()
-            else:
-                logger.info(f'ERROR: GNAP column {i} outside of PCCF dimension {qDim2}')
-    if (gnap is None) & (qifn is None):
-        logger.info(f'ERROR: GNAP == 1 NOT FOUND OR OUT OF PCCF DIMENSION-RANGE, WILL FAIL!')
-    # If EE is needed, key search on np.unique(ga[:,i].squeeze()) == 4 instead
+    qifn = r.get('qualityInformationWithoutForecast', type='float')
 
     # Wind Retrieval Method Information
     swcm = r.get('windComputationMethod')
@@ -389,7 +360,7 @@ def bufr_to_ioda(config, logger):
                 .write_data(ogce2)
 
             # Quality: Percent Confidence - Quality Information Without Forecast
-            obsspace.create_var('MetaData/qualityInformationWithoutForecast', dtype=qifn2.dtype, fillval=qifn2.fill_value) \
+            obsspace.create_var('MetaData/qiWithoutForecast', dtype=qifn2.dtype, fillval=qifn2.fill_value) \
                 .write_attr('long_name', 'Quality Information Without Forecast') \
                 .write_data(qifn2)
 
