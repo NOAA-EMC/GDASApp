@@ -29,6 +29,9 @@ load("eckit/1.24.4")
 load("fckit/0.11.0")
 load("atlas/0.35.0")
 load("nccmp")
+load("nco/5.0.6")
+load("gsl/2.7")
+load("prod_util/2.0.14")
 
 -- Remove HPC_OPT and prepend_patht once prod bufr/12.0.1 is installed
 setenv("HPC_OPT", "/apps/ops/para/libs")

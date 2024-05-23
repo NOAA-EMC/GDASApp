@@ -6,7 +6,7 @@ import subprocess
 import argparse
 from datetime import datetime, timedelta
 
-machines = {"container", "hera", "orion", "hercules"}
+machines = {"container", "hera", "orion", "hercules", "wcoss2"}
 
 # Assume the default conda environement is gdassapp
 ENVS = {'JGDAS_GLOBAL_OCEAN_ANALYSIS_VRFY': 'eva'}
@@ -159,6 +159,9 @@ class JobCard:
         elif self.machine == "hera":
             if jjob in ENVS:
                 self.f.write(f"module load {ENVS[jjob].upper()}/{self.machine} \n")
+        elif self.machine == "wcoss2":
+            if jjob in ENVS:
+                self.f.write(f"module load {ENVS[jjob].upper()}/{self.machine} \n"
 
     def precom(self, com, tmpl):
         cmd = f"RUN={self.RUN} YMD={self.gPDY} HH={self.gcyc} declare_from_tmpl -xr {com}:{tmpl}"
