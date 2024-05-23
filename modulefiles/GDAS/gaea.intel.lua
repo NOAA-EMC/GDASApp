@@ -77,18 +77,18 @@ load("py-pip/23.1.2")
 -- hack for wxflow
 --prepend_path("PYTHONPATH", "/scratch1/NCEPDEV/da/python/gdasapp/wxflow/20240307/src")
 
-setenv("CC","mpiicc")
-setenv("FC","mpiifort")
-setenv("CXX","mpiicpc")
+setenv("CC","cc")
+setenv("CXX","CC")
+setenv("FC","ftn")
 
 local mpiexec = '/usr/bin/srun'
 local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
---setenv("CRTM_FIX","/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix/crtm/2.4.0")
---setenv("GDASAPP_TESTDATA","/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data")
---setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data/test")
+setenv("CRTM_FIX","/gpfs/f5/ufs-ard/world-shared/GDASApp/fix/crtm/2.4.0")
+setenv("GDASAPP_TESTDATA","/gpfs/f5/ufs-ard/world-shared/GDASApp/CI/data")
+setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/gpfs/f5/ufs-ard/world-shared/GDASApp/CI/data/test")
 
 whatis("Name: ".. "pkgName")
 whatis("Version: ".. "pkgVersion")
