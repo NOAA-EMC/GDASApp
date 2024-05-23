@@ -1,0 +1,61 @@
+name: Run JCB basic testing with jcb-gdas changes
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      JCB_REPO: https://github.com/NOAA-EMC/jcb.git
+      JCB_DEVELOP_BRANCH: develop
+
+    steps:
+    - name: Checkout submodule repository
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'  # specify your python version
+
+    - name: Determine branch to use
+      id: determine-branch
+      run: |
+        # Determine if the branch exists in the jcb repo
+        BRANCH_NAME=${{ github.ref_name }}
+        git ls-remote --exit-code --heads $JCB_REPO $BRANCH_NAME
+        if [ $? -eq 0 ]; then
+          echo "Branch $BRANCH_NAME exists in jcb repo."
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+        else
+          echo "Branch $BRANCH_NAME does not exist in jcb repo. Using develop branch."
+          echo "BRANCH_NAME=$JCB_DEVELOP_BRANCH" >> $GITHUB_ENV
+        fi
+
+    - name: Clone jcb repository
+      run: |
+        git clone --branch ${{ env.BRANCH_NAME }} $JCB_REPO jcb_repo
+        cd jcb_repo/src/jcb/configuration/apps/gdas
+        git checkout ${{ env.BRANCH_NAME }}
+        cd -
+
+    - name: Install dependencies
+      run: |
+        cd jcb_repo
+        pip install .[testing]
+
+    - name: Run unit tests
+      run: |
+        cd $GITHUB_WORKSPACE
+        pytest -v
