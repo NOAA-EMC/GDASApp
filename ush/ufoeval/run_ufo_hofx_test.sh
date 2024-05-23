@@ -150,6 +150,11 @@ export bDD=${BDATE:6:2}
 export CASE="C768"
 export CASE_ANL="C384"
 export LEVS="128"
+export DATA=./
+export COMPONENT=atmos
+export OPREFIX=gdas.t${cyc}z
+export APREFIX=gdas.t${cyc}z
+export GPREFIX=gdas.t${gcyc}z
 
 # Load Modules for GDASApp
 module use $GDASApp/modulefiles
@@ -166,12 +171,13 @@ ln -sf $FixDir/crtm/2.4.0 $workdir/crtm
 
 # copy BC files
 if [ $radiance = "YES" ]; then
-  cp -rf $BCDir/${obtype}*${GDATE}* $workdir/.
+  cp -rf $BCDir/${obtype}_tlapmean_${GDATE}.txt $workdir/${GPREFIX}.${obtype}.tlapse.txt
+  cp -rf $BCDir/${obtype}_satbias_${GDATE}.nc4 $workdir/${GPREFIX}.${obtype}.satbias.nc
 fi
 
 # Copy obs and geovals
-cp -rf $GeoDir/${obtype}_geoval_${cycle}*.nc4 $workdir/.
-cp -rf $ObsDir/${obtype}_obs_${cycle}*.nc4 $workdir/.
+cp -rf $GeoDir/${obtype}_geoval_${cycle}.nc4 $workdir/${OPREFIX}.${obtype}_geoval.tm00.nc
+cp -rf $ObsDir/${obtype}_obs_${cycle}.nc4 $workdir/${OPREFIX}.${obtype}.tm00.nc
 
 # Link executable
 ln -sf $GDASApp/build/bin/$exename $workdir/.
@@ -183,11 +189,6 @@ echo "Generating YAML"
 export PYTHONPATH=$PYTHONPATH:$JCBpylib
 export PATH=$PATH:$JCBinstall/bin
 # First, create the input file for JCB
-export DATA=./
-export COMPONENT=atmos
-export OPREFIX=gdas.t${cyc}z
-export APREFIX=gdas.t${cyc}z
-export GPREFIX=gdas.t${gcyc}z
 
 cat > $workdir/temp.yaml << EOF
 # Search path for model and obs for JCB
