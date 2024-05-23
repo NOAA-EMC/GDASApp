@@ -26,5 +26,3 @@ if __name__ == '__main__':
     converter = Bufr2IodaSsmis(args.config)
     converter.execute()
     logger.info('--Finished--')
-
-

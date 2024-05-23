@@ -20,7 +20,7 @@ class Bufr2IodaBase:
         self.yaml_path = self.get_yaml_file()
         self.yaml_config = self.get_yaml_config()
         pprint(self.yaml_config)
-        self.ioda_files =  self.yaml_config['encoder'].get('obsdataout')
+        self.ioda_files = self.yaml_config['encoder'].get('obsdataout')
         self.obs_data_in = self.yaml_config['bufr'].get('obsdatain')
         logger.info(f'Ioda output files are: {self.ioda_files}')
         self.splits = self.yaml_config['bufr'].get('splits')
