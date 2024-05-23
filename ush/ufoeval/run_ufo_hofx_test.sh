@@ -132,11 +132,21 @@ BCDir=$Datapath/bc/
 # other variables that should not change often
 export CDATE=$cycle
 export assim_freq=6
+export half_assim_freq=$(($assim_freq / 2))
 export GDATE=$(date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - ${assim_freq} hours")
+export BDATE=$(date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - ${half_assim_freq} hours")
 export PDY=${CDATE:0:8}
 export cyc=${CDATE:8:2}
+export YYYY=${CDATE:0:4}
+export MM=${CDATE:4:2}
+export DD=${CDATE:6:2}
 export gPDY=${GDATE:0:8}
 export gcyc=${GDATE:8:2}
+export bPDY=${BDATE:0:8}
+export bcyc=${BDATE:8:2}
+export bYYYY=${BDATE:0:4}
+export bMM=${BDATE:4:2}
+export bDD=${BDATE:6:2}
 export CASE="C768"
 export CASE_ANL="C384"
 export LEVS="128"
@@ -180,15 +190,67 @@ export APREFIX=gdas.t${cyc}z
 export GPREFIX=gdas.t${gcyc}z
 
 cat > $workdir/temp.yaml << EOF
-time window:
-  begin: '{{ WINDOW_BEGIN | to_isotime }}'
-  end: '{{ WINDOW_END | to_isotime }}'
-  bound to include: begin
-observations:
-- !INC $yamlpath
+# Search path for model and obs for JCB
+# -------------------------------------
+algorithm_path: "$GDASApp/parm/jcb-algorithms"
+app_path_algorithm: "$GDASApp/parm/jcb-gdas/algorithm/atmosphere"
+app_path_model: "$GDASApp/parm/jcb-gdas/model/atmosphere"
+app_path_observations: "$GDASApp/parm/jcb-gdas/observations/atmosphere"
+app_path_observation_chronicle: "$GDASApp/parm/jcb-gdas/observation_chronicle/atmosphere"
+
+
+# Places where we deviate from the generic file name of a yaml
+# ------------------------------------------------------------
+#final_increment_file: final_increment_gaussian
+final_increment_file: final_increment_cubed_sphere
+output_ensemble_increments_file: output_ensemble_increments_cubed_sphere
+model_file: model_pseudo
+initial_condition_file: background  # Initial conditions for 4D apps is background
+
+
+# Assimilation window
+# -------------------
+window_begin: "${bYYYY}-${bMM}-${bDD}T${bcyc}:00:00Z"
+window_length: "PT${assim_freq}H"
+bound_to_include: begin
+
+# Default background time is for 3D applications
+atm_background_time_iso: "${YYYY}-${MM}-${DD}T${cyc}:00:00Z"
+
+algorithm: test_obs_filters
+
+# Observation things
+# ------------------
+observations: [${obtype}]
+
+crtm_coefficient_path: "$workdir/crtm/"
+
+# Naming conventions for observational files
+atm_obsdatain_path: "$workdir"
+atm_obsdatain_prefix: "$OPREFIX."
+atm_obsdatain_suffix: ".tm00.nc"
+
+atm_obsdataout_path: "$workdir"
+atm_obsdataout_prefix: diag_
+atm_obsdataout_suffix: "_${cycle}.nc"
+
+# Naming conventions for bias correction files
+atm_obsbiasin_path: "$workdir"
+atm_obsbiasin_prefix: "$GPREFIX."
+atm_obsbiasin_suffix: ".satbias.nc"
+atm_obstlapsein_prefix: "$GPREFIX."
+atm_obstlapsein_suffix: ".tlapse.txt"
+atm_obsbiascovin_prefix: "$GPREFIX."
+atm_obsbiascovin_suffix: ".satbias_cov.nc"
+
+atm_obsbiasout_path: "$workdir"
+atm_obsbiasout_prefix: "$APREFIX."
+atm_obsbiasout_suffix: ".satbias.nc"
+atm_obsbiascovout_prefix: "$APREFIX."
+atm_obsbiascovout_suffix: ".satbias_cov.nc"
 EOF
 # jcb render dictionary_of_templates.yaml jedi_config.yaml
-$GDASApp/ush/genYAML --input $workdir/temp.yaml --output $workdir/${obtype}_${cycle}.yaml
+jcb render $workdir/temp.yaml $workdir/${obtype}_${cycle}.yaml
 
 if [ $? -ne 0 ]; then
    echo "YAML creation failed"
