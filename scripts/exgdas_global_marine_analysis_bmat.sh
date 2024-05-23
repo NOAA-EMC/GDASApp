@@ -47,9 +47,9 @@ function clean_yaml()
 if [[ -e 'soca_gridspec.nc' ]]; then
     echo "soca_gridspc.nc already exists, skip the grid generation step"
 else
-    # Run soca_gridgen.x if the grid was not staged
+    # Run gdas_soca_gridgen.x if the grid was not staged
     # TODO (Guillaume): Should not use all pe's for the grid generation
-    $APRUN_OCNANAL $JEDI_BIN/soca_gridgen.x gridgen.yaml
+    $APRUN_OCNANAL $JEDI_BIN/gdas_soca_gridgen.x gridgen.yaml
     export err=$?; err_chk
     if [ $err -gt 0  ]; then
         exit $err
@@ -59,7 +59,7 @@ fi
 
 ################################################################################
 # Ensemble processing
-if [ "${NMEM_ENS}" -gt 3 ]; then
+if [ "${NMEM_ENS}" -ge 3 ]; then
     ################################################################################
     # Write ensemble weights for the hybrid envar
     $APRUN_OCNANAL $JEDI_BIN/gdas_socahybridweights.x soca_ensweights.yaml
@@ -101,14 +101,14 @@ fi
 # Horizontal diffusion
 if [ ! -f "ocn.cor_rh.incr.0001-01-01T00:00:00Z.nc" ]; then
     # Set decorrelation scales for the static B
-    $APRUN_OCNANAL $JEDI_BIN/soca_setcorscales.x soca_setcorscales.yaml
+    $APRUN_OCNANAL $JEDI_BIN/gdas_soca_setcorscales.x soca_setcorscales.yaml
     export err=$?; err_chk
     if [ $err -gt 0  ]; then
         exit $err
     fi
     # Initialize the horizontal diffusion block and normalize
     clean_yaml soca_parameters_diffusion_hz.yaml
-    $APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_hz.yaml
+    $APRUN_OCNANAL $JEDI_BIN/gdas_soca_error_covariance_toolbox.x soca_parameters_diffusion_hz.yaml
     export err=$?; err_chk
     if [ $err -gt 0  ]; then
         exit $err
@@ -125,7 +125,7 @@ python ${HOMEgfs}/sorc/gdas.cd/sorc/soca/tools/calc_scales.py soca_vtscales.yaml
 clean_yaml soca_parameters_diffusion_vt.yaml
 
 # Initialize the vertical diffusion block and normalize
-$APRUN_OCNANAL $JEDI_BIN/soca_error_covariance_toolbox.x soca_parameters_diffusion_vt.yaml
+$APRUN_OCNANAL $JEDI_BIN/gdas_soca_error_covariance_toolbox.x soca_parameters_diffusion_vt.yaml
 export err=$?; err_chk
 if [ $err -gt 0  ]; then
     exit $err

@@ -7,8 +7,8 @@ date: '{{ ATM_WINDOW_MIDDLE }}'
 background:
   date: '{{ ATM_WINDOW_MIDDLE }}'
   basename: ./bkg/
-  ocn_filename: '{{ RUN }}.ocean.t{{ gcyc }}z.inst.f009.nc'
-  ice_filename: '{{ RUN }}.agg_ice.t{{ gcyc }}z.inst.f009.nc'
+  ocn_filename: 'gdas.ocean.t{{ gcyc }}z.inst.f009.nc'
+  ice_filename: 'gdas.agg_ice.t{{ gcyc }}z.inst.f009.nc'
   read_from_file: 1
 
 background error:
@@ -23,10 +23,11 @@ variables:
 rescale: 2.0    # rescales the filtered std. dev. by "rescale"
 min sst: 0.0    # Added to sst bkg. err.
 max ssh: 0.0    # Limits the amplitude of the unbalanced bkg err
+min depth: 500.0 # zero out the bkg. error. at less than min depth
 number of halo points: 4
 number of neighbors: 16
 simple smoothing:
-  horizontal iterations: 2
+  horizontal iterations: 10
   vertical iterations: 1
 
 # TODO(G): Start using when the normalization is optional

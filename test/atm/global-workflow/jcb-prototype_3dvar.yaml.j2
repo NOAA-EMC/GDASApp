@@ -1,0 +1,16 @@
+# Algorithm
+# ---------
+algorithm: 3dvar
+
+# Model things
+# ------------
+background_ensemble_path: ./bkg/mem%mem%
+
+# Observation things
+# ------------------
+observations:
+  - amsua_n19
+  - sondes
+
+# The observation files in the testing are appended using the yyymmddhh similar to JEDI tests
+atm_obsdatain_suffix: ".{{ current_cycle | to_YMDH }}.nc"
