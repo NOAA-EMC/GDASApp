@@ -1,13 +1,18 @@
 #!/bin/bash
-expyaml="$1"
-export pslot="$2"
+expyaml_ctest="$1"
+pslot_ctest="$2"
 HOMEgfs="$3"
-export RUNTESTS="$4"/${pslot}
-export SLURM_ACCOUNT="da-cpu"
+exp_path=$4
 
 # Get ICSDIR_ROOT
 source "${HOMEgfs}/ush/detect_machine.sh"
 source "${HOMEgfs}/ci/platforms/config.${MACHINE_ID}"
+
+# Arguments for the exp setup
+expyaml=${expyaml_ctest}
+export pslot=${pslot_ctest}
+export RUNTESTS=${exp_path}/${pslot}
+export SLURM_ACCOUNT="da-cpu"
 
 # Source the gw environement
 source ${HOMEgfs}/workflow/gw_setup.sh
