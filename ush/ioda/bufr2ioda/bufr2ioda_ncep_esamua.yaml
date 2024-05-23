@@ -1,0 +1,162 @@
+# (C) Copyright 2021 NOAA/NWS/NCEP/EMC
+#
+# This software is licensed under the terms of the Apache Licence Version 2.0
+# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+
+bufr:
+  obsdatain: "/scratch2/NCEPDEV/stmp3/Xin.C.Jin/bufr2ioda/gdas.t00z.esamua.tm00.bufr_d"
+  variables:
+    # MetaData
+    timestamp:
+      datetime:
+        year: "*/YEAR"
+        month: "*/MNTH"
+        day: "*/DAYS"
+        hour: "*/HOUR"
+        minute: "*/MINU"
+
+    latitude:
+      query: "*/CLATH"
+
+    longitude:
+      query: "*/CLONH"
+
+    satelliteIdentifier:
+      query: "*/SAID"
+
+
+    fieldOfViewNumber:
+      query: "*/FOVN"
+
+    heightOfStation:
+      query: "*/SELV"
+
+    solarZenithAngle:
+      query: "*/SOZA"
+
+    solarAzimuthAngle:
+      query: "*/SOLAZI"
+
+    sensorZenithAngle:
+      query: "*/SAZA"
+
+    sensorAzimuthAngle:
+      query: "*/BEARAZ"
+
+    sensorScanAngle:
+      sensorScanAngle:
+        fieldOfViewNumber: "*/FOVN"
+        scanStart: -48.333
+        scanStep: 3.333
+        sensor: amsua
+
+    sensorChannelNumber:
+      query: "*/ATNCHV/INCN"
+
+    # ObsValue
+    brightnessTemperature:
+      query: "*/ATNCHV/TMBRST"
+
+  splits:
+    satId:
+      category:
+        variable: satelliteIdentifier
+        map:
+          _3: metop-b
+          _4: metop-a
+          _5: metop-c
+#               _206: n15
+          _209: n18
+          _223: n19
+
+encoder:
+  backend: netcdf
+  obsdataout: "temporary_es_{splits/satId}_1716389684.nc"
+  dimensions:
+    - name: Channel
+      source: variables/sensorChannelNumber
+      path: "*/ATNCHV"
+
+  globals:
+    - name: "platformCommonName"
+      type: string
+      value: "AMSUA"
+
+    - name: "platformLongDescription"
+      type: string
+      value: "MTYP 021-033 RARS(EARS,AP,SA) AMSU-A 1C Tb DATA)"
+
+  variables:
+    # MetaData
+    - name: "MetaData/dateTime"
+      source: variables/timestamp
+      longName: "Datetime"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/latitude"
+      source: variables/latitude
+      longName: "Latitude"
+      units: "degree_north"
+      range: [-90, 90]
+
+    - name: "MetaData/longitude"
+      source: variables/longitude
+      longName: "Longitude"
+      units: "degree_east"
+      range: [-180, 180]
+
+    - name: "MetaData/satelliteIdentifier"
+      source: variables/satelliteIdentifier
+      longName: "Satellite Identifier"
+
+    - name: "MetaData/sensorScanPosition"
+      source: variables/fieldOfViewNumber
+      longName: "Field Of View Number"
+
+    - name: "MetaData/heightOfStation"
+      source: variables/heightOfStation
+      longName: "Altitude of Satellite"
+      units: "m"
+
+    - name: "MetaData/solarZenithAngle"
+      source: variables/solarZenithAngle
+      longName: "Solar Zenith Angle"
+      units: "degree"
+      range: [0, 180]
+
+    - name: "MetaData/solarAzimuthAngle"
+      source: variables/solarAzimuthAngle
+      longName: "Solar Azimuth Angle"
+      units: "degree"
+      range: [0, 360]
+
+    - name: "MetaData/sensorZenithAngle"
+      source: variables/sensorZenithAngle
+      longName: "Sensor Zenith Angle"
+      units: "degree"
+      range: [0, 90]
+
+    - name: "MetaData/sensorAzimuthAngle"
+      source: variables/sensorAzimuthAngle
+      longName: "Sensor Azimuth Angle"
+      units: "degree"
+      range: [0, 360]
+
+    - name: "MetaData/sensorViewAngle"
+      source: variables/sensorScanAngle
+      longName: "Sensor View Angle"
+      units: "degree"
+
+    - name: "MetaData/sensorChannelNumber"
+      source: variables/sensorChannelNumber
+      longName: "Sensor Channel Number"
+
+    # ObsValue
+    - name: "ObsValue/brightnessTemperature"
+      coordinates: "longitude latitude Channel"
+      source: variables/brightnessTemperature
+      longName: "Brightness Temperature"
+      units: "K"
+      range: [100, 500]
+      chunks: [1000, 15]
+      compressionLevel: 4

@@ -2,7 +2,8 @@ import netCDF4 as nc
 import numpy as np
 import os
 import time
-from wxflow import Logger
+#from wxflow import Logger
+from logging import Logger
 logger = Logger(os.path.basename(__file__), level='INFO')
 
 

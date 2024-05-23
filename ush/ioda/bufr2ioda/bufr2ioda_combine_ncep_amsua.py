@@ -2,10 +2,11 @@
 import argparse
 import json
 import os
-from combine_base import Bufr2IodaBase, CPP
-from wxflow import Logger
+from combine_base import Bufr2IodaBase
+# from wxflow import Logger
+from logging import Logger
 from antcorr_application import ACCoeff, apply_ant_corr, remove_ant_corr, R1000, R1000000
-from utils import timing_decorator, nc_merge
+from utils import timing_decorator
 
 logger = Logger(os.path.basename(__file__), level='INFO')
 AMSUA_TYPE_CHANGE_DATETIME = "2023120000"
@@ -38,7 +39,7 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
         return self.config['ac_dir']
 
     @timing_decorator
-    def re_map_variable(self, container):
+    def re_map_variable(self):
         #  TODO replace this follow that in GSI
         # read_bufrtovs.f90
         # antcorr_application.f90
@@ -46,13 +47,13 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
 
         for sat_id in self.sat_ids:
             logger.info(f'Converting for {sat_id}, ...')
-            ta = self.get_container_variable(container, 'ObsValue', 'brightnessTemperature', sat_id)
+            ta = self.get_container_variable('variables', 'brightnessTemperature', sat_id)
             if ta.shape[0]:
-                ifov = self.get_container_variable(container, 'MetaData', 'sensorScanPosition', sat_id)
+                ifov = self.get_container_variable('variables', 'fieldOfViewNumber', sat_id)
                 logger.info(f'ta before correction1: {ta[:100, :]}')
                 tb = self.apply_corr(sat_id, ta, ifov)
                 logger.info(f'tb after correction1: {tb[:100, :]}')
-                self.replace_container_variable(container, 'ObsValue', 'brightnessTemperature', tb, sat_id)
+                self.replace_container_variable('variables', 'brightnessTemperature', tb, sat_id)
 
     def apply_corr(self, sat_id, ta, ifov):
         ac = ACCoeff(self.get_ac_dir())  # TODO add later
@@ -77,24 +78,6 @@ class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
         return ta
 
 
-@timing_decorator
-def merge(amsua_files, splits):
-    ioda_files = [(f'amsua.{x}_ta.tm00.ncc', f'esamua.{x}.tm00.ncc', f'amsua_{x}.tm00.nc') for x in splits]
-    logger.info(f'Ioda files: {ioda_files}')
-    file1 = [f for f in amsua_files[0].values()]
-    file2 = [f for f in amsua_files[1].values()]
-    obs_path_prefix = os.path.commonprefix([file1[0], file2[0]])
-    logger.info(f'common prefix: {obs_path_prefix}')
-    for ioda_file_0, ioda_file_1, ioda_file_t in ioda_files:
-        try:
-            nc_merge(obs_path_prefix + ioda_file_0,
-                     obs_path_prefix + ioda_file_1,
-                     obs_path_prefix + ioda_file_t
-                     )
-        except FileNotFoundError as e:
-            logger.info(f'File not found exception: {e}')
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, help='Input JSON configuration', required=True)
@@ -115,20 +98,19 @@ if __name__ == '__main__':
     else:
         yaml_order = not YAML_NORMAL
     logger.info(f'yaml order is {yaml_order}')
-    BAMUA = '1BAMUA'
-    ESAMUA = 'ESAMUA'
-    for sat_type in [BAMUA, ESAMUA]:
-        logger.info(f'Processing sat type: {sat_type}')
-        if sat_type == BAMUA:
-            convert = Bufr2IodaAmusa(yaml_order, args.config, backend=BACKEND)
-        else:
-            convert = Bufr2IodaAmusaChange(yaml_order, args.config, backend=BACKEND)
 
-        convert.execute()
-        amsua_files.append(convert.split_files)
-        logger.info('Converting amsua type {} done!'.format(sat_type))
-        splits.update(set(convert.sat_ids))
+    convert_bamua = Bufr2IodaAmusa(yaml_order, args.config)
+    convert_bamua.set_container()
+    convert_esamua = Bufr2IodaAmusaChange(yaml_order, args.config)
+    convert_esamua.set_container()
+    convert_bamua.encode()
+    convert_esamua.encode()
+    print(convert_bamua.sat_ids)
+    print(convert_esamua.sat_ids)
+    # if set(convert_bamua.sat_ids) == set(convert_esamua.sat_ids):
+    convert_bamua.container.append(convert_esamua.container)
+    convert_bamua.encode()
+    # else:
+    #    logger.info('Sat ids are different:  {} '.format(set(convert_bamua.sat_ids)))
 
-    logger.info('--start to merge--')
-    merge(amsua_files, splits)
-    logger.info('--Finished merge--')
+    logger.info('--Finished--')
