@@ -1,4 +1,4 @@
-name: Run JCB basic testing with jcb-gdas changes
+name: Run JCB client testing with client changes
 
 on:
   push:
@@ -16,10 +16,9 @@ jobs:
 
     env:
       JCB_REPO: https://github.com/NOAA-EMC/jcb.git
-      JCB_DEVELOP_BRANCH: develop
 
     steps:
-    - name: Checkout submodule repository
+    - name: Checkout application client repository
       uses: actions/checkout@v3
       with:
         submodules: true
@@ -27,35 +26,52 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.x'  # specify your python version
+        python-version: '3.x'
 
-    - name: Determine branch to use
-      id: determine-branch
+    - name: Add repo url to the environment
       run: |
-        # Determine if the branch exists in the jcb repo
-        BRANCH_NAME=${{ github.ref_name }}
-        git ls-remote --exit-code --heads $JCB_REPO $BRANCH_NAME
-        if [ $? -eq 0 ]; then
+        JCB_APP_REPO="https://github.com/${{ github.repository }}"
+        echo "JCB_APP_REPO=${JCB_APP_REPO}" >> $GITHUB_ENV
+
+    - name: Determine the name of the client branch
+      run: |
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+        JCB_APP_BRANCH=${{ github.head_ref }}
+        else
+          BRANCH_REF=${{ github.ref }}
+          JCB_APP_BRANCH=${BRANCH_REF#refs/heads/}
+        fi
+        echo "JCB_APP_BRANCH=$JCB_APP_BRANCH" >> $GITHUB_ENV
+
+    - name: Determine branch to use for main jcb repo
+      run: |
+        BRANCH_NAME=${{ env.JCB_APP_BRANCH }}
+        if git ls-remote --heads $JCB_REPO $BRANCH_NAME | grep -q "refs/heads/$BRANCH_NAME"; then
           echo "Branch $BRANCH_NAME exists in jcb repo."
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "JCB_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
         else
           echo "Branch $BRANCH_NAME does not exist in jcb repo. Using develop branch."
-          echo "BRANCH_NAME=$JCB_DEVELOP_BRANCH" >> $GITHUB_ENV
+          echo "JCB_BRANCH=develop" >> $GITHUB_ENV
         fi
 
     - name: Clone jcb repository
       run: |
-        git clone --branch ${{ env.BRANCH_NAME }} $JCB_REPO jcb_repo
-        cd jcb_repo/src/jcb/configuration/apps/gdas
-        git checkout ${{ env.BRANCH_NAME }}
-        cd -
+        mkdir -p empty_hooks
+        git config --global core.hooksPath empty_hooks
+        git clone --branch ${{ env.JCB_BRANCH }} --recursive $JCB_REPO jcb_repo
+
+    - name: Switch the application branch to match the action
+      run: |
+        cd jcb_repo
+        cd $(python get_submod_path.py $JCB_APP_REPO)
+        git checkout ${{ env.JCB_APP_BRANCH }}
 
     - name: Install dependencies
       run: |
         cd jcb_repo
         pip install .[testing]
 
-    - name: Run unit tests
+    - name: Run the JCB client integration tests
       run: |
-        cd $GITHUB_WORKSPACE
+        cd jcb_repo/test/client_integration
         pytest -v
