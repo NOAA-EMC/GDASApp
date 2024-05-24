@@ -246,7 +246,7 @@
       name: reject
 
   # GSI read routine QC (part-2)
-  # Reject obs with qualityInformationWithoutForecast < 90. OR > 100.
+  # Reject obs with qiWithoutForecast < 90. OR > 100.
   - filter: Bounds Check
     filter variables:
     - name: windEastward
@@ -255,7 +255,7 @@
     - variable: MetaData/satelliteIdentifier
       is_in: 250-299
     test variables:
-    - name: MetaData/qualityInformationWithoutForecast
+    - name: MetaData/qiWithoutForecast
     minvalue: 90.
     maxvalue: 100.
     action:

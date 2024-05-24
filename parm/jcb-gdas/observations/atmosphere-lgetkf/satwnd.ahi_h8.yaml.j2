@@ -195,13 +195,13 @@
       name: reject
 
   # GSI read routine QC (part-2)
-  # Reject obs with qualityInformationWithoutForecast < 85. (also > 100., which is missing data)
+  # Reject obs with qiWithoutForecast < 85. (also > 100., which is missing data)
   - filter: Bounds Check
     filter variables:
     - name: windEastward
     - name: windNorthward
     test variables:
-    - name: MetaData/qualityInformationWithoutForecast
+    - name: MetaData/qiWithoutForecast
     minvalue: 85.
     maxvalue: 100.
     action:
