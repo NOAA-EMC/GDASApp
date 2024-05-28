@@ -19,7 +19,7 @@ field metadata:
   io name: o3mr_inc
 
 - long name: cloud_liquid_ice
-  io name: ice_wat_inc
+  io name: icmr_inc
 
 - long name: air_pressure_thickness
   io name: delp_inc
@@ -27,20 +27,3 @@ field metadata:
 - long name: hydrostatic_layer_thickness
   io name: delz_inc
 
-- long name: rain_water
-  io name: rainwat_inc
-
-- long name: snow_water
-  io name: snowwat_inc
-
-- long name: graupel
-  io name: graupel_inc
-
-- long name: cloud_ice_number_concentration
-  io name: ice_nc_inc
-
-- long name: rain_number_concentration
-  io name: rain_nc_inc
-
-- long name: sgs_tke
-  io name: sgs_tke_inc
