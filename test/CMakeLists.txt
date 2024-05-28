@@ -138,7 +138,11 @@ if (${BUILD_GDASBUNDLE})
   add_subdirectory(fv3jedi)   # fv3jedi tests
   add_subdirectory(soca)      # soca tests
   add_subdirectory(snow)      # snow da tests
-  add_subdirectory(gw-ci)     # replicate the creation of some of the gw-ci tests
+  option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
+  if (RUN_GW_CI)
+    add_subdirectory(gw-ci)   # subset of the global-workflow ci tests
+  endif()
+
 endif()
 
 # gdas atm tests
