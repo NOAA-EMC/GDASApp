@@ -9,6 +9,7 @@
 #include "../Ghrsst2Ioda.h"
 #include "../IcecAmsr2Ioda.h"
 #include "../Rads2Ioda.h"
+#include "../RTOFSInSitu.h"
 #include "../Smap2Ioda.h"
 #include "../Smos2Ioda.h"
 #include "../Viirsaod2Ioda.h"
@@ -30,6 +31,9 @@ namespace gdasapp {
         conv2ioda.writeToIoda();
       } else if (provider == "GHRSST") {
         Ghrsst2Ioda conv2ioda(fullConfig, this->getComm());
+        conv2ioda.writeToIoda();
+      } else if (provider == "RTOFS") {
+        RTOFSInSitu conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else if (provider == "SMAP") {
         Smap2Ioda conv2ioda(fullConfig, this->getComm());
