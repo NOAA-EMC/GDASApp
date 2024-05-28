@@ -156,10 +156,7 @@ class JobCard:
                 self.f.write(f"set +u \n")
                 self.f.write(f"conda activate {ENVS[jjob]} \n")
                 self.f.write(f"set -u \n")
-        elif self.machine == "hera":
-            if jjob in ENVS:
-                self.f.write(f"module load {ENVS[jjob].upper()}/{self.machine} \n")
-        elif self.machine == "wcoss2":
+        elif self.machine in ["hera", "wcoss2"]:
             if jjob in ENVS:
                 self.f.write(f"module load {ENVS[jjob].upper()}/{self.machine} \n")
 
