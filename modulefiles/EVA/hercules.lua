@@ -9,7 +9,7 @@ local pkgNameVer = myModuleFullName()
 prepend_path("MODULEPATH", '/work/noaa/epic/role-epic/spack-stack/hercules/spack-stack-1.6.0/envs/unified-env/install/modulefiles/Core')
 
 load("stack-intel/2021.9.0")
-load("python/3.10.13")
+load("stack-python/3.10.13")
 load("proj/9.2.1")
 load("py-matplotlib/3.7.3")
 load("py-xarray/2023.7.0")
