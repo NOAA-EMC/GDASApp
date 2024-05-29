@@ -25,6 +25,10 @@ IF (IS_DIRECTORY /scratch2/NCEPDEV/)
   set(PARTITION "hera")
 ENDIF()
 
+IF (IS_DIRECTORY /lfs/h2/)
+   set(MACHINE "wcoss2")
+ENDIF()
+
 # Clean-up
 add_test(NAME test_gdasapp_soca_run_clean
   COMMAND  ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BINARY_DIR}/test/soca/gw/testrun/testjjobs)
