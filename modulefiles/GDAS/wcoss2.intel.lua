@@ -29,6 +29,14 @@ load("eckit/1.24.4")
 load("fckit/0.11.0")
 load("atlas/0.35.0")
 load("nccmp")
+load("nco/5.0.6")
+load("gsl/2.7")
+load("prod_util/2.0.14")
+
+-- Remove HPC_OPT and prepend_patht once prod bufr/12.0.1 is installed
+setenv("HPC_OPT", "/apps/ops/para/libs")
+prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304")
+load("bufr/12.0.1")
 
 -- hack for pybind11
 setenv("pybind11_ROOT", "/apps/spack/python/3.8.6/intel/19.1.3.304/pjn2nzkjvqgmjw4hmyz43v5x4jbxjzpk/lib/python3.8/site-packages/pybind11/share/cmake/pybind11")
