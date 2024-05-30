@@ -25,7 +25,10 @@ def mp_bufr_converter(exename, configfile):
         cmd.add_default_arg('-c')
     cmd.add_default_arg(configfile)
     logger.info(f"Executing {cmd}")
-    cmd()
+    try:
+        cmd()
+    except Exception as e:
+        logger.info(f' Exception: {e}')
 
 
 @logit(logger)
@@ -45,6 +48,7 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     config = {
         'RUN': RUN,
         'current_cycle': current_cycle,
+        'DATA': DATA,
         'DMPDIR': DMPDIR,
         'COM_OBS': COM_OBS,
         'PDY': current_cycle.strftime('%Y%m%d'),
@@ -52,13 +56,23 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     }
 
     # copy necessary fix files to runtime directory
-    shutil.copy(os.path.join(config_template_dir, "atms_beamwidth.txt"),
-                os.path.join(DATA, "atms_beamwidth.txt"))
+    fix_files = ["atms_beamwidth.txt",
+                 "amsua_metop-c_v2.ACCoeff.nc"  # TODO need to find a place for this .nc file.
+                 ]
+    for fix_file in fix_files:
+        shutil.copy(os.path.join(config_template_dir, fix_file), os.path.join(DATA, fix_file))
+
+    # get all observation types to be processed by python
+    BUFR_total_py_files = set(glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py')))
+    combine_type = 'bufr2ioda_combine_'
+    BUFR_combine_files = set(glob.glob(os.path.join(USH_IODA, combine_type + '*.py')))
 
     # Specify observation types to be processed by a script
-    BUFR_py_files = glob.glob(os.path.join(USH_IODA, 'bufr2ioda_*.py'))
+    BUFR_py_files = BUFR_total_py_files.difference(BUFR_combine_files)
+
     BUFR_py_files = [os.path.basename(f) for f in BUFR_py_files]
     BUFR_py = [f.replace('bufr2ioda_', '').replace('.py', '') for f in BUFR_py_files]
+    logger.info(f'All obs type processed by python: {BUFR_py}')
 
     config_files = []
     exename = []
@@ -73,8 +87,8 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         bufr2iodapy = USH_IODA + '/bufr2ioda_' + obtype + ".py"
 
         # append the values to the lists
-        config_files.append(json_output_file)
-        exename.append(bufr2iodapy)
+        # config_files.append(json_output_file)
+        # exename.append(bufr2iodapy)
 
         # Check if the converter was successful
         # if os.path.exists(json_output_file):
@@ -84,6 +98,8 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     BUFR_yaml_files = glob.glob(os.path.join(config_template_dir, '*.yaml'))
     BUFR_yaml_files = [os.path.basename(f) for f in BUFR_yaml_files]
     BUFR_yaml = [f.replace('bufr2ioda_', '').replace('.yaml', '') for f in BUFR_yaml_files]
+    logger.info(f'All obs type processed by yaml: {BUFR_yaml}')
+    BUFR_yaml = ['ncep_1bamua_ta', 'ncep_esamua']
 
     for obtype in BUFR_yaml:
         logger.info(f"Convert {obtype}...")
@@ -102,6 +118,31 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
         # Check if the converter was successful
         # if os.path.exists(yaml_output_file):
         #     rm_p(yaml_output_file)
+
+        # run everything in parallel
+    with mp.Pool(num_cores) as pool:
+        pool.starmap(mp_bufr_converter, zip(exename, config_files))
+
+    config_files = []
+    exename = []
+    # Specify observation types to be processed by a script with combined methods
+    BUFR_combine_files = [os.path.basename(f) for f in BUFR_combine_files]
+    BUFR_combine = [f.replace(combine_type, '').replace('.py', '') for f in BUFR_combine_files]
+    logger.info(f'All obs type processed by combine: {BUFR_combine}')
+
+    for obtype in BUFR_combine:
+        logger.info(f"Convert {obtype}...")
+        json_output_file = os.path.join(DATA, f"{obtype}_{datetime_to_YMDH(current_cycle)}.json")
+        filename = 'bufr2ioda_' + obtype + '.json'
+        template = os.path.join(config_template_dir, filename)
+        gen_bufr_json(config, template, json_output_file)
+
+        # Use the converter script for the ob type
+        bufr2iodapy = os.path.join(USH_IODA, combine_type + obtype + ".py")
+
+        # append the values to the lists
+        config_files.append(json_output_file)
+        exename.append(bufr2iodapy)
 
     # run everything in parallel
     with mp.Pool(num_cores) as pool:

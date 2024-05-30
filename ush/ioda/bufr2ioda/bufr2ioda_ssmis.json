@@ -1,0 +1,19 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "ssmis",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC005044", "NC005045", "NC005046" ],
+  "data_description" : "NC005044 JMA SATWIND, AHI HIM8 IR(LW)/VIS/WV-CT/WV-CS;  NC005045 JMA SATWIND, HIMAWARI-8 IR(LW)/VIS/WV-CT/WV-CS; NC005046 JMA SATWIND, HIMAWARI-8 IR(LW)/VIS/WV-CT/WV-CS", 
+  "data_provider"    : "JMA",
+  "sensor_info"      : { "sensor_name": "AHI",  "sensor_full_name": "Advanced Himawari Imager",  "sensor_id": 999 },
+ "satellite_info"   : [
+                          { "satellite_name": "GOES-16", "satellite_full_name": "Geostationary Operational Satellite - 16", "satellite_id": 249 },
+                          { "satellite_name": "GOES-17", "satellite_full_name": "Geostationary Operational Satellite - 17", "satellite_id": 285 },
+                          { "satellite_name": "GOES-18", "satellite_full_name": "Geostationary Operational Satellite - 18", "satellite_id": 286 },
+                          { "satellite_name": "GOES-18", "satellite_full_name": "Geostationary Operational Satellite - 18", "satellite_id": 287 }
+ ],
+ "yaml_file"        : "bufr2ioda_ssmis.yaml"
+}
