@@ -1,164 +1,137 @@
-# (C) Copyright 2021 NOAA/NWS/NCEP/EMC
-#
-# This software is licensed under the terms of the Apache Licence Version 2.0
-# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-
 bufr:
-  obsdatain: "/scratch2/NCEPDEV/stmp3/Xin.C.Jin/bufr2ioda/gdas.t00z.1bamua.tm00.bufr_d"
-  variables:
-    # MetaData
-    timestamp:
-      datetime:
-        year: "*/YEAR"
-        month: "*/MNTH"
-        day: "*/DAYS"
-        hour: "*/HOUR"
-        minute: "*/MINU"
-
-    latitude:
-      query: "*/CLAT"
-
-    longitude:
-      query: "*/CLON"
-
-    satelliteIdentifier:
-      query: "*/SAID"
-
-    fieldOfViewNumber:
-      query: "*/FOVN"
-
-    heightOfStation:
-      query: "*/HMSL"
-
-    solarZenithAngle:
-      query: "*/SOZA"
-
-    solarAzimuthAngle:
-      query: "*/SOLAZI"
-
-    sensorZenithAngle:
-      query: "*/SAZA"
-
-    sensorAzimuthAngle:
-      query: "*/BEARAZ"
-
-    sensorScanAngle:
-      sensorScanAngle:
-        fieldOfViewNumber: "*/FOVN"
-        scanStart: -48.333
-        scanStep: 3.333
-        sensor: amsua
-
-    sensorChannelNumber:
-      query: "*/BRITCSTC/CHNM"
-
-    # ObsValue
-    # Note: BUFR Dump contains Antenna Temperature for all normal-feed AMSUAs except NOAA-15/16
-    #       NOAA-15/16 contain Brightness Temperature
-    # antennaTemperature:
-    brightnessTemperature:
-      query: "*/BRITCSTC/TMBR"
-
+  obsdatain: /scratch2/NCEPDEV/stmp3/Xin.C.Jin/bufr2ioda/gdas.t00z.1bamua.tm00.bufr_d
   splits:
     satId:
       category:
-        variable: satelliteIdentifier
         map:
+          _209: n18
+          _223: n19
           _3: metop-b
           _4: metop-a
           _5: metop-c
-#          _208: n17
-          _209: n18
-          _223: n19
-
+        variable: satelliteIdentifier
+  variables:
+    brightnessTemperature:
+      query: '*/BRITCSTC/TMBR'
+    fieldOfViewNumber:
+      query: '*/FOVN'
+    heightOfStation:
+      query: '*/HMSL'
+    latitude:
+      query: '*/CLAT'
+    longitude:
+      query: '*/CLON'
+    satelliteIdentifier:
+      query: '*/SAID'
+    sensorAzimuthAngle:
+      query: '*/BEARAZ'
+    sensorChannelNumber:
+      query: '*/BRITCSTC/CHNM'
+    sensorScanAngle:
+      sensorScanAngle:
+        fieldOfViewNumber: '*/FOVN'
+        scanStart: -48.333
+        scanStep: 3.333
+        sensor: amsua
+    sensorZenithAngle:
+      query: '*/SAZA'
+    solarAzimuthAngle:
+      query: '*/SOLAZI'
+    solarZenithAngle:
+      query: '*/SOZA'
+    timestamp:
+      datetime:
+        day: '*/DAYS'
+        hour: '*/HOUR'
+        minute: '*/MINU'
+        month: '*/MNTH'
+        year: '*/YEAR'
 encoder:
   backend: netcdf
-  obsdataout: "temporary_ta_{splits/satId}_1716389684.nc"
   dimensions:
-    - name: Channel
-      source: variables/sensorChannelNumber
-      path: "*/BRITCSTC"
-
+  - name: Channel
+    path: '*/BRITCSTC'
+    source: variables/sensorChannelNumber
   globals:
-    - name: "platformCommonName"
-      type: string
-      value: "AMSU-A"
-
-    - name: "platformLongDescription"
-      type: string
-      value: "MTYP 021-023 PROC AMSU-A 1B Tb"
-
+  - name: platformCommonName
+    type: string
+    value: AMSU-A
+  - name: platformLongDescription
+    type: string
+    value: MTYP 021-023 PROC AMSU-A 1B Tb
+  obsdataout: temporary_ta_{splits/satId}_1716389684.nc
   variables:
-    # MetaData
-    - name: "MetaData/dateTime"
-      source: variables/timestamp
-      longName: "Datetime"
-      units: "seconds since 1970-01-01T00:00:00Z"
-
-    - name: "MetaData/latitude"
-      source: variables/latitude
-      longName: "Latitude"
-      units: "degree_north"
-      range: [-90, 90]
-
-    - name: "MetaData/longitude"
-      source: variables/longitude
-      longName: "Longitude"
-      units: "degree_east"
-      range: [-180, 180]
-
-    - name: "MetaData/satelliteIdentifier"
-      source: variables/satelliteIdentifier
-      longName: "Satellite Identifier"
-
-    - name: "MetaData/heightOfStation"
-      source: variables/heightOfStation
-      longName: "Altitude of Satellite"
-      units: "m"
-
-    - name: "MetaData/solarZenithAngle"
-      source: variables/solarZenithAngle
-      longName: "Solar Zenith Angle"
-      units: "degree"
-      range: [0, 180]
-
-    - name: "MetaData/solarAzimuthAngle"
-      source: variables/solarAzimuthAngle
-      longName: "Solar Azimuth Angle"
-      units: "degree"
-      range: [0, 360]
-
-    - name: "MetaData/sensorZenithAngle"
-      source: variables/sensorZenithAngle
-      longName: "Sensor Zenith Angle"
-      units: "degree"
-      range: [0, 90]
-
-    - name: "MetaData/sensorAzimuthAngle"
-      source: variables/sensorAzimuthAngle
-      longName: "Sensor Azimuth Angle"
-      units: "degree"
-      range: [0, 360]
-
-    - name: "MetaData/sensorViewAngle"
-      source: variables/sensorScanAngle
-      longName: "Sensor View Angle"
-      units: "degree"
-
-    - name: "MetaData/sensorChannelNumber"
-      source: variables/sensorChannelNumber
-      longName: "Sensor Channel Number"
-
-    - name: "MetaData/sensorScanPosition"
-      source: variables/fieldOfViewNumber
-      longName: "Field of View Number"
-
-    # ObsValue
-    # For now, store the antennaTemperature as brightnessTemperature
-    - name: "ObsValue/brightnessTemperature"
-      source: variables/brightnessTemperature
-      longName: "Antenna Temperature"
-      units: "K"
-      range: [90, 380]
-      chunks: [1000, 15]
-      compressionLevel: 4
+  - longName: Datetime
+    name: MetaData/dateTime
+    source: variables/timestamp
+    units: seconds since 1970-01-01T00:00:00Z
+  - longName: Latitude
+    name: MetaData/latitude
+    range:
+    - -90
+    - 90
+    source: variables/latitude
+    units: degree_north
+  - longName: Longitude
+    name: MetaData/longitude
+    range:
+    - -180
+    - 180
+    source: variables/longitude
+    units: degree_east
+  - longName: Satellite Identifier
+    name: MetaData/satelliteIdentifier
+    source: variables/satelliteIdentifier
+  - longName: Altitude of Satellite
+    name: MetaData/heightOfStation
+    source: variables/heightOfStation
+    units: m
+  - longName: Solar Zenith Angle
+    name: MetaData/solarZenithAngle
+    range:
+    - 0
+    - 180
+    source: variables/solarZenithAngle
+    units: degree
+  - longName: Solar Azimuth Angle
+    name: MetaData/solarAzimuthAngle
+    range:
+    - 0
+    - 360
+    source: variables/solarAzimuthAngle
+    units: degree
+  - longName: Sensor Zenith Angle
+    name: MetaData/sensorZenithAngle
+    range:
+    - 0
+    - 90
+    source: variables/sensorZenithAngle
+    units: degree
+  - longName: Sensor Azimuth Angle
+    name: MetaData/sensorAzimuthAngle
+    range:
+    - 0
+    - 360
+    source: variables/sensorAzimuthAngle
+    units: degree
+  - longName: Sensor View Angle
+    name: MetaData/sensorViewAngle
+    source: variables/sensorScanAngle
+    units: degree
+  - longName: Sensor Channel Number
+    name: MetaData/sensorChannelNumber
+    source: variables/sensorChannelNumber
+  - longName: Field of View Number
+    name: MetaData/sensorScanPosition
+    source: variables/fieldOfViewNumber
+  - chunks:
+    - 1000
+    - 15
+    compressionLevel: 4
+    longName: Antenna Temperature
+    name: ObsValue/brightnessTemperature
+    range:
+    - 90
+    - 380
+    source: variables/brightnessTemperature
+    units: K

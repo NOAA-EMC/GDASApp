@@ -153,7 +153,7 @@ encoder = {
 
 yaml_1b = dict(bufr=bufr, encoder=encoder)
 
-# save_as_yaml(yaml_1b, yaml_1b_file)
+save_as_yaml(yaml_1b, yaml_1b_file)
 
 yaml_es = {'bufr': {'obsdatain': '/scratch2/NCEPDEV/stmp3/Xin.C.Jin/bufr2ioda/gdas.t00z.esamua.tm00.bufr_d',
           'splits': {'satId': {'category': {'map': {'_209': 'n18',
@@ -254,7 +254,7 @@ yaml_es = {'bufr': {'obsdatain': '/scratch2/NCEPDEV/stmp3/Xin.C.Jin/bufr2ioda/gd
                             'source': 'variables/brightnessTemperature',
                             'units': 'K'}]}}
 
-# save_as_yaml(yaml_es, yaml_es_file)
+save_as_yaml(yaml_es, yaml_es_file)
 
 
 class Bufr2IodaAmusa(Bufr2IodaBase):
@@ -276,8 +276,8 @@ class Bufr2IodaAmusa(Bufr2IodaBase):
 
 
 class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
-    def __init__(self, yaml_order, *args, **kwargs):
-        self.yaml_order = yaml_order
+    def __init__(self, *args, **kwargs):
+        self.yaml_order = args[0]
         super().__init__(*args, **kwargs)
         if self.yaml_order:
             self.yaml_config = yaml_1b

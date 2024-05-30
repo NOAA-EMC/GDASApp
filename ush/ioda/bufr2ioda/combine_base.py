@@ -83,7 +83,9 @@ class Bufr2IodaBase:
 
     @timing_decorator
     def set_container(self):
+        logger.info(f'Parser: input-{self.obs_data_in}, yaml_path- {self.yaml_path}')
         self.container = bufr.Parser(self.obs_data_in, self.yaml_path).parse()
+        logger.info('finished parsing')
         self.re_map_variable()
 
     @timing_decorator
@@ -93,7 +95,7 @@ class Bufr2IodaBase:
 
     def execute(self):
         self.initialization()
-        self.set_container
+        self.set_container()
         self.encode()
 
     def get_info(self):
