@@ -12,7 +12,7 @@ source "${HOMEgfs}/ci/platforms/config.${MACHINE_ID}"
 expyaml=${expyaml_ctest}
 export pslot=${pslot_ctest}
 export RUNTESTS=${exp_path}/${pslot}
-export SLURM_ACCOUNT="da-cpu"
+export HPC_ACCOUNT="da-cpu"
 
 # Source the gw environement
 source ${HOMEgfs}/workflow/gw_setup.sh
