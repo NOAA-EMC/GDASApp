@@ -6,7 +6,7 @@ import yaml
 import bufr
 from bufr.encoders import netcdf
 from utils import timing_decorator
-from wxflow import Logger, Jinja
+from wxflow import Logger, Jinja,  save_as_yaml
 from pprint import pprint
 
 GROUPS = ['MetaData', 'ObsValue']
@@ -15,24 +15,47 @@ logger = Logger(os.path.basename(__file__), level='INFO')
 
 json_template_base = {
     "data_format": "bufr_d",
-    "data_type": ["esamua", "1bamua_td"],
     "cycle_type": "{{ RUN }}",
-    "cycle_datetime": "{{ current_cycle | to_YMDH }}",
+    "cycle_datetime": "20220810",  #'"{{ current_cycle | to_YMDH }}",
     "dump_directory": "{{ DMPDIR }}",
     "ioda_directory": "{{ COM_OBS }}",
 }
 
+bufr_base = {
+    'variables': {
+        'timestamp': {'datetime': {'day': '*/DAYS',
+                                       'hour': '*/HOUR',
+                                       'minute': '*/MINU',
+                                       'month': '*/MNTH',
+                                       'second': '*/SECO',
+                                       'year': '*/YEAR'}}}
+}
+
+encoder_base = {
+    'backend': 'netcdf',
+    'variables': [{'longName': 'Datetime',
+                   'name': 'MetaData/dateTime',
+                   'source': 'variables/timestamp',
+                   'units': 'seconds since 1970-01-01T00:00:00Z'},
+                  {'longName': 'Latitude',
+                   'name': 'MetaData/latitude',
+                   'range': [-90, 90],
+                   'source': 'variables/latitude',
+                   'units': 'degree_north'},
+                  {'longName': 'Longitude',
+                   'name': 'MetaData/longitude',
+                   'source': 'variables/longitude',
+                   'units': 'degree_east'},
+}
 
 class Bufr2IodaBase:
     def __init__(self, config_para):
         json_object = json.dumps(json_template_base, indent=4)
-        self.config = {}  # json.loads(Jinja(json_object, config_para).render)  # make it a method if the base is not unique
-        self.yaml_config = {}
+        self.config = json.loads(Jinja(json_object, config_para).render)  # make it a method if the base is not unique
+        self.yaml_config = None
         self.yaml_path = None
         self.ioda_files = None
         self.obs_data_in = None
-        self.splits = None
-        self.sat_ids = None
         self.container = None
 
     def initialization(self):
@@ -41,21 +64,12 @@ class Bufr2IodaBase:
         self.ioda_files = self.yaml_config['encoder'].get('obsdataout')
         self.obs_data_in = self.yaml_config['bufr'].get('obsdatain')
         logger.info(f'Ioda output files are: {self.ioda_files}')
-        self.splits = self.yaml_config['bufr'].get('splits')
-        self.sat_ids = None
-        if self.splits:
-            self.sat_ids = [x for x in self.splits['satId']['category']['map'].values()]
-            logger.info(self.splits)
 
+    def update_config(self, config_json):
+        self.config.update(config_json)
 
-    @staticmethod
-    def get_config_json(file_name):
-        with open(file_name, "r") as json_file:
-            config = json.load(json_file)
-        if config:
-            return config
-        else:
-            return None  # TODO, raise an file error Exception
+    def set_yaml(self):
+        save_as_yaml(ssmis_yaml, yaml_file)
 
     def get_container_variable(self, group, variable, sat_id):
         return self.container.get(group + '/' + variable, [sat_id, ])
