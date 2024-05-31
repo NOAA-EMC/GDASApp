@@ -50,8 +50,8 @@ copy:
 {% set com_prev_ocn.COM_OCEAN_HISTORY_MEM = com_prev_ocn.COM_OCEAN_HISTORY_MEM.replace(search_term, replace_term) %}
 {% set com_prev_ice.COM_ICE_HISTORY_MEM = com_prev_ice.COM_ICE_HISTORY_MEM.replace(search_term, replace_term) %}
 {% endfor %}
-- ["{{ com_prev_ocn.COM_OCEAN_HISTORY_MEM }}/enkf{{ RUN }}.ocean.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/enkf{{ RUN }}.ocean.t{{ gcyc }}z.inst.f009.nc"]
-- ["{{ com_prev_ice.COM_ICE_HISTORY_MEM }}/enkf{{ RUN }}.ice.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/enkf{{ RUN }}.ice.t{{ gcyc }}z.inst.f009.nc"]
+- ["{{ com_prev_ocn.COM_OCEAN_HISTORY_MEM }}/enkf{{ RUN }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/enkf{{ RUN }}.ocean.t{{ gcyc }}z.inst.f006.nc"]
+- ["{{ com_prev_ice.COM_ICE_HISTORY_MEM }}/enkf{{ RUN }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/enkf{{ RUN }}.ice.t{{ gcyc }}z.inst.f006.nc"]
 {% endfor %}
 ######################################
 # copy fix files
