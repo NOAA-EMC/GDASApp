@@ -11,8 +11,8 @@ background:
   members from template:
     template:
       date: '{{ ATM_WINDOW_MIDDLE }}'
-      ocn_filename: enkfgdas.ocean.t06z.inst.f009.nc
-      ice_filename: enkfgdas.ice.t06z.inst.f009.nc
+      ocn_filename: '{{ ocn_ens_bkg_filename }}'
+      ice_filename: '{{ ice_ens_bkg_filename }}'
       read_from_file: 1
       basename: ./ens/mem%mem%
       state variables: [socn, tocn, ssh, uocn, vocn, cicen]

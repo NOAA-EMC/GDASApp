@@ -1,0 +1,69 @@
+######################################
+# set some variables
+######################################
+{% set gPDY = previous_cycle | to_YMD %}
+{% set gcyc = previous_cycle | strftime("%H") %}
+{% set PDY = current_cycle | to_YMD %}
+{% set cyc = current_cycle | strftime("%H") %}
+{% if DOIAU %}
+{% set bkg_time = SNOW_WINDOW_BEGIN | to_fv3time %}
+{% else %}
+{% set bkg_time = current_cycle | to_fv3time %}
+{% endif %}
+######################################
+# create working directories
+######################################
+mkdir:
+- "{{ DATA }}/bkg"
+- "{{ DATA }}/data_output"
+- "{{ DATA }}/obs"
+- "{{ DATA }}/INPUT"
+{% for mem in range(1, NMEM_ENS + 1) %}
+- "{{ DATA }}/ens/mem{{ '%03d' % mem }}"
+{% endfor %}
+copy:
+######################################
+# copy ensemble background files
+######################################
+{% for mem in range(1, NMEM_ENS + 1) %}
+# define variables
+# Declare a dict of search and replace terms to run on each template
+{% set tmpl_dict = {'ROTDIR':ROTDIR,
+                    'RUN':'enkf' + RUN,
+                    'YMD':gPDY,
+                    'HH':gcyc,
+                    'MEMDIR':"mem" + '%03d' % mem} %}
+
+# Replace template variables with tmpl_dict, one key at a time
+# This must be done in a namespace to overcome jinja scoping
+#  Variables set inside of a for loop are lost at the end of the loop
+#  unless they are part of a namespace
+{% set com_prev_ocn = namespace(COM_OCEAN_HISTORY_MEM = COM_OCEAN_HISTORY_TMPL) %}
+{% set com_prev_ice = namespace(COM_ICE_HISTORY_MEM = COM_ICE_HISTORY_TMPL) %}
+{% for key in tmpl_dict.keys() %}
+{% set search_term = '${' + key + '}' %}
+{% set replace_term = tmpl_dict[key] %}
+{% set com_prev_ocn.COM_OCEAN_HISTORY_MEM = com_prev_ocn.COM_OCEAN_HISTORY_MEM.replace(search_term, replace_term) %}
+{% set com_prev_ice.COM_ICE_HISTORY_MEM = com_prev_ice.COM_ICE_HISTORY_MEM.replace(search_term, replace_term) %}
+{% endfor %}
+- ["{{ com_prev_ocn.COM_OCEAN_HISTORY_MEM }}/{{ ocn_ens_bkg_filename }}", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ ocn_ens_bkg_filename }}"]
+- ["{{ com_prev_ice.COM_ICE_HISTORY_MEM }}/{{ ice_ens_bkg_filename }}", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ ice_ens_bkg_filename }}"]
+{% endfor %}
+######################################
+# copy fix files
+######################################
+# TODO(AFE): maybe make this a separate file to make available to other tasks
+- ["{{ SOCA_INPUT_FIX_DIR }}/rossrad.dat", "{{ DATA }}/rossrad.dat"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/field_table", "{{ DATA }}/field_table"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/diag_table", "{{ DATA }}/diag_table"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/MOM_input", "{{ DATA }}/MOM_input"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/fields_metadata.yaml", "{{ DATA }}/fields_metadata.yaml"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/obsop_name_map.yaml", "{{ DATA }}/obsop_name_map.yaml"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/cice.res.nc", "{{ DATA }}/INPUT/cice.res.nc"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/grid_spec.nc", "{{ DATA }}/INPUT/grid_spec.nc"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/hycom1_25.nc", "{{ DATA }}/INPUT/hycom1_25.nc"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/layer_coord25.nc", "{{ DATA }}/INPUT/layer_coord25.nc"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/MOM.res.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_hgrid.nc", "{{ DATA }}/INPUT/ocean_hgrid.nc"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_mosaic.nc", "{{ DATA }}/INPUT/ocean_mosaic.nc"]
+- ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_topog.nc", "{{ DATA }}/INPUT/ocean_topog.nc"]
