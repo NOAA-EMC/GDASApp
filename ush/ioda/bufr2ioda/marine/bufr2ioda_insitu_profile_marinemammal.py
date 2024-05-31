@@ -54,7 +54,7 @@ def bufr_to_ioda(config, logger):
 
     # General Information
     converter = 'BUFR to IODA Converter'
-    platform_description = 'GLIDER profiles from subpfl: temperature and salinity'
+    platform_description = 'Profiles from Marine Mammals: temperature and salinity'
 
     bufrfile = f"{cycle_datetime}-{cycle_type}.t{hh}z.{data_format}.tm00.bufr_d"
     DATA_PATH = os.path.join(dump_dir, bufrfile)
@@ -79,14 +79,14 @@ def bufr_to_ioda(config, logger):
     q.add('rday', '*/RCDY')
     q.add('rhour', '*/RCHR')
     q.add('rminute', '*/RCMI')
-    q.add('stationID', '*/WMOP')
-    q.add('latitude', '*/CLATH')
-    q.add('longitude', '*/CLONH')
-    q.add('depth', '*/GLPFDATA/WPRES')
+    q.add('stationID', '*/RPID')
+    q.add('latitude', '*/CLAT')
+    q.add('longitude', '*/CLON')
+    q.add('depth', '*/BTOCN/DBSS')
 
     # ObsValue
-    q.add('temp', '*/GLPFDATA/SSTH')
-    q.add('saln', '*/GLPFDATA/SALNH')
+    q.add('temp', '*/BTOCN/STMP')
+    q.add('saln', '*/BTOCN/SALN')
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -111,8 +111,6 @@ def bufr_to_ioda(config, logger):
     lat = r.get('latitude', group_by='depth')
     lon = r.get('longitude', group_by='depth')
     depth = r.get('depth', group_by='depth')
-    # convert depth in pressure units to meters (rho * g * h)
-    depth = np.float32(depth.astype(float) * 0.0001)
 
     # ObsValue
     logger.debug(f" ... Executing QuerySet: get ObsValue ...")
@@ -122,49 +120,45 @@ def bufr_to_ioda(config, logger):
 
     # Add mask based on min, max values
     mask = ((temp > -10.0) & (temp <= 50.0)) & ((saln >= 0.0) & (saln <= 45.0))
-    temp = temp[mask]
-    saln = saln[mask]
     lat = lat[mask]
     lon = lon[mask]
     depth = depth[mask]
     stationID = stationID[mask]
     dateTime = dateTime[mask]
     rcptdateTime = rcptdateTime[mask]
+    temp = temp[mask]
+    saln = saln[mask]
 
     logger.debug(f"Get sequenceNumber based on unique longitude...")
     seqNum = Compute_sequenceNumber(lon)
 
-    # =========================================
-    # Separate GLIDER profiles from subpfl tank
-    # =========================================
-    logger.debug(f"Creating the mask for GLIDER floats based on station ID numbers ...")
+    # =======================================
+    # Separate marine mammals from TESAC tank
+    # =======================================
+    logger.debug(f"Creating the mask for marine mammals from TESAC floats based on station ID ...")
 
-    mask_gldr = (stationID >= 68900) & (stationID <= 68999) | (stationID >= 1800000) & (stationID <= 1809999) | \
-                (stationID >= 2800000) & (stationID <= 2809999) | (stationID >= 3800000) & (stationID <= 3809999) | \
-                (stationID >= 4800000) & (stationID <= 4809999) | (stationID >= 5800000) & (stationID <= 5809999) | \
-                (stationID >= 6800000) & (stationID <= 6809999) | (stationID >= 7800000) & (stationID <= 7809999)
+    alpha_mask = [item.isalpha() for item in stationID]
+    indices_true = [index for index, value in enumerate(alpha_mask) if value]
 
-    # Apply mask
-    stationID = stationID[mask_gldr]
-    lat = lat[mask_gldr]
-    lon = lon[mask_gldr]
-    depth = depth[mask_gldr]
-    temp = temp[mask_gldr]
-    saln = saln[mask_gldr]
-    seqNum = seqNum[mask_gldr]
-    dateTime = dateTime[mask_gldr]
-    rcptdateTime = rcptdateTime[mask_gldr]
-
-    logger.debug(f"masking Done...")
+    # Apply index
+    stationID = stationID[indices_true]
+    lat = lat[indices_true]
+    lon = lon[indices_true]
+    depth = depth[indices_true]
+    temp = temp[indices_true]
+    saln = saln[indices_true]
+    seqNum = seqNum[indices_true]
+    dateTime = dateTime[indices_true]
+    rcptdateTime = rcptdateTime[indices_true]
 
     # ObsError
     logger.debug(f"Generating ObsError array with constant value (instrument error)...")
-    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(mask_gldr)), 0.02)))
-    ObsError_saln = np.float32(np.ma.masked_array(np.full((len(mask_gldr)), 0.01)))
+    ObsError_temp = np.float32(np.ma.masked_array(np.full((len(indices_true)), 0.02)))
+    ObsError_saln = np.float32(np.ma.masked_array(np.full((len(indices_true)), 0.01)))
 
     # PreQC
     logger.debug(f"Generating PreQC array with 0...")
-    PreQC = (np.ma.masked_array(np.full((len(mask_gldr)), 0))).astype(np.int32)
+    PreQC = (np.ma.masked_array(np.full((len(indices_true)), 0))).astype(np.int32)
 
     logger.debug(f" ... Executing QuerySet: Done!")
 
@@ -312,7 +306,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger('bufr2ioda_insitu_profiles_glider.py', level=log_level, colored_log=True)
+    logger = Logger('bufr2ioda_insitu_profile_marinemammal.py', level=log_level, colored_log=True)
 
     with open(args.config, "r") as json_file:
         config = json.load(json_file)
