@@ -19,6 +19,7 @@ using std::cout;
 using std::string;
 #include <sstream>
 #include <vector>
+using std::vector;
 
 #include "NetCDFToIodaConverter.h"
 #include "oops/util/dateFunctions.h"
@@ -28,6 +29,9 @@ using std::string;
 
 
 
+
+namespace gdasapp
+{
 
 
 namespace rtofs
@@ -43,8 +47,12 @@ void read_int_array(FILE * f, int * a, int n);
 void print_float_array(std::string filename, float * a, int n);
 void print_int_array(std::string filename, int * a, int n);
 void print_2d_float_array(std::string filename, float ** a, int n, int * dim2);
+template<typename NUMBER>
+void print_2d_array(std::string filename, NUMBER ** a, int n, int * dim2);
+void print_level(std::string filename, float ** a, int n, int level, int * dim2);
 float * alloc_read_float_array(FILE * f, int n);
 
+std::vector<int> find_unique_values(int * instrument_list, int n);
 
 
 class RTOFSOb
@@ -57,6 +65,7 @@ class RTOFSOb
 
     void read(FILE * f);
     int NumberOfObservations() { return n; }
+    int TotalNumberOfValues();
     void print(std::string DirectoryName);
 
 
@@ -85,7 +94,6 @@ class RTOFSOb
     int ** flg;            // ?? qc flags ??
 
     char12 * dtg;        // date (Julian, seconds)
-    // std::time_t * dtg;    // date (Julian, seconds)
 
  private:
     int n;
@@ -97,12 +105,22 @@ class RTOFSOb
 };    // class RTOFSOb
 
 
+int
+RTOFSOb::
+    TotalNumberOfValues()
+{
+    int NumberOfValues = 0;
+    for (int i = 0;  i < n;  i ++)
+        NumberOfValues += lt[i];
+    return NumberOfValues;
+}
+
+
 
 class RTOFSDataFile
 {
  public:
     explicit RTOFSDataFile(std::string filename);
-    int NumberOfObservations() { return nobs; }
     RTOFSOb & observations() { return * ob; }
 
 
@@ -115,13 +133,6 @@ class RTOFSDataFile
     void read_file();
 };    // class RTOFSDataFile
 
-}    // namespace rtofs
-
-
-
-
-namespace gdasapp
-{
 
 
 int64_t
@@ -146,7 +157,6 @@ int64_t
 }    // SecondsSinceReferenceTime
 
 
-
 class RTOFSInSitu:
     public NetCDFToIodaConverter
 {
@@ -155,74 +165,173 @@ class RTOFSInSitu:
         const eckit::Configuration & fullConfig,
         const eckit::mpi::Comm & comm):
         NetCDFToIodaConverter(fullConfig, comm)
-    {
-        variable_ = "waterTemperature";
-    }
+    {}
 
+
+ protected:
+    void ProcessFile(std::string filename);
+
+    gdasapp::obsproc::iodavars::IodaVars TemperatureIodaVars();
+    gdasapp::obsproc::iodavars::IodaVars SalinityIodaVars();
+
+ private:
     // Read binary file and populate iodaVars
-    gdasapp::obsproc::iodavars::IodaVars
-    providerToIodaVars(const std::string fileName) final
-    {
-        oops::Log::info()
-            << "Processing files provided by RTOFS"
-            << std::endl;
+    virtual gdasapp::obsproc::iodavars::IodaVars
+        providerToIodaVars(const std::string filename) = 0;
 
-        // Set the int metadata names
-        std::vector<std::string> intMetadataNames = {"temperature"};
-
-        // Set the float metadata name
-        std::vector<std::string> floatMetadataNames = {};
-
-        oops::Log::info()
-            << "Processing file "
-            << fileName
-            << std::endl;
-
-        // read the file
-        rtofs::RTOFSDataFile RTOFSFile(fileName);
-        int n = RTOFSFile.NumberOfObservations();
-        rtofs::RTOFSOb & ob = RTOFSFile.observations();
-
-        int NumberOfTemperatureValues = 0;
-        for (int i = 0;  i < n;  i ++)
-            NumberOfTemperatureValues += ob.lt[i];
-
-        gdasapp::obsproc::iodavars::IodaVars iodaVars(
-            NumberOfTemperatureValues,
-            floatMetadataNames,
-            intMetadataNames);
-        iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
-
-        int k = 0;
-        for (int i = 0;  i < n;  i ++)
-        {
-            int64_t date = SecondsSinceReferenceTime(ob.dtg[i]);
-
-            for (int j = 0;  j < ob.lt[i];  j ++)
-            {
-                iodaVars.longitude_(k) = ob.lon[i];
-                iodaVars.latitude_(k) = ob.lat[i];
-                iodaVars.obsVal_(k) = ob.tmp[i][j];
-                iodaVars.obsError_(k) = ob.tmp_err[i][j];
-                iodaVars.datetime_(k) = date;
-                // iodaVars.preQc_(k) = oneDimFlagsVal[i];
-                // iodaVars.intMetadata_.row(k) << -999;
-
-                k++;
-            }
-        }
-
-        return iodaVars;
-    };    // providerToIodaVars
+    rtofs::RTOFSOb * pob;
 };  // class RTOFSInSitu
 
 
-}  // namespace gdasapp
-
-
-
-namespace rtofs
+void
+RTOFSInSitu::
+    ProcessFile(std::string filename)
 {
+    oops::Log::info()
+        << "Processing RTOFS file "
+        << filename
+        << std::endl;
+
+    // read the file
+    rtofs::RTOFSDataFile RTOFSFile(filename);
+    pob = & RTOFSFile.observations();
+    rtofs::RTOFSOb & ob = * pob;
+
+
+    int n = ob.NumberOfObservations();
+
+    std::vector<int> tmp_instrument =
+        rtofs::find_unique_values(ob.tmp_typ, n);
+
+    std::vector<int> sal_instrument =
+        rtofs::find_unique_values(ob.sal_typ, n);
+}    // RTOFSInSitu::ProcessFile
+
+
+
+gdasapp::obsproc::iodavars::IodaVars
+RTOFSInSitu::
+    TemperatureIodaVars()
+{
+    // Set the int metadata names
+    std::vector<std::string> intMetadataNames = {"tmp_typ"};
+
+    // Set the float metadata name
+    std::vector<std::string> floatMetadataNames = {"level"};
+    rtofs::RTOFSOb & ob = * pob;
+
+    gdasapp::obsproc::iodavars::IodaVars iodaVars(
+        ob.TotalNumberOfValues(),
+        floatMetadataNames,
+        intMetadataNames);
+
+    iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
+    iodaVars.niMetadata_ = 1;
+    iodaVars.nfMetadata_ = 1;
+
+    int n = ob.NumberOfObservations();
+
+    int k = 0;
+    for (int i = 0;  i < n;  i ++)
+    {
+        int64_t date = SecondsSinceReferenceTime(ob.dtg[i]);
+
+        for (int j = 0;  j < ob.lt[i];  j ++)
+        {
+            iodaVars.longitude_(k) = ob.lon[i];
+            iodaVars.latitude_(k) = ob.lat[i];
+            iodaVars.obsVal_(k) = ob.tmp[i][j];
+            iodaVars.obsError_(k) = ob.tmp_err[i][j];
+            iodaVars.datetime_(k) = date;
+            iodaVars.preQc_(k) = ob.flg[i][j];
+            iodaVars.intMetadata_.row(k) << ob.tmp_typ[i];
+            iodaVars.floatMetadata_.row(k) << ob.lvl[i][j];
+
+            k++;
+        }
+    }
+
+    return iodaVars;
+}    // RTOFSInSitu::TemperatureIodaVars
+
+
+
+
+
+
+gdasapp::obsproc::iodavars::IodaVars
+RTOFSInSitu::
+    SalinityIodaVars()
+{
+    // Set the int metadata names
+    std::vector<std::string> intMetadataNames = {"sal_typ"};
+
+    // Set the float metadata name
+    std::vector<std::string> floatMetadataNames = {"level"};
+
+    rtofs::RTOFSOb & ob = * pob;
+
+    gdasapp::obsproc::iodavars::IodaVars iodaVars(
+        ob.TotalNumberOfValues(),
+        floatMetadataNames,
+        intMetadataNames);
+
+    iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";
+    iodaVars.niMetadata_ = 1;
+    iodaVars.nfMetadata_ = 1;
+
+    int n = ob.NumberOfObservations();
+
+    int k = 0;
+    for (int i = 0;  i < n;  i ++)
+    {
+        int64_t date = SecondsSinceReferenceTime(ob.dtg[i]);
+
+        for (int j = 0;  j < ob.lt[i];  j ++)
+        {
+            iodaVars.longitude_(k) = ob.lon[i];
+            iodaVars.latitude_(k) = ob.lat[i];
+            iodaVars.obsVal_(k) = ob.sal[i][j];
+            iodaVars.obsError_(k) = ob.sal_err[i][j];
+            iodaVars.datetime_(k) = date;
+            iodaVars.preQc_(k) = ob.flg[i][j];
+            iodaVars.intMetadata_.row(k) << ob.sal_typ[i];
+            iodaVars.floatMetadata_.row(k) << ob.lvl[i][j];
+
+            k++;
+        }
+    }
+
+    return iodaVars;
+}    // RTOFSInSitu::SalinityIodaVars
+
+
+
+
+
+
+
+std::vector<int>
+    find_unique_values(int * instrument_list, int n)
+{
+    std::vector<int> instrument;
+
+    // Function to insert a value while keeping
+    // the vector sorted and without duplicates
+    auto insertUniqueSorted = [&](int value)
+    {
+        auto it = std::lower_bound(instrument.begin(), instrument.end(), value);
+        if (it == instrument.end() || *it != value)
+            instrument.insert(it, value);
+    };
+
+    for (int i = 0;  i < n;  i ++)
+        insertUniqueSorted(instrument_list[i]);
+
+    return instrument;
+}
+
+
 
 // the variables marked "skipped" are arrays which are present
 // in the binary file, but were skipped by the fortran code
@@ -348,10 +457,24 @@ RTOFSOb::
     print_int_array(DirectoryName + "/lt", lt, n);
     print_int_array(DirectoryName + "/ls", ls, n);
     print_int_array(DirectoryName + "/sal_typ", sal_typ, n);
-    print_int_array(DirectoryName + "/tmp_typ", sal_typ, n);
+    print_int_array(DirectoryName + "/tmp_typ", tmp_typ, n);
 
     print_2d_float_array(DirectoryName + "/tmp", tmp, n, lt);
     print_2d_float_array(DirectoryName + "/sal", sal, n, lt);
+    print_2d_float_array(DirectoryName + "/lvl", lvl, n, lt);
+    print_2d_float_array(DirectoryName + "/cssd", cssd, n, lt);
+    print_2d_float_array(DirectoryName + "/ctsd", ctsd, n, lt);
+    print_2d_float_array(DirectoryName + "/tprb", tprb, n, lt);
+    print_2d_float_array(DirectoryName + "/sprb", sprb, n, lt);
+    print_2d_float_array(DirectoryName + "/clm_tmp", clm_tmp, n, lt);
+
+    print_level(DirectoryName + "/tmp0", tmp, n, 0, lt);
+    print_level(DirectoryName + "/clm_tmp0", clm_tmp, n, 0, lt);
+    print_level(DirectoryName + "/tmp10", tmp, n, 10, lt);
+    print_level(DirectoryName + "/clm_tmp10", clm_tmp, n, 10, lt);
+    print_level(DirectoryName + "/tprb0", tprb, n, 0, lt);
+
+    print_2d_array<int>(DirectoryName + "/flg", flg, n, lt);
 
     // print lvl2d array
     {
@@ -420,6 +543,18 @@ RTOFSDataFile::
     RTOFSOb::char7 * ob_sgn = new RTOFSOb::char7[n_read];
     fread(ob_sgn, sizeof(RTOFSOb::char7), n_read, f);
 
+    // we don't know what sgn is.
+    {
+        ofstream o("sgn");
+        for (int i = 0;  i < n_read;  i ++)
+        {
+            for (int k = 0;  k < 7; k ++)
+                o << ob_sgn[i][k];
+            o << std::endl;
+        }
+    }
+
+    // we never had an input file with vrsn == 2
     if (vrsn == 2)
     {
         float ** glb_sal = new float * [n_read];
@@ -469,7 +604,7 @@ void
 
 
 void
-    print_level(std::string filename, float ** a, int n, int level)
+    print_level(std::string filename, float ** a, int n, int level, int * dim2)
 {
     ofstream o(filename);
     o
@@ -477,6 +612,7 @@ void
         << std::setprecision(9);
 
     for (int i = 0;  i < n;  i ++)
+    if (level < dim2[i])
         o
             << a[i] [level]
             << endl;
@@ -512,6 +648,22 @@ void
 
 void
     print_2d_float_array(std::string filename, float ** a, int n, int * dim2)
+{
+    ofstream o(filename);
+    o
+        << std::fixed
+        << std::setprecision(9);
+    for (int i = 0;  i < n;  i ++)
+    for (int j = 0;  j < dim2[i];  j ++)
+        o
+            << a[i] [j]
+            << endl;
+}
+
+
+template<typename NUMBER>
+void
+    print_2d_array(std::string filename, NUMBER ** a, int n, int * dim2)
 {
     ofstream o(filename);
     o
@@ -600,3 +752,5 @@ void
 
 
 }    // namespace rtofs
+
+}  // namespace gdasapp
