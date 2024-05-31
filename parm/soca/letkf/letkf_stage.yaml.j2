@@ -23,6 +23,10 @@ mkdir:
 {% endfor %}
 copy:
 ######################################
+# copy mom input template 
+######################################
+- ["{{ PARMgfs }}/gdas/soca/fms/input.nml", "{{ DATA }}/mom_input.nml.tmpl"]
+######################################
 # copy ensemble background files
 ######################################
 {% for mem in range(1, NMEM_ENS + 1) %}
@@ -46,8 +50,8 @@ copy:
 {% set com_prev_ocn.COM_OCEAN_HISTORY_MEM = com_prev_ocn.COM_OCEAN_HISTORY_MEM.replace(search_term, replace_term) %}
 {% set com_prev_ice.COM_ICE_HISTORY_MEM = com_prev_ice.COM_ICE_HISTORY_MEM.replace(search_term, replace_term) %}
 {% endfor %}
-- ["{{ com_prev_ocn.COM_OCEAN_HISTORY_MEM }}/{{ ocn_ens_bkg_filename }}", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ ocn_ens_bkg_filename }}"]
-- ["{{ com_prev_ice.COM_ICE_HISTORY_MEM }}/{{ ice_ens_bkg_filename }}", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ ice_ens_bkg_filename }}"]
+- ["{{ com_prev_ocn.COM_OCEAN_HISTORY_MEM }}/enkf{{ RUN }}.ocean.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/enkf{{ RUN }}.ocean.t{{ gcyc }}z.inst.f009.nc"]
+- ["{{ com_prev_ice.COM_ICE_HISTORY_MEM }}/enkf{{ RUN }}.ice.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/enkf{{ RUN }}.ice.t{{ gcyc }}z.inst.f009.nc"]
 {% endfor %}
 ######################################
 # copy fix files
@@ -59,11 +63,16 @@ copy:
 - ["{{ SOCA_INPUT_FIX_DIR }}/MOM_input", "{{ DATA }}/MOM_input"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/fields_metadata.yaml", "{{ DATA }}/fields_metadata.yaml"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/obsop_name_map.yaml", "{{ DATA }}/obsop_name_map.yaml"]
-- ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/cice.res.nc", "{{ DATA }}/INPUT/cice.res.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/grid_spec.nc", "{{ DATA }}/INPUT/grid_spec.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/hycom1_25.nc", "{{ DATA }}/INPUT/hycom1_25.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/layer_coord25.nc", "{{ DATA }}/INPUT/layer_coord25.nc"]
-- ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/MOM.res.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_hgrid.nc", "{{ DATA }}/INPUT/ocean_hgrid.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_mosaic.nc", "{{ DATA }}/INPUT/ocean_mosaic.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_topog.nc", "{{ DATA }}/INPUT/ocean_topog.nc"]
+######################################
+# copy deterministic background
+######################################
+- ["{{ COM_ICE_HISTORY_PREV}}/{{ RUN }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/bkg/{{ RUN }}.ice.t{{ gcyc }}z.inst.f006.nc"]
+- ["{{ COM_ICE_HISTORY_PREV}}/{{ RUN }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/INPUT/cice.res.nc" ]
+- ["{{ COM_OCEAN_HISTORY_PREV}}/{{ RUN }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/bkg/{{ RUN }}.ocean.t{{ gcyc }}z.inst.f006.nc"]
+- ["{{ COM_OCEAN_HISTORY_PREV}}/{{ RUN }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
