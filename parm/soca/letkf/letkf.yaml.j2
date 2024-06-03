@@ -4,15 +4,15 @@ geometry:
   fields metadata: fields_metadata.yaml
 
 time window:
-  begin: &date '{{ ATM_WINDOW_BEGIN }}'
+  begin: &date '{{ WINDOW_BEGIN | to_isotime }}'
   length: PT6H 
 
 background:
   members from template:
     template:
-      date: '{{ ATM_WINDOW_MIDDLE }}'
-      ocn_filename: "enkf{{ GDUMP }}.ocean.t{{ gcyc }}z.inst.f009.nc"
-      ice_filename: "enkf{{ GDUMP }}.ice.t{{ gcyc }}z.inst.f009.nc"
+      date: '{{ WINDOW_MIDDLE | to_isotime }}'
+      ocn_filename: "{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f009.nc"
+      ice_filename: "{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f009.nc"
       read_from_file: 1
       basename: ./ens/mem%mem%
       state variables: [socn, tocn, ssh, uocn, vocn, cicen]
