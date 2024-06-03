@@ -258,43 +258,29 @@ save_as_yaml(yaml_es, yaml_es_file)
 
 
 class Bufr2IodaAmusa(Bufr2IodaBase):
-    def __init__(self, yaml_order, *args, **kwargs):
-        self.yaml_order = yaml_order
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.config.update(config_json)
-
-        if self.yaml_order:
-            self.yaml_config = yaml_es
+        cycle_datetime = config["PDY"]
+        if cycle_datetime >= AMSUA_TYPE_CHANGE_DATETIME:
+            yaml_order = YAML_NORMAL
         else:
-            self.yaml_config = yaml_1b
+            yaml_order = not YAML_NORMAL
+        logger.info(f'yaml order is {yaml_order}')
 
-    def get_yaml_file(self):
-        if self.yaml_order:
-            return self.config['yaml_file'][0]
-        else:
-            return self.config['yaml_file'][1]
-
-
-class Bufr2IodaAmusaChange(Bufr2IodaAmusa):
-    def __init__(self, *args, **kwargs):
-        self.yaml_order = args[0]
-        super().__init__(*args, **kwargs)
-        if self.yaml_order:
-            self.yaml_config = yaml_1b
-        else:
-            self.yaml_config = yaml_es
-
-    def get_yaml_file(self):
-        if self.yaml_order:
-            return self.config['yaml_file'][1]
-        else:
-            return self.config['yaml_file'][0]
+        # if self.yaml_order:
+        #     self.yaml_config = yaml_es
+        # else:
+        #     self.yaml_config = yaml_1b
 
     def get_ac_dir(self):
         return self.config['ac_dir']
 
     @timing_decorator
     def re_map_variable(self):
+        if yaml_order and self.data_type == ESAMUA:
+            return
+
         #  TODO replace this follow that in GSI
         # read_bufrtovs.f90
         # antcorr_application.f90
@@ -341,15 +327,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     log_level = 'DEBUG' if args.verbose else 'INFO'
     logger = Logger(os.path.basename(__file__), level=log_level)
-    amsua_files = []
-    splits = set()
-
-    cycle_datetime = config["PDY"]
-    if cycle_datetime >= AMSUA_TYPE_CHANGE_DATETIME:
-        yaml_order = YAML_NORMAL
-    else:
-        yaml_order = not YAML_NORMAL
-    logger.info(f'yaml order is {yaml_order}')
 
     convert_bamua = Bufr2IodaAmusa(yaml_order, config)
     convert_bamua.execute()

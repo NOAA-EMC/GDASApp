@@ -86,15 +86,6 @@ ssmis_yaml = {
                        'units': 'K'}]}}
 
 # This will be moved out in the future. it should be an input when call this program.
-config = {
-    'RUN': 123,
-    'current_cycle': '2022010412',
-    'DATA': 'abcd',
-    'DMPDIR': 'abc',
-    'COM_OBS': 'abs',
-    'PDY': '20220104',
-    'cyc': '12',
-}
 
 
 class Bufr2IodaSsmis(Bufr2IodaBase):

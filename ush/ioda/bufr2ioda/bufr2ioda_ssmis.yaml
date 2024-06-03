@@ -49,7 +49,6 @@ bufr:
         second: '*/SECO'
         year: '*/YEAR'
 encoder:
-  backend: netcdf
   dimensions:
   - name: Channel
     path: '*/SSMISCHN'
@@ -63,6 +62,19 @@ encoder:
     value: MTYP 021-203 SSMIS ATENNA/BRIGHTNESS TEMPERATURE DATA
   obsdataout: temporary_{splits/satId}_1716389684.nc
   variables:
+  - longName: Satellite Identifier
+    name: MetaData/satelliteIdentifier
+    source: variables/satelliteIdentifier
+  - longName: Sensor Channel Number
+    name: MetaData/sensorChannelNumber
+    source: variables/sensorChannelNumber
+  - chunks:
+    - 10000
+    - 22
+    longName: 3-by-3 Averaged Brightness Temperature
+    name: ObsValue/brightnessTemperature
+    source: variables/remappedBT
+    units: K
   - longName: Datetime
     name: MetaData/dateTime
     source: variables/timestamp
@@ -78,16 +90,3 @@ encoder:
     name: MetaData/longitude
     source: variables/longitude
     units: degree_east
-  - longName: Satellite Identifier
-    name: MetaData/satelliteIdentifier
-    source: variables/satelliteIdentifier
-  - longName: Sensor Channel Number
-    name: MetaData/sensorChannelNumber
-    source: variables/sensorChannelNumber
-  - chunks:
-    - 10000
-    - 22
-    longName: 3-by-3 Averaged Brightness Temperature
-    name: ObsValue/brightnessTemperature
-    source: variables/remappedBT
-    units: K

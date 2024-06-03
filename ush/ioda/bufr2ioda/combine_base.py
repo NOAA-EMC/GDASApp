@@ -22,13 +22,12 @@ json_template_base = {
 }
 
 bufr_base = {
-    'variables': {
-        'timestamp': {'datetime': {'day': '*/DAYS',
+    'variables': {'timestamp': {'datetime': {'day': '*/DAYS',
                                        'hour': '*/HOUR',
                                        'minute': '*/MINU',
                                        'month': '*/MNTH',
                                        'second': '*/SECO',
-                                       'year': '*/YEAR'}}}
+                                       'year': '*/YEAR'}}},
 }
 
 encoder_base = {
@@ -46,12 +45,15 @@ encoder_base = {
                    'name': 'MetaData/longitude',
                    'source': 'variables/longitude',
                    'units': 'degree_east'},
+                  ]
 }
+
 
 class Bufr2IodaBase:
     def __init__(self, config_para):
         json_object = json.dumps(json_template_base, indent=4)
         self.config = json.loads(Jinja(json_object, config_para).render)  # make it a method if the base is not unique
+        self.data_type = None
         self.yaml_config = None
         self.yaml_path = None
         self.ioda_files = None
@@ -68,8 +70,12 @@ class Bufr2IodaBase:
     def update_config(self, config_json):
         self.config.update(config_json)
 
-    def set_yaml(self):
-        save_as_yaml(ssmis_yaml, yaml_file)
+    def set_yaml(self, yaml_path):
+
+        self.yaml_config['bufr']['variables'].update(bufr_base['variables'])
+        self.yaml_config['encoder']['variables'] += encoder_base['variables']
+
+        save_as_yaml(self.yaml_config, yaml_path)
 
     def get_container_variable(self, group, variable, sat_id):
         return self.container.get(group + '/' + variable, [sat_id, ])
@@ -79,17 +85,6 @@ class Bufr2IodaBase:
 
     def get_yaml_file(self):
         return self.config['yaml_file']
-
-    def get_yaml_config(self):
-        with open(self.yaml_path, 'r') as yaml_file:
-            yaml_config = yaml.load(yaml_file, Loader=yaml.FullLoader)
-            return yaml_config
-
-    def make_split_files(self, sat_ids):
-        # sat_id a list of ids
-        pattern = r'{(.*?)}'
-        for sat_id in sat_ids:
-            self.split_files[sat_id] = re.sub(pattern, sat_id, self.ioda_files)
 
     def re_map_variable(self):
         # Make any changes and return for your specific case in the sub-class
@@ -108,15 +103,7 @@ class Bufr2IodaBase:
         netcdf.Encoder(self.yaml_path).encode(self.container, self.ioda_files)
 
     def execute(self):
+        self.set_yaml(self.get_yaml_file())
         self.initialization()
         self.set_container()
         self.encode()
-
-    def get_info(self):
-        if not self.split_files:
-            self.make_split_files(self.splits)
-        sat_info = {'ioda_files': self.ioda_files,
-                    'split': self.splits,
-                    'split_files': self.split_files
-                    }
-        return sat_info
