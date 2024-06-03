@@ -1,6 +1,6 @@
 provider: VIIRSAOD
-window begin: {{ window_begin }}
-window end: {{ window_end }}
+window begin: {{ window_begin | to_isotime }}
+window end: {{ window_end | to_isotime }}
 binning:
   cressman radius: 100
   stride: 132
@@ -12,4 +12,3 @@ thinning:
   threshold: 0
 channel: 4
 preqc: 0
-
