@@ -35,6 +35,7 @@ gcyc = str((int(cyc) - 6) % 24).zfill(2)
 
 bcyc = str((int(cyc) - 3) % 24).zfill(2)
 grid_file = os.path.join(comout, f'{RUN}.t'+bcyc+'z.ocngrid.nc')
+hist_file = os.path.join(com_ocean_history, f'{RUN}.ocean.t{gcyc}z.inst.f006.nc')
 
 # for eva
 diagdir = os.path.join(comout, 'diags')
@@ -76,6 +77,7 @@ configs = [plotConfig(grid_file=grid_file,
                       colormap='seismic',
                       comout=os.path.join(comout, 'vrfy', 'bkgerr', 'steric_explained_variance')),   # steric explained variance
            plotConfig(grid_file=grid_file,
+                      hist_file=hist_file,
                       data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc'),
                       lats=np.arange(-60, 60, 10),
                       lons=np.arange(-280, 80, 30),
@@ -95,6 +97,7 @@ configs = [plotConfig(grid_file=grid_file,
                       colormap='jet',
                       comout=os.path.join(comout, 'vrfy', 'bkgerr')),   # ocn bkgerr stddev
            plotConfig(grid_file=grid_file,
+                      hist_file=hist_file,
                       data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc'),
                       lats=np.arange(-60, 60, 10),
                       lons=np.arange(-280, 80, 30),
@@ -137,14 +140,14 @@ configs = [plotConfig(grid_file=grid_file,
                       variables_horiz={'ave_ssh': [-1.8, 1.3],
                                        'Temp': [-1.8, 34.0],
                                        'Salt': [30, 38]},
-                      colormap='jet',
+                      colormap='nipy_spectral',
                       comout=os.path.join(comout, 'vrfy', 'ana')),   # ocean surface analysis
            plotConfig(grid_file=grid_file,
                       data_file=os.path.join(com_ocean_history, f'{RUN}.ocean.t{gcyc}z.inst.f006.nc'),
                       variables_horiz={'ave_ssh': [-1.8, 1.3],
                                        'Temp': [-1.8, 34.0],
                                        'Salt': [30, 38]},
-                      colormap='jet',
+                      colormap='nipy_spectral',
                       comout=os.path.join(comout, 'vrfy', 'bkg'))]   # ocean surface background
 
 # Number of processes

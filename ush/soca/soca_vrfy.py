@@ -17,6 +17,7 @@ projs = {'North': ccrs.NorthPolarStereo(),
 
 def plotConfig(grid_file=[],
                data_file=[],
+               hist_file=[],
                variable=[],
                PDY=os.getenv('PDY'),
                cyc=os.getenv('cyc'),
@@ -44,6 +45,7 @@ def plotConfig(grid_file=[],
     config['comout'] = comout  # output directory
     config['grid file'] = grid_file
     config['fields file'] = data_file
+    config['history file'] = hist_file
     config['PDY'] = PDY
     config['cyc'] = cyc
     config['exp'] = exp
@@ -63,7 +65,6 @@ def plotConfig(grid_file=[],
     config['projs'] = projs  # all the projections etc.
     config['proj'] = proj
     return config
-
 
 def plotHorizontalSlice(config):
     """
@@ -95,14 +96,26 @@ def plotHorizontalSlice(config):
     bounds = config['bounds']
 
     fig, ax = plt.subplots(figsize=(8, 5), subplot_kw={'projection': projs[config['proj']]})
-    plt.pcolormesh(np.squeeze(grid.lon),
-                   np.squeeze(grid.lat),
-                   slice_data,
-                   vmin=bounds[0], vmax=bounds[1],
-                   transform=ccrs.PlateCarree(),
-                   cmap=config['colormap'])
+    pcolormesh = plt.pcolormesh(np.squeeze(grid.lon),
+                                np.squeeze(grid.lat),
+                                slice_data,
+                                vmin=bounds[0], vmax=bounds[1],
+                                transform=ccrs.PlateCarree(),
+                                cmap=config['colormap'])
 
-    plt.colorbar(label=label_colorbar, shrink=0.5, orientation='horizontal')
+    # Add contour lines
+    contour_levels = np.linspace(bounds[0], bounds[1], 10)
+    contours = plt.contour(np.squeeze(grid.lon),
+                            np.squeeze(grid.lat),
+                            slice_data,
+                            levels=contour_levels,
+                            transform=ccrs.PlateCarree(),
+                            colors='black',
+                            linewidths=0.1)
+
+    # Add colorbar for contour lines
+    plt.colorbar(pcolormesh, label=label_colorbar, shrink=0.5, orientation='horizontal')
+
     ax.coastlines()  # TODO: make this work on hpc
     ax.set_title(title)
     if config['proj'] == 'South':
@@ -125,9 +138,10 @@ def plotZonalSlice(config):
     lat = float(config['lat'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
+    hist = xr.open_dataset(config['history file'])
     lat_index = np.argmin(np.array(np.abs(np.squeeze(grid.lat)[:, 0]-lat)))
     slice_data = np.squeeze(np.array(data[variable]))[:, lat_index, :]
-    depth = np.squeeze(np.array(data['h']))[:, lat_index, :]
+    depth = np.squeeze(np.array(hist['h']))[:, lat_index, :]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
     bounds = config['bounds']
@@ -136,6 +150,14 @@ def plotZonalSlice(config):
     plt.pcolormesh(x, -depth, slice_data,
                    vmin=bounds[0], vmax=bounds[1],
                    cmap=config['colormap'])
+    
+    # Add contour lines
+    contour_levels = np.linspace(bounds[0], bounds[1], 10)
+    contours = plt.contour(x, -depth, slice_data,
+                           levels=contour_levels,
+                           colors='black',
+                           linewidths=0.1)
+    
     plt.colorbar(label=variable+' Lat '+str(lat), shrink=0.5, orientation='horizontal')
     ax.set_ylim(-config['max depth'], 0)
     title = f"{exp} {PDY} {cyc} {variable} lat {int(lat)}"
@@ -159,9 +181,10 @@ def plotMeridionalSlice(config):
     lon = float(config['lon'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
+    hist = xr.open_dataset(config['history file'])
     lon_index = np.argmin(np.array(np.abs(np.squeeze(grid.lon)[0, :]-lon)))
     slice_data = np.squeeze(np.array(data[config['variable']]))[:, :, lon_index]
-    depth = np.squeeze(np.array(data['h']))[:, :, lon_index]
+    depth = np.squeeze(np.array(hist['h']))[:, :, lon_index]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
     bounds = config['bounds']
@@ -170,6 +193,14 @@ def plotMeridionalSlice(config):
     plt.pcolormesh(y, -depth, slice_data,
                    vmin=bounds[0], vmax=bounds[1],
                    cmap=config['colormap'])
+    
+    # Add contour lines
+    contour_levels = np.linspace(bounds[0], bounds[1], 10)
+    contours = plt.contour(y, -depth, slice_data,
+                           levels=contour_levels,
+                           colors='black',
+                           linewidths=0.1)
+    
     plt.colorbar(label=config['variable']+' Lon '+str(lon), shrink=0.5, orientation='horizontal')
     ax.set_ylim(-config['max depth'], 0)
     title = f"{exp} {PDY} {cyc} {variable} lon {int(lon)}"
