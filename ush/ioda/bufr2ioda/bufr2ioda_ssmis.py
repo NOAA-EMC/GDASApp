@@ -94,14 +94,15 @@ class Bufr2IodaSsmis(Bufr2IodaBase):
         self.update_config(config_json)
         self.yaml_config = ssmis_yaml
 
+    def re_map_variable(self):
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--verbose', help='print debug logging information',
-                        action='store_true')
-    args = parser.parse_args()
-    log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger(os.path.basename(__file__), level=log_level)
-    converter = Bufr2IodaSsmis(config)
-    converter.execute()
-    logger.info('--Finished--')
+        for sat_id in self.sat_ids:
+            logger.info(f'Converting for {sat_id}, ...')
+            ta = self.get_container_variable('variables', 'brightnessTemperature', sat_id)
+            tb = self.apply_corr(ta)
+            self.replace_container_variable('variables', 'brightnessTemperature', tb, sat_id)
+
+    def apply_corr(self, ta):
+        ta = ta * 100
+        return ta
+
