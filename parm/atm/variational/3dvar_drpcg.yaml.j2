@@ -44,7 +44,7 @@ variational:
   minimizer:
     algorithm: DRPCG
   iterations:
-  - ninner: 2
+  - ninner: 1
     gradient norm reduction: 1e-10
     test: on
     geometry:
@@ -61,42 +61,6 @@ variational:
       field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
     diagnostics:
       departures: bkgmob
-  - ninner: 4
-    gradient norm reduction: 1e-10
-    test: on
-    geometry:
-      fms initialization:
-        namelist filename: ./fv3jedi/fmsmpp.nml
-        field table filename: ./fv3jedi/field_table
-      akbk: ./fv3jedi/akbk.nc4
-      layout:
-      - {{ layout_x }}
-      - {{ layout_y }}
-      npx: {{ npx_anl }}
-      npy: {{ npy_anl }}
-      npz: {{ npz_anl }}
-      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
-    diagnostics:
-      departures: bkgmob1
 final:
   diagnostics:
     departures: anlmob
-  increment:
-    output:
-      state component:
-        filetype: cube sphere history
-        filename: ./anl/atminc.{{ current_cycle | to_fv3time }}.nc4
-        provider: ufs
-        fields to write: [ugrd,vgrd,tmp,pressfc,spfh,icmr,clwmr,o3mr]
-    geometry:
-      fms initialization:
-        namelist filename: ./fv3jedi/fmsmpp.nml
-        field table filename: ./fv3jedi/field_table
-      akbk: ./fv3jedi/akbk.nc4
-      layout:
-      - {{ layout_x }}
-      - {{ layout_y }}
-      npx: {{ npx_anl }}
-      npy: {{ npy_anl }}
-      npz: {{ npz_anl }}
-      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
