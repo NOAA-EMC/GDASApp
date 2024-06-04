@@ -79,7 +79,7 @@
   branch = release-stable
 [submodule "sorc/jcb"]
   path = sorc/jcb
-  url = https://github.com/noaa-emc/jcb
+  url = https://github.com/noaa-emc/jcb.git
   branch = develop
 [submodule "parm/jcb-gdas"]
   path = parm/jcb-gdas
