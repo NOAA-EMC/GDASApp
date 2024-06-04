@@ -1,0 +1,12 @@
+{
+    "data_format": "bufr_d",
+    "data_type": "adpupa",
+    "cycle_type": "{{ RUN }}",
+    "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+    "dump_directory": "{{ DMPDIR }}",
+    "ioda_directory": "{{ COM_OBS }}",
+    "subsets": [ "NC002001, NC002002, NC002003, NC002004, NC002005" ],
+    "source": "NCEP data tank",
+    "data_provider": "U.S. NOAA",
+    "data_description": "UPPER-AIR (RAOB, PIBAL, RECCO, DROPS) REPORTS",
+}
