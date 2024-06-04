@@ -77,6 +77,10 @@
   path = sorc/fms
   url = https://github.com/jcsda/fms.git
   branch = release-stable
+[submodule "sorc/jcb"]
+  path = sorc/jcb
+  url = https://github.com/noaa-emc/jcb
+  branch = develop
 [submodule "parm/jcb-gdas"]
   path = parm/jcb-gdas
   url = https://github.com/noaa-emc/jcb-gdas
