@@ -29,12 +29,16 @@ load("eckit/1.24.4")
 load("fckit/0.11.0")
 load("atlas/0.35.0")
 load("nccmp")
+load("nco/5.0.6")
+load("gsl/2.7")
+load("prod_util/2.0.14")
+load("bufr/12.0.1")
 
 -- hack for pybind11
 setenv("pybind11_ROOT", "/apps/spack/python/3.8.6/intel/19.1.3.304/pjn2nzkjvqgmjw4hmyz43v5x4jbxjzpk/lib/python3.8/site-packages/pybind11/share/cmake/pybind11")
 
--- hack for wxflow
---prepend_path("PYTHONPATH", "/scratch1/NCEPDEV/da/python/gdasapp/wxflow/20240307/src")
+-- hack for git-lfs
+prepend_path("PATH", "/apps/spack/git-lfs/2.11.0/gcc/11.2.0/m6b6nl5kfqngfteqbggydc7kflxere3s/bin")
 
 local mpiexec = '/pe/intel/compilers_and_libraries_2020.4.304/linux/mpi/intel64/bin/mpirun'
 local mpinproc = '-n'

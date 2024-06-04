@@ -134,19 +134,15 @@ if (WORKFLOW_TESTS)
            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/testrun)
 endif()
 
-# fv3jedi tests
 if (${BUILD_GDASBUNDLE})
-  add_subdirectory(fv3jedi)
-endif()
+  add_subdirectory(fv3jedi)   # fv3jedi tests
+  add_subdirectory(soca)      # soca tests
+  add_subdirectory(snow)      # snow da tests
+  option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
+  if (RUN_GW_CI)
+    add_subdirectory(gw-ci)   # subset of the global-workflow ci tests
+  endif()
 
-# soca tests
-if (${BUILD_GDASBUNDLE})
-  add_subdirectory(soca)
-endif()
-
-# snow da tests
-if (${BUILD_GDASBUNDLE})
-  add_subdirectory(snow)
 endif()
 
 # gdas atm tests
