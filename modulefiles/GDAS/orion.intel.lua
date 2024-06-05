@@ -79,7 +79,7 @@ setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
 setenv("CRTM_FIX","/work2/noaa/da/cmartin/GDASApp/fix/crtm/2.4.0")
-setenv("GDASAPP_TESTDATA","/work2/noaa/da/rtreadon/CI/GDASApp/data")
+setenv("GDASAPP_TESTDATA","/work2/noaa/da/cmartin/CI/GDASApp/data")
 setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/work2/noaa/da/cmartin/CI/GDASApp/data/test/")
 prepend_path("PATH","/apps/contrib/NCEP/libs/hpc-stack/intel-2018.4/prod_util/1.2.2/bin")
 

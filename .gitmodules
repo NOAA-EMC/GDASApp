@@ -11,8 +11,8 @@
   branch = develop
 [submodule "sorc/oops"]
   path = sorc/oops
-  url = https://github.com/jcsda-internal/oops.git
-  branch = bugfix/lgetkf_addincvars
+  url = https://github.com/jcsda/oops.git
+  branch = develop
 [submodule "sorc/vader"]
   path = sorc/vader
   url = https://github.com/jcsda/vader.git
