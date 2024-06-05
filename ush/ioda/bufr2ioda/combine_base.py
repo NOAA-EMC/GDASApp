@@ -83,8 +83,8 @@ class Bufr2IodaBase:
     def replace_container_variable(self, group, variable, var, sat_id):
         self.container.replace(group + '/' + variable, var, [sat_id, ])
 
-    def add_container_variable(self, group, variable, var, sat_id):
-        self.container.replace(group + '/' + variable, var, [sat_id, ])
+    def add_container_variable(self, group, variable, var, path, sat_id):
+        self.container.replace(group + '/' + variable, var, path, [sat_id, ])
 
     def get_yaml_file(self):
         return self.config['yaml_file']
