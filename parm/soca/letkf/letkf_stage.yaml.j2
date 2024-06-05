@@ -9,8 +9,7 @@
 # create working directories
 ######################################
 mkdir:
-- "{{ DATA }}/bkg"
-- "{{ DATA }}/data_output"
+- "{{ DATA }}/Data"
 - "{{ DATA }}/obs"
 - "{{ DATA }}/INPUT"
 {% for mem in range(1, NMEM_ENS + 1) %}
@@ -46,8 +45,8 @@ copy:
 {% set com_prev_ocn.COM_OCEAN_HISTORY_MEM = com_prev_ocn.COM_OCEAN_HISTORY_MEM.replace(search_term, replace_term) %}
 {% set com_prev_ice.COM_ICE_HISTORY_MEM = com_prev_ice.COM_ICE_HISTORY_MEM.replace(search_term, replace_term) %}
 {% endfor %}
-- ["{{ com_prev_ocn.COM_OCEAN_HISTORY_MEM }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f009.nc"]
-- ["{{ com_prev_ice.COM_ICE_HISTORY_MEM }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f009.nc"]
+- ["{{ com_prev_ocn.COM_OCEAN_HISTORY_MEM }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc"]
+- ["{{ com_prev_ice.COM_ICE_HISTORY_MEM }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc"]
 {% endfor %}
 ######################################
 # copy fix files
@@ -65,10 +64,3 @@ copy:
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_hgrid.nc", "{{ DATA }}/INPUT/ocean_hgrid.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_mosaic.nc", "{{ DATA }}/INPUT/ocean_mosaic.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_topog.nc", "{{ DATA }}/INPUT/ocean_topog.nc"]
-######################################
-# copy deterministic background
-######################################
-- ["{{ COM_ICE_HISTORY_PREV}}/{{ GDUMP }}.ice.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/bkg/{{ GDUMP }}.ice.t{{ gcyc }}z.inst.f009.nc"]
-- ["{{ COM_ICE_HISTORY_PREV}}/{{ GDUMP }}.ice.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/INPUT/cice.res.nc" ]
-- ["{{ COM_OCEAN_HISTORY_PREV}}/{{ GDUMP }}.ocean.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/bkg/{{ GDUMP }}.ocean.t{{ gcyc }}z.inst.f009.nc"]
-- ["{{ COM_OCEAN_HISTORY_PREV}}/{{ GDUMP }}.ocean.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
