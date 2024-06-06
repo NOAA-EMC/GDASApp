@@ -70,26 +70,57 @@ ecbuild_add_test( TARGET  test_gdasapp_util_ghrsst2ioda
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
-#TODO:
-# add binary files for the test
-# Test the RTOFS in Situ converter
-# ecbuild_add_test( TARGET  test_gdasapp_util_rtofsinsitu
-                  # COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
-				  # ARGS    "../testinput/gdas_rtofsinsitu.yaml"
-                  # LIBS    gdas-utils
-                  # WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
-ecbuild_add_test( TARGET  test_gdasapp_util_rtofstmp
+
+# copy rtofs binary input files to the testing area
+# and generate the tests
+execute_process(
+	COMMAND hostname 
+	OUTPUT_VARIABLE HOSTNAME OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+set(RTOFS_INPUT_FILE1 "rtofsinsitu_2024032600.profile")
+set(RTOFS_INPUT_FILE2 "rtofsinsitu_2024032700.profile")
+
+if (${HOSTNAME} MATCHES "^([Oo][rR]ion)")
+	set(RTOFS_FILES_PATH
+		"/work/noaa/da/marineda/gfs-marine/data/obs/ci/obs"
+	)
+endif()
+if (${HOSTNAME} MATCHES "^(Hera)")
+	set(RTOFS_FILES_PATH
+		"/scratch1/NCEPDEV/da/common/ci/obs"
+	)
+endif()
+
+set(RTOFS_FILE1 "${RTOFS_FILES_PATH}/${RTOFS_INPUT_FILE1}")
+set(RTOFS_FILE2 "${RTOFS_FILES_PATH}/${RTOFS_INPUT_FILE2}")
+set(DESTINATION_DIR "${CMAKE_CURRENT_BINARY_DIR}/obsproc")
+
+if (EXISTS ${RTOFS_FILE1} AND EXISTS ${RTOFS_FILE2})
+	message("Found RTOFS files; generating tests")
+
+	file(COPY ${RTOFS_FILE1} DESTINATION ${DESTINATION_DIR})
+	file(COPY ${RTOFS_FILE2} DESTINATION ${DESTINATION_DIR})
+
+	# Test the RTOFStmp to IODA converter
+	ecbuild_add_test( TARGET  test_gdasapp_util_rtofstmp
                   COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
 				  ARGS    "../testinput/gdas_rtofstmp.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
-ecbuild_add_test( TARGET  test_gdasapp_util_rtofssal
+	# Test the RTOFSsal to IODA converter
+	ecbuild_add_test( TARGET  test_gdasapp_util_rtofssal
                   COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
 				  ARGS    "../testinput/gdas_rtofssal.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+else()
+	message("Error: RTOFS input files not found; no test generated.")
+endif()
+
+
 
 # Test the SMAP to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_smap2ioda

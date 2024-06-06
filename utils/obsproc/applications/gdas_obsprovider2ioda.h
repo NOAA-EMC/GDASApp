@@ -36,7 +36,6 @@ namespace gdasapp {
         Ghrsst2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else if (provider == "RTOFStmp") {
-        // RTOFSInSitu conv2ioda(fullConfig, this->getComm());
         RTOFSTemperature conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else if (provider == "RTOFSsal") {
