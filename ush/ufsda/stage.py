@@ -25,8 +25,8 @@ def soca_fix(config):
 
     fix_files = []
     # copy Rossby Radius file
-    fix_files.append([os.path.join(config['soca_input_fix_dir'], 'rossrad.dat'),
-                      os.path.join(config['stage_dir'], 'rossrad.dat')])
+    fix_files.append([os.path.join(config['soca_input_fix_dir'], 'rossrad.nc'),
+                      os.path.join(config['stage_dir'], 'rossrad.nc')])
     # link name lists
     fix_files.append([os.path.join(config['soca_input_fix_dir'], 'field_table'),
                       os.path.join(config['stage_dir'], 'field_table')])
