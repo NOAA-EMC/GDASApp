@@ -5,6 +5,7 @@ from bufr2ioda_ssmis import Bufr2IodaSsmis
 from bufr2ioda_ncep_1bmusa import Bufr2IodaAmusa
 from bufr2ioda_ncep_esamua import Bufr2IodaEsamusa
 from bufr2ioda_atms import Bufr2IodaAtms
+
 # Initialize root logger
 logger = Logger('gen_bufr2ioda_json.py', level='INFO', colored_log=True)
 
@@ -12,7 +13,7 @@ bufr_classes = [
 #    Bufr2IodaSsmis,
 #    Bufr2IodaAmusa,
 #    Bufr2IodaEsamusa,
-    Bufr2IodaAtms
+    Bufr2IodaEsamusa,
 ]
 
 config = {

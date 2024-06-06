@@ -20,6 +20,8 @@ bufr:
       query: '*/ORBN'
     rainFlag:
       query: '*/RFLAG'
+    scanAngle:
+      query: '*/SCLINGEO/RAIA'
     remappedBT:
       remappedBrightnessTemperature:
         brightnessTemperature: '*/SSMISCHN/TMBR'
@@ -68,6 +70,9 @@ encoder:
   - longName: Sensor Channel Number
     name: MetaData/sensorChannelNumber
     source: variables/sensorChannelNumber
+  - longName: Sensor Scan Angle
+    name: MetaData/sensorScanAngle
+    source: variables/scanAngle
   - chunks:
     - 10000
     - 22

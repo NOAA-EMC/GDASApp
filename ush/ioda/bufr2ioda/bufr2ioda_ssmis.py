@@ -45,6 +45,7 @@ ssmis_yaml = {
             'longitude': {'query': '*/CLON'},
             'orbitNumber': {'query': '*/ORBN'},
             'rainFlag': {'query': '*/RFLAG'},
+            'scanAngle': {'query': '*/SCLINGEO/RAIA'},
             'remappedBT': {'remappedBrightnessTemperature': {'brightnessTemperature': '*/SSMISCHN/TMBR',
                                                              'fieldOfViewNumber': '*/FOVN',
                                                              'obsTime': {'day': '*/DAYS',
@@ -78,6 +79,9 @@ ssmis_yaml = {
                       {'longName': 'Sensor Channel Number',
                        'name': 'MetaData/sensorChannelNumber',
                        'source': 'variables/sensorChannelNumber'},
+                      {'longName': 'Sensor Scan Angle',
+                       'name': 'MetaData/sensorScanAngle',
+                       'source': 'variables/scanAngle'},
                       {'chunks': [10000, 22],
                        'longName': '3-by-3 Averaged Brightness '
                                    'Temperature',
@@ -94,13 +98,13 @@ class Bufr2IodaSsmis(Bufr2IodaBase):
         self.update_config(config_json)
         self.yaml_config = ssmis_yaml
 
-    def re_map_variable(self):
-
-        for sat_id in self.sat_ids:
-            logger.info(f'Converting for {sat_id}, ...')
-            ta = self.get_container_variable('variables', 'brightnessTemperature', sat_id)
-            tb = self.apply_corr(ta)
-            self.replace_container_variable('variables', 'brightnessTemperature', tb, sat_id)
+    # def re_map_variable(self):
+    #
+    #     for sat_id in self.sat_ids:
+    #         logger.info(f'Converting for {sat_id}, ...')
+    #         ta = self.get_container_variable('variables', 'brightnessTemperature', sat_id)
+    #         tb = self.apply_corr(ta)
+    #         self.replace_container_variable('variables', 'brightnessTemperature', tb, sat_id)
 
     def apply_corr(self, ta):
         ta = ta * 100
