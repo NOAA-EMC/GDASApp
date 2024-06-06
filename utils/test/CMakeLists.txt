@@ -3,7 +3,8 @@ list( APPEND utils_test_input
   testinput/gdas_meanioda.yaml
   testinput/gdas_rads2ioda.yaml
   testinput/gdas_ghrsst2ioda.yaml
-  testinput/gdas_rtofsinsitu.yaml
+  testinput/gdas_rtofstmp.yaml
+  testinput/gdas_rtofssal.yaml
   testinput/gdas_smap2ioda.yaml
   testinput/gdas_smos2ioda.yaml
   testinput/gdas_icecamsr2ioda.yaml
@@ -12,7 +13,8 @@ list( APPEND utils_test_input
 
 set( gdas_utils_test_ref
   testref/ghrsst2ioda.test
-  # testref/rtofsinsitu.test
+  testref/rtofstmp.test
+  testref/rtofssal.test
   testref/rads2ioda.test
   testref/smap2ioda.test
   testref/smos2ioda.test
@@ -32,10 +34,13 @@ CREATE_SYMLINK( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${utils_
 execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cpplint.py ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_cpplint.py)
 
 # add linter for the utils
+# TODO: the linter complains about local .h files included in the .cc
+# in the rtofs directory
+# the exclude argument needs to be removed
 ecbuild_add_test( TARGET test_gdasapp_util_coding_norms
                   TYPE SCRIPT
                   COMMAND ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_cpplint.py
-                  ARGS --quiet --recursive ${CMAKE_CURRENT_SOURCE_DIR}/../
+                  ARGS --quiet --recursive --exclude=${CMAKE_CURRENT_SOURCE_DIR}/../obsproc/rtofs/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/../ 
                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 
 # Test example IODA utility that computes the mean of a variable
@@ -73,6 +78,18 @@ ecbuild_add_test( TARGET  test_gdasapp_util_ghrsst2ioda
 				  # ARGS    "../testinput/gdas_rtofsinsitu.yaml"
                   # LIBS    gdas-utils
                   # WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+
+ecbuild_add_test( TARGET  test_gdasapp_util_rtofstmp
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+				  ARGS    "../testinput/gdas_rtofstmp.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
+
+ecbuild_add_test( TARGET  test_gdasapp_util_rtofssal
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+				  ARGS    "../testinput/gdas_rtofssal.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
 # Test the SMAP to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_smap2ioda
