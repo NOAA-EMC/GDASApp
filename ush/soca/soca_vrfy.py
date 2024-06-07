@@ -73,7 +73,7 @@ def plotHorizontalSlice(config):
     """
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
-    
+
     dirname = os.path.join(config['comout'], config['variable'])
     os.makedirs(dirname, exist_ok=True)
 

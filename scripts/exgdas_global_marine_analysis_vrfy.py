@@ -35,7 +35,7 @@ RUN = os.getenv('RUN')
 bcyc = str((int(cyc) - 3) % 24).zfill(2)
 gcyc = str((int(cyc) - 6) % 24).zfill(2)
 grid_file = os.path.join(comout, f'{RUN}.t'+bcyc+'z.ocngrid.nc')
-layer_file = data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc') 
+layer_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
 
 # for eva
 diagdir = os.path.join(comout, 'diags')
