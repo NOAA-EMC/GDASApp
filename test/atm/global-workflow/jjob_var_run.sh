@@ -49,9 +49,7 @@ elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
 fi
 
 # Execute j-job
-if [[ $machine = 'HERA' ]]; then
-    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmanlvar-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
-elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
+if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmanlvar-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL

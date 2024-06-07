@@ -130,10 +130,7 @@ done
 
 
 # Execute j-job
-if [[ $machine = 'HERA' ]]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmanlinit-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
-elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    echo 'foo'
+if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmanlinit-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
