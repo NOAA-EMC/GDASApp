@@ -1,13 +1,13 @@
 - obs space:
-    name: viirs_npp_aod
+    name: viirs_n21_aod
     obsdatain:
       engine:
         type: H5File
-        obsfile: "{{ DATA }}/obs/{{ OPREFIX }}viirs_npp.{{ current_cycle | to_YMDH }}.nc4"
+        obsfile: "{{ DATA }}/obs/{{ OPREFIX }}viirs_n21.{{ current_cycle | to_YMDH }}.nc4"
     obsdataout:
       engine:
         type: H5File
-        obsfile: "{{ DATA }}/diags/diag_viirs_npp_{{ current_cycle | to_YMDH }}.nc4"
+        obsfile: "{{ DATA }}/diags/diag_viirs_n21_{{ current_cycle | to_YMDH }}.nc4"
     io pool:
       max pool size: 1
     simulated variables: [aerosolOpticalDepth]
@@ -19,7 +19,7 @@
     name: AodCRTM
     Absorbers: [H2O,O3]
     obs options:
-      Sensor_ID: v.viirs-m_npp
+      Sensor_ID: v.viirs-m_j2
       EndianType: little_endian
       CoefficientPath: "{{ DATA }}/crtm/"
       AerosolOption: aerosols_gocart_default
