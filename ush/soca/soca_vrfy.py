@@ -17,7 +17,7 @@ projs = {'North': ccrs.NorthPolarStereo(),
 
 def plotConfig(grid_file=[],
                data_file=[],
-               hist_file=[],
+               layer_file=[],
                variable=[],
                PDY=os.getenv('PDY'),
                cyc=os.getenv('cyc'),
@@ -45,7 +45,7 @@ def plotConfig(grid_file=[],
     config['comout'] = comout  # output directory
     config['grid file'] = grid_file
     config['fields file'] = data_file
-    config['history file'] = hist_file
+    config['layer file'] = layer_file
     config['PDY'] = PDY
     config['cyc'] = cyc
     config['exp'] = exp
@@ -143,10 +143,10 @@ def plotZonalSlice(config):
     lat = float(config['lat'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
-    hist = xr.open_dataset(config['history file'])
+    layer = xr.open_dataset(config['layer file'])
     lat_index = np.argmin(np.array(np.abs(np.squeeze(grid.lat)[:, 0] - lat)))
     slice_data = np.squeeze(np.array(data[variable]))[:, lat_index, :]
-    depth = np.squeeze(np.array(hist['h']))[:, lat_index, :]
+    depth = np.squeeze(np.array(layer['h']))[:, lat_index, :]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
     bounds = config['bounds']
@@ -172,9 +172,9 @@ def plotZonalSlice(config):
     ax.set_ylim(-config['max depth'], 0)
     title = f"{exp} {PDY} {cyc} {variable} lat {int(lat)}"
     ax.set_title(title)
-    dirname = os.path.join(config['comout'], variable)
+    dirname = os.path.join(config['comout'], config['variable'])
     os.makedirs(dirname, exist_ok=True)
-    figname = os.path.join(dirname, variable +
+    figname = os.path.join(dirname, config['variable'] +
                            'zonal_lat_' + str(int(lat)) + '_' + str(int(config['max depth'])) + 'm')
     plt.savefig(figname, bbox_inches='tight', dpi=600)
     plt.close(fig)
@@ -191,10 +191,10 @@ def plotMeridionalSlice(config):
     lon = float(config['lon'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
-    hist = xr.open_dataset(config['history file'])
+    layer = xr.open_dataset(config['layer file'])
     lon_index = np.argmin(np.array(np.abs(np.squeeze(grid.lon)[0, :] - lon)))
     slice_data = np.squeeze(np.array(data[config['variable']]))[:, :, lon_index]
-    depth = np.squeeze(np.array(hist['h']))[:, :, lon_index]
+    depth = np.squeeze(np.array(layer['h']))[:, :, lon_index]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
     bounds = config['bounds']
@@ -216,9 +216,9 @@ def plotMeridionalSlice(config):
     ax.set_ylim(-config['max depth'], 0)
     title = f"{exp} {PDY} {cyc} {variable} lon {int(lon)}"
     ax.set_title(title)
-    dirname = os.path.join(config['comout'], variable)
+    dirname = os.path.join(config['comout'], config['variable'])
     os.makedirs(dirname, exist_ok=True)
-    figname = os.path.join(dirname, variable +
+    figname = os.path.join(dirname, config['variable'] +
                            'meridional_lon_' + str(int(lon)) + '_' + str(int(config['max depth'])) + 'm')
     plt.savefig(figname, bbox_inches='tight', dpi=600)
     plt.close(fig)
