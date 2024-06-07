@@ -25,11 +25,14 @@ bound_to_include: begin
 # Default background time is for 3D applications
 {% if DOIAU %}
 {% set bkg_time_iso = SNOW_WINDOW_BEGIN | to_isotime %}
+{% set bkg_time_fv3 = SNOW_WINDOW_BEGIN | to_fv3time %}
 {% else %}
 {% set bkg_time_iso = current_cycle | to_isotime %}
+{% set bkg_time_fv3 = current_cycle | to_fv3time %}
 {% endif %}
 snow_background_time_iso: "{{ bkg_time_iso }}"
 snow_increment_time_iso: "{{ bkg_time_iso }}"
+snow_increment_time_fv3: "{{ bkg_time_fv3 }}"
 
 
 # Analysis standard things
