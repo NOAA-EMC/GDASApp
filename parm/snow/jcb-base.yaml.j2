@@ -23,7 +23,13 @@ window_length: "{{ SNOW_WINDOW_LENGTH }}"
 bound_to_include: begin
 
 # Default background time is for 3D applications
-atm_background_time_iso: "{{ current_cycle | to_isotime }}"
+{% if DOIAU %}
+{% set bkg_time_iso = SNOW_WINDOW_BEGIN | to_isotime %}
+{% else %}
+{% set bkg_time_iso = current_cycle | to_isotime %}
+{% endif %}
+snow_background_time_iso: "{{ bkg_time_iso }}"
+snow_increment_time_iso: "{{ bkg_time_iso }}"
 
 
 # Analysis standard things
