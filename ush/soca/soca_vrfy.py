@@ -17,7 +17,6 @@ projs = {'North': ccrs.NorthPolarStereo(),
 
 def plotConfig(grid_file=[],
                data_file=[],
-               hist_file=[],
                variable=[],
                PDY=os.getenv('PDY'),
                cyc=os.getenv('cyc'),
@@ -45,7 +44,6 @@ def plotConfig(grid_file=[],
     config['comout'] = comout  # output directory
     config['grid file'] = grid_file
     config['fields file'] = data_file
-    config['history file'] = hist_file
     config['PDY'] = PDY
     config['cyc'] = cyc
     config['exp'] = exp
@@ -66,9 +64,10 @@ def plotConfig(grid_file=[],
     config['proj'] = proj
     return config
 
+
 def plotHorizontalSlice(config):
     """
-    pcolormesh of a horizontal slice of an ocean field
+    Contourf of a horizontal slice of an ocean field
     """
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
@@ -84,37 +83,37 @@ def plotHorizontalSlice(config):
     if variable in ['Temp', 'Salt', 'u', 'v']:
         level = config['levels'][0]
         slice_data = np.squeeze(data[variable])[level, :, :]
-        label_colorbar = variable+' Level '+str(level)
-        figname = os.path.join(dirname, variable+'_Level_'+str(level))
+        label_colorbar = variable + ' Level ' + str(level)
+        figname = os.path.join(dirname, variable + '_Level_' + str(level))
         title = f"{exp} {PDY} {cyc} {variable} Level {level}"
     else:
         slice_data = np.squeeze(data[variable])
         label_colorbar = variable
-        figname = os.path.join(dirname, variable+'_'+config['proj'])
+        figname = os.path.join(dirname, variable + '_' + config['proj'])
         title = f"{exp} {PDY} {cyc} {variable}"
 
     bounds = config['bounds']
 
     fig, ax = plt.subplots(figsize=(8, 5), subplot_kw={'projection': projs[config['proj']]})
-    pcolormesh = plt.pcolormesh(np.squeeze(grid.lon),
-                                np.squeeze(grid.lat),
-                                slice_data,
-                                vmin=bounds[0], vmax=bounds[1],
-                                transform=ccrs.PlateCarree(),
-                                cmap=config['colormap'])
+    plt.contourf(np.squeeze(grid.lon),
+                 np.squeeze(grid.lat),
+                 slice_data,
+                 levels=100,  # Adjust the number of levels as needed
+                 vmin=bounds[0], vmax=bounds[1],
+                 transform=ccrs.PlateCarree(),
+                 cmap=config['colormap'])
 
-    # Add contour lines
-    contour_levels = np.linspace(bounds[0], bounds[1], 10)
+    plt.colorbar(label=label_colorbar, shrink=0.5, orientation='horizontal')
+
+    # Add contour lines with specified linewidths
+    contour_levels = np.linspace(bounds[0], bounds[1], 10)  # Adjust the number of levels as needed
     contours = plt.contour(np.squeeze(grid.lon),
-                            np.squeeze(grid.lat),
-                            slice_data,
-                            levels=contour_levels,
-                            transform=ccrs.PlateCarree(),
-                            colors='black',
-                            linewidths=0.1)
-
-    # Add colorbar for contour lines
-    plt.colorbar(pcolormesh, label=label_colorbar, shrink=0.5, orientation='horizontal')
+                           np.squeeze(grid.lat),
+                           slice_data,
+                           levels=contour_levels,
+                           colors='black',
+                           linewidths=0.1,
+                           transform=ccrs.PlateCarree())
 
     ax.coastlines()  # TODO: make this work on hpc
     ax.set_title(title)
@@ -129,7 +128,7 @@ def plotHorizontalSlice(config):
 
 def plotZonalSlice(config):
     """
-    pcolormesh of a zonal slice of an ocean field
+    Contourf of a zonal slice of an ocean field
     """
     variable = config['variable']
     exp = config['exp']
@@ -138,41 +137,43 @@ def plotZonalSlice(config):
     lat = float(config['lat'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
-    hist = xr.open_dataset(config['history file'])
-    lat_index = np.argmin(np.array(np.abs(np.squeeze(grid.lat)[:, 0]-lat)))
+    lat_index = np.argmin(np.array(np.abs(np.squeeze(grid.lat)[:, 0] - lat)))
     slice_data = np.squeeze(np.array(data[variable]))[:, lat_index, :]
-    depth = np.squeeze(np.array(hist['h']))[:, lat_index, :]
+    depth = np.squeeze(np.array(data['h']))[:, lat_index, :]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
     bounds = config['bounds']
     x = np.tile(np.squeeze(grid.lon[:, lat_index]), (np.shape(depth)[0], 1))
     fig, ax = plt.subplots(figsize=(8, 5))
-    plt.pcolormesh(x, -depth, slice_data,
-                   vmin=bounds[0], vmax=bounds[1],
-                   cmap=config['colormap'])
-    
-    # Add contour lines
-    contour_levels = np.linspace(bounds[0], bounds[1], 10)
+
+    plt.contourf(x, -depth, slice_data,
+                 levels=100,  # Adjust the number of levels as needed
+                 vmin=bounds[0], vmax=bounds[1],
+                 cmap=config['colormap'])
+    plt.colorbar(label=variable + ' Lat ' + str(lat), shrink=0.5, orientation='horizontal')
+
+    # Add contour lines with specified linewidths
+    contour_levels = np.linspace(bounds[0], bounds[1], 10)  # Adjust the number of levels as needed
     contours = plt.contour(x, -depth, slice_data,
                            levels=contour_levels,
                            colors='black',
                            linewidths=0.1)
-    
-    plt.colorbar(label=variable+' Lat '+str(lat), shrink=0.5, orientation='horizontal')
+
+    plt.colorbar(contours, label=variable + ' contours', shrink=0.5, orientation='horizontal')
     ax.set_ylim(-config['max depth'], 0)
     title = f"{exp} {PDY} {cyc} {variable} lat {int(lat)}"
     ax.set_title(title)
     dirname = os.path.join(config['comout'], variable)
     os.makedirs(dirname, exist_ok=True)
     figname = os.path.join(dirname, variable +
-                           'zonal_lat_'+str(int(lat)) + '_' + str(int(config['max depth'])) + 'm')
+                           'zonal_lat_' + str(int(lat)) + '_' + str(int(config['max depth'])) + 'm')
     plt.savefig(figname, bbox_inches='tight', dpi=600)
     plt.close(fig)
 
 
 def plotMeridionalSlice(config):
     """
-    pcolormesh of a Meridional slice of an ocean field
+    Contourf of a Meridional slice of an ocean field
     """
     variable = config['variable']
     exp = config['exp']
@@ -181,34 +182,36 @@ def plotMeridionalSlice(config):
     lon = float(config['lon'])
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
-    hist = xr.open_dataset(config['history file'])
-    lon_index = np.argmin(np.array(np.abs(np.squeeze(grid.lon)[0, :]-lon)))
+    lon_index = np.argmin(np.array(np.abs(np.squeeze(grid.lon)[0, :] - lon)))
     slice_data = np.squeeze(np.array(data[config['variable']]))[:, :, lon_index]
-    depth = np.squeeze(np.array(hist['h']))[:, :, lon_index]
+    depth = np.squeeze(np.array(data['h']))[:, :, lon_index]
     depth[np.where(np.abs(depth) > 10000.0)] = 0.0
     depth = np.cumsum(depth, axis=0)
     bounds = config['bounds']
     y = np.tile(np.squeeze(grid.lat)[:, lon_index], (np.shape(depth)[0], 1))
     fig, ax = plt.subplots(figsize=(8, 5))
-    plt.pcolormesh(y, -depth, slice_data,
-                   vmin=bounds[0], vmax=bounds[1],
-                   cmap=config['colormap'])
-    
-    # Add contour lines
-    contour_levels = np.linspace(bounds[0], bounds[1], 10)
+
+    plt.contourf(y, -depth, slice_data,
+                 levels=100,  # Adjust the number of levels as needed
+                 vmin=bounds[0], vmax=bounds[1],
+                 cmap=config['colormap'])
+    plt.colorbar(label=config['variable'] + ' Lon ' + str(lon), shrink=0.5, orientation='horizontal')
+
+    # Add contour lines with specified linewidths
+    contour_levels = np.linspace(bounds[0], bounds[1], 10)  # Adjust the number of levels as needed
     contours = plt.contour(y, -depth, slice_data,
                            levels=contour_levels,
                            colors='black',
                            linewidths=0.1)
-    
-    plt.colorbar(label=config['variable']+' Lon '+str(lon), shrink=0.5, orientation='horizontal')
+
+    plt.colorbar(contours, label=config['variable'] + ' contours', shrink=0.5, orientation='horizontal')
     ax.set_ylim(-config['max depth'], 0)
     title = f"{exp} {PDY} {cyc} {variable} lon {int(lon)}"
     ax.set_title(title)
     dirname = os.path.join(config['comout'], config['variable'])
     os.makedirs(dirname, exist_ok=True)
     figname = os.path.join(dirname, config['variable'] +
-                           'meridional_lon_'+str(int(lon)) + '_' + str(int(config['max depth'])) + 'm')
+                           'meridional_lon_' + str(int(lon)) + '_' + str(int(config['max depth'])) + 'm')
     plt.savefig(figname, bbox_inches='tight', dpi=600)
     plt.close(fig)
 
