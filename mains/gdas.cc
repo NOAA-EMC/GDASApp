@@ -14,7 +14,7 @@
 #include "ufo/instantiateObsFilterFactory.h"
 #include "ufo/ObsTraits.h"
 
-#include "oops/runs/ConvertStructuredGrid.h"
+#include "oops/runs/ConvertToStructuredGrid.h"
 #include "oops/runs/ConvertState.h"
 #include "oops/runs/HofX4D.h"
 #include "oops/runs/LocalEnsembleDA.h"
