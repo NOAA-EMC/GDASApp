@@ -49,6 +49,9 @@ namespace gdasapp {
       oops::Log::trace() << "NetCDFToIodaConverter::NetCDFToIodaConverter created." << std::endl;
     }
 
+
+
+
     // Method to write out a IODA file (writter called in destructor)
     void writeToIoda() {
       // Extract ioda variables from the provider's files
@@ -60,6 +63,8 @@ namespace gdasapp {
 
       // Read the provider's netcdf file
       gdasapp::obsproc::iodavars::IodaVars iodaVars = providerToIodaVars(inputFilenames_[myrank]);
+
+
       for (int i = myrank + comm_.size(); i < inputFilenames_.size(); i += comm_.size()) {
         iodaVars.append(providerToIodaVars(inputFilenames_[i]));
         oops::Log::info() << " appending: " << inputFilenames_[i] << std::endl;
@@ -199,6 +204,9 @@ namespace gdasapp {
         iodaPreQc.writeWithEigenRegular(iodaVarsAll.preQc_);
       }
     }
+
+
+
 
    private:
     // Virtual method that reads the provider's netcdf file and store the relevant

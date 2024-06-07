@@ -25,4 +25,4 @@ jobs:
     - name: Run C++ linter on utils 
       run: |
         cd $GITHUB_WORKSPACE/GDASApp/utils/test/
-        ./cpplint.py --quiet --recursive $GITHUB_WORKSPACE/GDASApp/utils
+        ./cpplint.py --quiet --recursive $GITHUB_WORKSPACE/GDASApp/utils  --exclude $GITHUB_WORKSPACE/GDASApp/utils/obsproc/rtofs

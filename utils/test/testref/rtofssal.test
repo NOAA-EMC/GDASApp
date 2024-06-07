@@ -1,0 +1,26 @@
+Reading: [rtofsinsitu_2024032600.profile,rtofsinsitu_2024032700.profile]
+seconds since 1970-01-01T00:00:00Z
+obsVal:
+    Min: -999
+    Max: 43.2123
+    Sum: 2.51883e+07
+obsError:
+    Min: 0.0101875
+    Max: 1.74092
+    Sum: 32320.7
+preQc:
+    Min: 0
+    Max: 1042
+    Sum: 3100218
+longitude:
+    Min: -179.959
+    Max: 179.732
+    Sum: -2.48938e+07
+latitude:
+    Min: -70.1871
+    Max: 82.324
+    Sum: 1.25108e+06
+datetime:
+    Min: 1711411200
+    Max: 1711583940
+    Sum: 1247390658115740
