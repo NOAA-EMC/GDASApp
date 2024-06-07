@@ -52,32 +52,18 @@ namespace gdasapp {
       std::vector<eckit::LocalConfiguration> obsSpaces;
       fullConfig.get("obs spaces", obsSpaces);
 
-      // check if the number of workers is correct. Only the serial and 1 diag file
-      // per pe works for now
-      ASSERT(getComm().size() <= 1 || getComm().size() >= obsSpaces.size());
+      // only the serial case works for now.
+      ASSERT(getComm().size() == 1);
 
-      // initialize pe's color and communicator's name
-      int color(0);
-      std::string commNameStr = "comm_idle";
-      if (this->getComm().rank() < obsSpaces.size()) {
-        color = 1;
-        std::string commNameStr = "comm_work";
-      }
-
-      // Create the new communicator ()
-      char const *commName = commNameStr.c_str();
-      eckit::mpi::Comm & commObsSpace = this->getComm().split(color, commName);
-
-      // spread out the work over pes
-      if (color > 0) {
+      for (int i = 0; i < obsSpaces.size(); i++) {
         // get the obs space configuration
-        auto obsSpace = obsSpaces[commObsSpace.rank()];
+        auto obsSpace = obsSpaces[i];
         eckit::LocalConfiguration obsConfig(obsSpace, "obs space");
 
         // get the obs diag file
         std::string obsFile;
         obsConfig.get("obsdatain.engine.obsfile", obsFile);
-        oops::Log::info() << "========= Processing" << obsFile
+        oops::Log::info() << "========= Processing " << obsFile
                           << "          date: " << extractDateFromFilename(obsFile)
                           << std::endl;
 
@@ -86,8 +72,7 @@ namespace gdasapp {
         obsSpace.get("variable", variable);
 
         // read the obs space
-        ioda::ObsSpace ospace(obsConfig, commObsSpace, timeWindow,
-                              oops::mpi::myself());
+        ioda::ObsSpace ospace(obsConfig, getComm(), timeWindow, getComm());
         const size_t nlocs = ospace.nlocs();
         oops::Log::info() << "nlocs =" << nlocs << std::endl;
         std::vector<float> var(nlocs);
@@ -125,7 +110,6 @@ namespace gdasapp {
         // Close the file
         outputFile.close();
       }
-      getComm().barrier();
       return EXIT_SUCCESS;
     }
 

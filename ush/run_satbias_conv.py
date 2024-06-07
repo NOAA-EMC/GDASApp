@@ -16,15 +16,15 @@ predictors = [
     'constant',
     'zenith_angle',
     'cloud_liquid_water',
-    'lapse_rate_order_2',
-    'lapse_rate',
+    'lapseRate_order_2',
+    'lapseRate',
     'cosine_of_latitude_times_orbit_node',
     'sine_of_latitude',
-    'emissivity',
-    'scan_angle_order_4',
-    'scan_angle_order_3',
-    'scan_angle_order_2',
-    'scan_angle',
+    'emissivityJacobian',
+    'sensorScanAngle_order_4',
+    'sensorScanAngle_order_3',
+    'sensorScanAngle_order_2',
+    'sensorScanAngle',
 ]
 
 

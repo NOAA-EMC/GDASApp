@@ -34,6 +34,11 @@ add_test(NAME test_gdasapp_atm_jjob_ens_init
 add_test(NAME test_gdasapp_atm_jjob_ens_run
   COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_run.sh
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+	  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
+
+add_test(NAME test_gdasapp_atm_jjob_ens_inc
+  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_inc.sh
+          ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
 
 add_test(NAME test_gdasapp_atm_jjob_ens_final

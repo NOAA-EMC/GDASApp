@@ -38,6 +38,13 @@ option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
 option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
 
+# Build GDAS-managed JEDI executables
+if( BUILD_GDASBUNDLE )
+  find_package( fv3jedi REQUIRED )
+  find_package( soca REQUIRED )
+  add_subdirectory( mains )
+endif()
+
 # Install utility scripts.
 add_subdirectory(ush)
 

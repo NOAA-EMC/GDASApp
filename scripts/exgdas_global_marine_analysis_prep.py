@@ -53,7 +53,6 @@ def find_clim_ens(input_date):
     """
     Find the clim. ens. that is the closest to the DA window
     """
-    logger.info(f"$$$$$$$$$$$$$$$$$$$$$$$  {os.getenv('SOCA_INPUT_FIX_DIR')}")
     ens_clim_dir = os.path.join(os.getenv('SOCA_INPUT_FIX_DIR'), 'bkgerr', 'ens')
     dirs = glob.glob(os.path.join(ens_clim_dir, '*'))
 
@@ -70,10 +69,6 @@ anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
 nmem_ens = 0
 nmem_ens = int(os.getenv('NMEM_ENS'))
-if os.getenv('DOHYBVAR') == "YES":
-    dohybvar = True
-else:
-    dohybvar = False
 
 # create analysis directories
 diags = os.path.join(anl_dir, 'diags')            # output dir for soca DA obs space
@@ -89,11 +84,24 @@ window_middle = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')
 window_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H') - half_assim_freq
 window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
 window_middle_iso = window_middle.strftime('%Y-%m-%dT%H:%M:%SZ')
-fcst_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')
 RUN = os.getenv('RUN')
 cyc = os.getenv('cyc')
 gcyc = os.getenv('gcyc')
 PDY = os.getenv('PDY')
+
+# hybrid-envar switch
+if os.getenv('DOHYBVAR') == "YES":
+    dohybvar = True
+else:
+    dohybvar = False
+
+# switch for the cycling type
+if os.getenv('DOIAU') == "YES":
+    # forecast initialized at the begining of the DA window
+    fcst_begin = window_begin
+else:
+    # forecast initialized at the middle of the DA window
+    fcst_begin = datetime.strptime(os.getenv('PDY')+os.getenv('cyc'), '%Y%m%d%H')
 
 ################################################################################
 # fetch observations
@@ -327,7 +335,7 @@ s2mconfig.save(socaincr2mom6_yaml)
 ################################################################################
 # Copy initial condition
 
-bkg_utils.stage_ic(bkg_dir, anl_dir, RUN, gcyc)
+bkg_utils.stage_ic(bkg_dir, anl_dir, gcyc)
 
 ################################################################################
 # prepare input.nml

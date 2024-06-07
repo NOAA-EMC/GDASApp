@@ -71,7 +71,6 @@ ecbuild_add_test( TARGET  test_gdasapp_util_ghrsst2ioda
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
 
-
 # copy rtofs binary input files to the testing area
 # and generate the tests
 
@@ -118,7 +117,6 @@ else()
 		message("Error: RTOFS input files not found; no test generated.")
 	endif()
 endif()
-
 
 
 # Test the SMAP to IODA converter

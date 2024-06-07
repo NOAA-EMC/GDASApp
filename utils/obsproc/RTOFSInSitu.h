@@ -9,7 +9,6 @@
 #include "rtofs/util.h"
 
 
-
 namespace gdasapp
 {
 
