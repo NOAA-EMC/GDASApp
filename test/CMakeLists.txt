@@ -4,20 +4,24 @@ set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
 set(SHA "bda76f96666405f72abef56ad4d7d5b93ca153cd7d675853fbdb199096949f8a")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
-# download test files
-file(DOWNLOAD
-  ${URL}/${TAR}
-  ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
-  INACTIVITY_TIMEOUT 30
-  TIMEOUT 90
-  SHOW_PROGRESS
-  STATUS status
-  EXPECTED_HASH SHA256=${SHA}
-  )
-# Extract downloaded tarball.
+IF(DEFINED ENV{GDASAPP_UNIT_TEST_DATA_PATH})
+  set(GDASAPP_UNIT_TEST_DATA_PATH "$ENV{GDASAPP_UNIT_TEST_DATA_PATH}")
+  file(COPY ${GDASAPP_UNIT_TEST_DATA_PATH}/${TAR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+ELSE()
+  # download test files
+  file(DOWNLOAD
+    ${URL}/${TAR}
+    ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
+    INACTIVITY_TIMEOUT 30
+    TIMEOUT 90
+    SHOW_PROGRESS
+    STATUS status
+    EXPECTED_HASH SHA256=${SHA}
+    )
+ENDIF()
+# Extract tarball.
 file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
   DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 # list of test binary/data files to install
 list(APPEND test_data
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/atminc_compress.nc4
@@ -130,19 +134,15 @@ if (WORKFLOW_TESTS)
            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/testrun)
 endif()
 
-# fv3jedi tests
 if (${BUILD_GDASBUNDLE})
-  add_subdirectory(fv3jedi)
-endif()
+  add_subdirectory(fv3jedi)   # fv3jedi tests
+  add_subdirectory(soca)      # soca tests
+  add_subdirectory(snow)      # snow da tests
+  option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
+  if (RUN_GW_CI)
+    add_subdirectory(gw-ci)   # subset of the global-workflow ci tests
+  endif()
 
-# soca tests
-if (${BUILD_GDASBUNDLE})
-  add_subdirectory(soca)
-endif()
-
-# snow da tests
-if (${BUILD_GDASBUNDLE})
-  add_subdirectory(snow)
 endif()
 
 # gdas atm tests

@@ -41,7 +41,7 @@ obs filters:
         variables: [GeoVaLs/mesoscale_representation_error,
                     ObsError/absoluteDynamicTopography]
         coefs: [0.1,
-                0.5]
+                1.0]
 - filter: Domain Check
   where:
   - variable: { name: GeoVaLs/sea_ice_area_fraction}

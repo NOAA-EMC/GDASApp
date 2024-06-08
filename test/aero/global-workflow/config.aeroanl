@@ -18,6 +18,6 @@ export BERROR_DATE="20160630.000000"
 export io_layout_x=1
 export io_layout_y=1
 
-export JEDIEXE=${HOMEgfs}/exec/fv3jedi_var.x
+export JEDIEXE=${HOMEgfs}/exec/gdas.x
 
 echo "END: config.aeroanl"

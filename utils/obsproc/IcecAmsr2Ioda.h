@@ -13,8 +13,10 @@
 
 #include <Eigen/Dense>    // NOLINT
 
+#include "ioda/../../../../core/IodaUtils.h"
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
+
 #include "oops/util/dateFunctions.h"
 
 #include "NetCDFToIodaConverter.h"
@@ -83,22 +85,34 @@ namespace gdasapp {
         int minute =  oneTmpdateTimeVal[i+4];
         int second = static_cast<int>(oneTmpdateTimeVal[i+5]);
 
-        // Replace Fillvalue -9999 to 0 to avoid crash in dateToJulian
+        // Avoid crash util in ioda::convertDtimeToTimeOffsets
         if (year == -9999 || month == -9999 || day == -9999 ||
           hour == -9999 || minute == -9999 || second == -9999) {
           year = month = day = hour = minute = second = 0;
         }
 
-        // Convert a date to Julian date
-        uint64_t julianDate = util::datefunctions::dateToJulian(year, month, day);
+        // Construct iso8601 string format for each dateTime
+        std::stringstream ss;
+        ss << std::setfill('0')
+           << std::setw(4) << year << '-'
+           << std::setw(2) << month << '-'
+           << std::setw(2) << day << 'T'
+           << std::setw(2) << hour << ':'
+           << std::setw(2) << minute << ':'
+           << std::setw(2) << second << 'Z';
+        std::string formattedDateTime = ss.str();
+        util::DateTime dateTime(formattedDateTime);
 
-        // Subtract Julian day from January 1, 1970 (convert to epoch)
-        int daysSinceEpoch = julianDate - 2440588;
+        // Set epoch time for AMSR2_ICEC
+        util::DateTime epochDtime("1970-01-01T00:00:00Z");
 
-        // Calculate seconds only from HHMMSS
-        int secondsOffset = util::datefunctions::hmsToSeconds(hour, minute, second);
+        // Convert Obs DateTime objects to epoch time offsets in seconds
+        // 0000-00-00T00:00:00Z will be converterd to negative seconds
+        int64_t timeOffsets
+           = ioda::convertDtimeToTimeOffsets(epochDtime, {dateTime})[0];
 
-        iodaVars.datetime_(index) = static_cast<int64_t>(daysSinceEpoch*86400.0f) + secondsOffset;
+        // Update datetime Eigen Arrays
+        iodaVars.datetime_(index) = timeOffsets;
         index++;
       }
 
@@ -106,7 +120,7 @@ namespace gdasapp {
       for (int i = 0; i < iodaVars.location_; i++) {
         iodaVars.longitude_(i) = oneDimLonVal[i];
         iodaVars.latitude_(i) = oneDimLatVal[i];
-        iodaVars.obsVal_(i) = static_cast<float>(oneDimObsVal[i]*0.01f);
+        iodaVars.obsVal_(i) = static_cast<float>(oneDimObsVal[i]*0.01);
         iodaVars.obsError_(i) = 0.1;  // Do something for obs error
         iodaVars.preQc_(i) = oneDimFlagsVal[i];
         // Store optional metadata, set ocean basins to -999 for now

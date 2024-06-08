@@ -2,7 +2,7 @@
   "data_format"      : "tesac",
   "subsets"          : "TESAC",
   "source"           : "NCEP data tank",
-  "data_type"        : "marinemammals",
+  "data_type"        : "marinemammal",
   "cycle_type"       : "{{ RUN }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
