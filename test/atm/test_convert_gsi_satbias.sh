@@ -23,7 +23,7 @@ dump: gdas
 gsi_bc_root: $testrun/input
 ufo_bc_root: $testrun/out
 work_root: $testrun/work
-satbias2ioda: $builddir/bin/satbias2ioda.x
+satbias2ioda: $builddir/../bin/satbias2ioda.x
 EOF
 
 # run the script

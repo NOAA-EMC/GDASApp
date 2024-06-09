@@ -41,6 +41,7 @@ def list_all_files(dir_in, dir_out, wc='*', fh_list=[]):
 
 
 com_ocean_analysis = os.getenv('COM_OCEAN_ANALYSIS')
+com_ice_analysis = os.getenv('COM_ICE_ANALYSIS')
 com_ice_restart = os.getenv('COM_ICE_RESTART')
 anl_dir = os.getenv('DATA')
 cdate = os.getenv('CDATE')
@@ -50,6 +51,7 @@ RUN = os.getenv('CDUMP')
 cyc = str(os.getenv('cyc')).zfill(2)
 bcyc = str((int(cyc) - 3) % 24).zfill(2)
 gcyc = str((int(cyc) - 6) % 24).zfill(2)  # previous cycle
+cdatedt = datetime.strptime(cdate, '%Y%m%d%H')
 bdatedt = datetime.strptime(cdate, '%Y%m%d%H') - timedelta(hours=3)
 bdate = datetime.strftime(bdatedt, '%Y-%m-%dT%H:00:00Z')
 mdate = datetime.strftime(datetime.strptime(cdate, '%Y%m%d%H'), '%Y-%m-%dT%H:00:00Z')
@@ -93,9 +95,13 @@ post_file_list.append([os.path.join(anl_dir, 'soca_gridspec.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{bcyc}z.ocngrid.nc')])
 
 # Copy the CICE analysis restart
-cdateice = pdy + '.' + cyc + '0000'
-post_file_list.append([os.path.join(anl_dir, 'Data', f'{cdateice}.cice_model.res.nc'),
-                       os.path.join(com_ice_restart, f'{cdate}.cice_model_anl.res.nc')])
+if os.getenv('DOIAU') == "YES":
+    cice_rst_date = bdatedt.strftime('%Y%m%d.%H%M%S')
+else:
+    cice_rst_date = cdatedt.strftime('%Y%m%d.%H%M%S')
+
+post_file_list.append([os.path.join(anl_dir, 'Data', f'{cice_rst_date}.cice_model.res.nc'),
+                       os.path.join(com_ice_analysis, f'{cice_rst_date}.cice_model_anl.res.nc')])
 
 FileHandler({'copy': post_file_list}).sync()
 
@@ -171,7 +177,7 @@ conf.save(stats_yaml)
 # TODO(GorA): this should be setup properly in the g-w once gdassoca_obsstats is in develop
 gdassoca_obsstats_exec = os.path.join(os.getenv('HOMEgfs'),
                                       'sorc', 'gdas.cd', 'build', 'bin', 'gdassoca_obsstats.x')
-command = f"{os.getenv('launcher')} {gdassoca_obsstats_exec} {stats_yaml}"
+command = f"{os.getenv('launcher')} -n 1 {gdassoca_obsstats_exec} {stats_yaml}"
 logger.info(f"{command}")
 result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 

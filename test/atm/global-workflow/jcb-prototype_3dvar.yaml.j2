@@ -1,0 +1,23 @@
+# Algorithm
+# ---------
+algorithm: 3dvar
+
+# Model things
+# ------------
+background_ensemble_path: ./bkg/mem%mem%
+
+# Observation things
+# ------------------
+observations:
+  - amsua_n19
+  - sondes
+
+# The observation files in the testing are appended using the yyymmddhh similar to JEDI tests
+atm_obsdatain_suffix: ".{{ current_cycle | to_YMDH }}.nc"
+
+# Testing things
+# --------------
+test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/atm/global-workflow/3dvar.ref
+test_output_filename: ./3dvar.out
+test_float_relative_tolerance: 1.0e-3
+test_float_absolute_tolerance: 1.0e-5

@@ -23,9 +23,6 @@ expdir=$bindir/test/atm/global-workflow/testrun/experiments
 rm -rf $comroot $expdir config
 
 # copy config.yaml to local config
-cp -r $configdir config
-cp $srcdir/test/atm/global-workflow/config.atmanl       config/
-cp $srcdir/test/atm/global-workflow/config.atmensanl    config/
 cp $srcdir/test/atm/global-workflow/config.yaml .
 
 # update paths in config.yaml
@@ -45,7 +42,7 @@ $srcdir/../../workflow/setup_expt.py gfs cycled --idate $idate  \
                        --resensatmos $resensatmos \
                        --nens $nens \
                        --pslot $pslot \
-                       --configdir $expdir/../config \
+                       --configdir $configdir \
                        --comroot $comroot \
                        --expdir $expdir \
                        --yaml $expdir/../config.yaml
