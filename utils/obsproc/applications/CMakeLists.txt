@@ -10,6 +10,5 @@ target_compile_features( gdas_obsprovider2ioda.x PUBLIC cxx_std_17)
 
 target_link_libraries( gdas_obsprovider2ioda.x PUBLIC oops ioda NetCDF::NetCDF_CXX)
 
-# to be used when rtofs is a static library:
-# link_directories(${CMAKE_SOURCE_DIR}/rtofs)
-# target_link_libraries( gdas_obsprovider2ioda.x PRIVATE rtofs)
+link_directories(${CMAKE_SOURCE_DIR}/rtofs)
+target_link_libraries(gdas_obsprovider2ioda.x PRIVATE rtofs)
