@@ -108,7 +108,7 @@ def plotHorizontalSlice(config):
                                 cmap=config['colormap'])
 
     # Add colorbar for filled contours
-    cbar = fig.colorbar(contourf_plot, ax=ax, shrink=0.5, orientation='horizontal')
+    cbar = fig.colorbar(contourf_plot, ax=ax, shrink=0.77777775, orientation='horizontal')
     cbar.set_label(label_colorbar)
 
     # Add contour lines with specified linewidths
@@ -166,7 +166,7 @@ def plotZonalSlice(config):
                linewidths=0.1)
 
     # Add colorbar for filled contours
-    cbar = fig.colorbar(contourf_plot, ax=ax, shrink=0.5, orientation='horizontal')
+    cbar = fig.colorbar(contourf_plot, ax=ax, shrink=0.75, orientation='horizontal')
     cbar.set_label(variable + ' Lat ' + str(lat))
 
     ax.set_ylim(-config['max depth'], 0)
@@ -212,6 +212,10 @@ def plotMeridionalSlice(config):
                levels=contour_levels,
                colors='black',
                linewidths=0.1)
+
+    # Add colorbar for filled contours
+    cbar = fig.colorbar(contourf_plot, ax=ax, shrink=0.75, orientation='horizontal')
+    cbar.set_label(variable + ' Lon ' + str(lon))
 
     ax.set_ylim(-config['max depth'], 0)
     title = f"{exp} {PDY} {cyc} {variable} lon {int(lon)}"
