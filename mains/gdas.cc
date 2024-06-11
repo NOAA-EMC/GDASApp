@@ -54,7 +54,7 @@ int runApp(int argc, char** argv, const std::string traits, const std::string ap
   std::map<std::string, std::function<std::unique_ptr<oops::Application>()>> apps;
 
   apps["convertstructuredgrid"] = []() {
-      return std::make_unique<oops::ConvertStructuredGrid<Traits>>();
+      return std::make_unique<oops::ConvertToStructuredGrid<Traits>>();
   };	
   apps["convertstate"] = []() {
       return std::make_unique<oops::ConvertState<Traits>>();
