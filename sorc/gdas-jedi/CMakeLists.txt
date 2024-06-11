@@ -1,13 +1,12 @@
-# ------------------------------------------------------------------------- #
-# Application for the GDAS system             #
-# ------------------------------------------------------------------------- #
+# GDAS JEDI Executable
+# --------------------
 
 # Check for minimim cmake requirement
 cmake_minimum_required( VERSION 3.20 FATAL_ERROR )
 
 find_package(ecbuild 3.5 REQUIRED HINTS ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ecbuild)
 
-project(GDASApp VERSION 1.0.0 LANGUAGES C CXX Fortran )
+project(gdasjedi VERSION 0.0.1 LANGUAGES CXX )
 
 include(GNUInstallDirs)
 enable_testing()
@@ -22,22 +21,15 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
                                                "MinSizeRel" "RelWithDebInfo")
 endif()
 
-# Find dependencies.
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
-
 # Include ecbuild_bundle macro
 include( ecbuild_bundle )
 
 # Enable MPI
 set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
 
-# Handle user options.
-option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
-option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
-option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
+# JEDI Dependencies
+find_package( fv3jedi REQUIRED )
+find_package( soca REQUIRED )
 
-# Install utility scripts.
-add_subdirectory(ush)
-
-# Include testing.
-add_subdirectory(test)
+# Add mains directory
+add_subdirectory( mains )
