@@ -53,7 +53,7 @@ int runApp(int argc, char** argv, const std::string traits, const std::string ap
   // Define a map from app names to lambda functions that create unique_ptr to Applications
   std::map<std::string, std::function<std::unique_ptr<oops::Application>()>> apps;
 
-  apps["convertstructuredgrid"] = []() {
+  apps["converttostructuredgrid"] = []() {
       return std::make_unique<oops::ConvertToStructuredGrid<Traits>>();
   };	
   apps["convertstate"] = []() {
@@ -100,7 +100,7 @@ int main(int argc,  char ** argv) {
   // Check that the application is recognized
   // ----------------------------------------
   const std::set<std::string> validApps = {
-    "convertstructuredgrid",
+    "converttostructuredgrid",
     "convertstate",
     "hofx4d",
     "localensembleda",
