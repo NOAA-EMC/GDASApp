@@ -11,7 +11,15 @@ The one app to rule them all
 git clone --recursive --jobs 8 --branch dev/gdasapp https://github.com/NOAA-EMC/global-workflow.git
 ```
 
-2 - For the most part (boundaries of that terminology is stil TBD), changes to the `global-workflow` related to the `GDASApp` developement will be issed in the `dev/gdasapp` branch.
+2 - For the most part (boundaries of that terminology is stil TBD), changes to the `global-workflow` related to the `GDASApp` developement will be issued in the `dev/gdasapp` branch.
+
+3 - If your feature development involves changes to the global-workflow and the GDASApp, you will have to issue a PR in each repository. The GDASApp PR will have to have the same name in order for the GDASApp CI to build and run the correct branches.
+
+4 - If your work is contained within the `global-workflow` only, you will have to submit a dummy PR in the `GDASApp` with the same branch name.
+To submit a dummy PR, just create a branch with an empty commit:
+```
+git commit --allow-empty -m "Dummy commit to trigger PR"
+```
 
 
 [![Orion](https://github.com/NOAA-EMC/GDASApp/actions/workflows/orion.yaml/badge.svg)](https://github.com/NOAA-EMC/GDASApp/actions/workflows/orion.yaml)
