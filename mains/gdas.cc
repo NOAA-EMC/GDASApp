@@ -100,7 +100,7 @@ int main(int argc,  char ** argv) {
   // Check that the application is recognized
   // ----------------------------------------
   const std::set<std::string> validApps = {
-    "convertstructuredgrid"
+    "convertstructuredgrid",
     "convertstate",
     "hofx4d",
     "localensembleda",
