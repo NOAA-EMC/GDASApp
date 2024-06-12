@@ -76,14 +76,14 @@ for pr in $open_pr_list; do
     # get the fork information
     pr_details=$(gh pr view ${companion_pr} --repo ${workflow_url} --json headRepository,headRepositoryOwner,headRefName)
 
-    # Extract the necessary details
+    # extract the necessary info
     fork_owner=$(echo "$pr_details" | jq -r '.headRepositoryOwner.login')
     fork_name=$(echo "$pr_details" | jq -r '.headRepository.name')
 
     # Construct the fork URL
     workflow_url="https://github.com/$fork_owner/$fork_name.git"
 
-    echo "Fork URL: $fork_url"
+    echo "Fork URL: $workflow_url"
     echo "Branch Name: $gdasapp_branch"
   fi
 
