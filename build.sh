@@ -111,7 +111,7 @@ JEDI_INSTALL_DIR=${JEDI_BUILD_DIR:-$dir_root/jedi_bundle/install}
 if [[ $CHECK_FOR_EXISTING_JEDI_INSTALL == 'YES' ]]; then
 
   echo "Link to an existing JEDI build for the hashes in this repo. Not supported yet."
-  exit(1)
+  exit 1
 
   # 1. Accumulate hashes for JEDI repos
   # 2. Search for the existing install directory
@@ -158,11 +158,15 @@ else
   else
     builddirs="gdas-jedi iodaconv land-imsproc land-jediincr"
     for b in $builddirs; do
+      echo "  Making JEDI bundle component $b ..."
       cd $b
       make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE install
       cd ../
+      echo "  Finished making JEDI bundle component $b ..."
     done
   fi
+  # Perform make install from top level of build directory
+  #make install
   set +x
 
 fi
@@ -170,7 +174,7 @@ fi
 # Step 1b: Put the installed JEDI code in the path
 # ------------------------------------------------
 
-exit(0)
+exit 0
 
 
 # Step 2: Build the GDAS bundle

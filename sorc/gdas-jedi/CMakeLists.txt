@@ -33,3 +33,6 @@ find_package( soca REQUIRED )
 
 # Add mains directory
 add_subdirectory( mains )
+
+# Install project
+ecbuild_install_project( NAME gdasjedi )

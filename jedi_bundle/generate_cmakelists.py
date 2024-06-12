@@ -21,6 +21,12 @@ def generate_bundle():
     with open(os.path.join(root, 'gdas_jedi_bundle.yaml'), 'r') as f:
         bundles = yaml.safe_load(f)
 
+    # Loop over bundles and make sure all items have pre_include and post_include keys
+    bundle_dicts = bundles['jedi_packages']
+    for bundle_dict in bundle_dicts:
+        if 'package_name' not in bundle_dict:
+            bundle_dict['package_name'] = bundle_dict['project']
+
     # Open CMakeLists-JEDI.txt.j2
     with open(os.path.join(root, 'CMakeLists-JEDI.j2.txt'), 'r') as f:
         cmake_template = j2.Template(f.read())

@@ -184,3 +184,8 @@ install*/
 /sorc/gdas-utils
 !/bundle/CMakeLists.txt
 /bundle/*
+!/jedi_bundle/CMakeLists-JEDI.j2.txt
+!/jedi_bundle/CMakeLists.txt
+!/jedi_bundle/gdas_jedi_bundle.yaml
+!/jedi_bundle/generate_cmakelists.py
+/jedi_bundle/*

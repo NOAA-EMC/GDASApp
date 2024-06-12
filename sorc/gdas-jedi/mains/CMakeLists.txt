@@ -5,8 +5,8 @@ ecbuild_add_executable( TARGET  gdas.x
                         LIBS    fv3jedi soca
                       )
 
-# Build the soca executables that are not OOPS-based
-# --------------------------------------------------
+# Build the model executables that are not OOPS-based
+# ---------------------------------------------------
 ecbuild_add_executable( TARGET  gdas_soca_gridgen.x
                         SOURCES ${CMAKE_SOURCE_DIR}/soca/src/mains/GridGen.cc
                         LIBS    soca
