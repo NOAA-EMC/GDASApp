@@ -91,6 +91,8 @@ setenv("GDASAPP_TESTDATA","/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data")
 setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data/test")
 --prepend_path("PATH","/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/intel-18.0.5.274/prod_util/1.2.2/bin")
 
+setenv("JEDI_INSTALL_SEARCH_PATH", "/scratch1/NCEPDEV/da/role.jedipara/JEDI_installs")
+
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)
 whatis("Category: GDASApp")

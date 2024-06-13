@@ -39,9 +39,10 @@ BUILD_VERBOSE="NO"
 CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
 BUILD_JCSDA="NO"
+PREP_JEDI_INSTALL=NO
 COMPILER="${COMPILER:-intel}"
 
-while getopts "p:t:c:hvdfa" opt; do
+while getopts "p:t:c:hvdfap" opt; do
   case $opt in
     p)
       INSTALL_PREFIX=$OPTARG
@@ -63,6 +64,8 @@ while getopts "p:t:c:hvdfa" opt; do
       ;;
     a)
       BUILD_JCSDA=YES
+    p)
+      PREP_JEDI_INSTALL=YES
       ;;
     h|\?|:)
       usage
@@ -110,6 +113,93 @@ if [[ $BUILD_TARGET == 'hera' ]]; then
   mkdir -p $dir_root/bundle/test-data-release/
   ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
   ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
+fi
+
+# The below logic is used to search for an existing JEDI install, put it in
+# the path and reduce the main bundle to not build JEDI pacakges.
+# -------------------------------------------------------------------------
+
+# If there is an environment variable called SEARCH_FOR_JEDI_INSTALL then add -DBUILD_JEDI=OFF to CMAKE_OPTS
+if [[ -n ${SEARCH_FOR_JEDI_INSTALL:-} ]]; then
+
+  # Not supported yet so just exit
+  echo "SEARCH_FOR_JEDI_INSTALL is not supported yet"
+  exit 1
+
+  # Check that the environment variable JEDI_INSTALL_SEARCH_PATH is set to something and if not
+  # message and abort
+  if [[ -z ${JEDI_INSTALL_SEARCH_PATH:-} ]]; then
+    echo "SEARCH_FOR_JEDI_INSTALL is set but JEDI_INSTALL_SEARCH_PATH is not set for this machine"
+    echo "Unse SEARCH_FOR_JEDI_INSTALL and run again."
+    exit 1
+  fi
+
+  # Get JEDI big hash
+  JEDI_BIG_HASH=$(python get_big_jedi_hash.py)
+
+  # Check for existence of $JEDI_INSTALL_SEARCH_PATH/$JEDI_BIG_HASH/bin/gdas.x
+  # If found then add the JEDI install directories to the path and turn off the building of JEDI
+  if [[ -f $JEDI_INSTALL_SEARCH_PATH/$JEDI_BIG_HASH/bin/gdas.x ]]; then
+
+    # Add the JEDI install directories to the path
+    req_libraries = "oops fv3jedi soca"
+    for lib in $req_libraries; do
+      export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$JEDI_INSTALL_SEARCH_PATH/$JEDI_BIG_HASH/lib64/$lib/cmake
+    done
+
+    # Turn off the building of JEDI
+    CMAKE_OPTS+=" -DBUILD_JEDI=OFF"
+
+    # Link everything in $JEDI_INSTALL_PATH/bin to build/bin
+    # This is needed because g-w will look for executables in build/bin
+    # Temporary until g-w would see these exes in the path.
+    for f in $JEDI_INSTALL_SEARCH_PATH/$JEDI_BIG_HASH/bin/*; do
+      ln -sf $f $BUILD_DIR/bin/
+    done
+
+  fi
+
+fi
+
+# The below logic is used to for preparing a JEDI install for the current
+# set of hashes that JEDI is set against.
+# -------------------------------------------------------------------------
+
+# If PREP_JEDI_INSTALL is YES then build everything in bundle
+if [[ $PREP_JEDI_INSTALL == 'YES' ]]; then
+
+  # Assert that SEARCH_FOR_JEDI_INSTALL is not set
+  if [[ -n ${SEARCH_FOR_JEDI_INSTALL:-} ]]; then
+    echo "SEARCH_FOR_JEDI_INSTALL is set but PREP_JEDI_INSTALL is also set"
+    echo "Unset SEARCH_FOR_JEDI_INSTALL and run again."
+    exit 1
+  fi
+
+  # Assert that JEDI_INSTALL_SEARCH_PATH is set
+  if [[ -z ${JEDI_INSTALL_SEARCH_PATH:-} ]]; then
+    echo "PREP_JEDI_INSTALL is set but JEDI_INSTALL_SEARCH_PATH is not set for this machine"
+    echo "Set JEDI_INSTALL_SEARCH_PATH and run again or turn off PREP_JEDI_INSTALL"
+    exit 1
+  fi
+
+  # Get JEDI big hash
+  JEDI_BIG_HASH=$(python get_big_jedi_hash.py)
+
+  # Assert that $JEDI_INSTALL_SEARCH_PATH/$JEDI_BIG_HASH/bin/gdas.x does not already exist
+  if [[ -f $JEDI_INSTALL_SEARCH_PATH/$JEDI_BIG_HASH/bin/gdas.x ]]; then
+    echo "$JEDI_INSTALL_SEARCH_PATH/$JEDI_BIG_HASH/bin/gdas.x already exists so no need to prepare"
+    echo "a JEDI install with this set of hashes"
+    exit 1
+  fi
+
+  # Turn off the build of the GDAS-JEDI repos
+  CMAKE_OPTS+=" -BUILD_GDAS_JEDI=OFF"
+
+  # Set BUILD_JCSDA to on (need to make the whole package so the whole package can be installed)
+  BUILD_JCSDA=YES
+
+  # Set the prefix to $JEDI_INSTALL_SEARCH_PATH/$JEDI_BIG_HASH
+  INSTALL_PREFIX=$JEDI_INSTALL_SEARCH_PATH/$JEDI_BIG_HASH
 fi
 
 # Configure
