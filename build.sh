@@ -164,4 +164,12 @@ if [[ -n ${INSTALL_PREFIX:-} ]]; then
   set +x
 fi
 
+# If we were searching for a JEDI build we should link all the executables in that install to the
+# gdas build directory. global-workflow tasks look for the executables there.
+if [[ -n ${SEARCH_FOR_JEDI_INSTALL:-} ]]; then
+  # This is a placeholder for a future feature
+  echo "ERROR: SEARCH_FOR_JEDI_INSTALL is not yet supported"
+  exit 1
+fi
+
 exit 0
