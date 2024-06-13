@@ -300,13 +300,11 @@ namespace gdasapp {
       }
 
       // Update the layer thickness halo
-      //xbFs["hocn"].haloExchange();
       nodeColumns.haloExchange(xbFs["hocn"]);
 
       // Loop through variables
       for (auto & var : configD.socaVars.variables()) {
         // Update the halo
-        //xbFs[var].haloExchange();
         nodeColumns.haloExchange(xbFs[var]);
 
         // Skip the layer thickness variable
@@ -363,9 +361,7 @@ namespace gdasapp {
           // Horizontal averaging
           for (int iter = 0; iter < configD.niterHoriz; ++iter) {
             // Update the halo points
-            //bkgErrFs[var].haloExchange();
             nodeColumns.haloExchange(bkgErrFs[var]);
-
             auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
 
             // Loops through nodes and levels
