@@ -112,6 +112,17 @@ if [[ $BUILD_TARGET == 'hera' ]]; then
   ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
 fi
 
+# Before configuring, look for an exising JEDI install for this platform and set of JEDI hashes.
+# If found add the the library paths (containning cmake files) to the path.
+
+# Check if environement variable SEARCH_FOR_JEDI_INSTALL is set and exit if it is since this is not
+# yet supported
+if [[ -n ${SEARCH_FOR_JEDI_INSTALL:-} ]]; then
+  # This is a placeholder for a future feature
+  echo "ERROR: SEARCH_FOR_JEDI_INSTALL is not yet supported"
+  exit 1
+fi
+
 # Configure
 echo "Configuring ..."
 set -x
@@ -128,9 +139,15 @@ if [[ $BUILD_JCSDA == 'YES' ]]; then
 else
   builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils"
   for b in $builddirs; do
-    cd $b
-    make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
-    cd ../
+    # Check that b exists and if it does perform the build
+    if [ -d $b ]; then
+      cd $b
+      make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
+      cd ../
+    else
+      echo "WARNING: $b was not part of the bundle, skipping build. Usually this happens because it was found in the path"
+    fi
+
   done
 fi
 set +x
@@ -139,6 +156,10 @@ set +x
 if [[ -n ${INSTALL_PREFIX:-} ]]; then
   echo "Installing ..."
   set -x
+  # TODO: this does not simply copy files to install. It will build the rest of the bundle that was
+  # not built above but with one processor, and then install it. We might need to think about what
+  # we actually want here. We could install individual packages but that would leave lots of
+  # libraries out. Install potentially only makes sense with $BUILD_JCSDA
   make install
   set +x
 fi
