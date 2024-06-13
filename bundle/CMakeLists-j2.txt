@@ -1,0 +1,110 @@
+# ------------------------------------------------------------------------- #
+# JEDI GDAS Bundle             #
+# ------------------------------------------------------------------------- #
+
+# Check for minimim cmake requirement
+cmake_minimum_required( VERSION 3.20 FATAL_ERROR )
+
+find_package(ecbuild 3.5 REQUIRED HINTS ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ecbuild)
+
+project(GDAS-bundle VERSION 1.0.0 LANGUAGES C CXX Fortran )
+
+include(GNUInstallDirs)
+enable_testing()
+
+# Build type.
+if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
+  message(STATUS "Setting build type to 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE
+      "Release"
+      CACHE STRING "Choose the type of build." FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+                                               "MinSizeRel" "RelWithDebInfo")
+endif()
+
+# Find dependencies.
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+# Include ecbuild_bundle macro
+include( ecbuild_bundle )
+
+# Enable MPI
+set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
+
+# Handle user options.
+option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
+option(BUILD_JEDI "Build JEDI repositories in the bundle" ON)
+option(BUILD_GDAS_JEDI "Build JEDI repositories in the bundle" ON)
+option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
+option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
+
+# Initialize bundle
+# -----------------
+ecbuild_bundle_initialize()
+
+# --------------------------------------------------------------------------------------------------
+
+  ######################################
+  #                                    #
+  # BEING AUTOMATIC GENERATION SECTION #
+  #                                    #
+  ######################################
+
+# Build bundle source code.
+if(BUILD_GDASBUNDLE)
+
+  # Add JEDI packages to the bundle
+  if (BUILD_JEDI)
+    {% for jedi_package in jedi_packages %}
+    # {{jedi_package.project}}
+    {%- if jedi_package.pre_include %}
+    {%- for pre_include_line in jedi_package.pre_include %}
+    {{pre_include_line}}
+    {%- endfor %}
+    {%- endif %}
+    {%- if jedi_package.location == "GIT" %}
+    ecbuild_bundle(PROJECT {{jedi_package.project}} GIT "{{jedi_package.path}}" TAG {{jedi_package.min_version}} )
+    {%- elif jedi_package.location == "SOURCE" %}
+    ecbuild_bundle(PROJECT {{jedi_package.project}} SOURCE "{{jedi_package.path}}")
+    {%- endif %}
+    {%- if jedi_package.post_include %}
+    {%- for post_include_line in jedi_package.post_include %}
+    {{post_include_line}}
+    {%- endfor %}
+    {%- endif %}
+    {% endfor %}
+  endif (BUILD_JEDI)
+
+  # Add GDAS-JEDI packages to the bundle
+  if (BUILD_GDAS_JEDI)
+    {% for gdas_package in gdas_packages %}
+    # {{gdas_package.project}}
+    ecbuild_bundle( PROJECT {{gdas_package.project}} SOURCE "{{gdas_package.path}}")
+    {% endfor %}
+  endif (BUILD_GDAS_JEDI)
+
+  endif (BUILD_GDASBUNDLE)
+
+  ####################################
+  #                                  #
+  # END AUTOMATIC GENERATION SECTION #
+  #                                  #
+  ####################################
+
+  # --------------------------------------------------------------------------------------------------
+
+  # Clone test data
+  #----------------
+  option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
+  if(CLONE_JCSDADATA)
+    set(JCSDA_DATA_ROOT "$ENV{GDASAPP_TESTDATA}/jcsda")
+    ecbuild_bundle( PROJECT ioda-data SOURCE "${JCSDA_DATA_ROOT}/ioda-data" )
+    ecbuild_bundle( PROJECT ufo-data SOURCE "${JCSDA_DATA_ROOT}/ufo-data" )
+    ecbuild_bundle( PROJECT fv3-jedi-data SOURCE "${JCSDA_DATA_ROOT}/fv3-jedi-data" )
+  endif(CLONE_JCSDADATA)
+
+endif(BUILD_GDASBUNDLE)
+
+# Finalize bundle
+# ---------------
+ecbuild_bundle_finalize()
