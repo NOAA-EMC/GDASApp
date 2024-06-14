@@ -5,4 +5,4 @@ export SLURM_ACCOUNT=da-cpu
 export SALLOC_ACCOUNT=$SLURM_ACCOUNT
 export SBATCH_ACCOUNT=$SLURM_ACCOUNT
 export SLURM_QOS=debug
-export PATH=$PATH:/scratch1/NCEPDEV/da/role.jedipara/CI/gh/gh_2.46.0_linux_amd64/bin
+export PATH=$PATH:/home/role.jedipara/bin
