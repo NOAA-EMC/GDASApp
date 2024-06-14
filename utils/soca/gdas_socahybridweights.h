@@ -27,34 +27,31 @@ namespace gdasapp {
   // Create a simple mask based on a Gaussian function
   void gaussianMask(const soca::Geometry & geom, soca::Increment & gaussIncr,
                     eckit::LocalConfiguration conf) {
-      // Get the 2D grid
-      std::vector<double> lats;
-      std::vector<double> lons;
-      bool halo = true;
-      geom.latlon(lats, lons, halo);
+    // Get the 2D grid
+    auto lonlat = atlas::array::make_view<double, 2>(geom.functionSpace().lonlat());
 
-      // Prepare fieldset from increment
-      atlas::FieldSet gaussIncrFs;
-      gaussIncr.toFieldSet(gaussIncrFs);
+    // Prepare fieldset from increment
+    atlas::FieldSet gaussIncrFs;
+    gaussIncr.toFieldSet(gaussIncrFs);
 
-      // Get the GC99 parameters from config
-      double amp = conf.getDouble("amplitude");
-      double scale = conf.getDouble("length scale");
-      const atlas::PointLonLat p0(conf.getDouble("lon"), conf.getDouble("lat"));
+    // Get the GC99 parameters from config
+    double amp = conf.getDouble("amplitude");
+    double scale = conf.getDouble("length scale");
+    const atlas::PointLonLat p0(conf.getDouble("lon"), conf.getDouble("lat"));
 
-      // Recompute weights
-      for (auto & field : gaussIncrFs) {
-        oops::Log::info() << "---------- Field name: " << field.name() << std::endl;
-        auto view = atlas::array::make_view<double, 2>(field);
-        for (int jnode = 0; jnode < field.shape(0); ++jnode) {
-          atlas::PointLonLat p1(lons[jnode], lats[jnode]);
-          double d = atlas::util::Earth::distance(p0, p1)/1000.0;
-          for (int jlevel = 0; jlevel < field.shape(1); ++jlevel) {
-            view(jnode, jlevel) += amp * oops::gc99(d/scale);
-          }
+    // Recompute weights
+    for (auto & field : gaussIncrFs) {
+      oops::Log::info() << "---------- Field name: " << field.name() << std::endl;
+      auto view = atlas::array::make_view<double, 2>(field);
+      for (int jnode = 0; jnode < field.shape(0); ++jnode) {
+        atlas::PointLonLat p1(lonlat(jnode, 0), lonlat(jnode, 1));
+        double d = atlas::util::Earth::distance(p0, p1)/1000.0;
+        for (int jlevel = 0; jlevel < field.shape(1); ++jlevel) {
+          view(jnode, jlevel) += amp * oops::gc99(d/scale);
         }
       }
-      gaussIncr.fromFieldSet(gaussIncrFs);
+    }
+    gaussIncr.fromFieldSet(gaussIncrFs);
   }
 
   class SocaHybridWeights : public oops::Application {

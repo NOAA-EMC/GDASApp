@@ -1,0 +1,14 @@
+provider: VIIRSAOD
+window begin: {{ window_begin | to_isotime }}
+window end: {{ window_end | to_isotime }}
+binning:
+  cressman radius: 100
+  stride: 132
+  min number of obs: 500
+variable: aerosolOpticalDepth
+output file: {{ DATA }}/{{ OPREFIX }}viirs_{{sensor}}.{{ current_cycle | to_YMDH }}.nc4
+input files: {{ input_files }}
+thinning:
+  threshold: 0
+channel: 4
+preqc: 0
