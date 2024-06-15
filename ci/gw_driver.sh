@@ -61,8 +61,6 @@ workflow_url="https://github.com/NOAA-EMC/global-workflow.git"
 for pr in $open_pr_list; do
   gh pr edit $pr --remove-label $CI_LABEL --add-label ${CI_LABEL}-Running
   echo "Processing Pull Request #${pr}"
-  mkdir -p $GDAS_CI_ROOT/workflow/PR/$pr
-  cd $GDAS_CI_ROOT/workflow/PR/$pr
 
   # get the branch name used for the PR
   gdasapp_branch=$(gh pr view $pr --json headRefName -q ".headRefName")
@@ -84,6 +82,13 @@ for pr in $open_pr_list; do
     echo "Branch Name: $gdasapp_branch"
   fi
 
+  # create PR specific directory
+  if [ -d $GDAS_CI_ROOT/workflow/PR/$pr ]; then
+      rm -rf $GDAS_CI_ROOT/workflow/PR/$pr
+  fi
+  mkdir -p $GDAS_CI_ROOT/workflow/PR/$pr
+  cd $GDAS_CI_ROOT/workflow/PR/$pr
+  
   # clone global workflow develop branch
   git clone --recursive --jobs 8 --branch dev/gdasapp $workflow_url
 
