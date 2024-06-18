@@ -60,11 +60,32 @@ repo_url="https://github.com/NOAA-EMC/GDASApp.git"
 for pr in $open_pr_list; do
   gh pr edit $pr --remove-label $CI_LABEL --add-label ${CI_LABEL}-Running
   echo "Processing Pull Request #${pr}"
+
+  # get the branch name used for the PR
+  gdasapp_branch=$(gh pr view $pr --json headRefName -q ".headRefName")
+  
+  # get the fork information
+  pr_details=$(gh pr view $pr --repo ${repo_url} --json headRepository,headRepositoryOwner,headRefName)
+
+  # extract the necessary info
+  fork_owner=$(gh pr view $pr --repo ${repo_url} --json headRepositoryOwner --jq '.headRepositoryOwner.login')
+  fork_name=$(gh pr view $pr --repo ${repo_url} --json headRepository --jq '.headRepository.name')
+
+  # construct the fork URL
+  gdasapp_url="https://github.com/$fork_owner/${fork_name}.git"
+  
+  echo "Fork URL: $gdasapp_url"
+  echo "Branch Name: $gdasapp_branch"
+
+  # create PR specific directory
+  if [ -d $GDAS_CI_ROOT/PR/$pr ]; then
+      rm -rf $GDAS_CI_ROOT/PR/$pr
+  fi
   mkdir -p $GDAS_CI_ROOT/PR/$pr
   cd $GDAS_CI_ROOT/PR/$pr
 
   # clone copy of repo
-  git clone --recursive $repo_url
+  git clone --recursive --jobs 8 --branch $gdasapp_branch $gdasapp_url
   cd GDASApp
 
   # checkout pull request
@@ -94,11 +115,11 @@ for pr in $open_pr_list; do
   # run build and testing command
   $my_dir/run_ci.sh -d $GDAS_CI_ROOT/PR/$pr/GDASApp -o $GDAS_CI_ROOT/PR/$pr/output_${commit}
   ci_status=$?
-  gh pr comment $pr --body-file $GDAS_CI_ROOT/PR/$pr/output_${commit}
+  gh pr comment $pr --repo ${repo_url} --body-file $GDAS_CI_ROOT/PR/$pr/output_${commit}
   if [ $ci_status -eq 0 ]; then
-    gh pr edit $pr --remove-label ${CI_LABEL}-Running --add-label ${CI_LABEL}-Passed
+    gh pr edit $pr --repo ${repo_url} --remove-label ${CI_LABEL}-Running --add-label ${CI_LABEL}-Passed
   else
-    gh pr edit $pr --remove-label ${CI_LABEL}-Running --add-label ${CI_LABEL}-Failed
+    gh pr edit $pr --repo ${repo_url} --remove-label ${CI_LABEL}-Running --add-label ${CI_LABEL}-Failed
   fi
 done
 
