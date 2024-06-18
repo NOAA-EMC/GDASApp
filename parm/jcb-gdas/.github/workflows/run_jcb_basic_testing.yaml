@@ -21,11 +21,6 @@ jobs:
       JCB_REPO: https://github.com/NOAA-EMC/jcb.git
 
     steps:
-    - name: Checkout application client repository
-      uses: actions/checkout@v3
-      with:
-        submodules: true
-
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -33,7 +28,7 @@ jobs:
 
     - name: Add repo url to the environment
       run: |
-        JCB_APP_REPO="https://github.com/${{ github.repository }}"
+        JCB_APP_REPO="${{ github.repository }}"
         echo "JCB_APP_REPO=${JCB_APP_REPO}" >> $GITHUB_ENV
 
     - name: Determine the name of the client branch
@@ -63,11 +58,21 @@ jobs:
         git config --global core.hooksPath empty_hooks
         git clone --branch ${{ env.JCB_BRANCH }} --recursive $JCB_REPO jcb_repo
 
-    - name: Switch the application branch to match the action
+    - name: Clone the clients
       run: |
         cd jcb_repo
-        cd $(python get_submod_path.py $JCB_APP_REPO)
-        git checkout ${{ env.JCB_APP_BRANCH }}
+        pip install pyyaml
+        ./jcb_client_init.py
+
+        # If all the branches are found then at this point everything should be good since
+        # jcb_client_init will check out the correct branches. If not then the app branch needs to
+        # be checked out explicitly.
+        if [ "${{ env.JCB_BRANCH }}" != "${{ env.JCB_APP_BRANCH }}" ]; then
+          echo "Checking out branch ${{ env.JCB_APP_BRANCH }} for ${{ env.JCB_APP_REPO }}"
+          app_path=$(python jcb_client_path.py $JCB_APP_REPO)
+          cd $app_path
+          git checkout ${{ env.JCB_APP_BRANCH }}
+        fi
 
     - name: Install dependencies
       run: |
