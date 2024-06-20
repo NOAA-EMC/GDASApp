@@ -10,23 +10,12 @@ add_test(NAME test_gdasapp_soca_prep
       ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/wxflow/src:$ENV{PYTHONPATH}")
 
 # Identify machine
-set(MACHINE "container")
-IF (IS_DIRECTORY /work2)
-  IF (IS_DIRECTORY /apps/other)
-    set(MACHINE "hercules")
-    set(PARTITION "hercules")
-  ELSE()
-    set(MACHINE "orion")
-    set(PARTITION "orion")
-  ENDIF()
-ENDIF()
-IF (IS_DIRECTORY /scratch2/NCEPDEV/)
-  set(MACHINE "hera")
+if (MACHINE STREQUAL "hercules")
+  set(PARTITION "hercules")
+ELSEIF (MACHINE STREQUAL "orion")
+  set(PARTITION "orion")
+ELSEIF (MACHINE STREQUAL "hera")
   set(PARTITION "hera")
-ENDIF()
-
-IF (IS_DIRECTORY /lfs/h2/)
-   set(MACHINE "wcoss2")
 ENDIF()
 
 # Clean-up
