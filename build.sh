@@ -102,6 +102,11 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_BUILD}"
 
+# check if tier-2 testing needs to be activated
+if [[ $GDAS_TIER2_TESTING == 'ON' ]]; then
+  CMAKE_OPTS+=" -DGDAS_TIER2_TESTING=ON"
+fi
+
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [[ $BUILD_TARGET == 'hera' ]]; then
   if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi

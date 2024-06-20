@@ -37,6 +37,14 @@ echo '```' >> $outfile
 echo "Start: $(date) on $(hostname)" >> $outfile
 echo "---------------------------------------------------" >> $outfile
 # ==============================================================================
+# check if the PR needs tier-2 testing to be activated
+cd $repodir/sorc/gdas.cd
+pr_number=$(gh pr view --json number -q ".head.ref=='$branch_name'" | jq -r '.[0].number')
+if gh pr view $pr_number --json labels -q ".[].name=='${GDAS_CI_HOST}-GW-RT-tier2'" >/dev/null; then
+  echo "Triggering tier-2 testing"
+  export GDAS_TIER2_TESTING="ON"
+fi
+
 # run build and link as part of the workflow
 export WORKFLOW_BUILD="ON"
 cd $repodir/sorc
