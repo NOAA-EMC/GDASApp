@@ -61,11 +61,36 @@ workflow_url="https://github.com/NOAA-EMC/global-workflow.git"
 for pr in $open_pr_list; do
   gh pr edit $pr --remove-label $CI_LABEL --add-label ${CI_LABEL}-Running
   echo "Processing Pull Request #${pr}"
+
+  # get the branch name used for the PR
+  gdasapp_branch=$(gh pr view $pr --json headRefName -q ".headRefName")
+
+  # check for a companion PR in the global-workflow
+  companion_pr_exists=$(gh pr list --repo ${workflow_url} --head ${gdasapp_branch} --state open)
+  if [ -n "$companion_pr_exists" ]; then
+    # get the PR number
+    companion_pr=$(echo "$companion_pr_exists" | awk '{print $1;}')
+
+    # extract the necessary info
+    fork_owner=$(gh pr view $companion_pr --repo $workflow_url --json headRepositoryOwner --jq '.headRepositoryOwner.login')
+    fork_name=$(gh pr view $companion_pr --repo $workflow_url --json headRepository --jq '.headRepository.name')
+
+    # Construct the fork URL
+    workflow_url="https://github.com/$fork_owner/$fork_name.git"
+
+    echo "Fork URL: $workflow_url"
+    echo "Branch Name: $gdasapp_branch"
+  fi
+
+  # create PR specific directory
+  if [ -d $GDAS_CI_ROOT/workflow/PR/$pr ]; then
+      rm -rf $GDAS_CI_ROOT/workflow/PR/$pr
+  fi
   mkdir -p $GDAS_CI_ROOT/workflow/PR/$pr
   cd $GDAS_CI_ROOT/workflow/PR/$pr
-
+  
   # clone global workflow develop branch
-  git clone --recursive $workflow_url
+  git clone --recursive --jobs 8 --branch dev/gdasapp $workflow_url
 
   # checkout pull request
   cd $GDAS_CI_ROOT/workflow/PR/$pr/global-workflow/sorc/gdas.cd
