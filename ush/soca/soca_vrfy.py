@@ -110,7 +110,7 @@ def plotHorizontalSlice(config):
 
     # Add colorbar for filled contours
     cbar = fig.colorbar(contourf_plot, ax=ax, shrink=0.75, orientation='horizontal')
-    cbar.set_label(label_colorbar) 
+    cbar.set_label(label_colorbar)
 
     # Add contour lines with specified linewidths
     contour_levels = np.linspace(bounds[0], bounds[1], 5)
