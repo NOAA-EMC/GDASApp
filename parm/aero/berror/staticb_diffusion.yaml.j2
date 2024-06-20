@@ -14,10 +14,10 @@ saber central block:
                        mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air,
                        mass_fraction_of_sea_salt004_in_air]
       horizontal:
-        filepath: Data/diffusion/diffusion_hz
+        filepath: "{{ DATA }}/berror/diffusion_hz"
       vertical:
         levels: {{ npz_ges }} 
-        filepath: Data/diffusion/diffusion_vt 
+        filepath: "{{ DATA }}/berror/diffusion_vt" 
 saber outer blocks:
 - saber block name: StdDev
   read:
