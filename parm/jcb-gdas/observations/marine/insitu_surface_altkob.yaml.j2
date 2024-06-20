@@ -1,0 +1,18 @@
+- obs space:
+    name: insitu_surface_altkob
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdatain_path}}/{{marine_obsdatain_prefix}}{{observation_from_jcb}}{{marine_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdataout_path}}/{{marine_obsdataout_prefix}}{{observation_from_jcb}}{{marine_obsdataout_suffix}}"
+    simulated variables: [seaSurfaceTemperature]
+    io pool:
+      max pool size: 1
+  obs operator:
+    name: Identity
+    observation alias file: obsop_name_map.yaml
+  obs error:
+    covariance model: diagonal

@@ -1,0 +1,92 @@
+covariance model: hybrid
+components:
+- covariance:
+    covariance model: SABER
+    saber central block:
+      saber block name: EXPLICIT_DIFFUSION
+      active variables: [tocn, socn, ssh, cicen]
+      geometry:
+        mom6_input_nml: mom_input.nml
+        fields metadata: ./fields_metadata.yaml
+      group mapping:
+      - name: ocean
+        variables:
+        - tocn
+        - socn
+        - ssh
+      - name: ice
+        variables:
+        - cicen
+      read:
+        groups:
+        - name: ocean
+          horizontal:
+            filename: hz_ocean.nc
+          vertical:
+            filename: vt_ocean.nc
+        - name: ice
+          horizontal:
+            filename: hz_ice.nc
+
+    saber outer blocks:
+    - saber block name: StdDev
+      read:
+        model file:
+          date: '{{marine_window_middle}}'
+          basename: ./
+          ocn_filename: 'ocn.bkgerr_stddev.incr.{{marine_window_middle}}.nc'
+          ice_filename: 'ice.bkgerr_stddev.incr.{{marine_window_middle}}.nc'
+          read_from_file: 3
+
+    linear variable change:
+      input variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
+      output variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
+      linear variable changes:
+      - linear variable change name: BalanceSOCA
+
+  weight:
+    value: 1.00
+
+- covariance:
+    covariance model: ensemble
+    members from template:
+      template:
+        read_from_file: 1
+        date: '{{marine_window_middle}}'
+        basename: ./static_ens/
+        ocn_filename: 'ocn.pert.steric.%mem%.nc'
+        ice_filename: 'ice.%mem%.nc'
+        state variables: [tocn, socn, ssh, uocn, vocn, cicen, hicen, hsnon]
+      pattern: '%mem%'
+      nmembers: '{{marine_number_ensemble_members}}'
+    localization:
+      localization method: SABER
+      saber central block:
+        saber block name: EXPLICIT_DIFFUSION
+        active variables: [tocn, socn, ssh]
+        geometry:
+          mom6_input_nml: mom_input.nml
+          fields metadata: ./fields_metadata.yaml
+        group mapping:
+        - name: ocean
+          variables: [tocn, socn, ssh, uocn, vocn]
+        - name: ice
+          variables: [cicen, hicen, hsnon]
+        read:
+          groups:
+          - name: ocean
+            multivariate strategy: duplicated
+            horizontal:
+              filename: hz_ocean.nc
+            vertical:
+              strategy: duplicated
+          - name: ice
+            horizontal:
+              filename: hz_ice.nc
+
+  weight:
+    read_from_file: 3
+    basename: ./
+    ocn_filename: 'ocn.ens_weights.incr.{{marine_window_middle}}.nc'
+    ice_filename: 'ice.ens_weights.incr.{{marine_window_middle}}.nc'
+    date: '{{marine_window_middle}}'

@@ -10,11 +10,11 @@ background geometry:
     field table filename: ./fv3jedi/field_table
   akbk: ./fv3jedi/akbk.nc4
   layout:
-  - {{ layout_x }}
-  - {{ layout_y }}
-  npx: {{ npx_ges }}
-  npy: {{ npy_ges }}
-  npz: {{ npz_ges }}
+  - {{ atmosphere_layout_x }}
+  - {{ atmosphere_layout_y }}
+  npx: {{ atmosphere_npx_ges }}
+  npy: {{ atmosphere_npy_ges }}
+  npz: {{ atmosphere_npz_ges }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 jedi increment geometry:
   fms initialization:
@@ -22,11 +22,11 @@ jedi increment geometry:
     field table filename: ./fv3jedi/field_table
   akbk: ./fv3jedi/akbk.nc4
   layout:
-  - {{ layout_x }}
-  - {{ layout_y }}
-  npx: {{ npx_anl }}
-  npy: {{ npy_anl }}
-  npz: {{ npz_anl }}
+  - {{ atmosphere_layout_x }}
+  - {{ atmosphere_layout_y }}
+  npx: {{ atmosphere_npx_anl }}
+  npy: {{ atmosphere_npy_anl }}
+  npz: {{ atmosphere_npz_anl }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
 fv3 increment geometry:
   fms initialization:
@@ -34,17 +34,17 @@ fv3 increment geometry:
     field table filename: ./fv3jedi/field_table
   akbk: ./fv3jedi/akbk.nc4
   layout:
-  - {{ layout_x }}
-  - {{ layout_y }}
-  npx: {{ npx_anl }}
-  npy: {{ npy_anl }}
-  npz: {{ npz_anl }}
+  - {{ atmosphere_layout_x }}
+  - {{ atmosphere_layout_y }}
+  npx: {{ atmosphere_npx_anl }}
+  npy: {{ atmosphere_npy_anl }}
+  npz: {{ atmosphere_npz_anl }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
 members:
 - background input:
     datapath: ./bkg
     filetype: fms restart
-    datetime: "{{ atm_background_time_iso }}"
+    datetime: "{{ atmosphere_background_time_iso }}"
     filename is datetime templated: true
     filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
     filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"

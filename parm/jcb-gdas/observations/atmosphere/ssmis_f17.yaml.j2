@@ -7,11 +7,11 @@
     obsdatain:
       engine:
         type: H5File
-        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}{{atm_obsdatain_suffix}}"
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
     obsdataout:
       engine:
         type: H5File
-        obsfile: "{{atm_obsdataout_path}}/{{atm_obsdataout_prefix}}{{observation_from_jcb}}{{atm_obsdataout_suffix}}"
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     simulated variables: [brightness_temperature]
     channels: {{ get_satellite_variable(observation_from_jcb, "simulated") }}
 
@@ -28,8 +28,8 @@
   # Observation Bias Correction (VarBC)
   # -----------------------------------
   obs bias:
-    input file: "{{atm_obsbiasin_path}}/{{atm_obsbiasin_prefix}}{{observation_from_jcb}}{{atm_obsbiasin_suffix}}"
-    output file: "{{atm_obsbiasout_path}}/{{atm_obsbiasout_prefix}}{{observation_from_jcb}}{{atm_obsbiasout_suffix}}"
+    input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_suffix}}"
+    output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiasout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasout_suffix}}"
     variational bc:
       predictors:
       - name: constant
@@ -46,7 +46,7 @@
       - name: sine_of_latitude
       - name: lapse_rate
         order: 2
-        tlapse: &{{observation_from_jcb}}_tlapse "{{atm_obsbiasin_path}}/{{atm_obstlapsein_prefix}}{{observation_from_jcb}}{{atm_obstlapsein_suffix}}"
+        tlapse: &{{observation_from_jcb}}_tlapse "{{atmosphere_obsbiasin_path}}/{{atmosphere_obstlapsein_prefix}}{{observation_from_jcb}}{{atmosphere_obstlapsein_suffix}}"
       - name: lapse_rate
         tlapse: *{{observation_from_jcb}}_tlapse
       - name: emissivity
@@ -170,7 +170,7 @@
   # GeoVaLs for Driving Observation Operators (testing mode)
   # --------------------------------------------------------
   geovals:
-    filename: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atm_obsdatain_suffix}}"
+    filename: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atmosphere_obsdatain_suffix}}"
 
   # Passed benchmark for UFO testing
   # --------------------------------

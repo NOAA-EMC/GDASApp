@@ -10,11 +10,11 @@
     obsdatain:
       engine:
         type: H5File
-        obsfile: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}{{atm_obsdatain_suffix}}"
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
     obsdataout:
       engine:
         type: H5File
-        obsfile: "{{atm_obsdataout_path}}/{{atm_obsdataout_prefix}}{{observation_from_jcb}}{{atm_obsdataout_suffix}}"
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
     simulated variables: [windEastward, windNorthward]
@@ -53,7 +53,7 @@
     Transform: SurfaceWindScalingPressure
     SkipWhenNoObs: false
 
-  # Calculate error inflation factor for duplicate observations 
+  # Calculate error inflation factor for duplicate observations
   #- filter: Variable Assignment
   #  assignments:
   #  - name: ObsErrorFactorDuplicateCheck/windEastward
@@ -227,7 +227,7 @@
 
   # GSI setupw routine QC
   # Reject any ob Type [240–260] when pressure greater than 950 mb.
-  # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa    
+  # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
   - filter: Bounds Check
     filter variables:
     - name: windEastward
@@ -287,8 +287,8 @@
 
   # Multiple satellite platforms, reject when pressure is more than 50 mb above tropopause.
   # CLEARED: minvalue is rejecting <, not <= as per a Perform Action, so threshold is unchanged
-  # Notes (eliu): This tropopause check reject too many obs; probably due to tropopause pressure estimation 
-  #               Turn this check off for now. 
+  # Notes (eliu): This tropopause check reject too many obs; probably due to tropopause pressure estimation
+  #               Turn this check off for now.
   #               Need to check if troposphere pressure was implemented correctly in fv3-jed
   - filter: Difference Check
     filter variables:
@@ -401,7 +401,7 @@
   # configuration, see: https://github.com/NOAA-EMC/global-workflow/blob/d5ae3328fa4041b177357b1133f6b92e81c859d7/scripts/exglobal_atmos_analysis.sh#L750
   # This setting activates Line 1229 of setupw.f90 to scale ratio_errors by 0.8, which is applied in
   # the denominator of the final ob-error, so 1/0.8 = 1.25 factor of ob-error inflation.
-  # 
+  #
   # If this nvqc functionality were to be switched off (i.e. if variational qc were to be turned off),
   # you would want to remove this last inflation filter.
   #- filter: Perform Action
@@ -422,7 +422,7 @@
   #  action:
   #    name: inflate error
   #    inflation factor: 1.25
-  # End of Filters 
+  # End of Filters
 
   # Observation Localizations (LocalEnsembleDA)
   # -------------------------------------------
@@ -435,7 +435,7 @@
   # GeoVaLs for Driving Observation Operators (testing mode)
   # --------------------------------------------------------
   geovals:
-    filename: "{{atm_obsdatain_path}}/{{atm_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atm_obsdatain_suffix}}"
+    filename: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atmosphere_obsdatain_suffix}}"
 
   # Passed benchmark for UFO testing
   # --------------------------------

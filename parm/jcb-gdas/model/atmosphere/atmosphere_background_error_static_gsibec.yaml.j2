@@ -1,0 +1,25 @@
+covariance model: SABER
+full inverse: true
+saber central block:
+  saber block name: gsi static covariance
+  read:
+    gsi akbk: {{atmosphere_fv3jedi_files_path}}/akbk.nc4
+    gsi error covariance file: {{atmosphere_gsibec_path}}/gsi-coeffs-gfs-global.nc4
+    gsi berror namelist file: {{atmosphere_gsibec_path}}/gfs_gsi_global.nml
+    processor layout x direction: {{atmosphere_layout_gsib_x}}
+    processor layout y direction: {{atmosphere_layout_gsib_y}}
+    debugging mode: false
+saber outer blocks:
+- saber block name: gsi interpolation to model grid
+  gsi akbk: {{atmosphere_fv3jedi_files_path}}/akbk.nc4
+  gsi error covariance file: {{atmosphere_gsibec_path}}/gsi-coeffs-gfs-global.nc4
+  gsi berror namelist file: {{atmosphere_gsibec_path}}/gfs_gsi_global.nml
+  processor layout x direction: {{atmosphere_layout_gsib_x}}
+  processor layout y direction: {{atmosphere_layout_gsib_y}}
+  debugging mode: false
+linear variable change:
+  linear variable change name: Control2Analysis
+  input variables: [eastward_wind,northward_wind,air_temperature,surface_pressure,
+                           specific_humidity,cloud_liquid_ice,cloud_liquid_water,
+                           mole_fraction_of_ozone_in_air]
+  output variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]

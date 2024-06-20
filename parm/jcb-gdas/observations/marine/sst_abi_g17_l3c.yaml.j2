@@ -1,0 +1,56 @@
+- obs space:
+    name: {{observation_from_jcb}}
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdatain_path}}/{{marine_obsdatain_prefix}}{{observation_from_jcb}}{{marine_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdataout_path}}/{{marine_obsdataout_prefix}}{{observation_from_jcb}}{{marine_obsdataout_suffix}}"
+    simulated variables: [seaSurfaceTemperature]
+    io pool:
+      max pool size: 1
+  get values:
+    time interpolation: linear
+  obs operator:
+    name: Identity
+    observation alias file: obsop_name_map.yaml
+  obs error:
+    covariance model: diagonal
+  obs filters:
+  - filter: Domain Check
+    where:
+    - variable: {name: GeoVaLs/sea_area_fraction}
+      minvalue: 0.9
+  - filter: Bounds Check
+    minvalue: 1.0
+    maxvalue: 41.0
+  - filter: Background Check
+    absolute threshold: 5.0
+  - filter: Domain Check
+    where:
+    - variable: {name: ObsError/seaSurfaceTemperature}
+      minvalue: 1.0e-8
+  - filter: Domain Check
+    where:
+    - variable: { name: GeoVaLs/sea_ice_area_fraction}
+      maxvalue: 1.0e-5
+  - filter: Domain Check
+    where:
+    - variable: {name: GeoVaLs/sea_surface_temperature}
+      minvalue: -1.0
+  #- filter: Domain Check
+  #  where:
+  #  - variable: {name: GeoVaLs/distance_from_coast}
+  #    minvalue: 100e3
+  - filter: Perform Action
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables:
+          - ObsError/seaSurfaceTemperature
+          coefs:
+          - 0.05

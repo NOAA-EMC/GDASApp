@@ -1,0 +1,18 @@
+- obs space:
+    name: insitu_surface_trkob_salinity
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdatain_path}}/{{marine_obsdatain_prefix}}{{observation_from_jcb}}{{marine_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdataout_path}}/{{marine_obsdataout_prefix}}{{observation_from_jcb}}{{marine_obsdataout_suffix}}"
+    simulated variables: [seaSurfaceSalinity]
+  get values:
+    time interpolation: linear
+  obs operator:
+    name: Identity
+    observation alias file: ./obsop_name_map.yaml
+  obs error:
+    covariance model: diagonal

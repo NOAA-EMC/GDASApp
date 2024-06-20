@@ -1,0 +1,22 @@
+- obs space:
+    name: insitu_profile_xbtctd
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdatain_path}}/{{marine_obsdatain_prefix}}{{observation_from_jcb}}{{marine_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdataout_path}}/{{marine_obsdataout_prefix}}{{observation_from_jcb}}{{marine_obsdataout_suffix}}"
+    simulated variables: [waterTemperature]
+    observed variables: [waterTemperature]
+    io pool:
+      max pool size: 1
+  obs operator:
+    name: Composite
+    components:
+    - name: InsituTemperature
+      variables:
+      - name: waterTemperature
+  obs error:
+    covariance model: diagonal

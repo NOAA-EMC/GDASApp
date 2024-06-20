@@ -1,0 +1,17 @@
+- ninner: 4
+  gradient norm reduction: 1e-10
+  test: on
+  geometry:
+    fms initialization:
+      namelist filename: {{atmosphere_fv3jedi_files_path}}/fmsmpp.nml
+      field table filename: {{atmosphere_fv3jedi_files_path}}/field_table
+    akbk: {{atmosphere_fv3jedi_files_path}}/akbk.nc4
+    layout:
+    - {{atmosphere_layout_x}}
+    - {{atmosphere_layout_y}}
+    npx: {{atmosphere_npx_anl}}
+    npy: {{atmosphere_npy_anl}}
+    npz: {{atmosphere_npz_anl}}
+    field metadata override: {{atmosphere_fv3jedi_files_path}}/fv3jedi_fieldmetadata_restart.yaml
+  diagnostics:
+    departures: bkgmob1

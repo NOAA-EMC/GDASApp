@@ -10,11 +10,11 @@ background geometry:
     field table filename: ./fv3jedi/field_table
   akbk: ./fv3jedi/akbk.nc4
   layout:
-  - {{ layout_x }}
-  - {{ layout_y }}
-  npx: {{ npx_ges }}
-  npy: {{ npy_ges }}
-  npz: {{ npz_ges }}
+  - {{ atmosphere_layout_x }}
+  - {{ atmosphere_layout_y }}
+  npx: {{ atmosphere_npx_ges }}
+  npy: {{ atmosphere_npy_ges }}
+  npz: {{ atmosphere_npz_ges }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 jedi increment geometry:
   fms initialization:
@@ -22,11 +22,11 @@ jedi increment geometry:
     field table filename: ./fv3jedi/field_table
   akbk: ./fv3jedi/akbk.nc4
   layout:
-  - {{ layout_x }}
-  - {{ layout_y }}
-  npx: {{ npx_ges }}
-  npy: {{ npy_ges }}
-  npz: {{ npz_ges }}
+  - {{ atmosphere_layout_x }}
+  - {{ atmosphere_layout_y }}
+  npx: {{ atmosphere_npx_ges }}
+  npy: {{ atmosphere_npy_ges }}
+  npz: {{ atmosphere_npz_ges }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 fv3 increment geometry:
   fms initialization:
@@ -34,25 +34,25 @@ fv3 increment geometry:
     field table filename: ./fv3jedi/field_table
   akbk: ./fv3jedi/akbk.nc4
   layout:
-  - {{ layout_x }}
-  - {{ layout_y }}
-  npx: {{ npx_ges }}
-  npy: {{ npy_ges }}
-  npz: {{ npz_ges }}
+  - {{ atmosphere_layout_x }}
+  - {{ atmosphere_layout_y }}
+  npx: {{ atmosphere_npx_ges }}
+  npy: {{ atmosphere_npy_ges }}
+  npz: {{ atmosphere_npz_ges }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
 members from template:
   template:
     background input:
       datapath: ./bkg/mem%mem%
       filetype: fms restart
-      datetime: '{{ atm_background_time_iso }}'
+      datetime: '{{ atmosphere_background_time_iso }}'
       filename is datetime templated: true
       filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
       filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
       filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
       filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
       filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
-      state variables: *bkgvars    
+      state variables: *bkgvars
     jedi increment input:
       filetype: cube sphere history
       filename: ./anl/mem%mem%/atminc.%yyyy%mm%dd.%hh%MM%ssz.nc4
@@ -62,5 +62,5 @@ members from template:
       gridtype: gaussian
       filename: ./anl/mem%mem%/atminc.
   pattern: '%mem%'
-  nmembers: {{ number_ensemble_members }}
+  nmembers: {{ atmosphere_number_ensemble_members }}
   zero padding: 3
