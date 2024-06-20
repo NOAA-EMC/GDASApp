@@ -1,0 +1,33 @@
+covariance model: SABER
+saber central block:
+  saber block name: diffusion 
+  read:
+    groups:
+    - variables: [mass_fraction_of_sulfate_in_air,
+                       mass_fraction_of_hydrophobic_black_carbon_in_air,
+                       mass_fraction_of_hydrophilic_black_carbon_in_air,
+                       mass_fraction_of_hydrophobic_organic_carbon_in_air,
+                       mass_fraction_of_hydrophilic_organic_carbon_in_air,
+                       mass_fraction_of_dust001_in_air, mass_fraction_of_dust002_in_air,
+                       mass_fraction_of_dust003_in_air, mass_fraction_of_dust004_in_air,
+                       mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air,
+                       mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air,
+                       mass_fraction_of_sea_salt004_in_air]
+      horizontal:
+        filepath: "{{ DATA }}/berror/diffusion_hz"
+      vertical:
+        levels: {{ npz_ges }} 
+        filepath: "{{ DATA }}/berror/diffusion_vt" 
+saber outer blocks:
+- saber block name: StdDev
+  read:
+    model file:
+      datetime: '{{ current_cycle | to_isotime }}' 
+      set datetime on read: true
+      filetype: fms restart
+      psinfile: true
+      datapath: "{{ DATA }}/berror"
+      filename_core: '{{ current_cycle | to_fv3time }}.stddev.fv_core.res.nc'
+      filename_trcr: '{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.nc'
+      filename_cplr: '{{ current_cycle | to_fv3time }}.stddev.coupler.res'
+      date: '{{ current_cycle | to_isotime }}' 
