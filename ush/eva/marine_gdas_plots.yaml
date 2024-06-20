@@ -94,7 +94,7 @@ graphics:
           data:
             variable: experiment::OmBQC::${variable}
             @CHANNELKEY@
-          markersize: 2
+          markersize: 1
           label: '$(variable)'
           colorbar: true
           # below may need to be edited/removed
@@ -208,7 +208,7 @@ graphics:
           y:
             variable: experiment::hofx0::${variable}
           @CHANNELKEY@
-          markersize: 5
+          markersize: 1
           color: 'black'
           label: 'JEDI h(x) versus obs (all obs)'
         - type: Scatter
@@ -217,6 +217,6 @@ graphics:
           y:
             variable: experiment::hofxQC::${variable}
           @CHANNELKEY@
-          markersize: 5
+          markersize: 1
           color: 'red'
           label: 'JEDI h(x) versus obs (passed QC in JEDI)'
