@@ -64,7 +64,6 @@ def find_clim_ens(input_date):
 
 logger.info(f"---------------- Setup runtime environement")
 
-comin_obs = os.getenv('COMIN_OBS')
 anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
 nmem_ens = 0
