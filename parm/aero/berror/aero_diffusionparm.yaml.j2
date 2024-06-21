@@ -3,6 +3,9 @@ geometry:
     namelist filename: ./fv3jedi/fmsmpp.nml
     field table filename: ./fv3jedi/field_table
   akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ layout_x }}
+  - {{ layout_y }}
   npx: {{ npx_ges }}
   npy: {{ npy_ges }}
   npz: {{ npz_ges }}
