@@ -37,11 +37,11 @@ background error:
       - horizontal:
           fixed value: {{ horiz_len }} 
         write:
-          filepath: ./diffusion_hz
+          filepath: "{{ DATA }}/berror/diffusion_hz" 
       - vertical:
           levels: {{ npz_ges }} 
           fixed value: {{ fixed_val }} 
           as gaussian: true
         write:
-          filepath: ./diffusion_vt
+          filepath: "{{ DATA }}/berror/diffusion_hz" 
 
