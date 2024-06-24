@@ -7,7 +7,7 @@ add_test(NAME test_gdasapp_soca_prep
          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw)
        set_tests_properties(test_gdasapp_soca_prep
       PROPERTIES
-      ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/wxflow/src:$ENV{PYTHONPATH}")
+      ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/wxflow:$ENV{PYTHONPATH}")
 
 # Identify machine
 if (MACHINE STREQUAL "hercules")
