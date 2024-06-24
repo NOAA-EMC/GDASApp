@@ -94,8 +94,8 @@ class JobCard:
         self.f.write(f"export gcyc='{gcyc}'\n")
         self.f.write(f"export CDATE='{CDATE}'\n")
 
-        # Add to python environement
-        self.f.write("PYTHONPATH=${HOMEgfs}/ush/python/wxflow/src:${PYTHONPATH}\n")
+        # Add to python environment
+        self.f.write("PYTHONPATH=${HOMEgfs}/ush/python:${PYTHONPATH}\n")
 
     def setupexpt(self):
         """
@@ -222,7 +222,6 @@ class JobCard:
                        'ROTDIR': self.rotdir,
                        'EXPDIRS': self.expdirs}
 
-        # needed for this ctest at least until R2D2 goes away
         if 'JGLOBAL_PREP_OCEAN_OBS' in self.config['jjobs']:
             dmpdir = self.config['setup_expt config']['prepoceanobs']['DMPDIR']
             var2replace['DMPDIR'] = dmpdir
