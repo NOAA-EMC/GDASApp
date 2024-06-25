@@ -72,9 +72,6 @@ load("py-xarray/2023.7.0")
 load("py-f90nml/1.4.3")
 load("py-pip/23.1.2")
 
--- hack for wxflow
---prepend_path("PYTHONPATH", "/contrib/Wei.Huang/data/glopara/data/gdasapp-wxflow-20240307/src/wxflow")
-
 setenv("CC","mpiicc")
 setenv("FC","mpiifort")
 setenv("CXX","mpiicpc")

@@ -31,7 +31,7 @@ source "${HOMEgfs}/ush/preamble.sh"
 source "${HOMEgfs}/parm/config/gfs/config.com"
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow"
+wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
