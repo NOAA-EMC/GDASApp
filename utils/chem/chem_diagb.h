@@ -233,10 +233,48 @@ namespace gdasapp {
       double rescale;
       fullConfig.get("rescale", rescale);
       util::multiplyFieldSet(bkgErrFs, rescale);
+      
+      // Initialize and read the climatological background error standard deviation field
+      oops::Log::info() << "====================== read climatological bkg error std dev" << std::endl;
+      fv3jedi::Increment ClimBkgErrorStdDev(geom, chemVars, cycleDate);
+      ClimBkgErrorStdDev.zero();
+      const eckit::LocalConfiguration ClimBkgErrorStdDevConfig(fullConfig, "Climate background error stddev");
+      ClimBkgErrorStdDev.read(ClimBkgErrorStdDevConfig);
+      atlas::FieldSet ClimBkgErrorStdDevFs;
+      ClimBkgErrorStdDev.toFieldSet(ClimBkgErrorStdDevFs);
+      oops::Log::info() << "Climatological Background Error Std Dev:" << std::endl;
+      oops::Log::info() << ClimBkgErrorStdDev << std::endl;
 
-      // We want to write with fv3jedi, not atlas: Syncronize with fv3jedi Increment
-      bkgErr.fromFieldSet(bkgErrFs);
+      // Combine diagb and climatological background errors
+      fv3jedi::Increment stddev_hybrid(geom, chemVars, cycleDate);
+      stddev_hybrid.zero();
+      double alpha_diagb = 0.5;
+      const double rr = alpha_diagb;
 
+      // Create a FieldSet for the hybrid standard deviation
+      atlas::FieldSet stddev_hybridFs;
+      stddev_hybrid.toFieldSet(stddev_hybridFs);
+
+      for (const auto &var : chemVars.variables()) {
+      // Create views of the FieldSets
+        auto bkgErrView = atlas::array::make_view<double, 2>(bkgErrFs[var]);
+        auto ClimBkgErrView = atlas::array::make_view<double, 2>(ClimBkgErrorStdDevFs[var]);
+        auto stddevHybridView = atlas::array::make_view<double, 2>(stddev_hybridFs[var]);
+
+        // Combine the background error and climatological background error
+        for (atlas::idx_t jnode = 0; jnode < stddev_hybridFs[var].shape(0); ++jnode) {
+          for (atlas::idx_t level = 0; level < stddev_hybridFs[var].shape(1); ++level) {
+            stddevHybridView(jnode, level) = (1.0 - rr) * bkgErrView(jnode, level) + rr * ClimBkgErrView(jnode, level);
+          }
+        }
+      }
+
+      // Convert the hybrid FieldSet back to Increment
+      stddev_hybrid.fromFieldSet(stddev_hybridFs);
+
+      // Use the hybrid increment
+      bkgErr = stddev_hybrid; 
+      
       // Save the background error
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
       bkgErr.write(bkgErrorConfig);
