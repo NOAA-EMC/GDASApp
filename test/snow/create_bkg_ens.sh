@@ -16,7 +16,7 @@ GYMD=$(date +%Y%m%d -d "$YY$MM$DD $HH - 6 hours")
 GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 
 WORKDIR=$project_binary_dir/test/snow/create_jedi_ens
-RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model_data/atmos/restart
+RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model/atmos/restart
 GFSv17=NO
 DAtype=letkfoi_snow
 
