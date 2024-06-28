@@ -233,6 +233,13 @@ namespace gdasapp {
       double rescale;
       fullConfig.get("rescale", rescale);
       util::multiplyFieldSet(bkgErrFs, rescale);
+
+      // Hybrid alpha coefficient
+      // std = alpha*diagb_std + (1-alpha)*Climat_std
+      double alpha_diagb; 
+      double rr; 
+      fullConfig.get("alpha_diagb", alpha_diagb); 
+      oops::Log::info() << "alpha_diagb:" << alpha_diagb; 
       
       // Initialize and read the climatological background error standard deviation field
       oops::Log::info() << "====================== read climatological bkg error std dev" << std::endl;
@@ -242,38 +249,42 @@ namespace gdasapp {
       ClimBkgErrorStdDev.read(ClimBkgErrorStdDevConfig);
       atlas::FieldSet ClimBkgErrorStdDevFs;
       ClimBkgErrorStdDev.toFieldSet(ClimBkgErrorStdDevFs);
-      oops::Log::info() << "Climatological Background Error Std Dev:" << std::endl;
-      oops::Log::info() << ClimBkgErrorStdDev << std::endl;
+//      oops::Log::info() << "Climatological Background Error Std Dev:" << std::endl;
+//      oops::Log::info() << ClimBkgErrorStdDev << std::endl;
+
+     // Replace negative values with zeros
+     for (const auto &var : chemVars.variables()) {
+        auto ClimBkgErrView = atlas::array::make_view<double, 2>(ClimBkgErrorStdDevFs[var]);
+        for (atlas::idx_t jnode = 0; jnode < ClimBkgErrorStdDevFs[var].shape(0); ++jnode) {
+          for (atlas::idx_t level = 0; level < ClimBkgErrorStdDevFs[var].shape(1); ++level) {
+            ClimBkgErrView(jnode, level) = std::max(ClimBkgErrView(jnode, level), 0.0);
+          }
+        }
+      }
+ 
 
       // Combine diagb and climatological background errors
       fv3jedi::Increment stddev_hybrid(geom, chemVars, cycleDate);
       stddev_hybrid.zero();
-      double alpha_diagb = 0.5;
-      const double rr = alpha_diagb;
+      rr = alpha_diagb;
 
-      // Create a FieldSet for the hybrid standard deviation
-      atlas::FieldSet stddev_hybridFs;
-      stddev_hybrid.toFieldSet(stddev_hybridFs);
+      // Convert FieldSets to States for accumulation
+      fv3jedi::State bkgErrState(geom, chemVars, cycleDate);
+      bkgErrState.fromFieldSet(bkgErrFs);
 
-      for (const auto &var : chemVars.variables()) {
-      // Create views of the FieldSets
-        auto bkgErrView = atlas::array::make_view<double, 2>(bkgErrFs[var]);
-        auto ClimBkgErrView = atlas::array::make_view<double, 2>(ClimBkgErrorStdDevFs[var]);
-        auto stddevHybridView = atlas::array::make_view<double, 2>(stddev_hybridFs[var]);
+      fv3jedi::State ClimBkgErrorStdDevState(geom, chemVars, cycleDate);
+      ClimBkgErrorStdDevState.fromFieldSet(ClimBkgErrorStdDevFs);
 
-        // Combine the background error and climatological background error
-        for (atlas::idx_t jnode = 0; jnode < stddev_hybridFs[var].shape(0); ++jnode) {
-          for (atlas::idx_t level = 0; level < stddev_hybridFs[var].shape(1); ++level) {
-            stddevHybridView(jnode, level) = (1.0 - rr) * bkgErrView(jnode, level) + rr * ClimBkgErrView(jnode, level);
-          }
-        }
-      }
 
-      // Convert the hybrid FieldSet back to Increment
-      stddev_hybrid.fromFieldSet(stddev_hybridFs);
 
+      // Accumulate the fields with the given weights
+      stddev_hybrid.accumul(alpha_diagb, bkgErrState);
+      stddev_hybrid.accumul(1.0 - alpha_diagb, ClimBkgErrorStdDevState);
       // Use the hybrid increment
       bkgErr = stddev_hybrid; 
+
+      oops::Log::info() << "Climatological Background Error Std Dev:" << std::endl;
+      oops::Log::info() << bkgErr << std::endl;
       
       // Save the background error
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
