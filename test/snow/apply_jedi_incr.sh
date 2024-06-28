@@ -16,7 +16,7 @@ GHR=$(date +%H -d "$YY$MM$DD $HH - 6 hours")
 
 EXECDIR=$project_source_dir/build/bin
 WORKDIR=$project_binary_dir/test/snow/apply_jedi_incr
-RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model_data/atmos/restart
+RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model/atmos/restart
 INCDIR=$GDASAPP_TESTDATA/snow/C${RES}
 
 export TPATH="$GDASAPP_TESTDATA/snow/C${RES}"

@@ -36,14 +36,14 @@ copy:
 # This must be done in a namespace to overcome jinja scoping
 #  Variables set inside of a for loop are lost at the end of the loop
 #  unless they are part of a namespace
-{% set com_prev_ocn = namespace(COM_OCEAN_HISTORY_MEM = COM_OCEAN_HISTORY_TMPL) %}
-{% set com_prev_ice = namespace(COM_ICE_HISTORY_MEM = COM_ICE_HISTORY_TMPL) %}
+{% set com_prev_ocn = namespace(COMIN_OCEAN_HISTORY_MEM = COM_OCEAN_HISTORY_TMPL) %}
+{% set com_prev_ice = namespace(COMIN_ICE_HISTORY_MEM = COM_ICE_HISTORY_TMPL) %}
 {% for key in tmpl_dict.keys() %}
 {% set search_term = '${' + key + '}' %}
 {% set replace_term = tmpl_dict[key] %}
-{% set com_prev_ocn.COM_OCEAN_HISTORY_MEM = com_prev_ocn.COM_OCEAN_HISTORY_MEM.replace(search_term, replace_term) %}
-{% set com_prev_ice.COM_ICE_HISTORY_MEM = com_prev_ice.COM_ICE_HISTORY_MEM.replace(search_term, replace_term) %}
+{% set com_prev_ocn.COMIN_OCEAN_HISTORY_MEM = com_prev_ocn.COMIN_OCEAN_HISTORY_MEM.replace(search_term, replace_term) %}
+{% set com_prev_ice.COMIN_ICE_HISTORY_MEM = com_prev_ice.COMIN_ICE_HISTORY_MEM.replace(search_term, replace_term) %}
 {% endfor %}
-- ["{{ com_prev_ocn.COM_OCEAN_HISTORY_MEM }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc"]
-- ["{{ com_prev_ice.COM_ICE_HISTORY_MEM }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc"]
+- ["{{ com_prev_ocn.COMIN_OCEAN_HISTORY_MEM }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc"]
+- ["{{ com_prev_ice.COMIN_ICE_HISTORY_MEM }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/ens/mem{{ '%03d' % mem }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc"]
 {% endfor %}
