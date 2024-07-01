@@ -83,7 +83,7 @@ field metadata:
 - long name: vfrac
   io name: veg
 
-- long name: totalSnowDepth
+- long name: totalSnowDepthMeters
   io name: snod
 
 - long name: surface_eastward_wind
