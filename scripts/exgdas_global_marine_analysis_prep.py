@@ -213,21 +213,24 @@ os.environ['ENS_SIZE'] = str(nmem_ens)
 logger.info(f"---------------- Generate JEDI yaml files")
 
 ################################################################################
-# copy yaml for grid generation
+# Stage the soca grid
+src = os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), 'soca_gridspec.nc')
+dst = os.path.join(anl_dir, 'soca_gridspec.nc')
+FileHandler({'copy': [[src, dst]]}).sync()
 
-logger.info(f"---------------- generate gridgen.yaml")
-gridgen_yaml_src = os.path.realpath(os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'))
-gridgen_yaml_dst = os.path.realpath(os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
-FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
+#logger.info(f"---------------- generate gridgen.yaml")
+#gridgen_yaml_src = os.path.realpath(os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'))
+#gridgen_yaml_dst = os.path.realpath(os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
+#FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
 
 ################################################################################
 # generate the YAML file for the post processing of the clim. ens. B
 berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
 
-logger.info(f"---------------- generate soca_diagb.yaml")
-conf = parse_j2yaml(path=os.path.join(berror_yaml_dir, 'soca_diagb.yaml.j2'),
-                    data=envconfig)
-conf.save(os.path.join(anl_dir, 'soca_diagb.yaml'))
+#logger.info(f"---------------- generate soca_diagb.yaml")
+#conf = parse_j2yaml(path=os.path.join(berror_yaml_dir, 'soca_diagb.yaml.j2'),
+#                    data=envconfig)
+#conf.save(os.path.join(anl_dir, 'soca_diagb.yaml'))
 
 logger.info(f"---------------- generate soca_ensb.yaml")
 berr_yaml = os.path.join(anl_dir, 'soca_ensb.yaml')
@@ -246,42 +249,59 @@ config.save(berr_yaml)
 ################################################################################
 # copy yaml for localization length scales
 
-logger.info(f"---------------- generate soca_setlocscales.yaml")
-locscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setlocscales.yaml')
-locscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setlocscales.yaml')
-FileHandler({'copy': [[locscales_yaml_src, locscales_yaml_dst]]}).sync()
+#logger.info(f"---------------- generate soca_setlocscales.yaml")
+#locscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setlocscales.yaml')
+#locscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setlocscales.yaml')
+#FileHandler({'copy': [[locscales_yaml_src, locscales_yaml_dst]]}).sync()
+
+################################################################################
+# stage the static B-matrix
+bmat_list = []
+# Diagonal of the B matrix
+bmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.ocean.bkgerr_stddev.nc"),
+                   os.path.join(anl_dir, "ocean.bkgerr_stddev.nc")])
+bmat_list.append([os.path.join(os.getenv('COMIN_ICE_BMATRIX'), f"gdas.t{cyc}z.ice.bkgerr_stddev.nc"),
+                   os.path.join(anl_dir, "ice.bkgerr_stddev.nc")])
+# Correlation operator
+bmat_list.append([os.path.join(os.getenv('COMIN_ICE_BMATRIX'), f"gdas.t{cyc}z.hz_ice.nc"),
+                   os.path.join(anl_dir, "hz_ice.nc")])
+bmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.hz_ocean.nc"),
+                   os.path.join(anl_dir, "hz_ocean.nc")])
+bmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.vt_ocean.nc"),
+                   os.path.join(anl_dir, "vt_ocean.nc")])
+FileHandler({'copy': bmat_list}).sync()
 
 ################################################################################
 # copy yaml for correlation length scales
 
-logger.info(f"---------------- generate soca_setcorscales.yaml")
-corscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setcorscales.yaml')
-corscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml')
-FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
+#logger.info(f"---------------- generate soca_setcorscales.yaml")
+#corscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setcorscales.yaml')
+#corscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml')
+#FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
 
 ################################################################################
 # copy yaml for diffusion initialization
 
-logger.info(f"---------------- generate soca_parameters_diffusion_hz.yaml")
-diffu_hz_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_hz.yaml')
-diffu_hz_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
-diffu_hz_yaml_template = os.path.join(berror_yaml_dir, 'soca_parameters_diffusion_hz.yaml')
-config = YAMLFile(path=diffu_hz_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config.save(diffu_hz_yaml)
-
-logger.info(f"---------------- generate soca_vtscales.yaml")
-conf = parse_j2yaml(path=os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_vtscales.yaml.j2'),
-                    data=envconfig)
-conf.save(os.path.join(anl_dir, 'soca_vtscales.yaml'))
-
-logger.info(f"---------------- generate soca_parameters_diffusion_vt.yaml")
-diffu_vt_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_vt.yaml')
-diffu_vt_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
-diffu_vt_yaml_template = os.path.join(berror_yaml_dir, 'soca_parameters_diffusion_vt.yaml')
-config = YAMLFile(path=diffu_vt_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config.save(diffu_vt_yaml)
+#logger.info(f"---------------- generate soca_parameters_diffusion_hz.yaml")
+#diffu_hz_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_hz.yaml')
+#diffu_hz_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
+#diffu_hz_yaml_template = os.path.join(berror_yaml_dir, 'soca_parameters_diffusion_hz.yaml')
+#config = YAMLFile(path=diffu_hz_yaml_template)
+#config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+#config.save(diffu_hz_yaml)
+#
+#logger.info(f"---------------- generate soca_vtscales.yaml")
+#conf = parse_j2yaml(path=os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_vtscales.yaml.j2'),
+#                    data=envconfig)
+#conf.save(os.path.join(anl_dir, 'soca_vtscales.yaml'))
+#
+#logger.info(f"---------------- generate soca_parameters_diffusion_vt.yaml")
+#diffu_vt_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_vt.yaml')
+#diffu_vt_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
+#diffu_vt_yaml_template = os.path.join(berror_yaml_dir, 'soca_parameters_diffusion_vt.yaml')
+#config = YAMLFile(path=diffu_vt_yaml_template)
+#config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+#config.save(diffu_vt_yaml)
 
 ################################################################################
 # generate yaml for soca_var
@@ -320,7 +340,7 @@ ufsda.yamltools.save_check(varconfig, target=var_yaml, app='var')
 
 # Produce JEDI YAML file using JCB (for demonstration purposes)
 # -------------------------------------------------------------
-
+"""
 # Make a copy of the env config before modifying to avoid breaking something else
 envconfig_jcb = copy.deepcopy(envconfig)
 
@@ -362,7 +382,7 @@ jedi_config = render(jcb_config)
 # Save the JEDI configuration file
 var_yaml_jcb = os.path.join(anl_dir, 'var-jcb.yaml')
 ufsda.yamltools.save_check(jedi_config, target=var_yaml_jcb, app='var')
-
+"""
 
 ################################################################################
 # Prepare the yamls for the "checkpoint" jjob

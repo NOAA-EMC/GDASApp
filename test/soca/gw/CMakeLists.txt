@@ -10,11 +10,19 @@ add_test(NAME test_gdasapp_soca_prep
       ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/wxflow:$ENV{PYTHONPATH}")
 
 # Identify machine
-if (MACHINE STREQUAL "hercules")
-  set(PARTITION "hercules")
-ELSEIF (MACHINE STREQUAL "orion")
-  set(PARTITION "orion")
-ELSEIF (MACHINE STREQUAL "hera")
+set(MACHINE "container")
+IF (IS_DIRECTORY /work2)
+  string(SUBSTRING $ENV{HOSTNAME} 0 3 HOST)
+  IF ("${HOST}" STREQUAL "herc")
+    set(MACHINE "hercules")
+    set(PARTITION "hercules")
+  ELSE()
+    set(MACHINE "orion")
+    set(PARTITION "orion")
+  ENDIF()
+ENDIF()
+IF (IS_DIRECTORY /scratch2/NCEPDEV/)
+  set(MACHINE "hera")
   set(PARTITION "hera")
 ENDIF()
 
@@ -35,8 +43,9 @@ add_test(NAME test_gdasapp_soca_setup_obsprep
 
 # Test JGDAS_GLOBAL_OCEAN_ANALYSIS_*
 set(jjob_list "JGLOBAL_PREP_OCEAN_OBS"
+              "JGLOBAL_MARINE_BMAT"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
-              "JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT"
+#              "JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_ECEN"
 #	      "JGDAS_GLOBAL_OCEAN_ANALYSIS_LETKF"
@@ -70,7 +79,7 @@ foreach(jjob ${jjob_list})
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
   set_tests_properties(${test_name}
     PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda::${PROJECT_SOURCE_DIR}/ush:${PROJECT_BINARY_DIR}/../lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}:${PROJECT_SOURCE_DIR}/../../../../ush/python")
+    ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda::${PROJECT_SOURCE_DIR}/ush:${PROJECT_BINARY_DIR}/../lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:${PROJECT_SOURCE_DIR}/sorc/soca/tools:${PROJECT_SOURCE_DIR}/../../../../ush/python:$ENV{PYTHONPATH}")
 
 
   set(setup "--skip") # Only run the setup of the first test, if not, it will hang
