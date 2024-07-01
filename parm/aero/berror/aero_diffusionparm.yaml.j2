@@ -34,16 +34,16 @@ background error:
   saber central block: 
     saber block name: diffusion
     calibration:
-      normalization:
-        iterations: {{ aero_diff_iter }}    
+      normalization:   
+        iterations: {{ aero_diffusion_iter }}    
       groups:
       - horizontal:
-          fixed value: {{ horiz_len }} 
+          fixed value: {{ aero_diffusion_horiz_len }} 
         write:
           filepath: "{{ DATA }}/diffusion/diffusion_hz" 
       - vertical:
           levels: {{ npz_ges }} 
-          fixed value: {{ fixed_val }} 
+          fixed value: {{ aero_diffusion_fixed_val }} 
           as gaussian: true
         write:
           filepath: "{{ DATA }}/diffusion/diffusion_vt" 
