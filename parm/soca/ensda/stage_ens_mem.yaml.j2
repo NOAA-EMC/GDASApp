@@ -9,7 +9,7 @@
 # create working directories
 ######################################
 mkdir:
-- "{{ DATA }}/ens"
+- "{{ DATAenspert }}/ens"
 
 ######################################
 # copy ensemble background files
@@ -30,6 +30,6 @@ copy:
         {% set com_prev_ocn.COM_OCEAN_HISTORY_MEM = com_prev_ocn.COM_OCEAN_HISTORY_MEM.replace(search_term, replace_term) %}
         {% set com_prev_ice.COM_ICE_HISTORY_MEM = com_prev_ice.COM_ICE_HISTORY_MEM.replace(search_term, replace_term) %}
     {% endfor %}
-    - ["{{ com_prev_ocn.COM_OCEAN_HISTORY_MEM }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/ens/ocean.{{ mem }}.nc"]
-    - ["{{ com_prev_ice.COM_ICE_HISTORY_MEM }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/ens/ice.{{ mem }}.nc"]
+    - ["{{ com_prev_ocn.COM_OCEAN_HISTORY_MEM }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATAenspert }}/ens/ocean.{{ mem }}.nc"]
+    - ["{{ com_prev_ice.COM_ICE_HISTORY_MEM }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATAenspert }}/ens/ice.{{ mem }}.nc"]
 {% endfor %}

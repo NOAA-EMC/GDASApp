@@ -168,42 +168,47 @@ ufsda.stage.soca_fix(stage_cfg)
 
 ################################################################################
 # stage ensemble members
-if dohybvar:
-    logger.info("---------------- Stage ensemble members")
-    ens_member_list = []
-    for mem in range(1, nmem_ens+1):
-        for domain in ['ocean', 'ice']:
-            # TODO(Guillaume): make use and define ensemble COM in the j-job
-            ensroot = os.getenv('COM_OCEAN_HISTORY_PREV')
-            ensdir = os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
-                                  f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
-                                  'model_data', domain, 'history')
-            ensdir_real = os.path.realpath(ensdir)
-            f009 = f'enkfgdas.{domain}.t{gcyc}z.inst.f009.nc'
+if dohybvar or nmem_ens >= 3:
+    # TODO: No symlink allowed but this script will be refactored soon
+    # Relative path to ensemble perturbations
+    ens_perturbations = os.path.join('..', f'gdasmarinebmat.{PDY}{cyc}', 'enspert', 'ens')
+    os.symlink(ens_perturbations, 'ens')
 
-            fname_in = os.path.abspath(os.path.join(ensdir_real, f009))
-            fname_out = os.path.realpath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
-            ens_member_list.append([fname_in, fname_out])
-    FileHandler({'copy': ens_member_list}).sync()
-
-    # reformat the cice history output
-    for mem in range(1, nmem_ens+1):
-        cice_fname = os.path.realpath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
-        bkg_utils.cice_hist2fms(cice_fname, cice_fname)
-else:
-    if nmem_ens >= 3:
-        logger.info("---------------- Stage offline ensemble members")
-        ens_member_list = []
-        clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
-        list_of_members = glob.glob(os.path.join(clim_ens_dir, 'ocean.*.nc'))
-        nmem_ens = min(nmem_ens, len(list_of_members))
-        for domain in ['ocean', 'ice']:
-            for mem in range(1, nmem_ens+1):
-                fname = domain+"."+str(mem)+".nc"
-                fname_in = os.path.join(clim_ens_dir, fname)
-                fname_out = os.path.join(static_ens, fname)
-                ens_member_list.append([fname_in, fname_out])
-        FileHandler({'copy': ens_member_list}).sync()
+#    logger.info("---------------- Stage ensemble members")
+#    ens_member_list = []
+#    for mem in range(1, nmem_ens+1):
+#        for domain in ['ocean', 'ice']:
+#            # TODO(Guillaume): make use and define ensemble COM in the j-job
+#            ensroot = os.getenv('COM_OCEAN_HISTORY_PREV')
+#            ensdir = os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
+#                                  f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
+#                                  'model_data', domain, 'history')
+#            ensdir_real = os.path.realpath(ensdir)
+#            f009 = f'enkfgdas.{domain}.t{gcyc}z.inst.f009.nc'
+#
+#            fname_in = os.path.abspath(os.path.join(ensdir_real, f009))
+#            fname_out = os.path.realpath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
+#            ens_member_list.append([fname_in, fname_out])
+#    FileHandler({'copy': ens_member_list}).sync()
+#
+#    # reformat the cice history output
+#    for mem in range(1, nmem_ens+1):
+#        cice_fname = os.path.realpath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
+#        bkg_utils.cice_hist2fms(cice_fname, cice_fname)
+#else:
+#    if nmem_ens >= 3:
+#        logger.info("---------------- Stage offline ensemble members")
+#        ens_member_list = []
+#        clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
+#        list_of_members = glob.glob(os.path.join(clim_ens_dir, 'ocean.*.nc'))
+#        nmem_ens = min(nmem_ens, len(list_of_members))
+#        for domain in ['ocean', 'ice']:
+#            for mem in range(1, nmem_ens+1):
+#                fname = domain+"."+str(mem)+".nc"
+#                fname_in = os.path.join(clim_ens_dir, fname)
+#                fname_out = os.path.join(static_ens, fname)
+#                ens_member_list.append([fname_in, fname_out])
+#        FileHandler({'copy': ens_member_list}).sync()
 
 os.environ['ENS_SIZE'] = str(nmem_ens)
 
@@ -232,19 +237,19 @@ berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
 #                    data=envconfig)
 #conf.save(os.path.join(anl_dir, 'soca_diagb.yaml'))
 
-logger.info(f"---------------- generate soca_ensb.yaml")
-berr_yaml = os.path.join(anl_dir, 'soca_ensb.yaml')
-berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_ensb.yaml')
-config = YAMLFile(path=berr_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config.save(berr_yaml)
-
-logger.info(f"---------------- generate soca_ensweights.yaml")
-berr_yaml = os.path.join(anl_dir, 'soca_ensweights.yaml')
-berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_ensweights.yaml')
-config = YAMLFile(path=berr_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config.save(berr_yaml)
+#logger.info(f"---------------- generate soca_ensb.yaml")
+#berr_yaml = os.path.join(anl_dir, 'soca_ensb.yaml')
+#berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_ensb.yaml')
+#config = YAMLFile(path=berr_yaml_template)
+#config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+#config.save(berr_yaml)
+#
+#logger.info(f"---------------- generate soca_ensweights.yaml")
+#berr_yaml = os.path.join(anl_dir, 'soca_ensweights.yaml')
+#berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_ensweights.yaml')
+#config = YAMLFile(path=berr_yaml_template)
+#config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+#config.save(berr_yaml)
 
 ################################################################################
 # copy yaml for localization length scales
@@ -270,6 +275,15 @@ bmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.
 bmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.vt_ocean.nc"),
                    os.path.join(anl_dir, "vt_ocean.nc")])
 FileHandler({'copy': bmat_list}).sync()
+
+################################################################################
+# stage the ens B-matrix weights
+ensbmat_list = []
+ensbmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.ocean.ens_weights.nc"),
+                   os.path.join(anl_dir, "ocean.ens_weights.nc")])
+ensbmat_list.append([os.path.join(os.getenv('COMIN_ICE_BMATRIX'), f"gdas.t{cyc}z.ice.ens_weights.nc"),
+                   os.path.join(anl_dir, "ice.ens_weights.nc")])
+FileHandler({'copy': ensbmat_list}).sync()
 
 ################################################################################
 # copy yaml for correlation length scales
@@ -328,10 +342,10 @@ else:
     os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_static_bmat.yaml')
 
 # substitute templated variables in the var config
-logger.info(f"{config}")
+logger.info(f"{envconfig}")
 varconfig = YAMLFile(path=var_yaml_template)
-varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)
-varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, config.get)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
 

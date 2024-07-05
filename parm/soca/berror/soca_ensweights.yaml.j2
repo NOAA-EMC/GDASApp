@@ -2,14 +2,14 @@ geometry:
   mom6_input_nml: mom_input.nml
   fields metadata: ./fields_metadata.yaml
 
-date: '{{ MARINE_WINDOW_MIDDLE }}'
+date: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
 
 variables:
   ice: [cicen, hicen, hsnon]
   ocean: [tocn, socn, uocn, vocn, ssh]
 
 background:
-  date: '{{ MARINE_WINDOW_BEGIN }}'
+  date: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
   ice_filename: cice.res.nc
@@ -32,6 +32,6 @@ weights:
 
 output:
   datadir: ./
-  date: '{{ MARINE_WINDOW_MIDDLE }}'
+  date: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
   exp: ens_weights
   type: incr
