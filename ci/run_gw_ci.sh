@@ -72,6 +72,15 @@ cd $repodir/sorc/gdas.cd/build
 module use $repodir/sorc/gdas.cd/modulefiles
 module load GDAS/$TARGET
 echo "---------------------------------------------------" >> $outfile
+# Reconfigure if the tier-2 testing is required
+# TODO: Not the most efficient, but even when exported, the variable is out of scope
+#       when running build.sh
+if [ "$GDAS_TIER2_TESTING" == "ON" ]; then
+  echo "Tier-2 Testing: Activated" >> $outfile
+  cmake -DGDAS_TIER2_TESTING=ON .
+  exit $ctest_status
+fi
+
 rm -rf log.ctest
 ctest -R gdasapp --output-on-failure &>> log.ctest
 ctest_status=$?
