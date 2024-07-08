@@ -57,6 +57,7 @@ open_pr_list=$(cat $GDAS_CI_ROOT/open_pr_list_gw)
 # clone, checkout, build, test, etc.
 repo_url="https://github.com/NOAA-EMC/GDASApp.git"
 workflow_url="https://github.com/guillaumevernieres/global-workflow.git"
+workflow_branch="dev/da/gdasapp"
 # loop through all open PRs
 for pr in $open_pr_list; do
   gh pr edit $pr --remove-label $CI_LABEL --add-label ${CI_LABEL}-Running
@@ -77,7 +78,7 @@ for pr in $open_pr_list; do
 
     # Construct the fork URL
     workflow_url="https://github.com/$fork_owner/$fork_name.git"
-
+    workflow_branch=$gdasapp_branch
     echo "Fork URL: $workflow_url"
     echo "Branch Name: $gdasapp_branch"
   fi
@@ -90,7 +91,7 @@ for pr in $open_pr_list; do
   cd $GDAS_CI_ROOT/workflow/PR/$pr
 
   # clone global workflow develop branch
-  git clone --recursive --jobs 8 --branch dev/da/gdasapp $workflow_url
+  git clone --recursive --jobs 8 --branch $workflow_branch $workflow_url
 
   # checkout pull request
   cd $GDAS_CI_ROOT/workflow/PR/$pr/global-workflow/sorc/gdas.cd
