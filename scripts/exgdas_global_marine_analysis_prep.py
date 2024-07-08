@@ -190,25 +190,25 @@ FileHandler({'copy': [[src, dst]]}).sync()
 bmat_list = []
 # Diagonal of the B matrix
 bmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.ocean.bkgerr_stddev.nc"),
-                   os.path.join(anl_dir, "ocean.bkgerr_stddev.nc")])
+                  os.path.join(anl_dir, "ocean.bkgerr_stddev.nc")])
 bmat_list.append([os.path.join(os.getenv('COMIN_ICE_BMATRIX'), f"gdas.t{cyc}z.ice.bkgerr_stddev.nc"),
-                   os.path.join(anl_dir, "ice.bkgerr_stddev.nc")])
+                  os.path.join(anl_dir, "ice.bkgerr_stddev.nc")])
 # Correlation operator
 bmat_list.append([os.path.join(os.getenv('COMIN_ICE_BMATRIX'), f"gdas.t{cyc}z.hz_ice.nc"),
-                   os.path.join(anl_dir, "hz_ice.nc")])
+                  os.path.join(anl_dir, "hz_ice.nc")])
 bmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.hz_ocean.nc"),
-                   os.path.join(anl_dir, "hz_ocean.nc")])
+                  os.path.join(anl_dir, "hz_ocean.nc")])
 bmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.vt_ocean.nc"),
-                   os.path.join(anl_dir, "vt_ocean.nc")])
+                  os.path.join(anl_dir, "vt_ocean.nc")])
 FileHandler({'copy': bmat_list}).sync()
 
 ################################################################################
 # stage the ens B-matrix weights
 ensbmat_list = []
 ensbmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.ocean.ens_weights.nc"),
-                   os.path.join(anl_dir, "ocean.ens_weights.nc")])
+                     os.path.join(anl_dir, "ocean.ens_weights.nc")])
 ensbmat_list.append([os.path.join(os.getenv('COMIN_ICE_BMATRIX'), f"gdas.t{cyc}z.ice.ens_weights.nc"),
-                   os.path.join(anl_dir, "ice.ens_weights.nc")])
+                     os.path.join(anl_dir, "ice.ens_weights.nc")])
 FileHandler({'copy': ensbmat_list}).sync()
 
 ################################################################################
