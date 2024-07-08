@@ -238,13 +238,12 @@ namespace gdasapp {
       // std = diagb_weight*diagb_std + (1-diagb_weight)*Climat_std
       double diagb_weight;
       fullConfig.get("diagb_weight", diagb_weight);
-      
       // Initialize and read the climatological background error standard deviation field
       oops::Log::info() << "====================== read climat bkg error std dev" << std::endl;
       fv3jedi::Increment ClimBkgErrorStdDev(geom, chemVars, cycleDate);
       ClimBkgErrorStdDev.zero();
-      const eckit::LocalConfiguration ClimBkgErrorStdDevConfig(fullConfig, 
-		        "Climate background error stddev");
+      const eckit::LocalConfiguration ClimBkgErrorStdDevConfig(fullConfig,
+      "Climate background error stddev");
       ClimBkgErrorStdDev.read(ClimBkgErrorStdDevConfig);
       atlas::FieldSet ClimBkgErrorStdDevFs;
       ClimBkgErrorStdDev.toFieldSet(ClimBkgErrorStdDevFs);
