@@ -77,9 +77,9 @@ echo "---------------------------------------------------" >> $outfile
 #       when running build.sh
 if [ "$GDAS_TIER2_TESTING" == "ON" ]; then
   echo "Tier-2 Testing: Activated" >> $outfile
-  cmake -DGDAS_TIER2_TESTING=ON .
-  exit $ctest_status
+  cmake -DGDAS_TIER2_TESTING=ON . >> log.cmake_tier2
 fi
+(cd gdas && ctest -N) >> log.gdasapp_tests
 
 rm -rf log.ctest
 ctest -R gdasapp --output-on-failure &>> log.ctest
