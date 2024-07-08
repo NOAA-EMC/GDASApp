@@ -34,7 +34,7 @@ while getopts "d:o:h:t:" opt; do
   esac
 done
 echo "do_tier2: $do_tier2"
-exit
+
 # ==============================================================================
 # start output file
 echo "Automated Global-Workflow GDASApp Testing Results:" > $outfile
