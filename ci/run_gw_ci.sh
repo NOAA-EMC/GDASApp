@@ -9,6 +9,7 @@ usage() {
   echo
   echo "  -d  Run build and ctest for clone in <directory>"
   echo "  -o  Path to output message detailing results of CI tests"
+  echo "  -t  run the tier-2 testing, default is OFF"
   echo "  -h  display this message and quit"
   echo
   exit 1
@@ -22,6 +23,9 @@ while getopts "d:o:h" opt; do
       ;;
     o)
       outfile=$OPTARG
+      ;;
+    t)
+      do_tier2=${OPTARG:-false}
       ;;
     h|\?|:)
       usage
@@ -37,17 +41,6 @@ echo '```' >> $outfile
 echo "Start: $(date) on $(hostname)" >> $outfile
 echo "---------------------------------------------------" >> $outfile
 # ==============================================================================
-# check if the PR needs tier-2 testing to be activated
-cd $repodir/sorc/gdas.cd
-export GDAS_TIER2_TESTING="OFF"
-pr_number=$(gh pr list --head "$branch_name" --json number --jq '.[0].number')
-tier2_label="${GDAS_CI_HOST}-GW-RT-tier2"
-do_tier2=$(gh pr view "$pr_number" --json labels --jq ".labels | map(select(.name == \"$tier2_label\")) | length > 0")
-if [ "$do_tier2" == "true" ]; then
-  echo "Triggering tier-2 testing"
-  export GDAS_TIER2_TESTING="ON"
-fi
-
 # run build and link as part of the workflow
 export WORKFLOW_BUILD="ON"
 cd $repodir/sorc
@@ -75,7 +68,7 @@ echo "---------------------------------------------------" >> $outfile
 # Reconfigure if the tier-2 testing is required
 # TODO: Not the most efficient, but even when exported, the variable is out of scope
 #       when running build.sh
-if [ "$GDAS_TIER2_TESTING" == "ON" ]; then
+if [ $do_tier2 == "true" ]; then
   echo "Tier-2 Testing: Activated" >> $outfile
   cmake -DGDAS_TIER2_TESTING=ON . >> log.cmake_tier2
 fi

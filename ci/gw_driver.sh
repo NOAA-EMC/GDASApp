@@ -50,6 +50,7 @@ esac
 # pull on the repo and get list of open PRs
 cd $GDAS_CI_ROOT/repo
 CI_LABEL="${GDAS_CI_HOST}-GW-RT"
+tier2_label="${GDAS_CI_HOST}-GW-RT-tier2"
 gh pr list --label "$CI_LABEL" --state "open" | awk '{print $1;}' > $GDAS_CI_ROOT/open_pr_list_gw
 open_pr_list=$(cat $GDAS_CI_ROOT/open_pr_list_gw)
 
@@ -65,6 +66,15 @@ for pr in $open_pr_list; do
 
   # get the branch name used for the PR
   gdasapp_branch=$(gh pr view $pr --json headRefName -q ".headRefName")
+
+  # check if we should run the tier-2 tests
+  pr_number=$(gh pr list --head "$gdasapp_branch" --json number --jq '.[0].number')
+  all_labels=$(gh pr view "$pr_number" --json labels --jq '.labels[].name')
+  do_tier2=false
+  if echo "$all_labels" | grep -q "^$tier2_label$"; then
+      echo "Tier-2 label found"
+      do_tier2=true
+  fi
 
   # check for a companion PR in the global-workflow
   companion_pr_exists=$(gh pr list --repo ${workflow_url} --head ${gdasapp_branch} --state open)
@@ -104,7 +114,9 @@ for pr in $open_pr_list; do
   commit=$(git log --pretty=format:'%h' -n 1)
   echo "$commit" > $GDAS_CI_ROOT/workflow/PR/$pr/commit
 
-  $my_dir/run_gw_ci.sh -d $GDAS_CI_ROOT/workflow/PR/$pr/global-workflow -o $GDAS_CI_ROOT/workflow/PR/$pr/output_${commit}
+  $my_dir/run_gw_ci.sh -d $GDAS_CI_ROOT/workflow/PR/$pr/global-workflow \
+                       -o $GDAS_CI_ROOT/workflow/PR/$pr/output_${commit} \
+                       -t $do_tier2
   ci_status=$?
   gh pr comment $pr --body-file $GDAS_CI_ROOT/workflow/PR/$pr/output_${commit}
   if [ $ci_status -eq 0 ]; then
