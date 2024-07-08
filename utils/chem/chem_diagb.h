@@ -236,14 +236,15 @@ namespace gdasapp {
 
       // Hybrid diagb_weight coefficient
       // std = diagb_weight*diagb_std + (1-diagb_weight)*Climat_std
-      double diagb_weight; 
-      fullConfig.get("diagb_weight", diagb_weight); 
+      double diagb_weight;
+      fullConfig.get("diagb_weight", diagb_weight);
       
       // Initialize and read the climatological background error standard deviation field
-      oops::Log::info() << "====================== read climatological bkg error std dev" << std::endl;
+      oops::Log::info() << "====================== read climat bkg error std dev" << std::endl;
       fv3jedi::Increment ClimBkgErrorStdDev(geom, chemVars, cycleDate);
       ClimBkgErrorStdDev.zero();
-      const eckit::LocalConfiguration ClimBkgErrorStdDevConfig(fullConfig, "Climate background error stddev");
+      const eckit::LocalConfiguration ClimBkgErrorStdDevConfig(fullConfig, 
+		        "Climate background error stddev");
       ClimBkgErrorStdDev.read(ClimBkgErrorStdDevConfig);
       atlas::FieldSet ClimBkgErrorStdDevFs;
       ClimBkgErrorStdDev.toFieldSet(ClimBkgErrorStdDevFs);
@@ -273,14 +274,12 @@ namespace gdasapp {
       fv3jedi::State ClimBkgErrorStdDevState(geom, chemVars, cycleDate);
       ClimBkgErrorStdDevState.fromFieldSet(ClimBkgErrorStdDevFs);
 
-
       // Accumulate the fields with the given weights
       stddev_hybrid.accumul(diagb_weight, bkgErrState);
       stddev_hybrid.accumul((1.0 - diagb_weight)*rescale_staticb, ClimBkgErrorStdDevState);
       // Use the hybrid increment
-      bkgErr = stddev_hybrid; 
+      bkgErr = stddev_hybrid;
 
-      
       // Save the background error
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
       bkgErr.write(bkgErrorConfig);
