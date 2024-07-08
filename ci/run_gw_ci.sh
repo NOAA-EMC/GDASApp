@@ -9,14 +9,15 @@ usage() {
   echo
   echo "  -d  Run build and ctest for clone in <directory>"
   echo "  -o  Path to output message detailing results of CI tests"
-  echo "  -t  run the tier-2 testing, default is OFF"
+  echo "  -t  run the tier-2 testing, default is false"
   echo "  -h  display this message and quit"
   echo
   exit 1
 }
 
 # ==============================================================================
-while getopts "d:o:h" opt; do
+do_tier2=false
+while getopts "d:o:h:t:" opt; do
   case $opt in
     d)
       repodir=$OPTARG
@@ -25,14 +26,15 @@ while getopts "d:o:h" opt; do
       outfile=$OPTARG
       ;;
     t)
-      do_tier2=${OPTARG:-false}
+      do_tier2=$OPTARG
       ;;
     h|\?|:)
       usage
       ;;
   esac
 done
-
+echo "do_tier2: $do_tier2"
+exit
 # ==============================================================================
 # start output file
 echo "Automated Global-Workflow GDASApp Testing Results:" > $outfile
