@@ -39,6 +39,7 @@ echo "---------------------------------------------------" >> $outfile
 # ==============================================================================
 # check if the PR needs tier-2 testing to be activated
 cd $repodir/sorc/gdas.cd
+export GDAS_TIER2_TESTING="OFF"
 pr_number=$(gh pr list --head "$branch_name" --json number --jq '.[0].number')
 tier2_label="${GDAS_CI_HOST}-GW-RT-tier2"
 do_tier2=$(gh pr view "$pr_number" --json labels --jq ".labels | map(select(.name == \"$tier2_label\")) | length > 0")

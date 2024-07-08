@@ -103,7 +103,8 @@ WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_BUILD}"
 
 # check if tier-2 testing needs to be activated
-if [[ $GDAS_TIER2_TESTING == 'ON' ]]; then
+if [[ $GDAS_TIER2_TESTING == "ON" ]]; then
+  echo "Activating tier-2 testing"
   CMAKE_OPTS+=" -DGDAS_TIER2_TESTING=ON"
 fi
 

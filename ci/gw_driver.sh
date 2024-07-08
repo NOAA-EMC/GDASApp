@@ -56,7 +56,7 @@ open_pr_list=$(cat $GDAS_CI_ROOT/open_pr_list_gw)
 # ==============================================================================
 # clone, checkout, build, test, etc.
 repo_url="https://github.com/NOAA-EMC/GDASApp.git"
-workflow_url="https://github.com/NOAA-EMC/global-workflow.git"
+workflow_url="https://github.com/guillaumevernieres/global-workflow.git"
 # loop through all open PRs
 for pr in $open_pr_list; do
   gh pr edit $pr --remove-label $CI_LABEL --add-label ${CI_LABEL}-Running
@@ -88,9 +88,9 @@ for pr in $open_pr_list; do
   fi
   mkdir -p $GDAS_CI_ROOT/workflow/PR/$pr
   cd $GDAS_CI_ROOT/workflow/PR/$pr
-  
+
   # clone global workflow develop branch
-  git clone --recursive --jobs 8 --branch dev/gdasapp $workflow_url
+  git clone --recursive --jobs 8 --branch dev/da/gdasapp $workflow_url
 
   # checkout pull request
   cd $GDAS_CI_ROOT/workflow/PR/$pr/global-workflow/sorc/gdas.cd
@@ -116,4 +116,3 @@ done
 # ==============================================================================
 # scrub working directory for older files
 find $GDAS_CI_ROOT/workflow/PR/* -maxdepth 1 -mtime +3 -exec rm -rf {} \;
-
