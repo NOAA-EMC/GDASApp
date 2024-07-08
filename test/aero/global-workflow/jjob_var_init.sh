@@ -30,7 +30,7 @@ source "${HOMEgfs}/ush/preamble.sh"
 source "${HOMEgfs}/parm/config/gfs/config.com"
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow/src"
+wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
@@ -76,7 +76,7 @@ done
 
 
 # Copy model bacgkround on tiles
-dpath=gdas.$gPDY/$gcyc/model_data/atmos
+dpath=gdas.$gPDY/$gcyc/model/atmos
 COM_ATMOS_RESTART_PREV_DIRNAME=$(dirname $COM_ATMOS_RESTART_PREV)
 if [ -d $COM_ATMOS_RESTART_PREV_DIRNAME/restart ]; then
     rm -rf $COM_ATMOS_RESTART_PREV_DIRNAME/restart

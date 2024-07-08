@@ -37,20 +37,20 @@ class PrepOceanObs(Task):
         logger.info("init")
         super().__init__(config)
 
-        PDY = self.runtime_config['PDY']
-        cyc = self.runtime_config['cyc']
+        PDY = self.task_config['PDY']
+        cyc = self.task_config['cyc']
         cdate = PDY + timedelta(hours=cyc)
-        assim_freq = self.config['assim_freq']
+        assim_freq = self.task_config['assim_freq']
         half_assim_freq = assim_freq/2
 
-        self.runtime_config['cdate'] = cdate
+        self.task_config['cdate'] = cdate
         window_begin_datetime = cdate - timedelta(hours=half_assim_freq)
         window_begin_datetime = cdate + timedelta(hours=half_assim_freq)
         self.window_begin = window_begin_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
         self.window_end = window_begin_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        self.config.conversion_list_file = 'conversion_list.yaml'
-        self.config.save_list_file = 'save_list.yaml'
+        self.task_config.conversion_list_file = 'conversion_list.yaml'
+        self.task_config.save_list_file = 'save_list.yaml'
 
     @logit(logger)
     def initialize(self):
@@ -65,36 +65,36 @@ class PrepOceanObs(Task):
 
         logger.info("initialize")
 
-        cdate = self.runtime_config['cdate']
+        cdate = self.task_config['cdate']
         cdatestr = cdate.strftime('%Y%m%d%H')
-        RUN = self.runtime_config.RUN
-        cyc = self.runtime_config['cyc']
-        assim_freq = self.config['assim_freq']
+        RUN = self.task_config.RUN
+        cyc = self.task_config['cyc']
+        assim_freq = self.task_config['assim_freq']
 
-        SOCA_INPUT_FIX_DIR = self.config['SOCA_INPUT_FIX_DIR']
+        SOCA_INPUT_FIX_DIR = self.task_config['SOCA_INPUT_FIX_DIR']
         ocean_mask_src = os.path.join(SOCA_INPUT_FIX_DIR, 'RECCAP2_region_masks_all_v20221025.nc')
-        ocean_mask_dest = os.path.join(self.runtime_config.DATA, 'RECCAP2_region_masks_all_v20221025.nc')
+        ocean_mask_dest = os.path.join(self.task_config.DATA, 'RECCAP2_region_masks_all_v20221025.nc')
 
         try:
             FileHandler({'copy': [[ocean_mask_src, ocean_mask_dest]]}).sync()
         except OSError:
             logger.warning("Could not copy RECCAP2_region_masks_all_v20221025.nc")
 
-        OBS_YAML = self.config['OBS_YAML']
+        OBS_YAML = self.task_config['OBS_YAML']
         observer_config = YAMLFile(OBS_YAML)
 
-        OBSPREP_YAML = self.config['OBSPREP_YAML']
+        OBSPREP_YAML = self.task_config['OBSPREP_YAML']
         if os.path.exists(OBSPREP_YAML):
             obsprep_config = YAMLFile(OBSPREP_YAML)
         else:
             logger.critical(f"OBSPREP_YAML file {OBSPREP_YAML} does not exist")
             raise FileNotFoundError
 
-        JSON_TMPL_DIR = self.config.JSON_TMPL_DIR
-        BUFR2IODA_PY_DIR = self.config.BUFR2IODA_PY_DIR
+        JSON_TMPL_DIR = self.task_config.JSON_TMPL_DIR
+        BUFR2IODA_PY_DIR = self.task_config.BUFR2IODA_PY_DIR
 
-        COMIN_OBS = self.config.COMIN_OBS
-        COMOUT_OBS = self.config['COMOUT_OBS']
+        COMIN_OBS = self.task_config.COMIN_OBS
+        COMOUT_OBS = self.task_config['COMOUT_OBS']
         if not os.path.exists(COMOUT_OBS):
             os.makedirs(COMOUT_OBS)
 
@@ -132,8 +132,8 @@ class PrepOceanObs(Task):
                             interval = timedelta(hours=assim_freq * i)
                             window_cdates.append(cdate + interval)
 
-                        input_files = prep_ocean_obs_utils.obs_fetch(self.config,
-                                                                     self.runtime_config,
+                        input_files = prep_ocean_obs_utils.obs_fetch(self.task_config,
+                                                                     self.task_config,
                                                                      obsprep_space,
                                                                      window_cdates)
 
@@ -186,7 +186,7 @@ class PrepOceanObs(Task):
 
         # yes, there is redundancy between the yamls fed to the ioda converter and here,
         # this seems safer and easier than being selective about the fields
-        save_as_yaml({"observations": obsspaces_to_convert}, self.config.conversion_list_file)
+        save_as_yaml({"observations": obsspaces_to_convert}, self.task_config.conversion_list_file)
 
     @logit(logger)
     def run(self):
@@ -201,9 +201,9 @@ class PrepOceanObs(Task):
 
         logger.info("run")
 
-        chdir(self.runtime_config.DATA)
+        chdir(self.task_config.DATA)
 
-        obsspaces_to_convert = YAMLFile(self.config.conversion_list_file)
+        obsspaces_to_convert = YAMLFile(self.task_config.conversion_list_file)
 
         processes = []
         for observation in obsspaces_to_convert['observations']:
@@ -213,7 +213,7 @@ class PrepOceanObs(Task):
             logger.info(f"Trying to convert {obtype} to IODA")
             if obs_space["type"] == "nc":
                 process = Process(target=prep_ocean_obs_utils.run_netcdf_to_ioda, args=(obs_space,
-                                                                                        self.config.OCNOBS2IODAEXEC))
+                                                                                        self.task_config.OCNOBS2IODAEXEC))
             elif obs_space["type"] == "bufr":
                 process = Process(target=prep_ocean_obs_utils.run_bufr_to_ioda, args=(obs_space,))
             else:
@@ -229,7 +229,7 @@ class PrepOceanObs(Task):
             process.join()
             completed.append(obs_space)
 
-        save_as_yaml({"observations": completed}, self.config.save_list_file)
+        save_as_yaml({"observations": completed}, self.task_config.save_list_file)
 
     @logit(logger)
     def finalize(self):
@@ -244,11 +244,11 @@ class PrepOceanObs(Task):
 
         logger.info("finalize")
 
-        RUN = self.runtime_config.RUN
-        cyc = self.runtime_config.cyc
-        COMOUT_OBS = self.config.COMOUT_OBS
+        RUN = self.task_config.RUN
+        cyc = self.task_config.cyc
+        COMOUT_OBS = self.task_config.COMOUT_OBS
 
-        obsspaces_to_save = YAMLFile(self.config.save_list_file)
+        obsspaces_to_save = YAMLFile(self.task_config.save_list_file)
 
         for obsspace_to_save in obsspaces_to_save['observations']:
 

@@ -177,7 +177,7 @@ if dohybvar:
             ensroot = os.getenv('COM_OCEAN_HISTORY_PREV')
             ensdir = os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
                                   f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
-                                  'model_data', domain, 'history')
+                                  'model', domain, 'history')
             ensdir_real = os.path.realpath(ensdir)
             f009 = f'enkfgdas.{domain}.t{gcyc}z.inst.f009.nc'
 
