@@ -57,8 +57,8 @@ open_pr_list=$(cat $GDAS_CI_ROOT/open_pr_list_gw)
 # ==============================================================================
 # clone, checkout, build, test, etc.
 repo_url="https://github.com/NOAA-EMC/GDASApp.git"
-workflow_url="https://github.com/guillaumevernieres/global-workflow.git"
-workflow_branch="dev/da/gdasapp"
+workflow_url="https://github.com/NOAA-EMC/global-workflow.git"
+workflow_branch="develop"
 # loop through all open PRs
 for pr in $open_pr_list; do
   gh pr edit $pr --remove-label $CI_LABEL --add-label ${CI_LABEL}-Running
