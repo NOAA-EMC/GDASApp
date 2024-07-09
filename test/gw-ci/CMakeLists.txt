@@ -26,7 +26,7 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
 
   # 1/2 cycle enkfgdasfcst
   message(STATUS "preparing 1/2 cycle ensemble forecast for ${pslot} ctest")
-  foreach(mem RANGE ${NMEM})
+  foreach(mem RANGE 1 ${NMEM})
     set(test_name "${pslot}_enkfgdasfcst_00${mem}_${HALF_CYCLE}")
     add_test(NAME ${test_name}
              COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasfcst_00${mem} ${HALF_CYCLE}"
