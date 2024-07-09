@@ -230,54 +230,66 @@ namespace gdasapp {
       }
 
       // Rescale
-      double rescale;
-      fullConfig.get("rescale", rescale);
-      util::multiplyFieldSet(bkgErrFs, rescale);
-
-      // Hybrid diagb_weight coefficient
-      // std = diagb_weight*diagb_std + (1-diagb_weight)*Climat_std
-      double diagb_weight;
-      fullConfig.get("diagb weight", diagb_weight);
-      // Initialize and read the climatological background error standard deviation field
-      oops::Log::info() << "====================== read climat bkg error std dev" << std::endl;
-      fv3jedi::Increment ClimBkgErrorStdDev(geom, chemVars, cycleDate);
-      ClimBkgErrorStdDev.zero();
-      const eckit::LocalConfiguration ClimBkgErrorStdDevConfig(fullConfig,
-      "climate background error stddev");
-      ClimBkgErrorStdDev.read(ClimBkgErrorStdDevConfig);
-      atlas::FieldSet ClimBkgErrorStdDevFs;
-      ClimBkgErrorStdDev.toFieldSet(ClimBkgErrorStdDevFs);
-
-     // Replace negative values with zeros
-     for (const auto &var : chemVars.variables()) {
-        auto ClimBkgErrView = atlas::array::make_view<double, 2>(ClimBkgErrorStdDevFs[var]);
-        for (atlas::idx_t jnode = 0; jnode < ClimBkgErrorStdDevFs[var].shape(0); ++jnode) {
-          for (atlas::idx_t level = 0; level < ClimBkgErrorStdDevFs[var].shape(1); ++level) {
-            ClimBkgErrView(jnode, level) = std::max(ClimBkgErrView(jnode, level), 0.0);
-          }
-        }
+      if (fullConfig.has("rescale")) {
+        double rescale;
+        fullConfig.get("rescale", rescale);
+        util::multiplyFieldSet(bkgErrFs, rescale);
       }
 
-      // Staticb rescale
-      double rescale_staticb;
-      fullConfig.get("staticb rescaling factor", rescale_staticb);
+      bkgErr.fromFieldSet(bkgErrFs);
 
-      // Combine diagb and climatological background errors
-      fv3jedi::Increment stddev_hybrid(geom, chemVars, cycleDate);
-      stddev_hybrid.zero();
+      // Hybrid B option
+      if (fullConfig.has("climate background error")) {
+        const eckit::LocalConfiguration ClimBConfig(fullConfig, "climate background error");
+        // Hybrid diagb_weight coefficient
+        // std = diagb_weight*diagb_std + (1-diagb_weight)*Climat_std
+        double diagb_weight;
+        ClimBConfig.get("diagb weight", diagb_weight);
+        // Initialize and read the climatological background error standard deviation field
+        oops::Log::info() << "====================== read climat bkg error std dev" << std::endl;
+        const eckit::LocalConfiguration climBGeomConfig(ClimBConfig, "geometry");
+        const fv3jedi::Geometry climBGeom(climBGeomConfig, this->getComm());
+        fv3jedi::Increment ClimBkgErrorStdDevOrig(climBGeom, chemVars, cycleDate);
+        ClimBkgErrorStdDevOrig.zero();
+        const eckit::LocalConfiguration ClimBkgErrorStdDevConfig(ClimBConfig,
+        "climate background error stddev");
+        ClimBkgErrorStdDevOrig.read(ClimBkgErrorStdDevConfig);
+        // interpolate to background resolution
+        fv3jedi::Increment ClimBkgErrorStdDev(geom, ClimBkgErrorStdDevOrig);
+        atlas::FieldSet ClimBkgErrorStdDevFs;
+        ClimBkgErrorStdDev.toFieldSet(ClimBkgErrorStdDevFs);
 
-      // Convert FieldSets to States for accumulation
-      fv3jedi::State bkgErrState(geom, chemVars, cycleDate);
-      bkgErrState.fromFieldSet(bkgErrFs);
+        // Replace negative values with zeros
+        for (const auto &var : chemVars.variables()) {
+            auto ClimBkgErrView = atlas::array::make_view<double, 2>(ClimBkgErrorStdDevFs[var]);
+            for (atlas::idx_t jnode = 0; jnode < ClimBkgErrorStdDevFs[var].shape(0); ++jnode) {
+              for (atlas::idx_t level = 0; level < ClimBkgErrorStdDevFs[var].shape(1); ++level) {
+                ClimBkgErrView(jnode, level) = std::max(ClimBkgErrView(jnode, level), 0.0);
+              }
+            }
+          }
 
-      fv3jedi::State ClimBkgErrorStdDevState(geom, chemVars, cycleDate);
-      ClimBkgErrorStdDevState.fromFieldSet(ClimBkgErrorStdDevFs);
+        // Staticb rescale
+        double rescale_staticb;
+        ClimBConfig.get("staticb rescaling factor", rescale_staticb);
 
-      // Accumulate the fields with the given weights
-      stddev_hybrid.accumul(diagb_weight, bkgErrState);
-      stddev_hybrid.accumul((1.0 - diagb_weight)*rescale_staticb, ClimBkgErrorStdDevState);
-      // Use the hybrid increment
-      bkgErr = stddev_hybrid;
+        // Combine diagb and climatological background errors
+        fv3jedi::Increment stddev_hybrid(geom, chemVars, cycleDate);
+        stddev_hybrid.zero();
+
+        // Convert FieldSets to States for accumulation
+        fv3jedi::State bkgErrState(geom, chemVars, cycleDate);
+        bkgErrState.fromFieldSet(bkgErrFs);
+
+        fv3jedi::State ClimBkgErrorStdDevState(geom, chemVars, cycleDate);
+        ClimBkgErrorStdDevState.fromFieldSet(ClimBkgErrorStdDevFs);
+
+        // Accumulate the fields with the given weights
+        stddev_hybrid.accumul(diagb_weight, bkgErrState);
+        stddev_hybrid.accumul((1.0 - diagb_weight)*rescale_staticb, ClimBkgErrorStdDevState);
+        // Use the hybrid increment
+        bkgErr = stddev_hybrid;
+      }
 
       // Save the background error
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
