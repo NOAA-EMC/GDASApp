@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_profile_mbuoy.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_profile_mbuoy.${PDY}${cyc}.nc
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/insitu_profile_mbuoy.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/diags/insitu_profile_mbuoy.${PDY}${cyc}.nc
   simulated variables: [waterTemperature]
   observed variables: [waterTemperature]
   io pool:
