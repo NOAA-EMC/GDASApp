@@ -27,10 +27,11 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   # 1/2 cycle enkfgdasfcst
   message(STATUS "preparing 1/2 cycle ensemble forecast for ${pslot} ctest")
   foreach(mem RANGE ${NMEM})
-    add_test(NAME ${pslot}_ensemble_${HALF_CYCLE}_${mem}
+    set(test_name "${pslot}_enkfgdasfcst_00${mem}_${HALF_CYCLE}")
+    add_test(NAME ${test_name}
              COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasfcst_00${mem} ${HALF_CYCLE}"
              WORKING_DIRECTORY ${RUNTESTS})
-    set_tests_properties(${pslot}_enkfgdasfcst_${mem}_${HALF_CYCLE} PROPERTIES LABELS "gw-ci")
+    set_tests_properties(${test_name} PROPERTIES LABELS "gw-ci")
   endforeach()
 
   # Select the list of tasks to run for the full cycle
@@ -74,7 +75,18 @@ add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_
 # ---------------
 set(pslot "Atm-hyb-C96C48")
 set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96C48_ufs_hybatmDA.yaml)
-set(TASK_LIST)  # empty list for now
+set(TASK_LIST
+  "gdasprep"
+  "gdasprepatmiodaobs"
+  "gdasatmanlinit"
+  "gdasatmanlvar"
+  "gdasatmanlfv3inc"
+  "gdasatmanlfinal"
+  "enkfgdasatmensanlinit"
+  "enkfgdasatmensanlletkf"
+  "enkfgdasatmensanlfv3inc"
+  "enkfgdasatmensanlfinal"
+  )  # empty list for now
 add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}" 2)
 
 # GFSv17, 3DVAR prototype
