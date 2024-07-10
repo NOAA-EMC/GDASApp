@@ -32,7 +32,7 @@ saber outer blocks:
       date: '{{ATM_WINDOW_MIDDLE}}'
       basename: ./
       ocn_filename: 'ocean.bkgerr_stddev.nc'
-      ice_filename: 'ice.bkgerr_stddev..nc'
+      ice_filename: 'ice.bkgerr_stddev.nc'
       read_from_file: 3
 
 linear variable change:

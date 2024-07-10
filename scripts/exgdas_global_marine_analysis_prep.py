@@ -204,12 +204,13 @@ FileHandler({'copy': bmat_list}).sync()
 
 ################################################################################
 # stage the ens B-matrix weights
-ensbmat_list = []
-ensbmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.ocean.ens_weights.nc"),
-                     os.path.join(anl_dir, "ocean.ens_weights.nc")])
-ensbmat_list.append([os.path.join(os.getenv('COMIN_ICE_BMATRIX'), f"gdas.t{cyc}z.ice.ens_weights.nc"),
-                     os.path.join(anl_dir, "ice.ens_weights.nc")])
-FileHandler({'copy': ensbmat_list}).sync()
+if dohybvar or nmem_ens >= 3:
+    ensbmat_list = []
+    ensbmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"gdas.t{cyc}z.ocean.ens_weights.nc"),
+                         os.path.join(anl_dir, "ocean.ens_weights.nc")])
+    ensbmat_list.append([os.path.join(os.getenv('COMIN_ICE_BMATRIX'), f"gdas.t{cyc}z.ice.ens_weights.nc"),
+                         os.path.join(anl_dir, "ice.ens_weights.nc")])
+    FileHandler({'copy': ensbmat_list}).sync()
 
 ################################################################################
 # generate yaml for soca_var
