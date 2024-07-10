@@ -70,10 +70,10 @@ for pr in $open_pr_list; do
   # check if we should run the tier-2 tests
   pr_number=$(gh pr list --head "$gdasapp_branch" --json number --jq '.[0].number')
   all_labels=$(gh pr view "$pr_number" --json labels --jq '.labels[].name')
-  do_tier2=false
+  do_tier2="false"
   if echo "$all_labels" | grep -q "^$tier2_label$"; then
       echo "Tier-2 label found"
-      do_tier2=true
+      do_tier2="true"
   fi
 
   # check for a companion PR in the global-workflow

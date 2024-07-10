@@ -16,7 +16,7 @@ usage() {
 }
 
 # ==============================================================================
-do_tier2=false
+do_tier2="false"
 while getopts "d:o:h:t:" opt; do
   case $opt in
     d)
@@ -70,7 +70,7 @@ echo "---------------------------------------------------" >> $outfile
 # Reconfigure if the tier-2 testing is required
 # TODO: Not the most efficient, but even when exported, the variable is out of scope
 #       when running build.sh
-if [ $do_tier2 == "true" ]; then
+if [ "$do_tier2" = "true" ]; then
   echo "Tier-2 Testing: Activated" >> $outfile
   cmake -DGDAS_TIER2_TESTING=ON . >> log.cmake_tier2
 fi
