@@ -8,18 +8,18 @@ geometry:
   layout:
   - {{ layout_x }}
   - {{ layout_y }}
-  npx: {{ npx_ges }}
-  npy: {{ npy_ges }}
-  npz: {{ npz_ges }}
+  npx: {{ npx_anl }}
+  npy: {{ npy_anl }}
+  npz: {{ npz_anl }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 date: '{{ background_time | to_isotime }}' 
 background:
   datetime: '{{ background_time | to_isotime }}' 
   filetype: fms restart
   datapath: ./bkg
-  filename_core: '{{ background_time | to_fv3time }}.fv_core.res.nc'
-  filename_trcr: '{{ background_time | to_fv3time }}.fv_tracer.res.nc'
-  filename_cplr: '{{ background_time | to_fv3time }}.coupler.res'
+  filename_core: '{{ background_time | to_fv3time }}.anlres.fv_core.res.nc'
+  filename_trcr: '{{ background_time | to_fv3time }}.anlres.fv_tracer.res.nc'
+  filename_cplr: '{{ background_time | to_fv3time }}.anlres.coupler.res'
   state variables: [mass_fraction_of_sulfate_in_air,
                     mass_fraction_of_hydrophobic_black_carbon_in_air,
                     mass_fraction_of_hydrophilic_black_carbon_in_air,

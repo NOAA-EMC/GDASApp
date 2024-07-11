@@ -132,6 +132,7 @@ namespace gdasapp {
 
       // Loop through variables
       for (auto & var : chemVars.variables()) {
+        nodeColumns.haloExchange(xbFs[var]);
         oops::Log::info() << "====================== std dev for " << var << std::endl;
         auto bkg = atlas::array::make_view<double, 2>(xbFs[var]);
         auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);

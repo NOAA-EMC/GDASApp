@@ -8,13 +8,13 @@ geometry:
   layout:
   - {{ layout_x }}
   - {{ layout_y }}
-  npx: {{ npx_ges }}
-  npy: {{ npy_ges }}
-  npz: {{ npz_ges }}
+  npx: {{ npx_anl }}
+  npy: {{ npy_anl }}
+  npz: {{ npz_anl }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
-date: '{{ background_time | to_isotime }}' 
+date: '{{ background_time | to_isotime }}'
 background:
-  datetime: '{{ background_time | to_isotime }}' 
+  datetime: '{{ background_time | to_isotime }}'
   filetype: fms restart
   state variables: [mass_fraction_of_sulfate_in_air,
                     mass_fraction_of_hydrophobic_black_carbon_in_air,
@@ -27,9 +27,9 @@ background:
                     mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air,
                     mass_fraction_of_sea_salt004_in_air]
   datapath: ./bkg
-  filename_core: '{{ background_time | to_fv3time }}.fv_core.res.nc'
-  filename_trcr: '{{ background_time | to_fv3time }}.fv_tracer.res.nc'
-  filename_cplr: '{{ background_time | to_fv3time }}.coupler.res'
+  filename_core: '{{ background_time | to_fv3time }}.anlres.fv_core.res.nc'
+  filename_trcr: '{{ background_time | to_fv3time }}.anlres.fv_tracer.res.nc'
+  filename_cplr: '{{ background_time | to_fv3time }}.anlres.coupler.res'
 
 background error:
   filetype: fms restart
@@ -46,8 +46,8 @@ climate background error:
     layout:
     - {{ layout_x }}
     - {{ layout_y }}
-    npx: 97
-    npy: 97
+    npx: {{ npx_clim_b }}
+    npy: {{ npy_clim_b }}
     npz: {{ npz_ges }}
     field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
   climate background error stddev:
@@ -56,7 +56,7 @@ climate background error:
     datapath: ./clm_stddev
     filename_trcr: stddev.fv_tracer.res.nc
     filename_cplr: stddev.coupler.res
-  diagb weight: 0.5
+  diagb weight: 0.9
   staticb rescaling factor: 2.0
 
 variables:
@@ -76,9 +76,9 @@ variables:
   - mass_fraction_of_sea_salt003_in_air
   - mass_fraction_of_sea_salt004_in_air
 
-rescale: 2.0    # rescales the filtered std. dev. by "rescale"
-number of halo points: 4
+rescale: 20.0    # rescales the filtered std. dev. by "rescale"
+number of halo points: 16
 number of neighbors: 16
 simple smoothing:
-  horizontal iterations: 0 
+  horizontal iterations: 0
   vertical iterations: 0
