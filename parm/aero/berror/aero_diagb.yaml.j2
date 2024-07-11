@@ -56,8 +56,8 @@ climate background error:
     datapath: ./clm_stddev
     filename_trcr: stddev.fv_tracer.res.nc
     filename_cplr: stddev.coupler.res
-  diagb weight: 0.9
-  staticb rescaling factor: 2.0
+  diagb weight: {{ aero_diagb_weight }}
+  staticb rescaling factor: {{ aero_staticb_rescaling_factor }}
 
 variables:
   name:
@@ -76,9 +76,9 @@ variables:
   - mass_fraction_of_sea_salt003_in_air
   - mass_fraction_of_sea_salt004_in_air
 
-rescale: 20.0    # rescales the filtered std. dev. by "rescale"
-number of halo points: 16
-number of neighbors: 16
+rescale: {{ aero_diagb_rescale }}    # rescales the filtered std. dev. by "rescale"
+number of halo points: {{ aero_diagb_n_halo }}
+number of neighbors: {{ aero_diagb_n_neighbors }}
 simple smoothing:
-  horizontal iterations: 0
-  vertical iterations: 0
+  horizontal iterations: {{ aero_diagb_smooth_horiz_iter }}
+  vertical iterations: {{ aero_diagb_smooth_vert_iter }}
