@@ -97,8 +97,7 @@ if(BUILD_GDASBUNDLE)
   option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT ufo SOURCE "../sorc/ufo" )
 
-# FMS and FV3 dynamical core
-  #ecbuild_bundle( PROJECT fms SOURCE "../sorc/fms" )
+# FV3 dynamical core
   include(fv3-interface.cmake)
   ecbuild_bundle( PROJECT fv3 SOURCE "../sorc/fv3" )
 
@@ -114,7 +113,6 @@ if(BUILD_GDASBUNDLE)
   if ( BUILD_ICEPACK )
     ecbuild_bundle( PROJECT icepack SOURCE "../sorc/icepack" )
   endif()
-  #ecbuild_bundle( PROJECT mom6 SOURCE "../sorc/mom6" )
   ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
 
   # Build JEDI/DA or other peripherals
