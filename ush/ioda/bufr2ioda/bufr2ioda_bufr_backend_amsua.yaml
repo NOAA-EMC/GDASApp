@@ -1,0 +1,39 @@
+time window:
+  begin: "2018-04-14T21:00:00Z"
+  end: "2023-12-15T03:00:00Z"
+
+observations:
+- obs space:
+    name: "1bamua"
+    simulated variables: ['brightnessTemperature']
+    obsdatain:
+      engine:
+        type: bufr 
+        obsfile: "./testinput/2021080100/gdas.t00z.1bamua.tm00.bufr_d"
+        mapping file: "./bufr2ioda_1bamua_mapping.yaml"
+        category: ["n19"]            # optional (needed if the BUFR mapping defines splits)
+        cache categories:            # optional
+          - ["n19"]
+          - ["n20"]
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "./testoutput/2021080100/bufr_backend/gdas.t00z.1bamua_n19.tm00.nc"
+
+- obs space:
+    name: "esamua_n19"
+    simulated variables: ['brightnessTemperature']
+    obsdatain:
+      engine:
+        type: bufr
+        obsfile: "./testinput/2021080100/gdas.t00z.esamua.tm00.bufr_d"
+        mapping file: "./bufr2ioda_esamua_mapping.yaml"
+        category: ["n19"]            # optional (needed if the BUFR mapping defines splits)
+        cache categories:            # optional
+          - ["n19"]
+          - ["n20"]
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "./testoutput/2021080100/bufr_backend/gdas.t00z.esamua_n19.tm00.nc"
+

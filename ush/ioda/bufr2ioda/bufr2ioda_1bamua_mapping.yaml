@@ -1,0 +1,134 @@
+bufr:
+  splits:
+    satId:
+      category:
+        map:
+          _209: n18
+          _223: n19
+          _3: metop-b
+          _4: metop-a
+          _5: metop-c
+        variable: satelliteIdentifier
+  variables:
+    brightnessTemperature:
+      query: '*/BRITCSTC/TMBR'
+    fieldOfViewNumber:
+      query: '*/FOVN'
+    heightOfStation:
+      query: '*/HMSL'
+    latitude:
+      query: '*/CLAT'
+    longitude:
+      query: '*/CLON'
+    satelliteIdentifier:
+      query: '*/SAID'
+    sensorAzimuthAngle:
+      query: '*/BEARAZ'
+    sensorChannelNumber:
+      query: '*/BRITCSTC/CHNM'
+    sensorScanAngle:
+      sensorScanAngle:
+        fieldOfViewNumber: '*/FOVN'
+        scanStart: -48.333
+        scanStep: 3.333
+        sensor: amsua
+    sensorZenithAngle:
+      query: '*/SAZA'
+    solarAzimuthAngle:
+      query: '*/SOLAZI'
+    solarZenithAngle:
+      query: '*/SOZA'
+    timestamp:
+      datetime:
+        day: '*/DAYS'
+        hour: '*/HOUR'
+        minute: '*/MINU'
+        month: '*/MNTH'
+        second: '*/SECO'
+        year: '*/YEAR'
+encoder:
+  backend: netcdf
+  dimensions:
+  - name: Channel
+    path: '*/BRITCSTC'
+    source: variables/sensorChannelNumber
+  globals:
+  - name: platformCommonName
+    type: string
+    value: AMSUA
+  - name: platformLongDescription
+    type: string
+    value: MTYP 021-023 PROC AMSU-A 1B Tb
+  variables:
+  - longName: Satellite Identifier
+    name: MetaData/satelliteIdentifier
+    source: variables/satelliteIdentifier
+  - longName: Field Of View Number
+    name: MetaData/sensorScanPosition
+    source: variables/fieldOfViewNumber
+  - longName: Altitude of Satellite
+    name: MetaData/heightOfStation
+    source: variables/heightOfStation
+    units: m
+  - longName: Solar Zenith Angle
+    name: MetaData/solarZenithAngle
+    range:
+    - 0
+    - 180
+    source: variables/solarZenithAngle
+    units: degree
+  - longName: Solar Azimuth Angle
+    name: MetaData/solarAzimuthAngle
+    range:
+    - 0
+    - 360
+    source: variables/solarAzimuthAngle
+    units: degree
+  - longName: Sensor Zenith Angle
+    name: MetaData/sensorZenithAngle
+    range:
+    - 0
+    - 90
+    source: variables/sensorZenithAngle
+    units: degree
+  - longName: Sensor Azimuth Angle
+    name: MetaData/sensorAzimuthAngle
+    range:
+    - 0
+    - 360
+    source: variables/sensorAzimuthAngle
+    units: degree
+  - longName: Sensor View Angle
+    name: MetaData/sensorViewAngle
+    source: variables/sensorScanAngle
+    units: degree
+  - longName: Sensor Channel Number
+    name: MetaData/sensorChannelNumber
+    source: variables/sensorChannelNumber
+  - chunks:
+    - 1000
+    - 15
+    compressionLevel: 4
+    coordinates: longitude latitude Channel
+    longName: Brightness Temperature
+    name: ObsValue/brightnessTemperature
+    range:
+    - 100
+    - 500
+    source: variables/brightnessTemperature
+    units: K
+  - longName: Datetime
+    name: MetaData/dateTime
+    source: variables/timestamp
+    units: seconds since 1970-01-01T00:00:00Z
+  - longName: Latitude
+    name: MetaData/latitude
+    range:
+    - -90
+    - 90
+    source: variables/latitude
+    units: degree_north
+  - longName: Longitude
+    name: MetaData/longitude
+    source: variables/longitude
+    units: degree_east
