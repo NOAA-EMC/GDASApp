@@ -14,10 +14,10 @@ mkdir:
 ######################################
 copy:
 # stage initial conditions
-- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ RUN }}.ocean.t{{ gcyc }}z.inst.f003.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
-- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ RUN }}.ice.t{{ gcyc }}z.inst.f003.nc", "{{ DATA }}/INPUT/cice.res.nc"]
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/gdas.ocean.t{{ gcyc }}z.inst.f003.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/gdas.ice.t{{ gcyc }}z.inst.f003.nc", "{{ DATA }}/INPUT/cice.res.nc"]
 # stage f006 and f009 backgrounds
 {% for fcsth in ['f006', 'f009'] %}
-- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ RUN }}.ocean.t{{ gcyc }}z.inst.{{ fcsth }}.nc", "{{ DATA }}/bkg/ocean.bkg.{{ fcsth }}.nc"]
-- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ RUN }}.ice.t{{ gcyc }}z.inst.{{ fcsth }}.nc", "{{ DATA }}/bkg/ice.bkg.{{ fcsth }}.nc"]
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/gdas.ocean.t{{ gcyc }}z.inst.{{ fcsth }}.nc", "{{ DATA }}/bkg/ocean.bkg.{{ fcsth }}.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/gdas.ice.t{{ gcyc }}z.inst.{{ fcsth }}.nc", "{{ DATA }}/bkg/ice.bkg.{{ fcsth }}.nc"]
 {% endfor %}
