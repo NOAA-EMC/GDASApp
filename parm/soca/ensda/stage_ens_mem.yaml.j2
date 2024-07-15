@@ -22,14 +22,6 @@ copy:
                         'YMD':gPDY,
                         'HH':gcyc,
                         'MEMDIR':"mem" + '%03d' % mem} %}
-    {% set com_prev_ocn = namespace(COM_OCEAN_HISTORY_MEM = COM_OCEAN_HISTORY_TMPL) %}
-    {% set com_prev_ice = namespace(COM_ICE_HISTORY_MEM = COM_ICE_HISTORY_TMPL) %}
-    {% for key in tmpl_dict.keys() %}
-        {% set search_term = '${' + key + '}' %}
-        {% set replace_term = tmpl_dict[key] %}
-        {% set com_prev_ocn.COM_OCEAN_HISTORY_MEM = com_prev_ocn.COM_OCEAN_HISTORY_MEM.replace(search_term, replace_term) %}
-        {% set com_prev_ice.COM_ICE_HISTORY_MEM = com_prev_ice.COM_ICE_HISTORY_MEM.replace(search_term, replace_term) %}
-    {% endfor %}
-    - ["{{ com_prev_ocn.COM_OCEAN_HISTORY_MEM }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATAenspert }}/ens/ocean.{{ mem }}.nc"]
-    - ["{{ com_prev_ice.COM_ICE_HISTORY_MEM }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATAenspert }}/ens/ice.{{ mem }}.nc"]
+    - ["{{ COM_OCEAN_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATAenspert }}/ens/ocean.{{ mem }}.nc"]
+    - ["{{ COM_ICE_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATAenspert }}/ens/ice.{{ mem }}.nc"]
 {% endfor %}
