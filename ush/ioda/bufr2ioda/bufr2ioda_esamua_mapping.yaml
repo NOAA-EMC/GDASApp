@@ -26,6 +26,8 @@ bufr:
       query: '*/BEARAZ'
     sensorChannelNumber:
       query: '*/ATNCHV/INCN'
+      transforms:
+        - offset: -27
     sensorScanAngle:
       sensorScanAngle:
         fieldOfViewNumber: '*/FOVN'
