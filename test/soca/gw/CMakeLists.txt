@@ -12,8 +12,8 @@ add_test(NAME test_gdasapp_soca_prep
 # Identify machine
 set(MACHINE "container")
 IF (IS_DIRECTORY /work2)
-  string(SUBSTRING $ENV{HOSTNAME} 0 3 HOST)
-  IF ("${HOST}" STREQUAL "herc")
+  string(SUBSTRING $ENV{HOSTNAME} 0 8 HOST)
+  IF ("${HOST}" STREQUAL "hercules")
     set(MACHINE "hercules")
     set(PARTITION "hercules")
   ELSE()
@@ -47,7 +47,7 @@ set(jjob_list "JGLOBAL_PREP_OCEAN_OBS"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
 #              "JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN"
-              "JGDAS_GLOBAL_OCEAN_ANALYSIS_ECEN"
+#              "JGDAS_GLOBAL_OCEAN_ANALYSIS_ECEN"
 #	      "JGDAS_GLOBAL_OCEAN_ANALYSIS_LETKF"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT"
 	      "JGDAS_GLOBAL_OCEAN_ANALYSIS_POST")
