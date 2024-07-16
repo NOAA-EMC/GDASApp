@@ -13,6 +13,6 @@ set(INTERNAL_FILE_NML     ON )
 set(ENABLE_QUAD_PRECISION ON )
 
 add_library(fv3dycore IMPORTED SHARED)
-set_target_properties(fv3dycore PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/fv3/libfv3.dylib)
+set_target_properties(fv3dycore PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/fv3/libfv3.${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 message(WARN "WE ARE USING fv3-interface.cmake")
