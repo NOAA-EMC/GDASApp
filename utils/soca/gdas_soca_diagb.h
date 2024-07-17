@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 
 #include <algorithm>
 #include <iostream>
@@ -420,29 +420,35 @@ namespace gdasapp {
       // ------------------------------------------------------
       if (fullConfig.has("diffusion")) {
         const eckit::LocalConfiguration diffConfig(fullConfig, "diffusion");
-        oops::Log::info() << "====================== apply explicit diffusion filtering" << std::endl;
+        oops::Log::info() << "====================== apply explicit diffusion filtering"
+                          << std::endl;
+        // Create the diffusion object
         oops::GeometryData geometryData(geom.functionSpace(),
                                         bkgErrFs["tocn"], true, this->getComm());
         oops::Diffusion diffuse(geometryData);
         diffuse.calculateDerivedGeom(geometryData);
-        atlas::FieldSet scalesFs;
 
+        // Lambda function to construct a field with a constant filtering value
         auto assignScale = [&](double scale, const std::string& fieldName) {
           atlas::Field field;
           auto levels = xbFs["tocn"].shape(1);
           field = geom.functionSpace().createField<double>(atlas::option::levels(levels) |
-                                                           atlas::option::name(fieldName));
+                       atlas::option::name(fieldName));
           auto viewField = atlas::array::make_view<double, 2>(field);
           viewField.assign(scale);
           return field;
         };
 
-        //const double val = conf.getDouble("fixed value");
+        // read the scales from the configuration
         auto hzScales = assignScale(diffConfig.getDouble("horizontal"), "hzScales");
         auto vtScales = assignScale(diffConfig.getDouble("vertical"), "vtScales");
 
+        // Add the scales to the fieldset
+        atlas::FieldSet scalesFs;
         scalesFs.add(hzScales);
         scalesFs.add(vtScales);
+
+        // Apply the diffusion filtering
         diffuse.setParameters(scalesFs);
         diffuse.multiply(bkgErrFs, oops::Diffusion::Mode::HorizontalOnly);
       }
