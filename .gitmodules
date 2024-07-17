@@ -82,6 +82,6 @@
   url = https://github.com/noaa-emc/jcb-algorithms
   branch = develop
 [submodule "sorc/bufr-query"]
-	path = sorc/bufr-query
-	url = https://github.com/noaa-emc/bufr-query.git
- 	branch = master
+  path = sorc/bufr-query
+  url = https://github.com/noaa-emc/bufr-query.git
+  branch = master
