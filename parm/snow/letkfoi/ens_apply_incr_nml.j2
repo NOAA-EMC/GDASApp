@@ -1,0 +1,10 @@
+&noahmp_snow
+  date_str = "{{ current_cycle | to_YMD }}",
+  hour_str = "{{ current_cycle | strftime('%H') }}",
+  res = {{ CASE_ENS[1:] }},
+  frac_grid = .true.,
+  rst_path = "{{ DATAROOT }}/anl/mem{{ MYMEM }}",
+  inc_path = "{{ DATAROOT }}/inc/ensmean",
+  orog_path = "{{ HOMEgfs }}/fix/orog/{{ CASE_ENS }}",
+  otype = "{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data"
+/

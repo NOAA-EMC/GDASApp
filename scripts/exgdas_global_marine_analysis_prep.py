@@ -3,6 +3,7 @@
 # Script description:  Stages files and generates YAML for UFS Global Marine Analysis
 
 # import os to add ush to path
+import copy
 import os
 import glob
 import dateutil.parser as dparser
@@ -10,6 +11,10 @@ import f90nml
 from soca import bkg_utils
 from datetime import datetime, timedelta
 import pytz
+import re
+import yaml
+
+from jcb import render
 from wxflow import (Logger, Template, TemplateConstants,
                     YAMLFile, FileHandler, AttrDict, parse_j2yaml)
 
@@ -59,12 +64,27 @@ def find_clim_ens(input_date):
     return nearest_date(dirs, input_date)
 
 
+def parse_obs_list_file():
+    # Get the list of observation types from the obs_list.yaml
+    obs_list_path = os.path.join(gdas_home, 'parm', 'soca', 'obs', 'obs_list.yaml')
+    obs_types = []
+    with open(obs_list_path, 'r') as file:
+        for line in file:
+            # Remove leading/trailing whitespace and check if the line is uncommented
+            line = line.strip()
+            if line.startswith('- !INC') and not line.startswith('#'):
+                # Extract the type using regex
+                match = re.search(r'\$\{OBS_YAML_DIR\}/(.+)\.yaml', line)
+                if match:
+                    obs_types.append(str(match.group(1)))
+    return obs_types
+
 ################################################################################
 # runtime environment variables, create directories
 
+
 logger.info(f"---------------- Setup runtime environement")
 
-comin_obs = os.getenv('COMIN_OBS')
 anl_dir = os.getenv('DATA')
 staticsoca_dir = os.getenv('SOCA_INPUT_FIX_DIR')
 nmem_ens = 0
@@ -157,7 +177,7 @@ if dohybvar:
             ensroot = os.getenv('COM_OCEAN_HISTORY_PREV')
             ensdir = os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
                                   f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
-                                  'model_data', domain, 'history')
+                                  'model', domain, 'history')
             ensdir_real = os.path.realpath(ensdir)
             f009 = f'enkfgdas.{domain}.t{gcyc}z.inst.f009.nc'
 
@@ -297,6 +317,52 @@ varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PA
 
 # Remove empty obs spaces in var_yaml
 ufsda.yamltools.save_check(varconfig, target=var_yaml, app='var')
+
+# Produce JEDI YAML file using JCB (for demonstration purposes)
+# -------------------------------------------------------------
+
+# Make a copy of the env config before modifying to avoid breaking something else
+envconfig_jcb = copy.deepcopy(envconfig)
+
+# Add the things to the envconfig in order to template JCB files
+envconfig_jcb['PARMgfs'] = os.getenv('PARMgfs')
+envconfig_jcb['nmem_ens'] = nmem_ens
+envconfig_jcb['berror_model'] = 'marine_background_error_static_diffusion'
+if nmem_ens > 3:
+    envconfig_jcb['berror_model'] = 'marine_background_error_hybrid_diffusion_diffusion'
+envconfig_jcb['DATA'] = os.getenv('DATA')
+envconfig_jcb['OPREFIX'] = os.getenv('OPREFIX')
+envconfig_jcb['PDY'] = os.getenv('PDY')
+envconfig_jcb['cyc'] = os.getenv('cyc')
+envconfig_jcb['SOCA_NINNER'] = os.getenv('SOCA_NINNER')
+envconfig_jcb['obs_list'] = ['adt_rads_all']
+
+# Write obs_list_short
+with open('obs_list_short.yaml', 'w') as file:
+    yaml.dump(parse_obs_list_file(), file, default_flow_style=False)
+os.environ['OBS_LIST_SHORT'] = 'obs_list_short.yaml'
+
+# Render the JCB configuration files
+jcb_base_yaml = os.path.join(gdas_home, 'parm', 'soca', 'marine-jcb-base.yaml')
+jcb_algo_yaml = os.path.join(gdas_home, 'parm', 'soca', 'marine-jcb-3dfgat.yaml.j2')
+
+jcb_base_config = YAMLFile(path=jcb_base_yaml)
+jcb_base_config = Template.substitute_structure(jcb_base_config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig_jcb.get)
+jcb_base_config = Template.substitute_structure(jcb_base_config, TemplateConstants.DOLLAR_PARENTHESES, envconfig_jcb.get)
+jcb_algo_config = YAMLFile(path=jcb_algo_yaml)
+jcb_algo_config = Template.substitute_structure(jcb_algo_config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig_jcb.get)
+jcb_algo_config = Template.substitute_structure(jcb_algo_config, TemplateConstants.DOLLAR_PARENTHESES, envconfig_jcb.get)
+
+# Override base with the application specific config
+jcb_config = {**jcb_base_config, **jcb_algo_config}
+
+# Render the full JEDI configuration file using JCB
+jedi_config = render(jcb_config)
+
+# Save the JEDI configuration file
+var_yaml_jcb = os.path.join(anl_dir, 'var-jcb.yaml')
+ufsda.yamltools.save_check(jedi_config, target=var_yaml_jcb, app='var')
+
 
 ################################################################################
 # Prepare the yamls for the "checkpoint" jjob

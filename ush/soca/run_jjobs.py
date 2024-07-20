@@ -94,8 +94,8 @@ class JobCard:
         self.f.write(f"export gcyc='{gcyc}'\n")
         self.f.write(f"export CDATE='{CDATE}'\n")
 
-        # Add to python environement
-        self.f.write("PYTHONPATH=${HOMEgfs}/ush/python/wxflow/src:${PYTHONPATH}\n")
+        # Add to python environment
+        self.f.write("PYTHONPATH=${HOMEgfs}/ush/python:${PYTHONPATH}\n")
 
     def setupexpt(self):
         """
@@ -185,10 +185,10 @@ class JobCard:
         self.f.write("mkdir -p ${COM_ICE_HISTORY_PREV}/\n")
         self.f.write("mkdir -p ${COM_ICE_RESTART_PREV}/\n")
 
-        model_data = os.path.join(self.com_src, f"{self.RUN}.{self.gPDY}", self.gcyc, "model_data")
-        com_ocean_history_src = os.path.join(model_data, 'ocean', 'history')
-        com_ice_history_src = os.path.join(model_data, 'ice', 'history')
-        com_ice_restart_src = os.path.join(model_data, 'ice', 'restart')
+        model = os.path.join(self.com_src, f"{self.RUN}.{self.gPDY}", self.gcyc, "model")
+        com_ocean_history_src = os.path.join(model, 'ocean', 'history')
+        com_ice_history_src = os.path.join(model, 'ice', 'history')
+        com_ice_restart_src = os.path.join(model, 'ice', 'restart')
         self.f.write(f"cp {com_ocean_history_src}/*.ocean.*.nc $COM_OCEAN_HISTORY_PREV \n")
         self.f.write(f"cp {com_ice_history_src}/*.ice.*.nc $COM_ICE_HISTORY_PREV \n")
         self.f.write(f"cp {com_ice_restart_src}/*cice_model*.nc $COM_ICE_RESTART_PREV \n")
@@ -222,7 +222,6 @@ class JobCard:
                        'ROTDIR': self.rotdir,
                        'EXPDIRS': self.expdirs}
 
-        # needed for this ctest at least until R2D2 goes away
         if 'JGLOBAL_PREP_OCEAN_OBS' in self.config['jjobs']:
             dmpdir = self.config['setup_expt config']['prepoceanobs']['DMPDIR']
             var2replace['DMPDIR'] = dmpdir

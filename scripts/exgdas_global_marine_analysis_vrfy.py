@@ -31,10 +31,11 @@ com_ice_history = os.path.realpath(os.getenv('COM_ICE_HISTORY_PREV'))
 com_ocean_history = os.path.realpath(os.getenv('COM_OCEAN_HISTORY_PREV'))
 cyc = os.getenv('cyc')
 RUN = os.getenv('RUN')
-gcyc = str((int(cyc) - 6) % 24).zfill(2)
 
 bcyc = str((int(cyc) - 3) % 24).zfill(2)
+gcyc = str((int(cyc) - 6) % 24).zfill(2)
 grid_file = os.path.join(comout, f'{RUN}.t'+bcyc+'z.ocngrid.nc')
+layer_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
 
 # for eva
 diagdir = os.path.join(comout, 'diags')
@@ -76,6 +77,7 @@ configs = [plotConfig(grid_file=grid_file,
                       colormap='seismic',
                       comout=os.path.join(comout, 'vrfy', 'bkgerr', 'steric_explained_variance')),   # steric explained variance
            plotConfig(grid_file=grid_file,
+                      layer_file=layer_file,
                       data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ocn.bkgerr_stddev.nc'),
                       lats=np.arange(-60, 60, 10),
                       lons=np.arange(-280, 80, 30),
@@ -95,6 +97,7 @@ configs = [plotConfig(grid_file=grid_file,
                       colormap='jet',
                       comout=os.path.join(comout, 'vrfy', 'bkgerr')),   # ocn bkgerr stddev
            plotConfig(grid_file=grid_file,
+                      layer_file=layer_file,
                       data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc'),
                       lats=np.arange(-60, 60, 10),
                       lons=np.arange(-280, 80, 30),
@@ -137,14 +140,21 @@ configs = [plotConfig(grid_file=grid_file,
                       variables_horiz={'ave_ssh': [-1.8, 1.3],
                                        'Temp': [-1.8, 34.0],
                                        'Salt': [30, 38]},
-                      colormap='jet',
+                      colormap='nipy_spectral',
                       comout=os.path.join(comout, 'vrfy', 'ana')),   # ocean surface analysis
            plotConfig(grid_file=grid_file,
+                      layer_file=layer_file,
                       data_file=os.path.join(com_ocean_history, f'{RUN}.ocean.t{gcyc}z.inst.f006.nc'),
+                      lats=np.arange(-60, 60, 10),
+                      lons=np.arange(-280, 80, 30),
+                      variables_zonal={'Temp': [-1.8, 34.0],
+                                       'Salt': [30, 38]},
+                      variables_meridional={'Temp': [-1.8, 34.0],
+                                            'Salt': [30, 38]},
                       variables_horiz={'ave_ssh': [-1.8, 1.3],
                                        'Temp': [-1.8, 34.0],
                                        'Salt': [30, 38]},
-                      colormap='jet',
+                      colormap='nipy_spectral',
                       comout=os.path.join(comout, 'vrfy', 'bkg'))]   # ocean surface background
 
 # Number of processes
