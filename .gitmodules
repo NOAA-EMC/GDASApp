@@ -84,4 +84,4 @@
 [submodule "sorc/bufr-query"]
   path = sorc/bufr-query
   url = https://github.com/noaa-emc/bufr-query.git
-  branch = master
+  branch = develop
