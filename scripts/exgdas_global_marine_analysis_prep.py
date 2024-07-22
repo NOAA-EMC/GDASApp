@@ -16,7 +16,7 @@ import yaml
 
 from jcb import render
 from wxflow import (Logger, Template, TemplateConstants,
-                    YAMLFile, FileHandler, AttrDict, parse_j2yaml)
+                    YAMLFile, FileHandler)
 
 logger = Logger()
 
@@ -168,120 +168,49 @@ ufsda.stage.soca_fix(stage_cfg)
 
 ################################################################################
 # stage ensemble members
-if dohybvar:
-    logger.info("---------------- Stage ensemble members")
-    ens_member_list = []
-    for mem in range(1, nmem_ens+1):
-        for domain in ['ocean', 'ice']:
-            # TODO(Guillaume): make use and define ensemble COM in the j-job
-            ensroot = os.getenv('COM_OCEAN_HISTORY_PREV')
-            ensdir = os.path.join(os.getenv('COM_OCEAN_HISTORY_PREV'), '..', '..', '..', '..', '..',
-                                  f'enkf{RUN}.{PDY}', f'{gcyc}', f'mem{str(mem).zfill(3)}',
-                                  'model', domain, 'history')
-            ensdir_real = os.path.realpath(ensdir)
-            f009 = f'enkfgdas.{domain}.t{gcyc}z.inst.f009.nc'
-
-            fname_in = os.path.abspath(os.path.join(ensdir_real, f009))
-            fname_out = os.path.realpath(os.path.join(static_ens, domain+"."+str(mem)+".nc"))
-            ens_member_list.append([fname_in, fname_out])
-    FileHandler({'copy': ens_member_list}).sync()
-
-    # reformat the cice history output
-    for mem in range(1, nmem_ens+1):
-        cice_fname = os.path.realpath(os.path.join(static_ens, "ice."+str(mem)+".nc"))
-        bkg_utils.cice_hist2fms(cice_fname, cice_fname)
-else:
-    if nmem_ens >= 3:
-        logger.info("---------------- Stage offline ensemble members")
-        ens_member_list = []
-        clim_ens_dir = find_clim_ens(pytz.utc.localize(window_begin, is_dst=None))
-        list_of_members = glob.glob(os.path.join(clim_ens_dir, 'ocean.*.nc'))
-        nmem_ens = min(nmem_ens, len(list_of_members))
-        for domain in ['ocean', 'ice']:
-            for mem in range(1, nmem_ens+1):
-                fname = domain+"."+str(mem)+".nc"
-                fname_in = os.path.join(clim_ens_dir, fname)
-                fname_out = os.path.join(static_ens, fname)
-                ens_member_list.append([fname_in, fname_out])
-        FileHandler({'copy': ens_member_list}).sync()
-
-os.environ['ENS_SIZE'] = str(nmem_ens)
+if dohybvar or nmem_ens >= 3:
+    # TODO: No symlink allowed but this script will be refactored soon
+    # Relative path to ensemble perturbations
+    ens_perturbations = os.path.join('..', f'gdasmarinebmat.{PDY}{cyc}', 'enspert', 'ens')
+    os.symlink(ens_perturbations, 'ens')
 
 ################################################################################
 # prepare JEDI yamls
-
+os.environ['ENS_SIZE'] = str(nmem_ens)
 logger.info(f"---------------- Generate JEDI yaml files")
 
 ################################################################################
-# copy yaml for grid generation
-
-logger.info(f"---------------- generate gridgen.yaml")
-gridgen_yaml_src = os.path.realpath(os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'))
-gridgen_yaml_dst = os.path.realpath(os.path.join(stage_cfg['stage_dir'], 'gridgen.yaml'))
-FileHandler({'copy': [[gridgen_yaml_src, gridgen_yaml_dst]]}).sync()
+# Stage the soca grid
+src = os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), 'soca_gridspec.nc')
+dst = os.path.join(anl_dir, 'soca_gridspec.nc')
+FileHandler({'copy': [[src, dst]]}).sync()
 
 ################################################################################
-# generate the YAML file for the post processing of the clim. ens. B
-berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
-
-logger.info(f"---------------- generate soca_diagb.yaml")
-conf = parse_j2yaml(path=os.path.join(berror_yaml_dir, 'soca_diagb.yaml.j2'),
-                    data=envconfig)
-conf.save(os.path.join(anl_dir, 'soca_diagb.yaml'))
-
-logger.info(f"---------------- generate soca_ensb.yaml")
-berr_yaml = os.path.join(anl_dir, 'soca_ensb.yaml')
-berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_ensb.yaml')
-config = YAMLFile(path=berr_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config.save(berr_yaml)
-
-logger.info(f"---------------- generate soca_ensweights.yaml")
-berr_yaml = os.path.join(anl_dir, 'soca_ensweights.yaml')
-berr_yaml_template = os.path.join(berror_yaml_dir, 'soca_ensweights.yaml')
-config = YAMLFile(path=berr_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config.save(berr_yaml)
+# stage the static B-matrix
+bmat_list = []
+# Diagonal of the B matrix
+bmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"{RUN}.t{cyc}z.ocean.bkgerr_stddev.nc"),
+                  os.path.join(anl_dir, "ocean.bkgerr_stddev.nc")])
+bmat_list.append([os.path.join(os.getenv('COMIN_ICE_BMATRIX'), f"{RUN}.t{cyc}z.ice.bkgerr_stddev.nc"),
+                  os.path.join(anl_dir, "ice.bkgerr_stddev.nc")])
+# Correlation operator
+bmat_list.append([os.path.join(os.getenv('COMIN_ICE_BMATRIX'), f"{RUN}.t{cyc}z.hz_ice.nc"),
+                  os.path.join(anl_dir, "hz_ice.nc")])
+bmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"{RUN}.t{cyc}z.hz_ocean.nc"),
+                  os.path.join(anl_dir, "hz_ocean.nc")])
+bmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"{RUN}.t{cyc}z.vt_ocean.nc"),
+                  os.path.join(anl_dir, "vt_ocean.nc")])
+FileHandler({'copy': bmat_list}).sync()
 
 ################################################################################
-# copy yaml for localization length scales
-
-logger.info(f"---------------- generate soca_setlocscales.yaml")
-locscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setlocscales.yaml')
-locscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setlocscales.yaml')
-FileHandler({'copy': [[locscales_yaml_src, locscales_yaml_dst]]}).sync()
-
-################################################################################
-# copy yaml for correlation length scales
-
-logger.info(f"---------------- generate soca_setcorscales.yaml")
-corscales_yaml_src = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_setcorscales.yaml')
-corscales_yaml_dst = os.path.join(stage_cfg['stage_dir'], 'soca_setcorscales.yaml')
-FileHandler({'copy': [[corscales_yaml_src, corscales_yaml_dst]]}).sync()
-
-################################################################################
-# copy yaml for diffusion initialization
-
-logger.info(f"---------------- generate soca_parameters_diffusion_hz.yaml")
-diffu_hz_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_hz.yaml')
-diffu_hz_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
-diffu_hz_yaml_template = os.path.join(berror_yaml_dir, 'soca_parameters_diffusion_hz.yaml')
-config = YAMLFile(path=diffu_hz_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config.save(diffu_hz_yaml)
-
-logger.info(f"---------------- generate soca_vtscales.yaml")
-conf = parse_j2yaml(path=os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_vtscales.yaml.j2'),
-                    data=envconfig)
-conf.save(os.path.join(anl_dir, 'soca_vtscales.yaml'))
-
-logger.info(f"---------------- generate soca_parameters_diffusion_vt.yaml")
-diffu_vt_yaml = os.path.join(anl_dir, 'soca_parameters_diffusion_vt.yaml')
-diffu_vt_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
-diffu_vt_yaml_template = os.path.join(berror_yaml_dir, 'soca_parameters_diffusion_vt.yaml')
-config = YAMLFile(path=diffu_vt_yaml_template)
-config = Template.substitute_structure(config, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
-config.save(diffu_vt_yaml)
+# stage the ens B-matrix weights
+if dohybvar or nmem_ens >= 3:
+    ensbmat_list = []
+    ensbmat_list.append([os.path.join(os.getenv('COMIN_OCEAN_BMATRIX'), f"{RUN}.t{cyc}z.ocean.ens_weights.nc"),
+                         os.path.join(anl_dir, "ocean.ens_weights.nc")])
+    ensbmat_list.append([os.path.join(os.getenv('COMIN_ICE_BMATRIX'), f"{RUN}.t{cyc}z.ice.ens_weights.nc"),
+                         os.path.join(anl_dir, "ice.ens_weights.nc")])
+    FileHandler({'copy': ensbmat_list}).sync()
 
 ################################################################################
 # generate yaml for soca_var
@@ -308,10 +237,10 @@ else:
     os.environ['SABER_BLOCKS_YAML'] = os.path.join(gdas_home, 'parm', 'soca', 'berror', 'soca_static_bmat.yaml')
 
 # substitute templated variables in the var config
-logger.info(f"{config}")
+logger.info(f"{envconfig}")
 varconfig = YAMLFile(path=var_yaml_template)
-varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, config.get)
-varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, config.get)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
+varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOUBLE_CURLY_BRACES, envconfig.get)
 varconfig = Template.substitute_structure(varconfig, TemplateConstants.DOLLAR_PARENTHESES, envconfig.get)
 
@@ -320,7 +249,7 @@ ufsda.yamltools.save_check(varconfig, target=var_yaml, app='var')
 
 # Produce JEDI YAML file using JCB (for demonstration purposes)
 # -------------------------------------------------------------
-
+"""
 # Make a copy of the env config before modifying to avoid breaking something else
 envconfig_jcb = copy.deepcopy(envconfig)
 
@@ -362,7 +291,7 @@ jedi_config = render(jcb_config)
 # Save the JEDI configuration file
 var_yaml_jcb = os.path.join(anl_dir, 'var-jcb.yaml')
 ufsda.yamltools.save_check(jedi_config, target=var_yaml_jcb, app='var')
-
+"""
 
 ################################################################################
 # Prepare the yamls for the "checkpoint" jjob
