@@ -1,9 +1,15 @@
-# TODO(AFE): make resolution dependent
+######################################
+# set some variables
+######################################
+{% set gPDY = previous_cycle | to_YMD %}
+{% set gcyc = previous_cycle | strftime("%H") %}
 mkdir:
 - "{{ DATA }}/INPUT"
+- "{{ DATA }}/diags"
 ######################################
 # fix files to copy
 ######################################
+# TODO(AFE): make resolution dependent
 copy:
 - ["{{ SOCA_INPUT_FIX_DIR }}/rossrad.nc", "{{ DATA }}/rossrad.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/field_table", "{{ DATA }}/field_table"]
@@ -17,3 +23,24 @@ copy:
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_hgrid.nc", "{{ DATA }}/INPUT/ocean_hgrid.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_mosaic.nc", "{{ DATA }}/INPUT/ocean_mosaic.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/ocean_topog.nc", "{{ DATA }}/INPUT/ocean_topog.nc"]
+{% set tmpl_dict = {'ROTDIR':ROTDIR,
+                    'RUN': RUN,
+                    'YMD':gPDY,
+                    'HH':gcyc,
+                    'MEMDIR':""} %}
+# Replace template variables with tmpl_dict, one key at a time
+# This must be done in a namespace to overcome jinja scoping
+#  Variables set inside of a for loop are lost at the end of the loop
+#  unless they are part of a namespace
+# {% set com_prev_ocn = namespace(COMIN_OCEAN_HISTORY = COM_OCEAN_HISTORY_TMPL) %}
+# {% set com_prev_ice = namespace(COMIN_ICE_HISTORY = COM_ICE_HISTORY_TMPL) %}
+# {% for key in tmpl_dict.keys() %}
+#     {% set search_term = '${' + key + '}' %}
+#     {% set replace_term = tmpl_dict[key] %}
+#     {% set com_prev_ocn.COMIN_OCEAN_HISTORY = com_prev_ocn.COMIN_OCEAN_HISTORY.replace(search_term, replace_term) %}
+#     {% set com_prev_ice.COMIN_ICE_HISTORY = com_prev_ice.COMIN_ICE_HISTORY.replace(search_term, replace_term) %}
+# {% endfor %}
+# - ["{{ com_prev_ocn.COMIN_OCEAN_HISTORY }}/{{ RUN }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
+# - ["{{ com_prev_ice.COMIN_ICE_HISTORY }}/{{ RUN }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/INPUT/cice.res.nc"]
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ RUN }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ RUN }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATA }}/INPUT/cice.res.nc"]

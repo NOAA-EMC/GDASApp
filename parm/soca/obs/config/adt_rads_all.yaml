@@ -11,42 +11,52 @@ obs space:
   simulated variables: [absoluteDynamicTopography]
   io pool:
     max pool size: 1
+  distribution:
+    name: Halo
+    halo size: 500.0e3
 get values:
   time interpolation: linear
 obs operator:
   name: ADT
 obs error:
   covariance model: diagonal
-obs filters:
-- filter: Domain Check
-  where:
-  - variable: {name: GeoVaLs/sea_area_fraction}
-    minvalue: 0.9
-- filter: Domain Check
-  where:
-  - variable: { name: GeoVaLs/sea_surface_temperature}
-    minvalue: 5.0
-- filter: Background Check
-  absolute threshold: 1.0
-- filter: Domain Check
-  where:
-  - variable: {name: GeoVaLs/sea_floor_depth_below_sea_surface}
-    minvalue: 500
-- filter: Perform Action
-  action:
-    name: assign error
-    error function:
-      name: ObsFunction/LinearCombination
-      options:
-        variables: [GeoVaLs/mesoscale_representation_error,
-                    ObsError/absoluteDynamicTopography]
-        coefs: [0.1,
-                1.0]
-- filter: Domain Check
-  where:
-  - variable: { name: GeoVaLs/sea_ice_area_fraction}
-    maxvalue: 0.00001
-- filter: Domain Check
-  where:
-  - variable: {name: GeoVaLs/distance_from_coast}
-    minvalue: 100e3
+obs localizations:
+- localization method: Rossby
+  base value: 100.0e3
+  rossby mult: 1.0
+  min grid mult: 2.0
+  min value: 200.0e3
+  max value: 900.0e3
+  #obs filters:
+  #- filter: Domain Check
+  #  where:
+  #  - variable: {name: GeoVaLs/sea_area_fraction}
+  #    minvalue: 0.9
+  #- filter: Domain Check
+  #  where:
+  #  - variable: { name: GeoVaLs/sea_surface_temperature}
+  #    minvalue: 5.0
+  #- filter: Background Check
+  #  absolute threshold: 1.0
+  #- filter: Domain Check
+  #  where:
+  #  - variable: {name: GeoVaLs/sea_floor_depth_below_sea_surface}
+  #    minvalue: 500
+  #- filter: Perform Action
+  #  action:
+  #    name: assign error
+  #    error function:
+  #      name: ObsFunction/LinearCombination
+  #      options:
+  #        variables: [GeoVaLs/mesoscale_representation_error,
+  #                    ObsError/absoluteDynamicTopography]
+  #        coefs: [0.1,
+  #                1.0]
+  #- filter: Domain Check
+  #  where:
+  #  - variable: { name: GeoVaLs/sea_ice_area_fraction}
+  #    maxvalue: 0.00001
+  #- filter: Domain Check
+  #  where:
+  #  - variable: {name: GeoVaLs/distance_from_coast}
+  #    minvalue: 100e3

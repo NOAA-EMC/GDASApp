@@ -11,6 +11,9 @@ obs space:
   simulated variables: [seaIceFraction]
   io pool:
     max pool size: 1
+  distribution:
+    name: Halo
+    halo size: 500.0e3
 get values:
   time interpolation: linear
 obs operator:
@@ -18,6 +21,13 @@ obs operator:
   observation alias file: obsop_name_map.yaml
 obs error:
   covariance model: diagonal
+obs localizations:
+- localization method: Rossby
+  base value: 100.0e3
+  rossby mult: 1.0
+  min grid mult: 2.0
+  min value: 200.0e3
+  max value: 900.0e3
 obs filters:
 - filter: Domain Check
   where:

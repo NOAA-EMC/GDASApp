@@ -354,14 +354,14 @@ jcb_algo_config = Template.substitute_structure(jcb_algo_config, TemplateConstan
 jcb_algo_config = Template.substitute_structure(jcb_algo_config, TemplateConstants.DOLLAR_PARENTHESES, envconfig_jcb.get)
 
 # Override base with the application specific config
-jcb_config = {**jcb_base_config, **jcb_algo_config}
+#jcb_config = {**jcb_base_config, **jcb_algo_config}
 
 # Render the full JEDI configuration file using JCB
-jedi_config = render(jcb_config)
+#jedi_config = render(jcb_config)
 
 # Save the JEDI configuration file
-var_yaml_jcb = os.path.join(anl_dir, 'var-jcb.yaml')
-ufsda.yamltools.save_check(jedi_config, target=var_yaml_jcb, app='var')
+#var_yaml_jcb = os.path.join(anl_dir, 'var-jcb.yaml')
+#ufsda.yamltools.save_check(jedi_config, target=var_yaml_jcb, app='var')
 
 
 ################################################################################
