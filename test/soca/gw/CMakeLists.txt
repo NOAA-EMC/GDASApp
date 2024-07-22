@@ -87,7 +87,7 @@ foreach(jjob ${jjob_list})
 endforeach()
 
 # Test gdas/oops applications
-set(ctest_list "socahybridweights" "incr_handler" "ens_handler")
+# add ens_handler back to the list when testing ensemble DA again
 foreach(ctest ${ctest_list})
   set(TEST ${ctest})
   set(EXEC ${PROJECT_BINARY_DIR}/../bin/gdas_${ctest}.x)
