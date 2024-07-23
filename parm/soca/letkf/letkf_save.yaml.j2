@@ -1,0 +1,37 @@
+######################################
+# set some variables
+######################################
+{% set PDY = current_cycle | to_YMD %}
+{% set cyc = current_cycle | strftime("%H") %}
+{% set timestr = WINDOW_BEGIN | to_isotime %}
+######################################
+# create ens bkg directories
+######################################
+mkdir:
+{% for mem in range(1, NMEM_ENS + 1) %}
+   # define variables
+   # Declare a dict of search and replace terms to GDUMP on each template
+
+   {% set tmpl_dict = {'${ROTDIR}':ROTDIR,
+                       '${RUN}': RUN,
+                       '${YMD}':PDY,
+                       '${HH}':cyc,
+                       '${MEMDIR}':"mem" + '%03d' % mem} %}
+
+   - "{{ COM_OCEAN_LETKF_TMPL | replace_tmpl(tmpl_dict) }}"
+   - "{{ COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) }}"
+{% endfor %}
+copy:
+{% for mem in range(1, NMEM_ENS + 1) %}
+   {% set tmpl_dict = {'${ROTDIR}':ROTDIR,
+                       '${RUN}': RUN,
+                       '${YMD}':PDY,
+                       '${HH}':cyc,
+                       '${MEMDIR}':"mem" + '%03d' % mem} %}
+   {% set COMOUT_OCEAN_LETKF_MEM = COM_OCEAN_LETKF_TMPL | replace_tmpl(tmpl_dict) %}
+   {% set COMOUT_ICE_LETKF_MEM = COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) %}
+
+   - ["{{ DATA }}/Data/ocn.letkf.ens.{{ mem }}.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF_MEM }}/{{ RUN }}.ocean.t{{ cyc }}z.letkf.nc"]
+   - ["{{ DATA }}/Data/ice.letkf.ens.{{ mem }}.{{ timestr }}.PT3H.nc", "{{ COMOUT_ICE_LETKF_MEM }}/{{ RUN }}.ice.t{{ cyc }}z.letkf.nc"]
+{% endfor %}
+
