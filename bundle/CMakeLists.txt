@@ -88,6 +88,9 @@ if(BUILD_GDASBUNDLE)
 # Gibbs seawater
   ecbuild_bundle( PROJECT gsw SOURCE "../sorc/gsw" )
 
+# EMC BUFR-query library
+  ecbuild_bundle( PROJECT bufr-query SOURCE "../sorc/bufr-query" )
+
 # Core JEDI repositories
   ecbuild_bundle( PROJECT oops SOURCE "../sorc/oops" )
   ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )

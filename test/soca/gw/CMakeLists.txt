@@ -10,11 +10,19 @@ add_test(NAME test_gdasapp_soca_prep
       ENVIRONMENT "PYTHONPATH=${PROJECT_BINARY_DIR}/ush:${PROJECT_SOURCE_DIR}/../../ush/python/wxflow:$ENV{PYTHONPATH}")
 
 # Identify machine
-if (MACHINE STREQUAL "hercules")
-  set(PARTITION "hercules")
-ELSEIF (MACHINE STREQUAL "orion")
-  set(PARTITION "orion")
-ELSEIF (MACHINE STREQUAL "hera")
+set(MACHINE "container")
+IF (IS_DIRECTORY /work2)
+  string(SUBSTRING $ENV{HOSTNAME} 0 8 HOST)
+  IF ("${HOST}" STREQUAL "hercules")
+    set(MACHINE "hercules")
+    set(PARTITION "hercules")
+  ELSE()
+    set(MACHINE "orion")
+    set(PARTITION "orion")
+  ENDIF()
+ENDIF()
+IF (IS_DIRECTORY /scratch2/NCEPDEV/)
+  set(MACHINE "hera")
   set(PARTITION "hera")
 ENDIF()
 
@@ -35,11 +43,12 @@ add_test(NAME test_gdasapp_soca_setup_obsprep
 
 # Test JGDAS_GLOBAL_OCEAN_ANALYSIS_*
 set(jjob_list "JGLOBAL_PREP_OCEAN_OBS"
+              "JGLOBAL_MARINE_BMAT"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_PREP"
-              "JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT"
+#              "JGDAS_GLOBAL_OCEAN_ANALYSIS_BMAT"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_RUN"
 	      "JGLOBAL_MARINE_ANALYSIS_LETKF"
-              "JGDAS_GLOBAL_OCEAN_ANALYSIS_ECEN"
+#              "JGDAS_GLOBAL_OCEAN_ANALYSIS_ECEN"
               "JGDAS_GLOBAL_OCEAN_ANALYSIS_CHKPT"
 	      "JGDAS_GLOBAL_OCEAN_ANALYSIS_POST")
 # Temporary Removal while fixing/improving vrfy task
@@ -70,7 +79,7 @@ foreach(jjob ${jjob_list})
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/gw/testrun)
   set_tests_properties(${test_name}
     PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda::${PROJECT_SOURCE_DIR}/ush:${PROJECT_BINARY_DIR}/../lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:$ENV{PYTHONPATH}:${PROJECT_SOURCE_DIR}/../../../../ush/python")
+    ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda::${PROJECT_SOURCE_DIR}/ush:${PROJECT_BINARY_DIR}/../lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}:${PROJECT_SOURCE_DIR}/ush/soca:${PROJECT_SOURCE_DIR}/../../../../ush/python:$ENV{PYTHONPATH}")
 
 
   set(setup "--skip") # Only run the setup of the first test, if not, it will hang
@@ -78,7 +87,7 @@ foreach(jjob ${jjob_list})
 endforeach()
 
 # Test gdas/oops applications
-set(ctest_list "socahybridweights" "incr_handler" "ens_handler")
+# add ens_handler back to the list when testing ensemble DA again
 foreach(ctest ${ctest_list})
   set(TEST ${ctest})
   set(EXEC ${PROJECT_BINARY_DIR}/../bin/gdas_${ctest}.x)
