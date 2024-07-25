@@ -1,13 +1,27 @@
-######################################
-# create working directories
+{% set PDY = current_cycle | to_YMD %}
+{% set cyc = current_cycle | strftime("%H") %}
+{% set timestr = WINDOW_BEGIN | to_isotime %}
 ######################################
 mkdir:
 - "{{ DATA }}/Data"
 - "{{ DATA }}/obs"
 - "{{ DATA }}/diags"
-- "{{ DATA }}/Data/foo"
-copy:
+- "{{ COMOUT_OCEAN_LETKF }}"
+- "{{ COMOUT_ICE_LETKF }}"
+######################################
+# make comout directories
+######################################
+{% for mem in range(1, NMEM_ENS + 1) %}
+   {% set tmpl_dict = {'${ROTDIR}':ROTDIR,
+                       '${RUN}': RUN,
+                       '${YMD}':PDY,
+                       '${HH}':cyc,
+                       '${MEMDIR}':"mem" + '%03d' % mem} %}
+- "{{ COM_OCEAN_LETKF_TMPL | replace_tmpl(tmpl_dict) }}"
+- "{{ COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) }}"
+{% endfor %}
 ######################################
 # copy mom input template 
 ######################################
+copy:
 - ["{{ PARMgfs }}/gdas/soca/fms/input.nml", "{{ DATA }}/mom_input.nml.tmpl"]
