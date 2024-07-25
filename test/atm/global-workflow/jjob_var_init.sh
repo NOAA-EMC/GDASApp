@@ -98,7 +98,7 @@ done
 # Link atmospheric histories on native cubed-sphere grid
 flist=("cubed_sphere_grid_atmf006.nc" "cubed_sphere_grid_sfcf006.nc")
 for file in "${flist[@]}"; do
-   ln -fs /scratch1/NCEPDEV/da/David.New/jjob/$dpath/${gprefix}.${file} $COM_ATMOS_HISTORY_PREV/${gprefix}.${file}
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${gprefix}.${file} $COM_ATMOS_HISTORY_PREV/${gprefix}.${file}
 done
 
 # Link member atmospheric background on tiles and atmf006
@@ -122,7 +122,7 @@ for imem in $(seq 1 $NMEM_ENS); do
     flist=("cubed_sphere_grid_atmf006.nc" "cubed_sphere_grid_sfcf006.nc")
     for file in "${flist[@]}"; do
         rm -rf $target/enkf${gprefix}.${file}
-        ln -fs /scratch1/NCEPDEV/da/David.New/jjob/$dpath/$memchar/model/atmos/history/enkf${gprefix}.${file} $target/
+        ln -fs $source/enkf${gprefix}.${file} $target/
     done
 done
 
