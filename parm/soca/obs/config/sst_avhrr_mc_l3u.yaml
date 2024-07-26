@@ -53,4 +53,4 @@ obs filters:
         variables:
         - ObsError/seaSurfaceTemperature
         coefs:
-        - 0.5
+        - 1.0
