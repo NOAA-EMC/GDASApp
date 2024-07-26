@@ -10,7 +10,7 @@ variable change:
   variable change name: Soca2Cice
   do inverse: false
   seaice edge: 0.8
-  shuffle: true
+  shuffle: false
   rescale prior:
     min hice: 0.5
     min hsno: 0.1
