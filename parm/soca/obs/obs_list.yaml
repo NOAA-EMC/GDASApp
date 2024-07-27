@@ -19,7 +19,7 @@ observers:
 # in situ: monthly
 - !INC ${OBS_YAML_DIR}/insitu_profile_bathy.yaml
 - !INC ${OBS_YAML_DIR}/insitu_profile_argo.yaml
-- !INC ${OBS_YAML_DIR}/insitu_profile_glider.yaml
+#- !INC ${OBS_YAML_DIR}/insitu_profile_glider.yaml
 - !INC ${OBS_YAML_DIR}/insitu_profile_tesac.yaml
 - !INC ${OBS_YAML_DIR}/insitu_profile_tesac_salinity.yaml
 - !INC ${OBS_YAML_DIR}/insitu_profile_marinemammal.yaml

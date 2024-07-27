@@ -26,11 +26,12 @@ max ssh: 0.0    # Limits the amplitude of the unbalanced bkg err
 min depth: 500.0 # zero out the bkg. error. at less than min depth
 number of halo points: 4
 number of neighbors: 16
+
 simple smoothing:
   horizontal iterations: 10
   vertical iterations: 1
 
-# TODO(G): Start using when the normalization is optional
+# TODO(G): Too slow for the below scale
 #diffusion:
 #  horizontal: 500.0e3
 #  vertical: 3.0
