@@ -124,22 +124,6 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
         # prepare the seaice background, aggregate if the backgrounds are CICE restarts
         ice_filename = ocn_filename.replace("ocean", "ice")
 
-        """
-        agg_ice_filename = ocn_filename.replace("ocean", "agg_ice")
-        if ice_rst:
-            # if this is a CICE restart, aggregate seaice variables and dump
-            # aggregated ice bkg in out_path
-            # TODO: This option is turned off for now, figure out what to do with it.
-            agg_seaice(os.path.join(bkg_path, ice_filename),
-                       os.path.join(out_path, agg_ice_filename))
-        else:
-            # Process the CICE history file so they can be read by soca/fms
-            # TODO: Add date check of the cice history
-            # TODO: bkg_path should be 1 level up
-            cice_hist2fms(os.path.join(os.getenv('COM_ICE_HISTORY_PREV'), ice_filename),
-                          os.path.join(out_path, agg_ice_filename))
-        """
-
         # prepare list of ocean and ice bkg to be copied to RUNDIR
         bkg_list_src_dst.append([os.path.join(bkg_path, ocn_filename),
                                  os.path.join(out_path, ocn_filename)])

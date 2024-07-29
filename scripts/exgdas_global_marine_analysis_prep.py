@@ -164,7 +164,7 @@ FileHandler({'copy': obs_list}).sync()
 logger.info(f"---------------- Stage static files")
 ufsda.stage.soca_fix(stage_cfg)
 
-# over-write obsop_name_map.yaml and fields_metadata.yaml
+# copy obsop_name_map.yaml and fields_metadata.yaml
 io_yaml_path = os.path.join(gdas_home, 'parm', 'soca')
 io_yaml_list = []
 for io_yaml in ['obsop_name_map.yaml', 'fields_metadata.yaml']:
