@@ -22,12 +22,12 @@ obs error:
   covariance model: diagonal
 obs filters:
 - filter: Perform Action
-    action:
-      name: assign error
-      error function:
-        name: ObsFunction/LinearCombination
-        options:
-          variables:
-          - ObsError/waterTemperature
-          coefs:
-          - 1000.0
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables:
+        - ObsError/waterTemperature
+        coefs:
+        - 1000.0
