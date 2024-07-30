@@ -1,0 +1,26 @@
+Reading: [icec_mirs_snpp_1.nc4,icec_mirs_snpp_2.nc4]
+seconds since 1970-01-01T00:00:00Z
+obsVal:
+    Min: 0
+    Max: 0.94
+    Sum: 37.36
+obsError:
+    Min: 0.1
+    Max: 0.1
+    Sum: 5.7
+preQc:
+    Min: 0
+    Max: 1
+    Sum: 21
+longitude:
+    Min: -178.86
+    Max: 179.29
+    Sum: -2234.77
+latitude:
+    Min: 69.62
+    Max: 73.09
+    Sum: 4068.9
+datetime:
+    Min: 1625016429
+    Max: 1625016488
+    Sum: 92625938165
