@@ -17,13 +17,13 @@ obs operator:
 obs error:
   covariance model: diagonal
 obs filters:
-  - filter: Perform Action
-    action:
-      name: assign error
-      error function:
-        name: ObsFunction/LinearCombination
-        options:
-          variables:
-          - ObsError/seaSurfaceSalinity
-          coefs:
-          - 1000.0
+- filter: Perform Action
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables:
+        - ObsError/seaSurfaceSalinity
+        coefs:
+        - 1000.0
