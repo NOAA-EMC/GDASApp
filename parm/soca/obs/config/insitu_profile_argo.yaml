@@ -15,7 +15,7 @@ obs space:
       obsfile: !ENV ${DATA}/diags/insitu_profile_argo.${PDY}${cyc}.nc4
   simulated variables: [waterTemperature, salinity]
   observed variables: [waterTemperature, salinity]
-  derived variables: [waterPressure]
+#  derived variables: [waterPressure]
   io pool:
     max pool size: 1
 obs operator:
@@ -181,83 +181,83 @@ obs filters:
   #-------------------------------------------------------------------------------
   ### Spike test
   #-----------------------------------------------------------------------------
-  - filter: Create Diagnostic Flags
-    filter variables:
-      - name: waterTemperature
-      - name: salinity
-    flags:
-    - name: spike
-      initial value: false
-    - name: step
-      initial value: false
-
-  - filter: Spike and Step Check
-    filter variables:
-      - name: ObsValue/waterTemperature
-    dependent: ObsValue/waterTemperature  # dy/
-    independent: MetaData/depth     # dx
-    count spikes: true
-    count steps: true
-    tolerance:
-      nominal value: 10  # K nominal, in the case of temperature (not really)
-      gradient: 0.1 # K/m - if dy/dx greater, could be a spike
-      gradient x resolution: 10 # m - can't know dx to better precision
-      factors: [1,1,0.5]     # multiply tolerance, for ranges bounded by...
-      x boundaries: [0,500,500] # ...these values of x (depth in m)
-    boundary layer:
-      x range: [0.0,300.0] # when bounded by these x values (depth in m)...
-      step tolerance range: [0.0,-2.0]   # ...relax tolerance for steps in boundary layer...
-      maximum x interval: [50.0,100.0]  # ...and ignore level if dx greater than this
-    action:
-      name: reject
-
-  #### Count spikes
-  #-----------------------------------------------------------------------------
-  - filter: Variable Assignment  # create derived obs value containing only T spikes
-    assignments:
-    - name: DerivedMetaData/waterTemperature_spikes
-      type: int
-      function:
-        name: IntObsFunction/ProfileLevelCount
-        options:
-          where:
-            - variable:
-                name: DiagnosticFlags/spike/waterTemperature
-              value: is_true
-
-  #### Count steps
-  #-----------------------------------------------------------------------------
-  - filter: Variable Assignment  # create derived obs value containing only T steps
-    assignments:
-    - name: DerivedMetaData/waterTemperature_steps
-      type: int
-      function:
-        name: IntObsFunction/ProfileLevelCount
-        options:
-          where:
-            - variable:
-                name: DiagnosticFlags/step/waterTemperature
-              value: is_true
-  #### Count  total rejections
-  #-----------------------------------------------------------------------------
-  - filter: Variable Assignment  # compute sum 2*spikes+steps
-    assignments:
-    - name: DerivedMetaData/waterTemperature_rejections
-      type: int
-      function:
-        name: IntObsFunction/LinearCombination
-        options:
-          variables: [DerivedMetaData/waterTemperature_spikes, DerivedMetaData/waterTemperature_steps]
-          coefs: [2,1]
-  #### Reject entire profile if total rejctions > threshold
-  #-----------------------------------------------------------------------------
-  - filter: Perform Action  # reject whole profile if 2*spikes+steps>=rejection threshold
-    where:
-    - variable:
-        name: DerivedMetaData/waterTemperature_rejections
-      minvalue: 3
-    action:
-      name: reject
+#  - filter: Create Diagnostic Flags
+#    filter variables:
+#      - name: waterTemperature
+#      - name: salinity
+#    flags:
+#    - name: spike
+#      initial value: false
+#    - name: step
+#      initial value: false
+#
+#  - filter: Spike and Step Check
+#    filter variables:
+#      - name: ObsValue/waterTemperature
+#    dependent: ObsValue/waterTemperature  # dy/
+#    independent: MetaData/depth     # dx
+#    count spikes: true
+#    count steps: true
+#    tolerance:
+#      nominal value: 10  # K nominal, in the case of temperature (not really)
+#      gradient: 0.1 # K/m - if dy/dx greater, could be a spike
+#      gradient x resolution: 10 # m - can't know dx to better precision
+#      factors: [1,1,0.5]     # multiply tolerance, for ranges bounded by...
+#      x boundaries: [0,500,500] # ...these values of x (depth in m)
+#    boundary layer:
+#      x range: [0.0,300.0] # when bounded by these x values (depth in m)...
+#      step tolerance range: [0.0,-2.0]   # ...relax tolerance for steps in boundary layer...
+#      maximum x interval: [50.0,100.0]  # ...and ignore level if dx greater than this
+#    action:
+#      name: reject
+#
+#  #### Count spikes
+#  #-----------------------------------------------------------------------------
+#  - filter: Variable Assignment  # create derived obs value containing only T spikes
+#    assignments:
+#    - name: DerivedMetaData/waterTemperature_spikes
+#      type: int
+#      function:
+#        name: IntObsFunction/ProfileLevelCount
+#        options:
+#          where:
+#            - variable:
+#                name: DiagnosticFlags/spike/waterTemperature
+#              value: is_true
+#
+#  #### Count steps
+#  #-----------------------------------------------------------------------------
+#  - filter: Variable Assignment  # create derived obs value containing only T steps
+#    assignments:
+#    - name: DerivedMetaData/waterTemperature_steps
+#      type: int
+#      function:
+#        name: IntObsFunction/ProfileLevelCount
+#        options:
+#          where:
+#            - variable:
+#                name: DiagnosticFlags/step/waterTemperature
+#              value: is_true
+#  #### Count  total rejections
+#  #-----------------------------------------------------------------------------
+#  - filter: Variable Assignment  # compute sum 2*spikes+steps
+#    assignments:
+#    - name: DerivedMetaData/waterTemperature_rejections
+#      type: int
+#      function:
+#        name: IntObsFunction/LinearCombination
+#        options:
+#          variables: [DerivedMetaData/waterTemperature_spikes, DerivedMetaData/waterTemperature_steps]
+#          coefs: [2,1]
+#  #### Reject entire profile if total rejctions > threshold
+#  #-----------------------------------------------------------------------------
+#  - filter: Perform Action  # reject whole profile if 2*spikes+steps>=rejection threshold
+#    where:
+#    - variable:
+#        name: DerivedMetaData/waterTemperature_rejections
+#      minvalue: 3
+#    action:
+#      name: reject
 
 #-------------------------------------------------------------------------------
 ## Filters for S:
@@ -392,70 +392,70 @@ obs filters:
   #-------------------------------------------------------------------------------
   ### Spike test
   #-----------------------------------------------------------------------------
-  - filter: Spike and Step Check
-    filter variables:
-      - name: ObsValue/salinity
-    dependent: ObsValue/salinity  # dy/
-    independent: MetaData/depth   # dx
-    count spikes: true
-    count steps: true
-    tolerance:
-      nominal value: 1.0  # PSU nominal, in the case of salinity (not really)
-      threshold: 0.6  # weird salinity thing
-      factors: [1,1,0.2]     # multiply tolerance, for ranges bounded by...
-      x boundaries: [0,200,600] # ...these values of x (depth in m)
-    boundary layer:
-      x range: [0.0,300.0] # when bounded by these x values (depth in m)...
-      maximum x interval: [50.0,100.0]  # ...and ignore level if dx greater than this
-    action:
-      name: reject
-
-  #### Count spikes
-  #-----------------------------------------------------------------------------
-  - filter: Variable Assignment  # create derived obs value containing only S spikes
-    assignments:
-    - name: DerivedMetaData/salinity_spikes
-      type: int
-      function:
-        name: IntObsFunction/ProfileLevelCount
-        options:
-          where:
-            - variable:
-                name: DiagnosticFlags/spike/salinity
-              value: is_true
-  #### Count steps
-  #-----------------------------------------------------------------------------
-  - filter: Variable Assignment  # create derived obs value containing only S steps
-    assignments:
-    - name: DerivedMetaData/salinity_steps
-      type: int
-      function:
-        name: IntObsFunction/ProfileLevelCount
-        options:
-          where:
-            - variable:
-                name: DiagnosticFlags/step/salinity
-              value: is_true
-  #### Count  total rejections
-  #-----------------------------------------------------------------------------
-  - filter: Variable Assignment  # compute sum 2*spikes+steps
-    assignments:
-    - name: DerivedMetaData/salinity_rejections
-      type: int
-      function:
-        name: IntObsFunction/LinearCombination
-        options:
-          variables: [DerivedMetaData/salinity_spikes, DerivedMetaData/salinity_steps]
-          coefs: [2,1]
-  #### Reject entire profile if total rejctions > threshold
-  #-----------------------------------------------------------------------------
-  - filter: Perform Action  # reject whole profile if 2*spikes+steps>=rejection threshold
-    where:
-    - variable:
-        name: DerivedMetaData/salinity_rejections
-      minvalue: 3
-    action:
-      name: reject
+#  - filter: Spike and Step Check
+#    filter variables:
+#      - name: ObsValue/salinity
+#    dependent: ObsValue/salinity  # dy/
+#    independent: MetaData/depth   # dx
+#    count spikes: true
+#    count steps: true
+#    tolerance:
+#      nominal value: 1.0  # PSU nominal, in the case of salinity (not really)
+#      threshold: 0.6  # weird salinity thing
+#      factors: [1,1,0.2]     # multiply tolerance, for ranges bounded by...
+#      x boundaries: [0,200,600] # ...these values of x (depth in m)
+#    boundary layer:
+#      x range: [0.0,300.0] # when bounded by these x values (depth in m)...
+#      maximum x interval: [50.0,100.0]  # ...and ignore level if dx greater than this
+#    action:
+#      name: reject
+#
+#  #### Count spikes
+#  #-----------------------------------------------------------------------------
+#  - filter: Variable Assignment  # create derived obs value containing only S spikes
+#    assignments:
+#    - name: DerivedMetaData/salinity_spikes
+#      type: int
+#      function:
+#        name: IntObsFunction/ProfileLevelCount
+#        options:
+#          where:
+#            - variable:
+#                name: DiagnosticFlags/spike/salinity
+#              value: is_true
+#  #### Count steps
+#  #-----------------------------------------------------------------------------
+#  - filter: Variable Assignment  # create derived obs value containing only S steps
+#    assignments:
+#    - name: DerivedMetaData/salinity_steps
+#      type: int
+#      function:
+#        name: IntObsFunction/ProfileLevelCount
+#        options:
+#          where:
+#            - variable:
+#                name: DiagnosticFlags/step/salinity
+#              value: is_true
+#  #### Count  total rejections
+#  #-----------------------------------------------------------------------------
+#  - filter: Variable Assignment  # compute sum 2*spikes+steps
+#    assignments:
+#    - name: DerivedMetaData/salinity_rejections
+#      type: int
+#      function:
+#        name: IntObsFunction/LinearCombination
+#        options:
+#          variables: [DerivedMetaData/salinity_spikes, DerivedMetaData/salinity_steps]
+#          coefs: [2,1]
+#  #### Reject entire profile if total rejctions > threshold
+#  #-----------------------------------------------------------------------------
+#  - filter: Perform Action  # reject whole profile if 2*spikes+steps>=rejection threshold
+#    where:
+#    - variable:
+#        name: DerivedMetaData/salinity_rejections
+#      minvalue: 3
+#    action:
+#      name: reject
   #-------------------------------------------------------------------------------
   ### End of Spike test
   #-----------------------------------------------------------------------------
@@ -469,126 +469,126 @@ obs filters:
 
   #### get pressure from depth
   #-----------------------------------------------------------------------------
-  - filter: Variable Transforms
-    Transform: OceanDepthToPressure
-    ocean depth variable: depth
-    ocean depth group: MetaData
-  #### Create diagonostic flags for spike step
-  #-----------------------------------------------------------------------------
-  - filter: Create Diagnostic Flags
-    filter variables:
-      - name: DerivedObsValue/waterPressure
-    flags:
-    - name: DensitySpike
-      initial value: false
-    - name: DensityStep
-      initial value: false
-    - name: Superadiabat
-      initial value: false
-  ####
-  #-----------------------------------------------------------------------------
-  - filter: Ocean Vertical Stability Check
-    where:
-    - variable:
-        name: ObsValue/waterTemperature
-      value: is_valid
-    filter variables:
-      - name: DerivedObsValue/waterPressure  # density spikes/steps --> flag d
-    variables:
-      temperature: ObsValue/waterTemperature
-      salinity: ObsValue/salinity
-      pressure: DerivedObsValue/waterPressure
-    count spikes: true
-    count steps: true
-    nominal tolerance: -0.05
-    threshold: 0.25
-    actions:
-    - name: set
-      flag: Superadiabat
-    - name: reject
-  #### where there are any density inversions, reject temperature only:
-  #-----------------------------------------------------------------------------
-  - filter: Perform Action
-    filter variables:
-      - name: ObsValue/waterTemperature
-    where:
-    - variable:
-        name: DiagnosticFlags/Superadiabat/waterPressure
-      value: is_true
-    action:
-      name: reject
-  #### where density spikes, reject all vars (temperature and salinity):
-  #-----------------------------------------------------------------------------
-  - filter: Perform Action
-    filter variables:
-      - name: ObsValue/waterTemperature
-      - name: ObsValue/salinity
-    where:
-    - variable:
-        name: DiagnosticFlags/DensitySpike/waterPressure
-      value: is_true
-    action:
-      name: reject
-  #### create derived metadata counting levels:
-  #-----------------------------------------------------------------------------
-  - filter: Variable Assignment
-    assignments:
-    - name: DerivedMetaData/number_of_levels
-      type: int
-      function:
-        name: IntObsFunction/ProfileLevelCount
-        options:
-          where:
-            - variable:
-                name: ObsValue/waterTemperature
-              value: is_valid
-  #### create derived metadata counting spikes and steps:
-  #-----------------------------------------------------------------------------
-  - filter: Variable Assignment
-    assignments:
-    - name: DerivedMetaData/ocean_density_inversions
-      type: int
-      function:
-        name: IntObsFunction/ProfileLevelCount
-        options:
-          where:
-            - variable:
-                name: DiagnosticFlags/DensitySpike/waterPressure
-              value: is_true
-            - variable:
-                name: DiagnosticFlags/DensityStep/waterPressure
-              value: is_true
-          where operator: or
-
-  #### whole profile is rejected if spikes+steps >= numlev/4, so compute
-  ####  4*( sum spikes+steps ) minus numlev
-  ####  in order to check it against 0:
-  #-----------------------------------------------------------------------------
-  - filter: Variable Assignment
-    assignments:
-    - name: DerivedMetaData/ocean_density_rejections
-      type: int
-      function:
-        name: IntObsFunction/LinearCombination
-        options:
-          variables: [DerivedMetaData/ocean_density_inversions, DerivedMetaData/number_of_levels]
-          coefs: [4, -1]
-  #### reject whole profile if spikes+steps >= numlev/4 AND >= 2:
-  #-----------------------------------------------------------------------------
-  - filter: Perform Action
-    filter variables:
-      - name: ObsValue/waterTemperature
-      - name: ObsValue/salinity
-    where:
-    - variable:
-        name: DerivedMetaData/ocean_density_rejections
-      minvalue: 0
-    - variable:
-        name: DerivedMetaData/ocean_density_inversions
-      minvalue: 2
-    where operator: and
-    action:
-      name: reject
+#  - filter: Variable Transforms
+#    Transform: OceanDepthToPressure
+#    ocean depth variable: depth
+#    ocean depth group: MetaData
+#  #### Create diagonostic flags for spike step
+#  #-----------------------------------------------------------------------------
+#  - filter: Create Diagnostic Flags
+#    filter variables:
+#      - name: DerivedObsValue/waterPressure
+#    flags:
+#    - name: DensitySpike
+#      initial value: false
+#    - name: DensityStep
+#      initial value: false
+#    - name: Superadiabat
+#      initial value: false
+#  ####
+#  #-----------------------------------------------------------------------------
+#  - filter: Ocean Vertical Stability Check
+#    where:
+#    - variable:
+#        name: ObsValue/waterTemperature
+#      value: is_valid
+#    filter variables:
+#      - name: DerivedObsValue/waterPressure  # density spikes/steps --> flag d
+#    variables:
+#      temperature: ObsValue/waterTemperature
+#      salinity: ObsValue/salinity
+#      pressure: DerivedObsValue/waterPressure
+#    count spikes: true
+#    count steps: true
+#    nominal tolerance: -0.05
+#    threshold: 0.25
+#    actions:
+#    - name: set
+#      flag: Superadiabat
+#    - name: reject
+#  #### where there are any density inversions, reject temperature only:
+#  #-----------------------------------------------------------------------------
+#  - filter: Perform Action
+#    filter variables:
+#      - name: ObsValue/waterTemperature
+#    where:
+#    - variable:
+#        name: DiagnosticFlags/Superadiabat/waterPressure
+#      value: is_true
+#    action:
+#      name: reject
+#  #### where density spikes, reject all vars (temperature and salinity):
+#  #-----------------------------------------------------------------------------
+#  - filter: Perform Action
+#    filter variables:
+#      - name: ObsValue/waterTemperature
+#      - name: ObsValue/salinity
+#    where:
+#    - variable:
+#        name: DiagnosticFlags/DensitySpike/waterPressure
+#      value: is_true
+#    action:
+#      name: reject
+#  #### create derived metadata counting levels:
+#  #-----------------------------------------------------------------------------
+#  - filter: Variable Assignment
+#    assignments:
+#    - name: DerivedMetaData/number_of_levels
+#      type: int
+#      function:
+#        name: IntObsFunction/ProfileLevelCount
+#        options:
+#          where:
+#            - variable:
+#                name: ObsValue/waterTemperature
+#              value: is_valid
+#  #### create derived metadata counting spikes and steps:
+#  #-----------------------------------------------------------------------------
+#  - filter: Variable Assignment
+#    assignments:
+#    - name: DerivedMetaData/ocean_density_inversions
+#      type: int
+#      function:
+#        name: IntObsFunction/ProfileLevelCount
+#        options:
+#          where:
+#            - variable:
+#                name: DiagnosticFlags/DensitySpike/waterPressure
+#              value: is_true
+#            - variable:
+#                name: DiagnosticFlags/DensityStep/waterPressure
+#              value: is_true
+#          where operator: or
+#
+#  #### whole profile is rejected if spikes+steps >= numlev/4, so compute
+#  ####  4*( sum spikes+steps ) minus numlev
+#  ####  in order to check it against 0:
+#  #-----------------------------------------------------------------------------
+#  - filter: Variable Assignment
+#    assignments:
+#    - name: DerivedMetaData/ocean_density_rejections
+#      type: int
+#      function:
+#        name: IntObsFunction/LinearCombination
+#        options:
+#          variables: [DerivedMetaData/ocean_density_inversions, DerivedMetaData/number_of_levels]
+#          coefs: [4, -1]
+#  #### reject whole profile if spikes+steps >= numlev/4 AND >= 2:
+#  #-----------------------------------------------------------------------------
+#  - filter: Perform Action
+#    filter variables:
+#      - name: ObsValue/waterTemperature
+#      - name: ObsValue/salinity
+#    where:
+#    - variable:
+#        name: DerivedMetaData/ocean_density_rejections
+#      minvalue: 0
+#    - variable:
+#        name: DerivedMetaData/ocean_density_inversions
+#      minvalue: 2
+#    where operator: and
+#    action:
+#      name: reject
   #-------------------------------------------------------------------------------
   ### End of ocean vertical stability test
   #-----------------------------------------------------------------------------
@@ -601,3 +601,27 @@ obs filters:
     - variable: QCflagsData/waterTemperature
       minvalue: 1
     defer to post: true
+    
+  #--------------------------------------------------------------------------
+  ### Set in situ obs multiplier coef for T,S
+  #--------------------------------------------------------------------------
+  - filter: Perform Action
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables:
+          - ObsError/waterTemperature
+          coefs:
+          - 1000.0
+  - filter: Perform Action
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables:
+          - ObsError/salinity
+          coefs:
+          - 1000.0

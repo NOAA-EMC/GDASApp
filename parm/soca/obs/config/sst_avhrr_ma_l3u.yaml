@@ -40,10 +40,10 @@ obs filters:
   where:
   - variable: {name: GeoVaLs/sea_surface_temperature}
     minvalue: -1.0
-#- filter: Domain Check
-#  where:
-#  - variable: {name: GeoVaLs/distance_from_coast}
-#    minvalue: 100e3
+- filter: Domain Check
+  where:
+  - variable: {name: GeoVaLs/distance_from_coast}
+    minvalue: 100e3
 - filter: Perform Action
   action:
     name: assign error
@@ -53,4 +53,4 @@ obs filters:
         variables:
         - ObsError/seaSurfaceTemperature
         coefs:
-        - 0.05
+        - 1.0
