@@ -19,7 +19,7 @@ increment mask:
   background:
     datetime: "{{ snow_background_time_iso }}"
     filetype: fms restart
-    state variables: [snodl,vtype,slmsk]
+    state variables: [slmsk]
     datapath: ./bkg/mem001
     filename is datetime templated: true
     filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
@@ -31,7 +31,7 @@ increment mask:
 deterministic increment:
   datetime: "{{ snow_increment_time_iso }}"
   filetype: fms restart
-  state variables: [snodl,vtype,slmsk]
+  state variables: [snodl]
   datapath: ./inc/det_ensres
   filename is datetime templated: true
   filename_core: "snowinc.%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
@@ -43,7 +43,7 @@ deterministic increment:
 deterministic background:
   datetime: "{{ snow_background_time_iso }}"
   filetype: fms restart
-  state variables: [snodl,vtype,slmsk]
+  state variables: [snodl]
   datapath: ./bkg/det_ensres
   filename is datetime templated: true
   filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
@@ -70,7 +70,7 @@ ensemble backgrounds:
   template:
     datetime: "{{ snow_background_time_iso }}"
     filetype: fms restart
-    state variables: [snodl,vtype,slmsk]
+    state variables: [snodl]
     datapath: ./bkg/mem%mem%
     filename is datetime templated: true
     filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
