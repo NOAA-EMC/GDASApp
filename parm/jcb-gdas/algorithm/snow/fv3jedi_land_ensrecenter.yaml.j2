@@ -14,7 +14,20 @@ date: "{{ snow_background_time_iso }}"
 variables: [totalSnowDepth]
 increment mask:
   variable: [slmsk]
-  maxvalue: 0.99
+  minvalue: 0.99
+  maxvalue: 1.01
+  background:
+    datetime: "{{ snow_background_time_iso }}"
+    filetype: fms restart
+    state variables: [snodl,vtype,slmsk]
+    datapath: ./bkg/mem001
+    filename is datetime templated: true
+    filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+    filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+    filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+    filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+    filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
+    skip coupler file: true
 deterministic increment:
   datetime: "{{ snow_increment_time_iso }}"
   filetype: fms restart
