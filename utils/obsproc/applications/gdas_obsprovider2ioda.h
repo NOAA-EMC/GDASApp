@@ -8,7 +8,10 @@
 
 #include "../Ghrsst2Ioda.h"
 #include "../IcecAmsr2Ioda.h"
+#include "../IcecMirs2Ioda.h"
 #include "../Rads2Ioda.h"
+#include "../RTOFSSalinity.h"
+#include "../RTOFSTemperature.h"
 #include "../Smap2Ioda.h"
 #include "../Smos2Ioda.h"
 #include "../Viirsaod2Ioda.h"
@@ -18,7 +21,9 @@ namespace gdasapp {
    public:
     explicit ObsProvider2IodaApp(const eckit::mpi::Comm & comm = oops::mpi::world())
       : Application(comm) {}
+
     static const std::string classname() {return "gdasapp::ObsProvider2IodaApp";}
+
 
     int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
       // Get the file provider string identifier from the config
@@ -31,6 +36,12 @@ namespace gdasapp {
       } else if (provider == "GHRSST") {
         Ghrsst2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
+      } else if (provider == "RTOFStmp") {
+        RTOFSTemperature conv2ioda(fullConfig, this->getComm());
+        conv2ioda.writeToIoda();
+      } else if (provider == "RTOFSsal") {
+        RTOFSSalinity conv2ioda(fullConfig, this->getComm());
+        conv2ioda.writeToIoda();
       } else if (provider == "SMAP") {
         Smap2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
@@ -39,6 +50,9 @@ namespace gdasapp {
         conv2ioda.writeToIoda();
       } else if (provider == "AMSR2") {
         IcecAmsr2Ioda conv2ioda(fullConfig, this->getComm());
+        conv2ioda.writeToIoda();
+      } else if (provider == "MIRS") {
+        IcecMirs2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else if (provider == "VIIRSAOD") {
         Viirsaod2Ioda conv2ioda(fullConfig, this->getComm());

@@ -4,7 +4,7 @@
   otype = "{{ CASE }}_oro_data",
   jdate = "{{ current_cycle | to_julian }}",
   yyyymmddhh = "{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}",
-  imsformat = 2,
+  imsformat = 1,
   imsversion = "1.3",
   fcst_path = "{{ DATA }}/bkg/"
   IMS_OBS_PATH = "{{ DATA }}/obs/",

@@ -20,6 +20,7 @@
 
 #include "oops/base/FieldSet3D.h"
 #include "oops/base/GeometryData.h"
+#include "oops/generic/Diffusion.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
@@ -28,8 +29,6 @@
 #include "oops/util/FieldSetOperations.h"
 #include "oops/util/Logger.h"
 
-#include "soca/ExplicitDiffusion/ExplicitDiffusion.h"
-#include "soca/ExplicitDiffusion/ExplicitDiffusionParameters.h"
 #include "soca/Geometry/Geometry.h"
 #include "soca/Increment/Increment.h"
 #include "soca/State/State.h"
@@ -419,25 +418,39 @@ namespace gdasapp {
 
       /// Use explicit diffusion to smooth the background error
       // ------------------------------------------------------
-      // TODO(G): Use this once Travis adds the option to skip the normalization.
-      //       The output is currently in [0, ~1000]
-      // Initialize the diffusion central block
       if (fullConfig.has("diffusion")) {
-        const eckit::LocalConfiguration diffusionConfig(fullConfig, "diffusion");
-        soca::ExplicitDiffusionParameters params;
-        params.deserialize(diffusionConfig);
+        const eckit::LocalConfiguration diffConfig(fullConfig, "diffusion");
+        oops::Log::info() << "====================== apply explicit diffusion filtering"
+                          << std::endl;
+        // Create the diffusion object
         oops::GeometryData geometryData(geom.functionSpace(),
                                         bkgErrFs["tocn"], true, this->getComm());
-        const oops::FieldSet3D dumyXb(configD.cycleDate, this->getComm());
-        soca::ExplicitDiffusion diffuse(geometryData, configD.socaVars,
-                                        diffusionConfig, params, dumyXb, dumyXb);
-        diffuse.read();
+        oops::Diffusion diffuse(geometryData);
+        diffuse.calculateDerivedGeom(geometryData);
 
-        // Smooth the field
-        oops::FieldSet3D dx(configD.cycleDate, this->getComm());
-        dx.deepCopy(bkgErrFs);
-        diffuse.multiply(dx);
-        bkgErrFs = dx.fieldSet();
+        // Lambda function to construct a field with a constant filtering value
+        auto assignScale = [&](double scale, const std::string& fieldName) {
+          atlas::Field field;
+          auto levels = xbFs["tocn"].shape(1);
+          field = geom.functionSpace().createField<double>(atlas::option::levels(levels) |
+                       atlas::option::name(fieldName));
+          auto viewField = atlas::array::make_view<double, 2>(field);
+          viewField.assign(scale);
+          return field;
+        };
+
+        // read the scales from the configuration
+        auto hzScales = assignScale(diffConfig.getDouble("horizontal"), "hzScales");
+        auto vtScales = assignScale(diffConfig.getDouble("vertical"), "vtScales");
+
+        // Add the scales to the fieldset
+        atlas::FieldSet scalesFs;
+        scalesFs.add(hzScales);
+        scalesFs.add(vtScales);
+
+        // Apply the diffusion filtering
+        diffuse.setParameters(scalesFs);
+        diffuse.multiply(bkgErrFs, oops::Diffusion::Mode::HorizontalOnly);
       }
 
       // Rescale

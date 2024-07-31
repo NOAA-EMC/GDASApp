@@ -43,6 +43,7 @@ load("fftw/3.3.10")
 load("fckit/0.11.0")
 load("fiat/1.2.0")
 load("ectrans/1.2.0")
+load("fms/2023.04")
 load("atlas/0.35.1")
 load("sp/2.5.0")
 load("gsl-lite/0.37.0")
@@ -73,9 +74,6 @@ load("py-scipy/1.11.3")
 load("py-xarray/2023.7.0")
 load("py-f90nml/1.4.3")
 load("py-pip/23.1.2")
-
--- hack for wxflow
---prepend_path("PYTHONPATH", "/scratch1/NCEPDEV/da/python/gdasapp/wxflow/20240307/src")
 
 setenv("CC","cc")
 setenv("CXX","CC")

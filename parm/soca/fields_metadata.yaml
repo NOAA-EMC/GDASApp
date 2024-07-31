@@ -75,7 +75,7 @@
 - name: hicen
   getval name: sea_ice_category_thickness
   io file: ice
-  io name: hicen
+  io name: hi_h
   property: positive_definite
   fill value: 0.0
 
@@ -83,13 +83,13 @@
   getval name: sea_ice_category_area_fraction
   getval name surface: sea_ice_area_fraction     # note: not accurate, should be "sum" not "surface"
   io file: ice
-  io name: aicen
+  io name: aice_h
   fill value: 0.0
 
 - name: hsnon
   getval name: sea_ice_category_snow_thickness
   io file: ice
-  io name: hsnon
+  io name: hs_h
   property: positive_definite
   fill value: 0.0
 

@@ -28,11 +28,18 @@
   obs filters:
     - filter: PreQC
       maxvalue: 1
+    - filter: Domain Check
+      where:
+      - variable:
+          name: latitude@MetaData
+        minvalue: -60
+        maxvalue: 60
     - filter: Bounds Check
       filter variables:
       - name: aerosolOpticalDepth
         channels: 4
       minvalue: 0
+      maxvalue: 4.9
       action:
         name: reject
     - filter: Background Check

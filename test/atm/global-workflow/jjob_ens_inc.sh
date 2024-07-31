@@ -26,7 +26,7 @@ export NMEM_ENS=3
 export ACCOUNT=da-cpu
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow"
+wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
@@ -46,10 +46,8 @@ elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
 fi
 
 # Execute j-job
-if [[ $machine = 'HERA' ]]; then
-    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
-elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
+if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
+    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT --job-name=atmensanlfv3inc-%j.out
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
 fi
