@@ -8,6 +8,7 @@
 
 #include "../Ghrsst2Ioda.h"
 #include "../IcecAmsr2Ioda.h"
+#include "../IcecMirs2Ioda.h"
 #include "../Rads2Ioda.h"
 #include "../RTOFSSalinity.h"
 #include "../RTOFSTemperature.h"
@@ -49,6 +50,9 @@ namespace gdasapp {
         conv2ioda.writeToIoda();
       } else if (provider == "AMSR2") {
         IcecAmsr2Ioda conv2ioda(fullConfig, this->getComm());
+        conv2ioda.writeToIoda();
+      } else if (provider == "MIRS") {
+        IcecMirs2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else if (provider == "VIIRSAOD") {
         Viirsaod2Ioda conv2ioda(fullConfig, this->getComm());
