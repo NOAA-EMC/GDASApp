@@ -1,0 +1,28 @@
+obs space:
+  name: insitu_profile_bathy
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_profile_bathy.${PDY}${cyc}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/diags/insitu_profile_bathy.${PDY}${cyc}.nc4
+  simulated variables: [waterTemperature]
+  io pool:
+    max pool size: 1
+obs operator:
+  name: InsituTemperature
+obs error:
+  covariance model: diagonal
+obs filters:
+- filter: Perform Action
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables:
+        - ObsError/waterTemperature
+        coefs:
+        - 1000.0

@@ -1,0 +1,27 @@
+######################################
+# set some variables
+######################################
+{% set gPDY = previous_cycle | to_YMD %}
+{% set gcyc = previous_cycle | strftime("%H") %}
+{% set PDY = current_cycle | to_YMD %}
+{% set cyc = current_cycle | strftime("%H") %}
+######################################
+# create working directories
+######################################
+mkdir:
+- "{{ DATAenspert }}/ens"
+
+######################################
+# copy ensemble background files
+######################################
+copy:
+{% for mem in range(1, NMEM_ENS + 1) %}
+    # define variables used in the history template
+    {% set tmpl_dict = {'${ROTDIR}':ROTDIR,
+                        '${RUN}': GDUMP_ENS,
+                        '${YMD}':gPDY,
+                        '${HH}':gcyc,
+                        '${MEMDIR}':"mem" + '%03d' % mem} %}
+    - ["{{ COM_OCEAN_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATAenspert }}/ens/ocean.{{ mem }}.nc"]
+    - ["{{ COM_ICE_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATAenspert }}/ens/ice.{{ mem }}.nc"]
+{% endfor %}

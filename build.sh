@@ -87,7 +87,7 @@ case ${BUILD_TARGET} in
     ;;
 esac
 
-CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA"
+CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET"
 
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
 if [[ $CLEAN_BUILD == 'YES' ]]; then
@@ -126,7 +126,7 @@ set -x
 if [[ $BUILD_JCSDA == 'YES' ]]; then
   make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
 else
-  builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils"
+  builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils bufr-query"
   for b in $builddirs; do
     cd $b
     make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE

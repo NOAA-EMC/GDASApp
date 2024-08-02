@@ -1,0 +1,11 @@
+######################################
+# create working directories
+######################################
+mkdir:
+- "{{ DATA }}/Data"
+- "{{ DATA }}/obs"
+copy:
+######################################
+# copy mom input template 
+######################################
+- ["{{ PARMgfs }}/gdas/soca/fms/input.nml", "{{ DATA }}/mom_input.nml.tmpl"]

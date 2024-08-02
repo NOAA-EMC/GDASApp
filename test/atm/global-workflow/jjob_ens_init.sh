@@ -31,7 +31,7 @@ source "${HOMEgfs}/ush/preamble.sh"
 source "${HOMEgfs}/parm/config/gfs/config.com"
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEgfs}/ush/python:${HOMEgfs}/ush/python/wxflow"
+wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
@@ -95,13 +95,13 @@ for imem in $(seq 1 $NMEM_ENS); do
 	COM_ATMOS_RESTART_PREV_ENS:COM_ATMOS_RESTART_TMPL
     COM_ATMOS_RESTART_PREV_DIRNAME_ENS=$(dirname $COM_ATMOS_RESTART_PREV_ENS)
 
-    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model_data/atmos
+    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos
     target=$COM_ATMOS_RESTART_PREV_DIRNAME_ENS
     mkdir -p $target
     rm -rf $target/restart
     ln -fs $source/restart $target/
 
-    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model_data/atmos/history
+    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
     target=$COM_ATMOS_HISTORY_PREV_ENS
     mkdir -p $target
     rm -rf $target/enkfgdas.t${gcyc}z.atmf006.nc
@@ -109,10 +109,8 @@ for imem in $(seq 1 $NMEM_ENS); do
 done
 
 # Execute j-job
-if [[ $machine = 'HERA' ]]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
-elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
+if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmensanlinit-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 fi

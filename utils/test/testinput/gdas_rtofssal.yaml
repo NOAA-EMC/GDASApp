@@ -1,0 +1,12 @@
+provider: RTOFSsal
+window begin: 2021-03-24T15:00:00Z
+window end: 2021-03-24T21:00:00Z
+output file: rtofssal_2024032600.profile.nc4
+input files:
+- rtofsinsitu_2024032600.profile
+- rtofsinsitu_2024032700.profile
+
+test:
+ reference filename: testref/rtofssal.test
+ test output filename: testoutput/rtofssal.test
+ float relative tolerance: 1e-6
