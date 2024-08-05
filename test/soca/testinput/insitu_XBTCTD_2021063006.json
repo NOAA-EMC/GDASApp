@@ -1,0 +1,12 @@
+{
+    "data_format": "xbtctd",
+    "subsets": "XBTCTD",
+    "source": "NCEP data tank",
+    "data_type": "xbtctd",
+    "cycle_type": "gdas",
+    "cycle_datetime": "2021063006",
+    "dump_directory": "/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138",
+    "ioda_directory": "/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138",
+    "data_description": "6-hrly in situ XBT/XCTD profiles",
+    "data_provider": "U.S. NOAA"
+}

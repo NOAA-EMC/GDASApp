@@ -1,18 +1,23 @@
 # Copy the bkg files
 # ------------------
-set( TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
+set(TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
+
 
 # Symlink test input yaml files
 # -----------------------------
 # create testinput dir
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca/testinput)
+set (TESTINPUT_DIR ${PROJECT_BINARY_DIR}/test/soca/testinput)
+
+file(MAKE_DIRECTORY ${TESTINPUT_DIR})
+message(">>>>>>>>>>>>>>>>>>>>>>> created ${TESTINPUT_DIR}")
 
 # symlink
 foreach(FILENAME ${test_input})
-  get_filename_component(filename ${FILENAME} NAME )
-  execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
-         ${FILENAME}
-         ${PROJECT_BINARY_DIR}/test/soca/testinput/${filename} )
+	get_filename_component(filename ${FILENAME} NAME)
+	execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+		${FILENAME}
+		${TESTINPUT_DIR}
+	)
 endforeach(FILENAME)
 
 # install
@@ -32,3 +37,37 @@ set_tests_properties(
         test_gdasapp_soca_nsst_increment_to_mom6
 PROPERTIES
 ENVIRONMENT "data=${TESTDATA};PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
+
+
+
+
+
+set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
+set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
+set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/soca/testinput)
+# set(TESTREF_DIR ${PROJECT_BINARY_DIR}/test/soca/testref)
+set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/soca/testref)
+
+function(ADD_INSITU_TEST testname)
+	# set(TEST insitu_${testname})
+	set(TEST ${testname})
+	message(".....................adding test ${TEST}")
+	set(CONFIG_FILE insitu_${TEST}_2021063006.json)
+	set(TESTREF_FILE insitu_${TEST}_2021063006.ref)
+
+	add_test(
+		NAME test_insitu_bufr2ioda_${TEST}
+		COMMAND ${MARINE_BUFR2IODA_DIR}/${TEST}.py -c ${CONFIG_DIR}/${CONFIG_FILE} -t ${TESTREF_DIR}/${TESTREF_FILE}
+		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca
+	)
+endfunction()
+
+
+# ADD_INSITU_TEST(ALTKOB)
+ADD_INSITU_TEST(ARGO)
+ADD_INSITU_TEST(BATHY)
+ADD_INSITU_TEST(GLIDER)
+ADD_INSITU_TEST(TESAC)
+ADD_INSITU_TEST(XBTCTD)
+ADD_INSITU_TEST(TRKOB)
+

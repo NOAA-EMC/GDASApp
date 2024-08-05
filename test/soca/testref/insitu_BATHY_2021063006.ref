@@ -1,0 +1,9 @@
+ dateTime                 shape, dtype = (1751,), int64
+ rcptdateTime             shape, dytpe = (1751,), int64
+ lon           min, max, length, dtype = -79.9000015258789, 13.020000457763672, 1751, float32
+ lat           min, max, length, dtype = -27.549999237060547, 29.93000030517578, 1751, float32
+ depth         min, max, length, dtype = 2.0, 1298.0, 1751, float32
+ stationID                shape, dtype = (1751,), <U6
+ temp          min, max, length, dtype = 3.5999999046325684, 29.100000381469727, 1751, float32
+ sequence Num             shape, dtype = (1751,), int32
+ PreQC         min, max, length, dtype = 0, 0, 1947, int32

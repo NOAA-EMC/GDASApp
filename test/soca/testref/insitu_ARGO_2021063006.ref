@@ -1,0 +1,12 @@
+ dateTime                 shape, dtype = (97150,), int64
+ rcptdateTime             shape, dytpe = (97150,), int64
+ lon           min, max, length, dtype = -174.8090057373047, 170.48915100097656, 97150, float32
+ lat           min, max, length, dtype = -59.77299880981445, 76.25086212158203, 97150, float32
+ depth         min, max, length, dtype = 0.0, 5700.7001953125, 97150, float32
+ stationID                shape, dtype = (97150,), <U11
+ temp          min, max, length, dtype = -1.817999243736267, 31.73198890686035, 97150, float32
+ saln          min, max, length, dtype = 0.0, 42.47999954223633, 97150, float32
+ sequence Num             shape, dtype = (97150,), int32
+ PreQC         min, max, length, dtype = 0, 0, 97150, int32
+ ObsError_temp min, max, length, dtype = 0.019999999552965164, 0.019999999552965164, 97150, float32
+ ObsError_saln min, max, length, dtype = 0.009999999776482582, 0.009999999776482582, 97150, float32
