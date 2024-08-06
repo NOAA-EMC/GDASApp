@@ -12,24 +12,19 @@ class ArgoIODAVariables(IODAVariables):
 
     def BuildQuery(self):
         q = super().BuildQuery()
-
         q.add('stationID', '*/WMOP')
         q.add('latitude', '*/CLATH')
         q.add('longitude', '*/CLONH')
         q.add('depth', '*/GLPFDATA/WPRES')
-
         # ObsValue
         q.add('temp', '*/GLPFDATA/SSTH')
         q.add('saln', '*/GLPFDATA/SALNH')
-
         return q
-
 
     def SetFromQueryResult(self, r):
         super().SetFromQueryResult(r)
         # convert depth in pressure units to meters (rho * g * h)
         self.depth = np.float32(self.depth.astype(float) * 0.0001)
-
 
     def filter(self):
         mask = self.TemperatureFilter() \
@@ -66,7 +61,6 @@ class ArgoIODAVariables(IODAVariables):
         self.seqNum = self.seqNum[index_list]
         self.dateTime = self.dateTime[index_list]
         self.rcptdateTime = self.rcptdateTime[index_list]
-
 
     def createIODAVars(self, obsspace):
         super().createIODAVars(obsspace)
