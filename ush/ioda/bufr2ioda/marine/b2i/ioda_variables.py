@@ -175,53 +175,76 @@ class IODAVariables:
 #####################################################################
 
 def WriteDateTime(obsspace, dateTime):
-    obsspace.create_var('MetaData/dateTime',
-            dtype=dateTime.dtype, fillval=dateTime.fill_value)
-        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z')
-        .write_attr('long_name', 'Datetime')
+    obsspace.create_var(
+        'MetaData/dateTime',
+        dtype=dateTime.dtype, fillval=dateTime.fill_value
+    ) \
+        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
+        .write_attr('long_name', 'Datetime') \
         .write_data(dateTime)
 
+
 def WriteRcptDateTime(obsspace, rcptdateTime):
-    obsspace.create_var('MetaData/rcptdateTime',
-            dtype=rcptdateTime.dtype, fillval=rcptdateTime.fill_value)
-        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z')
-        .write_attr('long_name', 'receipt Datetime')
+    obsspace.create_var(
+        'MetaData/rcptdateTime',
+        dtype=rcptdateTime.dtype, fillval=rcptdateTime.fill_value
+    ) \
+        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
+        .write_attr('long_name', 'receipt Datetime') \
         .write_data(rcptdateTime)
 
+
 def WriteLongitude(obsspace, lon):
-    obsspace.create_var('MetaData/longitude',
-            dtype=lon.dtype, fillval=lon.fill_value)
-        .write_attr('units', 'degrees_east')
-        .write_attr('valid_range', np.array([-180, 180], dtype=np.float32))
-        .write_attr('long_name', 'Longitude')
+    obsspace.create_var(
+        'MetaData/longitude',
+        dtype=lon.dtype, fillval=lon.fill_value
+    ) \
+        .write_attr('units', 'degrees_east') \
+        .write_attr('valid_range', np.array([-180, 180], dtype=np.float32)) \
+        .write_attr('long_name', 'Longitude') \
         .write_data(lon)
 
+
 def WriteLatitude(obsspace, lat):
-    obsspace.create_var('MetaData/latitude',
-            dtype=lat.dtype, fillval=lat.fill_value)
-        .write_attr('units', 'degrees_north')
-        .write_attr('valid_range', np.array([-90, 90], dtype=np.float32))
-        .write_attr('long_name', 'Latitude')
+    obsspace.create_var(
+        'MetaData/latitude',
+        dtype=lat.dtype, fillval=lat.fill_value
+    ) \
+        .write_attr('units', 'degrees_north') \
+        .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
+        .write_attr('long_name', 'Latitude') \
         .write_data(lat)
 
+
 def WriteStationID(obsspace, stationID):
-    obsspace.create_var('MetaData/stationID',
-            dtype=stationID.dtype, fillval=stationID.fill_value)
-        .write_attr('long_name', 'Station Identification')
+    obsspace.create_var(
+        'MetaData/stationID',
+        dtype=stationID.dtype, fillval=stationID.fill_value
+    ) \
+        .write_attr('long_name', 'Station Identification') \
         .write_data(stationID)
 
+
 def WriteDepth(obsspace, depth):
-    obsspace.create_var('MetaData/depth',
-            dtype=depth.dtype, fillval=depth.fill_value)
-        .write_attr('units', 'm')
-        .write_attr('long_name', 'Water depth')
-        .write_data(depth)
+    obsspace.create_var(
+        'MetaData/depth',
+        dtype=depth.dtype,
+        fillval=depth.fill_value
+    ) \
+            .write_attr('units', 'm') \
+            .write_attr('long_name', 'Water depth') \
+            .write_data(depth)
+
 
 def WriteSequenceNumber(obsspace, seqNum, PreQC):
-    obsspace.create_var('MetaData/sequenceNumber',
-            dtype=PreQC.dtype, fillval=PreQC.fill_value)
-        .write_attr('long_name', 'Sequence Number')
+    obsspace.create_var(
+        'MetaData/sequenceNumber',
+        dtype=PreQC.dtype,
+        fillval=PreQC.fill_value
+    ) \
+        .write_attr('long_name', 'Sequence Number') \
         .write_data(seqNum)
+
 
 def WriteObsError(obsspace, v_name, units, v):
     obsspace.create_var(
