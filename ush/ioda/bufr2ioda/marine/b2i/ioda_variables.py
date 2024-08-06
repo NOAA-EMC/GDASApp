@@ -100,7 +100,7 @@ class IODAVariables:
     def WriteObsValueS(self, obsspace, v_name):
         obsspace.create_var('ObsValue/' + v_name, dtype=self.saln.dtype, fillval=self.saln.fill_value) \
             .write_attr('units', 'psu') \
-            .write_attr('valid_range', \
+            .write_attr('valid_range',
                 np.array([self.Smin, self.Smax], dtype=np.float32)) \
             .write_attr('long_name', v_name) \
             .write_data(self.saln)
@@ -174,6 +174,7 @@ class IODAVariables:
 
 #####################################################################
 
+
 def WriteDateTime(obsspace, dateTime):
     obsspace.create_var(
         'MetaData/dateTime',
@@ -231,9 +232,9 @@ def WriteDepth(obsspace, depth):
         dtype=depth.dtype,
         fillval=depth.fill_value
     ) \
-            .write_attr('units', 'm') \
-            .write_attr('long_name', 'Water depth') \
-            .write_data(depth)
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Water depth') \
+        .write_data(depth)
 
 
 def WriteSequenceNumber(obsspace, seqNum, PreQC):
