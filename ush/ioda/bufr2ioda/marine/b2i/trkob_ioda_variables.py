@@ -48,8 +48,8 @@ class TrkobIODAVariables(IODAVariables):
         self.WritePreQC(obsspace, "seaSurfaceTemperature")
         self.WritePreQC(obsspace, "seaSurfaceSalinity")
 
-        WriteObsError(obsspace, "ObsError/seaSurfaceTemperature", "degC", self.ObsError_temp)  
-        WriteObsError(obsspace, "ObsError/seaSurfaceSalinity", "psu", self.ObsError_saln)  
+        WriteObsError(obsspace, "ObsError/seaSurfaceTemperature", "degC", self.ObsError_temp)
+        WriteObsError(obsspace, "ObsError/seaSurfaceSalinity", "psu", self.ObsError_saln)
 
         self.WriteObsValueT(obsspace, 'seaSurfaceTemperature')
         self.WriteObsValueS(obsspace, 'seaSurfaceSalinity')
