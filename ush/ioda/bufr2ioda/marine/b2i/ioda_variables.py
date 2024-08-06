@@ -3,7 +3,6 @@ from pyiodaconv import bufr
 from util import Compute_sequenceNumber
 
 
-
 class IODAVariables:
     def __init__(self):
         self.n_obs = 0
@@ -11,7 +10,6 @@ class IODAVariables:
         self.errorS = 0.0
         self.SetTemperatureRange(-10.0, 50.0)
         self.SetSalinityRange(0.0, 45.0)
-
 
     def SetTemperatureError(self, e):
         self.errorT = e
@@ -27,10 +25,8 @@ class IODAVariables:
         self.Smin = smin
         self.Smax = smax
 
-
     def BuildQuery(self):
         q = bufr.QuerySet()
-
         q.add('year', '*/YEAR')
         q.add('month', '*/MNTH')
         q.add('day', '*/DAYS')
@@ -41,9 +37,7 @@ class IODAVariables:
         q.add('rday', '*/RCDY')
         q.add('rhour', '*/RCHR')
         q.add('rminute', '*/RCMI')
-
         return q
-
 
     def SetDatesFromQueryResult(self, r):
         self.dateTime = r.get_datetime('year', 'month', 'day', 'hour', 'minute', group_by='depth')
@@ -61,14 +55,12 @@ class IODAVariables:
         self.temp -= 273.15
         self.saln = r.get('saln', group_by='depth')
 
-
     def SetFromQueryResult(self, r):
         self.SetDatesFromQueryResult(r)
         self.SetLonLatFromQueryResult(r)
         self.stationID = r.get('stationID', group_by='depth')
         self.depth = r.get('depth', group_by='depth')
         self.SetObsFromQueryResult(r)
-
 
     def TemperatureFilter(self):
         return (self.temp > self.Tmin) & (self.temp <= self.Tmax)
@@ -78,7 +70,6 @@ class IODAVariables:
     def filter(self):
         pass
 
-
     def SetAdditionalData(self):
         self.seqNum = Compute_sequenceNumber(self.lon)
         self.PreQC = (np.ma.masked_array(np.full((self.n_obs), 0))).astype(np.int32)
@@ -87,16 +78,11 @@ class IODAVariables:
         self.ObsError_saln = \
             np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorS)))
 
-
-
-
     def createIODAVars(self, obsspace):
         WriteDateTime(obsspace, self.dateTime)
         WriteRcptDateTime(obsspace, self.rcptdateTime)
         WriteLongitude(obsspace, self.lon)
         WriteLatitude(obsspace, self.lat)
-
-
 
     def WritePreQC(self, obsspace, name):
         obsspace.create_var("PreQC/" + name, dtype=self.PreQC.dtype, fillval=self.PreQC.fill_value) \
@@ -127,7 +113,6 @@ class IODAVariables:
     def logSalinity(self, logger):
         logger.debug(f" saln          min, max, length, dtype = {self.saln.min()}, {self.saln.max()}, {len(self.saln)}, {self.saln.dtype}")
 
-
     def logLonLat(self, logger):
         logger.debug(f" lon           min, max, length, dtype = {self.lon.min()}, {self.lon.max()}, {len(self.lon)}, {self.lon.dtype}")
         logger.debug(f" lat           min, max, length, dtype = {self.lat.min()}, {self.lat.max()}, {len(self.lat)}, {self.lat.dtype}")
@@ -135,7 +120,6 @@ class IODAVariables:
     def logDates(self, logger):
         logger.debug(f" dateTime                 shape, dtype = {self.dateTime.shape}, {self.dateTime.dtype}")
         logger.debug(f" rcptdateTime             shape, dytpe = {self.rcptdateTime.shape}, {self.rcptdateTime.dtype}")
-
 
     def logStationID(self, logger):
         logger.debug(f" stationID                shape, dtype = {self.stationID.shape}, {self.stationID.astype(str).dtype}")
@@ -154,7 +138,6 @@ class IODAVariables:
 
     def LogObsError_saln(self, logger):
         logger.debug(f" ObsError_saln min, max, length, dtype = {self.ObsError_saln.min()}, {self.ObsError_saln.max()}, {len(self.ObsError_saln)}, {self.ObsError_saln.dtype}")
-
 
     def logMetadata(self, logger):
         self.logDates(logger)
@@ -177,73 +160,60 @@ class IODAVariables:
         self.logObs(logger)
         self.logAdditionalData(logger)
 
-
-
-
 #####################################################################
 
-
-
 def WriteDateTime(obsspace, dateTime):
-    obsspace.create_var('MetaData/dateTime', \
-            dtype=dateTime.dtype, fillval=dateTime.fill_value) \
-        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
-        .write_attr('long_name', 'Datetime') \
+    obsspace.create_var('MetaData/dateTime',
+            dtype=dateTime.dtype, fillval=dateTime.fill_value)
+        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z')
+        .write_attr('long_name', 'Datetime')
         .write_data(dateTime)
 
 def WriteRcptDateTime(obsspace, rcptdateTime):
-    obsspace.create_var('MetaData/rcptdateTime', \
-            dtype=rcptdateTime.dtype, fillval=rcptdateTime.fill_value) \
-        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
-        .write_attr('long_name', 'receipt Datetime') \
+    obsspace.create_var('MetaData/rcptdateTime',
+            dtype=rcptdateTime.dtype, fillval=rcptdateTime.fill_value)
+        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z')
+        .write_attr('long_name', 'receipt Datetime')
         .write_data(rcptdateTime)
 
-
 def WriteLongitude(obsspace, lon):
-    obsspace.create_var('MetaData/longitude', \
-            dtype=lon.dtype, fillval=lon.fill_value) \
-        .write_attr('units', 'degrees_east') \
-        .write_attr('valid_range', np.array([-180, 180], dtype=np.float32)) \
-        .write_attr('long_name', 'Longitude') \
+    obsspace.create_var('MetaData/longitude',
+            dtype=lon.dtype, fillval=lon.fill_value)
+        .write_attr('units', 'degrees_east')
+        .write_attr('valid_range', np.array([-180, 180], dtype=np.float32))
+        .write_attr('long_name', 'Longitude')
         .write_data(lon)
 
 def WriteLatitude(obsspace, lat):
-    obsspace.create_var('MetaData/latitude', \
-            dtype=lat.dtype, fillval=lat.fill_value) \
-        .write_attr('units', 'degrees_north') \
-        .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
-        .write_attr('long_name', 'Latitude') \
+    obsspace.create_var('MetaData/latitude',
+            dtype=lat.dtype, fillval=lat.fill_value)
+        .write_attr('units', 'degrees_north')
+        .write_attr('valid_range', np.array([-90, 90], dtype=np.float32))
+        .write_attr('long_name', 'Latitude')
         .write_data(lat)
 
-
 def WriteStationID(obsspace, stationID):
-    obsspace.create_var('MetaData/stationID', \
-            dtype=stationID.dtype, fillval=stationID.fill_value) \
-        .write_attr('long_name', 'Station Identification') \
+    obsspace.create_var('MetaData/stationID',
+            dtype=stationID.dtype, fillval=stationID.fill_value)
+        .write_attr('long_name', 'Station Identification')
         .write_data(stationID)
 
 def WriteDepth(obsspace, depth):
-    obsspace.create_var('MetaData/depth', \
-            dtype=depth.dtype, fillval=depth.fill_value) \
-        .write_attr('units', 'm') \
-        .write_attr('long_name', 'Water depth') \
+    obsspace.create_var('MetaData/depth',
+            dtype=depth.dtype, fillval=depth.fill_value)
+        .write_attr('units', 'm')
+        .write_attr('long_name', 'Water depth')
         .write_data(depth)
 
-
 def WriteSequenceNumber(obsspace, seqNum, PreQC):
-    obsspace.create_var('MetaData/sequenceNumber', \
-            dtype=PreQC.dtype, fillval=PreQC.fill_value) \
-        .write_attr('long_name', 'Sequence Number') \
+    obsspace.create_var('MetaData/sequenceNumber',
+            dtype=PreQC.dtype, fillval=PreQC.fill_value)
+        .write_attr('long_name', 'Sequence Number')
         .write_data(seqNum)
 
-
-
 def WriteObsError(obsspace, v_name, units, v):
-    obsspace.create_var(v_name, \
-            dtype=v.dtype, fillval=v.fill_value) \
-        .write_attr('units', units) \
-        .write_attr('long_name', 'ObsError') \
+    obsspace.create_var(v_name,
+            dtype=v.dtype, fillval=v.fill_value)
+        .write_attr('units', units)
+        .write_attr('long_name', 'ObsError')
         .write_data(v)
-
-
-##################################################################
