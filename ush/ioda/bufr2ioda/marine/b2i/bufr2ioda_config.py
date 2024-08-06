@@ -2,8 +2,6 @@ import json
 import yaml
 import os
 
-
-
 class Bufr2iodaConfig:
     def __init__(self, script_name, config_file, platform_description):
         self.script_name = script_name
@@ -21,7 +19,6 @@ class Bufr2iodaConfig:
             self.ReadConfig(config)
         else:
             print("Unknown file extension = ", file_extension) 
-
 
     def ReadConfig(self, config):
         subsets = config["subsets"]
@@ -43,23 +40,17 @@ class Bufr2iodaConfig:
         # General Information
         self.converter = 'BUFR to IODA Converter'
 
-
-
     def BufrFilename(self):
         return f"{self.cycle_datetime}-{self.cycle_type}.t{self.hh}z.{self.data_format}.tm00.bufr_d"
-
 
     def BufrFilepath(self):
         return os.path.join(self.dump_dir, self.BufrFilename())
 
-
     def IODAFilename(self):
         return f"{self.cycle_type}.t{self.hh}z.insitu_profile_{self.data_format}.{self.cycle_datetime}.nc4"
 
-
     def IODAFilepath(self):
         return os.path.join(self.ioda_dir, self.IODAFilename())
-
 
     def CreateIODAAttributes(self, obsspace, date_range):
         obsspace.write_attr('Converter', self.converter)
@@ -69,4 +60,3 @@ class Bufr2iodaConfig:
         obsspace.write_attr('description', self.data_description)
         obsspace.write_attr('datetimeRange', date_range)
         obsspace.write_attr('platformLongDescription', self.platform_description)
-
