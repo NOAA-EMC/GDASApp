@@ -12,16 +12,14 @@ class XbtctdConfig(Bufr2iodaConfig):
         return f"{self.cycle_type}.t{self.hh}z.{self.data_type}_profiles.{self.data_format}.nc4"
 
 
-
-
 if __name__ == '__main__':
 
     script_name, config_file, log_file, test_file = ParseArguments()
 
     platform_description = 'Profiles from XBT/CTD: temperature and salinity'
-    bufr2ioda_config = XbtctdConfig( \
-        script_name, \
-        config_file, \
+    bufr2ioda_config = XbtctdConfig(
+        script_name,
+        config_file,
         platform_description)
 
     ioda_vars = XbtctdIODAVariables()
@@ -34,4 +32,3 @@ if __name__ == '__main__':
     if test_file:
         result = xbtctd.test(test_file)
         sys.exit(result)
-
