@@ -8,27 +8,21 @@ class GliderIODAVariables(IODAVariables):
     def __init__(self):
         super().__init__()
 
-
     def BuildQuery(self):
         q = super().BuildQuery()
-
         q.add('stationID', '*/WMOP')
         q.add('latitude', '*/CLATH')
         q.add('longitude', '*/CLONH')
         q.add('depth', '*/GLPFDATA/WPRES')
-
         # ObsValue
         q.add('temp', '*/GLPFDATA/SSTH')
         q.add('saln', '*/GLPFDATA/SALNH')
-
         return q
-
 
     def SetFromQueryResult(self, r):
         super().SetFromQueryResult(r)
         # convert depth in pressure units to meters (rho * g * h)
         self.depth = np.float32(self.depth.astype(float) * 0.0001)
-
 
     def filter(self):
         mask = self.TemperatureFilter() \
@@ -66,15 +60,12 @@ class GliderIODAVariables(IODAVariables):
 
         self.n_obs = len(mask_gldr)
 
-
     def SetAdditionalData(self):
         self.PreQC = (np.ma.masked_array(np.full((self.n_obs), 0))).astype(np.int32)
         self.ObsError_temp = \
             np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorT)))
         self.ObsError_saln = \
             np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorS)))
-
-
 
     def createIODAVars(self, obsspace):
         super().createIODAVars(obsspace)
@@ -89,5 +80,3 @@ class GliderIODAVariables(IODAVariables):
         WriteObsError(obsspace, 'ObsError/salinity', 'psu', self.ObsError_saln)
         self.WriteObsValueT(obsspace, 'waterTemperature')
         self.WriteObsValueS(obsspace, 'salinity')
-         
-
