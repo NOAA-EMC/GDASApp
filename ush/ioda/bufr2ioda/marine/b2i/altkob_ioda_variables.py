@@ -34,14 +34,12 @@ class AltkobIODAVariables(IODAVariables):
         self.temp = self.temp[mask]
         self.saln = self.saln[mask]
 
-
     def SetAdditionalData(self):
         self.PreQC = (np.ma.masked_array(np.full((self.n_obs), 0))).astype(np.int32)
         self.ObsError_temp = \
             np.float32(np.ma.masked_array(np.full((self.n_obs), self.ErrorT)))
         self.ObsError_saln = \
             np.float32(np.ma.masked_array(np.full((self.n_obs), self.ErrorS)))
-
 
     def createIODAVars(self, obsspace):
         super().createIODAVars(obsspace)
@@ -55,5 +53,5 @@ class AltkobIODAVariables(IODAVariables):
         WriteObsError(obsspace, "ObsError/seaSurfaceTemperature", "degC", self.ObsError_temp)
         WriteObsError(obsspace, "ObsError/seaSurfaceSalinity", "psu", self.ObsError_saln)
 
-        self.WriteObsValueT(obsspace,'waterTemperature')
+        self.WriteObsValueT(obsspace, 'waterTemperature')
         self.WriteObsValueS(obsspace, 'salinity')
