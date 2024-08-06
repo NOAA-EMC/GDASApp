@@ -2,6 +2,7 @@ import json
 import yaml
 import os
 
+
 class Bufr2iodaConfig:
     def __init__(self, script_name, config_file, platform_description):
         self.script_name = script_name
@@ -18,7 +19,7 @@ class Bufr2iodaConfig:
                 config = yaml.safe_load(file)
             self.ReadConfig(config)
         else:
-            print("Unknown file extension = ", file_extension) 
+            print("Unknown file extension = ", file_extension)
 
     def ReadConfig(self, config):
         subsets = config["subsets"]
