@@ -8,7 +8,6 @@ import calendar
 import time
 import copy
 from datetime import datetime
-# import json
 from pyiodaconv import bufr
 from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
@@ -16,14 +15,10 @@ from wxflow import Logger
 import warnings
 # suppress warnings
 warnings.filterwarnings('ignore')
-
 from util import ParseArguments, run_diff
 from bufr2ioda_config import Bufr2iodaConfig
-# from ioda_variables import IODAVariables
 import logging
 import tempfile
-
-
 
 
 class Bufr2ioda_Converter:
@@ -31,14 +26,7 @@ class Bufr2ioda_Converter:
         self.bufr2ioda_config = bufr2ioda_config
         self.ioda_vars = ioda_vars
         self.logfile = logfile
-
-        # self.logger = Logger( \
-            # bufr2ioda_config.script_name,
-            # level=logfile, \
-            # colored_log=True)
-
         self.SetupLogging(bufr2ioda_config.script_name, self.logfile)
-
 
     def SetupLogging(self, script_name, logfile):
         self.logger = logging.getLogger(script_name)
@@ -59,13 +47,11 @@ class Bufr2ioda_Converter:
             file_formatter = logging.Formatter('%(message)s')
             self.file_handler.setFormatter(file_formatter)
 
-
     def run(self):
         start_time = time.time()
 
         self.logger.debug(f"BuildQuery")
         q = self.ioda_vars.BuildQuery()
-
 
         bufrfile_path = self.bufr2ioda_config.BufrFilepath()
         self.logger.debug(f"ExecuteQuery: BUFR file = {bufrfile_path}")
@@ -76,7 +62,6 @@ class Bufr2ioda_Converter:
         self.ioda_vars.SetFromQueryResult(r)
 
         self.ioda_vars.filter()
-
 
         # set seqNum, PreQC, ObsError
         self.ioda_vars.SetAdditionalData()
@@ -96,19 +81,15 @@ class Bufr2ioda_Converter:
         self.logger.debug(f"createIODAVars")
         self.ioda_vars.createIODAVars(obsspace)
 
-
         if (self.logfile):
             self.logger.addHandler(self.file_handler)
         self.ioda_vars.log(self.logger)
         if (self.logfile):
             self.logger.removeHandler(self.file_handler)
 
-
         end_time = time.time()
         running_time = end_time - start_time
         self.logger.debug(f"Total running time: {running_time} seconds")
-
-
 
     def test(self, test_file):
         with tempfile.NamedTemporaryFile(delete=False, suffix='.log') as temp_log_file:
@@ -129,13 +110,3 @@ class Bufr2ioda_Converter:
                 self.logger.error(f"TEST ERROR: files are different")
             else:
                 self.logger.info(f"TEST passed: files are identical")
-
-
-
-        # self.logger.debug(f"TEST: running diff on {self.logfile} and {test_file}")
-        # result = run_diff(self.logfile, test_file)
-        # if result:
-            # self.logger.error(f"TEST ERROR: files are different")
-        # else:
-            # self.logger.info(f"TEST passed: files are identical")
-
