@@ -9,7 +9,6 @@ class ArgoIODAVariables(IODAVariables):
     def __init__(self):
         super().__init__()
 
-
     def BuildQuery(self):
         q = super().BuildQuery()
         q.add('stationID', '*/WMOP')
@@ -77,4 +76,3 @@ class ArgoIODAVariables(IODAVariables):
 
         self.WriteObsValueT(obsspace, 'waterTemperature')
         self.WriteObsValueS(obsspace, 'salinity')
-
