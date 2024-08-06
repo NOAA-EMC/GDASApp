@@ -10,17 +10,17 @@ def ParseArguments():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-c', '--config',
-        type=str, 
+        type=str,
         help='Input JSON or YAML configuration', required=True
     )
     parser.add_argument(
         '-l', '--log_file',
-        type=str, 
+        type=str,
         help='Output file for testing ioda variables'
     )
     parser.add_argument(
         '-t', '--test',
-        type=str, 
+        type=str,
         help='Input test reference file'
     )
 
@@ -31,6 +31,7 @@ def ParseArguments():
     script_name = sys.argv[0]
     return script_name, config_file, log_file, test_file
 
+
 def run_diff(file1, file2):
     # log this....
     # print("running diff on: ")
@@ -39,8 +40,10 @@ def run_diff(file1, file2):
 
     try:
         # Run the diff command
-        result = subprocess.run(['diff', file1, file2], \
-            capture_output=True, text=True, check=False)
+        result = subprocess.run(
+            ['diff', file1, file2],
+            capture_output=True, text=True, check=False
+        )
 
         # Check if diff command succeeded (return code 0)
         if result.returncode == 0:
@@ -52,11 +55,12 @@ def run_diff(file1, file2):
         else:
             print("Error occurred while running diff command.")
             print(result.stderr)
-    
+
     except subprocess.CalledProcessError as e:
         print(f"Error occurred: {e}")
 
     return result.returncode
+
 
 def run_diff_script_inline(file1, file2, script_content):
     try:
@@ -90,11 +94,13 @@ def run_diff_script_inline(file1, file2, script_content):
         except Exception as e:
             print(f"Error cleaning up temp script: {e}")
 
+
 def Compute_sequenceNumber(lon):
     lon_u, seqNum = np.unique(lon, return_inverse=True)
     seqNum = seqNum.astype(np.int32)
     # logger.debug(f"Len of Sequence Number: {len(seqNum)}")
     return seqNum
+
 
 def nc_diff(file1, file2):
     try:
@@ -116,10 +122,6 @@ diff <(ncdump "$1"| sed '1d') <(ncdump "$2"|sed '1d')
         # result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True)
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        # Check the return code of the subprocess
-        # if result.returncode != 0:
-            # print(f"Script exited with non-zero status: {result.returncode}")
-            # return result.returncode
         return result.returncode
         # return result.stdout
 
