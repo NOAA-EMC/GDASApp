@@ -12,15 +12,14 @@ class GliderConfig(Bufr2iodaConfig):
         return f"{self.cycle_type}.t{self.hh}z.{self.data_type}_profiles.{self.data_format}.nc4"
 
 
-
 if __name__ == '__main__':
 
     script_name, config_file, log_file, test_file = ParseArguments()
 
     platform_description = 'GLIDER profiles from subpfl: temperature and salinity'
-    bufr2ioda_config = GliderConfig( \
-        script_name, \
-        config_file, \
+    bufr2ioda_config = GliderConfig(
+        script_name,
+        config_file,
         platform_description)
 
     ioda_vars = GliderIODAVariables()
@@ -33,4 +32,3 @@ if __name__ == '__main__':
     if test_file:
         result = glider.test(test_file)
         sys.exit(result)
-
