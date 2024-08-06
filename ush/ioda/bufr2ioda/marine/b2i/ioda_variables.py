@@ -228,6 +228,6 @@ def WriteObsError(obsspace, v_name, units, v):
         v_name,
         dtype=v.dtype, fillval=v.fill_value
     ) \
-    .write_attr('units', units) \
-    .write_attr('long_name', 'ObsError') \
-    .write_data(v)
+        .write_attr('units', units) \
+        .write_attr('long_name', 'ObsError') \
+        .write_data(v)
