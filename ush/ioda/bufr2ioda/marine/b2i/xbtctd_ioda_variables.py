@@ -8,21 +8,16 @@ class XbtctdIODAVariables(IODAVariables):
     def __init__(self):
         super().__init__()
 
-
     def BuildQuery(self):
         q = super().BuildQuery()
-
         q.add('stationID', '*/WMOP')
         q.add('latitude', '*/CLATH')
         q.add('longitude', '*/CLONH')
         q.add('depth', '*/TMSLPFSQ/DBSS')
-
         # ObsValue
         q.add('temp', '*/TMSLPFSQ/SST1')
         q.add('saln', '*/TMSLPFSQ/SALNH')
-
         return q
-
 
     def filter(self):
         mask = self.TemperatureFilter() \
@@ -37,7 +32,6 @@ class XbtctdIODAVariables(IODAVariables):
         self.stationID = self.stationID[mask]
         self.dateTime = self.dateTime[mask]
         self.rcptdateTime = self.rcptdateTime[mask]
-
 
     def createIODAVars(self, obsspace):
         super().createIODAVars(obsspace)
@@ -54,4 +48,3 @@ class XbtctdIODAVariables(IODAVariables):
 
         self.WriteObsValueT(obsspace, 'waterTemperature')
         self.WriteObsValueS(obsspace, 'salinity')
-
