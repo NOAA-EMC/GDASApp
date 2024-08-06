@@ -8,21 +8,28 @@ import tempfile
 
 def ParseArguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config',
-        type=str, help='Input JSON or YAML configuration', required=True)
-    parser.add_argument('-l', '--log_file',
-        type=str, help='Output file for testing ioda variables')
-    parser.add_argument('-t', '--test',
-        type=str, help='Input test reference file')
+    parser.add_argument(
+        '-c', '--config',
+        type=str, 
+        help='Input JSON or YAML configuration', required=True
+    )
+    parser.add_argument(
+        '-l', '--log_file',
+        type=str, 
+        help='Output file for testing ioda variables'
+    )
+    parser.add_argument(
+        '-t', '--test',
+        type=str, 
+        help='Input test reference file'
+    )
 
     args = parser.parse_args()
     config_file = args.config
     log_file = args.log_file
     test_file = args.test
     script_name = sys.argv[0]
-
     return script_name, config_file, log_file, test_file
-
 
 def run_diff(file1, file2):
     # log this....
