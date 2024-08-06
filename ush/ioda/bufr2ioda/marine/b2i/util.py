@@ -8,11 +8,11 @@ import tempfile
 
 def ParseArguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', \
+    parser.add_argument('-c', '--config',
         type=str, help='Input JSON or YAML configuration', required=True)
-    parser.add_argument('-l', '--log_file', \
+    parser.add_argument('-l', '--log_file',
         type=str, help='Output file for testing ioda variables')
-    parser.add_argument('-t', '--test', \
+    parser.add_argument('-t', '--test',
         type=str, help='Input test reference file')
 
     args = parser.parse_args()
@@ -22,7 +22,6 @@ def ParseArguments():
     script_name = sys.argv[0]
 
     return script_name, config_file, log_file, test_file
-
 
 
 def run_diff(file1, file2):
@@ -130,15 +129,3 @@ diff <(ncdump "$1"| sed '1d') <(ncdump "$2"|sed '1d')
             os.remove(temp_script.name)
         except Exception as e:
             print(f"Error cleaning up temp script: {e}")
-
-
-if __name__ == '__main__':
-    file1 = '/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138/gdas.t06z.insitu_profile_argo.2021063006.nc4'
-    file2 = '/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138/backup_gdas.t06z.insitu_profile_argo.2021063006.nc4'
-    # file2 = '/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138/gdas.t06z.sst_viirs_npp_l3u.2021063006.nc4'
-
-    diff_result = nc_diff(file1, file2)
-    if diff_result == 0:
-        print("identitcal")
-    else:
-        print("different")
