@@ -4,31 +4,6 @@ import argparse
 import subprocess
 import numpy as np
 import tempfile
-# import logging
-# import colorlog
-
-
-# def get_logger(name, level=logging.DEBUG):
-    # logger = logging.getLogger(name)
-    # logger.setLevel(level)
-# 
-    # handler = colorlog.StreamHandler()
-    # handler.setFormatter(colorlog.ColoredFormatter(
-        # '%(log_color)s%(asctime)s - %(levelname)s - %(message)s',
-        # log_colors={
-            # 'DEBUG': 'cyan',
-            # 'INFO': 'green',
-            # 'WARNING': 'yellow',
-            # 'ERROR': 'red',
-            # 'CRITICAL': 'red,bg_white',
-        # },
-        # reset=True,
-        # style='%'
-    # ))
-# 
-    # logger.addHandler(handler)
-    # return logger
-
 
 
 def ParseArguments():
@@ -39,17 +14,11 @@ def ParseArguments():
         type=str, help='Output file for testing ioda variables')
     parser.add_argument('-t', '--test', \
         type=str, help='Input test reference file')
-    # parser.add_argument('-v', '--verbose', \
-        # help='Print debug logging information',
-        # action='store_true')
 
     args = parser.parse_args()
-
-    # log_level = 'DEBUG' if args.verbose else 'INFO'
     config_file = args.config
     log_file = args.log_file
     test_file = args.test
-
     script_name = sys.argv[0]
 
     return script_name, config_file, log_file, test_file
@@ -83,9 +52,6 @@ def run_diff(file1, file2):
 
     return result.returncode
 
-
-
-
 def run_diff_script_inline(file1, file2, script_content):
     try:
         # Create a temporary script file with the provided content
@@ -118,34 +84,11 @@ def run_diff_script_inline(file1, file2, script_content):
         except Exception as e:
             print(f"Error cleaning up temp script: {e}")
 
-
-
-# to be deprecated.....
-def WriteTestOutputFile(directory_path, file_name, text):
-
-    # Check if the directory exists, create it if it doesn't
-    if not os.path.exists(directory_path):
-        os.makedirs(directory_path)
-        print(f"Directory '{directory_path}' created.")
-
-    file_path = os.path.join(directory_path, file_name)
-    print(f"File '{file_path}' created.")
-
-    with open(file_path, 'w') as file:
-        for s in text:
-            file.write(f"{s}\n")
-
-    return
-
-
-
 def Compute_sequenceNumber(lon):
     lon_u, seqNum = np.unique(lon, return_inverse=True)
     seqNum = seqNum.astype(np.int32)
     # logger.debug(f"Len of Sequence Number: {len(seqNum)}")
     return seqNum
-
-
 
 def nc_diff(file1, file2):
     try:
@@ -189,19 +132,13 @@ diff <(ncdump "$1"| sed '1d') <(ncdump "$2"|sed '1d')
             print(f"Error cleaning up temp script: {e}")
 
 
-
-
 if __name__ == '__main__':
-
-
     file1 = '/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138/gdas.t06z.insitu_profile_argo.2021063006.nc4'
     file2 = '/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138/backup_gdas.t06z.insitu_profile_argo.2021063006.nc4'
     # file2 = '/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138/gdas.t06z.sst_viirs_npp_l3u.2021063006.nc4'
-
 
     diff_result = nc_diff(file1, file2)
     if diff_result == 0:
         print("identitcal")
     else:
         print("different")
-
