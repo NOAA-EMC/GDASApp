@@ -9,22 +9,16 @@ class TesacIODAVariables(IODAVariables):
     def __init__(self):
         super().__init__()
 
-
     def BuildQuery(self):
         q = super().BuildQuery()
-
         q.add('stationID', '*/RPID')
         q.add('latitude', '*/CLAT')
         q.add('longitude', '*/CLON')
         q.add('depth', '*/BTOCN/DBSS')
-
         # ObsValue
         q.add('temp', '*/BTOCN/STMP')
         q.add('saln', '*/BTOCN/SALN')
-
-
         return q
-
 
     def filter(self):
         mask = self.TemperatureFilter() \
@@ -41,10 +35,8 @@ class TesacIODAVariables(IODAVariables):
 
         self.seqNum = Compute_sequenceNumber(self.lon)
 
-
         # Separate TESAC profiles tesac tank
         # Creating the mask for TESAC floats based on station ID
-
         digit_mask = [item.isdigit() for item in self.stationID]
         indices_true = [index for index, value in enumerate(digit_mask) if value]
 
@@ -61,15 +53,12 @@ class TesacIODAVariables(IODAVariables):
 
         self.n_obs = len(indices_true)
 
-
     def SetAdditionalData(self):
         self.PreQC = (np.ma.masked_array(np.full((self.n_obs), 0))).astype(np.int32)
         self.ObsError_temp = \
             np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorT)))
         self.ObsError_saln = \
             np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorS)))
-
-
 
     def createIODAVars(self, obsspace):
         super().createIODAVars(obsspace)
@@ -86,4 +75,3 @@ class TesacIODAVariables(IODAVariables):
 
         self.WriteObsValueT(obsspace, 'waterTemperature')
         self.WriteObsValueS(obsspace, 'salinity')
-
