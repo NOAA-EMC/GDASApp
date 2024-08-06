@@ -131,13 +131,25 @@ class IODAVariables:
         logger.debug(f" sequence Num             shape, dtype = {self.seqNum.shape}, {self.seqNum.dtype}")
 
     def LogPreQC(self, logger):
-        logger.debug(f" PreQC         min, max, length, dtype = {self.PreQC.min()}, {self.PreQC.max()}, {len(self.PreQC)}, {self.PreQC.dtype}")
+        logger.debug(f" PreQC         min, max, length, dtype = \
+        {self.PreQC.min()}, \
+        {self.PreQC.max()}, \
+        {len(self.PreQC)}, \
+        {self.PreQC.dtype}")
 
     def LogObsError_temp(self, logger):
-        logger.debug(f" ObsError_temp min, max, length, dtype = {self.ObsError_temp.min()}, {self.ObsError_temp.max()}, {len(self.ObsError_temp)}, {self.ObsError_temp.dtype}")
+        logger.debug(f" ObsError_temp min, max, length, dtype = \
+            {self.ObsError_temp.min()}, \
+            {self.ObsError_temp.max()}, \
+            {len(self.ObsError_temp)}, \
+            {self.ObsError_temp.dtype}")
 
     def LogObsError_saln(self, logger):
-        logger.debug(f" ObsError_saln min, max, length, dtype = {self.ObsError_saln.min()}, {self.ObsError_saln.max()}, {len(self.ObsError_saln)}, {self.ObsError_saln.dtype}")
+        logger.debug(f" ObsError_saln min, max, length, dtype = \
+            {self.ObsError_saln.min()}, \
+            {self.ObsError_saln.max()}, \
+            {len(self.ObsError_saln)}, \
+            {self.ObsError_saln.dtype}")
 
     def logMetadata(self, logger):
         self.logDates(logger)
@@ -212,8 +224,10 @@ def WriteSequenceNumber(obsspace, seqNum, PreQC):
         .write_data(seqNum)
 
 def WriteObsError(obsspace, v_name, units, v):
-    obsspace.create_var(v_name,
-            dtype=v.dtype, fillval=v.fill_value)
-        .write_attr('units', units)
-        .write_attr('long_name', 'ObsError')
-        .write_data(v)
+    obsspace.create_var(
+        v_name,
+        dtype=v.dtype, fillval=v.fill_value
+    ) \
+    .write_attr('units', units) \
+    .write_attr('long_name', 'ObsError') \
+    .write_data(v)
