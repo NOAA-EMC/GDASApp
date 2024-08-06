@@ -1,6 +1,6 @@
 variable change:
   variable change name: Model2GeoVaLs
-  input variables: &bkgvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,phis]
+  input variables: &bkgvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,surface_geopotential_height]
   output variables: &fv3incrvars [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,hydrostatic_delz]
 jedi increment variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 fv3 increment variables: *fv3incrvars
@@ -15,7 +15,7 @@ background geometry:
   npx: {{ atmosphere_npx_ges }}
   npy: {{ atmosphere_npy_ges }}
   npz: {{ atmosphere_npz_ges }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
 jedi increment geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -27,7 +27,7 @@ jedi increment geometry:
   npx: {{ atmosphere_npx_ges }}
   npy: {{ atmosphere_npy_ges }}
   npz: {{ atmosphere_npz_ges }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
 fv3 increment geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -44,14 +44,12 @@ members from template:
   template:
     background input:
       datapath: ./bkg/mem%mem%
-      filetype: fms restart
+      filetype: cube sphere history
+      provider: ufs
+      ufs soil nlev: 4
+      ufs fields split by level: [smc,stc]
+      filenames: [ {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_atmf006.nc, {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_sfcf006.nc ]
       datetime: '{{ atmosphere_background_time_iso }}'
-      filename is datetime templated: true
-      filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
-      filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
-      filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
-      filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
-      filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
       state variables: *bkgvars
     jedi increment input:
       filetype: cube sphere history

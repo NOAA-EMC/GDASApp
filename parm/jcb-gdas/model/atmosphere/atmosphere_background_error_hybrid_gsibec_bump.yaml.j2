@@ -32,15 +32,12 @@ components:
     members from template:
       template:
         datetime: "{{ atmosphere_background_time_iso }}"
-        filetype: fms restart
+        filetype: cube sphere history
+        provider: ufs
         state variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
-        datapath: {{ atmosphere_background_ensemble_path}}
+        datapath: {{ atmosphere_background_ensemble_path }}
         filename is datetime templated: true
-        filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
-        filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
-        filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
-        filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
-        filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
+        filenames: [ {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_atmf006.nc, {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_sfcf006.nc ]
       pattern: "{{ atmosphere_ensemble_pattern | default("%mem%", true) }}"
       nmembers: {{atmosphere_number_ensemble_members}}
       zero padding: 3
