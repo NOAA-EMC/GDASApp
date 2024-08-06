@@ -64,6 +64,7 @@ class IODAVariables:
 
     def TemperatureFilter(self):
         return (self.temp > self.Tmin) & (self.temp <= self.Tmax)
+
     def SalinityFilter(self):
         return (self.saln >= self.Smin) & (self.saln <= self.Smax)
 
@@ -92,18 +93,18 @@ class IODAVariables:
     def WriteObsValueT(self, obsspace, v_name):
         obsspace.create_var('ObsValue/' + v_name, dtype=self.temp.dtype, fillval=self.temp.fill_value) \
             .write_attr('units', 'degC') \
-            .write_attr('valid_range', \
-                np.array([self.Tmin, self.Tmax], dtype=np.float32)) \
+            .write_attr('valid_range', np.array([self.Tmin, self.Tmax], dtype=np.float32)) \
             .write_attr('long_name', v_name) \
             .write_data(self.temp)
 
     def WriteObsValueS(self, obsspace, v_name):
-        obsspace.create_var('ObsValue/' + v_name, dtype=self.saln.dtype, fillval=self.saln.fill_value) \
-            .write_attr('units', 'psu') \
-            .write_attr('valid_range',
-                np.array([self.Smin, self.Smax], dtype=np.float32)) \
-            .write_attr('long_name', v_name) \
-            .write_data(self.saln)
+        obsspace.create_var('ObsValue/' + v_name, dtype=self.saln.dtype,
+                            fillval=self.saln.fill_value
+                           )
+                                .write_attr('units', 'psu') \
+                                .write_attr('valid_range', np.array([self.Smin, self.Smax], dtype=np.float32)) \
+                                .write_attr('long_name', v_name) \
+                                .write_data(self.saln)
 
 ##############################################################################
 
