@@ -8,22 +8,16 @@ class MarinemammalIODAVariables(IODAVariables):
     def __init__(self):
         super().__init__()
 
-
     def BuildQuery(self):
         q = super().BuildQuery()
-
         q.add('stationID', '*/RPID')
         q.add('latitude', '*/CLAT')
         q.add('longitude', '*/CLON')
         q.add('depth', '*/BTOCN/DBSS')
-
         # ObsValue
         q.add('temp', '*/BTOCN/STMP')
         q.add('saln', '*/BTOCN/SALN')
-
         return q
-
-
 
     def filter(self):
         mask = self.TemperatureFilter() \
@@ -37,9 +31,6 @@ class MarinemammalIODAVariables(IODAVariables):
         self.stationID = self.stationID[mask]
         self.dateTime = self.dateTime[mask]
         self.rcptdateTime = self.rcptdateTime[mask]
-
-        # moved this ...
-        # self.seqNum = Compute_sequenceNumber(self.lon)
 
         # Separate marine mammals from TESAC tank
         # Creating the mask for marine mammals from TESAC floats based on station ID
@@ -60,17 +51,6 @@ class MarinemammalIODAVariables(IODAVariables):
         self.dateTime = self.dateTime[indices_true]
         self.rcptdateTime = self.rcptdateTime[indices_true]
 
-
-    # def SetAdditionalData(self):
-        # self.seqNum = Compute_sequenceNumber(self.lon)
-        # self.PreQC = (np.ma.masked_array(np.full((self.n_obs), 0))).astype(np.int32)
-        # self.ObsError_temp = \
-            # np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorT)))
-        # self.ObsError_saln = \
-            # np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorS)))
-
-
-
     def createIODAVars(self, obsspace):
         super().createIODAVars(obsspace)
 
@@ -86,4 +66,3 @@ class MarinemammalIODAVariables(IODAVariables):
 
         self.WriteObsValueT(obsspace, 'waterTemperature')
         self.WriteObsValueS(obsspace, 'salinity')
-
