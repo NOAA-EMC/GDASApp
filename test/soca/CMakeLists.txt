@@ -9,7 +9,7 @@ set(TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
 set (TESTINPUT_DIR ${PROJECT_BINARY_DIR}/test/soca/testinput)
 
 file(MAKE_DIRECTORY ${TESTINPUT_DIR})
-message(">>>>>>>>>>>>>>>>>>>>>>> created ${TESTINPUT_DIR}")
+# message(">>>>>>>>>>>>>>>>>>>>>>> created ${TESTINPUT_DIR}")
 
 # symlink
 foreach(FILENAME ${test_input})
@@ -49,14 +49,14 @@ set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/soca/testinput)
 set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/soca/testref)
 
 function(ADD_INSITU_TEST testname)
-	# set(TEST insitu_${testname})
-	set(TEST ${testname})
-	message(".....................adding test ${TEST}")
-	set(CONFIG_FILE insitu_${TEST}_2021063006.json)
-	set(TESTREF_FILE insitu_${TEST}_2021063006.ref)
+	set(TEST bufr2ioda_insitu_${testname})
+	# set(TEST ${testname})
+	# message(".....................adding test ${TEST}")
+	set(CONFIG_FILE ${TEST}_2021063006.json)
+	set(TESTREF_FILE ${TEST}_2021063006.ref)
 
 	add_test(
-		NAME test_insitu_bufr2ioda_${TEST}
+		NAME test_${TEST}
 		COMMAND ${MARINE_BUFR2IODA_DIR}/${TEST}.py -c ${CONFIG_DIR}/${CONFIG_FILE} -t ${TESTREF_DIR}/${TESTREF_FILE}
 		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca
 	)
@@ -64,10 +64,12 @@ endfunction()
 
 
 # ADD_INSITU_TEST(ALTKOB)
-ADD_INSITU_TEST(ARGO)
-ADD_INSITU_TEST(BATHY)
-ADD_INSITU_TEST(GLIDER)
-ADD_INSITU_TEST(TESAC)
-ADD_INSITU_TEST(XBTCTD)
-ADD_INSITU_TEST(TRKOB)
+ADD_INSITU_TEST(profile_argo)
+ADD_INSITU_TEST(profile_bathy)
+ADD_INSITU_TEST(profile_glider)
+# ADD_INSITU_TEST(profile_marinemammal)
+ADD_INSITU_TEST(profile_tesac)
+ADD_INSITU_TEST(profile_xbtctd)
+# ADD_INSITU_TEST(surface_altkob)
+ADD_INSITU_TEST(surface_trkob)
 
