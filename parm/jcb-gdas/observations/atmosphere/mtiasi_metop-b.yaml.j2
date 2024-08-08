@@ -1,0 +1,579 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: IASI METOP-B
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    observed variables: [radiance]
+    simulated variables: [brightnessTemperature]
+    derived variables: [brightnessTemperature]
+    channels: &{{observation_from_jcb}}_simulated_channels {{ get_satellite_variable(observation_from_jcb, "simulated") }}
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: CRTM
+    Absorbers: [H2O, O3, CO2]
+    obs options:
+      Sensor_ID: &{{observation_from_jcb}}_sensor_id iasi_metop-b
+      EndianType: little_endian
+      CoefficientPath: "{{crtm_coefficient_path}}"
+    linear obs operator:
+      Absorbers: [H2O, O3]
+
+  # Observation Bias Correction (VarBC)
+  # -----------------------------------
+  obs bias:
+    input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_suffix}}"
+    output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiasout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasout_suffix}}"
+    variational bc:
+      predictors:
+      - name: constant
+      - name: lapseRate
+        order: 2
+        tlapse: &{{observation_from_jcb}}_tlapse "{{atmosphere_obsbiasin_path}}/{{atmosphere_obstlapsein_prefix}}{{observation_from_jcb}}{{atmosphere_obstlapsein_suffix}}"
+      - name: lapseRate
+        tlapse: *{{observation_from_jcb}}_tlapse
+      - name: emissivityJacobian
+      - name: sensorScanAngle
+        order: 4
+      - name: sensorScanAngle
+        order: 3
+      - name: sensorScanAngle
+        order: 2
+      - name: sensorScanAngle
+    covariance:
+      minimal required obs number: 20
+      variance range: [1.0e-6, 10.0]
+      step size: 1.0e-4
+      largest analysis variance: 10000.0
+      prior:
+        input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiascovin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovin_suffix}}"
+        inflation:
+          ratio: 1.1
+          ratio for small dataset: 2.0
+      output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiascovout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovout_suffix}}"
+
+  # Observation Pre Filters (QC)
+  # ----------------------------
+  obs pre filters:
+  # Step 0-A: Create Diagnostic Flags
+  #- filter: Create Diagnostic Flags
+  #  filter variables:
+  #  - name: brightnessTemperature
+  #    channels: *{{observation_from_jcb}}_simulated_channels
+  #  flags:
+  #  - name: ScanEdgeRemoval
+  #    initial value: false
+  #    force reinitialization: false
+  #  - name: Thinning
+  #    initial value: false
+  #    force reinitialization: false
+  #  - name: ShortwaveIRCheck
+  #    initial value: false
+  #    force reinitialization: false
+  #  - name: ObsValueRangeCheck
+  #    initial value: false
+  #    force reinitialization: false
+  #  - name: CloudDetection
+  #    initial value: false
+  #    force reinitialization: false
+  #  - name: NSSTCheck
+  #    initial value: false
+  #    force reinitialization: false
+  #  - name: GrossCheck
+  #    initial value: false
+  #    force reinitialization: false
+  #  - name: InterChannelConsistency
+  #    initial value: false
+  #    force reinitialization: false
+  #  - name: UseFlagCheck
+  #    initial value: false
+  #    force reinitialization: false
+  # Step 0-B: Create Derived Variables
+  # Assign channel wavenumbers in m-1
+  - filter: Variable Assignment
+    assignments:
+    - name: MetaData/sensorCentralWavenumber
+      type: float
+      channels: *{{observation_from_jcb}}_simulated_channels
+      function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables:
+          - name: ObsValue/radiance
+            channels: *{{observation_from_jcb}}_simulated_channels
+          coefs: [25.0]
+          intercept: 64475.0
+          use channel numbers: true
+
+  # Transform radiance to brightness temperature
+  - filter: Variable Transforms
+    Transform: SatBrightnessTempFromRad
+    transform from:
+      name: ObsValue/radiance
+      channels: *{{observation_from_jcb}}_simulated_channels
+    spectral variable:
+      name: MetaData/sensorCentralWavenumber
+      channels: *{{observation_from_jcb}}_simulated_channels
+    radiance units: wavenumber
+    planck1: 1.191042953e-16
+    planck2: 1.4387774e-2
+
+  # Step 0-C: Assign Observation Error
+
+  # Observation Prior Filters (QC)
+  # ------------------------------
+  obs prior filters:
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: assign error
+      error parameter vector: &{{observation_from_jcb}}_oberr [1.38, 0.81, 0.75, 0.79, 0.72, 0.74,
+        0.68, 0.72, 0.65, 0.65, 0.65, 0.69, 0.64, 0.64, 0.65, 0.67, 0.62, 0.61, 0.62,
+        0.64, 0.59, 0.76, 1.22, 0.78, 0.64, 0.62, 0.61, 0.69, 0.65, 0.59, 0.61, 0.59,
+        0.68, 0.62, 0.68, 4.38, 3.05, 2.31, 1.56, 1.33, 1.58, 0.93, 1.67, 0.72, 0.57,
+        0.58, 0.55, 0.68, 0.59, 0.68, 0.59, 0.65, 0.58, 0.62, 0.64, 0.58, 0.64, 0.55,
+        0.64, 0.5, 0.82, 0.59, 0.62, 0.51, 0.64, 0.52, 0.51, 0.51, 0.76, 0.52, 0.57,
+        0.55, 0.69, 0.58, 0.65, 0.61, 0.59, 0.64, 0.76, 0.72, 1.05, 0.75, 0.51, 0.65,
+        1.3, 0.69, 0.93, 1.49, 1.12, 0.68, 0.66, 0.67, 0.59, 0.59, 0.69, 0.67, 0.64,
+        0.62, 0.72, 0.69, 0.66, 0.79, 0.78, 0.74, 0.88, 0.77, 0.88, 0.86, 1, 0.87,
+        0.85, 0.88, 0.84, 0.84, 0.84, 0.8, 0.8, 0.87, 0.98, 0.52, 0.65, 0.69, 0.61,
+        0.6, 0.67, 0.79, 0.62, 0.66, 0.7, 0.65, 0.62, 0.61, 0.62, 0.53, 0.6, 0.68,
+        0.95, 0.63, 0.97, 0.65, 0.98, 0.58, 0.73, 0.65, 0.85, 0.99, 0.76, 0.85, 0.97,
+        0.77, 0.62, 0.63, 1.21, 1.41, 1.55, 1.78, 1.35, 1.14, 1.69, 1.79, 1.46, 1.63,
+        1.94, 2.01, 1.24, 1.76, 1.26, 1.47, 1.9, 1.66, 2.13, 1.49, 1.52, 1.55, 1.96,
+        2.31, 2.33, 2.32, 2.31, 2.33, 2.23, 2.33, 1.84, 2.29, 2.28, 2.28, 2.28, 2.26,
+        2.26, 2.26, 2.27, 2.24, 2.23, 2.24, 2.26, 2.28, 2.28, 2.3, 2.15, 2.31, 2.37,
+        2.27, 2.29, 2.29, 2.23, 2.28, 2.32, 2.32, 2.31, 2.32, 2.32, 2.31, 2.31, 2.28,
+        2.29, 2.28, 2.26, 2.29, 2.27, 2.26, 2.25, 2.27, 2.24, 2.21, 2.24, 2.17, 2.18,
+        2.17, 2.21, 1.99, 2.16, 2.2, 2.13, 2.12, 2.13, 2.1, 2.12, 2.11, 2.09, 2.09,
+        2.08, 2.09, 2.04, 2.04, 2.1, 2.01, 2.05, 2.03, 2.06, 1.98, 1.95, 1.94, 1.91,
+        1.7, 1.76, 1.77, 1.83, 2.04, 1.91, 1.99, 1.99, 2.07, 2.02, 2.04, 2.1, 2.06,
+        2.18, 2.21, 2.24, 2.23, 2.23, 1.98, 2.2, 2.18, 2.18, 2.21, 2.23, 2.24, 2.24,
+        2.25, 1.8, 2.24, 1.73, 1.73, 2.27, 1.67, 2.21, 1.72, 2.23, 2.23, 2.23, 2.24,
+        2.23, 2.12, 2.17, 1.74, 2.02, 1.88, 1.67, 1.73, 1.83, 1.82, 1.73, 1.83, 2.19,
+        1.84, 1.89, 1.6, 1.71, 1.86, 1.85, 1.84, 1.87, 1.91, 1.52, 1.95, 1.87, 1.89,
+        1.91, 1.91, 1.93, 1.9, 1.91, 1.9, 1.89, 1.89, 1.91, 1.9, 1.91, 1.91, 1.91,
+        1.93, 1.94, 1.91, 1.92, 1.77, 1.91, 1.95, 1.19, 1.96, 1.98, 1.94, 1.55, 1.91,
+        1.92, 1.92, 1.97, 1.93, 1.99, 1.86, 1.12, 1.93, 1.92, 1.95, 1.85, 1.84, 1.91,
+        1.12, 1.82, 1.82, 1.95, 1.24, 1.94, 1.96, 1.21, 1.83, 1.96, 1.36, 1.96, 1.82,
+        1.92, 1.68, 1.93, 1.23, 1.96, 1.93, 1.86, 1.41, 1.16, 1.6, 1.25, 1.2, 1.65,
+        1.66, 1.87, 1.94, 1.96, 1.91, 1.25, 1.93, 1.91, 1.7, 0.99, 1.81, 1.92, 1.95,
+        1.5, 1.47, 1.15, 1.58, 1.18, 1.82, 1.13, 1.83, 1.91, 1.26, 1.27, 1.91, 1.45,
+        1.6, 1.29, 1.94, 1.94, 1.23, 1.95, 1.21, 1.94, 1.86, 1.9, 1.33, 1.75, 2.02,
+        1.98, 2.03, 1.83, 1.5, 2.04, 2.02, 1.9, 2, 2.02, 1.95, 1.93, 1.95, 1.95, 1.99,
+        2, 1.94, 1.96, 1.86, 1.92, 1.88, 1.86, 1.84, 1.87, 1.77, 1.89, 1.89, 1.88,
+        1.94, 1.82, 1.79, 1.86, 2.06, 2.33, 1.88, 1.86, 1.81, 1.8, 1.8, 1.86, 1.9,
+        2, 2.06, 2.1, 2.2, 2, 2.16, 1.98, 1.8, 1.8, 1.85, 1.75, 2.04, 2.19, 2.14,
+        2.19, 1.86, 2.1, 2.11, 2.18, 2.03, 2.28, 2.19, 2.26, 2.26, 2.21, 2.21, 2.26,
+        2.33, 2.27, 2.21, 2.12, 2.23, 2.26, 2.25, 1.88, 2.26, 2.24, 2.36, 2.29, 2.35,
+        2.3, 2.27, 2.08, 2.05, 2.27, 2.28, 2.27, 2.28, 1.97, 2.25, 2.25, 2.25, 2.31,
+        2.28, 2.27, 2.13, 2.24, 2.28, 2.28, 2.41, 2.34, 9.32, 2.28, 2.38, 2.27, 2.27,
+        2.39, 2.11, 2.09, 2.1, 2.06, 2.12, 2.08, 2, 1.93, 2.02, 2.55, 1.54, 1.64,
+        1.51, 1.55, 2.82, 2.92, 2.55, 2.37, 1.85, 1.6, 1.72, 1.74, 1.79, 1.9, 1.94,
+        2, 2.04, 2.08, 2.12, 2.13, 2.16, 2.18, 2.18, 2.2, 2.2, 2.41, 2.39, 2.38, 2.4,
+        2.42, 2.41, 2.43, 2.45, 2.43, 2.45, 2.43, 2.4, 2.44, 2.4, 2.42, 2.43, 2.45,
+        2.45, 2.45, 2.46, 2.45, 2.45, 2.43, 2.51, 2.48, 2.48, 2.53, 2.46, 2.49, 2.5,
+        2.5, 2.5, 2.52, 2.52, 2.54, 2.5, 2.48, 2.5, 2.55, 2.5, 2.48, 2.5, 2.5, 2.52,
+        2.52, 2.48, 2.5, 2.5, 2.52, 2.46, 2.53, 9]
+
+  # Observation Post Filters (QC)
+  # -----------------------------
+  obs post filters:
+  # Step 1: Remove Observations from the Edge of the Scan
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: MetaData/sensorScanPosition
+      is_in: 5-56
+    action:
+      name: reject
+  #  actions:
+  #    - name: set
+  #      flag: ScanEdgeRemoval
+  #    - name: reject
+  # Step 2: Data Thinning
+  - filter: Gaussian Thinning
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    horizontal_mesh: 145
+    use_reduced_horizontal_grid: true
+    distance_norm: geodesic
+    priority_variable: MetaData/fractionOfClearPixelsInFOV
+  #  round_horizontal_bin_count_to_nearest: true
+  #  partition_longitude_bins_using_mesh: true
+    action:
+      name: reject
+  #  actions:
+  #    - name: set
+  #      flag: Thinning
+  #    - name: reject
+  # Step 3: Wavenumber Check
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: 7024, 7027, 7029, 7032, 7038, 7043, 7046, 7049, 7069, 7072, 7076,
+        7081, 7084, 7089, 7099, 7209, 7222, 7231, 7235, 7247, 7267, 7269, 7284, 7389,
+        7419, 7423, 7424, 7426, 7428, 7431, 7436, 7444, 7475, 7549, 7584, 7665, 7666,
+        7831, 7836, 7853, 7865, 7885, 7888, 7912, 7950, 7972, 7980, 7995, 8007, 8015,
+        8055, 8078
+    where:
+    - variable:
+        name: MetaData/solarZenithAngle
+      maxvalue: 88.9999
+    - variable:
+        name: water_area_fraction@GeoVaLs
+      minvalue: 1.0e-12
+    action:
+      name: reject
+  #  actions:
+  #    - name: set
+  #      flag: ShortwaveIRCheck
+  #    - name: reject
+  # Step 4: Observation Error Inflation based on Wavenumber
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsErrorFactorWavenumIR@ObsFunction
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels
+  # Step 5: Observation Range Sanity Check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    minvalue: 50.00001
+    maxvalue: 449.99999
+  #  maxvalue: 100.00000
+    action:
+      name: reject
+  #  actions:
+  #    - name: set
+  #      flag: ObsValueRangeCheck
+  #    - name: reject
+  # Step 6: Topography Check
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorTopoRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels
+          sensor: *{{observation_from_jcb}}_sensor_id
+
+  # Step 7: Transmittance Top Check
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorTransmitTopRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels
+  # Step 8: Cloud Detection Check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/CloudDetectMinResidualIR
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+        use_flag: [1, -1, -1, -1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, 1, 1, 1, -1,
+          1, 1, -1, 1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, -1, -1, -1, -1, -1,
+          -1, -1, -1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1,
+          1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, 1, 1, -1, 1, -1, 1, -1, -1, -1,
+          1, 1, 1, 1, -1, 1, 1, -1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, 1, 1,
+          1, 1, 1, -1, 1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, -1,
+          1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1,
+          1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, -1, 1, 1, 1, -1, 1, 1, -1, 1, -1,
+          1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1,
+          -1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1,
+          -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, 1, 1,
+          -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, -1, 1, -1, 1, -1,
+          1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, -1, 1,
+          -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1,
+          -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, 1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, 1,
+          -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1]
+        use_flag_clddet: [1, -1, -1, -1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, 1, 1,
+          1, -1, 1, 1, -1, 1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, -1, -1, -1,
+          -1, -1, -1, -1, -1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          1, 1, -1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, 1, 1, -1, 1, -1, 1, -1,
+          -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1,
+          1, 1, 1, 1, 1, -1, 1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, 1, -1, 1, 1, -1,
+          -1, -1, 1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, 1, 1, -1, 1, 1, 1, 1,
+          1, 1, 1, 1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, -1, 1, 1, 1, -1, 1, 1,
+          -1, 1, -1, 1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1,
+          1, 1, -1, -1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1, 1, -1, 1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, 1,
+          -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1]
+        obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+        error parameter vector: *{{observation_from_jcb}}_oberr
+    maxvalue: 1.0e-12
+    action:
+      name: reject
+  #  actions:
+  #    - name: set
+  #      flag: CloudDetection
+  #    - name: reject
+  # Step 9: NSST Retrieval Check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: NearSSTRetCheckIR@ObsFunction
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+        use_flag: [1, -1, -1, -1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, 1, 1, 1, -1,
+          1, 1, -1, 1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, -1, -1, -1, -1, -1,
+          -1, -1, -1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1,
+          1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, 1, 1, -1, 1, -1, 1, -1, -1, -1,
+          1, 1, 1, 1, -1, 1, 1, -1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, 1, 1,
+          1, 1, 1, -1, 1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, -1,
+          1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1,
+          1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, -1, 1, 1, 1, -1, 1, 1, -1, 1, -1,
+          1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1,
+          -1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1,
+          -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, 1, 1,
+          -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, -1, 1, -1, 1, -1,
+          1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, -1, 1,
+          -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1,
+          -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, 1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, 1,
+          -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1]
+        obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
+        obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+    maxvalue: 1.0e-12
+    action:
+      name: reject
+  #  actions:
+  #    - name: set
+  #      flag: NSSTCheck
+  #    - name: reject
+  # Step 10: Surface Jacobians Check
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorSurfJacobianRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels
+          obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
+          obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+          sensor: *{{observation_from_jcb}}_sensor_id
+
+  # Step 11: Gross check
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    function absolute threshold:
+    - name: ObsFunction/ObsErrorBoundIR
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+        obserr_bound_latitude:
+          name: ObsFunction/ObsErrorFactorLatRad
+          options:
+            latitude_parameters: [25.0, 0.5, 0.04, 1.0]
+        obserr_bound_transmittop:
+          name: ObsFunction/ObsErrorFactorTransmitTopRad
+          channels: *{{observation_from_jcb}}_simulated_channels
+          options:
+            channels: *{{observation_from_jcb}}_simulated_channels
+        obserr_bound_max: [3.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 4.0, 2.0, 2.0, 2.0,
+          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 4.0, 4.0, 3.5,
+          2.5, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 3.5, 2.0, 2.0, 2.0, 2.0, 2.0,
+          2.0, 3.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+          2.0, 2.0, 2.0, 2.5, 2.0, 2.5, 2.5, 3.0, 2.5, 2.5, 2.5, 2.5, 3.5, 2.5, 2.5,
+          3.0, 3.5, 3.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.5, 4.5, 4.5, 4.5, 4.5, 4.0,
+          4.5, 4.0, 4.0, 4.5, 2.5, 3.0, 2.5, 3.0, 2.5, 3.0, 2.0, 2.5, 2.5, 3.0, 3.0,
+          2.5, 3.0, 3.0, 3.0, 2.5, 2.5, 4.0, 4.5, 4.5, 5.0, 4.0, 4.0, 5.0, 5.0, 5.0,
+          5.0, 5.5, 5.5, 4.0, 5.0, 4.0, 4.5, 5.5, 5.5, 6.0, 4.5, 4.5, 4.0, 5.0, 5.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 5.5, 4.5, 6.0, 5.0, 5.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 5.0, 6.0, 6.0, 6.0, 4.0, 6.0, 6.0, 6.0, 6.0, 4.5, 6.0, 6.0, 4.5,
+          6.0, 6.0, 6.0, 6.0, 6.0, 5.0, 6.0, 6.0, 6.0, 5.0, 6.0, 6.0, 5.0, 6.0, 5.0,
+          6.0, 6.0, 6.0, 5.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+          6.0, 6.0, 6.0, 6.0, 6.0]
+        error parameter vector: *{{observation_from_jcb}}_oberr
+    action:
+      name: reject
+  #  actions:
+  #    - name: set
+  #      flag: GrossCheck
+  #    - name: reject
+  # Step 12: Useflag Check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/ChannelUseflagCheckRad
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+        use_flag: [1, -1, -1, -1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, 1, 1, 1, -1,
+          1, 1, -1, 1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, -1, -1, -1, -1, -1,
+          -1, -1, -1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1,
+          1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, 1, 1, -1, 1, -1, 1, -1, -1, -1,
+          1, 1, 1, 1, -1, 1, 1, -1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, 1, 1,
+          1, 1, 1, -1, 1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, -1,
+          1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1,
+          1, 1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, -1, 1, 1, 1, -1, 1, 1, -1, 1, -1,
+          1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1,
+          -1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1,
+          -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, 1, 1,
+          -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, -1, 1, -1, 1, -1,
+          1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, -1, 1,
+          -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1,
+          -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, 1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, 1,
+          -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+          -1, -1, -1, -1, -1, -1, -1, -1, -1]
+    minvalue: 1.0e-12
+    action:
+      name: reject
+  #  actions:
+  #    - name: set
+  #      flag: UseFlagCheck
+  #    - name: reject
+
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atmosphere_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0

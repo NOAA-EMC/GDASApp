@@ -3,7 +3,7 @@
   # Observation Space (I/O)
   # -----------------------
   obs space:
-    name: IASI METOP-B
+    name: IASI METOP-A
     obsdatain:
       engine:
         type: H5File
@@ -25,7 +25,7 @@
     name: CRTM
     Absorbers: [H2O, O3, CO2]
     obs options:
-      Sensor_ID: &{{observation_from_jcb}}_sensor_id iasi_metop-b
+      Sensor_ID: &{{observation_from_jcb}}_sensor_id iasi_metop-a
       EndianType: little_endian
       CoefficientPath: "{{crtm_coefficient_path}}"
     linear obs operator:
@@ -39,19 +39,19 @@
     variational bc:
       predictors:
       - name: constant
-      - name: lapse_rate
+      - name: lapseRate
         order: 2
         tlapse: &{{observation_from_jcb}}_tlapse "{{atmosphere_obsbiasin_path}}/{{atmosphere_obstlapsein_prefix}}{{observation_from_jcb}}{{atmosphere_obstlapsein_suffix}}"
-      - name: lapse_rate
+      - name: lapseRate
         tlapse: *{{observation_from_jcb}}_tlapse
-      - name: emissivity
-      - name: scan_angle
+      - name: emissivityJacobian
+      - name: sensorScanAngle
         order: 4
-      - name: scan_angle
+      - name: sensorScanAngle
         order: 3
-      - name: scan_angle
+      - name: sensorScanAngle
         order: 2
-      - name: scan_angle
+      - name: sensorScanAngle
     covariance:
       minimal required obs number: 20
       variance range: [1.0e-6, 10.0]

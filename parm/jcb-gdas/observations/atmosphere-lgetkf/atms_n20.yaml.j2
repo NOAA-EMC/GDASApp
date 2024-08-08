@@ -4,6 +4,9 @@
   # -----------------------
   obs space:
     name: ATMS N20
+    distribution:
+      name: Halo
+      halo size: 1250e3
     obsdatain:
       engine:
         type: H5File
@@ -526,6 +529,12 @@
       ignore: rejected observations
     - name: reject
 
+  # Observation Localizations (LocalEnsembleDA)
+  # -------------------------------------------
+  obs localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 1250e3
+    max nobs: 10000
 
   # GeoVaLs for Driving Observation Operators (testing mode)
   # --------------------------------------------------------

@@ -40,19 +40,19 @@
     variational bc:
       predictors:
       - name: constant
-      - name: lapse_rate
+      - name: lapseRate
         order: 2
         tlapse: &{{observation_from_jcb}}_tlapse "{{atmosphere_obsbiasin_path}}/{{atmosphere_obstlapsein_prefix}}{{observation_from_jcb}}{{atmosphere_obstlapsein_suffix}}"
-      - name: lapse_rate
+      - name: lapseRate
         tlapse: *{{observation_from_jcb}}_tlapse
-      - name: emissivity
-      - name: scan_angle
+      - name: emissivityJacobian
+      - name: sensorScanAngle
         order: 4
-      - name: scan_angle
+      - name: sensorScanAngle
         order: 3
-      - name: scan_angle
+      - name: sensorScanAngle
         order: 2
-      - name: scan_angle
+      - name: sensorScanAngle
     covariance:
       minimal required obs number: 20
       variance range: [1.0e-6, 10.0]

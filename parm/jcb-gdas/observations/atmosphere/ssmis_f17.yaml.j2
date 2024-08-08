@@ -44,22 +44,22 @@
         ch91h: 18
       - name: cosine_of_latitude_times_orbit_node
       - name: sine_of_latitude
-      - name: lapse_rate
+      - name: lapseRate
         order: 2
         tlapse: &{{observation_from_jcb}}_tlapse "{{atmosphere_obsbiasin_path}}/{{atmosphere_obstlapsein_prefix}}{{observation_from_jcb}}{{atmosphere_obstlapsein_suffix}}"
-      - name: lapse_rate
+      - name: lapseRate
         tlapse: *{{observation_from_jcb}}_tlapse
-      - name: emissivity
-      - name: scan_angle
+      - name: emissivityJacobian
+      - name: sensorScanAngle
         var_name: scan_position
         order: 4
-      - name: scan_angle
+      - name: sensorScanAngle
         var_name: scan_position
         order: 3
-      - name: scan_angle
+      - name: sensorScanAngle
         var_name: scan_position
         order: 2
-      - name: scan_angle
+      - name: sensorScanAngle
         var_name: scan_position
 
   # Observation Prior Filters (QC)

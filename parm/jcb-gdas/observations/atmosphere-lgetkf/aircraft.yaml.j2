@@ -1,0 +1,365 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: Aircraft
+    distribution:
+      name: Halo
+      halo size: 1250e3
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
+      obsgrouping:
+        group variables: ["stationIdentification"]
+        sort variable: "pressure"
+        sort order: "descending"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [windEastward, windNorthward, airTemperature, specificHumidity]
+  #
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: VertInterp
+  #
+
+  # Observation Filters (QC)
+  # ------------------------
+  obs filters:
+    # Observation Range Sanity Check
+  - filter: Bounds Check
+    filter variables:
+    - name: airTemperature
+    minvalue: 195
+    maxvalue: 327
+    action:
+      name: reject
+    #
+  - filter: Bounds Check
+    filter variables:
+    - name: specificHumidity
+    minvalue: 1.0E-7
+    maxvalue: 0.034999999
+    action:
+      name: reject
+    #
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    minvalue: -130
+    maxvalue: 130
+    action:
+      name: reject
+    #
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    test variables:
+    - name: ObsFunction/Velocity
+    maxvalue: 130.0
+    action:
+      name: reject
+    # Reject when pressure is less than 126 mb.
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    test variables:
+    - name: MetaData/pressure
+    minvalue: 12600
+    action:
+      name: reject
+    #
+    # Reject all obs with PreQC mark already set above 3
+    # - filter: PreQC
+    #   maxvalue: 3
+    #   action:
+    #     name: reject
+    #
+    #--------------------------------------------------------------------------------------------------------------------
+    # Wind
+    #--------------------------------------------------------------------------------------------------------------------
+    #
+    # Begin by assigning all ObsError to a constant value. These will get overwritten (as needed) for specific types.
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    action:
+      name: assign error
+      error parameter: 2.0               # 2.0 m/s
+    # Assign intial ObsError specific to AIREP/ACARS
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    action:
+      name: assign error
+      error parameter: 3.6               # 3.6 m/s
+    where:
+    - variable:
+        name: ObsType/windEastward
+      is_in: 230
+    # Assign intial ObsError specific to AMDAR
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    action:
+      name: assign error
+      error parameter: 3.0               # 3.0 m/s
+    where:
+    - variable:
+        name: ObsType/windEastward
+      is_in: 231
+    # Assign intial ObsError specific to MDCRS
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    action:
+      name: assign error
+      error parameter: 2.5               # 2.5 m/s
+    where:
+    - variable:
+        name: ObsType/windEastward
+      is_in: 233
+    #
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [100000, 95000, 80000, 65000, 60000, 55000, 50000, 45000, 40000,
+            35000, 30000, 25000, 20000, 15000, 10000]                                                                           #Pressure (Pa)
+          errors: [1.4, 1.5, 1.6, 1.8, 1.9, 2.0, 2.1, 2.3, 2.6, 2.8, 3.0, 3.2, 2.7,
+            2.4, 2.1]
+    # Assign the initial ObsError, based on height/pressure for RECON aircraft
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [70000, 65000, 60000, 55000, 50000, 45000, 40000, 35000, 30000, 25000,
+            20000, 15000, 10000, 7500, 5000]
+          errors: [2.4, 2.5, 2.6, 2.7, 2.8, 2.95, 3.1, 3.25, 3.4, 3.175, 2.95, 2.725,
+            2.5, 2.6, 2.7]
+    where:
+    - variable:
+        name: ObsType/windEastward
+      is_in: 232
+    # Reject when difference of wind direction is more than 50 degrees.
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    test variables:
+    - name: ObsFunction/WindDirAngleDiff
+      options:
+        minimum_uv: 3.5
+    maxvalue: 50.0
+    action:
+      name: reject
+    defer to post: true
+    # When multiple obs exist within a single vertical model level, inflate ObsError
+  # - filter: Perform Action
+  #   filter variables:
+  #   - name: windEastward
+  #   action:
+  #     name: inflate error
+  #     inflation variable:
+  #       name: ObsFunction/ObsErrorFactorConventional
+  #       options:
+  #         test QCflag: PreQC
+  #         inflate variables: [windEastward]
+  #   defer to post: true
+    #
+  # - filter: Perform Action
+  #   filter variables:
+  #   - name: windNorthward
+  #   action:
+  #     name: inflate error
+  #     inflation variable:
+  #       name: ObsFunction/ObsErrorFactorConventional
+  #       options:
+  #         test QCflag: PreQC
+  #         inflate variables: [windNorthward]
+  #   defer to post: true
+    #
+    # Gross error check with (O - B) / ObsError greater than threshold.
+  - filter: Background Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    threshold: 6.0
+    absolute threshold: 19.0
+    action:
+      name: reject
+    #
+    #--------------------------------------------------------------------------------------------------------------------
+    # Temperature
+    #--------------------------------------------------------------------------------------------------------------------
+    #
+    # Begin by assigning all ObsError to a constant value. These will get overwritten for specific types.
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: assign error
+      error parameter: 2.0               # 2.0 K
+    # Assign the initial observation error, based on pressure (for AIREP/ACARS; itype=130)
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [100000, 95000, 90000, 85000, 80000]
+          errors: [2.5, 2.3, 2.1, 1.9, 1.7]
+    where:
+    - variable:
+        name: ObsType/airTemperature
+      is_in: 130
+    # Assign the initial observation error, based on pressure (for AMDAR and MDCRS; itype=131,133)
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [100000, 95000, 90000, 85000, 80000]
+          errors: [1.4706, 1.3529, 1.2353, 1.1176, 1.0]
+    where:
+    - variable:
+        name: ObsType/airTemperature
+      is_in: 131,133
+    # Assign the initial observation error, based on pressure (for RECON aircraft; itype=132)
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [100000, 95000, 90000, 85000, 35000, 30000, 25000, 20000, 15000,
+            10000, 7500, 5000, 4000, 3200, 2000, 1000]
+          errors: [1.2, 1.1, 0.9, 0.8, 0.8, 0.9, 1.2, 1.2, 1.0, 0.8, 0.8, 0.9, 0.95,
+            1.0, 1.25, 1.5]
+    where:
+    - variable:
+        name: ObsType/airTemperature
+      is_in: 132
+    # When multiple obs exist within a single vertical model level, inflate ObsError
+  # - filter: Perform Action
+  #   filter variables:
+  #   - name: airTemperature
+  #   action:
+  #     name: inflate error
+  #     inflation variable:
+  #       name: ObsFunction/ObsErrorFactorConventional
+  #       options:
+  #         test QCflag: PreQC
+  #         inflate variables: [airTemperature]
+  #   defer to post: true
+    # Gross error check with (O - B) / ObsError greater than threshold.
+  - filter: Background Check
+    filter variables:
+    - name: airTemperature
+    threshold: 7.0
+    absolute threshold: 8.0
+    action:
+      name: reject
+    #
+    #--------------------------------------------------------------------------------------------------------------------
+    # Moisture
+    #--------------------------------------------------------------------------------------------------------------------
+    #
+    # Assign the initial observation error, based on height/pressure ONLY MDCRS
+  - filter: Perform Action
+    filter variables:
+    - name: specificHumidity
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000, 105000, 100000, 95000, 90000, 85000, 80000, 75000, 70000,
+            65000, 60000, 55000, 50000, 45000, 40000, 35000, 30000, 25000, 20000,
+            15000, 10000, 7500, 5000, 4000, 3000]
+          errors: [.19455, .19062, .18488, .17877, .17342, .16976, .16777, .16696,
+            .16605, .16522, .16637, .17086, .17791, .18492, .18996, .19294, .19447,
+            .19597, .19748, .19866, .19941, .19979, .19994, .19999, .2]
+          scale_factor_var: ObsValue/specificHumidity
+    where:
+    - variable:
+        name: ObsType/specificHumidity
+      is_in: 133
+    # When multiple obs exist within a single vertical model level, inflate ObsError
+  # - filter: Perform Action
+  #   filter variables:
+  #   - name: specificHumidity
+  #   action:
+  #     name: inflate error
+  #     inflation variable:
+  #       name: ObsFunction/ObsErrorFactorConventional
+  #       options:
+  #         test QCflag: PreQC
+  #         inflate variables: [specificHumidity]
+  #   defer to post: true
+    # Gross error check with (O - B) / ObsError greater than threshold.
+  - filter: Background Check
+    filter variables:
+    - name: specificHumidity
+    threshold: 8.0
+    action:
+      name: reject
+
+  # Observation Localizations (LocalEnsembleDA)
+  # -------------------------------------------
+  obs localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 1250e3
+    max nobs: 10000
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atmosphere_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0
