@@ -110,3 +110,5 @@ class Bufr2ioda_Converter:
                 self.logger.error(f"TEST ERROR: files are different")
             else:
                 self.logger.info(f"TEST passed: files are identical")
+
+            return result

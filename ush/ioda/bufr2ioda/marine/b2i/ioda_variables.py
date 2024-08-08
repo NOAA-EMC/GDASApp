@@ -98,13 +98,15 @@ class IODAVariables:
             .write_data(self.temp)
 
     def WriteObsValueS(self, obsspace, v_name):
-        obsspace.create_var('ObsValue/' + v_name, dtype=self.saln.dtype,
-                            fillval=self.saln.fill_value
-                           )
-                                .write_attr('units', 'psu') \
-                                .write_attr('valid_range', np.array([self.Smin, self.Smax], dtype=np.float32)) \
-                                .write_attr('long_name', v_name) \
-                                .write_data(self.saln)
+        obsspace.create_var(
+            'ObsValue/' + v_name,
+            dtype=self.saln.dtype,
+            fillval=self.saln.fill_value
+        ) \
+            .write_attr('units', 'psu') \
+            .write_attr('valid_range', np.array([self.Smin, self.Smax], dtype=np.float32)) \
+            .write_attr('long_name', v_name) \
+            .write_data(self.saln)
 
 ##############################################################################
 
