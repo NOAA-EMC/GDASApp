@@ -28,7 +28,7 @@ usage() {
 
 # ==============================================================================
 
-cycle=2021080100
+cycle=2024021900
 run_filtering=YES
 run_eva=YES
 eva_stats_only=NO
@@ -103,7 +103,7 @@ exename=test_ObsFilters.x
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
 
-dataprocdate=20230811 # Production date of test data
+dataprocdate=20240807 # Production date of test data
 
 obtype_short=${obtype:0:4}
 if [ $obtype_short = "cris" ] || [ $obtype_short = "iasi" ] || [ $obtype_short = "hirs" ] || [ $obtype_short = "sevi" ] || \
@@ -115,7 +115,7 @@ else
 fi
 
 if [ $machine = orion ]; then
-    export Datapath='/work2/noaa/da/eliu/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate 
+    export Datapath='/work2/noaa/da/acollard/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate 
     FixDir=/work2/noaa/da/cmartin/GDASApp/fix
 elif [ $machine = hera ]; then
     export Datapath='/scratch1/NCEPDEV/da/Emily.Liu/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate
