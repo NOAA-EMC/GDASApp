@@ -5,6 +5,6 @@
  stationID                shape, dtype = (929,), <U4
  temp          min, max, length, dtype = 13.600000381469727, 27.9999942779541, 929, float32
  saln          min, max, length, dtype = 33.75, 37.58000183105469, 929, float32
- PreQC         min, max, length, dtype = 0, 0, 1168, int32
- ObsError_temp min, max, length, dtype = 0.30000001192092896, 0.30000001192092896, 1168, float32
- ObsError_saln min, max, length, dtype = 1.0, 1.0, 1168, float32
+ PreQC         min, max, length, dtype =         0,         0,         1168,         int32
+ ObsError_temp min, max, length, dtype =             0.30000001192092896,             0.30000001192092896,             1168,             float32
+ ObsError_saln min, max, length, dtype =             1.0,             1.0,             1168,             float32

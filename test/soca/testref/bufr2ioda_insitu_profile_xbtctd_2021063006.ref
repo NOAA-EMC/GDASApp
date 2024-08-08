@@ -7,6 +7,6 @@
  temp          min, max, length, dtype = 3.5100035667419434, 24.33001136779785, 109, float32
  saln          min, max, length, dtype = 33.43000030517578, 34.790000915527344, 109, float32
  sequence Num             shape, dtype = (109,), int32
- PreQC         min, max, length, dtype = 0, 0, 20900, int32
- ObsError_temp min, max, length, dtype = 0.11999999731779099, 0.11999999731779099, 20900, float32
- ObsError_saln min, max, length, dtype = 1.0, 1.0, 20900, float32
+ PreQC         min, max, length, dtype =         0,         0,         20900,         int32
+ ObsError_temp min, max, length, dtype =             0.11999999731779099,             0.11999999731779099,             20900,             float32
+ ObsError_saln min, max, length, dtype =             1.0,             1.0,             20900,             float32

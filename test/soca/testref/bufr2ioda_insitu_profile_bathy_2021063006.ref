@@ -6,4 +6,4 @@
  stationID                shape, dtype = (1751,), <U6
  temp          min, max, length, dtype = 3.5999999046325684, 29.100000381469727, 1751, float32
  sequence Num             shape, dtype = (1751,), int32
- PreQC         min, max, length, dtype = 0, 0, 1947, int32
+ PreQC         min, max, length, dtype =         0,         0,         1947,         int32
