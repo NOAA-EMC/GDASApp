@@ -216,7 +216,7 @@ window_length: "PT${assim_freq}H"
 bound_to_include: begin
 
 # Default background time is for 3D applications
-atm_background_time_iso: "${YYYY}-${MM}-${DD}T${cyc}:00:00Z"
+atmosphere_background_time_iso: "${YYYY}-${MM}-${DD}T${cyc}:00:00Z"
 
 algorithm: test_obs_filters
 
@@ -227,31 +227,33 @@ observations: [${obtype}]
 crtm_coefficient_path: "$workdir/crtm/"
 
 # Naming conventions for observational files
-atm_obsdatain_path: "$workdir"
-atm_obsdatain_prefix: "$OPREFIX."
-atm_obsdatain_suffix: ".tm00.nc"
+atmosphere_obsdatain_path: "$workdir"
+atmosphere_obsdatain_prefix: "$OPREFIX."
+atmosphere_obsdatain_suffix: ".tm00.nc"
 
-atm_obsdataout_path: "$workdir"
-atm_obsdataout_prefix: diag_
-atm_obsdataout_suffix: "_${cycle}.nc"
+atmosphere_obsdataout_path: "$workdir"
+atmosphere_obsdataout_prefix: diag_
+atmosphere_obsdataout_suffix: "_${cycle}.nc"
 
 # Naming conventions for bias correction files
-atm_obsbiasin_path: "$workdir"
-atm_obsbiasin_prefix: "$GPREFIX."
-atm_obsbiasin_suffix: ".satbias.nc"
-atm_obstlapsein_prefix: "$GPREFIX."
-atm_obstlapsein_suffix: ".tlapse.txt"
-atm_obsbiascovin_prefix: "$GPREFIX."
-atm_obsbiascovin_suffix: ".satbias_cov.nc"
+atmosphere_obsbiasin_path: "$workdir"
+atmosphere_obsbiasin_prefix: "$GPREFIX."
+atmosphere_obsbiasin_suffix: ".satbias.nc"
+atmosphere_obstlapsein_prefix: "$GPREFIX."
+atmosphere_obstlapsein_suffix: ".tlapse.txt"
+atmosphere_obsbiascovin_prefix: "$GPREFIX."
+atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
 
-atm_obsbiasout_path: "$workdir"
-atm_obsbiasout_prefix: "$APREFIX."
-atm_obsbiasout_suffix: ".satbias.nc"
-atm_obsbiascovout_prefix: "$APREFIX."
-atm_obsbiascovout_suffix: ".satbias_cov.nc"
+atmosphere_obsbiasout_path: "$workdir"
+atmosphere_obsbiasout_prefix: "$APREFIX."
+atmosphere_obsbiasout_suffix: ".satbias.nc"
+atmosphere_obsbiascovout_prefix: "$APREFIX."
+atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
 EOF
 # jcb render dictionary_of_templates.yaml jedi_config.yaml
+echo "Calling JCB Render"
 jcb render $workdir/temp.yaml $workdir/${obtype}_${cycle}.yaml
+echo "Called JCB Render"
 
 if [ $? -ne 0 ]; then
    echo "YAML creation failed"
