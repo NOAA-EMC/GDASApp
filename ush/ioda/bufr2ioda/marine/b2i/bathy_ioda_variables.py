@@ -1,7 +1,7 @@
 import numpy as np
 from pyiodaconv import bufr
-from ioda_variables import *
-from util import Compute_sequenceNumber
+from b2iconverter.ioda_variables import IODAVariables
+from b2iconverter.util import Compute_sequenceNumber
 
 
 class BathyIODAVariables(IODAVariables):
@@ -43,10 +43,9 @@ class BathyIODAVariables(IODAVariables):
 
     def createIODAVars(self, obsspace):
         super().createIODAVars(obsspace)
-
-        WriteStationID(obsspace, self.stationID)
-        WriteDepth(obsspace, self.depth)
-        WriteSequenceNumber(obsspace, self.seqNum, self.PreQC)
+        self.WriteStationID(obsspace)
+        self.WriteDepth(obsspace)
+        self.WriteSequenceNumber(obsspace)
 
         self.WritePreQC(obsspace, "waterTemperature")
         self.WriteObsValueT(obsspace, "waterTemperature")

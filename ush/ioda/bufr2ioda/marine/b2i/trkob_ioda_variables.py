@@ -1,8 +1,7 @@
 import numpy as np
 from pyiodaconv import bufr
-# from ioda_variables import IODAVariables
-from ioda_variables import *
-from util import Compute_sequenceNumber
+from b2iconverter.ioda_variables import IODAVariables
+from b2iconverter.util import Compute_sequenceNumber
 
 
 class TrkobIODAVariables(IODAVariables):
@@ -43,14 +42,12 @@ class TrkobIODAVariables(IODAVariables):
     def createIODAVars(self, obsspace):
         super().createIODAVars(obsspace)
 
-        WriteStationID(obsspace, self.stationID)
+        self.WriteStationID(obsspace)
 
         self.WritePreQC(obsspace, "seaSurfaceTemperature")
         self.WritePreQC(obsspace, "seaSurfaceSalinity")
-
-        WriteObsError(obsspace, "ObsError/seaSurfaceTemperature", "degC", self.ObsError_temp)
-        WriteObsError(obsspace, "ObsError/seaSurfaceSalinity", "psu", self.ObsError_saln)
-
+        self.WriteObsErrorT(obsspace, "waterTemperature")
+        self.WriteObsErrorS(obsspace, "salinity")
         self.WriteObsValueT(obsspace, 'seaSurfaceTemperature')
         self.WriteObsValueS(obsspace, 'seaSurfaceSalinity')
 

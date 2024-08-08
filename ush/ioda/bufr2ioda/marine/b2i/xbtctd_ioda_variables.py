@@ -1,7 +1,7 @@
 import numpy as np
 from pyiodaconv import bufr
-from ioda_variables import *
-from util import Compute_sequenceNumber
+from b2iconverter.ioda_variables import IODAVariables
+from b2iconverter.util import Compute_sequenceNumber
 
 
 class XbtctdIODAVariables(IODAVariables):
@@ -35,16 +35,13 @@ class XbtctdIODAVariables(IODAVariables):
 
     def createIODAVars(self, obsspace):
         super().createIODAVars(obsspace)
-
-        WriteStationID(obsspace, self.stationID)
-        WriteDepth(obsspace, self.depth)
-        WriteSequenceNumber(obsspace, self.seqNum, self.PreQC)
+        self.WriteStationID(obsspace)
+        self.WriteDepth(obsspace)
+        self.WriteSequenceNumber(obsspace)
 
         self.WritePreQC(obsspace, "waterTemperature")
         self.WritePreQC(obsspace, "salinity")
-
-        WriteObsError(obsspace, "ObsError/waterTemperature", "degC", self.ObsError_temp)
-        WriteObsError(obsspace, "ObsError/salinity", "psu", self.ObsError_saln)
-
+        self.WriteObsErrorT(obsspace, "waterTemperature")
+        self.WriteObsErrorS(obsspace, "salinity")
         self.WriteObsValueT(obsspace, 'waterTemperature')
         self.WriteObsValueS(obsspace, 'salinity')
