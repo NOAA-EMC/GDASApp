@@ -103,7 +103,7 @@ exename=test_ObsFilters.x
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
 
-dataprocdate=20240807 # Production date of test data
+dataprocdate=20240808 # Production date of test data
 
 obtype_short=${obtype:0:4}
 if [ $obtype_short = "cris" ] || [ $obtype_short = "iasi" ] || [ $obtype_short = "hirs" ] || [ $obtype_short = "sevi" ] || \
@@ -171,8 +171,8 @@ ln -sf $FixDir/crtm/2.4.0 $workdir/crtm
 
 # copy BC files
 if [ $radiance = "YES" ]; then
-  cp -rf $BCDir/${obtype}_tlapmean_${GDATE}.txt $workdir/${GPREFIX}.${obtype}.tlapse.txt
-  cp -rf $BCDir/${obtype}_satbias_${GDATE}.nc4 $workdir/${GPREFIX}.${obtype}.satbias.nc
+  cp -rf $BCDir/${GPREFIX}.${obtype}.tlapse.txt $workdir/${GPREFIX}.${obtype}.tlapse.txt
+  cp -rf $BCDir/${GPREFIX}.${obtype}.satbias.nc $workdir/${GPREFIX}.${obtype}.satbias.nc
 fi
 
 # Copy obs and geovals
