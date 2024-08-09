@@ -105,7 +105,7 @@ class Bufr2ioda_Converter:
 
             self.ioda_vars.log(self.logger)
 
-            result = run_diff(temp_log_file_name, test_file)
+            result = run_diff(temp_log_file_name, test_file, self.logger)
             if result:
                 self.logger.error(f"TEST ERROR: files are different")
             else:

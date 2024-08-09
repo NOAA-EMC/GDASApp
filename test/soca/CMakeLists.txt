@@ -9,7 +9,6 @@ set(TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
 set (TESTINPUT_DIR ${PROJECT_BINARY_DIR}/test/soca/testinput)
 
 file(MAKE_DIRECTORY ${TESTINPUT_DIR})
-# message(">>>>>>>>>>>>>>>>>>>>>>> created ${TESTINPUT_DIR}")
 
 # symlink
 foreach(FILENAME ${test_input})
@@ -45,13 +44,10 @@ ENVIRONMENT "data=${TESTDATA};PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPA
 set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
 set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
 set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/soca/testinput)
-# set(TESTREF_DIR ${PROJECT_BINARY_DIR}/test/soca/testref)
 set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/soca/testref)
 
 function(ADD_INSITU_TEST testname)
 	set(TEST bufr2ioda_insitu_${testname})
-	# set(TEST ${testname})
-	# message(".....................adding test ${TEST}")
 	set(CONFIG_FILE ${TEST}_2021063006.json)
 	set(TESTREF_FILE ${TEST}_2021063006.ref)
 
@@ -63,7 +59,6 @@ function(ADD_INSITU_TEST testname)
 endfunction()
 
 
-# ADD_INSITU_TEST(ALTKOB)
 ADD_INSITU_TEST(profile_argo)
 ADD_INSITU_TEST(profile_bathy)
 ADD_INSITU_TEST(profile_glider)
@@ -72,4 +67,3 @@ ADD_INSITU_TEST(profile_tesac)
 ADD_INSITU_TEST(profile_xbtctd)
 # ADD_INSITU_TEST(surface_altkob)
 ADD_INSITU_TEST(surface_trkob)
-
