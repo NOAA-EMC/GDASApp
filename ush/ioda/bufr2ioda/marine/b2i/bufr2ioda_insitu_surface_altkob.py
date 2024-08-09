@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-import sys 
+import sys
 from altkob_ioda_variables import AltkobIODAVariables
 from b2iconverter.util import ParseArguments
 from b2iconverter.bufr2ioda_config import Bufr2iodaConfig
 from b2iconverter.bufr2ioda_converter import Bufr2ioda_Converter
-
 
 
 class AltkobConfig(Bufr2iodaConfig):
