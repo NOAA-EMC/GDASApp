@@ -63,19 +63,6 @@ class GliderIODAVariables(IODAVariables):
     def SetAdditionalData(self):
         self.PreQC = (np.ma.masked_array(np.full((self.n_obs), 0))).astype(np.int32)
         self.ObsError_temp = \
-            np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorT)))
+            np.float32(np.ma.masked_array(np.full((self.n_obs), self.T_error)))
         self.ObsError_saln = \
-            np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorS)))
-
-    def createIODAVars(self, obsspace):
-        super().createIODAVars(obsspace)
-        self.WriteStationID(obsspace)
-        self.WriteDepth(obsspace)
-        self.WriteSequenceNumber(obsspace)
-
-        self.WritePreQC(obsspace, "waterTemperature")
-        self.WritePreQC(obsspace, "salinity")
-        self.WriteObsErrorT(obsspace, "waterTemperature")
-        self.WriteObsErrorS(obsspace, "salinity")
-        self.WriteObsValueT(obsspace, 'waterTemperature')
-        self.WriteObsValueS(obsspace, 'salinity')
+            np.float32(np.ma.masked_array(np.full((self.n_obs), self.S_error)))

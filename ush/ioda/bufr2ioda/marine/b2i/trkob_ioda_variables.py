@@ -35,21 +35,21 @@ class TrkobIODAVariables(IODAVariables):
     def SetAdditionalData(self):
         self.PreQC = (np.ma.masked_array(np.full((self.n_obs), 0))).astype(np.int32)
         self.ObsError_temp = \
-            np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorT)))
+            np.float32(np.ma.masked_array(np.full((self.n_obs), self.T_error)))
         self.ObsError_saln = \
-            np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorS)))
+            np.float32(np.ma.masked_array(np.full((self.n_obs), self.S_error)))
 
     def createIODAVars(self, obsspace):
-        super().createIODAVars(obsspace)
+        self.WriteBasicMetadata(obsspace)
 
         self.WriteStationID(obsspace)
 
-        self.WritePreQC(obsspace, "seaSurfaceTemperature")
-        self.WritePreQC(obsspace, "seaSurfaceSalinity")
-        self.WriteObsErrorT(obsspace, "waterTemperature")
-        self.WriteObsErrorS(obsspace, "salinity")
-        self.WriteObsValueT(obsspace, 'seaSurfaceTemperature')
-        self.WriteObsValueS(obsspace, 'seaSurfaceSalinity')
+        self.WritePreQC(obsspace, self.T_name)
+        self.WritePreQC(obsspace, self.S_name)
+        self.WriteObsErrorT(obsspace)
+        self.WriteObsErrorS(obsspace)
+        self.WriteObsValueT(obsspace)
+        self.WriteObsValueS(obsspace)
 
     def logMetadata(self, logger):
         self.logDates(logger)

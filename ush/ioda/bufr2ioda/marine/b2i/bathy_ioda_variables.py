@@ -42,13 +42,12 @@ class BathyIODAVariables(IODAVariables):
         # ObsError_temp = np.float32(np.ma.masked_array(np.full((len(temp)), 0.24)))
 
     def createIODAVars(self, obsspace):
-        super().createIODAVars(obsspace)
+        self.WriteBasicMetadata(obsspace)
         self.WriteStationID(obsspace)
         self.WriteDepth(obsspace)
         self.WriteSequenceNumber(obsspace)
-
-        self.WritePreQC(obsspace, "waterTemperature")
-        self.WriteObsValueT(obsspace, "waterTemperature")
+        self.WritePreQC(obsspace, self.T_name)
+        self.WriteObsValueT(obsspace)
 
     def logObs(self, logger):
         self.logTemperature(logger)

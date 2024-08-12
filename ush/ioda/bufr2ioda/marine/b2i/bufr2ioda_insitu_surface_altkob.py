@@ -23,7 +23,9 @@ if __name__ == '__main__':
         platform_description)
 
     ioda_vars = AltkobIODAVariables()
+    ioda_vars.SetTemperatureVarName("seaSurfaceTemperature")
     ioda_vars.SetTemperatureError(0.3)
+    ioda_vars.SetSalinityVarName("seaSurfaceSalinity")
     ioda_vars.SetSalinityError(1.0)
     altkob = Bufr2ioda_Converter(bufr2ioda_config, ioda_vars, log_file)
     altkob.run()

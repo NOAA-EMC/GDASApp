@@ -6,24 +6,30 @@ from .util import Compute_sequenceNumber
 class IODAVariables:
     def __init__(self):
         self.n_obs = 0
-        self.errorT = 0.0
-        self.errorS = 0.0
+        self.T_error = 0.0
+        self.S_error = 0.0
         self.SetTemperatureRange(-10.0, 50.0)
         self.SetSalinityRange(0.0, 45.0)
 
-    def SetTemperatureError(self, e):
-        self.errorT = e
+    def SetTemperatureVarName(self, name):
+        self.T_name = name
 
-    def SetSalinityError(self, e):
-        self.errorS = e
+    def SetTemperatureError(self, e):
+        self.T_error = e
 
     def SetTemperatureRange(self, tmin, tmax):
-        self.Tmin = tmin
-        self.Tmax = tmax
+        self.T_min = tmin
+        self.T_max = tmax
+
+    def SetSalinityVarName(self, name):
+        self.S_name = name
+
+    def SetSalinityError(self, e):
+        self.S_error = e
 
     def SetSalinityRange(self, smin, smax):
-        self.Smin = smin
-        self.Smax = smax
+        self.S_min = smin
+        self.S_max = smax
 
     def BuildQuery(self):
         q = bufr.QuerySet()
@@ -63,10 +69,10 @@ class IODAVariables:
         self.SetObsFromQueryResult(r)
 
     def TemperatureFilter(self):
-        return (self.temp > self.Tmin) & (self.temp <= self.Tmax)
+        return (self.temp > self.T_min) & (self.temp <= self.T_max)
 
     def SalinityFilter(self):
-        return (self.saln >= self.Smin) & (self.saln <= self.Smax)
+        return (self.saln >= self.S_min) & (self.saln <= self.S_max)
 
     def filter(self):
         pass
@@ -75,9 +81,9 @@ class IODAVariables:
         self.seqNum = Compute_sequenceNumber(self.lon)
         self.PreQC = (np.ma.masked_array(np.full((self.n_obs), 0))).astype(np.int32)
         self.ObsError_temp = \
-            np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorT)))
+            np.float32(np.ma.masked_array(np.full((self.n_obs), self.T_error)))
         self.ObsError_saln = \
-            np.float32(np.ma.masked_array(np.full((self.n_obs), self.errorS)))
+            np.float32(np.ma.masked_array(np.full((self.n_obs), self.S_error)))
 
     def WriteDateTime(self, obsspace):
         WriteDateTime(obsspace, self.dateTime)
@@ -91,40 +97,54 @@ class IODAVariables:
     def WriteSequenceNumber(self, obsspace):
         WriteSequenceNumber(obsspace, self.seqNum, self.PreQC)
 
-    def createIODAVars(self, obsspace):
+    def WriteBasicMetadata(self, obsspace):
         WriteDateTime(obsspace, self.dateTime)
         WriteRcptDateTime(obsspace, self.rcptdateTime)
         WriteLongitude(obsspace, self.lon)
         WriteLatitude(obsspace, self.lat)
+
+    def createIODAVars(self, obsspace):
+        self.WriteBasicMetadata(obsspace)
+        self.WriteStationID(obsspace)
+        self.WriteDepth(obsspace)
+        self.WriteSequenceNumber(obsspace)
+
+        self.WritePreQC(obsspace, self.T_name)
+        self.WritePreQC(obsspace, self.S_name)
+        self.WriteObsErrorT(obsspace)
+        self.WriteObsErrorS(obsspace)
+        self.WriteObsValueT(obsspace)
+        self.WriteObsValueS(obsspace)
+
 
     def WritePreQC(self, obsspace, name):
         obsspace.create_var("PreQC/" + name, dtype=self.PreQC.dtype, fillval=self.PreQC.fill_value) \
             .write_attr('long_name', 'PreQC') \
             .write_data(self.PreQC)
 
-    def WriteObsValueT(self, obsspace, v_name):
-        obsspace.create_var('ObsValue/' + v_name, dtype=self.temp.dtype, fillval=self.temp.fill_value) \
+    def WriteObsValueT(self, obsspace):
+        obsspace.create_var('ObsValue/' + self.T_name, dtype=self.temp.dtype, fillval=self.temp.fill_value) \
             .write_attr('units', 'degC') \
-            .write_attr('valid_range', np.array([self.Tmin, self.Tmax], dtype=np.float32)) \
-            .write_attr('long_name', v_name) \
+            .write_attr('valid_range', np.array([self.T_min, self.T_max], dtype=np.float32)) \
+            .write_attr('long_name', self.T_name) \
             .write_data(self.temp)
 
-    def WriteObsValueS(self, obsspace, v_name):
+    def WriteObsValueS(self, obsspace):
         obsspace.create_var(
-            'ObsValue/' + v_name,
+            'ObsValue/' + self.S_name,
             dtype=self.saln.dtype,
             fillval=self.saln.fill_value
         ) \
             .write_attr('units', 'psu') \
-            .write_attr('valid_range', np.array([self.Smin, self.Smax], dtype=np.float32)) \
-            .write_attr('long_name', v_name) \
+            .write_attr('valid_range', np.array([self.S_min, self.S_max], dtype=np.float32)) \
+            .write_attr('long_name', self.S_name) \
             .write_data(self.saln)
 
-    def WriteObsErrorT(self, obsspace, v_name):
-        WriteObsError(obsspace, "ObsError/" + v_name, "degC", self.ObsError_temp)
+    def WriteObsErrorT(self, obsspace):
+        WriteObsError(obsspace, "ObsError/" + self.T_name, "degC", self.ObsError_temp)
 
-    def WriteObsErrorS(self, obsspace, v_name):
-        WriteObsError(obsspace, "ObsError/" + v_name, "psu", self.ObsError_saln)
+    def WriteObsErrorS(self, obsspace):
+        WriteObsError(obsspace, "ObsError/" + self.S_name, "psu", self.ObsError_saln)
 
 ##############################################################################
 

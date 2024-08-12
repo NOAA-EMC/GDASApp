@@ -59,17 +59,3 @@ class ArgoIODAVariables(IODAVariables):
         self.seqNum = self.seqNum[index_list]
         self.dateTime = self.dateTime[index_list]
         self.rcptdateTime = self.rcptdateTime[index_list]
-
-    def createIODAVars(self, obsspace):
-        super().createIODAVars(obsspace)
-
-        self.WriteStationID(obsspace)
-        self.WriteDepth(obsspace)
-        self.WriteSequenceNumber(obsspace)
-
-        self.WritePreQC(obsspace, "waterTemperature")
-        self.WritePreQC(obsspace, "salinity")
-        self.WriteObsErrorT(obsspace, "waterTemperature")
-        self.WriteObsErrorS(obsspace, "salinity")
-        self.WriteObsValueT(obsspace, 'waterTemperature')
-        self.WriteObsValueS(obsspace, 'salinity')

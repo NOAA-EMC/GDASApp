@@ -50,16 +50,3 @@ class MarinemammalIODAVariables(IODAVariables):
         self.seqNum = self.seqNum[indices_true]
         self.dateTime = self.dateTime[indices_true]
         self.rcptdateTime = self.rcptdateTime[indices_true]
-
-    def createIODAVars(self, obsspace):
-        super().createIODAVars(obsspace)
-        self.WriteStationID(obsspace)
-        self.WriteDepth(obsspace)
-        self.WriteSequenceNumber(obsspace)
-
-        self.WritePreQC(obsspace, "waterTemperature")
-        self.WritePreQC(obsspace, "salinity")
-        self.WriteObsErrorT(obsspace, "waterTemperature")
-        self.WriteObsErrorS(obsspace, "salinity")
-        self.WriteObsValueT(obsspace, 'waterTemperature')
-        self.WriteObsValueS(obsspace, 'salinity')

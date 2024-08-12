@@ -19,7 +19,9 @@ if __name__ == '__main__':
 
     ioda_vars = TesacIODAVariables()
     ioda_vars.SetTemperatureError(0.02)
+    ioda_vars.SetTemperatureVarName("waterTemperature")
     ioda_vars.SetSalinityError(0.01)
+    ioda_vars.SetSalinityVarName("salinity")
 
     tesac = Bufr2ioda_Converter(bufr2ioda_config, ioda_vars, log_file)
     tesac.run()

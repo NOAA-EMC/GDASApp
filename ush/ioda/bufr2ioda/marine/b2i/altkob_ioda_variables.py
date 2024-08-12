@@ -42,16 +42,14 @@ class AltkobIODAVariables(IODAVariables):
             np.float32(np.ma.masked_array(np.full((self.n_obs), self.ErrorS)))
 
     def createIODAVars(self, obsspace):
-        super().createIODAVars(obsspace)
+        self.WriteBasicMetadata(obsspace)
 
         # BUG: StationID is undefined
         self.WriteStationID(obsspace)
 
-        self.WritePreQC(obsspace, "seaSurfaceTemperature")
-        self.WritePreQC(obsspace, "seaSurfaceSalinity")
-
-        self.WriteObsErrorT(obsspace, "seaSurfaceTemperature")
-        self.WriteObsErrorS(obsspace, "seaSurfaceSalinity")
-
-        self.WriteObsValueT(obsspace, 'seaSurfaceTemperature')
-        self.WriteObsValueS(obsspace, 'seaSurfaceSalinity')
+        self.WritePreQC(obsspace, self.T_name)
+        self.WritePreQC(obsspace, self.S_name)
+        self.WriteObsErrorT(obsspace)
+        self.WriteObsErrorS(obsspace)
+        self.WriteObsValueT(obsspace)
+        self.WriteObsValueS(obsspace)
