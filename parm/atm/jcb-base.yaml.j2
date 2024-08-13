@@ -109,12 +109,15 @@ inflation_rtpp: 0.0
 inflation_mult: 1.0
 
 # Driver
-driver_update_obs_config_with_geometry_info: true
+##driver_update_obs_config_with_geometry_info: true
 driver_save_posterior_mean: false
 driver_save_posterior_ensemble: false
 driver_save_prior_mean: false
 driver_save_posterior_mean_increment: false
-driver_save_posterior_ensemble_increments: true
+##driver_save_posterior_ensemble_increments: true
+
+# Distribution type
+distribution_type: Halo
 
 # Diagnostics
 atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
