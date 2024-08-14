@@ -90,5 +90,6 @@
   url = https://github.com/noaa-emc/jcb-algorithms
   branch = develop
 [submodule "sorc/da-utils"]
-	path = sorc/da-utils
-	url = https://github.com/noaa-emc/da-utils.git
+  path = sorc/da-utils
+  url = https://github.com/noaa-emc/da-utils.git
+  branch = develop
