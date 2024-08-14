@@ -3,16 +3,16 @@ time window:
   length: {{ SNOW_WINDOW_LENGTH }}
 geometry:
   fms initialization:
-    namelist filename: '{{ DATA }}/fv3jedi/fmsmpp.nml'
-    field table filename: '{{ DATA }}/fv3jedi/field_table'
-  akbk: '{{ DATA }}/fv3jedi/akbk.nc4'
+    namelist filename: './fv3jedi/fmsmpp.nml'
+    field table filename: './fv3jedi/field_table'
+  akbk: './fv3jedi/akbk.nc4'
   layout:
   - {{ layout_x }}
   - {{ layout_y }}
   npx: {{ npx_ges }}
   npy: {{ npy_ges }}
   npz: {{ npz_ges }}
-  field metadata override: '{{ DATA }}/fv3jedi/fv3jedi_fieldmetadata_restart.yaml'
+  field metadata override: './fv3jedi/fv3jedi_fieldmetadata_restart.yaml'
   time invariant fields:
     state fields:
       datetime: '{{ SNOW_WINDOW_BEGIN | to_isotime }}'
@@ -22,7 +22,7 @@ geometry:
       datapath: '{{ FIXgfs }}/fix_orog/{{ CASE }}/'
       filename_orog: '{{ CASE }}_oro_data.nc'
 state:
-  datapath: '{{ DATA }}/bkg'
+  datapath: './bkg'
   filetype: fms restart
   datetime: '{{ current_cycle | to_isotime }}'
   filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
