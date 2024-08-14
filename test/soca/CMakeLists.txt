@@ -38,32 +38,90 @@ PROPERTIES
 ENVIRONMENT "data=${TESTDATA};PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
 
 
+###########################################################################
+# bufr to ioda tests:
+###########################################################################
+
+# prepare a test.yaml file from test.yaml.in by replacing
+# placeholder patterns __BUFRINPUTDIR__ and __IODAOUTPUTDIR__
+# with actual directory paths
+function(CREATE_CONFIG_FILE test_config_in test_config_out bufr_input_dir ioda_output_dir)
+	file(READ "${test_config_in}" file_content)
+	string(REPLACE "__BUFRINPUTDIR__" "\"${bufr_input_dir}\"" temp_content "${file_content}")
+	string(REPLACE "__IODAOUTPUTDIR__" "\"${ioda_output_dir}\"" temp_content2 "${temp_content}")
+	file(WRITE "${test_config_out}" "${temp_content2}")
+endfunction()
 
 
+# set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/soca)
+set(TEST_WORKING_DIR "/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138")
 
 set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
 set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
 set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/soca/testinput)
 set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/soca/testref)
 
-function(ADD_INSITU_TEST testname)
-	set(TEST bufr2ioda_insitu_${testname})
-	set(CONFIG_FILE ${TEST}_2021063006.json)
-	set(TESTREF_FILE ${TEST}_2021063006.ref)
+# find the staging directory for bufr test input files ${BUFR_TEST_DIR}
+# bufr input files on orion:
+set(BUFR_TEST_DIR
+	# "/work/noaa/da/marineda/gfs-marine/data/obs/ci/obs"
+	${TEST_WORKING_DIR}			# temporary fix
+)
+if (NOT EXISTS ${BUFR_TEST_DIR})
+	# bufr input files on hera:
+	set(BUFR_TEST_DIR
+		# "/scratch1/NCEPDEV/da/common/ci/obs"
+		${TEST_WORKING_DIR}			# temporary fix
+	)
+endif()
+if (NOT EXISTS ${BUFR_TEST_DIR})
+	message(FATAL_ERROR "staging directory for BUFR test files ${BUFR_TEST_DIR} not found")
+endif()
+
+
+
+function(ADD_INSITU_TEST testname testbufr)
+	set(CONFIG_TYPE "json")
+	# set(CONFIG_TYPE "yaml")
+	set(DATE "2021063006")
+	set(TEST "bufr2ioda_insitu_${testname}")
+
+	set(TESTREF_FILE "${TEST}_${DATE}.ref")
+
+	# stage the input file to directory ${BUFR_INPUT_DIR}
+	set(BUFR_INPUT_DIR ${TEST_WORKING_DIR})
+	set(BUFR_TEST_FILE "${DATE}-gdas.t06z.${testbufr}.tm00.bufr_d")
+	set(BUFR_FILE "${BUFR_TEST_DIR}/${BUFR_TEST_FILE}")
+	if (NOT EXISTS ${BUFR_FILE})
+		message(FATAL_ERROR "BUFR file ${BUFR_FILE} not found")
+	endif()
+	file(COPY ${BUFR_FILE} DESTINATION ${BUFR_INPUT_DIR})
+
+	# stage the config file
+	set(CONFIG_FILE_NAME ${TEST}_${DATE}.${CONFIG_TYPE})
+	set(CONFIG_FILE_IN "${CONFIG_DIR}/${CONFIG_FILE_NAME}.in")
+	set(CONFIG_FILE "${TEST_WORKING_DIR}/${CONFIG_FILE_NAME}")
+	set(IODA_OUTPUT_DIR ${TEST_WORKING_DIR})
+	CREATE_CONFIG_FILE(
+		${CONFIG_FILE_IN}
+		${CONFIG_FILE}
+		${BUFR_INPUT_DIR}
+		${IODA_OUTPUT_DIR}
+	)
 
 	add_test(
 		NAME test_${TEST}
-		COMMAND ${MARINE_BUFR2IODA_DIR}/${TEST}.py -c ${CONFIG_DIR}/${CONFIG_FILE} -t ${TESTREF_DIR}/${TESTREF_FILE}
-		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca
+		COMMAND ${MARINE_BUFR2IODA_DIR}/${TEST}.py -c ${CONFIG_FILE} -t ${TESTREF_DIR}/${TESTREF_FILE}
+		WORKING_DIRECTORY ${TEST_WORKING_DIR}
 	)
 endfunction()
 
 
-ADD_INSITU_TEST(profile_argo)
-ADD_INSITU_TEST(profile_bathy)
-ADD_INSITU_TEST(profile_glider)
+ADD_INSITU_TEST("profile_argo" "subpfl")
+ADD_INSITU_TEST("profile_bathy" "bathy")
+ADD_INSITU_TEST("profile_glider" "subpfl")
 # ADD_INSITU_TEST(profile_marinemammal)
-ADD_INSITU_TEST(profile_tesac)
-ADD_INSITU_TEST(profile_xbtctd)
+ADD_INSITU_TEST("profile_tesac" "tesac")
+ADD_INSITU_TEST("profile_xbtctd" "xbtctd")
 # ADD_INSITU_TEST(surface_altkob)
-ADD_INSITU_TEST(surface_trkob)
+ADD_INSITU_TEST("surface_trkob" "trkob")
