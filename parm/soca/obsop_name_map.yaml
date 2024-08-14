@@ -1,0 +1,25 @@
+variable maps:
+  - name: depthBelowWaterSurface
+    alias: ocean_depth
+  - name: waterTemperature
+    alias: ocean_temperature
+  - name: seaSurfaceTemperature
+    alias: sea_surface_temperature
+  - name: salinity
+    alias: sea_water_salinity
+  - name: seaSurfaceSalinity
+    alias: sea_surface_salinity
+  - name: seaIceFraction
+    alias: sea_ice_area_fraction
+  - name: waterSurfaceZonalVelocity
+    alias: surface_eastward_sea_water_velocity
+  - name: waterSurfaceMeridionalVelocity
+    alias: surface_northward_sea_water_velocity
+  - name: seaSurfaceChlorophyllMassConcentration
+    alias: sea_surface_chlorophyll
+  - name: oceanSurfaceBiomassContent
+    alias: sea_surface_biomass_in_p_units
+  - name: waveHeightSignificant
+    alias: sea_surface_wave_significant_height
+  - name: chlorophyllMassConcentration
+    alias: mass_concentration_of_chlorophyll_in_sea_water
