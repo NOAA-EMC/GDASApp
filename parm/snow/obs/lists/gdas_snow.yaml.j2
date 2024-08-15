@@ -1,6 +1,6 @@
 observers:
 {% filter indent(width=2) %}
-{% include 'snow/obs/config/adpsfc_snow.yaml.j2' %}
+{% include 'snow/obs/config/sfcsno_snow.yaml.j2' %}
 {% include 'snow/obs/config/snocvr_snow.yaml.j2' %}
 {% set cycle = current_cycle | strftime("t%Hz") %}
 {% if cycle in ['t00z'] %}
