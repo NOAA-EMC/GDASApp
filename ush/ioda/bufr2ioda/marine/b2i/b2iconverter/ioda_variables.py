@@ -108,14 +108,12 @@ class IODAVariables:
         self.WriteStationID(obsspace)
         self.WriteDepth(obsspace)
         self.WriteSequenceNumber(obsspace)
-
         self.WritePreQC(obsspace, self.T_name)
         self.WritePreQC(obsspace, self.S_name)
         self.WriteObsErrorT(obsspace)
         self.WriteObsErrorS(obsspace)
         self.WriteObsValueT(obsspace)
         self.WriteObsValueS(obsspace)
-
 
     def WritePreQC(self, obsspace, name):
         obsspace.create_var("PreQC/" + name, dtype=self.PreQC.dtype, fillval=self.PreQC.fill_value) \

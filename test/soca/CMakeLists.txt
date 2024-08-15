@@ -81,8 +81,8 @@ endif()
 
 
 function(ADD_INSITU_TEST testname testbufr)
-	set(CONFIG_TYPE "json")
-	# set(CONFIG_TYPE "yaml")
+	# set(CONFIG_TYPE "json")
+	set(CONFIG_TYPE "yaml")
 	set(DATE "2021063006")
 	set(TEST "bufr2ioda_insitu_${testname}")
 
