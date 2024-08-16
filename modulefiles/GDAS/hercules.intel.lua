@@ -39,6 +39,7 @@ load("fftw/3.3.10")
 load("fckit/0.11.0")
 load("fiat/1.2.0")
 load("ectrans/1.2.0")
+load("fms/2023.04")
 load("atlas/0.35.1")
 load("sp/2.5.0")
 load("gsl-lite/0.37.0")
@@ -59,8 +60,8 @@ load("json/3.10.5")
 --load("crtm/v2.4_jedi")
 load("contrib/0.1")
 load("noaatools/3.1")
-load("rocoto/1.3.5")
 load("prod_util/2.1.1")
+load("rocoto/1.3.7")
 
 load("py-jinja2/3.0.3")
 load("py-netcdf4/1.5.8")
@@ -72,7 +73,6 @@ load("py-xarray/2023.7.0")
 load("py-f90nml/1.4.3")
 load("py-pip/23.1.2")
 
--- below is a hack because of cmake finding the wrong python...
 prepend_path("PYTHONPATH", "/work2/noaa/da/python/gdasapp/wxflow/20240528/src")
 
 setenv("CC","mpiicc")
@@ -83,10 +83,9 @@ local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
-setenv("CRTM_FIX","/work2/noaa/da/cmartin/GDASApp/fix/crtm/2.4.0")
-setenv("GDASAPP_TESTDATA","/work2/noaa/da/cmartin/CI/GDASApp/data")
-setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/work2/noaa/da/cmartin/CI/GDASApp/data/test/")
-prepend_path("PATH","/apps/contrib/NCEP/libs/hpc-stack/intel-2018.4/prod_util/1.2.2/bin")
+setenv("CRTM_FIX","/work2/noaa/da/role-da/GDASApp/fix/crtm/2.4.0")
+setenv("GDASAPP_TESTDATA","/work2/noaa/da/role-da/GDASApp/testdata")
+setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/work2/noaa/da/role-da/GDASApp/unittestdata")
 
 execute{cmd="ulimit -s unlimited",modeA={"load"}}
 

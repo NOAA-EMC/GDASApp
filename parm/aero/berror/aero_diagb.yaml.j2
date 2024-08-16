@@ -1,3 +1,5 @@
+{% set offset_td = "+6H" | to_timedelta %}
+{% set background_time = current_cycle | add_to_datetime(offset_td) %}
 geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -6,13 +8,13 @@ geometry:
   layout:
   - {{ layout_x }}
   - {{ layout_y }}
-  npx: {{ npx_ges }}
-  npy: {{ npy_ges }}
-  npz: {{ npz_ges }}
+  npx: {{ npx_anl }}
+  npy: {{ npy_anl }}
+  npz: {{ npz_anl }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
-date: '{{ current_cycle | to_isotime }}' 
+date: '{{ background_time | to_isotime }}'
 background:
-  datetime: '{{ current_cycle | to_isotime }}' 
+  datetime: '{{ background_time | to_isotime }}'
   filetype: fms restart
   state variables: [mass_fraction_of_sulfate_in_air,
                     mass_fraction_of_hydrophobic_black_carbon_in_air,
@@ -25,15 +27,37 @@ background:
                     mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air,
                     mass_fraction_of_sea_salt004_in_air]
   datapath: ./bkg
-  filename_core: '{{ current_cycle | to_fv3time }}.fv_core.res.nc'
-  filename_trcr: '{{ current_cycle | to_fv3time }}.fv_tracer.res.nc'
-  filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
+  filename_core: '{{ background_time | to_fv3time }}.anlres.fv_core.res.nc'
+  filename_trcr: '{{ background_time | to_fv3time }}.anlres.fv_tracer.res.nc'
+  filename_cplr: '{{ background_time | to_fv3time }}.anlres.coupler.res'
 
 background error:
   filetype: fms restart
   datapath: ./stddev
   filename_trcr: stddev.fv_tracer.res.nc
   filename_cplr: stddev.coupler.res
+
+climate background error:
+  geometry:
+    fms initialization:
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table
+    akbk: ./fv3jedi/akbk.nc4
+    layout:
+    - {{ layout_x }}
+    - {{ layout_y }}
+    npx: {{ npx_clim_b }}
+    npy: {{ npy_clim_b }}
+    npz: {{ npz_ges }}
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+  climate background error stddev:
+    filetype: fms restart
+    skip coupler file: true
+    datapath: ./clm_stddev
+    filename_trcr: stddev.fv_tracer.res.nc
+    filename_cplr: stddev.coupler.res
+  diagb weight: {{ aero_diagb_weight }}
+  staticb rescaling factor: {{ aero_staticb_rescaling_factor }}
 
 variables:
   name:
@@ -52,9 +76,9 @@ variables:
   - mass_fraction_of_sea_salt003_in_air
   - mass_fraction_of_sea_salt004_in_air
 
-rescale: 2.0    # rescales the filtered std. dev. by "rescale"
-number of halo points: 4
-number of neighbors: 16
+rescale: {{ aero_diagb_rescale }}    # rescales the filtered std. dev. by "rescale"
+number of halo points: {{ aero_diagb_n_halo }}
+number of neighbors: {{ aero_diagb_n_neighbors }}
 simple smoothing:
-  horizontal iterations: 0 
-  vertical iterations: 0
+  horizontal iterations: {{ aero_diagb_smooth_horiz_iter }}
+  vertical iterations: {{ aero_diagb_smooth_vert_iter }}
