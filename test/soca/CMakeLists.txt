@@ -53,8 +53,9 @@ function(CREATE_CONFIG_FILE test_config_in test_config_out bufr_input_dir ioda_o
 endfunction()
 
 
-# set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/soca)
-set(TEST_WORKING_DIR "/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138")
+# set(TEST_WORKING_DIR "/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138")
+set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/soca)
+message("TEST_WORKING_DIR = ${TEST_WORKING_DIR|")
 
 set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
 set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
@@ -64,14 +65,16 @@ set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/soca/testref)
 # find the staging directory for bufr test input files ${BUFR_TEST_DIR}
 # bufr input files on orion:
 set(BUFR_TEST_DIR
+	"/work/noaa/da/marineda/gfs-marine/data/obs/ci/bufr"
 	# "/work/noaa/da/marineda/gfs-marine/data/obs/ci/obs"
-	${TEST_WORKING_DIR}			# temporary fix
+	# ${TEST_WORKING_DIR}			# temporary fix
 )
 if (NOT EXISTS ${BUFR_TEST_DIR})
 	# bufr input files on hera:
 	set(BUFR_TEST_DIR
+		"/scratch1/NCEPDEV/da/common/ci/bufr"
 		# "/scratch1/NCEPDEV/da/common/ci/obs"
-		${TEST_WORKING_DIR}			# temporary fix
+		# ${TEST_WORKING_DIR}			# temporary fix
 	)
 endif()
 if (NOT EXISTS ${BUFR_TEST_DIR})
