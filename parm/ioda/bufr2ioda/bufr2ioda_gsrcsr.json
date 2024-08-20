@@ -5,7 +5,7 @@
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
   "ioda_directory"   : "{{ COM_OBS }}",
-  "subsets"          : [  ],
+  "subsets"          : ['NC021046'],
   "data_description" : "NC021046 ABI, GOES-16; NC021046 ABI, GOES-17,  NC021046 ABI, GOES-18", 
   "data_provider"    : "U.S. NOAA/NESDIS",
   "sensor_info"      : { "sensor_name": "ABI",  "sensor_full_name": "Advanced Baseline Imager",  "sensor_id": 617 },
