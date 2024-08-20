@@ -91,11 +91,12 @@ def bufr_to_ioda(config, logger):
     q.add("second", "*/SECO")
     q.add("sensorId", "*/SIID[1]")
     q.add("sensorZenithAngle", "*/SAZA")
-    q.add("sensorCentralFrequency", "*/CLFRASEQ/SCCF")
+    #q.add("sensorCentralFrequency", "*/CLFRASEQ/SCCF"
+    q.add("sensorCentralFrequency", "*/CSRADSEQ/SCCF")
     q.add("solarZenithAngle", "*/SOZA")
     q.add("cloudFree", "*/CLFRASEQ{2}/NCLDMNT")
     q.add("brightnessTemperature", "*/CSRADSEQ/TMBRST")
-    q.add("ClearSkyStdDev", "*/SDRADSQ[1]/SDTB")
+    q.add("ClearSkyStdDev", "*/SDRADSQ/SDTB")
     q.add("solarAzimuthAngle", "*/SOLAZI")
     q.add("sensorAzimuthAngle", "*/BEARAZ")
 
@@ -160,12 +161,15 @@ def bufr_to_ioda(config, logger):
 
     nfov = satzenang.shape[0]
     scanpos = np.zeros(nfov, dtype=np.int32)
-    scanpos = satzenang.astype(np.int32) + 1
+    # Round up and then convert to integer
+    scanpos = np.ceil(satzenang).astype(np.int32) + 1
 
     cloudAmount = 100. - cldFree
+    # Define the conversion factor from degrees to radians
+    deg2rad = math.pi / 180.0
+    sataziang=sataziang*deg2rad
 
-    #sataziang = np.full_like(solzenang, float32_fill_value, dtype=np.float32)
-    #solaziang = np.full_like(solzenang, float32_fill_value, dtype=np.float32)
+    
     viewang = np.full_like(solzenang, float32_fill_value, dtype=np.float32)
     # Define Channel dimension for channels 4 to 11 since the other channel values are missing
     channel_start = 7
@@ -272,12 +276,9 @@ def bufr_to_ioda(config, logger):
             solzenang2 = solzenang[combined_mask]
             cldFree2 = cldFree[combined_mask]
             cloudAmount2 = cloudAmount[combined_mask]
-            print("az BT shape:",BT.shape)
+            print("az BT shape before mask:",BT.shape)
             BT2 = BT[combined_mask]
-            print("az BT2 shape:",BT2.shape)
-
-            # Extract only channels 7 to 16
-            BT2 = BT2[:, 6:16]
+            print("az BT2 shape after mask:",BT2.shape)
             clrStdDev2 = clrStdDev[combined_mask]
             viewang2 = viewang.flatten()[combined_mask]
             sataziang2 = sataziang.flatten()[combined_mask]
