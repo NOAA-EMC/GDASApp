@@ -162,8 +162,13 @@ def bufr_to_ioda(config, logger):
     nfov = satzenang.shape[0]
     scanpos = np.zeros(nfov, dtype=np.int32)
     # Round up and then convert to integer
-    scanpos = np.ceil(satzenang).astype(np.int32) + 1
-
+    #scanpos = np.ceil(satzenang).astype(np.int32) + 1
+    # Round up if the fractional part is greater than 0.5, otherwise round down
+    
+    rounded_values = np.where(satzenang % 1 > 0.5, np.ceil(satzenang), np.floor(satzenang))
+    # Convert to integer and add 1
+    scanpos = rounded_values.astype(np.int32) + 1
+    
     cloudAmount = 100. - cldFree
     # Define the conversion factor from degrees to radians
     deg2rad = math.pi / 180.0
@@ -268,11 +273,12 @@ def bufr_to_ioda(config, logger):
             instid2 = instid[combined_mask]
             satzenang2 = satzenang[combined_mask]
             chanfreq2 = chanfreq[6:16]
-
+            scanpos2 = np.where(combined_mask, int32_fill_value, scanpos)
+            
             # Convert scanpos to np.int32 before applying the mask
-            scanpos2 = scanpos.astype(np.int32)[combined_mask]
+            #scanpos2 = scanpos.astype(np.int32)[combined_mask]
             # Replace masked values with the fill value before writing to IODA variable
-            scanpos2 = np.where(scanpos2.mask, int32_fill_value, scanpos2)
+            #scanpos2 = np.where(scanpos2.mask, int32_fill_value, scanpos2)
             solzenang2 = solzenang[combined_mask]
             cldFree2 = cldFree[combined_mask]
             cloudAmount2 = cloudAmount[combined_mask]
@@ -521,7 +527,7 @@ def bufr_to_ioda(config, logger):
                 ).write_attr(
                     "long_name", "Standard Deviation Brightness Temperature"
                 ).write_data(
-                    clrStdDev2[:, 3:11]
+                    clrStdDev2 #[:, 3:11]
                 )
 
             else:
