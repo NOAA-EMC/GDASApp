@@ -61,17 +61,16 @@ namespace gdasapp {
       std::vector<float> oneDimLonVal(iodaVars.location_);
       ncFile.getVar("Longitude").getVar(oneDimLonVal.data());
 
-      // Create a vector to hold the full Qc variable
+      // Create a vector to hold the Summary Qc variable
+      // User-level summary QC: 0=Normal, 1=Uncertain
       std::vector<signed char> oneDimFlagsVal(iodaVars.location_);
       ncFile.getVar("SummaryQC_Ice_Concentration").getVar(oneDimFlagsVal.data());
-      // SummaryQC_Ice_Concentration
-      // quality_level
 
       // Get Ice_Concentration obs values
       std::vector<float> oneDimObsVal(iodaVars.location_);
       ncFile.getVar("IceConc").getVar(oneDimObsVal.data());
 
-      // Read and process the dateTime
+      // Read and process the starting and ending of dateTime
       auto timeStartAttr = ncFile.getAtt("time_coverage_start");
       auto timeEndAttr = ncFile.getAtt("time_coverage_end");
 
@@ -84,11 +83,11 @@ namespace gdasapp {
       util::DateTime timeStartDtime(timeStartStr);
       util::DateTime timeEndDtime(timeEndStr);
 
-          // Create vectors of util::DateTime
+      // Create vectors of util::DateTime
       std::vector<util::DateTime> timeStartVector = {timeStartDtime};
       std::vector<util::DateTime> timeEndVector = {timeEndDtime};
 
-      // Set epoch time for MIRS_ICEC
+      // Set epoch time for JPSSRR ICEC
       util::DateTime epochDtime("1970-01-01T00:00:00Z");
 
       // Convert Obs DateTime objects to epoch time offsets in seconds
@@ -106,7 +105,8 @@ namespace gdasapp {
         iodaVars.obsVal_(i) = static_cast<float>(oneDimObsVal[i]*0.01);
         iodaVars.obsError_(i) = 0.1;  // Do something for obs error
         iodaVars.preQc_(i) = oneDimFlagsVal[i];
-        iodaVars.datetime_(i) = (timeStartOffsets+timeEndOffsets)/2;
+        iodaVars.datetime_(i) =
+            timeStartOffsets + (timeEndOffsets - timeStartOffsets) * 0.5;
         // Store optional metadata, set ocean basins to -999 for now
         iodaVars.intMetadata_.row(i) << -999;
       }
