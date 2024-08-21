@@ -206,7 +206,6 @@ def bufr_to_ioda(config, logger):
     dewpointTemperatureOE = np.float32(np.ma.masked_array(np.full((len(tmdp)), 0.0)))
     windEastwardOE = np.float32(np.ma.masked_array(np.full((len(wspd)), 0.0)))
     windNorthwardOE = np.float32(np.ma.masked_array(np.full((len(wspd)), 0.0)))
-    specificHumidityOE = np.float32(np.ma.masked_array(np.full((len(qob)), 0.0)))
 
     end_time = time.time()
     running_time = end_time - start_time
@@ -226,6 +225,7 @@ def bufr_to_ioda(config, logger):
 
     qob = Compute_SpecificHumidity_from_dewPoint_and_Pressure(tmdp, prlc)
     logger.debug(f'   qob min/max = {qob.min()} {qob.max()}')
+    specificHumidityOE = np.float32(np.ma.masked_array(np.full((len(qob)), 0.0)))
 
     end_time = time.time()
     running_time = end_time - start_time
