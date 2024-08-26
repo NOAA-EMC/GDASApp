@@ -48,7 +48,7 @@ elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
 fi
 
-# Set lobsdiag_forenkf=.true. to run letkf as separate observer and solver jobs
+# Set lobsdiag_forenkf=.true. to run letkf as stand-alone observer job
 cp $EXPDIR/config.base_lobsdiag_forenkf_true $EXPDIR/config.base
 
 # Execute j-job

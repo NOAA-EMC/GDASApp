@@ -48,6 +48,9 @@ elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
 fi
 
+# Set lobsdiag_forenkf=.false. to run letkf as combined observer and solver job
+cp $EXPDIR/config.base_lobsdiag_forenkf_false $EXPDIR/config.base
+
 # Execute j-job
 if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait --output=atmensanlletkf-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_LETKF
