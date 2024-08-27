@@ -3,7 +3,7 @@
   # Observation Space (I/O)
   # -----------------------
   obs space:
-    name: satwind_ahi_h8
+    name: satwind_seviri_m9
     obsdatain:
       engine:
         type: H5File
@@ -28,13 +28,16 @@
   linear obs operator:
     name: VertInterp
 
-  # NOTE: Tests using the Gaussian Thinning filter (below) to duplicate GSI"s thinning of AHI/Himawari-8 satwinds
+  # NOTE: Tests using the Gaussian Thinning filter (below) to duplicate GSI"s thinning of SEVIRI/METEOSAT-8 satwinds
   #       results in more JEDI satwinds in the diag file than in GSI, but far fewer JEDI satwinds assimilated than
   #       GSI. JEDI under-counts assimilated winds by roughly 25-40%, relative to GSI, and this under-count is not
   #       even including the temporal thinning which is applied in GSI but not JEDI (by this filter below). See
-  #       GDASApp Issue #741 for details: https://github.com/NOAA-EMC/GDASApp/issues/741
+  #       GDASApp Issue #758 for details: https://github.com/NOAA-EMC/GDASApp/issues/758
   #obs pre filters:
   #- filter: Gaussian Thinning
+  #  where:
+  #  - variable: ObsType/windEastward
+  #    is_in: 243, 253
   #  horizontal_mesh: 200
   #  vertical_mesh: 10000
   #  use_reduced_horizontal_grid: true
@@ -76,14 +79,16 @@
   # Assign the initial observation error, based on height/pressure
   # Hard-wiring to prepobs_errtable.global by Type
   # ObsError is currently not updating in diag file, but passes directly to EffectiveError when no inflation is specified in YAML
-  # Type 242 (Himawari VIS)
+  # Type 243  (MVIRI/SEVIRI VIS)
   - filter: Perform Action
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: ObsType/windEastward
-      is_in: 242
+      is_in: 243
+    minvalue: -135.
+    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -98,36 +103,16 @@
           errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
             5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
             7., 7., 7.]
-  # Type 250 (Himawari AHI WV, cloud-top or clear-sky)
+  # Type 253 (MVIRI/SEVERI LWIR)
   - filter: Perform Action
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: ObsType/windEastward
-      is_in: 250
-    action:
-      name: assign error
-      error function:
-        name: ObsFunction/ObsErrorModelStepwiseLinear
-        options:
-          xvar:
-            name: MetaData/pressure
-          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
-            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
-            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
-            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                              #Pressure (Pa)
-          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
-            5., 7., 7.3, 7.6, 8., 8., 8., 8., 8., 8., 8., 8., 8., 8., 8., 8., 8.,
-            8., 8., 8.]
-  # Type Type 252 (Himawari AHI LWIR)
-  - filter: Perform Action
-    filter variables:
-    - name: windEastward
-    - name: windNorthward
-    where:
-    - variable: ObsType/windEastward
-      is_in: 252
+      is_in: 253
+    minvalue: -135.
+    maxvalue: 135.
     action:
       name: assign error
       error function:
@@ -141,6 +126,30 @@
             500., 400., 300., 200., 100., 0.]                                                                                                                                                                                              #Pressure (Pa)
           errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
             5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
+            7., 7., 7.]
+  # Type 254 (MVIRI/SEVIRI WV, both cloud-top and clear-sky)
+  - filter: Perform Action
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 254
+    minvalue: -135.
+    maxvalue: 135.
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+            70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+            25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+            500., 400., 300., 200., 100., 0.]                                                                                                                                                                                              #Pressure (Pa)
+          errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4.5, 6.1,
+            6., 6.5, 7.3, 7.6, 7., 7.5, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
             7., 7., 7.]
   # sanity-check criteria
   # Observation Range Sanity Check
@@ -167,14 +176,14 @@
       name: reject
 
   # GSI read routine QC (part-1)
-  # Exclude Type 250 with windComputationMethod==5 (clear-sky WV) --- obs tossed without passing to setup routine
+  # Exclude Type 254 with windComputationMethod==5 (clear-sky WV) --- obs tossed without passing to setup routine
   - filter: Perform Action
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: ObsType/windNorthward
-      is_in: 250
+      is_in: 254
     - variable: MetaData/windComputationMethod
       is_in: 5
     action:
@@ -191,8 +200,26 @@
     action:
       name: reject
 
+  # Exclude data over non-water surface type where latitude > 20N for Type 253 (IRLW)  --- obs tossed and not passed to setup routine 
+  # Notes: This check was missing, so added (eliu)
+  #        Replace land_type_index_NPOSS with water_area_fraction (eliu)
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 253
+    - variable: MetaData/latitude
+      minvalue: 20.
+    test variables:
+    - name: GeoVaLs/water_area_fraction
+    minvalue: 0.99
+    action:
+      name: reject
+
   # GSI read routine QC (part-2)
-  # Reject obs with qiWithoutForecast < 85. (also > 100., which is missing data)
+  # Reject obs with qiWithoutForecast < 85. OR > 100.
   - filter: Bounds Check
     filter variables:
     - name: windEastward
@@ -204,39 +231,30 @@
     action:
       name: reject
 
-  # Reject Type 252 (IR) winds with a /=0 surface type (non-water surface) when latitude > 20.
-  - filter: Bounds Check
-    filter variables:
-    - name: windEastward
-    - name: windNorthward
-    where:
-    - variable:
-        name: GeoVaLs/water_area_fraction
-      maxvalue: 0.99
-    - variable:
-        name: ObsType/windEastward
-      is_in: 252
-    test variables:
-    - name: MetaData/latitude
-    maxvalue: 20.
-    action:
-      name: reject
-
-  # THINNING: Himawari winds are not prioritized
+  # THINNING: METEOSAT-9 Type-243/253 winds are thinned using priority_variable=MetaData/qiWithoutForecast
+  #           METEOSAT-9 Type-254 winds are NOT thinned
   - filter: Gaussian Thinning
     horizontal_mesh: 100
     vertical_mesh: 10000
+    priority_variable:
+      name: MetaData/qiWithoutForecast
     where:
+    - variable: ObsType/windEastward
+      is_in: 243,253
     - variable:
         name: MetaData/pressure
       minvalue: 50001.
   - filter: Gaussian Thinning
     horizontal_mesh: 90
     vertical_mesh: 10000
+    priority_variable:
+      name: MetaData/qiWithoutForecast
     where:
+    - variable: ObsType/windEastward
+      is_in: 243,253
     - variable:
         name: MetaData/pressure
-      maxvalue: 50000.
+      maxvalue: 50000. 
 
   # GSI setupw routine QC
   # Reject any ob Type [240–260] when pressure greater than 950 mb.
@@ -254,47 +272,45 @@
     action:
       name: reject
 
-  # IR (Type 242), reject when pressure is less than 700 mb
-  - filter: Bounds Check
-    filter variables:
-    - name: windEastward
-    - name: windNorthward
-    where:
-    - variable: ObsType/windEastward
-      is_in: 242
-    test variables:
-    - name: MetaData/pressure
-    minvalue: 70000.
-    action:
-      name: reject
-
-  # cloud-top WV (Type 250), reject when pressure greater than 399 mb.
-  # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
-  - filter: Bounds Check
-    filter variables:
-    - name: windEastward
-    - name: windNorthward
-    where:
-    - variable: ObsType/windEastward
-      is_in: 250
-    test variables:
-    - name: MetaData/pressure
-    maxvalue: 39900.
-    action:
-      name: reject
-
-  # JMA IR (252) reject when pressure between 499 and 801 mb.
-  # PERFORM ACTION: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
+  # EUMETSAT IR (253) reject when pressure between 401 and 801 mb.
   - filter: Perform Action
     filter variables:
     - name: windEastward
     - name: windNorthward
     where:
     - variable: MetaData/pressure
-      minvalue: 49901.
+      minvalue: 40101.
       maxvalue: 80099.
     - variable: ObsType/windEastward
-      is_in: 252
+      is_in: 253
+    action:
+      name: reject
+
+  # EUMET VIS (243) reject when pressure less than 700 mb.
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 243
+    test variables:
+    - name: MetaData/pressure
+    minvalue: 70000.
+    action:
+      name: reject
+
+  # EUMET WV (254) reject when pressure greater than 399 mb.
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    where:
+    - variable: ObsType/windEastward
+      is_in: 254
+    test variables:
+    - name: MetaData/pressure
+    maxvalue: 39900.
     action:
       name: reject
 

@@ -231,6 +231,31 @@
     action:
       name: reject
 
+  # THINNING: METEOSAT-8 Type-243/253 winds are thinned using priority_variable=MetaData/qiWithoutForecast
+  #           METEOSAT-8 Type-254 winds are NOT thinned
+  - filter: Gaussian Thinning
+    horizontal_mesh: 100
+    vertical_mesh: 10000
+    priority_variable:
+      name: MetaData/qiWithoutForecast
+    where:
+    - variable: ObsType/windEastward
+      is_in: 243,253
+    - variable:
+        name: MetaData/pressure
+      minvalue: 50001.
+  - filter: Gaussian Thinning
+    horizontal_mesh: 90
+    vertical_mesh: 10000
+    priority_variable:
+      name: MetaData/qiWithoutForecast
+    where:
+    - variable: ObsType/windEastward
+      is_in: 243,253
+    - variable:
+        name: MetaData/pressure
+      maxvalue: 50000. 
+
   # GSI setupw routine QC
   # Reject any ob Type [240–260] when pressure greater than 950 mb.
   # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa    

@@ -3,7 +3,7 @@
   # Observation Space (I/O)
   # -----------------------
   obs space:
-    name: satwind_ahi_h8
+    name: satwind_ahi_h9
     obsdatain:
       engine:
         type: H5File
@@ -221,7 +221,7 @@
     maxvalue: 20.
     action:
       name: reject
-
+  
   # THINNING: Himawari winds are not prioritized
   - filter: Gaussian Thinning
     horizontal_mesh: 100
@@ -237,7 +237,7 @@
     - variable:
         name: MetaData/pressure
       maxvalue: 50000.
-
+  
   # GSI setupw routine QC
   # Reject any ob Type [240–260] when pressure greater than 950 mb.
   # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa    
