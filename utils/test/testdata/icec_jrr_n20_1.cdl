@@ -120,19 +120,6 @@ variables:
 		Tot_QA_Uncertain:long_name = "Total number of pixels with QA category 2 (Uncertain or suboptimal)" ;
 		Tot_QA_Uncertain:_FillValue = 0 ;
 		Tot_QA_Uncertain:units = "1" ;
-	int64 cloud_mask_granule_level_quality_flag ;
-		cloud_mask_granule_level_quality_flag:long_name = "Cloud Mask Granule Level Degradation Quality Flag" ;
-		cloud_mask_granule_level_quality_flag:flag_values = 0LL, 1LL, 63LL ;
-		cloud_mask_granule_level_quality_flag:flag_meanings = "Missing_Channel_Degradation Missing_Ancillary_SST_Degradation Complete_IR_Failure" ;
-		cloud_mask_granule_level_quality_flag:units = "1" ;
-		cloud_mask_granule_level_quality_flag:_FillValue = -999LL ;
-		cloud_mask_granule_level_quality_flag:valid_range = 0LL, 63LL ;
-	ubyte quality_information ;
-		quality_information:long_name = "total number of retrievals, percentage of optimal retrievals, percentage_sub_optimal_retrievals, percentage of bad retrievals" ;
-		quality_information:total_number_retrievals = 2450029 ;
-		quality_information:percentage_optimal_retrievals = 1.511003f ;
-		quality_information:percentage_sub_optimal_retrievals = 2.04471f ;
-		quality_information:percentage_bad_retrievals = 96.44428f ;
 
 // global attributes:
 		:Conventions = "CF-1.6,ACDD 1.3" ;
@@ -734,8 +721,4 @@ data:
  Tot_QA_Normal = 37020 ;
 
  Tot_QA_Uncertain = 50096 ;
-
- cloud_mask_granule_level_quality_flag = 0 ;
-
- quality_information = 255 ;
 }
