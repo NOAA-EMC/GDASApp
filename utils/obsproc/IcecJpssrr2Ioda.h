@@ -113,7 +113,7 @@ namespace gdasapp {
 
       // basic test for iodaVars.trim
       Eigen::Array<bool, Eigen::Dynamic, 1> mask =
-          (iodaVars.obsVal_ >= 0.0 &&
+          ((iodaVars.obsVal_ >= 0.0 && iodaVars.obsVal_ <= 1.0) &&
            iodaVars.datetime_ > 0.0 &&
           (iodaVars.latitude_ <= -40.0 || iodaVars.latitude_ >= 40.0));
       iodaVars.trim(mask);
