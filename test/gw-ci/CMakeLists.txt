@@ -20,7 +20,7 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   # 1/2 cycle gdasfcst
   message(STATUS "preparing 1/2 cycle gdasfcst for ${pslot} ctest")
   add_test(NAME ${pslot}_gdasfcst_${HALF_CYCLE}
-           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasfcst ${HALF_CYCLE}"
+           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasfcst_seg0 ${HALF_CYCLE}"
            WORKING_DIRECTORY ${RUNTESTS})
   set_tests_properties(${pslot}_gdasfcst_${HALF_CYCLE} PROPERTIES LABELS "manual")
 
@@ -57,7 +57,7 @@ add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_
 # Aero-Land DA, C96
 # -----------------
 set(pslot "Aero-Snow-3DVAR-C96")
-set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96_atmaerosnowDA.yaml)
+set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96C48_hybatmaerosnowDA.yaml)
 set(TASK_LIST)  # empty list for now
 add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
