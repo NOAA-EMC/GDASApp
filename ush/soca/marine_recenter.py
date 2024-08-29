@@ -143,7 +143,7 @@ class MarineRecenter(Task):
                                        f'enkf{RUN}.{gPDYstr}',
                                        f'{gcyc}',
                                        f'mem{str(mem).zfill(3)}',
-                                       'model_data',
+                                       'model',
                                        domain,
                                        'history')
                 mem_dir_real = os.path.realpath(mem_dir)
