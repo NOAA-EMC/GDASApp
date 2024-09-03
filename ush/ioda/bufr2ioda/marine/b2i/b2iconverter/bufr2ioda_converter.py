@@ -2,24 +2,26 @@ import sys
 import numpy as np
 import numpy.ma as ma
 import os
-# import argparse
-import math
-import calendar
 import time
-import copy
 from datetime import datetime
 from pyiodaconv import bufr
 from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
-from wxflow import Logger
-import warnings
-# suppress warnings
-warnings.filterwarnings('ignore')
 from .util import ParseArguments, run_diff
 from .bufr2ioda_config import Bufr2iodaConfig
 import logging
 import tempfile
 
+
+# the converter takes a configuration class as input,
+# creates the logger and provides a method to run the converter
+# and to test the result
+# for testing purposes a temporary file is written by the logger
+# and it is compared to a reference file
+# the logger provides simple human readable numbers,
+# as well as cryptographic hashes generated from input
+# the hashes are deterministic, yet they are supposedly capable
+# of detecting an error with high probability
 
 class Bufr2ioda_Converter:
     def __init__(self, bufr2ioda_config, ioda_vars, logfile):
@@ -63,23 +65,25 @@ class Bufr2ioda_Converter:
 
         self.ioda_vars.filter()
 
-        # set seqNum, PreQC, ObsError
-        self.ioda_vars.SetAdditionalData()
+        # set seqNum, PreQC, ObsError, OceanBasin
+        self.ioda_vars.additional_vars.construct()
 
         iodafile_path = self.bufr2ioda_config.IODAFilepath()
         path, fname = os.path.split(iodafile_path)
         os.makedirs(path, exist_ok=True)
 
-        dims = {'Location': np.arange(0, self.ioda_vars.lat.shape[0])}
+        metadata = self.ioda_vars.metadata
+
+        dims = {'Location': np.arange(0, metadata.lat.shape[0])}
         obsspace = ioda_ospace.ObsSpace(iodafile_path, mode='w', dim_dict=dims)
         self.logger.debug(f"Created IODA file: {iodafile_path}")
 
-        date_range = [str(self.ioda_vars.dateTime.min()), str(self.ioda_vars.dateTime.max())]
+        date_range = [str(metadata.dateTime.min()), str(metadata.dateTime.max())]
         self.logger.debug(f"CreateGlobalAttributes")
         self.bufr2ioda_config.CreateIODAAttributes(obsspace, date_range)
 
-        self.logger.debug(f"createIODAVars")
-        self.ioda_vars.createIODAVars(obsspace)
+        self.logger.debug(f"ioda_vars.WriteToIodaFile")
+        self.ioda_vars.WriteToIodaFile(obsspace)
 
         if (self.logfile):
             self.logger.addHandler(self.file_handler)

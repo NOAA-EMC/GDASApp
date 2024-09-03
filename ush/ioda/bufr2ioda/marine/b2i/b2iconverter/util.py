@@ -4,6 +4,7 @@ import argparse
 import subprocess
 import numpy as np
 import tempfile
+import hashlib
 
 
 def ParseArguments():
@@ -23,7 +24,6 @@ def ParseArguments():
         type=str,
         help='Input test reference file'
     )
-
     args = parser.parse_args()
     config_file = args.config
     log_file = args.log_file
@@ -32,11 +32,8 @@ def ParseArguments():
     return script_name, config_file, log_file, test_file
 
 
-def Compute_sequenceNumber(lon):
-    lon_u, seqNum = np.unique(lon, return_inverse=True)
-    seqNum = seqNum.astype(np.int32)
-    # logger.debug(f"Len of Sequence Number: {len(seqNum)}")
-    return seqNum
+def LogVariable(logger, v_name, v):
+    logger.debug(f"{v_name}: {len(v)}, {v.dtype}    min, max = {v.min()}, {v.max()}")
 
 
 def run_diff(file1, file2, logger):
@@ -51,6 +48,9 @@ def run_diff(file1, file2, logger):
         if result.returncode == 0:
             pass
         elif result.returncode == 1:
+            logger.error("diff on files:")
+            logger.error(f"{file1}")
+            logger.error(f"{file2}")
             logger.error("Files are different:")
             logger.error(f"{result.stdout}")
         else:
@@ -61,3 +61,116 @@ def run_diff(file1, file2, logger):
         logger.error(f"Error occurred: {e}")
 
     return result.returncode
+
+
+# use hash for testing;
+def compute_hash(sequence, algorithm='sha256'):
+    """
+    Compute a hash of the given sequence using the specified algorithm.
+
+    :param sequence: A sequence of numbers (e.g., list of integers).
+    :param algorithm: The hash algorithm to use (e.g., 'sha256').
+    :return: The hexadecimal digest of the hash.
+    """
+    # Convert the sequence to a byte string
+    sequence_bytes = bytes(sequence)
+    # Create a hash object
+    hash_obj = hashlib.new(algorithm)
+    # Update the hash object with the byte string
+    hash_obj.update(sequence_bytes)
+    # Return the hexadecimal digest of the hash
+    return hash_obj.hexdigest()
+
+
+#####################################################################
+
+def WriteDateTime(obsspace, dateTime):
+    obsspace.create_var(
+        'MetaData/dateTime',
+        dtype=dateTime.dtype, fillval=dateTime.fill_value
+    ) \
+        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
+        .write_attr('long_name', 'Datetime') \
+        .write_data(dateTime)
+
+
+def WriteRcptDateTime(obsspace, rcptdateTime):
+    obsspace.create_var(
+        'MetaData/rcptdateTime',
+        dtype=rcptdateTime.dtype, fillval=rcptdateTime.fill_value
+    ) \
+        .write_attr('units', 'seconds since 1970-01-01T00:00:00Z') \
+        .write_attr('long_name', 'receipt Datetime') \
+        .write_data(rcptdateTime)
+
+
+def WriteLongitude(obsspace, lon):
+    obsspace.create_var(
+        'MetaData/longitude',
+        dtype=lon.dtype, fillval=lon.fill_value
+    ) \
+        .write_attr('units', 'degrees_east') \
+        .write_attr('valid_range', np.array([-180, 180], dtype=np.float32)) \
+        .write_attr('long_name', 'Longitude') \
+        .write_data(lon)
+
+
+def WriteLatitude(obsspace, lat):
+    obsspace.create_var(
+        'MetaData/latitude',
+        dtype=lat.dtype, fillval=lat.fill_value
+    ) \
+        .write_attr('units', 'degrees_north') \
+        .write_attr('valid_range', np.array([-90, 90], dtype=np.float32)) \
+        .write_attr('long_name', 'Latitude') \
+        .write_data(lat)
+
+
+def WriteStationID(obsspace, stationID):
+    obsspace.create_var(
+        'MetaData/stationID',
+        dtype=stationID.dtype, fillval=stationID.fill_value
+    ) \
+        .write_attr('long_name', 'Station Identification') \
+        .write_data(stationID)
+
+
+def WriteDepth(obsspace, depth):
+    obsspace.create_var(
+        'MetaData/depth',
+        dtype=depth.dtype,
+        fillval=depth.fill_value
+    ) \
+        .write_attr('units', 'm') \
+        .write_attr('long_name', 'Water depth') \
+        .write_data(depth)
+
+
+def WriteSeqNum(obsspace, seqNum, datatype, fillvalue):
+    obsspace.create_var(
+        'MetaData/sequenceNumber',
+        dtype=datatype,
+        fillval=fillvalue
+    ) \
+        .write_attr('long_name', 'Sequence Number') \
+        .write_data(seqNum)
+
+
+def WriteObsError(obsspace, v_name, units, v):
+    obsspace.create_var(
+        v_name,
+        dtype=v.dtype, fillval=v.fill_value
+    ) \
+        .write_attr('units', units) \
+        .write_attr('long_name', 'ObsError') \
+        .write_data(v)
+
+
+def WriteOceanBasin(obsspace, ocean_basin, datatype, fillvalue):
+    obsspace.create_var(
+        'MetaData/oceanBasin',
+        dtype=datatype,
+        fillval=fillvalue
+    ) \
+        .write_attr('long_name', 'Ocean basin') \
+        .write_data(ocean_basin)

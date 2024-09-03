@@ -1,7 +1,13 @@
 import json
 import yaml
 import os
+import sys
 
+
+# configuration file can be either json or yaml
+# this config class provides the functions that determine
+# the names and the paths of the bufr input and the ioda output files
+# these functions can be overridden in the converter
 
 class Bufr2iodaConfig:
     def __init__(self, script_name, config_file, platform_description):
@@ -9,7 +15,6 @@ class Bufr2iodaConfig:
         self.platform_description = platform_description
 
         _, file_extension = os.path.splitext(config_file)
-
         if file_extension == ".json":
             with open(config_file, "r") as file:
                 config = json.load(file)
@@ -19,11 +24,12 @@ class Bufr2iodaConfig:
                 config = yaml.safe_load(file)
             self.ReadConfig(config)
         else:
-            print("Unknown file extension = ", file_extension)
+            print("Fatal error: Unknown file extension = ", file_extension)
+            sys.exit(1)
 
     def ReadConfig(self, config):
-        subsets = config["subsets"]
-
+        # subsets was unused in the config file ???
+        # subsets = config["subsets"]
         # Get parameters from configuration
         self.data_format = config["data_format"]
         self.source = config["source"]

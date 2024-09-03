@@ -7,12 +7,20 @@ from b2iconverter.bufr2ioda_converter import Bufr2ioda_Converter
 from argo_ioda_variables import ArgoIODAVariables
 
 
+platform_description = 'ARGO profiles from subpfl: temperature and salinity'
+ocean_basin_nc_file_path = "/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
+
+
+class ArgoConfig(Bufr2iodaConfig):
+    def IODAFilename(self):
+        return f"{self.cycle_type}.t{self.hh}z.insitu_profile_argo.{self.cycle_datetime}.nc4"
+
+
 if __name__ == '__main__':
 
     script_name, config_file, log_file, test_file = ParseArguments()
 
-    platform_description = 'ARGO profiles from subpfl: temperature and salinity'
-    bufr2ioda_config = Bufr2iodaConfig(
+    bufr2ioda_config = ArgoConfig(
         script_name,
         config_file,
         platform_description)
@@ -22,6 +30,8 @@ if __name__ == '__main__':
     ioda_vars.SetTemperatureError(0.02)
     ioda_vars.SetSalinityVarName("salinity")
     ioda_vars.SetSalinityError(0.01)
+    ioda_vars.SetOceanBasinNCFilePath(ocean_basin_nc_file_path)
+
     argo = Bufr2ioda_Converter(bufr2ioda_config, ioda_vars, log_file)
 
     argo.run()

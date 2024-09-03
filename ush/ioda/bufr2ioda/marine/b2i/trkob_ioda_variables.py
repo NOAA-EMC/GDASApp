@@ -1,12 +1,16 @@
 import numpy as np
 from pyiodaconv import bufr
 from b2iconverter.ioda_variables import IODAVariables
-from b2iconverter.util import Compute_sequenceNumber
+from b2iconverter.ioda_addl_vars import IODAAdditionalVariables
+from b2iconverter.ioda_metadata import IODAMetadata
+from b2iconverter.util import WriteDateTime, WriteRcptDateTime, WriteLongitude, WriteLatitude, WriteStationID
 
 
 class TrkobIODAVariables(IODAVariables):
     def __init__(self):
-        super().__init__()
+        self.construct()
+        self.metadata = TrkobMetadata()
+        self.additional_vars = TrkobAdditionalVariables(self)
 
     def BuildQuery(self):
         q = super().BuildQuery()
@@ -14,7 +18,6 @@ class TrkobIODAVariables(IODAVariables):
         q.add('latitude', '*/CLAT')
         q.add('longitude', '*/CLON')
         q.add('depth', '*/BTOCN/DBSS')
-        # ObsValue
         q.add('temp', '*/BTOCN/STMP')
         q.add('saln', '*/BTOCN/SALN')
         return q
@@ -22,41 +25,63 @@ class TrkobIODAVariables(IODAVariables):
     def filter(self):
         mask = self.TemperatureFilter() \
             & self.SalinityFilter()
-        self.n_obs = len(mask)
-
         self.temp = self.temp[mask]
         self.saln = self.saln[mask]
+        self.metadata.filter(mask)
+
+
+class TrkobMetadata(IODAMetadata):
+
+    def SetFromQueryResult(self, r):
+        self.SetDateTimeFromQueryResult(r)
+        self.SetRcptDateTimeFromQueryResult(r)
+        self.SetLonFromQueryResult(r)
+        self.SetLatFromQueryResult(r)
+        self.SetStationIDFromQueryResult(r)
+
+    def filter(self, mask):
+        self.dateTime = self.dateTime[mask]
+        self.rcptdateTime = self.rcptdateTime[mask]
         self.lat = self.lat[mask]
         self.lon = self.lon[mask]
         self.stationID = self.stationID[mask]
-        self.dateTime = self.dateTime[mask]
-        self.rcptdateTime = self.rcptdateTime[mask]
 
-    def SetAdditionalData(self):
-        self.PreQC = (np.ma.masked_array(np.full((self.n_obs), 0))).astype(np.int32)
-        self.ObsError_temp = \
-            np.float32(np.ma.masked_array(np.full((self.n_obs), self.T_error)))
-        self.ObsError_saln = \
-            np.float32(np.ma.masked_array(np.full((self.n_obs), self.S_error)))
+    def WriteToIodaFile(self, obsspace):
+        WriteDateTime(obsspace, self.dateTime)
+        WriteRcptDateTime(obsspace, self.rcptdateTime)
+        WriteLongitude(obsspace, self.lon)
+        WriteLatitude(obsspace, self.lat)
+        WriteStationID(obsspace, self.stationID)
 
-    def createIODAVars(self, obsspace):
-        self.WriteBasicMetadata(obsspace)
-
-        self.WriteStationID(obsspace)
-
-        self.WritePreQC(obsspace, self.T_name)
-        self.WritePreQC(obsspace, self.S_name)
-        self.WriteObsErrorT(obsspace)
-        self.WriteObsErrorS(obsspace)
-        self.WriteObsValueT(obsspace)
-        self.WriteObsValueS(obsspace)
-
-    def logMetadata(self, logger):
-        self.logDates(logger)
-        self.logLonLat(logger)
+    def log(self, logger):
+        self.logDateTime(logger)
+        self.logRcptDateTime(logger)
+        # self.logLonLat(logger)
+        self.logLongitude(logger)
+        self.logLatitude(logger)
         self.logStationID(logger)
 
-    def logAdditionalData(self, logger):
-        self.LogPreQC(logger)
-        self.LogObsError_temp(logger)
-        self.LogObsError_saln(logger)
+
+class TrkobAdditionalVariables(IODAAdditionalVariables):
+
+    def construct(self):
+        n = len(self.ioda_vars.temp)
+        self.PreQC = (np.ma.masked_array(np.full(n, 0))).astype(np.int32)
+        self.ObsError_temp = \
+            np.float32(np.ma.masked_array(np.full(n, self.ioda_vars.T_error)))
+        self.ObsError_saln = \
+            np.float32(np.ma.masked_array(np.full(n, self.ioda_vars.S_error)))
+        self.ComputeOceanBasin()
+
+    def WriteToIodaFile(self, obsspace):
+        self.WritePreQC(obsspace, self.ioda_vars.T_name)
+        self.WritePreQC(obsspace, self.ioda_vars.S_name)
+        self.WriteObsErrorT(obsspace)
+        self.WriteObsErrorS(obsspace)
+        self.WriteOceanBasin(obsspace)
+
+    def log(self, logger):
+        self.logPreQC(logger)
+        self.logObsError_temp(logger)
+        self.logObsError_saln(logger)
+        self.logOceanBasin(logger)

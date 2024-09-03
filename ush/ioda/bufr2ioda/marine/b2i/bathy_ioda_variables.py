@@ -1,12 +1,13 @@
 import numpy as np
 from pyiodaconv import bufr
 from b2iconverter.ioda_variables import IODAVariables
-from b2iconverter.util import Compute_sequenceNumber
+from b2iconverter.ioda_addl_vars import IODAAdditionalVariables, ComputeSeqNum
 
 
 class BathyIODAVariables(IODAVariables):
     def __init__(self):
-        super().__init__()
+        self.construct()
+        self.additional_vars = BathyAdditionalVariables(self)
 
     def BuildQuery(self):
         q = super().BuildQuery()
@@ -14,7 +15,6 @@ class BathyIODAVariables(IODAVariables):
         q.add('latitude', '*/CLAT')
         q.add('longitude', '*/CLON')
         q.add('depth', '*/BTOCN/DBSS')
-        # ObsValue
         q.add('temp', '*/BTOCN/STMP')
         return q
 
@@ -24,34 +24,36 @@ class BathyIODAVariables(IODAVariables):
 
     def filter(self):
         mask = self.TemperatureFilter()
-        self.n_obs = len(mask)
-
-        self.lat = self.lat[mask]
-        self.lon = self.lon[mask]
-        self.depth = self.depth[mask]
-        self.stationID = self.stationID[mask]
-        self.dateTime = self.dateTime[mask]
-        self.rcptdateTime = self.rcptdateTime[mask]
+        self.metadata.filter(mask)
         self.temp = self.temp[mask]
 
-    def SetAdditionalData(self):
-        self.seqNum = Compute_sequenceNumber(self.lon)
-        self.PreQC = (np.ma.masked_array(np.full((self.n_obs), 0))).astype(np.int32)
-
-        # ObsError -- UNUSED
-        # ObsError_temp = np.float32(np.ma.masked_array(np.full((len(temp)), 0.24)))
-
-    def createIODAVars(self, obsspace):
-        self.WriteBasicMetadata(obsspace)
-        self.WriteStationID(obsspace)
-        self.WriteDepth(obsspace)
-        self.WriteSequenceNumber(obsspace)
-        self.WritePreQC(obsspace, self.T_name)
+    def WriteToIodaFile(self, obsspace):
+        self.metadata.WriteToIodaFile(obsspace)
+        self.additional_vars.WriteToIodaFile(obsspace)
         self.WriteObsValueT(obsspace)
 
     def logObs(self, logger):
         self.logTemperature(logger)
 
-    def logAdditionalData(self, logger):
-        self.LogSeqNum(logger)
-        self.LogPreQC(logger)
+
+class BathyAdditionalVariables(IODAAdditionalVariables):
+
+    def construct(self):
+        self.seqNum = ComputeSeqNum(self.ioda_vars.metadata.lon, self.ioda_vars.metadata.lat)
+        n = len(self.seqNum)
+        self.PreQC = (np.ma.masked_array(np.full(n, 0))).astype(np.int32)
+        self.ObsError_temp = \
+            np.float32(np.ma.masked_array(np.full(n, self.ioda_vars.T_error)))
+        self.ComputeOceanBasin()
+
+    def WriteToIodaFile(self, obsspace):
+        self.WriteSeqNum(obsspace)
+        self.WritePreQC(obsspace, self.ioda_vars.T_name)
+        self.WriteObsErrorT(obsspace)
+        self.WriteOceanBasin(obsspace)
+
+    def log(self, logger):
+        self.logSeqNum(logger)
+        self.logPreQC(logger)
+        self.logObsError_temp(logger)
+        self.logOceanBasin(logger)
