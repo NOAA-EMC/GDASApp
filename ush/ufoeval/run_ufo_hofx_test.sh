@@ -28,11 +28,15 @@ usage() {
 
 # ==============================================================================
 
-cycle=2024021900
+# cycle=2024021900 # NE orig
+cycle=2021080100
 run_filtering=YES
 run_eva=YES
 eva_stats_only=NO
 keep_output=NO 
+
+export OOPS_DEBUG=1
+export OOPS_TRACE=1
 
 while getopts "c:hsxq" opt; do
   case $opt in
@@ -67,16 +71,18 @@ obtype=$1
 
 #--------------- User modified options below -----------------
 
-machine=${machine:-orion} 
+#machine=${machine:-orion} 
+machine=${machine:-hercules} 
 
-if [ $machine = orion ]; then
+if [ $machine = orion ] || [ $machine = hercules ]; then
    if [ $run_filtering == NO ]; then
       workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
       echo "Run without data filtering"
    else
       workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/${obtype}
    fi
-   GDASApp=${GDASApp:-/work2/noaa/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
+#   GDASApp=${GDASApp:-/work2/noaa/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
+   GDASApp=${GDASApp:-/work2/noaa/da/nesposito/GDASApp_20240821/}
    JCBinstall=${JCBinstall:-/work2/noaa/da/cmartin/CI/GDASApp/opt}
    JCBpylib=$JCBinstall/lib/python3.7/site-packages
 elif [ $machine = hera ]; then
@@ -103,7 +109,7 @@ exename=test_ObsFilters.x
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
 
-dataprocdate=20240815 # Production date of test data
+dataprocdate=20210801 # Production date of test data
 
 obtype_short=${obtype:0:4}
 if [ $obtype_short = "cris" ] || [ $obtype_short = "iasi" ] || [ $obtype_short = "hirs" ] || [ $obtype_short = "sevi" ] || \
@@ -114,8 +120,9 @@ else
    radiance="NO"
 fi
 
-if [ $machine = orion ]; then
-    export Datapath='/work2/noaa/da/acollard/UFO_eval/data/gsi_geovals_l127/nofgat_feb2024/'$dataprocdate 
+if [ $machine = orion ] || [ $machine = hercules ]; then
+#    export Datapath='/work2/noaa/da/acollard/UFO_eval/data/gsi_geovals_l127/nofgat_feb2024/'$dataprocdate 
+    export Datapath='/work2/noaa/da/esposito/ufoeval/GSIobserver_NE_ADC/'$dataprocdate'00/ioda/'
     FixDir=/work2/noaa/da/cmartin/GDASApp/fix
 elif [ $machine = hera ]; then
     export Datapath='/scratch1/NCEPDEV/da/Emily.Liu/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate
@@ -158,7 +165,8 @@ export GPREFIX=gdas.t${gcyc}z
 
 # Load Modules for GDASApp
 module use $GDASApp/modulefiles
-module load GDAS/$machine
+#module load GDAS/$machine
+module load GDAS/$machine.intel
 export PYTHONPATH=$GDASApp/ush:$PYTHONPATH
 
 # Create and set up the working directory
@@ -176,6 +184,7 @@ if [ $radiance = "YES" ]; then
 fi
 
 # Copy obs and geovals
+module load GDAS/$machine
 cp -rf $GeoDir/${obtype}_geoval_${cycle}.nc4 $workdir/${OPREFIX}.${obtype}_geoval.tm00.nc
 cp -rf $ObsDir/${obtype}_obs_${cycle}.nc4 $workdir/${OPREFIX}.${obtype}.tm00.nc
 
