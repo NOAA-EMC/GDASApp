@@ -17,6 +17,13 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   list(GET DATES_LIST 0 HALF_CYCLE)
   list(GET DATES_LIST 1 FULL_CYCLE)
 
+  # stage IC's
+  message(STATUS "staging the 1/2 cycle IC's for ${pslot} ctest")
+  add_test(NAME ${pslot}_gdasstage_ic_${HALF_CYCLE}
+           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasstage_ic ${HALF_CYCLE}"
+           WORKING_DIRECTORY ${RUNTESTS})
+  set_tests_properties(${pslot}_gdasstage_ic_${HALF_CYCLE} PROPERTIES LABELS "manual")
+
   # 1/2 cycle gdasfcst
   message(STATUS "preparing 1/2 cycle gdasfcst for ${pslot} ctest")
   add_test(NAME ${pslot}_gdasfcst_${HALF_CYCLE}
@@ -47,8 +54,8 @@ set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDA.yaml)
 set(TASK_LIST
   "gdasprepoceanobs"
   "gdasmarinebmat"
-  "gdasocnanalprep"
-  "gdasocnanalrun"
+  "gdasmarineanlinit"
+  "gdasmarineanlvar"
   "gdasocnanalchkpt"
   "gdasocnanalpost"
   )
