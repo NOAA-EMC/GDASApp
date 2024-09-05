@@ -17,12 +17,37 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   list(GET DATES_LIST 0 HALF_CYCLE)
   list(GET DATES_LIST 1 FULL_CYCLE)
 
+  # stage ics
+  message(STATUS "preparing gdasstage_ic  for ${pslot} ctest")
+  add_test(NAME ${pslot}_gdasstage_ic_${HALF_CYCLE}
+           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasstage_ic ${HALF_CYCLE}"
+           WORKING_DIRECTORY ${RUNTESTS})
+  set_tests_properties(${pslot}_gdasstage_ic_${HALF_CYCLE} PROPERTIES LABELS "manual")
+
+  # stage ensemble ics
+  if (enkf)
+    message(STATUS "preparing enkfgdasstage_ic  for ${pslot} ctest")
+    add_test(NAME ${pslot}_enkfgdasstage_${HALF_CYCLE}
+             COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasstage_ic ${HALF_CYCLE}"
+             WORKING_DIRECTORY ${RUNTESTS})
+    set_tests_properties(${pslot}_enkfgdasstage_ic_${HALF_CYCLE} PROPERTIES LABELS "manual")
+  endif()
+
   # 1/2 cycle gdasfcst
   message(STATUS "preparing 1/2 cycle gdasfcst for ${pslot} ctest")
-  add_test(NAME ${pslot}_gdasfcst_${HALF_CYCLE}
-           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasfcst ${HALF_CYCLE}"
+  add_test(NAME ${pslot}_gdasfcst_seg0_${HALF_CYCLE}
+           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasfcst_seg0 ${HALF_CYCLE}"
            WORKING_DIRECTORY ${RUNTESTS})
   set_tests_properties(${pslot}_gdasfcst_${HALF_CYCLE} PROPERTIES LABELS "manual")
+
+  # 1/2 cycle enkfgdasfcst
+  if (enkf)
+  message(STATUS "preparing 1/2 cycle enkfgdasfcst_mem001 for ${pslot} ctest")
+    add_test(NAME ${pslot}_enkfgdasfcst_mem001_${HALF_CYCLE}
+             COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasfcst_mem001 ${HALF_CYCLE}"
+             WORKING_DIRECTORY ${RUNTESTS})
+    set_tests_properties(${pslot}_enkfgdasfcst_mem001_${HALF_CYCLE} PROPERTIES LABELS "manual")
+  endif()
 
   # Select the list of tasks to run for the full cycle
   message(STATUS "Tasks ${TASK_LIST}")
@@ -54,12 +79,37 @@ set(TASK_LIST
   )
 add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
+# WCDA, low-res, ensemble da
+# -------------
+set(pslot "WCDA-3DVAR-C48mx500ens")
+set(enkf TRUE)
+set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDAens.yaml)
+# add half-cycle jobs
+set(TASK_LIST
+  "enkfgdasstage_ic"
+  "enkfgdasfcst_mem001"
+  "enkfgdasfcst_mem002"
+  "enkfgdasfcst_mem003"
+  )
+add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+
+set(TASK_LIST
+  "gdasprepoceanobs"
+  "gdasmarinebmat"
+  "gdasocnanalprep"
+  "gdasocnanalrun"
+  "gdasocnanalchkpt"
+  "gdasocnanalpost"
+  )
+add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+set(enkf FALSE)
+
 # Aero-Land DA, C96
 # -----------------
-set(pslot "Aero-Snow-3DVAR-C96")
-set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96_atmaerosnowDA.yaml)
-set(TASK_LIST)  # empty list for now
-add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+#set(pslot "Aero-Snow-3DVAR-C96")
+#set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96_atmaerosnowDA.yaml)
+#set(TASK_LIST)  # empty list for now
+#add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
 # Atm DA, C96/C48
 # ---------------
