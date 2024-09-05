@@ -9,13 +9,15 @@ usage() {
   echo
   echo "  -d  Run build and ctest for clone in <directory>"
   echo "  -o  Path to output message detailing results of CI tests"
+  echo "  -t  run the tier-2 testing, default is false"
   echo "  -h  display this message and quit"
   echo
   exit 1
 }
 
 # ==============================================================================
-while getopts "d:o:h" opt; do
+do_tier2="false"
+while getopts "d:o:h:t:" opt; do
   case $opt in
     d)
       repodir=$OPTARG
@@ -23,11 +25,15 @@ while getopts "d:o:h" opt; do
     o)
       outfile=$OPTARG
       ;;
+    t)
+      do_tier2=$OPTARG
+      ;;
     h|\?|:)
       usage
       ;;
   esac
 done
+echo "do_tier2: $do_tier2"
 
 # ==============================================================================
 # start output file
@@ -61,6 +67,15 @@ cd $repodir/sorc/gdas.cd/build
 module use $repodir/sorc/gdas.cd/modulefiles
 module load GDAS/$TARGET
 echo "---------------------------------------------------" >> $outfile
+# Reconfigure if the tier-2 testing is required
+# TODO: Not the most efficient, but even when exported, the variable is out of scope
+#       when running build.sh
+if [ "$do_tier2" = "true" ]; then
+  echo "Tier-2 Testing: Activated" >> $outfile
+  cmake -DGDAS_TIER2_TESTING=ON . >> log.cmake_tier2
+fi
+(cd gdas && ctest -N) >> log.gdasapp_tests
+
 rm -rf log.ctest
 ctest -R gdasapp --output-on-failure &>> log.ctest
 ctest_status=$?
