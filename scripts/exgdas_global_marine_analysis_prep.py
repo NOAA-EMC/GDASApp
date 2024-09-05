@@ -142,7 +142,7 @@ stage_cfg = Template.substitute_structure(stage_cfg, TemplateConstants.DOLLAR_PA
 # get the list of observations
 obs_files = []
 for ob in stage_cfg['observations']['observers']:
-    obs_files.append(f"{RUN}.t{cyc}z.{ob['obs space']['name'].lower()}.{PDY}{cyc}.nc4")
+    obs_files.append(f"{RUN}.t{cyc}z.{ob['obs space']['name'].lower()}.{PDY}{cyc}.nc")
 obs_list = []
 
 # copy obs from COM_OBS to DATA/obs

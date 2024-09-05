@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}icec_amsr2_north.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}icec_amsr2_north.${PDY}${cyc}.nc
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/icec_amsr2_north.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/diags/icec_amsr2_north.${PDY}${cyc}.nc
   simulated variables: [seaIceFraction]
   io pool:
     max pool size: 1

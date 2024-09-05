@@ -144,7 +144,7 @@ class PrepOceanObs(Task):
                         obsprep_space['input files'] = input_files
                         obsprep_space['window begin'] = self.window_begin
                         obsprep_space['window end'] = self.window_end
-                        ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc4"
+                        ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc"
                         obsprep_space['output file'] = ioda_filename
 
                         # set up the config file for conversion to IODA for bufr and
