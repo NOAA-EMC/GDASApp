@@ -6,10 +6,11 @@
   "dump_directory"   : "{{ DMPDIR }}",
   "ioda_directory"   : "{{ COM_OBS }}",
   "subsets"          : [ "NC005044", "NC005045", "NC005046" ],
-  "data_description" : "NC005044 JMA SATWIND, AHI HIM8 IR(LW)/VIS/WV-CT/WV-CS;  NC005045 JMA SATWIND, HIMAWARI-8 IR(LW)/VIS/WV-CT/WV-CS; NC005046 JMA SATWIND, HIMAWARI-8 IR(LW)/VIS/WV-CT/WV-CS", 
+  "data_description" : "NC005044 JMA SATWIND, AHI HIMAWARI IR(LW)/VIS/WV-CT/WV-CS;  NC005045 JMA SATWIND, AHI HIMAWARI IR(LW)/VIS/WV-CT/WV-CS; NC005046 JMA SATWIND, AHI HIMAWARI IR(LW)/VIS/WV-CT/WV-CS", 
   "data_provider"    : "JMA",
   "sensor_info"      : { "sensor_name": "AHI",  "sensor_full_name": "Advanced Himawari Imager",  "sensor_id": 999 },
   "satellite_info"   : [
                           { "satellite_name": "H8", "satellite_full_name": "Himawari-8", "satellite_id": 173, "launch time": "YYYYMMDD" },
-                      ]
+                          { "satellite_name": "H9", "satellite_full_name": "Himawari-9", "satellite_id": 174, "launch time": "YYYYMMDD" },
+                       ]
 }
