@@ -34,44 +34,44 @@ steric height:
   - linear variable change name: BalanceSOCA  # Only the steric balance is applied
 
 ensemble mean output:
-  datadir: ./diagb/
+  datadir: ./staticb/
   date: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
   exp: ens_mean
   type: incr
 
 ssh output:
   unbalanced:
-    datadir: ./diagb/
+    datadir: ./staticb/
     date: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
     exp: ssh_unbal_stddev
     type: incr
 
   steric:
-    datadir: ./diagb/
+    datadir: ./staticb/
     date: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
     exp: ssh_steric_stddev
     type: incr
 
   total:
-    datadir: ./diagb/
+    datadir: ./staticb/
     date: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
     exp: ssh_total_stddev
     type: incr
 
   explained variance:
-    datadir: ./diagb/
+    datadir: ./staticb/
     date: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
     exp: steric_explained_variance
     type: incr
 
   recentering error:
-    datadir: ./diagb/
+    datadir: ./staticb/
     date: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
     exp: ssh_recentering_error
     type: incr
 
 background error output:
-  datadir: ./diagb/
+  datadir: ./staticb/
   date: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
   exp: bkgerr_stddev
   type: incr

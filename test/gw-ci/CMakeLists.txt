@@ -56,9 +56,9 @@ set(TASK_LIST
   "gdasmarinebmat"
   "gdasmarineanlinit"
   "gdasmarineanlvar"
-  "gdasocnanalchkpt"
+  "gdasmarineanlchkpt"
   "gdasocnanalpost"
-  )
+w  )
 add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
 # Aero-Land DA, C96
@@ -81,10 +81,10 @@ set(pslot "GFSv17-3DVAR-C384mx025")
 set(YAML_PATH ${HOMEgfs}/ci/cases/gfsv17/C384mx025_3DVarAOWCDA.yaml)
 set(TASK_LIST
   "gdasprepoceanobs"
-  "gdasocnanalprep"
-  "gdasocnanalbmat"
-  "gdasocnanalrun"
-  "gdasocnanalchkpt"
+  "gdasmarinebmat"
+  "gdasmarineanlinit"
+  "gdasmarineanlvar"
+  "gdasmarineanlchkpt"
   "gdasocnanalpost"
   "gdasocnanalvrfy"
   "gdasprep"
