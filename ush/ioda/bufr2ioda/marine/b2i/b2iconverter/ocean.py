@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import os
+import sys
 import numpy as np
 import numpy.ma as ma
 import math
@@ -12,39 +14,66 @@ import xarray as xr
 # OceanBasin class provides a facility to add an OceanBasin
 # metadata variable using lon and lat
 # basic definition of ocean basins is read from an nc file,
-# like the following one
-# ocean_basin_nc_path = "/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
-# the actual path to the ocean basin nc file is supplied
+# We search for the filename, depending on the system
+# The path to the ocean basin nc file can be supplied
 # in the implementation of the converter
 
-# the main method is get_station_basin which returns the ocean basin
+# the main method is GetStationBasin which returns the ocean basin
 # for a list of station coordinates
 # there are methods for plotting and printing the ocean basin data
 # as well as printing and plotting station basin data
 
+
 class OceanBasin:
-    def print_basin(self):
+    def __init__(self):
+        self.FindOceanBasinNCFile()
+
+    def SetOceanBasinNCFilePath(self, filename):
+        self.ocean_basin_nc_file_path = filename
+
+    def FindOceanBasinNCFile(self):
+        # try on hera:
+        trypath = "/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
+        if os.path.exists(trypath):
+            self.ocean_basin_nc_file_path = trypath
+        else:
+            # try on orion
+            trypath = "/work/noaa/global/glopara/fix/gdas/soca/20240802/common/RECCAP2_region_masks_all_v20221025.nc"
+            if os.path.exists(trypath):
+                self.ocean_basin_nc_file_path = trypath
+            else:
+                # file not found
+                self.ocean_basin_nc_file_path = ""
+
+    def ReadNCFile(self):
+        try:
+            with nc.Dataset(self.ocean_basin_nc_file_path, 'r') as nc_file:
+                variable_name = 'open_ocean'
+                if variable_name in nc_file.variables:
+                    lat_dim = nc_file.dimensions['lat'].size
+                    lon_dim = nc_file.dimensions['lon'].size
+                    self.__latitudes = nc_file.variables['lat'][:]
+                    self.__longitudes = nc_file.variables['lon'][:]
+
+                    variable = nc_file.variables[variable_name]
+                    # Read the variable data into a numpy array
+                    variable_data = variable[:]
+                    # Convert to 2D numpy array
+                    self.__basin_array = np.reshape(variable_data, (lat_dim, lon_dim))
+        except FileNotFoundError:
+            print(f"The file {file_path} does not exist.")
+            sys.exit(1)
+        except IOError as e:
+            # Handle other I/O errors, such as permission errors
+            print(f"An IOError occurred: {e}")
+            sys.exit(1)
+
+    def PrintBasin(self):
         for i in range(n1):
             for j in range(n2):
                 print(i, j, self.__basin_array[i][j])
 
-    def read_nc_file(self, filename):
-        variable_name = 'open_ocean'
-        with nc.Dataset(filename, 'r') as nc_file:
-            if variable_name in nc_file.variables:
-                variable = nc_file.variables[variable_name]
-
-                lat_dim = nc_file.dimensions['lat'].size
-                lon_dim = nc_file.dimensions['lon'].size
-                self.__latitudes = nc_file.variables['lat'][:]
-                self.__longitudes = nc_file.variables['lon'][:]
-
-                # Read the variable data into a numpy array
-                variable_data = variable[:]
-                # Convert to 2D numpy array
-                self.__basin_array = np.reshape(variable_data, (lat_dim, lon_dim))
-
-    def plot_basin(self):
+    def PlotBasin(self):
         # Create a figure and axes with Cartopy projection
         fig = plt.figure(figsize=(10, 6))
         ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
@@ -67,7 +96,7 @@ class OceanBasin:
 
     # input: 2 vectors of station coordinates
     # output: a vector of station ocean basin values
-    def get_station_basin(self, lat, lon):
+    def GetStationBasin(self, lat, lon):
         n = len(lon)
         # print("number of stations = ", n)
 
@@ -85,15 +114,15 @@ class OceanBasin:
                 ocean_basin.append(self.__basin_array[i1][i2])
         return ocean_basin
 
-    def print_station_basins(self, lon, lat, file_path):
-        ocean_basin = self.get_station_basin(lat, lon)
+    def PrintStationBasin(self, lon, lat, file_path):
+        ocean_basin = self.GetStationBasin(lat, lon)
         with open(file_path, 'w') as file:
             # Iterate over lon, lat, and ocean_basin arrays simultaneously
             for lat_val, lon_val, basin_val in zip(lat, lon, ocean_basin):
                 file.write(f"{lat_val} {lon_val} {basin_val}\n")
 
-    def plot_stations(self, lon, lat, png_file):
-        ocean_basin = self.get_station_basin(lon, lat)
+    def PlotStations(self, lon, lat, png_file):
+        ocean_basin = self.GetStationBasin(lon, lat)
 
         # Initialize the plot
         plt.figure(figsize=(12, 8))

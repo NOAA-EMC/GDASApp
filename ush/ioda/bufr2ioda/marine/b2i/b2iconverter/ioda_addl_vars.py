@@ -7,6 +7,7 @@ from .util import *
 class IODAAdditionalVariables:
     def __init__(self, ioda_vars):
         self.ioda_vars = ioda_vars
+        self.ocean = OceanBasin()
 
     def construct(self):
         self.seqNum = ComputeSeqNum(self.ioda_vars.metadata.lon,
@@ -20,19 +21,13 @@ class IODAAdditionalVariables:
         self.ComputeOceanBasin()
 
     def SetOceanBasinNCFilePath(self, nc_file_path):
-        self.ocean_basin_nc_file_path = nc_file_path
+        self.ocean.SetOceanBasinNCFilePath(nc_file_path)
 
     def ComputeOceanBasin(self):
-        try:
-            ocean = OceanBasin()
-            ocean.read_nc_file(self.ocean_basin_nc_file_path)
-        except Exception as e:
-            print(f"Fatal error: unable to read ocean basin file {self.ocean_basin_nc_file_path}")
-            sys.exit(1)
         lat = self.ioda_vars.metadata.lat
         lon = self.ioda_vars.metadata.lon
-        # self.OceanBasin = ocean.get_station_basin(lat, lon)
-        ob = ocean.get_station_basin(lat, lon)
+        self.ocean.ReadNCFile()
+        ob = self.ocean.GetStationBasin(lat, lon)
         self.OceanBasin = np.array(ob, dtype=np.int32)
 
     def SetTemperatureError(self, e):

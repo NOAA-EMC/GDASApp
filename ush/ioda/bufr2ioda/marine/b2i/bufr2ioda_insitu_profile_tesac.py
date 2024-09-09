@@ -9,8 +9,6 @@ from tesac_ioda_variables import TesacIODAVariables
 
 platform_description = 'Profiles from TESAC: temperature and salinity'
 
-ocean_basin_nc_file_path = "/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
-
 
 if __name__ == '__main__':
 
@@ -26,7 +24,6 @@ if __name__ == '__main__':
     ioda_vars.SetTemperatureVarName("waterTemperature")
     ioda_vars.SetSalinityError(0.01)
     ioda_vars.SetSalinityVarName("salinity")
-    ioda_vars.SetOceanBasinNCFilePath(ocean_basin_nc_file_path)
 
     tesac = Bufr2ioda_Converter(bufr2ioda_config, ioda_vars, log_file)
 

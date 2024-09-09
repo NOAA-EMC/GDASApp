@@ -8,7 +8,6 @@ from argo_ioda_variables import ArgoIODAVariables
 
 
 platform_description = 'ARGO profiles from subpfl: temperature and salinity'
-ocean_basin_nc_file_path = "/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
 
 
 class ArgoConfig(Bufr2iodaConfig):
@@ -30,7 +29,6 @@ if __name__ == '__main__':
     ioda_vars.SetTemperatureError(0.02)
     ioda_vars.SetSalinityVarName("salinity")
     ioda_vars.SetSalinityError(0.01)
-    ioda_vars.SetOceanBasinNCFilePath(ocean_basin_nc_file_path)
 
     argo = Bufr2ioda_Converter(bufr2ioda_config, ioda_vars, log_file)
 

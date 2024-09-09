@@ -9,8 +9,6 @@ from bathy_ioda_variables import BathyIODAVariables
 
 platform_description = 'Profiles from BATHYthermal: temperature'
 
-ocean_basin_nc_file_path = "/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
-
 
 if __name__ == '__main__':
 
@@ -25,7 +23,6 @@ if __name__ == '__main__':
     # ??? ioda_vars.SetTemperatureError(0.3)
     # ??? ioda_vars.SetSalinityError(1.0)
     ioda_vars.SetTemperatureVarName("waterTemperature")
-    ioda_vars.SetOceanBasinNCFilePath(ocean_basin_nc_file_path)
 
     bathy = Bufr2ioda_Converter(bufr2ioda_config, ioda_vars, log_file)
 

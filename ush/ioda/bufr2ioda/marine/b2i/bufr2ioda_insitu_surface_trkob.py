@@ -9,8 +9,6 @@ from trkob_ioda_variables import TrkobIODAVariables
 
 platform_description = 'Surface obs from TRACKOB: temperature and salinity'
 
-ocean_basin_nc_file_path = "/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
-
 
 class TrkobConfig(Bufr2iodaConfig):
     def IODAFilename(self):
@@ -31,7 +29,6 @@ if __name__ == '__main__':
     ioda_vars.SetTemperatureError(0.3)
     ioda_vars.SetSalinityVarName("seaSurfaceSalinity")
     ioda_vars.SetSalinityError(1.0)
-    ioda_vars.SetOceanBasinNCFilePath(ocean_basin_nc_file_path)
 
     trkob = Bufr2ioda_Converter(bufr2ioda_config, ioda_vars, log_file)
     trkob.run()
