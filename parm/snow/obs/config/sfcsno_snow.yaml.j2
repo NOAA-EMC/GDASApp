@@ -5,12 +5,13 @@
       halo size: 250e3
     obsdatain:
       engine:
-        type: H5File
-        obsfile: '{{ DATA }}/obs/{{ OPREFIX }}sfcsno_snow.nc4'
+        type: bufr
+        obsfile: '{{ DATA }}/obs/{{ OPREFIX }}sfcsno.tm00.bufr_d'
+        mapping file: '{{ DATA }}/obs/bufr_sfcsno_mapping.yaml'
     obsdataout:
       engine:
         type: H5File
-        obsfile: '{{ DATA }}/diags/diag_sfcsno_snow.nc4'
+        obsfile: '{{ DATA }}/obs/{{ OPREFIX }}sfcsno_snow.nc4'
     simulated variables: [totalSnowDepth]
   obs operator:
     name: Composite
