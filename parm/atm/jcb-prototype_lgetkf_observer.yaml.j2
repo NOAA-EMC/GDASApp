@@ -1,6 +1,15 @@
+# Use observations for lgetkf
+# ---------------------------
+app_path_observations: {{PARMgfs}}/gdas/jcb-gdas/observations/atmosphere-lgetkf
+app_path_observation_chronicle: {{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/atmosphere
+
 # Algorithm
 # ---------
-algorithm: 3dvar
+algorithm: local_ensemble_da_observer
+
+# Model things
+# ------------
+atmosphere_background_ensemble_path: ./bkg/mem%mem%
 
 # Observation things
 # ------------------
@@ -29,3 +38,9 @@ observations:
 #  - satwnd.viirs_npp
 #  - scatwind_ascat_metop-a
 #  - snowcvr
+
+# Naming conventions for observation files
+atmosphere_obsdataout_prefix: diag_lobs_
+
+# Distribution type
+distribution_type: RoundRobin

@@ -47,8 +47,9 @@ field metadata:
 
 - long name: surface_pressure
   io name: pressfc
+  io file: atmosphere
 
-- long name: sfc_geopotential_height_times_grav
+- long name: surface_geopotential_height
   io name: hgtsfc
 
 - long name: u_component_of_native_D_grid_wind
@@ -82,7 +83,7 @@ field metadata:
 - long name: vfrac
   io name: veg
 
-- long name: totalSnowDepth
+- long name: totalSnowDepthMeters
   io name: snod
 
 - long name: surface_eastward_wind

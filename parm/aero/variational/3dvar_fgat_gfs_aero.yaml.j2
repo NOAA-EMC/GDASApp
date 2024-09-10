@@ -96,6 +96,8 @@ variational:
 final:
   diagnostics:
     departures: anlmob
+  prints:
+    frequency: PT3H
   increment:
     geometry:
       fms initialization:
@@ -120,3 +122,13 @@ final:
         state variables: [t,delp,sphum,so4,bc1,bc2,oc1,oc2,
                           dust1,dust2,dust3,dust4,dust5,
                           seas1,seas2,seas3,seas4]
+  increment to structured grid:
+    grid type: regular gaussian 
+    local interpolator type: atlas interpolator
+    interpolation method:
+      type: finite-element
+    number of latitude gridpoints: {{ npy_ges - 1 }}
+    variables to output: *3dvars
+    all model levels: true
+    datapath: ./anl
+    prefix: aeroinc_gauss

@@ -66,16 +66,18 @@ def bufr_to_ioda(config, logger):
     # =========================================
     data_format = config["data_format"]
     data_type = config["data_type"]
+    bufr_data_type = "gpsro"
     data_description = config["data_description"]
     data_provider = config["data_provider"]
     cycle_type = config["cycle_type"]
     dump_dir = config["dump_directory"]
     ioda_dir = config["ioda_directory"]
+    satellite_info_array = config["satellite_info"]
     cycle = config["cycle_datetime"]
     yyyymmdd = cycle[0:8]
     hh = cycle[8:10]
 
-    bufrfile = f"{cycle_type}.t{hh}z.{data_type}.tm00.{data_format}"
+    bufrfile = f"{cycle_type}.t{hh}z.{bufr_data_type}.tm00.{data_format}"
     DATA_PATH = os.path.join(dump_dir, f"{cycle_type}.{yyyymmdd}", str(hh),
                              'atmos', bufrfile)
     if not os.path.isfile(DATA_PATH):
@@ -112,10 +114,13 @@ def bufr_to_ioda(config, logger):
     q.add('geoidUndulation', '*/GEODU')
     q.add('height', '*/ROSEQ3/HEIT')
     q.add('impactParameterRO_roseq2repl1', '*/ROSEQ1/ROSEQ2{1}/IMPP')
+    q.add('impactParameterRO_roseq2repl2', '*/ROSEQ1/ROSEQ2{2}/IMPP')
     q.add('impactParameterRO_roseq2repl3', '*/ROSEQ1/ROSEQ2{3}/IMPP')
     q.add('frequency__roseq2repl1', '*/ROSEQ1/ROSEQ2{1}/MEFR')
+    q.add('frequency__roseq2repl2', '*/ROSEQ1/ROSEQ2{2}/MEFR')
     q.add('frequency__roseq2repl3', '*/ROSEQ1/ROSEQ2{3}/MEFR')
-    q.add('pccf', '*/ROSEQ1/PCCF')
+#    q.add('pccf', '*/ROSEQ1/PCCF')
+    q.add('pccf', '*/PCCF[1]')
     q.add('percentConfidence', '*/ROSEQ3/PCCF')
     q.add('sensorAzimuthAngle', '*/BEARAZ')
 
@@ -124,15 +129,18 @@ def bufr_to_ioda(config, logger):
 
     # Quality Information
     q.add('qualityFlags', '*/QFRO')
+    q.add('qfro', '*/QFRO')
     q.add('satelliteAscendingFlag', '*/QFRO')
 
     # ObsValue
     q.add('bendingAngle_roseq2repl1', '*/ROSEQ1/ROSEQ2{1}/BNDA[1]')
+    q.add('bendingAngle_roseq2repl2', '*/ROSEQ1/ROSEQ2{2}/BNDA[1]')
     q.add('bendingAngle_roseq2repl3', '*/ROSEQ1/ROSEQ2{3}/BNDA[1]')
     q.add('atmosphericRefractivity', '*/ROSEQ3/ARFR[1]')
 
     # ObsError
     q.add('obsErrorBendingAngle1', '*/ROSEQ1/ROSEQ2{1}/BNDA[2]')
+    q.add('obsErrorBendingAngle2', '*/ROSEQ1/ROSEQ2{2}/BNDA[2]')
     q.add('obsErrorBendingAngle3', '*/ROSEQ1/ROSEQ2{3}/BNDA[2]')
     q.add('obsErrorAtmosphericRefractivity', '*/ROSEQ3/ARFR[2]')
 
@@ -180,8 +188,11 @@ def bufr_to_ioda(config, logger):
     geodu = r.get('geoidUndulation', 'latitude')
     heit = r.get('height', 'height', type='float32').astype(np.float32)
     impp1 = r.get('impactParameterRO_roseq2repl1', 'latitude')
+    impp2 = r.get('impactParameterRO_roseq2repl2', 'latitude')
     impp3 = r.get('impactParameterRO_roseq2repl3', 'latitude')
     mefr1 = r.get('frequency__roseq2repl1', 'latitude',
+                  type='float32').astype(np.float32)
+    mefr2 = r.get('frequency__roseq2repl2', 'latitude',
                   type='float32').astype(np.float32)
     mefr3 = r.get('frequency__roseq2repl3', 'latitude',
                   type='float32').astype(np.float32)
@@ -197,18 +208,21 @@ def bufr_to_ioda(config, logger):
                 information ...")
     # Quality Information
     qfro = r.get('qualityFlags', 'latitude')
+    qfro2 = r.get('qualityFlags', 'latitude', type='float32').astype(np.float32)
     satasc = r.get('satelliteAscendingFlag', 'latitude')
 
     logger.debug(f" ... Executing QuerySet: get ObsValue: Bending Angle ...")
     # ObsValue
     # Bending Angle
     bnda1 = r.get('bendingAngle_roseq2repl1', 'latitude')
+    bnda2 = r.get('bendingAngle_roseq2repl2', 'latitude')
     bnda3 = r.get('bendingAngle_roseq2repl3', 'latitude')
     arfr = r.get('atmosphericRefractivity', 'height')
 
     # ObsError
     # Bending Angle
     bndaoe1 = r.get('obsErrorBendingAngle1', 'latitude')
+    bndaoe2 = r.get('obsErrorBendingAngle2', 'latitude')
     bndaoe3 = r.get('obsErrorBendingAngle3', 'latitude')
     arfroe = r.get('obsErrorAtmosphericRefractivity', 'height')
 
@@ -250,6 +264,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     mefr1     shape, type = {mefr1.shape}, {mefr1.dtype}")
     logger.debug(f"     mefr3     shape, type = {mefr3.shape}, {mefr3.dtype}")
     logger.debug(f"     pccf      shape, type = {pccf.shape}, {pccf.dtype}")
+    logger.debug(f"     pccf      shape, fill = {pccf.fill_value}")
     logger.debug(f"     ref_pccf  shape, type = {ref_pccf.shape}, \
                 {ref_pccf.dtype}")
     logger.debug(f"     bearaz    shape, type = {bearaz.shape}, {bearaz.dtype}")
@@ -297,6 +312,7 @@ def bufr_to_ioda(config, logger):
 
     logger.debug(f"Creating derived variables - imph ...")
     imph1 = Compute_imph(impp1, elrc)
+    imph2 = Compute_imph(impp2, elrc)
     imph3 = Compute_imph(impp3, elrc)
 
     logger.debug(f"     imph1 shape,type = {imph1.shape}, {imph1.dtype}")
@@ -304,9 +320,15 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     imph1 min/max = {imph1.min()}, {imph1.max()}")
     logger.debug(f"     imph3 min/max = {imph3.min()}, {imph3.max()}")
 
-    logger.debug(f"Editing some derived variables if SAID is not 44 or 825")
+    logger.debug(f"Keep bending angle with Freq = 0.0")
     for i in range(len(said)):
-        if (said[i] != 44) or (said[i] != 825):
+        if (mefr2[i] == 0.0):
+            bnda1[i] = bnda2[i]
+            mefr1[i] = mefr2[i]
+            impp1[i] = impp2[i]
+            imph1[i] = imph2[i]
+            bndaoe1[i] = bndaoe2[i]
+        if (mefr3[i] == 0.0):
             bnda1[i] = bnda3[i]
             mefr1[i] = mefr3[i]
             impp1[i] = impp3[i]
@@ -324,6 +346,44 @@ def bufr_to_ioda(config, logger):
     logger.debug(f"     new bndaoe1 shape, type, min/max {bndaoe1.shape}, \
                 {bndaoe1.dtype}, {bndaoe1.min()}, {bndaoe1.max()}")
 
+#   find ibit for qfro (16bit from left to right)
+    bit3 = []
+    bit5 = []
+    bit6 = []
+    for quality in qfro:
+        if quality & 8192 > 0:
+            bit3.append(1)
+        else:
+            bit3.append(0)
+
+        if quality & 2048 > 0:
+            bit5.append(1)
+        else:
+            bit5.append(0)
+
+        if quality & 1024 > 0:
+            bit6.append(1)
+        else:
+            bit6.append(0)
+    bit3 = np.array(bit3)
+    bit5 = np.array(bit5)
+    bit6 = np.array(bit6)
+    logger.debug(f"     new bit3 shape, type, min/max {bit3.shape}, \
+                {bit3.dtype}, {bit3.min()}, {bit3.max()}")
+
+#   overwrite satelliteAscendingFlag and QFRO
+    for quality in range(len(bit3)):
+        satasc[quality] = 0
+        qfro2[quality] = 0.0
+        if bit3[quality] == 1:
+            satasc[quality] = 1
+        if (bit5[quality] == 1) or (bit6[quality] == 1):
+            qfro2[quality] = 1.0
+
+    logger.debug(f"     new satasc shape, type, min/max {satasc.shape}, \
+                {satasc.dtype}, {satasc.min()}, {satasc.max()}")
+    logger.debug(f"     new qfro2 shape, type, min/max {qfro2.shape}, \
+                {qfro2.dtype}, {qfro2.min()}, {qfro2.max()}, {qfro2.fill_value}")
     end_time = time.time()
     running_time = end_time - start_time
     logger.debug(f"Running time for creating derived variables: {running_time} \
@@ -343,7 +403,7 @@ def bufr_to_ioda(config, logger):
     # Create the dimensions
     dims = {'Location': np.arange(0, clath.shape[0])}
 
-    iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
+    iodafile = f"{cycle_type}.t{hh}z.{data_type}.tm00.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
     logger.debug(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
 
@@ -484,7 +544,7 @@ def bufr_to_ioda(config, logger):
     obsspace.create_var('MetaData/pccf', dtype=pccf.dtype,
                         fillval=pccf.fill_value) \
         .write_attr('units', '%') \
-        .write_attr('long_name', 'Percent Confidence') \
+        .write_attr('long_name', 'Profile Percent Confidence') \
         .write_data(pccf)
 
     # PCCF Ref Percent Confidence
@@ -508,10 +568,15 @@ def bufr_to_ioda(config, logger):
         .write_data(ogce)
 
     # Quality: Quality Flags
-    obsspace.create_var('MetaData/qualityFlags', dtype=qfro.dtype,
+    obsspace.create_var('MetaData/qfro', dtype=qfro.dtype,
                         fillval=qfro.fill_value) \
-        .write_attr('long_name', 'Quality Flags') \
+        .write_attr('long_name', 'QFRO') \
         .write_data(qfro)
+
+    obsspace.create_var('MetaData/qualityFlags', dtype=qfro2.dtype,
+                        fillval=qfro2.fill_value) \
+        .write_attr('long_name', 'Quality Flags for QFRO bit5 and bit6') \
+        .write_data(qfro2)
 
     # Quality: Satellite Ascending Flag
     obsspace.create_var('MetaData/satelliteAscendingFlag', dtype=satasc.dtype,
@@ -530,7 +595,7 @@ def bufr_to_ioda(config, logger):
     obsspace.create_var('ObsValue/atmosphericRefractivity', dtype=arfr.dtype,
                         fillval=arfr.fill_value) \
         .write_attr('units', 'N-units') \
-        .write_attr('long_name', 'Atmospheric Refractivity ObsError') \
+        .write_attr('long_name', 'Atmospheric Refractivity') \
         .write_data(arfr)
 
     # ObsError: Bending Angle
@@ -561,7 +626,7 @@ def bufr_to_ioda(config, logger):
 
     end_time = time.time()
     running_time = end_time - start_time
-    logger.debug(f"Running time for splitting and output IODA for gpsro bufr: \
+    logger.debug(f"Running time for splitting and output IODA for gnssro bufr: \
                 {running_time} seconds")
 
     logger.debug("All Done!")
@@ -580,7 +645,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     log_level = 'DEBUG' if args.verbose else 'INFO'
-    logger = Logger('bufr2ioda_acft_profiles_prepbufr.py', level=log_level,
+    logger = Logger('bufr2ioda_gnssro.py', level=log_level,
                     colored_log=True)
 
     with open(args.config, "r") as json_file:

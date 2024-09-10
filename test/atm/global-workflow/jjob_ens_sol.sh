@@ -14,6 +14,9 @@ export EXPDIR=$bindir/test/atm/global-workflow/testrun/experiments/$PSLOT
 export PDY=20210323
 export cyc=18
 export CDATE=${PDY}${cyc}
+export gPDY=20210323
+export gcyc=12
+export GDATE=${gPDY}${gcyc}
 export ROTDIR=$bindir/test/atm/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=enkfgdas
 export CDUMP=enkfgdas
@@ -45,9 +48,12 @@ elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
 fi
 
+# Set lobsdiag_forenkf=.true. to run letkf as stand-alone solver job
+cp $EXPDIR/config.base_lobsdiag_forenkf_true $EXPDIR/config.base
+
 # Execute j-job
 if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait --output=atmensanlfv3inc-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
+    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=debug --time=00:30:00 --export=ALL --wait --output=atmensanlsol-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_SOL
 else
-    ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
+    ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_SOL
 fi

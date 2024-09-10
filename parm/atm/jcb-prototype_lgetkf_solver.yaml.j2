@@ -5,7 +5,7 @@ app_path_observation_chronicle: {{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/
 
 # Algorithm
 # ---------
-algorithm: local_ensemble_da
+algorithm: local_ensemble_da_solver
 
 # Model things
 # ------------
@@ -21,7 +21,7 @@ observations:
   - ascatw.ascat_metop-b
 #  - ascatw.ascat_metop-c
   - atms_n20
-  - atms_npp
+#  - atms_npp
   - conventional_ps
   - gnssro
 #  - gpsro
@@ -32,9 +32,18 @@ observations:
 #  - ompstc_n20
   - ompstc_npp
   - satwnd.abi_goes-16
-  - satwnd.abi_goes-18
-  - satwnd.leogeo_multi
-  - satwnd.viirs_n20
-  - satwnd.viirs_npp
+#  - satwnd.abi_goes-18
+#  - satwnd.leogeo_multi
+#  - satwnd.viirs_n20
+#  - satwnd.viirs_npp
 #  - scatwind_ascat_metop-a
 #  - snowcvr
+
+# Naming conventions for observation files
+atmosphere_obsdatain_path: "{{atm_obsdataout_path}}"
+atmosphere_obsdatain_prefix: diag_lobs_
+atmosphere_obsdatain_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+atmosphere_obsdataout_prefix: diag_solv_
+
+# Distribution type
+distribution_type: Halo

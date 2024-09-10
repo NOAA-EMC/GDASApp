@@ -133,9 +133,10 @@ namespace gdasapp {
           incrMaskConfig.get("variable", maskvarname);
           double minvalue = incrMaskConfig.getDouble("minvalue", -9e36);
           double maxvalue = incrMaskConfig.getDouble("maxvalue", 9e36);
+          const eckit::LocalConfiguration maskBkgConfig(incrMaskConfig, "background");
           oops::Variables maskVars(incrMaskConfig, "variable");
           fv3jedi::State maskbkg(geom, maskVars, cycleDate);
-          maskbkg.read(bkgConfig);
+          maskbkg.read(maskBkgConfig);
           atlas::FieldSet xbFs;
           maskbkg.toFieldSet(xbFs);
           /// Create the atlas fieldset for the output increment
@@ -144,7 +145,7 @@ namespace gdasapp {
           /// Loop over all points, if the mask is in range, zero out the increments
           auto bkgMask = atlas::array::make_view<double, 2>(xbFs[maskvarname]);
           for (atlas::idx_t jnode = 0; jnode < bkgMask.shape(0); ++jnode) {
-            if (bkgMask(jnode, 0) > minvalue && bkgMask(jnode, 0) < maxvalue) {
+            if (bkgMask(jnode, 0) < minvalue || bkgMask(jnode, 0) > maxvalue) {
               for (auto & var : varList.variables()) {
                 auto inc = atlas::array::make_view<double, 2>(ensincFs[var]);
                 for (atlas::idx_t level = 0; level < ensincFs[var].shape(1); ++level) {

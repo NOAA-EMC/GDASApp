@@ -6,11 +6,11 @@
     obsdatain:
       engine:
         type: H5File
-        obsfile: '{{ DATA }}/obs/{{ OPREFIX }}ims_snow.nc4'
+        obsfile: './obs/{{ OPREFIX }}ims_snow.nc4'
     obsdataout:
       engine:
         type: H5File
-        obsfile: '{{ DATA }}/diags/diag_ims_snow.nc4'
+        obsfile: './diags/diag_ims_snow.nc4'
     simulated variables: [totalSnowDepth]
   obs operator:
     name: Identity
