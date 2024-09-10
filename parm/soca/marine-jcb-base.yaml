@@ -1,0 +1,73 @@
+# Search path for model and obs for JCB
+# -------------------------------------
+algorithm_path: '{{PARMgfs}}/gdas/jcb-algorithms'
+app_path_algorithm: '{{PARMgfs}}/gdas/jcb-gdas/algorithm/marine'
+app_path_model: '{{PARMgfs}}/gdas/jcb-gdas/model/marine'
+app_path_observations: '{{PARMgfs}}/gdas/jcb-gdas/observations/marine'
+app_path_observation_chronicle: '{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/marine'
+
+
+# Places where we deviate from the generic file name of a yaml
+# ------------------------------------------------------------
+model_file: marine_model_pseudo
+initial_condition_file: marine_background  # Initial conditions for 4D apps is background
+output_file: marine_output
+final_increment_file: marine_final_increment
+
+
+# Assimilation standard things (not prepended with model choice)
+# ----------------------------
+window_begin: '{{ATM_WINDOW_BEGIN}}'
+window_length: '{{ATM_WINDOW_LENGTH}}'
+bound_to_include: begin
+minimizer: RPCG
+final_diagnostics_departures: oman
+final_prints_frequency: PT3H
+number_of_outer_loops: 1
+analysis_variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
+
+
+# Model things
+# ------------
+marine_window_begin: '{{ATM_WINDOW_BEGIN}}'
+marine_window_middle: '{{ATM_WINDOW_MIDDLE}}'
+
+# Geometry
+marine_soca_files_path: .
+
+# Background
+marine_background_path: ./INPUT/
+marine_background_time: '{{ATM_WINDOW_BEGIN}}'
+
+# Pseudo model
+marine_forecast_timestep: PT3H
+marine_pseudo_model_states: !INC ${BKG_LIST}
+
+# Background error model
+background_error_file: '{{berror_model}}'
+marine_number_ensemble_members: '{{nmem_ens}}'
+marine_stddev_time: '{{ATM_WINDOW_MIDDLE}}'
+
+# Observations
+observations: all_observations
+
+marine_obsdatain_path: '{{DATA}}/obs'
+marine_obsdatain_prefix: '{{OPREFIX}}'
+marine_obsdatain_suffix: '.{{PDY}}{{cyc}}.nc4'
+marine_obsdataout_path: '{{DATA}}/diags'
+marine_obsdataout_prefix: ''
+marine_obsdataout_suffix: '.{{PDY}}{{cyc}}.nc4'
+
+# Outer loops
+marine_ninner_1: '{{SOCA_NINNER}}'
+marine_grad_red_1: 1e-7
+
+# Output
+marine_output_dir: Data
+marine_output_exp: 3dvarfgat_pseudo
+marine_output_freq: PT3H   # can only writes out the analysis at the middle of the window
+                           # when using 3D-FGAT as cost function
+
+# Final increment
+marine_final_increment_dir: Data
+marine_final_increment_exp: 3dvarfgat_pseudo

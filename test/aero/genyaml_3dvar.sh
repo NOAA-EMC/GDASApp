@@ -24,6 +24,15 @@ export YAMLout=$DATA/3dvar_gfs_aero.yaml
 rm -rf $DATA
 mkdir -p $DATA
 
+# Set g-w HOMEgfs
+topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
+export HOMEgfs=$topdir
+
+# Set python path for workflow utilities and tasks
+wxflowPATH="${HOMEgfs}/ush/python"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
+export PYTHONPATH
+
 # run some python code to generate the YAML
 python3 - <<EOF
 from wxflow import parse_j2yaml

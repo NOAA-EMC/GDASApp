@@ -43,6 +43,7 @@ load("fftw/3.3.10")
 load("fckit/0.11.0")
 load("fiat/1.2.0")
 --load("ectrans/1.2.0")
+load("fms/2023.04")
 load("atlas/0.35.1")
 load("sp/2.5.0")
 load("gsl-lite/0.37.0")
@@ -73,9 +74,7 @@ load("py-scipy/1.11.3")
 load("py-xarray/2023.7.0")
 load("py-f90nml/1.4.3")
 load("py-pip/23.1.2")
-
--- hack for wxflow
-prepend_path("PYTHONPATH", "/scratch1/NCEPDEV/da/python/gdasapp/wxflow/20240307/src")
+load("py-click/8.1.7")
 
 setenv("CC","mpiicc")
 setenv("FC","mpiifort")
@@ -86,9 +85,9 @@ local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
-setenv("CRTM_FIX","/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix/crtm/2.4.0")
-setenv("GDASAPP_TESTDATA","/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data")
-setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/data/test")
+setenv("CRTM_FIX","/scratch1/NCEPDEV/da/role.jedipara/GDASApp/fix/crtm/2.4.0")
+setenv("GDASAPP_TESTDATA","/scratch1/NCEPDEV/da/role.jedipara/GDASApp/testdata")
+setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/scratch1/NCEPDEV/da/role.jedipara/GDASApp/unittestdata")
 --prepend_path("PATH","/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/intel-18.0.5.274/prod_util/1.2.2/bin")
 
 whatis("Name: ".. pkgName)

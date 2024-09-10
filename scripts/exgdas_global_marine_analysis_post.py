@@ -67,6 +67,7 @@ post_file_list.append([os.path.join(anl_dir, 'inc.nc'),
 
 domains = ['ocn', 'ice']
 for domain in domains:
+    '''
     # Copy of the diagonal of the background error for the cycle
     post_file_list.append([os.path.join(anl_dir, f'{domain}.bkgerr_stddev.incr.{mdate}.nc'),
                            os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.{domain}.bkgerr_stddev.nc')])
@@ -75,6 +76,7 @@ for domain in domains:
     if nmem_ens > 2:
         post_file_list.append([os.path.join(anl_dir, 'static_ens', f'{domain}.ssh_recentering_error.incr.{bdate}.nc'),
                                os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.{domain}.recentering_error.nc')])
+    '''
 
     # Copy the ice and ocean increments
     post_file_list.append([os.path.join(anl_dir, 'Data', f'{domain}.3dvarfgat_pseudo.incr.{mdate}.nc'),
@@ -85,6 +87,7 @@ for domain in domains:
                            os.path.join(com_ocean_analysis, f'{RUN}.t{cyc}z.{domain}ana.nc')])
 
 # Copy of the ssh diagnostics
+'''
 if nmem_ens > 2:
     for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev', 'steric_explained_variance']:
         post_file_list.append([os.path.join(anl_dir, 'static_ens', f'ocn.{string}.incr.{bdate}.nc'),
@@ -93,6 +96,7 @@ if nmem_ens > 2:
 # Copy DA grid (computed for the start of the window)
 post_file_list.append([os.path.join(anl_dir, 'soca_gridspec.nc'),
                        os.path.join(com_ocean_analysis, f'{RUN}.t{bcyc}z.ocngrid.nc')])
+'''
 
 # Copy the CICE analysis restart
 if os.getenv('DOIAU') == "YES":

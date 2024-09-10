@@ -17,7 +17,7 @@ DOY=$(date +%j -d "$YY$MM$DD + 1 day")
 
 EXECDIR=$project_source_dir/build/bin
 WORKDIR=$project_binary_dir/test/snow/ims_proc
-RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model_data/atmos/restart
+RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model/atmos/restart
 
 export OBSDIR=$GDASAPP_TESTDATA/snow/snow_ice_cover
 export TSTUB="oro_C${RES}.mx100"

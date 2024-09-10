@@ -31,8 +31,5 @@ jedi static:
 model background:
     ocn: /work2/noaa/da/gvernier/data/test_bkg/360x320x75/
 
-r2d2 options:
-    root: /work2/noaa/da/gvernier/data/static/r2d2-shared
-
 fms:
     domain_stack_size: 5832000

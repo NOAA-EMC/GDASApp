@@ -68,6 +68,7 @@ fi
 #       the mom6 incr postprocessing from above.
 
 $APRUN_OCNANAL ${JEDI_BIN}/gdas.x soca convertstate soca_2cice_arctic.yaml
+err=$?; err_chk
 $APRUN_OCNANAL ${JEDI_BIN}/gdas.x soca convertstate soca_2cice_antarctic.yaml
 export err=$?; err_chk
 

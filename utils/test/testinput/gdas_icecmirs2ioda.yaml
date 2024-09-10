@@ -1,0 +1,13 @@
+provider: MIRS
+window begin: 2024-06-29T21:00:00Z
+window end: 2024-06-30T03:00:00Z
+output file: icec_mirs.ioda.nc
+#ocean basin: RECCAP2_region_masks_all_v20221025.nc
+input files:
+- icec_mirs_snpp_1.nc4
+- icec_mirs_snpp_2.nc4
+
+test:
+  reference filename: testref/icecmirs2ioda.test
+  test output filename: testoutput/icecmirs2ioda.test
+  float relative tolerance: 1e-6

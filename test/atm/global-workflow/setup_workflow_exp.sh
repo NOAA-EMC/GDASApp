@@ -51,4 +51,9 @@ echo " "
 echo "$expdir/../config.yaml is"
 cat $expdir/../config.yaml
 
+# config.base contains with lobsdiag_forenkf=.true.  Create config.base with lobsdiag_forenkf=.false. for jjob_ens_letkf.sh
+EXPDIR=$expdir/$pslot
+cp $EXPDIR/config.base $EXPDIR/config.base_lobsdiag_forenkf_true
+sed 's/export lobsdiag_forenkf=".true."/export lobsdiag_forenkf=".false."/' $EXPDIR/config.base > $EXPDIR/config.base_lobsdiag_forenkf_false
+
 exit $?

@@ -3,6 +3,15 @@ set -ex
 
 srcdir=$1
 
+# Set g-w HOMEgfs
+topdir=$(cd "$(dirname "$(readlink -f -n "${srcdir}" )" )/.." && pwd -P)
+export HOMEgfs=$topdir
+
+# Set python path for workflow utilities and tasks
+wxflowPATH="${HOMEgfs}/ush/python"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
+export PYTHONPATH
+
 mom6_iau_incr="gdas.t12z.ocn.incr.nc"
 
 cat > nsst.yaml << EOF

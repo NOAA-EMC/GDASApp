@@ -37,6 +37,21 @@ def Compute_WindComponents_from_WindDirection_and_WindSpeed(wdir, wspd):
     return uob, vob
 
 
+def Compute_SpecificHumidity_from_dewPoint_and_Pressure(tmdp, prlc):
+
+    # est is saturated vapor pressure in Mb
+    est = 6.1078 * np.exp((17.269 * (tmdp - 273.16))/((tmdp - 273.16)+237.3))
+    # Change est from Mb to Pa
+    est = est*100.
+
+    # specificHumidity (qob) is in kg/kg
+    qob = (0.622 * est)/(prlc - (0.378 * est))
+    qob = ma.array(qob)
+    qob = ma.masked_values(qob, qob.fill_value)
+
+    return qob
+
+
 def bufr_to_ioda(config, logger):
 
     subsets = config["subsets"]
@@ -208,6 +223,10 @@ def bufr_to_ioda(config, logger):
     logger.debug(f'   uob min/max = {uob.min()} {uob.max()}')
     logger.debug(f'   vob min/max = {vob.min()} {vob.max()}')
 
+    qob = Compute_SpecificHumidity_from_dewPoint_and_Pressure(tmdp, prlc)
+    logger.debug(f'   qob min/max = {qob.min()} {qob.max()}')
+    specificHumidityOE = np.float32(np.ma.masked_array(np.full((len(qob)), 0.0)))
+
     end_time = time.time()
     running_time = end_time - start_time
     logger.info(f'Processing time for creating derived variables : {running_time} seconds')
@@ -236,6 +255,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f'     wspd      shape = {wspd.shape}')
     logger.debug(f'     uob       shape = {uob.shape}')
     logger.debug(f'     vob       shape = {vob.shape}')
+    logger.debug(f'     qob       shape = {qob.shape}')
 
     logger.debug(f'     qmpr      shape = {qmpr.shape}')
     logger.debug(f'     qmat      shape = {qmat.shape}')
@@ -264,6 +284,7 @@ def bufr_to_ioda(config, logger):
     logger.debug(f'     wspd      type  = {wspd.dtype}')
     logger.debug(f'     uob       type  = {uob.dtype}')
     logger.debug(f'     vob       type  = {vob.dtype}')
+    logger.debug(f'     qob       type  = {qob.dtype}')
 
     logger.debug(f'     qmpr      type  = {qmpr.dtype}')
     logger.debug(f'     qmat      type  = {qmat.dtype}')
@@ -279,7 +300,7 @@ def bufr_to_ioda(config, logger):
     dims = {'Location': np.arange(0, clat.shape[0])}
 
     # Create IODA ObsSpace
-    iodafile = f"{cycle_type}.t{hh}z.{data_type}.nc"
+    iodafile = f"{cycle_type}.t{hh}z.{data_type}.tm00.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
     logger.info(f"Create output file: {OUTPUT_PATH}")
     obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode='w', dim_dict=dims)
@@ -365,6 +386,12 @@ def bufr_to_ioda(config, logger):
         .write_attr('long_name', 'Northward Wind') \
         .write_data(vob)
 
+    # Specific Humidity
+    obsspace.create_var('ObsValue/specificHumidity', dtype=qob.dtype, fillval=qob.fill_value) \
+        .write_attr('units', 'kg kg-1') \
+        .write_attr('long_name', 'Specific Humidity') \
+        .write_data(qob)
+
     # Pressure Quality Marker
     obsspace.create_var('QualityMarker/pressure', dtype=qmpr.dtype, fillval=qmpr.fill_value) \
         .write_attr('long_name', 'Pressure Quality Marker') \
@@ -419,6 +446,12 @@ def bufr_to_ioda(config, logger):
         .write_attr('units', 'm s-1') \
         .write_attr('long_name', 'Northward Wind Observation Error') \
         .write_data(windNorthwardOE)
+
+    # Specific Humidity Observation Error
+    obsspace.create_var('ObsError/specificHumidity', dtype=qob.dtype, fillval=qob.fill_value) \
+        .write_attr('units', 'kg kg-1') \
+        .write_attr('long_name', 'Specific Humidity Observation Error') \
+        .write_data(specificHumidityOE)
 
     end_time = time.time()
     running_time = end_time - start_time

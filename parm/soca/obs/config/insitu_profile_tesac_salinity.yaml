@@ -20,3 +20,14 @@ obs operator:
   interpolation method: linear
 obs error:
   covariance model: diagonal
+obs filters:
+- filter: Perform Action
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables:
+        - ObsError/salinity
+        coefs:
+        - 1000.0

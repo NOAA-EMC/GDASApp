@@ -31,11 +31,26 @@ add_test(NAME test_gdasapp_atm_jjob_ens_init
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
 
-add_test(NAME test_gdasapp_atm_jjob_ens_run
-  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_run.sh
+add_test(NAME test_gdasapp_atm_jjob_ens_letkf
+  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_letkf.sh
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
 	  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
 
+add_test(NAME test_gdasapp_atm_jjob_ens_init_split
+  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_init_split.sh
+          ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
+
+add_test(NAME test_gdasapp_atm_jjob_ens_obs
+  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_obs.sh
+          ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
+
+add_test(NAME test_gdasapp_atm_jjob_ens_sol
+  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_sol.sh
+          ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
+	
 add_test(NAME test_gdasapp_atm_jjob_ens_inc
   COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_inc.sh
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}

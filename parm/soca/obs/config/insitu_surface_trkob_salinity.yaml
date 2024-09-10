@@ -16,3 +16,14 @@ obs operator:
   observation alias file: ./obsop_name_map.yaml
 obs error:
   covariance model: diagonal
+obs filters:
+- filter: Perform Action
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables:
+        - ObsError/seaSurfaceSalinity
+        coefs:
+        - 1000.0

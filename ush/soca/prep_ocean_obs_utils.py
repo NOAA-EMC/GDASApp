@@ -10,14 +10,14 @@ logger = Logger()
 # copies them to DATA, and returns a list of the files so handled
 
 
-def obs_fetch(config, runtime_config, obsprep_space, cycles):
+def obs_fetch(config, task_config, obsprep_space, cycles):
 
     DMPDIR = config.DMPDIR
     COMIN_OBS = config.COMIN_OBS
 
-    RUN = runtime_config.RUN
-    PDY = runtime_config.PDY
-    cyc = runtime_config.cyc
+    RUN = task_config.RUN
+    PDY = task_config.PDY
+    cyc = task_config.cyc
 
     subdir = obsprep_space['dmpdir subdir']
     dumpdir_regex = obsprep_space['dmpdir regex']

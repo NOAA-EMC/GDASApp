@@ -1,0 +1,46 @@
+# Use observations for lgetkf
+# ---------------------------
+app_path_observations: {{PARMgfs}}/gdas/jcb-gdas/observations/atmosphere-lgetkf
+app_path_observation_chronicle: {{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/atmosphere
+
+# Algorithm
+# ---------
+algorithm: local_ensemble_da_observer
+
+# Model things
+# ------------
+atmosphere_background_ensemble_path: ./bkg/mem%mem%
+
+# Observation things
+# ------------------
+observations:
+#  - ADPSFC
+#  - ADPUPA
+#  - SFCSHP
+  - aircraft
+  - ascatw.ascat_metop-b
+#  - ascatw.ascat_metop-c
+  - atms_n20
+#  - atms_npp
+  - conventional_ps
+  - gnssro
+#  - gpsro
+#  - mtiasi_metop-a
+#  - mtiasi_metop-b
+#  - ompsnp_n20
+  - ompsnp_npp
+#  - ompstc_n20
+  - ompstc_npp
+  - satwnd.abi_goes-16
+#  - satwnd.abi_goes-18
+#  - satwnd.leogeo_multi
+#  - satwnd.viirs_n20
+#  - satwnd.viirs_npp
+#  - scatwind_ascat_metop-a
+#  - snowcvr
+
+# Naming conventions for observation files
+atmosphere_obsdataout_prefix: diag_lobs_
+
+# Distribution type
+distribution_type: RoundRobin

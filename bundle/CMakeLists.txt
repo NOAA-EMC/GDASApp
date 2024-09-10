@@ -36,6 +36,19 @@ option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
 option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
 
+# Depend path for non-ecbuild packages
+set(DEPEND_LIB_ROOT ${CMAKE_CURRENT_BINARY_DIR}/Depends)
+list(APPEND CMAKE_PREFIX_PATH ${DEPEND_LIB_ROOT})
+
+# Library path for non-ecbuild packages
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/lib)
+
+include( GNUInstallDirs )
+if(APPLE)
+  list( APPEND CMAKE_INSTALL_RPATH $ENV{llvm_openmp_ROOT}/lib )
+endif()
+list( APPEND CMAKE_INSTALL_RPATH ${CMAKE_CURRENT_BINARY_DIR}/fv3 )
+
 # Initialize bundle
 # -----------------
 ecbuild_bundle_initialize()
@@ -75,6 +88,9 @@ if(BUILD_GDASBUNDLE)
 # Gibbs seawater
   ecbuild_bundle( PROJECT gsw SOURCE "../sorc/gsw" )
 
+# EMC BUFR-query library
+  ecbuild_bundle( PROJECT bufr-query SOURCE "../sorc/bufr-query" )
+
 # Core JEDI repositories
   ecbuild_bundle( PROJECT oops SOURCE "../sorc/oops" )
   ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
@@ -84,8 +100,8 @@ if(BUILD_GDASBUNDLE)
   option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT ufo SOURCE "../sorc/ufo" )
 
-# FMS and FV3 dynamical core
-  ecbuild_bundle( PROJECT fms SOURCE "../sorc/fms" )
+# FV3 dynamical core
+  include(fv3-interface.cmake)
   ecbuild_bundle( PROJECT fv3 SOURCE "../sorc/fv3" )
 
 # fv3-jedi and associated repositories
@@ -100,11 +116,11 @@ if(BUILD_GDASBUNDLE)
   if ( BUILD_ICEPACK )
     ecbuild_bundle( PROJECT icepack SOURCE "../sorc/icepack" )
   endif()
-  ecbuild_bundle( PROJECT mom6 SOURCE "../sorc/mom6" )
   ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
 
   # Build JEDI/DA or other peripherals
   ecbuild_bundle( PROJECT gdas-utils SOURCE "../utils" )
+  ecbuild_bundle( PROJECT da-utils SOURCE "../sorc/da-utils" )
 
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)

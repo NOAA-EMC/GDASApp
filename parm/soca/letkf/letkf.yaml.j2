@@ -11,8 +11,8 @@ background:
   members from template:
     template:
       date: '{{ WINDOW_MIDDLE | to_isotime }}'
-      ocn_filename: "{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc"
-      ice_filename: "{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc"
+      ocn_filename: "{{ RUN }}.ocean.t{{ gcyc }}z.inst.f006.nc"
+      ice_filename: "{{ RUN }}.ice.t{{ gcyc }}z.inst.f006.nc"
       read_from_file: 1
       basename: ./ens/mem%mem%
       state variables: [socn, tocn, ssh, uocn, vocn, cicen]

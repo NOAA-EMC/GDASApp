@@ -48,7 +48,7 @@ setup_expt config:
     DO_JEDIOCNVAR: "YES"
     DO_JEDISNOWDA: "NO"
     DO_MERGENSST: "NO"
-    NMEM_ENS: "4"
+    NMEM_ENS: "0"
     DOHYBVAR: "NO"
   ocnanal:
     SOCA_INPUT_FIX_DIR: @HOMEgfs@/sorc/gdas.cd/build/gdas/soca_static

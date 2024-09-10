@@ -183,4 +183,5 @@ install*/
 /sorc/gdas
 /sorc/gdas-utils
 !/bundle/CMakeLists.txt
+!/bundle/fv3-interface.cmake
 /bundle/*

@@ -49,10 +49,6 @@
   path = sorc/icepack
   url = https://github.com/JCSDA-internal/Icepack.git
   branch = feature/ecbuild-new
-[submodule "sorc/mom6"]
-  path = sorc/mom6
-  url = https://github.com/jcsda-internal/MOM6.git
-  branch = main-ecbuild
 [submodule "sorc/soca"]
   path = sorc/soca
   url = https://github.com/jcsda-internal/soca.git
@@ -73,10 +69,10 @@
   path = sorc/crtm
   url = https://github.com/jcsda/crtm.git
   branch = release/crtm_jedi_v2.4.1
-[submodule "sorc/fms"]
-  path = sorc/fms
-  url = https://github.com/jcsda/fms.git
-  branch = release-stable
+[submodule "sorc/jcb"]
+  path = sorc/jcb
+  url = https://github.com/noaa-emc/jcb.git
+  branch = develop
 [submodule "parm/jcb-gdas"]
   path = parm/jcb-gdas
   url = https://github.com/noaa-emc/jcb-gdas
@@ -84,4 +80,12 @@
 [submodule "parm/jcb-algorithms"]
   path = parm/jcb-algorithms
   url = https://github.com/noaa-emc/jcb-algorithms
+  branch = develop
+[submodule "sorc/da-utils"]
+  path = sorc/da-utils
+  url = https://github.com/noaa-emc/da-utils.git
+  branch = develop
+[submodule "sorc/bufr-query"]
+  path = sorc/bufr-query
+  url = https://github.com/noaa-emc/bufr-query.git
   branch = develop

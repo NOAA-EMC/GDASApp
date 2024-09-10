@@ -81,6 +81,11 @@ namespace gdasapp {
 
         // ocean basin partitioning
         std::vector<int> oceanBasins(nlocs);
+        if (!ospace.has("MetaData", "oceanBasin")) {
+          oops::Log::warning() << "Skipping obsspace" << obsFile
+                               << ": oceanBasin does not exist." << std::endl;
+          continue;
+        }
         ospace.get_db("MetaData", "oceanBasin", oceanBasins);
 
         // Open an ofstream for output and write header

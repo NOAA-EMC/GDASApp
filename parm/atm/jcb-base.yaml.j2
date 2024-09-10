@@ -10,65 +10,59 @@ app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
 #final_increment_file: final_increment_gaussian
-final_increment_file: final_increment_cubed_sphere
-output_ensemble_increments_file: output_ensemble_increments_cubed_sphere
-model_file: model_pseudo
-initial_condition_file: background  # Initial conditions for 4D apps is background
+final_increment_file: atmosphere_final_increment_cubed_sphere
+output_ensemble_increments_file: atmosphere_output_ensemble_increments_cubed_sphere
+model_file: atmosphere_model_pseudo
+initial_condition_file: atmosphere_background  # Initial conditions for 4D apps is background
+background_error_file: "{{BERROR_YAML}}"
 
-
-# Assimilation window
-# -------------------
+# Assimilation standard things (not prepended with model choice)
+# ----------------------------
 window_begin: "{{ ATM_WINDOW_BEGIN | to_isotime }}"
 window_length: "{{ ATM_WINDOW_LENGTH }}"
 bound_to_include: begin
-
-# Default background time is for 3D applications
-atm_background_time_iso: "{{ current_cycle | to_isotime }}"
-
-
-# Analysis standard things
-# ------------------------
-analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
-
-cost_type: 3D-Var
+final_prints_frequency: PT3H
 number_of_outer_loops: 2
+analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
 # Model things
 # ------------
 # Geometry
-layout_x: {{ layout_x | default(1, true) }}
-layout_y: {{ layout_y | default(1, true) }}
-npx_ges: {{ npx_ges | default(49, true) }}
-npy_ges: {{ npy_ges | default(49, true) }}
-npz_ges: {{ npz_ges | default(127, true) }}
-npx_anl: {{ npx_anl | default(49, true) }}
-npy_anl: {{ npy_anl | default(49, true) }}
-npz_anl: {{ npz_anl | default(127, true) }}
+atmosphere_layout_x: {{ layout_x | default(1, true) }}
+atmosphere_layout_y: {{ layout_y | default(1, true) }}
+atmosphere_npx_ges: {{ npx_ges | default(49, true) }}
+atmosphere_npy_ges: {{ npy_ges | default(49, true) }}
+atmosphere_npz_ges: {{ npz_ges | default(127, true) }}
+atmosphere_npx_anl: {{ npx_anl | default(49, true) }}
+atmosphere_npy_anl: {{ npy_anl | default(49, true) }}
+atmosphere_npz_anl: {{ npz_anl | default(127, true) }}
 
-fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
+atmosphere_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
 
 # Background
-background_path: ./bkg
-background_ensemble_path: ./ens/mem%mem%
+atmosphere_background_path: ./bkg
+atmosphere_background_ensemble_path: ./ens/mem%mem%
+
+# Default background time is for 3D applications
+atmosphere_background_time_iso: "{{ current_cycle | to_isotime }}"
 
 # Background error
-bump_data_directory: "{{ DATA }}/berror"
-gsibec_path: "{{ DATA }}/berror"
-number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
-layout_gsib_x: {{ layout_gsib_x | default(1, true) }}
-layout_gsib_y: {{ layout_gsib_y | default(1, true) }}
+atmosphere_bump_data_directory: "{{ DATA }}/berror"
+atmosphere_gsibec_path: "{{ DATA }}/berror"
+atmosphere_number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
+atmosphere_layout_gsib_x: {{ layout_gsib_x | default(1, true) }}
+atmosphere_layout_gsib_y: {{ layout_gsib_y | default(1, true) }}
 
-background_error_file: "{{BERROR_YAML}}"
 
 # Forecasting
-forecast_length: "{{ ATM_WINDOW_LENGTH }}"
-forecast_timestep: "{{ BKG_TSTEP }}"
+atmosphere_forecast_timestep: "{{ BKG_TSTEP }}"
 
 # Write final increment on Guassian grid in variational
-final_increment_prefix: "./anl/atminc."
+atmosphere_final_increment_prefix: "./anl/atminc."
 
+atmosphere_variational_history_prefix: "{{GPREFIX}}"
 
 # Observation things
 # ------------------
@@ -77,35 +71,35 @@ observations: all_observations
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
-atm_obsdatain_path: "{{atm_obsdatain_path}}"
-atm_obsdatain_prefix: "{{OPREFIX}}"
-atm_obsdatain_suffix: ".tm00.nc"
+atmosphere_obsdatain_path: "{{atm_obsdatain_path}}"
+atmosphere_obsdatain_prefix: "{{OPREFIX}}"
+atmosphere_obsdatain_suffix: ".tm00.nc"
 
-atm_obsdataout_path: "{{atm_obsdataout_path}}"
-atm_obsdataout_prefix: diag_
-atm_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+atmosphere_obsdataout_path: "{{atm_obsdataout_path}}"
+atmosphere_obsdataout_prefix: diag_
+atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 # Naming conventions for bias correction files
-atm_obsbiasin_path: "{{DATA}}/obs/"
-atm_obsbiasin_prefix: "{{GPREFIX}}"
-atm_obsbiasin_suffix: ".satbias.nc"
-atm_obstlapsein_prefix: "{{GPREFIX}}"
-atm_obstlapsein_suffix: ".tlapse.txt"
-atm_obsbiascovin_prefix: "{{GPREFIX}}"
-atm_obsbiascovin_suffix: ".satbias_cov.nc"
+atmosphere_obsbiasin_path: "{{DATA}}/obs/"
+atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
+atmosphere_obsbiasin_suffix: ".satbias.nc"
+atmosphere_obstlapsein_prefix: "{{GPREFIX}}"
+atmosphere_obstlapsein_suffix: ".tlapse.txt"
+atmosphere_obsbiascovin_prefix: "{{GPREFIX}}"
+atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
 
-atm_obsbiasout_path: "{{DATA}}/bc/"
-atm_obsbiasout_prefix: "{{APREFIX}}"
-atm_obsbiasout_suffix: ".satbias.nc"
-atm_obsbiascovout_prefix: "{{APREFIX}}"
-atm_obsbiascovout_suffix: ".satbias_cov.nc"
+atmosphere_obsbiasout_path: "{{DATA}}/bc/"
+atmosphere_obsbiasout_prefix: "{{APREFIX}}"
+atmosphere_obsbiasout_suffix: ".satbias.nc"
+atmosphere_obsbiascovout_prefix: "{{APREFIX}}"
+atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
 
 
 # Local Ensemble DA (LETKF)
 # -------------------------
 local_ensemble_da_solver: GETKF
 
-increment_variables: [ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
+increment_variables: [ua,va,delz,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
@@ -123,6 +117,11 @@ driver_save_prior_mean: false
 driver_save_posterior_mean_increment: false
 driver_save_posterior_ensemble_increments: true
 
+# Distribution type
+distribution_type: Halo
+
 # Diagnostics
-ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
-posterior_output_gaussian: "./mem%{member}%/atmanl."
+atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
+atmosphere_posterior_output_gaussian: "./mem%{member}%/atmanl."
+
+atmosphere_ensemble_history_prefix: "enkf{{GPREFIX}}"
