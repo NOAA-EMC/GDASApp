@@ -1,3 +1,10 @@
+# a simple script to plot stations
+# Usage:  python3 bufr_plot_stations.py -i BUFR_FILE_NAME
+# output is produced in the file "stations.png"
+
+# the bufr query strings will not always work;
+# in some cases they need to be changed to CLONH, CLATH
+
 import argparse
 
 from pyiodaconv import bufr
@@ -42,9 +49,6 @@ def plot_points_on_map(latitudes, longitudes, title='Map with Points', marker_co
     # plt.show()
     png_file = "stations.png"
     plt.savefig(png_file, dpi=300)
-
-
-# bufrfile_path = "/scratch1/NCEPDEV/stmp2/Edward.Givelberg/RUNDIRS/GFSv17-3DVAR-C384mx025/prepoceanobs.114138/xx003"
 
 
 parser = argparse.ArgumentParser()

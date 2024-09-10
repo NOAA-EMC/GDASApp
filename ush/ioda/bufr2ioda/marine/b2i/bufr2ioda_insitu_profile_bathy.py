@@ -20,8 +20,7 @@ if __name__ == '__main__':
         platform_description)
 
     ioda_vars = BathyIODAVariables()
-    # ??? ioda_vars.SetTemperatureError(0.3)
-    # ??? ioda_vars.SetSalinityError(1.0)
+    ioda_vars.SetTemperatureError(0.24)
     ioda_vars.SetTemperatureVarName("waterTemperature")
 
     bathy = Bufr2ioda_Converter(bufr2ioda_config, ioda_vars, log_file)

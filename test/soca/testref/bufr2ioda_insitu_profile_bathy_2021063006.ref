@@ -15,6 +15,6 @@ temp hash = c00bbe5d969f8de8232ae22cd0948621e6b3e326e4931cdcfa2f7dd4d2509879
 seqNum: 1751, int32    min, max = 0, 2
 seqNum hash = 7429963169776e1dc0d26732c5053c7e81131cc66654c23aa6393258e9b5b9ae
 PreQC: 1751, int32    min, max = 0, 0
-ObsError_temp: 1751, float32    min, max = 0.0, 0.0
+ObsError_temp: 1751, float32    min, max = 0.23999999463558197, 0.23999999463558197
 OceanBasin: 1751, int32    min, max = 1, 1
 OceanBasin hash = 7de61dfe030e0fabc021c5e1c509cbd2f01afba06ac93959f94c5726d513937f
