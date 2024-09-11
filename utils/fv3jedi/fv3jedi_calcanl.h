@@ -27,95 +27,57 @@ namespace gdasapp {
     static const std::string classname() {return "gdasapp::calcanl";}
 
     int execute(const eckit::Configuration & fullConfig, bool validate) const {
-      // Get datetime
-      std::string datetimeStr;
-      fullConfig.get("datetime", datetimeStr);
-      util::DateTime datetime(datetimeStr);
-
-      // Get forecast hours
-      std::vector<std::string> fcstHours;
-      fullConfig.get("forecast hours", fcstHours);
-
-      // Get icrement and analysis variables
-      oops::Variables incrVars(fullConfig, "increment variables");
-      oops::Variables anlVars(fullConfig, "analysis variables");
-
       // Get geometry configurations
-      const eckit::LocalConfiguration geomConfig(fullConfig, "geometries");
-
-      const eckit::LocalConfiguration incrGeomConfig(geomConfig, "increment");
-      const eckit::LocalConfiguration stateFullResGeomConfig(geomConfig, "full resolution state");
-      const eckit::LocalConfiguration stateEnsResGeomConfig(geomConfig, \
-                                                            "ensemble resolution state");
+      const eckit::LocalConfiguration stateGeomConfig(fullConfig, "state geometry");
+      const eckit::LocalConfiguration incrGeomConfig(fullConfig, "increment geometry");
 
       // Setup geometries
       const fv3jedi::Geometry incrGeom(incrGeomConfig, this->getComm());
-      const fv3jedi::Geometry stateFullResGeom(stateFullResGeomConfig, this->getComm());
-      const fv3jedi::Geometry stateEnsResGeom(stateEnsResGeomConfig, this->getComm());
+      const fv3jedi::Geometry stateGeom(stateGeomConfig, this->getComm());
 
-      // Get IO configuration
-      int nhrs = fcstHours.size();;
-      std::vector<eckit::LocalConfiguration> ioConfig;
-      if ( fullConfig.has("io") ) {
-        fullConfig.get("io", ioConfig);
+      // Get additions configuration
+      int nhrs;
+      std::vector<eckit::LocalConfiguration> additionsConfig;
+      if ( fullConfig.has("additions") ) {
+        fullConfig.get("additions", additionsConfig);
+	nhrs = additionsConfig.size();
       } else {
-        eckit::LocalConfiguration ioFromTemplateConfig(fullConfig, "io from template");
-        eckit::LocalConfiguration templateConfig(ioFromTemplateConfig, "template");
+        eckit::LocalConfiguration additionsFromTemplateConfig(fullConfig, "additions from template");
+        eckit::LocalConfiguration templateConfig(additionsFromTemplateConfig, "template");
         std::string pattern;
-        ioFromTemplateConfig.get("pattern", pattern);
+	std::vector<std::string> fcstHours;
+	additionsFromTemplateConfig.get("pattern", pattern);
+	additionsFromTemplateConfig.get("forecast hours", fcstHours);
 
+	nhrs = fcstHours.size();
         for ( int ihrs = 0; ihrs < nhrs; ihrs++ ) {
-          eckit::LocalConfiguration thisIOConfig(templateConfig);
-          util::seekAndReplace(thisIOConfig, pattern, fcstHours[ihrs]);
-          ioConfig.push_back(thisIOConfig);
+          eckit::LocalConfiguration thisAdditionsConfig(templateConfig);
+          util::seekAndReplace(thisAdditionsConfig, pattern, fcstHours[ihrs]);
+          additionsConfig.push_back(thisAdditionsConfig);
         }
       }
 
       // Loops through forecast hours
       for ( int ihrs = 0; ihrs < nhrs; ihrs++ ) {
-        // Increment
-        // ---------------------------------------------------------------------------------
+        // Get elements of individual additions configurations
+	const eckit::LocalConfiguration stateConfig(additionsConfig[ihrs], "state");
+        const eckit::LocalConfiguration incrConfig(additionsConfig[ihrs], "increment");
+        const eckit::LocalConfiguration outputConfig(additionsConfig[ihrs], "output");
 
-        const eckit::LocalConfiguration incrIOConfig(ioConfig[ihrs], "increment");
-        fv3jedi::Increment dx(incrGeom, incrVars, datetime);
-        dx.read(incrIOConfig);
+	// Initialize input state
+        fv3jedi::State xx(stateGeom, stateConfig);
 
-        // Full resolution states
-        // ---------------------------------------------------------------------------------
+	// Initialize increment
+	oops::Variables incrVars(incrConfig, "added variables");
+        fv3jedi::Increment dx(incrGeom, incrVars, xx.validTime());
+        dx.read(incrConfig);
 
-        // Get individual IO configurations
-        const eckit::LocalConfiguration fullResIOConfig(ioConfig[ihrs], "full resolution states");
-        const eckit::LocalConfiguration bkgFullResIOConfig(fullResIOConfig, "background");
-        const eckit::LocalConfiguration anlFullResIOConfig(fullResIOConfig, "analysis");
+        // Add increment to state
+        fv3jedi::State xxOutput(stateGeom, xx);
+        xxOutput += dx;
 
-        // Initialize and read background
-        fv3jedi::State xxBkgFullRes(stateFullResGeom, bkgFullResIOConfig);
-
-        // Add increment to background
-        fv3jedi::State xxAnlFullRes(stateFullResGeom, xxBkgFullRes);
-        xxAnlFullRes += dx;
-
-        // Write analysis
-        xxAnlFullRes.write(anlFullResIOConfig);
-
-        // Ensemble resolution states
-        // ---------------------------------------------------------------------------------
-
-        // Get individual IO configurations
-        const eckit::LocalConfiguration ensResIOConfig(ioConfig[ihrs], \
-                                                       "ensemble resolution states");
-        const eckit::LocalConfiguration bkgEnsResIOConfig(ensResIOConfig, "background");
-        const eckit::LocalConfiguration anlEnsResIOConfig(ensResIOConfig, "analysis");
-
-        // Initialize and read background
-        fv3jedi::State xxBkgEnsRes(stateEnsResGeom, bkgEnsResIOConfig);
-
-        // Add increment to background
-        fv3jedi::State xxAnlEnsRes(stateEnsResGeom, xxBkgEnsRes);
-        xxAnlEnsRes += dx;
-
-        // Write analysis
-        xxAnlEnsRes.write(anlEnsResIOConfig);
+        // Write output state
+        xxOutput.write(outputConfig);
       }
 
       return 0;
@@ -126,4 +88,4 @@ namespace gdasapp {
       return "gdasapp::calcanl";
     }
   };
-}  // namespace gdasapp
+}
