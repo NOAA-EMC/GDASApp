@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cmath>
 #include <iostream>
+#include <limits>  // For quiet_NAN()
 #include <map>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>
@@ -254,5 +256,58 @@ namespace gdasapp {
         }
       };
     }  // namespace iodavars
+
+    namespace utils {
+
+       // Calculate latitude and longitude from GOES ABI fixed grid projection data
+       // GOES ABI fixed grid projection is a map projection relative to the GOES satellite
+       // Units: latitude in °N (°S < 0), longitude in °E (°W < 0)
+       // See GOES-R Product User Guide (PUG) Volume 5 (L2 products) Section 4.2.8 (p58)
+       void calculate_degrees(
+           const std::vector<std::vector<double>>& x_coordinate_2d,
+           const std::vector<std::vector<double>>& y_coordinate_2d,
+           double lon_origin,
+           double H,
+           double r_eq,
+           double r_pol,
+           std::vector<std::vector<double>>& abi_lat,
+           std::vector<std::vector<double>>& abi_lon
+       ) {
+           int sizeX = x_coordinate_2d[0].size();
+           int sizeY = x_coordinate_2d.size();
+
+           double lambda_0 = (lon_origin * M_PI) / 180.0;
+
+           abi_lat.resize(sizeY, std::vector<double>(sizeX));
+           abi_lon.resize(sizeY, std::vector<double>(sizeX));
+
+           for (int i = 0; i < sizeY; ++i) {
+              for (int j = 0; j < sizeX; ++j) {
+                 double x = x_coordinate_2d[i][j];
+                 double y = y_coordinate_2d[i][j];
+                 double a_var = std::pow(std::sin(x), 2.0)
+                               + std::pow(std::cos(x), 2.0) * (std::pow(std::cos(y), 2.0)
+                               + ((r_eq * r_eq) / (r_pol * r_pol)) * std::pow(std::sin(y), 2.0));
+                 double b_var = -2.0 * H * std::cos(x) * std::cos(y);
+                 double c_var = (H * H) - (r_eq * r_eq);
+                 double discriminant = (b_var * b_var) - (4.0 * a_var * c_var);
+                 double r_s = (-b_var - std::sqrt(discriminant)) / (2.0 * a_var);
+                 double s_x = r_s * std::cos(x) * std::cos(y);
+                 double s_y = -r_s * std::sin(x);
+                 double s_z = r_s * std::cos(x) * std::sin(y);
+
+                 abi_lat[i][j] = (180.0 / M_PI) * (std::atan(((r_eq * r_eq) / (r_pol * r_pol))
+                                * (s_z / std::sqrt(((H - s_x) * (H - s_x)) + (s_y * s_y)))));
+                 abi_lon[i][j] = (lambda_0 - std::atan(s_y / (H - s_x))) * (180.0 / M_PI);
+
+                 // Handle invalid values
+                 if (discriminant < 0 || std::isnan(abi_lat[i][j]) || std::isnan(abi_lon[i][j])) {
+                     abi_lat[i][j] = std::numeric_limits<double>::quiet_NaN();
+                     abi_lon[i][j] = std::numeric_limits<double>::quiet_NaN();
+                 }
+              }
+           }
+         }  // void
+    }  // namespace utils
   }  // namespace obsproc
 };  // namespace gdasapp
