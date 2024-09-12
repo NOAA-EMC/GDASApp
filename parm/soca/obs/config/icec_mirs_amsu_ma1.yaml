@@ -1,13 +1,13 @@
 obs space:
-  name: icec_mirs
+  name: icec_mirs_amsu_ma1
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}icec_mirs.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}icec_mirs_amsu_ma1.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/icec_mirs.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/diags/icec_mirs_amsu_ma1.${PDY}${cyc}.nc4
   simulated variables: [seaIceFraction]
   io pool:
     max pool size: 1

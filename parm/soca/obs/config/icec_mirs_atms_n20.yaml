@@ -1,0 +1,45 @@
+obs space:
+  name: icec_mirs_atms_n20
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}icec_mirs_atms_n20.{PDY}${cyc}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/diags/icec_mirs_atms_n20.${PDY}${cyc}.nc4
+  simulated variables: [seaIceFraction]
+  io pool:
+    max pool size: 1
+get values:
+  time interpolation: linear
+obs operator:
+  name: Identity
+  observation alias file: obsop_name_map.yaml
+obs error:
+  covariance model: diagonal
+obs filters:
+- filter: Domain Check
+  where:
+  - variable: {name: GeoVaLs/sea_area_fraction}
+    minvalue: 0.9
+- filter: Bounds Check
+  minvalue: 0.0
+  maxvalue: 1.0
+#- filter: Background Check
+#  threshold: 5.0
+- filter: Domain Check
+  where:
+  - variable: { name: GeoVaLs/sea_surface_temperature}
+    maxvalue: 2.0
+- filter: Domain Check
+  where:
+  - variable: { name: GeoVaLs/sea_surface_temperature}
+    maxvalue: 0.0
+  action:
+    name: inflate error
+    inflation factor: 2.0
+- filter: Domain Check
+  where:
+  - variable: {name: GeoVaLs/distance_from_coast}
+    minvalue: 100e3
