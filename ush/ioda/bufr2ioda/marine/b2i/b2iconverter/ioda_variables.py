@@ -15,36 +15,36 @@ class IODAVariables:
     def construct(self):
         self.n_obs = 0
         # default values can be oerridden using methods of this class:
-        self.SetTemperatureRange(-10.0, 50.0)
+        self.set_temperature_range(-10.0, 50.0)
         self.T_error = 0.0
-        self.SetSalinityRange(0.0, 45.0)
+        self.set_salinity_range(0.0, 45.0)
         self.S_error = 0.0
         self.metadata = IODAMetadata()
 
-    def SetOceanBasinNCFilePath(self, nc_file_path):
-        self.additional_vars.SetOceanBasinNCFilePath(nc_file_path)
+    def set_ocean_basin_nc_file(self, nc_file_path):
+        self.additional_vars.set_ocean_basin_nc_file(nc_file_path)
 
-    def SetTemperatureVarName(self, name):
+    def set_temperature_var_name(self, name):
         self.T_name = name
 
-    def SetTemperatureError(self, e):
+    def set_temperature_error(self, e):
         self.T_error = e
 
-    def SetTemperatureRange(self, tmin, tmax):
+    def set_temperature_range(self, tmin, tmax):
         self.T_min = tmin
         self.T_max = tmax
 
-    def SetSalinityVarName(self, name):
+    def set_salinity_var_name(self, name):
         self.S_name = name
 
-    def SetSalinityError(self, e):
+    def set_salinity_error(self, e):
         self.S_error = e
 
-    def SetSalinityRange(self, smin, smax):
+    def set_salinity_range(self, smin, smax):
         self.S_min = smin
         self.S_max = smax
 
-    def BuildQuery(self):
+    def build_query(self):
         q = bufr.QuerySet()
         q.add('year', '*/YEAR')
         q.add('month', '*/MNTH')
@@ -58,9 +58,9 @@ class IODAVariables:
         q.add('rminute', '*/RCMI')
         return q
 
-    def SetFromQueryResult(self, r):
-        self.metadata.SetFromQueryResult(r)
-        self.SetObsFromQueryResult(r)
+    def set_from_query_result(self, r):
+        self.metadata.set_from_query_result(r)
+        self.set_obs_from_query_result(r)
 
 ###########################################################################
 
@@ -75,29 +75,29 @@ class IODAVariables:
 
 ###########################################################################
 
-    def WriteToIodaFile(self, obsspace):
-        self.metadata.WriteToIodaFile(obsspace)
-        self.additional_vars.WriteToIodaFile(obsspace)
-        self.WriteObsValueT(obsspace)
-        self.WriteObsValueS(obsspace)
+    def write_to_ioda_file(self, obsspace):
+        self.metadata.write_to_ioda_file(obsspace)
+        self.additional_vars.write_to_ioda_file(obsspace)
+        self.write_obs_value_t(obsspace)
+        self.write_obs_value_s(obsspace)
 
 ##########################################################################
 
-    def SetObsFromQueryResult(self, r):
+    def set_obs_from_query_result(self, r):
         self.temp = r.get('temp', group_by='depth')
         self.temp -= 273.15
         self.saln = r.get('saln', group_by='depth')
 
 ###########################################################################
 
-    def WriteObsValueT(self, obsspace):
+    def write_obs_value_t(self, obsspace):
         obsspace.create_var('ObsValue/' + self.T_name, dtype=self.temp.dtype, fillval=self.temp.fill_value) \
             .write_attr('units', 'degC') \
             .write_attr('valid_range', np.array([self.T_min, self.T_max], dtype=np.float32)) \
             .write_attr('long_name', self.T_name) \
             .write_data(self.temp)
 
-    def WriteObsValueS(self, obsspace):
+    def write_obs_value_s(self, obsspace):
         obsspace.create_var(
             'ObsValue/' + self.S_name,
             dtype=self.saln.dtype,
@@ -112,17 +112,17 @@ class IODAVariables:
 
     def log(self, logger):
         self.metadata.log(logger)
-        self.logObs(logger)
+        self.log_obs(logger)
         self.additional_vars.log(logger)
 
-    def logObs(self, logger):
-        self.logTemperature(logger)
-        self.logSalinity(logger)
+    def log_obs(self, logger):
+        self.log_temperature(logger)
+        self.log_salinity(logger)
 
-    def logTemperature(self, logger):
-        LogVariable(logger, "temp", self.temp)
+    def log_temperature(self, logger):
+        log_variable(logger, "temp", self.temp)
         logger.debug(f"temp hash = {compute_hash(self.temp)}")
 
-    def logSalinity(self, logger):
-        LogVariable(logger, "saln", self.saln)
+    def log_salinity(self, logger):
+        log_variable(logger, "saln", self.saln)
         logger.debug(f"saln hash = {compute_hash(self.saln)}")

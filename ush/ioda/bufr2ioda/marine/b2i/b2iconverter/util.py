@@ -7,7 +7,7 @@ import tempfile
 import hashlib
 
 
-def ParseArguments():
+def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-c', '--config',
@@ -32,7 +32,7 @@ def ParseArguments():
     return script_name, config_file, log_file, test_file
 
 
-def LogVariable(logger, v_name, v):
+def log_variable(logger, v_name, v):
     logger.debug(f"{v_name}: {len(v)}, {v.dtype}    min, max = {v.min()}, {v.max()}")
 
 
@@ -84,7 +84,7 @@ def compute_hash(sequence, algorithm='sha256'):
 
 #####################################################################
 
-def WriteDateTime(obsspace, dateTime):
+def write_date_time(obsspace, dateTime):
     obsspace.create_var(
         'MetaData/dateTime',
         dtype=dateTime.dtype, fillval=dateTime.fill_value
@@ -94,7 +94,7 @@ def WriteDateTime(obsspace, dateTime):
         .write_data(dateTime)
 
 
-def WriteRcptDateTime(obsspace, rcptdateTime):
+def write_rcpt_date_time(obsspace, rcptdateTime):
     obsspace.create_var(
         'MetaData/rcptdateTime',
         dtype=rcptdateTime.dtype, fillval=rcptdateTime.fill_value
@@ -104,7 +104,7 @@ def WriteRcptDateTime(obsspace, rcptdateTime):
         .write_data(rcptdateTime)
 
 
-def WriteLongitude(obsspace, lon):
+def write_longitude(obsspace, lon):
     obsspace.create_var(
         'MetaData/longitude',
         dtype=lon.dtype, fillval=lon.fill_value
@@ -115,7 +115,7 @@ def WriteLongitude(obsspace, lon):
         .write_data(lon)
 
 
-def WriteLatitude(obsspace, lat):
+def write_latitude(obsspace, lat):
     obsspace.create_var(
         'MetaData/latitude',
         dtype=lat.dtype, fillval=lat.fill_value
@@ -126,7 +126,7 @@ def WriteLatitude(obsspace, lat):
         .write_data(lat)
 
 
-def WriteStationID(obsspace, stationID):
+def write_station_id(obsspace, stationID):
     obsspace.create_var(
         'MetaData/stationID',
         dtype=stationID.dtype, fillval=stationID.fill_value
@@ -135,7 +135,7 @@ def WriteStationID(obsspace, stationID):
         .write_data(stationID)
 
 
-def WriteDepth(obsspace, depth):
+def write_depth(obsspace, depth):
     obsspace.create_var(
         'MetaData/depth',
         dtype=depth.dtype,
@@ -146,7 +146,7 @@ def WriteDepth(obsspace, depth):
         .write_data(depth)
 
 
-def WriteSeqNum(obsspace, seqNum, datatype, fillvalue):
+def write_seq_num(obsspace, seqNum, datatype, fillvalue):
     obsspace.create_var(
         'MetaData/sequenceNumber',
         dtype=datatype,
@@ -156,7 +156,7 @@ def WriteSeqNum(obsspace, seqNum, datatype, fillvalue):
         .write_data(seqNum)
 
 
-def WriteObsError(obsspace, v_name, units, v):
+def write_obs_error(obsspace, v_name, units, v):
     obsspace.create_var(
         v_name,
         dtype=v.dtype, fillval=v.fill_value
@@ -166,7 +166,7 @@ def WriteObsError(obsspace, v_name, units, v):
         .write_data(v)
 
 
-def WriteOceanBasin(obsspace, ocean_basin, datatype, fillvalue):
+def write_ocean_basin(obsspace, ocean_basin, datatype, fillvalue):
     obsspace.create_var(
         'MetaData/oceanBasin',
         dtype=datatype,

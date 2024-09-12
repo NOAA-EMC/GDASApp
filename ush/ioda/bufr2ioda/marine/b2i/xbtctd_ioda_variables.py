@@ -7,8 +7,8 @@ class XbtctdIODAVariables(IODAVariables):
     def __init__(self):
         super().__init__()
 
-    def BuildQuery(self):
-        q = super().BuildQuery()
+    def build_query(self):
+        q = super().build_query()
         q.add('stationID', '*/WMOP')
         q.add('latitude', '*/CLATH')
         q.add('longitude', '*/CLONH')

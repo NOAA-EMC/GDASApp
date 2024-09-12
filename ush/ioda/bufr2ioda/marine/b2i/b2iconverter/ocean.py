@@ -18,7 +18,7 @@ import xarray as xr
 # The path to the ocean basin nc file can be supplied
 # in the implementation of the converter
 
-# the main method is GetStationBasin which returns the ocean basin
+# the main method is get_station_basin which returns the ocean basin
 # for a list of station coordinates
 # there are methods for plotting and printing the ocean basin data
 # as well as printing and plotting station basin data
@@ -26,27 +26,12 @@ import xarray as xr
 
 class OceanBasin:
     def __init__(self):
-        # self.FindOceanBasinNCFile()
         pass
 
-    def SetOceanBasinNCFilePath(self, filename):
+    def set_ocean_basin_nc_file(self, filename):
         self.ocean_basin_nc_file_path = filename
 
-    def FindOceanBasinNCFile(self):
-        # try on hera:
-        trypath = "/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
-        if os.path.exists(trypath):
-            self.ocean_basin_nc_file_path = trypath
-        else:
-            # try on orion
-            trypath = "/work/noaa/global/glopara/fix/gdas/soca/20240802/common/RECCAP2_region_masks_all_v20221025.nc"
-            if os.path.exists(trypath):
-                self.ocean_basin_nc_file_path = trypath
-            else:
-                # file not found
-                self.ocean_basin_nc_file_path = ""
-
-    def ReadNCFile(self):
+    def read_nc_file(self):
         try:
             with nc.Dataset(self.ocean_basin_nc_file_path, 'r') as nc_file:
                 variable_name = 'open_ocean'
@@ -69,12 +54,12 @@ class OceanBasin:
             print(f"An IOError occurred: {e}")
             sys.exit(1)
 
-    def PrintBasin(self):
+    def print_basin(self):
         for i in range(n1):
             for j in range(n2):
                 print(i, j, self.__basin_array[i][j])
 
-    def PlotBasin(self):
+    def plot_basin(self):
         # Create a figure and axes with Cartopy projection
         fig = plt.figure(figsize=(10, 6))
         ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
@@ -97,7 +82,7 @@ class OceanBasin:
 
     # input: 2 vectors of station coordinates
     # output: a vector of station ocean basin values
-    def GetStationBasin(self, lat, lon):
+    def get_station_basin(self, lat, lon):
         n = len(lon)
         # print("number of stations = ", n)
 
@@ -115,15 +100,15 @@ class OceanBasin:
                 ocean_basin.append(self.__basin_array[i1][i2])
         return ocean_basin
 
-    def PrintStationBasin(self, lon, lat, file_path):
-        ocean_basin = self.GetStationBasin(lat, lon)
+    def print_station_basin(self, lon, lat, file_path):
+        ocean_basin = self.get_station_basin(lat, lon)
         with open(file_path, 'w') as file:
             # Iterate over lon, lat, and ocean_basin arrays simultaneously
             for lat_val, lon_val, basin_val in zip(lat, lon, ocean_basin):
                 file.write(f"{lat_val} {lon_val} {basin_val}\n")
 
-    def PlotStations(self, lon, lat, png_file):
-        ocean_basin = self.GetStationBasin(lon, lat)
+    def plot_stations(self, lon, lat, png_file):
+        ocean_basin = self.get_station_basin(lon, lat)
 
         # Initialize the plot
         plt.figure(figsize=(12, 8))

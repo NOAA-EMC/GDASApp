@@ -7,8 +7,8 @@ class GliderIODAVariables(IODAVariables):
     def __init__(self):
         super().__init__()
 
-    def BuildQuery(self):
-        q = super().BuildQuery()
+    def build_query(self):
+        q = super().build_query()
         q.add('stationID', '*/WMOP')
         q.add('latitude', '*/CLATH')
         q.add('longitude', '*/CLONH')
@@ -17,8 +17,8 @@ class GliderIODAVariables(IODAVariables):
         q.add('saln', '*/GLPFDATA/SALNH')
         return q
 
-    def SetFromQueryResult(self, r):
-        super().SetFromQueryResult(r)
+    def set_from_query_result(self, r):
+        super().set_from_query_result(r)
         # convert depth in pressure units to meters (rho * g * h)
         self.metadata.depth = np.float32(self.metadata.depth.astype(float) * 0.0001)
 

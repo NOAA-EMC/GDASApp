@@ -18,16 +18,16 @@ class Bufr2iodaConfig:
         if file_extension == ".json":
             with open(config_file, "r") as file:
                 config = json.load(file)
-            self.ReadConfig(config)
+            self.read_config(config)
         elif file_extension == ".yaml":
             with open(config_file, "r") as file:
                 config = yaml.safe_load(file)
-            self.ReadConfig(config)
+            self.read_config(config)
         else:
             print("Fatal error: Unknown file extension = ", file_extension)
             sys.exit(1)
 
-    def ReadConfig(self, config):
+    def read_config(self, config):
         # Get parameters from configuration
         self.data_format = config["data_format"]
         self.source = config["source"]
@@ -46,25 +46,25 @@ class Bufr2iodaConfig:
         # General Information
         self.converter = 'BUFR to IODA Converter'
 
-    def OceanBasinNCFilePath(self):
+    def ocean_basin_nc_file_path(self):
         return self.ocean_basin
 
-    def BufrFilename(self):
+    def bufr_filename(self):
         return f"{self.cycle_datetime}-{self.cycle_type}.t{self.hh}z.{self.data_format}.tm00.bufr_d"
 
-    def BufrFilepath(self):
-        return os.path.join(self.dump_dir, self.BufrFilename())
+    def bufr_filepath(self):
+        return os.path.join(self.dump_dir, self.bufr_filename())
 
-    def IODAFilename(self):
+    def ioda_filename(self):
         return f"{self.cycle_type}.t{self.hh}z.insitu_profile_{self.data_format}.{self.cycle_datetime}.nc4"
 
-    def IODAFilepath(self):
-        return os.path.join(self.ioda_dir, self.IODAFilename())
+    def ioda_filepath(self):
+        return os.path.join(self.ioda_dir, self.ioda_filename())
 
-    def CreateIODAAttributes(self, obsspace, date_range):
+    def create_ioda_attributes(self, obsspace, date_range):
         obsspace.write_attr('Converter', self.converter)
         obsspace.write_attr('source', self.source)
-        obsspace.write_attr('sourceFiles', self.BufrFilename())
+        obsspace.write_attr('sourceFiles', self.bufr_filename())
         obsspace.write_attr('dataProviderOrigin', self.data_provider)
         obsspace.write_attr('description', self.data_description)
         obsspace.write_attr('datetimeRange', date_range)

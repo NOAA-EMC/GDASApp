@@ -3,7 +3,7 @@ from pyiodaconv import bufr
 from b2iconverter.ioda_variables import IODAVariables
 from b2iconverter.ioda_addl_vars import IODAAdditionalVariables
 from b2iconverter.ioda_metadata import IODAMetadata
-from b2iconverter.util import WriteDateTime, WriteRcptDateTime, WriteLongitude, WriteLatitude, WriteStationID
+from b2iconverter.util import write_date_time, write_rcpt_date_time, write_longitude, write_latitude, write_station_id
 
 
 class TrkobIODAVariables(IODAVariables):
@@ -12,8 +12,8 @@ class TrkobIODAVariables(IODAVariables):
         self.metadata = TrkobMetadata()
         self.additional_vars = TrkobAdditionalVariables(self)
 
-    def BuildQuery(self):
-        q = super().BuildQuery()
+    def build_query(self):
+        q = super().build_query()
         q.add('stationID', '*/RPID')
         q.add('latitude', '*/CLAT')
         q.add('longitude', '*/CLON')
@@ -32,12 +32,12 @@ class TrkobIODAVariables(IODAVariables):
 
 class TrkobMetadata(IODAMetadata):
 
-    def SetFromQueryResult(self, r):
-        self.SetDateTimeFromQueryResult(r)
-        self.SetRcptDateTimeFromQueryResult(r)
-        self.SetLonFromQueryResult(r)
-        self.SetLatFromQueryResult(r)
-        self.SetStationIDFromQueryResult(r)
+    def set_from_query_result(self, r):
+        self.set_date_time_from_query_result(r)
+        self.set_rcpt_date_time_from_query_result(r)
+        self.set_lon_from_query_result(r)
+        self.set_lat_from_query_result(r)
+        self.set_station_id_from_query_result(r)
 
     def filter(self, mask):
         self.dateTime = self.dateTime[mask]
@@ -46,20 +46,20 @@ class TrkobMetadata(IODAMetadata):
         self.lon = self.lon[mask]
         self.stationID = self.stationID[mask]
 
-    def WriteToIodaFile(self, obsspace):
-        WriteDateTime(obsspace, self.dateTime)
-        WriteRcptDateTime(obsspace, self.rcptdateTime)
-        WriteLongitude(obsspace, self.lon)
-        WriteLatitude(obsspace, self.lat)
-        WriteStationID(obsspace, self.stationID)
+    def write_to_ioda_file(self, obsspace):
+        write_date_time(obsspace, self.dateTime)
+        write_rcpt_date_time(obsspace, self.rcptdateTime)
+        write_longitude(obsspace, self.lon)
+        write_latitude(obsspace, self.lat)
+        write_station_id(obsspace, self.stationID)
 
     def log(self, logger):
-        self.logDateTime(logger)
-        self.logRcptDateTime(logger)
+        self.log_date_time(logger)
+        self.log_rcpt_date_time(logger)
         # self.logLonLat(logger)
-        self.logLongitude(logger)
-        self.logLatitude(logger)
-        self.logStationID(logger)
+        self.log_longitude(logger)
+        self.log_latitude(logger)
+        self.log_station_id(logger)
 
 
 class TrkobAdditionalVariables(IODAAdditionalVariables):
@@ -71,17 +71,17 @@ class TrkobAdditionalVariables(IODAAdditionalVariables):
             np.float32(np.ma.masked_array(np.full(n, self.ioda_vars.T_error)))
         self.ObsError_saln = \
             np.float32(np.ma.masked_array(np.full(n, self.ioda_vars.S_error)))
-        self.ComputeOceanBasin()
+        self.compute_ocean_basin()
 
-    def WriteToIodaFile(self, obsspace):
-        self.WritePreQC(obsspace, self.ioda_vars.T_name)
-        self.WritePreQC(obsspace, self.ioda_vars.S_name)
-        self.WriteObsErrorT(obsspace)
-        self.WriteObsErrorS(obsspace)
-        self.WriteOceanBasin(obsspace)
+    def write_to_ioda_file(self, obsspace):
+        self.write_preqc(obsspace, self.ioda_vars.T_name)
+        self.write_preqc(obsspace, self.ioda_vars.S_name)
+        self.write_obs_errorT(obsspace)
+        self.write_obs_errorS(obsspace)
+        self.write_ocean_basin(obsspace)
 
     def log(self, logger):
-        self.logPreQC(logger)
-        self.logObsError_temp(logger)
-        self.logObsError_saln(logger)
-        self.logOceanBasin(logger)
+        self.log_preqc(logger)
+        self.log_obs_error_temp(logger)
+        self.log_obs_error_saln(logger)
+        self.log_ocean_basin(logger)
