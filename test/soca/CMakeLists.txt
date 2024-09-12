@@ -45,41 +45,87 @@ ENVIRONMENT "data=${TESTDATA};PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPA
 # prepare a test.yaml file from test.yaml.in by replacing
 # placeholder patterns __BUFRINPUTDIR__ and __IODAOUTPUTDIR__
 # with actual directory paths
-function(CREATE_CONFIG_FILE test_config_in test_config_out bufr_input_dir ioda_output_dir)
+function(CREATE_CONFIG_FILE 
+	test_config_in 
+	test_config_out 
+	bufr_input_dir 
+	ioda_output_dir
+	ocean_basin_file
+)
 	file(READ "${test_config_in}" file_content)
 	string(REPLACE "__BUFRINPUTDIR__" "\"${bufr_input_dir}\"" temp_content "${file_content}")
 	string(REPLACE "__IODAOUTPUTDIR__" "\"${ioda_output_dir}\"" temp_content2 "${temp_content}")
-	file(WRITE "${test_config_out}" "${temp_content2}")
+	string(REPLACE "__OCEANBASIN__" "\"${ocean_basin_file}\"" temp_content3 "${temp_content2}")
+	file(WRITE "${test_config_out}" "${temp_content3}")
 endfunction()
 
 
 set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/soca)
-message("bufr to ioda: TEST_WORKING_DIR = ${TEST_WORKING_DIR}")
+# message("bufr to ioda: TEST_WORKING_DIR = ${TEST_WORKING_DIR}")
 
 set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
 set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
 set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/soca/testinput)
 set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/soca/testref)
 
-# find the staging directory for bufr test input files ${BUFR_TEST_DIR}
-# checking on orion and hera
-# bufr input files on orion:
-set(BUFR_TEST_DIR
+
+function(CHECK_AND_SET_PATH PATH1 PATH2 RESULT_VAR)
+    # Check if PATH1 exists
+    if(EXISTS ${PATH1})
+        set(${RESULT_VAR} ${PATH1} PARENT_SCOPE)
+        set(${RESULT_VAR}_EXISTS TRUE PARENT_SCOPE)
+        return()
+    endif()
+
+    # Check if PATH2 exists
+    if(EXISTS ${PATH2})
+        set(${RESULT_VAR} ${PATH2} PARENT_SCOPE)
+        set(${RESULT_VAR}_EXISTS TRUE PARENT_SCOPE)
+        return()
+    endif()
+
+    # If neither path exists
+    set(${RESULT_VAR} "" PARENT_SCOPE)
+    set(${RESULT_VAR}_EXISTS FALSE PARENT_SCOPE)
+endfunction()
+
+
+# find the input files
+set(BUFR_TEST_DIR_ORION
 	"/work/noaa/da/marineda/gfs-marine/data/obs/ci/bufr"
 )
-if (NOT EXISTS ${BUFR_TEST_DIR})
-	# bufr input files on hera:
-	set(BUFR_TEST_DIR
-		"/scratch1/NCEPDEV/da/common/ci/bufr"
-	)
-endif()
-if (NOT EXISTS ${BUFR_TEST_DIR})
-	message("staging directory for BUFR test files ${BUFR_TEST_DIR} not found")
+set(BUFR_TEST_DIR_HERA
+	"/scratch1/NCEPDEV/da/common/ci/bufr"
+)
+CHECK_AND_SET_PATH(
+	${BUFR_TEST_DIR_ORION} 
+	${BUFR_TEST_DIR_HERA} 
+	BUFR_TEST_DIR
+)
+if (NOT BUFR_TEST_DIR_EXISTS)
+	message(STATUS "BUFR test file directory not found -- bufr to ioda tests not generted.")
 	set(GENERATE_BUFR2IODA_TESTS FALSE)
 else()
+    # message(STATUS "Found bufr test directory: ${BUFR_TEST_DIR}")
+
+	set(OCEAN_BASIN_FILE_HERA
+		"/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
+	)
+	set(OCEAN_BASIN_FILE_ORION
+		"/work/noaa/global/glopara/fix/gdas/soca/20240802/common/RECCAP2_region_masks_all_v20221025.nc"
+	)
+	CHECK_AND_SET_PATH(
+		${OCEAN_BASIN_FILE_ORION} 
+		${OCEAN_BASIN_FILE_HERA} 
+		OCEAN_BASIN_FILE
+	)
+	if (NOT OCEAN_BASIN_FILE_EXISTS)
+		message("Ocean basin data file not found -- bufr to ioda tests not generated.")
+		set(GENERATE_BUFR2IODA_TESTS FALSE)
+	endif()
+	# message(STATUS "Found ocean basin data in ${OCEAN_BASIN_FILE}")
 	set(GENERATE_BUFR2IODA_TESTS TRUE)
 endif()
-
 
 
 function(ADD_INSITU_TEST testname testbufr)
@@ -109,6 +155,7 @@ function(ADD_INSITU_TEST testname testbufr)
 		${CONFIG_FILE}
 		${BUFR_INPUT_DIR}
 		${IODA_OUTPUT_DIR}
+		${OCEAN_BASIN_FILE}
 	)
 
 	add_test(

@@ -28,8 +28,6 @@ class Bufr2iodaConfig:
             sys.exit(1)
 
     def ReadConfig(self, config):
-        # subsets was unused in the config file ???
-        # subsets = config["subsets"]
         # Get parameters from configuration
         self.data_format = config["data_format"]
         self.source = config["source"]
@@ -40,12 +38,16 @@ class Bufr2iodaConfig:
         self.cycle_datetime = config["cycle_datetime"]
         self.dump_dir = config["dump_directory"]
         self.ioda_dir = config["ioda_directory"]
+        self.ocean_basin = config["ocean_basin"]
 
         self.yyyymmdd = self.cycle_datetime[0:8]
         self.hh = self.cycle_datetime[8:10]
 
         # General Information
         self.converter = 'BUFR to IODA Converter'
+
+    def OceanBasinNCFilePath(self):
+        return self.ocean_basin
 
     def BufrFilename(self):
         return f"{self.cycle_datetime}-{self.cycle_type}.t{self.hh}z.{self.data_format}.tm00.bufr_d"

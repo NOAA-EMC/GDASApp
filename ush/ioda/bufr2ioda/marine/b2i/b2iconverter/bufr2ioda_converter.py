@@ -25,6 +25,7 @@ import tempfile
 
 class Bufr2ioda_Converter:
     def __init__(self, bufr2ioda_config, ioda_vars, logfile):
+        ioda_vars.SetOceanBasinNCFilePath(bufr2ioda_config.OceanBasinNCFilePath())
         self.bufr2ioda_config = bufr2ioda_config
         self.ioda_vars = ioda_vars
         self.logfile = logfile

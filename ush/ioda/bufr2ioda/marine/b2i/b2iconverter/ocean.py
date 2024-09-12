@@ -26,7 +26,8 @@ import xarray as xr
 
 class OceanBasin:
     def __init__(self):
-        self.FindOceanBasinNCFile()
+        # self.FindOceanBasinNCFile()
+        pass
 
     def SetOceanBasinNCFilePath(self, filename):
         self.ocean_basin_nc_file_path = filename

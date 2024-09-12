@@ -15,7 +15,7 @@ import cartopy.feature as cfeature
 # from .ocean import OceanBasin
 
 
-def plot_points_on_map(latitudes, longitudes, title='Map with Points', marker_color='red', marker_size=50):
+def plot_points_on_map(latitudes, longitudes, output_file_name, title='Map with Points', marker_color='red', marker_size=50):
     """
     Plots points on a map given lists of latitudes and longitudes.
 
@@ -47,8 +47,7 @@ def plot_points_on_map(latitudes, longitudes, title='Map with Points', marker_co
 
     # Show the map
     # plt.show()
-    png_file = "stations.png"
-    plt.savefig(png_file, dpi=300)
+    plt.savefig(output_file_name, dpi=300)
 
 
 parser = argparse.ArgumentParser()
@@ -57,8 +56,14 @@ parser.add_argument(
     type=str,
     help='Input BUFR filename', required=True
 )
+parser.add_argument(
+    '-o', '--output',
+    type=str,
+    help='Output png filename', required=True
+)
 args = parser.parse_args()
 bufrfile_path = args.input
+output_file_name = args.output
 
 q = bufr.QuerySet()
 q.add('longitude', '*/CLON')
@@ -74,4 +79,4 @@ lat = r.get('latitude')
 
 print(f"read lat, lon -- {len(lon)} points")
 
-plot_points_on_map(lat, lon, title='stations', marker_color='blue', marker_size=10)
+plot_points_on_map(lat, lon, output_file_name, title='stations', marker_color='blue', marker_size=10)

@@ -93,7 +93,6 @@ class IODAAdditionalVariables:
 #########################################################################
 
 
-# seqNum depends both on lat and lon
 def ComputeSeqNum(lon, lat):
     combined = np.stack((lon, lat), axis=-1)
     unique_combined, seqNum = np.unique(combined, axis=0, return_inverse=True)
