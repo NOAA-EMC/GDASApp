@@ -11,6 +11,8 @@
   "sensor_info"      : { "sensor_name": "SEVIRI",  "sensor_full_name": "Spinning Enhanced Visible and InfraRed Imager",  "sensor_id": 999 },
   "satellite_info"   : [
                           { "satellite_name": "M8", "satellite_full_name": "METEOSAT-8", "satellite_id": 55, "launch time": "YYYYMMDD" },
+                          { "satellite_name": "M9", "satellite_full_name": "METEOSAT-9", "satellite_id": 56, "launch time": "YYYYMMDD" },
+                          { "satellite_name": "M10", "satellite_full_name": "METEOSAT-10", "satellite_id": 57, "launch time": "YYYYMMDD" },
                           { "satellite_name": "M11", "satellite_full_name": "METEOSAT-11", "satellite_id": 70, "launch time": "YYYYMMDD" },
                        ]
 }

@@ -75,17 +75,14 @@ for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.nc4 $COM_OBS/${oprefix}.${file}.nc
 done
 
-# Link radiance bias correction files
+# Link radiance bias correction tarball
 dpath=gdas.$gPDY/$gcyc/analysis/atmos
 mkdir -p $COM_ATMOS_ANALYSIS_PREV
-flist="amsua_n19.satbias amsua_n19.satbias_cov"
-for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.${file}.nc4 $COM_ATMOS_ANALYSIS_PREV/$gprefix.${file}.nc
-done
-flist="amsua_n19.tlapse.txt"
+flist="rad_varbc_params.tar"
 for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.${file} $COM_ATMOS_ANALYSIS_PREV/$gprefix.${file}
 done
+
 
 # Link atmospheric history on gaussian grid
 dpath=gdas.$gPDY/$gcyc/model/atmos/history
