@@ -1,2 +1,4 @@
-bufr2ioda:
-     sfcsno: '{{PARMgfs}}/gdas/snow/obs/config/bufr_sfcsno_mapping.yaml'
+mkdir:
+- '{{ DATA }}/obs'
+copy:
+- ['{{PARMgfs}}/gdas/snow/obs/config/bufr_sfcsno_mapping.yaml', '{{ DATA }}/obs/']
