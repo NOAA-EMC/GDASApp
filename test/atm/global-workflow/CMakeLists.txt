@@ -36,6 +36,11 @@ add_test(NAME test_gdasapp_atm_jjob_ens_letkf
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
 	  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
 
+add_test(NAME test_gdasapp_atm_jjob_ens_init_split
+  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_init_split.sh
+          ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
+
 add_test(NAME test_gdasapp_atm_jjob_ens_obs
   COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_obs.sh
           ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
