@@ -43,7 +43,7 @@ namespace gdasapp {
         nhrs = additionsConfig.size();
       } else {
         eckit::LocalConfiguration additionsFromTemplateConfig(fullConfig, \
-							      "additions from template");
+                                                              "additions from template");
         eckit::LocalConfiguration templateConfig(additionsFromTemplateConfig, "template");
         std::string pattern;
         std::vector<std::string> fcstHours;
@@ -88,5 +88,5 @@ namespace gdasapp {
     std::string appname() const {
       return "gdasapp::calcanl";
     }
-  };
+  }; // namespace gdasapp
 }
