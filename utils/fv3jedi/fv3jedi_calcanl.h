@@ -88,5 +88,5 @@ namespace gdasapp {
     std::string appname() const {
       return "gdasapp::calcanl";
     }
-  }; // namespace gdasapp
-}
+  };
+}  // namespace gdasapp
