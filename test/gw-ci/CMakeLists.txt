@@ -27,7 +27,7 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   # stage ensemble ics
   if (enkf)
     message(STATUS "preparing enkfgdasstage_ic  for ${pslot} ctest")
-    add_test(NAME ${pslot}_enkfgdasstage_${HALF_CYCLE}
+    add_test(NAME ${pslot}_enkfgdasstage_ic_${HALF_CYCLE}
              COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasstage_ic ${HALF_CYCLE}"
              WORKING_DIRECTORY ${RUNTESTS})
     set_tests_properties(${pslot}_enkfgdasstage_ic_${HALF_CYCLE} PROPERTIES LABELS "manual")
@@ -38,15 +38,18 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   add_test(NAME ${pslot}_gdasfcst_seg0_${HALF_CYCLE}
            COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasfcst_seg0 ${HALF_CYCLE}"
            WORKING_DIRECTORY ${RUNTESTS})
-  set_tests_properties(${pslot}_gdasfcst_${HALF_CYCLE} PROPERTIES LABELS "manual")
+  set_tests_properties(${pslot}_gdasfcst_seg0_${HALF_CYCLE} PROPERTIES LABELS "manual")
 
   # 1/2 cycle enkfgdasfcst
   if (enkf)
-  message(STATUS "preparing 1/2 cycle enkfgdasfcst_mem001 for ${pslot} ctest")
-    add_test(NAME ${pslot}_enkfgdasfcst_mem001_${HALF_CYCLE}
-             COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasfcst_mem001 ${HALF_CYCLE}"
-             WORKING_DIRECTORY ${RUNTESTS})
-    set_tests_properties(${pslot}_enkfgdasfcst_mem001_${HALF_CYCLE} PROPERTIES LABELS "manual")
+  set(ENS_MEMS  "mem001" "mem002" "mem003")
+  foreach(ENS_MEM ${ENS_MEMS})
+    message(STATUS "preparing 1/2 cycle enkfgdasfcst_${ENS_MEM} for ${pslot} ctest")
+      add_test(NAME ${pslot}_enkfgdasfcst_${ENS_MEM}_${HALF_CYCLE}
+               COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasfcst_${ENS_MEM} ${HALF_CYCLE}"
+               WORKING_DIRECTORY ${RUNTESTS})
+      set_tests_properties(${pslot}_enkfgdasfcst_${ENS_MEM}_${HALF_CYCLE} PROPERTIES LABELS "manual")
+  endforeach()
   endif()
 
   # Select the list of tasks to run for the full cycle
@@ -84,17 +87,9 @@ add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_
 set(pslot "WCDA-3DVAR-C48mx500ens")
 set(enkf TRUE)
 set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDAens.yaml)
-# add half-cycle jobs
-set(TASK_LIST
-  "enkfgdasstage_ic"
-  "enkfgdasfcst_mem001"
-  "enkfgdasfcst_mem002"
-  "enkfgdasfcst_mem003"
-  )
-add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
-
 set(TASK_LIST
   "gdasprepoceanobs"
+  "gdasmarineanalletkf"
   "gdasmarinebmat"
   "gdasocnanalprep"
   "gdasocnanalrun"
