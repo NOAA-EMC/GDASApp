@@ -51,6 +51,8 @@ output:
 final:
   diagnostics:
     departures: oman
+  prints:
+    frequency: PT3H
   increment:
     output:
       state component:
