@@ -47,8 +47,8 @@ endfunction()
 set(HOMEgfs ${CMAKE_SOURCE_DIR}/../../..)
 set(RUNTESTS ${CMAKE_CURRENT_BINARY_DIR}/../../test/gw-ci)
 
-# WCDA, low-res
-# -------------
+# 3DVAR WCDA, low-res
+# -------------------
 set(pslot "WCDA-3DVAR-C48mx500")
 set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDA.yaml)
 set(TASK_LIST
@@ -57,8 +57,22 @@ set(TASK_LIST
   "gdasmarineanlinit"
   "gdasmarineanlvar"
   "gdasmarineanlchkpt"
-  "gdasocnanalpost"
-w  )
+  "gdasmarineanlfinal"
+  )
+add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+
+# hyb EnVAR WCDA, low-res
+# -------------------
+set(pslot "WCDA-HYB-C48mx500")
+set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_hybAOWCDA.yaml)
+set(TASK_LIST
+  "gdasprepoceanobs"
+  "gdasmarinebmat"
+  "gdasmarineanlinit"
+  "gdasmarineanlvar"
+  "gdasmarineanlchkpt"
+  "gdasmarineanlfinal"
+  )
 add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
 # Aero-Land DA, C96
@@ -85,7 +99,7 @@ set(TASK_LIST
   "gdasmarineanlinit"
   "gdasmarineanlvar"
   "gdasmarineanlchkpt"
-  "gdasocnanalpost"
+  "gdasmarineanlfinal"
   "gdasocnanalvrfy"
   "gdasprep"
   "gdasanal"
