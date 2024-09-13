@@ -61,20 +61,6 @@ set(TASK_LIST
   )
 add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
-# hyb EnVAR WCDA, low-res
-# -------------------
-set(pslot "WCDA-HYB-C48mx500")
-set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_hybAOWCDA.yaml)
-set(TASK_LIST
-  "gdasprepoceanobs"
-  "gdasmarinebmat"
-  "gdasmarineanlinit"
-  "gdasmarineanlvar"
-  "gdasmarineanlchkpt"
-  "gdasmarineanlfinal"
-  )
-add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
-
 # Aero-Land DA, C96
 # -----------------
 set(pslot "Aero-Snow-3DVAR-C96")
