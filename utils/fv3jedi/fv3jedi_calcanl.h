@@ -40,16 +40,17 @@ namespace gdasapp {
       std::vector<eckit::LocalConfiguration> additionsConfig;
       if ( fullConfig.has("additions") ) {
         fullConfig.get("additions", additionsConfig);
-	nhrs = additionsConfig.size();
+        nhrs = additionsConfig.size();
       } else {
-        eckit::LocalConfiguration additionsFromTemplateConfig(fullConfig, "additions from template");
+        eckit::LocalConfiguration additionsFromTemplateConfig(fullConfig, \
+							      "additions from template");
         eckit::LocalConfiguration templateConfig(additionsFromTemplateConfig, "template");
         std::string pattern;
-	std::vector<std::string> fcstHours;
-	additionsFromTemplateConfig.get("pattern", pattern);
-	additionsFromTemplateConfig.get("forecast hours", fcstHours);
+        std::vector<std::string> fcstHours;
+        additionsFromTemplateConfig.get("pattern", pattern);
+        additionsFromTemplateConfig.get("forecast hours", fcstHours);
 
-	nhrs = fcstHours.size();
+        nhrs = fcstHours.size();
         for ( int ihrs = 0; ihrs < nhrs; ihrs++ ) {
           eckit::LocalConfiguration thisAdditionsConfig(templateConfig);
           util::seekAndReplace(thisAdditionsConfig, pattern, fcstHours[ihrs]);
@@ -60,15 +61,15 @@ namespace gdasapp {
       // Loops through forecast hours
       for ( int ihrs = 0; ihrs < nhrs; ihrs++ ) {
         // Get elements of individual additions configurations
-	const eckit::LocalConfiguration stateConfig(additionsConfig[ihrs], "state");
+        const eckit::LocalConfiguration stateConfig(additionsConfig[ihrs], "state");
         const eckit::LocalConfiguration incrConfig(additionsConfig[ihrs], "increment");
         const eckit::LocalConfiguration outputConfig(additionsConfig[ihrs], "output");
 
-	// Initialize input state
+        // Initialize input state
         fv3jedi::State xx(stateGeom, stateConfig);
 
-	// Initialize increment
-	oops::Variables incrVars(incrConfig, "added variables");
+        // Initialize increment
+        oops::Variables incrVars(incrConfig, "added variables");
         fv3jedi::Increment dx(incrGeom, incrVars, xx.validTime());
         dx.read(incrConfig);
 
