@@ -2,16 +2,16 @@
     name: ghcn_snow
     distribution:
       name: Halo
-      simulated variables: [totalSnowDepth]
+      halo size: 250e3
     obsdatain:
       engine:
         type: H5File
-        obsfile: './obs/{{ OPREFIX }}ghcn_snow_{{ current_cycle | to_YMDH }}.nc4'
+        obsfile: '{{ DATA }}/obs/{{ OPREFIX }}ghcn_snow.nc4'
     obsdataout:
       engine:
         type: H5File
-        obsfile: './diags/diag_ghcn_snow_{{ current_cycle | to_YMDH }}.nc4'
-
+        obsfile: '{{ DATA }}/diags/diag_ghcn_snow.nc4'
+    simulated variables: [totalSnowDepth]
   obs operator:
     name: Identity
   obs error:
@@ -31,7 +31,7 @@
     - filter: Domain Check
       where:
       - variable:
-          name: MetaData/height
+          name: MetaData/stationElevation
         minvalue: -999.0
     - filter: Domain Check # land only
       where:
