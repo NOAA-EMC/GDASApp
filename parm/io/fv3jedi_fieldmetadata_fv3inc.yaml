@@ -24,6 +24,5 @@ field metadata:
 - long name: air_pressure_thickness
   io name: delp_inc
 
-- long name: hydrostatic_layer_thickness
+- long name: layer_thickness
   io name: delz_inc
-
