@@ -25,7 +25,7 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   set_tests_properties(${pslot}_gdasstage_ic_${HALF_CYCLE} PROPERTIES LABELS "manual")
 
   # stage ensemble ics
-  if (enkf)
+  if (letkf)
     message(STATUS "preparing enkfgdasstage_ic  for ${pslot} ctest")
     add_test(NAME ${pslot}_enkfgdasstage_ic_${HALF_CYCLE}
              COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasstage_ic ${HALF_CYCLE}"
@@ -41,7 +41,7 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   set_tests_properties(${pslot}_gdasfcst_seg0_${HALF_CYCLE} PROPERTIES LABELS "manual")
 
   # 1/2 cycle enkfgdasfcst
-  if (enkf)
+  if (letkf)
   set(ENS_MEMS  "mem001" "mem002" "mem003")
   foreach(ENS_MEM ${ENS_MEMS})
     message(STATUS "preparing 1/2 cycle enkfgdasfcst_${ENS_MEM} for ${pslot} ctest")
@@ -84,9 +84,9 @@ add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_
 
 # WCDA, low-res, ensemble da
 # -------------
-set(pslot "WCDA-3DVAR-C48mx500ens")
-set(enkf TRUE)
-set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDAens.yaml)
+set(pslot "WCDA-hyb-C48mx500")
+set(letkf TRUE)
+set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_hybAOWCDA.yaml)
 set(TASK_LIST
   "gdasprepoceanobs"
   "gdasmarineanalletkf"
@@ -97,7 +97,7 @@ set(TASK_LIST
   "gdasocnanalpost"
   )
 add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
-set(enkf FALSE)
+set(letkf FALSE)
 
 # Aero-Land DA, C96
 # -----------------

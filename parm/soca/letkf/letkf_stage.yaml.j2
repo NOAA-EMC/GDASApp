@@ -25,5 +25,6 @@ mkdir:
 ######################################
 copy:
 - ["{{ PARMgfs }}/gdas/soca/fms/input.nml", "{{ DATA }}/mom_input.nml.tmpl"]
+- ["{{ PARMgfs }}/gdas/soca/fields_metadata.yaml", "{{ DATA }}/fields_metadata.yaml"]
 - ["{{ COMIN_OCEAN_HISTORY_PREV }}/gdas.ocean.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
 - ["{{ COMIN_ICE_HISTORY_PREV }}/gdas.ice.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/INPUT/cice.res.nc"]
