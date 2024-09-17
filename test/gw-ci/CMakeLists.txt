@@ -61,33 +61,36 @@ set(TASK_LIST
   )
 add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
-# Aero-Land DA, C96
-# -----------------
-set(pslot "Aero-Snow-3DVAR-C96")
-set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96C48_hybatmaerosnowDA.yaml)
-set(TASK_LIST)  # empty list for now
-add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
+if (RUN_GW_CI)
+  # Aero-Land DA, C96
+  # -----------------
+  set(pslot "Aero-Snow-3DVAR-C96")
+  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96C48_hybatmaerosnowDA.yaml)
+  set(TASK_LIST)  # empty list for now
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
-# Atm DA, C96/C48
-# ---------------
-set(pslot "Atm-hyb-C96C48")
-set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96C48_ufs_hybatmDA.yaml)
-set(TASK_LIST)  # empty list for now
-add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+  # Atm DA, C96/C48
+  # ---------------
+  set(pslot "Atm-hyb-C96C48")
+  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96C48_ufs_hybatmDA.yaml)
+  set(TASK_LIST)  # empty list for now
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
-# GFSv17, 3DVAR prototype
-# -----------------------
-set(pslot "GFSv17-3DVAR-C384mx025")
-set(YAML_PATH ${HOMEgfs}/ci/cases/gfsv17/C384mx025_3DVarAOWCDA.yaml)
-set(TASK_LIST
-  "gdasprepoceanobs"
-  "gdasmarinebmat"
-  "gdasmarineanlinit"
-  "gdasmarineanlvar"
-  "gdasmarineanlchkpt"
-  "gdasmarineanlfinal"
-  "gdasocnanalvrfy"
-  "gdasprep"
-  "gdasanal"
-  )
-add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+  # GFSv17, 3DVAR prototype
+  # -----------------------
+  set(pslot "GFSv17-3DVAR-C384mx025")
+  set(YAML_PATH ${HOMEgfs}/ci/cases/gfsv17/C384mx025_3DVarAOWCDA.yaml)
+  set(TASK_LIST
+    "gdasprepoceanobs"
+    "gdasmarinebmat"
+    "gdasmarineanlinit"
+    "gdasmarineanlvar"
+    "gdasmarineanlchkpt"
+    "gdasmarineanlfinal"
+    "gdasocnanalvrfy"
+    "gdasprep"
+    "gdasanal"
+    )
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+endif()
