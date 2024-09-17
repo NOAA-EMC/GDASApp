@@ -2,27 +2,27 @@ geometry:
   mom6_input_nml: mom_input.nml
   fields metadata: ./fields_metadata.yaml
 
-date: '{{marine_window_begin}}'
+date: '{{ marine_window_begin }}'
 
 layers variable: [hocn]
 
 increment variables: [tocn, socn, uocn, vocn, ssh]
 
 vertical geometry:
-  date: '{{marine_window_begin}}'
+  date: '{{ marine_window_begin }}'
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
   read_from_file: 1
 
 soca increment:
-  date: '{{marine_window_begin}}'
+  date: '{{ marine_window_begin }}'
   basename: ./Data/
-  ocn_filename: 'ocn.3dvarfgat_pseudo.incr.{{ATM_WINDOW_MIDDLE}}.nc'
+  ocn_filename: 'ocn.3dvarfgat_pseudo.incr.{{marine_window_middle}}.nc'
   read_from_file: 1
 
 output increment:
   datadir: ./
-  date: '{{marine_window_begin}}'
+  date: '{{ marine_window_begin }}'
   exp: mom6_iau
   type: incr
   output file: inc.nc
