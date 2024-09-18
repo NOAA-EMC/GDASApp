@@ -10,8 +10,7 @@ class IODAAdditionalVariables:
         self.ocean = OceanBasin()
 
     def construct(self):
-        self.seqNum = compute_seq_num(self.ioda_vars.metadata.lon,
-                                    self.ioda_vars.metadata.lat)
+        self.seqNum = compute_seq_num(self.ioda_vars.metadata.lon, self.ioda_vars.metadata.lat)
         n = len(self.seqNum)
         self.PreQC = (np.ma.masked_array(np.full(n, 0))).astype(np.int32)
         self.ObsError_temp = \
