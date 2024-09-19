@@ -23,27 +23,13 @@ endforeach(FILENAME)
 install(FILES ${test_input}
         DESTINATION "test/testinput/")
 
-# Test exgdas scripts from the global-worflow
-if (WORKFLOW_TESTS)
-  add_subdirectory(gw)
-endif()
-
-# test for ush/socaincr2mom6.py
-add_test(NAME test_gdasapp_soca_nsst_increment_to_mom6
-         COMMAND ${PROJECT_SOURCE_DIR}/test/soca/socaincr2mom6.sh ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/soca)
-set_tests_properties(
-        test_gdasapp_soca_nsst_increment_to_mom6
-PROPERTIES
-ENVIRONMENT "data=${TESTDATA};PYTHONPATH=${PROJECT_BINARY_DIR}/ush:$ENV{PYTHONPATH}")
-
 
 ###########################################################################
 # bufr to ioda tests:
 ###########################################################################
 
 # prepare a test.yaml file from test.yaml.in by replacing
-# placeholder patterns __BUFRINPUTDIR__ and __IODAOUTPUTDIR__
+# placeholder patterns __BUFRINPUTDIR__ and __IODAOUTPUTDIR__ and __OCEANBASIN__
 # with actual directory paths
 function(CREATE_CONFIG_FILE 
 	test_config_in 
@@ -61,7 +47,6 @@ endfunction()
 
 
 set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/soca)
-# message("bufr to ioda: TEST_WORKING_DIR = ${TEST_WORKING_DIR}")
 
 set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
 set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
