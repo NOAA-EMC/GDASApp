@@ -127,7 +127,7 @@ namespace gdasapp {
 
       // Get Ice_Temp obs values
       std::vector<uint16_t> IcecTempObsVal(iodaVars.location_);
-      ncFile.getVar("Temp").getVar(IcecTempObsVal.data());
+      ncFile.getVar("Temp").getVar(IcecTempObsVal.data());  // Kelvin
       float IcecTempOffSet;
       ncFile.getVar("Temp").getAtt("add_offset").getValues(&IcecTempOffSet);
       float IcecTempScaleFactor;

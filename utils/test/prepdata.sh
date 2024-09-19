@@ -2,6 +2,17 @@
 # called for test_gdasapp_util_prepdata, and by
 # test/soca/gw/setup_obsproc.sh for test_gdasapp_soca_setup_obsproc
 
+# Get the machine hostname
+MACHINE_NAME=$(hostname)
+
+# Check if the machine name is "hera"
+if [[ "$MACHINE_NAME" =~ ^hfe0[1-9]$ || "$MACHINE_NAME" =~ ^hfe1[01]$ ]]; then
+    echo "Running on hera, loading anaconda modules."
+    module use -a /contrib/anaconda/modulefiles
+    module load anaconda/latest
+else
+    echo "Not running on hera, skipping anaconda module loading."
+fi
 
 set -e
 
@@ -27,6 +38,8 @@ cdl2nc4 icec_mirs_snpp_1.nc4 ${project_source_dir}/testdata/icec_mirs_snpp_1.cdl
 cdl2nc4 icec_mirs_snpp_2.nc4 ${project_source_dir}/testdata/icec_mirs_snpp_2.cdl
 cdl2nc4 icec_jrr_n20_1.nc4 ${project_source_dir}/testdata/icec_jrr_n20_1.cdl
 cdl2nc4 icec_jrr_n20_2.nc4 ${project_source_dir}/testdata/icec_jrr_n20_2.cdl
+cdl2nc4 icec_abi_g16_1.nc4 ${project_source_dir}/testdata/icec_abi_g16_1.cdl
+cdl2nc4 icec_abi_g16_2.nc4 ${project_source_dir}/testdata/icec_abi_g16_2.cdl
 cdl2nc4 sss_smap_1.nc4 ${project_source_dir}/testdata/sss_smap_1.cdl
 cdl2nc4 sss_smap_2.nc4 ${project_source_dir}/testdata/sss_smap_2.cdl
 cdl2nc4 sss_smos_1.nc4 ${project_source_dir}/testdata/sss_smos_1.cdl
@@ -35,3 +48,4 @@ cdl2nc4 ghrsst_sst_ma_202103241540.nc4 ${project_source_dir}/testdata/ghrsst_sst
 cdl2nc4 ghrsst_sst_ma_202103241550.nc4 ${project_source_dir}/testdata/ghrsst_sst_ma_202103241550.cdl
 cdl2nc4 viirs_aod_1.nc4 ${project_source_dir}/testdata/viirs_aod_1.cdl
 cdl2nc4 viirs_aod_2.nc4 ${project_source_dir}/testdata/viirs_aod_2.cdl
+
