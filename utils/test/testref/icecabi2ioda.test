@@ -1,0 +1,26 @@
+Reading: [icec_abi_g16_1.nc4,icec_abi_g16_2.nc4]
+seconds since 2000-01-01T12:00:00Z
+obsVal:
+    Min: 0.805632
+    Max: 0.917733
+    Sum: 1.72336
+obsError:
+    Min: 0.1
+    Max: 0.1
+    Sum: 0.2
+preQc:
+    Min: 0
+    Max: 0
+    Sum: 0
+longitude:
+    Min: -140.249
+    Max: -108.83
+    Sum: -249.079
+latitude:
+    Min: -55.3118
+    Max: -47.5932
+    Sum: -102.905
+datetime:
+    Min: 771919506
+    Max: 771930306
+    Sum: 1543849812
