@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}adt_rads_all.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/obs/${OPREFIX}adt_rads_all.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/adt_rads_all.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/diags/adt_rads_all.${PDY}${cyc}.nc4
   simulated variables: [absoluteDynamicTopography]
   io pool:
     max pool size: 1
