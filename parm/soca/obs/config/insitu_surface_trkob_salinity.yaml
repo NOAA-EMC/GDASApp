@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_surface_trkob.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/obs/${OPREFIX}insitu_surface_trkob.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/insitu_surface_trkob_salinity.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/diags/insitu_surface_trkob_salinity.${PDY}${cyc}.nc4
   simulated variables: [seaSurfaceSalinity]
 get values:
   time interpolation: linear
