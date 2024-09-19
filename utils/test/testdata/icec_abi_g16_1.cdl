@@ -1,0 +1,664 @@
+netcdf icec_abi_g16_1 {
+dimensions:
+	y = 21 ;
+	x = 21 ;
+	number_of_LZA_bounds = 2 ;
+	number_of_SZA_bounds = 2 ;
+	number_of_time_bounds = 2 ;
+	number_of_image_bounds = 2 ;
+variables:
+	ushort DQF(y, x) ;
+		DQF:_FillValue = 65535US ;
+		DQF:long_name = "ABI L2 Cryosphere Ice Concentration Data Quality Flags" ;
+		DQF:standard_name = "status_flag" ;
+		DQF:valid_range = 0US, 3US ;
+		DQF:units = "1" ;
+		DQF:coordinates = "retrieval_local_zenith_angle quantitative_local_zenith_angle retrieval_solar_zenith_angle quantitative_solar_zenith_angle t y x" ;
+		DQF:grid_mapping = "goes_imager_projection" ;
+		DQF:cell_methods = "retrieval_local_zenith_angle: point quantitative_local_zenith_angle: point retrieval_solar_zenith_angle: point quantitative_solar_zenith_angle: t: point area: point" ;
+		DQF:flag_values = 0US, 1US, 2US, 3US ;
+		DQF:flag_meanings = "normal nonretrievable uncertain bad_data" ;
+		DQF:number_of_qf_values = 4US ;
+		DQF:potentially_geo_pixel_count_used_as_percent_denominator = 23046372 ;
+	ushort IceConc(y, x) ;
+		IceConc:_FillValue = 65535US ;
+		IceConc:long_name = "ABI L2 Cryosphere Ice Concentration" ;
+		IceConc:standard_name = "ice_concentration" ;
+		IceConc:valid_range = 0US, 65530US ;
+		IceConc:scale_factor = 0.00152602f ;
+		IceConc:add_offset = 0.f ;
+		IceConc:units = "percent" ;
+		IceConc:resolution = "y: 0.000056 rad x: 0.000056 rad" ;
+		IceConc:coordinates = "retrieval_local_zenith_angle quantitative_local_zenith_angle retrieval_solar_zenith_angle quantitative_solar_zenith_angle t y x" ;
+		IceConc:grid_mapping = "goes_imager_projection" ;
+		IceConc:cell_methods = "retrieval_local_zenith_angle: point (good or degraded quality pixel produced) quantitative_local_zenith_angle: point (good quality pixel produced) retrieval_solar_zenith_angle: point (good or degraded quality pixel produced) quantitative_solar_zenith_angle: point (good quality pixel produced) t: point area: point" ;
+		IceConc:ancillary_variables = "DQF" ;
+	byte Mask(y, x) ;
+		Mask:_FillValue = -99b ;
+		Mask:long_name = "ABI L2 Cryosphere Ice Mask" ;
+		Mask:standard_name = "ice_mask" ;
+		Mask:valid_range = -128b, 127b ;
+		Mask:units = "1" ;
+		Mask:resolution = "y: 0.000056 rad x: 0.000056 rad" ;
+		Mask:coordinates = "retrieval_local_zenith_angle quantitative_local_zenith_angle retrieval_solar_zenith_angle t y x" ;
+		Mask:grid_mapping = "goes_imager_projection" ;
+		Mask:cell_methods = "retrieval_local_zenith_angle: point (good or degraded quality pixel produced) quantitative_local_zenith_angle: point (good quality pixel produced) retrieval_solar_zenith_angle: point (good quality pixel produced) t: point area: point" ;
+		Mask:flag_values = -3b, -2b, -1b, 0b, 1b, 2b ;
+		Mask:flag_meanings = "non_retrieval water land cloud day_ice night_ice" ;
+		Mask:ancillary_variables = "DQF" ;
+		Mask:clear_pixel_definition = "no cloud detected and failed a test for high values of spatial heterogeneity" ;
+		Mask:probably_clear_pixel_definition = "no cloud detected but passed a test for high values of spatial heterogeneity and one or more neighboring pixels identified as cloudy. pixel is possibly cloud-contaminated" ;
+		Mask:probably_cloudy_pixel_definition = "cloud detected but likely contains a cloud edge, since one or more neighboring pixels are clear. pixel is probably cloud-contaminated" ;
+		Mask:cloudy_pixel_definition = "cloud detected and failed a test for cloud edges" ;
+	uint PQI(y, x) ;
+		PQI:_FillValue = 0U ;
+		PQI:long_name = "ABI L2 Cryosphere Ice Concentration product quality indicator" ;
+		PQI:units = "1" ;
+		PQI:grid_mapping = "goes_imager_projection" ;
+		PQI:coordinates = "y x" ;
+		PQI:flag_meanings = "normal nonretrievable uncertain bad_data cloud_mask_clear cloud_mask_probably_clear cloud_mask_probably_cloudy cloud_mask_cloudy day_night_qf sunglint_qf cloud_shadow_qf off_earth_qf solar_zenith_angle_qf satellite_zenith_angle_qf reflectance_band_2_qf reflectance_band_3_qf reflectance_band_5_qf brightness_temp_band_14_qf brightness_temp_band_15_qf Unused_Bit_15 surface_in-land_water surface_land surface_sea_water surface_other reflectance_test_ice_cover_detection_qf NDSI_test_ice_cover_detection_qf skin_temp_test_ice_cover_detection_qf visable_band_tie-pont_qf Unused_Bit_23 read_input_qf Unused_Bit_25 Unused_Bit_26 Unused_Bit_27 Unused_Bit_28 Unused_Bit_29 Unused_Bit_30 Unused_Bit_31" ;
+		PQI:number_of_qf_values = 37U ;
+	ushort Temp(y, x) ;
+		Temp:_FillValue = 65535US ;
+		Temp:long_name = "ABI L2 Cryosphere Ice Surface Temperature" ;
+		Temp:standard_name = "ice_temperature" ;
+		Temp:valid_range = 0US, 65530US ;
+		Temp:scale_factor = 0.00267053f ;
+		Temp:add_offset = 100.f ;
+		Temp:units = "kelvin" ;
+		Temp:resolution = "y: 0.000056 rad x: 0.000056 rad" ;
+		Temp:coordinates = "retrieval_local_zenith_angle quantitative_local_zenith_angle retrieval_solar_zenith_angle quantitative_solar_zenith_angle t y x" ;
+		Temp:grid_mapping = "goes_imager_projection" ;
+		Temp:cell_methods = "retrieval_local_zenith_angle: point (good or degraded quality pixel produced) quantitative_local_zenith_angle: point (good quality pixel produced) retrieval_solar_zenith_angle: point (good or degraded quality pixel produced) quantitative_solar_zenith_angle: point (good quality pixel produced) t: point area: point" ;
+		Temp:ancillary_variables = "DQF" ;
+	int algorithm_disabled_due_to_mitigation ;
+		algorithm_disabled_due_to_mitigation:long_name = "Status flag indicating if the algorithm was disabled due to upstream degradation" ;
+		algorithm_disabled_due_to_mitigation:_FillValue = -1 ;
+		algorithm_disabled_due_to_mitigation:flag_value = 0, 1 ;
+		algorithm_disabled_due_to_mitigation:flag_meanings = "unset set" ;
+		algorithm_disabled_due_to_mitigation:valid_range = 0, 1 ;
+		algorithm_disabled_due_to_mitigation:units = "1" ;
+	int algorithm_dynamic_input_data_container ;
+		algorithm_dynamic_input_data_container:long_name = "container for filenames of dynamic algorithm input data" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_auxiliary_solar_zenith_angle_data = "OR_I_ABI-L2-AUXF-M6_G16_s20241691800214_e20241691809522_c*.nc" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_auxiliary_local_zenith_angle_data = "null" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_auxiliary_land_mask_data = "null" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_auxiliary_lat_lon_position_data = "null" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_intermediate_product_reflectance_band_1_2km_data = "null" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_intermediate_product_reflectance_band_2_2km_data = "null" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_intermediate_product_reflectance_band_3_2km_data = "null" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_intermediate_product_reflectance_band_5_2km_data = "null" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_brightness_temperature_band_14_2km_data = "OR_ABI-L2-CMIPF-M6C14_G16_s2024-06-17T18:00:21.4Z_e2024-06-17T18:09:52.2Z_c*.nc" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_brightness_temperature_band_15_2km_data = "OR_ABI-L2-CMIPF-M6C15_G16_s2024-06-17T18:00:21.4Z_e2024-06-17T18:09:52.2Z_c*.nc" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_intermediate_product_cloud_mask_data_information_flag_data = "OR_I_ABI-L2-ACMDIFF-M6_G16_s20241691800214_e20241691809522_c*.nc" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_4_level_cloud_mask_data = "OR_ABI-L2-ACMF-M6_G16_s20241691800214_e20241691809522_c*.nc" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_cloud_mask_granule_level_quality_flag_data = "OR_ABI-L2-ACMF-M6_G16_s20241691800214_e20241691809522_c*.nc" ;
+		algorithm_dynamic_input_data_container:input_ABI_L2_intermediate_product_cloud_top_cloud_shadow_flag_data = "OR_I_ABI-L2-ACHF-M6_G16_s20241691800214_e20241691809522_c*.nc" ;
+	int algorithm_product_version_container ;
+		algorithm_product_version_container:long_name = "container for algorithm package filename and product version" ;
+		algorithm_product_version_container:algorithm_version = "OR_ABI-L2-ALG-AICE_v02r00.zip" ;
+		algorithm_product_version_container:product_version = "v02r00" ;
+	float geospatial_lat_lon_extent ;
+		geospatial_lat_lon_extent:long_name = "geospatial latitude and longitude references" ;
+		geospatial_lat_lon_extent:geospatial_westbound_longitude = -156.2995f ;
+		geospatial_lat_lon_extent:geospatial_northbound_latitude = 81.3282f ;
+		geospatial_lat_lon_extent:geospatial_eastbound_longitude = 6.2995f ;
+		geospatial_lat_lon_extent:geospatial_southbound_latitude = -81.3282f ;
+		geospatial_lat_lon_extent:geospatial_lat_center = 0.f ;
+		geospatial_lat_lon_extent:geospatial_lon_center = -75.f ;
+		geospatial_lat_lon_extent:geospatial_lat_nadir = 0.f ;
+		geospatial_lat_lon_extent:geospatial_lon_nadir = -75.f ;
+		geospatial_lat_lon_extent:geospatial_lat_units = "degrees_north" ;
+		geospatial_lat_lon_extent:geospatial_lon_units = "degrees_east" ;
+	int goes_imager_projection ;
+		goes_imager_projection:long_name = "GOES-R ABI fixed grid projection" ;
+		goes_imager_projection:grid_mapping_name = "geostationary" ;
+		goes_imager_projection:perspective_point_height = 35786023. ;
+		goes_imager_projection:semi_major_axis = 6378137. ;
+		goes_imager_projection:semi_minor_axis = 6356752.31414 ;
+		goes_imager_projection:inverse_flattening = 298.2572221 ;
+		goes_imager_projection:latitude_of_projection_origin = 0. ;
+		goes_imager_projection:longitude_of_projection_origin = -75. ;
+		goes_imager_projection:sweep_angle_axis = "x" ;
+	int64 granule_level_quality_flag ;
+		granule_level_quality_flag:long_name = "Cloud Mask Granule Level Degradation Quality Flag" ;
+		granule_level_quality_flag:flag_masks = 0LL, 1LL, 63LL ;
+		granule_level_quality_flag:flag_meanings = "valid_channels channel_missing algorithm_failure" ;
+		granule_level_quality_flag:_FillValue = -999LL ;
+		granule_level_quality_flag:valid_range = 0LL, 63LL ;
+		granule_level_quality_flag:units = "1" ;
+	float maximum_ice_retrieval ;
+		maximum_ice_retrieval:long_name = "maximum ice concentration retrieval" ;
+		maximum_ice_retrieval:standard_name = "ice_concentration_retrieval" ;
+		maximum_ice_retrieval:_FillValue = -999.f ;
+		maximum_ice_retrieval:valid_range = 0.f, 20000.f ;
+		maximum_ice_retrieval:units = "m" ;
+		maximum_ice_retrieval:coordinates = "local_zenith_angle solar_zenith_angle t y_image x_image" ;
+		maximum_ice_retrieval:grid_mapping = "goes_imager_projection" ;
+		maximum_ice_retrieval:cell_methods = "local_zenith_angle: sum solar_zenith_angle: sum t: sum area: maximum (interval: variable[@name=\'x\']/values rad comment: good quality pixels only) where ice retrieval" ;
+	float mean_ice_retrieval ;
+		mean_ice_retrieval:long_name = "mean ice concentration retrieval" ;
+		mean_ice_retrieval:standard_name = "ice_concentration_retrieval" ;
+		mean_ice_retrieval:_FillValue = -999.f ;
+		mean_ice_retrieval:valid_range = 0.f, 20000.f ;
+		mean_ice_retrieval:units = "m" ;
+		mean_ice_retrieval:coordinates = "local_zenith_angle solar_zenith_angle t y_image x_image" ;
+		mean_ice_retrieval:grid_mapping = "goes_imager_projection" ;
+		mean_ice_retrieval:cell_methods = "local_zenith_angle: sum solar_zenith_angle: sum t: sum area: mean (interval: variable[@name=\'x\']/values rad comment: good quality pixels only) where ice retrieval" ;
+	float minimum_ice_retrieval ;
+		minimum_ice_retrieval:long_name = "minimum ice concentration retrieval" ;
+		minimum_ice_retrieval:standard_name = "ice_concentration_retrieval" ;
+		minimum_ice_retrieval:_FillValue = -999.f ;
+		minimum_ice_retrieval:valid_range = 0.f, 20000.f ;
+		minimum_ice_retrieval:units = "m" ;
+		minimum_ice_retrieval:coordinates = "local_zenith_angle solar_zenith_angle t y_image x_image" ;
+		minimum_ice_retrieval:grid_mapping = "goes_imager_projection" ;
+		minimum_ice_retrieval:cell_methods = "local_zenith_angle: sum solar_zenith_angle: sum t: sum area: minimum (interval: variable[@name=\'x\']/values rad comment: good quality pixels only) where ice retrieval" ;
+	float nominal_satellite_height ;
+		nominal_satellite_height:long_name = "nominal satellite height above GRS 80 ellipsoid (platform altitude)" ;
+		nominal_satellite_height:standard_name = "height_above_reference_ellipsoid" ;
+		nominal_satellite_height:_FillValue = -999.f ;
+		nominal_satellite_height:units = "km" ;
+	float nominal_satellite_subpoint_lat ;
+		nominal_satellite_subpoint_lat:long_name = "nominal satellite subpoint latitude (platform latitude)" ;
+		nominal_satellite_subpoint_lat:standard_name = "latitude" ;
+		nominal_satellite_subpoint_lat:_FillValue = -999.f ;
+		nominal_satellite_subpoint_lat:units = "degrees_north" ;
+	float nominal_satellite_subpoint_lon ;
+		nominal_satellite_subpoint_lon:long_name = "nominal satellite subpoint longitude (platform longitude)" ;
+		nominal_satellite_subpoint_lon:standard_name = "longitude" ;
+		nominal_satellite_subpoint_lon:_FillValue = -999.f ;
+		nominal_satellite_subpoint_lon:units = "degrees_east" ;
+	int number_of_bad_data_pixels ;
+		number_of_bad_data_pixels:long_name = "number of bad data  pixels that do not exceed local zenith angle threshold" ;
+		number_of_bad_data_pixels:_FillValue = -1 ;
+		number_of_bad_data_pixels:units = "count" ;
+		number_of_bad_data_pixels:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		number_of_bad_data_pixels:grid_mapping = "goes_imager_projection" ;
+		number_of_bad_data_pixels:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where bad data" ;
+	int number_of_day_pixels ;
+		number_of_day_pixels:long_name = "number of day pixels that do not exceed local zenith angle threshold" ;
+		number_of_day_pixels:_FillValue = -1 ;
+		number_of_day_pixels:units = "count" ;
+		number_of_day_pixels:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		number_of_day_pixels:grid_mapping = "goes_imager_projection" ;
+		number_of_day_pixels:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where day" ;
+	int number_of_ice_retrievals ;
+		number_of_ice_retrievals:long_name = "number of valid ice cover and retrieval pixels that do not exceed local zenith angle threshold" ;
+		number_of_ice_retrievals:_FillValue = -1 ;
+		number_of_ice_retrievals:units = "count" ;
+		number_of_ice_retrievals:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		number_of_ice_retrievals:grid_mapping = "goes_imager_projection" ;
+		number_of_ice_retrievals:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where valid ice cover and retrieval" ;
+	int number_of_night_pixels ;
+		number_of_night_pixels:long_name = "number of night pixels that do not exceed local zenith angle threshold" ;
+		number_of_night_pixels:_FillValue = -1 ;
+		number_of_night_pixels:units = "count" ;
+		number_of_night_pixels:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		number_of_night_pixels:grid_mapping = "goes_imager_projection" ;
+		number_of_night_pixels:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where night" ;
+	int number_of_nonretrievable_pixels ;
+		number_of_nonretrievable_pixels:long_name = "number of nonretrievable pixels that do not exceed local zenith angle threshold" ;
+		number_of_nonretrievable_pixels:_FillValue = -1 ;
+		number_of_nonretrievable_pixels:units = "count" ;
+		number_of_nonretrievable_pixels:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		number_of_nonretrievable_pixels:grid_mapping = "goes_imager_projection" ;
+		number_of_nonretrievable_pixels:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where nonretrievable" ;
+	int number_of_normal_pixels ;
+		number_of_normal_pixels:long_name = "number of normal pixels that do not exceed local zenith angle threshold" ;
+		number_of_normal_pixels:_FillValue = -1 ;
+		number_of_normal_pixels:units = "count" ;
+		number_of_normal_pixels:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		number_of_normal_pixels:grid_mapping = "goes_imager_projection" ;
+		number_of_normal_pixels:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where normal" ;
+	int number_of_terminator_pixels ;
+		number_of_terminator_pixels:long_name = "number of terminator pixels that do not exceed local zenith angle threshold" ;
+		number_of_terminator_pixels:_FillValue = -1 ;
+		number_of_terminator_pixels:units = "count" ;
+		number_of_terminator_pixels:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		number_of_terminator_pixels:grid_mapping = "goes_imager_projection" ;
+		number_of_terminator_pixels:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where terminator" ;
+	int number_of_uncertain_pixels ;
+		number_of_uncertain_pixels:long_name = "number of uncertain pixels that do not exceed local zenith angle threshold" ;
+		number_of_uncertain_pixels:_FillValue = -1 ;
+		number_of_uncertain_pixels:units = "count" ;
+		number_of_uncertain_pixels:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		number_of_uncertain_pixels:grid_mapping = "goes_imager_projection" ;
+		number_of_uncertain_pixels:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where uncertain" ;
+	int number_of_water_pixels ;
+		number_of_water_pixels:long_name = "number of water pixels that do not exceed local zenith angle threshold" ;
+		number_of_water_pixels:_FillValue = -1 ;
+		number_of_water_pixels:units = "count" ;
+		number_of_water_pixels:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		number_of_water_pixels:grid_mapping = "goes_imager_projection" ;
+		number_of_water_pixels:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where water" ;
+	float percent_ice_retrieval_pixels ;
+		percent_ice_retrieval_pixels:long_name = "percent of ice retrieval pixels that do not exceed local zenith angle threshold" ;
+		percent_ice_retrieval_pixels:standard_name = "clear_sky_area_fraction" ;
+		percent_ice_retrieval_pixels:_FillValue = -999.f ;
+		percent_ice_retrieval_pixels:valid_range = 0.f, 1.f ;
+		percent_ice_retrieval_pixels:units = "percent" ;
+		percent_ice_retrieval_pixels:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		percent_ice_retrieval_pixels:grid_mapping = "goes_imager_projection" ;
+		percent_ice_retrieval_pixels:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where ice retrieval" ;
+	float percent_terminator_pixels ;
+		percent_terminator_pixels:long_name = "percent of terminator pixels that do not exceed local zenith angle threshold" ;
+		percent_terminator_pixels:standard_name = "clear_sky_area_fraction" ;
+		percent_terminator_pixels:_FillValue = -999.f ;
+		percent_terminator_pixels:valid_range = 0.f, 1.f ;
+		percent_terminator_pixels:units = "percent" ;
+		percent_terminator_pixels:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		percent_terminator_pixels:grid_mapping = "goes_imager_projection" ;
+		percent_terminator_pixels:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where terminator" ;
+	float percent_uncorrectable_GRB_errors ;
+		percent_uncorrectable_GRB_errors:long_name = "percent data lost due to uncorrectable GRB errors" ;
+		percent_uncorrectable_GRB_errors:_FillValue = -999.f ;
+		percent_uncorrectable_GRB_errors:valid_range = 0.f, 1.f ;
+		percent_uncorrectable_GRB_errors:units = "percent" ;
+		percent_uncorrectable_GRB_errors:coordinates = "t y_image x_image" ;
+		percent_uncorrectable_GRB_errors:grid_mapping = "goes_imager_projection" ;
+		percent_uncorrectable_GRB_errors:cell_methods = "t: sum area: sum (uncorrectable GRB errors only)" ;
+	float percent_uncorrectable_L0_errors ;
+		percent_uncorrectable_L0_errors:long_name = "percent data lost due to uncorrectable L0 errors" ;
+		percent_uncorrectable_L0_errors:_FillValue = -999.f ;
+		percent_uncorrectable_L0_errors:valid_range = 0.f, 1.f ;
+		percent_uncorrectable_L0_errors:units = "percent" ;
+		percent_uncorrectable_L0_errors:coordinates = "t y_image x_image" ;
+		percent_uncorrectable_L0_errors:grid_mapping = "goes_imager_projection" ;
+		percent_uncorrectable_L0_errors:cell_methods = "t: sum area: sum (uncorrectable L0 errors only)" ;
+	int processing_parm_version_container ;
+		processing_parm_version_container:long_name = "container for processing parameter filenames" ;
+		processing_parm_version_container:L2_processing_parm_version = "OR_ABI-L2-PARM-AICE_v02r00.zip, OR_ANC-L2-PARM-SEMISTATIC_v01r00.zip, OR_ABI-L2-PARM-AUXILIARY_v01r00.zip" ;
+	float quantitative_local_zenith_angle ;
+		quantitative_local_zenith_angle:long_name = "threshold angle between the line of sight to the satellite and the local zenith at the observation target for good quality ice concentration and extent data production" ;
+		quantitative_local_zenith_angle:standard_name = "platform_zenith_angle" ;
+		quantitative_local_zenith_angle:units = "degree" ;
+		quantitative_local_zenith_angle:bounds = "quantitative_local_zenith_angle_bounds" ;
+	float quantitative_local_zenith_angle_bounds(number_of_LZA_bounds) ;
+		quantitative_local_zenith_angle_bounds:long_name = "local zenith angle degree range where good quality ice concentration and extent data is produced" ;
+	float quantitative_solar_zenith_angle ;
+		quantitative_solar_zenith_angle:long_name = "threshold angle between the line of sight to the sun and the local zenith at the observation target for good quality ice concentration and extent data production" ;
+		quantitative_solar_zenith_angle:standard_name = "solar_zenith_angle" ;
+		quantitative_solar_zenith_angle:units = "degree" ;
+		quantitative_solar_zenith_angle:bounds = "quantitative_solar_zenith_angle_bounds" ;
+	float quantitative_solar_zenith_angle_bounds(number_of_SZA_bounds) ;
+		quantitative_solar_zenith_angle_bounds:long_name = "solar zenith angle degree range where good quality ice concentration and extent data is produced" ;
+	float retrieval_local_zenith_angle ;
+		retrieval_local_zenith_angle:long_name = "threshold angle between the line of sight to the satellite and the local zenith at the observation target for good or degraded quality ice concentration and extent data production" ;
+		retrieval_local_zenith_angle:standard_name = "platform_zenith_angle" ;
+		retrieval_local_zenith_angle:units = "degree" ;
+		retrieval_local_zenith_angle:bounds = "retrieval_local_zenith_angle_bounds" ;
+	float retrieval_local_zenith_angle_bounds(number_of_LZA_bounds) ;
+		retrieval_local_zenith_angle_bounds:long_name = "local zenith angle degree range where good quality ice concentration and extent data is produced" ;
+	float retrieval_solar_zenith_angle ;
+		retrieval_solar_zenith_angle:long_name = "threshold angle between the line of sight to the sun and the local zenith at the observation target for good or degraded quality ice concentration and extent data production" ;
+		retrieval_solar_zenith_angle:standard_name = "solar_zenith_angle" ;
+		retrieval_solar_zenith_angle:units = "degree" ;
+		retrieval_solar_zenith_angle:bounds = "retrieval_solar_zenith_angle_bounds" ;
+	float retrieval_solar_zenith_angle_bounds(number_of_SZA_bounds) ;
+		retrieval_solar_zenith_angle_bounds:long_name = "solar zenith angle degree range where good or degraded quality ice concentration and extent data is produced" ;
+	int size_searchwindow ;
+		size_searchwindow:long_name = "size of search window pixels that do not exceed local zenith angle threshold" ;
+		size_searchwindow:_FillValue = -1 ;
+		size_searchwindow:units = "count" ;
+		size_searchwindow:coordinates = "quantitative_local_zenith_angle retrieval_solar_zenith_angle t y_image x_image" ;
+		size_searchwindow:grid_mapping = "goes_imager_projection" ;
+		size_searchwindow:cell_methods = "quantitative_local_zenith_angle: sum retrieval_solar_zenith_angle: sum t: sum area: sum (interval: 0.000056 rad comment: good quality pixels only) where search window size" ;
+	float std_dev_ice_retrieval ;
+		std_dev_ice_retrieval:long_name = "standard deviation of ice concentration retrieval values" ;
+		std_dev_ice_retrieval:standard_name = "ice_concentration_retrieval" ;
+		std_dev_ice_retrieval:_FillValue = -999.f ;
+		std_dev_ice_retrieval:units = "m" ;
+		std_dev_ice_retrieval:coordinates = "local_zenith_angle solar_zenith_angle t y_image x_image" ;
+		std_dev_ice_retrieval:grid_mapping = "goes_imager_projection" ;
+		std_dev_ice_retrieval:cell_methods = "local_zenith_angle: sum solar_zenith_angle: sum t: sum area: standard_deviation (interval: variable[@name=\'x\']/@value rad comment: good quality pixels only) where ice retrieval" ;
+	double t ;
+		t:long_name = "J2000 epoch mid-point between the start and end image scan in seconds" ;
+		t:standard_name = "time" ;
+		t:units = "seconds since 2000-01-01 12:00:00" ;
+		t:axis = "T" ;
+		t:bounds = "time_bounds" ;
+	double time_bounds(number_of_time_bounds) ;
+		time_bounds:long_name = "Scan start and end times in seconds since epoch (2000-01-01 12:00:00)" ;
+	short x(x) ;
+		x:scale_factor = 5.6e-05f ;
+		x:add_offset = -0.151844f ;
+		x:units = "rad" ;
+		x:axis = "X" ;
+		x:long_name = "GOES fixed grid projection x-coordinate" ;
+		x:standard_name = "projection_x_coordinate" ;
+	float x_image ;
+		x_image:long_name = "GOES-R fixed grid projection x-coordinate center of image" ;
+		x_image:standard_name = "projection_x_coordinate" ;
+		x_image:units = "rad" ;
+		x_image:axis = "X" ;
+	float x_image_bounds(number_of_image_bounds) ;
+		x_image_bounds:long_name = "GOES-R fixed grid projection x-coordinate west/east extent of image" ;
+		x_image_bounds:units = "rad" ;
+	short y(y) ;
+		y:scale_factor = -5.6e-05f ;
+		y:add_offset = 0.151844f ;
+		y:units = "rad" ;
+		y:axis = "Y" ;
+		y:long_name = "GOES fixed grid projection y-coordinate" ;
+		y:standard_name = "projection_y_coordinate" ;
+	float y_image ;
+		y_image:long_name = "GOES-R fixed grid projection y-coordinate center of image" ;
+		y_image:standard_name = "projection_y_coordinate" ;
+		y_image:units = "rad" ;
+		y_image:axis = "Y" ;
+	float y_image_bounds(number_of_image_bounds) ;
+		y_image_bounds:long_name = "GOES-R fixed grid projection y-coordinate north/south extent of image" ;
+		y_image_bounds:units = "rad" ;
+
+// global attributes:
+		:naming_authority = "gov.nesdis.noaa" ;
+		:Conventions = "CF-1.7" ;
+		:Metadata_Conventions = "Unidata Dataset Discovery v1.0" ;
+		:standard_name_vocabulary = "CF Standard Name Table (v35, 20 July 2016)" ;
+		:institution = "DOC/NOAA/NESDIS > U.S. Department of Commerce, National Oceanic and Atmospheric Administration, National Environmental Satellite, Data, and Information Services" ;
+		:project = "GOES" ;
+		:production_site = "NSOF" ;
+		:production_environment = "OE" ;
+		:spatial_resolution = "2.0km at nadir" ;
+		:orbital_slot = "GOES-East" ;
+		:platform_ID = "G16" ;
+		:instrument_type = "GOES-R Series Advanced Baseline Imager (ABI)" ;
+		:scene_id = "Full Disk" ;
+		:instrument_ID = "FM1" ;
+		:dataset_name = "OR_ABI-L2-AICEF-M6_G16_s20241691800214_e20241691809522_c20241691814251.nc" ;
+		:iso_series_metadata_id = "e7ce8b20-b00a-11e1-afa6-0800200c9a66" ;
+		:title = "ABI L2 Cryosphere Ice Concentration" ;
+		:summary = "GOES Cryosphere Ice Concentration" ;
+		:keywords = "CRYOSPHERE > ICE CONCENTRATION AND EXTENT > ICE CONCENTRATION" ;
+		:keywords_vocabulary = "NASA Global Change Master Directory (GCMD) Earth Science Keywords, Version 7.0.0.0.0" ;
+		:license = "Unclassified data.  Access is restricted to approved users only." ;
+		:processing_level = "National Aeronautics and Space Administration (NASA) L2" ;
+		:cdm_data_type = "Image" ;
+		:date_created = "2024-06-17T18:14:25.1Z" ;
+		:time_coverage_start = "2024-06-17T18:00:21.4Z" ;
+		:time_coverage_end = "2024-06-17T18:09:52.2Z" ;
+		:timeline_id = "ABI Mode 6" ;
+		:production_data_source = "Realtime" ;
+		:id = "077a4f5e-de4a-4bff-86f6-8ddd0ff02f61" ;
+		:history = "Tue Sep 17 20:20:14 2024: ncks -d x,2620,2640 -d y,80,100 OR_ABI-L2-AICEF-M6_G16_s20241691800214_e20241691809522_c20241691814251.nc icec_abi_g16_1.nc" ;
+		:NCO = "netCDF Operators version 5.0.6 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
+data:
+
+ DQF =
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ;
+
+ IceConc =
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, 58144, 57830, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  65530, 65530, 59683, 57534, 64501, 65530, 65530, 65530, 65530, _, _, 65530, 
+    65530, 65530, 65530, 64031, 56789, _, _, _, _,
+  65530, 65530, 65530, 65530, 65280, 65530, 65530, 65530, 64277, 57892, 
+    45031, 47109, 61463, 65530, 65530, 65530, 62981, 58667, 57831, 63586, 
+    65530,
+  45147, 43501, 57901, 55554, 57166, 65530, 63760, 56221, 52192, 55591, 
+    50035, 48650, 48057, 45683, 51947, 57478, 62688, 65530, 65530, 65530, 
+    65530,
+  56977, 56455, 52283, 59212, 54508, 51997, 61822, 59940, 65530, 65530, 
+    65530, 64347, 65530, 65530, 65530, 65530, 65530, 65530, 65530, 65530, 
+    65530,
+  52793, 50723, 51159, 37244, 63617, 65530, 65530, 65530, 65530, 64308, 
+    63279, 65530, 65530, 61313, 65530, 65530, 65530, 65530, 65530, 65530, 
+    63967,
+  _, _, _, _, 64304, 63829, 60868, 62014, 51838, 52195, 46471, 51122, 59087, 
+    62312, 65530, 65530, 65530, 65530, 65530, 65530, 58765,
+  _, _, _, _, _, 50061, 50576, 57647, 53324, 63633, 65530, 65530, 65530, 
+    65530, 65530, 63681, 63003, 65530, 65530, 65385, 62437,
+  _, _, _, _, _, _, _, 56932, 54853, 63490, 62990, 63962, 65530, 61397, 
+    64865, 65530, 65179, 65506, 65530, 65530, 64915,
+  _, _, _, _, _, _, _, _, 62413, 59618, 58176, 64427, 61133, 65330, 64892, 
+    65530, 65530, 65530, 65530, 65132, 65530,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, 63567, 65530, 65530, 65530, 65530, 
+    65530, 65437, 63195,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
+
+ Mask =
+  -3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -2, 0, -2, -2, 0, 0, 0, 0, -1,
+  -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -2, -2, -2, -2, -2, 0, 0, 0, 0, 0,
+  -2, -2, 0, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -3, -1, -1, -1, -1, -1, 
+    -1, -1,
+  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0, -1, -1, -1, -1, 
+    -1, 0,
+  -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0, 0, 0, -2, 0, 0, -2,
+  -2, -2, -2, -2, 1, 1, -2, -3, -2, -2, -2, -2, -2, -2, -2, 0, 0, 0, 0, 0, 0,
+  -2, -2, -2, -2, -2, -2, -2, -2, 0, -2, 0, -2, -2, -2, -2, -2, -2, -2, 0, 0, 0,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, -2, -2, 1, 1, 1, 1, 1, 1, -2, -2, -2, -3,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  -2, -2, -2, -2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  -2, -2, -2, -2, -2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  0, -2, -2, -2, -2, -2, -2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  0, -2, -2, -2, -2, -2, -2, -2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  0, 0, 0, 0, 0, -2, -2, 0, -2, -2, -2, -2, -2, 1, 1, 1, 1, 1, 1, 1, 1,
+  0, 0, -2, -2, -2, 0, -2, -2, -2, -2, -2, 0, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+  0, 0, 0, 0, 0, 0, 0, 0, -2, -2, 0, -2, -2, -2, 0, -2, -2, -2, -2, -2, -2,
+  0, 0, 0, 0, -2, -2, 0, 0, 0, 0, -2, 0, 0, 0, 0, 0, -2, -2, -2, -2, -2,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -2, -2, -2 ;
+
+ PQI =
+  8192162, 8192230, 8192230, 8192230, 8192238, 8192238, 8192238, 8192230, 
+    8192238, 8192238, 8192238, 6881506, 6881514, 8192230, 6881506, 6881506, 
+    8192230, 8192230, 8192238, 8192230, 8257774,
+  6881514, 8192230, 8192230, 8192230, 8192230, 8192230, 8192238, 8192238, 
+    8192230, 8192230, 6881514, 6881506, 6881506, 6881506, 6881506, 6881514, 
+    8192230, 8192238, 8192238, 8192238, 8192238,
+  6881514, 6881514, 8192230, 6881506, 6881514, 6881514, 6881514, 6881514, 
+    6881506, 6881514, 6881514, 6881506, 6881506, 8192162, 8257770, 8257766, 
+    8257766, 8257774, 8257774, 8257774, 8257774,
+  6881514, 6881514, 6881514, 6881506, 6881506, 6881506, 6881506, 6881514, 
+    6881506, 6881506, 6881514, 6881514, 6881514, 6881514, 8192238, 8257774, 
+    8257774, 8257774, 8257774, 8257774, 8192238,
+  6881514, 6881506, 6881506, 6881506, 6881506, 6881506, 6881506, 6881514, 
+    6881506, 6881514, 6881506, 6881514, 6881514, 6881514, 8192230, 8192238, 
+    8192238, 6881514, 8192230, 8192230, 6881514,
+  6881506, 6881506, 6881506, 6881506, 4260064, 4260064, 6881506, 8192162, 
+    6881506, 6881514, 6881506, 6881514, 6881514, 6881514, 6881514, 8192230, 
+    8192230, 8192230, 8192230, 8192238, 8192230,
+  6881506, 6881506, 6881506, 6881514, 6881506, 6881506, 6881514, 6881514, 
+    8192230, 6881514, 8192230, 6881514, 6881514, 6881506, 6881506, 6881514, 
+    6881514, 6881514, 8192230, 8192238, 8192238,
+  4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 6881506, 6881506, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 6881506, 6881506, 6881506, 8192162,
+  4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064,
+  4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064,
+  4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064,
+  4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064,
+  6881514, 6881514, 6881514, 6881514, 4260073, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064,
+  6881514, 6881514, 6881514, 6881514, 6881514, 4260073, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064,
+  8192230, 6881514, 6881514, 6881514, 6881506, 6881506, 6881506, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064,
+  8192230, 6881514, 6881514, 6881514, 6881514, 6881514, 6881514, 6881506, 
+    4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064,
+  8192230, 8192230, 8192230, 8192230, 8192230, 6881514, 6881514, 8192230, 
+    6881514, 6881514, 6881514, 6881514, 6881514, 4260073, 4260064, 4260064, 
+    4260064, 4260064, 4260064, 4260064, 4260064,
+  8192238, 8192238, 6881514, 6881514, 6881514, 8192238, 6881514, 6881514, 
+    6881514, 6881514, 6881514, 8192230, 6881514, 6881514, 6881514, 6881514, 
+    6881514, 6881514, 6881514, 6881514, 6881514,
+  8192230, 8192230, 8192238, 8192238, 8192238, 8192230, 8192230, 8192238, 
+    6881514, 6881514, 8192230, 6881514, 6881514, 6881514, 8192230, 6881514, 
+    6881514, 6881514, 6881514, 6881514, 6881514,
+  8192230, 8192230, 8192230, 8192230, 6881514, 6881514, 8192238, 8192238, 
+    8192238, 8192238, 6881514, 8192238, 8192238, 8192230, 8192230, 8192230, 
+    6881514, 6881514, 6881514, 6881514, 6881514,
+  8192230, 8192230, 8192230, 8192230, 8192230, 8192230, 8192230, 8192230, 
+    8192238, 8192238, 8192238, 8192238, 8192238, 8192238, 8192238, 8192238, 
+    8192238, 6881514, 6881514, 6881514, 6881514 ;
+
+ Temp =
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, 63221, 63150, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  63796, 63428, 63226, 63253, 63369, 63295, 63223, 63210, 63150, _, _, 63239, 
+    63351, 63396, 63266, 63148, 63060, _, _, _, _,
+  63709, 63707, 63764, 63707, 63616, 63750, 63766, 63691, 63647, 63648, 
+    63599, 63572, 63586, 63704, 63677, 63591, 63589, 63605, 63514, 63588, 
+    63511,
+  63284, 63314, 63502, 63548, 63502, 63600, 63618, 63518, 63518, 63546, 
+    63370, 63223, 63210, 63313, 63383, 63513, 63658, 63804, 63894, 63832, 
+    63816,
+  63430, 63383, 63386, 63460, 63414, 63399, 63578, 63457, 63677, 63674, 
+    63602, 63620, 63631, 63688, 63761, 63818, 63848, 63832, 63832, 63848, 
+    63834,
+  63430, 63370, 63282, 63105, 63620, 63734, 63691, 63661, 63718, 63647, 
+    63559, 63647, 63632, 63632, 63761, 63850, 63848, 63864, 63864, 63820, 
+    63809,
+  _, _, _, _, 63524, 63629, 63695, 63616, 63502, 63473, 63386, 63462, 63502, 
+    63652, 63779, 63851, 63836, 63851, 63804, 63821, 63647,
+  _, _, _, _, _, 63393, 63383, 63457, 63460, 63634, 63779, 63807, 63747, 
+    63732, 63748, 63706, 63734, 63821, 63821, 63775, 63780,
+  _, _, _, _, _, _, _, 63466, 63500, 63616, 63645, 63734, 63732, 63616, 
+    63720, 63763, 63747, 63789, 63850, 63834, 63850,
+  _, _, _, _, _, _, _, _, 63599, 63530, 63502, 63620, 63570, 63720, 63672, 
+    63775, 63851, 63850, 63848, 63788, 63820,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, 63554, 63583, 63640, 63669, 63713, 
+    63697, 63685, 63624,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+  _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ ;
+
+ algorithm_disabled_due_to_mitigation = 0 ;
+
+ algorithm_dynamic_input_data_container = _ ;
+
+ algorithm_product_version_container = _ ;
+
+ geospatial_lat_lon_extent = _ ;
+
+ goes_imager_projection = _ ;
+
+ granule_level_quality_flag = 0 ;
+
+ maximum_ice_retrieval = 100 ;
+
+ mean_ice_retrieval = 90.95 ;
+
+ minimum_ice_retrieval = 0.1708984 ;
+
+ nominal_satellite_height = 35786.02 ;
+
+ nominal_satellite_subpoint_lat = 0 ;
+
+ nominal_satellite_subpoint_lon = -75.2 ;
+
+ number_of_bad_data_pixels = 1132863 ;
+
+ number_of_day_pixels = 6732 ;
+
+ number_of_ice_retrievals = 36882 ;
+
+ number_of_night_pixels = 30150 ;
+
+ number_of_nonretrievable_pixels = 21017 ;
+
+ number_of_normal_pixels = 36882 ;
+
+ number_of_terminator_pixels = 1153880 ;
+
+ number_of_uncertain_pixels = 21855610 ;
+
+ number_of_water_pixels = 4979711 ;
+
+ percent_ice_retrieval_pixels = 0.5086401 ;
+
+ percent_terminator_pixels = 6.229427 ;
+
+ percent_uncorrectable_GRB_errors = 0 ;
+
+ percent_uncorrectable_L0_errors = 0 ;
+
+ processing_parm_version_container = _ ;
+
+ quantitative_local_zenith_angle = 80 ;
+
+ quantitative_local_zenith_angle_bounds = 0, 80 ;
+
+ quantitative_solar_zenith_angle = 85 ;
+
+ quantitative_solar_zenith_angle_bounds = 0, 85 ;
+
+ retrieval_local_zenith_angle = 80 ;
+
+ retrieval_local_zenith_angle_bounds = 0, 80 ;
+
+ retrieval_solar_zenith_angle = 85 ;
+
+ retrieval_solar_zenith_angle_bounds = 0, 85 ;
+
+ size_searchwindow = 50 ;
+
+ std_dev_ice_retrieval = 18.40504 ;
+
+ t = 771919506.820459 ;
+
+ time_bounds = 771919221.423053, 771919792.217865 ;
+
+ x = 2620, 2621, 2622, 2623, 2624, 2625, 2626, 2627, 2628, 2629, 2630, 2631, 
+    2632, 2633, 2634, 2635, 2636, 2637, 2638, 2639, 2640 ;
+
+ x_image = 0 ;
+
+ x_image_bounds = -0.151872, 0.151872 ;
+
+ y = 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 
+    98, 99, 100 ;
+
+ y_image = 0 ;
+
+ y_image_bounds = 0.151872, -0.151872 ;
+}
