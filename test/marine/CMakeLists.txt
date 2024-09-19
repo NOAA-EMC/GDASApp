@@ -6,7 +6,7 @@ set(TESTDATA ${PROJECT_BINARY_DIR}/test/testdata )
 # Symlink test input yaml files
 # -----------------------------
 # create testinput dir
-set (TESTINPUT_DIR ${PROJECT_BINARY_DIR}/test/soca/testinput)
+set (TESTINPUT_DIR ${PROJECT_BINARY_DIR}/test/marine/testinput)
 
 file(MAKE_DIRECTORY ${TESTINPUT_DIR})
 
@@ -46,12 +46,12 @@ function(CREATE_CONFIG_FILE
 endfunction()
 
 
-set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/soca)
+set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/marine)
 
 set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
 set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
-set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/soca/testinput)
-set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/soca/testref)
+set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/marine/testinput)
+set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/marine/testref)
 
 
 function(CHECK_AND_SET_PATH PATH1 PATH2 RESULT_VAR)
