@@ -89,7 +89,7 @@ set(letkf TRUE)
 set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_hybAOWCDA.yaml)
 set(TASK_LIST
   "gdasprepoceanobs"
-  "gdasmarineanalletkf"
+  "gdasmarineanlletkf"
   "gdasmarinebmat"
   "gdasocnanalprep"
   "gdasocnanalrun"
