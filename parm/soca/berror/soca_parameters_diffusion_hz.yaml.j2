@@ -27,11 +27,11 @@ background error:
             filename: ocn.cor_rh.incr.0001-01-01T00:00:00Z.nc
             variable name: ave_ssh
         write:
-          filename: hz_ocean.nc
+          filename: ./staticb/hz_ocean.nc
 
       - name: ice
         horizontal:
           as gaussian: true
           fixed value: 50000.0
         write:
-          filename: hz_ice.nc
+          filename: ./staticb/hz_ice.nc
