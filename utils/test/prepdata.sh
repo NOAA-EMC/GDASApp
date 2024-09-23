@@ -2,7 +2,7 @@
 # called for test_gdasapp_util_prepdata, and by
 # test/soca/gw/setup_obsproc.sh for test_gdasapp_soca_setup_obsproc
 
-# TODO: It need to point toe experimental obs instead of prepdata.sh
+# TODO: It needs to point to experimental obs instead of prepdata.sh
 # Get the machine hostname
 MACHINE_NAME=$(hostname)
 
