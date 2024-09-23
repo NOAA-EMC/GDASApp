@@ -101,10 +101,10 @@ set(letkf FALSE)
 
 # Aero-Land DA, C96
 # -----------------
-#set(pslot "Aero-Snow-3DVAR-C96")
-#set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96_atmaerosnowDA.yaml)
-#set(TASK_LIST)  # empty list for now
-#add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+set(pslot "Aero-Snow-3DVAR-C96")
+set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96C48_hybatmaerosnowDA.yaml)
+set(TASK_LIST)  # empty list for now
+add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
 # Atm DA, C96/C48
 # ---------------
