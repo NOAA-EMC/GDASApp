@@ -28,12 +28,16 @@ namespace gdasapp {
 
     int execute(const eckit::Configuration & fullConfig, bool validate) const {
       // Get geometry configurations
-      const eckit::LocalConfiguration stateGeomConfig(fullConfig, "state geometry");
+      const eckit::LocalConfiguration bkgGeomConfig(fullConfig, "background geometry");
       const eckit::LocalConfiguration incrGeomConfig(fullConfig, "increment geometry");
+      const eckit::LocalConfiguration anlFullResGeomConfig(fullConfig, "full resolution analysis geometry");
+      const eckit::LocalConfiguration anlEnsResGeomConfig(fullConfig, "ensemble resolution analysis geometry");
 
       // Setup geometries
       const fv3jedi::Geometry incrGeom(incrGeomConfig, this->getComm());
-      const fv3jedi::Geometry stateGeom(stateGeomConfig, this->getComm());
+      const fv3jedi::Geometry bkgGeom(bkgGeomConfig, this->getComm());
+      const fv3jedi::Geometry anlFullResGeom(anlFullResGeomConfig, this->getComm());
+      const fv3jedi::Geometry anlEnsResGeom(anlEnsResGeomConfig, this->getComm());
 
       // Get additions configuration
       int nhrs;
@@ -61,24 +65,29 @@ namespace gdasapp {
       // Loops through forecast hours
       for ( int ihrs = 0; ihrs < nhrs; ihrs++ ) {
         // Get elements of individual additions configurations
-        const eckit::LocalConfiguration stateConfig(additionsConfig[ihrs], "state");
+        const eckit::LocalConfiguration bkgConfig(additionsConfig[ihrs], "background");
         const eckit::LocalConfiguration incrConfig(additionsConfig[ihrs], "increment");
-        const eckit::LocalConfiguration outputConfig(additionsConfig[ihrs], "output");
+        const eckit::LocalConfiguration anlFullResConfig(additionsConfig[ihrs], "full resolution analysis");
+        const eckit::LocalConfiguration anlEnsResConfig(additionsConfig[ihrs], "ensemble resolution analysis");
 
-        // Initialize input state
-        fv3jedi::State xx(stateGeom, stateConfig);
+        // Initialize background
+        fv3jedi::State xxBkg(bkgGeom, bkgConfig);
 
         // Initialize increment
         oops::Variables incrVars(incrConfig, "added variables");
-        fv3jedi::Increment dx(incrGeom, incrVars, xx.validTime());
+        fv3jedi::Increment dx(incrGeom, incrVars, xxBkg.validTime());
         dx.read(incrConfig);
 
-        // Add increment to state
-        fv3jedi::State xxOutput(stateGeom, xx);
-        xxOutput += dx;
+        // Add increment to background state
+        fv3jedi::State xxAnlFullRes(anlFullResGeom, xxBkg);
+        xxAnlFullRes += dx;
 
-        // Write output state
-        xxOutput.write(outputConfig);
+        // Interpolate full resolution analysis to ensemble resolution
+        fv3jedi::State xxAnlEnsRes(anlEnsResGeom, xxAnlFullRes);
+        
+        // Write analysis state
+        xxAnlFullRes.write(anlFullResConfig);
+        xxAnlEnsRes.write(anlEnsResConfig);
       }
 
       return 0;
