@@ -257,7 +257,7 @@ namespace gdasapp {
       };
     }  // namespace iodavars
 
-    // TODO: To move below as a private method to the iceabi2ioda class
+    // TODO(Mindo): To move below as a private method to the iceabi2ioda class
     namespace utils {
 
        // Calculate latitude and longitude from GOES ABI fixed grid projection data
@@ -283,30 +283,30 @@ namespace gdasapp {
            abi_lon.resize(sizeY, std::vector<double>(sizeX));
 
            for (int i = 0; i < sizeY; ++i) {
-              for (int j = 0; j < sizeX; ++j) {
-                 double x = x_coordinate_2d[i][j];
-                 double y = y_coordinate_2d[i][j];
-                 double a_var = std::pow(std::sin(x), 2.0)
-                               + std::pow(std::cos(x), 2.0) * (std::pow(std::cos(y), 2.0)
-                               + ((r_eq * r_eq) / (r_pol * r_pol)) * std::pow(std::sin(y), 2.0));
-                 double b_var = -2.0 * H * std::cos(x) * std::cos(y);
-                 double c_var = (H * H) - (r_eq * r_eq);
-                 double discriminant = (b_var * b_var) - (4.0 * a_var * c_var);
-                 double r_s = (-b_var - std::sqrt(discriminant)) / (2.0 * a_var);
-                 double s_x = r_s * std::cos(x) * std::cos(y);
-                 double s_y = -r_s * std::sin(x);
-                 double s_z = r_s * std::cos(x) * std::sin(y);
+             for (int j = 0; j < sizeX; ++j) {
+                double x = x_coordinate_2d[i][j];
+                double y = y_coordinate_2d[i][j];
+                double a_var = std::pow(std::sin(x), 2.0)
+                              + std::pow(std::cos(x), 2.0) * (std::pow(std::cos(y), 2.0)
+                              + ((r_eq * r_eq) / (r_pol * r_pol)) * std::pow(std::sin(y), 2.0));
+                double b_var = -2.0 * H * std::cos(x) * std::cos(y);
+                double c_var = (H * H) - (r_eq * r_eq);
+                double discriminant = (b_var * b_var) - (4.0 * a_var * c_var);
+                double r_s = (-b_var - std::sqrt(discriminant)) / (2.0 * a_var);
+                double s_x = r_s * std::cos(x) * std::cos(y);
+                double s_y = -r_s * std::sin(x);
+                double s_z = r_s * std::cos(x) * std::sin(y);
 
-                 abi_lat[i][j] = (180.0 / M_PI) * (std::atan(((r_eq * r_eq) / (r_pol * r_pol))
-                                * (s_z / std::sqrt(((H - s_x) * (H - s_x)) + (s_y * s_y)))));
-                 abi_lon[i][j] = (lambda_0 - std::atan(s_y / (H - s_x))) * (180.0 / M_PI);
+                abi_lat[i][j] = (180.0 / M_PI) * (std::atan(((r_eq * r_eq) / (r_pol * r_pol))
+                               * (s_z / std::sqrt(((H - s_x) * (H - s_x)) + (s_y * s_y)))));
+                abi_lon[i][j] = (lambda_0 - std::atan(s_y / (H - s_x))) * (180.0 / M_PI);
 
-                 // Handle invalid values
-                 if (discriminant < 0 || std::isnan(abi_lat[i][j]) || std::isnan(abi_lon[i][j])) {
-                     abi_lat[i][j] = std::numeric_limits<double>::quiet_NaN();
-                     abi_lon[i][j] = std::numeric_limits<double>::quiet_NaN();
-                 }
-              }
+                // Handle invalid values
+                if (discriminant < 0 || std::isnan(abi_lat[i][j]) || std::isnan(abi_lon[i][j])) {
+                    abi_lat[i][j] = std::numeric_limits<double>::quiet_NaN();
+                    abi_lon[i][j] = std::numeric_limits<double>::quiet_NaN();
+                }
+             }
            }
          }  // void
     }  // namespace utils
