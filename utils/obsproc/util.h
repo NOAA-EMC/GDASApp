@@ -257,6 +257,7 @@ namespace gdasapp {
       };
     }  // namespace iodavars
 
+    // TODO: To move below as a private method to the iceabi2ioda class
     namespace utils {
 
        // Calculate latitude and longitude from GOES ABI fixed grid projection data
