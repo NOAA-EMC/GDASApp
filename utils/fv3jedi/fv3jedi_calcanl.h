@@ -30,8 +30,10 @@ namespace gdasapp {
       // Get geometry configurations
       const eckit::LocalConfiguration bkgGeomConfig(fullConfig, "background geometry");
       const eckit::LocalConfiguration incrGeomConfig(fullConfig, "increment geometry");
-      const eckit::LocalConfiguration anlFullResGeomConfig(fullConfig, "full resolution analysis geometry");
-      const eckit::LocalConfiguration anlEnsResGeomConfig(fullConfig, "ensemble resolution analysis geometry");
+      const eckit::LocalConfiguration anlFullResGeomConfig(fullConfig, \
+                                                           "full resolution analysis geometry");
+      const eckit::LocalConfiguration anlEnsResGeomConfig(fullConfig, \
+                                                          "ensemble resolution analysis geometry");
 
       // Setup geometries
       const fv3jedi::Geometry incrGeom(incrGeomConfig, this->getComm());
@@ -67,8 +69,10 @@ namespace gdasapp {
         // Get elements of individual additions configurations
         const eckit::LocalConfiguration bkgConfig(additionsConfig[ihrs], "background");
         const eckit::LocalConfiguration incrConfig(additionsConfig[ihrs], "increment");
-        const eckit::LocalConfiguration anlFullResConfig(additionsConfig[ihrs], "full resolution analysis");
-        const eckit::LocalConfiguration anlEnsResConfig(additionsConfig[ihrs], "ensemble resolution analysis");
+        const eckit::LocalConfiguration anlFullResConfig(additionsConfig[ihrs], \
+                                                         "full resolution analysis");
+        const eckit::LocalConfiguration anlEnsResConfig(additionsConfig[ihrs], \
+                                                        "ensemble resolution analysis");
 
         // Initialize background
         fv3jedi::State xxBkg(bkgGeom, bkgConfig);
@@ -84,7 +88,7 @@ namespace gdasapp {
 
         // Interpolate full resolution analysis to ensemble resolution
         fv3jedi::State xxAnlEnsRes(anlEnsResGeom, xxAnlFullRes);
-        
+
         // Write analysis state
         xxAnlFullRes.write(anlFullResConfig);
         xxAnlEnsRes.write(anlEnsResConfig);
