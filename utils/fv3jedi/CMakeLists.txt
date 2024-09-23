@@ -5,7 +5,7 @@ target_compile_features( fv3jedi_fv3inc.x PUBLIC cxx_std_17)
 target_link_libraries( fv3jedi_fv3inc.x PUBLIC NetCDF::NetCDF_CXX oops fv3jedi)
 
 # Analysis calculation
-ecbuild_add_executable( TARGET fv3jedi_calcanl.x
-                        SOURCES fv3jedi_calcanl.cc fv3jedi_calcanl.h)
-target_compile_features( fv3jedi_calcanl.x PUBLIC cxx_std_17)
-target_link_libraries( fv3jedi_calcanl.x PUBLIC NetCDF::NetCDF_CXX oops fv3jedi)
+ecbuild_add_executable( TARGET fv3jedi_analcalc.x
+                        SOURCES fv3jedi_analcalc.cc fv3jedi_analcalc.h)
+target_compile_features( fv3jedi_analcalc.x PUBLIC cxx_std_17)
+target_link_libraries( fv3jedi_analcalc.x PUBLIC NetCDF::NetCDF_CXX oops fv3jedi)

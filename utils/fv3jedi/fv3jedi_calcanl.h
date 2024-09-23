@@ -20,11 +20,11 @@
 namespace gdasapp {
 
   // Main application class
-  class calcanl : public oops::Application {
+  class analcalc : public oops::Application {
    public:
-    explicit calcanl(const eckit::mpi::Comm & comm = oops::mpi::world())
+    explicit analcalc(const eckit::mpi::Comm & comm = oops::mpi::world())
       : Application(comm) {}
-    static const std::string classname() {return "gdasapp::calcanl";}
+    static const std::string classname() {return "gdasapp::analcalc";}
 
     int execute(const eckit::Configuration & fullConfig, bool validate) const {
       // Get geometry configurations
@@ -99,7 +99,7 @@ namespace gdasapp {
 
    private:
     std::string appname() const {
-      return "gdasapp::calcanl";
+      return "gdasapp::analcalc";
     }
   };
 }  // namespace gdasapp
