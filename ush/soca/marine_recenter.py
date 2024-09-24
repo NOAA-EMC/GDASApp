@@ -68,8 +68,6 @@ class MarineRecenter(Task):
              'ATM_WINDOW_MIDDLE': window_middle_iso,
              'DATA': DATA,
              'dump': self.task_config.RUN,
-             'fv3jedi_stage_files': self.task_config.FV3JEDI_STAGE_YAML,
-             'fv3jedi_stage': self.task_config.FV3JEDI_STAGE_YAML,
              'stage_dir': DATA,
              'soca_input_fix_dir': self.task_config.SOCA_INPUT_FIX_DIR,
              'NMEM_ENS': self.task_config.NMEM_ENS,
@@ -180,7 +178,7 @@ class MarineRecenter(Task):
         chdir(self.task_config.DATA)
 
         exec_cmd_gridgen = Executable(self.task_config.APRUN_OCNANALECEN)
-        exec_name_gridgen = os.path.join(self.task_config.JEDI_BIN, 'gdas_soca_gridgen.x')
+        exec_name_gridgen = os.path.join(self.task_config.EXECgfs, 'gdas_soca_gridgen.x')
         exec_cmd_gridgen.add_default_arg(exec_name_gridgen)
         exec_cmd_gridgen.add_default_arg(self.task_config.gridgen_yaml)
 
@@ -194,7 +192,7 @@ class MarineRecenter(Task):
         pass
 
         exec_cmd_recen = Executable(self.task_config.APRUN_OCNANALECEN)
-        exec_name_recen = os.path.join(self.task_config.JEDI_BIN, 'gdas_ens_handler.x')
+        exec_name_recen = os.path.join(self.task_config.EXECgfs, 'gdas_ens_handler.x')
         exec_cmd_recen.add_default_arg(exec_name_recen)
         exec_cmd_recen.add_default_arg(os.path.basename(self.task_config.recen_yaml_file))
 

@@ -118,12 +118,8 @@ namespace gdasapp {
       for (size_t i = 0; i < postProcIncr.ensSize_; ++i) {
         oops::Log::info() << " demean member " << i << std::endl;
         ensMembers[i] -= ensMean;
+        oops::Log::info() << "incr " << i << ":" << ensMembers[i] << std::endl;
       }
-
-      // Get the steric variable change configuration
-      eckit::LocalConfiguration stericVarChangeConfig;
-      fullConfig.get("steric height", stericVarChangeConfig);
-      oops::Log::info() << "steric config 0000: " << stericVarChangeConfig << std::endl;
 
       // Initialize the trajectories used in the linear variable changes
       const eckit::LocalConfiguration trajConfig(fullConfig, "trajectory");
@@ -136,13 +132,45 @@ namespace gdasapp {
       // the ensemble mean and the deterministic
       soca::Increment recenteringIncr(geom, postProcIncr.socaIncrVar_, postProcIncr.dt_);
       recenteringIncr.diff(determTraj, ensMeanTraj);
-      eckit::LocalConfiguration sshRecErrOutputConfig(fullConfig, "ssh output.recentering error");
-      recenteringIncr = postProcIncr.setToZero(recenteringIncr);
+      postProcIncr.setToZero(recenteringIncr);
+
+      // Check if we're only re-centering the ensemble fcst around the det.
+      bool recenterOnly(false);
+      if ( fullConfig.has("recentering around deterministic") ) {
+        fullConfig.get("recentering around deterministic", recenterOnly);
+      }
+
+      // Save increments and exit if all we're doing is re-centering the ensemble fcst around the det.
+      if (recenterOnly) {
+        oops::Log::info() << "Only recentering " << std::endl;
+        int result = 0;
+        for (size_t i = 0; i < postProcIncr.ensSize_; ++i) {
+          // Append the layers
+          soca::Increment incr = postProcIncr.appendLayer(ensMembers[i]);
+          oops::Log::info() << "incr " << i << ":" << ensMembers[i] << std::endl;
+
+          // Add the recentering increment
+          incr += recenteringIncr;
+          oops::Log::info() << "recentered incr " << i << ":" << incr << std::endl;
+
+          // Save the increments used to initialize the ensemble forecast
+          result = postProcIncr.save(incr, i+1);
+        }
+        return result;
+      }
+
+      // Get the steric variable change configuration
+      eckit::LocalConfiguration stericVarChangeConfig;
+      fullConfig.get("steric height", stericVarChangeConfig);
+      oops::Log::info() << "steric config 0000: " << stericVarChangeConfig << std::endl;
+
+      // Re-balance the perturbations around the deterministic
       oops::Log::info() << "steric config : " << stericVarChangeConfig << std::endl;
       postProcIncr.applyLinVarChange(recenteringIncr, stericVarChangeConfig, determTraj);
       oops::Log::info() << "ensemble mean: " << ensMeanTraj << std::endl;
       oops::Log::info() << "deterministic: " << determTraj << std::endl;
       oops::Log::info() << "error: " << recenteringIncr << std::endl;
+      eckit::LocalConfiguration sshRecErrOutputConfig(fullConfig, "ssh output.recentering error");
       recenteringIncr.write(sshRecErrOutputConfig);
 
       // Re-process the ensemble of perturbations
@@ -167,7 +195,7 @@ namespace gdasapp {
         // Zero out ssh and other specified fields
         // TODO(G): - assert that at least ssh is in the list
         //          - assert that Temperature is NOT in the list
-        incr = postProcIncr.setToZero(incr);
+        postProcIncr.setToZero(incr);
 
         // Compute the original steric height perturbation from T and S
         eckit::LocalConfiguration stericConfig(fullConfig, "steric height");
@@ -186,7 +214,7 @@ namespace gdasapp {
         oops::Log::info() << "--- ssh non-steric --- " << i << sshNonSteric[i] << std::endl;
 
         // Zero out specified fields (again, steric heigh is now in ssh from the previous step)
-        incr = postProcIncr.setToZero(incr);
+        postProcIncr.setToZero(incr);
 
         // Filter ensemble member and recompute steric ssh, recentering around
         // the deterministic trajectory
@@ -264,7 +292,7 @@ namespace gdasapp {
       oops::Log::info() << "filtered std: " << ensStd << std::endl;
 
       // Prepare D (diag of the static B): replace sigma ssh with sigma ssh_u
-      ensStd = postProcIncr.setToZero(ensStd);  // Set ssh (and other specified fields to zero)
+      postProcIncr.setToZero(ensStd);  // Set ssh (and other specified fields to zero)
       atlas::FieldSet ensStdFs;
       ensStd.toFieldSet(ensStdFs);
       atlas::FieldSet sshNonStericStdFs;

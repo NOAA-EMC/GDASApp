@@ -56,7 +56,7 @@ namespace gdasapp {
         oops::Log::debug() << incrWithLayer << std::endl;
 
         // Zero out specified fields
-        incrWithLayer = postProcIncr.setToZero(incrWithLayer);
+        postProcIncr.setToZero(incrWithLayer);
 
         // Save final increment
         result = postProcIncr.save(incrWithLayer, i);
