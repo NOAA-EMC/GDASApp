@@ -15,7 +15,7 @@ observers:
 # Ice concentration
 - !INC ${OBS_YAML_DIR}/icec_amsr2_north.yaml
 - !INC ${OBS_YAML_DIR}/icec_amsr2_south.yaml
-#- !INC ${OBS_YAML_DIR}/icec_amsu_ma1_l2.yaml
+#- !INC ${OBS_YAML_DIR}/icec_amsu_mb_l2.yaml
 #- !INC ${OBS_YAML_DIR}/icec_atms_n20_l2.yaml
 #- !INC ${OBS_YAML_DIR}/icec_atms_n21_l2.yaml
 #- !INC ${OBS_YAML_DIR}/icec_atms_npp_l2.yaml

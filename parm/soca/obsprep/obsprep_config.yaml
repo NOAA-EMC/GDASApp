@@ -47,7 +47,7 @@ observations:
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
-    name: icec_amsu_ma1_l2
+    name: icec_amsu_mb_l2
     provider: MIRS
     dmpdir subdir: ocean/icec
     type: nc
