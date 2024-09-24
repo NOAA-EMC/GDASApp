@@ -15,10 +15,12 @@ observers:
 # Ice concentration
 - !INC ${OBS_YAML_DIR}/icec_amsr2_north.yaml
 - !INC ${OBS_YAML_DIR}/icec_amsr2_south.yaml
-#- !INC ${OBS_YAML_DIR}/icec_mirs_amsu_ma1.yaml
-#- !INC ${OBS_YAML_DIR}/icec_mirs_atms_n20.yaml
-#- !INC ${OBS_YAML_DIR}/icec_mirs_atms_n21.yaml
-#- !INC ${OBS_YAML_DIR}/icec_mirs_atms_snpp.yaml
+#- !INC ${OBS_YAML_DIR}/icec_amsu_ma1_l2.yaml
+#- !INC ${OBS_YAML_DIR}/icec_atms_n20_l2.yaml
+#- !INC ${OBS_YAML_DIR}/icec_atms_n21_l2.yaml
+#- !INC ${OBS_YAML_DIR}/icec_atms_npp_l2.yaml
+#- !INC ${OBS_YAML_DIR}/icec_gmi_gpm_l2.yaml
+#- !INC ${OBS_YAML_DIR}/icec_ssmis_f17_l2.yaml
 
 # in situ: monthly
 #- !INC ${OBS_YAML_DIR}/insitu_profile_bathy.yaml
