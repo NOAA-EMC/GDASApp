@@ -119,7 +119,7 @@ class MarineRecenter(Task):
 
         FileHandler({'mkdir': [self.task_config.bkg_dir]}).sync()
         bkg_utils.gen_bkg_list(bkg_path=self.task_config.COM_OCEAN_HISTORY_PREV,
-                               out_path=self.task_config.bkg_dir,
+                out_path=self.task_config.bkg_dir,
                                window_begin=self.task_config.window_begin,
                                yaml_name=self.task_config.BKG_LIST)
 
@@ -133,21 +133,21 @@ class MarineRecenter(Task):
         logger.info("---------------- Stage ensemble members")
         FileHandler({'mkdir': [self.task_config.ens_dir]}).sync()
         nmem_ens = self.task_config.NMEM_ENS
-        gPDYstr = self.task_config.gPDY.strftime("%Y%m%d")
+        PDYstr = self.task_config.PDY.strftime("%Y%m%d")
         ens_member_list = []
         for mem in range(1, nmem_ens+1):
             for domain in ['ocean', 'ice']:
                 mem_dir = os.path.join(self.task_config.ROTDIR,
-                                       f'enkf{RUN}.{gPDYstr}',
-                                       f'{gcyc}',
+                                       f'enkf{RUN}.{PDYstr}',
+                                       f'{cyc}',
                                        f'mem{str(mem).zfill(3)}',
-                                       'model',
+                                       'analysis',
                                        domain,
-                                       'history')
+                                       'letkf')
                 mem_dir_real = os.path.realpath(mem_dir)
-                f009 = f'enkf{RUN}.{domain}.t{gcyc}z.inst.f009.nc'
+                letkfanl = f'enkf{RUN}.{domain}.t{cyc}z.letkf.nc'
 
-                fname_in = os.path.abspath(os.path.join(mem_dir_real, f009))
+                fname_in = os.path.abspath(os.path.join(mem_dir_real, letkfanl))
                 fname_out = os.path.realpath(os.path.join(self.task_config.ens_dir,
                                              domain+"."+str(mem)+".nc"))
                 ens_member_list.append([fname_in, fname_out])
