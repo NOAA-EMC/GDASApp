@@ -1,19 +1,16 @@
 obs space:
-  name: icec_amsr2_north
+  name: icec_atms_n20_l2
   obsdatain:
     engine:
       type: H5File
-      obsfile: ${DATA}/obs/${OPREFIX}icec_amsr2_north.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}icec_atms_n20_l2.{PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: ${DATA}/diags/icec_amsr2_north.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/diags/icec_atms_n20_l2.${PDY}${cyc}.nc4
   simulated variables: [seaIceFraction]
   io pool:
     max pool size: 1
-  distribution:
-    name: Halo
-    halo size: 500.0e3
 get values:
   time interpolation: linear
 obs operator:
@@ -46,10 +43,3 @@ obs filters:
   where:
   - variable: {name: GeoVaLs/distance_from_coast}
     minvalue: 100e3
-obs localizations:
-- localization method: Rossby
-  base value: 100.0e3
-  rossby mult: 1.0
-  min grid mult: 2.0
-  min value: 200.0e3
-  max value: 900.0e3

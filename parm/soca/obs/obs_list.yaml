@@ -1,35 +1,41 @@
 observers:
 # ADT
-- !INC ${OBS_YAML_DIR}/adt_rads_all.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/adt_rads_all.yaml
 
 # SST
-- !INC ${OBS_YAML_DIR}/sst_avhrr_ma_l3u.yaml
-- !INC ${OBS_YAML_DIR}/sst_avhrr_mb_l3u.yaml
-- !INC ${OBS_YAML_DIR}/sst_avhrr_mc_l3u.yaml
-- !INC ${OBS_YAML_DIR}/sst_viirs_npp_l3u.yaml
-- !INC ${OBS_YAML_DIR}/sst_viirs_n20_l3u.yaml
-- !INC ${OBS_YAML_DIR}/sst_abi_g16_l3c.yaml
-- !INC ${OBS_YAML_DIR}/sst_abi_g17_l3c.yaml
-- !INC ${OBS_YAML_DIR}/sst_ahi_h08_l3c.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_avhrr_ma_l3u.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_avhrr_mb_l3u.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_avhrr_mc_l3u.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_viirs_npp_l3u.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_viirs_n20_l3u.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_abi_g16_l3c.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_abi_g17_l3c.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_ahi_h08_l3c.yaml
 
 # Ice concentration
-- !INC ${OBS_YAML_DIR}/icec_amsr2_north.yaml
-- !INC ${OBS_YAML_DIR}/icec_amsr2_south.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/icec_amsr2_north.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/icec_amsr2_south.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_amsu_mb_l2.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_atms_n20_l2.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_atms_n21_l2.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_atms_npp_l2.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_gmi_gpm_l2.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_ssmis_f17_l2.yaml
 
 # in situ: monthly
-#- !INC ${OBS_YAML_DIR}/insitu_profile_bathy.yaml
-- !INC ${OBS_YAML_DIR}/insitu_profile_argo.yaml
-#- !INC ${OBS_YAML_DIR}/insitu_profile_glider.yaml
-#- !INC ${OBS_YAML_DIR}/insitu_profile_tesac.yaml
-#- !INC ${OBS_YAML_DIR}/insitu_profile_tesac_salinity.yaml
-#- !INC ${OBS_YAML_DIR}/insitu_profile_marinemammal.yaml
-#- !INC ${OBS_YAML_DIR}/insitu_profile_xbtctd.yaml
-#- !INC ${OBS_YAML_DIR}/insitu_surface_altkob.yaml
-#- !INC ${OBS_YAML_DIR}/insitu_surface_trkob.yaml
-#- !INC ${OBS_YAML_DIR}/insitu_surface_trkob_salinity.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_bathy.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_argo.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_glider.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_tesac.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_tesac_salinity.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_marinemammal.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_xbtctd.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_altkob.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_trkob.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_trkob_salinity.yaml
 
 # in situ: daily
-#- !INC ${OBS_YAML_DIR}/insitu_profile_dbuoy.yaml
-#- !INC ${OBS_YAML_DIR}/insitu_profile_dbuoyb.yaml
-#- !INC ${OBS_YAML_DIR}/insitu_profile_mbuoy.yaml
-#- !INC ${OBS_YAML_DIR}/insitu_profile_mbuoyb.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_dbuoy.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_dbuoyb.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_mbuoy.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_mbuoyb.yaml

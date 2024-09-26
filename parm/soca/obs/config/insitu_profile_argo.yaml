@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_profile_argo.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/obs/${OPREFIX}insitu_profile_argo.${PDY}${cyc}.nc4
     obsgrouping:
       group variables: [latitude, longitude, dateTime]
       sort variable: depth
@@ -12,7 +12,7 @@ obs space:
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/insitu_profile_argo.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/diags/insitu_profile_argo.${PDY}${cyc}.nc4
   simulated variables: [waterTemperature, salinity]
   observed variables: [waterTemperature, salinity]
 #  derived variables: [waterPressure]

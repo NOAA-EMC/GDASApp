@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}sst_viirs_n20_l3u.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/obs/${OPREFIX}sst_viirs_n20_l3u.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/sst_viirs_n20_l3u.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/diags/sst_viirs_n20_l3u.${PDY}${cyc}.nc4
   simulated variables: [seaSurfaceTemperature]
   io pool:
     max pool size: 1
