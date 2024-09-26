@@ -1,13 +1,13 @@
 obs space:
-  name: icec_viirs_n20_l2
+  name: icec_viirs_n20_l2_south
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}icec_viirs_n20_l2.{PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}icec_viirs_n20_l2_south.{PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/icec_viirs_n20_l2.${PDY}${cyc}.nc4
+      obsfile: !ENV ${DATA}/diags/icec_viirs_n20_l2_south.${PDY}${cyc}.nc4
   simulated variables: [seaIceFraction]
   io pool:
     max pool size: 1

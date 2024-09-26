@@ -47,7 +47,7 @@ observations:
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
-    name: icec_viirs_n20_l2
+    name: icec_viirs_n20_l2_north
     provider: JPSSRR
     dmpdir subdir: ocean/icec/NH
     type: nc
@@ -55,7 +55,7 @@ observations:
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
-    name: icec_viirs_n20_l2
+    name: icec_viirs_n20_l2_south
     provider: JPSSRR
     dmpdir subdir: ocean/icec/SH
     type: nc
