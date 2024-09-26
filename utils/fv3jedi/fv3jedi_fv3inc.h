@@ -103,7 +103,7 @@ namespace gdasapp {
         // Inputs setup
         // ---------------------------------------------------------------------------------
 
-        // Get output configurations
+        // Get I/O configurations
         eckit::LocalConfiguration stateInputConfig(membersConfig[imem], "background input");
         eckit::LocalConfiguration jediIncrInputConfig(membersConfig[imem], "jedi increment input");
         eckit::LocalConfiguration fv3IncrOuputConfig(membersConfig[imem], "fv3 increment output");
