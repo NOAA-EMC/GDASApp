@@ -108,16 +108,6 @@ namespace gdasapp {
         eckit::LocalConfiguration jediIncrInputConfig(membersConfig[imem], "jedi increment input");
         eckit::LocalConfiguration fv3IncrOuputConfig(membersConfig[imem], "fv3 increment output");
 
-        // Output configuration for temporary Gaussian FV3 increment
-        // (Remove when we have JEDI-based ensemble recentering)
-        bool writeTempIncr;
-        eckit::LocalConfiguration fv3TempIncrOuputConfig;
-        if ( membersConfig[imem].has("temporary fv3 increment output") ) {
-          writeTempIncr = true;
-          membersConfig[imem].get("temporary fv3 increment output", fv3TempIncrOuputConfig);
-        } else {
-          writeTempIncr = false;
-        }
         // Read background state
         fv3jedi::State xxBkg(stateGeom, stateInputConfig);
         oops::Log::test() << "Background State: " << std::endl << xxBkg << std::endl;
@@ -170,12 +160,6 @@ namespace gdasapp {
 
         // Write FV3 increment
         dxFV3.write(fv3IncrOuputConfig);
-
-        // Write temporary Gaussian FV3 increment
-        // (Remove when we have JEDI-based ensemble recentering)
-        if ( writeTempIncr ) {
-          dxFV3.write(fv3TempIncrOuputConfig);
-        }
       }
 
       return 0;
