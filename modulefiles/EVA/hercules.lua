@@ -1,4 +1,4 @@
--- NOAA HPC Orion Modulefile for EVA
+-- NOAA HPC Hercules Modulefile for EVA
 help([[
 ]])
 
