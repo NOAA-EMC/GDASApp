@@ -44,26 +44,26 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   endforeach()
 endfunction()
 
-# Setup the environement
-set(HOMEgfs ${CMAKE_SOURCE_DIR}/../../..)
-set(RUNTESTS ${CMAKE_CURRENT_BINARY_DIR}/../../test/gw-ci)
-
-# 3DVAR WCDA, low-res
-# -------------------
-set(pslot "WCDA-3DVAR-C48mx500")
-set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDA.yaml)
-set(TASK_LIST
-  "gdasprepoceanobs"
-  "gdasmarinebmat"
-  "gdasmarineanlinit"
-  "gdasmarineanlvar"
-  "gdasmarineanlchkpt"
-  "gdasmarineanlfinal"
-  )
-add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
-
 option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
 if (RUN_GW_CI)
+  # Setup the environement
+  set(HOMEgfs ${CMAKE_SOURCE_DIR}/../../..)
+  set(RUNTESTS ${CMAKE_CURRENT_BINARY_DIR}/../../test/gw-ci)
+
+  # 3DVAR WCDA, low-res
+  # -------------------
+  set(pslot "WCDA-3DVAR-C48mx500")
+  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDA.yaml)
+  set(TASK_LIST
+    "gdasprepoceanobs"
+    "gdasmarinebmat"
+    "gdasmarineanlinit"
+    "gdasmarineanlvar"
+    "gdasmarineanlchkpt"
+    "gdasmarineanlfinal"
+    )
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+
   # Aero-Land DA, C96
   # -----------------
   set(pslot "Aero-Snow-3DVAR-C96")
