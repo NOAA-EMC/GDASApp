@@ -55,6 +55,7 @@ set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDA.yaml)
 set(TASK_LIST
   "gdasprepoceanobs"
   "gdasmarinebmat"
+  "gdasocnanalecen"
   "gdasmarineanlinit"
   "gdasmarineanlvar"
   "gdasmarineanlchkpt"

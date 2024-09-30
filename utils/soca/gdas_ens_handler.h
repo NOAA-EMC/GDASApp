@@ -145,16 +145,22 @@ namespace gdasapp {
         oops::Log::info() << "Only recentering " << std::endl;
         int result = 0;
         for (size_t i = 0; i < postProcIncr.ensSize_; ++i) {
-          // Append the layers
-          soca::Increment incr = postProcIncr.appendLayer(ensMembers[i]);
-          oops::Log::info() << "incr " << i << ":" << ensMembers[i] << std::endl;
+          // make a copy of the ens. member
+          soca::Increment incr(ensMembers[i]);
 
           // Add the recentering increment
           incr += recenteringIncr;
           oops::Log::info() << "recentered incr " << i << ":" << incr << std::endl;
 
+          // Append the vertical geometry (for MOM6 IAU)
+          soca::Increment mom6_incr = postProcIncr.appendLayer(incr);
+          oops::Log::info() << "incr " << i << ":" << mom6_incr << std::endl;
+
+          // Set variables to zero if specified in the configuration
+          postProcIncr.setToZero(incr);
+
           // Save the increments used to initialize the ensemble forecast
-          result = postProcIncr.save(incr, i+1);
+          result = postProcIncr.save(mom6_incr, i+1);
         }
         return result;
       }
