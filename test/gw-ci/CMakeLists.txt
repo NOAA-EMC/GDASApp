@@ -44,8 +44,7 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   endforeach()
 endfunction()
 
-option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
-if (RUN_GW_CI)
+if (WORKFLOW_TESTS)
   # Setup the environement
   set(HOMEgfs ${CMAKE_SOURCE_DIR}/../../..)
   set(RUNTESTS ${CMAKE_CURRENT_BINARY_DIR}/../../test/gw-ci)
@@ -63,7 +62,10 @@ if (RUN_GW_CI)
     "gdasmarineanlfinal"
     )
   add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+endif()
 
+option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
+if (RUN_GW_CI)
   # Aero-Land DA, C96
   # -----------------
   set(pslot "Aero-Snow-3DVAR-C96")
