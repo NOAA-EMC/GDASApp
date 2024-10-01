@@ -1,6 +1,6 @@
 covariance model: SABER
 saber central block:
-  saber block name: EXPLICIT_DIFFUSION
+  saber block name: diffusion
   active variables: [tocn, socn, ssh, cicen]
   geometry:
     mom6_input_nml: mom_input.nml
