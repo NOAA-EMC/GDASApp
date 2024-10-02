@@ -8,7 +8,7 @@ background:
   ocn_filename: MOM.res.nc
   ice_filename: cice.res.nc
   date: '{{ MARINE_WINDOW_END  | to_isotime }}'
-  state variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
+  state variables: [ssh]
 
 background error:
   covariance model: SABER
@@ -21,17 +21,17 @@ background error:
         iterations: 10000
 
       groups:
-      - name: ocean
-        horizontal:
-          from file:
-            filename: ocn.cor_rh.incr.0001-01-01T00:00:00Z.nc
-            variable name: ave_ssh
+      - horizontal:
+          model file:
+            date: '{{ MARINE_WINDOW_END  | to_isotime }}'
+            basename: ./
+            ocn_filename: ocn.cor_rh.incr.0001-01-01T00:00:00Z.nc
+          model variable: ssh
         write:
-          filename: ./staticb/hz_ocean.nc
+          filepath: ./staticb/hz_ocean
 
-      - name: ice
-        horizontal:
+      - horizontal:
           as gaussian: true
           fixed value: 50000.0
         write:
-          filename: ./staticb/hz_ice.nc
+          filepath: ./staticb/hz_ice
