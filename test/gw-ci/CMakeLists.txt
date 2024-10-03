@@ -43,14 +43,14 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
 
   # 1/2 cycle enkfgdasfcst
   if (letkf)
-  set(ENS_MEMS  "mem001" "mem002" "mem003")
-  foreach(ENS_MEM ${ENS_MEMS})
-    message(STATUS "preparing 1/2 cycle enkfgdasfcst_${ENS_MEM} for ${test_name} ctest")
-      add_test(NAME ${test_name}_enkfgdasfcst_${ENS_MEM}_${HALF_CYCLE}
-               COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasfcst_${ENS_MEM} ${HALF_CYCLE}"
-               WORKING_DIRECTORY ${RUNTESTS})
-      set_tests_properties(${test_name}_enkfgdasfcst_${ENS_MEM}_${HALF_CYCLE} PROPERTIES LABELS "manual")
-  endforeach()
+    set(ENS_MEMS  "mem001" "mem002" "mem003")
+    foreach(ENS_MEM ${ENS_MEMS})
+      message(STATUS "preparing 1/2 cycle enkfgdasfcst_${ENS_MEM} for ${test_name} ctest")
+        add_test(NAME ${test_name}_enkfgdasfcst_${ENS_MEM}_${HALF_CYCLE}
+                 COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasfcst_${ENS_MEM} ${HALF_CYCLE}"
+                 WORKING_DIRECTORY ${RUNTESTS})
+        set_tests_properties(${test_name}_enkfgdasfcst_${ENS_MEM}_${HALF_CYCLE} PROPERTIES LABELS "manual")
+    endforeach()
   endif()
 
   # Select the list of tasks to run for the full cycle
