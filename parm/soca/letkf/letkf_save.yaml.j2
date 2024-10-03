@@ -15,6 +15,6 @@ copy:
    {% set COMOUT_OCEAN_LETKF_MEM = COM_OCEAN_LETKF_TMPL | replace_tmpl(tmpl_dict) %}
    {% set COMOUT_ICE_LETKF_MEM = COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) %}
 
-   - ["{{ DATA }}/letkf_output/ocn.letkf.ens.{{ mem }}.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF_MEM }}/{{ RUN }}.ocean.t{{ cyc }}z.letkf.nc"]
-   - ["{{ DATA }}/letkf_output/ice.letkf.ens.{{ mem }}.{{ timestr }}.PT3H.nc", "{{ COMOUT_ICE_LETKF_MEM }}/{{ RUN }}.ice.t{{ cyc }}z.letkf.nc"]
+   - ["{{ DATA }}/letkf_output/ocn.letkf.ens.{{ mem }}.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF_MEM }}/{{ RUN }}.ocean.t{{ cyc }}z.analysis.nc"]
+   - ["{{ DATA }}/letkf_output/ice.letkf.ens.{{ mem }}.{{ timestr }}.PT3H.nc", "{{ COMOUT_ICE_LETKF_MEM }}/{{ RUN }}.ice.t{{ cyc }}z.analysis.nc"]
 {% endfor %}
