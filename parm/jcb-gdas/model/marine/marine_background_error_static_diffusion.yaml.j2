@@ -1,29 +1,17 @@
 covariance model: SABER
 saber central block:
-  saber block name: EXPLICIT_DIFFUSION
-  active variables: [tocn, socn, ssh, cicen]
-  geometry:
-    mom6_input_nml: mom_input.nml
-    fields metadata: ./fields_metadata.yaml
-  group mapping:
-  - name: ocean
-    variables:
-    - tocn
-    - socn
-    - ssh
-  - name: ice
-    variables:
-    - cicen
+  saber block name: diffusion
   read:
     groups:
-    - name: ocean
+    - variables: [tocn, socn, ssh]
       horizontal:
-        filename: ./staticb/hz_ocean.nc
+        filepath: ./staticb/hz_ocean
       vertical:
-        filename: ./staticb/vt_ocean.nc
-    - name: ice
+        levels: {{marine_vt_levels}}
+        filepath: ./staticb/vt_ocean
+    - variables: [cicen]
       horizontal:
-        filename: ./staticb/hz_ice.nc
+        filepath: ./staticb/hz_ice
 
 saber outer blocks:
 - saber block name: StdDev
