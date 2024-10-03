@@ -40,31 +40,31 @@ local ensemble DA:
     mult: 1.1
 
 output:
-  datadir: Data/
+  datadir: letkf_output/
   date: *date
   exp: letkf
   type: ens
 
 output mean prior:
-  datadir: Data/
+  datadir: letkf_output/
   date: *date
   exp: letkf.mean_prior
   type: fc
 
 output variance prior:
-  datadir: Data/
+  datadir: letkf_output/
   date: *date
   exp: letkf.var_prior
   type: fc
 
 output variance posterior:
-  datadir: Data/
+  datadir: letkf_output/
   date: *date
   exp: letkf.var_post
   type: an
 
 output increment:
-  datadir: Data/
+  datadir: letkf_output/
   date: *date
   exp: letkf.inc
   type: ens
