@@ -92,10 +92,10 @@ set(TASK_LIST
   "gdasprepoceanobs"
   "gdasmarineanlletkf"
   "gdasmarinebmat"
-  "gdasocnanalprep"
-  "gdasocnanalrun"
-  "gdasocnanalchkpt"
-  "gdasocnanalpost"
+  "gdasmarineanlinit"
+  "gdasmarineanlvar"
+  "gdasmarineanlchkpt"
+  "gdasmarineanlfinal"
   )
 add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 set(letkf FALSE)
