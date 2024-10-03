@@ -83,24 +83,24 @@ if (WORKFLOW_TESTS)
     "gdasmarineanlfinal"
     )
   add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
-endif()
 
-# WCDA, low-res, ensemble da
-# -------------
-set(pslot "WCDA-hyb-C48mx500")
-set(letkf TRUE)
-set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_hybAOWCDA.yaml)
-set(TASK_LIST
-  "gdasprepoceanobs"
-  "gdasmarineanlletkf"
-  "gdasmarinebmat"
-  "gdasmarineanlinit"
-  "gdasmarineanlvar"
-  "gdasmarineanlchkpt"
-  "gdasmarineanlfinal"
-  )
-add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
-set(letkf FALSE)
+  # WCDA, low-res, ensemble da
+  # -------------
+  set(pslot "WCDA-hyb-C48mx500")
+  set(letkf TRUE)
+  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_hybAOWCDA.yaml)
+  set(TASK_LIST
+    "gdasprepoceanobs"
+    "gdasmarineanlletkf"
+    "gdasmarinebmat"
+    "gdasmarineanlinit"
+    "gdasmarineanlvar"
+    "gdasmarineanlchkpt"
+    "gdasmarineanlfinal"
+    )
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+  set(letkf FALSE)
+endif()
 
 option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
 if (RUN_GW_CI)
