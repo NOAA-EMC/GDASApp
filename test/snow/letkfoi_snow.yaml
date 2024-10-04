@@ -38,7 +38,7 @@ geometry:
     state fields:
       datapath: Data/snow/C48
       datetime: '2021-03-23T15:00:00Z'
-      filename_orog: C48_oro_data
+      filename_orog: C48_oro_data.nc
       filetype: fms restart
       skip coupler file: true
       state variables: [orog_filt]
