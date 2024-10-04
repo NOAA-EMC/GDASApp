@@ -1,0 +1,26 @@
+Reading: [icec_jrr_n20_1.nc4,icec_jrr_n20_2.nc4]
+seconds since 1970-01-01T00:00:00Z
+obsVal:
+    Min: 0.407328
+    Max: 1
+    Sum: 225.641
+obsError:
+    Min: 0.1
+    Max: 0.1
+    Sum: 24.6
+preQc:
+    Min: 0
+    Max: 1
+    Sum: 104
+longitude:
+    Min: 45.7687
+    Max: 91.459
+    Sum: 15553.2
+latitude:
+    Min: -63.2473
+    Max: 67.123
+    Sum: 4270.1
+datetime:
+    Min: 1718704416
+    Max: 1718708172
+    Sum: 422801639400

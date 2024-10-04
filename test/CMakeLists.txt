@@ -137,13 +137,8 @@ add_test(NAME test_gdasapp_jedi_increment_to_fv3
 
 if (${BUILD_GDASBUNDLE})
   add_subdirectory(fv3jedi)   # fv3jedi tests
-  add_subdirectory(soca)      # soca tests
   add_subdirectory(snow)      # snow da tests
-  option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
-  if (RUN_GW_CI)
-    add_subdirectory(gw-ci)   # subset of the global-workflow ci tests
-  endif()
-
+  add_subdirectory(gw-ci)   # subset of the global-workflow ci tests
 endif()
 
 # gdas atm tests
@@ -151,3 +146,5 @@ add_subdirectory(atm)
 
 # gdas aerosol tests
 add_subdirectory(aero)
+
+add_subdirectory(marine)

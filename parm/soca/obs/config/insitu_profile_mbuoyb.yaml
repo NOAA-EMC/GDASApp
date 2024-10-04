@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_profile_mbuoyb.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/obs/${OPREFIX}insitu_profile_mbuoyb.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/insitu_profile_mbuoyb.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/diags/insitu_profile_mbuoyb.${PDY}${cyc}.nc4
   simulated variables: [waterTemperature]
   observed variables: [waterTemperature]
   io pool:
@@ -20,3 +20,14 @@ obs operator:
     - name: waterTemperature
 obs error:
   covariance model: diagonal
+obs filters:
+- filter: Perform Action
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables:
+        - ObsError/waterTemperature
+        coefs:
+        - 1000.0

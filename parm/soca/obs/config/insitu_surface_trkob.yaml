@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_surface_trkob.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/obs/${OPREFIX}insitu_surface_trkob.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/insitu_surface_trkob.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/diags/insitu_surface_trkob.${PDY}${cyc}.nc4
   simulated variables: [seaSurfaceTemperature]
   io pool:
     max pool size: 1
@@ -16,3 +16,14 @@ obs operator:
   observation alias file: ./obsop_name_map.yaml
 obs error:
   covariance model: diagonal
+obs filters:
+- filter: Perform Action
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables:
+        - ObsError/seaSurfaceTemperature
+        coefs:
+        - 1000.0

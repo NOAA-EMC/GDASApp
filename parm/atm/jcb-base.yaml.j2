@@ -23,6 +23,7 @@ window_length: "{{ ATM_WINDOW_LENGTH }}"
 bound_to_include: begin
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
+final_prints_frequency: PT3H
 number_of_outer_loops: 2
 analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
@@ -61,6 +62,7 @@ atmosphere_forecast_timestep: "{{ BKG_TSTEP }}"
 # Write final increment on Guassian grid in variational
 atmosphere_final_increment_prefix: "./anl/atminc."
 
+atmosphere_variational_history_prefix: "{{GPREFIX}}"
 
 # Observation things
 # ------------------
@@ -97,7 +99,7 @@ atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
 # -------------------------
 local_ensemble_da_solver: GETKF
 
-increment_variables: [ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
+increment_variables: [ua,va,delz,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
@@ -115,6 +117,11 @@ driver_save_prior_mean: false
 driver_save_posterior_mean_increment: false
 driver_save_posterior_ensemble_increments: true
 
+# Distribution type
+distribution_type: Halo
+
 # Diagnostics
 atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
 atmosphere_posterior_output_gaussian: "./mem%{member}%/atmanl."
+
+atmosphere_ensemble_history_prefix: "enkf{{GPREFIX}}"

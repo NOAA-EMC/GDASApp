@@ -101,7 +101,7 @@ def run_satbias_conv(config):
             f.write('output:\n')
             for sat in satlist:
                 f.write(f'- sensor: {sat}\n')
-                f.write(f'  output file: {sat}_satbias.nc4\n')
+                f.write(f'  output file: {sat}_satbias.nc\n')
                 f.write('  predictors: *default_preds\n')
         # run executable
         runcmd = f'./satbias2ioda.x satbias_converter.yaml'
@@ -110,7 +110,7 @@ def run_satbias_conv(config):
         # copy output files to output directory
         outdir = os.path.join(ufo_bc_root, f'{cdump}.{pdy}', cyc, 'atmos')
         os.makedirs(outdir, exist_ok=True)
-        ncfiles = glob.glob(os.path.join(workdir, '*.nc4'))
+        ncfiles = glob.glob(os.path.join(workdir, '*.nc'))
         txtfiles = glob.glob(os.path.join(workdir, '*.txt'))
         allfiles = ncfiles + txtfiles
         for f in allfiles:

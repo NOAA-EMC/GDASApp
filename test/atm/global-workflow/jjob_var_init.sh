@@ -75,19 +75,16 @@ for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.nc4 $COM_OBS/${oprefix}.${file}.nc
 done
 
-# Link radiance bias correction files
+# Link radiance bias correction tarball
 dpath=gdas.$gPDY/$gcyc/analysis/atmos
 mkdir -p $COM_ATMOS_ANALYSIS_PREV
-flist="amsua_n19.satbias amsua_n19.satbias_cov"
-for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.${file}.nc4 $COM_ATMOS_ANALYSIS_PREV/$gprefix.${file}.nc
-done
-flist="amsua_n19.tlapse.txt"
+flist="rad_varbc_params.tar"
 for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.${file} $COM_ATMOS_ANALYSIS_PREV/$gprefix.${file}
 done
 
-# Link atmospheric background on gaussian grid
+
+# Link atmospheric history on gaussian grid
 dpath=gdas.$gPDY/$gcyc/model/atmos/history
 mkdir -p $COM_ATMOS_HISTORY_PREV
 flist="atmf006.nc"
@@ -95,15 +92,11 @@ for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${gprefix}.${file} $COM_ATMOS_HISTORY_PREV/${gprefix}.${file}
 done
 
-# Link atmospheric bacgkround on tiles
-dpath=gdas.$gPDY/$gcyc/model/atmos
-COM_ATMOS_RESTART_PREV_DIRNAME=$(dirname $COM_ATMOS_RESTART_PREV)
-mkdir -p $COM_ATMOS_RESTART_PREV_DIRNAME
-flist="restart"
-for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$file $COM_ATMOS_RESTART_PREV_DIRNAME/$file
+# Link atmospheric histories on native cubed-sphere grid
+flist=("cubed_sphere_grid_atmf006.nc" "cubed_sphere_grid_sfcf006.nc")
+for file in "${flist[@]}"; do
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${gprefix}.${file} $COM_ATMOS_HISTORY_PREV/${gprefix}.${file}
 done
-
 
 # Link member atmospheric background on tiles and atmf006
 dpath=enkfgdas.$gPDY/$gcyc
@@ -115,17 +108,19 @@ for imem in $(seq 1 $NMEM_ENS); do
 	COM_ATMOS_RESTART_PREV_ENS:COM_ATMOS_RESTART_TMPL
     COM_ATMOS_RESTART_PREV_DIRNAME_ENS=$(dirname $COM_ATMOS_RESTART_PREV_ENS)
 
-    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos
-    target=$COM_ATMOS_RESTART_PREV_DIRNAME_ENS
-    mkdir -p $target
-    rm -rf $target/restart
-    ln -fs $source/restart $target/
-
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
     target=$COM_ATMOS_HISTORY_PREV_ENS
     mkdir -p $target
     rm -rf $target/enkfgdas.t${gcyc}z.atmf006.nc
     ln -fs $source/enkfgdas.t${gcyc}z.atmf006.nc $target/
+
+    source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
+    target=$COM_ATMOS_HISTORY_PREV_ENS
+    flist=("cubed_sphere_grid_atmf006.nc" "cubed_sphere_grid_sfcf006.nc")
+    for file in "${flist[@]}"; do
+        rm -rf $target/enkf${gprefix}.${file}
+        ln -fs $source/enkf${gprefix}.${file} $target/
+    done
 done
 
 

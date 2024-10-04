@@ -3,11 +3,11 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/obs/${OPREFIX}insitu_surface_trkob.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/obs/${OPREFIX}insitu_surface_trkob.${PDY}${cyc}.nc4
   obsdataout:
     engine:
       type: H5File
-      obsfile: !ENV ${DATA}/diags/insitu_surface_trkob_salinity.${PDY}${cyc}.nc4
+      obsfile: ${DATA}/diags/insitu_surface_trkob_salinity.${PDY}${cyc}.nc4
   simulated variables: [seaSurfaceSalinity]
 get values:
   time interpolation: linear
@@ -16,3 +16,14 @@ obs operator:
   observation alias file: ./obsop_name_map.yaml
 obs error:
   covariance model: diagonal
+obs filters:
+- filter: Perform Action
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables:
+        - ObsError/seaSurfaceSalinity
+        coefs:
+        - 1000.0

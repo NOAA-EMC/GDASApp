@@ -1,7 +1,7 @@
 # Use observations for lgetkf
 # ---------------------------
 app_path_observations: {{PARMgfs}}/gdas/jcb-gdas/observations/atmosphere-lgetkf
-app_path_observation_chronicle: {{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/atmosphere-lgetkf
+app_path_observation_chronicle: {{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/atmosphere
 
 # Algorithm
 # ---------
@@ -14,7 +14,27 @@ atmosphere_background_ensemble_path: ./bkg/mem%mem%
 # Observation things
 # ------------------
 observations:
-  - satwnd.abi_goes-16
+#  - ADPSFC
+#  - ADPUPA
+#  - SFCSHP
+  - aircraft
   - ascatw.ascat_metop-b
-  #- conv_ps  # Turned off until naming convention of obs files is resolved.
-  #- gnssro   # Turned off until naming convention of obs files is resolved.
+#  - ascatw.ascat_metop-c
+  - atms_n20
+  - atms_npp
+  - conventional_ps
+  - gnssro
+#  - gpsro
+#  - mtiasi_metop-a
+#  - mtiasi_metop-b
+#  - ompsnp_n20
+  - ompsnp_npp
+#  - ompstc_n20
+  - ompstc_npp
+  - satwnd.abi_goes-16
+  - satwnd.abi_goes-18
+  - satwnd.leogeo_multi
+  - satwnd.viirs_n20
+  - satwnd.viirs_npp
+#  - scatwind_ascat_metop-a
+#  - snowcvr

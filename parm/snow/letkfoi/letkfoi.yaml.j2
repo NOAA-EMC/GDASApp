@@ -1,15 +1,15 @@
 geometry:
   fms initialization:
-    namelist filename: {{ DATA }}/fv3jedi/fmsmpp.nml
-    field table filename: {{ DATA }}/fv3jedi/field_table
-  akbk: {{ DATA }}/fv3jedi/akbk.nc4
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
   layout:
   - {{ layout_x }}
   - {{ layout_y }}
   npx: {{ npx_ges }}
   npy: {{ npy_ges }}
   npz: {{ npz_ges }}
-  field metadata override: {{ DATA }}/fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
   time invariant fields:
     state fields:
       datetime: '{{ SNOW_WINDOW_BEGIN | to_isotime }}'
@@ -31,7 +31,7 @@ background:
        datetime: '{{ current_cycle | to_isotime }}'
        filetype: fms restart
        state variables: [snodl,vtype,slmsk]
-       datapath: {{ DATA }}/bkg/mem%mem%/RESTART
+       datapath: ./bkg/mem%mem%/RESTART
        filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'
        filename_cplr: '{{ current_cycle | to_fv3time }}.coupler.res'
      pattern: '%mem%'
@@ -57,7 +57,7 @@ local ensemble DA:
     mult: 1.0
 
 output increment:
-  datapath: {{ DATA }}/anl
+  datapath: ./anl
   prefix: snowinc
   filetype: fms restart
   filename_sfcd: '{{ current_cycle | to_fv3time }}.sfc_data.nc'

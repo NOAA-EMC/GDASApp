@@ -1,0 +1,34 @@
+# Use observations for lgetkf
+# ---------------------------
+app_path_observations: {{PARMgfs}}/gdas/jcb-gdas/observations/atmosphere-lgetkf
+app_path_observation_chronicle: {{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/atmosphere-lgetkf
+
+# Algorithm
+# ---------
+algorithm: local_ensemble_da_observer
+
+# Model things
+# ------------
+atmosphere_background_ensemble_path: ./bkg/mem%mem%
+
+# Observation things
+# ------------------
+observations:
+  - amsua_n19
+  - sondes
+
+# The observation files in the testing are appended using the yyymmddhh similar to JEDI tests
+atmosphere_obsdatain_suffix: ".{{ current_cycle | to_YMDH }}.nc"
+
+# Naming conventions for observation files
+atmosphere_obsdataout_prefix: diag_lobs_
+
+# Distribution type
+distribution_type: RoundRobin
+
+# Testing things
+# --------------
+test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/atm/global-workflow/lgetkf_observer.ref
+test_output_filename: ./lgetkf_observer.out
+test_float_relative_tolerance: 1.0e-3
+test_float_absolute_tolerance: 1.0e-5

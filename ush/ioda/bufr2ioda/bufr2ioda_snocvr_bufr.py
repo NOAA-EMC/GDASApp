@@ -131,7 +131,7 @@ def bufr_to_ioda(config, logger):
     # Create the dimensions
     dims = {'Location': snod.shape[0]}
 
-    iodafile = f"{cycle_type}.t{hh}z.{data_type}.{data_format}.nc"
+    iodafile = f"{cycle_type}.t{hh}z.{data_type}.nc"
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
     logger.debug(f" ... ... Create OUTPUT file: {OUTPUT_PATH}")
 

@@ -2,18 +2,18 @@ geometry:
   mom6_input_nml: mom_input.nml
   fields metadata: ./fields_metadata.yaml
 
-date: '{{ ATM_WINDOW_MIDDLE }}'
+date: '{{ MARINE_WINDOW_END  | to_isotime }}'
 
 background:
-  date: '{{ ATM_WINDOW_MIDDLE }}'
+  date: '{{ MARINE_WINDOW_END  | to_isotime }}'
   basename: ./bkg/
-  ocn_filename: 'gdas.ocean.t{{ gcyc }}z.inst.f009.nc'
-  ice_filename: 'gdas.agg_ice.t{{ gcyc }}z.inst.f009.nc'
+  ocn_filename: 'ocean.bkg.f009.nc'
+  ice_filename: 'ice.bkg.f009.nc'
   read_from_file: 1
 
 background error:
-  datadir: ./
-  date: '{{ ATM_WINDOW_MIDDLE }}'
+  datadir: ./staticb/
+  date: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
   exp: bkgerr_stddev
   type: incr
 
@@ -26,35 +26,12 @@ max ssh: 0.0    # Limits the amplitude of the unbalanced bkg err
 min depth: 500.0 # zero out the bkg. error. at less than min depth
 number of halo points: 4
 number of neighbors: 16
+
 simple smoothing:
   horizontal iterations: 10
   vertical iterations: 1
 
-# TODO(G): Start using when the normalization is optional
+# TODO(G): Too slow for the below scale
 #diffusion:
-#   saber block name: EXPLICIT_DIFFUSION
-#   active variables: [tocn, socn, ssh, cicen, hicen, hsnon]
-#   geometry:
-#     mom6_input_nml: mom_input.nml
-#     fields metadata: ./fields_metadata.yaml
-#   group mapping:
-#   - name: ocean
-#     variables:
-#     - tocn
-#     - socn
-#     - ssh
-#   - name: ice
-#     variables:
-#     - cicen
-#     - hicen
-#     - hsnon
-#   read:
-#     groups:
-#     - name: ocean
-#       horizontal:
-#         filename: hz_ocean.nc
-#       vertical:
-#         filename: vt_ocean.nc
-#     - name: ice
-#       horizontal:
-#         filename: hz_ice.nc
+#  horizontal: 500.0e3
+#  vertical: 3.0

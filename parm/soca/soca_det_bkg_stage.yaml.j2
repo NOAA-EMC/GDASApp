@@ -1,0 +1,23 @@
+######################################
+# set some variables
+######################################
+{% set gPDY = previous_cycle | to_YMD %}
+{% set gcyc = previous_cycle | strftime("%H") %}
+######################################
+# create ens bkg directories
+######################################
+mkdir:
+- "{{ DATA }}/bkg"
+
+######################################
+# copy ensemble background files
+######################################
+copy:
+# stage initial conditions
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/gdas.ocean.t{{ gcyc }}z.inst.f003.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/gdas.ice.t{{ gcyc }}z.inst.f003.nc", "{{ DATA }}/INPUT/cice.res.nc"]
+# stage f006 and f009 backgrounds
+{% for fcsth in ['f006', 'f009'] %}
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/gdas.ocean.t{{ gcyc }}z.inst.{{ fcsth }}.nc", "{{ DATA }}/bkg/ocean.bkg.{{ fcsth }}.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/gdas.ice.t{{ gcyc }}z.inst.{{ fcsth }}.nc", "{{ DATA }}/bkg/ice.bkg.{{ fcsth }}.nc"]
+{% endfor %}

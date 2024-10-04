@@ -88,6 +88,9 @@ if(BUILD_GDASBUNDLE)
 # Gibbs seawater
   ecbuild_bundle( PROJECT gsw SOURCE "../sorc/gsw" )
 
+# EMC BUFR-query library
+  ecbuild_bundle( PROJECT bufr-query SOURCE "../sorc/bufr-query" )
+
 # Core JEDI repositories
   ecbuild_bundle( PROJECT oops SOURCE "../sorc/oops" )
   ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
@@ -117,6 +120,7 @@ if(BUILD_GDASBUNDLE)
 
   # Build JEDI/DA or other peripherals
   ecbuild_bundle( PROJECT gdas-utils SOURCE "../utils" )
+  ecbuild_bundle( PROJECT da-utils SOURCE "../sorc/da-utils" )
 
 # Build IODA converters
   option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)

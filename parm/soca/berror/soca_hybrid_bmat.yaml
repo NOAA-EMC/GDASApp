@@ -34,8 +34,8 @@ components:
         model file:
           date: '{{ATM_WINDOW_MIDDLE}}'
           basename: ./
-          ocn_filename: 'ocn.bkgerr_stddev.incr.{{ATM_WINDOW_MIDDLE}}.nc'
-          ice_filename: 'ice.bkgerr_stddev.incr.{{ATM_WINDOW_MIDDLE}}.nc'
+          ocn_filename: 'ocean.bkgerr_stddev.nc'
+          ice_filename: 'ice.bkgerr_stddev.nc'
           read_from_file: 3
 
     linear variable change:
@@ -53,7 +53,7 @@ components:
       template:
         read_from_file: 1
         date: '{{ATM_WINDOW_MIDDLE}}'
-        basename: ./static_ens/
+        basename: ./ens/
         ocn_filename: 'ocn.pert.steric.%mem%.nc'
         ice_filename: 'ice.%mem%.nc'
         state variables: [tocn, socn, ssh, uocn, vocn, cicen, hicen, hsnon]
@@ -87,6 +87,6 @@ components:
   weight:
     read_from_file: 3
     basename: ./
-    ocn_filename: 'ocn.ens_weights.incr.{{ATM_WINDOW_MIDDLE}}.nc'
-    ice_filename: 'ice.ens_weights.incr.{{ATM_WINDOW_MIDDLE}}.nc'
+    ocn_filename: 'ocean.ens_weights.nc'
+    ice_filename: 'ice.ens_weights.nc'
     date: '{{ATM_WINDOW_MIDDLE}}'
