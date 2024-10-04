@@ -21,7 +21,7 @@ mkdir:
 - "{{ COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) }}"
 {% endfor %}
 ######################################
-# copy mom input template 
+# copy mom input template and det bkg
 ######################################
 copy:
 - ["{{ PARMgfs }}/gdas/soca/fms/input.nml", "{{ DATA }}/mom_input.nml.tmpl"]

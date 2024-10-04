@@ -19,7 +19,7 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   list(GET DATES_LIST 1 FULL_CYCLE)
 
   # stage ics
-  message(STATUS "preparing gdasstage_ic  for ${test_name} ctest")
+  message(STATUS "preparing gdasstage_ic for ${test_name} ctest")
   add_test(NAME ${test_name}_gdasstage_ic_${HALF_CYCLE}
            COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasstage_ic ${HALF_CYCLE}"
            WORKING_DIRECTORY ${RUNTESTS})
@@ -27,7 +27,7 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
 
   # stage ensemble ics
   if (letkf)
-    message(STATUS "preparing enkfgdasstage_ic  for ${test_name} ctest")
+    message(STATUS "preparing enkfgdasstage_ic for ${test_name} ctest")
     add_test(NAME ${test_name}_enkfgdasstage_ic_${HALF_CYCLE}
              COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasstage_ic ${HALF_CYCLE}"
              WORKING_DIRECTORY ${RUNTESTS})
