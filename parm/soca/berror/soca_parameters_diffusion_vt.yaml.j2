@@ -8,12 +8,12 @@ background:
   ocn_filename: MOM.res.nc
   ice_filename: cice.res.nc
   date: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
-  state variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
+  state variables: [tocn]
 
 background error:
   covariance model: SABER
   saber central block:
-    saber block name: EXPLICIT_DIFFUSION
+    saber block name: diffusion
     geometry: *geom
     calibration:
       normalization:
@@ -22,11 +22,12 @@ background error:
         iterations: 1000       #< in the real world you'll want to use 1e4 or so
 
       groups:
-      - name: vt_ocean
-        vertical:
+      - vertical:
           as gaussian: true
-          from file:
-            filename: vt_scales.nc
-            variable name: vt
+          model file:
+            date: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
+            basename: ./
+            ocn_filename: vt_scales.nc
+          model variable: tocn
         write:
-          filename: ./staticb/vt_ocean.nc
+          filepath: ./staticb/vt_ocean
