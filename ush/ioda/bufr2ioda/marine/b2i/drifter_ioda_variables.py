@@ -31,7 +31,6 @@ class DrifterIODAVariables(IODAVariables):
         q.add('depth', '*/DTSCUR/DBSS')
         q.add('temp', '*/DTSCUR/STMP')
         q.add('buoy_type', '*/RPSEC4/BUYT')
-        # q.add('ldds', '*/RPSEC4/LDDS')
         return q
 
     def set_obs_from_query_result(self, r):

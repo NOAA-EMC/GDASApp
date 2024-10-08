@@ -88,7 +88,7 @@ CHECK_AND_SET_PATH(
 	BUFR_TEST_DIR
 )
 if (NOT BUFR_TEST_DIR_EXISTS)
-	message(WARNING "BUFR test file directory not found -- bufr to ioda tests not generted.")
+	message(WARNING "BUFR test file directory not found -- bufr to ioda tests not generated.")
 	set(GENERATE_BUFR2IODA_TESTS FALSE)
 else()
     # message(STATUS "Found bufr test directory: ${BUFR_TEST_DIR}")
