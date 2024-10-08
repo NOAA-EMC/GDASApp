@@ -124,6 +124,7 @@ function(ADD_INSITU_TEST testname testbufr)
 		set(DATE "2021063006")
 		set(CYCLE "06")
 	endif()
+
 	set(TEST "bufr2ioda_insitu_${testname}")
 
 	set(TESTREF_FILE "${TEST}_${DATE}.ref")
