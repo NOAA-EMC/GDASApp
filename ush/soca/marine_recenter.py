@@ -98,18 +98,6 @@ class MarineRecenter(Task):
         # Extend task_config with local_dict
         self.task_config.update(local_dict)
 
-#        self.task_config['recen_yaml_template'] = os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml')
-#        self.task_config['recen_yaml_file'] = os.path.join(DATA, 'soca_ensrecenter.yaml')
-#        self.task_config['gridgen_yaml'] = os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml')
-#        self.task_config['BKG_LIST'] = 'bkg_list.yaml'
-#        self.task_config['window_begin'] = window_begin
-#        self.task_config['mom_input_nml_src'] = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
-#        self.task_config['mom_input_nml_tmpl'] = os.path.join(DATA, 'mom_input.nml.tmpl')
-#        self.task_config['mom_input_nml'] = os.path.join(DATA, 'mom_input.nml')
-#        self.task_config['bkg_dir'] = os.path.join(DATA, 'bkg')
-#        self.task_config['INPUT'] = os.path.join(DATA, 'INPUT')
-#        self.task_config['ens_dir'] = os.path.join(DATA, 'ens')
-#                     'PARMsoca': os.path.join(self.task_config.PARMgfs, 'gdas', 'soca'),
 
     @logit(logger)
     def initialize(self):
@@ -231,23 +219,21 @@ class MarineRecenter(Task):
         None
         """
 
-        # Skip the analysis insertion for CICE
-        #logger.info("Make a copy of the CICE restarts, skip the analysis insertion")
-        #ens_ice_rst_conf = AttrDict(task_config)
-        #ens_ice_rst_conf.RUN = task_config.GDUMP_ENS
-        #cice_rst_list = parse_j2yaml(task_config.COPY_ENS_ICE_RST_YAML_TMPL, ens_ice_rst_conf)
-        #FileHandler(cice_rst_list).sync()
-
         logger.info("finalize")
 
         RUN = self.task_config.RUN
-        cyc = self.task_config.cyc
+        cyc = str(self.task_config.cyc).zfill(2)
         incr_file = f'enkf{RUN}.t{cyc}z.ocninc.nc'
         nmem_ens = self.task_config.NMEM_ENS
         PDYstr = self.task_config.PDY.strftime("%Y%m%d")
         mem_dir_list = []
         copy_list = []
 
+        # Skip the analysis insertion into the CICE restart for now
+        # TODO (G): Add this back in when we have hardened the soca to cice
+        #           change of variable
+
+        # Copy the recentering increment files to the member COMROOT directories
         for mem in range(1, nmem_ens+1):
             mem_dir = os.path.join(self.task_config.ROTDIR,
                                    f'enkf{RUN}.{PDYstr}',
