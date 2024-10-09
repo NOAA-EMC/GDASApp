@@ -1,0 +1,10 @@
+mkdir:
+    - '{{atmosphere_obsbiasout_path}}'
+copy:
+    {% for observation_from_jcb in observations %}
+    {% if use_observer(observation_from_jcb) %}
+    {% if observation_from_jcb in bias_files %}
+    - ['{{atmosphere_obsbiasroot_path}}/{{atmosphere_obsbiasin_prefix}}{{bias_files[observation_from_jcb]}}', '{{atmosphere_obsbiasin_path}}']
+    {% endif %}
+    {% endif %}
+    {% endfor %}

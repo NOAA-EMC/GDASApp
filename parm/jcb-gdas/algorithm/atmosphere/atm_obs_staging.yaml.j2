@@ -1,0 +1,8 @@
+mkdir:
+    - '{{atmosphere_obsdatain_path}}'
+copy:
+    {% for observation_from_jcb in observations %}
+    {% if use_observer(observation_from_jcb) %}
+    - ['{{atmosphere_obsdataroot_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}', '{{atmosphere_obsdatain_path}}']
+    {% endif %}
+    {% endfor %}
