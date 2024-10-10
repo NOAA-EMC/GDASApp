@@ -7,6 +7,7 @@
 
 set -eu
 
+echo "Start ... `date`"
 dir_root="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 source $dir_root/ush/detect_machine.sh
@@ -113,7 +114,7 @@ if [[ $BUILD_TARGET == 'hera' ]]; then
 fi
 
 # Configure
-echo "Configuring ..."
+echo "Configuring ... `date`"
 set -x
 cmake \
   ${CMAKE_OPTS:-} \
@@ -121,15 +122,18 @@ cmake \
 set +x
 
 # Build
-echo "Building ..."
+echo "Building ... `date`"
 set -x
 if [[ $BUILD_JCSDA == 'YES' ]]; then
-  make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
+  make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
 else
   builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils bufr-query da-utils"
   for b in $builddirs; do
     cd $b
-    make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
+    set +x      
+    echo "Building $b ... `date`"
+    set -x
+    make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
     cd ../
   done
 fi
@@ -137,10 +141,10 @@ set +x
 
 # Install
 if [[ -n ${INSTALL_PREFIX:-} ]]; then
-  echo "Installing ..."
+  echo "Installing ... `date`"
   set -x
-  make install
+  make install -j ${BUILD_JOBS:-8}
   set +x
 fi
-
+echo "Finish ... `date`"
 exit 0

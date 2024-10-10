@@ -54,15 +54,6 @@ list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/check_yaml_keys_test.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_adpsfc.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_adpsfc_snow.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/amsua_n19_ewok.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/temp_bufr_dbuoyprof.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/salt_bufr_dbuoyprof.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/temp_bufr_mbuoybprof.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/salt_bufr_mbuoybprof.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_tesacprof.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_trkobprof.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_sfcships.yaml
-  ${PROJECT_SOURCE_DIR}/test/testinput/bufr_sfcshipsu.yaml
 )
 
 # create testinput dir
@@ -86,11 +77,6 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testoutput)
 
 # create testreference dir
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testreference)
-
-# list of test reference files to install
-list(APPEND test_reference
-  ${PROJECT_SOURCE_DIR}/test/testreference/amsua_n19_gdas.yaml
-)
 
 # symlink
 foreach(FILENAME ${test_reference})
