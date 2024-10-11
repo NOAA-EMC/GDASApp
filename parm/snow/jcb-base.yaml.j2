@@ -3,8 +3,8 @@
 algorithm_path: "{{PARMgfs}}/gdas/jcb-algorithms"
 app_path_algorithm: "{{PARMgfs}}/gdas/jcb-gdas/algorithm/snow"
 app_path_model: "{{PARMgfs}}/gdas/jcb-gdas/model/snow"
-app_path_observations: "{{PARMgfs}}/gdas/jcb-gdas/observations/atmosphere"
-app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/atmosphere"
+app_path_observations: "{{PARMgfs}}/gdas/jcb-gdas/observations/snow"
+app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/snow"
 
 
 # Places where we deviate from the generic file name of a yaml
@@ -37,12 +37,12 @@ snow_increment_time_fv3: "{{ bkg_time_fv3 }}"
 
 # Analysis standard things
 # ------------------------
-analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
+analysis_variables: [totalSnowDepth]
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
 cost_type: 3D-Var
-number_of_outer_loops: 2
+number_of_outer_loops: 1
 
 # Model things
 # ------------
@@ -52,9 +52,9 @@ layout_y: {{ layout_y | default(1, true) }}
 npx_ges: {{ npx_ges | default(49, true) }}
 npy_ges: {{ npy_ges | default(49, true) }}
 npz_ges: {{ npz_ges | default(127, true) }}
-npx_anl: {{ npx_anl | default(49, true) }}
-npy_anl: {{ npy_anl | default(49, true) }}
-npz_anl: {{ npz_anl | default(127, true) }}
+npx_anl: {{ npz_ges | default(49, true) }}
+npy_anl: {{ npz_ges | default(49, true) }}
+npz_anl: {{ npz_ges | default(127, true) }}
 
 fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
 
@@ -72,7 +72,7 @@ layout_gsib_y: {{ layout_gsib_y | default(1, true) }}
 background_error_file: "{{BERROR_YAML}}"
 
 # Forecasting
-forecast_length: "{{ ATM_WINDOW_LENGTH }}"
+forecast_length: "{{ SNOW_WINDOW_LENGTH }}"
 forecast_timestep: "{{ BKG_TSTEP }}"
 
 # Write final increment on Guassian grid in variational
@@ -86,28 +86,28 @@ observations: all_observations
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
-atm_obsdatain_path: "{{atm_obsdatain_path}}"
-atm_obsdatain_prefix: "{{OPREFIX}}"
-atm_obsdatain_suffix: ".tm00.nc"
+snow_obsdatain_path: "{{snow_obsdatain_path}}"
+snow_obsdatain_prefix: "{{OPREFIX}}"
+snow_obsdatain_suffix: ".tm00.nc"
 
-atm_obsdataout_path: "{{atm_obsdataout_path}}"
-atm_obsdataout_prefix: diag_
-atm_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+snow_obsdataout_path: "{{snow_obsdataout_path}}"
+snow_obsdataout_prefix: diag_
+snow_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 # Naming conventions for bias correction files
-atm_obsbiasin_path: "{{DATA}}/obs/"
-atm_obsbiasin_prefix: "{{GPREFIX}}"
-atm_obsbiasin_suffix: ".satbias.nc"
-atm_obstlapsein_prefix: "{{GPREFIX}}"
-atm_obstlapsein_suffix: ".tlapse.txt"
-atm_obsbiascovin_prefix: "{{GPREFIX}}"
-atm_obsbiascovin_suffix: ".satbias_cov.nc"
+snow_obsbiasin_path: "{{DATA}}/obs/"
+snow_obsbiasin_prefix: "{{GPREFIX}}"
+snow_obsbiasin_suffix: ".satbias.nc"
+snow_obstlapsein_prefix: "{{GPREFIX}}"
+snow_obstlapsein_suffix: ".tlapse.txt"
+snow_obsbiascovin_prefix: "{{GPREFIX}}"
+snow_obsbiascovin_suffix: ".satbias_cov.nc"
 
-atm_obsbiasout_path: "{{DATA}}/bc/"
-atm_obsbiasout_prefix: "{{APREFIX}}"
-atm_obsbiasout_suffix: ".satbias.nc"
-atm_obsbiascovout_prefix: "{{APREFIX}}"
-atm_obsbiascovout_suffix: ".satbias_cov.nc"
+snow_obsbiasout_path: "{{DATA}}/bc/"
+snow_obsbiasout_prefix: "{{APREFIX}}"
+snow_obsbiasout_suffix: ".satbias.nc"
+snow_obsbiascovout_prefix: "{{APREFIX}}"
+snow_obsbiascovout_suffix: ".satbias_cov.nc"
 
 
 # Local Ensemble DA (LETKF)
@@ -133,5 +133,5 @@ driver_save_posterior_mean_increment: false
 driver_save_posterior_ensemble_increments: true
 
 # Diagnostics
-ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
-#posterior_output_gaussian: "./mem%{member}%/atmanl."
+ensemble_increment_prefix: "./anl/mem%{member}%/snowinc."
+#posterior_output_gaussian: "./mem%{member}%/snowanl."
