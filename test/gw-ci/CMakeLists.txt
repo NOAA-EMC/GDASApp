@@ -19,37 +19,37 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   list(GET DATES_LIST 1 FULL_CYCLE)
 
   # stage ics
-  message(STATUS "preparing gdasstage_ic for ${test_name} ctest")
-  add_test(NAME ${test_name}_gdasstage_ic_${HALF_CYCLE}
-           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasstage_ic ${HALF_CYCLE}"
+  message(STATUS "preparing gdas_stage_ic for ${test_name} ctest")
+  add_test(NAME ${test_name}_gdas_stage_ic_${HALF_CYCLE}
+           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdas_stage_ic ${HALF_CYCLE}"
            WORKING_DIRECTORY ${RUNTESTS})
-  set_tests_properties(${test_name}_gdasstage_ic_${HALF_CYCLE} PROPERTIES LABELS "manual")
+  set_tests_properties(${test_name}_gdas_stage_ic_${HALF_CYCLE} PROPERTIES LABELS "manual")
 
   # stage ensemble ics
   if (letkf)
-    message(STATUS "preparing enkfgdasstage_ic for ${test_name} ctest")
-    add_test(NAME ${test_name}_enkfgdasstage_ic_${HALF_CYCLE}
-             COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasstage_ic ${HALF_CYCLE}"
+    message(STATUS "preparing enkfgdas_stage_ic for ${test_name} ctest")
+    add_test(NAME ${test_name}_enkfgdas_stage_ic_${HALF_CYCLE}
+             COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdas_stage_ic ${HALF_CYCLE}"
              WORKING_DIRECTORY ${RUNTESTS})
-    set_tests_properties(${test_name}_enkfgdasstage_ic_${HALF_CYCLE} PROPERTIES LABELS "manual")
+    set_tests_properties(${test_name}_enkfgdas_stage_ic_${HALF_CYCLE} PROPERTIES LABELS "manual")
   endif()
 
-  # 1/2 cycle gdasfcst
-  message(STATUS "preparing 1/2 cycle gdasfcst for ${test_name} ctest")
-  add_test(NAME ${test_name}_gdasfcst_seg0_${HALF_CYCLE}
-           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasfcst_seg0 ${HALF_CYCLE}"
+  # 1/2 cycle gdas_fcst
+  message(STATUS "preparing 1/2 cycle gdas_fcst for ${test_name} ctest")
+  add_test(NAME ${test_name}_gdas_fcst_seg0_${HALF_CYCLE}
+           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdas_fcst_seg0 ${HALF_CYCLE}"
            WORKING_DIRECTORY ${RUNTESTS})
-  set_tests_properties(${test_name}_gdasfcst_seg0_${HALF_CYCLE} PROPERTIES LABELS "manual")
+  set_tests_properties(${test_name}_gdas_fcst_seg0_${HALF_CYCLE} PROPERTIES LABELS "manual")
 
-  # 1/2 cycle enkfgdasfcst
+  # 1/2 cycle enkfgdas_fcst
   if (letkf)
     set(ENS_MEMS  "mem001" "mem002" "mem003")
     foreach(ENS_MEM ${ENS_MEMS})
-      message(STATUS "preparing 1/2 cycle enkfgdasfcst_${ENS_MEM} for ${test_name} ctest")
-        add_test(NAME ${test_name}_enkfgdasfcst_${ENS_MEM}_${HALF_CYCLE}
-                 COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdasfcst_${ENS_MEM} ${HALF_CYCLE}"
+      message(STATUS "preparing 1/2 cycle enkfgdas_fcst_${ENS_MEM} for ${test_name} ctest")
+        add_test(NAME ${test_name}_enkfgdas_fcst_${ENS_MEM}_${HALF_CYCLE}
+                 COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdas_fcst_${ENS_MEM} ${HALF_CYCLE}"
                  WORKING_DIRECTORY ${RUNTESTS})
-        set_tests_properties(${test_name}_enkfgdasfcst_${ENS_MEM}_${HALF_CYCLE} PROPERTIES LABELS "manual")
+        set_tests_properties(${test_name}_enkfgdas_fcst_${ENS_MEM}_${HALF_CYCLE} PROPERTIES LABELS "manual")
     endforeach()
   endif()
 
@@ -75,12 +75,12 @@ if (WORKFLOW_TESTS)
   set(pslot "WCDA-3DVAR-C48mx500")
   set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDA.yaml)
   set(TASK_LIST
-    "gdasprepoceanobs"
-    "gdasmarinebmat"
-    "gdasmarineanlinit"
-    "gdasmarineanlvar"
-    "gdasmarineanlchkpt"
-    "gdasmarineanlfinal"
+    "gdas_prepoceanobs"
+    "gdas_marinebmat"
+    "gdas_marineanlinit"
+    "gdas_marineanlvar"
+    "gdas_marineanlchkpt"
+    "gdas_marineanlfinal"
     )
   add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
@@ -90,13 +90,13 @@ if (WORKFLOW_TESTS)
   set(letkf TRUE)
   set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_hybAOWCDA.yaml)
   set(TASK_LIST
-    "gdasprepoceanobs"
-    "gdasmarineanlletkf"
-    "gdasmarinebmat"
-    "gdasmarineanlinit"
-    "gdasmarineanlvar"
-    "gdasmarineanlchkpt"
-    "gdasmarineanlfinal"
+    "gdas_prepoceanobs"
+    "gdas_marineanlletkf"
+    "gdas_marinebmat"
+    "gdas_marineanlinit"
+    "gdas_marineanlvar"
+    "gdas_marineanlchkpt"
+    "gdas_marineanlfinal"
     )
   add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
   set(letkf FALSE)
@@ -123,15 +123,15 @@ if (RUN_GW_CI)
   set(pslot "GFSv17-3DVAR-C384mx025")
   set(YAML_PATH ${HOMEgfs}/ci/cases/gfsv17/C384mx025_3DVarAOWCDA.yaml)
   set(TASK_LIST
-    "gdasprepoceanobs"
-    "gdasmarinebmat"
-    "gdasmarineanlinit"
-    "gdasmarineanlvar"
-    "gdasmarineanlchkpt"
-    "gdasmarineanlfinal"
-    "gdasocnanalvrfy"
-    "gdasprep"
-    "gdasanal"
+    "gdas_prepoceanobs"
+    "gdas_marinebmat"
+    "gdas_marineanlinit"
+    "gdas_marineanlvar"
+    "gdas_marineanlchkpt"
+    "gdas_marineanlfinal"
+    "gdas_ocnanalvrfy"
+    "gdas_prep"
+    "gdas_anal"
     )
   add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 endif()
