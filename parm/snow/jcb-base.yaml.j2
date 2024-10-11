@@ -10,8 +10,8 @@ app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
 #final_increment_file: final_increment_gaussian
-final_increment_file: final_increment_cubed_sphere
-output_ensemble_increments_file: output_ensemble_increments_gaussian
+#final_increment_file: final_increment_cubed_sphere
+#output_ensemble_increments_file: output_ensemble_increments_gaussian
 model_file: model_pseudo
 initial_condition_file: background  # Initial conditions for 4D apps is background
 
@@ -31,6 +31,7 @@ bound_to_include: begin
 {% set bkg_time_fv3 = current_cycle | to_fv3time %}
 {% endif %}
 snow_background_time_iso: "{{ bkg_time_iso }}"
+snow_background_time_fv3: "{{ bkg_time_fv3 }}"
 snow_increment_time_iso: "{{ bkg_time_iso }}"
 snow_increment_time_fv3: "{{ bkg_time_fv3 }}"
 
@@ -47,36 +48,32 @@ number_of_outer_loops: 1
 # Model things
 # ------------
 # Geometry
-layout_x: {{ layout_x | default(1, true) }}
-layout_y: {{ layout_y | default(1, true) }}
-npx_ges: {{ npx_ges | default(49, true) }}
-npy_ges: {{ npy_ges | default(49, true) }}
-npz_ges: {{ npz_ges | default(127, true) }}
-npx_anl: {{ npz_ges | default(49, true) }}
-npy_anl: {{ npz_ges | default(49, true) }}
-npz_anl: {{ npz_ges | default(127, true) }}
+snow_layout_x: {{ layout_x | default(1, true) }}
+snow_layout_y: {{ layout_y | default(1, true) }}
+snow_npx_ges: {{ npx_ges | default(49, true) }}
+snow_npy_ges: {{ npy_ges | default(49, true) }}
+snow_npz_ges: {{ npz_ges | default(127, true) }}
+snow_npx_anl: {{ npz_ges | default(49, true) }}
+snow_npy_anl: {{ npz_ges | default(49, true) }}
+snow_npz_anl: {{ npz_ges | default(127, true) }}
 
-fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
+snow_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
+snow_orog_files_path: "{{ FIXgfs }}/orog/{{ CASE }}"
+snow_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
-background_path: ./bkg
+snow_background_path: ./bkg
 background_ensemble_path: ./ens/mem%mem%
 
 # Background error
-bump_data_directory: "{{ DATA }}/berror"
-gsibec_path: "{{ DATA }}/berror"
+snow_bump_data_directory: "{{ DATA }}/berror"
 number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
-layout_gsib_x: {{ layout_gsib_x | default(1, true) }}
-layout_gsib_y: {{ layout_gsib_y | default(1, true) }}
 
-background_error_file: "{{BERROR_YAML}}"
+snow_background_error_file: "{{BERROR_YAML}}"
 
 # Forecasting
-forecast_length: "{{ SNOW_WINDOW_LENGTH }}"
-forecast_timestep: "{{ BKG_TSTEP }}"
-
-# Write final increment on Guassian grid in variational
-final_increment_prefix: "./anl/atminc."
+snow_forecast_length: "{{ SNOW_WINDOW_LENGTH }}"
+snow_forecast_timestep: "{{ BKG_TSTEP }}"
 
 
 # Observation things
