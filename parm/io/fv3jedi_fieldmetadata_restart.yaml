@@ -10,7 +10,7 @@ field metadata:
   io name: T
 
 - long name: air_pressure_thickness
-  io name: DELP
+  io name: delp
 
 - long name: layer_thickness
   io name: DZ
