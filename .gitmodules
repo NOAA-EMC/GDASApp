@@ -19,8 +19,8 @@
   branch = develop
 [submodule "sorc/saber"]
   path = sorc/saber
-  url = https://github.com/jcsda/saber.git
-  branch = develop
+  url = https://github.com/NOAA-EMC/saber.git
+  branch = bugfix/wcoss2
 [submodule "sorc/ioda"]
   path = sorc/ioda
   url = https://github.com/jcsda/ioda.git
