@@ -67,7 +67,7 @@ load("rocoto/1.3.7")
 
 load("hpc/1.2.0")
 unload("python/3.10.13")
---unload("py-numpy/1.22.3")
+unload("py-numpy/1.22.3")
 load("miniconda3/4.6.14")
 load("gdasapp/1.0.0")
 -- below is a hack because of cmake finding the wrong python...
