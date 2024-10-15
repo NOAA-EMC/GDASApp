@@ -23,13 +23,8 @@ window_length: "{{ SNOW_WINDOW_LENGTH }}"
 bound_to_include: begin
 
 # Default background time is for 3D applications
-{% if DOIAU %}
-{% set bkg_time_iso = SNOW_WINDOW_BEGIN | to_isotime %}
-{% set bkg_time_fv3 = SNOW_WINDOW_BEGIN | to_fv3time %}
-{% else %}
 {% set bkg_time_iso = current_cycle | to_isotime %}
 {% set bkg_time_fv3 = current_cycle | to_fv3time %}
-{% endif %}
 snow_background_time_iso: "{{ bkg_time_iso }}"
 snow_background_time_fv3: "{{ bkg_time_fv3 }}"
 snow_increment_time_iso: "{{ bkg_time_iso }}"
@@ -53,8 +48,8 @@ snow_layout_y: {{ layout_y | default(1, true) }}
 snow_npx_ges: {{ npx_ges | default(49, true) }}
 snow_npy_ges: {{ npy_ges | default(49, true) }}
 snow_npz_ges: {{ npz_ges | default(127, true) }}
-snow_npx_anl: {{ npz_ges | default(49, true) }}
-snow_npy_anl: {{ npz_ges | default(49, true) }}
+snow_npx_anl: {{ npx_ges | default(49, true) }}
+snow_npy_anl: {{ npy_ges | default(49, true) }}
 snow_npz_anl: {{ npz_ges | default(127, true) }}
 
 snow_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
