@@ -153,7 +153,7 @@ function(ADD_INSITU_TEST testname testbufr)
 	)
 
 	add_test(
-		NAME test_${TEST}
+		NAME test_gdasapp_${TEST}
 		COMMAND ${MARINE_BUFR2IODA_DIR}/${TEST}.py -c ${CONFIG_FILE} -t ${TESTREF_DIR}/${TESTREF_FILE}
 		WORKING_DIRECTORY ${TEST_WORKING_DIR}
 	)
