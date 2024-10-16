@@ -20,17 +20,17 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
 
   # stage IC's
   message(STATUS "staging the 1/2 cycle IC's for ${test_name} ctest")
-  add_test(NAME ${test_name}_gdasstage_ic_${HALF_CYCLE}
-           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasstage_ic ${HALF_CYCLE}"
+  add_test(NAME ${test_name}_gdas_stage_ic_${HALF_CYCLE}
+           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdas_stage_ic ${HALF_CYCLE}"
            WORKING_DIRECTORY ${RUNTESTS})
-  set_tests_properties(${test_name}_gdasstage_ic_${HALF_CYCLE} PROPERTIES LABELS "manual")
+  set_tests_properties(${test_name}_gdas_stage_ic_${HALF_CYCLE} PROPERTIES LABELS "manual")
 
-  # 1/2 cycle gdasfcst
-  message(STATUS "preparing 1/2 cycle gdasfcst for ${pslot} ctest")
-  add_test(NAME ${test_name}_gdasfcst_${HALF_CYCLE}
-           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdasfcst_seg0 ${HALF_CYCLE}"
+  # 1/2 cycle gdas_fcst
+  message(STATUS "preparing 1/2 cycle gdas_fcst for ${pslot} ctest")
+  add_test(NAME ${test_name}_gdas_fcst_${HALF_CYCLE}
+           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdas_fcst_seg0 ${HALF_CYCLE}"
            WORKING_DIRECTORY ${RUNTESTS})
-  set_tests_properties(${test_name}_gdasfcst_${HALF_CYCLE} PROPERTIES LABELS "manual")
+  set_tests_properties(${test_name}_gdas_fcst_${HALF_CYCLE} PROPERTIES LABELS "manual")
 
   # Select the list of tasks to run for the full cycle
   message(STATUS "Tasks ${TASK_LIST}")
@@ -44,24 +44,26 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   endforeach()
 endfunction()
 
-# Setup the environement
-set(HOMEgfs ${CMAKE_SOURCE_DIR}/../../..)
-set(RUNTESTS ${CMAKE_CURRENT_BINARY_DIR}/../../test/gw-ci)
+if (WORKFLOW_TESTS)
+  # Setup the environement
+  set(HOMEgfs ${CMAKE_SOURCE_DIR}/../../..)
+  set(RUNTESTS ${CMAKE_CURRENT_BINARY_DIR}/../../test/gw-ci)
 
-# 3DVAR WCDA, low-res
-# -------------------
-set(pslot "WCDA-3DVAR-C48mx500")
-set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDA.yaml)
-set(TASK_LIST
-  "gdasprepoceanobs"
-  "gdasmarinebmat"
-  "gdasocnanalecen"
-  "gdasmarineanlinit"
-  "gdasmarineanlvar"
-  "gdasmarineanlchkpt"
-  "gdasmarineanlfinal"
-  )
-add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+  # 3DVAR WCDA, low-res
+  # -------------------
+  set(pslot "WCDA-3DVAR-C48mx500")
+  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDA.yaml)
+  set(TASK_LIST
+    "gdas_prepoceanobs"
+    "gdas_marinebmat"
+    "gdas_ocnanalecen"
+    "gdas_marineanlinit"
+    "gdas_marineanlvar"
+    "gdas_marineanlchkpt"
+    "gdas_marineanlfinal"
+    )
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+endif()
 
 option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
 if (RUN_GW_CI)
@@ -99,15 +101,15 @@ if (RUN_GW_CI)
   set(pslot "GFSv17-3DVAR-C384mx025")
   set(YAML_PATH ${HOMEgfs}/ci/cases/gfsv17/C384mx025_3DVarAOWCDA.yaml)
   set(TASK_LIST
-    "gdasprepoceanobs"
-    "gdasmarinebmat"
-    "gdasmarineanlinit"
-    "gdasmarineanlvar"
-    "gdasmarineanlchkpt"
-    "gdasmarineanlfinal"
-    "gdasocnanalvrfy"
-    "gdasprep"
-    "gdasanal"
+    "gdas_prepoceanobs"
+    "gdas_marinebmat"
+    "gdas_marineanlinit"
+    "gdas_marineanlvar"
+    "gdas_marineanlchkpt"
+    "gdas_marineanlfinal"
+    "gdas_ocnanalvrfy"
+    "gdas_prep"
+    "gdas_anal"
     )
   add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 endif()

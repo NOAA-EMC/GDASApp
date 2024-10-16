@@ -71,7 +71,7 @@ while getopts "p:t:c:hvdfa" opt; do
 done
 
 case ${BUILD_TARGET} in
-  hera | orion | hercules | wcoss2 | noaacloud | gaea)
+  hera | orion | hercules | wcoss2 | noaacloud | gaea | gaeac6 )
     echo "Building GDASApp on $BUILD_TARGET"
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
@@ -126,7 +126,7 @@ set -x
 if [[ $BUILD_JCSDA == 'YES' ]]; then
   make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
 else
-  builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils bufr-query"
+  builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils bufr-query da-utils"
   for b in $builddirs; do
     cd $b
     make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
