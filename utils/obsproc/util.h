@@ -263,7 +263,7 @@ namespace gdasapp {
        // GOES ABI fixed grid projection is a map projection relative to the GOES satellite
        // Units: latitude in °N (°S < 0), longitude in °E (°W < 0)
        // See GOES-R Product User Guide (PUG) Volume 5 (L2 products) Section 4.2.8 (p58)
-       void calculate_degrees(
+       void abiToGeoLoc(
            const std::vector<std::vector<double>>& x_coordinate_2d,
            const std::vector<std::vector<double>>& y_coordinate_2d,
            double lon_origin,
@@ -285,23 +285,33 @@ namespace gdasapp {
              for (int j = 0; j < sizeX; ++j) {
                 double x = x_coordinate_2d[i][j];
                 double y = y_coordinate_2d[i][j];
-                double a_var = std::pow(std::sin(x), 2.0)
-                              + std::pow(std::cos(x), 2.0) * (std::pow(std::cos(y), 2.0)
-                              + ((r_eq * r_eq) / (r_pol * r_pol)) * std::pow(std::sin(y), 2.0));
-                double b_var = -2.0 * H * std::cos(x) * std::cos(y);
+
+                // Cache sin(x), cos(x), sin(y), and cos(y)
+                double sin_x = std::sin(x);
+                double cos_x = std::cos(x);
+                double sin_y = std::sin(y);
+                double cos_y = std::cos(y);
+
+                double a_var = std::pow(sin_x, 2.0)
+                             + std::pow(cos_x, 2.0) * (std::pow(cos_y, 2.0)
+                             + ((r_eq * r_eq) / (r_pol * r_pol)) * std::pow(sin_y, 2.0));
+                double b_var = -2.0 * H * cos_x * cos_y;
                 double c_var = (H * H) - (r_eq * r_eq);
                 double discriminant = (b_var * b_var) - (4.0 * a_var * c_var);
-                double r_s = (-b_var - std::sqrt(discriminant)) / (2.0 * a_var);
-                double s_x = r_s * std::cos(x) * std::cos(y);
-                double s_y = -r_s * std::sin(x);
-                double s_z = r_s * std::cos(x) * std::sin(y);
 
-                abi_lat[i][j] = (180.0 / M_PI) * (std::atan(((r_eq * r_eq) / (r_pol * r_pol))
-                               * (s_z / std::sqrt(((H - s_x) * (H - s_x)) + (s_y * s_y)))));
-                abi_lon[i][j] = (lambda_0 - std::atan(s_y / (H - s_x))) * (180.0 / M_PI);
+                // Check if discriminant is strictly positive
+                if (discriminant > 0) {
+                    double r_s = (-b_var - std::sqrt(discriminant)) / (2.0 * a_var);
+                    double s_x = r_s * cos_x * cos_y;
+                    double s_y = -r_s * sin_x;
+                    double s_z = r_s * cos_x * sin_y;
 
-                // Handle invalid values
-                if (discriminant < 0 || std::isnan(abi_lat[i][j]) || std::isnan(abi_lon[i][j])) {
+                    abi_lat[i][j] = (180.0 / M_PI) * (std::atan(((r_eq * r_eq) / (r_pol * r_pol))
+                                  * (s_z / std::sqrt(((H - s_x) * (H - s_x)) + (s_y * s_y)))));
+                    abi_lon[i][j] = (lambda_0 - std::atan(s_y / (H - s_x))) * (180.0 / M_PI);
+                } else {
+                    // Handle invalid values
+                    // Set latitude and longitude to NaN if discriminant <= 0)
                     abi_lat[i][j] = std::numeric_limits<double>::quiet_NaN();
                     abi_lon[i][j] = std::numeric_limits<double>::quiet_NaN();
                 }
