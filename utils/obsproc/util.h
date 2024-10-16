@@ -1,8 +1,7 @@
 #pragma once
 
-#include <cmath>
 #include <iostream>
-#include <limits>  // For quiet_NAN()
+#include <limits>
 #include <map>
 #include <netcdf>    // NOLINT (using C API)
 #include <string>

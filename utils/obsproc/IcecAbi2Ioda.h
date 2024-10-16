@@ -1,5 +1,6 @@
 #pragma once
 
+#include <complex>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
@@ -56,10 +57,26 @@ namespace gdasapp {
 
       // Read in GOES ABI fixed grid projection variables and constants
       std::vector<double> y_coordinate_1d(dimySize);
-      ncFile.getVar("y").getVar(y_coordinate_1d.data());  // N-S elevation angle in radians
+      ncFile.getVar("y").getVar(y_coordinate_1d.data());
+      float yOffSet;
+      ncFile.getVar("y").getAtt("add_offset").getValues(&yOffSet);
+      float yScaleFactor;
+      ncFile.getVar("y").getAtt("scale_factor").getValues(&yScaleFactor);
+      // Apply the scale factor and add offset to the raw data
+      for (auto& yval : y_coordinate_1d) {
+          yval = yval * yScaleFactor + yOffSet;  // N-S elevation angle in radians
+      }
 
       std::vector<double> x_coordinate_1d(dimxSize);
-      ncFile.getVar("x").getVar(x_coordinate_1d.data());  // E-W scanning angle in radians
+      ncFile.getVar("x").getVar(x_coordinate_1d.data());
+      float xOffSet;
+      ncFile.getVar("x").getAtt("add_offset").getValues(&xOffSet);
+      float xScaleFactor;
+      ncFile.getVar("x").getAtt("scale_factor").getValues(&xScaleFactor);
+      // Apply the scale factor and add offset to the raw data
+      for (auto& xval : x_coordinate_1d) {
+          xval = xval * xScaleFactor + xOffSet;  // E-W scanning angle in radians
+      }
 
       // Create 2D arrays (meshgrid equivalent)
       std::vector<std::vector<double>> x_coordinate_2d(dimySize, std::vector<double>(dimxSize));
@@ -69,10 +86,10 @@ namespace gdasapp {
 
       // Create 2D coordinate matrices from 1D coordinate vectors
       for (int i = 0; i < dimySize; ++i) {
-          for (int j = 0; j < dimxSize; ++j) {
-              x_coordinate_2d[i][j] = x_coordinate_1d[j];
-              y_coordinate_2d[i][j] = y_coordinate_1d[i];
-          }
+         for (int j = 0; j < dimxSize; ++j) {
+             x_coordinate_2d[i][j] = x_coordinate_1d[j];
+             y_coordinate_2d[i][j] = y_coordinate_1d[i];
+         }
       }
 
       // Retrieve the attributes
@@ -87,12 +104,11 @@ namespace gdasapp {
       double r_pol;
       ncFile.getVar("goes_imager_projection").getAtt("semi_minor_axis").getValues(&r_pol);
 
-      // Calculate Latitude and Longitude from GOES Imager Projection
-      // for details of calculations in util.h
-
       // Calculate H = Satellite height from center of earth(m)
       double H = perspective_point_height + r_eq;
 
+      // Calculate Latitude and Longitude from GOES Imager Projection
+      // for details of calculations in util.h
       gdasapp::obsproc::utils::calculate_degrees(
                       x_coordinate_2d,
                       y_coordinate_2d,
@@ -103,12 +119,12 @@ namespace gdasapp {
                       abi_lat,
                       abi_lon);
 
-      // Store lat and lon into eigen arrays
+      // Store real number of lat and lon into eigen arrays
       int loc(0);
       for (int i = 0; i < dimySize; i++) {
         for (int j = 0; j < dimxSize; j++) {
-          iodaVars.longitude_(loc) = abi_lon[i][j];
-          iodaVars.latitude_(loc)  = abi_lat[i][j];
+          iodaVars.longitude_(loc) = std::real(abi_lon[i][j]);
+          iodaVars.latitude_(loc)  = std::real(abi_lat[i][j]);
           loc += 1;
         }
       }

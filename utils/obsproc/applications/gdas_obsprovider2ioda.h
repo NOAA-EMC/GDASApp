@@ -50,11 +50,11 @@ namespace gdasapp {
       } else if (provider == "SMOS") {
         Smos2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
-      } else if (provider == "AMSR2") {
-        IcecAmsr2Ioda conv2ioda(fullConfig, this->getComm());
-        conv2ioda.writeToIoda();
       } else if (provider == "ABI") {
         IcecAbi2Ioda conv2ioda(fullConfig, this->getComm());
+        conv2ioda.writeToIoda();
+      } else if (provider == "AMSR2") {
+        IcecAmsr2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else if (provider == "MIRS") {
         IcecMirs2Ioda conv2ioda(fullConfig, this->getComm());
