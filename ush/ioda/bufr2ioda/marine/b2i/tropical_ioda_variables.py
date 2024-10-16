@@ -32,7 +32,6 @@ class TropicalIODAVariables(IODAVariables):
         q.add('temp', '*/DTSCUR/STMP')
         q.add('saln', '*/DTSCUR/SALN')
         q.add('buoy_type', '*/RPSEC4/BUYT')
-        # q.add('ldds', '*/RPSEC4/LDDS')
         return q
 
     def filter(self):

@@ -88,7 +88,7 @@ CHECK_AND_SET_PATH(
 	BUFR_TEST_DIR
 )
 if (NOT BUFR_TEST_DIR_EXISTS)
-	message(WARNING "BUFR test file directory not found -- bufr to ioda tests not generted.")
+	message(WARNING "BUFR test file directory not found -- bufr to ioda tests not generated.")
 	set(GENERATE_BUFR2IODA_TESTS FALSE)
 else()
     # message(STATUS "Found bufr test directory: ${BUFR_TEST_DIR}")
@@ -153,7 +153,7 @@ function(ADD_INSITU_TEST testname testbufr)
 	)
 
 	add_test(
-		NAME test_${TEST}
+		NAME test_gdasapp_${TEST}
 		COMMAND ${MARINE_BUFR2IODA_DIR}/${TEST}.py -c ${CONFIG_FILE} -t ${TESTREF_DIR}/${TESTREF_FILE}
 		WORKING_DIRECTORY ${TEST_WORKING_DIR}
 	)
