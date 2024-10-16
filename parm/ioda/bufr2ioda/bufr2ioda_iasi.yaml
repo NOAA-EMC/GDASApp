@@ -94,7 +94,7 @@ observations:
 
     ioda:
       backend: netcdf
-      obsdataout: "{{ COM_OBS }}/{{ RUN }}.t{{ cyc }}z.mtiasi_$(splitvar).tm00.nc" 
+      obsdataout: "{{ COM_OBS }}/{{ RUN }}.t{{ cyc }}z.iasi_$(splitvar).tm00.nc" 
 
       dimensions:
         - name: Channel
