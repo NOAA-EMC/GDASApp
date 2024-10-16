@@ -41,8 +41,6 @@ cdl2nc4 icec_mirs_snpp_1.nc4 ${project_source_dir}/testdata/icec_mirs_snpp_1.cdl
 cdl2nc4 icec_mirs_snpp_2.nc4 ${project_source_dir}/testdata/icec_mirs_snpp_2.cdl
 cdl2nc4 icec_jrr_n20_1.nc4 ${project_source_dir}/testdata/icec_jrr_n20_1.cdl
 cdl2nc4 icec_jrr_n20_2.nc4 ${project_source_dir}/testdata/icec_jrr_n20_2.cdl
-cdl2nc4 icec_abi_g16_1.nc4 ${project_source_dir}/testdata/icec_abi_g16_1.cdl
-cdl2nc4 icec_abi_g16_2.nc4 ${project_source_dir}/testdata/icec_abi_g16_2.cdl
 cdl2nc4 sss_smap_1.nc4 ${project_source_dir}/testdata/sss_smap_1.cdl
 cdl2nc4 sss_smap_2.nc4 ${project_source_dir}/testdata/sss_smap_2.cdl
 cdl2nc4 sss_smos_1.nc4 ${project_source_dir}/testdata/sss_smos_1.cdl
