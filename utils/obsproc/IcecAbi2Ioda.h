@@ -1,12 +1,10 @@
 #pragma once
 
-#include <complex>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <map>
 #include <netcdf>    // NOLINT (using C API)
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -14,7 +12,7 @@
 
 #include <Eigen/Dense>    // NOLINT
 
-#include "ioda/../../../../core/IodaUtils.h"
+#include "ioda/../../../../core/IodaUtils.h"  // TODO(All): Use a better way in all converters
 #include "ioda/Group.h"
 #include "ioda/ObsGroup.h"
 
@@ -109,7 +107,7 @@ namespace gdasapp {
 
       // Calculate Latitude and Longitude from GOES Imager Projection
       // for details of calculations in util.h
-      gdasapp::obsproc::utils::calculate_degrees(
+      gdasapp::obsproc::utils::abiToGeoLoc(
                       x_coordinate_2d,
                       y_coordinate_2d,
                       lon_origin,
