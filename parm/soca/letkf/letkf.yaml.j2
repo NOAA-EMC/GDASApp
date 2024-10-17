@@ -1,3 +1,5 @@
+{% set gcyc = previous_cycle | strftime("%H") %}
+
 geometry:
   geom_grid_file: soca_gridspec.nc
   mom6_input_nml: mom_input.nml
@@ -11,11 +13,11 @@ background:
   members from template:
     template:
       date: '{{ WINDOW_MIDDLE | to_isotime }}'
-      ocn_filename: "{{ RUN }}.ocean.t{{ gcyc }}z.inst.f006.nc"
-      ice_filename: "{{ RUN }}.ice.t{{ gcyc }}z.inst.f006.nc"
+      ocn_filename: "ocean.%mem%.nc"
+      ice_filename: "ice.%mem%.nc"
       read_from_file: 1
-      basename: ./ens/mem%mem%
-      state variables: [socn, tocn, ssh, uocn, vocn, cicen]
+      basename: {{ ENSPERT_RELPATH }}/ens/
+      state variables: [socn, tocn, ssh, hocn, uocn, vocn, cicen]
     pattern: '%mem%'
     nmembers: {{ NMEM_ENS  }}
 
@@ -38,32 +40,31 @@ local ensemble DA:
     mult: 1.1
 
 output:
-  datadir: data_output/
+  datadir: letkf_output/
   date: *date
   exp: letkf
   type: ens
 
 output mean prior:
-  datadir: data_output/
+  datadir: letkf_output/
   date: *date
-  exp: letkf
+  exp: letkf.mean_prior
   type: fc
 
 output variance prior:
-  datadir: data_output/
+  datadir: letkf_output/
   date: *date
-  exp: letkf
+  exp: letkf.var_prior
   type: fc
 
 output variance posterior:
-  datadir: data_output/
+  datadir: letkf_output/
   date: *date
-  exp: letkf
+  exp: letkf.var_post
   type: an
 
 output increment:
-  datadir: data_output/
+  datadir: letkf_output/
   date: *date
   exp: letkf.inc
-  type: an
-
+  type: ens

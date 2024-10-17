@@ -9,8 +9,7 @@
 # create working directories
 ######################################
 mkdir:
-- "{{ DATAenspert }}/ens"
-
+    - "{{ ENSPERT_RELPATH }}/ens"
 ######################################
 # copy ensemble background files
 ######################################
@@ -22,6 +21,6 @@ copy:
                         '${YMD}':gPDY,
                         '${HH}':gcyc,
                         '${MEMDIR}':"mem" + '%03d' % mem} %}
-    - ["{{ COM_OCEAN_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATAenspert }}/ens/ocean.{{ mem }}.nc"]
-    - ["{{ COM_ICE_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATAenspert }}/ens/ice.{{ mem }}.nc"]
+    - ["{{ COM_OCEAN_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ ENSPERT_RELPATH }}/ens/ocean.{{ mem }}.nc"]
+    - ["{{ COM_ICE_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ ENSPERT_RELPATH }}/ens/ice.{{ mem }}.nc"]
 {% endfor %}
