@@ -140,7 +140,8 @@ namespace gdasapp {
         fullConfig.get("recentering around deterministic", recenterOnly);
       }
 
-      // Save increments and exit if all we're doing is re-centering the ensemble fcst around the det.
+      // Save increments and exit if all we're doing is re-centering
+      // the ensemble fcst around the det.
       if (recenterOnly) {
         oops::Log::info() << "Only recentering " << std::endl;
         int result = 0;
