@@ -10,6 +10,7 @@ from typing import Dict
 from wxflow import (chdir,
                     FileHandler,
                     logit,
+                    parse_j2yaml,
                     save_as_yaml,
                     Task,
                     YAMLFile)
@@ -91,7 +92,8 @@ class PrepOceanObs(Task):
             raise FileNotFoundError
 
         JSON_TMPL_DIR = self.task_config.JSON_TMPL_DIR
-        BUFR2IODA_PY_DIR = self.task_config.BUFR2IODA_PY_DIR
+#        BUFR2IODA_PY_DIR = self.task_config.BUFR2IODA_PY_DIR
+        BUFR2IODA_PY_DIR = os.path.join(self.task_config.HOMEgfs, 'sorc/gdas.cd/ush/ioda/bufr2ioda/marine/b2i')
 
         COMIN_OBS = self.task_config.COMIN_OBS
         COMOUT_OBS = self.task_config['COMOUT_OBS']
@@ -150,19 +152,22 @@ class PrepOceanObs(Task):
                         # set up the config file for conversion to IODA for bufr and
                         # netcdf files respectively
                         if obsprep_space['type'] == 'bufr':
-                            gen_bufr_json_config = {'RUN': RUN,
+                            gen_bufr_yaml_config = {'RUN': RUN,
                                                     'current_cycle': cdate,
                                                     'DMPDIR': COMIN_OBS,
                                                     'COM_OBS': COMIN_OBS}
-                            json_config_file = os.path.join(COMIN_OBS,
-                                                            f"{obtype}_{cdatestr}.json")
-                            obsprep_space['conversion config file'] = json_config_file
+                            yaml_config_file = os.path.join(COMIN_OBS,
+                                                            f"{obtype}_{cdatestr}.yaml")
+                            obsprep_space['conversion config file'] = yaml_config_file
                             bufr2iodapy = BUFR2IODA_PY_DIR + '/bufr2ioda_' + obtype + '.py'
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy
-                            tmpl_filename = 'bufr2ioda_' + obtype + '.json'
+                            tmpl_filename = 'bufr2ioda_' + obtype + '.yaml'
                             template = os.path.join(JSON_TMPL_DIR, tmpl_filename)
+                            
                             try:
-                                gen_bufr_json(gen_bufr_json_config, template, json_config_file)
+#                                gen_bufr_json(gen_bufr_json_config, template, yaml_config_file)
+                                myyaml = parse_j2yaml(template, gen_bufr_yaml_config, yaml_config_file)
+                                myyaml.save(yaml_config_file)
                             except Exception as e:
                                 logger.warning(f"An exeception {e} occured while trying to run gen_bufr_json")
                                 logger.warning(f"obtype {obtype} will be skipped")
