@@ -18,8 +18,8 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   list(GET DATES_LIST 0 HALF_CYCLE)
   list(GET DATES_LIST 1 FULL_CYCLE)
 
-  # stage ics
-  message(STATUS "preparing gdas_stage_ic for ${test_name} ctest")
+  # stage IC's
+  message(STATUS "staging the 1/2 cycle IC's for ${pslot} ctest")
   add_test(NAME ${test_name}_gdas_stage_ic_${HALF_CYCLE}
            COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdas_stage_ic ${HALF_CYCLE}"
            WORKING_DIRECTORY ${RUNTESTS})
@@ -27,7 +27,7 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
 
   # stage ensemble ics
   if (letkf)
-    message(STATUS "preparing enkfgdas_stage_ic for ${test_name} ctest")
+    message(STATUS "preparing enkfgdas_stage_ic for ${pslot} ctest")
     add_test(NAME ${test_name}_enkfgdas_stage_ic_${HALF_CYCLE}
              COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdas_stage_ic ${HALF_CYCLE}"
              WORKING_DIRECTORY ${RUNTESTS})
@@ -35,7 +35,7 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   endif()
 
   # 1/2 cycle gdas_fcst
-  message(STATUS "preparing 1/2 cycle gdas_fcst for ${test_name} ctest")
+  message(STATUS "preparing 1/2 cycle gdas_fcst for ${pslot} ctest")
   add_test(NAME ${test_name}_gdas_fcst_seg0_${HALF_CYCLE}
            COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} gdas_fcst_seg0 ${HALF_CYCLE}"
            WORKING_DIRECTORY ${RUNTESTS})
@@ -45,7 +45,7 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   if (letkf)
     set(ENS_MEMS  "mem001" "mem002" "mem003")
     foreach(ENS_MEM ${ENS_MEMS})
-      message(STATUS "preparing 1/2 cycle enkfgdas_fcst_${ENS_MEM} for ${test_name} ctest")
+      message(STATUS "preparing 1/2 cycle enkfgdas_fcst_${ENS_MEM} for ${pslot} ctest")
         add_test(NAME ${test_name}_enkfgdas_fcst_${ENS_MEM}_${HALF_CYCLE}
                  COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} enkfgdas_fcst_${ENS_MEM} ${HALF_CYCLE}"
                  WORKING_DIRECTORY ${RUNTESTS})
