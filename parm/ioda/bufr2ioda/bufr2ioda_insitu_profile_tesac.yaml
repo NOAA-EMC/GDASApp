@@ -1,0 +1,11 @@
+cycle_datetime: '{{ current_cycle | to_YMDH }}'
+cycle_type: '{{ RUN }}'
+data_description: 6-hrly in situ TESAC profiles
+data_format: tesac
+data_provider: U.S. NOAA
+data_type: tesac
+dump_directory: '{{ DMPDIR }}'
+ioda_directory: '{{ COM_OBS }}'
+source: NCEP data tank
+subsets: TESAC
+ocean_basin: '{{ OCEAN_BASIN_FILE }}'

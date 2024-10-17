@@ -75,6 +75,7 @@ class PrepOceanObs(Task):
         SOCA_INPUT_FIX_DIR = self.task_config['SOCA_INPUT_FIX_DIR']
         ocean_mask_src = os.path.join(SOCA_INPUT_FIX_DIR, 'RECCAP2_region_masks_all_v20221025.nc')
         ocean_mask_dest = os.path.join(self.task_config.DATA, 'RECCAP2_region_masks_all_v20221025.nc')
+        self.task_config['OCEAN_BASIN_FILE'] = ocean_mask_dest
 
         try:
             FileHandler({'copy': [[ocean_mask_src, ocean_mask_dest]]}).sync()
@@ -97,6 +98,7 @@ class PrepOceanObs(Task):
 
         COMIN_OBS = self.task_config.COMIN_OBS
         COMOUT_OBS = self.task_config['COMOUT_OBS']
+        OCEAN_BASIN_FILE = self.task_config['OCEAN_BASIN_FILE']
         if not os.path.exists(COMOUT_OBS):
             os.makedirs(COMOUT_OBS)
 
@@ -155,7 +157,8 @@ class PrepOceanObs(Task):
                             gen_bufr_yaml_config = {'RUN': RUN,
                                                     'current_cycle': cdate,
                                                     'DMPDIR': COMIN_OBS,
-                                                    'COM_OBS': COMIN_OBS}
+                                                    'COM_OBS': COMIN_OBS,
+                                                    'OCEAN_BASIN_FILE': OCEAN_BASIN_FILE}
                             yaml_config_file = os.path.join(COMIN_OBS,
                                                             f"{obtype}_{cdatestr}.yaml")
                             obsprep_space['conversion config file'] = yaml_config_file

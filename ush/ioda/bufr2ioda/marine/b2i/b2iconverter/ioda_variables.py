@@ -1,6 +1,6 @@
 import numpy as np
 from pyiodaconv import bufr
-from .ocean import OceanBasin
+#from .ocean import OceanBasin
 from .util import *
 from .ioda_metadata import IODAMetadata
 from .ioda_addl_vars import IODAAdditionalVariables
