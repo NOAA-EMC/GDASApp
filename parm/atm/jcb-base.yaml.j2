@@ -71,8 +71,6 @@ observations: all_observations
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
-atmosphere_obsdataroot_path: "{{COM_OBS}}"
-
 atmosphere_obsdatain_path: "{{atm_obsdatain_path}}"
 atmosphere_obsdatain_prefix: "{{OPREFIX}}"
 atmosphere_obsdatain_suffix: ".tm00.nc"
@@ -82,8 +80,6 @@ atmosphere_obsdataout_prefix: diag_
 atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 # Naming conventions for bias correction files
-atmosphere_obsbiasroot_path: "{{COM_ATMOS_ANALYSIS_PREV}}"
-
 atmosphere_obsbiasin_path: "{{DATA}}/obs/"
 atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
 atmosphere_obsbiasin_suffix: ".satbias.nc"
@@ -98,16 +94,6 @@ atmosphere_obsbiasout_suffix: ".satbias.nc"
 atmosphere_obsbiascovout_prefix: "{{APREFIX}}"
 atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
 
-bias_files:
-  atms_n20: rad_varbc_params.tar
-  atms_npp: rad_varbc_params.tar
-  mtiasi_metop-a: rad_varbc_params.tar
-  mtiasi_metop-b: rad_varbc_params.tar
-  amsua_n19: rad_varbc_params.tar
-  ssmis_f17: rad_varbc_params.tar
-  ssmis_f18: rad_varbc_params.tar
-  cris-fsr_n20: rad_varbc_params.tar
-  cris-fsr_npp: rad_varbc_params.tar
 
 # Local Ensemble DA (LETKF)
 # -------------------------
