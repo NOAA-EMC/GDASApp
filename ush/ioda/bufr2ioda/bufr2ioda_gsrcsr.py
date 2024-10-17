@@ -162,8 +162,8 @@ def bufr_to_ioda(config, logger):
     scanpos = rounded_values.astype(np.int32) + 1
     cloudAmount = 100. - cldFree
     # Define the conversion factor from degrees to radians
-    deg2rad = math.pi / 180.0
-    sataziang = sataziang*deg2rad    
+    deg2rad = math.pi/180.0
+    sataziang = sataziang*deg2rad
     viewang = np.full_like(solzenang, float32_fill_value, dtype = np.float32)
     # Define Channel dimension for channels 4 to 11 since the other channel values are missing
     channel_start = 7
@@ -249,7 +249,7 @@ def bufr_to_ioda(config, logger):
             satelite_mask = satid == sat
             # Define a boolean mask based on the condition 0 < satzenang2 < 80
             satzenang_mask = np.logical_and(0 < satzenang, satzenang < 80)
-            #combined_mask = satzenang_mask * satelite_mask
+            
             combined_mask = satzenang_mask & satelite_mask  
             # MetaData
             lon2 = lon[combined_mask]
@@ -259,7 +259,7 @@ def bufr_to_ioda(config, logger):
             instid2 = instid[combined_mask]
             satzenang2 = satzenang[combined_mask]
             chanfreq2 = chanfreq[6:16]
-            scanpos2=scanpos[combined_mask]
+            scanpos2 = scanpos[combined_mask]
             solzenang2 = solzenang[combined_mask]
             cldFree2 = cldFree[combined_mask]
             cloudAmount2 = cloudAmount[combined_mask]
@@ -486,7 +486,6 @@ def bufr_to_ioda(config, logger):
                     cloudAmount2
                 )
 
-
                 # ObsType based on computation method/spectral band
                 obsspace.create_var(
                     "ObsValue/brightnessTemperature",
@@ -507,7 +506,7 @@ def bufr_to_ioda(config, logger):
                 ).write_attr(
                     "long_name", "Standard Deviation Brightness Temperature"
                 ).write_data(
-                    clrStdDev2 
+                    clrStdDev2
                 )
 
             else:
