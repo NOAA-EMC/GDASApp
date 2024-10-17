@@ -164,7 +164,7 @@ def bufr_to_ioda(config, logger):
     # Define the conversion factor from degrees to radians
     deg2rad = math.pi/180.0
     sataziang = sataziang*deg2rad
-    viewang = np.full_like(solzenang, float32_fill_value, dtype = np.float32)
+    viewang = np.full_like(solzenang, float32_fill_value, dtype=np.float32)
     # Define Channel dimension for channels 4 to 11 since the other channel values are missing
     channel_start = 7
     channel_end = 16
@@ -248,9 +248,8 @@ def bufr_to_ioda(config, logger):
             # Define a boolean mask to subset data from the original data object
             satelite_mask = satid == sat
             # Define a boolean mask based on the condition 0 < satzenang2 < 80
-            satzenang_mask = np.logical_and(0 < satzenang, satzenang < 80)
-            
-            combined_mask = satzenang_mask & satelite_mask  
+            satzenang_mask = np.logical_and(0 < satzenang, satzenang < 80) 
+            combined_mask = satzenang_mask & satelite_mask 
             # MetaData
             lon2 = lon[combined_mask]
             lat2 = lat[combined_mask]
