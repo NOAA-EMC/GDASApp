@@ -7,7 +7,7 @@ from datetime import datetime
 from pyiodaconv import bufr
 from collections import namedtuple
 from pyioda import ioda_obs_space as ioda_ospace
-from .util import parse_arguments, run_diff
+from .util import parse_arguments, run_diff, compute_hash_from_nc4
 from .bufr2ioda_config import Bufr2iodaConfig
 import logging
 import tempfile
@@ -69,15 +69,15 @@ class Bufr2ioda_Converter:
         # set seqNum, PreQC, ObsError, OceanBasin
         self.ioda_vars.additional_vars.construct()
 
-        iodafile_path = self.bufr2ioda_config.ioda_filepath()
-        path, fname = os.path.split(iodafile_path)
+        self.iodafile_path = self.bufr2ioda_config.ioda_filepath()
+        path, fname = os.path.split(self.iodafile_path)
         os.makedirs(path, exist_ok=True)
 
         metadata = self.ioda_vars.metadata
 
         dims = {'Location': np.arange(0, metadata.lat.shape[0])}
-        obsspace = ioda_ospace.ObsSpace(iodafile_path, mode='w', dim_dict=dims)
-        self.logger.debug(f"Created IODA file: {iodafile_path}")
+        obsspace = ioda_ospace.ObsSpace(self.iodafile_path, mode='w', dim_dict=dims)
+        self.logger.debug(f"Created IODA file: {self.iodafile_path}")
 
         date_range = [str(metadata.dateTime.min()), str(metadata.dateTime.max())]
         self.logger.debug(f"CreateGlobalAttributes")
@@ -87,10 +87,12 @@ class Bufr2ioda_Converter:
         self.ioda_vars.write_to_ioda_file(obsspace)
 
         if (self.logfile):
+            self.logger.debug(f"start writing log file {self.logfile}")
             self.logger.addHandler(self.file_handler)
         self.ioda_vars.log(self.logger)
         if (self.logfile):
             self.logger.removeHandler(self.file_handler)
+            self.logger.debug(f"end writing log file {self.logfile}")
 
         end_time = time.time()
         running_time = end_time - start_time
@@ -109,6 +111,8 @@ class Bufr2ioda_Converter:
             self.logger.addHandler(file_handler)
 
             self.ioda_vars.log(self.logger)
+            ioda_file_hash = compute_hash_from_nc4(self.iodafile_path)
+            self.logger.debug(f"ioda file hash = {ioda_file_hash}")
 
             result = run_diff(temp_log_file_name, test_file, self.logger)
             if result:

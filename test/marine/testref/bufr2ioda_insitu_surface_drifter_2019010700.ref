@@ -18,3 +18,4 @@ PreQC: 1141, int32    min, max = 0, 0
 ObsError_temp: 1141, float32    min, max = 0.019999999552965164, 0.019999999552965164
 OceanBasin: 1141, int32    min, max = 0, 5
 OceanBasin hash = ed90140a73edc2d0e0946729d1268b51ab7472e7cb2c8c2890b0c0c6e4a65405
+ioda file hash = ec12e4606e78bc81e81fdebe5a8cd283

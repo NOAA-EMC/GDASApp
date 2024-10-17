@@ -1,6 +1,6 @@
 ---
 data_format: dbuoy
-subsets: dbuoy
+subsets: DBUOY
 source: NCEP data tank
 data_type: drifter
 cycle_type: gdas

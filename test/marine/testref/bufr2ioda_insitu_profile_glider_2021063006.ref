@@ -21,3 +21,4 @@ ObsError_temp: 27280, float32    min, max = 0.019999999552965164, 0.019999999552
 ObsError_saln: 27280, float32    min, max = 0.009999999776482582, 0.009999999776482582
 OceanBasin: 27280, int32    min, max = 0, 2
 OceanBasin hash = 85f985fd1d0c5596e07c480680abd31277664a7bc61ae466f9cf733626a2ac46
+ioda file hash = 4e587dbde3dba1c208a3253d5b15734a

@@ -5,6 +5,7 @@ import subprocess
 import numpy as np
 import tempfile
 import hashlib
+import netCDF4
 
 
 def parse_arguments():
@@ -80,6 +81,39 @@ def compute_hash(sequence, algorithm='sha256'):
     hash_obj.update(sequence_bytes)
     # Return the hexadecimal digest of the hash
     return hash_obj.hexdigest()
+
+
+def compute_hash_from_nc4(file_path):
+    """Compute a hash from the string representation of a NetCDF4 dataset."""
+    hash_md5 = hashlib.md5()  # You can use sha256 or other hashing algorithms
+
+    with netCDF4.Dataset(file_path, 'r') as nc:
+        # Initialize a string to hold the dataset representation
+        dataset_string = ""
+
+        # Include global attributes
+        for attr_name in nc.ncattrs():
+            dataset_string += f"{attr_name}: {getattr(nc, attr_name)}\n"
+
+        # Include dimensions
+        dataset_string += "Dimensions:\n"
+        for dim_name, dim in nc.dimensions.items():
+            dataset_string += f"{dim_name}: {dim.size}\n"
+
+        # Include variables and their attributes
+        dataset_string += "Variables:\n"
+        for var_name in nc.variables:
+            var_data = nc.variables[var_name][:]
+            dataset_string += f"Variable '{var_name}':\n"
+            dataset_string += f"  Data: {var_data}\n"
+            dataset_string += "  Attributes:\n"
+            for attr_name in nc.variables[var_name].ncattrs():
+                dataset_string += f"    {attr_name}: {getattr(nc.variables[var_name], attr_name)}\n"
+
+        # Update hash with the dataset string
+        hash_md5.update(dataset_string.encode('utf-8'))
+
+    return hash_md5.hexdigest()
 
 
 #####################################################################
