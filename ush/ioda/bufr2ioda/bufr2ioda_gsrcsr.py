@@ -248,8 +248,8 @@ def bufr_to_ioda(config, logger):
             # Define a boolean mask to subset data from the original data object
             satelite_mask = satid == sat
             # Define a boolean mask based on the condition 0 < satzenang2 < 80
-            satzenang_mask = np.logical_and(0 < satzenang, satzenang < 80) 
-            combined_mask = satzenang_mask & satelite_mask 
+            satzenang_mask = np.logical_and(0 < satzenang, satzenang < 80)
+            combined_mask = satzenang_mask & satelite_mask
             # MetaData
             lon2 = lon[combined_mask]
             lat2 = lat[combined_mask]
