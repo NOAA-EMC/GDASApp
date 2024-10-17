@@ -91,7 +91,6 @@ def bufr_to_ioda(config, logger):
     q.add("second", "*/SECO")
     q.add("sensorId", "*/SIID[1]")
     q.add("sensorZenithAngle", "*/SAZA")
-    #q.add("sensorCentralFrequency", "*/CLFRASEQ/SCCF"
     q.add("sensorCentralFrequency", "*/CSRADSEQ/SCCF")
     q.add("solarZenithAngle", "*/SOZA")
     q.add("cloudFree", "*/CLFRASEQ{2}/NCLDMNT")
@@ -164,15 +163,12 @@ def bufr_to_ioda(config, logger):
     cloudAmount = 100. - cldFree
     # Define the conversion factor from degrees to radians
     deg2rad = math.pi / 180.0
-    sataziang=sataziang*deg2rad
-
-    
-    viewang = np.full_like(solzenang, float32_fill_value, dtype=np.float32)
+    sataziang = sataziang*deg2rad    
+    viewang = np.full_like(solzenang, float32_fill_value, dtype = np.float32)
     # Define Channel dimension for channels 4 to 11 since the other channel values are missing
     channel_start = 7
     channel_end = 16
     channum = np.arange(channel_start, channel_end + 1)
-
     # Define wavenumbers for each satellite ID
     wavenum_values_dict = {
         270: np.array(
@@ -251,12 +247,10 @@ def bufr_to_ioda(config, logger):
 
             # Define a boolean mask to subset data from the original data object
             satelite_mask = satid == sat
-
             # Define a boolean mask based on the condition 0 < satzenang2 < 80
             satzenang_mask = np.logical_and(0 < satzenang, satzenang < 80)
-
             #combined_mask = satzenang_mask * satelite_mask
-            combined_mask = satzenang_mask & satelite_mask  # Combine masks
+            combined_mask = satzenang_mask & satelite_mask  
             # MetaData
             lon2 = lon[combined_mask]
             lat2 = lat[combined_mask]
@@ -492,6 +486,7 @@ def bufr_to_ioda(config, logger):
                     cloudAmount2
                 )
 
+
                 # ObsType based on computation method/spectral band
                 obsspace.create_var(
                     "ObsValue/brightnessTemperature",
@@ -512,7 +507,7 @@ def bufr_to_ioda(config, logger):
                 ).write_attr(
                     "long_name", "Standard Deviation Brightness Temperature"
                 ).write_data(
-                    clrStdDev2 #[:, 3:11]
+                    clrStdDev2 
                 )
 
             else:
