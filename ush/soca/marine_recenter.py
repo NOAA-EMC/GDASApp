@@ -68,36 +68,32 @@ class MarineRecenter(Task):
 
 
         local_dict = AttrDict(
-             {
-                'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
-                'PARMsoca': os.path.join(self.task_config.PARMgfs, 'gdas', 'soca'),
-                'MARINE_WINDOW_BEGIN': _window_begin,
-                'MARINE_WINDOW_BEGIN_ISO': _window_begin.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                'MARINE_WINDOW_END': _window_end,
-                'MARINE_WINDOW_END_ISO': _window_end.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                'MARINE_WINDOW_LENGTH': f"PT{self.task_config['assim_freq']}H",
-                'MARINE_WINDOW_MIDDLE': self.task_config.current_cycle,
-                'MARINE_WINDOW_MIDDLE_ISO': self.task_config.current_cycle.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                'DATA': DATA,
-                'dump': self.task_config.RUN,
-                'stage_dir': DATA,
-                'soca_input_fix_dir': self.task_config.SOCA_INPUT_FIX_DIR,
-                'NMEM_ENS': self.task_config.NMEM_ENS,
-                'MARINE_WINDOW_LENGTH': f"PT{config['assim_freq']}H",
-                'recen_yaml_template': os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml'),
-                'recen_yaml_file': os.path.join(DATA, 'soca_ensrecenter.yaml'),
-                'gridgen_yaml': os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'),
-                'BKG_LIST': 'bkg_list.yaml',
-                'window_begin': window_begin,
-                'bkg_dir': os.path.join(DATA, 'bkg'),
-                'INPUT': os.path.join(DATA, 'INPUT'),
-                'ens_dir': os.path.join(DATA, 'ens')
-             }
-        )
+             {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+              'PARMsoca': os.path.join(self.task_config.PARMgfs, 'gdas', 'soca'),
+              'MARINE_WINDOW_BEGIN': _window_begin,
+              'MARINE_WINDOW_BEGIN_ISO': _window_begin.strftime('%Y-%m-%dT%H:%M:%SZ'),
+              'MARINE_WINDOW_END': _window_end,
+              'MARINE_WINDOW_END_ISO': _window_end.strftime('%Y-%m-%dT%H:%M:%SZ'),
+              'MARINE_WINDOW_LENGTH': f"PT{self.task_config['assim_freq']}H",
+              'MARINE_WINDOW_MIDDLE': self.task_config.current_cycle,
+              'MARINE_WINDOW_MIDDLE_ISO': self.task_config.current_cycle.strftime('%Y-%m-%dT%H:%M:%SZ'),
+              'DATA': DATA,
+              'dump': self.task_config.RUN,
+              'stage_dir': DATA,
+              'soca_input_fix_dir': self.task_config.SOCA_INPUT_FIX_DIR,
+              'NMEM_ENS': self.task_config.NMEM_ENS,
+              'MARINE_WINDOW_LENGTH': f"PT{config['assim_freq']}H",
+              'recen_yaml_template': os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml'),
+              'recen_yaml_file': os.path.join(DATA, 'soca_ensrecenter.yaml'),
+              'gridgen_yaml': os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'),
+              'BKG_LIST': 'bkg_list.yaml',
+              'window_begin': window_begin,
+              'bkg_dir': os.path.join(DATA, 'bkg'),
+              'INPUT': os.path.join(DATA, 'INPUT'),
+              'ens_dir': os.path.join(DATA, 'ens')})
 
         # Extend task_config with local_dict
         self.task_config.update(local_dict)
-
 
     @logit(logger)
     def initialize(self):
