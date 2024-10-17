@@ -43,8 +43,8 @@
   branch = develop
 [submodule "sorc/fv3-jedi"]
   path = sorc/fv3-jedi
-  url = https://github.com/jcsda/fv3-jedi.git
-  branch = develop
+  url = https://github.com/NOAA-EMC/fv3-jedi.git
+  branch = patch/fv3-jedi
 [submodule "sorc/icepack"]
   path = sorc/icepack
   url = https://github.com/JCSDA-internal/Icepack.git
