@@ -130,6 +130,12 @@ namespace gdasapp {
       atlas::FieldSet bkgErrFs;
       bkgErr.toFieldSet(bkgErrFs);
 
+      // print chemVars
+      auto vars = chemVars.variables();  // Call the function and store the returned value
+      for (size_t i = 0; i < vars.size(); ++i) {
+         std::cout << "Species " << i + 1 << ": " << vars[i] << std::endl;
+      }
+
       // Loop through variables
       for (auto & var : chemVars.variables()) {
         nodeColumns.haloExchange(xbFs[var]);
@@ -230,15 +236,66 @@ namespace gdasapp {
         }
       }
 
+      std::cout << "Number of variables in chemVars: " << chemVars.size() << std::endl;
+
+      for (size_t i = 0; i < chemVars.size(); ++i) {
+        std::cout << "Variable " << i << ": " << chemVars[i].name() << std::endl;
+}
+
       // Rescale
+      //
       if (fullConfig.has("rescale")) {
-        double rescale;
-        fullConfig.get("rescale", rescale);
-        util::multiplyFieldSet(bkgErrFs, rescale);
-      }
+    // Define rescaling factors for each species
+        std::vector<double> rescaleFactors = {.5, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0};
+ 
+
+	for (size_t k = 0; k < bkgErrFs.size(); ++k) {
+          std::cout << "Field " << k << ": " << bkgErrFs.field(k).name() << std::endl;
+}
+      
+        std:: cout << "before Loop through the variables i=    "; 
+    // Loop through the variables and apply the appropriate rescaling factor
+        for (size_t i = 0; i < chemVars.size(); ++i) {
+          std:: cout << "i = "  << i << std::endl; 
+          const std::string &variableName = chemVars[i].name();  // Use name() to get the variable's name as a string
+	  std:: cout << " before atlas::Field ";  
+          atlas::Field &field = bkgErrFs.field(variableName);  // Get the field by name
+	  std:: cout << "before Access the field data" ;
+    // Get the number of dimensions
+          int rank = field.rank();
+          std::cout << "Field " << variableName << " has " << rank << " dimensions." << std::endl;
+
+   // Access the field data based on its dimensions
+          if (rank == 1) {
+          auto data = atlas::array::make_view<double, 1>(field);
+   // Apply the rescaling factor element-wise
+          for (size_t j = 0; j < data.size(); ++j) {
+            data(j) *= rescaleFactors[i];
+          }
+	  } else if (rank == 2) {
+              auto data = atlas::array::make_view<double, 2>(field);
+    // Apply the rescaling factor for 2D field element-wise
+              for (size_t j = 0; j < data.shape(0); ++j) {
+                for (size_t k = 0; k < data.shape(1); ++k) {
+                  data(j, k) *= rescaleFactors[i];
+         }
+         }
+         } else {
+            std::cerr << "Unsupported field rank: " << rank << std::endl;
+         }
+
+        }
+     }
+
+      std:: cout << "Number of variables in chemVars: " << chemVars.size() << std::endl;
+      std:: cout << " before bkgErr.fromFieldSet"; 
 
       bkgErr.fromFieldSet(bkgErrFs);
 
+      std:: cout << "after rescaling"; 
+      std:: cout << "Number of variables in chemVars: " << chemVars.size() << std::endl;
+
+      std:: cout << "size of bkgErrFs " << bkgErrFs.size() << std::endl; 
       // Hybrid B option
       if (fullConfig.has("climate background error")) {
         const eckit::LocalConfiguration ClimBConfig(fullConfig, "climate background error");
