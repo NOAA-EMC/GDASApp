@@ -2,6 +2,18 @@
 # called for test_gdasapp_util_prepdata, and by
 # test/soca/gw/setup_obsproc.sh for test_gdasapp_soca_setup_obsproc
 
+# TODO: It needs to point to experimental obs instead of prepdata.sh
+# Get the machine hostname
+MACHINE_NAME=$(hostname)
+
+# Check if the machine name is "hera"
+if [[ "$MACHINE_NAME" =~ ^hfe0[1-9]$ || "$MACHINE_NAME" =~ ^hfe1[01]$ ]]; then
+    echo "Running on hera, loading anaconda modules."
+    module use -a /contrib/anaconda/modulefiles
+    module load anaconda/latest
+else
+    echo "Not running on hera, skipping anaconda module loading."
+fi
 
 set -e
 
@@ -19,6 +31,8 @@ project_source_dir=$1
 
 cdl2nc4 rads_adt_3a_2021181.nc4 ${project_source_dir}/testdata/rads_adt_3a_2021181.cdl
 cdl2nc4 rads_adt_3b_2021181.nc4 ${project_source_dir}/testdata/rads_adt_3b_2021181.cdl
+cdl2nc4 icec_abi_g16_1.nc4 ${project_source_dir}/testdata/icec_abi_g16_1.cdl
+cdl2nc4 icec_abi_g16_2.nc4 ${project_source_dir}/testdata/icec_abi_g16_2.cdl
 cdl2nc4 icec_amsr2_north_1.nc4 ${project_source_dir}/testdata/icec_amsr2_north_1.cdl
 cdl2nc4 icec_amsr2_north_2.nc4 ${project_source_dir}/testdata/icec_amsr2_north_2.cdl
 cdl2nc4 icec_amsr2_south_1.nc4 ${project_source_dir}/testdata/icec_amsr2_south_1.cdl
