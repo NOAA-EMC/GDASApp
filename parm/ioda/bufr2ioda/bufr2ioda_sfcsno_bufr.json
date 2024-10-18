@@ -1,0 +1,12 @@
+{
+  "data_format"      : "bufr_d",
+  "subsets"          : "SFCSNO",
+  "source"           : "NCEP bufr dump tank",
+  "data_type"        : "sfcsno",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "data_description" : "6-hourly in situ snow depth observation",
+  "data_provider"    : "Synoptic tanks, Global"
+}
