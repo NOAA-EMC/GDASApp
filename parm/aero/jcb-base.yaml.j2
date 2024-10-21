@@ -9,7 +9,7 @@ app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
-final_increment_file: final_increment_gaussian
+final_increment_to_latlon_file: aero_final_increment_gaussian
 final_increment_file: aero_final_increment_cubed_sphere
 model_file: aero_model_pseudo
 initial_condition_file: aero_background  # Initial conditions for 4D apps is background
@@ -46,6 +46,9 @@ aero_npz_ges: {{ npz_ges | default(127, true) }}
 aero_npx_anl: {{ npx_anl | default(49, true) }}
 aero_npy_anl: {{ npy_anl | default(49, true) }}
 aero_npz_anl: {{ npz_anl | default(127, true) }}
+aero_npx_clim_b: {{ npx_clim_b | default(49, true) }}
+aero_npy_clim_b: {{ npy_clim_b | default(49, true) }}
+aero_npz_clim_b: {{ npz_anl | default(127, true) }}
 
 aero_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
 
@@ -54,10 +57,33 @@ aero_background_path: ./bkg
 aero_background_ensemble_path: ./ens/mem%mem%
 
 # Default background time is for 3D applications
+{% if DOIAU == True %}
+aero_background_time_iso: "{{ AERO_WINDOW_BEGIN | to_isotime }}"
+{% else %}
 aero_background_time_iso: "{{ current_cycle | to_isotime }}"
+{% endif %}
+aero_cycle_time_iso: "{{ current_cycle | to_isotime }}"
+aero_cycle_time_fv3: "{{ current_cycle | to_fv3time }}"
+
+# time for background error calculation for next cycle
+{% set offset_td = "+6H" | to_timedelta %}
+{% set background_time = current_cycle | add_to_datetime(offset_td) %}
+aero_background_error_time_iso:  "{{ background_time | to_isotime }}"
+aero_background_error_time_fv3: "{{ background_time | to_fv3time }}"
 
 # Background error
 aero_berror_data_directory: "{{ DATA }}/berror"
+aero_berror_diffusion_directory: "{{ DATA }}/diffusion"
+aero_diagb_weight: {{ aero_diagb_weight | default(1.0, true) }}
+aero_diagb_static_rescale_factor: {{aero_staticb_rescaling_factor | default(1.0, true) }}
+aero_diagb_rescale_factor: {{aero_diagb_rescale | default(1.0, true) }}
+aero_diagb_n_halo: {{ aero_diagb_n_halo  | default(1, true)  }}
+aero_diagb_n_neighbors: {{ aero_diagb_n_neighbors | default(1, true) }}
+aero_diagb_smooth_horiz_iter: {{ aero_diagb_smooth_horiz_iter | default(1, true) }}
+aero_diagb_smooth_vert_iter: {{ aero_diagb_smooth_vert_iter | default(1, true) }}
+aero_diffusion_iter: {{ aero_diffusion_iter | default(1, true) }}
+aero_diffusion_horiz_len: {{ aero_diffusion_horiz_len  | default(1.0, true)}}
+aero_diffusion_fixed_val: {{ aero_diffusion_fixed_val  | default(1.0, true)}}
 
 # Forecasting
 aero_forecast_timestep: "{{ BKG_TSTEP }}"
