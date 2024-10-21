@@ -78,16 +78,6 @@ namespace gdasapp {
       oops::Log::info() << "Background:" << std::endl;
       oops::Log::info() << xb << std::endl;
 
-      /// Read the global rescaling file
-      //-------------------------------
-      fv3jedi::State xrs(geom, chemVars); 
-      const eckit::LocalConfiguration bkgConfig(fullConfig, "background");
-      xrs.read(bkgConfig);
-      atlas::FieldSet xrsFs;
-      xb.toFieldSet(xrsFs);
-      oops::Log::info() << "global rescaling coefficients:" << std::endl; 
-      oops::Log::info() << xrs << std::endl; 
-
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
       // Build edges, then connections between nodes and edges
@@ -241,11 +231,23 @@ namespace gdasapp {
       }
 
       // Rescale
-      if (fullConfig.has("rescale")) {
-        double rescale;
-        fullConfig.get("rescale", rescale);
-        util::multiplyFieldSet(bkgErrFs, rescale);
-      }
+//      if (fullConfig.has("rescale")) {
+//        double rescale;
+//        fullConfig.get("rescale", rescale);
+//        util::multiplyFieldSet(bkgErrFs, rescale);
+//      }
+     // Rescale     
+      if (fullConfig.has("globalRescale")) {
+      fv3jedi::State global_rescale(geom, chemVars);
+      const eckit::LocalConfiguration bkgConfig(fullConfig, "rescale");
+      global_rescale.read(bkgConfig);
+      atlas::FieldSet grsFs;
+      global_rescale.toFieldSet(xrsFs);
+      oops::Log::info() << "global rescaling coefficients:" << std::endl;
+      oops::Log::info() << grsFs << std::endl;
+      util::multiplyFieldSet(bkgErrFS, xrsFs)
+
+
 
       bkgErr.fromFieldSet(bkgErrFs);
 
