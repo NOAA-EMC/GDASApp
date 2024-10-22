@@ -68,8 +68,6 @@ class MarineRecenter(Task):
              'ATM_WINDOW_MIDDLE': window_middle_iso,
              'DATA': DATA,
              'dump': self.task_config.RUN,
-             'fv3jedi_stage_files': self.task_config.FV3JEDI_STAGE_YAML,
-             'fv3jedi_stage': self.task_config.FV3JEDI_STAGE_YAML,
              'stage_dir': DATA,
              'soca_input_fix_dir': self.task_config.SOCA_INPUT_FIX_DIR,
              'NMEM_ENS': self.task_config.NMEM_ENS,
