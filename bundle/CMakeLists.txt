@@ -129,7 +129,7 @@ if(BUILD_GDASBUNDLE)
   endif()
 
 # Land associated repositories
-  ecbuild_bundle( PROJECT land-imsproc SOURCE "../sorc/land-imsproc" )
+#ecbuild_bundle( PROJECT land-imsproc SOURCE "../sorc/land-imsproc" )
   ecbuild_bundle( PROJECT land-jediincr SOURCE "../sorc/land-jediincr" )
 
 # GDASApp
