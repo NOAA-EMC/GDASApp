@@ -80,8 +80,8 @@ namespace gdasapp {
 
       /// Read the global rescale
       //--------------------------
-      oops::Log::info() << "=================== read global rescale" << std::endl;
-      fv3jedi::
+//      oops::Log::info() << "=================== read global rescale" << std::endl;
+//      fv3jedi::
 
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
@@ -237,14 +237,14 @@ namespace gdasapp {
 
      // Rescale     
       if (fullConfig.has("global rescale")) {
-        fv3jedi::State global_rescale(geom, chemVars);
+        fv3jedi::State global_rescale(geom, chemVars,cycleDate);
         const eckit::LocalConfiguration GlobalRescaleConfig(fullConfig, "global rescale");
         global_rescale.read(GlobalRescaleConfig);
-        atlas::FieldSet grsFs;
+        atlas::FieldSet xrsFs;
         global_rescale.toFieldSet(xrsFs);
         oops::Log::info() << "global rescaling coefficients:" << std::endl;
-        oops::Log::info() << grsFs << std::endl;
-        util::multiplyFieldSets(bkgErrFS, xrsFs)
+        oops::Log::info() << xrsFs << std::endl;
+        util::multiplyFieldSets(bkgErrFs, xrsFs);
       }
 
 
