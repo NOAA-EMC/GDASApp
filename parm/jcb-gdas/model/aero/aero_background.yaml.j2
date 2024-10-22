@@ -1,0 +1,10 @@
+datapath: {{ aero_background_path }}
+filetype: fms restart
+datetime: '{{ aero_background_time_iso }}'
+filename is datetime templated: true
+filename_core: '%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc'
+filename_trcr: '%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc'
+filename_cplr: '%yyyy%mm%dd.%hh%MM%ss.coupler.res'
+state variables: [t,delp,sphum,so4,bc1,bc2,oc1,oc2,
+                    dust1,dust2,dust3,dust4,dust5,
+                    seas1,seas2,seas3,seas4]

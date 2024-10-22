@@ -1,0 +1,48 @@
+input geometry:
+  fms initialization:
+    namelist filename: "{{aero_fv3jedi_files_path}}/fmsmpp.nml"
+    field table filename: "{{aero_fv3jedi_files_path}}/field_table"
+  akbk: "{{aero_fv3jedi_files_path}}/akbk.nc4"
+  layout:
+  - {{ aero_layout_x }}
+  - {{ aero_layout_y }}
+  npx: {{ aero_npx_ges }}
+  npy: {{ aero_npy_ges }}
+  npz: {{ aero_npz_ges }}
+  field metadata override: "{{aero_fv3jedi_files_path}}/fv3jedi_fieldmetadata_restart.yaml"
+output geometry:
+  fms initialization:
+    namelist filename: "{{aero_fv3jedi_files_path}}/fmsmpp.nml"
+    field table filename: "{{aero_fv3jedi_files_path}}/field_table"
+  akbk: "{{aero_fv3jedi_files_path}}/akbk.nc4"
+  layout:
+  - {{ aero_layout_x }}
+  - {{ aero_layout_y }}
+  npx: {{ aero_npx_anl }}
+  npy: {{ aero_npy_anl }}
+  npz: {{ aero_npz_anl }}
+  field metadata override: "{{aero_fv3jedi_files_path}}/fv3jedi_fieldmetadata_restart.yaml"
+states:
+- input:
+    datetime: '{{ aero_background_error_time_iso }}'
+    filetype: fms restart
+    state variables: [mass_fraction_of_sulfate_in_air,
+                        mass_fraction_of_hydrophobic_black_carbon_in_air,
+                        mass_fraction_of_hydrophilic_black_carbon_in_air,
+                        mass_fraction_of_hydrophobic_organic_carbon_in_air,
+                        mass_fraction_of_hydrophilic_organic_carbon_in_air,
+                        mass_fraction_of_dust001_in_air, mass_fraction_of_dust002_in_air,
+                        mass_fraction_of_dust003_in_air, mass_fraction_of_dust004_in_air,
+                        mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air,
+                        mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air,
+                        mass_fraction_of_sea_salt004_in_air]
+    datapath: {{ aero_background_path }}
+    filename_core: '{{ aero_background_error_time_fv3 }}.fv_core.res.nc'
+    filename_trcr: '{{ aero_background_error_time_fv3 }}.fv_tracer.res.nc'
+    filename_cplr: '{{ aero_background_error_time_fv3 }}.coupler.res'
+  output:
+    filetype: fms restart
+    datapath: {{ aero_background_path }}
+    filename_core: 'anlres.fv_core.res.nc'
+    filename_trcr: 'anlres.fv_tracer.res.nc'
+    filename_cplr: 'anlres.coupler.res'

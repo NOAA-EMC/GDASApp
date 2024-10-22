@@ -1,0 +1,63 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: viirs_n20_aod
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{aero_obsdatain_path}}/{{aero_obsdatain_prefix}}{{observation_from_jcb}}{{aero_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{aero_obsdataout_path}}/{{aero_obsdataout_prefix}}{{observation_from_jcb}}{{aero_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [aerosolOpticalDepth]
+    channels: 4
+
+  # Observation Operator
+  # --------------------
+  get values:
+    interpolation method: barycentric
+    time interpolation: linear
+  obs operator:
+    name: AodCRTM
+    Absorbers: [H2O,O3]
+    obs options:
+      Sensor_ID: &{{observation_from_jcb}}_sensor_id v.viirs-m_j1
+      EndianType: little_endian
+      AerosolOption: aerosols_gocart_default
+      CoefficientPath: "{{crtm_coefficient_path}}"
+  obs error:
+    covariance model: diagonal
+
+  # Observation Bias Correction (VarBC)
+  # -----------------------------------
+
+  # Observation Filters (QC)
+  # ------------------------  
+  obs filters:
+    - filter: PreQC
+      maxvalue: 1
+    - filter: Domain Check
+      where:
+      - variable:
+          name: latitude@MetaData
+        minvalue: -60
+        maxvalue: 60
+    - filter: Bounds Check
+      filter variables:
+      - name: aerosolOpticalDepth
+        channels: 4
+      minvalue: 0
+      maxvalue: 4.9
+      action:
+        name: reject
+    - filter: Background Check
+      channels: 4
+      threshold: 3.0
+      action:
+        name: inflate error
+        inflation factor: 3.0
