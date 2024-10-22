@@ -126,7 +126,7 @@ set -x
 if [[ $BUILD_JCSDA == 'YES' ]]; then
   make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE
 else
-  builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils bufr-query da-utils"
+  builddirs="gdas iodaconv gdas-utils bufr-query da-utils"
   for b in $builddirs; do
     cd $b
     make -j ${BUILD_JOBS:-6} VERBOSE=$BUILD_VERBOSE

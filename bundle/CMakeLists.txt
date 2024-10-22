@@ -130,7 +130,7 @@ if(BUILD_GDASBUNDLE)
 
 # Land associated repositories
 #ecbuild_bundle( PROJECT land-imsproc SOURCE "../sorc/land-imsproc" )
-  ecbuild_bundle( PROJECT land-jediincr SOURCE "../sorc/land-jediincr" )
+#  ecbuild_bundle( PROJECT land-jediincr SOURCE "../sorc/land-jediincr" )
 
 # GDASApp
   ecbuild_bundle( PROJECT gdas SOURCE "../")
