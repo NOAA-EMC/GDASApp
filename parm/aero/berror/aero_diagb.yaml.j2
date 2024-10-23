@@ -11,7 +11,7 @@ geometry:
   npx: {{ npx_anl }}
   npy: {{ npy_anl }}
   npz: {{ npz_anl }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_aerosol_restart.yaml
 date: '{{ background_time | to_isotime }}'
 background:
   datetime: '{{ background_time | to_isotime }}'
@@ -49,7 +49,7 @@ climate background error:
     npx: {{ npx_clim_b }}
     npy: {{ npy_clim_b }}
     npz: {{ npz_ges }}
-    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_aerosol_restart.yaml
   climate background error stddev:
     filetype: fms restart
     skip coupler file: true

@@ -11,7 +11,7 @@ input geometry:
   npx: {{ npx_ges }}
   npy: {{ npy_ges }}
   npz: {{ npz_ges }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_aerosol_restart.yaml
 output geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -23,7 +23,7 @@ output geometry:
   npx: {{ npx_anl }}
   npy: {{ npy_anl }}
   npz: {{ npz_anl }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_aerosol_restart.yaml
 states:
 - input:
     datetime: '{{ background_time | to_isotime }}'

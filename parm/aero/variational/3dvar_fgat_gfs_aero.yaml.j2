@@ -25,7 +25,7 @@ cost function:
     npx: {{ npx_ges }}
     npy: {{ npy_ges }}
     npz: {{ npz_ges }}
-    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_aerosol_restart.yaml
   model:
     name: PSEUDO
     datapath: ./bkg
@@ -73,7 +73,7 @@ variational:
       npx: {{ npx_anl }}
       npy: {{ npy_anl }}
       npz: {{ npz_anl }}
-      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_aerosol_restart.yaml
     diagnostics:
       departures: bkgmob
   - ninner: 35
@@ -90,7 +90,7 @@ variational:
       npx: {{ npx_anl }}
       npy: {{ npy_anl }}
       npz: {{ npz_anl }}
-      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_aerosol_restart.yaml
     diagnostics:
       departures: bkgmob1
 final:
@@ -110,7 +110,7 @@ final:
       npx: {{ npx_ges }}
       npy: {{ npy_ges }}
       npz: {{ npz_ges }}
-      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+      field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_aerosol_restart.yaml
     output:
       state component:
         datapath: ./anl
