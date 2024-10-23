@@ -1,19 +1,19 @@
 help([[
-Load environment for running the GDAS application with Intel compilers and MPI.
+Load environment for running the GDAS application with gnu compilers and MPI.
 ]])
 
 local pkgName    = myModuleName()
 local pkgVersion = myModuleVersion()
 local pkgNameVer = myModuleFullName()
 
-prepend_path("MODULEPATH", '/work/noaa/epic/role-epic/spack-stack/hercules/spack-stack-1.7.0/envs/ue-intel/install/modulefiles/Core')
+prepend_path("MODULEPATH", '/work/noaa/epic/role-epic/spack-stack/hercules/modulefiles')
+prepend_path("MODULEPATH", '/work/noaa/epic/role-epic/spack-stack/hercules/spack-stack-1.7.0/envs/ue-gcc/install/modulefiles/Core')
 prepend_path("MODULEPATH", '/work2/noaa/da/python/opt/modulefiles/stack')
 
--- below two lines get us access to the spack-stack modules
-load("stack-intel/2021.9.0")
-load("stack-intel-oneapi-mpi/2021.9.0")
---load("stack-python/3.10.8")
--- JCSDA has 'jedi-fv3-env/unified-dev', but we should load these manually as needed
+
+---- below two lines get us access to the spack-stack modules
+load("stack-gcc/12.2.0")
+load("stack-openmpi/4.1.6")
 
 load("cmake/3.23.1")
 load("curl/8.4.0")
@@ -32,10 +32,10 @@ load("boost/1.84.0")
 load("bufr/12.0.1")
 load("git-lfs/3.1.2")
 load("ecbuild/3.7.2")
-load("openjpeg/2.4.0")
+load("openjpeg/2.3.1")
 load("eccodes/2.33.0")
 load("eigen/3.4.0")
-load("openblas/0.3.27")
+load("openblas/0.3.24")
 load("eckit/1.24.5")
 load("fftw/3.3.10")
 load("fckit/0.11.0")
@@ -73,9 +73,9 @@ load("gdasapp/1.0.0")
 -- below is a hack because of cmake finding the wrong python...
 setenv("CONDA_PREFIX", "/work2/noaa/da/python/opt/core/miniconda3/4.6.14/envs/gdasapp/")
 
-setenv("CC","mpiicc")
-setenv("FC","mpiifort")
-setenv("CXX","mpiicpc")
+setenv("CC","mpicc")
+setenv("FC","mpifort")
+setenv("CXX","mpicxx")
 local mpiexec = '/opt/slurm/bin/srun'
 local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
@@ -84,7 +84,6 @@ setenv('MPIEXEC_NPROC', mpinproc)
 setenv("CRTM_FIX","/work2/noaa/da/role-da/GDASApp/fix/crtm/2.4.0")
 setenv("GDASAPP_TESTDATA","/work2/noaa/da/role-da/GDASApp/testdata")
 setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/work2/noaa/da/role-da/GDASApp/unittestdata")
-prepend_path("PATH","/apps/contrib/NCEP/libs/hpc-stack/intel-2018.4/prod_util/1.2.2/bin")
 
 execute{cmd="ulimit -s unlimited",modeA={"load"}}
 
