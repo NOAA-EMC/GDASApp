@@ -4,6 +4,9 @@
   # -----------------------
   obs space:
     name: IASI METOP-A
+    distribution:
+      name: "{{distribution_type}}"
+      halo size: 1250e3
     obsdatain:
       engine:
         type: H5File
@@ -67,40 +70,7 @@
   # Observation Pre Filters (QC)
   # ----------------------------
   obs pre filters:
-  # Step 0-A: Create Diagnostic Flags
-  #- filter: Create Diagnostic Flags
-  #  filter variables:
-  #  - name: brightnessTemperature
-  #    channels: *{{observation_from_jcb}}_simulated_channels
-  #  flags:
-  #  - name: ScanEdgeRemoval
-  #    initial value: false
-  #    force reinitialization: false
-  #  - name: Thinning
-  #    initial value: false
-  #    force reinitialization: false
-  #  - name: ShortwaveIRCheck
-  #    initial value: false
-  #    force reinitialization: false
-  #  - name: ObsValueRangeCheck
-  #    initial value: false
-  #    force reinitialization: false
-  #  - name: CloudDetection
-  #    initial value: false
-  #    force reinitialization: false
-  #  - name: NSSTCheck
-  #    initial value: false
-  #    force reinitialization: false
-  #  - name: GrossCheck
-  #    initial value: false
-  #    force reinitialization: false
-  #  - name: InterChannelConsistency
-  #    initial value: false
-  #    force reinitialization: false
-  #  - name: UseFlagCheck
-  #    initial value: false
-  #    force reinitialization: false
-  # Step 0-B: Create Derived Variables
+  # Step 1: Create Derived Variables
   # Assign channel wavenumbers in m-1
   - filter: Variable Assignment
     assignments:
@@ -117,7 +87,7 @@
           intercept: 64475.0
           use channel numbers: true
 
-  # Transform radiance to brightness temperature
+  # Step 2: Transform radiance to brightness temperature
   - filter: Variable Transforms
     Transform: SatBrightnessTempFromRad
     transform from:
@@ -130,11 +100,7 @@
     planck1: 1.191042953e-16
     planck2: 1.4387774e-2
 
-  # Step 0-C: Assign Observation Error
-
-  # Observation Prior Filters (QC)
-  # ------------------------------
-  obs prior filters:
+  # Step 3: Assign Observation Error
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -190,10 +156,7 @@
         2.5, 2.5, 2.52, 2.52, 2.54, 2.5, 2.48, 2.5, 2.55, 2.5, 2.48, 2.5, 2.5, 2.52,
         2.52, 2.48, 2.5, 2.5, 2.52, 2.46, 2.53, 9]
 
-  # Observation Post Filters (QC)
-  # -----------------------------
-  obs post filters:
-  # Step 1: Remove Observations from the Edge of the Scan
+  # Step 4: Remove Observations from the Edge of the Scan
   - filter: Domain Check
     filter variables:
     - name: brightnessTemperature
@@ -204,11 +167,9 @@
       is_in: 5-56
     action:
       name: reject
-  #  actions:
-  #    - name: set
-  #      flag: ScanEdgeRemoval
-  #    - name: reject
-  # Step 2: Data Thinning
+      name: reduce obs space
+
+  # Step 5: Data Thinning
   - filter: Gaussian Thinning
     filter variables:
     - name: brightnessTemperature
@@ -221,11 +182,12 @@
   #  partition_longitude_bins_using_mesh: true
     action:
       name: reject
-  #  actions:
-  #    - name: set
-  #      flag: Thinning
-  #    - name: reject
-  # Step 3: Wavenumber Check
+      name: reduce obs space
+
+  # Observation Post Filters (QC)
+  # -----------------------------
+  obs post filters:
+  # Step 6: Wavenumber Check
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -243,11 +205,8 @@
       minvalue: 1.0e-12
     action:
       name: reject
-  #  actions:
-  #    - name: set
-  #      flag: ShortwaveIRCheck
-  #    - name: reject
-  # Step 4: Observation Error Inflation based on Wavenumber
+
+  # Step 7: Observation Error Inflation based on Wavenumber
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -259,21 +218,19 @@
         channels: *{{observation_from_jcb}}_simulated_channels
         options:
           channels: *{{observation_from_jcb}}_simulated_channels
-  # Step 5: Observation Range Sanity Check
+
+  # Step 8: Observation Range Sanity Check
+  # Valid range: (50, 550)
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
       channels: *{{observation_from_jcb}}_simulated_channels
     minvalue: 50.00001
-    maxvalue: 449.99999
-  #  maxvalue: 100.00000
+    maxvalue: 549.99999
     action:
       name: reject
-  #  actions:
-  #    - name: set
-  #      flag: ObsValueRangeCheck
-  #    - name: reject
-  # Step 6: Topography Check
+
+  # Step 9: Topography Check
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -287,7 +244,7 @@
           channels: *{{observation_from_jcb}}_simulated_channels
           sensor: *{{observation_from_jcb}}_sensor_id
 
-  # Step 7: Transmittance Top Check
+  # Step 10: Transmittance Top Check
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -299,7 +256,8 @@
         channels: *{{observation_from_jcb}}_simulated_channels
         options:
           channels: *{{observation_from_jcb}}_simulated_channels
-  # Step 8: Cloud Detection Check
+
+  # Step 11: Cloud Detection Check
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
@@ -379,11 +337,8 @@
     maxvalue: 1.0e-12
     action:
       name: reject
-  #  actions:
-  #    - name: set
-  #      flag: CloudDetection
-  #    - name: reject
-  # Step 9: NSST Retrieval Check
+
+  # Step 12: NSST Retrieval Check
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
@@ -430,11 +385,8 @@
     maxvalue: 1.0e-12
     action:
       name: reject
-  #  actions:
-  #    - name: set
-  #      flag: NSSTCheck
-  #    - name: reject
-  # Step 10: Surface Jacobians Check
+
+  # Step 13: Surface Jacobians Check
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -450,7 +402,7 @@
           obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
           sensor: *{{observation_from_jcb}}_sensor_id
 
-  # Step 11: Gross check
+  # Step 14: Gross check
   - filter: Background Check
     filter variables:
     - name: brightnessTemperature
@@ -514,11 +466,8 @@
         error parameter vector: *{{observation_from_jcb}}_oberr
     action:
       name: reject
-  #  actions:
-  #    - name: set
-  #      flag: GrossCheck
-  #    - name: reject
-  # Step 12: Useflag Check
+
+  # Step 15: Useflag Check
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
@@ -563,11 +512,13 @@
     minvalue: 1.0e-12
     action:
       name: reject
-  #  actions:
-  #    - name: set
-  #      flag: UseFlagCheck
-  #    - name: reject
 
+  # Observation Localizations (LocalEnsembleDA)
+  # -------------------------------------------
+  obs localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 1250e3
+    max nobs: 10000
 
   # GeoVaLs for Driving Observation Operators (testing mode)
   # --------------------------------------------------------
