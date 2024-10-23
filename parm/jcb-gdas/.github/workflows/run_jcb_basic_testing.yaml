@@ -52,6 +52,34 @@ jobs:
           echo "JCB_BRANCH=develop" >> $GITHUB_ENV
         fi
 
+    - name: Check for the branch name in the jcb-algorithms repo
+      run: |
+        BRANCH_NAME=${{ env.JCB_APP_BRANCH }}
+        if git ls-remote --heads https://github.com/NOAA-EMC/jcb-algorithms.git $BRANCH_NAME | grep -q "refs/heads/$BRANCH_NAME"; then
+          echo "Branch $BRANCH_NAME exists in jcb-algorithms repo."
+          echo "JCB_ALGO_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
+
+          # If the branch exists in jcb-algorithms repo but JCB_BRANCH is develop then we need to
+          # throw an error. This is not a safe situation. The developer should create a branch in
+          # the main jcb repo with the same name as the branch in the jcb-application repo.
+          # If there were branches in other apps to account for the changes in the algorithm repo
+          # they could not be tested here since the scipt is not clever enough to check for
+          # the existence of the branch being tested here in all the clients. The safest thing to do
+          # is simply create a branch with the same name (even if empty) in the main jcb repo. This
+          # will ensure the branches of the other applications are checked out by the init script.
+
+          if [ "${{ env.JCB_BRANCH }}" == "develop" ]; then
+            echo "Branch $BRANCH_NAME exists in jcb-algorithms repo but not in the main jcb repo. "
+            echo "Please create a branch with the same name (even if empty with no PR) in the main "
+            echo "jcb repo. This ensures safely checking all the clients that depend on the "
+            echo "jcb and jcb-algorithms repos with the changes being proposed."
+            exit 1
+          fi
+        else
+          echo "Branch $BRANCH_NAME does not exist in jcb repo. Using develop branch."
+          echo "JCB_ALGO_BRANCH=develop" >> $GITHUB_ENV
+        fi
+
     - name: Clone jcb repository
       run: |
         mkdir -p empty_hooks
