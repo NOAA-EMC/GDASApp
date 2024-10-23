@@ -52,9 +52,17 @@ jobs:
           echo "JCB_BRANCH=develop" >> $GITHUB_ENV
         fi
 
-    - name: Check for the branch name in the jcb-algorithms repo
+    - name: Check for the branch name in the jcb-algorithms repo (if not develop)
       run: |
         BRANCH_NAME=${{ env.JCB_APP_BRANCH }}
+
+        # If branch name is develop then we don't need to check the jcb-algorithms repo.
+        if [ "$BRANCH_NAME" == "develop" ]; then
+          echo "JCB_ALGO_BRANCH=develop" >> $GITHUB_ENV
+          exit 0
+        fi
+
+        # If the branch is not develop then check the jcb-algorithms repo.
         if git ls-remote --heads https://github.com/NOAA-EMC/jcb-algorithms.git $BRANCH_NAME | grep -q "refs/heads/$BRANCH_NAME"; then
           echo "Branch $BRANCH_NAME exists in jcb-algorithms repo."
           echo "JCB_ALGO_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
@@ -75,9 +83,6 @@ jobs:
             echo "jcb and jcb-algorithms repos with the changes being proposed."
             exit 1
           fi
-        else
-          echo "Branch $BRANCH_NAME does not exist in jcb repo. Using develop branch."
-          echo "JCB_ALGO_BRANCH=develop" >> $GITHUB_ENV
         fi
 
     - name: Clone jcb repository
