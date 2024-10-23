@@ -38,7 +38,7 @@ enspert_relpath: '{{ ENSPERT_RELPATH }}'
 
 # Geometry
 marine_soca_files_path: .
-#marine_vt_levels: '{{MOM6_LEVS}}'
+marine_vt_levels: '{{MOM6_LEVS}}'
 
 # Initial conditions
 marine_background_path: ./INPUT/
