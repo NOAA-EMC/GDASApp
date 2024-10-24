@@ -78,6 +78,11 @@ namespace gdasapp {
       oops::Log::info() << "Background:" << std::endl;
       oops::Log::info() << xb << std::endl;
 
+      /// Read the global rescale
+      //--------------------------
+//      oops::Log::info() << "=================== read global rescale" << std::endl;
+//      fv3jedi::
+
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
       // Build edges, then connections between nodes and edges
@@ -230,12 +235,38 @@ namespace gdasapp {
         }
       }
 
-      // Rescale
-      if (fullConfig.has("rescale")) {
-        double rescale;
-        fullConfig.get("rescale", rescale);
-        util::multiplyFieldSet(bkgErrFs, rescale);
+     // Rescale     
+      if (fullConfig.has("global rescale")) {
+	const eckit::LocalConfiguration GlobalRescaleConfig(fullConfig, "global rescale");
+//        fv3jedi::State global_rescale(rescaleGeom, chemVars,cycleDate);
+//	fv3jedi::State global_rescale_interp(geom, chemVars, cycleDate);
+	const eckit::LocalConfiguration GlobalRescaleGeomConfig(GlobalRescaleConfig,"geometry");
+        const fv3jedi::Geometry GlobalRescaleGeom(GlobalRescaleGeomConfig, this-> getComm());
+	fv3jedi::Increment global_rescale(GlobalRescaleGeom, chemVars, cycleDate);
+	global_rescale.zero(); 
+	const eckit::LocalConfiguration GlobalRescaleStdConfig(GlobalRescaleConfig,"rescale stddev");
+	// Get the 'datapath' and 'filename_trcr' from the YAML configuration
+        std::string datapath, filename_trcr;
+        GlobalRescaleStdConfig.get("datapath", datapath);
+        GlobalRescaleStdConfig.get("filename_trcr", filename_trcr);
+
+        // Combine the path and filename to get the full file path
+        std::string fullPath = datapath + filename_trcr;
+
+        // Print out the full path to verify
+        std::cout << "Attempting to read the global rescale file from: " << fullPath << std::endl;
+
+        global_rescale.read(GlobalRescaleStdConfig);
+	// interpolate to background resolution
+	fv3jedi::Increment global_rescale_interp(geom, global_rescale); 
+        atlas::FieldSet xrsFs;
+        global_rescale_interp.toFieldSet(xrsFs);
+        oops::Log::info() << "global rescaling coefficients:" << std::endl;
+        oops::Log::info() << xrsFs << std::endl;
+        util::multiplyFieldSets(bkgErrFs, xrsFs);
       }
+
+
 
       bkgErr.fromFieldSet(bkgErrFs);
 
@@ -273,6 +304,7 @@ namespace gdasapp {
         // Staticb rescale
         double rescale_staticb;
         ClimBConfig.get("staticb rescaling factor", rescale_staticb);
+
 
         // Combine diagb and climatological background errors
         fv3jedi::Increment stddev_hybrid(geom, chemVars, cycleDate);

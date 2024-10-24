@@ -76,7 +76,26 @@ variables:
   - mass_fraction_of_sea_salt003_in_air
   - mass_fraction_of_sea_salt004_in_air
 
-rescale: {{ aero_diagb_rescale }}    # rescales the filtered std. dev. by "rescale"
+global rescale: 
+  geometry:
+    fms initialization:
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table
+    akbk: ./fv3jedi/akbk.nc4
+    layout: 
+    - {{ layout_x }} 
+    - {{ layout_y }}
+    nxp: {{ npx_rescale }}
+    npy: {{ npy_rescale }}
+    npz: {{ npz_ges }}
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+  rescale stddev:
+    filetype: fms restart
+    skip coupler file: true
+    dateapath: ./stddev
+    filename_trcr: rescale.fv_tracer.res.nc
+    filename_cplr: rescale.coupler.res 
+
 number of halo points: {{ aero_diagb_n_halo }}
 number of neighbors: {{ aero_diagb_n_neighbors }}
 simple smoothing:
