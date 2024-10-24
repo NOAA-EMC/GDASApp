@@ -46,7 +46,6 @@ marine_background_time: '{{MARINE_WINDOW_BEGIN_ISO}}'
 
 # Pseudo model
 marine_forecast_timestep: PT3H
-#marine_pseudo_model_states: !INC 'bkg_list.yaml'
 
 # Background error model
 background_error_file: '{{berror_model}}'
