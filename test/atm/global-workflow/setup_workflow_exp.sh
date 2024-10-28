@@ -10,7 +10,7 @@ idate=2021032312
 edate=2021032318
 app=ATM
 starttype='warm'
-gfscyc='4'
+interval='6'
 resdetatmos='48'
 resensatmos='48'
 nens=3
@@ -37,7 +37,7 @@ $srcdir/../../workflow/setup_expt.py gfs cycled --idate $idate  \
                        --edate $edate \
                        --app $app \
                        --start $starttype \
-                       --gfs_cyc $gfscyc \
+                       --interval $interval \
                        --resdetatmos $resdetatmos \
                        --resensatmos $resensatmos \
                        --nens $nens \
