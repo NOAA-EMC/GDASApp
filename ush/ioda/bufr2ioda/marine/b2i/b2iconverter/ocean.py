@@ -82,5 +82,3 @@ class OceanBasin:
             # Iterate over lon, lat, and ocean_basin arrays simultaneously
             for lat_val, lon_val, basin_val in zip(lat, lon, ocean_basin):
                 file.write(f"{lat_val} {lon_val} {basin_val}\n")
-
-

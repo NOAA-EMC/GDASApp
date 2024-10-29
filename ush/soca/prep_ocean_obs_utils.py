@@ -74,6 +74,6 @@ def run_bufr_to_ioda(obsspace_to_convert):
         subprocess.run(['python', bufr2iodapy, '-c', bufrconv_yaml], check=True)
         return 0
     except subprocess.CalledProcessError as e:
-       logger.warning(f"bufr2ioda converter failed with error  >{e}<, \
+        logger.warning(f"bufr2ioda converter failed with error  >{e}<, \
                             return code {output.returncode}")
-       return(output.returncode)
+        return(output.returncode)

@@ -158,16 +158,16 @@ class PrepOceanObs(Task):
                         # netcdf files respectively
                         if obsprep_space['type'] == 'bufr':
                             bufrconv_config = {'RUN': RUN,
-                                                    'current_cycle': cdate,
-                                                    'DMPDIR': COMIN_OBS,
-                                                    'COM_OBS': COMIN_OBS,
-                                                    'OCEAN_BASIN_FILE': OCEAN_BASIN_FILE}
+                                               'current_cycle': cdate,
+                                               'DMPDIR': COMIN_OBS,
+                                               'COM_OBS': COMIN_OBS,
+                                               'OCEAN_BASIN_FILE': OCEAN_BASIN_FILE}
                             obsprep_space['conversion config file'] = ioda_config_file
                             bufr2iodapy = BUFR2IODA_PY_DIR + '/bufr2ioda_' + obtype + '.py'
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy
                             tmpl_filename = 'bufr2ioda_' + obtype + '.yaml'
                             bufrconv_template = os.path.join(BUFR2IODA_TMPL_DIR, tmpl_filename)
-                            
+
                             try:
                                 bufrconv = parse_j2yaml(bufrconv_template, bufrconv_config)
                                 bufrconv.save(ioda_config_file)
