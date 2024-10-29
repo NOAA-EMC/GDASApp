@@ -92,8 +92,8 @@ class PrepOceanObs(Task):
             logger.critical(f"OBSPREP_YAML file {OBSPREP_YAML} does not exist")
             raise FileNotFoundError
 
-        JSON_TMPL_DIR = self.task_config.JSON_TMPL_DIR
-#        BUFR2IODA_PY_DIR = self.task_config.BUFR2IODA_PY_DIR
+        # TODO (AFE): this should be in the task config file in g-w
+        BUFR2IODA_TMPL_DIR = os.path.join(self.task_config.HOMEgfs, 'parm/gdas/ioda/bufr2ioda')
         BUFR2IODA_PY_DIR = os.path.join(self.task_config.HOMEgfs, 'sorc/gdas.cd/ush/ioda/bufr2ioda/marine/b2i')
 
         COMIN_OBS = self.task_config.COMIN_OBS
@@ -150,6 +150,7 @@ class PrepOceanObs(Task):
                         obsprep_space['window end'] = self.window_end
                         ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc4"
                         obsprep_space['output file'] = ioda_filename
+                        ioda_config_file = obtype + '2ioda.yaml'
 
                         # set up the config file for conversion to IODA for bufr and
                         # netcdf files respectively
@@ -159,26 +160,23 @@ class PrepOceanObs(Task):
                                                     'DMPDIR': COMIN_OBS,
                                                     'COM_OBS': COMIN_OBS,
                                                     'OCEAN_BASIN_FILE': OCEAN_BASIN_FILE}
-                            bufrconv_yaml_file = os.path.join(COMIN_OBS,
-                                                            f"{obtype}_{cdatestr}.yaml")
-                            obsprep_space['conversion config file'] = bufrconv_yaml_file
+                            obsprep_space['conversion config file'] = ioda_config_file
                             bufr2iodapy = BUFR2IODA_PY_DIR + '/bufr2ioda_' + obtype + '.py'
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy
                             tmpl_filename = 'bufr2ioda_' + obtype + '.yaml'
-                            bufrconv_template = os.path.join(JSON_TMPL_DIR, tmpl_filename)
+                            bufrconv_template = os.path.join(BUFR2IODA_TMPL_DIR, tmpl_filename)
                             
                             try:
                                 bufrconv = parse_j2yaml(bufrconv_template, bufrconv_config)
-                                bufrconv.save(bufrconv_yaml_file)
+                                bufrconv.save(ioda_config_file)
                             except Exception as e:
-                                logger.warning(f"An exeception {e} occured while trying to run gen_bufr_json")
+                                logger.warning(f"An exeception {e} occured while trying to create BUFR2IODA config")
                                 logger.warning(f"obtype {obtype} will be skipped")
                                 break  # go to next observer in OBS_YAML
 
                             obsspaces_to_convert.append({"obs space": obsprep_space})
 
                         elif obsprep_space['type'] == 'nc':
-                            ioda_config_file = obtype + '2ioda.yaml'
                             obsprep_space['conversion config file'] = ioda_config_file
                             save_as_yaml(obsprep_space, ioda_config_file)
 
@@ -267,6 +265,8 @@ class PrepOceanObs(Task):
             try:
                 FileHandler({'copy': [[output_file, output_file_dest]]}).sync()
                 FileHandler({'copy': [[conv_config_file, conv_config_file_dest]]}).sync()
+            except Exception as e:
+                logger.warning(f"An exeception {e} occured while trying to run gen_bufr_json")
             except OSError:
                 logger.warning(f"Obs file not found, possible IODA converter failure)")
                 continue
