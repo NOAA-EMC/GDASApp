@@ -94,6 +94,8 @@ class PrepOceanObs(Task):
 
         # TODO (AFE): this should be in the task config file in g-w
         BUFR2IODA_TMPL_DIR = os.path.join(self.task_config.HOMEgfs, 'parm/gdas/ioda/bufr2ioda')
+        # TODO (AFE): this should be in the task config file in g-w, and reaches into GDASApp
+        # in order to avoid touching the g-w until we know this will remain a task
         BUFR2IODA_PY_DIR = os.path.join(self.task_config.HOMEgfs, 'sorc/gdas.cd/ush/ioda/bufr2ioda/marine/b2i')
 
         COMIN_OBS = self.task_config.COMIN_OBS
