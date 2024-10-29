@@ -1,9 +1,8 @@
 import numpy as np
-from pyiodaconv import bufr
-from b2iconverter.ioda_variables import IODAVariables
-from b2iconverter.ioda_addl_vars import IODAAdditionalVariables
-from b2iconverter.ioda_metadata import IODAMetadata
-from b2iconverter.util import write_date_time, write_rcpt_date_time, write_longitude, write_latitude, write_station_id
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter import IODAVariables
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter import IODAAdditionalVariables
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter.ioda_metadata import IODAMetadata
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter.util import write_date_time, write_rcpt_date_time, write_longitude, write_latitude, write_station_id
 
 
 class TrkobIODAVariables(IODAVariables):

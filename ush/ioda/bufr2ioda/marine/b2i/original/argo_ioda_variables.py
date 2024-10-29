@@ -1,9 +1,8 @@
 import numpy as np
-from pyiodaconv import bufr
-from b2iconverter.ioda_variables import IODAVariables
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter import IODAVariables
 
 
-class GliderIODAVariables(IODAVariables):
+class ArgoIODAVariables(IODAVariables):
     def __init__(self):
         super().__init__()
 
@@ -23,19 +22,11 @@ class GliderIODAVariables(IODAVariables):
         self.metadata.depth = np.float32(self.metadata.depth.astype(float) * 0.0001)
 
     def filter(self):
-        # Separate GLIDER profiles from subpfl tank
-        id = self.metadata.stationID
-        id_mask = (id >= 68900) & (id <= 68999) | \
-            (id >= 1800000) & (id <= 1809999) | \
-            (id >= 2800000) & (id <= 2809999) | \
-            (id >= 3800000) & (id <= 3809999) | \
-            (id >= 4800000) & (id <= 4809999) | \
-            (id >= 5800000) & (id <= 5809999) | \
-            (id >= 6800000) & (id <= 6809999) | \
-            (id >= 7800000) & (id <= 7809999)
-        mask = self.TemperatureFilter() \
-            & self.SalinityFilter() \
-            & id_mask
+        TS_mask = self.TemperatureFilter() & self.SalinityFilter()
+        # Separate ARGO profiles from subpfl tank
+        # the index for ARGO floats where the second number of the stationID=9
+        id_mask = [True if str(x)[1] == '9' else False for x in self.metadata.stationID]
+        mask = TS_mask & id_mask
         self.metadata.filter(mask)
         self.temp = self.temp[mask]
         self.saln = self.saln[mask]

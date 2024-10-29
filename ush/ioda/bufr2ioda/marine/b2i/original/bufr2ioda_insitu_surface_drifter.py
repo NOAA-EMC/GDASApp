@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import sys
-from b2iconverter.util import parse_arguments
-from b2iconverter.bufr2ioda_config import Bufr2iodaConfig
-from b2iconverter.bufr2ioda_converter import Bufr2ioda_Converter
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter.util import parse_arguments
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter.bufr2ioda_config import Bufr2iodaConfig
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter import Bufr2ioda_Converter
 from drifter_ioda_variables import DrifterIODAVariables
 
 

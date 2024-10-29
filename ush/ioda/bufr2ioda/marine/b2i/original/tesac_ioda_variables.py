@@ -1,5 +1,4 @@
-from pyiodaconv import bufr
-from b2iconverter.ioda_variables import IODAVariables
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter import IODAVariables
 
 
 class TesacIODAVariables(IODAVariables):

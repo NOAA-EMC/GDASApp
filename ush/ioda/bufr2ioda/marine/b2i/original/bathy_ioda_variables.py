@@ -1,7 +1,6 @@
 import numpy as np
-from pyiodaconv import bufr
-from b2iconverter.ioda_variables import IODAVariables
-from b2iconverter.ioda_addl_vars import IODAAdditionalVariables, compute_seq_num
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter import IODAVariables
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter import IODAAdditionalVariables, compute_seq_num
 
 
 class BathyIODAVariables(IODAVariables):

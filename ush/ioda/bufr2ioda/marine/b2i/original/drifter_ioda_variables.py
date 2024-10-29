@@ -1,9 +1,8 @@
 import numpy as np
 from pyiodaconv import bufr
-from b2iconverter.ioda_variables import IODAVariables
-from b2iconverter.ioda_metadata import IODAMetadata
-from b2iconverter.ioda_addl_vars import IODAAdditionalVariables, compute_seq_num
-from b2iconverter.util import *
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter import IODAVariables
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter.ioda_metadata import IODAMetadata
+from ush.ioda.bufr2ioda.marine.b2i.original.b2iconverter import IODAAdditionalVariables, compute_seq_num
 
 
 class DrifterIODAVariables(IODAVariables):
