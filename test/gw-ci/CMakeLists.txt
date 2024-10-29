@@ -72,13 +72,28 @@ if (RUN_GW_CI)
   set(pslot "WCDA-HYB-C48mx500")
   set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_hybAOWCDA.yaml)
   set(TASK_LIST
-    "gdasprepoceanobs"
-    "gdasmarinebmat"
-    "gdasocnanalecen"
-    "gdasmarineanlinit"
-    "gdasmarineanlvar"
-    "gdasmarineanlchkpt"
-    "gdasmarineanlfinal"
+    "gdas_prepoceanobs"
+    "gdas_marinebmat"
+    "gdas_ocnanalecen"
+    "gdas_marineanlinit"
+    "gdas_marineanlvar"
+    "gdas_marineanlchkpt"
+    "gdas_marineanlfinal"
+    )
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+
+  # HYB WCDA, low-res
+  # -------------------
+  set(pslot "WCDA-HYB-C384mx025")
+  set(YAML_PATH ${HOMEgfs}/ci/cases/gfsv17/C384mx025_hybAOWCDA.yaml)
+  set(TASK_LIST
+    "gdas_prepoceanobs"
+    "gdas_marinebmat"
+    "gdas_ocnanalecen"
+    "gdas_marineanlinit"
+    "gdas_marineanlvar"
+    "gdas_marineanlchkpt"
+    "gdas_marineanlfinal"
     )
   add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 

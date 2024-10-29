@@ -24,6 +24,7 @@ background error:
       groups:
       - vertical:
           as gaussian: true
+          levels: '{{ MOM6_LEVS }}'
           model file:
             date: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
             basename: ./

@@ -18,7 +18,7 @@ background error:
     calibration:
       normalization:
         method: randomization
-        iterations: 10000
+        iterations: 1000
 
       groups:
       - horizontal:
@@ -32,6 +32,7 @@ background error:
 
       - horizontal:
           as gaussian: true
-          fixed value: 50000.0
+          fixed value: 25000.0
+          mask: "interp_mask"
         write:
           filepath: ./staticb/hz_ice
