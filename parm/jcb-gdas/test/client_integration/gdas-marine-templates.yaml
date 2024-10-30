@@ -36,6 +36,8 @@ number_of_outer_loops: 1
 # Model things
 # ------------
 marine_soca_files_path: DATA/soca
+marine_vt_levels: 25
+marine_stddev_time: '2024-01-31T21:00:00Z'
 
 # Background
 marine_background_time: '2024-01-31T21:00:00Z'
