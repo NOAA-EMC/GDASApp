@@ -1,0 +1,111 @@
+# This part is for testing only. Normally this would just show algorithm: <algorithm>
+# -----------------------------------------------------------------------------------
+supported_algorithms:
+- 3dvar
+- hofx3d
+- hofx4d
+- 3dfgat
+#- local_ensemble_da
+
+
+# Search path for model and obs for JCB (relative for the submodule, or can be absolute)
+# --------------------------------------------------------------------------------------
+app_path_model: gdas/model/marine
+app_path_observations: gdas/observations/marine
+app_path_observation_chronicle: gdas/observation_chronicle/marine
+
+
+# Places where we deviate from the generic file name of a yaml
+# ------------------------------------------------------------
+model_file: marine_model_pseudo
+initial_condition_file: marine_background
+background_error_file: marine_background_error_hybrid_diffusion_diffusion
+
+
+# Global analysis things
+# ----------------------
+window_begin: '2024-01-31T21:00:00Z'
+window_length: PT6H
+bound_to_include: begin
+minimizer: RPCG
+final_diagnostics_departures: oman
+analysis_variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
+number_of_outer_loops: 1
+
+
+# Model things
+# ------------
+marine_soca_files_path: DATA/soca
+
+# Background
+marine_background_time: '2024-01-31T21:00:00Z'
+marine_background_path: DATA/bkg
+
+
+# Background error
+marine_window_middle: '2024-02-01T00:00:00Z'
+marine_number_ensemble_members: 3
+
+# Forecasting
+marine_forecast_timestep: PT1H
+
+# Minimization
+marine_ninner_1: 3
+marine_grad_red_1: 1e-4
+
+# Forecast states
+marine_pseudo_model_states:
+- date: '2024-01-31T21:00:00Z'
+  basename: base
+  ocn_filename: ocn
+  ice_filename: ice
+  read_from_file: true
+- date: '2024-02-01T00:00:00Z'
+  basename: base
+  ocn_filename: ocn
+  ice_filename: ice
+  read_from_file: true
+- date: '2024-02-01T03:00:00Z'
+  basename: base
+  ocn_filename: ocn
+  ice_filename: ice
+  read_from_file: true
+
+# Observation things
+# ------------------
+observations: all_observations
+
+# Naming conventions for observational files
+marine_obsdatain_path: DATA/obs
+marine_obsdatain_prefix: OPREFIX
+marine_obsdatain_suffix: ".2024020100.nc"
+
+marine_obsdataout_path: DATA/diags
+marine_obsdataout_prefix: diag
+marine_obsdataout_suffix: "_2024020100.nc"
+
+# Local Ensemble DA (LETKF)
+# -------------------------
+local_ensemble_da_solver: GETKF
+
+increment_variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
+
+# Veritcal localization for GETKF
+vl_fraction_of_retained_variance: 0.750
+vl_lengthscale: 2.1
+vl_lengthscale_units: logp
+inflation_rtps: 0.85
+inflation_rtpp: 0.0
+inflation_mult: 1.0
+
+# Driver
+driver_update_obs_config_with_geometry_info: true
+driver_save_posterior_mean: false
+driver_save_posterior_ensemble: false
+driver_save_prior_mean: false
+driver_save_posterior_mean_increment: false
+driver_save_posterior_ensemble_increments: true
+
+# Diagnostics
+marine_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
+marine_posterior_output_gaussian: "./mem%{member}%/atmanl."
