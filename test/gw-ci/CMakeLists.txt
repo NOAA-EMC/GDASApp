@@ -56,7 +56,6 @@ if (WORKFLOW_TESTS)
   set(TASK_LIST
     "gdas_prepoceanobs"
     "gdas_marinebmat"
-    "gdas_ocnanalecen"
     "gdas_marineanlinit"
     "gdas_marineanlvar"
     "gdas_marineanlchkpt"
