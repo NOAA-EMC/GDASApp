@@ -3,39 +3,27 @@ components:
 - covariance:
     covariance model: SABER
     saber central block:
-      saber block name: EXPLICIT_DIFFUSION
-      active variables: [tocn, socn, ssh, cicen]
-      geometry:
-        mom6_input_nml: mom_input.nml
-        fields metadata: ./fields_metadata.yaml
-      group mapping:
-      - name: ocean
-        variables:
-        - tocn
-        - socn
-        - ssh
-      - name: ice
-        variables:
-        - cicen
+      saber block name: diffusion
       read:
         groups:
-        - name: ocean
+        - variables: [tocn, socn, ssh]
           horizontal:
-            filename: hz_ocean.nc
+            filepath: ./staticb/hz_ocean
           vertical:
-            filename: vt_ocean.nc
-        - name: ice
+            levels: {{marine_vt_levels}}
+            filepath: ./staticb/vt_ocean
+        - variables: [cicen]
           horizontal:
-            filename: hz_ice.nc
+            filepath: ./staticb/hz_ice
 
     saber outer blocks:
     - saber block name: StdDev
       read:
         model file:
-          date: '{{marine_window_middle}}'
-          basename: ./
-          ocn_filename: 'ocn.bkgerr_stddev.incr.{{marine_window_middle}}.nc'
-          ice_filename: 'ice.bkgerr_stddev.incr.{{marine_window_middle}}.nc'
+          date: '{{marine_stddev_time}}'
+          basename: ./staticb/
+          ocn_filename: 'ocn.bkgerr_stddev.nc'
+          ice_filename: 'ice.bkgerr_stddev.nc'
           read_from_file: 3
 
     linear variable change:
@@ -43,7 +31,6 @@ components:
       output variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
       linear variable changes:
       - linear variable change name: BalanceSOCA
-
   weight:
     value: 1.00
 
@@ -52,41 +39,31 @@ components:
     members from template:
       template:
         read_from_file: 1
-        date: '{{marine_window_middle}}'
-        basename: ./static_ens/
+        date: '{{marine_stddev_time}}'
+        basename: ../ensdata/
         ocn_filename: 'ocn.pert.steric.%mem%.nc'
-        ice_filename: 'ice.%mem%.nc'
+        ice_filename: 'ens/ice.%mem%.nc'
         state variables: [tocn, socn, ssh, uocn, vocn, cicen, hicen, hsnon]
       pattern: '%mem%'
       nmembers: '{{marine_number_ensemble_members}}'
     localization:
       localization method: SABER
       saber central block:
-        saber block name: EXPLICIT_DIFFUSION
-        active variables: [tocn, socn, ssh]
-        geometry:
-          mom6_input_nml: mom_input.nml
-          fields metadata: ./fields_metadata.yaml
-        group mapping:
-        - name: ocean
-          variables: [tocn, socn, ssh, uocn, vocn]
-        - name: ice
-          variables: [cicen, hicen, hsnon]
+        saber block name: diffusion
         read:
           groups:
-          - name: ocean
+          - variables: [tocn, socn, ssh]
             multivariate strategy: duplicated
             horizontal:
-              filename: hz_ocean.nc
+              filepath: ./staticb/hz_ocean
             vertical:
               strategy: duplicated
-          - name: ice
+          - variables: [cicen]
             horizontal:
-              filename: hz_ice.nc
-
+              filepath: ./staticb/hz_ice
   weight:
     read_from_file: 3
     basename: ./
-    ocn_filename: 'ocn.ens_weights.incr.{{marine_window_middle}}.nc'
-    ice_filename: 'ice.ens_weights.incr.{{marine_window_middle}}.nc'
-    date: '{{marine_window_middle}}'
+    ocn_filename: 'ocean.ens_weights.nc'
+    ice_filename: 'ice.ens_weights.nc'
+    date: '{{marine_stddev_time}}'
