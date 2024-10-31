@@ -68,7 +68,7 @@ class Bufr2ioda_Converter:
         self.logger.debug(f"Query result has {n_obs} obs")
         if (n_obs == 0):
             self.logger.warning(f"No obs! Quitting.")
-            sys.exit(1)
+            sys.exit(0)
 
         self.ioda_vars.filter()
 
@@ -76,7 +76,7 @@ class Bufr2ioda_Converter:
         self.logger.debug(f"Filtered result has {n_obs} obs")
         if (n_obs == 0):
             self.logger.warning(f"No obs! Quitting.")
-            sys.exit(1)
+            sys.exit(0)
         self.logger.debug(f"Number of temperature obs = {self.ioda_vars.number_of_temp_obs()}")
         self.logger.debug(f"Number of salinity obs = {self.ioda_vars.number_of_saln_obs()}")
 
