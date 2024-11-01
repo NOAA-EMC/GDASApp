@@ -85,9 +85,9 @@ local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
-setenv("CRTM_FIX","/gpfs/f5/ufs-ard/world-shared/GDASApp/fix/crtm/2.4.0")
-setenv("GDASAPP_TESTDATA","/gpfs/f5/ufs-ard/world-shared/GDASApp/CI/data")
-setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/gpfs/f5/ufs-ard/world-shared/GDASApp/CI/data/test")
+setenv("CRTM_FIX","/gpfs/f5/nggps_emc/world-shared/GDASApp/fix/crtm/2.4.0")
+setenv("GDASAPP_TESTDATA","/gpfs/f5/nggps_emc/world-shared/GDASApp/testdata")
+setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/gpfs/f5/nggps_emc/world-shared/GDASApp/unittestdata")
 
 whatis("Name: ".. "pkgName")
 whatis("Version: ".. "pkgVersion")
