@@ -1,0 +1,98 @@
+# Configuration for the recentering and re-balancing of the ensemble members
+geometry:
+  mom6_input_nml: mom_input.nml
+  fields metadata: ./fields_metadata.yaml
+
+date: '{{ marine_window_begin_iso }}'
+
+layers variable: [hocn]
+
+increment variables: [tocn, socn, uocn, vocn, ssh, hocn, cicen, hicen, hsnon]
+
+set increment variables to zero: [ssh]
+
+vertical geometry:
+  date: '{{ marine_window_begin_iso }}'
+  basename: ./INPUT/
+  ocn_filename: MOM.res.nc
+  read_from_file: 3
+
+add recentering increment: false
+
+soca increments:  # Could also be states, but they are read as increments
+  number of increments: '{{ marine_number_ensemble_members }}'
+  pattern: '%mem%'
+  template:
+    date: '{{ marine_window_begin_iso }}'
+    basename: '{{ enspert_relpath }}/ens/'
+    ocn_filename: 'ocean.%mem%.nc'
+    ice_filename: 'ice.%mem%.nc'
+    read_from_file: 3
+
+steric height:
+  linear variable changes:
+  - linear variable change name: BalanceSOCA  # Only the steric balance is applied
+
+ensemble mean output:
+  datadir: ./staticb/
+  date: '{{ marine_window_begin_iso }}'
+  exp: ens_mean
+  type: incr
+
+ssh output:
+  unbalanced:
+    datadir: ./staticb/
+    date: '{{ marine_window_begin_iso }}'
+    exp: ssh_unbal_stddev
+    type: incr
+
+  steric:
+    datadir: ./staticb/
+    date: '{{ marine_window_begin_iso }}'
+    exp: ssh_steric_stddev
+    type: incr
+
+  total:
+    datadir: ./staticb/
+    date: '{{ marine_window_begin_iso }}'
+    exp: ssh_total_stddev
+    type: incr
+
+  explained variance:
+    datadir: ./staticb/
+    date: '{{ marine_window_begin_iso }}'
+    exp: steric_explained_variance
+    type: incr
+
+  recentering error:
+    datadir: ./staticb/
+    date: '{{ marine_window_begin_iso }}'
+    exp: ssh_recentering_error
+    type: incr
+
+background error output:
+  datadir: ./staticb/
+  date: '{{ marine_window_begin_iso }}'
+  exp: bkgerr_stddev
+  type: incr
+
+linear variable change:
+  linear variable changes:
+  - linear variable change name: BalanceSOCA
+
+trajectory:
+  state variables: [tocn, socn, uocn, vocn, ssh, hocn, layer_depth, mld, cicen, hicen, hsnon]
+  date: '{{ marine_window_begin_iso }}'
+  basename: ./INPUT/
+  ocn_filename: MOM.res.nc
+  ice_filename: cice.res.nc
+  read_from_file: 1
+
+output increment:
+  # TODO: Revert this when fms can take more than 128 charactres file names
+  datadir: '{{ enspert_relpath }}/enspert/'
+  date: '{{ marine_window_begin_iso }}'
+  exp: trash
+  type: incr
+  output file: 'ocn.pert.steric.%mem%.nc'
+  pattern: '%mem%'
