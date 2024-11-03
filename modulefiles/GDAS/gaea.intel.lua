@@ -10,8 +10,8 @@ prepend_path("MODULEPATH", '/ncrc/proj/epic/spack-stack/spack-stack-1.6.0/envs/u
 prepend_path("MODULEPATH", '/ncrc/proj/epic/rocoto/modulefiles')
 
 -- below two lines get us access to the spack-stack modules
-load("stack-intel/2023.1.0")
-load("stack-cray-mpich/8.1.25")
+load("stack-intel/2023.2.0")
+load("stack-cray-mpich/8.1.28")
 -- JCSDA has 'jedi-fv3-env/unified-dev', but we should load these manually as needed
 load("cmake/3.23.1")
 load("gettext/0.20.2")
@@ -44,11 +44,12 @@ load("fckit/0.11.0")
 load("fiat/1.2.0")
 load("ectrans/1.2.0")
 load("fms/2023.04")
+load("esmf/8.5.0")
 load("atlas/0.35.1")
 load("sp/2.5.0")
 load("gsl-lite/0.37.0")
 load("libjpeg/2.1.0")
-load("krb5/1.16.3")
+load("krb5/1.20.1")
 load("libtirpc/1.3.3")
 load("hdf/4.2.15")
 load("jedi-cmake/1.4.0")
@@ -84,9 +85,9 @@ local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
-setenv("CRTM_FIX","/gpfs/f5/ufs-ard/world-shared/GDASApp/fix/crtm/2.4.0")
-setenv("GDASAPP_TESTDATA","/gpfs/f5/ufs-ard/world-shared/GDASApp/CI/data")
-setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/gpfs/f5/ufs-ard/world-shared/GDASApp/CI/data/test")
+setenv("CRTM_FIX","/gpfs/f5/nggps_emc/world-shared/GDASApp/fix/crtm/2.4.0")
+setenv("GDASAPP_TESTDATA","/gpfs/f5/nggps_emc/world-shared/GDASApp/testdata")
+setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/gpfs/f5/nggps_emc/world-shared/GDASApp/unittestdata")
 
 whatis("Name: ".. "pkgName")
 whatis("Version: ".. "pkgVersion")
