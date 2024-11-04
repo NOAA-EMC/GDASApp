@@ -44,17 +44,22 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   list(GET DATES_LIST 0 HALF_CYCLE)
   list(GET DATES_LIST 1 FULL_CYCLE)
 
-  # Add tests used by all CI tests
-  add_task("gdas_stage_ic" ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-  add_task("gdas_fcst"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
+  # Half cycle tasks common to all CI tests
+  add_task("gdas_stage_ic"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
+  add_task("gdas_fcst"         ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
 
-  # Atm-hyb-C96C48 tests
-  if(pslot STREQUAL "Atm-hyb-C96C48")
+  # Half cycle task commot to all CI test except C48mx500_3DVarAOWCDA
+  if(NOT pslot STREQUAL "C48mx500_3DVarAOWCDA")
     add_task("enkfgdas_stage_ic" ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
     add_task("enkfgdas_fcst"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-    add_task("gdas_atmos_prod"   ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
     add_task("enkfgdas_echgres"  ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
     add_task("enkfgdas_epmn"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
+    add_task("gdas_atmos_prod"   ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
+  endif()
+  
+  # Half cycle tasks unique to C96C48_hybatmaerosnowDA
+  if(pslot STREQUAL "C96C48_hybatmaerosnowDA")
+    add_task("gdas_aeroanlgenb" ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
   endif()
 
   # Select the list of tasks to run for the full cycle
@@ -64,39 +69,35 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   endforeach()
 endfunction()
 
-if (WORKFLOW_TESTS)
+option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
+if (RUN_GW_CI)
   # Setup the environement
   set(HOMEgfs ${CMAKE_SOURCE_DIR}/../../..)
   set(RUNTESTS ${CMAKE_CURRENT_BINARY_DIR}/../../test/gw-ci)
-
-  # 3DVAR WCDA, low-res
-  # -------------------
-  set(pslot "WCDA-3DVAR-C48mx500")
-  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_3DVarAOWCDA.yaml)
+  
+  # GSI Atm DA C96/C48
+  # ------------------
+  set(pslot "C96C48_hybatmDA")
+  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
   set(TASK_LIST
-    "gdas_prepoceanobs"
-    "gdas_marinebmat"
-    "gdas_marineanlinit"
-    "gdas_marineanlvar"
-    "gdas_marineanlchkpt"
-    "gdas_marineanlfinal"
-    )
-  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
-endif()
-
-option(RUN_GW_CI "Enable the global-workflow CI tests" OFF)
-if (RUN_GW_CI)
-  # Aero-Land DA, C96
-  # -----------------
-  set(pslot "Aero-Snow-3DVAR-C96")
-  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96C48_hybatmaerosnowDA.yaml)
-  set(TASK_LIST)  # empty list for now
+    "gdas_prep"
+    "gdas_anal"
+    "gdas_sfcanl"
+    "gdas_analcalc"
+    "gdas_fcst"
+    "enkfgdas_eobs"
+    "enkfgdas_ediag"
+    "enkfgdas_eupd"
+    "enkfgdas_ecmn"
+    "enkfgdas_esfc"
+    "enkfgdas_fcst"
+  )
   add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
-  # Atm DA, C96/C48
-  # ---------------
-  set(pslot "Atm-hyb-C96C48")
-  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C96C48_ufs_hybatmDA.yaml)
+  # JEDI Atm DA C96/C48
+  # -------------------
+  set(pslot "C96C48_ufs_hybatmDA")
+  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
   set(TASK_LIST
     "gdas_prep"
     "gdas_prepatmiodaobs"
@@ -115,14 +116,41 @@ if (RUN_GW_CI)
     "enkfgdas_ecmn"
     "enkfgdas_esfc"
     "enkfgdas_fcst"
-    )
-  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+  )
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")  
 
-  # GFSv17, 3DVAR prototype
-  # -----------------------
-  set(pslot "GFSv17-3DVAR-C384mx025")
-  set(YAML_PATH ${HOMEgfs}/ci/cases/gfsv17/C384mx025_3DVarAOWCDA.yaml)
+  # Aero-Land DA C96
+  # ----------------
+  set(pslot "C96C48_hybatmaerosnowDA")
+  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
   set(TASK_LIST
+    "gdas_prep"
+    "gdas_anal"
+    "gdas_prepsnowobs"
+    "gdas_snowanl"
+    "gdas_aeroanlgenb"
+    "gdas_aeroanlinit"
+    "gdas_aeroanlvar"
+    "gdas_aeroanlfinal"
+    "gdas_sfcanl"
+    "gdas_analcalc"
+    "gdas_fcst"
+    "enkfgdas_eobs"
+    "enkfgdas_ediag"
+    "enkfgdas_eupd"
+    "enkfgdas_ecmn"
+    "enkfgdas_esfc"
+    "enkfgdas_fcst"
+  )
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+  
+  # GSI Atm DA C48, JEDI Marine DA 500
+  # ----------------------------------
+  set(pslot "C48mx500_3DVarAOWCDA")
+  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
+  set(TASK_LIST
+    "gdas_prep"
+    "gdas_anal"
     "gdas_prepoceanobs"
     "gdas_marinebmat"
     "gdas_marineanlinit"
@@ -130,8 +158,8 @@ if (RUN_GW_CI)
     "gdas_marineanlchkpt"
     "gdas_marineanlfinal"
     "gdas_ocnanalvrfy"
-    "gdas_prep"
-    "gdas_anal"
+    "gdas_sfcanl"
+    "gdas_fcst"
     )
   add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 endif()
