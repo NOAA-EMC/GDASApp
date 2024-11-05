@@ -128,7 +128,6 @@ if (RUN_GW_CI)
     "gdas_anal"
     "gdas_prepsnowobs"
     "gdas_snowanl"
-    "gdas_aeroanlgenb"
     "gdas_aeroanlinit"
     "gdas_aeroanlvar"
     "gdas_aeroanlfinal"
@@ -139,6 +138,7 @@ if (RUN_GW_CI)
     "enkfgdas_ediag"
     "enkfgdas_eupd"
     "enkfgdas_ecmn"
+    "enkfgdas_esnowrecen"
     "enkfgdas_esfc"
     "enkfgdas_fcst"
   )
