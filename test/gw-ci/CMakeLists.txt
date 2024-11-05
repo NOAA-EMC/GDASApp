@@ -50,11 +50,11 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
 
   # Half cycle task commot to all CI test except C48mx500_3DVarAOWCDA
   if(NOT pslot STREQUAL "C48mx500_3DVarAOWCDA")
+    add_task("gdas_atmos_prod"   ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
     add_task("enkfgdas_stage_ic" ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
     add_task("enkfgdas_fcst"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
     add_task("enkfgdas_echgres"  ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
     add_task("enkfgdas_epmn"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-    add_task("gdas_atmos_prod"   ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
   endif()
   
   # Half cycle tasks unique to C96C48_hybatmaerosnowDA
@@ -126,11 +126,11 @@ if (RUN_GW_CI)
   set(TASK_LIST
     "gdas_prep"
     "gdas_anal"
-    "gdas_prepsnowobs"
-    "gdas_snowanl"
     "gdas_aeroanlinit"
     "gdas_aeroanlvar"
     "gdas_aeroanlfinal"
+    "gdas_prepsnowobs"
+    "gdas_snowanl"
     "gdas_sfcanl"
     "gdas_analcalc"
     "gdas_fcst"
@@ -149,8 +149,6 @@ if (RUN_GW_CI)
   set(pslot "C48mx500_3DVarAOWCDA")
   set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
   set(TASK_LIST
-    "gdas_prep"
-    "gdas_anal"
     "gdas_prepoceanobs"
     "gdas_marinebmat"
     "gdas_marineanlinit"
@@ -158,6 +156,8 @@ if (RUN_GW_CI)
     "gdas_marineanlchkpt"
     "gdas_marineanlfinal"
     "gdas_ocnanalvrfy"
+    "gdas_prep"
+    "gdas_anal"
     "gdas_sfcanl"
     "gdas_fcst"
     )
