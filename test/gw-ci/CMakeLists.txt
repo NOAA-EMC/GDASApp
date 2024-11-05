@@ -48,18 +48,18 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   add_task("gdas_stage_ic"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
   add_task("gdas_fcst"         ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
 
-  # Half cycle task commot to all CI test except C48mx500_3DVarAOWCDA
+  # Half cycle tasks unique to C96C48_hybatmaerosnowDA
+  if(pslot STREQUAL "C96C48_hybatmaerosnowDA")
+    add_task("gdas_aeroanlgenb" ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
+  endif()
+  
+  # Half cycle tasks common to all CI tests except C48mx500_3DVarAOWCDA
   if(NOT pslot STREQUAL "C48mx500_3DVarAOWCDA")
     add_task("gdas_atmos_prod"   ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
     add_task("enkfgdas_stage_ic" ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
     add_task("enkfgdas_fcst"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
     add_task("enkfgdas_echgres"  ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
     add_task("enkfgdas_epmn"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-  endif()
-  
-  # Half cycle tasks unique to C96C48_hybatmaerosnowDA
-  if(pslot STREQUAL "C96C48_hybatmaerosnowDA")
-    add_task("gdas_aeroanlgenb" ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
   endif()
 
   # Select the list of tasks to run for the full cycle
