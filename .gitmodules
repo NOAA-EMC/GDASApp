@@ -19,7 +19,7 @@
   branch = develop
 [submodule "sorc/saber"]
   path = sorc/saber
-  url = https://github.com/NOAA-EMC/saber.git
+  url = https://github.com/jcsda/saber.git
   branch = develop
 [submodule "sorc/ioda"]
   path = sorc/ioda
@@ -43,7 +43,7 @@
   branch = develop
 [submodule "sorc/fv3-jedi"]
   path = sorc/fv3-jedi
-  url = https://github.com/NOAA-EMC/fv3-jedi.git
+  url = https://github.com/jcsda/fv3-jedi.git
   branch = develop
 [submodule "sorc/icepack"]
   path = sorc/icepack
