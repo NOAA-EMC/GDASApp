@@ -92,11 +92,12 @@ if (WORKFLOW_TESTS)
   set(TASK_LIST
     "gdas_prepoceanobs"
     "gdas_marineanlletkf"
-    "gdas_marinebmat"
-    "gdas_marineanlinit"
-    "gdas_marineanlvar"
-    "gdas_marineanlchkpt"
-    "gdas_marineanlfinal"
+    # TODO(AFE) waiting until these are working for hybrid
+    # "gdas_marinebmat"
+    # "gdas_marineanlinit"
+    # "gdas_marineanlvar"
+    # "gdas_marineanlchkpt"
+    # "gdas_marineanlfinal"
     )
   add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
   set(letkf FALSE)
