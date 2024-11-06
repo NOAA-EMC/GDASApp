@@ -16,6 +16,9 @@ atmanl:
   LAYOUT_X_ATMANL: 1
   LAYOUT_Y_ATMANL: 1
 
+atmanlfv3inc:
+  JCB_ALGO_YAML: "@srcdir@/test/atm/global-workflow/jcb-prototype_3dvar-fv3inc.yaml.j2"
+
 atmensanl:
   JCB_ALGO_YAML_LETKF: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf.yaml.j2"
   JCB_ALGO_YAML_OBS: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf_observer.yaml.j2"
@@ -27,3 +30,6 @@ atmensanlobs:
 
 atmensanlsol:
   JCB_ALGO_YAML: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf_solver.yaml.j2"
+
+atmensanlfv3inc:
+  JCB_ALGO_YAML: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf-fv3inc.yaml.j2"
