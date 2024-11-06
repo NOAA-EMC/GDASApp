@@ -1,0 +1,502 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: seviri_m11
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [brightnessTemperature]
+    channels: &{{observation_from_jcb}}_simulated_channels {{ get_satellite_variable(observation_from_jcb, "simulated") }}
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: CRTM
+    Absorbers: [H2O, O3, CO2]
+    Clouds: [Water, Ice]
+    Cloud_Fraction: 1.0
+    obs options:
+      Sensor_ID: &{{observation_from_jcb}}_sensor_id seviri_m11 
+      EndianType: little_endian
+      CoefficientPath: "{{crtm_coefficient_path}}"
+    linear obs operator:
+      Absorbers: [H2O, O3]
+
+  # Observation Bias Correction (VarBC)
+  # -----------------------------------
+  obs bias:
+    input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_suffix}}"
+    output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiasout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasout_suffix}}"
+    variational bc:
+      predictors:
+      - name: constant
+      - name: lapseRate
+        order: 2
+        tlapse: &{{observation_from_jcb}}_tlapse "{{atmosphere_obsbiasin_path}}/{{atmosphere_obstlapsein_prefix}}{{observation_from_jcb}}{{atmosphere_obstlapsein_suffix}}"
+      - name: lapseRate
+        tlapse: *{{observation_from_jcb}}_tlapse
+      - name: emissivityJacobian
+      - name: sensorScanAngle
+        var_name: sensorScanPosition
+        order: 4
+      - name: sensorScanAngle
+        var_name: sensorScanPosition
+        order: 3
+      - name: sensorScanAngle
+        var_name: sensorScanPosition
+        order: 2
+      - name: sensorScanAngle
+        var_name: sensorScanPosition
+    covariance:
+      minimal required obs number: 20
+      variance range: [1.0e-6, 10.0]
+      step size: 1.0e-4
+      largest analysis variance: 10000.0
+      prior:
+        input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiascovin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovin_suffix}}"
+        inflation:
+          ratio: 1.1
+          ratio for small dataset: 2.0
+      output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiascovout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovout_suffix}}"
+
+  # Observation Filters (QC)
+  # ------------------------
+  obs prior filters:
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: assign error
+      error parameter vector: &{{observation_from_jcb}}_err [{{ get_satellite_variable(observation_from_jcb, "error") }}]
+
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/surfaceFlag
+      type: int
+      function:
+        name: IntObsFunction/Conditional
+        options:
+          defaultvalue: 4
+          firstmatchingcase: true
+          cases:
+          - where:
+            - variable:
+                name: GeoVaLs/water_area_fraction
+              minvalue: 0.99
+            value: 0
+          - where:
+            - variable:
+                name: GeoVaLs/land_area_fraction
+              minvalue: 0.99
+            value: 1
+          - where:
+            - variable:
+                name: GeoVaLs/ice_area_fraction
+              minvalue: 0.99
+            value: 2
+          - where:
+            - variable:
+                name: GeoVaLs/surface_snow_area_fraction
+              minvalue: 0.99
+            value: 3
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/surfaceParam
+      type: int
+      function:
+        name: IntObsFunction/Conditional
+        options:
+          defaultvalue: 0
+          firstmatchingcase: true
+          cases:
+          - where:
+            - variable:
+                name: GeoVaLs/water_area_fraction
+              minvalue: 0.99
+            value: 30
+          - where:
+            - variable:
+                name: GeoVaLs/land_area_fraction
+              minvalue: 0.99
+            value: 15
+          - where:
+            - variable:
+                name: GeoVaLs/ice_area_fraction
+              minvalue: 0.99
+            value: 20
+          - where:
+            - variable:
+                name: GeoVaLs/surface_snow_area_fraction
+              minvalue: 0.99
+            value: 15
+
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/thinningCriteria
+      type: int
+      function:
+        name: IntObsFunction/Arithmetic
+        options:
+          variables:
+          - name: DerivedMetaData/surfaceParam
+          coefs: [1] 
+
+  obs post filters:
+  #Step1: Satellite Zenith Angle Check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: MetaData/sensorZenithAngle
+    maxvalue: 65.
+    action:
+      name: reject
+
+#Step2:Clear-sky fraction check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: MetaData/cloudAmount
+    maxvalue: 30.
+    action:
+      name: reject
+
+#Step3: Scene homogeneous check
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature
+        channels: 5
+      is_defined:
+    where:
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature
+        channels: 6
+      is_defined:
+      where operator: and
+
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature
+        channels: 5
+      maxvalue: 1.3
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature
+        channels: 6
+      maxvalue: 1.3
+    where operator: and
+
+
+#Step4: Thinning
+  - filter: Gaussian Thinning
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels 
+    horizontal_mesh: 145
+    use_reduced_horizontal_grid: true
+    distance_norm: maximum 
+    time_mesh: 'PT06H' 
+    time_min: '2021-07-31T21:00:00Z'
+    time_max: '2021-08-01T03:00:00Z'
+    priority_variable: DerivedMetaData/thinningCriteria
+    action:
+      name: reject
+
+#Step5: Surface type check
+# Reject channels 5-6 over land-dominant area 
+  - filter: RejectList
+    filter variables:
+    - name: brightnessTemperature
+      channels: 4, 7-11
+    where:
+    - variable:
+        name: GeoVaLs/land_area_fraction
+      minvalue: 0.99
+
+  - filter: RejectList
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: GeoVaLs/surface_snow_area_fraction
+      minvalue: 0.99
+
+  - filter: RejectList
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: GeoVaLs/ice_area_fraction
+      minvalue: 0.99
+
+  - filter: RejectList
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: GeoVaLs/land_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true
+    - variable:
+        name: GeoVaLs/water_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true
+    - variable:
+        name: GeoVaLs/ice_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true
+    - variable:
+        name: GeoVaLs/surface_snow_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true
+
+#Step6: Terrain Check: Do not use when height > 1km
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: GeoVaLs/surface_geopotential_height 
+      maxvalue: 1000.0
+ 
+#Step7:  BT range check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    minvalue: 0.0
+    maxvalue: 1000.0
+    action:
+      name: reject
+
+#Step 8: Error Inflation based on topography
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/ObsErrorFactorTopo
+      channels: *{{observation_from_jcb}}_simulated_channels
+      type: float
+      function:
+        name: ObsFunction/ObsErrorFactorTopoRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          sensor: seviri_m11
+          channels: *{{observation_from_jcb}}_simulated_channels
+
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: DerivedMetaData/ObsErrorFactorTopo
+        channels: *{{observation_from_jcb}}_simulated_channels
+
+#Step9: Error Inflation based on TOA transmittance
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorTransmitTopRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels 
+   
+#Step10: Cloud detection
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/CloudDetectMinResidualIR
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+        use_flag: &{{observation_from_jcb}}_active_channels [{{ get_satellite_variable(observation_from_jcb, "active") }}]
+        use_flag_clddet: [-2, -2, -2, -2, -2, -2, -2, -2, -2, -2]
+        obserr_dtempf: [0.5, 2.0, 4.0, 2.0, 4.0]        
+        error parameter vector: *{{observation_from_jcb}}_err
+    maxvalue: 1.0e-12
+    action:
+      name: reject
+
+#Step11:  Scene Consistency Check based on ch9
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 4, 6-11
+    where:
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature
+        channels: 9
+      maxvalue: 0.5
+      max_exclusive: true
+
+#Step12: Gross check 
+  # Reject channels 4, 6-11 if omf > 2
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 4, 6-11
+    absolute threshold: 2.0
+    action:
+      name: reject
+
+#Step 13: Error inflation for channels 3-4 based on scene consistency from channel 5
+  - filter: Perform Action 
+    filter variables: 
+    - name: brightnessTemperature
+      channels: 6-7
+    where: 
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature_5
+      maxvalue: 0.5
+      minvalue: 0.4 
+      min_exclusive: true 
+    action:
+      name: inflate error
+      inflation factor: 1.14891
+
+  - filter: Perform Action 
+    filter variables: 
+    - name: brightnessTemperature
+      channels: 6-7
+    where: 
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature_5
+      maxvalue: 0.6
+      max_exclusive: true 
+      minvalue: 0.5 
+      min_exclusive: true 
+    action:
+      name: inflate error
+      inflation factor: 1.29228
+
+  - filter: Perform Action 
+    filter variables: 
+    - name: brightnessTemperature
+      channels: 6-7
+    where: 
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature_5
+      maxvalue: 0.7
+      max_exclusive: true 
+      minvalue: 0.6 
+    action:
+      name: inflate error
+      inflation factor: 1.49666  
+
+  - filter: Perform Action 
+    filter variables: 
+    - name: brightnessTemperature
+      channels: 6-7
+    where: 
+    - variable:
+        name: ClearSkyStdDev/brightnessTemperature_5
+      minvalue: 0.7 
+    action:
+      name: inflate error
+      inflation factor: 1.51987
+
+#Step14: Near SST Check 
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/NearSSTRetCheckIR
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+        use_flag: *{{observation_from_jcb}}_active_channels
+    maxvalue: 1.0e-12
+    action:
+      name: reject
+
+#Step15: Surface Jacobian
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorSurfJacobianRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels
+          sensor: *{{observation_from_jcb}}_sensor_id
+          obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
+          obserr_dtempf: [0.5, 2.0, 4.0, 2.0, 4.0]
+
+#Step16: Channels 4, 6-11 Cloud fraction >2
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 4, 6-11
+    where:
+    - variable:
+        name: MetaData/cloudAmount
+      maxvalue: 2
+
+#Step17: Final gross check
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    function absolute threshold:
+    - name: ObsFunction/ObsErrorBoundIR
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        sensor: *{{observation_from_jcb}}_sensor_id
+        channels: *{{observation_from_jcb}}_simulated_channels
+        obserr_bound_latitude:
+          name: ObsFunction/ObsErrorFactorLatRad
+          options:
+            latitude_parameters: [0.0, 0.0, 0.0, 0.0]
+        obserr_bound_transmittop:
+          name: ObsFunction/ObsErrorFactorTransmitTopRad
+          channels: *{{observation_from_jcb}}_simulated_channels
+          options:
+            channels: *{{observation_from_jcb}}_simulated_channels
+        obserr_bound_max: [{{ get_satellite_variable(observation_from_jcb, "ermax") }}]
+        error parameter vector: *{{observation_from_jcb}}_err       
+    action:
+      name: reject
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atmosphere_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0
+
