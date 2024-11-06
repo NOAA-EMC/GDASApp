@@ -17,7 +17,7 @@ final_increment_file: marine_final_increment
 
 # Assimilation standard things (not prepended with model choice)
 # ----------------------------
-window_begin: '{{MARINE_WINDOW_BEGIN}}'
+window_begin: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
 window_length: '{{MARINE_WINDOW_LENGTH}}'
 bound_to_include: begin
 minimizer: RPCG
@@ -31,6 +31,10 @@ analysis_variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
 # ------------
 marine_window_begin: '{{MARINE_WINDOW_BEGIN}}'
 marine_window_middle: '{{MARINE_WINDOW_MIDDLE}}'
+marine_window_begin_iso: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
+marine_window_middle_iso: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
+marine_window_end_iso: '{{ MARINE_WINDOW_END | to_isotime }}'
+enspert_relpath: '{{ ENSPERT_RELPATH }}'
 
 # Geometry
 marine_soca_files_path: .
@@ -42,11 +46,10 @@ marine_background_time: '{{MARINE_WINDOW_BEGIN_ISO}}'
 
 # Pseudo model
 marine_forecast_timestep: PT3H
-marine_pseudo_model_states: !INC 'bkg_list.yaml'
 
 # Background error model
 background_error_file: '{{berror_model}}'
-marine_number_ensemble_members: '{{nmem_ens}}'
+marine_number_ensemble_members: '{{NMEM_ENS}}'
 marine_stddev_time: '{{MARINE_WINDOW_MIDDLE}}'
 
 # Observations
