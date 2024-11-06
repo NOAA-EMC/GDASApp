@@ -125,7 +125,7 @@ namespace gdasapp {
           oops::Log::test() << "JEDI Increment for member " << imem << ":" << std::endl \
                             << dxJEDI << std::endl;
         }
-        
+
         // Increment conversion
         // ---------------------------------------------------------------------------------
 
