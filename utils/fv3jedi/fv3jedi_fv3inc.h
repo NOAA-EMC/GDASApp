@@ -117,11 +117,13 @@ namespace gdasapp {
 
         // Testing output for inputs
         if ( nmem == 1 ) {
-          oops::Log::test() << "Background State: " << std::endl << xxBkg << std::endl;
-          oops::Log::test() << "JEDI Increment: " << std::endl << dxJEDI << std::endl;
+          oops::Log::test() << "Background State:" << std::endl << xxBkg << std::endl;
+          oops::Log::test() << "JEDI Increment:" << std::endl << dxJEDI << std::endl;
         } else {
-          oops::Log::test() << "Background State for member " << imem << ":" << std::endl << xxBkg << std::endl;
-          oops::Log::test() << "JEDI Increment for member " << imem << ":" << std::endl << dxJEDI << std::endl;
+          oops::Log::test() << "Background State for member " << imem << ":" << std::endl \
+                            << xxBkg << std::endl;
+          oops::Log::test() << "JEDI Increment for member " << imem << ":" << std::endl \
+                            << dxJEDI << std::endl;
         }
         
         // Increment conversion
@@ -166,9 +168,10 @@ namespace gdasapp {
 
         // Test output for outputs
         if ( nmem == 1 ) {
-          oops::Log::test() << "FV3 Increment: " << std::endl << dxFV3 << std::endl;
+          oops::Log::test() << "FV3 Increment:" << std::endl << dxFV3 << std::endl;
         } else {
-          oops::Log::test() << "FV3 Increment for member " << imem << ":" << std::endl << dxFV3 << std::endl;
+          oops::Log::test() << "FV3 Increment for member " << imem << ":" << std::endl \
+                            << dxFV3 << std::endl;
         }
 
         // Write FV3 increment
