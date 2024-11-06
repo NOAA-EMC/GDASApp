@@ -1,0 +1,13 @@
+provider: ABI 
+window begin: 2024-06-18T15:00:00Z
+window end: 2024-06-19T21:00:00Z
+output file: icec_abi.ioda.nc
+#ocean basin: RECCAP2_region_masks_all_v20221025.nc
+input files:
+- icec_abi_g16_1.nc4
+- icec_abi_g16_2.nc4
+
+test:
+  reference filename: testref/icecabi2ioda.test
+  test output filename: testoutput/icecabi2ioda.test
+  float relative tolerance: 1e-6

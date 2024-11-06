@@ -1,0 +1,13 @@
+---
+data_format: xbtctd
+subsets: XBTCTD
+source: NCEP data tank
+data_type: xbtctd
+cycle_type: gdas
+cycle_datetime: '2021063006'
+dump_directory: __BUFRINPUTDIR__
+ioda_directory: __IODAOUTPUTDIR__
+ocean_basin: __OCEANBASIN__
+data_description: 6-hrly in situ XBT/XCTD profiles
+data_provider: U.S. NOAA
+

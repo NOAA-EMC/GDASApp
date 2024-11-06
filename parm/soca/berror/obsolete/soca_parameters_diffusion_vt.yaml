@@ -13,7 +13,7 @@ background:
 background error:
   covariance model: SABER
   saber central block:
-    saber block name: EXPLICIT_DIFFUSION
+    saber block name: diffusion
     geometry: *geom
     calibration:
       normalization:

@@ -34,6 +34,7 @@ load("gsl/2.7")
 load("prod_util/2.0.14")
 load("bufr/12.0.1")
 load("fms-C/2023.04")
+load("esmf-C/8.6.0")
 
 -- hack for pybind11
 setenv("pybind11_ROOT", "/apps/spack/python/3.8.6/intel/19.1.3.304/pjn2nzkjvqgmjw4hmyz43v5x4jbxjzpk/lib/python3.8/site-packages/pybind11/share/cmake/pybind11")
