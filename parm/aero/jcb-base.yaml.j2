@@ -1,0 +1,136 @@
+# Search path for model and obs for JCB
+# -------------------------------------
+algorithm_path: "{{PARMgfs}}/gdas/jcb-algorithms"
+app_path_algorithm: "{{PARMgfs}}/gdas/jcb-gdas/algorithm/aero"
+app_path_model: "{{PARMgfs}}/gdas/jcb-gdas/model/aero"
+app_path_observations: "{{PARMgfs}}/gdas/jcb-gdas/observations/aero"
+app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/aero"
+
+
+# Places where we deviate from the generic file name of a yaml
+# ------------------------------------------------------------
+final_increment_to_latlon_file: aero_final_increment_gaussian
+final_increment_file: aero_final_increment_cubed_sphere
+model_file: aero_model_pseudo
+initial_condition_file: aero_background  # Initial conditions for 4D apps is background
+background_error_file: "{{BERROR_YAML}}"
+
+# Assimilation standard things (not prepended with model choice)
+# ----------------------------
+window_begin: "{{ AERO_WINDOW_BEGIN | to_isotime }}"
+window_length: "{{ AERO_WINDOW_LENGTH }}"
+bound_to_include: begin
+minimizer: DRPCG
+final_diagnostics_departures: anlmob
+final_prints_frequency: PT3H
+number_of_outer_loops: 2
+analysis_variables: [mass_fraction_of_sulfate_in_air,
+                       mass_fraction_of_hydrophobic_black_carbon_in_air,
+                       mass_fraction_of_hydrophilic_black_carbon_in_air,
+                       mass_fraction_of_hydrophobic_organic_carbon_in_air,
+                       mass_fraction_of_hydrophilic_organic_carbon_in_air,
+                       mass_fraction_of_dust001_in_air, mass_fraction_of_dust002_in_air,
+                       mass_fraction_of_dust003_in_air, mass_fraction_of_dust004_in_air,
+                       mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air,
+                       mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air,
+                       mass_fraction_of_sea_salt004_in_air]
+
+# Model things
+# ------------
+# Geometry
+aero_layout_x: {{ layout_x | default(1, true) }}
+aero_layout_y: {{ layout_y | default(1, true) }}
+aero_npx_ges: {{ npx_ges | default(49, true) }}
+aero_npy_ges: {{ npy_ges | default(49, true) }}
+aero_npz_ges: {{ npz_ges | default(127, true) }}
+aero_npx_anl: {{ npx_anl | default(49, true) }}
+aero_npy_anl: {{ npy_anl | default(49, true) }}
+aero_npz_anl: {{ npz_anl | default(127, true) }}
+aero_npx_clim_b: {{ npx_clim_b | default(49, true) }}
+aero_npy_clim_b: {{ npy_clim_b | default(49, true) }}
+aero_npz_clim_b: {{ npz_anl | default(127, true) }}
+
+aero_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
+
+# Background
+aero_background_path: ./bkg
+aero_background_ensemble_path: ./ens/mem%mem%
+
+# Default background time is for 3D applications
+{% if DOIAU == True %}
+aero_background_time_iso: "{{ AERO_WINDOW_BEGIN | to_isotime }}"
+{% else %}
+aero_background_time_iso: "{{ current_cycle | to_isotime }}"
+{% endif %}
+aero_cycle_time_iso: "{{ current_cycle | to_isotime }}"
+aero_cycle_time_fv3: "{{ current_cycle | to_fv3time }}"
+
+# time for background error calculation for next cycle
+{% set offset_td = "+6H" | to_timedelta %}
+{% set background_time = current_cycle | add_to_datetime(offset_td) %}
+aero_background_error_time_iso:  "{{ background_time | to_isotime }}"
+aero_background_error_time_fv3: "{{ background_time | to_fv3time }}"
+
+# Background error
+aero_berror_data_directory: "{{ DATA }}/berror"
+aero_berror_diffusion_directory: "{{ DATA }}/diffusion"
+aero_standard_devation_path: ./stddev
+aero_climatological_b_path: ./clm_stddev
+aero_diagb_weight: {{ aero_diagb_weight | default(1.0, true) }}
+aero_diagb_static_rescale_factor: {{aero_staticb_rescaling_factor | default(1.0, true) }}
+aero_diagb_rescale_factor: {{aero_diagb_rescale | default(1.0, true) }}
+aero_diagb_n_halo: {{ aero_diagb_n_halo  | default(1, true)  }}
+aero_diagb_n_neighbors: {{ aero_diagb_n_neighbors | default(1, true) }}
+aero_diagb_smooth_horiz_iter: {{ aero_diagb_smooth_horiz_iter | default(1, true) }}
+aero_diagb_smooth_vert_iter: {{ aero_diagb_smooth_vert_iter | default(1, true) }}
+aero_diffusion_iter: {{ aero_diffusion_iter | default(1, true) }}
+aero_diffusion_horiz_len: {{ aero_diffusion_horiz_len  | default(1.0, true)}}
+aero_diffusion_fixed_val: {{ aero_diffusion_fixed_val  | default(1.0, true)}}
+
+# Forecasting
+aero_forecast_timestep: "{{ BKG_TSTEP }}"
+
+# Observation things
+# ------------------
+observations: all_observations
+
+crtm_coefficient_path: "{{ DATA }}/crtm/"
+
+# Naming conventions for observational files
+aero_obsdataroot_path: "{{COM_OBS}}"
+
+aero_obsdatain_path: "{{aero_obsdatain_path}}"
+aero_obsdatain_prefix: "{{OPREFIX}}"
+aero_obsdatain_suffix: ".tm00.nc"
+
+aero_obsdataout_path: "{{aero_obsdataout_path}}"
+aero_obsdataout_prefix: diag_
+aero_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+
+# Naming conventions for bias correction files
+aero_obsbiasroot_path: "{{COM_CHEM_ANALYSIS_PREV}}"
+
+aero_obsbiasin_path: "{{DATA}}/obs/"
+aero_obsbiasin_prefix: "{{GPREFIX}}"
+aero_obsbiasin_suffix: ".satbias.nc"
+aero_obstlapsein_prefix: "{{GPREFIX}}"
+aero_obstlapsein_suffix: ".tlapse.txt"
+aero_obsbiascovin_prefix: "{{GPREFIX}}"
+aero_obsbiascovin_suffix: ".satbias_cov.nc"
+
+aero_obsbiasout_path: "{{DATA}}/bc/"
+aero_obsbiasout_prefix: "{{APREFIX}}"
+aero_obsbiasout_suffix: ".satbias.nc"
+aero_obsbiascovout_prefix: "{{APREFIX}}"
+aero_obsbiascovout_suffix: ".satbias_cov.nc"
+
+bias_files:
+  atms_n20: rad_varbc_params.tar
+  atms_npp: rad_varbc_params.tar
+  mtiasi_metop-a: rad_varbc_params.tar
+  mtiasi_metop-b: rad_varbc_params.tar
+  amsua_n19: rad_varbc_params.tar
+  ssmis_f17: rad_varbc_params.tar
+  ssmis_f18: rad_varbc_params.tar
+  cris-fsr_n20: rad_varbc_params.tar
+  cris-fsr_npp: rad_varbc_params.tar

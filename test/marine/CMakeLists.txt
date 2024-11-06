@@ -28,6 +28,14 @@ install(FILES ${test_input}
 # bufr to ioda tests:
 ###########################################################################
 
+set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/marine)
+set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
+set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
+set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/marine/testinput)
+set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/marine/testref)
+set(PYIODACONV_DIR "${PROJECT_SOURCE_DIR}/build/lib/python3.10/")
+
+
 # prepare a test.yaml file from test.yaml.in by replacing
 # placeholder patterns __BUFRINPUTDIR__ and __IODAOUTPUTDIR__ and __OCEANBASIN__
 # with actual directory paths
@@ -44,14 +52,6 @@ function(CREATE_CONFIG_FILE
 	string(REPLACE "__OCEANBASIN__" "\"${ocean_basin_file}\"" temp_content3 "${temp_content2}")
 	file(WRITE "${test_config_out}" "${temp_content3}")
 endfunction()
-
-
-set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/marine)
-
-set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
-set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
-set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/marine/testinput)
-set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/marine/testref)
 
 
 function(CHECK_AND_SET_PATH PATH1 PATH2 RESULT_VAR)
@@ -157,7 +157,13 @@ function(ADD_INSITU_TEST testname testbufr)
 		COMMAND ${MARINE_BUFR2IODA_DIR}/${TEST}.py -c ${CONFIG_FILE} -t ${TESTREF_DIR}/${TESTREF_FILE}
 		WORKING_DIRECTORY ${TEST_WORKING_DIR}
 	)
+	set_property(
+		TEST test_gdasapp_${TEST}
+		APPEND PROPERTY 
+			ENVIRONMENT "PYTHONPATH=${PYIODACONV_DIR}:$ENV{PYTHONPATH}"
+	)
 endfunction()
+
 
 
 if (GENERATE_BUFR2IODA_TESTS)
