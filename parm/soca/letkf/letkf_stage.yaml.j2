@@ -1,11 +1,30 @@
-######################################
-# create working directories
+{% set PDY = current_cycle | to_YMD %}
+{% set cyc = current_cycle | strftime("%H") %}
+{% set gcyc = previous_cycle | strftime("%H") %}
 ######################################
 mkdir:
-- "{{ DATA }}/Data"
+- "{{ DATA }}/letkf_output"
 - "{{ DATA }}/obs"
+- "{{ DATA }}/diags"
+- "{{ COMOUT_OCEAN_LETKF }}"
+- "{{ COMOUT_ICE_LETKF }}"
+######################################
+# make comout directories
+######################################
+{% for mem in range(1, NMEM_ENS + 1) %}
+   {% set tmpl_dict = {'${ROTDIR}':ROTDIR,
+                       '${RUN}':GDUMP_ENS,
+                       '${YMD}':PDY,
+                       '${HH}':cyc,
+                       '${MEMDIR}':"mem" + '%03d' % mem} %}
+- "{{ COM_OCEAN_LETKF_TMPL | replace_tmpl(tmpl_dict) }}"
+- "{{ COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) }}"
+{% endfor %}
+######################################
+# copy mom input template and det bkg
+######################################
 copy:
-######################################
-# copy mom input template 
-######################################
 - ["{{ PARMgfs }}/gdas/soca/fms/input.nml", "{{ DATA }}/mom_input.nml.tmpl"]
+- ["{{ PARMgfs }}/gdas/soca/fields_metadata.yaml", "{{ DATA }}/fields_metadata.yaml"]
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/gdas.ocean.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/gdas.ice.t{{ gcyc }}z.inst.f009.nc", "{{ DATA }}/INPUT/cice.res.nc"]
