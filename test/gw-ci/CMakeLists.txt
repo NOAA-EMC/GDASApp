@@ -91,8 +91,8 @@ if (WORKFLOW_TESTS)
     "enkfgdas_esfc"
     "enkfgdas_fcst"
   )
-  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
 
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
   # JEDI Atm DA C96/C48
   # -------------------
   set(pslot "C96C48_ufs_hybatmDA")
