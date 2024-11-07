@@ -10,7 +10,7 @@ function(add_task task_name test_prefix cycle pslot RUNTESTS PROJECT_SOURCE_DIR)
   elseif("${task_name}" STREQUAL "enkfgdas_epmn")
     set(subtask_names "enkfgdas_epos001 enkfgdas_epos002 enkfgdas_epos003 enkfgdas_epos004 enkfgdas_epos005 enkfgdas_epos006")
   elseif("${task_name}" STREQUAL "enkfgdas_ecmn")
-    set(subtask_names "enkfgdas_ecen000")
+    set(subtask_names "enkfgdas_ecen000 enkfgdas_ecen001 enkfgdas_ecen002")
   else()
     set(subtask_names ${task_name})
   endif()
@@ -112,7 +112,7 @@ if (WORKFLOW_TESTS)
     "enkfgdas_atmensanlsol"
     "enkfgdas_atmensanlfv3inc"
     "enkfgdas_atmensanlfinal"
-    "enkfgdas_ecmn"
+    "enkfgdas_ecen000" # No IAU yet, so only one task
     "enkfgdas_esfc"
     "enkfgdas_fcst"
   )
