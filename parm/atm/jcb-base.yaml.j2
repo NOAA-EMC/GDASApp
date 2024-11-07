@@ -143,4 +143,8 @@ atmosphere_ensemble_history_prefix: "enkf{{GPREFIX}}"
 # Testing
 # -------
 
+{% if DO_CI_TESTING == 'YES' %}
 atmosphere_do_testing: true
+{% else %}
+atmosphere_do_testing: false
+{% endif %}
