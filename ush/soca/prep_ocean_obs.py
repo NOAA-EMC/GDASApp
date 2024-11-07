@@ -252,8 +252,8 @@ class PrepOceanObs(Task):
 
         for obsspace_to_save in obsspaces_to_save['observations']:
 
-            output_file = obsspace_to_save['output file']
-            conv_config_file = obsspace_to_save['conversion config file']
+            output_file = os.path.basename(obsspace_to_save['output file'])
+            conv_config_file = os.path.basename(obsspace_to_save['conversion config file'])
             output_file_dest = os.path.join(COMOUT_OBS, output_file)
             conv_config_file_dest = os.path.join(COMOUT_OBS, conv_config_file)
 

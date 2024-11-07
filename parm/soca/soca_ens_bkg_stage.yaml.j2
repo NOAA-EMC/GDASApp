@@ -18,7 +18,7 @@ copy:
    # define variables
    # Declare a dict of search and replace terms to GDUMP on each template
    {% set tmpl_dict = {'ROTDIR':ROTDIR,
-                       'RUN': RUN,
+                       'RUN': GDUMP_ENS,
                        'YMD':gPDY,
                        'HH':gcyc,
                        'MEMDIR':"mem" + '%03d' % mem} %}
@@ -35,6 +35,6 @@ copy:
       {% set com_prev_ocn.COMIN_OCEAN_HISTORY_MEM = com_prev_ocn.COMIN_OCEAN_HISTORY_MEM.replace(search_term, replace_term) %}
       {% set com_prev_ice.COMIN_ICE_HISTORY_MEM = com_prev_ice.COMIN_ICE_HISTORY_MEM.replace(search_term, replace_term) %}
    {% endfor %}
-   - ["{{ com_prev_ocn.COMIN_OCEAN_HISTORY_MEM }}/{{ RUN }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATAens }}/ens/mem{{ '%03d' % mem }}/{{ RUN }}.ocean.t{{ gcyc }}z.inst.f006.nc"]
-   - ["{{ com_prev_ice.COMIN_ICE_HISTORY_MEM }}/{{ RUN }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATAens }}/ens/mem{{ '%03d' % mem }}/{{ RUN }}.ice.t{{ gcyc }}z.inst.f006.nc"]
+   - ["{{ com_prev_ocn.COMIN_OCEAN_HISTORY_MEM }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATAens }}/ens/mem{{ '%03d' % mem }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc"]
+   - ["{{ com_prev_ice.COMIN_ICE_HISTORY_MEM }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATAens }}/ens/mem{{ '%03d' % mem }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc"]
 {% endfor %}
