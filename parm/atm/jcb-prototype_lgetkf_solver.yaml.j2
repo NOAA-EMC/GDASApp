@@ -50,7 +50,9 @@ distribution_type: Halo
 
 # Testing things
 # --------------
+{% if atmosphere_do_testing %}
 test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/gw-ci/lgetkf_solver.ref
 test_output_filename: ./lgetkf_solver.out
 test_float_relative_tolerance: 1.0e-3
 test_float_absolute_tolerance: 1.0e-5
+{% endif %}

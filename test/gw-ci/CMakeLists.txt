@@ -4,7 +4,11 @@ function(add_task task_name test_prefix cycle pslot RUNTESTS PROJECT_SOURCE_DIR)
   if("${task_name}" STREQUAL "gdas_fcst")
     set(subtask_names "gdas_fcst_seg0")
   elseif("${task_name}" STREQUAL "enkfgdas_fcst")
-    set(subtask_names "enkfgdas_fcst_mem001 enkfgdas_fcst_mem002")
+    if(NOT "${pslot}" STREQUAL "C48mx500_hybAOWCDA")
+      set(subtask_names "enkfgdas_fcst_mem001 enkfgdas_fcst_mem002")
+    else()
+      set(subtask_names "enkfgdas_fcst_mem001 enkfgdas_fcst_mem002 enkfgdas_fcst_mem003")
+    endif()
   elseif("${task_name}" STREQUAL "gdas_atmos_prod")
     set(subtask_names "gdas_atmos_prod_f000 gdas_atmos_prod_f001 gdas_atmos_prod_f002 gdas_atmos_prod_f003 gdas_atmos_prod_f004 gdas_atmos_prod_f005 gdas_atmos_prod_f006 gdas_atmos_prod_f007 gdas_atmos_prod_f008 gdas_atmos_prod_f009")
   elseif("${task_name}" STREQUAL "enkfgdas_epmn")
@@ -25,7 +29,7 @@ function(add_task task_name test_prefix cycle pslot RUNTESTS PROJECT_SOURCE_DIR)
 endfunction()
 
 # Function that generates the 1/2 cycle forecast and DA tasks
-function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR TASK_LIST)
+function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR HALF_CYCLE_TASKS FULL_CYCLE_TASKS)
   set(test_prefix test_gdasapp_${pslot})
   # Prepare the COMROOT and EXPDIR for the cycling ctests
   add_test(NAME ${test_prefix}
@@ -44,27 +48,15 @@ function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR T
   list(GET DATES_LIST 0 HALF_CYCLE)
   list(GET DATES_LIST 1 FULL_CYCLE)
 
-  # Half cycle tasks common to all CI tests
-  add_task("gdas_stage_ic"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-  add_task("gdas_fcst"         ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-
-  # Half cycle tasks unique to C96C48_hybatmaerosnowDA
-  if(pslot STREQUAL "C96C48_hybatmaerosnowDA")
-    add_task("gdas_aeroanlgenb" ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-  endif()
+  # Select the list of tasks to run for the half cycle
+  message(STATUS "Half-cycle tasks ${HALF_CYCLE_TASKS}")
+  foreach(task_name ${HALF_CYCLE_TASKS})
+    add_task(${task_name} ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
+  endforeach()
   
-  # Half cycle tasks common to all CI tests except C48mx500_3DVarAOWCDA
-  if(NOT pslot STREQUAL "C48mx500_3DVarAOWCDA")
-    add_task("gdas_atmos_prod"   ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-    add_task("enkfgdas_stage_ic" ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-    add_task("enkfgdas_fcst"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-    add_task("enkfgdas_echgres"  ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-    add_task("enkfgdas_epmn"     ${test_prefix} ${HALF_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
-  endif()
-
   # Select the list of tasks to run for the full cycle
-  message(STATUS "Tasks ${TASK_LIST}")
-  foreach(task_name ${TASK_LIST})
+  message(STATUS "Full-cycle tasks ${FULL_CYCLE_TASKS}")
+  foreach(task_name ${FULL_CYCLE_TASKS})
     add_task(${task_name} ${test_prefix} ${FULL_CYCLE} ${pslot} ${RUNTESTS} ${PROJECT_SOURCE_DIR})
   endforeach()
 endfunction()
@@ -78,7 +70,15 @@ if (WORKFLOW_TESTS)
   # ------------------
   set(pslot "C96C48_hybatmDA")
   set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
-  set(TASK_LIST
+  set(HALF_CYCLE_TASKS
+    "gdas_stage_ic"
+    "gdas_fcst"
+    "gdas_atmos_prod"
+    "enkfgdas_stage_ic"
+    "enkfgdas_fcst"
+    "enkfgdas_echgres"
+    "enkfgdas_epmn")
+  set(FULL_CYCLE_TASKS
     "gdas_prep"
     "gdas_anal"
     "gdas_sfcanl"
@@ -92,12 +92,20 @@ if (WORKFLOW_TESTS)
     "enkfgdas_fcst"
   )
 
-  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
   # JEDI Atm DA C96/C48
   # -------------------
   set(pslot "C96C48_ufs_hybatmDA")
   set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
-  set(TASK_LIST
+  set(HALF_CYCLE_TASKS
+    "gdas_stage_ic"
+    "gdas_fcst"
+    "gdas_atmos_prod"
+    "enkfgdas_stage_ic"
+    "enkfgdas_fcst"
+    "enkfgdas_echgres"
+    "enkfgdas_epmn")  
+  set(FULL_CYCLE_TASKS
     "gdas_prep"
     "gdas_prepatmiodaobs"
     "gdas_atmanlinit"
@@ -116,13 +124,22 @@ if (WORKFLOW_TESTS)
     "enkfgdas_esfc"
     "enkfgdas_fcst"
   )
-  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")  
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")  
 
   # Aero-Land DA C96
   # ----------------
   set(pslot "C96C48_hybatmaerosnowDA")
   set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
-  set(TASK_LIST
+  set(HALF_CYCLE_TASKS
+    "gdas_stage_ic"
+    "gdas_fcst"
+    "gdas_atmos_prod"
+    "gdas_aeroanlgenb"
+    "enkfgdas_stage_ic"
+    "enkfgdas_fcst"
+    "enkfgdas_echgres"
+    "enkfgdas_epmn")  
+  set(FULL_CYCLE_TASKS
     "gdas_prep"
     "gdas_anal"
     "gdas_aeroanlinit"
@@ -141,13 +158,16 @@ if (WORKFLOW_TESTS)
     "enkfgdas_esfc"
     "enkfgdas_fcst"
   )
-  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
   
   # GSI Atm DA C48, JEDI Marine DA 500
   # ----------------------------------
   set(pslot "C48mx500_3DVarAOWCDA")
   set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
-  set(TASK_LIST
+  set(HALF_CYCLE_TASKS
+    "gdas_stage_ic"
+    "gdas_fcst")
+  set(FULL_CYCLE_TASKS
     "gdas_prepoceanobs"
     "gdas_marinebmat"
     "gdas_marineanlinit"
@@ -160,5 +180,28 @@ if (WORKFLOW_TESTS)
     "gdas_sfcanl"
     "gdas_fcst"
     )
-  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${TASK_LIST}")
+    add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
+
+  # WCDA, low-res, ensemble da
+  # -------------
+  set(pslot "C48mx500_hybAOWCDA")
+  set(letkf TRUE)
+  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_hybAOWCDA.yaml)
+  set(HALF_CYCLE_TASKS
+    "gdas_stage_ic"
+    "gdas_fcst"
+    "enkfgdas_stage_ic"
+    "enkfgdas_fcst")
+  set(FULL_CYCLE_TASKS
+    "gdas_prepoceanobs"
+    "gdas_marineanlletkf"
+    # TODO(AFE) waiting until these are working for hybrid
+    # "gdas_marinebmat"
+    # "gdas_marineanlinit"
+    # "gdas_marineanlvar"
+    # "gdas_marineanlchkpt"
+    # "gdas_marineanlfinal"
+    )
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
+  set(letkf FALSE)    
 endif()
