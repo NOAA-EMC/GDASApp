@@ -180,7 +180,7 @@ if (WORKFLOW_TESTS)
     "gdas_sfcanl"
     "gdas_fcst"
     )
-    add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
+  add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
 
   # WCDA, low-res, ensemble da
   # -------------
@@ -203,5 +203,30 @@ if (WORKFLOW_TESTS)
     # "gdas_marineanlfinal"
     )
   add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
-  set(letkf FALSE)    
+  set(letkf FALSE)
+
+  # GFSv17, 3DVAR prototype
+  # -----------------------
+  option(TEST_GFS17 "Enable the GFSv17 prototype CI tests" OFF)
+  if(TEST_GFS17)
+    set(pslot "GFSv17-3DVAR-C384mx025")
+    set(YAML_PATH ${HOMEgfs}/ci/cases/gfsv17/${pslot}.yaml)
+    set(HALF_CYCLE_TASKS
+      "gdas_stage_ic"
+      "gdas_fcst")
+    set(FULL_CYCLE_TASKS
+      "gdas_prepoceanobs"
+      "gdas_marinebmat"
+      "gdas_marineanlinit"
+      "gdas_marineanlvar"
+      "gdas_marineanlchkpt"
+      "gdas_marineanlfinal"
+      "gdas_ocnanalvrfy"
+      "gdas_prep"
+      "gdas_anal"
+      "gdas_sfcanl"
+      "gdas_fcst"
+      )
+    add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${RUNTESTS} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")  
+  endif()
 endif()
