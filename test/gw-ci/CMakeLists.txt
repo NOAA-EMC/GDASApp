@@ -186,7 +186,7 @@ if (WORKFLOW_TESTS)
   # -------------
   set(pslot "C48mx500_hybAOWCDA")
   set(letkf TRUE)
-  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/C48mx500_hybAOWCDA.yaml)
+  set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
   set(HALF_CYCLE_TASKS
     "gdas_stage_ic"
     "gdas_fcst"
