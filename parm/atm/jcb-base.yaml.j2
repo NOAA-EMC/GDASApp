@@ -30,11 +30,7 @@ analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 # Testing
 # -------
 
-{% if DO_JEDI_TESTING == 'YES' %}
-do_testing: true
-{% else %}
-do_testing: false
-{% endif %}
+do_testing: {{ DO_JEDI_TESTING | default(false, true) }}
 
 # Model things
 # ------------

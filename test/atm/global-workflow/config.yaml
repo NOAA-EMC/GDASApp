@@ -8,7 +8,7 @@ base:
   DUMPDIR: "@dumpdir@"
   STMP: "@bindir@/test/atm/global-workflow/testrun"
   PTMP: "@bindir@/test/atm/global-workflow/testrun"
-  DO_JEDI_TESTING: "YES"
+  DO_JEDI_TESTING: "\"YES\""
 
 atmanl:
   JCB_ALGO_YAML_VAR: "@srcdir@/test/atm/global-workflow/jcb-prototype_3dvar.yaml.j2"
