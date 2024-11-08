@@ -39,6 +39,10 @@ final_diagnostics_departures: anlmob
 analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 number_of_outer_loops: 2
 
+# Testing
+# -------
+
+do_testing: false
 
 # Model things
 # ------------
