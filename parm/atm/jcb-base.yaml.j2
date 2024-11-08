@@ -27,6 +27,15 @@ final_prints_frequency: PT3H
 number_of_outer_loops: 2
 analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
+# Testing
+# -------
+
+{% if DO_JEDI_TESTING == 'YES' %}
+do_testing: true
+{% else %}
+do_testing: false
+{% endif %}
+
 # Model things
 # ------------
 # Geometry
@@ -139,12 +148,3 @@ atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
 atmosphere_posterior_output_gaussian: "./mem%{member}%/atmanl."
 
 atmosphere_ensemble_history_prefix: "enkf{{GPREFIX}}"
-
-# Testing
-# -------
-
-{% if DO_CI_TESTING == 'YES' %}
-atmosphere_do_testing: true
-{% else %}
-atmosphere_do_testing: false
-{% endif %}

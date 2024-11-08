@@ -29,13 +29,4 @@ observations:
 #  - satwnd.viirs_npp
 #  - scatwind_ascat_metop-a
 #  - snowcvr
-#   - abi_g16
-
-# Testing things
-# --------------
-{% if atmosphere_do_testing %}
-test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/gw-ci/3dvar.ref
-test_output_filename: ./3dvar.out
-test_float_relative_tolerance: 1.0e-3
-test_float_absolute_tolerance: 1.0e-5
-{% endif %}
+#  - abi_g16
