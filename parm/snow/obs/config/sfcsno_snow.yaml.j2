@@ -5,9 +5,11 @@
       halo size: 250e3
     obsdatain:
       engine:
-        type: bufr
+        type: script
+        script file: "{{ DATA }}/ioda_bufr_python_encoder.py"
+        args:
+          input_path: '{{ DATA }}/obs/{{ OPREFIX }}sfcsno.tm00.bufr_d'
         obsfile: '{{ DATA }}/obs/{{ OPREFIX }}sfcsno.tm00.bufr_d'
-        mapping file: '{{ DATA }}/obs/bufr_sfcsno_mapping.yaml'
     obsdataout:
       engine:
         type: H5File

@@ -17,7 +17,6 @@ bufr:
       query: "[*/CLON, */CLONH]"
     stationIdentification:
       query: "*/RPID"
-
     stationElevation:
       query: "[*/SELV, */HSMSL]"
 
@@ -26,11 +25,8 @@ bufr:
       query: "[*/SNWSQ1/TOSD, */MTRMSC/TOSD, */STGDSNDM/TOSD]"
       transforms:
         - scale: 1000.0
-  filters:
-    - bounding:
-        variable: totalSnowDepth
-        lowerBound: 0
-        upperBound: 10000000
+    groundState:
+      query: "[*/GRDSQ1/SOGR, */STGDSNDM/SOGR]"
 
 encoder:
   variables:
@@ -65,7 +61,7 @@ encoder:
       coordinates: "longitude latitude"
       source: variables/stationIdentification
       longName: "Identification of Observing Location"
-      units: "m"
+      units: "index"
 
     # ObsValue
     - name: "ObsValue/totalSnowDepth"
@@ -73,3 +69,10 @@ encoder:
       source: variables/totalSnowDepth
       longName: "Total Snow Depth"
       units: "mm"
+
+    - name: "ObsValue/groundState"
+      coordinates: "longitude latitude"
+      source: variables/groundState
+      longName: "STATE OF THE GROUND"
+      units: "index"
+
