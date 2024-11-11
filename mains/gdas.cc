@@ -67,7 +67,7 @@ int runApp(int argc, char** argv, const std::string traits, const std::string ap
       return std::make_unique<oops::HofX4D<Traits, ufo::ObsTraits>>();
   };
   apps["localensembleda"] = []() {
-      return std::make_unique<oops::LocalEnsembleDA<fv3jedi::Traits, ufo::ObsTraits>>();
+      return std::make_unique<oops::LocalEnsembleDA<Traits, ufo::ObsTraits>>();
   };
   apps["variational"] = []() {
     return std::make_unique<oops::Variational<Traits, ufo::ObsTraits>>();
