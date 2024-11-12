@@ -17,8 +17,6 @@ import xarray as xr
 
 # the main method is get_station_basin which returns the ocean basin
 # for a list of station coordinates
-# there are methods for plotting and printing the ocean basin data
-# as well as printing and plotting station basin data
 
 
 class OceanBasin:
@@ -51,11 +49,6 @@ class OceanBasin:
             print(f"An IOError occurred: {e}")
             sys.exit(1)
 
-    def print_basin(self):
-        for i in range(n1):
-            for j in range(n2):
-                print(i, j, self.__basin_array[i][j])
-
     # input: 2 vectors of station coordinates
     # output: a vector of station ocean basin values
     def get_station_basin(self, lat, lon):
@@ -76,9 +69,4 @@ class OceanBasin:
                 ocean_basin.append(self.__basin_array[i1][i2])
         return ocean_basin
 
-    def print_station_basin(self, lon, lat, file_path):
-        ocean_basin = self.get_station_basin(lat, lon)
-        with open(file_path, 'w') as file:
-            # Iterate over lon, lat, and ocean_basin arrays simultaneously
-            for lat_val, lon_val, basin_val in zip(lat, lon, ocean_basin):
-                file.write(f"{lat_val} {lon_val} {basin_val}\n")
+
