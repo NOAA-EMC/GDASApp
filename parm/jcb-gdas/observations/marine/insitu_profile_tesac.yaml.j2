@@ -1,5 +1,5 @@
 - obs space:
-    name: insitu_profile_tesac
+    name: {{observation_from_jcb}}
     obsdatain:
       engine:
         type: H5File
@@ -18,3 +18,14 @@
     - name: InsituTemperature
       variables:
       - name: waterTemperature
+  obs filters:
+  - filter: Perform Action
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables:
+          - ObsError/waterTemperature
+          coefs:
+          - 1000.0

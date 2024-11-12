@@ -1,5 +1,5 @@
 - obs space:
-    name: insitu_profile_dbuoyb
+    name: {{observation_from_jcb}}
     obsdatain:
       engine:
         type: H5File
@@ -20,3 +20,14 @@
       - name: waterTemperature
   obs error:
     covariance model: diagonal
+  obs filters:
+  - filter: Perform Action
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables:
+          - ObsError/waterTemperature
+          coefs:
+          - 1000.0
