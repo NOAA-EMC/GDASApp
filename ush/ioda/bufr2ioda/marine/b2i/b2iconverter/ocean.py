@@ -68,4 +68,3 @@ class OceanBasin:
                 i2 = round((lon[i] - lon0) / dlon)
                 ocean_basin.append(self.__basin_array[i1][i2])
         return ocean_basin
-
