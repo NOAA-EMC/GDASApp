@@ -1,3 +1,7 @@
+skip obsspaces:
+  frequency: 8 # cycles
+  names: [adt_rads_all, insitu_profile_argo]
+
 observers:
 # ADT
 - !INC ${MARINE_OBS_YAML_DIR}/adt_rads_all.yaml

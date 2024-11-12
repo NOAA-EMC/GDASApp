@@ -42,7 +42,6 @@ class PrepOceanObs(Task):
         cdate = PDY + timedelta(hours=cyc)
         assim_freq = self.task_config['assim_freq']
         half_assim_freq = assim_freq/2
-
         self.task_config['cdate'] = cdate
         window_begin_datetime = cdate - timedelta(hours=half_assim_freq)
         window_begin_datetime = cdate + timedelta(hours=half_assim_freq)
@@ -82,6 +81,15 @@ class PrepOceanObs(Task):
 
         OBS_YAML = self.task_config['OBS_YAML']
         observer_config = YAMLFile(OBS_YAML)
+
+        # remove obs spaces from the skip_obsspaces list parsed from the observer_config
+        reference_date = datetime(1900, 1, 1)
+        julian_date = (cdate - reference_date).days
+        skip_obsspaces = observer_config['skip obsspaces']['names']
+        skip_obsspaces_freq = observer_config['skip obsspaces']['frequency']
+        print(f"skip_obsspaces: {skip_obsspaces}, skip_obsspaces_freq: {skip_obsspaces_freq}, jdate: {julian_date}")
+        if julian_date % skip_obsspaces_freq == 0:
+          observer_config['observers'] = [obs for obs in observer_config['observers'] if obs['obs space']['name'] not in skip_obsspaces]
 
         OBSPREP_YAML = self.task_config['OBSPREP_YAML']
         if os.path.exists(OBSPREP_YAML):
