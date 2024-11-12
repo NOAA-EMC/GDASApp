@@ -1,5 +1,5 @@
 - obs space:
-    name: insitu_surface_altkob
+    name: {{observation_from_jcb}}
     obsdatain:
       engine:
         type: H5File
@@ -16,3 +16,14 @@
     observation alias file: obsop_name_map.yaml
   obs error:
     covariance model: diagonal
+  obs filters:
+  - filter: Perform Action
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables:
+          - ObsError/seaSurfaceTemperature
+          coefs:
+          - 1000.0
