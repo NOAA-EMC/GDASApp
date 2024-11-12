@@ -44,6 +44,29 @@ class IODAVariables:
         self.S_min = smin
         self.S_max = smax
 
+    def number_of_temp_obs(self):
+        try:
+            if isinstance(self.temp, np.ma.MaskedArray):
+                return self.temp.count()
+            else:
+                return 0
+        # except NameError:
+        except AttributeError:
+            return 0
+
+    def number_of_saln_obs(self):
+        try:
+            if isinstance(self.saln, np.ma.MaskedArray):
+                return self.saln.count()
+            else:
+                return 0
+        # except NameError:
+        except AttributeError:
+            return 0
+
+    def number_of_obs(self):
+        return max(self.number_of_temp_obs(), self.number_of_saln_obs())
+
     def build_query(self):
         q = bufr.QuerySet()
         q.add('year', '*/YEAR')

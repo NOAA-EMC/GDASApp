@@ -16,6 +16,7 @@
 
 #include "oops/runs/ConvertToStructuredGrid.h"
 #include "oops/runs/ConvertState.h"
+#include "oops/runs/EnsMeanAndVariance.h"
 #include "oops/runs/HofX4D.h"
 #include "oops/runs/LocalEnsembleDA.h"
 #include "oops/runs/Run.h"
@@ -59,11 +60,14 @@ int runApp(int argc, char** argv, const std::string traits, const std::string ap
   apps["convertstate"] = []() {
       return std::make_unique<oops::ConvertState<Traits>>();
   };
+  apps["ensmean"] = []() {
+      return std::make_unique<oops::EnsMeanAndVariance<Traits>>();
+  };
   apps["hofx4d"] = []() {
       return std::make_unique<oops::HofX4D<Traits, ufo::ObsTraits>>();
   };
   apps["localensembleda"] = []() {
-      return std::make_unique<oops::LocalEnsembleDA<fv3jedi::Traits, ufo::ObsTraits>>();
+      return std::make_unique<oops::LocalEnsembleDA<Traits, ufo::ObsTraits>>();
   };
   apps["variational"] = []() {
     return std::make_unique<oops::Variational<Traits, ufo::ObsTraits>>();

@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
   ctests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: Run Unit Tests inside global-workflow with ctest
 
     steps:
