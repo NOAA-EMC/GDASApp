@@ -69,4 +69,3 @@ class OceanBasin:
                 ocean_basin.append(self.__basin_array[i1][i2])
         return ocean_basin
 
-
