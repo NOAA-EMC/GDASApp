@@ -55,7 +55,7 @@ snow_orog_files_path: "{{ FIXgfs }}/orog/{{ CASE }}"
 snow_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
-snow_background_path: ./bkg
+snow_background_path: {{snow_bkg_path}}
 background_ensemble_path: ./ens/mem%mem%
 
 # Background error
@@ -100,6 +100,8 @@ snow_obsbiasout_suffix: ".satbias.nc"
 snow_obsbiascovout_prefix: "{{APREFIX}}"
 snow_obsbiascovout_suffix: ".satbias_cov.nc"
 
+# Ensemble mean things
+snow_number_ensemble_members: {{NMEM_ENS}}
 
 # Local Ensemble DA (LETKF)
 # -------------------------
