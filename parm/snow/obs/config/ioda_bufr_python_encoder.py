@@ -19,7 +19,7 @@ def create_obs_group(input_path):
 
     sogr = container.get('variables/groundState')
     snod = container.get('variables/totalSnowDepth')
-    snod[(sogr < 10.0) | (sogr == 11.0) | (sogr == 15.0)] = 0.0
+    snod[(sogr <= 11.0) | (sogr == 15.0)] = 0.0
     container.replace('variables/totalSnowDepth', snod)
 
     print(f" ... Remove filled/missing snow values ...")
