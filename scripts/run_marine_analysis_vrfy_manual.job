@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=marine_vrfy    # Assign a name to the job (customize as needed)
-##SBATCH --account=da-cpu
+#SBATCH --account=da-cpu
 #SBATCH --qos=debug
 #SBATCH -A da-cpu
 #SBATCH --output=run_marine_vrfy_analysis.out
@@ -12,7 +12,7 @@
 #SBATCH --time=00:30:00           # Set the walltime limit to 30 minutes
 
 ################################################################################
-#  UNIX Script Documentation Block
+# UNIX Script Documentation Block
 #                                                                   
 # Script name:         exgdas_global_marine_analysis_vrfy_manual.py
 # Script description:  State and observation space verification for the
@@ -21,8 +21,9 @@
 # Abstract: This script produces figures relevant to the marine DA cycle
 #
 # To User:
-# - Properly load python module and EVA module
-# - make changes ptoperly to HOMEgfs, cyc, PDY, comout and etc if needed
+# - This script ONLY works on hera as of now
+# - Properly load modules for python and EVA module
+# - make changes properly to HOMEgfs, cyc, PDY, comout and etc if needed
 #
 ################################################################################
 
