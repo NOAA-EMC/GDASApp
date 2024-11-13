@@ -222,5 +222,5 @@ for file in files:
 # calculate diag statistics
 #######################################
 
-# As of 11/12/2024 not working
+#As of 11/12/2024 not working
 #diag_statistics.get_diag_stats()
