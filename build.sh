@@ -71,7 +71,7 @@ while getopts "p:t:c:hvdfa" opt; do
 done
 
 case ${BUILD_TARGET} in
-  hera | orion | hercules | wcoss2 | noaacloud | gaea | gaeac6 )
+  hera | orion | hercules | wcoss2 | noaacloud | gaeac5 | gaeac6 )
     echo "Building GDASApp on $BUILD_TARGET"
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
@@ -103,14 +103,12 @@ WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_BUILD}"
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
-if [[ $BUILD_TARGET == 'hera' ]]; then
-  if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
-  if [ -d "$dir_root/bundle/test-data-release/" ]; then rm -rf $dir_root/bundle/test-data-release/; fi
-  mkdir -p $dir_root/bundle/fix/test-data-release/
-  mkdir -p $dir_root/bundle/test-data-release/
-  ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
-  ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
-fi
+if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
+if [ -d "$dir_root/bundle/test-data-release/" ]; then rm -rf $dir_root/bundle/test-data-release/; fi
+mkdir -p $dir_root/bundle/fix/test-data-release/
+mkdir -p $dir_root/bundle/test-data-release/
+ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
+ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
 
 # Configure
 echo "Configuring ..."
