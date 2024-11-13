@@ -97,7 +97,7 @@ if run_bkgerr_analysis:
     config_bkgerr = [plotConfig(grid_file=grid_file,
                                 layer_file=layer_file,
                                 data_file=os.path.join(comout, os.path.pardir, os.path.pardir,
-                                    'bmatrix', 'ocean', f'{RUN}.t'+cyc+'z.ocean.bkgerr_stddev.nc'),
+                                                       'bmatrix', 'ocean', f'{RUN}.t'+cyc+'z.ocean.bkgerr_stddev.nc'),
                                 lats=np.arange(-60, 60, 10),
                                 lons=np.arange(-280, 80, 30),
                                 variables_zonal={'Temp': [0, 2],
@@ -168,11 +168,13 @@ if run_increment_analysis:
                               comout=os.path.join(comout, 'vrfy', 'incr'))]   # sea ice increment
     configs.extend(config_incr)
 
+
 # plot marine analysis vrfy
 
 def plot_marine_vrfy(config):
     ocnvrfyPlotter = statePlotter(config)
     ocnvrfyPlotter.plot()
+
 
 # Number of processes
 num_processes = len(configs)
