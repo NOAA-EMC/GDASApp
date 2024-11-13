@@ -6,7 +6,7 @@
     obsdatain:
       engine:
         type: script
-        script file: "{{ DATA }}/ioda_bufr_python_encoder.py"
+        script file: "{{ PARMgfs }}/gdas/snow/ioda_bufr_python_encoder.py"
         args:
           input_path: '{{ DATA }}/obs/{{ OPREFIX }}sfcsno.tm00.bufr_d'
         obsfile: '{{ DATA }}/obs/{{ OPREFIX }}sfcsno.tm00.bufr_d'
