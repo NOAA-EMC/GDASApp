@@ -12,7 +12,9 @@ import glob
 vminmax = {'seaSurfaceTemperature': {'vmin': -2.0, 'vmax': 2.0},
            'seaIceFraction': {'vmin': -0.2, 'vmax': 0.2},
            'seaSurfaceSalinity': {'vmin': -0.2, 'vmax': 0.2},  # TODO: this should be changed
-           'absoluteDynamicTopography': {'vmin': -0.2, 'vmax': 0.2}}
+           'absoluteDynamicTopography': {'vmin': -0.2, 'vmax': 0.2},
+           'waterTemperature': {'vmin': -2.0, 'vmax': 2.0},
+           'salinity': {'vmin': -0.2, 'vmax': 0.2}}
 
 
 def marine_eva_post(inputyaml, outputdir, diagdir):

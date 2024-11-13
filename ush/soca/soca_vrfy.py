@@ -99,17 +99,17 @@ def plotHorizontalSlice(config):
 
     fig, ax = plt.subplots(figsize=(8, 5), subplot_kw={'projection': projs[config['proj']]})
 
-    # Plot the filled contours
-    contourf_plot = ax.contourf(np.squeeze(grid.lon),
+    # Use pcolor to plot the data
+    pcolor_plot = ax.pcolormesh(np.squeeze(grid.lon),
                                 np.squeeze(grid.lat),
                                 slice_data,
-                                levels=100,
                                 vmin=bounds[0], vmax=bounds[1],
                                 transform=ccrs.PlateCarree(),
-                                cmap=config['colormap'])
+                                cmap=config['colormap'],
+                                zorder=0)
 
     # Add colorbar for filled contours
-    cbar = fig.colorbar(contourf_plot, ax=ax, shrink=0.75, orientation='horizontal')
+    cbar = fig.colorbar(pcolor_plot, ax=ax, shrink=0.75, orientation='horizontal')
     cbar.set_label(label_colorbar)
 
     # Add contour lines with specified linewidths
@@ -120,16 +120,20 @@ def plotHorizontalSlice(config):
                levels=contour_levels,
                colors='black',
                linewidths=0.1,
-               transform=ccrs.PlateCarree())
+               transform=ccrs.PlateCarree(),
+               zorder=2)
 
-    ax.coastlines()  # TODO: make this work on hpc
+    try:
+        ax.coastlines()  # TODO: make this work on hpc
+    except Exception as e:
+        print(f"Warning: could not add coastlines. {e}")
     ax.set_title(title)
     if config['proj'] == 'South':
         ax.set_extent([-180, 180, -90, -50], ccrs.PlateCarree())
     if config['proj'] == 'North':
         ax.set_extent([-180, 180, 50, 90], ccrs.PlateCarree())
     # ax.add_feature(cartopy.feature.LAND)  # TODO: make this work on hpc
-    plt.savefig(figname, bbox_inches='tight', dpi=600)
+    plt.savefig(figname, bbox_inches='tight', dpi=300)
     plt.close(fig)
 
 
@@ -184,7 +188,7 @@ def plotZonalSlice(config):
     os.makedirs(dirname, exist_ok=True)
     figname = os.path.join(dirname, config['variable'] +
                            'zonal_lat_' + str(int(lat)) + '_' + str(int(config['max depth'])) + 'm')
-    plt.savefig(figname, bbox_inches='tight', dpi=600)
+    plt.savefig(figname, bbox_inches='tight', dpi=300)
     plt.close(fig)
 
 
@@ -239,7 +243,7 @@ def plotMeridionalSlice(config):
     os.makedirs(dirname, exist_ok=True)
     figname = os.path.join(dirname, config['variable'] +
                            'meridional_lon_' + str(int(lon)) + '_' + str(int(config['max depth'])) + 'm')
-    plt.savefig(figname, bbox_inches='tight', dpi=600)
+    plt.savefig(figname, bbox_inches='tight', dpi=300)
     plt.close(fig)
 
 
