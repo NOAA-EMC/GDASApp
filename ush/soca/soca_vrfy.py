@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import xarray as xr
 import cartopy
 import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 import numpy as np
 import os
 
