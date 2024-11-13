@@ -101,14 +101,13 @@ def plotHorizontalSlice(config):
     fig, ax = plt.subplots(figsize=(8, 5), subplot_kw={'projection': projs[config['proj']]})
 
     # Use pcolor to plot the data
-    #pcolor_plot = ax.pcolor(np.squeeze(grid.lon),
     pcolor_plot = ax.pcolormesh(np.squeeze(grid.lon),
-                            np.squeeze(grid.lat),
-                            slice_data,
-                            vmin=bounds[0], vmax=bounds[1],
-                            transform=ccrs.PlateCarree(),
-                            cmap=config['colormap'],
-                            zorder=0)
+                                np.squeeze(grid.lat),
+                                slice_data,
+                                vmin=bounds[0], vmax=bounds[1],
+                                transform=ccrs.PlateCarree(),
+                                cmap=config['colormap'],
+                                zorder=0)
 
     # Add colorbar for filled contours
     cbar = fig.colorbar(pcolor_plot, ax=ax, shrink=0.75, orientation='horizontal')
