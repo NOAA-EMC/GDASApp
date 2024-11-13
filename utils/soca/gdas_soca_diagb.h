@@ -365,7 +365,8 @@ namespace gdasapp {
 
             // Loops through nodes and levels
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
-              for (atlas::idx_t jnode = 0; jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
+              for (atlas::idx_t jnode = 0;
+		jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
                 // Early exit if on a ghost cell
                 if (ghostView(jnode) > 0) {
                   continue;
@@ -403,7 +404,8 @@ namespace gdasapp {
             auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
             auto tmpArray(stdDevBkg);
             for (int iter = 0; iter < configD.niterVert; ++iter) {
-              for (atlas::idx_t jnode = 0; jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
+              for (atlas::idx_t jnode = 0;
+		jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
                 for (atlas::idx_t level = 1; level < xbFs[var].shape(1)-1; ++level) {
                   stdDevBkg(jnode, level) = (tmpArray(jnode, level-1) +
                                              tmpArray(jnode, level) +
@@ -424,7 +426,8 @@ namespace gdasapp {
                           << std::endl;
         // Create the diffusion object
         oops::GeometryData geometryData(geom.functionSpace(),
-                                        bkgErrFs["sea_water_potential_temperature"], true, this->getComm());
+                                        bkgErrFs["sea_water_potential_temperature"],
+					true, this->getComm());
         oops::Diffusion diffuse(geometryData);
         diffuse.calculateDerivedGeom(geometryData);
 
