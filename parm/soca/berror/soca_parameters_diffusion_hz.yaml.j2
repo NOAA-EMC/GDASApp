@@ -18,7 +18,7 @@ background error:
     calibration:
       normalization:
         method: randomization
-        iterations: 1000
+        iterations: 100
 
       groups:
       - horizontal:
@@ -29,10 +29,11 @@ background error:
           model variable: ssh
         write:
           filepath: ./staticb/hz_ocean
-
-      - horizontal:
-          as gaussian: true
-          fixed value: 25000.0
-          mask: "interp_mask"
-        write:
-          filepath: ./staticb/hz_ice
+# TODO(G): OK to not use what's below but it will need
+#          to be fixed when we add ice thickness and
+#          snow depth
+#      - horizontal:
+#          as gaussian: true
+#          fixed value: 50000.0
+#        write:
+#          filepath: ./staticb/hz_ice
