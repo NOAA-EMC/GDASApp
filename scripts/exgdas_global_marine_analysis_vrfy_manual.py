@@ -95,26 +95,26 @@ if run_ensemble_analysis:
 
 if run_bkgerr_analysis:
     config_bkgerr = [plotConfig(grid_file=grid_file,
-                             layer_file=layer_file,
-                             data_file=os.path.join(comout, os.path.pardir, os.path.pardir,
-                                 'bmatrix', 'ocean', f'{RUN}.t'+cyc+'z.ocean.bkgerr_stddev.nc'),
-                             lats=np.arange(-60, 60, 10),
-                             lons=np.arange(-280, 80, 30),
-                             variables_zonal={'Temp': [0, 2],
-                                              'Salt': [0, 0.2],
-                                              'u': [0, 0.2],
-                                              'v': [0, 0.2]},
-                             variables_meridional={'Temp': [0, 2],
-                                                   'Salt': [0, 0.2],
-                                                   'u': [0, 0.2],
-                                                   'v': [0, 0.2]},
-                             variables_horiz={'Temp': [0, 2],
-                                              'Salt': [0, 0.2],
-                                              'u': [0, 0.2],
-                                              'v': [0, 0.2],
-                                              'ave_ssh': [0, 0.1]},
-                             colormap='jet',
-                             comout=os.path.join(comout, 'vrfy', 'bkgerr'))]   # ocn bkgerr stddev
+                                layer_file=layer_file,
+                                data_file=os.path.join(comout, os.path.pardir, os.path.pardir,
+                                    'bmatrix', 'ocean', f'{RUN}.t'+cyc+'z.ocean.bkgerr_stddev.nc'),
+                                lats=np.arange(-60, 60, 10),
+                                lons=np.arange(-280, 80, 30),
+                                variables_zonal={'Temp': [0, 2],
+                                                 'Salt': [0, 0.2],
+                                                 'u': [0, 0.2],
+                                                 'v': [0, 0.2]},
+                                variables_meridional={'Temp': [0, 2],
+                                                      'Salt': [0, 0.2],
+                                                      'u': [0, 0.2],
+                                                      'v': [0, 0.2]},
+                                variables_horiz={'Temp': [0, 2],
+                                                 'Salt': [0, 0.2],
+                                                 'u': [0, 0.2],
+                                                 'v': [0, 0.2],
+                                                 'ave_ssh': [0, 0.1]},
+                                colormap='jet',
+                                comout=os.path.join(comout, 'vrfy', 'bkgerr'))]   # ocn bkgerr stddev
     configs.extend(config_bkgerr)
 
 if run_bkg_analysis:
@@ -144,31 +144,32 @@ if run_bkg_analysis:
 
 if run_increment_analysis:
     config_incr = [plotConfig(grid_file=grid_file,
-                             layer_file=layer_file,
-                             data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc'),
-                             lats=np.arange(-60, 60, 10),
-                             lons=np.arange(-280, 80, 30),
-                             variables_zonal={'Temp': [-0.5, 0.5],
-                                              'Salt': [-0.1, 0.1]},
-                             variables_horiz={'Temp': [-0.5, 0.5],
-                                              'Salt': [-0.1, 0.1],
-                                              'ave_ssh': [-0.1, 0.1]},
-                             variables_meridional={'Temp': [-0.5, 0.5],
-                                                   'Salt': [-0.1, 0.1]},
-                             colormap='seismic',
-                             comout=os.path.join(comout, 'vrfy', 'incr')),   # ocean increment
-                  plotConfig(grid_file=grid_file,
-                             data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc'),
-                             lats=np.arange(-60, 60, 10),
-                             variables_horiz={'aice_h': [-0.2, 0.2],
-                                              'hi_h': [-0.5, 0.5],
-                                              'hs_h': [-0.1, 0.1]},
-                             colormap='seismic',
-                             projs=['North', 'South'],
-                             comout=os.path.join(comout, 'vrfy', 'incr'))]   # sea ice increment
+                              layer_file=layer_file,
+                              data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc'),
+                              lats=np.arange(-60, 60, 10),
+                              lons=np.arange(-280, 80, 30),
+                              variables_zonal={'Temp': [-0.5, 0.5],
+                                               'Salt': [-0.1, 0.1]},
+                              variables_horiz={'Temp': [-0.5, 0.5],
+                                               'Salt': [-0.1, 0.1],
+                                               'ave_ssh': [-0.1, 0.1]},
+                              variables_meridional={'Temp': [-0.5, 0.5],
+                                                    'Salt': [-0.1, 0.1]},
+                              colormap='seismic',
+                              comout=os.path.join(comout, 'vrfy', 'incr')),   # ocean increment
+                   plotConfig(grid_file=grid_file,
+                              data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc'),
+                              lats=np.arange(-60, 60, 10),
+                              variables_horiz={'aice_h': [-0.2, 0.2],
+                                               'hi_h': [-0.5, 0.5],
+                                               'hs_h': [-0.1, 0.1]},
+                              colormap='seismic',
+                              projs=['North', 'South'],
+                              comout=os.path.join(comout, 'vrfy', 'incr'))]   # sea ice increment
     configs.extend(config_incr)
 
 # plot marine analysis vrfy
+
 def plot_marine_vrfy(config):
     ocnvrfyPlotter = statePlotter(config)
     ocnvrfyPlotter.plot()
