@@ -64,7 +64,7 @@ members from template:
   zero padding: 3
 
 # Optionally test the application
-{% if do_testing %}
+{% if do_testing | default(false) %}
 test:
   reference filename: {{test_reference_filename}}
 {% if test_output_filename is defined %}
