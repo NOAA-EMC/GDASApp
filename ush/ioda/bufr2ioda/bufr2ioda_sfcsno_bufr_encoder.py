@@ -37,7 +37,6 @@ def create_obs_group(input_path):
 
     masked_container = mask_container(container, (~snod.mask))
 
-    encoder = Encoder(YAML_PATH)
-    data = next(iter(encoder.encode(masked_container).values()))
+    data = next(iter(Encoder(YAML_PATH).encode(masked_container).values()))
 
     return data
