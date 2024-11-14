@@ -42,4 +42,4 @@ export COM_ICE_HISTORY_PREV="/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy
 export COM_OCEAN_HISTORY_PREV="/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/gdas.20210826/18/model/ocean/history"
 
 # Excute Marine Verify Analysis
-python3 ${HOMEgfs}sorc/gdas.cd/scripts/exgdas_global_marine_analysis_vrfy_manual.py
+python3 ${HOMEgfs}sorc/gdas.cd/utils/soca/fig_gallery/exgdas_global_marine_analysis_vrfy_manual.py
