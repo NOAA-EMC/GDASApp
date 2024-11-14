@@ -12,13 +12,14 @@ def mask_container(container, mask):
 
     return new_container
 
+
 def create_obs_group(input_path):
     """Create the ioda snow observations
     This method:
     - reads state of ground (sogr) and snow depth (snod)
     - applys sogr conditions to the missing snod values
     - removes the filled/missing snow values and creates the masked container
-    - encoders the new container. 
+    - encoders the new container.
 
     Parameters
     ----------
