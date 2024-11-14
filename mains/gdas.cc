@@ -56,7 +56,7 @@ int runApp(int argc, char** argv, const std::string traits, const std::string ap
 
   apps["converttostructuredgrid"] = []() {
       return std::make_unique<oops::ConvertToStructuredGrid<Traits>>();
-  };	
+  };
   apps["convertstate"] = []() {
       return std::make_unique<oops::ConvertState<Traits>>();
   };
@@ -106,6 +106,7 @@ int main(int argc,  char ** argv) {
   const std::set<std::string> validApps = {
     "converttostructuredgrid",
     "convertstate",
+    "ensmean",
     "hofx4d",
     "localensembleda",
     "variational"

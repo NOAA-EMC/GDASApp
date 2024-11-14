@@ -25,15 +25,15 @@ observers:
 #- !INC ${MARINE_OBS_YAML_DIR}/icec_ssmis_f17_l2.yaml
 
 # in situ: monthly
-#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_bathy.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_bathy.yaml
 - !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_argo.yaml
-#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_glider.yaml
-#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_tesac.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_glider.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_tesac.yaml
 #- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_tesac_salinity.yaml
 #- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_marinemammal.yaml
-#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_xbtctd.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_xbtctd.yaml
 #- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_altkob.yaml
-#- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_trkob.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_trkob.yaml
 #- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_trkob_salinity.yaml
 
 # in situ: daily
