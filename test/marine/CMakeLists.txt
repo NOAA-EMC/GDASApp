@@ -28,12 +28,16 @@ install(FILES ${test_input}
 # bufr to ioda tests:
 ###########################################################################
 
+find_package(Python REQUIRED)
+# Extract the major and minor version (e.g., "3.10" from "3.10.13")
+string(REGEX REPLACE "^([0-9]+\\.[0-9]+).*" "\\1" PYTHON_MAJOR_MINOR ${Python_VERSION})
+set(PYIODACONV_DIR "${PROJECT_SOURCE_DIR}/build/lib/python${PYTHON_MAJOR_MINOR}/")
+
 set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/marine)
 set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
 set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
 set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/marine/testinput)
 set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/marine/testref)
-set(PYIODACONV_DIR "${PROJECT_SOURCE_DIR}/build/lib/python3.10/")
 
 
 # prepare a test.yaml file from test.yaml.in by replacing
