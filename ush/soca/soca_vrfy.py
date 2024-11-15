@@ -38,6 +38,18 @@ def plotConfig(grid_file=[],
                proj='set me',
                projs=['Global']):
 
+    # Map variable names to their units
+    variable_units = {
+        'ave_ssh': 'meter',
+        'Temp': 'deg C',
+        'Salt': 'psu',
+        'aice_h': 'meter',
+        'hi_h': 'meter',
+        'hs_h': 'meter',
+        'u' : 'm/s',
+        'v' : 'm/s'
+    }
+
     """
     Prepares the configuration for the plotting functions below
     """
@@ -64,6 +76,9 @@ def plotConfig(grid_file=[],
     config['variable'] = variable  # the variable currently plotted
     config['projs'] = projs  # all the projections etc.
     config['proj'] = proj
+
+    # Add units to the config for each variable
+    config['variable_units'] = variable_units
     return config
 
 
@@ -78,6 +93,7 @@ def plotHorizontalSlice(config):
     os.makedirs(dirname, exist_ok=True)
 
     variable = config['variable']
+    unit = config['variable_units'].get(config['variable'], 'unknown')
     exp = config['exp']
     PDY = config['PDY']
     cyc = config['cyc']
@@ -85,12 +101,12 @@ def plotHorizontalSlice(config):
     if variable in ['Temp', 'Salt', 'u', 'v']:
         level = config['levels'][0]
         slice_data = np.squeeze(data[variable])[level, :, :]
-        label_colorbar = variable + ' Level ' + str(level)
+        label_colorbar = f"{variable} ({unit}) Level {level}"
         figname = os.path.join(dirname, variable + '_Level_' + str(level))
         title = f"{exp} {PDY} {cyc} {variable} Level {level}"
     else:
         slice_data = np.squeeze(data[variable])
-        label_colorbar = variable
+        label_colorbar = f"{variable} ({unit})"
         figname = os.path.join(dirname, variable + '_' + config['proj'])
         title = f"{exp} {PDY} {cyc} {variable}"
 
@@ -142,6 +158,7 @@ def plotZonalSlice(config):
     Contourf of a zonal slice of an ocean field
     """
     variable = config['variable']
+    unit = config['variable_units'].get(config['variable'], 'unknown')
     exp = config['exp']
     PDY = config['PDY']
     cyc = config['cyc']
@@ -175,7 +192,7 @@ def plotZonalSlice(config):
 
     # Add colorbar for filled contours
     cbar = fig.colorbar(contourf_plot, ax=ax, shrink=0.5, orientation='horizontal')
-    cbar.set_label(variable + ' Lat ' + str(lat))
+    cbar.set_label(f"{config['variable']} ({unit}) Lat {lat}")
 
     # Set the colorbar ticks
     cbar.set_ticks(contour_levels)
@@ -197,6 +214,7 @@ def plotMeridionalSlice(config):
     Contourf of a Meridional slice of an ocean field
     """
     variable = config['variable']
+    unit = config['variable_units'].get(config['variable'], 'unknown')
     exp = config['exp']
     PDY = config['PDY']
     cyc = config['cyc']
@@ -230,7 +248,7 @@ def plotMeridionalSlice(config):
 
     # Add colorbar for filled contours
     cbar = fig.colorbar(contourf_plot, ax=ax, shrink=0.5, orientation='horizontal')
-    cbar.set_label(variable + ' Lon ' + str(lon))
+    cbar.set_label(f"{config['variable']} ({unit}) Lon {lon}")
 
     # Set the colorbar ticks
     cbar.set_ticks(contour_levels)
