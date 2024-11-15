@@ -23,8 +23,9 @@ def create_obs_group(input_path, mapping_path):
 
     Parameters
     ----------
-    input_path
-        The input bufr file
+    input_path:  The input bufr file
+    mapping_path: The input bufr2ioda mapping file
+
     """
 
     YAML_PATH = mapping_path
