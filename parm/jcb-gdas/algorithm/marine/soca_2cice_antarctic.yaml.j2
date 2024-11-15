@@ -26,7 +26,7 @@ variable change:
     tstep: PT1H
   cice output:
     restart: {{ ice_rst }}
-  output variables: [tocn, socn, hocn, cicen, hicen, hsnon]
+  output variables: [sea_water_potential_temperature, sea_water_salinity, sea_water_cell_thickness, sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness]
 
 states:
 - input:
@@ -35,7 +35,7 @@ states:
      ocn_filename: {{ ocn_ana }}
      ice_filename: {{ ice_ana }}
      date: '{{ fcst_begin }}'
-     state variables: [tocn, socn, hocn, cicen, hicen, hsnon]
+     state variables: [sea_water_potential_temperature, sea_water_salinity, sea_water_cell_thickness, sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness]
   output:
      datadir: Data
      exp: soca2cice
