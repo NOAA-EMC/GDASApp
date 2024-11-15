@@ -46,8 +46,8 @@ def plotConfig(grid_file=[],
         'aice_h': 'meter',
         'hi_h': 'meter',
         'hs_h': 'meter',
-        'u' : 'm/s',
-        'v' : 'm/s'
+        'u': 'm/s',
+        'v': 'm/s'
     }
 
     """
