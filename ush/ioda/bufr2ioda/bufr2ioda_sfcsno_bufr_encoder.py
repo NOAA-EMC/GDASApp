@@ -13,7 +13,7 @@ def mask_container(container, mask):
     return new_container
 
 
-def create_obs_group(input_path):
+def create_obs_group(input_path, mapping_path):
     """Create the ioda snow observations
     This method:
     - reads state of ground (sogr) and snow depth (snod)
@@ -27,7 +27,7 @@ def create_obs_group(input_path):
         The input bufr file
     """
 
-    YAML_PATH = "./obs/bufr_sfcsno_mapping.yaml"
+    YAML_PATH = mapping_path
     container = bufr.Parser(input_path, YAML_PATH).parse()
 
     sogr = container.get('variables/groundState')

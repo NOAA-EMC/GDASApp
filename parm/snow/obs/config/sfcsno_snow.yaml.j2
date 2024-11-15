@@ -9,6 +9,7 @@
         script file: "{{ USHgfs }}/bufr2ioda_sfcsno_bufr_encoder.py"
         args:
           input_path: '{{ DATA }}/obs/{{ OPREFIX }}sfcsno.tm00.bufr_d'
+          mapping_path: '{{ DATA }}/obs/bufr_sfcsno_mapping.yaml'
         obsfile: '{{ DATA }}/obs/{{ OPREFIX }}sfcsno.tm00.bufr_d'
     obsdataout:
       engine:
