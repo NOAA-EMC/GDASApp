@@ -343,7 +343,7 @@ namespace gdasapp {
               stdDevFilt(jnode, level, nbz,
                          configD.depthMin, neighbors, nzMld,
                          viewHocn, bkg, viewBathy, stdDevBkg, true, 6);
-            }
+            }  // end level
           }  // end 3D case
         }  // end jnode
       }  // end var
@@ -410,11 +410,31 @@ namespace gdasapp {
                                              tmpArray(jnode, level+1)) / 3.0;
                 }
                 stdDevBkg(jnode, 0) = stdDevBkg(jnode, 1);
+              }  // end jnode
+            }  // end iter (vertical)
+          }  // end vertical smoothing case
+        }  // end var (loop through variables)
+      }  // end simple smoothing
+
+      /// Impose an exponential decay to the background error
+      // ----------------------------------------------------
+      if (fullConfig.has("vertical e-folding scale")) {
+        double efold = 0.0;
+        fullConfig.get("vertical e-folding scale", efold);
+        for (auto & var : configD.socaVars.variables()) {
+        oops::Log::info()
+           << "====================== apply exponential decay to the background error with e-folding scale "
+           << " " << efold << " m for " << var << std::endl;
+          auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
+          for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
+            for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
+              if (viewDepth(jnode, level) >= 0.0) {
+                stdDevBkg(jnode, level) *= std::exp(-viewDepth(jnode, level) / efold);
               }
-            }
-          }
-        }
-      }
+            }  // end level
+          }  // end jnode
+        }  // end var (loop through variables)
+      }  // end exponential decay
 
       /// Use explicit diffusion to smooth the background error
       // ------------------------------------------------------
@@ -451,7 +471,7 @@ namespace gdasapp {
         // Apply the diffusion filtering
         diffuse.setParameters(scalesFs);
         diffuse.multiply(bkgErrFs, oops::Diffusion::Mode::HorizontalOnly);
-      }
+      }  // end explicit diffusion
 
       // Rescale
       util::multiplyFieldSet(bkgErrFs, configD.rescale);
