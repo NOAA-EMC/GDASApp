@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -eu
+set -u
 
 # ==============================================================================
 usage() {
@@ -31,7 +31,7 @@ done
 
 # ==============================================================================
 # start output file
-echo "Automated Global-Workflow GDASApp Testing Results:" > $outfile
+echo "Automated GW GDASApp Testing Results:" > $outfile
 echo "Machine: ${TARGET}" >> $outfile
 echo '```' >> $outfile
 echo "Start: $(date) on $(hostname)" >> $outfile

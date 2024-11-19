@@ -56,7 +56,6 @@ class TrkobMetadata(IODAMetadata):
     def log(self, logger):
         self.log_date_time(logger)
         self.log_rcpt_date_time(logger)
-        # self.logLonLat(logger)
         self.log_longitude(logger)
         self.log_latitude(logger)
         self.log_station_id(logger)

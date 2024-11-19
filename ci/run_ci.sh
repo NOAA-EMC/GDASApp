@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -eu
+set -u
 
 # ==============================================================================
 usage() {
@@ -61,7 +61,7 @@ module use $GDAS_MODULE_USE
 module load GDAS/$TARGET
 echo "---------------------------------------------------" >> $outfile
 rm -rf log.ctest
-ctest -E "manual" -R gdasapp --output-on-failure &>> log.ctest
+ctest -R gdasapp --output-on-failure &>> log.ctest
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
 if [ $ctest_status -eq 0 ]; then

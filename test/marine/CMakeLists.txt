@@ -28,6 +28,18 @@ install(FILES ${test_input}
 # bufr to ioda tests:
 ###########################################################################
 
+find_package(Python REQUIRED)
+# Extract the major and minor version (e.g., "3.10" from "3.10.13")
+string(REGEX REPLACE "^([0-9]+\\.[0-9]+).*" "\\1" PYTHON_MAJOR_MINOR ${Python_VERSION})
+set(PYIODACONV_DIR "${PROJECT_SOURCE_DIR}/build/lib/python${PYTHON_MAJOR_MINOR}/")
+
+set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/marine)
+set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
+set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
+set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/marine/testinput)
+set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/marine/testref)
+
+
 # prepare a test.yaml file from test.yaml.in by replacing
 # placeholder patterns __BUFRINPUTDIR__ and __IODAOUTPUTDIR__ and __OCEANBASIN__
 # with actual directory paths
@@ -44,14 +56,6 @@ function(CREATE_CONFIG_FILE
 	string(REPLACE "__OCEANBASIN__" "\"${ocean_basin_file}\"" temp_content3 "${temp_content2}")
 	file(WRITE "${test_config_out}" "${temp_content3}")
 endfunction()
-
-
-set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/marine)
-
-set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
-set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
-set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/marine/testinput)
-set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/marine/testref)
 
 
 function(CHECK_AND_SET_PATH PATH1 PATH2 RESULT_VAR)
@@ -88,7 +92,7 @@ CHECK_AND_SET_PATH(
 	BUFR_TEST_DIR
 )
 if (NOT BUFR_TEST_DIR_EXISTS)
-	message(STATUS "BUFR test file directory not found -- bufr to ioda tests not generted.")
+	message(WARNING "BUFR test file directory not found -- bufr to ioda tests not generated.")
 	set(GENERATE_BUFR2IODA_TESTS FALSE)
 else()
     # message(STATUS "Found bufr test directory: ${BUFR_TEST_DIR}")
@@ -105,7 +109,7 @@ else()
 		OCEAN_BASIN_FILE
 	)
 	if (NOT OCEAN_BASIN_FILE_EXISTS)
-		message("Ocean basin data file not found -- bufr to ioda tests not generated.")
+		message(WARNING "Ocean basin data file not found -- bufr to ioda tests not generated.")
 		set(GENERATE_BUFR2IODA_TESTS FALSE)
 	endif()
 	# message(STATUS "Found ocean basin data in ${OCEAN_BASIN_FILE}")
@@ -116,17 +120,26 @@ endif()
 function(ADD_INSITU_TEST testname testbufr)
 	# set(CONFIG_TYPE "json")
 	set(CONFIG_TYPE "yaml")
-	set(DATE "2021063006")
+
+	if (testbufr STREQUAL "dbuoy")
+		set(DATE "2019010700")
+		set(CYCLE "00")
+	else()
+		set(DATE "2021063006")
+		set(CYCLE "06")
+	endif()
+
 	set(TEST "bufr2ioda_insitu_${testname}")
 
 	set(TESTREF_FILE "${TEST}_${DATE}.ref")
 
 	# stage the input file to directory ${BUFR_INPUT_DIR}
 	set(BUFR_INPUT_DIR ${TEST_WORKING_DIR})
-	set(BUFR_TEST_FILE "${DATE}-gdas.t06z.${testbufr}.tm00.bufr_d")
+	set(BUFR_TEST_FILE "${DATE}-gdas.t${CYCLE}z.${testbufr}.tm00.bufr_d")
 	set(BUFR_FILE "${BUFR_TEST_DIR}/${BUFR_TEST_FILE}")
 	if (NOT EXISTS ${BUFR_FILE})
-		message(FATAL_ERROR "BUFR file ${BUFR_FILE} not found")
+		message(WARNING "BUFR file ${BUFR_FILE} not found, test not generated")
+		return()
 	endif()
 	file(COPY ${BUFR_FILE} DESTINATION ${BUFR_INPUT_DIR})
 
@@ -144,11 +157,17 @@ function(ADD_INSITU_TEST testname testbufr)
 	)
 
 	add_test(
-		NAME test_${TEST}
+		NAME test_gdasapp_${TEST}
 		COMMAND ${MARINE_BUFR2IODA_DIR}/${TEST}.py -c ${CONFIG_FILE} -t ${TESTREF_DIR}/${TESTREF_FILE}
 		WORKING_DIRECTORY ${TEST_WORKING_DIR}
 	)
+	set_property(
+		TEST test_gdasapp_${TEST}
+		APPEND PROPERTY 
+			ENVIRONMENT "PYTHONPATH=${PYIODACONV_DIR}:$ENV{PYTHONPATH}"
+	)
 endfunction()
+
 
 
 if (GENERATE_BUFR2IODA_TESTS)
@@ -156,6 +175,8 @@ if (GENERATE_BUFR2IODA_TESTS)
 	ADD_INSITU_TEST("profile_bathy" "bathy")
 	ADD_INSITU_TEST("profile_glider" "subpfl")
 	ADD_INSITU_TEST("profile_tesac" "tesac")
+	ADD_INSITU_TEST("profile_tropical" "dbuoy")
 	ADD_INSITU_TEST("profile_xbtctd" "xbtctd")
+	ADD_INSITU_TEST("surface_drifter" "dbuoy")
 	ADD_INSITU_TEST("surface_trkob" "trkob")
 endif()
