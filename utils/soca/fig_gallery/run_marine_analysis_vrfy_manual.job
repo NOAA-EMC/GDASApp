@@ -1,0 +1,45 @@
+#!/bin/bash
+#SBATCH --job-name=marine_vrfy    # Assign a name to the job (customize as needed)
+#SBATCH --account=da-cpu
+#SBATCH --qos=debug
+#SBATCH -A da-cpu
+#SBATCH --output=run_marine_vrfy_analysis.out
+#SBATCH --nodes=1                 # Request 1 node
+#SBATCH --ntasks=40               # Request 40 total tasks (processors across nodes)
+#SBATCH --partition=hera          # Specify the partition (cluster) named "hera"
+#SBATCH --cpus-per-task=1         # Set 1 CPU per task (equivalent to ppn=40 and tpp=1)
+#SBATCH --mem=24GB                # Request 24GB of memory
+#SBATCH --time=00:30:00           # Set the walltime limit to 30 minutes
+
+# Define HOMEgfs
+export HOMEgfs="/scratch1/NCEPDEV/da/Mindo.Choi/workflow_11122024/global-workflow/"
+
+# Load EVA module 
+module use ${HOMEgfs}sorc/gdas.cd/modulefiles
+module load EVA/hera
+
+# Set PYTHONPATH using HOMEgfs
+export PYTHONPATH="${HOMEgfs}sorc/gdas.cd/ush/:\
+${HOMEgfs}sorc/gdas.cd/ush/eva/:\
+${HOMEgfs}sorc/gdas.cd/ush/soca/:\
+$PYTHONPATH"
+
+# Set flags to control plotConfig in the Python script
+export RUN_ENSENBLE_ANALYSIS=OFF       # Check if ensemble run is ON
+export RUN_BACKGROUND_ERROR_ANALYSIS=ON
+export RUN_BACKGROUND_ANALYSIS=ON
+export RUN_INCREMENT_ANLYSIS=ON
+
+# Define and export the environment variables
+export cyc="00"
+export RUN="gdas"
+export PSLOT="gdas_test"
+export PDY="20210827"
+
+# Define and export environment variables with paths
+export COM_OCEAN_ANALYSIS="/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/gdas.20210827/00/analysis/ocean"
+export COM_ICE_HISTORY_PREV="/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/gdas.20210826/18/model/ice/history"
+export COM_OCEAN_HISTORY_PREV="/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/gdas.20210826/18/model/ocean/history"
+
+# Excute Marine Verify Analysis
+python3 ${HOMEgfs}sorc/gdas.cd/utils/soca/fig_gallery/exgdas_global_marine_analysis_vrfy_manual.py
