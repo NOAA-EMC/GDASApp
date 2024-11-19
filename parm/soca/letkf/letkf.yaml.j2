@@ -17,7 +17,7 @@ background:
       ice_filename: "ice.%mem%.nc"
       read_from_file: 1
       basename: {{ ENSPERT_RELPATH }}/ens/
-      state variables: [socn, tocn, ssh, hocn, uocn, vocn, cicen]
+      state variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, sea_water_cell_thickness, eastward_sea_water_velocity, northward_sea_water_velocity, sea_ice_area_fraction]
     pattern: '%mem%'
     nmembers: {{ NMEM_ENS  }}
 

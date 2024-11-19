@@ -261,7 +261,7 @@ namespace gdasapp {
 
       // Get the layer thicknesses and convert to layer depth
       oops::Log::info() << "====================== calculate layer depth" << std::endl;
-      auto viewHocn = atlas::array::make_view<double, 2>(xbFs["hocn"]);
+      auto viewHocn = atlas::array::make_view<double, 2>(xbFs["sea_water_cell_thickness"]);
       atlas::array::ArrayT<double> depth(viewHocn.shape(0), viewHocn.shape(1));
       auto viewDepth = atlas::array::make_view<double, 2>(depth);
       for (atlas::idx_t jnode = 0; jnode < depth.shape(0); ++jnode) {
@@ -299,7 +299,7 @@ namespace gdasapp {
       }
 
       // Update the layer thickness halo
-      nodeColumns.haloExchange(xbFs["hocn"]);
+      nodeColumns.haloExchange(xbFs["sea_water_cell_thickness"]);
 
       // Loop through variables
       for (auto & var : configD.socaVars.variables()) {
@@ -307,7 +307,7 @@ namespace gdasapp {
         nodeColumns.haloExchange(xbFs[var]);
 
         // Skip the layer thickness variable
-        if (var == "hocn") {
+        if (var == "sea_water_cell_thickness") {
           continue;
         }
         oops::Log::info() << "====================== std dev for " << var << std::endl;
@@ -330,7 +330,7 @@ namespace gdasapp {
             stdDevFilt(jnode, 0, 0,
                        configD.depthMin, neighbors, 0,
                        viewHocn, bkg, viewBathy, stdDevBkg, false, 4);
-            if (var == "ssh") {
+            if (var == "sea_surface_height_above_geoid") {
               // TODO(G): Extract the unbalanced ssh variance, in the mean time, do this:
               stdDevBkg(jnode, 0) = std::min(configD.sshMax, stdDevBkg(jnode, 0));
             }
@@ -353,7 +353,7 @@ namespace gdasapp {
       if (configD.simpleSmoothing) {
         for (auto & var : configD.socaVars.variables()) {
           // Skip the layer thickness variable
-          if (var == "hocn") {
+          if (var == "sea_water_cell_thickness") {
             continue;
           }
 
@@ -365,7 +365,8 @@ namespace gdasapp {
 
             // Loops through nodes and levels
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
-              for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
+              for (atlas::idx_t jnode = 0;
+                jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
                 // Early exit if on a ghost cell
                 if (ghostView(jnode) > 0) {
                   continue;
@@ -403,7 +404,8 @@ namespace gdasapp {
             auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
             auto tmpArray(stdDevBkg);
             for (int iter = 0; iter < configD.niterVert; ++iter) {
-              for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
+              for (atlas::idx_t jnode = 0;
+                jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
                 for (atlas::idx_t level = 1; level < xbFs[var].shape(1)-1; ++level) {
                   stdDevBkg(jnode, level) = (tmpArray(jnode, level-1) +
                                              tmpArray(jnode, level) +
@@ -424,14 +426,15 @@ namespace gdasapp {
                           << std::endl;
         // Create the diffusion object
         oops::GeometryData geometryData(geom.functionSpace(),
-                                        bkgErrFs["tocn"], true, this->getComm());
+                                        bkgErrFs["sea_water_potential_temperature"],
+                                        true, this->getComm());
         oops::Diffusion diffuse(geometryData);
         diffuse.calculateDerivedGeom(geometryData);
 
         // Lambda function to construct a field with a constant filtering value
         auto assignScale = [&](double scale, const std::string& fieldName) {
           atlas::Field field;
-          auto levels = xbFs["tocn"].shape(1);
+          auto levels = xbFs["sea_water_potential_temperature"].shape(1);
           field = geom.functionSpace().createField<double>(atlas::option::levels(levels) |
                        atlas::option::name(fieldName));
           auto viewField = atlas::array::make_view<double, 2>(field);
