@@ -22,20 +22,24 @@ function(add_task task_name test_prefix cycle pslot RUNTESTS PROJECT_SOURCE_DIR)
   # Add Task
   set(test_name ${test_prefix}_${task_name}_${cycle})
   message(STATUS "preparing ${subtask_names} for ${test_prefix} ctest")
-  add_test(NAME ${test_name}
-           COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh ${pslot} ${cycle} ${subtask_names}"
-           WORKING_DIRECTORY ${RUNTESTS})
-  set_tests_properties(${test_name} PROPERTIES LABELS "manual")
+  ecbuild_add_test(TARGET ${test_name}
+                   TYPE SCRIPT
+                   COMMAND ${PROJECT_SOURCE_DIR}/test/gw-ci/run_exp.sh
+                   ARGS ${pslot} ${cycle} ${subtask_names}
+                   WORKING_DIRECTORY ${RUNTESTS})
+#  set_tests_properties(${test_name} PROPERTIES LABELS "manual")
 endfunction()
 
 # Function that generates the 1/2 cycle forecast and DA tasks
 function(add_cycling_tests pslot YAML_PATH HOMEgfs RUNTESTS PROJECT_SOURCE_DIR HALF_CYCLE_TASKS FULL_CYCLE_TASKS)
   set(test_prefix test_gdasapp_${pslot})
   # Prepare the COMROOT and EXPDIR for the cycling ctests
-  add_test(NAME ${test_prefix}
-    COMMAND /bin/bash -c "${PROJECT_SOURCE_DIR}/test/gw-ci/create_exp.sh ${YAML_PATH} ${pslot} ${HOMEgfs} ${RUNTESTS}"
-    WORKING_DIRECTORY ${RUNTESTS})
-  set_tests_properties(${test_prefix} PROPERTIES LABELS "manual")
+  ecbuild_add_test(TARGET ${test_prefix}
+                   TYPE SCRIPT
+                   COMMAND ${PROJECT_SOURCE_DIR}/test/gw-ci/create_exp.sh
+                   ARGS ${YAML_PATH} ${pslot} ${HOMEgfs} ${RUNTESTS}
+                   WORKING_DIRECTORY ${RUNTESTS})
+#  set_tests_properties(${test_prefix} PROPERTIES LABELS "manual")
 
   # Get the 1/2 cycle and full cycle's dates
   execute_process(
