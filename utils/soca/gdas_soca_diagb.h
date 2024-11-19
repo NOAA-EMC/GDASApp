@@ -261,7 +261,7 @@ namespace gdasapp {
 
       // Get the layer thicknesses and convert to layer depth
       oops::Log::info() << "====================== calculate layer depth" << std::endl;
-      auto viewHocn = atlas::array::make_view<double, 2>(xbFs["sea_water_cell_thickness"]);
+      auto viewHocn = atlas::array::make_view<double, 2>(xbFs["hocn"]);
       atlas::array::ArrayT<double> depth(viewHocn.shape(0), viewHocn.shape(1));
       auto viewDepth = atlas::array::make_view<double, 2>(depth);
       for (atlas::idx_t jnode = 0; jnode < depth.shape(0); ++jnode) {
@@ -299,7 +299,7 @@ namespace gdasapp {
       }
 
       // Update the layer thickness halo
-      nodeColumns.haloExchange(xbFs["sea_water_cell_thickness"]);
+      nodeColumns.haloExchange(xbFs["hocn"]);
 
       // Loop through variables
       for (auto & var : configD.socaVars.variables()) {
@@ -307,7 +307,7 @@ namespace gdasapp {
         nodeColumns.haloExchange(xbFs[var]);
 
         // Skip the layer thickness variable
-        if (var == "sea_water_cell_thickness") {
+        if (var == "hocn") {
           continue;
         }
         oops::Log::info() << "====================== std dev for " << var << std::endl;
@@ -330,7 +330,7 @@ namespace gdasapp {
             stdDevFilt(jnode, 0, 0,
                        configD.depthMin, neighbors, 0,
                        viewHocn, bkg, viewBathy, stdDevBkg, false, 4);
-            if (var == "sea_surface_height_above_geoid") {
+            if (var == "ssh") {
               // TODO(G): Extract the unbalanced ssh variance, in the mean time, do this:
               stdDevBkg(jnode, 0) = std::min(configD.sshMax, stdDevBkg(jnode, 0));
             }
@@ -343,7 +343,7 @@ namespace gdasapp {
               stdDevFilt(jnode, level, nbz,
                          configD.depthMin, neighbors, nzMld,
                          viewHocn, bkg, viewBathy, stdDevBkg, true, 6);
-            }
+            }  // end level
           }  // end 3D case
         }  // end jnode
       }  // end var
@@ -353,7 +353,7 @@ namespace gdasapp {
       if (configD.simpleSmoothing) {
         for (auto & var : configD.socaVars.variables()) {
           // Skip the layer thickness variable
-          if (var == "sea_water_cell_thickness") {
+          if (var == "hocn") {
             continue;
           }
 
@@ -365,8 +365,7 @@ namespace gdasapp {
 
             // Loops through nodes and levels
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
-              for (atlas::idx_t jnode = 0;
-                jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
+              for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
                 // Early exit if on a ghost cell
                 if (ghostView(jnode) > 0) {
                   continue;
@@ -404,19 +403,38 @@ namespace gdasapp {
             auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
             auto tmpArray(stdDevBkg);
             for (int iter = 0; iter < configD.niterVert; ++iter) {
-              for (atlas::idx_t jnode = 0;
-                jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
+              for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
                 for (atlas::idx_t level = 1; level < xbFs[var].shape(1)-1; ++level) {
                   stdDevBkg(jnode, level) = (tmpArray(jnode, level-1) +
                                              tmpArray(jnode, level) +
                                              tmpArray(jnode, level+1)) / 3.0;
                 }
                 stdDevBkg(jnode, 0) = stdDevBkg(jnode, 1);
+              }  // end jnode
+            }  // end iter (vertical)
+          }  // end vertical smoothing case
+        }  // end var (loop through variables)
+      }  // end simple smoothing
+
+      /// Impose an exponential decay to the background error
+      // ----------------------------------------------------
+      if (fullConfig.has("vertical e-folding scale")) {
+        double efold = 0.0;
+        fullConfig.get("vertical e-folding scale", efold);
+        for (auto & var : configD.socaVars.variables()) {
+        oops::Log::info()
+           << "====================== apply exponential decay to the background error with e-folding scale "
+           << " " << efold << " m for " << var << std::endl;
+          auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
+          for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
+            for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
+              if (viewDepth(jnode, level) >= 0.0) {
+                stdDevBkg(jnode, level) *= std::exp(-viewDepth(jnode, level) / efold);
               }
-            }
-          }
-        }
-      }
+            }  // end level
+          }  // end jnode
+        }  // end var (loop through variables)
+      }  // end exponential decay
 
       /// Use explicit diffusion to smooth the background error
       // ------------------------------------------------------
@@ -426,15 +444,14 @@ namespace gdasapp {
                           << std::endl;
         // Create the diffusion object
         oops::GeometryData geometryData(geom.functionSpace(),
-                                        bkgErrFs["sea_water_potential_temperature"],
-                                        true, this->getComm());
+                                        bkgErrFs["tocn"], true, this->getComm());
         oops::Diffusion diffuse(geometryData);
         diffuse.calculateDerivedGeom(geometryData);
 
         // Lambda function to construct a field with a constant filtering value
         auto assignScale = [&](double scale, const std::string& fieldName) {
           atlas::Field field;
-          auto levels = xbFs["sea_water_potential_temperature"].shape(1);
+          auto levels = xbFs["tocn"].shape(1);
           field = geom.functionSpace().createField<double>(atlas::option::levels(levels) |
                        atlas::option::name(fieldName));
           auto viewField = atlas::array::make_view<double, 2>(field);
@@ -454,7 +471,7 @@ namespace gdasapp {
         // Apply the diffusion filtering
         diffuse.setParameters(scalesFs);
         diffuse.multiply(bkgErrFs, oops::Diffusion::Mode::HorizontalOnly);
-      }
+      }  // end explicit diffusion
 
       // Rescale
       util::multiplyFieldSet(bkgErrFs, configD.rescale);
