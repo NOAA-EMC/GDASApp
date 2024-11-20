@@ -239,17 +239,6 @@ namespace gdasapp {
         global_rescale.zero();
         const eckit::LocalConfiguration GlobalRescaleStdConfig(GlobalRescaleConfig,
                                                     "rescale stddev");
-        // Get the 'datapath' and 'filename_trcr' from the YAML configuration
-        std::string datapath, filename_trcr;
-        GlobalRescaleStdConfig.get("datapath", datapath);
-        GlobalRescaleStdConfig.get("filename_trcr", filename_trcr);
-
-        // Combine the path and filename to get the full file path
-        std::string fullPath = datapath + filename_trcr;
-
-        // Print out the full path to verify
-        std::cout << "Attempting to read the global rescale file from: " << fullPath << std::endl;
-
         global_rescale.read(GlobalRescaleStdConfig);
         // interpolate to background resolution
         fv3jedi::Increment global_rescale_interp(geom, global_rescale);
