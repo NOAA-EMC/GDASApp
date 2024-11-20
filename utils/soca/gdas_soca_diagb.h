@@ -425,8 +425,8 @@ namespace gdasapp {
         fullConfig.get("vertical e-folding scale", efold);
         for (auto & var : configD.socaVars.variables()) {
         oops::Log::info()
-           << "====================== apply exponential decay to the background error with e-folding scale "
-           << " " << efold << " m for " << var << std::endl;
+           << "====================== apply exponential decay to the background error. "
+           << " e-folding scale: " << efold << " m for " << var << std::endl;
           auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
           for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
