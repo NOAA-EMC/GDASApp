@@ -183,7 +183,7 @@ namespace gdasapp {
       // Re-process the ensemble of perturbations
       int result = 0;
       oops::Variables socaSshVar;
-      socaSshVar.push_back("ssh");
+      socaSshVar.push_back("sea_surface_height_above_geoid");
       std::vector<soca::Increment> sshTotal;
       std::vector<soca::Increment> sshSteric;
       std::vector<soca::Increment> sshNonSteric;

@@ -6,12 +6,17 @@ geometry:
 
 date: '{{ MARINE_WINDOW_END_ISO }}'
 
-layers variable: [hocn]
+layers variable: [sea_water_cell_thickness]
 
 # TODO(AFE) fix ice recentering in cycled da
-increment variables: [tocn, socn, uocn, vocn]
-
-set increment variables to zero: [uocn, vocn]
+increment variables:
+- sea_water_potential_temperature
+- sea_water_salinity
+- eastward_sea_water_velocity
+- northward_sea_water_velocity
+set increment variables to zero:
+- eastward_sea_water_velocity
+- northward_sea_water_velocity
 
 vertical geometry:
   date: '{{ MARINE_WINDOW_BEGIN_ISO }}'
@@ -35,7 +40,14 @@ soca increments:  # Could also be states, but they are read as increments
 
 trajectory:
 # TODO(AFE) fix ice recentering in cycled da
-  state variables: [tocn, socn, uocn, vocn, hocn, layer_depth, mld]
+  state variables:
+  - sea_water_potential_temperature
+  - sea_water_salinity
+  - eastward_sea_water_velocity
+  - northward_sea_water_velocity
+  - sea_water_cell_thickness
+  - sea_water_depth
+  - ocean_mixed_layer_thickness
   date: '{{ MARINE_WINDOW_END_ISO }}'
   basename: ./bkg/
   ocn_filename: ocean.bkg.f009.nc

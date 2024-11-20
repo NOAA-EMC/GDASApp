@@ -116,6 +116,11 @@ class MarineRecenter(Task):
         # prepare the MOM6 input.nml
         mdau.prep_input_nml(self.task_config)
 
+        # stage the soca utility yamls (gridgen, fields and ufo mapping yamls)
+        logger.info(f"Staging SOCA utility yaml files from {self.task_config.PARMsoca}")
+        soca_utility_list = parse_j2yaml(self.task_config.MARINE_UTILITY_YAML_TMPL, self.task_config)
+        FileHandler(soca_utility_list).sync()
+
         # stage backgrounds
         bkg_list = parse_j2yaml(self.task_config.MARINE_DET_STAGE_BKG_YAML_TMPL, self.task_config)
         FileHandler(bkg_list).sync()
