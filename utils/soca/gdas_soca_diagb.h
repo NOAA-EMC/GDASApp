@@ -428,7 +428,7 @@ namespace gdasapp {
            << "====================== apply exponential decay to the background error. "
            << " e-folding scale: " << efold << " m for " << var << std::endl;
           auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
-          for (atlas::idx_t jnode = 0; jnode < xbFs["tocn"].shape(0); ++jnode) {
+          for (atlas::idx_t jnode = 0; jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
               if (viewDepth(jnode, level) >= 0.0) {
                 stdDevBkg(jnode, level) *= std::exp(-viewDepth(jnode, level) / efold);
