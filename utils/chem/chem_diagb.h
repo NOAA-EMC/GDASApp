@@ -243,7 +243,7 @@ namespace gdasapp {
         fv3jedi::Increment global_rescale(GlobalRescaleGeom, chemVars, cycleDate);
         global_rescale.zero();
         const eckit::LocalConfiguration GlobalRescaleStdConfig(GlobalRescaleConfig,
-		                          	"rescale stddev");
+                                                    "rescale stddev");
         // Get the 'datapath' and 'filename_trcr' from the YAML configuration
         std::string datapath, filename_trcr;
         GlobalRescaleStdConfig.get("datapath", datapath);
