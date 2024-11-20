@@ -78,11 +78,6 @@ namespace gdasapp {
       oops::Log::info() << "Background:" << std::endl;
       oops::Log::info() << xb << std::endl;
 
-      /// Read the global rescale
-      //--------------------------
-//      oops::Log::info() << "=================== read global rescale" << std::endl;
-//      fv3jedi::
-
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
       // Build edges, then connections between nodes and edges
