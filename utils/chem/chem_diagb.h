@@ -240,10 +240,11 @@ namespace gdasapp {
         const eckit::LocalConfiguration GlobalRescaleConfig(fullConfig, "global rescale");
         const eckit::LocalConfiguration GlobalRescaleGeomConfig(GlobalRescaleConfig, "geometry");
         const fv3jedi::Geometry GlobalRescaleGeom(GlobalRescaleGeomConfig, this-> getComm());
-	fv3jedi::Increment global_rescale(GlobalRescaleGeom, chemVars, cycleDate);
+        fv3jedi::Increment global_rescale(GlobalRescaleGeom, chemVars, cycleDate);
         global_rescale.zero();
-        const eckit::LocalConfiguration GlobalRescaleStdConfig(GlobalRescaleConfig, "rescale stddev");
-	// Get the 'datapath' and 'filename_trcr' from the YAML configuration
+        const eckit::LocalConfiguration GlobalRescaleStdConfig(GlobalRescaleConfig,
+		                          	"rescale stddev");
+        // Get the 'datapath' and 'filename_trcr' from the YAML configuration
         std::string datapath, filename_trcr;
         GlobalRescaleStdConfig.get("datapath", datapath);
         GlobalRescaleStdConfig.get("filename_trcr", filename_trcr);
