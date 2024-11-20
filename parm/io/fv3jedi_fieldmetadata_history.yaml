@@ -6,7 +6,7 @@ field metadata:
 - long name: northward_wind
   io name: vgrd
 
-- long name: specific_humidity
+- long name: water_vapor_mixing_ratio_wrt_moist_air
   io name: spfh
 
 - long name: air_temperature
@@ -45,11 +45,11 @@ field metadata:
 - long name: upward_air_velocity
   io name: dzdt
 
-- long name: surface_pressure
+- long name: air_pressure_at_surface
   io name: pressfc
   io file: atmosphere
 
-- long name: surface_geopotential_height
+- long name: geopotential_height_at_surface
   io name: hgtsfc
 
 - long name: u_component_of_native_D_grid_wind
@@ -74,7 +74,7 @@ field metadata:
 - long name: sheleg
   io name: weasd
 
-- long name: sea_surface_temperature
+- long name: skin_temperature_at_surface
   io name: tmpsfc
 
 - long name: stype
@@ -86,8 +86,8 @@ field metadata:
 - long name: totalSnowDepthMeters
   io name: snod
 
-- long name: surface_eastward_wind
+- long name: eastward_wind_at_surface
   io name: ugrd_hyblev1
 
-- long name: surface_northward_wind
+- long name: northward_wind_at_surface
   io name: vgrd_hyblev1
