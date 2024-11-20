@@ -235,16 +235,14 @@ namespace gdasapp {
         }
       }
 
-     // Rescale     
+     // Rescale
       if (fullConfig.has("global rescale")) {
-	const eckit::LocalConfiguration GlobalRescaleConfig(fullConfig, "global rescale");
-//        fv3jedi::State global_rescale(rescaleGeom, chemVars,cycleDate);
-//	fv3jedi::State global_rescale_interp(geom, chemVars, cycleDate);
-	const eckit::LocalConfiguration GlobalRescaleGeomConfig(GlobalRescaleConfig,"geometry");
+        const eckit::LocalConfiguration GlobalRescaleConfig(fullConfig, "global rescale");
+        const eckit::LocalConfiguration GlobalRescaleGeomConfig(GlobalRescaleConfig, "geometry");
         const fv3jedi::Geometry GlobalRescaleGeom(GlobalRescaleGeomConfig, this-> getComm());
 	fv3jedi::Increment global_rescale(GlobalRescaleGeom, chemVars, cycleDate);
-	global_rescale.zero(); 
-	const eckit::LocalConfiguration GlobalRescaleStdConfig(GlobalRescaleConfig,"rescale stddev");
+        global_rescale.zero();
+        const eckit::LocalConfiguration GlobalRescaleStdConfig(GlobalRescaleConfig, "rescale stddev");
 	// Get the 'datapath' and 'filename_trcr' from the YAML configuration
         std::string datapath, filename_trcr;
         GlobalRescaleStdConfig.get("datapath", datapath);
@@ -257,8 +255,8 @@ namespace gdasapp {
         std::cout << "Attempting to read the global rescale file from: " << fullPath << std::endl;
 
         global_rescale.read(GlobalRescaleStdConfig);
-	// interpolate to background resolution
-	fv3jedi::Increment global_rescale_interp(geom, global_rescale); 
+        // interpolate to background resolution
+        fv3jedi::Increment global_rescale_interp(geom, global_rescale);
         atlas::FieldSet xrsFs;
         global_rescale_interp.toFieldSet(xrsFs);
         oops::Log::info() << "global rescaling coefficients:" << std::endl;
