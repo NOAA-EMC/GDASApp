@@ -3,26 +3,55 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
 
   # Get subtask names if task is a metatask
   if("${task_name}" STREQUAL "gdas_fcst")
-    set(subtask_names "gdas_fcst_seg0")
+    set(subtask_names_list
+      "gdas_fcst_seg0")
   elseif("${task_name}" STREQUAL "enkfgdas_fcst")
     if("${pslot}" STREQUAL "C48mx500_hybAOWCDA")
-      set(subtask_names "enkfgdas_fcst_mem001 enkfgdas_fcst_mem002 enkfgdas_fcst_mem003")      
+      set(subtask_names_list
+        "enkfgdas_fcst_mem001"
+        "enkfgdas_fcst_mem002"
+        "enkfgdas_fcst_mem003")
     else()
-      set(subtask_names "enkfgdas_fcst_mem001 enkfgdas_fcst_mem002")
+      set(subtask_names_list
+        "enkfgdas_fcst_mem001"
+        "enkfgdas_fcst_mem002")
     endif()
   elseif("${task_name}" STREQUAL "gdas_atmos_prod")
-    set(subtask_names "gdas_atmos_prod_f000 gdas_atmos_prod_f001 gdas_atmos_prod_f002 gdas_atmos_prod_f003 gdas_atmos_prod_f004 gdas_atmos_prod_f005 gdas_atmos_prod_f006 gdas_atmos_prod_f007 gdas_atmos_prod_f008 gdas_atmos_prod_f009")
+    set(subtask_names_list
+      "gdas_atmos_prod_f000"
+      "gdas_atmos_prod_f001"
+      "gdas_atmos_prod_f002"
+      "gdas_atmos_prod_f003"
+      "gdas_atmos_prod_f004"
+      "gdas_atmos_prod_f005"
+      "gdas_atmos_prod_f006"
+      "gdas_atmos_prod_f007"
+      "gdas_atmos_prod_f008"
+      "gdas_atmos_prod_f009")
   elseif("${task_name}" STREQUAL "enkfgdas_epmn")
-    set(subtask_names "enkfgdas_epos001 enkfgdas_epos002 enkfgdas_epos003 enkfgdas_epos004 enkfgdas_epos005 enkfgdas_epos006")
+    set(subtask_names_list
+      "enkfgdas_epos001"
+      "enkfgdas_epos002"
+      "enkfgdas_epos003"
+      "enkfgdas_epos004"
+      "enkfgdas_epos005"
+      "enkfgdas_epos006")
   elseif("${task_name}" STREQUAL "enkfgdas_ecmn")
     if ("${pslot}" STREQUAL "C96C48_ufs_hybatmDA")
-      set(subtask_names "enkfgdas_ecen000")      
+      set(subtask_names_list
+        "enkfgdas_ecen000")      
     else()
-      set(subtask_names "enkfgdas_ecen000 enkfgdas_ecen001 enkfgdas_ecen002")      
+      set(subtask_names_list
+        "enkfgdas_ecen000"
+        "enkfgdas_ecen001"
+        "enkfgdas_ecen002")      
     endif()
   else()
-    set(subtask_names ${task_name})
+    set(subtask_names_list ${task_name})
   endif()
+
+  # Convert list to comma-delimited string
+  string(JOIN "," subtask_names ${subtask_names_list})
 
   # Get task dependencies
   set(TEST_DEPENDS)
