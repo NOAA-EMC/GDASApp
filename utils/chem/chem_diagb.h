@@ -230,12 +230,26 @@ namespace gdasapp {
         }
       }
 
-      // Rescale
-      if (fullConfig.has("rescale")) {
-        double rescale;
-        fullConfig.get("rescale", rescale);
-        util::multiplyFieldSet(bkgErrFs, rescale);
+     // Rescale
+      if (fullConfig.has("global rescale")) {
+        const eckit::LocalConfiguration GlobalRescaleConfig(fullConfig, "global rescale");
+        const eckit::LocalConfiguration GlobalRescaleGeomConfig(GlobalRescaleConfig, "geometry");
+        const fv3jedi::Geometry GlobalRescaleGeom(GlobalRescaleGeomConfig, this-> getComm());
+        fv3jedi::Increment global_rescale(GlobalRescaleGeom, chemVars, cycleDate);
+        global_rescale.zero();
+        const eckit::LocalConfiguration GlobalRescaleStdConfig(GlobalRescaleConfig,
+                                                    "rescale stddev");
+        global_rescale.read(GlobalRescaleStdConfig);
+        // interpolate to background resolution
+        fv3jedi::Increment global_rescale_interp(geom, global_rescale);
+        atlas::FieldSet xrsFs;
+        global_rescale_interp.toFieldSet(xrsFs);
+        oops::Log::info() << "global rescaling coefficients:" << std::endl;
+        oops::Log::info() << xrsFs << std::endl;
+        util::multiplyFieldSets(bkgErrFs, xrsFs);
       }
+
+
 
       bkgErr.fromFieldSet(bkgErrFs);
 
@@ -273,6 +287,7 @@ namespace gdasapp {
         // Staticb rescale
         double rescale_staticb;
         ClimBConfig.get("staticb rescaling factor", rescale_staticb);
+
 
         // Combine diagb and climatological background errors
         fv3jedi::Increment stddev_hybrid(geom, chemVars, cycleDate);
