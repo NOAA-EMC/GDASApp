@@ -30,7 +30,7 @@ analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 # Testing
 # -------
 
-do_testing: {{ DO_JEDI_TESTING | default(false, true) }}
+do_testing: {{ DO_TEST_MODE | default(false, true) }}
 
 # Model things
 # ------------

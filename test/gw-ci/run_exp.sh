@@ -32,16 +32,20 @@ while true; do
       STATUS=$(echo "$OUTPUT" | awk '$2 == task {print $4}' task="$task")
 
       if [[ "$STATUS" == "SUCCEEDED" ]]; then
-          echo "$task succeeded."
+          echo "$pslot"_"$task"_"$CYCLE"" succeeded."
           num_succeeded=$((num_succeeded + 1))
       elif [[ "$STATUS" == "FAILED" ]]; then
-          echo "$task failed."
+          echo "$pslot"_"$task"_"$CYCLE"" failed."
           exit 1
       elif [[ "$STATUS" == "DEAD" ]]; then
-          echo "$task is dead."
+          echo "$pslot"_"$task"_"$CYCLE"" is dead."
           exit 1
+      elif [[ "$STATUS" == "SUBMITTING" ]] || [[ "$STATUS" == "QUEUED" ]] || [[ "$STATUS" == "RUNNING" ]]; then
+          echo "$pslot"_"$task"_"$CYCLE"" is in state: $STATUS"
       else
-          echo "$task is in state: $STATUS"
+          echo "$pslot"_"$task"_"$CYCLE"" is in unrecognized state: $STATUS. Rewinding..."          
+          rocotorewind -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$task_args" -c "$CYCLE"
+          rocotoboot -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$task_args" -c "$CYCLE"          
       fi
   done
   if [[ "$num_succeeded" == "$num_tasks" ]]; then
