@@ -1,26 +1,32 @@
 input geometry:
   mom6_input_nml: mom_input.nml
-  fields metadata: ./fields_metadata.yaml
+  fields metadata: fields_metadata.yaml
 
 output geometry:
   mom6_input_nml: mom_input.nml
-  fields metadata: ./fields_metadata.yaml
+  fields metadata: fields_metadata.yaml
 
 variable change:
   variable change name: Soca2Cice
-  do inverse: false
-  seaice edge: 0.8
-  shuffle: false
-  rescale prior:
-    min hice: 0.5
-    min hsno: 0.1
-  domain: arctic
+  arctic:
+    seaice edge: 0.8
+    shuffle: false
+    rescale prior:
+      rescale: true
+      min hice: 0.5
+      min hsno: 0.1
+  antarctic:
+    seaice edge: 0.9
+    shuffle: false  # seg. fault when true
+    rescale prior:
+      rescale: true
+      min hice: 0.5
+      min hsno: 0.1
   cice background state:
     restart: {{ ice_rst }}
     ncat: 5
     ice_lev: 7
     sno_lev: 1
-    tstep: PT1H
   cice output:
     restart: {{ ice_rst }}
   output variables: [sea_water_potential_temperature, sea_water_salinity, sea_water_cell_thickness, sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness]
