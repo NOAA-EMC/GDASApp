@@ -9,7 +9,7 @@ field metadata:
 - long name: air_temperature
   io name: T_inc
 
-- long name: specific_humidity
+- long name: water_vapor_mixing_ratio_wrt_moist_air
   io name: sphum_inc
 
 - long name: cloud_liquid_water

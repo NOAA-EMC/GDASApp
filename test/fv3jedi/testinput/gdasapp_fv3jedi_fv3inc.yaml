@@ -1,6 +1,6 @@
 variable change:
   variable change name: Model2GeoVaLs
-  input variables: &bkgvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,surface_geopotential_height]
+  input variables: &bkgvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,hgtsfc]
   output variables: &fv3incrvars [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,delz]
 jedi increment variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 fv3 increment variables: *fv3incrvars
