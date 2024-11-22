@@ -90,17 +90,17 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testreference)
 # list of test reference files to install
 list(APPEND test_reference
   ${PROJECT_SOURCE_DIR}/test/testreference/amsua_n19_gdas.yaml
-  ${PROJECT_SOURCE_DIR}/test/testoutput/C96C48_ufs_hybatmDA_3dvar.ref
-  ${PROJECT_SOURCE_DIR}/test/testoutput/C96C48_ufs_hybatmDA_3dvar-fv3inc.ref  
-  ${PROJECT_SOURCE_DIR}/test/testoutput/C96C48_ufs_hybatmDA_lgetkf_observer.ref
-  ${PROJECT_SOURCE_DIR}/test/testoutput/C96C48_ufs_hybatmDA_lgetkf_solver.ref
-  ${PROJECT_SOURCE_DIR}/test/testoutput/C96C48_ufs_hybatmDA_lgetkf_fv3inc.ref
-  ${PROJECT_SOURCE_DIR}/test/testoutput/atm_jjob_3dvar.ref
-  ${PROJECT_SOURCE_DIR}/test/testoutput/atm_jjob_3dvar-fv3inc.ref  
-  ${PROJECT_SOURCE_DIR}/test/testoutput/atm_jjob_lgetkf_observer.ref
-  ${PROJECT_SOURCE_DIR}/test/testoutput/atm_jjob_lgetkf_solver.ref
-  ${PROJECT_SOURCE_DIR}/test/testoutput/atm_jjob_lgetkf_fv3inc.ref
-  ${PROJECT_SOURCE_DIR}/test/testoutput/atm_jjob_lgetkf.ref  
+#  ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_3dvar.ref
+#  ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_3dvar-fv3inc.ref  
+#  ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_lgetkf_observer.ref
+#  ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_lgetkf_solver.ref
+#  ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_lgetkf_fv3inc.ref
+  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_3dvar.ref
+  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_3dvar-fv3inc.ref  
+  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_observer.ref
+  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_solver.ref
+  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_fv3inc.ref
+  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf.ref  
 )
 
 # symlink
