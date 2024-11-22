@@ -399,11 +399,20 @@ window.onclick = function(event) {
 	</div>
 	<div id="main">
 		<h1><font color="blue">Marine Figures</font></h1>
-		<h2>Add path to the main verification directory:</h2>
+		<h2>Add path to main verification directory:</h2>
 		<div>
                     <!-- Path -->
-                    <label for="inputVrfyPath">Path to /vrfy: </label>
-                    <input type="text" id="inputVrfyPath" placeholder="" value="">
+                    <label for="inputMainPath">Main Verification Path: </label>
+                    <input type="text" id="inputMainPath" placeholder="" value="">
+                </div>
+		<h3>Are the figures in your COMROOT or from HPSS? For example:</h3>
+		If COMROOT, the main path should include everything before /gdas.YearMonthDay directories.
+		<br>
+		If HPSS, the main path should include everything before /YearMonthDayHour directories.
+		<div>
+                    <!-- Path Choice -->
+                    <label for="inputPathChoice">Enter COMROOT or HPSS: </label>
+                    <input type="text" id="inputPathChoice" placeholder="" value="">
                 </div>
 
 	        <h2>Choose a date and cycle time:</h2>
@@ -464,13 +473,13 @@ window.onclick = function(event) {
             var month = document.getElementById('inputMonth').value;
             var day = document.getElementById('inputDay').value;
             var hour = document.getElementById('inputHour').value;
-            var vrfyMain = document.getElementById('inputVrfyPath').value;
-	    //console.log("year = ",year);
-	    //console.log("month = ",month);
-	    //console.log("day = ",day);
-	    //console.log("hour = ",hour);
-            var inputPath = vrfyMain+"/"+year+month+day+hour+"/gdas."+year+month+day+"/"+hour+"/analysis/ocean/vrfy/";
-            //console.log("inputPath = ",inputPath);
+            var pathMain = document.getElementById('inputMainPath').value;
+            var pathChoice = document.getElementById('inputPathChoice').value;
+            if (pathChoice == 'HPSS') {
+                var inputPath = pathMain+"/"+year+month+day+hour+"/gdas."+year+month+day+"/"+hour+"/analysis/ocean/vrfy/";
+	    } else if (pathChoice == 'COMROOT') {
+                var inputPath = pathMain+"/gdas."+year+month+day+"/"+hour+"/analysis/ocean/vrfy/";
+	    }
 
             function showImagesBkgErrInc(figtype, variable, domain) {
                 thisFigType = figtype;
