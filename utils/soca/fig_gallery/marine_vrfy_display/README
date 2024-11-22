@@ -11,8 +11,12 @@ To use, follow these steps:
         firefox index_vrfy_marine.html
 
 2. In the webpage,
-	a. Enter the path to your /vrfy directory.
-	b. Enter the date and cycle time you wish to display.
+	a. Enter the path to your main verification directory. See 2b for info on what to include in this path.
+        b. Are your figures in your COMROOT or from HPSS?
+		If COMROOT, the main path should include everything BEFORE /gdas.YearMonthDay subdirectories.
+		If HPSS, the main path should include everything BEFORE /YearMonthDayHour subdirectories.
+	   Enter COMROOT or HPSS.
+	c. Enter the date and cycle time you wish to display.
 
 3. Refresh the webpage tab by clicking the refresh button. You should still see your entered path and date/time.
 
