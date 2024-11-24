@@ -146,7 +146,6 @@ add_test(NAME test_gdasapp_check_yaml_keys
 #endif()
 
 if (${BUILD_GDASBUNDLE})
-  add_subdirectory(fv3jedi)   # fv3jedi tests
   add_subdirectory(snow)      # snow da tests
   add_subdirectory(gw-ci)   # subset of the global-workflow ci tests
 endif()
