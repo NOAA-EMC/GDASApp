@@ -26,6 +26,10 @@ final_prints_frequency: PT3H
 number_of_outer_loops: 1
 analysis_variables: [sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness, sea_water_salinity, sea_water_potential_temperature, eastward_sea_water_velocity, northward_sea_water_velocity, sea_surface_height_above_geoid]
 
+# Testing
+# -------
+
+do_testing: '{{ DO_TEST_MODE | default(false, true) }}'
 
 # Model things
 # ------------

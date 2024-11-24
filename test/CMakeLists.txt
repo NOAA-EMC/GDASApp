@@ -100,7 +100,8 @@ list(APPEND test_reference
   ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_observer.ref
   ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_solver.ref
   ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_fv3inc.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf.ref  
+  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf.ref
+  ${PROJECT_SOURCE_DIR}/test/testreference/C48mx500_3DVarAOWCDA_3dfgat.ref  
 )
 
 # symlink

@@ -1,0 +1,54 @@
+Norm of input parameter StdDev: 4.1916150456516459e+02
+CostJb   : Nonlinear Jb = 0.0000000000000000e+00
+CostJo   : Nonlinear Jo(adt_rads_all) = 3.6538107293180053e+02, nobs = 154056, Jo/n = 2.3717419180804417e-03, err = 3.5902523361909755e+00
+CostJo   : Nonlinear Jo(sst_avhrr_ma_l3u) = 2.2674500789797807e+05, nobs = 80795, Jo/n = 2.8064237625840467e+00, err = 3.1933209964416054e-01
+CostJo   : Nonlinear Jo(sst_avhrr_mb_l3u) = 2.4093341994206450e+05, nobs = 87590, Jo/n = 2.7506955125249970e+00, err = 3.1303879303248278e-01
+CostJo   : Nonlinear Jo(sst_viirs_npp_l3u) = 3.5095100144345453e+05, nobs = 86464, Jo/n = 4.0589262750214488e+00, err = 2.7352638780435701e-01
+CostJo   : Nonlinear Jo(sst_viirs_n20_l3u) = 3.4617882174260722e+05, nobs = 82328, Jo/n = 4.2048734542635220e+00, err = 2.7610924066693887e-01
+CostJo   : Nonlinear Jo(sst_abi_g16_l3c) = 0.0000000000000000e+00 --- No Observations
+CostJo   : Nonlinear Jo(sst_abi_g17_l3c) = 0.0000000000000000e+00 --- No Observations
+CostJo   : Nonlinear Jo(sst_ahi_h08_l3c) = 0.0000000000000000e+00 --- No Observations
+CostJo   : Nonlinear Jo(icec_amsr2_north) = 1.3776003730013903e+05, nobs = 238447, Jo/n = 5.7773860564460455e-01, err = 1.1973958453579239e-01
+CostJo   : Nonlinear Jo(icec_amsr2_south) = 1.3525377877554770e+06, nobs = 294824, Jo/n = 4.5876108720981907e+00, err = 1.6104199583000647e-01
+CostJo   : Nonlinear Jo(insitu_profile_argo) = 1.2371155464032217e+03, nobs = 74525, Jo/n = 1.6600007331811092e-02, err = 1.0000000000000000e+01
+CostFunction: Nonlinear J = 2.6567085727010556e+06
+RPCGMinimizer: reduction in residual norm = 3.3320242450517824e-02
+CostFunction::addIncrement: Analysis: 
+  Valid time: 2021-03-24T18:00:00Z
+          sea_ice_area_fraction   min=-0.3191478642087981   max=1.9094064942717854   mean=0.1380060365165569
+              sea_ice_thickness   min=0.0000000000000000   max=4.7237067222595215   mean=0.1716933516882944
+         sea_ice_snow_thickness   min=0.0000000000000000   max=0.5992891192436218   mean=0.0227558953028715
+             sea_water_salinity   min=-0.0004127016278705   max=40.0432853698730469   mean=33.6826135810349925
+sea_water_potential_temperature   min=-13.5424639498294965   max=31.5094358260619565   mean=11.4876284245572435
+    eastward_sea_water_velocity   min=-0.9187383651733398   max=0.6746135354042053   mean=-0.0008460743757450
+   northward_sea_water_velocity   min=-0.6511899232864380   max=0.9435366392135620   mean=0.0030693165578485
+ sea_surface_height_above_geoid   min=-1.9814533174212232   max=0.8682830617264085   mean=-0.3311748439341126
+       sea_water_cell_thickness   min=0.0000000000000000   max=5416.6992187500000000   mean=128.6267671163319903
+    ocean_mixed_layer_thickness   min=2.3304977416992188   max=2417.2331242561340332   mean=148.3113220148310063
+                sea_water_depth   min=2.3304977416992188   max=2949.9484505653381348   mean=150.4446913535238650
+
+
+
+
+
+
+
+
+
+
+
+
+
+CostJb   : Nonlinear Jb = 319.2500686210223648
+CostJo   : Nonlinear Jo(adt_rads_all) = 269.8785811470986573, nobs = 154056, Jo/n = 0.0017518212932122, err = 3.5902523361909755
+CostJo   : Nonlinear Jo(sst_avhrr_ma_l3u) = 97733.3440574856213061, nobs = 80795, Jo/n = 1.2096459441485936, err = 0.3193320996441605
+CostJo   : Nonlinear Jo(sst_avhrr_mb_l3u) = 102482.6442049633478746, nobs = 87590, Jo/n = 1.1700267633858128, err = 0.3130387930324828
+CostJo   : Nonlinear Jo(sst_viirs_npp_l3u) = 179681.9646639756683726, nobs = 86464, Jo/n = 2.0781130258139302, err = 0.2735263878043570
+CostJo   : Nonlinear Jo(sst_viirs_n20_l3u) = 165441.5019567124545574, nobs = 82328, Jo/n = 2.0095411276444519, err = 0.2761092406669389
+CostJo   : Nonlinear Jo(sst_abi_g16_l3c) = 0.0000000000000000 --- No Observations
+CostJo   : Nonlinear Jo(sst_abi_g17_l3c) = 0.0000000000000000 --- No Observations
+CostJo   : Nonlinear Jo(sst_ahi_h08_l3c) = 0.0000000000000000 --- No Observations
+CostJo   : Nonlinear Jo(icec_amsr2_north) = 96049.0640872453514021, nobs = 238447, Jo/n = 0.4028109562596525, err = 0.1197395845357924
+CostJo   : Nonlinear Jo(icec_amsr2_south) = 507683.7047332451329567, nobs = 294824, Jo/n = 1.7219890671493676, err = 0.1610419958300065
+CostJo   : Nonlinear Jo(insitu_profile_argo) = 608.7904107136805578, nobs = 74525, Jo/n = 0.0081689421095428, err = 10.0000000000000000
+CostFunction: Nonlinear J = 1150270.1427641094196588
