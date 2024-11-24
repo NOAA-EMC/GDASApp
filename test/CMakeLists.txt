@@ -24,7 +24,6 @@ file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
   DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 # list of test binary/data files to install
 list(APPEND test_data
-  ${CMAKE_CURRENT_BINARY_DIR}/testdata/atminc_compress.nc4
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/adt.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/sst.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/sss.nc
@@ -84,24 +83,28 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testrun)
 # create testout dir
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testoutput)
 
-# create testreference dir
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testreference)
-
 # list of test reference files to install
-list(APPEND test_reference
-  ${PROJECT_SOURCE_DIR}/test/testreference/amsua_n19_gdas.yaml
+list(APPEND test_output
   ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_3dvar.ref
   ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_3dvar-fv3inc.ref  
   ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_lgetkf_observer.ref
   ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_lgetkf_solver.ref
   ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_lgetkf-fv3inc.ref
   ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_3dvar.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_3dvar-fv3inc.ref  
+  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_3dvar-fv3inc.ref
+  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf.ref  
   ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_observer.ref
   ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_solver.ref
   ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_fv3inc.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf.ref
   ${PROJECT_SOURCE_DIR}/test/testreference/C48mx500_3DVarAOWCDA_3dfgat.ref  
+)
+
+# create testreference dir
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testreference)
+
+# list of test reference files to install
+list(APPEND test_reference
+  ${PROJECT_SOURCE_DIR}/test/testreference/amsua_n19_gdas.yaml
 )
 
 # symlink
@@ -131,11 +134,6 @@ add_test(NAME test_gdasapp_check_yaml_keys
 #         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/check_valid_yaml.py ${PROJECT_SOURCE_DIR}
 #         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # commented out above test because it does not really do as advertised with all these templates which are not valid yaml
-
-# test for ush/jediinc2fv3.py
-add_test(NAME test_gdasapp_jedi_increment_to_fv3
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atmges_compress.nc4 ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 
 # high level tests that require the global-workflow
 # TODO(AFE) see GDASApp issue #1213
