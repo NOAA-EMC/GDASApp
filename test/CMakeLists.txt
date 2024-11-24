@@ -63,7 +63,7 @@ list(APPEND test_input
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_sfcships.yaml
   ${PROJECT_SOURCE_DIR}/test/testinput/bufr_sfcshipsu.yaml
 )
-  
+
 # create testinput dir
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testinput)
 
@@ -82,22 +82,6 @@ file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testrun)
 
 # create testout dir
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testoutput)
-
-# list of test reference files to install
-list(APPEND test_output
-  ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_3dvar.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_3dvar-fv3inc.ref  
-  ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_lgetkf_observer.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_lgetkf_solver.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/C96C48_ufs_hybatmDA_lgetkf-fv3inc.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_3dvar.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_3dvar-fv3inc.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf.ref  
-  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_observer.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_solver.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/atm_jjob_lgetkf_fv3inc.ref
-  ${PROJECT_SOURCE_DIR}/test/testreference/C48mx500_3DVarAOWCDA_3dfgat.ref  
-)
 
 # create testreference dir
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/testreference)
