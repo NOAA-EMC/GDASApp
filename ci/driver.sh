@@ -42,7 +42,6 @@ case ${TARGET} in
     module use $GDAS_MODULE_USE
     module load GDAS/$TARGET
     module list
-    export NTASKS_TESTS=12
     ;;
   *)
     echo "Unsupported platform. Exiting with error."
