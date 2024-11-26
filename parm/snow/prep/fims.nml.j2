@@ -6,7 +6,7 @@
   yyyymmddhh = "{{ current_cycle | to_YMD }}.{{ current_cycle.strftime('%H') }}",
   imsformat = 1,
   imsversion = "1.3",
-  fcst_path = "./bkg/"
+  fcst_path = "{{ ims_fcst_path }}"
   IMS_OBS_PATH = "./obs/",
   IMS_IND_PATH = "./obs/"
 /
