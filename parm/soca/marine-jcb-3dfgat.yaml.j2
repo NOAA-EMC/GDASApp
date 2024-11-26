@@ -4,8 +4,9 @@ algorithm: 3dfgat
 # Observations
 observations: !INC ${OBS_LIST_SHORT}
 
-# Testing things
-# --------------
+# Testing
+# -------
+# TODO (G): 3dfgat is used in 2 cases (static B and hybrid B). Template the reference files.
 test_reference_filename: '{{HOMEgfs}}/sorc/gdas.cd/test/testreference/C48mx500_3DVarAOWCDA_3dfgat.ref'
 test_output_filename: '{{HOMEgfs}}/sorc/gdas.cd/build/gdas/test/testoutput/C48mx500_3DVarAOWCDA_3dfgat.test.out'
 test_float_relative_tolerance: 1.0e-3
