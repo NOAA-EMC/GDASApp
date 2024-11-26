@@ -62,7 +62,7 @@ module use $repodir/sorc/gdas.cd/modulefiles
 module load GDAS/$TARGET
 echo "---------------------------------------------------" >> $outfile
 rm -rf log.ctest
-ctest -R gdasapp --output-on-failure &>> log.ctest
+ctest -j${NTASKS_TESTS} -R gdasapp --output-on-failure &>> log.ctest
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
 if [ $ctest_status -eq 0 ]; then

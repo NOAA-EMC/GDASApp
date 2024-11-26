@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>GFS Experiment Verification</title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900" rel="stylesheet" />
+<link href="default.css" rel="stylesheet" type="text/css" media="all" />
+<link href="fonts.css" rel="stylesheet" type="text/css" media="all" />
+<!--[if IE 6]><link href="default_ie6.css" rel="stylesheet" type="text/css" /><![endif]-->
+<style>
+	.gallery {
+            display: none; /* Initially hide the gallery */
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-gap: 16px;
+            padding: 16px;
+        }
+	img[class="gallery-image"] {
+            width: 90%;
+            height: auto;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 6px #888888;
+        }
+	.image-container {
+            width: 300px;   /* Define the width of the container */
+            height: 200px;  /* Define the height of the container */
+            overflow: hidden; /* Hide overflow if image is bigger */
+            border: 2px solid #000; /* Optional: Border around the container */
+        }
+
+        .image-container img {
+            width: 100%;   /* Make the image fill the width of the container */
+            height: 100%;  /* Make the image fill the height of the container */
+            object-fit: cover;  /* Scale the image while maintaining aspect ratio */
+        }
+</style>
+</head>
+
+<script>
+function createDropdown(opt) {
+  /* When the user clicks on the button, 
+     toggle between hiding and showing the dropdown content */
+  document.getElementById(opt.nextElementSibling.id).classList.toggle("show");
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(event) {
+//  var oFrame = document.getElementById("body_frame");
+//  oFrame.contentWindow.document.onclick = function() {
+//        var i;
+//        var dropdowns = document.getElementsByClassName("dropdown-content");
+//        for (i = 0; i < dropdowns.length; i++) {
+//            var openDropdown = dropdowns[i];
+//            if (openDropdown.classList.contains('show')) {
+//                openDropdown.classList.remove('show');
+//            }
+//        }
+//  };
+  if (!event.target.matches('.dropbtn')) {
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          if (openDropdown.classList.contains('show')) {
+              openDropdown.classList.remove('show');
+          }
+      }
+  }
+  if (event.target.matches('.dropbtn')) {
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          if (event.target.nextElementSibling.id != openDropdown.id) {
+              if (openDropdown.classList.contains('show')) {
+                  openDropdown.classList.remove('show');
+               }
+          }
+      }
+  }
+
+}
+</script>
+
+<body>
+<div id="page" class="container">
+	<div id="header">
+		<div id="logo">
+			<img src="images/noaa.png" alt="" width="100" />
+			<img src="images/nws.png" alt="" width="100" />
+			<h1><font color="white">GFS<br>Experiment<br>Verification</font></h1>
+		</div>
+		<div id="menu">
+			<ul>
+			    <li class="current_page_item"><a href="" accesskey="1" title="">Home</a></li>
+
+			    <!-- Dropdown: Background -->
+                            <div class="dropdown">
+				<button class="dropbtn">Background</button>
+				<div class="dropdown-content">
+      					<div class="dropdown-menu">
+        					<button class="dropbtn">Salinity</button>
+        					<div class="dropdown-menu">
+							<button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Salt', 'Global')">Global SSS</button>
+							<button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Salt', 'meridional')">Meridional Cross-sections</button>
+							<button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Salt', 'zonal')">Zonal Cross-sections</button>
+						</div>
+					</div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Area Fraction</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'aice_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'aice_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Snow Depth</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hs_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hs_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Thickness</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hi_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hi_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'ave_ssh', 'Global')">SSH</button>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">Temperature</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Temp', 'Global')">Global SST</button>
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Temp', 'meridional')">Meridional Cross-sections</button>
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Temp', 'zonal')">Zonal Cross-sections</button>
+                                                </div>
+                                        </div>
+				</div>
+                            </div>
+			    
+			    <!-- Dropdown: Analysis -->
+                            <div class="dropdown">
+				<button class="dropbtn">Analysis</button>
+				<div class="dropdown-content">
+      					<div class="dropdown-menu">
+        					<button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Salt', 'Global')">Salinity</button>
+					</div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Area Fraction</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'aice_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'aice_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Snow Depth</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hs_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hs_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Thickness</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hi_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hi_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'ave_ssh', 'Global')">SSH</button>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Temp', 'Global')">Temperature</button>
+                                        </div>
+				</div>
+                            </div>
+			    
+			    <!-- Dropdown: Increments -->
+                            <div class="dropdown">
+				<button class="dropbtn">Increments</button>
+				<div class="dropdown-content">
+      					<div class="dropdown-menu">
+        					<button class="dropbtn">Salinity</button>
+        					<div class="dropdown-menu">
+							<button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Salt', 'Global')">Global SSS</button>
+							<button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Salt', 'meridional')">Meridional Cross-sections</button>
+							<button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Salt', 'zonal')">Zonal Cross-sections</button>
+						</div>
+					</div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Area Fraction</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'aice_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'aice_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Snow Depth</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'hs_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'hs_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Thickness</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'hi_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'hi_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'ave_ssh', 'Global')">SSH</button>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">Temperature</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Temp', 'Global')">Global SST</button>
+                                                        <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Temp', 'meridional')">Meridional Cross-sections</button>
+                                                        <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Temp', 'zonal')">Zonal Cross-sections</button>
+                                                </div>
+                                        </div>
+				</div>
+                            </div>
+
+			    <!-- Dropdown: Background Error -->
+                            <div class="dropdown">
+				<button class="dropbtn">Background Error</button>
+				<div class="dropdown-content">
+      					<div class="dropdown-menu">
+        					<button class="dropbtn">Salinity</button>
+        					<div class="dropdown-menu">
+							<button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Salt', 'Global')">Global SSS</button>
+							<button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Salt', 'meridional')">Meridional Cross-sections</button>
+							<button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Salt', 'zonal')">Zonal Cross-sections</button>
+						</div>
+					</div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Area Fraction</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'aice_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'aice_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Snow Depth</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'hs_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'hs_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">SeaIce Thickness</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'hi_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'hi_h', 'poles')">Polar Regions</button>
+                                                </div>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'ave_ssh', 'Global')">Global SSH</button>
+                                        </div>
+					<div class="dropdown-menu">
+                                                <button class="dropbtn">Temperature</button>
+                                                <div class="dropdown-menu">
+                                                        <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Temp', 'Global')">Global SST</button>
+                                                        <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Temp', 'meridional')">Meridional Cross-sections</button>
+                                                        <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Temp', 'zonal')">Zonal Cross-sections</button>
+                                                </div>
+                                        </div>
+				</div>
+                            </div>
+			    
+			    <!-- Dropdown: OMB Maps -->
+                            <div class="dropdown">
+				<button class="dropbtn">OMB Maps</button>
+				<div class="dropdown-content">
+				        <div class="dropdown-menu">
+        					<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'adt', 'rads', 'all', '')">Altimetry</button>
+					</div>
+					<div class="dropdown-menu">
+        					<button class="dropbtn">In situ Obs</button>
+						<div class="dropdown-menu">
+        					        <button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'insitu', 'profile', 'argo', 'Salt')">ARGO Salinity</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'insitu', 'profile', 'argo', 'Temp')">ARGO Temperature</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'insitu', 'profile', 'tesac_salinity', 'Salt')">TESAC Salinity</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'insitu', 'profile', 'tesac', 'Temp')">TESAC Temperature</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'insitu', 'profile', 'trkob_salinity', 'Salt')">TRKOB Salinity</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'insitu', 'profile', 'trkob', 'Temp')">TRKOB Temperature</button>
+						</div>
+					</div>
+					<div class="dropdown-menu">
+        					<button class="dropbtn">SeaIce Obs</button>
+        					<div class="dropdown-menu">
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'icec', 'amsr2', 'north', '')">AMSR-2 (Arctic)</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'icec', 'amsr2', 'south', '')">AMSR-2 (Antarctic)</button>
+						</div>
+					</div>
+      					<div class="dropdown-menu">
+        					<button class="dropbtn">SST Obs</button>
+        					<div class="dropdown-menu">
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'sst', 'abi', 'g16', '')">ABI (GOES-16)</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'sst', 'abi', 'g17', '')">ABI (GOES-17)</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'sst', 'ahi', 'h08', '')">AHI (HIMAWARI-8)</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'sst', 'avhrr', 'ma', '')">AVHRR (METOP-A)</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'sst', 'avhrr', 'mb', '')">AVHRR (METOP-B)</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'sst', 'viirs', 'n20', '')">VIIRS (NOAA-20)</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'sst', 'viirs', 'npp', '')">VIIRS (S-NPP)</button>
+						</div>
+					</div>
+			        </div>
+			    </div>
+			    
+			    <!-- Dropdown: OMB, OMA Histograms -->
+                            <div class="dropdown">
+				<button class="dropbtn">OMB, OMA Histograms</button>
+				<div class="dropdown-content">
+				        <div class="dropdown-menu">
+        					<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'adt', 'rads', 'all', '')">Altimetry</button>
+					</div>
+					<div class="dropdown-menu">
+        					<button class="dropbtn">In situ Obs</button>
+						<div class="dropdown-menu">
+        					        <button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'insitu', 'profile', 'argo', 'Salt')">ARGO Salinity</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'insitu', 'profile', 'argo', 'Temp')">ARGO Temperature</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'insitu', 'profile', 'tesac_salinity', 'Salt')">TESAC Salinity</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'insitu', 'profile', 'tesac', 'Temp')">TESAC Temperature</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'insitu', 'profile', 'trkob_salinity', 'Salt')">TRKOB Salinity</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'insitu', 'profile', 'trkob', 'Temp')">TRKOB Temperature</button>
+						</div>
+					</div>
+					<div class="dropdown-menu">
+        					<button class="dropbtn">SeaIce Obs</button>
+        					<div class="dropdown-menu">
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'icec', 'amsr2', 'north', '')">AMSR-2 (Arctic)</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'icec', 'amsr2', 'south', '')">AMSR-2 (Antarctic)</button>
+						</div>
+					</div>
+      					<div class="dropdown-menu">
+        					<button class="dropbtn">SST Obs</button>
+        					<div class="dropdown-menu">
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'sst', 'abi', 'g16', '')">ABI (GOES-16)</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'sst', 'abi', 'g17', '')">ABI (GOES-17)</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'sst', 'ahi', 'h08', '')">AHI (HIMAWARI-8)</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'sst', 'avhrr', 'ma', '')">AVHRR (METOP-A)</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'sst', 'avhrr', 'mb', '')">AVHRR (METOP-B)</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'sst', 'viirs', 'n20', '')">VIIRS (NOAA-20)</button>
+							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'sst', 'viirs', 'npp', '')">VIIRS (S-NPP)</button>
+						</div>
+					</div>
+			        </div>
+			    </div>
+			    
+			    <!-- Dropdown: h(x) vs Obs -->
+                            <div class="dropdown">
+				<button class="dropbtn">h(x) vs Obs</button>
+				<div class="dropdown-content">
+				        <div class="dropdown-menu">
+        					<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'adt', 'rads', 'all', '')">Altimetry</button>
+					</div>
+					<div class="dropdown-menu">
+        					<button class="dropbtn">In situ Obs</button>
+						<div class="dropdown-menu">
+        					        <button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'insitu', 'profile', 'argo', 'Salt')">ARGO Salinity</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'insitu', 'profile', 'argo', 'Temp')">ARGO Temperature</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'insitu', 'profile', 'tesac_salinity', 'Salt')">TESAC Salinity</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'insitu', 'profile', 'tesac', 'Temp')">TESAC Temperature</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'insitu', 'profile', 'trkob_salinity', 'Salt')">TRKOB Salinity</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'insitu', 'profile', 'trkob', 'Temp')">TRKOB Temperature</button>
+						</div>
+					</div>
+					<div class="dropdown-menu">
+        					<button class="dropbtn">SeaIce Obs</button>
+        					<div class="dropdown-menu">
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'icec', 'amsr2', 'north', '')">AMSR-2 (Arctic)</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'icec', 'amsr2', 'south', '')">AMSR-2 (Antarctic)</button>
+						</div>
+					</div>
+      					<div class="dropdown-menu">
+        					<button class="dropbtn">SST Obs</button>
+        					<div class="dropdown-menu">
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'sst', 'abi', 'g16', '')">ABI (GOES-16)</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'sst', 'abi', 'g17', '')">ABI (GOES-17)</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'sst', 'ahi', 'h08', '')">AHI (HIMAWARI-8)</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'sst', 'avhrr', 'ma', '')">AVHRR (METOP-A)</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'sst', 'avhrr', 'mb', '')">AVHRR (METOP-B)</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'sst', 'viirs', 'n20', '')">VIIRS (NOAA-20)</button>
+							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'sst', 'viirs', 'npp', '')">VIIRS (S-NPP)</button>
+						</div>
+					</div>
+			        </div>
+			    </div>
+                            
+                        </ul>
+		</div>
+	</div>
+	<div id="main">
+		<h1><font color="blue">Marine Figures</font></h1>
+		<h2>Add path to main verification directory:</h2>
+		<div>
+                    <!-- Path -->
+                    <label for="inputMainPath">MAIN Verification Path: </label>
+                    <input type="text" id="inputMainPath" placeholder="" value="">
+                </div>
+		<h3>Are the figures in your COMROOT or from HPSS? For example:</h3>
+		If COMROOT, the MAIN path should include everything before /gdas.YearMonthDay subdirectories.
+		<br>
+		If HPSS, the MAIN path should include everything before /YearMonthDayHour subdirectories.
+		<div>
+                    <!-- Path Choice -->
+                    <label for="inputPathChoice">Enter COMROOT or HPSS: </label>
+                    <input type="text" id="inputPathChoice" placeholder="" value="">
+                </div>
+
+	        <h2>Choose a date and cycle time:</h2>
+		
+                <!-- Input date and time for displayed figures -->
+                <div>
+                    <!-- Year -->
+                    <label for="inputYear">Year (YYYY): </label>
+                    <input type="text" id="inputYear" placeholder="" value="">
+                </div>
+                <div>
+                    <!-- Month -->
+                    <label for="inputMonth">Month (MM): </label>
+                    <input type="text" id="inputMonth" placeholder="" value="">
+                </div>
+	        <div>
+                    <!-- Day -->
+                    <label for="inputDay">Day (DD): </label>
+                    <input type="text" id="inputDay" placeholder="" value="">
+                </div>
+	        <div>
+                    <!-- Hour (UTC) -->
+                    <label for="inputHour">Hour (HH in UTC): </label>
+                    <input type="text" id="inputHour" placeholder="" value="">
+                </div>
+
+		<!--div id="banner"-->
+		<div id="imageContainer">
+                    <!--frame id="body_frame" src="main.php" width="1100" height="1100" style="border: 1px solid black;"></iframe-->
+                    <iframe id="body_frame" src="" width="1100" height="1100" style="border: 1px solid black;"></iframe>
+		</div>
+
+		<!------------------------------------------------------------>
+		<!-- THE FOLLOWING CONTENTS GO AT THE BOTTOM OF THE WEBPAGE -->
+		<div id="welcome">
+			<p>This page displays verification for the Global Forecast System (GFS) developer experiments.</p>
+                        <p>DISCLAIMER: This web page is not "operational" and therefore not subject to 24-hr monitoring by NCEP's Central Operations staff.</p>
+		</div>
+
+                <div id="contact">
+                	<p><br><b>CONTACT INFORMATION</b>
+		</div>
+
+		<div id="footer">
+			<img src="images/noaa.png" alt="" width="100" />
+			<img src="images/nws.png" alt="" width="100" />
+			<img src="images/commerce.png" alt="" width="100" />
+			<img src="images/usagov.png" alt="" width="100" />
+			<br>
+			<a href="https://www.weather.gov/privacy">Privacy Policy</a> | <a href="https://www.weather.gov/disclaimer">Disclaimer</a> | <a href="https://www.commerce.gov">Department of Commerce</a> | <a href="https://www.noaa.gov">NOAA</a> | <a href="https://www.weather.gov">NWS</a> | <a href="https://www.ncep.noaa.gov">NCEP</a> | <a href="https://www.emc.ncep.noaa.gov">EMC</a>
+		</div>
+
+		<div id="copyright"></div>
+		<!------------------------------------------------------------>
+
+        <script>
+            var year = document.getElementById('inputYear').value;
+            var month = document.getElementById('inputMonth').value;
+            var day = document.getElementById('inputDay').value;
+            var hour = document.getElementById('inputHour').value;
+            var pathMain = document.getElementById('inputMainPath').value;
+            var pathChoice = document.getElementById('inputPathChoice').value;
+            if (pathChoice == 'HPSS') {
+                var inputPath = pathMain+"/"+year+month+day+hour+"/gdas."+year+month+day+"/"+hour+"/analysis/ocean/vrfy/";
+	    } else if (pathChoice == 'COMROOT') {
+                var inputPath = pathMain+"/gdas."+year+month+day+"/"+hour+"/analysis/ocean/vrfy/";
+	    }
+
+            function showImagesBkgErrInc(figtype, variable, domain) {
+                thisFigType = figtype;
+                thisVar = variable;
+                thisDomain = domain;
+		if (thisFigType == 'bkg') {
+		    var figtypestr = 'Background';
+		} else if (thisFigType == 'bkgerr') {
+		    var figtypestr = 'Background Error';
+		} else if (thisFigType == 'incr') {
+		    var figtypestr = 'Analysis Increment';
+		}
+		if (thisDomain == 'meridional') {
+		    var domainstr = 'LON';
+		} else if (thisDomain == 'zonal') {
+		    var domainstr = 'LAT';
+		}
+		if (thisVar == 'Temp') {
+		    var varstr = 'Temperature';
+		} else if (thisVar == 'Salt') {
+		    var varstr = 'Salinity';
+		} else if (thisVar == 'aice_h') {
+		    var varstr = 'SeaIce Area Fraction';
+		} else if (thisVar == 'ave_ssh') {
+		    var varstr = 'SSH';
+		} else if (thisVar == 'hi_h') {
+		    var varstr = 'SeaIce Thickness';
+		} else if (thisVar == 'hs_h') {
+		    var varstr = 'SeaIce Snow Depth';
+		}
+		if ((thisVar == 'Temp') || (thisVar == 'Salt')) {
+		    var globalstr = 'Level_1';
+		} else {
+		    var globalstr = 'Global';
+		}
+		
+		if (thisDomain == 'Global') {
+                    var container = document.getElementById('imageContainer');
+                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(1, 1fr);">
+                        <figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}_${globalstr}.png" class="gallery-image" alt="">
+				<figcaption>${thisDomain} Surface ${varstr} ${figtypestr} (Level 1)</figcaption>
+                        </figure>
+			<figure>
+			        <!-- extra space at bottom of webpage -->
+			</figure>
+                    </div>`;
+		} else if (thisDomain == 'poles') {
+		    var container = document.getElementById('imageContainer');
+                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(2, 1fr);">
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}_North.png" class="gallery-image" alt="">
+                                <figcaption>Arctic ${varstr} ${figtypestr} </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}_South.png" class="gallery-image" alt="">
+                                <figcaption>Antarctic ${varstr} ${figtypestr} </figcaption>
+                        </figure>
+			<figure>
+			        <!-- extra space at bottom of webpage -->
+			</figure>
+			<figure>
+			        <!-- extra space at bottom of webpage -->
+			</figure>
+                    </div>`;
+                } else if (thisDomain == 'zonal') {
+                    var container = document.getElementById('imageContainer');
+                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(2, 1fr);">
+		        <!-- LAT = 50 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_50_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 50, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_50_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 50, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 40 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_40_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 40, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_40_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 40, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 30 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_30_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 30, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_30_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 30, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 20 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_20_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 20, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_20_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 20, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 10 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_10_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 10, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_10_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 10, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 0 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_0_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 0, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_0_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 0, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -10 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-10_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -10, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-10_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -10, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -20 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-20_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -20, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-20_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -20, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -30 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-30_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -30, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-30_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -30, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -40 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-40_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -40, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-40_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -40, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -50 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-50_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -50, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-50_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -50, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -60 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-60_5000m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -60, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-60_700m.png" class="gallery-image" alt="">
+                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -60, 700m depth </figcaption>
+                        </figure>
+                    </div>`;
+		} else if (thisDomain == 'meridional') {
+                    var container = document.getElementById('imageContainer');
+                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(2, 1fr);">
+		        <!-- LON = -280 -->
+                        <figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-280_5000m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -280, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-280_700m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -280, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -250 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-250_5000m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -250, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-250_700m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -250, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -220 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-220_5000m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -220, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-220_700m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -220, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -190 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-190_5000m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -190, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-190_700m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -190, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -160 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-160_5000m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -160, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-160_700m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -160, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -130 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-130_5000m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -130, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-130_700m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -130, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -100 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-100_5000m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -100, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-100_700m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -100, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -70 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-70_5000m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -70, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-70_700m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -70, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -40 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-40_5000m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -40, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-40_700m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -40, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = 20 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_20_5000m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 20, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_20_700m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 20, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = 50 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_50_5000m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 50, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_50_700m.png" class="gallery-image" alt="">
+				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 50, 700m depth </figcaption>
+                        </figure>
+                    </div>`;
+		}
+	    }
+
+            function showImagesDiags(figtype, obstype, instrument, satellite, insituvar) {
+                thisFigType = figtype;
+                thisObs = obstype;
+                thisInstrument = instrument;
+		thisSatellite = satellite;
+		thisInsituVar = insituvar;
+		if (thisObs == 'sst') {
+		    if ((thisInstrument == 'abi') || (thisInstrument == 'ahi')) {
+		        var obssuffix = 'l3c';
+		    } else {
+		        var obssuffix = 'l3u';
+		    }
+		    var obs = thisObs+"_"+thisInstrument+"_"+thisSatellite+"_"+obssuffix;
+		    var obsvar = 'seaSurfaceTemperature';
+		} else if (thisObs == 'icec') {
+		    var obs = thisObs+"_"+thisInstrument+"_"+thisSatellite;
+		    var obsvar = 'seaIceFraction';
+		} else if (thisObs == 'adt') {
+		    var obs = thisObs+"_"+thisInstrument+"_"+thisSatellite;
+		    var obsvar = 'absoluteDynamicTopography';
+		} else if (thisObs == 'insitu') {
+		    var obs = thisObs+"_"+thisInstrument+"_"+thisSatellite;
+		    if ((thisInstrument == 'profile') && (insituvar == 'Temp')) {
+		        var obsvar = 'waterTemperature';
+		    } else if (thisInstrument == 'surface') {
+		        var obsvar = 'seaSurfaceTemperature';
+		    } else if (insituvar == 'Salt') {
+		        var obsvar = 'salinity';
+		    }
+		}
+		
+		if (thisFigType == 'map_plots') {
+                    var container = document.getElementById('imageContainer');
+                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(1, 1fr);">
+                        <figure>
+				<img src="${inputPath}${thisFigType}/${obs}/${obsvar}/${obs}_${obsvar}OmBQC.png" class="gallery-image" alt="">
+				<figcaption>${obsvar} from ${thisInstrument} (${thisSatellite})</figcaption>
+                        </figure>
+			<figure>
+			        <!-- extra space at bottom of webpage -->
+			</figure>
+                    </div>`;
+		} else if (thisFigType == 'histograms') {
+		    var container = document.getElementById('imageContainer');
+                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(2, 1fr);">
+                        <figure>
+				<img src="${inputPath}${thisFigType}/${obs}/${obsvar}/oma_omb_histogram_${obsvar}.png" class="gallery-image" alt="">
+				<figcaption>Histograms of OMB,OMA for ${obsvar} from ${thisInstrument} (${thisSatellite})</figcaption>
+                        </figure>
+			<figure>
+				<img src="${inputPath}${thisFigType}/${obs}/${obsvar}/oma_pre_post_qc_${obsvar}.png" class="gallery-image" alt="">
+				<figcaption>Histograms of OMA Pre-/Post-QC for ${obsvar} from ${thisInstrument} (${thisSatellite})</figcaption>
+                        </figure>
+			<figure>
+			        <!-- extra space at bottom of webpage -->
+			</figure>
+			<figure>
+			        <!-- extra space at bottom of webpage -->
+			</figure>
+                    </div>`;
+		} else if (thisFigType == 'observation_scatter_plots') {
+		   var container = document.getElementById('imageContainer');
+                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(1, 1fr);">
+                        <figure>
+				<img src="${inputPath}${thisFigType}/jedi_hofx_vs_obs_${year}${month}${day}${hour}_${obs}_${obsvar}.png" class="gallery-image" alt="">
+				<figcaption>h(x) vs ${obsvar} Obs from ${thisInstrument} (${thisSatellite})</figcaption>
+                        </figure>
+			<figure>
+			        <!-- extra space at bottom of webpage -->
+			</figure>
+                    </div>`;
+		}
+	    }
+
+            function updateActiveButton(selectedId, buttonClass) {
+                var buttons = document.querySelectorAll('.' + buttonClass);
+                buttons.forEach(button => {
+                    if (button.id === selectedId) {
+                        button.classList.add('active');
+                    } else {
+                        button.classList.remove('active');
+                    }
+                });
+            }
+
+            function resetDropdown() {
+                var dropdown = document.getElementById("selectDropdown");
+                dropdown.value = dropdown.options[0].value;  // Set value to the first option's value
+	    }
+
+	</script>
+
+	</div>
+	
+</div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+################################################
+# README for index_vrfy_marine.html
+################################################
+
+To use, follow these steps:
+
+----------------------------
+
+1. Login to Hera via X2Go and type on the command line:
+
+        firefox index_vrfy_marine.html
+
+2. In the webpage,
+	a. Enter the path to your main verification directory. See 2b for info on what to include in this path.
+        b. Are your figures in your COMROOT or from HPSS?
+		If COMROOT, the main path should include everything BEFORE /gdas.YearMonthDay subdirectories.
+		If HPSS, the main path should include everything BEFORE /YearMonthDayHour subdirectories.
+	   Enter COMROOT or HPSS.
+	c. Enter the date and cycle time you wish to display.
+
+3. Refresh the webpage tab by clicking the refresh button. You should still see your entered path and date/time.
+
+4. Navigate the dropdown menu on the left and click to display figures.
+
+----------------------------
+NOTES:
+	N1: If you wish to look at figures from a different experiment or for a different date/time, repeat Steps 2-4.
+
+################################################

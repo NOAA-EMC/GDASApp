@@ -8,3 +8,4 @@ export SLURM_QOS=debug
 export SLURM_EXCLUSIVE=user
 export OMP_NUM_THREADS=1
 ulimit -s unlimited
+export NTASKS_TESTS=12
