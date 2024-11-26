@@ -354,6 +354,7 @@ if (WORKFLOW_TESTS)
     "gdas_marineanlvar"
     "gdas_marineanlchkpt"
     "gdas_marineanlfinal"
+    # TODO: run the below task once we have a C24/C12 config
     #"gdas_prep"
     #"gdas_anal"
     #"gdas_sfcanl"
