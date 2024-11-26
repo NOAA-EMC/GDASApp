@@ -6,7 +6,10 @@ observations: !INC ${OBS_LIST_SHORT}
 
 # Testing things
 # --------------
+{% if DO_TEST_MODE and RUN == 'gdas'  %}
+do_testing: true
 test_reference_filename: '{{HOMEgfs}}/sorc/gdas.cd/test/testreference/C48mx500_3DVarAOWCDA_3dfgat.ref'
 test_output_filename: '{{HOMEgfs}}/sorc/gdas.cd/build/gdas/test/testoutput/C48mx500_3DVarAOWCDA_3dfgat.test.out'
 test_float_relative_tolerance: 1.0e-3
 test_float_absolute_tolerance: 1.0e-5
+{% endif %}
