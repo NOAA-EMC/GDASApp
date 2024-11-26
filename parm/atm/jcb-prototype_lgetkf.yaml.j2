@@ -38,3 +38,10 @@ observations:
   - satwnd.viirs_npp
 #  - scatwind_ascat_metop-a
 #  - snowcvr
+
+# Testing things
+# --------------
+test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/testreference/C96C48_ufs_hybatmDA_lgetkf.ref
+test_output_filename: {{ HOMEgfs }}/sorc/gdas.cd/build/gdas/test/testoutput/C96C48_ufs_hybatmDA_lgetkf.test.out
+test_float_relative_tolerance: 1.0e-3
+test_float_absolute_tolerance: 1.0e-5

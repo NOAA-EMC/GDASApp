@@ -17,7 +17,7 @@ atmosphere_obsdatain_suffix: ".{{ current_cycle | to_YMDH }}.nc"
 
 # Testing things
 # --------------
-test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/atm/global-workflow/3dvar.ref
-test_output_filename: ./3dvar.out
+test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/testreference/atm_jjob_3dvar.ref
+test_output_filename: {{ HOMEgfs }}/sorc/gdas.cd/build/gdas/test/testoutput/atm_jjob_3dvar.test.out
 test_float_relative_tolerance: 1.0e-3
 test_float_absolute_tolerance: 1.0e-5
