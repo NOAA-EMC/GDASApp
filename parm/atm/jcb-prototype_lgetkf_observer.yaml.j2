@@ -47,7 +47,7 @@ distribution_type: RoundRobin
 
 # Testing things
 # --------------
-{% if DO_TEST_MODE and RUN == 'enkfgdas'  %}
+{% if DO_TEST_MODE and RUN == 'enkfgdas' and current_cycle | to_YMDH == '2024022400' %}
 do_testing: true
 test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/testreference/C96C48_ufs_hybatmDA_lgetkf_observer.ref
 test_output_filename: {{ HOMEgfs }}/sorc/gdas.cd/build/gdas/test/testoutput/C96C48_ufs_hybatmDA_lgetkf_observer.test.out
