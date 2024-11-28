@@ -8,9 +8,11 @@ base:
   DUMPDIR: "@dumpdir@"
   STMP: "@bindir@/test/atm/global-workflow/testrun"
   PTMP: "@bindir@/test/atm/global-workflow/testrun"
+  DO_TEST_MODE: "YES"
 
 atmanl:
   JCB_ALGO_YAML_VAR: "@srcdir@/test/atm/global-workflow/jcb-prototype_3dvar.yaml.j2"
+  JCB_ALGO_YAML_FV3INC: "@srcdir@/test/atm/global-workflow/jcb-prototype_3dvar-fv3inc.yaml.j2"  
   STATICB_TYPE: "identity"
   ATMRES_ANL: "C48"
   LAYOUT_X_ATMANL: 1
@@ -20,5 +22,6 @@ atmensanl:
   JCB_ALGO_YAML_LETKF: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf.yaml.j2"
   JCB_ALGO_YAML_OBS: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf_observer.yaml.j2"
   JCB_ALGO_YAML_SOL: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf_solver.yaml.j2"
+  JCB_ALGO_YAML_FV3INC: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf-fv3inc.yaml.j2"  
   LAYOUT_X_ATMENSANL: 1
   LAYOUT_Y_ATMENSANL: 1
