@@ -1,6 +1,5 @@
 ---
 data_format: dbuoy
-subsets: dbuoy
 source: NCEP data tank
 data_type: drifter
 cycle_type: gdas
@@ -9,5 +8,7 @@ dump_directory: __BUFRINPUTDIR__
 ioda_directory: __IODAOUTPUTDIR__
 ocean_basin: __OCEANBASIN__
 data_description: 6-hrly in situ drifter profiles
+platform_description: "Lagrangian drifter drogue profiles from dbuy: temperature"
+data_description_file: "__CONFIGDIR__/drifter.yaml"
 data_provider: U.S. NOAA
 

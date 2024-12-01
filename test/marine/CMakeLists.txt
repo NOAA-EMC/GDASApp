@@ -35,7 +35,7 @@ set(PYIODACONV_DIR "${PROJECT_SOURCE_DIR}/build/lib/python${PYTHON_MAJOR_MINOR}/
 
 set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/marine)
 set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
-set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/b2i)
+set(MARINE_BUFR2IODA_DIR ${MARINE_BUFR2IODA_DIR}/newb2i)
 set(CONFIG_DIR ${PROJECT_SOURCE_DIR}/test/marine/testinput)
 set(TESTREF_DIR ${PROJECT_SOURCE_DIR}/test/marine/testref)
 
@@ -54,7 +54,8 @@ function(CREATE_CONFIG_FILE
 	string(REPLACE "__BUFRINPUTDIR__" "\"${bufr_input_dir}\"" temp_content "${file_content}")
 	string(REPLACE "__IODAOUTPUTDIR__" "\"${ioda_output_dir}\"" temp_content2 "${temp_content}")
 	string(REPLACE "__OCEANBASIN__" "\"${ocean_basin_file}\"" temp_content3 "${temp_content2}")
-	file(WRITE "${test_config_out}" "${temp_content3}")
+	string(REPLACE "__CONFIGDIR__" ${CONFIG_DIR} temp_content4 "${temp_content3}")
+	file(WRITE "${test_config_out}" "${temp_content4}")
 endfunction()
 
 
@@ -175,8 +176,13 @@ if (GENERATE_BUFR2IODA_TESTS)
 	ADD_INSITU_TEST("profile_bathy" "bathy")
 	ADD_INSITU_TEST("profile_glider" "subpfl")
 	ADD_INSITU_TEST("profile_tesac" "tesac")
-	ADD_INSITU_TEST("profile_tropical" "dbuoy")
+	ADD_INSITU_TEST("profile_tropicald" "dbuoy")
+	ADD_INSITU_TEST("profile_tropicalmb" "mbuoyb")
 	ADD_INSITU_TEST("profile_xbtctd" "xbtctd")
+    # ADD_INSITU_TEST("surface_altkob" "altkob")
+    # ADD_INSITU_TEST("surface_cstgd" "cstgd")
 	ADD_INSITU_TEST("surface_drifter" "dbuoy")
+	# ADD_INSITU_TEST("surface_drifterb" "dbuoyb")
+    # ADD_INSITU_TEST("surface_shipsu" "shipsu")
 	ADD_INSITU_TEST("surface_trkob" "trkob")
 endif()
