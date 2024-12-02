@@ -1,103 +1,150 @@
 # --------------------------------------------------------------------------------------------------
 # Field metadata for SOCA. Each field can contain the following information:
 #
-# name:                 Internal name used by soca code and config files
+# name:                 name used by soca and by the rest of JEDI
+# name surface:         JEDI variable name for 2D surface of a 3D field (Default: <unused>)
 # grid:                 "h", "u", or "v"    (Default: h)
 # masked:               use land mask if true  (Default: true)
 # levels:               "1" or "full_ocn"   (Default: 1)
-# getval_name:          variable name expected by GetValues  (Default: <name>)
-# getval_name_surface:  GetValues variable name for 2D surface of a 3D field (Default: <unused>)
-# io_file:              The restart file domain "ocn", "sfc", or "ice" (Default: <unused>)
-# io_name:              The variable name used in the restart IO (Default: <unused>)
+# io file:              The restart file domain "ocn", "sfc", or "ice" (Default: <unused>)
+# io name:              The variable name used in the restart IO (Default: <unused>)
+# constant value:       Used for "dummy" fields. Sets the entire field to the given constant globally
+#                       This parameter cannot be used with io_file/io_name
+# fill value:           If the field is masked, this value will be used for the masked areas.
+#                       (Default: 0.0)
+# categories:           Number of categories for a field with a category dimension (Default: -1)
+#                       If > 0, then the fields "name", and "io name" can use the
+#                       placeholder "<CATEGORY>" which will be replaced with the category number
 # --------------------------------------------------------------------------------------------------
 
 
 # --------------------------------------------------------------------------------------------------
 # Ocean state variables
 # --------------------------------------------------------------------------------------------------
-- name: tocn
+- name: sea_water_potential_temperature
+  name surface: sea_surface_temperature
   levels: full_ocn
-  getval name: sea_water_potential_temperature
-  getval name surface: sea_surface_temperature
   io file: ocn
   io name: Temp
-  fill value: 0.0
 
-- name: socn
+- name: sea_water_salinity
+  name surface: sea_surface_salinity
   levels: full_ocn
-  getval name: sea_water_salinity
-  getval name surface: sea_surface_salinity
   io file: ocn
   io name: Salt
   property: positive_definite
-  fill value: 0.0
 
-- name: uocn
+- name: eastward_sea_water_velocity
+  name surface: surface_eastward_sea_water_velocity
   grid: u
   levels: full_ocn
-  getval name: eastward_sea_water_velocity
-  getval name surface: surface_eastward_sea_water_velocity
   io file: ocn
   io name: u
-  fill value: 0.0
 
-- name: vocn
+- name: northward_sea_water_velocity
+  name surface: surface_northward_sea_water_velocity
   grid: v
   levels: full_ocn
-  getval name: northward_sea_water_velocity
-  getval name surface: surface_northward_sea_water_velocity
   io file: ocn
   io name: v
-  fill value: 0.0
 
-- name: hocn
+- name: sea_water_cell_thickness
   levels: full_ocn
-  getval name: sea_water_cell_thickness
   io file: ocn
   io name: h
-  fill value: 0.001
   vert interp: false
 
-- name: ssh
-  getval name: sea_surface_height_above_geoid
+- name: sea_surface_height_above_geoid
   io file: ocn
   io name: ave_ssh
-  fill value: 0.0
 
 - name: mom6_mld
   io file: ocn
   io name: MLD
   fill value: 0.0
+  
+# --------------------------------------------------------------------------------------------------
+# ice state variables with no categories
+# --------------------------------------------------------------------------------------------------
+- name: sea_ice_thickness
+  io file: ice
+  io name: hi_h #note, was hicen
+  property: positive_definite
+
+- name: sea_ice_area_fraction
+  io file: ice
+  io name: aice_h #note, was aicen
+
+- name: sea_ice_snow_thickness
+  io file: ice
+  io name: hs_h #note, was hsnon
+  property: positive_definite
+
+- name: snow_ice_surface_temperature
+  io file: ice
+  io name: Tsfc_h
+
+- name: air_temperature
+  io file: ice
+  io name: Tair_h
+
+- name: bulk_ice_salinity
+  io file: ice
+  io name: sice_h
 
 # --------------------------------------------------------------------------------------------------
-# ice state variables
+# ice state variables with category dimension
 # --------------------------------------------------------------------------------------------------
-- name: hicen
-  getval name: sea_ice_category_thickness
+- name: sea_ice_category<CATEGORY>_area_fraction
+  categories: 5
   io file: ice
-  io name: hi_h
+  io sup name: aicen_h
+  io name: aice<CATEGORY>_h
   property: positive_definite
-  fill value: 0.0
 
-- name: cicen
-  getval name: sea_ice_category_area_fraction
-  getval name surface: sea_ice_area_fraction     # note: not accurate, should be "sum" not "surface"
+- name: sea_ice_category<CATEGORY>_volume
+  categories: 5
   io file: ice
-  io name: aice_h
-  fill value: 0.0
-
-- name: hsnon
-  getval name: sea_ice_category_snow_thickness
-  io file: ice
-  io name: hs_h
+  io sup name: vicen_h
+  io name: vice<CATEGORY>_h
   property: positive_definite
-  fill value: 0.0
+
+- name: sea_ice_snow_category<CATEGORY>_volume
+  categories: 5
+  io file: ice
+  io sup name: vsnon_h
+  io name: vsno<CATEGORY>_h
+  property: positive_definite
+
+# --------------------------------------------------------------------------------------------------
+# Thermodynamic ice state variables with category and level dimension
+# --------------------------------------------------------------------------------------------------
+- name: sea_ice_category<CATEGORY>_temperature
+  categories: 5
+  levels: 7
+  io file: ice
+  io sup name: Tinz_h
+  io name: ti<CATEGORY>z_h
+
+- name: sea_ice_category<CATEGORY>_salinity
+  categories: 5
+  levels: 7
+  io file: ice
+  io sup name: Sinz_h
+  io name: si<CATEGORY>z_h
+
+- name: sea_ice_snow_category<CATEGORY>_temperature
+  categories: 5
+  levels: 1
+  io file: ice
+  io sup name: Tsnz_h
+  io name: ts<CATEGORY>z_h
+
 
 # --------------------------------------------------------------------------------------------------
 # wave state variables
 # --------------------------------------------------------------------------------------------------
-- name: swh
-  getval name: sea_surface_wave_significant_height
+- name: sea_surface_wave_significant_height
   io file: wav
   io name: hs
   property: positive_definite
@@ -105,33 +152,28 @@
 # --------------------------------------------------------------------------------------------------
 # sea surface variables
 # --------------------------------------------------------------------------------------------------
-- name: sw
+- name: net_downwelling_shortwave_radiation
   masked: false
-  getval name: net_downwelling_shortwave_radiation
   io file: sfc
   io name: sw_rad
 
-- name: lw
+- name: net_downwelling_longwave_radiation
   masked: false
-  getval name: net_downwelling_longwave_radiation
   io file: sfc
   io name: lw_rad
 
-- name: lhf
+- name: upward_latent_heat_flux_in_air
   masked: false
-  getval name: upward_latent_heat_flux_in_air
   io file: sfc
   io name: latent_heat
 
-- name: shf
+- name: upward_sensible_heat_flux_in_air
   masked: false
-  getval name: upward_sensible_heat_flux_in_air
   io file: sfc
   io name: sens_heat
 
-- name: us
+- name: friction_velocity_over_water
   masked: false
-  getval name: friction_velocity_over_water
   io file: sfc
   io name: fric_vel
 
@@ -139,18 +181,16 @@
 # --------------------------------------------------------------------------------------------------
 # BGC
 # --------------------------------------------------------------------------------------------------
-- name: chl
+- name: mass_concentration_of_chlorophyll_in_sea_water
+  name surface: sea_surface_chlorophyll
   levels: full_ocn
-  getval name: mass_concentration_of_chlorophyll_in_sea_water
-  getval name surface: sea_surface_chlorophyll
   io file: ocn
   io name: chl
   property: positive_definite
 
-- name: biop
+- name: molar_concentration_of_biomass_in_sea_water_in_p_units
+  name surface: sea_surface_biomass_in_p_units
   levels: full_ocn
-  getval name: molar_concentration_of_biomass_in_sea_water_in_p_units
-  getval name surface: sea_surface_biomass_in_p_units
   io file: ocn
   io name: biomass_p
   property: positive_definite
@@ -161,20 +201,106 @@
 - name: distance_from_coast
   masked: false
 
-- name: layer_depth
-  levels: full_ocn
-  vert interp: false
-
 - name: mesoscale_representation_error
 
-- name: mld
+- name: ocean_mixed_layer_thickness
 
 - name: sea_floor_depth_below_sea_surface
 
 - name: sea_area_fraction
   masked: false
 
-- name: surface_temperature_where_sea
+- name: skin_temperature_at_surface_where_sea
 
 - name: sea_water_depth
   levels: full_ocn
+
+- name: latitude
+- name: longitude
+
+# --------------------------------------------------------------------------------------------------
+# variables that VADER should be responsible for
+# --------------------------------------------------------------------------------------------------
+- name: sea_water_temperature
+  levels: full_ocn
+
+# --------------------------------------------------------------------------------------------------
+- name: dummy_atm1
+  constant value: 5.0
+
+- name: ozone_thickness
+  constant value: 275  #The average amount of ozone in the atm. is 300 Dobson Units
+
+- name: water_vapor   #g/cm^2
+  constant value: 1.2
+
+- name: wind_speed_at_surface
+  constant value: 6
+
+- name: air_pressure_at_surface
+  constant value: 999
+
+- name: relative_humidity
+  constant value: 89
+
+- name: cloud_liquid_water_path
+  constant value: 163
+
+- name: cloud_area_fraction_in_atmosphere_layer
+  constant value: 80
+
+- name: aerosol_optical_thickness
+  constant value: 0.16
+
+- name: single_scattering_albedo
+  constant value: 0.71
+
+- name: asymmetry_parameter
+  constant value: 0.97
+
+#---------------------ocean bio
+- name: Carbon_nitrogen_detritus_concentration
+  levels: full_ocn
+  io file: bio
+  io name: CDET
+  property: positive_definite
+
+- name: Particulate_inorganic_carbon
+  levels: full_ocn
+  io file: bio
+  io name: PIC
+
+- name: colored_dissolved_organic_carbon
+  levels: full_ocn
+  io file: bio
+  io name: CDC
+
+- name: diatom_concentration
+  levels: full_ocn
+  io file: bio
+  io name: DIATOM
+
+- name: chlorophyte_concentration
+  levels: full_ocn
+  io file: bio
+  io name: CHLORO
+
+- name: cyano-bacteria_concentration
+  levels: full_ocn
+  io file: bio
+  io name: CYANO
+
+- name: coccolithophore_concentration
+  levels: full_ocn
+  io file: bio
+  io name: COCCO
+
+- name: dinoflagellate_concentration
+  levels: full_ocn
+  io file: bio
+  io name: DINO
+
+- name: phaeocystis_concentration
+  levels: full_ocn
+  io file: bio
+  io name: PHAEO

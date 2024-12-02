@@ -25,8 +25,8 @@ observations:
   - conventional_ps
   - gnssro
 #  - gpsro
-#  - mtiasi_metop-a
-#  - mtiasi_metop-b
+#  - iasi_metop-a
+#  - iasi_metop-b
 #  - ompsnp_n20
   - ompsnp_npp
 #  - ompstc_n20
@@ -38,3 +38,13 @@ observations:
   - satwnd.viirs_npp
 #  - scatwind_ascat_metop-a
 #  - snowcvr
+
+# Testing things
+# --------------
+{% if DO_TEST_MODE and RUN == 'enkfgdas'  %}
+do_testing: true
+test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/testreference/C96C48_ufs_hybatmDA_lgetkf.ref
+test_output_filename: {{ HOMEgfs }}/sorc/gdas.cd/build/gdas/test/testoutput/C96C48_ufs_hybatmDA_lgetkf.test.out
+test_float_relative_tolerance: 1.0e-3
+test_float_absolute_tolerance: 1.0e-5
+{% endif %}

@@ -73,7 +73,7 @@ graphics:
         data variable: experiment::OmBQC::${variable}
     figure:
       layout: [1,1]
-      figure size: [11,5]
+      figure size: [20,10]
       title: 'OmB post QC | @NAME@ @CYCLE@ | ${variable_title}'
       output name: map_plots/@NAME@/${variable}/@CHANNELVAR@/@NAME@_${variable}@CHANNELVAR@OmBQC.png
       tight_layout: true
@@ -94,11 +94,11 @@ graphics:
           data:
             variable: experiment::OmBQC::${variable}
             @CHANNELKEY@
-          markersize: 1
+          markersize: 0.01
           label: '$(variable)'
           colorbar: true
           # below may need to be edited/removed
-          cmap: ${dynamic_cmap}
+          cmap: 'seismic'
           vmin: ${dynamic_vmin}
           vmax: ${dynamic_vmax}
 
