@@ -29,7 +29,13 @@ variable change:
     sno_lev: 1
   cice output:
     restart: {{ ice_rst }}
-  output variables: [sea_water_potential_temperature, sea_water_salinity, sea_water_cell_thickness, sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness]
+  output variables:
+  - sea_water_potential_temperature
+  - sea_water_salinity
+  - sea_water_cell_thickness
+  - sea_ice_area_fraction
+  - sea_ice_thickness
+  - sea_ice_snow_thickness
 
 states:
 - input:
@@ -38,7 +44,14 @@ states:
      ocn_filename: {{ ocn_ana }}
      ice_filename: {{ ice_ana }}
      date: '{{ fcst_begin }}'
-     state variables: [sea_water_potential_temperature, sea_water_salinity, sea_water_cell_thickness, sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness]
+     state variables:
+     - sea_water_potential_temperature
+     - sea_water_salinity
+     - sea_water_cell_thickness
+     - sea_ice_area_fraction
+     - sea_ice_thickness
+     - sea_ice_snow_thickness
+
   output:
      datadir: Data
      exp: soca2cice
