@@ -57,7 +57,7 @@
   - class_name: "StationID"
     short_name: "stationID"
     name: "Station Identification"
-    bufr_mnemonic: "*/RPID"
+    bufr_mnemonic: "*/WMOP"
     descriptor: "MetaData"
     units: ""
     depth_profile_var_name: "depth"

@@ -4,7 +4,7 @@ import sys
 from b2ibase.util import parse_arguments
 from b2ibase.config import Config
 from b2ibase.data_variable_dictionary import DataVariableDictionary
-from b2ibase.b2i import B2I 
+from b2ibase.b2i import B2I
 from b2ibase.log import B2ILogger
 
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     config = TrkobConfig(config_file, logger)
     data = TrkobData(logger)
     b2i = TrkobConverter(config, data, logger)
-    b2i.run() 
+    b2i.run()
     if test_file:
         result = b2i.test(test_file)
         sys.exit(result)

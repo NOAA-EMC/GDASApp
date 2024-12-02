@@ -4,7 +4,7 @@ import sys
 from b2ibase.util import parse_arguments
 from b2ibase.config import Config
 from b2ibase.data_variable_dictionary import DataVariableDictionary
-from b2ibase.b2i import B2I 
+from b2ibase.b2i import B2I
 from b2ibase.log import B2ILogger
 
 

@@ -1,14 +1,11 @@
 import numpy as np
-import sys 
+import sys
 from .data_variable import DataVariable
 from .ocean import OceanBasin
 from .util import *
 
 
 class Depth(DataVariable):
-    # def create_ioda_objects(self, obsspace):
-        # self.short_create_ioda_objects(obsspace)
-
     def create_ioda_objects(self, obsspace):
         obsspace.create_var(
             self._descriptor + "/" + self._short_name,
@@ -20,7 +17,7 @@ class Depth(DataVariable):
 
 
 class DepthFromPressure(Depth):
-    def set_from_query_result(self, r): 
+    def set_from_query_result(self, r):
         super().set_from_query_result(r)
         # convert depth in pressure units to meters (rho * g * h)
         self._data = np.float32(self._data.astype(float) * 0.0001)
@@ -28,6 +25,7 @@ class DepthFromPressure(Depth):
 
 class Longitude(DataVariable):
     pass
+
 
 class Latitude(DataVariable):
     pass
@@ -59,7 +57,7 @@ class DateTime(DataVariable):
     def set_from_query_result(self, r):
         date_keys = list(self._bufr_mnemonics.keys())
         if self._depth_profile_var_name:
-            self._data = r.get_datetime(*date_keys, group_by = self._depth_profile_var_name)
+            self._data = r.get_datetime(*date_keys, group_by=self._depth_profile_var_name)
         else:
             self._data = r.get_datetime(*date_keys)
         # convert to seconds since 1970
@@ -109,7 +107,6 @@ class StationID(DataVariable):
             logger.debug(f"{self._descriptor}/{self._name} hash = {compute_hash(self._data)}")
 
 
-
 class Temperature(DataVariable):
     def set_from_query_result(self, r):
         super().set_from_query_result(r)
@@ -126,29 +123,27 @@ class BuoyType(DataVariable):
         self.short_create_ioda_objects(obsspace)
 
 
-
-### Additional variables
-
-
+# Additional variables
 class PreQCVariable(DataVariable):
     def __init__(self, v):
         super().__init__("PreQC_" + v.get_short_name(),
-            v.get_name(),
-            bufr_mnemonic = None,
-            descriptor = "PreQC",
-            units = v.get_units(),
-            depth_profile_var_name = v.get_depth_profile_var_name(),
-            data_min = 0,
-            data_max = 0,
-            data_error = 0,
-            data_dictionary = None)
+                         v.get_name(),
+                         bufr_mnemonic=None,
+                         descriptor="PreQC",
+                         units=v.get_units(),
+                         depth_profile_var_name=v.get_depth_profile_var_name(),
+                         data_min=0,
+                         data_max=0,
+                         data_error=0,
+                         data_dictionary=None)
         n = v.get_data_size()
         self._data = (np.ma.masked_array(np.full(n, 0))).astype(np.int32)
 
     def create_ioda_objects(self, obsspace):
         # self.short_create_ioda_objects(obsspace)
-        obsspace.create_var(self._descriptor + "/" + self._name, \
-            dtype=self._data.dtype, fillval=self._data.fill_value) \
+        obsspace.create_var(self._descriptor + "/" + self._name,
+                            dtype=self._data.dtype,
+                            fillval=self._data.fill_value) \
             .write_attr('long_name', 'PreQC') \
             .write_data(self._data)
 
@@ -157,21 +152,22 @@ class ErrorVariable(DataVariable):
     def __init__(self, v):
         e = v.get_error()
         super().__init__("ObsError_" + v.get_short_name(),
-            v.get_name(),
-            bufr_mnemonic = None,
-            descriptor = "ObsError",
-            units = v.get_units(),
-            depth_profile_var_name = v.get_depth_profile_var_name(),
-            data_min = e,
-            data_max = e,
-            data_error = e,
-            data_dictionary = None)
+                         v.get_name(),
+                         bufr_mnemonic=None,
+                         descriptor="ObsError",
+                         units=v.get_units(),
+                         depth_profile_var_name=v.get_depth_profile_var_name(),
+                         data_min=e,
+                         data_max=e,
+                         data_error=e,
+                         data_dictionary=None)
         n = v.get_data_size()
         self._data = np.float32(np.ma.masked_array(np.full(n, e)))
 
     def create_ioda_objects(self, obsspace):
-        obsspace.create_var(self._descriptor + "/" + self._name, \
-            dtype=self._data.dtype, fillval=self._data.fill_value) \
+        obsspace.create_var(self._descriptor + "/" + self._name,
+                            dtype=self._data.dtype,
+                            fillval=self._data.fill_value) \
             .write_attr('units', self._units) \
             .write_attr('long_name', 'ObsError') \
             .write_data(self._data)
@@ -182,24 +178,23 @@ class SequenceNumber(DataVariable):
         self.dtype = dtype
         self.fill_value = fill_value
         super().__init__("sequenceNumber",
-            'Sequence Number',
-            bufr_mnemonic = None,
-            descriptor = "MetaData",
-            units = None,
-            depth_profile_var_name = None,
-            data_min = None,
-            data_max = None,
-            data_error = None,
-            data_dictionary = None)
+                         'Sequence Number',
+                         bufr_mnemonic=None,
+                         descriptor="MetaData",
+                         units=None,
+                         depth_profile_var_name=None,
+                         data_min=None,
+                         data_max=None,
+                         data_error=None,
+                         data_dictionary=None)
         combined = np.stack((lon, lat), axis=-1)
         unique_combined, seq_num = np.unique(combined, axis=0, return_inverse=True)
         self._data = np.ma.masked_equal(seq_num.astype(np.int32), 1)
 
     def create_ioda_objects(self, obsspace):
-        # self.short_create_ioda_objects(obsspace)
-        # print(f"SequenceNumber self.fill_value = {self.fill_value}")
-        obsspace.create_var(self._descriptor + "/" + self._short_name, \
-            dtype=self.dtype, fillval=self.fill_value) \
+        obsspace.create_var(self._descriptor + "/" + self._short_name,
+                            dtype=self.dtype,
+                            fillval=self.fill_value) \
             .write_attr('long_name', self._name) \
             .write_data(self._data)
 
@@ -210,19 +205,20 @@ class OceanBasinVariable(DataVariable):
         self.fill_value = fill_value
         self.ocean = OceanBasin(nc_file_path)
         super().__init__("oceanBasin",
-            'Ocean basin',
-            bufr_mnemonic = None,
-            descriptor = "MetaData",
-            units = None,
-            depth_profile_var_name = None,
-            data_min = 0,
-            data_max = 5,
-            data_error = 0,
-            data_dictionary = None)
+                         'Ocean basin',
+                         bufr_mnemonic=None,
+                         descriptor="MetaData",
+                         units=None,
+                         depth_profile_var_name=None,
+                         data_min=0,
+                         data_max=5,
+                         data_error=0,
+                         data_dictionary=None)
         self._data = self.ocean.get_station_basin(lat, lon)
 
     def create_ioda_objects(self, obsspace):
-        obsspace.create_var(self._descriptor + "/" + self._short_name, \
-            dtype=self.dtype, fillval=self.fill_value) \
+        obsspace.create_var(self._descriptor + "/" + self._short_name,
+                            dtype=self.dtype,
+                            fillval=self.fill_value) \
             .write_attr('long_name', self._name) \
             .write_data(self._data)

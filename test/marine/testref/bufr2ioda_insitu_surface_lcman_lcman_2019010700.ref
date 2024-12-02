@@ -1,0 +1,18 @@
+ObsValue/seaSurfaceTemperature: 1493, float32    min, max = 0.20000609755516052, 25.4999942779541
+ObsValue/seaSurfaceTemperature hash = 5c96bd4a1113e9f39ebdb144f3ea5e8f1096e25152cfa74260c8e92e811ddd03
+MetaData/Longitude: 1493, float32    min, max = -162.3300018310547, -75.08999633789062
+MetaData/Longitude hash = 9e6872c85e15d198cb8773e407eec44d4b4cab71d766456f3149e47d95ffbdf8
+MetaData/Latitude: 1493, float32    min, max = 19.729999542236328, 59.439998626708984
+MetaData/Latitude hash = e16599f1f97aecf0b1e48734dad2800822159a6e02382c57593f905b6a7b75fc
+MetaData/Station Identification: 1493, <U5
+MetaData/Station Identification hash = 4ddfc4e28de3dee1ea978ebeaaf42c8d84a813d7a1041ac9555b2e93e0c944d3
+MetaData/DateTime: 1493, int64    min, max = 1546808400, 1546833240
+MetaData/DateTime hash = e4ac07b8374f2dcbe45baa0ade7022e69f5def378e516deead4e8a220264a773
+MetaData/RcptDateTime: 1493, int64    min, max = -1, 1546840380
+MetaData/RcptDateTime hash = 5af97e3b1a140ca26d5cdaf0b700cefe685228c66bc026228b40e3ceccb9b864
+PreQC/seaSurfaceTemperature: 1493, int32    min, max = 0, 0
+PreQC/seaSurfaceTemperature hash = ed1a3b3560030a2101c6ec3a309fba84e7362391c73a34325b366026233da044
+ObsError/seaSurfaceTemperature: 1493, float32    min, max = 0.23999999463558197, 0.23999999463558197
+ObsError/seaSurfaceTemperature hash = b2f4e1f7265a5917db31907e94fbae11667da47efea69301744f939406e01de9
+MetaData/Ocean basin: 1493, int32    min, max = 0, 2
+MetaData/Ocean basin hash = 12386047aea2de92555ceca7c6a41596737e38a4caad4a2e10de2346d4d784b0

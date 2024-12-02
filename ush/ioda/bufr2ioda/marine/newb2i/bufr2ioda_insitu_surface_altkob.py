@@ -4,17 +4,13 @@ import sys
 from b2ibase.util import parse_arguments
 from b2ibase.config import Config
 from b2ibase.data_variable_dictionary import DataVariableDictionary
-from b2ibase.b2i import B2I 
+from b2ibase.b2i import B2I
 from b2ibase.log import B2ILogger
 
 
-# platform_description = 'Surface obs from ALTKOB: temperature and salinity'
-
-
-class AltkobConfig(Bufr2iodaConfig):
+class AltkobConfig(Config):
     def ioda_filename(self):
         return f"{self.cycle_type}.t{self.hh}z.insitu_surface_{self.data_format}.{self.cycle_datetime}.nc4"
-
 
 
 class AltkobData(DataVariableDictionary):
@@ -29,10 +25,13 @@ class AltkobData(DataVariableDictionary):
 if __name__ == '__main__':
 
     script_name, config_file, log_file, test_file = parse_arguments()
-    var_yaml_file = "altkob.yaml"
+    log_to_console = True
+    logger = B2ILogger(script_name, log_to_console, log_file)
 
-    b2i = B2I(AltkobConfig,
-        script_name, config_file, platform_description,
-        AltkobData)
-
+    config = AltkobConfig(config_file, logger)
+    data = AltkobData(logger)
+    b2i = B2I(config, data, logger)
     b2i.run()
+    if test_file:
+        result = b2i.test(test_file)
+        sys.exit(result)

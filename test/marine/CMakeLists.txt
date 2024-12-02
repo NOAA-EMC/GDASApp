@@ -122,15 +122,18 @@ function(ADD_INSITU_TEST testname testbufr)
 	# set(CONFIG_TYPE "json")
 	set(CONFIG_TYPE "yaml")
 
-	if (testbufr STREQUAL "dbuoy")
-		set(DATE "2019010700")
-		set(CYCLE "00")
-	else()
-		set(DATE "2021063006")
-		set(CYCLE "06")
-	endif()
+	set(DATE "2019010700")
+	set(CYCLE "00")
+	# if (testbufr STREQUAL "dbuoy")
+		# set(DATE "2019010700")
+		# set(CYCLE "00")
+	# else()
+		# set(DATE "2021063006")
+		# set(CYCLE "06")
+	# endif()
 
-	set(TEST "bufr2ioda_insitu_${testname}")
+	set(TESTEXEC "bufr2ioda_insitu_${testname}.py")
+	set(TEST "bufr2ioda_insitu_${testname}_${testbufr}")
 
 	set(TESTREF_FILE "${TEST}_${DATE}.ref")
 
@@ -159,7 +162,7 @@ function(ADD_INSITU_TEST testname testbufr)
 
 	add_test(
 		NAME test_gdasapp_${TEST}
-		COMMAND ${MARINE_BUFR2IODA_DIR}/${TEST}.py -c ${CONFIG_FILE} -t ${TESTREF_DIR}/${TESTREF_FILE}
+		COMMAND ${MARINE_BUFR2IODA_DIR}/${TESTEXEC} -c ${CONFIG_FILE} -t ${TESTREF_DIR}/${TESTREF_FILE}
 		WORKING_DIRECTORY ${TEST_WORKING_DIR}
 	)
 	set_property(
@@ -176,13 +179,14 @@ if (GENERATE_BUFR2IODA_TESTS)
 	ADD_INSITU_TEST("profile_bathy" "bathy")
 	ADD_INSITU_TEST("profile_glider" "subpfl")
 	ADD_INSITU_TEST("profile_tesac" "tesac")
-	ADD_INSITU_TEST("profile_tropicald" "dbuoy")
-	ADD_INSITU_TEST("profile_tropicalmb" "mbuoyb")
+	ADD_INSITU_TEST("profile_tropical" "dbuoy")
+	ADD_INSITU_TEST("profile_tropical" "mbuoyb")
 	ADD_INSITU_TEST("profile_xbtctd" "xbtctd")
-    # ADD_INSITU_TEST("surface_altkob" "altkob")
-    # ADD_INSITU_TEST("surface_cstgd" "cstgd")
+    ADD_INSITU_TEST("surface_altkob" "altkob")
+    ADD_INSITU_TEST("surface_cstgd" "cstgd")
 	ADD_INSITU_TEST("surface_drifter" "dbuoy")
-	# ADD_INSITU_TEST("surface_drifterb" "dbuoyb")
-    # ADD_INSITU_TEST("surface_shipsu" "shipsu")
+	ADD_INSITU_TEST("surface_drifter" "dbuoyb")
+	ADD_INSITU_TEST("surface_lcman" "lcman")
+    ADD_INSITU_TEST("surface_shipsu" "shipsu")
 	ADD_INSITU_TEST("surface_trkob" "trkob")
 endif()

@@ -1,3 +1,5 @@
+import sys
+import os
 import tempfile
 from .util import run_diff
 
@@ -16,6 +18,9 @@ class B2I:
         self.logger.debug(f"reading bufr file {bufr_file_path}")
         self.data.read_from_bufr(bufr_file_path)
         self.logger.debug(f"filtered from bufr: data size = {self.data.get_data_size()}")
+        if self.data.get_data_size() == 0:
+            self.logger.warning("No data read -- exiting")
+            sys.exit()
 
     def process_data(self):
         self.data.add_preqc_vars()
@@ -46,7 +51,11 @@ class B2I:
             self.logger.disable_test_file_logging()
             self.logger.enable_logging()
 
-            self.logger.debug(f"TEST: running diff with reference file {test_file}")  
+            if os.path.exists(test_file):
+                self.logger.debug(f"TEST: running diff with reference file {test_file}")
+            else:
+                self.logger.error(f"TEST: reference file not found: {test_file}")
+                return 1    # failure
 
             result = run_diff(temp_log_file_name, test_file, self.logger)
             if result:

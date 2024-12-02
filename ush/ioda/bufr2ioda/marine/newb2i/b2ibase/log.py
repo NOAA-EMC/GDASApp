@@ -8,7 +8,7 @@ class B2ILogger:
 
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.DEBUG)  # Set default logging level to DEBUG
-        
+
         console_format = '%(message)s'
         self.console_formatter = logging.Formatter(console_format)
         self.console_handler = None

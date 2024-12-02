@@ -28,7 +28,6 @@ if __name__ == '__main__':
 
     script_name, config_file, log_file, test_file = parse_arguments()
     log_to_console = True
-    # log_file = "jjjjjj.log"
     logger = B2ILogger(script_name, log_to_console, log_file)
 
     config = ArgoConfig(config_file, logger)

@@ -23,14 +23,16 @@ class DataSet(DataObject):
         for v in self.data_variables:
             v.describe()
 
-    def add_query(self, q): 
+    def add_query(self, q):
         for v in self.data_variables:
             q = v.add_query(q)
         return q
 
-    def set_from_query_result(self, r): 
+    def set_from_query_result(self, r):
         for v in self.data_variables:
             v.set_from_query_result(r)
+            if v.number_of_obs() == 0:
+                self.logger.warning(f"NO DATA: all elements of {v.get_short_name()} are masked")
 
     def filter(self, mask):
         for v in self.data_variables:
@@ -59,8 +61,7 @@ class DataSet(DataObject):
             f = np.logical_and(f, v.get_filter())
         return f
 
-### same methods as in DataVariable:
-
+# same methods as in DataVariable:
     def read_from_bufr(self, bufr_file_path):
         q = bufr.QuerySet()
         q = self.add_query(q)

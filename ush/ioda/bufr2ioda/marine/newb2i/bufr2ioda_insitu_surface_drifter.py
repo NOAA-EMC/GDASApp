@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 import sys
+import numpy as np
 from b2ibase.util import parse_arguments
 from b2ibase.config import Config
 from b2ibase.data_variable_dictionary import DataVariableDictionary
-from b2ibase.b2i import B2I 
+from b2ibase.b2i import B2I
 from b2ibase.log import B2ILogger
 
 
@@ -25,13 +26,14 @@ class DrifterData(DataVariableDictionary):
         # 5 - SVPG Standard Lagrangian drifter with GPS
         values_to_select = [1, 4, 5]
         buoy_mask = np.isin(buoy_type, values_to_select)
-        mask = buoy_mask & temp.get_filter() & saln.get_filter()
+        mask = buoy_mask & temp.get_filter()
         self.filter(mask)
 
 
 class DrifterConverter(B2I):
     def process_data(self):
         self.data.remove("depth")
+        self.data.remove("salinity")
         self.data.add_preqc_vars()
         self.data.add_error_vars()
         ocean_file_path = self.config.ocean_basin_nc_file_path()

@@ -1,0 +1,14 @@
+---
+data_format: subpfl
+source: NCEP data tank
+data_type: glider
+cycle_type: gdas
+cycle_datetime: '2019010700'
+dump_directory: __BUFRINPUTDIR__
+ioda_directory: __IODAOUTPUTDIR__
+ocean_basin: __OCEANBASIN__
+data_description: 6-hrly in situ GLIDER profiles
+platform_description: 'GLIDER profiles from subpfl: temperature and salinity'
+data_description_file: "__CONFIGDIR__/subpfl.yaml"
+data_provider: U.S. NOAA
+

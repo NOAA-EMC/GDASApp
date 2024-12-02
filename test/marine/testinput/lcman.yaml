@@ -1,44 +1,22 @@
 ---
   - class_name: "Temperature"
-    short_name: "waterTemperature"
-    name: "waterTemperature"
-    bufr_mnemonic: "*/IDMSMDBS/BBYSTSL/SST1"
+    short_name: "seaSurfaceTemperature"
+    name: "seaSurfaceTemperature"
+    bufr_mnemonic: "*/SST1"
     descriptor: "ObsValue"
     units: "degC"
-    depth_profile_var_name: "depth"
+    depth_profile_var_name: ""
     data_min: -10.0
     data_max: 50.0
     data_error: 0.24
 
-  - class_name: "Salinity"
-    short_name: "salinity"
-    name: "salinity"
-    bufr_mnemonic: "*/IDMSMDBS/BBYSTSL/SALN"
-    descriptor: "ObsValue"
-    units: "psu"
-    depth_profile_var_name: "depth"
-    data_min: 0.0 
-    data_max: 45.0
-    data_error: 0.01
-
-  - class_name: "Depth"
-    short_name: "depth"
-    name: "Water depth"
-    bufr_mnemonic: "*/IDMSMDBS/BBYSTSL/DBSS"
-    descriptor: "MetaData"
-    units: "m"
-    depth_profile_var_name: "depth"
-    data_min: 0.0
-    data_max: 10000.0
-    data_error: 0.0
-
   - class_name: "Longitude"
     short_name: "longitude"
     name: "Longitude"
-    bufr_mnemonic: "*/CLONH"
+    bufr_mnemonic: "*/CLON"
     descriptor: "MetaData"
     units: "degrees_east"
-    depth_profile_var_name: "depth"
+    depth_profile_var_name: ""
     data_min: -180.0
     data_max: 180.0
     data_error: 0.0
@@ -46,10 +24,10 @@
   - class_name: "Latitude"
     short_name: "latitude"
     name: "Latitude"
-    bufr_mnemonic: "*/CLATH"
+    bufr_mnemonic: "*/CLAT"
     descriptor: "MetaData"
     units: "degrees_north"
-    depth_profile_var_name: "depth"
+    depth_profile_var_name: ""
     data_min: -90.0
     data_max: 90.0
     data_error: 0.0
@@ -60,18 +38,7 @@
     bufr_mnemonic: "*/RPID"
     descriptor: "MetaData"
     units: ""
-    depth_profile_var_name: "depth"
-    data_min: 0
-    data_max: 0
-    data_error: 0
-
-  - class_name: "BuoyType"
-    short_name: "buoyType"
-    name: "Buoy Type"
-    bufr_mnemonic: "*/BUYT"
-    descriptor: "MetaData"
-    units: ""
-    depth_profile_var_name: "depth"
+    depth_profile_var_name: ""
     data_min: 0
     data_max: 0
     data_error: 0
@@ -81,7 +48,7 @@
     name: "DateTime"
     descriptor: "MetaData"
     units: "seconds since 1970-01-01T00:00:00Z"
-    depth_profile_var_name: "depth"
+    depth_profile_var_name: ""
     data_min: 0
     data_max: 0
     data_error: 0
@@ -92,7 +59,7 @@
       hour: '*/HOUR'
       minute: '*/MINU'
 
-  - class_name: "DateTime"
+  - class_name: "RcptDateTime2D"
     short_name: "rcptDateTime"
     name: "RcptDateTime"
     descriptor: "MetaData"
@@ -102,8 +69,8 @@
     data_max: 0
     data_error: 0
     bufr_mnemonics:
-      ryear: '*/RCYR'
-      rmonth: '*/RCMO'
-      rday: '*/RCDY'
-      rhour: '*/RCHR'
-      rminute: '*/RCMI'
+      ryear: '*/RCPTIM/RCYR'
+      rmonth: '*/RCPTIM/RCMO'
+      rday: '*/RCPTIM/RCDY'
+      rhour: '*/RCPTIM/RCHR'
+      rminute: '*/RCPTIM/RCMI'

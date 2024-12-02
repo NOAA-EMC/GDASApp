@@ -44,7 +44,6 @@ class OceanBasin:
             print(f"An IOError occurred: {e}")
             sys.exit(1)
 
-
     # input: 2 vectors of station coordinates
     # output: a vector of station ocean basin values
     def get_station_basin(self, lat, lon):

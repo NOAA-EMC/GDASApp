@@ -3,11 +3,11 @@ from abc import ABC, abstractmethod
 
 class DataObject(ABC):
     @abstractmethod
-    def add_query(self, q): 
+    def add_query(self, q):
         pass
 
     @abstractmethod
-    def set_from_query_result(self, r): 
+    def set_from_query_result(self, r):
         pass
 
     @abstractmethod

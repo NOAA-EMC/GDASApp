@@ -59,7 +59,6 @@ class Config:
     def bufr_filepath(self):
         return os.path.join(self.dump_dir, self.bufr_filename())
 
-
     def ioda_filename(self):
         return f"{self.cycle_type}.t{self.hh}z.insitu_profile_{self.data_format}.{self.cycle_datetime}.nc4"
 

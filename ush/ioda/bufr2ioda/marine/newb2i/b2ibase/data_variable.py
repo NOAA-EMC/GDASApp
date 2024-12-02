@@ -5,18 +5,17 @@ from pyiodaconv import bufr
 
 
 class DataVariable(DataObject):
-    def __init__(self, 
-        short_name, 
-        name, 
-        bufr_mnemonic = "", 
-        descriptor = "", 
-        units = "", 
-        depth_profile_var_name = "depth",
-        data_min = 0.0, 
-        data_max = 0.0, 
-        data_error = 0.0,
-        data_dictionary = None):
-#########
+    def __init__(self,
+                 short_name,
+                 name,
+                 bufr_mnemonic="",
+                 descriptor="",
+                 units="",
+                 depth_profile_var_name="depth",
+                 data_min=0.0,
+                 data_max=0.0,
+                 data_error=0.0,
+                 data_dictionary=None):
         self._short_name = short_name
         self._name = name
         self._bufr_mnemonic = bufr_mnemonic
@@ -61,8 +60,9 @@ class DataVariable(DataObject):
         self._data = self._data[mask]
 
     def create_ioda_objects(self, obsspace):
-        obsspace.create_var(self._descriptor + "/" + self._short_name, \
-            dtype=self._data.dtype, fillval=self._data.fill_value) \
+        obsspace.create_var(self._descriptor + "/" + self._short_name,
+                            dtype=self._data.dtype,
+                            fillval=self._data.fill_value) \
             .write_attr('units', self._units) \
             .write_attr('valid_range', np.array([self._data_min, self._data_max], dtype=np.float32)) \
             .write_attr('long_name', self._name) \
@@ -79,8 +79,9 @@ class DataVariable(DataObject):
 
     # useful for many variables
     def short_create_ioda_objects(self, obsspace):
-        obsspace.create_var(self._descriptor + "/" + self._short_name, \
-            dtype=self._data.dtype, fillval=self._data.fill_value) \
+        obsspace.create_var(self._descriptor + "/" + self._short_name,
+                            dtype=self._data.dtype,
+                            fillval=self._data.fill_value) \
             .write_attr('long_name', self._name) \
             .write_data(self._data)
 
@@ -89,6 +90,9 @@ class DataVariable(DataObject):
 
     def set_data(self, data):
         self._data = data
+
+    def number_of_obs(self):
+        return self._data.count()
 
     def get_filter(self):
         return (self._data > self._data_min) & (self._data <= self._data_max)
@@ -132,10 +136,6 @@ class DataVariable(DataObject):
             r = f.execute(q)
         self.set_from_query_result(r)
 
-
-################ debug methods
-
     def print_data(self):
         for index, value in np.ndenumerate(self._data):
             print(f"{index[0]}: {value}")
-
