@@ -28,7 +28,10 @@ distribution_type: Halo
 
 # Testing things
 # --------------
+{% if DO_TEST_MODE and RUN == 'enkfgdas'  %}
+do_testing: true
 test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/testreference/atm_jjob_lgetkf_solver.ref
 test_output_filename: {{ HOMEgfs }}/sorc/gdas.cd/build/gdas/test/testoutput/atm_jjob_lgetkf_solver.test.out
 test_float_relative_tolerance: 1.0e-3
 test_float_absolute_tolerance: 1.0e-5
+{% endif %}
