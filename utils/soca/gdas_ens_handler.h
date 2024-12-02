@@ -135,10 +135,7 @@ namespace gdasapp {
       postProcIncr.setToZero(recenteringIncr);
 
       // Check if we're only re-centering the ensemble fcst around the det.
-      bool recenterOnly(false);
-      if ( fullConfig.has("recentering around deterministic") ) {
-        fullConfig.get("recentering around deterministic", recenterOnly);
-      }
+      bool recenterOnly = fullConfig.getBool("recentering around deterministic", false);
 
       // Save increments and exit if all we're doing is re-centering
       // the ensemble fcst around the det.
