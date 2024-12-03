@@ -1,0 +1,15 @@
+# JEDI algorithm being invoked
+algorithm: 3dfgat
+
+# Observations
+observations: !INC ${OBS_LIST_SHORT}
+
+# Testing things
+# --------------
+{% if DO_TEST_MODE == true and RUN == 'gdas' and current_cycle | to_YMDH == '2021032418' %}
+do_testing: true
+test_reference_filename: '{{HOMEgfs}}/sorc/gdas.cd/test/testreference/{{ CASE }}mx{{ OCNRES }}_3DVarAOWCDA_3dfgat.ref'
+test_output_filename: '{{HOMEgfs}}/sorc/gdas.cd/build/gdas/test/testoutput/{{ CASE }}mx{{ OCNRES }}_3DVarAOWCDA_3dfgat.test.out'
+test_float_relative_tolerance: 1.0e-3
+test_float_absolute_tolerance: 1.0e-5
+{% endif %}

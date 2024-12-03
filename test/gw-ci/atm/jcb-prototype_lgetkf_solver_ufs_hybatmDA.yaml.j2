@@ -5,7 +5,7 @@ app_path_observation_chronicle: {{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/
 
 # Algorithm
 # ---------
-algorithm: local_ensemble_da_observer
+algorithm: local_ensemble_da_solver
 
 # Model things
 # ------------
@@ -40,7 +40,20 @@ observations:
 #  - snowcvr
 
 # Naming conventions for observation files
-atmosphere_obsdataout_prefix: diag_lobs_
+atmosphere_obsdatain_path: "{{atm_obsdataout_path}}"
+atmosphere_obsdatain_prefix: diag_lobs_
+atmosphere_obsdatain_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+atmosphere_obsdataout_prefix: diag_solv_
 
 # Distribution type
-distribution_type: RoundRobin
+distribution_type: Halo
+
+# Testing things
+# --------------
+{% if DO_TEST_MODE == true and RUN == 'enkfgdas' and current_cycle | to_YMDH == '2024022400' %}
+do_testing: true
+test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/testreference/{{ CASE }}{{ CASE_ENS }}_ufs_hybatmDA_lgetkf_solver.ref
+test_output_filename: {{ HOMEgfs }}/sorc/gdas.cd/build/gdas/test/testoutput/{{ CASE }}{{ CASE_ENS }}_ufs_hybatmDA_lgetkf_solver.test.out
+test_float_relative_tolerance: 1.0e-3
+test_float_absolute_tolerance: 1.0e-5
+{% endif %}
