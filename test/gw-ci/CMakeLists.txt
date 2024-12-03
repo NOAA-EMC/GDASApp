@@ -244,11 +244,11 @@ endfunction()
 
 if (WORKFLOW_TESTS)
   # List of tests to run
-  option(TEST_GSI "Enable the GFSv17 GSI tests" OFF)
-  option(TEST_GFS18 "Enable the GFSv18 Atmos JEDI tests" OFF)
-  option(TEST_AERO_LAND "Enable the GFSv17 Aero-Land JEDI tests" OFF)
+  option(TEST_GSI "Enable the GFSv17 GSI tests" ON)
+  option(TEST_GFS18 "Enable the GFSv18 Atmos JEDI tests" ON)
+  option(TEST_AERO_LAND "Enable the GFSv17 Aero-Land JEDI tests" ON)
   option(TEST_MARINE "Enable the GFSv17 Marine JEDI tests" ON)
-  option(TEST_GFS17 "Enable the GFSv17 WCDA tests" OFF)
+  option(TEST_GFS17 "Enable the GFSv17 WCDA tests" ON)
 
   # Setup the environement
   set(HOMEgfs ${CMAKE_SOURCE_DIR}/../../..)
