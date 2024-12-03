@@ -405,7 +405,7 @@ if (WORKFLOW_TESTS)
   # GFSv17, 3DVAR prototype
   # -----------------------
   if(TEST_GFS17)
-    set(pslot "C384mx025_3DVarAOWCDA.yaml")
+    set(pslot "C384mx025_3DVarAOWCDA")
     set(YAML_PATH ${HOMEgfs}/ci/cases/gfsv17/${pslot}.yaml)
     set(HALF_CYCLE_TASKS
       "gdas_stage_ic"
