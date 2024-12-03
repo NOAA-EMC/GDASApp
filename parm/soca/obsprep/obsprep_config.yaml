@@ -160,7 +160,7 @@ observations:
     name: sst_viirs_npp_l3u
     provider: GHRSST
     dmpdir subdir: ocean/sst
-    type: nc 
+    type: nc
     dmpdir regex: '*-L3U_GHRSST-SSTsubskin-VIIRS_NPP-ACSPO_V*.nc'
     bounds:
       units: C
@@ -230,7 +230,7 @@ observations:
       stride: 15
       min number of obs: 10
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
-    
+
 # in situ: monthly
 - obs space:
     name: insitu_profile_bathy
@@ -285,7 +285,7 @@ observations:
     name: insitu_surface_trkob
     provider: GTS
     dmpdir subdir: atmos
-    type: bufr 
+    type: bufr
     dmpdir regex: 'gdas.*.trkob.*.bufr_d'
 
 # in situ: daily
@@ -316,5 +316,3 @@ observations:
     dmpdir subdir: atmos
     type: bufr
     dmpdir regex: 'gdas.*.mbuoyb.*.bufr_d'
-
-
