@@ -44,3 +44,13 @@ atmosphere_obsdataout_prefix: diag_lobs_
 
 # Distribution type
 distribution_type: RoundRobin
+
+# Testing things
+# --------------
+{% if DO_TEST_MODE == true and RUN == 'enkfgdas' and current_cycle | to_YMDH == '2024022400' %}
+do_testing: true
+test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/testreference/{{ CASE }}{{ CASE_ENS }}_ufs_hybatmDA_lgetkf_observer.ref
+test_output_filename: {{ HOMEgfs }}/sorc/gdas.cd/build/gdas/test/testoutput/{{ CASE }}{{ CASE_ENS }}_ufs_hybatmDA_lgetkf_observer.test.out
+test_float_relative_tolerance: 1.0e-3
+test_float_absolute_tolerance: 1.0e-5
+{% endif %}
