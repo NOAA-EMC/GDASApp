@@ -85,9 +85,6 @@ else
   BASE_REPO=GDASApp
 fi
 
-# Test
-CI_LABEL="hera-driver-test"
-
 # ==============================================================================
 # pull on the repo and get list of open PRs
 
