@@ -15,6 +15,9 @@ usage() {
 }
 
 # ==============================================================================
+TEST_WORKFLOW=0
+ci_regex_include="gdasapp"
+ci_regex_exclude=""
 while getopts "d:o:h" opt; do
   case $opt in
     d)
@@ -23,11 +26,39 @@ while getopts "d:o:h" opt; do
     o)
       outfile=$OPTARG
       ;;
+    w)
+      TEST_WORKFLOW=1
+      ;;
+    R)
+      ci_regex_include=$OPTARG
+      ;;
+    E)
+      ci_regex_exclude=$OPTARG
+      ;;
     h|\?|:)
       usage
       ;;
   esac
 done
+
+if [[ $TEST_WORKFLOW == 1 ]]; then
+    export WORKFLOW_BUILD="ON"
+
+    workflow_dir=$repo_dir
+    gdasapp_dir=$workflow_dir/sorc/gdas.cd
+
+    build_cmd_dir=$workflow_dir/sorc
+    build_cmd="./build_all.sh -u &>> log.build"
+    build_dir=$workflow_dir/build
+else
+    export BUILD_JOBS=8
+
+    gdasapp_dir=$repodir
+
+    build_cmd_dir=$gdasapp_dir
+    build_cmd="./build.sh -t $TARGET &>> log.build"
+    build_dir=$gdasapp_dir/build
+fi
 
 # ==============================================================================
 # start output file
@@ -38,11 +69,10 @@ echo "Start: $(date) on $(hostname)" >> $outfile
 echo "---------------------------------------------------" >> $outfile
 # ==============================================================================
 # run build script
-cd $repodir
+cd $build_cmd_dir
 module purge
-export BUILD_JOBS=8
 rm -rf log.build
-./build.sh -t $TARGET &>> log.build
+$build_cmd
 build_status=$?
 if [ $build_status -eq 0 ]; then
   echo "Build:                                 *SUCCESS*" >> $outfile
@@ -50,18 +80,25 @@ if [ $build_status -eq 0 ]; then
 else
   echo "Build:                                  *FAILED*" >> $outfile
   echo "Build: Failed at $(date)" >> $outfile
-  echo "Build: see output at $repodir/log.build" >> $outfile
+  echo "Build: see output at $build_cmd_dir/log.build" >> $outfile
   echo '```' >> $outfile
   exit $build_status
 fi
+if [[ TEST_WORKFLOW == 1 ]]; then
+  ./link_workflow.sh
+fi
 # ==============================================================================
 # run ctests
-cd $repodir/build
-module use $GDAS_MODULE_USE
+cd $gdasapp_dir/build
+module use $gdasapp_dir/modulefiles
 module load GDAS/$TARGET
 echo "---------------------------------------------------" >> $outfile
 rm -rf log.ctest
-ctest -j${NTASKS_TESTS} -R gdasapp --output-on-failure &>> log.ctest
+ctest_cmd="ctest -j${NTASKS_TESTS} -R $ci_regex_include"
+if [ -n "$ci_regex_exclude" ]; then
+  ctest_cmd+=" -E $ci_regex_exclude"
+fi
+$ctest_cmd --output-on-failure &>> log.ctest
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
 if [ $ctest_status -eq 0 ]; then
@@ -73,7 +110,7 @@ else
   echo "Tests: Failed at $(date)" >> $outfile
   echo "Tests: $npassed" >> $outfile
   cat log.ctest | grep "(Failed)" >> $outfile
-  echo "Tests: see output at $repodir/build/log.ctest" >> $outfile
+  echo "Tests: see output at $gdasapp_dir/build/log.ctest" >> $outfile
 fi
 echo '```' >> $outfile
 exit $ctest_status
