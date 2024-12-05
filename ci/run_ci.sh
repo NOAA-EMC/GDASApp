@@ -9,6 +9,9 @@ usage() {
   echo
   echo "  -d  Run build and ctest for clone in <directory>"
   echo "  -o  Path to output message detailing results of CI tests"
+  echo "  -w  Test GDASApp within the Global Workflow"
+  echo "  -R  Regular expression of CTests to include"
+  echo "  -E  Regular expression of CTests to exclude"
   echo "  -h  display this message and quit"
   echo
   exit 1
@@ -16,9 +19,9 @@ usage() {
 
 # ==============================================================================
 TEST_WORKFLOW=0
-ci_regex_include="gdasapp"
-ci_regex_exclude=""
-while getopts "d:o:h" opt; do
+ctest_regex_include=""
+ctest_regex_exclude=""
+while getopts "d:o:h:R:E:w" opt; do
   case $opt in
     d)
       repodir=$OPTARG
@@ -26,15 +29,15 @@ while getopts "d:o:h" opt; do
     o)
       outfile=$OPTARG
       ;;
-    w)
-      TEST_WORKFLOW=1
-      ;;
     R)
-      ci_regex_include=$OPTARG
+      ctest_regex_include+=$OPTARG
       ;;
     E)
-      ci_regex_exclude=$OPTARG
+      ctest_regex_exclude+=$OPTARG
       ;;
+    w)
+      TEST_WORKFLOW=1
+      ;;    
     h|\?|:)
       usage
       ;;
@@ -44,7 +47,7 @@ done
 if [[ $TEST_WORKFLOW == 1 ]]; then
     export WORKFLOW_BUILD="ON"
 
-    workflow_dir=$repo_dir
+    workflow_dir=$repodir
     gdasapp_dir=$workflow_dir/sorc/gdas.cd
 
     build_cmd_dir=$workflow_dir/sorc
@@ -84,7 +87,7 @@ else
   echo '```' >> $outfile
   exit $build_status
 fi
-if [[ TEST_WORKFLOW == 1 ]]; then
+if [[ $TEST_WORKFLOW == 1 ]]; then
   ./link_workflow.sh
 fi
 # ==============================================================================
@@ -94,11 +97,16 @@ module use $gdasapp_dir/modulefiles
 module load GDAS/$TARGET
 echo "---------------------------------------------------" >> $outfile
 rm -rf log.ctest
-ctest_cmd="ctest -j${NTASKS_TESTS} -R $ci_regex_include"
-if [ -n "$ci_regex_exclude" ]; then
-  ctest_cmd+=" -E $ci_regex_exclude"
+ctest_cmd="ctest -j${NTASKS_TESTS}"
+if [ -n "$ctest_regex_include" ]; then
+  ctest_cmd+=" -R $ctest_regex_include"
 fi
+if [ -n "$ctest_regex_exclude" ]; then
+  ctest_cmd+=" -E $ctest_regex_exclude"
+fi
+pwd
 $ctest_cmd --output-on-failure &>> log.ctest
+echo "Tests: $ctest_cmd" >> $outfile
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
 if [ $ctest_status -eq 0 ]; then

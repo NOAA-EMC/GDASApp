@@ -55,6 +55,8 @@ case ${TARGET} in
     ;;
 esac
 
+# ==============================================================================
+# set list of available CI tests to run on the Global Workflow
 CI_TESTS=("C96C48_hybatmDA"
 	  "C96C48_ufs_hybatmDA"
 	  "C96C48_hybatmaerosnowDA"
@@ -188,27 +190,25 @@ for pr in $open_pr_list; do
     commit=$(git log --pretty=format:'%h' -n 1)
     echo "$commit" > $PR_TEST_DIR/$pr/commit
 
-    # get ci tests from PR description and convert into a regular expressions to included and exclude
-    branch_body=$(gh pr view $pr --repo ${gdasapp_url} --json body --jq '.body')
-    ci_checklist=$(echo "$branch_body" | grep '\[x\]')
-    ci_include_regex="gdasapp"
-    ci_exclude_regex=""  
-    for ci_test in ${CI_TESTS[@]}; do
-	if echo "$ci_checklist" | grep -q "$ci_test"; then
-	    ci_include_regex+="${ci_include_regex:+|}$ci_test"
-	else
-	    ci_exclude_regex+="${ci_exclude_regex:+|}$ci_test"
-	fi      
-    done
-
     # run build and testing command
     echo "Running run_ci.sh for $PR_TEST_DIR/$pr/$BASE_REPO at $(date)"
-    run_ci_cmd="$my_dir/run_ci.sh -d $PR_TEST_DIR/$pr/$BASE_REPO -o $PR_TEST_DIR/$pr/output_${commit} -R $ci_include_regex"
-    if [ -n "$ci_exclude_regex" ]; then
-	run_ci_cmd+=" -E $ci_exclude_regex"
-    fi    
-    if [[ TEST_WORKFLOW == 1 ]]; then
-	run_ci_cmd+=" -w"
+    run_ci_cmd="$my_dir/run_ci.sh -d $PR_TEST_DIR/$pr/$BASE_REPO -o $PR_TEST_DIR/$pr/output_${commit} -R gdasapp"
+    if [[ $TEST_WORKFLOW == 1 ]]; then
+      # get ci tests from PR description and convert into a regular expressions to be exclude
+      branch_body=$(gh pr view $pr --repo ${gdasapp_url} --json body --jq '.body')
+      ci_checklist=$(echo "$branch_body" | grep '\[x\]')
+      ctest_regex_exclude=""  
+      for ci_test in ${CI_TESTS[@]}; do
+        if ! echo "$ci_checklist" | grep -q "$ci_test"; then
+	  ctest_regex_exclude+="${ctest_regex_exclude:+|}$ci_test"
+	fi      
+      done
+
+      # setup run_ci.sh arguments to exclude chosen CI tests
+      run_ci_cmd+=" -w"
+      if [ -n "$ctest_regex_exclude" ]; then
+        run_ci_cmd+=" -E $ctest_regex_exclude"
+      fi
     fi
     $run_ci_cmd
     ci_status=$?
@@ -226,7 +226,7 @@ for pr in $open_pr_list; do
     echo "No authorized users assigned to this PR. Aborting CI..."
   fi
 
-  echo "Finished processing Pull Request #{pr} at $(date)"
+  echo "Finished processing Pull Request #${pr} at $(date)"
 done
 
 # ==============================================================================
