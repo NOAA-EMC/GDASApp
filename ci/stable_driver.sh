@@ -71,7 +71,7 @@ $my_dir/../ush/submodules/update_develop.sh $gdasdir
 
 # ==============================================================================
 # run the automated testing
-$my_dir/run_gw_ci.sh -d $stableroot/$datestr/global-workflow -o $stableroot/$datestr/output
+$my_dir/run_ci.sh -d $stableroot/$datestr/global-workflow -o $stableroot/$datestr/output -w
 ci_status=$?
 total=0
 if [ $ci_status -eq 0 ]; then
