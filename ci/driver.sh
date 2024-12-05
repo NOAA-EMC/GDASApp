@@ -187,9 +187,9 @@ for pr in $open_pr_list; do
 
     # run build and testing command
     echo "Running run_ci.sh for $PR_TEST_DIR/$pr/$BASE_REPO at $(date)"
-    run_ci_cmd="$my_dir/run_ci.sh -d $PR_TEST_DIR/$pr/$BASE_REPO -o $PR_TEST_DIR/$pr/output_${commit} -R gdasapp"
+    run_ci_cmd="$my_dir/run_ci.sh -d $PR_TEST_DIR/$pr/$BASE_REPO -o $PR_TEST_DIR/$pr/output_${commit}"
     if [[ $TEST_WORKFLOW == 1 ]]; then
-      # get ci tests from PR description and convert into a regular expressions to be exclude
+      # get ci tests from PR description and convert into a regular expressions to be excluded
       branch_body=$(gh pr view $pr --repo ${gdasapp_url} --json body --jq '.body')
       ci_checklist=$(echo "$branch_body" | grep '\[x\]')
       ctest_regex_exclude=""  
@@ -199,7 +199,7 @@ for pr in $open_pr_list; do
 	fi      
       done
 
-      # setup run_ci.sh arguments to exclude chosen CI tests
+      # setup run_ci.sh arguments to test in the Global Workflow and exclude chosen CI tests
       run_ci_cmd+=" -w"
       if [ -n "$ctest_regex_exclude" ]; then
         run_ci_cmd+=" -E $ctest_regex_exclude"

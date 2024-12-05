@@ -10,7 +10,6 @@ usage() {
   echo "  -d  Run build and ctest for clone in <directory>"
   echo "  -o  Path to output message detailing results of CI tests"
   echo "  -w  Test GDASApp within the Global Workflow"
-  echo "  -R  Regular expression of CTests to include"
   echo "  -E  Regular expression of CTests to exclude"
   echo "  -h  display this message and quit"
   echo
@@ -19,18 +18,14 @@ usage() {
 
 # ==============================================================================
 TEST_WORKFLOW=0
-ctest_regex_include=""
 ctest_regex_exclude=""
-while getopts "d:o:h:R:E:w" opt; do
+while getopts "d:o:h:E:w" opt; do
   case $opt in
     d)
       repodir=$OPTARG
       ;;
     o)
       outfile=$OPTARG
-      ;;
-    R)
-      ctest_regex_include+=$OPTARG
       ;;
     E)
       ctest_regex_exclude+=$OPTARG
@@ -97,10 +92,7 @@ module use $gdasapp_dir/modulefiles
 module load GDAS/$TARGET
 echo "---------------------------------------------------" >> $outfile
 rm -rf log.ctest
-ctest_cmd="ctest -j${NTASKS_TESTS}"
-if [ -n "$ctest_regex_include" ]; then
-  ctest_cmd+=" -R $ctest_regex_include"
-fi
+ctest_cmd="ctest -j${NTASKS_TESTS} -R gdasapp"
 if [ -n "$ctest_regex_exclude" ]; then
   ctest_cmd+=" -E $ctest_regex_exclude"
 fi
