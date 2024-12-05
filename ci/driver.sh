@@ -41,7 +41,7 @@ done
 echo "Running automated testing on $TARGET"
 
 case ${TARGET} in
-  hera | orion)
+  hera | orion | hercules)
     source $MODULESHOME/init/sh
     source $my_dir/${TARGET}.sh
     module purge
