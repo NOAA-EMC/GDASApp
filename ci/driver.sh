@@ -57,12 +57,7 @@ esac
 
 # ==============================================================================
 # set list of available CI tests to run on the Global Workflow
-CI_TESTS=("C96C48_hybatmDA"
-	  "C96C48_ufs_hybatmDA"
-	  "C96C48_hybatmaerosnowDA"
-	  "C48mx500_3DVarAOWCDA"
-	  "C48mx500_hybAOWCDA"
-	  "C384mx025_3DVarAOWCDA")
+source $my_dir/ci_tests.sh
 
 # ==============================================================================
 # set things that depend on whether running workflow tests or not
