@@ -60,7 +60,11 @@ fi
 
 # ==============================================================================
 # start output file
-echo "Automated GDASApp Testing Results:" > $outfile
+if [[ $TEST_WORKFLOW == 1 ]]; then
+  echo "Automated GW-GDASApp Testing Results:" > $outfile
+else
+  echo "Automated GDASApp Testing Results:" > $outfile
+fi
 echo "Machine: ${TARGET}" >> $outfile
 echo '```' >> $outfile
 echo "Start: $(date) on $(hostname)" >> $outfile
