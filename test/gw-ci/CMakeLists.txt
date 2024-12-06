@@ -247,7 +247,8 @@ if (WORKFLOW_TESTS)
   option(TEST_GSI "Enable the GFSv17 GSI tests" ON)
   option(TEST_GFS18 "Enable the GFSv18 Atmos JEDI tests" ON)
   option(TEST_AERO_LAND "Enable the GFSv17 Aero-Land JEDI tests" ON)
-  option(TEST_MARINE "Enable the GFSv17 Marine JEDI tests" ON)
+  option(TEST_MARINE_VAR "Enable the GFSv17 Marine JEDI 3D VAR FGAT tests" ON)
+  option(TEST_MARINE_HYB "Enable the GFSv17 Marine JEDI 3d HYB VAR tests" OFF)
   option(TEST_GFS17 "Enable the GFSv17 WCDA tests" OFF)
 
   # Setup the environement
@@ -354,7 +355,7 @@ if (WORKFLOW_TESTS)
     add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
   endif()  # TEST_AERO_LAND
 
-  if(${TEST_MARINE})
+  if(${TEST_MARINE_VAR})
     # GSI Atm DA C48, JEDI Marine DA 500
     # ----------------------------------
     set(pslot "C48mx500_3DVarAOWCDA")
@@ -376,11 +377,11 @@ if (WORKFLOW_TESTS)
       #"gdas_fcst"
       )
     add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
+  endif()  # TEST_MARINE_VAR
 
-
+  if(${TEST_MARINE_HYB})
     # WCDA, low-res, ensemble da
     # -------------
-
     set(pslot "C48mx500_hybAOWCDA")
     set(letkf TRUE)
     set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
@@ -400,7 +401,7 @@ if (WORKFLOW_TESTS)
       )
     add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
     set(letkf FALSE)
-  endif()  # TEST_MARINE
+  endif()  # TEST_MARINE_HYB
 
   # GFSv17, 3DVAR prototype
   # -----------------------
