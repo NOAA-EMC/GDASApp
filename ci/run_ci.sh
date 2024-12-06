@@ -97,8 +97,8 @@ if [ -n "$ctest_regex_exclude" ]; then
   ctest_cmd+=" -E $ctest_regex_exclude"
 fi
 pwd
-$ctest_cmd --output-on-failure &>> log.ctest
 echo "Tests: $ctest_cmd" >> $outfile
+$ctest_cmd --output-on-failure &>> log.ctest
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
 if [ $ctest_status -eq 0 ]; then
