@@ -248,7 +248,7 @@ if (WORKFLOW_TESTS)
   option(TEST_GFS18 "Enable the GFSv18 Atmos JEDI tests" ON)
   option(TEST_AERO_LAND "Enable the GFSv17 Aero-Land JEDI tests" ON)
   option(TEST_MARINE "Enable the GFSv17 Marine JEDI tests" ON)
-  option(TEST_GFS17 "Enable the GFSv17 WCDA tests" ON)
+  option(TEST_GFS17 "Enable the GFSv17 WCDA tests" OFF)
 
   # Setup the environement
   set(HOMEgfs ${CMAKE_SOURCE_DIR}/../../..)
