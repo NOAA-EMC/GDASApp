@@ -53,6 +53,7 @@ repo_url="https://github.com/NOAA-EMC/GDASApp.git"
 workflow_url="https://github.com/NOAA-EMC/global-workflow.git"
 stableroot=$GDAS_CI_ROOT/stable
 
+[[ -d $stableroot/$datestr ]] && rm -rf $stableroot/$datestr
 mkdir -p $stableroot/$datestr
 cd $stableroot/$datestr
 
@@ -63,11 +64,12 @@ git clone --recursive $workflow_url
 cd $stableroot/$datestr/global-workflow/sorc/gdas.cd
 git checkout develop
 git pull
+git submodule update --init --recursive
 
 # ==============================================================================
 # update the hashes to the most recent
 gdasdir=$stableroot/$datestr/global-workflow/sorc/gdas.cd
-$my_dir/../ush/submodules/update_develop.sh $gdasdir
+$gdasdir/ush/submodules/update_develop.sh $gdasdir
 
 # ==============================================================================
 # run the automated testing
@@ -115,19 +117,26 @@ if [ $ci_status -eq 0 ]; then
   if [ $total -ne 0 ]; then
     echo "Unable to push" >> $stableroot/$datestr/output
   fi
+  # send email
+  PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov David.New@noaa.gov"
+  BODY=$stableroot/$datestr/output_stable_nightly  
   if [ $total -ne 0 ]; then
-    echo "Issue merging with develop. please manually fix"
-    PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov"
     SUBJECT="Problem updating feature/stable-nightly branch of GDASApp"
-    BODY=$stableroot/$datestr/output_stable_nightly
     cat > $BODY << EOF
 Problem updating feature/stable-nightly branch of GDASApp. Please check $stableroot/$datestr/GDASApp
 
 EOF
-    mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
+
   else
-    echo "Stable branch updated"
+    SUBJECT="Success updating feature/stable-nightly branch of GDASApp"
+    cat > $BODY << EOF
+feature/stable-nightly branch of GDASApp updated successfully. See $stableroot/$datestr/GDASApp for details.
+
+EOF
+
   fi
+  echo $SUBJECT
+  mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY  
 else
   # do nothing
   echo "Testing failed, stable branch will not be updated"
