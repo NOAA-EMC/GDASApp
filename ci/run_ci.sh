@@ -102,7 +102,7 @@ if [ -n "$ctest_regex_exclude" ]; then
 fi
 pwd
 echo "Tests: $ctest_cmd" >> $outfile
-$ctest_cmd --output-on-failure &>> log.ctest
+$ctest_cmd --timeout 7200 --output-on-failure &>> log.ctest
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
 if [ $ctest_status -eq 0 ]; then
@@ -114,6 +114,7 @@ else
   echo "Tests: Failed at $(date)" >> $outfile
   echo "Tests: $npassed" >> $outfile
   cat log.ctest | grep "(Failed)" >> $outfile
+  cat log.ctest | grep "(Timeout))" >> $outfile  
   echo "Tests: see output at $gdasapp_dir/build/log.ctest" >> $outfile
 fi
 echo '```' >> $outfile
