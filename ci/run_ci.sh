@@ -114,7 +114,7 @@ else
   echo "Tests: Failed at $(date)" >> $outfile
   echo "Tests: $npassed" >> $outfile
   cat log.ctest | grep "(Failed)" >> $outfile
-  cat log.ctest | grep "(Timeout))" >> $outfile  
+  cat log.ctest | grep "(Timeout)" >> $outfile  
   echo "Tests: see output at $gdasapp_dir/build/log.ctest" >> $outfile
 fi
 echo '```' >> $outfile
