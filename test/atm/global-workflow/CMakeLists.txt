@@ -40,7 +40,7 @@ ecbuild_add_test(TARGET test_gdasapp_atm_jjob_ens_init
                  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_init.sh
                  ARGS ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
                  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun
-                 TEST_DEPENDS test_gdasapp_setup_atm_cycled_exp)
+                 TEST_DEPENDS test_gdasapp_setup_atm_jjob_cycled_exp)
 
 ecbuild_add_test(TARGET test_gdasapp_atm_jjob_ens_letkf
                  TYPE SCRIPT
