@@ -46,7 +46,7 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
     gdasapp_dir=$workflow_dir/sorc/gdas.cd
 
     build_cmd_dir=$workflow_dir/sorc
-    build_cmd="./build_all.sh -u &>> log.build"
+    build_cmd="./build_all.sh -ug &>> log.build"
     build_dir=$workflow_dir/build
 else
     export BUILD_JOBS=8
