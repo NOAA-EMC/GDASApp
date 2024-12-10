@@ -72,6 +72,11 @@ gdasdir=$stableroot/$datestr/global-workflow/sorc/gdas.cd
 $gdasdir/ush/submodules/update_develop.sh $gdasdir
 
 # ==============================================================================
+# email information
+PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov David.New@noaa.gov"
+BODY=$stableroot/$datestr/output_stable_nightly  
+
+# ==============================================================================
 # run the automated testing
 $my_dir/run_ci.sh -d $stableroot/$datestr/global-workflow -o $stableroot/$datestr/output -w
 ci_status=$?
@@ -118,8 +123,6 @@ if [ $ci_status -eq 0 ]; then
     echo "Unable to push" >> $stableroot/$datestr/output
   fi
   # send email
-  PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov David.New@noaa.gov"
-  BODY=$stableroot/$datestr/output_stable_nightly  
   if [ $total -ne 0 ]; then
     SUBJECT="Problem updating feature/stable-nightly branch of GDASApp"
     cat > $BODY << EOF
@@ -135,12 +138,16 @@ feature/stable-nightly branch of GDASApp updated successfully. See $stableroot/$
 EOF
 
   fi
-  echo $SUBJECT
-  mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY  
 else
   # do nothing
-  echo "Testing failed, stable branch will not be updated"
+  SUBJECT="Testing or building of feature/stable-nightly branch of GDASApp failed"
+  cat > $BODY << EOF
+Testing or building of feature/stable-nightly branch of GDASApp failed. Please check $stableroot/$datestr/GDASApp.
+
+EOF
 fi
+echo $SUBJECT
+mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY  
 # ==============================================================================
 # publish some information to RZDM for quick viewing
 # THIS IS A TODO FOR NOW
