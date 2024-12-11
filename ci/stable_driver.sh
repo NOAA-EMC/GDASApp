@@ -73,7 +73,7 @@ $gdasdir/ush/submodules/update_develop.sh $gdasdir
 
 # ==============================================================================
 # email information
-PEOPLE="David.New@noaa.gov"
+PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov David.New@noaa.gov"
 BODY=$stableroot/$datestr/stable_nightly  
 
 # ==============================================================================
