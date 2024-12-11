@@ -8,6 +8,7 @@ from soca import bkg_utils
 from typing import Dict
 import ufsda
 from ufsda.stage import soca_fix
+import pygfs.utils.marine_da_utils as mdau
 from wxflow import (AttrDict,
                     chdir,
                     Executable,
@@ -15,10 +16,8 @@ from wxflow import (AttrDict,
                     logit,
                     parse_j2yaml,
                     Task,
-                    Template,
-                    TemplateConstants,
-                    WorkflowException,
-                    YAMLFile)
+                    add_to_datetime, to_timedelta,
+                    WorkflowException)
 
 logger = getLogger(__name__.split('.')[-1])
 
@@ -59,32 +58,40 @@ class MarineRecenter(Task):
 
         half_assim_freq = timedelta(hours=int(config['assim_freq'])/2)
         window_begin = cdate - half_assim_freq
+        window_end = cdate + half_assim_freq
         window_begin_iso = window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
         window_middle_iso = cdate.strftime('%Y-%m-%dT%H:%M:%SZ')
-
-        self.recen_config = AttrDict(
-            {'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
-             'ATM_WINDOW_BEGIN': window_begin_iso,
-             'ATM_WINDOW_MIDDLE': window_middle_iso,
-             'DATA': DATA,
-             'dump': self.task_config.RUN,
-             'stage_dir': DATA,
-             'soca_input_fix_dir': self.task_config.SOCA_INPUT_FIX_DIR,
-             'NMEM_ENS': self.task_config.NMEM_ENS,
-             'ATM_WINDOW_LENGTH': f"PT{config['assim_freq']}H"})
-
         berror_yaml_dir = os.path.join(gdas_home, 'parm', 'soca', 'berror')
-        self.task_config['recen_yaml_template'] = os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml')
-        self.task_config['recen_yaml_file'] = os.path.join(DATA, 'soca_ensrecenter.yaml')
-        self.task_config['gridgen_yaml'] = os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml')
-        self.task_config['BKG_LIST'] = 'bkg_list.yaml'
-        self.task_config['window_begin'] = window_begin
-        self.task_config['mom_input_nml_src'] = os.path.join(gdas_home, 'parm', 'soca', 'fms', 'input.nml')
-        self.task_config['mom_input_nml_tmpl'] = os.path.join(DATA, 'mom_input.nml.tmpl')
-        self.task_config['mom_input_nml'] = os.path.join(DATA, 'mom_input.nml')
-        self.task_config['bkg_dir'] = os.path.join(DATA, 'bkg')
-        self.task_config['INPUT'] = os.path.join(DATA, 'INPUT')
-        self.task_config['ens_dir'] = os.path.join(DATA, 'ens')
+
+        _window_begin = add_to_datetime(self.task_config.current_cycle, -to_timedelta(f"{self.task_config.assim_freq}H") / 2)
+        _window_end = add_to_datetime(self.task_config.current_cycle, to_timedelta(f"{self.task_config.assim_freq}H") / 2)
+
+        local_dict = AttrDict({'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+                               'PARMsoca': os.path.join(self.task_config.PARMgfs, 'gdas', 'soca'),
+                               'MARINE_WINDOW_BEGIN': _window_begin,
+                               'MARINE_WINDOW_BEGIN_ISO': _window_begin.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                               'MARINE_WINDOW_END': _window_end,
+                               'MARINE_WINDOW_END_ISO': _window_end.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                               'MARINE_WINDOW_LENGTH': f"PT{self.task_config['assim_freq']}H",
+                               'MARINE_WINDOW_MIDDLE': self.task_config.current_cycle,
+                               'MARINE_WINDOW_MIDDLE_ISO': self.task_config.current_cycle.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                               'DATA': DATA,
+                               'dump': self.task_config.RUN,
+                               'stage_dir': DATA,
+                               'soca_input_fix_dir': self.task_config.SOCA_INPUT_FIX_DIR,
+                               'NMEM_ENS': self.task_config.NMEM_ENS,
+                               'MARINE_WINDOW_LENGTH': f"PT{config['assim_freq']}H",
+                               'recen_yaml_template': os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml'),
+                               'recen_yaml_file': os.path.join(DATA, 'soca_ensrecenter.yaml'),
+                               'gridgen_yaml': os.path.join(gdas_home, 'parm', 'soca', 'gridgen', 'gridgen.yaml'),
+                               'BKG_LIST': 'bkg_list.yaml',
+                               'window_begin': window_begin,
+                               'bkg_dir': os.path.join(DATA, 'bkg'),
+                               'INPUT': os.path.join(DATA, 'INPUT'),
+                               'ens_dir': os.path.join(DATA, 'ens')})
+
+        # Extend task_config with local_dict
+        self.task_config.update(local_dict)
 
     @logit(logger)
     def initialize(self):
@@ -101,33 +108,28 @@ class MarineRecenter(Task):
         RUN = self.task_config.RUN
         gcyc = self.task_config.gcyc
 
-        ufsda.stage.soca_fix(self.recen_config)
+        # stage fix files
+        logger.info(f"Staging SOCA fix files from {self.task_config.SOCA_INPUT_FIX_DIR}")
+        soca_fix_list = parse_j2yaml(self.task_config.SOCA_FIX_YAML_TMPL, self.task_config)
+        FileHandler(soca_fix_list).sync()
 
-        ################################################################################
-        # prepare input.nml
-        FileHandler({'copy': [[self.task_config.mom_input_nml_src, self.task_config.mom_input_nml_tmpl]]}).sync()
+        # prepare the MOM6 input.nml
+        mdau.prep_input_nml(self.task_config)
 
-        # swap date and stack size
-        domain_stack_size = self.task_config.DOMAIN_STACK_SIZE
-        ymdhms = [int(s) for s in self.task_config.window_begin.strftime('%Y,%m,%d,%H,%M,%S').split(',')]
-        with open(self.task_config.mom_input_nml_tmpl, 'r') as nml_file:
-            nml = f90nml.read(nml_file)
-            nml['ocean_solo_nml']['date_init'] = ymdhms
-            nml['fms_nml']['domains_stack_size'] = int(domain_stack_size)
-            ufsda.disk_utils.removefile(self.task_config.mom_input_nml)
-            nml.write(self.task_config.mom_input_nml)
+        # stage the soca utility yamls (gridgen, fields and ufo mapping yamls)
+        logger.info(f"Staging SOCA utility yaml files from {self.task_config.PARMsoca}")
+        soca_utility_list = parse_j2yaml(self.task_config.MARINE_UTILITY_YAML_TMPL, self.task_config)
+        FileHandler(soca_utility_list).sync()
 
-        FileHandler({'mkdir': [self.task_config.bkg_dir]}).sync()
-        bkg_utils.gen_bkg_list(bkg_path=self.task_config.COM_OCEAN_HISTORY_PREV,
-                               out_path=self.task_config.bkg_dir,
-                               window_begin=self.task_config.window_begin,
-                               yaml_name=self.task_config.BKG_LIST)
+        # stage backgrounds
+        bkg_list = parse_j2yaml(self.task_config.MARINE_DET_STAGE_BKG_YAML_TMPL, self.task_config)
+        FileHandler(bkg_list).sync()
 
-        ################################################################################
-        # Copy initial condition
-
-        bkg_utils.stage_ic(self.task_config.bkg_dir, self.task_config.DATA, gcyc)
-
+#        ################################################################################
+#        # Copy initial condition
+#
+#        bkg_utils.stage_ic(self.task_config.bkg_dir, self.task_config.DATA, gcyc)
+#
         ################################################################################
         # stage ensemble members
         logger.info("---------------- Stage ensemble members")
@@ -145,9 +147,9 @@ class MarineRecenter(Task):
                                        domain,
                                        'history')
                 mem_dir_real = os.path.realpath(mem_dir)
-                f009 = f'enkf{RUN}.{domain}.t{gcyc}z.inst.f009.nc'
+                f00 = f"enkf{RUN}.{domain}.t{gcyc}z.inst.f009.nc"
 
-                fname_in = os.path.abspath(os.path.join(mem_dir_real, f009))
+                fname_in = os.path.abspath(os.path.join(mem_dir_real, f00))
                 fname_out = os.path.realpath(os.path.join(self.task_config.ens_dir,
                                              domain+"."+str(mem)+".nc"))
                 ens_member_list.append([fname_in, fname_out])
@@ -159,7 +161,7 @@ class MarineRecenter(Task):
 
         logger.info(f"---------------- generate soca_ensrecenter.yaml")
 
-        recen_yaml = parse_j2yaml(self.task_config.recen_yaml_template, self.recen_config)
+        recen_yaml = parse_j2yaml(self.task_config.recen_yaml_template, self.task_config)
         recen_yaml.save(self.task_config.recen_yaml_file)
 
     @logit(logger)
@@ -178,7 +180,7 @@ class MarineRecenter(Task):
         chdir(self.task_config.DATA)
 
         exec_cmd_gridgen = Executable(self.task_config.APRUN_OCNANALECEN)
-        exec_name_gridgen = os.path.join(self.task_config.JEDI_BIN, 'gdas_soca_gridgen.x')
+        exec_name_gridgen = os.path.join(self.task_config.EXECgfs, 'gdas_soca_gridgen.x')
         exec_cmd_gridgen.add_default_arg(exec_name_gridgen)
         exec_cmd_gridgen.add_default_arg(self.task_config.gridgen_yaml)
 
@@ -192,7 +194,7 @@ class MarineRecenter(Task):
         pass
 
         exec_cmd_recen = Executable(self.task_config.APRUN_OCNANALECEN)
-        exec_name_recen = os.path.join(self.task_config.JEDI_BIN, 'gdas_ens_handler.x')
+        exec_name_recen = os.path.join(self.task_config.EXECgfs, 'gdas_ens_handler.x')
         exec_cmd_recen.add_default_arg(exec_name_recen)
         exec_cmd_recen.add_default_arg(os.path.basename(self.task_config.recen_yaml_file))
 
@@ -219,13 +221,18 @@ class MarineRecenter(Task):
         logger.info("finalize")
 
         RUN = self.task_config.RUN
-        cyc = self.task_config.cyc
+        cyc = str(self.task_config.cyc).zfill(2)
         incr_file = f'enkf{RUN}.t{cyc}z.ocninc.nc'
         nmem_ens = self.task_config.NMEM_ENS
         PDYstr = self.task_config.PDY.strftime("%Y%m%d")
         mem_dir_list = []
         copy_list = []
 
+        # Skip the analysis insertion into the CICE restart for now
+        # TODO (G): Add this back in when we have hardened the soca to cice
+        #           change of variable
+
+        # Copy the recentering increment files to the member COMROOT directories
         for mem in range(1, nmem_ens+1):
             mem_dir = os.path.join(self.task_config.ROTDIR,
                                    f'enkf{RUN}.{PDYstr}',

@@ -4,104 +4,60 @@ geometry:
   mom6_input_nml: mom_input.nml
   fields metadata: ./fields_metadata.yaml
 
-date: '{{ ATM_WINDOW_BEGIN }}'
+date: '{{ MARINE_WINDOW_END_ISO }}'
 
-layers variable: [hocn]
+layers variable: [sea_water_cell_thickness]
 
 # TODO(AFE) fix ice recentering in cycled da
-#increment variables: [tocn, socn, uocn, vocn, ssh, hocn, cicen, hicen, hsnon]
-increment variables: [tocn, socn, uocn, vocn, ssh, hocn]
-
-set increment variables to zero: [ssh]
+increment variables:
+- sea_water_potential_temperature
+- sea_water_salinity
+- eastward_sea_water_velocity
+- northward_sea_water_velocity
+set increment variables to zero:
+- eastward_sea_water_velocity
+- northward_sea_water_velocity
 
 vertical geometry:
-  date: '{{ ATM_WINDOW_BEGIN }}'
+  date: '{{ MARINE_WINDOW_BEGIN_ISO }}'
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
   read_from_file: 3
 
-add recentering increment: false
+add recentering increment: true
+recentering around deterministic: true
 
 soca increments:  # Could also be states, but they are read as increments
   number of increments: {{ NMEM_ENS }}
   pattern: '%mem%'
   template:
-    date: '{{ ATM_WINDOW_BEGIN }}'
+    date: '{{ MARINE_WINDOW_END_ISO }}'
     basename: ./ens/
     ocn_filename: 'ocean.%mem%.nc'
-# TODO(AFE) fix ice recentering in cycled da
+    # TODO(AFE) fix ice recentering in cycled da
     # ice_filename: 'ice.%mem%.nc'
     read_from_file: 3
 
-steric height:
-  linear variable changes:
-  - linear variable change name: BalanceSOCA  # Only the steric balance is applied
-
-#ensemble mean output:
-#  datadir: ./static_ens
-#  date: '{{ ATM_WINDOW_BEGIN }}'
-#  exp: ens_mean
-#  type: incr
-
-ssh output:
-  unbalanced:
-    datadir: ./
-    date: '{{ ATM_WINDOW_BEGIN }}'
-    exp: ssh_unbal_stddev
-    type: incr
-
-  steric:
-    datadir: ./
-    date: '{{ ATM_WINDOW_BEGIN }}'
-    exp: ssh_steric_stddev
-    type: incr
-
-  total:
-    datadir: ./
-    date: '{{ ATM_WINDOW_BEGIN }}'
-    exp: ssh_total_stddev
-    type: incr
-
-  explained variance:
-    datadir: ./
-    date: '{{ ATM_WINDOW_BEGIN }}'
-    exp: steric_explained_variance
-    type: incr
-
-  recentering error:
-    datadir: ./
-    date: '{{ ATM_WINDOW_BEGIN }}'
-    exp: ssh_recentering_error
-    type: incr
-
-background error output:
-  datadir: ./
-  date: '{{ ATM_WINDOW_BEGIN }}'
-  exp: bkgerr_stddev
-  type: incr
-
-#linear variable change:
-#  linear variable changes:
-#  - linear variable change name: BkgErrFILT
-#    ocean_depth_min: 500  # zero where ocean is shallower than 500m
-#    rescale_bkgerr: 1.0   # rescale perturbation
-#    efold_z: 1500.0       # Apply exponential decay
-#  - linear variable change name: BalanceSOCA
-
 trajectory:
 # TODO(AFE) fix ice recentering in cycled da
-  # state variables: [tocn, socn, uocn, vocn, ssh, hocn, layer_depth, mld, cicen, hicen, hsnon]
-  state variables: [tocn, socn, uocn, vocn, ssh, hocn, layer_depth, mld]
-  date: '{{ ATM_WINDOW_BEGIN }}'
-  basename: ./INPUT/
-  ocn_filename: MOM.res.nc
+  state variables:
+  - sea_water_potential_temperature
+  - sea_water_salinity
+  - eastward_sea_water_velocity
+  - northward_sea_water_velocity
+  - sea_water_cell_thickness
+  - sea_water_depth
+  - ocean_mixed_layer_thickness
+  date: '{{ MARINE_WINDOW_END_ISO }}'
+  basename: ./bkg/
+  ocn_filename: ocean.bkg.f009.nc
 # TODO(AFE) fix ice recentering in cycled da
   #ice_filename: cice.res.nc
   read_from_file: 1
 
 output increment:
   datadir: ./
-  date: '{{ ATM_WINDOW_BEGIN }}'
+  date: '{{ MARINE_WINDOW_END_ISO }}'
   exp: trash
   type: incr
   output file: 'ocn.recenter.incr.%mem%.nc'
