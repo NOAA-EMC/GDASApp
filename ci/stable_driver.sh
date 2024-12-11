@@ -73,8 +73,8 @@ $gdasdir/ush/submodules/update_develop.sh $gdasdir
 
 # ==============================================================================
 # email information
-PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov David.New@noaa.gov"
-BODY=$stableroot/$datestr/output_stable_nightly  
+PEOPLE="David.New@noaa.gov"
+BODY=$stableroot/$datestr/stable_nightly  
 
 # ==============================================================================
 # run the automated testing
@@ -126,14 +126,14 @@ if [ $ci_status -eq 0 ]; then
   if [ $total -ne 0 ]; then
     SUBJECT="Problem updating feature/stable-nightly branch of GDASApp"
     cat > $BODY << EOF
-Problem updating feature/stable-nightly branch of GDASApp. Please check $stableroot/$datestr/GDASApp
+Problem updating feature/stable-nightly branch of GDASApp. Please check $stableroot/$datestr/global-workflow
 
 EOF
 
   else
     SUBJECT="Success updating feature/stable-nightly branch of GDASApp"
     cat > $BODY << EOF
-feature/stable-nightly branch of GDASApp updated successfully. See $stableroot/$datestr/GDASApp for details.
+feature/stable-nightly branch of GDASApp updated successfully. See $stableroot/$datestr/global-workflow for details.
 
 EOF
 
@@ -142,7 +142,7 @@ else
   # do nothing
   SUBJECT="Testing or building of feature/stable-nightly branch of GDASApp failed"
   cat > $BODY << EOF
-Testing or building of feature/stable-nightly branch of GDASApp failed. Please check $stableroot/$datestr/GDASApp.
+Testing or building of feature/stable-nightly branch of GDASApp failed. Please check $stableroot/$datestr/global-workflow.
 
 EOF
 fi
