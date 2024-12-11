@@ -94,10 +94,12 @@ class PostProcIncr {
   // -----------------------------------------------------------------------------
   // Append layer thicknesses to increment
   // TODO(guillaume): There's got to be a better way to append a variable.
-
-  soca::Increment appendLayer(soca::Increment& socaIncr) {
+  soca::Increment appendLayer(const soca::Increment& socaIncr) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======  Append Layers" << std::endl;
+
+    // make a copy of the input increment
+    soca::Increment socaIncrOut(socaIncr);
 
     // concatenate variables
     oops::Variables outputIncrVar(socaIncrVar_);
@@ -107,8 +109,8 @@ class PostProcIncr {
 
     // append layer variable to the soca increment
     atlas::FieldSet socaIncrFs;
-    socaIncr.toFieldSet(socaIncrFs);
-    socaIncr.updateFields(outputIncrVar);
+    socaIncrOut.toFieldSet(socaIncrFs);
+    socaIncrOut.updateFields(outputIncrVar);
 
     // pad layer increment with zeros
     soca::Increment layerThick(Layers_);
@@ -119,21 +121,21 @@ class PostProcIncr {
     layerThick.updateFields(outputIncrVar);
 
     // append layer thinckness to increment
-    socaIncr += layerThick;
+    socaIncrOut += layerThick;
     oops::Log::debug() << "-------------------- output increment: " << std::endl;
-    oops::Log::debug() << socaIncr << std::endl;
+    oops::Log::debug() << socaIncrOut << std::endl;
 
-    return socaIncr;
+    return socaIncrOut;
   }
 
   // -----------------------------------------------------------------------------
   // Set specified variables to 0
 
-  soca::Increment setToZero(soca::Increment& socaIncr) {
+  void setToZero(soca::Increment& socaIncr) {
     oops::Log::info() << "==========================================" << std::endl;
     if (!this->setToZero_) {
       oops::Log::info() << "======      no variables to set to 0.0" << std::endl;
-      return socaIncr;
+      return;
     }
     oops::Log::info() << "======      Set specified increment variables to 0.0" << std::endl;
     std::cout << socaZeroIncrVar_ << std::endl;
@@ -155,7 +157,6 @@ class PostProcIncr {
     socaIncr.fromFieldSet(socaIncrFs);
     oops::Log::debug() << "-------------------- increment with zero'ed out fields: " << std::endl;
     oops::Log::debug() << socaIncr << std::endl;
-    return socaIncr;
   }
 
   // -----------------------------------------------------------------------------
