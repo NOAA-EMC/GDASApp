@@ -1,0 +1,57 @@
+ -
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: ghcn_snow
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{snow_obsdatain_path}}/{{snow_obsdatain_prefix}}{{observation_from_jcb}}.nc"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{snow_obsdataout_path}}/{{snow_obsdataout_prefix}}{{observation_from_jcb}}{{snow_obsdataout_suffix}}"
+    simulated variables: [totalSnowDepth]
+  #
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: Identity
+  #
+
+  # Observation Filters (QC)
+  # ------------------------
+  obs filters:
+    - filter: Bounds Check
+      filter variables:
+      - name: totalSnowDepth
+      minvalue: 0.0
+    - filter: Domain Check
+      where:
+      - variable:
+          name: MetaData/stationElevation
+        value: is_valid
+    - filter: Domain Check # land only
+      where:
+      - variable:
+          name: GeoVaLs/slmsk
+        minvalue: 0.5
+        maxvalue: 1.5
+    - filter: RejectList  # no land-ice
+      where:
+      - variable:
+          name: GeoVaLs/vtype
+        minvalue: 14.5
+        maxvalue: 15.5
+    - filter: Difference Check # elevation check
+        reference: MetaData/stationElevation
+        value: GeoVaLs/filtered_orography
+        threshold: 200.
+    - filter: Background Check
+      filter variables:
+      - name: totalSnowDepth
+      threshold: 6.25
+      action:
+        name: reject
