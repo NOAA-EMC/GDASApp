@@ -4,7 +4,7 @@ algorithm: fv3jedi_fv3inc_variational
 
 # Testing things
 # --------------
-{% if DO_TEST_MODE and RUN == 'gdas'  %}
+{% if DO_TEST_MODE == true and RUN == 'gdas' and current_cycle | to_YMDH == '2021032318' %}
 do_testing: true
 test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/testreference/atm_jjob_3dvar-fv3inc.ref
 test_output_filename: {{ HOMEgfs }}/sorc/gdas.cd/build/gdas/test/testoutput/atm_jjob_3dvar-fv3inc.test.out
