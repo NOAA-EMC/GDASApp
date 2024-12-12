@@ -113,7 +113,6 @@ if [ $ci_status -eq 0 ]; then
   fi
   git diff-index --quiet HEAD || git commit -m "Update to new stable build on $datestr"
   total=$(($total+$?))
-  caution=""
   if [ $total -ne 0 ]; then
     echo "Unable to commit" >> $stableroot/$datestr/output
   fi
