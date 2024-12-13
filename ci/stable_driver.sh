@@ -121,7 +121,6 @@ if [ $ci_status -eq 0 ]; then
   if [ $total -ne 0 ]; then
     echo "Unable to push" >> $stableroot/$datestr/output
   fi
-  # send email
   if [ $total -ne 0 ]; then
     SUBJECT="Problem updating feature/stable-nightly branch of GDASApp"
     cat > $BODY << EOF
