@@ -2,9 +2,9 @@ calcfims:
   mkdir:
     - '{{ DATA }}/obs'
   copy:
-    - ['{{ COM_OBS }}/{{ OPREFIX }}imssnow96.asc', '{{ DATA }}/obs/ims{{ current_cycle | to_julian }}_4km_v1.3.asc']
+    - ['{{ COMIN_OBS }}/{{ OPREFIX }}imssnow96.asc', '{{ DATA }}/obs/ims{{ current_cycle | to_julian }}_4km_v1.3.asc']
     - ['{{ FIXgfs }}/gdas/obs/ims/IMS_4km_to_{{ CASE }}.mx{{ OCNRES }}.nc', '{{ DATA }}/obs/IMS4km_to_FV3_mapping.{{ CASE }}_oro_data.nc']
 ims2ioda:
   copy:
-    - ['{{ DATA }}/ims_snow_{{ current_cycle | to_YMDH }}.nc4', '{{ COM_OBS }}/{{ OPREFIX }}ims_snow.nc4']
+    - ['{{ DATA }}/ims_snow_{{ current_cycle | to_YMDH }}.nc4', '{{ DATA }}/obs/{{ OPREFIX }}ims_snow.tm00.nc']
 
