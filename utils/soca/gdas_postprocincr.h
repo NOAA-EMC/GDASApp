@@ -92,39 +92,46 @@ class PostProcIncr {
   }
 
   // -----------------------------------------------------------------------------
-  // Append layer thicknesses to increment
-  // TODO(guillaume): There's got to be a better way to append a variable.
-  soca::Increment appendLayer(const soca::Increment& socaIncr) {
+  // Append variable to increment
+  soca::Increment appendVar(const soca::Increment& socaIncr, const oops::Variables varToAppend) {
     oops::Log::info() << "==========================================" << std::endl;
-    oops::Log::info() << "======  Append Layers" << std::endl;
+    oops::Log::info() << "======  Append " << varToAppend << std::endl;
 
     // make a copy of the input increment
     soca::Increment socaIncrOut(socaIncr);
 
     // concatenate variables
     oops::Variables outputIncrVar(socaIncrVar_);
-    outputIncrVar += layerVar_;
+    outputIncrVar += varToAppend;
     oops::Log::debug() << "-------------------- outputIncrVar: " << std::endl;
     oops::Log::debug() << outputIncrVar << std::endl;
 
-    // append layer variable to the soca increment
+    // append variable to the soca increment
     atlas::FieldSet socaIncrFs;
     socaIncrOut.toFieldSet(socaIncrFs);
     socaIncrOut.updateFields(outputIncrVar);
 
     // pad layer increment with zeros
-    soca::Increment layerThick(Layers_);
-    atlas::FieldSet socaLayerThickFs;
-    oops::Log::debug() << "-------------------- thickness field: " << std::endl;
-    oops::Log::debug() << layerThick << std::endl;
-    layerThick.toFieldSet(socaLayerThickFs);
-    layerThick.updateFields(outputIncrVar);
+    soca::Increment incrToAppend(Layers_);  // Assumes that Layers_ contains varToAppend
+    atlas::FieldSet incrToAppendFs;
+    oops::Log::debug() << "-------------------- incrToAppend fields: " << std::endl;
+    oops::Log::debug() << incrToAppend << std::endl;
+    incrToAppend.toFieldSet(incrToAppendFs);
+    incrToAppend.updateFields(outputIncrVar);
 
-    // append layer thinckness to increment
-    socaIncrOut += layerThick;
+    // append variables to increment
+    socaIncrOut += incrToAppend;
     oops::Log::debug() << "-------------------- output increment: " << std::endl;
     oops::Log::debug() << socaIncrOut << std::endl;
 
+    return socaIncrOut;
+  }
+
+  // -----------------------------------------------------------------------------
+  // Append layer thicknesses to increment
+  soca::Increment appendLayer(soca::Increment& socaIncr) {
+    // Append layer thicknesses to the increment
+    soca::Increment socaIncrOut = appendVar(socaIncr, layerVar_);
     return socaIncrOut;
   }
 
@@ -138,10 +145,10 @@ class PostProcIncr {
       return;
     }
     oops::Log::info() << "======      Set specified increment variables to 0.0" << std::endl;
-    std::cout << socaZeroIncrVar_ << std::endl;
 
     atlas::FieldSet socaIncrFs;
     socaIncr.toFieldSet(socaIncrFs);
+
 
     for (auto & field : socaIncrFs) {
       // only works if rank is 2
@@ -149,7 +156,7 @@ class PostProcIncr {
 
       // Set variable to zero
       if (socaZeroIncrVar_.has(field.name())) {
-        std::cout << "setting " << field.name() << " to 0" << std::endl;
+        oops::Log::info() << "setting " << field.name() << " to 0" << std::endl;
         auto view = atlas::array::make_view<double, 2>(field);
         view.assign(0.0);
       }
@@ -170,7 +177,7 @@ class PostProcIncr {
     soca::LinearVariableChange lvc(this->geom_, lvcConfig);
     lvc.changeVarTraj(xTraj, socaIncrVar_);
     lvc.changeVarTL(socaIncr, socaIncrVar_);
-    oops::Log::info() << "$%^#& in var change:" << socaIncr << std::endl;
+    oops::Log::info() << " in var change:" << socaIncr << std::endl;
   }
 
   // -----------------------------------------------------------------------------
@@ -179,6 +186,7 @@ class PostProcIncr {
   int save(soca::Increment& socaIncr, int ensMem = 1) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "-------------------- save increment: " << std::endl;
+    oops::Log::info() << socaIncr << std::endl;
     socaIncr.write(outputIncrConfig_);
 
     // wait for everybody to be done
