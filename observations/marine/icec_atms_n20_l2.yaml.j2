@@ -43,3 +43,15 @@
     where:
     - variable: {name: GeoVaLs/distance_from_coast}
       minvalue: 100e3
+  - filter: Gaussian Thinning
+    horizontal_mesh: 25  #km
+    use_reduced_horizontal_grid: true
+    select_median: true
+    action:
+      name: reduce obs space
+  - filter: Domain Check
+    action:
+      name: passivate
+    where:
+    - variable: {name: GeoVaLs/sea_surface_temperature}
+      maxvalue: -4.0
