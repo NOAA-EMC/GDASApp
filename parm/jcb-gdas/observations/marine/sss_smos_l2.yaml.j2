@@ -33,7 +33,8 @@
       name: passivate
     where:
     - variable: {name: GeoVaLs/sea_surface_temperature}
-      minvalue: 15.0
+#      minvalue: 15.0
+      maxvalue: -4.0
   ## Gaussian_Thinning is having problems with LETKF, try again later
   # - filter: Gaussian_Thinning
   #   horizontal_mesh:   25.0 #km
