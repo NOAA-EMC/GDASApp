@@ -151,8 +151,6 @@ class PrepOceanObs(Task):
                         obsprep_space['input cycles'] = [f[1] for f in input_files]
                         obsprep_space['window begin'] = self.window_begin
                         obsprep_space['window end'] = self.window_end
-                        ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc4"
-                        obsprep_space['output file'] = ioda_filename
                         ioda_config_file = obtype + '2ioda.yaml'
 
                         # set up the config file for conversion to IODA for bufr and
@@ -169,6 +167,14 @@ class PrepOceanObs(Task):
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy
                             tmpl_filename = f"bufr2ioda_{obtype}.yaml"
                             bufrconv_template = os.path.join(BUFR2IODA_TMPL_DIR, tmpl_filename)
+                            output_files = []
+                            for cycle in obsprep_space['input cycles']:
+                                cycletime = cycle[8:10]
+                                cdatetime = cycle[0:8] 
+                                ioda_filename = f"{RUN}.t{cycletime}z.{obs_space_name}.{cdatetime}{cycletime}.nc4"
+                                output_files.append(ioda_filename)
+
+                            obsprep_space['output file'] = output_files
 
                             try:
                                 bufrconv = parse_j2yaml(bufrconv_template, bufrconv_config)
@@ -182,6 +188,8 @@ class PrepOceanObs(Task):
                             obsspaces_to_convert.append({"obs space": obsprep_space})
 
                         elif obsprep_space['type'] == 'nc':
+                            ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc4"
+                            obsprep_space['output file'] = [ioda_filename]
                             obsprep_space['conversion config file'] = ioda_config_file
                             save_as_yaml(obsprep_space, ioda_config_file)
 
@@ -261,15 +269,22 @@ class PrepOceanObs(Task):
         obsspaces_to_save = YAMLFile(self.task_config.save_list_file)
 
         for obsspace_to_save in obsspaces_to_save['observations']:
-
-            output_file = os.path.basename(obsspace_to_save['output file'])
+            print(f"obsspace_to_save: {obsspace_to_save}")
+            files_to_save = []
             conv_config_file = os.path.basename(obsspace_to_save['conversion config file'])
-            output_file_dest = os.path.join(COMOUT_OBS, output_file)
             conv_config_file_dest = os.path.join(COMOUT_OBS, conv_config_file)
+            files_to_save.append([conv_config_file, conv_config_file_dest])
+
+#            for output_file in os.path.basename(obsspace_to_save['output file']):
+            for output_file in obsspace_to_save['output file']:
+                print(f"output_file: {output_file}")
+                output_file_dest = os.path.join(COMOUT_OBS, output_file)
+                files_to_save.append([output_file, output_file_dest])
 
             try:
-                FileHandler({'copy': [[output_file, output_file_dest]]}).sync()
-                FileHandler({'copy': [[conv_config_file, conv_config_file_dest]]}).sync()
+#                FileHandler({'copy': [[output_file, output_file_dest]]}).sync()
+#                FileHandler({'copy': [[conv_config_file, conv_config_file_dest]]}).sync()
+                FileHandler({'copy': files_to_save }).sync()
             except Exception as e:
                 logger.warning(f"An exeception {e} occured while trying to run gen_bufr_json")
             except OSError:
