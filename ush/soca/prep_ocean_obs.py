@@ -147,7 +147,8 @@ class PrepOceanObs(Task):
                             logger.warning(f"No files found for obs source {obtype}, skipping")
                             break  # go to next observer in OBS_YAML
 
-                        obsprep_space['input files'] = input_files
+                        obsprep_space['input files'] = [f[0] for f in input_files]
+                        obsprep_space['input cycles'] = [f[1] for f in input_files]
                         obsprep_space['window begin'] = self.window_begin
                         obsprep_space['window end'] = self.window_end
                         ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc4"
@@ -164,13 +165,14 @@ class PrepOceanObs(Task):
                                 'COM_OBS': COMIN_OBS,
                                 'OCEAN_BASIN_FILE': OCEAN_BASIN_FILE}
                             obsprep_space['conversion config file'] = ioda_config_file
-                            bufr2iodapy = BUFR2IODA_PY_DIR + '/bufr2ioda_' + obtype + '.py'
+                            bufr2iodapy = os.path.join(BUFR2IODA_PY_DIR, f'bufr2ioda_{obtype}.py')
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy
-                            tmpl_filename = 'bufr2ioda_' + obtype + '.yaml'
+                            tmpl_filename = f"bufr2ioda_{obtype}.yaml"
                             bufrconv_template = os.path.join(BUFR2IODA_TMPL_DIR, tmpl_filename)
 
                             try:
                                 bufrconv = parse_j2yaml(bufrconv_template, bufrconv_config)
+                                bufrconv.update(obsprep_space)
                                 bufrconv.save(ioda_config_file)
                             except Exception as e:
                                 logger.warning(f"An exeception {e} occured while trying to create BUFR2IODA config")
