@@ -7,3 +7,4 @@ export SBATCH_ACCOUNT=$SLURM_ACCOUNT
 export SLURM_QOS=debug
 export PATH=$PATH:/home/role.jedipara/bin
 export NTASKS_TESTS=12
+export AUTHORIZED_USERS_FILE=/scratch1/NCEPDEV/da/role.jedipara/CI/GDASApp/authorized_users

@@ -74,18 +74,21 @@ aero_background_error_time_fv3: "{{ background_time | to_fv3time }}"
 # Background error
 aero_berror_data_directory: "{{ DATA }}/berror"
 aero_berror_diffusion_directory: "{{ DATA }}/diffusion"
-aero_standard_devation_path: ./stddev
+aero_standard_deviation_path: ./stddev
 aero_climatological_b_path: ./clm_stddev
+aero_rescale_b_path: ./rescale
 aero_diagb_weight: {{ aero_diagb_weight | default(1.0, true) }}
 aero_diagb_static_rescale_factor: {{aero_staticb_rescaling_factor | default(1.0, true) }}
-aero_diagb_rescale_factor: {{aero_diagb_rescale | default(1.0, true) }}
-aero_diagb_n_halo: {{ aero_diagb_n_halo  | default(1, true)  }}
-aero_diagb_n_neighbors: {{ aero_diagb_n_neighbors | default(1, true) }}
-aero_diagb_smooth_horiz_iter: {{ aero_diagb_smooth_horiz_iter | default(1, true) }}
-aero_diagb_smooth_vert_iter: {{ aero_diagb_smooth_vert_iter | default(1, true) }}
-aero_diffusion_iter: {{ aero_diffusion_iter | default(1, true) }}
+aero_diagb_n_halo: {{ aero_diagb_n_halo  | default(0)  }}
+aero_diagb_n_neighbors: {{ aero_diagb_n_neighbors | default(0) }}
+aero_diagb_smooth_horiz_iter: {{ aero_diagb_smooth_horiz_iters | default(0) }}
+aero_diagb_smooth_vert_iter: {{ aero_diagb_smooth_vert_iters | default(0) }}
+aero_diffusion_iter: {{ aero_diffusion_iter | default(0) }}
 aero_diffusion_horiz_len: {{ aero_diffusion_horiz_len  | default(1.0, true)}}
 aero_diffusion_fixed_val: {{ aero_diffusion_fixed_val  | default(1.0, true)}}
+
+# Analysis
+aero_analysis_path: ./anl
 
 # Forecasting
 aero_forecast_timestep: "{{ BKG_TSTEP }}"
