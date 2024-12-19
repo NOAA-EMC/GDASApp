@@ -71,23 +71,16 @@ def run_bufr_to_ioda(obsspace_to_convert):
     bufrconv_yaml = obsspace_to_convert['conversion config file']
     bufrconv_config = YAMLFile(bufrconv_yaml)
     bufr2iodapy = obsspace_to_convert['bufr2ioda converter']
-    RUN = bufrconv_config['cycle_type']
     obtype = obsspace_to_convert['name']
-    for input_file in obsspace_to_convert['input files']:
-        input_file_cdate = input_file[0:8]
-        input_file_cyc = input_file[8:10]
-        input_file_datecycle = f"{input_file_cdate}{input_file_cyc}"
+
+    for cycle, input_file, output_file in obsspace_to_convert['bufrconv files']:
         bufrconv_config['input_file'] = input_file
-        bufrconv_config['output_file'] = f"{RUN}.t{input_file_cyc}z.{obtype}.{input_file_datecycle}.nc4"
-        bufrconv_config['cycle_datetime'] = input_file_datecycle
-        config_filename = f"{input_file_datecycle}.{bufrconv_yaml}"
-        print(f"config_filename: {config_filename}")
+        bufrconv_config['output_file'] = output_file
+        bufrconv_config['cycle_datetime'] = cycle
+        config_filename = f"{cycle}.{bufrconv_yaml}"
         bufrconv_config.save(config_filename)
         try:
-    #        subprocess.run(['python', bufr2iodapy, '-c', bufrconv_yaml], check=True)
             subprocess.run(['python', bufr2iodapy, '-c', config_filename], check=True)
-#            return 0
         except subprocess.CalledProcessError as e:
             logger.warning(f"bufr2ioda converter failed with error  >{e}<, \
                 return code {e.returncode}")
- #           return e.returncode
