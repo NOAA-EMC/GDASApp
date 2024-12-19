@@ -6,16 +6,9 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
     set(subtask_names_list
       "gdas_fcst_seg0")
   elseif("${task_name}" STREQUAL "enkfgdas_fcst")
-    if("${pslot}" STREQUAL "C48mx500_hybAOWCDA")
-      set(subtask_names_list
-        "enkfgdas_fcst_mem001"
-        "enkfgdas_fcst_mem002"
-        "enkfgdas_fcst_mem003")
-    else()
       set(subtask_names_list
         "enkfgdas_fcst_mem001"
         "enkfgdas_fcst_mem002")
-    endif()
   elseif("${task_name}" STREQUAL "gdas_atmos_prod")
     set(subtask_names_list
       "gdas_atmos_prod_f000"
@@ -248,7 +241,7 @@ if (WORKFLOW_TESTS)
   option(TEST_GFS18 "Enable the GFSv18 Atmos JEDI tests" ON)
   option(TEST_AERO_LAND "Enable the GFSv17 Aero-Land JEDI tests" ON)
   option(TEST_MARINE_VAR "Enable the GFSv17 Marine JEDI 3D VAR FGAT tests" ON)
-  option(TEST_MARINE_HYB "Enable the GFSv17 Marine JEDI 3d HYB VAR tests" OFF)
+  option(TEST_MARINE_HYB "Enable the GFSv17 Marine JEDI 3d HYB VAR tests" ON)
   option(TEST_GFS17 "Enable the GFSv17 WCDA tests" OFF)
 
   # Setup the environement

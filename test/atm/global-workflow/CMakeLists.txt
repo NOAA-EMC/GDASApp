@@ -1,7 +1,7 @@
 # test for creating an experiment directory within the global-workflow
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun)
 
-ecbuild_add_test(TARGET test_gdasapp_setup_atm_cycled_exp
+ecbuild_add_test(TARGET test_gdasapp_setup_atm_jjob_cycled_exp
                  TYPE SCRIPT
                  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/setup_workflow_exp.sh
                  ARGS ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
@@ -12,7 +12,7 @@ ecbuild_add_test(TARGET test_gdasapp_atm_jjob_var_init
                  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_var_init.sh
                  ARGS ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
                  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun
-                 TEST_DEPENDS test_gdasapp_setup_atm_cycled_exp)
+                 TEST_DEPENDS test_gdasapp_setup_atm_jjob_cycled_exp)
 
 ecbuild_add_test(TARGET test_gdasapp_atm_jjob_var_run
                  TYPE SCRIPT
@@ -40,7 +40,7 @@ ecbuild_add_test(TARGET test_gdasapp_atm_jjob_ens_init
                  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_init.sh
                  ARGS ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
                  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun
-                 TEST_DEPENDS test_gdasapp_setup_atm_cycled_exp)
+                 TEST_DEPENDS test_gdasapp_setup_atm_jjob_cycled_exp)
 
 ecbuild_add_test(TARGET test_gdasapp_atm_jjob_ens_letkf
                  TYPE SCRIPT

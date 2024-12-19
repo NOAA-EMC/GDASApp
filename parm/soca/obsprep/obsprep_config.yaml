@@ -67,7 +67,7 @@ observations:
     provider: MIRS
     dmpdir subdir: ocean/icec
     type: nc
-    dmpdir regex: 'NPR-MIRS-IMG_v11r9_ma1_s*.nc'
+    dmpdir regex: 'NPR-MIRS-IMG_v11r?_ma1_s*.nc'
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
@@ -75,7 +75,7 @@ observations:
     provider: MIRS
     dmpdir subdir: ocean/icec
     type: nc
-    dmpdir regex: 'NPR-MIRS-IMG_v11r9_n20_s*.nc'
+    dmpdir regex: 'NPR-MIRS-IMG_v11r?_n20_s*.nc'
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
@@ -83,7 +83,7 @@ observations:
     provider: MIRS
     dmpdir subdir: ocean/icec
     type: nc
-    dmpdir regex: 'NPR-MIRS-IMG_v11r9_n21_s*.nc'
+    dmpdir regex: 'NPR-MIRS-IMG_v11r?_n21_s*.nc'
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
@@ -91,7 +91,7 @@ observations:
     provider: MIRS
     dmpdir subdir: ocean/icec
     type: nc
-    dmpdir regex: 'NPR-MIRS-IMG_v11r4_npp_s*.nc'
+    dmpdir regex: 'NPR-MIRS-IMG_v11r?_npp_s*.nc'
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
@@ -99,7 +99,7 @@ observations:
     provider: MIRS
     dmpdir subdir: ocean/icec
     type: nc
-    dmpdir regex: 'NPR-MIRS-IMG_v11r9_gpm_s*.nc'
+    dmpdir regex: 'NPR-MIRS-IMG_v11r?_gpm_s*.nc'
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
@@ -107,7 +107,7 @@ observations:
     provider: MIRS
     dmpdir subdir: ocean/icec
     type: nc
-    dmpdir regex: 'NPR-MIRS-IMG_v11r4_f17_s*.nc'
+    dmpdir regex: 'NPR-MIRS-IMG_v11r?_f17_s*.nc'
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 # SST
