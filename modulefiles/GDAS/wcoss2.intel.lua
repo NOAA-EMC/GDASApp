@@ -55,6 +55,6 @@ setenv("GDASAPP_TESTDATA","/lfs/h2/emc/da/noscrub/emc.da/GDASApp/testdata")
 setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/lfs/h2/emc/da/noscrub/emc.da/GDASApp/unittestdata")
 
 whatis("Name: ".. pkgName)
-whatis("Version: ".. pkgVersion)
+whatis("Version: ".. tostring(pkgVersion))
 whatis("Category: GDASApp")
 whatis("Description: Load all libraries needed for GDASApp")

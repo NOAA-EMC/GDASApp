@@ -89,6 +89,6 @@ prepend_path("PATH","/apps/contrib/NCEP/libs/hpc-stack/intel-2018.4/prod_util/1.
 execute{cmd="ulimit -s unlimited",modeA={"load"}}
 
 whatis("Name: ".. pkgName)
-whatis("Version: ".. pkgVersion)
+whatis("Version: ".. tostring(pkgVersion))
 whatis("Category: GDASApp")
 whatis("Description: Load all libraries needed for GDASApp")

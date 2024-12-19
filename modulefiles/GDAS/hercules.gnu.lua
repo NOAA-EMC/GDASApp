@@ -88,6 +88,6 @@ setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/work2/noaa/da/role-da/GDASApp/unittestda
 execute{cmd="ulimit -s unlimited",modeA={"load"}}
 
 whatis("Name: ".. pkgName)
-whatis("Version: ".. pkgVersion)
+whatis("Version: ".. tostring(pkgVersion))
 whatis("Category: GDASApp")
 whatis("Description: Load all libraries needed for GDASApp")

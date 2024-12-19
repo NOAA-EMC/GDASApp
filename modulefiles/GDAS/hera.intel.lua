@@ -92,6 +92,6 @@ setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/scratch1/NCEPDEV/da/role.jedipara/GDASAp
 --prepend_path("PATH","/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/intel-18.0.5.274/prod_util/1.2.2/bin")
 
 whatis("Name: ".. pkgName)
-whatis("Version: ".. pkgVersion)
+whatis("Version: ".. tostring(pkgVersion))
 whatis("Category: GDASApp")
 whatis("Description: Load all libraries needed for GDASApp")
