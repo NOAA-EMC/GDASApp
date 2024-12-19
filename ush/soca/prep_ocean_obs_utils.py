@@ -50,7 +50,7 @@ def obs_fetch(config, task_config, obsprep_space, cycles):
     FileHandler({'copy': file_copy}).sync()
 
     # return the modified file names for the IODA converters
-    return [(f[2],f[3]) for f in matching_files]
+    return [(f[2], f[3]) for f in matching_files]
 
 
 def run_netcdf_to_ioda(obsspace_to_convert, OCNOBS2IODAEXEC):

@@ -140,9 +140,9 @@ class PrepOceanObs(Task):
 
                         # fetch the obs files to DATA directory and get the list of files and cycles
                         fetched_files = prep_ocean_obs_utils.obs_fetch(self.task_config,
-                                                                     self.task_config,
-                                                                     obsprep_space,
-                                                                     window_cdates)
+                                                                       self.task_config,
+                                                                       obsprep_space,
+                                                                       window_cdates)
 
                         if not fetched_files:
                             logger.warning(f"No files found for obs source {obtype}, skipping")
@@ -168,13 +168,13 @@ class PrepOceanObs(Task):
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy
                             tmpl_filename = f"bufr2ioda_{obtype}.yaml"
                             bufrconv_template = os.path.join(BUFR2IODA_TMPL_DIR, tmpl_filename)
-                            output_files = [] # files to save to COM directory
-                            bufrconv_files = [] # files needed to populate the IODA converter config
+                            output_files = []  # files to save to COM directory
+                            bufrconv_files = []  # files needed to populate the IODA converter config
                             # for each cycle of the retrieved obs bufr files...
                             for input_file, cycle in fetched_files:
                                 cycletime = cycle[8:10]
                                 ioda_filename = f"{RUN}.t{cycletime}z.{obs_space_name}.{cycle}.nc4"
-                                output_files.append( ioda_filename )
+                                output_files.append(ioda_filename)
                                 bufrconv_files.append((cycle, input_file, ioda_filename))
 
                             obsprep_space['output file'] = output_files
@@ -195,7 +195,7 @@ class PrepOceanObs(Task):
 
                             obsprep_space['input files'] = [f[0] for f in fetched_files]
                             ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc4"
-                            obsprep_space['output file'] = [ ioda_filename ]
+                            obsprep_space['output file'] = [ioda_filename]
                             save_as_yaml(obsprep_space, ioda_config_file)
 
                             obsspaces_to_convert.append({"obs space": obsprep_space})
@@ -284,7 +284,7 @@ class PrepOceanObs(Task):
                 files_to_save.append([output_file, output_file_dest])
 
             try:
-                FileHandler({'copy': files_to_save }).sync()
+                FileHandler({'copy': files_to_save}).sync()
             except Exception as e:
                 logger.warning(f"An exeception {e} occured while trying to run gen_bufr_json")
             except OSError:
