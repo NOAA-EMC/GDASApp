@@ -4,10 +4,8 @@ members from template:
     datetime: '{{ atmosphere_background_time_iso }}'
     filetype: cube sphere history
     provider: ufs
-    ufs soil nlev: 4
-    ufs fields split by level: [smc,stc]
     state variables: [ua,va,t,delz,delp,ps,sphum,ice_wat,liq_wat,o3mr,hgtsfc,
-                     slmsk,sheleg,tmpsfc,vtype,stype,vfrac,stc,smc,snwdphMeters,
+                     slmsk,sheleg,tmpsfc,vtype,stype,vfrac,soilt1,soilw1,snwdphMeters,
                      u_srf,v_srf,f10m]
     datapath: {{ atmosphere_background_ensemble_path }}
     filename is datetime templated: true
