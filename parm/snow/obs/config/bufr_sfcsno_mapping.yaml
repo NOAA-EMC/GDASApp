@@ -19,6 +19,7 @@ bufr:
       query: "*/RPID"
     stationElevation:
       query: "[*/SELV, */HSMSL]"
+      type: float
 
     # ObsValue
     totalSnowDepth:
