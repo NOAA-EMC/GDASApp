@@ -46,7 +46,7 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
     gdasapp_dir=$workflow_dir/sorc/gdas.cd
 
     build_cmd_dir=$workflow_dir/sorc
-    build_cmd="./build_all.sh -ug &>> log.build"
+    build_cmd="./build_all.sh gfs gsi gdas"
     build_dir=$workflow_dir/build
 else
     export BUILD_JOBS=8
@@ -54,7 +54,7 @@ else
     gdasapp_dir=$repodir
 
     build_cmd_dir=$gdasapp_dir
-    build_cmd="./build.sh -t $TARGET &>> log.build"
+    build_cmd="./build.sh -t $TARGET"
     build_dir=$gdasapp_dir/build
 fi
 
@@ -74,7 +74,7 @@ echo "---------------------------------------------------" >> $outfile
 cd $build_cmd_dir
 module purge
 rm -rf log.build
-$build_cmd
+$build_cmd &>> log.build
 build_status=$?
 if [ $build_status -eq 0 ]; then
   echo "Build:                                 *SUCCESS*" >> $outfile
