@@ -29,6 +29,28 @@
   # Observation Filters (QC)
   # ------------------------
   obs pre filters:
+    - filter: Create Diagnostic Flags
+      flags:
+      - name: missing_snowdepth
+        initial value: false
+      - name: missing_elevation
+        initial value: false
+      - name: temporal_thinning
+        initial value: false
+      - name: invalid_snowdepth
+        initial value: false
+      - name: invalid_elevation
+        initial value: false
+      - name: land_check
+        initial value: false
+      - name: landice_check
+        initial value: false
+      - name: elevation_bkgdiff
+        initial value: false
+      - name: background_check
+        initial value: false
+      - name: buddy_check
+        initial value: false
     - filter: Perform Action
       filter variables:
       - name: totalSnowDepth
@@ -43,47 +65,99 @@
       - name: BkgError/totalSnowDepth_background_error
         type: float
         value: 30.0
+    - filter: Domain Check
+      where:
+      - variable:
+          name: ObsValue/totalSnowDepth
+        value: is_valid
+      actions:
+      - name: set
+        flag: missing_snowdepth
+        ignore: rejected observations
+      - name: reject
+    - filter: Domain Check
+      where:
+      - variable:
+          name: MetaData/stationElevation
+        value: is_valid
+      actions:
+      - name: set
+        flag: missing_elevation
+        ignore: rejected observations
+      - name: reject
+    - filter: Temporal Thinning
+      min_spacing: '{{ window_length }}'
+      seed_time: '{{ snow_background_time_iso }}'
+      category_variable:
+        name: MetaData/stationIdentification
+      actions:
+      - name: set
+        flag: temporal_thinning
+        ignore: rejected observations
+      - name: reject
   obs prior filters:
     - filter: Bounds Check
       filter variables:
       - name: totalSnowDepth
       minvalue: 0.0
       maxvalue: 20000.0
-      action:
-        name: reject
-    - filter: Domain Check
-      where:
-      - variable:
-          name: MetaData/stationElevation
-        value: is_valid
+      actions:
+      - name: set
+        flag: invalid_snowdepth
+        ignore: rejected observations
+      - name: reject
     - filter: Domain Check # land only
       where:
       - variable:
           name: GeoVaLs/slmsk
         minvalue: 0.5
         maxvalue: 1.5
+      actions:
+      - name: set
+        flag: land_check
+        ignore: rejected observations
+      - name: reject
+    - filter: Domain Check
+      where:
+      - variable:
+          name: MetaData/stationElevation
+        minvalue: -200.0
+        maxvalue: 9900.0
+      actions:
+      - name: set
+        flag: invalid_elevation
+        ignore: rejected observations
+      - name: reject
     - filter: RejectList  # no land-ice
       where:
       - variable:
           name: GeoVaLs/vtype
         minvalue: 14.5
         maxvalue: 15.5
+      actions:
+      - name: set
+        flag: landice_check
+        ignore: rejected observations
+      - name: reject
     - filter: Difference Check # elevation check
       reference: MetaData/stationElevation
       value: GeoVaLs/filtered_orography
       threshold: 200.
+      actions:
+      - name: set
+        flag: elevation_bkgdiff
+        ignore: rejected observations
+      - name: reject
   obs post filters:
     - filter: Background Check # gross error check
       filter variables:
       - name: totalSnowDepth
       threshold: 6.25
-      action:
-        name: reject
-    - filter: Temporal Thinning
-      min_spacing: '{{ window_length }}'
-      seed_time: '{{ snow_background_time_iso }}'
-      category_variable:
-        name: MetaData/stationIdentification
+      actions:
+      - name: set
+        flag: background_check
+        ignore: rejected observations
+      - name: reject
     - filter: Met Office Buddy Check
       filter variables:
       - name: totalSnowDepth
@@ -107,3 +181,9 @@
         damping_factor_1: 1.0
         damping_factor_2: 1.0
         background_error_group: BkgError
+      actions:
+      - name: set
+        flag: buddy_check
+        ignore: rejected observations
+      - name: reject
+
