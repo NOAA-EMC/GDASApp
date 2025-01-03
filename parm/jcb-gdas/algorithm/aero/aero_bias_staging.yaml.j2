@@ -1,0 +1,10 @@
+mkdir:
+- '{{aero_obsbiasout_path}}'
+copy:
+    {% for observation_from_jcb in observations %}
+    {% if use_observer(observation_from_jcb) %}
+    {% if observation_from_jcb in bias_files %}
+    - ['{{aero_obsbiasroot_path}}/{{aero_obsbiasin_prefix}}{{bias_files[observation_from_jcb]}}', '{{aero_obsbiasin_path}}']
+    {% endif %}
+    {% endif %}
+    {% endfor %}
