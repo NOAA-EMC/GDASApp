@@ -60,7 +60,7 @@ namespace gdasapp {
       : Application(comm) {}
     static const std::string classname() {return "gdasapp::SocaHybridWeights";}
 
-    int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
+    int execute(const eckit::Configuration & fullConfig) const {
       /// Setup the soca geometry
       const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");
       oops::Log::info() << "geometry: " << std::endl << geomConfig << std::endl;

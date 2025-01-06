@@ -184,7 +184,7 @@ namespace gdasapp {
     /**
      * Implementation of the virtual execute method from the Application parent class
      */
-    int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
+    int execute(const eckit::Configuration & fullConfig) const {
       /// Initialize the paramters for D
       SocaDiagBConfig configD = setup(fullConfig);
 

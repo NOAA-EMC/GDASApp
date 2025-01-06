@@ -27,7 +27,7 @@ namespace gdasapp {
     static const std::string classname() {return "gdasapp::ObsProvider2IodaApp";}
 
 
-    int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
+    int execute(const eckit::Configuration & fullConfig) const {
       // Get the file provider string identifier from the config
       std::string provider;
       fullConfig.get("provider", provider);
