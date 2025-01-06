@@ -49,7 +49,7 @@ namespace gdasapp {
       : Application(comm) {}
     static const std::string classname() {return "gdasapp::FV3ChemDiagB";}
 
-    int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
+    int execute(const eckit::Configuration & fullConfig) const {
       /// Setup the fv3jedi geometry
       oops::Log::info() << "====================== geometry" << std::endl;
       const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");

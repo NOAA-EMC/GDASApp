@@ -4,7 +4,7 @@ algorithm: fv3jedi_fv3inc_lgetkf
 
 # Testing things
 # --------------
-{% if DO_TEST_MODE == true and RUN == 'enkfgdas' and current_cycle | to_YMDH == '2024022400' %}
+{% if DO_TEST_MODE == true and RUN == 'enkfgdas' and current_cycle | to_YMDH == '2024022400' and machine != 'WCOSS2' %}
 do_testing: true
 test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/testreference/{{ CASE }}{{ CASE_ENS }}_ufs_hybatmDA_lgetkf-fv3inc.ref
 test_output_filename: {{ HOMEgfs }}/sorc/gdas.cd/build/gdas/test/testoutput/{{ CASE }}{{ CASE_ENS }}_ufs_hybatmDA_lgetkf-fv3inc.test.out

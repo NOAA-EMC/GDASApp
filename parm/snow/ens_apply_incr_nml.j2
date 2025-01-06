@@ -3,8 +3,8 @@
   hour_str = "{{ current_cycle | strftime('%H') }}",
   res = {{ CASE_ENS[1:] }},
   frac_grid = .true.,
-  rst_path = "{{ DATAROOT }}/anl/mem{{ MYMEM }}",
-  inc_path = "{{ DATAROOT }}/inc/ensmean",
+  rst_path = "{{ DATA }}/anl/mem{{ MYMEM }}",
+  inc_path = "{{ DATA }}/anl",
   orog_path = "{{ HOMEgfs }}/fix/orog/{{ CASE_ENS }}",
   otype = "{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data"
 /
