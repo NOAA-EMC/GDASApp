@@ -151,14 +151,14 @@ namespace gdasapp {
           oops::Log::info() << "recentered incr " << i << ":" << incr << std::endl;
 
           // Append the vertical geometry (for MOM6 IAU)
-          postProcIncr.appendLayer(incr);
-          oops::Log::info() << "incr " << i << ":" << incr << std::endl;
+          soca::Increment mom6_incr = postProcIncr.appendLayer(incr);
+          oops::Log::info() << "incr " << i << ":" << mom6_incr << std::endl;
 
           // Set variables to zero if specified in the configuration
           postProcIncr.setToZero(incr);
 
           // Save the increments used to initialize the ensemble forecast
-          result = postProcIncr.save(incr, i+1);
+          result = postProcIncr.save(mom6_incr, i+1);
         }
         return result;
       }
