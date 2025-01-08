@@ -73,7 +73,7 @@ $gdasdir/ush/submodules/update_develop.sh $gdasdir
 
 # ==============================================================================
 # email information
-PEOPLE="Russ.Treadon@noaa.gov"
+PEOPLE="Cory.R.Martin@noaa.gov David.New@noaa.gov Russ.Treadon@noaa.gov"
 BODY=$stableroot/$datestr/stable_nightly  
 
 # ==============================================================================
@@ -84,12 +84,6 @@ total=0
 if [ $ci_status -eq 0 ]; then
   cd $gdasdir
   # checkout feature/stable-nightly
-  ##git stash
-  rc=$?
-  total=$(($total+$rc))
-  if [ $rc -ne 0 ]; then
-    echo "Unable to git stash" >> $stableroot/$datestr/output
-  fi
   git checkout feature/stable-nightly
   rc=$?
   total=$(($total+$rc))
@@ -104,12 +98,6 @@ if [ $ci_status -eq 0 ]; then
     echo "Unable to merge develop" >> $stableroot/$datestr/output
   fi
   # add in submodules
-  ##git stash pop
-  rc=$?
-  total=$(($total+$rc))
-  if [ $rc -ne 0 ]; then
-    echo "Unable to git stash pop" >> $stableroot/$datestr/output
-  fi
   $gdasdir/ush/submodules/add_submodules.sh $gdasdir
   rc=$?
   total=$(($total+$rc))
