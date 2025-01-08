@@ -28,7 +28,7 @@ distribution_type: RoundRobin
 
 # Testing things
 # --------------
-{% if DO_TEST_MODE and RUN == 'enkfgdas'  %}
+{% if DO_TEST_MODE == true and RUN == 'enkfgdas' and current_cycle | to_YMDH == '2021032318' %}
 do_testing: true
 test_reference_filename: {{ HOMEgfs }}/sorc/gdas.cd/test/testreference/atm_jjob_lgetkf_observer.ref
 test_output_filename: {{ HOMEgfs }}/sorc/gdas.cd/build/gdas/test/testoutput/atm_jjob_lgetkf_observer.test.out

@@ -29,12 +29,16 @@ namespace gdasapp {
       : Application(comm) {}
     static const std::string classname() {return "gdasapp::SocaIncrHandler";}
 
-    int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
+    int execute(const eckit::Configuration & fullConfig) const {
       /// Setup the soca geometry
       const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");
       oops::Log::info() << "geometry: " << std::endl << geomConfig << std::endl;
       const soca::Geometry geom(geomConfig, this->getComm());
 
+      // Check that we are using at least 2 mpi tasks
+      if (this->getComm().size() < 2) {
+        throw eckit::BadValue("This application requires at least 2 MPI tasks", Here());
+      }
 
       // Initialize the post processing
       PostProcIncr postProcIncr(fullConfig, geom, this->getComm());
@@ -50,18 +54,20 @@ namespace gdasapp {
         // Read increment from file
         soca::Increment incr = postProcIncr.read(i);
 
-        // At the very minimum, we run this script to append the layers state, so do that!
-        soca::Increment incrWithLayer = postProcIncr.appendLayer(incr);
-        oops::Log::debug() << "========= after appending layer:" << std::endl;
-        oops::Log::debug() << incrWithLayer << std::endl;
+        // Append variables to the increment
+        oops::Variables extraVars(postProcIncr.socaZeroIncrVar_);
+        extraVars += postProcIncr.layerVar_;
+        soca::Increment incr_mom6 = postProcIncr.appendVar(incr, extraVars);
 
         // Zero out specified fields
-        incrWithLayer = postProcIncr.setToZero(incrWithLayer);
+        postProcIncr.setToZero(incr_mom6);
+        oops::Log::debug() << "========= after appending variables:" << std::endl;
+        oops::Log::debug() << incr_mom6 << std::endl;
 
         // Save final increment
-        result = postProcIncr.save(incrWithLayer, i);
+        result = postProcIncr.save(incr_mom6, i);
         oops::Log::debug() << "========= after appending layer and after saving:" << std::endl;
-        oops::Log::debug() << incrWithLayer << std::endl;
+        oops::Log::debug() << incr_mom6 << std::endl;
       }
       return result;
     }
