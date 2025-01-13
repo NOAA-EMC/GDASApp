@@ -244,6 +244,9 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.subpfl.*.bufr_d'
 
 - obs space:

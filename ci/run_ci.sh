@@ -46,7 +46,7 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
     gdasapp_dir=$workflow_dir/sorc/gdas.cd
 
     build_cmd_dir=$workflow_dir/sorc
-    build_cmd="./build_all.sh -ug &>> log.build"
+    build_cmd="./build_all.sh gfs gsi gdas"
     build_dir=$workflow_dir/build
 else
     export BUILD_JOBS=8
@@ -54,7 +54,7 @@ else
     gdasapp_dir=$repodir
 
     build_cmd_dir=$gdasapp_dir
-    build_cmd="./build.sh -t $TARGET &>> log.build"
+    build_cmd="./build.sh -t $TARGET"
     build_dir=$gdasapp_dir/build
 fi
 
@@ -74,7 +74,7 @@ echo "---------------------------------------------------" >> $outfile
 cd $build_cmd_dir
 module purge
 rm -rf log.build
-$build_cmd
+$build_cmd &>> log.build
 build_status=$?
 if [ $build_status -eq 0 ]; then
   echo "Build:                                 *SUCCESS*" >> $outfile
@@ -91,6 +91,18 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
 fi
 # ==============================================================================
 # run ctests
+
+# PATCH START
+# MSU role-da can not use /work/noaa/stmp at present. The logic below
+# modifies the stmp path used by g-w so that role-da can run g-w based
+# ctests. This logic will be removed after MSU role-da is added to the
+# stmp group.
+if [[ "${TARGET}" = "orion" || "${TARGET}" = "hercules" ]]; then
+    echo "***WARNING*** apply MSU stmp patch to $workflow_dir/workflow/hosts/${TARGET}.yaml"
+    sed -i "s|/noaa/stmp|/noaa/da|g" $workflow_dir/workflow/hosts/${TARGET}.yaml
+fi
+# PATCH END
+
 cd $gdasapp_dir/build
 module use $gdasapp_dir/modulefiles
 module load GDAS/$TARGET
