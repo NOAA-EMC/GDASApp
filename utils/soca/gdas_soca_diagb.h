@@ -207,8 +207,8 @@ namespace gdasapp {
       // Setup the output soca geometry
       oops::Log::info() << "====================== output geometry" << std::endl;
       const std::string outputGeometryKey = fullConfig.has("output geometry")
-                                        ? "output geometry"  // keep things backward compatible for now
-                                        : "geometry";        // and default to the input geometry
+                        ? "output geometry"  // keep things backward compatible for now
+                        : "geometry";        // and default to the input geometry
       const eckit::LocalConfiguration geomOutConfig(fullConfig, outputGeometryKey);
       const soca::Geometry geomOut(geomOutConfig, this->getComm());
 
