@@ -73,7 +73,7 @@ $gdasdir/ush/submodules/update_develop.sh $gdasdir
 
 # ==============================================================================
 # email information
-PEOPLE="Cory.R.Martin@noaa.gov Russ.Treadon@noaa.gov Guillaume.Vernieres@noaa.gov David.New@noaa.gov"
+PEOPLE="Cory.R.Martin@noaa.gov David.New@noaa.gov Russ.Treadon@noaa.gov"
 BODY=$stableroot/$datestr/stable_nightly  
 
 # ==============================================================================
@@ -84,41 +84,36 @@ total=0
 if [ $ci_status -eq 0 ]; then
   cd $gdasdir
   # checkout feature/stable-nightly
-  git stash
-  total=$(($total+$?))
-  if [ $total -ne 0 ]; then
-    echo "Unable to git stash" >> $stableroot/$datestr/output
-  fi
   git checkout feature/stable-nightly
-  total=$(($total+$?))
-  if [ $total -ne 0 ]; then
+  rc=$?
+  total=$(($total+$rc))
+  if [ $rc -ne 0 ]; then
     echo "Unable to checkout feature/stable-nightly" >> $stableroot/$datestr/output
   fi
   # merge in develop
   git merge develop
-  total=$(($total+$?))
-  if [ $total -ne 0 ]; then
+  rc=$?
+  total=$(($total+$rc))
+  if [ $rc -ne 0 ]; then
     echo "Unable to merge develop" >> $stableroot/$datestr/output
   fi
   # add in submodules
-  git stash pop
-  total=$(($total+$?))
-  if [ $total -ne 0 ]; then
-    echo "Unable to git stash pop" >> $stableroot/$datestr/output
-  fi
-  $my_dir/../ush/submodules/add_submodules.sh $gdasdir
-  total=$(($total+$?))
-  if [ $total -ne 0 ]; then
+  $gdasdir/ush/submodules/add_submodules.sh $gdasdir
+  rc=$?
+  total=$(($total+$rc))
+  if [ $rc -ne 0 ]; then
     echo "Unable to add updated submodules to commit" >> $stableroot/$datestr/output
   fi
   git diff-index --quiet HEAD || git commit -m "Update to new stable build on $datestr"
-  total=$(($total+$?))
-  if [ $total -ne 0 ]; then
+  rc=$?
+  total=$(($total+$rc))
+  if [ $rc -ne 0 ]; then
     echo "Unable to commit" >> $stableroot/$datestr/output
   fi
   git push --set-upstream origin feature/stable-nightly
-  total=$(($total+$?))
-  if [ $total -ne 0 ]; then
+  rc=$?
+  total=$(($total+$rc))
+  if [ $rc -ne 0 ]; then
     echo "Unable to push" >> $stableroot/$datestr/output
   fi
   if [ $total -ne 0 ]; then
@@ -152,4 +147,4 @@ mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PE
 
 # ==============================================================================
 # scrub working directory for older files
-find $stableroot/* -maxdepth 1 -mtime +3 -exec rm -rf {} \;
+find $stableroot/* -maxdepth 1 -mtime +1 -exec rm -rf {} \;

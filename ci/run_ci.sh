@@ -91,6 +91,18 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
 fi
 # ==============================================================================
 # run ctests
+
+# PATCH START
+# MSU role-da can not use /work/noaa/stmp at present. The logic below
+# modifies the stmp path used by g-w so that role-da can run g-w based
+# ctests. This logic will be removed after MSU role-da is added to the
+# stmp group.
+if [[ "${TARGET}" = "orion" || "${TARGET}" = "hercules" ]]; then
+    echo "***WARNING*** apply MSU stmp patch to $workflow_dir/workflow/hosts/${TARGET}.yaml"
+    sed -i "s|/noaa/stmp|/noaa/da|g" $workflow_dir/workflow/hosts/${TARGET}.yaml
+fi
+# PATCH END
+
 cd $gdasapp_dir/build
 module use $gdasapp_dir/modulefiles
 module load GDAS/$TARGET
@@ -102,7 +114,7 @@ if [ -n "$ctest_regex_exclude" ]; then
 fi
 pwd
 echo "Tests: $ctest_cmd" >> $outfile
-$ctest_cmd --timeout 7200 --output-on-failure &>> log.ctest
+$ctest_cmd --timeout 14400 --output-on-failure &>> log.ctest
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
 if [ $ctest_status -eq 0 ]; then
