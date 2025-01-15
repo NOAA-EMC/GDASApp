@@ -238,19 +238,23 @@ class PostProcIncr {
       // get the output file name
       std::string outputFileName;
       outputIncrConfig_.get("output file", outputFileName);
-      outputFileName = dataDir + "/" + outputFileName;
-      if (outputIncrConfig_.has("pattern")) {
-          std::string pattern;
-          outputIncrConfig_.get("pattern", pattern);
-          outputFileName = this->swapPattern(outputFileName, pattern, std::to_string(ensMem));
-        }
-      const char* charPtrOut = outputFileName.c_str();
 
-      std::string incrFname = this->socaFname();
-      const char* charPtr = incrFname.c_str();
+      for (const std::string& domain : {"ocn", "ice"}) {
+        std::string outputDomain = dataDir + "/" + domain + "." +outputFileName;
+        if (outputIncrConfig_.has("pattern")) {
+            std::string pattern;
+            outputIncrConfig_.get("pattern", pattern);
+            outputDomain = this->swapPattern(outputDomain, pattern, std::to_string(ensMem));
+          }
+        const char* charPtrOut = outputDomain.c_str();
 
-      oops::Log::info() << "rename: " << incrFname << " to " << outputFileName << std::endl;
-      result = std::rename(charPtr, charPtrOut);
+        // rename the file
+        std::string incrFname = this->socaFname(domain);
+        const char* charPtr = incrFname.c_str();
+        oops::Log::info() << "domain: " << domain <<" rename: "
+                          << incrFname << " to " << outputDomain << std::endl;
+        result += std::rename(charPtr, charPtrOut);
+      }
     }
     return result;
   }
@@ -291,7 +295,7 @@ class PostProcIncr {
   // Recreate the soca filename from the configuration
   // TODO(guillaume): Change this in soca?
   // TODO(guillaume): Hard-coded for ocean, implement for seaice as well
-  std::string socaFname() {
+  std::string socaFname(const std::string& domain = "ocn") {
     std::string datadir;
     outputIncrConfig_.get("datadir", datadir);
     std::experimental::filesystem::path pathToResolve(datadir);
@@ -300,7 +304,7 @@ class PostProcIncr {
     std::string outputType;
     outputIncrConfig_.get("type", outputType);
     std::string incrFname = std::experimental::filesystem::canonical(pathToResolve);
-    incrFname += "/ocn." + exp + "." + outputType + "." + dt_.toString() + ".nc";
+    incrFname += "/" + domain + "." + exp + "." + outputType + "." + dt_.toString() + ".nc";
 
     return incrFname;
   }

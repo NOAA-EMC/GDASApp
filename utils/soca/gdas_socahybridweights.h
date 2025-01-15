@@ -102,7 +102,7 @@ namespace gdasapp {
       /// Create fields of weights for seaice
       soca::Increment socaIceHW(geom, socaVars, dt);  // ocean field is mandatory for writting
       socaIceHW.ones();
-      // TODO: set the weights based on the ice extent
+      // TODO(Guillaume): set the weights based on the ice extent
       socaIceHW *= wIce;
       oops::Log::info() << "socaIceHW: " << std::endl << socaIceHW << std::endl;
       const eckit::LocalConfiguration socaHWOutConfig(fullConfig, "output");
