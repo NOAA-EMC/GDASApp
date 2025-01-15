@@ -35,6 +35,12 @@ namespace gdasapp {
       oops::Log::info() << "geometry: " << std::endl << geomConfig << std::endl;
       const soca::Geometry geom(geomConfig, this->getComm());
 
+      // Domains to save
+      std::vector<std::string> domains = {"ocn", "ice"};
+      if (fullConfig.has("domains")) {
+        fullConfig.get("domains", domains);
+      }
+
       // Check that we are using at least 2 mpi tasks
       if (this->getComm().size() < 2) {
         throw eckit::BadValue("This application requires at least 2 MPI tasks", Here());
@@ -65,7 +71,7 @@ namespace gdasapp {
         oops::Log::debug() << incr_mom6 << std::endl;
 
         // Save final increment
-        result = postProcIncr.save(incr_mom6, i);
+        result = postProcIncr.save(incr_mom6, i, domains);
         oops::Log::debug() << "========= after appending layer and after saving:" << std::endl;
         oops::Log::debug() << incr_mom6 << std::endl;
       }

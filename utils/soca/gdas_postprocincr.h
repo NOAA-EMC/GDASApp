@@ -220,7 +220,7 @@ class PostProcIncr {
   // -----------------------------------------------------------------------------
   // Save increment
 
-  int save(soca::Increment& socaIncr, int ensMem = 1) {
+  int save(soca::Increment& socaIncr, int ensMem = 1, const std::vector<std::string>& domains = {"ocn", "ice"}) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "-------------------- save increment: " << std::endl;
     oops::Log::info() << socaIncr << std::endl;
@@ -239,7 +239,7 @@ class PostProcIncr {
       std::string outputFileName;
       outputIncrConfig_.get("output file", outputFileName);
 
-      for (const std::string& domain : {"ocn", "ice"}) {
+      for (const std::string& domain : domains) {
         std::string outputDomain = dataDir + "/" + domain + "." +outputFileName;
         if (outputIncrConfig_.has("pattern")) {
             std::string pattern;
