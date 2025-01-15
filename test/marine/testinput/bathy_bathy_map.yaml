@@ -1,0 +1,125 @@
+bufr:
+  group_by_variable: depth
+
+  variables:
+    dateTime:
+      datetime:
+        year: "*/YEAR"
+        month: "*/MNTH"
+        day: "*/DAYS"
+        hour: "*/HOUR"
+        minute: "*/MINU"
+    receiptTime:
+      datetime:
+        year: "*/RCYR"
+        month: "*/RCMO"
+        day: "*/RCDY"
+        hour: "*/RCHR"
+        minute: "*/RCMI"
+    stationID:
+        query: "*/RPID"
+    latitude:
+        query: "*/CLAT"
+    longitude:
+        query: "*/CLON"
+    depth:
+        query: "*/BTOCN/DBSS"
+    waterTemperature:
+        query: "*/BTOCN/STMP"
+#       offset: -273.15   # convert from Kelvin to Celsius'
+
+# filters:
+#   - bounding:
+#       variable: waterTemperature
+#       upperBound: 50.0
+#       lowerBound: -10.0
+#       upperBound: 323.15
+#       lowerBound: 263.15
+
+encoder:
+  globals:
+    - name: "source"
+      type: string
+      value: "NCEP data tank"
+
+    - name: "description"
+      type: string
+      value: "6-hrly in situ Bathythermal profiles"
+
+    - name: "platformLongDescription"
+      type: string
+      value: "Profiles from BATHYthermal: temperature"
+
+    - name: "data_providerOrigin"
+      type: string
+      value: "U.S. NOAA"
+
+    - name: "Converter"
+      type: string
+      value: "BUFR to IODA Converter"
+
+    - name: "_ioda_layout_version"
+      type: int
+      value: 0
+
+    - name: "_ioda_layout"
+      type: string
+      value: "ObsGroup"
+
+  variables:
+    - name: "MetaData/dateTime"
+      source: variables/dateTime
+      longName: "dateTime"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/rcptdateTime"
+      source: variables/receiptTime
+      longName: "receipt Datetime"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/stationID"
+      source: variables/stationID
+      longName: "Station Identification"
+      units: ""
+
+    - name: "MetaData/latitude"
+      source: variables/latitude
+      longName: "Latitude"
+      units: "degrees_north"
+      valid_range: -180.0, 180.0
+
+    - name: "MetaData/longitude"
+      source: variables/longitude
+      longName: "Longitude"
+      units: "degrees_east"
+
+    - name: "MetaData/depth"
+      source: variables/depth
+      longName: "Water depth"
+      units: "m"
+
+    - name: "ObsValue/waterTemperature"
+      source: variables/waterTemperature
+      longName: "Water Temperature"
+      units: "degC"
+
+    - name: "ObsError/waterTemperature"
+      source: variables/ObsErrorwaterTemperature
+      longName: "Water Temperature Error"
+      units: "degC"
+
+    - name: "PreQC/waterTemperature"
+      source: variables/PreQCwaterTemperature
+      longName: "PreQC water temperature"
+      units: ""
+
+    - name: "MetaData/SequenceNumber"
+      source: variables/SequenceNumber
+      longName: "Sequence Number"
+      units: ""
+
+    - name: "MetaData/oceanBasin"
+      source: variables/OceanBasin
+      longName: "Ocean Basin"
+      units: ""
+

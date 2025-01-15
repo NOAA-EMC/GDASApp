@@ -1,0 +1,14 @@
+---
+data_format: altkob
+source: NCEP data tank
+data_type: altkob
+cycle_type: gdas
+cycle_datetime: '2019010700'
+dump_directory: __BUFRINPUTDIR__
+ioda_directory: __IODAOUTPUTDIR__
+ocean_basin: __OCEANBASIN__
+data_description: 6-hrly in situ ALTKOB surface
+platform_description: 'Surface obs from altkob: temperature and salinity'
+data_description_file: "__CONFIGDIR__/altkob_altkob_map.yaml"
+data_provider: U.S. NOAA
+

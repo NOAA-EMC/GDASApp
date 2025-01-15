@@ -1,0 +1,14 @@
+---
+data_format: lcman
+source: NCEP data tank
+data_type: lcman
+cycle_type: gdas
+cycle_datetime: '2019010700'
+dump_directory: __BUFRINPUTDIR__
+ioda_directory: __IODAOUTPUTDIR__
+ocean_basin: __OCEANBASIN__
+data_description: 6-hrly in situ LCMAN surface
+platform_description: 'Surface temperature obs from LCMAN'
+data_description_file: "__CONFIGDIR__/lcman_lcman_map.yaml"
+data_provider: U.S. NOAA
+

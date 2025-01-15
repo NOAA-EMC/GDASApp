@@ -1,0 +1,20 @@
+variables/ObsErrorseaSurfaceTemperature: 1493, float32    min, max = 0.23999999463558197, 0.23999999463558197
+variables/ObsErrorseaSurfaceTemperature hash = b2f4e1f7265a5917db31907e94fbae11667da47efea69301744f939406e01de9
+variables/OceanBasin: 1493, int32    min, max = 0, 2
+variables/OceanBasin hash = 12386047aea2de92555ceca7c6a41596737e38a4caad4a2e10de2346d4d784b0
+variables/PreQCseaSurfaceTemperature: 1493, float32    min, max = 0.0, 0.0
+variables/PreQCseaSurfaceTemperature hash = ed1a3b3560030a2101c6ec3a309fba84e7362391c73a34325b366026233da044
+variables/buoyType: 1493, int32    min, max = --, --
+variables/buoyType hash = 7cca2b857f5f30087b1f08c32d7368c108969d5064918cde179e93c24f784126
+variables/dateTime: 1493, int64    min, max = 1546808400, 1546833240
+variables/dateTime hash = e4ac07b8374f2dcbe45baa0ade7022e69f5def378e516deead4e8a220264a773
+variables/latitude: 1493, float32    min, max = 19.729999542236328, 59.439998626708984
+variables/latitude hash = e16599f1f97aecf0b1e48734dad2800822159a6e02382c57593f905b6a7b75fc
+variables/longitude: 1493, float32    min, max = -162.3300018310547, -75.08999633789062
+variables/longitude hash = 9e6872c85e15d198cb8773e407eec44d4b4cab71d766456f3149e47d95ffbdf8
+variables/receiptTime: 1493, int64    min, max = 1546808640, 1546837020
+variables/receiptTime hash = 115f0839b3c3d022579559466a9589a81ddf0b6b2eccf30ed6ca53a3dc784845
+variables/seaSurfaceTemperature: 1493, float32    min, max = 0.20000609755516052, 25.4999942779541
+variables/seaSurfaceTemperature hash = 5c96bd4a1113e9f39ebdb144f3ea5e8f1096e25152cfa74260c8e92e811ddd03
+variables/stationID: 1493, object
+variables/stationID hash = 4ddfc4e28de3dee1ea978ebeaaf42c8d84a813d7a1041ac9555b2e93e0c944d3

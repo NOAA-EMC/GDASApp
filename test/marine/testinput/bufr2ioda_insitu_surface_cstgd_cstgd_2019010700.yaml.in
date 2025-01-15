@@ -1,0 +1,14 @@
+---
+data_format: cstgd
+source: NCEP data tank
+data_type: cstgd
+cycle_type: gdas
+cycle_datetime: '2019010700'
+dump_directory: __BUFRINPUTDIR__
+ioda_directory: __IODAOUTPUTDIR__
+ocean_basin: __OCEANBASIN__
+data_description: 6-hrly in situ CSTGD surface
+platform_description: "sea surface temperature obs from cstgd"
+data_description_file: "__CONFIGDIR__/cstgd_cstgd_map.yaml"
+data_provider: U.S. NOAA
+

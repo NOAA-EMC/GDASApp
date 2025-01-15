@@ -1,0 +1,14 @@
+---
+data_format: mbuoyb
+source: NCEP data tank
+data_type: tropical
+cycle_type: gdas
+cycle_datetime: '2019010700'
+dump_directory: __BUFRINPUTDIR__
+ioda_directory: __IODAOUTPUTDIR__
+ocean_basin: __OCEANBASIN__
+data_description: 6-hrly in situ tropical mooring profiles
+platform_description: 'Tropical mooring profiles from mbuoyb: temperature and salinity'
+data_description_file: "__CONFIGDIR__/tropical_mbuoyb_map.yaml"
+data_provider: U.S. NOAA
+

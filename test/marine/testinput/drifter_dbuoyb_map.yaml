@@ -1,0 +1,130 @@
+bufr:
+  group_by_variable: depth
+
+  variables:
+    dateTime:
+      datetime:
+        year: "*/YEAR"
+        month: "*/MNTH"
+        day: "*/DAYS"
+        hour: "*/HOUR"
+        minute: "*/MINU"
+    receiptTime:
+      datetime:
+        year: "*/RCYR"
+        month: "*/RCMO"
+        day: "*/RCDY"
+        hour: "*/RCHR"
+        minute: "*/RCMI"
+    stationID:
+        query: "*/WMOP"
+    buoyType:
+        query: "*/BUYT"
+    latitude:
+        query: "*/CLATH"
+    longitude:
+        query: "*/CLONH"
+    depth:
+        query: "*/IDMSMDBS/BBYSTSL/DBSS"
+    seaSurfaceTemperature:
+        query: "*/IDMSMDBS/BBYSTSL/SST1"
+    salinity:
+        query: "*/IDMSMDBS/BBYSTSL/SALN"
+
+
+encoder:
+  globals:
+    - name: "source"
+      type: string
+      value: "NCEP data tank"
+
+    - name: "description"
+      type: string
+      value: "6-hrly in situ drifters surface"
+
+    - name: "platformLongDescription"
+      type: string
+      value: "Drifters surface obs from dbuoyb: temperature and salinity"
+
+    - name: "data_providerOrigin"
+      type: string
+      value: "U.S. NOAA"
+
+    - name: "Converter"
+      type: string
+      value: "BUFR to IODA Converter"
+
+    - name: "_ioda_layout_version"
+      type: int
+      value: 0
+
+    - name: "_ioda_layout"
+      type: string
+      value: "ObsGroup"
+
+  variables:
+    - name: "MetaData/dateTime"
+      source: variables/dateTime
+      longName: "dateTime"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/rcptdateTime"
+      source: variables/receiptTime
+      longName: "receipt Datetime"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/stationID"
+      source: variables/stationID
+      longName: "Station Identification"
+      units: ""
+
+    - name: "MetaData/BuoyType"
+      source: variables/buoyType
+      longName: "Buoy Type"
+      units: ""
+
+    - name: "MetaData/latitude"
+      source: variables/latitude
+      longName: "Latitude"
+      units: "degrees_north"
+
+    - name: "MetaData/longitude"
+      source: variables/longitude
+      longName: "Longitude"
+      units: "degrees_east"
+
+    - name: "ObsValue/seaSurfaceTemperature"
+      source: variables/seaSurfaceTemperature
+      longName: "Sea Surface Temperature"
+      units: "degC"
+
+    - name: "ObsValue/salinity"
+      source: variables/salinity
+      longName: "salinity"
+      units: "psu"
+
+    - name: "ObsError/seaSurfaceTemperature"
+      source: variables/ObsErrorseaSurfaceTemperature
+      longName: "Sea Surface Temperature Error"
+      units: "degC"
+
+    - name: "ObsError/salinity"
+      source: variables/ObsErrorsalinity
+      longName: "Salinity Error"
+      units: "psu"
+
+    - name: "PreQC/seaSurfaceTemperature"
+      source: variables/PreQCseaSurfaceTemperature
+      longName: "PreQC Sea Surface temperature"
+      units: ""
+
+    - name: "PreQC/salinity"
+      source: variables/PreQCsalinity
+      longName: "PreQC salinity"
+      units: ""
+
+    - name: "MetaData/oceanBasin"
+      source: variables/OceanBasin
+      longName: "Ocean Basin"
+      units: ""
+

@@ -1,0 +1,26 @@
+variables/ObsErrorsalinity: 36, float32    min, max = 1.0, 1.0
+variables/ObsErrorsalinity hash = a7942a89cf64580e599b37094919a9f0379c99dece7f1be35fdf2ac8bc58993e
+variables/ObsErrorseaSurfaceTemperature: 36, float32    min, max = 0.30000001192092896, 0.30000001192092896
+variables/ObsErrorseaSurfaceTemperature hash = a89d0460b5e225c3c840458d09448749ba65ed88b75829383014c844debf6344
+variables/OceanBasin: 36, int32    min, max = 0, 1
+variables/OceanBasin hash = 4e57c6de5e5431059e4d33112844dcf7f859e071ee6c074b01a118bebf490802
+variables/PreQCsalinity: 36, float32    min, max = 0.0, 0.0
+variables/PreQCsalinity hash = 81c611f35bff79491538b2f7cf201c7597a661a5c549633541c62bdc8af1613f
+variables/PreQCseaSurfaceTemperature: 36, float32    min, max = 0.0, 0.0
+variables/PreQCseaSurfaceTemperature hash = 81c611f35bff79491538b2f7cf201c7597a661a5c549633541c62bdc8af1613f
+variables/dateTime: 36, int64    min, max = 1546797600, 1546829100
+variables/dateTime hash = 071f08d43cc476ccc9e1d3430c58fbe38d577537460cecf424c50bfc602452fe
+variables/depth: 36, float32    min, max = 0.0, 0.0
+variables/depth hash = 81c611f35bff79491538b2f7cf201c7597a661a5c549633541c62bdc8af1613f
+variables/latitude: 36, float32    min, max = 48.970001220703125, 49.380001068115234
+variables/latitude hash = 551a692ece1bcb08b5fdff69312143f55461c713c217081308a3365e2d1da13c
+variables/longitude: 36, float32    min, max = -66.62000274658203, -62.27000045776367
+variables/longitude hash = 85f768c08fbd93f4fcc6f2ff74e494d140a0a9b4048d5d07b11ea37c26c47c9a
+variables/receiptTime: 36, int64    min, max = 1546869960, 1546869960
+variables/receiptTime hash = c9ca20751c6b25e46d50cc33b2b03f06e080fe46c51089cbb4ba4708aa5711fa
+variables/salinity: 36, float32    min, max = 28.030000686645508, 31.360000610351562
+variables/salinity hash = 950470d8c885e9d04a1a574eab6d6d516da2973a3849b44757df9d4ce3a49b84
+variables/seaSurfaceTemperature: 36, float32    min, max = -1.299993872642517, 0.10000000149011612
+variables/seaSurfaceTemperature hash = 794bc74f46f299c9647de57cb1b890e7b452e2665d8ebd61798a3d2b718b82a7
+variables/stationID: 36, object
+variables/stationID hash = 6bfe8046cee7c9bee39971454e227d98e11cc869b106d821fe53e5b7a2a0b145
