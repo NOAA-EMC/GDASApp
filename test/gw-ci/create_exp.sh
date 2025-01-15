@@ -13,6 +13,9 @@ expyaml=${expyaml_ctest}
 export pslot=${pslot_ctest}
 export RUNTESTS=${exp_path}/${pslot}
 export HPC_ACCOUNT="da-cpu"
+if [[ $MACHINE_ID = wcoss2 ]]; then
+  export HPC_ACCOUNT="GFS-DEV"
+fi  
 
 # Source the gw environement
 source ${HOMEgfs}/workflow/gw_setup.sh
