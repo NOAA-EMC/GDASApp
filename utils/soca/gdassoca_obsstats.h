@@ -43,7 +43,7 @@ namespace gdasapp {
     }
 
     // -----------------------------------------------------------------------------
-    int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
+    int execute(const eckit::Configuration & fullConfig) const {
       // time window
       const eckit::LocalConfiguration timeWindowConf(fullConfig, "time window");
       const util::TimeWindow timeWindow(timeWindowConf);

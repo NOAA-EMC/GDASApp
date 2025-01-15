@@ -2,7 +2,7 @@
 import os
 import fnmatch
 import subprocess
-from wxflow import FileHandler, Logger
+from wxflow import FileHandler, Logger, YAMLFile
 
 logger = Logger()
 
@@ -36,10 +36,10 @@ def obs_fetch(config, task_config, obsprep_space, cycles):
 
         for root, _, files in os.walk(full_input_dir):
             for filename in fnmatch.filter(files, dumpdir_regex):
-                target_file = PDY + cyc + '-' + filename
-                matching_files.append((full_input_dir, filename, target_file))
+                target_file = f"{PDY}{cyc}-{filename}"
+                matching_files.append((full_input_dir, filename, target_file, f"{PDY}{cyc}"))
 
-    for full_input_dir, filename, target_file in matching_files:
+    for full_input_dir, filename, target_file, _ in matching_files:
         file_path = os.path.join(full_input_dir, filename)
         file_destination = os.path.join(COMIN_OBS, target_file)
         file_copy.append([file_path, file_destination])
@@ -50,7 +50,7 @@ def obs_fetch(config, task_config, obsprep_space, cycles):
     FileHandler({'copy': file_copy}).sync()
 
     # return the modified file names for the IODA converters
-    return [f[2] for f in matching_files]
+    return [(f[2], f[3]) for f in matching_files]
 
 
 def run_netcdf_to_ioda(obsspace_to_convert, OCNOBS2IODAEXEC):
@@ -69,11 +69,18 @@ def run_netcdf_to_ioda(obsspace_to_convert, OCNOBS2IODAEXEC):
 def run_bufr_to_ioda(obsspace_to_convert):
     logger.info(f"running run_bufr_to_ioda on {obsspace_to_convert['name']}")
     bufrconv_yaml = obsspace_to_convert['conversion config file']
+    bufrconv_config = YAMLFile(bufrconv_yaml)
     bufr2iodapy = obsspace_to_convert['bufr2ioda converter']
-    try:
-        subprocess.run(['python', bufr2iodapy, '-c', bufrconv_yaml], check=True)
-        return 0
-    except subprocess.CalledProcessError as e:
-        logger.warning(f"bufr2ioda converter failed with error  >{e}<, \
-            return code {e.returncode}")
-        return e.returncode
+    obtype = obsspace_to_convert['name']
+
+    for cycle, input_file, output_file in obsspace_to_convert['bufrconv files']:
+        bufrconv_config['input_file'] = input_file
+        bufrconv_config['output_file'] = output_file
+        bufrconv_config['cycle_datetime'] = cycle
+        config_filename = f"{cycle}.{bufrconv_yaml}"
+        bufrconv_config.save(config_filename)
+        try:
+            subprocess.run(['python', bufr2iodapy, '-c', config_filename], check=True)
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"bufr2ioda converter failed with error  >{e}<, \
+                return code {e.returncode}")

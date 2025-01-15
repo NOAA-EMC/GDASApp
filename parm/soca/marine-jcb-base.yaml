@@ -24,7 +24,15 @@ minimizer: RPCG
 final_diagnostics_departures: oman
 final_prints_frequency: PT3H
 number_of_outer_loops: 1
-analysis_variables: [sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness, sea_water_salinity, sea_water_potential_temperature, eastward_sea_water_velocity, northward_sea_water_velocity, sea_surface_height_above_geoid]
+analysis_variables:
+- sea_ice_area_fraction
+- sea_ice_thickness
+- sea_ice_snow_thickness
+- sea_water_salinity
+- sea_water_potential_temperature
+#- eastward_sea_water_velocity
+#- northward_sea_water_velocity
+- sea_surface_height_above_geoid
 
 # Model things
 # ------------
@@ -49,7 +57,7 @@ marine_forecast_timestep: PT3H
 # Background error model
 background_error_file: '{{berror_model}}'
 marine_number_ensemble_members: '{{NMEM_ENS}}'
-marine_stddev_time: '{{MARINE_WINDOW_MIDDLE}}'
+marine_stddev_time: '{{ MARINE_WINDOW_MIDDLE  | to_isotime }}'
 
 # Observations
 observations: all_observations

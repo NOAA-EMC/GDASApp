@@ -47,7 +47,7 @@ if [[ $BUILD == 'YES' ]]; then
     cd gdas.cd
     git checkout $GDASHASH
     cd ../
-    ./build_all.sh
+    ./build_all.sh gfs gsi gdas
     ./link_workflow.sh
 fi
 

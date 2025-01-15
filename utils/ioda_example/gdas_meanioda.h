@@ -33,7 +33,7 @@ namespace gdasapp {
       : Application(comm) {}
     static const std::string classname() {return "gdasapp::IodaExample";}
 
-    int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
+    int execute(const eckit::Configuration & fullConfig) const {
       // get the obs space configuration
       const eckit::LocalConfiguration obsConfig(fullConfig, "obs space");
       oops::Log::info() << "obs space: " << std::endl << obsConfig << std::endl;

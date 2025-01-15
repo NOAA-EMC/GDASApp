@@ -1,5 +1,5 @@
-export GDAS_CI_ROOT=/work2/noaa/da/role-da/CI/orion/GDASApp
-export GDAS_CI_HOST='orion'
+export GDAS_CI_ROOT=/work2/noaa/da/role-da/CI/hercules/GDASApp
+export GDAS_CI_HOST='hercules'
 export GDAS_MODULE_USE=$GDAS_CI_ROOT/repo/modulefiles
 export SLURM_ACCOUNT=da-cpu
 export SALLOC_ACCOUNT=$SLURM_ACCOUNT
