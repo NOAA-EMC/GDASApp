@@ -7,9 +7,11 @@
 
 #include "eckit/config/LocalConfiguration.h"
 
-#include "fv3jedi/Geometry/Geometry.h"
-#include "fv3jedi/Increment/Increment.h"
-#include "fv3jedi/State/State.h"
+//#include "fv3jedi/Geometry/Geometry.h"
+//#include "fv3jedi/Increment/Increment.h"
+//#include "fv3jedi/State/State.h"
+
+#include "fv3jedi/Utilities/Traits.h"
 
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
@@ -17,6 +19,7 @@
 #include "oops/util/DateTime.h"
 #include "oops/util/Duration.h"
 #include "oops/util/Logger.h"
+#include "oops/base/StructuredGridWriter.h"
 
 namespace gdasapp {
 
@@ -34,8 +37,9 @@ namespace gdasapp {
       fullConfig.get("forecast hours", fcstHours);
       fullConfig.get("window begin", windowBeginStr);
       const util::DateTime windowBegin(windowBeginStr);
-      const oops::Variables stateVars(fullConfig, "state variables");
-      const oops::Variables incrVars(fullConfig, "increment variables");
+      const oops::Variables atmStateVars(fullConfig, "atmospheric state variables");
+      const oops::Variables sfcStateVars(fullConfig, "surface state variables");      
+      const oops::Variables atmIncrVars(fullConfig, "atmospheric increment variables");
 
       // Get geometry configurations
       const eckit::LocalConfiguration bkgGeomConfig(fullConfig, "background geometry");
@@ -46,10 +50,10 @@ namespace gdasapp {
                                                         "correction increment geometry");
 
       // Setup geometries
-      const fv3jedi::Geometry incrGeom(incrGeomConfig, this->getComm());
-      const fv3jedi::Geometry bkgGeom(bkgGeomConfig, this->getComm());
-      const fv3jedi::Geometry anlEnsMeanGeom(anlEnsMeanGeomConfig, this->getComm());
-      const fv3jedi::Geometry incrCorGeom(incrCorGeomConfig, this->getComm());
+      const oops::Geometry<fv3jedi::Traits> incrGeom(incrGeomConfig, this->getComm());
+      const oops::Geometry<fv3jedi::Traits> bkgGeom(bkgGeomConfig, this->getComm());
+      const oops::Geometry<fv3jedi::Traits> anlEnsMeanGeom(anlEnsMeanGeomConfig, this->getComm());
+      const oops::Geometry<fv3jedi::Traits> incrCorGeom(incrCorGeomConfig, this->getComm());
 
       // Get additions configuration
       int nhrs = fcstHours.size();
@@ -73,38 +77,52 @@ namespace gdasapp {
         util::DateTime currentCycle = windowBegin + fcstHour;
 
         // Get elements of individual additions configurations
-        const eckit::LocalConfiguration bkgConfig(additionsConfig[ihrs], "background");
-        const eckit::LocalConfiguration incrConfig(additionsConfig[ihrs], "increment");
-        const eckit::LocalConfiguration anlEnsMeanConfig(additionsConfig[ihrs], \
-                                                         "ensemble mean analysis");
-        const eckit::LocalConfiguration incrCorConfig(additionsConfig[ihrs], \
-                                                      "correction increment");
+        const eckit::LocalConfiguration atmBkgConfig(additionsConfig[ihrs], "atmospheric background");
+        const eckit::LocalConfiguration sfcBkgConfig(additionsConfig[ihrs], "surface background");        
+        const eckit::LocalConfiguration atmIncrConfig(additionsConfig[ihrs], "atmospheric increment");
+        const eckit::LocalConfiguration atmAnlEnsMeanConfig(additionsConfig[ihrs], \
+                                                            "atmospheric ensemble mean analysis");
+        const eckit::LocalConfiguration atmIncrCorConfig(additionsConfig[ihrs], \
+                                                      "atmospheric correction increment");
+        const eckit::LocalConfiguration atmAnlConfig(additionsConfig[ihrs], \
+                                                     "atmospheric analysis to structured grid");
+        const eckit::LocalConfiguration sfcAnlConfig(additionsConfig[ihrs], \
+                                                     "surface analysis to structured grid");
 
-        // Read background
-        fv3jedi::State xxBkg(bkgGeom, stateVars, currentCycle);
-        xxBkg.read(bkgConfig);
+        // Initialize background states
+        oops::State<fv3jedi::Traits> xxAtmBkg(bkgGeom, atmStateVars, currentCycle);
+        oops::State<fv3jedi::Traits> xxSfcBkg(bkgGeom, sfcStateVars, currentCycle);        
+        xxAtmBkg.read(atmBkgConfig);
+        xxSfcBkg.read(sfcBkgConfig);        
 
-        // Read increment
-        fv3jedi::Increment dx(incrGeom, incrVars, currentCycle);
-        dx.read(incrConfig);
+        // Initialize increments
+        oops::Increment<fv3jedi::Traits> dxAtm(incrGeom, atmIncrVars, currentCycle);
+        dxAtm.read(atmIncrConfig);
+        
+        // Initialize ensemble mean analyses
+        oops::State<fv3jedi::Traits> xxAtmAnlEnsMean(anlEnsMeanGeom, atmIncrVars, currentCycle);
+        xxAtmAnlEnsMean.read(atmAnlEnsMeanConfig);
 
-        // Read ensemble mean analysis
-        fv3jedi::State xxAnlEnsMean(anlEnsMeanGeom, incrVars, currentCycle);
-        xxAnlEnsMean.read(anlEnsMeanConfig);
-
-        // Compute deterministic analysis
-        fv3jedi::State xxAnlDet(bkgGeom, xxBkg);
-        xxAnlDet += dx;
-
-        // Interpolate full resolution analysis to ensemble resolution and then change variables
-        fv3jedi::State xxAnlDetEnsRes(incrCorGeom, fv3jedi::State(incrVars, xxAnlDet));
-
-        // Compute correction increment
-        fv3jedi::Increment dxCor(incrCorGeom, incrVars, xxBkg.validTime());
-        dxCor.diff(xxAnlEnsMean, xxAnlDetEnsRes);
-
+        // Compute analyses
+        oops::State<fv3jedi::Traits> xxAtmAnl(bkgGeom, xxAtmBkg);
+        oops::State<fv3jedi::Traits> xxSfcAnl(bkgGeom, xxSfcBkg);        
+        xxAtmAnl += dxAtm;
+        
+        // Interpolate full resolution analyses to ensemble resolution and then change variables
+        oops::State<fv3jedi::Traits> xxAtmAnlEnsRes(incrCorGeom, oops::State<fv3jedi::Traits>(atmIncrVars, xxAtmAnl));
+        
+        // Compute correction increments
+        oops::Increment<fv3jedi::Traits> dxAtmCor(incrCorGeom, atmIncrVars, xxAtmBkg.validTime());
+        dxAtmCor.diff(xxAtmAnlEnsMean, xxAtmAnlEnsRes);
+        
         // Write correction increment
-        dxCor.write(incrCorConfig);
+        dxAtmCor.write(atmIncrCorConfig);
+
+        // Write analyses
+        const oops::StructuredGridWriter<fv3jedi::Traits> atmGridWriter(atmAnlConfig, bkgGeom);
+        const oops::StructuredGridWriter<fv3jedi::Traits> sfcGridWriter(sfcAnlConfig, bkgGeom);
+        atmGridWriter.interpolateAndWrite(xxAtmAnl);
+        sfcGridWriter.interpolateAndWrite(xxSfcAnl);        
       }
 
       return 0;
