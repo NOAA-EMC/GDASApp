@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -220,7 +221,8 @@ class PostProcIncr {
   // -----------------------------------------------------------------------------
   // Save increment
 
-  int save(soca::Increment& socaIncr, int ensMem = 1, const std::vector<std::string>& domains = {"ocn", "ice"}) {
+  int save(soca::Increment& socaIncr, int ensMem = 1,
+           const std::vector<std::string>& domains = {"ocn", "ice"}) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "-------------------- save increment: " << std::endl;
     oops::Log::info() << socaIncr << std::endl;
