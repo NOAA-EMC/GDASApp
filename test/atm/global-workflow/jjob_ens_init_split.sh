@@ -98,15 +98,16 @@ for imem in $(seq 1 $NMEM_ENS); do
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
     target=$COM_ATMOS_HISTORY_PREV_ENS
     mkdir -p $target
-    rm -rf $target/enkfgdas.t${gcyc}z.atmf006.nc
-    ln -fs $source/enkfgdas.t${gcyc}z.atmf006.nc $target/
+    file=atmf006.nc
+    rm -rf $target/enkf${gprefix}.${file}
+    ln -fs $source/enkf${gprefix}.${file} $target/enkf${gprefix}.${file}
 
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
     target=$COM_ATMOS_HISTORY_PREV_ENS
     flist=("cubed_sphere_grid_atmf006.nc" "cubed_sphere_grid_sfcf006.nc")
     for file in "${flist[@]}"; do
 	rm -rf $target/enkf${gprefix}.${file}
-        ln -fs $source/enkf${gprefix}.${file} $target/
+        ln -fs $source/enkf${gprefix}.${file} $target/enkf${gprefix}.${file}
     done
 done
 
@@ -116,7 +117,7 @@ cp $EXPDIR/config.base_lobsdiag_forenkf_true $EXPDIR/config.base
 
 # Execute j-job
 if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmensanlinit-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmensanlinit_split-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 fi

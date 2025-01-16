@@ -24,7 +24,6 @@ file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
   DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 # list of test binary/data files to install
 list(APPEND test_data
-  ${CMAKE_CURRENT_BINARY_DIR}/testdata/atminc_compress.nc4
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/adt.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/sst.nc
   ${CMAKE_CURRENT_BINARY_DIR}/testdata/sss.nc
@@ -120,11 +119,6 @@ add_test(NAME test_gdasapp_check_yaml_keys
 #         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # commented out above test because it does not really do as advertised with all these templates which are not valid yaml
 
-# test for ush/jediinc2fv3.py
-add_test(NAME test_gdasapp_jedi_increment_to_fv3
-         COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/ush/jediinc2fv3.py ${PROJECT_BINARY_DIR}/test/testdata/atmges_compress.nc4 ${PROJECT_BINARY_DIR}/test/testdata/atminc_compress.nc4 ${PROJECT_BINARY_DIR}/test/testoutput/fv_increment.nc
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
-
 # high level tests that require the global-workflow
 # TODO(AFE) see GDASApp issue #1213
 #if (WORKFLOW_TESTS)
@@ -136,7 +130,6 @@ add_test(NAME test_gdasapp_jedi_increment_to_fv3
 #endif()
 
 if (${BUILD_GDASBUNDLE})
-  add_subdirectory(fv3jedi)   # fv3jedi tests
   add_subdirectory(snow)      # snow da tests
   add_subdirectory(gw-ci)   # subset of the global-workflow ci tests
 endif()

@@ -39,7 +39,7 @@ namespace gdasapp {
       : Application(comm) {}
     static const std::string classname() {return "gdasapp::FV3LandEnsRecenter";}
 
-    int execute(const eckit::Configuration & fullConfig, bool /*validate*/) const {
+    int execute(const eckit::Configuration & fullConfig) const {
         /// Setup the FV3 geometry, we are going to assume that things are on the same grid
         /// as we do not fully trust OOPS interpolation for land compared to other tools
         const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");

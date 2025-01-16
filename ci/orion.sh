@@ -1,4 +1,4 @@
-export GDAS_CI_ROOT=/work2/noaa/stmp/cmartin/CI/GDASApp
+export GDAS_CI_ROOT=/work2/noaa/da/role-da/CI/orion/GDASApp
 export GDAS_CI_HOST='orion'
 export GDAS_MODULE_USE=$GDAS_CI_ROOT/repo/modulefiles
 export SLURM_ACCOUNT=da-cpu
@@ -8,3 +8,6 @@ export SLURM_QOS=debug
 export SLURM_EXCLUSIVE=user
 export OMP_NUM_THREADS=1
 ulimit -s unlimited
+export PATH=$PATH:/home/role-da/bin
+export NTASKS_TESTS=12
+export AUTHORIZED_USERS_FILE=$GDAS_CI_ROOT/authorized_users
