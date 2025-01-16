@@ -113,13 +113,15 @@ namespace gdasapp {
       socaOcnHW.ones();
 
       /// Apply localized gaussians to the weights
-      eckit::LocalConfiguration localWeightsConfigs(fullConfig, "weights.ocean local weights");
-      std::vector<eckit::LocalConfiguration> localWeightsList =
-        localWeightsConfigs.getSubConfigurations();
-      for (auto & conf : localWeightsList) {
-        gaussianMask(geom, socaOcnHW, conf);
-        oops::Log::info() << "Local weights for socaOcnHW: " << std::endl << conf << std::endl;
-        oops::Log::info() << socaOcnHW << std::endl;
+      if (fullConfig.has("weights.ocean local weights")) {
+        eckit::LocalConfiguration localWeightsConfigs(fullConfig, "weights.ocean local weights");
+        std::vector<eckit::LocalConfiguration> localWeightsList =
+          localWeightsConfigs.getSubConfigurations();
+        for (auto & conf : localWeightsList) {
+          gaussianMask(geom, socaOcnHW, conf);
+          oops::Log::info() << "Local weights for socaOcnHW: " << std::endl << conf << std::endl;
+          oops::Log::info() << socaOcnHW << std::endl;
+        }
       }
 
       socaOcnHW *= wOcean;
