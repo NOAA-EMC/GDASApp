@@ -3,7 +3,7 @@
   # Observation Space (I/O)
   # -----------------------
   obs space:
-    name: ATMS NPP
+    name: ATMS N21
     obsdatain:
       engine:
         type: H5File
@@ -26,7 +26,7 @@
 #   Cloud_Fraction: 1.0
     Cloud_Seeding: true
     obs options:
-      Sensor_ID: &{{observation_from_jcb}}_sensor_id atms_npp
+      Sensor_ID: &{{observation_from_jcb}}_sensor_id atms_n21
       EndianType: little_endian
       CoefficientPath: "{{crtm_coefficient_path}}"
     linear obs operator:
