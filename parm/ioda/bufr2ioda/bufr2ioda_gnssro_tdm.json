@@ -1,0 +1,15 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "gpsro",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC003010" ],
+  "data_description" : "Satellite radio occultation data", 
+  "data_provider"    : "U.S. NOAA",
+  "mission"          : "tdm",
+  "satellite_info"   : [
+                          { "sensor_name" : "IGOR", "sensor_full_name" : "Integrated GPS and Occultation Receiver", "sensor_id" : 103, "satellite_name" : "TanDEM-X", "satellite_full_name" : "TerraSAR-X add-on for Digital Elevation Measurement", "satellite_id" : 43 }
+                       ]
+}
