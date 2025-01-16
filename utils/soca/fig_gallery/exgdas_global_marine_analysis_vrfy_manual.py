@@ -17,8 +17,15 @@ bcyc = os.getenv('bcyc')
 gcyc = os.getenv('gcyc')
 RUN = os.getenv('RUN')
 
-#grid_file = os.path.join(comout, f'{RUN}.t'+bcyc+'z.ocngrid.nc')
-grid_file = '/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/gdas.t21z.ocngrid.nc'
+# Construct the first potential grid_file path
+vrfy_grid_file = os.path.join(comout, f'{RUN}.t'+bcyc+'z.ocngrid.nc')
+
+# Check if the file exists, then decide on grid_file
+if os.path.exists(vrfy_grid_file):
+    grid_file = vrfy_grid_file
+else:
+    grid_file = '/scratch1/NCEPDEV/da/common/validation/vrfy/gdas.t21z.ocngrid.nc'
+
 layer_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
 
 # for eva
