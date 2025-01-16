@@ -11,10 +11,18 @@
 #SBATCH --mem=24GB                # Request 24GB of memory
 #SBATCH --time=00:30:00           # Set the walltime limit to 30 minutes
 
-# Define HOMEgfs
-export HOMEgfs="/scratch1/NCEPDEV/da/Mindo.Choi/workflow_11122024/global-workflow/"
+# Define Your HOMEgfs
+export HOMEgfs="/scratch1/NCEPDEV/da/Mindo.Choi/wk_01152025/global-workflow/"
+
+# Define Base_Direcrory (to the achieves for v2)
+base_dir="/scratch1/NCEPDEV/global/John.Steffen/hpss_arch/marine_test_112024_v2"
+
+# Define Target Date and cycle
+tdate="20210701"
+cyc="00"
 
 # Load EVA module 
+module purge
 module use ${HOMEgfs}sorc/gdas.cd/modulefiles
 module load EVA/hera
 
@@ -28,18 +36,34 @@ $PYTHONPATH"
 export RUN_ENSENBLE_ANALYSIS=OFF       # Check if ensemble run is ON
 export RUN_BACKGROUND_ERROR_ANALYSIS=ON
 export RUN_BACKGROUND_ANALYSIS=ON
-export RUN_INCREMENT_ANLYSIS=ON
+export RUN_INCREMENT_ANALYSIS=ON
+export RUN_EVA_ANALYSIS=ON
 
 # Define and export the environment variables
-export cyc="00"
+# Calculate bcyc and gcyc
+bcyc=$(printf "%02d" $(( (10#$cyc - 3 + 24) % 24 )))
+gcyc=$(printf "%02d" $(( (10#$cyc - 6 + 24) % 24 )))
+
+# Determine PDY_PREV if cyc is "00"
+if [ "$cyc" == "00" ]; then
+    PDY_PREV=$(date -d "$tdate -1 day" +%Y%m%d)
+else
+    PDY_PREV="$tdate"
+fi
+
+# Export the necessary environment variables
+export cyc="$cyc"
+export bcyc="$bcyc"
+export gcyc="$gcyc"
+export PDY="$tdate"
+export PDY_PREV="$PDY_PREV"
 export RUN="gdas"
 export PSLOT="gdas_test"
-export PDY="20210827"
 
 # Define and export environment variables with paths
-export COM_OCEAN_ANALYSIS="/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/gdas.20210827/00/analysis/ocean"
-export COM_ICE_HISTORY_PREV="/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/gdas.20210826/18/model/ice/history"
-export COM_OCEAN_HISTORY_PREV="/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/gdas.20210826/18/model/ocean/history"
+export COM_OCEAN_ANALYSIS="${base_dir}/${tdate}${cyc}/${RUN}.${tdate}/${cyc}/analysis/ocean"
+export COM_ICE_HISTORY_PREV="${base_dir}/${PDY_PREV}${gcyc}/${RUN}.${PDY_PREV}/${gcyc}/model/ice/history"
+export COM_OCEAN_HISTORY_PREV="${base_dir}/${PDY_PREV}${gcyc}/${RUN}.${PDY_PREV}/${gcyc}/model/ocean/history"
 
 # Excute Marine Verify Analysis
 python3 ${HOMEgfs}sorc/gdas.cd/utils/soca/fig_gallery/exgdas_global_marine_analysis_vrfy_manual.py
