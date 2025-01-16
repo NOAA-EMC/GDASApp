@@ -238,14 +238,13 @@ def bufr_to_ioda(config, logger):
     seqnum2 = []
     for i in range(len(seqnum)):
         if (int(seqnum[i]) != count2):
-            count1 +=1
+           count1 +=1
         count2 = int(seqnum[i])
         seqnum2.append(count1)
     seqnum2 = np.array(seqnum2)
-    
+ 
     logger.debug(f"     new seqnum2 shape, type, min/max {seqnum2.shape}, \
                 {seqnum2.dtype}, {seqnum2.min()}, {seqnum2.max()}")
-
 
     # ObsType
     # Bending Angle
@@ -409,7 +408,7 @@ def bufr_to_ioda(config, logger):
         qfro2[quality] = 0.0
         if bit3[quality] == 1:
             satasc[quality] = 1
-        #if (bit6[quality] == 1): refractivity data only 
+        # if (bit6[quality] == 1): refractivity data only
         #    qfro2[quality] = 1.0
         if (bit5[quality] == 1):
             qfro2[quality] = 1.0
@@ -431,8 +430,8 @@ def bufr_to_ioda(config, logger):
     # Find unique satellite identifiers in data to process
     mission_said = []
     for sensor_satellite_info in satellite_info_array:
-         mission_said.append(float(sensor_satellite_info["satellite_id"]))
-    mission_said=np.array(mission_said)
+        mission_said.append(float(sensor_satellite_info["satellite_id"]))
+    mission_said = np.array(mission_said)
 
     unique_satids = np.unique(said)
     logger.debug(f" ... Number of Unique satellite identifiers: \
@@ -445,7 +444,7 @@ def bufr_to_ioda(config, logger):
 
     print(' ... Loop through unique satellite identifier ... : ', unique_satids)
 
-    nobs   = 0
+    nobs = 0
     for sat in unique_satids.tolist():
         print("Processing output for said: ", sat)
         start_time = time.time()
@@ -455,76 +454,76 @@ def bufr_to_ioda(config, logger):
         for sensor_satellite_info in satellite_info_array:
             if (sensor_satellite_info["satellite_id"] == sat):
 
-               matched = True
-               sensor_id = sensor_satellite_info["sensor_id"]
-               sensor_name = sensor_satellite_info["sensor_name"]
-               sensor_full_name = sensor_satellite_info["sensor_full_name"]
-               satellite_id = sensor_satellite_info["satellite_id"]
-               satellite_name = sensor_satellite_info["satellite_name"]
-               satellite_full_name = sensor_satellite_info["satellite_full_name"]
+                matched = True
+                sensor_id = sensor_satellite_info["sensor_id"]
+                sensor_name = sensor_satellite_info["sensor_name"]
+                sensor_full_name = sensor_satellite_info["sensor_full_name"]
+                satellite_id = sensor_satellite_info["satellite_id"]
+                satellite_name = sensor_satellite_info["satellite_name"]
+                satellite_full_name = sensor_satellite_info["satellite_full_name"]
 
         if matched:
 
-           print(' ... Split data for satellite mission ', mission)
+            print(' ... Split data for satellite mission ', mission)
 
-           # Define a boolean mask to subset data from the original data object
-           mask       = np.isin(said, mission_said)
+            # Define a boolean mask to subset data from the original data object
+            mask = np.isin(said, mission_said)
 
-           # MetaData
-           clonh_sat     = clonh[mask]
-           clath_sat     = clath[mask]
-           gclonh_sat    = gclonh[mask]
-           gclath_sat    = gclath[mask]
-           timestamp_sat = timestamp[mask]
-           stid_sat      = stid[mask]
-           said_sat      = said[mask]
-           siid_sat      = siid[mask]
-           sclf_sat      = sclf[mask]
-           ptid_sat      = ptid[mask]
-           elrc_sat      = elrc[mask]
-           seqnum2_sat   = seqnum2[mask]
-           geodu_sat     = geodu[mask]
-           heit_sat      = heit[mask]
-           impp1_sat     = impp1[mask]
-           imph1_sat     = imph1[mask]
-           mefr1_sat     = mefr1[mask]
-           pccf_sat      = pccf[mask]
-           ref_pccf_sat  = ref_pccf[mask]
-           bearaz_sat    = bearaz[mask]
-           ogce_sat      = ogce[mask]
-           qfro_sat      = qfro[mask]
-           qfro2_sat      = qfro2[mask]
-           satasc_sat      = satasc[mask]
-           bnda1_sat      = bnda1[mask]
-           arfr_sat      = arfr[mask]
-           bndaoe1_sat      = bndaoe1[mask]
-           arfroe_sat      = arfroe[mask]
-           bndaot_sat      = bndaot[mask]
-           arfrot_sat      = arfrot[mask]
+            # MetaData
+            clonh_sat = clonh[mask]
+            clath_sat = clath[mask]
+            gclonh_sat = gclonh[mask]
+            gclath_sat = gclath[mask]
+            timestamp_sat = timestamp[mask]
+            stid_sat = stid[mask]
+            said_sat = said[mask]
+            siid_sat = siid[mask]
+            sclf_sat = sclf[mask]
+            ptid_sat = ptid[mask]
+            elrc_sat = elrc[mask]
+            seqnum2_sat = seqnum2[mask]
+            geodu_sat = geodu[mask]
+            heit_sat = heit[mask]
+            impp1_sat = impp1[mask]
+            imph1_sat = imph1[mask]
+            mefr1_sat = mefr1[mask]
+            pccf_sat  = pccf[mask]
+            ref_pccf_sat = ref_pccf[mask]
+            bearaz_sat = bearaz[mask]
+            ogce_sat = ogce[mask]
+            qfro_sat = qfro[mask]
+            qfro2_sat = qfro2[mask]
+            satasc_sat = satasc[mask]
+            bnda1_sat = bnda1[mask]
+            arfr_sat = arfr[mask]
+            bndaoe1_sat = bndaoe1[mask]
+            arfroe_sat = arfroe[mask]
+            bndaot_sat = bndaot[mask]
+            arfrot_sat = arfrot[mask]
 
-           # Processing Center
-           ogce_sat      = ogce[mask]
+            # Processing Center
+            ogce_sat = ogce[mask]
 
-           # QC Info
-           qfro_sat      = qfro[mask]
-           qfro2_sat      = qfro2[mask]
-           satasc_sat      = satasc[mask]
+            # QC Info
+            qfro_sat = qfro[mask]
+            qfro2_sat = qfro2[mask]
+            satasc_sat = satasc[mask]
 
-           # ObsValue
-           bnda1_sat      = bnda1[mask]
-           arfr_sat      = arfr[mask]
+            # ObsValue
+            bnda1_sat = bnda1[mask]
+            arfr_sat = arfr[mask]
 
-           # ObsError
-           bndaoe1_sat      = bndaoe1[mask]
-           arfroe_sat      = arfroe[mask]
+            # ObsError
+            bndaoe1_sat = bndaoe1[mask]
+            arfroe_sat = arfroe[mask]
 
-           # ObsType
-           bndaot_sat      = bndaot[mask]
-           arfrot_sat      = arfrot[mask]
+            # ObsType
+            bndaot_sat = bndaot[mask]
+            arfrot_sat = arfrot[mask]
 
-           nobs           = clath_sat.shape[0]
-           print(' ... Create ObsSpace for satid = ', sat)
-           print(' ... size location of sat mission = ', nobs)
+            nobs = clath_sat.shape[0]
+            print(' ... Create ObsSpace for satid = ', sat)
+            print(' ... size location of sat mission = ', nobs)
 
         # =====================================
         # Create IODA ObsSpace
@@ -532,15 +531,15 @@ def bufr_to_ioda(config, logger):
         # =====================================
 
         # Create the dimensions
-    if nobs > 0: 
+    if nobs > 0:
         dims = {'Location': np.arange(0, nobs)}
         print(' ... dim = ', nobs)
     else:
         dims = {'Location': nobs}
         print(' ... dim = ', nobs)
 
-        #iodafile = f"{cycle_type}.t{hh}z.{data_type}.tm00.{data_format}.nc"
-        #iodafile = f"{cycle_type}.t{hh}z.{ioda_data_type}.{mission}.tm00.{data_format}.nc"
+        # iodafile = f"{cycle_type}.t{hh}z.{data_type}.tm00.{data_format}.nc"
+        # iodafile = f"{cycle_type}.t{hh}z.{ioda_data_type}.{mission}.tm00.{data_format}.nc"
     iodafile = f"{cycle_type}.t{hh}z.{ioda_data_type}_{mission}.tm00.nc"
 
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
@@ -590,7 +589,7 @@ def bufr_to_ioda(config, logger):
                             fillval=gclonh_sat.fill_value) \
             .write_attr('units', 'radians') \
             .write_attr('valid_range', np.array([-3.14159265, 3.14159265],
-                     dtype=np.float32)) \
+                        dtype=np.float32)) \
             .write_attr('long_name', 'Grid Longitude') \
             .write_data(gclonh_sat)
 
@@ -612,13 +611,13 @@ def bufr_to_ioda(config, logger):
 
         # Station Identification
         obsspace.create_var('MetaData/stationIdentification', dtype=stid_sat.dtype,
-                             fillval=stid_sat.fill_value) \
+                            fillval=stid_sat.fill_value) \
             .write_attr('long_name', 'Station Identification') \
             .write_data(stid_sat)
 
         # Satellite Identifier
         obsspace.create_var('MetaData/satelliteIdentifier', dtype=said_sat.dtype,
-                             fillval=said_sat.fill_value) \
+                            fillval=said_sat.fill_value) \
             .write_attr('long_name', 'Satellite Identifier') \
             .write_data(said_sat)
 
