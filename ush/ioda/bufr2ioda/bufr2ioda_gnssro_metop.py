@@ -238,11 +238,11 @@ def bufr_to_ioda(config, logger):
     seqnum2 = []
     for i in range(len(seqnum)):
         if (int(seqnum[i]) != count2):
-           count1 +=1
+            count1 +=1
         count2 = int(seqnum[i])
         seqnum2.append(count1)
     seqnum2 = np.array(seqnum2)
- 
+
     logger.debug(f"     new seqnum2 shape, type, min/max {seqnum2.shape}, \
                 {seqnum2.dtype}, {seqnum2.min()}, {seqnum2.max()}")
 
@@ -487,7 +487,7 @@ def bufr_to_ioda(config, logger):
             impp1_sat = impp1[mask]
             imph1_sat = imph1[mask]
             mefr1_sat = mefr1[mask]
-            pccf_sat  = pccf[mask]
+            pccf_sat = pccf[mask]
             ref_pccf_sat = ref_pccf[mask]
             bearaz_sat = bearaz[mask]
             ogce_sat = ogce[mask]
