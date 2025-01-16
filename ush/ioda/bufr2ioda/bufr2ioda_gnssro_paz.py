@@ -238,7 +238,7 @@ def bufr_to_ioda(config, logger):
     seqnum2 = []
     for i in range(len(seqnum)):
         if (int(seqnum[i]) != count2):
-            count1 +=1
+            count1 += 1
         count2 = int(seqnum[i])
         seqnum2.append(count1)
     seqnum2 = np.array(seqnum2)
