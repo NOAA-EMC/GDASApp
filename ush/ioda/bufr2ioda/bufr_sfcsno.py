@@ -121,7 +121,7 @@ def _make_obs(comm, input_path, mapping_path):
     snod = container.get('variables/totalSnowDepth')
     snod[(sogr <= 11.0) & snod.mask] = 0.0
     snod[(sogr == 15.0) & snod.mask] = 0.0
-    snod.mask = (snod < 0.0) & snod.mask
+    snod.mask = (snod < 0.0) | snod.mask
     container.replace('variables/totalSnowDepth', snod)
     snod_upd = container.get('variables/totalSnowDepth')
 
