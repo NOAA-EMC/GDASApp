@@ -1,9 +1,12 @@
  &MOM_input_nml
         output_directory = './',
-        input_filename = 'r'
+        input_filename = 'r',
+        {% if not simple_geom %}
         restart_input_dir = 'INPUT/',
         restart_output_dir = 'RESTART/',
-        parameter_filename = 'MOM_input' /
+        {% endif %}
+        parameter_filename = '{{ mom_input }}'
+ /
 
  &diag_manager_nml
  /
