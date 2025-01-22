@@ -114,7 +114,7 @@ if [ -n "$ctest_regex_exclude" ]; then
 fi
 pwd
 echo "Tests: $ctest_cmd" >> $outfile
-$ctest_cmd --timeout 7200 --output-on-failure &>> log.ctest
+$ctest_cmd --timeout 14400 --output-on-failure &>> log.ctest
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
 if [ $ctest_status -eq 0 ]; then

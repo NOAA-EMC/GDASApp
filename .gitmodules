@@ -45,10 +45,6 @@
   path = sorc/fv3-jedi
   url = https://github.com/jcsda/fv3-jedi.git
   branch = develop
-[submodule "sorc/icepack"]
-  path = sorc/icepack
-  url = https://github.com/JCSDA-internal/Icepack.git
-  branch = feature/ecbuild-new
 [submodule "sorc/soca"]
   path = sorc/soca
   url = https://github.com/jcsda-internal/soca.git
