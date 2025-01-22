@@ -7,10 +7,6 @@
 
 #include "eckit/config/LocalConfiguration.h"
 
-//#include "fv3jedi/Geometry/Geometry.h"
-//#include "fv3jedi/Increment/Increment.h"
-//#include "fv3jedi/State/State.h"
-
 #include "fv3jedi/Utilities/Traits.h"
 
 #include "oops/mpi/mpi.h"
@@ -37,9 +33,7 @@ namespace gdasapp {
       fullConfig.get("forecast hours", fcstHours);
       fullConfig.get("window begin", windowBeginStr);
       const util::DateTime windowBegin(windowBeginStr);
-      const oops::Variables atmStateVars(fullConfig, "atmospheric state variables");
-      const oops::Variables sfcStateVars(fullConfig, "surface state variables");
-      const oops::Variables atmIncrVars(fullConfig, "atmospheric increment variables");
+      const oops::Variables atmVars(fullConfig, "atmospheric variables");
 
       // Get geometry configurations
       const eckit::LocalConfiguration bkgGeomConfig(fullConfig, "background geometry");
@@ -78,41 +72,35 @@ namespace gdasapp {
 
         // Get elements of individual additions configurations
         const eckit::LocalConfiguration atmBkgConfig(additionsConfig[ihrs], "atmospheric background");
-        const eckit::LocalConfiguration sfcBkgConfig(additionsConfig[ihrs], "surface background");
-        const eckit::LocalConfiguration atmIncrConfig(additionsConfig[ihrs], "atmospheric increment");
+        const eckit::LocalConfiguration atmIncrConfig(additionsConfig[ihrs], "atmospheric increment variables");
         const eckit::LocalConfiguration atmAnlEnsMeanConfig(additionsConfig[ihrs], \
                                                             "atmospheric ensemble mean analysis");
         const eckit::LocalConfiguration atmIncrCorConfig(additionsConfig[ihrs], \
                                                       "atmospheric correction increment");
         const eckit::LocalConfiguration atmAnlConfig(additionsConfig[ihrs], \
-                                                     "atmospheric analysis to structured grid");
-        const eckit::LocalConfiguration sfcAnlConfig(additionsConfig[ihrs], \
-                                                     "surface analysis to structured grid");
+                                                     "atmospheric increment to structured grid");
 
         // Initialize background states
-        oops::State<fv3jedi::Traits> xxAtmBkg(bkgGeom, atmStateVars, currentCycle);
-        oops::State<fv3jedi::Traits> xxSfcBkg(bkgGeom, sfcStateVars, currentCycle);
+        oops::State<fv3jedi::Traits> xxAtmBkg(bkgGeom, atmVars, currentCycle);
         xxAtmBkg.read(atmBkgConfig);
-        xxSfcBkg.read(sfcBkgConfig);
 
         // Initialize increments
-        oops::Increment<fv3jedi::Traits> dxAtm(incrGeom, atmIncrVars, currentCycle);
+        oops::Increment<fv3jedi::Traits> dxAtm(incrGeom, atmVars, currentCycle);
         dxAtm.read(atmIncrConfig);
 
         // Initialize ensemble mean analyses
-        oops::State<fv3jedi::Traits> xxAtmAnlEnsMean(anlEnsMeanGeom, atmIncrVars, currentCycle);
+        oops::State<fv3jedi::Traits> xxAtmAnlEnsMean(anlEnsMeanGeom, atmVars, currentCycle);
         xxAtmAnlEnsMean.read(atmAnlEnsMeanConfig);
 
         // Compute analyses
         oops::State<fv3jedi::Traits> xxAtmAnl(bkgGeom, xxAtmBkg);
-        oops::State<fv3jedi::Traits> xxSfcAnl(bkgGeom, xxSfcBkg);
         xxAtmAnl += dxAtm;
 
         // Interpolate full resolution analyses to ensemble resolution and then change variables
-        oops::State<fv3jedi::Traits> xxAtmAnlEnsRes(incrCorGeom, oops::State<fv3jedi::Traits>(atmIncrVars, xxAtmAnl));
+        oops::State<fv3jedi::Traits> xxAtmAnlEnsRes(incrCorGeom, oops::State<fv3jedi::Traits>(atmVars, xxAtmAnl));
 
         // Compute correction increments
-        oops::Increment<fv3jedi::Traits> dxAtmCor(incrCorGeom, atmIncrVars, xxAtmBkg.validTime());
+        oops::Increment<fv3jedi::Traits> dxAtmCor(incrCorGeom, atmVars, xxAtmBkg.validTime());
         dxAtmCor.diff(xxAtmAnlEnsMean, xxAtmAnlEnsRes);
 
         // Write correction increment
@@ -120,9 +108,7 @@ namespace gdasapp {
 
         // Write analyses
         const oops::StructuredGridWriter<fv3jedi::Traits> atmGridWriter(atmAnlConfig, bkgGeom);
-        const oops::StructuredGridWriter<fv3jedi::Traits> sfcGridWriter(sfcAnlConfig, bkgGeom);
-        atmGridWriter.interpolateAndWrite(xxAtmAnl);
-        sfcGridWriter.interpolateAndWrite(xxSfcAnl);
+        atmGridWriter.interpolateAndWrite(dxAtm);
       }
 
       return 0;
