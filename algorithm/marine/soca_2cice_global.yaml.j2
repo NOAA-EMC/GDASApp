@@ -29,10 +29,20 @@ variable change:
     sno_lev: 1
   cice output:
     restart: {{ ice_rst }}
+  increment output:
+    datadir: Data
+    exp: soca2cice
+    type: incr
+    date: '{{ fcst_begin }}'
+  soca increment:
+    read_from_file: 1
+    basename: ./
+    ocn_filename: {{ ocn_inc }}
+    ice_filename: {{ ice_inc }}
+    date: '{{ fcst_begin }}'
   output variables:
   - sea_water_potential_temperature
   - sea_water_salinity
-  - sea_water_cell_thickness
   - sea_ice_area_fraction
   - sea_ice_thickness
   - sea_ice_snow_thickness
@@ -47,7 +57,6 @@ states:
      state variables:
      - sea_water_potential_temperature
      - sea_water_salinity
-     - sea_water_cell_thickness
      - sea_ice_area_fraction
      - sea_ice_thickness
      - sea_ice_snow_thickness
