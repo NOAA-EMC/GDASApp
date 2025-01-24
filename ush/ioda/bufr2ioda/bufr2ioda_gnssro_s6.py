@@ -555,7 +555,7 @@ def bufr_to_ioda(config, logger):
     # Create Global attributes
     logger.debug(f" ... ... Create global attributes")
     obsspace.write_attr('source_file', bufrfile)
-    obsspace.write_attr('data_format', data_format)
+    obsspace.write_attr('dataOriginalFormatSpec', data_format)
     obsspace.write_attr('data_type', data_type)
     obsspace.write_attr('subsets', subsets)
     obsspace.write_attr('cycle_type', cycle_type)
