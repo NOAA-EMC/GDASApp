@@ -117,7 +117,7 @@ def _make_obs(comm, input_path, mapping_path):
     logging(comm, 'DEBUG', f'container list (original): {container.list()}')
 
     # Add new/derived data into container
-    sogr = container.get('variables/groundState')
+    sogr = np.array(container.get('variables/groundState'))
     snod = container.get('variables/totalSnowDepth')
     snod[(sogr <= 11.0) & snod.mask] = 0.0
     snod[(sogr == 15.0) & snod.mask] = 0.0
