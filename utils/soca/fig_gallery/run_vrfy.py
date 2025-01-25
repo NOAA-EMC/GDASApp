@@ -1,6 +1,10 @@
 from jinja2 import Template
 import subprocess
 from datetime import datetime, timedelta
+import yaml
+import sys
+import copy
+import os
 
 def iterate_pdy_range(start_pdy, end_pdy):
     """Generate a range of dates in YYYYMMDD format."""
@@ -33,38 +37,33 @@ def generate_jobcard(template_path, output_path, context):
 # Example usage
 if __name__ == "__main__":
 
-    # Define start and end dates
-    start_pdy = "20210701"
-    end_pdy = "20210702"
+    # Get the YAML configuration file name from the input argument
+    if len(sys.argv) != 2:
+        print("Usage: python run_vrfy.py <config.yaml>")
+        sys.exit(1)
+
+    config_file = sys.argv[1]
+
+    # Read the YAML template from the file
+    with open(config_file, "r") as file:
+        yaml_template = file.read()
+
+    # Load the template YAML as a dictionary
+    template_dict = yaml.safe_load(yaml_template)
+
+    # Render the template with Jinja2
+    template = Template(yaml_template)
+    config = yaml.safe_load(template.render(pslot=template_dict["pslot"]))
 
     # Iterate over the date range
-    for pdy in iterate_pdy_range(start_pdy, end_pdy):
-        for cyc in ["00", "06", "12", "18"]:
-          # Custom values to update in the template
-          context = {
-              "pdy": pdy,
-              "cyc": cyc,
-              "run": "gdas",
-              "pslot": "nomlb",
-              "homegdas": "/work2/noaa/da/gvernier/runs/mlb/GDASApp"
-          }
-
-          # Additional context values for the job card
-          context.update({
-              "base_exp_path": f"/work2/noaa/da/gvernier/runs/mlb/{context['pslot']}/COMROOT/{context['pslot']}",
-              "plot_ensemble_b": "OFF",
-              "plot_parametric_b": "OFF",
-              "plot_background": "OFF",
-              "plot_increment": "ON",
-              "plot_analysis": "OFF",
-              "eva_plots": "ON",
-              "qos": "batch",
-              "hpc": "hercules",
-              "eva_module": "EVA/orion",
-          })
+    for pdy in iterate_pdy_range(config['start_pdy'], config['end_pdy']):
+        context = copy.deepcopy(config)
+        for cyc in config["cycs"]:
+          # Update the cycle's date
+          context.update({"pdy": pdy, "cyc": cyc})
 
           # Prepare the job card
-          template_jobcard = "vrfy_jobcard.sh.j2"  # Assumes a Jinja2 template file in the same directory
+          template_jobcard = os.path.join(context['homegdas'], 'utils', 'soca', 'fig_gallery', 'vrfy_jobcard.sh.j2')  # Assumes a Jinja2 template file in the moegdas directory
           jobcard = f"vrfy_jobcard.{context['pslot']}.{context['pdy']}.{context['cyc']}.sh"
           generate_jobcard(template_jobcard, jobcard, context)
 
