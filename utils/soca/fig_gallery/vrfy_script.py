@@ -18,6 +18,13 @@ gcyc = str((int(cyc) - 6) % 24).zfill(2)
 grid_file = os.path.join(comout, f'{RUN}.t'+bcyc+'z.ocngrid.nc')
 layer_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
 
+# Check if the file exists, then decide on grid_file
+if os.path.exists(vrfy_grid_file):
+    grid_file = vrfy_grid_file
+else:
+    TODO: Make this work on other HPC 
+    grid_file = '/scratch1/NCEPDEV/da/common/validation/vrfy/gdas.t21z.ocngrid.nc'
+
 # for eva
 diagdir = os.path.join(comout, 'diags')
 HOMEgdas = os.getenv('HOMEgdas')
@@ -84,6 +91,15 @@ if plot_ensemble_b:
 # Parametric B plotting configuration
 if plot_parametric_b:
     config_bkgerr = [plotConfig(grid_file=grid_file,
+                                data_file=os.path.join(comout, os.path.pardir, os.path.pardir,
+                                                      'bmatrix', 'ice', f'{RUN}.t'+cyc+'z.ice.bkgerr_stddev.nc'),
+                                variables_horiz={'aice_h': [0.0, 0.5],
+                                                 'hi_h': [0.0, 2.0],
+                                                 'hs_h': [0.0, 0.2]},
+                                colormap='jet',
+                                projs=['North', 'South', 'Global'],
+                                comout=os.path.join(comout, 'vrfy', 'bkgerr')),   # sea ice bkgerr stddev
+                     plotConfig(grid_file=grid_file,
                                 layer_file=layer_file,
                                 data_file=os.path.join(comout, os.path.pardir, os.path.pardir,
                                                        'bmatrix', 'ocean', f'{RUN}.t'+cyc+'z.ocean.bkgerr_stddev.nc'),
@@ -91,16 +107,16 @@ if plot_parametric_b:
                                 lons=np.arange(-280, 80, 30),
                                 variables_zonal={'Temp': [0, 2],
                                                  'Salt': [0, 0.2],
-                                                 'u': [0, 0.2],
-                                                 'v': [0, 0.2]},
+                                                 'u': [0, 0.5],
+                                                 'v': [0, 0.5]},
                                 variables_meridional={'Temp': [0, 2],
                                                       'Salt': [0, 0.2],
-                                                      'u': [0, 0.2],
-                                                      'v': [0, 0.2]},
+                                                      'u': [0, 0.5],
+                                                      'v': [0, 0.5]},
                                 variables_horiz={'Temp': [0, 2],
                                                  'Salt': [0, 0.2],
-                                                 'u': [0, 0.2],
-                                                 'v': [0, 0.2],
+                                                 'u': [0, 0.5],
+                                                 'v': [0, 0.5],
                                                  'ave_ssh': [0, 0.1]},
                                 colormap='jet',
                                 comout=os.path.join(comout, 'vrfy', 'bkgerr'))]   # ocn bkgerr stddev
@@ -122,12 +138,18 @@ if plot_background:
                              lats=np.arange(-60, 60, 10),
                              lons=np.arange(-280, 80, 30),
                              variables_zonal={'Temp': [-1.8, 34.0],
-                                              'Salt': [32, 40]},
+                                              'Salt': [32, 40],
+                                              'u': [-1.0, 1.0],
+                                              'v': [-1.0, 1.0]},
                              variables_meridional={'Temp': [-1.8, 34.0],
-                                                   'Salt': [32, 40]},
+                                                   'Salt': [32, 40],
+                                                   'u': [-1.0, 1.0],
+                                                   'v': [-1.0, 1.0]},
                              variables_horiz={'ave_ssh': [-1.8, 1.3],
                                               'Temp': [-1.8, 34.0],
-                                              'Salt': [32, 40]},
+                                              'Salt': [32, 40],
+                                              'u': [-1.0, 1.0],
+                                              'v': [-1.0, 1.0]},
                              colormap='nipy_spectral',
                              comout=os.path.join(comout, 'vrfy', 'bkg'))]
     configs.extend(config_bkg)
@@ -156,7 +178,16 @@ if plot_increment:
                                                'hs_h': [-0.1, 0.1]},
                               colormap='seismic',
                               projs=['North', 'South'],
-                              comout=os.path.join(comout, 'vrfy', 'incr'))]   # sea ice increment
+                              comout=os.path.join(comout, 'vrfy', 'incr')),   # sea ice increment
+                   plotConfig(grid_file=grid_file,
+                              data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.postproc.nc'),
+                              lats=np.arange(-60, 60, 10),
+                              variables_horiz={'aice_h': [-0.2, 0.2],
+                                               'hi_h': [-0.5, 0.5],
+                                               'hs_h': [-0.1, 0.1]},
+                              colormap='seismic',
+                              projs=['North', 'South'],
+                              comout=os.path.join(comout, 'vrfy', 'incr.postproc'))]   # sea ice increment after postprocessing
     configs.extend(config_incr)
 
 
