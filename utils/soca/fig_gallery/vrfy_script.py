@@ -28,7 +28,7 @@ diagdir = os.path.join(comout, 'diags')
 HOMEgdas = os.getenv('HOMEgdas')
 
 # Get flags from environment variables (set in the bash driver)
-plot_ensemble_b = os.getenv('PLOT_ENSENBLE_B', 'OFF').upper() == 'ON'
+plot_ensemble_b = os.getenv('PLOT_ENSEMBLE_B', 'OFF').upper() == 'ON'
 plot_parametric_b = os.getenv('PLOT_PARAMETRIC_B', 'OFF').upper() == 'ON'
 plot_background = os.getenv('PLOT_BACKGROUND', 'OFF').upper() == 'ON'
 plot_increment = os.getenv('PLOT_INCREMENT', 'OFF').upper() == 'ON'
