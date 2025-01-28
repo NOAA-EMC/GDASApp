@@ -11,7 +11,7 @@
             padding: 16px;
         }
         img {
-            width: 90%;
+            width: auto;
             height: auto;
             border: 1px solid #ccc;
             box-shadow: 2px 2px 6px #888888;
@@ -24,14 +24,14 @@
             color: white;
             border: none;
             border-radius: 5px;
-            font-size: 0.6em; /* Smaller font size */
+            font-size: 1.0em; /* Smaller font size */
         }
         .button:hover, .active {
             background-color: #0056b3;
         }
         select {
             padding: 3px 10px; /* Reduced padding */
-            font-size: 0.4em; /* Smaller font size */
+            font-size: 1.0em; /* Smaller font size */
             border-radius: 5px;
             cursor: pointer;
             border: 1px solid #ccc;
@@ -50,14 +50,17 @@
     </style>
 </head>
 <body>
-    <div>
-        <!-- Label and input for base path -->
-        <label for="basePathInput">Path to figures: </label>
-        <input type="text" id="basePathInput" placeholder="Enter base path for images" value="/path/to/figures/">
+    <div style="text-align: center; font-family: Arial, sans-serif; margin-top: 20px;">
+        <h1 style="color: #2c3e50; font-size: 1.5em; border-bottom: 2px solid #3498db; display: inline-block; padding-bottom: 5px;">
+            Time Series of (Observation - Background) Statistics
+        </h1>
+        <p style="margin-top: 15px; font-size: 1.4em; color: #34495e;">
+            Experiments: {{ experiments|join(', ') }}
+        </p>
     </div>
     <div>
         <!-- Buttons for selecting oceans -->
-        <button class="button" id="Global" onclick="showImages(currentType, 'Global')">Global</button>      
+        <button class="button" id="Global" onclick="showImages(currentType, 'Global')">Global</button>
         <button class="button" id="Arctic" onclick="showImages(currentType, 'Arctic')">Arctic</button>
         <button class="button" id="Atlantic" onclick="showImages(currentType, 'Atlantic')">Atlantic</button>
         <button class="button" id="Indian" onclick="showImages(currentType, 'Indian')">Indian</button>
@@ -67,18 +70,9 @@
     <div>
         <!-- Dropdown for selecting type of observation -->
         <select id="typeSelect" onchange="setType(this.value)">
-            <option value="adt_rads_all">ADT RADS All</option>
-            <option value="sst_abi_g16_l3c">SST ABI G16 L3C</option>
-            <option value="sst_abi_g17_l3c">SST ABI G17 L3C</option>
-            <option value="sst_ahi_h08_l3c">SST AHI H08 L3C</option>
-            <option value="sst_avhrr_ma_l3u">SST AVHRR MA L3C</option>
-            <option value="sst_avhrr_mb_l3u">SST AVHRR MB L3C</option>
-            <option value="sst_avhrr_mc_l3u">SST AVHRR MC L3C</option>
-            <option value="sst_viirs_n20_l3u">SST VIIRS N20 L3C</option>
-            <option value="sst_viirs_npp_l3u">SST VIIRS NPP L3C</option>
-            <option value="icec_amsr2_north">ICEC AMSR2 NORTH</option>
-            <option value="icec_amsr2_south">ICEC AMSR2 SOUTH</option>
-
+            {% for inst in insts %}
+            <option value="{{ inst }}">{{ inst }}</option>
+            {% endfor %}
         </select>
     </div>
 
@@ -97,14 +91,19 @@
 
         function showImages(type, ocean) {
             currentOcean = ocean;
-            var basePath = document.getElementById('basePathInput').value;
+            var basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
             updateActiveButton(ocean, 'button'); // Update active state for ocean buttons
             var container = document.getElementById('imageContainer');
-            container.innerHTML = `<div class="gallery" style="display: grid;">
-                <img src="${basePath}${type}_ombg_noqc_${ocean}.png" alt="${ocean} No QC">
-                <img src="${basePath}${type}_ombg_qc_${ocean}.png" alt="${ocean} QC">
+
+            // Use grid layout for proper alignment
+            container.innerHTML = `
+            <div class="gallery" style="display: grid;">
+                <div class="image-wrapper" style="display: flex; justify-content: center; width: 100%;"><img src="${basePath}${type}_ombg_noqc_${ocean}.png" alt="${ocean} No QC" style="width: 100%;"></div>
+                <div class="image-wrapper" style="display: flex; justify-content: center; width: 100%;"><img src="${basePath}${type}_ombg_qc_${ocean}.png" alt="${ocean} QC" style="width: 100%;"></div>
             </div>`;
+            document.querySelector('.gallery').style.display = 'grid'; // Ensure gallery is displayed as grid
         }
+
 
         function updateActiveButton(selectedId, buttonClass) {
             var buttons = document.querySelectorAll('.' + buttonClass);

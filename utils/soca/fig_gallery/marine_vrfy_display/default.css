@@ -502,20 +502,15 @@
                 color: rgba(255,255,255,1);
         }
  
-        .dropbtn:hover {
-                background-color: #2980b9;
-                border-left: solid 10px #ffffff;
-        }
-
         .dropbtn:focus {
                 background-color: #2980b9;
                 border-left: solid 10px #ffffff;
-
+                display: block;
         }
 
 	.dropdown {
 		position: relative;
-		display: block;
+		display: inline-block;
                 width: 100%;
 	}
 
@@ -523,15 +518,15 @@
 	/* The dropdown content (submenus) */
     	.dropdown-content {
       		display: none;
-      		left: 100%;
-      		top: -50%;
+		left: 100%;
+                top: -50%;
       		position: absolute;
       		background-color: #112e51;
       		min-width: 160px;
       		z-index: 1;
     	}
 
-	/*.dropdown-content a {
+	.dropdown-content a {
                 display: block;
                 color: rgba(255,255,255,1);
                 padding: 1em 1em;
@@ -540,56 +535,27 @@
                 text-decoration: none;
         }
 
-    	/* Show the dropdown menu on hover */
-    	.dropdown:hover .dropdown-content {
-      		display: block;
-    	}
+        .dropdown-content a:hover {
+            background-color: #575757;
+        }
 
-    	/* Style for submenu items */
-    	.dropdown-content div {
-      		padding: 10px;
-      		color: white;
-      		cursor: pointer;
-    	}
+        /* Style for the submenu */
+        .submenu {
+            display: none;
+            position: relative;
+            left: 100%;
+            top: 1;
+            background-color: #575757;
+            min-width: 160px;
+        }
 
-    	.dropdown-content div:hover {
-      		background-color: #575757;
-    	}
-
-    	/* Style for deeper nested dropdown */
-    	.dropdown-content .dropdown-content {
-      		top: -75%;
-      		left: 100%;
-      		display: none;
-      		position: absolute;
-    	}
-
-    	/* Show deeper nested dropdown when hovered over */
-    	.dropdown-content div:hover .dropdown-content {
-      		display: block;
-    	}
-
-	/* Display dropdown menu when hovering over a parent menu */
-        div:hover > .dropdown-menu {
+        /* Show submenu when the parent item is clicked */
+        .dropdown-item.open .submenu {
             display: block;
         }
 
-	/* Style for nested dropdowns */
-	/* Ensure only one level of dropdown is visible at a time */
-        div > .dropdown-menu > div {
-            position: relative;
-        }
-
-	/* Hide the submenus by default */
-        .dropdown-menu > .dropdown-menu {
-            display: none;
-            left: 100%; /* Position submenu to the right */
-            top: 5;
-      	    position: absolute; 
-        }
-
-        /* Show only the submenu when hovering over the parent */
-        div > .dropdown-menu > div:hover > .dropdown-menu {
+        /* Show the deepter nested dropdown when the button is clicked */
+        .dropdown.open .dropdown-content {
             display: block;
         }
 
