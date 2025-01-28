@@ -33,6 +33,7 @@ namespace gdasapp {
       fullConfig.get("forecast hours", fcstHours);
       fullConfig.get("window begin", windowBeginStr);
       const util::DateTime windowBegin(windowBeginStr);
+      const oops::Variables atmVars(fullConfig, "atmospheric variables");
 
       // Get geometry configurations
       const eckit::LocalConfiguration incrGeomConfig(fullConfig, "increment geometry");
@@ -68,7 +69,6 @@ namespace gdasapp {
         util::DateTime currentCycle = windowBegin + fcstHour;
 
         // Get elements of individual additions configurations
-        const oops::Variables atmVars(additionsConfig[ihrs], "atmospheric variables");
         const eckit::LocalConfiguration atmIncrConfig(additionsConfig[ihrs], "atmospheric increment");
         const eckit::LocalConfiguration atmBkgConfig(additionsConfig[ihrs], "atmospheric background");
         const eckit::LocalConfiguration atmAnlEnsMeanConfig(additionsConfig[ihrs], "atmospheric ensemble mean analysis");
