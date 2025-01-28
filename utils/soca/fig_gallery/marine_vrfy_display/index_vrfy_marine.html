@@ -47,17 +47,6 @@ function createDropdown(opt) {
 
 // Close the dropdown if the user clicks outside of it
 window.onclick = function(event) {
-//  var oFrame = document.getElementById("body_frame");
-//  oFrame.contentWindow.document.onclick = function() {
-//        var i;
-//        var dropdowns = document.getElementsByClassName("dropdown-content");
-//        for (i = 0; i < dropdowns.length; i++) {
-//            var openDropdown = dropdowns[i];
-//            if (openDropdown.classList.contains('show')) {
-//                openDropdown.classList.remove('show');
-//            }
-//        }
-//  };
   if (!event.target.matches('.dropbtn')) {
       var dropdowns = document.getElementsByClassName("dropdown-content");
       var i;
@@ -80,7 +69,15 @@ window.onclick = function(event) {
           }
       }
   }
-
+  if (!event.target.matches('.dropdown button')) {
+      var dropdowns = document.querySelectorAll('.dropdown-content');
+      for (var i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          if (openDropdown.style.display === "block") {
+              openDropdown.style.display = "none"; // Close the dropdown
+          }
+      }
+  }
 }
 </script>
 
@@ -94,47 +91,47 @@ window.onclick = function(event) {
 		</div>
 		<div id="menu">
 			<ul>
-			    <li class="current_page_item"><a href="" accesskey="1" title="">Home</a></li>
+			    <li class="current_page_item"><a href="" accesskey="1" title="">Clear All</a></li>
 
 			    <!-- Dropdown: Background -->
-                            <div class="dropdown">
+                            <div class="dropdown" id="dropclick">
 				<button class="dropbtn">Background</button>
 				<div class="dropdown-content">
-      					<div class="dropdown-menu">
+      					<div class="dropdown-item">
         					<button class="dropbtn">Salinity</button>
-        					<div class="dropdown-menu">
+        					<div class="submenu">
 							<button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Salt', 'Global')">Global SSS</button>
 							<button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Salt', 'meridional')">Meridional Cross-sections</button>
 							<button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Salt', 'zonal')">Zonal Cross-sections</button>
 						</div>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Area Fraction</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'aice_h', 'Global')">Global</button>
                                                         <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'aice_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Snow Depth</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hs_h', 'Global')">Global</button>
                                                         <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hs_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Thickness</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hi_h', 'Global')">Global</button>
                                                         <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hi_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'ave_ssh', 'Global')">SSH</button>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">Temperature</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Temp', 'Global')">Global SST</button>
                                                         <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Temp', 'meridional')">Meridional Cross-sections</button>
                                                         <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Temp', 'zonal')">Zonal Cross-sections</button>
@@ -144,81 +141,81 @@ window.onclick = function(event) {
                             </div>
 			    
 			    <!-- Dropdown: Analysis -->
-                            <div class="dropdown">
+                            <div class="dropdown" id="dropclick">
 				<button class="dropbtn">Analysis</button>
 				<div class="dropdown-content">
-      					<div class="dropdown-menu">
-        					<button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Salt', 'Global')">Salinity</button>
+      					<div class="dropdown-item">
+        					<button class="dropbtn" id="ana" onclick="showImagesBkgErrInc('ana', 'Salt', 'Global')">Salinity</button>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Area Fraction</button>
-                                                <div class="dropdown-menu">
-                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'aice_h', 'Global')">Global</button>
-                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'aice_h', 'poles')">Polar Regions</button>
+                                                <div class="submenu">
+                                                        <button class="dropbtn" id="ana" onclick="showImagesBkgErrInc('ana', 'aice_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="ana" onclick="showImagesBkgErrInc('ana', 'aice_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Snow Depth</button>
-                                                <div class="dropdown-menu">
-                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hs_h', 'Global')">Global</button>
-                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hs_h', 'poles')">Polar Regions</button>
+                                                <div class="submenu">
+                                                        <button class="dropbtn" id="ana" onclick="showImagesBkgErrInc('ana', 'hs_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="ana" onclick="showImagesBkgErrInc('ana', 'hs_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Thickness</button>
-                                                <div class="dropdown-menu">
-                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hi_h', 'Global')">Global</button>
-                                                        <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'hi_h', 'poles')">Polar Regions</button>
+                                                <div class="submenu">
+                                                        <button class="dropbtn" id="ana" onclick="showImagesBkgErrInc('ana', 'hi_h', 'Global')">Global</button>
+                                                        <button class="dropbtn" id="ana" onclick="showImagesBkgErrInc('ana', 'hi_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
-                                                <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'ave_ssh', 'Global')">SSH</button>
+					<div class="dropdown-item">
+                                                <button class="dropbtn" id="ana" onclick="showImagesBkgErrInc('ana', 'ave_ssh', 'Global')">SSH</button>
                                         </div>
-					<div class="dropdown-menu">
-                                                <button class="dropbtn" id="bkg" onclick="showImagesBkgErrInc('bkg', 'Temp', 'Global')">Temperature</button>
+					<div class="dropdown-item">
+                                                <button class="dropbtn" id="ana" onclick="showImagesBkgErrInc('ana', 'Temp', 'Global')">Temperature</button>
                                         </div>
 				</div>
                             </div>
 			    
 			    <!-- Dropdown: Increments -->
-                            <div class="dropdown">
+                            <div class="dropdown" id="dropclick">
 				<button class="dropbtn">Increments</button>
 				<div class="dropdown-content">
-      					<div class="dropdown-menu">
+      					<div class="dropdown-item">
         					<button class="dropbtn">Salinity</button>
-        					<div class="dropdown-menu">
+        					<div class="submenu">
 							<button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Salt', 'Global')">Global SSS</button>
 							<button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Salt', 'meridional')">Meridional Cross-sections</button>
 							<button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Salt', 'zonal')">Zonal Cross-sections</button>
 						</div>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Area Fraction</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'aice_h', 'Global')">Global</button>
                                                         <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'aice_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Snow Depth</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'hs_h', 'Global')">Global</button>
                                                         <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'hs_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Thickness</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'hi_h', 'Global')">Global</button>
                                                         <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'hi_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'ave_ssh', 'Global')">SSH</button>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">Temperature</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Temp', 'Global')">Global SST</button>
                                                         <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Temp', 'meridional')">Meridional Cross-sections</button>
                                                         <button class="dropbtn" id="incr" onclick="showImagesBkgErrInc('incr', 'Temp', 'zonal')">Zonal Cross-sections</button>
@@ -228,44 +225,44 @@ window.onclick = function(event) {
                             </div>
 
 			    <!-- Dropdown: Background Error -->
-                            <div class="dropdown">
+                            <div class="dropdown" id="dropclick">
 				<button class="dropbtn">Background Error</button>
 				<div class="dropdown-content">
-      					<div class="dropdown-menu">
+      					<div class="dropdown-item">
         					<button class="dropbtn">Salinity</button>
-        					<div class="dropdown-menu">
+        					<div class="submenu">
 							<button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Salt', 'Global')">Global SSS</button>
 							<button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Salt', 'meridional')">Meridional Cross-sections</button>
 							<button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Salt', 'zonal')">Zonal Cross-sections</button>
 						</div>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Area Fraction</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'aice_h', 'Global')">Global</button>
                                                         <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'aice_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Snow Depth</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'hs_h', 'Global')">Global</button>
                                                         <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'hs_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">SeaIce Thickness</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'hi_h', 'Global')">Global</button>
                                                         <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'hi_h', 'poles')">Polar Regions</button>
                                                 </div>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'ave_ssh', 'Global')">Global SSH</button>
                                         </div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
                                                 <button class="dropbtn">Temperature</button>
-                                                <div class="dropdown-menu">
+                                                <div class="submenu">
                                                         <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Temp', 'Global')">Global SST</button>
                                                         <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Temp', 'meridional')">Meridional Cross-sections</button>
                                                         <button class="dropbtn" id="bkgerr" onclick="showImagesBkgErrInc('bkgerr', 'Temp', 'zonal')">Zonal Cross-sections</button>
@@ -275,15 +272,15 @@ window.onclick = function(event) {
                             </div>
 			    
 			    <!-- Dropdown: OMB Maps -->
-                            <div class="dropdown">
+                            <div class="dropdown" id="dropclick">
 				<button class="dropbtn">OMB Maps</button>
 				<div class="dropdown-content">
-				        <div class="dropdown-menu">
+				        <div class="dropdown-item">
         					<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'adt', 'rads', 'all', '')">Altimetry</button>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
         					<button class="dropbtn">In situ Obs</button>
-						<div class="dropdown-menu">
+						<div class="submenu">
         					        <button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'insitu', 'profile', 'argo', 'Salt')">ARGO Salinity</button>
 							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'insitu', 'profile', 'argo', 'Temp')">ARGO Temperature</button>
 							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'insitu', 'profile', 'tesac_salinity', 'Salt')">TESAC Salinity</button>
@@ -292,16 +289,20 @@ window.onclick = function(event) {
 							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'insitu', 'profile', 'trkob', 'Temp')">TRKOB Temperature</button>
 						</div>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
         					<button class="dropbtn">SeaIce Obs</button>
-        					<div class="dropdown-menu">
+        					<div class="submenu">
 							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'icec', 'amsr2', 'north', '')">AMSR-2 (Arctic)</button>
 							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'icec', 'amsr2', 'south', '')">AMSR-2 (Antarctic)</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'icec', 'atms', 'npp_l2', '')">ATMS (S-NPP)</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'icec', 'ssmis', 'f17_l2', '')">SSMIS (F17)</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'icec', 'viirs_n20_l2', 'north', '')">VIIRS NOAA-20 (Arctic)</button>
+							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'icec', 'viirs_n20_l2', 'south', '')">VIIRS NOAA-20 (Antarctic)</button>
 						</div>
 					</div>
-      					<div class="dropdown-menu">
+      					<div class="dropdown-item">
         					<button class="dropbtn">SST Obs</button>
-        					<div class="dropdown-menu">
+        					<div class="submenu">
 							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'sst', 'abi', 'g16', '')">ABI (GOES-16)</button>
 							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'sst', 'abi', 'g17', '')">ABI (GOES-17)</button>
 							<button class="dropbtn" id="omb" onclick="showImagesDiags('map_plots', 'sst', 'ahi', 'h08', '')">AHI (HIMAWARI-8)</button>
@@ -315,15 +316,15 @@ window.onclick = function(event) {
 			    </div>
 			    
 			    <!-- Dropdown: OMB, OMA Histograms -->
-                            <div class="dropdown">
+                            <div class="dropdown" id="dropclick">
 				<button class="dropbtn">OMB, OMA Histograms</button>
 				<div class="dropdown-content">
-				        <div class="dropdown-menu">
+				        <div class="dropdown-item">
         					<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'adt', 'rads', 'all', '')">Altimetry</button>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
         					<button class="dropbtn">In situ Obs</button>
-						<div class="dropdown-menu">
+						<div class="submenu">
         					        <button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'insitu', 'profile', 'argo', 'Salt')">ARGO Salinity</button>
 							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'insitu', 'profile', 'argo', 'Temp')">ARGO Temperature</button>
 							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'insitu', 'profile', 'tesac_salinity', 'Salt')">TESAC Salinity</button>
@@ -332,16 +333,20 @@ window.onclick = function(event) {
 							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'insitu', 'profile', 'trkob', 'Temp')">TRKOB Temperature</button>
 						</div>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
         					<button class="dropbtn">SeaIce Obs</button>
-        					<div class="dropdown-menu">
+        					<div class="submenu">
 							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'icec', 'amsr2', 'north', '')">AMSR-2 (Arctic)</button>
 							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'icec', 'amsr2', 'south', '')">AMSR-2 (Antarctic)</button>
+						        <button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'icec', 'atms', 'npp_l2', '')">ATMS (S-NPP)</button>
+                                                        <button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'icec', 'ssmis', 'f17_l2', '')">SSMIS (F17)</button>
+                                                        <button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'icec', 'viirs_n20_l2', 'north', '')">VIIRS NOAA-20 (Arctic)</button>
+                                                        <button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'icec', 'viirs_n20_l2', 'south', '')">VIIRS NOAA-20 (Antarctic)</button>
 						</div>
 					</div>
-      					<div class="dropdown-menu">
+      					<div class="dropdown-item">
         					<button class="dropbtn">SST Obs</button>
-        					<div class="dropdown-menu">
+        					<div class="submenu">
 							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'sst', 'abi', 'g16', '')">ABI (GOES-16)</button>
 							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'sst', 'abi', 'g17', '')">ABI (GOES-17)</button>
 							<button class="dropbtn" id="hist" onclick="showImagesDiags('histograms', 'sst', 'ahi', 'h08', '')">AHI (HIMAWARI-8)</button>
@@ -355,15 +360,15 @@ window.onclick = function(event) {
 			    </div>
 			    
 			    <!-- Dropdown: h(x) vs Obs -->
-                            <div class="dropdown">
+                            <div class="dropdown" id="dropclick">
 				<button class="dropbtn">h(x) vs Obs</button>
 				<div class="dropdown-content">
-				        <div class="dropdown-menu">
+				        <div class="dropdown-item">
         					<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'adt', 'rads', 'all', '')">Altimetry</button>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
         					<button class="dropbtn">In situ Obs</button>
-						<div class="dropdown-menu">
+						<div class="submenu">
         					        <button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'insitu', 'profile', 'argo', 'Salt')">ARGO Salinity</button>
 							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'insitu', 'profile', 'argo', 'Temp')">ARGO Temperature</button>
 							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'insitu', 'profile', 'tesac_salinity', 'Salt')">TESAC Salinity</button>
@@ -372,16 +377,20 @@ window.onclick = function(event) {
 							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'insitu', 'profile', 'trkob', 'Temp')">TRKOB Temperature</button>
 						</div>
 					</div>
-					<div class="dropdown-menu">
+					<div class="dropdown-item">
         					<button class="dropbtn">SeaIce Obs</button>
-        					<div class="dropdown-menu">
+        					<div class="submenu">
 							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'icec', 'amsr2', 'north', '')">AMSR-2 (Arctic)</button>
 							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'icec', 'amsr2', 'south', '')">AMSR-2 (Antarctic)</button>
+						        <button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'icec', 'atms', 'npp_l2', '')">ATMS (S-NPP)</button>
+                                                        <button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'icec', 'ssmis', 'f17_l2', '')">SSMIS (F17)</button>
+                                                        <button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'icec', 'viirs_n20_l2', 'north', '')">VIIRS NOAA-20 (Arctic)</button>
+                                                        <button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'icec', 'viirs_n20_l2', 'south', '')">VIIRS NOAA-20 (Antarctic)</button>
 						</div>
 					</div>
-      					<div class="dropdown-menu">
+      					<div class="dropdown-item">
         					<button class="dropbtn">SST Obs</button>
-        					<div class="dropdown-menu">
+        					<div class="submenu">
 							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'sst', 'abi', 'g16', '')">ABI (GOES-16)</button>
 							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'sst', 'abi', 'g17', '')">ABI (GOES-17)</button>
 							<button class="dropbtn" id="hofx" onclick="showImagesDiags('observation_scatter_plots', 'sst', 'ahi', 'h08', '')">AHI (HIMAWARI-8)</button>
@@ -438,6 +447,7 @@ window.onclick = function(event) {
                     <label for="inputHour">Hour (HH in UTC): </label>
                     <input type="text" id="inputHour" placeholder="" value="">
                 </div>
+                After filling in the above boxes, refresh your tab. Then you can start using the menu on the left.
 
 		<!--div id="banner"-->
 		<div id="imageContainer">
@@ -469,7 +479,11 @@ window.onclick = function(event) {
 		<!------------------------------------------------------------>
 
         <script>
-            var year = document.getElementById('inputYear').value;
+            // Get the dropdown button and dropdown content
+	    const dropdowns = document.querySelectorAll('.dropdown'); 
+
+	    // Get user inputs
+	    var year = document.getElementById('inputYear').value;
             var month = document.getElementById('inputMonth').value;
             var day = document.getElementById('inputDay').value;
             var hour = document.getElementById('inputHour').value;
@@ -480,6 +494,9 @@ window.onclick = function(event) {
 	    } else if (pathChoice == 'COMROOT') {
                 var inputPath = pathMain+"/gdas."+year+month+day+"/"+hour+"/analysis/ocean/vrfy/";
 	    }
+            var woaTEMPpath = "/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/comparison/WOA23/bkg/Temp/images/"+year+month+"/";
+            var ostiaSEAICEpath = "/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/comparison/OSTIA/"
+            var ostiaSSTimage = "/scratch1/NCEPDEV/da/common/validation/ostia2mom6_xesmf/images_NSST/"+year+"/ostia.sst.daily_mean."+year+month+day+"_12z.png";
 
             function showImagesBkgErrInc(figtype, variable, domain) {
                 thisFigType = figtype;
@@ -487,6 +504,8 @@ window.onclick = function(event) {
                 thisDomain = domain;
 		if (thisFigType == 'bkg') {
 		    var figtypestr = 'Background';
+		} else if (thisFigType == 'ana') {
+                    var figtypestr = 'Analysis';
 		} else if (thisFigType == 'bkgerr') {
 		    var figtypestr = 'Background Error';
 		} else if (thisFigType == 'incr') {
@@ -515,28 +534,61 @@ window.onclick = function(event) {
 		} else {
 		    var globalstr = 'Global';
 		}
+		if (thisVar == 'Temp') {
+                    var ncol = 3;
+                } else {
+                    var ncol = 2;
+                }
 		
-		if (thisDomain == 'Global') {
+		var woaTitlePrefix = 'World Ocean Atlas Monthly Cross-section of';
+		var ostiaTitlePrefix = 'OSTIA Daily';
+		
+		if ((thisDomain == 'Global') && (thisVar == 'Temp')) {
                     var container = document.getElementById('imageContainer');
-                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(1, 1fr);">
+                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(2, 1fr);">
                         <figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}_${globalstr}.png" class="gallery-image" alt="">
-				<figcaption>${thisDomain} Surface ${varstr} ${figtypestr} (Level 1)</figcaption>
+				<figcaption>${figtypestr} ${thisDomain} Surface ${varstr} (Level 1)</figcaption>
+                        </figure>
+			<figure>
+                                <img src="${ostiaSSTimage}" class="gallery-image" alt="">
+                                <figcaption>${ostiaTitlePrefix} ${thisDomain} Surface ${varstr}</figcaption>
                         </figure>
 			<figure>
 			        <!-- extra space at bottom of webpage -->
 			</figure>
                     </div>`;
+
+		} else if ((thisDomain == 'Global') && (thisVar != 'Temp')) {
+                    var container = document.getElementById('imageContainer');
+                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(1, 1fr);">
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}_${globalstr}.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} ${thisDomain} Surface ${varstr} (Level 1)</figcaption>
+                        </figure>
+			<figure>
+                                <!-- extra space at bottom of webpage -->
+                        </figure>
+                    </div>`;
+
 		} else if (thisDomain == 'poles') {
 		    var container = document.getElementById('imageContainer');
                     container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(2, 1fr);">
                         <figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}_North.png" class="gallery-image" alt="">
-                                <figcaption>Arctic ${varstr} ${figtypestr} </figcaption>
+                                <figcaption>${figtypestr} Arctic ${varstr} </figcaption>
+                        </figure>
+		        <figure>
+                                <img src="${ostiaSEAICEpath}/sea_ice_fraction_North.png" class="gallery-image" alt="">
+                                <figcaption>${ostiaTitlePrefix} Arctic ${varstr} </figcaption>
                         </figure>
                         <figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}_South.png" class="gallery-image" alt="">
-                                <figcaption>Antarctic ${varstr} ${figtypestr} </figcaption>
+                                <figcaption>${figtypestr} Antarctic ${varstr} </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${ostiaSEAICEpath}/sea_ice_fraction_South.png" class="gallery-image" alt="">
+                                <figcaption>${ostiaTitlePrefix} Antarctic ${varstr} </figcaption>
                         </figure>
 			<figure>
 			        <!-- extra space at bottom of webpage -->
@@ -545,221 +597,533 @@ window.onclick = function(event) {
 			        <!-- extra space at bottom of webpage -->
 			</figure>
                     </div>`;
-                } else if (thisDomain == 'zonal') {
+		    
+		} else if ((thisDomain == 'meridional') && (ncol == 2)) {
                     var container = document.getElementById('imageContainer');
-                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(2, 1fr);">
-		        <!-- LAT = 50 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_50_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 50, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_50_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 50, 700m depth </figcaption>
-                        </figure>
-			<!-- LAT = 40 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_40_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 40, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_40_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 40, 700m depth </figcaption>
-                        </figure>
-			<!-- LAT = 30 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_30_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 30, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_30_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 30, 700m depth </figcaption>
-                        </figure>
-			<!-- LAT = 20 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_20_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 20, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_20_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 20, 700m depth </figcaption>
-                        </figure>
-			<!-- LAT = 10 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_10_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 10, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_10_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 10, 700m depth </figcaption>
-                        </figure>
-			<!-- LAT = 0 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_0_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 0, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_0_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 0, 700m depth </figcaption>
-                        </figure>
-			<!-- LAT = -10 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-10_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -10, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-10_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -10, 700m depth </figcaption>
-                        </figure>
-			<!-- LAT = -20 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-20_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -20, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-20_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -20, 700m depth </figcaption>
-                        </figure>
-			<!-- LAT = -30 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-30_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -30, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-30_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -30, 700m depth </figcaption>
-                        </figure>
-			<!-- LAT = -40 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-40_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -40, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-40_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -40, 700m depth </figcaption>
-                        </figure>
-			<!-- LAT = -50 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-50_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -50, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-50_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -50, 700m depth </figcaption>
-                        </figure>
-			<!-- LAT = -60 -->
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-60_5000m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -60, 5000m depth </figcaption>
-                        </figure>
-                        <figure>
-                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-60_700m.png" class="gallery-image" alt="">
-                                <figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -60, 700m depth </figcaption>
-                        </figure>
-                    </div>`;
-		} else if (thisDomain == 'meridional') {
-                    var container = document.getElementById('imageContainer');
-                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(2, 1fr);">
+                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(${ncol}, 1fr);">
 		        <!-- LON = -280 -->
                         <figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-280_5000m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -280, 5000m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -280, 5000m depth </figcaption>
                         </figure>
 			<figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-280_700m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -280, 700m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -280, 700m depth </figcaption>
                         </figure>
 			<!-- LON = -250 -->
 			<figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-250_5000m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -250, 5000m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -250, 5000m depth </figcaption>
                         </figure>
 			<figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-250_700m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -250, 700m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -250, 700m depth </figcaption>
                         </figure>
 			<!-- LON = -220 -->
 			<figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-220_5000m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -220, 5000m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -220, 5000m depth </figcaption>
                         </figure>
 			<figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-220_700m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -220, 700m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -220, 700m depth </figcaption>
                         </figure>
 			<!-- LON = -190 -->
 			<figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-190_5000m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -190, 5000m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -190, 5000m depth </figcaption>
                         </figure>
 			<figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-190_700m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -190, 700m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -190, 700m depth </figcaption>
                         </figure>
 			<!-- LON = -160 -->
 			<figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-160_5000m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -160, 5000m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -160, 5000m depth </figcaption>
                         </figure>
 			<figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-160_700m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -160, 700m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -160, 700m depth </figcaption>
                         </figure>
 			<!-- LON = -130 -->
 			<figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-130_5000m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -130, 5000m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -130, 5000m depth </figcaption>
                         </figure>
 			<figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-130_700m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -130, 700m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -130, 700m depth </figcaption>
                         </figure>
 			<!-- LON = -100 -->
 			<figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-100_5000m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -100, 5000m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -100, 5000m depth </figcaption>
                         </figure>
 			<figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-100_700m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -100, 700m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -100, 700m depth </figcaption>
                         </figure>
 			<!-- LON = -70 -->
 			<figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-70_5000m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -70, 5000m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -70, 5000m depth </figcaption>
                         </figure>
 			<figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-70_700m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -70, 700m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -70, 700m depth </figcaption>
                         </figure>
 			<!-- LON = -40 -->
 			<figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-40_5000m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -40, 5000m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -40, 5000m depth </figcaption>
                         </figure>
 			<figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-40_700m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} -40, 700m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -40, 700m depth </figcaption>
                         </figure>
 			<!-- LON = 20 -->
 			<figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_20_5000m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 20, 5000m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 20, 5000m depth </figcaption>
                         </figure>
 			<figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_20_700m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 20, 700m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 20, 700m depth </figcaption>
                         </figure>
 			<!-- LON = 50 -->
 			<figure>
 				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_50_5000m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 50, 5000m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 50, 5000m depth </figcaption>
                         </figure>
 			<figure>
                                 <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_50_700m.png" class="gallery-image" alt="">
-				<figcaption>Cross-section of ${varstr} ${figtypestr} at ${domainstr} 50, 700m depth </figcaption>
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 50, 700m depth </figcaption>
                         </figure>
                     </div>`;
+		    
+		} else if ((thisDomain == 'meridional') && (ncol == 3)) {
+                    var container = document.getElementById('imageContainer');
+                    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(${ncol}, 1fr);">
+		        <!-- LON = -280 -->
+                        <figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-280_5000m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -280, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-280_700m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -280, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Meridional_plot_Lon_-280_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -280, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -250 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-250_5000m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -250, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-250_700m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -250, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Meridional_plot_Lon_-250_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -250, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -220 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-220_5000m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -220, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-220_700m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -220, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Meridional_plot_Lon_-220_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -220, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -190 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-190_5000m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -190, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-190_700m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -190, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Meridional_plot_Lon_-190_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -190, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -160 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-160_5000m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -160, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-160_700m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -160, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Meridional_plot_Lon_-160_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -160, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -130 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-130_5000m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -130, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-130_700m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -130, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Meridional_plot_Lon_-130_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -130, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -100 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-100_5000m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -100, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-100_700m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -100, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Meridional_plot_Lon_-100_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -100, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -70 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-70_5000m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -70, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-70_700m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -70, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Meridional_plot_Lon_-70_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -70, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = -40 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-40_5000m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -40, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_-40_700m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -40, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Meridional_plot_Lon_-40_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -40, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = 20 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_20_5000m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 20, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_20_700m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 20, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Meridional_plot_Lon_20_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} 20, 700m depth </figcaption>
+                        </figure>
+			<!-- LON = 50 -->
+			<figure>
+				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_50_5000m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 50, 5000m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lon_50_700m.png" class="gallery-image" alt="">
+				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 50, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Meridional_plot_Lon_50_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} 50, 700m depth </figcaption>
+                        </figure>
+                    </div>`;
+		    
+		} else if ((thisDomain == 'zonal') && (ncol == 2)) {
+                    var container = document.getElementById('imageContainer');
+		    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(${ncol}, 1fr);">
+		        <!-- LAT = 50 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_50_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 50, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_50_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 50, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 40 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_40_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 40, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_40_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 40, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 30 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_30_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 30, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_30_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 30, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 20 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_20_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 20, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_20_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 20, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 10 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_10_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 10, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_10_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 10, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 0 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_0_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 0, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_0_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 0, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -10 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-10_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -10, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-10_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -10, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -20 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-20_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -20, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-20_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -20, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -30 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-30_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -30, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-30_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -30, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -40 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-40_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -40, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-40_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -40, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -50 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-50_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -50, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-50_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -50, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -60 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-60_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -60, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-60_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -60, 700m depth </figcaption>
+                        </figure>
+                    </div>`;
+		
+		} else if ((thisDomain == 'zonal') && (ncol == 3)) {
+                    var container = document.getElementById('imageContainer');
+		    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(${ncol}, 1fr);">
+		        <!-- LAT = 50 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_50_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 50, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_50_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 50, 700m depth </figcaption>
+                        </figure>
+   		        <figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_50_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} 50, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 40 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_40_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 40, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_40_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 40, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_40_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} 40, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 30 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_30_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 30, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_30_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 30, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_30_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} 30, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 20 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_20_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 20, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_20_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 20, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_20_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} 20, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 10 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_10_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 10, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_10_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 10, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_10_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} 10, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = 0 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_0_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 0 (EQUATOR), 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_0_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 0 (EQUATOR), 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_0_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} 0 (EQUATOR), 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -10 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-10_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -10, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-10_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -10, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_-10_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -10, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -20 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-20_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -20, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-20_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -20, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_-20_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -20, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -30 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-30_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -30, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-30_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -30, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_-30_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -30, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -40 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-40_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -40, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-40_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -40, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_-40_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -40, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -50 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-50_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -50, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-50_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -50, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_-50_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -50, 700m depth </figcaption>
+                        </figure>
+			<!-- LAT = -60 -->
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-60_5000m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -60, 5000m depth </figcaption>
+                        </figure>
+                        <figure>
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}${thisDomain}_lat_-60_700m.png" class="gallery-image" alt="">
+                                <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -60, 700m depth </figcaption>
+                        </figure>
+			<figure>
+                                <img src="${woaTEMPpath}Zonal_plot_Lat_-60_700m.png" class="gallery-image" alt="">
+                                <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -60, 700m depth </figcaption>
+                        </figure>
+                    </div>`;
+		    
 		}
 	    }
 
@@ -797,7 +1161,7 @@ window.onclick = function(event) {
 		if (thisFigType == 'map_plots') {
                     var container = document.getElementById('imageContainer');
                     container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(1, 1fr);">
-                        <figure>
+			<figure>
 				<img src="${inputPath}${thisFigType}/${obs}/${obsvar}/${obs}_${obsvar}OmBQC.png" class="gallery-image" alt="">
 				<figcaption>${obsvar} from ${thisInstrument} (${thisSatellite})</figcaption>
                         </figure>
@@ -837,21 +1201,38 @@ window.onclick = function(event) {
 		}
 	    }
 
-            function updateActiveButton(selectedId, buttonClass) {
-                var buttons = document.querySelectorAll('.' + buttonClass);
-                buttons.forEach(button => {
-                    if (button.id === selectedId) {
-                        button.classList.add('active');
-                    } else {
-                        button.classList.remove('active');
+            // Add event listener to toggle the main dropdown menu when clicking on the main button
+            dropdowns.forEach(function(dropdown) {
+                const dropdownButton = dropdown.querySelector('.dropbtn');
+                const dropdownItems = dropdown.querySelectorAll('.dropdown-item');
+
+                // Toggle main dropdown visibility on button click
+                dropdownButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('open');
+                });
+
+                // Toggle submenu visibility on item click
+                dropdownItems.forEach(function(item) {
+                    item.addEventListener('click', function(e) {
+                        e.stopPropagation(); // Prevent closing of main dropdown when clicking inside
+                        item.classList.toggle('open');
+                    });
+                });
+            });
+
+            // Close dropdowns if the user clicks outside
+            window.addEventListener('click', function(event) {
+                dropdowns.forEach(function(dropdown) {
+                    if (!dropdown.contains(event.target)) {
+                        dropdown.classList.remove('open');
+                        const dropdownItems = dropdown.querySelectorAll('.dropdown-item');
+                        dropdownItems.forEach(function(item) {
+                            item.classList.remove('open');
+                        });
                     }
                 });
-            }
-
-            function resetDropdown() {
-                var dropdown = document.getElementById("selectDropdown");
-                dropdown.value = dropdown.options[0].value;  // Set value to the first option's value
-	    }
+            });
 
 	</script>
 
