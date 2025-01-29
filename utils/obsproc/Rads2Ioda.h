@@ -21,9 +21,7 @@ namespace gdasapp {
    public:
     explicit Rads2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
       : NetCDFToIodaConverter(fullConfig, comm) {
-//      variable_ = "absoluteDynamicTopography";
-      ASSERT(fullConfig_.has("variable"));
-      fullConfig_.get("variable", variable_);      
+      variable_ = "absoluteDynamicTopography";
     }
 
     // Read netcdf file and populate iodaVars
