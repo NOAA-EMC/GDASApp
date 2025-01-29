@@ -359,6 +359,7 @@ if (WORKFLOW_TESTS)
     set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
     set(HALF_CYCLE_TASKS
       "gdas_stage_ic"
+      "gdas_waveinit"
       "gdas_fcst")
     set(FULL_CYCLE_TASKS
       "gdas_prepoceanobs"
