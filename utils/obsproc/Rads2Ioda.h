@@ -132,7 +132,7 @@ namespace gdasapp {
         (iodaVars.obsVal_ > -4.0 && iodaVars.obsVal_ < 4.0);
       iodaVars.trim(boundsCheck);
 
-       std::string extractedDate = iodaVars.referenceDate_.substr(14);
+      std::string extractedDate = iodaVars.referenceDate_.substr(14);
 
       // Redating and adjusting Errors
       if (iodaVars.datetime_.size() == 0) {
