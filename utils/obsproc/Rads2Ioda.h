@@ -21,7 +21,9 @@ namespace gdasapp {
    public:
     explicit Rads2Ioda(const eckit::Configuration & fullConfig, const eckit::mpi::Comm & comm)
       : NetCDFToIodaConverter(fullConfig, comm) {
-      variable_ = "absoluteDynamicTopography";
+//      variable_ = "absoluteDynamicTopography";
+      ASSERT(fullConfig_.has("variable"));
+      fullConfig_.get("variable", variable_);      
     }
 
     // Read netcdf file and populate iodaVars
@@ -132,12 +134,14 @@ namespace gdasapp {
         (iodaVars.obsVal_ > -4.0 && iodaVars.obsVal_ < 4.0);
       iodaVars.trim(boundsCheck);
 
+       std::string extractedDate = iodaVars.referenceDate_.substr(14);
+
       // Redating and adjusting Errors
       if (iodaVars.datetime_.size() == 0) {
         oops::Log::info() << "datetime_ is empty" << std::endl;
       } else {
         // Redating and Adjusting Error
-        iodaVars.reDate(windowBegin_, windowEnd_, errRatio);
+        iodaVars.reDate(windowBegin_, windowEnd_, extractedDate, errRatio);
       }
 
      return iodaVars;

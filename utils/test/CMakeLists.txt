@@ -174,10 +174,18 @@ ecbuild_add_test( TARGET  test_gdasapp_util_icecmirs2ioda
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
                   TEST_DEPENDS test_gdasapp_util_prepdata)
 
-	  # Test the JPSSRR to IODA converter
+# Test the JPSSRR to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_icecjpssrr2ioda
                   COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_icecjpssrr2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
+                  TEST_DEPENDS test_gdasapp_util_prepdata)
+
+# Test the INSITU to IODA converter
+ecbuild_add_test( TARGET  test_gdasapp_util_insituall2ioda
+	          COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  ARGS    "../testinput/gdas_insituall2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
                   TEST_DEPENDS test_gdasapp_util_prepdata)
