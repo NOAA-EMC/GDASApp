@@ -17,25 +17,25 @@
 
 namespace gdasapp {
 
-class InsituAll2Ioda : public NetCDFToIodaConverter {
- public:
-  explicit InsituAll2Ioda(const eckit::Configuration &fullConfig, const eckit::mpi::Comm &comm)
+  class InsituAll2Ioda : public NetCDFToIodaConverter {
+   public:
+    explicit InsituAll2Ioda(const eckit::Configuration &fullConfig, const eckit::mpi::Comm &comm)
       : NetCDFToIodaConverter(fullConfig, comm) {
       ASSERT(fullConfig_.has("variable"));
       fullConfig_.get("variable", variable_);
-  }
+    }
 
-  // Read NetCDF file and populate data based on YAML configuration
-gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
-  oops::Log::info() << "Processing files provided from ALL in-situ files" << std::endl;
+    // Read NetCDF file and populate data based on YAML configuration
+    gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileName) final {
+      oops::Log::info() << "Processing files provided from ALL in-situ files" << std::endl;
 
       //  Abort the case where the 'error ratio' key is not found
       ASSERT(fullConfig_.has("error ratio"));
 
-      // Get the obs. error ratio from the configuration (meters per day)
+      // Get the obs. error ratio from the configuration (unit per day)
       float errRatio;
       fullConfig_.get("error ratio", errRatio);
-      // Convert errRatio from meters per day to meters per second
+      // Convert errRatio from meters per day to its unit per second
       errRatio /= 86400.0;
 
       // Open the NetCDF file in read-only mode
@@ -54,12 +54,13 @@ gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileNa
       // Create instance of iodaVars object
       gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
+      // Check if the MetaData group is null
       netCDF::NcGroup metaDataGroup = ncFile.getGroup("MetaData");
       if (metaDataGroup.isNull()) {
        oops::Log::debug() << "Group 'MetaData' not found!" << std::endl;
       }
 
-      // Read non-optional metadata: datetime, longitude, latitude and others
+      // Read non-optional metadata: datetime, longitude, latitude and optional: others
       netCDF::NcVar latitudeVar = metaDataGroup.getVar("latitude");
       std::vector<float> latitudeData(iodaVars.location_);
       latitudeVar.getVar(latitudeData.data());
@@ -83,7 +84,7 @@ gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileNa
           oops::Log::info() << "Variable 'depth' NOT found in 'MetaData'!" << std::endl;
       }
 
-      // Assign depth values to iodaVars.floatMetadata_
+      // Save in optional floatMetadata
       for (int i = 0; i < iodaVars.location_; i++) {
         iodaVars.floatMetadata_.row(i) << depthData[i];
       }
@@ -96,7 +97,6 @@ gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileNa
       netCDF::NcGroup obsvalGroup = ncFile.getGroup("ObsValue");
       netCDF::NcGroup obserrGroup = ncFile.getGroup("ObsError");
       netCDF::NcGroup preqcGroup = ncFile.getGroup("PreQC");
-
       if (obsvalGroup.isNull()) {
           oops::Log::debug() << "Group 'ObsValue' not found!" << std::endl;
       } else if (obserrGroup.isNull()) {
@@ -127,10 +127,10 @@ gdasapp::obsproc::iodavars::IodaVars providerToIodaVars(const std::string fileNa
         iodaVars.obsError_(i) = obserrData[i];
         iodaVars.preQc_(i) = preqcData[i];
         // Save in optional intMetadata
-	iodaVars.intMetadata_.row(i) << oceanbasinData[i];
+        iodaVars.intMetadata_.row(i) << oceanbasinData[i];
       }
 
-      // Extract date format from referenceDate 
+      // Extract epochdate format from referenceDate
       std::string extractedDate = iodaVars.referenceDate_.substr(14);
 
       // Redating and adjusting Errors

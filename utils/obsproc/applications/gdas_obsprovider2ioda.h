@@ -11,13 +11,13 @@
 #include "../IcecAmsr2Ioda.h"
 #include "../IcecJpssrr2Ioda.h"
 #include "../IcecMirs2Ioda.h"
+#include "../InsituAll2ioda.h"
 #include "../Rads2Ioda.h"
 #include "../RTOFSSalinity.h"
 #include "../RTOFSTemperature.h"
 #include "../Smap2Ioda.h"
 #include "../Smos2Ioda.h"
 #include "../Viirsaod2Ioda.h"
-#include "../InsituAll2ioda.h"
 
 namespace gdasapp {
   class ObsProvider2IodaApp : public oops::Application {
