@@ -7,13 +7,10 @@ error ratio: 0.4
 output file: insitu_profile_argo_waterTemperature.ioda.nc
 #output file: insitu_profile_argo_salinity.ioda.nc
 input files:
-- gdas.t00z.insitu_profile_argo.2021032400.nc4
-- gdas.t06z.insitu_profile_argo.2021032406.nc4
-- gdas.t12z.insitu_profile_argo.2021032412.nc4
-- gdas.t18z.insitu_profile_argo.2021032418.nc4
-- gdas.t00z.insitu_profile_argo.2021032500.nc4
-- gdas.t06z.insitu_profile_argo.2021032506.nc4
-- gdas.t12z.insitu_profile_argo.2021032512.nc4
-- gdas.t18z.insitu_profile_argo.2021032518.nc4
-- gdas.t00z.insitu_profile_argo.2021032600.nc4
+- insitu_profile_argo_1.nc4 
+- insitu_profile_argo_2.nc4
 
+test:
+  reference filename: testref/insituall2ioda.test
+  test output filename: testoutput/insituall2ioda.test
+  float relative tolerance: 1e-6

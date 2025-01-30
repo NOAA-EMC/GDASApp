@@ -1,0 +1,26 @@
+Reading: [insitu_profile_argo_1.nc4,insitu_profile_argo_2.nc4]
+seconds since 1970-01-01T00:00:00Z
+obsVal:
+    Min: 3.40282e+38
+    Max: 3.40282e+38
+    Sum: inf
+obsError:
+    Min: 1e+20
+    Max: 1e+20
+    Sum: 3.2e+21
+preQc:
+    Min: 999999
+    Max: 999999
+    Sum: 31999968
+longitude:
+    Min: 3.40282e+38
+    Max: 3.40282e+38
+    Sum: inf
+latitude:
+    Min: 3.40282e+38
+    Max: 3.40282e+38
+    Sum: inf
+datetime:
+    Min: 1616619601
+    Max: 1616619601
+    Sum: 51731827232
