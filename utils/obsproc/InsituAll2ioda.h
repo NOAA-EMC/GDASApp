@@ -59,7 +59,7 @@ namespace gdasapp {
       if (metaDataGroup.isNull()) {
        oops::Log::debug() << "Group 'MetaData' not found!" << std::endl;
       }
- 
+
       // Read non-optional metadata: datetime, longitude, latitude and optional: others
       netCDF::NcVar latitudeVar = metaDataGroup.getVar("latitude");
       std::vector<float> latitudeData(iodaVars.location_);
