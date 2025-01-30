@@ -59,7 +59,7 @@ namespace gdasapp {
       if (metaDataGroup.isNull()) {
        oops::Log::debug() << "Group 'MetaData' not found!" << std::endl;
       }
-
+ 
       // Read non-optional metadata: datetime, longitude, latitude and optional: others
       netCDF::NcVar latitudeVar = metaDataGroup.getVar("latitude");
       std::vector<float> latitudeData(iodaVars.location_);
@@ -75,7 +75,7 @@ namespace gdasapp {
       iodaVars.referenceDate_ = "seconds since 1970-01-01T00:00:00Z";  // Applied to All in-situ obs
 
       netCDF::NcVar depthVar = metaDataGroup.getVar("depth");
-      std::vector<float> depthData(iodaVars.location_, -999);  // Initialize with default value -999
+      std::vector<float> depthData(iodaVars.location_, 0);  // Initialize with surface value 0
 
       if (!depthVar.isNull()) {  // Checking from surface in-situ obs
           oops::Log::info() << "Variable 'depth' found and Reading!" << std::endl;
