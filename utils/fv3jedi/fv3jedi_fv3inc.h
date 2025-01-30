@@ -9,10 +9,11 @@
 
 #include "eckit/config/LocalConfiguration.h"
 
-#include "fv3jedi/Utilities/Traits.h"
+#include "fv3jedi/Geometry/Geometry.h"
+#include "fv3jedi/Increment/Increment.h"
+#include "fv3jedi/State/State.h"
+#include "fv3jedi/VariableChange/VariableChange.h"
 
-#include "oops/base/StructuredGridWriter.h"
-#include "oops/interface/VariableChange.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/ConfigFunctions.h"
@@ -87,13 +88,13 @@ namespace gdasapp {
       // ---------------------------------------------------------------------------------
 
       // Setup geometries
-      const oops::Geometry<fv3jedi::Traits> stateGeom(stateGeomConfig, this->getComm());
-      const oops::Geometry<fv3jedi::Traits> jediIncrGeom(jediIncrGeomConfig, this->getComm());
-      const oops::Geometry<fv3jedi::Traits> fv3IncrGeom(fv3IncrGeomConfig, this->getComm());
+      const fv3jedi::Geometry stateGeom(stateGeomConfig, this->getComm());
+      const fv3jedi::Geometry jediIncrGeom(jediIncrGeomConfig, this->getComm());
+      const fv3jedi::Geometry fv3IncrGeom(fv3IncrGeomConfig, this->getComm());
 
       // Setup variable change
-      std::unique_ptr<oops::VariableChange<fv3jedi::Traits>> vc;
-      vc.reset(new oops::VariableChange<fv3jedi::Traits>(varChangeConfig, stateGeom));
+      std::unique_ptr<fv3jedi::VariableChange> vc;
+      vc.reset(new fv3jedi::VariableChange(varChangeConfig, stateGeom));
 
       // Loop through ensemble member
       // ---------------------------------------------------------------------------------
@@ -108,10 +109,10 @@ namespace gdasapp {
         eckit::LocalConfiguration fv3IncrOuputConfig(membersConfig[imem], "fv3 increment output");
 
         // Read background state
-        oops::State<fv3jedi::Traits> xxBkg(stateGeom, stateInputConfig);
+        fv3jedi::State xxBkg(stateGeom, stateInputConfig);
 
         // Read JEDI increment
-        oops::Increment<fv3jedi::Traits> dxJEDI(jediIncrGeom, jediIncrVars, xxBkg.validTime());
+        fv3jedi::Increment dxJEDI(jediIncrGeom, jediIncrVars, xxBkg.validTime());
         dxJEDI.read(jediIncrInputConfig);
 
         // Testing output for inputs
@@ -129,7 +130,7 @@ namespace gdasapp {
         // ---------------------------------------------------------------------------------
 
         // Add JEDI increment to background to get analysis
-        oops::State<fv3jedi::Traits> xxAnl(stateGeom, xxBkg);
+        fv3jedi::State xxAnl(stateGeom, xxBkg);
         xxAnl += dxJEDI;
 
         // Perform variables change on background and analysis
@@ -137,7 +138,7 @@ namespace gdasapp {
         vc->changeVar(xxAnl, varChangeIncrVars);
 
         // Get FV3 increment by subtracting background and analysis after variable change
-        oops::Increment<fv3jedi::Traits> dxFV3(fv3IncrGeom, fv3IncrVars, xxBkg.validTime());
+        fv3jedi::Increment dxFV3(fv3IncrGeom, fv3IncrVars, xxBkg.validTime());
         dxFV3.diff(xxAnl, xxBkg);
 
         // Put JEDI increment fields not created by variable change into FV3 increment
@@ -175,14 +176,6 @@ namespace gdasapp {
 
         // Write FV3 increment
         dxFV3.write(fv3IncrOuputConfig);
-
-        // Write FV3 increment to structured grid
-        if (membersConfig[imem].has("fv3 increment to structured grid")) {
-          const eckit::LocalConfiguration structGridConfig(membersConfig[imem], \
-                                                           "fv3 increment to structured grid");
-          const oops::StructuredGridWriter<fv3jedi::Traits> gridWriter(structGridConfig, fv3IncrGeom);
-          gridWriter.interpolateAndWrite(dxFV3);
-        }
       }
 
       return 0;
