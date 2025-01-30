@@ -15,12 +15,9 @@ variables:
 		string :_ioda_layout = "ObsGroup" ;
 		string :platformLongDescription = "ARGO profiles from subpfl: temperature and salinity" ;
 		string :description = "6-hrly in situ ARGO profiles" ;
-		:history = "Thu Jan 30 17:14:48 2025: ncks -d Location,3000,3015,1 gdas.t06z.insitu_profile_argo.2021032506.nc4 insitu_profile_argo_2.nc" ;
+		:history = "Thu Jan 30 19:07:56 2025: ncks -v MetaData/dateTime,MetaData/latitude,MetaData/longitude,MetaData/depth,MetaData/oceanBasin,MetaData/rcptdateTime,MetaData/sequenceNumber,MetaData/stationID,ObsValue/waterTemperature,ObsValue/salinity,ObsError/waterTemperature,ObsError/salinity,PreQC/waterTemperature,PreQC/salinity -d Location,3000,3015,1 gdas.t06z.insitu_profile_argo.2021032506.nc4 insitu_profile_argo_3.nc" ;
 		:NCO = "netCDF Operators version 5.0.6 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
 data:
-
- Location = 3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010, 
-    3011, 3012, 3013, 3014, 3015 ;
 
 group: MetaData {
   variables:
@@ -56,6 +53,33 @@ group: MetaData {
   		stationID:_FillValue = 2147483647 ;
   		string stationID:long_name = "Station Identification" ;
   data:
+
+   dateTime = 1616645340, 1616645340, 1616645340, 1616645340, 1616645340, 
+      1616645340, 1616645340, 1616645340, 1616645340, 1616645340, 1616645340, 
+      1616645340, 1616645340, 1616645340, 1616645340, 1616645340 ;
+
+   depth = 17.6, 19.6, 21.6, 23.6, 25.6, 27.6, 29.6, 31.6, 33.6, 35.6, 37.6, 
+      39.6, 41.5, 43.6, 45.6, 47.6 ;
+
+   latitude = -12.95, -12.95, -12.95, -12.95, -12.95, -12.95, -12.95, -12.95, 
+      -12.95, -12.95, -12.95, -12.95, -12.95, -12.95, -12.95, -12.95 ;
+
+   longitude = -97.736, -97.736, -97.736, -97.736, -97.736, -97.736, -97.736, 
+      -97.736, -97.736, -97.736, -97.736, -97.736, -97.736, -97.736, -97.736, 
+      -97.736 ;
+
+   oceanBasin = 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ;
+
+   rcptdateTime = 1616648520, 1616648520, 1616648520, 1616648520, 1616648520, 
+      1616648520, 1616648520, 1616648520, 1616648520, 1616648520, 1616648520, 
+      1616648520, 1616648520, 1616648520, 1616648520, 1616648520 ;
+
+   sequenceNumber = 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 
+      33, 33 ;
+
+   stationID = 4902899, 4902899, 4902899, 4902899, 4902899, 4902899, 4902899, 
+      4902899, 4902899, 4902899, 4902899, 4902899, 4902899, 4902899, 4902899, 
+      4902899 ;
   } // group MetaData
 
 group: ObsError {
@@ -69,6 +93,12 @@ group: ObsError {
   		string waterTemperature:units = "degC" ;
   		string waterTemperature:long_name = "ObsError" ;
   data:
+
+   salinity = 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 
+      0.01, 0.01, 0.01, 0.01, 0.01, 0.01 ;
+
+   waterTemperature = 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 
+      0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02 ;
   } // group ObsError
 
 group: ObsValue {
@@ -84,6 +114,13 @@ group: ObsValue {
   		waterTemperature:valid_range = -10.f, 50.f ;
   		string waterTemperature:long_name = "waterTemperature" ;
   data:
+
+   salinity = 36.01, 36.01, 36.01, 36.01, 36.01, 36.01, 36.01, 36.01, 36.01, 
+      36.01, 36.009, 36.005, 35.985, 35.916, 35.889, 35.88 ;
+
+   waterTemperature = 24.428, 24.42901, 24.42401, 24.42401, 24.42501, 24.423, 
+      24.42501, 24.428, 24.42901, 24.427, 24.419, 24.414, 24.20599, 23.052, 
+      22.561, 22.33901 ;
   } // group ObsValue
 
 group: PreQC {
@@ -95,5 +132,9 @@ group: PreQC {
   		waterTemperature:_FillValue = 999999 ;
   		string waterTemperature:long_name = "PreQC" ;
   data:
+
+   salinity = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+
+   waterTemperature = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
   } // group PreQC
 }
