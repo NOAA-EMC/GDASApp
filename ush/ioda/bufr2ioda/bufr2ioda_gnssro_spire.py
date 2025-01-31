@@ -115,7 +115,6 @@ def bufr_to_ioda(config, logger):
     q.add('frequency__roseq2repl1', '*/ROSEQ1/ROSEQ2{1}/MEFR')
     q.add('frequency__roseq2repl2', '*/ROSEQ1/ROSEQ2{2}/MEFR')
     q.add('frequency__roseq2repl3', '*/ROSEQ1/ROSEQ2{3}/MEFR')
-#    q.add('pccf', '*/ROSEQ1/PCCF')
     q.add('pccf', '*/PCCF[1]')
     q.add('percentConfidence', '*/ROSEQ3/PCCF')
     q.add('sensorAzimuthAngle', '*/BEARAZ')
@@ -182,14 +181,6 @@ def bufr_to_ioda(config, logger):
     impp1 = r.get('impactParameterRO_roseq2repl1', 'latitude')
     impp2 = r.get('impactParameterRO_roseq2repl2', 'latitude')
     impp3 = r.get('impactParameterRO_roseq2repl3', 'latitude')
-#    impp1 = r.get('impactParameterRO_roseq2repl1', 'latitude', type='double')
-#    impp2 = r.get('impactParameterRO_roseq2repl2', 'latitude', type='double')
-#    impp3 = r.get('impactParameterRO_roseq2repl3', 'latitude', type='double')
-
-
-#    for i in range(len(said)):
-#        if (said[i] == 42.0):
-#            logger.debug(f"xuanli check impp1, impp2, impp3 {impp1[i]}, {impp2[i]}, {impp3[i]}")
 
     mefr1 = r.get('frequency__roseq2repl1', 'latitude',
                   type='float32').astype(np.float32)
@@ -229,8 +220,6 @@ def bufr_to_ioda(config, logger):
 
     # assign sequenceNumber (SEQNUM in the bufr table is less than 1,000 and used repeatedly)
     logger.debug(f"Assign sequence number: starting from 1")
-#    logger.debug(f"     seqnum shape, type, min/max {seqnum.shape}, \
-#                {seqnum.dtype}, {seqnum.min()}, {seqnum.max()}")
 
     count1 = 0
     count2 = 0
@@ -346,13 +335,13 @@ def bufr_to_ioda(config, logger):
     for i in range(len(said)):
         if (mefr2[i] == 0.0):
             bnda1[i] = bnda2[i]
-#            mefr1[i] = mefr2[i]
+            mefr1[i] = mefr2[i]
             impp1[i] = impp2[i]
             imph1[i] = imph2[i]
             bndaoe1[i] = bndaoe2[i]
         if (mefr3[i] == 0.0):
             bnda1[i] = bnda3[i]
-#            mefr1[i] = mefr3[i]
+            mefr1[i] = mefr3[i]
             impp1[i] = impp3[i]
             imph1[i] = imph3[i]
             bndaoe1[i] = bndaoe3[i]
@@ -373,8 +362,8 @@ def bufr_to_ioda(config, logger):
                 {bndaoe1.dtype}, {bndaoe1.min()}, {bndaoe1.max()}")
 
 #   find ibit for qfro (16bit from left to right)
-#   if bit5=1 the reject the bending angle obs
-#   if bit6=1 the reject the refractivity obs
+#   bit5=1, reject the bending angle obs
+#   bit6=1, reject the refractivity obs
     bit3 = []
     bit5 = []
     bit6 = []
@@ -537,8 +526,6 @@ def bufr_to_ioda(config, logger):
         dims = {'Location': nobs}
         print(' ... dim = ', nobs)
 
-        # iodafile = f"{cycle_type}.t{hh}z.{data_type}.tm00.{data_format}.nc"
-        # iodafile = f"{cycle_type}.t{hh}z.{ioda_data_type}.{mission}.tm00.{data_format}.nc"
     iodafile = f"{cycle_type}.t{hh}z.{ioda_data_type}_{mission}.tm00.nc"
 
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
