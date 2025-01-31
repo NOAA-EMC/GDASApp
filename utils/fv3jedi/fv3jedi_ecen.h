@@ -72,8 +72,10 @@ namespace gdasapp {
         util::DateTime currentCycle = windowBegin + fcstHour;
 
         // Get elements of individual additions configurations
-        const eckit::LocalConfiguration atmIncrConfig(additionsConfig[ihrs], "atmospheric increment");
-        const eckit::LocalConfiguration atmBkgConfig(additionsConfig[ihrs], "atmospheric background");
+        const eckit::LocalConfiguration atmIncrConfig(additionsConfig[ihrs], \
+                                                      "atmospheric increment");
+        const eckit::LocalConfiguration atmBkgConfig(additionsConfig[ihrs], \
+                                                     "atmospheric background");
         const eckit::LocalConfiguration atmAnlEnsMeanConfig(additionsConfig[ihrs], \
                                                             "atmospheric ensemble mean analysis");
         const eckit::LocalConfiguration atmIncrCorConfig(additionsConfig[ihrs], \
