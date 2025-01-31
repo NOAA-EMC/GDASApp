@@ -130,7 +130,7 @@ namespace gdasapp {
         iodaVars.intMetadata_.row(i) << oceanbasinData[i];
       }
 
-      // Extract epochdate format from referenceDate
+      // Extract EpochTime String Format(1970-01-01T00:00:00Z)
       std::string extractedDate = iodaVars.referenceDate_.substr(14);
 
       // Redating and adjusting Errors
