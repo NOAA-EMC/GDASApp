@@ -1,12 +1,15 @@
+# Analysis/B-mat resolution
 geometry: &geom
-  mom6_input_nml: mom_input.nml
+  geom_grid_file: ./anl_geom/soca_gridspec.nc
+  mom6_input_nml: ./anl_geom/mom_input.nml
   fields metadata: ./fields_metadata.yaml
 
+# Background interpolated at the analysis resolution
 background:
   read_from_file: 1
-  basename: ./INPUT/
-  ocn_filename: MOM.res.nc
-  ice_filename: cice.res.nc
+  basename: ./anl_geom/
+  ocn_filename: 'ocn.f009_anl_geom.fc.{{ marine_window_end_iso }}.PT0S.nc'
+  ice_filename: 'ice.f009_anl_geom.fc.{{ marine_window_end_iso }}.PT0S.nc'
   date: '{{ marine_window_end_iso }}'
   state variables: [sea_surface_height_above_geoid]
 

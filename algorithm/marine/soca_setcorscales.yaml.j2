@@ -1,5 +1,6 @@
 resolution:
-  mom6_input_nml: mom_input.nml
+  geom_grid_file: ./anl_geom/soca_gridspec.nc
+  mom6_input_nml: ./anl_geom/mom_input.nml
   fields metadata: ./fields_metadata.yaml
 
 date: "0001-01-01T00:00:00Z"
@@ -9,8 +10,8 @@ corr variables: [sea_surface_height_above_geoid]
 scales:
   vert layers: 5 # in units of layer
   sea_surface_height_above_geoid:
-    rossby mult: 2.00
-    min grid mult: 6.0
+    rossby mult: 1.50
+    min grid mult: 2.0
 
 rh output:
   datadir: ./
