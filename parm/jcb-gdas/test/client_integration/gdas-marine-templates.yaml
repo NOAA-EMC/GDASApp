@@ -1,7 +1,6 @@
 # This part is for testing only. Normally this would just show algorithm: <algorithm>
 # -----------------------------------------------------------------------------------
 supported_algorithms:
-- 3dvar
 - hofx3d
 - hofx4d
 - 3dfgat
