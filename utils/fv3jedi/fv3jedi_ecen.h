@@ -102,7 +102,7 @@ namespace gdasapp {
 
         // Compute correction increment
         fv3jedi::Increment dxAtmCor(incrCorGeom, atmVars, xxAtmBkg.validTime());
-        dxAtmCor.diff(xxAtmAnlEnsMean, xxAtmAnlEnsRes);
+        dxAtmCor.diff(xxAtmAnlEnsRes, xxAtmAnlEnsMean);
 
         // Write correction increment
         dxAtmCor.write(atmIncrCorConfig);
