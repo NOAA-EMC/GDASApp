@@ -66,6 +66,14 @@ namespace gdasapp {
       oops::Log::info() << "geometry: " << std::endl << geomConfig << std::endl;
       const soca::Geometry geom(geomConfig, this->getComm());
 
+      // Setup the output soca geometry
+      oops::Log::info() << "====================== ens B geometry" << std::endl;
+      const std::string outputGeometryKey = fullConfig.has("output geometry")
+                        ? "output geometry"  // keep things backward compatible for now
+                        : "geometry";        // and default to the input geometry
+      const eckit::LocalConfiguration geomOutConfig(fullConfig, outputGeometryKey);
+      const soca::Geometry geomOut(geomOutConfig, this->getComm());
+
       /// Get the date
       std::string strdt;
       fullConfig.get("date", strdt);
@@ -94,6 +102,7 @@ namespace gdasapp {
       /// Create fields of weights for seaice
       soca::Increment socaIceHW(geom, socaVars, dt);  // ocean field is mandatory for writting
       socaIceHW.ones();
+      // TODO(Guillaume): set the weights based on the ice extent
       socaIceHW *= wIce;
       oops::Log::info() << "socaIceHW: " << std::endl << socaIceHW << std::endl;
       const eckit::LocalConfiguration socaHWOutConfig(fullConfig, "output");
@@ -104,18 +113,21 @@ namespace gdasapp {
       socaOcnHW.ones();
 
       /// Apply localized gaussians to the weights
-      eckit::LocalConfiguration localWeightsConfigs(fullConfig, "weights.ocean local weights");
-      std::vector<eckit::LocalConfiguration> localWeightsList =
-        localWeightsConfigs.getSubConfigurations();
-      for (auto & conf : localWeightsList) {
-        gaussianMask(geom, socaOcnHW, conf);
-        oops::Log::info() << "Local weights for socaOcnHW: " << std::endl << conf << std::endl;
-        oops::Log::info() << socaOcnHW << std::endl;
+      if (fullConfig.has("weights.ocean local weights")) {
+        eckit::LocalConfiguration localWeightsConfigs(fullConfig, "weights.ocean local weights");
+        std::vector<eckit::LocalConfiguration> localWeightsList =
+          localWeightsConfigs.getSubConfigurations();
+        for (auto & conf : localWeightsList) {
+          gaussianMask(geom, socaOcnHW, conf);
+          oops::Log::info() << "Local weights for socaOcnHW: " << std::endl << conf << std::endl;
+          oops::Log::info() << socaOcnHW << std::endl;
+        }
       }
 
       socaOcnHW *= wOcean;
       oops::Log::info() << "socaOcnHW: " << std::endl << socaOcnHW << std::endl;
-      socaOcnHW.write(socaHWOutConfig);
+      soca::Increment socaOcnHWOut(geomOut, socaOcnHW);  // interp to output geometry
+      socaOcnHWOut.write(socaHWOutConfig);
 
       return 0;
     }

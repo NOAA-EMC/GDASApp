@@ -75,14 +75,22 @@ namespace gdasapp {
     // -----------------------------------------------------------------------------
 
     int execute(const eckit::Configuration & fullConfig) const {
-      // Setup the soca geometry
+      // Setup the native geometry of the ens. members,
+      // currently assumed to be the same as the deterministic
       const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");
       oops::Log::info() << "geometry: " << std::endl << geomConfig << std::endl;
       const soca::Geometry geom(geomConfig, this->getComm());
 
+      // Setup the ensemble B (and output) soca geometry
+      oops::Log::info() << "====================== ens B geometry" << std::endl;
+      const std::string outputGeometryKey = fullConfig.has("output geometry")
+                        ? "output geometry"  // keep things backward compatible for now
+                        : "geometry";        // and default to the input geometry
+      const eckit::LocalConfiguration geomOutConfig(fullConfig, outputGeometryKey);
+      const soca::Geometry geomOut(geomOutConfig, this->getComm());
 
       // Initialize the post processing
-      PostProcIncr postProcIncr(fullConfig, geom, this->getComm());
+      PostProcIncr postProcIncr(fullConfig, geom, this->getComm(), geomOut);
 
       oops::Log::info() << "soca increments: " << std::endl
                         << postProcIncr.inputIncrConfig_ << std::endl;
@@ -93,7 +101,9 @@ namespace gdasapp {
         oops::Log::info() << postProcIncr.inputIncrConfig_ << std::endl;
 
         // Assume z* output is the same for the trajectory and the state
-        ensMembers.push_back(postProcIncr.read(i));
+        soca::Increment fullResIncr = postProcIncr.read(i);
+        soca::Increment lowResIncr(geomOut, fullResIncr);  // interp to low resolution geometry
+        ensMembers.push_back(lowResIncr);
       }
 
       // Check if we need to recenter the increment around the deterministic
@@ -103,9 +113,9 @@ namespace gdasapp {
       }
 
       // Compute ensemble moments
-      soca::Increment ensMean(geom, postProcIncr.socaIncrVar_, postProcIncr.dt_);
-      soca::Increment ensStd(geom, postProcIncr.socaIncrVar_, postProcIncr.dt_);
-      soca::Increment ensVariance(geom, postProcIncr.socaIncrVar_, postProcIncr.dt_);
+      soca::Increment ensMean(geomOut, postProcIncr.socaIncrVar_, postProcIncr.dt_);
+      soca::Increment ensStd(geomOut, postProcIncr.socaIncrVar_, postProcIncr.dt_);
+      soca::Increment ensVariance(geomOut, postProcIncr.socaIncrVar_, postProcIncr.dt_);
       gdasapp_ens_utils::ensMoments(ensMembers, ensMean, ensStd, ensVariance);
       oops::Log::info() << "mean: " << ensMean << std::endl;
       oops::Log::info() << "std: " << ensStd << std::endl;
@@ -123,14 +133,15 @@ namespace gdasapp {
 
       // Initialize the trajectories used in the linear variable changes
       const eckit::LocalConfiguration trajConfig(fullConfig, "trajectory");
-      soca::State determTraj(geom, trajConfig);     // deterministic trajectory
+      soca::State determTrajNative(geom, trajConfig);     // deterministic trajectory at full res
+      soca::State determTraj(geomOut, determTrajNative);  // interpolated deterministic trajectory
       soca::State ensMeanTraj(determTraj);          // trajectory defined as the ens. mean
       ensMeanTraj.zero();
       ensMeanTraj += ensMean;
 
       // Compute the recentering increment as the difference between
       // the ensemble mean and the deterministic
-      soca::Increment recenteringIncr(geom, postProcIncr.socaIncrVar_, postProcIncr.dt_);
+      soca::Increment recenteringIncr(geomOut, postProcIncr.socaIncrVar_, postProcIncr.dt_);
       recenteringIncr.diff(determTraj, ensMeanTraj);
       postProcIncr.setToZero(recenteringIncr);
 
@@ -192,7 +203,7 @@ namespace gdasapp {
 
         // Save total ssh
         oops::Log::info() << "ssh ensemble member "  << i << std::endl;
-        soca::Increment ssh_tmp(geom, socaSshVar, postProcIncr.dt_);
+        soca::Increment ssh_tmp(geomOut, socaSshVar, postProcIncr.dt_);
         ssh_tmp = ensMembers[i];
         sshTotal.push_back(ssh_tmp);
 
@@ -257,9 +268,9 @@ namespace gdasapp {
       }
 
       // Compute ensemble moments for total ssh
-      soca::Increment sshMean(geom, socaSshVar, postProcIncr.dt_);
-      soca::Increment sshStd(geom, socaSshVar, postProcIncr.dt_);
-      soca::Increment sshTotalVariance(geom, socaSshVar, postProcIncr.dt_);
+      soca::Increment sshMean(geomOut, socaSshVar, postProcIncr.dt_);
+      soca::Increment sshStd(geomOut, socaSshVar, postProcIncr.dt_);
+      soca::Increment sshTotalVariance(geomOut, socaSshVar, postProcIncr.dt_);
       gdasapp_ens_utils::ensMoments(sshTotal, sshMean, sshStd, sshTotalVariance);
       oops::Log::info() << "mean ssh total: " << sshMean << std::endl;
       oops::Log::info() << "std ssh total: " << sshStd << std::endl;
@@ -269,7 +280,7 @@ namespace gdasapp {
       // Compute ensemble moments for steric ssh
       sshMean.zero();
       sshStd.zero();
-      soca::Increment sshStericVariance(geom, socaSshVar, postProcIncr.dt_);
+      soca::Increment sshStericVariance(geomOut, socaSshVar, postProcIncr.dt_);
       gdasapp_ens_utils::ensMoments(sshSteric, sshMean, sshStd, sshStericVariance);
       oops::Log::info() << "mean steric ssh: " << sshMean << std::endl;
       oops::Log::info() << "std steric ssh: " << sshStd << std::endl;
@@ -278,8 +289,8 @@ namespace gdasapp {
 
       // Compute ensemble moments for non-steric ssh
       sshMean.zero();
-      soca::Increment sshNonStericVariance(geom, socaSshVar, postProcIncr.dt_);
-      soca::Increment sshNonStericStd(geom, socaSshVar, postProcIncr.dt_);
+      soca::Increment sshNonStericVariance(geomOut, socaSshVar, postProcIncr.dt_);
+      soca::Increment sshNonStericStd(geomOut, socaSshVar, postProcIncr.dt_);
       sshNonStericStd.zero();
       gdasapp_ens_utils::ensMoments(sshNonSteric, sshMean, sshNonStericStd, sshNonStericVariance);
       oops::Log::info() << "mean non-steric ssh: " << sshMean << std::endl;
@@ -308,7 +319,7 @@ namespace gdasapp {
       ensStd.write(bkgErrOutputConfig);
 
       // Explained variance by steric height R=1-SS(non-steric ssh)/SS(total ssh)
-      soca::Increment varianceRatio(geom, socaSshVar, postProcIncr.dt_);
+      soca::Increment varianceRatio(geomOut, socaSshVar, postProcIncr.dt_);
       varianceRatio = sshNonStericVariance;
       atlas::FieldSet varianceRatioFs;
       varianceRatio.toFieldSet(varianceRatioFs);
@@ -319,7 +330,7 @@ namespace gdasapp {
       util::divideFieldSets(varianceRatioFs, sshTotalVarianceFs, sshTotalVarianceFs);
       varianceRatio.fromFieldSet(varianceRatioFs);
 
-      soca::Increment stericExplainedVariance(geom, socaSshVar, postProcIncr.dt_);
+      soca::Increment stericExplainedVariance(geomOut, socaSshVar, postProcIncr.dt_);
       stericExplainedVariance.ones();
       stericExplainedVariance -= varianceRatio;
 
