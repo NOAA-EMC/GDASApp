@@ -60,5 +60,5 @@ output increment:
   date: '{{ MARINE_WINDOW_END_ISO }}'
   exp: trash
   type: incr
-  output file: 'ocn.recenter.incr.%mem%.nc'
+  output file: 'recenter.incr.%mem%.nc'
   pattern: '%mem%'
