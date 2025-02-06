@@ -186,10 +186,10 @@ class MarineRecenter(Task):
             f00 = f'{rst_date}.cice_model.res.nc'
             fname_in = os.path.abspath(os.path.join(mem_dir_real, f00))
             fname_out = os.path.realpath(os.path.join(self.task_config.ens_dir,
-                                             "cice_model.res."+str(mem)+".nc"))
+                                         "cice_model.res."+str(mem)+".nc"))
             ens_cice_list.append([fname_in, fname_out])
             fname_out = os.path.realpath(os.path.join(self.task_config.ens_dir,
-                                             "cice_model.res.output."+str(mem)+".nc"))
+                                         "cice_model.res.output."+str(mem)+".nc"))
             ens_cice_list.append([fname_in, fname_out])
         FileHandler({'copy': ens_cice_list}).sync()
 
@@ -298,6 +298,6 @@ class MarineRecenter(Task):
             mem_dir_real = os.path.realpath(mem_dir)
             mem_dir_list.append(mem_dir_real)
             copy_list.append([f'ens/cice_model.res.output.{str(mem)}.nc',
-                               os.path.join(mem_dir_real, f'{cice_rst_date}.cice_model_anl.res.nc')])
+                              os.path.join(mem_dir_real, f'{cice_rst_date}.cice_model_anl.res.nc')])
         FileHandler({'mkdir': mem_dir_list}).sync()
         FileHandler({'copy': copy_list}).sync()
