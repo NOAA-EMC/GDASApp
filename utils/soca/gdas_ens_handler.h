@@ -169,7 +169,7 @@ namespace gdasapp {
           postProcIncr.setToZero(incr);
 
           // Save the increments used to initialize the ensemble forecast
-          result = postProcIncr.save(mom6_incr, i+1);
+          result = postProcIncr.save(mom6_incr, i+1, {"ocn"});
         }
         return result;
       }
