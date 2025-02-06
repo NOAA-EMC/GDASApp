@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <netcdf>    // NOLINT (using C API)
@@ -54,10 +55,12 @@ namespace gdasapp {
       // Create instance of iodaVars object
       gdasapp::obsproc::iodavars::IodaVars iodaVars(nobs, floatMetadataNames, intMetadataNames);
 
+      // TODO(Mindo): This is incomplete and needed to leverage ioda for the reading
       // Check if the MetaData group is null
       netCDF::NcGroup metaDataGroup = ncFile.getGroup("MetaData");
       if (metaDataGroup.isNull()) {
-       oops::Log::debug() << "Group 'MetaData' not found!" << std::endl;
+       oops::Log::error() << "Group 'MetaData' not found! Aborting execution..." << std::endl;
+       std::abort();
       }
 
       // Read non-optional metadata: datetime, longitude, latitude and optional: others
@@ -81,7 +84,9 @@ namespace gdasapp {
           oops::Log::info() << "Variable 'depth' found and Reading!" << std::endl;
           depthVar.getVar(depthData.data());
       } else {
-          oops::Log::info() << "Variable 'depth' NOT found in 'MetaData'!" << std::endl;
+          oops::Log::warning()
+                  << "WARNING: no depth found, assuming the observations are at the surface."
+                  << std::endl;
       }
 
       // Save in optional floatMetadata
@@ -93,17 +98,26 @@ namespace gdasapp {
       std::vector<int> oceanbasinData(iodaVars.location_);
       oceanbasinVar.getVar(oceanbasinData.data());
 
-      // Check if the groups are null
-      netCDF::NcGroup obsvalGroup = ncFile.getGroup("ObsValue");
-      netCDF::NcGroup obserrGroup = ncFile.getGroup("ObsError");
-      netCDF::NcGroup preqcGroup = ncFile.getGroup("PreQC");
-      if (obsvalGroup.isNull()) {
-          oops::Log::debug() << "Group 'ObsValue' not found!" << std::endl;
-      } else if (obserrGroup.isNull()) {
-          oops::Log::debug() << "Group 'ObsError' not found!" << std::endl;
-      } else if (preqcGroup.isNull()) {
-          oops::Log::debug() << "Group 'PreQC' not found!" << std::endl;
+      // Define and check obs groups
+      struct { const char* name; netCDF::NcGroup group; } groups[] = {
+          {"ObsValue", ncFile.getGroup("ObsValue")},
+          {"ObsError", ncFile.getGroup("ObsError")},
+          {"PreQC", ncFile.getGroup("PreQC")}
+      };
+
+      // Validate groups and abort if any is missing
+      for (const auto& g : groups) {
+          if (g.group.isNull()) {
+              oops::Log::error() << "Group '" << g.name
+                  << "' not found! Aborting execution..." << std::endl;
+              std::abort();
+          }
       }
+
+      // Assign validated groups
+      netCDF::NcGroup& obsvalGroup = groups[0].group;
+      netCDF::NcGroup& obserrGroup = groups[1].group;
+      netCDF::NcGroup& preqcGroup = groups[2].group;
 
       // Get obs values, errors and preqc
       netCDF::NcVar obsvalVar = obsvalGroup.getVar(variable_);
