@@ -65,6 +65,7 @@ class MarineRecenter(Task):
 
         _window_begin = add_to_datetime(self.task_config.current_cycle, -to_timedelta(f"{self.task_config.assim_freq}H") / 2)
         _window_end = add_to_datetime(self.task_config.current_cycle, to_timedelta(f"{self.task_config.assim_freq}H") / 2)
+        _enspert_relpath = os.path.relpath(self.task_config.DATAens, self.task_config.DATA)
 
         local_dict = AttrDict({'window_begin': f"{window_begin.strftime('%Y-%m-%dT%H:%M:%SZ')}",
                                'PARMsoca': os.path.join(self.task_config.PARMgfs, 'gdas', 'soca'),
@@ -80,6 +81,8 @@ class MarineRecenter(Task):
                                'stage_dir': DATA,
                                'soca_input_fix_dir': self.task_config.SOCA_INPUT_FIX_DIR,
                                'NMEM_ENS': self.task_config.NMEM_ENS,
+                               'GDUMP_ENS': self.task_config.GDUMP_ENS,
+                               'ENSPERT_RELPATH': _enspert_relpath,
                                'MARINE_WINDOW_LENGTH': f"PT{config['assim_freq']}H",
                                'recen_yaml_template': os.path.join(berror_yaml_dir, 'soca_ensrecenter.yaml'),
                                'recen_yaml_file': os.path.join(DATA, 'soca_ensrecenter.yaml'),
@@ -124,6 +127,9 @@ class MarineRecenter(Task):
         # stage backgrounds
         bkg_list = parse_j2yaml(self.task_config.MARINE_DET_STAGE_BKG_YAML_TMPL, self.task_config)
         FileHandler(bkg_list).sync()
+        # stage ensemble backgrounds for soca2cice
+        ens_bkg_list = parse_j2yaml(self.task_config.MARINE_ENSDA_STAGE_BKG_YAML_TMPL, self.task_config)
+        FileHandler(ens_bkg_list).sync()
 
 #        ################################################################################
 #        # Copy initial condition
@@ -155,6 +161,37 @@ class MarineRecenter(Task):
                 ens_member_list.append([fname_in, fname_out])
 
         FileHandler({'copy': ens_member_list}).sync()
+        # stage ensemble ice restarts
+        # make a copy of the CICE6 restart
+        logger.info("---------------- Stage ensemble CICE restarts")
+        # set the restart date, dependent on the cycling type
+        if self.task_config.DOIAU:
+            # forecast initialized at the begining of the DA window
+            fcst_begin = self.task_config.MARINE_WINDOW_BEGIN_ISO
+            rst_date = self.task_config.MARINE_WINDOW_BEGIN.strftime('%Y%m%d.%H%M%S')
+        else:
+            # forecast initialized at the middle of the DA window
+            fcst_begin = self.task_config.MARINE_WINDOW_MIDDLE_ISO
+            rst_date = self.task_config.MARINE_WINDOW_MIDDLE.strftime('%Y%m%d.%H%M%S')
+        ens_cice_list = []
+        for mem in range(1, nmem_ens+1):
+            mem_dir = os.path.join(self.task_config.ROTDIR,
+                                   f'enkf{RUN}.{gPDYstr}',
+                                   f'{gcyc}',
+                                   f'mem{str(mem).zfill(3)}',
+                                   'model',
+                                   'ice',
+                                   'restart')
+            mem_dir_real = os.path.realpath(mem_dir)
+            f00 = f'{rst_date}.cice_model.res.nc'
+            fname_in = os.path.abspath(os.path.join(mem_dir_real, f00))
+            fname_out = os.path.realpath(os.path.join(self.task_config.ens_dir,
+                                         "cice_model.res."+str(mem)+".nc"))
+            ens_cice_list.append([fname_in, fname_out])
+            fname_out = os.path.realpath(os.path.join(self.task_config.ens_dir,
+                                         "cice_model.res.output."+str(mem)+".nc"))
+            ens_cice_list.append([fname_in, fname_out])
+        FileHandler({'copy': ens_cice_list}).sync()
 
         ################################################################################
         # generate the YAML file for recenterer
@@ -228,10 +265,6 @@ class MarineRecenter(Task):
         mem_dir_list = []
         copy_list = []
 
-        # Skip the analysis insertion into the CICE restart for now
-        # TODO (G): Add this back in when we have hardened the soca to cice
-        #           change of variable
-
         # Copy the recentering increment files to the member COMROOT directories
         for mem in range(1, nmem_ens+1):
             mem_dir = os.path.join(self.task_config.ROTDIR,
@@ -242,9 +275,29 @@ class MarineRecenter(Task):
                                    'ocean')
             mem_dir_real = os.path.realpath(mem_dir)
             mem_dir_list.append(mem_dir_real)
-
             copy_list.append([f'ocn.recenter.incr.{str(mem)}.nc',
                               os.path.join(mem_dir_real, incr_file)])
 
+        FileHandler({'mkdir': mem_dir_list}).sync()
+        FileHandler({'copy': copy_list}).sync()
+
+        # Copy the CICE restart files to the member COMROOT directories
+        if os.getenv('DOIAU') == "YES":
+            cice_rst_date = self.task_config.MARINE_WINDOW_BEGIN.strftime('%Y%m%d.%H%M%S')
+        else:
+            cice_rst_date = cdate.strftime('%Y%m%d.%H%M%S')
+        mem_dir_list = []
+        copy_list = []
+        for mem in range(1, nmem_ens+1):
+            mem_dir = os.path.join(self.task_config.ROTDIR,
+                                   f'enkf{RUN}.{PDYstr}',
+                                   f'{cyc}',
+                                   f'mem{str(mem).zfill(3)}',
+                                   'analysis',
+                                   'ice')
+            mem_dir_real = os.path.realpath(mem_dir)
+            mem_dir_list.append(mem_dir_real)
+            copy_list.append([f'ens/cice_model.res.output.{str(mem)}.nc',
+                              os.path.join(mem_dir_real, f'{cice_rst_date}.cice_model_anl.res.nc')])
         FileHandler({'mkdir': mem_dir_list}).sync()
         FileHandler({'copy': copy_list}).sync()
