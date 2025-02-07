@@ -87,7 +87,7 @@ window.onclick = function(event) {
 		<div id="logo">
 			<img src="images/noaa.png" alt="" width="100" />
 			<img src="images/nws.png" alt="" width="100" />
-			<h1><font color="white">GDAS<br>Verification</font></h1>
+			<h1><font color="white">GDAS<br>Verification<br>{{ pslot }}</font></h1>
 		</div>
 		<div id="menu">
 			<ul>
@@ -447,8 +447,9 @@ window.onclick = function(event) {
                                                                 {% endfor %}
                                                 </select>
                                 </div>
+                                                Fill in the date and refresh the tab before using the menu on the left.
+                                </div>
                 </div>
-                Fill in the date and refresh the tab before using the menu on the left.
 
 		<!--div id="banner"-->
 		<div id="imageContainer">
@@ -488,13 +489,8 @@ window.onclick = function(event) {
             var month = document.getElementById('inputMonth').value;
             var day = document.getElementById('inputDay').value;
             var hour = document.getElementById('inputHour').value;
-            var pathMain = document.getElementById('inputMainPath').value;
-            var pathChoice = document.getElementById('inputPathChoice').value;
-            if (pathChoice == 'HPSS') {
-                var inputPath = pathMain+"/"+year+month+day+hour+"/gdas."+year+month+day+"/"+hour+"/analysis/ocean/vrfy/";
-	    } else if (pathChoice == 'COMROOT') {
-                var inputPath = pathMain+"/gdas."+year+month+day+"/"+hour+"/analysis/ocean/vrfy/";
-	    }
+            var inputPath = {{ pathMain }}+"/gdas."+year+month+day+"."+hour+"/vrfy/";
+
             var woaTEMPpath = "/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/comparison/WOA23/bkg/Temp/images/"+year+month+"/";
             var ostiaSEAICEpath = "/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/comparison/OSTIA/"
             var ostiaSSTimage = "/scratch1/NCEPDEV/da/common/validation/ostia2mom6_xesmf/images_NSST/"+year+"/ostia.sst.daily_mean."+year+month+day+"_12z.png";

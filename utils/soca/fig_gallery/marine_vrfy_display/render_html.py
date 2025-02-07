@@ -22,5 +22,6 @@ if __name__ == "__main__":
         'year_list': ["2021", "2022"],
         'month_list': ["01", "02"],
         'day_list': ["01", "02", "03"],
+        'pslot': "cp4.01"
     }
     render_html('index_vrfy_marine.html.j2', context)
