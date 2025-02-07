@@ -1,21 +1,15 @@
  &MOM_input_nml
         output_directory = './',
-        input_filename = 'r'
+        input_filename = 'r',
+        {% if not simple_geom %}
         restart_input_dir = 'INPUT/',
         restart_output_dir = 'RESTART/',
-        parameter_filename = 'MOM_input' /
+        {% endif %}
+        parameter_filename = '{{ mom_input }}'
+ /
 
  &diag_manager_nml
  /
-
- &ocean_solo_nml
-            months = 0
-            days   = 1
-            date_init = {{ date_init }},
-            hours = 0
-            minutes = 0
-            seconds = 0
-            calendar = 'NOLEAP' /
 
  &fms_io_nml
       max_files_w=100
