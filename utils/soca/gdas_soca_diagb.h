@@ -204,6 +204,14 @@ namespace gdasapp {
       oops::Log::info() << "Background:" << std::endl;
       oops::Log::info() << xb << std::endl;
 
+      // Setup the output soca geometry
+      oops::Log::info() << "====================== output geometry" << std::endl;
+      const std::string outputGeometryKey = fullConfig.has("output geometry")
+                        ? "output geometry"  // keep things backward compatible for now
+                        : "geometry";        // and default to the input geometry
+      const eckit::LocalConfiguration geomOutConfig(fullConfig, outputGeometryKey);
+      const soca::Geometry geomOut(geomOutConfig, this->getComm());
+
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
       // Build edges, then connections between nodes and edges
@@ -485,7 +493,8 @@ namespace gdasapp {
 
       // Save the background error
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
-      bkgErr.write(bkgErrorConfig);
+      soca::Increment bkgErrOut(geomOut, bkgErr);
+      bkgErrOut.write(bkgErrorConfig);
 
       return 0;
     }

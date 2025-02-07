@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 
@@ -22,17 +23,38 @@
 
 namespace gdasapp {
 
+// -----------------------------------------------------------------------------
+/*! \class PostProcIncr
+    \brief This class handles the processing of increments in the GDAS application.
+
+    The PostProcIncr class is responsible for managing the configuration and processing
+    of increments, including reading configuration parameters, initializing variables,
+    applying specified variable changes and handling input and output.
+*/
+// -----------------------------------------------------------------------------
 class PostProcIncr {
  public:
   // -----------------------------------------------------------------------------
-  // Constructor
+  // Constructors
 
+  /**
+   * @brief Constructor for the PostProcIncr class.
+   *
+   * This constructor initializes the PostProcIncr object using the provided configuration, geometry, and MPI communicator.
+   * It sets up various parameters and configurations required for post-processing increments.
+   *
+   * @param fullConfig The full configuration object containing various settings.
+   * @param geom The native geometry of the increments output.
+   * @param comm The MPI communicator.
+   * @param geomProc The geometry to perform the processing on.
+   */
   PostProcIncr(const eckit::Configuration & fullConfig, const soca::Geometry& geom,
-               const eckit::mpi::Comm & comm)
+               const eckit::mpi::Comm & comm, const soca::Geometry& geomProc)
     : dt_(getDate(fullConfig)),
       layerVar_(getLayerVar(fullConfig)),
       geom_(geom),
-      Layers_(getLayerThickness(fullConfig, geom)),
+      geomProc_(geomProc),
+      Layers_(getLayerThickness(fullConfig, geom, geomProc)),
       comm_(comm),
       ensSize_(1),
       pattern_() {
@@ -66,6 +88,20 @@ class PostProcIncr {
     }
   }
 
+  /**
+   * @brief Constructor for the PostProcIncr class when the compute/processing geometry
+   * is the same as the native geometry.
+   *
+   * This constructor delegates the initialization to the main constructor
+   *
+   * @param fullConfig The full configuration object.
+   * @param geom The geometry object.
+   * @param comm The MPI communicator.
+   */
+  PostProcIncr(const eckit::Configuration & fullConfig, const soca::Geometry & geom,
+               const eckit::mpi::Comm & comm)
+      : PostProcIncr(fullConfig, geom, comm, geom) {}
+
   // -----------------------------------------------------------------------------
   // Read ensemble member n
 
@@ -75,7 +111,7 @@ class PostProcIncr {
 
     // initialize the soca increment
     soca::Increment socaIncr(geom_, socaIncrVar_, dt_);
-    eckit::LocalConfiguration memberConfig;  // inputIncrConfig_);
+    eckit::LocalConfiguration memberConfig;
     memberConfig = inputIncrConfig_;
 
     // replace templated string if necessary
@@ -88,8 +124,10 @@ class PostProcIncr {
     oops::Log::debug() << "-------------------- input increment: " << std::endl;
     oops::Log::debug() << socaIncr << std::endl;
 
-    return socaIncr;
-  }
+
+    soca::Increment socaIncrOut(geomProc_, socaIncr);
+    return socaIncrOut;
+    }
 
   // -----------------------------------------------------------------------------
   // Append variable to increment
@@ -174,7 +212,7 @@ class PostProcIncr {
                          const soca::State& xTraj) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======      applying specified change of variables" << std::endl;
-    soca::LinearVariableChange lvc(this->geom_, lvcConfig);
+    soca::LinearVariableChange lvc(this->geomProc_, lvcConfig);
     lvc.changeVarTraj(xTraj, socaIncrVar_);
     lvc.changeVarTL(socaIncr, socaIncrVar_);
     oops::Log::info() << " in var change:" << socaIncr << std::endl;
@@ -183,7 +221,8 @@ class PostProcIncr {
   // -----------------------------------------------------------------------------
   // Save increment
 
-  int save(soca::Increment& socaIncr, int ensMem = 1) {
+  int save(soca::Increment& socaIncr, int ensMem = 1,
+           const std::vector<std::string>& domains = {"ocn", "ice"}) {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "-------------------- save increment: " << std::endl;
     oops::Log::info() << socaIncr << std::endl;
@@ -201,19 +240,23 @@ class PostProcIncr {
       // get the output file name
       std::string outputFileName;
       outputIncrConfig_.get("output file", outputFileName);
-      outputFileName = dataDir + "/" + outputFileName;
-      if (outputIncrConfig_.has("pattern")) {
-          std::string pattern;
-          outputIncrConfig_.get("pattern", pattern);
-          outputFileName = this->swapPattern(outputFileName, pattern, std::to_string(ensMem));
-        }
-      const char* charPtrOut = outputFileName.c_str();
 
-      std::string incrFname = this->socaFname();
-      const char* charPtr = incrFname.c_str();
+      for (const std::string& domain : domains) {
+        std::string outputDomain = dataDir + "/" + domain + "." +outputFileName;
+        if (outputIncrConfig_.has("pattern")) {
+            std::string pattern;
+            outputIncrConfig_.get("pattern", pattern);
+            outputDomain = this->swapPattern(outputDomain, pattern, std::to_string(ensMem));
+          }
+        const char* charPtrOut = outputDomain.c_str();
 
-      oops::Log::info() << "rename: " << incrFname << " to " << outputFileName << std::endl;
-      result = std::rename(charPtr, charPtrOut);
+        // rename the file
+        std::string incrFname = this->socaFname(domain);
+        const char* charPtr = incrFname.c_str();
+        oops::Log::info() << "domain: " << domain <<" rename: "
+                          << incrFname << " to " << outputDomain << std::endl;
+        result += std::rename(charPtr, charPtrOut);
+      }
     }
     return result;
   }
@@ -236,27 +279,15 @@ class PostProcIncr {
   }
   // Read the layer thickness from the relevant background
   soca::Increment getLayerThickness(const eckit::Configuration& fullConfig,
-                                    const soca::Geometry& geom) const {
+                                    const soca::Geometry& geom,
+                                    const soca::Geometry& geomProc) const {
     soca::Increment layerThick(geom, getLayerVar(fullConfig), getDate(fullConfig));
     const eckit::LocalConfiguration vertGeomConfig(fullConfig, "vertical geometry");
     layerThick.read(vertGeomConfig);
-    oops::Log::debug() << "layerThick: " << std::endl << layerThick << std::endl;
-    return layerThick;
-  }
-  // Initialize the trajectory
-  soca::State getTraj(const eckit::Configuration& fullConfig,
-                      const soca::Geometry& geom) const {
-    if ( fullConfig.has("linear variable change") ) {
-      const eckit::LocalConfiguration trajConfig(fullConfig, "trajectory");
-      soca::State traj(geom, trajConfig);
-      oops::Log::debug() << "traj:" << traj << std::endl;
-      return traj;
-    } else {
-      oops::Variables tmpVar(fullConfig, "layers variable");
-      util::DateTime tmpDate(getDate(fullConfig));
-      soca::State traj(geom, tmpVar, tmpDate);
-      return traj;
-    }
+    soca::Increment layerThickOut(geomProc, layerThick);
+
+    oops::Log::debug() << "layerThickOut: " << std::endl << layerThickOut << std::endl;
+    return layerThickOut;
   }
 
   // -----------------------------------------------------------------------------
@@ -266,7 +297,7 @@ class PostProcIncr {
   // Recreate the soca filename from the configuration
   // TODO(guillaume): Change this in soca?
   // TODO(guillaume): Hard-coded for ocean, implement for seaice as well
-  std::string socaFname() {
+  std::string socaFname(const std::string& domain = "ocn") {
     std::string datadir;
     outputIncrConfig_.get("datadir", datadir);
     std::experimental::filesystem::path pathToResolve(datadir);
@@ -275,7 +306,7 @@ class PostProcIncr {
     std::string outputType;
     outputIncrConfig_.get("type", outputType);
     std::string incrFname = std::experimental::filesystem::canonical(pathToResolve);
-    incrFname += "/ocn." + exp + "." + outputType + "." + dt_.toString() + ".nc";
+    incrFname += "/" + domain + "." + exp + "." + outputType + "." + dt_.toString() + ".nc";
 
     return incrFname;
   }
@@ -300,7 +331,8 @@ class PostProcIncr {
   util::DateTime dt_;                  // valid date of increment
   oops::Variables layerVar_;           // layer variable
   const soca::Increment Layers_;       // layer thicknesses
-  const soca::Geometry & geom_;
+  const soca::Geometry & geom_;        // Native geometry
+  const soca::Geometry & geomProc_;    // Geometry to perform processing on
   const eckit::mpi::Comm & comm_;
   //  std::vector<eckit::LocalConfiguration> inputIncrConfig_;
   eckit::LocalConfiguration inputIncrConfig_;
