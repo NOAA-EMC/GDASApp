@@ -98,7 +98,7 @@ namespace gdasapp {
         xxAtmAnl += dxAtm;
 
         // Interpolate full resolution analysis to ensemble resolution and then change variables
-        fv3jedi::State xxAtmAnlEnsRes(incrCorGeom, fv3jedi::State(atmVars, xxAtmAnl));
+        fv3jedi::State xxAtmAnlEnsRes(incrCorGeom, xxAtmAnl);
 
         // Compute correction increment
         fv3jedi::Increment dxAtmCor(incrCorGeom, atmVars, xxAtmBkg.validTime());
