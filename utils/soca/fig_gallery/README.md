@@ -1,3 +1,12 @@
+## Simple Observation Space Statistics
+A quick way to generate o-b stats and compare experiments
+```
+python gdassoca_obsstats.py --exps .../COMROOT/cp1 .../COMROOT/cp2 --inst '*' --dirout cp1vscp2
+```
+The above will generate time series of o-b RMSEs, Bias, and obs count for multiple regions. It will also generate an HTML document to facilitate viewing figures.
+
+---
+
 ## How to generate the EVA and State space figures
 
 #### Create a scratch place to run `run_vrfy.py`. This script will generate a bunch of sbatch scripts and logs.

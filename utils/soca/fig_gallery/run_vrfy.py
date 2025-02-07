@@ -69,3 +69,12 @@ if __name__ == "__main__":
 
           # Submit the plotting job
           subprocess.run(f"sbatch {jobcard}", shell=True)
+
+    # Create the HTML document from the Jinja2 template
+    # copy the HTML resource files from marine_vrfy_display to the output directory
+    srcdir = os.path.join(context['homegdas'], 'utils', 'soca', 'fig_gallery', 'marine_vrfy_display')
+    dstdir = context['vrfyout']
+    os.makedirs(dstdir, exist_ok=True)
+    subprocess.run(f"cp -r {srcdir}/* {dstdir}/", shell=True)
+
+    template_path = os.path.join(context['homegdas'], 'utils', 'soca', 'fig_gallery', 'vrfy_template.html')

@@ -35,6 +35,10 @@ plot_increment = os.getenv('PLOT_INCREMENT', 'OFF').upper() == 'ON'
 plot_analysis = os.getenv('PLOT_ANALYSIS', 'OFF').upper() == 'ON'
 eva_plots = os.getenv('EVA_PLOTS', 'OFF').upper() == 'ON'
 
+# output directory
+vrfyout = os.getenv('VRFYOUT', './vrfyout')
+print('------------------------- vrfyout:', vrfyout)
+
 # Initialize an empty list for the main config
 configs = []
 
@@ -46,7 +50,7 @@ if plot_analysis:
                                            'Temp': [-1.8, 34.0],
                                            'Salt': [32, 40]},
                           colormap='nipy_spectral',
-                          comout=os.path.join(comout, 'vrfy', 'ana')),   # ocean surface analysis
+                          vrfyout=os.path.join(vrfyout, 'vrfy', 'ana')),   # ocean surface analysis
                plotConfig(grid_file=grid_file,
                           data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.iceana.nc'),
                           variables_horiz={'aice_h': [0.0, 1.0],
@@ -54,7 +58,7 @@ if plot_analysis:
                                            'hs_h': [0.0, 0.5]},
                           colormap='jet',
                           projs=['North', 'South', 'Global'],
-                          comout=os.path.join(comout, 'vrfy', 'ana'))]   # sea ice analysis
+                          vrfyout=os.path.join(vrfyout, 'vrfy', 'ana'))]   # sea ice analysis
     configs.extend(config_ana)
 
 # Ensemble B plotting configuration
@@ -63,27 +67,27 @@ if plot_ensemble_b:
                              data_file=os.path.join(comout, f'{RUN}.t{cyc}z.ocn.recentering_error.nc'),
                              variables_horiz={'ave_ssh': [-1, 1]},
                              colormap='seismic',
-                             comout=os.path.join(comout, 'vrfy', 'recentering_error')),   # recentering error
+                             vrfyout=os.path.join(vrfyout, 'vrfy', 'recentering_error')),   # recentering error
                   plotConfig(grid_file=grid_file,
                              data_file=os.path.join(comout, f'{RUN}.t{cyc}z.ocn.ssh_steric_stddev.nc'),
                              variables_horiz={'ave_ssh': [0, 0.8]},
                              colormap='gist_ncar',
-                             comout=os.path.join(comout, 'vrfy', 'bkgerr', 'ssh_steric_stddev')),   # ssh steric stddev
+                             vrfyout=os.path.join(vrfyout, 'vrfy', 'bkgerr', 'ssh_steric_stddev')),   # ssh steric stddev
                   plotConfig(grid_file=grid_file,
                              data_file=os.path.join(comout, f'{RUN}.t{cyc}z.ocn.ssh_unbal_stddev.nc'),
                              variables_horiz={'ave_ssh': [0, 0.8]},
                              colormap='gist_ncar',
-                             comout=os.path.join(comout, 'vrfy', 'bkgerr', 'ssh_unbal_stddev')),   # ssh unbal stddev
+                             vrfyout=os.path.join(vrfyout, 'vrfy', 'bkgerr', 'ssh_unbal_stddev')),   # ssh unbal stddev
                   plotConfig(grid_file=grid_file,
                              data_file=os.path.join(comout, f'{RUN}.t{cyc}z.ocn.ssh_total_stddev.nc'),
                              variables_horiz={'ave_ssh': [0, 0.8]},
                              colormap='gist_ncar',
-                             comout=os.path.join(comout, 'vrfy', 'bkgerr', 'ssh_total_stddev')),   # ssh total stddev
+                             vrfyout=os.path.join(vrfyout, 'vrfy', 'bkgerr', 'ssh_total_stddev')),   # ssh total stddev
                   plotConfig(grid_file=grid_file,
                              data_file=os.path.join(comout, f'{RUN}.t{cyc}z.ocn.steric_explained_variance.nc'),
                              variables_horiz={'ave_ssh': [0, 1]},
                              colormap='seismic',
-                             comout=os.path.join(comout, 'vrfy', 'bkgerr', 'steric_explained_variance'))]   # steric explained variance
+                             vrfyout=os.path.join(vrfyout, 'vrfy', 'bkgerr', 'steric_explained_variance'))]   # steric explained variance
     configs.extend(config_ens)
 
 # Parametric B plotting configuration
@@ -96,7 +100,7 @@ if plot_parametric_b:
                                                  'hs_h': [0.0, 0.2]},
                                 colormap='jet',
                                 projs=['North', 'South', 'Global'],
-                                comout=os.path.join(comout, 'vrfy', 'bkgerr')),   # sea ice bkgerr stddev
+                                vrfyout=os.path.join(vrfyout, 'vrfy', 'bkgerr')),   # sea ice bkgerr stddev
                      plotConfig(grid_file=grid_file,
                                 layer_file=layer_file,
                                 data_file=os.path.join(comout, os.path.pardir, os.path.pardir,
@@ -117,7 +121,7 @@ if plot_parametric_b:
                                                  'v': [0, 0.5],
                                                  'ave_ssh': [0, 0.1]},
                                 colormap='jet',
-                                comout=os.path.join(comout, 'vrfy', 'bkgerr'))]   # ocn bkgerr stddev
+                                vrfyout=os.path.join(vrfyout, 'vrfy', 'bkgerr'))]   # ocn bkgerr stddev
     configs.extend(config_bkgerr)
 
 # Background plotting configuration
@@ -129,7 +133,7 @@ if plot_background:
                                               'hs_h': [0.0, 0.5]},
                              colormap='jet',
                              projs=['North', 'South', 'Global'],
-                             comout=os.path.join(comout, 'vrfy', 'bkg')),   # sea ice background
+                             vrfyout=os.path.join(vrfyout, 'vrfy', 'bkg')),   # sea ice background
                   plotConfig(grid_file=grid_file,
                              layer_file=layer_file,
                              data_file=os.path.join(com_ocean_history, f'{RUN}.ocean.t{gcyc}z.inst.f006.nc'),
@@ -149,7 +153,7 @@ if plot_background:
                                               'u': [-1.0, 1.0],
                                               'v': [-1.0, 1.0]},
                              colormap='nipy_spectral',
-                             comout=os.path.join(comout, 'vrfy', 'bkg'))]
+                             vrfyout=os.path.join(vrfyout, 'vrfy', 'bkg'))]
     configs.extend(config_bkg)
 
 # Increment plotting configuration
@@ -167,7 +171,7 @@ if plot_increment:
                               variables_meridional={'Temp': [-0.5, 0.5],
                                                     'Salt': [-0.1, 0.1]},
                               colormap='seismic',
-                              comout=os.path.join(comout, 'vrfy', 'incr')),   # ocean increment
+                              vrfyout=os.path.join(vrfyout, 'vrfy', 'incr')),   # ocean increment
                    plotConfig(grid_file=grid_file,
                               data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc'),
                               lats=np.arange(-60, 60, 10),
@@ -176,7 +180,7 @@ if plot_increment:
                                                'hs_h': [-0.1, 0.1]},
                               colormap='seismic',
                               projs=['North', 'South'],
-                              comout=os.path.join(comout, 'vrfy', 'incr')),   # sea ice increment
+                              vrfyout=os.path.join(vrfyout, 'vrfy', 'incr')),   # sea ice increment
                    plotConfig(grid_file=grid_file,
                               data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.postproc.nc'),
                               lats=np.arange(-60, 60, 10),
@@ -185,7 +189,7 @@ if plot_increment:
                                                'hs_h': [-0.1, 0.1]},
                               colormap='seismic',
                               projs=['North', 'South'],
-                              comout=os.path.join(comout, 'vrfy', 'incr.postproc'))]   # sea ice increment after postprocessing
+                              vrfyout=os.path.join(vrfyout, 'vrfy', 'incr.postproc'))]   # sea ice increment after postprocessing
     configs.extend(config_incr)
 
 

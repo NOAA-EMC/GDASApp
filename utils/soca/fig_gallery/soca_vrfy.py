@@ -27,7 +27,8 @@ def plotConfig(grid_file=[],
                colormap=[],
                max_depth=np.nan,
                max_depths=[700.0, 5000.0],
-               comout=[],
+               vrfyout='',
+               comout='',
                variables_horiz={},
                variables_zonal={},
                variables_meridional={},
@@ -54,6 +55,7 @@ def plotConfig(grid_file=[],
     Prepares the configuration for the plotting functions below
     """
     config = {}
+    config['vrfyout'] = vrfyout  # output directory
     config['comout'] = comout  # output directory
     config['grid file'] = grid_file
     config['fields file'] = data_file
@@ -89,7 +91,7 @@ def plotHorizontalSlice(config):
     grid = xr.open_dataset(config['grid file'])
     data = xr.open_dataset(config['fields file'])
 
-    dirname = os.path.join(config['comout'], config['variable'])
+    dirname = os.path.join(config['vrfyout'], config['variable'])
     os.makedirs(dirname, exist_ok=True)
 
     variable = config['variable']
@@ -201,7 +203,7 @@ def plotZonalSlice(config):
     ax.set_ylim(-config['max depth'], 0)
     title = f"{exp} {PDY} {cyc} {variable} lat {int(lat)}"
     ax.set_title(title)
-    dirname = os.path.join(config['comout'], config['variable'])
+    dirname = os.path.join(config['vrfyout'], config['variable'])
     os.makedirs(dirname, exist_ok=True)
     figname = os.path.join(dirname, config['variable'] +
                            'zonal_lat_' + str(int(lat)) + '_' + str(int(config['max depth'])) + 'm')
@@ -257,7 +259,7 @@ def plotMeridionalSlice(config):
     ax.set_ylim(-config['max depth'], 0)
     title = f"{exp} {PDY} {cyc} {variable} lon {int(lon)}"
     ax.set_title(title)
-    dirname = os.path.join(config['comout'], config['variable'])
+    dirname = os.path.join(config['vrfyout'], config['variable'])
     os.makedirs(dirname, exist_ok=True)
     figname = os.path.join(dirname, config['variable'] +
                            'meridional_lon_' + str(int(lon)) + '_' + str(int(config['max depth'])) + 'm')
