@@ -3,7 +3,7 @@
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>GFS Experiment Verification</title>
+<title>GDAS Verification</title>
 <meta name="keywords" content="" />
 <meta name="description" content="" />
 <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900" rel="stylesheet" />
@@ -40,7 +40,7 @@
 
 <script>
 function createDropdown(opt) {
-  /* When the user clicks on the button, 
+  /* When the user clicks on the button,
      toggle between hiding and showing the dropdown content */
   document.getElementById(opt.nextElementSibling.id).classList.toggle("show");
 }
@@ -87,7 +87,7 @@ window.onclick = function(event) {
 		<div id="logo">
 			<img src="images/noaa.png" alt="" width="100" />
 			<img src="images/nws.png" alt="" width="100" />
-			<h1><font color="white">GFS<br>Experiment<br>Verification</font></h1>
+			<h1><font color="white">GDAS<br>Verification</font></h1>
 		</div>
 		<div id="menu">
 			<ul>
@@ -139,7 +139,7 @@ window.onclick = function(event) {
                                         </div>
 				</div>
                             </div>
-			    
+
 			    <!-- Dropdown: Analysis -->
                             <div class="dropdown" id="dropclick">
 				<button class="dropbtn">Analysis</button>
@@ -176,7 +176,7 @@ window.onclick = function(event) {
                                         </div>
 				</div>
                             </div>
-			    
+
 			    <!-- Dropdown: Increments -->
                             <div class="dropdown" id="dropclick">
 				<button class="dropbtn">Increments</button>
@@ -270,7 +270,7 @@ window.onclick = function(event) {
                                         </div>
 				</div>
                             </div>
-			    
+
 			    <!-- Dropdown: OMB Maps -->
                             <div class="dropdown" id="dropclick">
 				<button class="dropbtn">OMB Maps</button>
@@ -314,7 +314,7 @@ window.onclick = function(event) {
 					</div>
 			        </div>
 			    </div>
-			    
+
 			    <!-- Dropdown: OMB, OMA Histograms -->
                             <div class="dropdown" id="dropclick">
 				<button class="dropbtn">OMB, OMA Histograms</button>
@@ -358,7 +358,7 @@ window.onclick = function(event) {
 					</div>
 			        </div>
 			    </div>
-			    
+
 			    <!-- Dropdown: h(x) vs Obs -->
                             <div class="dropdown" id="dropclick">
 				<button class="dropbtn">h(x) vs Obs</button>
@@ -402,52 +402,53 @@ window.onclick = function(event) {
 					</div>
 			        </div>
 			    </div>
-                            
+
                         </ul>
 		</div>
 	</div>
 	<div id="main">
-		<h1><font color="blue">Marine Figures</font></h1>
-		<h2>Add path to main verification directory:</h2>
-		<div>
-                    <!-- Path -->
-                    <label for="inputMainPath">MAIN Verification Path: </label>
-                    <input type="text" id="inputMainPath" placeholder="" value="">
-                </div>
-		<h3>Are the figures in your COMROOT or from HPSS? For example:</h3>
-		If COMROOT, the MAIN path should include everything before /gdas.YearMonthDay subdirectories.
-		<br>
-		If HPSS, the MAIN path should include everything before /YearMonthDayHour subdirectories.
-		<div>
-                    <!-- Path Choice -->
-                    <label for="inputPathChoice">Enter COMROOT or HPSS: </label>
-                    <input type="text" id="inputPathChoice" placeholder="" value="">
-                </div>
+                <!-- <h2>Choose a date and cycle time:</h2>
 
-	        <h2>Choose a date and cycle time:</h2>
-		
                 <!-- Input date and time for displayed figures -->
-                <div>
-                    <!-- Year -->
-                    <label for="inputYear">Year (YYYY): </label>
-                    <input type="text" id="inputYear" placeholder="" value="">
+                <div style="display: flex; gap: 10px;">
+                                <!-- Year -->
+                                <div>
+                                                <label for="inputYear">Year</label>
+                                                <select id="inputYear">
+                                                                {% for y in year_list %}
+                                                                  <option value="{{ y }}">{{ y }}</option>
+                                                                {% endfor %}
+                                                </select>
+                                </div>
+                                <!-- Month -->
+                                <div>
+                                                <label for="inputMonth">Month</label>
+                                                <select id="inputMonth">
+                                                                {% for m in month_list %}
+                                                                  <option value="{{ m }}">{{ m }}</option>
+                                                                {% endfor %}
+                                                </select>
+                                </div>
+                                <!-- Day -->
+                                <div>
+                                                <label for="inputDay">Day</label>
+                                                <select id="inputDay">
+                                                                {% for d in day_list %}
+                                                                  <option value="{{ d }}">{{ d }}</option>
+                                                                {% endfor %}
+                                                </select>
+                                </div>
+                                <!-- Hour (UTC) -->
+                                <div>
+                                                <label for="inputHour">Cycle</label>
+                                                <select id="inputHour">
+                                                                {% for hour in [0, 6, 12, 18] %}
+                                                                                <option value="{{ '%02d' % hour }}">{{ '%02d' % hour }}</option>
+                                                                {% endfor %}
+                                                </select>
+                                </div>
                 </div>
-                <div>
-                    <!-- Month -->
-                    <label for="inputMonth">Month (MM): </label>
-                    <input type="text" id="inputMonth" placeholder="" value="">
-                </div>
-	        <div>
-                    <!-- Day -->
-                    <label for="inputDay">Day (DD): </label>
-                    <input type="text" id="inputDay" placeholder="" value="">
-                </div>
-	        <div>
-                    <!-- Hour (UTC) -->
-                    <label for="inputHour">Hour (HH in UTC): </label>
-                    <input type="text" id="inputHour" placeholder="" value="">
-                </div>
-                After filling in the above boxes, refresh your tab. Then you can start using the menu on the left.
+                Fill in the date and refresh the tab before using the menu on the left.
 
 		<!--div id="banner"-->
 		<div id="imageContainer">
@@ -480,7 +481,7 @@ window.onclick = function(event) {
 
         <script>
             // Get the dropdown button and dropdown content
-	    const dropdowns = document.querySelectorAll('.dropdown'); 
+	    const dropdowns = document.querySelectorAll('.dropdown');
 
 	    // Get user inputs
 	    var year = document.getElementById('inputYear').value;
@@ -539,10 +540,10 @@ window.onclick = function(event) {
                 } else {
                     var ncol = 2;
                 }
-		
+
 		var woaTitlePrefix = 'World Ocean Atlas Monthly Cross-section of';
 		var ostiaTitlePrefix = 'OSTIA Daily';
-		
+
 		if ((thisDomain == 'Global') && (thisVar == 'Temp')) {
                     var container = document.getElementById('imageContainer');
                     container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(2, 1fr);">
@@ -597,7 +598,7 @@ window.onclick = function(event) {
 			        <!-- extra space at bottom of webpage -->
 			</figure>
                     </div>`;
-		    
+
 		} else if ((thisDomain == 'meridional') && (ncol == 2)) {
                     var container = document.getElementById('imageContainer');
                     container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(${ncol}, 1fr);">
@@ -701,7 +702,7 @@ window.onclick = function(event) {
 				<figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} 50, 700m depth </figcaption>
                         </figure>
                     </div>`;
-		    
+
 		} else if ((thisDomain == 'meridional') && (ncol == 3)) {
                     var container = document.getElementById('imageContainer');
                     container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(${ncol}, 1fr);">
@@ -849,7 +850,7 @@ window.onclick = function(event) {
                                 <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} 50, 700m depth </figcaption>
                         </figure>
                     </div>`;
-		    
+
 		} else if ((thisDomain == 'zonal') && (ncol == 2)) {
                     var container = document.getElementById('imageContainer');
 		    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(${ncol}, 1fr);">
@@ -962,7 +963,7 @@ window.onclick = function(event) {
                                 <figcaption>${figtypestr} Cross-section of ${varstr} at ${domainstr} -60, 700m depth </figcaption>
                         </figure>
                     </div>`;
-		
+
 		} else if ((thisDomain == 'zonal') && (ncol == 3)) {
                     var container = document.getElementById('imageContainer');
 		    container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(${ncol}, 1fr);">
@@ -1123,7 +1124,7 @@ window.onclick = function(event) {
                                 <figcaption>${woaTitlePrefix} ${varstr} at ${domainstr} -60, 700m depth </figcaption>
                         </figure>
                     </div>`;
-		    
+
 		}
 	    }
 
@@ -1157,7 +1158,7 @@ window.onclick = function(event) {
 		        var obsvar = 'salinity';
 		    }
 		}
-		
+
 		if (thisFigType == 'map_plots') {
                     var container = document.getElementById('imageContainer');
                     container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(1, 1fr);">
@@ -1237,7 +1238,7 @@ window.onclick = function(event) {
 	</script>
 
 	</div>
-	
+
 </div>
 </body>
 </html>
