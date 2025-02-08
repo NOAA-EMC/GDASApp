@@ -1,0 +1,36 @@
+The following files are available to assist developers in JEDI Phase 3 validation.
+
+run_gsi.py and run_jedi.py
+  - stage files to run the indicated analysis executable
+  - create a batch script the user can subit to run executable
+
+config_gsi.yaml and config_jedi.yaml
+  - set batch job configuration variables
+  - specify key directories
+  - specify the application exeutable and parameter file 
+
+atmanlvar.yaml
+ - sample yaml file to configure 3DVAR JEDI analysis
+
+gsiparm.anl
+ - sample namelist to configure 3DVAR GSI analysis
+
+
+A Phase 3 validation workflow would entail
+
+1. modify atmanlvar.yaml and gsipmarm.anl to get the desired configuration
+
+2. modify config_jedi.yaml and config_gsi.yaml to point at the configuration
+   files from 1 and the executables to be run. Set the RUNDIR in which the
+   jobs are run
+
+3. execute run_gsi.py and run_jedi.py. The syntax is "./run_gsi.py -y ./config_gsi.yaml"
+   and "./run_jedi.py -y ./config_jedi.yaml".  The run*py script will
+   (a) populate the specified RUNDIR with the files to run the given app
+   (b) create a batch script with the runscript name specified in the input yaml.
+       The batch script is created RUNDIR
+
+4. cd to the specified RUNDIR to submit the batch script. The job log file is written
+   to RUNDIR
+
+5. examine ouput upon job completion
