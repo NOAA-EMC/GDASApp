@@ -55,7 +55,7 @@ if plot_analysis:
                           colormap='jet',
                           projs=['North', 'South', 'Global'],
                           comout=os.path.join(comout, 'vrfy', 'ana'))]   # sea ice analysis
-    configs.extend(config_ana)
+    configs.extend(configs_ana)
 
 # Ensemble B plotting configuration
 if plot_ensemble_b:
@@ -176,7 +176,7 @@ if plot_increment:
                                                'hs_h': [-0.1, 0.1]},
                               colormap='seismic',
                               projs=['North', 'South'],
-                              comout=os.path.join(comout, 'vrfy', 'incr')),   # sea ice increment
+                              comout=os.path.join(comout, 'vrfy', 'incr'))]   # sea ice increment
                    plotConfig(grid_file=grid_file,
                               data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.postproc.nc'),
                               lats=np.arange(-60, 60, 10),
