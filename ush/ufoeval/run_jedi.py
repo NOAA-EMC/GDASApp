@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 
+
 class JobCard:
 
     def __init__(self, scriptname, config):
@@ -33,7 +34,7 @@ class JobCard:
         self.ppn = config['job options']['tasks-per-node']
         self.ntasks = self.nodes * self.ppn
         self.threads = config['job options']['cpus-per-task']
-        
+
         self.f = open(self.name, "w")
         self.f.write("#!/usr/bin/env bash\n")
         self.f.write(f"# Running on {self.machine} \n")
@@ -61,7 +62,7 @@ class JobCard:
         self.f.write(f"source {self.homegfs}/ush/preamble.sh\n")
         self.f.write(f". {self.homegfs}/ush/load_fv3gfs_modules.sh\n")
         self.f.write("set -x\n")
-        
+
     def aprun(self):
         """
         Execute app
@@ -83,7 +84,7 @@ class JobCard:
         self.f.write(f"# Execute app\n")
         self.f.write(f"export OMP_NUM_THREADS={self.threads}\n")
         self.f.write(f"ulimit -s unlimited\n")
-        
+
         aprun_command = f"srun -n {self.ntasks} --cpus-per-task={self.threads} ./app.x fv3jedi variational ./app.yaml"
         self.f.write(f"{aprun_command}\n")
 
@@ -93,6 +94,7 @@ class JobCard:
         """
         self.f.close()
         subprocess.run(["chmod", "+x", self.name])
+
 
 def main():
     epilog = ["Examples:",
@@ -110,7 +112,7 @@ def main():
         exp_config = yaml.safe_load(file)
 
     logging.info(f"exp_config {exp_config}")
-    
+
     # Set source (stagedir) and destination (rundir) paths
     stagedir = exp_config['directories']['STAGEDIR']
     rundir = exp_config['directories']['RUNDIR']
@@ -131,7 +133,7 @@ def main():
             shutil.copytree(source_dir, Path(rundir) / directory)
 
     logging.info(f"Data staged to {rundir}")
-    
+
     # Create run script.
     runscript = exp_config['app files']['runscript']
     run_card = JobCard(runscript, exp_config)
