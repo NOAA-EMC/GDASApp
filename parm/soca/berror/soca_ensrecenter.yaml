@@ -14,6 +14,9 @@ increment variables:
 - sea_water_salinity
 - eastward_sea_water_velocity
 - northward_sea_water_velocity
+- sea_ice_area_fraction
+- sea_ice_thickness
+- sea_ice_snow_thickness
 set increment variables to zero:
 - eastward_sea_water_velocity
 - northward_sea_water_velocity
@@ -26,6 +29,57 @@ vertical geometry:
 
 add recentering increment: true
 recentering around deterministic: true
+sea ice recenter: true
+sea ice analysis:
+  pattern: '%mem%'
+  date: '{{ MARINE_WINDOW_END_ISO }}'
+  ocn_filename: "ocean.%mem%.nc"
+  ice_filename: "ice.%mem%.nc"
+  read_from_file: 1
+  basename: {{ ENSPERT_RELPATH }}/ens/
+  state variables:
+  - sea_water_potential_temperature
+  - sea_water_salinity
+  - eastward_sea_water_velocity
+  - northward_sea_water_velocity
+  - sea_water_cell_thickness
+  - sea_water_depth
+  - ocean_mixed_layer_thickness
+  - sea_ice_area_fraction
+  - sea_ice_thickness
+  - sea_ice_snow_thickness
+    
+sea ice variable change:
+  variable change name: Soca2Cice
+  arctic:
+    seaice edge: 0.4
+    shuffle: true
+    rescale prior:
+      rescale: true
+      min hice: 0.5
+      min hsno: 0.1
+  antarctic:
+    seaice edge: 0.4
+    shuffle: true
+    rescale prior:
+      rescale: true
+      min hice: 0.5
+      min hsno: 0.1
+  cice background state:
+    pattern: '%mem%'
+    restart: ens/cice_model.res.%mem%.nc
+    ncat: 5
+    ice_lev: 7
+    sno_lev: 1
+  cice output:
+    pattern: '%mem%'
+    restart: ens/cice_model.res.output.%mem%.nc
+  output variables:
+  - sea_water_potential_temperature
+  - sea_water_salinity
+  - sea_ice_area_fraction
+  - sea_ice_thickness
+  - sea_ice_snow_thickness
 
 soca increments:  # Could also be states, but they are read as increments
   number of increments: {{ NMEM_ENS }}
@@ -34,8 +88,7 @@ soca increments:  # Could also be states, but they are read as increments
     date: '{{ MARINE_WINDOW_END_ISO }}'
     basename: ./ens/
     ocn_filename: 'ocean.%mem%.nc'
-    # TODO(AFE) fix ice recentering in cycled da
-    # ice_filename: 'ice.%mem%.nc'
+    ice_filename: 'ice.%mem%.nc'
     read_from_file: 3
 
 trajectory:
@@ -48,11 +101,13 @@ trajectory:
   - sea_water_cell_thickness
   - sea_water_depth
   - ocean_mixed_layer_thickness
+  - sea_ice_area_fraction
+  - sea_ice_thickness
+  - sea_ice_snow_thickness
   date: '{{ MARINE_WINDOW_END_ISO }}'
   basename: ./bkg/
   ocn_filename: ocean.bkg.f009.nc
-# TODO(AFE) fix ice recentering in cycled da
-  #ice_filename: cice.res.nc
+  ice_filename: ice.bkg.f009.nc
   read_from_file: 1
 
 output increment:

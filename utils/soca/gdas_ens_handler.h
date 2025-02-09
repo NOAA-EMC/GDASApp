@@ -11,6 +11,7 @@
 #include "oops/base/PostProcessor.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
+#include "oops/util/ConfigFunctions.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Duration.h"
 #include "oops/util/FieldSetOperations.h"
@@ -20,6 +21,7 @@
 #include "soca/Increment/Increment.h"
 #include "soca/LinearVariableChange/LinearVariableChange.h"
 #include "soca/State/State.h"
+#include "soca/VariableChange/VariableChange.h"
 
 #include "gdas_postprocincr.h"
 
@@ -147,7 +149,7 @@ namespace gdasapp {
 
       // Check if we're only re-centering the ensemble fcst around the det.
       bool recenterOnly = fullConfig.getBool("recentering around deterministic", false);
-
+      bool seaiceRecenter = fullConfig.getBool("sea ice recenter", false);
       // Save increments and exit if all we're doing is re-centering
       // the ensemble fcst around the det.
       if (recenterOnly) {
@@ -169,7 +171,32 @@ namespace gdasapp {
           postProcIncr.setToZero(incr);
 
           // Save the increments used to initialize the ensemble forecast
-          result = postProcIncr.save(mom6_incr, i+1, {"ocn"});
+          result = postProcIncr.save(mom6_incr, i+1);
+
+          // recenter ice if needed
+          if (seaiceRecenter) {
+            // read state
+            eckit::LocalConfiguration ensmem_config(fullConfig, "sea ice analysis");
+            std::string pattern;
+            fullConfig.get("sea ice analysis.pattern", pattern);
+            // replace templated string if necessary
+            if (!pattern.empty()) {
+              util::seekAndReplace(ensmem_config, pattern, std::to_string(i+1));
+            }
+            // assuming that this option is only used when recentering increment is on the
+            // same geometry
+            soca::State ens_an(geomOut, ensmem_config);
+            oops::Log::info() << "recentering ice state " << i << ":" << ens_an << std::endl;
+            ens_an += recenteringIncr;
+            oops::Log::info() << "recentered ice state " << i << ":" << ens_an << std::endl;
+            // set up variable change
+            eckit::LocalConfiguration varchange_config(fullConfig, "sea ice variable change");
+            util::seekAndReplace(varchange_config, pattern, std::to_string(i+1));
+            soca::VariableChange varchange(varchange_config, geomOut);
+            oops::Variables varout(varchange_config, "output variables");
+            // output happens inside soca2cice?
+            varchange.changeVar(ens_an, varout);
+          }
         }
         return result;
       }
