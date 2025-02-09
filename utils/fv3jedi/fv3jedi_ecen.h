@@ -34,21 +34,23 @@ namespace gdasapp {
       fullConfig.get("forecast hours", fcstHours);
       fullConfig.get("window begin", windowBeginStr);
       const util::DateTime windowBegin(windowBeginStr);
-      const oops::Variables atmVars(fullConfig, "atmospheric variables");
+      const oops::Variables incrVars(fullConfig, "increment variables");
 
       // Get geometry configurations
-      const eckit::LocalConfiguration incrGeomConfig(fullConfig, "increment geometry");
-      const eckit::LocalConfiguration bkgGeomConfig(fullConfig, "background geometry");
-      const eckit::LocalConfiguration anlEnsMeanGeomConfig(fullConfig, \
+      const eckit::LocalConfiguration varIncrGeomConfig(fullConfig, \
+                                                        "variational increment geometry");
+      const eckit::LocalConfiguration detBkgGeomConfig(fullConfig, \
+                                                    "deterministic background geometry");
+      const eckit::LocalConfiguration ensMeanAnlGeomConfig(fullConfig, \
                                                            "ensemble mean analysis geometry");
-      const eckit::LocalConfiguration incrCorGeomConfig(fullConfig, \
+      const eckit::LocalConfiguration corIncrGeomConfig(fullConfig, \
                                                         "correction increment geometry");
 
       // Setup geometries
-      const fv3jedi::Geometry incrGeom(incrGeomConfig, this->getComm());
-      const fv3jedi::Geometry bkgGeom(bkgGeomConfig, this->getComm());
-      const fv3jedi::Geometry anlEnsMeanGeom(anlEnsMeanGeomConfig, this->getComm());
-      const fv3jedi::Geometry incrCorGeom(incrCorGeomConfig, this->getComm());
+      const fv3jedi::Geometry varIncrGeom(varIncrGeomConfig, this->getComm());
+      const fv3jedi::Geometry detBkgGeom(detBkgGeomConfig, this->getComm());
+      const fv3jedi::Geometry ensMeanAnlGeom(ensMeanAnlGeomConfig, this->getComm());
+      const fv3jedi::Geometry corIncrGeom(corIncrGeomConfig, this->getComm());
 
       // Get additions configuration
       int nhrs = fcstHours.size();
@@ -72,40 +74,40 @@ namespace gdasapp {
         util::DateTime currentCycle = windowBegin + fcstHour;
 
         // Get elements of individual additions configurations
-        const eckit::LocalConfiguration atmIncrConfig(additionsConfig[ihrs], \
-                                                      "atmospheric increment");
-        const eckit::LocalConfiguration atmBkgConfig(additionsConfig[ihrs], \
-                                                     "atmospheric background");
-        const eckit::LocalConfiguration atmAnlEnsMeanConfig(additionsConfig[ihrs], \
-                                                            "atmospheric ensemble mean analysis");
-        const eckit::LocalConfiguration atmIncrCorConfig(additionsConfig[ihrs], \
-                                                         "atmospheric correction increment");
+        const eckit::LocalConfiguration varIncrConfig(additionsConfig[ihrs], \
+                                                   "variational increment");
+        const eckit::LocalConfiguration detBkgConfig(additionsConfig[ihrs], \
+                                                  "deterministic background");
+        const eckit::LocalConfiguration ensMeanAnlConfig(additionsConfig[ihrs], \
+                                                         "ensemble mean analysis");
+        const eckit::LocalConfiguration corIncrConfig(additionsConfig[ihrs], \
+                                                      "correction increment");
 
         // Initialize increment
-        fv3jedi::Increment dxAtm(incrGeom, atmVars, currentCycle);
-        dxAtm.read(atmIncrConfig);
+        fv3jedi::Increment dxVar(varIncrGeom, incrVars, currentCycle);
+        dxVar.read(varIncrConfig);
 
-        // Initialize background state
-        fv3jedi::State xxAtmBkg(bkgGeom, atmVars, currentCycle);
-        xxAtmBkg.read(atmBkgConfig);
+        // Initialize backgroun
+        fv3jedi::State xxBkgDet(detBkgGeom, incrVars, currentCycle);
+        xxBkgDet.read(detBkgConfig);
 
         // Initialize ensemble mean analysis
-        fv3jedi::State xxAtmAnlEnsMean(anlEnsMeanGeom, atmVars, currentCycle);
-        xxAtmAnlEnsMean.read(atmAnlEnsMeanConfig);
+        fv3jedi::State xxAnlEnsMean(ensMeanAnlGeom, incrVars, currentCycle);
+        xxAnlEnsMean.read(ensMeanAnlConfig);
 
         // Compute analysis
-        fv3jedi::State xxAtmAnl(bkgGeom, xxAtmBkg);
-        xxAtmAnl += dxAtm;
+        fv3jedi::State xxAnlVar(detBkgGeom, xxBkgDet);
+        xxAnlVar += dxVar;
 
         // Interpolate full resolution analysis to ensemble resolution and then change variables
-        fv3jedi::State xxAtmAnlEnsRes(incrCorGeom, xxAtmAnl);
+        fv3jedi::State xxAnlVarEnsRes(corIncrGeom, xxAnlVar);
 
         // Compute correction increment
-        fv3jedi::Increment dxAtmCor(incrCorGeom, atmVars, xxAtmBkg.validTime());
-        dxAtmCor.diff(xxAtmAnlEnsRes, xxAtmAnlEnsMean);
+        fv3jedi::Increment dxCor(corIncrGeom, incrVars, xxBkgDet.validTime());
+        dxCor.diff(xxAnlVarEnsRes, xxAnlEnsMean);
 
         // Write correction increment
-        dxAtmCor.write(atmIncrCorConfig);
+        dxCor.write(corIncrConfig);
       }
 
       return 0;
