@@ -89,6 +89,11 @@ esac
 
 CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET"
 
+# TODO: Remove LD_LIBRARY_PATH line as soon as permanent solution is available
+if [[ $BUILD_TARGET == 'wcoss2' ]]; then
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
+fi
+
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
 if [[ $CLEAN_BUILD == 'YES' ]]; then
   [[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR}
