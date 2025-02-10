@@ -6,6 +6,21 @@ import sys
 import copy
 import os
 
+def render_html(template_name, output_html, context):
+    # Read the Jinja2 template file
+    with open(template_name, 'r') as file:
+        template_content = file.read()
+
+    # Create a Jinja2 template object
+    template = Template(template_content)
+
+    # Render the template with custom values
+    rendered_html = template.render(**context)
+
+    # Write the rendered script to the output file
+    with open(output_html, 'w') as file:
+        file.write(rendered_html)
+
 def iterate_pdy_range(start_pdy, end_pdy):
     """Generate a range of dates in YYYYMMDD format."""
     start_date = datetime.strptime(start_pdy, "%Y%m%d")
@@ -70,11 +85,24 @@ if __name__ == "__main__":
           # Submit the plotting job
           subprocess.run(f"sbatch {jobcard}", shell=True)
 
-    # Create the HTML document from the Jinja2 template
+    # Create the HTML document
     # copy the HTML resource files from marine_vrfy_display to the output directory
     srcdir = os.path.join(context['homegdas'], 'utils', 'soca', 'fig_gallery', 'marine_vrfy_display')
     dstdir = context['vrfyout']
     os.makedirs(dstdir, exist_ok=True)
     subprocess.run(f"cp -r {srcdir}/* {dstdir}/", shell=True)
+    template_path = os.path.join(context['homegdas'], 'utils', 'soca', 'fig_gallery',
+                                 'marine_vrfy_display', 'index_vrfy_marine.html.j2')
+    output_html = os.path.join(dstdir, 'index.html')
 
-    template_path = os.path.join(context['homegdas'], 'utils', 'soca', 'fig_gallery', 'vrfy_template.html')
+    # define the html context
+    html_context = {
+        'year_list': ["2021"],
+        'month_list': ["07"],
+        'day_list': ["01", "02", "03", "04", "05", "06", "07", "08"],
+        'pslot': "cp4.01",
+        'path_to_vrfy': "/home/gvernier/sandboxes/GDASApp/utils/soca/fig_gallery/marine_vrfy_display/nomlb",
+    }
+
+    # render the html
+    render_html(template_path, output_html, html_context)

@@ -489,7 +489,7 @@ window.onclick = function(event) {
             var month = document.getElementById('inputMonth').value;
             var day = document.getElementById('inputDay').value;
             var hour = document.getElementById('inputHour').value;
-            var inputPath = {{ pathMain }}+"/gdas."+year+month+day+"."+hour+"/vrfy/";
+            var inputPath = "{{ path_to_vrfy }}/gdas."+year+month+day+"."+hour+"/vrfy/";
 
             var woaTEMPpath = "/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/comparison/WOA23/bkg/Temp/images/"+year+month+"/";
             var ostiaSEAICEpath = "/scratch1/NCEPDEV/da/Mindo.Choi/sandbox/marine_vrfy/comparison/OSTIA/"
@@ -544,7 +544,7 @@ window.onclick = function(event) {
                     var container = document.getElementById('imageContainer');
                     container.innerHTML = `<div class="gallery" style="display: grid; grid-template-columns: repeat(2, 1fr);">
                         <figure>
-				<img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}_${globalstr}.png" class="gallery-image" alt="">
+                                <img src="${inputPath}${thisFigType}/${thisVar}/${thisVar}_${globalstr}.png" class="gallery-image" alt="" onload="console.log(this.src)">
 				<figcaption>${figtypestr} ${thisDomain} Surface ${varstr} (Level 1)</figcaption>
                         </figure>
 			<figure>
