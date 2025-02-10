@@ -91,17 +91,17 @@ if __name__ == "__main__":
     dstdir = context['vrfyout']
     os.makedirs(dstdir, exist_ok=True)
     subprocess.run(f"cp -r {srcdir}/* {dstdir}/", shell=True)
-    template_path = os.path.join(context['homegdas'], 'utils', 'soca', 'fig_gallery',
-                                 'marine_vrfy_display', 'index_vrfy_marine.html.j2')
+    template_path = os.path.join(context['homegdas'], 'utils', 'soca', 'fig_gallery', 'index_vrfy_marine.html.j2')
     output_html = os.path.join(dstdir, 'index.html')
 
     # define the html context
+    # TODO(G): get lsts from the list of cycles
     html_context = {
         'year_list': ["2021"],
         'month_list': ["07"],
         'day_list': ["01", "02", "03", "04", "05", "06", "07", "08"],
         'pslot': "cp4.01",
-        'path_to_vrfy': "/home/gvernier/sandboxes/GDASApp/utils/soca/fig_gallery/marine_vrfy_display/nomlb",
+        'path_to_vrfy': context['vrfyout']
     }
 
     # render the html
