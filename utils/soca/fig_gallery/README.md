@@ -45,3 +45,14 @@ eva_module: "EVA/orion"
 ```python run_vrfy.py vrfy_config.yaml```
 This will generate and submit the job cards for all the **cycles** defined by `cycs`, from `start_pdy` to `end_pdy`.
 
+---
+#### View the results
+The script above will create figures according to the specified configuration. An `index.html` file is also generated to facilitate browsing through the results.
+
+##### On hera
+`X2GO` is probably the simplest option to start a browser and view the results.
+
+##### On MSU
+Two options that works:
+- Use the MSU `Dashboard` application
+- Tar the results and copy to your local machine
