@@ -99,7 +99,7 @@ namespace gdasapp {
         fv3jedi::State xxAnlVar(detBkgGeom, xxBkgDet);
         xxAnlVar += dxVar;
 
-        // Interpolate full resolution analysis to ensemble resolution and then change variables
+        // Interpolate full resolution analysis to ensemble resolution
         fv3jedi::State xxAnlVarEnsRes(corIncrGeom, xxAnlVar);
 
         // Compute correction increment
