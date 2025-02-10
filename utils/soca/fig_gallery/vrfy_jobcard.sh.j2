@@ -34,13 +34,13 @@ export PLOT_INCREMENT={{ plot_increment | default("ON") }}
 export PLOT_ANALYSIS={{ plot_analysis | default("OFF") }}
 export PLOT_ANALYSIS={{ plot_analysis | default("OFF") }}
 export EVA_PLOTS={{ eva_plots | default("OFF") }}
-export VRFYOUT="{{ vrfyout | default("./vrfyout") }}"
 
 # Define and export the environment variables
 export cyc="{{ cyc }}"
 export RUN="{{ run | default("gdas") }}"
 export PSLOT="{{ pslot }}"
 export PDY="{{ pdy }}"
+export VRFYOUT="{{ vrfyout | default("./vrfyout") }}"/${RUN}.${PDY}.${cyc}
 
 # Define base experiment path
 BASE_EXP_PATH="{{ base_exp_path }}"  # path to the gdas.pdy directory

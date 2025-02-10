@@ -71,8 +71,10 @@ if __name__ == "__main__":
     config = yaml.safe_load(template.render(pslot=template_dict["pslot"]))
 
     # Iterate over the date range
+    pdys = []
     for pdy in iterate_pdy_range(config['start_pdy'], config['end_pdy']):
         context = copy.deepcopy(config)
+        pdys.append(pdy)
         for cyc in config["cycs"]:
           # Update the cycle's date
           context.update({"pdy": pdy, "cyc": cyc})
@@ -85,8 +87,23 @@ if __name__ == "__main__":
           # Submit the plotting job
           subprocess.run(f"sbatch {jobcard}", shell=True)
 
+    # Create the list of years, months, and days from pdys
+    pdys = sorted(pdys)
+    years = list(set([pdy[:4] for pdy in pdys]))
+    months = list(set([pdy[4:6] for pdy in pdys]))
+    days = list(set([pdy[6:] for pdy in pdys]))
+
+    # make sure the elements of years, months, and days are unique
+    years = list(set(years))
+    months = list(set(months))
+    days = list(set(days))
+
+    # sort the years, months, and days
+    years.sort()
+    months.sort()
+    days.sort()
+
     # Create the HTML document
-    # copy the HTML resource files from marine_vrfy_display to the output directory
     srcdir = os.path.join(context['homegdas'], 'utils', 'soca', 'fig_gallery', 'marine_vrfy_display')
     dstdir = context['vrfyout']
     os.makedirs(dstdir, exist_ok=True)
@@ -95,13 +112,11 @@ if __name__ == "__main__":
     output_html = os.path.join(dstdir, 'index.html')
 
     # define the html context
-    # TODO(G): get lsts from the list of cycles
     html_context = {
-        'year_list': ["2021"],
-        'month_list': ["07"],
-        'day_list': ["01", "02", "03", "04", "05", "06", "07", "08"],
-        'pslot': "cp4.01",
-        'path_to_vrfy': context['vrfyout']
+        'year_list': years,
+        'month_list': months,
+        'day_list': days,
+        'pslot': template_dict["pslot"],
     }
 
     # render the html
