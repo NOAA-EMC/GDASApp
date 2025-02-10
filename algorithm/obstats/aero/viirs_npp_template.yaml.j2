@@ -3,17 +3,17 @@
     obsdatain:
       engine:
         type: H5File
-        obsfile: {{ aero_obsdatain_path }}/diag_{{ obspace }}_{{ stat_current_cycle_YMDH }}.nc4
-    simulated variables: {{ aero_obsdatatin_simulated_variables }}
-    observed variables: {{ aero_obsdatain_observed_variables }}
-  variables: {{ aero_variables }}
-  groups to process: {{ aero_file_groups }}
-  qc groups: {{ aero_file_qc_groups }}
+        obsfile: {{ aero_obsdatain_path }}/aero/diag_{{ obspace }}_{{ stat_current_cycle_YMDH }}.nc4
+    simulated variables: ['aerosolOpticalDepth']
+    observed variables: ['aerosolOpticalDepth']
+  variables: ['aerosolOpticalDepth']
+  groups to process: ['ombg', 'oman']
+  qc groups: ['EffectiveQC0', 'EffectiveQC1']
   statistics to compute: ['mean', 'count', 'RMS']
   output file: "{{ obspace }}_{{ stat_current_cycle_YMDH }}_output_aod.nc"
   domains to process:
   - domain:
-      name: "nowhere"
+      name: "Global"
       first mask variable: latitude
       first mask range: [-180,-100]
   - domain:
