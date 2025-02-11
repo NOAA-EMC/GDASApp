@@ -60,7 +60,7 @@ class JobCard:
         self.f.write("# Load modules\n")
         self.f.write(f"export HOMEgfs={self.homegfs}\n")
         self.f.write(f"source {self.homegfs}/ush/preamble.sh\n")
-        self.f.write(f". {self.homegfs}/ush/load_fv3gfs_modules.sh\n")
+        self.f.write(f". {self.homegfs}/ush/load_ufsda_modules.sh\n")
         self.f.write("set -x\n")
 
     def aprun(self):
