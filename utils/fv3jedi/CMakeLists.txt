@@ -9,3 +9,9 @@ ecbuild_add_executable( TARGET fv3jedi_ensemble_recenter.x
                         SOURCES fv3jedi_ensemble_recenter.cc fv3jedi_ensemble_recenter.h)
 target_compile_features( fv3jedi_ensemble_recenter.x PUBLIC cxx_std_17)
 target_link_libraries( fv3jedi_ensemble_recenter.x PUBLIC NetCDF::NetCDF_CXX oops fv3jedi)
+
+# Increment addition
+ecbuild_add_executable( TARGET fv3jedi_add_increments.x
+                        SOURCES fv3jedi_add_increments.cc fv3jedi_add_increments.h)
+target_compile_features( fv3jedi_add_increments.x PUBLIC cxx_std_17)
+target_link_libraries( fv3jedi_add_increments.x PUBLIC NetCDF::NetCDF_CXX oops fv3jedi)

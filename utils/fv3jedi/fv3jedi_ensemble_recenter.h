@@ -25,7 +25,7 @@
 class ForecastHourParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(ForecastHourParameters, Parameters)
  public:
-  oops::RequiredParameter<std::string> fcstTimeStr{"forecast time", \
+  oops::RequiredParameter<std::string> datetimeStr{"datetime", \
                                                    this};
   oops::RequiredParameter<eckit::LocalConfiguration> detBkgConfig{"deterministic background", \
                                                                   this};
@@ -80,18 +80,18 @@ namespace gdasapp {
         const ForecastHourParameters fcstHourParams = params.fcstHourParams.value()[ihour];
 
         // Get forecast time
-        const util::DateTime fcstTime(fcstHourParams.fcstTimeStr.value());
+        const util::DateTime datetime(fcstHourParams.datetimeStr.value());
 
         // Initialize background
-        fv3jedi::State xxBkgDet(detBkgGeom, params.incrVars.value(), fcstTime);
+        fv3jedi::State xxBkgDet(detBkgGeom, params.incrVars.value(), datetime);
         xxBkgDet.read(fcstHourParams.detBkgConfig.value());
 
         // Initialize increment
-        fv3jedi::Increment dxVar(varIncrGeom, params.incrVars.value(), fcstTime);
+        fv3jedi::Increment dxVar(varIncrGeom, params.incrVars.value(), datetime);
         dxVar.read(fcstHourParams.varIncrConfig.value());
 
         // Initialize ensemble mean analysis
-        fv3jedi::State xxAnlEnsMean(ensMeanAnlGeom, params.incrVars.value(), fcstTime);
+        fv3jedi::State xxAnlEnsMean(ensMeanAnlGeom, params.incrVars.value(), datetime);
         xxAnlEnsMean.read(fcstHourParams.ensMeanAnlConfig.value());
 
         // Compute analysis
@@ -102,7 +102,7 @@ namespace gdasapp {
         fv3jedi::State xxAnlVarEnsRes(corIncrGeom, xxAnlVar);
 
         // Compute correction increment
-        fv3jedi::Increment dxCor(corIncrGeom, params.incrVars.value(), fcstTime);
+        fv3jedi::Increment dxCor(corIncrGeom, params.incrVars.value(), datetime);
         dxCor.diff(xxAnlVarEnsRes, xxAnlEnsMean);
 
         // Write correction increment
