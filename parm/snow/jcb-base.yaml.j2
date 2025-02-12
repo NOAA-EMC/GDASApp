@@ -30,7 +30,7 @@ snow_increment_time_fv3: "{{ bkg_time_fv3 }}"
 
 # IAU times
 snow_iau_hours: {{ IAUFHRS }}
-snow_iau_times_iso: {{ iau_times_iso }}
+snow_iau_times_iso: {{ iau_times_iso | default([current_cycle | to_isotime], true) }}
 
 # Analysis standard things
 # ------------------------

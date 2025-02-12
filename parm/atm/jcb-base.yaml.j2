@@ -51,7 +51,7 @@ atmosphere_background_time_iso: "{{ current_cycle | to_isotime }}"
 
 # IAU times
 atmosphere_iau_hours: {{ IAUFHRS }}
-atmosphere_iau_times_iso: {{ iau_times_iso }}
+atmosphere_iau_times_iso: {{ iau_times_iso | default([current_cycle | to_isotime], true) }}
 
 # Background error
 atmosphere_bump_data_directory: "{{ DATA }}/berror"
