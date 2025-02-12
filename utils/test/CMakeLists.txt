@@ -11,6 +11,7 @@ list( APPEND utils_test_input
   testinput/gdas_icecamsr2ioda.yaml
   testinput/gdas_icecmirs2ioda.yaml
   testinput/gdas_icecjpssrr2ioda.yaml
+  testinput/gdas_insituall2ioda.yaml
   testinput/gdas_viirsaod2ioda.yaml
 )
 
@@ -25,6 +26,7 @@ set( gdas_utils_test_ref
   testref/icecamsr2ioda.test
   testref/icecmirs2ioda.test
   testref/icecjpssrr2ioda.test
+  testref/insituall2ioda.test
   testref/viirsaod2ioda.test
 )
 
