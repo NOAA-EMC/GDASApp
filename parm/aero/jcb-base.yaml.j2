@@ -34,7 +34,6 @@ analysis_variables: [mass_fraction_of_sulfate_in_air,
                        mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air,
                        mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air,
                        mass_fraction_of_sea_salt004_in_air]
-iau_hours: {{ IAUFHRS }}
 
 # Model things
 # ------------
@@ -71,6 +70,10 @@ aero_cycle_time_fv3: "{{ current_cycle | to_fv3time }}"
 {% set background_time = current_cycle | add_to_datetime(offset_td) %}
 aero_background_error_time_iso:  "{{ background_time | to_isotime }}"
 aero_background_error_time_fv3: "{{ background_time | to_fv3time }}"
+
+# IAU times
+aero_iau_hours: {{ IAUFHRS }}
+aero_iau_times_iso: {{ iau_times_iso }}
 
 # Background error
 aero_berror_data_directory: "{{ DATA }}/berror"

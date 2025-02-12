@@ -26,7 +26,6 @@ final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
 analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 number_of_outer_loops: 2
-iau_hours: {{ IAUFHRS }}
 
 # Model things
 # ------------
@@ -49,6 +48,10 @@ atmosphere_background_ensemble_path: ./ens/mem%mem%
 
 # Default background time is for 3D applications
 atmosphere_background_time_iso: "{{ current_cycle | to_isotime }}"
+
+# IAU times
+atmosphere_iau_hours: {{ IAUFHRS }}
+atmosphere_iau_times_iso: {{ iau_times_iso }}
 
 # Background error
 atmosphere_bump_data_directory: "{{ DATA }}/berror"
