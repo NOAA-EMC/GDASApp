@@ -8,6 +8,15 @@ from soca_vrfy import statePlotter, plotConfig
 import subprocess
 
 comout = os.getenv('COM_OCEAN_ANALYSIS')
+# resolve the comout path since it may contain wild cards
+matching_paths = glob.glob(comout)
+if matching_paths:
+    comout = matching_paths[0]  # Assuming you want the first match
+    print(comout)
+else:
+    print("No matching paths found")
+    exit(1)
+
 com_ice_history = os.getenv('COM_ICE_HISTORY_PREV')
 com_ocean_history = os.getenv('COM_OCEAN_HISTORY_PREV')
 cyc = os.getenv('cyc')
