@@ -81,7 +81,9 @@ if __name__ == "__main__":
 
           # Prepare the job card
           template_jobcard = os.path.join(context['homegdas'], 'utils', 'soca', 'fig_gallery', 'vrfy_jobcard.sh.j2')  # Assumes a Jinja2 template file in the moegdas directory
-          jobcard = f"vrfy_jobcard.{context['pslot']}.{context['pdy']}.{context['cyc']}.sh"
+          jobcard_name = f"vrfy_jobcard.{context['pslot']}.{context['pdy']}.{context['cyc']}"
+          jobcard = jobcard_name+".sh"
+          os.system("rm -rf "+jobcard_name+".log")    # deletes old log file
           generate_jobcard(template_jobcard, jobcard, context)
 
           # Submit the plotting job
