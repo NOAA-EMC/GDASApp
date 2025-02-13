@@ -93,7 +93,6 @@ if plot_analysis:
                           colormap='jet',
                           projs=['North', 'South', 'Global'],
                           vrfyout=os.path.join(vrfyout, 'vrfy', 'ana'))]   # sea ice analysis
-    #configs.extend(config_ana)
     configs.extend(configs_ana)
 
 # Ensemble B plotting configuration
@@ -217,16 +216,14 @@ if plot_increment:
                               projs=['North', 'South'],
                               vrfyout=os.path.join(vrfyout, 'vrfy', 'incr')),   # sea ice increment
                    plotConfig(grid_file=grid_file,
-                              #data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.postproc.nc'),
-                              data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc'),
+                              data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.postproc.nc'),
                               lats=np.arange(-60, 60, 10),
                               variables_horiz={'aice_h': [-0.2, 0.2],
                                                'hi_h': [-0.5, 0.5],
                                                'hs_h': [-0.1, 0.1]},
                               colormap='seismic',
                               projs=['North', 'South'],
-                              #vrfyout=os.path.join(vrfyout, 'vrfy', 'incr.postproc'))]   # sea ice increment after postprocessing
-                              vrfyout=os.path.join(vrfyout, 'vrfy', 'incr'))]   # sea ice increment after postprocessing
+                              vrfyout=os.path.join(vrfyout, 'vrfy', 'incr.postproc'))]   # sea ice increment after postprocessing
     configs.extend(config_incr)
 
 
