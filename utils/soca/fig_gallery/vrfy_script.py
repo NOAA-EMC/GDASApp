@@ -6,6 +6,7 @@ import diag_statistics
 from multiprocessing import Process
 from soca_vrfy import statePlotter, plotConfig
 import subprocess
+import glob
 
 comout = os.getenv('COM_OCEAN_ANALYSIS')
 # resolve the comout path since it may contain wild cards
@@ -14,11 +15,35 @@ if matching_paths:
     comout = matching_paths[0]  # Assuming you want the first match
     print(comout)
 else:
+    print(comout)
     print("No matching paths found")
     exit(1)
+del matching_paths
 
 com_ice_history = os.getenv('COM_ICE_HISTORY_PREV')
+# resolve the comout path since it may contain wild cards
+matching_paths = glob.glob(com_ice_history)
+if matching_paths:
+    com_ice_history = matching_paths[0]  # Assuming you want the first match
+    print(com_ice_history)
+else:
+    print(com_ice_history)
+    print("No matching paths found")
+    exit(1)
+del matching_paths
+
 com_ocean_history = os.getenv('COM_OCEAN_HISTORY_PREV')
+# resolve the comout path since it may contain wild cards
+matching_paths = glob.glob(com_ocean_history)
+if matching_paths:
+    com_ocean_history = matching_paths[0]  # Assuming you want the first match
+    print(com_ocean_history)
+else:
+    print(com_ocean_history)
+    print("No matching paths found")
+    exit(1)
+del matching_paths
+
 cyc = os.getenv('cyc')
 RUN = os.getenv('RUN')
 
@@ -68,7 +93,8 @@ if plot_analysis:
                           colormap='jet',
                           projs=['North', 'South', 'Global'],
                           vrfyout=os.path.join(vrfyout, 'vrfy', 'ana'))]   # sea ice analysis
-    configs.extend(config_ana)
+    #configs.extend(config_ana)
+    configs.extend(configs_ana)
 
 # Ensemble B plotting configuration
 if plot_ensemble_b:
@@ -191,14 +217,16 @@ if plot_increment:
                               projs=['North', 'South'],
                               vrfyout=os.path.join(vrfyout, 'vrfy', 'incr')),   # sea ice increment
                    plotConfig(grid_file=grid_file,
-                              data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.postproc.nc'),
+                              #data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.postproc.nc'),
+                              data_file=os.path.join(comout, f'{RUN}.t'+cyc+'z.ice.incr.nc'),
                               lats=np.arange(-60, 60, 10),
                               variables_horiz={'aice_h': [-0.2, 0.2],
                                                'hi_h': [-0.5, 0.5],
                                                'hs_h': [-0.1, 0.1]},
                               colormap='seismic',
                               projs=['North', 'South'],
-                              vrfyout=os.path.join(vrfyout, 'vrfy', 'incr.postproc'))]   # sea ice increment after postprocessing
+                              #vrfyout=os.path.join(vrfyout, 'vrfy', 'incr.postproc'))]   # sea ice increment after postprocessing
+                              vrfyout=os.path.join(vrfyout, 'vrfy', 'incr'))]   # sea ice increment after postprocessing
     configs.extend(config_incr)
 
 
