@@ -45,6 +45,8 @@ cdl2nc4 sss_smap_1.nc4 ${project_source_dir}/testdata/sss_smap_1.cdl
 cdl2nc4 sss_smap_2.nc4 ${project_source_dir}/testdata/sss_smap_2.cdl
 cdl2nc4 sss_smos_1.nc4 ${project_source_dir}/testdata/sss_smos_1.cdl
 cdl2nc4 sss_smos_2.nc4 ${project_source_dir}/testdata/sss_smos_2.cdl
+cdl2nc4 insitu_profile_argo_1.nc4 ${project_source_dir}/testdata/insitu_profile_argo_1.cdl
+cdl2nc4 insitu_profile_argo_2.nc4 ${project_source_dir}/testdata/insitu_profile_argo_2.cdl
 cdl2nc4 ghrsst_sst_ma_202103241540.nc4 ${project_source_dir}/testdata/ghrsst_sst_ma_202103241540.cdl
 cdl2nc4 ghrsst_sst_ma_202103241550.nc4 ${project_source_dir}/testdata/ghrsst_sst_ma_202103241550.cdl
 cdl2nc4 viirs_aod_1.nc4 ${project_source_dir}/testdata/viirs_aod_1.cdl

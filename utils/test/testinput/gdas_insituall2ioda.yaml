@@ -1,0 +1,16 @@
+provider: INSITUOBS
+window begin: 2021-03-24T21:00:00Z
+window end: 2021-03-25T03:00:00Z
+variable: waterTemperature
+#variable: salinity
+error ratio: 0.4
+output file: insitu_profile_argo_waterTemperature.ioda.nc
+#output file: insitu_profile_argo_salinity.ioda.nc
+input files:
+- insitu_profile_argo_1.nc4 
+- insitu_profile_argo_2.nc4
+
+test:
+  reference filename: testref/insituall2ioda.test
+  test output filename: testoutput/insituall2ioda.test
+  float relative tolerance: 1e-6
