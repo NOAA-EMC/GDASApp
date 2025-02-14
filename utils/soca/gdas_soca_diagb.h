@@ -445,7 +445,7 @@ namespace gdasapp {
             }
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
               if (viewBathy(jnode, 0) > 0.0) {
-                localEfold = computeLocalEFoldingScale(viewBathy(jnode, 0), efold);
+                localEfold = computeLocalEFoldingScale(viewBathy(jnode, 0), efold, edRatio);
                 stdDevBkg(jnode, level) *= std::exp(-viewDepth(jnode, level) / localEfold);
               }
             }  // end level
@@ -512,8 +512,22 @@ namespace gdasapp {
 
    private:
     // Function to compute the local e-folding scale
-    double computeLocalEFoldingScale(const double depth, const double eFoldingLength) const {
-      const double minRatio = 3.0;
+    /**
+     * @brief Computes the local e-folding scale based on the given depth, e-folding length
+     *  and the minimum ratio depth/eFoldingLength.
+     *
+     * This function calculates the local e-folding scale by comparing the ratio of depth to
+     * e-folding length with a minimum ratio. If the ratio is less than the minimum ratio,
+     * the function returns the depth divided by the minimum ratio. Otherwise, it returns
+     * the e-folding length.
+     *
+     * @param depth The local ocean depth.
+     * @param eFoldingLength The target e-folding length.
+     * @param minRatio The minimum ratio defined as depth/eFoldingLength.
+     * @return The adjusted e-folding scale.
+     */
+    double computeLocalEFoldingScale(const double depth, const double eFoldingLength,
+                                     const double minRatio) const {
       double ratio = depth / eFoldingLength;
       if (ratio < minRatio) {
         return depth / minRatio;
