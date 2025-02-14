@@ -175,7 +175,7 @@ namespace gdasapp {
             const double inflation = fullConfig.getDouble("ensemble inflation.value");
             mom6_incr *= inflation;
             oops::Log::info() << "incr after scalar inflation " << i << ":"
-		              << mom6_incr << std::endl;
+                              << mom6_incr << std::endl;
           }
           if (fullConfig.has("ensemble inflation.field")) {
             soca::Increment weight(geomOut, mom6_incr.variables(), mom6_incr.validTime());
@@ -183,7 +183,7 @@ namespace gdasapp {
             weight.read(weightConf);
             mom6_incr.schur_product_with(weight);
             oops::Log::info() << "incr after field inflation " << i << ":"
-		              << mom6_incr << std::endl;
+                              << mom6_incr << std::endl;
           }
 
           // Save the increments used to initialize the ensemble forecast
