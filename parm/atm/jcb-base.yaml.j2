@@ -68,6 +68,7 @@ atmosphere_forecast_timestep: "{{ BKG_TSTEP }}"
 atmosphere_final_increment_prefix: "./anl/atminc."
 
 atmosphere_variational_history_prefix: "{{GPREFIX}}"
+atmosphere_variational_analysis_prefix: "{{APREFIX}}"
 
 # Observation things
 # ------------------
@@ -144,3 +145,4 @@ atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
 atmosphere_posterior_output_gaussian: "./mem%{member}%/atmanl."
 
 atmosphere_ensemble_history_prefix: "enkf{{GPREFIX}}"
+atmosphere_ensemble_analysis_prefix: "{{APREFIX}}"
