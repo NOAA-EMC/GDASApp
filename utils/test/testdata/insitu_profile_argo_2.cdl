@@ -1,0 +1,140 @@
+netcdf insitu_profile_argo_2 {
+dimensions:
+	Location = UNLIMITED ; // (16 currently)
+variables:
+	int64 Location(Location) ;
+		Location:suggested_chunk_dim = 10000LL ;
+
+// global attributes:
+		string :datetimeRange = "1616641440", "1616664780" ;
+		string :dataProviderOrigin = "U.S. NOAA" ;
+		:_ioda_layout_version = 0 ;
+		string :sourceFiles = "2021032506-gdas.t06z.subpfl.tm00.bufr_d" ;
+		string :source = "NCEP data tank" ;
+		string :Converter = "BUFR to IODA Converter" ;
+		string :_ioda_layout = "ObsGroup" ;
+		string :platformLongDescription = "ARGO profiles from subpfl: temperature and salinity" ;
+		string :description = "6-hrly in situ ARGO profiles" ;
+		:history = "Thu Jan 30 19:07:56 2025: ncks -v MetaData/dateTime,MetaData/latitude,MetaData/longitude,MetaData/depth,MetaData/oceanBasin,MetaData/rcptdateTime,MetaData/sequenceNumber,MetaData/stationID,ObsValue/waterTemperature,ObsValue/salinity,ObsError/waterTemperature,ObsError/salinity,PreQC/waterTemperature,PreQC/salinity -d Location,3000,3015,1 gdas.t06z.insitu_profile_argo.2021032506.nc4 insitu_profile_argo_3.nc" ;
+		:NCO = "netCDF Operators version 5.0.6 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" ;
+data:
+
+group: MetaData {
+  variables:
+  	int64 dateTime(Location) ;
+  		dateTime:_FillValue = 0LL ;
+  		string dateTime:units = "seconds since 1970-01-01T00:00:00Z" ;
+  		string dateTime:long_name = "Datetime" ;
+  	float depth(Location) ;
+  		depth:_FillValue = 2.147484e+09f ;
+  		string depth:units = "m" ;
+  		string depth:long_name = "Water depth" ;
+  	float latitude(Location) ;
+  		latitude:_FillValue = 3.402823e+38f ;
+  		string latitude:units = "degrees_north" ;
+  		latitude:valid_range = -90.f, 90.f ;
+  		string latitude:long_name = "Latitude" ;
+  	float longitude(Location) ;
+  		longitude:_FillValue = 3.402823e+38f ;
+  		string longitude:units = "degrees_east" ;
+  		longitude:valid_range = -180.f, 180.f ;
+  		string longitude:long_name = "Longitude" ;
+  	int oceanBasin(Location) ;
+  		oceanBasin:_FillValue = 999999 ;
+  		string oceanBasin:long_name = "Ocean basin" ;
+  	int64 rcptdateTime(Location) ;
+  		rcptdateTime:_FillValue = 0LL ;
+  		string rcptdateTime:units = "seconds since 1970-01-01T00:00:00Z" ;
+  		string rcptdateTime:long_name = "receipt Datetime" ;
+  	int sequenceNumber(Location) ;
+  		sequenceNumber:_FillValue = 999999 ;
+  		string sequenceNumber:long_name = "Sequence Number" ;
+  	int stationID(Location) ;
+  		stationID:_FillValue = 2147483647 ;
+  		string stationID:long_name = "Station Identification" ;
+  data:
+
+   dateTime = 1616645340, 1616645340, 1616645340, 1616645340, 1616645340, 
+      1616645340, 1616645340, 1616645340, 1616645340, 1616645340, 1616645340, 
+      1616645340, 1616645340, 1616645340, 1616645340, 1616645340 ;
+
+   depth = 17.6, 19.6, 21.6, 23.6, 25.6, 27.6, 29.6, 31.6, 33.6, 35.6, 37.6, 
+      39.6, 41.5, 43.6, 45.6, 47.6 ;
+
+   latitude = -12.95, -12.95, -12.95, -12.95, -12.95, -12.95, -12.95, -12.95, 
+      -12.95, -12.95, -12.95, -12.95, -12.95, -12.95, -12.95, -12.95 ;
+
+   longitude = -97.736, -97.736, -97.736, -97.736, -97.736, -97.736, -97.736, 
+      -97.736, -97.736, -97.736, -97.736, -97.736, -97.736, -97.736, -97.736, 
+      -97.736 ;
+
+   oceanBasin = 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ;
+
+   rcptdateTime = 1616648520, 1616648520, 1616648520, 1616648520, 1616648520, 
+      1616648520, 1616648520, 1616648520, 1616648520, 1616648520, 1616648520, 
+      1616648520, 1616648520, 1616648520, 1616648520, 1616648520 ;
+
+   sequenceNumber = 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 
+      33, 33 ;
+
+   stationID = 4902899, 4902899, 4902899, 4902899, 4902899, 4902899, 4902899, 
+      4902899, 4902899, 4902899, 4902899, 4902899, 4902899, 4902899, 4902899, 
+      4902899 ;
+  } // group MetaData
+
+group: ObsError {
+  variables:
+  	float salinity(Location) ;
+  		salinity:_FillValue = 1.e+20f ;
+  		string salinity:units = "psu" ;
+  		string salinity:long_name = "ObsError" ;
+  	float waterTemperature(Location) ;
+  		waterTemperature:_FillValue = 1.e+20f ;
+  		string waterTemperature:units = "degC" ;
+  		string waterTemperature:long_name = "ObsError" ;
+  data:
+
+   salinity = 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 
+      0.01, 0.01, 0.01, 0.01, 0.01, 0.01 ;
+
+   waterTemperature = 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 
+      0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02 ;
+  } // group ObsError
+
+group: ObsValue {
+  variables:
+  	float salinity(Location) ;
+  		salinity:_FillValue = 3.402823e+38f ;
+  		string salinity:units = "psu" ;
+  		salinity:valid_range = 0.f, 45.f ;
+  		string salinity:long_name = "salinity" ;
+  	float waterTemperature(Location) ;
+  		waterTemperature:_FillValue = 3.402823e+38f ;
+  		string waterTemperature:units = "degC" ;
+  		waterTemperature:valid_range = -10.f, 50.f ;
+  		string waterTemperature:long_name = "waterTemperature" ;
+  data:
+
+   salinity = 36.01, 36.01, 36.01, 36.01, 36.01, 36.01, 36.01, 36.01, 36.01, 
+      36.01, 36.009, 36.005, 35.985, 35.916, 35.889, 35.88 ;
+
+   waterTemperature = 24.428, 24.42901, 24.42401, 24.42401, 24.42501, 24.423, 
+      24.42501, 24.428, 24.42901, 24.427, 24.419, 24.414, 24.20599, 23.052, 
+      22.561, 22.33901 ;
+  } // group ObsValue
+
+group: PreQC {
+  variables:
+  	int salinity(Location) ;
+  		salinity:_FillValue = 999999 ;
+  		string salinity:long_name = "PreQC" ;
+  	int waterTemperature(Location) ;
+  		waterTemperature:_FillValue = 999999 ;
+  		string waterTemperature:long_name = "PreQC" ;
+  data:
+
+   salinity = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+
+   waterTemperature = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+  } // group PreQC
+}

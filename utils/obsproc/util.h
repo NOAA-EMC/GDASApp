@@ -225,11 +225,11 @@ namespace gdasapp {
 
         // Changing the date and Adjusting Errors
         void reDate(const util::DateTime & windowBegin, const util::DateTime & windowEnd,
-                    float errRatio) {
+                    const std::string &epochDate, float errRatio) {
           // windowBegin and End into DAwindowTimes
           std::vector<util::DateTime> DAwindowTimes = {windowBegin, windowEnd};
           // Epoch DateTime from Provider
-          util::DateTime epochDtime("1858-11-17T00:00:00Z");
+          util::DateTime epochDtime(epochDate);
           // Convert DA Window DateTime objects to epoch time offsets in seconds
           std::vector<int64_t> timeOffsets
                                 = ioda::convertDtimeToTimeOffsets(epochDtime, DAwindowTimes);

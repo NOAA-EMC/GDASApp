@@ -132,12 +132,15 @@ namespace gdasapp {
         (iodaVars.obsVal_ > -4.0 && iodaVars.obsVal_ < 4.0);
       iodaVars.trim(boundsCheck);
 
+      // Extract EpochTime String Format(1858-11-17T00:00:00Z)
+      std::string extractedDate = iodaVars.referenceDate_.substr(14);
+
       // Redating and adjusting Errors
       if (iodaVars.datetime_.size() == 0) {
         oops::Log::info() << "datetime_ is empty" << std::endl;
       } else {
         // Redating and Adjusting Error
-        iodaVars.reDate(windowBegin_, windowEnd_, errRatio);
+        iodaVars.reDate(windowBegin_, windowEnd_, extractedDate, errRatio);
       }
 
      return iodaVars;
