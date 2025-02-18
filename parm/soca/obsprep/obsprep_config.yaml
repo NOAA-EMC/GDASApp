@@ -1,7 +1,7 @@
 observations:
 # SSS
 - obs space:
-    name: sss_smap
+    name: sss_smap_l2
     dmpdir subdir: ocean/sss
     provider: SMAP
     type: nc
@@ -9,7 +9,7 @@ observations:
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
-    name: sss_smos
+    name: sss_smos_l2
     provider: SMOS
     dmpdir subdir: ocean/sss
     type: nc
@@ -319,3 +319,17 @@ observations:
     dmpdir subdir: atmos
     type: bufr
     dmpdir regex: 'gdas.*.mbuoyb.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_tropical
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.dbuoy.*.bufr_d'
+
+- obs space:
+    name: insitu_surface_drifter
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    dmpdir regex: 'gdas.*.dbuoy.*.bufr_d'

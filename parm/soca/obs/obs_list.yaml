@@ -2,6 +2,10 @@ observers:
 # ADT
 - !INC ${MARINE_OBS_YAML_DIR}/adt_rads_all.yaml
 
+#SSS
+- !INC ${MARINE_OBS_YAML_DIR}/sss_smap_l2.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sss_smos_l2.yaml
+
 # SST
 - !INC ${MARINE_OBS_YAML_DIR}/sst_avhrr_ma_l3u.yaml
 - !INC ${MARINE_OBS_YAML_DIR}/sst_avhrr_mb_l3u.yaml
@@ -41,3 +45,5 @@ observers:
 #- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_dbuoyb.yaml
 #- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_mbuoy.yaml
 #- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_mbuoyb.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_tropical.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_drifter.yaml
