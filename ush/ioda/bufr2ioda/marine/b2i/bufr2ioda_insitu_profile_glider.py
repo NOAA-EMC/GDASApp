@@ -10,11 +10,16 @@ from glider_ioda_variables import GliderIODAVariables
 platform_description = 'GLIDER profiles from subpfl: temperature and salinity'
 
 
+class GliderConfig(Bufr2iodaConfig):
+    def ioda_filename(self):
+        return f"{self.cycle_type}.t{self.hh}z.insitu_profile_glider.{self.cycle_datetime}.nc4"
+
+
 if __name__ == '__main__':
 
     script_name, config_file, log_file, test_file = parse_arguments()
 
-    bufr2ioda_config = Bufr2iodaConfig(
+    bufr2ioda_config = GliderConfig(
         script_name,
         config_file,
         platform_description)

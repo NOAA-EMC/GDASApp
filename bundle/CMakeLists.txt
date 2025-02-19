@@ -111,11 +111,6 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
 
 # SOCA associated repositories
-# TODO: Move the Icepack fork to EMC github
-  set(BUILD_ICEPACK "ON" CACHE STRING "Build the icepack library")
-  if ( BUILD_ICEPACK )
-    ecbuild_bundle( PROJECT icepack SOURCE "../sorc/icepack" )
-  endif()
   ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
 
   # Build JEDI/DA or other peripherals
