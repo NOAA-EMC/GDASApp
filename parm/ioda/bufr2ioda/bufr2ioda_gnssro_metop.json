@@ -1,0 +1,17 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "gpsro",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC003010" ],
+  "data_description" : "Satellite radio occultation data", 
+  "data_provider"    : "DMI",
+  "mission"          : "metop",
+  "satellite_info"   : [
+                          { "sensor_name" : "GRAS", "sensor_full_name" : "GNSS Receiver for Atmospheric Sounding", "sensor_id" : 202, "satellite_name" : "MetOp-B", "satellite_full_name" : "Meteorological Operational satellite B", "satellite_id" : 3 },
+                          { "sensor_name" : "GRAS", "sensor_full_name" : "GNSS Receiver for Atmospheric Sounding", "sensor_id" : 202, "satellite_name" : "MetOp-A", "satellite_full_name" : "Meteorological Operational satellite A", "satellite_id" : 4 },
+                          { "sensor_name" : "GRAS", "sensor_full_name" : "GNSS Receiver for Atmospheric Sounding", "sensor_id" : 202, "satellite_name" : "MetOp-C", "satellite_full_name" : "Meteorological Operational satellite C", "satellite_id" : 5 }
+                       ]
+}
