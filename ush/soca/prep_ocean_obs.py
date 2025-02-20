@@ -168,22 +168,37 @@ class PrepOceanObs(Task):
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy
                             tmpl_filename = f"bufr2ioda_{obtype}.yaml"
                             bufrconv_template = os.path.join(BUFR2IODA_TMPL_DIR, tmpl_filename)
-                            output_files = []  # files to save to COM directory
+                            input_files = []  # files to save to COM directory
                             bufrconv_files = []  # files needed to populate the IODA converter config
                             # for each cycle of the retrieved obs bufr files...
                             for input_file, cycle in fetched_files:
                                 cycletime = cycle[8:10]
-                                ioda_filename = f"{RUN}.t{cycletime}z.{obs_space_name}.{cycle}.nc4"
-                                output_files.append(ioda_filename)
+                                ioda_filename = f"{RUN}.t{cycletime}z.{obs_space_name}.{cycle}.preconcat.nc4"
                                 bufrconv_files.append((cycle, input_file, ioda_filename))
+                                input_files.append(ioda_filename)
 
-                            obsprep_space['output file'] = output_files
                             obsprep_space['bufrconv files'] = bufrconv_files
+
+                            # set up config for concatenation
+                            concat_config = {
+                                'provider': 'INSITUOBS',
+                                'window begin': obsprep_space['window begin'],
+                                'window end': obsprep_space['window end'],
+                                'variable': observer['obs space']['observed variables'][0],
+                                'error ratio': obsprep_space['error ratio'],
+                                'input files' : input_files,
+                                'output file' : f"{RUN}.t{cycletime}z.{obs_space_name}.{cdatestr}.nc4"
+                            }
+                            print('concat_config:', concat_config)
+                            concat_config_file = obtype + '_concat.yaml'
+
+                            obsprep_space['output file'] = concat_config['output file']
 
                             try:
                                 bufrconv = parse_j2yaml(bufrconv_template, bufrconv_config)
                                 bufrconv.update(obsprep_space)
                                 bufrconv.save(ioda_config_file)
+                                save_as_yaml(concat_config, concat_config_file)
                             except Exception as e:
                                 logger.warning(f"An exeception {e} occured while trying to create BUFR2IODA config")
                                 logger.warning(f"obtype {obtype} will be skipped")
@@ -195,7 +210,7 @@ class PrepOceanObs(Task):
 
                             obsprep_space['input files'] = [f[0] for f in fetched_files]
                             ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc4"
-                            obsprep_space['output file'] = [ioda_filename]
+                            obsprep_space['output file'] = ioda_filename
                             save_as_yaml(obsprep_space, ioda_config_file)
 
                             obsspaces_to_convert.append({"obs space": obsprep_space})
@@ -238,7 +253,7 @@ class PrepOceanObs(Task):
                 process = Process(target=prep_ocean_obs_utils.run_netcdf_to_ioda, args=(obs_space,
                                                                                         self.task_config.OCNOBS2IODAEXEC))
             elif obs_space["type"] == "bufr":
-                process = Process(target=prep_ocean_obs_utils.run_bufr_to_ioda, args=(obs_space,))
+                process = Process(target=prep_ocean_obs_utils.run_bufr_to_ioda, args=(obs_space,self.task_config.OCNOBS2IODAEXEC))
             else:
                 logger.warning(f"Invalid observation format {obs_space['type']}, skipping obtype {obtype}")
                 continue
@@ -279,9 +294,11 @@ class PrepOceanObs(Task):
             conv_config_file_dest = os.path.join(COMOUT_OBS, conv_config_file)
             files_to_save.append([conv_config_file, conv_config_file_dest])
 
-            for output_file in obs_space['output file']:
-                output_file_dest = os.path.join(COMOUT_OBS, output_file)
-                files_to_save.append([output_file, output_file_dest])
+    #        for output_file in obs_space['output file']:
+    #            output_file_dest = os.path.join(COMOUT_OBS, output_file)
+    #            files_to_save.append([output_file, output_file_dest])
+            output_file_dest = os.path.join(COMOUT_OBS, obs_space['output file'])
+            files_to_save.append([obs_space['output file'], output_file_dest])
 
             try:
                 FileHandler({'copy': files_to_save}).sync()

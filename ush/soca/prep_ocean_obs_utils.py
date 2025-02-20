@@ -66,13 +66,16 @@ def run_netcdf_to_ioda(obsspace_to_convert, OCNOBS2IODAEXEC):
         return e.returncode
 
 
-def run_bufr_to_ioda(obsspace_to_convert):
-    logger.info(f"running run_bufr_to_ioda on {obsspace_to_convert['name']}")
+def run_bufr_to_ioda(obsspace_to_convert, OCNOBS2IODAEXEC):
+    obspace_name = obsspace_to_convert['name']
+    logger.info(f"running run_bufr_to_ioda on {obspace_name}")
     bufrconv_yaml = obsspace_to_convert['conversion config file']
     bufrconv_config = YAMLFile(bufrconv_yaml)
+    concat_config = YAMLFile(f'{obspace_name}_concat.yaml')
     bufr2iodapy = obsspace_to_convert['bufr2ioda converter']
     obtype = obsspace_to_convert['name']
 
+    # convert all the available bufr files to ioda
     for cycle, input_file, output_file in obsspace_to_convert['bufrconv files']:
         bufrconv_config['input_file'] = input_file
         bufrconv_config['output_file'] = output_file
@@ -84,3 +87,15 @@ def run_bufr_to_ioda(obsspace_to_convert):
         except subprocess.CalledProcessError as e:
             logger.warning(f"bufr2ioda converter failed with error  >{e}<, \
                 return code {e.returncode}")
+            return e.returncode
+
+    # concatenate the ioda files to one ioda file with adjusted observation times
+    try:
+        subprocess.run([OCNOBS2IODAEXEC, f'{obspace_name}_concat.yaml'], check=True)
+        logger.info(f"ran ioda converter on obs space {obsspace_to_convert['name']} successfully")
+        return 0
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"ioda converter failed with error {e}, \
+            return code {e.returncode}")
+        return e.returncode
+    
