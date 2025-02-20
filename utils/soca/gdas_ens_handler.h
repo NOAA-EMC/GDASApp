@@ -230,8 +230,7 @@ namespace gdasapp {
 
         // Save total ssh
         oops::Log::info() << "ssh ensemble member "  << i << std::endl;
-        soca::Increment ssh_tmp(geomOut, socaSshVar, postProcIncr.dt_);
-        ssh_tmp = ensMembers[i];
+        soca::Increment ssh_tmp(socaSshVar, ensMembers[i]);
         sshTotal.push_back(ssh_tmp);
 
         // Zero out ssh and other specified fields
@@ -242,8 +241,8 @@ namespace gdasapp {
         // Compute the original steric height perturbation from T and S
         eckit::LocalConfiguration stericConfig(fullConfig, "steric height");
         postProcIncr.applyLinVarChange(incr, stericConfig, ensMeanTraj);
-        ssh_tmp = incr;
-        sshSteric.push_back(ssh_tmp);
+        soca::Increment ssh_tmp2(socaSshVar, incr);
+        sshSteric.push_back(ssh_tmp2);
 
         // Compute unbalanced ssh
         ssh_tmp = sshTotal[i];
