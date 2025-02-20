@@ -4,11 +4,17 @@ ecbuild_add_executable( TARGET fv3jedi_fv3inc.x
 target_compile_features( fv3jedi_fv3inc.x PUBLIC cxx_std_17)
 target_link_libraries( fv3jedi_fv3inc.x PUBLIC NetCDF::NetCDF_CXX oops fv3jedi)
 
-# Ensemble increment recentering
+# Correction increment calculation (for ensemble recentering)
 ecbuild_add_executable( TARGET fv3jedi_correction_increment.x
                         SOURCES fv3jedi_correction_increment.cc fv3jedi_correction_increment.h)
 target_compile_features( fv3jedi_correction_increment.x PUBLIC cxx_std_17)
 target_link_libraries( fv3jedi_correction_increment.x PUBLIC NetCDF::NetCDF_CXX oops fv3jedi)
+
+# Ensemble recentering
+ecbuild_add_executable( TARGET fv3jedi_ensemble_recenter.x
+                        SOURCES fv3jedi_ensemble_recenter.cc)
+target_compile_features( fv3jedi_ensemble_recenter.x PUBLIC cxx_std_17)
+target_link_libraries( fv3jedi_ensemble_recenter.x PUBLIC NetCDF::NetCDF_CXX oops fv3jedi)
 
 # Increment addition
 ecbuild_add_executable( TARGET fv3jedi_add_increments.x
