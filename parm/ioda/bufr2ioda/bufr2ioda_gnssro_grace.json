@@ -1,0 +1,16 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "gpsro",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC003010" ],
+  "data_description" : "Satellite radio occultation data", 
+  "data_provider"    : "GFZ",
+  "mission"          : "grace",
+  "satellite_info"   : [
+                          { "sensor_name" : "Tri-G", "sensor_full_name" : "Triple-G", "sensor_id" : 104, "satellite_name" : "GRACE C", "satellite_full_name" : "Gravity Recovery and Climate Experiment Follow-On C", "satellite_id" : 803 },
+                          { "sensor_name" : "Tri-G", "sensor_full_name" : "Triple-G", "sensor_id" : 104, "satellite_name" : "GRACE D", "satellite_full_name" : "Gravity Recovery and Climate Experiment Follow-On D", "satellite_id" : 804 }
+                       ]
+}
