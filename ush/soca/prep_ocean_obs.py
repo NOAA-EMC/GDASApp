@@ -294,9 +294,6 @@ class PrepOceanObs(Task):
             conv_config_file_dest = os.path.join(COMOUT_OBS, conv_config_file)
             files_to_save.append([conv_config_file, conv_config_file_dest])
 
-    #        for output_file in obs_space['output file']:
-    #            output_file_dest = os.path.join(COMOUT_OBS, output_file)
-    #            files_to_save.append([output_file, output_file_dest])
             output_file_dest = os.path.join(COMOUT_OBS, obs_space['output file'])
             files_to_save.append([obs_space['output file'], output_file_dest])
 
