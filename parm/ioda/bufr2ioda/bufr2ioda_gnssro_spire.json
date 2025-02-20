@@ -1,0 +1,15 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "gpsro",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC003010" ],
+  "data_description" : "Satellite radio occultation data", 
+  "data_provider"    : "UCAR",
+  "mission"          : "spire",
+  "satellite_info"   : [
+                          { "sensor_name" : "STRATOS", "sensor_full_name" : "STRATOS", "sensor_id" : 530, "satellite_name" : "Spire", "satellite_full_name" : "SPIRE LEMUR 3U CUBESAT", "satellite_id" : 269 }
+                       ]
+}
