@@ -37,8 +37,8 @@ class ForecastHourParameters : public oops::Parameters {
                                                                    this};
 };
 
-class EnsembleRecenterParameters : public oops::Parameters {
-  OOPS_CONCRETE_PARAMETERS(EnsembleRecenterParameters, Parameters)
+class CorrectionIncrementParameters : public oops::Parameters {
+  OOPS_CONCRETE_PARAMETERS(CorrectionIncrementParameters, Parameters)
  public:
   oops::RequiredParameter<oops::Variables> \
     incrVars{"increment variables", this};
@@ -57,15 +57,15 @@ class EnsembleRecenterParameters : public oops::Parameters {
 namespace gdasapp {
 
   // Main application class
-  class EnsembleRecenter : public oops::Application {
+  class CorrectionIncrement : public oops::Application {
    public:
-    explicit EnsembleRecenter(const eckit::mpi::Comm & comm = oops::mpi::world())
+    explicit CorrectionIncrement(const eckit::mpi::Comm & comm = oops::mpi::world())
       : Application(comm) {}
-    static const std::string classname() {return "gdasapp::EnsembleRecenter";}
+    static const std::string classname() {return "gdasapp::CorrectionIncrement";}
 
     int execute(const eckit::Configuration & fullConfig) const {
       // Deserialize parameters
-      EnsembleRecenterParameters params;
+      CorrectionIncrementParameters params;
       params.deserialize(fullConfig);
 
       // Setup geometries
@@ -114,7 +114,7 @@ namespace gdasapp {
 
    private:
     std::string appname() const {
-      return "gdasapp::EnsembleRecenter";
+      return "gdasapp::CorrectionIncrement";
     }
   };
 }  // namespace gdasapp
