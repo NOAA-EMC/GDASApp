@@ -186,8 +186,8 @@ class PrepOceanObs(Task):
                                 'window end': obsprep_space['window end'],
                                 'variable': observer['obs space']['observed variables'][0],
                                 'error ratio': obsprep_space['error ratio'],
-                                'input files' : input_files,
-                                'output file' : f"{RUN}.t{cycletime}z.{obs_space_name}.{cdatestr}.nc4"
+                                'input files': input_files,
+                                'output file': f"{RUN}.t{cycletime}z.{obs_space_name}.{cdatestr}.nc4"
                             }
                             print('concat_config:', concat_config)
                             concat_config_file = obtype + '_concat.yaml'
@@ -253,7 +253,7 @@ class PrepOceanObs(Task):
                 process = Process(target=prep_ocean_obs_utils.run_netcdf_to_ioda, args=(obs_space,
                                                                                         self.task_config.OCNOBS2IODAEXEC))
             elif obs_space["type"] == "bufr":
-                process = Process(target=prep_ocean_obs_utils.run_bufr_to_ioda, args=(obs_space,self.task_config.OCNOBS2IODAEXEC))
+                process = Process(target=prep_ocean_obs_utils.run_bufr_to_ioda, args=(obs_space, self.task_config.OCNOBS2IODAEXEC))
             else:
                 logger.warning(f"Invalid observation format {obs_space['type']}, skipping obtype {obtype}")
                 continue

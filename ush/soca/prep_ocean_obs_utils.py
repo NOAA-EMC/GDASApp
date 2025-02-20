@@ -98,4 +98,3 @@ def run_bufr_to_ioda(obsspace_to_convert, OCNOBS2IODAEXEC):
         logger.warning(f"ioda converter failed with error {e}, \
             return code {e.returncode}")
         return e.returncode
-    
