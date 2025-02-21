@@ -173,7 +173,7 @@ class PrepOceanObs(Task):
                             # for each cycle of the retrieved obs bufr files...
                             for input_file, cycle in fetched_files:
                                 cycletime = cycle[8:10]
-                                ioda_filename = f"{RUN}.t{cycletime}z.{obs_space_name}.{cycle}.preconcat.nc4"
+                                ioda_filename = f"{RUN}.t{cycletime}z.{obs_space_name}.{cycle}.nc4"
                                 bufrconv_files.append((cycle, input_file, ioda_filename))
                                 input_files.append(ioda_filename)
 

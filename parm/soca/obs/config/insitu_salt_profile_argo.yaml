@@ -12,7 +12,7 @@ obs space:
   obsdataout:
     engine:
       type: H5File
-      obsfile: ${DATA}/diags/insitu_salt_profile_argo.${PDY}${cyc}.preconcat.nc4
+      obsfile: ${DATA}/diags/insitu_salt_profile_argo.${PDY}${cyc}.nc4
       # simulated variables: [waterTemperature, salinity]
       # observed variables: [waterTemperature, salinity]
   simulated variables: [salinity]

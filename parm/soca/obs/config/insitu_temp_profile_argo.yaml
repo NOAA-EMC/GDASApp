@@ -3,7 +3,7 @@ obs space:
   obsdatain:
     engine:
       type: H5File
-      obsfile: ${DATA}/obs/${OPREFIX}insitu_temp_profile_argo.${PDY}${cyc}.preconcat.nc4
+      obsfile: ${DATA}/obs/${OPREFIX}insitu_temp_profile_argo.${PDY}${cyc}.nc4
     obsgrouping:
       group variables: [latitude, longitude, dateTime]
       sort variable: depth
