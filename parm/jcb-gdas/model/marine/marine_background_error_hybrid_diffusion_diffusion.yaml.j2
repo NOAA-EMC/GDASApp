@@ -57,6 +57,7 @@ components:
   weight:
     value: 1.00
 
+{% if marine_ensemble_b | default(false) %}
 - covariance:
     covariance model: SABER
     ensemble:
@@ -102,3 +103,5 @@ components:
     ocn_filename: 'ocean.ens_weights.nc'
     ice_filename: 'ice.ens_weights.nc'
     date: '{{marine_stddev_time}}'
+{% endif %}
+

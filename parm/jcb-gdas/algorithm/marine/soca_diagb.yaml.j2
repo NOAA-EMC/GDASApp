@@ -36,10 +36,11 @@ variables:
   - mom6_mld
 
 vertical e-folding scale: 500.0
+min efold depth ratio: 3.0  # keep the e-folding scale at most
+                            # 1/(min efold depth ratio) of the local depth
 rescale: 1.0    # rescales the filtered std. dev. by "rescale"
-min sst: 0.0    # Added to sst bkg. err.
 max ssh: 0.0    # Limits the amplitude of the unbalanced bkg err
-min depth: 500.0 # zero out the bkg. error. at less than min depth
+min depth: 50.0 # zero out the bkg. error. at less than min depth
 number of halo points: 4
 number of neighbors: 16
 
