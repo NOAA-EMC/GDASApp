@@ -170,6 +170,22 @@ namespace gdasapp {
           // Set variables to zero if specified in the configuration
           postProcIncr.setToZero(incr);
 
+          // Optionally apply inflation
+          if (fullConfig.has("ensemble inflation.value")) {
+            const double inflation = fullConfig.getDouble("ensemble inflation.value");
+            mom6_incr *= inflation;
+            oops::Log::info() << "incr after scalar inflation " << i << ":"
+                              << mom6_incr << std::endl;
+          }
+          if (fullConfig.has("ensemble inflation.field")) {
+            soca::Increment weight(geomOut, mom6_incr.variables(), mom6_incr.validTime());
+            const eckit::LocalConfiguration weightConf(fullConfig, "ensemble inflation.field");
+            weight.read(weightConf);
+            mom6_incr.schur_product_with(weight);
+            oops::Log::info() << "incr after field inflation " << i << ":"
+                              << mom6_incr << std::endl;
+          }
+
           // Save the increments used to initialize the ensemble forecast
           result = postProcIncr.save(mom6_incr, i+1);
 
