@@ -12,7 +12,7 @@ platform_description = 'ARGO profiles from subpfl: temperature and salinity'
 
 class ArgoConfig(Bufr2iodaConfig):
     def ioda_filename(self):
-        return f"{self.cycle_type}.t{self.hh}z.insitu_salt_profile_argo.{self.cycle_datetime}.nc4"
+        return f"{self.cycle_type}.t{self.hh}z.insitu_salt_profile_argo.{self.cycle_datetime}.preconcat.nc4"
 
 
 if __name__ == '__main__':
