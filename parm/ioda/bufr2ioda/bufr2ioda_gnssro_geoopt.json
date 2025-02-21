@@ -1,0 +1,16 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "gpsro",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC003010" ],
+  "data_description" : "Satellite radio occultation data", 
+  "data_provider"    : "UCAR",
+  "mission"     : "geoopt",
+  "satellite_info"   : [
+                          { "sensor_name" : "CION", "sensor_full_name" : "CICERO Instrument for GNSS-RO ", "sensor_id" : 526, "satellite_name" : "CICERO-1 OP1", "satellite_full_name" : "Community Initiative for Cellular Earth Remote Observation OP1", "satellite_id" : 265 },
+                          { "sensor_name" : "CION", "sensor_full_name" : "CICERO Instrument for GNSS-RO ", "sensor_id" : 526, "satellite_name" : "CICERO-1 OP1", "satellite_full_name" : "Community Initiative for Cellular Earth Remote Observation OP2", "satellite_id" : 266 }
+                       ]
+}

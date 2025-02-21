@@ -1,0 +1,16 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "gpsro",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC003010" ],
+  "data_description" : "Satellite radio occultation data", 
+  "data_provider"    : "UCAR",
+  "mission"          : "piq",
+  "satellite_info"   : [
+                          { "sensor_name" : "Pyxis-RO", "sensor_full_name" : "Pyxis-RO", "sensor_id" : 534, "satellite_name" : "PlanetIQ", "satellite_full_name" : "PLANETIQ GNOMES-A", "satellite_id" : 267 },
+                          { "sensor_name" : "Pyxis-RO", "sensor_full_name" : "Pyxis-RO", "sensor_id" : 534, "satellite_name" : "PlanetIQ", "satellite_full_name" : "PLANETIQ GNOMES-B", "satellite_id" : 268 }
+                       ]
+}
