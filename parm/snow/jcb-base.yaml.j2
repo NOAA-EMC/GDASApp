@@ -28,9 +28,6 @@ snow_background_time_fv3: "{{ bkg_time_fv3 }}"
 snow_increment_time_iso: "{{ bkg_time_iso }}"
 snow_increment_time_fv3: "{{ bkg_time_fv3 }}"
 
-# IAU times
-snow_iau_hours: {{ IAUFHRS }}
-snow_iau_times_iso: {{ iau_times_iso | default([current_cycle | to_isotime], true) }}
 
 # Analysis standard things
 # ------------------------
@@ -38,8 +35,8 @@ analysis_variables: [totalSnowDepth]
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
-cost_type: 3D-Vars
-number_of_outer_lodops: 1
+cost_type: 3D-Var
+number_of_outer_loops: 1
 
 # Model things
 # ------------
@@ -52,8 +49,6 @@ snow_npz_ges: {{ npz_ges | default(127, true) }}
 snow_npx_anl: {{ npx_ges | default(49, true) }}
 snow_npy_anl: {{ npy_ges | default(49, true) }}
 snow_npz_anl: {{ npz_ges | default(127, true) }}
-
-snow_variational_history_prefix: "{{ GPREFIX }}"
 
 snow_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
 snow_orog_files_path: "{{ FIXgfs }}/orog/{{ CASE }}"
