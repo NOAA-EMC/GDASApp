@@ -3,7 +3,7 @@
     obsdatain:
       engine:
         type: H5File
-        obsfile: {{ aero_obsdatain_path }}/aero/diag_{{ obspace }}_{{ stat_current_cycle_YMDH }}.nc4
+        obsfile: {{ aero_obsdatain_path }}/aero/diag_{{ obspace }}_aod_{{ stat_current_cycle_YMDH }}.nc
     simulated variables: ['aerosolOpticalDepth']
     observed variables: ['aerosolOpticalDepth']
   variables: ['aerosolOpticalDepth']
