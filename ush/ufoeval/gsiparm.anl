@@ -1,11 +1,9 @@
 &SETUP
-  miter=2,
-  niter(1)=100,niter(2)=100,
-  niter_no_qc(1)=50,niter_no_qc(2)=0,
-  write_diag(1)=.true.,write_diag(2)=.false.,write_diag(3)=.true.,
-  qoption=2,
+  miter=1,niter(1)=50,
+  write_diag(1)=.true.,write_diag(2)=.true.,
+  qoption=1,
   gencode=0,deltim=189,
-  factqmin=0.5,factqmax=0.0002,
+  factqmin=0.0,factqmax=0.0,
   iguess=-1,
   tzr_qc=1,
   oneobtest=.false.,retrieval=.false.,l_foto=.false.,
@@ -16,7 +14,7 @@
   crtm_coeffs_path='./crtm_coeffs/',
   newpc4pred=.true.,adp_anglebc=.true.,angord=4,passive_bc=.true.,use_edges=.false.,
   diag_precon=.true.,step_start=1.e-3,emiss_bc=.true.,nhr_obsbin=3,
-  cwoption=3,imp_physics=8,lupp=.true.,cnvw_option=.false.,cao_check=.true.,
+  cwoption=1,imp_physics=8,lupp=.true.,cnvw_option=.false.,cao_check=.false.,
   netcdf_diag=.true.,binary_diag=.false.,
   lobsdiag_forenkf=.false.,
   write_fv3_incr=.true.,
@@ -25,12 +23,10 @@
   incvars_to_zero= 'liq_wat_inc','icmr_inc','rwmr_inc','snmr_inc','grle_inc',
   incvars_zero_strat= 'sphum_inc','liq_wat_inc','icmr_inc','rwmr_inc','snmr_inc','grle_inc',
   incvars_efold= 5,
-  miter=1,niter(1)=50,niter(2)=50,qoption=1,cwoption=1,factqmin=0.0,factqmax=0.0,sfcnst_comb=.true.,
 /
 &GRIDOPTS
-  JCAP_B=382,JCAP=192,NLAT=386,NLON=768,nsig=127,
-  regional=.false.,nlayers(63)=3,nlayers(64)=6,
-  nlayers(63)=1,nlayers(64)=1,
+  JCAP_B=126,JCAP=126,NLAT=194,NLON=384,nsig=127,
+  regional=.false.,
 /
 &BKGERR
   vs=0.7,

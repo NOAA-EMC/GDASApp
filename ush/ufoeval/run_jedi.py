@@ -29,6 +29,8 @@ class JobCard:
         self.rundir = config['directories']['RUNDIR']
         self.appexe = config['app files']['APPEXE']
         self.appyml = config['app files']['APPYML']
+        self.incexe = config['app files']['INCEXE']
+        self.incyml = config['app files']['INCYML']
         self.jobname = config['job options']['job-name']
         self.nodes = config['job options']['nodes']
         self.ppn = config['job options']['tasks-per-node']
@@ -75,9 +77,11 @@ class JobCard:
 
         # link / copy app files
         self.f.write("\n")
-        self.f.write(f"# Copy executable and namelist\n")
-        self.f.write(f"ln -fs {self.appexe} ./app.x\n")
-        self.f.write(f"cp -p {self.appyml} ./app.yaml\n")
+        self.f.write(f"# Copy executables and yamls\n")
+        self.f.write(f"ln -fs {self.appexe} ./gdas.x\n")
+        self.f.write(f"cp -p {self.appyml} ./atmanlvar.yaml\n")
+        self.f.write(f"ln -fs {self.incexe} ./fv3jedi_fv3inc.x\n")
+        self.f.write(f"cp -p {self.incyml} ./atmanlfv3inc.yaml\n")
 
         # execute app
         self.f.write("\n")
@@ -85,7 +89,13 @@ class JobCard:
         self.f.write(f"export OMP_NUM_THREADS={self.threads}\n")
         self.f.write(f"ulimit -s unlimited\n")
 
-        aprun_command = f"srun -n {self.ntasks} --cpus-per-task={self.threads} ./app.x fv3jedi variational ./app.yaml"
+        aprun_command = f"srun -n {self.ntasks} --cpus-per-task={self.threads} ./gdas.x fv3jedi variational ./atmanlvar.yaml"
+        self.f.write(f"{aprun_command}\n")
+
+        # convert cube sphere increments to gaussian grid
+        self.f.write("\n")
+        self.f.write(f"# Convert cube sphere increments to gaussian grid\n")
+        aprun_command = f"srun -n {self.ntasks} --cpus-per-task={self.threads} ./fv3jedi_fv3inc.x ./atmanlfv3inc.yaml"
         self.f.write(f"{aprun_command}\n")
 
     def close(self):

@@ -17,7 +17,7 @@ cost function:
     npy: 193
     npz: 127
     field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
-  analysis variables:
+  analysis variables: &3dvars
   - ua
   - va
   - t
@@ -88,15 +88,7 @@ cost function:
       - cloud_liquid_ice
       - cloud_liquid_water
       - mole_fraction_of_ozone_in_air
-      output variables:
-      - ua
-      - va
-      - t
-      - ps
-      - sphum
-      - ice_wat
-      - liq_wat
-      - o3mr
+      output variables: *3dvars
   observations:
     obs perturbations: false
     observers:
@@ -430,8 +422,7 @@ variational:
     algorithm: DRPCG
   iterations:
   - ninner: 50
-    gradient norm reduction: 1e-10
-    test: true
+    gradient norm reduction: 1e-5
     geometry:
       fms initialization:
         namelist filename: ./fv3jedi/fmsmpp.nml
@@ -440,8 +431,8 @@ variational:
       layout:
       - 4
       - 4
-      npx: 193
-      npy: 193
+      npx: 97
+      npy: 97
       npz: 127
       field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
     diagnostics:
@@ -474,8 +465,8 @@ final:
       layout:
       - 4
       - 4
-      npx: 193
-      npy: 193
+      npx: 97
+      npy: 97
       npz: 127
       field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
 final j evaluation: false

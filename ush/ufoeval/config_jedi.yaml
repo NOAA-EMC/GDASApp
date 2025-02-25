@@ -19,4 +19,6 @@ directories:
 app files:
   APPEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/gdas.x
   APPYML: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/sorc/gdas.cd/ush/ufoeval/atmanlvar.yaml
+  INCEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/fv3jedi_fv3inc.x
+  INCYML: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/sorc/gdas.cd/ush/ufoeval/atmanlfv3inc.yaml
   runscript: runjedi.sh   

@@ -1,0 +1,108 @@
+variable change:
+  variable change name: Model2GeoVaLs
+  input variables:
+  - ua
+  - va
+  - t
+  - ps
+  - sphum
+  - ice_wat
+  - liq_wat
+  - o3mr
+  - hgtsfc
+  output variables:
+  - ua
+  - va
+  - t
+  - sphum
+  - ice_wat
+  - liq_wat
+  - o3mr
+  - delp
+  - delz
+jedi increment variables:
+- ua
+- va
+- t
+- ps
+- sphum
+- ice_wat
+- liq_wat
+- o3mr
+fv3 increment variables:
+- ua
+- va
+- t
+- sphum
+- ice_wat
+- liq_wat
+- o3mr
+- delp
+- delz
+background geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - 4
+  - 4
+  npx: 193
+  npy: 193
+  npz: 127
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+jedi increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - 4
+  - 4
+  npx: 97
+  npy: 97
+  npz: 127
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+fv3 increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - 4
+  - 4
+  npx: 97
+  npy: 97
+  npz: 127
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
+members:
+- background input:
+    datapath: ./bkg
+    filetype: cube sphere history
+    provider: ufs
+    ufs soil nlev: 4
+    ufs fields split by level:
+    - smc
+    - stc
+    datetime: '2024-12-25T00:00:00Z'
+    filenames:
+    - gdas.t18z.cubed_sphere_grid_atmf006.nc
+    - gdas.t18z.cubed_sphere_grid_sfcf006.nc
+    state variables:
+    - ua
+    - va
+    - t
+    - ps
+    - sphum
+    - ice_wat
+    - liq_wat
+    - o3mr
+    - hgtsfc
+  jedi increment input:
+    filetype: cube sphere history
+    filename: ./anl/atminc.%yyyy%mm%dd.%hh%MM%ssz.nc4
+    provider: ufs
+  fv3 increment output:
+    filetype: auxgrid
+    gridtype: gaussian
+    filename: ./anl/atminc.
