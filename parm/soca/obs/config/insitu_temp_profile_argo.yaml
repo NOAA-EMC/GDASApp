@@ -15,7 +15,6 @@ obs space:
       obsfile: ${DATA}/diags/insitu_temp_profile_argo.${PDY}${cyc}.nc4
   simulated variables: [waterTemperature]
   observed variables: [waterTemperature]
-#  derived variables: [waterPressure]
   io pool:
     max pool size: 1
 obs operator:

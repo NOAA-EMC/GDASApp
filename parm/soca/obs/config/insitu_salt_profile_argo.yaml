@@ -13,11 +13,8 @@ obs space:
     engine:
       type: H5File
       obsfile: ${DATA}/diags/insitu_salt_profile_argo.${PDY}${cyc}.nc4
-      # simulated variables: [waterTemperature, salinity]
-      # observed variables: [waterTemperature, salinity]
   simulated variables: [salinity]
   observed variables: [salinity]
-#  derived variables: [waterPressure]
   io pool:
     max pool size: 1
 obs operator:
