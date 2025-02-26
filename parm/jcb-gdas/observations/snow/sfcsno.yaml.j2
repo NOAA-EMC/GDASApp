@@ -9,6 +9,7 @@
         type: bufr
         obsfile: "{{snow_obsdatain_path}}/{{snow_obsdatain_prefix}}sfcsno.tm00.bufr_d"
         mapping file: "{{snow_obsdatain_path}}/bufr_sfcsno_mapping.yaml"
+        missing file action: warn
     obsdataout:
       engine:
         type: H5File

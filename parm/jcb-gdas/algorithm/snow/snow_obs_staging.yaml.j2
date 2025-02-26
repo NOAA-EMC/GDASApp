@@ -1,6 +1,6 @@
 mkdir:
     - '{{snow_obsdatain_path}}'
-copy:
+copy_opt:
     {% for observation_from_jcb in observations %}
       {% if use_observer(observation_from_jcb) %}
         {% if not observation_from_jcb == 'ims_snow' %}
