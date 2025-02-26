@@ -239,17 +239,6 @@ observations:
     type: bufr
     dmpdir regex: 'gdas.*.bathy.*.bufr_d'
 
-#- obs space:
-#    name: insitu_profile_argo
-#    provider: GTS
-#    dmpdir subdir: atmos
-#    type: bufr
-#    error ratio: 0.4 
-#    window:
-#       back: 4
-#       forward: 4
-#    dmpdir regex: 'gdas.*.subpfl.*.bufr_d'
-
 - obs space:
     name: insitu_temp_profile_argo
     provider: GTS
