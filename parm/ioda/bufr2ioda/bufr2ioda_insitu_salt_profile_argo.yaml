@@ -1,0 +1,11 @@
+cycle_datetime: '{{ current_cycle | to_YMDH }}'
+cycle_type: '{{ RUN }}'
+data_description: 6-hrly in situ ARGO profiles
+data_format: subpfl
+data_provider: U.S. NOAA
+data_type: argo
+dump_directory: '{{ DMPDIR }}'
+ioda_directory: '{{ COM_OBS }}'
+source: NCEP data tank
+subsets: SUBPFL
+ocean_basin: '{{ OCEAN_BASIN_FILE }}'
