@@ -89,13 +89,11 @@ namespace gdasapp {
       oops::Variables vars(fullConfig, "variables.name");
       diagBConfig.socaVars = vars;
 
-      // Get the max std dev for ssh
-      diagBConfig.sshMax = 0.0;
-      fullConfig.get("max ssh", diagBConfig.sshMax);
+      // Get the max std dev for unbalanced ssh
+      diagBConfig.sshMax = fullConfig.getDouble("max ssh", 0.0);
 
-      // Get the minimum depth for which to partition the 3D field's std. dev.
-      diagBConfig.depthMin = 0.0;
-      fullConfig.get("min depth", diagBConfig.depthMin);
+      // Get the minimum depth in meters for which to partition the 3D field's std. dev.
+      diagBConfig.depthMin = fullConfig.getDouble("min depth", 500.0);
 
       // Explicit diffusion
       diagBConfig.diffusion = false;
@@ -112,7 +110,7 @@ namespace gdasapp {
       }
 
       // Variance rescaling
-      fullConfig.get("rescale", diagBConfig.rescale);
+      diagBConfig.rescale = fullConfig.getDouble("rescale", 1.0);
 
       return diagBConfig;
     }
@@ -203,6 +201,14 @@ namespace gdasapp {
       xb.toFieldSet(xbFs);
       oops::Log::info() << "Background:" << std::endl;
       oops::Log::info() << xb << std::endl;
+
+      // Setup the output soca geometry
+      oops::Log::info() << "====================== output geometry" << std::endl;
+      const std::string outputGeometryKey = fullConfig.has("output geometry")
+                        ? "output geometry"  // keep things backward compatible for now
+                        : "geometry";        // and default to the input geometry
+      const eckit::LocalConfiguration geomOutConfig(fullConfig, outputGeometryKey);
+      const soca::Geometry geomOut(geomOutConfig, this->getComm());
 
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
@@ -316,6 +322,9 @@ namespace gdasapp {
 
         // Loop through nodes
         for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
+          // Initialize the std. dev. to 0
+          stdDevBkg(jnode, 0) = 0.0;
+
           // Early exit if thickness is 0 or on a ghost cell
           if (ghostView(jnode) > 0 || abs(viewHocn(jnode, 0)) <= 0.1) {
             continue;
@@ -421,21 +430,28 @@ namespace gdasapp {
       /// Impose an exponential decay to the background error
       // ----------------------------------------------------
       if (fullConfig.has("vertical e-folding scale")) {
-        double efold = 0.0;
-        fullConfig.get("vertical e-folding scale", efold);
+        double efold = fullConfig.getDouble("vertical e-folding scale", 500.0);
+        double edRatio = fullConfig.getDouble("min efold depth ratio", 3.0);
+        double localEfold = 0.0;
         for (auto & var : configD.socaVars.variables()) {
-        oops::Log::info()
+          oops::Log::info()
            << "====================== apply exponential decay to the background error. "
            << " e-folding scale: " << efold << " m for " << var << std::endl;
           auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
           auto numLevels = xbFs["sea_water_potential_temperature"].shape(0);
           for (atlas::idx_t jnode = 0; jnode < numLevels; ++jnode) {
+            if (ghostView(jnode) > 0) {
+              continue;  // Skip ghost cells
+            }
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
-              if (viewDepth(jnode, level) >= 0.0) {
-                stdDevBkg(jnode, level) *= std::exp(-viewDepth(jnode, level) / efold);
+              if (viewBathy(jnode, 0) > 0.0) {
+                localEfold = computeLocalEFoldingScale(viewBathy(jnode, 0), efold, edRatio);
+                stdDevBkg(jnode, level) *= std::exp(-viewDepth(jnode, level) / localEfold);
               }
             }  // end level
           }  // end jnode
+          // Update the variable's halo
+          nodeColumns.haloExchange(xbFs[var]);
         }  // end var (loop through variables)
       }  // end exponential decay
 
@@ -485,14 +501,40 @@ namespace gdasapp {
 
       // Save the background error
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
-      bkgErr.write(bkgErrorConfig);
-
+      soca::Increment bkgErrOut(geomOut, bkgErr);
+      bkgErrOut.write(bkgErrorConfig);
+      oops::Log::info() << "====================== Background Error:" << std::endl;
+      oops::Log::info() << bkgErrOut << std::endl;
       return 0;
     }
 
     // -----------------------------------------------------------------------------
 
    private:
+    // Function to compute the local e-folding scale
+    /**
+     * @brief Computes the local e-folding scale based on the given depth, e-folding length
+     *  and the minimum ratio depth/eFoldingLength.
+     *
+     * This function calculates the local e-folding scale by comparing the ratio of depth to
+     * e-folding length with a minimum ratio. If the ratio is less than the minimum ratio,
+     * the function returns the depth divided by the minimum ratio. Otherwise, it returns
+     * the e-folding length.
+     *
+     * @param depth The local ocean depth.
+     * @param eFoldingLength The target e-folding length.
+     * @param minRatio The minimum ratio defined as depth/eFoldingLength.
+     * @return The adjusted e-folding scale.
+     */
+    double computeLocalEFoldingScale(const double depth, const double eFoldingLength,
+                                     const double minRatio) const {
+      double ratio = depth / eFoldingLength;
+      if (ratio < minRatio) {
+        return depth / minRatio;
+      }
+      return eFoldingLength;
+    }
+
     std::string appname() const {
       return "gdasapp::SocaDiagB";
     }
