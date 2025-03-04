@@ -20,6 +20,7 @@ load("pcre2/10.42")
 load("curl/8.4.0")
 load("zlib/1.2.13")
 load("git/2.35.3")
+load("git-lfs/2.11.0")
 load("pkg-config/0.29.2")
 load("hdf5/1.14.0")
 load("parallel-netcdf/1.12.2")
@@ -75,12 +76,16 @@ load("py-markupsafe/2.1.3")
 load("py-cftime/1.0.3.4")
 load("py-packaging/23.1")
 
--- hack for git-lfs
-prepend_path("PATH", "/apps/spack/git-lfs/2.11.0/gcc/11.2.0/m6b6nl5kfqngfteqbggydc7kflxere3s/bin")
-
 setenv("CC","cc")
 setenv("CXX","CC")
 setenv("FC","ftn")
+
+-- stack-intel/19.1.3.304 sets compiler flags "-static-libgcc -static-libstdc++ -Bstatic -lstdc++ -Bdynamic -lm -lpthread"
+-- flags trigger "warning #10315: specifying -lm before files may supersede the Intel(R) math library and affect performance"
+-- TODO: remove unsetenv lines when complier flags are removed from the wcoss2 spack-stack build
+unsetenv("CFLAGS")
+unsetenv("CXXFLAGS")
+unsetenv("FFLAGS")
 
 local mpiexec = '/opt/cray/pals/1.3.2/bin/mpirun'
 local mpinproc = '-n'
