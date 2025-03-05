@@ -156,8 +156,7 @@
       where:
       - variable:
           name: MetaData/stationIdentification
-        is_in: [71120,71397,71621,71727,71816]
-        size where true: 5
+        is_in: {{ get_conventional_rejected_stations(observation_from_jcb) }}
       actions:
       - name: set
         flag: rejectlist
