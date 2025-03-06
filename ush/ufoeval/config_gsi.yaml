@@ -1,7 +1,6 @@
 machine: hera
 
 job options:
-  job-name: gsivar
   account: da-cpu
   qos: debug
   partition: hera
@@ -13,10 +12,10 @@ job options:
 
 directories:
   HOMEgfs: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test
-  STAGEDIR: /scratch2/NCEPDEV/stmp1/Russ.Treadon/STAGEDIR/gsi/gdasanal_00
-  RUNDIR: /scratch1/NCEPDEV/stmp2/Russ.Treadon/RUNDIRS/gsi_anl_00
+  STAGEDIR: /scratch2/NCEPDEV/stmp1/Russ.Treadon/STAGEDIR
+  RUNDIR: /scratch1/NCEPDEV/stmp2/Russ.Treadon/RUNDIRS
 
 app files:
+  DA_CORE: gsi
+  DA_TYPE: hyb3dvfgat
   APPEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/gsi.x
-  APPYML: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/sorc/gdas.cd/ush/ufoeval/gsiparm.anl
-  runscript: rungsi.sh

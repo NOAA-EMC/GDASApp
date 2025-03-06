@@ -1,7 +1,6 @@
 machine: hera
 
 job options:
-  job-name: jedivar
   account: da-cpu
   qos: debug
   partition: hera
@@ -13,12 +12,11 @@ job options:
 
 directories:
   HOMEgfs: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test
-  STAGEDIR: /scratch2/NCEPDEV/stmp1/Russ.Treadon/STAGEDIR/jedi/gdasatmanl_00
-  RUNDIR: /scratch1/NCEPDEV/stmp2/Russ.Treadon/RUNDIRS/jedi_anl_00
+  STAGEDIR: /scratch2/NCEPDEV/stmp1/Russ.Treadon/STAGEDIR
+  RUNDIR: /scratch1/NCEPDEV/stmp2/Russ.Treadon/RUNDIRS
 
 app files:
+  DA_CORE: jedi
+  DA_TYPE: hyb3dvfgat
   APPEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/gdas.x
-  APPYML: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/sorc/gdas.cd/ush/ufoeval/atmanlvar.yaml
   INCEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/fv3jedi_fv3inc.x
-  INCYML: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/sorc/gdas.cd/ush/ufoeval/atmanlfv3inc.yaml
-  runscript: runjedi.sh   

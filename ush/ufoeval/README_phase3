@@ -1,36 +1,46 @@
 The following files are available to assist developers in JEDI Phase 3 validation.
 
-run_gsi.py and run_jedi.py
-  - stage files to run the indicated analysis executable
+config_gsi.yaml - set user options for GSI atmospheric analysis job
+config_jedi.yaml - set user option for JEDI atmospheric analysis job
+run.py - script - process config, populate run directory, create run script
+
+config_gsi.yaml and config_jedi.yaml contain the following user settings
+  - machine: valid machines are hera, hercules, or orion
+  - job options:  may need to adjust nodes, tasks-per-node, or mem appropriate for dataset being processed
+  - directories
+      HOMEgfs: global-work installation
+      STAGEDIR: machine specific path containing staged input
+         Hera:  /scratch2/NCEPDEV/stmp1/Russ.Treadon/STAGEDIR
+	 Hercules, Orion: /work2/noaa/stmp/rtreadon/STAGEDIR
+      RUNDIR: path to the directory in which job will run.  Full path is RUNDIR + DA_CORE + DA_TYPE
+  - app files
+      DA_CORE: DA engine to run. Valid options are gsi or jedi
+      DA_TYPE: type of DA to run.  Valid options are
+         3dv - 3dvar using gsibec
+	 3dvfgat - 3dvar using gsibec with fgat
+	 hyb3dvfgat - 3dvar using gsibec & 40 member ensemble with fgat
+      APPEXEC: GSI or JEDI analysis executable
+      INCEXEC: executable to convert JEDI cube sphere increment to gaussian grid
+
+run.py
+  - stage files to run the case specified in the configuration yaml
   - create a batch script the user can subit to run executable
 
-config_gsi.yaml and config_jedi.yaml
-  - set batch job configuration variables
-  - specify key directories
-  - specify the application exeutable and parameter file 
 
-atmanlvar.yaml
- - sample yaml file to configure 3DVAR JEDI analysis
+Executing the Phase 3 validation workflow entails
 
-gsiparm.anl
- - sample namelist to configure 3DVAR GSI analysis
+1. modify config_jedi.yaml and config_gsi.yaml to point at the configuration
+   you want to use. Point at the executables to be run. Set the RUNDIR in which the
+   job will run
 
+2. execute run.py. The syntax is "./run.py -c ./config_gsi.yaml" or 
+   "./run.py -c ./config_jedi.yaml".  The run.py script will
+   (a) populate the specified RUNDIR with the files to run the specified configuration
+   (b) create a batch script, runjob.sh, in RUNDIR to run the specified configuration
 
-A Phase 3 validation workflow would entail
+   When ./run.py` is executed it echoes to the screen the directory to which data is copied
+   and the directory in which the job script, runjob.sh, is created.
+   
+3. cd to the specified RUNDIR to submit the batch script.
 
-1. modify atmanlvar.yaml and gsipmarm.anl to get the desired configuration
-
-2. modify config_jedi.yaml and config_gsi.yaml to point at the configuration
-   files from 1 and the executables to be run. Set the RUNDIR in which the
-   jobs are run
-
-3. execute run_gsi.py and run_jedi.py. The syntax is "./run_gsi.py -y ./config_gsi.yaml"
-   and "./run_jedi.py -y ./config_jedi.yaml".  The run*py script will
-   (a) populate the specified RUNDIR with the files to run the given app
-   (b) create a batch script with the runscript name specified in the input yaml.
-       The batch script is created RUNDIR
-
-4. cd to the specified RUNDIR to submit the batch script. The job log file is written
-   to RUNDIR
-
-5. examine ouput upon job completion
+4. examine ouput upon job completion
