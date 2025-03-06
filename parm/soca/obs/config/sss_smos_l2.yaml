@@ -1,0 +1,44 @@
+obs space:
+  name: sss_smos_l2
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/obs/${OPREFIX}sss_smos_l2.${PDY}${cyc}.nc4
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: !ENV ${DATA}/diags/sss_smos_l2.${PDY}${cyc}.nc4
+  simulated variables: [seaSurfaceSalinity]
+  io pool:
+    max pool size: 1
+get values:
+  time interpolation: linear
+obs operator:
+  name: Identity
+  observation alias file: obsop_name_map.yaml
+obs error:
+  covariance model: diagonal
+obs filters:
+- filter: Domain Check
+  where:
+  - variable: {name: GeoVaLs/sea_area_fraction}
+    minvalue: 0.9
+- filter: Bounds Check
+  minvalue: 0.1
+  maxvalue: 40.0
+- filter: Background Check
+  threshold: 5.0
+- filter: Domain Check
+  action:
+    name: passivate
+  where:
+  - variable: {name: GeoVaLs/sea_surface_temperature}
+#    minvalue: 10.0
+    maxvalue: -4.0
+## Gaussian_Thinning is having problems with LETKF, try again later
+# - filter: Gaussian_Thinning
+#   horizontal_mesh:   25.0 #km
+- filter: Domain Check
+  where:
+  - variable: {name: GeoVaLs/distance_from_coast}
+    minvalue: 100e3
