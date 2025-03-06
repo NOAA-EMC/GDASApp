@@ -87,8 +87,7 @@ class PrepOceanObs(Task):
         self.task_config.observations  = parse_j2yaml(OBS_YAML, self.task_config)['observations']
 
         obsconfigfile = os.path.join(self.task_config['PARMgfs'], 'gdas/soca/obs/obs_list_base_yaml.j2')
-        obsconfig = parse_j2yaml(obsconfigfile, self.task_config)
-        print('obsconfig:',obsconfig)
+        obsconfig = parse_j2yaml(obsconfigfile, self.task_config)['observers']
 
         OBSPREP_YAML = self.task_config['OBSPREP_YAML']
         if os.path.exists(OBSPREP_YAML):
@@ -113,15 +112,17 @@ class PrepOceanObs(Task):
 
         try:
             # go through the sources in OBS_YAML
-            for observer in self.task_config.observations:
+            for observation in obsconfig:
+                obs_space = observation['obs space']
+                obs_space_name = obs_space['name']
 
                 # find match to the obs space from OBS_YAML in OBSPREP_YAML
                 # this is awkward and unpythonic, so feel free to improve
                 for obsprep_entry in obsprep_config['observations']:
                     obsprep_space = obsprep_entry['obs space'] # the whole thing is needed later
                     obsprep_space_name = obsprep_space['name']
-                    if obsprep_space_name == observer:
-                        logger.info(f"Observer {observer} found in OBSPREP_YAML")
+                    if obsprep_space_name == obs_space_name:
+                        logger.info(f"Observer {obs_space_name} found in OBSPREP_YAML")
 
                         try:
                             obs_window_back = obsprep_space['window']['back']
@@ -142,12 +143,12 @@ class PrepOceanObs(Task):
                                                                        window_cdates)
 
                         if not fetched_files:
-                            logger.warning(f"No files found for obs source {observer}, skipping")
-                            break  # go to next observer in OBS_YAML
+                            logger.warning(f"No files found for obs source {obs_space_name}, skipping")
+                            break  # go to next obs_space_name in OBS_YAML
 
                         obsprep_space['window begin'] = self.window_begin
                         obsprep_space['window end'] = self.window_end
-                        ioda_config_file = observer + '2ioda.yaml'
+                        ioda_config_file = obs_space_name + '2ioda.yaml'
                         obsprep_space['conversion config file'] = ioda_config_file
 
                         # set up the config file for conversion to IODA for bufr and
@@ -162,9 +163,9 @@ class PrepOceanObs(Task):
                                 'DMPDIR': COMIN_OBS,
                                 'COM_OBS': COMIN_OBS,
                                 'OCEAN_BASIN_FILE': OCEAN_BASIN_FILE}
-                            bufr2iodapy = os.path.join(BUFR2IODA_PY_DIR, f'bufr2ioda_{observer}.py')
+                            bufr2iodapy = os.path.join(BUFR2IODA_PY_DIR, f'bufr2ioda_{obs_space_name}.py')
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy
-                            tmpl_filename = f"bufr2ioda_{observer}.yaml"
+                            tmpl_filename = f"bufr2ioda_{obs_space_name}.yaml"
                             bufrconv_template = os.path.join(BUFR2IODA_TMPL_DIR, tmpl_filename)
                             input_files = []  # files to save to COM directory
                             bufrconv_files = []  # files needed to populate the IODA converter config
@@ -172,24 +173,24 @@ class PrepOceanObs(Task):
                             # for each cycle of the retrieved obs bufr files...
                             for input_file, cycle in fetched_files:
                                 cycletime = cycle[8:10]
-                                ioda_filename = f"{RUN}.t{cycletime}z.{observer}.{cycle}.nc4"
+                                ioda_filename = f"{RUN}.t{cycletime}z.{obs_space_name}.{cycle}.nc4"
                                 bufrconv_files.append((cycle, input_file, ioda_filename))
                                 input_files.append(ioda_filename)
 
                             obsprep_space['bufrconv files'] = bufrconv_files
-
+                            print('obs_space_name: ',obs_space_name)
                             # set up config for concatenation
                             concat_config = {
                                 'provider': 'INSITUOBS',
                                 'window begin': obsprep_space['window begin'],
                                 'window end': obsprep_space['window end'],
-                                'variable': observer['obs space']['observed variables'][0],
+                                'variable': obs_space['observed variables'][0],
                                 'error ratio': obsprep_space['error ratio'],
                                 'input files': input_files,
                                 'output file': f"{RUN}.t{cycletime}z.{obs_space_name}.{cdatestr}.nc4"
                             }
                             print('concat_config:', concat_config)
-                            concat_config_file = obtype + '_concat.yaml'
+                            concat_config_file = obs_space_name + '_concat.yaml'
 
                             obsprep_space['output file'] = concat_config['output file']
 
@@ -200,7 +201,7 @@ class PrepOceanObs(Task):
                                 save_as_yaml(concat_config, concat_config_file)
                             except Exception as e:
                                 logger.warning(f"An exeception {e} occured while trying to create BUFR2IODA config")
-                                logger.warning(f"obtype {obtype} will be skipped")
+                                logger.warning(f"obs_space_name {obs_space_name} will be skipped")
                                 break  # go to next observer in OBS_YAML
 
                             obsspaces_to_convert.append({"obs space": obsprep_space})
@@ -208,14 +209,14 @@ class PrepOceanObs(Task):
                         elif obsprep_space['type'] == 'nc':
 
                             obsprep_space['input files'] = [f[0] for f in fetched_files]
-                            ioda_filename = f"{RUN}.t{cyc:02d}z.{observer}.{cdatestr}.nc4"
+                            ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc4"
                             obsprep_space['output file'] = ioda_filename
                             save_as_yaml(obsprep_space, ioda_config_file)
 
                             obsspaces_to_convert.append({"obs space": obsprep_space})
 
                         else:
-                            logger.warning(f"obs space {observer} has bad type {obsprep_space['type']}, skipping")
+                            logger.warning(f"obs space {obs_space_name} has bad type {obsprep_space['type']}, skipping")
 
         except TypeError:
             logger.critical("Ill-formed OBS_YAML or OBSPREP_YAML file, exiting")
@@ -246,15 +247,15 @@ class PrepOceanObs(Task):
         for observation in obsspaces_to_convert['observations']:
 
             obs_space = observation['obs space']
-            obtype = obs_space['name']
-            logger.info(f"Trying to convert {obtype} to IODA")
+            obs_space_name = obs_space['name']
+            logger.info(f"Trying to convert {obs_space_name} to IODA")
             if obs_space["type"] == "nc":
                 process = Process(target=prep_ocean_obs_utils.run_netcdf_to_ioda, args=(obs_space,
                                                                                         self.task_config.OCNOBS2IODAEXEC))
             elif obs_space["type"] == "bufr":
                 process = Process(target=prep_ocean_obs_utils.run_bufr_to_ioda, args=(obs_space, self.task_config.OCNOBS2IODAEXEC))
             else:
-                logger.warning(f"Invalid observation format {obs_space['type']}, skipping obtype {obtype}")
+                logger.warning(f"Invalid observation format {obs_space['type']}, skipping obs_space_name {obs_space_name}")
                 continue
             process.start()
             processes.append((process, obs_space))
