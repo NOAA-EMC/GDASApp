@@ -84,7 +84,7 @@ class PrepOceanObs(Task):
 
         self.task_config.app_path_observations = os.path.join(self.task_config['PARMgfs'], 'gdas/jcb-gdas/observations/marine')
         OBS_YAML = os.path.join(self.task_config['PARMgfs'], 'gdas/soca/obs/obs_list.yaml.j2')
-        self.task_config.observations  = parse_j2yaml(OBS_YAML, self.task_config)['observations']
+        self.task_config.observations = parse_j2yaml(OBS_YAML, self.task_config)['observations']
 
         obsconfigfile = os.path.join(self.task_config['PARMgfs'], 'gdas/soca/obs/obs_list_base_yaml.j2')
         obsconfig = parse_j2yaml(obsconfigfile, self.task_config)['observers']
@@ -119,7 +119,7 @@ class PrepOceanObs(Task):
                 # find match to the obs space from OBS_YAML in OBSPREP_YAML
                 # this is awkward and unpythonic, so feel free to improve
                 for obsprep_entry in obsprep_config['observations']:
-                    obsprep_space = obsprep_entry['obs space'] # the whole thing is needed later
+                    obsprep_space = obsprep_entry['obs space']  # the whole thing is needed later
                     obsprep_space_name = obsprep_space['name']
                     if obsprep_space_name == obs_space_name:
                         logger.info(f"Observer {obs_space_name} found in OBSPREP_YAML")
@@ -178,7 +178,6 @@ class PrepOceanObs(Task):
                                 input_files.append(ioda_filename)
 
                             obsprep_space['bufrconv files'] = bufrconv_files
-                            print('obs_space_name: ',obs_space_name)
                             # set up config for concatenation
                             concat_config = {
                                 'provider': 'INSITUOBS',
@@ -189,7 +188,6 @@ class PrepOceanObs(Task):
                                 'input files': input_files,
                                 'output file': f"{RUN}.t{cycletime}z.{obs_space_name}.{cdatestr}.nc4"
                             }
-                            print('concat_config:', concat_config)
                             concat_config_file = obs_space_name + '_concat.yaml'
 
                             obsprep_space['output file'] = concat_config['output file']
