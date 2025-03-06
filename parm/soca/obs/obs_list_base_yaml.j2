@@ -1,0 +1,15 @@
+#cost function:
+
+#  observations:
+#    obs perturbations: {{ obs_perturbations | default(false, true) }}
+    observers:
+{% for observation_from_jcb in observations %}
+{% if use_observer(observation_from_jcb) %}
+{% filter indent(width=4) %}
+{% set file_path = app_path_observations + '/' + observation_from_jcb + '.yaml.j2' %}
+{% include file_path %}
+{% endfilter %}
+{% endif %}
+{% endfor %}
+
+
