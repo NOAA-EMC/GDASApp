@@ -82,8 +82,13 @@ class PrepOceanObs(Task):
         except OSError:
             logger.warning("Could not copy RECCAP2_region_masks_all_v20221025.nc")
 
+        self.task_config.app_path_observations = os.path.join(self.task_config['PARMgfs'], 'gdas/jcb-gdas/observations/marine')
         OBS_YAML = os.path.join(self.task_config['PARMgfs'], 'gdas/soca/obs/obs_list.yaml.j2')
-        observers = parse_j2yaml(OBS_YAML, self.task_config)['observers']
+        self.task_config.observations  = parse_j2yaml(OBS_YAML, self.task_config)['observations']
+
+        obsconfigfile = os.path.join(self.task_config['PARMgfs'], 'gdas/soca/obs/obs_list_base_yaml.j2')
+        obsconfig = parse_j2yaml(obsconfigfile, self.task_config)
+        print('obsconfig:',obsconfig)
 
         OBSPREP_YAML = self.task_config['OBSPREP_YAML']
         if os.path.exists(OBSPREP_YAML):
@@ -108,7 +113,7 @@ class PrepOceanObs(Task):
 
         try:
             # go through the sources in OBS_YAML
-            for observer in observers:
+            for observer in self.task_config.observations:
 
                 # find match to the obs space from OBS_YAML in OBSPREP_YAML
                 # this is awkward and unpythonic, so feel free to improve
@@ -148,6 +153,7 @@ class PrepOceanObs(Task):
                         # set up the config file for conversion to IODA for bufr and
                         # netcdf files respectively
                         if obsprep_space['type'] == 'bufr':
+
                             # create a pre-filled template file for the bufr2ioda converter,
                             # which will be overwritten for each input cycle
                             bufrconv_config = {
@@ -162,13 +168,12 @@ class PrepOceanObs(Task):
                             bufrconv_template = os.path.join(BUFR2IODA_TMPL_DIR, tmpl_filename)
                             input_files = []  # files to save to COM directory
                             bufrconv_files = []  # files needed to populate the IODA converter config
+
                             # for each cycle of the retrieved obs bufr files...
                             for input_file, cycle in fetched_files:
                                 cycletime = cycle[8:10]
                                 ioda_filename = f"{RUN}.t{cycletime}z.{observer}.{cycle}.nc4"
-                                output_files.append(ioda_filename)
                                 bufrconv_files.append((cycle, input_file, ioda_filename))
-                                #???
                                 input_files.append(ioda_filename)
 
                             obsprep_space['bufrconv files'] = bufrconv_files
