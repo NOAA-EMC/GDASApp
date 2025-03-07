@@ -1,7 +1,5 @@
-#cost function:
+# used with obs list to load obs configs
 
-#  observations:
-#    obs perturbations: {{ obs_perturbations | default(false, true) }}
     observers:
 {% for observation_from_jcb in observations %}
 {% if use_observer(observation_from_jcb) %}
