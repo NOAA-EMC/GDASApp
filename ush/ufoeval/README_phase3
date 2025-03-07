@@ -15,7 +15,7 @@ config_gsi.yaml and config_jedi.yaml contain the following user settings
   - machine: hera, hercules, or orion
   - job options:  may need to adjust nodes, tasks-per-node, or mem appropriate for dataset being processed
 
-      HOMEgfs: global-work installation
+      HOMEgfs: global-workflow installation
       STAGEDIR: machine specific path containing job input, set to the machine appropriate path below
          Hera:  /scratch2/NCEPDEV/stmp1/Russ.Treadon/STAGEDIR
 	 Hercules, Orion: /work2/noaa/stmp/rtreadon/STAGEDIR
@@ -50,4 +50,4 @@ WORKFLOW EXAMPLE
    
 3. cd to the specified RUNDIR to submit batch script: "sbatch runjob.sh"
 
-4. examine ouput upon job completion
+4. examine output upon job completion

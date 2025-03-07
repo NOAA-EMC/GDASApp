@@ -14,11 +14,11 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
 jobname = "runjob"
 
 
-class JobCard:
+class SlurmJobCard:
 
     def __init__(self, config):
         """
-        Constructor for the JobCard class.
+        Constructor for the SlurmJobCard class.
         :param config: dictionary containing configuration information
         """
 
@@ -197,8 +197,8 @@ def main():
 
     logging.info(f"Data staged to {rundir}")
 
-    # Create run script.
-    run_card = JobCard(exp_config)
+    # Create run script
+    run_card = SlurmJobCard(exp_config)
     run_card.header()
     run_card.load_modules()
     run_card.aprun()
