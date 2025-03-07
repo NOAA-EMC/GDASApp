@@ -141,13 +141,11 @@ def main():
     # Ensure valid app core and type
     valid = ['gsi', 'jedi']
     if appcore not in valid:
-        logging.error(f"DA_CORE {appcore} is invalid.  Valid cores are {valid}")
-        sys.exit()
+        raise ValueError(f"DA_CORE {appcore} is invalid.  Valid cores are {valid}")
 
     valid = ['3dv', '3dvfgat', 'hyb3dvfgat']
     if apptype not in valid:
-        logging.error(f"DA_TYPE {apptype} is invalid.  Valid types are {valid}")
-        sys.exit()
+        raise ValueError(f"DA_TYPE {apptype} is invalid.  Valid types are {valid}")
 
     # Set source (stagedir) and destination (rundir) paths
     stagedir = os.path.join(exp_config['directories']['STAGEDIR'], appcore, apptype)
