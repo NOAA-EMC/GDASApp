@@ -1,0 +1,47 @@
+members:
+{% for imember in range(atmosphere_number_ensemble_members) %}
+{% for ihour in range( atmosphere_iau_hours | length ) %}
+- state geometry:
+    fms initialization:
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table
+    akbk: ./fv3jedi/akbk.nc4
+    layout:
+    - {{ atmosphere_layout_x }}
+    - {{ atmosphere_layout_y }}
+    npx: {{ atmosphere_npx_anl }}
+    npy: {{ atmosphere_npy_anl }}
+    npz: {{ atmosphere_npz_anl }}
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
+  increment geometry:
+    fms initialization:
+      namelist filename: ./fv3jedi/fmsmpp.nml
+      field table filename: ./fv3jedi/field_table
+    akbk: ./fv3jedi/akbk.nc4
+    layout:
+    - {{ atmosphere_layout_x }}
+    - {{ atmosphere_layout_y }}
+    npx: {{ atmosphere_npx_anl }}
+    npy: {{ atmosphere_npy_anl }}
+    npz: {{ atmosphere_npz_anl }}
+    field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+  state:
+    datetime: {{ atmosphere_iau_times_iso[ihour] }}
+    state variables: [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,delz]
+    filetype: cube sphere history
+    provider: ufs
+    datapath: ./
+    filename: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_catmi{{ '%03d' % atmosphere_iau_hours[ihour] }}.nc
+  increment:
+    added variables: [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,delz]
+    filetype: cube sphere history
+    provider: ufs
+    datapath: ./mem{{ '%0{}d'.format(3)|format(imember+1) }}
+    filename: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_atmi{{ '%03d' % atmosphere_iau_hours[ihour] }}.nc
+  output:
+    filetype: fms restart
+    is restart: false
+    datapath: ./mem{{ '%0{}d'.format(3)|format(imember+1) }}
+    filename_nonrestart: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_ratmi{{ '%03d' % atmosphere_iau_hours[ihour] }}.nc
+{% endfor %}
+{% endfor %}

@@ -1,0 +1,43 @@
+state geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ snow_layout_x }}
+  - {{ snow_layout_y }}
+  npx: {{ snow_npx_ges }}
+  npy: {{ snow_npy_ges }}
+  npz: {{ snow_npz_ges }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ snow_layout_x }}
+  - {{ snow_layout_y }}
+  npx: {{ snow_npx_ges }}
+  npy: {{ snow_npy_ges }}
+  npz: {{ snow_npz_ges }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
+state:
+  datetime: {{ snow_background_time_iso }}
+  state variables: {{ analysis_variables }}
+  filetype: cube sphere history
+  provider: ufs
+  datapath: ./
+  filename: {{ snow_variational_history_prefix }}cubed_sphere_grid_sfcf006.nc
+increment:
+  added variables: {{ analysis_variables }}
+  filetype: fms restart
+  datapath: ./
+  filename is datetime templated: true
+  filename_sfcd: '%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc'
+  prefix: snowinc
+output:
+  filetype: auxgrid
+  gridtype: gaussian
+  datapath: ./
+  filename: snowanl.
