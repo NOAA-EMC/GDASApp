@@ -50,6 +50,8 @@ aero_npx_clim_b: {{ npx_clim_b | default(49, true) }}
 aero_npy_clim_b: {{ npy_clim_b | default(49, true) }}
 aero_npz_clim_b: {{ npz_anl | default(127, true) }}
 
+aero_variational_history_prefix: "{{ GPREFIX }}"
+
 aero_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
 
 # Background
