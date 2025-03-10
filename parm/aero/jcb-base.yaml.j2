@@ -73,10 +73,6 @@ aero_cycle_time_fv3: "{{ current_cycle | to_fv3time }}"
 aero_background_error_time_iso:  "{{ background_time | to_isotime }}"
 aero_background_error_time_fv3: "{{ background_time | to_fv3time }}"
 
-# IAU times
-aero_iau_hours: {{ IAUFHRS }}
-aero_iau_times_iso: {{ iau_times_iso | default([current_cycle | to_isotime], true) }}
-
 # Background error
 aero_berror_data_directory: "{{ DATA }}/berror"
 aero_berror_diffusion_directory: "{{ DATA }}/diffusion"
