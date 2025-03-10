@@ -1,9 +1,9 @@
 output:
   state component:
-    filetype: cube sphere history
-    filename: ./anl/cubed_sphere_grid_atminc.jedi.nc
-    provider: ufs
-    fields to write: [ugrd,vgrd,tmp,pressfc,spfh,icmr,clwmr,o3mr]
+    filetype: fms restart
+    is restart: false
+    filename_nonrestart: ./anl/cubed_sphere_grid_atminc.jedi.nc
+    fields to write: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
 geometry:
   fms initialization:
     namelist filename: "{{atmosphere_fv3jedi_files_path}}/fmsmpp.nml"
@@ -15,4 +15,4 @@ geometry:
   npx: {{atmosphere_npx_ges}}
   npy: {{atmosphere_npy_ges}}
   npz: {{atmosphere_npz_ges}}
-  field metadata override: "{{atmosphere_fv3jedi_files_path}}/fv3jedi_fieldmetadata_history.yaml"
+  field metadata override: "{{atmosphere_fv3jedi_files_path}}/fv3jedi_fieldmetadata_fv3inc.yaml"

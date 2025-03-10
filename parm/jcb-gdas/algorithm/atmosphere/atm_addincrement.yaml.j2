@@ -1,0 +1,41 @@
+state geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ atmosphere_layout_x }}
+  - {{ atmosphere_layout_y }}
+  npx: {{ atmosphere_npx_ges }}
+  npy: {{ atmosphere_npy_ges }}
+  npz: {{ atmosphere_npz_ges }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ atmosphere_layout_x }}
+  - {{ atmosphere_layout_y }}
+  npx: {{ atmosphere_npx_ges }}
+  npy: {{ atmosphere_npy_ges }}
+  npz: {{ atmosphere_npz_ges }}
+  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
+state:
+  datetime: {{ atmosphere_background_time_iso }}
+  state variables: [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,delz]
+  filetype: cube sphere history
+  provider: ufs
+  filename: {{ atmosphere_variational_history_prefix }}cubed_sphere_grid_atmf006.nc
+  datapath: ./
+increment:
+  added variables: [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,delz]
+  filetype: fms restart
+  is restart: false
+  filename_nonrestart: {{ atmosphere_variational_analysis_prefix }}cubed_sphere_grid_atminc.nc
+  datapath: ./
+output:
+  filetype: auxgrid
+  gridtype: gaussian
+  filename: atmanl.

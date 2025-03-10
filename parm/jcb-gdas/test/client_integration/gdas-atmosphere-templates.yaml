@@ -63,6 +63,9 @@ atmosphere_background_ensemble_path: "DATA/ens/mem%mem%"
 atmosphere_variational_history_prefix: "bkg_"
 atmosphere_ensemble_history_prefix: "ens_"
 
+atmosphere_variational_analysis_prefix: "anl_"
+atmosphere_ensemble_analysis_prefix: "anl_"
+
 atmosphere_background_time_iso: '2024-02-02T00:00:00Z'
 
 # Background error
