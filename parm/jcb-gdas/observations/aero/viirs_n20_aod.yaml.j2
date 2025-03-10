@@ -35,24 +35,6 @@
 
   # Observation Bias Correction (VarBC)
   # -----------------------------------
-  obs bias:
-    input file: "{{aero_obsbiasin_path}}/{{aero_obsbiasin_prefix}}{{observation_from_jcb}}{{aero_obsbiasin_suffix}}"
-    output file: "{{aero_obsbiasout_path}}/{{aero_obsbiasout_prefix}}{{observation_from_jcb}}{{aero_obsbiasout_suffix}}"
-    variational bc:
-      predictors:
-      - name: constant
-        surface: land sea mask
-    covariance:
-      minimal required obs number: 20
-      variance range: [1.0e-6, 10.0]
-      step size: 1.0e-4
-      largest analysis variance: 10000.0
-      prior:
-        input file: "{{aero_obsbiasin_path}}/{{aero_obsbiascovin_prefix}}{{observation_from_jcb}}{{aero_obsbiascovin_suffix}}"
-        inflation:
-          ratio: 1.1
-          ratio for small dataset: 2.0
-      output file: "{{aero_obsbiasout_path}}/{{aero_obsbiascovout_prefix}}{{observation_from_jcb}}{{aero_obsbiascovout_suffix}}"
 
   # Observation Filters (QC)
   # ------------------------  
