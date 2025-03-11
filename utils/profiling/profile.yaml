@@ -1,0 +1,35 @@
+oops log: 'oops_stats.txt'
+methods:
+- oops::Covariance::SABER::multiply
+- oops::State::State
+- oops::Increment::diff
+- oops::Geometry::Geometry
+- oops::State::write
+- oops::Model::step
+- oops::State::read
+- oops::Increment::write
+- oops::ObsSpace::ObsSpace
+- oops::ObsSpace::save
+- oops::UnstructuredInterpolator::apply
+- oops::LinearVariableChange::changeVarTraj
+#- oops::Covariance::SABER::Constructor
+#- oops::Increment::Increment
+#- oops::GetValues::processTL
+#- oops::Increment::read
+#- oops::GetValues::GetValues
+#- oops::GetValues::processAD
+#- oops::LinearVariableChange::changeVarTL
+#- oops::LinearVariableChange::changeVarAD
+#- oops::Increment::operator=
+#- oops::UnstructuredInterpolator::applyAD
+#- oops::VariableChange::changeVar
+#- oops::Increment::operator+=(State, Increment)
+#- oops::Parameters::deserialize
+#- oops::GetValues::fillGeoVaLsTL
+#- oops::GetValues::process
+#- oops::ObsVector::dot_product
+#- oops::Increment::toFieldSet
+#- oops::GetValues::fillGeoVaLsAD
+#- oops::State::toFieldSet
+#- oops::Increment::fromFieldSet
+#

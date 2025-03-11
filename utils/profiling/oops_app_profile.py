@@ -1,8 +1,20 @@
+import argparse
+import yaml
 import matplotlib.pyplot as plt
 import re
 
-# Load the profiling data file
-file_path = "oops_stats.txt"
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description='Process profiling data from a YAML configuration file.')
+parser.add_argument('config', type=str, help='Path to the YAML configuration file')
+args = parser.parse_args()
+
+# Load the YAML configuration file
+with open(args.config, 'r') as yaml_file:
+    config = yaml.safe_load(yaml_file)
+
+# Extract the file path from the configuration
+file_path = config['oops log']
+methods = config['methods']
 
 # Define a regex to extract parallel timing statistics
 pattern = re.compile(r"OOPS_STATS\s+(.+?)\s+:\s+(\d+\.\d+)")
@@ -20,7 +32,6 @@ with open(file_path, "r") as file:
                 continue
 
         if in_parallel_section and "OOPS_STATS" in line:
-            print(f"-------- {line}")
             match = pattern.search(line)
             if match:
                 key, runtime = match.groups()
@@ -36,24 +47,33 @@ if runtimes:
     cumulative_runtime = 0
     top_runtimes = []
     other_runtime = 0
+    # Convert sorted_runtimes to a dictionary
+    sorted_runtimes_dict = {key: runtime for key, runtime in sorted_runtimes}
+
+    # print the sorted_runtimes_dict one key/value pair per line
+    for key, value in sorted_runtimes_dict.items():
+        print(f"{key}: {value}")
+
+    total_runtime_value = sorted_runtimes_dict['util::Timers::Total']
 
     for key, runtime in sorted_runtimes:
-        if cumulative_runtime / total_runtime < 0.95:
+        if key in methods:
+            print(f"---------- key: {key}, runtime: {runtime}")
             top_runtimes.append((key, runtime))
             cumulative_runtime += runtime
-        else:
-            other_runtime += runtime
+
+    other_runtime = total_runtime_value - cumulative_runtime
+
+    print(f"Total runtime: {total_runtime_value}")
+    print(f"Top runtime: {cumulative_runtime}")
+    print(f"Other runtime: {other_runtime}")
 
     # Add the "Other" category
     if other_runtime > 0:
         top_runtimes.append(("Other", other_runtime))
 
     # Prepare data for plotting
-    #print(top_runtimes)
-    top_runtimes = [(key, size) for key, size in top_runtimes if "Total" not in key and "measured" not in key]
     labels, sizes = zip(*top_runtimes)
-    print(f"sizes: {sizes}")
-    print(f"labels: {labels}")
 
     # Generate Pie Chart with labels on the side
     plt.figure(figsize=(15, 10))
