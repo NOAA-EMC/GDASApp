@@ -1,0 +1,21 @@
+machine: hera
+
+job options:
+  account: da-cpu
+  qos: debug
+  partition: hera
+  time: '30:00'
+  nodes: 4
+  tasks-per-node: 24
+  cpus-per-task: 1
+  mem: 96Gb
+
+directories:
+  HOMEgfs: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test
+  STAGEDIR: /scratch2/NCEPDEV/stmp1/Russ.Treadon/STAGEDIR
+  RUNDIR: /scratch1/NCEPDEV/stmp2/Russ.Treadon/RUNDIRS
+
+app files:
+  DA_CORE: gsi
+  DA_TYPE: hyb3dvfgat
+  APPEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/gsi.x
