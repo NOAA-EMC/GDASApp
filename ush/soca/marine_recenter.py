@@ -143,24 +143,19 @@ class MarineRecenter(Task):
         nmem_ens = self.task_config.NMEM_ENS
         gPDYstr = self.task_config.gPDY.strftime("%Y%m%d")
         ens_member_list = []
+        #logger.info(f"--- comin ocean: {self.task_config.COMIN_OCEAN_HISTORY_ENS_PREV}")
+        #logger.info(f"--- comin ice: {self.task_config.COMIN_ICE_HISTORY_ENS_PREV}")
+        #comin_ens={'ocean': self.task_config.COMIN_OCEAN_HISTORY_ENS_PREV,
+        #           'ice': self.task_config.COMIN_ICE_HISTORY_ENS_PREV}
         for mem in range(1, nmem_ens+1):
             for domain in ['ocean', 'ice']:
-                mem_dir = os.path.join(self.task_config.ROTDIR,
-                                       f'enkf{RUN}.{gPDYstr}',
-                                       f'{gcyc}',
-                                       f'mem{str(mem).zfill(3)}',
-                                       'model',
-                                       domain,
-                                       'history')
-                mem_dir_real = os.path.realpath(mem_dir)
-                f00 = f"enkf{RUN}.{domain}.t{gcyc}z.inst.f009.nc"
-
-                fname_in = os.path.abspath(os.path.join(mem_dir_real, f00))
+                fname_in = os.path.join(self.task_config.DATA, '..', 'ensdata', 'ens', f'{domain}.{str(mem)}.nc')
                 fname_out = os.path.realpath(os.path.join(self.task_config.ens_dir,
-                                             domain+"."+str(mem)+".nc"))
+                                                          f'{domain}.{str(mem)}.nc'))
                 ens_member_list.append([fname_in, fname_out])
+                logger.info(f"--- source: {fname_in}")
 
-        FileHandler({'copy': ens_member_list}).sync()
+        FileHandler({'link': ens_member_list}).sync()
         # stage ensemble ice restarts
         # make a copy of the CICE6 restart
         logger.info("---------------- Stage ensemble CICE restarts")
@@ -176,7 +171,7 @@ class MarineRecenter(Task):
         ens_cice_list = []
         for mem in range(1, nmem_ens+1):
             mem_dir = os.path.join(self.task_config.ROTDIR,
-                                   f'enkf{RUN}.{gPDYstr}',
+                                   f'enkfgdas.{gPDYstr}',
                                    f'{gcyc}',
                                    f'mem{str(mem).zfill(3)}',
                                    'model',
@@ -215,7 +210,7 @@ class MarineRecenter(Task):
         logger.info("run")
 
         chdir(self.task_config.DATA)
-
+        logger.info(f"@@@@@@@@@@@@@ RUNDIR: {self.task_config.DATA}")
         exec_cmd_gridgen = Executable(self.task_config.APRUN_OCNANALECEN)
         exec_name_gridgen = os.path.join(self.task_config.EXECgfs, 'gdas_soca_gridgen.x')
         exec_cmd_gridgen.add_default_arg(exec_name_gridgen)
