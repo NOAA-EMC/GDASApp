@@ -1,13 +1,13 @@
 - obs space:
-    name: ims_snow
+    name: sfc
     obsdatain:
       engine:
         type: H5File
-        obsfile: {{ snow_obsdatain_path }}/snow/diag_{{ obspace }}_{{ stat_current_cycle_YMDH }}.nc
-    simulated variables: ['totalSnowDepth']
-    observed variables: ['totalSnowDepth']
+        obsfile: {{ atmosphere_obsdatain_path }}/atmos/diag_{{ obspace }}_{{ stat_current_cycle_YMDH }}.nc
+    simulated variables: ['stationPressure']
+    observed variables: ['stationPressure']
   statistics to compute: ['mean', 'count', 'RMS']
-  output file: "{{ obspace }}_{{ stat_current_cycle_YMDH }}_output_snow.nc"
+  output file: "{{ obspace }}_{{ stat_current_cycle_YMDH }}_output_atmos.nc"
   domains to process:
   - domain:
       name: "SH"
