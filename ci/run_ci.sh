@@ -101,13 +101,8 @@ if [[ "${TARGET}" = "hera" ]]; then
     echo "***WARNING*** apply HERA global-->da patch to $workflow_dir/workflow/hosts/${TARGET}.yaml"
     sed -i "s|/scratch1/NCEPDEV/global/\${USER}|/scratch1/NCEPDEV/da/\${USER}|g" $workflow_dir/workflow/hosts/${TARGET}.yaml
 fi
-if [[ "${TARGET}" = "orion" ]]; then
-    echo "***WARNING*** apply ORION global-->da patch to $workflow_dir/workflow/hosts/${TARGET}.yaml"
-    sed -i "s|work/noaa/global/\${USER}|work/noaa/da/\${USER}|g" $workflow_dir/workflow/hosts/${TARGET}.yaml
-    sed -i "s|work/noaa/stmp/\${USER}|work/noaa/da/\${USER}|g"   $workflow_dir/workflow/hosts/${TARGET}.yaml
-fi
-if [[ "${TARGET}" = "hercules" ]]; then
-    echo "***WARNING*** apply HERCULES global-->da patch to $workflow_dir/workflow/hosts/${TARGET}.yaml"
+if [[ "${TARGET}" = "orion" || "${TARGET}" = "hercules" ]]; then
+    echo "***WARNING*** apply ${TARGET} global-->da patch to $workflow_dir/workflow/hosts/${TARGET}.yaml"
     sed -i "s|work2/noaa/global/\${USER}|work2/noaa/da/\${USER}|g" $workflow_dir/workflow/hosts/${TARGET}.yaml
 fi
 # PATCH END
