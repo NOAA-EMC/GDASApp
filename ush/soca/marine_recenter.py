@@ -131,11 +131,6 @@ class MarineRecenter(Task):
         ens_bkg_list = parse_j2yaml(self.task_config.MARINE_ENSDA_STAGE_BKG_YAML_TMPL, self.task_config)
         FileHandler(ens_bkg_list).sync()
 
-#        ################################################################################
-#        # Copy initial condition
-#
-#        bkg_utils.stage_ic(self.task_config.bkg_dir, self.task_config.DATA, gcyc)
-#
         ################################################################################
         # stage ensemble members
         logger.info("---------------- Stage ensemble members")
@@ -206,7 +201,7 @@ class MarineRecenter(Task):
         logger.info("run")
 
         chdir(self.task_config.DATA)
-        logger.info(f"@@@@@@@@@@@@@ RUNDIR: {self.task_config.DATA}")
+
         exec_cmd_gridgen = Executable(self.task_config.APRUN_OCNANALECEN)
         exec_name_gridgen = os.path.join(self.task_config.EXECgfs, 'gdas_soca_gridgen.x')
         exec_cmd_gridgen.add_default_arg(exec_name_gridgen)
