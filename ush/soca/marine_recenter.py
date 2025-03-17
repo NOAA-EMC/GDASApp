@@ -143,10 +143,6 @@ class MarineRecenter(Task):
         nmem_ens = self.task_config.NMEM_ENS
         gPDYstr = self.task_config.gPDY.strftime("%Y%m%d")
         ens_member_list = []
-        #logger.info(f"--- comin ocean: {self.task_config.COMIN_OCEAN_HISTORY_ENS_PREV}")
-        #logger.info(f"--- comin ice: {self.task_config.COMIN_ICE_HISTORY_ENS_PREV}")
-        #comin_ens={'ocean': self.task_config.COMIN_OCEAN_HISTORY_ENS_PREV,
-        #           'ice': self.task_config.COMIN_ICE_HISTORY_ENS_PREV}
         for mem in range(1, nmem_ens+1):
             for domain in ['ocean', 'ice']:
                 fname_in = os.path.join(self.task_config.DATA, '..', 'ensdata', 'ens', f'{domain}.{str(mem)}.nc')
