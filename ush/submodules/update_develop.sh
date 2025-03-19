@@ -21,4 +21,7 @@ for r in $repos; do
   echo "Updating ${gdasdir}/sorc/${r}"
   cd ${gdasdir}/sorc
   git submodule update --remote --merge ${r}
+  cd ${gdasdir}/sorc/${r}
+  git submodule update --init --recursive
 done
+cd ${gdasdir}

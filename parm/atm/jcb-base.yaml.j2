@@ -12,6 +12,7 @@ app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle
 #final_increment_file: final_increment_gaussian
 final_increment_file: atmosphere_final_increment_cubed_sphere
 output_ensemble_increments_file: atmosphere_output_ensemble_increments_cubed_sphere
+posterior_output_file: atmosphere_posterior_output_cubed_sphere
 model_file: atmosphere_model_pseudo
 initial_condition_file: atmosphere_background  # Initial conditions for 4D apps is background
 background_error_file: "{{BERROR_YAML}}"
@@ -55,7 +56,6 @@ atmosphere_number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
 atmosphere_layout_gsib_x: {{ layout_gsib_x | default(1, true) }}
 atmosphere_layout_gsib_y: {{ layout_gsib_y | default(1, true) }}
 
-
 # Forecasting
 atmosphere_forecast_timestep: "{{ BKG_TSTEP }}"
 
@@ -63,6 +63,11 @@ atmosphere_forecast_timestep: "{{ BKG_TSTEP }}"
 atmosphere_final_increment_prefix: "./anl/atminc."
 
 atmosphere_variational_history_prefix: "{{GPREFIX}}"
+atmosphere_variational_analysis_prefix: "{{APREFIX}}"
+
+# IAU hours
+atmosphere_iau_hours: {{ IAUFHRS }}
+atmosphere_iau_times_iso: {{ iau_times_iso | default([current_cycle | to_isotime], true) }}
 
 # Observation things
 # ------------------
@@ -125,7 +130,7 @@ inflation_mult: 1.0
 
 # Driver
 driver_update_obs_config_with_geometry_info: true
-driver_save_posterior_mean: false
+driver_save_posterior_mean: true
 driver_save_posterior_ensemble: false
 driver_save_prior_mean: false
 driver_save_posterior_mean_increment: false
@@ -138,4 +143,5 @@ distribution_type: Halo
 atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
 atmosphere_posterior_output_gaussian: "./mem%{member}%/atmanl."
 
-atmosphere_ensemble_history_prefix: "enkf{{GPREFIX}}"
+atmosphere_ensemble_history_prefix: "{{ GPREFIX_ENS }}"
+atmosphere_ensemble_analysis_prefix: "{{ APREFIX_ENS }}"

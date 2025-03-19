@@ -1,7 +1,7 @@
 observations:
 # SSS
 - obs space:
-    name: sss_smap
+    name: sss_smap_l2
     dmpdir subdir: ocean/sss
     provider: SMAP
     type: nc
@@ -9,7 +9,7 @@ observations:
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
-    name: sss_smos
+    name: sss_smos_l2
     provider: SMOS
     dmpdir subdir: ocean/sss
     type: nc
@@ -237,13 +237,29 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.bathy.*.bufr_d'
 
 - obs space:
-    name: insitu_profile_argo
+    name: insitu_temp_profile_argo
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
+    dmpdir regex: 'gdas.*.subpfl.*.bufr_d'
+
+- obs space:
+    name: insitu_salt_profile_argo
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    error ratio: 0.4
     window:
        back: 4
        forward: 4
@@ -254,6 +270,10 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.subpfl.*.bufr_d'
 
 - obs space:
@@ -261,6 +281,10 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.tesac.*.bufr_d'
 
 - obs space:
@@ -268,6 +292,10 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.tesac.*.bufr_d'
 
 - obs space:
@@ -275,6 +303,10 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.xbtctd.*.bufr_d'
 
 - obs space:
@@ -282,6 +314,10 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.altkob.*.bufr_d'
 
 - obs space:
@@ -289,6 +325,10 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.trkob.*.bufr_d'
 
 # in situ: daily
@@ -297,6 +337,10 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.dbuoy.*.bufr_d'
 
 - obs space:
@@ -304,6 +348,10 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.dbuoyb.*.bufr_d'
 
 - obs space:
@@ -311,6 +359,10 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.mbuoy.*.bufr_d'
 
 - obs space:
@@ -318,4 +370,30 @@ observations:
     provider: GTS
     dmpdir subdir: atmos
     type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
     dmpdir regex: 'gdas.*.mbuoyb.*.bufr_d'
+
+- obs space:
+    name: insitu_profile_tropical
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
+    dmpdir regex: 'gdas.*.dbuoy.*.bufr_d'
+
+- obs space:
+    name: insitu_surface_drifter
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
+    dmpdir regex: 'gdas.*.dbuoy.*.bufr_d'
