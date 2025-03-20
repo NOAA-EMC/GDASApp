@@ -17,5 +17,5 @@ directories:
 
 app files:
   DA_CORE: gsi
-  DA_TYPE: hyb3dvfgat
+  DA_TYPE: 3dv
   APPEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/gsi.x
