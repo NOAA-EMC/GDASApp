@@ -131,11 +131,6 @@ class MarineRecenter(Task):
         ens_bkg_list = parse_j2yaml(self.task_config.MARINE_ENSDA_STAGE_BKG_YAML_TMPL, self.task_config)
         FileHandler(ens_bkg_list).sync()
 
-#        ################################################################################
-#        # Copy initial condition
-#
-#        bkg_utils.stage_ic(self.task_config.bkg_dir, self.task_config.DATA, gcyc)
-#
         ################################################################################
         # stage ensemble members
         logger.info("---------------- Stage ensemble members")
@@ -145,22 +140,13 @@ class MarineRecenter(Task):
         ens_member_list = []
         for mem in range(1, nmem_ens+1):
             for domain in ['ocean', 'ice']:
-                mem_dir = os.path.join(self.task_config.ROTDIR,
-                                       f'enkf{RUN}.{gPDYstr}',
-                                       f'{gcyc}',
-                                       f'mem{str(mem).zfill(3)}',
-                                       'model',
-                                       domain,
-                                       'history')
-                mem_dir_real = os.path.realpath(mem_dir)
-                f00 = f"enkf{RUN}.{domain}.t{gcyc}z.inst.f009.nc"
-
-                fname_in = os.path.abspath(os.path.join(mem_dir_real, f00))
+                fname_in = os.path.join(self.task_config.DATA, '..', 'ensdata', 'ens', f'{domain}.{str(mem)}.nc')
                 fname_out = os.path.realpath(os.path.join(self.task_config.ens_dir,
-                                             domain+"."+str(mem)+".nc"))
+                                                          f'{domain}.{str(mem)}.nc'))
                 ens_member_list.append([fname_in, fname_out])
+                logger.info(f"--- source: {fname_in}")
 
-        FileHandler({'copy': ens_member_list}).sync()
+        FileHandler({'link': ens_member_list}).sync()
         # stage ensemble ice restarts
         # make a copy of the CICE6 restart
         logger.info("---------------- Stage ensemble CICE restarts")
@@ -176,7 +162,7 @@ class MarineRecenter(Task):
         ens_cice_list = []
         for mem in range(1, nmem_ens+1):
             mem_dir = os.path.join(self.task_config.ROTDIR,
-                                   f'enkf{RUN}.{gPDYstr}',
+                                   f'enkfgdas.{gPDYstr}',
                                    f'{gcyc}',
                                    f'mem{str(mem).zfill(3)}',
                                    'model',
