@@ -31,15 +31,10 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
       "enkfgdas_epos005"
       "enkfgdas_epos006")
   elseif("${task_name}" STREQUAL "enkfgdas_ecmn")
-    if ("${pslot}" STREQUAL "C96C48_ufs_hybatmDA")
-      set(subtask_names_list
-        "enkfgdas_ecen000")
-    else()
-      set(subtask_names_list
-        "enkfgdas_ecen000"
-        "enkfgdas_ecen001"
-        "enkfgdas_ecen002")
-    endif()
+    set(subtask_names_list
+      "enkfgdas_ecen000"
+      "enkfgdas_ecen001"
+      "enkfgdas_ecen002")
   else()
     set(subtask_names_list ${task_name})
   endif()
@@ -105,6 +100,8 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
     elseif("${task_name}" STREQUAL "gdas_analcalc")
       list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_echgres_${HALF_CYCLE}")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_sfcanl_${FULL_CYCLE}")
+    elseif("${task_name}" STREQUAL "gdas_analcalc_fv3jedi")
+      list(APPEND TEST_DEPENDS "${test_prefix}_gdas_atmanlfinal_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "gdas_fcst")
       if("${pslot}" STREQUAL "C96C48_hybatmaerosnowDA")
         list(APPEND TEST_DEPENDS "${test_prefix}_gdas_sfcanl_${FULL_CYCLE}")
@@ -135,19 +132,16 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
     elseif("${task_name}" STREQUAL "enkfgdas_eupd")
       list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_ediag_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "enkfgdas_ecmn")
-      if("${pslot}" STREQUAL "C96C48_ufs_hybatmDA")
-        list(APPEND TEST_DEPENDS "${test_prefix}_gdas_analcalc_${FULL_CYCLE}")
-        list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_atmensanlfinal_${FULL_CYCLE}")
-      else()
-        list(APPEND TEST_DEPENDS "${test_prefix}_gdas_analcalc_${FULL_CYCLE}")
-        list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_eupd_${FULL_CYCLE}")
-      endif()
+      list(APPEND TEST_DEPENDS "${test_prefix}_gdas_analcalc_${FULL_CYCLE}")
+      list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_eupd_${FULL_CYCLE}")
+    elseif("${task_name}" STREQUAL "enkfgdas_ecen_fv3jedi")
+      list(APPEND TEST_DEPENDS "${test_prefix}_gdas_atmanlfinal_${FULL_CYCLE}")
+      list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_atmensanlfinal_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "enkfgdas_esnowanl")
       list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_epmn_${HALF_CYCLE}")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_snowanl_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "enkfgdas_esfc")
       if("${pslot}" STREQUAL "C96C48_ufs_hybatmDA")
-        list(APPEND TEST_DEPENDS "${test_prefix}_gdas_analcalc_${FULL_CYCLE}")
         list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_atmensanlfinal_${FULL_CYCLE}")
       elseif("${pslot}" STREQUAL "C96C48_hybatmaerosnowDA")
         list(APPEND TEST_DEPENDS "${test_prefix}_gdas_analcalc_${FULL_CYCLE}")
@@ -158,8 +152,12 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
         list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_eupd_${FULL_CYCLE}")
       endif()
     elseif("${task_name}" STREQUAL "enkfgdas_fcst")
-      list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_ecmn_${FULL_CYCLE}")
       list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_esfc_${FULL_CYCLE}")
+      if("${pslot}" STREQUAL "C96C48_ufs_hybatmDA")
+        list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_ecen_fv3jedi_${FULL_CYCLE}")
+      else()
+        list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_ecmn_${FULL_CYCLE}")
+      endif()
     elseif("${task_name}" STREQUAL "gdas_prepoceanobs")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_fcst_${HALF_CYCLE}")
     elseif("${task_name}" STREQUAL "gdas_marinebmat")
@@ -296,7 +294,6 @@ if (WORKFLOW_TESTS)
       "gdas_atmos_prod"
       "enkfgdas_stage_ic"
       "enkfgdas_fcst"
-      "enkfgdas_echgres"
       "enkfgdas_epmn")
     set(FULL_CYCLE_TASKS
       "gdas_prep"
@@ -306,14 +303,14 @@ if (WORKFLOW_TESTS)
       "gdas_atmanlfv3inc"
       "gdas_atmanlfinal"
       "gdas_sfcanl"
-      "gdas_analcalc"
+      "gdas_analcalc_fv3jedi"
       "gdas_fcst"
       "enkfgdas_atmensanlinit"
       "enkfgdas_atmensanlobs"
       "enkfgdas_atmensanlsol"
       "enkfgdas_atmensanlfv3inc"
       "enkfgdas_atmensanlfinal"
-      "enkfgdas_ecmn"
+      "enkfgdas_ecen_fv3jedi"
       "enkfgdas_esfc"
       "enkfgdas_fcst"
     )
