@@ -46,9 +46,9 @@ class PrepOceanObs(Task):
 
         self.task_config['cdate'] = cdate
         window_begin_datetime = cdate - timedelta(hours=half_assim_freq)
-        window_begin_datetime = cdate + timedelta(hours=half_assim_freq)
+        window_end_datetime = cdate + timedelta(hours=half_assim_freq)
         self.window_begin = window_begin_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
-        self.window_end = window_begin_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
+        self.window_end = window_end_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
         self.task_config.conversion_list_file = 'conversion_list.yaml'
         self.task_config.save_list_file = 'save_list.yaml'
