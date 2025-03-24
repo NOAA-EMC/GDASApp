@@ -17,6 +17,7 @@ final_increment_file: marine_final_increment
 
 # Assimilation standard things (not prepended with model choice)
 # ----------------------------
+pslot: '{{ PSLOT }}'
 window_begin: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
 window_length: '{{MARINE_WINDOW_LENGTH}}'
 bound_to_include: begin

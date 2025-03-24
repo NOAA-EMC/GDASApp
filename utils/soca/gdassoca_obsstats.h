@@ -21,6 +21,7 @@
 #include "ioda/ObsVector.h"
 
 #include "oops/base/PostProcessor.h"
+#include "oops/base/Variables.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
@@ -50,7 +51,7 @@ namespace gdasapp {
 
       // get the list of obs spaces to process
       std::vector<eckit::LocalConfiguration> obsSpaces;
-      fullConfig.get("obs spaces", obsSpaces);
+      fullConfig.get("observers", obsSpaces);
 
       // only the serial case works for now.
       ASSERT(getComm().size() == 1);
@@ -68,7 +69,12 @@ namespace gdasapp {
                           << std::endl;
 
         // what variable to compute the stats for
+        std::vector<std::string> simulatedVariables;
         std::string variable;
+        obsConfig.get("simulated variables", simulatedVariables);
+        oops::Log::info() << "foo " << simulatedVariables << std::endl;
+        ASSERT( simulatedVariables.size() == 1);
+        variable = simulatedVariables[0];
         obsSpace.get("variable", variable);
 
         // read the obs space
