@@ -191,6 +191,13 @@ namespace gdasapp {
           count++;
         }
 
+        if (iodaVars.originalDatetime_.size() != 0) {
+          ioda::Variable iodaOriginalDatetime =
+            ogrp.vars.createWithScales<int64_t>("MetaData/originalDateTime",
+             {ogrp.vars["Location"]}, long_params);
+            iodaOriginalDatetime.writeWithEigenRegular(iodaVars.originalDatetime_);
+        }
+
         // Test output
         iodaVars.testOutput();
 
