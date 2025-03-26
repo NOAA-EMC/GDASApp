@@ -1,4 +1,5 @@
-oops log: 'oops_stats.txt'
+oops log: ['oops_stats.txt']
+plot type: pie
 methods:
 - oops::Covariance::SABER::multiply
 - oops::State::State
