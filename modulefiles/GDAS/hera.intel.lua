@@ -6,7 +6,7 @@ local pkgName    = myModuleName()
 local pkgVersion = myModuleVersion()
 local pkgNameVer = myModuleFullName()
 
-prepend_path("MODULEPATH", '/scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core')
+prepend_path("MODULEPATH", '/contrib/spack-stack//spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core')
 --prepend_path("MODULEPATH", '/scratch1/NCEPDEV/da/python/opt/modulefiles/stack')
 
 -- below two lines get us access to the spack-stack modules

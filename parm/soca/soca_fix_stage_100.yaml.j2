@@ -1,9 +1,11 @@
 mkdir:
 - "{{ DATA }}/INPUT"
+- "{{ DATA }}/anl_geom"
 ######################################
 # fix files to copy
 ######################################
 copy:
+# Deterministic resource files
 - ["{{ SOCA_INPUT_FIX_DIR }}/rossrad.nc", "{{ DATA }}/rossrad.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/field_table", "{{ DATA }}/field_table"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/diag_table", "{{ DATA }}/diag_table"]
@@ -23,3 +25,6 @@ copy:
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/topo_edits_011818.nc", "{{ DATA }}/INPUT/topo_edits_011818.nc"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/MOM_channels_SPEAR", "{{ DATA }}/INPUT/MOM_channels_SPEAR"]
 - ["{{ SOCA_INPUT_FIX_DIR }}/INPUT/seawifs_1998-2006_smoothed_2X.nc", "{{ DATA }}/INPUT/seawifs_1998-2006_smoothed_2X.nc"]
+# Analysis resource files
+- ["{{ SOCA_ANL_GEOM }}/soca_gridspec.nc", "{{ DATA }}/anl_geom/soca_gridspec.nc"]
+- ["{{ SOCA_ANL_GEOM }}/MOM_input", "{{ DATA }}/anl_geom/MOM_input"]

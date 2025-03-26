@@ -10,9 +10,11 @@ background:
       filename_sfcd: 20210323.180000.sfc_data.nc
       filetype: fms restart
       state variables:
-      - snodl
+      - totalSnowDepth
       - vtype
       - slmsk
+      field io names:
+        totalSnowDepth: snodl
     zero padding: '3'
 driver:
   save posterior ensemble: 'false'
@@ -20,7 +22,6 @@ driver:
   save posterior mean increment: 'true'
 geometry:
   akbk: Data/fv3files/akbk127.nc4
-  field metadata override: Data/fieldmetadata/fv3jedi_fieldmetadata_restart.yaml
   fms initialization:
     field table filename: Data/fv3files/field_table
     namelist filename: Data/fv3files/fmsmpp.nml
@@ -41,7 +42,10 @@ geometry:
       filename_orog: C48_oro_data.nc
       filetype: fms restart
       skip coupler file: true
-      state variables: [orog_filt]
+      state variables:
+      - filtered_orography
+      field io names:
+        filtered_orography: orog_filt
 local ensemble DA:
   inflation:
     mult: '1.0'
