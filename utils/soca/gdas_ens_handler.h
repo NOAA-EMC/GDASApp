@@ -146,6 +146,7 @@ namespace gdasapp {
       soca::Increment recenteringIncr(geomOut, postProcIncr.socaIncrVar_, postProcIncr.dt_);
       recenteringIncr.diff(determTraj, ensMeanTraj);
       postProcIncr.setToZero(recenteringIncr);
+      oops::Log::info() << "recentering incr: " << recenteringIncr << std::endl;
 
       // Check if we're only re-centering the ensemble fcst around the det.
       bool recenterOnly = fullConfig.getBool("recentering around deterministic", false);
@@ -156,19 +157,31 @@ namespace gdasapp {
         oops::Log::info() << "Only recentering " << std::endl;
         int result = 0;
         for (size_t i = 0; i < postProcIncr.ensSize_; ++i) {
-          // make a copy of the ens. member
-          soca::Increment incr(ensMembers[i]);
-
-          // Add the recentering increment
-          incr += recenteringIncr;
-          oops::Log::info() << "recentered incr " << i << ":" << incr << std::endl;
+          // make a copy of the recentering increment
+          soca::Increment incr(recenteringIncr);
 
           // Append the vertical geometry (for MOM6 IAU)
           soca::Increment mom6_incr = postProcIncr.appendLayer(incr);
-          oops::Log::info() << "incr " << i << ":" << mom6_incr << std::endl;
+          oops::Log::info() << "recentering incr " << i << ":" << mom6_incr << std::endl;
 
           // Set variables to zero if specified in the configuration
           postProcIncr.setToZero(incr);
+
+          // Optionally apply inflation
+          if (fullConfig.has("ensemble inflation.value")) {
+            const double inflation = fullConfig.getDouble("ensemble inflation.value");
+            mom6_incr *= inflation;
+            oops::Log::info() << "incr after scalar inflation " << i << ":"
+                              << mom6_incr << std::endl;
+          }
+          if (fullConfig.has("ensemble inflation.field")) {
+            soca::Increment weight(geomOut, mom6_incr.variables(), mom6_incr.validTime());
+            const eckit::LocalConfiguration weightConf(fullConfig, "ensemble inflation.field");
+            weight.read(weightConf);
+            mom6_incr.schur_product_with(weight);
+            oops::Log::info() << "incr after field inflation " << i << ":"
+                              << mom6_incr << std::endl;
+          }
 
           // Save the increments used to initialize the ensemble forecast
           result = postProcIncr.save(mom6_incr, i+1);
@@ -230,8 +243,7 @@ namespace gdasapp {
 
         // Save total ssh
         oops::Log::info() << "ssh ensemble member "  << i << std::endl;
-        soca::Increment ssh_tmp(geomOut, socaSshVar, postProcIncr.dt_);
-        ssh_tmp = ensMembers[i];
+        soca::Increment ssh_tmp(socaSshVar, ensMembers[i]);
         sshTotal.push_back(ssh_tmp);
 
         // Zero out ssh and other specified fields
@@ -242,8 +254,8 @@ namespace gdasapp {
         // Compute the original steric height perturbation from T and S
         eckit::LocalConfiguration stericConfig(fullConfig, "steric height");
         postProcIncr.applyLinVarChange(incr, stericConfig, ensMeanTraj);
-        ssh_tmp = incr;
-        sshSteric.push_back(ssh_tmp);
+        soca::Increment ssh_tmp2(socaSshVar, incr);
+        sshSteric.push_back(ssh_tmp2);
 
         // Compute unbalanced ssh
         ssh_tmp = sshTotal[i];

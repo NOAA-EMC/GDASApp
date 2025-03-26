@@ -35,6 +35,7 @@ set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
 option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
 option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
+option(BUILD_REGRID_STATES "Build regrid states land DA utility" ON)
 
 # Depend path for non-ecbuild packages
 set(DEPEND_LIB_ROOT ${CMAKE_CURRENT_BINARY_DIR}/Depends)

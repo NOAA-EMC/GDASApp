@@ -93,13 +93,18 @@ fi
 # run ctests
 
 # PATCH START
-# MSU role-da can not use /work/noaa/stmp at present. The logic below
-# modifies the stmp path used by g-w so that role-da can run g-w based
-# ctests. This logic will be removed after MSU role-da is added to the
-# stmp group.
-if [[ "${TARGET}" = "orion" || "${TARGET}" = "hercules" ]]; then
+# HERA role.jedipara can not use /scratch1/NCEPDEV/global. MSU role-da
+# can not use /work2/noaa/global. The logic below modifies the paths so
+# role.jedipara and role-da can run g-w based ctests.
+if [[ $TEST_WORKFLOW == 1 ]]; then
+  if [[ "${TARGET}" = "hera" ]]; then
+    echo "***WARNING*** apply ${TARGET} global-->da patch to $workflow_dir/workflow/hosts/${TARGET}.yaml"
+    sed -i "s|/scratch1/NCEPDEV/global/\${USER}|/scratch1/NCEPDEV/da/\${USER}|g" $workflow_dir/workflow/hosts/${TARGET}.yaml
+  fi
+  if [[ "${TARGET}" = "orion" || "${TARGET}" = "hercules" ]]; then
     echo "***WARNING*** apply MSU stmp patch to $workflow_dir/workflow/hosts/${TARGET}.yaml"
-    sed -i "s|/noaa/stmp|/noaa/da|g" $workflow_dir/workflow/hosts/${TARGET}.yaml
+    sed -i "s|/work2/noaa/global/\${USER}|/work2/noaa/da/\${USER}|g" $workflow_dir/workflow/hosts/${TARGET}.yaml
+  fi
 fi
 # PATCH END
 

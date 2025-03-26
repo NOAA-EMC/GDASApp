@@ -14,6 +14,7 @@
 #include "ufo/instantiateObsFilterFactory.h"
 #include "ufo/ObsTraits.h"
 
+#include "oops/runs/AddIncrement.h"
 #include "oops/runs/ConvertToStructuredGrid.h"
 #include "oops/runs/ConvertState.h"
 #include "oops/runs/EnsMeanAndVariance.h"
@@ -54,6 +55,9 @@ int runApp(int argc, char** argv, const std::string traits, const std::string ap
   // Define a map from app names to lambda functions that create unique_ptr to Applications
   std::map<std::string, std::function<std::unique_ptr<oops::Application>()>> apps;
 
+  apps["addincrement"] = []() {
+      return std::make_unique<oops::AddIncrement<Traits>>();
+  };
   apps["converttostructuredgrid"] = []() {
       return std::make_unique<oops::ConvertToStructuredGrid<Traits>>();
   };
@@ -104,6 +108,7 @@ int main(int argc,  char ** argv) {
   // Check that the application is recognized
   // ----------------------------------------
   const std::set<std::string> validApps = {
+    "addincrement",
     "converttostructuredgrid",
     "convertstate",
     "ensmean",
