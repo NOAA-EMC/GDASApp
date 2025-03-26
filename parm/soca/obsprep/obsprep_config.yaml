@@ -376,6 +376,7 @@ observations:
        forward: 4
     dmpdir regex: 'gdas.*.mbuoyb.*.bufr_d'
 
+<<<<<<< HEAD
 - obs space:
     name: insitu_profile_tropical
     provider: GTS
@@ -397,3 +398,150 @@ observations:
        back: 4
        forward: 4
     dmpdir regex: 'gdas.*.dbuoy.*.bufr_d'
+=======
+# ocean in situ Temperature from  WOD
+- obs space:
+    name: wod_t_ctd
+    provider: WOD_T
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_ctd_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_t_xbt
+    provider: WOD_T
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_xbt_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_t_apb
+    provider: WOD_T
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_apb_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_t_otd
+    provider: WOD_T
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_otd_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_t_gld
+    provider: WOD_T
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_gld_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_t_drb
+    provider: WOD_T
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_drb_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_t_mbt
+    provider: WOD_T
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_mbt_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_t_uor
+    provider: WOD_T
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_uor_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_t_pfl
+    provider: WOD_T
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_pfl_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_t_osd
+    provider: WOD_T
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_osd_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+# ocean in situ Salinity from  WOD
+- obs space:
+    name: wod_s_ctd
+    provider: WOD_S
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_ctd_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_s_apb
+    provider: WOD_S
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_apb_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_s_otd
+    provider: WOD_S
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_otd_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_s_gld
+    provider: WOD_S
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_gld_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_s_drb
+    provider: WOD_S
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_drb_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+    
+- obs space:    
+    name: wod_s_uor
+    provider: WOD_S
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_uor_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc 
+
+- obs space:
+    name: wod_s_pfl
+    provider: WOD_S
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_pfl_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: wod_s_osd
+    provider: WOD_S
+    dmpdir subdir: ocean/insitu
+    type: nc
+    dmpdir regex: 'wod_osd_*.nc'
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+>>>>>>> 700dfbe (New IODA converters for WOD flat netcddf files)
