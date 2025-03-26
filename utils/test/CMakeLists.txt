@@ -195,11 +195,6 @@ ecbuild_add_test( TARGET  test_gdasapp_util_insituall2ioda
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
                   TEST_DEPENDS test_gdasapp_util_prepdata)
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> a79cc4e (New IODA converters for WOD flat netcddf files)
 
 # Test the WOD to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_wodt2ioda
@@ -214,7 +209,3 @@ ecbuild_add_test( TARGET  test_gdasapp_util_wods2ioda
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
                   TEST_DEPENDS test_gdasapp_util_prepdata) 
-<<<<<<< HEAD
-=======
->>>>>>> 700dfbe (New IODA converters for WOD flat netcddf files)
->>>>>>> a79cc4e (New IODA converters for WOD flat netcddf files)

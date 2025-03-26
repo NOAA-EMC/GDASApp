@@ -376,7 +376,6 @@ observations:
        forward: 4
     dmpdir regex: 'gdas.*.mbuoyb.*.bufr_d'
 
-<<<<<<< HEAD
 - obs space:
     name: insitu_profile_tropical
     provider: GTS
@@ -398,7 +397,7 @@ observations:
        back: 4
        forward: 4
     dmpdir regex: 'gdas.*.dbuoy.*.bufr_d'
-=======
+
 # ocean in situ Temperature from  WOD
 - obs space:
     name: wod_t_ctd
@@ -544,4 +543,3 @@ observations:
     type: nc
     dmpdir regex: 'wod_osd_*.nc'
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
->>>>>>> 700dfbe (New IODA converters for WOD flat netcddf files)

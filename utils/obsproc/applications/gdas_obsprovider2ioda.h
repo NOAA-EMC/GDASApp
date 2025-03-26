@@ -71,21 +71,12 @@ namespace gdasapp {
       } else if (provider == "INSITUOBS") {
         InsituAll2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> a79cc4e (New IODA converters for WOD flat netcddf files)
       } else if (provider == "WOD_T") {
         wodT2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
       } else if (provider == "WOD_S") {
         wodS2Ioda conv2ioda(fullConfig, this->getComm());
         conv2ioda.writeToIoda();
-<<<<<<< HEAD
-=======
->>>>>>> 700dfbe (New IODA converters for WOD flat netcddf files)
->>>>>>> a79cc4e (New IODA converters for WOD flat netcddf files)
       } else {
         oops::Log::info() << "Provider not implemented" << std::endl;
         return 1;
