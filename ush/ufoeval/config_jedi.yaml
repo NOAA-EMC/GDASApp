@@ -17,6 +17,6 @@ directories:
 
 app files:
   DA_CORE: jedi
-  DA_TYPE: hyb3dvfgat
+  DA_TYPE: 3dv
   APPEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/gdas.x
   INCEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/fv3jedi_fv3inc.x
