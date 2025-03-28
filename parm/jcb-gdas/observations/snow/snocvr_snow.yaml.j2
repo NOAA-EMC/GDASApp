@@ -9,6 +9,8 @@
         type: H5File
         obsfile: "{{snow_obsdatain_path}}/{{snow_obsdatain_prefix}}{{observation_from_jcb}}.nc4"
         missing file action: warn
+      obsgrouping:
+        group variables: [stationIdentification]
     obsdataout:
       engine:
         type: H5File
