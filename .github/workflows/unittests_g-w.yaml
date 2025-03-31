@@ -18,8 +18,7 @@ jobs:
     - name: Install other dependencies
       run: |
         sudo mkdir -p /work/noaa # to trick workflow into thinking this is RDHPCS Orion
-        sudo apt-get install cmake=3.26.5
-
+        sudo apt-cache show cmake
     - name: Checkout wxflow
       uses: actions/checkout@v3
       with:
