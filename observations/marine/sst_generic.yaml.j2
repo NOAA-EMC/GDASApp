@@ -18,20 +18,21 @@
     observation alias file: obsop_name_map.yaml
   obs error:
     covariance model: diagonal
-  obs filters:
-  - filter: Domain Check
-    where:
-    - variable: {name: GeoVaLs/sea_area_fraction}
-      minvalue: 0.9
+
+  obs pre filters:
   - filter: Bounds Check
     minvalue: -1.2
     maxvalue: 41.0
-  - filter: Background Check
-    absolute threshold: 5.0
   - filter: Domain Check
     where:
     - variable: {name: ObsError/seaSurfaceTemperature}
       minvalue: 1.0e-8
+
+  obs prior filters:
+  - filter: Domain Check
+    where:
+    - variable: {name: GeoVaLs/sea_area_fraction}
+      minvalue: 0.9
   - filter: Domain Check
     where:
     - variable: { name: GeoVaLs/sea_ice_area_fraction}
@@ -44,3 +45,19 @@
     where:
     - variable: {name: GeoVaLs/distance_from_coast}
       minvalue: 50e3
+
+  obs post filters:
+  - filter: Perform Action  # Pamlico Sound & Chesapeake Bay
+    action:
+      name: accept
+    where:
+    - variable:
+        name: MetaData/latitude
+      minvalue: 34.5
+      maxvalue: 39.7
+    - variable:
+        name: MetaData/longitude
+      minvalue: -76.88
+      maxvalue: -74.5
+  - filter: Background Check
+    absolute threshold: 5.0
