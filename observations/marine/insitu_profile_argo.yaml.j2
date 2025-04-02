@@ -336,3 +336,12 @@
             - ObsError/salinity
             coefs:
             - 1000.0
+{% if letkf_app | default(false) %}
+  obs localizations:
+  - localization method: Rossby
+    base value: 100.0e3
+    rossby mult: 1.0
+    min grid mult: 2.0
+    min value: 200.0e3
+    max value: 900.0e3
+{% endif %}
