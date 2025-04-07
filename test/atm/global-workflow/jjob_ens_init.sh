@@ -27,6 +27,7 @@ export ACCOUNT=da-cpu
 export COM_TOP=$ROTDIR
 
 # Set GFS COM paths
+export STRICT="NO"
 source "${HOMEgfs}/ush/preamble.sh"
 source "${HOMEgfs}/parm/config/gfs/config.com"
 
