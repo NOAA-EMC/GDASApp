@@ -468,8 +468,7 @@
             channels: *{{observation_from_jcb}}_simulated_channels
           threshold: 3
           threshold_precip: 2.5
-          obserr_bound_max: [4.5, 4.5, 3.0, 3.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 2.0, 4.5, 4.5, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+          obserr_bound_max: [{{ get_satellite_variable(observation_from_jcb, "ermax") }}]
 
   - filter: Background Check
     filter variables:
