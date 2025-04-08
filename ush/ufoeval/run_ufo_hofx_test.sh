@@ -244,7 +244,7 @@ atmosphere_obstlapsein_prefix: "$GPREFIX."
 atmosphere_obstlapsein_suffix: ".tlapse.txt"
 atmosphere_obsbiascovin_prefix: "$GPREFIX."
 atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
-atmosphere_obsbiascovin_acft_suffix: "acft_out.nc"
+atmosphere_obsbiascovin_acft_suffix: "acft_out_cov.nc"
 
 atmosphere_obsbiasout_path: "$workdir"
 atmosphere_obsbiasout_prefix: "$APREFIX."
