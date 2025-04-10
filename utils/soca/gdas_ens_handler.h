@@ -125,7 +125,10 @@ namespace gdasapp {
         const eckit::LocalConfiguration ensMeanOutputConfig(fullConfig, "ensemble mean output");
         ensMean.write(ensMeanOutputConfig);
       }
-
+      if ( fullConfig.has("ensemble variance output") ) {
+        const eckit::LocalConfiguration ensVarianceOutputConfig(fullConfig, "ensemble variance output");
+        ensVariance.write(ensVarianceOutputConfig);
+      }
       // Remove mean from ensemble members
       for (size_t i = 0; i < postProcIncr.ensSize_; ++i) {
         oops::Log::info() << " demean member " << i << std::endl;

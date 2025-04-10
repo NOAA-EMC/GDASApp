@@ -117,3 +117,9 @@ output increment:
   type: incr
   output file: 'recenter.incr.%mem%.nc'
   pattern: '%mem%'
+
+ensemble variance output:
+  datadir: ./
+  date: '{{ MARINE_WINDOW_BEGIN_ISO }}'
+  exp: ensvar
+  type: incr
