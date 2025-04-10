@@ -44,7 +44,6 @@ class PrepOceanObs(Task):
         assim_freq = self.task_config['assim_freq']
         half_assim_freq = assim_freq/2
 
-
         self.task_config['cdate'] = cdate
         window_begin_datetime = cdate - timedelta(hours=half_assim_freq)
         window_end_datetime = cdate + timedelta(hours=half_assim_freq)
