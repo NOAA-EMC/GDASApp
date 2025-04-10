@@ -120,6 +120,6 @@ output increment:
 
 ensemble variance output:
   datadir: ./
-  date: '{{ MARINE_WINDOW_BEGIN_ISO }}'
+  date: '{{ MARINE_WINDOW_END_ISO }}'
   exp: ensvar
   type: incr
