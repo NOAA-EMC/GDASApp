@@ -106,7 +106,7 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 
 # activate tests based on if this is cloned within the global-workflow
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
-CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_BUILD}"
+CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
