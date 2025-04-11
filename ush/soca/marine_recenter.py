@@ -260,7 +260,28 @@ class MarineRecenter(Task):
             mem_dir_list.append(mem_dir_real)
             copy_list.append([f'ocn.recenter.incr.{str(mem)}.nc',
                               os.path.join(mem_dir_real, incr_file)])
-
+        # Copy the ensemble variance
+        ensvar_date = self.task_config.MARINE_WINDOW_END.strftime('%Y-%m-%dT%H:%M:%SZ')
+        stats_dir = os.path.join(self.task_config.ROTDIR,
+                                 f'enkf{RUN}.{PDYstr}',
+                                 f'{cyc}',
+                                 'ensstat',
+                                 'analysis',
+                                 'ocean')
+        stats_dir_real = os.path.realpath(stats_dir)
+        mem_dir_list.append(stats_dir_real)
+        copy_list.append([f'ocn.ensvar.incr.{ensvar_date}.nc',
+                         os.path.join(stats_dir_real, f'enkf{RUN}.t{cyc}z.ocn.bg_ensvar.nc')])
+        stats_dir = os.path.join(self.task_config.ROTDIR,
+                                 f'enkf{RUN}.{PDYstr}',
+                                 f'{cyc}',
+                                 'ensstat',
+                                 'analysis',
+                                 'ice')
+        stats_dir_real = os.path.realpath(stats_dir)
+        mem_dir_list.append(stats_dir_real)
+        copy_list.append([f'ice.ensvar.incr.{ensvar_date}.nc',
+                         os.path.join(stats_dir_real, f'enkf{RUN}.t{cyc}z.ice.bg_ensvar.nc')])
         FileHandler({'mkdir': mem_dir_list}).sync()
         FileHandler({'copy': copy_list}).sync()
 
