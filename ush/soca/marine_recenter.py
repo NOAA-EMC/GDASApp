@@ -127,9 +127,6 @@ class MarineRecenter(Task):
         # stage backgrounds
         bkg_list = parse_j2yaml(self.task_config.MARINE_DET_STAGE_BKG_YAML_TMPL, self.task_config)
         FileHandler(bkg_list).sync()
-        # stage ensemble backgrounds for soca2cice
-        ens_bkg_list = parse_j2yaml(self.task_config.MARINE_ENSDA_STAGE_BKG_YAML_TMPL, self.task_config)
-        FileHandler(ens_bkg_list).sync()
 
         ################################################################################
         # stage ensemble members
