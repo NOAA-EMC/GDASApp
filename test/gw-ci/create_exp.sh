@@ -6,7 +6,7 @@ exp_path=$4
 
 # Get ICSDIR_ROOT
 source "${HOMEgfs}/ush/detect_machine.sh"
-source "${HOMEgfs}/ci/platforms/config.${MACHINE_ID}"
+source "${HOMEgfs}/dev/ci/platforms/config.${MACHINE_ID}"
 
 # Arguments for the exp setup
 expyaml=${expyaml_ctest}
