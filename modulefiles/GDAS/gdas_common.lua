@@ -1,0 +1,72 @@
+whatis("Description: GDAS build environment common libraries")
+
+help([[Load GDAS Model common libraries]])
+
+local gdas_modules = {
+  {["jasper"]          = "2.0.32"},
+  {["gettext"]         = "0.19.8.1"},
+  {["pcre2"]           = "10.42"},
+  {["curl"]            = "8.4.0"},
+  {["zlib"]            = "1.2.13"},
+  {["git"]             = "2.39.3"},
+  {["pkg-config"]      = "1.4.2"},
+  {["hdf5"]            = "1.14.0"},
+  {["parallel-netcdf"] = "1.12.2"},
+  {["netcdf-c"]        = "4.9.2"},
+  {["nccmp"]           = "1.9.0.1"},
+  {["netcdf-fortran"]  = "4.6.1"},
+  {["nco"]             = "5.0.6"},
+  {["parallelio"]      = "2.5.10"},
+  {["wget"]            = "1.19.5"},
+  {["boost"]           = "1.83.0"},
+  {["bufr"]            = "12.0.1"},
+  {["git-lfs"]         = "3.2.0"},
+  {["ecbuild"]         = "3.7.2"},
+  {["openjpeg"]        = "2.3.1"},
+  {["eccodes"]         = "2.32.0"},
+  {["eigen"]           = "3.4.0"},
+  {["openblas"]        = "0.3.24"},
+  {["eckit"]           = "1.24.5"},
+  {["fftw"]            = "3.3.10"},
+  {["fckit"]           = "0.11.0"},
+  {["fiat"]            = "1.2.0"},
+  {["ectrans"]         = "1.2.0"},
+  {["fms"]             = "2023.04"},
+  {["atlas"]           = "0.35.1"},
+  {["sp"]              = "2.5.0"},
+  {["gsl-lite"]        = "0.37.0"},
+  {["libjpeg"]         = "2.1.0"},
+  {["krb5"]            = "1.18.2"},
+  {["libtirpc"]        = "1.3.3"},
+  {["hdf"]             = "4.2.15"},
+  {["jedi-cmake"]      = "1.4.0"},
+  {["libpng"]          = "1.6.37"},
+  {["libxt"]           = "1.1.5"},
+  {["libxmu"]          = "1.1.4"},
+  {["libxpm"]          = "3.5.12"},
+  {["libxaw"]          = "1.0.13"},
+  {["udunits"]         = "2.2.28"},
+  {["ncview"]          = "2.1.9"},
+  {["netcdf-cxx4"]     = "4.3.1"},
+  {["json"]            = "3.10.5"},
+  {["crtm"]            = "2.4.0.1"},
+  {["esmf"]            = "8.6.0"},
+  {["rocoto"]          = "1.3.7"},
+  {["prod_util"]       = "2.1.1"},
+  {["py-jinja2"]       = "3.0.3"},
+  {["py-netcdf4"]      = "1.5.8"},
+  {["py-pybind11"]     = "2.11.0"},
+  {["py-pycodestyle"]  = "2.11.0"},
+  {["py-pyyaml"]       = "6.0"},
+  {["py-scipy"]        = "1.11.3"},
+  {["py-xarray"]       = "2023.7.0"},
+  {["py-f90nml"]       = "1.4.3"},
+  {["py-pip"]          = "23.1.2"},
+}
+
+for i = 1, #gdas_modules do
+  for name, default_version in pairs(gdas_modules[i]) do
+    local env_version_name = string.gsub(name, "-", "_") .. "_ver"
+    load(pathJoin(name, os.getenv(env_version_name) or default_version))
+  end
+end
