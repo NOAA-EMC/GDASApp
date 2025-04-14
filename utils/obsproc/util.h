@@ -116,6 +116,7 @@ namespace gdasapp {
         std::vector<std::string> floatMetadataName_;  // String descriptor of the float metadata
         Eigen::ArrayXXi intMetadata_;                  // Optional array of integer metadata
         std::vector<std::string> intMetadataName_;    // String descriptor of the integer metadata
+        Eigen::Array<int64_t, Eigen::Dynamic, 1> originalDatetime_;
 
         // Optional global attributes
         std::map<std::string, std::string> strGlobalAttr_;
@@ -133,6 +134,7 @@ namespace gdasapp {
           floatMetadataName_(fmnames),
           intMetadata_(location_, imnames.size()),
           intMetadataName_(imnames),
+          originalDatetime_(),    // initialized as empty
           channel_(1),
           channelValues_(Eigen::ArrayXi::Constant(channel_, -1))
         {
@@ -157,6 +159,9 @@ namespace gdasapp {
           preQc_.conservativeResize(location_ * channel_ + other.location_ * other.channel_);
           floatMetadata_.conservativeResize(location_ + other.location_, nfMetadata_);
           intMetadata_.conservativeResize(location_ + other.location_, niMetadata_);
+          if (originalDatetime_.size() != 0) {
+            originalDatetime_.conservativeResize(location_ + other.location_);
+          }
 
           // Copy data from the 'other' object to this object
           longitude_.tail(other.location_) = other.longitude_;
@@ -167,6 +172,9 @@ namespace gdasapp {
           preQc_.tail(other.location_) = other.preQc_;
           floatMetadata_.bottomRows(other.location_) = other.floatMetadata_;
           intMetadata_.bottomRows(other.location_) = other.intMetadata_;
+          if (originalDatetime_.size() != 0) {
+            originalDatetime_.tail(other.location_) = other.originalDatetime_;
+          }
 
           // Update obs count
           location_ += other.location_;
@@ -194,6 +202,9 @@ namespace gdasapp {
               for (int k = 0; k < niMetadata_; k++) {
                 iodaVarsMasked.intMetadata_(j, k) = intMetadata_(i, k);
               }
+              if (originalDatetime_.size() != 0) {
+                iodaVarsMasked.originalDatetime_(j) = originalDatetime_(i);
+              }
               j++;
             }  // end if (mask(i))
           }
@@ -206,6 +217,7 @@ namespace gdasapp {
           preQc_ = iodaVarsMasked.preQc_;
           floatMetadata_ = iodaVarsMasked.floatMetadata_;
           intMetadata_ = iodaVarsMasked.intMetadata_;
+          originalDatetime_ = iodaVarsMasked.originalDatetime_;
 
           // Update obs count
           location_ = iodaVarsMasked.location_;
@@ -221,11 +233,16 @@ namespace gdasapp {
           oops::Log::test() << checksum(longitude_, "longitude") << std::endl;
           oops::Log::test() << checksum(latitude_, "latitude") << std::endl;
           oops::Log::test() << checksum(datetime_, "datetime") << std::endl;
+          if (originalDatetime_.size() != 0) {
+            oops::Log::test() << checksum(originalDatetime_, "originalDatetime") << std::endl;
+          }
         }
 
         // Changing the date and Adjusting Errors
         void reDate(const util::DateTime & windowBegin, const util::DateTime & windowEnd,
                     const std::string &epochDate, float errRatio) {
+          // save the original
+          originalDatetime_ = datetime_;
           // windowBegin and End into DAwindowTimes
           std::vector<util::DateTime> DAwindowTimes = {windowBegin, windowEnd};
           // Epoch DateTime from Provider

@@ -9,6 +9,8 @@ base:
   STMP: "@bindir@/test/atm/global-workflow/testrun"
   PTMP: "@bindir@/test/atm/global-workflow/testrun"
   DO_TEST_MODE: "YES"
+  FHMAX_GFS: 24
+  FHMAX_HF_GFS: 0
 
 atmanl:
   JCB_ALGO_YAML_VAR: "@srcdir@/test/atm/global-workflow/jcb-prototype_3dvar.yaml.j2"
