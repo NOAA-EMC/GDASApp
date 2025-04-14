@@ -18,7 +18,7 @@ if [[ $MACHINE_ID = wcoss2 ]]; then
 fi  
 
 # Source the gw environement
-source ${HOMEgfs}/workflow/gw_setup.sh
+source ${HOMEgfs}/dev/workflow/gw_setup.sh
 
 # Create the experiment
-${HOMEgfs}/workflow/create_experiment.py --yaml ${expyaml} --overwrite --force
+${HOMEgfs}/dev/workflow/create_experiment.py --yaml ${expyaml} --overwrite --force
