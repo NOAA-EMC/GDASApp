@@ -33,7 +33,7 @@ sed -i -e "s~@dumpdir@~${GDASAPP_TESTDATA}/lowres~g" config.yaml
 
 # run the script
 echo "Running global-workflow experiment generation script"
-$srcdir/../../workflow/setup_expt.py gfs cycled --idate $idate  \
+$srcdir/../../dev/workflow/setup_expt.py gfs cycled --idate $idate  \
                        --edate $edate \
                        --app $app \
                        --start $starttype \
