@@ -56,6 +56,8 @@
 {% endif %}
 
   obs post filters:
+  - filter: Background Check
+    absolute threshold: 5.0
   - filter: Perform Action  # Pamlico Sound & Chesapeake Bay
     action:
       name: accept
@@ -68,5 +70,6 @@
         name: MetaData/longitude
       minvalue: -76.88
       maxvalue: -74.5
-  - filter: Background Check
-    absolute threshold: 5.0
+# TODO: var fails when bkg chk filter is last
+#  - filter: Background Check
+#    absolute threshold: 5.0
