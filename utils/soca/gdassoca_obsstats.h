@@ -53,6 +53,9 @@ namespace gdasapp {
       std::vector<eckit::LocalConfiguration> obsSpaces;
       fullConfig.get("observers", obsSpaces);
 
+      // get ensemble size if available
+      size_t nens = fullConfig.getInt("nens", 0);
+
       // only the serial case works for now.
       ASSERT(getComm().size() == 1);
 
@@ -81,9 +84,9 @@ namespace gdasapp {
         ioda::ObsSpace ospace(obsConfig, getComm(), timeWindow, getComm());
         const size_t nlocs = ospace.nlocs();
         oops::Log::info() << "nlocs =" << nlocs << std::endl;
-        std::vector<float> var(nlocs);
+        std::vector<float> omb(nlocs);
         std::string group = "ombg";
-        ospace.get_db(group, variable, var);
+        ospace.get_db(group, variable, omb);
 
         // ocean basin partitioning
         std::vector<int> oceanBasins(nlocs);
@@ -94,13 +97,43 @@ namespace gdasapp {
         }
         ospace.get_db("MetaData", "oceanBasin", oceanBasins);
 
+        // obs error
+        // pre-qc obs errors are not saved: overwrite with zeroes
+        std::vector<float> obserr_preqc(nlocs, 0.0);
+        std::vector<float> obserr_postqc(nlocs);
+        ospace.get_db("EffectiveError0", variable, obserr_postqc);
+        // compute spread in the ensemble space
+        std::vector<float> ensspread(nlocs, 0.0);
+        std::vector<float> ensmean(nlocs, 0.0);
+        // iterative variance and mean calculation
+        for (size_t jens = 0; jens < nens; jens++) {
+          std::vector<float> enspert(nlocs);
+          std::string group = "hofx0_" + std::to_string(jens+1);
+          oops::Log::info() << " reading member " << jens << " : " << group << std::endl;
+          ospace.get_db(group, variable, enspert);
+          for (size_t jloc = 0; jloc < nlocs; jloc++) {
+            enspert[jloc] -= ensmean[jloc];
+            ensspread[jloc] += enspert[jloc] * enspert[jloc] *
+                            static_cast<double>(jens)/static_cast<double>(jens+1);
+            enspert[jloc] *= 1.0/static_cast<double>(jens+1);
+            ensmean[jloc] += enspert[jloc];
+          }
+        }
+        // Normalize variance and compute spread
+        // spread = sqrt( 1 / (N-1) * var)
+        if (nens > 0) {
+          for (size_t jloc = 0; jloc < nlocs; jloc++) {
+            ensspread[jloc] = std::sqrt(ensspread[jloc] * 1.0/static_cast<double>(nens-1));
+          }
+        }
+
         // Open an ofstream for output and write header
         std::string expId;
         obsSpace.get("experiment identifier", expId);
         std::string fileName;
         obsSpace.get("csv output", fileName);
         std::ofstream outputFile(fileName);
-        outputFile << "Exp,Variable,Ocean,date,RMSE,Bias,Count\n";
+        outputFile << "Exp,Variable,Ocean,date,RMSE,Bias,ObsErr,EnsStd,Count\n";
 
         // get the date
         int dateint = extractDateFromFilename(obsFile);
@@ -110,13 +143,14 @@ namespace gdasapp {
         std::string varname = group+"_noqc";
         std::vector<int> PreQC(nlocs);
         ospace.get_db("PreQC", variable, PreQC);
-        stats(var, oceanBasins, PreQC, outputFile, varname, dateint, expId);
+        stats(omb, obserr_preqc, ensspread, oceanBasins, PreQC, outputFile, varname, dateint,
+              expId);
 
         oops::Log::info() << "========= Effective QC" << std::endl;
         varname = group+"_qc";
         std::vector<int> eQC(nlocs);
         ospace.get_db("EffectiveQC1", variable, eQC);
-        stats(var, oceanBasins, eQC, outputFile, varname, dateint, expId);
+        stats(omb, obserr_postqc, ensspread, oceanBasins, eQC, outputFile, varname, dateint, expId);
 
         // Close the file
         outputFile.close();
@@ -129,6 +163,8 @@ namespace gdasapp {
 
     // -----------------------------------------------------------------------------
     void stats(const std::vector<float>& ombg,
+               const std::vector<float>& obserr,
+               const std::vector<float>& ensspread,
                const std::vector<int>& oceanBasins,
                const std::vector<int>& qc,
                std::ofstream& outputFile,
@@ -137,11 +173,15 @@ namespace gdasapp {
                const std::string expId) const {
       float rmseGlobal(0.0);
       float biasGlobal(0.0);
+      float obserrGlobal(0.0);
+      float ensspreadGlobal(0.0);
       int cntGlobal(0);
 
       for (const auto& ocean : oceans_) {
         float rmse(0.0);
         float bias(0.0);
+        float obserr_ocean(0.0);
+        float ensspread_ocean(0.0);
         int cnt(0);
         for (size_t i = 0; i < ombg.size(); ++i) {
           if (ombg[i] != fillVal_ &&
@@ -149,15 +189,21 @@ namespace gdasapp {
               qc[i] == 0) {
             rmse += std::pow(ombg[i], 2);
             bias += ombg[i];
+            obserr_ocean += obserr[i];
+            ensspread_ocean += ensspread[i];
             cnt += 1;
           }
         }
         if (cnt > 0) {  // Ensure division by cnt is valid
           rmseGlobal += rmse;
           biasGlobal += bias;
+          obserrGlobal += obserr_ocean;
+          ensspreadGlobal += ensspread_ocean;
           cntGlobal += cnt;
           rmse = std::sqrt(rmse / cnt);
           bias = bias / cnt;
+          obserr_ocean = obserr_ocean / cnt;
+          ensspread_ocean = ensspread_ocean / cnt;
 
           outputFile << expId << ","
                      << varname << ","
@@ -165,6 +211,8 @@ namespace gdasapp {
                      << dateint << ","
                      << rmse << ","
                      << bias << ","
+                     << obserr_ocean << ","
+                     << ensspread_ocean << ","
                      << cnt << "\n";
         }
       }
@@ -175,6 +223,8 @@ namespace gdasapp {
                    << dateint << ","
                    << std::sqrt(rmseGlobal / cntGlobal) << ","
                    << biasGlobal / cntGlobal << ","
+                   << obserrGlobal / cntGlobal << ","
+                   << ensspreadGlobal / cntGlobal << ","
                    << cntGlobal << "\n";
       }
     }

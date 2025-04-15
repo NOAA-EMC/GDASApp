@@ -101,7 +101,7 @@ else()
 		"/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
 	)
 	set(OCEAN_BASIN_FILE_ORION
-		"/work/noaa/global/glopara/fix/gdas/soca/20240802/common/RECCAP2_region_masks_all_v20221025.nc"
+		"/work2/noaa/global/role-global/fix/gdas/soca/20240802/common/RECCAP2_region_masks_all_v20221025.nc"
 	)
 	CHECK_AND_SET_PATH(
 		${OCEAN_BASIN_FILE_ORION} 
