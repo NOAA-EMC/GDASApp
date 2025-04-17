@@ -51,7 +51,7 @@ namespace gdasapp {
 
       // get the list of obs spaces to process
       std::vector<eckit::LocalConfiguration> obsSpaces;
-      fullConfig.get("observers", obsSpaces);
+      fullConfig.get("obs stats", obsSpaces);
 
       // get ensemble size if available
       size_t nens = fullConfig.getInt("nens", 0);
