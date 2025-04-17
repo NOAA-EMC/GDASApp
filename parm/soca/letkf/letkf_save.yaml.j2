@@ -18,11 +18,14 @@ copy:
    - ["{{ DATA }}/letkf_output/ocn.letkf.ens.{{ mem }}.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF_MEM }}/{{ GDUMP_ENS }}.ocean.t{{ cyc }}z.analysis.nc"]
    - ["{{ DATA }}/letkf_output/ice.letkf.ens.{{ mem }}.{{ timestr }}.PT3H.nc", "{{ COMOUT_ICE_LETKF_MEM }}/{{ GDUMP_ENS }}.ice.t{{ cyc }}z.analysis.nc"]
 {% endfor %}
-# Save LETKF background mean and background and analysis variance
-# TODO: save analysis mean when it's output by LETKF
+# Save LETKF background and analysis mean and variance, mean analysis increment
    - ["{{ DATA }}/letkf_output/ocn.letkf.mean_prior.fc.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ GDUMP_ENS }}.ocean.t{{ cyc }}z.ensmean_prior.nc"]
    - ["{{ DATA }}/letkf_output/ice.letkf.mean_prior.fc.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ GDUMP_ENS }}.ice.t{{ cyc }}z.ensmean_prior.nc"]
    - ["{{ DATA }}/letkf_output/ocn.letkf.var_prior.fc.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ GDUMP_ENS }}.ocean.t{{ cyc }}z.ensvar_prior.nc"]
    - ["{{ DATA }}/letkf_output/ice.letkf.var_prior.fc.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ GDUMP_ENS }}.ice.t{{ cyc }}z.ensvar_prior.nc"]
+   - ["{{ DATA }}/letkf_output/ocn.letkf.ens.0.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ GDUMP_ENS }}.ocean.t{{ cyc }}z.ensmean_post.nc"]
+   - ["{{ DATA }}/letkf_output/ice.letkf.ens.0.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ GDUMP_ENS }}.ice.t{{ cyc }}z.ensmean_post.nc"]
    - ["{{ DATA }}/letkf_output/ocn.letkf.var_post.an.{{ antimestr }}.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ GDUMP_ENS }}.ocean.t{{ cyc }}z.ensvar_post.nc"]
    - ["{{ DATA }}/letkf_output/ice.letkf.var_post.an.{{ antimestr }}.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ GDUMP_ENS }}.ice.t{{ cyc }}z.ensvar_post.nc"]
+   - ["{{ DATA }}/letkf_output/ocn.letkf.inc.ens.0.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ GDUMP_ENS }}.ocean.t{{ cyc }}z.ensmean_incr.nc"]
+   - ["{{ DATA }}/letkf_output/ice.letkf.inc.ens.0.{{ timestr }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ GDUMP_ENS }}.ice.t{{ cyc }}z.ensmean_incr.nc"]
