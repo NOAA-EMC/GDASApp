@@ -41,6 +41,7 @@ done
 
 if [[ $TEST_WORKFLOW == 1 ]]; then
     export WORKFLOW_BUILD="ON"
+    export WORKFLOW_TESTS="ON"
 
     workflow_dir=$repodir
     gdasapp_dir=$workflow_dir/sorc/gdas.cd
