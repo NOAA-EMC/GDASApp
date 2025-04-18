@@ -98,12 +98,12 @@ fi
 # role.jedipara and role-da can run g-w based ctests.
 if [[ $TEST_WORKFLOW == 1 ]]; then
   if [[ "${TARGET}" = "hera" ]]; then
-    echo "***WARNING*** apply ${TARGET} global-->da patch to $workflow_dir/workflow/hosts/${TARGET}.yaml"
-    sed -i "s|/scratch1/NCEPDEV/global/\${USER}|/scratch1/NCEPDEV/da/\${USER}|g" $workflow_dir/workflow/hosts/${TARGET}.yaml
+    echo "***WARNING*** apply ${TARGET} global-->da patch to $workflow_dir/dev/workflow/hosts/${TARGET}.yaml"
+    sed -i "s|/scratch1/NCEPDEV/global/\${USER}|/scratch1/NCEPDEV/da/\${USER}|g" $workflow_dir/dev/workflow/hosts/${TARGET}.yaml
   fi
   if [[ "${TARGET}" = "orion" || "${TARGET}" = "hercules" ]]; then
-    echo "***WARNING*** apply MSU stmp patch to $workflow_dir/workflow/hosts/${TARGET}.yaml"
-    sed -i "s|/work2/noaa/global/\${USER}|/work2/noaa/da/\${USER}|g" $workflow_dir/workflow/hosts/${TARGET}.yaml
+    echo "***WARNING*** apply MSU stmp patch to $workflow_dir/dev/workflow/hosts/${TARGET}.yaml"
+    sed -i "s|/work2/noaa/global/\${USER}|/work2/noaa/da/\${USER}|g" $workflow_dir/dev/workflow/hosts/${TARGET}.yaml
   fi
 fi
 # PATCH END
