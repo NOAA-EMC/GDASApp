@@ -32,6 +32,8 @@
       Sensor_ID: &{{observation_from_jcb}}_sensor_id amsua_n19
       EndianType: little_endian
       CoefficientPath: "{{crtm_coefficient_path}}"
+    linear obs operator:
+      Absorbers: [H2O, O3]
 
   # Observation Bias Correction (VarBC)
   # -----------------------------------
