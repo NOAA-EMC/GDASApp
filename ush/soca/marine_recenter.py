@@ -127,15 +127,7 @@ class MarineRecenter(Task):
         # stage backgrounds
         bkg_list = parse_j2yaml(self.task_config.MARINE_DET_STAGE_BKG_YAML_TMPL, self.task_config)
         FileHandler(bkg_list).sync()
-        # stage ensemble backgrounds for soca2cice
-        ens_bkg_list = parse_j2yaml(self.task_config.MARINE_ENSDA_STAGE_BKG_YAML_TMPL, self.task_config)
-        FileHandler(ens_bkg_list).sync()
 
-#        ################################################################################
-#        # Copy initial condition
-#
-#        bkg_utils.stage_ic(self.task_config.bkg_dir, self.task_config.DATA, gcyc)
-#
         ################################################################################
         # stage ensemble members
         logger.info("---------------- Stage ensemble members")
@@ -145,22 +137,13 @@ class MarineRecenter(Task):
         ens_member_list = []
         for mem in range(1, nmem_ens+1):
             for domain in ['ocean', 'ice']:
-                mem_dir = os.path.join(self.task_config.ROTDIR,
-                                       f'enkf{RUN}.{gPDYstr}',
-                                       f'{gcyc}',
-                                       f'mem{str(mem).zfill(3)}',
-                                       'model',
-                                       domain,
-                                       'history')
-                mem_dir_real = os.path.realpath(mem_dir)
-                f00 = f"enkf{RUN}.{domain}.t{gcyc}z.inst.f009.nc"
-
-                fname_in = os.path.abspath(os.path.join(mem_dir_real, f00))
+                fname_in = os.path.join(self.task_config.DATA, '..', 'ensdata', 'ens', f'{domain}.{str(mem)}.nc')
                 fname_out = os.path.realpath(os.path.join(self.task_config.ens_dir,
-                                             domain+"."+str(mem)+".nc"))
+                                                          f'{domain}.{str(mem)}.nc'))
                 ens_member_list.append([fname_in, fname_out])
+                logger.info(f"--- source: {fname_in}")
 
-        FileHandler({'copy': ens_member_list}).sync()
+        FileHandler({'link': ens_member_list}).sync()
         # stage ensemble ice restarts
         # make a copy of the CICE6 restart
         logger.info("---------------- Stage ensemble CICE restarts")
@@ -176,7 +159,7 @@ class MarineRecenter(Task):
         ens_cice_list = []
         for mem in range(1, nmem_ens+1):
             mem_dir = os.path.join(self.task_config.ROTDIR,
-                                   f'enkf{RUN}.{gPDYstr}',
+                                   f'enkfgdas.{gPDYstr}',
                                    f'{gcyc}',
                                    f'mem{str(mem).zfill(3)}',
                                    'model',
@@ -277,7 +260,28 @@ class MarineRecenter(Task):
             mem_dir_list.append(mem_dir_real)
             copy_list.append([f'ocn.recenter.incr.{str(mem)}.nc',
                               os.path.join(mem_dir_real, incr_file)])
-
+        # Copy the ensemble variance
+        ensvar_date = self.task_config.MARINE_WINDOW_END.strftime('%Y-%m-%dT%H:%M:%SZ')
+        stats_dir = os.path.join(self.task_config.ROTDIR,
+                                 f'enkf{RUN}.{PDYstr}',
+                                 f'{cyc}',
+                                 'ensstat',
+                                 'analysis',
+                                 'ocean')
+        stats_dir_real = os.path.realpath(stats_dir)
+        mem_dir_list.append(stats_dir_real)
+        copy_list.append([f'ocn.ensvar.incr.{ensvar_date}.nc',
+                         os.path.join(stats_dir_real, f'enkf{RUN}.t{cyc}z.ocn.bg_ensvar.nc')])
+        stats_dir = os.path.join(self.task_config.ROTDIR,
+                                 f'enkf{RUN}.{PDYstr}',
+                                 f'{cyc}',
+                                 'ensstat',
+                                 'analysis',
+                                 'ice')
+        stats_dir_real = os.path.realpath(stats_dir)
+        mem_dir_list.append(stats_dir_real)
+        copy_list.append([f'ice.ensvar.incr.{ensvar_date}.nc',
+                         os.path.join(stats_dir_real, f'enkf{RUN}.t{cyc}z.ice.bg_ensvar.nc')])
         FileHandler({'mkdir': mem_dir_list}).sync()
         FileHandler({'copy': copy_list}).sync()
 

@@ -117,7 +117,9 @@ add_test(NAME test_gdasapp_check_yaml_keys
 
 if (${BUILD_GDASBUNDLE})
   add_subdirectory(snow)      # snow da tests
-  add_subdirectory(gw-ci)   # subset of the global-workflow ci tests
+  if (WORKFLOW_TESTS)
+    add_subdirectory(gw-ci)   # subset of the global-workflow ci tests
+  endif()
 endif()
 
 # gdas atm tests

@@ -125,7 +125,11 @@ namespace gdasapp {
         const eckit::LocalConfiguration ensMeanOutputConfig(fullConfig, "ensemble mean output");
         ensMean.write(ensMeanOutputConfig);
       }
-
+      if ( fullConfig.has("ensemble variance output") ) {
+        const eckit::LocalConfiguration ensVarianceOutputConfig(fullConfig,
+                                                                "ensemble variance output");
+        ensVariance.write(ensVarianceOutputConfig);
+      }
       // Remove mean from ensemble members
       for (size_t i = 0; i < postProcIncr.ensSize_; ++i) {
         oops::Log::info() << " demean member " << i << std::endl;
@@ -146,6 +150,7 @@ namespace gdasapp {
       soca::Increment recenteringIncr(geomOut, postProcIncr.socaIncrVar_, postProcIncr.dt_);
       recenteringIncr.diff(determTraj, ensMeanTraj);
       postProcIncr.setToZero(recenteringIncr);
+      oops::Log::info() << "recentering incr: " << recenteringIncr << std::endl;
 
       // Check if we're only re-centering the ensemble fcst around the det.
       bool recenterOnly = fullConfig.getBool("recentering around deterministic", false);
@@ -156,16 +161,12 @@ namespace gdasapp {
         oops::Log::info() << "Only recentering " << std::endl;
         int result = 0;
         for (size_t i = 0; i < postProcIncr.ensSize_; ++i) {
-          // make a copy of the ens. member
-          soca::Increment incr(ensMembers[i]);
-
-          // Add the recentering increment
-          incr += recenteringIncr;
-          oops::Log::info() << "recentered incr " << i << ":" << incr << std::endl;
+          // make a copy of the recentering increment
+          soca::Increment incr(recenteringIncr);
 
           // Append the vertical geometry (for MOM6 IAU)
           soca::Increment mom6_incr = postProcIncr.appendLayer(incr);
-          oops::Log::info() << "incr " << i << ":" << mom6_incr << std::endl;
+          oops::Log::info() << "recentering incr " << i << ":" << mom6_incr << std::endl;
 
           // Set variables to zero if specified in the configuration
           postProcIncr.setToZero(incr);

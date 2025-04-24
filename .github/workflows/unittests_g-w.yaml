@@ -47,7 +47,7 @@ jobs:
       run: |
         git clone https://github.com/ecmwf/ecbuild.git ecbuild
         cd ecbuild
-        git checkout 3.6.1
+        git checkout 3.8.2
         mkdir bootstrap
         cd bootstrap
         ../bin/ecbuild ..

@@ -12,11 +12,11 @@ job options:
 
 directories:
   HOMEgfs: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test
-  STAGEDIR: /scratch2/NCEPDEV/stmp1/Russ.Treadon/STAGEDIR
+  STAGEDIR: /scratch1/NCEPDEV/da/Russ.Treadon/STAGEDIR
   RUNDIR: /scratch1/NCEPDEV/stmp2/Russ.Treadon/RUNDIRS
 
 app files:
   DA_CORE: jedi
-  DA_TYPE: hyb3dvfgat
+  DA_TYPE: 3dv
   APPEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/gdas.x
   INCEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/fv3jedi_fv3inc.x

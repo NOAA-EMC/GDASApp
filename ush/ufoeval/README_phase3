@@ -17,15 +17,16 @@ config_gsi.yaml and config_jedi.yaml contain the following user settings
 
       HOMEgfs: global-workflow installation
       STAGEDIR: machine specific path containing job input, set to the machine appropriate path below
-         Hera:  /scratch2/NCEPDEV/stmp1/Russ.Treadon/STAGEDIR
-	 Hercules, Orion: /work2/noaa/stmp/rtreadon/STAGEDIR
+         Hera: /scratch1/NCEPDEV/da/Russ.Treadon/STAGEDIR
+	 Hercules, Orion: /work2/noaa/da/rtreadon/STAGEDIR
       RUNDIR: path to the directory in which job will run.  Full path is RUNDIR + DA_CORE + DA_TYPE
   - app files
       DA_CORE: DA engine to run. Valid options are gsi or jedi
       DA_TYPE: type of DA to run.  Valid options are
          3dv - 3dvar using gsibec
-	 3dvfgat - 3dvar using gsibec with fgat
-	 hyb3dvfgat - 3dvar using gsibec & 40 member ensemble with fgat
+         3dvfgat - 3dvar using gsibec with fgat
+         hyb3dvfgat - hybrid 3dvar using gsibec & 40 member ensemble with fgat
+         hyb4denv - hybrid 4denvar using gsibec & 40 member ensemble with fgat
       APPEXEC: GSI or JEDI analysis executable
       INCEXEC: executable to convert JEDI cube sphere increment to gaussian grid
 

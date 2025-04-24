@@ -104,10 +104,21 @@ class SlurmJobCard:
 
         # JEDI jobs convert cube sphere increments to gausssian grid for comparison
         if self.appcore == 'jedi':
-            self.f.write("\n")
-            self.f.write(f"# Convert cube sphere increments to gaussian grid\n")
-            aprun_command = f"srun -n {self.ntasks} --cpus-per-task={self.threads} ./fv3jedi_fv3inc.x ./atmanlfv3inc.yaml"
-            self.f.write(f"{aprun_command}\n")
+            if self.apptype != "hyb4denv":
+                self.f.write("\n")
+                self.f.write(f"# Convert cube sphere increments to gaussian grid\n")
+                aprun_command = f"srun -n {self.ntasks} --cpus-per-task={self.threads} ./fv3jedi_fv3inc.x ./atmanlfv3inc.yaml"
+                self.f.write(f"{aprun_command}\n")
+            else:
+                # JEDI hyb4denv jobs convert cube sphere increments to gaussian for multiple analysis times
+                self.f.write("\n")
+                self.f.write(f"# Convert cube sphere increments to gaussian grid\n")
+                aprun_command = f"srun -n {self.ntasks} --cpus-per-task={self.threads} ./fv3jedi_fv3inc.x ./atmanlfv3inc03.yaml"
+                self.f.write(f"{aprun_command}\n")
+                aprun_command = f"srun -n {self.ntasks} --cpus-per-task={self.threads} ./fv3jedi_fv3inc.x ./atmanlfv3inc06.yaml"
+                self.f.write(f"{aprun_command}\n")
+                aprun_command = f"srun -n {self.ntasks} --cpus-per-task={self.threads} ./fv3jedi_fv3inc.x ./atmanlfv3inc09.yaml"
+                self.f.write(f"{aprun_command}\n")
 
     def close(self):
         """
@@ -143,7 +154,7 @@ def main():
     if appcore not in valid:
         raise ValueError(f"DA_CORE {appcore} is invalid.  Valid cores are {valid}")
 
-    valid = ['3dv', '3dvfgat', 'hyb3dvfgat']
+    valid = ['3dv', '3dvfgat', 'hyb3dvfgat', 'hyb4denv']
     if apptype not in valid:
         raise ValueError(f"DA_TYPE {apptype} is invalid.  Valid types are {valid}")
 
@@ -181,7 +192,7 @@ def main():
     else:
         # Copy files and directories to run directory
         files_to_copy = [
-            "atmanlvar.yaml", "atmanlfv3inc.yaml"
+            "atmanlvar.yaml", "atmanlfv3inc*.yaml"
         ]
         for pattern in files_to_copy:
             for file_path in Path(stagedir).glob(pattern):

@@ -46,12 +46,13 @@ class PrepOceanObs(Task):
 
         self.task_config['cdate'] = cdate
         window_begin_datetime = cdate - timedelta(hours=half_assim_freq)
-        window_begin_datetime = cdate + timedelta(hours=half_assim_freq)
+        window_end_datetime = cdate + timedelta(hours=half_assim_freq)
         self.window_begin = window_begin_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
-        self.window_end = window_begin_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
+        self.window_end = window_end_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
         self.task_config.conversion_list_file = 'conversion_list.yaml'
         self.task_config.save_list_file = 'save_list.yaml'
+        self.task_config.app_path_observations = self.task_config['MARINE_JCB_GDAS_OBS']
 
     @logit(logger)
     def initialize(self):
@@ -82,8 +83,7 @@ class PrepOceanObs(Task):
         except OSError:
             logger.warning("Could not copy RECCAP2_region_masks_all_v20221025.nc")
 
-        self.task_config.app_path_observations = os.path.join(self.task_config['PARMgfs'], 'gdas/jcb-gdas/observations/marine')
-        OBS_YAML = os.path.join(self.task_config['PARMgfs'], 'gdas/soca/obs/obs_list.yaml.j2')
+        OBS_YAML = self.task_config['MARINE_OBS_LIST_YAML']
         self.task_config.observations = parse_j2yaml(OBS_YAML, self.task_config)['observations']
 
         obsconfigfile = os.path.join(self.task_config['PARMgfs'], 'gdas/soca/obs/obs_list_base_yaml.j2')

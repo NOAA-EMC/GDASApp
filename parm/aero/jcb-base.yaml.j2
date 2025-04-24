@@ -59,11 +59,7 @@ aero_background_path: ./bkg
 aero_background_ensemble_path: ./ens/mem%mem%
 
 # Default background time is for 3D applications
-{% if DOIAU == True %}
 aero_background_time_iso: "{{ AERO_WINDOW_BEGIN | to_isotime }}"
-{% else %}
-aero_background_time_iso: "{{ current_cycle | to_isotime }}"
-{% endif %}
 aero_cycle_time_iso: "{{ current_cycle | to_isotime }}"
 aero_cycle_time_fv3: "{{ current_cycle | to_fv3time }}"
 
@@ -74,8 +70,8 @@ aero_background_error_time_iso:  "{{ background_time | to_isotime }}"
 aero_background_error_time_fv3: "{{ background_time | to_fv3time }}"
 
 # Background error
-aero_berror_data_directory: "{{ DATA }}/berror"
-aero_berror_diffusion_directory: "{{ DATA }}/diffusion"
+aero_berror_data_directory: ./berror
+aero_berror_diffusion_directory: ./diffusion
 aero_standard_deviation_path: ./stddev
 aero_climatological_b_path: ./clm_stddev
 aero_rescale_b_path: ./rescale
