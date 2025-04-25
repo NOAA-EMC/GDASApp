@@ -12,7 +12,7 @@ job options:
 
 directories:
   HOMEgfs: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test
-  STAGEDIR: /scratch2/NCEPDEV/stmp1/Russ.Treadon/STAGEDIR
+  STAGEDIR: /scratch1/NCEPDEV/da/Russ.Treadon/STAGEDIR
   RUNDIR: /scratch1/NCEPDEV/stmp2/Russ.Treadon/RUNDIRS
 
 app files:
