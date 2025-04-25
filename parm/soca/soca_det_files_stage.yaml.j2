@@ -1,0 +1,16 @@
+mkdir:
+- "{{ DATA }}/Data"
+
+link:
+- [ "{{ DATA }}/../staticb", "{{ DATA }}/staticb" ]
+
+copy:
+# stage soca grid
+- ["{{ COMIN_OCEAN_BMATRIX }}/soca_gridspec.nc", "{{ DATA }}"]
+# stage ensemble weights
+{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
+- ["{{ COMIN_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.ens_weights.nc", "{{ DATA }}/ocean.ens_weights.nc"]
+- ["{{ COMIN_ICE_BMATRIX }}/{{ APREFIX }}ice.ens_weights.nc", "{{ DATA }}/ice.ens_weights.nc"]
+{% endif %}
+# stage CICE6 restart
+- ["{{ COMIN_ICE_RESTART_PREV }}/{{ rst_date }}.cice_model.res.nc", "{{ DATA }}/Data"]
