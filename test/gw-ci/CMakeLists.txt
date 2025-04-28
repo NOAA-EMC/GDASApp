@@ -94,6 +94,9 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
       elseif("${pslot}" STREQUAL "C96C48_hybatmaerosnowDA")
         list(APPEND TEST_DEPENDS "${test_prefix}_gdas_anal_${FULL_CYCLE}")
         list(APPEND TEST_DEPENDS "${test_prefix}_snowanal_${FULL_CYCLE}")
+      elseif("${pslot}" STREQUAL "C96C48_hybatmDA")
+	list(APPEND TEST_DEPENDS "${test_prefix}_gdas_anal_${FULL_CYCLE}")
+	list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_eupd_${FULL_CYCLE}")
       else()
         list(APPEND TEST_DEPENDS "${test_prefix}_gdas_anal_${FULL_CYCLE}")
       endif()
@@ -257,7 +260,7 @@ if (WORKFLOW_TESTS)
     # GSI Atm DA C96/C48
     # ------------------
     set(pslot "C96C48_hybatmDA")
-    set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
+    set(YAML_PATH ${HOMEgfs}/dev/ci/cases/pr/${pslot}.yaml)
     set(HALF_CYCLE_TASKS
       "gdas_stage_ic"
       "gdas_fcst"
@@ -287,7 +290,7 @@ if (WORKFLOW_TESTS)
   # -------------------
   if(${TEST_GFS18})
     set(pslot "C96C48_ufs_hybatmDA")
-    set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
+    set(YAML_PATH ${HOMEgfs}/dev/ci/cases/pr/${pslot}.yaml)
     set(HALF_CYCLE_TASKS
       "gdas_stage_ic"
       "gdas_fcst"
@@ -321,7 +324,7 @@ if (WORKFLOW_TESTS)
   # ----------------
   if(${TEST_AERO_LAND})
     set(pslot "C96C48_hybatmaerosnowDA")
-    set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
+    set(YAML_PATH ${HOMEgfs}/dev/ci/cases/pr/${pslot}.yaml)
     set(HALF_CYCLE_TASKS
       "gdas_stage_ic"
       "gdas_fcst"
@@ -356,7 +359,7 @@ if (WORKFLOW_TESTS)
     # GSI Atm DA C48, JEDI Marine DA 500
     # ----------------------------------
     set(pslot "C48mx500_3DVarAOWCDA")
-    set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
+    set(YAML_PATH ${HOMEgfs}/dev/ci/cases/pr/${pslot}.yaml)
     set(HALF_CYCLE_TASKS
       "gdas_stage_ic"
       "gdas_waveinit"
@@ -382,7 +385,7 @@ if (WORKFLOW_TESTS)
     # -------------
     set(pslot "C48mx500_hybAOWCDA")
     set(letkf TRUE)
-    set(YAML_PATH ${HOMEgfs}/ci/cases/pr/${pslot}.yaml)
+    set(YAML_PATH ${HOMEgfs}/dev/ci/cases/pr/${pslot}.yaml)
     set(HALF_CYCLE_TASKS
       "gdas_stage_ic"
       "gdas_fcst"
@@ -406,7 +409,7 @@ if (WORKFLOW_TESTS)
   # -----------------------
   if(TEST_GFS17)
     set(pslot "C384mx025_3DVarAOWCDA")
-    set(YAML_PATH ${HOMEgfs}/ci/cases/gfsv17/${pslot}.yaml)
+    set(YAML_PATH ${HOMEgfs}/dev/ci/cases/gfsv17/${pslot}.yaml)
     set(HALF_CYCLE_TASKS
       "gdas_stage_ic"
       "gdas_fcst")

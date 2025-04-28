@@ -63,6 +63,7 @@ load("py-pybind11/2.11.0")
 load("contrib/0.1")
 load("noaatools/3.1")
 load("rocoto/1.3.7")
+load("prod_util/2.1.1")
 
 load("hpc/1.2.0")
 unload("python/3.10.13")
@@ -84,7 +85,6 @@ setenv('MPIEXEC_NPROC', mpinproc)
 setenv("CRTM_FIX","/work2/noaa/da/role-da/GDASApp/fix/crtm/2.4.0")
 setenv("GDASAPP_TESTDATA","/work2/noaa/da/role-da/GDASApp/testdata")
 setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/work2/noaa/da/role-da/GDASApp/unittestdata")
-prepend_path("PATH","/apps/contrib/NCEP/libs/hpc-stack/intel-2018.4/prod_util/1.2.2/bin")
 
 execute{cmd="ulimit -s unlimited",modeA={"load"}}
 
