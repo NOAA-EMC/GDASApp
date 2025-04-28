@@ -35,8 +35,10 @@ usage() {
 # Defaults:
 INSTALL_PREFIX=""
 CMAKE_OPTS=""
+BUILD_TYPE="${BUILD_TYPE:-"Release"}"
 BUILD_TARGET="${MACHINE_ID:-'localhost'}"
-BUILD_VERBOSE="NO"
+BUILD_JOBS="${BUILD_JOBS:-8}"
+BUILD_VERBOSE="${BUILD_VERBOSE:-"NO"}"
 CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
 BUILD_JCSDA="NO"
@@ -88,7 +90,13 @@ case ${BUILD_TARGET} in
     ;;
 esac
 
-CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET"
+CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET -DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+
+# Intel debug build for NCO
+if [[ $BUILD_TYPE == "Debug" && $COMPILER == "intel" ]]; then
+    BUILD_VERBOSE="YES"
+    CMAKE_OPTS+=" -DCMAKE_TOOLCHAIN_FILE=${dir_root}/nco-debug.cmake"
+fi
 
 # TODO: Remove LD_LIBRARY_PATH line as soon as permanent solution is available
 if [[ $BUILD_TARGET == 'wcoss2' ]]; then
@@ -128,7 +136,7 @@ set +x
 echo "Building ... `date`"
 set -x
 if [[ $BUILD_JCSDA == 'YES' ]]; then
-  make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
+  make -j ${BUILD_JOBS} VERBOSE=${BUILD_VERBOSE}
 else
   builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils bufr-query da-utils"
   for b in $builddirs; do
@@ -136,7 +144,7 @@ else
     set +x      
     echo "Building $b ... `date`"
     set -x
-    make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
+    make -j ${BUILD_JOBS} VERBOSE=${BUILD_VERBOSE}
     cd ../
   done
 fi
@@ -146,7 +154,7 @@ set +x
 if [[ -n ${INSTALL_PREFIX:-} ]]; then
   echo "Installing ... `date`"
   set -x
-  make install -j ${BUILD_JOBS:-8}
+  make install -j ${BUILD_JOBS}
   set +x
 fi
 echo "Finish ... `date`"
