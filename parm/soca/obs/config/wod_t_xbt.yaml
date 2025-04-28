@@ -1,0 +1,40 @@
+obs space:
+  name: wod_t_xbt
+  obsdatain:
+    engine:
+      type: H5File
+      obsfile: ${DATA}/obs/${OPREFIX}wod_xbt_temp.${PDY}${cyc}.nc4 # files that comes out of the converter
+  obsdataout:
+    engine:
+      type: H5File
+      obsfile: ${DATA}/diags/wod_xbt_temp.${PDY}${cyc}.nc4 # output filename
+  simulated variables: [waterTemperature]
+  observed variables: [waterTemperature]
+  io pool:
+    max pool size: 1
+obs operator:
+  name: Composite
+  components:
+  - name: InsituTemperature # internal SOCA classification
+    variables:
+    - name: waterTemperature
+obs error:
+  covariance model: diagonal
+obs filters:
+- filter: Perform Action
+  action:
+    name: assign error
+    error function:
+      name: ObsFunction/LinearCombination
+      options:
+        variables:
+        - ObsError/waterTemperature
+        coefs:
+                - 1000.0 # 1000 is an irrealitic number that makes obs have no impact - NEED TO CHANGE (~1)
+obs localizations:
+- localization method: Rossby
+  base value: 100.0e3
+  rossby mult: 1.0
+  min grid mult: 2.0
+  min value: 200.0e3
+  max value: 900.0e3

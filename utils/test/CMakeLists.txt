@@ -13,6 +13,8 @@ list( APPEND utils_test_input
   testinput/gdas_icecjpssrr2ioda.yaml
   testinput/gdas_insituall2ioda.yaml
   testinput/gdas_viirsaod2ioda.yaml
+  testinput/gdas_wodt2ioda.yaml
+  testinput/gdas_wods2ioda.yaml
 )
 
 set( gdas_utils_test_ref
@@ -28,6 +30,8 @@ set( gdas_utils_test_ref
   testref/icecjpssrr2ioda.test
   testref/insituall2ioda.test
   testref/viirsaod2ioda.test
+  testref/wodt2ioda.test
+  testref/wods2ioda.test
 )
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
@@ -191,3 +195,17 @@ ecbuild_add_test( TARGET  test_gdasapp_util_insituall2ioda
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
                   TEST_DEPENDS test_gdasapp_util_prepdata)
+
+# Test the WOD to IODA converter
+ecbuild_add_test( TARGET  test_gdasapp_util_wodt2ioda
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  ARGS    "../testinput/gdas_wodt2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
+                  TEST_DEPENDS test_gdasapp_util_prepdata)	 
+ecbuild_add_test( TARGET  test_gdasapp_util_wods2ioda
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  ARGS    "../testinput/gdas_wods2ioda.yaml"
+                  LIBS    gdas-utils
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
+                  TEST_DEPENDS test_gdasapp_util_prepdata) 

@@ -1,0 +1,62 @@
+observers:
+# ADT
+- !INC ${MARINE_OBS_YAML_DIR}/adt_rads_all.yaml
+
+#SSS
+- !INC ${MARINE_OBS_YAML_DIR}/sss_smap_l2.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sss_smos_l2.yaml
+
+# SST
+- !INC ${MARINE_OBS_YAML_DIR}/sst_avhrr_ma_l3u.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_avhrr_mb_l3u.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_avhrr_mc_l3u.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_viirs_npp_l3u.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_viirs_n20_l3u.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_abi_g16_l3c.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_abi_g17_l3c.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/sst_ahi_h08_l3c.yaml
+
+# Ice concentration
+- !INC ${MARINE_OBS_YAML_DIR}/icec_amsr2_north.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/icec_amsr2_south.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_viirs_n20_l2_north.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_viirs_n20_l2_south.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_amsu_mb_l2.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_atms_n20_l2.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_atms_n21_l2.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_atms_npp_l2.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_gmi_gpm_l2.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/icec_ssmis_f17_l2.yaml
+
+# in situ: monthly
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_bathy.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_argo.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_temp_profile_argo.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_salt_profile_argo.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_glider.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_tesac.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_tesac_salinity.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_marinemammal.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_xbtctd.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_altkob.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_trkob.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_trkob_salinity.yaml
+
+# in situ: daily
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_dbuoy.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_dbuoyb.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_mbuoy.yaml
+#- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_mbuoyb.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/insitu_profile_tropical.yaml
+- !INC ${MARINE_OBS_YAML_DIR}/insitu_surface_drifter.yaml
+
+# in situ: wod
+- !INC ${MARINE_OBS_YAML_DIR}/wod_t_ctd.yaml # CTD temperature
+  #- !INC ${MARINE_OBS_YAML_DIR}/wod_s_ctd.yaml # CTD temperature
+- !INC ${MARINE_OBS_YAML_DIR}/wod_t_xbt.yaml # CTD temperature
+- !INC ${MARINE_OBS_YAML_DIR}/wod_t_gld.yaml # CTD temperature
+  #- !INC ${MARINE_OBS_YAML_DIR}/wod_s_gld.yaml # CTD temperature
+- !INC ${MARINE_OBS_YAML_DIR}/wod_t_drb.yaml # CTD temperature
+  #- !INC ${MARINE_OBS_YAML_DIR}/wod_s_drb.yaml # CTD temperature
+- !INC ${MARINE_OBS_YAML_DIR}/wod_t_pfl.yaml # CTD temperature
+  #- !INC ${MARINE_OBS_YAML_DIR}/wod_s_pfl.yaml # CTD temperature
