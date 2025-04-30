@@ -59,11 +59,7 @@ aero_background_path: ./bkg
 aero_background_ensemble_path: ./ens/mem%mem%
 
 # Default background time is for 3D applications
-{% if DOIAU == True %}
 aero_background_time_iso: "{{ AERO_WINDOW_BEGIN | to_isotime }}"
-{% else %}
-aero_background_time_iso: "{{ current_cycle | to_isotime }}"
-{% endif %}
 aero_cycle_time_iso: "{{ current_cycle | to_isotime }}"
 aero_cycle_time_fv3: "{{ current_cycle | to_fv3time }}"
 
