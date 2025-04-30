@@ -4,7 +4,7 @@
   "cycle_type"       : "{{ RUN }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
-  "ioda_directory"   : "{{ COM_OBS }}",
+  "ioda_directory"   : "{{ COMIN_OBS }}",
   "subsets"          : [  ],
   "data_description" : "NC021043 SEVIRI, Meteosat-11; NC021043 SEVIRI, Meteosat-10,  NC021043 SEVIRI, Meteosat-08", 
   "data_provider"    : "U.S. NOAA/NESDIS",

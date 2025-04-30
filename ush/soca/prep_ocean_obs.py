@@ -161,7 +161,7 @@ class PrepOceanObs(Task):
                                 'RUN': RUN,
                                 'current_cycle': cdate,
                                 'DMPDIR': COMIN_OBS,
-                                'COM_OBS': COMIN_OBS,
+                                'COMIN_OBS': COMIN_OBS,
                                 'OCEAN_BASIN_FILE': OCEAN_BASIN_FILE}
                             bufr2iodapy = os.path.join(BUFR2IODA_PY_DIR, f'bufr2ioda_{obs_space_name}.py')
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy

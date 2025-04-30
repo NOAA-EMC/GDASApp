@@ -5,7 +5,7 @@ data_format: trkob
 data_provider: U.S. NOAA
 data_type: trackob
 dump_directory: '{{ DMPDIR }}'
-ioda_directory: '{{ COM_OBS }}'
+ioda_directory: '{{ COMIN_OBS }}'
 source: NCEP data tank
 subsets: TRACKOB
 ocean_basin: '{{ OCEAN_BASIN_FILE }}'

@@ -60,7 +60,8 @@ gprefix=$GDUMP.t${gcyc}z
 oprefix=$CDUMP.t${cyc}z
 
 # Generate COM variables from templates
-YMD=${PDY} HH=${cyc} declare_from_tmpl -rx COM_OBS
+YMD=${PDY} HH=${cyc} declare_from_tmpl -rx \
+    COMIN_OBS:COM_OBS_TMPL
 RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
     COM_CHEM_ANALYSIS_PREV:COM_CHEM_ANALYSIS_TMPL \
     COM_CHEM_HISTORY_PREV:COM_CHEM_HISTORY_TMPL \
@@ -68,10 +69,10 @@ RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
 
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
-mkdir -p $COM_OBS
+mkdir -p $COMIN_OBS
 flist="viirs_npp.$CDATE.nc4"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.$file $COM_OBS/
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.$file $COMIN_OBS/
 done
 
 

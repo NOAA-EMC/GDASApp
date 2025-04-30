@@ -4,7 +4,7 @@
   "cycle_type"       : "{{ RUN }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
-  "ioda_directory"   : "{{ COM_OBS }}",
+  "ioda_directory"   : "{{ COMIN_OBS }}",
   "subsets"          : [ "NC005070", "NC005071" ],
   "data_description" : "NC005070 AQUA/TERRA SATWIND MODIS IR(LW); NC005071 AQUA/TERRA SATWIND MODIS WVCT, WVDL", 
   "data_provider"    : "U.S. NOAA/NESDIS",
