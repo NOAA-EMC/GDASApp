@@ -271,7 +271,7 @@ class MarineRecenter(Task):
         stats_dir_real = os.path.realpath(stats_dir)
         mem_dir_list.append(stats_dir_real)
         copy_list.append([f'ocn.ensvar.incr.{ensvar_date}.nc',
-                         os.path.join(stats_dir_real, f'enkf{RUN}.t{cyc}z.ocn.bg_ensvar.nc')])
+                         os.path.join(stats_dir_real, f'enkf{RUN}.ocean.t{cyc}z.bg_ensvar.nc')])
         stats_dir = os.path.join(self.task_config.ROTDIR,
                                  f'enkf{RUN}.{PDYstr}',
                                  f'{cyc}',
@@ -281,7 +281,7 @@ class MarineRecenter(Task):
         stats_dir_real = os.path.realpath(stats_dir)
         mem_dir_list.append(stats_dir_real)
         copy_list.append([f'ice.ensvar.incr.{ensvar_date}.nc',
-                         os.path.join(stats_dir_real, f'enkf{RUN}.t{cyc}z.ice.bg_ensvar.nc')])
+                         os.path.join(stats_dir_real, f'enkf{RUN}.ice.t{cyc}z.bg_ensvar.nc')])
         FileHandler({'mkdir': mem_dir_list}).sync()
         FileHandler({'copy': copy_list}).sync()
 
