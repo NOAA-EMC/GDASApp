@@ -55,9 +55,12 @@ namespace gdasapp {
     double depthMin;       // set the bkg error to 0 for depth < depthMin
     bool diffusion;        // apply explicit diffusion to the std. dev. fields
     bool simpleSmoothing;  // Simple spatial averaging
-    int niterHoriz;             // number of iterations for the horizontal averaging
+    int niterHoriz;        // number of iterations for the horizontal averaging
     int niterVert;         // number of iterations for the vertical averaging
-    double rescale;        // inflation/deflation of the variance after filtering
+    double rescale_varpart;    // inflation/deflation of the variance partitioning
+    double rescale_static;     // inflation/deflation of the static variance
+    double vert_efold_static;  // vertical e-folding scale of the static variance
+    bool monotonic_temp;   // make the temperature field vertically monotonic
   };
 
   // -----------------------------------------------------------------------------
@@ -101,6 +104,9 @@ namespace gdasapp {
         diagBConfig.diffusion = true;
       }
 
+      // monotonic temperature
+      diagBConfig.monotonic_temp = fullConfig.getBool("monotonic temperature", false);
+
       // Simple smoothing parameters
       diagBConfig.simpleSmoothing = false;
       if (fullConfig.has("simple smoothing")) {
@@ -110,8 +116,9 @@ namespace gdasapp {
       }
 
       // Variance rescaling
-      diagBConfig.rescale = fullConfig.getDouble("rescale", 1.0);
-
+      diagBConfig.rescale_varpart = fullConfig.getDouble("rescale variance partitioning", 1.0);
+      diagBConfig.rescale_static = fullConfig.getDouble("rescale static", 1.0);
+      diagBConfig.vert_efold_static = fullConfig.getDouble("vertical e-folding scale static", 300.0);
       return diagBConfig;
     }
 
@@ -146,11 +153,11 @@ namespace gdasapp {
         int levelMin = std::max(0, level - nbz);
         int levelMax = level + nbz;
         // Do weird things withing the MLD
-        if (level < nzMld) {
+        //if (level < nzMld) {
           // If in the MLD, compute the std. dev. throughout the MLD
-          levelMin = 0;
-          levelMax = 1;  // nzMld; Projecting the surface variance down the water column for now
-        }
+        //  levelMin = 0;
+        //  levelMax = 1;  // nzMld; Projecting the surface variance down the water column for now
+        //}
         // 2D case
         if (bkg.shape(1) == 1) {
           levelMin = 0;
@@ -265,6 +272,12 @@ namespace gdasapp {
       atlas::FieldSet bkgErrFs;
       bkgErr.toFieldSet(bkgErrFs);
 
+      // Create the staticDiag fieldset
+      soca::Increment staticBkgErr(bkgErr);
+      staticBkgErr.ones();
+      atlas::FieldSet staticBkgErrFs;
+      staticBkgErr.toFieldSet(staticBkgErrFs);
+
       // Get the layer thicknesses and convert to layer depth
       oops::Log::info() << "====================== calculate layer depth" << std::endl;
       auto viewHocn = atlas::array::make_view<double, 2>(xbFs["sea_water_cell_thickness"]);
@@ -275,6 +288,17 @@ namespace gdasapp {
         for (atlas::idx_t level = 1; level < depth.shape(1); ++level) {
           viewDepth(jnode, level) = viewDepth(jnode, level-1) +
             0.5 * (viewHocn(jnode, level-1) + viewHocn(jnode, level));
+        }
+      }
+
+      // Make the Temp field monotonic
+      oops::Log::info() << "====================== make Temp monotonic" << std::endl;
+      auto viewTemp = atlas::array::make_view<double, 2>(xbFs["sea_water_potential_temperature"]);
+      for (atlas::idx_t jnode = 0; jnode < depth.shape(0); ++jnode) {
+        for (atlas::idx_t level = 1; level < depth.shape(1); ++level) {
+          if (viewTemp(jnode, level) > viewTemp(jnode, level-1)) {
+            viewTemp(jnode, level) = viewTemp(jnode, level-1);
+          }
         }
       }
 
@@ -429,7 +453,7 @@ namespace gdasapp {
 
       /// Impose an exponential decay to the background error
       // ----------------------------------------------------
-      if (fullConfig.has("vertical e-folding scale")) {
+      if (fullConfig.has("vertical e-folding scale var part")) {
         double efold = fullConfig.getDouble("vertical e-folding scale", 500.0);
         double edRatio = fullConfig.getDouble("min efold depth ratio", 3.0);
         double localEfold = 0.0;
@@ -438,6 +462,7 @@ namespace gdasapp {
            << "====================== apply exponential decay to the background error. "
            << " e-folding scale: " << efold << " m for " << var << std::endl;
           auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
+          auto staticBkgErrFs_v = atlas::array::make_view<double, 2>(staticBkgErrFs[var]);
           auto numLevels = xbFs["sea_water_potential_temperature"].shape(0);
           for (atlas::idx_t jnode = 0; jnode < numLevels; ++jnode) {
             if (ghostView(jnode) > 0) {
@@ -445,8 +470,14 @@ namespace gdasapp {
             }
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
               if (viewBathy(jnode, 0) > 0.0) {
+                // Apply the exponential decay to the variane partitioning
                 localEfold = computeLocalEFoldingScale(viewBathy(jnode, 0), efold, edRatio);
                 stdDevBkg(jnode, level) *= std::exp(-viewDepth(jnode, level) / localEfold);
+
+                // Static background error
+                localEfold = computeLocalEFoldingScale(viewBathy(jnode, 0),
+                                                    configD.vert_efold_static, edRatio);
+                staticBkgErrFs_v(jnode, level) *= std::exp(-viewDepth(jnode, level) / localEfold);
               }
             }  // end level
           }  // end jnode
@@ -494,10 +525,13 @@ namespace gdasapp {
       }  // end explicit diffusion
 
       // Rescale
-      util::multiplyFieldSet(bkgErrFs, configD.rescale);
+      util::multiplyFieldSet(bkgErrFs, configD.rescale_varpart);
+      util::multiplyFieldSet(staticBkgErrFs, configD.rescale_static);
 
       // We want to write with soca, not atlas: Syncronize with soca Increment
       bkgErr.fromFieldSet(bkgErrFs);
+      staticBkgErr.fromFieldSet(staticBkgErrFs);
+      bkgErr += staticBkgErr;
 
       // Save the background error
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
