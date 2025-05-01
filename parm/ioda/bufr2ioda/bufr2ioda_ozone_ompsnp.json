@@ -4,7 +4,7 @@
   "cycle_type"           : "{{ RUN }}",
   "cycle_datetime"       : "{{ current_cycle | to_YMDH }}",
   "dump_directory"       : "{{ DMPDIR }}",
-  "ioda_directory"       : "{{ COMIN_OBS }}",
+  "ioda_directory"       : "{{ COMOUT_OBS }}",
   "ioda_type"            : "ompsnp",
   "subsets"              : "NC008017",
   "source"               : "MTYP 008-017 OMPS NADIR PROFILE OZONE (VERSION 8 BUFR)",

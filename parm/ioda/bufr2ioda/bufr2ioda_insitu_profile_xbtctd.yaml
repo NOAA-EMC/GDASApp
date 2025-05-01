@@ -5,7 +5,7 @@ data_format: xbtctd
 data_provider: U.S. NOAA
 data_type: xbtctd
 dump_directory: '{{ DMPDIR }}'
-ioda_directory: '{{ COMIN_OBS }}'
+ioda_directory: '{{ COMOUT_OBS }}'
 source: NCEP data tank
 subsets: XBTCTD
 ocean_basin: '{{ OCEAN_BASIN_FILE }}'

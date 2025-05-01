@@ -145,10 +145,10 @@ for ob in stage_cfg['observations']['observers']:
     obs_files.append(f"{RUN}.t{cyc}z.{ob['obs space']['name'].lower()}.{PDY}{cyc}.nc4")
 obs_list = []
 
-# copy obs from COMIN_OBS to DATA/obs
+# copy obs from COM_OBS to DATA/obs
 for obs_file in obs_files:
     logger.info(f"******* {obs_file}")
-    obs_src = os.path.join(os.getenv('COMIN_OBS'), obs_file)
+    obs_src = os.path.join(os.getenv('COM_OBS'), obs_file)
     obs_dst = os.path.join(os.path.realpath(obs_in), obs_file)
     logger.info(f"******* {obs_src}")
     if os.path.exists(obs_src):

@@ -4,7 +4,7 @@
     "cycle_type": "{{ RUN }}",
     "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
     "dump_directory": "{{ DMPDIR }}",
-    "ioda_directory": "{{ COMIN_OBS }}",
+    "ioda_directory": "{{ COMOUT_OBS }}",
     "subsets": [ "NC002001, NC002002, NC002003, NC002004, NC002005" ],
     "source": "NCEP data tank",
     "data_provider": "U.S. NOAA",

@@ -4,7 +4,7 @@
   "cycle_type"      : "{{ RUN }}",
   "cycle_datetime"  : "{{ current_cycle | to_YMDH }}",
   "dump_directory"  : "{{ DMPDIR }}",
-  "ioda_directory"  : "{{ COMIN_OBS }}",
+  "ioda_directory"  : "{{ COMOUT_OBS }}",
   "subsets"         : [ "ADPUPA" ],
   "data_provider"   : "U.S. NOAA",
   "data_description": "UPPER-AIR (RAOB, PIBAL, RECCO, DROPS) REPORTS"

@@ -4,7 +4,7 @@
   "cycle_type"       : "{{ RUN }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
-  "ioda_directory"   : "{{ COMIN_OBS }}",
+  "ioda_directory"   : "{{ COMOUT_OBS }}",
   "subsets"          : [ "NC005044", "NC005045", "NC005046" ],
   "data_description" : "NC005044 JMA SATWIND, AHI HIMAWARI IR(LW)/VIS/WV-CT/WV-CS;  NC005045 JMA SATWIND, AHI HIMAWARI IR(LW)/VIS/WV-CT/WV-CS; NC005046 JMA SATWIND, AHI HIMAWARI IR(LW)/VIS/WV-CT/WV-CS", 
   "data_provider"    : "JMA",
