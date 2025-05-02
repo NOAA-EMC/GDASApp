@@ -51,7 +51,7 @@ namespace gdasapp {
 
       // get the list of obs spaces to process
       std::vector<eckit::LocalConfiguration> obsSpaces;
-      fullConfig.get("obs spaces", obsSpaces);
+      fullConfig.get("observers", obsSpaces);
 
       // get ensemble size if available
       size_t nens = fullConfig.getInt("nens", 0);
@@ -66,7 +66,7 @@ namespace gdasapp {
 
         // get the obs diag file
         std::string obsFile;
-        obsConfig.get("obsdatain.engine.obsfile", obsFile);
+        obsConfig.get("obsdataout.engine.obsfile", obsFile);
         oops::Log::info() << "========= Processing " << obsFile
                           << "          date: " << extractDateFromFilename(obsFile)
                           << std::endl;
@@ -75,10 +75,8 @@ namespace gdasapp {
         std::vector<std::string> simulatedVariables;
         std::string variable;
         obsConfig.get("simulated variables", simulatedVariables);
-        oops::Log::info() << "foo " << simulatedVariables << std::endl;
         ASSERT( simulatedVariables.size() == 1);
         variable = simulatedVariables[0];
-        obsSpace.get("variable", variable);
 
         // read the obs space
         ioda::ObsSpace ospace(obsConfig, getComm(), timeWindow, getComm());

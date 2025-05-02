@@ -68,8 +68,8 @@ marine_stddev_time: '{{ MARINE_WINDOW_MIDDLE  | to_isotime }}'
 
 # Observations
 observations: all_observations
-cleaned_observations: {{ cleaned_observations | default([]) }}
-obs_variables: {{ obs_variables | default({}) }}
+#cleaned_observations: {{ cleaned_observations | default([]) }}
+#obs_variables: {{ obs_variables | default({}) }}
 
 marine_obsdataroot_path: '{{COM_OBS}}'
 marine_obsdatastats_path: '{{COMOUT_OCEAN_ANALYSIS}}/diags'

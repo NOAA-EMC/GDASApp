@@ -1,3 +1,9 @@
+{% if DOIAU %}
+{% set rst_date = MARINE_WINDOW_BEGIN | to_fv3time %}
+{% else %}
+{% set rst_date = CDATE | to_fv3time %}
+{% endif %}
+
 mkdir:
 - "{{ DATA }}/Data"
 
