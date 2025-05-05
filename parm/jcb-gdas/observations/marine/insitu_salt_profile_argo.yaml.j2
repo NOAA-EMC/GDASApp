@@ -31,6 +31,7 @@
   # The QC filters used here are based on the document by IODE that can be found at
   # https://cdn.ioos.noaa.gov/media/2017/12/recommendations_in_situ_data_real_time_qc.pdf
   #-------------------------------------------------------------------------------
+
   obs filters:
 
     # land check
@@ -45,6 +46,7 @@
     #-----------------------------------------------------------------------------
     ### Global range test
     #-----------------------------------------------------------------------------
+  
     - filter: Bounds Check
       filter variables: [{name: salinity}]
       minvalue: 2.0
@@ -123,6 +125,7 @@
 
     #### Northwestern shelves
     #-----------------------------------------------------------------------------
+  
     - filter: Bounds Check
       filter variables: [{name: salinity}]
       minvalue: 0.0
@@ -139,6 +142,7 @@
 
     #### Southwestern shelves
     #-----------------------------------------------------------------------------
+  
     - filter: Bounds Check
       filter variables: [{name: salinity}]
       minvalue: 0.0
@@ -155,6 +159,7 @@
 
     #### Arctic Ocean
     #-----------------------------------------------------------------------------
+  
     - filter: Bounds Check
       filter variables: [{name: salinity}]
       minvalue: 2.0
@@ -168,6 +173,17 @@
       filter variables: [{name: salinity}]
       threshold: 5.0
       absolute threshold: 5.0
+
+    - filter: Perform Action
+      action:
+        name: assign error
+        error function:
+          name: ObsFunction/LinearCombination
+          options:
+            variables:
+            - ObsError/salinity
+            coefs:
+            - 1000.0
 
   obs localizations:
   - localization method: Rossby
