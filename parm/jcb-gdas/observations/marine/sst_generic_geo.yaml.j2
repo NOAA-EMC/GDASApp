@@ -45,6 +45,12 @@
     where:
     - variable: {name: GeoVaLs/distance_from_coast}
       minvalue: 50e3
+  - filter: Domain Check
+    action:
+      name: passivate
+    where:
+    - variable: {name: GeoVaLs/sea_surface_temperature}
+      maxvalue: -4.0
 {% if letkf_app | default(false) %}
   obs localizations:
   - localization method: Rossby
@@ -54,13 +60,6 @@
     min value: 200.0e3
     max value: 900.0e3
 {% endif %}
-  - filter: Domain Check
-    action:
-      name: passivate
-    where:
-    - variable: {name: GeoVaLs/sea_surface_temperature}
-      maxvalue: -4.0
-
 
   obs post filters:
   - filter: Perform Action  # Pamlico Sound & Chesapeake Bay
