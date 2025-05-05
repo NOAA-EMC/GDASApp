@@ -16,7 +16,7 @@ ensemble:
     template:
       datetime: '{{ snow_background_time_iso }}'
       filetype: fms restart
-      state variables: [snodl,vtype,slmsk,orog_filt,stc,sheleg]
+      state variables: [snodl,vtype,slmsk,orog_filt,stc,sheleg,fice]
       datapath: ./bkg/mem%mem%/
       filename_sfcd: '{{ snow_background_time_fv3 }}.sfc_data.nc'
       filename_cplr: '{{ snow_background_time_fv3 }}.coupler.res'
