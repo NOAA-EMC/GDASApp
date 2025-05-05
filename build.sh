@@ -110,9 +110,9 @@ CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
 
 # If cloned with the global-workflow, link MOM6 and Icepack in SOCA to submodules in the UFS repo
 if [[ $WORKFLOW_BUILD == 'YES' ]]; then
-  rm -rf $dir_root/sorc/soca/external/MOM6/mom6
+  rm -rf $dir_root/sorc/soca/external/mom6/MOM6
   rm -rf $dir_root/sorc/soca/external/icepack/Icepack
-  ln -sf $dir_root/../ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/MOM6/mom6
+  ln -sf $dir_root/../ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
   ln -sf $dir_root/../ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
 fi
 
