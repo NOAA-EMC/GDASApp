@@ -41,6 +41,11 @@
         name: GeoVaLs/slmsk
       minvalue: 0.5
       maxvalue: 1.5
+  - filter: Domain Check # land only, no sea ice
+    where:
+    - variable:
+        name: GeoVaLs/fraction_of_ice
+      maxvalue: 0.0
   - filter: RejectList  # no land-ice
     where:
     - variable:
