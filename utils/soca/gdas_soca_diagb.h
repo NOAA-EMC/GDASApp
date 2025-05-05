@@ -27,6 +27,7 @@
 #include "oops/util/Duration.h"
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/FieldSetOperations.h"
+#include "oops/generic/gc99.h"
 #include "oops/util/Logger.h"
 
 #include "soca/Geometry/Geometry.h"
@@ -60,6 +61,8 @@ namespace gdasapp {
     double rescale_varpart;    // inflation/deflation of the variance partitioning
     double rescale_static;     // inflation/deflation of the static variance
     double vert_efold_static;  // vertical e-folding scale of the static variance
+    double sigT;
+    double sigS;
     bool monotonic_temp;   // make the temperature field vertically monotonic
   };
 
@@ -114,6 +117,10 @@ namespace gdasapp {
         fullConfig.get("simple smoothing.horizontal iterations", diagBConfig.niterHoriz);
         fullConfig.get("simple smoothing.vertical iterations", diagBConfig.niterVert);
       }
+
+      // Static background error
+      diagBConfig.sigT = fullConfig.getDouble("static sig B.sigT", 0.5);
+      diagBConfig.sigS = fullConfig.getDouble("static sig B.sigS", 0.1);
 
       // Variance rescaling
       diagBConfig.rescale_varpart = fullConfig.getDouble("rescale variance partitioning", 1.0);
@@ -464,6 +471,14 @@ namespace gdasapp {
           auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
           auto staticBkgErrFs_v = atlas::array::make_view<double, 2>(staticBkgErrFs[var]);
           auto numLevels = xbFs["sea_water_potential_temperature"].shape(0);
+
+          // set up the static bkgerr (only valid for T and S)
+          double staticSig = 0.0;
+          if (var == "sea_water_potential_temperature") {
+            staticSig = configD.sigT;
+          } else if (var == "sea_water_salinity") {
+            staticSig = configD.sigS;
+          }
           for (atlas::idx_t jnode = 0; jnode < numLevels; ++jnode) {
             if (ghostView(jnode) > 0) {
               continue;  // Skip ghost cells
@@ -471,13 +486,15 @@ namespace gdasapp {
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
               if (viewBathy(jnode, 0) > 0.0) {
                 // Apply the exponential decay to the variane partitioning
-                localEfold = computeLocalEFoldingScale(viewBathy(jnode, 0), efold, edRatio);
-                stdDevBkg(jnode, level) *= std::exp(-viewDepth(jnode, level) / localEfold);
+                localEfold = computeLocalGCScale(viewBathy(jnode, 0), efold, edRatio);
+                //stdDevBkg(jnode, level) *= std::exp(-viewDepth(jnode, level) / localEfold);
+                stdDevBkg(jnode, level) *= oops::gc99(viewDepth(jnode, level) / localEfold);
 
                 // Static background error
-                localEfold = computeLocalEFoldingScale(viewBathy(jnode, 0),
+                localEfold = computeLocalGCScale(viewBathy(jnode, 0),
                                                     configD.vert_efold_static, edRatio);
-                staticBkgErrFs_v(jnode, level) *= std::exp(-viewDepth(jnode, level) / localEfold);
+                //staticBkgErrFs_v(jnode, level) *= staticSig * std::exp(-viewDepth(jnode, level) / localEfold);
+                staticBkgErrFs_v(jnode, level) *= staticSig * oops::gc99(viewDepth(jnode, level) / localEfold);
               }
             }  // end level
           }  // end jnode
@@ -547,7 +564,7 @@ namespace gdasapp {
    private:
     // Function to compute the local e-folding scale
     /**
-     * @brief Computes the local e-folding scale based on the given depth, e-folding length
+     * @brief Computes the local Gaspari-Cohn cut off length scale based on the given depth, e-folding length
      *  and the minimum ratio depth/eFoldingLength.
      *
      * This function calculates the local e-folding scale by comparing the ratio of depth to
@@ -560,13 +577,10 @@ namespace gdasapp {
      * @param minRatio The minimum ratio defined as depth/eFoldingLength.
      * @return The adjusted e-folding scale.
      */
-    double computeLocalEFoldingScale(const double depth, const double eFoldingLength,
+    double computeLocalGCScale(const double depth, const double eFoldingLength,
                                      const double minRatio) const {
       double ratio = depth / eFoldingLength;
-      if (ratio < minRatio) {
-        return depth / minRatio;
-      }
-      return eFoldingLength;
+      return std::min((depth / minRatio)/0.316, eFoldingLength/0.316);
     }
 
     std::string appname() const {
