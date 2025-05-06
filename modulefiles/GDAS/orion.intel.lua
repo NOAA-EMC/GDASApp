@@ -6,10 +6,9 @@ local pkgName    = myModuleName()
 local pkgVersion = myModuleVersion()
 local pkgNameVer = myModuleFullName()
 
-prepend_path("MODULEPATH", '/apps/contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.1.0/install/modulefiles/Core')
-prepend_path("MODULEPATH", '/work2/noaa/da/python/opt/modulefiles/stack')
+prepend_path("MODULEPATH", "/apps/contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.1.0/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/apps/contrib/spack-stack/spack-stack-1.9.1/envs/ue-oneapi-2024.1.0/install/modulefiles/gcc/12.2.0")
 
--- below two lines get us access to the spack-stack modules
 load("stack-oneapi/2024.2.1")
 load("stack-intel-oneapi-mpi/2021.13")
 load("stack-python/3.11.7")
@@ -18,7 +17,6 @@ load("cmake/3.27.9")
 load("curl/8.10.1")
 load("zlib/1.2.13")
 load("git/2.31.1")
---load("pkg-config/0.27.1")
 load("hdf5/1.14.3")
 load("parallel-netcdf/1.12.3")
 load("netcdf-c/4.9.2")
@@ -74,16 +72,7 @@ load("py-xarray/2024.7.0")
 load("py-f90nml/1.4.3")
 load("py-pip/23.1.2")
 load("py-click/8.1.7")
-
---load("py-scipy/1.11.4")
-
---load("hpc/1.2.0")
---unload("python/3.10.13")
---unload("py-numpy/1.22.3")
---load("miniconda3/4.6.14")
---load("gdasapp/1.0.0")
--- below is a hack because of cmake finding the wrong python...
---setenv("CONDA_PREFIX", "/work2/noaa/da/python/opt/core/miniconda3/4.6.14/envs/gdasapp/")
+load("py-scipy/1.14.1")
 
 setenv("CC","mpiicc")
 setenv("FC","mpiifort")
@@ -100,6 +89,6 @@ setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/work2/noaa/da/role-da/GDASApp/unittestda
 execute{cmd="ulimit -s unlimited",modeA={"load"}}
 
 whatis("Name: ".. pkgName)
-whatis("Version: ".. pkgVersion)
+whatis("Version: ".. tostring(pkgVersion))
 whatis("Category: GDASApp")
 whatis("Description: Load all libraries needed for GDASApp")
