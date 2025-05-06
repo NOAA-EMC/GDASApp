@@ -191,7 +191,7 @@ for pr in $open_pr_list; do
     if [[ $TEST_WORKFLOW == 1 ]]; then
       # get ci tests from PR description and convert into a regular expressions to be excluded
       branch_body=$(gh pr view $pr --repo ${gdasapp_url} --json body --jq '.body')
-      ci_checklist=$(echo "$branch_body" | grep '\[x\]')
+      ci_checklist=$(echo "$branch_body" | grep -i '\[x\]')
       ctest_regex_exclude=""  
       for ci_test in ${CI_TESTS[@]}; do
         if ! echo "$ci_checklist" | grep -q "$ci_test"; then
