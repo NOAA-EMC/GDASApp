@@ -34,12 +34,17 @@ fi
 
 GFSv17=${GFSv17:-"NO"}
 
+frac_grid=.false.
+if [[ $GFSv17 == "YES" ]]; then
+    frac_grid=.true.
+fi
+
 cat << EOF > apply_incr_nml
 &noahmp_snow
  date_str=${YY}${MM}${DD}
  hour_str=$HH
  res=$RES
- frac_grid=$GFSv17
+ frac_grid=$frac_grid
  rst_path="$WORKDIR",
  inc_path="$WORKDIR",
  orog_path="$TPATH"
