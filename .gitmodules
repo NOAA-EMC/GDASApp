@@ -59,7 +59,7 @@
   branch = develop
 [submodule "sorc/land-jediincr"]
   path = sorc/land-jediincr
-  url = https://github.com/NOAA-PSL/land-apply_jedi_incr.git
+  url = https://github.com/NOAA-EMC/land-apply_jedi_incr.git
   branch = develop
 [submodule "sorc/crtm"]
   path = sorc/crtm
