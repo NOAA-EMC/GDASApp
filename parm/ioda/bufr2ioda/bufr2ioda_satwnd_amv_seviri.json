@@ -4,7 +4,7 @@
   "cycle_type"       : "{{ RUN }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
-  "ioda_directory"   : "{{ COM_OBS }}",
+  "ioda_directory"   : "{{ COMOUT_OBS }}",
   "subsets"          : [ "NC005067", "NC005068", "NC005069" ],
   "data_description" : "EUMETSAT SATWIND, SEVIRI IR(LW);  EUMETSAT SATWIND, SEVIRI WV-IMG/DL; EUMETSAT SATWIND, SEVIRI VIS", 
   "data_provider"    : "EUMETSAT",
