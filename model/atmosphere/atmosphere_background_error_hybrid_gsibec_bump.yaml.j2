@@ -12,13 +12,21 @@ components:
         processor layout y direction: {{atmosphere_layout_gsib_y}}
         debugging mode: false
     saber outer blocks:
-    - saber block name: gsi interpolation to model grid
-      gsi akbk: {{atmosphere_fv3jedi_files_path}}/akbk.nc4
-      gsi error covariance file: {{atmosphere_gsibec_path}}/gsi-coeffs-gfs-global.nc4
-      gsi berror namelist file: {{atmosphere_gsibec_path}}/gfs_gsi_global.nml
-      processor layout x direction: {{atmosphere_layout_gsib_x}}
-      processor layout y direction: {{atmosphere_layout_gsib_y}}
-      debugging mode: false
+    - saber block name: interpolation
+      inner geometry:
+        function space: StructuredColumns
+        custom grid matching gsi:
+          type: gaussian
+          lats: {{ atmosphere_npy_ges + 1 }}
+          {% set atmosphere_lons = (atmosphere_npx_ges - 1) * 2 %}
+          lons: {{ atmosphere_lons }}
+        custom partitioner matching gsi:
+          bands: {{ atmosphere_layout_gsib_y }}
+        halo: 1
+      forward interpolator:
+        local interpolator type: oops unstructured grid interpolator
+      inverse interpolator:
+        local interpolator type: oops unstructured grid interpolator
       state variables to inverse: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,
                                    water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,
                                    ozone_mass_mixing_ratio]
