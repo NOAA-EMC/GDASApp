@@ -4,7 +4,7 @@
   "cycle_type"           : "{{ RUN }}",
   "cycle_datetime"       : "{{ current_cycle | to_YMDH }}",
   "dump_directory"       : "{{ DMPDIR }}",
-  "ioda_directory"       : "{{ COM_OBS }}",
+  "ioda_directory"       : "{{ COMOUT_OBS }}",
   "ioda_type"            : "omi",
   "subsets"              : "NC008013",
   "source"               : "MTYP 008-013 OZONE MONITORING INSTRUMENT (OMI) Total Column Ozone",
