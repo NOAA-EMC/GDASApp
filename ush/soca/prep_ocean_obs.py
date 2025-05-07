@@ -102,7 +102,7 @@ class PrepOceanObs(Task):
         # in order to avoid touching the g-w until we know this will remain a task
         BUFR2IODA_PY_DIR = os.path.join(self.task_config.HOMEgfs, 'sorc/gdas.cd/ush/ioda/bufr2ioda/marine/b2i')
 
-        COMIN_OBS = self.task_config.COMIN_OBS
+        DATA = self.task_config.DATA
         COMOUT_OBS = self.task_config['COMOUT_OBS']
         OCEAN_BASIN_FILE = self.task_config['OCEAN_BASIN_FILE']
         if not os.path.exists(COMOUT_OBS):
@@ -160,8 +160,8 @@ class PrepOceanObs(Task):
                             bufrconv_config = {
                                 'RUN': RUN,
                                 'current_cycle': cdate,
-                                'DMPDIR': COMIN_OBS,
-                                'COM_OBS': COMIN_OBS,
+                                'DMPDIR': DATA,
+                                'COMOUT_OBS': DATA,
                                 'OCEAN_BASIN_FILE': OCEAN_BASIN_FILE}
                             bufr2iodapy = os.path.join(BUFR2IODA_PY_DIR, f'bufr2ioda_{obs_space_name}.py')
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy
