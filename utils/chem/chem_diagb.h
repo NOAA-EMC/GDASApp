@@ -188,15 +188,18 @@ namespace gdasapp {
             nodeColumns.haloExchange(bkgErrFs[var]);
             auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
 
+	    // Make a copy of the current field values
+	    atlas::Field bkgErrCopy = bkgErrFs[var].clone();
+            auto stdDevBkgCopy = atlas::array::make_view<double, 2>(bkgErrCopy);
+
             // Loops through nodes and levels
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
               for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
                 std::vector<double> local;
                 auto neighbors = get_neighbors_of_node(jnode);
-                int nbh = neighbors.size();
                 for (int nn = 0; nn < neighbors.size(); ++nn) {
                   int nbNode = neighbors[nn];
-                  local.push_back(stdDevBkg(nbNode, level));
+                  local.push_back(stdDevBkgCopy(nbNode, level));
                 }
 
                 if (local.size() > 2) {
