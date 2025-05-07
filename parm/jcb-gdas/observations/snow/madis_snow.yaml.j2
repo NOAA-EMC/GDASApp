@@ -3,12 +3,11 @@
   # Observation Space (I/O)
   # -----------------------
   obs space:
-    name: adpsfc_snow
+    name: madis_snow
     obsdatain:
       engine:
-        type: bufr
-        obsfile: "{{snow_obsdatain_path}}/{{snow_obsdatain_prefix}}{{observation_from_jcb}}{{snow_obsdatain_suffix}}"
-        mapping file: "{{snow_obsdatain_path}}/bufr_adpsfc_mapping.yaml"
+        type: H5File
+        obsfile: "{{snow_obsdatain_path}}/{{snow_obsdatain_prefix}}snocvr_snow.nc4"
         missing file action: warn
       obsgrouping:
         group variables: [stationIdentification]
@@ -50,8 +49,6 @@
       - name: landice_check
         initial value: false
       - name: elevation_bkgdiff
-        initial value: false
-      - name: rejectlist
         initial value: false
       - name: background_check
         initial value: false
@@ -152,16 +149,6 @@
       actions:
       - name: set
         flag: elevation_bkgdiff
-        ignore: rejected observations
-      - name: reject
-    - filter: BlackList
-      where:
-      - variable:
-          name: MetaData/stationIdentification
-        is_in: {{ get_conventional_rejected_stations(observation_from_jcb) }}
-      actions:
-      - name: set
-        flag: rejectlist
         ignore: rejected observations
       - name: reject
   obs post filters:

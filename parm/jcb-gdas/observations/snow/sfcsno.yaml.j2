@@ -7,7 +7,7 @@
     obsdatain:
       engine:
         type: bufr
-        obsfile: "{{snow_obsdatain_path}}/{{snow_obsdatain_prefix}}sfcsno.tm00.bufr_d"
+        obsfile: "{{snow_obsdatain_path}}/{{snow_obsdatain_prefix}}{{observation_from_jcb}}{{snow_obsdatain_suffix}}"
         mapping file: "{{snow_obsdatain_path}}/bufr_sfcsno_mapping.yaml"
         missing file action: warn
       obsgrouping:
@@ -15,7 +15,7 @@
     obsdataout:
       engine:
         type: H5File
-        obsfile: "{{snow_obsdataout_path}}/{{snow_obsdataout_prefix}}sfcsno{{snow_obsdataout_suffix}}"
+        obsfile: "{{snow_obsdataout_path}}/{{snow_obsdataout_prefix}}{{observation_from_jcb}}{{snow_obsdataout_suffix}}"
     simulated variables: [totalSnowDepth]
   #
 
