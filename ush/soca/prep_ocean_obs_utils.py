@@ -13,7 +13,7 @@ logger = Logger()
 def obs_fetch(config, task_config, obsprep_space, cycles):
 
     DMPDIR = config.DMPDIR
-    COMIN_OBS = config.COMIN_OBS
+    DATA = config.DATA
 
     RUN = task_config.RUN
     PDY = task_config.PDY
@@ -41,7 +41,7 @@ def obs_fetch(config, task_config, obsprep_space, cycles):
 
     for full_input_dir, filename, target_file, _ in matching_files:
         file_path = os.path.join(full_input_dir, filename)
-        file_destination = os.path.join(COMIN_OBS, target_file)
+        file_destination = os.path.join(DATA, target_file)
         file_copy.append([file_path, file_destination])
 
     logger.info(f"file_copy: {file_copy}")

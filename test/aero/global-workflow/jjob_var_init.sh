@@ -60,31 +60,31 @@ gprefix=$GDUMP.t${gcyc}z
 oprefix=$CDUMP.t${cyc}z
 
 # Generate COM variables from templates
-YMD=${PDY} HH=${cyc} declare_from_tmpl -rx COM_OBS
+YMD=${PDY} HH=${cyc} declare_from_tmpl -rx \
+    COMIN_OBS:COM_OBS_TMPL
+
 RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
-    COM_CHEM_ANALYSIS_PREV:COM_CHEM_ANALYSIS_TMPL \
-    COM_CHEM_HISTORY_PREV:COM_CHEM_HISTORY_TMPL \
-    COM_ATMOS_RESTART_PREV:COM_ATMOS_RESTART_TMPL
+    COMIN_ATMOS_RESTART_PREV:COM_ATMOS_RESTART_TMPL
 
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
-mkdir -p $COM_OBS
+mkdir -p $COMIN_OBS
 flist="viirs_npp.$CDATE.nc4"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.$file $COM_OBS/
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.$file $COMIN_OBS/
 done
 
 
 # Copy model bacgkround on tiles
 dpath=gdas.$gPDY/$gcyc/model/atmos
-COM_ATMOS_RESTART_PREV_DIRNAME=$(dirname $COM_ATMOS_RESTART_PREV)
-if [ -d $COM_ATMOS_RESTART_PREV_DIRNAME/restart ]; then
-    rm -rf $COM_ATMOS_RESTART_PREV_DIRNAME/restart
+COMIN_ATMOS_RESTART_PREV_DIRNAME=$(dirname $COMIN_ATMOS_RESTART_PREV)
+if [ -d $COMIN_ATMOS_RESTART_PREV_DIRNAME/restart ]; then
+    rm -rf $COMIN_ATMOS_RESTART_PREV_DIRNAME/restart
 fi
-mkdir -p $COM_ATMOS_RESTART_PREV_DIRNAME/restart
+mkdir -p $COMIN_ATMOS_RESTART_PREV_DIRNAME/restart
 flist="restart/*"
 for file in $flist; do
-   cp $GDASAPP_TESTDATA/lowres/$dpath/$file $COM_ATMOS_RESTART_PREV_DIRNAME/restart/
+   cp $GDASAPP_TESTDATA/lowres/$dpath/$file $COMIN_ATMOS_RESTART_PREV_DIRNAME/restart/
 done
 
 
