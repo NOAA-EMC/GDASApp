@@ -4,7 +4,7 @@
   "cycle_type"       : "{{ RUN }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
-  "ioda_directory"   : "{{ COM_OBS }}",
+  "ioda_directory"   : "{{ COMOUT_OBS }}",
   "subsets"          : ['NC021046'],
   "data_description" : "NC021046 ABI, GOES-16; NC021046 ABI, GOES-17,  NC021046 ABI, GOES-18", 
   "data_provider"    : "U.S. NOAA/NESDIS",
