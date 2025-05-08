@@ -4,7 +4,7 @@
   "cycle_type"       : "{{ RUN }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
-  "ioda_directory"   : "{{ COM_OBS }}",
+  "ioda_directory"   : "{{ COMOUT_OBS }}",
   "subsets"          : [ "NC005072" ],
   "data_description" : "NC005072 LEOGEO SATWIND IR(LW)", 
   "data_provider"    : "U.S. NOAA/NESDIS",
