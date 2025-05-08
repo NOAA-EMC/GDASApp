@@ -188,8 +188,8 @@ namespace gdasapp {
             nodeColumns.haloExchange(bkgErrFs[var]);
             auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
 
-	    // Make a copy of the current field values
-	    atlas::Field bkgErrCopy = bkgErrFs[var].clone();
+            // Make a copy of the current field values
+            atlas::Field bkgErrCopy = bkgErrFs[var].clone();
             auto stdDevBkgCopy = atlas::array::make_view<double, 2>(bkgErrCopy);
 
             // Loops through nodes and levels
