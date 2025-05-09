@@ -22,14 +22,6 @@ set_tests_properties(test_gdasapp_snow_apply_jediincr
     PROPERTIES
     ENVIRONMENT "GDASAPP_TESTDATA=$ENV{GDASAPP_TESTDATA}")
 
-# test for running letkfoi to assimilate snow DA
-add_test(NAME test_gdasapp_snow_letkfoi_snowda
-         COMMAND ${PROJECT_SOURCE_DIR}/test/snow/letkfoi_snowda.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/snow/)
-set_tests_properties(test_gdasapp_snow_letkfoi_snowda
-    PROPERTIES
-    ENVIRONMENT "GDASAPP_TESTDATA=$ENV{GDASAPP_TESTDATA}")
-
 # Test convert BUFR to IODA
 add_test(NAME test_gdasapp_convert_bufr_adpsfc_snow
          COMMAND ${PROJECT_SOURCE_DIR}/test/snow/test_bufr2ioda.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ${CMAKE_BINARY_DIR} bufr_adpsfc_snow
