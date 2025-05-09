@@ -1,5 +1,5 @@
 - obs space:
-    name: aod
+    name: aod_n20
     obsdatain:
       engine:
         type: H5File
@@ -11,6 +11,9 @@
   qc groups: ['EffectiveQC0', 'EffectiveQC1']
   statistics to compute: ['mean', 'count', 'RMS']
   output file: "{{ obspace }}_{{ stat_current_cycle_YMDH }}_output_aod.nc"
+  regular grid binning:
+    bin size in degrees: 5.0
+    use negative longitudes: true 
   domains to process:
   - domain:
       name: "SH"
