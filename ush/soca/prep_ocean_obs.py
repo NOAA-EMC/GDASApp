@@ -285,20 +285,22 @@ class PrepOceanObs(Task):
         COMOUT_OBS = self.task_config.COMOUT_OBS
 
         obsspaces_to_save = YAMLFile(self.task_config.save_list_file)
+        files_to_save = []
 
         for obs_space in obsspaces_to_save['observations']:
-            files_to_save = []
+
             conv_config_file = os.path.basename(obs_space['conversion config file'])
-            conv_config_file_dest = os.path.join(COMOUT_OBS, conv_config_file)
-            files_to_save.append([conv_config_file, conv_config_file_dest])
+            if os.path.exists(conv_config_file):
+                conv_config_file_dest = os.path.join(COMOUT_OBS, conv_config_file)
+                files_to_save.append([conv_config_file, conv_config_file_dest])
+            else:
+                logger.warning(f"IDOA conversion config file {conv_config_file} does not exist, skipping")
 
-            output_file_dest = os.path.join(COMOUT_OBS, obs_space['output file'])
-            files_to_save.append([obs_space['output file'], output_file_dest])
+            ioda_file = os.path.basename(obs_space['output file'])
+            if os.path.exists(ioda_file):
+                obs_file_dest = os.path.join(COMOUT_OBS, ioda_file)
+                files_to_save.append([ioda_file, obs_file_dest])
+            else:
+                logger.warning(f"IODA file {ioda_file} does not exist, skipping")
 
-            try:
-                FileHandler({'copy': files_to_save}).sync()
-            except Exception as e:
-                logger.warning(f"An exeception {e} occured while trying to run gen_bufr_json")
-            except OSError:
-                logger.warning(f"Obs file not found, possible IODA converter failure)")
-                continue
+        FileHandler({'copy': files_to_save}).sync()

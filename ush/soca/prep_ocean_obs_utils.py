@@ -21,6 +21,7 @@ def obs_fetch(config, task_config, obsprep_space, cycles):
 
     subdir = obsprep_space['dmpdir subdir']
     dumpdir_regex = obsprep_space['dmpdir regex']
+    obs_space_name = obsprep_space['name']
     matching_files = []
     file_copy = []
 
@@ -46,6 +47,11 @@ def obs_fetch(config, task_config, obsprep_space, cycles):
 
     logger.info(f"file_copy: {file_copy}")
     logger.info(f"matching_files: {matching_files}")
+
+    # if no matching files found, return
+    if not file_copy:
+        logger.warning(f"no files for {obs_space_name} found matching {dumpdir_regex} in {full_input_dir}")
+        return []
 
     FileHandler({'copy': file_copy}).sync()
 
