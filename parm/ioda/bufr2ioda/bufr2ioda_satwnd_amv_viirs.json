@@ -4,7 +4,7 @@
   "cycle_type"       : "{{ RUN }}",
   "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
   "dump_directory"   : "{{ DMPDIR }}",
-  "ioda_directory"   : "{{ COM_OBS }}",
+  "ioda_directory"   : "{{ COMOUT_OBS }}",
   "subsets"          : [ "NC005091" ],
   "data_description" : "NC005091 S-NPP/NOAA-20 SATWIND VIIRS IR(LW)", 
   "data_provider"    : "U.S. NOAA/NESDIS",

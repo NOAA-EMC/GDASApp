@@ -29,8 +29,8 @@ def mp_bufr_converter(exename, configfile):
 
 
 @logit(logger)
-def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
-    logger.info(f"Process {current_cycle} {RUN} from {DMPDIR} to {COM_OBS} using {config_template_dir}")
+def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COMOUT_OBS):
+    logger.info(f"Process {current_cycle} {RUN} from {DMPDIR} to {COMOUT_OBS} using {config_template_dir}")
 
     # Get gdasapp root directory
     DIR_ROOT = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../.."))
@@ -39,14 +39,14 @@ def bufr2ioda(current_cycle, RUN, DMPDIR, config_template_dir, COM_OBS):
     DATA = os.getcwd()
 
     # Create output directory if it doesn't exist
-    os.makedirs(COM_OBS, exist_ok=True)
+    os.makedirs(COMOUT_OBS, exist_ok=True)
 
     # Load configuration
     config = {
         'RUN': RUN,
         'current_cycle': current_cycle,
         'DMPDIR': DMPDIR,
-        'COM_OBS': COM_OBS,
+        'COMOUT_OBS': COMOUT_OBS,
         'PDY': current_cycle.strftime('%Y%m%d'),
         'cyc': current_cycle.strftime('%H'),
     }
@@ -114,6 +114,6 @@ if __name__ == "__main__":
     parser.add_argument('RUN', type=str, help='dump to process, either gdas or gdas')
     parser.add_argument('DMPDIR', type=Path, help='path to bufr dump files')
     parser.add_argument('config_template_dir', type=Path, help='path to templates')
-    parser.add_argument('COM_OBS', type=Path, help='path to output ioda format dump files')
+    parser.add_argument('COMOUT_OBS', type=Path, help='path to output ioda format dump files')
     args = parser.parse_args()
-    bufr2ioda(args.current_cycle, args.RUN, args.DMPDIR, args.config_template_dir, args.COM_OBS)
+    bufr2ioda(args.current_cycle, args.RUN, args.DMPDIR, args.config_template_dir, args.COMOUT_OBS)
