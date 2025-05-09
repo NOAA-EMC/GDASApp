@@ -34,7 +34,7 @@ while getopts "t:h:w" opt; do
       ;;
     w)
       TEST_WORKFLOW=1
-      ;;  
+      ;;
   esac
 done
 
@@ -64,7 +64,7 @@ source $my_dir/ci_tests.sh
 gdasapp_url="https://github.com/NOAA-EMC/GDASApp.git"
 if [[ $TEST_WORKFLOW == 1 ]]; then
   echo "Testing GDASApp inside the Global Workflow"
-    
+
   CI_LABEL="${GDAS_CI_HOST}-GW-RT"
   OPEN_PR_LIST_DIR=$GDAS_CI_ROOT/open_pr_list_gw
   PR_TEST_DIR=$GDAS_CI_ROOT/workflow/PR
@@ -75,7 +75,7 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
   workflow_branch="develop"
 else
   echo "Testing stand-alone GDASApp"
-    
+
   CI_LABEL="${GDAS_CI_HOST}-RT"
   OPEN_PR_LIST_DIR=$GDAS_CI_ROOT/open_pr_list
   PR_TEST_DIR=$GDAS_CI_ROOT/PR
@@ -92,7 +92,7 @@ gh pr list --label "$CI_LABEL" --state "open" | awk '{print $1;}' > $OPEN_PR_LIS
 open_pr=`cat $OPEN_PR_LIST_DIR | wc -l`
 if (( $open_pr == 0 )); then
   echo "No open PRs with ${CI_LABEL}, exit."
-  echo "Finished automated testing at $(date)"    
+  echo "Finished automated testing at $(date)"
   exit
 fi
 
@@ -112,14 +112,14 @@ for pr in $open_pr_list; do
   branch_owner=$(gh pr view $pr --repo ${gdasapp_url} --json headRepositoryOwner --jq '.headRepositoryOwner.login')
   branch_name=$(gh pr view $pr --repo ${gdasapp_url} --json headRepository --jq '.headRepository.name')
   pr_assignees=$(gh pr view $pr --repo ${gdasapp_url} --json assignees --jq '.assignees[].login')
-  
+
   # check if any assignee is authorized to run CI
   rc=1
   for str in ${pr_assignees[@]}; do
     grep $str $AUTHORIZED_USERS_FILE > /dev/null
     if (( rc != 0 )); then
 	rc=$?
-    fi	
+    fi
     if (( rc == 0 )); then
       echo "Authorized user $str assigned to this PR"
     fi
@@ -134,11 +134,11 @@ for pr in $open_pr_list; do
 
     echo "GDASApp URL: $gdasapp_url"
     echo "GDASApp branch Name: $gdasapp_branch"
-    
+
     if [[ $TEST_WORKFLOW == 1 ]]; then
       # check for a companion PR in the global-workflow
       companion_pr_exists=$(gh pr list --repo ${workflow_url} --head ${gdasapp_branch} --state open)
-	
+
       if [ -n "$companion_pr_exists" ]; then
         # get the PR number
         companion_pr=$(echo "$companion_pr_exists" | awk '{print $1;}')
@@ -154,15 +154,15 @@ for pr in $open_pr_list; do
 
       echo "Found companion Global Workflow PR #${companion_pr}!"
       echo "Global Workflow URL: $workflow_url"
-      echo "Global Workflow branch name: $workflow_branch"      
+      echo "Global Workflow branch name: $workflow_branch"
     fi
 
-    # create PR specific directory    
+    # create PR specific directory
     if [ -d $PR_TEST_DIR/$pr ]; then
         rm -rf $PR_TEST_DIR/$pr
     fi
     mkdir -p $PR_TEST_DIR/$pr
-    cd $PR_TEST_DIR/$pr        
+    cd $PR_TEST_DIR/$pr
     pwd
 
     # clone copy of repo
@@ -171,7 +171,7 @@ for pr in $open_pr_list; do
       git clone --recursive --jobs 8 --branch $workflow_branch $workflow_url
       cd global-workflow/sorc/gdas.cd
     else
-      echo "Cloning GDASApp branch $workflow_branch at $(date)"	
+      echo "Cloning GDASApp branch $workflow_branch at $(date)"
       git clone --recursive --jobs 8 --branch $gdasapp_branch $gdasapp_url
       cd GDASApp
     fi
@@ -191,12 +191,12 @@ for pr in $open_pr_list; do
     if [[ $TEST_WORKFLOW == 1 ]]; then
       # get ci tests from PR description and convert into a regular expressions to be excluded
       branch_body=$(gh pr view $pr --repo ${gdasapp_url} --json body --jq '.body')
-      ci_checklist=$(echo "$branch_body" | grep '\[x\]')
-      ctest_regex_exclude=""  
+      ci_checklist=$(echo "$branch_body" | grep -i '\[x\]')
+      ctest_regex_exclude=""
       for ci_test in ${CI_TESTS[@]}; do
         if ! echo "$ci_checklist" | grep -q "$ci_test"; then
 	  ctest_regex_exclude+="${ctest_regex_exclude:+|}$ci_test"
-	fi      
+	fi
       done
 
       # setup run_ci.sh arguments to test in the Global Workflow and exclude chosen CI tests
@@ -208,7 +208,7 @@ for pr in $open_pr_list; do
     $run_ci_cmd
     ci_status=$?
     echo "Finished running run_ci.sh with ci_status ${ci_status} at $(date)"
-    
+
     gh pr comment $pr --repo ${gdasapp_url} --body-file $PR_TEST_DIR/$pr/output_${commit}
     if [ $ci_status -eq 0 ]; then
       gh pr edit $pr --repo ${gdasapp_url} --remove-label ${CI_LABEL}-Running --add-label ${CI_LABEL}-Passed
