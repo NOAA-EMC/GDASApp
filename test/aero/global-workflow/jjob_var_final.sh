@@ -17,7 +17,6 @@ export ROTDIR=$bindir/test/aero/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=gdas
 export CDUMP=gdas
 export DATAROOT=$bindir/test/aero/global-workflow/testrun/RUNDIRS/$PSLOT
-export COMIN_GES=${bindir}/test/aero/bkg
 export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
