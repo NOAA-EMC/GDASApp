@@ -45,9 +45,6 @@ def obs_fetch(config, task_config, obsprep_space, cycles):
         file_destination = os.path.join(DATA, target_file)
         file_copy.append([file_path, file_destination])
 
-    logger.info(f"file_copy: {file_copy}")
-    logger.info(f"matching_files: {matching_files}")
-
     # if no matching files found, return
     if not file_copy:
         logger.warning(f"no files for {obs_space_name} found matching {dumpdir_regex} in {full_input_dir}")

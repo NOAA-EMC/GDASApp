@@ -294,13 +294,13 @@ class PrepOceanObs(Task):
                 conv_config_file_dest = os.path.join(COMOUT_OBS, conv_config_file)
                 files_to_save.append([conv_config_file, conv_config_file_dest])
             else:
-                logger.warning(f"IDOA conversion config file {conv_config_file} does not exist, skipping")
+                logger.warning(f"IODA conversion config file {conv_config_file} does not exist, cannot copy to COMROOT")
 
             ioda_file = os.path.basename(obs_space['output file'])
             if os.path.exists(ioda_file):
                 obs_file_dest = os.path.join(COMOUT_OBS, ioda_file)
                 files_to_save.append([ioda_file, obs_file_dest])
             else:
-                logger.warning(f"IODA file {ioda_file} does not exist, skipping")
+                logger.warning(f"IODA file {ioda_file} does not exist, cannot copy to COMROOT")
 
         FileHandler({'copy': files_to_save}).sync()
