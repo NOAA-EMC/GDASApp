@@ -42,13 +42,14 @@ marine_window_middle: '{{MARINE_WINDOW_MIDDLE}}'
 marine_window_begin_iso: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
 marine_window_middle_iso: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
 marine_window_end_iso: '{{ MARINE_WINDOW_END | to_isotime }}'
-marine_window_begin_fv3: '{{ MARINE_WINDOW_BEGIN | to_fv3time }}'
-marine_window_middle_fv3: '{{ MARINE_WINDOW_MIDDLE | to_fv3time }}'
-marine_window_end_fv3: '{{ MARINE_WINDOW_END | to_fv3time }}'
 enspert_relpath: '{{ ENSPERT_RELPATH }}'
-
-# IAU
-marine_do_iau: '{{ DOIAU }}'
+{% if DOIAU %}
+  marine_cice_date_fms: '{{ MARINE_WINDOW_BEGIN | to_fv3time }}'
+  marine_cide_date_iso: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
+{% else %}
+  marine_cice_date_fms: '{{ MARINE_WINDOW_MIDDLE | to_fv3time }}'
+  marine_cide_date_iso: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
+{% endif %}
 
 # Geometry
 marine_soca_files_path: .
