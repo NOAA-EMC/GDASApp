@@ -75,7 +75,7 @@ namespace gdasapp {
         std::vector<std::string> simulatedVariables;
         std::string variable;
         obsConfig.get("simulated variables", simulatedVariables);
-        ASSERT( simulatedVariables.size() == 1);
+        ASSERT(simulatedVariables.size() == 1);
         variable = simulatedVariables[0];
 
         // read the obs space
