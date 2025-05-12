@@ -71,7 +71,7 @@ namespace gdasapp {
       /// Read the background
       // --------------------
       oops::Log::info() << "====================== read bkg" << std::endl;
-      soca::State xb(geom, configD.socaVars, configD.cycleDate);
+      soca::Increment xb(geom, configD.socaVars, configD.cycleDate);
       const eckit::LocalConfiguration bkgConfig(fullConfig, "background");
       xb.read(bkgConfig);
       atlas::FieldSet xbFs;
@@ -90,11 +90,23 @@ namespace gdasapp {
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
       oops::Log::info() << "====================== build mesh connectivity" << std::endl;
-      atlas::functionspace::NodeColumns nodeColumns = geom.functionSpace();
-      atlas::Mesh mesh = nodeColumns.mesh();
+
+      // STEP 1: Build a halo-enabled mesh from the geometry's original mesh
+      auto originalNodeColumns = atlas::functionspace::NodeColumns(geom.functionSpace());
+      atlas::Mesh mesh = originalNodeColumns.mesh();
+
       atlas::mesh::actions::build_edges(mesh);
       atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
       atlas::mesh::actions::build_halo(mesh, 1);
+
+      // STEP 2: Create a new NodeColumns function space from the halo-enabled mesh
+      atlas::functionspace::NodeColumns nodeColumns(mesh, atlas::option::halo(1));
+
+      // atlas::functionspace::NodeColumns nodeColumns = geom.functionSpace();
+      // atlas::Mesh mesh = nodeColumns.mesh();
+      // atlas::mesh::actions::build_edges(mesh);
+      // atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
+      // atlas::mesh::actions::build_halo(mesh, 1);
       const auto & node2edge = mesh.nodes().edge_connectivity();
       const auto & edge2node = mesh.edges().node_connectivity();
       const auto ghostView = atlas::array::make_view<int, 1>(geom.functionSpace().ghost());
@@ -114,6 +126,20 @@ namespace gdasapp {
       staticBkgErr.ones();
       atlas::FieldSet staticBkgErrFs;
       staticBkgErr.toFieldSet(staticBkgErrFs);
+
+      // Allocate temporary fields for the iterative computation of the variance
+      soca::Increment sum_local(xb);     // sum_local = xb before iterating
+      soca::Increment sum2_local(xb);    // sum2_local = xb^2 before iterating
+      // sum2_local *= sum_local;
+      soca::Increment count_local(xb);   // count_local = 0 before iterating
+      count_local.ones();
+      atlas::FieldSet sum_localFs;
+      atlas::FieldSet sum2_localFs;
+      atlas::FieldSet count_localFs;
+      sum_local.toFieldSet(sum_localFs);
+      sum2_local.toFieldSet(sum2_localFs);
+      count_local.toFieldSet(count_localFs);
+      oops::Log::info() << "====================== sum_local: " << sum_local << std::endl;
 
       // Get the layer thicknesses and convert to layer depth
       oops::Log::info() << "====================== calculate layer depth" << std::endl;
@@ -144,64 +170,128 @@ namespace gdasapp {
 
       // Loop through variables
       for (auto & var : configD.socaVars.variables()) {
-        // Update the halo
-        nodeColumns.haloExchange(xbFs[var]);
-
         // Skip the layer thickness variable
         if (var == "sea_water_cell_thickness") {
           continue;
         }
+
+        // Allocate temporary fields for the iterative computation of the variance
+        //oops::Variables tmpVar({var});
+        //soca::Increment sum_local(geom, tmpVar, configD.cycleDate);
+        //soca::Increment sum2_local(geom, tmpVar, configD.cycleDate);
+        //soca::Increment count_local(geom, tmpVar, configD.cycleDate);
+        //sum_local.zero();
+        //sum2_local.zero();
+        //count_local.ones();
+
+        // Convert to field sets
+        //atlas::FieldSet sum_localFs;
+        //atlas::FieldSet sum2_localFs;
+        //atlas::FieldSet count_localFs;
+        //sum_local.toFieldSet(sum_localFs);
+        //sum2_local.toFieldSet(sum2_localFs);
+        //count_local.toFieldSet(count_localFs);
+
+        // Get the views
+        auto sum_local_v = atlas::array::make_view<double, 2>(sum_localFs[var]);
+        auto sum2_local_v = atlas::array::make_view<double, 2>(sum2_localFs[var]);
+        auto count_local_v = atlas::array::make_view<double, 2>(count_localFs[var]);
+        auto xbFs_v = atlas::array::make_view<double, 2>(xbFs[var]);
+
         oops::Log::info() << "====================== std dev for " << var << std::endl;
         auto bkg = atlas::array::make_view<double, 2>(xbFs[var]);
         auto dynaBkgErrFs_v = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
         auto staticBkgErrFs_v = atlas::array::make_view<double, 2>(staticBkgErrFs[var]);
 
-        // Loop through nodes
-        for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
-          // Initialize the std. dev. to 0
-          dynaBkgErrFs_v(jnode, 0) = 0.0;
+        // Initialize the local sum and count
+        // Compute sum2_local_v as element-wise square of bkg
+        //for (atlas::idx_t jnode = 0; jnode < bkg.shape(0); ++jnode) {
+        //  for (atlas::idx_t level = 0; level < bkg.shape(1); ++level) {
+        //    if (ghostView(jnode) > 0 || abs(viewHocn(jnode, 0)) <= 0.1) {
+        //      continue;
+        //    }
+        //    sum_local_v(jnode, level) = bkg(jnode, level);
+        //    sum2_local_v(jnode, level) = bkg(jnode, level) * bkg(jnode, level);
+        //  }
+        //}
+        //oops::Log::info() << "====================== sum_local var: " << var << std::endl;
+        //oops::Log::info() << "====================== sum_local:" << sum_local << std::endl;
 
+        for ( auto iter = 0; iter < configD.stencilGrowthIterations; ++iter) {
+          oops::Log::info() << "====================== starting iteration " << iter << std::endl;
+          // Update the halos
+          nodeColumns.haloExchange(xbFs[var]);
+          nodeColumns.haloExchange(sum_localFs[var]);
+          nodeColumns.haloExchange(sum2_localFs[var]);
+          //nodeColumns.haloExchange(count_localFs[var]);
+
+          //oops::Log::info() << "**************** Before halo exchange: " << sum_localFs[var] << std::endl;
+          //oops::Log::info() << "Before halo exchange: " << sum_local << std::endl;
+          //nodeColumns.haloExchange(sum_localFs);
+          //oops::Log::info() << "**************** After halo exchange: " << sum_localFs[var] << std::endl;
+          //oops::Log::info() << "After halo exchange: " << sum_local << std::endl;
+
+          // Loop through nodes
+          for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
+            // Initialize the std. dev. to 0
+            // dynaBkgErrFs_v(jnode, 0) = 0.0;
+
+            // Early exit if thickness is 0 or on a ghost cell
+            //if (ghostView(jnode) > 0 || abs(viewHocn(jnode, 0)) <= 0.1) {
+            if (ghostView(jnode) > 0) {
+              continue;
+            }
+            auto neighbors = gdas_soca_diagb_utils::get_neighbors_of_node(
+              mesh, node2edge, edge2node, jnode);
+
+            // 2D case
+            if (xbFs[var].shape(1) == 1) {
+              // Std. dev. of the partition
+              gdas_soca_diagb_utils::iterativeLocalMomentAccumulation(jnode, 0, configD.vertBinSize,
+                                 configD.depthMin, neighbors, viewHocn,
+                                 viewDepth, viewBathy,
+                                 sum_local_v, sum2_local_v, count_local_v , false);
+              if (var == "sea_surface_height_above_geoid") {
+                // TODO(G): Extract the unbalanced ssh variance, in the mean time, do this:
+                // dynaBkgErrFs_v(jnode, 0) = std::min(configD.sshMax, dynaBkgErrFs_v(jnode, 0));
+              }
+            } else {
+              // 3D case
+              oops::Log::info() << "====================== neighbors:" << neighbors << std::endl;
+              for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
+                gdas_soca_diagb_utils::locaSum(jnode, level, neighbors, viewHocn, sum_local_v);
+                /*gdas_soca_diagb_utils::iterativeLocalMomentAccumulation(jnode, level, configD.vertBinSize,
+                                 configD.depthMin, neighbors, viewHocn,
+                                 viewDepth, viewBathy,
+                                 sum_local_v, sum2_local_v, count_local_v , true);*/
+              }  // end level
+            }  // end 3D case
+          }  // end jnode
+          oops::Log::info() << "====================== sum_local:" << sum_local << std::endl;
+        }  // end iter
+
+        // Compute variance from accumulation
+        for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
           // Early exit if thickness is 0 or on a ghost cell
           if (ghostView(jnode) > 0 || abs(viewHocn(jnode, 0)) <= 0.1) {
             continue;
           }
-
-          neighbors = gdas_soca_diagb_utils::get_neighbors_of_node(mesh, node);
-
-          //// Recursively collect neighbors up to a given depth
-          //int neighbor_depth = 10;  // set desired recursion depth here
-          //std::set<int> neighborSet;
-          //std::function<void(int, int)> collect_neighbors = [&](int node, int depth) {
-          //  if (depth == 0) return;
-          //  auto direct_neighbors = gdas_soca_diagb_utils::get_neighbors_of_node(mesh, node);
-          //  for (const auto& nb : direct_neighbors) {
-          //  if (neighborSet.insert(nb).second) {  // only recurse if not already visited
-          //    collect_neighbors(nb, depth - 1);
-          //  }
-          //  }
-          //};
-          //collect_neighbors(jnode, neighbor_depth);
-          //std::vector<int> neighbors(neighborSet.begin(), neighborSet.end());
-
-          // 2D case
-          if (xbFs[var].shape(1) == 1) {
-            // Std. dev. of the partition
-            gdas_soca_diagb_utils::computeStdDevBin(jnode, 0, configD.vertBinSize,
-                               configD.depthMin, neighbors, viewHocn,
-                               viewDepth, bkg, viewBathy, dynaBkgErrFs_v, true, 2);
-            if (var == "sea_surface_height_above_geoid") {
-              // TODO(G): Extract the unbalanced ssh variance, in the mean time, do this:
-              dynaBkgErrFs_v(jnode, 0) = std::min(configD.sshMax, dynaBkgErrFs_v(jnode, 0));
+          for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
+            if (count_local_v(jnode, level) > 0.0) {
+              dynaBkgErrFs_v(jnode, level) = loca_sum_v(jnode, level);
+                  //std::sqrt(
+                  //  sum2_local_v(jnode, level) / (count_local_v(jnode, level)) -
+                  //  (sum_local_v(jnode, level) / count_local_v(jnode, level)) *
+                  //  (sum_local_v(jnode, level) / count_local_v(jnode, level)));
+                  //sum_local_v(jnode, level)/ count_local_v(jnode, level);
+                  //count_local_v(jnode, level);
+            } else {
+              dynaBkgErrFs_v(jnode, level) = 0.0;
             }
-          } else {
-            // 3D case
-            for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
-              gdas_soca_diagb_utils::computeStdDevBin(jnode, level, configD.vertBinSize,
-                               configD.depthMin, neighbors, viewHocn,
-                               viewDepth, bkg, viewBathy, dynaBkgErrFs_v, true, 2);
-            }  // end level
-          }  // end 3D case
+          }  // end level
         }  // end jnode
+
+
       }  // end var
 
       /// Smooth the fields
@@ -213,11 +303,12 @@ namespace gdasapp {
             continue;
           }
 
+          auto stdDevBkg = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
           // Horizontal averaging
           for (int iter = 0; iter < configD.niterHoriz; ++iter) {
             // Update the halo points
             nodeColumns.haloExchange(dynaBkgErrFs[var]);
-            auto stdDevBkg = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
+            //auto stdDevBkg = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
 
             // Loops through nodes and levels
             for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
@@ -230,8 +321,9 @@ namespace gdasapp {
 
                 // Ocean or ice node, do something
                 std::vector<double> local;
-                auto neighbors = gdas_soca_diagb_utils::get_neighbors_of_node(mesh, jnode);
-                int nbh = neighbors.size();
+                //auto neighbors = get_neighbors_of_node(jnode);
+                auto neighbors = gdas_soca_diagb_utils::get_neighbors_of_node(
+                  mesh, node2edge, edge2node, jnode);
                 for (int nn = 0; nn < neighbors.size(); ++nn) {
                   int nbNode = neighbors[nn];
                   if ( abs(viewHocn(nbNode, level)) <= 0.1 ) {

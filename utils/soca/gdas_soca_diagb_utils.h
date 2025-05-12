@@ -23,7 +23,7 @@
         double vertBinSize;
         double sigT;
         double sigS;
-        bool monotonic_temp;
+        int stencilGrowthIterations;
     };
     // -----------------------------------------------------------------------------
     /**
@@ -58,8 +58,8 @@
         diagBConfig.diffusion = true;
       }
 
-      // monotonic temperature
-      diagBConfig.monotonic_temp = fullConfig.getBool("monotonic temperature", false);
+      // Number of iteration for the iterative variance
+      diagBConfig.stencilGrowthIterations = fullConfig.getDouble("stencil growth iterations", 2);
 
       // Simple smoothing parameters
       diagBConfig.simpleSmoothing = false;
@@ -83,15 +83,22 @@
       return diagBConfig;
     }
     // -----------------------------------------------------------------------------
-    inline std::vector<int> get_neighbors_of_node(const atlas::Mesh& mesh, int node) {
-        std::vector<int> neighbors{node};
-        const auto& node2edge = mesh.nodes().edge_connectivity();
-        const auto& edge2node = mesh.edges().node_connectivity();
-
+    inline std::vector<int> get_neighbors_of_node(
+                        const atlas::Mesh& mesh,
+                        const atlas::mesh::IrregularConnectivity& node2edge,
+                        const atlas::mesh::MultiBlockConnectivity& edge2node,
+                        int node) {
+        std::vector<int> neighbors{};
+        neighbors.reserve(4);
+        neighbors.push_back(node);
+//
+        //const auto& node2edge = mesh.nodes().edge_connectivity();
+        //const auto& edge2node = mesh.edges().node_connectivity();
+//
         if (node >= mesh.nodes().size()) {
             return neighbors;
         }
-
+//
         const int nb_edges = node2edge.cols(node);
         for (int ie = 0; ie < nb_edges; ++ie) {
             const int edge = node2edge(node, ie);
@@ -103,7 +110,8 @@
                 neighbors.push_back(node1);
             }
         }
-
+        //std::cout << "----- Node " << node << " has " << neighbors.size() << " neighbors." << std::endl;
+        //std::cout << "-----      " << neighbors << std::endl;
         return neighbors;
     }
 
@@ -177,5 +185,57 @@
         stdDevBkg(jnode, level) = std::sqrt(stdDev / (local.size() - 1));
       }
     }
+    // -----------------------------------------------------------------------------
+    void iterativeLocalMomentAccumulation(const int jnode,
+                          const int level,
+                          const double vertBinSize,  // <-- new argument: bin size in meters
+                          const double depthMin,
+                          const std::vector<int> neighbors,
+                          const atlas::array::ArrayView<double, 2> layerThickness,
+                          const atlas::array::ArrayView<double, 2> depth,
+                          const atlas::array::ArrayView<double, 2> bathy,
+                          atlas::array::ArrayView<double, 2>& local_sum,
+                          atlas::array::ArrayView<double, 2>& local_sum2,
+                          atlas::array::ArrayView<double, 2>& local_count,
+                          bool doBathy = true) {
+      if (doBathy && bathy(jnode, 0) < depthMin) {
+        local_sum(jnode, level) = 0.0;
+        local_sum2(jnode, level) = 0.0;
+        local_count(jnode, level) = 1.0;
+        return;
+      }
+      for (int nn = 0; nn < neighbors.size(); ++nn) {
+        local_sum(jnode, level) += local_sum(neighbors[nn], level);
+        local_sum2(jnode, level) += local_sum2(neighbors[nn], level);
+        local_count(jnode, level) += 1.0;
+      }
+    }
+
+
+    // -----------------------------------------------------------------------------
+    void locaSum(const int jnode,
+                 const int level,
+                 const std::vector<int> neighbors,
+                 const atlas::array::ArrayView<double, 2> layerThickness,
+                 atlas::array::ArrayView<double, 2>& localSum) {
+      std::vector<double> local;
+      for (int nn = 0; nn < neighbors.size(); ++nn) {
+        int nbNode = neighbors[nn];
+        if ( abs(layerThickness(nbNode, level)) <= 0.1 ) {
+          continue;
+        }
+        local.push_back(localSum(nbNode, level));
+      }
+
+      if (local.size() > 1) {
+        localSum(jnode, level) = std::accumulate(local.begin(), local.end(), 0.0);
+      }
+
+      // Reset to 0 over land
+      if (abs(layerThickness(jnode, level)) <= 0.1) {
+        localSum(jnode, level) = 0.0;
+      }
+    }
+
 
     } // namespace gdas_soca_diagb_utils
