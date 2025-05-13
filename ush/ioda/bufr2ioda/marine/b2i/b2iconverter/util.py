@@ -38,10 +38,6 @@ def log_variable(logger, v_name, v):
 
 def run_diff(file1, file2, logger):
     try:
-        # logger.debug("running diff on files:")
-        # logger.debug(f">>> {file1}")
-        # logger.debug(f">>> {file2}")
-
         # Run the diff command
         result = subprocess.run(
             ['diff', file1, file2],
