@@ -217,18 +217,30 @@
                  const int level,
                  const std::vector<int> neighbors,
                  const atlas::array::ArrayView<double, 2> layerThickness,
-                 atlas::array::ArrayView<double, 2>& localSum) {
+                 const atlas::array::ArrayView<double, 2>& localSum_copy,
+                 atlas::array::ArrayView<double, 2>& localSum,
+                 const atlas::array::ArrayView<double, 2> bathy,
+                 double depthMin = 50.0) {
+
+      if (bathy(jnode, 0) < depthMin) {
+        localSum(jnode, level) = 0.0;
+        return;
+      }
+
+      const double targetDepth = depth(jnode, level);
       std::vector<double> local;
       for (int nn = 0; nn < neighbors.size(); ++nn) {
         int nbNode = neighbors[nn];
         if ( abs(layerThickness(nbNode, level)) <= 0.1 ) {
           continue;
         }
-        local.push_back(localSum(nbNode, level));
+        local.push_back(localSum_copy(nbNode, level));
       }
-
+      //std::cout << "----- Node " << jnode << " has " << local.size() << " neighbors." << std::endl;
+      //std::cout << "-----      " << local << std::endl;
       if (local.size() > 1) {
-        localSum(jnode, level) = std::accumulate(local.begin(), local.end(), 0.0);
+        localSum(jnode, level) =
+           std::accumulate(local.begin(), local.end(), 0.0) / local.size();
       }
 
       // Reset to 0 over land

@@ -116,8 +116,8 @@ namespace gdasapp {
       oops::Log::info() << "====================== start variance partitioning" << std::endl;
       oops::Log::info() << "====================== allocate std. dev. field set" << std::endl;
       // Allocate the background error derived from the 3D partitioning
-      soca::Increment dynaBkgErr(geom, configD.socaVars, configD.cycleDate);
-      dynaBkgErr.zero();
+      soca::Increment dynaBkgErr(xb); //geom, configD.socaVars, configD.cycleDate);
+      //dynaBkgErr.zero();
       atlas::FieldSet dynaBkgErrFs;
       dynaBkgErr.toFieldSet(dynaBkgErrFs);
 
@@ -130,15 +130,17 @@ namespace gdasapp {
       // Allocate temporary fields for the iterative computation of the variance
       soca::Increment sum_local(xb);     // sum_local = xb before iterating
       soca::Increment sum2_local(xb);    // sum2_local = xb^2 before iterating
-      // sum2_local *= sum_local;
-      soca::Increment count_local(xb);   // count_local = 0 before iterating
-      count_local.ones();
+      const soca::Increment xbc(xb);
+      sum2_local.schur_product_with(xbc);
+
+      //soca::Increment count_local(xb);   // count_local = 0 before iterating
+      //count_local.ones();
       atlas::FieldSet sum_localFs;
       atlas::FieldSet sum2_localFs;
-      atlas::FieldSet count_localFs;
+      //atlas::FieldSet count_localFs;
       sum_local.toFieldSet(sum_localFs);
       sum2_local.toFieldSet(sum2_localFs);
-      count_local.toFieldSet(count_localFs);
+      //count_local.toFieldSet(count_localFs);
       oops::Log::info() << "====================== sum_local: " << sum_local << std::endl;
 
       // Get the layer thicknesses and convert to layer depth
@@ -175,253 +177,135 @@ namespace gdasapp {
           continue;
         }
 
-        // Allocate temporary fields for the iterative computation of the variance
-        //oops::Variables tmpVar({var});
-        //soca::Increment sum_local(geom, tmpVar, configD.cycleDate);
-        //soca::Increment sum2_local(geom, tmpVar, configD.cycleDate);
-        //soca::Increment count_local(geom, tmpVar, configD.cycleDate);
-        //sum_local.zero();
-        //sum2_local.zero();
-        //count_local.ones();
-
-        // Convert to field sets
-        //atlas::FieldSet sum_localFs;
-        //atlas::FieldSet sum2_localFs;
-        //atlas::FieldSet count_localFs;
-        //sum_local.toFieldSet(sum_localFs);
-        //sum2_local.toFieldSet(sum2_localFs);
-        //count_local.toFieldSet(count_localFs);
-
-        // Get the views
+        auto dynaBkgErrFs_v = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
         auto sum_local_v = atlas::array::make_view<double, 2>(sum_localFs[var]);
         auto sum2_local_v = atlas::array::make_view<double, 2>(sum2_localFs[var]);
-        auto count_local_v = atlas::array::make_view<double, 2>(count_localFs[var]);
-        auto xbFs_v = atlas::array::make_view<double, 2>(xbFs[var]);
 
-        oops::Log::info() << "====================== std dev for " << var << std::endl;
-        auto bkg = atlas::array::make_view<double, 2>(xbFs[var]);
-        auto dynaBkgErrFs_v = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
-        auto staticBkgErrFs_v = atlas::array::make_view<double, 2>(staticBkgErrFs[var]);
+        // Iterative moment accumulation
+        for (int iter = 0; iter < configD.stencilGrowthIterations; ++iter) {
 
-        // Initialize the local sum and count
-        // Compute sum2_local_v as element-wise square of bkg
-        //for (atlas::idx_t jnode = 0; jnode < bkg.shape(0); ++jnode) {
-        //  for (atlas::idx_t level = 0; level < bkg.shape(1); ++level) {
-        //    if (ghostView(jnode) > 0 || abs(viewHocn(jnode, 0)) <= 0.1) {
-        //      continue;
-        //    }
-        //    sum_local_v(jnode, level) = bkg(jnode, level);
-        //    sum2_local_v(jnode, level) = bkg(jnode, level) * bkg(jnode, level);
-        //  }
-        //}
-        //oops::Log::info() << "====================== sum_local var: " << var << std::endl;
-        //oops::Log::info() << "====================== sum_local:" << sum_local << std::endl;
-
-        for ( auto iter = 0; iter < configD.stencilGrowthIterations; ++iter) {
-          oops::Log::info() << "====================== starting iteration " << iter << std::endl;
-          // Update the halos
-          nodeColumns.haloExchange(xbFs[var]);
+          // Update the halo points
+          //nodeColumns.haloExchange(dynaBkgErrFs[var]);
           nodeColumns.haloExchange(sum_localFs[var]);
           nodeColumns.haloExchange(sum2_localFs[var]);
-          //nodeColumns.haloExchange(count_localFs[var]);
 
-          //oops::Log::info() << "**************** Before halo exchange: " << sum_localFs[var] << std::endl;
-          //oops::Log::info() << "Before halo exchange: " << sum_local << std::endl;
-          //nodeColumns.haloExchange(sum_localFs);
-          //oops::Log::info() << "**************** After halo exchange: " << sum_localFs[var] << std::endl;
-          //oops::Log::info() << "After halo exchange: " << sum_local << std::endl;
+          // Make a clone of sum_local and sum2_local
+          atlas::Field sum_localF = sum_localFs[var].clone();
+          atlas::Field sum2_localF = sum2_localFs[var].clone();
+          auto sumTmp = atlas::array::make_view<double, 2>(sum_localF);
+          auto sum2Tmp = atlas::array::make_view<double, 2>(sum2_localF);
 
-          // Loop through nodes
-          for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
-            // Initialize the std. dev. to 0
-            // dynaBkgErrFs_v(jnode, 0) = 0.0;
+          // Initialize sum2
+          //if (iter == 0) {
+          //  for (atlas::idx_t jnode = 0; jnode < sum2_local_v.shape(0); ++jnode) {
+          //    for (atlas::idx_t level = 1; level < sum2_local_v.shape(1); ++level) {
+          //      sum2Tmp(jnode, level) = sumTmp(jnode, level) * sumTmp(jnode, level);
+          //      sum2_local_v(jnode, level) = sum2Tmp(jnode, level);
+          //    }
+          //  }
+          //}
 
-            // Early exit if thickness is 0 or on a ghost cell
-            //if (ghostView(jnode) > 0 || abs(viewHocn(jnode, 0)) <= 0.1) {
-            if (ghostView(jnode) > 0) {
-              continue;
-            }
-            auto neighbors = gdas_soca_diagb_utils::get_neighbors_of_node(
-              mesh, node2edge, edge2node, jnode);
-
-            // 2D case
-            if (xbFs[var].shape(1) == 1) {
-              // Std. dev. of the partition
-              gdas_soca_diagb_utils::iterativeLocalMomentAccumulation(jnode, 0, configD.vertBinSize,
-                                 configD.depthMin, neighbors, viewHocn,
-                                 viewDepth, viewBathy,
-                                 sum_local_v, sum2_local_v, count_local_v , false);
-              if (var == "sea_surface_height_above_geoid") {
-                // TODO(G): Extract the unbalanced ssh variance, in the mean time, do this:
-                // dynaBkgErrFs_v(jnode, 0) = std::min(configD.sshMax, dynaBkgErrFs_v(jnode, 0));
-              }
-            } else {
-              // 3D case
-              oops::Log::info() << "====================== neighbors:" << neighbors << std::endl;
-              for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
-                gdas_soca_diagb_utils::locaSum(jnode, level, neighbors, viewHocn, sum_local_v);
-                /*gdas_soca_diagb_utils::iterativeLocalMomentAccumulation(jnode, level, configD.vertBinSize,
-                                 configD.depthMin, neighbors, viewHocn,
-                                 viewDepth, viewBathy,
-                                 sum_local_v, sum2_local_v, count_local_v , true);*/
-              }  // end level
-            }  // end 3D case
-          }  // end jnode
-          oops::Log::info() << "====================== sum_local:" << sum_local << std::endl;
-        }  // end iter
-
-        // Compute variance from accumulation
-        for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
-          // Early exit if thickness is 0 or on a ghost cell
-          if (ghostView(jnode) > 0 || abs(viewHocn(jnode, 0)) <= 0.1) {
-            continue;
-          }
+          // Loops through nodes and levels
           for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
-            if (count_local_v(jnode, level) > 0.0) {
-              dynaBkgErrFs_v(jnode, level) = loca_sum_v(jnode, level);
-                  //std::sqrt(
-                  //  sum2_local_v(jnode, level) / (count_local_v(jnode, level)) -
-                  //  (sum_local_v(jnode, level) / count_local_v(jnode, level)) *
-                  //  (sum_local_v(jnode, level) / count_local_v(jnode, level)));
-                  //sum_local_v(jnode, level)/ count_local_v(jnode, level);
-                  //count_local_v(jnode, level);
-            } else {
-              dynaBkgErrFs_v(jnode, level) = 0.0;
-            }
-          }  // end level
-        }  // end jnode
-
-
-      }  // end var
-
-      /// Smooth the fields
-      // ------------------
-      if (configD.simpleSmoothing) {
-        for (auto & var : configD.socaVars.variables()) {
-          // Skip the layer thickness variable
-          if (var == "sea_water_cell_thickness") {
-            continue;
-          }
-
-          auto stdDevBkg = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
-          // Horizontal averaging
-          for (int iter = 0; iter < configD.niterHoriz; ++iter) {
-            // Update the halo points
-            nodeColumns.haloExchange(dynaBkgErrFs[var]);
-            //auto stdDevBkg = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
-
-            // Loops through nodes and levels
-            for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
-              for (atlas::idx_t jnode = 0;
-                jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
-                // Early exit if on a ghost cell
-                if (ghostView(jnode) > 0) {
-                  continue;
-                }
-
-                // Ocean or ice node, do something
-                std::vector<double> local;
-                //auto neighbors = get_neighbors_of_node(jnode);
-                auto neighbors = gdas_soca_diagb_utils::get_neighbors_of_node(
-                  mesh, node2edge, edge2node, jnode);
-                for (int nn = 0; nn < neighbors.size(); ++nn) {
-                  int nbNode = neighbors[nn];
-                  if ( abs(viewHocn(nbNode, level)) <= 0.1 ) {
-                    continue;
-                  }
-                  local.push_back(stdDevBkg(nbNode, level));
-                }
-
-                if (local.size() > 2) {
-                  stdDevBkg(jnode, level) =
-                    std::accumulate(local.begin(), local.end(), 0.0) / local.size();
-                }
-
-                // Reset to 0 over land
-                if (abs(viewHocn(jnode, level)) <= 0.1) {
-                  stdDevBkg(jnode, level) = 0.0;
-                }
+            for (atlas::idx_t jnode = 0;
+              jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
+              // Early exit if on a ghost cell
+              if (ghostView(jnode) > 0) {
+                continue;
               }
-            }
-          }
 
-          // Vertical averaging
-          if (xbFs[var].shape(1) == 1) {
-            oops::Log::info() << "skipping vertical smoothing for " << var << std::endl;
-          } else {
-            auto stdDevBkg = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
-            auto tmpArray(stdDevBkg);
-            for (int iter = 0; iter < configD.niterVert; ++iter) {
-              for (atlas::idx_t jnode = 0;
-                jnode < xbFs["sea_water_potential_temperature"].shape(0); ++jnode) {
-                for (atlas::idx_t level = 1; level < xbFs[var].shape(1)-1; ++level) {
-                    double w1 = viewHocn(jnode, level-1);
-                    double w2 = viewHocn(jnode, level);
-                    double w3 = viewHocn(jnode, level+1);
-                    double sumW = w1 + w2 + w3;
-                    if (sumW > 0.0) {
-                    stdDevBkg(jnode, level) = (tmpArray(jnode, level-1) * w1 +
-                                   tmpArray(jnode, level)   * w2 +
-                                   tmpArray(jnode, level+1) * w3) / sumW;
-                    } else {
-                    stdDevBkg(jnode, level) = 0.0;
-                    }
-                }
-                stdDevBkg(jnode, 0) = stdDevBkg(jnode, 1);
-              }  // end jnode
-            }  // end iter (vertical)
-          }  // end vertical smoothing case
-        }  // end var (loop through variables)
-      }  // end simple smoothing
+              // Ocean or ice node, do something
+              std::vector<double> local;
+              //auto neighbors = get_neighbors_of_node(jnode);
+              auto neighbors = gdas_soca_diagb_utils::get_neighbors_of_node(
+                mesh, node2edge, edge2node, jnode);
+              gdas_soca_diagb_utils::locaSum(jnode, level, neighbors, viewHocn, sumTmp, sum_local_v,
+                                             viewBathy, configD.depthMin);
+              gdas_soca_diagb_utils::locaSum(jnode, level, neighbors, viewHocn, sum2Tmp, sum2_local_v,
+                                             viewBathy, configD.depthMin);
+              //gdas_soca_diagb_utils::locaSum(jnode, level, neighbors, viewHocn, dynaBkgErrFs_v);
+
+              //for (int nn = 0; nn < neighbors.size(); ++nn) {
+              //  int nbNode = neighbors[nn];
+              //  if ( abs(viewHocn(nbNode, level)) <= 0.1 ) {
+              //    continue;
+              //  }
+              //  local.push_back(dynaBkgErrFs_v(nbNode, level));
+              //}
+//
+              //if (local.size() > 0) {
+              //std::cout << "@@@@@@@@@@@ local size: " << local.size() << std::endl;
+              //std::cout << "@@@@@@@@@@@ local: " << local << std::endl;
+              //  dynaBkgErrFs_v(jnode, level) =
+              //    std::accumulate(local.begin(), local.end(), 0.0) / local.size();
+              //}
+              //// Reset to 0 over land
+              //if (abs(viewHocn(jnode, level)) <= 0.1) {
+              //  dynaBkgErrFs_v(jnode, level) = 0.0;
+              //}
+            }  // end jnode
+          }  // end level
+          // Update the sum
+          //sum2_local_v = sum2Tmp;
+        }  // end iter
+      }  // end var
+      const soca::Increment sum_local_copy(sum_local);
+      sum_local.schur_product_with(sum_local_copy);
+      dynaBkgErr = sum2_local;
+      dynaBkgErr -= sum_local;
+      dynaBkgErr.sqrt();
+
+      oops::Log::info() << "====================== dynaBkgErr:" << std::endl;
+      oops::Log::info() << dynaBkgErr << std::endl;
 
       /// Impose an exponential decay to the background error
       // ----------------------------------------------------
       double efold = fullConfig.getDouble("vertical e-folding scale var part", 500.0);
       double edRatio = fullConfig.getDouble("min efold depth ratio", 3.0);
       double localEfold = 0.0;
-      for (auto & var : configD.socaVars.variables()) {
-        oops::Log::info()
-         << "====================== apply exponential decay to the background error. "
-         << " e-folding scale: " << efold << " m for " << var << std::endl;
-        auto stdDevBkg = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
-        auto staticBkgErrFs_v = atlas::array::make_view<double, 2>(staticBkgErrFs[var]);
-        auto numLevels = xbFs["sea_water_potential_temperature"].shape(0);
-
-        // set up the static bkgerr (only valid for T and S)
-        double staticSig = 0.0;
-        if (var == "sea_water_potential_temperature") {
-          staticSig = configD.sigT;
-        } else if (var == "sea_water_salinity") {
-          staticSig = configD.sigS;
-        }
-        for (atlas::idx_t jnode = 0; jnode < numLevels; ++jnode) {
-          if (ghostView(jnode) > 0) {
-            continue;  // Skip ghost cells
-          }
-          for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
-            if (viewBathy(jnode, 0) > 0.0) {
-              // Apply the exponential decay to the variane partitioning
-              localEfold = gdas_soca_diagb_utils::computeLocalGCScale(viewBathy(jnode, 0), efold, edRatio);
-              stdDevBkg(jnode, level) *= oops::gc99(viewDepth(jnode, level) / localEfold);
-
-              // Static background error
-              localEfold = gdas_soca_diagb_utils::computeLocalGCScale(viewBathy(jnode, 0), configD.vert_efold_static, edRatio);
-              staticBkgErrFs_v(jnode, level) *= staticSig * oops::gc99(viewDepth(jnode, level) / localEfold);
-            }
-          }  // end level
-        }  // end jnode
-        // Update the variable's halo
-        nodeColumns.haloExchange(xbFs[var]);
-      }  // end var (loop through variables)
+      //for (auto & var : configD.socaVars.variables()) {
+      //  oops::Log::info()
+      //   << "====================== apply exponential decay to the background error. "
+      //   << " e-folding scale: " << efold << " m for " << var << std::endl;
+      //  auto stdDevBkg = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
+      //  auto staticBkgErrFs_v = atlas::array::make_view<double, 2>(staticBkgErrFs[var]);
+      //  auto numLevels = xbFs["sea_water_potential_temperature"].shape(0);
+//
+      //  // set up the static bkgerr (only valid for T and S)
+      //  double staticSig = 0.0;
+      //  if (var == "sea_water_potential_temperature") {
+      //    staticSig = configD.sigT;
+      //  } else if (var == "sea_water_salinity") {
+      //    staticSig = configD.sigS;
+      //  }
+      //  for (atlas::idx_t jnode = 0; jnode < numLevels; ++jnode) {
+      //    if (ghostView(jnode) > 0) {
+      //      continue;  // Skip ghost cells
+      //    }
+      //    for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
+      //      if (viewBathy(jnode, 0) > 0.0) {
+      //        // Apply the exponential decay to the variane partitioning
+      //        localEfold = gdas_soca_diagb_utils::computeLocalGCScale(viewBathy(jnode, 0), efold, edRatio);
+      //        stdDevBkg(jnode, level) *= oops::gc99(viewDepth(jnode, level) / localEfold);
+//
+      //        // Static background error
+      //        localEfold = gdas_soca_diagb_utils::computeLocalGCScale(viewBathy(jnode, 0), configD.vert_efold_static, edRatio);
+      //        staticBkgErrFs_v(jnode, level) *= staticSig * oops::gc99(viewDepth(jnode, level) / localEfold);
+      //      }
+      //    }  // end level
+      //  }  // end jnode
+      //  // Update the variable's halo
+      //  nodeColumns.haloExchange(xbFs[var]);
+      //}  // end var (loop through variables)
 
       // Rescale
-      util::multiplyFieldSet(dynaBkgErrFs, configD.rescale_dyna);
-      util::multiplyFieldSet(staticBkgErrFs, configD.rescale_static);
-
-      // We want to write with soca, not atlas: Syncronize with soca Increment
-      dynaBkgErr.fromFieldSet(dynaBkgErrFs);
-      staticBkgErr.fromFieldSet(staticBkgErrFs);
-      dynaBkgErr += staticBkgErr;
+      //util::multiplyFieldSet(dynaBkgErrFs, configD.rescale_dyna);
+      //util::multiplyFieldSet(staticBkgErrFs, configD.rescale_static);
+//
+      //// We want to write with soca, not atlas: Syncronize with soca Increment
+      //dynaBkgErr.fromFieldSet(dynaBkgErrFs);
+      //staticBkgErr.fromFieldSet(staticBkgErrFs);
+      //dynaBkgErr += staticBkgErr;
 
       // Save the background error
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
