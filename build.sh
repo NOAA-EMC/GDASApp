@@ -116,6 +116,14 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
 
+# Link MOM6 and Icepack in SOCA to submodules in the UFS repo
+if [[ $WORKFLOW_BUILD == 'ON' ]]; then
+  rm -rf $dir_root/sorc/soca/external/mom6/MOM6
+  rm -rf $dir_root/sorc/soca/external/icepack/Icepack
+  ln -sf $dir_root/../ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
+  ln -sf $dir_root/../ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
+fi
+
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
 if [ -d "$dir_root/bundle/test-data-release/" ]; then rm -rf $dir_root/bundle/test-data-release/; fi
@@ -141,7 +149,7 @@ else
   builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils bufr-query da-utils"
   for b in $builddirs; do
     cd $b
-    set +x      
+    set +x
     echo "Building $b ... `date`"
     set -x
     make -j ${BUILD_JOBS} VERBOSE=${BUILD_VERBOSE}
