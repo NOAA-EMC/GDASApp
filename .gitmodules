@@ -47,8 +47,8 @@
   branch = develop
 [submodule "sorc/soca"]
   path = sorc/soca
-  url = https://github.com/jcsda-internal/soca.git
-  branch = develop
+  url = https://github.com/NOAA-EMC/soca.git
+  branch = dev/emc
 [submodule "sorc/iodaconv"]
   path = sorc/iodaconv
   url = https://github.com/JCSDA-internal/ioda-converters.git
