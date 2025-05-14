@@ -61,9 +61,11 @@ namespace gdasapp {
      */
     int execute(const eckit::Configuration & fullConfig) const {
       /// Initialize the paramters for D
+      // --------------------------------------------------------------
       gdas_soca_diagb_utils::SocaDiagBConfig configD = gdas_soca_diagb_utils::setup(fullConfig);
 
       /// Setup the soca geometry
+      // --------------------------------------------------------------
       oops::Log::info() << "====================== geometry" << std::endl;
       const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");
       const soca::Geometry geom(geomConfig, this->getComm());
@@ -80,6 +82,7 @@ namespace gdasapp {
       oops::Log::info() << xb << std::endl;
 
       // Setup the output soca geometry
+      // --------------------------------------------------------------
       oops::Log::info() << "====================== output geometry" << std::endl;
       const std::string outputGeometryKey = fullConfig.has("output geometry")
                         ? "output geometry"  // keep things backward compatible for now
@@ -87,62 +90,24 @@ namespace gdasapp {
       const eckit::LocalConfiguration geomOutConfig(fullConfig, outputGeometryKey);
       const soca::Geometry geomOut(geomOutConfig, this->getComm());
 
-      /// Create the mesh connectivity (Copy/paste of Francois's stuff)
-      // --------------------------------------------------------------
+      /// Create the mesh connectivity
+      // -----------------------------
       oops::Log::info() << "====================== build mesh connectivity" << std::endl;
-
-      // STEP 1: Build a halo-enabled mesh from the geometry's original mesh
+      // Build a halo-enabled mesh from the geometry's original mesh
       auto originalNodeColumns = atlas::functionspace::NodeColumns(geom.functionSpace());
       atlas::Mesh mesh = originalNodeColumns.mesh();
-
       atlas::mesh::actions::build_edges(mesh);
       atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
       atlas::mesh::actions::build_halo(mesh, 1);
 
-      // STEP 2: Create a new NodeColumns function space from the halo-enabled mesh
+      // Create a new NodeColumns function space from the halo-enabled mesh
       atlas::functionspace::NodeColumns nodeColumns(mesh, atlas::option::halo(1));
-
-      // atlas::functionspace::NodeColumns nodeColumns = geom.functionSpace();
-      // atlas::Mesh mesh = nodeColumns.mesh();
-      // atlas::mesh::actions::build_edges(mesh);
-      // atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
-      // atlas::mesh::actions::build_halo(mesh, 1);
       const auto & node2edge = mesh.nodes().edge_connectivity();
       const auto & edge2node = mesh.edges().node_connectivity();
       const auto ghostView = atlas::array::make_view<int, 1>(geom.functionSpace().ghost());
 
-      /// Compute local std. dev. as a proxy of the bkg error
-      // ----------------------------------------------------
-      oops::Log::info() << "====================== start variance partitioning" << std::endl;
-      oops::Log::info() << "====================== allocate std. dev. field set" << std::endl;
-      // Allocate the background error derived from the 3D partitioning
-      soca::Increment dynaBkgErr(xb); //geom, configD.socaVars, configD.cycleDate);
-      //dynaBkgErr.zero();
-      atlas::FieldSet dynaBkgErrFs;
-      dynaBkgErr.toFieldSet(dynaBkgErrFs);
-
-      // Allocate the static background error
-      soca::Increment staticBkgErr(dynaBkgErr);
-      staticBkgErr.ones();
-      atlas::FieldSet staticBkgErrFs;
-      staticBkgErr.toFieldSet(staticBkgErrFs);
-
-      // Allocate temporary fields for the iterative computation of the variance
-      soca::Increment sum_local(xb);     // sum_local = xb before iterating
-      soca::Increment sum2_local(xb);    // sum2_local = xb^2 before iterating
-      const soca::Increment xbc(xb);
-      sum2_local.schur_product_with(xbc);
-
-      //soca::Increment count_local(xb);   // count_local = 0 before iterating
-      //count_local.ones();
-      atlas::FieldSet sum_localFs;
-      atlas::FieldSet sum2_localFs;
-      //atlas::FieldSet count_localFs;
-      sum_local.toFieldSet(sum_localFs);
-      sum2_local.toFieldSet(sum2_localFs);
-      //count_local.toFieldSet(count_localFs);
-      oops::Log::info() << "====================== sum_local: " << sum_local << std::endl;
-
+      /// Compute utility fields (batymetry and layer depth)
+      // ---------------------------------------------------
       // Get the layer thicknesses and convert to layer depth
       oops::Log::info() << "====================== calculate layer depth" << std::endl;
       auto viewHocn = atlas::array::make_view<double, 2>(xbFs["sea_water_cell_thickness"]);
@@ -170,6 +135,25 @@ namespace gdasapp {
       // Update the layer thickness halo
       nodeColumns.haloExchange(xbFs["sea_water_cell_thickness"]);
 
+      /// Iterative variance partitioning
+      // --------------------------------
+      oops::Log::info() << "====================== start variance partitioning" << std::endl;
+      // Allocate the dynamic background error that will store the std. dev. of the partition
+      soca::Increment dynaBkgErr(xb);
+      atlas::FieldSet dynaBkgErrFs;
+      dynaBkgErr.toFieldSet(dynaBkgErrFs);
+
+      // Allocate temporary fields for the iterative computation of the variance
+      soca::Increment sum_local(xb);     // sum_local = xb before iterating
+      soca::Increment sum2_local(xb);    // sum2_local = xb^2 before iterating
+      const soca::Increment xbc(xb);
+      sum2_local.schur_product_with(xbc);
+
+      atlas::FieldSet sum_localFs;
+      atlas::FieldSet sum2_localFs;
+      sum_local.toFieldSet(sum_localFs);
+      sum2_local.toFieldSet(sum2_localFs);
+
       // Loop through variables
       for (auto & var : configD.socaVars.variables()) {
         // Skip the layer thickness variable
@@ -185,7 +169,6 @@ namespace gdasapp {
         for (int iter = 0; iter < configD.stencilGrowthIterations; ++iter) {
 
           // Update the halo points
-          //nodeColumns.haloExchange(dynaBkgErrFs[var]);
           nodeColumns.haloExchange(sum_localFs[var]);
           nodeColumns.haloExchange(sum2_localFs[var]);
 
@@ -194,16 +177,6 @@ namespace gdasapp {
           atlas::Field sum2_localF = sum2_localFs[var].clone();
           auto sumTmp = atlas::array::make_view<double, 2>(sum_localF);
           auto sum2Tmp = atlas::array::make_view<double, 2>(sum2_localF);
-
-          // Initialize sum2
-          //if (iter == 0) {
-          //  for (atlas::idx_t jnode = 0; jnode < sum2_local_v.shape(0); ++jnode) {
-          //    for (atlas::idx_t level = 1; level < sum2_local_v.shape(1); ++level) {
-          //      sum2Tmp(jnode, level) = sumTmp(jnode, level) * sumTmp(jnode, level);
-          //      sum2_local_v(jnode, level) = sum2Tmp(jnode, level);
-          //    }
-          //  }
-          //}
 
           // Loops through nodes and levels
           for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
@@ -214,98 +187,81 @@ namespace gdasapp {
                 continue;
               }
 
-              // Ocean or ice node, do something
+              // Comput M and M^2
               std::vector<double> local;
-              //auto neighbors = get_neighbors_of_node(jnode);
               auto neighbors = gdas_soca_diagb_utils::get_neighbors_of_node(
                 mesh, node2edge, edge2node, jnode);
-              gdas_soca_diagb_utils::locaSum(jnode, level, neighbors, viewHocn, sumTmp, sum_local_v,
-                                             viewBathy, configD.depthMin);
-              gdas_soca_diagb_utils::locaSum(jnode, level, neighbors, viewHocn, sum2Tmp, sum2_local_v,
-                                             viewBathy, configD.depthMin);
-              //gdas_soca_diagb_utils::locaSum(jnode, level, neighbors, viewHocn, dynaBkgErrFs_v);
-
-              //for (int nn = 0; nn < neighbors.size(); ++nn) {
-              //  int nbNode = neighbors[nn];
-              //  if ( abs(viewHocn(nbNode, level)) <= 0.1 ) {
-              //    continue;
-              //  }
-              //  local.push_back(dynaBkgErrFs_v(nbNode, level));
-              //}
-//
-              //if (local.size() > 0) {
-              //std::cout << "@@@@@@@@@@@ local size: " << local.size() << std::endl;
-              //std::cout << "@@@@@@@@@@@ local: " << local << std::endl;
-              //  dynaBkgErrFs_v(jnode, level) =
-              //    std::accumulate(local.begin(), local.end(), 0.0) / local.size();
-              //}
-              //// Reset to 0 over land
-              //if (abs(viewHocn(jnode, level)) <= 0.1) {
-              //  dynaBkgErrFs_v(jnode, level) = 0.0;
-              //}
+              gdas_soca_diagb_utils::locaMean(jnode, level, neighbors, viewHocn, sumTmp, sum_local_v,
+                                             viewDepth, configD.vertBinSize, configD.depthMin);
+              gdas_soca_diagb_utils::locaMean(jnode, level, neighbors, viewHocn, sum2Tmp, sum2_local_v,
+                                             viewDepth, configD.vertBinSize, configD.depthMin);
             }  // end jnode
           }  // end level
-          // Update the sum
-          //sum2_local_v = sum2Tmp;
         }  // end iter
       }  // end var
+      // Compute the std. deviation of the partition
       const soca::Increment sum_local_copy(sum_local);
       sum_local.schur_product_with(sum_local_copy);
       dynaBkgErr = sum2_local;
       dynaBkgErr -= sum_local;
       dynaBkgErr.sqrt();
-
+      dynaBkgErr.toFieldSet(dynaBkgErrFs);  // Update the fieldset with the new values
       oops::Log::info() << "====================== dynaBkgErr:" << std::endl;
       oops::Log::info() << dynaBkgErr << std::endl;
 
       /// Impose an exponential decay to the background error
       // ----------------------------------------------------
-      double efold = fullConfig.getDouble("vertical e-folding scale var part", 500.0);
-      double edRatio = fullConfig.getDouble("min efold depth ratio", 3.0);
       double localEfold = 0.0;
-      //for (auto & var : configD.socaVars.variables()) {
-      //  oops::Log::info()
-      //   << "====================== apply exponential decay to the background error. "
-      //   << " e-folding scale: " << efold << " m for " << var << std::endl;
-      //  auto stdDevBkg = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
-      //  auto staticBkgErrFs_v = atlas::array::make_view<double, 2>(staticBkgErrFs[var]);
-      //  auto numLevels = xbFs["sea_water_potential_temperature"].shape(0);
-//
-      //  // set up the static bkgerr (only valid for T and S)
-      //  double staticSig = 0.0;
-      //  if (var == "sea_water_potential_temperature") {
-      //    staticSig = configD.sigT;
-      //  } else if (var == "sea_water_salinity") {
-      //    staticSig = configD.sigS;
-      //  }
-      //  for (atlas::idx_t jnode = 0; jnode < numLevels; ++jnode) {
-      //    if (ghostView(jnode) > 0) {
-      //      continue;  // Skip ghost cells
-      //    }
-      //    for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
-      //      if (viewBathy(jnode, 0) > 0.0) {
-      //        // Apply the exponential decay to the variane partitioning
-      //        localEfold = gdas_soca_diagb_utils::computeLocalGCScale(viewBathy(jnode, 0), efold, edRatio);
-      //        stdDevBkg(jnode, level) *= oops::gc99(viewDepth(jnode, level) / localEfold);
-//
-      //        // Static background error
-      //        localEfold = gdas_soca_diagb_utils::computeLocalGCScale(viewBathy(jnode, 0), configD.vert_efold_static, edRatio);
-      //        staticBkgErrFs_v(jnode, level) *= staticSig * oops::gc99(viewDepth(jnode, level) / localEfold);
-      //      }
-      //    }  // end level
-      //  }  // end jnode
-      //  // Update the variable's halo
-      //  nodeColumns.haloExchange(xbFs[var]);
-      //}  // end var (loop through variables)
 
-      // Rescale
-      //util::multiplyFieldSet(dynaBkgErrFs, configD.rescale_dyna);
-      //util::multiplyFieldSet(staticBkgErrFs, configD.rescale_static);
-//
-      //// We want to write with soca, not atlas: Syncronize with soca Increment
-      //dynaBkgErr.fromFieldSet(dynaBkgErrFs);
-      //staticBkgErr.fromFieldSet(staticBkgErrFs);
-      //dynaBkgErr += staticBkgErr;
+      // Allocate the static background error
+      soca::Increment staticBkgErr(geom, configD.socaVars, configD.cycleDate);
+      staticBkgErr.ones();
+      atlas::FieldSet staticBkgErrFs;
+      staticBkgErr.toFieldSet(staticBkgErrFs);
+
+      for (auto & var : configD.socaVars.variables()) {
+        // Skip the layer thickness variable
+        if (var == "sea_water_cell_thickness") {
+          continue;
+        }
+
+        oops::Log::info() << "====================== apply exponential decay to the background error. " << std::endl;
+        auto dynaBkgErrFs_v = atlas::array::make_view<double, 2>(dynaBkgErrFs[var]);
+        auto staticBkgErrFs_v = atlas::array::make_view<double, 2>(staticBkgErrFs[var]);
+
+        // set up the static bkgerr (only valid for T and S)
+        double staticSig = 0.0;
+        if (var == "sea_water_potential_temperature") {
+          staticSig = configD.sigT;
+        } else if (var == "sea_water_salinity") {
+          staticSig = configD.sigS;
+        } else if (var == "sea_ice_area_fraction") {
+          staticSig = configD.sigSic;
+        }
+        for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
+          if (ghostView(jnode) > 0) {
+            continue;  // Skip ghost cells
+          }
+          for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
+            if (viewBathy(jnode, 0) > 0.0) {
+              // Apply the exponential decay to the variane partitioning
+              localEfold = gdas_soca_diagb_utils::computeLocalGCScale(viewBathy(jnode, 0), configD.vert_efold_dynamic, configD.efoldRatio);
+              dynaBkgErrFs_v(jnode, level) *= configD.rescale_dyna * oops::gc99(viewDepth(jnode, level) / localEfold);
+
+              // Static background error
+              localEfold = gdas_soca_diagb_utils::computeLocalGCScale(viewBathy(jnode, 0), configD.vert_efold_static, configD.efoldRatio);
+              staticBkgErrFs_v(jnode, level) *= configD.rescale_static * staticSig * oops::gc99(viewDepth(jnode, level) / localEfold);
+
+              // Total background error
+              dynaBkgErrFs_v(jnode, level) += staticBkgErrFs_v(jnode, level);
+            }
+          }  // end level
+        }  // end jnode
+      }  // end var (loop through variables)
+      oops::Log::info() << "====================== staticBkgErr:" << std::endl;
+      oops::Log::info() << staticBkgErr << std::endl;
+      oops::Log::info() << "====================== Total BkgErr:" << std::endl;
+      oops::Log::info() << dynaBkgErr << std::endl;
 
       // Save the background error
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");

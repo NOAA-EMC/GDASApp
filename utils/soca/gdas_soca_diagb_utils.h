@@ -14,15 +14,17 @@
         double sshMax;
         double depthMin;
         bool diffusion;
-        bool simpleSmoothing;
         int niterHoriz;
         int niterVert;
         double rescale_dyna;
         double rescale_static;
         double vert_efold_static;
+        double vert_efold_dynamic;
+        double efoldRatio;
         double vertBinSize;
         double sigT;
         double sigS;
+        double sigSic;
         int stencilGrowthIterations;
     };
     // -----------------------------------------------------------------------------
@@ -61,25 +63,20 @@
       // Number of iteration for the iterative variance
       diagBConfig.stencilGrowthIterations = fullConfig.getDouble("stencil growth iterations", 2);
 
-      // Simple smoothing parameters
-      diagBConfig.simpleSmoothing = false;
-      if (fullConfig.has("simple smoothing")) {
-        diagBConfig.simpleSmoothing = true;
-        fullConfig.get("simple smoothing.horizontal iterations", diagBConfig.niterHoriz);
-        fullConfig.get("simple smoothing.vertical iterations", diagBConfig.niterVert);
-      }
-
       // Bins size as a multiple of the local cell thickness
       diagBConfig.vertBinSize = fullConfig.getDouble("vertical bin size", 1.0);
 
       // Static background error
       diagBConfig.sigT = fullConfig.getDouble("static sig B.sigT", 0.5);
       diagBConfig.sigS = fullConfig.getDouble("static sig B.sigS", 0.1);
+      diagBConfig.sigSic = fullConfig.getDouble("static sig B.sigSic", 0.01);
 
       // Variance rescaling
-      diagBConfig.rescale_dyna = fullConfig.getDouble("rescale dynamic", 1.0);
+      diagBConfig.rescale_dyna = fullConfig.getDouble("rescale dynamic");
       diagBConfig.rescale_static = fullConfig.getDouble("rescale static", 1.0);
       diagBConfig.vert_efold_static = fullConfig.getDouble("vertical e-folding scale static", 300.0);
+      diagBConfig.vert_efold_dynamic = fullConfig.getDouble("vertical e-folding scale dynamic", 300.0);
+      diagBConfig.efoldRatio = fullConfig.getDouble("min efold depth ratio", 3.0);
       return diagBConfig;
     }
     // -----------------------------------------------------------------------------
@@ -89,16 +86,13 @@
                         const atlas::mesh::MultiBlockConnectivity& edge2node,
                         int node) {
         std::vector<int> neighbors{};
-        neighbors.reserve(4);
+        neighbors.reserve(5);
         neighbors.push_back(node);
-//
-        //const auto& node2edge = mesh.nodes().edge_connectivity();
-        //const auto& edge2node = mesh.edges().node_connectivity();
-//
+
         if (node >= mesh.nodes().size()) {
             return neighbors;
         }
-//
+
         const int nb_edges = node2edge.cols(node);
         for (int ie = 0; ie < nb_edges; ++ie) {
             const int edge = node2edge(node, ie);
@@ -110,8 +104,6 @@
                 neighbors.push_back(node1);
             }
         }
-        //std::cout << "----- Node " << node << " has " << neighbors.size() << " neighbors." << std::endl;
-        //std::cout << "-----      " << neighbors << std::endl;
         return neighbors;
     }
 
@@ -137,28 +129,21 @@
         return std::min((depth / minRatio)/0.316, eFoldingLength/0.316);
     }
     // -----------------------------------------------------------------------------
-    void computeStdDevBin(const int jnode,
-                          const int level,
-                          const double vertBinSize,  // <-- new argument: bin size in meters
-                          const double depthMin,
-                          const std::vector<int> neighbors,
-                          const atlas::array::ArrayView<double, 2> layerThickness,
-                          const atlas::array::ArrayView<double, 2> depth,
-                          const atlas::array::ArrayView<double, 2> bkg,
-                          const atlas::array::ArrayView<double, 2> bathy,
-                          atlas::array::ArrayView<double, 2>& stdDevBkg,
-                          bool doBathy = true,
-                          int minn = 2) {
-      if (doBathy && bathy(jnode, 0) < depthMin) {
-        stdDevBkg(jnode, level) = 0.0;
-        return;
-      }
+    void locaMean(const int jnode,
+                  const int level,
+                  const std::vector<int> neighbors,
+                  const atlas::array::ArrayView<double, 2> layerThickness,
+                  const atlas::array::ArrayView<double, 2>& localSum_copy,
+                  atlas::array::ArrayView<double, 2>& localSum,
+                  const atlas::array::ArrayView<double, 2> layerDepth,
+                  const double vertBinSize = 1.0,
+                  const double depthMin = 50.0) {
 
-      const double targetDepth = depth(jnode, level);
+      auto nLayers = layerThickness.shape(1);
+      const double targetDepth = layerDepth(jnode, level);
       std::vector<double> local;
-      local.push_back(bkg(jnode, level));
-      for (int ll = 0; ll < bkg.shape(1); ++ll) {
-        double neighborDepth = depth(jnode, ll);
+      for (int ll = 0; ll < nLayers; ++ll) {
+        double neighborDepth = layerDepth(jnode, ll);
         // Skip if the neighbor's layer thickness is too small
         if (std::abs(layerThickness(jnode, ll)) < 0.1) {
           continue;
@@ -166,78 +151,14 @@
         // Only include values within the depth bin
         if (std::abs(neighborDepth - targetDepth) <= vertBinSize*layerThickness(jnode, level)) {
           for (int nn = 0; nn < neighbors.size(); ++nn) {
-            if ( std::abs(layerThickness(neighbors[nn], ll)) < 0.1 ) {
+            int nbNode = neighbors[nn];
+            if ( abs(layerThickness(nbNode, level)) <= 0.1 ) {
               continue;
             }
-            local.push_back(bkg(neighbors[nn], ll));
+            local.push_back(localSum_copy(nbNode, level));
           }
         }
       }
-
-      if (local.size() >= minn) {
-        double mean = std::accumulate(local.begin(), local.end(), 0.0) / local.size();
-
-        double stdDev = 0.0;
-        for (double val : local) {
-          stdDev += std::pow(val - mean, 2.0);
-        }
-
-        stdDevBkg(jnode, level) = std::sqrt(stdDev / (local.size() - 1));
-      }
-    }
-    // -----------------------------------------------------------------------------
-    void iterativeLocalMomentAccumulation(const int jnode,
-                          const int level,
-                          const double vertBinSize,  // <-- new argument: bin size in meters
-                          const double depthMin,
-                          const std::vector<int> neighbors,
-                          const atlas::array::ArrayView<double, 2> layerThickness,
-                          const atlas::array::ArrayView<double, 2> depth,
-                          const atlas::array::ArrayView<double, 2> bathy,
-                          atlas::array::ArrayView<double, 2>& local_sum,
-                          atlas::array::ArrayView<double, 2>& local_sum2,
-                          atlas::array::ArrayView<double, 2>& local_count,
-                          bool doBathy = true) {
-      if (doBathy && bathy(jnode, 0) < depthMin) {
-        local_sum(jnode, level) = 0.0;
-        local_sum2(jnode, level) = 0.0;
-        local_count(jnode, level) = 1.0;
-        return;
-      }
-      for (int nn = 0; nn < neighbors.size(); ++nn) {
-        local_sum(jnode, level) += local_sum(neighbors[nn], level);
-        local_sum2(jnode, level) += local_sum2(neighbors[nn], level);
-        local_count(jnode, level) += 1.0;
-      }
-    }
-
-
-    // -----------------------------------------------------------------------------
-    void locaSum(const int jnode,
-                 const int level,
-                 const std::vector<int> neighbors,
-                 const atlas::array::ArrayView<double, 2> layerThickness,
-                 const atlas::array::ArrayView<double, 2>& localSum_copy,
-                 atlas::array::ArrayView<double, 2>& localSum,
-                 const atlas::array::ArrayView<double, 2> bathy,
-                 double depthMin = 50.0) {
-
-      if (bathy(jnode, 0) < depthMin) {
-        localSum(jnode, level) = 0.0;
-        return;
-      }
-
-      const double targetDepth = depth(jnode, level);
-      std::vector<double> local;
-      for (int nn = 0; nn < neighbors.size(); ++nn) {
-        int nbNode = neighbors[nn];
-        if ( abs(layerThickness(nbNode, level)) <= 0.1 ) {
-          continue;
-        }
-        local.push_back(localSum_copy(nbNode, level));
-      }
-      //std::cout << "----- Node " << jnode << " has " << local.size() << " neighbors." << std::endl;
-      //std::cout << "-----      " << local << std::endl;
       if (local.size() > 1) {
         localSum(jnode, level) =
            std::accumulate(local.begin(), local.end(), 0.0) / local.size();
@@ -248,6 +169,4 @@
         localSum(jnode, level) = 0.0;
       }
     }
-
-
-    } // namespace gdas_soca_diagb_utils
+} // namespace gdas_soca_diagb_utils
