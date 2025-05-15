@@ -61,6 +61,24 @@ namespace gdasapp {
         // Read increment from file
         soca::Increment incr = postProcIncr.read(i);
 
+        // Cut to 10e-7 precision
+        for (auto field : incr.fieldSet()) {
+          auto view = atlas::array::make_view<double, 2>(field);
+          for (int jnode = 0; jnode < field.shape(0); ++jnode) {
+            for (int jlevel = 0; jlevel < field.shape(1); ++jlevel) {
+              view(jnode, jlevel) = std::trunc(view(jnode, jlevel) * 1.0e7) / 1.0e7;
+            }
+          }
+        }
+
+        if (fullConfig.has("output analysis")) {
+          const eckit::LocalConfiguration bgConfig(fullConfig, "soca background");
+          soca::State bg(geom, bgConfig);
+          bg += incr;
+          const eckit::LocalConfiguration outputConfig(fullConfig, "output analysis");
+          bg.write(outputConfig);
+        }
+
         // Append variables to the increment
         oops::Variables extraVars(postProcIncr.socaZeroIncrVar_);
         extraVars += postProcIncr.layerVar_;
@@ -76,6 +94,7 @@ namespace gdasapp {
         oops::Log::debug() << "========= after appending layer and after saving:" << std::endl;
         oops::Log::debug() << incr_mom6 << std::endl;
       }
+
       return result;
     }
     // -----------------------------------------------------------------------------
