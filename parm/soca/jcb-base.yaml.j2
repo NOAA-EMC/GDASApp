@@ -44,11 +44,11 @@ marine_window_middle_iso: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
 marine_window_end_iso: '{{ MARINE_WINDOW_END | to_isotime }}'
 enspert_relpath: '{{ ENSPERT_RELPATH }}'
 {% if DOIAU %}
-  marine_cice_date_fms: '{{ MARINE_WINDOW_BEGIN | to_fv3time }}'
-  marine_cide_date_iso: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
+marine_cice_date_fms: '{{ MARINE_WINDOW_BEGIN | to_fv3time }}'
+marine_cice_date_iso: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
 {% else %}
-  marine_cice_date_fms: '{{ MARINE_WINDOW_MIDDLE | to_fv3time }}'
-  marine_cide_date_iso: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
+marine_cice_date_fms: '{{ MARINE_WINDOW_MIDDLE | to_fv3time }}'
+marine_cice_date_iso: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
 {% endif %}
 
 # Geometry
@@ -70,7 +70,7 @@ marine_stddev_time: '{{ MARINE_WINDOW_MIDDLE  | to_isotime }}'
 # Observations
 observations: all_observations
 
-marine_obsdataroot_path: '{{COM_OBS}}'
+marine_obsdataroot_path: '{{COMIN_OBS}}'
 marine_obsdatastats_path: '{{COMOUT_OCEAN_ANALYSIS}}/diags'
 
 marine_obsdatain_path: '{{DATA}}/obs'
