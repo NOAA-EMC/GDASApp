@@ -101,12 +101,18 @@ if [[ $CLEAN_BUILD == 'YES' ]]; then
 fi
 mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 
-# If INSTALL_PREFIX is not empty; install at INSTALL_PREFIX
-[[ -n "${INSTALL_PREFIX:-}" ]] && CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
-
 # activate tests based on if this is cloned within the global-workflow
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
+
+# If INSTALL_PREFIX is empty and this is a workflow build, set it to Global Workflow home directory
+if [[ ! -n "${INSTALL_PREFIX:-}" ]] && [[ $WORKFLOW_BUILD == 'ON' ]]; then
+  mkdir -p "${dir_root}/../../"
+  INSTALL_PREFIX="${dir_root}/../.."
+fi
+
+# If INSTALL_PREFIX is not empty; install at INSTALL_PREFIX
+[[ -n "${INSTALL_PREFIX:-}" ]] && CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
@@ -124,30 +130,31 @@ cmake \
   $dir_root/bundle
 set +x
 
-# Build
-echo "Building ... `date`"
-set -x
-if [[ $BUILD_JCSDA == 'YES' ]]; then
-  make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
-else
-  builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils bufr-query da-utils"
-  for b in $builddirs; do
-    cd $b
-    set +x      
-    echo "Building $b ... `date`"
-    set -x
-    make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
-    cd ../
-  done
-fi
-set +x
-
-# Install
+# Install or build depending on whether INSTALL_PREFIX is set
 if [[ -n ${INSTALL_PREFIX:-} ]]; then
+  # Install
   echo "Installing ... `date`"
   set -x
   make install -j ${BUILD_JOBS:-8}
   set +x
-fi
-echo "Finish ... `date`"
+else
+  # Build
+  echo "Building ... `date`"
+  set -x
+  if [[ $BUILD_JCSDA == 'YES' ]]; then
+    make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
+  else
+    builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils bufr-query da-utils"
+    for b in $builddirs; do
+      cd $b
+      set +x
+      echo "Building $b ... `date`"
+      set -x
+      make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
+      cd ../
+    done
+  fi
+  set +x
+  fi
+  echo "Finish ... `date`"
 exit 0
