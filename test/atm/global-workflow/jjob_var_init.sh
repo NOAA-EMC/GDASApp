@@ -27,7 +27,7 @@ export ACCOUNT=da-cpu
 # Set GFS COM paths
 export STRICT="NO"
 source "${HOMEgfs}/ush/preamble.sh"
-source "${HOMEgfs}/parm/config/gfs/config.com"
+source "${HOMEgfs}/dev/parm/config/gfs/config.com"
 
 # Set python path for workflow utilities and tasks
 wxflowPATH="${HOMEgfs}/ush/python"
