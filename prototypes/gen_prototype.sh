@@ -93,7 +93,7 @@ cd $GWDIR/global-workflow/workflow
                            --resensatmos $resensatmos \
                            --nens $nens \
                            --pslot $PSLOT \
-                           --configdir $GWDIR/global-workflow/parm/config/gfs \
+                           --configdir $GWDIR/global-workflow/dev/parm/config/gfs \
                            --comrot $comrot \
                            --expdir $expdir \
                            --icsdir $ICSDIR \
