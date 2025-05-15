@@ -2,7 +2,7 @@ geometry:
   mom6_input_nml: mom_input.nml
   fields metadata: ./fields_metadata.yaml
 
-date: '{{ marine_window_begin }}'
+date: '{{ marine_window_begin_iso }}'
 
 layers variable: [sea_water_cell_thickness]
 
@@ -20,20 +20,20 @@ set increment variables to zero:
 - northward_sea_water_velocity
 
 vertical geometry:
-  date: '{{ marine_window_begin }}'
+  date: '{{ marine_window_begin_iso }}'
   basename: ./INPUT/
   ocn_filename: MOM.res.nc
   read_from_file: 1
 
 soca increment:
-  date: '{{ marine_window_begin }}'
+  date: '{{ marine_window_begin_iso }}'
   basename: ./Data/
-  ocn_filename: 'ocn.3dvarfgat_pseudo.incr.{{marine_window_middle}}.nc'
+  ocn_filename: 'ocn.3dvarfgat_pseudo.incr.{{ marine_window_middle_iso }}.nc'
   read_from_file: 1
 
 output increment:
   datadir: ./
-  date: '{{ marine_window_begin }}'
+  date: '{{ marine_window_begin_iso }}'
   exp: mom6_iau
   type: incr
   output file: inc.nc

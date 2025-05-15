@@ -1,0 +1,7 @@
+copy_opt:
+{% for observation_from_jcb in observations %}
+{% if use_observer(observation_from_jcb) %}
+- ['{{marine_obsdataout_path}}/{{observation_from_jcb}}{{marine_obsdataout_suffix}}', '{{marine_obsdatastats_path}}']
+- ['{{marine_obsdataout_path}}/{{marine_obsdatain_prefix}}ocn.{{observation_from_jcb}}.stats.csv', '{{marine_obsdatastats_path}}']
+{% endif %}
+{% endfor %}
