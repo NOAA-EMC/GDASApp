@@ -107,12 +107,20 @@ CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
 
 # If INSTALL_PREFIX is empty and this is a workflow build, set it to Global Workflow home directory
 if [[ ! -n "${INSTALL_PREFIX:-}" ]] && [[ $WORKFLOW_BUILD == 'ON' ]]; then
-  mkdir -p "${dir_root}/../../"
   INSTALL_PREFIX="${dir_root}/../.."
+  mkdir -p "${INSTALL_PREFIX}"
 fi
 
 # If INSTALL_PREFIX is not empty; install at INSTALL_PREFIX
 [[ -n "${INSTALL_PREFIX:-}" ]] && CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
+
+# Link MOM6 and Icepack in SOCA to submodules in the UFS repo
+if [[ $WORKFLOW_BUILD == 'ON' ]]; then
+  rm -rf $dir_root/sorc/soca/external/mom6/MOM6
+  rm -rf $dir_root/sorc/soca/external/icepack/Icepack
+  ln -sf $dir_root/../ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
+  ln -sf $dir_root/../ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
+fi
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi

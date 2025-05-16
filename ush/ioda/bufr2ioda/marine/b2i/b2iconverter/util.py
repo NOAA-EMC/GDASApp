@@ -48,9 +48,9 @@ def run_diff(file1, file2, logger):
         if result.returncode == 0:
             pass
         elif result.returncode == 1:
-            logger.error("diff on files:")
-            logger.error(f"{file1}")
-            logger.error(f"{file2}")
+            logger.error("running diff on files:")
+            logger.error(f">>> {file1}")
+            logger.error(f">>> {file2}")
             logger.error("Files are different:")
             logger.error(f"{result.stdout}")
         else:

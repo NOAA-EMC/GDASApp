@@ -60,11 +60,10 @@ class OceanBasin:
         lon0 = self.__longitudes[0]
         dlon = self.__longitudes[1] - self.__longitudes[0]
 
-        # the data may be a masked array
-        ocean_basin = []
+        ocean_basin = ma.array([0]*lat.size, mask=lat.mask, dtype=np.int32)
         for i in range(n):
-            if not ma.is_masked(lat[i]):
+            if not ma.is_masked(lat[i]) and not ma.is_masked(lon[i]):
                 i1 = round((lat[i] - lat0) / dlat)
                 i2 = round((lon[i] - lon0) / dlon)
-                ocean_basin.append(self.__basin_array[i1][i2])
+                ocean_basin[i] = self.__basin_array[i1][i2]
         return ocean_basin
