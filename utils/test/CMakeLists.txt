@@ -53,7 +53,7 @@ ecbuild_add_test( TARGET test_gdasapp_util_coding_norms
 
 # Test example IODA utility that computes the mean of a variable
 ecbuild_add_test( TARGET  test_gdasapp_util_ioda_example
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_meanioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_mean.x
                   ARGS    "testinput/gdas_meanioda.yaml"
                   LIBS    gdas-utils)
 
@@ -66,7 +66,7 @@ ecbuild_add_test( TARGET  test_gdasapp_util_prepdata
 
 # Test the RADS to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_rads2ioda
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_rads2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
@@ -74,7 +74,7 @@ ecbuild_add_test( TARGET  test_gdasapp_util_rads2ioda
 
 # Test the GHRSST to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_ghrsst2ioda
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_ghrsst2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
@@ -111,14 +111,14 @@ else()
 
 		# Test the RTOFStmp to IODA converter
 		ecbuild_add_test( TARGET  test_gdasapp_util_rtofstmp
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
 				  ARGS    "../testinput/gdas_rtofstmp.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
 
 		# Test the RTOFSsal to IODA converter
 		ecbuild_add_test( TARGET  test_gdasapp_util_rtofssal
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
 				  ARGS    "../testinput/gdas_rtofssal.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
@@ -130,7 +130,7 @@ endif()
 
 # Test the SMAP to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_smap2ioda
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_smap2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
@@ -138,7 +138,7 @@ ecbuild_add_test( TARGET  test_gdasapp_util_smap2ioda
 
 # Test the SMOS to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_smos2ioda
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_smos2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
@@ -146,7 +146,7 @@ ecbuild_add_test( TARGET  test_gdasapp_util_smos2ioda
 
 # Test the VIIRS AOD to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_viirsaod2ioda
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_viirsaod2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
@@ -154,7 +154,7 @@ ecbuild_add_test( TARGET  test_gdasapp_util_viirsaod2ioda
 
 # Test the ABI to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_icecabi2ioda
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_icecabi2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
@@ -162,7 +162,7 @@ ecbuild_add_test( TARGET  test_gdasapp_util_icecabi2ioda
 
 # Test the AMSR2 to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_icecamsr2ioda
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_icecamsr2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
@@ -170,7 +170,7 @@ ecbuild_add_test( TARGET  test_gdasapp_util_icecamsr2ioda
 
 # Test the MIRS to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_icecmirs2ioda
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_icecmirs2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
@@ -178,7 +178,7 @@ ecbuild_add_test( TARGET  test_gdasapp_util_icecmirs2ioda
 
 # Test the JPSSRR to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_icecjpssrr2ioda
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_icecjpssrr2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
@@ -186,7 +186,7 @@ ecbuild_add_test( TARGET  test_gdasapp_util_icecjpssrr2ioda
 
 # Test the INSITU to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_insituall2ioda
-	          COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_obsprovider2ioda.x
+	          COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
                   ARGS    "../testinput/gdas_insituall2ioda.yaml"
                   LIBS    gdas-utils
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
