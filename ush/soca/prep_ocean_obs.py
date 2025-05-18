@@ -102,7 +102,7 @@ class PrepOceanObs(Task):
         # in order to avoid touching the g-w until we know this will remain a task
         BUFR2IODA_PY_DIR = os.path.join(self.task_config.HOMEgfs, 'sorc/gdas.cd/ush/ioda/bufr2ioda/marine/b2i')
 
-        COMIN_OBS = self.task_config.COMIN_OBS
+        DATA = self.task_config.DATA
         COMOUT_OBS = self.task_config['COMOUT_OBS']
         OCEAN_BASIN_FILE = self.task_config['OCEAN_BASIN_FILE']
         if not os.path.exists(COMOUT_OBS):
@@ -160,8 +160,8 @@ class PrepOceanObs(Task):
                             bufrconv_config = {
                                 'RUN': RUN,
                                 'current_cycle': cdate,
-                                'DMPDIR': COMIN_OBS,
-                                'COM_OBS': COMIN_OBS,
+                                'DMPDIR': DATA,
+                                'COMOUT_OBS': DATA,
                                 'OCEAN_BASIN_FILE': OCEAN_BASIN_FILE}
                             bufr2iodapy = os.path.join(BUFR2IODA_PY_DIR, f'bufr2ioda_{obs_space_name}.py')
                             obsprep_space['bufr2ioda converter'] = bufr2iodapy
@@ -285,20 +285,22 @@ class PrepOceanObs(Task):
         COMOUT_OBS = self.task_config.COMOUT_OBS
 
         obsspaces_to_save = YAMLFile(self.task_config.save_list_file)
+        files_to_save = []
 
         for obs_space in obsspaces_to_save['observations']:
-            files_to_save = []
+
             conv_config_file = os.path.basename(obs_space['conversion config file'])
-            conv_config_file_dest = os.path.join(COMOUT_OBS, conv_config_file)
-            files_to_save.append([conv_config_file, conv_config_file_dest])
+            if os.path.exists(conv_config_file):
+                conv_config_file_dest = os.path.join(COMOUT_OBS, conv_config_file)
+                files_to_save.append([conv_config_file, conv_config_file_dest])
+            else:
+                logger.warning(f"IODA conversion config file {conv_config_file} does not exist, cannot copy to COMROOT")
 
-            output_file_dest = os.path.join(COMOUT_OBS, obs_space['output file'])
-            files_to_save.append([obs_space['output file'], output_file_dest])
+            ioda_file = os.path.basename(obs_space['output file'])
+            if os.path.exists(ioda_file):
+                obs_file_dest = os.path.join(COMOUT_OBS, ioda_file)
+                files_to_save.append([ioda_file, obs_file_dest])
+            else:
+                logger.warning(f"IODA file {ioda_file} does not exist, cannot copy to COMROOT")
 
-            try:
-                FileHandler({'copy': files_to_save}).sync()
-            except Exception as e:
-                logger.warning(f"An exeception {e} occured while trying to run gen_bufr_json")
-            except OSError:
-                logger.warning(f"Obs file not found, possible IODA converter failure)")
-                continue
+        FileHandler({'copy': files_to_save}).sync()
