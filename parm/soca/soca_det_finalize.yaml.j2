@@ -1,0 +1,43 @@
+{% set bcyc = MARINE_WINDOW_BEGIN | strftime('%H') %}
+{% if DOIAU %}
+{% set cice_rst_date = MARINE_WINDOW_BEGIN | to_fv3time %}
+{% else %}
+{% set cice_rst_date = CDATE | to_fv3time %}
+{% endif %}
+
+mkdir:
+- '{{ COMOUT_OCEAN_ANALYSIS }}/diags'
+- '{{ COMOUT_OCEAN_ANALYSIS }}/bump'
+- '{{ COMOUT_OCEAN_ANALYSIS }}/yaml'
+
+copy:
+# IAU increment
+- ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ocninc.nc']
+{% for domain in ['ocn','ice'] %}
+# Increments
+- ['{{ DATA }}/Data/{{ domain }}.3dvarfgat_pseudo.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}{{ domain }}.incr.nc']
+# Analysis at the start of the window
+- ['{{ DATA }}/Data/{{ domain }}.3dvarfgat_pseudo.an.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}{{ domain }}.ana.nc']
+# Diagonal of the background error for the cycle
+#- ['{{ DATA }}/{{ domain }}.bkgerr_stddev.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}{{ domain }}.bkgerr_stddev.nc']
+# Recentering error
+#- ['{{ DATA }}/static_ens/{{ domain }}.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}{{ domain }}.recentering_error.nc']
+{% endfor %}
+# soca2cice ice increment
+- ['{{ DATA }}/Data/ice.soca2cice.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ice.incr.postproc.nc']
+# ssh diagnostics
+{% if NMEM_ENS > 2 %}
+{% for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev', 'steric_explained_variance'] %}
+- ['{{ DATA }}/staticb/ocn.{{ string }}.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ocn.{{ string }}.nc']
+{% endfor %}
+{% endif %}
+# DA grid (computed for the start of the window)
+- ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ RUN }}.t{{ bcyc }}z.ocngrid.nc']
+# CICE analysis restart
+- ['{{ DATA }}/Data/{{ cice_rst_date }}.cice_model.res.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ cice_rst_date }}.cice_model_anl.res.nc']
+# YAML files
+- ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
+- ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
+- ['{{ DATA }}/soca_2cice_global.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
+- ['{{ DATA }}/soca_diag_stats.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
+- ['{{ DATA }}/socaincr2mom6.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
