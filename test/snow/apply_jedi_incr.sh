@@ -49,11 +49,6 @@ cat << EOF > apply_incr_nml
  inc_path="$WORKDIR",
  orog_path="$TPATH"
  otype="$TSTUB"
- ntiles=6,
- ens_size=1,
- noincr_threshold=999999.9,
- print_summary=.true.,
- print_debug=.false.
 /
 EOF
 
