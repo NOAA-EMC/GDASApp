@@ -1,0 +1,68 @@
+- obs space:
+    name: madis_snow 
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: {{ snow_obsdatain_path }}/snow/diag_{{ obspace }}_{{ stat_current_cycle_YMDH }}.nc
+    simulated variables: ['totalSnowDepth']
+    observed variables: ['totalSnowDepth']
+  statistics to compute: ['mean', 'count', 'RMS']
+  variables: [totalSnowDepth]
+  groups to process: ['ombg', 'oman']
+  qc groups: ['EffectiveQC0', 'EffectiveQC1']
+  output file: "{{ obspace }}_{{ stat_current_cycle_YMDH }}_output_snow.nc"
+  regular grid binning:
+    bin size in degrees: 1.0
+    use negative longitudes: true 
+  domains to process:
+  - domain:
+      name: "SH"
+      first mask variable: latitude
+      first mask range: [-90,0]
+  - domain:
+      name: "NH"
+      first mask variable: latitude
+      first mask range: [0,90]
+  - domain:
+      name: "West_CONUS"
+      first mask variable: latitude
+      first mask range: [25,49]
+      second mask variable: longitude
+      second mask range: [-125,-100]
+  - domain:
+      name: "East_CONUS"
+      first mask variable: latitude
+      first mask range: [25,49]
+      second mask variable: longitude
+      second mask range: [-100,-66]
+  - domain:
+      name: "Alaska"
+      first mask variable: latitude
+      first mask range: [52,72]
+      second mask variable: longitude
+      second mask range: [-170,-130]
+  - domain:
+      name: "Europe"
+      first mask variable: latitude
+      first mask range: [35,70]
+      second mask variable: longitude
+      second mask range: [-11,38]
+  - domain:
+      name: "Africa"
+      first mask variable: latitude
+      first mask range: [-35,37]
+      second mask variable: longitude
+      second mask range: [-17,52]
+  - domain:
+      name: "Asia"
+      first mask variable: latitude
+      first mask range: [0,70]
+      second mask variable: longitude
+      second mask range: [38, 180]
+  - domain:
+      name: "High_Mount_Asia"
+      first mask variable: latitude
+      first mask range: [20,46]
+      second mask variable: longitude
+      second mask range: [60, 111]
+
