@@ -48,14 +48,15 @@ execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cp
 ecbuild_add_test( TARGET test_gdasapp_util_coding_norms
                   TYPE SCRIPT
                   COMMAND ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_cpplint.py
-                  ARGS --quiet --recursive --exclude=${CMAKE_CURRENT_SOURCE_DIR}/../obsproc/rtofs/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/../ 
+                  ARGS --quiet --recursive --exclude=${CMAKE_CURRENT_SOURCE_DIR}/../obsproc/rtofs/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/../
                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 
 # Test example IODA utility that computes the mean of a variable
-ecbuild_add_test( TARGET  test_gdasapp_util_ioda_example
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_meanioda.x
-                  ARGS    "testinput/gdas_meanioda.yaml"
-                  LIBS    gdas-utils)
+# This test is being disabled for now since it reference test data in SOCA which is removed in the NOAA-EMC SOCA fork
+#ecbuild_add_test( TARGET  test_gdasapp_util_ioda_example
+#                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_meanioda.x
+#                  ARGS    "testinput/gdas_meanioda.yaml"
+#                  LIBS    gdas-utils)
 
 # Prepare data for the IODA converters
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc)
