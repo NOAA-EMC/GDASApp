@@ -53,7 +53,8 @@ cat << EOF > apply_incr_nml
  ens_size=1,
  noincr_threshold=999999.9,
  print_summary=.true.,
- print_debug=.false.
+ print_debug=.false.,
+ truncate=.true.
 /
 EOF
 
