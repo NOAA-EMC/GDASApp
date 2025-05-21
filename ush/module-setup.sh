@@ -15,7 +15,6 @@ elif [[ $MACHINE_ID = hera* ]] ; then
     fi
     module purge
 
-
 elif [[ $MACHINE_ID = ursa* ]] ; then
     # We are on NOAA Ursa
     if ( ! eval module help > /dev/null 2>&1 ) ; then

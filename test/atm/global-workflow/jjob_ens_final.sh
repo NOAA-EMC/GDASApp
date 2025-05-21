@@ -48,6 +48,8 @@ fi
 # Execute j-job
 if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmensanlfinal-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FINALIZE
+elif [[ $machine = 'URSA' ]]; then
+    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --partition=u1-compute --time=00:10:00 --export=ALL --wait --output=atmensanlfinal-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FINALIZE
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FINALIZE
 fi

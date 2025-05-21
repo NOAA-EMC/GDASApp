@@ -23,7 +23,7 @@ cdl2nc4() {
   local input_cdl="$2"
 
   echo "Generating ${output_nc4}"
-  ncgen -o "$output_nc4" "$input_cdl"
+  ncgen -4 -o "$output_nc4" "$input_cdl"
 }
 
 project_source_dir=$1
