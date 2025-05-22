@@ -72,7 +72,7 @@ namespace gdasapp {
 
         // what variable to compute the stats for
         std::string variable;
-        obsConfig.get("variable", variable);
+        obsSpace.get("variable", variable);
 
         // read the obs space
         ioda::ObsSpace ospace(obsConfig, getComm(), timeWindow, getComm());
