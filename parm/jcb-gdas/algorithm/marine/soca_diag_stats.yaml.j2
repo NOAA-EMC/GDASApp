@@ -2,16 +2,16 @@ time window:
   begin: '1900-01-01T00:00:00Z'
   end: '2035-01-01T00:00:00Z'
   bound to include: begin
-observations:
-  observers:
-{% for observation_from_jcb in observations %}
-{% if use_observer(observation_from_jcb) %}
-{% filter indent(width=4) %}
-{% include observation_from_jcb + '.yaml.j2' %}
-{% filter indent(width=2) %}
-experiment identifier: '{{ pslot }}'
-csv output: '{{marine_obsdataout_path}}/{{ marine_obsdatain_prefix }}ocn.{{ observation_from_jcb }}.stats.csv'
-{% endfilter %}
-{% endfilter %}
-{% endif %}
+obs spaces:
+{% for observation_from_jcb in cleaned_observations %}
+- obs space:
+    name: '{{ observation_from_jcb }}'
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{ marine_obsdataout_path }}/{{ marine_obsdataout_prefix }}{{ observation_from_jcb }}{{ marine_obsdataout_suffix }}"
+    simulated variables: ['{{ obs_variables[observation_from_jcb] }}']
+  variable: '{{ obs_variables[observation_from_jcb] }}'
+  experiment identifier: '{{ pslot }}'
+  csv output: '{{marine_obsdataout_path}}/{{ marine_obsdatain_prefix }}ocn.{{ observation_from_jcb }}.stats.csv'
 {% endfor %}
