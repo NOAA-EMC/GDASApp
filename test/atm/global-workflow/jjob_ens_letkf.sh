@@ -55,7 +55,7 @@ cp $EXPDIR/config.base_lobsdiag_forenkf_false $EXPDIR/config.base
 if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     sbatch --nodes=1 --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait --output=atmensanlletkf-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_LETKF
 elif [[ $machine = 'URSA' ]]; then
-     sbatch --nodes=1 --ntasks=6 --account=$ACCOUNT --qos=batch --partition=u1-compute --mem="96Gb" --time=00:30:00 --export=ALL --wait --output=atmensanlletkf-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_LETKF
+     sbatch --nodes=1 --ntasks=6 --account=$ACCOUNT --qos=batch --partition=u1-compute --mem="32Gb" --time=00:30:00 --export=ALL --wait --output=atmensanlletkf-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_LETKF
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_LETKF
 fi
