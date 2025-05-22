@@ -6,15 +6,6 @@
 # Get the machine hostname
 MACHINE_NAME=$(hostname)
 
-# Check if the machine name is "hera"
-if [[ "$MACHINE_NAME" =~ ^hfe0[1-9]$ || "$MACHINE_NAME" =~ ^hfe1[01]$ ]]; then
-    echo "Running on hera, loading anaconda modules."
-    module use -a /contrib/anaconda/modulefiles
-    module load anaconda/latest
-else
-    echo "Not running on hera, skipping anaconda module loading."
-fi
-
 set -e
 
 cdl2nc4() {
