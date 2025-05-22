@@ -6,5 +6,11 @@
   rst_path = "./anl",
   inc_path = "./anl",
   orog_path = "{{ HOMEgfs }}/fix/orog/{{ CASE }}",
-  otype = "{{ CASE }}.mx{{ OCNRES }}_oro_data"
+  otype = "{{ CASE }}.mx{{ OCNRES }}_oro_data",
+  ntiles={{ ntiles }},
+  ens_size={{ ens_size }},
+  noincr_threshold={{ noincr_threshold }},
+  print_summary=.true.,
+  print_debug={{ print_debug }} ,
+  truncate={{ truncate_incr }}
 /
