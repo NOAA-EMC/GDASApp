@@ -53,7 +53,7 @@ cp $EXPDIR/config.base_lobsdiag_forenkf_true $EXPDIR/config.base
 
 # Execute j-job
 if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait --output=atmensanlobs-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_OBS
+    sbatch --nodes=1 --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait --output=atmensanlobs-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_OBS
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_OBS
 fi
