@@ -21,7 +21,6 @@
 #include "ioda/ObsVector.h"
 
 #include "oops/base/PostProcessor.h"
-#include "oops/base/Variables.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
@@ -51,7 +50,7 @@ namespace gdasapp {
 
       // get the list of obs spaces to process
       std::vector<eckit::LocalConfiguration> obsSpaces;
-      fullConfig.get("observers", obsSpaces);
+      fullConfig.get("obs spaces", obsSpaces);
 
       // get ensemble size if available
       size_t nens = fullConfig.getInt("nens", 0);
@@ -66,17 +65,14 @@ namespace gdasapp {
 
         // get the obs diag file
         std::string obsFile;
-        obsConfig.get("obsdataout.engine.obsfile", obsFile);
+        obsConfig.get("obsdatain.engine.obsfile", obsFile);
         oops::Log::info() << "========= Processing " << obsFile
                           << "          date: " << extractDateFromFilename(obsFile)
                           << std::endl;
 
         // what variable to compute the stats for
-        std::vector<std::string> simulatedVariables;
         std::string variable;
-        obsConfig.get("simulated variables", simulatedVariables);
-        ASSERT(simulatedVariables.size() == 1);
-        variable = simulatedVariables[0];
+        obsConfig.get("variable", variable);
 
         // read the obs space
         ioda::ObsSpace ospace(obsConfig, getComm(), timeWindow, getComm());
