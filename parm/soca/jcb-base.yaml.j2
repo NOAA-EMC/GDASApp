@@ -75,10 +75,10 @@ marine_obsdatastats_path: '{{COMOUT_OCEAN_ANALYSIS}}/diags'
 
 marine_obsdatain_path: '{{DATA}}/obs'
 marine_obsdatain_prefix: '{{OPREFIX}}'
-marine_obsdatain_suffix: '.{{ PDY | to_YMD }}{{ "%02d"| format(cyc) }}.nc4'
+marine_obsdatain_suffix: '.{{ current_cycle | to_YMDH }}.nc4'
 marine_obsdataout_path: '{{DATA}}/diags'
 marine_obsdataout_prefix: ''
-marine_obsdataout_suffix: '.{{ PDY | to_YMD }}{{ "%02d"| format(cyc) }}.nc4'
+marine_obsdataout_suffix: '.{{ current_cycle | to_YMDH }}.nc4'
 
 # Outer loops
 marine_ninner_1: '{{SOCA_NINNER}}'
@@ -96,3 +96,8 @@ marine_final_increment_exp: 3dvarfgat_pseudo
 
 # Background list
 marine_pseudo_model_states: {{ marine_pseudo_model_states | default([]) }}
+
+# These parameters are a bit of a hack that will be removed in the future when the anlstat
+# job fully replaces the SOCA obs_diag_stats application
+cleaned_observations: {{ cleaned_observations | default([]) }}
+obs_variables: {{ obs_variables | default({}) }}
