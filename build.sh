@@ -72,7 +72,7 @@ while getopts "p:t:c:hvdfa" opt; do
 done
 
 case ${BUILD_TARGET} in
-  hera | orion | hercules | wcoss2 | noaacloud | gaeac5 | gaeac6 )
+  hera | orion | hercules | wcoss2 | noaacloud | gaeac5 | gaeac6 | ursa )
     echo "Building GDASApp on $BUILD_TARGET"
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
