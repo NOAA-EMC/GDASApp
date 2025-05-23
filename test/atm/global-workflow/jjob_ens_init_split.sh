@@ -116,6 +116,8 @@ cp $EXPDIR/config.base_lobsdiag_forenkf_true $EXPDIR/config.base
 # Execute j-job
 if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmensanlinit_split-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
+elif [[ $machine = 'URSA' ]]; then
+     sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --partition=u1-compute --time=00:10:00 --export=ALL --wait --output=atmensanlinit_split-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 fi
