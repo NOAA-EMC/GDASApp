@@ -12,19 +12,18 @@ bufr:
         hour: "*/HOUR[1]"
         minute: "*/MINU[1]"
     latitude:
-      query: "[*/CLAT, */CLATH]"
+      query: "*/CLATH"
     longitude:
-      query: "[*/CLON, */CLONH]"
+      query: "*/CLONH"
     stationIdentification:
-      query: "*/RPID"
+      query: "*/LSTN"
 
     stationElevation:
-      query: "[*/SELV, */HSMSL]"
-      type: float
+      query: "*/HSMSL"
 
     # ObsValue
     totalSnowDepth:
-      query: "[*/SNWSQ1/TOSD, */MTRMSC/TOSD, */STGDSNDM/TOSD]"
+      query: "*/TOSD"
       transforms:
         - scale: 1000.0
   filters:
@@ -61,12 +60,13 @@ encoder:
       coordinates: "longitude latitude"
       source: variables/stationElevation
       longName: "Height of Station"
+      units: "m"
 
     - name: "MetaData/stationIdentification"
       coordinates: "longitude latitude"
       source: variables/stationIdentification
       longName: "Identification of Observing Location"
-      units: "m"
+      units: "index"
 
     # ObsValue
     - name: "ObsValue/totalSnowDepth"

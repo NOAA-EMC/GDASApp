@@ -17,6 +17,7 @@ final_increment_file: marine_final_increment
 
 # Assimilation standard things (not prepended with model choice)
 # ----------------------------
+pslot: '{{ PSLOT }}'
 window_begin: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
 window_length: '{{MARINE_WINDOW_LENGTH}}'
 bound_to_include: begin
@@ -42,6 +43,13 @@ marine_window_begin_iso: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
 marine_window_middle_iso: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
 marine_window_end_iso: '{{ MARINE_WINDOW_END | to_isotime }}'
 enspert_relpath: '{{ ENSPERT_RELPATH }}'
+{% if DOIAU %}
+marine_cice_date_fms: '{{ MARINE_WINDOW_BEGIN | to_fv3time }}'
+marine_cice_date_iso: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
+{% else %}
+marine_cice_date_fms: '{{ MARINE_WINDOW_MIDDLE | to_fv3time }}'
+marine_cice_date_iso: '{{ MARINE_WINDOW_MIDDLE | to_isotime }}'
+{% endif %}
 
 # Geometry
 marine_soca_files_path: .
@@ -49,7 +57,7 @@ marine_vt_levels: '{{MOM6_LEVS}}'
 
 # Initial conditions
 marine_background_path: ./INPUT/
-marine_background_time: '{{MARINE_WINDOW_BEGIN_ISO}}'
+marine_background_time: '{{ MARINE_WINDOW_BEGIN | to_isotime }}'
 
 # Pseudo model
 marine_forecast_timestep: PT3H
@@ -62,12 +70,15 @@ marine_stddev_time: '{{ MARINE_WINDOW_MIDDLE  | to_isotime }}'
 # Observations
 observations: all_observations
 
+marine_obsdataroot_path: '{{COMIN_OBS}}'
+marine_obsdatastats_path: '{{COMOUT_OCEAN_ANALYSIS}}/diags'
+
 marine_obsdatain_path: '{{DATA}}/obs'
 marine_obsdatain_prefix: '{{OPREFIX}}'
-marine_obsdatain_suffix: '.{{PDY}}{{cyc}}.nc4'
+marine_obsdatain_suffix: '.{{ current_cycle | to_YMDH }}.nc4'
 marine_obsdataout_path: '{{DATA}}/diags'
 marine_obsdataout_prefix: ''
-marine_obsdataout_suffix: '.{{PDY}}{{cyc}}.nc4'
+marine_obsdataout_suffix: '.{{ current_cycle | to_YMDH }}.nc4'
 
 # Outer loops
 marine_ninner_1: '{{SOCA_NINNER}}'
@@ -82,3 +93,11 @@ marine_output_freq: PT3H   # can only writes out the analysis at the middle of t
 # Final increment
 marine_final_increment_dir: Data
 marine_final_increment_exp: 3dvarfgat_pseudo
+
+# Background list
+marine_pseudo_model_states: {{ marine_pseudo_model_states | default([]) }}
+
+# These parameters are a bit of a hack that will be removed in the future when the anlstat
+# job fully replaces the SOCA obs_diag_stats application
+cleaned_observations: {{ cleaned_observations | default([]) }}
+obs_variables: {{ obs_variables | default({}) }}

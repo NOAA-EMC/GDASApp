@@ -103,7 +103,7 @@ class JobCard:
         """
 
         # Make a copy of the configs
-        origconfig = "${HOMEgfs}/parm/config/gfs"
+        origconfig = "${HOMEgfs}/dev/parm/config/gfs"
         self.f.write("\n")
         self.f.write("# Make a copy of config\n")
         self.f.write(f"mkdir -p config\n")
@@ -175,7 +175,7 @@ class JobCard:
         print(f"RUN: {self.RUN}")
 
         # setup COM variables
-        self.f.write("source ${HOMEgfs}/parm/config/gfs/config.com\n")
+        self.f.write("source ${HOMEgfs}/dev/parm/config/gfs/config.com\n")
         self.f.write("source ${HOMEgfs}/ush/preamble.sh\n")
         self.precom('COM_OCEAN_HISTORY_PREV', 'COM_OCEAN_HISTORY_TMPL')
         self.precom('COM_ICE_HISTORY_PREV', 'COM_ICE_HISTORY_TMPL')
