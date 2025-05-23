@@ -43,7 +43,7 @@
   branch = develop
 [submodule "sorc/fv3-jedi"]
   path = sorc/fv3-jedi
-  url = https://github.com/jcsda-internal/fv3-jedi.git
+  url = https://github.com/jcsda/fv3-jedi.git
   branch = develop
 [submodule "sorc/soca"]
   path = sorc/soca
