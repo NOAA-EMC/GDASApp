@@ -24,13 +24,49 @@ increment geometry:
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
 state:
   datetime: {{ atmosphere_background_time_iso }}
-  state variables: [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,delz]
+  state variables:
+  - eastward_wind
+  - northward_wind
+  - water_vapor_mixing_ratio_wrt_moist_air
+  - cloud_liquid_ice
+  - cloud_liquid_water
+  - ozone_mass_mixing_ratio
+  - air_pressure_thickness
+  - layer_thickness
+  field io names:
+    eastward_wind: ugrd
+    northward_wind: vgrd
+    air_temperature: tmp
+    water_vapor_mixing_ratio_wrt_moist_air: spfh
+    cloud_liquid_ice: icmr
+    cloud_liquid_water: clwmr
+    ozone_mass_mixing_ratio: o3mr
+    air_pressure_thickness: dpres
+    layer_thickness: delz
   filetype: cube sphere history
   provider: ufs
   filename: {{ atmosphere_variational_history_prefix }}cubed_sphere_grid_atmf006.nc
   datapath: ./
 increment:
-  added variables: [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,delz]
+  added variables:
+  - eastward_wind
+  - northward_wind
+  - water_vapor_mixing_ratio_wrt_moist_air
+  - cloud_liquid_ice
+  - cloud_liquid_water
+  - ozone_mass_mixing_ratio
+  - air_pressure_thickness
+  - layer_thickness
+  field io names:
+    eastward_wind: u_inc
+    northward_wind: v_inc
+    air_temperature: T_inc
+    water_vapor_mixing_ratio_wrt_moist_air: sphum_inc
+    cloud_liquid_ice: icmr_inc
+    cloud_liquid_water: liq_wat_inc
+    ozone_mass_mixing_ratio: o3mr_inc
+    air_pressure_thickness: delp_inc
+    layer_thickness: delz_inc
   filetype: fms restart
   is restart: false
   filename_nonrestart: {{ atmosphere_variational_analysis_prefix }}cubed_sphere_grid_atminc.nc
@@ -39,3 +75,13 @@ output:
   filetype: auxgrid
   gridtype: gaussian
   filename: atmanl.
+  field io names:
+    eastward_wind: ugrd
+    northward_wind: vgrd
+    air_temperature: tmp
+    water_vapor_mixing_ratio_wrt_moist_air: spfh
+    cloud_liquid_ice: icmr
+    cloud_liquid_water: clwmr
+    ozone_mass_mixing_ratio: o3mr
+    air_pressure_thickness: dpres
+    layer_thickness: delz

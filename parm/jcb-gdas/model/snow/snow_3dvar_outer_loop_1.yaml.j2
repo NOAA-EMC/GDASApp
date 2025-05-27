@@ -12,13 +12,15 @@
     npx: {{ snow_npx_anl }}
     npy: {{ snow_npy_anl }}
     npz: {{ snow_npz_anl }}
-    field metadata override: {{ snow_fv3jedi_files_path }}/fv3jedi_fieldmetadata_restart.yaml
     time invariant fields:
       state fields:
         datetime: '{{ snow_background_time_iso }}'
         filetype: fms restart
         skip coupler file: true
-        state variables: [orog_filt]
+        state variables:
+        - filtered_orography
+        field io names:
+          filtered_orography: orog_filt
         datapath: {{ snow_orog_files_path }}/
         filename_orog: {{ snow_orog_prefix }}_oro_data.nc
   diagnostics:

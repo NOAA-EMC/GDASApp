@@ -2,7 +2,17 @@ datapath: {{ snow_background_path }}
 filetype: fms restart
 skip coupler file: true
 datetime: '{{ snow_background_time_iso }}'
-state variables: [snodl,vtype,slmsk,sheleg,orog_filt,fice]
+state variables:
+- totalSnowDepth
+- vtype
+- slmsk
+- sheleg
+- filtered_orography
+- fraction_of_ice
+field io names:
+  totalSnowDepth: snodl
+  filtered_orography: orog_filt
+  fraction_of_ice: fice
 filename_sfcd: '{{ snow_background_time_fv3 }}.sfc_data.nc'
 filename_cplr: '{{ snow_background_time_fv3 }}.coupler.res'
 filename_orog: '{{ snow_orog_prefix }}_oro_data.nc'

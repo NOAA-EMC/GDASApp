@@ -5,7 +5,12 @@ output:
     filetype: fms restart
     filename_sfcd: '{{ snow_background_time_fv3 }}.sfc_data.nc'
     filename_cplr: '{{ snow_background_time_fv3 }}.coupler.res'
-    state variables: [snodl,vtype,slmsk]
+    state variables:
+    - totalSnowDepth
+    - vtype
+    - slmsk
+    field io names:
+      totalSnowDepth: snodl
 geometry:
   fms initialization:
     namelist filename: "{{ snow_fv3jedi_files_path }}/fmsmpp.nml"
@@ -17,4 +22,3 @@ geometry:
   npx: {{ snow_npx_ges }}
   npy: {{ snow_npy_ges }}
   npz: {{ snow_npz_ges }}
-  field metadata override: "{{ snow_fv3jedi_files_path }}/fv3jedi_fieldmetadata_restart.yaml"
