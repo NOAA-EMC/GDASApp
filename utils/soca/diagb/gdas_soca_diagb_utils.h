@@ -168,7 +168,7 @@ inline double computeLocalGCScale(const double depth, const double eFoldingLengt
  * @param vertBinSize Multiplier controlling size of depth bin (relative to layer thickness).
  * @param depthMin Minimum depth for applying the averaging.
  */
-void locaMean(const int jnode,
+void localMean(const int jnode,
               const int level,
               const std::vector<int> neighbors,
               const atlas::array::ArrayView<double, 2> layerThickness,

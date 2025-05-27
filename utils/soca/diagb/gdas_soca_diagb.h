@@ -167,10 +167,10 @@ class SocaDiagB : public oops::Application {
                                                                           node2edge,
                                                                           edge2node,
                                                                           jnode);
-            gdasapp::diagb::utils::locaMean(jnode, level, neighbors, viewHocn,
+            gdasapp::diagb::utils::localMean(jnode, level, neighbors, viewHocn,
                                             sumTmp, sum,
                                             viewDepth, configD.vertBinSize, configD.depthMin);
-            gdasapp::diagb::utils::locaMean(jnode, level, neighbors, viewHocn,
+            gdasapp::diagb::utils::localMean(jnode, level, neighbors, viewHocn,
                                             sum2Tmp, sum2,
                                             viewDepth, configD.vertBinSize, configD.depthMin);
           }
