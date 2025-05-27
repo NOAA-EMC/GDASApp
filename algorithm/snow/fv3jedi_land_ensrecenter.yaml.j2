@@ -9,17 +9,19 @@ geometry:
   npx: {{ npx_ges }}
   npy: {{ npy_ges }}
   npz: {{ npz_ges }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 date: "{{ snow_background_time_iso }}"
-variables: [totalSnowDepth]
+variables:
+- totalSnowDepth
 increment mask:
-  variable: [slmsk]
+  variable:
+  - slmsk
   minvalue: 0.99
   maxvalue: 1.01
   background:
     datetime: "{{ snow_background_time_iso }}"
     filetype: fms restart
-    state variables: [slmsk]
+    state variables:
+    - slmsk
     datapath: ./bkg/mem001
     filename is datetime templated: true
     filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
@@ -31,7 +33,10 @@ increment mask:
 deterministic increment:
   datetime: "{{ snow_increment_time_iso }}"
   filetype: fms restart
-  state variables: [snodl]
+  state variables:
+  - totalSnowDepth
+  field io names:
+    totalSnowDepth: snodl
   datapath: ./inc/det_ensres
   filename is datetime templated: true
   filename_core: "snowinc.%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
@@ -43,7 +48,10 @@ deterministic increment:
 deterministic background:
   datetime: "{{ snow_background_time_iso }}"
   filetype: fms restart
-  state variables: [snodl]
+  state variables:
+  - totalSnowDepth
+  field io names:
+    totalSnowDepth: snodl
   datapath: ./bkg/det_ensres
   filename is datetime templated: true
   filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
@@ -57,6 +65,8 @@ output increment:
   datapath: ./inc/ensmean
   datetime: "{{ snow_increment_time_iso }}"
   filetype: fms restart
+  field io names:
+    totalSnowDepth: snodl
   prefix: snowinc
   filename_core: "{{ snow_increment_time_fv3 }}.fv_core.res.nc"
   filename_trcr: "{{ snow_increment_time_fv3 }}.fv_tracer.res.nc"
@@ -70,7 +80,10 @@ ensemble backgrounds:
   template:
     datetime: "{{ snow_background_time_iso }}"
     filetype: fms restart
-    state variables: [snodl]
+    state variables:
+    - totalSnowDepth
+    field io names:
+      totalSnowDepth: snodl
     datapath: ./bkg/mem%mem%
     filename is datetime templated: true
     filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"

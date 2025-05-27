@@ -36,7 +36,7 @@ window_length: PT6H
 bound_to_include: begin
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
-analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
+analysis_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,ice_wat,liq_wat,o3mr]
 number_of_outer_loops: 2
 
 # Testing

@@ -1,8 +1,34 @@
 variable change:
   variable change name: Model2GeoVaLs
-  input variables: &bkgvars [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr,hgtsfc]
-  output variables: &fv3incrvars [ua,va,t,sphum,ice_wat,liq_wat,o3mr,delp,delz]
-jedi increment variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
+  input variables: &bkgvars
+  - eastward_wind
+  - northward_wind
+  - air_temperature
+  - air_pressure_at_surface
+  - water_vapor_mixing_ratio_wrt_moist_air
+  - cloud_liquid_ice
+  - cloud_liquid_water
+  - ozone_mass_mixing_ratio
+  - geopotential_height_at_surface
+  output variables: &fv3incrvars
+  - eastward_wind
+  - northward_wind
+  - air_temperature
+  - water_vapor_mixing_ratio_wrt_moist_air
+  - cloud_liquid_ice
+  - cloud_liquid_water
+  - ozone_mass_mixing_ratio
+  - air_pressure_thickness
+  - layer_thickness
+jedi increment variables:
+- eastward_wind
+- northward_wind
+- air_temperature
+- air_pressure_at_surface
+- water_vapor_mixing_ratio_wrt_moist_air
+- cloud_liquid_ice
+- cloud_liquid_water
+- ozone_mass_mixing_ratio
 fv3 increment variables: *fv3incrvars
 background geometry:
   fms initialization:
@@ -15,7 +41,6 @@ background geometry:
   npx: {{ atmosphere_npx_ges }}
   npy: {{ atmosphere_npy_ges }}
   npz: {{ atmosphere_npz_ges }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
 jedi increment geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -27,7 +52,6 @@ jedi increment geometry:
   npx: {{ atmosphere_npx_ges }}
   npy: {{ atmosphere_npy_ges }}
   npz: {{ atmosphere_npz_ges }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
 fv3 increment geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -39,21 +63,33 @@ fv3 increment geometry:
   npx: {{ atmosphere_npx_ges }}
   npy: {{ atmosphere_npy_ges }}
   npz: {{ atmosphere_npz_ges }}
-  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
 members from template:
   template:
     background input:
       datapath: ./bkg/mem%mem%
       filetype: cube sphere history
       provider: ufs
-      ufs soil nlev: 4
-      ufs fields split by level: [smc,stc]
-      filenames: [ {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_atmf006.nc, {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_sfcf006.nc ]
+      filenames:
+      - {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_atmf006.nc
+      - {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_sfcf006.nc
       datetime: '{{ atmosphere_background_time_iso }}'
       state variables: *bkgvars
+      field io names: &field_io_names
+        eastward_wind: ugrd
+        northward_wind: vgrd
+        air_temperature: tmp
+        layer_thickness: delz
+        air_pressure_thickness: dpres
+        air_pressure_at_surface: pressfc
+        water_vapor_mixing_ratio_wrt_moist_air: spfh
+        cloud_liquid_ice: icmr
+        cloud_liquid_water: clwmr
+        ozone_mass_mixing_ratio: o3mr
+        geopotential_height_at_surface: hgtsfc
     jedi increment input:
       filetype: cube sphere history
       provider: ufs
+      field io names: *field_io_names
       datapath: ./anl/mem%mem%
       filename: cubed_sphere_grid_atminc.jedi.nc
     fv3 increment output:
@@ -61,6 +97,16 @@ members from template:
       provider: ufs
       datapath: ./anl/mem%mem%
       filename: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_atminc.nc
+      field io names:
+        eastward_wind: u_inc
+        northward_wind: v_inc
+        air_temperature: T_inc
+        water_vapor_mixing_ratio_wrt_moist_air: sphum_inc
+        cloud_liquid_water: liq_wat_inc
+        ozone_mass_mixing_ratio: o3mr_inc
+        cloud_liquid_ice: icmr_inc
+        air_pressure_thickness: delp_inc
+        layer_thickness: delz_inc
   pattern: '%mem%'
   nmembers: {{ atmosphere_number_ensemble_members }}
   zero padding: 3
