@@ -49,7 +49,7 @@ void qcIncrement(const soca::State& xb,
 
   // Define bounds per incrememnt variable
   double deltaStericMax;
-  config.get("incrememnt max.steric", deltaStericMax);
+  config.get("increment max.steric", deltaStericMax);
   const std::unordered_map<std::string, std::pair<double, double>> incrBounds = {
     {"sea_surface_height_above_geoid", {-deltaStericMax, deltaStericMax}}
   };
