@@ -109,7 +109,7 @@ class PostProcIncr {
   // -----------------------------------------------------------------------------
   // Read ensemble member n
   /**
-   * @brief Reads an ensemble member incrememnt.
+   * @brief Reads an ensemble member increment.
    *
    * This method reads the nth increment from the configured input and returns a copy on the processing geometry.
    *
