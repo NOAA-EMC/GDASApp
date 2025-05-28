@@ -46,7 +46,7 @@
     #-----------------------------------------------------------------------------
     ### Global range test
     #-----------------------------------------------------------------------------
-  
+
     - filter: Bounds Check
       filter variables: [{name: salinity}]
       minvalue: 2.0
@@ -125,7 +125,7 @@
 
     #### Northwestern shelves
     #-----------------------------------------------------------------------------
-  
+
     - filter: Bounds Check
       filter variables: [{name: salinity}]
       minvalue: 0.0
@@ -142,7 +142,7 @@
 
     #### Southwestern shelves
     #-----------------------------------------------------------------------------
-  
+
     - filter: Bounds Check
       filter variables: [{name: salinity}]
       minvalue: 0.0
@@ -159,7 +159,7 @@
 
     #### Arctic Ocean
     #-----------------------------------------------------------------------------
-  
+
     - filter: Bounds Check
       filter variables: [{name: salinity}]
       minvalue: 2.0
@@ -183,7 +183,7 @@
             variables:
             - ObsError/salinity
             coefs:
-            - 1000.0
+            - 100.0
 {% if letkf_app | default(false) %}
   obs localizations:
   - localization method: Rossby
