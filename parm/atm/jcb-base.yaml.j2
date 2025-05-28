@@ -26,7 +26,7 @@ minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
 number_of_outer_loops: 2
-analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
+analysis_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
 
 # Model things
 # ------------
@@ -118,7 +118,7 @@ bias_files:
 # -------------------------
 local_ensemble_da_solver: GETKF
 
-increment_variables: [ua,va,delz,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
+increment_variables: [eastward_wind,northward_wind,layer_thickness,air_pressure_thickness,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
