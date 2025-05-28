@@ -151,7 +151,8 @@ class PostProcIncr {
    * @param varToAppend Variables to append.
    * @return Updated increment including the appended variables.
    */
-  soca::Increment appendVar(const soca::Increment& socaIncr, const oops::Variables varToAppend) const {
+  soca::Increment appendVar(const soca::Increment& socaIncr,
+                            const oops::Variables varToAppend) const {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======  Append " << varToAppend << std::endl;
 
@@ -170,7 +171,7 @@ class PostProcIncr {
     socaIncrOut.updateFields(outputIncrVar);
 
     // pad layer increment with zeros
-    soca::Increment incrToAppend(layerThickness_);  // Assumes that layerThickness_ contains varToAppend
+    soca::Increment incrToAppend(layerThickness_);
     atlas::FieldSet incrToAppendFs;
     oops::Log::debug() << "-------------------- incrToAppend fields: " << std::endl;
     oops::Log::debug() << incrToAppend << std::endl;

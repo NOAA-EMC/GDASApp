@@ -2,6 +2,8 @@
 
 #include <string>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "atlas/array.h"
 #include "atlas/field.h"
