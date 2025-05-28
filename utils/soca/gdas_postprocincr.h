@@ -21,6 +21,8 @@
 #include "soca/LinearVariableChange/LinearVariableChange.h"
 #include "soca/State/State.h"
 
+#include "gdas_incr_qc.h"
+
 namespace gdasapp {
 
 // -----------------------------------------------------------------------------
@@ -54,9 +56,11 @@ class PostProcIncr {
       layerVar_(getLayerVar(fullConfig)),
       geom_(geom),
       geomProc_(geomProc),
-      Layers_(getLayerThickness(fullConfig, geom, geomProc)),
+      layerThickness_(getLayerThickness(fullConfig, geom, geomProc)),
       comm_(comm),
       ensSize_(1),
+      setToZero_(false),
+      doLVC_(false),
       pattern_() {
 
     oops::Log::info() << "Date: " << std::endl << dt_ << std::endl;
@@ -104,8 +108,15 @@ class PostProcIncr {
 
   // -----------------------------------------------------------------------------
   // Read ensemble member n
-
-  soca::Increment read(const int n) {
+  /**
+   * @brief Reads an ensemble member incrememnt.
+   *
+   * This method reads the nth increment from the configured input and returns a copy on the processing geometry.
+   *
+   * @param n Index of the ensemble member to read.
+   * @return The increment on the processing geometry.
+   */
+  soca::Increment read(const int n) const {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======  Reading ensemble member " << n << std::endl;
 
@@ -131,7 +142,16 @@ class PostProcIncr {
 
   // -----------------------------------------------------------------------------
   // Append variable to increment
-  soca::Increment appendVar(const soca::Increment& socaIncr, const oops::Variables varToAppend) {
+  /**
+   * @brief Appends a new variable to the given increment.
+   *
+   * This method adds variables from varToAppend to the existing increment, padding them with zeros if necessary.
+   *
+   * @param socaIncr The original increment.
+   * @param varToAppend Variables to append.
+   * @return Updated increment including the appended variables.
+   */
+  soca::Increment appendVar(const soca::Increment& socaIncr, const oops::Variables varToAppend) const {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======  Append " << varToAppend << std::endl;
 
@@ -150,7 +170,7 @@ class PostProcIncr {
     socaIncrOut.updateFields(outputIncrVar);
 
     // pad layer increment with zeros
-    soca::Increment incrToAppend(Layers_);  // Assumes that Layers_ contains varToAppend
+    soca::Increment incrToAppend(layerThickness_);  // Assumes that layerThickness_ contains varToAppend
     atlas::FieldSet incrToAppendFs;
     oops::Log::debug() << "-------------------- incrToAppend fields: " << std::endl;
     oops::Log::debug() << incrToAppend << std::endl;
@@ -167,7 +187,15 @@ class PostProcIncr {
 
   // -----------------------------------------------------------------------------
   // Append layer thicknesses to increment
-  soca::Increment appendLayer(soca::Increment& socaIncr) {
+  /**
+   * @brief Appends layer thickness variable to the given increment.
+   *
+   * Uses configuration-specified layer variable and appends its value to the increment.
+   *
+   * @param socaIncr The original increment.
+   * @return Updated increment with the layer variable included.
+   */
+  soca::Increment appendLayer(soca::Increment& socaIncr) const {
     // Append layer thicknesses to the increment
     soca::Increment socaIncrOut = appendVar(socaIncr, layerVar_);
     return socaIncrOut;
@@ -175,7 +203,13 @@ class PostProcIncr {
 
   // -----------------------------------------------------------------------------
   // Set specified variables to 0
-
+  /**
+   * @brief Sets specified variables in the increment to zero.
+   *
+   * This method zeroes out fields listed under "set increment variables to zero" in the configuration.
+   *
+   * @param socaIncr Increment whose fields may be zeroed out.
+   */
   void setToZero(soca::Increment& socaIncr) {
     oops::Log::info() << "==========================================" << std::endl;
     if (!this->setToZero_) {
@@ -206,10 +240,18 @@ class PostProcIncr {
 
   // -----------------------------------------------------------------------------
   // Apply linear variable changes
-
+  /**
+   * @brief Applies a linear variable change to the increment.
+   *
+   * Applies a linear transformation to the increment fields using the provided trajectory and configuration.
+   *
+   * @param socaIncr The increment to transform.
+   * @param lvcConfig Configuration for the linear variable change.
+   * @param xTraj The trajectory state for the linearization.
+   */
   void applyLinVarChange(soca::Increment& socaIncr,
                          const eckit::LocalConfiguration& lvcConfig,
-                         const soca::State& xTraj) {
+                         const soca::State& xTraj) const {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======      applying specified change of variables" << std::endl;
     soca::LinearVariableChange lvc(this->geomProc_, lvcConfig);
@@ -219,8 +261,40 @@ class PostProcIncr {
   }
 
   // -----------------------------------------------------------------------------
-  // Save increment
+  // QC increment
+  /**
+   * @brief Quality controls the increment to ensure it remains within physical bounds.
+   *
+   * This method checks the increment against specified bounds and modifies it if necessary.
+   *
+   * @param xb The background state.
+   * @param dx The increment to QC. Will be modified in place.
+   * @param config The configuration containing bounds information.
+   */
+  void qcIncrement(const soca::State& xb,
+                   soca::Increment& dx,
+                   const eckit::Configuration& config) const {
+    oops::Log::info() << "==========================================" << std::endl;
+    oops::Log::info() << "======      Quality control on increment" << std::endl;
 
+    // Perform quality control on the increment
+    gdasapp::qcIncrement(xb, dx, config);
+    oops::Log::info() << " in qc increment:" << dx << std::endl;
+  }
+
+  // -----------------------------------------------------------------------------
+  // Save increment
+  /**
+   * @brief Saves the increment to disk using the configured output path and renames it.
+   *
+   * The save operation uses MPI barrier to synchronize ranks and optionally renames the output file(s)
+   * based on ensemble member index and specified domains.
+   *
+   * @param socaIncr The increment to write.
+   * @param ensMem Index of the ensemble member, used for filename substitution.
+   * @param domains List of domains (e.g., "ocn", "ice") to rename files for.
+   * @return Sum of return codes from rename operations (0 means success).
+   */
   int save(soca::Increment& socaIncr, int ensMem = 1,
            const std::vector<std::string>& domains = {"ocn", "ice"}) {
     oops::Log::info() << "==========================================" << std::endl;
@@ -266,18 +340,41 @@ class PostProcIncr {
   // Initializers
   // -----------------------------------------------------------------------------
   // Date from config
+  /**
+   * @brief Extracts the date from the configuration.
+   *
+   * @param fullConfig The full configuration object.
+   * @return Parsed date as util::DateTime.
+   */
   util::DateTime getDate(const eckit::Configuration& fullConfig) const {
     std::string strdt;
     fullConfig.get("date", strdt);
     return util::DateTime(strdt);
   }
+
+  // -----------------------------------------------------------------------------
   // get the layer variable
+  /**
+   * @brief Retrieves the layer variable name from configuration.
+   *
+   * @param fullConfig The full configuration object.
+   * @return A Variables object containing the layer variable.
+   */
   oops::Variables getLayerVar(const eckit::Configuration& fullConfig) const {
     oops::Variables layerVar(fullConfig, "layers variable");
     ASSERT(layerVar.size() == 1);
     return layerVar;
   }
+  // -----------------------------------------------------------------------------
   // Read the layer thickness from the relevant background
+  /**
+   * @brief Reads the layer thicknesses from the configured background and regrids to processing geometry.
+   *
+   * @param fullConfig The full configuration.
+   * @param geom The original geometry.
+   * @param geomProc The processing geometry.
+   * @return The increment containing layer thicknesses.
+   */
   soca::Increment getLayerThickness(const eckit::Configuration& fullConfig,
                                     const soca::Geometry& geom,
                                     const soca::Geometry& geomProc) const {
@@ -295,6 +392,12 @@ class PostProcIncr {
   // Utility functions
   // -----------------------------------------------------------------------------
   // Recreate the soca filename from the configuration
+  /**
+   * @brief Reconstructs the full output filename from configuration fields.
+   *
+   * @param domain The domain for which to generate the filename (default "ocn").
+   * @return Fully resolved file path as a string.
+   */
   // TODO(guillaume): Change this in soca?
   // TODO(guillaume): Hard-coded for ocean, implement for seaice as well
   std::string socaFname(const std::string& domain = "ocn") {
@@ -310,8 +413,18 @@ class PostProcIncr {
 
     return incrFname;
   }
-
+  // -----------------------------------------------------------------------------
   // Function to replace all occurrences of a pattern in a string with a replacement
+  /**
+   * @brief Substitutes all instances of a pattern in a string with a replacement.
+   *
+   * Used for templated file path handling (e.g., replacing member index tokens).
+   *
+   * @param input The input string.
+   * @param pattern The substring to search for.
+   * @param replacement The string to replace it with.
+   * @return Resulting string after replacement.
+   */
   std::string swapPattern(const std::string& input,
                           const std::string& pattern,
                           const std::string& replacement) {
@@ -330,11 +443,10 @@ class PostProcIncr {
  public:
   util::DateTime dt_;                  // valid date of increment
   oops::Variables layerVar_;           // layer variable
-  const soca::Increment Layers_;       // layer thicknesses
+  const soca::Increment layerThickness_;       // layer thicknesses
   const soca::Geometry & geom_;        // Native geometry
   const soca::Geometry & geomProc_;    // Geometry to perform processing on
   const eckit::mpi::Comm & comm_;
-  //  std::vector<eckit::LocalConfiguration> inputIncrConfig_;
   eckit::LocalConfiguration inputIncrConfig_;
   eckit::LocalConfiguration outputIncrConfig_;
   eckit::LocalConfiguration zeroIncrConfig_;
