@@ -29,12 +29,8 @@ void qcIncrement(const soca::State& xb,
   oops::Log::info() << "==========================================" << std::endl;
   oops::Log::info() << "======      Quality control on increment" << std::endl;
 
-  soca::State xa(xb);
-  xa += dx;
-
-  atlas::FieldSet xbFs, xaFs, dxFs;
+  atlas::FieldSet xbFs, dxFs;
   xb.toFieldSet(xbFs);
-  xa.toFieldSet(xaFs);
   dx.toFieldSet(dxFs);
 
   // Define physical bounds per state variable
@@ -47,22 +43,14 @@ void qcIncrement(const soca::State& xb,
     {"sea_water_salinity", {saltBounds[0], saltBounds[1]}},
   };
 
-  // Define bounds per incrememnt variable
-  double deltaStericMax;
-  config.get("increment max.steric", deltaStericMax);
-  const std::unordered_map<std::string, std::pair<double, double>> incrBounds = {
-    {"sea_surface_height_above_geoid", {-deltaStericMax, deltaStericMax}}
-  };
-
   // Brute force bounds check
   for (auto& field : dxFs) {
     const std::string name = field.name();
-    if (!xbFs.has(name) || !xaFs.has(name)) continue;
+    if (!xbFs.has(name)) continue;
     if (stateBounds.find(name) == stateBounds.end()) continue;
 
     auto dxView = atlas::array::make_view<double, 2>(field);
     const auto xbView = atlas::array::make_view<const double, 2>(xbFs.field(name));
-    const auto xaView = atlas::array::make_view<const double, 2>(xaFs.field(name));
 
     const double minBound = stateBounds.at(name).first;
     const double maxBound = stateBounds.at(name).second;
