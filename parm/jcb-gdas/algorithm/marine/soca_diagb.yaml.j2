@@ -26,29 +26,26 @@ variables:
   name:
   - sea_water_potential_temperature
   - sea_water_salinity
-  - eastward_sea_water_velocity
-  - northward_sea_water_velocity
+#  - eastward_sea_water_velocity
+#  - northward_sea_water_velocity
   - sea_water_cell_thickness
   - sea_surface_height_above_geoid
   - sea_ice_area_fraction
   - sea_ice_thickness
   - sea_ice_snow_thickness
-  - mom6_mld
+#  - mom6_mld
 
-vertical e-folding scale: 500.0
-min efold depth ratio: 3.0  # keep the e-folding scale at most
-                            # 1/(min efold depth ratio) of the local depth
-rescale: 1.0    # rescales the filtered std. dev. by "rescale"
-max ssh: 0.0    # Limits the amplitude of the unbalanced bkg err
-min depth: 50.0 # zero out the bkg. error. at less than min depth
-number of halo points: 4
-number of neighbors: 16
 
-simple smoothing:
-  horizontal iterations: 100
-  vertical iterations: 1
-
-# TODO(G): Too slow for the below scale
-#diffusion:
-#  horizontal: 500.0e3
-#  vertical: 3.0
+vertical e-folding scale dynamic: 200.0
+vertical e-folding scale static: 300.0
+stencil growth iterations: 100
+min efold depth ratio: 3.0
+rescale dynamic: 0.2
+rescale static: 1.0
+static sig B:
+  sigT: 0.5
+  sigS: 0.1
+  sigSic: 0.01
+max ssh: 0.0
+min depth: 100.0
+vertical bin size: 1.0
