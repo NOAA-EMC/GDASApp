@@ -36,11 +36,8 @@ class DbuoybIODAVariables(IODAVariables):
         self.temp -= 273.15
 
     def filter(self):
-        valid_mask = ~(self.metadata.lat.mask & self.metadata.lon.mask)
-        T_mask = self.TemperatureFilter()
-
-        mask = T_mask & valid_mask
-
+        super().filter()
+        mask = self.TemperatureFilter()
         self.metadata.filter(mask)
         self.temp = self.temp[mask]
 

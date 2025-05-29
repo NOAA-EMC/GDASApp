@@ -93,7 +93,12 @@ class IODAVariables:
         return (self.saln >= self.S_min) & (self.saln <= self.S_max)
 
     def filter(self):
-        pass
+        mask = clean_lat_lon(self.metadata.lat, self.metadata.lon)
+        self.metadata.filter(mask)
+        if hasattr(self, 'temp'):
+            self.temp = self.temp[mask]
+        if hasattr(self, 'saln'):
+            self.saln = self.saln[mask]
 
 ###########################################################################
 
