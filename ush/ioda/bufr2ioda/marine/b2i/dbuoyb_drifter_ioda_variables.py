@@ -7,7 +7,6 @@ from b2iconverter.util import *
 from dbuoyb_surface_ioda_variables import DbuoybIODAVariables, DbuoybMetadata, DbuoybAdditionalVariables
 
 
-
 '''
 buoy types for drifters:
 ------------------------
@@ -47,7 +46,7 @@ class DbuoybDrifterIODAVariables(DbuoybIODAVariables):
         buoy_type = self.metadata.buoy_type
         rpid = self.metadata.stationID
 
-        # rpid = stationID: string array (e.g., 'A8xxx'), 
+        # rpid = stationID: string array (e.g., 'A8xxx')
         # buoy_type: int array (e.g., 1, 2, 3), etc.
         drifter_mask = np.isin(buoy_type, drifter_buoy_types, assume_unique=True)
 
@@ -76,10 +75,10 @@ class DbuoybDrifterMetadata(DbuoybMetadata):
     def write_to_ioda_file(self, obsspace):
         super().write_to_ioda_file(obsspace)
         obsspace.create_var(
-                'MetaData/BuoyType',
-                dtype=self.buoy_type.dtype,
-                fillval=self.buoy_type.fill_value
-            ) \
+            'MetaData/BuoyType',
+            dtype=self.buoy_type.dtype,
+            fillval=self.buoy_type.fill_value
+        ) \
             .write_attr('long_name', 'Buoy Type') \
             .write_data(self.buoy_type)
 
