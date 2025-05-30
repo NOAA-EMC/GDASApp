@@ -34,6 +34,7 @@
 #include "soca/State/State.h"
 
 #include "gdas_soca_diagb_utils.h"
+#include "../gdas_soca_utils.h"
 
 namespace gdasapp {
 
@@ -114,24 +115,9 @@ class SocaDiagB : public oops::Application {
     auto viewHocn = atlas::array::make_view<double, 2>(xbFs["sea_water_cell_thickness"]);
     atlas::array::ArrayT<double> depth(viewHocn.shape(0), viewHocn.shape(1));
     auto viewDepth = atlas::array::make_view<double, 2>(depth);
-
-    for (atlas::idx_t jnode = 0; jnode < depth.shape(0); ++jnode) {
-      viewDepth(jnode, 0) = 0.5 * viewHocn(jnode, 0);
-      for (atlas::idx_t level = 1; level < depth.shape(1); ++level) {
-        viewDepth(jnode, level) = viewDepth(jnode, level - 1)
-                                  + 0.5 * (viewHocn(jnode, level - 1) + viewHocn(jnode, level));
-      }
-    }
-
     atlas::array::ArrayT<double> bathy(viewHocn.shape(0), 1);
     auto viewBathy = atlas::array::make_view<double, 2>(bathy);
-    for (atlas::idx_t jnode = 0; jnode < viewHocn.shape(0); ++jnode) {
-      viewBathy(jnode, 0) = std::accumulate(&viewHocn(jnode, 0),
-                                            &viewHocn(jnode, 0) + viewHocn.shape(1), 0.0);
-    }
-
-    // Update the layer thickness halo
-    nodeColumns.haloExchange(xbFs["sea_water_cell_thickness"]);
+    gdasapp::utils::computeDepthAndBathymetry(viewHocn, viewDepth, viewBathy);
 
     // -- Step 7: Iterative stencil-based variance computation --
     soca::Increment dynaBkgErr(xb);
