@@ -122,7 +122,7 @@ void qcIncrement(const soca::State& xb,
                          << " rescaling Temp/Salt by: " << rescale
                          << " steric height ~ " << stericHeight << std::endl;
 
-      // Refelct the changes in the ssh increment
+      // Reflect the changes in the ssh increment
       viewSshIncr(jnode, 0) = deltaSshMax;
     }
   }
