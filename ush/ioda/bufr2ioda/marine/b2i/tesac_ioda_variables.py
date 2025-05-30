@@ -17,6 +17,7 @@ class TesacIODAVariables(IODAVariables):
         return q
 
     def filter(self):
+        super().filter()
         # Separate TESAC profiles tesac tank
         id_mask = [True if id.isdigit() and id != 0 else False for id in self.metadata.stationID]
         mask = id_mask \
