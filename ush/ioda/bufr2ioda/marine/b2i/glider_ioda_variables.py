@@ -23,6 +23,7 @@ class GliderIODAVariables(IODAVariables):
         self.metadata.depth = np.float32(self.metadata.depth.astype(float) * 0.0001)
 
     def filter(self):
+        super().filter()
         # Separate GLIDER profiles from subpfl tank
         id = self.metadata.stationID
         id_mask = (id >= 68900) & (id <= 68999) | \
