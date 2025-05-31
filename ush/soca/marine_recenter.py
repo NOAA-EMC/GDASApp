@@ -91,7 +91,8 @@ class MarineRecenter(Task):
                                'window_begin': window_begin,
                                'bkg_dir': os.path.join(DATA, 'bkg'),
                                'INPUT': os.path.join(DATA, 'INPUT'),
-                               'ens_dir': os.path.join(DATA, 'ens')})
+                               'ens_dir': os.path.join(DATA, 'ens'),
+                               'cdate': cdate})
 
         # Extend task_config with local_dict
         self.task_config.update(local_dict)
@@ -289,7 +290,7 @@ class MarineRecenter(Task):
         if os.getenv('DOIAU') == "YES":
             cice_rst_date = self.task_config.MARINE_WINDOW_BEGIN.strftime('%Y%m%d.%H%M%S')
         else:
-            cice_rst_date = cdate.strftime('%Y%m%d.%H%M%S')
+            cice_rst_date = self.task_config.cdate.strftime('%Y%m%d.%H%M%S')
         mem_dir_list = []
         copy_list = []
         for mem in range(1, nmem_ens+1):
