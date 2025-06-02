@@ -51,6 +51,8 @@
         initial value: false
       - name: elevation_bkgdiff
         initial value: false
+      - name: rejectlist
+        initial value: false
       - name: background_check
         initial value: false
       - name: buddy_check
@@ -200,6 +202,16 @@
       action:
         name: inflate error
         inflation variable: DerivedMetaData/elevation_diff_exp_inv # 2.0
+    - filter: BlackList
+      where:
+      - variable:
+          name: MetaData/stationIdentification
+        is_in: {{ get_conventional_rejected_stations(observation_from_jcb) }}
+      actions:
+      - name: set
+        flag: rejectlist
+        ignore: rejected observations
+      - name: reject
   obs post filters:
     - filter: Background Check # gross error check
       filter variables:
