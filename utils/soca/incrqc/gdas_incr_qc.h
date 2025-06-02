@@ -14,10 +14,10 @@
 #include "soca/Increment/Increment.h"
 #include "soca/State/State.h"
 
-#include "gdas_soca_utils.h"
+#include "../gdas_soca_utils.h"
 
 namespace gdasapp {
-namespace qcIncrement {
+namespace incrqc {
 
 /**
  * @brief Adjusts an analysis increment to ensure the resulting value stays within specified bounds.
@@ -216,5 +216,5 @@ void qcIncrement(const soca::State& xb,
   dx.fromFieldSet(dxFs);
   oops::Log::info() << "======      Finished quality control on increment" << std::endl;
   }
-}  // namespace qcIncrement
+}  // namespace incrqc
 }  // namespace gdasapp
