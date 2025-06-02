@@ -105,10 +105,13 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
 
-# If INSTALL_PREFIX is empty and this is a workflow build, set it to Global Workflow home directory
-if [[ ! -n "${INSTALL_PREFIX:-}" ]] && [[ $WORKFLOW_BUILD == 'ON' ]]; then
+# If this is a workflow build, set INSTALL_PREFIX to Global Workflow home directory
+if [[ $WORKFLOW_BUILD == 'ON' ]]; then
+  if [[ -n "${INSTALL_PREFIX:-}" ]]; then
+    echo "Warning: INSTALL_PREFIX is set to '${INSTALL_PREFIX}', but this is a workflow build. It will be ignored."
+  fi
+
   INSTALL_PREFIX="${dir_root}/../.."
-  mkdir -p "${INSTALL_PREFIX}"
 fi
 
 # If INSTALL_PREFIX is not empty; install at INSTALL_PREFIX
@@ -145,6 +148,19 @@ if [[ -n ${INSTALL_PREFIX:-} ]]; then
   set -x
   make install -j ${BUILD_JOBS:-8}
   set +x
+
+  # If this is a workflow build, copy the installed files to the Global Workflow exec directory
+  if [[ $WORKFLOW_BUILD == 'ON' ]]; then
+    echo "Copying installed files to Global Workflow exec directory ..."
+    mv $INSTALL_PREFIX/bin/gdas_* $INSTALL_PREFIX/exec/
+    
+    # Rename and move the bufr2ioda executable
+    # Note: this is a hack which will be removed once bufr2ioda is out of GDASApp
+    mv $INSTALL_PREFIX/bin/bufr2ioda.x $INSTALL_PREFIX/exec/gdas_bufr2ioda.x 
+
+    # Delete the original bin directory
+    rm -rf $INSTALL_PREFIX/bin/
+  fi
 else
   # Build
   echo "Building ... `date`"
