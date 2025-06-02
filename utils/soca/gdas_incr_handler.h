@@ -77,7 +77,7 @@ namespace gdasapp {
           fullConfig.get("qc increment", qcConfig);
           qcConfig.get("background", xbConfig);
           soca::State xb(geom, xbConfig);
-          gdasapp::qcIncrement(xb, incr_mom6, qcConfig);
+          postProcIncr.qcIncrement(xb, incr_mom6, qcConfig, geom);
           oops::Log::debug() << "========= after QC:" << std::endl;
           oops::Log::debug() << incr_mom6 << std::endl;
         }
