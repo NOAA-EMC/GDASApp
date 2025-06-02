@@ -1,6 +1,6 @@
 #!/bin/bash --login
 
-# List of forked repositoriesx
+# List of forked repositories
 fork_repos=("soca")
 
 # Make sure certain environment variables are set (these should be set by stable_driver.sh)
