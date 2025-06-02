@@ -152,8 +152,8 @@ if [[ -n ${INSTALL_PREFIX:-} ]]; then
   # If this is a workflow build, copy the installed files to the Global Workflow exec directory
   if [[ $WORKFLOW_BUILD == 'ON' ]]; then
     echo "Copying installed files to Global Workflow exec directory ..."
-    mv $INSTALL_PREFIX/bin/gdas_* $INSTALL_PREFIX/exec/
-    
+    mv $INSTALL_PREFIX/bin/gdas* $INSTALL_PREFIX/exec/
+
     # Rename and move the bufr2ioda executable
     # Note: this is a hack which will be removed once bufr2ioda is out of GDASApp
     mv $INSTALL_PREFIX/bin/bufr2ioda.x $INSTALL_PREFIX/exec/gdas_bufr2ioda.x 
