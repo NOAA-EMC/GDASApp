@@ -48,6 +48,9 @@ esac
 
 set -x
 # ==============================================================================
+# Sync NOAA-EMC forks of JCSDA repositories
+$my_dir/sync_driver.sh
+
 datestr="$(date +%Y%m%d)"
 repo_url="https://github.com/NOAA-EMC/GDASApp.git"
 workflow_url="https://github.com/NOAA-EMC/global-workflow.git"
