@@ -70,5 +70,62 @@ inline double computeStericHeight(const std::vector<double> &tempIncr,
   return stericHeightIncr;
 }
 
+/**
+ * @brief Calculates seawater density using the UNESCO 1983 equation of state
+ *
+ * This function computes the density of seawater based on the empirical UNESCO 1983
+ * polynomial approximation formula described in Fofonoff & Millard (1983). The formula
+ * uses a polynomial with temperature and salinity as variables.
+ *
+ * The equation takes the form:
+ *   ρ(T,S) = ρw(T) + B(T)*S + C(T)*S^(3/2) + D*S^2
+ * where ρw is the density of pure water as a function of temperature,
+ * and B, C, and D are temperature-dependent coefficients.
+ *
+ * @param temp Temperature in degrees Celsius
+ * @param salt Salinity in practical salinity units (PSU)
+ * @return Seawater density in kg/m³
+ *
+ * @note Reference: Fofonoff, N. P., & Millard, R. C. (1983). Algorithms for
+ * computation of fundamental properties of seawater. UNESCO technical papers
+ * in marine science, 44, 53.
+ */
+inline double computeDensityUNESCO(double temp, double salt) {
+  // Empirical UNESCO 1983 polynomial approximation
+
+  // Coefficients from literature (e.g., Fofonoff & Millard, 1983)
+  constexpr double A0 = 999.842594;
+  constexpr double A1 = 6.793952e-2;
+  constexpr double A2 = -9.095290e-3;
+  constexpr double A3 = 1.001685e-4;
+  constexpr double A4 = -1.120083e-6;
+  constexpr double A5 = 6.536332e-9;
+
+  constexpr double B0 = 0.824493;
+  constexpr double B1 = -4.0899e-3;
+  constexpr double B2 = 7.6438e-5;
+  constexpr double B3 = -8.2467e-7;
+  constexpr double B4 = 5.3875e-9;
+
+  constexpr double C0 = -5.72466e-3;
+  constexpr double C1 = 1.0227e-4;
+  constexpr double C2 = -1.6546e-6;
+
+  constexpr double D0 = 4.8314e-4;
+
+  double sqrtS = std::sqrt(salt);
+
+  double rho_w = A0 + A1*temp + A2*temp*temp + A3*temp*temp*temp
+                     + A4*std::pow(temp,4) + A5*std::pow(temp,5);
+
+  double rho = rho_w
+             + (B0 + B1*temp + B2*temp*temp + B3*temp*temp*temp + B4*std::pow(temp,4)) * salt
+             + (C0 + C1*temp + C2*temp*temp) * salt * sqrtS
+             + D0 * salt * salt;
+
+  return rho;  // kg/m³
+}
+
+
 }  // namespace utils
 }  // namespace gdasapp

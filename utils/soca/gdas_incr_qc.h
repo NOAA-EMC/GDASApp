@@ -68,8 +68,9 @@ void qcIncrement(const soca::State& xb,
   auto viewBathy = atlas::array::make_view<double, 2>(bathy);
   gdasapp::utils::computeDepthAndBathymetry(viewHocn, viewDepth, viewBathy);
 
-  // Get ghost nodes
+  // Get ghost nodes and lon/lat coordinates
   const auto ghostView = atlas::array::make_view<int, 1>(geom.functionSpace().ghost());
+  const auto & lonlat = atlas::array::make_view<double, 2>(geom.functionSpace().lonlat());
 
   // Get the physical bounds from configuration
   std::vector<double> tempBounds(2);
@@ -85,10 +86,14 @@ void qcIncrement(const soca::State& xb,
   double deltaSshMax = config.getDouble("increment max.steric", 10.0);
   oops::Log::debug() << "QC: max steric height increment: " << deltaSshMax << std::endl;
 
-  // Limit the steric height incrememnt to deltaSshMax
+  // Prepare views for increment and background fields
   auto viewTempIncr = atlas::array::make_view<double, 2>(dxFs["sea_water_potential_temperature"]);
   auto viewSaltIncr = atlas::array::make_view<double, 2>(dxFs["sea_water_salinity"]);
   auto viewSshIncr = atlas::array::make_view<double, 2>(dxFs["sea_surface_height_above_geoid"]);
+  auto viewTempBkg = atlas::array::make_view<double, 2>(xbFs["sea_water_potential_temperature"]);
+  auto viewSaltBkg = atlas::array::make_view<double, 2>(xbFs["sea_water_salinity"]);
+
+  // Steric height increment and stability checks
   for (atlas::idx_t jnode = 0; jnode < viewTempIncr.shape(0); ++jnode) {
     // Skip ghost and land nodes
     if (ghostView(jnode) > 0) continue;
@@ -98,8 +103,53 @@ void qcIncrement(const soca::State& xb,
     const atlas::idx_t nlevels = viewTempIncr.shape(1);
     std::vector<double> tempIncr(nlevels);
     std::vector<double> saltIncr(nlevels);
+    std::vector<double> tempBkg(nlevels);
+    std::vector<double> saltBkg(nlevels);
+    std::vector<double> rhoAna(nlevels);
+    std::vector<double> rhoBkg(nlevels);
+    std::vector<double> drhodz_ana(nlevels);
+    std::vector<double> drhodz_bkg(nlevels);
     std::vector<double> layerThickness(nlevels);
 
+    // Check water column stability and adjust if necessary
+    int niterations = config.getInt("increment stability iterations", 10);
+    const double rhoMinGrad = config.getDouble("min stable density gradient", 1e-4);
+
+    for (auto iter = 0; iter < niterations; ++iter) {
+      for (atlas::idx_t level = 0; level < nlevels; ++level) {
+        rhoAna[level] = gdasapp::utils::computeDensityUNESCO(viewTempBkg(jnode, level) + viewTempIncr(jnode, level),
+                                                             viewSaltBkg(jnode, level) + viewSaltIncr(jnode, level));
+        rhoBkg[level] = gdasapp::utils::computeDensityUNESCO(viewTempBkg(jnode, level), viewSaltBkg(jnode, level));
+        //std::cout << rhoAna[level] << std::endl;
+      }
+      int cnt(0);
+      for (atlas::idx_t level = 0; level < nlevels; ++level) {
+        if (viewHocn(jnode, level) <= 0.1
+         && viewHocn(jnode, level - 1) <= 0.1) continue;
+        drhodz_ana[level] = 0.0;
+        drhodz_bkg[level] = 0.0;
+        if (level > 0) {
+          drhodz_ana[level] = (rhoAna[level] - rhoAna[level - 1]) / (viewDepth(jnode, level) - viewDepth(jnode, level - 1));
+          drhodz_bkg[level] = (rhoBkg[level] - rhoBkg[level - 1]) / (viewDepth(jnode, level) - viewDepth(jnode, level - 1));
+        }
+        if (drhodz_ana[level] < 0.0 && drhodz_bkg[level] >= 0.0) {
+          cnt++;
+          if (iter == niterations - 1) {
+            oops::Log::debug() << "QC: stable background but unstable analysis at node " << jnode
+                               << " lon/lat " << lonlat(jnode, 0) << " " << lonlat(jnode, 1) << ", "
+                               << ", level " << level << ": "
+                               << drhodz_ana[level] << " " << drhodz_bkg[level] <<std::endl;
+          }
+          // Adjust the increment to reduce instability
+          double factor = std::clamp(std::abs(drhodz_ana[level]) / rhoMinGrad, 0.1, 1.0);
+          viewTempIncr(jnode, level) *= (1.0 - 0.5 * factor);
+          viewSaltIncr(jnode, level) *= (1.0 - 0.5 * factor);
+        }
+        //oops::Log::info() << "QC: " << cnt << " unstable nodes" << std::endl;
+      }
+    }
+
+    // Limit the steric height incrememnt to deltaSshMax
     if (std::abs(viewSshIncr(jnode, 0)) > deltaSshMax) {
       // Linearity assumption for steric height increment
       double rescale = deltaSshMax / std::abs(viewSshIncr(jnode, 0));
@@ -153,13 +203,13 @@ void qcIncrement(const soca::State& xb,
         dxView(jnode, level) = adjustAnalysisBounds(xbView(jnode, level), dX, minBound, maxBound);
 
         // Log if the increment was adjusted
-        if (dxView(jnode, level) != dX) {
-          oops::Log::debug() << "QC: " << name << " at node " << jnode
-                            << ", level " << level << ": "
-                            << "original increment " << dX
-                            << ", adjusted increment " << dxView(jnode, level)
-                            << std::endl;
-        }
+        //if (dxView(jnode, level) != dX) {
+        //  oops::Log::debug() << "QC: " << name << " at node " << jnode
+        //                    << ", level " << level << ": "
+        //                    << "original increment " << dX
+        //                    << ", adjusted increment " << dxView(jnode, level)
+        //                    << std::endl;
+        //}
       }
     }
   }
