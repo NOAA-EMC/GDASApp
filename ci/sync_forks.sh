@@ -3,7 +3,7 @@
 # List of forked repositories
 fork_repos=("soca")
 
-# Make sure certain environment variables are set
+# Make sure certain environment variables are set (these should be set by stable_driver.sh)
 [ ! -z "${GDAS_CI_ROOT}" ] || echo { echo "Error: variable GDAS_CI_ROOT not set"; exit 1; }
 [ ! -z "${TARGET}" ] || echo { echo "Error: variable TARGET not set"; exit 1; }
 
