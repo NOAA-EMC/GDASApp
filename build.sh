@@ -112,6 +112,7 @@ if [[ $WORKFLOW_BUILD == 'ON' ]]; then
   fi
 
   INSTALL_PREFIX="${dir_root}/../.."
+  [ -d $INSTALL_PREFIX ] || { echo "Error: INSTALL_PREFIX does not exist" >&2; exit 1; }
 fi
 
 # If INSTALL_PREFIX is not empty; install at INSTALL_PREFIX
@@ -152,14 +153,20 @@ if [[ -n ${INSTALL_PREFIX:-} ]]; then
   # If this is a workflow build, copy the installed files to the Global Workflow exec directory
   if [[ $WORKFLOW_BUILD == 'ON' ]]; then
     echo "Copying installed files to Global Workflow exec directory ..."
-    mv $INSTALL_PREFIX/bin/gdas* $INSTALL_PREFIX/exec/
+
+    # Make sure directories exist 
+    [ -d "$INSTALL_PREFIX/bin" ] || { echo "Error: $INSTALL_PREFIX/bin does not exist" >&2; exit 1; }
+    [ -d "$INSTALL_PREFIX/exec" ] || { echo "Error: $INSTALL_PREFIX/exec does not exist" >&2; exit 1; }
+
+    # Move GDASApp executables from bin to exec directory
+    mv "$INSTALL_PREFIX/bin/gdas*" "$INSTALL_PREFIX/exec/"
 
     # Rename and move the bufr2ioda executable
     # Note: this is a hack which will be removed once bufr2ioda is out of GDASApp
-    mv $INSTALL_PREFIX/bin/bufr2ioda.x $INSTALL_PREFIX/exec/gdas_bufr2ioda.x 
+    mv "$INSTALL_PREFIX/bin/bufr2ioda.x" "$INSTALL_PREFIX/exec/gdas_bufr2ioda.x" 
 
     # Delete the original bin directory
-    rm -rf $INSTALL_PREFIX/bin/
+    rm -rf "$INSTALL_PREFIX/bin/"
   fi
 else
   # Build
