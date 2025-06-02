@@ -35,6 +35,6 @@ for repo_name in "${fork_repos[@]}"; do
     git push --set-upstream origin dev/emc || { echo "$repo_name: Failed to push dev/emc branch"; exit 1; }
 
     # Change directory back to sync root and delete the cloned repo
-    cd $syncroot
+    cd "$syncroot"
     rm -rf $syncroot/$repo_name
 done
