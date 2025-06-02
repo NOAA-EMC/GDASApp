@@ -9,15 +9,15 @@ fork_repos=("soca")
 
 # Create base directory and cd into it
 syncroot=$GDAS_CI_ROOT/sync
-mkdir -p $syncroot # make sure the directory exists
-cd $syncroot
+mkdir -p "$syncroot" # make sure the directory exists
+cd "$syncroot"
 
 for repo_name in "${fork_repos[@]}"; do
     # Clone fork develop branch
     repo_url="https://github.com/NOAA-EMC/${repo_name}.git"
     git clone -b develop $repo_url || { echo "Failed to clone $repo_name develop branch"; exit 1; }
-    mkdir -p $syncroot/$repo_name # make sure the directory exists
-    cd $syncroot/$repo_name
+    mkdir -p $syncroot/"$repo_name" # make sure the directory exists
+    cd "$syncroot"/"$repo_name"
 
     # Fetch JCSDA remote
     git remote add jcsda https://github.com/jcsda/${repo_name}.git || { echo "$repo_name: Failed to add remote jcsda"; exit 1; }
@@ -36,5 +36,5 @@ for repo_name in "${fork_repos[@]}"; do
 
     # Change directory back to sync root and delete the cloned repo
     cd "$syncroot"
-    rm -rf $syncroot/$repo_name
+    rm -rf "$syncroot"/"$repo_name"
 done
