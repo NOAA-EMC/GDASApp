@@ -4,7 +4,6 @@
 fork_repos=("soca")
 
 # Make sure certain environment variables are set
-[ ! -z "${fork_repos}" ] || echo { echo "Error: variable FORK_REPOS not set"; exit 1; }
 [ ! -z "${GDAS_CI_ROOT}" ] || echo { echo "Error: variable GDAS_CI_ROOT not set"; exit 1; }
 [ ! -z "${TARGET}" ] || echo { echo "Error: variable TARGET not set"; exit 1; }
 
