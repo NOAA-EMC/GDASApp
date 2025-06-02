@@ -1,11 +1,11 @@
 #!/bin/bash --login
 
-# List of forked repositories
+# List of forked repositoriesx
 fork_repos=("soca")
 
 # Make sure certain environment variables are set (these should be set by stable_driver.sh)
-[ ! -z "${GDAS_CI_ROOT}" ] || echo { echo "Error: variable GDAS_CI_ROOT not set"; exit 1; }
-[ ! -z "${TARGET}" ] || echo { echo "Error: variable TARGET not set"; exit 1; }
+[ ! -z "${GDAS_CI_ROOT}" ] || { echo "Error: variable GDAS_CI_ROOT not set"; exit 1; }
+[ ! -z "${TARGET}" ] || { echo "Error: variable TARGET not set"; exit 1; }
 
 # Create base directory and cd into it
 syncroot=$GDAS_CI_ROOT/sync
@@ -35,6 +35,6 @@ for repo_name in "${fork_repos[@]}"; do
     git push --set-upstream origin dev/emc || { echo "$repo_name: Failed to push dev/emc branch"; exit 1; }
 
     # Change directory back to sync root and delete the cloned repo
-    cd ..
+    cd $syncroot
     rm -rf $syncroot/$repo_name
 done
