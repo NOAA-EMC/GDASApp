@@ -126,6 +126,5 @@ inline double computeDensityUNESCO(double temp, double salt) {
   return rho;  // kg/m³
 }
 
-
 }  // namespace utils
 }  // namespace gdasapp
