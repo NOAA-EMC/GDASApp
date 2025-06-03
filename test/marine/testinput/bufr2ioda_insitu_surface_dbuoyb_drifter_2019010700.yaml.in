@@ -1,0 +1,13 @@
+---
+data_format: dbuoyb
+subsets: dbuoyb
+source: NCEP data tank
+data_type: dbuoyb_surface_drifter
+cycle_type: gdas
+cycle_datetime: '2019010700'
+dump_directory: __BUFRINPUTDIR__
+ioda_directory: __IODAOUTPUTDIR__
+ocean_basin: __OCEANBASIN__
+data_description: 6-hrly in situ drifter surface temperature from dbuoyb
+data_provider: U.S. NOAA
+
