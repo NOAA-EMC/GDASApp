@@ -271,15 +271,17 @@ class PostProcIncr {
    * @param xb The background state.
    * @param dx The increment to QC. Will be modified in place.
    * @param config The configuration containing bounds information.
+   * @param geom The soca geometry
    */
   void qcIncrement(const soca::State& xb,
                    soca::Increment& dx,
-                   const eckit::Configuration& config) const {
+                   const eckit::Configuration& config,
+                   const soca::Geometry& geom) const {
     oops::Log::info() << "==========================================" << std::endl;
     oops::Log::info() << "======      Quality control on increment" << std::endl;
 
     // Perform quality control on the increment
-    gdasapp::qcIncrement(xb, dx, config);
+    gdasapp::qcIncrement::qcIncrement(xb, dx, config, geom);
     oops::Log::info() << " in qc increment:" << dx << std::endl;
   }
 
