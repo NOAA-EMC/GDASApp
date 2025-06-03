@@ -154,16 +154,17 @@ if [[ -n ${INSTALL_PREFIX:-} ]]; then
   if [[ $WORKFLOW_BUILD == 'ON' ]]; then
     echo "Copying installed files to Global Workflow exec directory ..."
 
-    # Make sure directories exist 
+    # Make sure directories exist
     [ -d "$INSTALL_PREFIX/bin" ] || { echo "Error: $INSTALL_PREFIX/bin does not exist" >&2; exit 1; }
     [ -d "$INSTALL_PREFIX/exec" ] || { echo "Error: $INSTALL_PREFIX/exec does not exist" >&2; exit 1; }
 
     # Move GDASApp executables from bin to exec directory
     mv "$INSTALL_PREFIX/bin"/gdas* "$INSTALL_PREFIX/exec/"
 
-    # Rename and move the bufr2ioda executable
-    # Note: this is a hack which will be removed once bufr2ioda is out of GDASApp
-    mv "$INSTALL_PREFIX/bin/bufr2ioda.x" "$INSTALL_PREFIX/exec/gdas_bufr2ioda.x" 
+    # Move GDASApp executables, from submodules, that don't have a gdas_* prefix in the name
+    mv "$INSTALL_PREFIX/bin/bufr2ioda.x" "$INSTALL_PREFIX/exec/gdas_bufr2ioda.x"
+    mv "$INSTALL_PREFIX/bin/calcfIMS.exe" "$INSTALL_PREFIX/exec/gdas_calcfIMS.x" # .exe -> .x
+    mv "$INSTALL_PREFIX/bin/apply_incr.exe" "$INSTALL_PREFIX/exec/gdas_apply_incr.x" # .exe -> .x
 
     # Delete the original bin directory
     rm -rf "$INSTALL_PREFIX/bin/"
