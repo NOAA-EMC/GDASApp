@@ -159,7 +159,7 @@ if [[ -n ${INSTALL_PREFIX:-} ]]; then
     [ -d "$INSTALL_PREFIX/exec" ] || { echo "Error: $INSTALL_PREFIX/exec does not exist" >&2; exit 1; }
 
     # Move GDASApp executables from bin to exec directory
-    mv "$INSTALL_PREFIX/bin/gdas*" "$INSTALL_PREFIX/exec/"
+    mv "$INSTALL_PREFIX/bin"/gdas* "$INSTALL_PREFIX/exec/"
 
     # Rename and move the bufr2ioda executable
     # Note: this is a hack which will be removed once bufr2ioda is out of GDASApp
