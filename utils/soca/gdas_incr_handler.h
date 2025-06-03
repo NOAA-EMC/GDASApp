@@ -17,7 +17,6 @@
 
 #include "soca/Geometry/Geometry.h"
 #include "soca/Increment/Increment.h"
-#include "soca/LinearVariableChange/LinearVariableChange.h"
 #include "soca/State/State.h"
 
 #include "gdas_postprocincr.h"

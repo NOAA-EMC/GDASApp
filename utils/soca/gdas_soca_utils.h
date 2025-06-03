@@ -4,6 +4,10 @@
 #include <cmath>
 #include <vector>
 
+#include "soca/Increment/Increment.h"
+#include "soca/LinearVariableChange/LinearVariableChange.h"
+#include "soca/State/State.h"
+
 namespace gdasapp {
 namespace utils {
 
@@ -11,19 +15,19 @@ namespace utils {
   constexpr double alpha = 2.0e-4;       // Thermal expansion coefficient [1/K]
   constexpr double beta  = 7.6e-4;       // Haline contraction coefficient [1/psu]
 
-  /**
-   * @brief Computes ocean depth and bathymetry from ocean thickness values
-   *
-   * This function calculates:
-   * 1. Depth at of the center of each layers
-   * 2. Bathymetry as the total sum of ocean thickness values at each node
-   *
-   * @param viewHocn 2D array view containing ocean thickness values [nodes × levels]
-   *
-   * @return std::pair of ArrayViews containing:
-   *         - first: Computed depth values at each level [nodes × levels]
-   *         - second: Computed bathymetry values [nodes × 1]
-   */
+/**
+ * @brief Computes ocean depth and bathymetry from ocean thickness values
+ *
+ * This function calculates:
+ * 1. Depth at of the center of each layers
+ * 2. Bathymetry as the total sum of ocean thickness values at each node
+ *
+ * @param viewHocn 2D array view containing ocean thickness values [nodes × levels]
+ *
+ * @return std::pair of ArrayViews containing:
+ *         - first: Computed depth values at each level [nodes × levels]
+ *         - second: Computed bathymetry values [nodes × 1]
+ */
 
 void computeDepthAndBathymetry(
     const atlas::array::ArrayView<double, 2>& viewHocn,
@@ -44,30 +48,6 @@ void computeDepthAndBathymetry(
         viewBathy(jnode, 0) = std::accumulate(&viewHocn(jnode, 0),
                                           &viewHocn(jnode, 0) + viewHocn.shape(1), 0.0);
     }
-}
-
-/**
- * @brief Compute steric height increment from temperature/salinity increments and layer thickness.
- *
- * @param tempIncr        Temperature increment profile [°C]
- * @param saltIncr        Salinity increment profile [psu]
- * @param layerThickness  Layer thickness profile [m]
- * @return approximate steric height increment [m]
- */
-inline double computeStericHeight(const std::vector<double> &tempIncr,
-                                  const std::vector<double> &saltIncr,
-                                  const std::vector<double> &layerThickness) {
-  assert(tempIncr.size() == saltIncr.size());
-  assert(saltIncr.size() == layerThickness.size());
-
-  double stericHeightIncr = 0.0;
-
-  for (size_t k = 0; k < tempIncr.size(); ++k) {
-    // dH = (-alpha * dT + beta * dS) * dz
-    stericHeightIncr += (alpha * tempIncr[k] - beta * saltIncr[k]) * layerThickness[k];
-  }
-
-  return stericHeightIncr;
 }
 
 /**
@@ -124,6 +104,98 @@ inline double computeDensityUNESCO(double temp, double salt) {
              + D0 * salt * salt;
 
   return rho;  // kg/m³
+}
+
+/**
+ * @brief Compute steric height increment from temperature/salinity increments and layer thickness.
+ *
+ * @param tempIncr        Temperature increment profile [°C]
+ * @param saltIncr        Salinity increment profile [psu]
+ * @param layerThickness  Layer thickness profile [m]
+ * @return approximate steric height increment [m]
+ */
+inline double computeStericHeightIncrement(const std::vector<double> &dTemp,
+                                           const std::vector<double> &dSalt,
+                                           const std::vector<double> &dz) {
+  assert(dTemp.size() == dSalt.size());
+  assert(dSalt.size() == dz.size());
+
+  double stericHeightIncr = 0.0;
+
+  for (size_t k = 0; k < dTemp.size(); ++k) {
+    // dH = (-alpha * dT + beta * dS) * dz
+    stericHeightIncr += (alpha * dTemp[k] - beta * dSalt[k]) * dz[k];
+  }
+
+  return stericHeightIncr;
+}
+
+/**
+ * @brief Computes the steric height increment from temperature and salinity increments
+ *
+ * The steric height increment is estimated by integrating the change in specific volume
+ * (1/density) over the water column after applying the temperature and salinity increments.
+ *
+ * @param tempBkg  Background temperature profile (size N)
+ * @param saltBkg  Background salinity profile (size N)
+ * @param dTemp    Temperature increment profile (size N)
+ * @param dSalt    Salinity increment profile (size N)
+ * @param dz       Thickness of each layer in meters (size N)
+ * @return         Steric height increment in meters
+ */
+inline double computeStericHeightIncrement(const std::vector<double>& tempBkg,
+                                           const std::vector<double>& saltBkg,
+                                           const std::vector<double>& dTemp,
+                                           const std::vector<double>& dSalt,
+                                           const std::vector<double>& dz) {
+  assert(tempBkg.size() == saltBkg.size());
+  assert(dTemp.size() == dSalt.size());
+  assert(tempBkg.size() == dTemp.size());
+  assert(dz.size() == tempBkg.size());
+
+  double stericHeightIncr = 0.0;
+  const size_t N = tempBkg.size();
+
+  for (size_t k = 0; k < N; ++k) {
+    if (dz[k] <= 0.1) continue;
+    double rho_bkg = computeDensityUNESCO(tempBkg[k], saltBkg[k]);
+    double rho_ana = computeDensityUNESCO(tempBkg[k] + dTemp[k], saltBkg[k] + dSalt[k]);
+
+    // Skip if densities are invalid or non-physical
+    if (rho_bkg <= 0.0 || rho_ana <= 0.0) continue;
+
+    double deltaSpecificVolume = (1.0 / rho_ana) - (1.0 / rho_bkg);
+    stericHeightIncr += deltaSpecificVolume * dz[k];
+  }
+  constexpr double rho0 = 1025.0;  // Reference density (kg/m³)
+
+  return rho0 * stericHeightIncr;  // meters
+}
+
+/**
+ * @brief Applies a linear variable change to the increment using GSW.
+ *
+ * Applies a linear transformation to the increment fields using the provided trajectory and configuration.
+ *
+ * @param dx The increment to transform.
+ * @param lvcConfig Configuration for the linear variable change.
+ * @param xTraj The trajectory state for the linearization.
+ */
+void computeStericHeightIncrement(const soca::Geometry& geom,
+                                  soca::Increment& dx,
+                                  const eckit::LocalConfiguration& lvcConfig,
+                                  const soca::State& xTraj,
+                                  oops::Variables dxVariables) {
+  // Set the ssh increment to zero (the soca linear changevar accumulates increments)
+  atlas::FieldSet dxFs;
+  dx.toFieldSet(dxFs);
+  auto viewSshIncr = atlas::array::make_view<double, 2>(dxFs["sea_surface_height_above_geoid"]);
+  viewSshIncr.assign(0.0);
+
+  // Apply the linear variable change
+  soca::LinearVariableChange lvc(geom, lvcConfig);
+  lvc.changeVarTraj(xTraj, dxVariables);
+  lvc.changeVarTL(dx, dxVariables);
 }
 
 }  // namespace utils

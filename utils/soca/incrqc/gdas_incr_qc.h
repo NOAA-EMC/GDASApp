@@ -5,6 +5,8 @@
 #include <utility>
 #include <vector>
 
+#include "eckit/config/LocalConfiguration.h"
+
 #include "atlas/array.h"
 #include "atlas/field.h"
 #include "atlas/field/FieldSet.h"
@@ -56,6 +58,10 @@ void qcIncrement(const soca::State& xb,
   oops::Log::info() << "==========================================" << std::endl;
   oops::Log::info() << "======      Quality control on increment" << std::endl;
 
+  // Replace the ssh increment with a steric height increment
+  eckit::LocalConfiguration lvcConfig(config, "steric increment");
+  gdasapp::utils::computeStericHeightIncrement(geom, dx, lvcConfig, xb, dx.variables());
+
   atlas::FieldSet xbFs, dxFs;
   xb.toFieldSet(xbFs);
   dx.toFieldSet(dxFs);
@@ -94,6 +100,9 @@ void qcIncrement(const soca::State& xb,
   auto viewSaltBkg = atlas::array::make_view<double, 2>(xbFs["sea_water_salinity"]);
 
   // Steric height increment and stability checks
+  int niterations = config.getInt("increment stability iterations", 10);
+  const double rhoMinGrad = config.getDouble("min stable density gradient", 1e-4);
+
   for (atlas::idx_t jnode = 0; jnode < viewTempIncr.shape(0); ++jnode) {
     // Skip ghost and land nodes
     if (ghostView(jnode) > 0) continue;
@@ -112,9 +121,6 @@ void qcIncrement(const soca::State& xb,
     std::vector<double> layerThickness(nlevels);
 
     // Check water column stability and adjust if necessary
-    int niterations = config.getInt("increment stability iterations", 10);
-    const double rhoMinGrad = config.getDouble("min stable density gradient", 1e-4);
-
     for (auto iter = 0; iter < niterations; ++iter) {
       for (atlas::idx_t level = 0; level < nlevels; ++level) {
         rhoAna[level] = gdasapp::utils::computeDensityUNESCO(viewTempBkg(jnode, level) + viewTempIncr(jnode, level),
@@ -132,10 +138,11 @@ void qcIncrement(const soca::State& xb,
           drhodz_ana[level] = (rhoAna[level] - rhoAna[level - 1]) / (viewDepth(jnode, level) - viewDepth(jnode, level - 1));
           drhodz_bkg[level] = (rhoBkg[level] - rhoBkg[level - 1]) / (viewDepth(jnode, level) - viewDepth(jnode, level - 1));
         }
-        if (drhodz_ana[level] < 0.0 && drhodz_bkg[level] >= 0.0) {
+        if ((drhodz_ana[level] < 0.0 && drhodz_bkg[level] >= 0.0) ||
+            (drhodz_bkg[level] < 0.0 && drhodz_ana[level] < drhodz_bkg[level])) {
           cnt++;
           if (iter == niterations - 1) {
-            oops::Log::debug() << "QC: stable background but unstable analysis at node " << jnode
+            oops::Log::debug() << "QC: stablility adjustment at node " << jnode
                                << " lon/lat " << lonlat(jnode, 0) << " " << lonlat(jnode, 1) << ", "
                                << ", level " << level << ": "
                                << drhodz_ana[level] << " " << drhodz_bkg[level] <<std::endl;
@@ -158,16 +165,25 @@ void qcIncrement(const soca::State& xb,
         viewSaltIncr(jnode, level) *= rescale;
         tempIncr[level] = viewTempIncr(jnode, level);
         saltIncr[level] = viewSaltIncr(jnode, level);
+        tempBkg[level] = viewTempBkg(jnode, level);
+        saltBkg[level] = viewSaltBkg(jnode, level);
         layerThickness[level] = viewHocn(jnode, level);
       }
 
       // Compute the approximate steric height increment
-      double stericHeight = gdasapp::utils::computeStericHeight(tempIncr,
-                                                                saltIncr,
-                                                                layerThickness);
+      double stericHeight = gdasapp::utils::computeStericHeightIncrement(tempIncr,
+                                                                         saltIncr,
+                                                                         layerThickness);
+      double stericHeight2 = gdasapp::utils::computeStericHeightIncrement(tempBkg,
+                                                                          saltBkg,
+                                                                          tempIncr,
+                                                                          saltIncr,
+                                                                          layerThickness);
       double sshIncr = viewSshIncr(jnode, 0);
       oops::Log::debug() << "QC: steric height increment at node " << jnode << ": "
                          << stericHeight << " ssh incr: " << viewSshIncr(jnode, 0) << std::endl;
+      oops::Log::debug() << "QC: steric height increment (method 2) at node " << jnode << ": "
+                         << stericHeight2 << " ssh incr: " << viewSshIncr(jnode, 0) << std::endl;
       oops::Log::debug() << "QC: ssh increment at node " << jnode << ": " << viewSshIncr(jnode, 0)
                          << " rescaling Temp/Salt by: " << rescale
                          << " steric height ~ " << stericHeight << std::endl;
