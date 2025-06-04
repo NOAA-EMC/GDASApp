@@ -33,7 +33,6 @@ usage() {
 # ==============================================================================
 
 # Defaults:
-INSTALL_PREFIX=""
 CMAKE_OPTS=""
 BUILD_TARGET="${MACHINE_ID:-'localhost'}"
 BUILD_VERBOSE="NO"
@@ -41,12 +40,10 @@ CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
 BUILD_JCSDA="NO"
 COMPILER="${COMPILER:-intel}"
+WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 
 while getopts "p:t:c:hvdfa" opt; do
   case $opt in
-    p)
-      INSTALL_PREFIX=$OPTARG
-      ;;
     t)
       BUILD_TARGET=$OPTARG
       ;;
@@ -95,36 +92,32 @@ if [[ $BUILD_TARGET == 'wcoss2' ]]; then
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
 fi
 
-BUILD_DIR=${BUILD_DIR:-$dir_root/build}
 if [[ $CLEAN_BUILD == 'YES' ]]; then
   [[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR}
 fi
 mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 
-# activate tests based on if this is cloned within the global-workflow
-WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
+# Set WORKFLOW_TESTS as CMake option
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
 
-# If this is a workflow build, set INSTALL_PREFIX to Global Workflow home directory
 if [[ $WORKFLOW_BUILD == 'ON' ]]; then
-  if [[ -n "${INSTALL_PREFIX:-}" ]]; then
-    echo "Warning: INSTALL_PREFIX is set to '${INSTALL_PREFIX}', but this is a workflow build. It will be ignored."
-  fi
+  # Set INSTALL_PREFIX to the Global Workflow home directory
+  [ -d "$HOMEgfs" ] || { echo "Error: $HOMEgfs does not exist" >&2; exit 1; }
+  INSTALL_PREFIX=$HOMEgfs
 
-  INSTALL_PREFIX="${dir_root}/../.."
-  [ -d $INSTALL_PREFIX ] || { echo "Error: INSTALL_PREFIX does not exist" >&2; exit 1; }
-fi
-
-# If INSTALL_PREFIX is not empty; install at INSTALL_PREFIX
-[[ -n "${INSTALL_PREFIX:-}" ]] && CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
-
-# Link MOM6 and Icepack in SOCA to submodules in the UFS repo
-if [[ $WORKFLOW_BUILD == 'ON' ]]; then
+  # Link MOM6 and Icepack in SOCA to submodules in the UFS repo
   rm -rf $dir_root/sorc/soca/external/mom6/MOM6
   rm -rf $dir_root/sorc/soca/external/icepack/Icepack
-  ln -sf $dir_root/../ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
-  ln -sf $dir_root/../ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
+  ln -sf $HOMEgfs/sorc/ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
+  ln -sf $HOMEgfs/sorc/ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
+else
+  # Set INSTALL_PREFIX to the GDASApp home directory
+  INSTALL_PREFIX=${dir_root}
 fi
+
+# Set INSTALL_PREFIX as CMake option
+[ -d "$INSTALL_PREFIX" ] || { echo "Error: $INSTALL_PREFIX does not exist" >&2; exit 1; }
+[CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
@@ -142,51 +135,30 @@ cmake \
   $dir_root/bundle
 set +x
 
-# Install or build depending on whether INSTALL_PREFIX is set
-if [[ -n ${INSTALL_PREFIX:-} ]]; then
-  # Install
-  echo "Installing ... `date`"
-  set -x
-  make install -j ${BUILD_JOBS:-8}
-  set +x
+# Install
+echo "Installing ... `date`"
+set -x
+make install -j ${BUILD_JOBS:-8}
+set +x
 
-  # If this is a workflow build, copy the installed files to the Global Workflow exec directory
-  if [[ $WORKFLOW_BUILD == 'ON' ]]; then
-    echo "Copying installed files to Global Workflow exec directory ..."
+# If this is a workflow build, copy the installed files to the Global Workflow exec directory
+if [[ $WORKFLOW_BUILD == 'ON' ]]; then
+  echo "Copying installed files to Global Workflow exec directory ..."
 
-    # Make sure directories exist
-    [ -d "$INSTALL_PREFIX/bin" ] || { echo "Error: $INSTALL_PREFIX/bin does not exist" >&2; exit 1; }
-    [ -d "$INSTALL_PREFIX/exec" ] || { echo "Error: $INSTALL_PREFIX/exec does not exist" >&2; exit 1; }
+  # Make sure directories exist
+  [ -d "$HOMEgfs/bin" ] || { echo "Error: $HOMEgfs/bin does not exist" >&2; exit 1; }
+  [ -d "$HOMEgfs/exec" ] || { echo "Error: $HOMEgfs/exec does not exist" >&2; exit 1; }
 
-    # Move GDASApp executables from bin to exec directory
-    mv "$INSTALL_PREFIX/bin"/gdas* "$INSTALL_PREFIX/exec/"
+  # Move GDASApp executables from bin to exec directory
+  mv "$HOMEgfs/bin"/gdas* "$HOMEgfs/exec/"
 
-    # Move GDASApp executables, from submodules, that don't have a gdas_* prefix in the name
-    mv "$INSTALL_PREFIX/bin/bufr2ioda.x" "$INSTALL_PREFIX/exec/gdas_bufr2ioda.x"
-    mv "$INSTALL_PREFIX/bin/calcfIMS.exe" "$INSTALL_PREFIX/exec/gdas_calcfIMS.x" # .exe -> .x
-    mv "$INSTALL_PREFIX/bin/apply_incr.exe" "$INSTALL_PREFIX/exec/gdas_apply_incr.x" # .exe -> .x
+  # Move GDASApp executables, from submodules, that don't have a gdas_* prefix in the name
+  mv "$HOMEgfs/bin/bufr2ioda.x" "$HOMEgfs/exec/gdas_bufr2ioda.x"
+  mv "$HOMEgfs/bin/calcfIMS.exe" "$HOMEgfs/exec/gdas_calcfIMS.x" # .exe -> .x
+  mv "$HOMEgfs/bin/apply_incr.exe" "$HOMEgfs/exec/gdas_apply_incr.x" # .exe -> .x
 
-    # Delete the original bin directory
-    rm -rf "$INSTALL_PREFIX/bin/"
-  fi
-else
-  # Build
-  echo "Building ... `date`"
-  set -x
-  if [[ $BUILD_JCSDA == 'YES' ]]; then
-    make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
-  else
-    builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils bufr-query da-utils"
-    for b in $builddirs; do
-      cd $b
-      set +x
-      echo "Building $b ... `date`"
-      set -x
-      make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
-      cd ../
-    done
-  fi
-  set +x
-  fi
-  echo "Finish ... `date`"
+  # Delete the original bin directory
+  rm -rf "$HOMEgfs/bin/"
+fi
+echo "Finish ... `date`"
 exit 0
