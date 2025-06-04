@@ -38,7 +38,6 @@ BUILD_TARGET="${MACHINE_ID:-'localhost'}"
 BUILD_VERBOSE="NO"
 CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
-BUILD_JCSDA="NO"
 COMPILER="${COMPILER:-intel}"
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 
@@ -58,9 +57,6 @@ while getopts "p:t:c:hvdfa" opt; do
       ;;
     f)
       CLEAN_BUILD=YES
-      ;;
-    a)
-      BUILD_JCSDA=YES
       ;;
     h|\?|:)
       usage
@@ -92,6 +88,7 @@ if [[ $BUILD_TARGET == 'wcoss2' ]]; then
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
 fi
 
+BUILD_DIR=${BUILD_DIR:-$dir_root/build}
 if [[ $CLEAN_BUILD == 'YES' ]]; then
   [[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR}
 fi
@@ -105,6 +102,14 @@ if [[ $WORKFLOW_BUILD == 'ON' ]]; then
   [ -d "$HOMEgfs" ] || { echo "Error: $HOMEgfs does not exist" >&2; exit 1; }
   INSTALL_PREFIX=$HOMEgfs
 
+  # If $HOMEgfs/bin already exists, move it to a temporary directory
+  # This is to avoid conflicts with the GDASApp executables that will be installed
+  if [ -d "$HOMEgfs/bin" ]; then
+    echo "Warning: $HOMEgfs/bin already exists, moving it to $HOMEgfs/bin_temp"
+    [ -d "$HOMEgfs/bin_temp" ] || { echo "Error: $HOMEgfs/bin_temp already exists" >&2; exit 1; }
+    mv $HOMEgfs/bin $HOMEgfs/bin_temp
+  fi
+
   # Link MOM6 and Icepack in SOCA to submodules in the UFS repo
   rm -rf $dir_root/sorc/soca/external/mom6/MOM6
   rm -rf $dir_root/sorc/soca/external/icepack/Icepack
@@ -117,7 +122,7 @@ fi
 
 # Set INSTALL_PREFIX as CMake option
 [ -d "$INSTALL_PREFIX" ] || { echo "Error: $INSTALL_PREFIX does not exist" >&2; exit 1; }
-[CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
+CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
@@ -152,13 +157,19 @@ if [[ $WORKFLOW_BUILD == 'ON' ]]; then
   # Move GDASApp executables from bin to exec directory
   mv "$HOMEgfs/bin"/gdas* "$HOMEgfs/exec/"
 
-  # Move GDASApp executables, from submodules, that don't have a gdas_* prefix in the name
+  # Move GDASApp executables (from submodules) that don't have a gdas_* prefix in the name
   mv "$HOMEgfs/bin/bufr2ioda.x" "$HOMEgfs/exec/gdas_bufr2ioda.x"
   mv "$HOMEgfs/bin/calcfIMS.exe" "$HOMEgfs/exec/gdas_calcfIMS.x" # .exe -> .x
   mv "$HOMEgfs/bin/apply_incr.exe" "$HOMEgfs/exec/gdas_apply_incr.x" # .exe -> .x
 
   # Delete the original bin directory
   rm -rf "$HOMEgfs/bin/"
+
+  # If the bin_temp directory exists, rename it back to bin
+  if [ -d "$HOMEgfs/bin_temp" ]; then
+    echo "Restoring $HOMEgfs/bin from $HOMEgfs/bin_temp"
+    mv "$HOMEgfs/bin_temp" "$HOMEgfs/bin"
+  fi
 fi
 echo "Finish ... `date`"
 exit 0
