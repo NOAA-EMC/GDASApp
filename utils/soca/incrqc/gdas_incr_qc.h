@@ -16,9 +16,9 @@
 #include "soca/Increment/Increment.h"
 #include "soca/State/State.h"
 
+#include "../diagb/gdas_soca_diagb_utils.h"
 #include "../gdas_soca_utils.h"
 #include "gdas_incr_qc_utils.h"
-#include "../diagb/gdas_soca_diagb_utils.h"
 
 namespace gdasapp {
 namespace incrqc {

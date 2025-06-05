@@ -1,18 +1,22 @@
 #pragma once
 
+#include <algorithm>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
+
 #include "atlas/field.h"
 #include "atlas/functionspace/NodeColumns.h"
 #include "atlas/mesh.h"
 #include "atlas/mesh/actions/BuildEdges.h"
 #include "atlas/mesh/actions/BuildHalo.h"
-#include <atlas/mesh/Connectivity.h>
+#include "atlas/mesh/Connectivity.h"
 #include "atlas/mesh/Mesh.h"
 #include "atlas/util/Earth.h"
 #include "atlas/util/Geometry.h"
 #include "atlas/util/Point.h"
-#include <algorithm>
-#include <string>
-#include <vector>
+
 #include "oops/util/DateTime.h"
 
 namespace gdasapp {
@@ -129,14 +133,13 @@ struct MeshBundle {
   atlas::array::ArrayView<double, 2> lonlat;
 
 
-  MeshBundle(atlas::Mesh&& m)
+  explicit MeshBundle(atlas::Mesh&& m)
     : mesh(std::move(m)),
       nodeColumns(mesh, atlas::option::halo(1)),
       node2edge(mesh.nodes().edge_connectivity()),
       edge2node(mesh.edges().node_connectivity()),
       ghostView(atlas::array::make_view<int, 1>(nodeColumns.ghost())),
       lonlat(atlas::array::make_view<double, 2>(nodeColumns.lonlat())) {}
-
 };
 
 /**

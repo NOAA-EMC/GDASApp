@@ -2,6 +2,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -11,13 +12,13 @@
 #include "atlas/field.h"
 #include "atlas/field/FieldSet.h"
 
+#include "../diagb/gdas_soca_diagb_utils.h"
+#include "../gdas_soca_utils.h"
+
 #include "oops/util/Logger.h"
 
 #include "soca/Increment/Increment.h"
 #include "soca/State/State.h"
-
-#include "../gdas_soca_utils.h"
-#include "../diagb/gdas_soca_diagb_utils.h"
 
 namespace gdasapp {
 namespace incrqc {
@@ -92,7 +93,8 @@ void applyWaterColumnStabilityCheck(
   auto viewTempIncr = atlas::array::make_view<double, 2>(dxFs["sea_water_potential_temperature"]);
   auto viewSaltIncr = atlas::array::make_view<double, 2>(dxFs["sea_water_salinity"]);
 
-  std::vector<std::tuple<int, int, std::vector<int>>> unstablePoints;  // Store (node, level, neighbors)
+  // Store (node, level, neighbors) in tuple
+  std::vector<std::tuple<int, int, std::vector<int>>> unstablePoints;
 
   const auto nlevels = viewTempIncr.shape(1);
   const auto njnodes = viewTempIncr.shape(0);
@@ -111,7 +113,8 @@ void applyWaterColumnStabilityCheck(
       if (meshConn.ghostView(jnode) > 0) continue;
       if (viewBathy(jnode, 0) <= 0.0) continue;
 
-      std::vector<double> rhoAna(nlevels), rhoBkg(nlevels), drhodz_ana(nlevels), drhodz_bkg(nlevels);
+      std::vector<double> rhoAna(nlevels), rhoBkg(nlevels);
+      std::vector<double> drhodz_ana(nlevels), drhodz_bkg(nlevels);
       for (atlas::idx_t level = 0; level < nlevels; ++level) {
         rhoAna[level] = gdasapp::utils::computeDensityUNESCO(
             viewTempBkg(jnode, level) + viewdTF(jnode, level),
@@ -245,7 +248,8 @@ void applyStericHeightConstraint(
 
   // Optional debug: recompute steric height increment two ways
   double steric1 = gdasapp::utils::computeStericHeightIncrement(tempIncr, saltIncr, layerThickness);
-  double steric2 = gdasapp::utils::computeStericHeightIncrement(tempBkg, saltBkg, tempIncr, saltIncr, layerThickness);
+  double steric2 = gdasapp::utils::computeStericHeightIncrement(tempBkg, saltBkg,
+                                                                tempIncr, saltIncr, layerThickness);
 
   oops::Log::debug() << "QC: node " << jnode
                      << " - SSH increment " << viewSshIncr(jnode, 0)
@@ -297,7 +301,9 @@ void applyBruteForceBoundsCheck(
     auto dxView = atlas::array::make_view<double, 2>(field);
     auto xbView = atlas::array::make_view<const double, 2>(xbFs.field(name));
 
-    const auto [minBound, maxBound] = stateBounds.at(name);
+    const std::pair<double, double>& bounds = stateBounds.at(name);
+    const double minBound = bounds.first;
+    const double maxBound = bounds.second;
 
     for (atlas::idx_t jnode = 0; jnode < dxView.shape(0); ++jnode) {
       if (ghostView(jnode) > 0) continue;

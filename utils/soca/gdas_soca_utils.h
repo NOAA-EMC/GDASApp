@@ -95,12 +95,13 @@ inline double computeDensityUNESCO(double temp, double salt) {
 
   double sqrtS = std::sqrt(salt);
 
-  double rho_w = A0 + A1*temp + A2*temp*temp + A3*temp*temp*temp
-                     + A4*std::pow(temp,4) + A5*std::pow(temp,5);
+  double rho_w = A0 + A1 * temp + A2 * temp * temp + A3 * temp * temp * temp
+                     + A4 * std::pow(temp, 4) + A5 * std::pow(temp, 5);
 
   double rho = rho_w
-             + (B0 + B1*temp + B2*temp*temp + B3*temp*temp*temp + B4*std::pow(temp,4)) * salt
-             + (C0 + C1*temp + C2*temp*temp) * salt * sqrtS
+             + (B0 + B1 * temp + B2 * temp*temp
+                   + B3 * temp * temp * temp + B4 * std::pow(temp, 4)) * salt
+             + (C0 + C1 * temp + C2 * temp * temp) * salt * sqrtS
              + D0 * salt * salt;
 
   return rho;  // kg/m³
