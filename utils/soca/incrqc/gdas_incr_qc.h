@@ -17,32 +17,11 @@
 #include "soca/State/State.h"
 
 #include "../gdas_soca_utils.h"
+#include "gdas_incr_qc_utils.h"
+#include "../diagb/gdas_soca_diagb_utils.h"
 
 namespace gdasapp {
 namespace incrqc {
-
-/**
- * @brief Adjusts an analysis increment to ensure the resulting value stays within specified bounds.
- *
- * This function takes a background value and an increment, then checks if applying the increment
- * would result in a value outside the specified bounds. If so, it modifies the increment to
- * ensure the final analysis value remains within the allowed range.
- *
- * @param xB The background or base value
- * @param dX The proposed increment to apply to the background value
- * @param minBound The minimum allowed value for the resulting analysis
- * @param maxBound The maximum allowed value for the resulting analysis
- * @return The adjusted increment that, when added to xB, will keep the result within [minBound, maxBound]
- */
-double adjustAnalysisBounds(double xB, double dX, double minBound, double maxBound) {
-  double xA = xB + dX;
-  if (xA < minBound) {
-    return minBound - xB;
-  } else if (xA > maxBound) {
-    return maxBound - xB;
-  }
-  return dX;
-}
 
 /**
  * @brief Quality control for increments: ensures that the analysis (xb + dx) remains within physical bounds.
@@ -75,8 +54,11 @@ void qcIncrement(const soca::State& xb,
   gdasapp::utils::computeDepthAndBathymetry(viewHocn, viewDepth, viewBathy);
 
   // Get ghost nodes and lon/lat coordinates
-  const auto ghostView = atlas::array::make_view<int, 1>(geom.functionSpace().ghost());
-  const auto & lonlat = atlas::array::make_view<double, 2>(geom.functionSpace().lonlat());
+  gdasapp::diagb::utils::MeshBundle meshConn = gdasapp::diagb::utils::buildMeshConnectivity(geom);
+  const auto & node2edge = meshConn.node2edge;
+  const auto & edge2node = meshConn.edge2node;
+  const auto ghostView = meshConn.ghostView;
+  const auto & lonlat = meshConn.lonlat;
 
   // Get the physical bounds from configuration
   std::vector<double> tempBounds(2);
@@ -99,138 +81,32 @@ void qcIncrement(const soca::State& xb,
   auto viewTempBkg = atlas::array::make_view<double, 2>(xbFs["sea_water_potential_temperature"]);
   auto viewSaltBkg = atlas::array::make_view<double, 2>(xbFs["sea_water_salinity"]);
 
-  // Steric height increment and stability checks
   int niterations = config.getInt("increment stability iterations", 10);
   const double rhoMinGrad = config.getDouble("min stable density gradient", 1e-4);
+
+  // Steric height increment and stability checks
+  applyWaterColumnStabilityCheck(dxFs,
+                                 viewTempBkg, viewSaltBkg,
+                                 viewHocn, viewDepth, lonlat,
+                                 niterations, rhoMinGrad, viewBathy,
+                                 meshConn);
 
   for (atlas::idx_t jnode = 0; jnode < viewTempIncr.shape(0); ++jnode) {
     // Skip ghost and land nodes
     if (ghostView(jnode) > 0) continue;
     if (viewBathy(jnode, 0) <= 0.0) continue;
 
-    // Extract temp and salt profiles at this node
-    const atlas::idx_t nlevels = viewTempIncr.shape(1);
-    std::vector<double> tempIncr(nlevels);
-    std::vector<double> saltIncr(nlevels);
-    std::vector<double> tempBkg(nlevels);
-    std::vector<double> saltBkg(nlevels);
-    std::vector<double> rhoAna(nlevels);
-    std::vector<double> rhoBkg(nlevels);
-    std::vector<double> drhodz_ana(nlevels);
-    std::vector<double> drhodz_bkg(nlevels);
-    std::vector<double> layerThickness(nlevels);
-
-    // Check water column stability and adjust if necessary
-    for (auto iter = 0; iter < niterations; ++iter) {
-      for (atlas::idx_t level = 0; level < nlevels; ++level) {
-        rhoAna[level] = gdasapp::utils::computeDensityUNESCO(viewTempBkg(jnode, level) + viewTempIncr(jnode, level),
-                                                             viewSaltBkg(jnode, level) + viewSaltIncr(jnode, level));
-        rhoBkg[level] = gdasapp::utils::computeDensityUNESCO(viewTempBkg(jnode, level), viewSaltBkg(jnode, level));
-        //std::cout << rhoAna[level] << std::endl;
-      }
-      int cnt(0);
-      for (atlas::idx_t level = 0; level < nlevels; ++level) {
-        if (viewHocn(jnode, level) <= 0.1
-         && viewHocn(jnode, level - 1) <= 0.1) continue;
-        drhodz_ana[level] = 0.0;
-        drhodz_bkg[level] = 0.0;
-        if (level > 0) {
-          drhodz_ana[level] = (rhoAna[level] - rhoAna[level - 1]) / (viewDepth(jnode, level) - viewDepth(jnode, level - 1));
-          drhodz_bkg[level] = (rhoBkg[level] - rhoBkg[level - 1]) / (viewDepth(jnode, level) - viewDepth(jnode, level - 1));
-        }
-        if ((drhodz_ana[level] < 0.0 && drhodz_bkg[level] >= 0.0) ||
-            (drhodz_bkg[level] < 0.0 && drhodz_ana[level] < drhodz_bkg[level])) {
-          cnt++;
-          if (iter == niterations - 1) {
-            oops::Log::debug() << "QC: stablility adjustment at node " << jnode
-                               << " lon/lat " << lonlat(jnode, 0) << " " << lonlat(jnode, 1) << ", "
-                               << ", level " << level << ": "
-                               << drhodz_ana[level] << " " << drhodz_bkg[level] <<std::endl;
-          }
-          // Adjust the increment to reduce instability
-          double factor = std::clamp(std::abs(drhodz_ana[level]) / rhoMinGrad, 0.1, 1.0);
-          viewTempIncr(jnode, level) *= (1.0 - 0.5 * factor);
-          viewSaltIncr(jnode, level) *= (1.0 - 0.5 * factor);
-        }
-        //oops::Log::info() << "QC: " << cnt << " unstable nodes" << std::endl;
-      }
-    }
-
     // Limit the steric height incrememnt to deltaSshMax
-    if (std::abs(viewSshIncr(jnode, 0)) > deltaSshMax) {
-      // Linearity assumption for steric height increment
-      double rescale = deltaSshMax / std::abs(viewSshIncr(jnode, 0));
-      for (atlas::idx_t level = 0; level < nlevels; ++level) {
-        viewTempIncr(jnode, level) *= rescale;
-        viewSaltIncr(jnode, level) *= rescale;
-        tempIncr[level] = viewTempIncr(jnode, level);
-        saltIncr[level] = viewSaltIncr(jnode, level);
-        tempBkg[level] = viewTempBkg(jnode, level);
-        saltBkg[level] = viewSaltBkg(jnode, level);
-        layerThickness[level] = viewHocn(jnode, level);
-      }
-
-      // Compute the approximate steric height increment
-      double stericHeight = gdasapp::utils::computeStericHeightIncrement(tempIncr,
-                                                                         saltIncr,
-                                                                         layerThickness);
-      double stericHeight2 = gdasapp::utils::computeStericHeightIncrement(tempBkg,
-                                                                          saltBkg,
-                                                                          tempIncr,
-                                                                          saltIncr,
-                                                                          layerThickness);
-      double sshIncr = viewSshIncr(jnode, 0);
-      oops::Log::debug() << "QC: steric height increment at node " << jnode << ": "
-                         << stericHeight << " ssh incr: " << viewSshIncr(jnode, 0) << std::endl;
-      oops::Log::debug() << "QC: steric height increment (method 2) at node " << jnode << ": "
-                         << stericHeight2 << " ssh incr: " << viewSshIncr(jnode, 0) << std::endl;
-      oops::Log::debug() << "QC: ssh increment at node " << jnode << ": " << viewSshIncr(jnode, 0)
-                         << " rescaling Temp/Salt by: " << rescale
-                         << " steric height ~ " << stericHeight << std::endl;
-
-      // Reflect the changes in the ssh increment
-      viewSshIncr(jnode, 0) = deltaSshMax;
-    }
+    applyStericHeightConstraint(jnode, viewTempIncr, viewSaltIncr, viewSshIncr,
+                            viewTempBkg, viewSaltBkg, viewHocn, deltaSshMax);
   }
 
   // Brute force bounds check
-  for (auto& field : dxFs) {
-    const std::string name = field.name();
-    if (!xbFs.has(name)) continue;
-    if (stateBounds.find(name) == stateBounds.end()) continue;
+  applyBruteForceBoundsCheck(dxFs, xbFs, ghostView, viewBathy, stateBounds);
 
-    auto dxView = atlas::array::make_view<double, 2>(field);
-    const auto xbView = atlas::array::make_view<const double, 2>(xbFs.field(name));
-
-    const double minBound = stateBounds.at(name).first;
-    const double maxBound = stateBounds.at(name).second;
-
-    for (atlas::idx_t jnode = 0; jnode < dxView.shape(0); ++jnode) {
-      // Skip ghost and land nodes
-      if (ghostView(jnode) > 0) continue;
-      if (viewBathy(jnode, 0) <= 0.0) continue;
-
-      for (atlas::idx_t level = 0; level < dxView.shape(1); ++level) {
-        // Check if the analysis is within bounds
-        double xB = xbView(jnode, level);
-        double dX = dxView(jnode, level);
-
-        // Adust the increment to keep analysis within bounds
-        dxView(jnode, level) = adjustAnalysisBounds(xbView(jnode, level), dX, minBound, maxBound);
-
-        // Log if the increment was adjusted
-        //if (dxView(jnode, level) != dX) {
-        //  oops::Log::debug() << "QC: " << name << " at node " << jnode
-        //                    << ", level " << level << ": "
-        //                    << "original increment " << dX
-        //                    << ", adjusted increment " << dxView(jnode, level)
-        //                    << std::endl;
-        //}
-      }
-    }
-  }
   dx.fromFieldSet(dxFs);
   oops::Log::info() << "======      Finished quality control on increment" << std::endl;
   }
+
 }  // namespace incrqc
 }  // namespace gdasapp
