@@ -11,6 +11,7 @@ ecbuild_add_executable( TARGET gdas_ens_handler.x
 target_compile_features( gdas_ens_handler.x PUBLIC cxx_std_11)
 target_link_libraries( gdas_ens_handler.x PUBLIC NetCDF::NetCDF_CXX oops atlas soca)
 target_link_libraries( gdas_ens_handler.x PRIVATE stdc++fs)
+target_include_directories(gdas_incr_handler.x PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/incrqc)
 
 # Hybrid-Weight
 ecbuild_add_executable( TARGET gdas_socahybridweights.x
