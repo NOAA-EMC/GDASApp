@@ -103,7 +103,8 @@ namespace gdasapp {
         oops::Log::debug() << dx << std::endl;
         // Bring in the SST adjustment from ice postprocessing to MOM6 increment
         incr_mom6 += dx;
-        oops::Log::debug() << "========= increment after adding sea ice postprocessing:" << std::endl;
+        oops::Log::debug() << "========= increment after adding sea ice postprocessing:"
+                           << std::endl;
         oops::Log::debug() << incr_mom6 << std::endl;
 
         // Save final increment
