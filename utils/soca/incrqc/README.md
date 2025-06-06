@@ -87,12 +87,11 @@ In these cases, a correction factor is applied to the temperature and salinity i
 
 Finally, corrected values are optionally smoothed using neighbor averages:
 \[
-\delta T_k \leftarrow (1 - \alpha) \cdot \delta T_k + \alpha \cdot \overline{\delta T}_k^{\text{neighbors}}
+\delta T_k \leftarrow \overline{\delta T}_k^{\text{neighbors}}
 \]
 \[
-\delta S_k \leftarrow (1 - \alpha) \cdot \delta S_k + \alpha \cdot \overline{\delta S}_k^{\text{neighbors}}
+\delta S_k \leftarrow \overline{\delta S}_k^{\text{neighbors}}
 \]
-where \( \alpha \in [0, 1] \) is a blending factor (typically \( \alpha = 1 \) in the current implementation).
 
 
 #### Notes
