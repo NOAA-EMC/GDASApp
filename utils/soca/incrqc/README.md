@@ -43,17 +43,62 @@ This check ensures that the increment does not introduce **new static instabilit
 
 The check operates iteratively (with a user-defined number of iterations), and for each grid point (node) it:
 
-1. **Computes density** using the UNESCO 1983 equation of state for both the background and the analysis (i.e., `background + increment`) at every vertical level.
+1. **Computes density** using the UNESCO 1983 equation of state (Fofonoff & Millard, 1983) for both the background and the analysis (i.e., `background + increment`) at every vertical level.
 2. **Calculates vertical density gradients** (∂ρ/∂z) for both background and analysis.
 3. **Identifies instability conditions**:
    - The analysis introduces a static instability (∂ρ/∂z < 0) where the background was stable (∂ρ/∂z ≥ 0).
    - The analysis increases the level of instability already present in the background.
-4. **Applies a local correction** by scaling down temperature and salinity increments at affected levels based on the ratio of the analysis gradient to a user-defined minimum stable density gradient (`min stable density gradient`). The correction factor is clamped between 0.1 and 1.0.
+4. **Applies a local correction** by scaling down temperature and salinity increments at affected levels based on the ratio of the analysis gradient to a user-defined minimum stable density gradient (`min stable density gradient`). The unit-less correction factor is clamped between 0.1 and 1.0.
 5. **Smooths corrected values** using neighboring points to reduce grid noise and introduce local consistency.
+6. **back to step 1** until the maximum number of iteration is reached.
+
+#### Stability Correction Details
+
+**Nomenclature:**
+\( \rho^{\text{bkg}}_k = \rho(T^{\text{bkg}}_k, S^{\text{bkg}}_k) \): background density at level \(k\)
+\( \rho^{\text{ana}}_k = \rho(T^{\text{bkg}}_k + \delta T_k, S^{\text{bkg}}_k + \delta S_k) \): analysis (background + increment) density at level \(k\)
+\( z_k \): depth at level \(k\) (positive downward)
+\( \frac{\partial \rho^{\text{bkg}}}{\partial z} \big|_k = \frac{\rho^{\text{bkg}}_k - \rho^{\text{bkg}}_{k-1}}{z_k - z_{k-1}} \)
+\( \frac{\partial \rho^{\text{ana}}}{\partial z} \big|_k = \frac{\rho^{\text{ana}}_k - \rho^{\text{ana}}_{k-1}}{z_k - z_{k-1}} \)
+\( \rho_{z}^{\text{min}} = \frac{\rho_0 N^2}{g}\) where \( N^2 \) is the Brunt–Väisälä frequency for a weakly stratified ocean.
+
+The increment is flagged as **potentially destabilizing** if either:
+
+1. The background is stable:
+   \[
+   \frac{\partial \rho^{\text{bkg}}}{\partial z} \big|_k \geq 0
+   \quad \text{and} \quad
+   \frac{\partial \rho^{\text{ana}}}{\partial z} \big|_k < 0
+   \]
+2. The background is already unstable but the analysis makes it worse:
+   \[
+   \frac{\partial \rho^{\text{bkg}}}{\partial z} \big|_k < 0
+   \quad \text{and} \quad
+   \frac{\partial \rho^{\text{ana}}}{\partial z} \big|_k < \frac{\partial \rho^{\text{bkg}}}{\partial z} \big|_k
+   \]
+
+In these cases, a correction factor is applied to the temperature and salinity increments:
+\[
+\delta T_k \leftarrow \delta T_k \cdot \left(1 - 0.5 \cdot \text{clamp}\left(\frac{|\frac{\partial \rho^{\text{ana}}}{\partial z}|_k}{\rho_{z}^{\text{min}}}, 0.1, 1.0\right)\right)
+\]
+\[
+\delta S_k \leftarrow \delta S_k \cdot \left(1 - 0.5 \cdot \text{clamp}\left(\frac{|\frac{\partial \rho^{\text{ana}}}{\partial z}|_k}{\rho_{z}^{\text{min}}}, 0.1, 1.0\right)\right)
+\]
+
+Finally, corrected values are optionally smoothed using neighbor averages:
+\[
+\delta T_k \leftarrow (1 - \alpha) \cdot \delta T_k + \alpha \cdot \overline{\delta T}_k^{\text{neighbors}}
+\]
+\[
+\delta S_k \leftarrow (1 - \alpha) \cdot \delta S_k + \alpha \cdot \overline{\delta S}_k^{\text{neighbors}}
+\]
+where \( \alpha \in [0, 1] \) is a blending factor (typically \( \alpha = 1 \) in the current implementation).
+
 
 #### Notes
 
-- Corrections are only applied at **non-ghost ocean nodes** (where bathymetry is positive and layer thickness is non-zero).
+- Depth increases positively downward, so stable stratification corresponds to ∂ρ/∂z>0.
+- Corrections are only applied where bathymetry is positive and layer thickness is non-zero.
 - Neighbor information is used to perform **localized smoothing** of the corrected increments for both temperature and salinity.
 - This procedure is intended to maintain hydrostatic stability and avoid introducing artificial density inversions that can degrade the forecast.
 
@@ -104,3 +149,8 @@ steric increment:
   linear variable changes:
   - linear variable change name: BalanceSOCA
 ```
+
+### References
+
+- Pedlosky, J. (1987). *Geophysical Fluid Dynamics*. Springer.
+- Lellouche, J.-M. et al. (2018). Recent updates to the Copernicus Marine Service global ocean... *Ocean Sci.*, 14, 1093–1126.

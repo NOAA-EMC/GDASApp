@@ -145,8 +145,8 @@ void applyWaterColumnStabilityCheck(
                                                                         jnode);
           unstablePoints.emplace_back(jnode, level, neighbors);
           double factor = std::clamp(std::abs(drhodz_ana[level]) / rhoMinGrad, 0.1, 1.0);
-          viewTempIncr(jnode, level) *= (1.0 - 0.5 * factor);  // * viewdTF(jnode, level);
-          viewSaltIncr(jnode, level) *= (1.0 - 0.5 * factor);  // * viewdSF(jnode, level);
+          viewTempIncr(jnode, level) *= (1.0 - 0.5 * factor);
+          viewSaltIncr(jnode, level) *= (1.0 - 0.5 * factor);
           }  // end if
         }  // end if
       }  // end for jnode
@@ -178,12 +178,8 @@ void applyWaterColumnStabilityCheck(
         meanTempIncr /= validNeighbors;
         meanSaltIncr /= validNeighbors;
 
-        // Blend original increments with neighbor mean (10% from neighbors, 90% original)
-        const double blendFactor = 1.0;
-        viewTempIncr(jnode, level) = (1.0 - blendFactor) * viewTempIncr(jnode, level) +
-                                     blendFactor * meanTempIncr;
-        viewSaltIncr(jnode, level) = (1.0 - blendFactor) * viewSaltIncr(jnode, level) +
-                                     blendFactor * meanSaltIncr;
+        viewTempIncr(jnode, level) = meanTempIncr;
+        viewSaltIncr(jnode, level) = meanSaltIncr;
       }
     }
   }  // end for iter
