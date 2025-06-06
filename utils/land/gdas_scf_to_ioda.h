@@ -27,7 +27,7 @@ namespace gdasapp {
     int execute(const eckit::Configuration & fullConfig) const {
       // Initialize the application
       // Pass the full configuration to the calculation class
-      gdasapp::CalcSCFtoIODA calc(fullConfig, this->comm());
+      gdasapp::CalcSCFtoIODA calc(fullConfig, this->getComm());
       calc.run();
       return 0;
     }
