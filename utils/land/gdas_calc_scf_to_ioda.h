@@ -1,3 +1,10 @@
+#pragma once
+#include <string>
+#include "eckit/config/LocalConfiguration.h"
+#include "oops/mpi/mpi.h"
+#include "oops/runs/Application.h"
+
+
 class CalcSCFtoIODA {
  public:
   CalcSCFtoIODA(const eckit::Configuration & config, const oops::mpi::Comm & comm)
