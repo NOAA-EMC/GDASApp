@@ -33,6 +33,7 @@ usage() {
 # ==============================================================================
 
 # Defaults:
+INSTALL_PREFIX="${dir_root}"
 CMAKE_OPTS=""
 BUILD_TARGET="${MACHINE_ID:-'localhost'}"
 BUILD_VERBOSE="NO"
@@ -41,8 +42,11 @@ CLEAN_BUILD="NO"
 COMPILER="${COMPILER:-intel}"
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 
-while getopts "p:t:c:hvdfa" opt; do
+while getopts "w:t:c:hvdfa" opt; do
   case $opt in
+    w)
+      HOMEgfs=$OPTARG
+      ;;
     t)
       BUILD_TARGET=$OPTARG
       ;;
@@ -98,30 +102,15 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
 
 if [[ $WORKFLOW_BUILD == 'ON' ]]; then
-  # Set INSTALL_PREFIX to the Global Workflow home directory
-  [ -d "$HOMEgfs" ] || { echo "Error: $HOMEgfs does not exist" >&2; exit 1; }
-  INSTALL_PREFIX=$HOMEgfs
-
-  # If $HOMEgfs/bin already exists, move it to a temporary directory
-  # This is to avoid conflicts with the GDASApp executables that will be installed
-  if [ -d "$HOMEgfs/bin" ]; then
-    echo "Warning: $HOMEgfs/bin already exists, moving it to $HOMEgfs/bin_temp"
-    [ -d "$HOMEgfs/bin_temp" ] || { echo "Error: $HOMEgfs/bin_temp already exists" >&2; exit 1; }
-    mv $HOMEgfs/bin $HOMEgfs/bin_temp
-  fi
-
   # Link MOM6 and Icepack in SOCA to submodules in the UFS repo
   rm -rf $dir_root/sorc/soca/external/mom6/MOM6
   rm -rf $dir_root/sorc/soca/external/icepack/Icepack
   ln -sf $HOMEgfs/sorc/ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
   ln -sf $HOMEgfs/sorc/ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
-else
-  # Set INSTALL_PREFIX to the GDASApp home directory
-  INSTALL_PREFIX=${dir_root}
 fi
 
-# Set INSTALL_PREFIX as CMake option
-[ -d "$INSTALL_PREFIX" ] || { echo "Error: $INSTALL_PREFIX does not exist" >&2; exit 1; }
+# Set INSTALL_PREFIX in GDASApp root and set as CMake option
+INSTALL_PREFIX=$dir_root
 CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
@@ -148,28 +137,24 @@ set +x
 
 # If this is a workflow build, copy the installed files to the Global Workflow exec directory
 if [[ $WORKFLOW_BUILD == 'ON' ]]; then
-  echo "Copying installed files to Global Workflow exec directory ..."
+  echo "Copying installed files to Global Workflow directories ..."
 
-  # Make sure directories exist
-  [ -d "$HOMEgfs/bin" ] || { echo "Error: $HOMEgfs/bin does not exist" >&2; exit 1; }
-  [ -d "$HOMEgfs/exec" ] || { echo "Error: $HOMEgfs/exec does not exist" >&2; exit 1; }
+  # Make sure the required directories exist in the Global Workflow
+  mkdir -p "$HOMEgfs"/exec
+  mkdir -p "$HOMEgfs"/lib
+  mkdir -p "$HOMEgfs"/lib64
 
-  # Move GDASApp executables from bin to exec directory
-  mv "$HOMEgfs/bin"/gdas* "$HOMEgfs/exec/"
+  # Move GDASApp executables from GDASApp to the Global Workflow
+  mv "$INSTALL_PREFIX/bin"/gdas* "$HOMEgfs/exec/"
 
   # Move GDASApp executables (from submodules) that don't have a gdas_* prefix in the name
-  mv "$HOMEgfs/bin/bufr2ioda.x" "$HOMEgfs/exec/gdas_bufr2ioda.x"
-  mv "$HOMEgfs/bin/calcfIMS.exe" "$HOMEgfs/exec/gdas_calcfIMS.x" # .exe -> .x
-  mv "$HOMEgfs/bin/apply_incr.exe" "$HOMEgfs/exec/gdas_apply_incr.x" # .exe -> .x
+  mv "$INSTALL_PREFIX/bin/bufr2ioda.x" "$HOMEgfs/exec/gdas_bufr2ioda.x"
+  mv "$INSTALL_PREFIX/bin/calcfIMS.exe" "$HOMEgfs/exec/gdas_calcfIMS.x" # .exe -> .x
+  mv "$INSTALL_PREFIX/bin/apply_incr.exe" "$HOMEgfs/exec/gdas_apply_incr.x" # .exe -> .x
 
-  # Delete the original bin directory
-  rm -rf "$HOMEgfs/bin/"
-
-  # If the bin_temp directory exists, rename it back to bin
-  if [ -d "$HOMEgfs/bin_temp" ]; then
-    echo "Restoring $HOMEgfs/bin from $HOMEgfs/bin_temp"
-    mv "$HOMEgfs/bin_temp" "$HOMEgfs/bin"
-  fi
+  # Move libraries from GDASApp to the Global Workflow
+  mv "$INSTALL_PREFIX"/lib/* "HOMEgfs/lib/"
+  mv "$INSTALL_PREFIX"/lib64/* "$HOMEgfs/lib64/"
 fi
 echo "Finish ... `date`"
 exit 0
