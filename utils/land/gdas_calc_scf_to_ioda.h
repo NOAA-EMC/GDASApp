@@ -22,5 +22,4 @@ namespace gdasapp {
    public:
     void run();
   };
-};
-// namespace gdasapp
+}  // namespace gdasapp

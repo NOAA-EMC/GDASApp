@@ -1,6 +1,7 @@
+#include <netcdf>
+
 #include <fstream>
 #include <iostream>
-#include <netcdf>
 #include <stdexcept>
 #include <string>
 #include <vector>
