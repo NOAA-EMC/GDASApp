@@ -397,3 +397,26 @@ observations:
        back: 4
        forward: 4
     dmpdir regex: 'gdas.*.dbuoy.*.bufr_d'
+
+- obs space:
+    name: insitu_surface_dbuoyb
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    error ratio: 0.4
+    window:
+       back: 4
+       forward: 4
+    dmpdir regex: 'gdas.*.dbuoyb.*.bufr_d'
+
+- obs space:
+    name: insitu_surface_dbuoyb_drifter
+    provider: GTS
+    dmpdir subdir: atmos
+    type: bufr
+    error ratio: 0.4
+    window:
+       back: 0
+       forward: 0
+    dmpdir regex: 'gdas.*.dbuoyb.*.bufr_d'
+
