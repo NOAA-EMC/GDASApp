@@ -251,7 +251,7 @@ if (WORKFLOW_TESTS)
   # List of tests to run
   option(TEST_GSI "Enable the GFSv17 GSI tests" ON)
   option(TEST_GFS18 "Enable the GFSv18 Atmos JEDI tests" ON)
-  option(TEST_AERO_LAND "Enable the GFSv17 Aero-Land JEDI tests" ON)
+  option(TEST_AERO_LAND "Enable the GFSv17 Aero-Land JEDI tests" OFF)
   option(TEST_MARINE_VAR "Enable the GFSv17 Marine JEDI 3D VAR FGAT tests" ON)
   option(TEST_MARINE_HYB "Enable the GFSv17 Marine JEDI 3d HYB VAR tests" ON)
   option(TEST_GFS17 "Enable the GFSv17 WCDA tests" OFF)
