@@ -29,6 +29,10 @@ void gdasapp::CalcSCFtoIODA::run() {
   // Setup the FV3 geometry
   const eckit::LocalConfiguration geomConfig(config_, "geometry");
   const fv3jedi::Geometry geom(geomConfig, comm_);
+  latFV3.resize(6, std::vector<std::vector<float>>(geom.npy()-1, std::vector<float>(geom.npx()-1)));
+  lonFV3.resize(6, std::vector<std::vector<float>>(geom.npy()-1, std::vector<float>(geom.npx()-1)));
+  oroFV3.resize(6, std::vector<std::vector<float>>(geom.npy()-1, std::vector<float>(geom.npx()-1)));
+  scfIMS.resize(6, std::vector<std::vector<float>>(geom.npy()-1, std::vector<float>(geom.npx()-1, nodata_float)));
 
   // Get the valid time
   std::string validTime;
@@ -168,6 +172,7 @@ void gdasapp::CalcSCFtoIODA::readMapping(const std::string & weightspath) {
   // Read the mapping weights from the specified path
   // This involves reading a file that contains the weights for interpolation
   // from the IMS grid to the FV3 grid.
+  // TODO(CoryMartin-NOAA) - use MPI to only do one tile per task
   oops::Log::info() << "Reading mapping weights from: " << weightspath << std::endl;
   std::ifstream infile(weightspath);
   if (!infile.good()) {
@@ -182,16 +187,94 @@ void gdasapp::CalcSCFtoIODA::readMapping(const std::string & weightspath) {
   // Read tile into IMS_index[:,:,0]
   netCDF::NcVar tileVar = ncfile.getVar("tile");
   netcdf_err(tileVar.isNull() ? -1 : NC_NOERR, "error reading tile variable from mapping file");
-  tileVar.getVar(&IMS_index[0][0][0]);
-
+  oops::Log::info() << "Reading tile variable from mapping file..." << std::endl;
+  size_t dim0 = IMS_index.size();
+  size_t dim1 = (dim0 > 0) ? IMS_index[0].size() : 0;
+  size_t dim2 = (dim0 > 0 && dim1 > 0) ? IMS_index[0][0].size() : 0;
+  oops::Log::info() << "IMS_index size: "
+             << dim0 << " x "
+             << dim1 << " x "
+             << dim2
+             << std::endl;
+  // Read into a flat buffer and copy to IMS_index
+  std::vector<int> tile_buffer(dim0 * dim1);
+  tileVar.getVar(tile_buffer.data());
+  for (size_t i = 0; i < dim0; ++i) {
+    for (size_t j = 0; j < dim1; ++j) {
+      IMS_index[i][j][0] = tile_buffer[i * dim1 + j];
+    }
+  }
   // Read tile_i into IMS_index[:,:,1]
   netCDF::NcVar tile_iVar = ncfile.getVar("tile_i");
   netcdf_err(tile_iVar.isNull() ? -1 : NC_NOERR, "error reading tile_i variable from mapping file");
-  tile_iVar.getVar(&IMS_index[0][0][1]);
+  tile_iVar.getVar(tile_buffer.data());
+  for (size_t i = 0; i < dim0; ++i) {
+    for (size_t j = 0; j < dim1; ++j) {
+      IMS_index[i][j][1] = tile_buffer[i * dim1 + j];
+    }
+  }
+  // Read tile_j into IMS_index[:,:,1]
+  netCDF::NcVar tile_jVar = ncfile.getVar("tile_j");
+  netcdf_err(tile_jVar.isNull() ? -1 : NC_NOERR, "error reading tile_j variable from mapping file");
+  tile_jVar.getVar(tile_buffer.data());
+  for (size_t i = 0; i < dim0; ++i) {
+    for (size_t j = 0; j < dim1; ++j) {
+      IMS_index[i][j][2] = tile_buffer[i * dim1 + j];
+    }
+  }
+  // create float buffer for lonFV3, latFV3, oroFV3
+  size_t ntile = latFV3.size();
+  size_t npy = (ntile > 0) ? latFV3[0].size() : 0;
+  size_t npx = (ntile > 0 && npy > 0) ? latFV3[0][0].size() : 0;
+  std::vector<float> cube_buffer(ntile * npy * npx);
+  // Read lat_fv3 into latFV3
+  netCDF::NcVar latVar = ncfile.getVar("lat_fv3");
+  netcdf_err(latVar.isNull() ? -1 : NC_NOERR, "error reading latFV3 variable from mapping file");
+  latVar.getVar(cube_buffer.data());
+  for (size_t i = 0; i < ntile; ++i) {
+    for (size_t j = 0; j < npy; ++j) {
+      for (size_t k = 0; k < npx; ++k) {
+        latFV3[i][j][k] = cube_buffer[i * npy * npx + j * npx + k];
+      }
+    }
+  }
+  // Read lon_fv3 into lonFV3
+  netCDF::NcVar lonVar = ncfile.getVar("lon_fv3");
+  netcdf_err(lonVar.isNull() ? -1 : NC_NOERR, "error reading lonFV3 variable from mapping file");
+  lonVar.getVar(cube_buffer.data());
+  for (size_t i = 0; i < ntile; ++i) {
+    for (size_t j = 0; j < npy; ++j) {
+      for (size_t k = 0; k < npx; ++k) {
+        lonFV3[i][j][k] = cube_buffer[i * npy * npx + j * npx + k];
+      }
+    }
+  }
+  // Read oro_fv3 into oroFV3
+  netCDF::NcVar oroVar = ncfile.getVar("oro_fv3");
+  netcdf_err(oroVar.isNull() ? -1 : NC_NOERR, "error reading oroFV3 variable from mapping file");
+  oroVar.getVar(cube_buffer.data());
+  for (size_t i = 0; i < ntile; ++i) {
+    for (size_t j = 0; j < npy; ++j) {
+      for (size_t k = 0; k < npx; ++k) {
+        oroFV3[i][j][k] = cube_buffer[i * npy * npx + j * npx + k];
+      }
+    }
+  }
+  // Now let us calculate things
+  std::vector<std::vector<std::vector<float>>> land_points(ntile,
+    std::vector<std::vector<float>>(npy, std::vector<float>(npx, 0.0f)));
+  std::vector<std::vector<std::vector<float>>> snow_points(ntile,
+    std::vector<std::vector<float>>(npy, std::vector<float>(npx, 0.0f)));
+  
+  // we no longer need IMS_flag and IMS_index, so we can clear them
+  IMS_index.clear();
+  IMS_index.shrink_to_fit();
+  IMS_flag.clear();
+  IMS_flag.shrink_to_fit();
 }
 
 // Helper function for error handling
-void netcdf_err(int error, const std::string &msg) {
+void gdasapp::CalcSCFtoIODA::netcdf_err(int error, const std::string &msg) {
     if (error != NC_NOERR) {
         std::cerr << msg << ": " << nc_strerror(error) << std::endl;
         std::exit(EXIT_FAILURE);
