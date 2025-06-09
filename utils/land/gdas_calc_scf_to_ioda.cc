@@ -1,21 +1,22 @@
 #include <fstream>
-#include <string>
-#include <stdexcept>
-#include <vector>
 #include <iostream>
 #include <netcdf>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
-#include "oops/mpi/mpi.h"
-#include "oops/util/Logger.h"
-#include "eckit/mpi/Comm.h"
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
+#include "eckit/mpi/Comm.h"
 #include "fv3jedi/Geometry/Geometry.h"
 #include "fv3jedi/Increment/Increment.h"
 #include "fv3jedi/State/State.h"
-#include "oops/util/DateTime.h"
 #include "ioda/Engines/HH.h"
 #include "ioda/Group.h"
+#include "oops/mpi/mpi.h"
+#include "oops/util/DateTime.h"
+#include "oops/util/Logger.h"
+
 
 #include "gdas_calc_scf_to_ioda.h"
 
@@ -23,7 +24,7 @@ void gdasapp::CalcSCFtoIODA::run() {
   // Implementation of the SCF to IODA calculation
   // This would include reading the SCF data, performing the necessary calculations,
   // and writing the results in IODA format.
-  
+
   // Setup the FV3 geometry
   const eckit::LocalConfiguration geomConfig(config_, "geometry");
   const fv3jedi::Geometry geom(geomConfig, comm_);
@@ -45,8 +46,8 @@ void gdasapp::CalcSCFtoIODA::run() {
   bkgState.read(bkgConfig);
   oops::Log::info() << "Background: " << std::endl << bkgState << std::endl;
   oops::Log::info() << "=========================================================" << std::endl;
-  
-  // TODO compute land mask using land fraction from the background state
+
+  // TODO(CoryMartin-NOAA) compute land mask using land fraction from the background state
 
   // Read snow cover fraction (SCF) data
   std::string imspath;
@@ -61,14 +62,13 @@ void gdasapp::CalcSCFtoIODA::run() {
   std::string outputpath;
   config_.get("output ioda file", outputpath);
   writeToIoda(outputpath);
-
 }
 
 void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath) {
   // Implementation of writing the calculated observations to IODA format
   // This would involve creating an IODA file, populating it with the calculated
   // observations, and saving it to disk.
-  
+
   oops::Log::info() << "Writing observations to IODA format..." << std::endl;
   // Create empty group backed by HDF file
   if (oops::mpi::world().rank() == 0) {
