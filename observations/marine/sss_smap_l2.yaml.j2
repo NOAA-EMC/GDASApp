@@ -22,6 +22,7 @@
   - filter: Domain Check
     where:
     - variable: {name: GeoVaLs/sea_area_fraction}
+      value: is_valid
       minvalue: 0.9
   - filter: Bounds Check
     minvalue: 0.1
