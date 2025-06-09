@@ -16,9 +16,13 @@ namespace gdasapp {
     const eckit::Configuration & config_;
     const eckit::mpi::Comm & comm_;
     std::vector<std::vector<int>> IMS_flag;
+    std::vector<std::vector<std::vector<int>>> IMS_index;
+    static constexpr int nodata_int = -999;
 
     void writeToIoda(const std::string & outputpath);
     void readIMS(const std::string & imspath);
+    void readMapping(const std::string & weightspath);
+    void netcdf_err(int error, const std::string &msg);
    public:
     void run();
   };

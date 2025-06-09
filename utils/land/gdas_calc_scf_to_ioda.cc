@@ -56,6 +56,9 @@ void gdasapp::CalcSCFtoIODA::run() {
   readIMS(imspath);
 
   // Interpolate to model grid using precomputed weights
+  std::string weightspath;
+  config_.get("mapping file", weightspath);
+  readMapping(weightspath);
 
   // Calculate observations based on the model background
 
@@ -100,7 +103,7 @@ void gdasapp::CalcSCFtoIODA::readIMS(const std::string & imspath) {
     if (ncfile.isNull() == false) {
       isNetCDF = true;
       oops::Log::info() << "Opened IMS file as netCDF: " << imspath << std::endl;
-      // ... process netCDF file here ...
+      // TODO(CoryMartin-NOAA)... process netCDF file here ...
     }
   } catch (...) {
     oops::Log::info() << "Failed to open as netCDF, will try ASCII: " << imspath << std::endl;
@@ -129,6 +132,7 @@ void gdasapp::CalcSCFtoIODA::readIMS(const std::string & imspath) {
       std::getline(asciifile, dummyLine);
     }
     IMS_flag.resize(j_ims, std::vector<int>(i_ims));
+    IMS_index.resize(j_ims, std::vector<std::vector<int>>(i_ims, std::vector<int>(3)));
     // Read the IMS data into a 2D vector
     for (int irow = 0; irow < j_ims; ++irow) {
       for (int icol = 0; icol < i_ims; ++icol) {
@@ -139,4 +143,57 @@ void gdasapp::CalcSCFtoIODA::readIMS(const std::string & imspath) {
     }
     asciifile.close();
   }
+  // IMS codes: 0 - outside range,
+  //            1 - sea
+  //            2 - land, no snow 
+  //            3 - sea ice 
+  //            4 - snow covered land
+  // Map IMS_flag values to output using if-else for clarity
+  for (size_t i = 0; i < IMS_flag.size(); ++i) {
+    for (size_t j = 0; j < IMS_flag[i].size(); ++j) {
+      if (IMS_flag[i][j] == 2) {
+        IMS_flag[i][j] = 0;
+      } else if (IMS_flag[i][j] == 4) {
+        IMS_flag[i][j] = 1;
+      } else if (IMS_flag[i][j] == 0 || IMS_flag[i][j] == 1 || IMS_flag[i][j] == 3) {
+        IMS_flag[i][j] = nodata_int;
+      } else {
+        IMS_flag[i][j] = nodata_int; // fallback for unexpected values
+      }
+    }
+  }
+}
+
+void gdasapp::CalcSCFtoIODA::readMapping(const std::string & weightspath) {
+  // Read the mapping weights from the specified path
+  // This involves reading a file that contains the weights for interpolation
+  // from the IMS grid to the FV3 grid.
+  oops::Log::info() << "Reading mapping weights from: " << weightspath << std::endl;
+  std::ifstream infile(weightspath);
+  if (!infile.good()) {
+    throw eckit::UserError("Mapping file does not exist: " + weightspath, Here());
+  }
+  infile.close();
+  // open the netCDF file for reading
+  netCDF::NcFile ncfile(weightspath, netCDF::NcFile::read);
+  if (ncfile.isNull()) {
+    throw eckit::UserError("Failed to open mapping file: " + weightspath, Here());
+  }
+  // Read tile into IMS_index[:,:,0]
+  netCDF::NcVar tileVar = ncfile.getVar("tile");
+  netcdf_err(tileVar.isNull() ? -1 : NC_NOERR, "error reading tile variable from mapping file");
+  tileVar.getVar(&IMS_index[0][0][0]);
+
+  // Read tile_i into IMS_index[:,:,1]
+  netCDF::NcVar tile_iVar = ncfile.getVar("tile_i");
+  netcdf_err(tile_iVar.isNull() ? -1 : NC_NOERR, "error reading tile_i variable from mapping file");
+  tile_iVar.getVar(&IMS_index[0][0][1]);
+}
+
+// Helper function for error handling
+void netcdf_err(int error, const std::string &msg) {
+    if (error != NC_NOERR) {
+        std::cerr << msg << ": " << nc_strerror(error) << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
 }
