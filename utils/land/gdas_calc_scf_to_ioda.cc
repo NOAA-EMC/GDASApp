@@ -188,38 +188,38 @@ void gdasapp::CalcSCFtoIODA::readMapping(const std::string & weightspath) {
   netCDF::NcVar tileVar = ncfile.getVar("tile");
   netcdf_err(tileVar.isNull() ? -1 : NC_NOERR, "error reading tile variable from mapping file");
   oops::Log::info() << "Reading tile variable from mapping file..." << std::endl;
-  size_t dim0 = IMS_index.size();
-  size_t dim1 = (dim0 > 0) ? IMS_index[0].size() : 0;
-  size_t dim2 = (dim0 > 0 && dim1 > 0) ? IMS_index[0][0].size() : 0;
+  size_t i_ims = IMS_index.size();
+  size_t j_ims = (i_ims > 0) ? IMS_index[0].size() : 0;
+  size_t t_ims = (i_ims > 0 && j_ims > 0) ? IMS_index[0][0].size() : 0;
   oops::Log::info() << "IMS_index size: "
-             << dim0 << " x "
-             << dim1 << " x "
-             << dim2
+             << i_ims << " x "
+             << j_ims << " x "
+             << t_ims
              << std::endl;
   // Read into a flat buffer and copy to IMS_index
-  std::vector<int> tile_buffer(dim0 * dim1);
+  std::vector<int> tile_buffer(i_ims * j_ims);
   tileVar.getVar(tile_buffer.data());
-  for (size_t i = 0; i < dim0; ++i) {
-    for (size_t j = 0; j < dim1; ++j) {
-      IMS_index[i][j][0] = tile_buffer[i * dim1 + j];
+  for (size_t i = 0; i < i_ims; ++i) {
+    for (size_t j = 0; j < j_ims; ++j) {
+      IMS_index[i][j][0] = tile_buffer[i * j_ims + j];
     }
   }
   // Read tile_i into IMS_index[:,:,1]
   netCDF::NcVar tile_iVar = ncfile.getVar("tile_i");
   netcdf_err(tile_iVar.isNull() ? -1 : NC_NOERR, "error reading tile_i variable from mapping file");
   tile_iVar.getVar(tile_buffer.data());
-  for (size_t i = 0; i < dim0; ++i) {
-    for (size_t j = 0; j < dim1; ++j) {
-      IMS_index[i][j][1] = tile_buffer[i * dim1 + j];
+  for (size_t i = 0; i < i_ims; ++i) {
+    for (size_t j = 0; j < j_ims; ++j) {
+      IMS_index[i][j][1] = tile_buffer[i * j_ims + j];
     }
   }
   // Read tile_j into IMS_index[:,:,1]
   netCDF::NcVar tile_jVar = ncfile.getVar("tile_j");
   netcdf_err(tile_jVar.isNull() ? -1 : NC_NOERR, "error reading tile_j variable from mapping file");
   tile_jVar.getVar(tile_buffer.data());
-  for (size_t i = 0; i < dim0; ++i) {
-    for (size_t j = 0; j < dim1; ++j) {
-      IMS_index[i][j][2] = tile_buffer[i * dim1 + j];
+  for (size_t i = 0; i < i_ims; ++i) {
+    for (size_t j = 0; j < j_ims; ++j) {
+      IMS_index[i][j][2] = tile_buffer[i * j_ims + j];
     }
   }
   // create float buffer for lonFV3, latFV3, oroFV3
@@ -265,7 +265,29 @@ void gdasapp::CalcSCFtoIODA::readMapping(const std::string & weightspath) {
     std::vector<std::vector<float>>(npy, std::vector<float>(npx, 0.0f)));
   std::vector<std::vector<std::vector<float>>> snow_points(ntile,
     std::vector<std::vector<float>>(npy, std::vector<float>(npx, 0.0f)));
-  
+  for (size_t i = 0; i < i_ims; ++i) {
+    for (size_t j = 0; j < j_ims; ++j) {
+      if (IMS_flag[i][j] >= 0) {
+        int _tile = IMS_index[i][j][0];
+        int _tile_i = IMS_index[i][j][1];
+        int _tile_j = IMS_index[i][j][2];
+        land_points[_tile][_tile_j][_tile_x] += 1.0f;
+        snow_points[_tile][_tile_j][_tile_x] += IMS_flag[i][j];
+      }
+    }
+  }
+  // compute scfIMS based on where land_points are greater than 0
+  for (size_t k = 0; k < ntile; ++i) {
+    for (size_t j = 0; j < npy; ++j) {
+      for (size_t i = 0; i < npx; ++k) {
+        if (land_points[k][j][i] > 0) {
+          scfIMS[k][j][i] = snow_points[k][j][i] / land_points[k][j][i];
+        } else {
+          scfIMS[i][j][k] = nodata_float;
+        }
+      }
+    }
+  }
   // we no longer need IMS_flag and IMS_index, so we can clear them
   IMS_index.clear();
   IMS_index.shrink_to_fit();
