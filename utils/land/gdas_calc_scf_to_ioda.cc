@@ -101,6 +101,19 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState, c
   auto bkg_stc = atlas::array::make_view<double, 2>(xBfs["stc"]);
   auto bkg_swe = atlas::array::make_view<double, 2>(xBfs["sheleg"]);
   auto bkg_snd = atlas::array::make_view<double, 2>(xBfs["totalSnowDepth"]);
+  auto bkg_density = atlas::array::make_view<double, 2>(xBfs["totalSnowDepthMeters"]); // temp hack name
+  // now compute density
+  for (atlas::idx_t jnode = 0; jnode < xBfs["totalSnowDepth"].shape(0); ++jnode) {
+    if (bkg_snd(jnode,0) > 0.01) {
+      // snow is present, compute density
+      bkg_density(jnode,0) = bkg_swe(jnode,0) / bkg_snd(jnode,0);
+    } else {
+      // snow is not present, use average from snow forecasts over land
+      bkg_density(jnode,0) = std::max(80.0, std::min(120.0, 67.92 + 51.25 * std::exp((bkg_stc(jnode,0)- 273.15) / 2.59))) / 1000.0;
+    }
+  }
+  // put the new density values back in the state
+  bkgState.fromFieldSet(xBfs);
 }
 
 void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath) {
