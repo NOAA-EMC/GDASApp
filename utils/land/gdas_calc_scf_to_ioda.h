@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include "eckit/config/LocalConfiguration.h"
+#include "fv3jedi/Geometry/Geometry.h"
+#include "fv3jedi/State/State.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 
@@ -25,6 +27,7 @@ namespace gdasapp {
     void readIMS(const std::string & imspath);
     void readMapping(const std::string & weightspath);
     void netcdf_err(int error,const std::string &msg);
+    void calc_fcst_snow_density(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom);
    public:
     void run();
   };

@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "atlas/field.h"
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/mpi/Comm.h"
@@ -49,10 +50,17 @@ void gdasapp::CalcSCFtoIODA::run() {
   const eckit::LocalConfiguration bkgConfig(config_, "background");
   fv3jedi::State bkgState(geom, varList, cycleDate);
   bkgState.read(bkgConfig);
-  oops::Log::info() << "Background: " << std::endl << bkgState << std::endl;
+  oops::Log::info() << "=========================================================" << std::endl;
+  oops::Log::info() << "Input Background: " << std::endl << bkgState << std::endl;
   oops::Log::info() << "=========================================================" << std::endl;
 
   // TODO(CoryMartin-NOAA) compute land mask using land fraction from the background state
+
+  // Calculate snow density from forecast fields
+  calc_fcst_snow_density(bkgState, geom);
+  oops::Log::info() << "=========================================================" << std::endl;
+  oops::Log::info() << "Background After Calc Snow Density: " << std::endl << bkgState << std::endl;
+  oops::Log::info() << "=========================================================" << std::endl;
 
   // Read snow cover fraction (SCF) data
   std::string imspath;
@@ -64,12 +72,35 @@ void gdasapp::CalcSCFtoIODA::run() {
   config_.get("mapping file", weightspath);
   readMapping(weightspath);
 
+  // Calculate IMS SD from fractional IMS snow cover
+
+  // Calculate fractional snow cover from SD and density for Noah-MP
+
   // Calculate observations based on the model background
 
   // Write the results in IODA format
   std::string outputpath;
   config_.get("output ioda file", outputpath);
   writeToIoda(outputpath);
+}
+
+void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom) {
+  // Calculate snow density from the background state
+  // density = SWE/SND where snow present
+  //         = average from snow forecasts over land, where snow is not present
+  oops::Log::info() << "Calculating forecast snow density..." << std::endl;
+  // let us add a new field to the state
+  oops::Variables new_vars({"totalSnowDepthMeters"}); // this is a hack, should be density but fv3-jedi does not support this
+  oops::Variables all_vars = bkgState.variables();
+  all_vars += new_vars;
+  bkgState.updateFields(all_vars);
+  // next, convert the state to an atlas fieldset
+  atlas::FieldSet xBfs;
+  bkgState.toFieldSet(xBfs);
+  // now get the necessary fields from the fieldset
+  auto bkg_stc = atlas::array::make_view<double, 2>(xBfs["stc"]);
+  auto bkg_swe = atlas::array::make_view<double, 2>(xBfs["sheleg"]);
+  auto bkg_snd = atlas::array::make_view<double, 2>(xBfs["totalSnowDepth"]);
 }
 
 void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath) {
@@ -271,19 +302,19 @@ void gdasapp::CalcSCFtoIODA::readMapping(const std::string & weightspath) {
         int _tile = IMS_index[i][j][0];
         int _tile_i = IMS_index[i][j][1];
         int _tile_j = IMS_index[i][j][2];
-        land_points[_tile][_tile_j][_tile_x] += 1.0f;
-        snow_points[_tile][_tile_j][_tile_x] += IMS_flag[i][j];
+        land_points[_tile][_tile_j][_tile_i] += 1.0f;
+        snow_points[_tile][_tile_j][_tile_i] += IMS_flag[i][j];
       }
     }
   }
   // compute scfIMS based on where land_points are greater than 0
-  for (size_t k = 0; k < ntile; ++i) {
+  for (size_t k = 0; k < ntile; ++k) {
     for (size_t j = 0; j < npy; ++j) {
-      for (size_t i = 0; i < npx; ++k) {
+      for (size_t i = 0; i < npx; ++i) {
         if (land_points[k][j][i] > 0) {
           scfIMS[k][j][i] = snow_points[k][j][i] / land_points[k][j][i];
         } else {
-          scfIMS[i][j][k] = nodata_float;
+          scfIMS[k][j][i] = nodata_float;
         }
       }
     }
