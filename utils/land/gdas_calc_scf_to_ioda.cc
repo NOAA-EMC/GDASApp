@@ -90,10 +90,11 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState, c
   //         = average from snow forecasts over land, where snow is not present
   oops::Log::info() << "Calculating forecast snow density..." << std::endl;
   // let us add a new field to the state
-  oops::Variables new_vars({"totalSnowDepthMeters"}); // this is a hack, should be density but fv3-jedi does not support this
+  oops::Variables new_vars({"snowDensity"});
   oops::Variables all_vars = bkgState.variables();
   all_vars += new_vars;
   bkgState.updateFields(all_vars);
+  oops::Log::info() << "Background Before Calc Snow Density: " << std::endl << bkgState << std::endl;
   // next, convert the state to an atlas fieldset
   atlas::FieldSet xBfs;
   bkgState.toFieldSet(xBfs);
@@ -101,7 +102,7 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState, c
   auto bkg_stc = atlas::array::make_view<double, 2>(xBfs["stc"]);
   auto bkg_swe = atlas::array::make_view<double, 2>(xBfs["sheleg"]);
   auto bkg_snd = atlas::array::make_view<double, 2>(xBfs["totalSnowDepth"]);
-  auto bkg_density = atlas::array::make_view<double, 2>(xBfs["totalSnowDepthMeters"]); // temp hack name
+  auto bkg_density = atlas::array::make_view<double, 2>(xBfs["snowDensity"]); // temp hack name
   // now compute density
   for (atlas::idx_t jnode = 0; jnode < xBfs["totalSnowDepth"].shape(0); ++jnode) {
     if (bkg_snd(jnode,0) > 0.01) {
