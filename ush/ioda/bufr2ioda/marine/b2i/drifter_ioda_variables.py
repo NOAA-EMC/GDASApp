@@ -38,6 +38,7 @@ class DrifterIODAVariables(IODAVariables):
         self.temp -= 273.15
 
     def filter(self):
+        super().filter()
         T_mask = self.TemperatureFilter()
 
         # Separate Drifter profiles from dbuoy tank

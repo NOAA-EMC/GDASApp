@@ -17,7 +17,6 @@
 
 #include "soca/Geometry/Geometry.h"
 #include "soca/Increment/Increment.h"
-#include "soca/LinearVariableChange/LinearVariableChange.h"
 #include "soca/State/State.h"
 
 #include "gdas_postprocincr.h"
@@ -70,6 +69,17 @@ namespace gdasapp {
         postProcIncr.setToZero(incr_mom6);
         oops::Log::debug() << "========= after appending variables:" << std::endl;
         oops::Log::debug() << incr_mom6 << std::endl;
+
+        // QC the increment
+        if (fullConfig.has("qc increment")) {
+          eckit::LocalConfiguration qcConfig, xbConfig;
+          fullConfig.get("qc increment", qcConfig);
+          qcConfig.get("background", xbConfig);
+          soca::State xb(geom, xbConfig);
+          postProcIncr.qcIncrement(xb, incr_mom6, qcConfig, geom);
+          oops::Log::debug() << "========= after QC:" << std::endl;
+          oops::Log::debug() << incr_mom6 << std::endl;
+        }
 
         // Save final increment
         result = postProcIncr.save(incr_mom6, i, domains);
