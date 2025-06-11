@@ -21,7 +21,7 @@
 #include "soca/LinearVariableChange/LinearVariableChange.h"
 #include "soca/State/State.h"
 
-#include "gdas_incr_qc.h"
+#include "incrqc/gdas_incr_qc.h"
 
 namespace gdasapp {
 
@@ -281,7 +281,7 @@ class PostProcIncr {
     oops::Log::info() << "======      Quality control on increment" << std::endl;
 
     // Perform quality control on the increment
-    gdasapp::qcIncrement::qcIncrement(xb, dx, config, geom);
+    gdasapp::incrqc::qcIncrement(xb, dx, config, geom);
     oops::Log::info() << " in qc increment:" << dx << std::endl;
   }
 
