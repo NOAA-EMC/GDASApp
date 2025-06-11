@@ -42,11 +42,11 @@ set(DEPEND_LIB_ROOT ${CMAKE_CURRENT_BINARY_DIR}/Depends)
 list(APPEND CMAKE_PREFIX_PATH ${DEPEND_LIB_ROOT})
 
 # Library path for non-ecbuild packages
-link_directories(${CMAKE_CURRENT_BINARY_DIR}/lib)
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 
 include( GNUInstallDirs )
 if(APPLE)
-  list( APPEND CMAKE_INSTALL_RPATH $ENV{llvm_openmp_ROOT}/lib )
+  list( APPEND CMAKE_INSTALL_RPATH $ENV{llvm_openmp_ROOT}/${CMAKE_INSTALL_LIBDIR} )
 endif()
 
 # Initialize bundle
