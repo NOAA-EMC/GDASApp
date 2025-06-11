@@ -33,7 +33,8 @@ usage() {
 # ==============================================================================
 
 # Defaults:
-INSTALL_PREFIX="${dir_root}"
+INSTALL_PREFIX="${dir_root}/install"
+CMAKE_INSTALL_LIBDIR="lib"
 CMAKE_OPTS=""
 BUILD_TARGET="${MACHINE_ID:-'localhost'}"
 BUILD_VERBOSE="NO"
@@ -109,9 +110,11 @@ if [[ $WORKFLOW_BUILD == 'ON' ]]; then
   ln -sf $HOMEgfs/sorc/ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
 fi
 
-# Set INSTALL_PREFIX in GDASApp root and set as CMake option
-INSTALL_PREFIX=$dir_root
+# Set INSTALL_PREFIX as CMake option
 CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
+
+# Set CMAKE_INSTALL_LIBDIR as CMake option
+CMAKE_OPTS+=" -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}"
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
@@ -139,10 +142,9 @@ set +x
 if [[ $WORKFLOW_BUILD == 'ON' ]]; then
   echo "Copying installed files to Global Workflow directories ..."
 
-  # Make sure the required directories exist in the Global Workflow
+  # Make sure the required install directories exist in the Global Workflow
   mkdir -p "$HOMEgfs"/exec
-  mkdir -p "$HOMEgfs"/lib
-  mkdir -p "$HOMEgfs"/lib64
+  mkdir -p "$HOMEgfs/$CMAKE_INSTALL_LIBDIR"
 
   # Move GDASApp executables from GDASApp to the Global Workflow
   mv "$INSTALL_PREFIX/bin"/gdas* "$HOMEgfs/exec/"
@@ -153,8 +155,20 @@ if [[ $WORKFLOW_BUILD == 'ON' ]]; then
   mv "$INSTALL_PREFIX/bin/apply_incr.exe" "$HOMEgfs/exec/gdas_apply_incr.x" # .exe -> .x
 
   # Move libraries from GDASApp to the Global Workflow
-  mv "$INSTALL_PREFIX"/lib/* "HOMEgfs/lib/"
-  mv "$INSTALL_PREFIX"/lib64/* "$HOMEgfs/lib64/"
+  mv "$INSTALL_PREFIX/$CMAKE_INSTALL_LIBDIR"/* "$HOMEgfs/$CMAKE_INSTALL_LIBDIR/"
+
+  # Make sure INSTALL_PREFIX is not equal to GDASApp or Global Workflow root before deleting it
+  if [[ "$INSTALL_PREFIX" == "$HOMEgfs" ]]; then
+    echo "Error: INSTALL_PREFIX is equal to Global Workflow root."
+    exit 1
+  fi
+  if [[ "$INSTALL_PREFIX" == "$dir_root" ]]; then
+    echo "Error: INSTALL_PREFIX is equal to GDASApp root."
+    exit 1
+  fi
+
+  # Delete the GDASApp install directory
+  #rm -rf "$INSTALL_PREFIX"
 fi
 echo "Finish ... `date`"
 exit 0
