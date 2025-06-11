@@ -48,7 +48,6 @@ include( GNUInstallDirs )
 if(APPLE)
   list( APPEND CMAKE_INSTALL_RPATH $ENV{llvm_openmp_ROOT}/lib )
 endif()
-list( APPEND CMAKE_INSTALL_RPATH ${CMAKE_CURRENT_BINARY_DIR}/fv3 )
 
 # Initialize bundle
 # -----------------
@@ -100,10 +99,6 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT ioda SOURCE "../sorc/ioda" )
   option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT ufo SOURCE "../sorc/ufo" )
-
-# FV3 dynamical core
-  include(fv3-interface.cmake)
-  ecbuild_bundle( PROJECT fv3 SOURCE "../sorc/fv3" )
 
 # fv3-jedi and associated repositories
   ecbuild_bundle( PROJECT femps SOURCE "../sorc/femps" )
