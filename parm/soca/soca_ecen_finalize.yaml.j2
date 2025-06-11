@@ -1,0 +1,36 @@
+mkdir:
+{% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                      '${RUN}': RUN,
+                      '${YMD}': current_cycle | to_YMD,
+                      '${HH}': current_cycle | strftime('%H'),
+                      '${MEMDIR}': 'ensstat' }) %}
+- '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}'
+- '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}'
+{% for imem in range(1,nmem_ens+1) %}
+    {% set memchar = 'mem%03d' | format(imem) %}
+    {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                          '${RUN}': RUN,
+                          '${YMD}': current_cycle | to_YMD,
+                          '${HH}': current_cycle | strftime('%H'),
+                          '${MEMDIR}': memchar }) %}
+- '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}
+- '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}
+{% endfor %}
+copy:
+{% for imem in range(1,nmem_ens+1) %}
+    {% set memchar = 'mem%03d' | format(imem) %}
+    {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                          '${RUN}': RUN,
+                          '${YMD}': current_cycle | to_YMD,
+                          '${HH}': current_cycle | strftime('%H'),
+                          '${MEMDIR}': memchar }) %}
+- ['{{ DATA }}/ocn.recenter.incr.{{ imem | format("%03d") }}.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/enkf{{ RUN }}.t{{ cyc }}z.ocninc.nc']
+- ['{{ DATA }}/ens/cice_model.res.output.{{ imem | format("%03d") }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.cice_model_anl.res.nc']
+{% endfor %}
+{% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                      '${RUN}': RUN,
+                      '${YMD}': current_cycle | to_YMD,
+                      '${HH}': current_cycle | strftime('%H'),
+                      '${MEMDIR}': 'ensstat' }) %}
+- ['{{ DATA }}/ocn.ensvar.incr.{{ ensvar_date }}.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/enkf{{ RUN }}.ocean.t{{ cyc }}z.bg_ensvar.nc']
+- ['{{ DATA }}/ice.ensvar.incr.{{ ensvar_date }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/enkf{{ RUN }}.ice.t{{ cyc }}z.bg_ensvar.nc']
