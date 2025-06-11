@@ -168,7 +168,7 @@ if [[ $WORKFLOW_BUILD == 'ON' ]]; then
   fi
 
   # Delete the GDASApp install directory
-  #rm -rf "$INSTALL_PREFIX"
+  rm -rf "$INSTALL_PREFIX"
 fi
 echo "Finish ... `date`"
 exit 0
