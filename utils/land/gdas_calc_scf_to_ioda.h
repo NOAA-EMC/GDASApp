@@ -20,6 +20,7 @@ namespace gdasapp {
       IMSscf(const std::string &imspath, const std::string &weightspath, const fv3jedi::Geometry & geom);
       void readIMS();
       void readMapping();
+      void calcIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom);
       std::vector<std::vector<std::vector<float>>> scfIMS;
 
 

@@ -74,6 +74,7 @@ void gdasapp::CalcSCFtoIODA::run() {
   imsscf.readMapping();
 
   // Calculate IMS SD from fractional IMS snow cover
+  imsscf.calcIMSsd(bkgState, geom);
 
   // Calculate fractional snow cover from SD and density for Noah-MP
 
@@ -348,6 +349,12 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   this->IMS_index.shrink_to_fit();
   this->IMS_flag.clear();
   this->IMS_flag.shrink_to_fit();
+}
+
+// Calculate IMS snow depth
+void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom) {
+  // Calculate IMS snow depth (SD) from fractional IMS snow cover (SCF)
+  oops::Log::info() << "Calculating IMS snow depth..." << std::endl;
 }
 
 // Helper function for error handling
