@@ -60,6 +60,7 @@ forecast hours:
     provider: ufs
     datapath: ./
     filename: {{ atmosphere_variational_history_prefix }}cubed_sphere_grid_atmf{{ '%03d' % atmosphere_iau_hours[ihour] }}.nc
+    max allowable geometry difference: 1e-04
     field io names:
       eastward_wind: ugrd
       northward_wind: vgrd
