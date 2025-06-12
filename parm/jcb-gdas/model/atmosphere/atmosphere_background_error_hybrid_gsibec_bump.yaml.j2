@@ -82,6 +82,7 @@ components:
         filenames:
         - {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_atmf006.nc
         - {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_sfcf006.nc
+        max allowable geometry difference: 1e-4
       pattern: "{{ atmosphere_ensemble_pattern | default("%mem%", true) }}"
       nmembers: {{atmosphere_number_ensemble_members}}
       zero padding: 3
