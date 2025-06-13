@@ -18,6 +18,8 @@ Refs NOAA-EMC/repo#5678
 <!-- Which Global Workflow CI tests are required to adequately test this PR? -->
 - [ ] atm_jjob <!-- JEDI atm single cycle DA !-->
 - [ ] C96C48_ufs_hybatmDA <!-- JEDI atm cycled DA !-->
+- [ ] C96C48_hybatmsnowDA <!-- JEDI snow cycled DA !-->
+- [ ] C96_gcafs_cycled <!-- JEDI aerosol cycled DA !-->
 - [ ] C48mx500_3DVarAOWCDA <!-- JEDI low-res marine 3DVar cycled DA  !-->
 - [ ] C48mx500_hybAOWCDA <!-- JEDI marine hybrid envar cycled DA !-->
 - [ ] C96C48_hybatmDA <!-- GSI atm cycled DA !-->
