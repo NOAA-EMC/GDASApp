@@ -155,7 +155,7 @@ if [[ $WORKFLOW_BUILD == 'ON' ]]; then
   mv "$INSTALL_PREFIX/bin/apply_incr.exe" "$HOMEgfs/exec/gdas_apply_incr.x" # .exe -> .x
 
   # Move libraries from GDASApp to the Global Workflow
-  mv "$INSTALL_PREFIX/$CMAKE_INSTALL_LIBDIR"/* "$HOMEgfs/$CMAKE_INSTALL_LIBDIR/"
+  \mv "$INSTALL_PREFIX/$CMAKE_INSTALL_LIBDIR"/* "$HOMEgfs/$CMAKE_INSTALL_LIBDIR/"
 
   # Make sure INSTALL_PREFIX is not equal to GDASApp or Global Workflow root before deleting it
   if [[ "$INSTALL_PREFIX" == "$HOMEgfs" ]]; then
