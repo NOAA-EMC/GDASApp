@@ -21,7 +21,7 @@ namespace gdasapp {
       void readIMS();
       void readMapping();
       void calcIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom);
-      std::vector<std::vector<std::vector<float>>> scfIMS;
+      std::vector<std::vector<std::vector<float>>> scfIMS, sndIMS;
 
 
          private:
@@ -33,6 +33,7 @@ namespace gdasapp {
           std::vector<std::vector<std::vector<float>>> lonFV3, latFV3, oroFV3;
           static constexpr int nodata_int = -999;
           static constexpr float nodata_float = -999.0f;
+          static constexpr float nodata_tol = 0.01f;  // Tolerance for nodata checks
           void netcdf_err(int error,const std::string &msg);
       // Add members and methods as needed
     };

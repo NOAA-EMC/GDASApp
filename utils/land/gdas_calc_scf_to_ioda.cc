@@ -26,6 +26,7 @@ void gdasapp::CalcSCFtoIODA::run() {
   // Implementation of the SCF to IODA calculation
   // This would include reading the SCF data, performing the necessary calculations,
   // and writing the results in IODA format.
+  // TODO(CoryMartin-NOAA) - make better use of MPI to parallelize the work
 
   // Setup the FV3 geometry
   const eckit::LocalConfiguration geomConfig(config_, "geometry");
@@ -125,6 +126,7 @@ gdasapp::CalcSCFtoIODA::IMSscf::IMSscf(const std::string &imspath, const std::st
   this->lonFV3.resize(6, std::vector<std::vector<float>>(geom_.npy()-1, std::vector<float>(geom_.npx()-1)));
   this->oroFV3.resize(6, std::vector<std::vector<float>>(geom_.npy()-1, std::vector<float>(geom_.npx()-1)));
   this->scfIMS.resize(6, std::vector<std::vector<float>>(geom_.npy()-1, std::vector<float>(geom_.npx()-1, nodata_float)));
+  this->sndIMS.resize(6, std::vector<std::vector<float>>(geom_.npy()-1, std::vector<float>(geom_.npx()-1, nodata_float)));
   oops::Log::info() << "IMSscf object created with IMS path: " << imspath_ << " and weights path: " << weightspath_ << std::endl;
 }
 
@@ -355,6 +357,55 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
 void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom) {
   // Calculate IMS snow depth (SD) from fractional IMS snow cover (SCF)
   oops::Log::info() << "Calculating IMS snow depth..." << std::endl;
+  // convert the state to an atlas fieldset
+  atlas::FieldSet xBfs;
+  state.toFieldSet(xBfs);
+  // Get the vegetation type field from the state
+  auto bkg_vtype = atlas::array::make_view<double, 2>(xBfs["vtype"]);
+  auto bkg_orog = atlas::array::make_view<double, 2>(xBfs["filtered_orography"]);
+  const auto bkg_idx = atlas::array::make_view<atlas::gidx_t, 1>(geom.functionSpace().global_index());
+  oops::Log::info() << "bkg_vtype shape: ["
+            << xBfs["vtype"].shape(0) << ", "
+            << xBfs["vtype"].shape(1) << "]" << std::endl;
+  oops::Log::info() << geom.fields().field_names() << std::endl;
+  std::vector<int> indices = geom.get_indices();
+  oops::Log::info() << "Geometry indices: "
+            << indices[0] << ", "
+            << indices[1] << ", "
+            << indices[2] << ", "
+            << indices[3] << ", "
+            << indices[4] << ", "
+            << indices[5] << ", "
+            << indices[6] << std::endl;
+  int tilenum = geom.tileNum()-1; // tileNum is 1-based, so we subtract 1 for 0-based indexing
+  int npx = geom.npx()-1;
+  int npy = geom.npy()-1;
+  oops::Log::info() << "Tile number: " << tilenum << ", npx: " << npx << ", npy: " << npy << std::endl;
+  
+  for (atlas::idx_t jnode = 0; jnode < xBfs["filtered_orography"].shape(0); ++jnode) {
+    oops::Log::info() << "jnode: " << jnode << ", orog:" << bkg_orog(jnode, 0) << std::endl;
+  }
+  for (size_t fv3_i=indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
+    for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
+      atlas::idx_t jnode = ((npx)*(npy)*(tilenum) + (fv3_j)*(npx) + (fv3_i + 1)) - 1; // jnode is 0-based index
+      // oops::Log::info() << tilenum << "," << fv3_i << "," << fv3_j
+      //                   << " jnode:" << jnode << " atlas orog: " << bkg_orog(jnode, 0)
+      //                   << " lon:" << this->lonFV3[tilenum][fv3_j][fv3_i]
+      //                   << ", lat:" << this->latFV3[tilenum][fv3_j][fv3_i]
+      //                   << ", oro:" << this->oroFV3[tilenum][fv3_j][fv3_i] << std::endl;
+    }
+  }
+
+  // for (size_t tile = 0; tile < sndIMS.size(); ++tile) {
+  //   for (size_t j = 0; j < sndIMS[tile].size(); ++j) {
+  //     for (size_t i = 0; i < sndIMS[tile][j].size(); ++i) {
+  //       if (std::abs(scfIMS[tile][j][i] - nodata_float) > nodata_tol) {
+  //         int bkg_vtype_value = static_cast<int>(bkg_vtype(j, i));
+  //       // Example: set all values to zero (replace with actual calculation)
+  //       sndIMS[tile][j][i] = 0.0f;
+  //     }
+  //   }
+  // }
 }
 
 // Helper function for error handling
