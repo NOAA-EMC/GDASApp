@@ -23,12 +23,8 @@ copy:
 # Recentering error
 #- ['{{ DATA }}/static_ens/{{ domain }}.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}{{ domain }}.recentering_error.nc']
 {% endfor %}
-# soca2cice ice increment
-{% if DOIAU %}
-- ['{{ DATA }}/Data/ice.soca2cice.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ice.incr.postproc.nc']
-{% else %}
-- ['{{ DATA }}/Data/ice.soca2cice.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ice.incr.postproc.nc']
-{% endif %}
+# Postprocessed ice increment
+- ['{{ DATA }}/ice.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ice.incr.postproc.nc']
 # ssh diagnostics
 {% if NMEM_ENS > 2 %}
 {% for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev', 'steric_explained_variance'] %}
@@ -42,5 +38,4 @@ copy:
 # YAML files
 - ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
 - ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
-- ['{{ DATA }}/soca_2cice_global.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
-- ['{{ DATA }}/socaincr2mom6.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
+- ['{{ DATA }}/soca_incpostproc.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
