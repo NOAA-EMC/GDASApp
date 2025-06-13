@@ -5,3 +5,4 @@ copy_opt:
 - ['{{marine_obsdataout_path}}/{{marine_obsdatain_prefix}}ocn.{{observation_from_jcb}}.stats.csv', '{{marine_obsdatastats_path}}']
 {% endif %}
 {% endfor %}
+- ['{{marine_output_dir}}/soca_diag_stats.yaml', '{{marine_config_path}}']
