@@ -72,7 +72,6 @@ observations: all_observations
 
 marine_obsdataroot_path: '{{COMIN_OBS}}'
 marine_obsdatastats_path: '{{COMOUT_OCEAN_ANALYSIS}}/diags'
-marine_obsdatastatsyaml_path: '{{COMOUT_OCEAN_ANALYSIS}}/yaml'
 
 marine_obsdatain_path: '{{DATA}}/obs'
 marine_obsdatain_prefix: '{{OPREFIX}}'
@@ -102,3 +101,6 @@ marine_pseudo_model_states: {{ marine_pseudo_model_states | default([]) }}
 # job fully replaces the SOCA obs_diag_stats application
 cleaned_observations: {{ cleaned_observations | default([]) }}
 obs_variables: {{ obs_variables | default({}) }}
+
+# COM path for configuration files
+marine_config_path: '{{COMOUT_CONF}}'
