@@ -199,6 +199,12 @@ for pr in $open_pr_list; do
 	fi
       done
 
+      ## TODO - remove logic below when GCAFS ctest run on MSU (Hercules and Orion)
+      if [[ "${TARGET}" = "hercules" || "${TARGET}" = "orion" ]]; then
+        ci_test="C96_gcafs_cycled"
+	ctest_regex_exclude+="${ctest_regex_exclude:+|}$ci_test"
+      fi
+      
       # setup run_ci.sh arguments to test in the Global Workflow and exclude chosen CI tests
       run_ci_cmd+=" -w"
       if [ -n "$ctest_regex_exclude" ]; then
