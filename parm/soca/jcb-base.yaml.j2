@@ -96,3 +96,8 @@ marine_final_increment_exp: 3dvarfgat_pseudo
 
 # Background list
 marine_pseudo_model_states: {{ marine_pseudo_model_states | default([]) }}
+
+# These parameters are a bit of a hack that will be removed in the future when the anlstat
+# job fully replaces the SOCA obs_diag_stats application
+cleaned_observations: {{ cleaned_observations | default([]) }}
+obs_variables: {{ obs_variables | default({}) }}
