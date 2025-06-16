@@ -52,13 +52,11 @@ endfunction()
 # Detect the hostname
 # Note: Set IS_WORKSTATION=TRUE if you want to run the tests on a workstation type environement
 execute_process(COMMAND hostname OUTPUT_VARIABLE HOSTNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
-if(HOSTNAME MATCHES "^hercules" OR
-   HOSTNAME MATCHES "^orion" OR
-   HOSTNAME MATCHES "^hfe" OR
+if(HOSTNAME MATCHES "^hfe" OR
    HOSTNAME MATCHES "^ufe")
     set(IS_KNOWN_HPC TRUE)
     message(STATUS "Detected HPC environment: ${HOSTNAME}")
-    set(MPI_COMMAND "${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 --time=00:02:00 --account=da-cpu")
+    set(MPI_COMMAND "${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 --time=00:02:00 --account=da-cpu --qos=batch")
 else()
     set(IS_KNOWN_HPC FALSE)
     option(IS_WORKSTATION "Set to TRUE to enable workstation environment" OFF)
