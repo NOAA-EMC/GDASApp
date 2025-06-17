@@ -1,0 +1,30 @@
+resolution:
+  geom_grid_file: soca_gridspec.nc
+  mom6_input_nml: mom6_input.nml
+  fields metadata: fields_metadata.yaml
+
+date: '2021-07-03T00:00:00Z'
+
+corr variables: [sea_surface_height_above_geoid]
+
+islands:
+  # Barrier Islands between the Pamlico Sound and the Atlantic
+  scale: 100.0  # in kilometers
+  lat: [ 34.636, 35.065, 35.49,  35.87,  36.28]
+  lon: [-76.52, -76.03, -75.46, -75.56, -75.78]
+
+scales:
+  vert layers: 5 # in units of layer
+  sea_surface_height_above_geoid:
+    rossby mult: 1.0
+    min grid mult: 1.0
+
+rh output:
+  datadir: ./
+  exp: cor_rh
+  type: incr
+
+rv output:
+  datadir: ./
+  exp: cor_rv
+  type: incr
