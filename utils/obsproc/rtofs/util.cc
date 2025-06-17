@@ -5,6 +5,8 @@
 #include <fstream>
 using std::ofstream;
 
+#include <cstdint> // for uint32_t
+
 #include <iomanip>
 using std::setprecision;
 
