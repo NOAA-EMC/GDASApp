@@ -193,6 +193,13 @@ for pr in $open_pr_list; do
       branch_body=$(gh pr view $pr --repo ${gdasapp_url} --json body --jq '.body')
       ci_checklist=$(echo "$branch_body" | grep -i '\[x\]')
       ctest_regex_exclude=""
+
+      ## TODO - remove logic below when GCAFS ctest run on MSU (Hercules and Orion)
+      if [[ "${TARGET}" = "hercules" || "${TARGET}" = "orion" ]]; then
+        ci_test="C96_gcafs_cycled"
+        ctest_regex_exclude+="${ctest_regex_exclude:+|}$ci_test"
+      fi
+      
       for ci_test in ${CI_TESTS[@]}; do
         if ! echo "$ci_checklist" | grep -q "$ci_test"; then
 	  ctest_regex_exclude+="${ctest_regex_exclude:+|}$ci_test"
