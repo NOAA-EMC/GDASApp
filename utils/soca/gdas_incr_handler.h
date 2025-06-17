@@ -85,26 +85,28 @@ namespace gdasapp {
 
         // Postprocess the sea ice: get analysis
         // xx and xa are now the analysis
-        xx += incr_mom6;
-        soca::State xa(xx);
-        oops::Log::debug() << "========= analysis before sea ice postprocessing:" << std::endl;
-        oops::Log::debug() << xa << std::endl;
-        eckit::LocalConfiguration vcConfig(fullConfig, "ice analysis postprocessing");
-        soca::VariableChange vc(vcConfig, geom);
-        oops::Variables varout(vcConfig, "output variables");
-        vc.changeVar(xa, varout);
-        // xa is now the postprocessed analysis
-        oops::Log::debug() << "========= analysis after sea ice postprocessing:" << std::endl;
-        oops::Log::debug() << xa << std::endl;
-        soca::Increment dx(xa.geometry(), xa.variables(), xa.validTime());
-        dx.diff(xa, xx);
-        oops::Log::debug() << "========= sea ice postprocessing difference:" << std::endl;
-        oops::Log::debug() << dx << std::endl;
-        // Bring in the SST adjustment from ice postprocessing to MOM6 increment
-        incr_mom6 += dx;
-        oops::Log::debug() << "========= increment after adding sea ice postprocessing:"
-                           << std::endl;
-        oops::Log::debug() << incr_mom6 << std::endl;
+        if (fullConfig.has("ice analysis postprocessing")) {
+          xx += incr_mom6;
+          soca::State xa(xx);
+          oops::Log::debug() << "========= analysis before sea ice postprocessing:" << std::endl;
+          oops::Log::debug() << xa << std::endl;
+          eckit::LocalConfiguration vcConfig(fullConfig, "ice analysis postprocessing");
+          soca::VariableChange vc(vcConfig, geom);
+          oops::Variables varout(vcConfig, "output variables");
+          vc.changeVar(xa, varout);
+          // xa is now the postprocessed analysis
+          oops::Log::debug() << "========= analysis after sea ice postprocessing:" << std::endl;
+          oops::Log::debug() << xa << std::endl;
+          soca::Increment dx(xa.geometry(), xa.variables(), xa.validTime());
+          dx.diff(xa, xx);
+          oops::Log::debug() << "========= sea ice postprocessing difference:" << std::endl;
+          oops::Log::debug() << dx << std::endl;
+          // Bring in the SST adjustment from ice postprocessing to MOM6 increment
+          incr_mom6 += dx;
+          oops::Log::debug() << "========= increment after adding sea ice postprocessing:"
+                             << std::endl;
+          oops::Log::debug() << incr_mom6 << std::endl;
+        }
 
         // Save final increment
         result = postProcIncr.save(incr_mom6, i, domains);
