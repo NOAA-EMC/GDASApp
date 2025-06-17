@@ -147,15 +147,15 @@ if [[ $WORKFLOW_BUILD == 'ON' ]]; then
   mkdir -p "$HOMEgfs/$CMAKE_INSTALL_LIBDIR"
 
   # Move GDASApp executables from GDASApp to the Global Workflow
-  mv "$INSTALL_PREFIX/bin"/gdas* "$HOMEgfs/exec/"
+  mv -v "$INSTALL_PREFIX/bin"/gdas* "$HOMEgfs/exec/"
 
   # Move GDASApp executables (from submodules) that don't have a gdas_* prefix in the name
-  mv "$INSTALL_PREFIX/bin/bufr2ioda.x" "$HOMEgfs/exec/gdas_bufr2ioda.x"
-  mv "$INSTALL_PREFIX/bin/calcfIMS.exe" "$HOMEgfs/exec/gdas_calcfIMS.x" # .exe -> .x
-  mv "$INSTALL_PREFIX/bin/apply_incr.exe" "$HOMEgfs/exec/gdas_apply_incr.x" # .exe -> .x
+  mv -v "$INSTALL_PREFIX/bin/bufr2ioda.x" "$HOMEgfs/exec/gdas_bufr2ioda.x"
+  mv -v "$INSTALL_PREFIX/bin/calcfIMS.exe" "$HOMEgfs/exec/gdas_calcfIMS.x" # .exe -> .x
+  mv -v "$INSTALL_PREFIX/bin/apply_incr.exe" "$HOMEgfs/exec/gdas_apply_incr.x" # .exe -> .x
 
   # Move libraries from GDASApp to the Global Workflow
-  "mv" "$INSTALL_PREFIX/$CMAKE_INSTALL_LIBDIR"/* "$HOMEgfs/$CMAKE_INSTALL_LIBDIR/"
+  rsync -av "$INSTALL_PREFIX/$CMAKE_INSTALL_LIBDIR"/* "$HOMEgfs/$CMAKE_INSTALL_LIBDIR/"
 
   # Make sure INSTALL_PREFIX is not equal to GDASApp or Global Workflow root before deleting it
   if [[ "$INSTALL_PREFIX" == "$HOMEgfs" ]]; then
