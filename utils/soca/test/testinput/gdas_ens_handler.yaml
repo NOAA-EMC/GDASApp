@@ -1,0 +1,123 @@
+# Configuration for the recentering and re-balancing of the ensemble members
+geometry:
+  geom_grid_file: soca_gridspec.nc
+  mom6_input_nml: mom6_input.nml
+  fields metadata: fields_metadata.yaml
+
+output geometry:
+  geom_grid_file: soca_gridspec.nc
+  mom6_input_nml: mom6_input.nml
+  fields metadata: fields_metadata.yaml
+
+date: '2021-07-03T00:00:00Z'
+
+layers variable: [sea_water_cell_thickness]
+
+increment variables:
+- sea_water_potential_temperature
+- sea_water_salinity
+- eastward_sea_water_velocity
+- northward_sea_water_velocity
+- sea_surface_height_above_geoid
+- sea_water_cell_thickness
+- sea_ice_area_fraction
+- sea_ice_thickness
+- sea_ice_snow_thickness
+
+set increment variables to zero: [sea_surface_height_above_geoid]
+
+vertical geometry:
+  date: '2021-07-03T00:00:00Z'
+  basename: ./
+  ocn_filename: ocn.nc
+  read_from_file: 3
+
+add recentering increment: false
+
+soca increments:  # Could also be states, but they are read as increments
+  number of increments: 2
+  pattern: '%mem%'
+  template:
+    date: '2021-07-03T00:00:00Z'
+    basename: './'
+    ocn_filename: 'ocn.%mem%.nc'
+    ice_filename: 'ice.%mem%.nc'
+    read_from_file: 3
+
+steric height:
+  linear variable changes:
+  - linear variable change name: BalanceSOCA  # Only the steric balance is applied
+
+ensemble mean output:
+  datadir: ./
+  date: '2021-07-03T00:00:00Z'
+  exp: ens_mean
+  type: incr
+
+ssh output:
+  unbalanced:
+    datadir: ./
+    date: '2021-07-03T00:00:00Z'
+    exp: ssh_unbal_stddev
+    type: incr
+
+  steric:
+    datadir: ./
+    date: '2021-07-03T00:00:00Z'
+    exp: ssh_steric_stddev
+    type: incr
+
+  total:
+    datadir: ./
+    date: '2021-07-03T00:00:00Z'
+    exp: ssh_total_stddev
+    type: incr
+
+  explained variance:
+    datadir: ./
+    date: '2021-07-03T00:00:00Z'
+    exp: steric_explained_variance
+    type: incr
+
+  recentering error:
+    datadir: ./
+    date: '2021-07-03T00:00:00Z'
+    exp: ssh_recentering_error
+    type: incr
+
+background error output:
+  datadir: ./
+  date: '2021-07-03T00:00:00Z'
+  exp: bkgerr_stddev
+  type: incr
+
+linear variable change:
+  linear variable changes:
+  - linear variable change name: BalanceSOCA
+
+trajectory:
+  state variables:
+  - sea_water_potential_temperature
+  - sea_water_salinity
+  - eastward_sea_water_velocity
+  - northward_sea_water_velocity
+  - sea_surface_height_above_geoid
+  - sea_water_cell_thickness
+  - sea_water_depth
+  - ocean_mixed_layer_thickness
+  - sea_ice_area_fraction
+  - sea_ice_thickness
+  - sea_ice_snow_thickness
+  date: '2021-07-03T00:00:00Z'
+  basename: ./
+  ocn_filename: ocn.nc
+  ice_filename: ice.nc
+  read_from_file: 1
+
+output increment:
+  datadir: './'
+  date: '2021-07-03T00:00:00Z'
+  exp: trash
+  type: incr
+  output file: 'pert.%mem%.nc'
+  pattern: '%mem%'
