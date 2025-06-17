@@ -217,11 +217,26 @@ observations:
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
 - obs space:
+    name: sst_ahi_h08_l3c
+    provider: GHRSST
+    dmpdir subdir: ocean/sst
+    type: nc
+    dmpdir regex: '*-L3C_GHRSST-SSTsubskin-AHI_H08-ACSPO_V*.nc'
+    bounds:
+      units: C
+      min: -3.0
+      max: 50.0
+    binning:
+      stride: 15
+      min number of obs: 10
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
     name: sst_ahi_h09_l3c
     provider: GHRSST
     dmpdir subdir: ocean/sst
     type: nc
-    dmpdir regex: '*-L3C_GHRSST-SSTsubskin-AHI_H0?-ACSPO_V*.nc'
+    dmpdir regex: '*-L3C_GHRSST-SSTsubskin-AHI_H09-ACSPO_V*.nc'
     bounds:
       units: C
       min: -3.0
@@ -316,8 +331,8 @@ observations:
     type: bufr
     error ratio: 0.4
     window:
-       back: 4
-       forward: 4
+       back: 0
+       forward: 0
     dmpdir regex: 'gdas.*.altkob.*.bufr_d'
 
 - obs space:
@@ -327,8 +342,8 @@ observations:
     type: bufr
     error ratio: 0.4
     window:
-       back: 4
-       forward: 4
+       back: 0
+       forward: 0
     dmpdir regex: 'gdas.*.trkob.*.bufr_d'
 
 # in situ: daily
@@ -350,8 +365,8 @@ observations:
     type: bufr
     error ratio: 0.4
     window:
-       back: 4
-       forward: 4
+       back: 0
+       forward: 0
     dmpdir regex: 'gdas.*.dbuoyb.*.bufr_d'
 
 - obs space:
@@ -361,7 +376,7 @@ observations:
     type: bufr
     error ratio: 0.4
     window:
-       back: 4
-       forward: 4
+       back: 0
+       forward: 0
     dmpdir regex: 'gdas.*.dbuoyb.*.bufr_d'
 
