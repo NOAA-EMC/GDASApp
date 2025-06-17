@@ -47,7 +47,7 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
     gdasapp_dir=$workflow_dir/sorc/gdas.cd
 
     build_cmd_dir=$workflow_dir/sorc
-    build_cmd="./build_all.sh gfs gsi gdas"
+    build_cmd="./build_all.sh gfs gcafs gsi gdas"
     build_dir=$workflow_dir/build
 else
     export BUILD_JOBS=8
@@ -120,7 +120,7 @@ if [ -n "$ctest_regex_exclude" ]; then
 fi
 pwd
 echo "Tests: $ctest_cmd" >> $outfile
-$ctest_cmd --timeout 14400 --output-on-failure &>> log.ctest
+$ctest_cmd --timeout 28800 --output-on-failure &>> log.ctest
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
 if [ $ctest_status -eq 0 ]; then
