@@ -95,10 +95,12 @@ add_test(NAME test_gdasapp_utils_incrhandler_reproducibility
     nccmp --tolerance=1e-7 -v Temp -d \
       ${PROJECT_BINARY_DIR}/test/gdasapp/test_gdasapp_utils_incrhandler/ocn.mom6_iau_incqc.nc \
       ${PROJECT_BINARY_DIR}/test/gdasapp/test_gdasapp_utils_incrhandler_8pes/ocn.mom6_iau_incqc.nc || {
-        echo '❌ Field differs between single and multi-PE output';
+        echo 'Field differs between single and multi-PE output';
         exit 1;
     }
     ")
+set_tests_properties(test_gdasapp_utils_incrhandler_reproducibility PROPERTIES DEPENDS
+                      "test_gdasapp_utils_incrhandler;test_gdasapp_utils_incrhandler_8pes")
 
 # gdas_socahybridweights.x: Generate hybrid weights for B
 add_test_with_resources(test_gdasapp_utils_hybridweights
