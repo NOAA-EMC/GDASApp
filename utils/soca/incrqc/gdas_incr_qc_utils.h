@@ -163,9 +163,6 @@ void applyWaterColumnStabilityCheck(
 
       // Smooth increment over local node + neighbors
       for (const auto& [jnode, level, neighbors] : unstablePoints) {
-        std::vector<int> stencil = neighbors;
-        stencil.push_back(jnode);  // include center node
-
         gdasapp::diagb::utils::localMean(jnode, level, neighbors, viewHocn,
                                          viewTempSmooth, viewTempIncr,
                                          viewDepth, 1, 0.0);
