@@ -14,6 +14,7 @@
 
 #include "../diagb/gdas_soca_diagb_utils.h"
 #include "../gdas_soca_utils.h"
+#include "../diagnostics/gdas_soca_diagnostics.h"
 
 #include "oops/util/Logger.h"
 
@@ -183,6 +184,14 @@ void applyWaterColumnStabilityCheck(
         }
       }
     }  // end for loop iter
+    auto u_out = dxFs["eastward_sea_water_velocity"];
+    auto v_out = dxFs["northward_sea_water_velocity"];
+    gdasapp::diagnostics::Diagnostics diag(meshConn.nodeColumns, 1025.0, 1e-5, 9.80665);
+    diag.geostrophy(dxFs["sea_water_potential_temperature"],
+                    dxFs["sea_water_salinity"],
+                    dxFs["coriolis_parameter"],
+                    dxFs["sea_water_cell_thickness"],
+                    u_out, v_out);
   }
 
 /**
