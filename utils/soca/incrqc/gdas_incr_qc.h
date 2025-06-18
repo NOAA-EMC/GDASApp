@@ -81,6 +81,22 @@ void qcIncrement(const soca::State& xb,
   auto viewTempBkg = atlas::array::make_view<double, 2>(xbFs["sea_water_potential_temperature"]);
   auto viewSaltBkg = atlas::array::make_view<double, 2>(xbFs["sea_water_salinity"]);
 
+  // Update halos for increment fields
+  std::vector<std::string> fieldsToExchange = {
+    "sea_water_potential_temperature",
+    "sea_water_salinity",
+    "sea_surface_height_above_geoid",
+  };
+
+  for (const auto& field : fieldsToExchange) {
+    meshConn.nodeColumns.haloExchange(dxFs[field]);
+  }
+
+  // Update halos for background fields
+  meshConn.nodeColumns.haloExchange(xbFs["sea_water_potential_temperature"]);
+  meshConn.nodeColumns.haloExchange(xbFs["sea_water_salinity"]);
+  meshConn.nodeColumns.haloExchange(xbFs["sea_water_cell_thickness"]);
+
   int niterations = config.getInt("increment stability iterations", 10);
   const double rhoMinGrad = config.getDouble("min stable density gradient", 1e-4);
 
