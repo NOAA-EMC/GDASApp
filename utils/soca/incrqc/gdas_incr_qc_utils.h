@@ -189,7 +189,6 @@ void applyWaterColumnStabilityCheck(
     gdasapp::diagnostics::Diagnostics diag(meshConn.nodeColumns, 1025.0, 1e-5, 9.80665);
     diag.geostrophy(dxFs["sea_water_potential_temperature"],
                     dxFs["sea_water_salinity"],
-                    dxFs["coriolis_parameter"],
                     dxFs["sea_water_cell_thickness"],
                     u_out, v_out);
   }
