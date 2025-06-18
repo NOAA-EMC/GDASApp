@@ -2,6 +2,7 @@
 ecbuild_add_executable( TARGET gdas_incr_handler.x
                         SOURCES gdas_incr_handler.cc gdas_postprocincr.h)
 target_compile_features( gdas_incr_handler.x PUBLIC cxx_std_11)
+target_include_directories(gdas_incr_handler.x PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/incrqc)
 target_link_libraries( gdas_incr_handler.x PUBLIC NetCDF::NetCDF_CXX oops atlas soca)
 target_link_libraries( gdas_incr_handler.x PRIVATE stdc++fs)
 
@@ -26,3 +27,6 @@ target_link_libraries( gdassoca_obsstats.x PUBLIC NetCDF::NetCDF_CXX oops ioda)
 
 # Diag B
 add_subdirectory( diagb )
+
+# Testing
+add_subdirectory( test )
