@@ -48,9 +48,6 @@ soca background:
   - ocean_mixed_layer_thickness
   - sea_water_depth
 
-
-read_from_file: 1
-
 output increment:
   datadir: ./
   date: '2021-07-03T00:00:00Z'
@@ -83,7 +80,7 @@ qc increment:
   increment max:
     steric: 0.2
 
-  increment stability iterations: 0
+  increment stability iterations: 20
 
   steric increment:
     linear variable changes:
