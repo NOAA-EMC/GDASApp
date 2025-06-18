@@ -1,5 +1,7 @@
+#include <cmath>
 #include <netcdf>
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -78,6 +80,7 @@ void gdasapp::CalcSCFtoIODA::run() {
   imsscf.calcIMSsd(bkgState, geom);
 
   // Calculate fractional snow cover from SD and density for Noah-MP
+  calc_fcst_snow_cover_fraction(bkgState, geom);
 
   // Calculate observations based on the model background
 
@@ -116,6 +119,43 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState, c
   }
   // put the new density values back in the state
   bkgState.fromFieldSet(xBfs);
+}
+
+void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom) {
+  // Calculate fractional snow cover from snow depth and density
+  oops::Log::info() << "Calculating forecast snow cover fraction..." << std::endl;
+  // let us add a new field to the state
+  oops::Variables new_vars({"surface_snow_area_fraction"});
+  oops::Variables all_vars = bkgState.variables();
+  all_vars += new_vars;
+  bkgState.updateFields(all_vars);
+  // convert the state to an atlas fieldset
+  atlas::FieldSet xBfs;
+  bkgState.toFieldSet(xBfs);
+  auto bkg_vtype = atlas::array::make_view<double, 2>(xBfs["vtype"]);
+  auto bkg_snow_den = atlas::array::make_view<double, 2>(xBfs["snowDensity"]);
+  auto bkg_snd = atlas::array::make_view<double, 2>(xBfs["totalSnowDepth"]);
+  auto bkg_scf = atlas::array::make_view<double, 2>(xBfs["surface_snow_area_fraction"]); // temp hack name
+  // now compute snow cover fraction
+  for (atlas::idx_t jnode = 0; jnode < xBfs["totalSnowDepth"].shape(0); ++jnode) {
+    int vetfcs = int(bkg_vtype(jnode,0));
+    if (vetfcs > 0) {
+      if (bkg_snd(jnode,0) > 0.0f) {
+        // snow is present, compute snow cover fraction
+        float snowh = bkg_snd(jnode,0)*0.001f; // convert mm to m
+        float bdsno = bkg_snow_den(jnode,0)*1000.0f;
+        float fmelt = std::pow(bdsno/100.0f, mfsno_table[vetfcs]);
+        bkg_scf(jnode,0) = tanh( snowh/(scffac_table[vetfcs] * fmelt));
+      } else {
+        // snow is not present, set to 0
+        bkg_scf(jnode,0) = 0.0f;
+      }
+    }
+  }
+  // put the new snow cover fraction values back in the state
+  bkgState.fromFieldSet(xBfs);
+  oops::Log::info() << "Background After Calc Snow Cover Fraction: " << std::endl << bkgState << std::endl;
+  oops::Log::info() << "=========================================================" << std::endl;
 }
 
 // Constructor for IMSscf is defined only in one place to avoid multiple definition errors.
@@ -362,50 +402,37 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state, const fv3j
   state.toFieldSet(xBfs);
   // Get the vegetation type field from the state
   auto bkg_vtype = atlas::array::make_view<double, 2>(xBfs["vtype"]);
-  auto bkg_orog = atlas::array::make_view<double, 2>(xBfs["filtered_orography"]);
+  auto bkg_snow_den = atlas::array::make_view<double, 2>(xBfs["snowDensity"]);
   const auto bkg_idx = atlas::array::make_view<atlas::gidx_t, 1>(geom.functionSpace().global_index());
-  oops::Log::info() << "bkg_vtype shape: ["
-            << xBfs["vtype"].shape(0) << ", "
-            << xBfs["vtype"].shape(1) << "]" << std::endl;
-  oops::Log::info() << geom.fields().field_names() << std::endl;
   std::vector<int> indices = geom.get_indices();
-  oops::Log::info() << "Geometry indices: "
-            << indices[0] << ", "
-            << indices[1] << ", "
-            << indices[2] << ", "
-            << indices[3] << ", "
-            << indices[4] << ", "
-            << indices[5] << ", "
-            << indices[6] << std::endl;
-  int tilenum = geom.tileNum()-1; // tileNum is 1-based, so we subtract 1 for 0-based indexing
+  int tilenum = geom.tileNum();
   int npx = geom.npx()-1;
   int npy = geom.npy()-1;
-  oops::Log::info() << "Tile number: " << tilenum << ", npx: " << npx << ", npy: " << npy << std::endl;
-  
-  for (atlas::idx_t jnode = 0; jnode < xBfs["filtered_orography"].shape(0); ++jnode) {
-    oops::Log::info() << "jnode: " << jnode << ", orog:" << bkg_orog(jnode, 0) << std::endl;
-  }
+
   for (size_t fv3_i=indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
       atlas::idx_t jnode = ((npx)*(npy)*(tilenum) + (fv3_j)*(npx) + (fv3_i + 1)) - 1; // jnode is 0-based index
-      // oops::Log::info() << tilenum << "," << fv3_i << "," << fv3_j
-      //                   << " jnode:" << jnode << " atlas orog: " << bkg_orog(jnode, 0)
-      //                   << " lon:" << this->lonFV3[tilenum][fv3_j][fv3_i]
-      //                   << ", lat:" << this->latFV3[tilenum][fv3_j][fv3_i]
-      //                   << ", oro:" << this->oroFV3[tilenum][fv3_j][fv3_i] << std::endl;
+      if (abs(scfIMS[tilenum][fv3_j][fv3_i] - nodata_float) < nodata_tol) {
+        // if we have IMS data at this point
+        if (bkg_vtype(jnode, 0) > 0) {
+          // if the model has land at this point
+          if (scfIMS[tilenum][fv3_j][fv3_i] < 0.5f) {
+            // if the IMS SCF is less than 0.5, set snow depth to 0
+            sndIMS[tilenum][fv3_j][fv3_i] = 0.0f;
+          } else {
+            // if the IMS SCF is greater than or equal to 0.5, calculate snow depth
+            float bdsno = std::max(50.0f, std::min(650.0f, float(bkg_snow_den(jnode, 0)) * 1000.0f));
+            float fmelt = std::pow(bdsno/100.0f, mfsno_table[int(bkg_vtype(jnode,0))]);
+            sndIMS[tilenum][fv3_j][fv3_i] = 
+                (scffac_table[int(bkg_vtype(jnode,0))] * fmelt) * atanh(trunc_scf) * 1000.0f; // x1000 into mm
+          }
+        } else {
+          // if the model has no land at this point, set scf to nodata
+          scfIMS[tilenum][fv3_j][fv3_i] = nodata_float;
+        }
+      }
     }
   }
-
-  // for (size_t tile = 0; tile < sndIMS.size(); ++tile) {
-  //   for (size_t j = 0; j < sndIMS[tile].size(); ++j) {
-  //     for (size_t i = 0; i < sndIMS[tile][j].size(); ++i) {
-  //       if (std::abs(scfIMS[tile][j][i] - nodata_float) > nodata_tol) {
-  //         int bkg_vtype_value = static_cast<int>(bkg_vtype(j, i));
-  //       // Example: set all values to zero (replace with actual calculation)
-  //       sndIMS[tile][j][i] = 0.0f;
-  //     }
-  //   }
-  // }
 }
 
 // Helper function for error handling

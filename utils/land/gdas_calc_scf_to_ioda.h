@@ -34,7 +34,13 @@ namespace gdasapp {
           static constexpr int nodata_int = -999;
           static constexpr float nodata_float = -999.0f;
           static constexpr float nodata_tol = 0.01f;  // Tolerance for nodata checks
+          static constexpr float trunc_scf = 0.95f; // For the Noah-MP snow depletion curve,
+                                                    // SCF asymptotes to 1. as SD increases
+                                                    // use this value when calculating SD
+                                                    // to represent "full" coverage
+          static constexpr float sndIMS_max = 300.0f; // maximum snow depth derived from IMS
           void netcdf_err(int error,const std::string &msg);
+
       // Add members and methods as needed
     };
 
@@ -46,7 +52,18 @@ namespace gdasapp {
     void readIMS(const std::string & imspath);
     void readMapping(const std::string & weightspath);
     void calc_fcst_snow_density(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom);
-   public:
+    void calc_fcst_snow_cover_fraction(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom);
+    static constexpr std::array<float, 20> mfsno_table = {
+        1.00f, 1.00f, 1.00f, 1.00f, 1.00f, 2.00f, 2.00f,
+        2.00f, 2.00f, 2.00f, 3.00f, 3.00f, 3.00f, 3.00f,
+        2.50f, 3.00f, 3.00f, 3.00f, 3.00f, 3.00f
+    };
+    static constexpr std::array<float, 20> scffac_table = {
+        0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.008f,
+        0.008f, 0.010f, 0.010f, 0.010f, 0.010f, 0.007f, 0.021f,
+        0.013f, 0.015f, 0.008f, 0.015f, 0.015f, 0.015f, 0.015f
+    };
+    public:
     void run();
   };
 }  // namespace gdasapp
