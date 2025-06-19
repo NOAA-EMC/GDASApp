@@ -76,6 +76,8 @@ load("py-xarray/2023.7.0")
 load("py-f90nml/1.4.3")
 load("py-pip/23.1.2")
 
+unload("cray-libsci")
+
 setenv("CC","cc")
 setenv("CXX","CC")
 setenv("FC","ftn")
