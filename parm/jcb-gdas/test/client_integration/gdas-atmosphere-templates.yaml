@@ -118,7 +118,7 @@ atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
 
 # Local Ensemble DA (LETKF)
 # -------------------------
-local_ensemble_da_solver: GETKF
+local_ensemble_da_solver: Deterministic GETKF
 
 increment_variables: [ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
