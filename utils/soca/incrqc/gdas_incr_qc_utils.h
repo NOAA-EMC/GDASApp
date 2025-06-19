@@ -147,42 +147,40 @@ void applyWaterColumnStabilityCheck(
           double factor = std::clamp(std::abs(drhodz_ana[level]) / rhoMinGrad, 0.1, 1.0);
           viewTempIncr(jnode, level) *= (1.0 - 0.5 * factor);
           viewSaltIncr(jnode, level) *= (1.0 - 0.5 * factor);
-          }  // end if
-        }  // end if
-      }  // end for jnode
-    }  // end for level
-    // Iterate through the unstable points and smooth the increment locally
-    for (const auto& [jnode, level, neighbors] : unstablePoints) {
-      oops::Log::debug() << "QC: Node " << jnode << ", Level " << level
-                << " unstable - neighbors: " << neighbors << std::endl;
-      // Compute local mean increments from neighbors
-      double meanTempIncr = 0.0;
-      double meanSaltIncr = 0.0;
-      int validNeighbors = 0;
+          }  // end if stability condition
+        }  // end for loop level
+      }  // end for loop jnode
 
-      // Calculate average increments from valid neighboring nodes
-      for (const auto& neighbor : neighbors) {
-        // Skip ghost nodes or land points
-        if (meshConn.ghostView(neighbor) > 0 || viewBathy(neighbor, 0) <= 0.0) continue;
+      // HALO EXCHANGE BEFORE SMOOTHING
+      meshConn.nodeColumns.haloExchange(dxFs["sea_water_potential_temperature"]);
+      meshConn.nodeColumns.haloExchange(dxFs["sea_water_salinity"]);
 
-        // Only include neighbors with valid ocean layer thickness at this level
-        if (viewHocn(neighbor, level) > 0.1) {
-          meanTempIncr += viewTempIncr(neighbor, level);
-          meanSaltIncr += viewSaltIncr(neighbor, level);
-          validNeighbors++;
+      // Create buffer fields for smoothed results
+      atlas::Field tempSmoothField = dxFs["sea_water_potential_temperature"].clone();
+      atlas::Field saltSmoothField = dxFs["sea_water_salinity"].clone();
+      auto viewTempSmooth = atlas::array::make_view<double, 2>(tempSmoothField);
+      auto viewSaltSmooth = atlas::array::make_view<double, 2>(saltSmoothField);
+
+      // Smooth increment over local node + neighbors
+      for (const auto& [jnode, level, neighbors] : unstablePoints) {
+        gdasapp::diagb::utils::localMean(jnode, level, neighbors, viewHocn,
+                                         viewTempSmooth, viewTempIncr,
+                                         viewDepth, 1, 0.0);
+        gdasapp::diagb::utils::localMean(jnode, level, neighbors, viewHocn,
+                                         viewSaltSmooth, viewSaltIncr,
+                                         viewDepth, 1, 0.0);
+      }
+
+      // Copy smoothed values back to main field
+      for (atlas::idx_t jnode = 0; jnode < njnodes; ++jnode) {
+        if (meshConn.ghostView(jnode) > 0) continue;
+        for (atlas::idx_t level = 0; level < nlevels; ++level) {
+            viewTempIncr(jnode, level) = viewTempSmooth(jnode, level);
+            viewSaltIncr(jnode, level) = viewSaltSmooth(jnode, level);
         }
       }
-
-      // Apply smoothing if we have valid neighbors
-      if (validNeighbors > 0) {
-        meanTempIncr /= validNeighbors;
-        meanSaltIncr /= validNeighbors;
-
-        viewTempIncr(jnode, level) = meanTempIncr;
-        viewSaltIncr(jnode, level) = meanSaltIncr;
-      }
-    }
-  }  // end for iter
+    }  // end for loop iter
+  }
 
 /**
  * @brief Applies steric height constraint to sea surface height (SSH) increments
