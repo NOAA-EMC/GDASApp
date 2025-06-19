@@ -87,7 +87,7 @@ marine_obsdataout_suffix: "_2024020100.nc"
 
 # Local Ensemble DA (LETKF)
 # -------------------------
-local_ensemble_da_solver: GETKF
+local_ensemble_da_solver: Deterministic GETKF
 
 increment_variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
 
