@@ -138,37 +138,5 @@ set -x
 make install -j ${BUILD_JOBS:-8}
 set +x
 
-# If this is a workflow build, copy the installed files to the Global Workflow exec directory
-if [[ $WORKFLOW_BUILD == 'ON' ]]; then
-  echo "Copying installed files to Global Workflow directories ..."
-
-  # Make sure the required install directories exist in the Global Workflow
-  mkdir -p "$HOMEgfs"/exec
-  mkdir -p "$HOMEgfs/$CMAKE_INSTALL_LIBDIR"
-
-  # Move GDASApp executables from GDASApp to the Global Workflow
-  mv -v "$INSTALL_PREFIX/bin"/gdas* "$HOMEgfs/exec/"
-
-  # Move GDASApp executables (from submodules) that don't have a gdas_* prefix in the name
-  mv -v "$INSTALL_PREFIX/bin/bufr2ioda.x" "$HOMEgfs/exec/gdas_bufr2ioda.x"
-  mv -v "$INSTALL_PREFIX/bin/calcfIMS.exe" "$HOMEgfs/exec/gdas_calcfIMS.x" # .exe -> .x
-  mv -v "$INSTALL_PREFIX/bin/apply_incr.exe" "$HOMEgfs/exec/gdas_apply_incr.x" # .exe -> .x
-
-  # Move libraries from GDASApp to the Global Workflow
-  rsync -av "$INSTALL_PREFIX/$CMAKE_INSTALL_LIBDIR"/* "$HOMEgfs/$CMAKE_INSTALL_LIBDIR/"
-
-  # Make sure INSTALL_PREFIX is not equal to GDASApp or Global Workflow root before deleting it
-  if [[ "$INSTALL_PREFIX" == "$HOMEgfs" ]]; then
-    echo "Error: INSTALL_PREFIX is equal to Global Workflow root."
-    exit 1
-  fi
-  if [[ "$INSTALL_PREFIX" == "$dir_root" ]]; then
-    echo "Error: INSTALL_PREFIX is equal to GDASApp root."
-    exit 1
-  fi
-
-  # Delete the GDASApp install directory
-  rm -rf "$INSTALL_PREFIX"
-fi
 echo "Finish ... `date`"
 exit 0
