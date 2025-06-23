@@ -1,0 +1,32 @@
+netcdf grid_spec {
+dimensions:
+	string = 255 ;
+variables:
+	char ocn_mosaic_dir(string) ;
+		ocn_mosaic_dir:standard_name = "directory_storing_ocean_mosaic" ;
+	char ocn_mosaic_file(string) ;
+		ocn_mosaic_file:standard_name = "ocean_mosaic_file_name" ;
+	char ocn_mosaic(string) ;
+		ocn_mosaic:standard_name = "ocean_mosaic_name" ;
+	char ocn_topog_dir(string) ;
+		ocn_topog_dir:standard_name = "directory_storing_ocean_topog" ;
+	char ocn_topog_file(string) ;
+		ocn_topog_file:standard_name = "ocean_topog_file_name" ;
+
+// global attributes:
+		:great_circle_algorithm = "TRUE" ;
+		:grid_version = "0.2" ;
+		:code_version = "$Name:  $" ;
+		:history = "make_quick_mosaic --input_mosaic ../ocean_mosaic.nc --mosaic_name grid_spec --ocean_topog ../topog.nc" ;
+data:
+
+ ocn_mosaic_dir = "./" ;
+
+ ocn_mosaic_file = "ocean_mosaic.nc" ;
+
+ ocn_mosaic = "ocean_mosaic" ;
+
+ ocn_topog_dir = "./" ;
+
+ ocn_topog_file = "topog.nc" ;
+}
