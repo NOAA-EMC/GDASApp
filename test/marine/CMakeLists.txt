@@ -31,7 +31,7 @@ install(FILES ${test_input}
 find_package(Python REQUIRED)
 # Extract the major and minor version (e.g., "3.10" from "3.10.13")
 string(REGEX REPLACE "^([0-9]+\\.[0-9]+).*" "\\1" PYTHON_MAJOR_MINOR ${Python_VERSION})
-set(PYIODACONV_DIR "${PROJECT_SOURCE_DIR}/build/lib/python${PYTHON_MAJOR_MINOR}/")
+set(PYIODACONV_DIR "${PROJECT_SOURCE_DIR}/build/${CMAKE_INSTALL_LIBDIR}/python${PYTHON_MAJOR_MINOR}/")
 
 set(TEST_WORKING_DIR ${PROJECT_BINARY_DIR}/test/marine)
 set(MARINE_BUFR2IODA_DIR ${PROJECT_SOURCE_DIR}/ush/ioda/bufr2ioda/marine)
