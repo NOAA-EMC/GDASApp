@@ -29,10 +29,6 @@
   path = sorc/ufo
   url = https://github.com/jcsda/ufo.git
   branch = develop
-[submodule "sorc/fv3"]
-  path = sorc/fv3
-  url = https://github.com/jcsda/GFDL_atmos_cubed_sphere.git
-  branch = release-stable
 [submodule "sorc/femps"]
   path = sorc/femps
   url = https://github.com/jcsda/femps.git
