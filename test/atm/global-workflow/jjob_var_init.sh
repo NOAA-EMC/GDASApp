@@ -4,6 +4,8 @@ set -x
 bindir=$1
 srcdir=$2
 
+type="jjob_var_init"
+
 # Set g-w HOMEgfs
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
 export HOMEgfs=$topdir
@@ -106,13 +108,13 @@ for imem in $(seq 1 $NMEM_ENS); do
 	COMIN_ATMOS_HISTORY_PREV_ENS:COM_ATMOS_HISTORY_TMPL
 
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
-    target=$COMIN__ATMOS_HISTORY_PREV_ENS
+    target=$COMIN_ATMOS_HISTORY_PREV_ENS
     mkdir -p $target
     rm -rf $target/enkfgdas.t${gcyc}z.atmf006.nc
     ln -fs $source/enkfgdas.t${gcyc}z.atmf006.nc $target/
 
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
-    target=$COMIN__ATMOS_HISTORY_PREV_ENS
+    target=$COMIN_ATMOS_HISTORY_PREV_ENS
     flist=("cubed_sphere_grid_atmf006.nc" "cubed_sphere_grid_sfcf006.nc")
     for file in "${flist[@]}"; do
         rm -rf $target/enkf${gprefix}.${file}
@@ -120,12 +122,29 @@ for imem in $(seq 1 $NMEM_ENS); do
     done
 done
 
+# Create yaml with job configuration
+config_yaml="./config_${type}.yaml"
+cat <<EOF > ${config_yaml}
+machine: ${machine}
+homegfs: ${HOMEgfs}
+job_name: ${type}
+walltime: "00:30:00"
+nodes: 1
+ntasks_per_node: 1
+threads_per_task: 1
+memory: 8Gb
+command: ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
+filename: submit_${type}.sh
+EOF
 
-# Execute j-job
-if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmanlinit-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
-elif [[ $machine = 'URSA' ]]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --partition=u1-compute --time=00:10:00 --export=ALL --wait --output=atmanlinit-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
+# Create script to execute j-job
+$HOMEgfs/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
+
+# Submit script to execute j-job
+if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' || $machine = 'URSA' || $machine = 'GAEAC6' ]]; then 
+    sbatch --export=ALL --wait submit_${type}.sh
+elif [[ $machine = 'WCOSS2' ]]; then
+    qsub -V -W block=true submit_${type}.sh
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
 fi

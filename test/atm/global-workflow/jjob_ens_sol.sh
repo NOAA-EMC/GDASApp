@@ -4,6 +4,8 @@ set -x
 bindir=$1
 srcdir=$2
 
+type="jjob_ens_sol"
+
 # Set g-w HOMEgfs
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
 export HOMEgfs=$topdir
@@ -51,11 +53,29 @@ fi
 # Set lobsdiag_forenkf=.true. to run letkf as stand-alone solver job
 cp $EXPDIR/config.base_lobsdiag_forenkf_true $EXPDIR/config.base
 
-# Execute j-job
-if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --nodes=1 --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait --output=atmensanlsol-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_SOL
-elif [[ $machine = 'URSA' ]]; then
-     sbatch --nodes=1 --ntasks=6 --account=$ACCOUNT --qos=batch --partition=u1-compute --time=00:30:00 --export=ALL --wait --output=atmensanlsol-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_SOL
+# Create yaml with job configuration
+config_yaml="./config_${type}.yaml"
+cat <<EOF > ${config_yaml}
+machine: ${machine}
+homegfs: ${HOMEgfs}
+job_name: ${type}
+walltime: "00:30:00"
+nodes: 1
+ntasks_per_node: 1
+threads_per_task: 1
+memory: 8Gb
+command: ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_SOL
+filename: submit_${type}.sh
+EOF
+
+# Create script to execute j-job
+$HOMEgfs/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
+
+# Submit script to execute j-job
+if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' || $machine = 'URSA' || $machine = 'GAEAC6' ]]; then
+    sbatch --export=ALL --wait submit_${type}.sh
+elif [[ $machine = 'WCOSS2' ]]; then
+    qsub -V -W block=true submit_${type}.sh
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_SOL
 fi

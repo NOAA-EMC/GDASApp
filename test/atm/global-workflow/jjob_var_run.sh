@@ -4,6 +4,8 @@ set -x
 bindir=$1
 srcdir=$2
 
+type="jjob_var_run"
+
 # Set g-w HOMEgfs
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
 export HOMEgfs=$topdir
@@ -48,11 +50,29 @@ elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
 fi
 
-# Execute j-job
-if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:20:00 --export=ALL --wait --output=atmanlvar-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
-elif [[ $machine = 'URSA' ]]; then
-    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --partition=u1-compute --time=00:20:00 --mem=96Gb --export=ALL --wait --output=atmanlvar-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
+# Create yaml with job configuration
+config_yaml="./config_${type}.yaml"
+cat <<EOF > ${config_yaml}
+machine: ${machine}
+homegfs: ${HOMEgfs}
+job_name: ${type}
+walltime: "00:30:00"
+nodes: 1
+ntasks_per_node: 6
+threads_per_task: 1
+memory: 96Gb
+command: ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
+filename: submit_${type}.sh
+EOF
+
+# Create script to execute j-job
+$HOMEgfs/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
+
+# Submit script to execute j-job
+if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' || $machine = 'URSA' || $machine = 'GAEAC6' ]]; then
+    sbatch --export=ALL --wait submit_${type}.sh
+elif [[ $machine = 'WCOSS2' ]]; then
+    qsub -V -W block=true submit_${type}.sh
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
 fi
