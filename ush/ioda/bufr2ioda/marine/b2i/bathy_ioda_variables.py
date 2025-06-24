@@ -23,6 +23,7 @@ class BathyIODAVariables(IODAVariables):
         self.temp -= 273.15
 
     def filter(self):
+        super().filter()
         mask = self.TemperatureFilter()
         self.metadata.filter(mask)
         self.temp = self.temp[mask]

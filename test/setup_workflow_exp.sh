@@ -13,7 +13,7 @@ resdetatmos='48'
 resensatmos='48'
 nens=0
 pslot='gdas_test'
-configdir=$srcdir/../../parm/config/gfs
+configdir=$srcdir/../../dev/parm/config/gfs
 comroot=$bindir/test/testrun/ROTDIRS
 expdir=$bindir/test/testrun/experiments
 

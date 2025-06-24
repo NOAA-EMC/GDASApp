@@ -18,6 +18,7 @@ class XbtctdIODAVariables(IODAVariables):
         return q
 
     def filter(self):
+        super().filter()
         mask = self.TemperatureFilter() \
             & self.SalinityFilter()
         self.temp = self.temp[mask]

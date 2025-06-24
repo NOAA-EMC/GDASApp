@@ -35,6 +35,7 @@ class TropicalIODAVariables(IODAVariables):
         return q
 
     def filter(self):
+        super().filter()
         TS_mask = self.TemperatureFilter() & self.SalinityFilter()
 
         # Separate tropical mooring profiles from dbuoy tank
