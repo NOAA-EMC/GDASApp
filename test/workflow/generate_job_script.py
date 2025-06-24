@@ -4,7 +4,8 @@ import os
 import yaml
 import sys
 
-def create_job_script(job_config,machine_config):
+
+def create_job_script(job_config, machine_config):
     scheduler = machine_config.get('SCHEDULER', 'slurm')
     account = machine_config.get('HPC_ACCOUNT')
     queue = machine_config.get('QUEUE')
@@ -74,10 +75,10 @@ def main():
     print(f" ")
     print(f"job_config {job_config}")
     print(f" ")
-    
+
     homegfs = job_config.get('homegfs')
     machine = job_config.get('machine')
-    
+
     print(f" ")
     print(f"homegfs {homegfs}")
     print(f"machine {machine}")
@@ -88,10 +89,10 @@ def main():
     print(f" ")
     print(f"machine_config_file {machine_config_file}")
     print(f" ")
-    
+
     with open(machine_config_file, 'r') as f:
         machine_config = yaml.safe_load(f)
-        
+
     print(f" ")
     print(f"machine_config {machine_config}")
     print(f" ")
