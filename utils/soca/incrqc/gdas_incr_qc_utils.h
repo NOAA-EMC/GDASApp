@@ -81,6 +81,7 @@ double adjustAnalysisBounds(double xB, double dX, double minBound, double maxBou
  */
 void applyWaterColumnStabilityCheck(
     atlas::FieldSet dxFs,
+    atlas::FieldSet xbFs,
     const atlas::array::ArrayView<const double, 2>& viewTempBkg,
     const atlas::array::ArrayView<const double, 2>& viewSaltBkg,
     const atlas::array::ArrayView<const double, 2>& viewHocn,
@@ -184,13 +185,13 @@ void applyWaterColumnStabilityCheck(
         }
       }
     }  // end for loop iter
-    auto u_out = dxFs["eastward_sea_water_velocity"];
-    auto v_out = dxFs["northward_sea_water_velocity"];
-    gdasapp::diagnostics::Diagnostics diag(meshConn.nodeColumns, 1025.0, 1e-5, 9.80665);
-    diag.geostrophy(dxFs["sea_water_potential_temperature"],
-                    dxFs["sea_water_salinity"],
-                    dxFs["sea_water_cell_thickness"],
-                    u_out, v_out);
+    auto u_b = dxFs["eastward_sea_water_velocity"];
+    auto v_b = dxFs["northward_sea_water_velocity"];
+    gdasapp::diagnostics::Diagnostics diag(meshConn.nodeColumns, meshConn.mesh, 1025.0, 1e-5, 9.80665);
+    diag.geostrophy(xbFs["sea_water_potential_temperature"],
+                    xbFs["sea_water_salinity"],
+                    xbFs["sea_water_cell_thickness"],
+                    u_b, v_b);
   }
 
 /**

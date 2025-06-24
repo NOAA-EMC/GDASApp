@@ -27,7 +27,7 @@
 #include "oops/util/Duration.h"
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/FieldSetOperations.h"
-#include "oops/util/Logger.h"
+//#include "oops/util/Logger.h"
 
 #include "soca/Geometry/Geometry.h"
 #include "soca/Increment/Increment.h"

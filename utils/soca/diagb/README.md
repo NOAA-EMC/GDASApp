@@ -79,14 +79,14 @@ To impose vertical correlation structure, we apply a **Gaspari-Cohn shaped decay
 
 where:
 
-\[
+$$
 r_\text{dyn}(x, z) = \text{GC99}\left( \frac{z}{L_\text{dyn}(x)} \right)
-\]
+$$
 
 with:
 
 - \(\text{GC99}(r)\): Gaspari-Cohn taper function
-- \(L_\text{dyn}(x) = \min\left( \frac{h(x)}{\text{minRatio}}, L_{\text{efold, dyn}} \right) / 0.316\)
+- \( L_\text{dyn}(x) = \min\left( \frac{h(x)}{\text{minRatio}}, L_{\text{efold, dyn}} \right) / 0.316 \)
 - \(h(x)\): local bathymetry
 
 The same is done for the static component:
