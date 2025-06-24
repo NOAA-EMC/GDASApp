@@ -10,8 +10,8 @@ prepend_path("MODULEPATH", '/contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneap
 
 load("stack-oneapi/2024.2.1")
 load("stack-intel-oneapi-mpi/2021.13")
-load("stack-python/3.11.7")
 load("intel-oneapi-mkl/2024.2.1")
+load("stack-python/3.11.7")
 
 load("cmake/3.30.2")
 load("gettext/0.22.5")
