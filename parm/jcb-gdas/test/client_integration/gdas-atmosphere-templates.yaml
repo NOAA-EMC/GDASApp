@@ -104,16 +104,20 @@ atmosphere_obsdataout_suffix: "_2024020100.nc"
 atmosphere_obsbiasin_path: DATA/obs
 atmosphere_obsbiasin_prefix: GPREFIX
 atmosphere_obsbiasin_suffix: ".satbias.nc"
+atmosphere_obsbiasin_acft_suffix: ".acft_out.nc"
 atmosphere_obstlapsein_prefix: GPREFIX
 atmosphere_obstlapsein_suffix: ".tlapse.txt"
 atmosphere_obsbiascovin_prefix: GPREFIX
 atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
+atmosphere_obsbiascovin_acft_suffix: ".acft_out_cov.nc"
 
 atmosphere_obsbiasout_path: DATA/bc
 atmosphere_obsbiasout_prefix: APREFIX
 atmosphere_obsbiasout_suffix: ".satbias.nc"
+atmosphere_obsbiasout_acft_suffix: ".acft_out.nc"
 atmosphere_obsbiascovout_prefix: APREFIX
 atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
+atmosphere_obsbiascovout_acft_suffix: ".acft_out_cov.nc"
 
 
 # Local Ensemble DA (LETKF)
