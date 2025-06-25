@@ -35,13 +35,13 @@ try:
                    cwd=work_dir, check=True)
 
     print('Cleaning up...')
-    #for file in os.listdir(work_dir):
-    #    if file != r'''${keep_file}''' and not file.endswith('.py'):
-    #        file_path = os.path.join(work_dir, file)
-    #        if os.path.isfile(file_path):
-    #            os.remove(file_path)
-    #        elif os.path.isdir(file_path):
-    #            shutil.rmtree(file_path)
+    for file in os.listdir(work_dir):
+        if file != r'''${keep_file}''' and not file.endswith('.py'):
+            file_path = os.path.join(work_dir, file)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
 
 except subprocess.CalledProcessError as e:
     print('Error during test execution:', e)
