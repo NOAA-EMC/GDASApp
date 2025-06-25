@@ -17,6 +17,7 @@
 #include "fv3jedi/State/State.h"
 #include "ioda/Engines/HH.h"
 #include "ioda/Group.h"
+#include "ioda/ObsGroup.h"
 #include "oops/mpi/mpi.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Logger.h"
@@ -33,6 +34,11 @@ void gdasapp::CalcSCFtoIODA::run() {
   // Setup the FV3 geometry
   const eckit::LocalConfiguration geomConfig(config_, "geometry");
   const fv3jedi::Geometry geom(geomConfig, comm_);
+
+  // Exit with error if rank size is not equal to 6, this simplifies our MPI, we can fix/make more flexible later
+  if (comm_.size() != 6) {
+    throw eckit::BadValue("MPI rank size must be 6", Here());
+  }
 
   // Get the valid time
   std::string validTime;
@@ -82,10 +88,11 @@ void gdasapp::CalcSCFtoIODA::run() {
   // Calculate fractional snow cover from SD and density for Noah-MP
   calc_fcst_snow_cover_fraction(bkgState, geom);
 
-  // Calculate observations based on the model background
+  // Change IMS snow depth values depending on other criteria
+  imsscf.updateIMSsd(bkgState, geom);
 
   // Write the results in IODA format
-  writeToIoda(outputpath);
+  writeToIoda(outputpath, cycleDate, geom);
 }
 
 void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom) {
@@ -135,7 +142,7 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgS
   auto bkg_vtype = atlas::array::make_view<double, 2>(xBfs["vtype"]);
   auto bkg_snow_den = atlas::array::make_view<double, 2>(xBfs["snowDensity"]);
   auto bkg_snd = atlas::array::make_view<double, 2>(xBfs["totalSnowDepth"]);
-  auto bkg_scf = atlas::array::make_view<double, 2>(xBfs["surface_snow_area_fraction"]); // temp hack name
+  auto bkg_scf = atlas::array::make_view<double, 2>(xBfs["surface_snow_area_fraction"]);
   // now compute snow cover fraction
   for (atlas::idx_t jnode = 0; jnode < xBfs["totalSnowDepth"].shape(0); ++jnode) {
     int vetfcs = int(bkg_vtype(jnode,0));
@@ -170,22 +177,90 @@ gdasapp::CalcSCFtoIODA::IMSscf::IMSscf(const std::string &imspath, const std::st
   oops::Log::info() << "IMSscf object created with IMS path: " << imspath_ << " and weights path: " << weightspath_ << std::endl;
 }
 
-void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath) {
+void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath, 
+                                         const util::DateTime & cycleDate,
+                                         const fv3jedi::Geometry & geom) {
   // Implementation of writing the calculated observations to IODA format
   // This would involve creating an IODA file, populating it with the calculated
   // observations, and saving it to disk.
-
   oops::Log::info() << "Writing observations to IODA format..." << std::endl;
+  // First, let us gather with MPI the fields we need all on rank 0
+  int nobs = 6 * (geom.npx() - 1) * (geom.npy() - 1);
   // Create empty group backed by HDF file
   if (oops::mpi::world().rank() == 0) {
     oops::Log::info() << "Creating IODA file at: " << outputpath << std::endl;
-    ioda::Group group =
-      ioda::Engines::HH::createFile(outputpath,
-                                    ioda::Engines::BackendCreateModes::Truncate_If_Exists);
+    ioda::Group group = ioda::Engines::HH::createFile(outputpath,
+        ioda::Engines::BackendCreateModes::Truncate_If_Exists);
+    // add in the location dimension
+    ioda::NewDimensionScales_t newDims {ioda::NewDimensionScale<int>("Location", nobs)};
+    ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
   }
   oops::Log::info() << "Observations written successfully." << std::endl;
   oops::Log::info() << "=========================================================" << std::endl;
 }
+
+// ncdump -h target.ims_snow.nc 
+// netcdf target.ims_snow {
+// dimensions:
+//         Location = UNLIMITED ; // (10569 currently)
+// variables:
+//         int64 Location(Location) ;
+//                 Location:suggested_chunk_dim = 10000LL ;
+
+// // global attributes:
+//                 string :_ioda_layout = "ObsGroup" ;
+//                 :_ioda_layout_version = 0 ;
+
+// group: MetaData {
+//   variables:
+//         int64 dateTime(Location) ;
+//                 dateTime:_FillValue = -9223372036854775806LL ;
+//                 string dateTime:units = "seconds since 1970-01-01T00:00:00Z" ;
+//         float latitude(Location) ;
+//                 latitude:_FillValue = 9.96921e+36f ;
+//                 string latitude:units = "degrees_north" ;
+//         float longitude(Location) ;
+//                 longitude:_FillValue = 9.96921e+36f ;
+//                 string longitude:units = "degrees_east" ;
+//         float stationElevation(Location) ;
+//                 stationElevation:_FillValue = 9.96921e+36f ;
+//                 string stationElevation:units = "m" ;
+//   } // group MetaData
+
+// group: ObsError {
+//   variables:
+//         float snowCoverFraction(Location) ;
+//                 snowCoverFraction:_FillValue = 9.96921e+36f ;
+//                 string snowCoverFraction:coordinates = "longitude latitude" ;
+//                 string snowCoverFraction:units = "1" ;
+//         float totalSnowDepth(Location) ;
+//                 totalSnowDepth:_FillValue = 9.96921e+36f ;
+//                 string totalSnowDepth:coordinates = "longitude latitude" ;
+//                 string totalSnowDepth:units = "mm" ;
+//   } // group ObsError
+
+// group: ObsValue {
+//   variables:
+//         float snowCoverFraction(Location) ;
+//                 snowCoverFraction:_FillValue = 9.96921e+36f ;
+//                 string snowCoverFraction:coordinates = "longitude latitude" ;
+//                 string snowCoverFraction:units = "1" ;
+//         float totalSnowDepth(Location) ;
+//                 totalSnowDepth:_FillValue = 9.96921e+36f ;
+//                 string totalSnowDepth:coordinates = "longitude latitude" ;
+//                 string totalSnowDepth:units = "mm" ;
+//   } // group ObsValue
+
+// group: PreQC {
+//   variables:
+//         int snowCoverFraction(Location) ;
+//                 snowCoverFraction:_FillValue = -2147483647 ;
+//                 string snowCoverFraction:coordinates = "longitude latitude" ;
+//         int totalSnowDepth(Location) ;
+//                 totalSnowDepth:_FillValue = -2147483647 ;
+//                 string totalSnowDepth:coordinates = "longitude latitude" ;
+//   } // group PreQC
+// }
 
 void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
   // Read IMS data from the specified path
@@ -430,6 +505,37 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state, const fv3j
           // if the model has no land at this point, set scf to nodata
           scfIMS[tilenum][fv3_j][fv3_i] = nodata_float;
         }
+      }
+    }
+  }
+}
+
+// Update IMS snow depth
+void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom) {
+  // Update IMS snow depth (SD) based on other criteria
+  oops::Log::info() << "Updating IMS snow depth..." << std::endl;
+  // convert the state to an atlas fieldset
+  atlas::FieldSet xBfs;
+  state.toFieldSet(xBfs);
+  // Get the snow cover fraction and depth fields from the state
+  auto bkg_scf = atlas::array::make_view<double, 2>(xBfs["surface_snow_area_fraction"]);
+  auto bkg_snd = atlas::array::make_view<double, 2>(xBfs["totalSnowDepth"]);
+  const auto bkg_idx = atlas::array::make_view<atlas::gidx_t, 1>(geom.functionSpace().global_index());
+  std::vector<int> indices = geom.get_indices();
+  int tilenum = geom.tileNum();
+  int npx = geom.npx()-1;
+  int npy = geom.npy()-1;
+
+  for (size_t fv3_i=indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
+    for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
+      atlas::idx_t jnode = ((npx)*(npy)*(tilenum) + (fv3_j)*(npx) + (fv3_i + 1)) - 1; // jnode is 0-based index
+      if ((scfIMS[tilenum][fv3_j][fv3_i] >= 0.5) && 
+         ((bkg_scf(jnode, 0) > trunc_scf) || (bkg_snd(jnode, 0) > sndIMS[tilenum][fv3_j][fv3_i]))) {
+         // if obs and model both indicate full snow, set the IMS snow depth to a fixed value to QC in JEDI
+        sndIMS[tilenum][fv3_j][fv3_i] = -10.0f; // 
+      }
+      if (sndIMS[tilenum][fv3_j][fv3_i] > sndIMS_max) {
+        sndIMS[tilenum][fv3_j][fv3_i] = nodata_float; // if the IMS snow depth is greater than the maximum, set to nodata
       }
     }
   }

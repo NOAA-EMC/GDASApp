@@ -21,6 +21,7 @@ namespace gdasapp {
       void readIMS();
       void readMapping();
       void calcIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom);
+      void updateIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom);
       std::vector<std::vector<std::vector<float>>> scfIMS, sndIMS;
 
 
@@ -48,9 +49,11 @@ namespace gdasapp {
     const eckit::Configuration & config_;
     const eckit::mpi::Comm & comm_;
 
-    void writeToIoda(const std::string & outputpath);
-    void readIMS(const std::string & imspath);
-    void readMapping(const std::string & weightspath);
+    void writeToIoda(const std::string & outputpath, 
+                     const util::DateTime & cycleDate,
+                     const fv3jedi::Geometry & geom);
+    void readIMS();
+    void readMapping();
     void calc_fcst_snow_density(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom);
     void calc_fcst_snow_cover_fraction(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom);
     static constexpr std::array<float, 20> mfsno_table = {
