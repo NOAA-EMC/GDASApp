@@ -1,0 +1,46 @@
+netcdf ocean_mosaic {
+dimensions:
+	ntiles = 1 ;
+	ncontact = 1 ;
+	string = 255 ;
+variables:
+	char mosaic(string) ;
+		mosaic:standard_name = "grid_mosaic_spec" ;
+		mosaic:children = "gridtiles" ;
+		mosaic:contact_regions = "contacts" ;
+		mosaic:grid_descriptor = "" ;
+	char gridlocation(string) ;
+		gridlocation:standard_name = "grid_file_location" ;
+	char gridfiles(ntiles, string) ;
+	char gridtiles(ntiles, string) ;
+	char contacts(ncontact, string) ;
+		contacts:standard_name = "grid_contact_spec" ;
+		contacts:contact_type = "boundary" ;
+		contacts:alignment = "true" ;
+		contacts:contact_index = "contact_index" ;
+		contacts:orientation = "orient" ;
+	char contact_index(ncontact, string) ;
+		contact_index:standard_name = "starting_ending_point_index_of_contact" ;
+
+// global attributes:
+		:grid_version = "0.2" ;
+		:code_version = "$Name: fre-nctools-bronx-10 $" ;
+		:history = "make_solo_mosaic --num_tiles 1 --dir . --mosaic_name ocean_mosaic --tile_file ocean_hgrid.nc --periodx 360" ;
+data:
+
+ mosaic = "ocean_mosaic" ;
+
+ gridlocation = "./" ;
+
+ gridfiles =
+  "ocean_hgrid.nc" ;
+
+ gridtiles =
+  "tile1" ;
+
+ contacts =
+  "ocean_mosaic:tile1::ocean_mosaic:tile1" ;
+
+ contact_index =
+  "720:720,1:640::1:1,1:640" ;
+}

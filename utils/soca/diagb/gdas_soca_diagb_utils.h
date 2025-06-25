@@ -239,10 +239,10 @@ inline double computeLocalGCScale(const double depth, const double eFoldingLengt
 void localMean(const int jnode,
               const int level,
               const std::vector<int> neighbors,
-              const atlas::array::ArrayView<double, 2> layerThickness,
-              const atlas::array::ArrayView<double, 2>& localSum_copy,
+              const atlas::array::ArrayView<const double, 2> layerThickness,
+              const atlas::array::ArrayView<const double, 2>& localSum_copy,
               atlas::array::ArrayView<double, 2>& localSum,
-              const atlas::array::ArrayView<double, 2> layerDepth,
+              const atlas::array::ArrayView<const double, 2> layerDepth,
               const double vertBinSize = 1.0,
               const double depthMin = 50.0) {
     auto nLayers = layerThickness.shape(1);
