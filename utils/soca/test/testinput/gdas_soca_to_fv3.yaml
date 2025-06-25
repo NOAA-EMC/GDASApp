@@ -1,0 +1,14 @@
+fv3:
+  geometry:
+    fms initialization:
+      namelist filename: fv3-jedi/fmsmpp.nml
+      field table filename: fv3-jedi/field_table_ufs
+    npx: 13
+    npy: 13
+    npz: 1
+
+soca:
+  geometry:
+    geom_grid_file: soca/soca_gridspec.nc
+    mom6_input_nml: mom6_input.nml
+    fields metadata: soca/fields_metadata.yaml

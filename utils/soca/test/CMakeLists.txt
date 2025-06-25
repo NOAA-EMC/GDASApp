@@ -35,13 +35,13 @@ try:
                    cwd=work_dir, check=True)
 
     print('Cleaning up...')
-    for file in os.listdir(work_dir):
-        if file != r'''${keep_file}''' and not file.endswith('.py'):
-            file_path = os.path.join(work_dir, file)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
+    #for file in os.listdir(work_dir):
+    #    if file != r'''${keep_file}''' and not file.endswith('.py'):
+    #        file_path = os.path.join(work_dir, file)
+    #        if os.path.isfile(file_path):
+    #            os.remove(file_path)
+    #        elif os.path.isdir(file_path):
+    #            shutil.rmtree(file_path)
 
 except subprocess.CalledProcessError as e:
     print('Error during test execution:', e)
@@ -129,3 +129,10 @@ add_test_with_resources(test_gdasapp_utils_enshandler
                         ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_ens_handler.yaml
                         ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
                         "${MPI_COMMAND} 2" "")
+
+# gdas_soca_to_fv3.x: Interpolation from SOCA to FV3 grid
+add_test_with_resources(test_gdasapp_utils_socatofv3
+                        gdas_soca_to_fv3.x
+                        ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_soca_to_fv3.yaml
+                        ${PROJECT_SOURCE_DIR}/soca/test/generate_coupled_resources.py
+                        "${MPI_COMMAND} 6" "")
