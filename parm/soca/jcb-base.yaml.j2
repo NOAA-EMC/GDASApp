@@ -101,3 +101,8 @@ marine_pseudo_model_states: {{ marine_pseudo_model_states | default([]) }}
 # job fully replaces the SOCA obs_diag_stats application
 cleaned_observations: {{ cleaned_observations | default([]) }}
 obs_variables: {{ obs_variables | default({}) }}
+
+#TODO: temporary patch until GDASApp PR #1748 uses COMOUT_CONF
+# COM path for configuration files
+marine_config_path: '{{COM_CONF_TMPL}}'
+
