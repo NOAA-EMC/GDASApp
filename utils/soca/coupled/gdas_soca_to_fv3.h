@@ -1,3 +1,4 @@
+// NOLINT(build/header_guard)
 # pragma once
 
 #include <string>
