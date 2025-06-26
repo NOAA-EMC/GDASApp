@@ -21,6 +21,7 @@
 #include "oops/mpi/mpi.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Logger.h"
+#include "oops/util/missingValues.h"
 
 
 #include "gdas_calc_scf_to_ioda.h"
@@ -186,19 +187,69 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   oops::Log::info() << "Writing observations to IODA format..." << std::endl;
   // First, let us gather with MPI the fields we need all on rank 0
   int nobs = 6 * (geom.npx() - 1) * (geom.npy() - 1);
+  // get the fieldset from the geometry
+  atlas::FunctionSpace fs = geom.functionSpace();
+  atlas::FieldSet geom_fs = geom.fields();
+  // get lat, long, height from the geometry
+  auto lonlat = atlas::array::make_view<double, 2>(fs.lonlat());
+  auto orog = atlas::array::make_view<double, 2>(geom_fs["filtered_orography"]);
+  // print the atlas array
+  // for (atlas::idx_t jnode = 0; jnode < lonlat.shape(0); ++jnode) {
+  //   oops::Log::info() << "Node " << jnode << ": "
+  //                     << "lat = " << lonlat(jnode, 1) << ", "
+  //                     << "lon = " << lonlat(jnode, 0) << ", "
+  //                     << "orog = " << orog(jnode, 0) << std::endl;
+  // }
   // Create empty group backed by HDF file
   if (oops::mpi::world().rank() == 0) {
     oops::Log::info() << "Creating IODA file at: " << outputpath << std::endl;
     ioda::Group group = ioda::Engines::HH::createFile(outputpath,
         ioda::Engines::BackendCreateModes::Truncate_If_Exists);
-    // add in the location dimension
+    // Add in the location dimension
     ioda::NewDimensionScales_t newDims {ioda::NewDimensionScale<int>("Location", nobs)};
     ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
+    // Create variable parameters
+    ioda::VariableCreationParameters long_params;
+    long_params.chunk = true;
+    long_params.compressWithGZIP();
+    long_params.setFillValue<long>(util::missingValue<long>());
+    ioda::VariableCreationParameters float_params;
+    long_params.chunk = true;
+    long_params.compressWithGZIP();
+    long_params.setFillValue<float>(util::missingValue<float>());
+    // Add datetime variable
+    std::string referenceDate = "seconds since " + cycleDate.toString();
+    ioda::Variable iodaDatetime =
+      ogrp.vars.createWithScales<int64_t>("MetaData/dateTime",
+                                          {ogrp.vars["Location"]}, long_params);
+    iodaDatetime.atts.add<std::string>("units", {referenceDate}, {1});
+    // Add latitude and longitude variables
+    ioda::Variable iodaLatitude =
+      ogrp.vars.createWithScales<float>("MetaData/latitude",
+                                        {ogrp.vars["Location"]}, float_params);
+    iodaLatitude.atts.add<std::string>("units", {"degrees_north"}, {1});
+    ioda::Variable iodaLongitude =
+      ogrp.vars.createWithScales<float>("MetaData/longitude",
+                                        {ogrp.vars["Location"]}, float_params);
+    iodaLongitude.atts.add<std::string>("units", {"degrees_east"}, {1});
+    // Write datetime variable
+    std::vector<int64_t> datetime_var(nobs, 0);
+    iodaDatetime.write(datetime_var);
+
   }
   oops::Log::info() << "Observations written successfully." << std::endl;
   oops::Log::info() << "=========================================================" << std::endl;
 }
+// Short-cut to create type dependent VariableCreationParameters
+// template <typename T>
+// ioda::VariableCreationParameters gdasapp::CalcSCFtoIODA::createVariableParams() {
+//   ioda::VariableCreationParameters params;
+//   params.chunk = true;               // allow chunking
+//   params.compressWithGZIP();         // compress using gzip
+//   params.setFillValue<T>(util::missingValue<T>());
 
+//   return params;
+// }
 // ncdump -h target.ims_snow.nc 
 // netcdf target.ims_snow {
 // dimensions:
@@ -261,6 +312,8 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
 //                 string totalSnowDepth:coordinates = "longitude latitude" ;
 //   } // group PreQC
 // }
+
+
 
 void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
   // Read IMS data from the specified path
