@@ -191,6 +191,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   atlas::FunctionSpace fs = geom.functionSpace();
   atlas::FieldSet geom_fs = geom.fields();
   // get lat, long, height from the geometry
+  // note that these are assumed to be only the data on each MPI task, not the full grid
   auto lonlat = atlas::array::make_view<double, 2>(fs.lonlat());
   auto orog = atlas::array::make_view<double, 2>(geom_fs["filtered_orography"]);
   // print the atlas array
@@ -213,10 +214,14 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     long_params.chunk = true;
     long_params.compressWithGZIP();
     long_params.setFillValue<long>(util::missingValue<long>());
+    ioda::VariableCreationParameters int_params;
+    int_params.chunk = true;
+    int_params.compressWithGZIP();
+    int_params.setFillValue<int>(util::missingValue<int>());
     ioda::VariableCreationParameters float_params;
-    long_params.chunk = true;
-    long_params.compressWithGZIP();
-    long_params.setFillValue<float>(util::missingValue<float>());
+    float_params.chunk = true;
+    float_params.compressWithGZIP();
+    float_params.setFillValue<float>(util::missingValue<float>());
     // Add datetime variable
     std::string referenceDate = "seconds since " + cycleDate.toString();
     ioda::Variable iodaDatetime =
@@ -232,10 +237,54 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
       ogrp.vars.createWithScales<float>("MetaData/longitude",
                                         {ogrp.vars["Location"]}, float_params);
     iodaLongitude.atts.add<std::string>("units", {"degrees_east"}, {1});
+    // Add elevation variables
+    ioda::Variable iodaHeight =
+      ogrp.vars.createWithScales<float>("MetaData/stationElevation",
+                                        {ogrp.vars["Location"]}, float_params);
+    iodaHeight.atts.add<std::string>("units", {"meters"}, {1});
+    // Add variables for snowCoverFraction and totalSnowDepth
+    ioda::Variable iodaSCF =
+      ogrp.vars.createWithScales<float>("ObsValue/snowCoverFraction",
+                                        {ogrp.vars["Location"]}, float_params);
+    iodaSCF.atts.add<std::string>("units", {"1"}, {1});
+    iodaSCF.atts.add<std::string>("coordinates", {"longitude latitude"}, {1});
+    ioda::Variable iodaSCFPreQC =
+      ogrp.vars.createWithScales<int>("PreQC/snowCoverFraction",
+                                      {ogrp.vars["Location"]}, int_params);
+    iodaSCFPreQC.atts.add<std::string>("coordinates", {"longitude latitude"}, {1});
+    ioda::Variable iodaSCFError =
+      ogrp.vars.createWithScales<float>("ObsError/snowCoverFraction",
+                                        {ogrp.vars["Location"]}, float_params);
+    iodaSCFError.atts.add<std::string>("units", {"1"}, {1});
+    iodaSCFError.atts.add<std::string>("coordinates", {"longitude latitude"}, {1});
+    ioda::Variable iodaSD =
+      ogrp.vars.createWithScales<float>("ObsValue/totalSnowDepth",
+                                        {ogrp.vars["Location"]}, float_params);
+    iodaSD.atts.add<std::string>("units", {"mm"}, {1});
+    iodaSD.atts.add<std::string>("coordinates", {"longitude latitude"}, {1});
+    ioda::Variable iodaSDPreQC =
+      ogrp.vars.createWithScales<int>("PreQC/totalSnowDepth",
+                                      {ogrp.vars["Location"]}, int_params);
+    iodaSDPreQC.atts.add<std::string>("coordinates", {"longitude latitude"}, {1});
+    ioda::Variable iodaSDError =
+      ogrp.vars.createWithScales<float>("ObsError/totalSnowDepth",
+                                        {ogrp.vars["Location"]}, float_params);
+    iodaSDError.atts.add<std::string>("units", {"mm"}, {1});
+    iodaSDError.atts.add<std::string>("coordinates", {"longitude latitude"}, {1});
     // Write datetime variable
     std::vector<int64_t> datetime_var(nobs, 0);
     iodaDatetime.write(datetime_var);
-
+    // Write QC variables
+    //TODO(CoryMartin-NOAA) - set QC values based on some criteria?
+    std::vector<int> qc_scf(nobs, 0); // Assuming 0 is good quality
+    std::vector<int> qc_sd(nobs, 0); // Assuming 0 is good quality
+    iodaSCFPreQC.write(qc_scf);
+    iodaSDPreQC.write(qc_sd);
+    // Write out Latitude, Longitude, and Elevation
+    std::vector<float> lat_var(nobs, nodata_float);
+    std::vector<float> lon_var(nobs, nodata_float);
+    std::vector<float> orog_var(nobs, nodata_float);
+    
   }
   oops::Log::info() << "Observations written successfully." << std::endl;
   oops::Log::info() << "=========================================================" << std::endl;

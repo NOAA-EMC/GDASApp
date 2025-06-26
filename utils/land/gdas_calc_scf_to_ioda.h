@@ -66,6 +66,8 @@ namespace gdasapp {
         0.008f, 0.010f, 0.010f, 0.010f, 0.010f, 0.007f, 0.021f,
         0.013f, 0.015f, 0.008f, 0.015f, 0.015f, 0.015f, 0.015f
     };
+    float oberr_scf=0.0f;
+    float oberr_snd=40.0f;
     public:
     void run();
   };
