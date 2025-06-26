@@ -284,85 +284,10 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     std::vector<float> lat_var(nobs, nodata_float);
     std::vector<float> lon_var(nobs, nodata_float);
     std::vector<float> orog_var(nobs, nodata_float);
-    
   }
   oops::Log::info() << "Observations written successfully." << std::endl;
   oops::Log::info() << "=========================================================" << std::endl;
 }
-// Short-cut to create type dependent VariableCreationParameters
-// template <typename T>
-// ioda::VariableCreationParameters gdasapp::CalcSCFtoIODA::createVariableParams() {
-//   ioda::VariableCreationParameters params;
-//   params.chunk = true;               // allow chunking
-//   params.compressWithGZIP();         // compress using gzip
-//   params.setFillValue<T>(util::missingValue<T>());
-
-//   return params;
-// }
-// ncdump -h target.ims_snow.nc 
-// netcdf target.ims_snow {
-// dimensions:
-//         Location = UNLIMITED ; // (10569 currently)
-// variables:
-//         int64 Location(Location) ;
-//                 Location:suggested_chunk_dim = 10000LL ;
-
-// // global attributes:
-//                 string :_ioda_layout = "ObsGroup" ;
-//                 :_ioda_layout_version = 0 ;
-
-// group: MetaData {
-//   variables:
-//         int64 dateTime(Location) ;
-//                 dateTime:_FillValue = -9223372036854775806LL ;
-//                 string dateTime:units = "seconds since 1970-01-01T00:00:00Z" ;
-//         float latitude(Location) ;
-//                 latitude:_FillValue = 9.96921e+36f ;
-//                 string latitude:units = "degrees_north" ;
-//         float longitude(Location) ;
-//                 longitude:_FillValue = 9.96921e+36f ;
-//                 string longitude:units = "degrees_east" ;
-//         float stationElevation(Location) ;
-//                 stationElevation:_FillValue = 9.96921e+36f ;
-//                 string stationElevation:units = "m" ;
-//   } // group MetaData
-
-// group: ObsError {
-//   variables:
-//         float snowCoverFraction(Location) ;
-//                 snowCoverFraction:_FillValue = 9.96921e+36f ;
-//                 string snowCoverFraction:coordinates = "longitude latitude" ;
-//                 string snowCoverFraction:units = "1" ;
-//         float totalSnowDepth(Location) ;
-//                 totalSnowDepth:_FillValue = 9.96921e+36f ;
-//                 string totalSnowDepth:coordinates = "longitude latitude" ;
-//                 string totalSnowDepth:units = "mm" ;
-//   } // group ObsError
-
-// group: ObsValue {
-//   variables:
-//         float snowCoverFraction(Location) ;
-//                 snowCoverFraction:_FillValue = 9.96921e+36f ;
-//                 string snowCoverFraction:coordinates = "longitude latitude" ;
-//                 string snowCoverFraction:units = "1" ;
-//         float totalSnowDepth(Location) ;
-//                 totalSnowDepth:_FillValue = 9.96921e+36f ;
-//                 string totalSnowDepth:coordinates = "longitude latitude" ;
-//                 string totalSnowDepth:units = "mm" ;
-//   } // group ObsValue
-
-// group: PreQC {
-//   variables:
-//         int snowCoverFraction(Location) ;
-//                 snowCoverFraction:_FillValue = -2147483647 ;
-//                 string snowCoverFraction:coordinates = "longitude latitude" ;
-//         int totalSnowDepth(Location) ;
-//                 totalSnowDepth:_FillValue = -2147483647 ;
-//                 string totalSnowDepth:coordinates = "longitude latitude" ;
-//   } // group PreQC
-// }
-
-
 
 void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
   // Read IMS data from the specified path
