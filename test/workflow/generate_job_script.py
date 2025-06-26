@@ -74,11 +74,7 @@ def main():
     homegfs = job_config.get('homegfs')
     machine = job_config.get('machine')
 
-    machine_config_file = (
-        os.path.join(homegfs, "sorc/gdas.cd/test/workflow/hosts/")
-        + machine.lower()
-        + ".yaml"
-    )
+    machine_config_file = os.path.join(homegfs, "sorc/gdas.cd/test/workflow/hosts/") + machine.lower() + ".yaml"
 
     with open(machine_config_file, 'r') as f:
         machine_config = yaml.safe_load(f)
