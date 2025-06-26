@@ -30,25 +30,16 @@ export COMROOT=$DATAROOT
 export NMEM_ENS=3
 export ACCOUNT=da-cpu
 
+# Detect machine
+source "${HOMEgfs}/ush/detect_machine.sh"
+
 # Set python path for workflow utilities and tasks
 wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
-# Detemine machine from config.base
-machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
-
-# Set NETCDF and UTILROOT variables (used in config.base)
-if [[ $machine = 'HERA' ]]; then
-    NETCDF=$( which ncdump )
-    export NETCDF
-    export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
-elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    ncdump=$( which ncdump )
-    NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
-    export NETCDF
-    export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
-fi
+# Export library path
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 
 # Set lobsdiag_forenkf=.true. to run letkf as stand-alone observer job
 cp $EXPDIR/config.base_lobsdiag_forenkf_true $EXPDIR/config.base
@@ -56,7 +47,7 @@ cp $EXPDIR/config.base_lobsdiag_forenkf_true $EXPDIR/config.base
 # Create yaml with job configuration
 config_yaml="./config_${type}.yaml"
 cat <<EOF > ${config_yaml}
-machine: ${machine}
+machine: ${MACHINE_ID}
 homegfs: ${HOMEgfs}
 job_name: ${type}
 walltime: "00:30:00"
@@ -70,11 +61,12 @@ EOF
 
 # Create script to execute j-job
 $HOMEgfs/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
+SCHEDULER=$(echo `grep SCHEDULER ${HOMEgfs}/sorc/gdas.cd/test/workflow/hosts/${MACHINE_ID}.yaml | cut -d":" -f2` | tr -d ' ')
 
 # Submit script to execute j-job
-if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' || $machine = 'URSA' || $machine = 'GAEAC6' ]]; then
+if [[ $SCHEDULER = 'slurm' ]]; then
     sbatch --export=ALL --wait submit_${type}.sh
-elif [[ $machine = 'WCOSS2' ]]; then
+elif [[ $SCHEDULER = 'pbspro' ]]; then
     qsub -V -W block=true submit_${type}.sh
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_OBS

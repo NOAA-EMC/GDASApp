@@ -5,4 +5,4 @@ PARTITION_BATCH: orion
 PARTITION_SERVICE: service
 
 # HPC account information
-HPC_ACCOUNT: GFS-DEV
+HPC_ACCOUNT: da-cpu

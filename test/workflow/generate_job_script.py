@@ -68,34 +68,20 @@ def main():
         sys.exit(1)
 
     job_config_file = sys.argv[1]
-
     with open(job_config_file, 'r') as f:
         job_config = yaml.safe_load(f)
-
-    print(f" ")
-    print(f"job_config {job_config}")
-    print(f" ")
 
     homegfs = job_config.get('homegfs')
     machine = job_config.get('machine')
 
-    print(f" ")
-    print(f"homegfs {homegfs}")
-    print(f"machine {machine}")
-    print(f" ")
-
-    machine_config_file = os.path.join(homegfs, "sorc/gdas.cd/test/workflow/hosts/") + machine.lower() + ".yaml"
-
-    print(f" ")
-    print(f"machine_config_file {machine_config_file}")
-    print(f" ")
+    machine_config_file = (
+        os.path.join(homegfs, "sorc/gdas.cd/test/workflow/hosts/")
+        + machine.lower()
+        + ".yaml"
+    )
 
     with open(machine_config_file, 'r') as f:
         machine_config = yaml.safe_load(f)
-
-    print(f" ")
-    print(f"machine_config {machine_config}")
-    print(f" ")
 
     create_job_script(job_config, machine_config)
 
