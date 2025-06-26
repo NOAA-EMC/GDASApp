@@ -17,8 +17,8 @@
 
 #include "soca/Geometry/Geometry.h"
 #include "soca/Increment/Increment.h"
-#include "soca/LinearVariableChange/LinearVariableChange.h"
 #include "soca/State/State.h"
+#include "soca/VariableChange/VariableChange.h"
 
 #include "gdas_postprocincr.h"
 
@@ -71,17 +71,6 @@ namespace gdasapp {
         oops::Log::debug() << "========= after appending variables:" << std::endl;
         oops::Log::debug() << incr_mom6 << std::endl;
 
-        // QC the increment
-        if (fullConfig.has("qc increment")) {
-          eckit::LocalConfiguration qcConfig, xbConfig;
-          fullConfig.get("qc increment", qcConfig);
-          qcConfig.get("background", xbConfig);
-          soca::State xb(geom, xbConfig);
-          postProcIncr.qcIncrement(xb, incr_mom6, qcConfig, geom);
-          oops::Log::debug() << "========= after QC:" << std::endl;
-          oops::Log::debug() << incr_mom6 << std::endl;
-        }
-
         // Cut to a custom precision
         if (fullConfig.has("increment precision")) {
           const eckit::LocalConfiguration precConfig(fullConfig, "increment precision");
@@ -103,12 +92,41 @@ namespace gdasapp {
           oops::Log::debug() << incr_mom6 << std::endl;
         }
 
-        if (fullConfig.has("output analysis")) {
-          const eckit::LocalConfiguration bgConfig(fullConfig, "soca background");
-          soca::State bg(geom, bgConfig);
-          bg += incr_mom6;
-          const eckit::LocalConfiguration outputConfig(fullConfig, "output analysis");
-          bg.write(outputConfig);
+        eckit::LocalConfiguration xbConfig(fullConfig, "soca background");
+        // Here xx is the background
+        soca::State xx(geom, xbConfig);
+        // QC the increment
+        if (fullConfig.has("qc increment")) {
+          eckit::LocalConfiguration qcConfig;
+          fullConfig.get("qc increment", qcConfig);
+          postProcIncr.qcIncrement(xx, incr_mom6, qcConfig, geom);
+          oops::Log::debug() << "========= after QC:" << std::endl;
+          oops::Log::debug() << incr_mom6 << std::endl;
+        }
+
+        // Postprocess the sea ice: get analysis
+        // xx and xa are now the analysis
+        if (fullConfig.has("ice analysis postprocessing")) {
+          xx += incr_mom6;
+          soca::State xa(xx);
+          oops::Log::debug() << "========= analysis before sea ice postprocessing:" << std::endl;
+          oops::Log::debug() << xa << std::endl;
+          eckit::LocalConfiguration vcConfig(fullConfig, "ice analysis postprocessing");
+          soca::VariableChange vc(vcConfig, geom);
+          oops::Variables varout(vcConfig, "output variables");
+          vc.changeVar(xa, varout);
+          // xa is now the postprocessed analysis
+          oops::Log::debug() << "========= analysis after sea ice postprocessing:" << std::endl;
+          oops::Log::debug() << xa << std::endl;
+          soca::Increment dx(xa.geometry(), xa.variables(), xa.validTime());
+          dx.diff(xa, xx);
+          oops::Log::debug() << "========= sea ice postprocessing difference:" << std::endl;
+          oops::Log::debug() << dx << std::endl;
+          // Bring in the SST adjustment from ice postprocessing to MOM6 increment
+          incr_mom6 += dx;
+          oops::Log::debug() << "========= increment after adding sea ice postprocessing:"
+                             << std::endl;
+          oops::Log::debug() << incr_mom6 << std::endl;
         }
 
         // Save final increment

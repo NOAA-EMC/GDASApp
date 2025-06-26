@@ -1,9 +1,22 @@
 #pragma once
 
-#include <atlas/mesh.h>
 #include <algorithm>
 #include <string>
+#include <tuple>
+#include <utility>
 #include <vector>
+
+#include "atlas/field.h"
+#include "atlas/functionspace/NodeColumns.h"
+#include "atlas/mesh.h"
+#include "atlas/mesh/actions/BuildEdges.h"
+#include "atlas/mesh/actions/BuildHalo.h"
+#include "atlas/mesh/Connectivity.h"
+#include "atlas/mesh/Mesh.h"
+#include "atlas/util/Earth.h"
+#include "atlas/util/Geometry.h"
+#include "atlas/util/Point.h"
+
 #include "oops/util/DateTime.h"
 
 namespace gdasapp {
@@ -96,6 +109,61 @@ struct SocaDiagBConfig {
     }
 };
 // -----------------------------------------------------------------------------
+/**
+ * @brief Bundles together Atlas mesh and related components for mesh operations
+ *
+ * MeshBundle provides a convenient way to group an Atlas mesh with its associated
+ * function space, connectivity information, and ghost views. This simplifies
+ * passing mesh-related data between functions.
+ *
+ * @note The constructor takes ownership of the provided mesh via move semantics.
+ *
+ * @member mesh The Atlas mesh
+ * @member nodeColumns Function space for node columns with a halo of 1
+ * @member node2edge Connectivity from nodes to edges
+ * @member edge2node Connectivity from edges to nodes
+ * @member ghostView Array view identifying ghost nodes
+ */
+struct MeshBundle {
+  atlas::Mesh mesh;
+  atlas::functionspace::NodeColumns nodeColumns;
+  atlas::mesh::IrregularConnectivity const& node2edge;
+  atlas::mesh::MultiBlockConnectivity const& edge2node;
+  atlas::array::ArrayView<int, 1> ghostView;
+  atlas::array::ArrayView<double, 2> lonlat;
+
+
+  explicit MeshBundle(atlas::Mesh&& m)
+    : mesh(std::move(m)),
+      nodeColumns(mesh, atlas::option::halo(1)),
+      node2edge(mesh.nodes().edge_connectivity()),
+      edge2node(mesh.edges().node_connectivity()),
+      ghostView(atlas::array::make_view<int, 1>(nodeColumns.ghost())),
+      lonlat(atlas::array::make_view<double, 2>(nodeColumns.lonlat())) {}
+};
+
+/**
+ * @brief Builds mesh connectivity from a SOCA geometry
+ *
+ * This function takes a SOCA geometry object and constructs an enhanced mesh with
+ * the following additional connectivity information:
+ *  - Edges
+ *  - Node-to-edge connectivity
+ *  - Halo of size 1
+ *
+ * @param geom The SOCA geometry object containing the base function space
+ * @return MeshBundle A bundle containing the enhanced mesh with connectivity information
+ */
+inline MeshBundle buildMeshConnectivity(const soca::Geometry & geom) {
+  auto originalNodeColumns = atlas::functionspace::NodeColumns(geom.functionSpace());
+  atlas::Mesh mesh = originalNodeColumns.mesh();
+
+  atlas::mesh::actions::build_edges(mesh);
+  atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
+  atlas::mesh::actions::build_halo(mesh, 1);
+
+  return MeshBundle(std::move(mesh));
+}
 
 /**
  * @brief Gets the neighboring node indices of a given node in an Atlas mesh.
@@ -171,10 +239,10 @@ inline double computeLocalGCScale(const double depth, const double eFoldingLengt
 void localMean(const int jnode,
               const int level,
               const std::vector<int> neighbors,
-              const atlas::array::ArrayView<double, 2> layerThickness,
-              const atlas::array::ArrayView<double, 2>& localSum_copy,
+              const atlas::array::ArrayView<const double, 2> layerThickness,
+              const atlas::array::ArrayView<const double, 2>& localSum_copy,
               atlas::array::ArrayView<double, 2>& localSum,
-              const atlas::array::ArrayView<double, 2> layerDepth,
+              const atlas::array::ArrayView<const double, 2> layerDepth,
               const double vertBinSize = 1.0,
               const double depthMin = 50.0) {
     auto nLayers = layerThickness.shape(1);

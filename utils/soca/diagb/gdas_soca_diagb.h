@@ -100,18 +100,13 @@ class SocaDiagB : public oops::Application {
                                                            outputGeometryKey), this->getComm());
 
     // -- Step 5: Build mesh and connectivity --
-    auto originalNodeColumns = atlas::functionspace::NodeColumns(geom.functionSpace());
-    atlas::Mesh mesh = originalNodeColumns.mesh();
-    atlas::mesh::actions::build_edges(mesh);
-    atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
-    atlas::mesh::actions::build_halo(mesh, 1);
-    atlas::functionspace::NodeColumns nodeColumns(mesh, atlas::option::halo(1));
-    const auto & node2edge = mesh.nodes().edge_connectivity();
-    const auto & edge2node = mesh.edges().node_connectivity();
-    const auto ghostView = atlas::array::make_view<int, 1>(geom.functionSpace().ghost());
+    gdasapp::diagb::utils::MeshBundle meshConn = gdasapp::diagb::utils::buildMeshConnectivity(geom);
+    const auto & node2edge = meshConn.node2edge;
+    const auto & edge2node = meshConn.edge2node;
+    const auto ghostView = meshConn.ghostView;
 
     // -- Step 6: Compute depth and bathymetry fields --
-    nodeColumns.haloExchange(xbFs["sea_water_cell_thickness"]);
+    meshConn.nodeColumns.haloExchange(xbFs["sea_water_cell_thickness"]);
     auto viewHocn = atlas::array::make_view<double, 2>(xbFs["sea_water_cell_thickness"]);
     atlas::array::ArrayT<double> depth(viewHocn.shape(0), viewHocn.shape(1));
     auto viewDepth = atlas::array::make_view<double, 2>(depth);
@@ -139,8 +134,8 @@ class SocaDiagB : public oops::Application {
       auto sum2 = atlas::array::make_view<double, 2>(sum2_localFs[var]);
 
       for (int iter = 0; iter < configD.stencilGrowthIterations; ++iter) {
-        nodeColumns.haloExchange(sum_localFs[var]);
-        nodeColumns.haloExchange(sum2_localFs[var]);
+        meshConn.nodeColumns.haloExchange(sum_localFs[var]);
+        meshConn.nodeColumns.haloExchange(sum2_localFs[var]);
         atlas::Field sum_localF = sum_localFs[var].clone();
         atlas::Field sum2_localF = sum2_localFs[var].clone();
         auto sumTmp = atlas::array::make_view<double, 2>(sum_localF);
@@ -148,8 +143,8 @@ class SocaDiagB : public oops::Application {
 
         for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
           for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
-            if (ghostView(jnode) > 0) continue;
-            auto neighbors = gdasapp::diagb::utils::get_neighbors_of_node(mesh,
+            if (meshConn.ghostView(jnode) > 0) continue;
+            auto neighbors = gdasapp::diagb::utils::get_neighbors_of_node(meshConn.mesh,
                                                                           node2edge,
                                                                           edge2node,
                                                                           jnode);
@@ -219,7 +214,7 @@ class SocaDiagB : public oops::Application {
                          (var == "sea_ice_area_fraction") ? configD.sigSic : 0.0;
 
       for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
-        if (ghostView(jnode) > 0) continue;
+        if (meshConn.ghostView(jnode) > 0) continue;
         for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
           if (viewBathy(jnode, 0) > 0.0) {
             double z = viewDepth(jnode, level);
