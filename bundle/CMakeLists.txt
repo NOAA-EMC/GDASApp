@@ -7,7 +7,7 @@ cmake_minimum_required( VERSION 3.20 FATAL_ERROR )
 
 find_package(ecbuild 3.5 REQUIRED HINTS ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ecbuild)
 
-project(GDAS-bundle VERSION 1.0.0 LANGUAGES C CXX Fortran )
+project(gdas VERSION 1.0.0 LANGUAGES C CXX Fortran )
 
 include(GNUInstallDirs)
 enable_testing()
@@ -42,13 +42,12 @@ set(DEPEND_LIB_ROOT ${CMAKE_CURRENT_BINARY_DIR}/Depends)
 list(APPEND CMAKE_PREFIX_PATH ${DEPEND_LIB_ROOT})
 
 # Library path for non-ecbuild packages
-link_directories(${CMAKE_CURRENT_BINARY_DIR}/lib)
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 
 include( GNUInstallDirs )
 if(APPLE)
-  list( APPEND CMAKE_INSTALL_RPATH $ENV{llvm_openmp_ROOT}/lib )
+  list( APPEND CMAKE_INSTALL_RPATH $ENV{llvm_openmp_ROOT}/${CMAKE_INSTALL_LIBDIR} )
 endif()
-list( APPEND CMAKE_INSTALL_RPATH ${CMAKE_CURRENT_BINARY_DIR}/fv3 )
 
 # Initialize bundle
 # -----------------
@@ -77,7 +76,7 @@ if(BUILD_GDASBUNDLE)
 # External (required) observation operators
   # TODO remove the CRTM from here and use it as a library
   #option("BUNDLE_SKIP_CRTM" "Don't build CRTM" "OFF") # Don't build crtm unless user passes -DBUNDLE_SKIP_CRTM=OFF
-  #ecbuild_bundle( PROJECT crtm GIT "https://github.com/JCSDA/crtm.git"   TAG v2.4.1-jedi.1 )
+  #ecbuild_bundle( PROJECT crtm GIT "https://github.com/JCSDA/crtm.git"   TAG v2.4.1-jedi.2 )
   ecbuild_bundle( PROJECT crtm SOURCE "../sorc/crtm" )
 
 # Build GSI-B
@@ -100,10 +99,6 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT ioda SOURCE "../sorc/ioda" )
   option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT ufo SOURCE "../sorc/ufo" )
-
-# FV3 dynamical core
-  include(fv3-interface.cmake)
-  ecbuild_bundle( PROJECT fv3 SOURCE "../sorc/fv3" )
 
 # fv3-jedi and associated repositories
   ecbuild_bundle( PROJECT femps SOURCE "../sorc/femps" )
