@@ -37,16 +37,10 @@ class Diagnostics {
                   atlas::Field & u_out,
                   atlas::Field & v_out) const;
 
-  void horizontalGradient(
-      const atlas::Field& pressure_field,
-      const atlas::Field& dz,
-      atlas::Field& grad_p) const;
+  void barotropicGeostrophy(const atlas::Field & ssh,
+                            atlas::Field & u_out,
+                            atlas::Field & v_out) const;
 
-  /*
-  atlas::Field horizontalGradient(
-      const atlas::Field& pressure_field,
-      const atlas::array::ArrayView<const int, 1>& mask) const;
-  */
 
  private:
   const double rho0_;

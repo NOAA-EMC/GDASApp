@@ -14,7 +14,7 @@
 
 #include "../diagb/gdas_soca_diagb_utils.h"
 #include "../gdas_soca_utils.h"
-#include "../diagnostics/gdas_soca_diagnostics.h"
+#include "../diagnostics/Diagnostics.h"
 
 #include "oops/util/Logger.h"
 
@@ -188,10 +188,11 @@ void applyWaterColumnStabilityCheck(
     auto u_b = dxFs["eastward_sea_water_velocity"];
     auto v_b = dxFs["northward_sea_water_velocity"];
     gdasapp::diagnostics::Diagnostics diag(meshConn.nodeColumns, meshConn.mesh, 1025.0, 1e-5, 9.80665);
-    diag.geostrophy(xbFs["sea_water_potential_temperature"],
-                    xbFs["sea_water_salinity"],
-                    xbFs["sea_water_cell_thickness"],
-                    u_b, v_b);
+    //diag.geostrophy(xbFs["sea_water_potential_temperature"],
+    //                xbFs["sea_water_salinity"],
+    //                xbFs["sea_water_cell_thickness"],
+    //                u_b, v_b);
+    diag.barotropicGeostrophy(xbFs["sea_surface_height_above_geoid"], u_b, v_b);
   }
 
 /**
