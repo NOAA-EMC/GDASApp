@@ -191,6 +191,8 @@ def main(project_src_dir):
 
     subprocess.run(["ncgen", "-3", "-o", input_dir / "grid_spec.nc", f"{project_src_dir}/soca/test/testdata/grid_spec.cdl"], check=True)
     subprocess.run(["ncgen", "-3", "-o", input_dir / "ocean_mosaic.nc", f"{project_src_dir}/soca/test/testdata/ocean_mosaic.cdl"], check=True)
+    subprocess.run(["ncgen", "-4", "-o", "ocn.nc", f"{project_src_dir}/soca/test/testdata/ocn.cdl"], check=True)
+    subprocess.run(["ncgen", "-4", "-o", "ice.nc", f"{project_src_dir}/soca/test/testdata/ice.cdl"], check=True)
 
     # Copy YAML file
     yaml_src_path = f"{project_src_dir}/../parm/soca/fields_metadata.yaml"
