@@ -101,7 +101,7 @@ void qcIncrement(const soca::State& xb,
   const double rhoMinGrad = config.getDouble("min stable density gradient", 1e-4);
 
   // Steric height increment and stability checks
-  applyWaterColumnStabilityCheck(dxFs, xbFs,
+  applyWaterColumnStabilityCheck(dxFs,
                                  viewTempBkg, viewSaltBkg,
                                  viewHocn, viewDepth, lonlat,
                                  niterations, rhoMinGrad, viewBathy,

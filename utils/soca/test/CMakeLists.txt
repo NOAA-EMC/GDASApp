@@ -75,16 +75,16 @@ else()
     endif()
 endif()
 
-# gdas_incr_handler.x: Apply QC and convert the soca increment to a MOM6 IAU increment
+# gdas_soca_incr_handler.x: Apply QC and convert the soca increment to a MOM6 IAU increment
 add_test_with_resources(test_gdasapp_utils_incrhandler
-                        gdas_incr_handler.x
+                        gdas_soca_incr_handler.x
                         ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_incr_handler.yaml
                         ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
                         "${MPI_COMMAND} 2"
                         ocn.mom6_iau_incqc.nc)
-# gdas_incr_handler.x: Apply QC and convert the soca increment to a MOM6 IAU increment with 8 processes
+# gdas_soca_incr_handler.x: Apply QC and convert the soca increment to a MOM6 IAU increment with 8 processes
 add_test_with_resources(test_gdasapp_utils_incrhandler_8pes
-                        gdas_incr_handler.x
+                        gdas_soca_incr_handler.x
                         ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_incr_handler.yaml
                         ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
                         "${MPI_COMMAND} 8"
@@ -95,14 +95,16 @@ add_test(NAME test_gdasapp_utils_incrhandler_reproducibility
     nccmp --tolerance=1e-7 -v Temp -d \
       ${PROJECT_BINARY_DIR}/test/gdasapp/test_gdasapp_utils_incrhandler/ocn.mom6_iau_incqc.nc \
       ${PROJECT_BINARY_DIR}/test/gdasapp/test_gdasapp_utils_incrhandler_8pes/ocn.mom6_iau_incqc.nc || {
-        echo '❌ Field differs between single and multi-PE output';
+        echo 'Field differs between single and multi-PE output';
         exit 1;
     }
     ")
+set_tests_properties(test_gdasapp_utils_incrhandler_reproducibility PROPERTIES DEPENDS
+                      "test_gdasapp_utils_incrhandler;test_gdasapp_utils_incrhandler_8pes")
 
-# gdas_socahybridweights.x: Generate hybrid weights for B
+# gdas_soca_hybridweights.x: Generate hybrid weights for B
 add_test_with_resources(test_gdasapp_utils_hybridweights
-                        gdas_socahybridweights.x
+                        gdas_soca_hybridweights.x
                         ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_socahybridweights.yaml
                         ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
                         "${MPI_COMMAND} 2" "")
@@ -121,9 +123,16 @@ add_test_with_resources(test_gdasapp_utils_diagb
                         ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
                         "${MPI_COMMAND} 2" "")
 
-# gdas_ens_handler.x: Ensemble members post processing
+# gdas_soca_ens_handler.x: Ensemble members post processing
 add_test_with_resources(test_gdasapp_utils_enshandler
-                        gdas_ens_handler.x
+                        gdas_soca_ens_handler.x
                         ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_ens_handler.yaml
                         ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
                         "${MPI_COMMAND} 2" "")
+
+# gdas_soca_to_fv3.x: Interpolation from SOCA to FV3 grid
+add_test_with_resources(test_gdasapp_utils_socatofv3
+                        gdas_soca_to_fv3.x
+                        ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_soca_to_fv3.yaml
+                        ${PROJECT_SOURCE_DIR}/soca/test/generate_coupled_resources.py
+                        "${MPI_COMMAND} 6" "")

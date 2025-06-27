@@ -14,7 +14,6 @@
 
 #include "../diagb/gdas_soca_diagb_utils.h"
 #include "../gdas_soca_utils.h"
-#include "../diagnostics/Diagnostics.h"
 
 #include "oops/util/Logger.h"
 
@@ -81,7 +80,6 @@ double adjustAnalysisBounds(double xB, double dX, double minBound, double maxBou
  */
 void applyWaterColumnStabilityCheck(
     atlas::FieldSet dxFs,
-    atlas::FieldSet xbFs,
     const atlas::array::ArrayView<const double, 2>& viewTempBkg,
     const atlas::array::ArrayView<const double, 2>& viewSaltBkg,
     const atlas::array::ArrayView<const double, 2>& viewHocn,
@@ -165,9 +163,6 @@ void applyWaterColumnStabilityCheck(
 
       // Smooth increment over local node + neighbors
       for (const auto& [jnode, level, neighbors] : unstablePoints) {
-        std::vector<int> stencil = neighbors;
-        stencil.push_back(jnode);  // include center node
-
         gdasapp::diagb::utils::localMean(jnode, level, neighbors, viewHocn,
                                          viewTempSmooth, viewTempIncr,
                                          viewDepth, 1, 0.0);
@@ -185,14 +180,16 @@ void applyWaterColumnStabilityCheck(
         }
       }
     }  // end for loop iter
-    auto u_b = dxFs["eastward_sea_water_velocity"];
-    auto v_b = dxFs["northward_sea_water_velocity"];
-    gdasapp::diagnostics::Diagnostics diag(meshConn.nodeColumns, meshConn.mesh, 1025.0, 1e-5, 9.80665);
+
+    // TODO (G): Remove this
+    //auto u_b = dxFs["eastward_sea_water_velocity"];
+    //auto v_b = dxFs["northward_sea_water_velocity"];
+    //gdasapp::diagnostics::Diagnostics diag(meshConn.nodeColumns, meshConn.mesh, 1025.0, 1e-5, 9.80665);
     //diag.geostrophy(xbFs["sea_water_potential_temperature"],
     //                xbFs["sea_water_salinity"],
     //                xbFs["sea_water_cell_thickness"],
     //                u_b, v_b);
-    diag.barotropicGeostrophy(xbFs["sea_surface_height_above_geoid"], u_b, v_b);
+    //diag.barotropicGeostrophy(xbFs["sea_surface_height_above_geoid"], u_b, v_b);
   }
 
 /**

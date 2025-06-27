@@ -215,7 +215,7 @@ class MarineRecenter(Task):
         pass
 
         exec_cmd_recen = Executable(self.task_config.APRUN_OCNANALECEN)
-        exec_name_recen = os.path.join(self.task_config.EXECgfs, 'gdas_ens_handler.x')
+        exec_name_recen = os.path.join(self.task_config.EXECgfs, 'gdas_soca_ens_handler.x')
         exec_cmd_recen.add_default_arg(exec_name_recen)
         exec_cmd_recen.add_default_arg(os.path.basename(self.task_config.recen_yaml_file))
 

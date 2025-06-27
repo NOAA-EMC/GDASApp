@@ -19,8 +19,11 @@ class RunDiagnostics : public oops::Application {
   int execute(const eckit::Configuration & config) const override {
     oops::Log::info() << "Running diagnostics..." << std::endl;
     const eckit::LocalConfiguration geomConfig(config, "geometry");
+    soca::Geometry geom(geomConfig, this->getComm());
 
-    // Add your diagnostics logic here
+    const eckit::LocalConfiguration bkgConfig(config, "background");
+    soca::State xb(geom, bkgConfig);
+
     return 0;  // Return success
   }
 

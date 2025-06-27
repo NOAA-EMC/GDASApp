@@ -1,0 +1,53 @@
+# SocaToFv3 Application
+
+## Overview
+
+`SocaToFv3` is a component of the `gdasapp::coupled` suite, designed to _eventually_ interpolate between the **SOCA** (ocean/sea-ice) and **FV3-JEDI** (atmosphere) model interfaces to **JEDI**.
+
+## Features
+
+- Uses the `oops::Application` framework for consistent initialization and logging.
+- Supports configuration-driven setup for both SOCA and FV3 systems.
+
+## Input Configuration
+
+The application expects a YAML configuration file with the following sections:
+
+```yaml
+date: &date '2020-12-15T00:00:00Z'
+fv3:
+  geometry:
+    fms initialization:
+      namelist filename: fv3jedi/fmsmpp.nml
+      field table filename: fv3jedi/field_table_ufs
+    npx: 13
+    npy: 13
+    npz: 1
+
+  state:
+    datetime: *date
+    filetype: fms restart
+    datapath: ./
+    filename_sfcd: sfc_data.nc
+    skip coupler file: true
+    state variables:
+    - sea_surface_temperature
+    field io names:
+      sea_surface_temperature: tsea
+
+soca:
+  geometry:
+    geom_grid_file: soca/soca_gridspec.nc
+    mom6_input_nml: mom6_input.nml
+    fields metadata: soca/fields_metadata.yaml
+
+  variables:
+    - sea_water_potential_temperature
+
+  state:
+    date: *date
+    basename: ./
+    ocn_filename: 'ocn.nc'
+    ice_filename: 'ice.nc'
+    read_from_file: 1
+```
