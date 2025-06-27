@@ -1,14 +1,17 @@
-#include "Diagnostics.h"
+#include "eckit/config/Configuration.h"
+#include "eckit/config/LocalConfiguration.h"
+#include "eckit/mpi/Comm.h"
+
 #include "oops/runs/Application.h"
 #include "oops/runs/Run.h"
 #include "oops/util/Logger.h"
-#include "eckit/mpi/Comm.h"
-#include "eckit/config/Configuration.h"
-#include "eckit/config/LocalConfiguration.h"
+
 #include "soca/Geometry/Geometry.h"
 #include "soca/Increment/Increment.h"
 #include "soca/State/State.h"
+
 #include "../diagb/gdas_soca_diagb_utils.h"
+#include "Diagnostics.h"
 
 class RunDiagnostics : public oops::Application {
  public:
@@ -18,7 +21,6 @@ class RunDiagnostics : public oops::Application {
   static const std::string classname() { return "RunDiagnostics"; }
 
   int execute(const eckit::Configuration & config) const override {
-
     /// Setup the Geometry
     oops::Log::info() << "Running diagnostics..." << std::endl;
     const eckit::LocalConfiguration geomConfig(config, "geometry");
@@ -42,10 +44,12 @@ class RunDiagnostics : public oops::Application {
     xb_barotropic.toFieldSet(xbaroFs);
 
     /// Create short cuts to mesh and function space
-    const gdasapp::diagb::utils::MeshBundle meshConn = gdasapp::diagb::utils::buildMeshConnectivity(geom);
+    const gdasapp::diagb::utils::MeshBundle meshConn =
+                       gdasapp::diagb::utils::buildMeshConnectivity(geom);
 
     /// Compute diagnostics
-    gdasapp::diagnostics::Diagnostics diag(meshConn.nodeColumns, meshConn.mesh, 1025.0, 1e-5, 9.80665);
+    gdasapp::diagnostics::Diagnostics diag(meshConn.nodeColumns,
+                                           meshConn.mesh, 1025.0, 1e-5, 9.80665);
 
     diag.barotropicGeostrophy(xbFs.field("sea_surface_height_above_geoid"),
                               xbaroFs.field("barotropic_eastward_sea_water_velocity"),
@@ -59,8 +63,8 @@ class RunDiagnostics : public oops::Application {
     return 0;  // Return success
   }
 
-   private:
-      std::string appname() const {
+ private:
+    std::string appname() const {
       return "gdasapp::RunDiagnostics";
     }
 };

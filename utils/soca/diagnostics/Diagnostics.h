@@ -1,27 +1,26 @@
 // GeostrophicDiagnostics.h and .cc
 #pragma once
 
-#include <vector>
 #include <cmath>
+#include <vector>
 
-#include "atlas/field.h"
-#include "atlas/functionspace/NodeColumns.h"
 #include "atlas/array.h"
-//#include "atlas/mesh/Geometry.h"
+#include "atlas/field.h"
+#include "atlas/field/Field.h"
+#include "atlas/field/FieldSet.h"
+#include "atlas/functionspace/NodeColumns.h"
 #include "atlas/mesh.h"
 #include "atlas/mesh/actions/BuildHalo.h"
-#include "atlas/field/FieldSet.h"
-#include "atlas/field/Field.h"
-#include "atlas/util/Config.h"
 #include "atlas/numerics/fvm/Method.h"
 #include "atlas/numerics/fvm/Nabla.h"
+#include "atlas/util/Config.h"
 
 #include "oops/util/Logger.h"
 
 #include "soca/Geometry/Geometry.h"
 
-#include "../gdas_soca_utils.h"
 #include "../diagb/gdas_soca_diagb_utils.h"
+#include "../gdas_soca_utils.h"
 
 namespace gdasapp {
 namespace diagnostics {

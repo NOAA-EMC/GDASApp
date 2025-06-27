@@ -7,7 +7,6 @@ Diagnostics::Diagnostics(const atlas::functionspace::NodeColumns & fs,
                          const atlas::Mesh & mesh,
                          double rho0, double fmin, double g)
   : rho0_(rho0), fmin_(fmin), g_(g), fs_(fs), mesh_(mesh) {
-
   const auto lonlat = atlas::array::make_view<const double, 2>(fs_.lonlat());
   const int npts = fs_.size();
   coriolis_ = fs_.createField<double>(atlas::option::name("coriolis") | atlas::option::levels(1));
@@ -26,22 +25,21 @@ void Diagnostics::geostrophy(const atlas::Field & temperature,
                              atlas::Field & v_out) const {
   auto temp = atlas::array::make_view<const double, 2>(temperature);
   auto salt = atlas::array::make_view<const double, 2>(salinity);
-  //auto cori = atlas::array::make_view<const double, 2>(coriolis);
   auto thick = atlas::array::make_view<const double, 2>(dz);
   auto u = atlas::array::make_view<double, 2>(u_out);
   auto v = atlas::array::make_view<double, 2>(v_out);
-  //auto mask = atlas::array::make_view<int, 1>(fs_.field("mask"));
 
   const int nlev = temperature.shape(1);
   const int npts = temperature.shape(0);
 
-  atlas::Field pressure_field = fs_.createField<double>(atlas::option::levels(nlev) | atlas::option::name("pressure"));
+  atlas::Field pressure_field =
+       fs_.createField<double>(atlas::option::levels(nlev) | atlas::option::name("pressure"));
   auto pressure = atlas::array::make_view<double, 2>(pressure_field);
   auto ghostView = atlas::array::make_view<int, 1>(fs_.ghost());
 
   // Hydrostatic integration (bottom to top)
   // WARNING: This assumes z-coordinates ... which we never used
-  // TODO: Interpolate to z-coordinates
+  // TODO(G): Interpolate to z-coordinates
   for (int j = nlev - 2; j >= 0; --j) {
     for (int i = 0; i < npts; ++i) {
       if (ghostView(i) > 0) continue;
@@ -67,11 +65,9 @@ void Diagnostics::geostrophy(const atlas::Field & temperature,
                                                 atlas::option::variables(2) |
                                                 atlas::option::name("grad_p"));
   nabla.gradient(pressure_field, grad_p);
-  //this->horizontalGradient(pressure_field, dz, grad_p);
 
   auto grad = atlas::array::make_view<const double, 3>(grad_p);
   auto coriolis = atlas::array::make_view<double, 2>(coriolis_);
-  //auto ghostView = atlas::array::make_view<int, 1>(fs_.ghost());
 
   for (int i = 0; i < npts; ++i) {
     if (ghostView(i) == 0) {
@@ -86,10 +82,6 @@ void Diagnostics::geostrophy(const atlas::Field & temperature,
         }
         u(i, j) = -dpdy / (rho0_ * f);
         v(i, j) = dpdx / (rho0_ * f);
-        //std::cout << "Node: " << i << ", Level: " << j
-        //          << ", u: " << u(i, j) << ", v: " << v(i, j)
-        //          << ", dpdx: " << dpdx << ", dpdy: " << dpdy
-        //          << ", f: " << f << std::endl;
       }
     } else {
       for (int j = 0; j < nlev; ++j) {
