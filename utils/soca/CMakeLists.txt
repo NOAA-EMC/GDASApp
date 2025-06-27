@@ -27,5 +27,8 @@ target_link_libraries( gdas_soca_obsstats.x PUBLIC NetCDF::NetCDF_CXX oops ioda)
 # Diag B
 add_subdirectory( diagb )
 
+# Coupled stuff
+add_subdirectory( coupled )
+
 # Testing
 add_subdirectory( test )
