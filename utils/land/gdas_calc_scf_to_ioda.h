@@ -51,7 +51,8 @@ namespace gdasapp {
 
     void writeToIoda(const std::string & outputpath, 
                      const util::DateTime & cycleDate,
-                     const fv3jedi::Geometry & geom);
+                     const fv3jedi::Geometry & geom,
+                     const IMSscf & imsscf);
     void readIMS();
     void readMapping();
     void calc_fcst_snow_density(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom);

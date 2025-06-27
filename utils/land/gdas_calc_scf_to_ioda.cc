@@ -93,7 +93,7 @@ void gdasapp::CalcSCFtoIODA::run() {
   imsscf.updateIMSsd(bkgState, geom);
 
   // Write the results in IODA format
-  writeToIoda(outputpath, cycleDate, geom);
+  writeToIoda(outputpath, cycleDate, geom, imsscf);
 }
 
 void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom) {
@@ -180,35 +180,104 @@ gdasapp::CalcSCFtoIODA::IMSscf::IMSscf(const std::string &imspath, const std::st
 
 void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath, 
                                          const util::DateTime & cycleDate,
-                                         const fv3jedi::Geometry & geom) {
+                                         const fv3jedi::Geometry & geom,
+                                         const IMSscf & imsscf) {
   // Implementation of writing the calculated observations to IODA format
   // This would involve creating an IODA file, populating it with the calculated
   // observations, and saving it to disk.
   oops::Log::info() << "Writing observations to IODA format..." << std::endl;
-  // First, let us gather with MPI the fields we need all on rank 0
-  int nobs = 6 * (geom.npx() - 1) * (geom.npy() - 1);
   // get the fieldset from the geometry
   atlas::FunctionSpace fs = geom.functionSpace();
   atlas::FieldSet geom_fs = geom.fields();
   // get lat, long, height from the geometry
   // note that these are assumed to be only the data on each MPI task, not the full grid
-  auto lonlat = atlas::array::make_view<double, 2>(fs.lonlat());
-  auto orog = atlas::array::make_view<double, 2>(geom_fs["filtered_orography"]);
-  // print the atlas array
-  // for (atlas::idx_t jnode = 0; jnode < lonlat.shape(0); ++jnode) {
-  //   oops::Log::info() << "Node " << jnode << ": "
-  //                     << "lat = " << lonlat(jnode, 1) << ", "
-  //                     << "lon = " << lonlat(jnode, 0) << ", "
-  //                     << "orog = " << orog(jnode, 0) << std::endl;
-  // }
+  // so we need to get global fields using atlas
+  atlas::FieldSet local_fields;
+  atlas::FieldSet global_fields;
+  atlas::Field lonLocal = fs.createField<double>(atlas::option::name("longitude"));
+  local_fields.add(lonLocal);
+  atlas::Field latLocal = fs.createField<double>(atlas::option::name("latitude"));
+  local_fields.add(latLocal);
+  local_fields.add(geom_fs["filtered_orography"]);
+  const auto lonLatView = atlas::array::make_view<double, 2>(fs.lonlat());
+  auto lonViewLocal = atlas::array::make_view<double, 1>(local_fields.field("longitude"));
+  auto latViewLocal = atlas::array::make_view<double, 1>(local_fields.field("latitude"));
+  const auto orogViewLocal = atlas::array::make_view<double, 2>(geom_fs["filtered_orography"]);
+  for (atlas::idx_t jnode = 0; jnode < fs.lonlat().shape(0); ++jnode) {
+    lonViewLocal(jnode) = lonLatView(jnode, 0);
+    latViewLocal(jnode) = lonLatView(jnode, 1);
+  }
+  atlas::Field lonGlobal = fs.createField<double>(atlas::option::name("longitude") | atlas::option::global());
+  global_fields.add(lonGlobal);
+  atlas::Field latGlobal = fs.createField<double>(atlas::option::name("latitude") | atlas::option::global());
+  global_fields.add(latGlobal);
+  atlas::Field orogGlobal = fs.createField<double>(atlas::option::name("filtered_orography") | 
+      atlas::option::levels(geom_fs["filtered_orography"].shape(1)) | atlas::option::global());
+  global_fields.add(orogGlobal);
+  // gather the local fields to global fields
+  atlas::functionspace::StructuredColumns fs_new(fs);
+  fs_new.gather(local_fields, global_fields);
+
+  auto lon = atlas::array::make_view<double, 1>(global_fields["longitude"]);
+  auto lat = atlas::array::make_view<double, 1>(global_fields["latitude"]);
+  auto orog = atlas::array::make_view<double, 2>(global_fields["filtered_orography"]);
+  // the IMS data are not in atlas, so we need to do other things to gather with MPI
+  int ngrid = (geom.npx()-1) * (geom.npy()-1);
+  std::vector<float> snd_mytile(ngrid);
+  std::vector<float> scf_mytile(ngrid);
+  // loop over the IMS data and gather
+  for (size_t i=0; i < geom.npx()-1; ++i) {
+    for (size_t j=0; j < geom.npy()-1; ++j) {
+      size_t idx = (j * (geom.npx()-1)) + i;
+      snd_mytile[idx] = imsscf.sndIMS[oops::mpi::world().rank()][j][i];
+      scf_mytile[idx] = imsscf.scfIMS[oops::mpi::world().rank()][j][i];
+    }
+  }
+  // gather the IMS data to all ranks
+  oops::Log::info() << "Gathering IMS data across all MPI ranks..." << std::endl;
+  std::vector<float> snd_global(ngrid * 6, 9999.0f);
+  std::vector<float> scf_global(ngrid * 6, 9999.0f);
+  std::vector<int> counts(6, ngrid);
+  std::vector<int> gdispls(6, 0);
+  for (int i = 1; i < 6; ++i) {
+    gdispls[i] = gdispls[i-1] + counts[i-1];
+  }
+  oops::mpi::world().gatherv(snd_mytile, snd_global, counts, gdispls, 0);
+  oops::mpi::world().gatherv(scf_mytile, scf_global, counts, gdispls, 0);
   // Create empty group backed by HDF file
   if (oops::mpi::world().rank() == 0) {
+    // Create the observations, Latitude, Longitude, and Elevation vectors
+    std::vector<float> lat_var, lon_var, orog_var, scf_var, snd_var;
+    std::vector<std::string> station_ids;
+    int nobs = 0;
+    for (size_t k=0; k < 6; ++k) {
+      for (size_t i=0; i < geom.npx()-1; ++i) {
+        for (size_t j=0; j < geom.npy()-1; ++j) {
+          atlas::idx_t jnode = ((geom.npx()-1)*(geom.npy()-1)*(k) + (j)*(geom.npx()-1) + (i));
+          if (abs(scf_global[jnode] - -999.0f) > 0.01f) {
+            // oops::Log::info() << "jnode,i,j,k,scf_global:" << jnode << ", " << i << ", " << j << ", " << k 
+            //   << ", " << scf_global[jnode] << std::endl;
+            snd_var.push_back(snd_global[jnode]);
+            scf_var.push_back(scf_global[jnode]);
+            lat_var.push_back(lat(jnode));
+            lon_var.push_back(lon(jnode));
+            orog_var.push_back(orog(jnode, 0));
+            // Create a station ID based on the tile number, latitude, and longitude
+            int station_id_int = ((k+1) * 100000000) +  ((i+1) * 10000) + (j+1);
+            std::string station_id = std::to_string(station_id_int);
+            station_ids.push_back(station_id);
+            nobs += 1;
+          }
+        }
+      }
+    }
     oops::Log::info() << "Creating IODA file at: " << outputpath << std::endl;
     ioda::Group group = ioda::Engines::HH::createFile(outputpath,
         ioda::Engines::BackendCreateModes::Truncate_If_Exists);
     // Add in the location dimension
     ioda::NewDimensionScales_t newDims {ioda::NewDimensionScale<int>("Location", nobs)};
     ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
+    oops::Log::info() << "Output IODA file has " << nobs << " observations." << std::endl;
     // Create variable parameters
     ioda::VariableCreationParameters long_params;
     long_params.chunk = true;
@@ -242,6 +311,10 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
       ogrp.vars.createWithScales<float>("MetaData/stationElevation",
                                         {ogrp.vars["Location"]}, float_params);
     iodaHeight.atts.add<std::string>("units", {"meters"}, {1});
+    // Add stationIdentification
+    ioda::Variable iodaStation = 
+      ogrp.vars.createWithScales<std::string>("MetaData/stationIdentification",
+                                              {ogrp.vars["Location"]});
     // Add variables for snowCoverFraction and totalSnowDepth
     ioda::Variable iodaSCF =
       ogrp.vars.createWithScales<float>("ObsValue/snowCoverFraction",
@@ -280,11 +353,15 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     std::vector<int> qc_sd(nobs, 0); // Assuming 0 is good quality
     iodaSCFPreQC.write(qc_scf);
     iodaSDPreQC.write(qc_sd);
-    // Write out Latitude, Longitude, and Elevation
-    std::vector<float> lat_var(nobs, nodata_float);
-    std::vector<float> lon_var(nobs, nodata_float);
-    std::vector<float> orog_var(nobs, nodata_float);
+    // Write out the values
+    iodaLatitude.write(lat_var);
+    iodaLongitude.write(lon_var);
+    iodaHeight.write(orog_var);
+    iodaSCF.write(scf_var);
+    iodaSD.write(snd_var);
+    iodaStation.write(station_ids);
   }
+  oops::mpi::world().barrier(); // Ensure all ranks finish before proceeding
   oops::Log::info() << "Observations written successfully." << std::endl;
   oops::Log::info() << "=========================================================" << std::endl;
 }
@@ -338,12 +415,27 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
     this->IMS_flag.resize(j_ims, std::vector<int>(i_ims));
     this->IMS_index.resize(j_ims, std::vector<std::vector<int>>(i_ims, std::vector<int>(3)));
     // Read the IMS data into a 2D vector
-    for (int irow = 0; irow < j_ims; ++irow) {
-      for (int icol = 0; icol < i_ims; ++icol) {
-          char c;
-          infile.get(c);
-          this->IMS_flag[irow][icol] = c - '0';
+    int row = 0, col = 0;
+    do {
+      for (char c : dummyLine) {
+        if (row >= j_ims) break; // Safety check
+        if (col >= i_ims) {
+          ++row;
+          col = 0;
+        }
+        if (row >= j_ims) break; // Safety check
+        if (c >= '0' && c <= '9') {
+            this->IMS_flag[row][col++] = int(c - '0'); // Convert char to int
+        }
       }
+      if (col == i_ims) {
+          ++row;
+          col = 0;
+      }
+    } while (row < j_ims && std::getline(asciifile, dummyLine));
+
+    if (row != j_ims) {
+        std::cerr << "Warning: Expected " << j_ims << " rows, got " << row << std::endl;
     }
     asciifile.close();
   }
@@ -364,8 +456,11 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
       } else {
         this->IMS_flag[i][j] = nodata_int; // fallback for unexpected values
       }
+      // oops::Log::info() << "IMS_flag[" << i << "][" << j << "] = " 
+      //            << this->IMS_flag[i][j] << std::endl;
     }
   }
+  oops::mpi::world().barrier(); // Ensure all ranks finish before proceeding
 }
 
 void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
@@ -460,6 +555,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
       }
     }
   }
+  oops::mpi::world().barrier(); // Ensure all ranks finish before proceeding
   // Now let us calculate things
   std::vector<std::vector<std::vector<float>>> land_points(ntile,
     std::vector<std::vector<float>>(npy, std::vector<float>(npx, 0.0f)));
@@ -468,14 +564,15 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   for (size_t i = 0; i < i_ims; ++i) {
     for (size_t j = 0; j < j_ims; ++j) {
       if (this->IMS_flag[i][j] >= 0) {
-        int _tile = this->IMS_index[i][j][0];
-        int _tile_i = this->IMS_index[i][j][1];
-        int _tile_j = this->IMS_index[i][j][2];
+        int _tile = this->IMS_index[i][j][0]-1;
+        int _tile_i = this->IMS_index[i][j][1]-1;
+        int _tile_j = this->IMS_index[i][j][2]-1;
         land_points[_tile][_tile_j][_tile_i] += 1.0f;
         snow_points[_tile][_tile_j][_tile_i] += IMS_flag[i][j];
       }
     }
   }
+  oops::mpi::world().barrier(); // Ensure all ranks finish before proceeding
   // compute scfIMS based on where land_points are greater than 0
   for (size_t k = 0; k < ntile; ++k) {
     for (size_t j = 0; j < npy; ++j) {
@@ -493,6 +590,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   this->IMS_index.shrink_to_fit();
   this->IMS_flag.clear();
   this->IMS_flag.shrink_to_fit();
+  oops::mpi::world().barrier(); // Ensure all ranks finish before proceeding
 }
 
 // Calculate IMS snow depth
@@ -507,34 +605,36 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state, const fv3j
   auto bkg_snow_den = atlas::array::make_view<double, 2>(xBfs["snowDensity"]);
   const auto bkg_idx = atlas::array::make_view<atlas::gidx_t, 1>(geom.functionSpace().global_index());
   std::vector<int> indices = geom.get_indices();
-  int tilenum = geom.tileNum();
+  int tilenum = geom.tileNum()-1;
   int npx = geom.npx()-1;
   int npy = geom.npy()-1;
-
   for (size_t fv3_i=indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
-      atlas::idx_t jnode = ((npx)*(npy)*(tilenum) + (fv3_j)*(npx) + (fv3_i + 1)) - 1; // jnode is 0-based index
-      if (abs(scfIMS[tilenum][fv3_j][fv3_i] - nodata_float) < nodata_tol) {
+      atlas::idx_t jnode = ((npx)*(npy)*(0) + (fv3_j)*(npx) + (fv3_i + 1)) - 1; // force tile to be 0 because of local arrays
+      // oops::Log::info() << "jnode,i,j,tilenum: " << jnode << ", " << fv3_i << ", " << fv3_j << ", " << tilenum 
+      //                        << ", scfIMS: "  << this->scfIMS[tilenum][fv3_j][fv3_i] << std::endl;
+      if (abs(this->scfIMS[tilenum][fv3_j][fv3_i] - nodata_float) > nodata_tol) {
         // if we have IMS data at this point
         if (bkg_vtype(jnode, 0) > 0) {
           // if the model has land at this point
-          if (scfIMS[tilenum][fv3_j][fv3_i] < 0.5f) {
+          if (this->scfIMS[tilenum][fv3_j][fv3_i] < 0.5f) {
             // if the IMS SCF is less than 0.5, set snow depth to 0
-            sndIMS[tilenum][fv3_j][fv3_i] = 0.0f;
+            this->sndIMS[tilenum][fv3_j][fv3_i] = 0.0f;
           } else {
             // if the IMS SCF is greater than or equal to 0.5, calculate snow depth
             float bdsno = std::max(50.0f, std::min(650.0f, float(bkg_snow_den(jnode, 0)) * 1000.0f));
             float fmelt = std::pow(bdsno/100.0f, mfsno_table[int(bkg_vtype(jnode,0))]);
-            sndIMS[tilenum][fv3_j][fv3_i] = 
+            this->sndIMS[tilenum][fv3_j][fv3_i] = 
                 (scffac_table[int(bkg_vtype(jnode,0))] * fmelt) * atanh(trunc_scf) * 1000.0f; // x1000 into mm
           }
         } else {
           // if the model has no land at this point, set scf to nodata
-          scfIMS[tilenum][fv3_j][fv3_i] = nodata_float;
+          this->scfIMS[tilenum][fv3_j][fv3_i] = nodata_float;
         }
       }
     }
   }
+  oops::mpi::world().barrier(); // Ensure all ranks finish before proceeding
 }
 
 // Update IMS snow depth
@@ -549,23 +649,24 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state, const fv
   auto bkg_snd = atlas::array::make_view<double, 2>(xBfs["totalSnowDepth"]);
   const auto bkg_idx = atlas::array::make_view<atlas::gidx_t, 1>(geom.functionSpace().global_index());
   std::vector<int> indices = geom.get_indices();
-  int tilenum = geom.tileNum();
+  int tilenum = geom.tileNum()-1;
   int npx = geom.npx()-1;
   int npy = geom.npy()-1;
 
   for (size_t fv3_i=indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
-      atlas::idx_t jnode = ((npx)*(npy)*(tilenum) + (fv3_j)*(npx) + (fv3_i + 1)) - 1; // jnode is 0-based index
-      if ((scfIMS[tilenum][fv3_j][fv3_i] >= 0.5) && 
-         ((bkg_scf(jnode, 0) > trunc_scf) || (bkg_snd(jnode, 0) > sndIMS[tilenum][fv3_j][fv3_i]))) {
+      atlas::idx_t jnode = ((npx)*(npy)*(0) + (fv3_j)*(npx) + (fv3_i + 1)) - 1; // force tile num to 0 for local array size
+      if ((this->scfIMS[tilenum][fv3_j][fv3_i] >= 0.5) && 
+         ((bkg_scf(jnode, 0) > trunc_scf) || (bkg_snd(jnode, 0) > this->sndIMS[tilenum][fv3_j][fv3_i]))) {
          // if obs and model both indicate full snow, set the IMS snow depth to a fixed value to QC in JEDI
-        sndIMS[tilenum][fv3_j][fv3_i] = -10.0f; // 
+        this->sndIMS[tilenum][fv3_j][fv3_i] = -10.0f; // 
       }
-      if (sndIMS[tilenum][fv3_j][fv3_i] > sndIMS_max) {
-        sndIMS[tilenum][fv3_j][fv3_i] = nodata_float; // if the IMS snow depth is greater than the maximum, set to nodata
+      if (this->sndIMS[tilenum][fv3_j][fv3_i] > sndIMS_max) {
+        this->sndIMS[tilenum][fv3_j][fv3_i] = nodata_float; // if the IMS snow depth is greater than the maximum, set to nodata
       }
     }
   }
+  oops::mpi::world().barrier(); // Ensure all ranks finish before proceeding
 }
 
 // Helper function for error handling
