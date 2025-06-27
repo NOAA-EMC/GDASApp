@@ -139,13 +139,8 @@ void Diagnostics::barotropicGeostrophy(const atlas::Field & ssh,
         dpdx = 0.0;
         dpdy = 0.0;
       }
-      u(i, 0) = -dpdy / (rho0_ * f);
-      v(i, 0) = dpdx / (rho0_ * f);
-      //std::cout << "Node: " << i << ", Level: " << j
-      //          << ", u: " << u(i, j) << ", v: " << v(i, j)
-      //          << ", dpdx: " << dpdx << ", dpdy: " << dpdy
-      //          << ", f: " << f << std::endl;
-
+      u(i, 0) = - g_ * dpdy / f;
+      v(i, 0) =  g_ * dpdx / f;
     } else {
       u(i, 0) = 0.0;
       v(i, 0) = 0.0;

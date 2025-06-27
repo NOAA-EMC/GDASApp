@@ -1,0 +1,21 @@
+geometry:
+  geom_grid_file: soca_gridspec.nc
+  mom6_input_nml: mom6_input.nml
+  fields metadata: fields_metadata.yaml
+
+date: &date '2021-07-03T00:00:00Z'
+
+background:
+  read_from_file: 1
+  basename: ./
+  ocn_filename: ocn.nc
+  #ice_filename: cice.res.nc
+  date: *date
+  state variables:
+  - sea_surface_height_above_geoid
+
+output:
+  datadir: ./
+  date: *date
+  exp: barotropic
+  type: incr
