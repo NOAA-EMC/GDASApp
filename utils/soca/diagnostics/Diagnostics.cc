@@ -1,4 +1,3 @@
-// NOLINT
 #include "Diagnostics.h"
 
 namespace gdasapp {
