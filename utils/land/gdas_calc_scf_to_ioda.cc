@@ -1,7 +1,7 @@
-#include <cmath>
 #include <netcdf>
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -36,7 +36,8 @@ void gdasapp::CalcSCFtoIODA::run() {
   const eckit::LocalConfiguration geomConfig(config_, "geometry");
   const fv3jedi::Geometry geom(geomConfig, comm_);
 
-  // Exit with error if rank size is not equal to 6, this simplifies our MPI, we can fix/make more flexible later
+  // Exit with error if rank size is not equal to 6,
+  // this simplifies our MPI, we can fix/make more flexible later
   if (comm_.size() != 6) {
     throw eckit::BadValue("MPI rank size must be 6", Here());
   }
@@ -96,7 +97,8 @@ void gdasapp::CalcSCFtoIODA::run() {
   writeToIoda(outputpath, cycleDate, geom, imsscf);
 }
 
-void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom) {
+void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState,
+                                                    const fv3jedi::Geometry & geom) {
   // Calculate snow density from the background state
   // density = SWE/SND where snow present
   //         = average from snow forecasts over land, where snow is not present
@@ -106,7 +108,8 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState, c
   oops::Variables all_vars = bkgState.variables();
   all_vars += new_vars;
   bkgState.updateFields(all_vars);
-  oops::Log::info() << "Background Before Calc Snow Density: " << std::endl << bkgState << std::endl;
+  oops::Log::info() << "Background Before Calc Snow Density: "
+                    << std::endl << bkgState << std::endl;
   // next, convert the state to an atlas fieldset
   atlas::FieldSet xBfs;
   bkgState.toFieldSet(xBfs);
@@ -122,14 +125,17 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState, c
       bkg_density(jnode,0) = bkg_swe(jnode,0) / bkg_snd(jnode,0);
     } else {
       // snow is not present, use average from snow forecasts over land
-      bkg_density(jnode,0) = std::max(80.0, std::min(120.0, 67.92 + 51.25 * std::exp((bkg_stc(jnode,0)- 273.15) / 2.59))) / 1000.0;
+      double tmp_density = 67.92 + 51.25 * std::exp((bkg_stc(jnode,0)- 273.15) / 2.59)
+      bkg_density(jnode,0) = 
+        std::max(80.0, std::min(120.0, tmp_density)) / 1000.0;
     }
   }
   // put the new density values back in the state
   bkgState.fromFieldSet(xBfs);
 }
 
-void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom) {
+void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgState,
+                                                           const fv3jedi::Geometry & geom) {
   // Calculate fractional snow cover from snow depth and density
   oops::Log::info() << "Calculating forecast snow cover fraction..." << std::endl;
   // let us add a new field to the state
@@ -162,20 +168,34 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgS
   }
   // put the new snow cover fraction values back in the state
   bkgState.fromFieldSet(xBfs);
-  oops::Log::info() << "Background After Calc Snow Cover Fraction: " << std::endl << bkgState << std::endl;
+  oops::Log::info() << "Background After Calc Snow Cover Fraction: "
+                    << std::endl << bkgState << std::endl;
   oops::Log::info() << "=========================================================" << std::endl;
 }
 
 // Constructor for IMSscf is defined only in one place to avoid multiple definition errors.
-gdasapp::CalcSCFtoIODA::IMSscf::IMSscf(const std::string &imspath, const std::string &weightspath, 
+gdasapp::CalcSCFtoIODA::IMSscf::IMSscf(const std::string &imspath, const std::string &weightspath,
                                        const fv3jedi::Geometry & geom)
   : imspath_(imspath), weightspath_(weightspath), geom_(geom) {
-  this->latFV3.resize(6, std::vector<std::vector<float>>(geom_.npy()-1, std::vector<float>(geom_.npx()-1)));
-  this->lonFV3.resize(6, std::vector<std::vector<float>>(geom_.npy()-1, std::vector<float>(geom_.npx()-1)));
-  this->oroFV3.resize(6, std::vector<std::vector<float>>(geom_.npy()-1, std::vector<float>(geom_.npx()-1)));
-  this->scfIMS.resize(6, std::vector<std::vector<float>>(geom_.npy()-1, std::vector<float>(geom_.npx()-1, nodata_float)));
-  this->sndIMS.resize(6, std::vector<std::vector<float>>(geom_.npy()-1, std::vector<float>(geom_.npx()-1, nodata_float)));
-  oops::Log::info() << "IMSscf object created with IMS path: " << imspath_ << " and weights path: " << weightspath_ << std::endl;
+  this->latFV3.resize(6,
+                      std::vector<std::vector<float>>(geom_.npy()-1,
+                      std::vector<float>(geom_.npx()-1)));
+  this->lonFV3.resize(6,
+                      std::vector<std::vector<float>>(geom_.npy()-1,
+                      std::vector<float>(geom_.npx()-1)));
+  this->oroFV3.resize(6,
+                      std::vector<std::vector<float>>(geom_.npy()-1,
+                      std::vector<float>(geom_.npx()-1)));
+  this->scfIMS.resize(6,
+                      std::vector<std::vector<float>>(geom_.npy()-1,
+                      std::vector<float>(geom_.npx()-1,
+                      nodata_float)));
+  this->sndIMS.resize(6,
+                      std::vector<std::vector<float>>(geom_.npy()-1,
+                      std::vector<float>(geom_.npx()-1,
+                      nodata_float)));
+  oops::Log::info() << "IMSscf object created with IMS path: "
+                    << imspath_ << " and weights path: " << weightspath_ << std::endl;
 }
 
 void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath, 
@@ -207,9 +227,11 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     lonViewLocal(jnode) = lonLatView(jnode, 0);
     latViewLocal(jnode) = lonLatView(jnode, 1);
   }
-  atlas::Field lonGlobal = fs.createField<double>(atlas::option::name("longitude") | atlas::option::global());
+  atlas::Field lonGlobal = 
+      fs.createField<double>(atlas::option::name("longitude") | atlas::option::global());
   global_fields.add(lonGlobal);
-  atlas::Field latGlobal = fs.createField<double>(atlas::option::name("latitude") | atlas::option::global());
+  atlas::Field latGlobal = 
+      fs.createField<double>(atlas::option::name("latitude") | atlas::option::global());
   global_fields.add(latGlobal);
   atlas::Field orogGlobal = fs.createField<double>(atlas::option::name("filtered_orography") | 
       atlas::option::levels(geom_fs["filtered_orography"].shape(1)) | atlas::option::global());
@@ -255,8 +277,6 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
         for (size_t j=0; j < geom.npy()-1; ++j) {
           atlas::idx_t jnode = ((geom.npx()-1)*(geom.npy()-1)*(k) + (j)*(geom.npx()-1) + (i));
           if (abs(scf_global[jnode] - -999.0f) > 0.01f) {
-            // oops::Log::info() << "jnode,i,j,k,scf_global:" << jnode << ", " << i << ", " << j << ", " << k 
-            //   << ", " << scf_global[jnode] << std::endl;
             snd_var.push_back(snd_global[jnode]);
             scf_var.push_back(scf_global[jnode]);
             lat_var.push_back(lat(jnode));
@@ -451,7 +471,9 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
         this->IMS_flag[i][j] = 0;
       } else if (this->IMS_flag[i][j] == 4) {
         this->IMS_flag[i][j] = 1;
-      } else if (this->IMS_flag[i][j] == 0 || this->IMS_flag[i][j] == 1 || this->IMS_flag[i][j] == 3) {
+      } else if (this->IMS_flag[i][j] == 0
+                 || this->IMS_flag[i][j] == 1
+                 || this->IMS_flag[i][j] == 3) {
         this->IMS_flag[i][j] = nodata_int;
       } else {
         this->IMS_flag[i][j] = nodata_int; // fallback for unexpected values
@@ -501,7 +523,8 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   }
   // Read tile_i into IMS_index[:,:,1]
   netCDF::NcVar tile_iVar = ncfile.getVar("tile_i");
-  netcdf_err(tile_iVar.isNull() ? -1 : NC_NOERR, "error reading tile_i variable from mapping file");
+  netcdf_err(tile_iVar.isNull() ? -1 : NC_NOERR, 
+             "error reading tile_i variable from mapping file");
   tile_iVar.getVar(tile_buffer.data());
   for (size_t i = 0; i < i_ims; ++i) {
     for (size_t j = 0; j < j_ims; ++j) {
@@ -510,7 +533,8 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   }
   // Read tile_j into IMS_index[:,:,1]
   netCDF::NcVar tile_jVar = ncfile.getVar("tile_j");
-  netcdf_err(tile_jVar.isNull() ? -1 : NC_NOERR, "error reading tile_j variable from mapping file");
+  netcdf_err(tile_jVar.isNull() ? -1 : NC_NOERR,
+             "error reading tile_j variable from mapping file");
   tile_jVar.getVar(tile_buffer.data());
   for (size_t i = 0; i < i_ims; ++i) {
     for (size_t j = 0; j < j_ims; ++j) {
@@ -594,7 +618,8 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
 }
 
 // Calculate IMS snow depth
-void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom) {
+void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
+                                               const fv3jedi::Geometry &geom) {
   // Calculate IMS snow depth (SD) from fractional IMS snow cover (SCF)
   oops::Log::info() << "Calculating IMS snow depth..." << std::endl;
   // convert the state to an atlas fieldset
@@ -603,16 +628,16 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state, const fv3j
   // Get the vegetation type field from the state
   auto bkg_vtype = atlas::array::make_view<double, 2>(xBfs["vtype"]);
   auto bkg_snow_den = atlas::array::make_view<double, 2>(xBfs["snowDensity"]);
-  const auto bkg_idx = atlas::array::make_view<atlas::gidx_t, 1>(geom.functionSpace().global_index());
+  const auto bkg_idx =
+      atlas::array::make_view<atlas::gidx_t, 1>(geom.functionSpace().global_index());
   std::vector<int> indices = geom.get_indices();
   int tilenum = geom.tileNum()-1;
   int npx = geom.npx()-1;
   int npy = geom.npy()-1;
   for (size_t fv3_i=indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
-      atlas::idx_t jnode = ((npx)*(npy)*(0) + (fv3_j)*(npx) + (fv3_i + 1)) - 1; // force tile to be 0 because of local arrays
-      // oops::Log::info() << "jnode,i,j,tilenum: " << jnode << ", " << fv3_i << ", " << fv3_j << ", " << tilenum 
-      //                        << ", scfIMS: "  << this->scfIMS[tilenum][fv3_j][fv3_i] << std::endl;
+      // force tile to be 0 because of local arrays
+      atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
       if (abs(this->scfIMS[tilenum][fv3_j][fv3_i] - nodata_float) > nodata_tol) {
         // if we have IMS data at this point
         if (bkg_vtype(jnode, 0) > 0) {
@@ -622,10 +647,12 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state, const fv3j
             this->sndIMS[tilenum][fv3_j][fv3_i] = 0.0f;
           } else {
             // if the IMS SCF is greater than or equal to 0.5, calculate snow depth
-            float bdsno = std::max(50.0f, std::min(650.0f, float(bkg_snow_den(jnode, 0)) * 1000.0f));
+            float bdsno =
+                std::max(50.0f, std::min(650.0f, float(bkg_snow_den(jnode, 0)) * 1000.0f));
             float fmelt = std::pow(bdsno/100.0f, mfsno_table[int(bkg_vtype(jnode,0))]);
             this->sndIMS[tilenum][fv3_j][fv3_i] = 
-                (scffac_table[int(bkg_vtype(jnode,0))] * fmelt) * atanh(trunc_scf) * 1000.0f; // x1000 into mm
+                (scffac_table[int(bkg_vtype(jnode,0))] * fmelt)
+                * atanh(trunc_scf) * 1000.0f; // x1000 into mm
           }
         } else {
           // if the model has no land at this point, set scf to nodata
@@ -638,7 +665,8 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state, const fv3j
 }
 
 // Update IMS snow depth
-void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom) {
+void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
+                                                 const fv3jedi::Geometry &geom) {
   // Update IMS snow depth (SD) based on other criteria
   oops::Log::info() << "Updating IMS snow depth..." << std::endl;
   // convert the state to an atlas fieldset
@@ -647,7 +675,8 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state, const fv
   // Get the snow cover fraction and depth fields from the state
   auto bkg_scf = atlas::array::make_view<double, 2>(xBfs["surface_snow_area_fraction"]);
   auto bkg_snd = atlas::array::make_view<double, 2>(xBfs["totalSnowDepth"]);
-  const auto bkg_idx = atlas::array::make_view<atlas::gidx_t, 1>(geom.functionSpace().global_index());
+  const auto bkg_idx =
+      atlas::array::make_view<atlas::gidx_t, 1>(geom.functionSpace().global_index());
   std::vector<int> indices = geom.get_indices();
   int tilenum = geom.tileNum()-1;
   int npx = geom.npx()-1;
@@ -655,14 +684,18 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state, const fv
 
   for (size_t fv3_i=indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
-      atlas::idx_t jnode = ((npx)*(npy)*(0) + (fv3_j)*(npx) + (fv3_i + 1)) - 1; // force tile num to 0 for local array size
+      // force tile num to 0 for local array size
+      atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
       if ((this->scfIMS[tilenum][fv3_j][fv3_i] >= 0.5) && 
-         ((bkg_scf(jnode, 0) > trunc_scf) || (bkg_snd(jnode, 0) > this->sndIMS[tilenum][fv3_j][fv3_i]))) {
-         // if obs and model both indicate full snow, set the IMS snow depth to a fixed value to QC in JEDI
+         ((bkg_scf(jnode, 0) > trunc_scf) || 
+         (bkg_snd(jnode, 0) > this->sndIMS[tilenum][fv3_j][fv3_i]))) {
+         // if obs and model both indicate full snow,
+         // set the IMS snow depth to a fixed value to QC in JEDI
         this->sndIMS[tilenum][fv3_j][fv3_i] = -10.0f; // 
       }
       if (this->sndIMS[tilenum][fv3_j][fv3_i] > sndIMS_max) {
-        this->sndIMS[tilenum][fv3_j][fv3_i] = nodata_float; // if the IMS snow depth is greater than the maximum, set to nodata
+        // if the IMS snow depth is greater than the maximum, set to nodata
+        this->sndIMS[tilenum][fv3_j][fv3_i] = nodata_float;
       }
     }
   }

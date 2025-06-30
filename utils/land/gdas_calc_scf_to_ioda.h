@@ -17,7 +17,9 @@ namespace gdasapp {
     // New public class IMSscf
     class IMSscf {
      public:
-      IMSscf(const std::string &imspath, const std::string &weightspath, const fv3jedi::Geometry & geom);
+      IMSscf(const std::string &imspath,
+             const std::string &weightspath,
+             const fv3jedi::Geometry & geom);
       void readIMS();
       void readMapping();
       void calcIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom);
@@ -25,22 +27,22 @@ namespace gdasapp {
       std::vector<std::vector<std::vector<float>>> scfIMS, sndIMS;
 
 
-         private:
-          const fv3jedi::Geometry & geom_;
-          std::string imspath_;
-          std::string weightspath_;
-          std::vector<std::vector<int>> IMS_flag;
-          std::vector<std::vector<std::vector<int>>> IMS_index;
-          std::vector<std::vector<std::vector<float>>> lonFV3, latFV3, oroFV3;
-          static constexpr int nodata_int = -999;
-          static constexpr float nodata_float = -999.0f;
-          static constexpr float nodata_tol = 0.01f;  // Tolerance for nodata checks
-          static constexpr float trunc_scf = 0.95f; // For the Noah-MP snow depletion curve,
-                                                    // SCF asymptotes to 1. as SD increases
-                                                    // use this value when calculating SD
-                                                    // to represent "full" coverage
-          static constexpr float sndIMS_max = 300.0f; // maximum snow depth derived from IMS
-          void netcdf_err(int error,const std::string &msg);
+     private:
+      const fv3jedi::Geometry & geom_;
+      std::string imspath_;
+      std::string weightspath_;
+      std::vector<std::vector<int>> IMS_flag;
+      std::vector<std::vector<std::vector<int>>> IMS_index;
+      std::vector<std::vector<std::vector<float>>> lonFV3, latFV3, oroFV3;
+      static constexpr int nodata_int = -999;
+      static constexpr float nodata_float = -999.0f;
+      static constexpr float nodata_tol = 0.01f;  // Tolerance for nodata checks
+      static constexpr float trunc_scf = 0.95f;  // For the Noah-MP snow depletion curve,
+                                                 // SCF asymptotes to 1. as SD increases
+                                                 // use this value when calculating SD
+                                                 // to represent "full" coverage
+      static constexpr float sndIMS_max = 300.0f;  // maximum snow depth derived from IMS
+      void netcdf_err(int error, const std::string &msg);
 
       // Add members and methods as needed
     };
@@ -67,9 +69,9 @@ namespace gdasapp {
         0.008f, 0.010f, 0.010f, 0.010f, 0.010f, 0.007f, 0.021f,
         0.013f, 0.015f, 0.008f, 0.015f, 0.015f, 0.015f, 0.015f
     };
-    float oberr_scf=0.0f;
-    float oberr_snd=40.0f;
-    public:
+    float oberr_scf = 0.0f;
+    float oberr_snd = 40.0f;
+   public:
     void run();
   };
 }  // namespace gdasapp
