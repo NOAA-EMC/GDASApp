@@ -55,8 +55,9 @@ void Diagnostics::geostrophy(const atlas::Field & temperature,
   fs_.haloExchange(pressure_field);
 
   // Gradient using Atlas
+  // TODO(G): Initialize differential operators in the constructor
   atlas::util::Config config;
-  config.set("method", "fvm");  // Optional, defaults may apply
+  config.set("method", "fvm");
   atlas::Mesh mesh_copy(mesh_);
   atlas::numerics::fvm::Method method(mesh_copy);
   atlas::numerics::fvm::Nabla nabla(method, config);
@@ -107,6 +108,7 @@ void Diagnostics::barotropicGeostrophy(const atlas::Field & ssh,
   fs_.haloExchange(ssh);
 
   // Gradient using Atlas
+  // TODO(G): Initialize differential operators in the constructor
   atlas::util::Config config;
   config.set("method", "fvm");  // Optional, defaults may apply
   atlas::Mesh mesh_copy(mesh_);
