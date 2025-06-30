@@ -51,7 +51,7 @@ namespace gdasapp {
     const eckit::Configuration & config_;
     const eckit::mpi::Comm & comm_;
 
-    void writeToIoda(const std::string & outputpath, 
+    void writeToIoda(const std::string & outputpath,
                      const util::DateTime & cycleDate,
                      const fv3jedi::Geometry & geom,
                      const IMSscf & imsscf);
@@ -71,6 +71,7 @@ namespace gdasapp {
     };
     float oberr_scf = 0.0f;
     float oberr_snd = 40.0f;
+
    public:
     void run();
   };
