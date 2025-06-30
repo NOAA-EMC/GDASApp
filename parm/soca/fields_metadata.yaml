@@ -58,11 +58,19 @@
   io file: ocn
   io name: ave_ssh
 
+- name: barotropic_eastward_sea_water_velocity
+  io file: ocn
+  io name: ubg
+
+- name: barotropic_northward_sea_water_velocity
+  io file: ocn
+  io name: vbg
+
 - name: mom6_mld
   io file: ocn
   io name: MLD
   fill value: 0.0
-  
+
 # --------------------------------------------------------------------------------------------------
 # ice state variables with no categories
 # --------------------------------------------------------------------------------------------------
