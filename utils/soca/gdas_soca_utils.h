@@ -29,7 +29,7 @@ namespace utils {
  *         - second: Computed bathymetry values [nodes × 1]
  */
 
-void computeDepthAndBathymetry(
+inline void computeDepthAndBathymetry(
     const atlas::array::ArrayView<double, 2>& viewHocn,
     atlas::array::ArrayView<double, 2>& viewDepth,
     atlas::array::ArrayView<double, 2>& viewBathy) {
@@ -182,7 +182,7 @@ inline double computeStericHeightIncrement(const std::vector<double>& tempBkg,
  * @param lvcConfig Configuration for the linear variable change.
  * @param xTraj The trajectory state for the linearization.
  */
-void computeStericHeightIncrement(const soca::Geometry& geom,
+inline void computeStericHeightIncrement(const soca::Geometry& geom,
                                   soca::Increment& dx,
                                   const eckit::LocalConfiguration& lvcConfig,
                                   const soca::State& xTraj,
