@@ -1,0 +1,57 @@
+netcdf C12_oro_data.tile4 {
+dimensions:
+	xaxis_1 = 12 ;
+	yaxis_1 = 12 ;
+	zaxis_1 = 1 ;
+	Time = UNLIMITED ; // (1 currently)
+variables:
+	double xaxis_1(xaxis_1) ;
+		xaxis_1:long_name = "xaxis_1" ;
+		xaxis_1:units = "none" ;
+		xaxis_1:cartesian_axis = "X" ;
+	double yaxis_1(yaxis_1) ;
+		yaxis_1:long_name = "yaxis_1" ;
+		yaxis_1:units = "none" ;
+		yaxis_1:cartesian_axis = "Y" ;
+	double zaxis_1(zaxis_1) ;
+		zaxis_1:long_name = "zaxis_1" ;
+		zaxis_1:units = "none" ;
+		zaxis_1:cartesian_axis = "Z" ;
+	double Time(Time) ;
+		Time:long_name = "Time" ;
+		Time:units = "time level" ;
+		Time:cartesian_axis = "T" ;
+	double orog_filt(Time, zaxis_1, yaxis_1, xaxis_1) ;
+		orog_filt:long_name = "filtered_orography" ;
+		orog_filt:units = "m" ;
+		orog_filt:checksum = "776FE646EFE9AF22" ;
+
+// global attributes:
+		:filename = "/gpfsm/dnb31/drholdaw/JediData/ModelRestarts/Gfs/ColdLR/20200101.000000.oro_data.tile4.nc" ;
+data:
+
+ xaxis_1 = 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ;
+
+ yaxis_1 = 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ;
+
+ zaxis_1 = 1 ;
+
+ Time = 1 ;
+
+ orog_filt =
+  0, 0.0416313848620052, 0, 0, 0, 0, 246.694419239922, 0, 41.6687989135496, 
+    391.022726084575, 434.210450511303, 0,
+  0, 0, 0, 0, 0, 0, 304.76507514916, 0, 256.017673778449, 597.572883527062, 
+    164.281416626957, 0,
+  0, 0, 0, 0, 0, 0, 249.558718169188, 2.74958876169742, 88.0150189690104, 
+    176.662662605143, 161.224664587994, 27.227992573292,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 353.456085666772, 861.441943117007, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16.2453921611158, 135.220808367629,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 7.31941963170824, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+}

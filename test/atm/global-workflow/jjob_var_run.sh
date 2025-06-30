@@ -50,7 +50,7 @@ fi
 
 # Execute j-job
 if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:20:00 --export=ALL --wait --output=atmanlvar-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
+    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:30:00 --mem=96Gb --export=ALL --wait --output=atmanlvar-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
 elif [[ $machine = 'URSA' ]]; then
     sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --partition=u1-compute --time=00:20:00 --mem=96Gb --export=ALL --wait --output=atmanlvar-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
 else
