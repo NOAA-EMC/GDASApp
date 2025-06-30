@@ -646,8 +646,10 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
           } else {
             // if the IMS SCF is greater than or equal to 0.5, calculate snow depth
             float bdsno =
-                std::max(50.0f, std::min(650.0f, static_cast<float>(bkg_snow_den(jnode, 0)) * 1000.0f));
-            float fmelt = std::pow(bdsno/100.0f, mfsno_table[static_cast<int>(bkg_vtype(jnode, 0))]);
+                std::max(50.0f, std::min(650.0f,
+                                         static_cast<float>(bkg_snow_den(jnode, 0)) * 1000.0f));
+            float fmelt = std::pow(bdsno/100.0f,
+                                   mfsno_table[static_cast<int>(bkg_vtype(jnode, 0))]);
             this->sndIMS[tilenum][fv3_j][fv3_i] =
                 (scffac_table[static_cast<int>(bkg_vtype(jnode, 0))] * fmelt)
                 * atanh(trunc_scf) * 1000.0f;  // x1000 into mm
