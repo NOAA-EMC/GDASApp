@@ -1,3 +1,20 @@
+        # Set the output directory for libraries
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+# Diagnostic Library
+add_library(gdas_soca_diagnostics SHARED diagnostics/Diagnostics.cc)
+target_include_directories(gdas_soca_diagnostics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/diagnostics)
+target_link_libraries(gdas_soca_diagnostics PUBLIC atlas oops soca)
+set_target_properties(gdas_soca_diagnostics PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+
+# Diagnostics
+ecbuild_add_executable( TARGET gdas_soca_diagnostics.x
+                        SOURCES diagnostics/gdas_soca_diagnostics.cc)
+target_compile_features( gdas_soca_diagnostics.x PUBLIC cxx_std_11)
+target_include_directories(gdas_soca_diagnostics.x PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/diagnostics)
+target_link_libraries( gdas_soca_diagnostics.x PUBLIC NetCDF::NetCDF_CXX oops atlas soca gdas_soca_diagnostics)
+target_link_libraries( gdas_soca_diagnostics.x PRIVATE stdc++fs)
+
 # Increment post processing
 ecbuild_add_executable( TARGET gdas_soca_incr_handler.x
                         SOURCES gdas_soca_incr_handler.cc gdas_postprocincr.h)
