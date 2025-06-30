@@ -152,7 +152,7 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgS
   auto bkg_scf = atlas::array::make_view<double, 2>(xBfs["surface_snow_area_fraction"]);
   // now compute snow cover fraction
   for (atlas::idx_t jnode = 0; jnode < xBfs["totalSnowDepth"].shape(0); ++jnode) {
-    int vetfcs = int(bkg_vtype(jnode, 0));
+    int vetfcs = static_cast<int>(bkg_vtype(jnode, 0));
     if (vetfcs > 0) {
       if (bkg_snd(jnode, 0) > 0.0f) {
         // snow is present, compute snow cover fraction
@@ -302,7 +302,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     ioda::VariableCreationParameters long_params;
     long_params.chunk = true;
     long_params.compressWithGZIP();
-    long_params.setFillValue<int64_t>(util::missingValue<long>());
+    long_params.setFillValue<int64_t>(util::missingValue<int64_t>());
     ioda::VariableCreationParameters int_params;
     int_params.chunk = true;
     int_params.compressWithGZIP();
@@ -484,10 +484,10 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
 }
 
 void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
-  //  Read the mapping weights from the specified path
-  //  This involves reading a file that contains the weights for interpolation
-  //  from the IMS grid to the FV3 grid.
-  //  TODO(CoryMartin-NOAA) - use MPI to only do one tile per task
+  // Read the mapping weights from the specified path
+  // This involves reading a file that contains the weights for interpolation
+  // from the IMS grid to the FV3 grid.
+  // TODO(CoryMartin-NOAA) - use MPI to only do one tile per task
   oops::Log::info() << "Reading mapping weights from: " << weightspath_ << std::endl;
   std::ifstream infile(weightspath_);
   if (!infile.good()) {
@@ -521,7 +521,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   }
   // Read tile_i into IMS_index[:,:,1]
   netCDF::NcVar tile_iVar = ncfile.getVar("tile_i");
-  netcdf_err(tile_iVar.isNull() ? -1 : NC_NOERR, 
+  netcdf_err(tile_iVar.isNull() ? -1 : NC_NOERR,
              "error reading tile_i variable from mapping file");
   tile_iVar.getVar(tile_buffer.data());
   for (size_t i = 0; i < i_ims; ++i) {
@@ -577,7 +577,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
       }
     }
   }
-  oops::mpi::world().barrier(); // Ensure all ranks finish before proceeding
+  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
   // Now let us calculate things
   std::vector<std::vector<std::vector<float>>> land_points(ntile,
     std::vector<std::vector<float>>(npy, std::vector<float>(npx, 0.0f)));
@@ -594,7 +594,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
       }
     }
   }
-  oops::mpi::world().barrier(); // Ensure all ranks finish before proceeding
+  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
   // compute scfIMS based on where land_points are greater than 0
   for (size_t k = 0; k < ntile; ++k) {
     for (size_t j = 0; j < npy; ++j) {
@@ -646,11 +646,11 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
           } else {
             // if the IMS SCF is greater than or equal to 0.5, calculate snow depth
             float bdsno =
-                std::max(50.0f, std::min(650.0f, float(bkg_snow_den(jnode, 0)) * 1000.0f));
-            float fmelt = std::pow(bdsno/100.0f, mfsno_table[int(bkg_vtype(jnode, 0))]);
-            this->sndIMS[tilenum][fv3_j][fv3_i] = 
-                (scffac_table[int(bkg_vtype(jnode, 0))] * fmelt)
-                * atanh(trunc_scf) * 1000.0f; // x1000 into mm
+                std::max(50.0f, std::min(650.0f, static_cast<float>(bkg_snow_den(jnode, 0)) * 1000.0f));
+            float fmelt = std::pow(bdsno/100.0f, mfsno_table[static_cast<int>(bkg_vtype(jnode, 0))]);
+            this->sndIMS[tilenum][fv3_j][fv3_i] =
+                (scffac_table[static_cast<int>(bkg_vtype(jnode, 0))] * fmelt)
+                * atanh(trunc_scf) * 1000.0f;  // x1000 into mm
           }
         } else {
           // if the model has no land at this point, set scf to nodata
@@ -659,7 +659,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
       }
     }
   }
-  oops::mpi::world().barrier(); // Ensure all ranks finish before proceeding
+  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
 }
 
 // Update IMS snow depth
@@ -684,8 +684,8 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
       // force tile num to 0 for local array size
       atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
-      if ((this->scfIMS[tilenum][fv3_j][fv3_i] >= 0.5) && 
-         ((bkg_scf(jnode, 0) > trunc_scf) || 
+      if ((this->scfIMS[tilenum][fv3_j][fv3_i] >= 0.5) &&
+         ((bkg_scf(jnode, 0) > trunc_scf) ||
          (bkg_snd(jnode, 0) > this->sndIMS[tilenum][fv3_j][fv3_i]))) {
          // if obs and model both indicate full snow,
          // set the IMS snow depth to a fixed value to QC in JEDI
