@@ -269,7 +269,13 @@ namespace gdasapp {
             double rescaleFactorOcean, rescaleFactorLand;
             double rescaleFactorHighLat = 1.0;
             double HighLat = 90.0;
-            rescaleVarConfig.get("ocean rescaling factor", rescaleFactorOcean);
+            if rescaleVarConfig.has("ocean rescaling factor") {
+              rescaleVarConfig.get("ocean rescaling factor", rescaleFactorOcean);
+              rescaleVarConfig.get("land rescaling factor", rescaleFactorLand);
+            } else {
+              rescaleVarConfig.get("rescaling factor", rescaleFactorOcean);
+              rescaleFactorLand = rescaleFactorOcean;  // Default to ocean factor if not specified
+            }
             oops::Log::info() << "land rescaling factor for " << var
                               << ": " << rescaleFactorLand << std::endl;
             oops::Log::info() << "ocean rescaling factor for " << var
