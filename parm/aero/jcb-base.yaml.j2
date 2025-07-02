@@ -53,6 +53,7 @@ aero_npz_clim_b: {{ npz_anl | default(127, true) }}
 aero_variational_history_prefix: "{{ GPREFIX }}"
 
 aero_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
+aero_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
 aero_background_path: ./bkg

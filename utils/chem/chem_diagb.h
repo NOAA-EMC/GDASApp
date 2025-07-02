@@ -269,7 +269,7 @@ namespace gdasapp {
             double rescaleFactorOcean, rescaleFactorLand;
             double rescaleFactorHighLat = 1.0;
             double HighLat = 90.0;
-            if rescaleVarConfig.has("ocean rescaling factor") {
+            if (rescaleVarConfig.has("ocean rescaling factor")) {
               rescaleVarConfig.get("ocean rescaling factor", rescaleFactorOcean);
               rescaleVarConfig.get("land rescaling factor", rescaleFactorLand);
             } else {
