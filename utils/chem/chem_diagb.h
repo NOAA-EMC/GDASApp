@@ -298,6 +298,7 @@ namespace gdasapp {
             }
           }
         }
+        util::multiplyFieldSets(bkgErrFs, rescaleFs);
       }
 
       bkgErr.fromFieldSet(bkgErrFs);
