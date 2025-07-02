@@ -233,7 +233,7 @@ namespace gdasapp {
         }
       }
 
-     // Rescale
+     // Rescale from file
       if (fullConfig.has("global rescale")) {
         const eckit::LocalConfiguration GlobalRescaleConfig(fullConfig, "global rescale");
         const eckit::LocalConfiguration GlobalRescaleGeomConfig(GlobalRescaleConfig, "geometry");
@@ -252,7 +252,53 @@ namespace gdasapp {
         util::multiplyFieldSets(bkgErrFs, xrsFs);
       }
 
-
+      // Rescale from YAML
+      if (fullConfig.has("rescaling factors")){
+        const eckit::LocalConfiguration rescaleConfig(fullConfig, "rescaling factors");
+        fv3jedi::Increment rescaling(geom, chemVars, cycleDate);
+        rescaling.ones();
+        atlas::FieldSet rescaleFs;
+        rescaling.toFieldSet(rescaleFs);
+        atlas::FunctionSpace fs = geom.functionSpace();
+        atlas::FieldSet geom_fs = geom.fields();
+        const auto slmskView = atlas::array::make_view<int, 1>(geom_fs["slmsk"]);
+        const auto lonLatView = atlas::array::make_view<double, 2>(fs.lonlat());
+        for (auto & var : chemVars.variables()) {
+          if (rescaleConfig.has(var)) {
+            const eckit::LocalConfiguration rescaleVarConfig(rescaleConfig, var);
+            double rescaleFactorOcean, rescaleFactorLand;
+            double rescaleFactorHighLat = 1.0;
+            double HighLat = 90.0;
+            rescaleVarConfig.get("ocean rescaling factor", rescaleFactorOcean);
+            oops::Log::info() << "land rescaling factor for " << var
+                              << ": " << rescaleFactorLand << std::endl;
+            oops::Log::info() << "ocean rescaling factor for " << var
+                              << ": " << rescaleFactorOcean << std::endl;
+            if (rescaleVarConfig.has("high latitude threshold")) {
+              rescaleVarConfig.get("high latitude threshold", HighLat);
+              rescaleVarConfig.get("high latitude adjustment factor",
+                                   rescaleFactorHighLat);
+              oops::Log::info() << "Will rescale high latitudes above "
+                                << HighLat << " degrees by factor "
+                                << rescaleFactorHighLat << " for " << var << std::endl;
+            }
+            // compute the rescaling factor
+            auto rescaleView = atlas::array::make_view<double, 2>(rescaleFs[var]);
+            for (atlas::idx_t jnode = 0; jnode < fs.lonlat().shape(0); ++jnode) {
+              double finalRescaleFactor = 1.0;
+              if (slmskView(jnode) == 1) {  // land
+                finalRescaleFactor = rescaleFactorLand;
+              } else {// ocean
+                finalRescaleFactor = rescaleFactorOcean;
+              }
+              if (std::abs(lonLatView(jnode, 1)) > HighLat) {
+                finalRescaleFactor *= rescaleFactorHighLat;
+              }
+              rescaleView(jnode, 0) = finalRescaleFactor;
+            }
+          }
+        }
+      }
 
       bkgErr.fromFieldSet(bkgErrFs);
 
