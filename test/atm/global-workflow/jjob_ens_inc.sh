@@ -46,7 +46,7 @@ homegfs: ${HOMEgfs}
 job_name: ${type}
 walltime: "00:30:00"
 nodes: 1
-ntasks_per_node: 1
+ntasks_per_node: 6
 threads_per_task: 1
 memory: 8Gb
 command: ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
