@@ -129,3 +129,17 @@ add_test_with_resources(test_gdasapp_utils_enshandler
                         ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_ens_handler.yaml
                         ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
                         "${MPI_COMMAND} 2" "")
+
+# gdas_soca_to_fv3.x: Interpolation from SOCA to FV3 grid
+add_test_with_resources(test_gdasapp_utils_socatofv3
+                        gdas_soca_to_fv3.x
+                        ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_soca_to_fv3.yaml
+                        ${PROJECT_SOURCE_DIR}/soca/test/generate_coupled_resources.py
+                        "${MPI_COMMAND} 6" "")
+
+# gdas_soca_diagnostics.x: Compute diagnostics
+add_test_with_resources(test_gdasapp_utils_diagnostics
+                        gdas_soca_diagnostics.x
+                        ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_soca_diagnostics.yaml
+                        ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
+                        "${MPI_COMMAND} 2" "")
