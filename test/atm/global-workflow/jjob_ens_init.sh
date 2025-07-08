@@ -104,6 +104,10 @@ done
 cp $EXPDIR/config.base_lobsdiag_forenkf_false $EXPDIR/config.base
 
 # Create yaml with job configuration
+memory="8Gb"
+if [[ ${MACHINE_ID} == "gaeac6" ]]; then
+    memory=0
+fi
 config_yaml="./config_${type}.yaml"
 cat <<EOF > ${config_yaml}
 machine: ${MACHINE_ID}
@@ -113,7 +117,7 @@ walltime: "00:30:00"
 nodes: 1
 ntasks_per_node: 1
 threads_per_task: 1
-memory: 8Gb
+memory: ${memory}
 command: ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 filename: submit_${type}.sh
 EOF

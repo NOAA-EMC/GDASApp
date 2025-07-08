@@ -43,6 +43,10 @@ export PYTHONPATH
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 
 # Create yaml with job configuration
+memory="96Gb"
+if [[ ${MACHINE_ID} == "gaeac6" ]]; then
+    memory=0
+fi
 config_yaml="./config_${type}.yaml"
 cat <<EOF > ${config_yaml}
 machine: ${MACHINE_ID}
@@ -52,7 +56,7 @@ walltime: "00:30:00"
 nodes: 1
 ntasks_per_node: 6
 threads_per_task: 1
-memory: 96Gb
+memory: ${memory}
 command: ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
 filename: submit_${type}.sh
 EOF

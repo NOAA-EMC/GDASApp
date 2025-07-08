@@ -113,6 +113,10 @@ for imem in $(seq 1 $NMEM_ENS); do
 done
 
 # Create yaml with job configuration
+memory="8Gb"
+if [[ ${MACHINE_ID} == "gaeac6" ]]; then
+    memory=0
+fi
 config_yaml="./config_${type}.yaml"
 cat <<EOF > ${config_yaml}
 machine: ${MACHINE_ID}
@@ -122,7 +126,7 @@ walltime: "00:30:00"
 nodes: 1
 ntasks_per_node: 1
 threads_per_task: 1
-memory: 8Gb
+memory: ${memory}
 command: ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
 filename: submit_${type}.sh
 EOF
