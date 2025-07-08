@@ -38,9 +38,8 @@
   - filter: Domain Check # land only
     where:
     - variable:
-        name: GeoVaLs/slmsk
-      minvalue: 0.5
-      maxvalue: 1.5
+        name: GeoVaLs/fraction_of_land
+      minvalue: 0.0001
   - filter: Domain Check # land only, no sea ice
     where:
     - variable:
