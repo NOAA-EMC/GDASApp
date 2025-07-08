@@ -19,8 +19,10 @@
         skip coupler file: true
         state variables:
         - filtered_orography
+        - fraction_of_land
         field io names:
           filtered_orography: orog_filt
+          fraction_of_land: land_frac
         datapath: {{ snow_orog_files_path }}/
         filename_orog: {{ snow_orog_prefix }}_oro_data.nc
   diagnostics:
