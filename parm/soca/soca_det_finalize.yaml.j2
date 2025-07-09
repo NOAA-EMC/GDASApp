@@ -25,6 +25,8 @@ copy:
 {% endfor %}
 # Postprocessed ice increment
 - ['{{ DATA }}/ice.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ice.incr.postproc.nc']
+# Postprocessed ocn increment
+- ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ocn.incr.postproc.nc']
 # ssh diagnostics
 {% if NMEM_ENS > 2 %}
 {% for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev', 'steric_explained_variance'] %}
