@@ -7,7 +7,7 @@ copy:
 {% endfor %}
 # diag B
 - ['{{ DATAstaticb }}/ocn.bkgerr_stddev.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.bkgerr_ens_stddev.nc']
-- ['{{ DATAstaticb }}/ice.bkgerr_stddev.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ice.bkgerr_ens_stddev.nc']
+- ['{{ DATAstaticb }}/ice.bkgerr_stddev.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}ice.bkgerr_ens_stddev.nc']
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
 - ['{{ DATAstaticb }}/ocn.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.recentering_error.nc']
 - ['{{ DATAstaticb }}/ice.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}ice.recentering_error.nc']
@@ -15,7 +15,7 @@ copy:
 # ensemble perturbation diagnostics
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
 - ['{{ DATA }}/ocn.ens_weights.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.ens_weights.nc']
-- ['{{ DATA }}/ice.ens_weights.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ice.ens_weights.nc']
+- ['{{ DATA }}/ice.ens_weights.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}ice.ens_weights.nc']
 # ssh diagnostics
 {% for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev', 'steric_explained_variance'] %}
 - ['{{ DATA }}/staticb/ocn.{{ string }}.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.{{ string }}.nc']
