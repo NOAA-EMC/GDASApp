@@ -195,11 +195,13 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
       endif()
     elseif("${task_name}" STREQUAL "gdas_prepoceanobs")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_fcst_${HALF_CYCLE}")
-    elseif("${task_name}" STREQUAL "gdas_marinebmat")
+    elseif("${task_name}" STREQUAL "gdas_marinebmatinit")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_fcst_${HALF_CYCLE}")
       if("${pslot}" STREQUAL "C48mx500_hybAOWCDA")
         list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_fcst_${HALF_CYCLE}")
       endif()
+    elseif("${task_name}" STREQUAL "gdas_marinebmat")
+      list(APPEND TEST_DEPENDS "${test_prefix}_gdas_marinebmatinit_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "gdas_marineanlinit")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_fcst_${HALF_CYCLE}")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_prepoceanobs_${FULL_CYCLE}")
@@ -420,6 +422,7 @@ if (WORKFLOW_TESTS)
       "gdas_fcst")
     set(FULL_CYCLE_TASKS
       "gdas_prepoceanobs"
+      "gdas_marinebmatinit"
       "gdas_marinebmat"
       "gdas_marineanlinit"
       "gdas_marineanlvar"
@@ -447,6 +450,7 @@ if (WORKFLOW_TESTS)
       "enkfgdas_fcst")
     set(FULL_CYCLE_TASKS
       "gdas_prepoceanobs"
+      "gdas_marinebmatinit"
       "gdas_marinebmat"
       "gdas_marineanlletkf"
       "gdas_marineanlinit"
@@ -469,6 +473,7 @@ if (WORKFLOW_TESTS)
       "gdas_fcst")
     set(FULL_CYCLE_TASKS
       "gdas_prepoceanobs"
+      "gdas_marinebmatinit"
       "gdas_marinebmat"
       "gdas_marineanlinit"
       "gdas_marineanlvar"
