@@ -182,6 +182,8 @@ namespace gdasapp {
         int niter(0);
         fullConfig.get("simple smoothing.horizontal iterations", niter);
         for (auto & var : chemVars.variables()) {
+          oops::Log::info() << "====================== horizontal smoothing for " << var
+                            << std::endl;
           // Horizontal averaging
           for (int iter = 0; iter < niter; ++iter) {
             // Update the halo points
@@ -253,6 +255,7 @@ namespace gdasapp {
       }
 
       // Rescale from YAML
+      oops::Log::info() << "====================== CRM rescale from YAML" << std::endl;
       if (fullConfig.has("rescaling factors")){
         const eckit::LocalConfiguration rescaleConfig(fullConfig, "rescaling factors");
         fv3jedi::Increment rescaling(geom, chemVars, cycleDate);
@@ -264,6 +267,7 @@ namespace gdasapp {
         const auto slmskView = atlas::array::make_view<int, 1>(geom_fs["slmsk"]);
         const auto lonLatView = atlas::array::make_view<double, 2>(fs.lonlat());
         for (auto & var : chemVars.variables()) {
+          oops::Log::info() << "====================== rescale for " << var << std::endl;
           if (rescaleConfig.has(var)) {
             const eckit::LocalConfiguration rescaleVarConfig(rescaleConfig, var);
             double rescaleFactorOcean, rescaleFactorLand;
