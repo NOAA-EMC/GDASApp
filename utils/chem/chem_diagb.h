@@ -368,6 +368,8 @@ namespace gdasapp {
       }
 
       // Save the background error
+      oops::Log::info() << "Output Standard Deviations:" << std::endl;
+      oops::Log::info() << bkgErr << std::endl;
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
       bkgErr.write(bkgErrorConfig);
 
