@@ -2,7 +2,7 @@
 {% if DOIAU %}
 {% set cice_rst_date = MARINE_WINDOW_BEGIN | to_fv3time %}
 {% else %}
-{% set cice_rst_date = CDATE | to_fv3time %}
+{% set cice_rst_date = PDY + "." + cyc + "0000" %}
 {% endif %}
 
 mkdir:

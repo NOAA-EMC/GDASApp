@@ -130,16 +130,15 @@ ObsDir=$Datapath/obs/
 BCDir=$Datapath/bc/
 
 # other variables that should not change often
-export CDATE=$cycle
+export PDY=${cycle:0:8}
+export cyc=${cycle:8:2}
 export assim_freq=6
 export half_assim_freq=$(($assim_freq / 2))
-export GDATE=$(date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - ${assim_freq} hours")
-export BDATE=$(date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - ${half_assim_freq} hours")
-export PDY=${CDATE:0:8}
-export cyc=${CDATE:8:2}
-export YYYY=${CDATE:0:4}
-export MM=${CDATE:4:2}
-export DD=${CDATE:6:2}
+export GDATE=$(date +%Y%m%d%H -d "${PDY} ${cyc} - ${assim_freq} hours")
+export BDATE=$(date +%Y%m%d%H -d "${PDY} ${cyc} - ${half_assim_freq} hours")
+export YYYY=${PDY:0:4}
+export MM=${PDY:4:2}
+export DD=${PDY:6:2}
 export gPDY=${GDATE:0:8}
 export gcyc=${GDATE:8:2}
 export bPDY=${BDATE:0:8}
