@@ -27,7 +27,7 @@ for repo_name in "${fork_repos[@]}"; do
     # Update develop branch
     git branch -D develop || { echo "$repo_name: Failed to delete develop branch"; exit 1; }
     git checkout -b develop || { echo "$repo_name: Failed to create develop branch"; exit 1; }
-    git push --set-upstream origin develop || { echo "$repo_name: Failed to push develop branch"; exit 1; }
+    #git push --set-upstream origin develop || { echo "$repo_name: Failed to push develop branch"; exit 1; }
 
     # Update dev/emc branch
     git checkout -b dev/emc origin/dev/emc || { echo "$repo_name: Failed to create dev/emc branch"; exit 1; }
@@ -42,12 +42,12 @@ for repo_name in "${fork_repos[@]}"; do
         git commit --no-edit 2>/dev/null || git merge --continue 2>/dev/null
 
         # If merge is still in progress (conflicts remain), then fail
-        if ! git merge --abort 2>/dev/null; then
+        if git merge --abort 2>/dev/null; then
             echo "$repo_name: Failed to merge jcsda/develop into dev/emc"
             exit 1
         fi
     }
-    git push --set-upstream origin dev/emc || { echo "$repo_name: Failed to push dev/emc branch"; exit 1; }
+    #git push --set-upstream origin dev/emc || { echo "$repo_name: Failed to push dev/emc branch"; exit 1; }
 
     # Change directory back to sync root and delete the cloned repo
     cd "$syncroot"
