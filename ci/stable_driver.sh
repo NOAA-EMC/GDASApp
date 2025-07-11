@@ -62,15 +62,11 @@ cd $stableroot/$datestr
 git clone --recursive $workflow_url
 
 # checkout develop
-cd $stableroot/$datestr/global-workflow/sorc/gdas.cd
+gdasdir=$stableroot/$datestr/global-workflow/sorc/gdas.cd
+cd "$gdasdir"
 git checkout develop
 git pull
 git submodule update --init --recursive
-
-# ==============================================================================
-# update the hashes to the most recent
-gdasdir=$stableroot/$datestr/global-workflow/sorc/gdas.cd
-$gdasdir/ush/submodules/update_develop.sh $gdasdir
 
 # ==============================================================================
 # email information
@@ -86,10 +82,20 @@ sync_status=$?
 
 if [ $sync_status -eq 0 ]; then
   total=0
-  cd $gdasdir
+  cd "$gdasdir"
+
+  # update develop branch
+  $gdasdir/ush/submodules/update_develop.sh "$gdasdir"
+  rc=$?
+  total=$(($total+$rc))
+  if [ $rc -ne 0 ]; then
+    echo "Unable to update develop branch" >> $stableroot/$datestr/output
+  fi
 
   # checkout feature/stable-nightly
-  git checkout feature/stable-nightly
+  if [ $total -eq 0 ]; then
+    git checkout feature/stable-nightly
+  fi
   rc=$?
   total=$(($total+$rc))
   if [ $rc -ne 0 ]; then
