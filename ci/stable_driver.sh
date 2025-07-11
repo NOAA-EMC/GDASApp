@@ -80,24 +80,12 @@ BODY=$stableroot/$datestr/stable_nightly
 # ==============================================================================
 # run the automated testing
 
-# Run CI testing
-$my_dir/run_ci.sh -d $stableroot/$datestr/global-workflow -o $stableroot/$datestr/output -w
-ci_status=$?
-
 # Sync NOAA-EMC forks of JCSDA repositories
 $my_dir/sync_forks.sh
 sync_status=$?
 
-total=0
-if [ $ci_status -eq 0 ] && [ $sync_status -eq 0 ]; then
-  # sync NOAA-EMC forks of JCSDA repositories
-  $my_dir/sync_forks.sh
-  rc=$?
-  total=$(($total+$rc))
-  if [ $rc -ne 0 ]; then
-    echo "Unable to sync NOAA-EMC forks of JCSDA repositories" >> $stableroot/$datestr/output
-  fi
-
+if [ $sync_status -eq 0 ]; then
+  total=0
   cd $gdasdir
 
   # checkout feature/stable-nightly
@@ -109,7 +97,9 @@ if [ $ci_status -eq 0 ] && [ $sync_status -eq 0 ]; then
   fi
 
   # merge in develop
-  git merge develop
+  if [ $total -eq 0 ]; then
+    git merge develop
+  fi
   rc=$?
   total=$(($total+$rc))
   if [ $rc -ne 0 ]; then
@@ -117,7 +107,9 @@ if [ $ci_status -eq 0 ] && [ $sync_status -eq 0 ]; then
   fi
 
   # add in submodules
-  $gdasdir/ush/submodules/add_submodules.sh $gdasdir
+  if [ $total -eq 0 ]; then
+    $gdasdir/ush/submodules/add_submodules.sh $gdasdir
+  fi
   rc=$?
   total=$(($total+$rc))
   if [ $rc -ne 0 ]; then
@@ -125,7 +117,9 @@ if [ $ci_status -eq 0 ] && [ $sync_status -eq 0 ]; then
   fi
 
   # commit the changes
-  git diff-index --quiet HEAD || git commit -m "Update to new stable build on $datestr"
+  if [ $total -eq 0 ]; then
+    git diff-index --quiet HEAD || git commit -m "Update to new stable build on $datestr"
+  fi
   rc=$?
   total=$(($total+$rc))
   if [ $rc -ne 0 ]; then
@@ -133,51 +127,47 @@ if [ $ci_status -eq 0 ] && [ $sync_status -eq 0 ]; then
   fi
 
   # push the changes
-  git push --set-upstream origin feature/stable-nightly
+  if [ $total -eq 0 ]; then
+    git push --set-upstream origin feature/stable-nightly
+  fi
   rc=$?
   total=$(($total+$rc))
   if [ $rc -ne 0 ]; then
     echo "Unable to push" >> $stableroot/$datestr/output
   fi
 
+  # run CI testing
+  if [ $total -eq 0 ]; then
+    $my_dir/run_ci.sh -d $stableroot/$datestr/global-workflow -o $stableroot/$datestr/output -w
+  fi
+  rc=$?
+  total=$(($total+$rc))
+  if [ $rc -ne 0 ]; then
+    echo "CI testing failed" >> $stableroot/$datestr/output
+  fi
+
   if [ $total -ne 0 ]; then
-    SUBJECT="Problem updating feature/stable-nightly branch of GDASApp"
+    SUBJECT="Problem updating or testing feature/stable-nightly branch of GDASApp"
     cat > $BODY << EOF
 Problem updating feature/stable-nightly branch of GDASApp. Please check $stableroot/$datestr/global-workflow
 
 EOF
-    echo $SUBJECT
-    mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
   else
-    SUBJECT="Success updating feature/stable-nightly branch of GDASApp"
+    SUBJECT="Success updating and testing feature/stable-nightly branch of GDASApp"
     cat > $BODY << EOF
 feature/stable-nightly branch of GDASApp updated successfully. See $stableroot/$datestr/global-workflow for details.
 
 EOF
-    echo $SUBJECT
-    mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
   fi
 else
-  # do nothing
-  if [ $ci_status -ne 0 ]; then
-    SUBJECT="Testing or building of feature/stable-nightly branch of GDASApp failed"
-    cat > $BODY << EOF
-Testing or building of feature/stable-nightly branch of GDASApp failed. Please check $stableroot/$datestr/global-workflow.
+  SUBJECT="Problem syncing NOAA-EMC forks of JCSDA repositories"
+  cat > $BODY << EOF
+Problem syncing NOAA-EMC forks of JCSDA repositories. Please check $stableroot/$datestr/global-workflow.
 
 EOF
-    echo $SUBJECT
-    mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY  
-  fi
-  if [ $sync_status -ne 0 ]; then
-    SUBJECT="Syncing of NOAA-EMC forks of JCSDA repositories failed"
-    cat > $BODY << EOF
-Syncing of NOAA-EMC forks of JCSDA repositories failed. Please check $stableroot/$datestr/global-workflow.
-
-EOF
-    echo $SUBJECT
-    mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
-  fi
-fi 
+fi
+echo $SUBJECT
+mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
 # ==============================================================================
 # publish some information to RZDM for quick viewing
 # THIS IS A TODO FOR NOW
