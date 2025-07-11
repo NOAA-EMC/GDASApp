@@ -106,6 +106,16 @@ if [ $sync_status -eq 0 ]; then
     echo "Unable to merge develop" >> $stableroot/$datestr/output
   fi
 
+  # run CI testing
+  if [ $total -eq 0 ]; then
+    $my_dir/run_ci.sh -d $stableroot/$datestr/global-workflow -o $stableroot/$datestr/output -w
+  fi
+  rc=$?
+  total=$(($total+$rc))
+  if [ $rc -ne 0 ]; then
+    echo "CI testing failed" >> $stableroot/$datestr/output
+  fi
+
   # add in submodules
   if [ $total -eq 0 ]; then
     $gdasdir/ush/submodules/add_submodules.sh $gdasdir
@@ -134,16 +144,6 @@ if [ $sync_status -eq 0 ]; then
   total=$(($total+$rc))
   if [ $rc -ne 0 ]; then
     echo "Unable to push" >> $stableroot/$datestr/output
-  fi
-
-  # run CI testing
-  if [ $total -eq 0 ]; then
-    $my_dir/run_ci.sh -d $stableroot/$datestr/global-workflow -o $stableroot/$datestr/output -w
-  fi
-  rc=$?
-  total=$(($total+$rc))
-  if [ $rc -ne 0 ]; then
-    echo "CI testing failed" >> $stableroot/$datestr/output
   fi
 
   if [ $total -ne 0 ]; then
