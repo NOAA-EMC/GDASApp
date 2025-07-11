@@ -21,11 +21,11 @@ def convert_yaml_ewok_to_gdas(ewokyaml, gdasyaml):
     # obs space input file
     infile = ob_dict['obs space']['obsdatain']['engine']['obsfile']
     obtype = infile.split('/')[2].split('.')[0]
-    infile = f"!ENV ${{DATA}}/obs/${{OPREFIX}}{obtype}.${{CDATE}}.nc4"
+    infile = f"!ENV ${{DATA}}/obs/${{OPREFIX}}{obtype}.${{PDY}}${{cyc}}.nc4"
     ob_dict['obs space']['obsdatain']['engine']['obsfile'] = infile
 
     # obs space output diag
-    outfile = f"!ENV ${{DATA}}/diags/diag_{obtype}_${{CDATE}}.nc4"
+    outfile = f"!ENV ${{DATA}}/diags/diag_{obtype}_${{PDY}}${{cyc}}.nc4"
     ob_dict['obs space']['obsdataout']['engine']['obsfile'] = outfile
 
     # io pool to one
@@ -45,13 +45,13 @@ def convert_yaml_ewok_to_gdas(ewokyaml, gdasyaml):
 
     # obs bias if appropriate
     if 'obs bias' in ob_dict.keys():
-        bias_in = f"!ENV ${{DATA}}/obs/${{GPREFIX}}{obtype}.satbias.${{GDATE}}.nc4"
+        bias_in = f"!ENV ${{DATA}}/obs/${{GPREFIX}}{obtype}.satbias.${{gPDY}}${{gcyc}}}.nc4"
         ob_dict['obs bias']['input file'] = bias_in
-        bias_out = f"!ENV ${{DATA}}/bc/${{APREFIX}}{obtype}.satbias.${{CDATE}}.nc4"
+        bias_out = f"!ENV ${{DATA}}/bc/${{APREFIX}}{obtype}.satbias.${{PDY}}${{cyc}}.nc4"
         ob_dict['obs bias']['output file'] = bias_out
         for p in ob_dict['obs bias']['variational bc']['predictors']:
             if 'tlapse' in p.keys():
-                p['tlapse'] = f"!ENV ${{DATA}}/obs/${{GPREFIX}}{obtype}.tlapse.${{GDATE}}.txt"
+                p['tlapse'] = f"!ENV ${{DATA}}/obs/${{GPREFIX}}{obtype}.tlapse.${{gPDY}}${{gcyc}}}.txt"
         # add a new covariance section with constants by default
         cov_dict = {
             'minimal required obs number': 20,
@@ -59,10 +59,10 @@ def convert_yaml_ewok_to_gdas(ewokyaml, gdasyaml):
             'step size': 1.0e-4,
             'largest analysis variance': 10000.0,
             'prior': {
-                'input file': f"!ENV ${{DATA}}/obs/${{GPREFIX}}{obtype}.satbias_cov.${{GDATE}}.nc4",
+                'input file': f"!ENV ${{DATA}}/obs/${{GPREFIX}}{obtype}.satbias_cov.${{gPDY}}${{gcyc}}}.nc4",
                 'inflation': {'ratio': 1.1, 'ratio for small dataset': 2.0},
             },
-            'output file': f"!ENV ${{DATA}}/bc/${{APREFIX}}{obtype}.satbias_cov.${{CDATE}}.nc4",
+            'output file': f"!ENV ${{DATA}}/bc/${{APREFIX}}{obtype}.satbias_cov.${{PDY}}${{cyc}}.nc4",
         }
         ob_dict['obs bias']['covariance'] = cov_dict
 

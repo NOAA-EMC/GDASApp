@@ -13,10 +13,12 @@ export PSLOT=gdas_test
 export EXPDIR=$bindir/test/atm/global-workflow/testrun/experiments/$PSLOT
 export PDY=20210323
 export cyc=18
-export CDATE=${PDY}${cyc}
+export gPDY=20210323
+export gcyc=12
 export ROTDIR=$bindir/test/atm/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=enkfgdas
 export CDUMP=enkfgdas
+GDUMP=gdas
 export DATAROOT=$bindir/test/atm/global-workflow/testrun/RUNDIRS/$PSLOT
 export pid=${pid:-$$}
 export jobid=$pid
@@ -49,12 +51,6 @@ elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
     export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
 fi
 
-# Set date variables for previous cycle
-GDATE=`date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - 6 hours"`
-gPDY=$(echo $GDATE | cut -c1-8)
-gcyc=$(echo $GDATE | cut -c9-10)
-GDUMP="gdas"
-
 # Set file prefixes
 gprefix=$GDUMP.t${gcyc}z
 oprefix=$GDUMP.t${cyc}z
@@ -68,7 +64,7 @@ RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
 mkdir -p $COMIN_OBS
-flist="amsua_n19.$CDATE sondes.$CDATE"
+flist="amsua_n19.$${PDY}${cyc} sondes.${PDY}${cyc}"
 for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.nc4 $COMIN_OBS/${oprefix}.${file}.nc
 done

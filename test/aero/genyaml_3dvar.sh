@@ -12,7 +12,8 @@ export BERROR_YAML=$srcdir/parm/aero/berror/staticb_identity.yaml.j2
 export OBS_LIST=$srcdir/parm/aero/obs/lists/gdas_aero.yaml.j2
 export LEVS=128
 export CASE=C48
-export CDATE=2021032118
+export PDY=20210321
+export cyc=18
 export assim_freq=6
 export OPREFIX='gdas.t18z.'
 
@@ -38,7 +39,9 @@ python3 - <<EOF
 from wxflow import parse_j2yaml
 import datetime
 
-valid_time_obj = datetime.datetime.strptime('$CDATE','%Y%m%d%H')
+date_obj = datetime.datetime.strptime('$PDY', '%Y%m%d')
+cyc = $cyc
+valid_time_obj = datetime.datetime(year=date_obj.year, month=date_obj.month, day=date_obj.day, hour=cyc)
 winlen = $assim_freq
 win_begin = valid_time_obj - datetime.timedelta(hours=int(winlen)/2)
 case = int('$CASE'[1:])
