@@ -149,7 +149,7 @@ if [ $sync_status -eq 0 ]; then
   if [ $total -ne 0 ]; then
     SUBJECT="Problem updating or testing feature/stable-nightly branch of GDASApp"
     cat > $BODY << EOF
-Problem updating feature/stable-nightly branch of GDASApp. Please check $stableroot/$datestr/global-workflow
+Problem updating feature/stable-nightly branch of GDASApp. Please check $stableroot/$datestr/global-workflow and $stableroot/$datestr/output
 
 EOF
   else
@@ -162,7 +162,7 @@ EOF
 else
   SUBJECT="Problem syncing NOAA-EMC forks of JCSDA repositories"
   cat > $BODY << EOF
-Problem syncing NOAA-EMC forks of JCSDA repositories. Please check $stableroot/$datestr/global-workflow.
+Problem syncing NOAA-EMC forks of JCSDA repositories. Please check $stableroot/$datestr/global-workflow and $stableroot/$datestr/output
 
 EOF
 fi
