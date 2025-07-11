@@ -70,12 +70,13 @@ load("py-f90nml/1.4.3")
 load("py-pip/23.1.2")
 load("py-click/8.1.7")
 
-setenv("CC","/apps/oneapi/mpi/latest/bin/mpiicx")
-setenv("CXX","/apps/oneapi/mpi/latest/bin/mpiicpx")
-setenv("FC","/apps/oneapi/mpi/latest/bin/mpiifort")
+--setenv("CC","/apps/oneapi/mpi/latest/bin/mpiicx")
+--setenv("CXX","/apps/oneapi/mpi/latest/bin/mpiicpx")
+--setenv("FC","/apps/oneapi/mpi/latest/bin/mpiifort")
 setenv("I_MPI_CC", "/apps/oneapi/compiler/2024.2/bin/icx")
 setenv("I_MPI_CXX", "/apps/oneapi/compiler/2024.2/bin/icpx")
-setenv("I_MPI_F90", "/apps/oneapi/compiler/2024.2/bin/ifort")
+setenv("I_MPI_FC", "/apps/oneapi/compiler/2024.2/bin/ifort")
+--setenv("I_MPI_F90", "/apps/oneapi/compiler/2024.2/bin/ifort")
 
 local mpiexec = '/apps/slurm/default/bin/srun'
 local mpinproc = '-n'
