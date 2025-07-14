@@ -27,10 +27,11 @@ copy:
 - ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}obsop_name_map.yaml']
 - ['{{ DATA }}/soca_chgres.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_chgres.yaml']
 - ['{{ DATA }}/soca_diagb.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_diagb.yaml']
-- ['{{ DATA }}/soca_ensb.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_ensb.yaml']
-- ['{{ DATA }}/soca_ensweights.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_ensweights.yaml']
 - ['{{ DATA }}/soca_parameters_diffusion_hz.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_parameters_diffusion_hz.yaml']
 - ['{{ DATA }}/soca_parameters_diffusion_vt.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_parameters_diffusion_vt.yaml']
 - ['{{ DATA }}/soca_setcorscales.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_setcorscales.yaml']
 - ['{{ DATA }}/soca_vtscales.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_vtscales.yaml']
-
+{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
+- ['{{ DATA }}/soca_ensb.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_ensb.yaml']
+- ['{{ DATA }}/soca_ensweights.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_ensweights.yaml']
+{% endif %}
