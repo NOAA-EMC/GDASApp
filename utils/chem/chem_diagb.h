@@ -174,7 +174,8 @@ namespace gdasapp {
         }  // end jnode
       }  // end var
 
-
+      // Synchronize all MPI tasks before proceeding
+      oops::mpi::world().barrier();
 
       /// Smooth the fields
       // ------------------
@@ -234,7 +235,8 @@ namespace gdasapp {
           }
         }
       }
-
+      // Synchronize all MPI tasks before proceeding
+      oops::mpi::world().barrier();
      // Rescale from file
       if (fullConfig.has("global rescale")) {
         const eckit::LocalConfiguration GlobalRescaleConfig(fullConfig, "global rescale");
@@ -255,8 +257,8 @@ namespace gdasapp {
       }
 
       // Rescale from YAML
-      oops::Log::info() << "====================== CRM rescale from YAML" << std::endl;
       if (fullConfig.has("rescaling factors")){
+        oops::Log::info() << "========== Rescaling factors found in YAML" << std::endl;
         const eckit::LocalConfiguration rescaleConfig(fullConfig, "rescaling factors");
         fv3jedi::Increment rescaling(geom, chemVars, cycleDate);
         rescaling.ones();
@@ -264,13 +266,17 @@ namespace gdasapp {
         rescaling.toFieldSet(rescaleFs);
         atlas::FunctionSpace fs = geom.functionSpace();
         atlas::FieldSet geom_fs = geom.fields();
-        const auto slmskView = atlas::array::make_view<int, 1>(geom_fs["slmsk"]);
+        const auto slmskView = atlas::array::make_view<double, 2>(geom_fs["slmsk"]);
         const auto lonLatView = atlas::array::make_view<double, 2>(fs.lonlat());
+        // Synchronize all MPI tasks before proceeding
+        oops::mpi::world().barrier();
         for (auto & var : chemVars.variables()) {
-          oops::Log::info() << "====================== rescale for " << var << std::endl;
+          oops::Log::info() << "====================== " << var << std::endl;
           if (rescaleConfig.has(var)) {
+            oops::Log::info() << "====================== rescale for " << var << std::endl;
             const eckit::LocalConfiguration rescaleVarConfig(rescaleConfig, var);
-            double rescaleFactorOcean, rescaleFactorLand;
+            double rescaleFactorOcean = 1.0;
+            double rescaleFactorLand = 1.0;
             double rescaleFactorHighLat = 1.0;
             double HighLat = 90.0;
             if (rescaleVarConfig.has("ocean rescaling factor")) {
@@ -293,10 +299,13 @@ namespace gdasapp {
                                 << rescaleFactorHighLat << " for " << var << std::endl;
             }
             // compute the rescaling factor
+            oops::Log::info() << "Computing rescaling factor for " << var << std::endl;
             auto rescaleView = atlas::array::make_view<double, 2>(rescaleFs[var]);
-            for (atlas::idx_t jnode = 0; jnode < fs.lonlat().shape(0); ++jnode) {
+            for (atlas::idx_t jnode = 0; jnode < rescaleFs[var].shape(0); ++jnode) {
               double finalRescaleFactor = 1.0;
-              if (slmskView(jnode) == 1) {  // land
+              // oops::Log::info() << jnode << "," << lonLatView(jnode, 0) << ","
+              //                   << lonLatView(jnode, 1) << "," << slmskView(jnode, 0) << std::endl;
+              if (slmskView(jnode, 0) == 1) {  // land
                 finalRescaleFactor = rescaleFactorLand;
               } else {// ocean
                 finalRescaleFactor = rescaleFactorOcean;
@@ -304,13 +313,20 @@ namespace gdasapp {
               if (std::abs(lonLatView(jnode, 1)) > HighLat) {
                 finalRescaleFactor *= rescaleFactorHighLat;
               }
-              rescaleView(jnode, 0) = finalRescaleFactor;
+              for (atlas::idx_t level = 0; level < rescaleFs[var].shape(1); ++level) {
+                rescaleView(jnode, level) = finalRescaleFactor;
+              }
             }
+            oops::Log::info() << "Done computing rescaling factor for " << var << std::endl;
           }
+          // Synchronize all MPI tasks before proceeding
+          oops::mpi::world().barrier();
         }
+        oops::mpi::world().barrier();
         util::multiplyFieldSets(bkgErrFs, rescaleFs);
       }
-
+      // Synchronize all MPI tasks before proceeding
+      oops::mpi::world().barrier();
       bkgErr.fromFieldSet(bkgErrFs);
 
       // Hybrid B option
