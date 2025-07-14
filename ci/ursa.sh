@@ -1,0 +1,10 @@
+export GDAS_CI_ROOT=/scratch3/NCEPDEV/da/role.jedipara/CI/GDASApp
+export GDAS_CI_HOST='ursa'
+export GDAS_MODULE_USE=$GDAS_CI_ROOT/repo/modulefiles
+export SLURM_ACCOUNT=da-cpu
+export SALLOC_ACCOUNT=$SLURM_ACCOUNT
+export SBATCH_ACCOUNT=$SLURM_ACCOUNT
+export SLURM_QOS=debug
+export PATH=$PATH:/home/role.jedipara/bin
+export NTASKS_TESTS=12
+export AUTHORIZED_USERS_FILE=/scratch3/NCEPDEV/da/role.jedipara/CI/GDASApp/authorized_users
