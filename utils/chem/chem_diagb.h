@@ -257,7 +257,7 @@ namespace gdasapp {
       }
 
       // Rescale from YAML
-      if (fullConfig.has("rescaling factors")){
+      if (fullConfig.has("rescaling factors")) {
         oops::Log::info() << "========== Rescaling factors found in YAML" << std::endl;
         const eckit::LocalConfiguration rescaleConfig(fullConfig, "rescaling factors");
         fv3jedi::Increment rescaling(geom, chemVars, cycleDate);
@@ -305,7 +305,7 @@ namespace gdasapp {
               double finalRescaleFactor = 1.0;
                 if (std::abs(slmskView(jnode, 0) - 1.0) < 1e-6) {  // land
                 finalRescaleFactor = rescaleFactorLand;
-              } else {// ocean
+              } else {  // ocean
                 finalRescaleFactor = rescaleFactorOcean;
               }
               if (std::abs(lonLatView(jnode, 1)) > HighLat) {
