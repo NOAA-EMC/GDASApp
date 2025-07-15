@@ -303,9 +303,7 @@ namespace gdasapp {
             auto rescaleView = atlas::array::make_view<double, 2>(rescaleFs[var]);
             for (atlas::idx_t jnode = 0; jnode < rescaleFs[var].shape(0); ++jnode) {
               double finalRescaleFactor = 1.0;
-              // oops::Log::info() << jnode << "," << lonLatView(jnode, 0) << ","
-              //                   << lonLatView(jnode, 1) << "," << slmskView(jnode, 0) << std::endl;
-              if (slmskView(jnode, 0) == 1) {  // land
+                if (std::abs(slmskView(jnode, 0) - 1.0) < 1e-6) {  // land
                 finalRescaleFactor = rescaleFactorLand;
               } else {// ocean
                 finalRescaleFactor = rescaleFactorOcean;
