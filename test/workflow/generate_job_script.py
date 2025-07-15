@@ -10,6 +10,8 @@ def create_job_script(job_config, machine_config):
     account = machine_config.get('HPC_ACCOUNT')
     queue = machine_config.get('QUEUE')
     partition = machine_config.get('PARTITION_BATCH', 'none')
+    cluster = machine_config.get('CLUSTERS', 'none')
+    machine_id = machine_config.get('MACHINE_ID', 'none')
     job_name = job_config.get('job_name', 'myjob')
     walltime = job_config.get('walltime', '01:00:00')
     nodes = job_config.get('nodes', 1)
@@ -35,7 +37,27 @@ cd $PBS_O_WORKDIR
 {command}
 """
     elif scheduler == 'slurm':
-        script = f"""#!/bin/bash
+        if machine_id == 'gaeac6':
+            script = f"""#!/bin/bash
+#SBATCH -J {job_name}
+#SBATCH -o {job_name}.o%J
+#SBATCH -e {job_name}.o%J
+#SBATCH -A {account}
+#SBATCH -q {queue}
+#SBATCH -p {partition}
+#SBATCH -M {cluster}
+#SBATCH -t {walltime}
+#SBATCH --nodes={nodes}
+#SBATCH --ntasks-per-node={ntasks_per_node}
+#SBATCH --cpus-per-task={threads_per_task}
+#SBATCH --mem={memory}
+
+set -x
+cd $SLURM_SUBMIT_DIR
+{command}
+"""
+        else:
+            script = f"""#!/bin/bash
 #SBATCH -J {job_name}
 #SBATCH -o {job_name}.o%J
 #SBATCH -e {job_name}.o%J
@@ -79,6 +101,9 @@ def main():
     with open(machine_config_file, 'r') as f:
         machine_config = yaml.safe_load(f)
 
+    machine_config["MACHINE_ID"] = machine.lower()
+    print(f"machine_config {machine_config}")
+    
     create_job_script(job_config, machine_config)
 
 
