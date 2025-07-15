@@ -96,7 +96,6 @@ fi
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
 if [[ $CLEAN_BUILD == 'YES' ]]; then
   [[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR}
-  [[ -d ${INSTALL_PREFIX} ]] && rm -rf ${INSTALL_PREFIX}
 fi
 mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 
