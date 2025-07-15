@@ -14,9 +14,9 @@ cd "$syncroot"
 
 for repo_name in "${fork_repos[@]}"; do
     # Clone fork develop branch
+    [ -d "$syncroot/$repo_name" ] && rm -rf "$syncroot/$repo_name" # delete repo directory if it already exists
     repo_url="https://github.com/NOAA-EMC/${repo_name}.git"
     git clone -b develop $repo_url || { echo "Failed to clone $repo_name develop branch"; exit 1; }
-    mkdir -p "$syncroot/$repo_name" # make sure the directory exists
     cd "$syncroot/$repo_name"
 
     # Fetch JCSDA remote
@@ -31,7 +31,22 @@ for repo_name in "${fork_repos[@]}"; do
 
     # Update dev/emc branch
     git checkout -b dev/emc origin/dev/emc || { echo "$repo_name: Failed to create dev/emc branch"; exit 1; }
-    git merge jcsda/develop --no-edit || { echo "$repo_name: Failed to merge jcsda/develop into dev/emc"; exit 1; }
+    git merge jcsda/develop --no-edit || {
+        # Try to resolve deleted file/submodule conflicts automatically
+        deleted_files=$(git status --porcelain | grep '^DU ' | awk '{print $2}')
+        if [ -n "$deleted_files" ]; then
+            echo "$deleted_files" | xargs git rm -f
+        fi
+
+        # Try to complete the merge
+        git commit --no-edit 2>/dev/null || git merge --continue 2>/dev/null
+
+        # If merge is still in progress (conflicts remain), then fail
+        if git merge --abort 2>/dev/null; then
+            echo "$repo_name: Failed to merge jcsda/develop into dev/emc"
+            exit 1
+        fi
+    }
     git push --set-upstream origin dev/emc || { echo "$repo_name: Failed to push dev/emc branch"; exit 1; }
 
     # Change directory back to sync root and delete the cloned repo
