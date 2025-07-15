@@ -103,7 +103,7 @@ def main():
 
     machine_config["MACHINE_ID"] = machine.lower()
     print(f"machine_config {machine_config}")
-    
+
     create_job_script(job_config, machine_config)
 
 
