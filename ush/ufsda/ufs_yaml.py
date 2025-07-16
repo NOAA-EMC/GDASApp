@@ -87,13 +87,13 @@ def include_yaml(config):
 
 def get_cycle_vars():
     cycle_dict = {}
-    # Construct CDATE from PDY and cyc instead of reading directly
+    # Construct current cycle datetime from PDY and cyc
     pdy = os.environ['PDY']
     cyc = os.environ['cyc']
     cdate_str = pdy + cyc
     cdate = datetime.datetime.strptime(cdate_str, '%Y%m%d%H')
     assim_freq = os.environ['assim_freq']
-    # Compute gdate from cdate and assim_freq instead of using GDATE
+    # Compute previous analysis datetime from current cycle and assim_freq
     gdate = cdate - datetime.timedelta(hours=int(assim_freq))
     cycle_dict['window_length'] = f'PT{assim_freq}H'
     win_begin = cdate - datetime.timedelta(hours=int(assim_freq)/2)
