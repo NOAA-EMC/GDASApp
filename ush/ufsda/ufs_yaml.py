@@ -92,8 +92,9 @@ def get_cycle_vars():
     cyc = os.environ['cyc']
     cdate_str = pdy + cyc
     cdate = datetime.datetime.strptime(cdate_str, '%Y%m%d%H')
-    gdate = datetime.datetime.strptime(os.environ['GDATE'], '%Y%m%d%H')
     assim_freq = os.environ['assim_freq']
+    # Compute gdate from cdate and assim_freq instead of using GDATE
+    gdate = cdate - datetime.timedelta(hours=int(assim_freq))
     cycle_dict['window_length'] = f'PT{assim_freq}H'
     win_begin = cdate - datetime.timedelta(hours=int(assim_freq)/2)
     cycle_dict['window_begin'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')
