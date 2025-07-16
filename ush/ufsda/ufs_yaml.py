@@ -87,13 +87,12 @@ def include_yaml(config):
 
 def get_cycle_vars():
     cycle_dict = {}
-    pdy_obj = datetime.datetime.strptime(os.environ['PDY'], '%Y%m%d')
+    pdy = os.environ['PDY']
     cyc = os.environ['cyc']
-    cdate = datetime.datetime(year=pdy_obj.year, month=pdy_obj.month, day=pdy_obj.day, hour=cyc)
-    gpdy_obj = datetime.datetime.strptime(os.environ['PDY'], '%Y%m%d')
-    gcyc = os.environ['cyc']
-    gdate = datetime.datetime(year=gpdy_obj.year, month=gpdy_obj.month, day=gpdy_obj.day, hour=gcyc)
+    cdate_str = pdy + cyc
+    cdate = datetime.datetime.strptime(cdate_str, '%Y%m%d%H')
     assim_freq = os.environ['assim_freq']
+    gdate = cdate - datetime.timedelta(hours=int(assim_freq))
     cycle_dict['window_length'] = f'PT{assim_freq}H'
     win_begin = cdate - datetime.timedelta(hours=int(assim_freq)/2)
     cycle_dict['window_begin'] = win_begin.strftime('%Y-%m-%dT%H:%M:%SZ')

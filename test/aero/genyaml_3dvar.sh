@@ -39,9 +39,7 @@ python3 - <<EOF
 from wxflow import parse_j2yaml
 import datetime
 
-date_obj = datetime.datetime.strptime('$PDY', '%Y%m%d')
-cyc = $cyc
-valid_time_obj = datetime.datetime(year=date_obj.year, month=date_obj.month, day=date_obj.day, hour=cyc)
+valid_time_obj = datetime.datetime.strptime('$PDY$cyc','%Y%m%d%H')
 winlen = $assim_freq
 win_begin = valid_time_obj - datetime.timedelta(hours=int(winlen)/2)
 case = int('$CASE'[1:])
