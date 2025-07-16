@@ -1,7 +1,7 @@
 {% if DOIAU %}
 {% set rst_date = MARINE_WINDOW_BEGIN | to_fv3time %}
 {% else %}
-{% set rst_date = CDATE | to_fv3time %}
+{% set rst_date = current_cycle | to_fv3time %}
 {% endif %}
 
 mkdir:
