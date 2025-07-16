@@ -15,7 +15,6 @@ export PSLOT=gdas_test
 export EXPDIR=$bindir/test/atm/global-workflow/testrun/experiments/$PSLOT
 export PDY=20210323
 export cyc=18
-export CDATE=${PDY}${cyc}
 export ROTDIR=$bindir/test/atm/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=enkfgdas
 export CDUMP=enkfgdas

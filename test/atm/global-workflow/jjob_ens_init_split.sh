@@ -15,7 +15,6 @@ export PSLOT=gdas_test
 export EXPDIR=$bindir/test/atm/global-workflow/testrun/experiments/$PSLOT
 export PDY=20210323
 export cyc=18
-export CDATE=${PDY}${cyc}
 export ROTDIR=$bindir/test/atm/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=enkfgdas
 export CDUMP=enkfgdas
@@ -43,9 +42,8 @@ PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
 # Set date variables for previous cycle
-GDATE=`date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - 6 hours"`
-gPDY=$(echo $GDATE | cut -c1-8)
-gcyc=$(echo $GDATE | cut -c9-10)
+gPDY=$(date +%Y%m%d -d "${PDY} ${cyc} - 6 hours")
+gcyc=$(date +%H -d "${PDY} ${cyc} - 6 hours")
 GDUMP="gdas"
 
 # Set file prefixes
@@ -61,7 +59,7 @@ RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
 mkdir -p $COMIN_OBS
-flist="amsua_n19.$CDATE sondes.$CDATE"
+flist="amsua_n19.${PDY}${cyc} sondes.${PDY}${cyc}"
 for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.nc4 $COMIN_OBS/${oprefix}.${file}.nc
 done
