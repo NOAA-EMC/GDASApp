@@ -12,7 +12,6 @@ export PSLOT=gdas_test
 export EXPDIR=$bindir/test/aero/global-workflow/testrun/experiments/$PSLOT
 export PDY=20210323
 export cyc=18
-export CDATE=${PDY}${cyc}
 export ROTDIR=$bindir/test/aero/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=gdas
 export CDUMP=gdas
@@ -50,9 +49,8 @@ elif [ $machine = 'ORION' ]; then
 fi
 
 # Set date variables for previous cycle
-GDATE=`date +%Y%m%d%H -d "${PDY} ${cyc} - 6 hours"`
-gPDY=$(echo $GDATE | cut -c1-8)
-gcyc=$(echo $GDATE | cut -c9-10)
+gPDY=$(date +%Y%m%d -d "${PDY} ${cyc} - 6 hours")
+gcyc=$(date +%H -d "${PDY} ${cyc} - 6 hours")
 GDUMP="gdas"
 
 # Set file prefixes
