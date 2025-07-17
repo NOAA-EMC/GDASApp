@@ -16,4 +16,4 @@ PARTITION_CRON: 'cron_c6'
 USE_SCRONTAB: 'YES'
 
 # HPC account information
-HPC_ACCOUNT: ira-sti
+HPC_ACCOUNT: gfs-cpu

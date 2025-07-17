@@ -107,7 +107,7 @@ config_yaml="./config.yaml"
 cat <<EOF > ${config_yaml}
 machine: ${MACHINE_ID}
 homegfs: ${HOMEgfs}
-job_name: ${type}
+job_name: apply_jedi_incr
 walltime: "00:30:00"
 nodes: 1
 ntasks_per_node: 6

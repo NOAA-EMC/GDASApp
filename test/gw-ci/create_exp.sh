@@ -16,7 +16,7 @@ export HPC_ACCOUNT="da-cpu"
 if [[ $MACHINE_ID = wcoss2 ]]; then
   export HPC_ACCOUNT="GFS-DEV"
 elif [[ $MACHINE_ID = gaeac6 ]]; then
-  export HPC_ACCOUNT="ira-sti"
+  export HPC_ACCOUNT="gfs-cpu"
 fi  
 
 # Source the gw environement
