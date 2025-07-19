@@ -3,7 +3,10 @@ set -x
 # ctest to create an experiment directory for global-workflow
 bindir=$1
 srcdir=$2
+
+# Set g-w HOMEgfs
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
+export HOMEgfs=$topdir
 
 # test experiment variables
 idate=2021032312
@@ -30,6 +33,19 @@ sed -i -e "s~@topdir@~${topdir}~g" config.yaml
 sed -i -e "s~@bindir@~${bindir}~g" config.yaml
 sed -i -e "s~@srcdir@~${srcdir}~g" config.yaml
 sed -i -e "s~@dumpdir@~${GDASAPP_TESTDATA}/lowres~g" config.yaml
+
+# Detect machine
+source "${HOMEgfs}/ush/detect_machine.sh"
+
+# Set up the PYTHONPATH to include wxflow from HOMEgfs
+if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+fi
+
+# Set python path for workflow utilities and tasks
+wxflowPATH="${HOMEgfs}/ush/python"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
+export PYTHONPATH
 
 # run the script
 echo "Running global-workflow experiment generation script"
