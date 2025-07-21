@@ -95,7 +95,7 @@ if [[ $BUILD_TARGET == 'wcoss2' ]]; then
     mv $dir_root/sorc/oops/src/oops/generic/AtlasInterpolator.cc $dir_root/sorc/oops/src/oops/generic/AtlasInterpolator_original.cc
     cp $dir_root/AtlasInterpolator_partial_sum.cc $dir_root/sorc/oops/src/oops/generic/AtlasInterpolator.cc
     echo ""
-    echo "***WARNING*** Replace oops AtlasInterpolator.cc with {$BUILD_TARGET} workaround ***WARNING***"
+    echo "***WARNING*** Replace oops AtlasInterpolator.cc with ${BUILD_TARGET} workaround ***WARNING***"
     echo ""
 fi
 
