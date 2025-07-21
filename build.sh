@@ -94,6 +94,9 @@ if [[ $BUILD_TARGET == 'wcoss2' ]]; then
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
     mv $dir_root/sorc/oops/src/oops/generic/AtlasInterpolator.cc $dir_root/sorc/oops/src/oops/generic/AtlasInterpolator_original.cc
     cp $dir_root/AtlasInterpolator_partial_sum.cc $dir_root/sorc/oops/src/oops/generic/AtlasInterpolator.cc
+    echo ""
+    echo "***WARNING*** Replace oops AtlasInterpolator.cc with {$BUILD_TARGET} workaround ***WARNING***"
+    echo ""
 fi
 
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
