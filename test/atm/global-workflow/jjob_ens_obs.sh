@@ -26,20 +26,25 @@ export COMROOT=$DATAROOT
 export NMEM_ENS=3
 export ACCOUNT=da-cpu
 
+# Detect machine
+source "${HOMEgfs}/ush/detect_machine.sh"
+
+# Set up the PYTHONPATH to include wxflow from HOMEgfs
+if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+fi
+
 # Set python path for workflow utilities and tasks
 wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
-# Detemine machine from config.base
-machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
-
 # Set NETCDF and UTILROOT variables (used in config.base)
-if [[ $machine = 'HERA' ]]; then
+if [[ $MACHINE_ID = 'hera' ]]; then
     NETCDF=$( which ncdump )
     export NETCDF
     export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
-elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
+elif [[ $MACHINE_ID = 'orion' || $MACHINE_ID = 'hercules' ]]; then
     ncdump=$( which ncdump )
     NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
     export NETCDF
@@ -50,9 +55,9 @@ fi
 cp $EXPDIR/config.base_lobsdiag_forenkf_true $EXPDIR/config.base
 
 # Execute j-job
-if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
+if [[ $MACHINE_ID = 'hera' || $MACHINE_ID = 'orion' || $MACHINE_ID = 'hercules`' ]]; then
     sbatch --nodes=1 --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait --output=atmensanlobs-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_OBS
-elif [[ $machine = 'URSA' ]]; then
+elif [[ $MACHINE_ID = 'ursa' ]]; then
     sbatch --nodes=1 --ntasks=6 --account=$ACCOUNT --qos=batch --partition=u1-compute --time=00:30:00 --export=ALL --wait --output=atmensanlobs-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_OBS
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_OBS
