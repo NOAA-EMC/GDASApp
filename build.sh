@@ -92,11 +92,12 @@ CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET"
 # TODO: Remove AtlasInterpolator_boost.cc when WCOSS2 c++ accepts std::inclusive_sum
 if [[ $BUILD_TARGET == 'wcoss2' ]]; then
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
-    mv $dir_root/sorc/oops/src/oops/generic/AtlasInterpolator.cc $dir_root/sorc/oops/src/oops/generic/AtlasInterpolator_original.cc
-    cp $dir_root/AtlasInterpolator_boost.cc $dir_root/sorc/oops/src/oops/generic/AtlasInterpolator.cc
     echo ""
-    echo "***WARNING*** Replace oops AtlasInterpolator.cc with ${BUILD_TARGET} workaround ***WARNING***"
+    echo "***WARNING*** Apply boost patch to oops AtlasInterpolator.cc on ${BUILD_TARGET} ***WARNING***"
     echo ""
+    cd $dir_root/sorc/oops/src/oops/generic/
+    git apply $dir_root/AtlasInterpolator_boost_patch.txt
+    cd $dir_root
 fi
 
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
