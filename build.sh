@@ -89,7 +89,7 @@ esac
 CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET"
 
 # TODO: Remove LD_LIBRARY_PATH line as soon as permanent solution is available
-# TODO: Remove AtlasInterpolator_partial_sum.cc when WCOSS2 c++ accepts std::inclusive_sum
+# TODO: Remove AtlasInterpolator_boost.cc when WCOSS2 c++ accepts std::inclusive_sum
 if [[ $BUILD_TARGET == 'wcoss2' ]]; then
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
     mv $dir_root/sorc/oops/src/oops/generic/AtlasInterpolator.cc $dir_root/sorc/oops/src/oops/generic/AtlasInterpolator_original.cc
