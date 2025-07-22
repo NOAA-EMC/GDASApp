@@ -12,7 +12,6 @@ export PSLOT=gdas_test
 export EXPDIR=$bindir/test/aero/global-workflow/testrun/experiments/$PSLOT
 export PDY=20210323
 export cyc=18
-export CDATE=${PDY}${cyc}
 export ROTDIR=$bindir/test/aero/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=gdas
 export CDUMP=gdas
@@ -50,9 +49,8 @@ elif [ $machine = 'ORION' ]; then
 fi
 
 # Set date variables for previous cycle
-GDATE=`date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - 6 hours"`
-gPDY=$(echo $GDATE | cut -c1-8)
-gcyc=$(echo $GDATE | cut -c9-10)
+gPDY=$(date +%Y%m%d -d "${PDY} ${cyc} - 6 hours")
+gcyc=$(date +%H -d "${PDY} ${cyc} - 6 hours")
 GDUMP="gdas"
 
 # Set file prefixes
@@ -69,7 +67,7 @@ RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
 mkdir -p $COMIN_OBS
-flist="viirs_npp.$CDATE.nc4"
+flist="viirs_npp.${PDY}${cyc}.nc4"
 for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.$file $COMIN_OBS/
 done
