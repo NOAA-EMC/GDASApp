@@ -97,8 +97,27 @@ if [[ $BUILD_TYPE == "Debug" && $COMPILER == "intel" ]]; then
 fi
 
 # TODO: Remove LD_LIBRARY_PATH line as soon as permanent solution is available
+# TODO: Remove AtlasInterpolator_boost_patch when WCOSS2 c++ accepts std::inclusive_sum
 if [[ $BUILD_TARGET == 'wcoss2' ]]; then
-    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
+  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
+  echo ""
+  echo "***WARNING*** Apply boost patch to oops AtlasInterpolator.cc on ${BUILD_TARGET} ***WARNING***"
+  cd $dir_root/sorc/oops/src/oops/generic/
+  if git apply --check "$dir_root/AtlasInterpolator_boost_patch.txt"; then
+    echo "Applying patch..."
+    git apply "$dir_root/AtlasInterpolator_boost_patch.txt"
+  else
+    echo "Patch may already be applied. Check for pre-existing local changes"
+    git checkout AtlasInterpolator.cc
+    if git apply --check "$dir_root/AtlasInterpolator_boost_patch.txt"; then
+      echo "Applying patch..."
+      git apply "$dir_root/AtlasInterpolator_boost_patch.txt"
+    else
+      echo "Patch cannot be applied cleanly. ***ABORT***"
+      exit 1
+    fi
+  fi
+  cd $dir_root
 fi
 
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
@@ -147,7 +166,7 @@ set +x
 # Install
 echo "Installing ... `date`"
 set -x
-make install -j ${BUILD_JOBS:-8}
+make install -j ${BUILD_JOBS:-8} VERBOSE=${BUILD_VERBOSE:-}
 set +x
 
 echo "Finish ... `date`"
