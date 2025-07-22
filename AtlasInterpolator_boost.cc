@@ -5,6 +5,7 @@
 // which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
 #include "oops/generic/AtlasInterpolator.h"
+#include <boost/algorithm/cxx17/inclusive_scan.hpp>
 
 #include <iostream>
 #include <numeric>
@@ -43,24 +44,20 @@ class MaskedVectorView {
     // Calculate the vector element displacement for each variable.
     variableDisplacements.reserve(variables_.size() + 1);
     variableDisplacements.push_back(0);
-
-    // Transform variables into their size contributions.
-    std::transform(
+    boost::algorithm::inclusive_scan(
         variables_.begin(), variables_.end(),
         std::back_inserter(variableDisplacements),
-	[&](const Variable& variable) {
-	  const auto numLevels = variable.getLevels();
+        [&](size_t tot, Variable variables) {
+          const auto numLevels = variables.getLevels();
           if (numLevels < 0) {
-	    throw eckit::BadValue("Variable " + variable.name() +
-	                          " has an invalid number of levels: " +
-	                          std::to_string(numLevels),
-	                      Here());
+            throw eckit::BadValue("Variable " + variables.name() +
+                                      " has an invalid number of levels: " +
+                                      std::to_string(numLevels),
+                                  Here());
           }
-          return static_cast<size_t>(numLevels) * locationMask_.size();
-        });
-
-    std::partial_sum(variableDisplacements.begin() + 1, variableDisplacements.end(),
-                     variableDisplacements.begin() + 1);
+          return tot + numLevels * locationMask_.size();
+        },
+        size_t{0});
 
     // Last displacement should be the total size of data vector.
     if constexpr (!std::is_const_v<VectorT>) {
