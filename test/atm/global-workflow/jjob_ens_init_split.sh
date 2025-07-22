@@ -33,13 +33,18 @@ source "${HOMEgfs}/dev/parm/config/gfs/config.com"
 # Detect machine
 source "${HOMEgfs}/ush/detect_machine.sh"
 
-# Export library path
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
+# Set up the PYTHONPATH to include wxflow from HOMEgfs
+if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+fi
 
 # Set python path for workflow utilities and tasks
 wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
+
+# Export library path
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 
 # Set date variables for previous cycle
 gPDY=$(date +%Y%m%d -d "${PDY} ${cyc} - 6 hours")
