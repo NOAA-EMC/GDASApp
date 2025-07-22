@@ -72,6 +72,12 @@ done
 case ${BUILD_TARGET} in
   hera | orion | hercules | wcoss2 | noaacloud | gaeac5 | gaeac6 | ursa )
     echo "Building GDASApp on $BUILD_TARGET"
+
+##TEST
+    export LMOD_MPI_NAME=cray-mpich
+    export LMOD_MPI_VERSION=8.1.29-xhbciau
+##TEST
+    
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET.$COMPILER
@@ -139,7 +145,7 @@ set +x
 # Install
 echo "Installing ... `date`"
 set -x
-make install -j ${BUILD_JOBS:-8}
+make install -j ${BUILD_JOBS:-8} VERBOSE=${BUILD_VERBOSE:-}
 set +x
 
 echo "Finish ... `date`"
