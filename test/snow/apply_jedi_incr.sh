@@ -93,7 +93,7 @@ if [[ ${MACHINE_ID} == 'wcoss' ]]; then
 fi
 
 # Run executable
-$APRUN ${EXECDIR}/apply_incr.exe ${WORKDIR}/apply_incr.log
+\${APRUN} ${EXECDIR}/apply_incr.exe ${WORKDIR}/apply_incr.log
 EOF
 chmod 755 $runsh
 
