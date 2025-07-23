@@ -46,18 +46,6 @@ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 memory="8Gb"
 if [[ ${MACHINE_ID} == "gaeac6" ]]; then
     memory=0
-=======
-# Set NETCDF and UTILROOT variables (used in config.base)
-if [[ $MACHINE_ID = 'hera' ]]; then
-    NETCDF=$( which ncdump )
-    export NETCDF
-    export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
-elif [[ $MACHINE_ID = 'orion' || $MACHINE_ID = 'hercules' ]]; then
-    ncdump=$( which ncdump )
-    NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
-    export NETCDF
-    export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
->>>>>>> develop
 fi
 config_yaml="./config_${type}.yaml"
 cat <<EOF > ${config_yaml}
