@@ -94,18 +94,13 @@ fi
 # run ctests
 
 # PATCH START
-# HERA role.jedipara can not use /scratch1/NCEPDEV/global.
-# URSA role.jedipara can not use /scratch3/NCEPDEV/global.
+# Hera and Ursa role.jedipara can not use /scratch3/NCEPDEV/global.
 # MSU role-da can not use /work2/noaa/global. The logic below modifies the paths so
 # role.jedipara and role-da can run g-w based ctests.
 if [[ $TEST_WORKFLOW == 1 ]]; then
-  if [[ "${TARGET}" = "hera" ]]; then
+  if [[ "${TARGET}" = "hera" || "${TARGET}" = "ursa" ]]; then
     echo "***WARNING*** apply ${TARGET} global-->da patch to $workflow_dir/dev/workflow/hosts/${TARGET}.yaml"
-    sed -i "s|/scratch1/NCEPDEV/global/\${USER}|/scratch1/NCEPDEV/da/\${USER}|g" $workflow_dir/dev/workflow/hosts/${TARGET}.yaml
-  fi
-  if [[ "${TARGET}" = "ursa" ]]; then
-    echo "***WARNING*** apply ${TARGET} global-->da patch to $workflow_dir/dev/workflow/hosts/${TARGET}.yaml"
-    sed -i "s|/scratch1/NCEPDEV/global/\${USER}|/scratch1/NCEPDEV/da/\${USER}|g" $workflow_dir/dev/workflow/hosts/${TARGET}.yaml
+    sed -i "s|/scratch3/NCEPDEV/global/\${USER}|/scratch3/NCEPDEV/da/\${USER}|g" $workflow_dir/dev/workflow/hosts/${TARGET}.yaml
   fi
   if [[ "${TARGET}" = "orion" || "${TARGET}" = "hercules" ]]; then
     echo "***WARNING*** apply MSU stmp patch to $workflow_dir/dev/workflow/hosts/${TARGET}.yaml"
