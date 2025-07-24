@@ -2,13 +2,12 @@
 {% if DOIAU %}
 {% set cice_rst_date = MARINE_WINDOW_BEGIN | to_fv3time %}
 {% else %}
-{% set cice_rst_date = CDATE | to_fv3time %}
+{% set cice_rst_date = current_cycle | to_fv3time %}
 {% endif %}
 
 mkdir:
 - '{{ COMOUT_OCEAN_ANALYSIS }}/diags'
 - '{{ COMOUT_OCEAN_ANALYSIS }}/bump'
-- '{{ COMOUT_OCEAN_ANALYSIS }}/yaml'
 
 copy:
 # IAU increment
@@ -36,8 +35,7 @@ copy:
 # CICE analysis restart
 - ['{{ DATA }}/Data/{{ cice_rst_date }}.cice_model.res.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ cice_rst_date }}.cice_model_anl.res.nc']
 # YAML files
-- ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
-- ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
-- ['{{ DATA }}/soca_diag_stats.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
-- ['{{ DATA }}/soca_incpostproc.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
-- ['{{ DATA }}/var.yaml', '{{ COMOUT_OCEAN_ANALYSIS }}/yaml/']
+- ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_CONF }}']
+- ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_CONF }}/']
+- ['{{ DATA }}/soca_incpostproc.yaml', '{{ COMOUT_CONF }}/']
+- ['{{ DATA }}/var.yaml', '{{ COMOUT_CONF }}/']

@@ -12,7 +12,6 @@ export PSLOT=gdas_test
 export EXPDIR=$bindir/test/aero/global-workflow/testrun/experiments/$PSLOT
 export PDY=20210323
 export cyc=18
-export CDATE=${PDY}${cyc}
 export ROTDIR=$bindir/test/aero/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=gdas
 export CDUMP=gdas
