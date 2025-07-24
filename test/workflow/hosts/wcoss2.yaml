@@ -1,0 +1,7 @@
+# Scheduler and queue information
+SCHEDULER: pbspro
+QUEUE: dev
+QUEUE_SERVICE: dev_transfer
+
+# HPC account information
+HPC_ACCOUNT: GFS-DEV
