@@ -18,6 +18,10 @@ DOY=$(date +%j -d "$YY$MM$DD + 1 day")
 EXECDIR=$project_source_dir/build/bin
 WORKDIR=$project_binary_dir/test/snow/ims_proc
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model/atmos/restart
+HOMEgfs=$project_source_dir/../..
+
+# Detect machine
+source "${HOMEgfs}/ush/detect_machine.sh"
 
 export OBSDIR=$GDASAPP_TESTDATA/snow/snow_ice_cover
 export TSTUB="oro_C${RES}.mx100"
@@ -58,6 +62,11 @@ ${EXECDIR}/calcfIMS.exe
 
 export PYTHONPATH=$PYTHONPATH:${project_source_dir}/iodaconv/src/:${project_source_dir}/build/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}
 IMS_IODA=${EXECDIR}/imsfv3_scf2ioda.py
+
+# TODO: Remove LD_LIBRARY_PATH line as soon as permanent solution is available
+if [[ ${MACHINE_ID} == 'wcoss2' ]]; then
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
+fi
 
 echo 'do_snowDA: calling ioda converter'
 python ${IMS_IODA} -i IMSscf.${YY}${MM}${DD}.${TSTUB}.nc -o ioda.IMSscf.${YY}${MM}${DD}.${TSTUB}.nc

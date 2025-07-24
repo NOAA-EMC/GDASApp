@@ -1,11 +1,11 @@
 cycle_datetime: '{{ current_cycle | to_YMDH }}'
 cycle_type: '{{ RUN }}'
-data_description: 6-hrly in situ drifting buoy (TAC:drifters, etc) profiles
-data_format: dbuoy
+data_description: 6-hrly in situ drifting buoy (TAC:drifters, etc) surface
+data_format: dbuoyb
 data_provider: U.S. NOAA
-data_type: dbuoy
+data_type: dbuoyb
 dump_directory: '{{ DMPDIR }}'
-ioda_directory: '{{ COM_OBS }}'
+ioda_directory: '{{ COMOUT_OBS }}'
 source: NCEP data tank
-subsets: DBUOY
+subsets: DBUOYB
 ocean_basin: '{{ OCEAN_BASIN_FILE }}'

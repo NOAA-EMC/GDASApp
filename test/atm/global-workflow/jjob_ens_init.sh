@@ -4,6 +4,8 @@ set -x
 bindir=$1
 srcdir=$2
 
+type="jjob_ens_init"
+
 # Set g-w HOMEgfs
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
 export HOMEgfs=$topdir
@@ -13,48 +15,40 @@ export PSLOT=gdas_test
 export EXPDIR=$bindir/test/atm/global-workflow/testrun/experiments/$PSLOT
 export PDY=20210323
 export cyc=18
-export CDATE=${PDY}${cyc}
 export ROTDIR=$bindir/test/atm/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=enkfgdas
 export CDUMP=enkfgdas
 export DATAROOT=$bindir/test/atm/global-workflow/testrun/RUNDIRS/$PSLOT
-export COMIN_GES=${bindir}/test/atm/bkg
 export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
 export NMEM_ENS=3
 export ACCOUNT=da-cpu
-export COM_TOP=$ROTDIR
 
 # Set GFS COM paths
 export STRICT="NO"
 source "${HOMEgfs}/ush/preamble.sh"
-source "${HOMEgfs}/parm/config/gfs/config.com"
+source "${HOMEgfs}/dev/parm/config/gfs/config.com"
+
+# Detect machine
+source "${HOMEgfs}/ush/detect_machine.sh"
+
+# Set up the PYTHONPATH to include wxflow from HOMEgfs
+if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+fi
 
 # Set python path for workflow utilities and tasks
 wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
-# Detemine machine from config.base
-machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
-
-# Set NETCDF and UTILROOT variables (used in config.base)
-if [[ $machine = 'HERA' ]]; then
-    NETCDF=$( which ncdump )
-    export NETCDF
-    export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
-elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    ncdump=$( which ncdump )
-    NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
-    export NETCDF
-    export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
-fi
+# Export library path
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 
 # Set date variables for previous cycle
-GDATE=`date +%Y%m%d%H -d "${CDATE:0:8} ${CDATE:8:2} - 6 hours"`
-gPDY=$(echo $GDATE | cut -c1-8)
-gcyc=$(echo $GDATE | cut -c9-10)
+gPDY=$(date +%Y%m%d -d "${PDY} ${cyc} - 6 hours")
+gcyc=$(date +%H -d "${PDY} ${cyc} - 6 hours")
 GDUMP="gdas"
 
 # Set file prefixes
@@ -62,24 +56,25 @@ gprefix=$GDUMP.t${gcyc}z
 oprefix=$GDUMP.t${cyc}z
 
 # Generate COM variables from templates
-RUN=${GDUMP} YMD=${PDY} HH=${cyc} declare_from_tmpl -rx COM_OBS
+RUN=${GDUMP} YMD=${PDY} HH=${cyc} declare_from_tmpl -rx \
+    COMIN_OBS:COM_OBS_TMPL
 RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
-    COM_ATMOS_ANALYSIS_PREV:COM_ATMOS_ANALYSIS_TMPL \
+    COMIN_ATMOS_ANALYSIS_PREV:COM_ATMOS_ANALYSIS_TMPL \
 
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
-mkdir -p $COM_OBS
-flist="amsua_n19.$CDATE sondes.$CDATE"
+mkdir -p $COMIN_OBS
+flist="amsua_n19.${PDY}${cyc} sondes.${PDY}${cyc}"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.nc4 $COM_OBS/${oprefix}.${file}.nc
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.nc4 $COMIN_OBS/${oprefix}.${file}.nc
 done
 
 # Link radiance bias correction tarball
 dpath=gdas.$gPDY/$gcyc/analysis/atmos
-mkdir -p $COM_ATMOS_ANALYSIS_PREV
+mkdir -p $COMIN_ATMOS_ANALYSIS_PREV
 flist="rad_varbc_params.tar"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.${file} $COM_ATMOS_ANALYSIS_PREV/$gprefix.${file}
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.${file} $COMIN_ATMOS_ANALYSIS_PREV/$gprefix.${file}
 done
 
 # Link member atmospheric background on tiles and atmf006
@@ -88,18 +83,18 @@ for imem in $(seq 1 $NMEM_ENS); do
     memchar="mem"$(printf %03i $imem)
 
     MEMDIR=${memchar} RUN=${RUN} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -x \
-	COM_ATMOS_HISTORY_PREV_ENS:COM_ATMOS_HISTORY_TMPL \
-	COM_ATMOS_RESTART_PREV_ENS:COM_ATMOS_RESTART_TMPL
-    COM_ATMOS_RESTART_PREV_DIRNAME_ENS=$(dirname $COM_ATMOS_RESTART_PREV_ENS)
+	COMIN_ATMOS_HISTORY_PREV_ENS:COM_ATMOS_HISTORY_TMPL \
+	COMIN_ATMOS_RESTART_PREV_ENS:COM_ATMOS_RESTART_TMPL
+    COMIN_ATMOS_RESTART_PREV_DIRNAME_ENS=$(dirname $COMIN_ATMOS_RESTART_PREV_ENS)
 
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
-    target=$COM_ATMOS_HISTORY_PREV_ENS
+    target=$COMIN_ATMOS_HISTORY_PREV_ENS
     mkdir -p $target
     rm -rf $target/enkfgdas.t${gcyc}z.atmf006.nc
     ln -fs $source/enkfgdas.t${gcyc}z.atmf006.nc $target/
 
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
-    target=$COM_ATMOS_HISTORY_PREV_ENS
+    target=$COMIN_ATMOS_HISTORY_PREV_ENS
     flist=("cubed_sphere_grid_atmf006.nc" "cubed_sphere_grid_sfcf006.nc")
     for file in "${flist[@]}"; do
 	rm -rf $target/enkf${gprefix}.${file}
@@ -111,9 +106,34 @@ done
 # NOTE:  atmensanlinit creates input yaml for atmensanlletkf job
 cp $EXPDIR/config.base_lobsdiag_forenkf_false $EXPDIR/config.base
 
-# Execute j-job
-if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmensanlinit-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
+# Create yaml with job configuration
+memory="8Gb"
+if [[ ${MACHINE_ID} == "gaeac6" ]]; then
+    memory=0
+fi
+config_yaml="./config_${type}.yaml"
+cat <<EOF > ${config_yaml}
+machine: ${MACHINE_ID}
+homegfs: ${HOMEgfs}
+job_name: ${type}
+walltime: "00:30:00"
+nodes: 1
+ntasks_per_node: 1
+threads_per_task: 1
+memory: ${memory}
+command: ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
+filename: submit_${type}.sh
+EOF
+
+# Create script to execute j-job
+$HOMEgfs/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
+SCHEDULER=$(echo `grep SCHEDULER ${HOMEgfs}/sorc/gdas.cd/test/workflow/hosts/${MACHINE_ID}.yaml | cut -d":" -f2` | tr -d ' ')
+
+# Submit script to execute j-job
+if [[ $SCHEDULER = 'slurm' ]]; then
+    sbatch --export=ALL --wait submit_${type}.sh
+elif [[ $SCHEDULER = 'pbspro' ]]; then
+    qsub -V -W block=true submit_${type}.sh
 else
-    ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
+    ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
 fi

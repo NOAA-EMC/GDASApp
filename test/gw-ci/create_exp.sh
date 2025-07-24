@@ -15,10 +15,12 @@ export RUNTESTS=${exp_path}/${pslot}
 export HPC_ACCOUNT="da-cpu"
 if [[ $MACHINE_ID = wcoss2 ]]; then
   export HPC_ACCOUNT="GFS-DEV"
+elif [[ $MACHINE_ID = gaeac6 ]]; then
+  export HPC_ACCOUNT="gfs-cpu"
 fi  
 
 # Source the gw environement
-source ${HOMEgfs}/dev/workflow/gw_setup.sh
+source ${HOMEgfs}/dev/ush/gw_setup.sh
 
 # Create the experiment
 ${HOMEgfs}/dev/workflow/create_experiment.py --yaml ${expyaml} --overwrite --force

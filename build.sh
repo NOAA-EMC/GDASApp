@@ -33,19 +33,20 @@ usage() {
 # ==============================================================================
 
 # Defaults:
-INSTALL_PREFIX=""
+INSTALL_PREFIX="${dir_root}/install"
+CMAKE_INSTALL_LIBDIR="lib"
 CMAKE_OPTS=""
 BUILD_TARGET="${MACHINE_ID:-'localhost'}"
 BUILD_VERBOSE="NO"
 CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
-BUILD_JCSDA="NO"
 COMPILER="${COMPILER:-intel}"
+WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 
-while getopts "p:t:c:hvdfa" opt; do
+while getopts "w:t:c:hvdfa" opt; do
   case $opt in
-    p)
-      INSTALL_PREFIX=$OPTARG
+    w)
+      HOMEgfs=$OPTARG
       ;;
     t)
       BUILD_TARGET=$OPTARG
@@ -62,9 +63,6 @@ while getopts "p:t:c:hvdfa" opt; do
     f)
       CLEAN_BUILD=YES
       ;;
-    a)
-      BUILD_JCSDA=YES
-      ;;
     h|\?|:)
       usage
       ;;
@@ -72,7 +70,7 @@ while getopts "p:t:c:hvdfa" opt; do
 done
 
 case ${BUILD_TARGET} in
-  hera | orion | hercules | wcoss2 | noaacloud | gaeac5 | gaeac6 )
+  hera | orion | hercules | wcoss2 | noaacloud | gaeac5 | gaeac6 | ursa )
     echo "Building GDASApp on $BUILD_TARGET"
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
@@ -91,8 +89,27 @@ esac
 CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET"
 
 # TODO: Remove LD_LIBRARY_PATH line as soon as permanent solution is available
+# TODO: Remove AtlasInterpolator_boost_patch when WCOSS2 c++ accepts std::inclusive_sum
 if [[ $BUILD_TARGET == 'wcoss2' ]]; then
-    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
+  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
+  echo ""
+  echo "***WARNING*** Apply boost patch to oops AtlasInterpolator.cc on ${BUILD_TARGET} ***WARNING***"
+  cd $dir_root/sorc/oops/src/oops/generic/
+  if git apply --check "$dir_root/AtlasInterpolator_boost_patch.txt"; then
+    echo "Applying patch..."
+    git apply "$dir_root/AtlasInterpolator_boost_patch.txt"
+  else
+    echo "Patch may already be applied. Check for pre-existing local changes"
+    git checkout AtlasInterpolator.cc
+    if git apply --check "$dir_root/AtlasInterpolator_boost_patch.txt"; then
+      echo "Applying patch..."
+      git apply "$dir_root/AtlasInterpolator_boost_patch.txt"
+    else
+      echo "Patch cannot be applied cleanly. ***ABORT***"
+      exit 1
+    fi
+  fi
+  cd $dir_root
 fi
 
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
@@ -101,12 +118,26 @@ if [[ $CLEAN_BUILD == 'YES' ]]; then
 fi
 mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 
-# If INSTALL_PREFIX is not empty; install at INSTALL_PREFIX
-[[ -n "${INSTALL_PREFIX:-}" ]] && CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
-
-# activate tests based on if this is cloned within the global-workflow
-WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
+# Set WORKFLOW_TESTS as CMake option
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
+
+if [[ $WORKFLOW_BUILD == 'ON' ]]; then
+  # Link MOM6 and Icepack in SOCA to submodules in the UFS repo
+  rm -rf $dir_root/sorc/soca/external/mom6/MOM6
+  rm -rf $dir_root/sorc/soca/external/icepack/Icepack
+  ln -sf $HOMEgfs/sorc/ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
+  ln -sf $HOMEgfs/sorc/ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
+else
+  # Delete forked SOCA NOAA-EMC dev/emc repo and clone the original JCSDA develop repo
+  rm -rf "$dir_root/sorc/soca/"
+  git clone https://github.com/jcsda/soca "$dir_root/sorc/soca" --recurse-submodules
+fi
+
+# Set INSTALL_PREFIX as CMake option
+CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
+
+# Set CMAKE_INSTALL_LIBDIR as CMake option
+CMAKE_OPTS+=" -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}"
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
@@ -124,30 +155,11 @@ cmake \
   $dir_root/bundle
 set +x
 
-# Build
-echo "Building ... `date`"
+# Install
+echo "Installing ... `date`"
 set -x
-if [[ $BUILD_JCSDA == 'YES' ]]; then
-  make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
-else
-  builddirs="gdas iodaconv land-imsproc land-jediincr gdas-utils bufr-query da-utils"
-  for b in $builddirs; do
-    cd $b
-    set +x      
-    echo "Building $b ... `date`"
-    set -x
-    make -j ${BUILD_JOBS:-8} VERBOSE=$BUILD_VERBOSE
-    cd ../
-  done
-fi
+make install -j ${BUILD_JOBS:-8} VERBOSE=${BUILD_VERBOSE:-}
 set +x
 
-# Install
-if [[ -n ${INSTALL_PREFIX:-} ]]; then
-  echo "Installing ... `date`"
-  set -x
-  make install -j ${BUILD_JOBS:-8}
-  set +x
-fi
 echo "Finish ... `date`"
 exit 0

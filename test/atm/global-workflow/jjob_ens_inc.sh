@@ -4,6 +4,8 @@ set -x
 bindir=$1
 srcdir=$2
 
+type="jjob_ens_inc"
+
 # Set g-w HOMEgfs
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
 export HOMEgfs=$topdir
@@ -13,7 +15,6 @@ export PSLOT=gdas_test
 export EXPDIR=$bindir/test/atm/global-workflow/testrun/experiments/$PSLOT
 export PDY=20210323
 export cyc=18
-export CDATE=${PDY}${cyc}
 export ROTDIR=$bindir/test/atm/global-workflow/testrun/ROTDIRS/$PSLOT
 export RUN=enkfgdas
 export CDUMP=enkfgdas
@@ -25,29 +26,50 @@ export COMROOT=$DATAROOT
 export NMEM_ENS=3
 export ACCOUNT=da-cpu
 
+# Detect machine
+source "${HOMEgfs}/ush/detect_machine.sh"
+
+# Set up the PYTHONPATH to include wxflow from HOMEgfs
+if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+fi
+
 # Set python path for workflow utilities and tasks
 wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
-# Detemine machine from config.base
-machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
+# Export library path
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 
-# Set NETCDF and UTILROOT variables (used in config.base)
-if [[ $machine = 'HERA' ]]; then
-    NETCDF=$( which ncdump )
-    export NETCDF
-    export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
-elif [[ $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    ncdump=$( which ncdump )
-    NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
-    export NETCDF
-    export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
+# Create yaml with job configuration
+memory="8Gb"
+if [[ ${MACHINE_ID} == "gaeac6" ]]; then
+    memory=0
 fi
+config_yaml="./config_${type}.yaml"
+cat <<EOF > ${config_yaml}
+machine: ${MACHINE_ID}
+homegfs: ${HOMEgfs}
+job_name: ${type}
+walltime: "00:30:00"
+nodes: 1
+ntasks_per_node: 6
+threads_per_task: 1
+memory: ${memory}
+command: ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
+filename: submit_${type}.sh
+EOF
 
-# Execute j-job
-if [[ $machine = 'HERA' || $machine = 'ORION' || $machine = 'HERCULES' ]]; then
-    sbatch --nodes=1 --ntasks=36 --account=$ACCOUNT --qos=batch --time=00:30:00 --export=ALL --wait --output=atmensanlfv3inc-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
+# Create script to execute j-job
+$HOMEgfs/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
+SCHEDULER=$(echo `grep SCHEDULER ${HOMEgfs}/sorc/gdas.cd/test/workflow/hosts/${MACHINE_ID}.yaml | cut -d":" -f2` | tr -d ' ')
+
+# Submit script to execute j-job
+if [[ $SCHEDULER = 'slurm' ]]; then
+    sbatch --export=ALL --wait submit_${type}.sh
+elif [[ $SCHEDULER = 'pbspro' ]]; then
+    qsub -V -W block=true submit_${type}.sh
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
 fi

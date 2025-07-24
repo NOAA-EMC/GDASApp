@@ -26,7 +26,7 @@ minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
 number_of_outer_loops: 2
-analysis_variables: [ua,va,t,ps,sphum,ice_wat,liq_wat,o3mr]
+analysis_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
 
 # Model things
 # ------------
@@ -76,7 +76,7 @@ observations: all_observations
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
-atmosphere_obsdataroot_path: "{{COM_OBS}}"
+atmosphere_obsdataroot_path: "{{COMIN_OBS}}"
 
 atmosphere_obsdatain_path: "{{atm_obsdatain_path}}"
 atmosphere_obsdatain_prefix: "{{OPREFIX}}"
@@ -87,7 +87,7 @@ atmosphere_obsdataout_prefix: diag_
 atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 # Naming conventions for bias correction files
-atmosphere_obsbiasroot_path: "{{COM_ATMOS_ANALYSIS_PREV}}"
+atmosphere_obsbiasroot_path: "{{COMIN_ATMOS_ANALYSIS_PREV}}"
 
 atmosphere_obsbiasin_path: "{{DATA}}/obs/"
 atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
@@ -116,9 +116,9 @@ bias_files:
 
 # Local Ensemble DA (LETKF)
 # -------------------------
-local_ensemble_da_solver: GETKF
+local_ensemble_da_solver: Deterministic GETKF
 
-increment_variables: [ua,va,delz,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
+increment_variables: [eastward_wind,northward_wind,layer_thickness,air_pressure_thickness,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750

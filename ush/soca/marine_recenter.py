@@ -91,7 +91,8 @@ class MarineRecenter(Task):
                                'window_begin': window_begin,
                                'bkg_dir': os.path.join(DATA, 'bkg'),
                                'INPUT': os.path.join(DATA, 'INPUT'),
-                               'ens_dir': os.path.join(DATA, 'ens')})
+                               'ens_dir': os.path.join(DATA, 'ens'),
+                               'cdate': cdate})
 
         # Extend task_config with local_dict
         self.task_config.update(local_dict)
@@ -214,7 +215,7 @@ class MarineRecenter(Task):
         pass
 
         exec_cmd_recen = Executable(self.task_config.APRUN_OCNANALECEN)
-        exec_name_recen = os.path.join(self.task_config.EXECgfs, 'gdas_ens_handler.x')
+        exec_name_recen = os.path.join(self.task_config.EXECgfs, 'gdas_soca_ens_handler.x')
         exec_cmd_recen.add_default_arg(exec_name_recen)
         exec_cmd_recen.add_default_arg(os.path.basename(self.task_config.recen_yaml_file))
 
@@ -271,7 +272,7 @@ class MarineRecenter(Task):
         stats_dir_real = os.path.realpath(stats_dir)
         mem_dir_list.append(stats_dir_real)
         copy_list.append([f'ocn.ensvar.incr.{ensvar_date}.nc',
-                         os.path.join(stats_dir_real, f'enkf{RUN}.t{cyc}z.ocn.bg_ensvar.nc')])
+                         os.path.join(stats_dir_real, f'enkf{RUN}.ocean.t{cyc}z.bg_ensvar.nc')])
         stats_dir = os.path.join(self.task_config.ROTDIR,
                                  f'enkf{RUN}.{PDYstr}',
                                  f'{cyc}',
@@ -281,7 +282,7 @@ class MarineRecenter(Task):
         stats_dir_real = os.path.realpath(stats_dir)
         mem_dir_list.append(stats_dir_real)
         copy_list.append([f'ice.ensvar.incr.{ensvar_date}.nc',
-                         os.path.join(stats_dir_real, f'enkf{RUN}.t{cyc}z.ice.bg_ensvar.nc')])
+                         os.path.join(stats_dir_real, f'enkf{RUN}.ice.t{cyc}z.bg_ensvar.nc')])
         FileHandler({'mkdir': mem_dir_list}).sync()
         FileHandler({'copy': copy_list}).sync()
 
@@ -289,7 +290,7 @@ class MarineRecenter(Task):
         if os.getenv('DOIAU') == "YES":
             cice_rst_date = self.task_config.MARINE_WINDOW_BEGIN.strftime('%Y%m%d.%H%M%S')
         else:
-            cice_rst_date = cdate.strftime('%Y%m%d.%H%M%S')
+            cice_rst_date = self.task_config.cdate.strftime('%Y%m%d.%H%M%S')
         mem_dir_list = []
         copy_list = []
         for mem in range(1, nmem_ens+1):

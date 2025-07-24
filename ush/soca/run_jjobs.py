@@ -85,14 +85,12 @@ class JobCard:
         ROTDIR = self.rotdir
         DATAROOT = os.path.join(config['working directories']['STMP'], 'RUNDIRS', self.pslot)
         gcyc = str((config['cycle info']['cyc'] - config['cycle info']['assym_freq']) % 24).zfill(2)
-        CDATE = f"{config['cycle info']['PDY']}{config['cycle info']['cyc']}"  # TODO: Not needed after Andy's PR
 
         # Write the export commands for the remaining environment variables
         self.f.write(f"export EXPDIR='{EXPDIR}'\n")
         self.f.write(f"export ROTDIR='{ROTDIR}'\n")
         self.f.write(f"export DATAROOT='{DATAROOT}'\n")
         self.f.write(f"export gcyc='{gcyc}'\n")
-        self.f.write(f"export CDATE='{CDATE}'\n")
 
         # Add to python environment
         self.f.write("PYTHONPATH=${HOMEgfs}/ush/python:${PYTHONPATH}\n")
@@ -103,7 +101,7 @@ class JobCard:
         """
 
         # Make a copy of the configs
-        origconfig = "${HOMEgfs}/parm/config/gfs"
+        origconfig = "${HOMEgfs}/dev/parm/config/gfs"
         self.f.write("\n")
         self.f.write("# Make a copy of config\n")
         self.f.write(f"mkdir -p config\n")
@@ -175,7 +173,7 @@ class JobCard:
         print(f"RUN: {self.RUN}")
 
         # setup COM variables
-        self.f.write("source ${HOMEgfs}/parm/config/gfs/config.com\n")
+        self.f.write("source ${HOMEgfs}/dev/parm/config/gfs/config.com\n")
         self.f.write("source ${HOMEgfs}/ush/preamble.sh\n")
         self.precom('COM_OCEAN_HISTORY_PREV', 'COM_OCEAN_HISTORY_TMPL')
         self.precom('COM_ICE_HISTORY_PREV', 'COM_ICE_HISTORY_TMPL')

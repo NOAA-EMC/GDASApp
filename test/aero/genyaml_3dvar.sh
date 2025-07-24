@@ -12,7 +12,8 @@ export BERROR_YAML=$srcdir/parm/aero/berror/staticb_identity.yaml.j2
 export OBS_LIST=$srcdir/parm/aero/obs/lists/gdas_aero.yaml.j2
 export LEVS=128
 export CASE=C48
-export CDATE=2021032118
+export PDY=20210321
+export cyc=18
 export assim_freq=6
 export OPREFIX='gdas.t18z.'
 
@@ -28,6 +29,14 @@ mkdir -p $DATA
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
 export HOMEgfs=$topdir
 
+# Detect machine
+source "${HOMEgfs}/ush/detect_machine.sh"
+
+# Set up the PYTHONPATH to include wxflow from HOMEgfs
+if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+fi
+
 # Set python path for workflow utilities and tasks
 wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
@@ -38,7 +47,7 @@ python3 - <<EOF
 from wxflow import parse_j2yaml
 import datetime
 
-valid_time_obj = datetime.datetime.strptime('$CDATE','%Y%m%d%H')
+valid_time_obj = datetime.datetime.strptime('$PDY$cyc','%Y%m%d%H')
 winlen = $assim_freq
 win_begin = valid_time_obj - datetime.timedelta(hours=int(winlen)/2)
 case = int('$CASE'[1:])

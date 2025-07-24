@@ -47,7 +47,7 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
     gdasapp_dir=$workflow_dir/sorc/gdas.cd
 
     build_cmd_dir=$workflow_dir/sorc
-    build_cmd="./build_all.sh gfs gsi gdas"
+    build_cmd="./build_all.sh gfs gcafs gsi gdas"
     build_dir=$workflow_dir/build
 else
     export BUILD_JOBS=8
@@ -94,13 +94,13 @@ fi
 # run ctests
 
 # PATCH START
-# HERA role.jedipara can not use /scratch1/NCEPDEV/global. MSU role-da
-# can not use /work2/noaa/global. The logic below modifies the paths so
+# Hera and Ursa role.jedipara can not use /scratch3/NCEPDEV/global.
+# MSU role-da can not use /work2/noaa/global. The logic below modifies the paths so
 # role.jedipara and role-da can run g-w based ctests.
 if [[ $TEST_WORKFLOW == 1 ]]; then
-  if [[ "${TARGET}" = "hera" ]]; then
+  if [[ "${TARGET}" = "hera" || "${TARGET}" = "ursa" ]]; then
     echo "***WARNING*** apply ${TARGET} global-->da patch to $workflow_dir/dev/workflow/hosts/${TARGET}.yaml"
-    sed -i "s|/scratch1/NCEPDEV/global/\${USER}|/scratch1/NCEPDEV/da/\${USER}|g" $workflow_dir/dev/workflow/hosts/${TARGET}.yaml
+    sed -i "s|/scratch3/NCEPDEV/global/\${USER}|/scratch3/NCEPDEV/da/\${USER}|g" $workflow_dir/dev/workflow/hosts/${TARGET}.yaml
   fi
   if [[ "${TARGET}" = "orion" || "${TARGET}" = "hercules" ]]; then
     echo "***WARNING*** apply MSU stmp patch to $workflow_dir/dev/workflow/hosts/${TARGET}.yaml"
@@ -120,7 +120,7 @@ if [ -n "$ctest_regex_exclude" ]; then
 fi
 pwd
 echo "Tests: $ctest_cmd" >> $outfile
-$ctest_cmd --timeout 14400 --output-on-failure &>> log.ctest
+$ctest_cmd --timeout 28800 --output-on-failure &>> log.ctest
 ctest_status=$?
 npassed=$(cat log.ctest | grep "tests passed")
 if [ $ctest_status -eq 0 ]; then
