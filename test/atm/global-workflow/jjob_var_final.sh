@@ -4,6 +4,8 @@ set -x
 bindir=$1
 srcdir=$2
 
+type="jjob_var_final"
+
 # Set g-w HOMEgfs
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
 export HOMEgfs=$topdir
@@ -37,23 +39,37 @@ wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
-# Set NETCDF and UTILROOT variables (used in config.base)
-if [[ $MACHINE_ID = 'hera' ]]; then
-    NETCDF=$( which ncdump )
-    export NETCDF
-    export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
-elif [[ $MACHINE_ID = 'orion' || $MACHINE_ID = 'hercules' ]]; then
-    ncdump=$( which ncdump )
-    NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
-    export NETCDF
-    export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
-fi
+# Export library path
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 
-# Execute j-job
-if [[ $MACHINE_ID = 'hera' || $MACHINE_ID = 'orion' || $MACHINE_ID = 'hercules' ]]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait --output=atmanlfinal-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FINALIZE
-elif [[ $MACHINE_ID = 'ursa' ]]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --partition=u1-compute --time=00:10:00 --export=ALL --wait --output=atmanlfinal-%j.out ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FINALIZE
+# Create yaml with job configuration
+memory="8Gb"
+if [[ ${MACHINE_ID} == "gaeac6" ]]; then
+    memory=0
+fi
+config_yaml="./config_${type}.yaml"
+cat <<EOF > ${config_yaml}
+machine: ${MACHINE_ID}
+homegfs: ${HOMEgfs}
+job_name: ${type}
+walltime: "00:30:00"
+nodes: 1
+ntasks_per_node: 1
+threads_per_task: 1
+memory: ${memory}
+command: ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FINALIZE
+filename: submit_${type}.sh
+EOF
+
+# Create script to execute j-job
+$HOMEgfs/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
+SCHEDULER=$(echo `grep SCHEDULER ${HOMEgfs}/sorc/gdas.cd/test/workflow/hosts/${MACHINE_ID}.yaml | cut -d":" -f2` | tr -d ' ')
+
+# Submit script to execute j-job
+if [[ $SCHEDULER = 'slurm' ]]; then
+    sbatch --export=ALL --wait submit_${type}.sh
+elif [[ $SCHEDULER = 'pbspro' ]]; then
+    qsub -V -W block=true submit_${type}.sh
 else
     ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_FINALIZE
 fi
