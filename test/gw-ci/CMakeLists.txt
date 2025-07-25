@@ -212,12 +212,12 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_marineanlvar_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "gdas_marineanlfinal")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_marineanlchkpt_${FULL_CYCLE}")
-    elseif("${task_name}" STREQUAL "gdas_marineanlletkf")
+    elseif("${task_name}" STREQUAL "enkfgdas_marineanlletkf")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_prepoceanobs_${FULL_CYCLE}")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_marinebmat_${FULL_CYCLE}")
-    elseif("${task_name}" STREQUAL "gdas_ocnanalecen")
+    elseif("${task_name}" STREQUAL "enkfgdas_marineanlecen")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_marineanlvar_${FULL_CYCLE}")
-      list(APPEND TEST_DEPENDS "${test_prefix}_gdas_marineanlletkf_${FULL_CYCLE}")
+      list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_marineanlletkf_${FULL_CYCLE}")
     else()
       list(APPEND TEST_DEPENDS "${test_prefix}")
     endif()
@@ -452,10 +452,10 @@ if (WORKFLOW_TESTS)
       "gdas_prepoceanobs"
       "gdas_marinebmatinit"
       "gdas_marinebmat"
-      "gdas_marineanlletkf"
+      "enkfgdas_marineanlletkf"
       "gdas_marineanlinit"
       "gdas_marineanlvar"
-      "gdas_ocnanalecen"
+      "enkfgdas_marineanlecen"
       "gdas_marineanlchkpt"
       "gdas_marineanlfinal"
       )
