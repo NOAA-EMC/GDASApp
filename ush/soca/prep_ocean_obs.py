@@ -5,6 +5,7 @@ from gen_bufr2ioda_json import gen_bufr_json
 from logging import getLogger
 from multiprocessing import Process
 import os
+import glob
 from soca import prep_ocean_obs_utils
 from typing import Dict
 from wxflow import (chdir,
@@ -53,6 +54,61 @@ class PrepOceanObs(Task):
         self.task_config.conversion_list_file = 'conversion_list.yaml'
         self.task_config.save_list_file = 'save_list.yaml'
         self.task_config.app_path_observations = self.task_config['MARINE_JCB_GDAS_OBS']
+
+    """
+    Copies observation files from the OBSFORGE_OBS_DB directory to the
+    destination directory specified in the task configuration.
+
+    Args:
+        dmpdir (str): The directory path where observation files are located.
+
+    Functionality:
+        - Iterates over predefined observation types
+          ('adt', 'icec', 'sst', 'sss').
+        - Searches for NetCDF files (*.nc) in the specified directory
+          structure based on the task configuration.
+        - Logs the number of files found for each observation type and
+          the copying process.
+        - Constructs the destination file path using the `COMOUT_OBS`
+          directory from the task configuration.
+        - Uses the `FileHandler` class to synchronize (copy) the files from
+          the source to the destination.
+
+    Logging:
+        - Logs the number of files found for each observation type.
+        - Logs the source file being copied.
+
+    Raises:
+        - Any exceptions raised by `glob.glob` or `FileHandler.sync()` will
+          propagate to the caller.
+
+    Notes:
+        - The method assumes that the `task_config` dictionary contains
+          keys 'RUN', 'PDY', 'cyc', and 'COMOUT_OBS'.
+        - The `PDY` key is expected to be a datetime object.
+    """
+    @logit(logger)
+    def copy_from_obsforge(self):
+        obsfiles_src_dst = []
+        dmpdir = self.task_config['DMPDIR']
+        # Loop through the observation types
+        for obs_type in ['adt', 'icec', 'sst', 'sss']:
+
+            src_files = glob.glob(os.path.join(
+                dmpdir,
+                f"{self.task_config['RUN']}.{self.task_config['PDY'].strftime('%Y%m%d')}",
+                f"{str(self.task_config['cyc']).zfill(2)}",
+                'ocean', obs_type, '*.nc'))
+            logger.info(f"***** Found {len(src_files)} files for {obs_type} in {dmpdir}")
+
+            # Loop through the source files and prepare them for copying
+            for src_file in src_files:
+                logger.info(f"***** Copying {src_file}")
+                dst_file = os.path.join(self.task_config['COMOUT_OBS'],
+                                        os.path.basename(src_file))
+                obsfiles_src_dst.append([src_file, dst_file])
+
+        FileHandler({'copy': obsfiles_src_dst}).sync()
 
     @logit(logger)
     def initialize(self):
