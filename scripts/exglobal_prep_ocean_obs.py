@@ -10,14 +10,17 @@ from soca.prep_ocean_obs import PrepOceanObs
 # Initialize root logger
 logger = Logger(level='DEBUG', colored_log=True)
 
+OBSFORGE_OBS_DB = True
+OBSFORGE_DMPDIR = '/work2/noaa/da/gvernier/runs/obsForge/runobsf/COMROOT/obsforge'
 
 if __name__ == '__main__':
-
     # Take configuration from environment and cast it as python dictionary
     config = cast_strdict_as_dtypedict(os.environ)
 
-    # Instantiate the prepocnobs task
-    PrepOcnObs = PrepOceanObs(config)
-    PrepOcnObs.initialize()
-    PrepOcnObs.run()
-    PrepOcnObs.finalize()
+    prepOcnObs = PrepOceanObs(config)
+    if OBSFORGE_OBS_DB:
+        prepOcnObs.copy_from_obsforge(dmpdir=OBSFORGE_DMPDIR)
+    else:
+        prepOcnObs.initialize()
+        prepOcnObs.run()
+        prepOcnObs.finalize()
