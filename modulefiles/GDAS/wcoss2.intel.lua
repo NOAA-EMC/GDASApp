@@ -97,6 +97,9 @@ load("rocoto/1.3.5")
 
 unload("intel-oneapi-runtime/2024.2.1")
 
+prepend_path("MODULEPATH", "/apps/ops/test/nco/modulefiles/core")
+load("rocoto/1.3.5")
+
 setenv("CC","cc")
 setenv("CXX","CC")
 setenv("FC","ftn")

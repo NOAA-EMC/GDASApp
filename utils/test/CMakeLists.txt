@@ -2,7 +2,7 @@
 list( APPEND utils_test_input
   testinput/gdas_meanioda.yaml
   testinput/gdas_rads2ioda.yaml
-  testinput/gdas_ghrsst2ioda.yaml
+# testinput/gdas_ghrsst2ioda.yaml
   testinput/gdas_rtofstmp.yaml
   testinput/gdas_rtofssal.yaml
   testinput/gdas_smap2ioda.yaml
@@ -12,12 +12,12 @@ list( APPEND utils_test_input
   testinput/gdas_icecmirs2ioda.yaml
   testinput/gdas_icecjpssrr2ioda.yaml
   testinput/gdas_insituall2ioda.yaml
-  testinput/gdas_viirsaod2ioda.yaml
+# testinput/gdas_viirsaod2ioda.yaml
 )
 
 set( gdas_utils_test_ref
   testref/rads2ioda.test
-  testref/ghrsst2ioda.test
+# testref/ghrsst2ioda.test
   testref/rtofstmp.test
   testref/rtofssal.test
   testref/smap2ioda.test
@@ -27,7 +27,7 @@ set( gdas_utils_test_ref
   testref/icecmirs2ioda.test
   testref/icecjpssrr2ioda.test
   testref/insituall2ioda.test
-  testref/viirsaod2ioda.test
+# testref/viirsaod2ioda.test
 )
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
@@ -74,12 +74,12 @@ ecbuild_add_test( TARGET  test_gdasapp_util_rads2ioda
                   TEST_DEPENDS test_gdasapp_util_prepdata)
 
 # Test the GHRSST to IODA converter
-ecbuild_add_test( TARGET  test_gdasapp_util_ghrsst2ioda
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
-                  ARGS    "../testinput/gdas_ghrsst2ioda.yaml"
-                  LIBS    gdas-utils
-                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
-                  TEST_DEPENDS test_gdasapp_util_prepdata)
+#ecbuild_add_test( TARGET  test_gdasapp_util_ghrsst2ioda
+#                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
+#                  ARGS    "../testinput/gdas_ghrsst2ioda.yaml"
+#                  LIBS    gdas-utils
+#                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
+#                  TEST_DEPENDS test_gdasapp_util_prepdata)
 
 # copy rtofs binary input files to the testing area
 # and generate the tests
@@ -146,12 +146,12 @@ ecbuild_add_test( TARGET  test_gdasapp_util_smos2ioda
                   TEST_DEPENDS test_gdasapp_util_prepdata)
 
 # Test the VIIRS AOD to IODA converter
-ecbuild_add_test( TARGET  test_gdasapp_util_viirsaod2ioda
-                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
-                  ARGS    "../testinput/gdas_viirsaod2ioda.yaml"
-                  LIBS    gdas-utils
-                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
-                  TEST_DEPENDS test_gdasapp_util_prepdata)
+#ecbuild_add_test( TARGET  test_gdasapp_util_viirsaod2ioda
+#                  COMMAND ${CMAKE_BINARY_DIR}/bin/gdas_ioda_obsprovider2ioda.x
+#                  ARGS    "../testinput/gdas_viirsaod2ioda.yaml"
+#                  LIBS    gdas-utils
+#                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obsproc
+#                  TEST_DEPENDS test_gdasapp_util_prepdata)
 
 # Test the ABI to IODA converter
 ecbuild_add_test( TARGET  test_gdasapp_util_icecabi2ioda

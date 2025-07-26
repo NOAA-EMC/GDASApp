@@ -1,0 +1,19 @@
+# Scheduler and queue information
+SCHEDULER: slurm
+QUEUE: normal
+QUEUE_SERVICE: normal
+QUEUE_DTN: 'hpss'
+PARTITION_BUILD: eslogin_c6
+PARTITION_BATCH: batch
+PARTITION_SERVICE: batch
+PARTITION_DTN: 'dtn_f5_f6'
+CLUSTERS: 'c6'
+CLUSTERS_DTN: 'es'
+CLUSTERS_BUILD: 'es'
+CONSTRAINT_DTN: 'f6'
+RESERVATION: ''
+PARTITION_CRON: 'cron_c6'
+USE_SCRONTAB: 'YES'
+
+# HPC account information
+HPC_ACCOUNT: gfs-cpu
