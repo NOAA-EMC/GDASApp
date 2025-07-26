@@ -72,12 +72,6 @@ done
 case ${BUILD_TARGET} in
   hera | orion | hercules | wcoss2 | noaacloud | gaeac5 | gaeac6 | ursa )
     echo "Building GDASApp on $BUILD_TARGET"
-
-##TEST
-    export LMOD_MPI_NAME=cray-mpich
-    export LMOD_MPI_VERSION=8.1.29-xhbciau
-##TEST
-    
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET.$COMPILER
@@ -95,27 +89,10 @@ esac
 CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET"
 
 # TODO: Remove LD_LIBRARY_PATH line as soon as permanent solution is available
-# TODO: Remove AtlasInterpolator_boost_patch when WCOSS2 c++ accepts std::inclusive_sum
 if [[ $BUILD_TARGET == 'wcoss2' ]]; then
-  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
-  echo ""
-  echo "***WARNING*** Apply boost patch to oops AtlasInterpolator.cc on ${BUILD_TARGET} ***WARNING***"
-  cd $dir_root/sorc/oops/src/oops/generic/
-  if git apply --check "$dir_root/AtlasInterpolator_boost_patch.txt"; then
-    echo "Applying patch..."
-    git apply "$dir_root/AtlasInterpolator_boost_patch.txt"
-  else
-    echo "Patch may already be applied. Check for pre-existing local changes"
-    git checkout AtlasInterpolator.cc
-    if git apply --check "$dir_root/AtlasInterpolator_boost_patch.txt"; then
-      echo "Applying patch..."
-      git apply "$dir_root/AtlasInterpolator_boost_patch.txt"
-    else
-      echo "Patch cannot be applied cleanly. ***ABORT***"
-      exit 1
-    fi
-  fi
-  cd $dir_root
+  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.29/ofi/intel/2022.1/lib"
+  export LMOD_MPI_NAME=cray-mpich
+  export LMOD_MPI_VERSION=8.1.29-xhbciau
 fi
 
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}

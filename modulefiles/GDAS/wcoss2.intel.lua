@@ -71,11 +71,13 @@ load("prod_util/2.0.14")
 load("py-numpy/1.26.4")
 load("bufr/12.1.0")
 
+load("py-markupsafe/2.1.3")
 load("py-jinja2/3.1.4")
 load("py-cftime/1.0.3.4")
 load("py-certifi/2023.7.22")
 load("py-netcdf4/1.7.1.post2")
 load("py-pybind11/2.13.5")
+load("py-setuptools/63.4.3")
 load("py-pycodestyle/2.11.0")
 load("py-pyyaml/6.0.2")
 load("py-scipy/1.14.1")
@@ -95,14 +97,9 @@ load("py-click/8.1.7")
 append_path("MODULEPATH", "/apps/ops/test/nco/modulefiles/core")
 load("rocoto/1.3.5")
 
-unload("intel-oneapi-runtime/2024.2.1")
-
-prepend_path("MODULEPATH", "/apps/ops/test/nco/modulefiles/core")
-load("rocoto/1.3.5")
-
 setenv("CC","cc")
 setenv("CXX","CC")
-setenv("FC","ftn")
+setenv("FC","ifort")
 
 local mpiexec = '/opt/cray/pals/1.3.2/bin/mpirun'
 local mpinproc = '-n'
