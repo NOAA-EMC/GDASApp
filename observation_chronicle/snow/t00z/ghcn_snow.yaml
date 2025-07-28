@@ -1,6 +1,6 @@
 # Instrument metadata
 # -------------------
-commissioned: 2023-06-01T06:00:00
+commissioned: 1970-01-01T00:00:00
 
 observer_type: conventional  # Type of chronicle to use
 
@@ -8,7 +8,7 @@ window_option: max
 
 # observation type initial configuration
 # --------------------------------
-stations_to_reject: [BFTU1, FRDN5, MWDO3, SGNN5, NUTA3, CNDA3, HBEA3, ELCN5]
+stations_to_reject: [fakelist]
 
 # Chronicle of changes for this observation type
 # ----------------------------------------

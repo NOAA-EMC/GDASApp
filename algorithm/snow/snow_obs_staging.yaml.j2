@@ -8,6 +8,8 @@ copy_opt:
           {% if observation_from_jcb == 'madis_snow' %}
           # madis_snow is a .nc file with filename 'snocvr_snow' in global GDA.
     - ['{{snow_obsdataroot_path}}/{{snow_obsdatain_prefix}}snocvr_snow.nc4', '{{snow_obsdatain_path}}']
+          {% elif observation_from_jcb == 'ghcn_snow' %}
+    - ['{{snow_obsdataroot_path}}/{{snow_obsdatain_prefix}}ghcn_snow.nc', '{{snow_obsdatain_path}}']
           {% else %}
     - ['{{snow_obsdataroot_path}}/{{snow_obsdatain_prefix}}{{observation_from_jcb}}{{snow_obsdatain_suffix}}', '{{snow_obsdatain_path}}']
           {% endif %}
