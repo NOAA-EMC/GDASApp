@@ -29,6 +29,90 @@ observations:
     error ratio: 0.4  # meters per day
     ocean basin: RECCAP2_region_masks_all_v20221025.nc
 
+- obs space:
+    name: adt_rads_sentinel3a
+    dmpdir subdir: ocean/adt
+    provider: RADS
+    type: nc
+    dmpdir regex: 'rads_adt_3a*.nc'
+    window:
+       back: 0
+       forward: 0
+    error ratio: 0.4  # meters per day
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: adt_rads_sentinel3b
+    dmpdir subdir: ocean/adt
+    provider: RADS
+    type: nc
+    dmpdir regex: 'rads_adt_3b*.nc'
+    window:
+       back: 0
+       forward: 0
+    error ratio: 0.4  # meters per day
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: adt_rads_sentinel6a
+    dmpdir subdir: ocean/adt
+    provider: RADS
+    type: nc
+    dmpdir regex: 'rads_adt_6a*.nc'
+    window:
+       back: 0
+       forward: 0
+    error ratio: 0.4  # meters per day
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: adt_rads_cryosat2
+    dmpdir subdir: ocean/adt
+    provider: RADS
+    type: nc
+    dmpdir regex: 'rads_adt_c2*.nc'
+    window:
+       back: 0
+       forward: 0
+    error ratio: 0.4  # meters per day
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: adt_rads_jason3
+    dmpdir subdir: ocean/adt
+    provider: RADS
+    type: nc
+    dmpdir regex: 'rads_adt_j3*.nc'
+    window:
+       back: 0
+       forward: 0
+    error ratio: 0.4  # meters per day
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: adt_rads_saral
+    dmpdir subdir: ocean/adt
+    provider: RADS
+    type: nc
+    dmpdir regex: 'rads_adt_sa*.nc'
+    window:
+       back: 0
+       forward: 0
+    error ratio: 0.4  # meters per day
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
+- obs space:
+    name: adt_rads_swot
+    dmpdir subdir: ocean/adt
+    provider: RADS
+    type: nc
+    dmpdir regex: 'rads_adt_sw*.nc'
+    window:
+       back: 0
+       forward: 0
+    error ratio: 0.4  # meters per day
+    ocean basin: RECCAP2_region_masks_all_v20221025.nc
+
 # Ice concentration
 - obs space:
     name: icec_amsr2_north

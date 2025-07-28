@@ -8,7 +8,6 @@ local pkgNameVer = myModuleFullName()
 
 prepend_path("MODULEPATH", '/ncrc/proj/epic/spack-stack/c6/spack-stack-1.9.2/envs/ue-intel-2023.2.0/install/modulefiles/Core')
 prepend_path("MODULEPATH", '/ncrc/proj/epic/spack-stack/c6/spack-stack-1.9.2/envs/ue-intel-2023.2.0/install/modulefiles/gcc/12.3.0')
-prepend_path("MODULEPATH", '/ncrc/proj/epic/rocoto/modulefiles')
 
 -- below two lines get us access to the spack-stack modules
 load("stack-intel/2023.2.0")
@@ -58,7 +57,6 @@ load("ncview/2.1.9")
 load("netcdf-cxx4/4.3.1")
 load("json/3.11.3")
 --load("crtm/2.4.0.1")
-load("rocoto/1.3.6")
 load("prod_util/2.1.1")
 
 load("py-jinja2/3.1.4")
@@ -72,6 +70,12 @@ load("py-f90nml/1.4.3")
 load("py-pip/23.1.2")
 
 unload("cray-libsci")
+
+prepend_path("MODULEPATH", "/autofs/ncrc-svm1_proj/hurr1/hafs/shared/modulefiles")
+load("rocoto/1.3.7_fix")
+
+append_path("MODULEPATH", "/usw/hpss/modulefiles")
+load("hsi/9.3")
 
 setenv("CC","cc")
 setenv("CXX","CC")
