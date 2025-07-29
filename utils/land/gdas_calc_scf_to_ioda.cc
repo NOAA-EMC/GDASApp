@@ -282,7 +282,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
             lat_var.push_back(lat(jnode));
             lon_var.push_back(lon(jnode));
             orog_var.push_back(orog(jnode, 0));
-            // Create a station ID based on the tile number, latitude, and longitude
+            // Create a station ID based on the tile number, i-index, and j-index
             int station_id_int = ((k+1) * 100000000) +  ((i+1) * 10000) + (j+1);
             std::string station_id = std::to_string(station_id_int);
             station_ids.push_back(station_id);
