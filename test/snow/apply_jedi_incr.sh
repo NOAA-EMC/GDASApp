@@ -60,7 +60,7 @@ cat << EOF > apply_incr_nml
  print_debug=.false.,
  truncate=.true.,
  fice_threshold=0.0,
- lfrac_threshold=0.0001,
+ lfrac_threshold=0.0001
 /
 EOF
 
