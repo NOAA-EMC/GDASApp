@@ -38,6 +38,7 @@ void gdasapp::CalcSCFtoIODA::run() {
 
   // Exit with error if rank size is not equal to 6,
   // this simplifies our MPI, we can fix/make more flexible later
+  // We use 6 tasks because of the 6 faces of the FV3 cube sphere
   if (comm_.size() != 6) {
     throw eckit::BadValue("MPI rank size must be 6", Here());
   }
@@ -257,8 +258,8 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   }
   // gather the IMS data to all ranks
   oops::Log::info() << "Gathering IMS data across all MPI ranks..." << std::endl;
-  std::vector<float> snd_global(ngrid * 6, 9999.0f);
-  std::vector<float> scf_global(ngrid * 6, 9999.0f);
+  std::vector<float> snd_global(ngrid * 6, nodata_float);
+  std::vector<float> scf_global(ngrid * 6, nodata_float);
   std::vector<int> counts(6, ngrid);
   std::vector<int> gdispls(6, 0);
   for (int i = 1; i < 6; ++i) {
@@ -276,7 +277,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
       for (size_t i=0; i < geom.npx()-1; ++i) {
         for (size_t j=0; j < geom.npy()-1; ++j) {
           atlas::idx_t jnode = ((geom.npx()-1)*(geom.npy()-1)*(k) + (j)*(geom.npx()-1) + (i));
-          if (abs(scf_global[jnode] - -999.0f) > 0.01f) {
+          if (std::abs(scf_global[jnode] - nodata_float) > 0.01f) {
             snd_var.push_back(snd_global[jnode]);
             scf_var.push_back(scf_global[jnode]);
             lat_var.push_back(lat(jnode));
@@ -454,8 +455,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
       }
     } while (row < j_ims && std::getline(asciifile, dummyLine));
 
-    if (row != j_ims) {
-        std::cerr << "Warning: Expected " << j_ims << " rows, got " << row << std::endl;
+        oops::Log::warning() << "Warning: Expected " << j_ims << " rows, got " << row << std::endl;
     }
     asciifile.close();
   }
@@ -636,7 +636,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
       // force tile to be 0 because of local arrays
       atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
-      if (abs(this->scfIMS[tilenum][fv3_j][fv3_i] - nodata_float) > nodata_tol) {
+      if (std::abs(this->scfIMS[tilenum][fv3_j][fv3_i] - nodata_float) > nodata_tol) {
         // if we have IMS data at this point
         if (bkg_vtype(jnode, 0) > 0) {
           // if the model has land at this point
@@ -681,6 +681,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
   int tilenum = geom.tileNum()-1;
   int npx = geom.npx()-1;
   int npy = geom.npy()-1;
+  float full_snow_reject_value = -10.0f;  // used for QC in JEDI
 
   for (size_t fv3_i=indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
@@ -691,7 +692,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
          (bkg_snd(jnode, 0) > this->sndIMS[tilenum][fv3_j][fv3_i]))) {
          // if obs and model both indicate full snow,
          // set the IMS snow depth to a fixed value to QC in JEDI
-        this->sndIMS[tilenum][fv3_j][fv3_i] = -10.0f;
+        this->sndIMS[tilenum][fv3_j][fv3_i] = full_snow_reject_value;
       }
       if (this->sndIMS[tilenum][fv3_j][fv3_i] > sndIMS_max) {
         // if the IMS snow depth is greater than the maximum, set to nodata
@@ -704,8 +705,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
 
 // Helper function for error handling
 void gdasapp::CalcSCFtoIODA::IMSscf::netcdf_err(int error, const std::string &msg) {
-    if (error != NC_NOERR) {
-        std::cerr << msg << ": " << nc_strerror(error) << std::endl;
-        std::exit(EXIT_FAILURE);
+        std::string errorMessage = msg + ": " + nc_strerror(error);
+        throw eckit::BadValue(errorMessage, Here());
     }
 }

@@ -71,6 +71,7 @@ namespace gdasapp {
     };
     float oberr_scf = 0.0f;
     float oberr_snd = 40.0f;
+    static constexpr float nodata_float = -999.0f;
 
    public:
     void run();
