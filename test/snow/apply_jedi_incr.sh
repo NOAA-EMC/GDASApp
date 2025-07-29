@@ -58,7 +58,9 @@ cat << EOF > apply_incr_nml
  noincr_threshold=999999.9,
  print_summary=.true.,
  print_debug=.false.,
- truncate=.true.
+ truncate=.true.,
+ fice_threshold=0.0
+ lfrac_threshold=0.0001
 /
 EOF
 
