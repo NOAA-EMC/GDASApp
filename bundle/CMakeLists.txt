@@ -101,7 +101,6 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT ufo SOURCE "../sorc/ufo" )
 
 # fv3-jedi and associated repositories
-  ecbuild_bundle( PROJECT femps SOURCE "../sorc/femps" )
   ecbuild_bundle( PROJECT fv3-jedi-lm SOURCE "../sorc/fv3-jedi-lm" )
   option(ENABLE_FV3_JEDI_DATA "Obtain fv3-jedi test data from fv3-jedi-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
