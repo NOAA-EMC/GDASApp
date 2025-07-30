@@ -10,8 +10,8 @@ from soca.prep_ocean_obs import PrepOceanObs
 # Initialize root logger
 logger = Logger(level='DEBUG', colored_log=True)
 
-OBSFORGE_OBS_DB = True
-OBSFORGE_DMPDIR = '/work2/noaa/da/gvernier/runs/obsForge/runobsf/COMROOT/obsforge'
+# Toggle this to use obsForge and by-pass the obs processing
+OBSFORGE_OBS_DB = False
 
 if __name__ == '__main__':
     # Take configuration from environment and cast it as python dictionary
@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     prepOcnObs = PrepOceanObs(config)
     if OBSFORGE_OBS_DB:
-        prepOcnObs.copy_from_obsforge(dmpdir=OBSFORGE_DMPDIR)
+        prepOcnObs.copy_from_obsforge()
     else:
         prepOcnObs.initialize()
         prepOcnObs.run()
