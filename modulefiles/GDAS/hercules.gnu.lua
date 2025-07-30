@@ -64,6 +64,7 @@ load("py-pybind11/2.11.0")
 load("contrib/0.1")
 load("noaatools/3.1")
 load("rocoto/1.3.7")
+load("grib-util/1.4.0")
 
 load("hpc/1.2.0")
 unload("python/3.10.13")
