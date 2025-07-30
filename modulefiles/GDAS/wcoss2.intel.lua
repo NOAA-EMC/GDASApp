@@ -64,6 +64,7 @@ load("netcdf-cxx4/4.3.1")
 load("json/3.11.3")
 --load("crtm/v2.4_jedi")
 load("prod_util/2.0.14")
+load("grib-util/1.3.0")
 
 load("py-numpy/1.26.4")
 load("bufr/12.1.0")
