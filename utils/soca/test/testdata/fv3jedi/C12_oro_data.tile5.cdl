@@ -1,0 +1,62 @@
+netcdf C12_oro_data.tile5 {
+dimensions:
+	xaxis_1 = 12 ;
+	yaxis_1 = 12 ;
+	zaxis_1 = 1 ;
+	Time = UNLIMITED ; // (1 currently)
+variables:
+	double xaxis_1(xaxis_1) ;
+		xaxis_1:long_name = "xaxis_1" ;
+		xaxis_1:units = "none" ;
+		xaxis_1:cartesian_axis = "X" ;
+	double yaxis_1(yaxis_1) ;
+		yaxis_1:long_name = "yaxis_1" ;
+		yaxis_1:units = "none" ;
+		yaxis_1:cartesian_axis = "Y" ;
+	double zaxis_1(zaxis_1) ;
+		zaxis_1:long_name = "zaxis_1" ;
+		zaxis_1:units = "none" ;
+		zaxis_1:cartesian_axis = "Z" ;
+	double Time(Time) ;
+		Time:long_name = "Time" ;
+		Time:units = "time level" ;
+		Time:cartesian_axis = "T" ;
+	double orog_filt(Time, zaxis_1, yaxis_1, xaxis_1) ;
+		orog_filt:long_name = "filtered_orography" ;
+		orog_filt:units = "m" ;
+		orog_filt:checksum = "776FE646EFE9AF22" ;
+
+// global attributes:
+		:filename = "/gpfsm/dnb31/drholdaw/JediData/ModelRestarts/Gfs/ColdLR/20200101.000000.oro_data.tile5.nc" ;
+data:
+
+ xaxis_1 = 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ;
+
+ yaxis_1 = 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ;
+
+ zaxis_1 = 1 ;
+
+ Time = 1 ;
+
+ orog_filt =
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  1678.88030776147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  1291.63757876801, 1529.75857602749, 293.054127434379, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0,
+  1398.59344152804, 1435.11089080895, 1454.67174945444, 1595.95133587758, 0, 
+    0, 0, 0, 0, 0, 0, 0,
+  353.363138898603, 227.919246923243, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  202.708578298369, 233.872894399513, 0, 6.80219986391523, 0, 0, 0, 0, 0, 0, 
+    0, 0,
+  438.540318466494, 16.2223799448493, 0, 0, 0, 0, 1414.35388624986, 0, 0, 
+    0.503549586301895, 0, 0,
+  0, 0, 0, 374.816226601413, 78.4521102323772, 199.673960127005, 
+    110.637036715479, 447.048887185416, 0, 0, 0, 630.125820616293,
+  0, 0, 0, 0, 27.4581208390763, 628.764369100258, 62.3870253600596, 
+    167.294138851543, 210.122461340396, 2098.23549980025, 191.043407703843, 
+    262.168949942852,
+  0, 0, 0, 0, 0, 232.699809559616, 18.2136907333207, 238.328014630422, 
+    241.690002888282, 89.9312300165902, 66.5726217624587, 39.0281446909959 ;
+}

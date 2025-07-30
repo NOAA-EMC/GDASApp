@@ -1,0 +1,8 @@
+# Scheduler and queue information
+SCHEDULER: slurm
+QUEUE: batch
+PARTITION_BATCH: orion
+PARTITION_SERVICE: service
+
+# HPC account information
+HPC_ACCOUNT: da-cpu

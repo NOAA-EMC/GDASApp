@@ -51,7 +51,7 @@
   branch = develop
 [submodule "sorc/land-imsproc"]
   path = sorc/land-imsproc
-  url = https://github.com/NOAA-PSL/land-IMS_proc.git
+  url = https://github.com/NOAA-EMC/land-SCF_proc.git
   branch = develop
 [submodule "sorc/land-jediincr"]
   path = sorc/land-jediincr
