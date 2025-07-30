@@ -65,7 +65,7 @@ load("json/3.10.5")
 load("crtm/2.4.0.1")
 load("rocoto/1.3.6")
 load("prod_util/2.1.1")
-load("grib-util/1.4.0")
+load("grib-util/1.3.0")
 
 load("py-jinja2/3.0.3")
 load("py-netcdf4/1.5.8")
