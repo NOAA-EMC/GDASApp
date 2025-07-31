@@ -23,6 +23,19 @@ HOMEgfs=$project_source_dir/../../
 # Detect machine
 source "${HOMEgfs}/ush/detect_machine.sh"
 
+# Set up the PYTHONPATH to include wxflow from HOMEgfs
+if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
+    PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+fi
+
+# Set python path for workflow utilities and tasks
+wxflowPATH="${HOMEgfs}/ush/python"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
+export PYTHONPATH
+
+# Export library path
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
+
 export TPATH="$GDASAPP_TESTDATA/snow/C${RES}"
 export TSTUB="C${RES}_oro_data"
 
@@ -88,7 +101,7 @@ cat <<EOF > $runsh
 set -ex
 # Set APRUN for machine
 APRUN="srun -n 6"
-if [[ ${MACHINE_ID} == 'wcoss' ]]; then
+if [[ ${MACHINE_ID} == 'wcoss2' ]]; then
    APRUN="mpiexec -n 6"
 fi
 
