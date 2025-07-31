@@ -24,8 +24,8 @@ copy:
                           '${YMD}': current_cycle | to_YMD,
                           '${HH}': current_cycle | strftime('%H'),
                           '${MEMDIR}': memchar }) %}
-- ['{{ DATA }}/ocn.recenter.incr.{{ imem | string }}.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ RUN }}.t{{ "%02d" | format(cyc) }}z.ocninc.nc']
-- ['{{ DATA }}/ens/cice_model.res.output.{{ imem | string }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.cice_model_anl.res.nc']
+- ['{{ DATA }}/ocn.recenter.incr.{{ MARINE_WINDOW_END_ISO }}.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ RUN }}.t{{ "%02d" | format(cyc) }}z.ocninc.nc']
+- ['{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.cice_model_anl.res.nc']
 {% endfor %}
 {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
                       '${RUN}': RUN,
