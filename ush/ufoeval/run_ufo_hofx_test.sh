@@ -69,7 +69,7 @@ obtype=$1
 
 machine=${machine:-orion} 
 
-if [ $machine = orion ]; then
+if [ $machine = orion || $machine = hercules ]; then
    if [ $run_filtering == NO ]; then
       workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
       echo "Run without data filtering"
@@ -79,7 +79,7 @@ if [ $machine = orion ]; then
    GDASApp=${GDASApp:-/work2/noaa/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
    JCBinstall=${JCBinstall:-/work2/noaa/da/cmartin/CI/GDASApp/opt}
    JCBpylib=$JCBinstall/lib/python3.7/site-packages
-elif [ $machine = ursa ]; then
+elif [ $machine = ursa || $machine = hera ]; then
    if [ $run_filtering == NO ]; then
       workdir=/scratch3/NCEPDEV/stmp/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
    else
@@ -114,10 +114,10 @@ else
    radiance="NO"
 fi
 
-if [ $machine = orion ]; then
+if [ $machine = orion || $machine = hercules ]; then
     export Datapath='/work2/noaa/da/acollard/UFO_eval/data/gsi_geovals_l127/nofgat_feb2024/'$dataprocdate 
     FixDir=/work2/noaa/da/cmartin/GDASApp/fix
-elif [ $machine = ursa ]; then
+elif [ $machine = ursa || $machine" = hera ]; then
     export Datapath='/scratch3/NCEPDEV/da/Andrew.Collard/UFO_eval/data/gsi_geovals_l127/nofgat_Feb2024/'$dataprocdate
     FixDir=/scratch3/NCEPDEV/da/Andrew.Collard/GDASApp/fix
 else
