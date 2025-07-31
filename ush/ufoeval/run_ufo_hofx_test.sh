@@ -79,11 +79,11 @@ if [ $machine = orion ]; then
    GDASApp=${GDASApp:-/work2/noaa/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
    JCBinstall=${JCBinstall:-/work2/noaa/da/cmartin/CI/GDASApp/opt}
    JCBpylib=$JCBinstall/lib/python3.7/site-packages
-elif [ $machine = hera ]; then
+elif [ $machine = ursa ]; then
    if [ $run_filtering == NO ]; then
-      workdir=/scratch1/NCEPDEV/stmp2/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
+      workdir=/scratch3/NCEPDEV/stmp/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
    else
-      workdir=/scratch1/NCEPDEV/stmp2/$LOGNAME/ufoeval/$cycle/${obtype}
+      workdir=/scratch3/NCEPDEV/stmp/$LOGNAME/ufoeval/$cycle/${obtype}
    fi
    GDASApp=${GDASApp:-/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
    JCBinstall=${JCBinstall:-/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/opt}
@@ -117,9 +117,9 @@ fi
 if [ $machine = orion ]; then
     export Datapath='/work2/noaa/da/acollard/UFO_eval/data/gsi_geovals_l127/nofgat_feb2024/'$dataprocdate 
     FixDir=/work2/noaa/da/cmartin/GDASApp/fix
-elif [ $machine = hera ]; then
-    export Datapath='/scratch1/NCEPDEV/da/Emily.Liu/UFO_eval/data/gsi_geovals_l127/nofgat_aug2021/'$dataprocdate
-    FixDir=/scratch1/NCEPDEV/da/Cory.R.Martin/GDASApp/fix
+elif [ $machine = ursa ]; then
+    export Datapath='/scratch3/NCEPDEV/da/Andrew.Collard/UFO_eval/data/gsi_geovals_l127/nofgat_Feb2024/'$dataprocdate
+    FixDir=/scratch3/NCEPDEV/da/Andrew.Collard/GDASApp/fix
 else
    echo "Machine " $machine "not found"
    exit
