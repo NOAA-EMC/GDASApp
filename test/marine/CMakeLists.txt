@@ -84,7 +84,7 @@ set(BUFR_TEST_DIR_ORION
 	"/work/noaa/da/marineda/gfs-marine/data/obs/ci/bufr"
 )
 set(BUFR_TEST_DIR_HERA
-	"/scratch1/NCEPDEV/da/common/ci/bufr"
+	"/scratch3/NCEPDEV/da/common/ci/bufr"
 )
 CHECK_AND_SET_PATH(
 	${BUFR_TEST_DIR_ORION} 
