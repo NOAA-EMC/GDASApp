@@ -105,6 +105,11 @@ add_test(NAME test_gdasapp_check_yaml_keys
 #         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
 # commented out above test because it does not really do as advertised with all these templates which are not valid yaml
 
+# test for jcb installation
+add_test(NAME test_gdasapp_jcb_installation
+         COMMAND ${PROJECT_SOURCE_DIR}/test/test_jcb_installation.sh ${CMAKE_INSTALL_PREFIX}
+         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+
 # high level tests that require the global-workflow
 # TODO(AFE) see GDASApp issue #1213
 #if (WORKFLOW_TESTS)
