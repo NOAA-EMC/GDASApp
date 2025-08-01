@@ -67,9 +67,9 @@ obtype=$1
 
 #--------------- User modified options below -----------------
 
-machine=${machine:-orion} 
+machine=${machine:-ursa} 
 
-if [ $machine = orion || $machine = hercules ]; then
+if [[ "$machine" = "orion" || "$machine" = "hercules" ]]; then
    if [ $run_filtering == NO ]; then
       workdir=/work2/noaa/da/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
       echo "Run without data filtering"
@@ -79,15 +79,15 @@ if [ $machine = orion || $machine = hercules ]; then
    GDASApp=${GDASApp:-/work2/noaa/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
    JCBinstall=${JCBinstall:-/work2/noaa/da/cmartin/CI/GDASApp/opt}
    JCBpylib=$JCBinstall/lib/python3.7/site-packages
-elif [ $machine = ursa || $machine = hera ]; then
+elif [[ "$machine" = "ursa" || "$machine" = "hera" ]]; then
    if [ $run_filtering == NO ]; then
       workdir=/scratch3/NCEPDEV/stmp/$LOGNAME/ufoeval/$cycle/${obtype}_noqc
    else
       workdir=/scratch3/NCEPDEV/stmp/$LOGNAME/ufoeval/$cycle/${obtype}
    fi
-   GDASApp=${GDASApp:-/scratch1/NCEPDEV/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
-   JCBinstall=${JCBinstall:-/scratch1/NCEPDEV/da/Cory.R.Martin/CI/GDASApp/opt}
-   JCBpylib=$JCBinstall/lib/python3.10/site-packages
+   GDASApp=${GDASApp:-/scratch3/NCEPDEV/da/$LOGNAME/git/GDASApp/} # Change this to your own branch
+   JCBinstall=${JCBinstall:-/scratch3/NCEPDEV/da/Andrew.Collard/jcb}
+   JCBpylib=$JCBinstall/lib/python3.9/site-packages
 else
    echo "Machine " $machine "not found"
    exit 1
@@ -103,7 +103,7 @@ exename=test_ObsFilters.x
 #-------------- Do not modify below this line ----------------
 # paths that should only be changed by an expert user
 
-dataprocdate=20240815 # Production date of test data
+dataprocdate=20250731 # Production date of test data
 
 obtype_short=${obtype:0:4}
 if [ $obtype_short = "cris" ] || [ $obtype_short = "iasi" ] || [ $obtype_short = "hirs" ] || [ $obtype_short = "sevi" ] || \
@@ -114,10 +114,10 @@ else
    radiance="NO"
 fi
 
-if [ $machine = orion || $machine = hercules ]; then
+if [[ "$machine" = "orion" || "$machine" = "hercules" ]]; then
     export Datapath='/work2/noaa/da/acollard/UFO_eval/data/gsi_geovals_l127/nofgat_feb2024/'$dataprocdate 
     FixDir=/work2/noaa/da/cmartin/GDASApp/fix
-elif [ $machine = ursa || $machine" = hera ]; then
+elif [[ "$machine" = "ursa" || "$machine" = "hera" ]]; then
     export Datapath='/scratch3/NCEPDEV/da/Andrew.Collard/UFO_eval/data/gsi_geovals_l127/nofgat_Feb2024/'$dataprocdate
     FixDir=/scratch3/NCEPDEV/da/Andrew.Collard/GDASApp/fix
 else
@@ -155,7 +155,7 @@ export GPREFIX=gdas.t${gcyc}z
 
 # Load Modules for GDASApp
 module use $GDASApp/modulefiles
-module load GDAS/$machine
+module load GDAS/$machine.intel
 export PYTHONPATH=$GDASApp/ush:$PYTHONPATH
 
 # Create and set up the working directory
