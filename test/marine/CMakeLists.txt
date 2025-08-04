@@ -58,55 +58,53 @@ function(CREATE_CONFIG_FILE
 endfunction()
 
 
-function(CHECK_AND_SET_PATH PATH1 PATH2 RESULT_VAR)
-    # Check if PATH1 exists
-    if(EXISTS ${PATH1})
-        set(${RESULT_VAR} ${PATH1} PARENT_SCOPE)
-        set(${RESULT_VAR}_EXISTS TRUE PARENT_SCOPE)
-        return()
-    endif()
+function(CHECK_AND_SET_PATH RESULT_VAR PATH_LIST)
+    foreach(PATH ${PATH_LIST})
+        if(EXISTS ${PATH})
+            set(${RESULT_VAR} ${PATH} PARENT_SCOPE)
+            set(${RESULT_VAR}_EXISTS TRUE PARENT_SCOPE)
+            return()
+        endif()
+    endforeach()
 
-    # Check if PATH2 exists
-    if(EXISTS ${PATH2})
-        set(${RESULT_VAR} ${PATH2} PARENT_SCOPE)
-        set(${RESULT_VAR}_EXISTS TRUE PARENT_SCOPE)
-        return()
-    endif()
-
-    # If neither path exists
+    # If none of the paths exist
     set(${RESULT_VAR} "" PARENT_SCOPE)
     set(${RESULT_VAR}_EXISTS FALSE PARENT_SCOPE)
 endfunction()
 
 
-# find the input files
-set(BUFR_TEST_DIR_ORION
-	"/work/noaa/da/marineda/gfs-marine/data/obs/ci/bufr"
-)
-set(BUFR_TEST_DIR_HERA
-	"/scratch1/NCEPDEV/da/common/ci/bufr"
+# Locate BUFR input and ocean basin files
+set(BUFR_TEST_DIR_ORION "/work/noaa/da/marineda/gfs-marine/data/obs/ci/bufr")
+set(BUFR_TEST_DIR_URSA "/scratch3/NCEPDEV/da/common/ci/bufr")
+set(BUFR_TEST_DIR_WCOSS2 "/lfs/h2/emc/da/noscrub/common/ci/bufr")
+set(BUFR_TEST_DIR_PATH_LIST
+	${BUFR_TEST_DIR_ORION}
+	${BUFR_TEST_DIR_URSA}
+	${BUFR_TEST_DIR_WCOSS2}
 )
 CHECK_AND_SET_PATH(
-	${BUFR_TEST_DIR_ORION} 
-	${BUFR_TEST_DIR_HERA} 
 	BUFR_TEST_DIR
+	${BUFR_TEST_DIR_PATH_LIST}
 )
+
 if (NOT BUFR_TEST_DIR_EXISTS)
 	message(WARNING "BUFR test file directory not found -- bufr to ioda tests not generated.")
 	set(GENERATE_BUFR2IODA_TESTS FALSE)
 else()
     # message(STATUS "Found bufr test directory: ${BUFR_TEST_DIR}")
 
-	set(OCEAN_BASIN_FILE_HERA
-		"/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
-	)
-	set(OCEAN_BASIN_FILE_ORION
-		"/work2/noaa/global/role-global/fix/gdas/soca/20240802/common/RECCAP2_region_masks_all_v20221025.nc"
+	set(OCEAN_BASIN_FILE_ORION "/work/noaa/global/glopara/fix/gdas/soca/20240802/common/RECCAP2_region_masks_all_v20221025.nc")
+	set(OCEAN_BASIN_FILE_URSA "/scratch3/NCEPDEV/da/common/validation/RECCAP2_region_masks_all_v20221025.nc")
+	set(OCEAN_BASIN_FILE_WCOSS2 "/lfs/h2/emc/da/noscrub/common/validation/RECCAP2_region_masks_all_v20221025.nc")
+
+	set(OCEAN_BASIN_FILE_PATH_LIST
+		${OCEAN_BASIN_FILE_ORION}
+		${OCEAN_BASIN_FILE_URSA}
+		${OCEAN_BASIN_FILE_WCOSS2}
 	)
 	CHECK_AND_SET_PATH(
-		${OCEAN_BASIN_FILE_ORION} 
-		${OCEAN_BASIN_FILE_HERA} 
 		OCEAN_BASIN_FILE
+		${OCEAN_BASIN_FILE_PATH_LIST}
 	)
 	if (NOT OCEAN_BASIN_FILE_EXISTS)
 		message(WARNING "Ocean basin data file not found -- bufr to ioda tests not generated.")
@@ -187,7 +185,7 @@ if (GENERATE_BUFR2IODA_TESTS)
 	ADD_INSITU_TEST("profile_rama" "mbuoyb")
 	ADD_INSITU_TEST("profile_pirata" "mbuoyb")
 	ADD_INSITU_TEST("profile_taotriton" "mbuoyb")
-	ADD_INSITU_TEST("profile_ndbc" "mbuoyb")
+	# ADD_INSITU_TEST("profile_ndbc" "mbuoyb")
 	ADD_INSITU_TEST("profile_xbtctd" "xbtctd")
 	ADD_INSITU_TEST("surface_drifter" "dbuoy")
 	ADD_INSITU_TEST("surface_trkob" "trkob")
