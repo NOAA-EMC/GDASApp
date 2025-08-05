@@ -13,9 +13,9 @@ WORKFLOW_DB=${pslot}/EXPDIR/${pslot}/${pslot}.db
 # Boot the task
 echo "booting ${TASK_ARRAY[@]} for cycle $CYCLE"
 if [[ ! -e "$WORKFLOW_DB" ]]; then
-    rocotorun -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$task_args" -c "$CYCLE"    
+    rocotorun -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$task_args" -c "$CYCLE"
 fi
-rocotoboot -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$task_args" -c "$CYCLE"
+rocotorun -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$task_args" -c "$CYCLE"
 
 # Loop through tasks
 IFS=',' read -r -a TASK_ARRAY <<< "$task_args"
@@ -23,7 +23,7 @@ num_tasks=${#TASK_ARRAY[@]}
 while true; do
   # Update the status of the task
   rocotorun -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$task_args" -c "$CYCLE"
-
+  
   num_succeeded=0
   for task in "${TASK_ARRAY[@]}"; do
       
@@ -44,8 +44,8 @@ while true; do
           echo "$pslot"_"$task"_"$CYCLE"" is in state: $STATUS"
       else
           echo "$pslot"_"$task"_"$CYCLE"" is in unrecognized state: $STATUS. Rewinding..."          
-          rocotorewind -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$task_args" -c "$CYCLE"
-          rocotoboot -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$task_args" -c "$CYCLE"          
+          rocotorewind -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$task" -c "$CYCLE"
+          rocotoboot -w "$WORKFLOW_XML" -d "$WORKFLOW_DB" -t "$task" -c "$CYCLE"
       fi
   done
   if [[ "$num_succeeded" == "$num_tasks" ]]; then

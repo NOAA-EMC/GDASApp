@@ -90,7 +90,9 @@ CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET"
 
 # TODO: Remove LD_LIBRARY_PATH line as soon as permanent solution is available
 if [[ $BUILD_TARGET == 'wcoss2' ]]; then
-    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib"
+  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.29/ofi/intel/2022.1/lib"
+  export LMOD_MPI_NAME=cray-mpich
+  export LMOD_MPI_VERSION=8.1.29-xhbciau
 fi
 
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
@@ -108,6 +110,10 @@ if [[ $WORKFLOW_BUILD == 'ON' ]]; then
   rm -rf $dir_root/sorc/soca/external/icepack/Icepack
   ln -sf $HOMEgfs/sorc/ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
   ln -sf $HOMEgfs/sorc/ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
+else
+  # Delete forked SOCA NOAA-EMC dev/emc repo and clone the original JCSDA develop repo
+  rm -rf "$dir_root/sorc/soca/"
+  git clone https://github.com/jcsda/soca "$dir_root/sorc/soca" --recurse-submodules
 fi
 
 # Set INSTALL_PREFIX as CMake option
@@ -135,7 +141,7 @@ set +x
 # Install
 echo "Installing ... `date`"
 set -x
-make install -j ${BUILD_JOBS:-8}
+make install -j ${BUILD_JOBS:-8} VERBOSE=${BUILD_VERBOSE:-}
 set +x
 
 echo "Finish ... `date`"
