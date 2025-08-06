@@ -93,6 +93,7 @@ write to gaussian grid:
   grid resolution: 12
   gaussian output file: "gaussian_increment"
   min thickness for mask: 0.1  # meters
+  flooding iterations: 5
   local interpolator type: "atlas interpolator"
   interpolation method:
     type: finite-element

@@ -15,9 +15,11 @@
 #include "oops/base/GeometryData.h"
 #include "oops/base/PostProcessor.h"
 #include "oops/generic/Flood.h"
+#include "oops/generic/GlobalInterpolator.h"
 #include "oops/mpi/mpi.h"
 #include "oops/util/ConfigFunctions.h"
 #include "oops/util/DateTime.h"
+#include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
 
 #include "soca/Geometry/Geometry.h"
@@ -423,9 +425,12 @@ int saveToGaussian(soca::Increment& socaState, const eckit::Configuration& confi
     util::writeFieldSet(comm_, lconf, surfacefs);
   }
 
-  // Flood surface fields over land mask using 5 iterations
-  flood.apply(sst, mask, /*source_mask*/1, /*target_mask*/0, /*niter*/5);
-  flood.apply(icec, mask, /*source_mask*/1, /*target_mask*/0, /*niter*/5);
+  // Get number of flood iterations from config (default to 5 if not specified)
+  int niter = config.getInt("flooding iterations", 5);
+
+  // Flood surface fields over land mask using configured number of iterations
+  flood.apply(sst, mask, /*source_mask*/1, /*target_mask*/0, niter);
+  flood.apply(icec, mask, /*source_mask*/1, /*target_mask*/0, niter);
 
   // Optional debug output after flooding
   if (debug) {
