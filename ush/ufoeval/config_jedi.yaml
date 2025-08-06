@@ -11,12 +11,12 @@ job options:
   mem: 96Gb
 
 directories:
-  HOMEgfs: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test
-  STAGEDIR: /scratch1/NCEPDEV/da/Russ.Treadon/STAGEDIR
-  RUNDIR: /scratch1/NCEPDEV/stmp2/Russ.Treadon/RUNDIRS
+  HOMEgfs: /scratch3/NCEPDEV/da/Russ.Treadon/git/global-workflow/test
+  STAGEDIR: /scratch3/NCEPDEV/da/Russ.Treadon/STAGEDIR
+  RUNDIR: /scratch3/NCEPDEV/stmp2/Russ.Treadon/RUNDIRS
 
 app files:
   DA_CORE: jedi
   DA_TYPE: 3dv
-  APPEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/gdas.x
-  INCEXE: /scratch1/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/fv3jedi_fv3inc.x
+  APPEXE: /scratch3/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/gdas.x
+  INCEXE: /scratch3/NCEPDEV/da/Russ.Treadon/git/global-workflow/test/exec/fv3jedi_fv3inc.x
