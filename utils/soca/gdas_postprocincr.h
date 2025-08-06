@@ -14,7 +14,6 @@
 
 #include "oops/base/GeometryData.h"
 #include "oops/base/PostProcessor.h"
-#include "oops/base/StructuredGridWriter.h"
 #include "oops/generic/Flood.h"
 #include "oops/mpi/mpi.h"
 #include "oops/util/ConfigFunctions.h"
@@ -420,7 +419,7 @@ int saveToGaussian(soca::Increment& socaState, const eckit::Configuration& confi
 
   // Optional debug output before flooding
   if (debug) {
-    lconf.set("filepath", "not_flooded_increment");
+    lconf.set("filepath", "original_increment");
     util::writeFieldSet(comm_, lconf, surfacefs);
   }
 
