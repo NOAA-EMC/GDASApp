@@ -3,6 +3,7 @@
 #include <experimental/filesystem>
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -363,7 +364,8 @@ class PostProcIncr {
 /// @param[in] config An `eckit::Configuration` containing parameters for:
 ///   - `"min thickness for mask"`: Minimum valid thickness [m] to consider a point as ocean.
 ///   - `"debug"`: Boolean flag to output intermediate files (optional, default: false).
-///   - `"grid resolution"`: Grid resolution string (e.g., `"512"`) used to construct the Gaussian grid.
+///   - `"grid resolution"`: Grid resolution string (e.g., `"512"`) used to construct the
+///                          Gaussian grid.
 ///   - `"gaussian output file"`: Output file name for the final Gaussian grid output.
 /// @return 0 on success.
 int saveToGaussian(soca::Increment& socaState, const eckit::Configuration& config) {
@@ -445,7 +447,8 @@ int saveToGaussian(soca::Increment& socaState, const eckit::Configuration& confi
   // Construct a StructuredColumns function space for interpolation
   eckit::LocalConfiguration atlas_conf;
   atlas_conf.set("mpi_comm", comm_.name());
-  auto targetFunctionSpace = std::make_unique<atlas::functionspace::StructuredColumns>(grid, dist, atlas_conf);
+  auto targetFunctionSpace = std::make_unique<atlas::functionspace::StructuredColumns>(grid, dist,
+                                                                                       atlas_conf);
 
   // Interpolate surface fields to Gaussian grid
   oops::GlobalInterpolator interp(config, geomData, *targetFunctionSpace, geom_.getComm());

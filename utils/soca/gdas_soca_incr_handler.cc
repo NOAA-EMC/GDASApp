@@ -1,6 +1,5 @@
 #include "gdas_incr_handler.h"
 
-//#include "oops/runs/ConvertToStructuredGrid.h"
 #include "oops/runs/Run.h"
 
 #include "soca/Traits.h"
