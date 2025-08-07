@@ -94,7 +94,7 @@ set(RTOFS_FILES_PATH
 if (NOT EXISTS ${RTOFS_FILES_PATH})
 	# rtofs directory on hera:
 	set(RTOFS_FILES_PATH
-		"/scratch1/NCEPDEV/da/common/ci/obs"
+		"/scratch3/NCEPDEV/da/common/ci/obs"
 	)
 endif()
 if (NOT EXISTS ${RTOFS_FILES_PATH})
