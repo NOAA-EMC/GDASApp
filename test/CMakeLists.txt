@@ -116,6 +116,11 @@ add_test(NAME test_gdasapp_check_yaml_keys
 #endif()
 
 if (${BUILD_GDASBUNDLE})
+  # test for jcb installation
+  add_test(NAME test_gdasapp_jcb_installation
+           COMMAND ${PROJECT_SOURCE_DIR}/test/test_jcb_installation.sh ${CMAKE_INSTALL_PREFIX}
+           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+  
   add_subdirectory(snow)      # snow da tests
   if (WORKFLOW_TESTS)
     add_subdirectory(gw-ci)   # subset of the global-workflow ci tests

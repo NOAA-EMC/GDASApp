@@ -57,6 +57,11 @@ do
   fi
 done
 
+##TODO Remove LD_LIBRARY_PATH line as soon as permanent solution is available
+if [[ ${MACHINE_ID} == 'wcoss2' ]]; then
+  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.29/ofi/intel/2022.1/lib"
+fi
+
 ulimit -Ss unlimited
 ${EXECDIR}/calcfIMS.exe
 
