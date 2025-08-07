@@ -23,33 +23,52 @@ export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
 export NMEM_ENS=0
-export ACCOUNT=da-cpu
+
+# Detect machine
+source "${HOMEgfs}/ush/detect_machine.sh"
+
+# Set up the PYTHONPATH to include wxflow from HOMEgfs
+if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+fi
 
 # Set python path for workflow utilities and tasks
 wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
-# Detemine machine from config.base
-machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
+# Export library path
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 
-# Set NETCDF and UTILROOT variables (used in config.base)
-if [ $machine = 'HERA' ]; then
-    NETCDF=$( which ncdump )
-    export NETCDF
-    export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
-elif [ $machine = 'ORION' ]; then
-    ncdump=$( which ncdump )
-    NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
-    export NETCDF
-    export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
+# Create yaml with job configuration
+memory="96Gb"
+if [[ ${MACHINE_ID} == "gaeac6" ]]; then
+    memory=0
 fi
+config_yaml="./config_${type}.yaml"
+cat <<EOF > ${config_yaml}
+machine: ${MACHINE_ID}
+homegfs: ${HOMEgfs}
+job_name: ${type}
+walltime: "00:30:00"
+nodes: 1
+ntasks_per_node: 6
+threads_per_task: 1
+memory: ${memory}
+command: ${HOMEgfs}/jobs/JGLOBAL_AERO_ANALYSIS_RUN
+filename: submit_${type}.sh
+EOF
 
-# Execute j-job
-if [ $machine = 'HERA' ]; then
-    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_AERO_ANALYSIS_RUN
-elif [ $machine = 'ORION' ]; then
-    sbatch --ntasks=6 --account=$ACCOUNT --qos=batch --partition=orion --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_AERO_ANALYSIS_RUN
+# Create script to execute j-job. Set job scheduler
+${HOMEgfs}/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
+SCHEDULER=$(echo `grep SCHEDULER ${HOMEgfs}/sorc/gdas.cd/test/workflow/hosts/${MACHINE_ID}.yaml | cut -d":" -f2` | tr -d ' ')
+
+# Submit script to execute j-job
+if [[ $SCHEDULER = 'slurm' ]]; then
+    sbatch --export=ALL --wait submit_${type}.sh
+elif [[ $SCHEDULER = 'pbspro' ]]; then
+    qsub -V -W block=true submit_${type}.sh
 else
     ${HOMEgfs}/jobs/JGLOBAL_AERO_ANALYSIS_RUN
 fi
+
