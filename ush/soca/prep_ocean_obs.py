@@ -91,6 +91,7 @@ class PrepOceanObs(Task):
     def copy_from_obsforge(self):
         obsfiles_src_dst = []
         dmpdir = self.task_config['DMPDIR']
+        COMOUT_OBS = self.task_config['COMOUT_OBS']
         # Loop through the observation types
         for obs_type in ['adt', 'icec', 'sst', 'sss']:
 
@@ -100,6 +101,8 @@ class PrepOceanObs(Task):
                 f"{str(self.task_config['cyc']).zfill(2)}",
                 'ocean', obs_type, '*.nc'))
             logger.info(f"***** Found {len(src_files)} files for {obs_type} in {dmpdir}")
+            if not os.path.exists(COMOUT_OBS):
+              os.makedirs(COMOUT_OBS)
 
             # Loop through the source files and prepare them for copying
             for src_file in src_files:

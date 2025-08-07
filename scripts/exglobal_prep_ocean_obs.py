@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     prepOcnObs = PrepOceanObs(config)
     if OBSFORGE_OBS_DB:
-        prepOcnObs.copy_from_obsforge(dmpdir=OBSFORGE_DMPDIR)
+        prepOcnObs.copy_from_obsforge()
     else:
         prepOcnObs.initialize()
         prepOcnObs.run()
