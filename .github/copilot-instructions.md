@@ -1,6 +1,6 @@
 # GDASApp - Global Data Assimilation System Application
 
-NOAA's weather and ocean data assimilation system built on the JEDI (Joint Effort for Data assimilation Integration) framework. This application integrates atmospheric, oceanic, sea-ice, aerosol, and land data assimilation capabilities.
+NOAA's next generation coupled Earth system data assimilation system built on the JEDI (Joint Effort for Data assimilation Integration) framework. This application integrates atmospheric, oceanic, sea-ice, aerosol, and land data assimilation capabilities.
 
 Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
