@@ -14,7 +14,8 @@
 
 #include "oops/base/GeometryData.h"
 #include "oops/base/PostProcessor.h"
-#include "oops/generic/Flood.h"
+//  #include "oops/generic/Flood.h"  // Use this when/if oops PR is merged
+#include "../genutils/Flood.h"
 #include "oops/generic/GlobalInterpolator.h"
 #include "oops/mpi/mpi.h"
 #include "oops/util/ConfigFunctions.h"
@@ -381,7 +382,7 @@ int saveToGaussian(soca::Increment& socaState, const eckit::Configuration& confi
   eckit::LocalConfiguration lconf;  // Used for debug output
 
   // Create Flood object for land extrapolation
-  oops::Flood flood(geomData);
+  gdasapp::genutils::Flood flood(geomData);
 
   // Convert Increment to Atlas FieldSet
   atlas::FieldSet socafs;

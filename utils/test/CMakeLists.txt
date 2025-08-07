@@ -48,7 +48,13 @@ execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cp
 ecbuild_add_test( TARGET test_gdasapp_util_coding_norms
                   TYPE SCRIPT
                   COMMAND ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_cpplint.py
-                  ARGS --quiet --recursive --exclude=${CMAKE_CURRENT_SOURCE_DIR}/../obsproc/rtofs/*.cc --exclude=${CMAKE_CURRENT_SOURCE_DIR}/../soca/diagnostics/Diagnostics.cc ${CMAKE_CURRENT_SOURCE_DIR}/../
+                    ARGS
+                    --quiet
+                    --recursive
+                    --exclude=${CMAKE_CURRENT_SOURCE_DIR}/../obsproc/rtofs/*.cc
+                    --exclude=${CMAKE_CURRENT_SOURCE_DIR}/../soca/diagnostics/Diagnostics.cc
+                    --exclude=${CMAKE_CURRENT_SOURCE_DIR}/../genutils/Flood.cc
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../
                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 
 # Test example IODA utility that computes the mean of a variable
