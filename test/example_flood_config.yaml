@@ -1,0 +1,27 @@
+# Example configuration file for Flood application
+# Tripolar to Gaussian grid conversion
+
+input geometry:
+  type: tripolar
+  nx: 360
+  ny: 180
+  # Additional geometry parameters would go here
+
+output geometry:
+  type: gaussian
+  nlat: 192
+  nlon: 384
+  # Additional geometry parameters would go here
+
+input state:
+  filename: input_tripolar_state.nc
+  date: 2023-12-01T00:00:00Z
+
+output file: output_gaussian_state.nc
+
+variables:
+  - temperature
+  - humidity
+  - pressure
+
+interpolation method: tripolar_to_gaussian

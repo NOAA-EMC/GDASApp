@@ -23,6 +23,8 @@
 #include "oops/runs/Run.h"
 #include "oops/runs/Variational.h"
 
+#include "mains/Flood.h"
+
 // -------------------------------------------------------------------------------------------------
 
 template<typename Traits>
@@ -76,6 +78,9 @@ int runApp(int argc, char** argv, const std::string traits, const std::string ap
   apps["variational"] = []() {
     return std::make_unique<oops::Variational<Traits, ufo::ObsTraits>>();
   };
+  apps["flood"] = []() {
+    return std::make_unique<gdas::Flood<Traits>>();
+  };
 
   // Create application object and point to it
   auto it = apps.find(appName);
@@ -112,6 +117,7 @@ int main(int argc,  char ** argv) {
     "converttostructuredgrid",
     "convertstate",
     "ensmean",
+    "flood",
     "hofx4d",
     "localensembleda",
     "variational"

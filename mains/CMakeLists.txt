@@ -1,7 +1,7 @@
 # Build the big gdas executable used for all generic JEDI applications
 # --------------------------------------------------------------------
 ecbuild_add_executable( TARGET  gdas.x
-                        SOURCES gdas.cc
+                        SOURCES gdas.cc Flood.cc
                         LIBS    fv3jedi soca
                       )
 
