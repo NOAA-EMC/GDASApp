@@ -362,7 +362,8 @@ class PostProcIncr {
 /// 6. Optionally writes debug output (pre/post flooding) if enabled.
 /// 7. Saves the result to disk in NetCDF format using `util::writeFieldSet`.
 ///
-/// @param[in] socaState A `soca::Increment` containing 3D ocean and sea ice fields.
+/// @param[in] dx A `soca::Increment` containing 3D ocean and sea ice fields.
+/// @param[in] bkg A `soca::State` representing the background state.
 /// @param[in] config An `eckit::Configuration` containing parameters for:
 ///   - `"min thickness for mask"`: Minimum valid thickness [m] to consider a point as ocean.
 ///   - `"debug"`: Boolean flag to output intermediate files (optional, default: false).
@@ -370,7 +371,9 @@ class PostProcIncr {
 ///                          Gaussian grid.
 ///   - `"gaussian output file"`: Output file name for the final Gaussian grid output.
 /// @return 0 on success.
-int saveToGaussian(soca::Increment& socaState, const eckit::Configuration& config) {
+int saveToGaussian(soca::Increment& dx,
+                   soca::State& bkg,
+                   const eckit::Configuration& config) {
   oops::Log::info() << "==========================================" << std::endl;
   oops::Log::info() << "-------------------- save to Gaussian grid: " << config << std::endl;
 
@@ -385,40 +388,40 @@ int saveToGaussian(soca::Increment& socaState, const eckit::Configuration& confi
   gdasapp::genutils::Flood flood(geomData);
 
   // Convert Increment to Atlas FieldSet
-  atlas::FieldSet socafs;
-  socaState.toFieldSet(socafs);
+  atlas::FieldSet dxfs;
+  dx.toFieldSet(dxfs);
 
   oops::Log::info() << "-------------------- increment fields: " << std::endl;
-  oops::Log::info() << socaState << std::endl;
+  oops::Log::info() << dx << std::endl;
 
   // Access relevant 3D fields
-  atlas::Field temp = socafs["sea_water_potential_temperature"];
-  atlas::Field icec = socafs["sea_ice_area_fraction"];
-  atlas::Field thickness = socafs["sea_water_cell_thickness"];
+  atlas::Field dxtemp = dxfs["sea_water_potential_temperature"];
+  atlas::Field dxicec = dxfs["sea_ice_area_fraction"];
+  atlas::Field thickness = dxfs["sea_water_cell_thickness"];
   auto thickness_view = atlas::array::make_view<double, 2>(thickness);
 
   // Create a 2D mask field from top-level thickness
   const double min_thickness = config.getDouble("min thickness for mask");
-  atlas::Field mask = temp.functionspace().createField<int>(
+  atlas::Field mask = dxtemp.functionspace().createField<int>(
       atlas::option::name("mask") | atlas::option::levels(1));
   auto mask_view = atlas::array::make_view<int, 2>(mask);
-  for (atlas::idx_t j = 0; j < temp.shape(0); ++j) {
+  for (atlas::idx_t j = 0; j < dxtemp.shape(0); ++j) {
     mask_view(j, 0) = (thickness_view(j, 0) > min_thickness) ? 1 : 0;
   }
 
   // Extract top layer of sea_water_potential_temperature → sea_surface_temperature
-  atlas::Field sst = temp.functionspace().createField<double>(
+  atlas::Field dtf = dxtemp.functionspace().createField<double>(
       atlas::option::name("sea_surface_temperature") | atlas::option::levels(1));
-  auto sst_view = atlas::array::make_view<double, 2>(sst);
-  auto temp_view = atlas::array::make_view<double, 2>(temp);
-  for (atlas::idx_t j = 0; j < temp.shape(0); ++j) {
-    sst_view(j, 0) = temp_view(j, 0);
+  auto dtf_view = atlas::array::make_view<double, 2>(dtf);
+  auto dxtemp_view = atlas::array::make_view<double, 2>(dxtemp);
+  for (atlas::idx_t j = 0; j < dxtemp.shape(0); ++j) {
+    dtf_view(j, 0) = dxtemp_view(j, 0);
   }
 
   // Create a surface FieldSet containing SST and ice concentration
   atlas::FieldSet surfacefs;
-  surfacefs.add(sst);
-  surfacefs.add(icec);
+  surfacefs.add(dtf);
+  surfacefs.add(dxicec);
 
   // Optional debug output before flooding
   if (debug) {
@@ -430,8 +433,8 @@ int saveToGaussian(soca::Increment& socaState, const eckit::Configuration& confi
   int niter = config.getInt("flooding iterations", 5);
 
   // Flood surface fields over land mask using configured number of iterations
-  flood.apply(sst, mask, /*source_mask*/1, /*target_mask*/0, niter);
-  flood.apply(icec, mask, /*source_mask*/1, /*target_mask*/0, niter);
+  flood.apply(dtf, mask, /*source_mask*/1, /*target_mask*/0, niter);
+  flood.apply(dxicec, mask, /*source_mask*/1, /*target_mask*/0, niter);
 
   // Optional debug output after flooding
   if (debug) {

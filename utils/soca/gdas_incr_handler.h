@@ -132,7 +132,7 @@ namespace gdasapp {
         // Save to Gaussian grid
         if (fullConfig.has("write to gaussian grid")) {
           eckit::LocalConfiguration config(fullConfig, "write to gaussian grid");
-          result = postProcIncr.saveToGaussian(incr_mom6, config);
+          result = postProcIncr.saveToGaussian(incr_mom6, xx, config);
         }
 
         // Save final increment
