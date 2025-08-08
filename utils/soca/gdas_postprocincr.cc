@@ -258,17 +258,6 @@ int PostProcIncr::saveToGaussian(soca::Increment& dx,
   surfacefs.add(tref);
   surfacefs.add(icec);
 
-// Compute the analysis by adding dtf to tref and dicec to icec element-wise
-//for (atlas::idx_t j = 0; j < tref.shape(0); ++j) {
-//    tref_view(j, 0) += dtf_view(j, 0);
-//}
-//
-//auto icec_view = atlas::array::make_view<double, 2>(icec);
-//auto dicec_view = atlas::array::make_view<double, 2>(dicec);
-//for (atlas::idx_t j = 0; j < icec.shape(0); ++j) {
-//    icec_view(j, 0) += dicec_view(j, 0);
-//}
-
   // Optionally write original increment fields for debugging
   if (debug) {
     lconf.set("filepath", "original_increment");

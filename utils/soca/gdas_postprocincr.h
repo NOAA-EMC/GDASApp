@@ -7,8 +7,10 @@
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
+
 #include "atlas/field.h"
 #include "atlas/grid.h"
+
 #include "oops/base/GeometryData.h"
 #include "oops/base/PostProcessor.h"
 //  #include "oops/generic/Flood.h"  // Use this when/if oops PR is merged
@@ -19,11 +21,13 @@
 #include "oops/util/DateTime.h"
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
+
 #include "soca/Geometry/Geometry.h"
 #include "soca/Increment/Increment.h"
 #include "soca/LinearVariableChange/LinearVariableChange.h"
 #include "soca/State/State.h"
 #include "soca/Traits.h"
+
 #include "incrqc/gdas_incr_qc.h"
 
 namespace gdasapp {
