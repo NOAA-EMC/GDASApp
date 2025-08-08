@@ -63,7 +63,6 @@ qc increment:
     read_from_file: 1
     basename: ./
     ocn_filename: ocn.nc
-    #ice_filename: cice.res.nc
     date: &bkg_date 2021-07-03T00:00:00Z
     state variables:
     - sea_water_potential_temperature
@@ -91,7 +90,9 @@ qc increment:
 write to gaussian grid:
   debug: true
   grid resolution: 12
-  gaussian output file: "gaussian_increment"
+  gaussian output files:
+    sfcinc: "gdas.t00z.dsfcanl.soca"    # dft and dicec
+    sfcanl: "gdas.t00z.sfcanl.soca"  # Tref and icec
   min thickness for mask: 0.1  # meters
   flooding iterations: 5
   local interpolator type: "atlas interpolator"

@@ -36,7 +36,7 @@ namespace incrqc {
  * @param maxBound The maximum allowed value for the resulting analysis
  * @return The adjusted increment that, when added to xB, will keep the result within [minBound, maxBound]
  */
-double adjustAnalysisBounds(double xB, double dX, double minBound, double maxBound) {
+inline double adjustAnalysisBounds(double xB, double dX, double minBound, double maxBound) {
   double xA = xB + dX;
   if (xA < minBound) {
     return minBound - xB;
@@ -78,7 +78,7 @@ double adjustAnalysisBounds(double xB, double dX, double minBound, double maxBou
  * @note The correction factor is determined based on the ratio of the analysis density
  *       gradient to rhoMinGrad, with values clamped between 0.1 and 1.0
  */
-void applyWaterColumnStabilityCheck(
+inline void applyWaterColumnStabilityCheck(
     atlas::FieldSet dxFs,
     const atlas::array::ArrayView<const double, 2>& viewTempBkg,
     const atlas::array::ArrayView<const double, 2>& viewSaltBkg,
@@ -207,7 +207,7 @@ void applyWaterColumnStabilityCheck(
  * @param viewHocn     Ocean layer thickness values (input only)
  * @param deltaSshMax  Maximum allowed absolute value for SSH increments
  */
-void applyStericHeightConstraint(
+inline void applyStericHeightConstraint(
     const atlas::idx_t jnode,
     atlas::array::ArrayView<double, 2>& viewTempIncr,
     atlas::array::ArrayView<double, 2>& viewSaltIncr,
@@ -279,7 +279,7 @@ void applyStericHeightConstraint(
  *      - If xA < minBound: set dX = minBound - xB
  *      - If xA > maxBound: set dX = maxBound - xB
  */
-void applyBruteForceBoundsCheck(
+inline void applyBruteForceBoundsCheck(
     atlas::FieldSet& dxFs,
     const atlas::FieldSet& xbFs,
     const atlas::array::ArrayView<const int, 1>& ghostView,

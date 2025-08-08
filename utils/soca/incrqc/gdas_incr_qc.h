@@ -30,7 +30,7 @@ namespace incrqc {
  * @param dx The increment to QC. Will be modified in place.
  * @param config The configuration containing bounds information.
  */
-void qcIncrement(const soca::State& xb,
+inline void qcIncrement(const soca::State& xb,
                  soca::Increment& dx,
                  const eckit::Configuration& config,
                  const soca::Geometry& geom) {
