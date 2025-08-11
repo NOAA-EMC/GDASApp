@@ -17,7 +17,7 @@ target_link_libraries( gdas_soca_diagnostics.x PRIVATE stdc++fs)
 
 # Increment post processing
 ecbuild_add_executable( TARGET gdas_soca_incr_handler.x
-                        SOURCES gdas_soca_incr_handler.cc gdas_postprocincr.h)
+                        SOURCES gdas_soca_incr_handler.cc ../genutils/Flood.cc gdas_postprocincr.h)
 target_compile_features( gdas_soca_incr_handler.x PUBLIC cxx_std_11)
 target_link_libraries( gdas_soca_incr_handler.x PUBLIC NetCDF::NetCDF_CXX oops atlas soca)
 target_link_libraries( gdas_soca_incr_handler.x PRIVATE stdc++fs)

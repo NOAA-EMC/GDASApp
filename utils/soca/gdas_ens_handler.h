@@ -150,48 +150,24 @@ namespace gdasapp {
       soca::Increment recenteringIncr(geomOut, postProcIncr.socaIncrVar_, postProcIncr.dt_);
       recenteringIncr.diff(determTraj, ensMeanTraj);
       postProcIncr.setToZero(recenteringIncr);
+      // Append the vertical geometry (for MOM6 IAU)
+      soca::Increment mom6_incr = postProcIncr.appendLayer(recenteringIncr);
       oops::Log::info() << "recentering incr: " << recenteringIncr << std::endl;
 
       // Check if we're only re-centering the ensemble fcst around the det.
       bool recenterOnly = fullConfig.getBool("recentering around deterministic", false);
       bool seaiceRecenter = fullConfig.getBool("sea ice recenter", false);
-      // Save increments and exit if all we're doing is re-centering
+      // Save increment and CICE restarts and exit if all we're doing is re-centering
       // the ensemble fcst around the det.
       if (recenterOnly) {
         oops::Log::info() << "Only recentering " << std::endl;
-        int result = 0;
-        for (size_t i = 0; i < postProcIncr.ensSize_; ++i) {
-          // make a copy of the recentering increment
-          soca::Increment incr(recenteringIncr);
-
-          // Append the vertical geometry (for MOM6 IAU)
-          soca::Increment mom6_incr = postProcIncr.appendLayer(incr);
-          oops::Log::info() << "recentering incr " << i << ":" << mom6_incr << std::endl;
-
-          // Set variables to zero if specified in the configuration
-          postProcIncr.setToZero(incr);
-
-          // Optionally apply inflation
-          if (fullConfig.has("ensemble inflation.value")) {
-            const double inflation = fullConfig.getDouble("ensemble inflation.value");
-            mom6_incr *= inflation;
-            oops::Log::info() << "incr after scalar inflation " << i << ":"
-                              << mom6_incr << std::endl;
-          }
-          if (fullConfig.has("ensemble inflation.field")) {
-            soca::Increment weight(geomOut, mom6_incr.variables(), mom6_incr.validTime());
-            const eckit::LocalConfiguration weightConf(fullConfig, "ensemble inflation.field");
-            weight.read(weightConf);
-            mom6_incr.schur_product_with(weight);
-            oops::Log::info() << "incr after field inflation " << i << ":"
-                              << mom6_incr << std::endl;
-          }
-
-          // Save the increments used to initialize the ensemble forecast
-          result = postProcIncr.save(mom6_incr, i+1);
-
-          // recenter ice if needed
-          if (seaiceRecenter) {
+        // Save the increment used to initialize the ensemble forecast
+        // All ensemble members use the same increment, so only need to save once
+        eckit::LocalConfiguration outputIncrConfig(fullConfig, "output increment");
+        mom6_incr.write(outputIncrConfig);
+        // recenter ice if needed
+        if (seaiceRecenter) {
+          for (size_t i = 0; i < postProcIncr.ensSize_; ++i) {
             // read state
             eckit::LocalConfiguration ensmem_config(fullConfig, "sea ice analysis");
             std::string pattern;
@@ -215,7 +191,7 @@ namespace gdasapp {
             varchange.changeVar(ens_an, varout);
           }
         }
-        return result;
+        return 0;
       }
 
       // Get the steric variable change configuration

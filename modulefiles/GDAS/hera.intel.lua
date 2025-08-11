@@ -57,6 +57,7 @@ load("json/3.11.3")
 --load("crtm/v2.4_jedi")
 load("rocoto/1.3.7")
 load("prod_util/2.1.1")
+load("grib-util/1.4.0")
 
 load("py-jinja2/3.1.4")
 load("py-netcdf4/1.7.1.post2")
@@ -78,9 +79,9 @@ local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
-setenv("CRTM_FIX","/scratch1/NCEPDEV/da/role.jedipara/GDASApp/fix/crtm/2.4.0")
-setenv("GDASAPP_TESTDATA","/scratch1/NCEPDEV/da/role.jedipara/GDASApp/testdata")
-setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/scratch1/NCEPDEV/da/role.jedipara/GDASApp/unittestdata")
+setenv("CRTM_FIX","/scratch3/NCEPDEV/da/role.jedipara/GDASApp/fix/crtm/2.4.0")
+setenv("GDASAPP_TESTDATA","/scratch3/NCEPDEV/da/role.jedipara/GDASApp/testdata")
+setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/scratch3/NCEPDEV/da/role.jedipara/GDASApp/unittestdata")
 
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)
