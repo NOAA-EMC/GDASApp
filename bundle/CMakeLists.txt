@@ -125,6 +125,9 @@ if(BUILD_GDASBUNDLE)
 # GDASApp
   ecbuild_bundle( PROJECT gdas SOURCE "../")
 
+# SPOC 
+  ecbuild_bundle( PROJECT gdas SOURCE "../sorc/spoc")
+
 # Install jcb (JEDI Configuration Builder) Python package
   message(STATUS "Installing jcb (JEDI Configuration Builder)")
   execute_process(
