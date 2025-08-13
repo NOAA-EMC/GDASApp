@@ -77,3 +77,7 @@
   path = sorc/bufr-query
   url = https://github.com/noaa-emc/bufr-query.git
   branch = develop
+[submodule "sorc/spoc"]
+  path = sorc/spoc
+  url = https://github.com/noaa-emc/spoc.git
+  branch = develop
