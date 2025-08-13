@@ -251,7 +251,8 @@ int PostProcIncr::saveProducts(soca::Increment& dx,
           sfcAnaView(j, 0) = bkgView(j, 0);
       }
     } else {
-        oops::Log::warning() << "Field " << bkgVarname << " not found in background state, skipping." << std::endl;
+        oops::Log::warning() << "Field " << bkgVarname
+                             << " not found in background state, skipping." << std::endl;
     }
   }
 
