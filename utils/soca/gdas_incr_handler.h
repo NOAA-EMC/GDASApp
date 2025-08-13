@@ -135,9 +135,9 @@ namespace gdasapp {
         oops::Log::debug() << incr_mom6 << std::endl;
 
         // Save to Gaussian grid
-        if (fullConfig.has("write to gaussian grid")) {
-          eckit::LocalConfiguration config(fullConfig, "write to gaussian grid");
-          result = postProcIncr.saveToGaussian(incr_mom6, xx, config);
+        if (fullConfig.has("product output")) {
+          eckit::LocalConfiguration config(fullConfig, "product output");
+          result = postProcIncr.saveProducts(incr_mom6, xx, config);
         }
       }
 

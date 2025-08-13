@@ -87,14 +87,21 @@ qc increment:
     linear variable changes:
     - linear variable change name: BalanceSOCA
 
-write to gaussian grid:
+product output:
   debug: true
-  grid resolution: 12
-  gaussian output files:
-    sfcinc: "gdas.t00z.dsfcanl.soca"    # dft and dicec
-    sfcanl: "gdas.t00z.sfcanl.soca"  # Tref and icec
-  min thickness for mask: 0.1  # meters
-  flooding iterations: 5
-  local interpolator type: "atlas interpolator"
-  interpolation method:
-    type: finite-element
+  gaussian grid:
+    grid resolution: 12
+    gaussian output files:
+      sfcinc: "gdas.t00z.dsfcanl.soca"    # dft and dicec
+      sfcanl: "gdas.t00z.sfcanl.soca"     # Tref and icec
+    min thickness for mask: 0.1  # meters
+    flooding iterations: 5
+    local interpolator type: "atlas interpolator"
+    interpolation method:
+      type: finite-element
+  native grid:
+    datadir: ./
+    date: '2021-07-03T00:00:00Z'
+    exp: sfc_ana_prod
+    type: incr
+    output file: sfc_ana_prod.nc

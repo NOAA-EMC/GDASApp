@@ -186,18 +186,26 @@ int PostProcIncr::save(soca::Increment& socaIncr, int ensMem,
 }
 
 // -----------------------------------------------------------------------------
-// Save the increment fields to a Gaussian grid after flooding and interpolation
-int PostProcIncr::saveToGaussian(soca::Increment& dx,
-                                 soca::State& bkg,
-                                 const eckit::Configuration& config) {
+// Save the products to native and Gaussian grids
+int PostProcIncr::saveProducts(soca::Increment& dx,
+                              soca::State& bkg,
+                              const eckit::Configuration& config) {
   oops::Log::info() << "==========================================" << std::endl;
-  oops::Log::info() << "-------------------- save to Gaussian grid: " << config << std::endl;
+  oops::Log::info() << "-------------------- save Products: " << std::endl;
+  oops::Log::info() << config << std::endl;
+
+  oops::Log::info() << "bkg" << bkg << std::endl;
+  oops::Log::info() << "dx" << dx << std::endl;
 
   // Prepare geometry data for flooding and interpolation
   const oops::GeometryData geomData(geom_.functionSpace(), geom_.fields(),
                                     geom_.levelsAreTopDown(), geom_.getComm());
   const bool debug = config.getBool("debug", false);
-  eckit::LocalConfiguration lconf;
+
+  // Extract local configurations
+  eckit::LocalConfiguration gaussianConfig(config, "gaussian grid");
+  eckit::LocalConfiguration nativeConfig(config, "native grid");
+  eckit::LocalConfiguration lconf;  // only used when debug is true
 
   // Create flood utility
   gdasapp::genutils::Flood flood(geomData);
@@ -216,7 +224,47 @@ int PostProcIncr::saveToGaussian(soca::Increment& dx,
   oops::Log::info() << "-------------------- background fields: " << std::endl;
   oops::Log::info() << bkg << std::endl;
 
-  // Extract fields needed for processing
+  // WRITE THE INCREMENT ON THE NATIVE GRID
+  // --------------------------------------
+
+  // Create a new State with only sea_surface_temperature and sea_ice_area_fraction
+  std::vector<std::string> sfcVarNames = {"sea_surface_temperature", "sea_ice_area_fraction"};
+  oops::Variables sfcVars(sfcVarNames);
+  soca::State sfcAna(geom_, sfcVars, bkg.validTime());
+  atlas::FieldSet sfcanafs;
+  sfcAna.toFieldSet(sfcanafs);
+  // Create array views for bkg and sfcAna's fields and copy bkg's field into sfcAna
+  // Map sfcVarNames to their corresponding field names in bkgfs
+  std::map<std::string, std::string> bkgFieldMap = {
+      {"sea_surface_temperature", "sea_water_potential_temperature"},
+      {"sea_ice_area_fraction", "sea_ice_area_fraction"}
+  };
+
+  for (const auto& varName : sfcVarNames) {
+    const std::string& bkgVarname = bkgFieldMap[varName];
+    if (bkgfs.has(bkgVarname)) {
+      atlas::Field bkgField = bkgfs[bkgVarname];
+      atlas::Field sfcAnaField = sfcanafs[varName];
+      auto bkgView = atlas::array::make_view<double, 2>(bkgField);
+      auto sfcAnaView = atlas::array::make_view<double, 2>(sfcAnaField);
+      for (atlas::idx_t j = 0; j < bkgField.shape(0); ++j) {
+          sfcAnaView(j, 0) = bkgView(j, 0);
+      }
+    } else {
+        oops::Log::warning() << "Field " << bkgVarname << " not found in background state, skipping." << std::endl;
+    }
+  }
+
+  oops::Log::info() << "-------------------- surface analysis fields (native grid): " << std::endl;
+  oops::Log::info() << sfcAna << std::endl;
+
+  // Write surface analysis product on the native grid
+  sfcAna.write(nativeConfig);
+
+  // WRITE THE INCREMENT ON THE GAUSSIAN GRID
+  // --------------------------------------
+
+  // Extract fields needed for the product output
   atlas::Field dtemp = dxfs["sea_water_potential_temperature"];
   atlas::Field dicec = dxfs["sea_ice_area_fraction"];
   atlas::Field thickness = bkgfs["sea_water_cell_thickness"];
@@ -227,7 +275,7 @@ int PostProcIncr::saveToGaussian(soca::Increment& dx,
   auto temp_view = atlas::array::make_view<double, 2>(temp);
 
   // Create mask based on minimum thickness
-  const double min_thickness = config.getDouble("min thickness for mask");
+  const double min_thickness = gaussianConfig.getDouble("min thickness for mask");
   atlas::Field mask = dtemp.functionspace().createField<int>(
       atlas::option::name("mask") | atlas::option::levels(1));
   auto mask_view = atlas::array::make_view<int, 2>(mask);
@@ -265,7 +313,7 @@ int PostProcIncr::saveToGaussian(soca::Increment& dx,
   }
 
   // Flood the fields to fill masked values close to the coast line
-  int niter = config.getInt("flooding iterations", 5);
+  int niter = gaussianConfig.getInt("flooding iterations", 5);
   std::vector<atlas::Field> fieldsToFlood = {dtf, dicec, tref, icec};
   for (auto& field : fieldsToFlood) {
       flood.apply(field, mask, /*source_mask*/1, /*target_mask*/0, niter);
@@ -277,9 +325,9 @@ int PostProcIncr::saveToGaussian(soca::Increment& dx,
     util::writeFieldSet(comm_, lconf, surfacefs);
   }
 
-  // Set up Gaussian grid for interpolation
+  // Set up Gaussian destination grid for interpolation
   std::string gridRes;
-  config.get("grid resolution", gridRes);
+  gaussianConfig.get("grid resolution", gridRes);
   const std::string atlasGridName = "F" + gridRes;
   const atlas::Grid grid(atlasGridName);
 
@@ -292,29 +340,33 @@ int PostProcIncr::saveToGaussian(soca::Increment& dx,
   atlas_conf.set("mpi_comm", comm_.name());
   auto targetFunctionSpace = std::make_unique<atlas::functionspace::StructuredColumns>(grid, dist,
                                                                                        atlas_conf);
-
   // Interpolate surface fields to Gaussian grid
-  oops::GlobalInterpolator interp(config, geomData, *targetFunctionSpace, geom_.getComm());
+  oops::GlobalInterpolator interp(gaussianConfig, geomData, *targetFunctionSpace, geom_.getComm());
   atlas::FieldSet sfcgaussfs;
   interp.apply(surfacefs, sfcgaussfs);
 
   // Save interpolated increments
-  std::string dOutputFileName;
-  config.get("gaussian output files.sfcinc", dOutputFileName);
-  lconf.set("filepath", dOutputFileName);
-  atlas::FieldSet dtf_dicec_fs;
-  dtf_dicec_fs.add(sfcgaussfs["dtf"]);
-  dtf_dicec_fs.add(sfcgaussfs["dicec"]);
-  util::writeFieldSet(comm_, lconf, dtf_dicec_fs);
+  if (gaussianConfig.has("gaussian output files.sfcinc")) {
+    std::string dOutputFileName;
+    gaussianConfig.get("gaussian output files.sfcinc", dOutputFileName);
+    lconf.set("filepath", dOutputFileName);
+    atlas::FieldSet dtf_dicec_fs;
+    dtf_dicec_fs.add(sfcgaussfs["dtf"]);
+    dtf_dicec_fs.add(sfcgaussfs["dicec"]);
+    util::writeFieldSet(comm_, lconf, dtf_dicec_fs);
+  }
 
   // Save interpolated analysis fields
   std::string aOutputFileName;
-  config.get("gaussian output files.sfcanl", aOutputFileName);
+  gaussianConfig.get("gaussian output files.sfcanl", aOutputFileName);
   lconf.set("filepath", aOutputFileName);
   atlas::FieldSet anl_fs;
-  anl_fs.add(sfcgaussfs["tref"]);
+  if (debug) {
+    anl_fs.add(sfcgaussfs["tref"]);  // Not needed for GFSv17, only save when debugging
+  }
   anl_fs.add(sfcgaussfs["icec"]);
-  util::writeFieldSet(comm_, lconf, anl_fs);
+  util::writeFieldSet(comm_, lconf, anl_fs);  // Still needs to be masked using the
+                                              // fv3 gaussian land mask
 
   return 0;
 }
@@ -376,3 +428,4 @@ soca::Increment PostProcIncr::getLayerThickness(const eckit::Configuration& full
   return layerThickOut;
 }
 }  // namespace gdasapp
+

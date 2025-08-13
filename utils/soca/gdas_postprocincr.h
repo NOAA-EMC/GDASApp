@@ -143,7 +143,8 @@ class PostProcIncr {
    *    using the `oops::Flood` class.
    * 5. Interpolates the flooded surface fields to a Gaussian grid using `oops::GlobalInterpolator`.
    * 6. Optionally writes debug output (pre/post flooding) if enabled.
-   * 7. Saves the result to disk in NetCDF format using `util::writeFieldSet`.
+   * 7. Saves the surface analysis to disk in NetCDF format using `util::writeFieldSet` for the Gaussian grid
+   *    and the soca::State writer for the original analysis.
    *
    * @param[in] dx A `soca::Increment` containing 3D ocean and sea ice fields.
    * @param[in] bkg A `soca::State` representing the background state.
@@ -155,9 +156,9 @@ class PostProcIncr {
    *   - `"gaussian output file"`: Output file name for the final Gaussian grid output.
    * @return 0 on success.
    */
-  int saveToGaussian(soca::Increment& dx,
-                     soca::State& bkg,
-                     const eckit::Configuration& config);
+  int saveProducts(soca::Increment& dx,
+                   soca::State& bkg,
+                   const eckit::Configuration& config);
 
  private:
   util::DateTime getDate(const eckit::Configuration& fullConfig) const;
