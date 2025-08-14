@@ -53,7 +53,7 @@ namespace gdasapp_ens_utils {
         pert.schur_product_with(pert);
         ensVar += pert;
       }
-      ensVar.axpy(rk, ensStd);
+      ensVar *= rk;
 
       // Standard deviation
       ensStd = ensVar;
