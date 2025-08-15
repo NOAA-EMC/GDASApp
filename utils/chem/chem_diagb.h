@@ -320,7 +320,6 @@ namespace gdasapp {
           // Synchronize all MPI tasks before proceeding
           oops::mpi::world().barrier();
         }
-        oops::mpi::world().barrier();
         util::multiplyFieldSets(bkgErrFs, rescaleFs);
       }
       // Synchronize all MPI tasks before proceeding
