@@ -101,7 +101,6 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT ufo SOURCE "../sorc/ufo" )
 
 # fv3-jedi and associated repositories
-  ecbuild_bundle( PROJECT femps SOURCE "../sorc/femps" )
   ecbuild_bundle( PROJECT fv3-jedi-lm SOURCE "../sorc/fv3-jedi-lm" )
   option(ENABLE_FV3_JEDI_DATA "Obtain fv3-jedi test data from fv3-jedi-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
@@ -125,6 +124,17 @@ if(BUILD_GDASBUNDLE)
 
 # GDASApp
   ecbuild_bundle( PROJECT gdas SOURCE "../")
+
+# Install jcb (JEDI Configuration Builder) Python package
+  message(STATUS "Installing jcb (JEDI Configuration Builder)")
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} -m pip install --prefix ${CMAKE_INSTALL_PREFIX} .
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../sorc/jcb
+    RESULT_VARIABLE jcb_install_result
+  )
+  if(NOT jcb_install_result EQUAL 0)
+    message(FATAL_ERROR "Failed to install jcb Python package")
+  endif()
 
 # ioda, ufo, fv3-jedi, and saber test data
 #---------------------------------

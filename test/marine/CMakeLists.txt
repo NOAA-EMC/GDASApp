@@ -84,7 +84,7 @@ set(BUFR_TEST_DIR_ORION
 	"/work/noaa/da/marineda/gfs-marine/data/obs/ci/bufr"
 )
 set(BUFR_TEST_DIR_HERA
-	"/scratch1/NCEPDEV/da/common/ci/bufr"
+	"/scratch3/NCEPDEV/da/common/ci/bufr"
 )
 CHECK_AND_SET_PATH(
 	${BUFR_TEST_DIR_ORION} 
@@ -98,7 +98,7 @@ else()
     # message(STATUS "Found bufr test directory: ${BUFR_TEST_DIR}")
 
 	set(OCEAN_BASIN_FILE_HERA
-		"/scratch2/NCEPDEV/ocean/Guillaume.Vernieres/data/static/common/RECCAP2_region_masks_all_v20221025.nc"
+		"/scratch3/NCEPDEV/da/common/validation/RECCAP2_region_masks_all_v20221025.nc"
 	)
 	set(OCEAN_BASIN_FILE_ORION
 		"/work2/noaa/global/role-global/fix/gdas/soca/20240802/common/RECCAP2_region_masks_all_v20221025.nc"
