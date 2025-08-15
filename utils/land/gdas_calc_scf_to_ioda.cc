@@ -370,7 +370,11 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     // Write QC variables
     // TODO(CoryMartin-NOAA) - set QC values based on some criteria?
     std::vector<int> qc_scf(nobs, 0);  // Assuming 0 is good quality
-    std::vector<int> qc_sd(nobs, 0);  // Assuming 0 is good quality
+    // QC values: According to IODA QC conventions, a value of 0 indicates "good quality" or "pass".
+    // See IODA documentation: https://github.com/JCSDA-internal/ioda/blob/develop/docs/source/obsdataformat.md#quality-control-flags
+    // TODO(CoryMartin-NOAA) - If IODA QC conventions change, update this logic accordingly.
+    std::vector<int> qc_scf(nobs, 0);  // QC value 0 = good quality (IODA convention)
+    std::vector<int> qc_sd(nobs, 0);   // QC value 0 = good quality (IODA convention)
     iodaSCFPreQC.write(qc_scf);
     iodaSDPreQC.write(qc_sd);
     // Write out the values
@@ -705,7 +709,12 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
 // Helper function for error handling
 void gdasapp::CalcSCFtoIODA::IMSscf::netcdf_err(int error, const std::string &msg) {
     if (error != NC_NOERR) {
+<<<<<<< HEAD
         std::cerr << msg << ": " << nc_strerror(error) << std::endl;
         std::exit(EXIT_FAILURE);
+=======
+        std::string errorMessage = msg + ": " + nc_strerror(error);
+        throw eckit::BadValue(errorMessage, Here());
+>>>>>>> 33389a15c9efed0152fdd8e14a8659c3281ed361
     }
 }
