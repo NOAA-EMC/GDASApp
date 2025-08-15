@@ -709,6 +709,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
 
 // Helper function for error handling
 void gdasapp::CalcSCFtoIODA::IMSscf::netcdf_err(int error, const std::string &msg) {
+    if (error != NC_NOERR) {
         std::string errorMessage = msg + ": " + nc_strerror(error);
         throw eckit::BadValue(errorMessage, Here());
     }
