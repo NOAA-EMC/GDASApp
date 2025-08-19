@@ -3,23 +3,31 @@
 #include <experimental/filesystem>
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 
 #include "atlas/field.h"
+#include "atlas/grid.h"
 
+#include "oops/base/GeometryData.h"
 #include "oops/base/PostProcessor.h"
+//  #include "oops/generic/Flood.h"  // Use this when/if oops PR is merged
+#include "../genutils/Flood.h"
+#include "oops/generic/GlobalInterpolator.h"
 #include "oops/mpi/mpi.h"
 #include "oops/util/ConfigFunctions.h"
 #include "oops/util/DateTime.h"
+#include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
 
 #include "soca/Geometry/Geometry.h"
 #include "soca/Increment/Increment.h"
 #include "soca/LinearVariableChange/LinearVariableChange.h"
 #include "soca/State/State.h"
+#include "soca/Traits.h"
 
 #include "incrqc/gdas_incr_qc.h"
 
@@ -337,6 +345,129 @@ class PostProcIncr {
     }
     return result;
   }
+
+// -----------------------------------------------------------------------------
+/// @brief Saves selected surface fields from a soca::Increment to a Gaussian grid.
+///
+/// This function prepares ocean and ice surface fields from a `soca::Increment`
+/// and saves them on a Gaussian (structured) grid. It performs the following steps:
+///
+/// 1. Extracts relevant 3D fields (`sea_water_potential_temperature`, `sea_water_cell_thickness`,
+///    and `sea_ice_area_fraction`) from the increment.
+/// 2. Creates a surface mask based on a configurable minimum thickness threshold.
+/// 3. Extracts the top level of temperature and sea ice concentration fields.
+/// 4. Applies iterative flooding to fill masked regions (typically land) based on ocean values,
+///    using the `oops::Flood` class.
+/// 5. Interpolates the flooded surface fields to a Gaussian grid using `oops::GlobalInterpolator`.
+/// 6. Optionally writes debug output (pre/post flooding) if enabled.
+/// 7. Saves the result to disk in NetCDF format using `util::writeFieldSet`.
+///
+/// @param[in] socaState A `soca::Increment` containing 3D ocean and sea ice fields.
+/// @param[in] config An `eckit::Configuration` containing parameters for:
+///   - `"min thickness for mask"`: Minimum valid thickness [m] to consider a point as ocean.
+///   - `"debug"`: Boolean flag to output intermediate files (optional, default: false).
+///   - `"grid resolution"`: Grid resolution string (e.g., `"512"`) used to construct the
+///                          Gaussian grid.
+///   - `"gaussian output file"`: Output file name for the final Gaussian grid output.
+/// @return 0 on success.
+int saveToGaussian(soca::Increment& socaState, const eckit::Configuration& config) {
+  oops::Log::info() << "==========================================" << std::endl;
+  oops::Log::info() << "-------------------- save to Gaussian grid: " << config << std::endl;
+
+  // Construct GeometryData from the soca::Geometry internals
+  const oops::GeometryData geomData(geom_.functionSpace(), geom_.fields(),
+                                    geom_.levelsAreTopDown(), geom_.getComm());
+
+  const bool debug = config.getBool("debug", false);
+  eckit::LocalConfiguration lconf;  // Used for debug output
+
+  // Create Flood object for land extrapolation
+  gdasapp::genutils::Flood flood(geomData);
+
+  // Convert Increment to Atlas FieldSet
+  atlas::FieldSet socafs;
+  socaState.toFieldSet(socafs);
+
+  oops::Log::info() << "-------------------- increment fields: " << std::endl;
+  oops::Log::info() << socaState << std::endl;
+
+  // Access relevant 3D fields
+  atlas::Field temp = socafs["sea_water_potential_temperature"];
+  atlas::Field icec = socafs["sea_ice_area_fraction"];
+  atlas::Field thickness = socafs["sea_water_cell_thickness"];
+  auto thickness_view = atlas::array::make_view<double, 2>(thickness);
+
+  // Create a 2D mask field from top-level thickness
+  const double min_thickness = config.getDouble("min thickness for mask");
+  atlas::Field mask = temp.functionspace().createField<int>(
+      atlas::option::name("mask") | atlas::option::levels(1));
+  auto mask_view = atlas::array::make_view<int, 2>(mask);
+  for (atlas::idx_t j = 0; j < temp.shape(0); ++j) {
+    mask_view(j, 0) = (thickness_view(j, 0) > min_thickness) ? 1 : 0;
+  }
+
+  // Extract top layer of sea_water_potential_temperature → sea_surface_temperature
+  atlas::Field sst = temp.functionspace().createField<double>(
+      atlas::option::name("sea_surface_temperature") | atlas::option::levels(1));
+  auto sst_view = atlas::array::make_view<double, 2>(sst);
+  auto temp_view = atlas::array::make_view<double, 2>(temp);
+  for (atlas::idx_t j = 0; j < temp.shape(0); ++j) {
+    sst_view(j, 0) = temp_view(j, 0);
+  }
+
+  // Create a surface FieldSet containing SST and ice concentration
+  atlas::FieldSet surfacefs;
+  surfacefs.add(sst);
+  surfacefs.add(icec);
+
+  // Optional debug output before flooding
+  if (debug) {
+    lconf.set("filepath", "original_increment");
+    util::writeFieldSet(comm_, lconf, surfacefs);
+  }
+
+  // Get number of flood iterations from config (default to 5 if not specified)
+  int niter = config.getInt("flooding iterations", 5);
+
+  // Flood surface fields over land mask using configured number of iterations
+  flood.apply(sst, mask, /*source_mask*/1, /*target_mask*/0, niter);
+  flood.apply(icec, mask, /*source_mask*/1, /*target_mask*/0, niter);
+
+  // Optional debug output after flooding
+  if (debug) {
+    lconf.set("filepath", "flooded_increment");
+    util::writeFieldSet(comm_, lconf, surfacefs);
+  }
+
+  // Create Gaussian grid (e.g., "F512")
+  std::string gridRes;
+  config.get("grid resolution", gridRes);
+  const std::string atlasGridName = "F" + gridRes;
+  const atlas::Grid grid(atlasGridName);
+
+  // Create a flat distribution (all fields written on all ranks)
+  std::vector<int> zeros(grid.size(), 0);
+  const atlas::grid::Distribution dist(comm_.size(), grid.size(), zeros.data());
+
+  // Construct a StructuredColumns function space for interpolation
+  eckit::LocalConfiguration atlas_conf;
+  atlas_conf.set("mpi_comm", comm_.name());
+  auto targetFunctionSpace = std::make_unique<atlas::functionspace::StructuredColumns>(grid, dist,
+                                                                                       atlas_conf);
+
+  // Interpolate surface fields to Gaussian grid
+  oops::GlobalInterpolator interp(config, geomData, *targetFunctionSpace, geom_.getComm());
+  atlas::FieldSet sfcgaussfs;
+  interp.apply(surfacefs, sfcgaussfs);
+
+  // Write final interpolated fields to output file
+  std::string outputFileName;
+  config.get("gaussian output file", outputFileName);
+  lconf.set("filepath", outputFileName);
+  util::writeFieldSet(comm_, lconf, sfcgaussfs);
+
+  return 0;
+}
 
   // -----------------------------------------------------------------------------
 
