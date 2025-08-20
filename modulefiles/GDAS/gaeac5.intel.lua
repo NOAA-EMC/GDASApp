@@ -76,6 +76,7 @@ load("py-scipy/1.11.3")
 load("py-xarray/2023.7.0")
 load("py-f90nml/1.4.3")
 load("py-pip/23.1.2")
+load("py-click/8.1.7")
 
 setenv("CC","cc")
 setenv("CXX","CC")
