@@ -302,7 +302,8 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     ioda::Group group = ioda::Engines::HH::createFile(outputpath,
         ioda::Engines::BackendCreateModes::Truncate_If_Exists);
     // Add in the location dimension
-    ioda::NewDimensionScales_t newDims {ioda::NewDimensionScale<int>("Location", nobs, ioda::Unlimited)};
+    ioda::NewDimensionScales_t newDims {ioda::NewDimensionScale<int>("Location",
+                                        nobs, ioda::Unlimited)};
     ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
     oops::Log::info() << "Output IODA file has " << nobs << " observations." << std::endl;
     // Create variable parameters
