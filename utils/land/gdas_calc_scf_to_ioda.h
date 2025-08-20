@@ -71,8 +71,9 @@ namespace gdasapp {
         0.013f, 0.015f, 0.008f, 0.015f, 0.015f, 0.015f, 0.015f
     };
     float oberr_scf = 0.0f;
-    float oberr_snd = 40.0f;
+    float oberr_snd = 80.0f;
     static constexpr float nodata_float = -999.0f;
+    static constexpr float nodata_tol = 0.01f;  // Tolerance for nodata checks
 
    public:
     void run();

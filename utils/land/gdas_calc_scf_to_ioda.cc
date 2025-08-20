@@ -279,8 +279,8 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
       for (size_t i=0; i < geom.npx()-1; ++i) {
         for (size_t j=0; j < geom.npy()-1; ++j) {
           atlas::idx_t jnode = ((geom.npx()-1)*(geom.npy()-1)*(k) + (j)*(geom.npx()-1) + (i));
-          if (abs(scf_global[jnode] - -999.0f) > 0.01f) {
-            if (abs(snd_global[jnode] - -999.0f) > 0.01f) {
+          if (abs(scf_global[jnode] - nodata_float) > nodata_tol) {
+            if (abs(snd_global[jnode] - nodata_float) > nodata_tol) {
               snd_var.push_back(snd_global[jnode]);
             } else {
               snd_var.push_back(util::missingValue<float>());
@@ -382,8 +382,8 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     iodaSCFPreQC.write(qc_scf);
     iodaSDPreQC.write(qc_sd);
     // Write errors
-    std::vector<float> err_scf(nobs, 0.0f);
-    std::vector<float> err_sd(nobs, 80.0f);
+    std::vector<float> err_scf(nobs, oberr_scf);
+    std::vector<float> err_sd(nobs, oberr_snd);
     iodaSCFError.write(err_scf);
     iodaSDError.write(err_sd);
     // Write out the metadata and ObsValues
