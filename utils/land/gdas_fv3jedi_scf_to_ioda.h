@@ -7,7 +7,7 @@
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 
-#include "gdas_calc_scf_to_ioda.h"
+#include "gdas_fv3jedi_calc_scf_to_ioda.h"
 
 namespace gdasapp {
   /**

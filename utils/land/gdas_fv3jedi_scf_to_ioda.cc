@@ -1,4 +1,4 @@
-#include "gdas_scf_to_ioda.h"
+#include "gdas_fv3jedi_scf_to_ioda.h"
 #include "oops/runs/Run.h"
 
 int main(int argc,  char ** argv) {

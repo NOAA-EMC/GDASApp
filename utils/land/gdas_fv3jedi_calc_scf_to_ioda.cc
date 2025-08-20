@@ -24,7 +24,7 @@
 #include "oops/util/missingValues.h"
 
 
-#include "gdas_calc_scf_to_ioda.h"
+#include "gdas_fv3jedi_calc_scf_to_ioda.h"
 
 void gdasapp::CalcSCFtoIODA::run() {
   // Implementation of the SCF to IODA calculation
