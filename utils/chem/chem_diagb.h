@@ -174,7 +174,8 @@ namespace gdasapp {
         }  // end jnode
       }  // end var
 
-
+      // Synchronize all MPI tasks before proceeding
+      oops::mpi::world().barrier();
 
       /// Smooth the fields
       // ------------------
@@ -182,6 +183,8 @@ namespace gdasapp {
         int niter(0);
         fullConfig.get("simple smoothing.horizontal iterations", niter);
         for (auto & var : chemVars.variables()) {
+          oops::Log::info() << "====================== horizontal smoothing for " << var
+                            << std::endl;
           // Horizontal averaging
           for (int iter = 0; iter < niter; ++iter) {
             // Update the halo points
@@ -232,8 +235,9 @@ namespace gdasapp {
           }
         }
       }
-
-     // Rescale
+      // Synchronize all MPI tasks before proceeding
+      oops::mpi::world().barrier();
+     // Rescale from file
       if (fullConfig.has("global rescale")) {
         const eckit::LocalConfiguration GlobalRescaleConfig(fullConfig, "global rescale");
         const eckit::LocalConfiguration GlobalRescaleGeomConfig(GlobalRescaleConfig, "geometry");
@@ -252,8 +256,74 @@ namespace gdasapp {
         util::multiplyFieldSets(bkgErrFs, xrsFs);
       }
 
-
-
+      // Rescale from YAML
+      if (fullConfig.has("rescaling factors")) {
+        oops::Log::info() << "========== Rescaling factors found in YAML" << std::endl;
+        const eckit::LocalConfiguration rescaleConfig(fullConfig, "rescaling factors");
+        fv3jedi::Increment rescaling(geom, chemVars, cycleDate);
+        rescaling.ones();
+        atlas::FieldSet rescaleFs;
+        rescaling.toFieldSet(rescaleFs);
+        atlas::FunctionSpace fs = geom.functionSpace();
+        atlas::FieldSet geom_fs = geom.fields();
+        const auto slmskView = atlas::array::make_view<double, 2>(geom_fs["slmsk"]);
+        const auto lonLatView = atlas::array::make_view<double, 2>(fs.lonlat());
+        // Synchronize all MPI tasks before proceeding
+        oops::mpi::world().barrier();
+        for (auto & var : chemVars.variables()) {
+          oops::Log::info() << "====================== " << var << std::endl;
+          if (rescaleConfig.has(var)) {
+            oops::Log::info() << "====================== rescale for " << var << std::endl;
+            const eckit::LocalConfiguration rescaleVarConfig(rescaleConfig, var);
+            double rescaleFactorOcean = 1.0;
+            double rescaleFactorLand = 1.0;
+            double rescaleFactorHighLat = 1.0;
+            double HighLat = 90.0;
+            if (rescaleVarConfig.has("ocean rescaling factor")) {
+              rescaleVarConfig.get("ocean rescaling factor", rescaleFactorOcean);
+              rescaleVarConfig.get("land rescaling factor", rescaleFactorLand);
+            } else {
+              rescaleVarConfig.get("rescaling factor", rescaleFactorOcean);
+              rescaleFactorLand = rescaleFactorOcean;  // Default to ocean factor if not specified
+            }
+            oops::Log::info() << "land rescaling factor for " << var
+                              << ": " << rescaleFactorLand << std::endl;
+            oops::Log::info() << "ocean rescaling factor for " << var
+                              << ": " << rescaleFactorOcean << std::endl;
+            if (rescaleVarConfig.has("high latitude threshold")) {
+              rescaleVarConfig.get("high latitude threshold", HighLat);
+              rescaleVarConfig.get("high latitude adjustment factor",
+                                   rescaleFactorHighLat);
+              oops::Log::info() << "Will rescale high latitudes above "
+                                << HighLat << " degrees by factor "
+                                << rescaleFactorHighLat << " for " << var << std::endl;
+            }
+            // compute the rescaling factor
+            oops::Log::info() << "Computing rescaling factor for " << var << std::endl;
+            auto rescaleView = atlas::array::make_view<double, 2>(rescaleFs[var]);
+            for (atlas::idx_t jnode = 0; jnode < rescaleFs[var].shape(0); ++jnode) {
+              double finalRescaleFactor = 1.0;
+                if (std::abs(slmskView(jnode, 0) - 1.0) < 1e-6) {  // land
+                finalRescaleFactor = rescaleFactorLand;
+              } else {  // ocean
+                finalRescaleFactor = rescaleFactorOcean;
+              }
+              if (std::abs(lonLatView(jnode, 1)) > HighLat) {
+                finalRescaleFactor *= rescaleFactorHighLat;
+              }
+              for (atlas::idx_t level = 0; level < rescaleFs[var].shape(1); ++level) {
+                rescaleView(jnode, level) = finalRescaleFactor;
+              }
+            }
+            oops::Log::info() << "Done computing rescaling factor for " << var << std::endl;
+          }
+          // Synchronize all MPI tasks before proceeding
+          oops::mpi::world().barrier();
+        }
+        util::multiplyFieldSets(bkgErrFs, rescaleFs);
+      }
+      // Synchronize all MPI tasks before proceeding
+      oops::mpi::world().barrier();
       bkgErr.fromFieldSet(bkgErrFs);
 
       // Hybrid B option
