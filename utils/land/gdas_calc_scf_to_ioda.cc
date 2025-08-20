@@ -94,7 +94,7 @@ void gdasapp::CalcSCFtoIODA::run() {
   imsscf.updateIMSsd(bkgState, geom);
 
   // Write the results in IODA format
-  writeToIoda(outputpath, cycleDate, geom, imsscf);
+  writeToIoda(outputpath, cycleDate, bkgState, geom, imsscf);
 }
 
 void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState,
@@ -158,8 +158,8 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgS
         // snow is present, compute snow cover fraction
         float snowh = bkg_snd(jnode, 0)*0.001f;  // convert mm to m
         float bdsno = bkg_snow_den(jnode, 0)*1000.0f;
-        float fmelt = std::pow(bdsno/100.0f, mfsno_table[vetfcs]);
-        bkg_scf(jnode, 0) = tanh(snowh/(scffac_table[vetfcs] * fmelt));
+        float fmelt = std::pow(bdsno/100.0f, mfsno_table[vetfcs-1]);
+        bkg_scf(jnode, 0) = tanh(snowh/(scffac_table[vetfcs-1] * fmelt));
       } else {
         // snow is not present, set to 0
         bkg_scf(jnode, 0) = 0.0f;
@@ -200,6 +200,7 @@ gdasapp::CalcSCFtoIODA::IMSscf::IMSscf(const std::string &imspath, const std::st
 
 void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
                                          const util::DateTime & cycleDate,
+                                         const fv3jedi::State & bkgState,
                                          const fv3jedi::Geometry & geom,
                                          const IMSscf & imsscf) {
   // Implementation of writing the calculated observations to IODA format
@@ -208,7 +209,9 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   oops::Log::info() << "Writing observations to IODA format..." << std::endl;
   // get the fieldset from the geometry
   atlas::FunctionSpace fs = geom.functionSpace();
-  atlas::FieldSet geom_fs = geom.fields();
+  // convert the state to an atlas fieldset
+  atlas::FieldSet xBfs;
+  bkgState.toFieldSet(xBfs);
   // get lat, long, height from the geometry
   // note that these are assumed to be only the data on each MPI task, not the full grid
   // so we need to get global fields using atlas
@@ -218,11 +221,11 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   local_fields.add(lonLocal);
   atlas::Field latLocal = fs.createField<double>(atlas::option::name("latitude"));
   local_fields.add(latLocal);
-  local_fields.add(geom_fs["filtered_orography"]);
+  local_fields.add(xBfs["filtered_orography"]);
   const auto lonLatView = atlas::array::make_view<double, 2>(fs.lonlat());
   auto lonViewLocal = atlas::array::make_view<double, 1>(local_fields.field("longitude"));
   auto latViewLocal = atlas::array::make_view<double, 1>(local_fields.field("latitude"));
-  const auto orogViewLocal = atlas::array::make_view<double, 2>(geom_fs["filtered_orography"]);
+  const auto orogViewLocal = atlas::array::make_view<double, 2>(xBfs["filtered_orography"]);
   for (atlas::idx_t jnode = 0; jnode < fs.lonlat().shape(0); ++jnode) {
     lonViewLocal(jnode) = lonLatView(jnode, 0);
     latViewLocal(jnode) = lonLatView(jnode, 1);
@@ -234,7 +237,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
       fs.createField<double>(atlas::option::name("latitude") | atlas::option::global());
   global_fields.add(latGlobal);
   atlas::Field orogGlobal = fs.createField<double>(atlas::option::name("filtered_orography") |
-      atlas::option::levels(geom_fs["filtered_orography"].shape(1)) | atlas::option::global());
+      atlas::option::levels(xBfs["filtered_orography"].shape(1)) | atlas::option::global());
   global_fields.add(orogGlobal);
   // gather the local fields to global fields
   atlas::functionspace::StructuredColumns fs_new(fs);
@@ -277,7 +280,11 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
         for (size_t j=0; j < geom.npy()-1; ++j) {
           atlas::idx_t jnode = ((geom.npx()-1)*(geom.npy()-1)*(k) + (j)*(geom.npx()-1) + (i));
           if (abs(scf_global[jnode] - -999.0f) > 0.01f) {
-            snd_var.push_back(snd_global[jnode]);
+            if (abs(snd_global[jnode] - -999.0f) > 0.01f) {
+              snd_var.push_back(snd_global[jnode]);
+            } else {
+              snd_var.push_back(util::missingValue<float>());
+            }
             scf_var.push_back(scf_global[jnode]);
             lat_var.push_back(lat(jnode));
             lon_var.push_back(lon(jnode));
@@ -295,7 +302,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     ioda::Group group = ioda::Engines::HH::createFile(outputpath,
         ioda::Engines::BackendCreateModes::Truncate_If_Exists);
     // Add in the location dimension
-    ioda::NewDimensionScales_t newDims {ioda::NewDimensionScale<int>("Location", nobs)};
+    ioda::NewDimensionScales_t newDims {ioda::NewDimensionScale<int>("Location", nobs, ioda::Unlimited)};
     ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
     oops::Log::info() << "Output IODA file has " << nobs << " observations." << std::endl;
     // Create variable parameters
@@ -373,7 +380,12 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     std::vector<int> qc_sd(nobs, 0);   // QC value 0 = good quality (IODA convention)
     iodaSCFPreQC.write(qc_scf);
     iodaSDPreQC.write(qc_sd);
-    // Write out the values
+    // Write errors
+    std::vector<float> err_scf(nobs, 0.0f);
+    std::vector<float> err_sd(nobs, 80.0f);
+    iodaSCFError.write(err_scf);
+    iodaSDError.write(err_sd);
+    // Write out the metadata and ObsValues
     iodaLatitude.write(lat_var);
     iodaLongitude.write(lon_var);
     iodaHeight.write(orog_var);
@@ -649,9 +661,9 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
                 std::max(50.0f, std::min(650.0f,
                                          static_cast<float>(bkg_snow_den(jnode, 0)) * 1000.0f));
             float fmelt = std::pow(bdsno/100.0f,
-                                   mfsno_table[static_cast<int>(bkg_vtype(jnode, 0))]);
+                                   mfsno_table[static_cast<int>(bkg_vtype(jnode, 0))-1]);
             this->sndIMS[tilenum][fv3_j][fv3_i] =
-                (scffac_table[static_cast<int>(bkg_vtype(jnode, 0))] * fmelt)
+                (scffac_table[static_cast<int>(bkg_vtype(jnode, 0))-1] * fmelt)
                 * atanh(trunc_scf) * 1000.0f;  // x1000 into mm
           }
         } else {
