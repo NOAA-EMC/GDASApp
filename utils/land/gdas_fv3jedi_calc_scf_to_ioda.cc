@@ -125,6 +125,8 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState,
       bkg_density(jnode, 0) = bkg_swe(jnode, 0) / bkg_snd(jnode, 0);
     } else {
       // snow is not present, use average from snow forecasts over land
+      // The below line comes from NOAH-MP, fit to a curve of snow density from:
+      // hedstrom nr and jw pomeroy (1998), hydrol. processes, 12, 1611-1625
       double tmp_density = 67.92 + 51.25 * std::exp((bkg_stc(jnode, 0)- 273.15) / 2.59);
       bkg_density(jnode, 0) =
         std::max(80.0, std::min(120.0, tmp_density)) / 1000.0;
