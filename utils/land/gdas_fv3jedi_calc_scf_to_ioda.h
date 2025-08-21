@@ -36,7 +36,7 @@ namespace gdasapp {
       std::vector<std::vector<std::vector<float>>> lonFV3, latFV3, oroFV3;
       static constexpr int nodata_int = -999;
       static constexpr float nodata_float = -999.0f;
-      static constexpr float nodata_tol = 0.01f;  // Tolerance for nodata checks
+      static constexpr float nodata_tol = 0.1f;  // Tolerance for nodata checks
       static constexpr float trunc_scf = 0.95f;  // For the Noah-MP snow depletion curve,
                                                  // SCF asymptotes to 1. as SD increases
                                                  // use this value when calculating SD
@@ -73,7 +73,7 @@ namespace gdasapp {
     float oberr_scf = 0.0f;
     float oberr_snd = 80.0f;
     static constexpr float nodata_float = -999.0f;
-    static constexpr float nodata_tol = 0.01f;  // Tolerance for nodata checks
+    static constexpr float nodata_tol = 0.1f;  // Tolerance for nodata checks
 
    public:
     void run();
