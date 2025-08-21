@@ -31,7 +31,7 @@ while getopts "t:h" opt; do
 done
 
 case ${TARGET} in
-  hera | orion)
+  hera | ursa | orion)
     echo "Running Automated Testing on $TARGET"
     source $MODULESHOME/init/sh
     source $my_dir/../${TARGET}.sh
@@ -60,7 +60,7 @@ cd GDASApp
 
 # load modules
 case ${TARGET} in
-  hera | orion)
+  hera | ursa | orion)
     echo "Loading modules on $TARGET"
     module purge
     module use $GDAS_CI_ROOT/validation/$today/GDASApp/modulefiles

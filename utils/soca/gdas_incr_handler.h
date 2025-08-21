@@ -71,6 +71,27 @@ namespace gdasapp {
         oops::Log::debug() << "========= after appending variables:" << std::endl;
         oops::Log::debug() << incr_mom6 << std::endl;
 
+        // Cut to a custom precision
+        if (fullConfig.has("increment precision")) {
+          const eckit::LocalConfiguration precConfig(fullConfig, "increment precision");
+          std::vector<eckit::LocalConfiguration> subconfigs = precConfig.getSubConfigurations();
+          for (const auto & subconfig : subconfigs) {
+            const std::string fieldName = subconfig.getString("field");
+            const double precision = subconfig.getDouble("precision", 1.0e-7);
+            if (incr_mom6.fieldSet().has(fieldName)) {
+              auto field = incr_mom6.fieldSet()[fieldName];
+              auto view = atlas::array::make_view<double, 2>(field);
+              for (int jnode = 0; jnode < view.shape(0); ++jnode) {
+                for (int jlevel = 0; jlevel < view.shape(1); ++jlevel) {
+                  view(jnode, jlevel) = std::round(view(jnode, jlevel) / precision) * precision;
+                }
+              }
+            }
+          }
+          oops::Log::debug() << "======== after cutting precision:" << std::endl;
+          oops::Log::debug() << incr_mom6 << std::endl;
+        }
+
         eckit::LocalConfiguration xbConfig(fullConfig, "soca background");
         // Here xx is the background
         soca::State xx(geom, xbConfig);
@@ -108,11 +129,18 @@ namespace gdasapp {
           oops::Log::debug() << incr_mom6 << std::endl;
         }
 
+        // Save to Gaussian grid
+        if (fullConfig.has("write to gaussian grid")) {
+          eckit::LocalConfiguration config(fullConfig, "write to gaussian grid");
+          result = postProcIncr.saveToGaussian(incr_mom6, config);
+        }
+
         // Save final increment
         result = postProcIncr.save(incr_mom6, i, domains);
         oops::Log::debug() << "========= after appending layer and after saving:" << std::endl;
         oops::Log::debug() << incr_mom6 << std::endl;
       }
+
       return result;
     }
     // -----------------------------------------------------------------------------

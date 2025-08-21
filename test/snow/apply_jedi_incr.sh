@@ -18,6 +18,23 @@ EXECDIR=$project_source_dir/build/bin
 WORKDIR=$project_binary_dir/test/snow/apply_jedi_incr
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model/atmos/restart
 INCDIR=$GDASAPP_TESTDATA/snow/C${RES}
+HOMEgfs=$project_source_dir/../../
+
+# Detect machine
+source "${HOMEgfs}/ush/detect_machine.sh"
+
+# Set up the PYTHONPATH to include wxflow from HOMEgfs
+if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
+    PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+fi
+
+# Set python path for workflow utilities and tasks
+wxflowPATH="${HOMEgfs}/ush/python"
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
+export PYTHONPATH
+
+# Export library path
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 
 export TPATH="$GDASAPP_TESTDATA/snow/C${RES}"
 export TSTUB="C${RES}_oro_data"
@@ -77,9 +94,55 @@ done
 
 echo 'do_snowDA: calling apply snow increment'
 
-# (n=6) -> this is fixed, at one task per tile (with minor code change, could run on a single proc).
-srun '--export=ALL' -n 6 ${EXECDIR}/apply_incr.exe ${WORKDIR}/apply_incr.log
+# Create script to run executable
+runsh="./apply_incr.sh"
+cat <<EOF > $runsh
+#!/bin/bash
+set -ex
+# Set APRUN for machine
+APRUN="srun -n 6"
+if [[ ${MACHINE_ID} == 'wcoss2' ]]; then
+   APRUN="mpiexec -n 6"
+fi
 
+# Run executable
+\${APRUN} ${EXECDIR}/apply_incr.exe ${WORKDIR}/apply_incr.log
+EOF
+chmod 755 $runsh
+
+# Create yaml with job configuration
+memory="8Gb"
+if [[ ${MACHINE_ID} == "gaeac6" ]]; then
+    memory=0
+fi
+submitsh="./submit.sh"
+config_yaml="./config.yaml"
+cat <<EOF > ${config_yaml}
+machine: ${MACHINE_ID}
+homegfs: ${HOMEgfs}
+job_name: apply_jedi_incr
+walltime: "00:30:00"
+nodes: 1
+ntasks_per_node: 6
+threads_per_task: 1
+memory: ${memory}
+command: ${runsh}
+filename: ${submitsh}
+EOF
+
+
+# Create submission script
+$HOMEgfs/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
+SCHEDULER=$(echo `grep SCHEDULER ${HOMEgfs}/sorc/gdas.cd/test/workflow/hosts/${MACHINE_ID}.yaml | cut -d":" -f2` | tr -d ' ')
+
+# Submit script
+if [[ $SCHEDULER = 'slurm' ]]; then
+    sbatch --export=ALL --wait ${submitsh}
+elif [[ $SCHEDULER = 'pbspro' ]]; then
+    qsub -V -W block=true ${submitsh}
+else
+    echo "UNKOWN SCHEDULER $SCHEDULER"
+fi
 rc=$?
 
 exit $rc
