@@ -23,8 +23,10 @@ bound_to_include: begin
 # Default background time is for 3D applications
 {% set bkg_time_iso = current_cycle | to_isotime %}
 {% set bkg_time_fv3 = current_cycle | to_fv3time %}
+{% set bkg_time_julian = current_cycle | to_julian %}
 snow_background_time_iso: "{{ bkg_time_iso }}"
 snow_background_time_fv3: "{{ bkg_time_fv3 }}"
+snow_background_time_julian: "{{ bkg_time_julian }}"
 snow_increment_time_iso: "{{ bkg_time_iso }}"
 snow_increment_time_fv3: "{{ bkg_time_fv3 }}"
 
