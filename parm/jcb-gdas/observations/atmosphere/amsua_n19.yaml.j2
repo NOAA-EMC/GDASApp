@@ -23,10 +23,10 @@
     name: CRTM
     Absorbers: [H2O, O3, CO2]
     Clouds: &{{observation_from_jcb}}_clouds [Water, Ice, Rain, Snow, Graupel]
-    Cloud_Fraction: 1.0
+#   Cloud_Fraction: 1.0
 #   ---methods for cloud fraction and radii in fov: thompson, or none
-    method for cloud fraction within fov: none
-    method for hydrometeor effective radii within fov: none
+    method for cloud fraction within fov: thompson
+    method for hydrometeor effective radii within fov: thompson
     Cloud_Seeding: true
     obs options:
       Sensor_ID: &{{observation_from_jcb}}_sensor_id amsua_n19
@@ -71,6 +71,30 @@
       output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiascovout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovout_suffix}}"
 
   # Observation Filters (QC)
+  # ------------------------
+  obs pre filters:
+  # Remove Observations from the Edge of the Scan
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 1-15
+    where:
+    - variable:
+        name: MetaData/sensorScanPosition
+      is_in: 4-27
+    action:
+      name: reduce obs space
+
+  # Data Thinning
+  - filter: Gaussian Thinning
+    horizontal_mesh: 145
+    use_reduced_horizontal_grid: true
+    distance_norm: geodesic
+  #  round_horizontal_bin_count_to_nearest: true
+  #  partition_longitude_bins_using_mesh: true
+    action:
+      name: reduce obs space
+
   # ------------------------
   obs prior filters:
   # Zero Atmospheric clouds in CRTM where water_area_fraction < 0.99
