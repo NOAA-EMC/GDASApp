@@ -1,14 +1,12 @@
 # This yaml is for applying deterministic recentering increments to the ensemble members
-
 geometry:
   mom6_input_nml: mom_input.nml
   fields metadata: ./fields_metadata.yaml
 
-date: "{{ marine_window_end_iso }}"
+nens: '{{ marine_number_ensemble_members }}'
+nens per MPI task: 2
 
-layers variable: [sea_water_cell_thickness]
-
-increment variables:
+increment variables: &vars
 - sea_water_potential_temperature
 - sea_water_salinity
 - eastward_sea_water_velocity
@@ -16,81 +14,28 @@ increment variables:
 - sea_ice_area_fraction
 - sea_ice_thickness
 - sea_ice_snow_thickness
-set increment variables to zero:
-- eastward_sea_water_velocity
-- northward_sea_water_velocity
 
-vertical geometry:
-  date: "{{ marine_window_begin_iso }}"
-  basename: ./INPUT/
-  ocn_filename: MOM.res.nc
-  read_from_file: 3
-
-add recentering increment: true
-recentering around deterministic: true
-sea ice recenter: true
-sea ice analysis:
-  pattern: "%mem%"
-  date: "{{ marine_window_end_iso }}"
-  ocn_filename: "ocean.%mem%.nc"
-  ice_filename: "ice.%mem%.nc"
-  read_from_file: 1
-  basename: {{ enspert_relpath }}/ens/
-  state variables:
-  - sea_water_potential_temperature
-  - sea_water_salinity
-  - eastward_sea_water_velocity
-  - northward_sea_water_velocity
-  - sea_water_cell_thickness
-  - sea_water_depth
-  - ocean_mixed_layer_thickness
-  - sea_ice_area_fraction
-  - sea_ice_thickness
-  - sea_ice_snow_thickness
-    
-sea ice variable change:
-  variable change name: Soca2Cice
-  arctic:
-    seaice edge: 0.4
-    shuffle: true
-    rescale prior:
-      rescale: true
-      min hice: 0.5
-      min hsno: 0.1
-  antarctic:
-    seaice edge: 0.4
-    shuffle: true
-    rescale prior:
-      rescale: true
-      min hice: 0.5
-      min hsno: 0.1
-  cice background state:
+backgrounds:
+  members from template:
+    nmembers: '{{ marine_number_ensemble_members }}'
     pattern: "%mem%"
-    restart: ens/cice_model.res.%mem%.nc
-    ncat: 5
-    ice_lev: 7
-    sno_lev: 1
-  cice output:
-    pattern: "%mem%"
-    restart: ens/cice_model.res.%mem%.nc
-  output variables:
-  - sea_water_potential_temperature
-  - sea_water_salinity
-  - sea_ice_area_fraction
-  - sea_ice_thickness
-  - sea_ice_snow_thickness
+    template:
+      date: "{{ marine_window_end_iso }}"
+      basename: ./ens/
+      ocn_filename: "ocean.%mem%.nc"
+      ice_filename: "ice.%mem%.nc"
+      read_from_file: 1
+      state variables:
+      - sea_water_potential_temperature
+      - sea_water_salinity
+      - sea_water_cell_thickness
+      - eastward_sea_water_velocity
+      - northward_sea_water_velocity
+      - sea_ice_area_fraction
+      - sea_ice_thickness
+      - sea_ice_snow_thickness
 
-soca increments:  # Could also be states, but they are read as increments
-  number of increments: '{{ marine_number_ensemble_members }}'
-  pattern: "%mem%"
-  template:
-    date: "{{ marine_window_end_iso }}"
-    basename: ./ens/
-    ocn_filename: "ocean.%mem%.nc"
-    ice_filename: "ice.%mem%.nc"
-    read_from_file: 3
-
-trajectory:
+recentering state:
   state variables:
   - sea_water_potential_temperature
   - sea_water_salinity
@@ -108,11 +53,55 @@ trajectory:
   ice_filename: ice.bkg.f009.nc
   read_from_file: 1
 
-output increment:
+output increments:
   datadir: ./
   date: "{{ marine_window_end_iso }}"
   exp: recenter
-  type: incr
+  type: ens
+
+increment postprocessing:
+  append vertical geometry:
+    layers variable: sea_water_cell_thickness
+    vertical geometry:
+      date: "{{ marine_window_begin_iso }}"
+      basename: ./INPUT/
+      ocn_filename: MOM.res.nc
+      read_from_file: 3
+  set increment variables to zero:
+  - eastward_sea_water_velocity
+  - northward_sea_water_velocity
+
+analysis postprocessing:
+  sea ice variable change:
+    variable change name: Soca2Cice
+    pattern: "%mem%"
+    arctic:
+      seaice edge: 0.4
+      shuffle: true
+      rescale prior:
+        rescale: true
+        min hice: 0.5
+        min hsno: 0.1
+    antarctic:
+      seaice edge: 0.4
+      shuffle: true
+      rescale prior:
+        rescale: true
+        min hice: 0.5
+        min hsno: 0.1
+    cice background state:
+      restart: ens/cice_model.res.%mem%.nc
+      ncat: 5
+      ice_lev: 7
+      sno_lev: 1
+    cice output:
+      restart: ens/cice_model.res.%mem%.nc
+    output variables:
+    - sea_water_potential_temperature
+    - sea_water_salinity
+    - sea_ice_area_fraction
+    - sea_ice_thickness
+    - sea_ice_snow_thickness
 
 ensemble variance output:
   datadir: ./
