@@ -22,6 +22,11 @@ ecbuild_add_executable( TARGET  gdas_soca_setcorscales.x
                         LIBS    soca
                       )
 
+ecbuild_add_executable( TARGET  gdas_soca_anpproc.x
+	                SOURCES ${CMAKE_SOURCE_DIR}/soca/src/mains/AnalysisPostproc.cc
+			LIBS    soca
+		      )
+
 ecbuild_add_executable( TARGET  gdas_fv3jedi_error_covariance_toolbox.x
                         SOURCES ${CMAKE_SOURCE_DIR}/fv3-jedi/src/mains/fv3jediErrorCovarianceToolbox.cc
                         LIBS    fv3jedi saber
