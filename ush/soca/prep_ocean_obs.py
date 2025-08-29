@@ -91,27 +91,39 @@ class PrepOceanObs(Task):
     def copy_from_obsforge(self):
         obsfiles_src_dst = []
         dmpdir = self.task_config['DMPDIR']
-        COMOUT_OBS = self.task_config['COMOUT_OBS']
-        # Loop through the observation types
-        for obs_type in ['adt', 'icec', 'sst', 'sss']:
+        comout_obs = self.task_config['COMOUT_OBS']
+        run_date = self.task_config['PDY'].strftime('%Y%m%d')
+        cycle = str(self.task_config['cyc']).zfill(2)  # ensures '00', '06', etc.
+        run = self.task_config['RUN']
 
-            src_files = glob.glob(os.path.join(
-                dmpdir,
-                f"{self.task_config['RUN']}.{self.task_config['PDY'].strftime('%Y%m%d')}",
-                f"{str(self.task_config['cyc']).zfill(2)}",
-                'ocean', obs_type, '*.nc'))
+
+        # Ensure output directory exists
+        os.makedirs(comout_obs, exist_ok=True)
+    
+        obs_types = ['adt', 'icec', 'sst', 'sss', 'insitu']
+
+        # Loop through the observation types
+        for obs_type in obs_types:
+            
+            # Skip ADT obs if cycle is not 00Z
+            if obs_type == 'adt' and cycle != '00':
+                logger.info(f"***** Skipping {obs_type} for cycle {cycle}")
+                continue
+
+            search_path = os.path.join(dmpdir, f"{run}.{run_date}", cycle, 'ocean', obs_type, '*.nc')
+            src_files = glob.glob(search_path)
             logger.info(f"***** Found {len(src_files)} files for {obs_type} in {dmpdir}")
-            if not os.path.exists(COMOUT_OBS):
-              os.makedirs(COMOUT_OBS)
 
             # Loop through the source files and prepare them for copying
             for src_file in src_files:
-                logger.info(f"***** Copying {src_file}")
-                dst_file = os.path.join(self.task_config['COMOUT_OBS'],
-                                        os.path.basename(src_file))
+                dst_file = os.path.join(comout_obs, os.path.basename(src_file))
+                logger.info(f"***** Copying {src_file} to {dst_file}")
                 obsfiles_src_dst.append([src_file, dst_file])
 
-        FileHandler({'copy': obsfiles_src_dst}).sync()
+        if obsfiles_src_dst:
+            FileHandler({'copy': obsfiles_src_dst}).sync()
+        else:
+            logger.warning("***** No files found to copy.")
 
     @logit(logger)
     def initialize(self):
