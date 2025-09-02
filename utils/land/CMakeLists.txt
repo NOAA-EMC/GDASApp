@@ -10,3 +10,8 @@ ecbuild_add_executable( TARGET gdas_fv3jedi_scf_to_ioda.x
 target_compile_features( gdas_fv3jedi_scf_to_ioda.x PUBLIC cxx_std_17)
 target_link_libraries( gdas_fv3jedi_scf_to_ioda.x PUBLIC NetCDF::NetCDF_CXX oops atlas ioda fv3jedi)
 
+# GHCN snow depth IODA converter
+ecbuild_add_executable( TARGET gdas_ghcn_to_ioda.x
+                        SOURCES gdas_ghcn_to_ioda.cc gdas_ghcn_snod_to_ioda.cc )
+target_compile_features( gdas_ghcn_to_ioda.x PUBLIC cxx_std_17)
+target_link_libraries( gdas_ghcn_to_ioda.x PUBLIC NetCDF::NetCDF_CXX oops ioda)
