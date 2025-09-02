@@ -10,7 +10,7 @@ from soca.prep_ocean_obs import PrepOceanObs
 # Initialize root logger
 logger = Logger(level='DEBUG', colored_log=True)
 
-OBSFORGE_OBS_DB = True  # TODO(G): Toggle this option from the global-workflow
+OBSFORGE_OBS_DB = False  # TODO(G): Toggle this option from the global-workflow
 
 if __name__ == '__main__':
 

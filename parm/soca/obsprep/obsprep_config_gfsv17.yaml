@@ -345,7 +345,7 @@ observations:
 - obs space:
     name: insitu_temp_profile_argo
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
@@ -356,7 +356,7 @@ observations:
 - obs space:
     name: insitu_salt_profile_argo
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
