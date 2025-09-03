@@ -58,6 +58,7 @@ load("netcdf-cxx4/4.3.1")
 load("json/3.11.3")
 --load("crtm/2.4.0.1")
 load("prod_util/2.1.1")
+load("grib-util/1.4.0")
 
 load("py-jinja2/3.1.4")
 load("py-netcdf4/1.7.1.post2")
@@ -68,6 +69,7 @@ load("py-scipy/1.13.1")
 load("py-xarray/2024.7.0")
 load("py-f90nml/1.4.3")
 load("py-pip/23.1.2")
+load("py-click/8.1.7")
 
 unload("cray-libsci")
 

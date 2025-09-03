@@ -10,10 +10,9 @@ copy:
 {% for imem in range(1,NMEM_ENS+1) %}
     {% set memchar = 'mem%03d' | format(imem) %}
     {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
-                          '${RUN}': RUN,
+                          '${RUN}': 'enkfgdas',
                           '${YMD}': previous_cycle | to_YMD,
                           '${HH}': previous_cycle | strftime('%H'),
                           '${MEMDIR}': memchar }) %}
 - ['{{ COM_ICE_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.cice_model.res.nc', '{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc']
-- ['{{ COM_ICE_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.cice_model.res.nc', '{{ DATA }}/ens/cice_model.res.output.{{ imem | string }}.nc']
 {% endfor %}

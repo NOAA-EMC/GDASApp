@@ -8,7 +8,6 @@
 
 #include "soca/Traits.h"
 
-#include "oops/generic/instantiateModelFactory.h"
 #include "saber/oops/instantiateCovarFactory.h"
 #include "ufo/instantiateObsErrorFactory.h"
 #include "ufo/instantiateObsFilterFactory.h"
@@ -29,9 +28,6 @@ template<typename Traits>
 int runApp(int argc, char** argv, const std::string traits, const std::string appName) {
   // Create the Run object
   oops::Run run(argc, argv);
-
-  // Instantiate oops factories
-  oops::instantiateModelFactory<Traits>();
 
   // Instantiate saber factories
   saber::instantiateCovarFactory<Traits>();
