@@ -96,15 +96,14 @@ class PrepOceanObs(Task):
         cycle = str(self.task_config['cyc']).zfill(2)  # ensures '00', '06', etc.
         run = self.task_config['RUN']
 
-
         # Ensure output directory exists
         os.makedirs(comout_obs, exist_ok=True)
-    
+
         obs_types = ['adt', 'icec', 'sst', 'sss', 'insitu']
 
         # Loop through the observation types
         for obs_type in obs_types:
-            
+
             # Skip ADT obs if cycle is not 00Z
             if obs_type == 'adt' and cycle != '00':
                 logger.info(f"***** Skipping {obs_type} for cycle {cycle}")
