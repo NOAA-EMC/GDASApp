@@ -83,7 +83,7 @@ class PrepOceanObs(Task):
         except OSError:
             logger.warning("Could not copy RECCAP2_region_masks_all_v20221025.nc")
 
-        OBS_YAML = self.task_config['OBS_LIST_TMPL']
+        OBS_YAML = self.task_config['OBS_LIST_YAML']
         self.task_config.observations = parse_j2yaml(OBS_YAML, self.task_config)['observations']
 
         obsconfigfile = os.path.join(self.task_config['PARMgfs'], 'gdas/marine/obs/obs_list_base.yaml.j2')
