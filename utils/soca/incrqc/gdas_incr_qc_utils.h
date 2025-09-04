@@ -117,9 +117,6 @@ void applyWaterColumnStabilityCheck(
     meshConn.nodeColumns.haloExchange(dxFs["sea_water_potential_temperature"]);
     meshConn.nodeColumns.haloExchange(dxFs["sea_water_salinity"]);
 
-    // Store (node, level, neighbors) in tuple for weight smoothing
-    std::vector<std::tuple<int, int, std::vector<int>>> unstablePoints;
-
     // Clone the increment fields for analysis
     auto dTF = dxFs["sea_water_potential_temperature"].clone();
     auto dSF = dxFs["sea_water_salinity"].clone();
@@ -164,13 +161,6 @@ void applyWaterColumnStabilityCheck(
           // Store weights at unstable points
           viewTempWeight(jnode, level) = weight;
           viewSaltWeight(jnode, level) = weight;
-
-          // Accumulate the jnode, level and neighbors for smoothing
-          auto neighbors = gdasapp::diagb::utils::get_neighbors_of_node(meshConn.mesh,
-                                                                        meshConn.node2edge,
-                                                                        meshConn.edge2node,
-                                                                        jnode);
-          unstablePoints.emplace_back(jnode, level, neighbors);
         } else {
           // Reset weights to 1.0 for stable points
           viewTempWeight(jnode, level) = 1.0;
