@@ -173,7 +173,7 @@ class PrepOceanObs(Task):
                             # for each cycle of the retrieved obs bufr files...
                             for input_file, cycle in fetched_files:
                                 cycletime = cycle[8:10]
-                                ioda_filename = f"{RUN}.t{cycletime}z.{obs_space_name}.{cycle}.nc4"
+                                ioda_filename = f"{RUN}.t{cycletime}z.{obs_space_name}.{cycle}.nc"
                                 bufrconv_files.append((cycle, input_file, ioda_filename))
                                 input_files.append(ioda_filename)
 
@@ -186,7 +186,7 @@ class PrepOceanObs(Task):
                                 'variable': obs_space['observed variables'][0],
                                 'error ratio': obsprep_space['error ratio'],
                                 'input files': input_files,
-                                'output file': f"{RUN}.t{cycletime}z.{obs_space_name}.{cdatestr}.nc4"
+                                'output file': f"{RUN}.t{cycletime}z.{obs_space_name}.{cdatestr}.nc"
                             }
                             concat_config_file = obs_space_name + '_concat.yaml'
 
@@ -207,7 +207,7 @@ class PrepOceanObs(Task):
                         elif obsprep_space['type'] == 'nc':
 
                             obsprep_space['input files'] = [f[0] for f in fetched_files]
-                            ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc4"
+                            ioda_filename = f"{RUN}.t{cyc:02d}z.{obs_space_name}.{cdatestr}.nc"
                             obsprep_space['output file'] = ioda_filename
                             save_as_yaml(obsprep_space, ioda_config_file)
 
