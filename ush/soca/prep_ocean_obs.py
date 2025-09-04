@@ -369,6 +369,8 @@ class PrepOceanObs(Task):
             ioda_file = os.path.basename(obs_space['output file'])
             if os.path.exists(ioda_file):
                 obs_file_dest = os.path.join(COMOUT_OBS, ioda_file)
+                if obs_file_dest.endswith('.nc4'):
+                    obs_file_dest = obs_file_dest.split('.')[0] + ".nc"
                 files_to_save.append([ioda_file, obs_file_dest])
             else:
                 logger.warning(f"IODA file {ioda_file} does not exist, cannot copy to COMROOT")

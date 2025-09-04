@@ -334,7 +334,7 @@ observations:
 - obs space:
     name: insitu_profile_bathy
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
@@ -367,7 +367,7 @@ observations:
 - obs space:
     name: insitu_profile_glider
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
@@ -378,7 +378,7 @@ observations:
 - obs space:
     name: insitu_profile_tesac
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
@@ -389,7 +389,7 @@ observations:
 - obs space:
     name: insitu_profile_marinemammal
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
@@ -400,7 +400,7 @@ observations:
 - obs space:
     name: insitu_profile_xbtctd
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
@@ -411,7 +411,7 @@ observations:
 - obs space:
     name: insitu_surface_altkob
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
@@ -422,7 +422,7 @@ observations:
 - obs space:
     name: insitu_surface_trkob
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
@@ -434,7 +434,7 @@ observations:
 - obs space:
     name: insitu_profile_tropical
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
@@ -445,7 +445,7 @@ observations:
 - obs space:
     name: insitu_surface_dbuoyb
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
@@ -456,7 +456,7 @@ observations:
 - obs space:
     name: insitu_surface_dbuoyb_drifter
     provider: GTS
-    dmpdir subdir: atmos
+    dmpdir subdir: ocean/insitu
     type: bufr
     error ratio: 0.4
     window:
