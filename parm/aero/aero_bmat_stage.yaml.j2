@@ -3,7 +3,7 @@
 ######################################
 {% set offset_td = "+6H" | to_timedelta %}
 {% set background_time = current_cycle | add_to_datetime(offset_td) %}
-{% set ftype_list = ['fv_core.res', 'fv_tracer.res'] %}
+{% set ftype_list = ['fv_core.res', 'fv_tracer.res', 'sfc_data'] %}
 ######################################
 # create working directories
 ######################################
