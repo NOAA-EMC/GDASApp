@@ -153,10 +153,10 @@ class PrepOceanObs(Task):
         except OSError:
             logger.warning("Could not copy RECCAP2_region_masks_all_v20221025.nc")
 
-        OBS_YAML = self.task_config['MARINE_OBS_LIST_YAML']
+        OBS_YAML = self.task_config['OBS_LIST_YAML']
         self.task_config.observations = parse_j2yaml(OBS_YAML, self.task_config)['observations']
 
-        obsconfigfile = os.path.join(self.task_config['PARMgfs'], 'gdas/soca/obs/obs_list_base_yaml.j2')
+        obsconfigfile = os.path.join(self.task_config['PARMgfs'], 'gdas/marine/obs/obs_list_base.yaml.j2')
         obsconfig = parse_j2yaml(obsconfigfile, self.task_config)['observers']
 
         OBSPREP_YAML = self.task_config['OBSPREP_YAML']
@@ -369,8 +369,6 @@ class PrepOceanObs(Task):
             ioda_file = os.path.basename(obs_space['output file'])
             if os.path.exists(ioda_file):
                 obs_file_dest = os.path.join(COMOUT_OBS, ioda_file)
-                if obs_file_dest.endswith('.nc4'):
-                    obs_file_dest = obs_file_dest.split('.')[0] + ".nc"
                 files_to_save.append([ioda_file, obs_file_dest])
             else:
                 logger.warning(f"IODA file {ioda_file} does not exist, cannot copy to COMROOT")
