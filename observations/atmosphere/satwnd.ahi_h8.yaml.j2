@@ -28,51 +28,9 @@
   linear obs operator:
     name: VertInterp
 
-  # NOTE: Tests using the Gaussian Thinning filter (below) to duplicate GSI"s thinning of AHI/Himawari-8 satwinds
-  #       results in more JEDI satwinds in the diag file than in GSI, but far fewer JEDI satwinds assimilated than
-  #       GSI. JEDI under-counts assimilated winds by roughly 25-40%, relative to GSI, and this under-count is not
-  #       even including the temporal thinning which is applied in GSI but not JEDI (by this filter below). See
-  #       GDASApp Issue #741 for details: https://github.com/NOAA-EMC/GDASApp/issues/741
-  #obs pre filters:
-  #- filter: Gaussian Thinning
-  #  horizontal_mesh: 200
-  #  vertical_mesh: 10000
-  #  use_reduced_horizontal_grid: true
-  #  round_horizontal_bin_count_to_nearest: true
-  #  partition_longitude_bins_using_mesh: true
-
-  # Observation Prior Filters (QC)
-  # ------------------------------
-  obs prior filters:
-  # Apply variable changes needed for wind scaling
-  # For wind observations with pressure provided
-  - filter: Variable Transforms
-    Transform: SurfaceWindScalingPressure
-    SkipWhenNoObs: false
-
-  # Calculate error inflation factor for duplicate observations 
-  #- filter: Variable Assignment
-  #  assignments:
-  #  - name: ObsErrorFactorDuplicateCheck/windEastward
-  #    type: float
-  #    function:
-  #      name: ObsFunction/ObsErrorFactorDuplicateCheck
-  #      options:
-  #        use_air_pressure: true
-  #        variable: windEastward
-  #- filter: Variable Assignment
-  #  assignments:
-  #  - name: ObsErrorFactorDuplicateCheck/windNorthward
-  #    type: float
-  #    function:
-  #      name: ObsFunction/ObsErrorFactorDuplicateCheck
-  #      options:
-  #        use_air_pressure: true
-  #        variable: windNorthward
-
-  # Observation Post Filters (QC)
+  # Observation Pre Filters (QC)
   # -----------------------------
-  obs post filters:
+  obs pre filters:
   # Assign the initial observation error, based on height/pressure
   # Hard-wiring to prepobs_errtable.global by Type
   # ObsError is currently not updating in diag file, but passes directly to EffectiveError when no inflation is specified in YAML
@@ -98,6 +56,7 @@
           errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
             5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
             7., 7., 7.]
+
   # Type 250 (Himawari AHI WV, cloud-top or clear-sky)
   - filter: Perform Action
     filter variables:
@@ -120,6 +79,7 @@
           errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
             5., 7., 7.3, 7.6, 8., 8., 8., 8., 8., 8., 8., 8., 8., 8., 8., 8., 8.,
             8., 8., 8.]
+
   # Type Type 252 (Himawari AHI LWIR)
   - filter: Perform Action
     filter variables:
@@ -142,6 +102,7 @@
           errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
             5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
             7., 7., 7.]
+
   # sanity-check criteria
   # Observation Range Sanity Check
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
@@ -204,6 +165,48 @@
     action:
       name: reject
 
+#  # Reject Type 252 (IR) winds with a /=0 surface type (non-water surface) when latitude > 20.
+#  - filter: Bounds Check
+#    filter variables:
+#    - name: windEastward
+#    - name: windNorthward
+#    where:
+#    - variable:
+#        name: GeoVaLs/water_area_fraction
+#      maxvalue: 0.99
+#    - variable:
+#        name: ObsType/windEastward
+#      is_in: 252
+#    test variables:
+#    - name: MetaData/latitude
+#    maxvalue: 20.
+#    action:
+#      name: reject
+  
+  # THINNING: Himawari winds are not prioritized
+  - filter: Gaussian Thinning
+    horizontal_mesh: 100
+    vertical_mesh: 10000
+    where:
+    - variable:
+        name: MetaData/pressure
+      minvalue: 50001.
+    action:
+      name: reduce obs space
+
+  - filter: Gaussian Thinning
+    horizontal_mesh: 90
+    vertical_mesh: 10000
+    where:
+    - variable:
+        name: MetaData/pressure
+      maxvalue: 50000.
+    action:
+      name: reduce obs space
+
+  # Observation Prior Filters (QC)
+  # ------------------------------
+  obs prior filters:
   # Reject Type 252 (IR) winds with a /=0 surface type (non-water surface) when latitude > 20.
   - filter: Bounds Check
     filter variables:
@@ -222,23 +225,36 @@
     action:
       name: reject
 
-  # THINNING: Himawari winds are not prioritized
-  - filter: Gaussian Thinning
-    horizontal_mesh: 100
-    vertical_mesh: 10000
-    where:
-    - variable:
-        name: MetaData/pressure
-      minvalue: 50001.
-  - filter: Gaussian Thinning
-    horizontal_mesh: 90
-    vertical_mesh: 10000
-    where:
-    - variable:
-        name: MetaData/pressure
-      maxvalue: 50000.
-
+  # Apply variable changes needed for wind scaling
+  # For wind observations with pressure provided
+  - filter: Variable Transforms
+    Transform: SurfaceWindScalingPressure
+    SkipWhenNoObs: false
+  
+  # Observation Post Filters (QC)
+  # ------------------------------
+  obs post filters:
   # GSI setupw routine QC
+  # Calculate error inflation factor for duplicate observations
+  #- filter: Variable Assignment
+  #  assignments:
+  #  - name: ObsErrorFactorDuplicateCheck/windEastward
+  #    type: float
+  #    function:
+  #      name: ObsFunction/ObsErrorFactorDuplicateCheck
+  #      options:
+  #        use_air_pressure: true
+  #        variable: windEastward
+  #- filter: Variable Assignment
+  #  assignments:
+  #  - name: ObsErrorFactorDuplicateCheck/windNorthward
+  #    type: float
+  #    function:
+  #      name: ObsFunction/ObsErrorFactorDuplicateCheck
+  #      options:
+  #        use_air_pressure: true
+  #        variable: windNorthward
+
   # Reject any ob Type [240–260] when pressure greater than 950 mb.
   # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa    
   - filter: Bounds Check

@@ -3,7 +3,7 @@
   # Observation Space (I/O)
   # -----------------------
   obs space:
-    name: omi_aura
+    name: ompstc_npp
     obsdatain:
       engine:
         type: H5File
@@ -31,12 +31,13 @@
     isApriori: false
     isAveragingKernel: false
     totalNoVertice: true
-    stretchVertices: topbottom #options: top, bottom, topbottom, none
+    stretchVertices: topbottom # options: top, bottom, topbottom, none
     model units coeff: 2.241398632746E-3
 
   # Observation Pre Filters (QC)
   # ----------------------------
   obs pre filters:
+  # assign observation error
   - filter: Perform Action
     filter variables:
     - name: ozoneTotal
@@ -44,72 +45,22 @@
       name: assign error
       error parameter: 6.0
 
-  - filter: Create Diagnostic Flags
-    filter variables:
-    - name: ozoneTotal
-    flags:
-    - name: ObsValueSanityCheck
-      initial value: false
-      force reinitialization: false
-    - name: RowAnomaly
-      initial value: false
-      force reinitialization: false
-    - name: BadScan
-      initial value: false
-      force reinitialization: false
-    - name: Thinning
-      initial value: false
-      force reinitialization: false
-    - name: RetrievalQualityCodeFlag
-      initial value: false
-      force reinitialization: false
-    - name: RetrievalQualityAlgorithmFlag
-      initial value: false
-      force reinitialization: false
-    - name: GrossCheck
-      initial value: false
-      force reinitialization: false
-
-  # Observation Prior Filters (QC)
-  # ------------------------------
-  obs prior filters:
   # GSI read routine QC
   # range sanity check
   - filter: Bounds Check
     filter variables:
     - name: ozoneTotal
     minvalue: 0
-    maxvalue: 10000
-    actions:
-    - name: set
-      flag: ObsValueSanityCheck
-    - name: reject
+    maxvalue: 1000
+    action:
+      name: reject
 
-  # Do not use the data if row anomaly (bit 10)is 1
-  - filter: RejectList
-    filter variables:
-    - name: ozoneTotal
-    where:
-    - variable:
-        name: MetaData/totalOzoneQualityFlag
-      any_bit_set_of: 9
-    actions:
-    - name: set
-      flag: RowAnomaly
-    - name: reject
-
-  # Scan position check: reject scan position >= 25
-  - filter: RejectList
-    filter variables:
-    - name: ozoneTotal
-    where:
-    - variable:
-        name: MetaData/sensorScanPosition
-      minvalue: 25
-    actions:
-    - name: set
-      flag: BadScan
-    - name: reject
+  #- filter: Gaussian Thinning
+  #  horizontal_mesh: 150
+  #  use_reduced_horizontal_grid: true
+  #  distance_norm: geodesic
+  #  action:
+  #    name: reject
 
   # Accept total_ozone_error_flag values of 0 and 1, but not any others.
   - filter: RejectList
@@ -119,12 +70,7 @@
     - variable:
         name: MetaData/totalOzoneQualityCode
       is_not_in: 0, 1
-    actions:
-    - name: set
-      flag: RetrievalQualityCodeFlag
-    - name: reject
 
-  # Use data with best ozone algorighm
   - filter: RejectList
     filter variables:
     - name: ozoneTotal
@@ -132,35 +78,47 @@
     - variable:
         name: MetaData/bestOzoneAlgorithmFlag
       is_in: 3, 13
-    actions:
-    - name: set
-      flag: RetrievalQualityAlgorithmFlag
-    - name: reject
 
-  # Data Thinning
+  # GSI setup routine QC
+  - filter: RejectList
+    filter variables:
+    - name: ozoneTotal
+    where:
+    - variable:
+        name: MetaData/sensorScanPosition
+      is_in: 1, 2, 3, 4, 35
+    - variable:
+        name: MetaData/latitude
+      minvalue: 50.0
+
+  - filter: RejectList
+    filter variables:
+    - name: ozoneTotal
+    where:
+    - variable:
+        name: MetaData/sensorScanPosition
+      is_in: 1, 2, 3, 4, 35
+    - variable:
+        name: MetaData/latitude
+      maxvalue: -50.0
+
   - filter: Gaussian Thinning
     horizontal_mesh: 150
     use_reduced_horizontal_grid: true
     distance_norm: geodesic
-    actions:
-    - name: set
-      flag: Thinning
-    - name: reject
+    action:
+      name: reduce obs space
 
   # Observation Post Filters (QC)
   # -----------------------------
   obs post filters:
-  # GSI setup routine QC
-  # Gross check
   - filter: Background Check
     filter variables:
     - name: ozoneTotal
     threshold: 10.0
     absolute threshold: 300.0
-    actions:
-    - name: set
-      flag: GrossCheck
-    - name: reject
+    action:
+      name: reject
 
   # End of Filters
 
