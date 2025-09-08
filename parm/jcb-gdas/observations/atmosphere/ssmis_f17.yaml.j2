@@ -34,6 +34,8 @@
   obs bias:
     input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_suffix}}"
     output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiasout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasout_suffix}}"
+    variables without bc: [brightnessTemperature]
+    channels: {{ get_satellite_variable(observation_from_jcb, "not_biascorrtd") }}
     variational bc:
       predictors:
       - name: constant

@@ -28,7 +28,7 @@
   linear obs operator:
     name: VertInterp
 
-  # NOTE: Tests using the Gaussian Thinning filter (below) to duplicate GSI"s thinning of SEVIRI/METEOSAT-8 satwinds
+  # NOTE: Tests using the Gaussian Thinning filter (below) to duplicate GSI"s thinning of SEVIRI/METEOSAT-11 satwinds
   #       results in more JEDI satwinds in the diag file than in GSI, but far fewer JEDI satwinds assimilated than
   #       GSI. JEDI under-counts assimilated winds by roughly 25-40%, relative to GSI, and this under-count is not
   #       even including the temporal thinning which is applied in GSI but not JEDI (by this filter below). See
@@ -44,38 +44,9 @@
   #  round_horizontal_bin_count_to_nearest: true
   #  partition_longitude_bins_using_mesh: true
 
-  # Observation Prior Filters (QC)
-  # ------------------------------
-  obs prior filters:
-  # Apply variable changes needed for wind scaling
-  # For wind observations with pressure provided
-  - filter: Variable Transforms
-    Transform: SurfaceWindScalingPressure
-    SkipWhenNoObs: false
-
-  # Calculate error inflation factor for duplicate observations 
-  #- filter: Variable Assignment
-  #  assignments:
-  #  - name: ObsErrorFactorDuplicateCheck/windEastward
-  #    type: float
-  #    function:
-  #      name: ObsFunction/ObsErrorFactorDuplicateCheck
-  #      options:
-  #        use_air_pressure: true
-  #        variable: windEastward
-  #- filter: Variable Assignment
-  #  assignments:
-  #  - name: ObsErrorFactorDuplicateCheck/windNorthward
-  #    type: float
-  #    function:
-  #      name: ObsFunction/ObsErrorFactorDuplicateCheck
-  #      options:
-  #        use_air_pressure: true
-  #        variable: windNorthward
-
-  # Observation Post Filters (QC)
+  # Observation Pre Filters (QC)
   # -----------------------------
-  obs post filters:
+  obs pre filters:
   # Assign the initial observation error, based on height/pressure
   # Hard-wiring to prepobs_errtable.global by Type
   # ObsError is currently not updating in diag file, but passes directly to EffectiveError when no inflation is specified in YAML
@@ -103,6 +74,7 @@
           errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
             5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
             7., 7., 7.]
+
   # Type 253 (MVIRI/SEVERI LWIR)
   - filter: Perform Action
     filter variables:
@@ -127,6 +99,7 @@
           errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4., 4.1,
             5., 6., 6.3, 6.6, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
             7., 7., 7.]
+
   # Type 254 (MVIRI/SEVIRI WV, both cloud-top and clear-sky)
   - filter: Perform Action
     filter variables:
@@ -151,6 +124,7 @@
           errors: [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.9, 3.9, 4., 4.5, 6.1,
             6., 6.5, 7.3, 7.6, 7., 7.5, 7., 7., 7., 7., 7., 7., 7., 7., 7., 7., 7.,
             7., 7., 7.]
+
   # sanity-check criteria
   # Observation Range Sanity Check
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
@@ -200,7 +174,54 @@
     action:
       name: reject
 
-  # Exclude data over non-water surface type where latitude > 20N for Type 253 (IRLW)  --- obs tossed and not passed to setup routine 
+  # GSI read routine QC (part-2)
+  # Reject obs with qiWithoutForecast < 85. OR > 100.
+  - filter: Bounds Check
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    test variables:
+    - name: MetaData/qiWithoutForecast
+    minvalue: 85.
+    maxvalue: 100.
+    action:
+      name: reject
+  
+  # THINNING: METEOSAT winds are prioritized by qiWithoutForecast
+  - filter: Gaussian Thinning
+    horizontal_mesh: 100
+    vertical_mesh: 10000
+    priority_variable:
+      name: MetaData/qiWithoutForecast
+    where:
+    - variable:
+        name: MetaData/pressure
+      minvalue: 50001.
+    action:
+      name: reduce obs space
+
+  - filter: Gaussian Thinning
+    horizontal_mesh: 90
+    vertical_mesh: 10000
+    priority_variable:
+      name: MetaData/qiWithoutForecast
+    where:
+    - variable:
+        name: MetaData/pressure
+      maxvalue: 50000.
+    action:
+      name: reduce obs space
+
+  # Observation Prior Filters (QC)
+  # ------------------------------
+  obs prior filters:
+  # Apply variable changes needed for wind scaling
+  # For wind observations with pressure provided
+  - filter: Variable Transforms
+    Transform: SurfaceWindScalingPressure
+    SkipWhenNoObs: false
+
+  # Exclude data over non-water surface type where latitude > 20N for Type 253 (IRLW)  --- obs tossed and not passed to setup routine
   # Notes: This check was missing, so added (eliu)
   #        Replace land_type_index_NPOSS with water_area_fraction (eliu)
   - filter: Bounds Check
@@ -218,42 +239,33 @@
     action:
       name: reject
 
-  # GSI read routine QC (part-2)
-  # Reject obs with qiWithoutForecast < 85. OR > 100.
-  - filter: Bounds Check
-    filter variables:
-    - name: windEastward
-    - name: windNorthward
-    test variables:
-    - name: MetaData/qiWithoutForecast
-    minvalue: 85.
-    maxvalue: 100.
-    action:
-      name: reject
 
-  # THINNING: METEOSAT winds are prioritized by qiWithoutForecast
-  - filter: Gaussian Thinning
-    horizontal_mesh: 100
-    vertical_mesh: 10000
-    priority_variable:
-      name: MetaData/qiWithoutForecast
-    where:
-    - variable:
-        name: MetaData/pressure
-      minvalue: 50001.
-  - filter: Gaussian Thinning
-    horizontal_mesh: 90
-    vertical_mesh: 10000
-    priority_variable:
-      name: MetaData/qiWithoutForecast
-    where:
-    - variable:
-        name: MetaData/pressure
-      maxvalue: 50000.
-
+  # Observation Post Filters (QC)
+  # ------------------------------
+  obs post filters:
   # GSI setupw routine QC
   # Reject any ob Type [240–260] when pressure greater than 950 mb.
   # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa    
+  # Calculate error inflation factor for duplicate observations
+  #- filter: Variable Assignment
+  #  assignments:
+  #  - name: ObsErrorFactorDuplicateCheck/windEastward
+  #    type: float
+  #    function:
+  #      name: ObsFunction/ObsErrorFactorDuplicateCheck
+  #      options:
+  #        use_air_pressure: true
+  #        variable: windEastward
+  #- filter: Variable Assignment
+  #  assignments:
+  #  - name: ObsErrorFactorDuplicateCheck/windNorthward
+  #    type: float
+  #    function:
+  #      name: ObsFunction/ObsErrorFactorDuplicateCheck
+  #      options:
+  #        use_air_pressure: true
+  #        variable: windNorthward
+
   - filter: Bounds Check
     filter variables:
     - name: windEastward

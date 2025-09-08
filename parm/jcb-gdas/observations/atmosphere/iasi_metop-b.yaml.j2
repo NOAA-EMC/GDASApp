@@ -14,7 +14,7 @@
         obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
-    observed variables: [radiance]
+    observed variables: [spectralRadiance]
     simulated variables: [brightnessTemperature]
     derived variables: [brightnessTemperature]
     channels: &{{observation_from_jcb}}_simulated_channels {{ get_satellite_variable(observation_from_jcb, "simulated") }}
@@ -36,6 +36,8 @@
   obs bias:
     input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_suffix}}"
     output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiasout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasout_suffix}}"
+    variables without bc: [brightnessTemperature]
+    channels: {{ get_satellite_variable(observation_from_jcb, "not_biascorrtd") }}
     variational bc:
       predictors:
       - name: constant
@@ -78,7 +80,7 @@
         name: ObsFunction/LinearCombination
         options:
           variables:
-          - name: ObsValue/radiance
+          - name: ObsValue/spectralRadiance
             channels: *{{observation_from_jcb}}_simulated_channels
           coefs: [25.0]
           intercept: 64475.0
@@ -88,7 +90,7 @@
   - filter: Variable Transforms
     Transform: SatBrightnessTempFromRad
     transform from:
-      name: ObsValue/radiance
+      name: ObsValue/spectralRadiance
       channels: *{{observation_from_jcb}}_simulated_channels
     spectral variable:
       name: MetaData/sensorCentralWavenumber
@@ -118,7 +120,19 @@
     action:
       name: reduce obs space
 
-  # Step 5: Data Thinning
+  # Step 5: Create cloudFree variable (for thinning) 
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/cloudFree
+      type: int
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsValue/cloudFree
+          coefs: [100]
+
+  # Step 6: Create cloudFree variable 
   - filter: Gaussian Thinning
     filter variables:
     - name: brightnessTemperature
@@ -126,14 +140,14 @@
     horizontal_mesh: 145
     use_reduced_horizontal_grid: true
     distance_norm: geodesic
-    priority_variable: MetaData/fractionOfClearPixelsInFOV
+    priority_variable: DerivedMetaData/cloudFree
     action:
       name: reduce obs space
 
   # Observation Post Filters (QC)
   # -----------------------------
   obs post filters:
-  # Step 6: Wavenumber Check
+  # Step 7: Wavenumber Check
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -152,7 +166,7 @@
     action:
       name: reject
 
-  # Step 7: Observation Error Inflation based on Wavenumber
+  # Step 8: Observation Error Inflation based on Wavenumber
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -165,7 +179,7 @@
         options:
           channels: *{{observation_from_jcb}}_simulated_channels
 
-  # Step 8: Observation Range Sanity Check
+  # Step 9: Observation Range Sanity Check
   # Valid range: (50, 550)
   - filter: Bounds Check
     filter variables:
@@ -176,7 +190,7 @@
     action:
       name: reject
 
-  # Step 9: Topography Check
+  # Step 10: Topography Check
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -190,7 +204,7 @@
           channels: *{{observation_from_jcb}}_simulated_channels
           sensor: *{{observation_from_jcb}}_sensor_id
 
-  # Step 10: Transmittance Top Check
+  # Step 11: Transmittance Top Check
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -203,7 +217,7 @@
         options:
           channels: *{{observation_from_jcb}}_simulated_channels
 
-  # Step 11: Cloud Detection Check
+  # Step 12: Cloud Detection Check
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
@@ -221,7 +235,7 @@
     action:
       name: reject
 
-  # Step 12: NSST Retrieval Check
+  # Step 13: NSST Retrieval Check
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
@@ -238,7 +252,7 @@
     action:
       name: reject
 
-  # Step 13: Surface Jacobians Check
+  # Step 14: Surface Jacobians Check
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -254,7 +268,7 @@
           obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
           sensor: *{{observation_from_jcb}}_sensor_id
 
-  # Step 14: Gross check
+  # Step 15: Gross check
   - filter: Background Check
     filter variables:
     - name: brightnessTemperature
@@ -278,7 +292,7 @@
     action:
       name: reject
 
-  # Step 15: Useflag Check
+  # Step 16: Useflag Check
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature

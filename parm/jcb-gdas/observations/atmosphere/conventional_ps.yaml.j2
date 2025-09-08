@@ -54,6 +54,7 @@
             name: ObsValue/stationPressure
           xvals: [80000, 75000, 70000, 65000, 60000, 55000]
           errors: [110, 120, 120, 120, 120, 1.0e+11]
+
   - filter: Perform Action
     filter variables:
     - name: stationPressure
@@ -70,6 +71,7 @@
             name: ObsValue/stationPressure
           xvals: [85000, 80000, 75000, 70000, 65000, 60000, 55000]
           errors: [120, 140, 140, 140, 140, 140, 1.0e+11]
+
   # Initial Error Assignments for SFCSHIP Observations 
   - filter: Perform Action
     filter variables:
@@ -87,6 +89,7 @@
             name: ObsValue/stationPressure
           xvals: [60000, 55000]
           errors: [130, 1.0e+11]
+
   - filter: Perform Action
     filter variables:
     - name: stationPressure
@@ -114,6 +117,7 @@
             name: ObsValue/stationPressure
           xvals: [80000, 75000, 70000, 65000, 60000, 55000]
           errors: [110, 120, 120, 120, 120, 1.0e+11]
+
   # Create PreQC group variable (pqm in GSI read_prepbufr)
   - filter: Variable Assignment
     assignments:
@@ -286,6 +290,7 @@
           - name: ObsValue/stationPressure
           - name: HofX/stationPressure
           coefs: [1, -1]
+
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/ObsErrorBoundSfcPressure1

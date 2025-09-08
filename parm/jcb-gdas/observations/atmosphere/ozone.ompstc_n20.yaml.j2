@@ -3,7 +3,7 @@
   # Observation Space (I/O)
   # -----------------------
   obs space:
-    name: ompstc_npp
+    name: ompstc_n20
     obsdatain:
       engine:
         type: H5File
@@ -37,6 +37,7 @@
   # Observation Pre Filters (QC)
   # ----------------------------
   obs pre filters:
+  # assign observation error
   - filter: Perform Action
     filter variables:
     - name: ozoneTotal
@@ -44,9 +45,6 @@
       name: assign error
       error parameter: 6.0
 
-  # Observation Prior Filters (QC)
-  # ------------------------------
-  obs prior filters:
   # GSI read routine QC
   # range sanity check
   - filter: Bounds Check
@@ -109,7 +107,7 @@
     use_reduced_horizontal_grid: true
     distance_norm: geodesic
     action:
-      name: reject
+      name: reduce obs space
 
   # Observation Post Filters (QC)
   # -----------------------------
