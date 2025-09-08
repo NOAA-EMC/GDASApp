@@ -69,6 +69,7 @@ load("py-scipy/1.13.1")
 load("py-xarray/2024.7.0")
 load("py-f90nml/1.4.3")
 load("py-pip/23.1.2")
+load("py-click/8.1.7")
 
 unload("cray-libsci")
 
