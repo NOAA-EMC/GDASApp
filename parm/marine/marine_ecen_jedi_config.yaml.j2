@@ -1,0 +1,12 @@
+gridgen:
+  rundir: '{{ DATA }}'
+  exe_src: '{{ EXECgfs }}/gdas_soca_gridgen.x'
+  mpi_cmd: '{{ APRUN_MARINEANLECEN }}'
+  jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+  jcb_algo: soca_gridgen
+ens_handler:
+  rundir: '{{ DATA }}'
+  exe_src: '{{ EXECgfs }}/gdas_soca_anpproc.x'
+  mpi_cmd: '{{ APRUN_MARINEANLECEN }}'
+  jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+  jcb_algo: soca_ens_handler
