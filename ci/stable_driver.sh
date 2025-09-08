@@ -172,6 +172,8 @@ Problem syncing NOAA-EMC forks of JCSDA repositories. Please check $stableroot/$
 
 EOF
 fi
+cat $BODY $stableroot/$datestr/output > $BODY
+cat $BODY
 echo $SUBJECT
 mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
 # ==============================================================================

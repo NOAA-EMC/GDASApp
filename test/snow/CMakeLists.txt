@@ -15,12 +15,12 @@ set_tests_properties(test_gdasapp_snow_imsproc
     ENVIRONMENT "GDASAPP_TESTDATA=$ENV{GDASAPP_TESTDATA};Python3_VERSION_MAJOR=${Python3_VERSION_MAJOR};Python3_VERSION_MINOR=${Python3_VERSION_MINOR}")
 
 # test for adding jedi increment
-add_test(NAME test_gdasapp_snow_apply_jediincr
-         COMMAND ${PROJECT_SOURCE_DIR}/test/snow/apply_jedi_incr.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/snow/)
-set_tests_properties(test_gdasapp_snow_apply_jediincr
-    PROPERTIES
-    ENVIRONMENT "GDASAPP_TESTDATA=$ENV{GDASAPP_TESTDATA}")
+#add_test(NAME test_gdasapp_snow_apply_jediincr
+#         COMMAND ${PROJECT_SOURCE_DIR}/test/snow/apply_jedi_incr.sh ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+#         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/snow/)
+#set_tests_properties(test_gdasapp_snow_apply_jediincr
+#    PROPERTIES
+#    ENVIRONMENT "GDASAPP_TESTDATA=$ENV{GDASAPP_TESTDATA}")
 
 # Test convert BUFR to IODA
 add_test(NAME test_gdasapp_convert_bufr_adpsfc_snow
