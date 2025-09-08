@@ -23,10 +23,10 @@
     name: CRTM
     Absorbers: [H2O, O3, CO2]
     Clouds: &{{observation_from_jcb}}_clouds [Water, Ice, Rain, Snow, Graupel]
-    Cloud_Fraction: 1.0
+#   Cloud_Fraction: 1.0
 #   ---methods for cloud fraction and radii in fov: thompson, or none
-    method for cloud fraction within fov: none
-    method for hydrometeor effective radii within fov: none
+    method for cloud fraction within fov: thompson
+    method for hydrometeor effective radii within fov: thompson
     Cloud_Seeding: true
     obs options:
       Sensor_ID: &{{observation_from_jcb}}_sensor_id atms_n21
@@ -89,7 +89,7 @@
     horizontal_mesh: 145
     use_reduced_horizontal_grid: true
     distance_norm: geodesic
-  #  round_horizontal_bin_count_to_nearest: true
+    round_horizontal_bin_count_to_nearest: true
   #  partition_longitude_bins_using_mesh: true
     action:
       name: reduce obs space
