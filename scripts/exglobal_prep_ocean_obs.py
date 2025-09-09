@@ -10,17 +10,10 @@ from soca.prep_ocean_obs import PrepOceanObs
 # Initialize root logger
 logger = Logger(level='DEBUG', colored_log=True)
 
-OBSFORGE_OBS_DB = False  # TODO(G): Toggle this option from the global-workflow
-
 if __name__ == '__main__':
 
     # Take configuration from environment and cast it as python dictionary
     config = cast_strdict_as_dtypedict(os.environ)
 
     prepOcnObs = PrepOceanObs(config)
-    if OBSFORGE_OBS_DB:
-        prepOcnObs.copy_from_obsforge()
-    else:
-        prepOcnObs.initialize()
-        prepOcnObs.run()
-        prepOcnObs.finalize()
+    prepOcnObs.copy_from_obsforge()
