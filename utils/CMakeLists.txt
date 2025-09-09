@@ -18,8 +18,6 @@ find_package(fv3jedi REQUIRED)
 
 add_subdirectory(soca)
 add_subdirectory(ioda_example)
-add_subdirectory(test)
-add_subdirectory(obsproc)
 add_subdirectory(fv3jedi)
 add_subdirectory(chem)
 add_subdirectory(land)
