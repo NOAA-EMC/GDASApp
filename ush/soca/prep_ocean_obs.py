@@ -116,4 +116,3 @@ class PrepOceanObs(Task):
             FileHandler({'copy': obsfiles_src_dst}).sync()
         else:
             logger.warning("***** No files found to copy.")
-
