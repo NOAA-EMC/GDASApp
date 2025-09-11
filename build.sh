@@ -45,7 +45,7 @@ COMPILER="${COMPILER:-intel}"
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 BUILD_IODA_CONVERTERS=${BUILD_IODA_CONVERTERS:-"NO"}
 
-while getopts "w:t:c:hvdfa" opt; do
+while getopts "w:t:c:hvdfai" opt; do
   case $opt in
     w)
       HOMEgfs=$OPTARG
