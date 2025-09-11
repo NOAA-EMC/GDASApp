@@ -25,6 +25,7 @@ usage() {
   echo "  -f  force a clean build             DEFAULT: NO"
   echo "  -d  include JCSDA ctest data        DEFAULT: NO"
   echo "  -a  build everything in bundle      DEFAULT: NO"
+  echo "  -i  clone and build ioda-converters DEFAULT: NO"
   echo "  -h  display this message and quit"
   echo
   exit 1
@@ -42,6 +43,7 @@ CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
 COMPILER="${COMPILER:-intel}"
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
+BUILD_IODA_CONVERTERS=${BUILD_IODA_CONVERTERS:-"NO"}
 
 while getopts "w:t:c:hvdfa" opt; do
   case $opt in
@@ -63,6 +65,9 @@ while getopts "w:t:c:hvdfa" opt; do
     f)
       CLEAN_BUILD=YES
       ;;
+    i)
+      BUILD_IODA_CONVERTERS=YES
+      ;;
     h|\?|:)
       usage
       ;;
@@ -75,7 +80,7 @@ case ${BUILD_TARGET} in
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET.$COMPILER
-    CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=ON"
+    CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=ON -DBUILD_IODA_CONVERTERS=$BUILD_IODA_CONVERTERS"
     module list
     ;;
   $(hostname))
@@ -114,6 +119,11 @@ else
   # Delete forked SOCA NOAA-EMC dev/emc repo and clone the original JCSDA develop repo
   rm -rf "$dir_root/sorc/soca/"
   git clone https://github.com/jcsda/soca "$dir_root/sorc/soca" --recurse-submodules
+fi
+
+if [[ $BUILD_IODA_CONVERTERS == 'YES' ]]; then
+  # Clone and build ioda-converters
+  git clone https://github.com/jcsda-internal/ioda-converters "$dir_root/sorc/iodaconv"
 fi
 
 # Set INSTALL_PREFIX as CMake option
