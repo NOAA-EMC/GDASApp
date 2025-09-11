@@ -81,6 +81,10 @@ atmosphere_layout_gsib_y: 2
 atmosphere_forecast_length: PT6H
 atmosphere_forecast_timestep: PT1H
 
+# Minimization
+atmosphere_ninner_1: 2
+atmosphere_ninner_2: 4
+
 # Write final increment on Gaussian grid in variational
 atmosphere_final_increment_prefix: "./anl/atminc."
 
