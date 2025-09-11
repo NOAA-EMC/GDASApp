@@ -50,10 +50,11 @@ stage:
                          '${HH}': current_cycle | strftime('%H'),
                          '${MEMDIR}': memchar }) %}
     {% if fh == 6 %}
-- ['{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.nc', '{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_atmi006.nc']
+    - ['{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.nc', '{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_atmi006.nc']
     {% else %}
-- ['{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atmi{{ '%03d' % fh }}.nc', '{{ DATA }}/{{ memchar }}/']
+    - ['{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atmi{{ '%03d' % fh }}.nc', '{{ DATA }}/{{ memchar }}/']
     {% endif %}
+{% endfor %}
 {% endfor %}
 
 {% filter indent(width=4) %}
@@ -61,4 +62,31 @@ stage:
 {% include atm_stage_crtm_coeff.yaml.j2 %}
 {% endfilter %}
 
+save:
+    - ['{{ DATA }}/correction_increment.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}correction_increment.yaml']
+    - ['{{ DATA }}/ensemble_recenter.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}ensemble_recenter.yaml']
+{% for fh in IAUFHRS %}
+    {% for imem in range(1,NMEM_ENS+1) %}
+        {% set memchar = 'mem%03d' | format(imem) %}
+        {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                              '${RUN}': self.task_config.RUN,
+                              '${YMD}': current_cycle | to_YMD,
+                              '${HH}': current_cycle | strftime('%H'),
+                              '${MEMDIR}': memchar }) %}
+            {% if hr == '6' %}
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile1.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{fh}}.tile1.nc']
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile2.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{fh}}.tile1.nc']
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile3.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{fh}}.tile1.nc']
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile4.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{fh}}.tile1.nc']
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile5.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{fh}}.tile1.nc']
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile6.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{fh}}.tile1.nc']
+            {% else %}
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile1.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}']
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile2.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}']
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile3.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}']
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile4.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}']
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile5.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}']
+    - ['{{ DATA }}/memchar/{{ APREFIX_ENS }}/cubed_sphere_grid_ratmi{fh}}.tile6.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}']
+            {% endif %}
+    {% endfor %}
 {% endfor %}
