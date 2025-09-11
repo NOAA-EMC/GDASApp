@@ -113,7 +113,11 @@ else()
 		set(GENERATE_BUFR2IODA_TESTS FALSE)
 	endif()
 	# message(STATUS "Found ocean basin data in ${OCEAN_BASIN_FILE}")
-	set(GENERATE_BUFR2IODA_TESTS TRUE)
+	if (BUILD_IODA_CONVERTERS)
+	  set(GENERATE_BUFR2IODA_TESTS TRUE)
+	else()
+	  set(GENERATE_BUFR2IODA_TESTS FALSE)
+	endif()
 endif()
 
 
