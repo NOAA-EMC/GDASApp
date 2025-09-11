@@ -13,36 +13,10 @@ atmosphere_background_ensemble_path: ./bkg/mem%mem%
 
 # Observation things
 # ------------------
-observations:
-#  - ADPSFC
-#  - ADPUPA
-#  - SFCSHP
-#  - aircraft_humidity
-#  - aircraft_temperature
-#  - aircraft_wind
-  - ascatw.ascat_metop-b
-#  - ascatw.ascat_metop-c
-  - atms_n20
-#  - atms_npp
-  - conventional_ps
-  - gnssro
-#  - gpsro
-#  - iasi_metop-a
-#  - iasi_metop-b
-#  - ompsnp_n20
-  - ompsnp_npp
-#  - ompstc_n20
-  - ompstc_npp
-  - satwnd.abi_goes-16
-#  - satwnd.abi_goes-18
-#  - satwnd.leogeo_multi
-#  - satwnd.viirs_n20
-#  - satwnd.viirs_npp
-#  - scatwind_ascat_metop-a
-#  - snowcvr
+{% include OBS_LIST_YAML %}
 
 # Naming conventions for observation files
-atmosphere_obsdatain_path: "{{atm_obsdataout_path}}"
+atmosphere_obsdatain_path: "{{DATA}}/diags"
 atmosphere_obsdatain_prefix: diag_lobs_
 atmosphere_obsdatain_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 atmosphere_obsdataout_prefix: diag_solv_

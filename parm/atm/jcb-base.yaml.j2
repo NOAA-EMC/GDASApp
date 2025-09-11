@@ -78,13 +78,13 @@ crtm_coefficient_path: "{{ DATA }}/crtm/"
 # Naming conventions for observational files
 atmosphere_obsdataroot_path: "{{COMIN_OBS}}"
 
-atmosphere_obsdatain_path: "{{atm_obsdatain_path}}"
+atmosphere_obsdatain_path: "{{DATA}}/obs"
 atmosphere_obsdatain_script_path: "{{HOMEgfs}}/ush/spoc/atmosphere"
 atmosphere_obsdatain_prefix: "{{OPREFIX}}"
 atmosphere_obsdatain_suffix: ".tm00.nc"
 atmosphere_obsdatain_suffix_bufr: ".tm00.bufr_d"
 
-atmosphere_obsdataout_path: "{{atm_obsdataout_path}}"
+atmosphere_obsdataout_path: "{{DATA}}/diags"
 atmosphere_obsdataout_prefix: diag_
 atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
@@ -104,17 +104,6 @@ atmosphere_obsbiasout_prefix: "{{APREFIX}}"
 atmosphere_obsbiasout_suffix: ".satbias.nc"
 atmosphere_obsbiascovout_prefix: "{{APREFIX}}"
 atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
-
-bias_files:
-  atms_n20: rad_varbc_params.tar
-  atms_npp: rad_varbc_params.tar
-  mtiasi_metop-a: rad_varbc_params.tar
-  mtiasi_metop-b: rad_varbc_params.tar
-  amsua_n19: rad_varbc_params.tar
-  ssmis_f17: rad_varbc_params.tar
-  ssmis_f18: rad_varbc_params.tar
-  cris-fsr_n20: rad_varbc_params.tar
-  cris-fsr_npp: rad_varbc_params.tar
 
 # Local Ensemble DA (LETKF)
 # -------------------------
