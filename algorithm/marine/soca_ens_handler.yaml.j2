@@ -4,7 +4,7 @@ geometry:
   fields metadata: ./fields_metadata.yaml
 
 nens: '{{ marine_number_ensemble_members }}'
-nens per MPI task: 2
+nens per MPI task: '{{ marine_number_ensemble_members_per_mpi }}'
 
 increment variables: &vars
 - sea_water_potential_temperature
