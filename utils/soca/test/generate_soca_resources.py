@@ -195,7 +195,7 @@ def main(project_src_dir):
     subprocess.run(["ncgen", "-4", "-o", "ice.nc", f"{project_src_dir}/soca/test/testdata/ice.cdl"], check=True)
 
     # Copy YAML file
-    yaml_src_path = f"{project_src_dir}/../parm/soca/fields_metadata.yaml"
+    yaml_src_path = f"{project_src_dir}/../parm/marine/fields_metadata.yaml"
     shutil.copy(yaml_src_path, gdas_test_dir)
 
     # Generate increment file
