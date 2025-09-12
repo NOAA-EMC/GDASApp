@@ -5,7 +5,7 @@
   "cycle_datetime"       : "{{ current_cycle | to_YMDH }}",
   "dump_directory"       : "{{ DMPDIR }}",
   "ioda_directory"       : "{{ COMOUT_OBS }}",
-  "ioda_type"            : "ompstc",
+  "ioda_type"            : "ozone.ompstc",
   "subsets"              : "NC008018",
   "source"               : "MTYP 008-018 OMPS TOTAL COLUMN OZONE (VERSION 8 BUFR) ",
   "process_level"        : "Level-2",
