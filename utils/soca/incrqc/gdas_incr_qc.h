@@ -30,7 +30,7 @@ namespace incrqc {
  * @param dx The increment to QC. Will be modified in place.
  * @param config The configuration containing bounds information.
  */
-void qcIncrement(const soca::State& xb,
+inline void qcIncrement(const soca::State& xb,
                  soca::Increment& dx,
                  const eckit::Configuration& config,
                  const soca::Geometry& geom) {
@@ -98,14 +98,15 @@ void qcIncrement(const soca::State& xb,
   meshConn.nodeColumns.haloExchange(xbFs["sea_water_cell_thickness"]);
 
   int niterations = config.getInt("increment stability iterations", 10);
+  int nSmoothingIterations = config.getInt("increment smoothing iterations", 30);
   const double rhoMinGrad = config.getDouble("min stable density gradient", 1e-4);
 
   // Steric height increment and stability checks
   applyWaterColumnStabilityCheck(dxFs,
                                  viewTempBkg, viewSaltBkg,
                                  viewHocn, viewDepth, lonlat,
-                                 niterations, rhoMinGrad, viewBathy,
-                                 meshConn);
+                                 niterations, rhoMinGrad, nSmoothingIterations,
+                                 viewBathy, meshConn);
 
   for (atlas::idx_t jnode = 0; jnode < viewTempIncr.shape(0); ++jnode) {
     // Skip ghost and land nodes

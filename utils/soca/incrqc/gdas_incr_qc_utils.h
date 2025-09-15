@@ -36,7 +36,7 @@ namespace incrqc {
  * @param maxBound The maximum allowed value for the resulting analysis
  * @return The adjusted increment that, when added to xB, will keep the result within [minBound, maxBound]
  */
-double adjustAnalysisBounds(double xB, double dX, double minBound, double maxBound) {
+inline double adjustAnalysisBounds(double xB, double dX, double minBound, double maxBound) {
   double xA = xB + dX;
   if (xA < minBound) {
     return minBound - xB;
@@ -72,13 +72,14 @@ double adjustAnalysisBounds(double xB, double dX, double minBound, double maxBou
  * @param lonlat Longitude and latitude coordinates
  * @param niterations Number of iterations to perform the stability check
  * @param rhoMinGrad Minimum density gradient used for scaling corrections
+ * @param nSmoothingIterations Number of smoothing iterations for weight fields
  * @param ghostView Array view indicating ghost nodes (1 for ghost, 0 for real nodes)
  * @param viewBathy Bathymetry values (positive for water points, negative or zero for land)
  *
  * @note The correction factor is determined based on the ratio of the analysis density
  *       gradient to rhoMinGrad, with values clamped between 0.1 and 1.0
  */
-void applyWaterColumnStabilityCheck(
+inline void applyWaterColumnStabilityCheck(
     atlas::FieldSet dxFs,
     const atlas::array::ArrayView<const double, 2>& viewTempBkg,
     const atlas::array::ArrayView<const double, 2>& viewSaltBkg,
@@ -87,27 +88,41 @@ void applyWaterColumnStabilityCheck(
     const atlas::array::ArrayView<const double, 2>& lonlat,
     const int niterations,
     const double rhoMinGrad,
+    const int nSmoothingIterations,
     const atlas::array::ArrayView<const double, 2>& viewBathy,
     const gdasapp::diagb::utils::MeshBundle& meshConn) {
 
   auto viewTempIncr = atlas::array::make_view<double, 2>(dxFs["sea_water_potential_temperature"]);
   auto viewSaltIncr = atlas::array::make_view<double, 2>(dxFs["sea_water_salinity"]);
 
-  // Store (node, level, neighbors) in tuple
-  std::vector<std::tuple<int, int, std::vector<int>>> unstablePoints;
-
   const auto nlevels = viewTempIncr.shape(1);
   const auto njnodes = viewTempIncr.shape(0);
+
+  // Create weight fields for temperature and salinity (initialized to 1.0)
+  atlas::Field tempWeightField = dxFs["sea_water_potential_temperature"].clone();
+  atlas::Field saltWeightField = dxFs["sea_water_salinity"].clone();
+  auto viewTempWeight = atlas::array::make_view<double, 2>(tempWeightField);
+  auto viewSaltWeight = atlas::array::make_view<double, 2>(saltWeightField);
+
+  // Initialize weights to 1.0
+  for (atlas::idx_t jnode = 0; jnode < njnodes; ++jnode) {
+    for (atlas::idx_t level = 0; level < nlevels; ++level) {
+      viewTempWeight(jnode, level) = 1.0;
+      viewSaltWeight(jnode, level) = 1.0;
+    }
+  }
+
   for (int iter = 0; iter < niterations; ++iter) {
     // Update halo
     meshConn.nodeColumns.haloExchange(dxFs["sea_water_potential_temperature"]);
     meshConn.nodeColumns.haloExchange(dxFs["sea_water_salinity"]);
 
-    // Clone the increment fields
+    // Clone the increment fields for analysis
     auto dTF = dxFs["sea_water_potential_temperature"].clone();
     auto dSF = dxFs["sea_water_salinity"].clone();
     auto viewdTF = atlas::array::make_view<double, 2>(dTF);
     auto viewdSF = atlas::array::make_view<double, 2>(dSF);
+
     for (atlas::idx_t jnode = 0; jnode < njnodes; ++jnode) {
       // Skip ghost and land nodes
       if (meshConn.ghostView(jnode) > 0) continue;
@@ -115,6 +130,7 @@ void applyWaterColumnStabilityCheck(
 
       std::vector<double> rhoAna(nlevels), rhoBkg(nlevels);
       std::vector<double> drhodz_ana(nlevels), drhodz_bkg(nlevels);
+
       for (atlas::idx_t level = 0; level < nlevels; ++level) {
         rhoAna[level] = gdasapp::utils::computeDensityUNESCO(
             viewTempBkg(jnode, level) + viewdTF(jnode, level),
@@ -138,49 +154,90 @@ void applyWaterColumnStabilityCheck(
         // Allow existing background instability but damp if increment amplifies it
         if ((drhodz_ana[level] < 0.0 && drhodz_bkg[level] >= 0.0) ||
             (drhodz_bkg[level] < 0.0 && drhodz_ana[level] < drhodz_bkg[level])) {
-          // Accumulate the jnode, level and neighbors
-          auto neighbors = gdasapp::diagb::utils::get_neighbors_of_node(meshConn.mesh,
-                                                                        meshConn.node2edge,
-                                                                        meshConn.edge2node,
-                                                                        jnode);
-          unstablePoints.emplace_back(jnode, level, neighbors);
+          // Calculate multiplicative weight factor
           double factor = std::clamp(std::abs(drhodz_ana[level]) / rhoMinGrad, 0.1, 1.0);
-          viewTempIncr(jnode, level) *= (1.0 - 0.5 * factor);
-          viewSaltIncr(jnode, level) *= (1.0 - 0.5 * factor);
-          }  // end if stability condition
-        }  // end for loop level
-      }  // end for loop jnode
+          double weight = 1.0 - 0.5 * factor;
 
-      // HALO EXCHANGE BEFORE SMOOTHING
-      meshConn.nodeColumns.haloExchange(dxFs["sea_water_potential_temperature"]);
-      meshConn.nodeColumns.haloExchange(dxFs["sea_water_salinity"]);
+          // Store weights at unstable points
+          viewTempWeight(jnode, level) = weight;
+          viewSaltWeight(jnode, level) = weight;
+        } else {
+          // Reset weights to 1.0 for stable points
+          viewTempWeight(jnode, level) = 1.0;
+          viewSaltWeight(jnode, level) = 1.0;
+        }  // end if stability condition
+      }  // end for loop level
+    }  // end for loop jnode
 
-      // Create buffer fields for smoothed results
-      atlas::Field tempSmoothField = dxFs["sea_water_potential_temperature"].clone();
-      atlas::Field saltSmoothField = dxFs["sea_water_salinity"].clone();
-      auto viewTempSmooth = atlas::array::make_view<double, 2>(tempSmoothField);
-      auto viewSaltSmooth = atlas::array::make_view<double, 2>(saltSmoothField);
+    // HALO EXCHANGE FOR WEIGHT FIELDS BEFORE SMOOTHING
+    meshConn.nodeColumns.haloExchange(tempWeightField);
+    meshConn.nodeColumns.haloExchange(saltWeightField);
 
-      // Smooth increment over local node + neighbors
-      for (const auto& [jnode, level, neighbors] : unstablePoints) {
-        gdasapp::diagb::utils::localMean(jnode, level, neighbors, viewHocn,
-                                         viewTempSmooth, viewTempIncr,
-                                         viewDepth, 1, 0.0);
-        gdasapp::diagb::utils::localMean(jnode, level, neighbors, viewHocn,
-                                         viewSaltSmooth, viewSaltIncr,
-                                         viewDepth, 1, 0.0);
+    // Create buffer fields for smoothed weights
+    atlas::Field tempWeightSmoothField = tempWeightField.clone();
+    atlas::Field saltWeightSmoothField = saltWeightField.clone();
+    auto viewTempWeightSmooth = atlas::array::make_view<double, 2>(tempWeightSmoothField);
+    auto viewSaltWeightSmooth = atlas::array::make_view<double, 2>(saltWeightSmoothField);
+
+    // Copy original weights to smooth fields
+    for (atlas::idx_t jnode = 0; jnode < njnodes; ++jnode) {
+      for (atlas::idx_t level = 0; level < nlevels; ++level) {
+        viewTempWeightSmooth(jnode, level) = viewTempWeight(jnode, level);
+        viewSaltWeightSmooth(jnode, level) = viewSaltWeight(jnode, level);
       }
+    }
 
-      // Copy smoothed values back to main field
+    // Smooth weights over all nodes
+    for (int smoothIter = 0; smoothIter < nSmoothingIterations; ++smoothIter) {
+      // Update halo for weight fields before each smoothing iteration
+      meshConn.nodeColumns.haloExchange(tempWeightField);
+      meshConn.nodeColumns.haloExchange(saltWeightField);
+
       for (atlas::idx_t jnode = 0; jnode < njnodes; ++jnode) {
+        // Skip ghost and land nodes
         if (meshConn.ghostView(jnode) > 0) continue;
+        if (viewBathy(jnode, 0) <= 0.0) continue;
+
+        // Get neighbors for this node
+        auto neighbors = gdasapp::diagb::utils::get_neighbors_of_node(meshConn.mesh,
+                            meshConn.node2edge,
+                            meshConn.edge2node,
+                            jnode);
+
         for (atlas::idx_t level = 0; level < nlevels; ++level) {
-            viewTempIncr(jnode, level) = viewTempSmooth(jnode, level);
-            viewSaltIncr(jnode, level) = viewSaltSmooth(jnode, level);
+            // Explicit mean computation across neighbors for smoothing
+            double tempSum = viewTempWeight(jnode, level);
+            double saltSum = viewSaltWeight(jnode, level);
+            int count = 1;
+            for (const auto& n : neighbors) {
+            tempSum += viewTempWeight(n, level);
+            saltSum += viewSaltWeight(n, level);
+            ++count;
+            }
+            viewTempWeightSmooth(jnode, level) = tempSum / count;
+            viewSaltWeightSmooth(jnode, level) = saltSum / count;
         }
       }
-    }  // end for loop iter
-  }
+
+      // Copy smoothed weights back to the weight fields for next iteration
+      for (atlas::idx_t jnode = 0; jnode < njnodes; ++jnode) {
+        for (atlas::idx_t level = 0; level < nlevels; ++level) {
+          viewTempWeight(jnode, level) = viewTempWeightSmooth(jnode, level);
+          viewSaltWeight(jnode, level) = viewSaltWeightSmooth(jnode, level);
+        }
+      }
+    }
+
+    // Apply smoothed weights to increments
+    for (atlas::idx_t jnode = 0; jnode < njnodes; ++jnode) {
+      if (meshConn.ghostView(jnode) > 0) continue;
+      for (atlas::idx_t level = 0; level < nlevels; ++level) {
+        viewTempIncr(jnode, level) *= viewTempWeightSmooth(jnode, level);
+        viewSaltIncr(jnode, level) *= viewSaltWeightSmooth(jnode, level);
+      }
+    }
+  }  // end for loop iter
+}
 
 /**
  * @brief Applies steric height constraint to sea surface height (SSH) increments
@@ -207,7 +264,7 @@ void applyWaterColumnStabilityCheck(
  * @param viewHocn     Ocean layer thickness values (input only)
  * @param deltaSshMax  Maximum allowed absolute value for SSH increments
  */
-void applyStericHeightConstraint(
+inline void applyStericHeightConstraint(
     const atlas::idx_t jnode,
     atlas::array::ArrayView<double, 2>& viewTempIncr,
     atlas::array::ArrayView<double, 2>& viewSaltIncr,
@@ -279,7 +336,7 @@ void applyStericHeightConstraint(
  *      - If xA < minBound: set dX = minBound - xB
  *      - If xA > maxBound: set dX = maxBound - xB
  */
-void applyBruteForceBoundsCheck(
+inline void applyBruteForceBoundsCheck(
     atlas::FieldSet& dxFs,
     const atlas::FieldSet& xbFs,
     const atlas::array::ArrayView<const int, 1>& ghostView,

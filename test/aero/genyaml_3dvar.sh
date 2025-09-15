@@ -18,7 +18,7 @@ export assim_freq=6
 export OPREFIX='gdas.t18z.'
 
 # input and output YAMLs
-export YAMLin=$srcdir/parm/aero/variational/3dvar_gfs_aero.yaml.j2
+export YAMLin=$srcdir/test/testinput/3dvar_gfs_aero.yaml.j2
 export YAMLout=$DATA/3dvar_gfs_aero.yaml
 
 # remove and make test directory

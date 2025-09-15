@@ -1,0 +1,39 @@
+mkdir:
+{% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                      '${RUN}': RUN,
+                      '${YMD}': current_cycle | to_YMD,
+                      '${HH}': current_cycle | strftime('%H'),
+                      '${MEMDIR}': 'ensstat' }) %}
+- '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}'
+- '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}'
+{% for imem in range(1,NMEM_ENS+1) %}
+    {% set memchar = 'mem%03d' | format(imem) %}
+    {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                          '${RUN}': RUN,
+                          '${YMD}': current_cycle | to_YMD,
+                          '${HH}': current_cycle | strftime('%H'),
+                          '${MEMDIR}': memchar }) %}
+- '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}'
+- '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}'
+{% endfor %}
+copy:
+{% for imem in range(1,NMEM_ENS+1) %}
+    {% set imem0 = imem-1 %}
+    {% set memchar = 'mem%03d' | format(imem) %}
+    {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                          '${RUN}': RUN,
+                          '${YMD}': current_cycle | to_YMD,
+                          '${HH}': current_cycle | strftime('%H'),
+                          '${MEMDIR}': memchar }) %}
+# ocean increments are saved as 0..n-1
+- ['{{ DATA }}/ocn.recenter.ens.{{ imem0 | string}}.{{ MARINE_WINDOW_END_ISO }}.PT0S.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ RUN }}.t{{ "%02d" | format(cyc) }}z.ocninc.nc']
+# ice restarts are saved as 1..n
+- ['{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.cice_model_anl.res.nc']
+{% endfor %}
+{% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                      '${RUN}': RUN,
+                      '${YMD}': current_cycle | to_YMD,
+                      '${HH}': current_cycle | strftime('%H'),
+                      '${MEMDIR}': 'ensstat' }) %}
+- ['{{ DATA }}/ocn.ensvar.incr.{{ MARINE_WINDOW_END_ISO }}.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ RUN }}.ocean.t{{ "%02d" | format(cyc) }}z.bg_ensvar.nc']
+- ['{{ DATA }}/ice.ensvar.incr.{{ MARINE_WINDOW_END_ISO }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ RUN }}.ice.t{{ "%02d" | format(cyc) }}z.bg_ensvar.nc']

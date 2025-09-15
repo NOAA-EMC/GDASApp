@@ -39,7 +39,7 @@ observations:
           sensorScanPosition:
             sensorScanPosition:
               fieldOfViewNumber: "*/FOVN"
-              sensor: iasi 
+              sensor: iasi
 
           solarZenithAngle:
             query: "*/SOZA"
@@ -55,26 +55,26 @@ observations:
 
           stationElevation:
             query: "*/SELV"
-            type: float 
+            type: float
 
           sensorViewAngle:
             sensorScanAngle:
               fieldOfViewNumber: "*/FOVN"
               scanStart: -48.330
               scanStep: 3.334
-              scanStepAdjust: 0.625 
+              scanStepAdjust: 0.625
               sensor: iasi
-
-          fractionOfClearPixelsInFOV:
-            query: "*/IASIL1CS{1}/FCPH"
-#            type: float
-#            transforms:
-#               - scale: 0.01
 
           sensorChannelNumber:
             query: "*/IASICHN/CHNM"
 
           # ObsValue
+          fractionOfClearPixelsInFOV:
+            query: "*/IASIL1CS{1}/FCPH"
+            type: float
+            transforms:
+              - scale: 0.01
+
           spectralRadiance:
             spectralRadiance:
               sensorChannelNumber: "*/IASICHN/CHNM"
@@ -189,7 +189,6 @@ observations:
           longName: "Solar Zenith Angle"
           units: "degree"
           range: [ 0, 180 ]
-
         - name: "MetaData/solarAzimuthAngle"
           source: variables/solarAzimuthAngle
           longName: "Solar Azimuth Angle"
@@ -201,7 +200,7 @@ observations:
           longName: "Sensor Zenith Angle"
           units: "degree"
           range: [ 0, 90 ]
-
+ 
         - name: "MetaData/sensorAzimuthAngle"
           source: variables/sensorAzimuthAngle
           longName: "Sensor Azimuth Angle"
@@ -222,17 +221,16 @@ observations:
           source: variables/sensorChannelNumber
           longName: "Sensor Channel Number"
 
-        - name: "MetaData/fractionOfClearPixelsInFOV"
+        - name: "ObsValue/cloudFree"
           source: variables/fractionOfClearPixelsInFOV
           longName: "Fraction of Clear Pixels in a Field of View"
           units: "1"
-          range: [0, 100]
+          range: [ 0, 1 ]
 
-#       The unit from BUFR is W m-2 sr-1 m -- this is radiance per wavenumber
-#       - name: "ObsValue/spectralRadiance"
-        - name: "ObsValue/radiance"
+        - name: "ObsValue/spectralRadiance"
           source: variables/spectralRadiance
           longName: "IASI Spectral Radiance"
-          units: "W m-2 sr-1"
-#         units: "W m-2 sr-1 m-1"
-
+          units: "W m-2 sr-1 m-1"
+    #      chunks: [1000, 154]
+    #      chunks: [1000, 616]
+    #      compressionLevel: 4

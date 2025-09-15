@@ -5,7 +5,8 @@ bindir=$1
 srcdir=$2
 
 # Set g-w HOMEgfs
-export HOMEgfs=$srcdir/../../ # TODO: HOMEgfs had to be hard-coded in config
+topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
+export HOMEgfs=$topdir
 
 # Set variables for ctest
 export PSLOT=gdas_test
@@ -21,32 +22,27 @@ export pid=${pid:-$$}
 export jobid=$pid
 export COMROOT=$DATAROOT
 export NMEM_ENS=0
-export ACCOUNT=da-cpu
 export COM_TOP=$ROTDIR
 
 # Set GFS COM paths
 source "${HOMEgfs}/ush/preamble.sh"
 source "${HOMEgfs}/dev/parm/config/gfs/config.com"
 
+# Detect machine
+source "${HOMEgfs}/ush/detect_machine.sh"
+
+# Set up the PYTHONPATH to include wxflow from HOMEgfs
+if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+fi
+
 # Set python path for workflow utilities and tasks
 wxflowPATH="${HOMEgfs}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
-# Detemine machine from config.base
-machine=$(echo `grep 'machine=' $EXPDIR/config.base | cut -d"=" -f2` | tr -d '"')
-
-# Set NETCDF and UTILROOT variables (used in config.base)
-if [ $machine = 'HERA' ]; then
-    NETCDF=$( which ncdump )
-    export NETCDF
-    export UTILROOT="/scratch2/NCEPDEV/ensemble/save/Walter.Kolczynski/hpc-stack/intel-18.0.5.274/prod_util/1.2.2"
-elif [ $machine = 'ORION' ]; then
-    ncdump=$( which ncdump )
-    NETCDF=$( echo "${ncdump}" | cut -d " " -f 3 )
-    export NETCDF
-    export UTILROOT=/work2/noaa/da/python/opt/intel-2022.1.2/prod_util/1.2.2
-fi
+# Export library path
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 
 # Set date variables for previous cycle
 gPDY=$(date +%Y%m%d -d "${PDY} ${cyc} - 6 hours")
@@ -85,12 +81,34 @@ for file in $flist; do
    cp $GDASAPP_TESTDATA/lowres/$dpath/$file $COMIN_ATMOS_RESTART_PREV_DIRNAME/restart/
 done
 
+# Create yaml with job configuration
+memory="8Gb"
+if [[ ${MACHINE_ID} == "gaeac6" ]]; then
+    memory=0
+fi
+config_yaml="./config_${type}.yaml"
+cat <<EOF > ${config_yaml}
+machine: ${MACHINE_ID}
+homegfs: ${HOMEgfs}
+job_name: ${type}
+walltime: "00:30:00"
+nodes: 1
+ntasks_per_node: 1
+threads_per_task: 1
+memory: ${memory}
+command: ${HOMEgfs}/jobs/JGLOBAL_AERO_ANALYSIS_INITIALIZE
+filename: submit_${type}.sh
+EOF
 
-# Execute j-job
-if [ $machine = 'HERA' ]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_AERO_ANALYSIS_INITIALIZE
-elif [ $machine = 'ORION' ]; then
-    sbatch --ntasks=1 --account=$ACCOUNT --qos=batch --partition=orion --time=00:10:00 --export=ALL --wait ${HOMEgfs}/jobs/JGLOBAL_AERO_ANALYSIS_INITIALIZE
+# Create script to execute j-job
+$HOMEgfs/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
+SCHEDULER=$(echo `grep SCHEDULER ${HOMEgfs}/sorc/gdas.cd/test/workflow/hosts/${MACHINE_ID}.yaml | cut -d":" -f2` | tr -d ' ')
+
+# Submit script to execute j-job
+if [[ $SCHEDULER = 'slurm' ]]; then
+    sbatch --export=ALL --wait submit_${type}.sh
+elif [[ $SCHEDULER = 'pbspro' ]]; then
+    qsub -V -W block=true submit_${type}.sh
 else
     ${HOMEgfs}/jobs/JGLOBAL_AERO_ANALYSIS_INITIALIZE
 fi
