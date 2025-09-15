@@ -69,25 +69,18 @@ atmosphere_ensemble_analysis_prefix: "anl_"
 atmosphere_background_time_iso: '2024-02-02T00:00:00Z'
 
 # Background error
-
 atmosphere_bump_data_directory: DATA/berror
 atmosphere_gsibec_path: DATA/berror
 atmosphere_number_ensemble_members: 3
 atmosphere_layout_gsib_x: 2
 atmosphere_layout_gsib_y: 2
 
-
 # Forecasting
 atmosphere_forecast_length: PT6H
 atmosphere_forecast_timestep: PT1H
 
-# Minimization
-atmosphere_ninner_1: 2
-atmosphere_ninner_2: 4
-
 # Write final increment on Gaussian grid in variational
 atmosphere_final_increment_prefix: "./anl/atminc."
-
 
 # Observation things
 # ------------------
