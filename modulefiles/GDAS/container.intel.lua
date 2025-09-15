@@ -6,7 +6,7 @@ local pkgName    = myModuleName()
 local pkgVersion = myModuleVersion()
 local pkgNameVer = myModuleFullName()
 
-prepend_path("MODULEPATH", "/opt/spack-stack/spack-stack-1.9.1/envs/unified-env/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/opt/spack-stack/spack-stack-1.9.2/envs/unified-env/install/modulefiles/Core")
 
 stack_oneapi_ver=os.getenv("stack_oneapi_ver") or "2024.2.0"
 stack_impi_ver=os.getenv("stack_impi_ver") or "2021.13"
@@ -35,4 +35,4 @@ setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/contrib/global-workflow-shared-data/GDAS
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)
 whatis("Category: GDASApp")
-whatis("Description: Load all libraries needed for GDASApp")
+whatis("Description: Load all libraries needed for GDASApp in container")
