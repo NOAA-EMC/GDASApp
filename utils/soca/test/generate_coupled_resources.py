@@ -42,7 +42,7 @@ def main(project_src_dir):
     subprocess.run(["ncgen", "-4", "-o", "soca/soca_gridspec.nc", f"{project_src_dir}/soca/test/testdata/soca_gridspec.cdl"], check=True)
     subprocess.run(["ncgen", "-4", "-o", "ocn.nc", f"{project_src_dir}/soca/test/testdata/ocn.cdl"], check=True)
     subprocess.run(["ncgen", "-4", "-o", "ice.nc", f"{project_src_dir}/soca/test/testdata/ice.cdl"], check=True)
-    yaml_src_path = f"{project_src_dir}/../parm/soca/fields_metadata.yaml"
+    yaml_src_path = f"{project_src_dir}/../parm/marine/fields_metadata.yaml"
     shutil.copy(yaml_src_path, os.path.join(gdas_test_dir, "soca"))
 
 if __name__ == "__main__":
