@@ -5,7 +5,7 @@
   "cycle_datetime"       : "{{ current_cycle | to_YMDH }}",
   "dump_directory"       : "{{ DMPDIR }}",
   "ioda_directory"       : "{{ COMOUT_OBS }}",
-  "ioda_type"            : "omi",
+  "ioda_type"            : "ozone.omi",
   "subsets"              : "NC008013",
   "source"               : "MTYP 008-013 OZONE MONITORING INSTRUMENT (OMI) Total Column Ozone",
   "process_level"        : "Level-2",
