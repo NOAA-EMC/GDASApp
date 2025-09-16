@@ -1,7 +1,7 @@
 observations:
   - obs space:
       name: bufr
-      obsdatain: "{{ DMPDIR }}/{{ RUN }}.{{ PDY }}/{{ cyc }}/atmos/{{ RUN }}.t{{ cyc }}z.mtiasi.tm00.bufr_d"
+      obsdatain: "{{ DMPDIR }}/{{ RUN }}.{{ PDY }}/{{ cyc }}/atmos/{{ RUN }}.t{{ cyc }}z.crisf4.tm00.bufr_d"
 
       exports:
         variables:
@@ -30,16 +30,14 @@ observations:
           scanLineNumber:
             query: "*/SLNM"
 
-          gqisFlagQual:
-            query: "*/QGFQ"
-
           fieldOfViewNumber:
             query: "*/FOVN"
 
+          fieldOfRegardNumber:
+            query: "*/FORN"
+
           sensorScanPosition:
-            sensorScanPosition:
-              fieldOfViewNumber: "*/FOVN"
-              sensor: iasi
+            query: "*/FOVN"
 
           solarZenithAngle:
             query: "*/SOZA"
@@ -53,59 +51,50 @@ observations:
           sensorAzimuthAngle:
             query: "*/BEARAZ"
 
-          stationElevation:
-            query: "*/SELV"
-            type: float
-
           sensorViewAngle:
             sensorScanAngle:
               fieldOfViewNumber: "*/FOVN"
+              fieldOfRegardNumber: "*/FORN"
               scanStart: -48.330
-              scanStep: 3.334
-              scanStepAdjust: 0.625
-              sensor: iasi
+              scanStep: 3.3331
+              sensor: cris
 
           sensorChannelNumber:
-            query: "*/IASICHN/CHNM"
+            query: "*/CRCHNM/CHNM"
 
           # ObsValue
-          fractionOfClearPixelsInFOV:
-            query: "*/IASIL1CS{1}/FCPH"
+          cloudCoverTotal:
+            query: "*/TOCC"
             type: float
             transforms:
               - scale: 0.01
 
+          cloudTopHeight:
+            query: "*/HOCT"
+            type: float
+
           spectralRadiance:
-            spectralRadiance:
-              sensorChannelNumber: "*/IASICHN/CHNM"
-              startChannel: "*/IASIL1CB/STCH"
-              endChannel: "*/IASIL1CB/ENCH"
-              scaleFactor: "*/IASIL1CB/CHSF"
-              scaledSpectralRadiance: "*/IASICHN/SCRA"
+            query: "*/CRCHNM/SRAD"
+            transforms:
+              - scale: 0.01
 
         splits:
           satId:
             category:
               variable: satelliteId
               map:
-                _3: metop-b
-                _4: metop-a
-                _5: metop-c
+                _224: npp 
+                _225: n20 
+                _226: n21 
 
     ioda:
       backend: netcdf
-      obsdataout: "{{ COMOUT_OBS }}/{{ RUN }}.t{{ cyc }}z.iasi_$(splitvar).tm00.nc" 
+      obsdataout: "{{ COMOUT_OBS }}/{{ RUN }}.t{{ cyc }}z.cris-fsr_$(splitvar).tm00.nc" 
 
       dimensions:
         - name: Channel
           source: variables/sensorChannelNumber
-          path: "*/IASICHN"
-
-        - name: Cluster 
-          path: "*/IASIL1CS"
-
-        - name: Band 
-          path: "*/IASIL1CB"
+          path: "*/CRCHNM" 
 
       globals:
         - name: "platformCommonName"
@@ -118,11 +107,11 @@ observations:
 
         - name: "source"
           type: string
-          value: "MTYP 021-241 IASI 1C RADIANCES (VARIABLE CHNS) (METOP)"
+          value: "MTYP 021-241 CrIS 1C RADIANCES (VARIABLE CHNS) (METOP)"
 
         - name: "sourceFiles"
           type: string
-          value: "gdas.t00z.mtiasi.tm00.bufr_d"
+          value: "gdas.t00z.crisf4.tm00.bufr_d"
 
         - name: "datetimeReference"
           type: string
@@ -130,7 +119,7 @@ observations:
 
         - name: "sensor"
           type: string
-          value: "IASI"
+          value: "CrIS"
 
         - name: "processingLevel"
           type: string
@@ -164,21 +153,21 @@ observations:
           source: variables/satelliteId
           longName: "Satellite Identifier"
 
-        - name: "MetaData/instrumentIdentifier"
-          source: variables/sensorId
-          longName: "Satellite Instrument Identifier"
+#        - name: "MetaData/instrumentIdentifier"
+#          source: variables/sensorId
+#          longName: "Satellite Instrument Identifier"
 
         - name: "MetaData/scanLineNumber"
           source: variables/scanLineNumber
           longName: "Scan Line Number"
 
-        - name: "MetaData/qualityFlags"
-          source: variables/gqisFlagQual
-          longName: "Individual IASI-System Quality Flag"
-
         - name: "MetaData/fieldOfViewNumber"
           source: variables/fieldOfViewNumber
           longName: "Field of View Number"
+
+        - name: "MetaData/fieldOfRegardNumber"
+          source: variables/fieldOfRegardNumber
+          longName: "Field of Regard Number"
 
         - name: "MetaData/sensorScanPosition"
           source: variables/sensorScanPosition
@@ -189,6 +178,7 @@ observations:
           longName: "Solar Zenith Angle"
           units: "degree"
           range: [ 0, 180 ]
+
         - name: "MetaData/solarAzimuthAngle"
           source: variables/solarAzimuthAngle
           longName: "Solar Azimuth Angle"
@@ -200,7 +190,7 @@ observations:
           longName: "Sensor Zenith Angle"
           units: "degree"
           range: [ 0, 90 ]
- 
+
         - name: "MetaData/sensorAzimuthAngle"
           source: variables/sensorAzimuthAngle
           longName: "Sensor Azimuth Angle"
@@ -212,25 +202,22 @@ observations:
           longName: "Sensor View Angle"
           units: "degree"
 
-        - name: "MetaData/stationElevation"
-          source: variables/stationElevation
-          longName: "Altitude of Satellite"
-          units: "m"
-
         - name: "MetaData/sensorChannelNumber"
           source: variables/sensorChannelNumber
           longName: "Sensor Channel Number"
 
-        - name: "ObsValue/cloudFree"
-          source: variables/fractionOfClearPixelsInFOV
-          longName: "Fraction of Clear Pixels in a Field of View"
+        - name: "ObsValue/cloudCoverTotal"
+          source: variables/cloudCoverTotal
+          longName: "Total Cloud Cover"
           units: "1"
           range: [ 0, 1 ]
 
+        - name: "ObsValue/heightOfTopOfCloud"
+          source: variables/cloudTopHeight
+          longName: "Height of Top of Cloud"
+          units: "m"
+
         - name: "ObsValue/spectralRadiance"
           source: variables/spectralRadiance
-          longName: "IASI Spectral Radiance"
+          longName: "CrIS Spectral Radiance"
           units: "W m-2 sr-1 m-1"
-    #      chunks: [1000, 154]
-    #      chunks: [1000, 616]
-    #      compressionLevel: 4
