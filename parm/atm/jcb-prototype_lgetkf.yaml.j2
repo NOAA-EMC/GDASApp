@@ -14,3 +14,9 @@ atmosphere_background_ensemble_path: ./bkg/mem%mem%
 # Observation things
 # ------------------
 {% include OBS_LIST_YAML %}
+
+# Testing things
+# --------------
+{% if DO_TEST_MODE %}
+{% include LETKF_JEDI_TEST_YAML %}
+{% endif %}

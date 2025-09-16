@@ -11,12 +11,18 @@ algorithm: local_ensemble_da_observer
 # ------------
 atmosphere_background_ensemble_path: ./bkg/mem%mem%
 
-# Observation things
-# ------------------
-{% include OBS_LIST_YAML %}
-
 # Naming conventions for observation files
 atmosphere_obsdataout_prefix: diag_lobs_
 
 # Distribution type
 distribution_type: RoundRobin
+
+# Observation things
+# ------------------
+{% include OBS_LIST_YAML %}
+
+# Testing things
+# --------------
+{% if DO_TEST_MODE %}
+{% include OBS_JEDI_TEST_YAML %}
+{% endif %}

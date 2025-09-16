@@ -5,3 +5,9 @@ algorithm: 3dvar
 # Observation things
 # ------------------
 {% include OBS_LIST_YAML %}
+
+# Testing things
+# --------------
+{% if DO_TEST_MODE %}
+{% include 3DVAR_JEDI_TEST_YAML %}
+{% endif %}
