@@ -1,0 +1,7 @@
+# Observations to copy from ObsForge to COM
+# Note this is done manually for now, we may eventually wish to designate somewhere
+# whether to copy from external COM or process on the fly for each ob type
+mkdir:
+- '{{ COMOUT_OBS }}
+copy_opt:
+- ['{{ COMINobsforge }}/{{ RUN }}.{{ current_cycle | to_YMD }}/{{ current_cycle | strftime("%H") }}/atmos/{{ OPREFIX }}prepbufr_adpsfc.nc', '{{ COMIN_OBS }}/']
