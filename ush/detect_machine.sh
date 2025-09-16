@@ -9,7 +9,7 @@
 # Thank you for your contribution
 
 # overwrite MACHINE_ID if in container
-if [[ -d /opt/spack-stack && -v SINGULARITY_CONTAINER ]]; then
+if [[ -v SINGULARITY_CONTAINER ]]; then
   # We are in a container
   MACHINE_ID=container
 fi
@@ -108,9 +108,5 @@ elif [[ -d /gpfs/f6 ]]; then
 elif [[ -d /data/prod ]]; then
   # We are on SSEC's S4
   MACHINE_ID=s4
-elif [[ -d /opt/spack-stack && -v SINGULARITY_CONTAINER ]]; then
-  # We are in a container
-  MACHINE_ID=container
-else
   echo WARNING: UNKNOWN PLATFORM 1>&2
 fi
