@@ -18,8 +18,9 @@ stage:
     - '{{ DATA }}/bkg'
     - '{{ DATA }}/anl'
     - '{{ DATA }}/obs'
-    - '{{ DATA }}/bias'
+    - '{{ DATA }}/bc'
     - '{{ DATA }}/fv3jedi'
+    - '{{ DATA }}/crtm'
     - '{{ DATA }}/berror'
     - '{{ DATA }}/diags'
 
@@ -47,8 +48,8 @@ stage:
 {% endif %}
 
 {% filter indent(width=4) %}
-{% include atm_stage_jedi_fix.yaml.j2 %}
-{% include atm_stage_crtm_coeff.yaml.j2 %}
+{% include 'atm_stage_jedi_fix.yaml.j2' %}
+{% include 'atm_stage_crtm_coeff.yaml.j2' %}
 {% if STATICB_TYPE != 'identity' %}
 {% include 'atm_det_stage_berror_' ~ STATICB_TYPE ~ '.yaml.j2' %}
 {% endif %}
@@ -56,19 +57,19 @@ stage:
 
     copy_opt:
 {% for ob_name in observations %}
-    - ['{{ COMIN_OBS }}/{{ OPREFIX }}/{{ ob_name }}.tm00.nc', '{{ DATA }}/obs']
+    - ['{{ COMIN_OBS }}/{{ OPREFIX }}{{ ob_name }}.tm00.nc', '{{ DATA }}/obs']
     {% if ob_name in bias_files %}
     - ['{{ COMIN_ATMOS_ANALYSIS_PREV }}/{{ GPREFIX }}{{bias_files[ob_name]}}', '{{ DATA }}/obs']
     {% endif %}
-{% endfor %}}
+{% endfor %}
 
 save:
     copy:
     - ['{{ DATA }}/atmanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}atmanlvar.yaml']
     - ['{{ DATA }}/atmanlfv3inc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}atmanlfv3inc.yaml']
-    - ['{{ DATA }}anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile1.nc, '{{ COMOUT_ATMOS_ANALYSIS }}']
-    - ['{{ DATA }}anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile2.nc, '{{ COMOUT_ATMOS_ANALYSIS }}']
-    - ['{{ DATA }}anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile3.nc, '{{ COMOUT_ATMOS_ANALYSIS }}']
-    - ['{{ DATA }}anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile4.nc, '{{ COMOUT_ATMOS_ANALYSIS }}']
-    - ['{{ DATA }}anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile5.nc, '{{ COMOUT_ATMOS_ANALYSIS }}']
-    - ['{{ DATA }}anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile6.nc, '{{ COMOUT_ATMOS_ANALYSIS }}']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile1.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile2.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile3.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile4.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile5.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile6.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
