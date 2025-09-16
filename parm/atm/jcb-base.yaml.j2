@@ -19,8 +19,8 @@ background_error_file: "{{BERROR_YAML}}"
 
 # Assimilation standard things (not prepended with model choice)
 # ----------------------------
-window_begin: "{{ ATM_WINDOW_BEGIN | to_isotime }}"
-window_length: "{{ ATM_WINDOW_LENGTH }}"
+window_begin: "{{ WINDOW_BEGIN | to_isotime }}"
+window_length: "{{ WINDOW_LENGTH }}"
 bound_to_include: begin
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
