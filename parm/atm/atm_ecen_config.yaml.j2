@@ -72,13 +72,13 @@ save:
                               '${YMD}': current_cycle | to_YMD,
                               '${HH}': current_cycle | strftime('%H'),
                               '${MEMDIR}': memchar }) %}
-            {% if hr == '6' %}
-    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile1.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{{ '%03d' % fh }}.tile1.nc']
-    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile2.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{{ '%03d' % fh }}.tile2.nc']
-    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile3.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{{ '%03d' % fh }}.tile3.nc']
-    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile4.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{{ '%03d' % fh }}.tile4.nc']
-    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile5.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{{ '%03d' % fh }}.tile5.nc']
-    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile6.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}/cubed_sphere_grid_ratminc{{ '%03d' % fh }}.tile6.nc']
+            {% if fh == 6 %}
+    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile1.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratminc.tile1.nc']
+    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile2.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratminc.tile2.nc']
+    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile3.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratminc.tile3.nc']
+    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile4.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratminc.tile4.nc']
+    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile5.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratminc.tile5.nc']
+    - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile6.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratminc.tile6.nc']
             {% else %}
     - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile1.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}']
     - ['{{ DATA }}/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile2.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}']
