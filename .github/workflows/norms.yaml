@@ -21,8 +21,3 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/GDASApp
         pycodestyle -v --config ./.pycodestyle ./ush ./scripts ./test
-
-    - name: Run C++ linter on utils
-      run: |
-        cd $GITHUB_WORKSPACE/GDASApp/utils/test/
-        ./cpplint.py --quiet --recursive --exclude=$GITHUB_WORKSPACE/GDASApp/utils/genutils/Flood.cc --exclude=$GITHUB_WORKSPACE/GDASApp/utils/obsproc/rtofs/*.cc --exclude=$GITHUB_WORKSPACE/GDASApp/utils/soca/diagnostics/Diagnostics.cc $GITHUB_WORKSPACE/GDASApp/utils
