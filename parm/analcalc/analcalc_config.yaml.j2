@@ -1,0 +1,54 @@
+jedi_config:
+    atm_addincrement:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas.x'
+        jedi_args: ['fv3jedi', 'addincrement']
+        mpi_cmd: '{{ APRUN_ANALCALC_FV3JEDI }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_algo: atm_addincrement
+{% if DO_AERO_ANL %}
+    aero_addincrement:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas.x'
+        jedi_args: ['fv3jedi', 'addincrement']
+        mpi_cmd: '{{ APRUN_ANALCALC_FV3JEDI }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/aero/jcb-base.yaml.j2'
+        jcb_algo: aero_addincrement
+{% endif %}
+{% if DO_JEDISNOWDA %}
+    snow_addincrement:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas.x'
+        jedi_args: ['fv3jedi', 'addincrement']
+        mpi_cmd: '{{ APRUN_ANALCALC_FV3JEDI }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+        jcb_algo: snow_addincrement
+{% endif %}
+
+stage:
+    copy:
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}atmf006.nc', '{{ DATA }}']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}sfcf006.nc', '{{ DATA }}']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}cubed_sphere_grid_atmf006.nc', '{{ DATA }}']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}cubed_sphere_grid_sfcf006.nc', '{{ DATA }}']
+{% for itile in range(6) %}
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}cubed_sphere_grid_atminc.tile{{ itile+1 }}.nc', '{{ DATA }}']
+    {% if DO_AERO_ANL %}
+    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile{{ itile+1 }}.nc', '{{ DATA }}']
+    {% endif %}
+    {% if DO_JEDISNOWDA %}
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile{{ itile+1 }}.nc', '{{ DATA }}']
+    {% endif %}
+{% endfor %}
+
+save:
+    copy:
+    - ['{{ DATA }}/{{ GPREFIX }}atmf006.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}atmanl.nc']
+    - ['{{ DATA }}/{{ GPREFIX }}sfcf006.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}sfcanl.nc']
+    - ['{{ DATA }}/atm_addincrement.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}atm_addincrement.yaml']
+{% if DO_AERO_ANL %}
+    - ['{{ DATA }}/aero_addincrement.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}aero_addincrement.yaml']
+{% endif %}
+{% if DO_JEDISNOWDA %}
+    - ['{{ DATA }}/snow_addincrement.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}snow_addincrement.yaml']
+{% endif %}
