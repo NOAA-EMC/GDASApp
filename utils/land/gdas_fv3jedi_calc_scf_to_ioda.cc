@@ -36,11 +36,8 @@ void gdasapp::CalcSCFtoIODA::run() {
   const eckit::LocalConfiguration geomConfig(config_, "geometry");
   const fv3jedi::Geometry geom(geomConfig, comm_);
 
-  // Exit with error if rank size is not equal to 6,
-  // this simplifies our MPI, we can fix/make more flexible later
-  if (comm_.size() != 6) {
-    throw eckit::BadValue("MPI rank size must be 6", Here());
-  }
+  // Note: This code now supports any number of MPI tasks
+  // The FV3 cube sphere has 6 tiles, but tasks can be distributed across tiles
 
   // Get the valid time
   std::string validTime;
@@ -179,20 +176,22 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgS
 gdasapp::CalcSCFtoIODA::IMSscf::IMSscf(const std::string &imspath, const std::string &weightspath,
                                        const fv3jedi::Geometry & geom)
   : imspath_(imspath), weightspath_(weightspath), geom_(geom) {
-  this->latFV3.resize(6,
+  // Allocate data structures for local tile data only (not all 6 tiles)
+  // Each MPI process only needs space for its local portion of data
+  this->latFV3.resize(1,
                       std::vector<std::vector<float>>(geom_.npy()-1,
                       std::vector<float>(geom_.npx()-1)));
-  this->lonFV3.resize(6,
+  this->lonFV3.resize(1,
                       std::vector<std::vector<float>>(geom_.npy()-1,
                       std::vector<float>(geom_.npx()-1)));
-  this->oroFV3.resize(6,
+  this->oroFV3.resize(1,
                       std::vector<std::vector<float>>(geom_.npy()-1,
                       std::vector<float>(geom_.npx()-1)));
-  this->scfIMS.resize(6,
+  this->scfIMS.resize(1,
                       std::vector<std::vector<float>>(geom_.npy()-1,
                       std::vector<float>(geom_.npx()-1,
                       nodata_float)));
-  this->sndIMS.resize(6,
+  this->sndIMS.resize(1,
                       std::vector<std::vector<float>>(geom_.npy()-1,
                       std::vector<float>(geom_.npx()-1,
                       nodata_float)));
@@ -248,56 +247,65 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   auto lon = atlas::array::make_view<double, 1>(global_fields["longitude"]);
   auto lat = atlas::array::make_view<double, 1>(global_fields["latitude"]);
   auto orog = atlas::array::make_view<double, 2>(global_fields["filtered_orography"]);
-  // the IMS data are not in atlas, so we need to do other things to gather with MPI
-  int ngrid = (geom.npx()-1) * (geom.npy()-1);
-  std::vector<float> snd_mytile(ngrid);
-  std::vector<float> scf_mytile(ngrid);
-  // loop over the IMS data and gather
-  for (size_t i=0; i < geom.npx()-1; ++i) {
-    for (size_t j=0; j < geom.npy()-1; ++j) {
-      size_t idx = (j * (geom.npx()-1)) + i;
-      snd_mytile[idx] = imsscf.sndIMS[oops::mpi::world().rank()][j][i];
-      scf_mytile[idx] = imsscf.scfIMS[oops::mpi::world().rank()][j][i];
+  
+  // Create atlas fields for IMS data to leverage atlas gathering
+  atlas::Field sndLocal = fs.createField<float>(atlas::option::name("snd_ims"));
+  atlas::Field scfLocal = fs.createField<float>(atlas::option::name("scf_ims"));
+  local_fields.add(sndLocal);
+  local_fields.add(scfLocal);
+  
+  auto sndViewLocal = atlas::array::make_view<float, 1>(sndLocal);
+  auto scfViewLocal = atlas::array::make_view<float, 1>(scfLocal);
+  
+  // Fill local atlas fields with IMS data from our local portion
+  std::vector<int> indices = geom.get_indices();
+  int npx = geom.npx()-1;
+  int npy = geom.npy()-1;
+  
+  for (size_t fv3_i = indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
+    for (size_t fv3_j = indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
+      atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
+      if (jnode < sndViewLocal.shape(0)) {
+        sndViewLocal(jnode) = imsscf.sndIMS[0][fv3_j][fv3_i];
+        scfViewLocal(jnode) = imsscf.scfIMS[0][fv3_j][fv3_i];
+      }
     }
   }
-  // gather the IMS data to all ranks
-  oops::Log::info() << "Gathering IMS data across all MPI ranks..." << std::endl;
-  std::vector<float> snd_global(ngrid * 6, 9999.0f);
-  std::vector<float> scf_global(ngrid * 6, 9999.0f);
-  std::vector<int> counts(6, ngrid);
-  std::vector<int> gdispls(6, 0);
-  for (int i = 1; i < 6; ++i) {
-    gdispls[i] = gdispls[i-1] + counts[i-1];
-  }
-  oops::mpi::world().gatherv(snd_mytile, snd_global, counts, gdispls, 0);
-  oops::mpi::world().gatherv(scf_mytile, scf_global, counts, gdispls, 0);
+  
+  // Create global fields for IMS data
+  atlas::Field sndGlobal = fs.createField<float>(atlas::option::name("snd_ims") | atlas::option::global());
+  atlas::Field scfGlobal = fs.createField<float>(atlas::option::name("scf_ims") | atlas::option::global());
+  global_fields.add(sndGlobal);
+  global_fields.add(scfGlobal);
+  
+  // Gather all fields (including new IMS fields) to global
+  fs_new.gather(local_fields, global_fields);
+  
+  auto snd_global = atlas::array::make_view<float, 1>(global_fields["snd_ims"]);
+  auto scf_global = atlas::array::make_view<float, 1>(global_fields["scf_ims"]);
   // Create empty group backed by HDF file
   if (oops::mpi::world().rank() == 0) {
     // Create the observations, Latitude, Longitude, and Elevation vectors
     std::vector<float> lat_var, lon_var, orog_var, scf_var, snd_var;
     std::vector<std::string> station_ids;
     int nobs = 0;
-    for (size_t k=0; k < 6; ++k) {
-      for (size_t i=0; i < geom.npx()-1; ++i) {
-        for (size_t j=0; j < geom.npy()-1; ++j) {
-          atlas::idx_t jnode = ((geom.npx()-1)*(geom.npy()-1)*(k) + (j)*(geom.npx()-1) + (i));
-          if (abs(scf_global[jnode] - nodata_float) > nodata_tol) {
-            if (abs(snd_global[jnode] - nodata_float) > nodata_tol) {
-              snd_var.push_back(snd_global[jnode]);
-            } else {
-              snd_var.push_back(util::missingValue<float>());
-            }
-            scf_var.push_back(scf_global[jnode]);
-            lat_var.push_back(lat(jnode));
-            lon_var.push_back(lon(jnode));
-            orog_var.push_back(orog(jnode, 0));
-            // Create a station ID based on the tile number, i-index, and j-index
-            int station_id_int = ((k+1) * 100000000) +  ((i+1) * 10000) + (j+1);
-            std::string station_id = std::to_string(station_id_int);
-            station_ids.push_back(station_id);
-            nobs += 1;
-          }
+    
+    // Iterate over all global grid points
+    for (atlas::idx_t jnode = 0; jnode < scf_global.shape(0); ++jnode) {
+      if (abs(scf_global(jnode) - nodata_float) > nodata_tol) {
+        if (abs(snd_global(jnode) - nodata_float) > nodata_tol) {
+          snd_var.push_back(snd_global(jnode));
+        } else {
+          snd_var.push_back(util::missingValue<float>());
         }
+        scf_var.push_back(scf_global(jnode));
+        lat_var.push_back(lat(jnode));
+        lon_var.push_back(lon(jnode));
+        orog_var.push_back(orog(jnode, 0));
+        // Create a station ID based on the global node index
+        std::string station_id = std::to_string(jnode + 1);
+        station_ids.push_back(station_id);
+        nobs += 1;
       }
     }
     oops::Log::info() << "Creating IODA file at: " << outputpath << std::endl;
@@ -554,71 +562,72 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
       this->IMS_index[i][j][2] = tile_buffer[i * j_ims + j];
     }
   }
-  // create float buffer for lonFV3, latFV3, oroFV3
-  size_t ntile = this->latFV3.size();
-  size_t npy = (ntile > 0) ? this->latFV3[0].size() : 0;
-  size_t npx = (ntile > 0 && npy > 0) ? this->latFV3[0][0].size() : 0;
-  std::vector<float> cube_buffer(ntile * npy * npx);
-  // Read lat_fv3 into latFV3
+  // Get current tile information from geometry
+  int current_tile = geom_.tileNum() - 1;  // Convert to 0-based indexing
+  size_t ntile_total = 6;  // FV3 cube sphere always has 6 tiles
+  size_t npy = (geom_.npy() > 0) ? geom_.npy() - 1 : 0;
+  size_t npx = (geom_.npx() > 0) ? geom_.npx() - 1 : 0;
+  
+  // Buffer for reading all cube data (we need to read all, then extract our tile)
+  std::vector<float> cube_buffer(ntile_total * npy * npx);
+  
+  // Read lat_fv3 into latFV3 (only current tile's portion)
   netCDF::NcVar latVar = ncfile.getVar("lat_fv3");
   netcdf_err(latVar.isNull() ? -1 : NC_NOERR, "error reading latFV3 variable from mapping file");
   latVar.getVar(cube_buffer.data());
-  for (size_t i = 0; i < ntile; ++i) {
-    for (size_t j = 0; j < npy; ++j) {
-      for (size_t k = 0; k < npx; ++k) {
-        this->latFV3[i][j][k] = cube_buffer[i * npy * npx + j * npx + k];
-      }
+  for (size_t j = 0; j < npy; ++j) {
+    for (size_t k = 0; k < npx; ++k) {
+      this->latFV3[0][j][k] = cube_buffer[current_tile * npy * npx + j * npx + k];
     }
   }
-  // Read lon_fv3 into lonFV3
+  
+  // Read lon_fv3 into lonFV3 (only current tile's portion)  
   netCDF::NcVar lonVar = ncfile.getVar("lon_fv3");
   netcdf_err(lonVar.isNull() ? -1 : NC_NOERR, "error reading lonFV3 variable from mapping file");
   lonVar.getVar(cube_buffer.data());
-  for (size_t i = 0; i < ntile; ++i) {
-    for (size_t j = 0; j < npy; ++j) {
-      for (size_t k = 0; k < npx; ++k) {
-        this->lonFV3[i][j][k] = cube_buffer[i * npy * npx + j * npx + k];
-      }
+  for (size_t j = 0; j < npy; ++j) {
+    for (size_t k = 0; k < npx; ++k) {
+      this->lonFV3[0][j][k] = cube_buffer[current_tile * npy * npx + j * npx + k];
     }
   }
-  // Read oro_fv3 into oroFV3
+  
+  // Read oro_fv3 into oroFV3 (only current tile's portion)
   netCDF::NcVar oroVar = ncfile.getVar("oro_fv3");
   netcdf_err(oroVar.isNull() ? -1 : NC_NOERR, "error reading oroFV3 variable from mapping file");
   oroVar.getVar(cube_buffer.data());
-  for (size_t i = 0; i < ntile; ++i) {
-    for (size_t j = 0; j < npy; ++j) {
-      for (size_t k = 0; k < npx; ++k) {
-        this->oroFV3[i][j][k] = cube_buffer[i * npy * npx + j * npx + k];
-      }
+  for (size_t j = 0; j < npy; ++j) {
+    for (size_t k = 0; k < npx; ++k) {
+      this->oroFV3[0][j][k] = cube_buffer[current_tile * npy * npx + j * npx + k];
     }
   }
   oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
-  // Now let us calculate things
-  std::vector<std::vector<std::vector<float>>> land_points(ntile,
-    std::vector<std::vector<float>>(npy, std::vector<float>(npx, 0.0f)));
-  std::vector<std::vector<std::vector<float>>> snow_points(ntile,
-    std::vector<std::vector<float>>(npy, std::vector<float>(npx, 0.0f)));
+  // Now let us calculate things for the current tile only
+  std::vector<std::vector<float>> land_points(npy, std::vector<float>(npx, 0.0f));
+  std::vector<std::vector<float>> snow_points(npy, std::vector<float>(npx, 0.0f));
+  
   for (size_t i = 0; i < i_ims; ++i) {
     for (size_t j = 0; j < j_ims; ++j) {
       if (this->IMS_flag[i][j] >= 0) {
         int _tile = this->IMS_index[i][j][0]-1;
         int _tile_i = this->IMS_index[i][j][1]-1;
         int _tile_j = this->IMS_index[i][j][2]-1;
-        land_points[_tile][_tile_j][_tile_i] += 1.0f;
-        snow_points[_tile][_tile_j][_tile_i] += IMS_flag[i][j];
+        // Only process points for the current tile
+        if (_tile == current_tile) {
+          land_points[_tile_j][_tile_i] += 1.0f;
+          snow_points[_tile_j][_tile_i] += IMS_flag[i][j];
+        }
       }
     }
   }
   oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
-  // compute scfIMS based on where land_points are greater than 0
-  for (size_t k = 0; k < ntile; ++k) {
-    for (size_t j = 0; j < npy; ++j) {
-      for (size_t i = 0; i < npx; ++i) {
-        if (land_points[k][j][i] > 0) {
-          this->scfIMS[k][j][i] = snow_points[k][j][i] / land_points[k][j][i];
-        } else {
-          this->scfIMS[k][j][i] = nodata_float;
-        }
+  
+  // Compute scfIMS based on where land_points are greater than 0 (current tile only)
+  for (size_t j = 0; j < npy; ++j) {
+    for (size_t i = 0; i < npx; ++i) {
+      if (land_points[j][i] > 0) {
+        this->scfIMS[0][j][i] = snow_points[j][i] / land_points[j][i];
+      } else {
+        this->scfIMS[0][j][i] = nodata_float;
       }
     }
   }
@@ -651,13 +660,13 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
       // force tile to be 0 because of local arrays
       atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
-      if (abs(this->scfIMS[tilenum][fv3_j][fv3_i] - nodata_float) > nodata_tol) {
+      if (abs(this->scfIMS[0][fv3_j][fv3_i] - nodata_float) > nodata_tol) {
         // if we have IMS data at this point
         if (bkg_vtype(jnode, 0) > 0) {
           // if the model has land at this point
-          if (this->scfIMS[tilenum][fv3_j][fv3_i] < 0.5f) {
+          if (this->scfIMS[0][fv3_j][fv3_i] < 0.5f) {
             // if the IMS SCF is less than 0.5, set snow depth to 0
-            this->sndIMS[tilenum][fv3_j][fv3_i] = 0.0f;
+            this->sndIMS[0][fv3_j][fv3_i] = 0.0f;
           } else {
             // if the IMS SCF is greater than or equal to 0.5, calculate snow depth
             float bdsno =
@@ -665,13 +674,13 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
                                          static_cast<float>(bkg_snow_den(jnode, 0)) * 1000.0f));
             float fmelt = std::pow(bdsno/100.0f,
                                    mfsno_table[static_cast<int>(bkg_vtype(jnode, 0))-1]);
-            this->sndIMS[tilenum][fv3_j][fv3_i] =
+            this->sndIMS[0][fv3_j][fv3_i] =
                 (scffac_table[static_cast<int>(bkg_vtype(jnode, 0))-1] * fmelt)
                 * atanh(trunc_scf) * 1000.0f;  // x1000 into mm
           }
         } else {
           // if the model has no land at this point, set scf to nodata
-          this->scfIMS[tilenum][fv3_j][fv3_i] = nodata_float;
+          this->scfIMS[0][fv3_j][fv3_i] = nodata_float;
         }
       }
     }
@@ -701,16 +710,16 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
       // force tile num to 0 for local array size
       atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
-      if ((this->scfIMS[tilenum][fv3_j][fv3_i] >= 0.5) &&
+      if ((this->scfIMS[0][fv3_j][fv3_i] >= 0.5) &&
          ((bkg_scf(jnode, 0) > trunc_scf) ||
-         (bkg_snd(jnode, 0) > this->sndIMS[tilenum][fv3_j][fv3_i]))) {
+         (bkg_snd(jnode, 0) > this->sndIMS[0][fv3_j][fv3_i]))) {
          // if obs and model both indicate full snow,
          // set the IMS snow depth to a fixed value to QC in JEDI
-        this->sndIMS[tilenum][fv3_j][fv3_i] = -10.0f;
+        this->sndIMS[0][fv3_j][fv3_i] = -10.0f;
       }
-      if (this->sndIMS[tilenum][fv3_j][fv3_i] > sndIMS_max) {
+      if (this->sndIMS[0][fv3_j][fv3_i] > sndIMS_max) {
         // if the IMS snow depth is greater than the maximum, set to nodata
-        this->sndIMS[tilenum][fv3_j][fv3_i] = nodata_float;
+        this->sndIMS[0][fv3_j][fv3_i] = nodata_float;
       }
     }
   }
