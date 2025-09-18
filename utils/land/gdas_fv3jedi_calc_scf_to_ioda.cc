@@ -176,8 +176,20 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgS
 gdasapp::CalcSCFtoIODA::IMSscf::IMSscf(const std::string &imspath, const std::string &weightspath,
                                        const fv3jedi::Geometry & geom)
   : imspath_(imspath), weightspath_(weightspath), geom_(geom) {
-  // Allocate data structures for local tile data only (not all 6 tiles)
-  // Each MPI process only needs space for its local portion of data
+  // Create Atlas fields for IMS data - better MPI handling than 3D vectors
+  atlas::FunctionSpace fs = geom_.functionSpace();
+  this->scfIMS = fs.createField<float>(atlas::option::name("scf_ims"));
+  this->sndIMS = fs.createField<float>(atlas::option::name("snd_ims"));
+  
+  // Initialize fields with nodata values
+  auto scfView = atlas::array::make_view<float, 1>(this->scfIMS);
+  auto sndView = atlas::array::make_view<float, 1>(this->sndIMS);
+  for (atlas::idx_t jnode = 0; jnode < scfView.shape(0); ++jnode) {
+    scfView(jnode) = nodata_float;
+    sndView(jnode) = nodata_float;
+  }
+  
+  // Keep the legacy data structures for lat/lon/oro for now
   this->latFV3.resize(1,
                       std::vector<std::vector<float>>(geom_.npy()-1,
                       std::vector<float>(geom_.npx()-1)));
@@ -187,14 +199,6 @@ gdasapp::CalcSCFtoIODA::IMSscf::IMSscf(const std::string &imspath, const std::st
   this->oroFV3.resize(1,
                       std::vector<std::vector<float>>(geom_.npy()-1,
                       std::vector<float>(geom_.npx()-1)));
-  this->scfIMS.resize(1,
-                      std::vector<std::vector<float>>(geom_.npy()-1,
-                      std::vector<float>(geom_.npx()-1,
-                      nodata_float)));
-  this->sndIMS.resize(1,
-                      std::vector<std::vector<float>>(geom_.npy()-1,
-                      std::vector<float>(geom_.npx()-1,
-                      nodata_float)));
   oops::Log::info() << "IMSscf object created with IMS path: "
                     << imspath_ << " and weights path: " << weightspath_ << std::endl;
 }
@@ -248,31 +252,9 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   auto lat = atlas::array::make_view<double, 1>(global_fields["latitude"]);
   auto orog = atlas::array::make_view<double, 2>(global_fields["filtered_orography"]);
   
-  // Create atlas fields for IMS data to leverage atlas gathering
-  atlas::Field sndLocal = fs.createField<float>(atlas::option::name("snd_ims"));
-  atlas::Field scfLocal = fs.createField<float>(atlas::option::name("scf_ims"));
-  local_fields.add(sndLocal);
-  local_fields.add(scfLocal);
-  
-  auto sndViewLocal = atlas::array::make_view<float, 1>(sndLocal);
-  auto scfViewLocal = atlas::array::make_view<float, 1>(scfLocal);
-  
-  // Fill local atlas fields with IMS data from our local portion
-  std::vector<int> indices = geom.get_indices();
-  int npx = geom.npx()-1;
-  int npy = geom.npy()-1;
-  
-  for (size_t fv3_i = indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
-    for (size_t fv3_j = indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
-      atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
-      if (jnode < sndViewLocal.shape(0) && 
-          fv3_j < imsscf.sndIMS[0].size() && 
-          fv3_i < imsscf.sndIMS[0][0].size()) {
-        sndViewLocal(jnode) = imsscf.sndIMS[0][fv3_j][fv3_i];
-        scfViewLocal(jnode) = imsscf.scfIMS[0][fv3_j][fv3_i];
-      }
-    }
-  }
+  // Use IMS Atlas fields directly - no need to recreate them!
+  local_fields.add(imsscf.scfIMS);  // Add the existing Atlas fields
+  local_fields.add(imsscf.sndIMS);
   
   // Create global fields for IMS data
   atlas::Field sndGlobal = fs.createField<float>(atlas::option::name("snd_ims") | atlas::option::global());
@@ -624,12 +606,21 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
   
   // Compute scfIMS based on where land_points are greater than 0 (current tile only)
+  // Use Atlas field views for proper MPI handling
+  auto scfView = atlas::array::make_view<float, 1>(this->scfIMS);
+  std::vector<int> indices = geom_.get_indices();
+  int npx = geom_.npx()-1;
+  int npy = geom_.npy()-1;
+  
   for (size_t j = 0; j < npy; ++j) {
     for (size_t i = 0; i < npx; ++i) {
-      if (land_points[j][i] > 0) {
-        this->scfIMS[0][j][i] = snow_points[j][i] / land_points[j][i];
-      } else {
-        this->scfIMS[0][j][i] = nodata_float;
+      atlas::idx_t jnode = (j * npx + i);
+      if (jnode < scfView.shape(0)) {
+        if (land_points[j][i] > 0) {
+          scfView(jnode) = snow_points[j][i] / land_points[j][i];
+        } else {
+          scfView(jnode) = nodata_float;
+        }
       }
     }
   }
@@ -658,17 +649,21 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
   int tilenum = geom.tileNum()-1;
   int npx = geom.npx()-1;
   int npy = geom.npy()-1;
+  
+  // Use Atlas field views for IMS data access
+  auto scfView = atlas::array::make_view<float, 1>(this->scfIMS);
+  auto sndView = atlas::array::make_view<float, 1>(this->sndIMS);
+  
   for (size_t fv3_i=indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
-      // force tile to be 0 because of local arrays
       atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
-      if (abs(this->scfIMS[0][fv3_j][fv3_i] - nodata_float) > nodata_tol) {
+      if (jnode < scfView.shape(0) && abs(scfView(jnode) - nodata_float) > nodata_tol) {
         // if we have IMS data at this point
         if (bkg_vtype(jnode, 0) > 0) {
           // if the model has land at this point
-          if (this->scfIMS[0][fv3_j][fv3_i] < 0.5f) {
+          if (scfView(jnode) < 0.5f) {
             // if the IMS SCF is less than 0.5, set snow depth to 0
-            this->sndIMS[0][fv3_j][fv3_i] = 0.0f;
+            sndView(jnode) = 0.0f;
           } else {
             // if the IMS SCF is greater than or equal to 0.5, calculate snow depth
             float bdsno =
@@ -676,13 +671,13 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
                                          static_cast<float>(bkg_snow_den(jnode, 0)) * 1000.0f));
             float fmelt = std::pow(bdsno/100.0f,
                                    mfsno_table[static_cast<int>(bkg_vtype(jnode, 0))-1]);
-            this->sndIMS[0][fv3_j][fv3_i] =
+            sndView(jnode) =
                 (scffac_table[static_cast<int>(bkg_vtype(jnode, 0))-1] * fmelt)
                 * atanh(trunc_scf) * 1000.0f;  // x1000 into mm
           }
         } else {
           // if the model has no land at this point, set scf to nodata
-          this->scfIMS[0][fv3_j][fv3_i] = nodata_float;
+          scfView(jnode) = nodata_float;
         }
       }
     }
@@ -708,20 +703,25 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
   int npx = geom.npx()-1;
   int npy = geom.npy()-1;
 
+  // Use Atlas field views for IMS data access
+  auto scfView = atlas::array::make_view<float, 1>(this->scfIMS);
+  auto sndView = atlas::array::make_view<float, 1>(this->sndIMS);
+
   for (size_t fv3_i=indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
-      // force tile num to 0 for local array size
       atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
-      if ((this->scfIMS[0][fv3_j][fv3_i] >= 0.5) &&
-         ((bkg_scf(jnode, 0) > trunc_scf) ||
-         (bkg_snd(jnode, 0) > this->sndIMS[0][fv3_j][fv3_i]))) {
-         // if obs and model both indicate full snow,
-         // set the IMS snow depth to a fixed value to QC in JEDI
-        this->sndIMS[0][fv3_j][fv3_i] = -10.0f;
-      }
-      if (this->sndIMS[0][fv3_j][fv3_i] > sndIMS_max) {
-        // if the IMS snow depth is greater than the maximum, set to nodata
-        this->sndIMS[0][fv3_j][fv3_i] = nodata_float;
+      if (jnode < scfView.shape(0)) {
+        if ((scfView(jnode) >= 0.5) &&
+           ((bkg_scf(jnode, 0) > trunc_scf) ||
+           (bkg_snd(jnode, 0) > sndView(jnode)))) {
+           // if obs and model both indicate full snow,
+           // set the IMS snow depth to a fixed value to QC in JEDI
+          sndView(jnode) = -10.0f;
+        }
+        if (sndView(jnode) > sndIMS_max) {
+          // if the IMS snow depth is greater than the maximum, set to nodata
+          sndView(jnode) = nodata_float;
+        }
       }
     }
   }

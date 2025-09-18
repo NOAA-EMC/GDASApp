@@ -24,7 +24,8 @@ namespace gdasapp {
       void readMapping();
       void calcIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom);
       void updateIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom);
-      std::vector<std::vector<std::vector<float>>> scfIMS, sndIMS;
+      // Atlas fields for IMS data - more robust MPI handling
+      atlas::Field scfIMS, sndIMS;
 
 
      private:
