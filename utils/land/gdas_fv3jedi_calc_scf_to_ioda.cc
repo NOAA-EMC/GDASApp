@@ -407,9 +407,10 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
   // Check if the file exists
   std::ifstream infile(imspath_);
   if (!infile.good()) {
-    throw eckit::UserError("IMS file does not exist: " + imspath_, Here());
+    eckit::Log::warning() << "IMS file does not exist: " << imspath_ << std::endl;
+  } else {
+    infile.close();
   }
-  infile.close();
 
   // Try to open as netCDF
   bool isNetCDF = false;
@@ -429,9 +430,10 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
     // Try to open as ASCII
     std::ifstream asciifile(imspath_);
     if (!asciifile.is_open()) {
-      throw eckit::UserError("Failed to open IMS file as ASCII: " + imspath_, Here());
+        eckit::Log::warning() << "Failed to open IMS file as ASCII: " << imspath_ << std::endl;
+    } else {
+        oops::Log::info() << "Opened IMS file as ASCII: " << imspath_ << std::endl;
     }
-    oops::Log::info() << "Opened IMS file as ASCII: " << imspath_ << std::endl;
     int i_ims, j_ims;
     // skip some of the header lines
     std::string dummyLine;
