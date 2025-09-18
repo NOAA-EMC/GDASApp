@@ -265,14 +265,11 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   for (size_t fv3_i = indices[0]-1; fv3_i < indices[1]; ++fv3_i) {
     for (size_t fv3_j = indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
       atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
-      // Convert global indices to local indices for array access
-      size_t local_i = fv3_i - (indices[0] - 1);
-      size_t local_j = fv3_j - (indices[2] - 1);
       if (jnode < sndViewLocal.shape(0) && 
-          local_j < imsscf.sndIMS[0].size() && 
-          local_i < imsscf.sndIMS[0][0].size()) {
-        sndViewLocal(jnode) = imsscf.sndIMS[0][local_j][local_i];
-        scfViewLocal(jnode) = imsscf.scfIMS[0][local_j][local_i];
+          fv3_j < imsscf.sndIMS[0].size() && 
+          fv3_i < imsscf.sndIMS[0][0].size()) {
+        sndViewLocal(jnode) = imsscf.sndIMS[0][fv3_j][fv3_i];
+        scfViewLocal(jnode) = imsscf.scfIMS[0][fv3_j][fv3_i];
       }
     }
   }
@@ -665,16 +662,13 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
       // force tile to be 0 because of local arrays
       atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
-      // Convert global indices to local indices for array access
-      size_t local_i = fv3_i - (indices[0] - 1);
-      size_t local_j = fv3_j - (indices[2] - 1);
-      if (abs(this->scfIMS[0][local_j][local_i] - nodata_float) > nodata_tol) {
+      if (abs(this->scfIMS[0][fv3_j][fv3_i] - nodata_float) > nodata_tol) {
         // if we have IMS data at this point
         if (bkg_vtype(jnode, 0) > 0) {
           // if the model has land at this point
-          if (this->scfIMS[0][local_j][local_i] < 0.5f) {
+          if (this->scfIMS[0][fv3_j][fv3_i] < 0.5f) {
             // if the IMS SCF is less than 0.5, set snow depth to 0
-            this->sndIMS[0][local_j][local_i] = 0.0f;
+            this->sndIMS[0][fv3_j][fv3_i] = 0.0f;
           } else {
             // if the IMS SCF is greater than or equal to 0.5, calculate snow depth
             float bdsno =
@@ -682,13 +676,13 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
                                          static_cast<float>(bkg_snow_den(jnode, 0)) * 1000.0f));
             float fmelt = std::pow(bdsno/100.0f,
                                    mfsno_table[static_cast<int>(bkg_vtype(jnode, 0))-1]);
-            this->sndIMS[0][local_j][local_i] =
+            this->sndIMS[0][fv3_j][fv3_i] =
                 (scffac_table[static_cast<int>(bkg_vtype(jnode, 0))-1] * fmelt)
                 * atanh(trunc_scf) * 1000.0f;  // x1000 into mm
           }
         } else {
           // if the model has no land at this point, set scf to nodata
-          this->scfIMS[0][local_j][local_i] = nodata_float;
+          this->scfIMS[0][fv3_j][fv3_i] = nodata_float;
         }
       }
     }
@@ -718,19 +712,16 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
     for (size_t fv3_j=indices[2]-1; fv3_j < indices[3]; ++fv3_j) {
       // force tile num to 0 for local array size
       atlas::idx_t jnode = ((fv3_j)*(npx) + (fv3_i + 1)) - 1;
-      // Convert global indices to local indices for array access
-      size_t local_i = fv3_i - (indices[0] - 1);
-      size_t local_j = fv3_j - (indices[2] - 1);
-      if ((this->scfIMS[0][local_j][local_i] >= 0.5) &&
+      if ((this->scfIMS[0][fv3_j][fv3_i] >= 0.5) &&
          ((bkg_scf(jnode, 0) > trunc_scf) ||
-         (bkg_snd(jnode, 0) > this->sndIMS[0][local_j][local_i]))) {
+         (bkg_snd(jnode, 0) > this->sndIMS[0][fv3_j][fv3_i]))) {
          // if obs and model both indicate full snow,
          // set the IMS snow depth to a fixed value to QC in JEDI
-        this->sndIMS[0][local_j][local_i] = -10.0f;
+        this->sndIMS[0][fv3_j][fv3_i] = -10.0f;
       }
-      if (this->sndIMS[0][local_j][local_i] > sndIMS_max) {
+      if (this->sndIMS[0][fv3_j][fv3_i] > sndIMS_max) {
         // if the IMS snow depth is greater than the maximum, set to nodata
-        this->sndIMS[0][local_j][local_i] = nodata_float;
+        this->sndIMS[0][fv3_j][fv3_i] = nodata_float;
       }
     }
   }
