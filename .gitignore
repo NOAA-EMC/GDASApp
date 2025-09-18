@@ -183,3 +183,4 @@ install*/
 !/bundle/CMakeLists.txt
 !/bundle/fv3-interface.cmake
 /bundle/*
+test_indexing_fix
