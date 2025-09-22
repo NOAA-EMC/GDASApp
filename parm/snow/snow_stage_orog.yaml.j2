@@ -2,7 +2,15 @@ mkdir:
 - "{{ DATA }}/orog/ens"
 copy:
 - ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_mosaic.nc", "{{ DATA }}/orog/ens/{{ CASE_ENS }}_mosaic.nc"]
-{% for tile in range(1, ntiles+1) %}
-- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile{{ tile }}.nc", "{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile{{ tile }}.nc"]
-- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile{{ tile }}.nc", "{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile{{ tile }}.nc" ]
-{% endfor %}
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile1.nc", "{{ DATA }}/orog/ens/"]
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile2.nc", "{{ DATA }}/orog/ens/"]
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile3.nc", "{{ DATA }}/orog/ens/"]
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile4.nc", "{{ DATA }}/orog/ens/"]
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile5.nc", "{{ DATA }}/orog/ens/"]
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile6.nc", "{{ DATA }}/orog/ens/"]
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile1.nc", "{{ DATA }}/orog/ens/" ]
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile2.nc", "{{ DATA }}/orog/ens/" ]
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile3.nc", "{{ DATA }}/orog/ens/" ]
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile4.nc", "{{ DATA }}/orog/ens/" ]
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile5.nc", "{{ DATA }}/orog/ens/" ]
+- ["{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile6.nc", "{{ DATA }}/orog/ens/" ]
