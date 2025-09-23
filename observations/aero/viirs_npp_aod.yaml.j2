@@ -12,8 +12,9 @@
       engine:
         type: H5File
         obsfile: "{{aero_obsdataout_path}}/{{aero_obsdataout_prefix}}{{observation_from_jcb}}{{aero_obsdataout_suffix}}"
+        missing file action: warn
     io pool:
-      max pool size: 1
+      max pool size: 2
     simulated variables: [aerosolOpticalDepth]
     channels: 4
 
