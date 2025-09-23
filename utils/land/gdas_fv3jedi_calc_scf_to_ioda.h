@@ -24,7 +24,7 @@ namespace gdasapp {
       void readMapping();
       void calcIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom);
       void updateIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom);
-      std::vector<std::vector<std::vector<float>>> scfIMS, sndIMS;
+      std::vector<std::vector<float>> scfIMS, sndIMS;
 
 
      private:
@@ -33,7 +33,7 @@ namespace gdasapp {
       std::string weightspath_;
       std::vector<std::vector<int>> IMS_flag;
       std::vector<std::vector<std::vector<int>>> IMS_index;
-      std::vector<std::vector<std::vector<float>>> lonFV3, latFV3, oroFV3;
+      std::vector<std::vector<float>> lonFV3, latFV3, oroFV3;
       static constexpr int nodata_int = -999;
       static constexpr float nodata_float = -999.0f;
       static constexpr float nodata_tol = 0.1f;  // Tolerance for nodata checks

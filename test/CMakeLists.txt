@@ -133,4 +133,3 @@ add_subdirectory(atm)
 # gdas aerosol tests
 add_subdirectory(aero)
 
-add_subdirectory(marine)
