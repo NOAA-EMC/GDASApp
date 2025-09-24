@@ -59,7 +59,7 @@ snow_orog_files_path: "{{ FIXgfs }}/orog/{{ CASE }}"
 snow_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
-snow_background_path: '{{DATA}}/bkg'
+snow_background_path: {{snow_bkg_path}}
 background_ensemble_path: ./ens/mem%mem%
 
 # Background error
@@ -85,7 +85,7 @@ snow_obsdatain_path: "{{DATA}}/obs"
 snow_obsdatain_prefix: "{{OPREFIX}}"
 snow_obsdatain_suffix: ".tm00.bufr_d"
 
-snow_obsdataout_path: "{{DATA}}/bkg"
+snow_obsdataout_path: "{{DATA}}/diags"
 snow_obsdataout_prefix: diag_
 snow_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 

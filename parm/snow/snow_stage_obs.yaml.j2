@@ -1,11 +1,11 @@
 {% for ob_name in observations %}
     {% if not ob_name == 'ims_snow' %}
         {% if ob_name == 'madis_snow' %}
-    - ['{{ COMIN_OBS }}/{{ OPREFIX }}snocvr_snow.nc4', '{{ DATA }}/obs']
+- ['{{ COMIN_OBS }}/{{ OPREFIX }}snocvr_snow.nc4', '{{ DATA }}/obs']
         {% elif  ob_name == 'ghcn_snow' %}
-    - ['{{ COMIN_OBS }}/{{ OPREFIX }}ghcn_snow.nc', '{{ DATA }}/obs']
+- ['{{ COMIN_OBS }}/{{ OPREFIX }}ghcn_snow.nc', '{{ DATA }}/obs']
+        {% else %}
+- ['{{ COMIN_OBS }}/{{ OPREFIX }}{{ ob_name }}.tm00.bufr_d', '{{ DATA }}/obs']
         {% endif %}
-    {% else %}
-    - ['{{ COMIN_OBS }}/{{ OPREFIX }}{{ ob_name }}.tm00.bufr_d', '{{ DATA }}/obs']
     {% endif %}
 {% endfor %}

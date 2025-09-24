@@ -13,7 +13,7 @@ jedi_config:
         jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/atm/jcb-prototype_3dvar-fv3inc.yaml.j2'
 
-stage:
+data_in:
     mkdir:
     - '{{ DATA }}/bkg'
     - '{{ DATA }}/anl'
@@ -63,7 +63,7 @@ stage:
     {% endif %}
 {% endfor %}
 
-save:
+data_out:
     copy:
     - ['{{ DATA }}/atmanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}atmanlvar.yaml']
     - ['{{ DATA }}/atmanlfv3inc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}atmanlfv3inc.yaml']

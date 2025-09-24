@@ -11,7 +11,8 @@ jedi_config:
         mpi_cmd: '{{ APRUN_ENSEMBLE_RECENTER }}'
         jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
         jcb_algo: fv3jedi_ensemble_recenter
-stage:
+
+data_in:
     mkdir:
     - '{{ DATA }}/fv3jedi'
 {% for imem in range(1,NMEM_ENS+1) %}
@@ -60,7 +61,7 @@ stage:
 {% include 'atm_stage_jedi_fix.yaml.j2' %}
 {% endfilter %}
 
-save:
+data_out:
     copy:
     - ['{{ DATA }}/correction_increment.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}correction_increment.yaml']
     - ['{{ DATA }}/ensemble_recenter.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}ensemble_recenter.yaml']

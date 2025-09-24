@@ -27,7 +27,7 @@ jedi_config:
         jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/atm/jcb-prototype_lgetkf.yaml.j2'
 
-stage:
+data_in:
     mkdir:
     - '{{ DATA }}/bkg'
     - '{{ DATA }}/obs'
@@ -73,7 +73,7 @@ stage:
     {% endif %}
 {% endfor %}
 
-save:
+data_out:
     copy:
     - ['{{ DATA }}/atmensanlobs.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}atmensanlobs.yaml']
     - ['{{ DATA }}/atmensanlsol.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}atmensanlsol.yaml']

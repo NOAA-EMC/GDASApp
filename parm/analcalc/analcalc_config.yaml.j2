@@ -25,7 +25,7 @@ jedi_config:
         jcb_algo: snow_addincrement
 {% endif %}
 
-stage:
+data_in:
     mkdir:
     - '{{ DATA }}/fv3jedi'
     copy:
@@ -48,7 +48,7 @@ stage:
 {% include PARMgfs ~ '/gdas/' ~ '/atm/' ~ 'atm_stage_jedi_fix.yaml.j2' %}
 {% endfilter %}
 
-save:
+data_out:
     copy:
     - ['{{ DATA }}/{{ GPREFIX }}atmf006.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}atmanl.nc']
     - ['{{ DATA }}/{{ GPREFIX }}sfcf006.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}sfcanl.nc']
