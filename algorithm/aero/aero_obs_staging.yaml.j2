@@ -1,6 +1,6 @@
 mkdir:
     - '{{aero_obsdatain_path}}'
-copy:
+copy_opt:
     {% for observation_from_jcb in observations %}
     {% if use_observer(observation_from_jcb) %}
     - ['{{aero_obsdataroot_path}}/{{aero_obsdatain_prefix}}{{observation_from_jcb}}{{aero_obsdatain_suffix}}', '{{aero_obsdatain_path}}']
