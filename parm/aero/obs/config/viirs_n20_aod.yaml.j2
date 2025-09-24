@@ -4,12 +4,13 @@
       engine:
         type: H5File
         obsfile: "{{ DATA }}/obs/{{ OPREFIX }}viirs_n20_aod.tm00.nc"
+        missing file action: warn 
     obsdataout:
       engine:
         type: H5File
         obsfile: "{{ DATA }}/diags/diag_viirs_n20_{{ current_cycle | to_YMDH }}.nc4"
     io pool:
-      max pool size: 1
+      max pool size: 2 
     simulated variables: [aerosolOpticalDepth]
     channels: 4
   get values:
