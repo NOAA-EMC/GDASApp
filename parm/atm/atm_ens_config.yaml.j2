@@ -66,12 +66,9 @@ data_in:
 {% endfilter %}
 
     copy_opt:
-{% for ob_name in observations %}
-    - ['{{ COMIN_OBS }}/{{ OPREFIX }}{{ ob_name }}.tm00.nc', '{{ DATA }}/obs']
-    {% if ob_name in bias_files %}
-    - ['{{ COMIN_ATMOS_ANALYSIS_PREV }}/{{ GPREFIX }}{{bias_files[ob_name]}}', '{{ DATA }}/obs']
-    {% endif %}
-{% endfor %}
+{% filter indent(width=4) %}
+{% include 'atm_stage_obs.yaml.j2' %}
+{% endfilter %}
 
 data_out:
     copy:

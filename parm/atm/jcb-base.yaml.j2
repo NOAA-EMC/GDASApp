@@ -67,7 +67,11 @@ atmosphere_variational_analysis_prefix: "{{APREFIX}}"
 
 # IAU hours
 atmosphere_iau_hours: {{ IAUFHRS }}
-atmosphere_iau_times_iso: {{ iau_times_iso | default([current_cycle | to_isotime], true) }}
+{% set iau_times_iso = []}
+{% for iau_time in iau_times %}
+    atmosphere_iau_times_iso.append( iau_time | to_isotime )
+{% endfor %}
+atmosphere_iau_times_iso: iau_times_iso
 
 # Observation things
 # ------------------

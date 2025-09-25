@@ -17,8 +17,8 @@ background_error_file: "{{BERROR_YAML}}"
 
 # Assimilation standard things (not prepended with model choice)
 # ----------------------------
-window_begin: "{{ AERO_WINDOW_BEGIN | to_isotime }}"
-window_length: "{{ AERO_WINDOW_LENGTH }}"
+window_begin: "{{ WINDOW_BEGIN | to_isotime }}"
+window_length: "{{ WINDOW_LENGTH }}"
 bound_to_include: begin
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
@@ -102,11 +102,11 @@ crtm_coefficient_path: "{{ DATA }}/crtm/"
 # Naming conventions for observational files
 aero_obsdataroot_path: "{{COMIN_OBS}}"
 
-aero_obsdatain_path: "{{aero_obsdatain_path}}"
+aero_obsdatain_path: "{{DATA}}/obs/"
 aero_obsdatain_prefix: "{{OPREFIX}}"
 aero_obsdatain_suffix: ".tm00.nc"
 
-aero_obsdataout_path: "{{aero_obsdataout_path}}"
+aero_obsdataout_path: "{{DATA}}/diags/"
 aero_obsdataout_prefix: diag_
 aero_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
