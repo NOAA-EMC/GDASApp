@@ -4,13 +4,15 @@ from datetime import datetime, timedelta
 from logging import getLogger
 import os
 import glob
+import tempfile
 from typing import Dict
-from wxflow import (FileHandler,
+from wxflow import (Executable,
+                    FileHandler,
+                    Jinja,
                     logit,
                     Task)
 
 logger = getLogger(__name__.split('.')[-1])
-
 
 class PrepOceanObs(Task):
     """
@@ -88,6 +90,7 @@ class PrepOceanObs(Task):
         run_date = self.task_config['PDY'].strftime('%Y%m%d')
         cycle = str(self.task_config['cyc']).zfill(2)  # ensures '00', '06', etc.
         run = self.task_config['RUN']
+        PARMgfs = self.task_config['PARMgfs']
 
         # Ensure output directory exists
         os.makedirs(comout_obs, exist_ok=True)
@@ -115,4 +118,28 @@ class PrepOceanObs(Task):
         if obsfiles_src_dst:
             FileHandler({'copy': obsfiles_src_dst}).sync()
         else:
-            logger.warning("***** No files found to copy.")
+            logger.warning("***** No files found to copy, generating dummy sst obs file.")
+            # source is arbitrary sst
+            dummy_source = "sst_avhrr_ma_l3u"
+            filename_body = f"{run}.t{cycle}z.{dummy_source}"
+            output_nc = os.path.join(comout_obs, f"{filename_body}.nc")
+            tmp_cdl = f"{filename_body}.cdl"
+            # TODO (AFE) replace this with something set in a config file
+            dummy_template = os.path.join(PARMgfs, 'gdas', 'marine', 'marine_prepobs_dummyobs.cdl.j2')
+            print(f"dummy_template: {dummy_template}")
+            cdl_text = Jinja(dummy_template, data=dict(), allow_missing=True).render
+
+            with open(tmp_cdl, "w", encoding="utf-8") as f:
+               f.write(cdl_text)
+
+            converter = Executable('ncgen')
+            converter.add_default_arg('-o')
+            converter.add_default_arg(output_nc)
+            converter.add_default_arg(tmp_cdl)
+            try:
+               logger.debug(f"Executing {converter}")
+               converter()
+            except Exception as e:
+               logger.warning(f"Execution failed for {converter}: {e}")
+               logger.debug("Exception details", exc_info=True)
+               exit(1)
