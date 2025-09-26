@@ -121,21 +121,14 @@ class PrepOceanObs(Task):
             logger.warning("***** No files found to copy, generating dummy sst obs file.")
             # source is arbitrary sst
             dummy_source = "sst_avhrr_ma_l3u"
-            filename_body = f"{run}.t{cycle}z.{dummy_source}"
-            output_nc = os.path.join(comout_obs, f"{filename_body}.nc")
-            tmp_cdl = f"{filename_body}.cdl"
+            output_nc = f"{run}.t{cycle}z.{dummy_source}.nc"
             # TODO (AFE) replace this with something set in a config file
-            dummy_template = os.path.join(PARMgfs, 'gdas', 'marine', 'marine_prepobs_dummyobs.cdl.j2')
-            print(f"dummy_template: {dummy_template}")
-            cdl_text = Jinja(dummy_template, data=dict(), allow_missing=True).render
-
-            with open(tmp_cdl, "w", encoding="utf-8") as f:
-               f.write(cdl_text)
+            dummy_cdl = os.path.join(PARMgfs, 'gdas', 'marine', 'marine_prepobs_dummyobs.cdl')
 
             converter = Executable('ncgen')
             converter.add_default_arg('-o')
             converter.add_default_arg(output_nc)
-            converter.add_default_arg(tmp_cdl)
+            converter.add_default_arg(dummy_cdl)
             try:
                logger.debug(f"Executing {converter}")
                converter()
@@ -143,3 +136,5 @@ class PrepOceanObs(Task):
                logger.warning(f"Execution failed for {converter}: {e}")
                logger.debug("Exception details", exc_info=True)
                exit(1)
+
+            FileHandler({'copy': [[output_nc, os.path.join(comout_obs, output_nc)]] }).sync()
