@@ -134,6 +134,6 @@ class PrepOceanObs(Task):
             except Exception as e:
                 logger.warning(f"Execution failed for {converter}: {e}")
                 logger.debug("Exception details", exc_info=True)
-                exit(1)
+                raise RuntimeError(f"Execution failed for {converter}: {e}")
 
             FileHandler({'copy': [[output_nc, os.path.join(comout_obs, output_nc)]]}).sync()
