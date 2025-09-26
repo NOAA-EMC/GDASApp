@@ -9,7 +9,7 @@
         type: H5File
         obsfile: "{{ DATA }}/diags/diag_viirs_npp_{{ current_cycle | to_YMDH }}.nc4"
     io pool:
-      max pool size: 1
+      max pool size: 2 
     simulated variables: [aerosolOpticalDepth]
     channels: 4
   get values:
