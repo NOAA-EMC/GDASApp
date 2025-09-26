@@ -4,15 +4,14 @@ from datetime import datetime, timedelta
 from logging import getLogger
 import os
 import glob
-import tempfile
 from typing import Dict
 from wxflow import (Executable,
                     FileHandler,
-                    Jinja,
                     logit,
                     Task)
 
 logger = getLogger(__name__.split('.')[-1])
+
 
 class PrepOceanObs(Task):
     """
@@ -130,11 +129,11 @@ class PrepOceanObs(Task):
             converter.add_default_arg(output_nc)
             converter.add_default_arg(dummy_cdl)
             try:
-               logger.debug(f"Executing {converter}")
-               converter()
+                logger.debug(f"Executing {converter}")
+                converter()
             except Exception as e:
-               logger.warning(f"Execution failed for {converter}: {e}")
-               logger.debug("Exception details", exc_info=True)
-               exit(1)
+                logger.warning(f"Execution failed for {converter}: {e}")
+                logger.debug("Exception details", exc_info=True)
+                exit(1)
 
             FileHandler({'copy': [[output_nc, os.path.join(comout_obs, output_nc)]] }).sync()
