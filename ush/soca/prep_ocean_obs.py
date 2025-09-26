@@ -136,4 +136,4 @@ class PrepOceanObs(Task):
                 logger.debug("Exception details", exc_info=True)
                 exit(1)
 
-            FileHandler({'copy': [[output_nc, os.path.join(comout_obs, output_nc)]] }).sync()
+            FileHandler({'copy': [[output_nc, os.path.join(comout_obs, output_nc)]]}).sync()
