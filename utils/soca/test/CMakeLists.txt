@@ -62,7 +62,7 @@ if(HOSTNAME MATCHES "^hfe" OR
    HOSTNAME MATCHES "^ufe")
     set(IS_KNOWN_HPC TRUE)
     message(STATUS "Detected HPC environment: ${HOSTNAME}")
-    set(MPI_COMMAND "${MPIEXEC_EXECUTABLE} --time=00:02:00 --account=da-cpu --qos=batch ${MPIEXEC_NUMPROC_FLAG}")
+    set(MPI_COMMAND "${MPIEXEC_EXECUTABLE} --time=00:05:00 --account=da-cpu --qos=batch ${MPIEXEC_NUMPROC_FLAG}")
 else()
     set(IS_KNOWN_HPC FALSE)
     option(IS_WORKSTATION "Set to TRUE to enable workstation environment" OFF)
