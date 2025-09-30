@@ -4,6 +4,7 @@
       engine:
         type: H5File
         obsfile: "{{marine_obsdatain_path}}/{{marine_obsdatain_prefix}}{{observation_from_jcb}}{{marine_obsdatain_suffix}}"
+        missing file action: warn
     obsdataout:
       engine:
         type: H5File
@@ -53,4 +54,3 @@
     min value: 200.0e3
     max value: 900.0e3
 {% endif %}
-
