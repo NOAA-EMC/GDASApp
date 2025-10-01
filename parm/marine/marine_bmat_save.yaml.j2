@@ -6,7 +6,7 @@ copy:
 - ['{{ DATAstaticb }}/{{ diff_type }}_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}{{ diff_type }}_ocean.nc']
 {% endfor %}
 # diag B
-- ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.bkgerr_parametric_sstddev.nc']
+- ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.bkgerr_parametric_stddev.nc']
 - ['{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}ice.bkgerr_parametric_stddev.nc']
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
 - ['{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.bkgerr_ens_stddev.nc']
