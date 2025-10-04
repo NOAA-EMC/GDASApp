@@ -13,6 +13,7 @@ SNOMAD_MAPPING = map_path('bufr_snomad_mapping.yaml')
 SNOCVR = 'snocvr'
 SNOMAD = 'snomad'
 
+
 class BufrTotalSnowDepthObsBuilder(ObsBuilder):
     def __init__(self):
 
