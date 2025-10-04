@@ -5,7 +5,8 @@ from logging import getLogger
 import os
 import glob
 from typing import Dict
-from wxflow import (FileHandler,
+from wxflow import (Executable,
+                    FileHandler,
                     logit,
                     Task)
 
@@ -88,6 +89,7 @@ class PrepOceanObs(Task):
         run_date = self.task_config['PDY'].strftime('%Y%m%d')
         cycle = str(self.task_config['cyc']).zfill(2)  # ensures '00', '06', etc.
         run = self.task_config['RUN']
+        PARMgfs = self.task_config['PARMgfs']
 
         # Ensure output directory exists
         os.makedirs(comout_obs, exist_ok=True)
@@ -115,4 +117,23 @@ class PrepOceanObs(Task):
         if obsfiles_src_dst:
             FileHandler({'copy': obsfiles_src_dst}).sync()
         else:
-            logger.warning("***** No files found to copy.")
+            logger.warning("***** No files found to copy, generating dummy sst obs file.")
+            # source is arbitrary sst
+            dummy_source = "sst_avhrr_ma_l3u"
+            output_nc = f"{run}.t{cycle}z.{dummy_source}.nc"
+            # TODO (AFE) replace this with something set in a config file
+            dummy_cdl = os.path.join(PARMgfs, 'gdas', 'marine', 'marine_prepobs_dummyobs.cdl')
+
+            converter = Executable('ncgen')
+            converter.add_default_arg('-o')
+            converter.add_default_arg(output_nc)
+            converter.add_default_arg(dummy_cdl)
+            try:
+                logger.debug(f"Executing {converter}")
+                converter()
+            except Exception as e:
+                logger.warning(f"Execution failed for {converter}: {e}")
+                logger.debug("Exception details", exc_info=True)
+                raise RuntimeError(f"Execution failed for {converter}: {e}")
+
+            FileHandler({'copy': [[output_nc, os.path.join(comout_obs, output_nc)]]}).sync()
