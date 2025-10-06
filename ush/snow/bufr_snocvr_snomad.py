@@ -83,7 +83,7 @@ class BufrTotalSnowDepthObsBuilder(ObsBuilder):
         self.finalize_container(container)
 
         # Encode the data
-        self.log.info(f'Encoding')
+        self.log.info(f'Encoding observations to IODA format')
         data = next(iter(iodaEncoder(self.description).encode(container).values()))
 
         return data
