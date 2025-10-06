@@ -1,0 +1,64 @@
+netcdf ncgen-replaces-this-str-with-filename {
+dimensions:
+	Location = 1 ;
+variables:
+	int Location(Location) ;
+		Location:suggested_chunk_dim = 103050LL ;
+
+// global attributes:
+		:_ioda_layout = "ObsGroup" ;
+		:_ioda_layout_version = 0LL ;
+		:obs_source_files = "global-workflow/sorc/gdas.cd/parm/marine/marine_prepobs_dummyobs.cdl" ;
+data:
+
+ Location = 0 ;
+
+group: MetaData {
+  variables:
+  	int64 dateTime(Location) ;
+  		dateTime:_FillValue = -9223372036854775801LL ;
+  		dateTime:units = "seconds since 1981-01-01T00:00:00Z" ;
+  	float latitude(Location) ;
+  		latitude:_FillValue = -3.368795e+38f ;
+  	float longitude(Location) ;
+  		longitude:_FillValue = -3.368795e+38f ;
+  	int oceanBasin(Location) ;
+  		oceanBasin:_FillValue = -2147483643 ;
+  data:
+
+   dateTime = 0 ;
+
+   latitude = 0 ;
+
+   longitude = 0 ;
+
+   oceanBasin = 0 ;
+  } // group MetaData
+
+group: ObsError {
+  variables:
+  	float seaSurfaceTemperature(Location) ;
+  		seaSurfaceTemperature:_FillValue = -3.368795e+38f ;
+  data:
+
+   seaSurfaceTemperature = 0 ;
+  } // group ObsError
+
+group: ObsValue {
+  variables:
+  	float seaSurfaceTemperature(Location) ;
+  		seaSurfaceTemperature:_FillValue = -3.368795e+38f ;
+  data:
+
+   seaSurfaceTemperature = 100000 ;
+  } // group ObsValue
+
+group: PreQC {
+  variables:
+  	int seaSurfaceTemperature(Location) ;
+  		seaSurfaceTemperature:_FillValue = -2147483643 ;
+  data:
+
+   seaSurfaceTemperature = 0 ;
+  } // group PreQC
+}

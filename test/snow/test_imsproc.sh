@@ -18,10 +18,9 @@ DOY=$(date +%j -d "$YY$MM$DD + 1 day")
 EXECDIR=$project_source_dir/build/bin
 WORKDIR=$project_binary_dir/test/snow/ims_proc
 RSTDIR=$GDASAPP_TESTDATA/lowres/gdas.$GYMD/$GHR/model/atmos/restart
-HOMEgfs=$project_source_dir/../..
 
 # Detect machine
-source "${HOMEgfs}/ush/detect_machine.sh"
+source "${project_source_dir}/ush/detect_machine.sh"
 
 export OBSDIR=$GDASAPP_TESTDATA/snow/snow_ice_cover
 export TSTUB="oro_C${RES}.mx100"

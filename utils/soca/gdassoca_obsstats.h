@@ -16,7 +16,7 @@
 #include "ioda/Engines/EngineUtils.h"
 #include "ioda/Group.h"
 #include "ioda/ObsDataIoParameters.h"
-#include "ioda/ObsGroup.h"
+#include "ioda/ObsGroup.h"  
 #include "ioda/ObsSpace.h"
 #include "ioda/ObsVector.h"
 
@@ -47,6 +47,12 @@ namespace gdasapp {
       // time window
       const eckit::LocalConfiguration timeWindowConf(fullConfig, "time window");
       const util::TimeWindow timeWindow(timeWindowConf);
+      // get the date from the config
+      std::string cycleDateStr;
+      fullConfig.get("cycle date", cycleDateStr);
+      oops::Log::info() << "cycleDateStr = " << cycleDateStr << std::endl;
+      std::string yyyymmddhh = cycleDateStr.substr(0,4) + cycleDateStr.substr(5,2) + cycleDateStr.substr(8,2) + cycleDateStr.substr(11,2);
+      int dateint = std::stoi(yyyymmddhh);
 
       // get the list of obs spaces to process
       std::vector<eckit::LocalConfiguration> obsSpaces;
@@ -67,7 +73,7 @@ namespace gdasapp {
         std::string obsFile;
         obsConfig.get("obsdatain.engine.obsfile", obsFile);
         oops::Log::info() << "========= Processing " << obsFile
-                          << "          date: " << extractDateFromFilename(obsFile)
+                          << "          date: " << dateint
                           << std::endl;
 
         // what variable to compute the stats for
@@ -128,9 +134,6 @@ namespace gdasapp {
         obsSpace.get("csv output", fileName);
         std::ofstream outputFile(fileName);
         outputFile << "Exp,Variable,Ocean,date,RMSE,Bias,ObsErr,EnsStd,Count\n";
-
-        // get the date
-        int dateint = extractDateFromFilename(obsFile);
 
         // Pre QC'd stats
         oops::Log::info() << "========= Pre QC" << std::endl;
@@ -222,20 +225,6 @@ namespace gdasapp {
                    << cntGlobal << "\n";
       }
     }
-
-    // -----------------------------------------------------------------------------
-    // Function to extract the date from the filename
-    int extractDateFromFilename(const std::string& filename) const {
-      if (filename.length() < 14) {
-        throw std::invalid_argument("Filename is too short to contain a valid date.");
-      }
-      std::string dateString = filename.substr(filename.length() - 14, 10);
-
-      // Convert the extracted date string to an integer
-      int date = std::stoi(dateString);
-      return date;
-    }
-    // -----------------------------------------------------------------------------
    private:
     std::string appname() const {
       return "gdasapp::ObsStats";
