@@ -13,10 +13,15 @@ atmos:
   stat_file_path: '{{ COMIN_ATMOS_ANALYSIS }}'
   stat_file_name: 'atmstat'
   obs spaces:
-  - name: conventional_ps
-    input file: "diag_conventional_ps_{{ current_cycle | to_YMDH }}.nc"
-    output file: "conventional_ps_{{ current_cycle | to_YMDH }}_output_atmos.nc"
-
+  - name: prepbufr_adpsfc
+    input file: "diag_prepbufr_adpsfc_{{ current_cycle | to_YMDH }}.nc"
+    output file: "prepbufr_adpsfc_{{ current_cycle | to_YMDH }}_output_atmos.nc"
+  - name: prepbufr_adpupa
+    input file: "diag_prepbufr_adpupa_{{ current_cycle | to_YMDH }}.nc"
+    output file: "prepbufr_adpupa_{{ current_cycle | to_YMDH }}_output_atmos.nc"
+  - name: prepbufr_sfcshp
+    input file: "diag_prepbufr_sfcshp_{{ current_cycle | to_YMDH }}.nc"
+    output file: "prepbufr_sfcshp_{{ current_cycle | to_YMDH }}_output_atmos.nc"
 snow:
   stat_file_path: '{{ COMIN_SNOW_ANALYSIS }}'
   stat_file_name: 'snowstat.tgz'
