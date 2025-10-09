@@ -16,8 +16,8 @@ initial_condition_file: background  # Initial conditions for 4D apps is backgrou
 
 # Assimilation window
 # -------------------
-window_begin: "{{ SNOW_WINDOW_BEGIN | to_isotime }}"
-window_length: "{{ SNOW_WINDOW_LENGTH }}"
+window_begin: "{{ WINDOW_BEGIN | to_isotime }}"
+window_length: "{{ WINDOW_LENGTH }}"
 bound_to_include: begin
 
 # Default background time is for 3D applications
@@ -81,12 +81,11 @@ crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
 snow_obsdataroot_path: "{{COMIN_OBS}}"
-snow_obsdatain_path: "{{snow_obsdatain_path}}"
+snow_obsdatain_path: "{{DATA}}/obs"
 snow_obsdatain_prefix: "{{OPREFIX}}"
 snow_obsdatain_suffix: ".tm00.bufr_d"
-
-snow_prepobs_path: "{{snow_prepobs_path}}"
-snow_obsdataout_path: "{{snow_obsdataout_path}}"
+snow_obsdataout_path: "{{DATA}}/diags"
+snow_prepobs_path: "{{DATA}}/prep"
 snow_obsdataout_prefix: diag_
 snow_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
