@@ -2,6 +2,7 @@ time window:
   begin: '1900-01-01T00:00:00Z'
   end: '2035-01-01T00:00:00Z'
   bound to include: begin
+cycle date: {{ marine_window_middle_iso }}
 obs spaces:
 {% for observation_from_jcb in cleaned_observations %}
 - obs space:
