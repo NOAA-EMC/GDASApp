@@ -9,6 +9,14 @@ aero:
     input file: "diag_viirs_n20_aod_{{ current_cycle | to_YMDH }}.nc"
     output file: "viirs_n20_{{ current_cycle | to_YMDH }}_output_aod.nc"
 
+atmos_gsi:
+  stat_file_path: '{{ DATA }}/atmos_gsi_ioda'
+  stat_file_name: 'atmos_gsi_ioda_diags.tgz'
+  obs spaces:
+  - name: gsi_sfc_ps
+    input file: "sfc_ps_obs_{{ current_cycle | to_YMDH }}.nc4"
+    output file: "sfc_ps_{{ current_cycle | to_YMDH }}_output_atmos_gsi.nc"
+
 atmos:
   stat_file_path: '{{ COMIN_ATMOS_ANALYSIS }}'
   stat_file_name: 'atmstat'
