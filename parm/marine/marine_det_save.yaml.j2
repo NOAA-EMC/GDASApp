@@ -9,19 +9,19 @@ mkdir:
 - '{{ COMOUT_OCEAN_ANALYSIS }}/bump'
 
 copy:
-# IAU increment
-- ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}increment.ocean.nc']
+# Ocean IAU increment (intended for MOM6)
+- ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}increment.ocean.nc']  # TODO: change name to increment.iau.nc or increment.mom6.nc later
 
-# Increments
-{% for domain, component in ['ocn','ice'] | zip(['ocean','ice']) %}
-- ['{{ DATA }}/Data/{{ domain }}.3dvarfgat_pseudo.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}increment.jedi_{{ component }}.nc']
+# Ocean increment and analysis from JEDI
+- ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}increment.jedi.nc']
+- ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.an.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}analysis.jedi.nc']
 
-# Analysis at the start of the window
-- ['{{ DATA }}/Data/{{ domain }}.3dvarfgat_pseudo.an.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}analysis.jedi_{{ component }}.nc']
-{% endfor %}
+# SeaIce increment and analysis from JEDI
+- ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}increment.jedi.nc']
+- ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.an.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}analysis.jedi.nc']
 
 # Postprocessed ice increment
-- ['{{ DATA }}/ice.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}increment.ice_pp.nc']
+- ['{{ DATA }}/ice.inc.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}increment.pp.nc']
 
 # ssh diagnostics
 {% if NMEM_ENS > 2 %}
@@ -44,11 +44,10 @@ copy:
 - ['{{ DATA }}/var.yaml', '{{ COMOUT_CONF }}/']
 
 copy_opt:
-# Increments
-{% for domain, component in ['ocn','ice'] | zip(['ocean','ice']) %}
-# Diagonal of the background error for the cycle
-- ['{{ DATA }}/{{ domain }}.bkgerr_stddev.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}bkgerr_stddev.jedi_{{ component }}.nc']
+# Ocean background and recentering error files
+- ['{{ DATA }}/ocn.bkgerr_stddev.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}bkgerr_stddev.jedi.nc']
+- ['{{ DATA }}/static_ens/ocn.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}recentering_error.jedi.nc']
 
-# Recentering error
-- ['{{ DATA }}/static_ens/{{ domain }}.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}recentering_error.jedi_{{ component }}.nc']
-{% endfor %}
+# Seaice background and recentering error files
+- ['{{ DATA }}/ice.bkgerr_stddev.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}bkgerr_stddev.jedi.nc']
+- ['{{ DATA }}/static_ens/ice.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}recentering_error.jedi.nc']
