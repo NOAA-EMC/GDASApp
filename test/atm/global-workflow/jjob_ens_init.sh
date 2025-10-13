@@ -64,9 +64,9 @@ RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
 mkdir -p $COMIN_OBS
-flist="amsua_n19.${PDY}${cyc} sondes.${PDY}${cyc}"
+flist="amsua_n19 sondes"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.nc4 $COMIN_OBS/${oprefix}.${file}.nc
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.${PDY}${cyc}.nc4 $COMIN_OBS/${oprefix}.${file}.tm00.nc
 done
 
 # Link radiance bias correction tarball
