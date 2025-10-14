@@ -11,6 +11,7 @@ app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle
 # ------------------------------------------------------------
 #final_increment_file: final_increment_gaussian
 final_increment_file: atmosphere_final_increment_cubed_sphere
+jedi_increment_output: gaussian
 output_ensemble_increments_file: atmosphere_output_ensemble_increments_cubed_sphere
 posterior_output_file: atmosphere_posterior_output_cubed_sphere
 model_file: atmosphere_model_pseudo
@@ -25,7 +26,7 @@ bound_to_include: begin
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
-number_of_outer_loops: 2
+number_of_outer_loops: 1
 analysis_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
 
 # Model things
@@ -81,7 +82,7 @@ atmosphere_obsdataroot_path: "{{COMIN_OBS}}"
 atmosphere_obsdatain_path: "{{DATA}}/obs"
 atmosphere_obsdatain_script_path: "{{HOMEgfs}}/ush/spoc/atmosphere"
 atmosphere_obsdatain_prefix: "{{OPREFIX}}"
-atmosphere_obsdatain_suffix: ".tm00.nc"
+atmosphere_obsdatain_suffix: ".nc"
 atmosphere_obsdatain_suffix_bufr: ".tm00.bufr_d"
 
 atmosphere_obsdataout_path: "{{DATA}}/diags"
