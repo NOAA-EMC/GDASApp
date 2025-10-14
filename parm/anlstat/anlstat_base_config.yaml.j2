@@ -14,7 +14,7 @@ atmos_gsi:
   stat_file_name: 'atmos_gsi_ioda_diags.tgz'
   obs spaces:
   - name: gsi_sfc_ps
-    input file: "sfc_ps_obs_{{ current_cycle | to_YMDH }}.nc4"
+    input file: "sfc_ps_gsi_{{ current_cycle | to_YMDH }}.nc4"
     output file: "sfc_ps_{{ current_cycle | to_YMDH }}_output_atmos_gsi.nc"
 
 atmos:
