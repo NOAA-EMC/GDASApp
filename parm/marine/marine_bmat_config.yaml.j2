@@ -7,7 +7,7 @@ jedi_config:
         jcb_algo: soca_gridgen
     soca_diagb:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_soca_diagb.x'
+        exe_src: '{{ EXECgfs }}/gdas_socxa_diagb.x'
         mpi_cmd: '{{ APRUN_MARINEBMAT }}'
         jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_diagb
@@ -75,32 +75,30 @@ data_out:
     - ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_BMATRIX }}']
 
     # Copy the diffusion coefficient files to the ROTDIR
-    {% for diff_type in ['hz', 'vt'] %}
+{% for diff_type in ['hz', 'vt'] %}
     - ['{{ DATAstaticb }}/{{ diff_type }}_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}{{ diff_type }}_ocean.nc']
-    {% endfor %}
+{% endfor %}
 
     # diag B
     - ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.bkgerr_parametric_stddev.nc']
     - ['{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}ice.bkgerr_parametric_stddev.nc']
-
-    {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
+{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
     - ['{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.bkgerr_ens_stddev.nc']
     - ['{{ DATAstaticb }}/ice.bkgerr_ens_stddev.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}ice.bkgerr_ens_stddev.nc']
     - ['{{ DATAstaticb }}/ocn.ssh_recentering_error.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.recentering_error.nc']
     - ['{{ DATAstaticb }}/ice.ssh_recentering_error.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}ice.recentering_error.nc']
-    {% endif %}
+{% endif %}
 
+{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
     # ensemble perturbation diagnostics
-    {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
     - ['{{ DATA }}/ocn.ens_weights.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.ens_weights.nc']
     - ['{{ DATA }}/ice.ens_weights.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}ice.ens_weights.nc']
 
     # ssh diagnostics
-    - ['{{ DATA }}/staticb/ocn.ssh_steric_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.ssh_steric_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.ssh_unbal_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.ssh_unbal_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.ssh_total_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.ssh_total_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.steric_explained_variance.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.steric_explained_variance.nc']
-    {% endif %}
+    {% for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev', 'steric_explained_variance'] %}
+    - ['{{ DATA }}/staticb/ocn.{{ string }}.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ocean.{{ string }}.nc']
+    {% endfor %}
+{% endif %}
 
     # yaml files
     - ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}bmat_fields_metadata.yaml']
@@ -112,15 +110,15 @@ data_out:
     - ['{{ DATA }}/soca_parameters_diffusion_vt.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_parameters_diffusion_vt.yaml']
     - ['{{ DATA }}/soca_setcorscales.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_setcorscales.yaml']
     - ['{{ DATA }}/soca_vtscales.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_vtscales.yaml']
-    {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
+{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
     - ['{{ DATA }}/soca_ensb.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_ensb.yaml']
     - ['{{ DATA }}/soca_ensweights.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_ensweights.yaml']
-    {% endif %}
+{% endif %}
 
     # diag
-    - ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.incr.{{ MARINE_WINDOW_END_ISO }}.nc', '{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc']
-    - ['{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.incr.{{ MARINE_WINDOW_END_ISO }}.nc', '{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.nc']
-    {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
-    - ['{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc','{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.nc']
-    - ['{{ DATAstaticb }}/ice.bkgerr_ens_stddev.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc','{{ DATAstaticb }}/ice.bkgerr_ens_stddev.nc']
-    {% endif %}
+    - ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc']
+    - ['{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.nc']
+{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
+    - ['{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc','{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.nc']
+    - ['{{ DATAstaticb }}/ice.bkgerr_ens_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc','{{ DATAstaticb }}/ice.bkgerr_ens_stddev.nc']
+{% endif %}
