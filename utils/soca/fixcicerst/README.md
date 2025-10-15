@@ -4,7 +4,7 @@ This utility checks CICE6 restart files for unrealistic ice and snow thickness v
 
 ## Purpose
 
-The tool addresses issues where CICE6 restart files contain unrealistically thick ice or snow that can cause model instability or unphysical behavior. When ice or snow thickness exceeds specified maximum values, all sea ice state variables at those grid points are set to zero, effectively creating open water conditions.
+The tool addresses issues where CICE6 restart files contain unrealistically thick ice or snow that may cause model instability or unphysical behavior. When ice or snow thickness exceeds specified maximum values, all sea ice state variables at those grid points are set to zero, effectively creating open water conditions.
 
 ## Usage
 
@@ -15,7 +15,6 @@ python fix_cice_restart.py config.yaml
 ### Options
 
 - `config.yaml`: YAML configuration file specifying input parameters
-- `--dry-run`: Check thickness values without creating output file (not yet implemented)
 
 ## Configuration File Format
 
@@ -49,8 +48,8 @@ When thickness limits are exceeded, the following CICE state variables are zeroe
 ### Ice Physics
 - `Tsfcn`: Surface temperature per category
 - `iage`: Ice age
-- `alvl`: Level ice area fraction
-- `vlvl`: Level ice volume per unit area
+- `alvl`: Ridged Ice Area per Category
+- `vlvl`: Ridged Ice Volume per Category
 
 ### Melt Ponds
 - `apnd`: Melt pond area fraction
@@ -58,13 +57,13 @@ When thickness limits are exceeded, the following CICE state variables are zeroe
 - `ipnd`: Melt pond ice thickness
 
 ### Thermodynamics
-- `sice001`-`sice007`: Ice enthalpy per layer
-- `qice001`-`qice007`: Ice internal energy per layer
-- `qsno001`: Snow internal energy
+- `sice001`-`sice007`:Ice salinity per layer
+- `qice001`-`qice007`: Ice enthalpy per layer
+- `qsno001`: Snow enthalpy
 
 ### Other Variables
-- `dhs`: Snow depth difference
-- `ffrac`: Floe size distribution
+- `dhs`: change in mean snow thickness
+- `ffrac`: mean fraction of fsurfn used to melt ipond
 
 ## Algorithm
 
