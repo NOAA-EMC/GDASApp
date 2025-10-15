@@ -1,0 +1,21 @@
+# Example configuration for fix_cice_restart.py
+# This file specifies the CICE6 restart file to process and thickness limits
+
+# Path to the input CICE restart file
+cice_restart_path: "/home/gvernier/data/20250830.150000.cice_model.res.nc"
+
+# Maximum allowed ice thickness (meters)
+# Points with aggregated ice thickness exceeding this will be zeroed
+max_ice_thickness: 10.0
+
+# Maximum allowed snow thickness (meters)
+# Points with aggregated snow thickness exceeding this will be zeroed
+max_snow_thickness: 2.0
+
+# Optional: Path for the output fixed restart file
+# If not specified, will create "fixed_<original_name>" in same directory
+output_path: "./fixed_cice.nc"
+
+# Optional: Additional settings for future enhancements
+# verbose: true
+# backup_original: false
