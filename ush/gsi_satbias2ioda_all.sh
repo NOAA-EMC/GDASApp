@@ -71,7 +71,11 @@ done
 /bin/rm -rf ./testrun
 
 
-# Create tarball with JEDI format radiance bias correction files                                                                                                          cd ${locdir}
+# Create tarball with JEDI format radiance bias correction files
+cd ${locdir}
+if [[ -s ${ABIAS_JEDI} ]]; then
+    rm -f ${ABIAS_JEDI}
+fi
 tar -cvf ${ABIAS_JEDI} ./
 export err=$?
 if [[ ${err} -ne 0 ]]; then
