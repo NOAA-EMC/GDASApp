@@ -1,0 +1,88 @@
+jedi_config:
+    gridgen:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_soca_gridgen.x'
+        mpi_cmd: '{{ APRUN_MARINEANLECEN }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_algo: soca_gridgen
+    ens_handler:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_soca_anpproc.x'
+        mpi_cmd: '{{ APRUN_MARINEANLECEN }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_algo: soca_ens_handler
+
+data_in:
+    mkdir:
+    - '{{ DATA }}/bkg'
+    - '{{ DATA }}/INPUT'
+    - '{{ DATA }}/anl_geom'
+    - '{{ DATA }}/ens'
+
+    link:
+{% for imem in range(1,NMEM_ENS+1) %}
+    {% for domain in ['ocean', 'ice'] %}
+    - [ "{{ DATA }}/../ensdata/ens/{{ domain }}.{{ imem | string }}.nc", '{{ DATA }}/ens/' ]
+    {% endfor %}
+{% endfor %}
+
+    copy_req:
+{% for imem in range(1,NMEM_ENS+1) %}
+    {% set memchar = 'mem%03d' | format(imem) %}
+    {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                          '${RUN}': 'enkfgdas',
+                          '${YMD}': previous_cycle | to_YMD,
+                          '${HH}': previous_cycle | strftime('%H'),
+                          '${MEMDIR}': memchar }) %}
+    - ['{{ COM_ICE_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.cice_model.res.nc', '{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc']
+{% endfor %}
+
+{% filter indent(width=4) %}
+{% include 'marine_det_stage_bkg.yaml.j2' %}
+{% include 'marine_stage_fix_' ~ OCNRES ~ '.yaml.j2' %}
+{% include 'marine_stage_utilities.yaml.j2' %}
+{% endfilter %}
+
+data_out:
+    mkdir:
+{% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                      '${RUN}': RUN,
+                      '${YMD}': current_cycle | to_YMD,
+                      '${HH}': current_cycle | strftime('%H'),
+                      '${MEMDIR}': 'ensstat' }) %}
+    - '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}'
+    - '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}'
+{% for imem in range(1,NMEM_ENS+1) %}
+    {% set memchar = 'mem%03d' | format(imem) %}
+    {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                          '${RUN}': RUN,
+                          '${YMD}': current_cycle | to_YMD,
+                          '${HH}': current_cycle | strftime('%H'),
+                          '${MEMDIR}': memchar }) %}
+    - '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}'
+    - '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}'
+{% endfor %}
+
+    copy:
+{% for imem in range(1,NMEM_ENS+1) %}
+    {% set imem0 = imem-1 %}
+    {% set memchar = 'mem%03d' | format(imem) %}
+    {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                          '${RUN}': RUN,
+                          '${YMD}': current_cycle | to_YMD,
+                          '${HH}': current_cycle | strftime('%H'),
+                          '${MEMDIR}': memchar }) %}
+    # ocean increments are saved as 0..n-1
+    - ['{{ DATA }}/ocn.recenter.ens.{{ imem0 | string}}.{{ WINDOW_END | to_isotime }}.PT0S.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ RUN }}.t{{ "%02d" | format(cyc) }}z.ocninc.nc']
+
+    # ice restarts are saved as 1..n
+    - ['{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.cice_model_anl.res.nc']
+{% endfor %}
+{% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                      '${RUN}': RUN,
+                      '${YMD}': current_cycle | to_YMD,
+                      '${HH}': current_cycle | strftime('%H'),
+                      '${MEMDIR}': 'ensstat' }) %}
+
+    - ['{{ DATA }}/ocn.ensvar.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ RUN }}.ocean.t{{ "%02d" | format(cyc) }}z.bg_ensvar.nc']
+    - ['{{ DATA }}/ice.ensvar.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ RUN }}.ice.t{{ "%02d" | format(cyc) }}z.bg_ensvar.nc']
