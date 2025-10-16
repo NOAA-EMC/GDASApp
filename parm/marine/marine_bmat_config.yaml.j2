@@ -7,7 +7,7 @@ jedi_config:
         jcb_algo: soca_gridgen
     soca_diagb:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_socxa_diagb.x'
+        exe_src: '{{ EXECgfs }}/gdas_soca_diagb.x'
         mpi_cmd: '{{ APRUN_MARINEBMAT }}'
         jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_diagb
@@ -54,12 +54,12 @@ data_in:
     - '{{ DATA }}/bkg'
     - '{{ DATA }}/INPUT'
     - '{{ DATA }}/anl_geom'
-    - '{{ DATA }}/staticb
     - '{{ DATAens }}/ens'
 
     copy:
 {% filter indent(width=4) %}
 {% include 'marine_det_stage_bkg.yaml.j2' %}
+{% include 'marine_stage_fix_' ~ OCNRES ~ '.yaml.j2' %}
 {% include 'marine_stage_utilities.yaml.j2' %}
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
 {% include 'marine_ens_stage_bkg.yaml.j2' %}
@@ -67,10 +67,18 @@ data_in:
 {% endfilter %}
 
     link:
-     - [ '{{ DATAstaticb }}', '{{ DATA }}/staticb' ]
+    - [ "{{ DATA }}/../staticb", "{{ DATA }}/staticb" ]
 
 data_out:
     copy_req:
+    # diag
+    - ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc']
+    - ['{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.nc']
+{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
+    - ['{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc','{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.nc']
+    - ['{{ DATAstaticb }}/ice.bkgerr_ens_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc','{{ DATAstaticb }}/ice.bkgerr_ens_stddev.nc']
+{% endif %}
+
     # soca grid
     - ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_BMATRIX }}']
 
@@ -113,12 +121,4 @@ data_out:
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
     - ['{{ DATA }}/soca_ensb.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_ensb.yaml']
     - ['{{ DATA }}/soca_ensweights.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_ensweights.yaml']
-{% endif %}
-
-    # diag
-    - ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc']
-    - ['{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.nc']
-{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
-    - ['{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc','{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.nc']
-    - ['{{ DATAstaticb }}/ice.bkgerr_ens_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc','{{ DATAstaticb }}/ice.bkgerr_ens_stddev.nc']
 {% endif %}
