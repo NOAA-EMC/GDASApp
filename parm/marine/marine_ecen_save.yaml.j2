@@ -24,9 +24,9 @@ copy:
                           '${HH}': current_cycle | strftime('%H'),
                           '${MEMDIR}': 'mem%03d' | format(imem) }) %}
 # ocean increments are saved as 0..n-1
-- ['{{ DATA }}/ocn.recenter.ens.{{ imem0 | string}}.{{ MARINE_WINDOW_END_ISO }}.PT0S.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.increment.ocean.nc']
+- ['{{ DATA }}/ocn.recenter.ens.{{ imem0 | string}}.{{ MARINE_WINDOW_END_ISO }}.PT0S.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ RUN }}.t{{ current_cycle | strftime('%H') }}z.mom6_increment.i006.nc']
 # ice restarts are saved as 1..n
-- ['{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.cice_model_anl.res.nc']
+- ['{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.analysis.cice_model.res.nc']
 {% endfor %}
 {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
                       '${RUN}': RUN,
