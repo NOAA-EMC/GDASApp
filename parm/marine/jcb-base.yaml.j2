@@ -42,7 +42,7 @@ marine_window_middle: '{{ WINDOW_MIDDLE }}'
 marine_window_begin_iso: '{{ WINDOW_BEGIN | to_isotime }}'
 marine_window_middle_iso: '{{ WINDOW_MIDDLE | to_isotime }}'
 marine_window_end_iso: '{{ WINDOW_END | to_isotime }}'
-enspert_relpath: '{{ ENSPERT_RELPATH }}'
+marine_enspert_relpath: '{{ ENSPERT_RELPATH }}'
 {% if DOIAU %}
 marine_cice_date_fms: '{{ WINDOW_BEGIN | to_fv3time }}'
 marine_cice_date_iso: '{{ WINDOW_BEGIN | to_isotime }}'
@@ -81,6 +81,8 @@ marine_obsdataout_path: '{{DATA}}/diags'
 marine_obsdataout_prefix: ''
 marine_obsdataout_suffix: '.nc'
 
+marine_letkf_dist_halo_size: '{{ DIST_HALO_SIZE }}'
+
 # Outer loops
 marine_ninner_1: '{{NINNER}}'
 marine_grad_red_1: 1e-7
@@ -105,3 +107,6 @@ obs_variables: {{ obs_variables | default({}) }}
 
 # COM path for configuration files
 marine_config_path: '{{COMOUT_CONF}}'
+
+# Using LETKF app?
+letkf_app: '{{ letkf_app }}'

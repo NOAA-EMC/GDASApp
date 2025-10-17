@@ -48,9 +48,9 @@ data_in:
 {% endfilter %}
 
     copy_opt:
-{% filter indent(width=4) %}
-{% include 'marine_stage_obs.yaml.j2' %}
-{% endfilter %}
+{% for ob_name in observations %}
+    - ['{{ COMIN_OBS }}/{{ OPREFIX }}{{ ob_name }}.nc', '{{ DATA }}/obs']
+{% endfor %}
 
     link:
     - [ "{{ DATA }}/../staticb", "{{ DATA }}/staticb" ]
