@@ -81,8 +81,6 @@ marine_obsdataout_path: '{{DATA}}/diags'
 marine_obsdataout_prefix: ''
 marine_obsdataout_suffix: '.nc'
 
-marine_letkf_dist_halo_size: '{{ DIST_HALO_SIZE }}'
-
 # Outer loops
 marine_ninner_1: '{{NINNER}}'
 marine_grad_red_1: 1e-7
@@ -111,9 +109,6 @@ marine_config_path: '{{COMOUT_CONF}}'
 # Local Ensemble DA (LETKF)
 # -------------------------
 
-# Using LETKF app? (used in obs YAMLs)
-marine_letkf_app: {{ letkf_app | default(false) }}
-
 # Solver
 local_ensemble_da_solver: Deterministic LETKF
 
@@ -132,5 +127,9 @@ driver_do_posterior_observer: true
 inflation_rtps: 0.5
 inflation_rtpp: 0.6
 inflation_mult: 1.1
+
+# Using LETKF app? (used in obs YAMLs)
+marine_letkf_app: {{ letkf_app | default(false) }}
+marine_letkf_dist_halo_size: '{{ DIST_HALO_SIZE }}'
 
 
