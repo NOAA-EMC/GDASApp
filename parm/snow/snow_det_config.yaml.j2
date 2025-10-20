@@ -56,7 +56,7 @@ data_out:
     copy:
     # Configuration files
     - ['{{ DATA }}/snowanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}snowanlvar.yaml']
-{% if cyc == 0 %}
+{% if DO_IMS_SCF %}
     - ['{{ DATA }}/scf_to_ioda.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}scf_to_ioda.yaml']
 {% endif %}
     
