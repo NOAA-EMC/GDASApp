@@ -108,5 +108,29 @@ obs_variables: {{ obs_variables | default({}) }}
 # COM path for configuration files
 marine_config_path: '{{COMOUT_CONF}}'
 
-# Using LETKF app?
+# Local Ensemble DA (LETKF)
+# -------------------------
+
+# Using LETKF app? (used in obs YAMLs)
 letkf_app: '{{ letkf_app }}'
+
+# Solver
+local_ensemble_da_solver: Deterministic LETKF
+
+# Increment variables
+increment_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, sea_water_cell_thickness, eastward_sea_water_velocity, northward_sea_water_velocity, sea_ice_area_fraction]
+
+# Driver
+driver_save_posterior_mean: true
+driver_save_prior_mean: true
+driver_save_posterior_mean_increment: true
+driver_save_prior_variance: true
+driver_save_posterior_variance: true
+driver_do_posterior_observer: true
+
+# Inflation
+inflation_rtps: 0.5
+inflation_rtpp: 0.6
+inflation_mult: 1.1
+
+
