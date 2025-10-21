@@ -197,7 +197,21 @@ def main(argv=None):
             + ", ".join(missing_y)
         )
 
-    mask_deep = (zc >= args.depth_threshold).broadcast_like(temp)
+    # Build explicit 3D boolean mask (z,y,x) from depth centers
+    zc_match = zc
+    if zc.dims != temp.dims:
+        # Reorder zc to match target dims order
+        zc_match = zc.transpose(*temp.dims)
+    if any(zc_match.sizes[d] != temp.sizes[d] for d in temp.dims):
+        raise RuntimeError(
+            "Layer depth grid (zc) sizes do not match monthly field sizes"
+        )
+    mask3d = xr.DataArray(
+        (zc_match >= args.depth_threshold).values,
+        dims=temp.dims,
+        coords=temp.coords,
+        name="deep_mask",
+    )
 
     # Reorder yearly fields to match target dimension order if needed
     yT = dsY["Temp"]
@@ -217,9 +231,9 @@ def main(argv=None):
     ):
         raise RuntimeError("Yearly Salt dims/sizes do not match monthly Salt")
 
-    # Direct replacement in deep ocean
-    temp = xr.where(mask_deep, yT, temp)
-    salt = xr.where(mask_deep, yS, salt)
+    # Direct replacement in deep ocean using 3D mask
+    temp = xr.where(mask3d, yT, temp)
+    salt = xr.where(mask3d, yS, salt)
     print(
         f"📎 Replaced depths ≥ {args.depth_threshold} m with yearly"
     )
