@@ -2,12 +2,9 @@
 # copy ensemble background files
 ######################################
 
-# stage initial conditions
-- ["{{ COMIN_OCEAN_HISTORY_PREV }}/gdas.ocean.t{{ previous_cycle | strftime("%H") }}z.inst.f003.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
-- ["{{ COMIN_ICE_HISTORY_PREV }}/gdas.ice.t{{ previous_cycle | strftime("%H") }}z.inst.f003.nc", "{{ DATA }}/INPUT/cice.res.nc"]
-
-# stage f006 and f009 backgrounds
-{% for fcsth in ['f006', 'f009'] %}
-- ["{{ COMIN_OCEAN_HISTORY_PREV }}/gdas.ocean.t{{ previous_cycle | strftime("%H") }}z.inst.{{ fcsth }}.nc", "{{ DATA }}/bkg/ocean.bkg.{{ fcsth }}.nc"]
-- ["{{ COMIN_ICE_HISTORY_PREV }}/gdas.ice.t{{ previous_cycle | strftime("%H") }}z.inst.{{ fcsth }}.nc", "{{ DATA }}/bkg/ice.bkg.{{ fcsth }}.nc"]
-{% endfor %}
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ GPREFIX }}inst.f003.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ GPREFIX }}inst.f006.nc", "{{ DATA }}/bkg/ocean.bkg.f006.nc"]
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc", "{{ DATA }}/bkg/ocean.bkg.f009.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX }}inst.f003.nc", "{{ DATA }}/INPUT/cice.res.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX }}inst.f006.nc", "{{ DATA }}/bkg/ice.bkg.f006.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc", "{{ DATA }}/bkg/ice.bkg.f009.nc"]
