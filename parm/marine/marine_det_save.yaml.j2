@@ -1,4 +1,3 @@
-{% set bcyc = MARINE_WINDOW_BEGIN | strftime('%H') %}
 {% if DOIAU %}
 {% set cice_rst_date = MARINE_WINDOW_BEGIN | to_fv3time %}
 {% else %}
@@ -10,32 +9,45 @@ mkdir:
 - '{{ COMOUT_OCEAN_ANALYSIS }}/bump'
 
 copy:
-# IAU increment
-- ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ocninc.nc']
-{% for domain in ['ocn','ice'] %}
-# Increments
-- ['{{ DATA }}/Data/{{ domain }}.3dvarfgat_pseudo.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}{{ domain }}.incr.nc']
-# Analysis at the start of the window
-- ['{{ DATA }}/Data/{{ domain }}.3dvarfgat_pseudo.an.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}{{ domain }}.ana.nc']
-# Diagonal of the background error for the cycle
-#- ['{{ DATA }}/{{ domain }}.bkgerr_stddev.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}{{ domain }}.bkgerr_stddev.nc']
-# Recentering error
-#- ['{{ DATA }}/static_ens/{{ domain }}.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}{{ domain }}.recentering_error.nc']
-{% endfor %}
+# Ocean IAU increment (intended for MOM6)
+- ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}mom6_increment.i006.nc']
+
+# Ocean increment and analysis from JEDI
+- ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
+- ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.an.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
+
+# SeaIce increment and analysis from JEDI
+- ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
+- ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.an.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
+
 # Postprocessed ice increment
-- ['{{ DATA }}/ice.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ice.incr.postproc.nc']
+- ['{{ DATA }}/ice.inc.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}pp_increment.i006.nc']
+
 # ssh diagnostics
 {% if NMEM_ENS > 2 %}
-{% for string in ['ssh_steric_stddev', 'ssh_unbal_stddev', 'ssh_total_stddev', 'steric_explained_variance'] %}
-- ['{{ DATA }}/staticb/ocn.{{ string }}.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ocn.{{ string }}.nc']
-{% endfor %}
+- ['{{ DATA }}/staticb/ocn.ssh_steric_stddev.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_steric_stddev.nc']
+- ['{{ DATA }}/staticb/ocn.ssh_unbal_stddev.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_unbal_stddev.nc']
+- ['{{ DATA }}/staticb/ocn.ssh_total_stddev.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_total_stddev.nc']
+- ['{{ DATA }}/staticb/ocn.steric_explained_variance.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}steric_explained_variance.nc']
 {% endif %}
+
 # DA grid (computed for the start of the window)
-- ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ RUN }}.t{{ bcyc }}z.ocngrid.nc']
+- ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_gridspec.tm03.nc']
+
 # CICE analysis restart
-- ['{{ DATA }}/Data/{{ cice_rst_date }}.cice_model.res.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ cice_rst_date }}.cice_model_anl.res.nc']
+- ['{{ DATA }}/Data/{{ cice_rst_date }}.cice_model.res.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ cice_rst_date }}.analysis.cice_model.res.nc']
+
 # YAML files
 - ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_CONF }}']
 - ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_CONF }}/']
 - ['{{ DATA }}/soca_incpostproc.yaml', '{{ COMOUT_CONF }}/']
 - ['{{ DATA }}/var.yaml', '{{ COMOUT_CONF }}/']
+
+copy_opt:
+# Ocean background and recentering error files
+- ['{{ DATA }}/ocn.bkgerr_stddev.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}bkgerr_stddev.nc']
+- ['{{ DATA }}/static_ens/ocn.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}recentering_error.nc']
+
+# Seaice background and recentering error files
+- ['{{ DATA }}/ice.bkgerr_stddev.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}bkgerr_stddev.nc']
+- ['{{ DATA }}/static_ens/ice.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}recentering_error.nc']
