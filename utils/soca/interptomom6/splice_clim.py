@@ -198,10 +198,28 @@ def main(argv=None):
         )
 
     mask_deep = (zc >= args.depth_threshold).broadcast_like(temp)
-    tA, tY = xr.align(temp, dsY["Temp"], join="exact")
-    sA, sY = xr.align(salt, dsY["Salt"], join="exact")
-    temp = xr.where(mask_deep, tY, tA)
-    salt = xr.where(mask_deep, sY, sA)
+
+    # Reorder yearly fields to match target dimension order if needed
+    yT = dsY["Temp"]
+    yS = dsY["Salt"]
+    if yT.dims != temp.dims:
+        yT = yT.transpose(*temp.dims)
+    if yS.dims != salt.dims:
+        yS = yS.transpose(*salt.dims)
+
+    # Sanity checks: dimensions and sizes must match exactly
+    if yT.dims != temp.dims or any(
+        yT.sizes[d] != temp.sizes[d] for d in temp.dims
+    ):
+        raise RuntimeError("Yearly Temp dims/sizes do not match monthly Temp")
+    if yS.dims != salt.dims or any(
+        yS.sizes[d] != salt.sizes[d] for d in salt.dims
+    ):
+        raise RuntimeError("Yearly Salt dims/sizes do not match monthly Salt")
+
+    # Direct replacement in deep ocean
+    temp = xr.where(mask_deep, yT, temp)
+    salt = xr.where(mask_deep, yS, salt)
     print(
         f"📎 Replaced depths ≥ {args.depth_threshold} m with yearly"
     )
