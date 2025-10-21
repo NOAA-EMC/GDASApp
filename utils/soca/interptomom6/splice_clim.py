@@ -71,10 +71,9 @@ def compute_layer_centers(layer_file, layer_var="h"):
     if z_dim is None:
         raise ValueError("Could not find z-dimension in layer file")
 
-    # Cum-sum to interfaces, then centers; anchor surface to 0
-    zw = xr.apply_ufunc(
-        np.cumsum, h, input_core_dims=[[z_dim]], output_core_dims=[[z_dim]]
-    )
+    # Integrate thickness to get interfaces, then centers; anchor surface to 0
+    # Use xarray's cumsum to preserve dimension structure
+    zw = h.cumsum(dim=z_dim)
     zc = zw - 0.5 * h
     zc = zc - zc.isel({z_dim: 0})
 
