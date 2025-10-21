@@ -179,6 +179,20 @@ def main(argv=None):
                 f"Missing variable '{v}' in monthly files {p1} or {p2}"
             )
 
+    # Capture degenerate time dimension info (if present)
+    time_dim_name = None
+    time_values = None
+    for d in ds1["Temp"].dims:
+        if d.lower().startswith("time") and ds1["Temp"].sizes[d] == 1:
+            time_dim_name = d
+            if d in ds1:
+                time_values = ds1[d].values
+            elif d in ds1.coords:
+                time_values = ds1.coords[d].values
+            else:
+                time_values = None
+            break
+
     # Interpolate variables
     temp = f1 * ds1["Temp"] + f2 * ds2["Temp"]
     salt = f1 * ds1["Salt"] + f2 * ds2["Salt"]
@@ -265,6 +279,12 @@ def main(argv=None):
         converted_theta = False
 
     out = xr.Dataset({"Temp": temp, "Salt": salt})
+    # Add back a size-1 time dimension if present in inputs
+    if time_dim_name is not None:
+        out = out.expand_dims({
+            time_dim_name: time_values if time_values is not None else [0]
+        })
+
     out.attrs.update({
         "source": (
             "Temporal interpolation of monthly climatology "
