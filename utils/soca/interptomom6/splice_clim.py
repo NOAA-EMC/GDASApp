@@ -202,9 +202,12 @@ def main(argv=None):
     if zc.dims != temp.dims or any(
         zc.sizes[d] != temp.sizes[d] for d in temp.dims
     ):
-        raise RuntimeError(
-            "Layer depth grid (zc) must have same dims/sizes as fields"
+        msg = (
+            "Layer depth grid (zc) must have same dims/sizes as fields.\n"
+            f"zc.dims={zc.dims}, zc.sizes={dict(zc.sizes)}\n"
+            f"field.dims={temp.dims}, field.sizes={dict(temp.sizes)}"
         )
+        raise RuntimeError(msg)
     mask3d = xr.DataArray(
         (zc >= args.depth_threshold).values,
         dims=temp.dims,
@@ -218,11 +221,21 @@ def main(argv=None):
     if yT.dims != temp.dims or any(
         yT.sizes[d] != temp.sizes[d] for d in temp.dims
     ):
-        raise RuntimeError("Yearly Temp dims/sizes do not match monthly Temp")
+        msg = (
+            "Yearly Temp dims/sizes do not match monthly Temp.\n"
+            f"yearly.dims={yT.dims}, yearly.sizes={dict(yT.sizes)}\n"
+            f"monthly.dims={temp.dims}, monthly.sizes={dict(temp.sizes)}"
+        )
+        raise RuntimeError(msg)
     if yS.dims != salt.dims or any(
         yS.sizes[d] != salt.sizes[d] for d in salt.dims
     ):
-        raise RuntimeError("Yearly Salt dims/sizes do not match monthly Salt")
+        msg = (
+            "Yearly Salt dims/sizes do not match monthly Salt.\n"
+            f"yearly.dims={yS.dims}, yearly.sizes={dict(yS.sizes)}\n"
+            f"monthly.dims={salt.dims}, monthly.sizes={dict(salt.sizes)}"
+        )
+        raise RuntimeError(msg)
 
     # Direct replacement in deep ocean using 3D mask
     temp = xr.where(mask3d, yT, temp)
