@@ -59,17 +59,17 @@ data_out:
 
     # Save LETKF background and analysis mean and variance, mean analysis increment
     - ["{{ DATA }}/letkf_output/ocn.letkf.mean_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_prior.nc"]
-    - ["{{ DATA }}/letkf_output/ice.letkf.mean_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_prior.nc"]
+    - ["{{ DATA }}/letkf_output/ice.letkf.mean_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensmean_prior.nc"]
     - ["{{ DATA }}/letkf_output/ocn.letkf.var_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensvar_prior.nc"]
-    - ["{{ DATA }}/letkf_output/ice.letkf.var_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensvar_prior.nc"]
+    - ["{{ DATA }}/letkf_output/ice.letkf.var_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensvar_prior.nc"]
     - ["{{ DATA }}/letkf_output/ocn.letkf.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_post.nc"]
-    - ["{{ DATA }}/letkf_output/ice.letkf.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_post.nc"]
+    - ["{{ DATA }}/letkf_output/ice.letkf.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensmean_post.nc"]
     - ["{{ DATA }}/letkf_output/ocn.letkf.var_post.an.{{ WINDOW_MIDDLE | to_isotime}}.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensvar_post.nc"]
-    - ["{{ DATA }}/letkf_output/ice.letkf.var_post.an.{{ WINDOW_MIDDLE | to_isotime}}.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensvar_post.nc"]
+    - ["{{ DATA }}/letkf_output/ice.letkf.var_post.an.{{ WINDOW_MIDDLE | to_isotime}}.nc", "{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensvar_post.nc"]
     - ["{{ DATA }}/letkf_output/ocn.letkf.inc.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_incr.nc"]
-    - ["{{ DATA }}/letkf_output/ice.letkf.inc.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_incr.nc"]
+    - ["{{ DATA }}/letkf_output/ice.letkf.inc.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensmean_incr.nc"]
 
-    - ['{{ DATA }}/letkf.yaml', '{{ COMOUT_CONF}}/soca_letkf.yaml']
+    - ['{{ DATA }}/letkf.yaml', '{{ COMOUT_CONF }}/soca_letkf.yaml']
 
     copy_opt:
     # save obs diags
