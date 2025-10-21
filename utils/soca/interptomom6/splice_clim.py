@@ -198,30 +198,23 @@ def main(argv=None):
         )
 
     # Build explicit 3D boolean mask (z,y,x) from depth centers
-    zc_match = zc
-    if zc.dims != temp.dims:
-        # Reorder zc to match target dims order
-        zc_match = zc.transpose(*temp.dims)
-    if any(zc_match.sizes[d] != temp.sizes[d] for d in temp.dims):
+    # Expect zc to have identical dims/sizes as the monthly fields
+    if zc.dims != temp.dims or any(
+        zc.sizes[d] != temp.sizes[d] for d in temp.dims
+    ):
         raise RuntimeError(
-            "Layer depth grid (zc) sizes do not match monthly field sizes"
+            "Layer depth grid (zc) must have same dims/sizes as fields"
         )
     mask3d = xr.DataArray(
-        (zc_match >= args.depth_threshold).values,
+        (zc >= args.depth_threshold).values,
         dims=temp.dims,
         coords=temp.coords,
         name="deep_mask",
     )
 
-    # Reorder yearly fields to match target dimension order if needed
+    # Yearly fields (must have identical structure to monthly fields)
     yT = dsY["Temp"]
     yS = dsY["Salt"]
-    if yT.dims != temp.dims:
-        yT = yT.transpose(*temp.dims)
-    if yS.dims != salt.dims:
-        yS = yS.transpose(*salt.dims)
-
-    # Sanity checks: dimensions and sizes must match exactly
     if yT.dims != temp.dims or any(
         yT.sizes[d] != temp.sizes[d] for d in temp.dims
     ):
