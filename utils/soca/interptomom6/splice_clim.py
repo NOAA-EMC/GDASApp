@@ -143,6 +143,14 @@ def convert_to_potential(T, S, depth_m, refp=0.0):
     return theta
 
 
+def drop_time_dim(da: xr.DataArray) -> xr.DataArray:
+    """Drop a degenerate time dimension (size=1) if present."""
+    for d in list(da.dims):
+        if d.lower().startswith("time") and da.sizes[d] == 1:
+            da = da.isel({d: 0}, drop=True)
+    return da
+
+
 def main(argv=None):
     args = parse_args(argv)
 
@@ -174,6 +182,10 @@ def main(argv=None):
     # Interpolate variables
     temp = f1 * ds1["Temp"] + f2 * ds2["Temp"]
     salt = f1 * ds1["Salt"] + f2 * ds2["Salt"]
+
+    # Drop degenerate time dimension (expected size=1)
+    temp = drop_time_dim(temp)
+    salt = drop_time_dim(salt)
 
     # Depth centers from layer file (required)
     zc = compute_layer_centers(args.layer_file, layer_var="h")
@@ -216,8 +228,8 @@ def main(argv=None):
     )
 
     # Yearly fields (must have identical structure to monthly fields)
-    yT = dsY["Temp"]
-    yS = dsY["Salt"]
+    yT = drop_time_dim(dsY["Temp"])
+    yS = drop_time_dim(dsY["Salt"])
     if yT.dims != temp.dims or any(
         yT.sizes[d] != temp.sizes[d] for d in temp.dims
     ):
@@ -253,7 +265,6 @@ def main(argv=None):
         converted_theta = False
 
     out = xr.Dataset({"Temp": temp, "Salt": salt})
-    out = out.assign_coords(ds1.coords)
     out.attrs.update({
         "source": (
             "Temporal interpolation of monthly climatology "
