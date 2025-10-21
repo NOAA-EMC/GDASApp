@@ -3,8 +3,7 @@
 ######################################
 {% set gPDY = previous_cycle | to_YMD %}
 {% set gcyc = previous_cycle | strftime("%H") %}
-{% set PDY = current_cycle | to_YMD %}
-{% set cyc = current_cycle | strftime("%H") %}
+{% set ghead = GDUMP_ENS + ".t" + gcyc + "z." %}
 ######################################
 # create working directories
 ######################################
@@ -26,6 +25,6 @@ copy:
                         '${YMD}':gPDY,
                         '${HH}':gcyc,
                         '${MEMDIR}':"mem" + '%03d' % gmem} %}
-    - ["{{ COM_OCEAN_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GDUMP_ENS }}.ocean.t{{ gcyc }}z.inst.f006.nc", "{{ DATAens }}/ens/ocean.{{ mem }}.nc"]
-    - ["{{ COM_ICE_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GDUMP_ENS }}.ice.t{{ gcyc }}z.inst.f006.nc", "{{ DATAens }}/ens/ice.{{ mem }}.nc"]
+    - ["{{ COM_OCEAN_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ ghead}}inst.f006.nc", "{{ DATAens }}/ens/ocean.{{ mem }}.nc"]
+    - ["{{ COM_ICE_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ ghead}}inst.f006.nc", "{{ DATAens }}/ens/ice.{{ mem }}.nc"]
 {% endfor %}
