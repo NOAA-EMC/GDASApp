@@ -16,6 +16,26 @@ Small utilities to build MOM6-ready climatologies from World Ocean Atlas (WOA) d
 - Python 3 with: `xarray`, `netCDF4`, `numpy`, and optionally `PyYAML` (for YAML configs).
 - A target MOM6 mosaic (`ocean_mosaic.nc`) and, for vertical interpolation, a MOM6 layer file (e.g., `MOM6_layer_h.nc`).
 
+### Installing FRE utilities
+You must have the FRE utilities available before running these tools.
+
+- On HPC systems (Hera, Orion, WCOSS2, etc.), prefer loading site modules that provide the FRE tools.
+- From source: clone and build the NOAA/GFDL FRE NCtools which contain `fregrid`, `make_hgrid`, and `make_solo_mosaic`.
+  - Repository: https://github.com/NOAA-GFDL/FRE-NCtools
+  - Requirements: C/Fortran compiler, MPI, HDF5, NetCDF-C, NetCDF-Fortran
+  - Build and install, then ensure the install `bin/` is on your `PATH` so the commands are discoverable.
+
+Load the GDASApp modules if building on HPC.
+```bash
+git clone https://github.com/NOAA-GFDL/FRE-NCtools
+cd FRE-NCtools
+autoreconf -i
+mkdir build && cd build
+../configure --prefix=<install path>
+make
+make install
+```
+
 ## Quick start
 1) Use the example driver:
 - Edit `gen_clim.py` paths (e.g., `output_mosaic`, `layer_file`) and run it to generate an annual product (and monthly, if you un‑comment the loop).

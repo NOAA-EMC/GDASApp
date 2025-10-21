@@ -7,6 +7,7 @@ import time
 from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
 from functools import partial
+import os
 
 
 def parse_arguments():
@@ -402,14 +403,43 @@ for variable_name in variables:
 # 5️⃣ Write output
 # ---------------------------------------------------------------------
 write_start = time.time()
-ds_out = xr.Dataset(outputs)
-ds_out.to_netcdf(out_file, format="NETCDF4_CLASSIC")
+appended = False
+
+if os.path.exists(out_file):
+    print(f"📎 Existing file detected, appending variables → {out_file}")
+    try:
+        ds = xr.open_dataset(out_file, decode_times=False)
+        ds.load()  # bring into memory so we can safely close file handle
+        ds.close()
+    except Exception as e:
+        sys.exit(f"❌ Failed to open existing output file for append: {e}")
+
+    # Merge/overwrite variables
+    for vname, da in outputs.items():
+        if vname in ds:
+            print(f"   Overwriting variable: {vname}")
+        else:
+            print(f"   Adding variable: {vname}")
+        ds[vname] = da
+
+    # Rewrite file with merged content
+    ds.to_netcdf(out_file, format="NETCDF4_CLASSIC")
+    appended = True
+    var_names = list(ds.data_vars)
+else:
+    ds_out = xr.Dataset(outputs)
+    ds_out.to_netcdf(out_file, format="NETCDF4_CLASSIC")
+    var_names = list(outputs.keys())
+
 write_time = time.time() - write_start
 total_time = time.time() - start_time
 
 print(f"⏱️  File writing took {write_time:.2f}s")
-print(f"✅ Wrote vertically remapped file → {out_file}")
-print(f"   Variables: {', '.join(outputs.keys())}")
+if appended:
+    print(f"✅ Appended variables to file → {out_file}")
+else:
+    print(f"✅ Wrote vertically remapped file → {out_file}")
+print(f"   Variables: {', '.join(var_names)}")
 # Print shape/levels of the first variable for reference
 first_var = next(iter(outputs))
 print(f"   Sample variable: {first_var}")
