@@ -5,37 +5,37 @@ from datetime import datetime, timedelta
 import xarray as xr
 import numpy as np
 import argparse
+import gsw
 
-# Usage (positional still supported):
-#   splice_clim.py YYYYMMDDHH [dir] [out.nc] [var]
-# Options:
-#   --layer-file PATH   # MOM6 layer file (thickness h)
-#   --yearly FILE       # Yearly climatology on MOM6 layers
-#   --depth-threshold M # Depth (m) for yearly replacement
-#   --salinity-var NAME # Salinity variable name (default: Salt)
-#   --refp PR           # Reference pressure (dbar) for theta
+
+# Usage:
+#   splice_clim.py --date YYYYMMDDHH [--dir DIR] [--out FILE]
+#                  --layer-file PATH [--yearly FILE]
+#                  [--depth-threshold M] [--refp PR]
+# Description:
+#   Interpolates monthly MOM6-layer climatologies for Temp and Salt,
+#   replaces deep layers with yearly climatology, and converts Temp to
+#   potential temperature using TEOS-10 (gsw).
 
 
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         description=(
-            "Time-interpolate monthly MOM6-layer climatologies, replace "
-            "deep layers with yearly climatology, and convert in-situ "
-            "temperature to potential temperature."
+            "Time-interpolate monthly MOM6-layer climatologies for Temp and "
+            "Salt, replace deep layers with yearly climatology, and convert "
+            "Temp (in-situ) to potential temperature."
         ),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    p.add_argument("date", help="Target datetime YYYYMMDDHH")
     p.add_argument(
-        "dir", nargs="?", default=".",
-        help="Directory with monthly files"
+        "--date", required=True, help="Target datetime YYYYMMDDHH"
     )
-    p.add_argument("out", nargs="?", default=None, help="Output file path")
     p.add_argument(
-        "var", nargs="?", default="Temp",
-        help="Variable to process (e.g., Temp)"
+        "--dir", default=".", help="Directory with monthly files"
     )
-
+    p.add_argument(
+        "--out", default=None, help="Output file path"
+    )
     p.add_argument(
         "--layer-file", dest="layer_file", required=True,
         help="MOM6 layer thickness file (contains variable 'h')"
@@ -47,10 +47,6 @@ def parse_args(argv=None):
     p.add_argument(
         "--depth-threshold", type=float, default=1400.0,
         help="Depth threshold (m) for yearly replacement"
-    )
-    p.add_argument(
-        "--salinity-var", default="Salt",
-        help="Salinity variable name for theta conversion"
     )
     p.add_argument(
         "--refp", type=float, default=0.0,
@@ -123,31 +119,21 @@ def time_weights(dt):
     return (y1, m1, y2, m2, f1, f2)
 
 
-def maybe_theta(T, S, depth_m, refp=0.0):
-    """Convert in-situ T to potential temperature (theta), if possible.
+def convert_to_potential(T, S, depth_m, refp=0.0):
+    """Convert in-situ T to potential temperature (theta) using gsw.
 
-    Inputs are xarray DataArrays; depth_m in meters (positive-down).
-    Returns a DataArray (theta) or None on failure.
+    Note: assumes provided salinity is close to Absolute Salinity (SA).
     """
+    p = depth_m.astype(np.float64).values  # approx: 1 dbar ≈ 1 m
+    Tv = T.astype(np.float64).values
+    Sv = S.astype(np.float64).values  # treating as SA for simplicity
     try:
-        import importlib
-        sw = importlib.import_module("seawater")  # provides ptmp(S, T, P, PR)
-    except Exception:
+        theta_v = gsw.pt_from_t(Sv, Tv, p, refp)
+    except Exception as e:
         print(
-            "⚠️  Optional package 'seawater' not available; skipping theta "
-            "conversion"
+            f"⚠️  Potential temperature conversion (gsw.pt_from_t) failed: {e}"
         )
         return None
-
-    P = depth_m.astype(np.float64).values
-    Tv = T.astype(np.float64).values
-    Sv = S.astype(np.float64).values
-    try:
-        theta_v = sw.ptmp(Sv, Tv, P, PR=refp)
-    except Exception as e:
-        print(f"⚠️  Potential temperature conversion failed: {e}")
-        return None
-
     theta = xr.DataArray(
         theta_v,
         dims=T.dims,
@@ -164,11 +150,9 @@ def main(argv=None):
     date_str = args.date
     base_dir = Path(args.dir)
     out_path = (
-        Path(args.out)
-        if args.out is not None
+        Path(args.out) if args.out is not None
         else Path(f"woa_on_mom6_layers_{date_str}.nc")
     )
-    var_name = args.var
 
     dt = datetime.strptime(date_str, "%Y%m%d%H")
 
@@ -181,60 +165,57 @@ def main(argv=None):
     ds1 = xr.open_dataset(p1)
     ds2 = xr.open_dataset(p2)
 
-    # Interpolate only the requested variable (default: Temp)
-    da = f1 * ds1[var_name] + f2 * ds2[var_name]
+    # Ensure variables exist
+    for v in ("Temp", "Salt"):
+        if v not in ds1 or v not in ds2:
+            raise RuntimeError(
+                f"Missing variable '{v}' in monthly files {p1} or {p2}"
+            )
+
+    # Interpolate variables
+    temp = f1 * ds1["Temp"] + f2 * ds2["Temp"]
+    salt = f1 * ds1["Salt"] + f2 * ds2["Salt"]
 
     # Depth centers from layer file (required)
     zc = compute_layer_centers(args.layer_file, layer_var="h")
 
-    # Replace below depth threshold with yearly climatology if available
+    # Replace below depth threshold with yearly climatology (mandatory)
     if args.yearly:
         yearly_path = Path(args.yearly)
     else:
         yearly_path = base_dir / "woa_on_mom6_layers.nc"
-    if yearly_path.exists():
-        dsY = xr.open_dataset(yearly_path)
-        if var_name in dsY:
-            mask_deep = zc >= args.depth_threshold
-            da_aligned, y_aligned = xr.align(da, dsY[var_name], join="exact")
-            da = xr.where(mask_deep, y_aligned, da_aligned)
-            print(
-                f"📎 Replaced depths ≥ {args.depth_threshold} m with yearly"
-            )
-        else:
-            print(
-                f"⚠️  Yearly file missing variable {var_name}; skipping "
-                "deep replacement"
-            )
-    else:
-        print(
-            f"⚠️  Yearly file not found: {yearly_path}; skipping deep "
-            "replacement"
+    if not yearly_path.exists():
+        raise RuntimeError(
+            f"Yearly file not found (required for deep replacement): "
+            f"{yearly_path}"
         )
 
-    # Convert Temp to potential temperature, if possible
-    converted_theta = False
-    if var_name.lower().startswith("temp"):
-        sal_name = args.salinity_var
-        if (sal_name in ds1) and (sal_name in ds2):
-            S = f1 * ds1[sal_name] + f2 * ds2[sal_name]
-            if 'dsY' in locals() and sal_name in dsY:
-                S = xr.where(zc >= args.depth_threshold, dsY[sal_name], S)
-            theta = maybe_theta(da, S, zc, refp=args.refp)
-            if theta is not None:
-                da = theta
-                converted_theta = True
-                print(
-                    "✅ Converted in-situ temperature to potential "
-                    "temperature (theta)"
-                )
-        else:
-            print(
-                f"⚠️  Salinity variable '{sal_name}' not found in monthly "
-                "files; skipping theta conversion"
-            )
+    dsY = xr.open_dataset(yearly_path)
+    missing_y = [v for v in ("Temp", "Salt") if v not in dsY]
+    if missing_y:
+        raise RuntimeError(
+            "Yearly file missing required variable(s): "
+            + ", ".join(missing_y)
+        )
 
-    out = xr.Dataset({var_name: da})
+    mask_deep = (zc >= args.depth_threshold).broadcast_like(temp)
+    tA, tY = xr.align(temp, dsY["Temp"], join="exact")
+    sA, sY = xr.align(salt, dsY["Salt"], join="exact")
+    temp = xr.where(mask_deep, tY, tA)
+    salt = xr.where(mask_deep, sY, sA)
+    print(
+        f"📎 Replaced depths ≥ {args.depth_threshold} m with yearly"
+    )
+
+    # Convert Temp (in-situ) to potential temperature using Salt
+    theta = convert_to_potential(temp, salt, zc, refp=args.refp)
+    if theta is not None:
+        temp = theta
+        converted_theta = True
+    else:
+        converted_theta = False
+
+    out = xr.Dataset({"Temp": temp, "Salt": salt})
     out = out.assign_coords(ds1.coords)
     out.attrs.update({
         "source": (
@@ -242,7 +223,7 @@ def main(argv=None):
             "(midpoint-anchored)"
         ),
         "t_interp": date_str,
-        "variable": var_name,
+        "variables": "Temp,Salt",
         "weights": (
             f"{f1:.6f} (M{m1:02d} mid) + {f2:.6f} (M{m2:02d} mid)"
         ),
