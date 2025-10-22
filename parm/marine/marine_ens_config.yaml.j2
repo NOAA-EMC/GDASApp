@@ -43,6 +43,17 @@ data_out:
     mkdir:
     - '{{ COMOUT_OCEAN_LETKF }}/diags'
 
+{% for mem in range(1, NMEM_ENS + 1) %}
+    {% set tmpl_dict = {'${ROTDIR}':ROTDIR,
+                       '${RUN}': GDUMP_ENS,
+                       '${YMD}': current_cycle | to_YMD,
+                       '${HH}': current_cycle | strftime('%H'),
+                       '${MEMDIR}':'mem' + '%03d' % mem} %}
+
+    - '{{ COM_OCEAN_LETKF_TMPL | replace_tmpl(tmpl_dict) }}'
+    - '{{ COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) }}'
+{% endfor %}
+
     copy_req:
 
     # save letkf analysis to comout
