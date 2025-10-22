@@ -13,6 +13,11 @@
     observed variables: [salinity]
     io pool:
       max pool size: 1
+{% if marine_letkf_app | default(false) %}
+    distribution:
+      name: Halo
+      halo size: {{ marine_letkf_dist_halo_size }}
+{% endif %}
   obs operator:
     name: VertInterp
     observation alias file: ./obsop_name_map.yaml
@@ -32,7 +37,7 @@
           - ObsError/salinity
           coefs:
           - 1000.0
-{% if letkf_app | default(false) %}
+{% if marine_letkf_app | default(false) %}
   obs localizations:
   - localization method: Rossby
     base value: 100.0e3
