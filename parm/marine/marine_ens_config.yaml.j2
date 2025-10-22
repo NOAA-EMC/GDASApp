@@ -64,8 +64,8 @@ data_out:
                        '${HH}': current_cycle | strftime('%H'),
                        '${MEMDIR}':'mem' + '%03d' % mem} %}
 
-    - ['{{ DATA }}/letkf_output/ocn.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_OCEAN_LETKF_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}analysis.nc']
-    - ['{{ DATA }}/letkf_output/ice.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}analysis.nc']
+    - ['{{ DATA }}/letkf_output/ocn.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_OCEAN_LETKF_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_analysis.a006.nc']
+    - ['{{ DATA }}/letkf_output/ice.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_analysis.a006.nc']
 {% endfor %}
 
     # Save LETKF background and analysis mean and variance, mean analysis increment
