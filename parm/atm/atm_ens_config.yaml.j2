@@ -83,5 +83,10 @@ data_out:
                          '${YMD}': current_cycle | to_YMD,
                          '${HH}': current_cycle | strftime('%H'),
                          '${MEMDIR}': memchar }) %}
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile1.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile2.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile3.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile4.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile5.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile6.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/']
 {% endfor %}
