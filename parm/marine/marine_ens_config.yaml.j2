@@ -17,17 +17,17 @@ data_in:
     mkdir:
     - '{{ DATA }}/INPUT'
     - '{{ DATA }}/anl_geom'
-    - "{{ DATA }}/letkf_output"
-    - "{{ DATA }}/obs"
-    - "{{ DATA }}/diags"
+    - '{{ DATA }}/letkf_output'
+    - '{{ DATA }}/obs'
+    - '{{ DATA }}/diags'
     - '{{ DATAens }}/ens'
 
     copy_req:
     # copy mom input template and det bkg
-    - ["{{ PARMgfs }}/gdas/marine/fms/input.nml", "{{ DATA }}/mom_input.nml.tmpl"]
-    - ["{{ PARMgfs }}/gdas/marine/fields_metadata.yaml", "{{ DATA }}/fields_metadata.yaml"]
-    - ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ GPREFIX_ENS }}inst.f009.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
-    - ["{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX_ENS }}inst.f009.nc", "{{ DATA }}/INPUT/cice.res.nc"]
+    - ['{{ PARMgfs }}/gdas/marine/fms/input.nml', '{{ DATA }}/mom_input.nml.tmpl']
+    - ['{{ PARMgfs }}/gdas/marine/fields_metadata.yaml', '{{ DATA }}/fields_metadata.yaml']
+    - ['{{ COMIN_OCEAN_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc', '{{ DATA }}/INPUT/MOM.res.nc']
+    - ['{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc', '{{ DATA }}/INPUT/cice.res.nc']
 
 {% filter indent(width=4) %}
 {% include 'marine_stage_fix_' ~ OCNRES ~ '.yaml.j2' %}
@@ -50,24 +50,24 @@ data_out:
     {% set tmpl_dict = {'${ROTDIR}':ROTDIR,
                        '${RUN}': GDUMP_ENS,
                        '${YMD}': current_cycle | to_YMD,
-                       '${HH}': current_cycle | strftime("%H"),
-                       '${MEMDIR}':"mem" + '%03d' % mem} %}
+                       '${HH}': current_cycle | strftime('%H'),
+                       '${MEMDIR}':'mem' + '%03d' % mem} %}
 
-    - ["{{ DATA }}/letkf_output/ocn.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}analysis.nc"]
-    - ["{{ DATA }}/letkf_output/ice.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_ICE_LETKF | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}analysis.nc"]
+    - ['{{ DATA }}/letkf_output/ocn.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_OCEAN_LETKF_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}analysis.nc']
+    - ['{{ DATA }}/letkf_output/ice.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}analysis.nc']
 {% endfor %}
 
     # Save LETKF background and analysis mean and variance, mean analysis increment
-    - ["{{ DATA }}/letkf_output/ocn.letkf.mean_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_prior.nc"]
-    - ["{{ DATA }}/letkf_output/ice.letkf.mean_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensmean_prior.nc"]
-    - ["{{ DATA }}/letkf_output/ocn.letkf.var_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensvar_prior.nc"]
-    - ["{{ DATA }}/letkf_output/ice.letkf.var_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensvar_prior.nc"]
-    - ["{{ DATA }}/letkf_output/ocn.letkf.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_post.nc"]
-    - ["{{ DATA }}/letkf_output/ice.letkf.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensmean_post.nc"]
-    - ["{{ DATA }}/letkf_output/ocn.letkf.var_post.an.{{ WINDOW_MIDDLE | to_isotime}}.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensvar_post.nc"]
-    - ["{{ DATA }}/letkf_output/ice.letkf.var_post.an.{{ WINDOW_MIDDLE | to_isotime}}.nc", "{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensvar_post.nc"]
-    - ["{{ DATA }}/letkf_output/ocn.letkf.inc.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_incr.nc"]
-    - ["{{ DATA }}/letkf_output/ice.letkf.inc.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc", "{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensmean_incr.nc"]
+    - ['{{ DATA }}/letkf_output/ocn.letkf.mean_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_prior.nc']
+    - ['{{ DATA }}/letkf_output/ice.letkf.mean_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensmean_prior.nc']
+    - ['{{ DATA }}/letkf_output/ocn.letkf.var_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensvar_prior.nc']
+    - ['{{ DATA }}/letkf_output/ice.letkf.var_prior.fc.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensvar_prior.nc']
+    - ['{{ DATA }}/letkf_output/ocn.letkf.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_post.nc']
+    - ['{{ DATA }}/letkf_output/ice.letkf.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensmean_post.nc']
+    - ['{{ DATA }}/letkf_output/ocn.letkf.var_post.an.{{ WINDOW_MIDDLE | to_isotime}}.nc', '{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensvar_post.nc']
+    - ['{{ DATA }}/letkf_output/ice.letkf.var_post.an.{{ WINDOW_MIDDLE | to_isotime}}.nc', '{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensvar_post.nc']
+    - ['{{ DATA }}/letkf_output/ocn.letkf.inc.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COMOUT_OCEAN_LETKF }}/{{ APREFIX_ENS }}ensmean_incr.nc']
+    - ['{{ DATA }}/letkf_output/ice.letkf.inc.ens.0.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COMOUT_ICE_LETKF }}/{{ APREFIX_ENS }}ensmean_incr.nc']
 
     - ['{{ DATA }}/letkf.yaml', '{{ COMOUT_CONF }}/soca_letkf.yaml']
 

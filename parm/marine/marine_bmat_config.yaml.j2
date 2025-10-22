@@ -78,26 +78,34 @@ data_out:
     - ['{{ DATAstaticb }}/hz_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}hz.nc']
     - ['{{ DATAstaticb }}/vt_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}vt.nc']
 
+    # diag B rename (do we really need this?)
+    - ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc']
+    - ['{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.nc']
+{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
+    - ['{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc','{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.nc']
+    - ['{{ DATAstaticb }}/ice.bkgerr_ens_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc','{{ DATAstaticb }}/ice.bkgerr_ens_stddev.nc']
+{% endif %}
+
     # diag B
     - ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}bkgerr_parametric_stddev.nc']
     - ['{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}bkgerr_parametric_stddev.nc']
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
     - ['{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}bkgerr_ens_stddev.nc']
     - ['{{ DATAstaticb }}/ice.bkgerr_ens_stddev.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}bkgerr_ens_stddev.nc']
-    - ['{{ DATAstaticb }}/ocn.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}recentering_error.nc']
-    - ['{{ DATAstaticb }}/ice.ssh_recentering_error.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}recentering_error.nc']
+    - ['{{ DATAstaticb }}/ocn.ssh_recentering_error.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}recentering_error.nc']
+    - ['{{ DATAstaticb }}/ice.ssh_recentering_error.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}recentering_error.nc']
 {% endif %}
 
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
     # ensemble perturbation diagnostics
-    - ['{{ DATA }}/ocn.ens_weights.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ens_weights.nc']
-    - ['{{ DATA }}/ice.ens_weights.incr.{{ MARINE_WINDOW_MIDDLE_ISO }}.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}ens_weights.nc']
+    - ['{{ DATA }}/ocn.ens_weights.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ens_weights.nc']
+    - ['{{ DATA }}/ice.ens_weights.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}ens_weights.nc']
 
     # ssh diagnostics
-    - ['{{ DATA }}/staticb/ocn.ssh_steric_stddev.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ssh_steric_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.ssh_unbal_stddev.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ssh_unbal_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.ssh_total_stddev.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ssh_total_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.steric_explained_variance.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}steric_explained_variance.nc']
+    - ['{{ DATA }}/staticb/ocn.ssh_steric_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ssh_steric_stddev.nc']
+    - ['{{ DATA }}/staticb/ocn.ssh_unbal_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ssh_unbal_stddev.nc']
+    - ['{{ DATA }}/staticb/ocn.ssh_total_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}ssh_total_stddev.nc']
+    - ['{{ DATA }}/staticb/ocn.steric_explained_variance.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}steric_explained_variance.nc']
 {% endif %}
 
     # yaml files

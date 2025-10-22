@@ -70,8 +70,9 @@ data_out:
                           '${YMD}': current_cycle | to_YMD,
                           '${HH}': current_cycle | strftime('%H'),
                           '${MEMDIR}': 'mem%03d' | format(imem) }) %}
+
     # ocean increments are saved as 0..n-1
-    - ['{{ DATA }}/ocn.recenter.ens.{{ imem-1 | string}}.{{ MARINE_WINDOW_END_ISO }}.PT0S.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}mom6_increment.i006.nc']
+    - ['{{ DATA }}/ocn.recenter.ens.{{ (imem-1) | string }}.{{ WINDOW_END | to_isotime }}.PT0S.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}mom6_increment.i006.nc']
 
     # ice restarts are saved as 1..n
     - ['{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.analysis.cice_model.res.nc']
@@ -82,5 +83,5 @@ data_out:
                       '${YMD}': current_cycle | to_YMD,
                       '${HH}': current_cycle | strftime('%H'),
                       '${MEMDIR}': 'ensstat' }) %}
-    - ['{{ DATA }}/ocn.ensvar.incr.{{ MARINE_WINDOW_END_ISO }}.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}bg_ensvar.nc']
-    - ['{{ DATA }}/ice.ensvar.incr.{{ MARINE_WINDOW_END_ISO }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}bg_ensvar.nc']
+    - ['{{ DATA }}/ocn.ensvar.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}bg_ensvar.nc']
+    - ['{{ DATA }}/ice.ensvar.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}bg_ensvar.nc']
