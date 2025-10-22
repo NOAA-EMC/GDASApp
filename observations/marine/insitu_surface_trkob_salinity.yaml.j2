@@ -11,6 +11,11 @@
         obsfile: "{{marine_obsdataout_path}}/{{marine_obsdataout_prefix}}{{observation_from_jcb}}{{marine_obsdataout_suffix}}"
     simulated variables: [seaSurfaceSalinity]
     observed variables: [seaSurfaceSalinity]
+{% if marine_letkf_app | default(false) %}
+    distribution:
+      name: Halo
+      halo size: {{ marine_letkf_dist_halo_size }}
+{% endif %}
   get values:
     time interpolation: linear
   obs operator:
@@ -29,7 +34,7 @@
           - ObsError/seaSurfaceSalinity
           coefs:
           - 1000.0
-{% if letkf_app | default(false) %}
+{% if marine_letkf_app | default(false) %}
   obs localizations:
   - localization method: Rossby
     base value: 100.0e3
