@@ -1,0 +1,105 @@
+jedi_config:
+    var:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas.x'
+        mpi_cmd: '{{ APRUN_MARINEANLVAR }}'
+        jedi_args: ['soca', 'variational']
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_algo_yaml: '{{ PARMgfs }}/gdas/marine/jcb-prototype_3dfgat.yaml.j2'
+    soca_incpostproc:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_soca_incr_handler.x'
+        mpi_cmd: '{{ APRUN_MARINEANLCHKPT }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_algo: soca_incpostproc
+    soca_diag_stats:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_soca_obsstats.x'
+        mpi_cmd: '{{ APRUN_MARINEANLOBSSTATS }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_algo: soca_diag_stats
+
+data_in:
+    mkdir:
+    - '{{ DATA }}/bkg'
+    - '{{ DATA }}/INPUT'
+    - '{{ DATA }}/anl_geom'
+    - '{{ DATA }}/Data'
+    - '{{ DATA }}/obs'
+    - '{{ DATA }}/diags'
+
+    copy_req:
+    # stage soca grid
+    - ["{{ COMIN_OCEAN_BMATRIX }}/soca_gridspec.nc", "{{ DATA }}"]
+
+    # stage ensemble weights
+{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
+    - ["{{ COMIN_OCEAN_BMATRIX }}/{{ APREFIX }}ens_weights.nc", "{{ DATA }}/ocean.ens_weights.nc"]
+    - ["{{ COMIN_ICE_BMATRIX }}/{{ APREFIX }}ens_weights.nc", "{{ DATA }}/ice.ens_weights.nc"]
+{% endif %}
+
+    # stage CICE6 restart
+    - ["{{ COMIN_ICE_RESTART_PREV }}/{{ rst_date }}.cice_model.res.nc", "{{ DATA }}/Data"]  
+
+{% filter indent(width=4) %}
+{% include 'marine_det_stage_bkg.yaml.j2' %}
+{% include 'marine_stage_fix_' ~ OCNRES ~ '.yaml.j2' %}
+{% include 'marine_stage_utilities.yaml.j2' %}
+{% endfilter %}
+
+    copy_opt:
+{% for ob_name in observations %}
+    - ['{{ COMIN_OBS }}/{{ OPREFIX }}{{ ob_name }}.nc', '{{ DATA }}/obs']
+{% endfor %}
+
+    link:
+    - [ "{{ DATA }}/../staticb", "{{ DATA }}/staticb" ]
+
+data_out:
+    mkdir:
+    - '{{ COMOUT_OCEAN_ANALYSIS }}/diags'
+    - '{{ COMOUT_OCEAN_ANALYSIS }}/bump'
+
+    copy:
+    # Ocean IAU increment (intended for MOM6)
+    - ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}mom6_increment.i006.nc']
+
+    # Ocean increment and analysis from JEDI
+    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
+    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
+
+    # SeaIce increment and analysis from JEDI
+    - ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
+    - ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
+
+    # Postprocessed ice increment
+    - ['{{ DATA }}/ice.inc.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}pp_increment.i006.nc']
+
+    # ssh diagnostics
+    {% if NMEM_ENS > 2 %}
+    - ['{{ DATA }}/staticb/ocn.ssh_steric_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_steric_stddev.nc']
+    - ['{{ DATA }}/staticb/ocn.ssh_unbal_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_unbal_stddev.nc']
+    - ['{{ DATA }}/staticb/ocn.ssh_total_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_total_stddev.nc']
+    - ['{{ DATA }}/staticb/ocn.steric_explained_variance.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}steric_explained_variance.nc']
+    {% endif %}
+
+    # DA grid (computed for the start of the window)
+    - ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_gridspec.tm03.nc']
+
+    # CICE analysis restart
+    - ['{{ DATA }}/Data/{{ cice_rst_date }}.cice_model.res.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ cice_rst_date }}.analysis.cice_model.res.nc']
+
+    # YAML files
+    - ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_CONF }}']
+    - ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_CONF }}/']
+    - ['{{ DATA }}/soca_incpostproc.yaml', '{{ COMOUT_CONF }}/']
+    - ['{{ DATA }}/var.yaml', '{{ COMOUT_CONF }}/']
+
+    copy_opt:
+    # Ocean background and recentering error files
+    - ['{{ DATA }}/ocn.bkgerr_stddev.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}bkgerr_stddev.nc']
+    - ['{{ DATA }}/static_ens/ocn.ssh_recentering_error.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}recentering_error.nc']
+
+    # Seaice background and recentering error files
+    - ['{{ DATA }}/ice.bkgerr_stddev.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}bkgerr_stddev.nc']
+    - ['{{ DATA }}/static_ens/ice.ssh_recentering_error.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}recentering_error.nc']

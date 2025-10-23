@@ -1,8 +1,0 @@
-copy_req:
-# diag B
-- ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.incr.{{ MARINE_WINDOW_END_ISO }}.nc', '{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc']
-- ['{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.incr.{{ MARINE_WINDOW_END_ISO }}.nc', '{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.nc']
-{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
-- ['{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc','{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.nc']
-- ['{{ DATAstaticb }}/ice.bkgerr_ens_stddev.incr.{{ MARINE_WINDOW_BEGIN_ISO }}.nc','{{ DATAstaticb }}/ice.bkgerr_ens_stddev.nc']
-{% endif %}
