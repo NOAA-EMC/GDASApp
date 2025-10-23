@@ -127,6 +127,9 @@ driver_save_prior_mean: false
 driver_save_posterior_mean_increment: false
 driver_save_posterior_ensemble_increments: true
 
+# Using LETKF app? (used in obs YAMLs)
+atm_letkf_app: {{ letkf_app | default(false) }}
+
 # Distribution type
 distribution_type: Halo
 

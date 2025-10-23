@@ -1,21 +1,10 @@
 ######################################
-# set some variables
-######################################
-{% set ghead = "gdas.t" + previous_cycle | strftime("%H") + "z." %}
-######################################
-# create ens bkg directories
-######################################
-mkdir:
-- "{{ DATA }}/bkg"
-
-######################################
 # copy ensemble background files
 ######################################
-copy:
-# stage f003, f006 and f009 backgrounds
-- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ ghead }}inst.f003.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
-- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ ghead }}inst.f006.nc", "{{ DATA }}/bkg/ocean.bkg.f006.nc"]
-- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ ghead }}inst.f009.nc", "{{ DATA }}/bkg/ocean.bkg.f009.nc"]
-- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ ghead }}inst.f003.nc", "{{ DATA }}/INPUT/cice.res.nc"]
-- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ ghead }}inst.f006.nc", "{{ DATA }}/bkg/ice.bkg.f006.nc"]
-- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ ghead }}inst.f009.nc", "{{ DATA }}/bkg/ice.bkg.f009.nc"]
+
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ GPREFIX }}inst.f003.nc", "{{ DATA }}/INPUT/MOM.res.nc"]
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ GPREFIX }}inst.f006.nc", "{{ DATA }}/bkg/ocean.bkg.f006.nc"]
+- ["{{ COMIN_OCEAN_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc", "{{ DATA }}/bkg/ocean.bkg.f009.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX }}inst.f003.nc", "{{ DATA }}/INPUT/cice.res.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX }}inst.f006.nc", "{{ DATA }}/bkg/ice.bkg.f006.nc"]
+- ["{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc", "{{ DATA }}/bkg/ice.bkg.f009.nc"]
