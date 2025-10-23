@@ -5,7 +5,7 @@ jedi_config:
         mpi_cmd: '{{ APRUN_MARINEANLVAR }}'
         jedi_args: ['soca', 'variational']
         jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
-        jcb_algo_yaml: '${PARMgfs}/gdas/marine/marine-jcb-3dfgat.yaml.j2'
+        jcb_algo_yaml: '{{ PARMgfs }}/gdas/marine/jcb-prototype_3dfgat.yaml.j2'
     soca_incpostproc:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas_soca_incr_handler.x'
