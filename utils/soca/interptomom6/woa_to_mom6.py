@@ -37,12 +37,12 @@ def run(cmd, env=None):
 DEFAULTS = {
     "input_file": "woa18_decav_t00_01.nc",
     "output_file": "WOA18_on_MOM6.nc",
-    "nlon": 720,
-    "nlat": 360,
+    "dlon": 0.5,
+    "dlat": 0.5,
     "xbnds": [-180.0, 180.0],
     "ybnds": [-90.0, 90.0],
-    "grid_name": "woa100_grid",
-    "mosaic_name": "woa100_mosaic",
+    "grid_name": "woa_grid",
+    "mosaic_name": "woa_mosaic",
     "output_mosaic": "./dst/ocean_mosaic.nc",
     # Remapping weights file (set empty to auto-name from input file)
     "remap_file": "",
@@ -255,13 +255,19 @@ def main(config=None):
     xb = cfg.get("xbnds")
     yb = cfg.get("ybnds")
 
+    dx = cfg.get("dlon")
+    dy = cfg.get("dlat")
+
+    dlon_str = f"{dx},{dx}"
+    dlat_str = f"{dy},{dy}"
+
     # Show configuration
     print("🌊 WOA to MOM6 Grid Interpolation (Python)")
     print("=========================================")
     t0 = time.time()
     print(f"Input file:       {cfg.get('input_file')}")
     print(f"Output file:      {cfg.get('output_file')}")
-    print(f"Grid resolution:  {cfg.get('nlon')}×{cfg.get('nlat')}")
+    print(f"Grid spacing:     {cfg.get('dlon')}×{cfg.get('dlat')}")
     print(f"Longitude bounds: {xb[0]} {xb[1]}")
     print(f"Latitude bounds:  {yb[0]} {yb[1]}")
     print(f"Grid name:        {cfg.get('grid_name')}")
@@ -285,8 +291,8 @@ def main(config=None):
     rc, grid_sec = run([
         "make_hgrid",
         "--grid_type", "regular_lonlat_grid",
-        "--nlon", str(cfg.get("nlon")),
-        "--nlat", str(cfg.get("nlat")),
+        "--dlon", dlon_str,
+        "--dlat", dlat_str,
         "--nxbnds", "2",
         "--nybnds", "2",
         "--xbnds", f"{xb[0]},{xb[1]}",
@@ -303,7 +309,7 @@ def main(config=None):
         "--dir", ".",
         "--tile_file", f"{cfg.get('grid_name')}.nc",
         "--mosaic_name", cfg.get("mosaic_name"),
-        "--periodx", "1",
+        "--periodx", "360",
     ])
     print(f"⏱️  Mosaic creation took {mosaic_sec}s")
 

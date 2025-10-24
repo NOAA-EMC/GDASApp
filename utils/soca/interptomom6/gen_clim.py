@@ -20,6 +20,8 @@ CONFIG = {
     # Grid
     "nlon": 2880,
     "nlat": 1440,
+    "dlon": 0.25,
+    "dlat": 0.25,
     "xbnds": [-180.0, 180.0],
     "ybnds": [-90.0, 90.0],
 
@@ -27,7 +29,7 @@ CONFIG = {
     "scalar_field": ["t_an", "t_sdo"],
 
     # Vertical interpolation
-    "layer_file": "/home/gvernier/runs/std-dev/gdas.t00z.ocn.ana.nc",
+    "layer_file": "/home/gvernier/runs/std-dev/2025083118/gdas.ocean.t18z.inst.f009.nc",
     "vertical": True,
 
     # Outputs
