@@ -8,6 +8,9 @@ aero:
   - name: viirs_n20
     input file: "diag_viirs_n20_aod_{{ current_cycle | to_YMDH }}.nc"
     output file: "viirs_n20_{{ current_cycle | to_YMDH }}_output_aod.nc"
+  - name: viirs_n21
+    input file: "diag_viirs_n21_aod_{{ current_cycle | to_YMDH }}.nc"
+    output file: "viirs_n21_{{ current_cycle | to_YMDH }}_output_aod.nc"
 
 atmos_gsi:
   stat_file_path: '{{ DATA }}/atmos_gsi_ioda'
@@ -16,6 +19,15 @@ atmos_gsi:
   - name: gsi_sfc_ps
     input file: "sfc_ps_gsi_{{ current_cycle | to_YMDH }}.nc4"
     output file: "sfc_ps_{{ current_cycle | to_YMDH }}_output_atmos_gsi.nc"
+  - name: gsi_atms_n20
+    input file: "atms_n20_gsi_{{ current_cycle | to_YMDH }}.nc4"
+    output file: "atms_n20_{{ current_cycle | to_YMDH }}_output_atmos_gsi.nc"
+  - name: gsi_sondes_tv
+    input file: "sondes_tv_gsi_{{ current_cycle | to_YMDH }}.nc4"
+    output file: "sondes_tv_{{ current_cycle | to_YMDH }}_output_atmos_gsi.nc"
+  - name: gsi_aircraft_tsen
+    input file: "aircraft_tsen_gsi_{{ current_cycle | to_YMDH }}.nc4"
+    output file: "aircraft_tsen_{{ current_cycle | to_YMDH }}_output_atmos_gsi.nc"
 
 atmos:
   stat_file_path: '{{ COMIN_ATMOS_ANALYSIS }}'
