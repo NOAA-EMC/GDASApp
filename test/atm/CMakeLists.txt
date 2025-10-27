@@ -20,4 +20,12 @@ if (BUILD_GDASBUNDLE)
     add_subdirectory(global-workflow)
   endif()
 
+  # check if we can run regression tests on this machine
+  if (REGRESSION_TESTS)
+    # add a test for 3DVar
+    add_test(NAME test_gdasapp_regression_atm_3dvar
+             COMMAND ${PROJECT_SOURCE_DIR}/test/atm/regression_test_3dvar.sh ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}
+             WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/)
+  endif()
+
 endif(BUILD_GDASBUNDLE)

@@ -125,6 +125,20 @@ if (${BUILD_GDASBUNDLE})
   if (WORKFLOW_TESTS)
     add_subdirectory(gw-ci)   # subset of the global-workflow ci tests
   endif()
+  # depending on what machine we are on, we need to set up regression tests
+  # if an input data directory is on disk
+  set (REGRESSION_TESTS OFF)
+  if (DEFINED ENV{GDASAPP_REGRESSION_TEST_DATA_PATH})
+    set(GDASAPP_REGRESSION_TEST_DATA_PATH "$ENV{GDASAPP_REGRESSION_TEST_DATA_PATH}")
+    if (EXISTS ${GDASAPP_REGRESSION_TEST_DATA_PATH})
+      message(STATUS "GDASApp regression test data path found: ${GDASAPP_REGRESSION_TEST_DATA_PATH}")
+      set (REGRESSION_TESTS ON)
+    else()
+      message(STATUS "GDASApp regression test data path NOT found: ${GDASAPP_REGRESSION_TEST_DATA_PATH}")
+    endif()
+  else()
+    message(STATUS "GDASApp regression test data path NOT defined")
+  endif()
 endif()
 
 # gdas atm tests
