@@ -190,7 +190,7 @@ algorithm: 3dvar
 
 # Observation things
 # ------------------
-observations: all_observations
+observations: [prepbufr_adpsfc, scatwnd_ascat_metop-c, satwnd_amv_abi_goes-18]
 
 crtm_coefficient_path: "$rundir/crtm/"
 
