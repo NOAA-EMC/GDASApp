@@ -8,6 +8,7 @@
       engine:
         type: H5File
         obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
+        missing file action: warn
       obsgrouping:
         group variables: [stationIdentification]
         sort variable: pressure
