@@ -192,7 +192,12 @@ algorithm: 3dvar
 
 # Observation things
 # ------------------
-observations: [prepbufr_adpsfc, atms_n20]
+observations:
+ - prepbufr_adpsfc
+ - atms_n20
+ - atms_n21
+ - atms_npp
+#observations: all_observations
 
 crtm_coefficient_path: "$rundir/crtm/"
 
@@ -250,7 +255,7 @@ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${dir_root}/install/lib"
 
 # Create yaml with job configuration
 # TODO make below machine specific
-memory="96Gb"
+memory="350Gb"
 nodes=$(( (nprocs / 36 ) ))
 APRUN="srun -n ${nprocs} --cpu-bind=cores"
 
