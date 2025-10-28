@@ -29,13 +29,13 @@ data_in:
     mkdir:
     - '{{ DATA }}/fv3jedi'
     copy:
-    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}atmf006.nc', '{{ DATA }}']
-    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}sfcf006.nc', '{{ DATA }}']
-    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}cubed_sphere_grid_atmf006.nc', '{{ DATA }}']
-    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}cubed_sphere_grid_sfcf006.nc', '{{ DATA }}']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}atm.f006.nc', '{{ DATA }}/{{ GPREFIX }}atmf006.nc']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}sfc.f006.nc', '{{ DATA }}/{{ GPREFIX }}sfcf006.nc']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/{{ GPREFIX }}cubed_sphere_grid_atmf006.nc']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/{{ GPREFIX }}cubed_sphere_grid_sfcf006.nc']
 
 {% for itile in range(6) %}
-    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}cubed_sphere_grid_atminc.tile{{ itile+1 }}.nc', '{{ DATA }}']
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.tile{{ itile+1 }}.atm.i006.nc', '{{ DATA }}']
     {% if DO_AERO_ANL %}
     - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile{{ itile+1 }}.nc', '{{ DATA }}']
     {% endif %}
@@ -50,8 +50,8 @@ data_in:
 
 data_out:
     copy:
-    - ['{{ DATA }}/{{ GPREFIX }}atmf006.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}atmanl.nc']
-    - ['{{ DATA }}/{{ GPREFIX }}sfcf006.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}sfcanl.nc']
+    - ['{{ DATA }}/{{ GPREFIX }}atmf006.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_analysis.atm.a006.nc']
+    - ['{{ DATA }}/{{ GPREFIX }}sfcf006.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_analysis.sfc.a006.nc']
     - ['{{ DATA }}/atm_addincrement.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}atm_addincrement.yaml']
 {% if DO_AERO_ANL %}
     - ['{{ DATA }}/aero_addincrement.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}aero_addincrement.yaml']
