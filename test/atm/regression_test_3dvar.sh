@@ -84,7 +84,9 @@ cd $rundir || exit 1
 [ -d $rundir/crtm ] && rm -rf $rundir/crtm
 ln -sf $CRTM_FIX $rundir/crtm
 
-# TODO copy BC files
+# Copy BC files
+mkdir -p $rundir/bc
+cp -rf $GDASAPP_REGRESSION_TEST_DATA_PATH/varbc/gdas.${gPDY}/${gcyc}/atmos/* $rundir/bc/.
 
 # Copy FV3-JEDI files
 mkdir -p $rundir/fv3jedi
@@ -174,7 +176,7 @@ atmosphere_layout_gsib_x: $layout_gsib_x
 atmosphere_layout_gsib_y: $layout_gsib_y
 
 # Forecasting
-atmosphere_forecast_timestep: "{{ BKG_TSTEP }}"
+atmosphere_forecast_timestep: "PT6H"
 
 # Write final increment on Guassian grid in variational
 atmosphere_final_increment_prefix: "./anl/atminc."
@@ -190,37 +192,37 @@ algorithm: 3dvar
 
 # Observation things
 # ------------------
-observations: [prepbufr_adpsfc]
+observations: [prepbufr_adpsfc, atms_n20]
 
 crtm_coefficient_path: "$rundir/crtm/"
 
 # Naming conventions for observational files
-atmosphere_obsdatain_path: "$rundir"
+atmosphere_obsdatain_path: "$rundir/obs"
 atmosphere_obsdatain_prefix: "$OPREFIX"
 atmosphere_obsdatain_suffix: ".nc"
 
-atmosphere_obsdataout_path: "$rundir"
+atmosphere_obsdataout_path: "$rundir/anl"
 atmosphere_obsdataout_prefix: diag_
 atmosphere_obsdataout_suffix: "_${cycle}.nc"
 
 # Naming conventions for bias correction files
-atmosphere_obsbiasin_acft_path: "$rundir"
+atmosphere_obsbiasin_acft_path: "$rundir/bc"
 atmosphere_obsbiasin_acft_prefix: "$GPREFIX"
 atmosphere_obsbiasin_acft_suffix: ".satbias.nc"
-atmosphere_obsbiasin_path: "$rundir"
+atmosphere_obsbiasin_path: "$rundir/bc"
 atmosphere_obsbiasin_prefix: "$GPREFIX"
 atmosphere_obsbiasin_suffix: ".satbias.nc"
 atmosphere_obstlapsein_prefix: "$GPREFIX"
 atmosphere_obstlapsein_suffix: ".tlapse.txt"
 atmosphere_obsbiascovin_prefix: "$GPREFIX"
-atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
+atmosphere_obsbiascovin_suffix: ".satbias.nc"
 atmosphere_obsbiascovin_acft_prefix: "$GPREFIX"
-atmosphere_obsbiascovin_acft_suffix: ".satbias_cov.nc"
+atmosphere_obsbiascovin_acft_suffix: ".satbias.nc"
 
-atmosphere_obsbiasout_path: "$rundir"
+atmosphere_obsbiasout_path: "$rundir/bc"
 atmosphere_obsbiasout_prefix: "$APREFIX"
 atmosphere_obsbiasout_suffix: ".satbias.nc"
-atmosphere_obsbiasout_acft_path: "$rundir"
+atmosphere_obsbiasout_acft_path: "$rundir/bc"
 atmosphere_obsbiasout_acft_prefix: "$APREFIX"
 atmosphere_obsbiasout_acft_suffix: ".satbias.nc"
 atmosphere_obsbiascovout_prefix: "$APREFIX"
@@ -260,7 +262,7 @@ cat <<EOF > ${config_yaml}
 machine: ${MACHINE_ID}
 homegdas: ${dir_root}
 job_name: gdasapp_regtest_atm_3dvar_submit
-walltime: "00:30:00"
+walltime: "00:10:00"
 nodes: ${nodes}
 ntasks_per_node: 36
 threads_per_task: 1
