@@ -46,14 +46,14 @@
     action:
       name: inflate error
       inflation factor: 2.0
-#{% if marine_letkf_app | default(false) %}
-#  - filter: Gaussian Thinning
-#    horizontal_mesh: 25  #km
-#    use_reduced_horizontal_grid: true
-#    select_median: true
-#    action:
-#      name: reduce obs space
-#{% endif %}
+{% if marine_letkf_app | default(false) %}
+  - filter: Gaussian Thinning
+    horizontal_mesh: 25  #km
+    use_reduced_horizontal_grid: true
+    select_median: true
+    action:
+      name: reduce obs space
+{% endif %}
 {% if marine_letkf_app | default(false) %}
   obs localizations:
   - localization method: Rossby
