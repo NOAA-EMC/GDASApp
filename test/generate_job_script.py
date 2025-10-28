@@ -86,7 +86,7 @@ cd $SLURM_SUBMIT_DIR
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python generate_job_script.py config.yaml")
+        print("Usage: python3 generate_job_script.py config.yaml")
         sys.exit(1)
 
     job_config_file = sys.argv[1]
