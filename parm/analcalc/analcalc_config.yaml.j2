@@ -34,15 +34,30 @@ data_in:
     - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/{{ GPREFIX }}cubed_sphere_grid_atmf006.nc']
     - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/{{ GPREFIX }}cubed_sphere_grid_sfcf006.nc']
 
-{% for itile in range(6) %}
-    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.tile{{ itile+1 }}.atm.i006.nc', '{{ DATA }}']
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile1.nc', '{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atminc.tile1.nc']
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile2.nc', '{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atminc.tile2.nc']
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile3.nc', '{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atminc.tile3.nc']
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile4.nc', '{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atminc.tile4.nc']
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile5.nc', '{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atminc.tile5.nc']
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile6.nc', '{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atminc.tile6.nc']
+
     {% if DO_AERO_ANL %}
-    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile{{ itile+1 }}.nc', '{{ DATA }}']
+    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile1.nc', '{{ DATA }}']
+    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile2.nc', '{{ DATA }}']
+    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile3.nc', '{{ DATA }}']
+    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile4.nc', '{{ DATA }}']
+    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile5.nc', '{{ DATA }}']
+    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile6.nc', '{{ DATA }}']
     {% endif %}
+
     {% if DO_JEDISNOWDA %}
-    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile{{ itile+1 }}.nc', '{{ DATA }}']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}']
     {% endif %}
-{% endfor %}
 
 {% filter indent(width=4) %}
 {% include PARMgfs ~ '/gdas/' ~ '/atm/' ~ 'atm_stage_jedi_fix.yaml.j2' %}
