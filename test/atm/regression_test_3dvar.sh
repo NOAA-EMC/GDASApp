@@ -278,7 +278,7 @@ EOF
 
 # Create script to execute j-job. Set job scheduler
 ${dir_root}/test/generate_job_script.py ${config_yaml}
-SCHEDULER=$(echo `grep SCHEDULER ${dir_root}/test/workflow/hosts/${MACHINE_ID}.yaml | cut -d":" -f2` | tr -d ' ')
+SCHEDULER=$(echo $(grep SCHEDULER ${dir_root}/test/workflow/hosts/${MACHINE_ID}.yaml | cut -d":" -f2) | tr -d ' ')
 
 # Submit script to execute j-job
 if [[ $SCHEDULER = 'slurm' ]]; then
