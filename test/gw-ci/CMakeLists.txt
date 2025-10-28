@@ -454,7 +454,7 @@ if (WORKFLOW_TESTS)
       "gdas_prepoceanobs"
       "gdas_marinebmatinit"
       "gdas_marinebmat"
-      #      "enkfgdas_marineanlletkf"
+      "enkfgdas_marineanlletkf"
       "gdas_marineanlinit"
       "gdas_marineanlvar"
       "enkfgdas_marineanlecen"
