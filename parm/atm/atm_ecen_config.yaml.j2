@@ -23,7 +23,7 @@ data_in:
 {% for fh in IAUFHRS %}
     - ["{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f{{ '%03d' % fh }}.nc", "{{ DATA }}/{{ GPREFIX }}cubed_sphere_grid_atmf{{ '%03d' % fh }}.nc"]
     - ["{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f{{ '%03d' % fh }}.nc", "{{ DATA }}/{{ GPREFIX }}cubed_sphere_grid_sfcf{{ '%03d' % fh }}.nc"]
-    - ["{{ COMIN_ATMOS_ANALYSIS_ENSSTAT }}/{{ APREFIX_ENS }}ensmean_jedi_analysis.atm.a{{ '%03d' % fh }}.nc", "{{ DATA }}/{{ APREFIX_ENS }}cubed_sphere_grid_atma{{ '%03d' % fh }}.ensmean.nc"]
+    - ["{{ COMIN_ATMOS_ANALYSIS_ENSSTAT }}/{{ APREFIX_ENS }}csg_ensmean_jedi_analysis.atm.a{{ '%03d' % fh }}.nc", "{{ DATA }}/{{ APREFIX_ENS }}cubed_sphere_grid_atma{{ '%03d' % fh }}.ensmean.nc"]
     - ["{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i{{ '%03d' % fh }}.tile1.nc", "{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atmi{{ '%03d' % fh }}.tile1.nc"]
     - ["{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i{{ '%03d' % fh }}.tile2.nc", "{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atmi{{ '%03d' % fh }}.tile2.nc"]
     - ["{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i{{ '%03d' % fh }}.tile3.nc", "{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atmi{{ '%03d' % fh }}.tile3.nc"]
