@@ -53,17 +53,33 @@ data_in:
     # copy coupler file
     - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
     # we need to copy them to two places, one serves as the basis for the analysis
-    {% for tile in range(1, ntiles+1) %}
-    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile{{ tile }}.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile{{ tile }}.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-    {% endfor %}
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
     {% if DOIAU %}
         # if using IAU, also need backgrounds copied at the beginning of the window
         # we need to copy them to two places, one serves as the basis for the analysis
-        {% for tile in range(1, ntiles+1) %}
-    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile{{ tile }}.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile{{ tile }}.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-        {% endfor %}
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
     {% endif %}
 {% endfor %}
 
@@ -136,10 +152,18 @@ data_out:
 {% endif %}
 
     # Increments
-{% for tile in range(1, ntiles+1) %}
-    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile{{ tile }}.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile{{ tile }}.nc']
-{$ endfor %}
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile1.nc']
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile2.nc']
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile3.nc']
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile4.nc']
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile5.nc']
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile6.nc']
 
 {% if DOIAU %}
     {% set bkgtimes = [ current_cycle, WINDOW_BEGIN ] %}
@@ -155,9 +179,17 @@ data_out:
                               '${HH}': current_cycle | strftime('%H'),
                               '${MEMDIR}': memchar }) %}
     # Analysis
-        {% for tile in range(1, ntiles+1) %}
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile{{ tile }}.nc',
-       '{{ COM_SNOW_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile{{ tile }}.nc']
-        {$ endfor %}
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COM_SNOW_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile1.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COM_SNOW_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile2.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COM_SNOW_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile3.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COM_SNOW_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile4.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COM_SNOW_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile5.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COM_SNOW_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile6.nc']
     {% endfor %}
 {% endfor %}
