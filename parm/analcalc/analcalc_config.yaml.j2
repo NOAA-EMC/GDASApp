@@ -49,12 +49,18 @@ data_in:
     - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile6.nc', '{{ DATA }}']
     {% endif %}
     {% if DO_JEDISNOWDA %}
-    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile1.nc', '{{ DATA }}']
-    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile2.nc', '{{ DATA }}']
-    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile3.nc', '{{ DATA }}']
-    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile4.nc', '{{ DATA }}']
-    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile5.nc', '{{ DATA }}']
-    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile6.nc', '{{ DATA }}']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile1.nc',
+       '{{ DATA }}/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile2.nc',
+       '{{ DATA }}/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile3.nc',
+       '{{ DATA }}/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile4.nc',
+       '{{ DATA }}/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile5.nc',
+       '{{ DATA }}/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile6.nc',
+       '{{ DATA }}/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc']
     {% endif %}
 
 {% filter indent(width=4) %}
