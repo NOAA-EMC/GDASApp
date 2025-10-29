@@ -40,7 +40,7 @@ data_in:
     - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile{{ itile+1 }}.nc', '{{ DATA }}']
     {% endif %}
     {% if DO_JEDISNOWDA %}
-    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile{{ itile+1 }}.nc', '{{ DATA }}']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile{{ itile+1 }}.nc', '{{ DATA }}']
     {% endif %}
 {% endfor %}
 
