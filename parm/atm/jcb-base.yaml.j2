@@ -26,7 +26,11 @@ bound_to_include: begin
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
-number_of_outer_loops: 1
+number_of_outer_loops: {{ NUMBER_OUTER_LOOPS | default(2, true) }}
+atmosphere_ninner_1: {{ NINNER_LOOP1 | default(2, true) }}
+atmosphere_grad_red_1: 1e-10
+atmosphere_ninner_2: {{ NIMMER_LOOP2 | default(4, true) }}
+atmosphere_grad_red_2: 1e-10
 analysis_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
 
 # Model things
@@ -37,6 +41,9 @@ atmosphere_layout_y: {{ layout_y | default(1, true) }}
 atmosphere_npx_ges: {{ npx_ges | default(49, true) }}
 atmosphere_npy_ges: {{ npy_ges | default(49, true) }}
 atmosphere_npz_ges: {{ npz_ges | default(127, true) }}
+atmosphere_npx_his: {{ npx_his | default(49, true) }}
+atmosphere_npy_his: {{ npy_his | default(49, true) }}
+atmosphere_npz_his: {{ npz_his | default(127, true) }}
 atmosphere_npx_anl: {{ npx_anl | default(49, true) }}
 atmosphere_npy_anl: {{ npy_anl | default(49, true) }}
 atmosphere_npz_anl: {{ npz_anl | default(127, true) }}
@@ -65,6 +72,7 @@ atmosphere_final_increment_prefix: "./anl/atminc."
 
 atmosphere_variational_history_prefix: "{{GPREFIX}}"
 atmosphere_variational_analysis_prefix: "{{APREFIX}}"
+atmosphere_variational_increment_type: {{ ATMINC_GRID | default('cubed_grid_sphere', true) }}
 
 # IAU hours
 atmosphere_iau_hours: {{ IAUFHRS }}

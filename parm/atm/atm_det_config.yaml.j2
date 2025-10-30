@@ -64,14 +64,14 @@ data_out:
     copy:
     - ['{{ DATA }}/atmanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}atmanlvar.yaml']
     - ['{{ DATA }}/atmanlfv3inc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}atmanlfv3inc.yaml']
-{% if ATMINC_GRID == "gaussian" %}
+    {% if ATMINC_GRID == 'gaussian' %}
     - ['{{ DATA }}/anl/atminc.{{ current_cycle | to_YMD }}_{{ current_cycle | strftime('%H') }}0000z.nc4', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}atminc.nc']
     - ['{{ DATA }}/anl/cubed_sphere_grid_atminc.jedi.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}cubed_sphere_grid_atminc.nc']
-{% else %}
+    {% else %}
     - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile1.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
     - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile2.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
     - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile3.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
     - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile4.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
     - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile5.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
     - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile6.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
-{% endif %}
+    {% endif %}
