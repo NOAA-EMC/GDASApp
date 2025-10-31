@@ -82,7 +82,7 @@ data_in:
     - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}atm.f006.nc', '{{ DATA }}/upp/atm_{{ current_cycle | to_YMDH }}0000.nc']
     - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}sfc.f006.nc', '{{ DATA }}/upp/sfc_{{ current_cycle | to_YMDH }}0000.nc']
 ### copy atmos increment from COMIN_ATMOS_ANALYSIS
-    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}increment.atm.i006.nc", "{{ DATA }}/upp/{{ APREFIX }}increment.atm.i006.nc']
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}increment.atm.i006.nc', '{{ DATA }}/upp/{{ APREFIX }}increment.atm.i006.nc']
 
 {% filter indent(width=4) %}
 {% include 'aero_stage_crtm_coeff.yaml.j2' %}
