@@ -10,10 +10,10 @@
   variables: [totalSnowDepth]
   groups to process: ['ombg', 'oman']
   qc groups: ['EffectiveQC0', 'EffectiveQC1']
-  output file: "{{ obspace }}_{{ stat_current_cycle_YMDH }}_output_snow.nc"
+  output file: "{{ stat_current_cycle_YMDH }}.ioda_hofx_stats.{{ obspace }}.nc"
   regular grid binning:
     bin size in degrees: 1.0
-    use negative longitudes: true 
+    use negative longitudes: true
   domains to process:
   - domain:
       name: "SH"
