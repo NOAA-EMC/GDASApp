@@ -11,7 +11,7 @@ aero:
 
 atmos_gsi:
   stat_file_path: '{{ DATA }}/atmos_gsi_ioda'
-  stat_file_name: 'atmos_gsi_ioda_diags.tgz'
+  stat_file_name: 'atmos_gsi_ioda_diags.tar.gz'
   obs spaces:
   - name: gsi_sfc_ps
     input file: "sfc_ps_gsi_{{ current_cycle | to_YMDH }}.nc4"
