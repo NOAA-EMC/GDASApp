@@ -1,4 +1,4 @@
-export GDAS_CI_ROOT=/scratch3/NCEPDEV/da/Russ.Treadon/CI/GDASApp
+export GDAS_CI_ROOT=/scratch3/NCEPDEV/da/$USER/CI/GDASApp
 export GDAS_CI_HOST='hera'
 export GDAS_MODULE_USE=$GDAS_CI_ROOT/repo/modulefiles
 export SLURM_ACCOUNT=da-cpu
