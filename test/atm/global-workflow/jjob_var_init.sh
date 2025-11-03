@@ -87,7 +87,7 @@ for file in $flist; do
 done
 
 # Link atmospheric histories on native cubed-sphere grid
-flist=("cubed_sphere_grid_atmf006.nc" "cubed_sphere_grid_sfcf006.nc")
+flist=("csg_atm.f006.nc" "csg_sfc.f006.nc")
 for file in "${flist[@]}"; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${gprefix}.${file} $COMIN_ATMOS_HISTORY_PREV/${gprefix}.${file}
 done
@@ -108,7 +108,7 @@ for imem in $(seq 1 $NMEM_ENS); do
 
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
     target=$COMIN_ATMOS_HISTORY_PREV_ENS
-    flist=("cubed_sphere_grid_atmf006.nc" "cubed_sphere_grid_sfcf006.nc")
+    flist=("csg_atm.f006.nc" "csg_sfc.f006.nc")
     for file in "${flist[@]}"; do
         rm -rf $target/enkf${gprefix}.${file}
         ln -fs $source/enkf${gprefix}.${file} $target/
