@@ -43,6 +43,12 @@ snow:
   - name: snocvr
     input file: "diag_snocvr_{{ current_cycle | to_YMDH }}.nc"
     output file: "{{ current_cycle | to_YMDH }}.ioda_hofx_stats.snocvr.nc"
+  - name: snomad
+    input file: "diag_snomad_{{ current_cycle | to_YMDH }}.nc"
+    output file: "{{ current_cycle | to_YMDH }}.ioda_hofx_stats.snomad.nc"
+  - name: snocvr_snomad
+    input file: "diag_snocvr_snomad_{{ current_cycle | to_YMDH }}.nc"
+    output file: "{{ current_cycle | to_YMDH }}.ioda_hofx_stats.snocvr_snomad.nc"
   - name: madis_snow
     input file: "diag_madis_snow_{{ current_cycle | to_YMDH }}.nc"
     output file: "{{ current_cycle | to_YMDH }}.ioda_hofx_stats.madis_snow.nc"
