@@ -100,11 +100,11 @@ observations: all_observations
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
-aero_obsdataroot_path: "{{COMIN_OBS}}"
+aero_obsdataroot_path: "{{COMIN_OBS}}/chem"
 
 aero_obsdatain_path: "{{DATA}}/obs/"
 aero_obsdatain_prefix: "{{OPREFIX}}"
-aero_obsdatain_suffix: ".tm00.nc"
+aero_obsdatain_suffix: ".nc"
 
 aero_obsdataout_path: "{{DATA}}/diags/"
 aero_obsdataout_prefix: diag_
@@ -128,6 +128,6 @@ aero_obsbiascovout_prefix: "{{APREFIX}}"
 aero_obsbiascovout_suffix: ".satbias_cov.nc"
 
 bias_files:
-  viirs_npp_aod: aero_varbc_params.tar
-  viirs_n20_aod: aero_varbc_params.tar
-  viirs_n21_aod: aero_varbc_params.tar
+  retrieval_aod_viirs_npp: aero_varbc_params.tar
+  retrieval_aod_viirs_n20: aero_varbc_params.tar
+  retrieval_aod_viirs_n21: aero_varbc_params.tar
