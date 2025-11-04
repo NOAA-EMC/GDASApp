@@ -64,7 +64,7 @@ data_out:
     - ['{{ DATA }}/atmanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}anlvar.atm.yaml']
     - ['{{ DATA }}/atmanlfv3inc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}anlvar.fv3.atm.yaml']
     {% if ATMINC_GRID == 'gaussian' %}
-    - ['{{ DATA }}/anl/atminc.{{ current_cycle | to_YMD }}_{{ current_cycle | strftime('%H') }}0000z.nc4', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}atminc.nc']
+    - ['{{ DATA }}/anl/atminc.{{ current_cycle | to_YMD }}_{{ current_cycle | strftime('%H') }}0000z.nc4', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}increment.atm.i006.nc']
     - ['{{ DATA }}/anl/cubed_sphere_grid_atminc.jedi.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.nc']
     {% else %}
     - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile1.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile1.nc']
