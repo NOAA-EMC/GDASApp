@@ -34,11 +34,6 @@ data_in:
 {% include 'marine_ens_stage_bkg.yaml.j2' %}
 {% endfilter %}
 
-    copy_opt:
-{% for ob_name in observations %}
-    - ['{{ COMIN_OBS }}/{{ OPREFIX }}{{ ob_name }}.nc', '{{ DATA }}/obs']
-{% endfor %}
-
 data_out:
     mkdir:
     - '{{ COMOUT_OCEAN_LETKF }}/diags'

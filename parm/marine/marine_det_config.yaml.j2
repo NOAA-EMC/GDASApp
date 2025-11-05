@@ -39,18 +39,13 @@ data_in:
 {% endif %}
 
     # stage CICE6 restart
-    - ["{{ COMIN_ICE_RESTART_PREV }}/{{ rst_date }}.cice_model.res.nc", "{{ DATA }}/Data"]  
+    - ["{{ COMIN_ICE_RESTART_PREV }}/{{ rst_date }}.cice_model.res.nc", "{{ DATA }}/Data"]
 
 {% filter indent(width=4) %}
 {% include 'marine_det_stage_bkg.yaml.j2' %}
 {% include 'marine_stage_fix_' ~ OCNRES ~ '.yaml.j2' %}
 {% include 'marine_stage_utilities.yaml.j2' %}
 {% endfilter %}
-
-    copy_opt:
-{% for ob_name in observations %}
-    - ['{{ COMIN_OBS }}/{{ OPREFIX }}{{ ob_name }}.nc', '{{ DATA }}/obs']
-{% endfor %}
 
     link:
     - [ "{{ DATA }}/../staticb", "{{ DATA }}/staticb" ]
@@ -60,7 +55,7 @@ data_out:
     - '{{ COMOUT_OCEAN_ANALYSIS }}/diags'
     - '{{ COMOUT_OCEAN_ANALYSIS }}/bump'
 
-    copy:
+    copy_req:
     # Ocean IAU increment (intended for MOM6)
     - ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}mom6_increment.i006.nc']
 
