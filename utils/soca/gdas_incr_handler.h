@@ -111,6 +111,64 @@ namespace gdasapp {
           soca::State xa(xx);
           oops::Log::debug() << "========= analysis before sea ice postprocessing:" << std::endl;
           oops::Log::debug() << xa << std::endl;
+          // Optional snow depth adjustment
+          if (fullConfig.has("snow depth adjustment")) {
+            if (!xx.variables().has("sea_ice_snow_thickness")) {
+              throw eckit::BadValue("snow depth adjustment requested but "
+                                    "sea_ice_snow_thickness not in state", Here());
+            }
+            // read climatology for snow depth adjustment
+            eckit::LocalConfiguration sdConfig(fullConfig, "snow depth adjustment");
+            eckit::LocalConfiguration climConfig(sdConfig, "climatology");
+            soca::State snowdepth_clim(geom, climConfig);
+            // read the relaxation parameter
+            util::Duration tau(sdConfig.getString("relaxation time scale"));
+            util::Duration dt(sdConfig.getString("assimilation window length"));
+            double alpha = static_cast<double>(dt.toSeconds()) /
+                           static_cast<double>(tau.toSeconds());
+            // adjust snow depth in the analysis state
+            auto field_an   = xx.fieldSet()["sea_ice_snow_thickness"];
+            auto field_clim = snowdepth_clim.fieldSet()["sea_ice_snow_thickness"];
+            auto view_an = atlas::array::make_view<double, 2>(field_an);
+            auto view_clim = atlas::array::make_view<double, 2>(field_clim);
+            for (int jnode = 0; jnode < view_an.shape(0); ++jnode) {
+              for (int jlevel = 0; jlevel < view_an.shape(1); ++jlevel) {
+                view_an(jnode, jlevel) =
+                  (1.0 - alpha) * view_an(jnode, jlevel) + alpha * view_clim(jnode, jlevel);
+              }
+            }
+            oops::Log::debug() << "========= analysis after snow depth adjustment:" << std::endl;
+            oops::Log::debug() << xa << std::endl;
+          }
+          // Optional ice thickness adjustment
+          if (fullConfig.has("ice thickness adjustment")) {
+            if (!xx.variables().has("sea_ice_thickness")) {
+              throw eckit::BadValue("ice thickness adjustment requested but "
+                                    "sea_ice_thickness not in state", Here());
+            }
+            // read climatology for ice thickness adjustment
+            eckit::LocalConfiguration sdConfig(fullConfig, "ice thickness adjustment");
+            eckit::LocalConfiguration climConfig(sdConfig, "climatology");
+            soca::State ice_thickness_clim(geom, climConfig);
+            // read the relaxation parameter
+            util::Duration tau(sdConfig.getString("relaxation time scale"));
+            util::Duration dt(sdConfig.getString("assimilation window length"));
+            double alpha = static_cast<double>(dt.toSeconds()) /
+                           static_cast<double>(tau.toSeconds());
+            // adjust ice thickness in the analysis state
+            auto field_an   = xx.fieldSet()["sea_ice_thickness"];
+            auto field_clim = ice_thickness_clim.fieldSet()["sea_ice_thickness"];
+            auto view_an = atlas::array::make_view<double, 2>(field_an);
+            auto view_clim = atlas::array::make_view<double, 2>(field_clim);
+            for (int jnode = 0; jnode < view_an.shape(0); ++jnode) {
+              for (int jlevel = 0; jlevel < view_an.shape(1); ++jlevel) {
+                view_an(jnode, jlevel) =
+                  (1.0 - alpha) * view_an(jnode, jlevel) + alpha * view_clim(jnode, jlevel);
+              }
+            }
+            oops::Log::debug() << "========= analysis after ice thickness adjustment:" << std::endl;
+            oops::Log::debug() << xa << std::endl;
+          }
           eckit::LocalConfiguration vcConfig(fullConfig, "ice analysis postprocessing");
           soca::VariableChange vc(vcConfig, geom);
           oops::Variables varout(vcConfig, "output variables");
