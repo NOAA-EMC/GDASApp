@@ -30,7 +30,7 @@ data_in:
     {% endfor %}
 {% endif %}
 
-    copy:
+    copy_req:
     - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}cubed_sphere_grid_atmf006.nc']
     - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}cubed_sphere_grid_sfcf006.nc']
 
@@ -54,13 +54,8 @@ data_in:
 {% endif %}
 {% endfilter %}
 
-    copy_opt:
-{% filter indent(width=4) %}
-{% include 'atm_stage_obs.yaml.j2' %}
-{% endfilter %}
-
 data_out:
-    copy:
+    copy_req:
     - ['{{ DATA }}/atmanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}anlvar.atm.yaml']
     - ['{{ DATA }}/atmanlfv3inc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}anlvar.fv3.atm.yaml']
     - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile1.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile1.nc']

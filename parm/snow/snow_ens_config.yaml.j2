@@ -36,7 +36,7 @@ data_in:
     - '{{ DATA }}/fv3jedi'
     - '{{ DATA }}/berror'
 
-    copy:
+    copy_req:
 {% for mem in range(1, NMEM_ENS + 1) %}
     {% set gmem = mem+mem_offset %}
     {% if gmem > NMEM_ENS_MAX %}
@@ -136,14 +136,13 @@ data_in:
 
     copy_opt:
 {% filter indent(width=4) %}
-{% include 'snow_stage_obs.yaml.j2' %}
 {% if  DO_IMS_SCF %}
 {% include 'snow_stage_ims_scf2ioda.yaml.j2' %}
 {% endif %}
 {% endfilter %}
 
 data_out:
-    copy:
+    copy_req:
     # Configuration files
     - ['{{ DATA }}/snowanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}snowanlvar.yaml']
     - ['{{ DATA }}/esnowanlensmean.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}esnowanlensmean.yaml']

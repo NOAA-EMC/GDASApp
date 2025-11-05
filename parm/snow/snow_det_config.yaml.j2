@@ -22,7 +22,7 @@ data_in:
     - '{{ DATA }}/fv3jedi'
     - '{{ DATA }}/berror'
 
-    copy:
+    copy_req:
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/']
@@ -46,14 +46,13 @@ data_in:
 
     copy_opt:
 {% filter indent(width=4) %}
-{% include 'snow_stage_obs.yaml.j2' %}
 {% if DO_IMS_SCF %}
 {% include 'snow_stage_ims_scf2ioda.yaml.j2' %}
 {% endif %}
 {% endfilter %}
 
 data_out:
-    copy:
+    copy_req:
     # Configuration files
     - ['{{ DATA }}/snowanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}snowanlvar.yaml']
 {% if DO_IMS_SCF %}

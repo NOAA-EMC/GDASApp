@@ -17,7 +17,7 @@ data_in:
     - '{{ DATA }}/crtm'
     - '{{ DATA }}/fv3jedi'
 
-    copy:
+    copy_req:
 {% for bkg_time in bkg_times %}
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ bkg_time | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/']
 
@@ -79,14 +79,8 @@ data_in:
 {% include 'aero_stage_jedi_fix.yaml.j2' %}
 {% endfilter %}
 
-    copy_opt:
-{% filter indent(width=4) %}
-{% include 'aero_stage_obs.yaml.j2' %}
-{% endfilter %}
-
 data_out:
-
-    copy:
+    copy_req:
 ## copy variational YAML to ROTDIR
     - ['{{ DATA }}/aeroanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}aerovar.yaml']
 ## copy increments

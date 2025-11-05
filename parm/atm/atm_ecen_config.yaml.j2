@@ -19,7 +19,7 @@ data_in:
     - '{{ DATA }}/{{ 'mem%03d' | format(imem) }}'
 {% endfor %}
 
-    copy:
+    copy_req:
 {% for fh in IAUFHRS %}
     - ["{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f{{ '%03d' % fh }}.nc", "{{ DATA }}/{{ GPREFIX }}cubed_sphere_grid_atmf{{ '%03d' % fh }}.nc"]
     - ["{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f{{ '%03d' % fh }}.nc", "{{ DATA }}/{{ GPREFIX }}cubed_sphere_grid_sfcf{{ '%03d' % fh }}.nc"]
@@ -47,7 +47,7 @@ data_in:
 {% endfilter %}
 
 data_out:
-    copy:
+    copy_req:
     - ['{{ DATA }}/correction_increment.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}correction_increment.yaml']
     - ['{{ DATA }}/ensemble_recenter.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}ensemble_recenter.yaml']
 {% for fh in IAUFHRS %}
