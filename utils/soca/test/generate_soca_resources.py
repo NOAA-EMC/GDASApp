@@ -204,5 +204,40 @@ def main(project_src_dir):
     # Generate ensemble members
     genperts('ocn.nc', 'ocn.incr.nc', 'ice.nc', 'ice.nc', './')
 
+    # Generate bogus climatology files for testing
+    generate_climatology_files(gdas_test_dir)
+
+
+def generate_climatology_files(test_dir):
+    """
+    Generate bogus monthly climatology files for testing climatology nudging.
+    Creates clim_MM.nc files (01-12) by linking to existing ocean state files.
+    """
+    clim_dir = test_dir / "climatology"
+    clim_dir.mkdir(exist_ok=True)
+
+    print(f"Generating climatology files in {clim_dir}")
+
+    # Create 12 monthly climatology files by copying the ocean state
+    for month in range(1, 13):
+        clim_file = clim_dir / f"clim_{month:02d}.nc"
+
+        # Copy the ocean state file as climatology (has Temp and Salt vars)
+        shutil.copy(test_dir / "ocn.nc", clim_file)
+
+        print(f"Created climatology file: {clim_file}")
+
+    # Also create ice climatology files if needed for future ice tests
+    ice_clim_dir = test_dir / "ice_climatology"
+    ice_clim_dir.mkdir(exist_ok=True)
+
+    for month in range(1, 13):
+        ice_clim_file = ice_clim_dir / f"ice_clim_{month:02d}.nc"
+        shutil.copy(test_dir / "ice.nc", ice_clim_file)
+
+    print(f"Generated 12 ocean climatology files in {clim_dir}")
+    print(f"Generated 12 ice climatology files in {ice_clim_dir}")
+
+
 if __name__ == "__main__":
     main(sys.argv[1])

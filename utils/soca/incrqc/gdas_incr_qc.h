@@ -19,6 +19,7 @@
 #include "../diagb/gdas_soca_diagb_utils.h"
 #include "../gdas_soca_utils.h"
 #include "gdas_incr_qc_utils.h"
+#include "gdas_ocean_clim_incr.h"
 
 namespace gdasapp {
 namespace incrqc {
@@ -122,6 +123,66 @@ inline void qcIncrement(const soca::State& xb,
   applyBruteForceBoundsCheck(dxFs, xbFs, ghostView, viewBathy, stateBounds);
 
   dx.fromFieldSet(dxFs);
+
+  // Compute climatological increment if configured
+  // TODO: Implement YAML configuration for climatology section:
+  //   climatology:
+  //     ocean:
+  //       path: "/path/to/monthly/ocean/climatology"  # Directory with clim_MM.nc files
+  //       da window: 6.0                              # DA cycling window in hours
+  //       relaxation time: 168.0                     # Relaxation time scale in hours (7 days)
+  //     ice:                                          # Future: ice climatology section
+  //       path: "/path/to/monthly/ice/climatology"
+  //       da window: 6.0
+  //       relaxation time: 240.0                     # Different relaxation time for ice
+  if (config.has("climatology")) {
+    eckit::LocalConfiguration climConfig(config, "climatology");
+    if (climConfig.has("ocean")) {
+      eckit::LocalConfiguration oceanClimConfig(climConfig, "ocean");
+
+      // Compute DA weight: wda = (1 + dt_DA/tau)^-1
+      double dt_DA = oceanClimConfig.getDouble("da window", 6.0);  // DA cycling window in hours, default 6h
+      double tau = oceanClimConfig.getDouble("relaxation time", 168.0);  // Relaxation time scale in hours, default 7 days
+      double wda = 1.0 / (1.0 + dt_DA / tau);
+
+      const std::string& climPath = oceanClimConfig.getSubConfiguration("climatology files").getString("basename");
+      oops::Log::info() << "Computing ocean climatological increment from: " << climPath << std::endl;
+      oops::Log::info() << "DA window: " << dt_DA << " hours, Relaxation time: " << tau << " hours" << std::endl;
+      oops::Log::info() << "DA weight: " << wda << ", Climatology weight: " << (1.0 - wda) << std::endl;
+
+      soca::Increment oceanClimIncr = gdasapp::incrqc::oceanclim::computeOceanClimatologicalIncrement(
+          xb, dx, geom, oceanClimConfig);
+
+      // Compute final increment: dx_final = wda * dx_da + (1-wda) * dx_clim
+      atlas::FieldSet dxFs_final, climIncrFs;
+      dx.toFieldSet(dxFs_final);
+      oceanClimIncr.toFieldSet(climIncrFs);
+
+      // Get views for the weighted combination
+      auto viewTempFinal = atlas::array::make_view<double, 2>(dxFs_final["sea_water_potential_temperature"]);
+      auto viewSaltFinal = atlas::array::make_view<double, 2>(dxFs_final["sea_water_salinity"]);
+      auto viewTempClim = atlas::array::make_view<double, 2>(climIncrFs["sea_water_potential_temperature"]);
+      auto viewSaltClim = atlas::array::make_view<double, 2>(climIncrFs["sea_water_salinity"]);
+
+      // Apply the weighted combination
+      for (atlas::idx_t jnode = 0; jnode < viewTempFinal.shape(0); ++jnode) {
+        for (atlas::idx_t jlevel = 0; jlevel < viewTempFinal.shape(1); ++jlevel) {
+          // dx_final = wda * dx_da + (1-wda) * dx_clim
+          double tempDA = viewTempFinal(jnode, jlevel);
+          double saltDA = viewSaltFinal(jnode, jlevel);
+
+          viewTempFinal(jnode, jlevel) = wda * tempDA + (1.0 - wda) * viewTempClim(jnode, jlevel);
+          viewSaltFinal(jnode, jlevel) = wda * saltDA + (1.0 - wda) * viewSaltClim(jnode, jlevel);
+        }
+      }
+
+      // Update the increment with the final weighted combination
+      dx.fromFieldSet(dxFs_final);
+
+      oops::Log::info() << "Final increment computed as weighted combination of DA and climatological increments" << std::endl;
+    }
+  }
+
   oops::Log::info() << "======      Finished quality control on increment" << std::endl;
   }
 
