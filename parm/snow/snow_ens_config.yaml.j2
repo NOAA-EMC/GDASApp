@@ -24,8 +24,6 @@ data_in:
     mkdir:
     - '{{ DATA }}/bkg'
     - '{{ DATA }}/anl'
-    - '{{ DATA }}/obs'
-    - '{{ DATA }}/diags'
     - '{{ DATA }}/bkg/ensmean'
     - '{{ DATA }}/anl/ensmean'
 {% for mem in range(1, NMEM_ENS + 1) %}
