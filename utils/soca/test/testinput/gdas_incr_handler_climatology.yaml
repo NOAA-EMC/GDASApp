@@ -83,20 +83,24 @@ qc increment:
 
   increment stability iterations: 20
 
-  # Climatology nudging configuration
-  climatology:
-    ocean:
-      climatology files:
-        basename: "./climatology/"           # Directory with clim_MM.nc files
-        read_from_file: 1
-        ocn_filename: clim_??.nc   # this will have to be reset in the code
-        date: 2018-04-15T00:00:00Z
-        state variables:
-        - sea_water_salinity
-        - sea_water_potential_temperature
-      da window: 6.0                 # DA cycling window in hours
-      relaxation time: 168.0         # Relaxation time scale in hours (7 days)
-
   steric increment:
     linear variable changes:
     - linear variable change name: BalanceSOCA
+
+  # Climatology nudging configuration
+  climatology:
+    basename: "./climatology/"           # Directory with climatology files
+    read_from_file: 1
+    ocn_filename: ocean.clim_%mm.nc      # Ocean climatology template (% will be replaced with month)
+    ice_filename: ice.clim_%mm.nc        # Ice climatology template (% will be replaced with month)
+    date: 2018-04-15T00:00:00Z
+    state variables:
+    - sea_water_salinity
+    - sea_water_potential_temperature
+    - sea_ice_snow_thickness
+    ocean:
+      da window: 6.0                 # DA cycling window in hours
+      relaxation time: 168.0         # Relaxation time scale in hours (7 days)
+    ice:
+      da window: 6.0                 # DA cycling window in hours
+      relaxation time: 240.0         # Relaxation time scale in hours (10 days)

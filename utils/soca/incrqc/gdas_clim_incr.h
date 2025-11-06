@@ -19,25 +19,24 @@
 
 namespace gdasapp {
 namespace incrqc {
-namespace oceanclim {
+namespace climatology {
 
 /**
- * @brief Compute ocean climatological increment by interpolating monthly climatology to background valid time
+ * @brief Compute climatological increment for ocean and sea ice by interpolating monthly climatology to background valid time
  *
  * This function:
  * 1. Determines the valid time from the background state
  * 2. Finds the appropriate monthly climatology files (previous and next months)
- * 3. Performs temporal interpolation of climatological potential temperature and salinity
+ * 3. Performs temporal interpolation of climatological fields (ocean: temp/salt, ice: snow thickness)
  * 4. Computes climatological increment as: interpolated_climatology - (background + increment)
  *
  * @param xb The background state containing the valid time
  * @param dx The analysis increment
- * @param climPath Path to directory containing monthly climatology files
  * @param geom The geometry for the domain
- * @param config Ocean climatology configuration (from YAML climatology.ocean section)
- * @return soca::Increment The ocean climatological increment
+ * @param config Climatology configuration (from YAML climatology section)
+ * @return soca::Increment The climatological increment (ocean and ice fields)
  */
-soca::Increment computeOceanClimatologicalIncrement(
+soca::Increment computeClimatologicalIncrement(
     const soca::State& xb,
     const soca::Increment& dx,
     const soca::Geometry& geom,
@@ -52,11 +51,13 @@ soca::Increment computeOceanClimatologicalIncrement(
  *
  * @param validTime The valid time for interpolation
  * @param climPath Base path to climatology files
+ * @param filenameTemplate Template with %mm to be replaced by month (e.g., "ocean.clim_%mm.nc")
  * @return std::pair<std::string, std::string> Paths to previous and next month files
  */
 std::pair<std::string, std::string> findMonthlyClimFiles(
     const util::DateTime& validTime,
-    const std::string& climPath);
+    const std::string& climPath,
+    const std::string& filenameTemplate);
 
 /**
  * @brief Helper function to compute interpolation weights for monthly climatology
@@ -89,6 +90,6 @@ atlas::FieldSet loadAndInterpolateClimate(
     const eckit::Configuration& config);
 
 
-}  // namespace oceanclim
+}  // namespace climatology
 }  // namespace incrqc
 }  // namespace gdasapp

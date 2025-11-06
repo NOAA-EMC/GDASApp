@@ -218,14 +218,34 @@ def generate_climatology_files(test_dir):
 
     print(f"Generating climatology files in {clim_dir}")
 
-    # Create 12 monthly climatology files by copying the ocean state
+    # Create 12 monthly ocean climatology files by copying the ocean state
     for month in range(1, 13):
-        clim_file = clim_dir / f"clim_{month:02d}.nc"
+        ocean_clim_file = clim_dir / f"ocean.clim_{month:02d}.nc"
 
         # Copy the ocean state file as climatology (has Temp and Salt vars)
-        shutil.copy(test_dir / "ocn.nc", clim_file)
+        shutil.copy(test_dir / "ocn.nc", ocean_clim_file)
 
-        print(f"Created climatology file: {clim_file}")
+        print(f"Created ocean climatology file: {ocean_clim_file}")
+
+    # Create 12 monthly ice climatology files by copying the ice state
+    for month in range(1, 13):
+        ice_clim_file = clim_dir / f"ice.clim_{month:02d}.nc"
+
+        # Copy the ice state file as climatology (has ice thickness and snow depth)
+        shutil.copy(test_dir / "ice.nc", ice_clim_file)
+
+        print(f"Created ice climatology file: {ice_clim_file}")
+
+    # Create daily ice climatology files for testing (around the test date 2021-07-03)
+    # Create files for a few days around the test date
+    from datetime import datetime, timedelta
+
+    base_date = datetime(2021, 7, 1)  # Start a few days before test date
+    for i in range(10):  # Create 10 days of files
+        clim_date = base_date + timedelta(days=i)
+        ice_clim_file = test_dir / f"ice_clim_{clim_date.strftime('%Y%m%d')}.nc"
+        shutil.copy(test_dir / "ice.nc", ice_clim_file)
+        print(f"Created daily ice climatology file: {ice_clim_file}")
 
     # Also create ice climatology files if needed for future ice tests
     ice_clim_dir = test_dir / "ice_climatology"
