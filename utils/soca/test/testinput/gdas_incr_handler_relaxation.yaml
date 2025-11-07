@@ -16,6 +16,8 @@ increment variables:
 - sea_water_salinity
 - sea_surface_height_above_geoid
 - sea_ice_area_fraction
+- sea_ice_snow_thickness
+- sea_ice_thickness
 
 set increment variables to zero:
 - eastward_sea_water_velocity
@@ -49,13 +51,15 @@ soca background:
   - ocean_mixed_layer_thickness
   - sea_water_depth
   - sea_ice_area_fraction
+  - sea_ice_snow_thickness
+  - sea_ice_thickness
 
 output increment:
   datadir: ./
   date: '2021-07-03T00:00:00Z'
-  exp: mom6_iau_clim
+  exp: mom6_iau_relax
   type: incr
-  output file: mom6_iau_incqc_clim.nc
+  output file: mom6_iau_incqc_relax.nc
 
 qc increment:
 
@@ -63,6 +67,7 @@ qc increment:
     read_from_file: 1
     basename: ./
     ocn_filename: ocn.nc
+    ice_filename: ice.nc
     date: &bkg_date 2021-07-03T00:00:00Z
     state variables:
     - sea_water_potential_temperature
@@ -73,6 +78,8 @@ qc increment:
     - sea_water_cell_thickness
     - ocean_mixed_layer_thickness
     - sea_water_depth
+    - sea_ice_snow_thickness
+    - sea_ice_thickness
 
   state bounds:
     sea_water_potential_temperature: [-2, 45.0]
@@ -87,20 +94,20 @@ qc increment:
     linear variable changes:
     - linear variable change name: BalanceSOCA
 
-  # Climatology nudging configuration
-  climatology:
-    basename: "./climatology/"           # Directory with climatology files
+  # Relaxation field configuration
+  relaxation:
+    basename: "./relaxation/"             # Directory with relaxation field files
     read_from_file: 1
-    ocn_filename: ocean.clim_%mm.nc      # Ocean climatology template (% will be replaced with month)
-    ice_filename: ice.clim_%mm.nc        # Ice climatology template (% will be replaced with month)
+    ocn_filename: ocean.relax_%mm.nc      # Ocean relaxation field template (% will be replaced with month)
+    ice_filename: ice.relax_%mm.nc        # Ice relaxation field template (% will be replaced with month)
     date: 2018-04-15T00:00:00Z
     state variables:
     - sea_water_salinity
     - sea_water_potential_temperature
     - sea_ice_snow_thickness
+    - sea_ice_thickness
+    da window: 6.0                       # DA cycling window in hours (same for ocean and ice)
     ocean:
-      da window: 6.0                 # DA cycling window in hours
       relaxation time: 168.0         # Relaxation time scale in hours (7 days)
     ice:
-      da window: 6.0                 # DA cycling window in hours
       relaxation time: 240.0         # Relaxation time scale in hours (10 days)

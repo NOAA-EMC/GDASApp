@@ -17,14 +17,14 @@ target_link_libraries( gdas_soca_diagnostics.x PRIVATE stdc++fs)
 
 # Increment post processing
 ecbuild_add_executable( TARGET gdas_soca_incr_handler.x
-                        SOURCES gdas_soca_incr_handler.cc ../genutils/Flood.cc gdas_postprocincr.h gdas_postprocincr.cc incrqc/gdas_clim_incr.cc)
+                        SOURCES gdas_soca_incr_handler.cc ../genutils/Flood.cc gdas_postprocincr.h gdas_postprocincr.cc incrqc/gdas_relaxation_incr.cc)
 target_compile_features( gdas_soca_incr_handler.x PUBLIC cxx_std_11)
 target_link_libraries( gdas_soca_incr_handler.x PUBLIC NetCDF::NetCDF_CXX oops atlas soca)
 target_link_libraries( gdas_soca_incr_handler.x PRIVATE stdc++fs)
 
 # Ensemble members post processing
 ecbuild_add_executable( TARGET gdas_soca_ens_handler.x
-                        SOURCES gdas_soca_ens_handler.cc ../genutils/Flood.cc gdas_postprocincr.h gdas_postprocincr.cc incrqc/gdas_clim_incr.cc)
+                        SOURCES gdas_soca_ens_handler.cc ../genutils/Flood.cc gdas_postprocincr.h gdas_postprocincr.cc incrqc/gdas_relaxation_incr.cc)
 target_compile_features( gdas_soca_ens_handler.x PUBLIC cxx_std_11)
 target_link_libraries( gdas_soca_ens_handler.x PUBLIC NetCDF::NetCDF_CXX oops atlas soca)
 target_link_libraries( gdas_soca_ens_handler.x PRIVATE stdc++fs)

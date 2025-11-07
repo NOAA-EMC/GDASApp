@@ -204,59 +204,59 @@ def main(project_src_dir):
     # Generate ensemble members
     genperts('ocn.nc', 'ocn.incr.nc', 'ice.nc', 'ice.nc', './')
 
-    # Generate bogus climatology files for testing
-    generate_climatology_files(gdas_test_dir)
+    # Generate bogus relaxation field files for testing
+    generate_relaxation_files(gdas_test_dir)
 
 
-def generate_climatology_files(test_dir):
+def generate_relaxation_files(test_dir):
     """
-    Generate bogus monthly climatology files for testing climatology nudging.
-    Creates clim_MM.nc files (01-12) by linking to existing ocean state files.
+    Generate bogus monthly relaxation field files for testing relaxation nudging.
+    Creates relax_MM.nc files (01-12) by linking to existing ocean state files.
     """
-    clim_dir = test_dir / "climatology"
-    clim_dir.mkdir(exist_ok=True)
+    relax_dir = test_dir / "relaxation"
+    relax_dir.mkdir(exist_ok=True)
 
-    print(f"Generating climatology files in {clim_dir}")
+    print(f"Generating relaxation field files in {relax_dir}")
 
-    # Create 12 monthly ocean climatology files by copying the ocean state
+    # Create 12 monthly ocean relaxation field files by copying the ocean state
     for month in range(1, 13):
-        ocean_clim_file = clim_dir / f"ocean.clim_{month:02d}.nc"
+        ocean_relax_file = relax_dir / f"ocean.relax_{month:02d}.nc"
 
-        # Copy the ocean state file as climatology (has Temp and Salt vars)
-        shutil.copy(test_dir / "ocn.nc", ocean_clim_file)
+        # Copy the ocean state file as relaxation field (has Temp and Salt vars)
+        shutil.copy(test_dir / "ocn.nc", ocean_relax_file)
 
-        print(f"Created ocean climatology file: {ocean_clim_file}")
+        print(f"Created ocean relaxation field file: {ocean_relax_file}")
 
-    # Create 12 monthly ice climatology files by copying the ice state
+    # Create 12 monthly ice relaxation field files by copying the ice state
     for month in range(1, 13):
-        ice_clim_file = clim_dir / f"ice.clim_{month:02d}.nc"
+        ice_relax_file = relax_dir / f"ice.relax_{month:02d}.nc"
 
-        # Copy the ice state file as climatology (has ice thickness and snow depth)
-        shutil.copy(test_dir / "ice.nc", ice_clim_file)
+        # Copy the ice state file as relaxation field (has ice thickness and snow depth)
+        shutil.copy(test_dir / "ice.nc", ice_relax_file)
 
-        print(f"Created ice climatology file: {ice_clim_file}")
+        print(f"Created ice relaxation field file: {ice_relax_file}")
 
-    # Create daily ice climatology files for testing (around the test date 2021-07-03)
+    # Create daily ice relaxation field files for testing (around the test date 2021-07-03)
     # Create files for a few days around the test date
     from datetime import datetime, timedelta
 
     base_date = datetime(2021, 7, 1)  # Start a few days before test date
     for i in range(10):  # Create 10 days of files
-        clim_date = base_date + timedelta(days=i)
-        ice_clim_file = test_dir / f"ice_clim_{clim_date.strftime('%Y%m%d')}.nc"
-        shutil.copy(test_dir / "ice.nc", ice_clim_file)
-        print(f"Created daily ice climatology file: {ice_clim_file}")
+        relax_date = base_date + timedelta(days=i)
+        ice_relax_file = test_dir / f"ice_relax_{relax_date.strftime('%Y%m%d')}.nc"
+        shutil.copy(test_dir / "ice.nc", ice_relax_file)
+        print(f"Created daily ice relaxation field file: {ice_relax_file}")
 
-    # Also create ice climatology files if needed for future ice tests
-    ice_clim_dir = test_dir / "ice_climatology"
-    ice_clim_dir.mkdir(exist_ok=True)
+    # Also create ice relaxation field files if needed for future ice tests
+    ice_relax_dir = test_dir / "ice_relaxation"
+    ice_relax_dir.mkdir(exist_ok=True)
 
     for month in range(1, 13):
-        ice_clim_file = ice_clim_dir / f"ice_clim_{month:02d}.nc"
-        shutil.copy(test_dir / "ice.nc", ice_clim_file)
+        ice_relax_file = ice_relax_dir / f"ice_relax_{month:02d}.nc"
+        shutil.copy(test_dir / "ice.nc", ice_relax_file)
 
-    print(f"Generated 12 ocean climatology files in {clim_dir}")
-    print(f"Generated 12 ice climatology files in {ice_clim_dir}")
+    print(f"Generated 12 ocean relaxation field files in {relax_dir}")
+    print(f"Generated 12 ice relaxation field files in {ice_relax_dir}")
 
 
 if __name__ == "__main__":

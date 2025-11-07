@@ -19,50 +19,50 @@
 
 namespace gdasapp {
 namespace incrqc {
-namespace climatology {
+namespace relaxation {
 
 /**
- * @brief Compute climatological increment for ocean and sea ice by interpolating monthly climatology to background valid time
+ * @brief Compute relaxation increment for ocean and sea ice by interpolating monthly relaxation fields to background valid time
  *
  * This function:
  * 1. Determines the valid time from the background state
- * 2. Finds the appropriate monthly climatology files (previous and next months)
- * 3. Performs temporal interpolation of climatological fields (ocean: temp/salt, ice: snow thickness)
- * 4. Computes climatological increment as: interpolated_climatology - (background + increment)
+ * 2. Finds the appropriate monthly relaxation field files (previous and next months)
+ * 3. Performs temporal interpolation of relaxation fields (ocean: temp/salt, ice: snow thickness)
+ * 4. Computes relaxation increment as: interpolated_relaxation_field - (background + increment)
  *
  * @param xb The background state containing the valid time
  * @param dx The analysis increment
  * @param geom The geometry for the domain
- * @param config Climatology configuration (from YAML climatology section)
- * @return soca::Increment The climatological increment (ocean and ice fields)
+ * @param config Relaxation configuration (from YAML relaxation section)
+ * @return soca::Increment The relaxation increment (ocean and ice fields)
  */
-soca::Increment computeClimatologicalIncrement(
+soca::Increment computeRelaxationIncrement(
     const soca::State& xb,
     const soca::Increment& dx,
     const soca::Geometry& geom,
     const eckit::Configuration& config);
 
 /**
- * @brief Helper function to find monthly climatology files for temporal interpolation
+ * @brief Helper function to find monthly relaxation field files for temporal interpolation
  *
- * Climatology files represent mid-month values (15th of each month).
+ * Relaxation field files represent mid-month values (15th of each month).
  * For dates before the 15th: interpolate between previous month and current month.
  * For dates on/after the 15th: interpolate between current month and next month.
  *
  * @param validTime The valid time for interpolation
- * @param climPath Base path to climatology files
- * @param filenameTemplate Template with %mm to be replaced by month (e.g., "ocean.clim_%mm.nc")
+ * @param relaxPath Base path to relaxation field files
+ * @param filenameTemplate Template with %mm to be replaced by month (e.g., "ocean.relax_%mm.nc")
  * @return std::pair<std::string, std::string> Paths to previous and next month files
  */
-std::pair<std::string, std::string> findMonthlyClimFiles(
+std::pair<std::string, std::string> findMonthlyRelaxationFiles(
     const util::DateTime& validTime,
-    const std::string& climPath,
+    const std::string& relaxPath,
     const std::string& filenameTemplate);
 
 /**
- * @brief Helper function to compute interpolation weights for monthly climatology
+ * @brief Helper function to compute interpolation weights for monthly relaxation fields
  *
- * Assumes mid-month anchoring (15th of each month) for climatological values.
+ * Assumes mid-month anchoring (15th of each month) for relaxation field values.
  * For dates before the 15th: interpolate between previous month's 15th and current month's 15th.
  * For dates on/after the 15th: interpolate between current month's 15th and next month's 15th.
  *
@@ -73,16 +73,16 @@ std::pair<double, double> computeMonthlyInterpolationWeights(
     const util::DateTime& validTime);
 
 /**
- * @brief Load and interpolate monthly climatology fields
+ * @brief Load and interpolate monthly relaxation fields
  *
- * @param prevFile Path to previous month climatology file
- * @param nextFile Path to next month climatology file
+ * @param prevFile Path to previous month relaxation field file
+ * @param nextFile Path to next month relaxation field file
  * @param weights Interpolation weights (prev_weight, next_weight)
  * @param geom Geometry for regridding if needed
  * @param config Configuration for field loading
- * @return atlas::FieldSet Interpolated climatological fields (Temp, Salt)
+ * @return atlas::FieldSet Interpolated relaxation fields (Temp, Salt)
  */
-atlas::FieldSet loadAndInterpolateClimate(
+atlas::FieldSet loadAndInterpolateRelaxationField(
     const std::string& prevFile,
     const std::string& nextFile,
     const std::pair<double, double>& weights,
@@ -90,6 +90,6 @@ atlas::FieldSet loadAndInterpolateClimate(
     const eckit::Configuration& config);
 
 
-}  // namespace climatology
+}  // namespace relaxation
 }  // namespace incrqc
 }  // namespace gdasapp

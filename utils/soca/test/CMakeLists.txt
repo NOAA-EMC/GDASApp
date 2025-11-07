@@ -35,13 +35,13 @@ try:
                    cwd=work_dir, check=True)
 
     print('Cleaning up...')
-    for file in os.listdir(work_dir):
-        if file != r'''${keep_file}''' and not file.endswith('.py'):
-            file_path = os.path.join(work_dir, file)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
+    #for file in os.listdir(work_dir):
+    #    if file != r'''${keep_file}''' and not file.endswith('.py'):
+    #        file_path = os.path.join(work_dir, file)
+    #        if os.path.isfile(file_path):
+    #            os.remove(file_path)
+    #        elif os.path.isdir(file_path):
+    #            shutil.rmtree(file_path)
 
 except subprocess.CalledProcessError as e:
     print('Error during test execution:', e)
@@ -144,10 +144,10 @@ add_test_with_resources(test_gdasapp_utils_diagnostics
                         ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
                         "${MPI_COMMAND} 2" "")
 
-# gdas_soca_incr_handler.x: Test climatology nudging functionality
-add_test_with_resources(test_gdasapp_utils_incrhandler_climatology
+# gdas_soca_incr_handler.x: Test relaxation field nudging functionality
+add_test_with_resources(test_gdasapp_utils_incrhandler_relaxation
                         gdas_soca_incr_handler.x
-                        ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_incr_handler_climatology.yaml
+                        ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_incr_handler_relaxation.yaml
                         ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
                         "${MPI_COMMAND} 2"
-                        ocn.mom6_iau_incqc_clim.nc)
+                        ocn.mom6_iau_incqc_relax.nc)
