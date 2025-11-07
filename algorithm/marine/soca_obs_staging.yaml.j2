@@ -1,9 +1,0 @@
-mkdir:
-    - '{{marine_obsdatain_path}}'
-    - '{{marine_obsdataout_path}}'
-copy_opt:
-    {% for observation_from_jcb in observations %}
-    {% if use_observer(observation_from_jcb) %}
-    - ['{{marine_obsdataroot_path}}/{{marine_obsdatain_prefix}}{{observation_from_jcb}}{{marine_obsdatain_suffix}}', '{{marine_obsdatain_path}}']
-    {% endif %}
-    {% endfor %}
