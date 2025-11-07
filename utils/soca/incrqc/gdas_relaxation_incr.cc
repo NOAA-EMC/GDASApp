@@ -86,11 +86,22 @@ soca::Increment computeRelaxationIncrement(
     auto viewDx = atlas::array::make_view<double, 2>(dxFs[varName]);
     auto viewRelaxIncr = atlas::array::make_view<double, 2>(relaxIncrFs[varName]);
 
+    // Get layer thickness for masking thin layers
+    auto viewThickness = atlas::array::make_view<double, 2>(xbFs["sea_water_cell_thickness"]);
+    const double minThickness = 0.1;
+
     // Compute relaxation increment: relax - (background + increment)
+    // Set to 0 where layer thickness < 0.1
     for (atlas::idx_t jnode = 0; jnode < viewRelax.shape(0); ++jnode) {
       for (atlas::idx_t jlevel = 0; jlevel < viewRelax.shape(1); ++jlevel) {
-        viewRelaxIncr(jnode, jlevel) = viewRelax(jnode, jlevel) -
-            (viewBkg(jnode, jlevel) + viewDx(jnode, jlevel));
+        if (viewThickness(jnode, jlevel) < minThickness) {
+          // Set increment to 0 for thin layers
+          viewRelaxIncr(jnode, jlevel) = 0.0;
+        } else {
+          // Normal computation for thick enough layers
+          viewRelaxIncr(jnode, jlevel) = viewRelax(jnode, jlevel) -
+              (viewBkg(jnode, jlevel) + viewDx(jnode, jlevel));
+        }
       }
     }
   }
