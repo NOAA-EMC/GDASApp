@@ -111,3 +111,10 @@ qc increment:
       relaxation time: 168.0         # Relaxation time scale in hours (7 days)
     ice:
       relaxation time: 240.0         # Relaxation time scale in hours (10 days)
+    # Debug output - save relaxation increment for inspection
+    debug output:
+      datadir: ./
+      date: '2021-07-03T00:00:00Z'
+      exp: relaxation_debug
+      type: incr
+      output file: relaxation_increment_debug.nc

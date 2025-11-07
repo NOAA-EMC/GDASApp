@@ -125,16 +125,6 @@ inline void qcIncrement(const soca::State& xb,
   dx.fromFieldSet(dxFs);
 
   // Compute relaxation increment if configured
-  // TODO: Implement YAML configuration for relaxation section:
-  //   relaxation:
-  //     ocean:
-  //       path: "/path/to/monthly/ocean/relaxation"   # Directory with relax_MM.nc files
-  //       da window: 6.0                              # DA cycling window in hours
-  //       relaxation time: 168.0                     # Relaxation time scale in hours (7 days)
-  //     ice:                                          # Future: ice relaxation section
-  //       path: "/path/to/monthly/ice/relaxation"
-  //       da window: 6.0
-  //       relaxation time: 240.0                     # Different relaxation time for ice
   if (config.has("relaxation")) {
     eckit::LocalConfiguration relaxConfig(config, "relaxation");
 
@@ -144,59 +134,55 @@ inline void qcIncrement(const soca::State& xb,
     soca::Increment relaxIncr = gdasapp::incrqc::relaxation::computeRelaxationIncrement(
         xb, dx, geom, relaxConfig);
 
+    // Save relaxation increment for debugging
+    if (relaxConfig.has("debug output")) {
+      eckit::LocalConfiguration debugConfig(relaxConfig, "debug output");
+      oops::Log::info() << "Saving relaxation increment for debugging" << std::endl;
+      relaxIncr.write(debugConfig);
+    }
+
     // Apply weighted combination per field type with appropriate relaxation parameters
     atlas::FieldSet dxFs_final, relaxIncrFs;
     dx.toFieldSet(dxFs_final);
     relaxIncr.toFieldSet(relaxIncrFs);
 
-    // Process ocean fields if configured
-    if (relaxConfig.has("ocean") &&
-        dxFs_final.has("sea_water_potential_temperature") &&
-        relaxIncrFs.has("sea_water_potential_temperature")) {
+    // Get DA window (shared) and relaxation times for ocean and ice
+    double dt_DA = relaxConfig.getDouble("da window", 6.0);
+    double tau_ocean = relaxConfig.has("ocean") ? relaxConfig.getDouble("ocean.relaxation time", 168.0) : 168.0;
+    double tau_ice = relaxConfig.has("ice") ? relaxConfig.getDouble("ice.relaxation time", 240.0) : 240.0;
 
-      eckit::LocalConfiguration oceanConfig(relaxConfig, "ocean");
-      double dt_DA = relaxConfig.getDouble("da window", 6.0);
-      double tau = oceanConfig.getDouble("relaxation time", 168.0);
+    oops::Log::info() << "DA window: " << dt_DA << " hours" << std::endl;
+    oops::Log::info() << "Ocean relaxation time: " << tau_ocean << " hours, Ice relaxation time: " << tau_ice << " hours" << std::endl;
+
+    // Loop over all relaxation increment fields and apply weighted combination
+    for (const auto& field : relaxIncrFs) {
+      const std::string& varName = field.name();
+
+      // Skip if this variable doesn't exist in the DA increment
+      if (!dxFs_final.has(varName)) {
+        oops::Log::debug() << "Variable " << varName << " not found in DA increment, skipping relaxation" << std::endl;
+        continue;
+      }
+
+      // Determine if this is a sea ice variable based on variable name
+      bool isIceVariable = (varName.find("sea_ice") != std::string::npos);
+
+      // Select appropriate relaxation time and compute weight
+      double tau = isIceVariable ? tau_ice : tau_ocean;
       double wda = 1.0 / (1.0 + dt_DA / tau);
 
-      oops::Log::info() << "Ocean DA window: " << dt_DA << " hours, Relaxation time: " << tau << " hours" << std::endl;
-      oops::Log::info() << "Ocean DA weight: " << wda << ", Relaxation weight: " << (1.0 - wda) << std::endl;
+      std::string componentType = isIceVariable ? "Ice" : "Ocean";
+      oops::Log::debug() << componentType << " variable " << varName << ": DA weight=" << wda
+                         << ", Relaxation weight=" << (1.0 - wda) << std::endl;
 
-      auto viewTempFinal = atlas::array::make_view<double, 2>(dxFs_final["sea_water_potential_temperature"]);
-      auto viewSaltFinal = atlas::array::make_view<double, 2>(dxFs_final["sea_water_salinity"]);
-      auto viewTempRelax = atlas::array::make_view<double, 2>(relaxIncrFs["sea_water_potential_temperature"]);
-      auto viewSaltRelax = atlas::array::make_view<double, 2>(relaxIncrFs["sea_water_salinity"]);
+      // Apply weighted combination: dx_final = wda * dx_da + (1-wda) * dx_relax
+      auto viewFinal = atlas::array::make_view<double, 2>(dxFs_final[varName]);
+      auto viewRelax = atlas::array::make_view<double, 2>(relaxIncrFs[varName]);
 
-      for (atlas::idx_t jnode = 0; jnode < viewTempFinal.shape(0); ++jnode) {
-        for (atlas::idx_t jlevel = 0; jlevel < viewTempFinal.shape(1); ++jlevel) {
-          double tempDA = viewTempFinal(jnode, jlevel);
-          double saltDA = viewSaltFinal(jnode, jlevel);
-          viewTempFinal(jnode, jlevel) = wda * tempDA + (1.0 - wda) * viewTempRelax(jnode, jlevel);
-          viewSaltFinal(jnode, jlevel) = wda * saltDA + (1.0 - wda) * viewSaltRelax(jnode, jlevel);
-        }
-      }
-    }
-
-    // Process ice fields if configured
-    if (relaxConfig.has("ice") &&
-        dxFs_final.has("sea_ice_snow_thickness") &&
-        relaxIncrFs.has("sea_ice_snow_thickness")) {
-
-      eckit::LocalConfiguration iceConfig(relaxConfig, "ice");
-      double dt_DA_ice = relaxConfig.getDouble("da window", 6.0);
-      double tau_ice = iceConfig.getDouble("relaxation time", 240.0);
-      double wda_ice = 1.0 / (1.0 + dt_DA_ice / tau_ice);
-
-      oops::Log::info() << "Ice DA window: " << dt_DA_ice << " hours, Relaxation time: " << tau_ice << " hours" << std::endl;
-      oops::Log::info() << "Ice DA weight: " << wda_ice << ", Relaxation weight: " << (1.0 - wda_ice) << std::endl;
-
-      auto viewSnowFinal = atlas::array::make_view<double, 2>(dxFs_final["sea_ice_snow_thickness"]);
-      auto viewSnowRelax = atlas::array::make_view<double, 2>(relaxIncrFs["sea_ice_snow_thickness"]);
-
-      for (atlas::idx_t jnode = 0; jnode < viewSnowFinal.shape(0); ++jnode) {
-        for (atlas::idx_t jlevel = 0; jlevel < viewSnowFinal.shape(1); ++jlevel) {
-          double snowDA = viewSnowFinal(jnode, jlevel);
-          viewSnowFinal(jnode, jlevel) = wda_ice * snowDA + (1.0 - wda_ice) * viewSnowRelax(jnode, jlevel);
+      for (atlas::idx_t jnode = 0; jnode < viewFinal.shape(0); ++jnode) {
+        for (atlas::idx_t jlevel = 0; jlevel < viewFinal.shape(1); ++jlevel) {
+          double daIncr = viewFinal(jnode, jlevel);
+          viewFinal(jnode, jlevel) = wda * daIncr + (1.0 - wda) * viewRelax(jnode, jlevel);
         }
       }
     }
