@@ -82,7 +82,7 @@ def run_satbias_conv(config):
         # loop through satellites/sensors to write tlapmean txt file
         for sat in satlist:
             outstr = ''
-            outfile = os.path.join(workdir, f'{prefix}.{sat}_tlapse.txt')
+            outfile = os.path.join(workdir, f'{prefix}.{sat}.tlapse.txt')
             with open(new_paths[1]) as csvfile:
                 reader = csv.reader(csvfile)
                 for row in reader:
@@ -102,7 +102,7 @@ def run_satbias_conv(config):
             f.write('output:\n')
             for sat in satlist:
                 f.write(f'- sensor: {sat}\n')
-                f.write(f'  output file: {prefix}.{sat}_satbias.nc\n')
+                f.write(f'  output file: {prefix}.{sat}.satbias.nc\n')
                 f.write('  predictors: *default_preds\n')
         # run executable
         runcmd = f'./satbias2ioda.x satbias_converter.yaml'
@@ -119,7 +119,7 @@ def run_satbias_conv(config):
             fstem = Path(forig).stem
             fsuffix = Path(forig).suffix
             if fsuffix == '.nc':
-                fnew = f"{fstem}_cov.nc4"
+                fnew = f"{fstem}_cov.nc"
                 shutil.copy(f, os.path.join(outdir, forig))
                 shutil.move(f, os.path.join(outdir, fnew))
             else:

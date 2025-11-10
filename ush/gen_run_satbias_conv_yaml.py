@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+# genYAML
+# generate YAML using ufsda python module,
+# current runtime env, and optional input YAML
+import argparse
+import datetime as dt
+import logging
+import os
+import re
+from wxflow import parse_j2yaml, cast_strdict_as_dtypedict, save_as_yaml
+from wxflow import add_to_datetime, to_timedelta
+
+
+def gen_run_satbias_conv_yaml(input_yaml, output_yaml, config):
+    # read in YAML/Jinja template
+    final_config = parse_j2yaml(input_yaml, config)
+    save_as_yaml(final_config, output_yaml)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input', type=str, help='Input YAML Template', required=True)
+    parser.add_argument('-o', '--output', type=str, help='Output YAML File', required=True)
+    args = parser.parse_args()
+
+    # Take configuration from environment and cast it as python dictionary
+    config = cast_strdict_as_dtypedict(os.environ)
+
+    gen_run_satbias_conv_yaml(args.input, args.output, config)
