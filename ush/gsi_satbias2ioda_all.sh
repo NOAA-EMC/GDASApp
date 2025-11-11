@@ -15,8 +15,8 @@ GDUMP="gdas"
 GDATE=$(date --utc -d "${PDY} ${cyc} - ${assim_freq} hours" +%Y%m%d%H)
 gcyc=${GDATE:8:2}
 
-ABIAS=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.abias
-ABIASPC=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.abias_pc
+ABIAS=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.abias.txt
+ABIASPC=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.abias_pc.txt
 ABIAS_JEDI=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.rad_varbc_params.tar
 
 satbias2ioda_x=${HOMEgfs}/sorc/gdas.cd/build/bin/satbias2ioda.x
@@ -60,9 +60,9 @@ for instrument in $(echo $obsclass); do
     /bin/rm -f  testrun/varbc/*txt
     cd ./testrun/varbc/
     grep ${instrument}  ../../satbias_in  | awk '{print $2" "$3" "$4}' > \
-          ${locdir}/gdas.t${gcyc}.${instrument}.tlapse.txt
-    /bin/cp -p satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}.${instrument}.satbias.nc
-    /bin/mv  satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}.${instrument}.satbias_cov.nc
+          ${locdir}/gdas.t${gcyc}z.${instrument}.tlapse.txt
+    /bin/cp -p satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}z.${instrument}.satbias.nc
+    /bin/mv  satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}z.${instrument}.satbias_cov.nc
     
     cd  ${locdir}
     /bin/rm -f satbias_converter.yaml
