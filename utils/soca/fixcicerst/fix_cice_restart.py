@@ -39,11 +39,12 @@ def load_config(config_file):
         sys.exit(1)
 
 
-def calculate_aggregated_thickness(vicen, vsnon):
+def calculate_aggregated_thickness(aicen, vicen, vsnon):
     """
     Calculate aggregated ice and snow thickness across categories.
 
     Parameters:
+    aicen: ice concentration (ncat, nj, ni)
     vicen: ice volume per unit area (ncat, nj, ni)
     vsnon: snow volume per unit area (ncat, nj, ni)
 
@@ -52,8 +53,18 @@ def calculate_aggregated_thickness(vicen, vsnon):
     snow_thickness: aggregated snow thickness (nj, ni)
     """
     # Sum across categories (axis=0)
-    ice_thickness = np.sum(vicen, axis=0)
-    snow_thickness = np.sum(vsnon, axis=0)
+    ice_volume = np.sum(vicen, axis=0)
+    snow_volume = np.sum(vsnon, axis=0)
+    ice_concentration = np.sum(aicen, axis=0)
+
+    # Initialize thickness arrays with zeros
+    ice_thickness = np.zeros_like(ice_concentration)
+    snow_thickness = np.zeros_like(ice_concentration)
+
+    # Only compute thickness where concentration is non-zero
+    mask = ice_concentration > 0
+    ice_thickness[mask] = ice_volume[mask] / ice_concentration[mask]
+    snow_thickness[mask] = snow_volume[mask] / ice_concentration[mask]
 
     return ice_thickness, snow_thickness
 
@@ -172,10 +183,11 @@ def fix_cice_restart(config):
             # Read ice and snow volumes
             vicen = src.variables['vicen'][:]
             vsnon = src.variables['vsnon'][:]
+            aicen = src.variables['aicen'][:]
 
             # Calculate aggregated thicknesses
             ice_thickness, snow_thickness = calculate_aggregated_thickness(
-                vicen, vsnon)
+                aicen, vicen, vsnon)
 
             # Create mask
             mask = create_mask(ice_thickness, snow_thickness,
