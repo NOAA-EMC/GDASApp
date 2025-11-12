@@ -100,8 +100,8 @@ cp -rf $GDASAPP_REGRESSION_TEST_DATA_PATH/obs/gdas.${PDY}/${cyc}/atmos/* $rundir
 
 # Copy backgrounds
 mkdir -p $rundir/bkg
-cp -rf $GDASAPP_REGRESSION_TEST_DATA_PATH/bkg/${CASE}/gdas.${gPDY}/${gcyc}/model/atmos/history/${GPREFIX}csg_atm.f006.nc $rundir/bkg/.
-cp -rf $GDASAPP_REGRESSION_TEST_DATA_PATH/bkg/${CASE}/gdas.${gPDY}/${gcyc}/model/atmos/history/${GPREFIX}csg_sfc.f006.nc $rundir/bkg/.
+cp -rf $GDASAPP_REGRESSION_TEST_DATA_PATH/bkg/${CASE}/gdas.${gPDY}/${gcyc}/model/atmos/history/${GPREFIX}csg_atm.f006.nc $rundir/bkg/${GPREFIX}cubed_sphere_grid_atmf006.nc
+cp -rf $GDASAPP_REGRESSION_TEST_DATA_PATH/bkg/${CASE}/gdas.${gPDY}/${gcyc}/model/atmos/history/${GPREFIX}csg_sfc.f006.nc $rundir/bkg/${GPREFIX}cubed_sphere_grid_sfcf006.nc
 
 # Copy background error files
 mkdir -p $rundir/berror
