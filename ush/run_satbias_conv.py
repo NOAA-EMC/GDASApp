@@ -43,6 +43,8 @@ def run_satbias_conv(config):
     converter_exe = config['satbias2ioda']
     cdump = config.get('dump', 'gdas')
     # loop through all cycles
+    startTime = dt.datetime.strptime(startTime, "%Y%m%d%H")
+    endTime = dt.datetime.strptime(endTime, "%Y%m%d%H")
     nowTime = startTime
     while nowTime <= endTime:
         cdate = nowTime.strftime("%Y%m%d%H")
@@ -115,15 +117,15 @@ def run_satbias_conv(config):
         txtfiles = glob.glob(os.path.join(workdir, '*.txt'))
         allfiles = ncfiles + txtfiles
         for f in allfiles:
-            forig = os.path.basename(f)
-            fstem = Path(forig).stem
-            fsuffix = Path(forig).suffix
+            fname = os.path.basename(f)
+            fstem = Path(fname).stem
+            fsuffix = Path(fname).suffix
             if fsuffix == '.nc':
-                fnew = f"{fstem}_cov.nc"
-                shutil.copy(f, os.path.join(outdir, forig))
-                shutil.move(f, os.path.join(outdir, fnew))
+                fcov = f"{fstem}_cov.nc"
+                shutil.copy(f, os.path.join(outdir, fname))
+                shutil.move(f, os.path.join(outdir, fcov))
             else:
-                shutil.move(f, os.path.join(outdir, forig))
+                shutil.move(f, os.path.join(outdir, fname))
         # remove temp directory
         shutil.rmtree(workdir)
         # advance to the next cycle

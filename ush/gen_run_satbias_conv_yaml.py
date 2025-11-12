@@ -1,28 +1,34 @@
 #!/usr/bin/env python3
-# genYAML
-# generate YAML using ufsda python module,
-# current runtime env, and optional input YAML
+# gen_run_satbias_conv_yaml.py
+# generate YAML for satbias2ioda.x
+# given certain configuration parameters
+
 import argparse
 import datetime as dt
-import logging
 import os
-import re
-from wxflow import parse_j2yaml, cast_strdict_as_dtypedict, save_as_yaml
+from wxflow import Logger, parse_j2yaml, cast_strdict_as_dtypedict, save_as_yaml
 from wxflow import add_to_datetime, to_timedelta
 
+# initialize root logger
+logger = Logger('gen_run_satbias_conv_yaml.py', level='INFO', colored_log=True)
 
-def gen_run_satbias_conv_yaml(input_yaml, output_yaml, config):
-    # read in YAML/Jinja template
-    final_config = parse_j2yaml(input_yaml, config)
-    save_as_yaml(final_config, output_yaml)
+def gen_run_satbias_conv_yaml(output):
+    config = {
+        'start time': os.environ['GDATE'], 
+        'end time': os.environ['GDATE'], 
+        'assim_freq': os.environ['assim_freq'], 
+        'gsi_bc_root': os.environ['DATA'],
+        'ufo_bc_root': f"{os.environ['DATA']}/output/",
+        'work_root': f"{os.environ['DATA']}/tmp/",
+        'satbias2ioda': os.environ['EXX'],
+        'dump': os.environ['GDUMP'],
+    }
+    save_as_yaml(config, output)
+    logger.info(f"Wrote to {output}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', type=str, help='Input YAML Template', required=True)
     parser.add_argument('-o', '--output', type=str, help='Output YAML File', required=True)
     args = parser.parse_args()
-
-    # Take configuration from environment and cast it as python dictionary
-    config = cast_strdict_as_dtypedict(os.environ)
-
-    gen_run_satbias_conv_yaml(args.input, args.output, config)
+    # call the parsing function
+    gen_run_satbias_conv_yaml(args.output)
