@@ -3,7 +3,7 @@
   # Observation Space (I/O)
   # -----------------------
   obs space:
-    name: viirs_n21_aod
+    name: retrieval_aod_viirs_n20
     obsdatain:
       engine:
         type: H5File
@@ -27,7 +27,7 @@
     name: AodCRTM
     Absorbers: [H2O,O3]
     obs options:
-      Sensor_ID: &{{observation_from_jcb}}_sensor_id v.viirs-m_j2
+      Sensor_ID: &{{observation_from_jcb}}_sensor_id v.viirs-m_j1
       EndianType: little_endian
       AerosolOption: aerosols_gocart_default
       CoefficientPath: "{{crtm_coefficient_path}}"
