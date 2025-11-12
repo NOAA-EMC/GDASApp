@@ -2,12 +2,15 @@ aero:
   stat_file_path: '{{ COMIN_AERO_ANALYSIS }}'
   stat_file_name: 'aerostat.tgz'
   obs spaces:
-  - name: viirs_npp
-    input file: "diag_viirs_npp_aod_{{ current_cycle | to_YMDH }}.nc"
-    output file: "viirs_npp_{{ current_cycle | to_YMDH }}_output_aod.nc"
-  - name: viirs_n20
-    input file: "diag_viirs_n20_aod_{{ current_cycle | to_YMDH }}.nc"
-    output file: "viirs_n20_{{ current_cycle | to_YMDH }}_output_aod.nc"
+  - name: retrieval_aod_viirs_npp
+    input file: "diag_retrieval_aod_viirs_npp_{{ current_cycle | to_YMDH }}.nc"
+    output file: "{{ current_cycle | to_YMDH }}.ioda_hofx_stats.retrieval_aod_viirs_npp.nc"
+  - name: retrieval_aod_viirs_n20
+    input file: "diag_retrieval_aod_viirs_n20_{{ current_cycle | to_YMDH }}.nc"
+    output file: "{{ current_cycle | to_YMDH }}.ioda_hofx_stats.retrieval_aod_viirs_n20.nc"
+  - name: retrieval_aod_viirs_n21
+    input file: "diag_retrieval_aod_viirs_n21_{{ current_cycle | to_YMDH }}.nc"
+    output file: "{{ current_cycle | to_YMDH }}.ioda_hofx_stats.retrieval_aod_viirs_n21.nc"
 
 atmos_gsi:
   stat_file_path: '{{ DATA }}/atmos_gsi_ioda'
