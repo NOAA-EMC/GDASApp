@@ -43,10 +43,10 @@ export LEVS="128"
 export DATA=./
 export COMPONENT=atmos
 
-export layout_x=6
-export layout_y=6
-export layout_gsib_x=18
-export layout_gsib_y=12
+export layout_x=9
+export layout_y=8
+export layout_gsib_x=24
+export layout_gsib_y=18
 
 export BERROR_YAML="atmosphere_background_error_static_gsibec"
 export gsibec_ver=20250505
@@ -100,8 +100,8 @@ cp -rf $GDASAPP_REGRESSION_TEST_DATA_PATH/obs/gdas.${PDY}/${cyc}/atmos/* $rundir
 
 # Copy backgrounds
 mkdir -p $rundir/bkg
-cp -rf $GDASAPP_REGRESSION_TEST_DATA_PATH/bkg/${CASE}/gdas.${gPDY}/${gcyc}/model/atmos/history/${GPREFIX}cubed_sphere_grid_atmf006.nc $rundir/bkg/.
-cp -rf $GDASAPP_REGRESSION_TEST_DATA_PATH/bkg/${CASE}/gdas.${gPDY}/${gcyc}/model/atmos/history/${GPREFIX}cubed_sphere_grid_sfcf006.nc $rundir/bkg/.
+cp -rf $GDASAPP_REGRESSION_TEST_DATA_PATH/bkg/${CASE}/gdas.${gPDY}/${gcyc}/model/atmos/history/${GPREFIX}csg_atm.f006.nc $rundir/bkg/.
+cp -rf $GDASAPP_REGRESSION_TEST_DATA_PATH/bkg/${CASE}/gdas.${gPDY}/${gcyc}/model/atmos/history/${GPREFIX}csg_sfc.f006.nc $rundir/bkg/.
 
 # Copy background error files
 mkdir -p $rundir/berror
@@ -197,6 +197,10 @@ observations:
  - atms_n20
  - atms_n21
  - atms_npp
+ - iasi_metop-b
+ - iasi_metop-c
+ - cris-fsr_n20
+ - cris-fsr_n21
 #observations: all_observations
 
 crtm_coefficient_path: "$rundir/crtm/"
