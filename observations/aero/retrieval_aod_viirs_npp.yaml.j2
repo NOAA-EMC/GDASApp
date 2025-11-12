@@ -3,16 +3,16 @@
   # Observation Space (I/O)
   # -----------------------
   obs space:
-    name: viirs_n20_aod
+    name: retrieval_aod_viirs_npp
     obsdatain:
       engine:
         type: H5File
         obsfile: "{{aero_obsdatain_path}}/{{aero_obsdatain_prefix}}{{observation_from_jcb}}{{aero_obsdatain_suffix}}"
-        missing file action: warn
     obsdataout:
       engine:
         type: H5File
         obsfile: "{{aero_obsdataout_path}}/{{aero_obsdataout_prefix}}{{observation_from_jcb}}{{aero_obsdataout_suffix}}"
+        missing file action: warn
     io pool:
       max pool size: 2
     simulated variables: [aerosolOpticalDepth]
@@ -27,7 +27,7 @@
     name: AodCRTM
     Absorbers: [H2O,O3]
     obs options:
-      Sensor_ID: &{{observation_from_jcb}}_sensor_id v.viirs-m_j1
+      Sensor_ID: &{{observation_from_jcb}}_sensor_id v.viirs-m_npp
       EndianType: little_endian
       AerosolOption: aerosols_gocart_default
       CoefficientPath: "{{crtm_coefficient_path}}"
