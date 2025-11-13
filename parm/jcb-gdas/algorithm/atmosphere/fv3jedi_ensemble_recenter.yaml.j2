@@ -24,7 +24,7 @@ members:
     npy: {{ atmosphere_npy_anl }}
     npz: {{ atmosphere_npz_anl }}
   state:
-    datetime: {{ atmosphere_iau_times_iso[ihour] }}
+    datetime: '{{ atmosphere_iau_times_iso[ihour] }}'
     state variables:
     - eastward_wind
     - northward_wind

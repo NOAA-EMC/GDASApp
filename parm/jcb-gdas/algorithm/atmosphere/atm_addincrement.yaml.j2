@@ -23,7 +23,7 @@ increment geometry:
   npz: {{ atmosphere_npz_ges }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
 state:
-  datetime: {{ atmosphere_background_time_iso }}
+  datetime: '{{ atmosphere_background_time_iso }}'
   state variables:
   - eastward_wind
   - northward_wind
