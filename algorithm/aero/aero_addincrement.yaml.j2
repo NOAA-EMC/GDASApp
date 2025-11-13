@@ -23,7 +23,7 @@ increment geometry:
   npz: {{ aero_npz_ges }}
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 state:
-  datetime: {{ aero_background_time_iso }}
+  datetime: '{{ aero_background_time_iso }}'
   state variables: {{ analysis_variables }}
   filetype: cube sphere history
   provider: ufs

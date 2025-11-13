@@ -54,7 +54,7 @@ correction increment geometry:
   npz: {{ atmosphere_npz_anl }}
 forecast hours:
 {% for ihour in range( atmosphere_iau_hours | length ) %}
-- datetime: {{ atmosphere_iau_times_iso[ihour] }}
+- datetime: '{{ atmosphere_iau_times_iso[ihour] }}'
   deterministic background:
     filetype: cube sphere history
     provider: ufs
