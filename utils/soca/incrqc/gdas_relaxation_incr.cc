@@ -23,23 +23,17 @@ soca::Increment computeRelaxationIncrement(
   // Get valid time from background state
   const util::DateTime validTime = xb.validTime();
 
-  // Get relaxation configuration - config is the full relaxation config
-  const std::string relaxBasename = config.getString("basename");
-
-  // Get ocean filename template from configuration
-  const std::string ocnTemplate = config.getString("ocn_filename");
-
   // Find monthly relaxation field files for interpolation
+  const std::string relaxBasename = config.getString("basename");
+  const std::string ocnTemplate = config.getString("ocn_filename");
   auto [prevFile, nextFile] = findMonthlyRelaxationFiles(validTime, relaxBasename, ocnTemplate);
   oops::Log::debug() << "Previous month file: " << prevFile << std::endl;
   oops::Log::debug() << "Next month file: " << nextFile << std::endl;
 
-  // Compute interpolation weights
+  // Interpolate in time the relaxation field (assumes monthly fields)
   auto [prevWeight, nextWeight] = computeMonthlyInterpolationWeights(validTime);
   oops::Log::debug() << "Interpolation weights: prev=" << prevWeight
                      << ", next=" << nextWeight << std::endl;
-
-  // Load and interpolate relaxation field
   atlas::FieldSet relaxFields = loadAndInterpolateRelaxationField(
       prevFile, nextFile, {prevWeight, nextWeight}, geom, config);
 
@@ -48,10 +42,9 @@ soca::Increment computeRelaxationIncrement(
   xb.toFieldSet(xbFs);
   dx.toFieldSet(dxFs);
 
-  // Create output increment FieldSet (copy structure from dx)
+  // Create output relaxation increment FieldSet based on the relaxation fields
   atlas::FieldSet relaxIncrFs;
-  for (const auto& field : dxFs) {
-    // Create field with same structure as the original
+  for (const auto& field : relaxFields) {
     atlas::Field newField = atlas::Field(field.name(), field.datatype(), field.shape());
     relaxIncrFs.add(newField);
   }
@@ -70,7 +63,11 @@ soca::Increment computeRelaxationIncrement(
       oops::Log::debug() << "Variable " << varName << " not found in relaxation field, zeroing increment" << std::endl;
       // Zero out the increment for this variable
       auto viewRelaxIncr = atlas::array::make_view<double, 2>(relaxIncrFs[varName]);
+      const auto & ghostView = atlas::array::make_view<int, 1>(relaxIncrFs[varName].functionspace().ghost());
       for (atlas::idx_t jnode = 0; jnode < viewRelaxIncr.shape(0); ++jnode) {
+        // Skip ghost points
+        if (ghostView(jnode)) continue;
+
         for (atlas::idx_t jlevel = 0; jlevel < viewRelaxIncr.shape(1); ++jlevel) {
           viewRelaxIncr(jnode, jlevel) = 0.0;
         }
@@ -86,6 +83,9 @@ soca::Increment computeRelaxationIncrement(
     auto viewDx = atlas::array::make_view<double, 2>(dxFs[varName]);
     auto viewRelaxIncr = atlas::array::make_view<double, 2>(relaxIncrFs[varName]);
 
+    // Get ghost view to skip ghost points
+    const auto & ghostView = atlas::array::make_view<int, 1>(xbFs[varName].functionspace().ghost());
+
     // Get layer thickness for masking thin layers
     auto viewThickness = atlas::array::make_view<double, 2>(xbFs["sea_water_cell_thickness"]);
     const double minThickness = 0.1;
@@ -93,22 +93,76 @@ soca::Increment computeRelaxationIncrement(
     // Compute relaxation increment: relax - (background + increment)
     // Set to 0 where layer thickness < 0.1
     for (atlas::idx_t jnode = 0; jnode < viewRelax.shape(0); ++jnode) {
+      // Skip ghost points
+      if (ghostView(jnode)) continue;
+
       for (atlas::idx_t jlevel = 0; jlevel < viewRelax.shape(1); ++jlevel) {
         if (viewThickness(jnode, jlevel) < minThickness) {
           // Set increment to 0 for thin layers
           viewRelaxIncr(jnode, jlevel) = 0.0;
         } else {
-          // Normal computation for thick enough layers
-          viewRelaxIncr(jnode, jlevel) = viewRelax(jnode, jlevel) -
-              (viewBkg(jnode, jlevel) + viewDx(jnode, jlevel));
+          // Check for NaN in input values before computation
+          double relaxVal = viewRelax(jnode, jlevel);
+          double bkgVal = viewBkg(jnode, jlevel);
+          double dxVal = viewDx(jnode, jlevel);
+
+          if (std::isnan(relaxVal)) {
+            double thickness = viewThickness(jnode, jlevel);
+            oops::Log::warning() << "NaN in relaxation field " << varName << " at node="
+                       << jnode << ", level=" << jlevel
+                       << ", thickness=" << thickness << std::endl;
+            // Zero out increment where relaxation field has NaN
+            viewRelaxIncr(jnode, jlevel) = 0.0;
+          } else if (std::isnan(bkgVal)) {
+            oops::Log::warning() << "NaN in background field " << varName << " at node="
+                                 << jnode << ", level=" << jlevel << std::endl;
+            // Zero out increment where background field has NaN
+            viewRelaxIncr(jnode, jlevel) = 0.0;
+          } else if (std::isnan(dxVal)) {
+            oops::Log::warning() << "NaN in increment field " << varName << " at node="
+                                 << jnode << ", level=" << jlevel << std::endl;
+            // Zero out increment where dx field has NaN
+            viewRelaxIncr(jnode, jlevel) = 0.0;
+          } else {
+            // Normal computation for thick enough layers
+            viewRelaxIncr(jnode, jlevel) = relaxVal - (bkgVal + dxVal);
+          }
         }
       }
     }
+
+//    // Check for NaN or extreme values in the relaxation increment
+//    bool foundIssues = false;
+//    for (atlas::idx_t jnode = 0; jnode < viewRelaxIncr.shape(0); ++jnode) {
+//      // Skip ghost points for checking as well
+//      if (ghostView(jnode)) continue;
+//
+//      for (atlas::idx_t jlevel = 0; jlevel < viewRelaxIncr.shape(1); ++jlevel) {
+//        double val = viewRelaxIncr(jnode, jlevel);
+//        if (std::isnan(val)) {
+//          oops::Log::warning() << "NaN detected in " << varName << " relaxation increment at node="
+//                               << jnode << ", level=" << jlevel << std::endl;
+//          foundIssues = true;
+//        } else if (std::abs(val) > 1e6) {
+//          oops::Log::warning() << "Extreme value (" << val << ") detected in " << varName
+//                               << " relaxation increment at node=" << jnode << ", level=" << jlevel << std::endl;
+//          foundIssues = true;
+//        }
+//      }
+//    }
+//
+//    if (foundIssues) {
+//      oops::Log::warning() << "Issues detected in relaxation increment for variable: " << varName << std::endl;
+//    } else {
+//      oops::Log::debug() << "No NaN or extreme values found in relaxation increment for variable: " << varName << std::endl;
+//    }
   }
 
   // Convert back to increment
   soca::Increment relaxIncr(geom, dx.variables(), validTime);
   relaxIncr.fromFieldSet(relaxIncrFs);
+
+  oops::Log::info() << "============= relaxIncr:" << std::endl;
   oops::Log::info() << relaxIncr << std::endl;
   oops::Log::debug() << "======      Finished computing relaxation increment" << std::endl;
 
@@ -286,15 +340,41 @@ atlas::FieldSet loadAndInterpolateRelaxationField(
   // Load previous month relaxation field (ocean and ice fields)
   oops::Log::debug() << "Loading previous month relaxation field: " << prevFile << std::endl;
   soca::State prevRelax(geom, prevConfig);
+  oops::Log::debug() << "Previous state loaded: " << prevRelax << std::endl;
 
   // Load next month relaxation field (ocean and ice fields)
   oops::Log::debug() << "Loading next month relaxation field: " << nextFile << std::endl;
   soca::State nextRelax(geom, nextConfig);
+  oops::Log::debug() << "Next state loaded: " << nextRelax << std::endl;
 
   // Convert states to FieldSets for interpolation
   atlas::FieldSet prevFs, nextFs;
   prevRelax.toFieldSet(prevFs);
   nextRelax.toFieldSet(nextFs);
+
+  // Check for NaNs in source FieldSets - scan more thoroughly at depth
+  for (const auto& field : prevFs) {
+    const std::string& fieldName = field.name();
+    auto view = atlas::array::make_view<double, 2>(field);
+    int nanCount = 0;
+
+    // Check specifically around level 71 where NaNs were found
+    for (atlas::idx_t i = 3885; i < std::min((atlas::idx_t)3895, view.shape(0)); ++i) {
+      for (atlas::idx_t j = 70; j < std::min((atlas::idx_t)75, view.shape(1)); ++j) {
+        if (std::isnan(view(i, j))) {
+          oops::Log::warning() << "NaN in FieldSet " << fieldName << " at node=" << i << ", level=" << j
+                               << " (value=" << view(i, j) << ")" << std::endl;
+          nanCount++;
+          if (nanCount > 5) break;
+        }
+      }
+      if (nanCount > 5) break;
+    }
+
+    if (nanCount > 0) {
+      oops::Log::warning() << "Found " << nanCount << " NaNs in FieldSet " << fieldName << " immediately after State conversion" << std::endl;
+    }
+  }
 
   // Create result FieldSet for interpolated relaxation field
   atlas::FieldSet result;
@@ -313,6 +393,7 @@ atlas::FieldSet loadAndInterpolateRelaxationField(
     // Create interpolated field using the structure from relaxation field data
     const auto& fieldRef = prevFs[varName];
     atlas::Field interpField = atlas::Field(varName, fieldRef.datatype(), fieldRef.shape());
+    interpField.set_functionspace(fieldRef.functionspace());
 
     // Get views for interpolation
     auto viewPrev = atlas::array::make_view<double, 2>(prevFs[varName]);
@@ -326,6 +407,28 @@ atlas::FieldSet loadAndInterpolateRelaxationField(
                                     nextWeight * viewNext(jnode, jlevel);
       }
     }
+
+    // Use flood extrapolation to fill some of the masked values in the interpolated relaxation field
+    oops::Log::debug() << "Applying flood extrapolation to fill masked values in " << varName << std::endl;
+    const oops::GeometryData geomData(geom.functionSpace(), geom.fields(),
+                                      geom.levelsAreTopDown(), geom.getComm());
+    gdasapp::genutils::Flood flood(geomData);
+
+    // Create mask: 1 for valid values (source), 0 for NaN values (target)
+    // Copy the field structure but change the data type to int for the mask
+    atlas::Field mask = atlas::Field("mask", atlas::array::make_datatype<int>(), interpField.shape());
+    mask.set_functionspace(interpField.functionspace());
+    auto maskView = atlas::array::make_view<int, 2>(mask);
+    auto interpView = atlas::array::make_view<double, 2>(interpField);
+
+    for (atlas::idx_t jnode = 0; jnode < interpView.shape(0); ++jnode) {
+      for (atlas::idx_t jlevel = 0; jlevel < interpView.shape(1); ++jlevel) {
+        maskView(jnode, jlevel) = std::isnan(interpView(jnode, jlevel)) ? 0 : 1;
+      }
+    }
+
+    // Apply flood filling: extrapolate from valid values (1) to masked values (0)
+    flood.apply(interpField, mask, /*source_mask*/1, /*target_mask*/0, /*niter*/10);
 
     result.add(interpField);
     oops::Log::debug() << "Added " << varName << " to interpolated relaxation field" << std::endl;

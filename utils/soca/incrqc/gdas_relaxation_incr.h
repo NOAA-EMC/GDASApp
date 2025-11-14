@@ -12,10 +12,13 @@
 
 #include "oops/util/Logger.h"
 #include "oops/util/DateTime.h"
+#include "oops/base/GeometryData.h"
 
 #include "soca/Increment/Increment.h"
 #include "soca/State/State.h"
 #include "soca/Geometry/Geometry.h"
+
+#include "../../genutils/Flood.h"
 
 namespace gdasapp {
 namespace incrqc {

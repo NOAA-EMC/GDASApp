@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -151,6 +152,15 @@ inline void qcIncrement(const soca::State& xb,
     double tau_ocean = relaxConfig.has("ocean") ? relaxConfig.getDouble("ocean.relaxation time", 168.0) : 168.0;
     double tau_ice = relaxConfig.has("ice") ? relaxConfig.getDouble("ice.relaxation time", 240.0) : 240.0;
 
+    // Get variable lists for regional relaxation
+    std::vector<std::string> arcticVars, antarcticVars;
+    if (relaxConfig.has("ice") && relaxConfig.getSubConfiguration("ice").has("arctic variables")) {
+      arcticVars = relaxConfig.getSubConfiguration("ice").getStringVector("arctic variables");
+    }
+    if (relaxConfig.has("ice") && relaxConfig.getSubConfiguration("ice").has("antarctic variables")) {
+      antarcticVars = relaxConfig.getSubConfiguration("ice").getStringVector("antarctic variables");
+    }
+
     oops::Log::info() << "DA window: " << dt_DA << " hours" << std::endl;
     oops::Log::info() << "Ocean relaxation time: " << tau_ocean << " hours, Ice relaxation time: " << tau_ice << " hours" << std::endl;
 
@@ -165,6 +175,7 @@ inline void qcIncrement(const soca::State& xb,
       }
 
       // Determine if this is a sea ice variable based on variable name
+      // TODO (G): Get the domain information from fieldsmetadata.yaml
       bool isIceVariable = (varName.find("sea_ice") != std::string::npos);
 
       // Select appropriate relaxation time and compute weight
@@ -180,6 +191,26 @@ inline void qcIncrement(const soca::State& xb,
       auto viewRelax = atlas::array::make_view<double, 2>(relaxIncrFs[varName]);
 
       for (atlas::idx_t jnode = 0; jnode < viewFinal.shape(0); ++jnode) {
+        // Apply regional filter for variables
+        double lat = lonlat(jnode, 1);  // latitude in degrees
+
+        // Check if this variable should be relaxed in Arctic (lat > 60°N)
+        if (lat > 60.0) {
+          bool varInArcticList = std::find(arcticVars.begin(), arcticVars.end(), varName) != arcticVars.end();
+          if (!varInArcticList) {
+            continue;  // Skip relaxation for this node
+          }
+        }
+
+        // Check if this variable should be relaxed in Antarctic (lat < -60°S)
+        if (lat < -60.0) {
+          bool varInAntarcticList = std::find(antarcticVars.begin(), antarcticVars.end(), varName) != antarcticVars.end();
+          if (!varInAntarcticList) {
+            continue;  // Skip relaxation for this node
+          }
+        }
+
+        // Apply weighted combination for this node
         for (atlas::idx_t jlevel = 0; jlevel < viewFinal.shape(1); ++jlevel) {
           double daIncr = viewFinal(jnode, jlevel);
           viewFinal(jnode, jlevel) = wda * daIncr + (1.0 - wda) * viewRelax(jnode, jlevel);
