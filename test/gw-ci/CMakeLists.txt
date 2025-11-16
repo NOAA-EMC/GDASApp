@@ -40,10 +40,15 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
       "enkfgdas_epos005"
       "enkfgdas_epos006")
   elseif("${task_name}" STREQUAL "enkfgdas_ecmn")
-    set(subtask_names_list
-      "enkfgdas_ecen000"
-      "enkfgdas_ecen001"
-      "enkfgdas_ecen002")
+    if("${pslot}" STREQUAL "C96C48_ufsgsi_hybatmDA")
+      set(subtask_names_list
+        "enkfgdas_ecen000")
+    else()
+      set(subtask_names_list
+        "enkfgdas_ecen000"
+        "enkfgdas_ecen001"
+        "enkfgdas_ecen002")
+    endif()
   else()
     set(subtask_names_list ${task_name})
   endif()
@@ -373,6 +378,7 @@ if (WORKFLOW_TESTS)
       "gdas_atmos_prod"
       "enkfgdas_stage_ic"
       "enkfgdas_fcst"
+      "enkfgdas_echgres"
       "enkfgdas_epmn")
     set(FULL_CYCLE_TASKS
       "gdas_prep"
