@@ -6,7 +6,7 @@
 #include "fv3jedi/ObsLocalization/instantiateObsLocFactory.h"
 #include "fv3jedi/Utilities/Traits.h"
 
-#include "soca/Traits.h"
+// #include "soca/Traits.h"
 
 #include "saber/oops/instantiateCovarFactory.h"
 #include "ufo/instantiateObsErrorFactory.h"
@@ -40,8 +40,6 @@ int runApp(int argc, char** argv, const std::string traits, const std::string ap
   if (appName == "localensembleda") {
     if (traits == "fv3jedi") {
       fv3jedi::instantiateObsLocFactory();
-    } else if (traits == "soca") {
-      ufo::instantiateObsLocFactory<soca::Traits>();
     }
   }
 
@@ -98,7 +96,7 @@ int main(int argc,  char ** argv) {
 
   // Check that the traits are recognized
   // ------------------------------------
-  const std::set<std::string> validTraits = {"fv3jedi", "soca"};
+  const std::set<std::string> validTraits = {"fv3jedi"};
   ASSERT_MSG(validTraits.find(traits) != validTraits.end(), "Traits not recognized: " + traits);
 
   // Check that the application is recognized
@@ -125,8 +123,6 @@ int main(int argc,  char ** argv) {
   if (traits == "fv3jedi") {
     fv3jedi::instantiateObsLocFactory();
     return runApp<fv3jedi::Traits>(argc, argv, traits, app);
-  } else if (traits == "soca") {
-    return runApp<soca::Traits>(argc, argv, traits, app);
   }
 }
 

@@ -33,6 +33,8 @@ include( ecbuild_bundle )
 # Enable MPI
 set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
 
+set(BUILD_TESTING OFF CACHE BOOL "Build tests")
+
 # Handle user options.
 option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
 option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
