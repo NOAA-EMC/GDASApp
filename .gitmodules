@@ -1,14 +1,6 @@
 [submodule "sorc/jedicmake"]
   path = sorc/jedicmake
   url = https://github.com/jcsda/jedi-cmake.git
-[submodule "sorc/gsibec"]
-  path = sorc/gsibec
-  url = https://github.com/GEOS-ESM/GSIbec.git
-  branch = develop
-[submodule "sorc/gsw"]
-  path = sorc/gsw
-  url = https://github.com/jcsda-internal/GSW-Fortran.git
-  branch = develop
 [submodule "sorc/oops"]
   path = sorc/oops
   url = https://github.com/jcsda/oops.git
@@ -37,23 +29,6 @@
   path = sorc/fv3-jedi
   url = https://github.com/jcsda/fv3-jedi.git
   branch = develop
-[submodule "sorc/soca"]
-  path = sorc/soca
-  url = https://github.com/NOAA-EMC/soca.git
-  branch = dev/emc
-  ignore = dirty
-[submodule "sorc/iodaconv"]
-  path = sorc/iodaconv
-  url = https://github.com/JCSDA-internal/ioda-converters.git
-  branch = develop
-[submodule "sorc/land-imsproc"]
-  path = sorc/land-imsproc
-  url = https://github.com/NOAA-EMC/land-SCF_proc.git
-  branch = develop
-[submodule "sorc/land-jediincr"]
-  path = sorc/land-jediincr
-  url = https://github.com/NOAA-EMC/land-apply_jedi_incr.git
-  branch = develop
 [submodule "sorc/crtm"]
   path = sorc/crtm
   url = https://github.com/jcsda/crtm.git
@@ -74,12 +49,3 @@
   path = sorc/da-utils
   url = https://github.com/noaa-emc/da-utils.git
   branch = develop
-[submodule "sorc/bufr-query"]
-  path = sorc/bufr-query
-  url = https://github.com/noaa-emc/bufr-query.git
-  branch = develop
-[submodule "sorc/spoc"]
-  path = sorc/spoc
-  url = https://github.com/noaa-emc/spoc.git
-  branch = develop
-  ignore = dirty

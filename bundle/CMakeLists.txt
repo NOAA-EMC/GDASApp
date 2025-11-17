@@ -79,18 +79,6 @@ if(BUILD_GDASBUNDLE)
   #ecbuild_bundle( PROJECT crtm GIT "https://github.com/JCSDA/crtm.git"   TAG v2.4.1-jedi.2 )
   ecbuild_bundle( PROJECT crtm SOURCE "../sorc/crtm" )
 
-# Build GSI-B
-  option(BUILD_GSIBEC "Build GSI-B" OFF)
-  if(BUILD_GSIBEC)
-    ecbuild_bundle( PROJECT gsibec SOURCE "../sorc/gsibec" )
-  endif()
-
-# Gibbs seawater
-  ecbuild_bundle( PROJECT gsw SOURCE "../sorc/gsw" )
-
-# EMC BUFR-query library
-  ecbuild_bundle( PROJECT bufr-query SOURCE "../sorc/bufr-query" )
-
 # Core JEDI repositories
   ecbuild_bundle( PROJECT oops SOURCE "../sorc/oops" )
   ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
@@ -105,22 +93,9 @@ if(BUILD_GDASBUNDLE)
   option(ENABLE_FV3_JEDI_DATA "Obtain fv3-jedi test data from fv3-jedi-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
 
-# SOCA associated repositories
-  ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
-
   # Build JEDI/DA or other peripherals
   ecbuild_bundle( PROJECT gdas-utils SOURCE "../utils" )
   ecbuild_bundle( PROJECT da-utils SOURCE "../sorc/da-utils" )
-
-# Build IODA converters
-  option(BUILD_IODA_CONVERTERS "Build IODA Converters" ON)
-  if(BUILD_IODA_CONVERTERS)
-    ecbuild_bundle( PROJECT iodaconv SOURCE "../sorc/iodaconv" )
-  endif()
-
-# Land associated repositories
-  ecbuild_bundle( PROJECT land-imsproc SOURCE "../sorc/land-imsproc" )
-  ecbuild_bundle( PROJECT land-jediincr SOURCE "../sorc/land-jediincr" )
 
 # GDASApp
   ecbuild_bundle( PROJECT gdas SOURCE "../")
