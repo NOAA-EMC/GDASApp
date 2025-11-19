@@ -111,6 +111,8 @@ qc increment:
       relaxation time: 168.0         # Relaxation time scale in hours (7 days)
     ice:
       relaxation time: 240.0         # Relaxation time scale in hours (10 days)
+      arctic variables: []
+      antarctic variables: [sea_ice_snow_thickness]
     # Debug output - save relaxation increment for inspection
     debug output:
       datadir: ./

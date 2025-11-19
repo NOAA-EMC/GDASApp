@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -23,6 +24,17 @@
 namespace gdasapp {
 namespace incrqc {
 namespace relaxation {
+
+// Structure to hold field bounds and metadata
+struct FieldBounds {
+  double minValid = -1e30;
+  double maxValid = 1e30;
+  double fillValue = 0.0;
+  std::string ioFile = "";  // Domain: "ocn", "ice", "sfc", etc.
+};
+
+// Function to parse fields metadata YAML and extract bounds
+std::map<std::string, FieldBounds> parseFieldsMetadata(const std::string& yamlPath);
 
 /**
  * @brief Compute relaxation increment for ocean and sea ice by interpolating monthly relaxation fields to background valid time
@@ -83,6 +95,7 @@ std::pair<double, double> computeMonthlyInterpolationWeights(
  * @param weights Interpolation weights (prev_weight, next_weight)
  * @param geom Geometry for regridding if needed
  * @param config Configuration for field loading
+ * @param fieldBounds Map of variable names to their bounds (min/max valid values and fill values)
  * @return atlas::FieldSet Interpolated relaxation fields (Temp, Salt)
  */
 atlas::FieldSet loadAndInterpolateRelaxationField(
@@ -90,7 +103,8 @@ atlas::FieldSet loadAndInterpolateRelaxationField(
     const std::string& nextFile,
     const std::pair<double, double>& weights,
     const soca::Geometry& geom,
-    const eckit::Configuration& config);
+    const eckit::Configuration& config,
+    const std::map<std::string, FieldBounds>& fieldBounds);
 
 
 }  // namespace relaxation

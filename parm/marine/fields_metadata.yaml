@@ -12,6 +12,8 @@
 #                       This parameter cannot be used with io_file/io_name
 # fill value:           If the field is masked, this value will be used for the masked areas.
 #                       (Default: 0.0)
+# min valid:            Minimum physically reasonable value for quality control (Default: -1e30)
+# max valid:            Maximum physically reasonable value for quality control (Default: 1e30)
 # categories:           Number of categories for a field with a category dimension (Default: -1)
 #                       If > 0, then the fields "name", and "io name" can use the
 #                       placeholder "<CATEGORY>" which will be replaced with the category number
@@ -26,6 +28,8 @@
   levels: full_ocn
   io file: ocn
   io name: Temp
+  min valid: -5.0
+  max valid: 50.0
 
 - name: sea_water_salinity
   name surface: sea_surface_salinity
@@ -33,6 +37,8 @@
   io file: ocn
   io name: Salt
   property: positive_definite
+  min valid: 0.0
+  max valid: 50.0
 
 - name: eastward_sea_water_velocity
   name surface: surface_eastward_sea_water_velocity
@@ -40,6 +46,8 @@
   levels: full_ocn
   io file: ocn
   io name: u
+  min valid: -5.0
+  max valid: 5.0
 
 - name: northward_sea_water_velocity
   name surface: surface_northward_sea_water_velocity
@@ -47,29 +55,41 @@
   levels: full_ocn
   io file: ocn
   io name: v
+  min valid: -5.0
+  max valid: 5.0
 
 - name: sea_water_cell_thickness
   levels: full_ocn
   io file: ocn
   io name: h
   vert interp: false
+  min valid: 0.0
+  max valid: 6000.0
 
 - name: sea_surface_height_above_geoid
   io file: ocn
   io name: ave_ssh
+  min valid: -6.0
+  max valid: 6.0
 
 - name: barotropic_eastward_sea_water_velocity
   io file: ocn
   io name: ubg
+  min valid: -5.0
+  max valid: 5.0
 
 - name: barotropic_northward_sea_water_velocity
   io file: ocn
   io name: vbg
+  min valid: -5.0
+  max valid: 5.0
 
 - name: mom6_mld
   io file: ocn
   io name: MLD
   fill value: 0.0
+  min valid: 0.0
+  max valid: 6000.0
 
 # --------------------------------------------------------------------------------------------------
 # ice state variables with no categories
@@ -78,27 +98,39 @@
   io file: ice
   io name: hi_h #note, was hicen
   property: positive_definite
+  min valid: 0.0
+  max valid: 15.0
 
 - name: sea_ice_area_fraction
   io file: ice
   io name: aice_h #note, was aicen
+  min valid: 0.0
+  max valid: 1.0
 
 - name: sea_ice_snow_thickness
   io file: ice
   io name: hs_h #note, was hsnon
   property: positive_definite
+  min valid: 0.0
+  max valid: 15.0
 
 - name: snow_ice_surface_temperature
   io file: ice
   io name: Tsfc_h
+  min valid: -50.0
+  max valid: 1.0
 
 - name: air_temperature
   io file: ice
   io name: Tair_h
+  min valid: -50.0
+  max valid: 50.0
 
 - name: bulk_ice_salinity
   io file: ice
   io name: sice_h
+  min valid: 0.0
+  max valid: 50.0
 
 # --------------------------------------------------------------------------------------------------
 # ice state variables with category dimension

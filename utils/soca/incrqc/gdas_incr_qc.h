@@ -131,9 +131,29 @@ inline void qcIncrement(const soca::State& xb,
 
     oops::Log::info() << "Computing relaxation increment (ocean and ice)" << std::endl;
 
+    // Get fields metadata path from the geometry configuration, not relaxation config
+    std::string fieldsMetadataPath = "./fields_metadata.yaml";  // default
+    if (config.has("geometry") && config.getSubConfiguration("geometry").has("fields metadata")) {
+      fieldsMetadataPath = config.getSubConfiguration("geometry").getString("fields metadata");
+    }
+    
+    // Load field metadata for domain information
+    std::map<std::string, gdasapp::incrqc::relaxation::FieldBounds> fieldBounds =
+        gdasapp::incrqc::relaxation::parseFieldsMetadata(fieldsMetadataPath);
+
+    // If that fails, try production path as fallback
+    if (fieldBounds.empty()) {
+      fieldsMetadataPath = "parm/marine/fields_metadata.yaml";
+      fieldBounds = gdasapp::incrqc::relaxation::parseFieldsMetadata(fieldsMetadataPath);
+    }
+    
+    // Add the fields metadata path to the relaxation config for the function to use
+    eckit::LocalConfiguration relaxConfigWithMetadata(relaxConfig);
+    relaxConfigWithMetadata.set("fields metadata", fieldsMetadataPath);
+
     // Compute relaxation increment for all configured fields
     soca::Increment relaxIncr = gdasapp::incrqc::relaxation::computeRelaxationIncrement(
-        xb, dx, geom, relaxConfig);
+        xb, dx, geom, relaxConfigWithMetadata);
 
     // Save relaxation increment for debugging
     if (relaxConfig.has("debug output")) {
@@ -174,9 +194,16 @@ inline void qcIncrement(const soca::State& xb,
         continue;
       }
 
-      // Determine if this is a sea ice variable based on variable name
-      // TODO (G): Get the domain information from fieldsmetadata.yaml
-      bool isIceVariable = (varName.find("sea_ice") != std::string::npos);
+      // Determine variable domain from field metadata
+      bool isIceVariable = false;
+      if (fieldBounds.find(varName) != fieldBounds.end()) {
+        const auto& bounds = fieldBounds.at(varName);
+        isIceVariable = (bounds.ioFile == "ice");
+      } else {
+        // Skip variable if not found in field metadata
+        oops::Log::warning() << "Variable " << varName << " not found in field metadata, skipping relaxation for this variable" << std::endl;
+        continue;
+      }
 
       // Select appropriate relaxation time and compute weight
       double tau = isIceVariable ? tau_ice : tau_ocean;
@@ -191,29 +218,31 @@ inline void qcIncrement(const soca::State& xb,
       auto viewRelax = atlas::array::make_view<double, 2>(relaxIncrFs[varName]);
 
       for (atlas::idx_t jnode = 0; jnode < viewFinal.shape(0); ++jnode) {
-        // Apply regional filter for variables
-        double lat = lonlat(jnode, 1);  // latitude in degrees
+        // Apply regional filter for sea ice variables only
+        bool applyRelaxation = true;  // Default: apply relaxation everywhere
 
-        // Check if this variable should be relaxed in Arctic (lat > 60°N)
-        if (lat > 60.0) {
-          bool varInArcticList = std::find(arcticVars.begin(), arcticVars.end(), varName) != arcticVars.end();
-          if (!varInArcticList) {
-            continue;  // Skip relaxation for this node
-          }
-        }
+        if (isIceVariable) {
+          double lat = lonlat(jnode, 1);  // latitude in degrees
 
-        // Check if this variable should be relaxed in Antarctic (lat < -60°S)
-        if (lat < -60.0) {
-          bool varInAntarcticList = std::find(antarcticVars.begin(), antarcticVars.end(), varName) != antarcticVars.end();
-          if (!varInAntarcticList) {
-            continue;  // Skip relaxation for this node
+          // Arctic region (lat > 50°N): only relax variables in arctic list
+          if (lat > 50.0) {
+            bool varInArcticList = std::find(arcticVars.begin(), arcticVars.end(), varName) != arcticVars.end();
+            applyRelaxation = varInArcticList;
           }
+          // Antarctic region (lat < -50°S): only relax variables in antarctic list
+          else if (lat < -50.0) {
+            bool varInAntarcticList = std::find(antarcticVars.begin(), antarcticVars.end(), varName) != antarcticVars.end();
+            applyRelaxation = varInAntarcticList;
+          }
+          // Mid-latitudes: apply relaxation normally (applyRelaxation remains true)
         }
 
         // Apply weighted combination for this node
-        for (atlas::idx_t jlevel = 0; jlevel < viewFinal.shape(1); ++jlevel) {
-          double daIncr = viewFinal(jnode, jlevel);
-          viewFinal(jnode, jlevel) = wda * daIncr + (1.0 - wda) * viewRelax(jnode, jlevel);
+        if (applyRelaxation) {
+          for (atlas::idx_t jlevel = 0; jlevel < viewFinal.shape(1); ++jlevel) {
+            double daIncr = viewFinal(jnode, jlevel);
+            viewFinal(jnode, jlevel) = wda * daIncr + (1.0 - wda) * viewRelax(jnode, jlevel);
+          }
         }
       }
     }

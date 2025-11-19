@@ -151,3 +151,22 @@ add_test_with_resources(test_gdasapp_utils_incrhandler_relaxation
                         ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
                         "${MPI_COMMAND} 2"
                         ocn.mom6_iau_incqc_relax.nc)
+# gdas_soca_incr_handler.x: Test relaxation field nudging functionality with 8 processes
+add_test_with_resources(test_gdasapp_utils_incrhandler_relaxation_8pes
+                        gdas_soca_incr_handler.x
+                        ${PROJECT_SOURCE_DIR}/soca/test/testinput/gdas_incr_handler_relaxation.yaml
+                        ${PROJECT_SOURCE_DIR}/soca/test/generate_soca_resources.py
+                        "${MPI_COMMAND} 8"
+                        ocn.mom6_iau_incqc_relax.nc)
+# Add a reproducibility test for relaxation
+add_test(NAME test_gdasapp_utils_incrhandler_relaxation_reproducibility
+             COMMAND bash -c "
+    nccmp --tolerance=1e-7 -v Temp -d \
+      ${PROJECT_BINARY_DIR}/test/gdasapp/test_gdasapp_utils_incrhandler_relaxation/ocn.mom6_iau_incqc_relax.nc \
+      ${PROJECT_BINARY_DIR}/test/gdasapp/test_gdasapp_utils_incrhandler_relaxation_8pes/ocn.mom6_iau_incqc_relax.nc || {
+        echo 'Field differs between single and multi-PE output for relaxation test';
+        exit 1;
+    }
+    ")
+set_tests_properties(test_gdasapp_utils_incrhandler_relaxation_reproducibility PROPERTIES DEPENDS
+                      "test_gdasapp_utils_incrhandler_relaxation;test_gdasapp_utils_incrhandler_relaxation_8pes")

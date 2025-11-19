@@ -1,15 +1,94 @@
 #include "gdas_relaxation_incr.h"
 
 #include <cmath>
+#include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <map>
 
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/config/YAMLConfiguration.h"
 
 namespace gdasapp {
 namespace incrqc {
 namespace relaxation {
+
+// Function to parse fields metadata YAML and extract bounds
+// TODO (Guillaume): Move this to SOCA
+std::map<std::string, FieldBounds> parseFieldsMetadata(const std::string& yamlPath) {
+  std::map<std::string, FieldBounds> fieldBounds;
+
+  try {
+    // Create a wrapper configuration that treats the YAML file as a "fields" array
+    // This works around the limitation of eckit::YAMLConfiguration with root-level arrays
+    eckit::LocalConfiguration wrapperConfig;
+    wrapperConfig.set("fields", yamlPath);  // This will cause eckit to parse the file as array content
+
+    // Alternative approach: wrap the YAML file content in a configuration
+    std::ifstream yamlFile(yamlPath);
+    if (!yamlFile.good()) {
+      throw std::runtime_error("Cannot open file: " + yamlPath);
+    }
+
+    // Read the entire YAML content
+    std::stringstream yamlContent;
+    yamlContent << yamlFile.rdbuf();
+    yamlFile.close();
+
+    // Wrap the array content in a configuration structure
+    std::string wrappedYaml = "fields:\n";
+    std::string line;
+    std::istringstream yamlStream(yamlContent.str());
+    while (std::getline(yamlStream, line)) {
+      wrappedYaml += "  " + line + "\n";  // Indent each line by 2 spaces
+    }
+
+    // Parse the wrapped YAML
+    eckit::YAMLConfiguration yamlConfig(wrappedYaml);
+
+    // Now access the fields array
+    std::vector<eckit::LocalConfiguration> fields = yamlConfig.getSubConfigurations("fields");
+
+    oops::Log::info() << "Successfully parsed " << fields.size() << " field configurations from YAML" << std::endl;
+
+    for (const auto& fieldConfig : fields) {
+      if (fieldConfig.has("name")) {
+        std::string fieldName = fieldConfig.getString("name");
+        FieldBounds bounds;
+
+        // Extract bounds, fill value, and domain information if specified
+        if (fieldConfig.has("min valid")) {
+          bounds.minValid = fieldConfig.getDouble("min valid");
+        }
+        if (fieldConfig.has("max valid")) {
+          bounds.maxValid = fieldConfig.getDouble("max valid");
+        }
+        if (fieldConfig.has("fill value")) {
+          bounds.fillValue = fieldConfig.getDouble("fill value");
+        }
+        if (fieldConfig.has("io file")) {
+          bounds.ioFile = fieldConfig.getString("io file");
+        }
+
+        fieldBounds[fieldName] = bounds;
+        oops::Log::debug() << "Loaded bounds for " << fieldName
+                           << ": min=" << bounds.minValid
+                           << ", max=" << bounds.maxValid
+                           << ", fill=" << bounds.fillValue
+                           << ", domain=" << bounds.ioFile << std::endl;
+      }
+    }
+
+    oops::Log::info() << "Loaded field bounds for " << fieldBounds.size() << " variables from " << yamlPath << std::endl;
+
+  } catch (const std::exception& e) {
+    oops::Log::warning() << "Failed to parse fields metadata from " << yamlPath
+                        << ": " << e.what() << ". Using default bounds." << std::endl;
+  }
+
+  return fieldBounds;
+}
 
 soca::Increment computeRelaxationIncrement(
     const soca::State& xb,
@@ -19,6 +98,16 @@ soca::Increment computeRelaxationIncrement(
 
   oops::Log::info() << "==========================================" << std::endl;
   oops::Log::info() << "======      Computing relaxation increment (ocean and ice)" << std::endl;
+
+  // Load field bounds from metadata configuration
+  std::string fieldsMetadataPath = config.getString("fields metadata", "./fields_metadata.yaml");
+  std::map<std::string, FieldBounds> fieldBounds = parseFieldsMetadata(fieldsMetadataPath);
+
+  // If that fails, try production path as fallback
+  if (fieldBounds.empty()) {
+    fieldsMetadataPath = "parm/marine/fields_metadata.yaml";
+    fieldBounds = parseFieldsMetadata(fieldsMetadataPath);
+  }
 
   // Get valid time from background state
   const util::DateTime validTime = xb.validTime();
@@ -35,7 +124,7 @@ soca::Increment computeRelaxationIncrement(
   oops::Log::debug() << "Interpolation weights: prev=" << prevWeight
                      << ", next=" << nextWeight << std::endl;
   atlas::FieldSet relaxFields = loadAndInterpolateRelaxationField(
-      prevFile, nextFile, {prevWeight, nextWeight}, geom, config);
+      prevFile, nextFile, {prevWeight, nextWeight}, geom, config, fieldBounds);
 
   // Convert background and increment to FieldSets
   atlas::FieldSet xbFs, dxFs;
@@ -101,61 +190,48 @@ soca::Increment computeRelaxationIncrement(
           // Set increment to 0 for thin layers
           viewRelaxIncr(jnode, jlevel) = 0.0;
         } else {
-          // Check for NaN in input values before computation
+          // Get bounds from metadata or use defaults for validation
+          double minValid = -1e30, maxValid = 1e30, fillValue = 0.0;
+          if (fieldBounds.find(varName) != fieldBounds.end()) {
+            const FieldBounds& bounds = fieldBounds.at(varName);
+            minValid = bounds.minValid;
+            maxValid = bounds.maxValid;
+            fillValue = bounds.fillValue;
+          }
+
+          // Check for invalid values using bounds instead of just NaN
           double relaxVal = viewRelax(jnode, jlevel);
           double bkgVal = viewBkg(jnode, jlevel);
           double dxVal = viewDx(jnode, jlevel);
 
-          if (std::isnan(relaxVal)) {
+          bool relaxValid = std::isfinite(relaxVal) && relaxVal >= minValid && relaxVal <= maxValid;
+          bool bkgValid = std::isfinite(bkgVal) && bkgVal >= minValid && bkgVal <= maxValid;
+          bool dxValid = std::isfinite(dxVal);  // dx can have different bounds, just check if finite
+
+          if (!relaxValid) {
             double thickness = viewThickness(jnode, jlevel);
-            oops::Log::warning() << "NaN in relaxation field " << varName << " at node="
-                       << jnode << ", level=" << jlevel
-                       << ", thickness=" << thickness << std::endl;
-            // Zero out increment where relaxation field has NaN
-            viewRelaxIncr(jnode, jlevel) = 0.0;
-          } else if (std::isnan(bkgVal)) {
-            oops::Log::warning() << "NaN in background field " << varName << " at node="
-                                 << jnode << ", level=" << jlevel << std::endl;
-            // Zero out increment where background field has NaN
-            viewRelaxIncr(jnode, jlevel) = 0.0;
-          } else if (std::isnan(dxVal)) {
-            oops::Log::warning() << "NaN in increment field " << varName << " at node="
-                                 << jnode << ", level=" << jlevel << std::endl;
-            // Zero out increment where dx field has NaN
-            viewRelaxIncr(jnode, jlevel) = 0.0;
+            oops::Log::warning() << "Invalid value in relaxation field " << varName << " at node="
+                       << jnode << ", level=" << jlevel << " (value=" << relaxVal
+                       << ", thickness=" << thickness << ")" << std::endl;
+            // Use fill value where relaxation field is invalid
+            viewRelaxIncr(jnode, jlevel) = fillValue;
+          } else if (!bkgValid) {
+            oops::Log::warning() << "Invalid value in background field " << varName << " at node="
+                                 << jnode << ", level=" << jlevel << " (value=" << bkgVal << ")" << std::endl;
+            // Use fill value where background field is invalid
+            viewRelaxIncr(jnode, jlevel) = fillValue;
+          } else if (!dxValid) {
+            oops::Log::warning() << "Invalid value in increment field " << varName << " at node="
+                                 << jnode << ", level=" << jlevel << " (value=" << dxVal << ")" << std::endl;
+            // Use fill value where dx field is invalid
+            viewRelaxIncr(jnode, jlevel) = fillValue;
           } else {
-            // Normal computation for thick enough layers
+            // Normal computation for thick enough layers with valid values
             viewRelaxIncr(jnode, jlevel) = relaxVal - (bkgVal + dxVal);
           }
         }
       }
     }
-
-//    // Check for NaN or extreme values in the relaxation increment
-//    bool foundIssues = false;
-//    for (atlas::idx_t jnode = 0; jnode < viewRelaxIncr.shape(0); ++jnode) {
-//      // Skip ghost points for checking as well
-//      if (ghostView(jnode)) continue;
-//
-//      for (atlas::idx_t jlevel = 0; jlevel < viewRelaxIncr.shape(1); ++jlevel) {
-//        double val = viewRelaxIncr(jnode, jlevel);
-//        if (std::isnan(val)) {
-//          oops::Log::warning() << "NaN detected in " << varName << " relaxation increment at node="
-//                               << jnode << ", level=" << jlevel << std::endl;
-//          foundIssues = true;
-//        } else if (std::abs(val) > 1e6) {
-//          oops::Log::warning() << "Extreme value (" << val << ") detected in " << varName
-//                               << " relaxation increment at node=" << jnode << ", level=" << jlevel << std::endl;
-//          foundIssues = true;
-//        }
-//      }
-//    }
-//
-//    if (foundIssues) {
-//      oops::Log::warning() << "Issues detected in relaxation increment for variable: " << varName << std::endl;
-//    } else {
-//      oops::Log::debug() << "No NaN or extreme values found in relaxation increment for variable: " << varName << std::endl;
-//    }
   }
 
   // Convert back to increment
@@ -273,7 +349,8 @@ atlas::FieldSet loadAndInterpolateRelaxationField(
     const std::string& nextFile,
     const std::pair<double, double>& weights,
     const soca::Geometry& geom,
-    const eckit::Configuration& config) {
+    const eckit::Configuration& config,
+    const std::map<std::string, FieldBounds>& fieldBounds) {
 
   oops::Log::debug() << "Loading relaxation field files for interpolation" << std::endl;
 
@@ -414,16 +491,39 @@ atlas::FieldSet loadAndInterpolateRelaxationField(
                                       geom.levelsAreTopDown(), geom.getComm());
     gdasapp::genutils::Flood flood(geomData);
 
-    // Create mask: 1 for valid values (source), 0 for NaN values (target)
-    // Copy the field structure but change the data type to int for the mask
+    // Create mask: 1 for valid values (source), 0 for invalid/missing values (target)
+    // Use physical bounds to identify valid data instead of checking for NaN
     atlas::Field mask = atlas::Field("mask", atlas::array::make_datatype<int>(), interpField.shape());
     mask.set_functionspace(interpField.functionspace());
     auto maskView = atlas::array::make_view<int, 2>(mask);
     auto interpView = atlas::array::make_view<double, 2>(interpField);
 
+    // Get bounds from metadata or use defaults
+    double minValid = -1e30, maxValid = 1e30, fillValue = 0.0;  // Default bounds
+    if (fieldBounds.find(varName) != fieldBounds.end()) {
+      const FieldBounds& bounds = fieldBounds.at(varName);
+      minValid = bounds.minValid;
+      maxValid = bounds.maxValid;
+      fillValue = bounds.fillValue;
+      oops::Log::debug() << "Using metadata bounds for " << varName
+                         << ": min=" << minValid << ", max=" << maxValid
+                         << ", fill=" << fillValue << std::endl;
+    } else {
+      oops::Log::debug() << "No metadata bounds found for " << varName
+                         << ", using defaults: min=" << minValid << ", max=" << maxValid << std::endl;
+    }
+
     for (atlas::idx_t jnode = 0; jnode < interpView.shape(0); ++jnode) {
       for (atlas::idx_t jlevel = 0; jlevel < interpView.shape(1); ++jlevel) {
-        maskView(jnode, jlevel) = std::isnan(interpView(jnode, jlevel)) ? 0 : 1;
+        double val = interpView(jnode, jlevel);
+        // Check for NaN, infinite, or physically unreasonable values
+        bool isValid = std::isfinite(val) && val >= minValid && val <= maxValid;
+        maskView(jnode, jlevel) = isValid ? 1 : 0;
+
+        // Replace invalid values with the fill value from metadata
+        if (!isValid) {
+          interpView(jnode, jlevel) = fillValue;
+        }
       }
     }
 
