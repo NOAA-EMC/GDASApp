@@ -16,8 +16,8 @@ initial_condition_file: background  # Initial conditions for 4D apps is backgrou
 
 # Assimilation window
 # -------------------
-window_begin: "{{ SNOW_WINDOW_BEGIN | to_isotime }}"
-window_length: "{{ SNOW_WINDOW_LENGTH }}"
+window_begin: "{{ WINDOW_BEGIN | to_isotime }}"
+window_length: "{{ WINDOW_LENGTH }}"
 bound_to_include: begin
 
 # Default background time is for 3D applications
@@ -55,7 +55,7 @@ snow_npz_anl: {{ npz_ges | default(127, true) }}
 snow_variational_history_prefix: "{{ GPREFIX }}"
 
 snow_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
-snow_orog_files_path: "{{ FIXgfs }}/orog/{{ CASE }}"
+snow_orog_files_path: "{{ snow_bkg_path }}"
 snow_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
@@ -81,11 +81,11 @@ crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
 snow_obsdataroot_path: "{{COMIN_OBS}}"
-snow_obsdatain_path: "{{snow_obsdatain_path}}"
+snow_obsdatain_path: "{{DATA}}/obs"
 snow_obsdatain_prefix: "{{OPREFIX}}"
 snow_obsdatain_suffix: ".tm00.bufr_d"
-
-snow_obsdataout_path: "{{snow_obsdataout_path}}"
+snow_obsdataout_path: "{{DATA}}/diags"
+snow_prepobs_path: "{{DATA}}/prep"
 snow_obsdataout_prefix: diag_
 snow_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 

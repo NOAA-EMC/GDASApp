@@ -23,4 +23,4 @@ fi
 source ${HOMEgfs}/dev/ush/gw_setup.sh
 
 # Create the experiment
-${HOMEgfs}/dev/workflow/create_experiment.py --yaml ${expyaml} --overwrite --force
+${HOMEgfs}/dev/workflow/create_experiment.py --yaml ${expyaml} --overwrite

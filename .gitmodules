@@ -77,3 +77,4 @@
   path = sorc/spoc
   url = https://github.com/noaa-emc/spoc.git
   branch = develop
+  ignore = dirty
