@@ -57,7 +57,7 @@ nodes: 1
 ntasks_per_node: 6
 threads_per_task: 1
 memory: ${memory}
-command: ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
+command: ${HOMEgfs}/dev/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
 filename: submit_${type}.sh
 EOF
 
@@ -71,5 +71,5 @@ if [[ $SCHEDULER = 'slurm' ]]; then
 elif [[ $SCHEDULER = 'pbspro' ]]; then
     qsub -V -W block=true submit_${type}.sh
 else
-    ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
+    ${HOMEgfs}/dev/jobs/JGLOBAL_ATMENS_ANALYSIS_FV3_INCREMENT
 fi
