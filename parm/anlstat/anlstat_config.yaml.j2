@@ -1,0 +1,57 @@
+jedi_config:
+    aero:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
+        mpi_cmd: '{{ APRUN_ANLSTAT }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+        jcb_algo: 'anlstat'
+    atmos:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
+        mpi_cmd: '{{ APRUN_ANLSTAT }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_algo: 'anlstat'
+    atmos_gsi:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
+        mpi_cmd: '{{ APRUN_ANLSTAT }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_algo: 'anlstat'
+    snow:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
+        mpi_cmd: '{{ APRUN_ANLSTAT }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+        jcb_algo: 'anlstat'
+
+data_in:
+    mkdir:
+{% for analysis in STAT_ANALYSES %}
+    - {{ DATA }}/obs/{{ analysis }}
+{% endfor %}
+    copy_opt:
+    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aerostat.tgz', '{{ DATA }}/obs/aero/']
+    - ['{{ APREFIX }}atmos_gsi_ioda_diags.tar.gz', '{{ DATA }}/obs/atmos_gsi/']
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}stat.atm.tar', '{{ DATA }}/obs/atmos/']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snow_analysis.ioda_hofx.tar', '{{ DATA }}/obs/snow/']
+
+data_out:
+    copy_opt:
+
+{% for ob in observations.aero %}
+    - ['{{ DATA}}/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_AERO_ANLMON }}']
+{% endfor %}
+{% for ob in observations.atmos_gsi %}
+    - ['{{ DATA}}/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_ATMOS_ANLMON }}']
+{% endfor %}
+{% for ob in observations.atmos %}
+    - ['{{ DATA}}/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_ATMOS_ANLMON }}']
+{% endfor %}
+{% for ob in observations.snow %}
+    - ['{{ DATA}}/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_SNOW_ANLMON }}']
+{% endfor %}
+
+    - ['{{ DATA }}/obs/aero/{{ APREFIX }}aero_analysis.ioda_hofx_stats.tar.gz', '{{ COMOUT_AERO_ANLMON }}']
+    - ['{{ DATA }}/obs/atmos/{{ APREFIX }}atmos_gsi_analysis.ioda_hofx_stats.tar.gz', '{{ COMOUT_ATMOS_ANLMON }}']
+    - ['{{ DATA }}/obs/atmos_gsi/{{ APREFIX }}atmos_analysis.ioda_hofx_stats.tar.gz', '{{ COMOUT_ATMOS_ANLMON }}']
+    - ['{{ DATA }}/obs/snow/{{ APREFIX }}snow_analysis.ioda_hofx_stats.tar.gz', '{{ COMOUT_SNOW_ANLMON }}']
