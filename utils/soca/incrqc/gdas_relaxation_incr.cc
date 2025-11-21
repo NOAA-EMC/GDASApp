@@ -10,6 +10,8 @@
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/config/YAMLConfiguration.h"
 
+#include "oops/base/Variables.h"
+
 namespace gdasapp {
 namespace incrqc {
 namespace relaxation {
@@ -72,7 +74,7 @@ std::map<std::string, FieldBounds> parseFieldsMetadata(const std::string& yamlPa
         }
 
         fieldBounds[fieldName] = bounds;
-        oops::Log::debug() << "Loaded bounds for " << fieldName
+        oops::Log::info() << "Loaded bounds for " << fieldName
                            << ": min=" << bounds.minValid
                            << ", max=" << bounds.maxValid
                            << ", fill=" << bounds.fillValue
@@ -100,8 +102,10 @@ soca::Increment computeRelaxationIncrement(
   oops::Log::info() << "======      Computing relaxation increment (ocean and ice)" << std::endl;
 
   // Load field bounds from metadata configuration
+  oops::Log::info() << "************** Start parsing fields_metadata.yaml " << std::endl;
   std::string fieldsMetadataPath = config.getString("fields metadata", "./fields_metadata.yaml");
   std::map<std::string, FieldBounds> fieldBounds = parseFieldsMetadata(fieldsMetadataPath);
+  oops::Log::info() << "************** Done parsing fields_metadata.yaml " << std::endl;
 
   // If that fails, try production path as fallback
   if (fieldBounds.empty()) {
@@ -116,12 +120,12 @@ soca::Increment computeRelaxationIncrement(
   const std::string relaxBasename = config.getString("basename");
   const std::string ocnTemplate = config.getString("ocn_filename");
   auto [prevFile, nextFile] = findMonthlyRelaxationFiles(validTime, relaxBasename, ocnTemplate);
-  oops::Log::debug() << "Previous month file: " << prevFile << std::endl;
-  oops::Log::debug() << "Next month file: " << nextFile << std::endl;
+  oops::Log::info() << "Previous month file: " << prevFile << std::endl;
+  oops::Log::info() << "Next month file: " << nextFile << std::endl;
 
   // Interpolate in time the relaxation field (assumes monthly fields)
   auto [prevWeight, nextWeight] = computeMonthlyInterpolationWeights(validTime);
-  oops::Log::debug() << "Interpolation weights: prev=" << prevWeight
+  oops::Log::info() << "Interpolation weights: prev=" << prevWeight
                      << ", next=" << nextWeight << std::endl;
   atlas::FieldSet relaxFields = loadAndInterpolateRelaxationField(
       prevFile, nextFile, {prevWeight, nextWeight}, geom, config, fieldBounds);
@@ -134,6 +138,7 @@ soca::Increment computeRelaxationIncrement(
   // Create output relaxation increment FieldSet based on the relaxation fields
   atlas::FieldSet relaxIncrFs;
   for (const auto& field : relaxFields) {
+    oops::Log::info() << "************** Adding field " << field.name() << std::endl;
     atlas::Field newField = atlas::Field(field.name(), field.datatype(), field.shape());
     relaxIncrFs.add(newField);
   }
@@ -143,13 +148,13 @@ soca::Increment computeRelaxationIncrement(
     const std::string& varName = field.name();
     // Check if this variable exists in all required FieldSets
     if (!xbFs.has(varName) || !dxFs.has(varName) || !relaxIncrFs.has(varName)) {
-      oops::Log::debug() << "Variable " << varName << " not found in background/increment FieldSets, skipping" << std::endl;
+      oops::Log::info() << "Variable " << varName << " not found in background/increment FieldSets, skipping" << std::endl;
       continue;
     }
 
     // Check if relaxation field exists
     if (!relaxFields.has(varName)) {
-      oops::Log::debug() << "Variable " << varName << " not found in relaxation field, zeroing increment" << std::endl;
+      oops::Log::info() << "Variable " << varName << " not found in relaxation field, zeroing increment" << std::endl;
       // Zero out the increment for this variable
       auto viewRelaxIncr = atlas::array::make_view<double, 2>(relaxIncrFs[varName]);
       const auto & ghostView = atlas::array::make_view<int, 1>(relaxIncrFs[varName].functionspace().ghost());
@@ -164,7 +169,7 @@ soca::Increment computeRelaxationIncrement(
       continue;
     }
 
-    oops::Log::debug() << "Processing relaxation increment for variable: " << varName << std::endl;
+    oops::Log::info() << "Processing relaxation increment for variable: " << varName << std::endl;
 
     // Get views for computation
     auto viewRelax = atlas::array::make_view<double, 2>(relaxFields[varName]);
@@ -234,13 +239,80 @@ soca::Increment computeRelaxationIncrement(
     }
   }
 
-  // Convert back to increment
-  soca::Increment relaxIncr(geom, dx.variables(), validTime);
+  // Create variables list for the relaxation increment, including any added fields
+  oops::Variables relaxIncrVars = dx.variables();
+
+  // Check if sea_ice_snow_volume is present and add sea_ice_snow_thickness
+  if (relaxIncrFs.has("sea_ice_snow_volume")) {
+    oops::Log::info() << "sea_ice_snow_volume found, adding sea_ice_snow_thickness field" << std::endl;
+
+    // Get the snow volume field as reference for creating thickness field
+    const atlas::Field& snowVolumeField = relaxIncrFs["sea_ice_snow_volume"];
+
+    // Create snow thickness field with same structure as volume field
+    atlas::Field snowThicknessField = atlas::Field("sea_ice_snow_thickness",
+                                                   snowVolumeField.datatype(),
+                                                   snowVolumeField.shape());
+    snowThicknessField.set_functionspace(snowVolumeField.functionspace());
+
+    // Copy values from volume to thickness (for now, just set equal)
+    auto volumeView = atlas::array::make_view<double, 2>(snowVolumeField);
+    auto thicknessView = atlas::array::make_view<double, 2>(snowThicknessField);
+
+    for (atlas::idx_t jnode = 0; jnode < volumeView.shape(0); ++jnode) {
+      for (atlas::idx_t jlevel = 0; jlevel < volumeView.shape(1); ++jlevel) {
+        thicknessView(jnode, jlevel) = volumeView(jnode, jlevel);
+      }
+    }
+
+    // Add the thickness field to the relaxation increment FieldSet
+    relaxIncrFs.add(snowThicknessField);
+
+    // Add the new variable to the variables list
+    relaxIncrVars.push_back("sea_ice_snow_thickness");
+
+    oops::Log::info() << "Added sea_ice_snow_thickness field to relaxation increment" << std::endl;
+  }
+
+  // Check if sea_ice_volume is present and add sea_ice_thickness
+  if (relaxIncrFs.has("sea_ice_volume")) {
+    oops::Log::info() << "sea_ice_volume found, adding sea_ice_thickness field" << std::endl;
+
+    // Get the ice volume field as reference for creating thickness field
+    const atlas::Field& iceVolumeField = relaxIncrFs["sea_ice_volume"];
+
+    // Create ice thickness field with same structure as volume field
+    atlas::Field iceThicknessField = atlas::Field("sea_ice_thickness",
+                                                  iceVolumeField.datatype(),
+                                                  iceVolumeField.shape());
+    iceThicknessField.set_functionspace(iceVolumeField.functionspace());
+
+    // Copy values from volume to thickness (for now, just set equal)
+    auto volumeView = atlas::array::make_view<double, 2>(iceVolumeField);
+    auto thicknessView = atlas::array::make_view<double, 2>(iceThicknessField);
+
+    for (atlas::idx_t jnode = 0; jnode < volumeView.shape(0); ++jnode) {
+      for (atlas::idx_t jlevel = 0; jlevel < volumeView.shape(1); ++jlevel) {
+        thicknessView(jnode, jlevel) = volumeView(jnode, jlevel);
+      }
+    }
+
+    // Add the thickness field to the relaxation increment FieldSet
+    relaxIncrFs.add(iceThicknessField);
+
+    // Add the new variable to the variables list
+    relaxIncrVars.push_back("sea_ice_thickness");
+
+    oops::Log::info() << "Added sea_ice_thickness field to relaxation increment" << std::endl;
+  }
+
+  // Convert back to increment using the expanded variables list
+  soca::Increment relaxIncr(geom, relaxIncrVars, validTime);
   relaxIncr.fromFieldSet(relaxIncrFs);
 
   oops::Log::info() << "============= relaxIncr:" << std::endl;
   oops::Log::info() << relaxIncr << std::endl;
-  oops::Log::debug() << "======      Finished computing relaxation increment" << std::endl;
+  oops::Log::info() << "======      Finished computing relaxation increment" << std::endl;
 
   return relaxIncr;
 }
@@ -352,7 +424,7 @@ atlas::FieldSet loadAndInterpolateRelaxationField(
     const eckit::Configuration& config,
     const std::map<std::string, FieldBounds>& fieldBounds) {
 
-  oops::Log::debug() << "Loading relaxation field files for interpolation" << std::endl;
+  oops::Log::info() << "Loading relaxation field files for interpolation" << std::endl;
 
   // Get relaxation field files configuration from the config (now at top level)
   const eckit::Configuration& relaxFilesConfig = config;
@@ -398,9 +470,9 @@ atlas::FieldSet loadAndInterpolateRelaxationField(
   if (hasIceTemplate) {
     prevConfig.set("ice_filename", prevIceFilename);
   }
-  oops::Log::debug() << "Previous config ocn_filename set to: " << prevOcnFilename << std::endl;
+  oops::Log::info() << "Previous config ocn_filename set to: " << prevOcnFilename << std::endl;
   if (hasIceTemplate) {
-    oops::Log::debug() << "Previous config ice_filename set to: " << prevIceFilename << std::endl;
+    oops::Log::info() << "Previous config ice_filename set to: " << prevIceFilename << std::endl;
   }
 
   // Create configuration for next month relaxation field
@@ -409,13 +481,22 @@ atlas::FieldSet loadAndInterpolateRelaxationField(
   if (hasIceTemplate) {
     nextConfig.set("ice_filename", nextIceFilename);
   }
-  oops::Log::debug() << "Next config ocn_filename set to: " << nextOcnFilename << std::endl;
+  oops::Log::info() << "Next config ocn_filename set to: " << nextOcnFilename << std::endl;
   if (hasIceTemplate) {
-    oops::Log::debug() << "Next config ice_filename set to: " << nextIceFilename << std::endl;
+    oops::Log::info() << "Next config ice_filename set to: " << nextIceFilename << std::endl;
   }
+
+  // Get the specific variables that should be read from relaxation files
+  std::vector<std::string> varNames = config.getStringVector("state variables");
+  oops::Log::info() << "Relaxation variables: " << varNames << " variables" << std::endl;
+
+  // Add state variables to the configurations
+  prevConfig.set("state variables", varNames);
+  nextConfig.set("state variables", varNames);
 
   // Load previous month relaxation field (ocean and ice fields)
   oops::Log::debug() << "Loading previous month relaxation field: " << prevFile << std::endl;
+  oops::Log::debug() << "-----------------------relaxation field: " << prevConfig << std::endl;
   soca::State prevRelax(geom, prevConfig);
   oops::Log::debug() << "Previous state loaded: " << prevRelax << std::endl;
 

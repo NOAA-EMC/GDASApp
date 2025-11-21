@@ -136,7 +136,7 @@ inline void qcIncrement(const soca::State& xb,
     if (config.has("geometry") && config.getSubConfiguration("geometry").has("fields metadata")) {
       fieldsMetadataPath = config.getSubConfiguration("geometry").getString("fields metadata");
     }
-    
+
     // Load field metadata for domain information
     std::map<std::string, gdasapp::incrqc::relaxation::FieldBounds> fieldBounds =
         gdasapp::incrqc::relaxation::parseFieldsMetadata(fieldsMetadataPath);
@@ -146,7 +146,7 @@ inline void qcIncrement(const soca::State& xb,
       fieldsMetadataPath = "parm/marine/fields_metadata.yaml";
       fieldBounds = gdasapp::incrqc::relaxation::parseFieldsMetadata(fieldsMetadataPath);
     }
-    
+
     // Add the fields metadata path to the relaxation config for the function to use
     eckit::LocalConfiguration relaxConfigWithMetadata(relaxConfig);
     relaxConfigWithMetadata.set("fields metadata", fieldsMetadataPath);

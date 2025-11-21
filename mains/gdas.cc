@@ -7,6 +7,7 @@
 #include "fv3jedi/Utilities/Traits.h"
 
 #include "soca/Traits.h"
+#include "soca/GeometryIterator/GeometryIterator.h"
 
 #include "saber/oops/instantiateCovarFactory.h"
 #include "ufo/instantiateObsErrorFactory.h"
@@ -41,7 +42,7 @@ int runApp(int argc, char** argv, const std::string traits, const std::string ap
     if (traits == "fv3jedi") {
       fv3jedi::instantiateObsLocFactory();
     } else if (traits == "soca") {
-      ufo::instantiateObsLocFactory<soca::Traits>();
+      ufo::instantiateObsLocFactory<soca::GeometryIterator>();
     }
   }
 
