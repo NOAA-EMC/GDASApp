@@ -56,7 +56,7 @@ snow_npz_anl: {{ npz_ges | default(127, true) }}
 snow_variational_history_prefix: "{{ GPREFIX }}"
 
 snow_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
-snow_orog_files_path: "{{ FIXgfs }}/orog/{{ CASE }}"
+snow_orog_files_path: "{{ snow_bkg_path }}"
 snow_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
