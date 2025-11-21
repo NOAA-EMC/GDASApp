@@ -3,25 +3,25 @@ jedi_config:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
         mpi_cmd: '{{ APRUN_ANLSTAT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/jcb-base.yaml.j2'
         jcb_algo: 'anlstat'
     atmos:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
         mpi_cmd: '{{ APRUN_ANLSTAT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/jcb-base.yaml.j2'
         jcb_algo: 'anlstat'
     atmos_gsi:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
         mpi_cmd: '{{ APRUN_ANLSTAT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/jcb-base.yaml.j2'
         jcb_algo: 'anlstat'
     snow:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
         mpi_cmd: '{{ APRUN_ANLSTAT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/jcb-base.yaml.j2'
         jcb_algo: 'anlstat'
 
 data_in:
