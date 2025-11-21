@@ -37,7 +37,6 @@ data_in:
 
 data_out:
     copy_opt:
-
 {% for ob in observations.aero %}
     - ['{{ DATA}}/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_AERO_ANLMON }}']
 {% endfor %}
@@ -50,8 +49,3 @@ data_out:
 {% for ob in observations.snow %}
     - ['{{ DATA}}/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_SNOW_ANLMON }}']
 {% endfor %}
-
-    - ['{{ DATA }}/obs/aero/{{ APREFIX }}aero_analysis.ioda_hofx_stats.tar.gz', '{{ COMOUT_AERO_ANLMON }}']
-    - ['{{ DATA }}/obs/atmos/{{ APREFIX }}atmos_gsi_analysis.ioda_hofx_stats.tar.gz', '{{ COMOUT_ATMOS_ANLMON }}']
-    - ['{{ DATA }}/obs/atmos_gsi/{{ APREFIX }}atmos_analysis.ioda_hofx_stats.tar.gz', '{{ COMOUT_ATMOS_ANLMON }}']
-    - ['{{ DATA }}/obs/snow/{{ APREFIX }}snow_analysis.ioda_hofx_stats.tar.gz', '{{ COMOUT_SNOW_ANLMON }}']
