@@ -121,7 +121,7 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState,
       // snow is not present, use average from snow forecasts over land
       // The below line comes from NOAH-MP, fit to a curve of snow density from:
       // hedstrom nr and jw pomeroy (1998), hydrol. processes, 12, 1611-1625
-      double tmp_density = 67.92 + 51.25 * std::exp((bkg_stc(jnode, 0)- 273.15) / 2.59);
+      double tmp_density = 67.92 + 51.25 * std::exp((bkg_stc(jnode, 0)- 273.155) / 2.59);
       bkg_density(jnode, 0) =
         std::max(80.0, std::min(120.0, tmp_density)) / 1000.0;
     }
@@ -654,7 +654,8 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
   // convert the state to an atlas fieldset
   atlas::FieldSet xBfs;
   state.toFieldSet(xBfs);
-  // Get the snow cover fraction and depth fields from the state
+  // Get the necessary fields from the state
+  auto bkg_stc = atlas::array::make_view<double, 2>(xBfs["stc"]);
   auto bkg_scf = atlas::array::make_view<double, 2>(xBfs["surface_snow_area_fraction"]);
   auto bkg_snd = atlas::array::make_view<double, 2>(xBfs["totalSnowDepth"]);
   const auto bkg_idx =
@@ -674,6 +675,11 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
          // if obs and model both indicate full snow,
          // set the IMS snow depth to a fixed value to QC in JEDI
         this->sndIMS[fv3_j][fv3_i] = -10.0f;
+      }
+      if ((bkg_stc(jnode, 0) > 273.155) && (this->sndIMS[fv3_j][fv3_i] > 0)) {
+         // if soil too warm and snow depth > 0,
+         // set the IMS snow depth to a fixed value to QC in JEDI
+        this->sndIMS[fv3_j][fv3_i] = -20.0f;
       }
       if (this->sndIMS[fv3_j][fv3_i] > sndIMS_max) {
         // if the IMS snow depth is greater than the maximum, set to nodata
