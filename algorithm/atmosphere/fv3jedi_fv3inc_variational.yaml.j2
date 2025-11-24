@@ -49,9 +49,9 @@ jedi increment geometry:
   layout:
   - {{ atmosphere_layout_x }}
   - {{ atmosphere_layout_y }}
-  npx: {{ atmosphere_npx_ges }}
-  npy: {{ atmosphere_npy_ges }}
-  npz: {{ atmosphere_npz_ges }}
+  npx: {{ atmosphere_npx_his }}
+  npy: {{ atmosphere_npy_his }}
+  npz: {{ atmosphere_npz_his }}
 fv3 increment geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -60,9 +60,9 @@ fv3 increment geometry:
   layout:
   - {{ atmosphere_layout_x }}
   - {{ atmosphere_layout_y }}
-  npx: {{ atmosphere_npx_ges }}
-  npy: {{ atmosphere_npy_ges }}
-  npz: {{ atmosphere_npz_ges }}
+  npx: {{ atmosphere_npx_his }}
+  npy: {{ atmosphere_npy_his }}
+  npz: {{ atmosphere_npz_his }}
 members:
 - background input:
     datapath: ./bkg
@@ -93,10 +93,16 @@ members:
     datapath: ./anl
     filename: cubed_sphere_grid_atminc.jedi.nc
   fv3 increment output:
+{% if atmosphere_variational_increment_type == 'gaussian' %}
+    filetype: auxgrid
+    gridtype: gaussian
+    filename: ./anl/atminc.
+{% else %}
     filetype: fms restart
     is restart: false
     datapath: ./anl
     filename_nonrestart: {{ atmosphere_variational_analysis_prefix }}cubed_sphere_grid_atminc.nc
+{% endif %}
     field io names:
       eastward_wind: u_inc
       northward_wind: v_inc

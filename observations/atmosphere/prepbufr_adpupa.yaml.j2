@@ -43,7 +43,7 @@
     filter variables:
     - name: stationPressure
     where:
-    - variable: ObsType/stationPressure
+    - variable: ObsType/pressure
       is_in: [181]
     action:
       name: assign error
@@ -60,7 +60,7 @@
     filter variables:
     - name: stationPressure
     where:
-    - variable: ObsType/stationPressure
+    - variable: ObsType/pressure
       is_in: [187]
     action:
       name: assign error
@@ -78,7 +78,7 @@
     filter variables:
     - name: stationPressure
     where:
-    - variable: ObsType/stationPressure
+    - variable: ObsType/pressure
       is_in: [180]
     action:
       name: assign error
@@ -95,7 +95,7 @@
     filter variables:
     - name: stationPressure
     where:
-    - variable: ObsType/stationPressure
+    - variable: ObsType/pressure
       is_in: [183]
     action:
       name: assign error
@@ -106,7 +106,7 @@
     filter variables:
     - name: stationPressure
     where:
-    - variable: ObsType/stationPressure
+    - variable: ObsType/pressure
       is_in: [120]
     action:
       name: assign error
@@ -154,7 +154,7 @@
   - filter: Variable Assignment
     where:
     - variable:
-        name: ObsType/stationPressure
+        name: ObsType/pressure
       is_in: 183
     assignments:
     - name: PreUseFlag/stationPressure
@@ -203,7 +203,7 @@
   #- filter: RejectList
   #  where:
   #  - variable:
-  #      name: ObsType/stationPressure
+  #      name: ObsType/pressure
   #    is_in: 183
   ## Reject surface pressure below 500 hPa 
   #- filter: Bounds Check
@@ -249,7 +249,7 @@
     - name: stationPressure
     where:
     - variable:
-        name: ObsType/stationPressure
+        name: ObsType/pressure
       is_in: 180
     - variable:
         name: ObsSubType/stationPressure
