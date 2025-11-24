@@ -51,6 +51,9 @@ atmosphere_layout_y: 2
 atmosphere_npx_ges: 361
 atmosphere_npy_ges: 361
 atmosphere_npz_ges: 127
+atmosphere_npx_his: 361
+atmosphere_npy_his: 361
+atmosphere_npz_his: 127
 atmosphere_npx_anl: 361
 atmosphere_npy_anl: 361
 atmosphere_npz_anl: 127
@@ -75,11 +78,18 @@ atmosphere_number_ensemble_members: 3
 atmosphere_layout_gsib_x: 2
 atmosphere_layout_gsib_y: 2
 
+# Minimization options
+atmosphere_ninner_1: 4
+atmosphere_ninner_2: 2
+atmosphere_grad_red_1: 1e-5
+atmosphere_grad_red_2: 1e-5
+
 # Forecasting
 atmosphere_forecast_length: PT6H
 atmosphere_forecast_timestep: PT1H
 
 # Write final increment on Gaussian grid in variational
+atmosphere_variational_increment_type: "gaussian"
 atmosphere_final_increment_prefix: "./anl/atminc."
 
 # Observation things
