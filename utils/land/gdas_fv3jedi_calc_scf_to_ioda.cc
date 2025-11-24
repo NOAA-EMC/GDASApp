@@ -677,7 +677,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::updateIMSsd(fv3jedi::State &state,
         this->sndIMS[fv3_j][fv3_i] = -10.0f;
       }
       if ((bkg_stc(jnode, 0) > 273.155) && (this->sndIMS[fv3_j][fv3_i] > 0)) {
-         // if soil too warm and snow depth > 0,
+         // if model soil is too warm to add snow, and the observed snow depth is >0,
          // set the IMS snow depth to a fixed value to QC in JEDI
         this->sndIMS[fv3_j][fv3_i] = -20.0f;
       }
