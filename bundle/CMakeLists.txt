@@ -36,6 +36,7 @@ option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
 option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
 option(BUILD_REGRID_STATES "Build regrid states land DA utility" ON)
+option(BUILD_IODA_CONVERTERS "Build IODA Converters" OFF)
 
 # Depend path for non-ecbuild packages
 set(DEPEND_LIB_ROOT ${CMAKE_CURRENT_BINARY_DIR}/Depends)
@@ -97,6 +98,18 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT gdas-utils SOURCE "../utils" )
   ecbuild_bundle( PROJECT da-utils SOURCE "../sorc/da-utils" )
 
+<<<<<<< HEAD
+=======
+# Build IODA converters
+  if(BUILD_IODA_CONVERTERS)
+    ecbuild_bundle( PROJECT iodaconv SOURCE "../sorc/iodaconv" )
+  endif()
+
+# Land associated repositories
+  ecbuild_bundle( PROJECT land-imsproc SOURCE "../sorc/land-imsproc" )
+  ecbuild_bundle( PROJECT land-jediincr SOURCE "../sorc/land-jediincr" )
+
+>>>>>>> develop
 # GDASApp
   ecbuild_bundle( PROJECT gdas SOURCE "../")
 
