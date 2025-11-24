@@ -10,7 +10,6 @@ ioda
 ufo
 fv3-jedi
 soca
-iodaconv
 "
 
 my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd )"
