@@ -80,10 +80,11 @@ data_out:
                          '${YMD}': current_cycle | to_YMD,
                          '${HH}': current_cycle | strftime('%H'),
                          '${MEMDIR}': 'mem%03d' | format(imem) }) %}
-    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile1.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.tile1.nc']
-    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile2.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.tile2.nc']
-    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile3.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.tile3.nc']
-    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile4.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.tile4.nc']
-    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile5.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.tile5.nc']
-    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile6.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.tile6.nc']
+{% if DOENKFONLY_ATM %}
+    {% for itile in range(1, ntiles + 1) %}
+    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile{{ itile }}.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.tile{{ itile }}.nc']
+   {% endfor %}
+{% else %}
+    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.nc']
+{% endif %}
 {% endfor %}

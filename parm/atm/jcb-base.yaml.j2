@@ -111,6 +111,12 @@ local_ensemble_da_solver: Deterministic GETKF
 
 increment_variables: [eastward_wind,northward_wind,layer_thickness,air_pressure_thickness,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
 
+# Localization for LETKF or GETKF (in the horizontal)
+# hl_length <= atm_letkf_dist_halo_size is preferred.
+localization_method: "Horizontal Gaspari-Cohn"
+hl_lengthscale: 1250e3
+max_nobs: 10000
+
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
 vl_lengthscale: 2.1
@@ -129,9 +135,11 @@ driver_save_posterior_ensemble_increments: true
 
 # Using LETKF app? (used in obs YAMLs)
 atm_letkf_app: {{ letkf_app | default(false) }}
+atm_enkfonly: {{ atm_enkfonly | default(false) }}
 
 # Distribution type
 distribution_type: Halo
+atm_letkf_dist_halo_size: 1250e3
 
 # Diagnostics
 atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
