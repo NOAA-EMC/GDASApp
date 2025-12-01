@@ -28,25 +28,26 @@ data_in:
     mkdir:
 {% for analysis in STAT_ANALYSES %}
     - {{ DATA }}/{{ analysis }}
-    - {{ DATA }}/{{ analysis }}/obs
+    - {{ DATA }}/{{ analysis }}/diag
+    - {{ DATA }}/{{ analysis }}/stat
 {% endfor %}
     copy_opt:
-    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aerostat.tgz', '{{ DATA }}/aero/obs/']
-    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}atmos_gsi_ioda_diags.tar.gz', '{{ DATA }}/atmos_gsi/obs']
-    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}stat.atm.tar', '{{ DATA }}/atmos/obs']
-    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snow_analysis.ioda_hofx.tar', '{{ DATA }}/snow/obs']
+    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aerostat.tgz', '{{ DATA }}/aero/diag/']
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}atmos_gsi_ioda_diags.tar.gz', '{{ DATA }}/atmos_gsi/diag']
+    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}stat.atm.tar', '{{ DATA }}/atmos/diag']
+    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snow_analysis.ioda_hofx.tar', '{{ DATA }}/snow/diag']
 
 data_out:
     copy_opt:
 {% for ob in observations.aero %}
-    - ['{{ DATA}}/aero/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_AERO_ANLMON }}']
+    - ['{{ DATA}}/aero/stat/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_AERO_ANLMON }}']
 {% endfor %}
 {% for ob in observations.atmos_gsi %}
-    - ['{{ DATA}}/atmos_gsi/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_ATMOS_ANLMON }}']
+    - ['{{ DATA}}/atmos_gsi/stat/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_ATMOS_ANLMON }}']
 {% endfor %}
 {% for ob in observations.atmos %}
-    - ['{{ DATA}}/atmos/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_ATMOS_ANLMON }}']
+    - ['{{ DATA}}/atmos/stat/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_ATMOS_ANLMON }}']
 {% endfor %}
 {% for ob in observations.snow %}
-    - ['{{ DATA}}/snow/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_SNOW_ANLMON }}']
+    - ['{{ DATA}}/snow/stat/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_SNOW_ANLMON }}']
 {% endfor %}
