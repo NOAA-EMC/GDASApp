@@ -41,11 +41,6 @@
   path = sorc/soca
   url = https://github.com/NOAA-EMC/soca.git
   branch = dev/emc
-  ignore = dirty
-[submodule "sorc/iodaconv"]
-  path = sorc/iodaconv
-  url = https://github.com/JCSDA-internal/ioda-converters.git
-  branch = develop
 [submodule "sorc/land-imsproc"]
   path = sorc/land-imsproc
   url = https://github.com/NOAA-EMC/land-SCF_proc.git
