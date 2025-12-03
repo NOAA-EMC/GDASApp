@@ -84,8 +84,8 @@ setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
 setenv("CRTM_FIX","/lustre/GDASApp/fix/crtm/2.4.0")
-setenv("GDASAPP_TESTDATA","/lustre/GDASApp/testdata")
-setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/lustre/GDASApp/unittestdata")
+setenv("GDASAPP_TESTDATA","/lustre/GDASApp/data/20251202/testdata")
+setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/lustre/GDASApp/data/20251202/unittestdata")
 
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)
