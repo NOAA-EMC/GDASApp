@@ -526,7 +526,7 @@ def bufr_to_ioda(config, logger):
         dims = {'Location': nobs}
         print(' ... dim = ', nobs)
 
-    iodafile = f"{cycle_type}.t{hh}z.{ioda_data_type}_{mission}.tm00.nc"
+    iodafile = f"{cycle_type}.t{hh}z.{ioda_data_type}_{mission}.nc"
 
     OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
 

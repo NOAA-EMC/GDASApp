@@ -1,0 +1,18 @@
+input coeff file: satbias_in
+input err file: satbias_pc
+output:
+- sensor: INSTRUMENT
+  predictors:
+  - constant
+  - sensorZenithAngle
+  - cloudWaterContent
+  - lapseRate_order_2
+  - lapseRate
+  - cosineOfLatitudeTimesOrbitNode
+  - sineOfLatitude
+  - emissivityJacobian
+  - sensorScanAngle_order_4
+  - sensorScanAngle_order_3
+  - sensorScanAngle_order_2
+  - sensorScanAngle
+  output file: testrun/varbc/satbias_INSTRUMENT.nc4
