@@ -3,7 +3,7 @@ jedi_config:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas.x'
         mpi_cmd: '{{ APRUN_SNOWANL }}'
-        jedi_args: ['fv3jedi', 'variational']  
+        jedi_args: ['fv3jedi', 'variational']
         jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_2dvar.yaml.j2'
     scf_to_ioda:
@@ -59,14 +59,20 @@ data_out:
 {% if DO_IMS_SCF %}
     - ['{{ DATA }}/scf_to_ioda.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}scf_to_ioda.yaml']
 {% endif %}
-    
+
     # Increments
-    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
-    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
-    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
-    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
-    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
-    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile1.nc']
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile2.nc']
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile3.nc']
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile4.nc']
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile5.nc']
+    - ['{{ DATA }}/anl/snowinc.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.snow_increment.sfc_data.tile6.nc']
 
 {% if DOIAU %}
     {% set bkgtimes = [ current_cycle, WINDOW_BEGIN ] %}
@@ -75,10 +81,16 @@ data_out:
 {% endif %}
 {% for bkgtime in bkgtimes %}
     # Analysis
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc', '{{ COMOUT_SNOW_ANALYSIS }}']
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile1.nc']
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile2.nc']
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile3.nc']
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile4.nc']
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile5.nc']
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile6.nc']
 {% endfor %}

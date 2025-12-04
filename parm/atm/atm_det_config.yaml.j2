@@ -31,19 +31,18 @@ data_in:
 {% endif %}
 
     copy:
-    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}cubed_sphere_grid_atmf006.nc', '{{ DATA }}/bkg/']
-    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}cubed_sphere_grid_sfcf006.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}cubed_sphere_grid_atmf006.nc']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}cubed_sphere_grid_sfcf006.nc']
 
 {% if DOHYBVAR %}
     {% for imem in range(1,NMEM_ENS+1) %}
-        {% set memchar = 'mem%03d' | format(imem) %}
         {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
                               '${RUN}': 'enkfgdas',
                               '${YMD}': previous_cycle | to_YMD,
                               '${HH}': previous_cycle | strftime('%H'),
-                              '${MEMDIR}': memchar }) %}
-    - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}cubed_sphere_grid_atmf006.nc', '{{ DATA }}/ens/{{ memchar }}/']
-    - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}cubed_sphere_grid_sfcf006.nc', '{{ DATA }}/ens/{{ memchar }}/']
+                              '${MEMDIR}': 'mem%03d' | format(imem) }) %}
+    - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}csg_atm.f006.nc', '{{ DATA }}/ens/{{ 'mem%03d' | format(imem) }}/{{ GPREFIX_ENS }}cubed_sphere_grid_atmf006.nc']
+    - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}csg_sfc.f006.nc', '{{ DATA }}/ens/{{ 'mem%03d' | format(imem) }}/{{ GPREFIX_ENS }}cubed_sphere_grid_sfcf006.nc']
     {% endfor %}
 {% endif %}
 
@@ -62,11 +61,16 @@ data_in:
 
 data_out:
     copy:
-    - ['{{ DATA }}/atmanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}atmanlvar.yaml']
-    - ['{{ DATA }}/atmanlfv3inc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}atmanlfv3inc.yaml']
-    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile1.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
-    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile2.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
-    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile3.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
-    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile4.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
-    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile5.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
-    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile6.nc', '{{ COMOUT_ATMOS_ANALYSIS }}']
+    - ['{{ DATA }}/atmanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}anlvar.atm.yaml']
+    - ['{{ DATA }}/atmanlfv3inc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}anlvar.fv3.atm.yaml']
+    {% if ATMINC_GRID == 'gaussian' %}
+    - ['{{ DATA }}/anl/atminc.{{ current_cycle | to_YMD }}_{{ current_cycle | strftime('%H') }}0000z.nc4', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}increment.atm.i006.nc']
+    - ['{{ DATA }}/anl/cubed_sphere_grid_atminc.jedi.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.nc']
+    {% else %}
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile1.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile1.nc']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile2.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile2.nc']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile3.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile3.nc']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile4.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile4.nc']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile5.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile5.nc']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile6.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile6.nc']
+    {% endif %}
