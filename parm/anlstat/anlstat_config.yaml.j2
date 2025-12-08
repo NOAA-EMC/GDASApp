@@ -3,25 +3,25 @@ jedi_config:
         rundir: '{{ DATA }}/aero'
         exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
         mpi_cmd: '{{ APRUN_ANLSTAT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/aero/jcb-base.yaml.j2'
         jcb_algo: 'anlstat'
     atmos:
         rundir: '{{ DATA }}/atmos'
         exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
         mpi_cmd: '{{ APRUN_ANLSTAT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/atmos/jcb-base.yaml.j2'
         jcb_algo: 'anlstat'
     atmos_gsi:
         rundir: '{{ DATA }}/atmos_gsi'
         exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
         mpi_cmd: '{{ APRUN_ANLSTAT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/atmos_gsi/jcb-base.yaml.j2'
         jcb_algo: 'anlstat'
     snow:
         rundir: '{{ DATA }}/snow'
         exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
         mpi_cmd: '{{ APRUN_ANLSTAT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/snow/jcb-base.yaml.j2'
         jcb_algo: 'anlstat'
 
 data_in:
