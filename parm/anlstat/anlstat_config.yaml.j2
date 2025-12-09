@@ -31,23 +31,15 @@ data_in:
     - {{ DATA }}/{{ analysis }}/diag
     - {{ DATA }}/{{ analysis }}/stat
 {% endfor %}
+
     copy_opt:
-    - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aerostat.tgz', '{{ DATA }}/aero/diag/']
-    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}atmos_gsi_ioda_diags.tar.gz', '{{ DATA }}/atmos_gsi/diag']
-    - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}stat.atm.tar', '{{ DATA }}/atmos/diag']
-    - ['{{ COMIN_SNOW_ANALYSIS }}/{{ APREFIX }}snow_analysis.ioda_hofx.tar', '{{ DATA }}/snow/diag']
+{% for analysis in STAT_ANALYSES %}
+    - ['{{ anldir[analysis] }}/{{ APREFIX }}{{ analysis }}_analysis.ioda_hofx.tar.gz', '{{ DATA }}/{{ analysis }}/diag']
+{% endfor %}
 
 data_out:
     copy_opt:
-{% for ob in observations.aero %}
-    - ['{{ DATA}}/aero/stat/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_AERO_ANLMON }}']
-{% endfor %}
-{% for ob in observations.atmos_gsi %}
-    - ['{{ DATA}}/atmos_gsi/stat/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_ATMOS_ANLMON }}']
-{% endfor %}
-{% for ob in observations.atmos %}
-    - ['{{ DATA}}/atmos/stat/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_ATMOS_ANLMON }}']
-{% endfor %}
-{% for ob in observations.snow %}
-    - ['{{ DATA}}/snow/stat/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ COMOUT_SNOW_ANLMON }}']
+{% for analysis in STAT_ANALYSES %}
+    - ['{{ DATA}}/{{ analysis }}/stat/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ outdir[analysis] }}']
+    - ['{{ DATA }}/{{ analysis }}/{{ APREFIX }}{{ analysis }}_analysis.ioda_hofx_stats.tar.gz', '{{ outdir[analysis] }}']
 {% endfor %}
