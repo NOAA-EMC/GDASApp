@@ -12,18 +12,20 @@ base:
   FHMAX_GFS: 24
   FHMAX_HF_GFS: 0
 
-atmanl:
-  JCB_ALGO_YAML_VAR: "@srcdir@/test/atm/global-workflow/jcb-prototype_3dvar.yaml.j2"
-  JCB_ALGO_YAML_FV3INC: "@srcdir@/test/atm/global-workflow/jcb-prototype_3dvar-fv3inc.yaml.j2"  
+atmanl:  
   STATICB_TYPE: "identity"
   ATMRES_ANL: "C48"
   LAYOUT_X_ATMANL: 1
   LAYOUT_Y_ATMANL: 1
+  OBS_LIST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/atm_obs_list.yaml.j2"
+  VAR_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_3dvar.yaml.j2"
+  FV3INC_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_3dvar-fv3inc.yaml.j2"
 
-atmensanl:
-  JCB_ALGO_YAML_LETKF: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf.yaml.j2"
-  JCB_ALGO_YAML_OBS: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf_observer.yaml.j2"
-  JCB_ALGO_YAML_SOL: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf_solver.yaml.j2"
-  JCB_ALGO_YAML_FV3INC: "@srcdir@/test/atm/global-workflow/jcb-prototype_lgetkf-fv3inc.yaml.j2"  
+atmensanl: 
   LAYOUT_X_ATMENSANL: 1
   LAYOUT_Y_ATMENSANL: 1
+  OBS_LIST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/atm_obs_list.yaml.j2"
+  LETKF_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf.yaml.j2"
+  OBS_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-observer.yaml.j2"
+  SOL_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-solver.yaml.j2"
+  FV3INC_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-fv3inc.yaml.j2"

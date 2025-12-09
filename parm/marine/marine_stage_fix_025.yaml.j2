@@ -1,10 +1,7 @@
-mkdir:
-- "{{ DATA }}/INPUT"
-- "{{ DATA }}/anl_geom"
 ######################################
 # fix files to copy
 ######################################
-copy:
+
 # Deterministic resource files
 - ["{{ INPUT_FIX_DIR }}/rossrad.nc", "{{ DATA }}/rossrad.nc"]
 - ["{{ INPUT_FIX_DIR }}/field_table", "{{ DATA }}/field_table"]
@@ -25,6 +22,7 @@ copy:
 - ["{{ INPUT_FIX_DIR }}/INPUT/geothermal_davies2013_v1.nc", "{{ DATA }}/INPUT/geothermal_davies2013_v1.nc"]
 - ["{{ INPUT_FIX_DIR }}/INPUT/interpolate_zgrid_46L.nc", "{{ DATA }}/INPUT/interpolate_zgrid_46L.nc"]
 - ["{{ INPUT_FIX_DIR }}/INPUT/C384_mosaic.nc", "{{ DATA }}/INPUT/C384_mosaic.nc"]
+
 # Analysis resource files
 - ["{{ ANL_GEOM }}/soca_gridspec.nc", "{{ DATA }}/anl_geom/soca_gridspec.nc"]
 - ["{{ ANL_GEOM }}/MOM_input", "{{ DATA }}/anl_geom/MOM_input"]

@@ -14,7 +14,6 @@ ioda
 ufo
 fv3-jedi
 soca
-iodaconv
 "
 
 for r in $repos; do

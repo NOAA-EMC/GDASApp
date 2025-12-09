@@ -63,10 +63,10 @@ RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
 
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
-mkdir -p $COMIN_OBS
-flist="amsua_n19.${PDY}${cyc} sondes.${PDY}${cyc}"
+mkdir -p $COMIN_OBS/atmos
+flist="amsua_n19 sondes"
 for file in $flist; do
-   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.nc4 $COMIN_OBS/${oprefix}.${file}.nc
+   ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.${PDY}${cyc}.nc $COMIN_OBS/atmos/${oprefix}.${file}.nc
 done
 
 # Link radiance bias correction tarball
@@ -95,7 +95,7 @@ for imem in $(seq 1 $NMEM_ENS); do
 
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
     target=$COMIN_ATMOS_HISTORY_PREV_ENS
-    flist=("cubed_sphere_grid_atmf006.nc" "cubed_sphere_grid_sfcf006.nc")
+    flist=("csg_atm.f006.nc" "csg_sfc.f006.nc")
     for file in "${flist[@]}"; do
 	rm -rf $target/enkf${gprefix}.${file}
         ln -fs $source/enkf${gprefix}.${file} $target/
@@ -121,7 +121,7 @@ nodes: 1
 ntasks_per_node: 1
 threads_per_task: 1
 memory: ${memory}
-command: ${HOMEgfs}/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
+command: ${HOMEgfs}/dev/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 filename: submit_${type}.sh
 EOF
 
@@ -135,5 +135,5 @@ if [[ $SCHEDULER = 'slurm' ]]; then
 elif [[ $SCHEDULER = 'pbspro' ]]; then
     qsub -V -W block=true submit_${type}.sh
 else
-    ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
+    ${HOMEgfs}/dev/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
 fi

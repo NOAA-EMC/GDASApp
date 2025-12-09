@@ -17,8 +17,8 @@ background_error_file: "{{BERROR_YAML}}"
 
 # Assimilation standard things (not prepended with model choice)
 # ----------------------------
-window_begin: "{{ AERO_WINDOW_BEGIN | to_isotime }}"
-window_length: "{{ AERO_WINDOW_LENGTH }}"
+window_begin: "{{ WINDOW_BEGIN | to_isotime }}"
+window_length: "{{ WINDOW_LENGTH }}"
 bound_to_include: begin
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
@@ -60,7 +60,7 @@ aero_background_path: ./bkg
 aero_background_ensemble_path: ./ens/mem%mem%
 
 # Default background time is for 3D applications
-aero_background_time_iso: "{{ AERO_WINDOW_BEGIN | to_isotime }}"
+aero_background_time_iso: "{{ WINDOW_BEGIN | to_isotime }}"
 aero_cycle_time_iso: "{{ current_cycle | to_isotime }}"
 aero_cycle_time_fv3: "{{ current_cycle | to_fv3time }}"
 
@@ -100,13 +100,13 @@ observations: all_observations
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
-aero_obsdataroot_path: "{{COMIN_OBS}}"
+aero_obsdataroot_path: "{{COMIN_OBS}}/chem"
 
-aero_obsdatain_path: "{{aero_obsdatain_path}}"
+aero_obsdatain_path: "{{DATA}}/obs/"
 aero_obsdatain_prefix: "{{OPREFIX}}"
-aero_obsdatain_suffix: ".tm00.nc"
+aero_obsdatain_suffix: ".nc"
 
-aero_obsdataout_path: "{{aero_obsdataout_path}}"
+aero_obsdataout_path: "{{DATA}}/diags/"
 aero_obsdataout_prefix: diag_
 aero_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
@@ -128,6 +128,6 @@ aero_obsbiascovout_prefix: "{{APREFIX}}"
 aero_obsbiascovout_suffix: ".satbias_cov.nc"
 
 bias_files:
-  viirs_npp_aod: aero_varbc_params.tar
-  viirs_n20_aod: aero_varbc_params.tar
-  viirs_n21_aod: aero_varbc_params.tar
+  retrieval_aod_viirs_npp: aero_varbc_params.tar
+  retrieval_aod_viirs_n20: aero_varbc_params.tar
+  retrieval_aod_viirs_n21: aero_varbc_params.tar

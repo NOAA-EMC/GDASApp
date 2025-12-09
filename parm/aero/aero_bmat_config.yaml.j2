@@ -1,0 +1,101 @@
+jedi_config:
+    aero_interpbkg:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas.x'
+        jedi_args: ['fv3jedi', 'convertstate']
+        mpi_cmd: '{{ APRUN_AEROANLGENB }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/aero/jcb-base.yaml.j2'
+        jcb_algo: aero_convert_background
+    aero_diagb:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_chem_diagb.x'
+        mpi_cmd: '{{ APRUN_AEROANLGENB }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/aero/jcb-base.yaml.j2'
+        jcb_algo: aero_gen_bmatrix_diagb
+    aero_diffusion:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_error_covariance_toolbox.x'
+        mpi_cmd: '{{ APRUN_AEROANLGENB }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/aero/jcb-base.yaml.j2'
+        jcb_algo: aero_gen_bmatrix_diffusion
+
+data_in:
+    mkdir:
+    - '{{ DATA }}/bkg'
+    - '{{ DATA }}/stddev'
+    - '{{ DATA }}/clm_stddev'
+    - '{{ DATA }}/diffusion'
+    - '{{ DATA }}/rescale'
+    - '{{ DATA }}/fv3jedi'
+
+    copy:
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/']
+
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_core.res.tile1.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_core.res.tile2.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_core.res.tile3.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_core.res.tile4.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_core.res.tile5.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_core.res.tile6.nc', '{{ DATA }}/bkg/']
+
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_tracer.res.tile1.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_tracer.res.tile2.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_tracer.res.tile3.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_tracer.res.tile4.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_tracer.res.tile5.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_tracer.res.tile6.nc', '{{ DATA }}/bkg/']
+
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/']
+
+    - ['{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile1.nc', '{{ DATA }}/bkg/' ]
+    - ['{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile2.nc', '{{ DATA }}/bkg/' ]
+    - ['{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile3.nc', '{{ DATA }}/bkg/' ]
+    - ['{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile4.nc', '{{ DATA }}/bkg/' ]
+    - ['{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile5.nc', '{{ DATA }}/bkg/' ]
+    - ['{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile6.nc', '{{ DATA }}/bkg/' ]
+######################################
+# copy climatological stddev files
+######################################
+    - ['{{ BERROR_DATA_DIR }}/stddev.fv_tracer.res.tile1.nc', '{{ DATA }}/clm_stddev/stddev.fv_tracer.res.tile1.nc']
+    - ['{{ BERROR_DATA_DIR }}/stddev.fv_tracer.res.tile2.nc', '{{ DATA }}/clm_stddev/stddev.fv_tracer.res.tile2.nc']
+    - ['{{ BERROR_DATA_DIR }}/stddev.fv_tracer.res.tile3.nc', '{{ DATA }}/clm_stddev/stddev.fv_tracer.res.tile3.nc']
+    - ['{{ BERROR_DATA_DIR }}/stddev.fv_tracer.res.tile4.nc', '{{ DATA }}/clm_stddev/stddev.fv_tracer.res.tile4.nc']
+    - ['{{ BERROR_DATA_DIR }}/stddev.fv_tracer.res.tile5.nc', '{{ DATA }}/clm_stddev/stddev.fv_tracer.res.tile5.nc']
+    - ['{{ BERROR_DATA_DIR }}/stddev.fv_tracer.res.tile6.nc', '{{ DATA }}/clm_stddev/stddev.fv_tracer.res.tile6.nc']
+######################################
+# copy stddev rescaling factor files
+######################################
+    - ['{{ BERROR_DATA_DIR }}/rescale.fv_tracer.res.tile1.nc', '{{ DATA }}/rescale/rescale.fv_tracer.res.tile1.nc']
+    - ['{{ BERROR_DATA_DIR }}/rescale.fv_tracer.res.tile2.nc', '{{ DATA }}/rescale/rescale.fv_tracer.res.tile2.nc']
+    - ['{{ BERROR_DATA_DIR }}/rescale.fv_tracer.res.tile3.nc', '{{ DATA }}/rescale/rescale.fv_tracer.res.tile3.nc']
+    - ['{{ BERROR_DATA_DIR }}/rescale.fv_tracer.res.tile4.nc', '{{ DATA }}/rescale/rescale.fv_tracer.res.tile4.nc']
+    - ['{{ BERROR_DATA_DIR }}/rescale.fv_tracer.res.tile5.nc', '{{ DATA }}/rescale/rescale.fv_tracer.res.tile5.nc']
+    - ['{{ BERROR_DATA_DIR }}/rescale.fv_tracer.res.tile6.nc', '{{ DATA }}/rescale/rescale.fv_tracer.res.tile6.nc']
+
+{% filter indent(width=4) %}
+{% include 'aero_stage_jedi_fix.yaml.j2' %}
+{% endfilter %}
+
+data_out:
+    copy:
+### copy YAMLs used
+    - ['{{ DATA }}/aero_interpbkg.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}aero_interpbkg.yaml']
+    - ['{{ DATA }}/aero_diagb.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}aero_diagb.yaml']
+    - ['{{ DATA }}/aero_diffusion.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}aero_diffusion.yaml']
+### copy stddev files to ROTDIR
+    - ['{{ DATA }}/stddev/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile1.nc', '{{ COMOUT_CHEM_BMAT }}/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile1.nc']
+    - ['{{ DATA }}/stddev/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile2.nc', '{{ COMOUT_CHEM_BMAT }}/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile2.nc']
+    - ['{{ DATA }}/stddev/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile3.nc', '{{ COMOUT_CHEM_BMAT }}/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile3.nc']
+    - ['{{ DATA }}/stddev/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile4.nc', '{{ COMOUT_CHEM_BMAT }}/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile4.nc']
+    - ['{{ DATA }}/stddev/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile5.nc', '{{ COMOUT_CHEM_BMAT }}/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile5.nc']
+    - ['{{ DATA }}/stddev/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile6.nc', '{{ COMOUT_CHEM_BMAT }}/{{ next_cycle | to_fv3time }}.stddev.fv_tracer.res.tile6.nc']
+### copy coupler file
+    - ['{{ DATA }}/stddev/{{ next_cycle | to_fv3time }}.stddev.coupler.res', '{{ COMOUT_CHEM_BMAT }}/{{ next_cycle | to_fv3time }}.stddev.coupler.res']
+### copy diffusion files
+    - ['{{ DATA }}/diffusion/diffusion_hz.nc', '{{ COMOUT_CHEM_BMAT }}/{{ APREFIX }}aero_diffusion_hz.nc']
+    - ['{{ DATA }}/diffusion/diffusion_vt.nc', '{{ COMOUT_CHEM_BMAT }}/{{ APREFIX }}aero_diffusion_vt.nc']

@@ -1,0 +1,76 @@
+jedi_config:
+    atmanlvar:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas.x'
+        mpi_cmd: '{{ APRUN_ATMANLVAR }}'
+        jedi_args: ['fv3jedi', 'variational']
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_algo_yaml: '{{ PARMgfs }}/gdas/atm/jcb-prototype_3dvar.yaml.j2'
+    atmanlfv3inc:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_fv3inc.x'
+        mpi_cmd: '{{ APRUN_ATMANLFV3INC }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_algo_yaml: '{{ PARMgfs }}/gdas/atm/jcb-prototype_3dvar-fv3inc.yaml.j2'
+
+data_in:
+    mkdir:
+    - '{{ DATA }}/bkg'
+    - '{{ DATA }}/anl'
+    - '{{ DATA }}/obs'
+    - '{{ DATA }}/bc'
+    - '{{ DATA }}/fv3jedi'
+    - '{{ DATA }}/crtm'
+    - '{{ DATA }}/berror'
+    - '{{ DATA }}/diags'
+
+{% if DOHYBVAR %}
+    {% for imem in range(1,NMEM_ENS+1) %}
+    - '{{ DATA }}/ens/{{ 'mem%03d' | format(imem) }}'
+    {% endfor %}
+{% endif %}
+
+    copy:
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}cubed_sphere_grid_atmf006.nc']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}cubed_sphere_grid_sfcf006.nc']
+
+{% if DOHYBVAR %}
+    {% for imem in range(1,NMEM_ENS+1) %}
+        {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                              '${RUN}': 'enkfgdas',
+                              '${YMD}': previous_cycle | to_YMD,
+                              '${HH}': previous_cycle | strftime('%H'),
+                              '${MEMDIR}': 'mem%03d' | format(imem) }) %}
+    - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}csg_atm.f006.nc', '{{ DATA }}/ens/{{ 'mem%03d' | format(imem) }}/{{ GPREFIX_ENS }}cubed_sphere_grid_atmf006.nc']
+    - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}csg_sfc.f006.nc', '{{ DATA }}/ens/{{ 'mem%03d' | format(imem) }}/{{ GPREFIX_ENS }}cubed_sphere_grid_sfcf006.nc']
+    {% endfor %}
+{% endif %}
+
+{% filter indent(width=4) %}
+{% include 'atm_stage_jedi_fix.yaml.j2' %}
+{% include 'atm_stage_crtm_coeff.yaml.j2' %}
+{% if STATICB_TYPE != 'identity' %}
+{% include 'atm_det_stage_berror_' ~ STATICB_TYPE ~ '.yaml.j2' %}
+{% endif %}
+{% endfilter %}
+
+    copy_opt:
+{% filter indent(width=4) %}
+{% include 'atm_stage_obs.yaml.j2' %}
+{% endfilter %}
+
+data_out:
+    copy:
+    - ['{{ DATA }}/atmanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}anlvar.atm.yaml']
+    - ['{{ DATA }}/atmanlfv3inc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}anlvar.fv3.atm.yaml']
+    {% if ATMINC_GRID == 'gaussian' %}
+    - ['{{ DATA }}/anl/atminc.{{ current_cycle | to_YMD }}_{{ current_cycle | strftime('%H') }}0000z.nc4', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}increment.atm.i006.nc']
+    - ['{{ DATA }}/anl/cubed_sphere_grid_atminc.jedi.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.nc']
+    {% else %}
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile1.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile1.nc']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile2.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile2.nc']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile3.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile3.nc']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile4.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile4.nc']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile5.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile5.nc']
+    - ['{{ DATA }}/anl/{{ APREFIX }}cubed_sphere_grid_atminc.tile6.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile6.nc']
+    {% endif %}
