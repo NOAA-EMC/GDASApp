@@ -83,9 +83,9 @@ local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
-setenv("CRTM_FIX","/lustre/GDASApp/fix/crtm/2.4.0")
-setenv("GDASAPP_TESTDATA","/lustre/GDASApp/data/20251202/testdata")
-setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/lustre/GDASApp/data/20251202/unittestdata")
+setenv("CRTM_FIX","/contrib/global-workflow-shared-data/GDASApp/fix/crtm/2.4.0")
+setenv("GDASAPP_TESTDATA","/contrib/global-workflow-shared-data/GDASApp/testdata")
+setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/contrib/global-workflow-shared-data/GDASApp/unittestdata")
 
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)
