@@ -6,6 +6,8 @@ jedi_config:
         jedi_args: ['fv3jedi', 'localensembleda']
         jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/atm/jcb-prototype_lgetkf_observer.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
+        bias_files_yaml: '{{ BIAS_FILES_YAML }}'
     atmensanlsol:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas.x'
@@ -13,6 +15,8 @@ jedi_config:
         jedi_args: ['fv3jedi', 'localensembleda']
         jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/atm/jcb-prototype_lgetkf_solver.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
+        bias_files_yaml: '{{ BIAS_FILES_YAML }}'
     atmensanlfv3inc:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas_fv3jedi_fv3inc.x'
@@ -26,6 +30,8 @@ jedi_config:
         jedi_args: ['fv3jedi', 'localensembleda']
         jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/atm/jcb-prototype_lgetkf.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
+        bias_files_yaml: '{{ BIAS_FILES_YAML }}'
 
 data_in:
     mkdir:

@@ -6,6 +6,8 @@ jedi_config:
         jedi_args: ['fv3jedi', 'variational']
         jcb_base_yaml: '{{ PARMgfs }}/gdas/aero/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/aero/jcb-prototype_3dvar.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
+        bias_files_yaml: '{{ BIAS_FILES_YAML }}'
 
 data_in:
     mkdir:

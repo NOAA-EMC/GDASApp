@@ -13,6 +13,7 @@ jedi_config:
         jedi_args: ['fv3jedi', 'variational']
         jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_2dvar.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
     scf_to_ioda:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas_fv3jedi_scf_to_ioda.x'
