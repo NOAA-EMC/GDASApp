@@ -138,5 +138,5 @@ if [[ $SCHEDULER = 'slurm' ]]; then
 elif [[ $SCHEDULER = 'pbspro' ]]; then
     qsub -V -W block=true submit_${type}.sh
 else
-    ${HOMEgfs}/dev/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
+    ${HOMEgfs}/dev/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 fi
