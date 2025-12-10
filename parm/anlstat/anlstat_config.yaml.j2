@@ -40,6 +40,8 @@ data_in:
 data_out:
     copy_opt:
 {% for analysis in STAT_ANALYSES %}
+    {% for ob in observations %}
     - ['{{ DATA}}/{{ analysis }}/stat/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ outdir[analysis] }}']
+    {% endfor %}
     - ['{{ DATA }}/{{ analysis }}/{{ APREFIX }}{{ analysis }}_analysis.ioda_hofx_stats.tar.gz', '{{ outdir[analysis] }}']
 {% endfor %}
