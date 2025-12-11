@@ -31,7 +31,7 @@ atmosphere_ninner_1: {{ NINNER_LOOP1 | default(2, true) }}
 atmosphere_grad_red_1: 1e-10
 atmosphere_ninner_2: {{ NINNER_LOOP2 | default(4, true) }}
 atmosphere_grad_red_2: 1e-10
-analysis_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
+analysis_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,snow_water,rain_water,graupel,ozone_mass_mixing_ratio]
 
 # Model things
 # ------------
@@ -127,7 +127,7 @@ bias_files_dict:
 # -------------------------
 local_ensemble_da_solver: Deterministic GETKF
 
-increment_variables: [eastward_wind,northward_wind,layer_thickness,air_pressure_thickness,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
+increment_variables: [eastward_wind,northward_wind,layer_thickness,air_pressure_thickness,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,snow_water,rain_water,graupel,ozone_mass_mixing_ratio]
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
