@@ -29,7 +29,7 @@ components:
         local interpolator type: oops unstructured grid interpolator
       state variables to inverse: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,
                                    water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,
-                                   ozone_mass_mixing_ratio]
+                                   snow_water,rain_water,graupel,ozone_mass_mixing_ratio]
     linear variable change:
       linear variable change name: Control2Analysis
       input variables:
@@ -40,6 +40,9 @@ components:
       - water_vapor_mixing_ratio_wrt_moist_air
       - cloud_liquid_ice
       - cloud_liquid_water
+      - snow_water
+      - rain_water
+      - graupel
       - mole_fraction_of_ozone_in_air
       output variables:
       - eastward_wind
@@ -49,6 +52,9 @@ components:
       - water_vapor_mixing_ratio_wrt_moist_air
       - cloud_liquid_ice
       - cloud_liquid_water
+      - snow_water
+      - rain_water
+      - graupel
       - ozone_mass_mixing_ratio
   weight:
     value: 0.125
@@ -67,6 +73,9 @@ components:
         - water_vapor_mixing_ratio_wrt_moist_air
         - cloud_liquid_ice
         - cloud_liquid_water
+        - snow_water
+        - rain_water
+        - graupel
         - ozone_mass_mixing_ratio
         field io names:
           eastward_wind: ugrd
@@ -76,6 +85,9 @@ components:
           water_vapor_mixing_ratio_wrt_moist_air: spfh
           cloud_liquid_ice: icmr
           cloud_liquid_water: clwmr
+          snow_water: snmr
+          rain_water: rwmr
+          graupel: grle
           ozone_mass_mixing_ratio: o3mr
         datapath: {{ atmosphere_background_ensemble_path }}
         filename is datetime templated: true
@@ -98,6 +110,9 @@ components:
         - water_vapor_mixing_ratio_wrt_moist_air
         - cloud_liquid_ice
         - cloud_liquid_water
+        - snow_water
+        - rain_water
+        - graupel
         - ozone_mass_mixing_ratio
         read:
           general:
@@ -255,6 +270,9 @@ components:
       - water_vapor_mixing_ratio_wrt_moist_air
       - cloud_liquid_ice
       - cloud_liquid_water
+      - snow_water
+      - rain_water
+      - graupel
       - ozone_mass_mixing_ratio
       output variables:
       - eastward_wind
@@ -264,6 +282,9 @@ components:
       - water_vapor_mixing_ratio_wrt_moist_air
       - cloud_liquid_ice
       - cloud_liquid_water
+      - snow_water
+      - rain_water
+      - graupel
       - ozone_mass_mixing_ratio
   weight:
     value: 0.875

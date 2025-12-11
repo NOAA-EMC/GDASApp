@@ -8,6 +8,9 @@ variable change:
   - water_vapor_mixing_ratio_wrt_moist_air
   - cloud_liquid_ice
   - cloud_liquid_water
+  - snow_water
+  - rain_water
+  - graupel
   - ozone_mass_mixing_ratio
   - geopotential_height_at_surface
   output variables: &fv3incrvars
@@ -17,6 +20,9 @@ variable change:
   - water_vapor_mixing_ratio_wrt_moist_air
   - cloud_liquid_ice
   - cloud_liquid_water
+  - snow_water
+  - rain_water
+  - graupel
   - ozone_mass_mixing_ratio
   - air_pressure_thickness
   - layer_thickness
@@ -28,6 +34,9 @@ jedi increment variables:
 - water_vapor_mixing_ratio_wrt_moist_air
 - cloud_liquid_ice
 - cloud_liquid_water
+- snow_water
+- rain_water
+- graupel
 - ozone_mass_mixing_ratio
 fv3 increment variables: *fv3incrvars
 background geometry:
@@ -85,6 +94,9 @@ members from template:
         water_vapor_mixing_ratio_wrt_moist_air: spfh
         cloud_liquid_ice: icmr
         cloud_liquid_water: clwmr
+        snow_water: snmr
+        rain_water: rwmr
+        graupel: grle
         ozone_mass_mixing_ratio: o3mr
         geopotential_height_at_surface: hgtsfc
     jedi increment input:
@@ -106,6 +118,9 @@ members from template:
         cloud_liquid_water: liq_wat_inc
         ozone_mass_mixing_ratio: o3mr_inc
         cloud_liquid_ice: icmr_inc
+        snow_water: snmr_inc
+        rain_water: rwmr_inc
+        graupel: grle_inc
         air_pressure_thickness: delp_inc
         layer_thickness: delz_inc
   pattern: '%mem%'
