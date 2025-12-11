@@ -33,6 +33,8 @@
       Sensor_ID: &{{observation_from_jcb}}_sensor_id atms_n20
       EndianType: little_endian
       CoefficientPath: "{{crtm_coefficient_path}}"
+    do fov average: true
+    fov sample points per semimajor axis: 4
     linear obs operator:
       Absorbers: [H2O, O3]
 
