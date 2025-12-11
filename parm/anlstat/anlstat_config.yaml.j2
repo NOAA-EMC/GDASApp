@@ -11,7 +11,7 @@ jedi_config:
         mpi_cmd: '{{ APRUN_ANLSTAT }}'
         jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/atmos/jcb-base.yaml.j2'
         jcb_algo: 'anlstat'
-    atmos_gsi:
+    atmosgsi:
         rundir: '{{ DATA }}/atmos_gsi'
         exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
         mpi_cmd: '{{ APRUN_ANLSTAT }}'
@@ -40,8 +40,5 @@ data_in:
 data_out:
     copy_opt:
 {% for analysis in STAT_ANALYSES %}
-    {% for ob in observations %}
-    - ['{{ DATA}}/{{ analysis }}/stat/{{ current_cycle | to_YMDH }}.ioda_hofx_stats.{{ ob }}.nc', '{{ outdir[analysis] }}']
-    {% endfor %}
-    - ['{{ DATA }}/{{ analysis }}/{{ APREFIX }}{{ analysis }}_analysis.ioda_hofx_stats.tar.gz', '{{ outdir[analysis] }}']
+    - ['{{ DATA }}/{{ analysis }}/{{ APREFIX }}{{ analysis }}_stats.txt', '{{ outdir[analysis] }}']
 {% endfor %}

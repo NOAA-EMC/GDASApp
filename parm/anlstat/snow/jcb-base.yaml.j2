@@ -12,9 +12,13 @@ window_length: "{{ WINDOW_LENGTH }}"
 bound_to_include: begin
 
 stat_current_cycle_iso: "{{ current_cycle | to_isotime }}"
-stat_current_cycle_YMDH: "{{ current_cycle | to_YMDH }}"
 
 # Obspace variable things
 # -----------------------
-stat_obsdatain_path: "{{ DATA }}/snow/diag"
-stat_obsdataout_path: "{{ DATA }}/snow/stat"
+snow_obsdatain_path: "{{ DATA }}/snow/diag"
+snow_obsdatain_prefix: "diag_"
+snow_obsdatain_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+
+snow_obsdataout_path: "{{ DATA }}/snow/stat"
+snow_obsdataout_prefix: ""
+snow_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}_output_snow.nc"
