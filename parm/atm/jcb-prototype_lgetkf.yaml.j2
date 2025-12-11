@@ -11,9 +11,13 @@ algorithm: local_ensemble_da
 # ------------
 atmosphere_background_ensemble_path: ./bkg/mem%mem%
 
+# Distribution type used in OBS_DIST_LOCALIZATIONS_YAML
+{% set distribution_type = "Halo" %}
+
 # Observation things
 # ------------------
 {% include OBS_LIST_YAML %}
+{% include OBS_DIST_LOCALIZATIONS_YAML %}
 
 # Testing things
 # --------------

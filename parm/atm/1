@@ -1,0 +1,19 @@
+obs_distribution_localizations:
+  obs_distribution:
+    name: {{ distribution_type }}
+    halo size: 1250e3
+  obs_localizations:
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 1250e3
+    max nobs: 10000
+
+replace_obs_distribution_localizations:
+  replace: true
+  atms_n20:
+    obs_distribution:
+      name: {{ distribution_type }}
+      halo size: 850e3
+    obs_localizations:
+    - localization method: Horizontal Gaspari-Cohn
+      lengthscale: 850e3
+      max nobs: 5000

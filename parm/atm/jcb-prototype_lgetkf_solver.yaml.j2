@@ -17,12 +17,13 @@ atmosphere_obsdatain_prefix: diag_lobs_
 atmosphere_obsdatain_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 atmosphere_obsdataout_prefix: diag_solv_
 
-# Distribution type
-distribution_type: Halo
+# Distribution type used in OBS_DIST_LOCALIZATIONS_YAML
+{% set distribution_type = "Halo" %}
 
 # Observation things
 # ------------------
 {% include OBS_LIST_YAML %}
+{% include OBS_DIST_LOCALIZATIONS_YAML %}
 
 # Testing things
 # --------------

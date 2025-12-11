@@ -14,12 +14,13 @@ atmosphere_background_ensemble_path: ./bkg/mem%mem%
 # Naming conventions for observation files
 atmosphere_obsdataout_prefix: diag_lobs_
 
-# Distribution type
-distribution_type: RoundRobin
+# Distribution type used in OBS_DIST_LOCALIZATIONS_YAML
+{% set distribution_type = "RoundRobin" %}
 
 # Observation things
 # ------------------
 {% include OBS_LIST_YAML %}
+{% include OBS_DIST_LOCALIZATIONS_YAML %}
 
 # Testing things
 # --------------
