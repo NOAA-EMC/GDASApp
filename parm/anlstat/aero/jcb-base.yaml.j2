@@ -2,7 +2,7 @@
 # -------------------------------------
 algorithm_path: "{{PARMgfs}}/gdas/jcb-algorithms"
 app_path_algorithm: "{{PARMgfs}}/gdas/jcb-gdas/algorithm/obstats"
-app_path_model: "{{PARMgfs}}/gdas/jcb-gdas/model/obstats/aero"
+app_path_observations: "{{PARMgfs}}/gdas/jcb-gdas/observations/stat_aero"
 
 # Assimilation window
 # -------------------
@@ -16,10 +16,10 @@ stat_current_cycle_iso: "{{ current_cycle | to_isotime }}"
 # Obspace variable things
 # -----------------------
 
-aero_obsdatain_path: "{{ DATA }}/aero/diag"
-aero_obsdatain_prefix: "diag_"
-aero_obsdatain_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+stat_aero_obsdatain_path: "{{ DATA }}/aero/diag"
+stat_aero_obsdatain_prefix: "diag_"
+stat_aero_obsdatain_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
-aero_obsdataout_path: "{{ DATA }}/aero/stat"
-aero_obsdataout_prefix: ""
-aero_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}_output_aod.nc"
+stat_aero_obsdataout_path: "{{ DATA }}/aero/stat"
+stat_aero_obsdataout_prefix: ""
+stat_aero_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}_output_aod.nc"
