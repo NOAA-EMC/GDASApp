@@ -73,7 +73,14 @@ echo "---------------------------------------------------" >> $outfile
 # ==============================================================================
 # run build script
 cd $build_cmd_dir
-module purge
+if [[ "${TARGET}" == "gaeac6" ]]; then
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+	source /etc/profile
+    fi
+    module reset
+else    
+    module purge
+fi
 rm -rf log.build
 $build_cmd &>> log.build
 build_status=$?

@@ -1,5 +1,6 @@
 CI_TESTS=("atm_jjob"
           "C96C48_ufs_hybatmDA"
+          "C96C48_ufsgsi_hybatmDA"
           "C96C48_hybatmsnowDA"
           "C96_gcafs_cycled"
           "C48mx500_3DVarAOWCDA"
