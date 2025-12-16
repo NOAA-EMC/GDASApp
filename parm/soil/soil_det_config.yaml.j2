@@ -57,17 +57,17 @@ data_out:
 
     # Increments
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile1.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile1.nc']
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile2.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile2.nc']
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile3.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile3.nc']
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile4.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile4.nc']
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile5.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile5.nc']
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile6.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile6.nc']
 
 {% if DOIAU %}
     {% set bkgtimes = [ current_cycle, WINDOW_BEGIN ] %}
@@ -77,32 +77,32 @@ data_out:
 {% for bkgtime in bkgtimes %}
     # Analysis = bkg + inc
     - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc']
     - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc']
     - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc']
     - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc']
     - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc']
     - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc']
 {% endfor %}
 {% if DO_FINAL_SOILANL %}
 {% for bkgtime in bkgtimes %}
     # Final 3DVar Analysis
     - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile1.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile1.nc']
     - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile2.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile2.nc']
     - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile3.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile3.nc']
     - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile4.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile4.nc']
     - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile5.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile5.nc']
     - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
-       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile6.nc']
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile6.nc']
 {% endfor %}
 {% endif %}
