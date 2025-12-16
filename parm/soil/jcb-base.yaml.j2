@@ -1,0 +1,134 @@
+# Search path for model and obs for JCB
+# -------------------------------------
+algorithm_path: "{{PARMgdas}}/jcb-algorithms"
+app_path_algorithm: "{{PARMgdas}}/jcb-gdas/algorithm/soil"
+app_path_model: "{{PARMgdas}}/jcb-gdas/model/soil"
+app_path_observations: "{{PARMgdas}}/jcb-gdas/observations/soil"
+app_path_observation_chronicle: "{{PARMgdas}}/jcb-gdas/observation_chronicle/soil/{{cycle}}"
+
+
+# Places where we deviate from the generic file name of a yaml
+# ------------------------------------------------------------
+final_increment_file: soil_final_increment_fms
+model_file: model_pseudo
+initial_condition_file: background  # Initial conditions for 4D apps is background
+output_file: soil_output
+
+# Assimilation window
+# -------------------
+window_begin: "{{ WINDOW_BEGIN | to_isotime }}"
+window_length: "{{ WINDOW_LENGTH }}"
+bound_to_include: begin
+
+# Default background time is for 3D applications
+{% set bkg_time_iso = current_cycle | to_isotime %}
+{% set bkg_time_fv3 = current_cycle | to_fv3time %}
+{% set bkg_time_julian = current_cycle | to_julian %}
+soil_background_time_iso: "{{ bkg_time_iso }}"
+soil_background_time_fv3: "{{ bkg_time_fv3 }}"
+soil_background_time_julian: "{{ bkg_time_julian }}"
+soil_increment_time_iso: "{{ bkg_time_iso }}"
+soil_increment_time_fv3: "{{ bkg_time_fv3 }}"
+
+
+# Analysis standard things
+# ------------------------
+analysis_variables: [soilMoistureVolumetric]
+minimizer: DRPCG
+final_diagnostics_departures: anlmob
+final_prints_frequency: PT3H
+cost_type: 3D-Var
+number_of_outer_loops: 1
+
+# Model things
+# ------------
+# Geometry
+soil_layout_x: {{ layout_x | default(1, true) }}
+soil_layout_y: {{ layout_y | default(1, true) }}
+soil_npx_ges: {{ npx_ges | default(49, true) }}
+soil_npy_ges: {{ npy_ges | default(49, true) }}
+soil_npz_ges: {{ npz_ges | default(127, true) }}
+soil_npx_anl: {{ npx_ges | default(49, true) }}
+soil_npy_anl: {{ npy_ges | default(49, true) }}
+soil_npz_anl: {{ npz_ges | default(127, true) }}
+
+soil_variational_history_prefix: "{{ GPREFIX }}"
+
+soil_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
+soil_orog_files_path: "{{ soil_bkg_path }}"
+soil_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
+
+# Background
+soil_background_path: {{ soil_bkg_path }}
+background_ensemble_path: ./ens/mem%mem%
+
+# Background error
+soil_bump_data_directory: "{{ DATA }}/berror"
+number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
+
+soil_background_error_file: "{{BERROR_YAML}}"
+
+# Forecasting
+soil_forecast_length: "{{ SNOW_WINDOW_LENGTH }}"
+soil_forecast_timestep: "{{ BKG_TSTEP }}"
+
+
+# Observation things
+# ------------------
+observations: all_observations
+
+crtm_coefficient_path: "{{ DATA }}/crtm/"
+
+# Naming conventions for observational files
+soil_obsdataroot_path: "{{COMIN_OBS}}"
+soil_obsdatain_path: "{{DATA}}/obs"
+soil_obsdatain_prefix: "{{OPREFIX}}"
+soil_obsdatain_suffix: "" #.tm00.bufr_d"
+soil_obsdataout_path: "{{DATA}}/diags"
+soil_prepobs_path: "{{DATA}}/prep"
+soil_obsdataout_prefix: diag_
+soil_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+
+# Naming conventions for bias correction files
+soil_obsbiasin_path: "{{DATA}}/obs/"
+soil_obsbiasin_prefix: "{{GPREFIX}}"
+soil_obsbiasin_suffix: ".satbias.nc"
+soil_obstlapsein_prefix: "{{GPREFIX}}"
+soil_obstlapsein_suffix: ".tlapse.txt"
+soil_obsbiascovin_prefix: "{{GPREFIX}}"
+soil_obsbiascovin_suffix: ".satbias_cov.nc"
+
+soil_obsbiasout_path: "{{DATA}}/bc/"
+soil_obsbiasout_prefix: "{{APREFIX}}"
+soil_obsbiasout_suffix: ".satbias.nc"
+soil_obsbiascovout_prefix: "{{APREFIX}}"
+soil_obsbiascovout_suffix: ".satbias_cov.nc"
+
+# Ensemble mean things
+soil_number_ensemble_members: {{NMEM_ENS}}
+
+# Local Ensemble DA (LETKF)
+# -------------------------
+local_ensemble_da_solver: Deterministic GETKF
+
+increment_variables: [ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
+
+# Veritcal localization for GETKF
+vl_fraction_of_retained_variance: 0.750
+vl_lengthscale: 2.1
+vl_lengthscale_units: logp
+inflation_rtps: 0.85
+inflation_rtpp: 0.0
+inflation_mult: 1.0
+
+# Driver
+driver_update_obs_config_with_geometry_info: true
+driver_save_posterior_mean: false
+driver_save_posterior_ensemble: false
+driver_save_prior_mean: false
+driver_save_posterior_mean_increment: false
+driver_save_posterior_ensemble_increments: true
+
+# Diagnostics
+ensemble_increment_prefix: "./anl/mem%{member}%/soilinc."
+#posterior_output_gaussian: "./mem%{member}%/soilanl."

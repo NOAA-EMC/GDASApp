@@ -1,0 +1,108 @@
+jedi_config:
+    soilanlvar:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgdas }}/gdas.x'
+        mpi_cmd: '{{ APRUN_SOILANL }}'
+        jedi_args: ['fv3jedi', 'variational']
+        jcb_base_yaml: '{{ PARMgdas }}/soil/jcb-base.yaml.j2'
+        jcb_algo_yaml: '{{ PARMgdas }}/soil/jcb-prototype_2dvar.yaml.j2'
+    soilanladdinc:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgdas }}/fv3jedi_addincrement.x'
+        mpi_cmd: '{{ APRUN_SOIL_ADDINC }}'
+        jcb_base_yaml: '{{ PARMgdas }}/soil/jcb-base.yaml.j2'
+        jcb_algo: soil_addincrement
+
+data_in:
+    mkdir:
+    - '{{ DATA }}/bkg'
+    - '{{ DATA }}/anl'
+    - '{{ DATA }}/obs'
+    - '{{ DATA }}/diags'
+    - '{{ DATA }}/fv3jedi'
+    - '{{ DATA }}/berror'
+
+    copy:
+    - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/']
+
+    - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile1.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile1.nc" ]
+    - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile2.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile2.nc" ]
+    - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile3.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile3.nc" ]
+    - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile4.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile4.nc" ]
+    - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile5.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile5.nc" ]
+    - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile6.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile6.nc" ]
+
+{% filter indent(width=4) %}
+{% include 'soil_stage_jedi_fix.yaml.j2' %}
+{% include 'soil_stage_berror.yaml.j2' %}
+{% endfilter %}
+
+    copy_opt:
+{% filter indent(width=4) %}
+{% include 'soil_stage_obs.yaml.j2' %}
+{% endfilter %}
+
+data_out:
+    copy:
+    # Configuration files
+    - ['{{ DATA }}/soilanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanlvar.yaml']
+    - ['{{ DATA }}/soilanladdinc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanladdinc.yaml']
+    - ['{{ DATA }}/soil_obs_list.yaml.j2', '{{ COMOUT_CONF }}/{{ APREFIX }}soil_obs_list.yaml.j2']
+
+    # Increments
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile1.nc']
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile2.nc']
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile3.nc']
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile4.nc']
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile5.nc']
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile6.nc']
+
+{% if DOIAU %}
+    {% set bkgtimes = [ current_cycle, WINDOW_BEGIN ] %}
+{% else %}
+    {% set bkgtimes = [ current_cycle ] %}
+{% endif %}
+{% for bkgtime in bkgtimes %}
+    # Analysis = bkg + inc
+    - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc']
+    - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc']
+    - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc']
+    - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc']
+    - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc']
+    - ['{{ DATA }}/anl/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc']
+{% endfor %}
+{% if DO_FINAL_SOILANL %}
+{% for bkgtime in bkgtimes %}
+    # Final 3DVar Analysis
+    - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile1.nc']
+    - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile2.nc']
+    - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile3.nc']
+    - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile4.nc']
+    - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile5.nc']
+    - ['{{ DATA }}/anl/soil_finanl.{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile6.nc']
+{% endfor %}
+{% endif %}
