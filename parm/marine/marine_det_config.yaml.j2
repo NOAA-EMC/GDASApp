@@ -4,8 +4,8 @@ jedi_config:
         exe_src: '{{ EXECgfs }}/gdas.x'
         mpi_cmd: '{{ APRUN_MARINEANLVAR }}'
         jedi_args: ['soca', 'variational']
+        jcb_algo: '3dfgat'
         jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/marine/jcb-prototype_3dfgat.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
     soca_incpostproc:
         rundir: '{{ DATA }}'
