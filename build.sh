@@ -44,7 +44,7 @@ CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
 COMPILER="${COMPILER:-intel}"
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
-BUILD_IODA_CONVERTERS="YES"  #${BUILD_IODA_CONVERTERS:-"NO"}
+BUILD_IODA_CONVERTERS=${BUILD_IODA_CONVERTERS:-"NO"}
 
 while getopts "w:t:c:hvdfai" opt; do
   case $opt in
@@ -123,13 +123,8 @@ else
 fi
 
 if [[ $BUILD_IODA_CONVERTERS == 'YES' ]]; then
-  # Clone and build ioda-converters
-  export GSI_VARBC_IN_DAUTILS="YES"
-  if [[ -d "$dir_root/sorc/iodaconv" ]]; then 
-	  rm -rf "$dir_root/sorc/iodaconv"
-  fi
-  git clone -b landoffline https://github.com/tsga/ioda-converters "$dir_root/sorc/iodaconv"
-  #git clone https://github.com/jcsda-internal/ioda-converters "$dir_root/sorc/iodaconv"
+  # Clone and build ioVda-converters
+  git clone https://github.com/jcsda-internal/ioda-converters "$dir_root/sorc/iodaconv"
 fi
 
 # Set INSTALL_PREFIX as CMake option
