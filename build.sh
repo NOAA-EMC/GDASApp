@@ -123,7 +123,7 @@ else
 fi
 
 if [[ $BUILD_IODA_CONVERTERS == 'YES' ]]; then
-  # Clone and build ioVda-converters
+  # Clone and build ioda-converters
   git clone https://github.com/jcsda-internal/ioda-converters "$dir_root/sorc/iodaconv"
 fi
 
