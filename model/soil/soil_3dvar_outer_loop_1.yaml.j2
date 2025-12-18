@@ -1,0 +1,29 @@
+- ninner: 50
+  gradient norm reduction: 1e-10
+  test: on
+  geometry:
+    fms initialization:
+      namelist filename: {{ soil_fv3jedi_files_path }}/fmsmpp.nml
+      field table filename: {{ soil_fv3jedi_files_path }}/field_table
+    akbk: {{ soil_fv3jedi_files_path }}/akbk.nc4
+    layout:
+    - {{ soil_layout_x }}
+    - {{ soil_layout_y }}
+    npx: {{ soil_npx_anl }}
+    npy: {{ soil_npy_anl }}
+    npz: {{ soil_npz_anl }}
+    time invariant fields:
+      state fields:
+        datetime: '{{ soil_background_time_iso }}'
+        filetype: fms restart
+        skip coupler file: true
+        state variables:
+        - filtered_orography
+        - fraction_of_land
+        field io names:
+          filtered_orography: orog_filt
+          fraction_of_land: land_frac
+        datapath: {{ soil_orog_files_path }}/
+        filename_orog: {{ soil_orog_prefix }}_oro_data.nc
+  diagnostics:
+    departures: bkgmob
