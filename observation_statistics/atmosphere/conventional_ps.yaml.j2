@@ -1,18 +1,19 @@
 - obs space:
-    name: aod_n20
+    name: prepbufr_adpsfc
     obsdatain:
       engine:
         type: H5File
-        obsfile: {{ aero_obsdatain_path }}/aero/diag_{{ obspace }}_{{ stat_current_cycle_YMDH }}.nc
-    simulated variables: ['aerosolOpticalDepth']
-    observed variables: ['aerosolOpticalDepth']
-  variables: ['aerosolOpticalDepth']
-  groups to process: ['ombg', 'oman']
-  qc groups: ['EffectiveQC0', 'EffectiveQC1']
+        obsfile: "{{ atmosphere_obsdatain_path }}/{{ atmosphere_obsdatain_prefix }}{{ observation_from_jcb }}{{ atmosphere_obsdatain_suffix }}"
+    simulated variables: ['stationPressure']
+    observed variables: ['stationPressure']
   statistics to compute: ['mean', 'count', 'RMS']
-  output file: "{{ obspace }}_{{ stat_current_cycle_YMDH }}_output_aod.nc"
+  variables: ['stationPressure']
+  groups to process: ['ombg', 'oman']
+  qc groups: ['EffectiveQC0', 'EffectiveQC1']  
+  output file: "{{ atmosphere_obsdataout_path }}/{{ atmosphere_obsdataout_prefix }}{{ observation_from_jcb }}{{ atmosphere_obsdataout_suffix }}"
+  output ascii file: "{{ atmosphere_obsdataout_path }}/{{ observation_from_jcb }}_ioda_stats.txt"
   regular grid binning:
-    bin size in degrees: 5.0
+    bin size in degrees: 1.0
     use negative longitudes: true 
   domains to process:
   - domain:
