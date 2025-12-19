@@ -3,14 +3,15 @@
     obsdatain:
       engine:
         type: H5File
-        obsfile: {{ atmosphere_obsdatain_path }}/atmos/diag_{{ obspace }}_{{ stat_current_cycle_YMDH }}.nc
+        obsfile: "{{ atmosphere_obsdatain_path }}/{{ atmosphere_obsdatain_prefix }}{{ observation_from_jcb }}{{ atmosphere_obsdatain_suffix }}"
     simulated variables: ['stationPressure']
     observed variables: ['stationPressure']
   statistics to compute: ['mean', 'count', 'RMS']
   variables: ['stationPressure']
   groups to process: ['ombg', 'oman']
   qc groups: ['EffectiveQC0', 'EffectiveQC1']  
-  output file: "{{ obspace }}_{{ stat_current_cycle_YMDH }}_output_atmos.nc"
+  output file: "{{ atmosphere_obsdataout_path }}/{{ atmosphere_obsdataout_prefix }}{{ observation_from_jcb }}{{ atmosphere_obsdataout_suffix }}"
+  output ascii file: "{{ atmosphere_obsdataout_path }}/{{ observation_from_jcb }}_ioda_stats.txt"
   ascii vertical bins:
     vertical bin names: [1000+, 1000-900, 900-800, 800-600, 600-400, 400-300, 300-250, 250-200, 200-150, 150-100, 100-50]
     vertical bin ranges: [100000, 90000, 80000, 60000, 40000, 30000, 25000, 20000, 15000, 10000, 5000]
