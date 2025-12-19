@@ -1,10 +1,6 @@
 [submodule "sorc/jedicmake"]
   path = sorc/jedicmake
   url = https://github.com/jcsda/jedi-cmake.git
-[submodule "sorc/gsibec"]
-  path = sorc/gsibec
-  url = https://github.com/GEOS-ESM/GSIbec.git
-  branch = develop
 [submodule "sorc/gsw"]
   path = sorc/gsw
   url = https://github.com/jcsda-internal/GSW-Fortran.git
@@ -41,10 +37,6 @@
   path = sorc/soca
   url = https://github.com/NOAA-EMC/soca.git
   branch = dev/emc
-[submodule "sorc/land-imsproc"]
-  path = sorc/land-imsproc
-  url = https://github.com/NOAA-EMC/land-SCF_proc.git
-  branch = develop
 [submodule "sorc/land-jediincr"]
   path = sorc/land-jediincr
   url = https://github.com/NOAA-EMC/land-apply_jedi_incr.git
