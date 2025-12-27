@@ -75,6 +75,7 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
       list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_fcst_${HALF_CYCLE}")
     elseif("${task_name}" STREQUAL "gcdas_fcst")
       list(APPEND TEST_DEPENDS "${test_prefix}_gcdas_stage_ic_${HALF_CYCLE}")
+      list(APPEND TEST_DEPENDS "${test_prefix}_gcdas_prep_emissions_${HALF_CYCLE}")
     elseif("${task_name}" STREQUAL "gcdas_atmos_prod")
       list(APPEND TEST_DEPENDS "${test_prefix}_gcdas_fcst_${HALF_CYCLE}")
     elseif("${task_name}" STREQUAL "gcdas_aeroanlgenb")
@@ -407,6 +408,7 @@ if (WORKFLOW_TESTS)
     set(YAML_PATH ${HOMEgfs}/dev/ci/cases/pr/${pslot}.yaml)
     set(HALF_CYCLE_TASKS
       "gcdas_stage_ic"
+      "gcdas_prep_emissions"
       "gcdas_fcst"
       "gcdas_atmos_prod"
       "gcdas_aeroanlgenb")
