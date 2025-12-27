@@ -393,9 +393,51 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
     if (ncfile.isNull() == false) {
       isNetCDF = true;
       oops::Log::info() << "Opened IMS file as netCDF: " << imspath_ << std::endl;
-      // TODO(CoryMartin-NOAA) ... process netCDF file here ...
+
+      // define and get dimensions
+      netCDF::NcDim xDim = ncfile.getDim("x");
+      netCDF::NcDim yDim = ncfile.getDim("y");
+      netCDF::NcDim tDim = ncfile.getDim("time");
+
+      size_t nx = xDim.getSize();
+      size_t ny = yDim.getSize();
+      size_t nt = tDim.getSize();
+
+      oops::Log::info() << "IMS dimensions: "
+                        << nx << " x " << ny
+                        << " time=" << nt << std::endl;
+
+      // Get IMS variable
+      netCDF::NcVar imsVar = ncfile.getVar("IMS_Surface_Values");
+      if (imsVar.isNull()) {
+        throw eckit::UserError("IMS_Surface_Values variable not found", Here());
+      }
+
+      // Allocate storage
+      this->IMS_flag.resize(ny, std::vector<int>(nx));
+      this->IMS_index.resize(ny,
+          std::vector<std::vector<int>>(nx, std::vector<int>(3)));
+
+      // IMS_Surface_Values is: byte(time, y, x)
+      std::vector<unsigned char> buffer(nx * ny);
+
+      // Read only time index 0
+      std::vector<size_t> start = {0, 0, 0};
+      std::vector<size_t> count = {1, ny, nx};
+
+      imsVar.getVar(start, count, buffer.data());
+
+      // Copy into IMS_flag (row-major: y, x)
+      for (size_t j = 0; j < ny; ++j) {
+        for (size_t i = 0; i < nx; ++i) {
+          this->IMS_flag[j][i] = static_cast<int>(buffer[j * nx + i]);
+        }
+      }
+
+      oops::Log::info() << "IMS NetCDF data successfully read" << std::endl;
     }
-  } catch (...) {
+    ncfile.close();
+  } catch (netCDF::exceptions::NcException &e) {
     oops::Log::info() << "Failed to open as netCDF, will try ASCII: " << imspath_ << std::endl;
   }
 
