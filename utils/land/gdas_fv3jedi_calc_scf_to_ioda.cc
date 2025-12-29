@@ -399,6 +399,16 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
       netCDF::NcDim yDim = ncfile.getDim("y");
       netCDF::NcDim tDim = ncfile.getDim("time");
 
+      if (xDim.isNull()) {
+        throw eckit::UserError("Dimension 'x' not found in IMS netCDF file: " + imspath_, Here());
+      }
+      if (yDim.isNull()) {
+        throw eckit::UserError("Dimension 'y' not found in IMS netCDF file: " + imspath_, Here());
+      }
+      if (tDim.isNull()) {
+        throw eckit::UserError("Dimension 'time' not found in IMS netCDF file: " + imspath_, Here());
+      }
+
       size_t nx = xDim.getSize();
       size_t ny = yDim.getSize();
       size_t nt = tDim.getSize();
