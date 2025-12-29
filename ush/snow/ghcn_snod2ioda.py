@@ -3,7 +3,8 @@
 # (C) Copyright 2021-2022 NOAA/NWS/NCEP/EMC
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
-# This file is copied from the JEDI ioda-converts repo. 
+# This file is copied from the JEDI ioda-converts repo.
+#
 
 import argparse
 import numpy as np
