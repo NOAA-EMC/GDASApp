@@ -3,7 +3,7 @@ stage:
     - '{{ snow_prepobs_path }}'
   copy_opt:
     - ['{{ COMIN_OBS }}/{{ OPREFIX }}ghcn_snow.csv', '{{ DATA }}']
-    - ['{{ PARMgfs }}/gdas/snow/obs/config/ghcnd-stations.txt', '{{ DATA }}']
+    - ['{{ FIXgfs }}/gdas/snow/ghcnd-stations.txt', '{{ DATA }}']
 ghcn2ioda:
   copy_opt:
     - ['{{ DATA }}/{{ OPREFIX }}ghcn_snow.nc', '{{ snow_prepobs_path }}']
