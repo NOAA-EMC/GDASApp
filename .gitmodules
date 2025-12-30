@@ -1,10 +1,6 @@
 [submodule "sorc/jedicmake"]
   path = sorc/jedicmake
   url = https://github.com/jcsda/jedi-cmake.git
-[submodule "sorc/gsibec"]
-  path = sorc/gsibec
-  url = https://github.com/GEOS-ESM/GSIbec.git
-  branch = develop
 [submodule "sorc/gsw"]
   path = sorc/gsw
   url = https://github.com/jcsda-internal/GSW-Fortran.git
