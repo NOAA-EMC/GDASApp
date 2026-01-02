@@ -96,6 +96,17 @@ atmosphere_final_increment_prefix: "./anl/atminc."
 # ------------------
 observations: all_observations
 
+# JCB level option to replace obs filters
+# ---------------------------------------
+replace_obs_filters:
+  observations:
+    - abi_g16
+  override_filters:
+    - filter: PreQC
+      maxvalue: 1.0
+      action:
+        name: reject
+
 crtm_coefficient_path: "DATA/crtm/"
 
 # Naming conventions for observational files
