@@ -1,0 +1,51 @@
+- obs space:
+    name: atms_n20_gsi
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{ atmosphere_gsi_obsdatain_path }}/{{ atmosphere_gsi_obsdatain_prefix }}{{ observation_from_jcb }}{{ atmosphere_gsi_obsdatain_suffix }}"
+    simulated variables: ['brightnessTemperature']
+    observed variables: ['brightnessTemperature']
+  statistics to compute: ['count', 'mean', 'RMS']
+  variables: ['brightnessTemperature']
+  channels: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]
+  groups to process: ['ombg', 'oman']
+  qc groups: ['GsiEffectiveQCGes', 'GsiEffectiveQCAnl']
+  output file: "{{ atmosphere_gsi_obsdataout_path }}/{{ atmosphere_gsi_obsdataout_prefix }}{{ observation_from_jcb }}{{ atmosphere_gsi_obsdataout_suffix }}"
+  output ascii file: "{{ atmosphere_gsi_obsdataout_path }}/{{ observation_from_jcb }}_ioda_stats.txt"
+  regular grid binning:
+    bin size in degrees: 2.5
+    use negative longitudes: true 
+  domains to process:
+    - domain:
+        name: "SH"
+        first mask variable: latitude
+        first mask range: [-90,0]
+    - domain:
+        name: "NH"
+        first mask variable: latitude
+        first mask range: [0,90]
+    - domain:
+        name: "CONUS"
+        first mask variable: latitude
+        first mask range: [25,49]
+        second mask variable: longitude
+        second mask range: [-125,-66]
+    - domain:
+        name: "Europe"
+        first mask variable: latitude
+        first mask range: [35,70]
+        second mask variable: longitude
+        second mask range: [-11,38]
+    - domain:
+        name: "Africa"
+        first mask variable: latitude
+        first mask range: [-35,37]
+        second mask variable: longitude
+        second mask range: [-17,52]
+    - domain:
+        name: "Asia"
+        first mask variable: latitude
+        first mask range: [0,70]
+        second mask variable: longitude
+        second mask range: [38, 180]
