@@ -60,7 +60,7 @@ nodes: 1
 ntasks_per_node: 6
 threads_per_task: 1
 memory: ${memory}
-command: ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
+command: ${HOMEgfs}/dev/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
 filename: submit_${type}.sh
 EOF
 
@@ -74,5 +74,5 @@ if [[ $SCHEDULER = 'slurm' ]]; then
 elif [[ $SCHEDULER = 'pbspro' ]]; then
     qsub -V -W block=true submit_${type}.sh
 else
-    ${HOMEgfs}/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
+    ${HOMEgfs}/dev/jobs/JGLOBAL_ATM_ANALYSIS_VARIATIONAL
 fi

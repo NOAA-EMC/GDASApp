@@ -1,0 +1,9 @@
+stage:
+  mkdir:
+    - '{{ snow_prepobs_path }}'
+  copy_opt:
+    - ['{{ COMIN_OBS }}/{{ OPREFIX }}ghcn_snow.csv', '{{ DATA }}']
+    - ['{{ FIXgfs }}/gdas/snow/ghcnd-stations.txt', '{{ DATA }}']
+ghcn2ioda:
+  copy_opt:
+    - ['{{ DATA }}/{{ OPREFIX }}ghcn_snow.nc', '{{ snow_prepobs_path }}']

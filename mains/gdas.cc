@@ -10,7 +10,6 @@
 #include "soca/Traits.h"
 
 #include "saber/oops/instantiateCovarFactory.h"
-#include "ufo/instantiateObsErrorFactory.h"
 #include "ufo/instantiateObsFilterFactory.h"
 #include "ufo/ObsTraits.h"
 
@@ -34,7 +33,6 @@ int runApp(int argc, char** argv, const std::string traits, const std::string ap
   saber::instantiateCovarFactory<Traits>();
 
   // Intantiate ufo factories
-  ufo::instantiateObsErrorFactory();
   ufo::instantiateObsFilterFactory();
 
   // Localization for ensemble DA

@@ -1,11 +1,9 @@
  &MOM_input_nml
         output_directory = './',
         input_filename = 'r',
-        {% if not simple_geom %}
         restart_input_dir = 'INPUT/',
         restart_output_dir = 'RESTART/',
-        {% endif %}
-        parameter_filename = '{{ mom_input }}'
+        parameter_filename = 'MOM_input'
  /
 
  &diag_manager_nml
@@ -19,5 +17,6 @@
 
  &fms_nml
        clock_grain='MODULE'
-       domains_stack_size = {{ domain_stack_size }}
-       clock_flags='SYNC' /
+       domains_stack_size = {{ mom_domain_stack_size }}
+       clock_flags='SYNC'
+/
