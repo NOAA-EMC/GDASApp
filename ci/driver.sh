@@ -50,14 +50,14 @@ case ${TARGET} in
     module list
     ;;
   gaeac6)
-      source $my_dir/${TARGET}.sh
-      if ( ! eval module help > /dev/null 2>&1 ) ; then
-          source /etc/profile
-      fi
-      module reset
-      module use $GDAS_MODULE_USE
-      module load GDAS/$TARGET
-      module list
+    source $my_dir/${TARGET}.sh
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+        source /etc/profile
+    fi
+    module reset
+    module use $GDAS_MODULE_USE
+    module load GDAS/$TARGET
+    module list
     ;;
   *)
     echo "Unsupported platform. Exiting with error."
