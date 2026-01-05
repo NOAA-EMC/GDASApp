@@ -26,12 +26,6 @@ locationKeyList = [
     ("dateTime", "long"),
 ]
 
-AttrData = {
-}
-
-DimDict = {
-}
-
 VarDims = {
     'totalSnowDepth': ['Location'],
 }
@@ -49,7 +43,7 @@ def get_epoch_time(adatetime):
     return time_offset
 
 
-class ghcn(object):
+class GHCNConverter(object):
 
     def __init__(self, filename, fixfile, date, warn):
         self.filename = filename
@@ -60,6 +54,8 @@ class ghcn(object):
         self.metaDict = defaultdict(lambda: defaultdict(dict))
         self.outdata = defaultdict(lambda: DefaultOrderedDict(OrderedDict))
         self.varAttrs = defaultdict(lambda: DefaultOrderedDict(OrderedDict))
+        self.AttrData = {}
+        self.DimDict = {}
         self._read()
 
     def _read(self):
@@ -112,7 +108,7 @@ class ghcn(object):
         df300 = pd.merge(df30, df10[['ID', 'LATITUDE', 'LONGITUDE', 'ELEVATION']], on='ID', how='left')
 
         # if merge (left) cannot find ID in df10, will insert NaN
-        if (any(df300['LATITUDE'].isna())):
+        if any(df300['LATITUDE'].isna()):
             if (self.warn):
                 print(f"\n WARNING: ignoring ghcn stations missing from station_list")
             else:
@@ -154,7 +150,7 @@ class ghcn(object):
         self.outdata[self.varDict[iodavar]['errKey']] = errs
         self.outdata[self.varDict[iodavar]['qcKey']] = qflg
 
-        DimDict['Location'] = len(self.outdata[('dateTime', 'MetaData')])
+        self.DimDict['Location'] = len(self.outdata[('dateTime', 'MetaData')])
 
 
 def main():
@@ -185,16 +181,16 @@ def main():
     tic = record_time()
 
     # Read in the GHCN snow depth data
-    snod = ghcn(args.input, args.fixfile, args.date, args.warn_on_missing_stn)
+    snod = GHCNConverter(args.input, args.fixfile, args.date, args.warn_on_missing_stn)
 
-    # report time
-    toc = record_time(tic=tic)
+    writer = iconv.IodaWriter(args.output, locationKeyList, snod.DimDict)
 
-    # setup the IODA writer
-    writer = iconv.IodaWriter(args.output, locationKeyList, DimDict)
-
-    # write all data out
-    writer.BuildIoda(snod.outdata, VarDims, snod.varAttrs, AttrData)
+    writer.BuildIoda(
+        snod.outdata,
+        VarDims,
+        snod.varAttrs,
+        snod.AttrData
+    )
 
     # report time
     toc = record_time(tic=tic)
