@@ -1,0 +1,128 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: ims_snow
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{snow_obsdatain_path}}/{{snow_obsdatain_prefix}}{{observation_from_jcb}}.tm00.nc"
+        missing file action: warn  
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{snow_obsdataout_path}}/{{snow_obsdataout_prefix}}{{observation_from_jcb}}{{snow_obsdataout_suffix}}"
+    simulated variables: [totalSnowDepth]
+  #
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: Identity
+  #
+
+  # Observation Filters (QC)
+  # ------------------------
+  obs pre filters:
+  - filter: Create Diagnostic Flags
+    flags:
+    - name: land_check
+      initial value: false
+    - name: landice_check
+      initial value: false
+    - name: seaice_check
+      initial value: false
+    - name: invalid_snowdepth
+      initial value: false
+    - name: invalid_elevation
+      initial value: false
+    - name: background_check
+      initial value: false
+    - name: spatial_thinning
+      initial value: false
+  # assign observation error
+  - filter: Perform Action
+    filter variables:
+    - name: totalSnowDepth
+    action:
+      name: assign error
+      error parameter: 80.0
+
+  obs prior filters:
+  # remove land-ice and sea points
+  - filter: Domain Check # land only
+    where:
+    - variable:
+        name: GeoVaLs/fraction_of_land
+      minvalue: 0.5
+    actions:
+    - name: set
+      flag: land_check
+      ignore: rejected observations
+    - name: reject
+  - filter: Domain Check
+    where:
+    - variable:
+        name: MetaData/stationElevation
+      minvalue: -200.0
+      maxvalue: 3000.0
+    actions:
+    - name: set
+      flag: invalid_elevation
+      ignore: rejected observations
+    - name: reject
+  - filter: Domain Check # land only, no sea ice
+    where:
+    - variable:
+        name: GeoVaLs/fraction_of_ice
+      maxvalue: 0.0
+    actions:
+    - name: set
+      flag: seaice_check
+      ignore: rejected observations
+    - name: reject
+  - filter: RejectList  # no land-ice
+    where:
+    - variable:
+        name: GeoVaLs/vtype
+      minvalue: 14.5
+      maxvalue: 15.5
+    actions:
+    - name: set
+      flag: landice_check
+      ignore: rejected observations
+    - name: reject
+
+  obs post filters:
+  # gross error check
+  - filter: Background Check
+    filter variables:
+    - name: totalSnowDepth
+    absolute threshold: 250
+    actions:
+    - name: set
+      flag: background_check
+      ignore: rejected observations
+    - name: reject
+
+  # thinning of remaining obs
+  - filter: Gaussian Thinning
+    horizontal_mesh: 40.0 # km
+    actions:
+    - name: set
+      flag: spatial_thinning
+      ignore: rejected observations
+    - name: reject
+
+  # excludes where both obs & mod = 100% (set in IMS_proc)
+  - filter: Bounds Check
+    filter variables:
+    - name: totalSnowDepth
+    minvalue: 0.0
+    actions:
+    - name: set
+      flag: invalid_snowdepth
+      ignore: rejected observations
+    - name: reject
+

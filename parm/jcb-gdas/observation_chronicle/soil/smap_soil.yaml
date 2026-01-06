@@ -1,0 +1,14 @@
+# Instrument metadata
+# -------------------
+commissioned: 2015-01-31T00:00:00    
+
+observer_type: conventional  # Type of chronicle to use
+
+window_option: max
+
+# observation type initial configuration
+# --------------------------------
+stations_to_reject: [fakelist]
+
+# Chronicle of changes for this observation type
+# ----------------------------------------

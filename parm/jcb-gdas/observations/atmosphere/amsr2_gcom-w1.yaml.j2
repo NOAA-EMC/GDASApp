@@ -1,0 +1,399 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: AMSR2 GCOM-W1
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
+        missing file action: warn
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [brightnessTemperature]
+    channels: &{{observation_from_jcb}}_simulated_channels {{ get_satellite_variable(observation_from_jcb, "simulated") }}
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: CRTM
+    Absorbers: [H2O, O3, CO2]
+    Clouds: &{{observation_from_jcb}}_clouds [Water, Ice, Rain, Snow, Graupel]
+#   Cloud_Fraction: 1.0
+#   ---methods for cloud fraction and radii in fov: thompson, or none
+    method for cloud fraction within fov: thompson
+    method for hydrometeor effective radii within fov: thompson
+    Cloud_Seeding: true
+    obs options:
+      Sensor_ID: &{{observation_from_jcb}}_sensor_id amsr2_gcom-w1
+      EndianType: little_endian
+      CoefficientPath: "{{crtm_coefficient_path}}"
+    linear obs operator:
+      Absorbers: [H2O, O3]
+
+  # Observation Bias Correction (VarBC)
+  # -----------------------------------
+  obs bias:
+    input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_suffix}}"
+    output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiasout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasout_suffix}}"
+    variables without bc: [brightnessTemperature]
+    channels: {{ get_satellite_variable(observation_from_jcb, "not_biascorrtd") }}
+    variational bc:
+      predictors:
+      - name: constant
+      - name: lapseRate
+        order: 2
+        tlapse: &{{observation_from_jcb}}_tlapse "{{atmosphere_obsbiasin_path}}/{{atmosphere_obstlapsein_prefix}}{{observation_from_jcb}}{{atmosphere_obstlapsein_suffix}}"
+      - name: lapseRate
+        tlapse: *{{observation_from_jcb}}_tlapse
+      - name: emissivityJacobian
+      - name: sensorScanAngle
+        var_name: sensorScanPosition
+        order: 4
+      - name: sensorScanAngle
+        var_name: sensorScanPosition
+        order: 3
+      - name: sensorScanAngle
+        var_name: sensorScanPosition
+        order: 2
+      - name: sensorScanAngle
+        var_name: sensorScanPosition
+    covariance:
+      minimal required obs number: 20
+      variance range: [1.0e-6, 10.0]
+      step size: 1.0e-4
+      largest analysis variance: 10000.0
+      prior:
+        input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiascovin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovin_suffix}}"
+        inflation:
+          ratio: 1.1
+          ratio for small dataset: 2.0
+      output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiascovout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovout_suffix}}"
+
+  # Observation Filters (QC)
+  # ------------------------
+  obs pre filters:
+  # Data Thinning
+  - filter: Gaussian Thinning
+    horizontal_mesh: 100
+    use_reduced_horizontal_grid: true
+    distance_norm: geodesic
+  #  round_horizontal_bin_count_to_nearest: true
+  #  partition_longitude_bins_using_mesh: true
+    action:
+      name: reduce obs space
+
+  # ------------------------
+  obs prior filters:
+  # Zero Atmospheric clouds in CRTM where water_area_fraction < 0.99
+  - filter: Variable Assignment
+    assignments:
+    - name: MetaData/zeroCloudInCRTM
+      type: int
+      function:
+        name: ObsFunction/Conditional
+        options:
+  #         firstmatchingcase: false
+          defaultvalue: 0 # Will not zero clouds by default
+          cases:
+          - where:
+            - variable:
+                name: GeoVaLs/water_area_fraction
+              maxvalue: 0.99
+            value: 1 # Will zero clouds by default
+
+  obs post filters:
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    minvalue: 50.0
+    maxvalue: 340.0
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: GeoVaLs/water_area_fraction
+      minvalue: 0.99
+    - variable:
+        name: GeoVaLs/skin_temperature_at_surface_where_sea
+      minvalue: 275
+    - variable:
+        name: GeoVaLs/wind_speed_at_surface
+      maxvalue: 12
+    - variable:
+        name: MetaData/latitude
+      minvalue: -60.0
+      maxvalue: 60.0
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/TotalColumnVaporGuess
+    minvalue: 10.0
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/SunGlintAngle
+    minvalue: 20.0
+
+  # Save CLW retrievals from ObsValue
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/clw_obs
+      type: float
+      function:
+        name: ObsFunction/CLWRetMW
+        options:
+          clwret_ch18v: 7
+          clwret_ch18h: 8
+          clwret_ch36v: 11
+          clwret_ch36h: 12
+          sys_bias: [0.4800, 3.0737, 0.7433, 3.6430,
+                     3.5304, 4.4270, 5.1448, 5.0785,
+                     4.9763, 9.3215, 2.5789, 5.5274,
+                     0.6641, 1.3674]
+          clwret_types: [ObsValue]
+  # Save CLW retrievals from HofX
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/clw_guess_retrieval
+      type: float
+      function:
+        name: ObsFunction/CLWRetMW
+        options:
+          clwret_ch18v: 7
+          clwret_ch18h: 8
+          clwret_ch36v: 11
+          clwret_ch36h: 12
+          sys_bias: [0.4800, 3.0737, 0.7433, 3.6430,
+                     3.5304, 4.4270, 5.1448, 5.0785,
+                     4.9763, 9.3215, 2.5789, 5.5274,
+                     0.6641, 1.3674]
+          clwret_types: [HofX]
+  #  Ckeck CLW retrievals from observations
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: DerivedMetaData/clw_obs
+    maxvalue: 1.0
+  #  Ckeck CLW retrievals from HofX
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: DerivedMetaData/clw_guess_retrieval
+    maxvalue: 1.0
+  - filter: Difference Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    value:
+      name: DerivedMetaData/clw_obs
+    reference:
+      name: DerivedMetaData/clw_guess_retrieval
+    minvalue: -0.5
+    maxvalue: 0.5
+  # Combined (clw_obs + clw_guess_retrieval)/2.0
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/CLWRetSymmetricMW
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: DerivedMetaData/clw_obs
+          - name: DerivedMetaData/clw_guess_retrieval
+          coefs: [0.5, 0.5]
+  - filter: BlackList
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelRamp
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels
+          xvar:
+            name: DerivedMetaData/CLWRetSymmetricMW
+          x0: &{{observation_from_jcb}}_x0 [{{ get_satellite_variable(observation_from_jcb, "x0") }}]
+          x1: &{{observation_from_jcb}}_x1 [{{ get_satellite_variable(observation_from_jcb, "x1") }}]
+          err0: &{{observation_from_jcb}}_err0 [{{ get_satellite_variable(observation_from_jcb, "error") }}]
+          err1: &{{observation_from_jcb}}_err1 [{{ get_satellite_variable(observation_from_jcb, "error_cld") }}]
+
+  ## Prepare variables used by cold-air-outbreak checks in all-sky.
+  # Combined ColumnLiquidCloud + ColumnIceCloud
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/ColumnLiquidandIceCloud
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: GeoVaLs/mass_content_of_cloud_liquid_water_in_atmosphere_column
+          - name: GeoVaLs/mass_content_of_cloud_ice_in_atmosphere_column
+          coefs: [1, 1]
+  # replace zero by 9.99e-7 in DerivedMetaData/ColumnLiquidandIceCloud
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/ColumnLiquidandIceCloud
+      type: float
+      value: 9.99e-07
+    where:
+    - variable:
+        name: DerivedMetaData/ColumnLiquidandIceCloud
+      maxvalue: 9.99e-07
+
+  # ratio of liquid /(Liquid+Ice)
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/ColumnRatioLiquidCloud
+      type: float
+      function:
+        name: ObsFunction/ElementMultiply
+        options:
+          variables:
+          - name: GeoVaLs/mass_content_of_cloud_liquid_water_in_atmosphere_column
+          - name: DerivedMetaData/ColumnLiquidandIceCloud
+          exponents: [1,-1]
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/ColumnRatioLiquidCloud
+      type: float
+      value: 0.0
+    where:
+    - variable:
+        name: DerivedMetaData/ColumnLiquidandIceCloud
+      maxvalue: 1.0e-06
+
+  # TotalColumnVaporGuess
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/TotalColumnVaporGuess
+      type: float
+      function:
+        name: ObsFunction/TotalColumnVaporGuess
+
+  # potentialTemperature at surface
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/PotentialTemperatureSurface
+      type: float
+      function:
+        name: PotentialTemperatureFromTemperature@ObsFunction
+        options:
+          use surface pressure: true
+  # potentialTemperature near 700 hPa
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/PotentialTemperatureAt700hPa
+      type: float
+      function:
+        name: PotentialTemperatureFromTemperature@ObsFunction
+        options:
+          use surface pressure: false
+          pressure to evaluate potential temperature: 70000.0
+  # stability = Difference between PotentialTemperatur values
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/PotentialTemperatureDiff
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: DerivedMetaData/PotentialTemperatureAt700hPa
+          - name: DerivedMetaData/PotentialTemperatureSurface
+          coefs: [1, -1]
+  #  cold-air-outbreak (cao) check for all-sky DA with Rain, Snow, or Graupel
+  - filter: BlackList
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: ObsFunction/TotalColumnVaporGuess
+      maxvalue: 8.0
+    - variable:
+        name: DerivedMetaData/ColumnRatioLiquidCloud
+      maxvalue: 0.5
+    - variable:
+        name: DerivedMetaData/PotentialTemperatureDiff
+      maxvalue: 12.0
+    - variable:
+        name: GeoVaLs/water_area_fraction
+      minvalue: 0.99
+    action:
+      name: reject
+
+  # Background check
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 1-6
+    threshold: 3.0
+    action:
+      name: reject
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 7-14
+    threshold: 2.0
+    action:
+      name: reject
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 7-10
+    absolute threshold: 30
+    action:
+      name: reject
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 11-14
+    absolute threshold: 50
+    action:
+      name: reject
+  #  Useflag check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/ChannelUseflagCheckRad
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+  #     use passive_bc: true
+        sensor: *{{observation_from_jcb}}_sensor_id
+        use_flag: &{{observation_from_jcb}}_active_channels [{{ get_satellite_variable(observation_from_jcb, "active") }}]
+    minvalue: 1.0e-12
+    action:
+      name: reject
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atmosphere_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0

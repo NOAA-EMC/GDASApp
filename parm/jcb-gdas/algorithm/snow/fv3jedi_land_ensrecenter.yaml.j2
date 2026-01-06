@@ -1,0 +1,94 @@
+geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ layout_x }}
+  - {{ layout_y }}
+  npx: {{ npx_ges }}
+  npy: {{ npy_ges }}
+  npz: {{ npz_ges }}
+date: "{{ snow_background_time_iso }}"
+variables:
+- totalSnowDepth
+increment mask:
+  variable:
+  - slmsk
+  minvalue: 0.99
+  maxvalue: 1.01
+  background:
+    datetime: "{{ snow_background_time_iso }}"
+    filetype: fms restart
+    state variables:
+    - slmsk
+    datapath: ./bkg/mem001
+    filename is datetime templated: true
+    filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+    filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+    filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+    filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+    filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
+    skip coupler file: true
+deterministic increment:
+  datetime: "{{ snow_increment_time_iso }}"
+  filetype: fms restart
+  state variables:
+  - totalSnowDepth
+  field io names:
+    totalSnowDepth: snodl
+  datapath: ./inc/det_ensres
+  filename is datetime templated: true
+  filename_core: "snowinc.%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+  filename_trcr: "snowinc.%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+  filename_sfcd: "snowinc.%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+  filename_sfcw: "snowinc.%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+  filename_cplr: "snowinc.%yyyy%mm%dd.%hh%MM%ss.coupler.res"
+  skip coupler file: true
+deterministic background:
+  datetime: "{{ snow_background_time_iso }}"
+  filetype: fms restart
+  state variables:
+  - totalSnowDepth
+  field io names:
+    totalSnowDepth: snodl
+  datapath: ./bkg/det_ensres
+  filename is datetime templated: true
+  filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+  filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+  filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+  filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+  filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
+  skip coupler file: true
+recenter to: deterministic
+output increment:
+  datapath: ./inc/ensmean
+  datetime: "{{ snow_increment_time_iso }}"
+  filetype: fms restart
+  field io names:
+    totalSnowDepth: snodl
+  prefix: snowinc
+  filename_core: "{{ snow_increment_time_fv3 }}.fv_core.res.nc"
+  filename_trcr: "{{ snow_increment_time_fv3 }}.fv_tracer.res.nc"
+  filename_sfcd: "{{ snow_increment_time_fv3 }}.sfc_data.nc"
+  filename_sfcw: "{{ snow_increment_time_fv3 }}.fv_srf_wnd.res.nc"
+  filename_cplr: "{{ snow_increment_time_fv3 }}.coupler.res"
+ensemble backgrounds:
+  pattern: "{{ ensemble_pattern | default("%mem%", true) }}"
+  number of members: {{ number_ensemble_members }}
+  zero padding: 3
+  template:
+    datetime: "{{ snow_background_time_iso }}"
+    filetype: fms restart
+    state variables:
+    - totalSnowDepth
+    field io names:
+      totalSnowDepth: snodl
+    datapath: ./bkg/mem%mem%
+    filename is datetime templated: true
+    filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
+    filename_trcr: "%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc"
+    filename_sfcd: "%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc"
+    filename_sfcw: "%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc"
+    filename_cplr: "%yyyy%mm%dd.%hh%MM%ss.coupler.res"
+    skip coupler file: true

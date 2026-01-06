@@ -1,0 +1,95 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: gnssrobndnbam_k5
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}" 
+        missing file action: warn
+      obsgrouping:
+        group variables: [ 'sequenceNumber' ]
+        sort variable: 'impactHeightRO'
+        sort order: 'ascending'
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"        
+    simulated variables: [bendingAngle]
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: GnssroBndNBAM
+    obs options:
+      use_compress: 1
+      sr_steps: 2
+      vertlayer: full
+      super_ref_qc: NBAM
+      output_diags: true
+
+  # Observation Filters (QC)
+  # ------------------------
+  obs filters:
+  # Apply gross check using pccf
+  # Step 0-A: Create Diagnostic Flags 
+  # Diagnostic flag for pccf
+  - filter: Create Diagnostic Flags
+    filter variables:  
+    - name: bendingAngle 
+    flags:
+    - name: pccfCheckReject
+      initial value: false 
+      force reinitialization: true
+  
+  # Step 0-B: pccf Check for CDACC data  - good: 0.1-100, reject: 0
+  - filter: Bounds Check
+    filter variables:
+    - name: bendingAngle
+    where:
+    - variable:
+        name: MetaData/satelliteIdentifier
+      is_in: 265-269,750-755,44,786,820,825
+    test variables:
+    - name: MetaData/pccf
+    minvalue: 0.1
+    maxvalue: 100.1
+    actions:
+    - name: set
+      flag: pccfCheckReject
+    - name: reject
+  
+  #1. gpstop
+  - filter: Domain Check
+    filter variables:
+    - name: bendingAngle
+    where:
+    - variable:
+        name: MetaData/impactHeightRO
+      minvalue: 0
+      maxvalue: 55000.1
+    action:
+      name: reject
+  #3. RONBAM cut off check
+  - filter: Background Check RONBAM
+    filter variables:
+    - name: bendingAngle
+    action:
+      name: reject
+    defer to post: true
+  #4. assign obs error 
+  - filter: ROobserror
+    filter variables:
+    - name: bendingAngle
+    errmodel: NBAM
+    defer to post: true
+  #5. Obs error inflate
+  - filter: Perform Action
+    filter variables:
+    - name: bendingAngle
+    action:
+      name: RONBAMErrInflate
+    defer to post: true
+  # --------------------------------

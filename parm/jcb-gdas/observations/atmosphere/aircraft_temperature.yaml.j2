@@ -1,0 +1,299 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: Aircraft
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
+        missing file action: warn
+      obsgrouping:
+        group variables: [stationIdentification]
+        sort variable: pressure
+        sort order: descending
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}" 
+    io pool:
+      max pool size: 1
+    simulated variables: [airTemperature]
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: Composite
+    components:
+    - name: VertInterp
+      variables: [airTemperature]
+
+  # Linear Observation Operator
+  # ---------------------------
+  linear obs operator:
+    name: Composite
+    components:
+    - name: VertInterp
+      variables: [airTemperature]
+
+  # Observation Bias Correction (VarBC)
+  # -----------------------------------
+  obs bias:
+    input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_acft_suffix}}"
+    output file: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsbiasout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasout_acft_suffix}}"
+    bc by record: true
+    variational bc:
+      predictors:
+      - name: constant
+      - name: obsMetadataPredictor
+        variable: instantaneousAltitudeRate
+      - name: obsMetadataPredictor
+        variable: instantaneousAltitudeRate
+        order: 2
+    covariance:
+      minimal required obs number: 3
+      variance range: [1.0e-6, 1.0]
+      step size: 1.0e-4
+      largest analysis variance: 10000.0
+      prior:
+        input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiascovin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovin_acft_suffix}}"
+        inflation:
+          ratio: 1.005
+          ratio for small dataset: 2.0
+      output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiascovout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovout_acft_suffix}}"
+
+
+  obs pre filters:
+  
+  # Error assignments
+  # Assign the initial observation error, based on pressure (for AIREP/ACARS; itype=130)
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [100000, 95000, 90000, 85000, 80000]
+          errors: [2.5, 2.3, 2.1, 1.9, 1.7]
+    where:
+    - variable:
+        name: ObsType/airTemperature
+      is_in: 130
+
+  # Assign the initial observation error, based on pressure (for AMDAR and MDCRS; itype=131,133)
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [100000, 95000, 90000, 85000, 80000]
+          errors: [1.4706, 1.3529, 1.2353, 1.1176, 1.0]
+    where:
+    - variable:
+        name: ObsType/airTemperature
+      is_in: 131,133
+
+  # Assign the initial observation error, based on pressure (for RECON aircraft; itype=132)
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [110000, 100000, 95000, 90000, 85000, 35000, 30000, 25000, 20000, 15000, 10000, 7500, 5000, 4000, 3000, 2000, 1000]
+          errors: [  1.2,    1.2,   1.1,   0.9,   0.8,   0.8,   0.9,   1.2,   1.2,   1.0,   0.8,  0.8,  0.9, 0.95,  1.0, 1.25,  1.5]
+    where:
+    - variable:
+        name: ObsType/airTemperature
+      is_in: 132
+
+  # Assign the initial observation error, based on pressure (for TAMDAR itype=134)
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [100000, 95000, 90000, 85000, 80000, 60000, 40000, 7500]
+          errors: [1.5,   1.35,  1.25,  1.10,  1.0,   1.3,   1.7, 1000000000.0 ]
+    where:
+    - variable:
+        name: ObsType/airTemperature
+      is_in: 134
+
+  # Assign the initial observation error, based on pressure (for Canadian AMDAR itype=135)
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorModelStepwiseLinear
+        options:
+          xvar:
+            name: MetaData/pressure
+          xvals: [100000, 95000, 90000, 85000, 80000]
+          errors: [1.4706, 1.3529, 1.2353, 1.1176, 1.0 ]
+    where:
+    - variable:
+        name: ObsType/airTemperature
+      is_in: 135
+
+# Future section to re-assign kx0 here
+
+  # Reassign any AIREP/PIREP (type=130) airTemperature MetaData/stationIdentification to 'KX130   '
+  - filter: Variable Assignment
+    where:
+    - variable:
+        name: ObsType/airTemperature
+      is_in: 130
+    assignments:
+    - name: MetaData/stationIdentification
+      value: "KX130"
+
+  # Error inflation where QC is 3 or 7
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: inflate error
+      inflation factor: 1.2
+    where:
+    - variable: PreQC/airTemperature
+      is_in: 3,7
+
+  # Error inflation when observation pressure < 100 mb (read_prepbufr.f90)
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: inflate error
+      inflation factor: 1.2
+    where:
+    - variable: MetaData/pressure
+      maxvalue: 10000.0
+
+  # Inflate error by 10 if kx==130 and P >=500 mb (read_prepbufr.f90)
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: inflate error
+      inflation factor: 10.0
+    where:
+    - variable: ObsType/airTemperature
+      is_in: 130.0
+    - variable: MetaData/pressure
+      minvalue: 50000.0
+
+  # Inflate if IALR > 30
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: inflate error
+      inflation factor: 1.5
+    where:
+    - variable: MetaData/instantaneousAltitudeRate
+      minvalue: 30.0 
+
+
+  obs prior filters:
+
+  # error inflation based on pressure check
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    where:
+    - variable:
+        name: ObsType/airTemperature
+      is_in: 130-135
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorPressureCheck
+        options:
+          variable: airTemperature
+          inflation factor: 8.0
+          surface_obs: true
+          geovar_sfc_geomz: height_above_mean_sea_level_at_surface
+    defer to post: true
+
+
+  obs post filters:
+
+  - filter: Variable Assignment
+    assignments:
+    - name: HofXBc/airTemperature
+      type: float
+      function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables: [HofX/airTemperature]
+          coefs: [1.0]
+    defer to post: true
+
+  # Background  check
+  # ratio threshold 7.0
+  - filter: Background Check
+    test_hofx: HofXBc
+    filter variables:
+    - name: airTemperature
+    threshold: 7.0
+    action:
+      name: reject
+    where:
+    - variable: PreQC/airTemperature
+      is_not_in: [3]
+    defer to post: true
+
+  # ratio threshold * 0.7 if PreQC=3
+  - filter: Background Check
+    test_hofx: HofXBc
+    filter variables:
+    - name: airTemperature
+    threshold: 4.9
+    action:
+      name: reject
+    where:
+    - variable: PreQC/airTemperature
+      is_in: [3]
+    defer to post: true
+
+  # Reject where QC = 4-19 
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    where:
+    - variable: PreQC/airTemperature
+      is_in: 4-19
+    action:
+      name: reject
+
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atmosphere_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 114568 

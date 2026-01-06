@@ -1,0 +1,318 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: IASI METOP-C
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
+        missing file action: warn
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    observed variables: [spectralRadiance]
+    simulated variables: [brightnessTemperature]
+    derived variables: [brightnessTemperature]
+    channels: &{{observation_from_jcb}}_simulated_channels {{ get_satellite_variable(observation_from_jcb, "simulated") }}
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: CRTM
+    Absorbers: [H2O, O3, CO2]
+    obs options:
+      Sensor_ID: &{{observation_from_jcb}}_sensor_id iasi_metop-c
+      EndianType: little_endian
+      CoefficientPath: "{{crtm_coefficient_path}}"
+    linear obs operator:
+      Absorbers: [H2O, O3]
+
+  # Observation Bias Correction (VarBC)
+  # -----------------------------------
+  obs bias:
+    input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_suffix}}"
+    output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiasout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasout_suffix}}"
+    variables without bc: [brightnessTemperature]
+    channels: {{ get_satellite_variable(observation_from_jcb, "not_biascorrtd") }}
+    variational bc:
+      predictors:
+      - name: constant
+      - name: lapseRate
+        order: 2
+        tlapse: &{{observation_from_jcb}}_tlapse "{{atmosphere_obsbiasin_path}}/{{atmosphere_obstlapsein_prefix}}{{observation_from_jcb}}{{atmosphere_obstlapsein_suffix}}"
+      - name: lapseRate
+        tlapse: *{{observation_from_jcb}}_tlapse
+      - name: emissivityJacobian
+      - name: sensorScanAngle
+        order: 4
+      - name: sensorScanAngle
+        order: 3
+      - name: sensorScanAngle
+        order: 2
+      - name: sensorScanAngle
+    covariance:
+      minimal required obs number: 20
+      variance range: [1.0e-6, 10.0]
+      step size: 1.0e-4
+      largest analysis variance: 10000.0
+      prior:
+        input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiascovin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovin_suffix}}"
+        inflation:
+          ratio: 1.1
+          ratio for small dataset: 2.0
+      output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiascovout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovout_suffix}}"
+
+  # Observation Pre Filters (QC)
+  # ----------------------------
+  obs pre filters:
+  # Step 1: Create Derived Variables
+  # Assign channel wavenumbers in m-1
+  - filter: Variable Assignment
+    assignments:
+    - name: MetaData/sensorCentralWavenumber
+      type: float
+      channels: *{{observation_from_jcb}}_simulated_channels
+      function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables:
+          - name: ObsValue/spectralRadiance
+            channels: *{{observation_from_jcb}}_simulated_channels
+          coefs: [25.0]
+          intercept: 64475.0
+          use channel numbers: true
+
+  # Step 2: Transform radiance to brightness temperature
+  - filter: Variable Transforms
+    Transform: SatBrightnessTempFromRad
+    transform from:
+      name: ObsValue/spectralRadiance
+      channels: *{{observation_from_jcb}}_simulated_channels
+    spectral variable:
+      name: MetaData/sensorCentralWavenumber
+      channels: *{{observation_from_jcb}}_simulated_channels
+    radiance units: wavenumber
+    planck1: 1.191042953e-16
+    planck2: 1.4387774e-2
+
+  # Step 3: Assign Observation Error
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: assign error
+      error parameter vector: &{{observation_from_jcb}}_oberr [{{ get_satellite_variable(observation_from_jcb, "error") }}] 
+
+  # Step 4: Remove Observations from the Edge of the Scan
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: MetaData/sensorScanPosition
+      is_in: 5-56
+    action:
+      name: reduce obs space
+
+  # Step 5: Create cloudFree variable (for thinning) 
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/cloudFree
+      type: int
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsValue/cloudFree
+          coefs: [100]
+
+  # Step 6: Data Thinning 
+  - filter: Gaussian Thinning
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    horizontal_mesh: 145
+    use_reduced_horizontal_grid: true
+    distance_norm: geodesic
+    priority_variable: DerivedMetaData/cloudFree
+    action:
+      name: reduce obs space
+
+  # Observation Post Filters (QC)
+  # -----------------------------
+  obs post filters:
+  # Step 7: Wavenumber Check
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: 7024, 7027, 7029, 7032, 7038, 7043, 7046, 7049, 7069, 7072, 7076,
+        7081, 7084, 7089, 7099, 7209, 7222, 7231, 7235, 7247, 7267, 7269, 7284, 7389,
+        7419, 7423, 7424, 7426, 7428, 7431, 7436, 7444, 7475, 7549, 7584, 7665, 7666,
+        7831, 7836, 7853, 7865, 7885, 7888, 7912, 7950, 7972, 7980, 7995, 8007, 8015,
+        8055, 8078
+    where:
+    - variable:
+        name: MetaData/solarZenithAngle
+      maxvalue: 88.9999
+    - variable:
+        name: GeoVaLs/water_area_fraction
+      minvalue: 1.0e-12
+    action:
+      name: reject
+
+  # Step 8: Observation Error Inflation based on Wavenumber
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorWavenumIR
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels
+
+  # Step 9: Observation Range Sanity Check
+  # Valid range: (50, 550)
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    minvalue: 50.00001
+    maxvalue: 549.99999
+    action:
+      name: reject
+
+  # Step 10: Topography Check
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorTopoRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels
+          sensor: *{{observation_from_jcb}}_sensor_id
+
+  # Step 11: Transmittance Top Check
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorTransmitTopRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels
+
+  # Step 12: Cloud Detection Check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/CloudDetectMinResidualIR
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+        use_flag: &{{observation_from_jcb}}_active_channels [{{ get_satellite_variable(observation_from_jcb, "active") }}] 
+        use_flag_clddet: [{{ get_satellite_variable(observation_from_jcb, "icld_det") }}] 
+        obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+        error parameter vector: *{{observation_from_jcb}}_oberr
+    maxvalue: 1.0e-12
+    action:
+      name: reject
+
+  # Step 13: NSST Retrieval Check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/NearSSTRetCheckIR
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+        use_flag: *{{observation_from_jcb}}_active_channels  
+        obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
+        obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+    maxvalue: 1.0e-12
+    action:
+      name: reject
+
+  # Step 14: Surface Jacobians Check
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorSurfJacobianRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels
+          obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
+          obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+          sensor: *{{observation_from_jcb}}_sensor_id
+
+  # Step 15: Gross check
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    function absolute threshold:
+    - name: ObsFunction/ObsErrorBoundIR
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+        obserr_bound_latitude:
+          name: ObsFunction/ObsErrorFactorLatRad
+          options:
+            latitude_parameters: [25.0, 0.5, 0.04, 1.0]
+        obserr_bound_transmittop:
+          name: ObsFunction/ObsErrorFactorTransmitTopRad
+          channels: *{{observation_from_jcb}}_simulated_channels
+          options:
+            channels: *{{observation_from_jcb}}_simulated_channels
+        obserr_bound_max: [{{ get_satellite_variable(observation_from_jcb, "ermax") }}] 
+        error parameter vector: *{{observation_from_jcb}}_oberr
+    action:
+      name: reject
+
+  # Step 16: Useflag Check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/ChannelUseflagCheckRad
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+        use_flag: *{{observation_from_jcb}}_active_channels
+    minvalue: 1.0e-12
+    action:
+      name: reject
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atmosphere_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 0
