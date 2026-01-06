@@ -14,10 +14,10 @@ algorithm: fv3jedi_fv3inc_lgetkf
 
 # Search path for model and obs for JCB (relative for the submodule, or can be absolute)
 # --------------------------------------------------------------------------------------
-app_path_algorithm: gdas/algorithm/atmosphere
-app_path_model: gdas/model/atmosphere
-app_path_observations: gdas/observations/atmosphere
-app_path_observation_chronicle: gdas/observation_chronicle/atmosphere
+app_path_algorithm: gdas/parm/jcb-gdas/algorithm/atmosphere
+app_path_model: gdas/parm/jcb-gdas/model/atmosphere
+app_path_observations: gdas/parm/jcb-gdas/observations/atmosphere
+app_path_observation_chronicle: gdas/parm/jcb-gdas/observation_chronicle/atmosphere
 
 
 # Places where we deviate from the generic file name of a yaml
