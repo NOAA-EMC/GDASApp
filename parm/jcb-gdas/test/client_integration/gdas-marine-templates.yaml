@@ -9,9 +9,9 @@ supported_algorithms:
 
 # Search path for model and obs for JCB (relative for the submodule, or can be absolute)
 # --------------------------------------------------------------------------------------
-app_path_model: gdas/parm/jcb-gdas/model/marine
-app_path_observations: gdas/parm/jcb-gdas/observations/marine
-app_path_observation_chronicle: gdas/parm/jcb-gdas/observation_chronicle/marine
+app_path_model: gdas/model/marine
+app_path_observations: gdas/observations/marine
+app_path_observation_chronicle: gdas/observation_chronicle/marine
 
 
 # Places where we deviate from the generic file name of a yaml
