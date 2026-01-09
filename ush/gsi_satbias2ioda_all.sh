@@ -60,9 +60,9 @@ for instrument in $(echo $obsclass); do
     /bin/rm -f  testrun/varbc/*txt
     cd ./testrun/varbc/
     grep ${instrument}  ../../satbias_in  | awk '{print $2" "$3" "$4}' > \
-          ${locdir}/gdas.t${gcyc}z.${instrument}.tlapse.txt
-    /bin/cp -p satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}z.${instrument}.satbias.nc
-    /bin/mv  satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}z.${instrument}.satbias_cov.nc
+          ${locdir}/gdas.t${gcyc}z.radiance_${instrument}.tlapse.txt
+    /bin/cp -p satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}z.radiance_${instrument}.satbias.nc
+    /bin/mv  satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}z.radiance_${instrument}.satbias_cov.nc
     
     cd  ${locdir}
     /bin/rm -f satbias_converter.yaml
