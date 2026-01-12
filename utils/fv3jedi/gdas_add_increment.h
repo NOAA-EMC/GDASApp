@@ -11,12 +11,11 @@
 #include <string>
 #include <vector>
 
-#include "fv3jedi/Geometry/Geometry.h"
-#include "fv3jedi/Increment/Increment.h"
-#include "fv3jedi/State/State.h"
-#include "fv3jedi/VariableChange/VariableChange.h"
-
+#include "oops/base/Geometry.h"
+#include "oops/base/Increment.h"
+#include "oops/base/State.h"
 #include "oops/base/Variables.h"
+#include "oops/interface/VariableChange.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
@@ -29,7 +28,11 @@ namespace gdasapp {
 ///
 /// The increment may optionally be multiplied by a scaling factor and have a different resolution
 /// than the state.
-class AddIncrement : public oops::Application {
+template <typename MODEL> class AddIncrement : public oops::Application {
+  typedef oops::Geometry<MODEL>       Geometry_;
+  typedef oops::State<MODEL>          State_;
+  typedef oops::Increment<MODEL>      Increment_;
+  typedef oops::VariableChange<MODEL> VariableChange_;
 
  public:
 // -----------------------------------------------------------------------------
@@ -39,20 +42,20 @@ class AddIncrement : public oops::Application {
 // -----------------------------------------------------------------------------
   int execute(const eckit::Configuration & fullConfig) const override {
 //  Setup resolution
-    const fv3jedi::Geometry stateResol(eckit::LocalConfiguration(fullConfig, "state geometry"),
+    const Geometry_ stateResol(eckit::LocalConfiguration(fullConfig, "state geometry"),
                                this->getComm());
 
-    const fv3jedi::Geometry incResol(eckit::LocalConfiguration(fullConfig, "increment geometry"),
+    const Geometry_ incResol(eckit::LocalConfiguration(fullConfig, "increment geometry"),
                              this->getComm());
 
 //  Read state
-    fv3jedi::State xx(stateResol, eckit::LocalConfiguration(fullConfig, "state"));
+    State_ xx(stateResol, eckit::LocalConfiguration(fullConfig, "state"));
     oops::Log::test() << "State: " << xx << std::endl;
 
 //  Read increment
     const eckit::LocalConfiguration incParams(fullConfig, "increment");
     oops::Variables addedVars(incParams, "added variables");
-    fv3jedi::Increment dx(incResol, addedVars, xx.validTime());
+    Increment_ dx(incResol, addedVars, xx.validTime());
     dx.read(incParams);
     oops::Log::test() << "Increment: " << dx << std::endl;
 
@@ -75,8 +78,8 @@ class AddIncrement : public oops::Application {
     if ( fullConfig.has("variable change") ) {
       // Setup variable change
       const eckit::LocalConfiguration varChangeConfig(fullConfig, "variable change");
-      std::unique_ptr<fv3jedi::VariableChange> vc;
-      vc.reset(new fv3jedi::VariableChange(varChangeConfig, stateResol));
+      std::unique_ptr<VariableChange_> vc;
+      vc.reset(new VariableChange_(varChangeConfig, stateResol));
 
       // Get additional variables to be derived by variable change
       oops::Variables varsChanged(varChangeConfig, "recalculated variables");
@@ -107,7 +110,7 @@ class AddIncrement : public oops::Application {
 // -----------------------------------------------------------------------------
  private:
   std::string appname() const override {
-    return "gdasapp::AddIncrement";
+    return "gdasapp::AddIncrement<" + MODEL::name() + ">";
   }
 // -----------------------------------------------------------------------------
 };
