@@ -26,7 +26,8 @@ bound_to_include: begin
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
-number_of_outer_loops: {{ NUMBER_OUTER_LOOPS | default(2, true) }}
+#number_of_outer_loops: {{ NUMBER_OUTER_LOOPS | default(2, true) }}
+number_of_outer_loops: 1 
 atmosphere_ninner_1: {{ NINNER_LOOP1 | default(2, true) }}
 atmosphere_grad_red_1: 1e-10
 atmosphere_ninner_2: {{ NINNER_LOOP2 | default(4, true) }}
@@ -101,6 +102,7 @@ atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 atmosphere_obsbiasin_path: "{{DATA}}/obs/"
 atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
 atmosphere_obsbiasin_suffix: ".satbias.nc"
+atmosphere_obsbiasin_acft_suffix: ".acftbias.nc"
 atmosphere_obstlapsein_prefix: "{{GPREFIX}}"
 atmosphere_obstlapsein_suffix: ".tlapse.txt"
 atmosphere_obsbiascovin_prefix: "{{GPREFIX}}"
