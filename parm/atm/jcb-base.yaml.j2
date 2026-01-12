@@ -26,8 +26,7 @@ bound_to_include: begin
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
-#number_of_outer_loops: {{ NUMBER_OUTER_LOOPS | default(2, true) }}
-number_of_outer_loops: 1 
+number_of_outer_loops: {{ NUMBER_OUTER_LOOPS | default(2, true) }}
 atmosphere_ninner_1: {{ NINNER_LOOP1 | default(2, true) }}
 atmosphere_grad_red_1: 1e-10
 atmosphere_ninner_2: {{ NINNER_LOOP2 | default(4, true) }}
