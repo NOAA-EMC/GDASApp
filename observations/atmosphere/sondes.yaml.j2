@@ -19,7 +19,7 @@
         obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
-    simulated variables: [stationPressure, airTemperature, windEastward, windNorthward,
+    simulated variables: [stationPressure, airTemperature, virtualTemperature, windEastward, windNorthward,
       specificHumidity]
 
   # Observation Operator
@@ -30,6 +30,7 @@
     - name: VertInterp
       variables:
       - name: airTemperature
+      - name: virtualTemperature
       - name: windEastward
       - name: windNorthward
       - name: specificHumidity
@@ -48,6 +49,7 @@
     - name: VertInterp
       variables:
       - name: airTemperature
+      - name: virtualTemperature
       - name: windEastward
       - name: windNorthward
       - name: specificHumidity
