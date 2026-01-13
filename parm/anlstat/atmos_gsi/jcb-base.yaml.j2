@@ -16,7 +16,7 @@ current_cycle_iso: "{{ current_cycle | to_isotime }}"
 # Obspace variable things
 # -----------------------
 atmosphere_gsi_obsdatain_path: "{{ DATA }}/atmos_gsi/diag"
-atmosphere_gsi_obsdatain_prefix: "diag_"
+atmosphere_gsi_obsdatain_prefix: ""
 atmosphere_gsi_obsdatain_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 atmosphere_gsi_obsdataout_path: "{{ DATA }}/atmos_gsi/stat"
