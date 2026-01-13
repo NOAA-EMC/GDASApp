@@ -28,7 +28,7 @@ jedi_config:
 data_in:
     mkdir:
     - '{{ DATA }}/fv3jedi'
-    copy:
+    copy_req:
     - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}atm.f006.nc', '{{ DATA }}/{{ GPREFIX }}atmf006.nc']
     - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}sfc.f006.nc', '{{ DATA }}/{{ GPREFIX }}sfcf006.nc']
     - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/{{ GPREFIX }}cubed_sphere_grid_atmf006.nc']
@@ -70,7 +70,7 @@ data_in:
 {% endfilter %}
 
 data_out:
-    copy:
+    copy_req:
     - ['{{ DATA }}/{{ GPREFIX }}atmf006.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_analysis.atm.a006.nc']
     - ['{{ DATA }}/{{ GPREFIX }}sfcf006.nc', '{{ COMOUT_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_analysis.sfc.a006.nc']
     - ['{{ DATA }}/atm_addincrement.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}atm_addincrement.yaml']

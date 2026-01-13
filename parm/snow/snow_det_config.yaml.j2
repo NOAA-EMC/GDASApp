@@ -4,25 +4,24 @@ jedi_config:
         exe_src: '{{ EXECgfs }}/gdas.x'
         mpi_cmd: '{{ APRUN_SNOWANL }}'
         jedi_args: ['fv3jedi', 'variational']
+        jcb_algo: '3dvar'
         jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_2dvar.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
     scf_to_ioda:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas_fv3jedi_scf_to_ioda.x'
         mpi_cmd: '{{ APRUN_SNOWANL }}'
+        jcb_algo: 'snow_ims_scf_preprocess'
         jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
-        jcb_algo: snow_ims_scf_preprocess
 
 data_in:
     mkdir:
     - '{{ DATA }}/bkg'
     - '{{ DATA }}/anl'
-    - '{{ DATA }}/obs'
-    - '{{ DATA }}/diags'
     - '{{ DATA }}/fv3jedi'
     - '{{ DATA }}/berror'
 
-    copy:
+    copy_req:
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/']
@@ -46,14 +45,13 @@ data_in:
 
     copy_opt:
 {% filter indent(width=4) %}
-{% include 'snow_stage_obs.yaml.j2' %}
 {% if DO_IMS_SCF %}
 {% include 'snow_stage_ims_scf2ioda.yaml.j2' %}
 {% endif %}
 {% endfilter %}
 
 data_out:
-    copy:
+    copy_req:
     # Configuration files
     - ['{{ DATA }}/snowanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}snowanlvar.yaml']
 {% if DO_IMS_SCF %}
