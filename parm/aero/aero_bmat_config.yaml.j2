@@ -28,7 +28,7 @@ data_in:
     - '{{ DATA }}/rescale'
     - '{{ DATA }}/fv3jedi'
 
-    copy:
+    copy_req:
     - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/']
 
     - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_core.res.tile1.nc', '{{ DATA }}/bkg/']
@@ -82,7 +82,7 @@ data_in:
 {% endfilter %}
 
 data_out:
-    copy:
+    copy_req:
 ### copy YAMLs used
     - ['{{ DATA }}/aero_interpbkg.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}aero_interpbkg.yaml']
     - ['{{ DATA }}/aero_diagb.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}aero_diagb.yaml']

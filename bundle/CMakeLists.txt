@@ -106,7 +106,6 @@ if(BUILD_GDASBUNDLE)
   endif()
 
 # Land associated repositories
-  ecbuild_bundle( PROJECT land-imsproc SOURCE "../sorc/land-imsproc" )
   ecbuild_bundle( PROJECT land-jediincr SOURCE "../sorc/land-jediincr" )
 
 >>>>>>> develop
@@ -116,7 +115,7 @@ if(BUILD_GDASBUNDLE)
 # Install jcb (JEDI Configuration Builder) Python package
   message(STATUS "Installing jcb (JEDI Configuration Builder)")
   execute_process(
-    COMMAND ${Python3_EXECUTABLE} -m pip install --no-deps --prefix ${CMAKE_INSTALL_PREFIX} .
+    COMMAND ${Python3_EXECUTABLE} -m pip install --no-deps --no-build-isolation --prefix ${CMAKE_INSTALL_PREFIX} .
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../sorc/jcb
     RESULT_VARIABLE jcb_install_result
   )

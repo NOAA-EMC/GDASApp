@@ -47,7 +47,8 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
     gdasapp_dir=$workflow_dir/sorc/gdas.cd
 
     build_cmd_dir=$workflow_dir/sorc
-    build_cmd="./build_all.sh gfs gcafs gsi gdas"
+    sed -i 's/\(WORKFLOW_TESTS=.*:-"\)OFF\("\)/\1ON\2/' ${build_cmd_dir}/build_gdas.sh
+    build_cmd="./build_compute.sh -A ${SLURM_ACCOUNT} gfs gcafs gsi gdas"
     build_dir=$workflow_dir/build
 else
     export BUILD_JOBS=8
@@ -73,7 +74,14 @@ echo "---------------------------------------------------" >> $outfile
 # ==============================================================================
 # run build script
 cd $build_cmd_dir
-module purge
+if [[ "${TARGET}" == "gaeac6" ]]; then
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+        source /etc/profile
+    fi
+    module reset
+else
+    module purge
+fi
 rm -rf log.build
 $build_cmd &>> log.build
 build_status=$?

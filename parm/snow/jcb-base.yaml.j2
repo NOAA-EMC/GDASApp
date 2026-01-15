@@ -80,7 +80,6 @@ observations: all_observations
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
-snow_obsdataroot_path: "{{COMIN_OBS}}"
 snow_obsdatain_path: "{{DATA}}/obs"
 snow_obsdatain_prefix: "{{OPREFIX}}"
 snow_obsdatain_suffix: ".tm00.bufr_d"
@@ -88,6 +87,7 @@ snow_obsdataout_path: "{{DATA}}/diags"
 snow_prepobs_path: "{{DATA}}/prep"
 snow_obsdataout_prefix: diag_
 snow_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+ims_scf_obs_suffix: "{{ ims_scf_obs_suffix }}"
 
 # Naming conventions for bias correction files
 snow_obsbiasin_path: "{{DATA}}/obs/"

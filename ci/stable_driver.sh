@@ -31,7 +31,7 @@ while getopts "t:h" opt; do
 done
 
 case ${TARGET} in
-  hera | ursa | orion)
+  hera | ursa | orion | gaeac6 )
     echo "Running stability check on $TARGET"
     source $MODULESHOME/init/sh
     source $my_dir/${TARGET}.sh
