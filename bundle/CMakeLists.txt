@@ -98,17 +98,6 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT gdas-utils SOURCE "../utils" )
   ecbuild_bundle( PROJECT da-utils SOURCE "../sorc/da-utils" )
 
-<<<<<<< HEAD
-=======
-# Build IODA converters
-  if(BUILD_IODA_CONVERTERS)
-    ecbuild_bundle( PROJECT iodaconv SOURCE "../sorc/iodaconv" )
-  endif()
-
-# Land associated repositories
-  ecbuild_bundle( PROJECT land-jediincr SOURCE "../sorc/land-jediincr" )
-
->>>>>>> develop
 # GDASApp
   ecbuild_bundle( PROJECT gdas SOURCE "../")
 
