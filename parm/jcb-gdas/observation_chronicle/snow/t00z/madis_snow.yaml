@@ -1,0 +1,15 @@
+# Instrument metadata
+# -------------------
+commissioned: 2021-01-01T00:00:00
+decommissioned: 2023-05-31T18:00:00
+
+observer_type: conventional  # Type of chronicle to use
+
+window_option: max
+
+# observation type initial configuration
+# --------------------------------
+stations_to_reject: [BF001, BF002, BF004, BF009, BF010, BF012, BF017, BF019, BF030, BF034, BF035, BF036, BF037, BF038, BF044, BF049, BF052, BF054, BF056, BF059, BF061, BF066, BF069, BF078, BF080, BF084, BF086, BF089, BF091, BF110, BF117, BF121, BF122, BF123, BF132, BF137, BF142, BF143, BF150, BF151, BF159, BF191, BF197, BF209, BF215, BF233, BF234, BF235, BF242, BF284, BOWC1, BT007, BT008, BT116, BT117, BT119, BT128, BT140, CAAXM, CAINP, CALXV, CSNA2, FAFA2, HPN06, KESQ6, LACQ6, LPTUT, MKLA2, OHAW1, OJIM4, OKEQ6, SHDA2, TUNA2, UTRMD, WEAQ6, WINM4, XACC1] 
+
+# Chronicle of changes for this observation type
+# ----------------------------------------
