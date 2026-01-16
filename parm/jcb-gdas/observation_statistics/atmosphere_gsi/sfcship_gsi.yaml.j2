@@ -1,0 +1,54 @@
+- obs space:
+    name: sfcship_gsi
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{ atmosphere_gsi_obsdatain_path }}/{{ atmosphere_gsi_obsdatain_prefix }}{{ observation_from_jcb }}{{ atmosphere_gsi_obsdatain_suffix }}"
+    simulated variables: ['stationPressure', 'airTemperature', 'virtualTemperature', 'specificHumidity', 'windEastward', 'windNorthward']
+    observed variables: ['stationPressure', 'airTemperature', 'virtualTemperature', 'specificHumidity', 'windEastward', 'windNorthward']
+  statistics to compute: ['mean', 'count', 'RMS']
+  variables: ['stationPressure', 'airTemperature', 'virtualTemperature', 'specificHumidity', 'windEastward', 'windNorthward']
+  groups to process: ['ombg', 'oman']
+  qc groups: ['GsiEffectiveQCGes', 'GsiEffectiveQCAnl']
+  output file: "{{ atmosphere_gsi_obsdataout_path }}/{{ atmosphere_gsi_obsdataout_prefix }}{{ observation_from_jcb }}{{ atmosphere_gsi_obsdataout_suffix }}"
+  output ascii file: "{{ atmosphere_gsi_obsdataout_path }}/{{ observation_from_jcb }}_ioda_stats.txt"
+  ascii vertical bins:
+    vertical bin names: [1000+, 1000-900, 900-800, 800-600, 600-400, 400-300, 300-250, 250-200, 200-150, 150-100, 100-50]
+    vertical bin ranges: [100000, 90000, 80000, 60000, 40000, 30000, 25000, 20000, 15000, 10000, 5000]
+    vertical bin variable: pressure
+  regular grid binning:
+    bin size in degrees: 2.5
+    use negative longitudes: true 
+  domains to process:
+  - domain:
+      name: "SH"
+      first mask variable: latitude
+      first mask range: [-90,0]
+  - domain:
+      name: "NH"
+      first mask variable: latitude
+      first mask range: [0,90]
+  - domain:
+      name: "CONUS"
+      first mask variable: latitude
+      first mask range: [25,49]
+      second mask variable: longitude
+      second mask range: [-125,-66]
+  - domain:
+      name: "Europe"
+      first mask variable: latitude
+      first mask range: [35,70]
+      second mask variable: longitude
+      second mask range: [-11,38]
+  - domain:
+      name: "Africa"
+      first mask variable: latitude
+      first mask range: [-35,37]
+      second mask variable: longitude
+      second mask range: [-17,52]
+  - domain:
+      name: "Asia"
+      first mask variable: latitude
+      first mask range: [0,70]
+      second mask variable: longitude
+      second mask range: [38, 180]

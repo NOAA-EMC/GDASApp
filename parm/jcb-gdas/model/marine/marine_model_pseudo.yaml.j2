@@ -1,0 +1,10 @@
+name: PseudoModel
+tstep: {{marine_forecast_timestep}}
+states:
+{% for marine_pseudo_model_state in marine_pseudo_model_states %}
+- date: '{{ marine_pseudo_model_state.date }}'
+  basename: '{{ marine_pseudo_model_state.basename }}'
+  ocn_filename: '{{ marine_pseudo_model_state.ocn_filename }}'
+  ice_filename: '{{ marine_pseudo_model_state.ice_filename }}'
+  read_from_file: {{ marine_pseudo_model_state.read_from_file }}
+{% endfor %}
