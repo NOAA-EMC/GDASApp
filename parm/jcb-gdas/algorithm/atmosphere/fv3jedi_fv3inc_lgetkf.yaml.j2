@@ -106,10 +106,16 @@ members from template:
       datapath: ./anl/mem%mem%
       filename: cubed_sphere_grid_atminc.jedi.nc
     fv3 increment output:
+{% if atm_enkfonly | default(false) %}
+      filetype: fms restart
+      is restart: false
+      filename_nonrestart: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_atminc.nc
+{% else %}
       filetype: cube sphere history
       provider: ufs
-      datapath: ./anl/mem%mem%
       filename: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_atminc.nc
+{% endif %}
+      datapath: ./anl/mem%mem%
       field io names:
         eastward_wind: u_inc
         northward_wind: v_inc
