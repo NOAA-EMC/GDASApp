@@ -1,0 +1,69 @@
+- obs space:
+    name: snocvr
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{ snow_obsdatain_path }}/{{ snow_obsdatain_prefix }}{{ observation_from_jcb }}{{ snow_obsdatain_suffix }}"
+    simulated variables: ['totalSnowDepth']
+    observed variables: ['totalSnowDepth']
+  statistics to compute: ['mean', 'count', 'RMS']
+  variables: [totalSnowDepth]
+  groups to process: ['ombg', 'oman']
+  qc groups: ['EffectiveQC0', 'EffectiveQC1']
+  output file: "{{ snow_obsdataout_path }}/{{ snow_obsdataout_prefix }}{{ observation_from_jcb }}{{ snow_obsdataout_suffix }}"
+  output ascii file: "{{ snow_obsdataout_path }}/{{ observation_from_jcb }}_ioda_stats.txt"
+  regular grid binning:
+    bin size in degrees: 1.0
+    use negative longitudes: true
+  domains to process:
+  - domain:
+      name: "SH"
+      first mask variable: latitude
+      first mask range: [-90,0]
+  - domain:
+      name: "NH"
+      first mask variable: latitude
+      first mask range: [0,90]
+  - domain:
+      name: "West_CONUS"
+      first mask variable: latitude
+      first mask range: [25,49]
+      second mask variable: longitude
+      second mask range: [-125,-100]
+  - domain:
+      name: "East_CONUS"
+      first mask variable: latitude
+      first mask range: [25,49]
+      second mask variable: longitude
+      second mask range: [-100,-66]
+  - domain:
+      name: "Alaska"
+      first mask variable: latitude
+      first mask range: [52,72]
+      second mask variable: longitude
+      second mask range: [-170,-130]
+  - domain:
+      name: "Europe"
+      first mask variable: latitude
+      first mask range: [35,70]
+      second mask variable: longitude
+      second mask range: [-11,38]
+  - domain:
+      name: "Africa"
+      first mask variable: latitude
+      first mask range: [-35,37]
+      second mask variable: longitude
+      second mask range: [-17,52]
+  - domain:
+      name: "Asia"
+      first mask variable: latitude
+      first mask range: [0,70]
+      second mask variable: longitude
+      second mask range: [38, 180]
+  - domain:
+      name: "High_Mount_Asia"
+      first mask variable: latitude
+      first mask range: [20,46]
+      second mask variable: longitude
+      second mask range: [60, 111]
+

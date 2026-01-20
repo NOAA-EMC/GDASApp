@@ -1,0 +1,28 @@
+output:
+  state component:
+    datapath: ./anl
+    prefix: soilinc
+    filetype: fms restart
+    filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
+    filename_cplr: '{{ soil_background_time_fv3 }}.coupler.res'
+    state variables:
+    - soilMoistureVolumetric
+    - stc
+    - totalSnowDepth
+    - sheleg
+    - vtype
+    - slmsk
+    field io names:
+      soilMoistureVolumetric: smc
+      totalSnowDepth: snodl
+geometry:
+  fms initialization:
+    namelist filename: "{{ soil_fv3jedi_files_path }}/fmsmpp.nml"
+    field table filename: "{{ soil_fv3jedi_files_path }}/field_table"
+  akbk: "{{ soil_fv3jedi_files_path }}/akbk.nc4"
+  layout:
+  - {{ soil_layout_x }}
+  - {{ soil_layout_y }}
+  npx: {{ soil_npx_ges }}
+  npy: {{ soil_npy_ges }}
+  npz: {{ soil_npz_ges }}

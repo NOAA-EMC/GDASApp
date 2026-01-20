@@ -1,0 +1,42 @@
+geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{snow_layout_x}}
+  - {{snow_layout_y}}
+  npx: {{ snow_npx_ges }}
+  npy: {{ snow_npy_ges }}
+  npz: {{ snow_npz_ges }}
+  time invariant fields:
+    state fields:
+      datapath: {{ snow_background_path }}
+      filetype: fms restart
+      skip coupler file: true
+      datetime: '{{ snow_background_time_iso }}'
+      state variables:
+      - filtered_orography
+      field io names:
+        filtered_orography: orog_filt
+      filename_sfcd: '{{ snow_background_time_fv3 }}.sfc_data.nc'
+      filename_cplr: '{{ snow_background_time_fv3 }}.coupler.res'
+      filename_orog: '{{ snow_orog_prefix }}_oro_data.nc'
+date: '{{ snow_background_time_iso }}'
+output ioda file: '{{snow_obsdatain_path}}/{{snow_obsdatain_prefix}}ims_snow.tm00.nc'
+input scf file: './obs/ims{{ snow_background_time_julian }}_4km_v1.3.{{ ims_scf_obs_suffix }}'
+mapping file: './obs/IMS4km_to_FV3_mapping.{{ snow_orog_prefix }}_oro_data.nc'
+variables:
+- totalSnowDepth
+- vtype
+- slmsk
+- sheleg
+- filtered_orography
+- fraction_of_ice
+- fraction_of_land
+- stc
+background:
+{% filter indent(width=2) %}
+{% set background_file = background_file|default(model_component ~ 'background', true) ~ '.yaml.j2' %}
+{% include background_file %}
+{% endfilter %}

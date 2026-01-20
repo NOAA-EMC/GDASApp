@@ -1,0 +1,36 @@
+# Analysis/B-mat resolution
+geometry: &geom
+  geom_grid_file: ./anl_geom/soca_gridspec.nc
+  mom6_input_nml: ./anl_geom/mom_input.nml
+  fields metadata: ./fields_metadata.yaml
+
+# Background interpolated at the analysis resolution
+background:
+  read_from_file: 1
+  basename: ./anl_geom/
+  ocn_filename: 'ocn.f009_anl_geom.fc.{{ marine_window_end_iso }}.PT0S.nc'
+  date: '{{ marine_window_end_iso }}'
+  state variables: [sea_water_potential_temperature]
+
+background error:
+  covariance model: SABER
+  saber central block:
+    saber block name: diffusion
+    geometry: *geom
+    calibration:
+      normalization:
+        # NOTE, not actually used here, since the normalization spec is only used for hz
+        method: randomization  #< other option is "brute force"
+        iterations: 1000       #< in the real world you'll want to use 1e4 or so
+
+      groups:
+      - vertical:
+          as gaussian: true
+          levels: '{{ marine_vt_levels }}'
+          model file:
+            date: '{{ marine_window_middle_iso }}'
+            basename: ./
+            ocn_filename: vt_scales.nc
+          model variable: sea_water_potential_temperature
+        write:
+          filepath: ./staticb/vt_ocean
