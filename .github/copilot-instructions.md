@@ -1,7 +1,7 @@
 # GDASApp
 ## JEDI Configuration Builder - GDAS Client
 
-JCB-GDAS, contained in the subdirectory parm/jcb-gdas of this repository, is a configuration client for the JEDI Configuration Builder (JCB) system used by NOAA-EMC for Global Data Assimilation System (GDAS) weather forecasting and data assimilation. It contains YAML Jinja2 templates for configuring JEDI algorithms, models, and observations.
+JCB-GDAS, contained in the subdirectory `parm/jcb-gdas` of this repository, is a configuration client for the JEDI Configuration Builder (JCB) system used by NOAA-EMC for Global Data Assimilation System (GDAS) weather forecasting and data assimilation. It contains YAML Jinja2 templates for configuring JEDI algorithms, models, and observations.
 
 Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
