@@ -1,0 +1,33 @@
+input geometry:
+  mom6_input_nml: mom_input.nml
+  fields metadata: ./fields_metadata.yaml
+
+output geometry:
+  geom_grid_file: ./anl_geom/soca_gridspec.nc
+  mom6_input_nml: ./anl_geom/mom_input.nml
+  fields metadata: ./fields_metadata.yaml
+
+states:
+- input:
+    date: '{{ marine_window_end_iso }}'
+    basename: ./bkg/
+    ocn_filename: 'ocean.bkg.f009.nc'
+    ice_filename: 'ice.bkg.f009.nc'
+    read_from_file: 1
+
+    state variables:
+    - sea_surface_height_above_geoid
+    - sea_water_potential_temperature
+    - sea_water_salinity
+    - sea_water_cell_thickness
+    - sea_water_depth
+    - mom6_mld
+    - sea_ice_area_fraction
+    - sea_ice_thickness
+    - sea_ice_snow_thickness
+
+  output:
+     datadir: anl_geom/
+     exp: f009_anl_geom
+     type: fc
+     date: '{{ marine_window_end_iso }}'

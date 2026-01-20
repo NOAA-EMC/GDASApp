@@ -1,0 +1,40 @@
+output:
+  state component:
+    filetype: cube sphere history
+    filename: ./anl/cubed_sphere_grid_atminc.jedi.nc
+    provider: ufs
+    fields to write:
+    - eastward_wind
+    - northward_wind
+    - air_temperature
+    - air_pressure_at_surface
+    - water_vapor_mixing_ratio_wrt_moist_air
+    - cloud_liquid_ice
+    - cloud_liquid_water
+    - snow_water
+    - rain_water
+    - graupel
+    - ozone_mass_mixing_ratio
+    field io names:
+      eastward_wind: ugrd
+      northward_wind: vgrd
+      air_temperature: tmp
+      air_pressure_at_surface: pressfc
+      water_vapor_mixing_ratio_wrt_moist_air: spfh
+      cloud_liquid_ice: icmr
+      cloud_liquid_water: clwmr
+      snow_water: snmr
+      rain_water: rwmr
+      graupel: grle
+      ozone_mass_mixing_ratio: o3mr
+geometry:
+  fms initialization:
+    namelist filename: "{{atmosphere_fv3jedi_files_path}}/fmsmpp.nml"
+    field table filename: "{{atmosphere_fv3jedi_files_path}}/field_table"
+  akbk: "{{atmosphere_fv3jedi_files_path}}/akbk.nc4"
+  layout:
+  - {{atmosphere_layout_x}}
+  - {{atmosphere_layout_y}}
+  npx: {{atmosphere_npx_his}}
+  npy: {{atmosphere_npy_his}}
+  npz: {{atmosphere_npz_his}}

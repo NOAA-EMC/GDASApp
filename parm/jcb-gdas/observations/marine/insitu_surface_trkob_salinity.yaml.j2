@@ -1,0 +1,45 @@
+- obs space:
+    name: {{observation_from_jcb}}
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdatain_path}}/{{marine_obsdatain_prefix}}{{observation_from_jcb}}{{marine_obsdatain_suffix}}"
+        missing file action: warn
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdataout_path}}/{{marine_obsdataout_prefix}}{{observation_from_jcb}}{{marine_obsdataout_suffix}}"
+    simulated variables: [seaSurfaceSalinity]
+    observed variables: [seaSurfaceSalinity]
+{% if marine_letkf_app | default(false) %}
+    distribution:
+      name: Halo
+      halo size: {{ marine_letkf_dist_halo_size }}
+{% endif %}
+  get values:
+    time interpolation: linear
+  obs operator:
+    name: Identity
+    observation alias file: ./obsop_name_map.yaml
+  obs error:
+    covariance model: diagonal
+  obs filters:
+  - filter: Perform Action
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables:
+          - ObsError/seaSurfaceSalinity
+          coefs:
+          - 1000.0
+{% if marine_letkf_app | default(false) %}
+  obs localizations:
+  - localization method: Rossby
+    base value: 100.0e3
+    rossby mult: 1.0
+    min grid mult: 2.0
+    min value: 200.0e3
+    max value: 900.0e3
+{% endif %}
