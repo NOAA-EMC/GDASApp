@@ -5,7 +5,9 @@ jedi_config:
         mpi_cmd: '{{ APRUN_SOILANL }}'
         jedi_args: ['fv3jedi', 'variational']
         jcb_base_yaml: '{{ PARMgdas }}/soil/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgdas }}/soil/jcb-prototype_2dvar.yaml.j2'
+        #jcb_algo_yaml: '{{ PARMgdas }}/soil/jcb-prototype_2dvar.yaml.j2'
+        jcb_algo: '3dvar'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
     soilanladdinc:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgdas }}/fv3jedi_addincrement.x'
