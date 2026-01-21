@@ -94,13 +94,12 @@ jobs:
     - name: Create custom jcb_clients.yaml for isolated testing
       run: |
         cd jcb_repo
-        
+
         # Create a custom jcb_clients.yaml that only includes the current repository
         cat > jcb_clients.yaml << EOF
         gdas:
           git_url: noaa-emc/gdasapp
-          #git_ref: develop
-          git_ref: feature/jcb-gdas
+          git_ref: develop
           app_subdir: parm/jcb-gdas
         EOF
 
