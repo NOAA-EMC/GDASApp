@@ -1,10 +1,10 @@
-export GDAS_CI_ROOT=/gpfs/f6/ira-sti/scratch/$USER/CI/GDASApp
 export GDAS_CI_HOST='gaeac6'
-export GDAS_MODULE_USE=$GDAS_CI_ROOT/repo/modulefiles
+export GDAS_CI_ROOT=/gpfs/f6/ira-sti/scratch/${USER}/CI/${GDAS_CI_HOST}/GDASApp
+export GDAS_MODULE_USE=${GDAS_CI_ROOT}/repo/modulefiles
 export SLURM_ACCOUNT=gfs-cpu
-export SALLOC_ACCOUNT=$SLURM_ACCOUNT
-export SBATCH_ACCOUNT=$SLURM_ACCOUNT
+export SALLOC_ACCOUNT=${SLURM_ACCOUNT}
+export SBATCH_ACCOUNT=${SLURM_ACCOUNT}
 export SLURM_QOS=normal
-export PATH=$PATH:/ncrc/home1/role-jedipara
+export PATH=${PATH}:/ncrc/home1/role-jedipara
 export NTASKS_TESTS=12
-export AUTHORIZED_USERS_FILE=/gpfs/f6/ira-sti/scratch/role-jedipara/CI/GDASApp/authorized_users
+export AUTHORIZED_USERS_FILE=/gpfs/f6/ira-sti/scratch/role-jedipara/CI/${GDAS_CI_HOST}/GDASApp/authorized_users
