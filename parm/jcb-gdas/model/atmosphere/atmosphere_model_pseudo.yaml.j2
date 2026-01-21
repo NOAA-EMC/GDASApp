@@ -1,0 +1,32 @@
+name: PSEUDO
+datapath: {{ atmosphere_background_path}}
+filetype: fms restart
+filename is datetime templated: true
+filename_core: '%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc'
+filename_trcr: '%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nc'
+filename_sfcd: '%yyyy%mm%dd.%hh%MM%ss.sfc_data.nc'
+filename_sfcw: '%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nc'
+filename_cplr: '%yyyy%mm%dd.%hh%MM%ss.coupler.res'
+tstep: {{atmosphere_forecast_timestep}}
+field io names:
+  eastward_wind: ugrd
+  northward_wind: vgrd
+  air_temperature: tmp
+  layer_thickness: delz
+  air_pressure_thickness: dpres
+  air_pressure_at_surface: pressfc
+  water_vapor_mixing_ratio_wrt_moist_air: spfh
+  cloud_liquid_ice: icmr
+  cloud_liquid_water: clwmr
+  ozone_mass_mixing_ratio: o3mr
+  geopotential_height_at_surface: hgtsfc
+  slmsk: land
+  sheleg: weasd
+  skin_temperature_at_surface: tmpsfc
+  stype: sotyp
+  vfrac: veg
+  totalSnowDepthMeters: snod
+  eastward_wind_at_surface: ugrd_hyblev1
+  northward_wind_at_surface: vgrd_hyblev1
+  soilm: soilw1
+  soilt: soilt1
