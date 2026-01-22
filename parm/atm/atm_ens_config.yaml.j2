@@ -75,7 +75,7 @@ data_out:
                          '${YMD}': current_cycle | to_YMD,
                          '${HH}': current_cycle | strftime('%H'),
                          '${MEMDIR}': 'mem%03d' | format(imem) }) %}
-{% if DOENKFONLY_ATM %}
+{% if DOENKFONLY_ATM | default(false) %}
     {% for itile in range(1, ntiles + 1) %}
     - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile{{ itile }}.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.tile{{ itile }}.nc']
    {% endfor %}

@@ -48,7 +48,7 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
 
     build_cmd_dir=$workflow_dir/sorc
     sed -i 's/\(WORKFLOW_TESTS=.*:-"\)OFF\("\)/\1ON\2/' ${build_cmd_dir}/build_gdas.sh
-    build_cmd="./build_compute.sh -A ${SLURM_ACCOUNT} gfs gcafs gsi gdas"
+    build_cmd="./build_all.sh -A ${SLURM_ACCOUNT} -c gfs gcafs gsi gdas"
     build_dir=$workflow_dir/build
 else
     export BUILD_JOBS=8
