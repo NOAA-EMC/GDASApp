@@ -13,7 +13,7 @@ atmosphere_background_ensemble_path: ./bkg/mem%mem%
 
 # Observation distribution and localization
 {% set distribution_type = "Halo" %}
-{% include atm_ens_obs_dist_localizations %}
+{% include 'atm_ens_obs_dist_localizations.yaml.j2' %}
 
 # Observation things
 # ------------------
