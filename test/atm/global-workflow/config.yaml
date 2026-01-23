@@ -1,14 +1,14 @@
 base:
-  HOMEgfs: "/scratch3/NCEPDEV/global/Travis.J.Elless/GDASApp/update_enkf_testing/GDASApp"
+  HOMEgfs: "@topdir@"
   DOHYBVAR: "NO"
   DO_JEDIATMVAR: "YES"
   DO_JEDIATMENS: "YES"
   DO_JEDIATMENS_SPLIT_OBSSOL: "YES"
   EUPD_CYC: "gdas"
-  DATAPATH: "/test/atm/global-workflow/testrun"
-  DUMPDIR: "/lowres"
-  STMP: "/test/atm/global-workflow/testrun"
-  PTMP: "/test/atm/global-workflow/testrun"
+  DATAPATH: "@bindir@/test/atm/global-workflow/testrun"
+  DUMPDIR: "@dumpdir@"
+  STMP: "@bindir@/test/atm/global-workflow/testrun"
+  PTMP: "@bindir@/test/atm/global-workflow/testrun"
   DO_TEST_MODE: "YES"
   FHMAX_GFS: 24
   FHMAX_HF_GFS: 0
