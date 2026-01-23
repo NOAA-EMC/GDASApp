@@ -1,6 +1,6 @@
 # Use observations for lgetkf
 # ---------------------------
-app_path_observations: {{PARMgfs}}/gdas/jcb-gdas/observations/atmosphere-lgetkf
+app_path_observations: {{PARMgfs}}/gdas/jcb-gdas/observations/atmosphere
 app_path_observation_chronicle: {{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/atmosphere
 
 # Algorithm
@@ -10,6 +10,10 @@ algorithm: local_ensemble_da
 # Model things
 # ------------
 atmosphere_background_ensemble_path: ./bkg/mem%mem%
+
+# Observation distribution and localization
+{% set distribution_type = "Halo" %}
+{% include 'atm_ens_obs_dist_localizations.yaml.j2' %}
 
 # Observation things
 # ------------------
