@@ -1,0 +1,46 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: satwind
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
+        missing file action: warn
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [windEastward, windNorthward]
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: VertInterp
+    hofx scaling field: SurfaceWindScalingPressure
+    hofx scaling field group: DerivedVariables
+
+  # Linear Observation Operator
+  # ---------------------------
+  linear obs operator:
+    name: VertInterp
+
+  # Observation Prior Filters (QC)
+  # ------------------------------
+  obs prior filters:
+  # Apply variable changes needed for wind scaling
+  # For wind observations with pressure provided
+  - filter: Variable Transforms
+    Transform: SurfaceWindScalingPressure
+    SkipWhenNoObs: false
+
+  - filter: PreQC
+    maxvalue: 0.0
+    minvalue: 0.0
+    inputQC: GsiEffectiveQCGes
+    action:
+      name: reject

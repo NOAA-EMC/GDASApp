@@ -1,0 +1,11 @@
+time window:
+  begin: '{{ current_cycle_iso }}'
+  length: '{{ window_length }}'
+  bound to include: '{{ bound_to_include | default("begin", true) }}'
+
+observers:
+{% for observation_from_jcb in observations %}
+{% filter indent(width=2) %}
+{% include observation_from_jcb + '.yaml.j2' %}
+{% endfilter %}
+{% endfor %}

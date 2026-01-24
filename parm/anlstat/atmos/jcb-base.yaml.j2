@@ -1,22 +1,24 @@
 # Search path for model and obs for JCB
 # -------------------------------------
-algorithm_path: "{{PARMgfs}}/gdas/jcb-algorithms"
-app_path_algorithm: "{{PARMgfs}}/gdas/jcb-gdas/algorithm/obstats/atmos"
+algorithm_path: "{{ PARMgfs }}/gdas/jcb-algorithms"
+app_path_algorithm: "{{ PARMgfs }}/gdas/jcb-gdas/algorithm/observation_statistics"
+app_path_observations: "{{ PARMgfs }}/gdas/jcb-gdas/observation_statistics/atmosphere"
 
 # Assimilation window
 # -------------------
-window_begin: "{{ STAT_WINDOW_BEGIN | to_isotime }}"
-window_YMDH: "{{ STAT_WINDOW_BEGIN | to_YMDH }}"
-window_length: "{{ STAT_WINDOW_LENGTH }}"
+window_begin: "{{ WINDOW_BEGIN | to_isotime }}"
+window_YMDH: "{{ WINDOW_BEGIN | to_YMDH }}"
+window_length: "{{ WINDOW_LENGTH }}"
 bound_to_include: begin
 
-stat_current_cycle_iso: "{{ current_cycle | to_isotime }}"
-stat_current_cycle_YMDH: "{{ current_cycle | to_YMDH }}"
-
-# Inputted list of ob spaces
-# --------------------------
-obsspaces: {{ OBSSPACES_LIST }}
+current_cycle_iso: "{{ current_cycle | to_isotime }}"
 
 # Obspace variable things
 # -----------------------
-atmosphere_obsdatain_path: "{{ DATA }}"
+atmosphere_obsdatain_path: "{{ DATA }}/atmos/diag"
+atmosphere_obsdatain_prefix: "diag_"
+atmosphere_obsdatain_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+
+atmosphere_obsdataout_path: "{{ DATA }}/atmos/stat"
+atmosphere_obsdataout_prefix: ""
+atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}_output_atmos.nc"

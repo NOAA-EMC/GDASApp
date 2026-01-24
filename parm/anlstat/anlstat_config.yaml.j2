@@ -1,0 +1,48 @@
+jedi_config:
+    aero:
+        rundir: '{{ DATA }}/aero'
+        exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
+        mpi_cmd: '{{ APRUN_ANLSTAT }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/aero/jcb-base.yaml.j2'
+        jcb_algo: 'anlstat'
+        obs_list_yaml: '{{ PARMgfs }}/gdas/anlstat/aero/aero_obs_list.yaml.j2'
+    atmos:
+        rundir: '{{ DATA }}/atmos'
+        exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
+        mpi_cmd: '{{ APRUN_ANLSTAT }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/atmos/jcb-base.yaml.j2'
+        jcb_algo: 'anlstat'
+        obs_list_yaml: '{{ PARMgfs }}/gdas/anlstat/atmos/atmos_obs_list.yaml.j2'
+    atmos_gsi:
+        rundir: '{{ DATA }}/atmos_gsi'
+        exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
+        mpi_cmd: '{{ APRUN_ANLSTAT }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/atmos_gsi/jcb-base.yaml.j2'
+        jcb_algo: 'anlstat'
+        obs_list_yaml: '{{ PARMgfs }}/gdas/anlstat/atmos_gsi/atmos_gsi_obs_list.yaml.j2'
+    snow:
+        rundir: '{{ DATA }}/snow'
+        exe_src: '{{ EXECgfs }}/gdas_ioda-stats.x'
+        mpi_cmd: '{{ APRUN_ANLSTAT }}'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/anlstat/snow/jcb-base.yaml.j2'
+        jcb_algo: 'anlstat'
+        obs_list_yaml: '{{ PARMgfs }}/gdas/anlstat/snow/snow_obs_list.yaml.j2'
+
+data_in:
+    mkdir:
+{% for analysis in STAT_ANALYSES %}
+    - {{ DATA }}/{{ analysis }}
+    - {{ DATA }}/{{ analysis }}/diag
+    - {{ DATA }}/{{ analysis }}/stat
+{% endfor %}
+
+    copy_opt:
+{% for analysis in STAT_ANALYSES %}
+    - ['{{ anldir[analysis] }}/{{ APREFIX }}{{ analysis }}_analysis.ioda_hofx.tar.gz', '{{ DATA }}/{{ analysis }}/diag']
+{% endfor %}
+
+data_out:
+    copy_opt:
+{% for analysis in STAT_ANALYSES %}
+    - ['{{ DATA }}/{{ analysis }}/stat/{{ APREFIX }}{{ analysis }}_stats.txt', '{{ outdir[analysis] }}']
+{% endfor %}

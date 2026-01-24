@@ -64,7 +64,7 @@ RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
 mkdir -p $COMIN_OBS/atmos
-flist="amsua_n19 sondes"
+flist="radiance_amsua_n19 sondes"
 for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/${oprefix}.${file}.${PDY}${cyc}.nc $COMIN_OBS/atmos/${oprefix}.${file}.nc
 done
@@ -135,5 +135,5 @@ if [[ $SCHEDULER = 'slurm' ]]; then
 elif [[ $SCHEDULER = 'pbspro' ]]; then
     qsub -V -W block=true submit_${type}.sh
 else
-    ${HOMEgfs}/dev/jobs/JGLOBAL_ATM_ANALYSIS_INITIALIZE
+    ${HOMEgfs}/dev/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 fi

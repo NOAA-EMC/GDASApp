@@ -1,6 +1,0 @@
-{% for ob_name in observations %}
-    - ['{{ COMIN_OBS }}/chem/{{ OPREFIX }}{{ ob_name }}.nc', '{{ DATA }}/obs']
-    {% if ob_name in bias_files %}
-    - ['{{ COMIN_CHEM_ANALYSIS_PREV }}/{{ GPREFIX }}{{bias_files[ob_name]}}', '{{ DATA }}/obs']
-    {% endif %}
-{% endfor %}
