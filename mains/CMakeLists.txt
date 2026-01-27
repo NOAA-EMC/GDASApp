@@ -1,6 +1,6 @@
 # Build the big gdas executable used for all generic JEDI applications
 # --------------------------------------------------------------------
-ecbuild_add_executable( TARGET  gdas.x
+ecbuild_add_executable( TARGET  gcdas.x
                         SOURCES gdas.cc
                         LIBS    fv3jedi
                       )
@@ -27,7 +27,7 @@ ecbuild_add_executable( TARGET  gdas.x
 # 			LIBS    soca
 # 		      )
 
-ecbuild_add_executable( TARGET  gdas_fv3jedi_error_covariance_toolbox.x
+ecbuild_add_executable( TARGET  gcdas_fv3jedi_error_covariance_toolbox.x
                         SOURCES ${CMAKE_SOURCE_DIR}/fv3-jedi/src/mains/fv3jediErrorCovarianceToolbox.cc
                         LIBS    fv3jedi saber
                       )
