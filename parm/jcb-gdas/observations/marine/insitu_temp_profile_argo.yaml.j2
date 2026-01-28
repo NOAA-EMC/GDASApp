@@ -34,159 +34,155 @@
   # https://cdn.ioos.noaa.gov/media/2017/12/recommendations_in_situ_data_real_time_qc.pdf
   #-------------------------------------------------------------------------------
 
-  obs filters:
+  obs pre filters:
+  # Pre-filters credits to Kriti Bhargava
+  # Global range test
+  - filter: Bounds Check
+    filter variables: [{name: waterTemperature}]
+    minvalue: -2.5
+    maxvalue: 40.0
 
-    # land check
-    - filter: Domain Check
-      where:
-      - variable: {name: GeoVaLs/sea_area_fraction}
-        value: is_valid
-        minvalue: 0.5
-
-  #-------------------------------------------------------------------------------
-  ## Filters for T:
-  #-------------------------------------------------------------------------------
-    #-------------------------------------------------------------------------------
-    ### Global range test
-    #-----------------------------------------------------------------------------
-
-    - filter: Bounds Check
-      filter variables: [{name: waterTemperature}]
-      minvalue: -2.5
-      maxvalue: 40.0
-
-    #-----------------------------------------------------------------------------
-    ### Regional range tests
-    #-----------------------------------------------------------------------------
-
-    #### Red Sea
-    #-----------------------------------------------------------------------------
-    ####
-    #### the document linked here describes Red sea as the are between 10N, 40E;
-    #### 20N, 50E; 30N, 30E; 10N, 40E. But that would also include Gulf of Aden.
-    #### A more reasonable choice seemed to be a box that extends from 10 N to
-    #### 30 N and 30 E to 45 East .
-
-    - filter: Bounds Check
-      filter variables: [{name: waterTemperature}]
-      minvalue: 21.7
-      maxvalue: 40.0
-      where:
-      - variable:
-          name: MetaData/latitude
-        minvalue: 10
-        maxvalue: 30
-      - variable:
-          name: MetaData/longitude
-        minvalue: 30
-        maxvalue: 45
-
-    #### Mediterranean Sea
-    #-----------------------------------------------------------------------------
-    ##### Area 1/3 for Mediterranean Sea
-    - filter: Bounds Check
-      filter variables: [{name: waterTemperature}]
-      minvalue: 10.0
-      maxvalue: 40.0
-      where:
-      - variable:
-          name: MetaData/latitude
-        minvalue: 30
-        maxvalue: 40
-      - variable:
-          name: MetaData/longitude
-        minvalue: -6
-        maxvalue: 40
-    ##### Area 2/3 for Mediterranean Sea
-    - filter: Bounds Check
-      filter variables: [{name: waterTemperature}]
-      minvalue: 10.0
-      maxvalue: 40.0
-      where:
-      - variable:
-          name: MetaData/latitude
-        minvalue: 40
-        maxvalue: 41.5
-      - variable:
-          name: MetaData/longitude
-        minvalue: 20
-        maxvalue: 30
-    ##### Area 3/3 for Mediterranean Sea
-    - filter: Bounds Check
-      filter variables: [{name: waterTemperature}]
-      minvalue: 10.0
-      maxvalue: 40.0
-      where:
-      - variable:
-          name: MetaData/latitude
-        minvalue: 40
-        maxvalue: 46
-      - variable:
-          name: MetaData/longitude
-        minvalue: 0
-        maxvalue: 20
-
-    #### Northwestern shelves
-    #-----------------------------------------------------------------------------
-
-    - filter: Bounds Check
-      filter variables: [{name: waterTemperature}]
-      minvalue: -2.0
-      maxvalue: 24.0
-      where:
-      - variable:
-          name: MetaData/latitude
-        minvalue: 50
-        maxvalue: 60
-      - variable:
-          name: MetaData/longitude
-        minvalue: -20
-        maxvalue: 10
-
-    #### Southwestern shelves
-    #-----------------------------------------------------------------------------
-
-    - filter: Bounds Check
-      filter variables: [{name: waterTemperature}]
-      minvalue: -2.0
+  # Regional range test
+  # Red Sea
+  - filter: Bounds Check
+    filter variables: [{name: waterTemperature}]
+    minvalue: 21.7
+    maxvalue: 40.0
+    where:
+    - variable:
+        name: MetaData/latitude
+      minvalue: 10
       maxvalue: 30
-      where:
-      - variable:
-          name: MetaData/latitude
-        minvalue: 25
-        maxvalue: 50
-      - variable:
-          name: MetaData/longitude
-        minvalue: -30
-        maxvalue: 0
+    - variable:
+        name: MetaData/longitude
+      minvalue: 30
+      maxvalue: 45
 
-    #### Arctic Ocean
-    #-----------------------------------------------------------------------------
+  # Mediterranean Sea
+  - filter: Bounds Check
+    filter variables: [{name: waterTemperature}]
+    minvalue: 10.0
+    maxvalue: 40.0
+    where:
+    - variable:
+        name: MetaData/latitude
+      minvalue: 30
+      maxvalue: 40
+    - variable:
+        name: MetaData/longitude
+      minvalue: -6
+      maxvalue: 40
+  - filter: Bounds Check
+    filter variables: [{name: waterTemperature}]
+    minvalue: 10.0
+    maxvalue: 40.0
+    where:
+    - variable:
+        name: MetaData/latitude
+      minvalue: 40
+      maxvalue: 41.5
+    - variable:
+        name: MetaData/longitude
+      minvalue: 20
+      maxvalue: 30
+  - filter: Bounds Check
+    filter variables: [{name: waterTemperature}]
+    minvalue: 10.0
+    maxvalue: 40.0
+    where:
+    - variable:
+        name: MetaData/latitude
+      minvalue: 40
+      maxvalue: 46
+    - variable:
+        name: MetaData/longitude
+      minvalue: 0
+      maxvalue: 20
 
-    - filter: Bounds Check
-      filter variables: [{name: waterTemperature}]
-      minvalue: -1.92
-      maxvalue: 25.0
-      where:
-      - variable:
-          name: MetaData/latitude
-        minvalue: 60
+  # Northwestern shelves
+  - filter: Bounds Check
+    filter variables: [{name: waterTemperature}]
+    minvalue: -2.0
+    maxvalue: 24.0
+    where:
+    - variable:
+        name: MetaData/latitude
+      minvalue: 50
+      maxvalue: 60
+    - variable:
+        name: MetaData/longitude
+      minvalue: -20
+      maxvalue: 10
 
-#    - filter: Background Check
-#      filter variables: [{name: waterTemperature}]
-#      threshold: 5.0
-#      absolute threshold: 5.0
+  # Southwestern shelves
+  - filter: Bounds Check
+    filter variables: [{name: waterTemperature}]
+    minvalue: -2.0
+    maxvalue: 30
+    where:
+    - variable:
+        name: MetaData/latitude
+      minvalue: 25
+      maxvalue: 50
+    - variable:
+        name: MetaData/longitude
+      minvalue: -30
+      maxvalue: 0
 
-    - filter: Perform Action
-      action:
-        name: assign error
-        error function:
-          name: ObsFunction/LinearCombination
-          options:
-            variables:
-            - ObsError/waterTemperature
-            coefs:
-            - 100.0
+  # Arctic Ocean
+  - filter: Bounds Check
+    filter variables: [{name: waterTemperature}]
+    minvalue: -1.92
+    maxvalue: 25.0
+    where:
+    - variable:
+        name: MetaData/latitude
+      minvalue: 60
+
+  obs prior filters:
+  - filter: Domain Check
+    where:
+    - variable:
+        name: GeoVaLs/sea_area_fraction
+      value: is_valid
+      minvalue: 0.5
+
+  # Reject obs where MetaData/depth > GeoVaLs/sea_floor_depth_below_sea_surface - maxvalue
+  - filter: Bounds Check
+    filter variables:
+    - name: waterTemperature
+    test variables:
+    - name: ObsFunction/Arithmetic
+      options:
+        variables: [MetaData/depth, GeoVaLs/sea_floor_depth_below_sea_surface]
+        coefs: [1.0, -1.0]   # depth - sea_floor_depth_below_sea_surface
+    maxvalue: -100.0         # i.e., depth - sea_floor_depth_below_sea_surface <= 0
+
+  obs post filters:
+  # Reject profiles with large differences from background
+  - filter: Profile Background Check
+    filter variables:
+    - name: waterTemperature
+    absolute threshold: 0.5
+
+  # Reject obs that are too far from the background
+  - filter: Background Check
+    filter variables:
+    - name: waterTemperature
+    absolute threshold: 5.0
+
+  # Inflate observation errors to accounnt for correlated errors
+  - filter: Perform Action
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables:
+          - ObsError/waterTemperature
+          coefs:
+          - 100.0
+
 {% if marine_letkf_app | default(false) %}
   obs localizations:
   - localization method: Rossby
