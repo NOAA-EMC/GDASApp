@@ -15,8 +15,9 @@ saber outer blocks:
     function space: StructuredColumns
     custom grid matching gsi:
       type: gaussian
-      lats: {{ atmosphere_npy_anl + 1 }}
-      {% set atmosphere_lons = (atmosphere_npx_anl - 1) * 2 %}
+      {% set atmosphere_lats = ((atmosphere_npy_anl - 1) * 2) + 2 %}
+      lats: {{ atmosphere_lats }}
+      {% set atmosphere_lons = (atmosphere_npx_anl - 1) * 4 %}
       lons: {{ atmosphere_lons }}
     custom partitioner matching gsi:
       bands: {{ atmosphere_layout_gsib_y }}
