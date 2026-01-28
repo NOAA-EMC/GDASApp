@@ -1,0 +1,152 @@
+variable change:
+  variable change name: Model2GeoVaLs
+  input variables: &bkgvars
+  - eastward_wind
+  - northward_wind
+  - air_temperature
+  - air_pressure_at_surface
+  - water_vapor_mixing_ratio_wrt_moist_air
+  - cloud_liquid_ice
+  - cloud_liquid_water
+  - snow_water
+  - rain_water
+  - graupel
+  - ozone_mass_mixing_ratio
+  - geopotential_height_at_surface
+  output variables: &fv3incrvars
+  - eastward_wind
+  - northward_wind
+  - air_temperature
+  - water_vapor_mixing_ratio_wrt_moist_air
+  - cloud_liquid_ice
+  - cloud_liquid_water
+  - snow_water
+  - rain_water
+  - graupel
+  - ozone_mass_mixing_ratio
+  - air_pressure_thickness
+  - layer_thickness
+jedi increment variables:
+- eastward_wind
+- northward_wind
+- air_temperature
+- air_pressure_at_surface
+- water_vapor_mixing_ratio_wrt_moist_air
+- cloud_liquid_ice
+- cloud_liquid_water
+- snow_water
+- rain_water
+- graupel
+- ozone_mass_mixing_ratio
+fv3 increment variables: *fv3incrvars
+background geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ atmosphere_layout_x }}
+  - {{ atmosphere_layout_y }}
+  npx: {{ atmosphere_npx_ges }}
+  npy: {{ atmosphere_npy_ges }}
+  npz: {{ atmosphere_npz_ges }}
+jedi increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ atmosphere_layout_x }}
+  - {{ atmosphere_layout_y }}
+  npx: {{ atmosphere_npx_ges }}
+  npy: {{ atmosphere_npy_ges }}
+  npz: {{ atmosphere_npz_ges }}
+fv3 increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ atmosphere_layout_x }}
+  - {{ atmosphere_layout_y }}
+  npx: {{ atmosphere_npx_ges }}
+  npy: {{ atmosphere_npy_ges }}
+  npz: {{ atmosphere_npz_ges }}
+members from template:
+  template:
+    background input:
+      datapath: ./bkg/mem%mem%
+      filetype: cube sphere history
+      provider: ufs
+      filenames:
+      - {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_atmf006.nc
+      - {{ atmosphere_ensemble_history_prefix }}cubed_sphere_grid_sfcf006.nc
+      max allowable geometry difference: 1e-4      
+      datetime: '{{ atmosphere_background_time_iso }}'
+      state variables: *bkgvars
+      field io names: &field_io_names
+        eastward_wind: ugrd
+        northward_wind: vgrd
+        air_temperature: tmp
+        layer_thickness: delz
+        air_pressure_thickness: dpres
+        air_pressure_at_surface: pressfc
+        water_vapor_mixing_ratio_wrt_moist_air: spfh
+        cloud_liquid_ice: icmr
+        cloud_liquid_water: clwmr
+        snow_water: snmr
+        rain_water: rwmr
+        graupel: grle
+        ozone_mass_mixing_ratio: o3mr
+        geopotential_height_at_surface: hgtsfc
+    jedi increment input:
+      filetype: cube sphere history
+      provider: ufs
+      field io names: *field_io_names
+      datapath: ./anl/mem%mem%
+      filename: cubed_sphere_grid_atminc.jedi.nc
+    fv3 increment output:
+{% if atm_enkfonly | default(false) %}
+      filetype: fms restart
+      is restart: false
+      filename_nonrestart: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_atminc.nc
+{% else %}
+      filetype: cube sphere history
+      provider: ufs
+      filename: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_atminc.nc
+{% endif %}
+      datapath: ./anl/mem%mem%
+      field io names:
+        eastward_wind: u_inc
+        northward_wind: v_inc
+        air_temperature: T_inc
+        water_vapor_mixing_ratio_wrt_moist_air: sphum_inc
+        cloud_liquid_water: liq_wat_inc
+        ozone_mass_mixing_ratio: o3mr_inc
+        cloud_liquid_ice: icmr_inc
+        snow_water: snmr_inc
+        rain_water: rwmr_inc
+        graupel: grle_inc
+        air_pressure_thickness: delp_inc
+        layer_thickness: delz_inc
+  pattern: '%mem%'
+  nmembers: {{ atmosphere_number_ensemble_members }}
+  zero padding: 3
+
+# Optionally test the application
+{% if do_testing | default(false) %}
+test:
+  reference filename: {{test_reference_filename}}
+{% if test_output_filename is defined %}
+  test output filename: {{test_output_filename}}
+{% endif %}
+{% if log_output_filename is defined %}
+  log output filename: {{log_output_filename}}
+{% endif %}
+{% if mpi_pattern is defined %}
+  mpi pattern: {{mpi_pattern}}
+{% endif %}
+  float relative tolerance: {{test_float_relative_tolerance | default(1.0e-6, true)}}
+  float absolute tolerance: {{test_float_absolute_tolerance | default(0.0, true) }}
+  integer tolerance: {{test_integer_tolerance | default(0, true) }}
+{% endif %}

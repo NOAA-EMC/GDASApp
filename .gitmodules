@@ -37,10 +37,6 @@
   path = sorc/jcb
   url = https://github.com/noaa-emc/jcb.git
   branch = develop
-[submodule "parm/jcb-gdas"]
-  path = parm/jcb-gdas
-  url = https://github.com/noaa-emc/jcb-gdas
-  branch = develop
 [submodule "parm/jcb-algorithms"]
   path = parm/jcb-algorithms
   url = https://github.com/noaa-emc/jcb-algorithms
