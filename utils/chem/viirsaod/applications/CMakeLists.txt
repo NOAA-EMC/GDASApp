@@ -4,7 +4,7 @@ list( APPEND gdas_provider2ioda_src_files
 )
 
 if(CMAKE_PROJECT_NAME)
-    set(target_name "${CMAKE_PROJECT_NAME}_obsprovider2ioda.x)
+    set(target_name "${CMAKE_PROJECT_NAME}_obsprovider2ioda.x")
 else()
     set(target_name "obsprovider2ioda.x")
 endif()
