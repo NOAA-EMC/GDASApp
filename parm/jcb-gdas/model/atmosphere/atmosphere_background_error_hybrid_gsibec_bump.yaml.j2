@@ -6,7 +6,7 @@ components:
       saber block name: gsi static covariance
       read:
         gsi akbk: {{atmosphere_fv3jedi_files_path}}/akbk.nc4
-        gsi error covariance file: {{atmosphere_gsibec_path}}/gsi-coeffs-gfs-global.nc4
+        gsi error covariance file: {{atmosphere_gsibec_path}}/gsi-coeffs-gfs-global.nc
         gsi berror namelist file: {{atmosphere_gsibec_path}}/gfs_gsi_global.nml
         processor layout x direction: {{atmosphere_layout_gsib_x}}
         processor layout y direction: {{atmosphere_layout_gsib_y}}
@@ -17,8 +17,9 @@ components:
         function space: StructuredColumns
         custom grid matching gsi:
           type: gaussian
-          lats: {{ atmosphere_npy_ges + 1 }}
-          {% set atmosphere_lons = (atmosphere_npx_ges - 1) * 2 %}
+          {% set atmosphere_lats = ((atmosphere_npy_anl - 1) * 2) + 2 %}
+          lats: {{ atmosphere_lats }}
+          {% set atmosphere_lons = (atmosphere_npx_anl - 1) * 4 %}
           lons: {{ atmosphere_lons }}
         custom partitioner matching gsi:
           bands: {{ atmosphere_layout_gsib_y }}
