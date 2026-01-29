@@ -109,7 +109,7 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
 
 # SOCA associated repositories
-  option(BUILD_SOCA "Build SOCA ON)
+  option(BUILD_SOCA "Build SOCA" ON)
   if (BUILD_SOCA)
     ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
   endif()
