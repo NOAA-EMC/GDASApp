@@ -58,9 +58,15 @@ jedi increment geometry:
   layout:
   - {{ atmosphere_layout_x }}
   - {{ atmosphere_layout_y }}
+{% if atmosphere_variational_increment_type == 'gaussian' %}
+  npx: {{ atmosphere_npx_anl }}
+  npy: {{ atmosphere_npy_anl }}
+  npz: {{ atmosphere_npz_anl }}
+{% else %}
   npx: {{ atmosphere_npx_his }}
   npy: {{ atmosphere_npy_his }}
   npz: {{ atmosphere_npz_his }}
+{% endif %}
 fv3 increment geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -69,9 +75,15 @@ fv3 increment geometry:
   layout:
   - {{ atmosphere_layout_x }}
   - {{ atmosphere_layout_y }}
+{% if atmosphere_variational_increment_type == 'gaussian' %}
+  npx: {{ atmosphere_npx_anl }}
+  npy: {{ atmosphere_npy_anl }}
+  npz: {{ atmosphere_npz_anl }}
+{% else %}
   npx: {{ atmosphere_npx_his }}
   npy: {{ atmosphere_npy_his }}
   npz: {{ atmosphere_npz_his }}
+{% endif %}
 members:
 - background input:
     datapath: ./bkg
