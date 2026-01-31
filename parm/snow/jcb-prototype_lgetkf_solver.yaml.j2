@@ -1,7 +1,7 @@
 # Use observations for lgetkf
 # ---------------------------
-app_path_observations: {{PARMgfs}}/gdas/jcb-gdas/observations/atmosphere-lgetkf
-app_path_observation_chronicle: {{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/atmosphere
+app_path_observations: {{PARMgfs}}/gdas/jcb-gdas/observations/snow
+app_path_observation_chronicle: {{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/snow/{{cycle}}
 
 # Algorithm
 # ---------
@@ -12,10 +12,10 @@ algorithm: local_ensemble_da_solver
 atmosphere_background_ensemble_path: ./bkg/mem%mem%
 
 # Naming conventions for observation files
-atmosphere_obsdatain_path: "{{DATA}}/diags"
-atmosphere_obsdatain_prefix: diag_lobs_
-atmosphere_obsdatain_suffix: "_{{ current_cycle | to_YMDH }}.nc"
-atmosphere_obsdataout_prefix: diag_solv_
+snow_obsdatain_path: "{{DATA}}/diags"
+snow_obsdatain_prefix: diag_lobs_
+snow_obsdatain_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+snow_obsdataout_prefix: diag_solv_
 
 # Distribution type
 distribution_type: Halo
