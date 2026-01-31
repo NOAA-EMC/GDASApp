@@ -1,0 +1,11 @@
+datapath: ./anl/mem%{member}%
+prefix: snowinc_ensmean
+filetype: fms restart
+filename_sfcd: '{{ snow_background_time_fv3 }}.sfc_data.nc'
+filename_cplr: '{{ snow_background_time_fv3 }}.coupler.res'
+state variables:
+- totalSnowDepth
+- vtype
+- slmsk
+field io names:
+  totalSnowDepth: snodl

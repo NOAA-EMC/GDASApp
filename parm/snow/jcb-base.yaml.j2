@@ -112,7 +112,7 @@ number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
 # -------------------------
 local_ensemble_da_solver: Deterministic GETKF
 
-increment_variables: [ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
+increment_variables: [totalSnowDepth,vtype,slmsk] #[ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
@@ -124,11 +124,15 @@ inflation_mult: 1.0
 
 # Driver
 driver_update_obs_config_with_geometry_info: true
-driver_save_posterior_mean: false
-driver_save_posterior_ensemble: false
+driver_save_posterior_mean: true
+driver_save_posterior_ensemble: true
 driver_save_prior_mean: false
-driver_save_posterior_mean_increment: false
+driver_save_posterior_mean_increment: true
 driver_save_posterior_ensemble_increments: true
+driver_save_prior_variance: true
+driver_save_posterior_variance: true
+driver_do_posterior_observer: true
+driver_use_control_member: false
 
 # Diagnostics
 ensemble_increment_prefix: "./anl/mem%{member}%/snowinc."

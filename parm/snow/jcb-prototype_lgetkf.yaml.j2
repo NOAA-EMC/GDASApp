@@ -14,6 +14,10 @@ snow_background_ensemble_path: ./bkg/mem%mem%
 # ------------------
 {% include OBS_LIST_YAML %}
 
+# Observation distribution and localization
+{% set distribution_type = "Halo" %}
+{% include 'snow_ens_obs_dist_localizations.yaml.j2' %}
+
 # Testing things
 # --------------
 {% if DO_TEST_MODE %}

@@ -1,27 +1,12 @@
 jedi_config:
-    snowensanlobs:
-        rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
-        mpi_cmd: '{{ APRUN_SNOWENSANLOBS }}'
-        jedi_args: ['fv3jedi', 'localensembleda']
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_lgetkf_observer.yaml.j2'
-        obs_list_yaml: '{{ OBS_LIST_YAML }}'
-    snowensanlsol:
-        rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
-        mpi_cmd: '{{ APRUN_SNOWENSANLSOL }}'
-        jedi_args: ['fv3jedi', 'localensembleda']
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_lgetkf_solver.yaml.j2'
-        obs_list_yaml: '{{ OBS_LIST_YAML }}'
     snowensanlletkf:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas.x'
         mpi_cmd: '{{ APRUN_SNOWENSANLLETKF }}'
         jedi_args: ['fv3jedi', 'localensembleda']
         jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
-#TODO: 'TESTING' clause here not ported        jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_lgetkf.yaml.j2'
+#TODO: handle 'TESTING' clause in prototype and then don't need it?
+        jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_lgetkf.yaml.j2'
         jcb_algo: 'local_ensemble_da'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
     scf_to_ioda:
@@ -30,6 +15,23 @@ jedi_config:
         mpi_cmd: '{{ APRUN_SNOWANL }}'
         jcb_algo: 'snow_ims_scf_preprocess'
         jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+#    snowensanlobs:
+#        rundir: '{{ DATA }}'
+#        exe_src: '{{ EXECgfs }}/gdas.x'
+#        mpi_cmd: '{{ APRUN_SNOWENSANLOBS }}'
+#        jedi_args: ['fv3jedi', 'localensembleda']
+#        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+#        jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_lgetkf_observer.yaml.j2'
+#        obs_list_yaml: '{{ OBS_LIST_YAML }}'
+#    snowensanlsol:
+#        rundir: '{{ DATA }}'
+#        exe_src: '{{ EXECgfs }}/gdas.x'
+#        mpi_cmd: '{{ APRUN_SNOWENSANLSOL }}'
+#        jedi_args: ['fv3jedi', 'localensembleda']
+#        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+#        jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_lgetkf_solver.yaml.j2'
+#        obs_list_yaml: '{{ OBS_LIST_YAML }}'
+
 #    snowensanlfv3inc:
 #        rundir: '{{ DATA }}'
 #        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_fv3inc.x'
