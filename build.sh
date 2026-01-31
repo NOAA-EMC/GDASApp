@@ -112,18 +112,19 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 # Set WORKFLOW_TESTS as CMake option
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
 
-if [[ $BUILD_SOCA == 'ON' ]]; then
-  if [[ $WORKFLOW_BUILD == 'ON' ]]; then
-    # Link MOM6 and Icepack in SOCA to submodules in the UFS repo
-    rm -rf $dir_root/sorc/soca/external/mom6/MOM6
-    rm -rf $dir_root/sorc/soca/external/icepack/Icepack
-    ln -sf $HOMEgfs/sorc/ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
-    ln -sf $HOMEgfs/sorc/ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
-  else
-    # Delete forked SOCA NOAA-EMC dev/emc repo and clone the original JCSDA develop repo
-    rm -rf "$dir_root/sorc/soca/"
-    git clone https://github.com/jcsda/soca "$dir_root/sorc/soca" --recurse-submodules
-  fi
+if [[ $WORKFLOW_BUILD == 'ON' ]]; then
+  # Link MOM6 and Icepack in SOCA to submodules in the UFS repo
+  rm -rf $dir_root/sorc/soca/external/mom6/MOM6
+  rm -rf $dir_root/sorc/soca/external/icepack/Icepack
+  ln -sf $HOMEgfs/sorc/ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
+  ln -sf $HOMEgfs/sorc/ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
+else
+  # Delete forked SOCA NOAA-EMC dev/emc repo and clone the original JCSDA develop repo
+  rm -rf "$dir_root/sorc/soca/"
+  git clone https://github.com/jcsda/soca "$dir_root/sorc/soca" --recurse-submodules
+  cd "$dir_root/sorc/soca"
+  git checkout 733ac0177ad0b45e04586f2ead5aa67137da332c
+  cd ${BUILD_DIR} 
 fi
 
 if [[ $BUILD_IODA_CONVERTERS == 'YES' ]]; then
