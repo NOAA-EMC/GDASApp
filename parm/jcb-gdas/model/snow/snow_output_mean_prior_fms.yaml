@@ -1,5 +1,5 @@
 datapath: ./anl/mem%{member}%
-prefix: snow_ens_anl
+prefix: snow_ensmean_prior
 filetype: fms restart
 filename_sfcd: '{{ snow_background_time_fv3 }}.sfc_data.nc'
 filename_cplr: '{{ snow_background_time_fv3 }}.coupler.res'
