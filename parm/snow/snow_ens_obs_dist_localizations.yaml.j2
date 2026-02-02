@@ -7,15 +7,15 @@ obs_distribution_localizations:
     lengthscale: 250e3
     max nobs: 50
 
-override_obs_distribution_localizations:
-  override: false
-  ims_snow:
-    obs_distribution:
-      name: {{ distribution_type }}
-      halo size: 250e3
-    obs_localizations:
-    - localization method: Horizontal SOAR
-      lengthscale: 250e3
-      soar horizontal decay: 0.000021
-#assuming one obs every 40 Km
-      max nobs: 6
+#override_obs_distribution_localizations:
+#  override: false
+#  ims_snow:
+#    obs_distribution:
+#      name: {{ distribution_type }}
+#      halo size: 250e3
+#    obs_localizations:
+#    - localization method: Horizontal SOAR
+#      lengthscale: 250e3
+#      soar horizontal decay: 0.000021
+##assuming one obs every 40 Km
+#      max nobs: 6

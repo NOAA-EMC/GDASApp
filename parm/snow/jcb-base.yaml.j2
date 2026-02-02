@@ -13,8 +13,10 @@ model_file: model_pseudo
 initial_condition_file: background  # Initial conditions for 4D apps is background
 final_increment_file: snow_final_increment_fms
 posterior_output_file: snow_posterior_output_fms
-#output_ensemble_increments_file: snow_ensemble_increments_fms
-#output_increment_file: snow_ensemblemean_increment_fms.yaml.j2 snow_output_increment_fms.yaml.j2
+output_ensemble_increments_file: snow_ensemble_increments_fms
+output_increment_file: snow_output_increment_fms  #snow_ensemblemean_increment_fms.yaml.j2 
+output_variance_prior_file: snow_output_variance_prior_fms
+output_variance_posterior_file: snow_output_variance_posterior_fms
 #jedi_increment_output: gaussian
 
 # Assimilation window

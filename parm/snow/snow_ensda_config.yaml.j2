@@ -7,7 +7,7 @@ jedi_config:
         jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
 #TODO: handle 'TESTING' clause in prototype and then don't need it?
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_lgetkf.yaml.j2'
-        jcb_algo: 'local_ensemble_da'
+#        jcb_algo: 'local_ensemble_da'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
     scf_to_ioda:
         rundir: '{{ DATA }}'
@@ -51,7 +51,7 @@ data_in:
     - '{{ DATA }}/anl'
     - '{{ DATA }}/bkg/ensmean'
     - '{{ DATA }}/anl/ensmean'
-{% for mem in range(1, NMEM_ENS + 1) %}
+{% for mem in range(0, NMEM_ENS + 1) %}
     - '{{ DATA }}/bkg/mem{{ '%03d' % mem }}'
     - '{{ DATA }}/anl/mem{{ '%03d' % mem }}'
 {% endfor %}
@@ -160,8 +160,11 @@ data_in:
 data_out:
     copy_req:
     # Configuration files
-    - ['{{ DATA }}/snowanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}snowanlvar.yaml']
-    - ['{{ DATA }}/esnowanlensmean.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}esnowanlensmean.yaml']
+#    - ['{{ DATA }}/snowanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}snowanlvar.yaml']
+#    - ['{{ DATA }}/esnowanlensmean.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}esnowanlensmean.yaml']
+    - ['{{ DATA }}/snowensanlletkf.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}snowensanlletkf.yaml']
+    - ['{{ DATA }}/apply_incr_nml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}apply_incr_nml']
+
 {% if  DO_IMS_SCF %}
     - ['{{ DATA }}/scf_to_ioda.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}scf_to_ioda.yaml']
 {% endif %}

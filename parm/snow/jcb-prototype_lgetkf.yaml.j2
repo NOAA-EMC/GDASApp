@@ -15,8 +15,12 @@ snow_background_ensemble_path: ./bkg/mem%mem%
 {% include OBS_LIST_YAML %}
 
 # Observation distribution and localization
+# TODO: set these through templates
 {% set distribution_type = "Halo" %}
-{% include 'snow_ens_obs_dist_localizations.yaml.j2' %}
+{% set localization_method = "Horizontal Box car" %}
+{% set halo_size = 250e3 %}
+{% set loc_length_scale = 250e3 %}
+{% set max_nobs = 50 %}
 
 # Testing things
 # --------------
