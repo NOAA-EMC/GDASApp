@@ -41,7 +41,9 @@ option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
 # Build GDAS-managed JEDI executables
 if( BUILD_GDASBUNDLE )
   find_package( fv3jedi REQUIRED )
-  find_package( soca REQUIRED )
+  if (BUILD_SOCA)
+    find_package( soca REQUIRED )
+  endif()
   add_subdirectory( mains )
 endif()
 

@@ -44,7 +44,9 @@ CLONE_JCSDADATA="NO"
 CLEAN_BUILD="NO"
 COMPILER="${COMPILER:-intel}"
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
+BUILD_GSIBEC=${BUILD_GSIBEC:-"ON"}
 BUILD_IODA_CONVERTERS=${BUILD_IODA_CONVERTERS:-"NO"}
+BUILD_SOCA=${BUILD_SOCA:-"ON"}
 
 while getopts "w:t:c:hvdfai" opt; do
   case $opt in
@@ -76,12 +78,12 @@ while getopts "w:t:c:hvdfai" opt; do
 done
 
 case ${BUILD_TARGET} in
-  hera | orion | hercules | wcoss2 | noaacloud | gaeac5 | gaeac6 | ursa )
+  hera | orion | hercules | wcoss2 | noaacloud | gaeac6 | ursa )
     echo "Building GDASApp on $BUILD_TARGET"
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET.$COMPILER
-    CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=ON -DBUILD_IODA_CONVERTERS=$BUILD_IODA_CONVERTERS"
+    CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=$BUILD_GSIBEC -DBUILD_IODA_CONVERTERS=$BUILD_IODA_CONVERTERS -DBUILD_SOCA=$BUILD_SOCA"
     module list
     ;;
   $(hostname))
@@ -110,16 +112,18 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 # Set WORKFLOW_TESTS as CMake option
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
 
-if [[ $WORKFLOW_BUILD == 'ON' ]]; then
-  # Link MOM6 and Icepack in SOCA to submodules in the UFS repo
-  rm -rf $dir_root/sorc/soca/external/mom6/MOM6
-  rm -rf $dir_root/sorc/soca/external/icepack/Icepack
-  ln -sf $HOMEgfs/sorc/ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
-  ln -sf $HOMEgfs/sorc/ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
-else
-  # Delete forked SOCA NOAA-EMC dev/emc repo and clone the original JCSDA develop repo
-  rm -rf "$dir_root/sorc/soca/"
-  git clone https://github.com/jcsda/soca "$dir_root/sorc/soca" --recurse-submodules
+if [[ $BUILD_SOCA == 'ON' ]]; then
+  if [[ $WORKFLOW_BUILD == 'ON' ]]; then
+    # Link MOM6 and Icepack in SOCA to submodules in the UFS repo
+    rm -rf $dir_root/sorc/soca/external/mom6/MOM6
+    rm -rf $dir_root/sorc/soca/external/icepack/Icepack
+    ln -sf $HOMEgfs/sorc/ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
+    ln -sf $HOMEgfs/sorc/ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
+  else
+    # Delete forked SOCA NOAA-EMC dev/emc repo and clone the original JCSDA develop repo
+    rm -rf "$dir_root/sorc/soca/"
+    git clone https://github.com/jcsda/soca "$dir_root/sorc/soca" --recurse-submodules
+  fi
 fi
 
 if [[ $BUILD_IODA_CONVERTERS == 'YES' ]]; then
