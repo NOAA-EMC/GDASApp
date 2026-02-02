@@ -57,6 +57,7 @@
         name: MetaData/longitude
       minvalue: 30
       maxvalue: 45
+
   # Mediterranean Sea
   - filter: Bounds Check
     filter variables:
@@ -163,6 +164,28 @@
         coefs: [1.0, -1.0]   # depth - sea_floor_depth_below_sea_surface
     maxvalue: -100.0         # i.e., depth - sea_floor_depth_below_sea_surface <= 0
 
+  # Reject stair-step profiles (rounded values)
+  - filter: Create Diagnostic Flags
+    filter variables:
+    - name: salinity
+    flags:
+    - name: ProfileSpike
+      initial value: false
+    - name: ProfileStep
+      initial value: false
+
+  - filter: Spike and Step Check
+    independent: MetaData/depth
+    dependent: ObsValue/salinity
+    tolerance:
+      nominal value: 0.05
+    count spikes: false
+    count steps: true
+    tolerance:
+      nominal value: 0.05                   # tune: < 0.1 if obs rounded to 0.1
+    action:
+      name: reject
+
   obs post filters:
   # Reject profiles with large differences from background
   - filter: Profile Background Check
@@ -187,7 +210,6 @@
           - ObsError/salinity
           coefs:
           - 100.0
-
 
 {% if marine_letkf_app | default(false) %}
   obs localizations:

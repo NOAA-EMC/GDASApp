@@ -28,12 +28,6 @@
   obs error:
     covariance model: diagonal
 
-  #-------------------------------------------------------------------------------
-  #                   START OF OBS FILTERS (work done by Kriti Bhargava)
-  # The QC filters used here are based on the document by IODE that can be found at
-  # https://cdn.ioos.noaa.gov/media/2017/12/recommendations_in_situ_data_real_time_qc.pdf
-  #-------------------------------------------------------------------------------
-
   obs pre filters:
   # Pre-filters credits to Kriti Bhargava
   # Global range test
@@ -157,6 +151,28 @@
         variables: [MetaData/depth, GeoVaLs/sea_floor_depth_below_sea_surface]
         coefs: [1.0, -1.0]   # depth - sea_floor_depth_below_sea_surface
     maxvalue: -100.0         # i.e., depth - sea_floor_depth_below_sea_surface <= 0
+
+  # Reject stair-step profiles (rounded values)
+  - filter: Create Diagnostic Flags
+    filter variables:
+    - name: waterTemperature
+    flags:
+    - name: ProfileSpike
+      initial value: false
+    - name: ProfileStep
+      initial value: false
+
+  - filter: Spike and Step Check
+    independent: MetaData/depth
+    dependent: ObsValue/waterTemperature
+    tolerance:
+      nominal value: 0.05
+    count spikes: false
+    count steps: true
+    tolerance:
+      nominal value: 0.05                   # tune: < 0.1 if obs rounded to 0.1
+    action:
+      name: reject
 
   obs post filters:
   # Reject profiles with large differences from background
