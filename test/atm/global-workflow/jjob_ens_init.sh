@@ -102,9 +102,9 @@ for imem in $(seq 1 $NMEM_ENS); do
     done
 done
 
-# Set lobsdiag_forenkf=.false. to run letkf as single observer and solver job
+# Set DO_JEDIATMENS_SPLIT_OBSSOL="NO" to run letkf as single observer and solver job
 # NOTE:  atmensanlinit creates input yaml for atmensanlletkf job
-cp $EXPDIR/config.base_lobsdiag_forenkf_false $EXPDIR/config.base
+cp $EXPDIR/config.base_split_obssol_false $EXPDIR/config.base
 
 # Create yaml with job configuration
 memory="8Gb"
