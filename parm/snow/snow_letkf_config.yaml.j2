@@ -5,9 +5,7 @@ jedi_config:
         mpi_cmd: '{{ APRUN_SNOWENSANLLETKF }}'
         jedi_args: ['fv3jedi', 'localensembleda']
         jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
-#TODO: handle 'TESTING' clause in prototype and then don't need it?
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_lgetkf.yaml.j2'
-#        jcb_algo: 'local_ensemble_da'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
     scf_to_ioda:
         rundir: '{{ DATA }}'
@@ -15,6 +13,7 @@ jedi_config:
         mpi_cmd: '{{ APRUN_SNOWANL }}'
         jcb_algo: 'snow_ims_scf_preprocess'
         jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+#TODO: add observer mode
 #    snowensanlobs:
 #        rundir: '{{ DATA }}'
 #        exe_src: '{{ EXECgfs }}/gdas.x'
@@ -31,19 +30,6 @@ jedi_config:
 #        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
 #        jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_lgetkf_solver.yaml.j2'
 #        obs_list_yaml: '{{ OBS_LIST_YAML }}'
-
-#    snowensanlfv3inc:
-#        rundir: '{{ DATA }}'
-#        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_fv3inc.x'
-#        mpi_cmd: '{{ APRUN_SNOWENSANLFV3INC }}'
-#        jcb_algo: 'fv3jedi_fv3inc_lgetkf'
-#        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
-#    snowanladdinc:
-#        rundir: '{{ DATA }}'
-#        exe_src: '{{ EXECgdas }}/fv3jedi_addincrement.x'
-#        mpi_cmd: '{{ APRUN_SNOW_ADDINC }}'
-#        jcb_base_yaml: '{{ PARMgdas }}/snow/jcb-base.yaml.j2'
-#        jcb_algo: snow_addincrement
 
 data_in:
     mkdir:
@@ -160,8 +146,6 @@ data_in:
 data_out:
     copy_req:
     # Configuration files
-#    - ['{{ DATA }}/snowanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}snowanlvar.yaml']
-#    - ['{{ DATA }}/esnowanlensmean.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}esnowanlensmean.yaml']
     - ['{{ DATA }}/snowensanlletkf.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}snowensanlletkf.yaml']
     - ['{{ DATA }}/apply_incr_nml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}apply_incr_nml']
 
