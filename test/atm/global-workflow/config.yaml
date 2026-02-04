@@ -3,6 +3,8 @@ base:
   DOHYBVAR: "NO"
   DO_JEDIATMVAR: "YES"
   DO_JEDIATMENS: "YES"
+  DO_JEDIATMENS_SPLIT_OBSSOL: "YES"
+  DOENKFONLY_ATM: "NO"
   EUPD_CYC: "gdas"
   DATAPATH: "@bindir@/test/atm/global-workflow/testrun"
   DUMPDIR: "@dumpdir@"
