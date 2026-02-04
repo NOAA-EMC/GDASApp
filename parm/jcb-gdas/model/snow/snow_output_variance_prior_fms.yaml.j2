@@ -1,11 +1,2 @@
-datapath: ./anl/mem%{member}%
 prefix: snow_ensvariance_prior
-filetype: fms restart
-filename_sfcd: '{{ snow_background_time_fv3 }}.sfc_data.nc'
-filename_cplr: '{{ snow_background_time_fv3 }}.coupler.res'
-state variables:
-- totalSnowDepth
-- vtype
-- slmsk
-field io names:
-  totalSnowDepth: snodl
+{% include 'snow_ensemble_output_fms_common.yaml.j2' %}

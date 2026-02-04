@@ -12,6 +12,7 @@ app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle
 model_file: model_pseudo
 initial_condition_file: background  # Initial conditions for 4D apps is background
 final_increment_file: snow_final_increment_fms
+output_mean_prior_file: snow_output_mean_prior_fms
 posterior_output_file: snow_posterior_output_fms
 output_ensemble_increments_file: snow_ensemble_increments_fms
 output_increment_file: snow_output_increment_fms  #snow_ensemblemean_increment_fms.yaml.j2 
@@ -133,7 +134,7 @@ driver_save_posterior_mean_increment: true
 driver_save_posterior_ensemble_increments: true
 driver_save_prior_variance: true
 driver_save_posterior_variance: true
-#default driver_save_prior_mean: false
+driver_save_prior_mean: true  #(default false)
 #driver_do_test_prints: false (default true)
 #default driver_do_posterior_observer: true
 #default driver_use_control_member: false
