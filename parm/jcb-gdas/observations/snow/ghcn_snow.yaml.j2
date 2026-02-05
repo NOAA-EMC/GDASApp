@@ -4,9 +4,6 @@
   # -----------------------
   obs space:
     name: {{observation_from_jcb}}
-    distribution:
-      name: Halo 
-      halo size: 250e3
     obsdatain:
       engine:
         type: H5File
@@ -23,13 +20,6 @@
   # --------------------
   obs operator:
     name: Identity
-
-  # localization
-  # ------------
-  obs localizations:
-  - localization method: Horizontal Box car
-    lengthscale: 250e3
-    max nobs: 50
 
   # Observation Filters (QC)
   # ------------------------
