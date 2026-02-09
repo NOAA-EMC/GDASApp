@@ -44,8 +44,8 @@ export PYTHONPATH
 # Export library path
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 
-# Set lobsdiag_forenkf=.true. to run letkf as stand-alone observer job
-cp $EXPDIR/config.base_lobsdiag_forenkf_true $EXPDIR/config.base
+# Set DO_JEDIATMENS_SPLIT_OBSSOL="YES" to run letkf as stand-alone observer job
+cp $EXPDIR/config.base_split_obssol_true $EXPDIR/config.base
 
 # Create yaml with job configuration
 memory="32Gb"

@@ -44,8 +44,8 @@ export PYTHONPATH
 # Export library path
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
 
-# Set lobsdiag_forenkf=.false. to run letkf as combined observer and solver job
-cp $EXPDIR/config.base_lobsdiag_forenkf_false $EXPDIR/config.base
+# Set DO_JEDIATMENS_SPLIT_OBSSOL="NO" to run letkf as combined observer and solver job
+cp $EXPDIR/config.base_split_obssol_false $EXPDIR/config.base
 
 # Create yaml with job configuration
 memory="32Gb"
