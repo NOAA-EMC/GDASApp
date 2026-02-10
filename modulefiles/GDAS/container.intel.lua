@@ -26,9 +26,9 @@ local gdas_modules = {
   {["curl"]            = "7.81.0"},
   {["zlib"]            = "1.2.11"},
   {["git"]             = "2.34.1"},
-  {["hdf5"]            = "1.14.3"},
   {["parallel-netcdf"] = "1.12.3"},
   {["netcdf-c"]        = "4.9.2"},
+  {["hdf5"]            = "1.14.3"},
   {["nccmp"]           = "1.9.0.1"},
   {["netcdf-fortran"]  = "4.6.1"},
   {["nco"]             = "5.2.4"},
@@ -100,9 +100,15 @@ local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
-setenv("CRTM_FIX","/contrib/global-workflow-shared-data/GDASApp/fix/crtm/2.4.0")
-setenv("GDASAPP_TESTDATA","/contrib/global-workflow-shared-data/GDASApp/testdata")
-setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/contrib/global-workflow-shared-data/GDASApp/unittestdata")
+-- for ursa
+setenv("CRTM_FIX","/scratch3/NCEPDEV/da/role.jedipara/GDASApp/fix/crtm/2.4.0")
+setenv("GDASAPP_TESTDATA","/scratch3/NCEPDEV/da/role.jedipara/GDASApp/testdata")
+setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/scratch3/NCEPDEV/da/role.jedipara/GDASApp/unittestdata")
+
+-- for noaacloud (AWS)
+-- setenv("CRTM_FIX","/contrib/global-workflow-shared-data/GDASApp/fix/crtm/2.4.0")
+-- setenv("GDASAPP_TESTDATA","/contrib/global-workflow-shared-data/GDASApp/testdata")
+-- setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/contrib/global-workflow-shared-data/GDASApp/unittestdata")
 
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)
