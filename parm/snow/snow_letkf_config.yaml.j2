@@ -2,7 +2,7 @@ jedi_config:
     snowletkfanl:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas.x'
-        mpi_cmd: '{{ APRUN_SNOWENSANLLETKF }}'
+        mpi_cmd: '{{ APRUN_SNOWLETKFANL }}'
         jedi_args: ['fv3jedi', 'localensembleda']
         jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_lgetkf.yaml.j2'
