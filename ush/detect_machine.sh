@@ -102,5 +102,6 @@ elif [[ -d /gpfs/f6 ]]; then
 elif [[ -d /data/prod ]]; then
   # We are on SSEC's S4
   MACHINE_ID=s4
+else
   echo WARNING: UNKNOWN PLATFORM 1>&2
 fi
