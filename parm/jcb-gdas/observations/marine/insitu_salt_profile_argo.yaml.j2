@@ -29,7 +29,8 @@
     vertical coordinate: sea_water_depth
     observation vertical coordinate: depth
     interpolation method: linear
-    obs error:
+
+  obs error:
     covariance model: diagonal
 
   obs pre filters:
@@ -177,8 +178,6 @@
   - filter: Spike and Step Check
     independent: MetaData/depth
     dependent: ObsValue/salinity
-    tolerance:
-      nominal value: 0.05
     count spikes: false
     count steps: true
     tolerance:
@@ -193,23 +192,39 @@
     - name: salinity
     absolute threshold: 0.5
 
-  # Reject obs that are too far from the background
+  # Reject obs that are 5PSU away from the background
   - filter: Background Check
     filter variables:
     - name: salinity
     absolute threshold: 5.0
 
-  # Inflate observation errors to accounnt for correlated errors
+  # Force constant observation error everywhere
   - filter: Perform Action
+    filter variables:
+    - name: salinity
+    action:
+      name: assign error
+      error parameter: 0.05
+
+  # Linear decay from surface to 2000m depth:
+  #    - minimum error of 0.1K at 2000m (and below)
+  #    - maximum error of 1.0K at surface
+  # original error is rescaled and added to reflect the out of window error
+  - filter: Perform Action
+    where:
+    - variable:
+        name: MetaData/depth
+      maxvalue: 2000.0
     action:
       name: assign error
       error function:
-        name: ObsFunction/LinearCombination
+        name: ObsFunction/Arithmetic
         options:
-          variables:
-          - ObsError/salinity
-          coefs:
-          - 100.0
+          variables: [MetaData/depth, ObsError/salinity]
+          # sigo_total = 0.5 + (-0.00045)*depth + 0.1*sigo_original
+          coefs:     [-0.00025, 0.1]
+          intercept: 0.5
+
 
 {% if marine_letkf_app | default(false) %}
   obs localizations:
