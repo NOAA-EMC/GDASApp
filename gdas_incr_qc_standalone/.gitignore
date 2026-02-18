@@ -1,0 +1,59 @@
+# Build directories
+build/
+build-*/
+install/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!cmake/*.cmake.in
+!cmake/*.cmake
+CTestTestfile.cmake
+
+# Compiled binaries
+*.o
+*.a
+*.so
+*.so.*
+*.dylib
+*.exe
+*.out
+bin/
+lib/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Generated documentation
+html/
+latex/
+doc/build/
+
+# Package files
+*.tar.gz
+*.zip
+*.deb
+*.rpm
+
+# Testing
+Testing/
+test/build/
+*.log
+
+# Python (if any scripts are added later)
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Backup files
+*.bak
+*.orig

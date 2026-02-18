@@ -1,0 +1,16 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find dependencies
+find_dependency(eckit REQUIRED)
+find_dependency(atlas REQUIRED)
+find_dependency(oops REQUIRED)
+find_dependency(soca REQUIRED)
+
+# Include targets
+if(NOT TARGET gdas_incr_qc::gdas_incr_qc)
+    include("${CMAKE_CURRENT_LIST_DIR}/gdas_incr_qc-targets.cmake")
+endif()
+
+check_required_components(gdas_incr_qc)
