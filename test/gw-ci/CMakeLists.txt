@@ -85,11 +85,19 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
     endif()
   else()
     if("${task_name}" STREQUAL "gdas_prep")
-      list(APPEND TEST_DEPENDS "${test_prefix}_gdas_fcst_${HALF_CYCLE}")
-      list(APPEND TEST_DEPENDS "${test_prefix}_gdas_atmos_prod_${HALF_CYCLE}")
+      if(NOT "${pslot}" STREQUAL "C48_ufsenkf_atmDA")
+        list(APPEND TEST_DEPENDS "${test_prefix}_gdas_fcst_${HALF_CYCLE}")
+        list(APPEND TEST_DEPENDS "${test_prefix}_gdas_atmos_prod_${HALF_CYCLE}")
+      else()
+        list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_epmn_${HALF_CYCLE}")
+      endif()
     elseif("${task_name}" STREQUAL "gcdas_prep")
       list(APPEND TEST_DEPENDS "${test_prefix}_gcdas_fcst_${HALF_CYCLE}")
       list(APPEND TEST_DEPENDS "${test_prefix}_gcdas_atmos_prod_${HALF_CYCLE}")
+    elseif("${task_name}" STREQUAL "gdas_fetchatmanlbias")
+      list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_epmn_${HALF_CYCLE}")
+    elseif("${task_name}" STREQUAL "gdas_prepatmanlbias")
+      list(APPEND TEST_DEPENDS "${test_prefix}_gdas_fetchatmanlbias_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "gdas_anal")
       list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_epmn_${HALF_CYCLE}")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_prep_${FULL_CYCLE}")
@@ -159,6 +167,9 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
     elseif("${task_name}" STREQUAL "enkfgdas_atmensanlinit")
       list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_epmn_${HALF_CYCLE}")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_prep_${FULL_CYCLE}")
+      if("${pslot}" STREQUAL "C48_hybenkf_atmDA")
+        list(APPEND TEST_DEPENDS "${test_prefix}_gdas_prepatmanlbias_${FULL_CYCLE}")
+      endif()
     elseif("${task_name}" STREQUAL "enkfgdas_atmensanlobs")
       list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_atmensanlinit_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "enkfgdas_atmensanlsol")
@@ -191,6 +202,8 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
         list(APPEND TEST_DEPENDS "${test_prefix}_gdas_analcalc_${FULL_CYCLE}")
         list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_eupd_${FULL_CYCLE}")
         list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_esnowanl_${FULL_CYCLE}")
+      elseif("${pslot}" STREQUAL "C48_ufsenkf_atmDA")
+        list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_fcst_${HALF_CYCLE}")
       else()
         list(APPEND TEST_DEPENDS "${test_prefix}_gdas_analcalc_${FULL_CYCLE}")
         list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_eupd_${FULL_CYCLE}")
@@ -199,7 +212,7 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
       list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_esfc_${FULL_CYCLE}")
       if("${pslot}" STREQUAL "C96C48_ufs_hybatmDA")
         list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_ecen_fv3jedi_${FULL_CYCLE}")
-      else()
+      elseif(NOT "${pslot}" STREQUAL "C48_ufsenkf_atmDA")
         list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_ecmn_${FULL_CYCLE}")
       endif()
     elseif("${task_name}" STREQUAL "gdas_prepoceanobs")
@@ -400,6 +413,29 @@ if (WORKFLOW_TESTS)
     add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
   endif()  # TEST_V18
 
+  # JEDI EnKF DA C48
+  # -----------------------------------
+  if(${TEST_GFS18})
+    set(pslot "C48_ufsenkf_atmDA")
+    set(YAML_PATH ${HOMEgfs}/dev/ci/cases/pr/${pslot}.yaml)
+    set(HALF_CYCLE_TASKS
+      "enkfgdas_stage_ic"
+      "enkfgdas_fcst"
+      "enkfgdas_epmn")
+    set(FULL_CYCLE_TASKS
+      "gdas_fetchatmanlbias"
+      "gdas_prep"
+      "gdas_prepatmanlbias"
+      "enkfgdas_atmensanlinit"
+      "enkfgdas_atmensanlobs"
+      "enkfgdas_atmensanlsol"
+      "enkfgdas_atmensanlfv3inc"
+      "enkfgdas_atmensanlfinal"
+      "enkfgdas_esfc"
+      "enkfgdas_fcst"
+    )
+    add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
+  endif()  # TEST_V18
 
 # Aero DA C96
   # ----------------
