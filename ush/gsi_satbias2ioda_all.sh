@@ -3,7 +3,7 @@
 set -ex
 
 # Source UFSDA workflow modules
-source "${HOMEgfs}/dev/ush/load_modules.sh" ufsda
+source "${HOMEglobal}/dev/ush/load_modules.sh" ufsda
 status=$?
 if [[ ${status} -ne 0 ]]; then
     exit "${status}"
@@ -19,8 +19,8 @@ ABIAS=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.abias.txt
 ABIASPC=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.abias_pc.txt
 ABIAS_JEDI=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.rad_varbc_params.tar
 
-satbias2ioda_x=${HOMEgfs}/sorc/gdas.cd/build/bin/satbias2ioda.x
-satbias2ioda_y=${HOMEgfs}/sorc/gdas.cd/ush/satbias_converter.yaml.tmpl
+satbias2ioda_x=${HOMEglobal}/sorc/gdas.cd/build/bin/satbias2ioda.x
+satbias2ioda_y=${HOMEglobal}/sorc/gdas.cd/ush/satbias_converter.yaml.tmpl
 
 
 # Create work directory
