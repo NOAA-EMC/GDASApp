@@ -31,6 +31,9 @@ backgrounds:
       - sea_water_cell_thickness
       - eastward_sea_water_velocity
       - northward_sea_water_velocity
+      - ocean_mixed_layer_thickness
+      - distance_from_coast
+      - sea_water_depth
       - sea_ice_area_fraction
       - sea_ice_thickness
       - sea_ice_snow_thickness
@@ -44,6 +47,7 @@ recentering state:
   - sea_water_cell_thickness
   - sea_water_depth
   - ocean_mixed_layer_thickness
+  - distance_from_coast
   - sea_ice_area_fraction
   - sea_ice_thickness
   - sea_ice_snow_thickness
@@ -82,9 +86,9 @@ increment postprocessing:
     steric increment:
       linear variable changes:
       - linear variable change name: BalanceSOCA
-    shallow depth limit:
-      min depth: 50.0    # [m] increments are zero at or below this depth
-      max depth: 200.0   # [m] increments are unmodified at or above this depth
+    coastal increment filter:
+      min distance: 0.0       # [m] zero increments at the coast
+      max distance: 200000.0  # [m] full increments beyond 200 km from coast
 
 analysis postprocessing:
   sea ice variable change:
