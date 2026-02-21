@@ -210,6 +210,14 @@ for pr in $open_pr_list; do
 	fi
       done
 
+      #TODO - remove logic that excludes C48_ufsenkf_atmDA on MSU after required data is staged
+      case ${TARGET} in
+        orion | hercules
+	  ci_test="C48_ufsenkf_atmDA"
+	  ctest_regex_exclude+="${ctest_regex_exclude:+|}$ci_test"
+	  ;;  
+      esac
+      
       # setup run_ci.sh arguments to test in the Global Workflow and exclude chosen CI tests
       run_ci_cmd+=" -w"
       if [ -n "$ctest_regex_exclude" ]; then
