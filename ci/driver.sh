@@ -212,7 +212,7 @@ for pr in $open_pr_list; do
 
       #TODO - remove logic that excludes C48_ufsenkf_atmDA on MSU after required data is staged
       case ${TARGET} in
-        orion | hercules
+        orion | hercules)
 	  ci_test="C48_ufsenkf_atmDA"
 	  ctest_regex_exclude+="${ctest_regex_exclude:+|}$ci_test"
 	  ;;  
