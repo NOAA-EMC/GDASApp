@@ -417,7 +417,7 @@ if (WORKFLOW_TESTS)
   # -----------------------------------
   if(${TEST_GFS18})
     set(pslot "C48_ufsenkf_atmDA")
-    set(YAML_PATH ${HOMEgfs}/dev/ci/cases/pr/${pslot}.yaml)
+    set(YAML_PATH ${HOMEglobal}/dev/ci/cases/pr/${pslot}.yaml)
     set(HALF_CYCLE_TASKS
       "enkfgdas_stage_ic"
       "enkfgdas_fcst"
@@ -434,7 +434,7 @@ if (WORKFLOW_TESTS)
       "enkfgdas_esfc"
       "enkfgdas_fcst"
     )
-    add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEgfs} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
+    add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEglobal} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR} "${HALF_CYCLE_TASKS}" "${FULL_CYCLE_TASKS}")
   endif()  # TEST_V18
 
 # Aero DA C96
