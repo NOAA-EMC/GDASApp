@@ -78,17 +78,17 @@ increment postprocessing:
   - eastward_sea_water_velocity
   - northward_sea_water_velocity
 
-  # Attempt to keep the analysis within physical bounds
-  # by applying QC to the increments before adding them to the background.
+  # Keep the analysis within physical bounds
   bounds check:
     state bounds:
       sea_water_potential_temperature: [-2.5, 36.0]
       sea_water_salinity: [0.0, 44.0]
-    increment max:
-      steric: 0.5
-    steric increment:
+
+    absolute steric increment max: 0.5
+    steric variable change:
       linear variable changes:
       - linear variable change name: BalanceSOCA
+
     coastal increment filter:
       min distance: 0.0       # [m] zero increments at the coast
       max distance: 200000.0  # [m] full increments beyond 200 km from coast
