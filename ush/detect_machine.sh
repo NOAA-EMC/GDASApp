@@ -8,6 +8,12 @@
 #
 # Thank you for your contribution
 
+# overwrite MACHINE_ID if in container
+if [[ -v SINGULARITY_CONTAINER ]]; then
+  # We are in a container
+  MACHINE_ID=container
+fi
+
 # If the MACHINE_ID variable is set, skip this script.
 [[ -n ${MACHINE_ID:-} ]] && return
 
@@ -20,9 +26,6 @@ case $(hostname -f) in
   clogin10.cactus.wcoss2.ncep.noaa.gov)      MACHINE_ID=wcoss2 ;; ### cactus10
   dlogin0[1-9].dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dogwood01-9
   dlogin10.dogwood.wcoss2.ncep.noaa.gov)     MACHINE_ID=wcoss2 ;; ### dogwood10
-
-  gaea5[1-8])          MACHINE_ID=gaeac5 ;; ### gaea51-58
-  gaea5[1-8].ncrc.gov) MACHINE_ID=gaeac5 ;; ### gaea51-58
 
   gaea6[1-8])          MACHINE_ID=gaeac6 ;; ### gaea61-68
   gaea6[1-8].ncrc.gov) MACHINE_ID=gaeac6 ;; ### gaea61-68
@@ -93,9 +96,6 @@ elif [[ -d /work ]]; then
   else
     MACHINE_ID=orion
   fi
-elif [[ -d /gpfs/f5 ]]; then
-  # We are on GAEAC5.
-  MACHINE_ID=gaeac5
 elif [[ -d /gpfs/f6 ]]; then
   # We are on GAEAC6.
   MACHINE_ID=gaeac6
