@@ -125,6 +125,10 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState,
       bkg_density(jnode, 0) =
         std::max(80.0, std::min(120.0, tmp_density)) / 1000.0;
     }
+    // where (density < 0.0001) density = 0.08
+    if (bkg_density(jnode, 0) < 0.0001) {
+      (bkg_density(jnode, 0) = 0.08;
+    }
   }
   // put the new density values back in the state
   bkgState.fromFieldSet(xBfs);
@@ -146,10 +150,12 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgS
   auto bkg_snow_den = atlas::array::make_view<double, 2>(xBfs["snowDensity"]);
   auto bkg_snd = atlas::array::make_view<double, 2>(xBfs["totalSnowDepth"]);
   auto bkg_scf = atlas::array::make_view<double, 2>(xBfs["surface_snow_area_fraction"]);
+  auto bkg_landfrac = atlas::array::make_view<double, 2>(xBfs["fraction_of_land"]);
   // now compute snow cover fraction
   for (atlas::idx_t jnode = 0; jnode < xBfs["totalSnowDepth"].shape(0); ++jnode) {
     int vetfcs = static_cast<int>(bkg_vtype(jnode, 0));
-    if (vetfcs > 0) {
+    // if landcover fraction > 50%, but not land ice
+    if (bkg_landfrac(jnode, 0) > 0.5 && vetfcs != vtype_landice) {
       if (bkg_snd(jnode, 0) > 0.0f) {
         // snow is present, compute snow cover fraction
         float snowh = bkg_snd(jnode, 0)*0.001f;  // convert mm to m
@@ -660,6 +666,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
   // Get the vegetation type field from the state
   auto bkg_vtype = atlas::array::make_view<double, 2>(xBfs["vtype"]);
   auto bkg_snow_den = atlas::array::make_view<double, 2>(xBfs["snowDensity"]);
+  auto bkg_landfrac = atlas::array::make_view<double, 2>(xBfs["fraction_of_land"]);
   const auto bkg_idx =
       atlas::array::make_view<atlas::gidx_t, 1>(geom.functionSpace().global_index());
   std::vector<int> indices = geom.get_indices();
@@ -670,10 +677,10 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
       size_t local_j = fv3_j - (indices[2] - 1);
       size_t local_i = fv3_i - (indices[0] - 1);
       atlas::idx_t jnode = ((local_j)*(npx) + (local_i + 1)) - 1;
+      // if we have IMS data at this point
       if (abs(this->scfIMS[fv3_j][fv3_i] - nodata_float) > nodata_tol) {
-        // if we have IMS data at this point
-        if (bkg_vtype(jnode, 0) > 0) {
-          // if the model has land at this point
+        // if the model landcover fraction > 50%, but not land ice
+        if (bkg_landfrac(jnode, 0) > 0.5 && bkg_vtype(jnode, 0) != vtype_landice) {
           if (this->scfIMS[fv3_j][fv3_i] < 0.5f) {
             // if the IMS SCF is less than 0.5, set snow depth to 0
             this->sndIMS[fv3_j][fv3_i] = 0.0f;
