@@ -127,7 +127,7 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState,
     }
     // where (density < 0.0001) density = 0.08
     if (bkg_density(jnode, 0) < 0.0001) {
-      (bkg_density(jnode, 0) = 0.08;
+      bkg_density(jnode, 0) = 0.08;
     }
   }
   // put the new density values back in the state
