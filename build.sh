@@ -137,14 +137,6 @@ CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
 # Set CMAKE_INSTALL_LIBDIR as CMake option
 CMAKE_OPTS+=" -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}"
 
-# JCSDA changed test data things, need to make a dummy CRTM directory
-# if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
-# if [ -d "$dir_root/bundle/test-data-release/" ]; then rm -rf $dir_root/bundle/test-data-release/; fi
-# mkdir -p $dir_root/bundle/fix/test-data-release/
-# mkdir -p $dir_root/bundle/test-data-release/
-# ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
-# ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
-
 # Configure
 echo "Configuring ... `date`"
 set -x
