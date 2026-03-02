@@ -1,11 +1,12 @@
 #!/bin/bash
 # Move test output files (*.test.out) to the test references directory,
 # renaming the suffix from .test.out to .ref.
+set -x
 
 # Resolve paths relative to this script's location
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC_DIR="${SCRIPT_DIR}/../build/gdas/test/testoutput"
-DEST_DIR="${SCRIPT_DIR}/../test/testreference"
+DEST_DIR="${SCRIPT_DIR}/../test/testreferences"
 
 if [[ ! -d "${SRC_DIR}" ]]; then
   echo "ERROR: Source directory does not exist: ${SRC_DIR}"
@@ -35,7 +36,7 @@ for file in "${SRC_DIR}"/*.test.out; do
     echo "NEW:      ${basename}.ref"
   fi
 
-  cp "${file}" "${dest_file}"
+  mv "${file}" "${dest_file}"
   file_count=$((file_count + 1))
 done
 

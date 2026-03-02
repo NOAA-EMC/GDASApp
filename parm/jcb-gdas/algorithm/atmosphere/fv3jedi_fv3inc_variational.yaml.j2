@@ -140,3 +140,20 @@ members:
       graupel: grle_inc
       air_pressure_thickness: delp_inc
       layer_thickness: delz_inc
+# Optionally test the application
+{% if do_testing | default(false) %}
+test:
+  reference filename: {{test_reference_filename}}
+{% if test_output_filename is defined %}
+  test output filename: {{test_output_filename}}
+{% endif %}
+{% if log_output_filename is defined %}
+  log output filename: {{log_output_filename}}
+{% endif %}
+{% if mpi_pattern is defined %}
+  mpi pattern: {{mpi_pattern}}
+{% endif %}
+  float relative tolerance: {{test_float_relative_tolerance | default(1.0e-6, true)}}
+  float absolute tolerance: {{test_float_absolute_tolerance | default(0.0, true) }}
+  integer tolerance: {{test_integer_tolerance | default(0, true) }}
+{% endif %}
