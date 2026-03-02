@@ -85,21 +85,17 @@ load("py-pip/23.1.2")
 load("py-click/8.1.7")
 load("py-wheel/0.41.2")
 
--- setenv("CC","mpicc")
--- setenv("CXX","mpicxx")
--- setenv("FC","mpifort")
--- setenv("I_MPI_CC", "cc")
--- setenv("I_MPI_CXX", "cxx")
--- setenv("I_MPI_F90", "fort")
+setenv("CC","cc")
+setenv("CXX","CC")
+setenv("FC","ftn")
+setenv("I_MPI_CC", "icx")
+setenv("I_MPI_CXX", "icpx")
+setenv("I_MPI_F90", "ifort")
 
 local mpiexec = 'mpiexec'
 local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
-
--- setenv("CRTM_FIX","/scratch3/NCEPDEV/da/role.jedipara/GDASApp/fix/crtm/2.4.0")
--- setenv("GDASAPP_TESTDATA","/scratch3/NCEPDEV/da/role.jedipara/GDASApp/testdata")
--- setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/scratch3/NCEPDEV/da/role.jedipara/GDASApp/unittestdata")
 
 whatis("Name: ".. pkgName)
 whatis("Version: ".. tostring(pkgVersion))
