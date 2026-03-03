@@ -1,0 +1,99 @@
+# background geometry:
+state geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ soil_layout_x }}
+  - {{ soil_layout_y }}
+  npx: {{ soil_npx_ges }}
+  npy: {{ soil_npy_ges }}
+  npz: {{ soil_npz_ges }}
+#  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+# jedi/fv3 increment geometry:
+increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ soil_layout_x }}
+  - {{ soil_layout_y }}
+  npx: {{ soil_npx_anl }}
+  npy: {{ soil_npy_anl }}
+  npz: {{ soil_npz_anl }}
+#  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
+members from template:
+  template:
+    background input:
+      state variables: &state_vars
+      - soilMoistureVolumetric
+      - stc
+      - totalSnowDepth
+      - sheleg
+      - vtype
+      - slmsk
+      - filtered_orography
+      - fraction_of_ice
+      - fraction_of_land
+      - air_temperature
+      - air_pressure_at_surface
+      - water_vapor_mixing_ratio_wrt_moist_air
+      - skin_temperature_at_surface
+      - layer_thickness
+      - air_pressure_thickness
+      - stype
+      - vfrac
+      field io names: &field_io_names
+        air_temperature: tmp
+        layer_thickness: delz
+        air_pressure_thickness: dpres
+        air_pressure_at_surface: pressfc
+        water_vapor_mixing_ratio_wrt_moist_air: spfh
+        skin_temperature_at_surface: tmpsfc
+        stype: sotyp
+        vfrac: veg
+        soilMoistureVolumetric: smc
+        totalSnowDepth: snodl
+        filtered_orography: orog_filt
+        fraction_of_ice: fice
+        fraction_of_land: land_frac
+      datapath: {{ soil_background_ensemble_path }}
+      datetime: '{{ soil_background_time_iso }}'
+      filetype: fms restart
+      skip coupler file: true
+      filename is datetime templated: true
+      filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
+      filename_cplr: '{{ soil_background_time_fv3 }}.coupler.res'
+      filename_orog: '{{ soil_orog_prefix }}_oro_data.nc'
+      max allowable geometry difference: 1e-4
+    increment:
+      added variables:
+      - stc
+      - air_temperature
+      field io names:
+        air_temperature: tmp
+      datapath: {{ soil_analysis_ensemble_path }}
+      datetime: '{{ soil_background_time_iso }}'
+      filetype: fms restart
+      skip coupler file: true
+      filename is datetime templated: true
+      prefix: soil_inc
+      filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
+    output:
+      state variables: *state_vars
+#      - stc
+#      - air_temperature
+      field io names: *field_io_names
+#        air_temperature: tmp
+      datapath: {{ soil_analysis_ensemble_path }}
+      datetime: '{{ soil_background_time_iso }}'
+      filetype: fms restart
+      skip coupler file: true
+      filename is datetime templated: true
+      prefix: soil_anl
+      filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
+  pattern: "{{ soil_ensemble_pattern | default("%mem%", true) }}"
+  nmembers: {{ soil_number_ensemble_members }}
+  zero padding: 3

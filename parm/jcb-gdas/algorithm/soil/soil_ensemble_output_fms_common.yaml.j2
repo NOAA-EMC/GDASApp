@@ -1,0 +1,36 @@
+datapath: ./anl/mem%{member}%
+filetype: fms restart
+filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
+filename_cplr: '{{ soil_background_time_fv3 }}.coupler.res'
+state variables:
+- soilMoistureVolumetric
+- stc
+- totalSnowDepth
+- sheleg
+- vtype
+- slmsk
+- filtered_orography
+- fraction_of_ice
+- fraction_of_land
+- air_temperature
+- air_pressure_at_surface
+- water_vapor_mixing_ratio_wrt_moist_air
+- skin_temperature_at_surface
+- layer_thickness
+- air_pressure_thickness
+- stype
+- vfrac
+field io names:
+  air_temperature: tmp
+  layer_thickness: delz
+  air_pressure_thickness: dpres
+  air_pressure_at_surface: pressfc
+  water_vapor_mixing_ratio_wrt_moist_air: spfh
+  skin_temperature_at_surface: tmpsfc
+  stype: sotyp
+  vfrac: veg
+  soilMoistureVolumetric: smc
+  totalSnowDepth: snodl
+  filtered_orography: orog_filt
+  fraction_of_ice: fice
+  fraction_of_land: land_frac
