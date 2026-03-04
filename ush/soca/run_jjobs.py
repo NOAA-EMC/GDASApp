@@ -158,8 +158,8 @@ class JobCard:
             if jjob in ENVS:
                 self.f.write(f"module load {ENVS[jjob].upper()}/{self.machine} \n")
 
-    def precom(self, com):
-        cmd = f"declare -rx {com}={self.rotdir}/{self.RUN}.{self.gPDY}/{self.gcyc}/model/ocean/history"
+    def precom(self, com, path):
+        cmd = f"declare -rx {com}={self.rotdir}/{self.RUN}.{self.gPDY}/{self.gcyc}/{path}"
         self.f.write(f"{cmd}\n")
 
     def copy_bkgs(self):
@@ -175,9 +175,9 @@ class JobCard:
         # setup COM variables
         self.f.write("source ${HOMEgfs}/dev/parm/config/gfs/config.com\n")
         self.f.write("source ${HOMEgfs}/ush/preamble.sh\n")
-        self.precom('COM_OCEAN_HISTORY_PREV')
-        self.precom('COM_ICE_HISTORY_PREV')
-        self.precom('COM_ICE_RESTART_PREV')
+        self.precom('COM_OCEAN_HISTORY_PREV', 'model/ocean/history')
+        self.precom('COM_ICE_HISTORY_PREV', 'model/ice/history')
+        self.precom('COM_ICE_RESTART_PREV', 'model/ice/restart')
 
         self.f.write("mkdir -p ${COM_OCEAN_HISTORY_PREV}/\n")
         self.f.write("mkdir -p ${COM_ICE_HISTORY_PREV}/\n")
