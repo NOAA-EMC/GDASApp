@@ -16,8 +16,8 @@
         missing file action: "warn"
       obsgrouping:
         group variables: ["stationIdentification"]
-        sort variable: "pressure"
-        sort order: "descending"
+#        sort variable: "pressure"
+#        sort order: "descending"
     obsdataout:
       write multiple files: {{write_multiple_files | default(false) }}
       engine:
@@ -27,19 +27,21 @@
     io pool:
       max pool size: {{ max_pool_size | default(1) }}
     observed variables: [airTemperature]
+#    simulated variables: [air_temperature_at_2m]  
     simulated variables: [airTemperature]
 
   obs operator:
-      name: VertInterp
-      vertical coordinate: air_pressure
-      observation vertical coordinate: pressure
-      observation vertical coordinate group: MetaData
-      interpolation method: log-linear
-      variables:
-      - name: airTemperature
+      name: Identity
+#      name: VertInterp
+#      vertical coordinate: air_pressure
+#      observation vertical coordinate: pressure
+#      observation vertical coordinate group: MetaData
+#      interpolation method: log-linear
+#      variables:
+#      - name: airTemperature
 
-  linear obs operator:
-    name: VertInterp
+#  linear obs operator:
+#    name: VertInterp
 
   # localization TODO: generalize this condioned on da algo
   # ------------
@@ -120,25 +122,27 @@
       filter variables:
       - name: airTemperature
       min_spacing: PT90M
+#      min_spacing: '{{ window_length }}'
       tolerance: PT0H
       seed_time: "{{soil_background_time_iso}}"
       category_variable:
-        name: MetaData/longitude_latitude_pressure
+        name: MetaData/stationIdentification
+#MetaData/longitude_latitude_pressure
       where:
       - variable: ObsType/airTemperature
         is_in: 181
       action:
         name: reduce obs space
 
-    # Online regional domain check
-    - filter: Bounds Check
-      udescriptor: "online_domain_check"
-      filter variables:
-      - name: airTemperature
-      test variables:
-      - name:  GeoVaLs/observable_domain_mask
-      minvalue: 0.0
-      maxvalue: 0.5
+#    # Online regional domain check
+#    - filter: Bounds Check
+#      udescriptor: "online_domain_check"
+#      filter variables:
+#      - name: airTemperature
+#      test variables:
+#      - name:  GeoVaLs/observable_domain_mask
+#      minvalue: 0.0
+#      maxvalue: 0.5
 
     # Initial error assignment
     - filter: Perform Action
