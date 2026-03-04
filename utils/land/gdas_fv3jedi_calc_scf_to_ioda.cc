@@ -123,11 +123,11 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_density(fv3jedi::State & bkgState,
       // hedstrom nr and jw pomeroy (1998), hydrol. processes, 12, 1611-1625
       double tmp_density = 67.92 + 51.25 * std::exp((bkg_stc(jnode, 0)- 273.15) / 2.59);
       bkg_density(jnode, 0) =
-        std::max(80.0, std::min(120.0, tmp_density)) / 1000.0;
+        std::max(50.0, std::min(120.0, tmp_density)) / 1000.0;
     }
-    // where (density < 0.0001) density = 0.08
-    if (bkg_density(jnode, 0) < 0.0001) {
-      bkg_density(jnode, 0) = 0.08;
+    // where (density < 0.05) density = 0.05
+    if (bkg_density(jnode, 0) < 0.05) {
+      bkg_density(jnode, 0) = 0.05;
     }
   }
   // put the new density values back in the state
