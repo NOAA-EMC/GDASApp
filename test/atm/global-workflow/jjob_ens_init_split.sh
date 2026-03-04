@@ -56,10 +56,8 @@ gprefix=$GDUMP.t${gcyc}z
 oprefix=$GDUMP.t${cyc}z
 
 # Generate COM variables from templates
-RUN=${GDUMP} YMD=${PDY} HH=${cyc} declare_from_tmpl -rx \
-   COMIN_OBS:COM_OBS_TMPL
-RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
-   COMIN_ATMOS_ANALYSIS_PREV:COM_ATMOS_ANALYSIS_TMPL \
+declare -rx COMIN_OBS="${ROTDIR}/${GDUMP}.${PDY}/${cyc}/obs"
+declare -rx COMIN_ATMOS_ANALYSIS_PREV="${ROTDIR}/${GDUMP}.${gPDY}/${gcyc}/analysis/atmos"
 
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
@@ -86,8 +84,7 @@ dpath=enkfgdas.$gPDY/$gcyc
 for imem in $(seq 1 $NMEM_ENS); do
     memchar="mem"$(printf %03i $imem)
 
-    MEMDIR=${memchar} RUN=${RUN} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -x \
-	COMIN_ATMOS_HISTORY_PREV_ENS:COM_ATMOS_HISTORY_TMPL
+    declare -x COMIN_ATMOS_HISTORY_PREV_ENS="${ROTDIR}/${RUN}.${gPDY}/${gcyc}/${memchar}/model/atmos/history"    
 
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
     target=$COMIN_ATMOS_HISTORY_PREV_ENS
