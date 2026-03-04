@@ -17,7 +17,7 @@ gcyc=${GDATE:8:2}
 
 ABIAS=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.abias.txt
 ABIASPC=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.abias_pc.txt
-ABIAS_JEDI=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.rad_varbc_params.tar
+ABIAS_JEDI_TAR=${COMOUT_ATMOS_ANALYSIS_PREV}/${GDUMP}.t${gcyc}z.varbc_params.tar
 
 satbias2ioda_x=${HOMEgfs}/sorc/gdas.cd/build/bin/satbias2ioda.x
 satbias2ioda_y=${HOMEgfs}/sorc/gdas.cd/ush/satbias_converter.yaml.tmpl
@@ -61,8 +61,8 @@ for instrument in $(echo $obsclass); do
     cd ./testrun/varbc/
     grep ${instrument}  ../../satbias_in  | awk '{print $2" "$3" "$4}' > \
           ${locdir}/gdas.t${gcyc}z.radiance_${instrument}.tlapse.txt
-    /bin/cp -p satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}z.radiance_${instrument}.satbias.nc
-    /bin/mv  satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}z.radiance_${instrument}.satbias_cov.nc
+    /bin/cp -p satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}z.radiance_${instrument}.bias.nc
+    /bin/mv  satbias_${instrument}.nc4  ${locdir}/gdas.t${gcyc}z.radiance_${instrument}.bias_cov.nc
     
     cd  ${locdir}
     /bin/rm -f satbias_converter.yaml
@@ -73,13 +73,13 @@ done
 
 # Create tarball with JEDI format radiance bias correction files
 cd ${locdir}
-if [[ -s ${ABIAS_JEDI} ]]; then
-    rm -f ${ABIAS_JEDI}
+if [[ -s ${ABIAS_JEDI_TAR} ]]; then
+    rm -f ${ABIAS_JEDI_TAR}
 fi
-tar -cvf ${ABIAS_JEDI} ./
+tar -cvf ${ABIAS_JEDI_TAR} ./
 export err=$?
 if [[ ${err} -ne 0 ]]; then
-    err_exit "Creation of $ABIAS_JEDI failed, ABORT!"
+    err_exit "Creation of ${ABIAS_JEDI_TAR} failed, ABORT!"
 fi
 
 
