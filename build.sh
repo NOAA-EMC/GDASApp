@@ -78,7 +78,7 @@ while getopts "w:t:c:hvdfai" opt; do
 done
 
 case ${BUILD_TARGET} in
-  hera | orion | hercules | wcoss2 | noaacloud | gaeac6 | ursa )
+  hera | orion | hercules | wcoss2 | noaacloud | gaeac6 | ursa | derecho | container )
     echo "Building GDASApp on $BUILD_TARGET"
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
@@ -137,6 +137,8 @@ CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
 # Set CMAKE_INSTALL_LIBDIR as CMake option
 CMAKE_OPTS+=" -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}"
 
+# TODO: allow CRTM paths to come from the modules on machines other than derecho, and container
+if [[ "${BUILD_TARGET}" != "derecho" && "${BUILD_TARGET}" != "container" ]]; then
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
 if [ -d "$dir_root/bundle/test-data-release/" ]; then rm -rf $dir_root/bundle/test-data-release/; fi
@@ -144,6 +146,7 @@ mkdir -p $dir_root/bundle/fix/test-data-release/
 mkdir -p $dir_root/bundle/test-data-release/
 ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
 ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
+fi
 
 # Configure
 echo "Configuring ... `date`"

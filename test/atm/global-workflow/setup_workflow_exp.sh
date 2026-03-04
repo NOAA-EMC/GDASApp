@@ -67,9 +67,9 @@ echo " "
 echo "$expdir/../config.yaml is"
 cat $expdir/../config.yaml
 
-# config.base contains with lobsdiag_forenkf=.true.  Create config.base with lobsdiag_forenkf=.false. for jjob_ens_letkf.sh
+# config.base contains with DO_JEDIATMENS_SPLIT_OBSSOL="YES"  Create config.base with DO_JEDIATMENS_SPLIT_OBSSOL="NO" for jjob_ens_letkf.sh
 EXPDIR=$expdir/$pslot
-cp $EXPDIR/config.base $EXPDIR/config.base_lobsdiag_forenkf_true
-sed 's/export lobsdiag_forenkf=".true."/export lobsdiag_forenkf=".false."/' $EXPDIR/config.base > $EXPDIR/config.base_lobsdiag_forenkf_false
+cp $EXPDIR/config.base $EXPDIR/config.base_split_obssol_true
+sed 's/export DO_JEDIATMENS_SPLIT_OBSSOL="YES"/export DO_JEDIATMENS_SPLIT_OBSSOL="NO"/' $EXPDIR/config.base > $EXPDIR/config.base_split_obssol_false
 
 exit $?
