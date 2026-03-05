@@ -25,20 +25,20 @@ export YAMLout=$DATA/3dvar_gfs_aero.yaml
 rm -rf $DATA
 mkdir -p $DATA
 
-# Set g-w HOMEgfs
+# Set g-w HOMEglobal
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
-export HOMEgfs=$topdir
+export HOMEglobal=$topdir
 
 # Detect machine
-source "${HOMEgfs}/ush/detect_machine.sh"
+source "${HOMEglobal}/ush/detect_machine.sh"
 
-# Set up the PYTHONPATH to include wxflow from HOMEgfs
-if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
-  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+# Set up the PYTHONPATH to include wxflow from HOMEglobal
+if [[ -d "${HOMEglobal}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEglobal}/sorc/wxflow/src"
 fi
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEgfs}/ush/python"
+wxflowPATH="${HOMEglobal}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
