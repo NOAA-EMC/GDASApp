@@ -4,8 +4,8 @@ stage:
   copy_opt:
     - ['{{ COMIN_OBS }}/{{ OPREFIX }}snocvr.tm00.bufr_d', '{{ DATA }}']
     - ['{{ COMIN_OBS }}/{{ OPREFIX }}snomad.tm00.bufr_d', '{{ DATA }}']
-    - ['{{ PARMgfs }}/gdas/snow/obs/config/bufr_snocvr_mapping.yaml', '{{ DATA }}']
-    - ['{{ PARMgfs }}/gdas/snow/obs/config/bufr_snomad_mapping.yaml', '{{ DATA }}']
+    - ['{{ PARMglobal }}/gdas/snow/obs/config/bufr_snocvr_mapping.yaml', '{{ DATA }}']
+    - ['{{ PARMglobal }}/gdas/snow/obs/config/bufr_snomad_mapping.yaml', '{{ DATA }}']
 netcdf:
   copy_opt:
     - ['{{ DATA }}/{{ OPREFIX }}snocvr_snomad.tm00.nc', '{{ snow_prepobs_path }}/{{ OPREFIX }}snocvr_snomad.tm00.nc']

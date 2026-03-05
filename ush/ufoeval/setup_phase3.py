@@ -29,7 +29,7 @@ class SlurmJobCard:
         self.appexe = config['app files']['APPEXE']
 
         self.machine = config['machine']
-        self.homegfs = config['directories']['HOMEgfs']
+        self.homegfs = config['directories']['HOMEglobal']
         self.rundir = os.path.join(config['directories']['RUNDIR'], self.appcore + '_' + self.apptype)
         if self.appcore == 'jedi':
             self.incexe = config['app files']['INCEXE']
@@ -61,7 +61,7 @@ class SlurmJobCard:
         """
         self.f.write("\n")
         self.f.write("# Load modules\n")
-        self.f.write(f"export HOMEgfs={self.homegfs}\n")
+        self.f.write(f"export HOMEglobal={self.homegfs}\n")
         self.f.write(f"source {self.homegfs}/ush/preamble.sh\n")
         if self.appcore == 'gsi':
             self.f.write(f". {self.homegfs}/ush/load_fv3gfs_modules.sh\n")
