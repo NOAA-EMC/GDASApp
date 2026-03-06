@@ -1,18 +1,18 @@
 jedi_config:
     atmanlvar:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_ATMANLVAR }}'
         jedi_args: ['fv3jedi', 'variational']
         jcb_algo: '3dvar'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
     atmanlfv3inc:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_fv3inc.x'
+        exe_src: '{{ EXECglobal }}/gdas_fv3jedi_fv3inc.x'
         mpi_cmd: '{{ APRUN_ATMANLFV3INC }}'
         jcb_algo: 'fv3jedi_fv3inc_variational'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
 
 data_in:
     mkdir:
