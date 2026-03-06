@@ -56,11 +56,9 @@ gprefix=$GDUMP.t${gcyc}z
 oprefix=$CDUMP.t${cyc}z
 
 # Generate COM variables from templates
-YMD=${PDY} HH=${cyc} declare_from_tmpl -rx \
-   COMIN_OBS:COM_OBS_TMPL
-RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
-    COMIN_ATMOS_ANALYSIS_PREV:COM_ATMOS_ANALYSIS_TMPL \
-    COMIN_ATMOS_HISTORY_PREV:COM_ATMOS_HISTORY_TMPL
+declare -rx COMIN_OBS="${ROTDIR}/${RUN}.${PDY}/${cyc}/obs"
+declare -rx COMIN_ATMOS_ANALYSIS_PREV="${ROTDIR}/${GDUMP}.${gPDY}/${gcyc}/analysis/atmos"
+declare -rx COMIN_ATMOS_HISTORY_PREV="${ROTDIR}/${GDUMP}.${gPDY}/${gcyc}/model/atmos/history"
 
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
@@ -73,7 +71,7 @@ done
 # Link radiance bias correction tarball
 dpath=gdas.$gPDY/$gcyc/analysis/atmos
 mkdir -p $COMIN_ATMOS_ANALYSIS_PREV
-flist="rad_varbc_params.tar"
+flist="varbc_params.tar"
 for file in $flist; do
    ln -fs $GDASAPP_TESTDATA/lowres/$dpath/$gprefix.${file} $COMIN_ATMOS_ANALYSIS_PREV/$gprefix.${file}
 done
@@ -97,9 +95,8 @@ dpath=enkfgdas.$gPDY/$gcyc
 for imem in $(seq 1 $NMEM_ENS); do
     memchar="mem"$(printf %03i $imem)
 
-    MEMDIR=${memchar} RUN=enkf${RUN} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -x \
-	COMIN_ATMOS_HISTORY_PREV_ENS:COM_ATMOS_HISTORY_TMPL
-
+    declare -x COMIN_ATMOS_HISTORY_PREV_ENS="${ROTDIR}/enkf${GDUMP}.${gPDY}/${gcyc}/${memchar}/model/atmos/history"
+    
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
     target=$COMIN_ATMOS_HISTORY_PREV_ENS
     mkdir -p $target
