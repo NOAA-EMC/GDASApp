@@ -14,7 +14,7 @@ fi
 
 mkdir -p "${DEST_DIR}"
 
-# Move each .test.out file, stripping the suffix and replacing it with .ref
+# Copy each .test.out file, stripping the suffix and replacing it with .ref
 file_count=0
 skip_count=0
 for file in "${SRC_DIR}"/*.test.out; do
