@@ -23,4 +23,5 @@ Refs NOAA-EMC/repo#5678
 - [ ] C48mx500_3DVarAOWCDA <!-- JEDI low-res marine 3DVar cycled DA  !-->
 - [ ] C48mx500_hybAOWCDA <!-- JEDI marine hybrid envar cycled DA !-->
 - [ ] C96C48_ufsgsi_hybatmDA <!-- JEDI atm Var with GSI EnKF cycled DA !-->
+- [ ] C48_ufsenkf_atmDA <!-- JEDI atm EnKF cycled DA !-->
 - [ ] C96C48_hybatmDA <!-- GSI atm cycled DA !-->
