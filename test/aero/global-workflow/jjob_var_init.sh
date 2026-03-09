@@ -54,11 +54,8 @@ gprefix=$GDUMP.t${gcyc}z
 oprefix=$CDUMP.t${cyc}z
 
 # Generate COM variables from templates
-YMD=${PDY} HH=${cyc} declare_from_tmpl -rx \
-    COMIN_OBS:COM_OBS_TMPL
-
-RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
-    COMIN_ATMOS_RESTART_PREV:COM_ATMOS_RESTART_TMPL
+declare -rx COMIN_OBS="${ROTDIR}/${RUN}.${PDY}/${cyc}/obs"
+declare -rx COMIN_ATMOS_RESTART_PREV="${ROTDIR}/${GDUMP}.${gPDY}/${gcyc}/model/atmos/restart"
 
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
