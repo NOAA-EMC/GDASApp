@@ -7,12 +7,14 @@ jedi_config:
         jcb_algo: '3dvar'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
+        app_test_yaml: '{{ VAR_JEDI_TEST_YAML }}'
     atmanlfv3inc:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECglobal }}/gdas_fv3jedi_fv3inc.x'
         mpi_cmd: '{{ APRUN_ATMANLFV3INC }}'
         jcb_algo: 'fv3jedi_fv3inc_variational'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
+        app_test_yaml: '{{ FV3INC_JEDI_TEST_YAML }}'
 
 data_in:
     mkdir:
