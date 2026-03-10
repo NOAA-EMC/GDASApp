@@ -7,6 +7,7 @@ jedi_config:
         jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMglobal }}/gdas/atm/jcb-prototype_lgetkf_observer.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
+        app_test_yaml: '{{ OBS_JEDI_TEST_YAML }}'
     atmensanlsol:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECglobal }}/gdas.x'
@@ -15,12 +16,14 @@ jedi_config:
         jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMglobal }}/gdas/atm/jcb-prototype_lgetkf_solver.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
+        app_test_yaml: '{{ SOL_JEDI_TEST_YAML }}'
     atmensanlfv3inc:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECglobal }}/gdas_fv3jedi_fv3inc.x'
         mpi_cmd: '{{ APRUN_ATMENSANLFV3INC }}'
         jcb_algo: 'fv3jedi_fv3inc_lgetkf'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
+        app_test_yaml: '{{ FV3INC_JEDI_TEST_YAML }}'
     atmensanlletkf:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECglobal }}/gdas.x'
@@ -29,6 +32,7 @@ jedi_config:
         jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMglobal }}/gdas/atm/jcb-prototype_lgetkf.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
+        app_test_yaml: '{{ LETKF_JEDI_TEST_YAML }}'
 
 data_in:
     mkdir:
