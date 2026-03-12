@@ -138,7 +138,6 @@ CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
 CMAKE_OPTS+=" -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}"
 
 # TODO: allow CRTM paths to come from the modules on machines other than derecho, and container
-if [[ "${BUILD_TARGET}" != "derecho" && "${BUILD_TARGET}" != "container" ]]; then
 # JCSDA changed test data things, need to make a dummy CRTM directory
 if [[ "${BUILD_TARGET}" != "derecho" && "${BUILD_TARGET}" != "container" && "${BUILD_TARGET}" != "aws-ec2" ]]; then
 if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
