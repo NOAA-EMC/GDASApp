@@ -1,22 +1,22 @@
 jedi_config:
     aero_interpbkg:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         jedi_args: ['fv3jedi', 'convertstate']
         mpi_cmd: '{{ APRUN_AEROANLGENB }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/aero/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/aero/jcb-base.yaml.j2'
         jcb_algo: aero_convert_background
     aero_diagb:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_chem_diagb.x'
+        exe_src: '{{ EXECglobal }}/gdas_fv3jedi_chem_diagb.x'
         mpi_cmd: '{{ APRUN_AEROANLGENB }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/aero/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/aero/jcb-base.yaml.j2'
         jcb_algo: aero_gen_bmatrix_diagb
     aero_diffusion:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_error_covariance_toolbox.x'
+        exe_src: '{{ EXECglobal }}/gdas_fv3jedi_error_covariance_toolbox.x'
         mpi_cmd: '{{ APRUN_AEROANLGENB }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/aero/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/aero/jcb-base.yaml.j2'
         jcb_algo: aero_gen_bmatrix_diffusion
 
 data_in:
@@ -28,7 +28,7 @@ data_in:
     - '{{ DATA }}/rescale'
     - '{{ DATA }}/fv3jedi'
 
-    copy:
+    copy_req:
     - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/']
 
     - ['{{ COMIN_ATMOS_RESTART }}/{{ next_cycle | to_fv3time }}.fv_core.res.tile1.nc', '{{ DATA }}/bkg/']
@@ -82,7 +82,7 @@ data_in:
 {% endfilter %}
 
 data_out:
-    copy:
+    copy_req:
 ### copy YAMLs used
     - ['{{ DATA }}/aero_interpbkg.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}aero_interpbkg.yaml']
     - ['{{ DATA }}/aero_diagb.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}aero_diagb.yaml']

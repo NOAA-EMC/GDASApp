@@ -39,7 +39,7 @@ layer_file = os.path.join(comout, f'{RUN}.t'+cyc+'z.ocninc.nc')
 
 # for eva
 diagdir = os.path.join(comout, 'diags')
-HOMEgfs = os.getenv('HOMEgfs')
+HOMEglobal = os.getenv('HOMEglobal')
 
 
 # plot marine analysis vrfy
@@ -177,7 +177,7 @@ for process in processes:
 # eva plots
 #######################################
 
-evadir = os.path.join(HOMEgfs, 'sorc', f'{RUN}.cd', 'ush', 'eva')
+evadir = os.path.join(HOMEglobal, 'sorc', f'{RUN}.cd', 'ush', 'eva')
 marinetemplate = os.path.join(evadir, 'marine_gdas_plots.yaml')
 varyaml = os.path.join(comout, 'yaml', 'var_original.yaml')
 

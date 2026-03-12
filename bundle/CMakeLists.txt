@@ -87,7 +87,9 @@ if(BUILD_GDASBUNDLE)
   endif()
 
 # Gibbs seawater
-  ecbuild_bundle( PROJECT gsw SOURCE "../sorc/gsw" )
+  if (BUILD_SOCA)
+    ecbuild_bundle( PROJECT gsw SOURCE "../sorc/gsw" )
+  endif()
 
 # EMC BUFR-query library
   ecbuild_bundle( PROJECT bufr-query SOURCE "../sorc/bufr-query" )
@@ -107,7 +109,10 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
 
 # SOCA associated repositories
-  ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
+  option(BUILD_SOCA "Build SOCA" ON)
+  if (BUILD_SOCA)
+    ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
+  endif()
 
   # Build JEDI/DA or other peripherals
   ecbuild_bundle( PROJECT gdas-utils SOURCE "../utils" )
@@ -119,7 +124,6 @@ if(BUILD_GDASBUNDLE)
   endif()
 
 # Land associated repositories
-  ecbuild_bundle( PROJECT land-imsproc SOURCE "../sorc/land-imsproc" )
   ecbuild_bundle( PROJECT land-jediincr SOURCE "../sorc/land-jediincr" )
 
 # GDASApp
@@ -128,7 +132,7 @@ if(BUILD_GDASBUNDLE)
 # Install jcb (JEDI Configuration Builder) Python package
   message(STATUS "Installing jcb (JEDI Configuration Builder)")
   execute_process(
-    COMMAND ${Python3_EXECUTABLE} -m pip install --no-deps --prefix ${CMAKE_INSTALL_PREFIX} .
+    COMMAND ${Python3_EXECUTABLE} -m pip install --no-deps --no-build-isolation --prefix ${CMAKE_INSTALL_PREFIX} .
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../sorc/jcb
     RESULT_VARIABLE jcb_install_result
   )

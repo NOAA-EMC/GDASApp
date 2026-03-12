@@ -1,0 +1,55 @@
+geometry:
+  fms initialization:
+    namelist filename: "{{aero_fv3jedi_files_path}}/fmsmpp.nml"
+    field table filename: "{{aero_fv3jedi_files_path}}/field_table"
+  akbk: "{{aero_fv3jedi_files_path}}/akbk.nc4"
+  layout:
+  - {{aero_layout_x}}
+  - {{aero_layout_y}}
+  npx: {{aero_npx_ges}}
+  npy: {{aero_npy_ges}}
+  npz: {{aero_npz_ges}}
+output:
+  state component:
+    datapath: {{ aero_analysis_path }}
+    prefix: aeroinc
+    filetype: fms restart
+    filename_core: '{{ aero_cycle_time_fv3 }}.fv_core.res.nc'
+    filename_trcr: '{{ aero_cycle_time_fv3 }}.fv_tracer.res.nc'
+    filename_cplr: '{{ aero_cycle_time_fv3 }}.coupler.res'
+    state variables:
+    - air_temperature
+    - air_pressure_thickness
+    - water_vapor_mixing_ratio_wrt_moist_air
+    - mass_fraction_of_sulfate_in_air
+    - mass_fraction_of_hydrophobic_black_carbon_in_air
+    - mass_fraction_of_hydrophilic_black_carbon_in_air
+    - mass_fraction_of_hydrophobic_organic_carbon_in_air
+    - mass_fraction_of_hydrophilic_organic_carbon_in_air
+    - mass_fraction_of_dust001_in_air
+    - mass_fraction_of_dust002_in_air
+    - mass_fraction_of_dust003_in_air
+    - mass_fraction_of_dust004_in_air
+    - mass_fraction_of_dust005_in_air
+    - mass_fraction_of_sea_salt001_in_air
+    - mass_fraction_of_sea_salt002_in_air
+    - mass_fraction_of_sea_salt003_in_air
+    - mass_fraction_of_sea_salt004_in_air
+    field io names:
+      air_temperature: T
+      air_pressure_thickness: delp
+      water_vapor_mixing_ratio_wrt_moist_air: sphum
+      mass_fraction_of_dust001_in_air: dust1
+      mass_fraction_of_dust002_in_air: dust2
+      mass_fraction_of_dust003_in_air: dust3
+      mass_fraction_of_dust004_in_air: dust4
+      mass_fraction_of_dust005_in_air: dust5
+      mass_fraction_of_sea_salt001_in_air: seas2
+      mass_fraction_of_sea_salt002_in_air: seas3
+      mass_fraction_of_sea_salt003_in_air: seas4
+      mass_fraction_of_sea_salt004_in_air: seas5
+      mass_fraction_of_hydrophobic_black_carbon_in_air: bc1
+      mass_fraction_of_hydrophilic_black_carbon_in_air: bc2
+      mass_fraction_of_hydrophobic_organic_carbon_in_air: oc1
+      mass_fraction_of_hydrophilic_organic_carbon_in_air: oc2
+      mass_fraction_of_sulfate_in_air: so4

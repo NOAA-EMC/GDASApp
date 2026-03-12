@@ -1,15 +1,15 @@
 jedi_config:
     gridgen:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_soca_gridgen.x'
+        exe_src: '{{ EXECglobal }}/gdas_soca_gridgen.x'
         mpi_cmd: '{{ APRUN_MARINEANLECEN }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_gridgen
     ens_handler:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_soca_anpproc.x'
+        exe_src: '{{ EXECglobal }}/gdas_soca_anpproc.x'
         mpi_cmd: '{{ APRUN_MARINEANLECEN }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_ens_handler
 
 data_in:
@@ -19,7 +19,7 @@ data_in:
     - '{{ DATA }}/anl_geom'
     - '{{ DATA }}/ens'
 
-    link:
+    link_req:
 {% for imem in range(1,NMEM_ENS+1) %}
     - [ "{{ DATA }}/../ensdata/ens/ocean.{{ imem | string }}.nc", '{{ DATA }}/ens/' ]
     - [ "{{ DATA }}/../ensdata/ens/ice.{{ imem | string }}.nc", '{{ DATA }}/ens/' ]

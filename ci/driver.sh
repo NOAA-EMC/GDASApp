@@ -49,6 +49,16 @@ case ${TARGET} in
     module load GDAS/$TARGET
     module list
     ;;
+  gaeac6)
+    source $my_dir/${TARGET}.sh
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+        source /etc/profile
+    fi
+    module reset
+    module use $GDAS_MODULE_USE
+    module load GDAS/$TARGET
+    module list
+    ;;
   *)
     echo "Unsupported platform. Exiting with error."
     exit 1
@@ -194,18 +204,20 @@ for pr in $open_pr_list; do
       ci_checklist=$(echo "$branch_body" | grep -i '\[x\]')
       ctest_regex_exclude=""
 
-      ## TODO - remove logic below when GCAFS ctest run on MSU (Hercules and Orion)
-      if [[ "${TARGET}" = "hercules" || "${TARGET}" = "orion" ]]; then
-        ci_test="C96_gcafs_cycled"
-        ctest_regex_exclude+="${ctest_regex_exclude:+|}$ci_test"
-      fi
-      
       for ci_test in ${CI_TESTS[@]}; do
         if ! echo "$ci_checklist" | grep -q "$ci_test"; then
 	  ctest_regex_exclude+="${ctest_regex_exclude:+|}$ci_test"
 	fi
       done
 
+      #TODO - remove logic that excludes C48_ufsenkf_atmDA on MSU after required data is staged
+      case ${TARGET} in
+        orion | hercules)
+	  ci_test="C48_ufsenkf_atmDA"
+	  ctest_regex_exclude+="${ctest_regex_exclude:+|}$ci_test"
+	  ;;  
+      esac
+      
       # setup run_ci.sh arguments to test in the Global Workflow and exclude chosen CI tests
       run_ci_cmd+=" -w"
       if [ -n "$ctest_regex_exclude" ]; then

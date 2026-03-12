@@ -1,22 +1,23 @@
 jedi_config:
     var:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_MARINEANLVAR }}'
         jedi_args: ['soca', 'variational']
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/marine/jcb-prototype_3dfgat.yaml.j2'
+        jcb_algo: '3dfgat'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
     soca_incpostproc:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_soca_incr_handler.x'
+        exe_src: '{{ EXECglobal }}/gdas_soca_incr_handler.x'
         mpi_cmd: '{{ APRUN_MARINEANLCHKPT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_incpostproc
     soca_diag_stats:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_soca_obsstats.x'
+        exe_src: '{{ EXECglobal }}/gdas_soca_obsstats.x'
         mpi_cmd: '{{ APRUN_MARINEANLOBSSTATS }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_diag_stats
 
 data_in:
@@ -25,8 +26,6 @@ data_in:
     - '{{ DATA }}/INPUT'
     - '{{ DATA }}/anl_geom'
     - '{{ DATA }}/Data'
-    - '{{ DATA }}/obs'
-    - '{{ DATA }}/diags'
 
     copy_req:
     # stage soca grid
@@ -39,7 +38,7 @@ data_in:
 {% endif %}
 
     # stage CICE6 restart
-    - ["{{ COMIN_ICE_RESTART_PREV }}/{{ rst_date }}.cice_model.res.nc", "{{ DATA }}/Data"]  
+    - ["{{ COMIN_ICE_RESTART_PREV }}/{{ rst_date }}.cice_model.res.nc", "{{ DATA }}/Data"]
 
 {% filter indent(width=4) %}
 {% include 'marine_det_stage_bkg.yaml.j2' %}
@@ -47,12 +46,7 @@ data_in:
 {% include 'marine_stage_utilities.yaml.j2' %}
 {% endfilter %}
 
-    copy_opt:
-{% for ob_name in observations %}
-    - ['{{ COMIN_OBS }}/{{ OPREFIX }}{{ ob_name }}.nc', '{{ DATA }}/obs']
-{% endfor %}
-
-    link:
+    link_req:
     - [ "{{ DATA }}/../staticb", "{{ DATA }}/staticb" ]
 
 data_out:
@@ -60,7 +54,7 @@ data_out:
     - '{{ COMOUT_OCEAN_ANALYSIS }}/diags'
     - '{{ COMOUT_OCEAN_ANALYSIS }}/bump'
 
-    copy:
+    copy_req:
     # Ocean IAU increment (intended for MOM6)
     - ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}mom6_increment.i006.nc']
 

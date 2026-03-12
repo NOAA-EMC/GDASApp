@@ -8,6 +8,12 @@
 #
 # Thank you for your contribution
 
+# overwrite MACHINE_ID if in container
+if [[ -v SINGULARITY_CONTAINER ]]; then
+  # We are in a container
+  MACHINE_ID=container
+fi
+
 # If the MACHINE_ID variable is set, skip this script.
 [[ -n ${MACHINE_ID:-} ]] && return
 
@@ -21,9 +27,6 @@ case $(hostname -f) in
   dlogin0[1-9].dogwood.wcoss2.ncep.noaa.gov) MACHINE_ID=wcoss2 ;; ### dogwood01-9
   dlogin10.dogwood.wcoss2.ncep.noaa.gov)     MACHINE_ID=wcoss2 ;; ### dogwood10
 
-  gaea5[1-8])          MACHINE_ID=gaeac5 ;; ### gaea51-58
-  gaea5[1-8].ncrc.gov) MACHINE_ID=gaeac5 ;; ### gaea51-58
-
   gaea6[1-8])          MACHINE_ID=gaeac6 ;; ### gaea61-68
   gaea6[1-8].ncrc.gov) MACHINE_ID=gaeac6 ;; ### gaea61-68
 
@@ -34,6 +37,9 @@ case $(hostname -f) in
   ufe0[1-9]) MACHINE_ID=ursa ;; ### ursa01-09
   ufe1[0-2]) MACHINE_ID=ursa ;; ### ursa10-12
   uecflow01) MACHINE_ID=ursa ;; ### ursaecflow01
+
+  der*) MACHINE_ID=derecho ;; ### derecho[1-8]
+  dec*) MACHINE_ID=derecho ;; ### decxxx computing node
 
   s4-submit.ssec.wisc.edu) MACHINE_ID=s4 ;; ### s4
 
@@ -93,12 +99,12 @@ elif [[ -d /work ]]; then
   else
     MACHINE_ID=orion
   fi
-elif [[ -d /gpfs/f5 ]]; then
-  # We are on GAEAC5.
-  MACHINE_ID=gaeac5
 elif [[ -d /gpfs/f6 ]]; then
   # We are on GAEAC6.
   MACHINE_ID=gaeac6
+elif [[ -d /gpfs/csfs1 ]]; then
+  # We are on NCAR DERECHO.
+  MACHINE_ID=derecho
 elif [[ -d /data/prod ]]; then
   # We are on SSEC's S4
   MACHINE_ID=s4

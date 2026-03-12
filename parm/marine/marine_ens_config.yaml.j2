@@ -1,31 +1,30 @@
 jedi_config:
     gridgen:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_soca_gridgen.x'
+        exe_src: '{{ EXECglobal }}/gdas_soca_gridgen.x'
         mpi_cmd: '{{ APRUN_MARINEANLLETKF }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_gridgen
     letkf:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_MARINEANLLETKF }}'
         jedi_args: ['soca', 'localensembleda']
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/marine/jcb-prototype_letkf.yaml.j2'
+        jcb_algo: 'local_ensemble_da'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
 
 data_in:
     mkdir:
     - '{{ DATA }}/INPUT'
     - '{{ DATA }}/anl_geom'
     - '{{ DATA }}/letkf_output'
-    - '{{ DATA }}/obs'
-    - '{{ DATA }}/diags'
     - '{{ DATAens }}/ens'
 
     copy_req:
     # copy mom input template and det bkg
-    - ['{{ PARMgfs }}/gdas/marine/fms/input.nml', '{{ DATA }}/mom_input.nml.tmpl']
-    - ['{{ PARMgfs }}/gdas/marine/fields_metadata.yaml', '{{ DATA }}/fields_metadata.yaml']
+    - ['{{ PARMglobal }}/gdas/marine/fms/input.nml', '{{ DATA }}/mom_input.nml.tmpl']
+    - ['{{ PARMglobal }}/gdas/marine/fields_metadata.yaml', '{{ DATA }}/fields_metadata.yaml']
     - ['{{ COMIN_OCEAN_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc', '{{ DATA }}/INPUT/MOM.res.nc']
     - ['{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc', '{{ DATA }}/INPUT/cice.res.nc']
 
@@ -33,11 +32,6 @@ data_in:
 {% include 'marine_stage_fix_' ~ OCNRES ~ '.yaml.j2' %}
 {% include 'marine_ens_stage_bkg.yaml.j2' %}
 {% endfilter %}
-
-    copy_opt:
-{% for ob_name in observations %}
-    - ['{{ COMIN_OBS }}/{{ OPREFIX }}{{ ob_name }}.nc', '{{ DATA }}/obs']
-{% endfor %}
 
 data_out:
     mkdir:

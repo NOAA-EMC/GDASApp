@@ -1,15 +1,15 @@
 jedi_config:
     correction_increment:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_correction_increment.x'
+        exe_src: '{{ EXECglobal }}/gdas_fv3jedi_correction_increment.x'
         mpi_cmd: '{{ APRUN_CORRECTION_INCREMENT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
         jcb_algo: fv3jedi_correction_increment
     ensemble_recenter:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_ensemble_add_increment.x'
+        exe_src: '{{ EXECglobal }}/gdas_fv3jedi_ensemble_add_increment.x'
         mpi_cmd: '{{ APRUN_ENSEMBLE_RECENTER }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
         jcb_algo: fv3jedi_ensemble_recenter
 
 data_in:
@@ -19,7 +19,7 @@ data_in:
     - '{{ DATA }}/{{ 'mem%03d' | format(imem) }}'
 {% endfor %}
 
-    copy:
+    copy_req:
 {% for fh in IAUFHRS %}
     - ["{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f{{ '%03d' % fh }}.nc", "{{ DATA }}/{{ GPREFIX }}cubed_sphere_grid_atmf{{ '%03d' % fh }}.nc"]
     - ["{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f{{ '%03d' % fh }}.nc", "{{ DATA }}/{{ GPREFIX }}cubed_sphere_grid_sfcf{{ '%03d' % fh }}.nc"]
@@ -37,7 +37,7 @@ data_in:
                          '${YMD}': current_cycle | to_YMD,
                          '${HH}': current_cycle | strftime('%H'),
                          '${MEMDIR}': 'mem%03d' | format(imem) }) %}
-    - ['{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i{{ '%03d' % fh }}.nc', '{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atmi{{ '%03d' % fh }}.nc']
+    - ['{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_increment.atm.i{{ '%03d' % fh }}.nc', '{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atmi{{ '%03d' % fh }}.nc']
 
 {% endfor %}
 {% endfor %}
@@ -47,7 +47,7 @@ data_in:
 {% endfilter %}
 
 data_out:
-    copy:
+    copy_req:
     - ['{{ DATA }}/correction_increment.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}correction_increment.yaml']
     - ['{{ DATA }}/ensemble_recenter.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}ensemble_recenter.yaml']
 {% for fh in IAUFHRS %}

@@ -1,23 +1,22 @@
 jedi_config:
     aeroanlvar:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_AEROANL }}'
         jedi_args: ['fv3jedi', 'variational']
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/aero/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/aero/jcb-prototype_3dvar.yaml.j2'
+        jcb_algo: '3dfgat'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/aero/jcb-base.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
 
 data_in:
     mkdir:
     - '{{ DATA }}/anl'
-    - '{{ DATA }}/diags'
     - '{{ DATA }}/berror'
     - '{{ DATA }}/bkg'
-    - '{{ DATA }}/obs'
     - '{{ DATA }}/crtm'
     - '{{ DATA }}/fv3jedi'
 
-    copy:
+    copy_req:
 {% for bkg_time in bkg_times %}
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ bkg_time | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/']
 
@@ -79,14 +78,8 @@ data_in:
 {% include 'aero_stage_jedi_fix.yaml.j2' %}
 {% endfilter %}
 
-    copy_opt:
-{% filter indent(width=4) %}
-{% include 'aero_stage_obs.yaml.j2' %}
-{% endfilter %}
-
 data_out:
-
-    copy:
+    copy_req:
 ## copy variational YAML to ROTDIR
     - ['{{ DATA }}/aeroanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}aerovar.yaml']
 ## copy increments

@@ -11,7 +11,7 @@ job options:
   mem: 96Gb
 
 directories:
-  HOMEgfs: /scratch3/NCEPDEV/da/Russ.Treadon/git/global-workflow/test
+  HOMEglobal: /scratch3/NCEPDEV/da/Russ.Treadon/git/global-workflow/test
   STAGEDIR: /scratch3/NCEPDEV/da/Russ.Treadon/STAGEDIR
   RUNDIR: /scratch3/NCEPDEV/stmp2/Russ.Treadon/RUNDIRS
 

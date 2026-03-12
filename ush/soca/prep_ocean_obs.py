@@ -89,7 +89,7 @@ class PrepOceanObs(Task):
         run_date = self.task_config['PDY'].strftime('%Y%m%d')
         cycle = str(self.task_config['cyc']).zfill(2)  # ensures '00', '06', etc.
         run = self.task_config['RUN']
-        PARMgfs = self.task_config['PARMgfs']
+        PARMglobal = self.task_config['PARMglobal']
 
         # Ensure output directory exists
         os.makedirs(comout_obs, exist_ok=True)
@@ -122,7 +122,7 @@ class PrepOceanObs(Task):
             dummy_source = "sst_avhrr_ma_l3u"
             output_nc = f"{run}.t{cycle}z.{dummy_source}.nc"
             # TODO (AFE) replace this with something set in a config file
-            dummy_cdl = os.path.join(PARMgfs, 'gdas', 'marine', 'marine_prepobs_dummyobs.cdl')
+            dummy_cdl = os.path.join(PARMglobal, 'gdas', 'marine', 'marine_prepobs_dummyobs.cdl')
 
             converter = Executable('ncgen')
             converter.add_default_arg('-o')

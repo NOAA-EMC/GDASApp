@@ -1,10 +1,10 @@
 # Search path for model and obs for JCB
 # -------------------------------------
-algorithm_path: "{{PARMgfs}}/gdas/jcb-algorithms"
-app_path_algorithm: "{{PARMgfs}}/gdas/jcb-gdas/algorithm/aero"
-app_path_model: "{{PARMgfs}}/gdas/jcb-gdas/model/aero"
-app_path_observations: "{{PARMgfs}}/gdas/jcb-gdas/observations/aero"
-app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/aero"
+algorithm_path: "{{PARMglobal}}/gdas/jcb-algorithms"
+app_path_algorithm: "{{PARMglobal}}/gdas/jcb-gdas/algorithm/aero"
+app_path_model: "{{PARMglobal}}/gdas/jcb-gdas/model/aero"
+app_path_observations: "{{PARMglobal}}/gdas/jcb-gdas/observations/aero"
+app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chronicle/aero"
 
 
 # Places where we deviate from the generic file name of a yaml
@@ -100,7 +100,6 @@ observations: all_observations
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
-aero_obsdataroot_path: "{{COMIN_OBS}}/chem"
 
 aero_obsdatain_path: "{{DATA}}/obs/"
 aero_obsdatain_prefix: "{{OPREFIX}}"
@@ -111,7 +110,6 @@ aero_obsdataout_prefix: diag_
 aero_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 # Naming conventions for bias correction files
-aero_obsbiasroot_path: "{{COMIN_CHEM_ANALYSIS_PREV}}"
 
 aero_obsbiasin_path: "{{DATA}}/obs/"
 aero_obsbiasin_prefix: "{{GPREFIX}}"
@@ -127,7 +125,7 @@ aero_obsbiasout_suffix: ".satbias.nc"
 aero_obsbiascovout_prefix: "{{APREFIX}}"
 aero_obsbiascovout_suffix: ".satbias_cov.nc"
 
-bias_files:
-  retrieval_aod_viirs_npp: aero_varbc_params.tar
-  retrieval_aod_viirs_n20: aero_varbc_params.tar
-  retrieval_aod_viirs_n21: aero_varbc_params.tar
+bias_files_dict:
+    retrieval_aod_viirs_npp: aero_varbc_params.tar
+    retrieval_aod_viirs_n20: aero_varbc_params.tar
+    retrieval_aod_viirs_n21: aero_varbc_params.tar
