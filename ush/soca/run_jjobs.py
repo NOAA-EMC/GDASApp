@@ -41,7 +41,7 @@ class JobCard:
             return
 
         self.pslot = config['gw environement']['experiment identifier']['PSLOT']
-        self.homegfs = config['gw environement']['experiment identifier']['HOMEgfs']
+        self.homegfs = config['gw environement']['experiment identifier']['HOMEglobal']
         self.stmp = config['gw environement']['working directories']['STMP']
         self.rotdirs = config['gw environement']['working directories']['ROTDIRS']
         self.rotdir = os.path.join(self.rotdirs, self.pslot)
@@ -93,7 +93,7 @@ class JobCard:
         self.f.write(f"export gcyc='{gcyc}'\n")
 
         # Add to python environment
-        self.f.write("PYTHONPATH=${HOMEgfs}/ush/python:${PYTHONPATH}\n")
+        self.f.write("PYTHONPATH=${HOMEglobal}/ush/python:${PYTHONPATH}\n")
 
     def setupexpt(self):
         """
@@ -101,7 +101,7 @@ class JobCard:
         """
 
         # Make a copy of the configs
-        origconfig = "${HOMEgfs}/dev/parm/config/gfs"
+        origconfig = "${HOMEglobal}/dev/parm/config/gfs"
         self.f.write("\n")
         self.f.write("# Make a copy of config\n")
         self.f.write(f"mkdir -p config\n")
@@ -115,7 +115,7 @@ class JobCard:
         self.f.write("\n")
         self.f.write("# Setup the experiment\n")
 
-        setupexpt = "${HOMEgfs}/workflow/setup_expt.py gfs cycled "
+        setupexpt = "${HOMEglobal}/workflow/setup_expt.py gfs cycled "
         # Most of the args keys are not used to run the jjobs but are needed to run setup_expt.py
         args = {
             "idate": "${PDY}${cyc}",
@@ -158,8 +158,8 @@ class JobCard:
             if jjob in ENVS:
                 self.f.write(f"module load {ENVS[jjob].upper()}/{self.machine} \n")
 
-    def precom(self, com, tmpl):
-        cmd = f"RUN={self.RUN} YMD={self.gPDY} HH={self.gcyc} declare_from_tmpl -xr {com}:{tmpl}"
+    def precom(self, com, path):
+        cmd = f"declare -rx {com}={self.rotdir}/{self.RUN}.{self.gPDY}/{self.gcyc}/{path}"
         self.f.write(f"{cmd}\n")
 
     def copy_bkgs(self):
@@ -173,11 +173,11 @@ class JobCard:
         print(f"RUN: {self.RUN}")
 
         # setup COM variables
-        self.f.write("source ${HOMEgfs}/dev/parm/config/gfs/config.com\n")
-        self.f.write("source ${HOMEgfs}/ush/preamble.sh\n")
-        self.precom('COM_OCEAN_HISTORY_PREV', 'COM_OCEAN_HISTORY_TMPL')
-        self.precom('COM_ICE_HISTORY_PREV', 'COM_ICE_HISTORY_TMPL')
-        self.precom('COM_ICE_RESTART_PREV', 'COM_ICE_RESTART_TMPL')
+        self.f.write("source ${HOMEglobal}/dev/parm/config/gfs/config.com\n")
+        self.f.write("source ${HOMEglobal}/ush/preamble.sh\n")
+        self.precom('COM_OCEAN_HISTORY_PREV', 'model/ocean/history')
+        self.precom('COM_ICE_HISTORY_PREV', 'model/ice/history')
+        self.precom('COM_ICE_RESTART_PREV', 'model/ice/restart')
 
         self.f.write("mkdir -p ${COM_OCEAN_HISTORY_PREV}/\n")
         self.f.write("mkdir -p ${COM_ICE_HISTORY_PREV}/\n")
@@ -215,7 +215,7 @@ class JobCard:
 
         # swap a few variables in config.base
         self.homegfs_real = os.path.realpath(self.homegfs)
-        var2replace = {'HOMEgfs': self.homegfs_real,
+        var2replace = {'HOMEglobal': self.homegfs_real,
                        'STMP': self.stmp,
                        'ROTDIR': self.rotdir,
                        'EXPDIRS': self.expdirs}
@@ -237,7 +237,7 @@ class JobCard:
         """
         for job in self.config['jjobs']:
             self._conda_envs(job)  # Add module's jjob
-            thejob = "${HOMEgfs}/jobs/"+job
+            thejob = "${HOMEglobal}/jobs/"+job
             runjob = f"{thejob} &>{job}.out\n"
             self.f.write(runjob)
 

@@ -4,9 +4,9 @@ set -x
 bindir=$1
 srcdir=$2
 
-# Set g-w HOMEgfs
+# Set g-w HOMEglobal
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
-export HOMEgfs=$topdir
+export HOMEglobal=$topdir
 
 # test experiment variables
 idate=2021032312
@@ -35,15 +35,15 @@ sed -i -e "s~@srcdir@~${srcdir}~g" config.yaml
 sed -i -e "s~@dumpdir@~${GDASAPP_TESTDATA}/lowres~g" config.yaml
 
 # Detect machine
-source "${HOMEgfs}/ush/detect_machine.sh"
+source "${HOMEglobal}/ush/detect_machine.sh"
 
-# Set up the PYTHONPATH to include wxflow from HOMEgfs
-if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
-  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+# Set up the PYTHONPATH to include wxflow from HOMEglobal
+if [[ -d "${HOMEglobal}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEglobal}/sorc/wxflow/src"
 fi
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEgfs}/ush/python"
+wxflowPATH="${HOMEglobal}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 

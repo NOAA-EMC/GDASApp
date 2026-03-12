@@ -49,8 +49,8 @@ recentering state:
   - sea_ice_snow_thickness
   date: "{{ marine_window_end_iso }}"
   basename: ./bkg/
-  ocn_filename: ocean.bkg.f009.nc
-  ice_filename: ice.bkg.f009.nc
+  ocn_filename: ocean.bkg.f006.nc
+  ice_filename: ice.bkg.f006.nc
   read_from_file: 1
 
 output increments:
@@ -80,15 +80,15 @@ analysis postprocessing:
       shuffle: true
       rescale prior:
         rescale: true
-        min hice: 0.5
-        min hsno: 0.1
+        min hice: 10e+8 # effectively turn off rescaling for now as it's not working correctly
+        min hsno: 10e+8 # effectively turn off rescaling for now as it's not working correctly
     antarctic:
       seaice edge: 0.4
       shuffle: true
       rescale prior:
         rescale: true
-        min hice: 0.5
-        min hsno: 0.1
+        min hice: 10e+8 # effectively turn off rescaling for now as it's not working correctly
+        min hsno: 10e+8 # effectively turn off rescaling for now as it's not working correctly
     cice background state:
       restart: ens/cice_model.res.%mem%.nc
       ncat: 5
