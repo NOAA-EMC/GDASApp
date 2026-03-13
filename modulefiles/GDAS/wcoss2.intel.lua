@@ -64,7 +64,7 @@ load("netcdf-cxx4/4.3.1")
 load("json/3.11.3")
 --load("crtm/v2.4_jedi")
 -- Do not load prod_util when running ecflow
-local is_ecf os.getenv("ECF_JOB") ~= nil
+local is_ecf = os.getenv("ECF_JOB") ~= nil
 if not is_ecf then
     load("prod_util/2.0.14")
 end
