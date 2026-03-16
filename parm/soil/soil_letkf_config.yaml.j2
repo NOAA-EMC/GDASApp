@@ -13,7 +13,9 @@ jedi_config:
         exe_src: '{{ EXECgdas }}/fv3jedi_addincrement.x'
         mpi_cmd: '{{ APRUN_SOILLETKF_ADDINC }}'
         jcb_base_yaml: '{{ PARMgdas }}/soil/jcb-base.yaml.j2'
+#        jcb_algo: 'soil_lgetkf_addincrement'
         jcb_algo: 'soil_lgetkf_increment'
+#        jcb_algo: 'soil_fv3jedi_fv3inc_lgetkf'
 
 #TODO: add observer mode
 #    soilensanlobs:
@@ -71,6 +73,7 @@ data_in:
     - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
     {% if DOIAU %}
         # if using IAU, also need backgrounds copied at the beginning of the window
+##TODO: for soil IAU copy the actual restarts at the three time steps
         # we need to copy them to two places, one serves as the basis for the analysis
     - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
     - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
@@ -148,7 +151,7 @@ data_out:
     copy_req:
     # Configuration files
     - ['{{ DATA }}/soilletkfanl.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}soilletkfanl.yaml']
-    - ['{{ DATA }}/soilanladdinc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanladdinc.yaml']
+    - ['{{ DATA }}/soilletkfaddinc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanladdinc.yaml']
     - ['{{ DATA }}/soil_obs_list.yaml.j2', '{{ COMOUT_CONF }}/{{ APREFIX }}soil_obs_list.yaml.j2']
 
 {% if DOIAU %}
