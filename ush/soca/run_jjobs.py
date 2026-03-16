@@ -174,7 +174,6 @@ class JobCard:
 
         # setup COM variables
         self.f.write("source ${HOMEglobal}/dev/parm/config/gfs/config.com\n")
-        self.f.write("source ${HOMEglobal}/ush/preamble.sh\n")
         self.precom('COM_OCEAN_HISTORY_PREV', 'model/ocean/history')
         self.precom('COM_ICE_HISTORY_PREV', 'model/ice/history')
         self.precom('COM_ICE_RESTART_PREV', 'model/ice/restart')
