@@ -35,8 +35,14 @@
   branch = develop
 [submodule "sorc/fv3-jedi"]
   path = sorc/fv3-jedi
-  url = https://github.com/jcsda/fv3-jedi.git
-  branch = develop
+  # Temporarily forked to RussTreadon-NOAA to pick up the Gaussian-grid read path
+  # (IOStructuredGrid read/write) and MPI GlobalInterpolator desync fixes.
+  # TODO: once the NaN guard fix (std::isnan in readVarToStructuredAtlasField) and
+  # all Gaussian-grid IO changes are merged into jcsda/fv3-jedi develop, restore:
+  #   url = https://github.com/jcsda/fv3-jedi.git
+  #   branch = develop
+  url = https://github.com/RussTreadon-NOAA/fv3-jedi.git
+  branch = copilot/debug-segmentation-fault-issue
 [submodule "sorc/soca"]
   path = sorc/soca
   url = https://github.com/NOAA-EMC/soca.git
