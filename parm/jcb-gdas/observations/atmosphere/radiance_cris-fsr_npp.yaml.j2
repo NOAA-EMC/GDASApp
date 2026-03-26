@@ -185,16 +185,18 @@
           intercept: 100 
 
   # Step 5: Data Thinning
+  {% if do_thinning | default(true) %}
   - filter: Gaussian Thinning
     filter variables:
     - name: brightnessTemperature
       channels: *{{observation_from_jcb}}_simulated_channels
-    horizontal_mesh: 145
+    horizontal_mesh: {{default_horizontal_mesh}}
     use_reduced_horizontal_grid: true
     distance_norm: geodesic
     priority_variable: DerivedMetaData/cloudFree
     action:
       name: reduce obs space
+  {% endif %}
 
   obs post filters:
   # Step 6: Wavenumber Check

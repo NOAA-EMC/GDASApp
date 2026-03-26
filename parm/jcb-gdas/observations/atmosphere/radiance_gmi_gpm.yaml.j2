@@ -91,6 +91,7 @@
       name: reduce obs space
 
   # Data Thinning
+  {% if do_thinning | default(true) %}
   - filter: Gaussian Thinning
     horizontal_mesh: 100
     use_reduced_horizontal_grid: true
@@ -99,6 +100,7 @@
   #  partition_longitude_bins_using_mesh: true
     action:
       name: reduce obs space
+  {% endif %}
 
   # ------------------------
   obs prior filters:
