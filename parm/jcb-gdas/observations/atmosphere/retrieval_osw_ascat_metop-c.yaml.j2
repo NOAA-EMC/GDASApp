@@ -41,6 +41,7 @@
 
   # Observation Pre Filters (QC)
   # ----------------------------
+  {% if do_thinning | default(true) %}
   obs pre filters:
   - filter: Gaussian Thinning
     horizontal_mesh: 75
@@ -49,6 +50,7 @@
     partition_longitude_bins_using_mesh: true
     action:
       name: reduce obs space
+  {% endif %}
 
   # Observation Prior Filters (QC)
   # ------------------------------

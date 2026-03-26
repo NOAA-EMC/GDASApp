@@ -179,7 +179,11 @@ observations: all_observations
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # rad_to_tb for hyperspectral sounders?
-rad_to_tb: false
+rad_to_tb: true
+
+# Default thinning distance:
+default_horizontal_mesh: 145
+do_thinning: false
 
 # Naming conventions for observational files
 
@@ -266,8 +270,6 @@ replace_obs_filters:
     - radiance_iasi_metop-b
     - radiance_iasi_metop-c
     - radiance_atms_n20
-    - radiance_ahi_himawari8
-    - radiance_ahi_himawari9
   override_filters:
     - filter: PreQC
       inputQC: 'GsiEffectiveQCAnl'

@@ -188,11 +188,12 @@
       max_exclusive: true 
 
 #  Thinning
+  {% if do_thinning | default(true) %}
   - filter: Gaussian Thinning
     filter variables:
     - name: brightnessTemperature
       channels: *{{observation_from_jcb}}_simulated_channels 
-    horizontal_mesh: 145
+    horizontal_mesh: {{default_horizontal_mesh}}
     use_reduced_horizontal_grid: true
     distance_norm: maximum 
     time_mesh: 'PT06H' 
@@ -201,6 +202,7 @@
     priority_variable: DerivedMetaData/thinningCriteria
     action:
       name: reject
+  {% endif %}
 
 # Surface type check
   - filter: RejectList

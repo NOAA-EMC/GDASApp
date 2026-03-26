@@ -88,14 +88,16 @@
       name: reduce obs space
 
   # Data Thinning
+  {% if do_thinning | default(true) %}
   - filter: Gaussian Thinning
-    horizontal_mesh: 145
+    horizontal_mesh: {{default_horizontal_mesh}}
     use_reduced_horizontal_grid: true
     distance_norm: geodesic
     round_horizontal_bin_count_to_nearest: true
   #  partition_longitude_bins_using_mesh: true
     action:
       name: reduce obs space
+  {% endif %}
 
   # ------------------------
   obs prior filters:
