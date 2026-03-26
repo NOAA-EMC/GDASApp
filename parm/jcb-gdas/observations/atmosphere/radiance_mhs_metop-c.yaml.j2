@@ -1,0 +1,302 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: {{observation_from_jcb}}
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
+        missing file action: warn
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [brightnessTemperature]
+    channels: &{{observation_from_jcb}}_simulated_channels {{ get_satellite_variable(observation_from_jcb, "simulated") }}
+
+  # Observation Operator
+  # --------------------
+  obs operator:
+    name: CRTM
+    Absorbers: [H2O, O3, CO2]
+    obs options:
+      Sensor_ID: &{{observation_from_jcb}}_sensor_id mhs_metop-c
+      EndianType: little_endian
+      CoefficientPath: "{{crtm_coefficient_path}}"
+    linear obs operator:
+      Absorbers: [H2O, O3]
+
+  # Observation Bias Correction (VarBC)
+  # -----------------------------------
+  obs bias:
+    input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_suffix}}"
+    output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiasout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasout_suffix}}"
+    variational bc:
+      predictors:
+      - name: constant
+      - name: lapseRate
+        order: 2
+        tlapse: &{{observation_from_jcb}}_tlapse "{{atmosphere_obsbiasin_path}}/{{atmosphere_obstlapsein_prefix}}{{observation_from_jcb}}{{atmosphere_obstlapsein_suffix}}"
+      - name: lapseRate
+        tlapse: *{{observation_from_jcb}}_tlapse
+      - name: emissivityJacobian
+      - name: sensorScanAngle
+        order: 4
+      - name: sensorScanAngle
+        order: 3
+      - name: sensorScanAngle
+        order: 2
+      - name: sensorScanAngle
+    covariance:
+      minimal required obs number: 20
+      variance range: [1.0e-6, 10.0]
+      step size: 1.0e-4
+      largest analysis variance: 10000.0
+      prior:
+        input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiascovin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovin_suffix}}"
+        inflation:
+          ratio: 1.1
+          ratio for small dataset: 2.0
+      output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiascovout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovout_suffix}}"
+
+  # ------------------------
+  obs pre filters:
+  # Remove Observations from the Edge of the Scan
+  - filter: Domain Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 1-5
+    where:
+    - variable:
+        name: MetaData/sensorScanPosition
+      is_in: 10-81
+    action:
+      name: reduce obs space
+
+# # Data Thinning
+# - filter: Gaussian Thinning
+#   horizontal_mesh: 145
+#   use_reduced_horizontal_grid: true
+#   distance_norm: geodesic
+#   round_horizontal_bin_count_to_nearest: true
+# #  partition_longitude_bins_using_mesh: true
+#   action:
+#     name: reduce obs space
+
+# # Observation Post Filters (QC)
+# # -----------------------------
+  obs post filters:
+  # Step 1: Observation Range Sanity Check
+  # Valid range: (50, 550)
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    minvalue: 50.00001
+    maxvalue: 549.99999
+    action:
+      name: reject
+  # Step *: Initial Observation Error Assignment
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: assign error
+      error parameter vector: &{{observation_from_jcb}}_oberr [{{ get_satellite_variable(observation_from_jcb, "error") }}]
+## Assign surface_sea_ice_snow = 1 if surface type is sea, ice, or snow.
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/surface_sea_ice_snow
+      type: int
+      value: 1
+    where:
+    - variable:
+        name: GeoVaLs/land_area_fraction
+      minvalue: 0.99
+    - variable:
+        name: GeoVaLs/water_area_fraction
+      minvalue: 0.99
+    - variable:
+        name: GeoVaLs/ice_area_fraction
+      minvalue: 0.99
+    where operator: or
+## Assign surface_sea_ice_snow = 0 if surface type is not sea, ice, or snow.
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/surface_sea_ice_snow
+      type: int
+      value: 0
+    where:
+    - variable:
+        name: GeoVaLs/land_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true
+    - variable:
+        name: GeoVaLs/water_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true
+    - variable:
+        name: GeoVaLs/ice_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true
+
+## ObsValue - HofX at channel 1
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/ObsMinusHofx_1
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsValue/brightnessTemperature_1
+          - name: HofX/brightnessTemperature_1
+          coefs:
+          - 1
+          - -1
+## ObsValue - HofX at channel 2
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/ObsMinusHofx_2
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsValue/brightnessTemperature_2
+          - name: HofX/brightnessTemperature_2
+          coefs:
+          - 1
+          - -1
+###### "cloud_index (clw_obs)" in GSI 
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/cloud_index
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: DerivedMetaData/ObsMinusHofx_1
+          - name: DerivedMetaData/ObsMinusHofx_2
+          coefs:
+          - 0.85
+          - -1
+    where:
+    - variable:
+        name: DerivedMetaData/surface_sea_ice_snow
+      is_in: 0
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/cloud_index
+      type: float
+      value: 9.0
+    where:
+    - variable:
+        name: DerivedMetaData/surface_sea_ice_snow
+      is_in: 1
+    - variable:
+        name: DerivedMetaData/ObsMinusHofx_2 
+      minvalue: 300.0
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/cloud_index
+      type: float
+#     ## function = 0.13_r_kind*(tbc(1)-33.58_r_kind*tbc(2)/(h300-tb_obs(2))) in  GSI
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          operator: "*"
+          value: 0.13
+          variables:
+          - name: ObsFunction/Arithmetic
+            options:
+              operator: "-"
+              variables:
+              - name: DerivedMetaData/ObsMinusHofx_1
+              - name: ObsFunction/Arithmetic
+                options:
+                  operator: "*"
+                  value: 33.58
+                  variables:
+                  - name: ObsFunction/Arithmetic
+                    options:
+                      operator: "/"
+                      variables:
+                      - name: DerivedMetaData/ObsMinusHofx_2
+                      - name: ObsFunction/Arithmetic
+                        options:
+                          operator: "-"
+                          value: 300.0
+                          variables:
+                          - name: DerivedMetaData/ObsMinusHofx_2
+    where:
+    - variable:
+        name: DerivedMetaData/surface_sea_ice_snow
+      is_in: 1
+    - variable:
+        name: DerivedMetaData/ObsMinusHofx_2 
+      maxvalue: 300.0
+      max_exclusive: true
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/cloud_index
+      type: float
+      value: 0.0
+    where:
+    - variable:
+        name: DerivedMetaData/cloud_index
+      maxvalue: 0.0
+
+# tpwc_index =((ObsMinuxHofX_1 - 7.5*dsi)/10.0)**2+(dsi)**2
+# where dsi = DerivedMetaData/cloud_index
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/tpwc_index
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          operator: add
+          variables:
+          - name: ObsFunction/Arithmetic
+            options:
+              operator: pow
+              variables:
+              - name: ObsFunction/Arithmetic
+                options:
+                  operator: div
+                  variables:
+                  - name: ObsFunction/Arithmetic
+                    options:
+                      operator: sub
+                      variables:
+                      - name: DerivedMetaData/ObsMinusHofx_1
+                      - name: ObsFunction/Arithmetic
+                        options:
+                          operator: mul
+                          value: 7.5
+                          variables:
+                          - name: DerivedMetaData/cloud_index
+                  value: 10.0
+              value: 2.0
+          - name: ObsFunction/Arithmetic
+            options:
+              operator: pow
+              variables:
+              - name: DerivedMetaData/cloud_index
+              value: 2.0
+
+  # GeoVaLs for Driving Observation Operators (testing mode)
+  # --------------------------------------------------------
+  geovals:
+    filename: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atmosphere_obsdatain_suffix}}"
+
+  # Passed benchmark for UFO testing
+  # --------------------------------
+  passedBenchmark: 47095
