@@ -108,40 +108,40 @@
     action:
       name: assign error
       error parameter vector: &{{observation_from_jcb}}_oberr [{{ get_satellite_variable(observation_from_jcb, "error") }}]
-## Assign surface_sea_ice_snow = 1 if surface type is sea, ice, or snow.
+## Assign surface_water_ice_snow = 1 if surface type is sea, ice, or snow.
   - filter: Variable Assignment
     assignments:
-    - name: DerivedMetaData/surface_sea_ice_snow
+    - name: DerivedMetaData/surface_water_ice_snow
       type: int
       value: 1
     where:
     - variable:
-        name: GeoVaLs/land_area_fraction
-      minvalue: 0.99
-    - variable:
         name: GeoVaLs/water_area_fraction
       minvalue: 0.99
     - variable:
         name: GeoVaLs/ice_area_fraction
       minvalue: 0.99
+    - variable:
+        name: GeoVaLs/surface_snow_area_fraction
+      minvalue: 0.99
     where operator: or
-## Assign surface_sea_ice_snow = 0 if surface type is not sea, ice, or snow.
+## Assign surface_water_ice_snow = 0 if surface type is not sea, ice, or snow.
   - filter: Variable Assignment
     assignments:
-    - name: DerivedMetaData/surface_sea_ice_snow
+    - name: DerivedMetaData/surface_water_ice_snow
       type: int
       value: 0
     where:
     - variable:
-        name: GeoVaLs/land_area_fraction
-      maxvalue: 0.99
-      max_exclusive: true
-    - variable:
         name: GeoVaLs/water_area_fraction
       maxvalue: 0.99
       max_exclusive: true
     - variable:
         name: GeoVaLs/ice_area_fraction
+      maxvalue: 0.99
+      max_exclusive: true
+    - variable:
+        name: GeoVaLs/surface_snow_area_fraction
       maxvalue: 0.99
       max_exclusive: true
 
@@ -189,7 +189,7 @@
           - -1
     where:
     - variable:
-        name: DerivedMetaData/surface_sea_ice_snow
+        name: DerivedMetaData/surface_water_ice_snow
       is_in: 0
   - filter: Variable Assignment
     assignments:
@@ -198,7 +198,7 @@
       value: 9.0
     where:
     - variable:
-        name: DerivedMetaData/surface_sea_ice_snow
+        name: DerivedMetaData/surface_water_ice_snow
       is_in: 1
     - variable:
         name: DerivedMetaData/ObsMinusHofx_2 
@@ -237,7 +237,7 @@
                           - name: DerivedMetaData/ObsMinusHofx_2
     where:
     - variable:
-        name: DerivedMetaData/surface_sea_ice_snow
+        name: DerivedMetaData/surface_water_ice_snow
       is_in: 1
     - variable:
         name: DerivedMetaData/ObsMinusHofx_2 
