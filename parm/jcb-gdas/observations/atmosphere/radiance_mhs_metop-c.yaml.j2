@@ -69,7 +69,7 @@
   - filter: Domain Check
     filter variables:
     - name: brightnessTemperature
-      channels: 1-5
+      channels: *{{observation_from_jcb}}_simulated_channels
     where:
     - variable:
         name: MetaData/sensorScanPosition
@@ -145,31 +145,20 @@
       maxvalue: 0.99
       max_exclusive: true
 
-## ObsValue - HofX at channel 1
+## ObsMinusHofx = ObsValue - HofX
   - filter: Variable Assignment
     assignments:
-    - name: DerivedMetaData/ObsMinusHofx_1
+    - name: DerivedMetaData/ObsMinusHofx
+      channels: *{{observation_from_jcb}}_simulated_channels
       type: float
       function:
         name: ObsFunction/Arithmetic
         options:
           variables:
-          - name: ObsValue/brightnessTemperature_1
-          - name: HofX/brightnessTemperature_1
-          coefs:
-          - 1
-          - -1
-## ObsValue - HofX at channel 2
-  - filter: Variable Assignment
-    assignments:
-    - name: DerivedMetaData/ObsMinusHofx_2
-      type: float
-      function:
-        name: ObsFunction/Arithmetic
-        options:
-          variables:
-          - name: ObsValue/brightnessTemperature_2
-          - name: HofX/brightnessTemperature_2
+          - name: ObsValue/brightnessTemperature
+            channels: *{{observation_from_jcb}}_simulated_channels
+          - name: HofX/brightnessTemperature
+            channels: *{{observation_from_jcb}}_simulated_channels
           coefs:
           - 1
           - -1
@@ -182,8 +171,10 @@
         name: ObsFunction/Arithmetic
         options:
           variables:
-          - name: DerivedMetaData/ObsMinusHofx_1
-          - name: DerivedMetaData/ObsMinusHofx_2
+          - name: DerivedMetaData/ObsMinusHofx
+            channels: [1]
+          - name: DerivedMetaData/ObsMinusHofx
+            channels: [2]
           coefs:
           - 0.85
           - -1
@@ -201,46 +192,54 @@
         name: DerivedMetaData/surface_water_ice_snow
       is_in: 1
     - variable:
-        name: DerivedMetaData/ObsMinusHofx_2 
+        name: ObsValue/brightnessTemperature_2 
       minvalue: 300.0
+
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/diff_300_obs2
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsValue/brightnessTemperature
+            channels: [2]
+          coefs: [-1]
+          intercept: 300.0
+  # OmF_ch2 / (300 - Obs_ch2)
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/omf2_diff_300_obs2
+      type: float
+      function:
+        name: ObsFunction/ElementMultiply
+        options:
+          variables:
+          - name: DerivedMetaData/ObsMinusHofx
+            channels: [2]
+          - name: DerivedMetaData/diff_300_obs2
+          exponents: [1, -1]
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/cloud_index
       type: float
-#     ## function = 0.13_r_kind*(tbc(1)-33.58_r_kind*tbc(2)/(h300-tb_obs(2))) in  GSI
+      ## function = 0.13 *(tbc(1)-33.58 *tbc(2)/(h300-tb_obs(2))) in  GSI
       function:
         name: ObsFunction/Arithmetic
         options:
-          operator: "*"
-          value: 0.13
           variables:
-          - name: ObsFunction/Arithmetic
-            options:
-              operator: "-"
-              variables:
-              - name: DerivedMetaData/ObsMinusHofx_1
-              - name: ObsFunction/Arithmetic
-                options:
-                  operator: "*"
-                  value: 33.58
-                  variables:
-                  - name: ObsFunction/Arithmetic
-                    options:
-                      operator: "/"
-                      variables:
-                      - name: DerivedMetaData/ObsMinusHofx_2
-                      - name: ObsFunction/Arithmetic
-                        options:
-                          operator: "-"
-                          value: 300.0
-                          variables:
-                          - name: DerivedMetaData/ObsMinusHofx_2
+          - name: DerivedMetaData/ObsMinusHofx
+            channels: [1]
+          - name: DerivedMetaData/omf2_diff_300_obs2
+          coefs: [1, -33.58]
+          total coefficient: 0.13
     where:
     - variable:
         name: DerivedMetaData/surface_water_ice_snow
       is_in: 1
     - variable:
-        name: DerivedMetaData/ObsMinusHofx_2 
+        name: ObsValue/brightnessTemperature_2
       maxvalue: 300.0
       max_exclusive: true
   - filter: Variable Assignment
@@ -253,8 +252,20 @@
         name: DerivedMetaData/cloud_index
       maxvalue: 0.0
 
-# tpwc_index =((ObsMinuxHofX_1 - 7.5*dsi)/10.0)**2+(dsi)**2
-# where dsi = DerivedMetaData/cloud_index
+  # tpwc_index =((ObsMinusHofX_1 - 7.5*dsi)/10.0)**2+(dsi)**2
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/tpwc_indexA
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+           variables:
+           - name: DerivedMetaData/ObsMinusHofx
+             channels: [1]
+           - name: DerivedMetaData/cloud_index
+           coefs: [1, -7.5]
+           total coefficient: 0.1
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/tpwc_index
@@ -262,35 +273,10 @@
       function:
         name: ObsFunction/Arithmetic
         options:
-          operator: add
           variables:
-          - name: ObsFunction/Arithmetic
-            options:
-              operator: pow
-              variables:
-              - name: ObsFunction/Arithmetic
-                options:
-                  operator: div
-                  variables:
-                  - name: ObsFunction/Arithmetic
-                    options:
-                      operator: sub
-                      variables:
-                      - name: DerivedMetaData/ObsMinusHofx_1
-                      - name: ObsFunction/Arithmetic
-                        options:
-                          operator: mul
-                          value: 7.5
-                          variables:
-                          - name: DerivedMetaData/cloud_index
-                  value: 10.0
-              value: 2.0
-          - name: ObsFunction/Arithmetic
-            options:
-              operator: pow
-              variables:
-              - name: DerivedMetaData/cloud_index
-              value: 2.0
+          - name: DerivedMetaData/tpwc_indexA
+          - name: DerivedMetaData/cloud_index
+          exponents: [2, 2]
 
   # GeoVaLs for Driving Observation Operators (testing mode)
   # --------------------------------------------------------
