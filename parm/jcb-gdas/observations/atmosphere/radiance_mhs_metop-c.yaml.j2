@@ -302,22 +302,6 @@
           - name: DerivedMetaData/inflationFactor0
           exponents: [0.5]
 
-  - filter: BlackList
-    where:
-    - variable:
-        name: DerivedMetaData/tpwc_index
-      minvalue: 1.0
-  - filter: Background Check
-    filter variables:
-    - name: brightnessTemperature
-      channels: 3-5
-    absolute threshold: 2.0
-    where:
-    - variable:
-        name: DerivedMetaData/tpwc_index
-      maxvalue: 1.0
-    action:
-      name: reject
 #  Initial error inflation
   - filter: Perform Action
     filter variables:
@@ -334,7 +318,7 @@
         channels: *{{observation_from_jcb}}_simulated_channels
         options:
           sensor: *{{observation_from_jcb}}_sensor_id
-#  Topography check
+#  Inflate error at high topography
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -351,7 +335,7 @@
         options:
           sensor: *{{observation_from_jcb}}_sensor_id
           channels: *{{observation_from_jcb}}_simulated_channels
-#  Transmittnace Top Check
+#  Inflate error with transmittnace
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -368,7 +352,7 @@
         options:
           sensor: *{{observation_from_jcb}}_sensor_id
           channels: *{{observation_from_jcb}}_simulated_channels
-#  Surface Jacobian check
+  #  Inflate error with surface Jacobian
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -387,6 +371,23 @@
           sensor: *{{observation_from_jcb}}_sensor_id
           obserr_demisf: [0.015, 0.030, 0.020, 0.020, 0.250]
           obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 5.000]
+  # Quality control
+  - filter: BlackList
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      minvalue: 1.0
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 3-5
+    absolute threshold: 2.0
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      maxvalue: 1.0
+    action:
+      name: reject
   #  Inter-channel check
   - filter: Bounds Check
     filter variables:
@@ -402,6 +403,13 @@
     maxvalue: 1.0e-12
     action:
       name: reject
+# #  Final background check.
+# - filter: Background Check
+#   filter variables:
+#   - name: brightnessTemperature
+#     channels: *{{observation_from_jcb}}_simulated_channels
+#     threshold: 3.0
+#     absolute threshold vector: [{{ get_satellite_variable(observation_from_jcb, "ermax") }}]
 
   # GeoVaLs for Driving Observation Operators (testing mode)
   # --------------------------------------------------------
