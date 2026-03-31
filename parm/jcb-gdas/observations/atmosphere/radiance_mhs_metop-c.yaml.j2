@@ -403,13 +403,13 @@
     maxvalue: 1.0e-12
     action:
       name: reject
-# #  Final background check.
-# - filter: Background Check
-#   filter variables:
-#   - name: brightnessTemperature
-#     channels: *{{observation_from_jcb}}_simulated_channels
-#     threshold: 3.0
-#     absolute threshold vector: [{{ get_satellite_variable(observation_from_jcb, "ermax") }}]
+  #  Final background check.
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    threshold: 3.0
+    absolute threshold vector: [{{ get_satellite_variable(observation_from_jcb, "ermax") }}]
 
   # GeoVaLs for Driving Observation Operators (testing mode)
   # --------------------------------------------------------
