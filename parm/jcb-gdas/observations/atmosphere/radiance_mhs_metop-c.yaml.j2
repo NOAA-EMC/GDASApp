@@ -87,8 +87,8 @@
 #   action:
 #     name: reduce obs space
 
-# # Observation Post Filters (QC)
-# # -----------------------------
+  # Observation Post Filters (QC)
+  # -----------------------------
   obs post filters:
   # Step 1: Observation Range Sanity Check
   # Valid range: (50, 550)
@@ -108,7 +108,7 @@
     action:
       name: assign error
       error parameter vector: &{{observation_from_jcb}}_oberr [{{ get_satellite_variable(observation_from_jcb, "error") }}]
-## Assign surface_water_ice_snow = 1 if surface type is sea, ice, or snow.
+  #  Assign surface_water_ice_snow = 1 if surface type is sea, ice, or snow.
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/surface_water_ice_snow
@@ -125,7 +125,7 @@
         name: GeoVaLs/surface_snow_area_fraction
       minvalue: 0.99
     where operator: or
-## Assign surface_water_ice_snow = 0 if surface type is not sea, ice, or snow.
+  #  Assign surface_water_ice_snow = 0 if surface type is not sea, ice, or snow.
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/surface_water_ice_snow
@@ -145,7 +145,7 @@
       maxvalue: 0.99
       max_exclusive: true
 
-## ObsMinusHofx = ObsValue - HofX
+  #  ObsMinusHofx = ObsValue - HofX
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/ObsMinusHofx
@@ -162,7 +162,7 @@
           coefs:
           - 1
           - -1
-###### "cloud_index (clw_obs)" in GSI 
+  #  "cloud_index (clw_obs)" in GSI 
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/cloud_index
@@ -207,7 +207,7 @@
             channels: [2]
           coefs: [-1]
           intercept: 300.0
-  # OmF_ch2 / (300 - Obs_ch2)
+  #  OmF_ch2 / (300 - Obs_ch2)
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/omf2_diff_300_obs2
@@ -224,7 +224,7 @@
     assignments:
     - name: DerivedMetaData/cloud_index
       type: float
-      ## function = 0.13 *(tbc(1)-33.58 *tbc(2)/(h300-tb_obs(2))) in  GSI
+      #  function = 0.13 *(tbc(1)-33.58 *tbc(2)/(h300-tb_obs(2))) in  GSI
       function:
         name: ObsFunction/Arithmetic
         options:
@@ -277,6 +277,131 @@
           - name: DerivedMetaData/tpwc_indexA
           - name: DerivedMetaData/cloud_index
           exponents: [2, 2]
+# assign an inflation factor inflationFactor0 = (1 - tpwc_index^2)
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/inflationFactor0
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: DerivedMetaData/tpwc_index
+          coefs: [-1]
+          exponents: [2]
+          intercept: 1
+# assign an inflation factor inflationFactor1 = (iniflation0)^0.5
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/inflationFactor1
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: DerivedMetaData/inflationFactor0
+          exponents: [0.5]
+
+  - filter: BlackList
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      minvalue: 1.0
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: 3-5
+    absolute threshold: 2.0
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      maxvalue: 1.0
+    action:
+      name: reject
+#  Initial error inflation
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      maxvalue: 1.0
+    action:
+      name: inflate error
+      inflation variable:
+        name: DerivedMetaData/inflationFactor1
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          sensor: *{{observation_from_jcb}}_sensor_id
+#  Topography check
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      maxvalue: 1.0
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorTopoRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          sensor: *{{observation_from_jcb}}_sensor_id
+          channels: *{{observation_from_jcb}}_simulated_channels
+#  Transmittnace Top Check
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      maxvalue: 1.0
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorTransmitTopRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          sensor: *{{observation_from_jcb}}_sensor_id
+          channels: *{{observation_from_jcb}}_simulated_channels
+#  Surface Jacobian check
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      maxvalue: 1.0
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorSurfJacobianRad
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          channels: *{{observation_from_jcb}}_simulated_channels
+          sensor: *{{observation_from_jcb}}_sensor_id
+          obserr_demisf: [0.015, 0.030, 0.020, 0.020, 0.250]
+          obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 5.000]
+  #  Inter-channel check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/InterChannelConsistencyCheck
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        channels: *{{observation_from_jcb}}_simulated_channels
+        sensor: *{{observation_from_jcb}}_sensor_id
+        use_flag: &{{observation_from_jcb}}_active_channels [{{ get_satellite_variable(observation_from_jcb, "active") }}]
+    maxvalue: 1.0e-12
+    action:
+      name: reject
 
   # GeoVaLs for Driving Observation Operators (testing mode)
   # --------------------------------------------------------
