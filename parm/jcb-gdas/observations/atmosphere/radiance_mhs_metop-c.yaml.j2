@@ -277,7 +277,7 @@
           - name: DerivedMetaData/tpwc_indexA
           - name: DerivedMetaData/cloud_index
           exponents: [2, 2]
-# assign an inflation factor inflationFactor0 = (1 - tpwc_index^2)
+  # assign inflationFactor0 = (1 - tpwc_index^2)
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/inflationFactor0
@@ -290,7 +290,11 @@
           coefs: [-1]
           exponents: [2]
           intercept: 1
-# assign an inflation factor inflationFactor1 = (iniflation0)^0.5
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      maxvalue: 1.0
+  # assign an inflation factor inflationFactor1 = 1.0/(inflationFactor0)^(0.5)
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/inflationFactor1
@@ -300,9 +304,23 @@
         options:
           variables:
           - name: DerivedMetaData/inflationFactor0
-          exponents: [0.5]
+          exponents: [-0.5]
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      maxvalue: 1.0
+  # assign inflationFactor1=1.0
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/inflationFactor1
+      type: float
+      value: 1.0
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      minvalue: 1.0
 
-#  Initial error inflation
+  #  Initial error inflation
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -318,59 +336,115 @@
         channels: *{{observation_from_jcb}}_simulated_channels
         options:
           sensor: *{{observation_from_jcb}}_sensor_id
-#  Inflate error at high topography
-  - filter: Perform Action
-    filter variables:
-    - name: brightnessTemperature
+
+  # Observation Error Inflation based on Topography Check
+  - filter: Variable Assignment
+    assignments:
+    - name: ObsErrorFactorTopo@DerivedMetaData
       channels: *{{observation_from_jcb}}_simulated_channels
-    where:
-    - variable:
-        name: DerivedMetaData/tpwc_index
-      maxvalue: 1.0
-    action:
-      name: inflate error
-      inflation variable:
-        name: ObsFunction/ObsErrorFactorTopoRad
+      type: float
+      function:
+        name: ObsErrorFactorTopoRad@ObsFunction
         channels: *{{observation_from_jcb}}_simulated_channels
         options:
           sensor: *{{observation_from_jcb}}_sensor_id
           channels: *{{observation_from_jcb}}_simulated_channels
-#  Inflate error with transmittnace
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
       channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsErrorFactorTopo@DerivedMetaData
+        channels: *{{observation_from_jcb}}_simulated_channels
     where:
     - variable:
         name: DerivedMetaData/tpwc_index
       maxvalue: 1.0
-    action:
-      name: inflate error
-      inflation variable:
-        name: ObsFunction/ObsErrorFactorTransmitTopRad
+
+  # Obs Error Inflation based on TOA Transmittancec Check
+  - filter: Variable Assignment
+    assignments:
+    - name: ObsErrorFactorTransmitTop@DerivedMetaData
+      channels: *{{observation_from_jcb}}_simulated_channels
+      type: float
+      function:
+        name: ObsErrorFactorTransmitTopRad@ObsFunction
         channels: *{{observation_from_jcb}}_simulated_channels
         options:
-          sensor: *{{observation_from_jcb}}_sensor_id
           channels: *{{observation_from_jcb}}_simulated_channels
-  #  Inflate error with surface Jacobian
+
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
       channels: *{{observation_from_jcb}}_simulated_channels
-    where:
-    - variable:
-        name: DerivedMetaData/tpwc_index
-      maxvalue: 1.0
     action:
       name: inflate error
       inflation variable:
-        name: ObsFunction/ObsErrorFactorSurfJacobianRad
+        name: ObsErrorFactorTransmitTop@DerivedMetaData
+        channels: *{{observation_from_jcb}}_simulated_channels
+
+  # Observation Error Inflation based on Surface Jacobian Check
+  - filter: Variable Assignment
+    assignments:
+    - name: ObsErrorFactorSurfJacobian@DerivedMetaData
+      channels: *{{observation_from_jcb}}_simulated_channels
+      type: float
+      function:
+        name: ObsErrorFactorSurfJacobianRad@ObsFunction
         channels: *{{observation_from_jcb}}_simulated_channels
         options:
-          channels: *{{observation_from_jcb}}_simulated_channels
           sensor: *{{observation_from_jcb}}_sensor_id
+          channels: *{{observation_from_jcb}}_simulated_channels
           obserr_demisf: [0.015, 0.030, 0.020, 0.020, 0.250]
           obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 5.000]
+
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsErrorFactorSurfJacobian@DerivedMetaData
+        channels: *{{observation_from_jcb}}_simulated_channels
+  #  Find gross error check bound.
+  #  Note, use DerivedMetaData/inflationFactor1 for "obserr_bound_latitude"
+  - filter: Variable Assignment
+    assignments:
+    - name: ObsErrorBound@DerivedMetaData
+      channels: *{{observation_from_jcb}}_simulated_channels
+      type: float
+      function:
+        name: ObsErrorBoundMW@ObsFunction
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          sensor: *{{observation_from_jcb}}_sensor_id
+          channels: *{{observation_from_jcb}}_simulated_channels
+          obserr_bound_latitude:
+            name: DerivedMetaData/inflationFactor1 
+          obserr_bound_transmittop:
+            name: ObsErrorFactorTransmitTop@DerivedMetaData
+            channels: *{{observation_from_jcb}}_simulated_channels
+            options:
+              channels: *{{observation_from_jcb}}_simulated_channels
+          obserr_bound_topo:
+            name: ObsErrorFactorTopo@DerivedMetaData
+            channels: *{{observation_from_jcb}}_simulated_channels
+          error parameter vector: *{{observation_from_jcb}}_oberr
+          threshold: 3
+          obserr_bound_max: [{{ get_satellite_variable(observation_from_jcb, "ermax") }}]
+  - filter: Background Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    function absolute threshold:
+    - name: ObsErrorBound@DerivedMetaData
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: reject
+
   # Quality control
   - filter: BlackList
     where:
@@ -388,6 +462,7 @@
       maxvalue: 1.0
     action:
       name: reject
+
   #  Inter-channel check
   - filter: Bounds Check
     filter variables:
@@ -403,13 +478,6 @@
     maxvalue: 1.0e-12
     action:
       name: reject
-  #  Final background check.
-  - filter: Background Check
-    filter variables:
-    - name: brightnessTemperature
-      channels: *{{observation_from_jcb}}_simulated_channels
-    threshold: 3.0
-    absolute threshold vector: [{{ get_satellite_variable(observation_from_jcb, "ermax") }}]
 
   # GeoVaLs for Driving Observation Operators (testing mode)
   # --------------------------------------------------------
