@@ -67,6 +67,16 @@
         name: MetaData/longitude
       minvalue: 32
       maxvalue: 56
+  - filter: BlackList
+    where:
+    - variable:
+        name: MetaData/latitude
+      minvalue: -0.25
+      maxvalue: 0.25
+    - variable:
+        name: MetaData/longitude
+      minvalue: -0.25
+      maxvalue: 0.25
 {% if marine_letkf_app | default(false) %}
   obs localizations:
   - localization method: Rossby
