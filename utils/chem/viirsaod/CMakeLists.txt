@@ -27,4 +27,10 @@ target_include_directories(netcdf2ioda PUBLIC ${OOPS_INCLUDE_DIRS})
 # Link the oops library
 target_link_libraries(netcdf2ioda PUBLIC oops ioda)
 
+install(TARGETS netcdf2ioda
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
 add_subdirectory(applications)
