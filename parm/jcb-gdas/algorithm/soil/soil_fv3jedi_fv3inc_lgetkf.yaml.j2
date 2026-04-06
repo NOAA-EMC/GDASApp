@@ -1,0 +1,64 @@
+background geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ soil_layout_x }}
+  - {{ soil_layout_y }}
+  npx: {{ soil_npx_ges }}
+  npy: {{ soil_npy_ges }}
+  npz: {{ soil_npz_ges }}
+fv3 increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ soil_layout_x }}
+  - {{ soil_layout_y }}
+  npx: {{ soil_npx_ges }}
+  npy: {{ soil_npy_ges }}
+  npz: {{ soil_npz_ges }}
+members from template:
+  template:
+    background input:
+      datapath: ./bkg/mem%mem%
+      datetime: '{{ soil_background_time_iso }}'
+      filetype: fms restart
+      skip coupler file: true
+      filename is datetime templated: true
+      filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
+      state variables: 
+      - stc
+#      field io names: 
+#        air_temperature_at_2m: t2m
+    fv3 increment input:
+      filetype: fms restart
+      datapath: ./anl/mem%mem%
+      datetime: '{{ soil_background_time_iso }}'
+      filetype: fms restart
+      skip coupler file: true
+      filename is datetime templated: true
+      prefix: soilinc
+      filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
+      added variables:
+      - stc
+#      field io names:
+#        air_temperature_at_2m: t2m
+    fv3 output:
+      filetype: fms restart
+      datapath: ./anl/mem%mem%
+      datetime: '{{ soil_background_time_iso }}'
+      filetype: fms restart
+      skip coupler file: true
+      filename is datetime templated: true
+      prefix: soilanl
+      filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
+      added variables:
+      - stc
+#      field io names:
+#        air_temperature_at_2m: t2m
+  pattern: '%mem%'
+  nmembers: {{ soil_number_ensemble_members }}
+  zero padding: 3

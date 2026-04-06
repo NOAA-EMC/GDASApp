@@ -62,7 +62,6 @@ class SlurmJobCard:
         self.f.write("\n")
         self.f.write("# Load modules\n")
         self.f.write(f"export HOMEglobal={self.homegfs}\n")
-        self.f.write(f"source {self.homegfs}/ush/preamble.sh\n")
         if self.appcore == 'gsi':
             self.f.write(f". {self.homegfs}/ush/load_fv3gfs_modules.sh\n")
         else:

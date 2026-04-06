@@ -6,13 +6,18 @@ app_path_model: "{{PARMgdas}}/jcb-gdas/model/soil"
 app_path_observations: "{{PARMgdas}}/jcb-gdas/observations/soil"
 app_path_observation_chronicle: "{{PARMgdas}}/jcb-gdas/observation_chronicle/soil"
 
-
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
-final_increment_file: soil_final_increment_fms
 model_file: model_pseudo
 initial_condition_file: background  # Initial conditions for 4D apps is background
-output_file: soil_output
+final_increment_file: soil_final_increment_fms
+output_mean_prior_file: soil_output_mean_prior_fms
+posterior_output_file: soil_posterior_output_fms
+output_ensemble_increments_file: soil_ensemble_increments_fms
+output_increment_file: soil_output_increment_fms   
+output_variance_prior_file: soil_output_variance_prior_fms
+output_variance_posterior_file: soil_output_variance_posterior_fms
+#jedi_increment_output: gaussian
 
 # Assimilation window
 # -------------------
@@ -29,7 +34,6 @@ soil_background_time_fv3: "{{ bkg_time_fv3 }}"
 soil_background_time_julian: "{{ bkg_time_julian }}"
 soil_increment_time_iso: "{{ bkg_time_iso }}"
 soil_increment_time_fv3: "{{ bkg_time_fv3 }}"
-
 
 # Analysis standard things
 # ------------------------
@@ -60,11 +64,10 @@ soil_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
 soil_background_path: {{ soil_bkg_path }}
-background_ensemble_path: ./ens/mem%mem%
+soil_background_ensemble_path: ./bkg/mem%mem%
 
 # Background error
 soil_bump_data_directory: "{{ DATA }}/berror"
-number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
 
 soil_background_error_file: "{{BERROR_YAML}}"
 
@@ -72,10 +75,22 @@ soil_background_error_file: "{{BERROR_YAML}}"
 soil_forecast_length: "{{ SNOW_WINDOW_LENGTH }}"
 soil_forecast_timestep: "{{ BKG_TSTEP }}"
 
-
 # Observation things
 # ------------------
 observations: all_observations
+
+#From Cory: https://docs.google.com/document/d/1CNfOZ7UzAOrVEXNyxeHAKafjjZp7WeBn-F07itWo6eE/
+#replace QC filters with a blanket configuration...to get listed obs' QC decisions from GSI:
+#*replace_obs_filters:
+#*  observations:
+#*    - adpsfc_air_temperature_at_2m_181_gsi
+#*#    - sfcship         #Clara: no need for this to assimiate into soil
+#*  override_filters:         #only assimilate when GsiEffectiveQCAnl is 0
+#*    - filter: PreQC
+#*      inputQC: 'GsiEffectiveQCAnl'
+#*      maxvalue: 0.0
+#*      action:
+#*        name: reject
 
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
@@ -83,13 +98,16 @@ crtm_coefficient_path: "{{ DATA }}/crtm/"
 soil_obsdataroot_path: "{{COMIN_OBS}}"
 soil_obsdatain_path: "{{DATA}}/obs"
 soil_obsdatain_prefix: "{{OPREFIX}}"
-soil_obsdatain_suffix: "" #.tm00.bufr_d"
+soil_obsdatain_suffix: ".nc"
+soil_obsdatain_suffix_bufr: ".tm00.bufr_d"
 soil_obsdataout_path: "{{DATA}}/diags"
 soil_prepobs_path: "{{DATA}}/prep"
 soil_obsdataout_prefix: diag_
 soil_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 # Naming conventions for bias correction files
+# note these are really for atm--see below//most may not be applicable for sfc-only DA
+##TODO: not sure which of these are needed
 soil_obsbiasin_path: "{{DATA}}/obs/"
 soil_obsbiasin_prefix: "{{GPREFIX}}"
 soil_obsbiasin_suffix: ".satbias.nc"
@@ -104,18 +122,68 @@ soil_obsbiasout_suffix: ".satbias.nc"
 soil_obsbiascovout_prefix: "{{APREFIX}}"
 soil_obsbiascovout_suffix: ".satbias_cov.nc"
 
+atmosphere_obsbiasin_path: "{{DATA}}/obs/"
+atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
+atmosphere_obsbiasin_suffix: ".satbias.nc"    #GSI converters produce 1 file but JEDI produces 2
+atmosphere_obstlapsein_prefix: "{{GPREFIX}}"
+atmosphere_obstlapsein_suffix: ".tlapse.txt"
+atmosphere_obsbiascovin_prefix: "{{GPREFIX}}"
+atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
+
+#####----blindly copied from atm; unlikely to apply here------------ 
+# Naming conventions for observational files
+atmosphere_obsdatain_path: "{{DATA}}/obs"
+atmosphere_obsdatain_script_path: "{{HOMEgfs}}/ush/spoc/atmosphere"
+atmosphere_obsdatain_prefix: "{{OPREFIX}}"
+atmosphere_obsdatain_suffix: ".nc"
+atmosphere_obsdatain_suffix_bufr: ".tm00.bufr_d"
+
+atmosphere_obsdataout_path: "{{DATA}}/diags"
+atmosphere_obsdataout_prefix: diag_
+atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
+
+# Naming conventions for bias correction files
+
+atmosphere_obsbiasin_path: "{{DATA}}/obs/"
+atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
+atmosphere_obsbiasin_suffix: ".satbias.nc"
+atmosphere_obstlapsein_prefix: "{{GPREFIX}}"
+atmosphere_obstlapsein_suffix: ".tlapse.txt"
+atmosphere_obsbiascovin_prefix: "{{GPREFIX}}"
+atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
+
+atmosphere_obsbiasout_path: "{{DATA}}/bc/"
+atmosphere_obsbiasout_prefix: "{{APREFIX}}"
+atmosphere_obsbiasout_suffix: ".satbias.nc"   #GSI converters produce 1 file but JEDI produces 2
+atmosphere_obsbiascovout_prefix: "{{APREFIX}}"
+atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
+
+bias_files_dict:
+    radiance_atms_n20: rad_varbc_params.tar
+    radiance_atms_npp: rad_varbc_params.tar
+    radiance_mtiasi_metop-a: rad_varbc_params.tar
+    radiance_mtiasi_metop-b: rad_varbc_params.tar
+    radiance_amsua_n19: rad_varbc_params.tar
+    radiance_ssmis_f17: rad_varbc_params.tar
+    radiance_ssmis_f18: rad_varbc_params.tar
+    radiance_cris-fsr_n20: rad_varbc_params.tar
+    radiance_cris-fsr_npp: rad_varbc_params.tar
+####--------------------------------------------------------------
+
 # Ensemble mean things
-soil_number_ensemble_members: {{NMEM_ENS}}
+soil_number_ensemble_members: {{NMEM_ENS | default(1, true) }}
+soil_analysis_ensemble_path: ./anl/mem%mem%
 
 # Local Ensemble DA (LETKF)
 # -------------------------
-local_ensemble_da_solver: Deterministic GETKF
+local_ensemble_da_solver: Deterministic LETKF   #GETKF
 
-increment_variables: [ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
+increment_variables: [stc, air_temperature_at_2m] #, smc, sphum] 
+#[ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
-vl_lengthscale: 2.1
+vl_lengthscale: 22.1
 vl_lengthscale_units: logp
 inflation_rtps: 0.85
 inflation_rtpp: 0.0
@@ -123,12 +191,20 @@ inflation_mult: 1.0
 
 # Driver
 driver_update_obs_config_with_geometry_info: true
-driver_save_posterior_mean: false
-driver_save_posterior_ensemble: false
-driver_save_prior_mean: false
-driver_save_posterior_mean_increment: false
+driver_save_posterior_mean: true
+driver_save_posterior_ensemble: true
+driver_save_posterior_mean_increment: true
 driver_save_posterior_ensemble_increments: true
+driver_save_prior_variance: true
+driver_save_posterior_variance: true
+driver_save_prior_mean: true  #(default false)
+driver_do_test_prints: false  #(default true)
+#default driver_do_posterior_observer: true
+#default driver_use_control_member: false
 
 # Diagnostics
-ensemble_increment_prefix: "./anl/mem%{member}%/soilinc."
+soil_increment_path: ./anl
+soil_increment_ensemble_path: ./anl/mem%mem%
+soil_increment_prefix: "soilinc"
 #posterior_output_gaussian: "./mem%{member}%/soilanl."
+#

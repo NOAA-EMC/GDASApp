@@ -4,8 +4,10 @@
       engine:
         type: H5File
         obsfile: "{{ atmosphere_gsi_obsdatain_path }}/{{ atmosphere_gsi_obsdatain_prefix }}{{ observation_from_jcb }}{{ atmosphere_gsi_obsdatain_suffix }}"
-    simulated variables: ['stationPressure', 'airTemperature', 'specificHumidity', 'windEastward', 'windNorthward']
-    observed variables: ['stationPressure', 'airTemperature', 'specificHumidity', 'windEastward', 'windNorthward']
+    simulated variables: ['air_temperature']
+#'stationPressure', 'airTemperature', 'specificHumidity', 'windEastward', 'windNorthward']
+    observed variables: ['air_temperature']
+#['stationPressure', 'airTemperature', 'specificHumidity', 'windEastward', 'windNorthward']
   statistics to compute: ['mean', 'count', 'RMS']
   variables: ['stationPressure', 'airTemperature', 'specificHumidity', 'windEastward', 'windNorthward']
   groups to process: ['ombg', 'oman']

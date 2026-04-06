@@ -27,7 +27,6 @@ export ACCOUNT=da-cpu
 
 # Set GFS COM paths
 export STRICT="NO"
-source "${HOMEglobal}/ush/preamble.sh"
 source "${HOMEglobal}/dev/parm/config/gfs/config.com"
 
 # Detect machine

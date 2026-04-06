@@ -4,6 +4,11 @@
   # -----------------------
   obs space:
     name: {{observation_from_jcb}}
+{% if algorithm == "local_ensemble_da" %}
+    distribution:
+      name: {{distribution_type}}
+      halo size: "{{halo_size}}"
+{% endif %}
     obsdatain:
       engine:
         type: H5File
@@ -21,6 +26,14 @@
   obs operator:
     name: Identity
   #
+  # localization TODO: generalize this condioned on da algo
+  # ------------
+{% if algorithm == "local_ensemble_da" %}
+  obs localizations:
+  - localization method: {{localization_method}}
+    lengthscale: {{loc_length_scale}}
+    max nobs: {{max_nobs}}
+{% endif %}
 
   # Observation Filters (QC)
   # ------------------------

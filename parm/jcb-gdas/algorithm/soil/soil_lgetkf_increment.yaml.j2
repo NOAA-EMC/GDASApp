@@ -1,0 +1,96 @@
+#background geometry:
+state geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ soil_layout_x }}
+  - {{ soil_layout_y }}
+  npx: {{ soil_npx_ges }}
+  npy: {{ soil_npy_ges }}
+  npz: {{ soil_npz_ges }}
+#  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_history.yaml
+# jedi/fv3 increment geometry:
+increment geometry:
+  fms initialization:
+    namelist filename: ./fv3jedi/fmsmpp.nml
+    field table filename: ./fv3jedi/field_table
+  akbk: ./fv3jedi/akbk.nc4
+  layout:
+  - {{ soil_layout_x }}
+  - {{ soil_layout_y }}
+  npx: {{ soil_npx_anl }}
+  npy: {{ soil_npy_anl }}
+  npz: {{ soil_npz_anl }}
+#  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
+state:
+  members from template:
+    template:
+#background input:
+      state variables: &state_vars
+#      - soilMoistureVolumetric
+#      - stc
+#      - totalSnowDepth
+#      - sheleg
+#      - vtype
+#      - slmsk
+#      - filtered_orography
+#      - fraction_of_ice
+#      - fraction_of_land
+      - air_temperature_at_2m
+#- temperature_2m
+#- spec_humidity_2m
+      field io names: &field_io_names
+#        soilMoistureVolumetric: smc
+#        totalSnowDepth: snodl
+#        filtered_orography: orog_filt
+#        fraction_of_ice: fice
+#        fraction_of_land: land_frac
+        air_temperature_at_2m: t2m
+      datapath: ./bkg/mem%mem% 
+      datetime: '{{ soil_background_time_iso }}'
+      filetype: fms restart
+      skip coupler file: true
+#      filename is datetime templated: true
+      filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
+#      max allowable geometry difference: 1e-4
+    pattern: '%mem%'
+    nmembers: {{ soil_number_ensemble_members }}
+    zero padding: 3
+increment:
+  members from template:
+    template:
+      state variables:
+#      - stc
+      - air_temperature_at_2m
+      field io names:
+        air_temperature_at_2m: t2m
+      datapath: ./anl/mem%mem%
+      datetime: '{{ soil_background_time_iso }}'
+      filetype: fms restart
+      skip coupler file: true
+#      filename is datetime templated: true
+#      prefix: soilinc
+      filename_sfcd: 'soilinc.{{ soil_background_time_fv3 }}.sfc_data.nc'
+    pattern: '%mem%'
+    nmembers: {{ soil_number_ensemble_members }}
+    zero padding: 3
+output:
+  members from template:
+    template:
+      state variables: 
+#      - stc
+      - air_temperature_at_2m
+      field io names:
+        air_temperature_at_2m: t2m
+      datapath: ./anl/mem%mem%
+      datetime: '{{ soil_background_time_iso }}'
+      filetype: fms restart
+      skip coupler file: true
+#      filename is datetime templated: true
+#      prefix: soil_anl
+      filename_sfcd: 'soil_bgpi.{{ soil_background_time_fv3 }}.sfc_data.nc'
+    pattern: '%mem%'
+    nmembers: {{ soil_number_ensemble_members }}
+    zero padding: 3
