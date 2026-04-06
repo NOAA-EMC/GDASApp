@@ -28,7 +28,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          existing_pr=$(gh pr list --head feature/stable-nightly --base develop --json number --jq '.[0].number')
+          existing_pr=$(gh pr list --head feature/stable-nightly --base develop --json number --jq '.[0].number // empty')
           echo "pr_number=$existing_pr" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
