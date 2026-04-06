@@ -43,7 +43,7 @@ jobs:
             --assignee "RussTreadon-NOAA" \
             --title "Weekly Merge: stable-nightly to develop ($DATE_STR)" \
             --body "Automated weekly PR to sync stable-nightly updates into develop. Triggered on $DATE_STR." \
-            --label "gaea-c6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT"
+            --label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT"
 
       - name: Update existing PR
         if: steps.check_pr.outputs.pr_number != ''
