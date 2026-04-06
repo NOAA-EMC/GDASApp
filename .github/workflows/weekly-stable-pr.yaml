@@ -1,0 +1,60 @@
+name: Weekly Stable-to-Develop PR
+
+on:
+  schedule:
+    # Runs at 09:00 UTC every Tuesday
+    - cron: '0 9 * * 2'
+  workflow_dispatch: # Allows manual triggering for testing
+
+concurrency:
+  group: ${{ github.workflow }}-develop-feature/stable-nightly
+  cancel-in-progress: false
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate Date String
+        id: date
+        run: echo "date_str=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+
+      - name: Check for existing PR
+        id: check_pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          existing_pr=$(gh pr list --head feature/stable-nightly --base develop --json number --jq '.[0].number // empty')
+          echo "pr_number=$existing_pr" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: steps.check_pr.outputs.pr_number == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DATE_STR: ${{ steps.date.outputs.date_str }}
+        run: |
+          gh pr create \
+            --base develop \
+            --head feature/stable-nightly \
+            --assignee "RussTreadon-NOAA" \
+            --title "Weekly Merge: stable-nightly to develop ($DATE_STR)" \
+            --body "Automated weekly PR to sync stable-nightly updates into develop. Triggered on $DATE_STR." \
+            --label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT"
+
+      - name: Update existing PR
+        if: steps.check_pr.outputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Ensure labels and assignee are present even if the PR already existed
+          gh pr edit ${{ steps.check_pr.outputs.pr_number }} \
+            --add-assignee "RussTreadon-NOAA" \
+            --add-label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT"
