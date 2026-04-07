@@ -35,6 +35,25 @@ jobs:
           existing_pr=$(gh pr list --head feature/stable-nightly --base develop --json number --jq '.[0].number // empty')
           echo "pr_number=$existing_pr" >> $GITHUB_OUTPUT
 
+      - name: Generate PR body
+        env:
+          DATE_STR: ${{ steps.date.outputs.date_str }}
+        run: |
+          {
+            echo "Automated weekly PR to sync stable-nightly updates into develop. Triggered on ${DATE_STR}."
+            echo ""
+            echo "# Automated CI tests to run in Global Workflow"
+            echo "- [x] atm_jjob <!-- JEDI atm single cycle DA !-->"
+            echo "- [x] C96C48_ufs_hybatmDA <!-- JEDI atm cycled DA !-->"
+            echo "- [x] C96C48_hybatmsnowDA <!-- JEDI snow cycled DA !-->"
+            echo "- [x] C96_gcafs_cycled <!-- JEDI aerosol cycled DA !-->"
+            echo "- [x] C48mx500_3DVarAOWCDA <!-- JEDI low-res marine 3DVar cycled DA  !-->"
+            echo "- [x] C48mx500_hybAOWCDA <!-- JEDI marine hybrid envar cycled DA !-->"
+            echo "- [x] C96C48_ufsgsi_hybatmDA <!-- JEDI atm Var with GSI EnKF cycled DA !-->"
+            echo "- [x] C48_ufsenkf_atmDA <!-- JEDI atm EnKF cycled DA !-->"
+            echo "- [x] C96C48_hybatmDA <!-- GSI atm cycled DA !-->"
+          } > /tmp/pr_body.md
+
       - name: Create Pull Request
         if: steps.check_pr.outputs.pr_number == ''
         env:
@@ -46,7 +65,7 @@ jobs:
             --head feature/stable-nightly \
             --assignee "RussTreadon-NOAA" \
             --title "Weekly Merge: stable-nightly to develop ($DATE_STR)" \
-            --body "Automated weekly PR to sync stable-nightly updates into develop. Triggered on $DATE_STR." \
+            --body-file /tmp/pr_body.md \
             --label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT"
 
       - name: Update existing PR
@@ -54,7 +73,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Ensure labels and assignee are present even if the PR already existed
+          # Ensure labels, assignee, and body with all CI tests checked are present
           gh pr edit ${{ steps.check_pr.outputs.pr_number }} \
             --add-assignee "RussTreadon-NOAA" \
-            --add-label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT"
+            --add-label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT" \
+            --body-file /tmp/pr_body.md
