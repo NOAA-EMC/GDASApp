@@ -3,7 +3,7 @@ name: Weekly Stable-to-Develop PR
 on:
   schedule:
     # Runs at 09:00 UTC every Tuesday
-    - cron: '0 9 * * 2'
+    - cron: '0 9 * * 3'
   workflow_dispatch: # Allows manual triggering for testing
 
 concurrency:
