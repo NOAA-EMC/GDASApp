@@ -65,7 +65,7 @@
 
   # ------------------------
   obs pre filters:
-  # Remove Observations from the Edge of the Scan
+  # Remove observations from the Edge of the Scan
   - filter: Domain Check
     filter variables:
     - name: brightnessTemperature
@@ -90,7 +90,7 @@
   # Observation Post Filters (QC)
   # -----------------------------
   obs post filters:
-  # Step 1: Observation Range Sanity Check
+  # Step A: Conduct observation range sanity check
   # Valid range: (50, 550)
   - filter: Bounds Check
     filter variables:
@@ -100,7 +100,7 @@
     maxvalue: 549.99999
     action:
       name: reject
-  # Step *: Initial Observation Error Assignment
+  # Step B: Do initial observation error Assignment
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -108,7 +108,7 @@
     action:
       name: assign error
       error parameter vector: &{{observation_from_jcb}}_oberr [{{ get_satellite_variable(observation_from_jcb, "error") }}]
-  #  Assign surface_water_ice_snow = 1 if surface type is sea, ice, or snow.
+  # Step C:  Assign surface_water_ice_snow = 1 if surface type is sea, ice, or snow.
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/surface_water_ice_snow
@@ -125,7 +125,7 @@
         name: GeoVaLs/surface_snow_area_fraction
       minvalue: 0.99
     where operator: or
-  #  Assign surface_water_ice_snow = 0 if surface type is not sea, ice, or snow.
+  # Step C1: Assign surface_water_ice_snow = 0 if surface type is not sea, ice, or snow.
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/surface_water_ice_snow
@@ -145,7 +145,7 @@
       maxvalue: 0.99
       max_exclusive: true
 
-  #  ObsMinusHofx = ObsValue - HofX
+  # Step D: Get Departure ObsMinusHofx = ObsValue - HofX
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/ObsMinusHofx
@@ -162,7 +162,7 @@
           coefs:
           - 1
           - -1
-  #  "cloud_index (clw_obs)" in GSI 
+  # Step E: Get cloud_index ("dsi" in GSI sub "qc_mhs")
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/cloud_index
@@ -182,6 +182,7 @@
     - variable:
         name: DerivedMetaData/surface_water_ice_snow
       is_in: 0
+  # Step E1: Get cloud_index ("dsi" in GSI sub "qc_mhs")
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/cloud_index
@@ -194,7 +195,7 @@
     - variable:
         name: ObsValue/brightnessTemperature_2 
       minvalue: 300.0
-
+  # Step E2: Define 300-Obs(ch2)
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/diff_300_obs2
@@ -207,7 +208,7 @@
             channels: [2]
           coefs: [-1]
           intercept: 300.0
-  #  OmF_ch2 / (300 - Obs_ch2)
+  # Step E3: Define "OmF_ch2 / (300 - Obs_ch2)"
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/omf2_diff_300_obs2
@@ -220,6 +221,7 @@
             channels: [2]
           - name: DerivedMetaData/diff_300_obs2
           exponents: [1, -1]
+  # Step E4: Get final 'cloud_index' ('dsi' in qc_mhs in GSI)
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/cloud_index
@@ -242,6 +244,7 @@
         name: ObsValue/brightnessTemperature_2
       maxvalue: 300.0
       max_exclusive: true
+  # Step E5: Make cloud_index >= 0
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/cloud_index
@@ -252,7 +255,7 @@
         name: DerivedMetaData/cloud_index
       maxvalue: 0.0
 
-  # tpwc_index =((ObsMinusHofX_1 - 7.5*dsi)/10.0)**2+(dsi)**2
+  # Step F: Get tpwc_index =((ObsMinusHofX_1 - 7.5*dsi)/10.0)**2+(dsi)**2
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/tpwc_indexA
@@ -266,6 +269,7 @@
            - name: DerivedMetaData/cloud_index
            coefs: [1, -7.5]
            total coefficient: 0.1
+  # Step F1: Get the final 'tpwc_index'  (it is 'fact1' in qc_mhs() in GSI)
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/tpwc_index
@@ -277,7 +281,7 @@
           - name: DerivedMetaData/tpwc_indexA
           - name: DerivedMetaData/cloud_index
           exponents: [2, 2]
-  # assign inflationFactor0 = (1 - tpwc_index^2)
+  # Step H: Assign inflationFactor0 = (1 - tpwc_index^2)
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/inflationFactor0
@@ -294,7 +298,7 @@
     - variable:
         name: DerivedMetaData/tpwc_index
       maxvalue: 1.0
-  # assign an inflation factor inflationFactor1 = 1.0/(inflationFactor0)^(0.5)
+  # Step H1: Assign inflationFactor1 = 1.0/(inflationFactor0)^(0.5)
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/inflationFactor1
@@ -309,7 +313,7 @@
     - variable:
         name: DerivedMetaData/tpwc_index
       maxvalue: 1.0
-  # assign inflationFactor1=1.0
+  # Step H2: Assign inflationFactor1 = 1.0 where tpwc_index > 1.0
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/inflationFactor1
@@ -320,7 +324,7 @@
         name: DerivedMetaData/tpwc_index
       minvalue: 1.0
 
-  #  Initial error inflation
+  # Step J: Initial error inflation by inflationFactor1
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
@@ -337,7 +341,7 @@
         options:
           sensor: *{{observation_from_jcb}}_sensor_id
 
-  # Observation Error Inflation based on Topography Check
+  # Step J1: Observation error inflation based on topography check
   - filter: Variable Assignment
     assignments:
     - name: ObsErrorFactorTopo@DerivedMetaData
@@ -363,7 +367,7 @@
         name: DerivedMetaData/tpwc_index
       maxvalue: 1.0
 
-  # Obs Error Inflation based on TOA Transmittancec Check
+  # Step J2: Obs error inflation based on TOA Transmittancec check
   - filter: Variable Assignment
     assignments:
     - name: ObsErrorFactorTransmitTop@DerivedMetaData
@@ -385,31 +389,7 @@
         name: ObsErrorFactorTransmitTop@DerivedMetaData
         channels: *{{observation_from_jcb}}_simulated_channels
 
-  # Observation Error Inflation based on Surface Jacobian Check
-  - filter: Variable Assignment
-    assignments:
-    - name: ObsErrorFactorSurfJacobian@DerivedMetaData
-      channels: *{{observation_from_jcb}}_simulated_channels
-      type: float
-      function:
-        name: ObsErrorFactorSurfJacobianRad@ObsFunction
-        channels: *{{observation_from_jcb}}_simulated_channels
-        options:
-          sensor: *{{observation_from_jcb}}_sensor_id
-          channels: *{{observation_from_jcb}}_simulated_channels
-          obserr_demisf: [0.015, 0.030, 0.020, 0.020, 0.250]
-          obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 5.000]
-
-  - filter: Perform Action
-    filter variables:
-    - name: brightnessTemperature
-      channels: *{{observation_from_jcb}}_simulated_channels
-    action:
-      name: inflate error
-      inflation variable:
-        name: ObsErrorFactorSurfJacobian@DerivedMetaData
-        channels: *{{observation_from_jcb}}_simulated_channels
-  #  Find gross error check bound.
+  # Step K: Find gross error check bounds
   #  Note, use DerivedMetaData/inflationFactor1 for "obserr_bound_latitude"
   - filter: Variable Assignment
     assignments:
@@ -435,6 +415,7 @@
           error parameter vector: *{{observation_from_jcb}}_oberr
           threshold: 3
           obserr_bound_max: [{{ get_satellite_variable(observation_from_jcb, "ermax") }}]
+  # Step K1: Gross error check
   - filter: Background Check
     filter variables:
     - name: brightnessTemperature
@@ -445,7 +426,7 @@
     action:
       name: reject
 
-  # Quality control
+  # Step K2: Toss channel 3-5 data with O-F > 2K 
   - filter: BlackList
     where:
     - variable:
@@ -463,7 +444,7 @@
     action:
       name: reject
 
-  #  Inter-channel check
+  # Step L: Conduct inter-channel check
   - filter: Bounds Check
     filter variables:
     - name: brightnessTemperature
@@ -479,7 +460,36 @@
     action:
       name: reject
 
-  # GeoVaLs for Driving Observation Operators (testing mode)
+  # Step M: Observation error inflation based on surface Jacobian check
+  - filter: Variable Assignment
+    assignments:
+    - name: ObsErrorFactorSurfJacobian@DerivedMetaData
+      channels: *{{observation_from_jcb}}_simulated_channels
+      type: float
+      function:
+        name: ObsErrorFactorSurfJacobianRad@ObsFunction
+        channels: *{{observation_from_jcb}}_simulated_channels
+        options:
+          sensor: *{{observation_from_jcb}}_sensor_id
+          channels: *{{observation_from_jcb}}_simulated_channels
+          # obserr_demisf: [0.015, 0.030, 0.020, 0.020, 0.250]
+          # obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 5.000]
+          # x3 if not sea for MHS
+          # surface type    sea, land,   ice,   snow, mixed
+          obserr_demisf: [0.015, 0.090, 0.060, 0.060, 0.750]
+          obserr_dtempf: [0.500, 6.000, 3.000, 6.000, 15.00]
+  # Step M1: Inflate observation error
+  - filter: Perform Action
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsErrorFactorSurfJacobian@DerivedMetaData
+        channels: *{{observation_from_jcb}}_simulated_channels
+
+  # GeoVaLs for Driving observation Operators (testing mode)
   # --------------------------------------------------------
   geovals:
     filename: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atmosphere_obsdatain_suffix}}"
