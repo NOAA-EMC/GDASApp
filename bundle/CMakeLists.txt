@@ -87,7 +87,9 @@ if(BUILD_GDASBUNDLE)
   endif()
 
 # Gibbs seawater
-  ecbuild_bundle( PROJECT gsw SOURCE "../sorc/gsw" )
+  if (BUILD_SOCA)
+    ecbuild_bundle( PROJECT gsw SOURCE "../sorc/gsw" )
+  endif()
 
 # EMC BUFR-query library
   ecbuild_bundle( PROJECT bufr-query SOURCE "../sorc/bufr-query" )
@@ -107,7 +109,10 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
 
 # SOCA associated repositories
-  ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
+  option(BUILD_SOCA "Build SOCA" ON)
+  if (BUILD_SOCA)
+    ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
+  endif()
 
   # Build JEDI/DA or other peripherals
   ecbuild_bundle( PROJECT gdas-utils SOURCE "../utils" )

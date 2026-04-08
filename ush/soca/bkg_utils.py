@@ -17,7 +17,7 @@ logger = Logger()
 # get absolute path of ush/ directory either from env or relative to this file
 my_dir = os.path.dirname(__file__)
 my_home = os.path.dirname(os.path.dirname(my_dir))
-gdas_home = os.path.join(os.getenv('HOMEgfs'), 'sorc', 'gdas.cd')
+gdas_home = os.path.join(os.getenv('HOMEglobal'), 'sorc', 'gdas.cd')
 
 
 def agg_seaice(fname_in, fname_out):

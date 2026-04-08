@@ -4,9 +4,9 @@ set -x
 bindir=$1
 srcdir=$2
 
-# Set g-w HOMEgfs
+# Set g-w HOMEglobal
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
-export HOMEgfs=$topdir
+export HOMEglobal=$topdir
 
 # test experiment variables
 idate=2021032312
@@ -35,15 +35,15 @@ sed -i -e "s~@srcdir@~${srcdir}~g" config.yaml
 sed -i -e "s~@dumpdir@~${GDASAPP_TESTDATA}/lowres~g" config.yaml
 
 # Detect machine
-source "${HOMEgfs}/ush/detect_machine.sh"
+source "${HOMEglobal}/ush/detect_machine.sh"
 
-# Set up the PYTHONPATH to include wxflow from HOMEgfs
-if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
-  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+# Set up the PYTHONPATH to include wxflow from HOMEglobal
+if [[ -d "${HOMEglobal}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEglobal}/sorc/wxflow/src"
 fi
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEgfs}/ush/python"
+wxflowPATH="${HOMEglobal}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
@@ -67,9 +67,9 @@ echo " "
 echo "$expdir/../config.yaml is"
 cat $expdir/../config.yaml
 
-# config.base contains with lobsdiag_forenkf=.true.  Create config.base with lobsdiag_forenkf=.false. for jjob_ens_letkf.sh
+# config.base contains with DO_JEDIATMENS_SPLIT_OBSSOL="YES"  Create config.base with DO_JEDIATMENS_SPLIT_OBSSOL="NO" for jjob_ens_letkf.sh
 EXPDIR=$expdir/$pslot
-cp $EXPDIR/config.base $EXPDIR/config.base_lobsdiag_forenkf_true
-sed 's/export lobsdiag_forenkf=".true."/export lobsdiag_forenkf=".false."/' $EXPDIR/config.base > $EXPDIR/config.base_lobsdiag_forenkf_false
+cp $EXPDIR/config.base $EXPDIR/config.base_split_obssol_true
+sed 's/export DO_JEDIATMENS_SPLIT_OBSSOL="YES"/export DO_JEDIATMENS_SPLIT_OBSSOL="NO"/' $EXPDIR/config.base > $EXPDIR/config.base_split_obssol_false
 
 exit $?
