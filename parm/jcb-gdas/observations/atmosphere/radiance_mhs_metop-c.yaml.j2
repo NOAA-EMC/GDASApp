@@ -312,8 +312,8 @@
     where:
     - variable:
         name: DerivedMetaData/tpwc_index
-      maxvalue: 1.0
-  # Step H2: Assign inflationFactor1 = 1.0 where tpwc_index > 1.0
+      maxvalue: 0.9999999
+  # Step H2: Assign inflationFactor1 = 1.0 where tpwc_index >= 1.0
   - filter: Variable Assignment
     assignments:
     - name: DerivedMetaData/inflationFactor1
