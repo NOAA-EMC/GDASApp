@@ -456,7 +456,24 @@
         channels: *{{observation_from_jcb}}_simulated_channels
         sensor: *{{observation_from_jcb}}_sensor_id
         use_flag: &{{observation_from_jcb}}_active_channels [{{ get_satellite_variable(observation_from_jcb, "active") }}]
+        use passive_bc: true
     maxvalue: 1.0e-12
+    action:
+      name: reject
+
+  # Step L1:  Conduct Useflag check
+  - filter: Bounds Check
+    filter variables:
+    - name: brightnessTemperature
+      channels: *{{observation_from_jcb}}_simulated_channels
+    test variables:
+    - name: ObsFunction/ChannelUseflagCheckRad
+      channels: *{{observation_from_jcb}}_simulated_channels
+      options:
+        sensor: *{{observation_from_jcb}}_sensor_id
+        channels: *{{observation_from_jcb}}_simulated_channels
+        use_flag: *{{observation_from_jcb}}_active_channels
+    minvalue: 1.0e-12
     action:
       name: reject
 
