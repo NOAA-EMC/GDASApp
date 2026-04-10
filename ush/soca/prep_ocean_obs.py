@@ -100,9 +100,9 @@ class PrepOceanObs(Task):
         for obs_type in obs_types:
 
             # Skip ADT obs if cycle is not 00Z
-            if obs_type == 'adt' and cycle != '00':
-                logger.info(f"***** Skipping {obs_type} for cycle {cycle}")
-                continue
+            #if obs_type == 'adt' and cycle != '00':
+            #    logger.info(f"***** Skipping {obs_type} for cycle {cycle}")
+            #    continue
 
             search_path = os.path.join(dmpdir, f"{run}.{run_date}", cycle, 'ocean', obs_type, '*.nc')
             src_files = glob.glob(search_path)

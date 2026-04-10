@@ -12,6 +12,13 @@
     simulated variables: [seaSurfaceTemperature]
     io pool:
       max pool size: 1
+{% if marine_letkf_app | default(false) %}
+    distribution:
+      name: Halo
+      halo size: {{ marine_letkf_dist_halo_size }}
+{% endif %}
+  get values:
+    time interpolation: linear
   obs operator:
     name: Identity
     observation alias file: obsop_name_map.yaml
@@ -19,6 +26,22 @@
     covariance model: diagonal
 
   obs prior filters:
+  - filter: Domain Check
+    where:
+    - variable: {name: GeoVaLs/distance_from_coast}
+      minvalue: 50e3
+  - filter: Perform Action  # accept obs that failed previous QC in Pamlico Sound & Chesapeake Bay
+    action:
+      name: accept
+    where:
+    - variable:
+        name: MetaData/latitude
+      minvalue: 34.5
+      maxvalue: 39.7
+    - variable:
+        name: MetaData/longitude
+      minvalue: -76.88
+      maxvalue: -74.5
   - filter: Bounds Check
     minvalue: -1.2
     maxvalue: 41.0
@@ -26,8 +49,25 @@
     where:
     - variable: {name: ObsError/seaSurfaceTemperature}
       minvalue: 1.0e-8
+  - filter: Domain Check
+    where:
+    - variable: {name: GeoVaLs/sea_area_fraction}
+      value: is_valid
+      minvalue: 0.9
+  - filter: Domain Check
+    where:
+    - variable: { name: GeoVaLs/sea_ice_area_fraction}
+      maxvalue: 1.0e-5
+  - filter: Domain Check
+    where:
+    - variable: {name: GeoVaLs/sea_surface_temperature}
+      minvalue: -1.2
 
-{% if letkf_app | default(false) %}
+  obs post filters:
+  - filter: Background Check
+    absolute threshold: 5.0
+
+{% if marine_letkf_app | default(false) %}
   obs localizations:
   - localization method: Rossby
     base value: 100.0e3
