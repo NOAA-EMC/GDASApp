@@ -25,7 +25,6 @@ export NMEM_ENS=0
 export COM_TOP=$ROTDIR
 
 # Set GFS COM paths
-source "${HOMEglobal}/ush/preamble.sh"
 source "${HOMEglobal}/dev/parm/config/gfs/config.com"
 
 # Detect machine
