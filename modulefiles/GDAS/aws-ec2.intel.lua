@@ -96,6 +96,8 @@ local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
+setenv("CRTM_FIX", "/lustre/sharedGWdata/fix/crtm/v2.4.0.2")
+
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)
 whatis("Category: GDASApp")
