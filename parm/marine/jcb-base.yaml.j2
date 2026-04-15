@@ -114,12 +114,17 @@ local_ensemble_da_solver: Deterministic LETKF
 use_linear_observer: true
 
 # Increment variables
-increment_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, sea_water_cell_thickness, eastward_sea_water_velocity, northward_sea_water_velocity, sea_ice_area_fraction]
+#increment_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, sea_water_cell_thickness, eastward_sea_water_velocity, northward_sea_water_velocity, sea_ice_area_fraction]
+#increment_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, sea_water_cell_thickness, eastward_sea_water_velocity, northward_sea_water_velocity, sea_ice_area_fraction, sea_ice_volume]
+#increment_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, sea_water_cell_thickness, eastward_sea_water_velocity, northward_sea_water_velocity, sea_ice_area_fraction, sea_ice_thickness]
+increment_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, sea_water_cell_thickness, eastward_sea_water_velocity, northward_sea_water_velocity, sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness]
 
 # Driver
 driver_save_posterior_mean: true
 driver_save_prior_mean: true
 driver_save_posterior_mean_increment: true
+driver_save_posterior_ensemble_increments: true
+driver_save_posterior_ensemble: false
 driver_save_prior_variance: true
 driver_save_posterior_variance: true
 driver_do_posterior_observer: true
