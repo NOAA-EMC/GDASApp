@@ -15,7 +15,7 @@ config_gsi.yaml and config_jedi.yaml contain the following user settings
   - machine: hera, hercules, or orion
   - job options:  may need to adjust nodes, tasks-per-node, or mem appropriate for dataset being processed
 
-      HOMEgfs: global-workflow installation
+      HOMEglobal: global-workflow installation
       STAGEDIR: machine specific path containing job input, set to the machine appropriate path below
          Hera: /scratch3/NCEPDEV/da/Russ.Treadon/STAGEDIR
 	 Hercules, Orion: /work2/noaa/da/rtreadon/STAGEDIR
