@@ -75,6 +75,8 @@ jobs:
             mkdir -p /build && cd /build
             ecbuild \
               -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PREFIX }} \
+              -DBUILD_JEDI=ON \
+              -DBUILD_GDAS=OFF \
               -DBUILD_SOCA=OFF \
               -DBUILD_GSIBEC=ON \
               -DBUILD_TESTING=OFF \
