@@ -1,6 +1,8 @@
 name: Build and Push JEDI Container
 
 on:
+  push:
+    branches: [feature/build-container]
   schedule:
     # Runs at 19:00 UTC every Saturday
     - cron: '0 19 * * 6'
