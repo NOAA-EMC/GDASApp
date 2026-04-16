@@ -45,6 +45,7 @@ jobs:
           sorc/ioda \
           sorc/ufo \
           sorc/crtm \
+          sorc/bufr-query \
           sorc/jcb
 
     - name: Log in to GitHub Container Registry
