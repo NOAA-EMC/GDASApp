@@ -59,19 +59,35 @@ data_in:
 
 
 ######################################
-## copy berror files from COMIN_CHEM_BMAT_PREV
-## stddev files
+
+## copy berror files, source depends on coldstart
+{% if coldstart %}
+    ## stddev files from HOMEglobal/fix/coldstart/berror/ with explicit destination filenames
+    - ['{{ HOMEglobal }}/fix/coldstart/berror/stddev.fv_tracer.res.tile1.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile1.nc']
+    - ['{{ HOMEglobal }}/fix/coldstart/berror/stddev.fv_tracer.res.tile2.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile2.nc']
+    - ['{{ HOMEglobal }}/fix/coldstart/berror/stddev.fv_tracer.res.tile3.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile3.nc']
+    - ['{{ HOMEglobal }}/fix/coldstart/berror/stddev.fv_tracer.res.tile4.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile4.nc']
+    - ['{{ HOMEglobal }}/fix/coldstart/berror/stddev.fv_tracer.res.tile5.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile5.nc']
+    - ['{{ HOMEglobal }}/fix/coldstart/berror/stddev.fv_tracer.res.tile6.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile6.nc']
+    ### copy coupler file
+    - ['{{ HOMEglobal }}/fix/coldstart/berror/stddev.coupler.res', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.coupler.res']
+    ### copy diffusion files
+    - ['{{ HOMEglobal }}/fix/coldstart/berror/aero_diffusion_hz.nc', '{{ DATA }}/berror/{{ GPREFIX }}aero_diffusion_hz.nc']
+    - ['{{ HOMEglobal }}/fix/coldstart/berror/aero_diffusion_vt.nc', '{{ DATA }}/berror/{{ GPREFIX }}aero_diffusion_vt.nc']
+{% else %}
+    ## stddev files from COMIN_CHEM_BMAT_PREV
     - ['{{ COMIN_CHEM_BMAT_PREV }}/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile1.nc', '{{ DATA }}/berror/']
     - ['{{ COMIN_CHEM_BMAT_PREV }}/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile2.nc', '{{ DATA }}/berror/']
     - ['{{ COMIN_CHEM_BMAT_PREV }}/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile3.nc', '{{ DATA }}/berror/']
     - ['{{ COMIN_CHEM_BMAT_PREV }}/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile4.nc', '{{ DATA }}/berror/']
     - ['{{ COMIN_CHEM_BMAT_PREV }}/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile5.nc', '{{ DATA }}/berror/']
     - ['{{ COMIN_CHEM_BMAT_PREV }}/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile6.nc', '{{ DATA }}/berror/']
-### copy coupler file
+    ### copy coupler file
     - ['{{ COMIN_CHEM_BMAT_PREV }}/{{ current_cycle | to_fv3time }}.stddev.coupler.res', '{{ DATA }}/berror/']
-### copy diffusion files
+    ### copy diffusion files
     - ['{{ COMIN_CHEM_BMAT_PREV }}/{{ GPREFIX }}aero_diffusion_hz.nc', '{{ DATA }}/berror/diffusion_hz.nc']
     - ['{{ COMIN_CHEM_BMAT_PREV }}/{{ GPREFIX }}aero_diffusion_vt.nc', '{{ DATA }}/berror/diffusion_vt.nc']
+{% endif %}
 
 {% filter indent(width=4) %}
 {% include 'aero_stage_crtm_coeff.yaml.j2' %}
