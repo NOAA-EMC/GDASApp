@@ -1,0 +1,37 @@
+field metadata:
+
+- long name: weasdl 
+  io file: surface
+
+- long name: snwdph
+  io file: surface  
+
+- long name: q2m
+  io file: surface
+  io name: q2m
+
+- long name: slc
+  io file: surface
+  io name: slc
+
+- long name: snowxy
+  io file: surface
+
+- long name: sneqvoxy
+  io file: surface
+  io name: sneqvoxy
+
+- long name: zsnsoxy
+  io file: surface
+
+- long name: tsnoxy
+  io file: surface
+
+- long name: snicexy
+  io file: surface
+
+- long name: snliqxy
+  io file: surface
+
+- long name: tgxy
+  io file: surface

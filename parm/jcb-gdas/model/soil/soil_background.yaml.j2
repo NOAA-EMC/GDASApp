@@ -12,12 +12,14 @@ state variables:
 - filtered_orography
 - fraction_of_ice
 - fraction_of_land
+- air_temperature_at_2m
 field io names:
   soilMoistureVolumetric: smc
   totalSnowDepth: snodl
   filtered_orography: orog_filt
   fraction_of_ice: fice
   fraction_of_land: land_frac
+  air_temperature_at_2m: t2m
 filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
 filename_cplr: '{{ soil_background_time_fv3 }}.coupler.res'
 filename_orog: '{{ soil_orog_prefix }}_oro_data.nc'

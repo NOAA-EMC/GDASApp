@@ -52,12 +52,12 @@ state:
   filename_sfcd: {{ soil_background_time_fv3 }}.sfc_data.nc
 increment:
   added variables:
-#  - soilMoistureVolumetric
+  - soilMoistureVolumetric
   - stc
-  - air_temperature_at_2m
+#  - air_temperature_at_2m
   field io names:
-#    soilMoistureVolumetric: smc
-    air_temperature_at_2m: t2m
+    soilMoistureVolumetric: smc
+#    air_temperature_at_2m: t2m
   datapath: ./anl/mem%{member}%
   filetype: fms restart
   skip coupler file: true
