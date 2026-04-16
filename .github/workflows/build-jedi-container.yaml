@@ -90,8 +90,12 @@ jobs:
     - name: Commit and tag container image
       run: |
         docker commit \
+          --change 'CMD ["/bin/bash"]' \
           --change 'ENV JEDI_INSTALL_PREFIX=${{ env.INSTALL_PREFIX }}' \
-          --change 'ENV CMAKE_PREFIX_PATH=${{ env.INSTALL_PREFIX }}' \
+          --change 'ENV CMAKE_PREFIX_PATH=${{ env.INSTALL_PREFIX }}:/opt/view' \
+          --change 'ENV PATH=${{ env.INSTALL_PREFIX }}/bin:/opt/view/bin:$PATH' \
+          --change 'ENV LD_LIBRARY_PATH=${{ env.INSTALL_PREFIX }}/lib:/opt/view/lib:$LD_LIBRARY_PATH' \
+          --change 'ENV BASH_ENV=/opt/spack-environment/activate.sh' \
           jedi-build ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.date_tag }}
         docker tag ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.date_tag }} \
           ${{ steps.meta.outputs.image }}:latest
