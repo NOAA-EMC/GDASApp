@@ -17,6 +17,7 @@ data_in:
     - '{{ DATA }}/fv3jedi'
 
     copy_req:
+{% if not coldstart %}
 {% for bkg_time in bkg_times %}
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ bkg_time | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/']
 
@@ -72,6 +73,33 @@ data_in:
 ### copy diffusion files
     - ['{{ COMIN_CHEM_BMAT_PREV }}/{{ GPREFIX }}aero_diffusion_hz.nc', '{{ DATA }}/berror/diffusion_hz.nc']
     - ['{{ COMIN_CHEM_BMAT_PREV }}/{{ GPREFIX }}aero_diffusion_vt.nc', '{{ DATA }}/berror/diffusion_vt.nc']
+
+
+### copy merra2 aerosol climatology files for coldstart
+{% else %}
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m01.nc', '{{ DATA }}/bkg/']
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m02.nc', '{{ DATA }}/bkg/']
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m03.nc', '{{ DATA }}/bkg/']
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m04.nc', '{{ DATA }}/bkg/']
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m05.nc', '{{ DATA }}/bkg/']
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m06.nc', '{{ DATA }}/bkg/']
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m07.nc', '{{ DATA }}/bkg/']
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m08.nc', '{{ DATA }}/bkg/']
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m09.nc', '{{ DATA }}/bkg/']
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m10.nc', '{{ DATA }}/bkg/']
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m11.nc', '{{ DATA }}/bkg/']
+    - ['{{ fixaer }}/merra2.aerclim.2014-2023.m12.nc', '{{ DATA }}/bkg/']
+
+    - ['{{ FIXCHEM }}/stddev.fv_tracer.res.tile1.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile1.nc'']
+    - ['{{ FIXCHEM }}/stddev.fv_tracer.res.tile2.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile2.nc'']
+    - ['{{ FIXCHEM }}/stddev.fv_tracer.res.tile3.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile3.nc'']
+    - ['{{ FIXCHEM }}/stddev.fv_tracer.res.tile4.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile4.nc'']
+    - ['{{ FIXCHEM }}/stddev.fv_tracer.res.tile5.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile5.nc'']
+    - ['{{ FIXCHEM }}/stddev.fv_tracer.res.tile6.nc', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.fv_tracer.res.tile6.nc'']
+    - ['{{ COMIN_CHEM_BMAT_PREV }}/stddev.coupler.res', '{{ DATA }}/berror/{{ current_cycle | to_fv3time }}.stddev.coupler.res']
+    - ['{{ COMIN_CHEM_BMAT_PREV }}/aero_diffusion_hz.nc', '{{ DATA }}/berror/diffusion_hz.nc']
+    - ['{{ COMIN_CHEM_BMAT_PREV }}/aero_diffusion_vt.nc', '{{ DATA }}/berror/diffusion_vt.nc']
+{% endif %}
 
 {% filter indent(width=4) %}
 {% include 'aero_stage_crtm_coeff.yaml.j2' %}
