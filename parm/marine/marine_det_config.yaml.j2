@@ -1,22 +1,22 @@
 jedi_config:
     var:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_MARINEANLVAR }}'
         jedi_args: ['soca', 'variational']
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/marine/jcb-prototype_3dfgat.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_algo_yaml: '{{ PARMglobal }}/gdas/marine/jcb-prototype_3dfgat.yaml.j2'
     soca_incpostproc:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_soca_incr_handler.x'
+        exe_src: '{{ EXECglobal }}/gdas_soca_incr_handler.x'
         mpi_cmd: '{{ APRUN_MARINEANLCHKPT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_incpostproc
     soca_diag_stats:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_soca_obsstats.x'
+        exe_src: '{{ EXECglobal }}/gdas_soca_obsstats.x'
         mpi_cmd: '{{ APRUN_MARINEANLOBSSTATS }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_diag_stats
 
 data_in:

@@ -1,5 +1,5 @@
 base:
-  HOMEgfs: "@topdir@"
+  HOMEglobal: "@topdir@"
   DOHYBVAR: "NO"
   DO_JEDIATMVAR: "YES"
   DO_JEDIATMENS: "YES"
@@ -17,15 +17,15 @@ atmanl:
   ATMRES_ANL: "C48"
   LAYOUT_X_ATMANL: 1
   LAYOUT_Y_ATMANL: 1
-  OBS_LIST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/atm_obs_list.yaml.j2"
-  VAR_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_3dvar.yaml.j2"
-  FV3INC_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_3dvar-fv3inc.yaml.j2"
+  OBS_LIST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/atm_obs_list.yaml.j2"
+  VAR_JEDI_TEST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_3dvar.yaml.j2"
+  FV3INC_JEDI_TEST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_3dvar-fv3inc.yaml.j2"
 
 atmensanl: 
   LAYOUT_X_ATMENSANL: 1
   LAYOUT_Y_ATMENSANL: 1
-  OBS_LIST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/atm_obs_list.yaml.j2"
-  LETKF_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf.yaml.j2"
-  OBS_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-observer.yaml.j2"
-  SOL_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-solver.yaml.j2"
-  FV3INC_JEDI_TEST_YAML: "${HOMEgfs}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-fv3inc.yaml.j2"
+  OBS_LIST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/atm_obs_list.yaml.j2"
+  LETKF_JEDI_TEST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf.yaml.j2"
+  OBS_JEDI_TEST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-observer.yaml.j2"
+  SOL_JEDI_TEST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-solver.yaml.j2"
+  FV3INC_JEDI_TEST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-fv3inc.yaml.j2"
