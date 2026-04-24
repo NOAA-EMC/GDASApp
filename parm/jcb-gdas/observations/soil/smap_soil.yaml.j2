@@ -200,6 +200,28 @@
 #        ignore: rejected observations
 #      - name: reject
   obs post filters:
+    # Bounds Check (ObsError)
+    - filter: Bounds Check
+      udescriptor: "bounds_check_ObsError"
+      filter variables:
+      - name: soilMoistureVolumetric
+      test variables:
+      - name:  ObsErrorData/soilMoistureVolumetric
+      minvalue: 0.0
+      maxvalue: 0.2
+      action:
+        name: reject   
+
+    # Bounds Check (ObsValue)
+    - filter: Bounds Check
+      udescriptor: "bounds_check_ObsValue"
+      filter variables:
+      - name: soilMoistureVolumetric
+      minvalue: 0.02
+      maxvalue: 0.5
+      action:
+        name: reject   
+
     - filter: Background Check # gross error check
       filter variables:
       - name: soilMoistureVolumetric

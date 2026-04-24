@@ -16,7 +16,8 @@ members from template:
     - filtered_orography
     - fraction_of_ice
     - fraction_of_land
-    - air_temperature_at_2m  
+    - air_temperature_at_2m 
+    - specfic_humidity_at_2m 
 #temperature_2m
 #spec_humidity_2m
     field io names: &field_ios
@@ -26,6 +27,7 @@ members from template:
       fraction_of_ice: fice
       fraction_of_land: land_frac
       air_temperature_at_2m: t2m
+      specfic_humidity_at_2m: q2m
     datapath: {{ soil_background_ensemble_path }}
     filename is datetime templated: true
     filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
