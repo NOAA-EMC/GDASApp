@@ -41,6 +41,13 @@ data_in:
     - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile5.nc', '{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atminc.tile5.nc']
     - ['{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i006.tile6.nc', '{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atminc.tile6.nc']
 
+    {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                          '${RUN}': 'enkf' ~ RUN,
+                          '${YMD}': previous_cycle | to_YMD,
+                          '${HH}': previous_cycle | strftime('%H'),
+                          '${MEMDIR}': 'mem001' }) %}
+    - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}//{{ GPREFIX_ENS }}atm.f006.nc', '{{ DATA }}']
+
     {% if DO_AERO_ANL %}
     - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile1.nc', '{{ DATA }}']
     - ['{{ COMIN_AERO_ANALYSIS }}/{{ APREFIX }}aeroinc.{{ current_cycle | to_fv3time }}.fv_tracer.res.tile2.nc', '{{ DATA }}']

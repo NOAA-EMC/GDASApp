@@ -39,5 +39,11 @@ increment:
 output:
   filetype: auxgrid
   gridtype: gaussian
+  do vertical remapping: true
   datapath: ./
   filename: aeroanl.
+  orography filename: {{ aero_ensemble_history_prefix }}atm.f006.nc
+  latitude dim name: grid_yt
+  longitude dim name: grid_xt
+  level dim name: pfull
+  edge dim name: phalf

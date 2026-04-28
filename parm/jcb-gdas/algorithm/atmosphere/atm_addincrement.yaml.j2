@@ -87,7 +87,14 @@ increment:
 output:
   filetype: auxgrid
   gridtype: gaussian
+  do vertical remapping: true
+  datapath: ./
   filename: atmanl.
+  orography filename: {{ atmosphere_ensemble_history_prefix }}atm.f006.nc
+  latitude dim name: grid_yt
+  longitude dim name: grid_xt
+  level dim name: pfull
+  edge dim name: phalf
   field io names:
     eastward_wind: ugrd
     northward_wind: vgrd
