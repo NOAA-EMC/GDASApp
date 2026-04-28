@@ -78,7 +78,10 @@ data_out:
 
     # ocean increments are saved as 1..n
     - ['{{ DATA }}/ocn.recenter.ens.{{ (imem) | string }}.{{ WINDOW_END | to_isotime }}.PT0S.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}mom6_increment.i006.nc']
-
+    # ocean recentered (analyses?) are saved as 1..n
+#    - ['{{ DATA }}/ocn.recenter.ens.{{ (imem) | string }}.{{ WINDOW_END | to_isotime }}.PT0S.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_analysis.a006.nc']
+    # ocean recentered increments are saved as 1..n
+#    - ['{{ DATA }}/ocn.recenter.ens.{{ (imem) | string }}.{{ WINDOW_END | to_isotime }}.PT0S.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}recentered_increment.i006.nc']
     # ice restarts are saved as 1..n
     - ['{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.analysis.cice_model.res.nc']
 {% endfor %}
