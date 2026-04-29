@@ -96,13 +96,6 @@ esac
 
 CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET -DBUILD_TESTING=$BUILD_TESTING"
 
-# TODO: Remove LD_LIBRARY_PATH line as soon as permanent solution is available
-if [[ $BUILD_TARGET == 'wcoss2' ]]; then
-  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.29/ofi/intel/2022.1/lib"
-  export LMOD_MPI_NAME=cray-mpich
-  export LMOD_MPI_VERSION=8.1.29-xhbciau
-fi
-
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
 if [[ $CLEAN_BUILD == 'YES' ]]; then
   [[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR}
@@ -142,8 +135,6 @@ if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundl
 if [ -d "$dir_root/bundle/test-data-release/" ]; then rm -rf $dir_root/bundle/test-data-release/; fi
 mkdir -p $dir_root/bundle/fix/test-data-release/
 mkdir -p $dir_root/bundle/test-data-release/
-ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
-ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
 
 # Hack OOPS one line change to harden code for operations,
 # remove once the change is merged into the JCSDA develop branch and we can update the submodule
