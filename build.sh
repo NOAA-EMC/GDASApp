@@ -142,8 +142,6 @@ if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundl
 if [ -d "$dir_root/bundle/test-data-release/" ]; then rm -rf $dir_root/bundle/test-data-release/; fi
 mkdir -p $dir_root/bundle/fix/test-data-release/
 mkdir -p $dir_root/bundle/test-data-release/
-ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
-ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
 
 # Hack OOPS one line change to harden code for operations,
 # remove once the change is merged into the JCSDA develop branch and we can update the submodule
