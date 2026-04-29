@@ -9,7 +9,7 @@ local pkgNameVer = myModuleFullName()
 prepend_path("MODULEPATH", "/apps/dev/lmodules/core")
 
 load("PrgEnv-intel/8.2.0")
-load("cmake/3.30.5")
+load("cmake/3.27.9")
 load("craype")
 load("cray-pals")
 load("git/2.29.0")
@@ -36,16 +36,16 @@ load("bufr/12.1.0")
 load("fms-D/2024.01")
 
 -- hack for pybind11
-setenv("pybind11_ROOT", "/apps/spack/python/3.8.6/intel/19.1.3.304/pjn2nzkjvqgmjw4hmyz43v5x4jbxjzpk/lib/python3.8/site-packages/pybind11/share/cmake/pybind11")
+--setenv("pybind11_ROOT", "/apps/spack/python/3.8.6/intel/19.1.3.304/pjn2nzkjvqgmjw4hmyz43v5x4jbxjzpk/lib/python3.8/site-packages/pybind11/share/cmake/pybind11")
 
 -- hack for git-lfs
-prepend_path("PATH", "/apps/spack/git-lfs/2.11.0/gcc/11.2.0/m6b6nl5kfqngfteqbggydc7kflxere3s/bin")
+--prepend_path("PATH", "/apps/spack/git-lfs/2.11.0/gcc/11.2.0/m6b6nl5kfqngfteqbggydc7kflxere3s/bin")
 
 -- hack for eigen
-setenv("Eigen3_DIR", "/apps/spack/eigen/3.4.0/intel/19.1.3.304/557xcyno3eksaklublyebh53ekc3kdwg/share/eigen3/cmake/")
+--setenv("Eigen3_DIR", "/apps/spack/eigen/3.4.0/intel/19.1.3.304/557xcyno3eksaklublyebh53ekc3kdwg/share/eigen3/cmake/")
 
 -- hack for FMS
-setenv("fms_DIR", "/apps/prod/hpc-stack/i-19.1.3.304__m-8.1.19__h-1.14.0__n-4.9.2__p-2.5.10__e-8.8.0_pnetcdf/intel-19.1.3.304/cray-mpich-8.1.19/fms/2024.01/lib/cmake/fms/")
+--setenv("fms_DIR", "/apps/prod/hpc-stack/i-19.1.3.304__m-8.1.19__h-1.14.0__n-4.9.2__p-2.5.10__e-8.8.0_pnetcdf/intel-19.1.3.304/cray-mpich-8.1.19/fms/2024.01/lib/cmake/fms/")
 
 local mpiexec = '/pe/intel/compilers_and_libraries_2020.4.304/linux/mpi/intel64/bin/mpirun'
 local mpinproc = '-n'
