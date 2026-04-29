@@ -43,13 +43,9 @@ class CorrectionIncrementParameters : public oops::Parameters {
   oops::RequiredParameter<oops::Variables> \
     incrVars{"increment variables", this};
   oops::RequiredParameter<eckit::LocalConfiguration> \
-    varIncrGeomConfig{"variational increment geometry", this};
+    detGeomConfig{"deterministic geometry", this};
   oops::RequiredParameter<eckit::LocalConfiguration> \
-    detBkgGeomConfig{"deterministic background geometry", this};
-  oops::RequiredParameter<eckit::LocalConfiguration> \
-    ensMeanAnlGeomConfig{"ensemble mean analysis geometry", this};
-  oops::RequiredParameter<eckit::LocalConfiguration> \
-    corIncrGeomConfig{"correction increment geometry", this};
+    ensGeomConfig{"ensemble geometry", this};
   oops::RequiredParameter<std::vector<ForecastHourParameters>> \
     fcstHourParams{"forecast hours", this};
 };
@@ -69,10 +65,8 @@ namespace gdasapp {
       params.deserialize(fullConfig);
 
       // Setup geometries
-      const fv3jedi::Geometry varIncrGeom(params.varIncrGeomConfig.value(), this->getComm());
-      const fv3jedi::Geometry detBkgGeom(params.detBkgGeomConfig.value(), this->getComm());
-      const fv3jedi::Geometry ensMeanAnlGeom(params.ensMeanAnlGeomConfig.value(), this->getComm());
-      const fv3jedi::Geometry corIncrGeom(params.corIncrGeomConfig.value(), this->getComm());
+      const fv3jedi::Geometry detGeom(params.detGeomConfig.value(), this->getComm());
+      const fv3jedi::Geometry ensGeom(params.ensGeomConfig.value(), this->getComm());
 
       // Loop through forecast hours ("recenterings")
       const int nhours = params.fcstHourParams.value().size();
@@ -83,27 +77,27 @@ namespace gdasapp {
         const util::DateTime datetime(fcstHourParams.datetimeStr.value());
 
         // Initialize background
-        fv3jedi::State xxBkgDet(detBkgGeom, params.incrVars.value(), datetime);
+        fv3jedi::State xxBkgDet(detGeom, params.incrVars.value(), datetime);
         xxBkgDet.read(fcstHourParams.detBkgConfig.value());
 
-        // Initialize increment
-        fv3jedi::Increment dxVar(varIncrGeom, params.incrVars.value(), datetime);
-        dxVar.read(fcstHourParams.varIncrConfig.value());
+        // Initialize deterministic increment
+        fv3jedi::Increment dxDet(detGeom, params.incrVars.value(), datetime);
+        dxDet.read(fcstHourParams.varIncrConfig.value());
 
         // Initialize ensemble mean analysis
-        fv3jedi::State xxAnlEnsMean(ensMeanAnlGeom, params.incrVars.value(), datetime);
+        fv3jedi::State xxAnlEnsMean(ensGeom, params.incrVars.value(), datetime);
         xxAnlEnsMean.read(fcstHourParams.ensMeanAnlConfig.value());
 
-        // Compute analysis
-        fv3jedi::State xxAnlVar(detBkgGeom, xxBkgDet);
-        xxAnlVar += dxVar;
+        // Compute deterministic analysis
+        fv3jedi::State xxAnlDet(detGeom, xxBkgDet);
+        xxAnlDet += dxDet;
 
-        // Interpolate full resolution analysis to ensemble resolution
-        fv3jedi::State xxAnlVarEnsRes(corIncrGeom, xxAnlVar);
+        // Interpolate full resolution deterministic analysis to ensemble resolution
+        fv3jedi::State xxAnlDetEnsRes(ensGeom, xxAnlDet);
 
         // Compute correction increment
-        fv3jedi::Increment dxCor(corIncrGeom, params.incrVars.value(), datetime);
-        dxCor.diff(xxAnlVarEnsRes, xxAnlEnsMean);
+        fv3jedi::Increment dxCor(ensGeom, params.incrVars.value(), datetime);
+        dxCor.diff(xxAnlDetEnsRes, xxAnlEnsMean);
 
         // Write correction increment
         dxCor.write(fcstHourParams.corIncrConfig.value());
