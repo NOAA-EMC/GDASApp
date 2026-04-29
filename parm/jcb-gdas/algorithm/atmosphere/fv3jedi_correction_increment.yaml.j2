@@ -11,7 +11,7 @@ increment variables:
 - air_temperature
 - eastward_wind
 - northward_wind
-deterministic background geometry:
+deterministic geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
     field table filename: ./fv3jedi/field_table
@@ -22,7 +22,7 @@ deterministic background geometry:
   npx: {{ atmosphere_npx_ges }}
   npy: {{ atmosphere_npy_ges }}
   npz: {{ atmosphere_npz_ges }}
-variational increment geometry:
+ensemble geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
     field table filename: ./fv3jedi/field_table
@@ -33,28 +33,16 @@ variational increment geometry:
   npx: {{ atmosphere_npx_anl }}
   npy: {{ atmosphere_npy_anl }}
   npz: {{ atmosphere_npz_anl }}
-ensemble mean analysis geometry:
-  fms initialization:
-    namelist filename: ./fv3jedi/fmsmpp.nml
-    field table filename: ./fv3jedi/field_table
-  akbk: ./fv3jedi/akbk.nc4
-  layout:
-  - {{ atmosphere_layout_x }}
-  - {{ atmosphere_layout_y }}
-  npx: {{ atmosphere_npx_anl }}
-  npy: {{ atmosphere_npy_anl }}
-  npz: {{ atmosphere_npz_anl }}
-correction increment geometry:
-  fms initialization:
-    namelist filename: ./fv3jedi/fmsmpp.nml
-    field table filename: ./fv3jedi/field_table
-  akbk: ./fv3jedi/akbk.nc4
-  layout:
-  - {{ atmosphere_layout_x }}
-  - {{ atmosphere_layout_y }}
-  npx: {{ atmosphere_npx_anl }}
-  npy: {{ atmosphere_npy_anl }}
-  npz: {{ atmosphere_npz_anl }}
+  do vertical remapping: true
+  time invariant fields:
+    state fields:
+      datetime: '{{ atmosphere_iau_times_iso[0] }}'
+      filetype: cube sphere history
+      provider: ufs
+      datapath: ./
+      filename: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_atma{{ '%03d' % atmosphere_iau_hours[0] }}.ensmean.nc
+      state variables:
+      - geopotential_height_at_surface
 forecast hours:
 {% for ihour in range( atmosphere_iau_hours | length ) %}
 - datetime: '{{ atmosphere_iau_times_iso[ihour] }}'
