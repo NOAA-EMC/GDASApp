@@ -10,6 +10,7 @@
 #include "fv3jedi/Geometry/Geometry.h"
 #include "fv3jedi/Increment/Increment.h"
 #include "fv3jedi/State/State.h"
+#include "fv3jedi/VariableChange/VariableChange.h"
 
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
@@ -41,7 +42,11 @@ class CorrectionIncrementParameters : public oops::Parameters {
   OOPS_CONCRETE_PARAMETERS(CorrectionIncrementParameters, Parameters)
  public:
   oops::RequiredParameter<oops::Variables> \
+    stateVars{"state variables", this};  
+  oops::RequiredParameter<oops::Variables> \
     incrVars{"increment variables", this};
+  oops::OptionalParameter<eckit::LocalConfiguration> \
+    varChange{"variable change", this};
   oops::RequiredParameter<eckit::LocalConfiguration> \
     detGeomConfig{"deterministic geometry", this};
   oops::RequiredParameter<eckit::LocalConfiguration> \
@@ -68,6 +73,21 @@ namespace gdasapp {
       const fv3jedi::Geometry detGeom(params.detGeomConfig.value(), this->getComm());
       const fv3jedi::Geometry ensGeom(params.ensGeomConfig.value(), this->getComm());
 
+      // Setup variables
+      oops::Variables incrVars(params.incrVars.value());
+      oops::Variables stateVars(params.stateVars.value());
+    
+      // Increment variables need to be a subset of state variables
+      ASSERT( incrVars <= stateVars );
+
+      // Setup variable change
+      std::unique_ptr<fv3jedi::VariableChange> vc;
+      oops::Variables varsChanged;
+      if (params.varChange.value() != boost::none) {
+        vc.reset(new fv3jedi::VariableChange(*params.varChange.value(), detGeom));
+        varsChanged = oops::Variables(*params.varChange.value(), "recalculated variables");
+      }
+
       // Loop through forecast hours ("recenterings")
       const int nhours = params.fcstHourParams.value().size();
       for ( int ihour = 0; ihour < nhours; ihour++ ) {
@@ -77,26 +97,47 @@ namespace gdasapp {
         const util::DateTime datetime(fcstHourParams.datetimeStr.value());
 
         // Initialize background
-        fv3jedi::State xxBkgDet(detGeom, params.incrVars.value(), datetime);
+        fv3jedi::State xxBkgDet(detGeom, stateVars, datetime);
         xxBkgDet.read(fcstHourParams.detBkgConfig.value());
 
         // Initialize deterministic increment
-        fv3jedi::Increment dxDet(detGeom, params.incrVars.value(), datetime);
+        fv3jedi::Increment dxDet(detGeom, incrVars, datetime);
         dxDet.read(fcstHourParams.varIncrConfig.value());
 
         // Initialize ensemble mean analysis
-        fv3jedi::State xxAnlEnsMean(ensGeom, params.incrVars.value(), datetime);
+        fv3jedi::State xxAnlEnsMean(ensGeom, stateVars, datetime);
         xxAnlEnsMean.read(fcstHourParams.ensMeanAnlConfig.value());
 
         // Compute deterministic analysis
         fv3jedi::State xxAnlDet(detGeom, xxBkgDet);
         xxAnlDet += dxDet;
 
+        //  Optional variable change to recomputed chosen state variables in final state
+        //  This is useful if, for example, the state has both delp and ps but the increment only has 
+        //  delp. Simple increment addition of just delp to the state would result in an incorrect ps 
+        //  value since ps is a function of delp. ps would need to be recalculated after the increment addition.
+        if ( params.varChange.value() != boost::none ) {
+          // Save state variables with and without variable change variables
+          oops::Variables stateVarsReduced = xxAnlDet.variables();
+          oops::Variables stateVarsExpanded = xxAnlDet.variables();
+          stateVarsReduced -= varsChanged;
+          stateVarsExpanded += varsChanged;
+
+          // Change state to reduced set of variables
+          // This is necessary since a variable needs to be missing from the state in order
+          // for it to be computed by the final variable change.
+          vc->changeVar(xxAnlDet, stateVarsReduced);
+
+          // Change variables to expanded set of variables
+          // This step actually computes the variables we want
+          vc->changeVar(xxAnlDet, stateVarsExpanded);
+        }
+
         // Interpolate full resolution deterministic analysis to ensemble resolution
         fv3jedi::State xxAnlDetEnsRes(ensGeom, xxAnlDet);
 
         // Compute correction increment
-        fv3jedi::Increment dxCor(ensGeom, params.incrVars.value(), datetime);
+        fv3jedi::Increment dxCor(ensGeom, incrVars, datetime);
         dxCor.diff(xxAnlDetEnsRes, xxAnlEnsMean);
 
         // Write correction increment

@@ -1,3 +1,18 @@
+state variables:
+- cloud_liquid_water
+- layer_thickness
+- air_pressure_thickness
+- cloud_liquid_ice
+- snow_water
+- rain_water
+- graupel
+- ozone_mass_mixing_ratio
+- water_vapor_mixing_ratio_wrt_moist_air
+- air_temperature
+- eastward_wind
+- northward_wind
+- air_pressure_at_surface
+- geopotential_height_at_surface
 increment variables:
 - cloud_liquid_water
 - layer_thickness
@@ -11,6 +26,9 @@ increment variables:
 - air_temperature
 - eastward_wind
 - northward_wind
+variable change:
+  recalculated variables:
+  - air_pressure_at_surface
 deterministic geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -65,6 +83,8 @@ forecast hours:
       ozone_mass_mixing_ratio: o3mr
       air_pressure_thickness: dpres
       layer_thickness: delz
+      air_pressure_at_surface: pressfc
+      geopotential_height_at_surface: hgtsfc
   variational increment:
     filetype: fms restart
     is restart: false
@@ -106,4 +126,6 @@ forecast hours:
       ozone_mass_mixing_ratio: o3mr_inc
       air_pressure_thickness: delp_inc
       layer_thickness: delz_inc
+      air_pressure_at_surface: pressfc
+      geopotential_height_at_surface: hgtsfc
 {% endfor %}
