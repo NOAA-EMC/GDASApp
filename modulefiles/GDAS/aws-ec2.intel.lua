@@ -91,6 +91,9 @@ local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
 
+prepend_path("LD_LIBRARY_PATH", "/opt/amazon/efa/lib")
+prepend_path("LD_LIBRARY_PATH", "/opt/amazon/openmpi/lib")
+
 setenv("CRTM_FIX", "/lustre/sharedGWdata/fix/crtm/v2.4.0.2")
 
 whatis("Name: ".. pkgName)
