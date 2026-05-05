@@ -81,15 +81,10 @@ load("py-pip/23.1.2")
 load("py-click/8.1.7")
 load("py-wheel/0.41.2")
 
--- load("intel-oneapi/2024.2.1")
 
-setenv("I_MPI_FC","/opt/spack-stack/spack/opt/spack/linux-ubuntu22.04-sapphirerapids/gcc-11.4.0/intel-oneapi-compilers-2024.2.1-j3owv3rsoh7igqvwmvp7ez6i3ozeayvs/compiler/latest/bin/ifort")
-setenv("I_MPI_CC","/opt/spack-stack/spack/opt/spack/linux-ubuntu22.04-sapphirerapids/gcc-11.4.0/intel-oneapi-compilers-2024.2.1-j3owv3rsoh7igqvwmvp7ez6i3ozeayvs/compiler/latest/bin/icx")
-setenv("I_MPI_CXX","/opt/spack-stack/spack/opt/spack/linux-ubuntu22.04-sapphirerapids/gcc-11.4.0/intel-oneapi-compilers-2024.2.1-j3owv3rsoh7igqvwmvp7ez6i3ozeayvs/compiler/latest/bin/icpx")
-
-setenv("FC","/opt/spack-stack/spack/opt/spack/linux-ubuntu22.04-sapphirerapids/gcc-11.4.0/intel-oneapi-compilers-2024.2.1-j3owv3rsoh7igqvwmvp7ez6i3ozeayvs/compiler/latest/bin/ifort")
-setenv("CC","/opt/spack-stack/spack/opt/spack/linux-ubuntu22.04-sapphirerapids/gcc-11.4.0/intel-oneapi-compilers-2024.2.1-j3owv3rsoh7igqvwmvp7ez6i3ozeayvs/compiler/latest/bin/icx")
-setenv("CXX","/opt/spack-stack/spack/opt/spack/linux-ubuntu22.04-sapphirerapids/gcc-11.4.0/intel-oneapi-compilers-2024.2.1-j3owv3rsoh7igqvwmvp7ez6i3ozeayvs/compiler/latest/bin/icpx")
+setenv("CC", "mpiicx")
+setenv("CXX", "mpiicpx")
+setenv("FC", "mpiifort")
 
 local mpiexec = '/opt/slurm/bin/srun'
 local mpinproc = '-n'
