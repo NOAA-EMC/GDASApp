@@ -141,6 +141,11 @@ mkdir -p $dir_root/bundle/test-data-release/
 ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
 ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
 
+# Hack OOPS one line change to harden code for operations,
+# remove once the change is merged into the JCSDA develop branch and we can update the submodule
+sed -i 's|  ASSERT(spaces_.size() >0);|  // ASSERT(spaces_.size() >0);|' $dir_root/sorc/oops/src/oops/base/ObsSpaces.h
+
+
 # Configure
 echo "Configuring ... `date`"
 set -x
