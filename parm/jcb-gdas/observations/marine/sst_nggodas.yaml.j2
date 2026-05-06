@@ -63,9 +63,20 @@
     - variable: {name: GeoVaLs/sea_surface_temperature}
       minvalue: -1.2
 
+  - filter: Perform Action
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/LinearCombination
+        options:
+          variables:
+          - ObsError/seaSurfaceTemperature
+          coefs:
+          - 2.0
+
   obs post filters:
   - filter: Background Check
-    absolute threshold: 5.0
+    absolute threshold: 2.0
 
 {% if marine_letkf_app | default(false) %}
   obs localizations:
