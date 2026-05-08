@@ -94,7 +94,7 @@ setenv('MPIEXEC_NPROC', mpinproc)
 prepend_path("LD_LIBRARY_PATH", "/opt/amazon/efa/lib")
 prepend_path("LD_LIBRARY_PATH", "/opt/amazon/openmpi/lib")
 
-setenv("CRTM_FIX", "/lustre/sharedGWdata/fix/crtm/v2.4.0.2")
+setenv("CRTM_FIX", "/lustre/global/data/fix/crtm/v2.4.0.2")
 
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)
