@@ -56,9 +56,6 @@ data_out:
                        '${HH}': current_cycle | strftime('%H'),
                        '${MEMDIR}':'mem' + '%03d' % mem} %}
 
-#    - ['{{ DATA }}/letkf_output/ocn.letkf.inc.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_analysis.a006.nc']
-#    - ['{{ DATA }}/letkf_output/ice.letkf.inc.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_analysis.a006.nc']
-#    - ['{{ DATA }}/letkf_output/ocn.letkf.inc.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}mom6_increment.i006.nc']
     - ['{{ DATA }}/letkf_output/ocn.letkf.inc.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_increment.i006.nc']
     - ['{{ DATA }}/letkf_output/ice.letkf.inc.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_increment.i006.nc']
 {% endfor %}

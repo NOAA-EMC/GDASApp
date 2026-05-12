@@ -35,6 +35,7 @@ backgrounds:
       - sea_ice_thickness
       - sea_ice_snow_thickness
 
+{% if marine_letkf_app | default(false) %}
 analysis increments:
   members from template:
     nmembers: '{{ marine_number_ensemble_members }}'
@@ -54,7 +55,7 @@ analysis increments:
       - sea_ice_area_fraction
       - sea_ice_thickness
       - sea_ice_snow_thickness
-
+{% endif %}
 
 recentering state:
   state variables:
