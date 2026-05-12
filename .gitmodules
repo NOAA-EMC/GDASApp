@@ -51,8 +51,8 @@
   branch = release/crtm_jedi_v2.4.1
 [submodule "sorc/jcb"]
   path = sorc/jcb
-  url = https://github.com/ClaraDraper-NOAA/jcb.git
-  branch = fix/station_IDs
+  url = https://github.com/NOAA-EMC/jcb.git
+  branch = develop
 [submodule "parm/jcb-algorithms"]
   path = parm/jcb-algorithms
   url = https://github.com/noaa-emc/jcb-algorithms
