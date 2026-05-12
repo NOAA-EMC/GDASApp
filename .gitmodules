@@ -27,7 +27,7 @@
   branch = develop
 [submodule "sorc/ufo"]
   path = sorc/ufo
-  url = https://github.com/jcsda/ufo.git
+  url = https://github.com/jcsda-internal/ufo.git
   branch = develop
 [submodule "sorc/fv3-jedi-lm"]
   path = sorc/fv3-jedi-lm
@@ -51,7 +51,7 @@
   branch = release/crtm_jedi_v2.4.1
 [submodule "sorc/jcb"]
   path = sorc/jcb
-  url = https://github.com/noaa-emc/jcb.git
+  url = https://github.com/NOAA-EMC/jcb.git
   branch = develop
 [submodule "parm/jcb-algorithms"]
   path = parm/jcb-algorithms
