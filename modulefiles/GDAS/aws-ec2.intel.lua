@@ -8,18 +8,15 @@ local pkgNameVer = myModuleFullName()
 
 prepend_path("MODULEPATH", "/opt/spack-stack/envs/ue-oneapi-2024.2.1/install/modulefiles/gcc/11.4.0")
 prepend_path("MODULEPATH", "/opt/spack-stack/envs/ue-oneapi-2024.2.1/install/modulefiles/Core")
--- prepend_path("MODULEPATH", "/opt/spack-stack/envs/ue-oneapi-2024.2.1/install/modulefiles/intel-oneapi-mpi/2021.13-dsdmcwn/gcc/11.4.0")
 prepend_path("MODULEPATH", "/opt/modulefiles")
 
-stack_oneapi_ver=os.getenv("stack_oneapi_ver") or "2024.2.1"
-stack_impi_ver=os.getenv("stack_impi_ver") or "2021.13"
+local stack_oneapi_ver=os.getenv("stack_oneapi_ver") or "2024.2.1"
+local stack_impi_ver=os.getenv("stack_impi_ver") or "2021.13"
 
 load(pathJoin("stack-oneapi", stack_oneapi_ver))
 load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 
--- load("gnu/11.4.0")
 load("cmake/3.27.9")
--- load("mkl/2024.2.1")
 load("gettext/0.21")
 load("curl/8.10.1")
 load("zlib/1.2.13")
