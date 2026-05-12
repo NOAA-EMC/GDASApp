@@ -18,8 +18,6 @@ load(pathJoin("stack-oneapi", stack_oneapi_ver))
 load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 
 -- load("gnu/11.4.0")
-load("stack-oneapi/2024.2.1")
-load("stack-intel-oneapi-mpi/2021.13")
 load("cmake/3.27.9")
 -- load("mkl/2024.2.1")
 load("gettext/0.21")
