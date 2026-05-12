@@ -267,7 +267,7 @@
     where:
     - variable:
         name: ObsType/airTemperature
-      is_not_in: 181
+      is_not_in: [181, 187]
   - filter: RejectList
     filter variables:
     - name: airTemperature
