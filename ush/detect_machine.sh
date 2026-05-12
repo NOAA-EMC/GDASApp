@@ -112,7 +112,7 @@ elif [[ -d /gpfs/csfs1 ]]; then
 elif [[ -d /data/prod ]]; then
   # We are on SSEC's S4
   MACHINE_ID=s4
-elif [[ -d /opt/spack-stack ]]; then
+elif [[ -d /opt/spack-stack && -d /lustre ]]; then
   # We are on AWS ec2
   MACHINE_ID=aws-ec2
 else
