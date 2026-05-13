@@ -1,0 +1,14 @@
+Author: E. Givelberg
+Tue Jun  4 13:33:48 CDT 2024
+
+The code in this rtofs directory reads a binary Fortran
+file and generates a data object that can be ingested into ioda.
+
+The fortran binary file consists of records, including additional
+information that needs to be skipped.
+There are typically 8 bytes to be skipped between 2 data arrays.
+The read data is converted from the big endian to the host
+format, which is little endian in linux.
+
+There are currently several data objects that are read in RTOFSDataFile
+and are discarded.
