@@ -1,0 +1,12 @@
+---
+data_format: mbuoyb
+subsets: mbuoyb
+source: NCEP data tank
+data_type: rama
+cycle_type: gdas
+cycle_datetime: '2025061900'
+dump_directory: __BUFRINPUTDIR__
+ioda_directory: __IODAOUTPUTDIR__
+ocean_basin: __OCEANBASIN__
+data_description: 6-hrly in situ RAMA tropical mooring profiles
+data_provider: U.S. NOAA
