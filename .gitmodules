@@ -27,7 +27,7 @@
   branch = develop
 [submodule "sorc/ufo"]
   path = sorc/ufo
-  url = https://github.com/jcsda-internal/ufo.git
+  url = https://github.com/jcsda/ufo.git
   branch = develop
 [submodule "sorc/fv3-jedi-lm"]
   path = sorc/fv3-jedi-lm
