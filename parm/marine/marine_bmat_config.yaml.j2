@@ -1,10 +1,4 @@
 jedi_config:
-    gridgen:
-        rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_soca_gridgen.x'
-        mpi_cmd: '{{ APRUN_MARINEBMAT }}'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
-        jcb_algo: soca_gridgen
     soca_diagb:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas_soca_diagb.x'
@@ -110,7 +104,6 @@ data_out:
 
     # yaml files
     - ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}bmat_fields_metadata.yaml']
-    - ['{{ DATA }}/gridgen.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}gridgen.yaml']
     - ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}obsop_name_map.yaml']
     - ['{{ DATA }}/soca_chgres.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_chgres.yaml']
     - ['{{ DATA }}/soca_diagb.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_diagb.yaml']
