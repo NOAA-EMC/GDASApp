@@ -143,7 +143,7 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
         list(APPEND TEST_DEPENDS "${test_prefix}_gdas_anal_${FULL_CYCLE}")
       endif()
     elseif("${task_name}" STREQUAL "gdas_sfcanl_regrid")
-      list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_eupd_{FULL_CYCLE}")
+      list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_eupd_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "gdas_analcalc")
       list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_echgres_${HALF_CYCLE}")
       list(APPEND TEST_DEPENDS "${test_prefix}_gdas_sfcanl_gcycle_${FULL_CYCLE}")
