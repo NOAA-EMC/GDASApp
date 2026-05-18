@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-import numpy as np                                                          
+import numpy as np                                                      
 from b2iconverter.util import parse_arguments
 from b2iconverter.bufr2ioda_config import Bufr2iodaConfig
 from b2iconverter.bufr2ioda_converter import Bufr2ioda_Converter
@@ -35,7 +35,7 @@ class NDBCIODAVariables(IODAVariables):
         q.add('temp', '*/SST0')
         q.add('borg', '*/BORG')
         return q
-    
+
     def set_obs_from_query_result(self, r):
         self.temp = r.get('temp')
         self.temp -= 273.15

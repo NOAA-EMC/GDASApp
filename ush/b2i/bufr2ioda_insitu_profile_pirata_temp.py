@@ -74,7 +74,6 @@ class PirataAdditionalVariables(IODAAdditionalVariables):
         self.log_ocean_basin(logger)
 
 
-
 if __name__ == '__main__':
 
     script_name, config_file, log_file, test_file = parse_arguments()
