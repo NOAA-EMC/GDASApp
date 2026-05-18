@@ -1,9 +1,18 @@
+#!/usr/bin/env python3
+
+import sys
 import numpy as np
 import bufr
+from b2iconverter.util import parse_arguments
+from b2iconverter.bufr2ioda_config import Bufr2iodaConfig
+from b2iconverter.bufr2ioda_converter import Bufr2ioda_Converter
 from b2iconverter.ioda_variables import IODAVariables
 from b2iconverter.ioda_addl_vars import IODAAdditionalVariables
 from b2iconverter.ioda_metadata import IODAMetadata
 from b2iconverter.util import write_date_time, write_rcpt_date_time, write_longitude, write_latitude, write_station_id
+
+
+platform_description = 'Surface obs from TRACKOB: temperature and salinity'
 
 
 class TrkobIODAVariables(IODAVariables):
@@ -85,3 +94,31 @@ class TrkobAdditionalVariables(IODAAdditionalVariables):
         self.log_obs_error_temp(logger)
         self.log_obs_error_saln(logger)
         self.log_ocean_basin(logger)
+
+
+class TrkobConfig(Bufr2iodaConfig):
+    def ioda_filename(self):
+        return f"{self.cycle_type}.t{self.hh}z.insitu_surface_{self.data_format}.{self.cycle_datetime}.nc"
+
+
+if __name__ == '__main__':
+
+    script_name, config_file, log_file, test_file = parse_arguments()
+
+    bufr2ioda_config = TrkobConfig(
+        script_name,
+        config_file,
+        platform_description)
+
+    ioda_vars = TrkobIODAVariables()
+    ioda_vars.set_temperature_var_name("seaSurfaceTemperature")
+    ioda_vars.set_temperature_error(0.3)
+    ioda_vars.set_salinity_var_name("seaSurfaceSalinity")
+    ioda_vars.set_salinity_error(1.0)
+
+    trkob = Bufr2ioda_Converter(bufr2ioda_config, ioda_vars, log_file)
+    trkob.run()
+
+    if test_file:
+        result = trkob.test(test_file)
+        sys.exit(result)

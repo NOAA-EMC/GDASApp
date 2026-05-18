@@ -1,7 +1,16 @@
+#!/usr/bin/env python3
+
+import sys
 import numpy as np
 import bufr
+from b2iconverter.util import parse_arguments
+from b2iconverter.bufr2ioda_config import Bufr2iodaConfig
+from b2iconverter.bufr2ioda_converter import Bufr2ioda_Converter
 from b2iconverter.ioda_variables import IODAVariables
 from b2iconverter.ioda_addl_vars import IODAAdditionalVariables, compute_seq_num
+
+
+platform_description = 'Profiles from BATHYthermal: temperature'
 
 
 class BathyIODAVariables(IODAVariables):
@@ -58,3 +67,25 @@ class BathyAdditionalVariables(IODAAdditionalVariables):
         self.log_preqc(logger)
         self.log_obs_error_temp(logger)
         self.log_ocean_basin(logger)
+
+
+if __name__ == '__main__':
+
+    script_name, config_file, log_file, test_file = parse_arguments()
+
+    bufr2ioda_config = Bufr2iodaConfig(
+        script_name,
+        config_file,
+        platform_description)
+
+    ioda_vars = BathyIODAVariables()
+    ioda_vars.set_temperature_error(0.24)
+    ioda_vars.set_temperature_var_name("waterTemperature")
+
+    bathy = Bufr2ioda_Converter(bufr2ioda_config, ioda_vars, log_file)
+
+    bathy.run()
+
+    if test_file:
+        result = bathy.test(test_file)
+        sys.exit(result)

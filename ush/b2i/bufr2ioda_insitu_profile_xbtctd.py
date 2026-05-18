@@ -1,13 +1,38 @@
 #!/usr/bin/env python3
 
 import sys
+import numpy as np
+import bufr
 from b2iconverter.util import parse_arguments
 from b2iconverter.bufr2ioda_config import Bufr2iodaConfig
 from b2iconverter.bufr2ioda_converter import Bufr2ioda_Converter
-from xbtctd_ioda_variables import XbtctdIODAVariables
+from b2iconverter.ioda_variables import IODAVariables
 
 
 platform_description = 'Profiles from XBT/CTD: temperature and salinity'
+
+
+class XbtctdIODAVariables(IODAVariables):
+    def __init__(self):
+        super().__init__()
+
+    def build_query(self):
+        q = super().build_query()
+        q.add('stationID', '*/WMOP')
+        q.add('latitude', '*/CLATH')
+        q.add('longitude', '*/CLONH')
+        q.add('depth', '*/TMSLPFSQ/DBSS')
+        q.add('temp', '*/TMSLPFSQ/SST1')
+        q.add('saln', '*/TMSLPFSQ/SALNH')
+        return q
+
+    def filter(self):
+        super().filter()
+        mask = self.TemperatureFilter() \
+            & self.SalinityFilter()
+        self.temp = self.temp[mask]
+        self.saln = self.saln[mask]
+        self.metadata.filter(mask)
 
 
 if __name__ == '__main__':

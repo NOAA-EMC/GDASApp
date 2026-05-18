@@ -4,6 +4,10 @@ from .util import *
 from .ioda_metadata import IODAMetadata
 from .ioda_addl_vars import IODAAdditionalVariables
 
+# Error values are hard-coded in the converters using functions
+# like the set_salinity_error below
+# These values are overwritten at run time.
+
 
 class IODAVariables:
     def __init__(self):
