@@ -1,186 +1,182 @@
-marinebufrdump:
+providers:
+  - name: insitu_profile_argo
+    variables:
+      - name: 'waterTemperature'
+        provider_var: insitu_temp_profile_argo
+        error: 0.02
+      - name: 'salinity'
+        provider_var: insitu_salt_profile_argo
+        error: 0.01
+    data_format: subpfl
+    subsets: SUBPFL
+    source: NCEP data tank
+    data_type: argo
+    data_description: 6-hrly in situ ARGO profiles
+    data_provider: U.S. NOAA
+    dump_tag: subpfl
+    window:
+        back: 4
+        forward: 4
 
-  BUFR2IODA_CONFIG_TEMP: 'bufr2ioda_template.yaml.j2'
+  - name: insitu_profile_bathy
+    variables:
+      - name: 'waterTemperature'
+        provider_var: insitu_temp_profile_bathy
+        error: 0.24
+    data_format: bathy
+    subsets: BATHY
+    source: NCEP data tank
+    data_type: bathy
+    data_description: 6-hrly in situ Bathythermal profiles
+    data_provider: U.S. NOAA
+    dump_tag: bathy
+    window:
+        back: 4
+        forward: 4
 
-  providers:
-    - name: insitu_profile_argo
-      variables:
-        - name: 'waterTemperature'
-          provider_var: insitu_temp_profile_argo
-          error: 0.02
-        - name: 'salinity'
-          provider_var: insitu_salt_profile_argo
-          error: 0.01
-      data_format: subpfl
-      subsets: SUBPFL
-      source: NCEP data tank
-      data_type: argo
-      data_description: 6-hrly in situ ARGO profiles
-      data_provider: U.S. NOAA
-      dump_tag: subpfl
-      window:
-         back: 4
-         forward: 4
+  - name: insitu_profile_glider
+    variables:
+      - name: 'waterTemperature'
+        provider_var: insitu_temp_profile_glider
+        error: 0.02
+      - name: 'salinity'
+        provider_var: insitu_salt_profile_glider
+        error: 0.01
+    data_format: subpfl
+    subsets: SUBPFL
+    source: NCEP data tank
+    data_type: glider
+    data_description: 6-hrly in situ GLIDER profiles
+    data_provider: U.S. NOAA
+    dump_tag: subpfl
+    window:
+        back: 4
+        forward: 4
 
-    - name: insitu_profile_bathy
-      variables:
-        - name: 'waterTemperature'
-          provider_var: insitu_temp_profile_bathy
-          error: 0.24
-      data_format: bathy
-      subsets: BATHY
-      source: NCEP data tank
-      data_type: bathy
-      data_description: 6-hrly in situ Bathythermal profiles
-      data_provider: U.S. NOAA
-      dump_tag: bathy
-      window:
-         back: 4
-         forward: 4
+  - name: insitu_profile_tesac 
+    variables:
+      - name: 'waterTemperature'
+        provider_var: insitu_temp_profile_tesac
+        error: 0.02
+      - name: 'salinity'
+        provider_var: insitu_salt_profile_tesac
+        error: 0.01
+    data_format: tesac
+    subsets: TESAC
+    source: NCEP data tank
+    data_type: tesac
+    data_description: 6-hrly in situ TESAC profiles
+    data_provider: U.S. NOAA
+    dump_tag: tesac
+    window:
+        back: 4
+        forward: 4
 
-    - name: insitu_profile_glider
-      variables:
-        - name: 'waterTemperature'
-          provider_var: insitu_temp_profile_glider
-          error: 0.02
-        - name: 'salinity'
-          provider_var: insitu_salt_profile_glider
-          error: 0.01
-      data_format: subpfl
-      subsets: SUBPFL
-      source: NCEP data tank
-      data_type: glider
-      data_description: 6-hrly in situ GLIDER profiles
-      data_provider: U.S. NOAA
-      dump_tag: subpfl
-      window:
-         back: 4
-         forward: 4
+  - name: insitu_profile_rama 
+    variables:
+      - name: 'waterTemperature'
+        provider_var: insitu_temp_profile_rama
+        error: 0.02
+      - name: 'salinity'
+        provider_var: insitu_salt_profile_rama
+        error: 0.01
+    data_format: mbuoyb
+    subsets: mbuoyb
+    source: NCEP data tank
+    data_type: rama
+    data_description: 6-hrly in situ RAMA tropical mooring profiles
+    data_provider: U.S. NOAA
+    dump_tag: mbuoyb
 
-    - name: insitu_profile_tesac 
-      variables:
-        - name: 'waterTemperature'
-          provider_var: insitu_temp_profile_tesac
-          error: 0.02
-        - name: 'salinity'
-          provider_var: insitu_salt_profile_tesac
-          error: 0.01
-      data_format: tesac
-      subsets: TESAC
-      source: NCEP data tank
-      data_type: tesac
-      data_description: 6-hrly in situ TESAC profiles
-      data_provider: U.S. NOAA
-      dump_tag: tesac
-      window:
-         back: 4
-         forward: 4
+  - name: insitu_profile_pirata 
+    variables:
+      - name: 'waterTemperature'
+        provider_var: insitu_temp_profile_pirata
+        error: 0.02
+      - name: 'salinity'
+        provider_var: insitu_salt_profile_pirata
+        error: 0.01
+    data_format: mbuoyb
+    subsets: mbuoyb
+    source: NCEP data tank
+    data_type: pirata
+    data_description: 6-hrly in situ PIRATA tropical mooring profiles
+    data_provider: U.S. NOAA
+    dump_tag: mbuoyb
 
-    - name: insitu_profile_rama 
-      variables:
-        - name: 'waterTemperature'
-          provider_var: insitu_temp_profile_rama
-          error: 0.02
-        - name: 'salinity'
-          provider_var: insitu_salt_profile_rama
-          error: 0.01
-      data_format: mbuoyb
-      subsets: mbuoyb
-      source: NCEP data tank
-      data_type: rama
-      data_description: 6-hrly in situ RAMA tropical mooring profiles
-      data_provider: U.S. NOAA
-      dump_tag: mbuoyb
+  - name: insitu_profile_taotriton 
+    variables:
+      - name: 'waterTemperature'
+        provider_var: insitu_temp_profile_taotriton
+        error: 0.02
+      - name: 'salinity'
+        provider_var: insitu_salt_profile_taotriton
+        error: 0.01
+    data_format: mbuoyb
+    subsets: mbuoyb
+    source: NCEP data tank
+    data_type: taotriton
+    data_description: 6-hrly in situ TAO/TRITON tropical mooring profiles
+    data_provider: U.S. NOAA
+    dump_tag: mbuoyb
 
-    - name: insitu_profile_pirata 
-      variables:
-        - name: 'waterTemperature'
-          provider_var: insitu_temp_profile_pirata
-          error: 0.02
-        - name: 'salinity'
-          provider_var: insitu_salt_profile_pirata
-          error: 0.01
-      data_format: mbuoyb
-      subsets: mbuoyb
-      source: NCEP data tank
-      data_type: pirata
-      data_description: 6-hrly in situ PIRATA tropical mooring profiles
-      data_provider: U.S. NOAA
-      dump_tag: mbuoyb
+  - name: insitu_profile_xbtctd 
+    variables:
+      - name: 'waterTemperature'
+        provider_var: insitu_temp_profile_xbtctd
+        error: 0.12
+      - name: 'salinity'
+        provider_var: insitu_salt_profile_xbtctd
+        error: 1.0
+    data_format: xbtctd
+    subsets: XBTCTD
+    source: NCEP data tank
+    data_type: xbtctd
+    data_description: 6-hrly in situ XBT/XCTD profiles
+    data_provider: U.S. NOAA
+    dump_tag: xbtctd
+    window:
+        back: 4
+        forward: 4
 
-    - name: insitu_profile_taotriton 
-      variables:
-        - name: 'waterTemperature'
-          provider_var: insitu_temp_profile_taotriton
-          error: 0.02
-        - name: 'salinity'
-          provider_var: insitu_salt_profile_taotriton
-          error: 0.01
-      data_format: mbuoyb
-      subsets: mbuoyb
-      source: NCEP data tank
-      data_type: taotriton
-      data_description: 6-hrly in situ TAO/TRITON tropical mooring profiles
-      data_provider: U.S. NOAA
-      dump_tag: mbuoyb
+  - name: insitu_surface_dbuoyb_drifter
+    variables:
+      - name: 'seaSurfaceTemperature'
+        provider_var: insitu_temp_surface_drifter
+        error: 0.3
+    data_format: dbuoyb
+    subsets: dbuoyb
+    source: NCEP data tank
+    data_type: dbuoyb_surface_drifter
+    data_description: 6-hrly in situ drifter profiles
+    data_provider: U.S. NOAA
+    dump_tag: dbuoyb
 
-    - name: insitu_profile_xbtctd 
-      variables:
-        - name: 'waterTemperature'
-          provider_var: insitu_temp_profile_xbtctd
-          error: 0.12
-        - name: 'salinity'
-          provider_var: insitu_salt_profile_xbtctd
-          error: 1.0
-      data_format: xbtctd
-      subsets: XBTCTD
-      source: NCEP data tank
-      data_type: xbtctd
-      data_description: 6-hrly in situ XBT/XCTD profiles
-      data_provider: U.S. NOAA
-      dump_tag: xbtctd
-      window:
-         back: 4
-         forward: 4
+  - name: insitu_surface_trkob
+    variables:
+      - name: 'seaSurfaceTemperature'
+        provider_var: insitu_temp_surface_trkob
+        error: 0.3
+      - name: 'seaSurfaceSalinity'
+        provider_var: insitu_salt_surface_trkob
+        error: 1.0
+    data_format: trkob
+    subsets: TRACKOB
+    source: NCEP data tank
+    data_type: trackob
+    data_description: 6-hrly in situ TRACKOB surface
+    data_provider: U.S. NOAA
+    dump_tag: trkob
 
-    - name: insitu_surface_dbuoyb_drifter
-      variables:
-        - name: 'seaSurfaceTemperature'
-          provider_var: insitu_temp_surface_drifter
-          error: 0.3
-      data_format: dbuoyb
-      subsets: dbuoyb
-      source: NCEP data tank
-      data_type: dbuoyb_surface_drifter
-      data_description: 6-hrly in situ drifter profiles
-      data_provider: U.S. NOAA
-      dump_tag: dbuoyb
-
-    - name: insitu_surface_trkob
-      variables:
-        - name: 'seaSurfaceTemperature'
-          provider_var: insitu_temp_surface_trkob
-          error: 0.3
-        - name: 'seaSurfaceSalinity'
-          provider_var: insitu_salt_surface_trkob
-          error: 1.0
-      data_format: trkob
-      subsets: TRACKOB
-      source: NCEP data tank
-      data_type: trackob
-      data_description: 6-hrly in situ TRACKOB surface
-      data_provider: U.S. NOAA
-      dump_tag: trkob
-
-    - name: insitu_surface_ndbc
-      variables:
-        - name: 'seaSurfaceTemperature'
-          provider_var: insitu_temp_surface_ndbc
-          error: 0.3
-      data_format: mbuoyb
-      subsets: mbuoyb
-      source: NCEP data tank
-      data_type: ndbc
-      data_description: 6-hrly in situ NDBC buoy temperature obs
-      data_provider: U.S. NOAA
-      dump_tag: mbuoyb
+  - name: insitu_surface_ndbc
+    variables:
+      - name: 'seaSurfaceTemperature'
+        provider_var: insitu_temp_surface_ndbc
+        error: 0.3
+    data_format: mbuoyb
+    subsets: mbuoyb
+    source: NCEP data tank
+    data_type: ndbc
+    data_description: 6-hrly in situ NDBC buoy temperature obs
+    data_provider: U.S. NOAA
+    dump_tag: mbuoyb
