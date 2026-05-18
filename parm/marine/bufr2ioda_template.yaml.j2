@@ -1,0 +1,15 @@
+data_format: {{ data_format }}
+subsets: {{ subsets }}
+source: {{ source }}
+data_type: {{ data_type }}
+cycle_type: {{ RUN }}
+cycle_datetime: "{{ obs_cycle | to_YMDH }}"
+dump_directory: {{ DATA }}
+ioda_directory: {{ DATA }}
+ocean_basin: {{ ocean_basin }}
+data_description: {{ data_description}}
+data_provider: {{ data_provider }}
+dump_filename: "{{ OBSPROC_COMROOT }}/{{ RUN }}.{{ obs_cycle | to_YMD }}/{{ obs_cycle_cyc }}/atmos/{{ obs_cycle_PREFIX }}{{ dump_tag }}.tm00.bufr_d"
+local_dump_filename: "{{ DATA }}/{{ obs_cycle | to_YMDH }}-{{ obs_cycle_PREFIX }}{{ dump_tag }}.tm00.bufr_d"
+ioda_filename: "{{RUN}}.t{{obs_cycle_cyc}}z.{{name}}.{{ obs_cycle | to_YMD }}{{ obs_cycle_cyc }}.nc"
+bufr2ioda_yaml: "{{ DATA }}/{{ obs_cycle | to_YMDH }}-bufr2ioda_{{ name }}.yaml"
