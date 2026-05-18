@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import numpy as np
+import numpy.ma as ma
+import math
+import netCDF4 as nc
+import xarray as xr
+
+# OceanBasin class provides a facility to add an OceanBasin
+# metadata variable using lon and lat
+# basic definition of ocean basins is read from an nc file,
+# We search for the filename, depending on the system
+# The path to the ocean basin nc file can be supplied
+# in the implementation of the converter
+
+# the main method is get_station_basin which returns the ocean basin
+# for a list of station coordinates
+
+
+class OceanBasin:
+    def __init__(self):
+        pass
+
+    def set_ocean_basin_nc_file(self, filename):
+        self.ocean_basin_nc_file_path = filename
+
+    def read_nc_file(self):
+        try:
+            with nc.Dataset(self.ocean_basin_nc_file_path, 'r') as nc_file:
+                variable_name = 'open_ocean'
+                if variable_name in nc_file.variables:
+                    lat_dim = nc_file.dimensions['lat'].size
+                    lon_dim = nc_file.dimensions['lon'].size
+                    self.__latitudes = nc_file.variables['lat'][:]
+                    self.__longitudes = nc_file.variables['lon'][:]
+
+                    variable = nc_file.variables[variable_name]
+                    # Read the variable data into a numpy array
+                    variable_data = variable[:]
+                    # Convert to 2D numpy array
+                    self.__basin_array = np.reshape(variable_data, (lat_dim, lon_dim))
+        except FileNotFoundError:
+            print(f"The file {file_path} does not exist.")
+            sys.exit(1)
+        except IOError as e:
+            # Handle other I/O errors, such as permission errors
+            print(f"An IOError occurred: {e}")
+            sys.exit(1)
+
+    # input: 2 vectors of station coordinates
+    # output: a vector of station ocean basin values
+    def get_station_basin(self, lat, lon):
+        n = len(lon)
+        # print("number of stations = ", n)
+
+        lat0 = self.__latitudes[0]
+        dlat = self.__latitudes[1] - self.__latitudes[0]
+        lon0 = self.__longitudes[0]
+        dlon = self.__longitudes[1] - self.__longitudes[0]
+
+        ocean_basin = ma.array([0]*lat.size, mask=lat.mask, dtype=np.int32)
+        for i in range(n):
+            if not ma.is_masked(lat[i]) and not ma.is_masked(lon[i]):
+                i1 = round((lat[i] - lat0) / dlat)
+                i2 = round((lon[i] - lon0) / dlon)
+                ocean_basin[i] = self.__basin_array[i1][i2]
+        return ocean_basin
