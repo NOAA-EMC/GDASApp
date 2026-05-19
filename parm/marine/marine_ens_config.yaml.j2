@@ -1,10 +1,4 @@
 jedi_config:
-    gridgen:
-        rundir: '{{ DATA }}'
-        exe_src: '{{ EXECglobal }}/gdas_soca_gridgen.x'
-        mpi_cmd: '{{ APRUN_MARINEANLLETKF }}'
-        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
-        jcb_algo: soca_gridgen
     letkf:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECglobal }}/gdas.x'
