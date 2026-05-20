@@ -18,7 +18,6 @@ class PrepOceanObs(Task):
     Class for prepping obs for ocean analysis task
     """
 
-    @logit(logger, name="PrepOceanObs")
     def __init__(self, config: Dict) -> None:
         """Constructor for ocean obs prep task
         Parameters:
