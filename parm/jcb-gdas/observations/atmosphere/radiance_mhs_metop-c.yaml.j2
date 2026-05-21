@@ -268,12 +268,12 @@
       function:
         name: ObsFunction/Arithmetic
         options:
-           variables:
-           - name: DerivedMetaData/ObsMinusHofx
-             channels: [1]
-           - name: DerivedMetaData/cloud_index
-           coefs: [1, -7.5]
-           total coefficient: 0.1
+          variables:
+          - name: DerivedMetaData/ObsMinusHofx
+            channels: [1]
+          - name: DerivedMetaData/cloud_index
+          coefs: [1, -7.5]
+          total coefficient: 0.1
   # Step F1: Get the final 'tpwc_index'  (it is 'fact1' in qc_mhs() in GSI)
   - filter: Variable Assignment
     assignments:
