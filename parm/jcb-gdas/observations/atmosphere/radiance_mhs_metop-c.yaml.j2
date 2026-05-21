@@ -427,18 +427,14 @@
     action:
       name: reject
 
-  # Step K2: Toss channel 3-5 data with O-F > 2K 
+  # Step K2: Toss all data with tpwc_index > 1.0
   - filter: BlackList
-    filter variables:
-    - name: brightnessTemperature
-      channels: 3-5
-    action:
-      name: reject
     where:
     - variable:
         name: DerivedMetaData/tpwc_index
       minvalue: 1.0
       min_exclusive: true
+  # Step K3: Toss channel 3-5 data with O-F > 2K and tpwc_index < 1.0
   - filter: Background Check
     filter variables:
     - name: brightnessTemperature
