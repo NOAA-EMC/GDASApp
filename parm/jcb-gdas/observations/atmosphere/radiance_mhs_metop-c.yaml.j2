@@ -221,6 +221,11 @@
             channels: [2]
           - name: DerivedMetaData/diff_300_obs2
           exponents: [1, -1]
+    where:
+    - variable:
+        name: ObsValue/brightnessTemperature_2
+      maxvalue: 300.0
+      max_exclusive: true
   # Step E4: Get final 'cloud_index' ('dsi' in qc_mhs in GSI)
   - filter: Variable Assignment
     assignments:
@@ -368,7 +373,7 @@
         name: DerivedMetaData/tpwc_index
       maxvalue: 1.0
 
-  # Step J2: Obs error inflation based on TOA Transmittancec check
+  # Step J2: Obs error inflation based on TOA Transmittance check
   - filter: Variable Assignment
     assignments:
     - name: ObsErrorFactorTransmitTop@DerivedMetaData
