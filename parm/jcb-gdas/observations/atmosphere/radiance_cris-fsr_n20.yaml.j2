@@ -183,6 +183,7 @@
           - name: ObsValue/cloudCoverTotal
           coefs: [-100] 
           intercept: 100 
+          abort if invalid operation: {{ufo_abort_if_invalid_operation}}
 
   # Step 5: Data Thinning
   - filter: Gaussian Thinning

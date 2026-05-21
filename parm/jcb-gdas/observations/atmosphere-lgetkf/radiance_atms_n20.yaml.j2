@@ -228,6 +228,7 @@
           - name: brightnessTemperature@HofX
             channels: *{{observation_from_jcb}}_simulated_channels
           coefs: [1, -1]
+          abort if invalid operation: {{ufo_abort_if_invalid_operation}}
   # Step 0-C: Assign Initial All-Sky Observation Error
   - filter: Perform Action
     filter variables:

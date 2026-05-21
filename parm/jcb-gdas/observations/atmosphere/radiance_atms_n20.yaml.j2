@@ -247,6 +247,7 @@
           - name: brightnessTemperature@HofX
             channels: *{{observation_from_jcb}}_simulated_channels
           coefs: [1, -1]
+          abort if invalid operation: {{ufo_abort_if_invalid_operation}}
 
   # Step 0-C: Assign Initial All-Sky Observation Error
   - filter: Perform Action
@@ -527,6 +528,7 @@
           - name: GeoVaLs/mass_content_of_cloud_liquid_water_in_atmosphere_column
           - name: GeoVaLs/mass_content_of_cloud_ice_in_atmosphere_column
           coefs: [1, 1]
+          abort if invalid operation: {{ufo_abort_if_invalid_operation}}
 # replace zero by 9.99e-7 in DerivedMetaData/ColumnLiquidIceCloud
   - filter: Variable Assignment
     assignments:
@@ -597,6 +599,7 @@
           - name: DerivedMetaData/PotentialTemperatureAt700hPa
           - name: DerivedMetaData/PotentialTemperatureSurface
           coefs: [1, -1]
+          abort if invalid operation: {{ufo_abort_if_invalid_operation}}
 #  cold-air-outbreak (cao) check for all-sky DA with Rain, Snow, or Graupel
   - filter: BlackList
     filter variables:

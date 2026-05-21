@@ -162,6 +162,7 @@
             coefficients: [1., -1.]
             total exponent: 2
             total coefficient: 0.0000015625  #1/(800*800)
+            abort if invalid operation: {{ufo_abort_if_invalid_operation}}
     - filter: Variable Assignment
       assignments:
       - name: DerivedMetaData/elevation_diff_exp
@@ -183,6 +184,7 @@
           options:
             variables: [DerivedMetaData/elevation_diff_exp]
             total exponent: -1.
+            abort if invalid operation: {{ufo_abort_if_invalid_operation}}
     - filter: Perform Action
       filter variables:
       - name: totalSnowDepth

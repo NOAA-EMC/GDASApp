@@ -150,6 +150,7 @@
       options:
         variables: [MetaData/depth, GeoVaLs/sea_floor_depth_below_sea_surface]
         coefs: [1.0, -1.0]   # depth - sea_floor_depth_below_sea_surface
+        abort if invalid operation: {{ufo_abort_if_invalid_operation}}
     maxvalue: -100.0         # i.e., depth - sea_floor_depth_below_sea_surface <= 0
 
   # Reject stair-step profiles (rounded values)
@@ -213,6 +214,7 @@
           # sigo_total = 1.0 + (-0.00045)*depth + 0.1*sigo_original
           coefs:     [-0.00045, 0.1]
           intercept: 1.0
+          abort if invalid operation: {{ufo_abort_if_invalid_operation}}
 
 
 {% if marine_letkf_app | default(false) %}

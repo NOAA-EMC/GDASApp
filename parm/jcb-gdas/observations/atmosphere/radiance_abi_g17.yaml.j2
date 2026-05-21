@@ -427,6 +427,7 @@
           - name: brightnessTemperature@ObsBiasData
             channels: 14
           coefs: [1, -1, 1, -1, 1, -1]
+          abort if invalid operation: {{ufo_abort_if_invalid_operation}}
 
 # Channels 7, 10-16, OmFNBC < -0.75 
   - filter: Domain Check
