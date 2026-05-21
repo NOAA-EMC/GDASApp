@@ -428,10 +428,15 @@
 
   # Step K2: Toss channel 3-5 data with O-F > 2K 
   - filter: BlackList
+    filter variables:
+    - name: brightnessTemperature
+      channels: 3-5
     where:
     - variable:
         name: DerivedMetaData/tpwc_index
       minvalue: 1.0
+    action:
+      name: reject
   - filter: Background Check
     filter variables:
     - name: brightnessTemperature
