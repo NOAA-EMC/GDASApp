@@ -1,11 +1,11 @@
 jedi_config:
     letkf:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_MARINEANLLETKF }}'
         jedi_args: ['soca', 'localensembleda']
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/marine/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/marine/jcb-prototype_letkf.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_algo_yaml: '{{ PARMglobal }}/gdas/marine/jcb-prototype_letkf.yaml.j2'
 
 data_in:
     mkdir:
@@ -18,8 +18,8 @@ data_in:
 
     copy_req:
     # copy mom input template and det bkg
-    - ['{{ PARMgfs }}/gdas/marine/fms/input.nml', '{{ DATA }}/mom_input.nml.tmpl']
-    - ['{{ PARMgfs }}/gdas/marine/fields_metadata.yaml', '{{ DATA }}/fields_metadata.yaml']
+    - ['{{ PARMglobal }}/gdas/marine/fms/input.nml', '{{ DATA }}/mom_input.nml.tmpl']
+    - ['{{ PARMglobal }}/gdas/marine/fields_metadata.yaml', '{{ DATA }}/fields_metadata.yaml']
     - ['{{ COMIN_OCEAN_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc', '{{ DATA }}/INPUT/MOM.res.nc']
     - ['{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc', '{{ DATA }}/INPUT/cice.res.nc']
 

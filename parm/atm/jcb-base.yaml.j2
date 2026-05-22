@@ -1,10 +1,10 @@
 # Search path for model and obs for JCB
 # -------------------------------------
-algorithm_path: "{{PARMgfs}}/gdas/jcb-algorithms"
-app_path_algorithm: "{{PARMgfs}}/gdas/jcb-gdas/algorithm/atmosphere"
-app_path_model: "{{PARMgfs}}/gdas/jcb-gdas/model/atmosphere"
-app_path_observations: "{{PARMgfs}}/gdas/jcb-gdas/observations/atmosphere"
-app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/atmosphere"
+algorithm_path: "{{PARMglobal}}/gdas/jcb-algorithms"
+app_path_algorithm: "{{PARMglobal}}/gdas/jcb-gdas/algorithm/atmosphere"
+app_path_model: "{{PARMglobal}}/gdas/jcb-gdas/model/atmosphere"
+app_path_observations: "{{PARMglobal}}/gdas/jcb-gdas/observations/atmosphere"
+app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chronicle/atmosphere"
 
 
 # Places where we deviate from the generic file name of a yaml
@@ -88,7 +88,7 @@ crtm_coefficient_path: "{{ DATA }}/crtm/"
 atmosphere_obsdataroot_path: "{{COMIN_OBS}}"
 
 atmosphere_obsdatain_path: "{{DATA}}/obs"
-atmosphere_obsdatain_script_path: "{{HOMEgfs}}/ush/spoc/atmosphere"
+atmosphere_obsdatain_script_path: "{{HOMEglobal}}/ush/spoc/atmosphere"
 atmosphere_obsdatain_prefix: "{{OPREFIX}}"
 atmosphere_obsdatain_suffix: ".nc"
 atmosphere_obsdatain_suffix_bufr: ".tm00.bufr_d"
