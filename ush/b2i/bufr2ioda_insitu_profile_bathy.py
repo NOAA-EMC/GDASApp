@@ -28,7 +28,7 @@ class BathyIODAVariables(IODAVariables):
         return q
 
     def set_obs_from_query_result(self, r):
-        self.temp = r.get('temp', group_by='depth')
+        self.temp = r.get('temp', group_by='depth').astype(np.float32)
         self.temp -= 273.15
 
     def filter(self):

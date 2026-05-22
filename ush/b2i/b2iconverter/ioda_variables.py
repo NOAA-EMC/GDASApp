@@ -4,10 +4,6 @@ from .util import *
 from .ioda_metadata import IODAMetadata
 from .ioda_addl_vars import IODAAdditionalVariables
 
-# Error values are hard-coded in the converters using functions
-# like the set_salinity_error below
-# These values are overwritten at run time.
-
 
 class IODAVariables:
     def __init__(self):
@@ -119,7 +115,7 @@ class IODAVariables:
 ##########################################################################
 
     def set_obs_from_query_result(self, r):
-        self.temp = r.get('temp', group_by='depth')
+        self.temp = r.get('temp', group_by='depth').astype(np.float32)
         self.temp -= 273.15
         self.saln = r.get('saln', group_by='depth')
 
