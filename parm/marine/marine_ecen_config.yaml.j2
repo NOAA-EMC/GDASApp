@@ -44,8 +44,8 @@ data_in:
 {% endfor %}
 
 {% if DOLETKF_OCN %}
-    - ['{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc', '{{ DATA }}/anl/ocean.inc.{{ imem | string }}.nc' ]
-    - ['{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc', '{{ DATA }}/anl/ice.inc.{{ imem | string }}.nc' ]
+    - ['{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc', '{{ DATA }}/anl/ocean.anl.a006.nc' ]
+    - ['{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc', '{{ DATA }}/anl/ice.anl.a006.nc' ]
 {% endif %}
  
 
