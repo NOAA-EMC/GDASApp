@@ -59,17 +59,46 @@ namespace obsforge {
       int nobs(0);
       int nchan(0);
 
-      // Currently need the PE count to be less than the number of files
-      ASSERT(comm_.size() <= inputFilenames_.size());
+      // Handle empty input file list gracefully
+      // Some obs types may have zero input files for a cycle window
+      if (inputFilenames_.empty()) {
+        oops::Log::warning() << "writeToIoda: No input files found for "
+                             << outputFilename_
+                             << " -- creating empty output file." << std::endl;
+        if (oops::mpi::world().rank() == 0) {
+          ioda::Group group =
+            ioda::Engines::HH::createFile(outputFilename_,
+                                         ioda::Engines::BackendCreateModes::Truncate_If_Exists);
+          ioda::NewDimensionScales_t newDims {
+            ioda::NewDimensionScale<int>("Location", 0)
+          };
+          ioda::ObsGroup ogrp = ioda::ObsGroup::generate(group, newDims);
+          oops::Log::info() << "writeToIoda: empty output file created: "
+                            << outputFilename_ << std::endl;
+        }
+        return;
+      }
+
+      // Handle MPI PE count > input file count
+      // Each PE processes at least one file; excess PEs stay idle
+      if (comm_.size() > inputFilenames_.size()) {
+        oops::Log::warning() << "writeToIoda: More MPI tasks (" << comm_.size()
+                             << ") than input files (" << inputFilenames_.size()
+                             << ") for " << outputFilename_
+                             << " -- excess PEs will be idle." << std::endl;
+      }
 
       // Read the provider's netcdf file
-      obsforge::preproc::iodavars::IodaVars iodaVars = providerToIodaVars(inputFilenames_[myrank]);
+      obsforge::preproc::iodavars::IodaVars iodaVars;
 
-      for (int i = myrank + comm_.size(); i < inputFilenames_.size(); i += comm_.size()) {
-        iodaVars.append(providerToIodaVars(inputFilenames_[i]));
-        oops::Log::info() << " appending: " << inputFilenames_[i] << std::endl;
-        oops::Log::info() << " obs count: " << iodaVars.location_ << std::endl;
-        oops::Log::test() << "Reading: " << inputFilenames_ << std::endl;
+      if (myrank < static_cast<int>(inputFilenames_.size())) {
+        iodaVars = providerToIodaVars(inputFilenames_[myrank]);
+        for (int i = myrank + comm_.size(); i < inputFilenames_.size(); i += comm_.size()) {
+          iodaVars.append(providerToIodaVars(inputFilenames_[i]));
+          oops::Log::info() << " appending: " << inputFilenames_[i] << std::endl;
+          oops::Log::info() << " obs count: " << iodaVars.location_ << std::endl;
+          oops::Log::test() << "Reading: " << inputFilenames_ << std::endl;
+        }
       }
       nobs = iodaVars.location_;
       nchan = iodaVars.channel_;
