@@ -99,8 +99,9 @@ if(BUILD_GDASBUNDLE)
 
 # Core JEDI repositories
     ecbuild_bundle( PROJECT oops SOURCE "../sorc/oops" )
-    ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
-    ecbuild_bundle( PROJECT saber SOURCE "../sorc/saber" )
+    # temporarily move where vader and saber are built
+    #ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
+    #ecbuild_bundle( PROJECT saber SOURCE "../sorc/saber" )
     option(ENABLE_IODA_DATA "Obtain ioda test data from ioda-data repository (vs tarball)" ON)
     ecbuild_bundle( PROJECT ioda SOURCE "../sorc/ioda" )
     option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
@@ -109,6 +110,9 @@ if(BUILD_GDASBUNDLE)
 
 # GDAS application code
   if(BUILD_GDAS)
+  # temporarily move where vader and saber are built
+    ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
+    ecbuild_bundle( PROJECT saber SOURCE "../sorc/saber" )
 # fv3-jedi and associated repositories
     ecbuild_bundle( PROJECT fv3-jedi-lm SOURCE "../sorc/fv3-jedi-lm" )
     option(ENABLE_FV3_JEDI_DATA "Obtain fv3-jedi test data from fv3-jedi-data repository (vs tarball)" ON)
