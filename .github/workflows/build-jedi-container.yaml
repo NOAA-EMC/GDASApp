@@ -76,7 +76,7 @@ jobs:
         docker run --name jedi-build \
           -v ${{ github.workspace }}:/src \
           ${{ env.BASE_IMAGE }} \
-          bash -c "
+          bash -euo pipefail -c "
             source /opt/spack-environment/activate.sh
             export jedi_cmake_ROOT=/opt/view
             mkdir -p /build && cd /build

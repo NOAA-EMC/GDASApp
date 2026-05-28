@@ -35,6 +35,7 @@ set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
 option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
 option(BUILD_JEDI "Build core JEDI libraries (oops, vader, saber, ioda, ufo, crtm, gsibec, bufr-query)" ON)
 option(BUILD_GDAS "Build GDAS application code (fv3-jedi, soca, gdas, da-utils, land-jediincr, jcb)" ON)
+option(BUILD_SOCA "Build SOCA" ON)
 option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
 option(BUILD_REGRID_STATES "Build regrid states land DA utility" ON)
@@ -99,9 +100,8 @@ if(BUILD_GDASBUNDLE)
 
 # Core JEDI repositories
     ecbuild_bundle( PROJECT oops SOURCE "../sorc/oops" )
-    # temporarily move where vader and saber are built
-    #ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
-    #ecbuild_bundle( PROJECT saber SOURCE "../sorc/saber" )
+    ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
+    ecbuild_bundle( PROJECT saber SOURCE "../sorc/saber" )
     option(ENABLE_IODA_DATA "Obtain ioda test data from ioda-data repository (vs tarball)" ON)
     ecbuild_bundle( PROJECT ioda SOURCE "../sorc/ioda" )
     option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
@@ -110,16 +110,13 @@ if(BUILD_GDASBUNDLE)
 
 # GDAS application code
   if(BUILD_GDAS)
-  # temporarily move where vader and saber are built
-    ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
-    ecbuild_bundle( PROJECT saber SOURCE "../sorc/saber" )
+
 # fv3-jedi and associated repositories
     ecbuild_bundle( PROJECT fv3-jedi-lm SOURCE "../sorc/fv3-jedi-lm" )
     option(ENABLE_FV3_JEDI_DATA "Obtain fv3-jedi test data from fv3-jedi-data repository (vs tarball)" ON)
     ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
 
 # SOCA associated repositories
-    option(BUILD_SOCA "Build SOCA" ON)
     if (BUILD_SOCA)
       ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
     endif()
