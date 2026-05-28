@@ -49,7 +49,7 @@ jobs:
           sorc/bufr-query \
           sorc/jcb
 
-    - name: TEMP Patch oops_src_files for NormGradient.h
+    - name: Temporary Patch oops_src_files for NormGradient.h
       run: |
         awk '/oops\/interface\/VariableChange.h/ { print; print "  oops/interface/NormGradient.h"; next } 1' sorc/oops/src/CMakeLists.txt > sorc/oops/src/CMakeLists.txt.tmp
         mv sorc/oops/src/CMakeLists.txt.tmp sorc/oops/src/CMakeLists.txt
