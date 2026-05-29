@@ -9,8 +9,10 @@ nens per MPI task: '{{ marine_number_ensemble_members_per_mpi }}'
 increment variables: &vars
 - sea_water_potential_temperature
 - sea_water_salinity
+{% if not marine_letkf_app | default(false) %}
 - eastward_sea_water_velocity
 - northward_sea_water_velocity
+{% endif %}
 - sea_ice_area_fraction
 - sea_ice_thickness
 - sea_ice_snow_thickness
@@ -29,8 +31,10 @@ backgrounds:
       - sea_water_potential_temperature
       - sea_water_salinity
       - sea_water_cell_thickness
+{% if not marine_letkf_app | default(false) %}
       - eastward_sea_water_velocity
       - northward_sea_water_velocity
+{% endif %}
       - sea_ice_area_fraction
       - sea_ice_thickness
       - sea_ice_snow_thickness
@@ -50,8 +54,8 @@ analysis increments:
       - sea_water_potential_temperature
       - sea_water_salinity
       - sea_water_cell_thickness
-      - eastward_sea_water_velocity
-      - northward_sea_water_velocity
+#      - eastward_sea_water_velocity
+#      - northward_sea_water_velocity
       - sea_ice_area_fraction
       - sea_ice_thickness
       - sea_ice_snow_thickness
@@ -61,8 +65,10 @@ recentering state:
   state variables:
   - sea_water_potential_temperature
   - sea_water_salinity
+{% if not marine_letkf_app | default(false) %}
   - eastward_sea_water_velocity
   - northward_sea_water_velocity
+{% endif %}
   - sea_water_cell_thickness
   - sea_water_depth
   - ocean_mixed_layer_thickness
