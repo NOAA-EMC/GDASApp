@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+
+import sys
+from b2iconverter.util import parse_arguments
+from b2iconverter.bufr2ioda_config import Bufr2iodaConfig
+from b2iconverter.bufr2ioda_converter import Bufr2ioda_Converter
+from b2iconverter.ioda_variables import IODAVariables
+from b2iconverter.ioda_metadata import IODAMetadata
+from b2iconverter.ioda_addl_vars import IODAAdditionalVariables
+from b2iconverter.wmo_codes import *
+
+import numpy as np
+
+
+platform_description = 'RAMA Tropical mooring profiles from mbuoyb: temperature'
+
+
+class RamaConfig(Bufr2iodaConfig):
+    def ioda_filename(self):
+        return f"{self.cycle_type}.t{self.hh}z.insitu_profile_rama_temp.{self.cycle_datetime}.nc"
+
+
+class RamaIODAVariables(IODAVariables):
+    def __init__(self):
+        self.construct()
+        self.metadata = IODAMetadata()
+        self.additional_vars = RamaAdditionalVariables(self)
+
+    def build_query(self):
+        q = super().build_query()
+        q.add('latitude', '*/CLATH')
+        q.add('longitude', '*/CLONH')
+        q.add('stationID', '*/RPID')
+        q.add('depth', '*/IDMSMDBS/BBYSTSL/DBSS')
+        q.add('temp', '*/IDMSMDBS/BBYSTSL/SST1')
+        return q
+
+    def set_obs_from_query_result(self, r):
+        self.temp = r.get('temp', group_by='depth')
+        self.temp -= 273.15
+
+    def filter(self):
+        super().filter()
+        mask = [True if int(rpid) in RAMA else False for rpid in self.metadata.stationID]
+        mask = mask & self.TemperatureFilter()
+        self.metadata.filter(mask)
+        self.temp = self.temp[mask]
+
+    def write_to_ioda_file(self, obsspace):
+        self.metadata.write_to_ioda_file(obsspace)
+        self.additional_vars.write_to_ioda_file(obsspace)
+        self.write_obs_value_t(obsspace)
+
+    def log_obs(self, logger):
+        self.log_temperature(logger)
+
+
+class RamaAdditionalVariables(IODAAdditionalVariables):
+    def construct(self):
+        n = len(self.ioda_vars.metadata.lon)
+        self.PreQC = (np.ma.masked_array(np.full(n, 0))).astype(np.int32)
+        self.ObsError_temp = \
+            np.float32(np.ma.masked_array(np.full(n, self.ioda_vars.T_error)))
+        self.compute_ocean_basin()
+
+    def write_to_ioda_file(self, obsspace):
+        self.write_preqc(obsspace, self.ioda_vars.T_name)
+        self.write_obs_errorT(obsspace)
+        self.write_ocean_basin(obsspace)
+
+    def log(self, logger):
+        self.log_preqc(logger)
+        self.log_obs_error_temp(logger)
+        self.log_ocean_basin(logger)
+
+
+if __name__ == '__main__':
+
+    script_name, config_file, log_file, test_file = parse_arguments()
+
+    bufr2ioda_config = RamaConfig(
+        script_name,
+        config_file,
+        platform_description)
+
+    ioda_vars = RamaIODAVariables()
+    ioda_vars.set_temperature_var_name("waterTemperature")
+    ioda_vars.set_temperature_error(0.02)
+
+    tropical = Bufr2ioda_Converter(bufr2ioda_config, ioda_vars, log_file)
+
+    tropical.run()
+
+    if test_file:
+        result = tropical.test(test_file)
+        sys.exit(result)
