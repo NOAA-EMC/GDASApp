@@ -72,11 +72,21 @@ providers:
         back: 4
         forward: 4
 
-  - name: insitu_profile_rama 
+  - name: insitu_profile_rama_temp
     variables:
       - name: 'waterTemperature'
         provider_var: insitu_temp_profile_rama
         error: 0.02
+    data_format: mbuoyb
+    subsets: mbuoyb
+    source: NCEP data tank
+    data_type: rama
+    data_description: 6-hrly in situ RAMA tropical mooring profiles
+    data_provider: U.S. NOAA
+    dump_tag: mbuoyb
+
+  - name: insitu_profile_rama_saln
+    variables:
       - name: 'salinity'
         provider_var: insitu_salt_profile_rama
         error: 0.01
@@ -88,11 +98,21 @@ providers:
     data_provider: U.S. NOAA
     dump_tag: mbuoyb
 
-  - name: insitu_profile_pirata 
+  - name: insitu_profile_pirata_temp
     variables:
       - name: 'waterTemperature'
         provider_var: insitu_temp_profile_pirata
         error: 0.02
+    data_format: mbuoyb
+    subsets: mbuoyb
+    source: NCEP data tank
+    data_type: pirata
+    data_description: 6-hrly in situ PIRATA tropical mooring profiles
+    data_provider: U.S. NOAA
+    dump_tag: mbuoyb
+
+  - name: insitu_profile_pirata_saln
+    variables:
       - name: 'salinity'
         provider_var: insitu_salt_profile_pirata
         error: 0.01
@@ -104,11 +124,21 @@ providers:
     data_provider: U.S. NOAA
     dump_tag: mbuoyb
 
-  - name: insitu_profile_taotriton 
+  - name: insitu_profile_taotriton_temp
     variables:
       - name: 'waterTemperature'
         provider_var: insitu_temp_profile_taotriton
         error: 0.02
+    data_format: mbuoyb
+    subsets: mbuoyb
+    source: NCEP data tank
+    data_type: taotriton
+    data_description: 6-hrly in situ TAO/TRITON tropical mooring profiles
+    data_provider: U.S. NOAA
+    dump_tag: mbuoyb
+
+  - name: insitu_profile_taotriton_saln
+    variables:
       - name: 'salinity'
         provider_var: insitu_salt_profile_taotriton
         error: 0.01
