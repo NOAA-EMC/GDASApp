@@ -26,26 +26,8 @@ saber outer blocks:
     local interpolator type: oops unstructured grid interpolator
   inverse interpolator:
     local interpolator type: oops unstructured grid interpolator
-  state variables to inverse: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,
-                               water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,
-                               ozone_mass_mixing_ratio]
+  state variables to inverse: {{ atmosphere_gsibec_static_state_variables_to_inverse }}
 linear variable change:
   linear variable change name: Control2Analysis
-  input variables:
-  - eastward_wind
-  - northward_wind
-  - air_temperature
-  - air_pressure_at_surface
-  - water_vapor_mixing_ratio_wrt_moist_air
-  - cloud_liquid_ice
-  - cloud_liquid_water
-  - mole_fraction_of_ozone_in_air
-  output variables:
-  - eastward_wind
-  - northward_wind
-  - air_temperature
-  - air_pressure_at_surface
-  - water_vapor_mixing_ratio_wrt_moist_air
-  - cloud_liquid_ice
-  - cloud_liquid_water
-  - ozone_mass_mixing_ratio
+  input variables: {{ atmosphere_gsibec_static_control2analysis_input_variables }}
+  output variables: {{ atmosphere_gsibec_static_state_variables_to_inverse }}

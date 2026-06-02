@@ -78,6 +78,46 @@ atmosphere_variational_increment_type: {{ ATMINC_GRID | default('cubed_grid_sphe
 atmosphere_iau_hours: {{ IAUFHRS }}
 atmosphere_iau_times_iso: {{ iau_times_iso }}
 
+# UFS variables
+atmosphere_background_state_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio,snow_water,rain_water,graupel,cloud_ice_number_concentration,rain_number_concentration,geopotential_height_at_surface,slmsk,sheleg,skin_temperature_at_surface,vtype,stype,vfrac,soilt,soilm,totalSnowDepthMeters,eastward_wind_at_surface,northward_wind_at_surface,f10m,air_pressure_thickness]
+atmosphere_fv3_increment_fields:       [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
+atmosphere_ufs_fields_split_by_level:  [soilMoistureVolumetric,stc]
+
+# GSIBEC variables
+atmosphere_gsibec_hybrid_control2analysis_input_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,mole_fraction_of_ozone_in_air,snow_water,rain_water,graupel]
+atmosphere_gsibec_static_control2analysis_input_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,mole_fraction_of_ozone_in_air]
+atmosphere_gsibec_static_state_variables_to_inverse: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
+
+# UFS variable names
+atmosphere_ufs_field_io_names:
+    eastward_wind: ugrd
+    northward_wind: vgrd
+    air_temperature: tmp
+    layer_thickness: delz
+    air_pressure_thickness: dpres
+    air_pressure_at_surface: pressfc
+    water_vapor_mixing_ratio_wrt_moist_air: spfh
+    cloud_liquid_ice: icmr
+    cloud_liquid_water: clwmr
+    snow_water: snmr
+    rain_water: rwmr
+    graupel: grle
+    cloud_ice_number_concentration: nccice
+    rain_number_concentration: nconrd
+    ozone_mass_mixing_ratio: o3mr
+    geopotential_height_at_surface: hgtsfc
+    slmsk: land
+    sheleg: weasd
+    skin_temperature_at_surface: tmpsfc
+    stype: sotyp
+    vfrac: veg
+    totalSnowDepthMeters: snod
+    eastward_wind_at_surface: ugrd_hyblev1
+    northward_wind_at_surface: vgrd_hyblev1
+    soilm: soilw1
+    soilt: soilt1
+    soilMoistureVolumetric: smc
+
 # Observation things
 # ------------------
 observations: all_observations
