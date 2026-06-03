@@ -24,7 +24,7 @@ increment geometry:
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
 state:
   datetime: '{{ atmosphere_background_time_iso }}'
-  state variables: {{ atmosphere_increment_variables_fv3 }}
+  state variables: {{ atmosphere_fv3_increment_variables }}
   field io names: {{ atmosphere_ufs_background_field_io_names }}
   filetype: cube sphere history
   provider: ufs
@@ -32,7 +32,7 @@ state:
   datapath: ./
   max allowable geometry difference: 1e-4
 increment:
-  added variables: {{ atmosphere_increment_variables_fv3 }}
+  added variables: {{ atmosphere_fv3_increment_variables }}
   field io names: {{ atmosphere_ufs_increment_field_io_names  }}
   filetype: fms restart
   is restart: false

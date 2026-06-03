@@ -1,16 +1,4 @@
-increment variables:
-- cloud_liquid_water
-- layer_thickness
-- air_pressure_thickness
-- cloud_liquid_ice
-- snow_water
-- rain_water
-- graupel
-- ozone_mass_mixing_ratio
-- water_vapor_mixing_ratio_wrt_moist_air
-- air_temperature
-- eastward_wind
-- northward_wind
+increment variables: {{ atmosphere_fv3_increment_variables }}
 deterministic background geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml

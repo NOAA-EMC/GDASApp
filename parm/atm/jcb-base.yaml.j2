@@ -31,26 +31,30 @@ atmosphere_ninner_1: {{ NINNER_LOOP1 | default(2, true) }}
 atmosphere_grad_red_1: 1e-10
 atmosphere_ninner_2: {{ NINNER_LOOP2 | default(4, true) }}
 atmosphere_grad_red_2: 1e-10
-{% set _analysis_vars = ['eastward_wind',
-                         'northward_wind',
-                         'air_temperature',
-                         'water_vapor_mixing_ratio_wrt_moist_air',
-                         'cloud_liquid_ice',
-                         'cloud_liquid_water',
-                         'snow_water',
-                         'rain_water',
-                         'graupel',
-                         'ozone_mass_mixing_ratio',
-                         'air_pressure_at_surface'] %}
+
+# Analysis variables 
+{% set _shared_vars = ['eastward_wind',
+                       'northward_wind',
+                       'air_temperature',
+                       'water_vapor_mixing_ratio_wrt_moist_air',
+                       'cloud_liquid_ice',
+                       'cloud_liquid_water',
+                       'snow_water',
+                       'rain_water',
+                       'graupel',
+                       'ozone_mass_mixing_ratio'] %}
+{% set _analysis_vars =      _shared_vars + ['air_pressure_at_surface'] %}
+{% set _fv3_increment_vars = _shared_vars + ['air_pressure_thickness',
+                                             'layer_thickness'] %}
 analysis_variables: {{ _analysis_vars }}
 
 # Model things
 # ------------
 
 # State variables
-atmosphere_background_state_variables: {{ _analysis_vars + ['cloud_ice_number_concentration',
+atmosphere_background_state_variables: {{ _analysis_vars + ['geopotential_height_at_surface',
+                                                            'cloud_ice_number_concentration',
                                                             'rain_number_concentration',
-                                                            'geopotential_height_at_surface',
                                                             'slmsk',
                                                             'sheleg',
                                                             'skin_temperature_at_surface',
@@ -64,42 +68,32 @@ atmosphere_background_state_variables: {{ _analysis_vars + ['cloud_ice_number_co
                                                             'northward_wind_at_surface',
                                                             'f10m',
                                                             'air_pressure_thickness'] }}
+atmosphere_jedi2fv3inc_state_variables: {{ _analysis_vars + ['geopotential_height_at_surface'] }}
 
 # Increment variables
-{% set _shared_increment_vars = ['eastward_wind',
-                                 'northward_wind',
-                                 'air_temperature',
-                                 'water_vapor_mixing_ratio_wrt_moist_air',
-                                 'cloud_liquid_ice',
-                                 'cloud_liquid_water',
-                                 'snow_water',
-                                 'rain_water',
-                                 'graupel',
-                                 'ozone_mass_mixing_ratio'] }
-atmosphere_increment_variables:     {{ _shared_increment_vars + ['air_pressure_at_surface'] }}
-atmosphere_increment_variables_fv3: {{ _shared_increment_vars + ['air_pressure_thickness',
-                                                                 'layer_thickness'] }}
+atmosphere_jedi_increment_variables: {{ _analysis_vars }}
+atmosphere_fv3_increment_variables:  {{ _fv3_increment_vars }}
 
 # GSIBEC-related variables
 atmosphere_gsibec_hybrid_control2analysis_input_variables: [eastward_wind,
                                                             northward_wind,
                                                             air_temperature,
-                                                            air_pressure_at_surface,
                                                             water_vapor_mixing_ratio_wrt_moist_air,
                                                             cloud_liquid_ice,
                                                             cloud_liquid_water,
                                                             snow_water,
                                                             rain_water,
                                                             graupel,
-                                                            mole_fraction_of_ozone_in_air]
+                                                            mole_fraction_of_ozone_in_air,
+                                                            air_pressure_at_surface]
 atmosphere_gsibec_static_control2analysis_input_variables: [eastward_wind,
                                                             northward_wind,
                                                             air_temperature,
-                                                            air_pressure_at_surface,
                                                             water_vapor_mixing_ratio_wrt_moist_air,
                                                             cloud_liquid_ice,
                                                             cloud_liquid_water,
-                                                            mole_fraction_of_ozone_in_air]
+                                                            mole_fraction_of_ozone_in_air,
+                                                            air_pressure_at_surface]
 atmosphere_gsibec_static_state_variables_to_inverse: [eastward_wind,
                                                       northward_wind,
                                                       air_temperature,
@@ -108,49 +102,6 @@ atmosphere_gsibec_static_state_variables_to_inverse: [eastward_wind,
                                                       cloud_liquid_ice,
                                                       cloud_liquid_water,
                                                       ozone_mass_mixing_ratio]
-
-# Geometry
-atmosphere_layout_x: {{ layout_x | default(1, true) }}
-atmosphere_layout_y: {{ layout_y | default(1, true) }}
-atmosphere_npx_ges: {{ npx_ges | default(49, true) }}
-atmosphere_npy_ges: {{ npy_ges | default(49, true) }}
-atmosphere_npz_ges: {{ npz_ges | default(127, true) }}
-atmosphere_npx_his: {{ npx_his | default(49, true) }}
-atmosphere_npy_his: {{ npy_his | default(49, true) }}
-atmosphere_npz_his: {{ npz_his | default(127, true) }}
-atmosphere_npx_anl: {{ npx_anl | default(49, true) }}
-atmosphere_npy_anl: {{ npy_anl | default(49, true) }}
-atmosphere_npz_anl: {{ npz_anl | default(127, true) }}
-
-atmosphere_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
-
-# Background
-atmosphere_background_path: ./bkg
-atmosphere_background_ensemble_path: ./ens/mem%mem%
-
-# Default background time is for 3D applications
-atmosphere_background_time_iso: "{{ current_cycle | to_isotime }}"
-
-# Background error
-atmosphere_bump_data_directory: "{{ DATA }}/berror"
-atmosphere_gsibec_path: "{{ DATA }}/berror"
-atmosphere_number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
-atmosphere_layout_gsib_x: {{ layout_gsib_x | default(1, true) }}
-atmosphere_layout_gsib_y: {{ layout_gsib_y | default(1, true) }}
-
-# Forecasting
-atmosphere_forecast_timestep: "{{ BKG_TSTEP }}"
-
-# Write final increment on Guassian grid in variational
-atmosphere_final_increment_prefix: "./anl/atminc."
-
-atmosphere_variational_history_prefix: "{{GPREFIX}}"
-atmosphere_variational_analysis_prefix: "{{APREFIX}}"
-atmosphere_variational_increment_type: {{ ATMINC_GRID | default('cubed_grid_sphere', true) }}
-
-# IAU hours
-atmosphere_iau_hours: {{ IAUFHRS }}
-atmosphere_iau_times_iso: {{ iau_times_iso }}
 
 # UFS variable names
 atmosphere_ufs_background_field_io_names:
@@ -195,6 +146,49 @@ atmosphere_ufs_increment_field_io_names:
     air_pressure_thickness: delp_inc
     layer_thickness: delz_inc
     air_pressure_at_surface: pressfc_inc
+
+# Geometry
+atmosphere_layout_x: {{ layout_x | default(1, true) }}
+atmosphere_layout_y: {{ layout_y | default(1, true) }}
+atmosphere_npx_ges: {{ npx_ges | default(49, true) }}
+atmosphere_npy_ges: {{ npy_ges | default(49, true) }}
+atmosphere_npz_ges: {{ npz_ges | default(127, true) }}
+atmosphere_npx_his: {{ npx_his | default(49, true) }}
+atmosphere_npy_his: {{ npy_his | default(49, true) }}
+atmosphere_npz_his: {{ npz_his | default(127, true) }}
+atmosphere_npx_anl: {{ npx_anl | default(49, true) }}
+atmosphere_npy_anl: {{ npy_anl | default(49, true) }}
+atmosphere_npz_anl: {{ npz_anl | default(127, true) }}
+
+atmosphere_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
+
+# Background
+atmosphere_background_path: ./bkg
+atmosphere_background_ensemble_path: ./ens/mem%mem%
+
+# Default background time is for 3D applications
+atmosphere_background_time_iso: "{{ current_cycle | to_isotime }}"
+
+# Background error
+atmosphere_bump_data_directory: "{{ DATA }}/berror"
+atmosphere_gsibec_path: "{{ DATA }}/berror"
+atmosphere_number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
+atmosphere_layout_gsib_x: {{ layout_gsib_x | default(1, true) }}
+atmosphere_layout_gsib_y: {{ layout_gsib_y | default(1, true) }}
+
+# Forecasting
+atmosphere_forecast_timestep: "{{ BKG_TSTEP }}"
+
+# Write final increment on Guassian grid in variational
+atmosphere_final_increment_prefix: "./anl/atminc."
+
+atmosphere_variational_history_prefix: "{{GPREFIX}}"
+atmosphere_variational_analysis_prefix: "{{APREFIX}}"
+atmosphere_variational_increment_type: {{ ATMINC_GRID | default('cubed_grid_sphere', true) }}
+
+# IAU hours
+atmosphere_iau_hours: {{ IAUFHRS }}
+atmosphere_iau_times_iso: {{ iau_times_iso }}
 
 # Observation things
 # ------------------

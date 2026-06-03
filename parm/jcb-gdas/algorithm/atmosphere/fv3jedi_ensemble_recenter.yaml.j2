@@ -25,7 +25,7 @@ members:
     npz: {{ atmosphere_npz_anl }}
   state:
     datetime: '{{ atmosphere_iau_times_iso[ihour] }}'
-    state variables: {{ atmosphere_increment_variables_fv3 }}
+    state variables: {{ atmosphere_fv3_increment_variables }}
     field io names: {{ atmosphere_ufs_increment_field_io_names }}
     filetype: cube sphere history
     provider: ufs
@@ -33,7 +33,7 @@ members:
     filename: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_catmi{{ '%03d' % atmosphere_iau_hours[ihour] }}.nc
     max allowable geometry difference: 1e-4
   increment:
-    added variables: {{ atmosphere_increment_variables_fv3 }}
+    added variables: {{ atmosphere_fv3_increment_variables }}
     field io names: {{ atmosphere_ufs_increment_field_io_names  }}
     filetype: cube sphere history
     provider: ufs

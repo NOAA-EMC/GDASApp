@@ -1,21 +1,9 @@
 variable change:
   variable change name: Model2GeoVaLs
-  input variables: &bkgvars
-  - eastward_wind
-  - northward_wind
-  - air_temperature
-  - air_pressure_at_surface
-  - water_vapor_mixing_ratio_wrt_moist_air
-  - cloud_liquid_ice
-  - cloud_liquid_water
-  - ozone_mass_mixing_ratio
-  - snow_water
-  - rain_water
-  - graupel
-  - geopotential_height_at_surface
-  output variables: {{ atmosphere_increment_variables_fv3 }}
-jedi increment variables: {{ atmosphere_increment_variables }}
-fv3 increment variables: {{ atmosphere_increment_variables_fv3 }}
+  input variables: {{ atmosphere_jedi2fv3inc_state_variables }}
+  output variables: {{ atmosphere_fv3_increment_variables }}
+jedi increment variables: {{ atmosphere_jedi_increment_variables }}
+fv3 increment variables: {{ atmosphere_fv3_increment_variables }}
 background geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -71,7 +59,7 @@ members:
     - {{ atmosphere_variational_history_prefix }}cubed_sphere_grid_atmf006.nc
     - {{ atmosphere_variational_history_prefix }}cubed_sphere_grid_sfcf006.nc
     max allowable geometry difference: 1e-4
-    state variables: *bkgvars
+    state variables: {{ atmosphere_jedi2fv3inc_state_variables }}
     field io names: {{ atmosphere_ufs_background_field_io_names }}
   jedi increment input:
     filetype: cube sphere history
