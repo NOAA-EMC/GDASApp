@@ -13,32 +13,9 @@ variable change:
   - graupel
   - ozone_mass_mixing_ratio
   - geopotential_height_at_surface
-  output variables: &fv3incrvars
-  - eastward_wind
-  - northward_wind
-  - air_temperature
-  - water_vapor_mixing_ratio_wrt_moist_air
-  - cloud_liquid_ice
-  - cloud_liquid_water
-  - snow_water
-  - rain_water
-  - graupel
-  - ozone_mass_mixing_ratio
-  - air_pressure_thickness
-  - layer_thickness
-jedi increment variables:
-- eastward_wind
-- northward_wind
-- air_temperature
-- air_pressure_at_surface
-- water_vapor_mixing_ratio_wrt_moist_air
-- cloud_liquid_ice
-- cloud_liquid_water
-- snow_water
-- rain_water
-- graupel
-- ozone_mass_mixing_ratio
-fv3 increment variables: *fv3incrvars
+  output variables: {{ atmosphere_increment_variables_fv3 }}
+jedi increment variables: {{ atmosphere_increment_variables }}
+fv3 increment variables: {{ atmosphere_increment_variables_fv3 }}
 background geometry:
   fms initialization:
     namelist filename: ./fv3jedi/fmsmpp.nml
@@ -84,25 +61,11 @@ members from template:
       max allowable geometry difference: 1e-4      
       datetime: '{{ atmosphere_background_time_iso }}'
       state variables: *bkgvars
-      field io names: &field_io_names
-        eastward_wind: ugrd
-        northward_wind: vgrd
-        air_temperature: tmp
-        layer_thickness: delz
-        air_pressure_thickness: dpres
-        air_pressure_at_surface: pressfc
-        water_vapor_mixing_ratio_wrt_moist_air: spfh
-        cloud_liquid_ice: icmr
-        cloud_liquid_water: clwmr
-        snow_water: snmr
-        rain_water: rwmr
-        graupel: grle
-        ozone_mass_mixing_ratio: o3mr
-        geopotential_height_at_surface: hgtsfc
+      field io names: {{ atmosphere_ufs_background_field_io_names }}
     jedi increment input:
       filetype: cube sphere history
       provider: ufs
-      field io names: *field_io_names
+      field io names: {{ atmosphere_ufs_increment_field_io_names }}
       datapath: ./anl/mem%mem%
       filename: cubed_sphere_grid_atminc.jedi.nc
     fv3 increment output:
@@ -116,19 +79,7 @@ members from template:
       filename: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_atminc.nc
 {% endif %}
       datapath: ./anl/mem%mem%
-      field io names:
-        eastward_wind: u_inc
-        northward_wind: v_inc
-        air_temperature: T_inc
-        water_vapor_mixing_ratio_wrt_moist_air: sphum_inc
-        cloud_liquid_water: liq_wat_inc
-        ozone_mass_mixing_ratio: o3mr_inc
-        cloud_liquid_ice: icmr_inc
-        snow_water: snmr_inc
-        rain_water: rwmr_inc
-        graupel: grle_inc
-        air_pressure_thickness: delp_inc
-        layer_thickness: delz_inc
+      field io names: {{ atmosphere_ufs_increment_field_io_names }}
   pattern: '%mem%'
   nmembers: {{ atmosphere_number_ensemble_members }}
   zero padding: 3

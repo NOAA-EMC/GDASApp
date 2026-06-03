@@ -31,7 +31,7 @@ components:
       state variables to inverse: {{ analysis_variables }}
     linear variable change:
       linear variable change name: Control2Analysis
-      input variables: {{ atmosphere_control2analysis_input_variables_with_mole_fraction_ozone }}
+      input variables: {{ atmosphere_gsibec_hybrid_control2analysis_input_variables }}
       output variables: {{ analysis_variables }}
   weight:
     value: 0.125
@@ -43,7 +43,7 @@ components:
         filetype: cube sphere history
         provider: ufs
         state variables: {{ analysis_variables }}
-        field io names: {{ atmosphere_ufs_field_io_names }}
+        field io names: {{ atmosphere_ufs_background_field_io_names }}
         datapath: {{ atmosphere_background_ensemble_path }}
         filename is datetime templated: true
         filenames:

@@ -24,19 +24,71 @@ minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
 number_of_outer_loops: 1
-analysis_variables: [mass_fraction_of_sulfate_in_air,
-                       mass_fraction_of_hydrophobic_black_carbon_in_air,
-                       mass_fraction_of_hydrophilic_black_carbon_in_air,
-                       mass_fraction_of_hydrophobic_organic_carbon_in_air,
-                       mass_fraction_of_hydrophilic_organic_carbon_in_air,
-                       mass_fraction_of_dust001_in_air, mass_fraction_of_dust002_in_air,
-                       mass_fraction_of_dust003_in_air, mass_fraction_of_dust004_in_air,
-                       mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air,
-                       mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air,
-                       mass_fraction_of_sea_salt004_in_air]
+{% set _analysis_vars = ['mass_fraction_of_sulfate_in_air',
+                         'mass_fraction_of_hydrophobic_black_carbon_in_air',
+                         'mass_fraction_of_hydrophilic_black_carbon_in_air',
+                         'mass_fraction_of_hydrophobic_organic_carbon_in_air',
+                         'mass_fraction_of_hydrophilic_organic_carbon_in_air',
+                         'mass_fraction_of_dust001_in_air',
+                         'mass_fraction_of_dust002_in_air',
+                         'mass_fraction_of_dust003_in_air',
+                         'mass_fraction_of_dust004_in_air',
+                         'mass_fraction_of_dust005_in_air',
+                         'mass_fraction_of_sea_salt001_in_air',
+                         'mass_fraction_of_sea_salt002_in_air',
+                         'mass_fraction_of_sea_salt003_in_air',
+                         'mass_fraction_of_sea_salt004_in_air'] %}
+analysis_variables: {{ _analysis_vars }}
 
 # Model things
 # ------------
+
+# Variables
+aero_det_state_variables: {{ _analysis_vars + ['air_temperature',
+                                               'air_pressure_thickness',
+                                               'water_vapor_mixing_ratio_wrt_moist_air'] }}
+aero_bmat_state_variables: {{ _analysis_vars + ['mass_fraction_of_sea_salt005_in_air'] }}
+
+# Variable IO names
+aero_field_io_names:
+    air_temperature: T
+    air_pressure_thickness: delp
+    water_vapor_mixing_ratio_wrt_moist_air: sphum
+    mass_fraction_of_sulfate_in_air: so4
+    mass_fraction_of_hydrophobic_black_carbon_in_air: bc1
+    mass_fraction_of_hydrophilic_black_carbon_in_air: bc2
+    mass_fraction_of_hydrophobic_organic_carbon_in_air: oc1
+    mass_fraction_of_hydrophilic_organic_carbon_in_air: oc2
+    mass_fraction_of_dust001_in_air: dust1
+    mass_fraction_of_dust002_in_air: dust2
+    mass_fraction_of_dust003_in_air: dust3
+    mass_fraction_of_dust004_in_air: dust4
+    mass_fraction_of_dust005_in_air: dust5
+    mass_fraction_of_sea_salt001_in_air: seas1
+    mass_fraction_of_sea_salt002_in_air: seas2
+    mass_fraction_of_sea_salt003_in_air: seas3
+    mass_fraction_of_sea_salt004_in_air: seas4
+    mass_fraction_of_sea_salt005_in_air: seas5
+    slmsk: slmsk
+aero_field_io_names_crtm:
+    air_temperature: T
+    air_pressure_thickness: delp
+    water_vapor_mixing_ratio_wrt_moist_air: sphum
+    mass_fraction_of_sulfate_in_air: so4
+    mass_fraction_of_hydrophobic_black_carbon_in_air: bc1
+    mass_fraction_of_hydrophilic_black_carbon_in_air: bc2
+    mass_fraction_of_hydrophobic_organic_carbon_in_air: oc1
+    mass_fraction_of_hydrophilic_organic_carbon_in_air: oc2
+    mass_fraction_of_dust001_in_air: dust1
+    mass_fraction_of_dust002_in_air: dust2
+    mass_fraction_of_dust003_in_air: dust3
+    mass_fraction_of_dust004_in_air: dust4
+    mass_fraction_of_dust005_in_air: dust5
+    mass_fraction_of_sea_salt001_in_air: seas2
+    mass_fraction_of_sea_salt002_in_air: seas3
+    mass_fraction_of_sea_salt003_in_air: seas4
+    mass_fraction_of_sea_salt004_in_air: seas5
+
 # Geometry
 aero_layout_x: {{ layout_x | default(1, true) }}
 aero_layout_y: {{ layout_y | default(1, true) }}
