@@ -10,8 +10,7 @@ geometry:
   npy: {{ npy_ges }}
   npz: {{ npz_ges }}
 date: "{{ snow_background_time_iso }}"
-variables:
-- totalSnowDepth
+variables: {{ analysis_variables }}
 increment mask:
   variable:
   - slmsk
@@ -33,10 +32,8 @@ increment mask:
 deterministic increment:
   datetime: "{{ snow_increment_time_iso }}"
   filetype: fms restart
-  state variables:
-  - totalSnowDepth
-  field io names:
-    totalSnowDepth: snodl
+  state variables: {{ analysis_variables }}
+  field io names: {{ snow_field_io_names }}
   datapath: ./inc/det_ensres
   filename is datetime templated: true
   filename_core: "snowinc.%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
@@ -48,10 +45,8 @@ deterministic increment:
 deterministic background:
   datetime: "{{ snow_background_time_iso }}"
   filetype: fms restart
-  state variables:
-  - totalSnowDepth
-  field io names:
-    totalSnowDepth: snodl
+  state variables: {{ analysis_variables }}
+  field io names: {{ snow_field_io_names }}
   datapath: ./bkg/det_ensres
   filename is datetime templated: true
   filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"
@@ -65,8 +60,7 @@ output increment:
   datapath: ./inc/ensmean
   datetime: "{{ snow_increment_time_iso }}"
   filetype: fms restart
-  field io names:
-    totalSnowDepth: snodl
+  field io names: {{ snow_field_io_names }}
   prefix: snowinc
   filename_core: "{{ snow_increment_time_fv3 }}.fv_core.res.nc"
   filename_trcr: "{{ snow_increment_time_fv3 }}.fv_tracer.res.nc"
@@ -80,10 +74,8 @@ ensemble backgrounds:
   template:
     datetime: "{{ snow_background_time_iso }}"
     filetype: fms restart
-    state variables:
-    - totalSnowDepth
-    field io names:
-      totalSnowDepth: snodl
+    state variables: {{ analysis_variables }}
+    field io names: {{ snow_field_io_names }}
     datapath: ./bkg/mem%mem%
     filename is datetime templated: true
     filename_core: "%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nc"

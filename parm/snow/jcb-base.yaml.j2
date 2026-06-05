@@ -42,6 +42,22 @@ number_of_outer_loops: 1
 
 # Model things
 # ------------
+
+# State variables
+snow_background_state_variables: [totalSnowDepth, vtype, slmsk, sheleg,
+                                  filtered_orography, fraction_of_ice,
+                                  fraction_of_land, stc]
+snow_ensmean_state_variables: [totalSnowDepth, vtype, slmsk, filtered_orography,
+                               stc, sheleg, fraction_of_ice]
+snow_increment_state_variables: [totalSnowDepth, vtype, slmsk]
+
+# Variable IO names
+snow_field_io_names:
+    totalSnowDepth: snodl
+    filtered_orography: orog_filt
+    fraction_of_ice: fice
+    fraction_of_land: land_frac
+
 # Geometry
 snow_layout_x: {{ layout_x | default(1, true) }}
 snow_layout_y: {{ layout_y | default(1, true) }}

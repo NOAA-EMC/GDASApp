@@ -42,6 +42,24 @@ number_of_outer_loops: 1
 
 # Model things
 # ------------
+
+# State variables
+soil_background_state_variables: [soilMoistureVolumetric, stc, totalSnowDepth,
+                                   sheleg, vtype, slmsk, filtered_orography,
+                                   fraction_of_ice, fraction_of_land]
+soil_addincrement_state_variables: [soilMoistureVolumetric, stc, totalSnowDepth,
+                                     sheleg, vtype, slmsk, fraction_of_ice]
+soil_increment_state_variables: [soilMoistureVolumetric, stc, totalSnowDepth,
+                                  sheleg, vtype, slmsk]
+
+# Variable IO names
+soil_field_io_names:
+    soilMoistureVolumetric: smc
+    totalSnowDepth: snodl
+    filtered_orography: orog_filt
+    fraction_of_ice: fice
+    fraction_of_land: land_frac
+
 # Geometry
 soil_layout_x: {{ layout_x | default(1, true) }}
 soil_layout_y: {{ layout_y | default(1, true) }}

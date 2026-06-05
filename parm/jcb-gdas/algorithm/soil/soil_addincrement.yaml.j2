@@ -23,28 +23,16 @@ increment geometry:
   npz: {{ soil_npz_anl }}
 #  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
 state:
-  state variables: 
-    - soilMoistureVolumetric
-    - stc
-    - totalSnowDepth
-    - sheleg
-    - vtype
-    - slmsk
-    - fraction_of_ice
-  field io names:
-    totalSnowDepth: snodl
-    soilMoistureVolumetric: smc
-    fraction_of_ice: fice
+  state variables: {{ soil_addincrement_state_variables }}
+  field io names: {{ soil_field_io_names }}
   datapath: ./bkg
   filetype: fms restart
   skip coupler file: true
   datetime: '{{ soil_background_time_iso }}'
   filename_sfcd: {{ soil_background_time_fv3 }}.sfc_data.nc
 increment:
-  added variables:
-  - soilMoistureVolumetric
-  field io names:
-    soilMoistureVolumetric: smc
+  added variables: {{ analysis_variables }}
+  field io names: {{ soil_field_io_names }}
   datapath: ./anl
   filetype: fms restart
   skip coupler file: true
@@ -60,15 +48,5 @@ output:
   filename is datetime templated: true
   datetime: '{{ soil_background_time_iso }}'
   filename_sfcd: {{ soil_background_time_fv3 }}.sfc_data.nc
-  state variables:
-  - soilMoistureVolumetric
-  - stc
-  - totalSnowDepth
-  - sheleg
-  - vtype
-  - slmsk
-  - fraction_of_ice
-  field io names:
-    soilMoistureVolumetric: smc
-    totalSnowDepth: snodl
-    fraction_of_ice: fice
+  state variables: {{ soil_addincrement_state_variables }}
+  field io names: {{ soil_field_io_names }}

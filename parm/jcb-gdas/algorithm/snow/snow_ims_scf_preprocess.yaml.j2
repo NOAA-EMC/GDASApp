@@ -17,8 +17,7 @@ geometry:
       datetime: '{{ snow_background_time_iso }}'
       state variables:
       - filtered_orography
-      field io names:
-        filtered_orography: orog_filt
+      field io names: {{ snow_field_io_names }}
       filename_sfcd: '{{ snow_background_time_fv3 }}.sfc_data.nc'
       filename_cplr: '{{ snow_background_time_fv3 }}.coupler.res'
       filename_orog: '{{ snow_orog_prefix }}_oro_data.nc'
@@ -26,15 +25,7 @@ date: '{{ snow_background_time_iso }}'
 output ioda file: '{{snow_obsdatain_path}}/{{snow_obsdatain_prefix}}ims_snow.tm00.nc'
 input scf file: './obs/ims{{ snow_background_time_julian }}_4km_v1.3.{{ ims_scf_obs_suffix }}'
 mapping file: './obs/IMS4km_to_FV3_mapping.{{ snow_orog_prefix }}_oro_data.nc'
-variables:
-- totalSnowDepth
-- vtype
-- slmsk
-- sheleg
-- filtered_orography
-- fraction_of_ice
-- fraction_of_land
-- stc
+variables: {{ snow_background_state_variables }}
 background:
 {% filter indent(width=2) %}
 {% set background_file = background_file|default(model_component ~ 'background', true) ~ '.yaml.j2' %}
