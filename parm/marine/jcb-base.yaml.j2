@@ -25,18 +25,27 @@ minimizer: RPCG
 final_diagnostics_departures: oman
 final_prints_frequency: PT3H
 number_of_outer_loops: 1
-analysis_variables:
-- sea_ice_area_fraction
-- sea_ice_thickness
-- sea_ice_snow_thickness
-- sea_water_salinity
-- sea_water_potential_temperature
-#- eastward_sea_water_velocity
-#- northward_sea_water_velocity
-- sea_surface_height_above_geoid
+
+# Analysis variables
+{% set _analysis_vars = ['sea_ice_area_fraction',
+                         'sea_ice_thickness',
+                         'sea_ice_snow_thickness',
+                         'sea_water_salinity',
+                         'sea_water_potential_temperature',
+                         'sea_surface_height_above_geoid'] %}
+analysis_variables: {{ _analysis_vars }}
 
 # Model things
 # ------------
+
+# State variables
+marine_background_state_variables: {{ _analysis_vars + ['air_temperature',
+                                                        'bulk_ice_salinity',
+                                                        'sea_water_cell_thickness',
+                                                        'ocean_mixed_layer_thickness',
+                                                        'sea_water_depth',
+                                                        'snow_ice_surface_temperature'] }}
+
 marine_window_begin: '{{ WINDOW_BEGIN }}'
 marine_window_middle: '{{ WINDOW_MIDDLE }}'
 marine_window_begin_iso: '{{ WINDOW_BEGIN | to_isotime }}'
@@ -114,7 +123,14 @@ local_ensemble_da_solver: Deterministic LETKF
 use_linear_observer: true
 
 # Increment variables
-increment_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, sea_water_cell_thickness, eastward_sea_water_velocity, northward_sea_water_velocity, sea_ice_area_fraction]
+increment_variables:
+- sea_ice_area_fraction
+- sea_water_salinity
+- sea_water_potential_temperature
+- sea_surface_height_above_geoid
+- sea_water_cell_thickness
+- eastward_sea_water_velocity
+- northward_sea_water_velocity
 
 # Driver
 driver_save_posterior_mean: true
@@ -132,5 +148,3 @@ inflation_mult: 1.1
 # Using LETKF app? (used in obs YAMLs)
 marine_letkf_app: {{ letkf_app | default(false) }}
 marine_letkf_dist_halo_size: '{{ DIST_HALO_SIZE }}'
-
-

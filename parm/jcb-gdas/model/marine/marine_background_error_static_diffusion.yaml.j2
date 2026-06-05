@@ -50,23 +50,7 @@ saber outer blocks:
 #        load model: /work/noaa/da/gvernier/ai/runs/antarctic.pt
 
 linear variable change:
-  input variables:
-  - sea_ice_area_fraction
-  - sea_ice_thickness
-  - sea_ice_snow_thickness
-  - sea_water_salinity
-  - sea_water_potential_temperature
-  #- eastward_sea_water_velocity
-  #- northward_sea_water_velocity
-  - sea_surface_height_above_geoid
-  output variables:
-  - sea_ice_area_fraction
-  - sea_ice_thickness
-  - sea_ice_snow_thickness
-  - sea_water_salinity
-  - sea_water_potential_temperature
-  #- eastward_sea_water_velocity
-  #- northward_sea_water_velocity
-  - sea_surface_height_above_geoid
+  input variables: {{ analysis_variables }}
+  output variables: {{ analysis_variables }}
   linear variable changes:
   - linear variable change name: BalanceSOCA
