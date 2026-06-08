@@ -52,7 +52,8 @@
 [submodule "sorc/jcb"]
   path = sorc/jcb
   url = https://github.com/NOAA-EMC/jcb.git
-  branch = develop
+ # branch = develop
+  branch = feature/rej_by_var
 [submodule "parm/jcb-algorithms"]
   path = parm/jcb-algorithms
   url = https://github.com/noaa-emc/jcb-algorithms
