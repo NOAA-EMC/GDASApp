@@ -1,34 +1,38 @@
 jedi_config:
     atmensanlobs:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_ATMENSANLOBS }}'
         jedi_args: ['fv3jedi', 'localensembleda']
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/atm/jcb-prototype_lgetkf_observer.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_algo_yaml: '{{ PARMglobal }}/gdas/atm/jcb-prototype_lgetkf_observer.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
+        app_test_yaml: '{{ OBS_JEDI_TEST_YAML }}'
     atmensanlsol:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_ATMENSANLSOL }}'
         jedi_args: ['fv3jedi', 'localensembleda']
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/atm/jcb-prototype_lgetkf_solver.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_algo_yaml: '{{ PARMglobal }}/gdas/atm/jcb-prototype_lgetkf_solver.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
+        app_test_yaml: '{{ SOL_JEDI_TEST_YAML }}'
     atmensanlfv3inc:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_fv3inc.x'
+        exe_src: '{{ EXECglobal }}/gdas_fv3jedi_fv3inc.x'
         mpi_cmd: '{{ APRUN_ATMENSANLFV3INC }}'
         jcb_algo: 'fv3jedi_fv3inc_lgetkf'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
+        app_test_yaml: '{{ FV3INC_JEDI_TEST_YAML }}'
     atmensanlletkf:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_ATMENSANLLETKF }}'
         jedi_args: ['fv3jedi', 'localensembleda']
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/atm/jcb-base.yaml.j2'
-        jcb_algo_yaml: '{{ PARMgfs }}/gdas/atm/jcb-prototype_lgetkf.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
+        jcb_algo_yaml: '{{ PARMglobal }}/gdas/atm/jcb-prototype_lgetkf.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
+        app_test_yaml: '{{ LETKF_JEDI_TEST_YAML }}'
 
 data_in:
     mkdir:
@@ -77,9 +81,9 @@ data_out:
                          '${MEMDIR}': 'mem%03d' | format(imem) }) %}
 {% if DOENKFONLY_ATM | default(false) %}
     {% for itile in range(1, ntiles + 1) %}
-    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile{{ itile }}.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.tile{{ itile }}.nc']
+    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.tile{{ itile }}.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_increment.atm.i006.tile{{ itile }}.nc']
    {% endfor %}
 {% else %}
-    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.nc']
+    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_increment.atm.i006.nc']
 {% endif %}
 {% endfor %}

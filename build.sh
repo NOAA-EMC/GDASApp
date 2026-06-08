@@ -53,7 +53,7 @@ BUILD_SOCA=${BUILD_SOCA:-"ON"}
 while getopts "w:t:c:hvdfai" opt; do
   case $opt in
     w)
-      HOMEgfs=$OPTARG
+      HOMEglobal=$OPTARG
       ;;
     t)
       BUILD_TARGET=$OPTARG
@@ -80,7 +80,7 @@ while getopts "w:t:c:hvdfai" opt; do
 done
 
 case ${BUILD_TARGET} in
-  hera | orion | hercules | wcoss2 | noaacloud | gaeac6 | ursa )
+  hera | orion | hercules | wcoss2 | noaacloud | gaeac6 | ursa | derecho | container | aws-ec2 )
     echo "Building GDASApp on $BUILD_TARGET"
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
@@ -125,8 +125,8 @@ if [[ $BUILD_SOCA == 'ON' ]]; then
     # Link MOM6 and Icepack in SOCA to submodules in the UFS repo
     rm -rf $dir_root/sorc/soca/external/mom6/MOM6
     rm -rf $dir_root/sorc/soca/external/icepack/Icepack
-    ln -sf $HOMEgfs/sorc/ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
-    ln -sf $HOMEgfs/sorc/ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
+    ln -sf $HOMEglobal/sorc/ufs_model.fd/MOM6-interface/MOM6/ $dir_root/sorc/soca/external/mom6/MOM6
+    ln -sf $HOMEglobal/sorc/ufs_model.fd/CICE-interface/CICE/icepack/ $dir_root/sorc/soca/external/icepack/Icepack
   else
     # Delete forked SOCA NOAA-EMC dev/emc repo and clone the original JCSDA develop repo
     rm -rf "$dir_root/sorc/soca/"
@@ -145,13 +145,16 @@ CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
 # Set CMAKE_INSTALL_LIBDIR as CMake option
 CMAKE_OPTS+=" -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}"
 
+# TODO: allow CRTM paths to come from the modules on machines other than derecho, and container
 # JCSDA changed test data things, need to make a dummy CRTM directory
+if [[ "${BUILD_TARGET}" != "derecho" && "${BUILD_TARGET}" != "container" && "${BUILD_TARGET}" != "aws-ec2" ]]; then
 if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
 if [ -d "$dir_root/bundle/test-data-release/" ]; then rm -rf $dir_root/bundle/test-data-release/; fi
 mkdir -p $dir_root/bundle/fix/test-data-release/
 mkdir -p $dir_root/bundle/test-data-release/
 ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
 ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
+fi
 
 # Configure
 echo "Configuring ... `date`"

@@ -8,6 +8,12 @@
 #
 # Thank you for your contribution
 
+# overwrite MACHINE_ID if in container
+if [[ -v SINGULARITY_CONTAINER ]]; then
+  # We are in a container
+  MACHINE_ID=container
+fi
+
 # If the MACHINE_ID variable is set, skip this script.
 [[ -n ${MACHINE_ID:-} ]] && return
 
@@ -32,7 +38,14 @@ case $(hostname -f) in
   ufe1[0-2]) MACHINE_ID=ursa ;; ### ursa10-12
   uecflow01) MACHINE_ID=ursa ;; ### ursaecflow01
 
+  der*) MACHINE_ID=derecho ;; ### derecho[1-8]
+  dec*) MACHINE_ID=derecho ;; ### decxxx computing node
+
   s4-submit.ssec.wisc.edu) MACHINE_ID=s4 ;; ### s4
+
+  ip-*) MACHINE_ID=aws-ec2 ;; ### aws-ec2
+  compute-dy-*) MACHINE_ID=aws-ec2 ;; ### aws-ec2
+  processing-dy-*) MACHINE_ID=aws-ec2 ;; ### aws-ec2
 
   fe[1-8]) MACHINE_ID=jet ;; ### jet01-8
   tfe[12]) MACHINE_ID=jet ;; ### tjet1-2
@@ -93,9 +106,15 @@ elif [[ -d /work ]]; then
 elif [[ -d /gpfs/f6 ]]; then
   # We are on GAEAC6.
   MACHINE_ID=gaeac6
+elif [[ -d /gpfs/csfs1 ]]; then
+  # We are on NCAR DERECHO.
+  MACHINE_ID=derecho
 elif [[ -d /data/prod ]]; then
   # We are on SSEC's S4
   MACHINE_ID=s4
+elif [[ -d /opt/spack-stack && -d /lustre ]]; then
+  # We are on AWS ec2
+  MACHINE_ID=aws-ec2
 else
   echo WARNING: UNKNOWN PLATFORM 1>&2
 fi
