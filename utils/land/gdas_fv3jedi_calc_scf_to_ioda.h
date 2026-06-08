@@ -42,6 +42,7 @@ namespace gdasapp {
                                                  // use this value when calculating SD
                                                  // to represent "full" coverage
       static constexpr float sndIMS_max = 300.0f;  // maximum snow depth derived from IMS
+      static constexpr int vtype_landice = 15;
       void netcdf_err(int error, const std::string &msg);
 
       // Add members and methods as needed
@@ -74,6 +75,7 @@ namespace gdasapp {
     float oberr_snd = 80.0f;
     static constexpr float nodata_float = -999.0f;
     static constexpr float nodata_tol = 0.1f;  // Tolerance for nodata checks
+    static constexpr int vtype_landice = 15;
 
    public:
     void run();

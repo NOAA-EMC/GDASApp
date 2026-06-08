@@ -4,4 +4,6 @@ test_reference_filename: {{ HOMEglobal }}/sorc/gdas.cd/test/testreference/{{ CAS
 test_output_filename: {{ HOMEglobal }}/sorc/gdas.cd/build/gdas/test/testoutput/{{ CASE }}{{ CASE_ENS }}_ufs_hybatmDA_lgetkf.test.out
 test_float_relative_tolerance: 1.0e-3
 test_float_absolute_tolerance: 1.0e-5
+{% else %}
+do_testing: false
 {% endif %}
