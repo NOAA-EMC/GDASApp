@@ -53,9 +53,18 @@ jobs:
         ../bin/ecbuild ..
         sudo make install
 
+    - name: Prefetch unit test data
+      run: |
+        TESTDATA_DIR="$GITHUB_WORKSPACE/test-data"
+        mkdir -p "$TESTDATA_DIR"
+        curl --fail --location --retry 5 --retry-all-errors --retry-delay 10 \
+          --output "$TESTDATA_DIR/gdasapp-fix-bda76f.tgz" \
+          "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/gdasapp-fix-bda76f.tgz"
+
     - name: Configure with cmake
       run: |
         mkdir $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/build && cd $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/build
+        export GDASAPP_UNIT_TEST_DATA_PATH="$GITHUB_WORKSPACE/test-data"
         cmake -DBUILD_GDASBUNDLE=OFF -DWORKFLOW_TESTS=ON $GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/
 
     - name: Build GDASApp
