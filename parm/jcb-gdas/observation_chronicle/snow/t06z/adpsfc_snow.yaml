@@ -48,7 +48,7 @@ chronicles:
 
 - action_date: "2021-10-01T00:00:00"
   justification: 'These stations are okay from this time'
-    remove_from_reject_list:
+  remove_from_reject_list:
     totalSnowDepth: ['71120', '71397', '71727', '71816']
 
 - action_date: "2022-10-01T00:00:00"
