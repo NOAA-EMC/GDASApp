@@ -56,10 +56,18 @@ jobs:
     - name: Prefetch unit test data
       run: |
         TESTDATA_DIR="$GITHUB_WORKSPACE/test-data"
+        CMAKE_FILE="$GITHUB_WORKSPACE/global-workflow/sorc/gdas.cd/test/CMakeLists.txt"
+        FULLSHA="$(awk -F'"' '/^set\(SHA / {print $2; exit}' "$CMAKE_FILE")"
+        if [[ -z "$FULLSHA" || ${#FULLSHA} -lt 6 ]]; then
+          echo "Failed to parse unit test data SHA from $CMAKE_FILE"
+          exit 1
+        fi
+        SHORTSHA="${FULLSHA:0:6}"
+        TAR="gdasapp-fix-${SHORTSHA}.tgz"
         mkdir -p "$TESTDATA_DIR"
         curl --fail --location --retry 5 --retry-all-errors --retry-delay 10 \
-          --output "$TESTDATA_DIR/gdasapp-fix-bda76f.tgz" \
-          "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/gdasapp-fix-bda76f.tgz"
+          --output "$TESTDATA_DIR/$TAR" \
+          "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp/$TAR"
 
     - name: Configure with cmake
       run: |
