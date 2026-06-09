@@ -138,7 +138,7 @@
     # Add inflate error characterized by a function of elevation difference
     - filter: Variable Assignment
       assignments:
-      - name: DerivedMetaData/elevation_diff
+      - name: DerivedMetaData/snow_elevation_diff
         type: float
         function:
           name: ObsFunction/Arithmetic
@@ -149,24 +149,24 @@
             total coefficient: 0.0000015625  #1/(800*800)
     - filter: Variable Assignment
       assignments:
-      - name: DerivedMetaData/elevation_diff_exp
+      - name: DerivedMetaData/snow_elevation_diff_exp
         type: float
         function:
           name: ObsFunction/Exponential
           options:
-            variables: [DerivedMetaData/elevation_diff]
+            variables: [DerivedMetaData/snow_elevation_diff]
             coeffA: 1.
             coeffB: -1.
             coeffC: 0.
             coeffD: 1.
     - filter: Variable Assignment
       assignments:
-      - name: DerivedMetaData/elevation_diff_exp_inv
+      - name: DerivedMetaData/snow_elevation_diff_exp_inv
         type: float
         function:
           name: ObsFunction/Arithmetic
           options:
-            variables: [DerivedMetaData/elevation_diff_exp]
+            variables: [DerivedMetaData/snow_elevation_diff_exp]
             total exponent: -1.
     - filter: Perform Action
       filter variables:
@@ -177,7 +177,7 @@
         minvalue: 0.
       action:
         name: inflate error
-        inflation variable: DerivedMetaData/elevation_diff_exp_inv # 2.0
+        inflation variable: DerivedMetaData/snow_elevation_diff_exp_inv # 2.0
     - filter: BlackList
       where:
       - variable:
