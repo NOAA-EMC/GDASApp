@@ -23,7 +23,7 @@ increment geometry:
   npz: {{ soil_npz_anl }}
 #  field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_fv3inc.yaml
 state:
-  state variables: {{ soil_addincrement_state_variables }}
+  state variables: {{ analysis_variables }}
   field io names: {{ soil_field_io_names }}
   datapath: ./bkg
   filetype: fms restart

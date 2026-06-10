@@ -33,24 +33,33 @@ soil_increment_time_fv3: "{{ bkg_time_fv3 }}"
 
 # Analysis standard things
 # ------------------------
-analysis_variables: [soilMoistureVolumetric]
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
 cost_type: 3D-Var
 number_of_outer_loops: 1
 
+# Analysis variables
+{% set _analysis_vars = ['soilMoistureVolumetric'] %}
+analysis_variables: {{ _analysis_vars }}
+
 # Model things
 # ------------
 
 # State variables
-soil_background_state_variables: [soilMoistureVolumetric, stc, totalSnowDepth,
-                                  sheleg, vtype, slmsk, filtered_orography,
-                                  fraction_of_ice, fraction_of_land]
-soil_addincrement_state_variables: [soilMoistureVolumetric, stc, totalSnowDepth,
-                                    sheleg, vtype, slmsk, fraction_of_ice]
-soil_increment_state_variables: [soilMoistureVolumetric, stc, totalSnowDepth,
-                                 sheleg, vtype, slmsk]
+soil_background_state_variables: {{ _analysis_vars + ['stc',
+                                                      'totalSnowDepth',
+                                                      'sheleg',
+                                                      'vtype',
+                                                      'slmsk',
+                                                      'fraction_of_ice'
+                                                      'filtered_orography',
+                                                      'fraction_of_land'] }}
+soil_increment_variables: {{ _analysis_vars + ['stc',
+                                                     'totalSnowDepth',
+                                                     'sheleg',
+                                                     'vtype',
+                                                     'slmsk'] }}
 
 # Variable IO names
 soil_field_io_names:
