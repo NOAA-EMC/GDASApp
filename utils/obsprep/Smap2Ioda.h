@@ -54,24 +54,24 @@ namespace obsforge {
 
       // TODO(AFE): these arrays can be done as 1D vectors, but those need proper ushorts in
       // the input files, at odd with the current ctests
-      float lat[dim0][dim1];  // NOLINT
-      ncFile.getVar("lat").getVar(lat);
+      std::vector<float> lat(dim0*dim1);
+      ncFile.getVar("lat").getVar(lat.data());
 
-      float lon[dim0][dim1];  // NOLINT
-      ncFile.getVar("lon").getVar(lon);
+      std::vector<float> lon(dim0*dim1);
+      ncFile.getVar("lon").getVar(lon.data());
 
-      float sss[dim0][dim1];  // NOLINT
-      ncFile.getVar("smap_sss").getVar(sss);
+      std::vector<float> sss(dim0*dim1);
+      ncFile.getVar("smap_sss").getVar(sss.data());
 
-      float sss_error[dim0][dim1];  // NOLINT
-      ncFile.getVar("smap_sss_uncertainty").getVar(sss_error);
+      std::vector<float> sss_error(dim0*dim1);
+      ncFile.getVar("smap_sss_uncertainty").getVar(sss_error.data());
 
-      unsigned short sss_qc[dim0][dim1];  // NOLINT
-      ncFile.getVar("quality_flag").getVar(sss_qc);
+      std::vector<unsigned short> sss_qc(dim0*dim1);
+      ncFile.getVar("quality_flag").getVar(sss_qc.data());
 
       // "UTC seconds of day"
-      float obsTime[dim1];  // NOLINT
-      ncFile.getVar("row_time").getVar(obsTime);
+      std::vector<float> obsTime(dim1);
+      ncFile.getVar("row_time").getVar(obsTime.data());
 
       int startYear;
       netCDF::NcGroupAtt attributeStartYear = ncFile.getAtt("REV_START_YEAR");
@@ -105,11 +105,11 @@ namespace obsforge {
       for (int i = 0; i < dim0; i++) {
         for (int j = 0; j < dim1; j++) {
           loc = i * dim1 + j;
-          iodaVars.longitude_(loc) = lon[i][j];
-          iodaVars.latitude_(loc) = lat[i][j];
-          iodaVars.obsVal_(loc) = sss[i][j];
-          iodaVars.obsError_(loc) = sss_error[i][j];
-          iodaVars.preQc_(loc) = sss_qc[i][j];
+          iodaVars.longitude_(loc) = lon[loc];
+          iodaVars.latitude_(loc) = lat[loc];
+          iodaVars.obsVal_(loc) = sss[loc];
+          iodaVars.obsError_(loc) = sss_error[loc];
+          iodaVars.preQc_(loc) = sss_qc[loc];
           iodaVars.datetime_(loc) =  static_cast<int64_t>(obsTime[j] + secondsSinceEpoch);
           // Store optional metadata, set ocean basins to -999 for now
           iodaVars.intMetadata_.row(loc) << -999;
