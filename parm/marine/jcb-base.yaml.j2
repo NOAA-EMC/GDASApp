@@ -122,13 +122,6 @@ marine_config_path: '{{COMOUT_CONF}}'
 local_ensemble_da_solver: Deterministic LETKF
 use_linear_observer: true
 
-{% set _analysis_vars = ['sea_ice_area_fraction',
-                         'sea_ice_thickness',
-                         'sea_ice_snow_thickness',
-                         'sea_water_salinity',
-                         'sea_water_potential_temperature',
-                         'sea_surface_height_above_geoid'] %}
-
 # Increment variables
 increment_variables:
 - sea_ice_area_fraction
