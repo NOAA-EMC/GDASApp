@@ -24,13 +24,13 @@ increment geometry:
   field metadata override: ./fv3jedi/fv3jedi_fieldmetadata_restart.yaml
 state:
   datetime: '{{ aero_background_time_iso }}'
-  state variables: {{ analysis_variables }}
+  state variables: {{ aero_increment_variables }}
   filetype: cube sphere history
   provider: ufs
   datapath: ./
   filename: {{ aero_variational_history_prefix }}cubed_sphere_grid_atmf006.nc
 increment:
-  added variables: {{ analysis_variables }}
+  added variables: {{ aero_increment_variables }}
   filetype: fms restart
   datapath: ./
   filename is datetime templated: true

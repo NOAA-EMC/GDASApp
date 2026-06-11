@@ -49,6 +49,9 @@ aero_det_state_variables: {{ _analysis_vars + ['air_temperature',
                                                'water_vapor_mixing_ratio_wrt_moist_air'] }}
 aero_bmat_state_variables: {{ _analysis_vars + ['mass_fraction_of_sea_salt005_in_air'] }}
 
+# Increment variables:
+aero_increment_variables: {{ _analysis_vars }}
+
 # Variable IO names
 aero_field_io_names:
     air_temperature: T
