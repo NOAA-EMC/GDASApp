@@ -10,7 +10,7 @@ geometry:
   npy: {{ npy_ges }}
   npz: {{ npz_ges }}
 date: "{{ snow_background_time_iso }}"
-variables: {{ analysis_variables }}
+variables: {{ snow_increment_variables }}
 increment mask:
   variable:
   - slmsk
@@ -32,7 +32,7 @@ increment mask:
 deterministic increment:
   datetime: "{{ snow_increment_time_iso }}"
   filetype: fms restart
-  state variables: {{ analysis_variables }}
+  state variables: {{ snow_increment_variables }}
   field io names: {{ snow_field_io_names }}
   datapath: ./inc/det_ensres
   filename is datetime templated: true
@@ -45,7 +45,7 @@ deterministic increment:
 deterministic background:
   datetime: "{{ snow_background_time_iso }}"
   filetype: fms restart
-  state variables: {{ analysis_variables }}
+  state variables: {{ snow_increment_variables }}
   field io names: {{ snow_field_io_names }}
   datapath: ./bkg/det_ensres
   filename is datetime templated: true
@@ -74,7 +74,7 @@ ensemble backgrounds:
   template:
     datetime: "{{ snow_background_time_iso }}"
     filetype: fms restart
-    state variables: {{ analysis_variables }}
+    state variables: {{ snow_increment_variables }}
     field io names: {{ snow_field_io_names }}
     datapath: ./bkg/mem%mem%
     filename is datetime templated: true
