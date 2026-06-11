@@ -38,14 +38,28 @@ atmosphere_grad_red_2: 1e-10
                        'air_temperature',
                        'water_vapor_mixing_ratio_wrt_moist_air',
                        'cloud_liquid_ice',
-                       'cloud_liquid_water',
-                       'snow_water',
-                       'rain_water',
-                       'graupel',
-                       'ozone_mass_mixing_ratio'] %}
-{% set _analysis_vars =      _shared_vars + ['air_pressure_at_surface'] %}
-{% set _fv3_increment_vars = _shared_vars + ['air_pressure_thickness',
-                                             'layer_thickness'] %}
+                       'cloud_liquid_water'] %}
+{% set _analysis_vars =                  _shared_vars + ['ozone_mass_mixing_ratio',
+                                                         'snow_water',
+                                                         'rain_water',
+                                                         'graupel',
+                                                         'air_pressure_at_surface'] %}
+{% set _fv3_increment_vars =             _shared_vars + ['ozone_mass_mixing_ratio',
+                                                         'snow_water',
+                                                         'rain_water',
+                                                         'graupel',
+                                                         'air_pressure_thickness',
+                                                         'layer_thickness'] %}
+{% set _analysis_vars_molesO3 =          _shared_vars + ['mole_fraction_of_ozone_in_air',
+                                                         'snow_water',
+                                                         'rain_water',
+                                                         'graupel',
+                                                         'air_pressure_at_surface'] %}
+{% set _analysis_vars_noprecip =         _shared_vars + ['ozone_mass_mixing_ratio',
+                                                         'air_pressure_at_surface'] %}
+{% set _analysis_vars_molesO3_noprecip = _shared_vars + ['mole_fraction_of_ozone_in_air',
+                                                         'air_pressure_at_surface'] %}                                          
+
 analysis_variables: {{ _analysis_vars }}
 
 # Model things
@@ -72,39 +86,13 @@ atmosphere_jedi2fv3inc_state_variables: {{ _analysis_vars + ['geopotential_heigh
 
 # Increment variables
 atmosphere_jedi_increment_variables: {{ _analysis_vars }}
+atmosphere_jedi_increment_variables_molesO3: {{ _analysis_vars_molesO3 }}
+atmosphere_jedi_increment_variables_noprecip: {{ _analysis_vars_noprecip }}
+atmosphere_jedi_increment_variables_molesO3_noprecip: {{ _analysis_vars_molesO3_noprecip }}
 atmosphere_fv3_increment_variables:  {{ _fv3_increment_vars }}
 
-# GSIBEC-related variables
-atmosphere_gsibec_hybrid_control2analysis_input_variables: [eastward_wind,
-                                                            northward_wind,
-                                                            air_temperature,
-                                                            water_vapor_mixing_ratio_wrt_moist_air,
-                                                            cloud_liquid_ice,
-                                                            cloud_liquid_water,
-                                                            snow_water,
-                                                            rain_water,
-                                                            graupel,
-                                                            mole_fraction_of_ozone_in_air,
-                                                            air_pressure_at_surface]
-atmosphere_gsibec_static_control2analysis_input_variables: [eastward_wind,
-                                                            northward_wind,
-                                                            air_temperature,
-                                                            water_vapor_mixing_ratio_wrt_moist_air,
-                                                            cloud_liquid_ice,
-                                                            cloud_liquid_water,
-                                                            mole_fraction_of_ozone_in_air,
-                                                            air_pressure_at_surface]
-atmosphere_gsibec_static_state_variables_to_inverse: [eastward_wind,
-                                                      northward_wind,
-                                                      air_temperature,
-                                                      air_pressure_at_surface,
-                                                      water_vapor_mixing_ratio_wrt_moist_air,
-                                                      cloud_liquid_ice,
-                                                      cloud_liquid_water,
-                                                      ozone_mass_mixing_ratio]
-
 # Variable IO names
-atmosphere_ufs_background_field_io_names:
+atmosphere_background_field_io_names:
     eastward_wind: ugrd
     northward_wind: vgrd
     air_temperature: tmp
@@ -132,7 +120,7 @@ atmosphere_ufs_background_field_io_names:
     soilm: soilw1
     soilt: soilt1
     soilMoistureVolumetric: smc
-atmosphere_ufs_increment_field_io_names:
+atmosphere_increment_field_io_names:
     eastward_wind: u_inc
     northward_wind: v_inc
     air_temperature: T_inc

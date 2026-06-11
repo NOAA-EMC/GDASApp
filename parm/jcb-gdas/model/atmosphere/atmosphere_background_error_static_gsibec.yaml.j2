@@ -26,8 +26,8 @@ saber outer blocks:
     local interpolator type: oops unstructured grid interpolator
   inverse interpolator:
     local interpolator type: oops unstructured grid interpolator
-  state variables to inverse: {{ atmosphere_gsibec_static_state_variables_to_inverse }}
+  state variables to inverse: {{ atmosphere_jedi_increment_variables_noprecip }}
 linear variable change:
   linear variable change name: Control2Analysis
-  input variables: {{ atmosphere_gsibec_static_control2analysis_input_variables }}
-  output variables: {{ atmosphere_gsibec_static_state_variables_to_inverse }}
+  input variables: {{ atmosphere_jedi_increment_variables_molesO3_noprecip }}
+  output variables: {{ atmosphere_jedi_increment_variables_noprecip }}

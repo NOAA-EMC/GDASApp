@@ -28,11 +28,11 @@ components:
         local interpolator type: oops unstructured grid interpolator
       inverse interpolator:
         local interpolator type: oops unstructured grid interpolator
-      state variables to inverse: {{ analysis_variables }}
+      state variables to inverse: {{ atmosphere_jedi_increment_variables }}
     linear variable change:
       linear variable change name: Control2Analysis
-      input variables: {{ atmosphere_gsibec_hybrid_control2analysis_input_variables }}
-      output variables: {{ analysis_variables }}
+      input variables: {{ atmosphere_jedi_increment_variables_molesO3 }}
+      output variables: {{ atmosphere_jedi_increment_variables }}
   weight:
     value: 0.125
 - covariance:
@@ -42,8 +42,8 @@ components:
         datetime: "{{ atmosphere_background_time_iso }}"
         filetype: cube sphere history
         provider: ufs
-        state variables: {{ analysis_variables }}
-        field io names: {{ atmosphere_ufs_background_field_io_names }}
+        state variables: {{ atmosphere_jedi_increment_variables }}
+        field io names: {{ atmosphere_background_field_io_names }}
         datapath: {{ atmosphere_background_ensemble_path }}
         filename is datetime templated: true
         filenames:
@@ -57,7 +57,7 @@ components:
       localization method: SABER
       saber central block:
         saber block name: BUMP_NICAS
-        active variables: {{ analysis_variables }}
+        active variables: {{ atmosphere_jedi_increment_variables }}
         read:
           general:
             universe length-scale: 4641.0e3
@@ -206,7 +206,7 @@ components:
               value: 1.8
     linear variable change:
       linear variable change name: Control2Analysis
-      input variables: {{ analysis_variables }}
-      output variables: {{ analysis_variables }}
+      input variables: {{ atmosphere_jedi_increment_variables }}
+      output variables: {{ atmosphere_jedi_increment_variables }}
   weight:
     value: 0.875

@@ -49,11 +49,11 @@ members from template:
       max allowable geometry difference: 1e-4      
       datetime: '{{ atmosphere_background_time_iso }}'
       state variables: {{ atmosphere_jedi2fv3inc_state_variables }}
-      field io names: {{ atmosphere_ufs_background_field_io_names }}
+      field io names: {{ atmosphere_background_field_io_names }}
     jedi increment input:
       filetype: cube sphere history
       provider: ufs
-      field io names: {{ atmosphere_ufs_increment_field_io_names }}
+      field io names: {{ atmosphere_increment_field_io_names }}
       datapath: ./anl/mem%mem%
       filename: cubed_sphere_grid_atminc.jedi.nc
     fv3 increment output:
@@ -67,7 +67,7 @@ members from template:
       filename: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_atminc.nc
 {% endif %}
       datapath: ./anl/mem%mem%
-      field io names: {{ atmosphere_ufs_increment_field_io_names }}
+      field io names: {{ atmosphere_increment_field_io_names }}
   pattern: '%mem%'
   nmembers: {{ atmosphere_number_ensemble_members }}
   zero padding: 3

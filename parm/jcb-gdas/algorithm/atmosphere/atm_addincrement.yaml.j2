@@ -25,7 +25,7 @@ increment geometry:
 state:
   datetime: '{{ atmosphere_background_time_iso }}'
   state variables: {{ atmosphere_fv3_increment_variables }}
-  field io names: {{ atmosphere_ufs_background_field_io_names }}
+  field io names: {{ atmosphere_background_field_io_names }}
   filetype: cube sphere history
   provider: ufs
   filename: {{ atmosphere_variational_history_prefix }}cubed_sphere_grid_atmf006.nc
@@ -33,7 +33,7 @@ state:
   max allowable geometry difference: 1e-4
 increment:
   added variables: {{ atmosphere_fv3_increment_variables }}
-  field io names: {{ atmosphere_ufs_increment_field_io_names  }}
+  field io names: {{ atmosphere_increment_field_io_names  }}
   filetype: fms restart
   is restart: false
   filename_nonrestart: {{ atmosphere_variational_analysis_prefix }}cubed_sphere_grid_atminc.nc
@@ -42,4 +42,4 @@ output:
   filetype: auxgrid
   gridtype: gaussian
   filename: atmanl.
-  field io names: {{ atmosphere_ufs_background_field_io_names }}
+  field io names: {{ atmosphere_background_field_io_names }}

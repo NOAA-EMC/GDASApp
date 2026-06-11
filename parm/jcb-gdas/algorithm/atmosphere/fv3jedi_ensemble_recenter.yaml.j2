@@ -26,7 +26,7 @@ members:
   state:
     datetime: '{{ atmosphere_iau_times_iso[ihour] }}'
     state variables: {{ atmosphere_fv3_increment_variables }}
-    field io names: {{ atmosphere_ufs_increment_field_io_names }}
+    field io names: {{ atmosphere_increment_field_io_names }}
     filetype: cube sphere history
     provider: ufs
     datapath: ./
@@ -34,7 +34,7 @@ members:
     max allowable geometry difference: 1e-4
   increment:
     added variables: {{ atmosphere_fv3_increment_variables }}
-    field io names: {{ atmosphere_ufs_increment_field_io_names  }}
+    field io names: {{ atmosphere_increment_field_io_names  }}
     filetype: cube sphere history
     provider: ufs
     datapath: ./mem{{ '%0{}d'.format(3)|format(imember+1) }}
@@ -44,6 +44,6 @@ members:
     is restart: false
     datapath: ./mem{{ '%0{}d'.format(3)|format(imember+1) }}
     filename_nonrestart: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_ratmi{{ '%03d' % atmosphere_iau_hours[ihour] }}.nc
-    field io names: {{ atmosphere_ufs_increment_field_io_names }}
+    field io names: {{ atmosphere_increment_field_io_names }}
 {% endfor %}
 {% endfor %}
