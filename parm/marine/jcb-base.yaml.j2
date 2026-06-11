@@ -46,6 +46,12 @@ marine_background_state_variables: {{ _analysis_vars + ['air_temperature',
                                                         'sea_water_depth',
                                                         'snow_ice_surface_temperature'] }}
 
+marine_saber_state_variables: 
+- 'sea_water_potential_temperature',
+- 'sea_water_salinity',
+- 'sea_surface_height_above_geoid',
+- 'sea_ice_area_fraction'
+
 marine_window_begin: '{{ WINDOW_BEGIN }}'
 marine_window_middle: '{{ WINDOW_MIDDLE }}'
 marine_window_begin_iso: '{{ WINDOW_BEGIN | to_isotime }}'

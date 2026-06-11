@@ -55,7 +55,10 @@ soil_background_state_variables: {{ _analysis_vars + ['stc',
                                                       'fraction_of_ice'
                                                       'filtered_orography',
                                                       'fraction_of_land'] }}
-soil_increment_variables: {{ _analysis_vars + ['stc',
+
+# Increment variables
+soil_increment_variables: {{ _analysis_vars }}
+soil_final_increment_variables: {{ _analysis_vars + ['stc',
                                                      'totalSnowDepth',
                                                      'sheleg',
                                                      'vtype',
