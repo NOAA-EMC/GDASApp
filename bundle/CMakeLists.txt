@@ -74,12 +74,6 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT fckit GIT "https://github.com/ecmwf/fckit.git" TAG 0.9.2 )
   ecbuild_bundle( PROJECT atlas GIT "https://github.com/ecmwf/atlas.git" TAG 0.35.0 )
 
-# External (required) observation operators
-  # TODO remove the CRTM from here and use it as a library
-  #option("BUNDLE_SKIP_CRTM" "Don't build CRTM" "OFF") # Don't build crtm unless user passes -DBUNDLE_SKIP_CRTM=OFF
-  #ecbuild_bundle( PROJECT crtm GIT "https://github.com/JCSDA/crtm.git"   TAG v2.4.1-jedi.2 )
-  ecbuild_bundle( PROJECT crtm SOURCE "../sorc/crtm" )
-
 # Build GSI-B
   option(BUILD_GSIBEC "Build GSI-B" OFF)
   if(BUILD_GSIBEC)
