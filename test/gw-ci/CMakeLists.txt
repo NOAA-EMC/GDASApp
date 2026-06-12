@@ -212,6 +212,7 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
       elseif("${pslot}" STREQUAL "C48_ufsenkf_atmDA")
         list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_atmensanlfinal_${FULL_CYCLE}")
       elseif("${pslot}" STREQUAL "C96C48_hybatmDA")
+        list(APPEND TEST_DEPENDS "${test_prefix}_gdas_anal_${FULL_CYCLE}")
         list(APPEND TEST_DEPENDS "${test_prefix}_enkfgdas_eupd_${FULL_CYCLE}")	
       else()
         list(APPEND TEST_DEPENDS "${test_prefix}_gdas_analcalc_${FULL_CYCLE}")
