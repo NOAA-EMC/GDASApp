@@ -27,6 +27,7 @@ data_in:
     - '{{ DATA }}/Data'
     - '{{ DATA }}/obs'
     - '{{ DATA }}/diags'
+    - '{{ DATA }}/staticb'
 
     copy_req:
     # stage soca grid
@@ -34,12 +35,18 @@ data_in:
 
     # stage ensemble weights
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
-    - ["{{ COMIN_OCEAN_BMATRIX }}/{{ APREFIX }}ens_weights.nc", "{{ DATA }}/ocean.ens_weights.nc"]
-    - ["{{ COMIN_ICE_BMATRIX }}/{{ APREFIX }}ens_weights.nc", "{{ DATA }}/ice.ens_weights.nc"]
+    - ["{{ COMIN_OCEAN_BMATRIX }}/{{ GPREFIX }}ens_weights.nc", "{{ DATA }}/ocean.ens_weights.nc"]
+    - ["{{ COMIN_ICE_BMATRIX }}/{{ GPREFIX }}ens_weights.nc", "{{ DATA }}/ice.ens_weights.nc"]
 {% endif %}
 
     # stage CICE6 restart
     - ["{{ COMIN_ICE_RESTART_PREV }}/{{ rst_date }}.cice_model.res.nc", "{{ DATA }}/Data"]  
+
+    # stage background error files
+    - ['{{ COMIN_OCEAN_BMATRIX }}/{{ GPREFIX }}hz.nc', '{{ DATA }}/staticb/hz_ocean.nc']
+    - ['{{ COMIN_OCEAN_BMATRIX }}/{{ GPREFIX }}vt.nc', '{{ DATA }}/staticb/vt_ocean.nc']
+    - ['{{ COMIN_OCEAN_BMATRIX }}/{{ GPREFIX }}bkgerr_parametric_stddev.nc', '{{ DATA }}/staticb/ocn.bkgerr_parametric_stddev.nc']
+    - ['{{ COMIN_ICE_BMATRIX }}/{{ GPREFIX }}bkgerr_parametric_stddev.nc', '{{ DATA }}/staticb/ice.bkgerr_parametric_stddev.nc']
 
 {% filter indent(width=4) %}
 {% include 'marine_det_stage_bkg.yaml.j2' %}
@@ -51,9 +58,6 @@ data_in:
 {% for ob_name in observations %}
     - ['{{ COMIN_OBS }}/{{ OPREFIX }}{{ ob_name }}.nc', '{{ DATA }}/obs']
 {% endfor %}
-
-    link:
-    - [ "{{ DATA }}/../staticb", "{{ DATA }}/staticb" ]
 
 data_out:
     mkdir:
