@@ -28,6 +28,7 @@ data_in:
     - '{{ DATA }}/obs'
     - '{{ DATA }}/diags'
     - '{{ DATA }}/staticb'
+    - '{{ DATAens }}/ens'
 
     copy_req:
     # stage soca grid
@@ -52,6 +53,9 @@ data_in:
 {% include 'marine_det_stage_bkg.yaml.j2' %}
 {% include 'marine_stage_fix_' ~ OCNRES ~ '.yaml.j2' %}
 {% include 'marine_stage_utilities.yaml.j2' %}
+{% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
+{% include 'marine_ens_stage_bkg.yaml.j2' %}
+{% endif %}
 {% endfilter %}
 
     copy_opt:
