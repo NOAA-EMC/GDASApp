@@ -12,13 +12,13 @@ saber central block:
       resolution: 4
       explicit length-scales: true
       horizontal length-scale:
-      - groups: {{ soil_increment_variables }}
+      - groups: {{ soil_det_increment_variables }}
         value: 1000000.0
       vertical length-scale:
-      - groups: {{ soil_increment_variables }}
+      - groups: {{ soil_det_increment_variables }}
         value: 1500.0
       interpolation type:
-      - groups: {{ soil_increment_variables }}
+      - groups: {{ soil_det_increment_variables }}
         type: c0
       same horizontal convolution: true
     io:
@@ -32,5 +32,5 @@ saber outer blocks:
     variance:
       explicit stddev: true
       stddev:
-      - variables: {{ soil_increment_variables }}
+      - variables: {{ soil_det_increment_variables }}
         value: 0.2

@@ -25,7 +25,7 @@ date: '{{ snow_background_time_iso }}'
 output ioda file: '{{snow_obsdatain_path}}/{{snow_obsdatain_prefix}}ims_snow.tm00.nc'
 input scf file: './obs/ims{{ snow_background_time_julian }}_4km_v1.3.{{ ims_scf_obs_suffix }}'
 mapping file: './obs/IMS4km_to_FV3_mapping.{{ snow_orog_prefix }}_oro_data.nc'
-variables: {{ snow_background_state_variables }}
+variables: {{ snow_det_state_variables }}
 background:
 {% filter indent(width=2) %}
 {% set background_file = background_file|default(model_component ~ 'background', true) ~ '.yaml.j2' %}

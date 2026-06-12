@@ -5,7 +5,7 @@ output:
     filetype: fms restart
     filename_sfcd: '{{ snow_background_time_fv3 }}.sfc_data.nc'
     filename_cplr: '{{ snow_background_time_fv3 }}.coupler.res'
-    state variables: {{ snow_final_increment_variables }}
+    state variables: {{ snow_det_increment_variables_final }}
     field io names: {{ snow_field_io_names }}
 geometry:
   fms initialization:

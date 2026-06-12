@@ -5,6 +5,6 @@ members from template:
     ice_filename: "ice.%mem%.nc"
     read_from_file: 1
     basename: {{ marine_enspert_relpath }}/ens/
-    state variables: {{ increment_variables }}
+    state variables: {{ marine_ens_state_variables }}
   pattern: '%mem%'
   nmembers: {{ marine_number_ensemble_members }}

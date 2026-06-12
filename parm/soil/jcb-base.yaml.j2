@@ -47,22 +47,22 @@ analysis_variables: {{ _analysis_vars }}
 # ------------
 
 # State variables
-soil_background_state_variables: {{ _analysis_vars + ['stc',
-                                                      'totalSnowDepth',
-                                                      'sheleg',
-                                                      'vtype',
-                                                      'slmsk',
-                                                      'fraction_of_ice'
-                                                      'filtered_orography',
-                                                      'fraction_of_land'] }}
+soil_det_state_variables: {{ _analysis_vars + ['stc',
+                                               'totalSnowDepth',
+                                               'sheleg',
+                                               'vtype',
+                                               'slmsk',
+                                               'fraction_of_ice'
+                                               'filtered_orography',
+                                               'fraction_of_land'] }}
 
 # Increment variables
-soil_increment_variables: {{ _analysis_vars }}
-soil_final_increment_variables: {{ _analysis_vars + ['stc',
-                                                     'totalSnowDepth',
-                                                     'sheleg',
-                                                     'vtype',
-                                                     'slmsk'] }}
+soil_det_increment_variables:       {{ _analysis_vars }}
+soil_det_increment_variables_final: {{ _analysis_vars + ['stc',
+                                                         'totalSnowDepth',
+                                                         'sheleg',
+                                                         'vtype',
+                                                         'slmsk'] }}
 
 # Variable IO names
 soil_field_io_names:
@@ -141,17 +141,7 @@ soil_number_ensemble_members: {{NMEM_ENS}}
 # -------------------------
 local_ensemble_da_solver: Deterministic GETKF
 
-increment_variables:
-- eastward_wind
-- northward_wind
-- layer_thickness
-- air_pressure_thickness
-- air_temperature
-- air_pressure_at_surface
-- water_vapor_mixing_ratio_wrt_moist_air
-- cloud_liquid_ice
-- cloud_liquid_water
-- ozone_mass_mixing_ratio
+increment_variables: {{ _analysis_vars}} # dummy for now
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
