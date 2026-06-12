@@ -22,8 +22,6 @@ data_in:
     - '{{ DATAens }}/ens'
 
     copy_req:
-    # copy mom input template and det bkg
-    - ['{{ PARMglobal }}/gdas/marine/fms/input.nml', '{{ DATA }}/mom_input.nml.tmpl']
     - ['{{ PARMglobal }}/gdas/marine/fields_metadata.yaml', '{{ DATA }}/fields_metadata.yaml']
     - ['{{ COMIN_OCEAN_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc', '{{ DATA }}/INPUT/MOM.res.nc']
     - ['{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc', '{{ DATA }}/INPUT/cice.res.nc']
