@@ -124,6 +124,7 @@ function(add_task task_name test_prefix is_full_cycle HALF_CYCLE FULL_CYCLE pslo
       list(APPEND TEST_DEPENDS "${test_prefix}_gcdas_aeroanlinit_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "gcdas_aeroanlfinal")
       list(APPEND TEST_DEPENDS "${test_prefix}_gcdas_aeroanlvar_${FULL_CYCLE}")
+	  list(APPEND TEST_DEPENDS "${test_prefix}_gcdas_sfcanl_gcycle_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "gcdas_aeroanlgenb")
       list(APPEND TEST_DEPENDS "${test_prefix}_gcdas_fcst_${FULL_CYCLE}")
     elseif("${task_name}" STREQUAL "gdas_snowanl")
