@@ -33,8 +33,6 @@ data_in:
 {% endfor %}
 
 {% if DOLETKF_OCN_INC %}
-#    - ['{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc', '{{ DATA }}/anl/ocean.anl.a006.nc' ]
-#    - ['{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc', '{{ DATA }}/anl/ice.anl.a006.nc' ]
     - ['{{ DATA }}/../marineanlvar/Data/ocn.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ DATA }}/anl/ocean.anl.a006.nc' ]
     - ['{{ DATA }}/../marineanlvar/Data/ice.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ DATA }}/anl/ice.anl.a006.nc' ]
 {% endif %}
@@ -51,11 +49,6 @@ data_in:
     - ['{{ COM_ICE_RESTART_TMPL | replace_tmpl(tmpl_dict) }}/{{ cice_rst_date }}.cice_model.res.nc', '{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc']
 {% endfor %}
 
-#{% if DOLETKF_OCN %}
-#    - ['{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc', '{{ DATA }}/anl/ocean.anl.a006.nc' ]
-#    - ['{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc', '{{ DATA }}/anl/ice.anl.a006.nc' ]
-#{% endif %}
- 
 
 {% filter indent(width=4) %}
 {% include 'marine_det_stage_bkg.yaml.j2' %}
