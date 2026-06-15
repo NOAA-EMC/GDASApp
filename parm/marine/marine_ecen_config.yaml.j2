@@ -32,7 +32,7 @@ data_in:
 
 {% endfor %}
 
-{% if DOLETKF_OCN_INC %}
+{% if DOLETKF_OCN_INC | default(false) %}
 #    - ['{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc', '{{ DATA }}/anl/ocean.anl.a006.nc' ]
 #    - ['{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc', '{{ DATA }}/anl/ice.anl.a006.nc' ]
     - ['{{ DATA }}/../marineanlvar/Data/ocn.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ DATA }}/anl/ocean.anl.a006.nc' ]
