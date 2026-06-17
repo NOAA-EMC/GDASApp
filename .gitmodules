@@ -43,8 +43,8 @@
   branch = dev/emc
 [submodule "sorc/land-jediincr"]
   path = sorc/land-jediincr
-  url = https://github.com/NOAA-EMC/land-apply_jedi_incr.git
-  branch = develop
+  url = https://github.com/tsga/land-apply_jedi_incr #https://github.com/NOAA-EMC/land-apply_jedi_incr.git
+  branch = soilinc #develop
 [submodule "sorc/crtm"]
   path = sorc/crtm
   url = https://github.com/jcsda/crtm.git
