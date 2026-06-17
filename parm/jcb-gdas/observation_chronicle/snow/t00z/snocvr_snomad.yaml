@@ -8,7 +8,8 @@ window_option: max
 
 # observation type initial configuration
 # --------------------------------
-stations_to_reject: ['fakelist']
+stations_to_reject:
+  totalSnowDepth: ['fakelist']
 
 # Chronicle of changes for this observation type
 # ----------------------------------------

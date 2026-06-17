@@ -9,7 +9,9 @@ window_option: max
 # observation type initial configuration
 # --------------------------------
 # these are the stations rejected in the GSI, for being coastal. 
-stations_to_reject: [
+stations_to_reject:
+  All: []
+  airTemperature: [
   '01001', '01002', '01003', '01006', '01007', '01008', '01009', '01010', '01011', '01013',
   '01016', '01017', '01020', '01024', '01028', '01033', '01039', '01044', '01052', '01055',
   '01062', '01068', '01078', '01083', '01092', '01098', '01099', '01102', '01107', '01108',
@@ -178,7 +180,7 @@ stations_to_reject: [
   'NYR', 'PANAMERI', 'PND', 'POR', 'PTKK', 'PUERTO_E', 'Pecs', 'Penc', 'Pilar', 'Pogany',
   'Pyhtaa', 'RAF', 'RJN', 'RRRRRo', 'Rauma', 'Rincon', 'SCZ', 'SGL', 'SRT', 'VAA',
   'Villa', 'Young', 'Zefat'
-]
+  ]
 
 # Chronicle of changes for this observation type
 # ----------------------------------------
