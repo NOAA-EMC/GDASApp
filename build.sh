@@ -78,7 +78,7 @@ while getopts "w:t:c:hvdfai" opt; do
 done
 
 case ${BUILD_TARGET} in
-  hera | orion | hercules | wcoss2 | noaacloud | gaeac6 | ursa | derecho | container | aws-ec2 )
+  hera | orion | hercules | wcoss2 | noaacloud | gaeac6 | ursa | derecho | aws-ec2 )
     echo "Building GDASApp on $BUILD_TARGET"
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
