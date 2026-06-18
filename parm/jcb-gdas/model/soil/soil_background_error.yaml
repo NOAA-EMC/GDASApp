@@ -1,0 +1,73 @@
+covariance model: SABER
+saber central block:
+  saber block name: BUMP_NICAS
+  read:
+    general:
+      universe length-scale: 250000.0
+    drivers:
+      multivariate strategy: univariate
+      read global nicas: true
+    nicas:
+      resolution: 6
+      max horizontal grid size: 400000
+      explicit length-scales: true
+      horizontal length-scale:
+      - groups:
+        - soill1_shadowLevels
+        - soill2_shadowLevels
+        - soilt1_shadowLevels
+        - soilt2_shadowLevels
+        value: 250000.0
+      vertical length-scale:
+      - groups:
+        - soill1_shadowLevels
+        - soill2_shadowLevels
+        - soilt1_shadowLevels
+        - soilt2_shadowLevels
+        value: 0.0
+      interpolation type:
+      - groups:
+        - soill1_shadowLevels
+        - soill2_shadowLevels
+        - soilt1_shadowLevels
+        - soilt2_shadowLevels
+        type: c0
+      same horizontal convolution: true
+    io:
+      data directory: ./berror
+      files prefix: smc_bump 
+saber outer blocks:
+- saber block name: ShadowLevels
+  fields metadata:
+    soill1:
+      vert_coord: filtered_orography
+    soill2:
+      vert_coord: filtered_orography
+    soilt1:
+      vert_coord: filtered_orography
+    soilt2:
+      vert_coord: filtered_orography
+  calibration:
+    number of shadow levels: 50
+    lowest shadow level: -450.0
+    highest shadow level: 8850.0
+    vertical length-scale: 800.0
+- saber block name: BUMP_StdDev
+  read:
+    drivers:
+      compute variance: true
+    variance:
+      explicit stddev: true
+      stddev:
+      - variables:
+        - soill1
+        value: 0.05
+      - variables:
+        - soill2
+        value: 0.05
+      - variables:
+        - soilt1
+        value: 2.0
+      - variables:
+        - soilt2
+        value: 2.0

@@ -31,6 +31,7 @@ data_in:
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/']
 
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile1.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile1.nc" ]
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile2.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile2.nc" ]
@@ -44,32 +45,30 @@ data_in:
 {% include 'soil_stage_berror.yaml.j2' %}
 {% endfilter %}
 
+    copy_opt:
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_atm.f006.nc']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_sfc.f006.nc']
+
+    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h-12.smap_soil.nc', '{{ DATA }}/obs']
+    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h-6.smap_soil.nc', '{{ DATA }}/obs']
+    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h0.smap_soil.nc', '{{ DATA }}/obs']
+    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h6.smap_soil.nc', '{{ DATA }}/obs']
+    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h12.smap_soil.nc', '{{ DATA }}/obs']
+
 data_out:
+
     copy_req:
     # Configuration files
     - ['{{ DATA }}/soilanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanlvar.yaml']
     - ['{{ DATA }}/soilanladdinc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanladdinc.yaml']
     - ['{{ DATA }}/soil_obs_list.yaml.j2', '{{ COMOUT_CONF }}/{{ APREFIX }}soil_obs_list.yaml.j2']
 
-    # Increments
-    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile1.nc']
-    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile2.nc']
-    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile3.nc']
-    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile4.nc']
-    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile5.nc']
-    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile6.nc']
-
 {% if DOIAU %}
     {% set bkgtimes = [ current_cycle, WINDOW_BEGIN ] %}
 {% else %}
     {% set bkgtimes = [ current_cycle ] %}
 {% endif %}
+
 {% for bkgtime in bkgtimes %}
     # Analysis = bkg + inc
     - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
@@ -84,7 +83,17 @@ data_out:
        '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc']
     - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
        '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc']
+
+    # Analysis = bkg + inc required for tile-to-vector
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc', '{{ COMIN_ATMOS_RESTART }}']
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc', '{{ COMIN_ATMOS_RESTART }}']
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc', '{{ COMIN_ATMOS_RESTART }}']
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc', '{{ COMIN_ATMOS_RESTART }}']
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc', '{{ COMIN_ATMOS_RESTART }}']
+    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc', '{{ COMIN_ATMOS_RESTART }}']
+
 {% endfor %}
+
 {% if DO_FINAL_SOILANL %}
 {% for bkgtime in bkgtimes %}
     # Final 3DVar Analysis
@@ -102,3 +111,21 @@ data_out:
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ bkgtime | to_fv3time }}.sfcanl_data.tile6.nc']
 {% endfor %}
 {% endif %}
+
+    copy_opt:
+    # Increments  TODO: make this _req once options between csg and fv3 well handled
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile1.nc']
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile2.nc']
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile3.nc']
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile4.nc']
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile5.nc']
+    - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile6.nc']
+
+    - ['{{ DATA }}/anl/soilinc_{{ GPREFIX }}csg_sfc.f006.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.csg_sfc.nc']

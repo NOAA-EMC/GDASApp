@@ -12,10 +12,14 @@ output:
     field io names:
       soilMoistureVolumetric: smc
       totalSnowDepth: snodl
-    prefix: soilinc
-    filetype: fms restart
-    filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
-    filename_cplr: '{{ soil_background_time_fv3 }}.coupler.res'
+#    prefix: soilinc
+    filetype: cube sphere history
+    provider: ufs
+#    ufs soil nlev: 4
+#    ufs fields split by level:
+#    - smc
+#    - stc
+    filename: soilinc_{{ soil_variational_history_prefix }}csg_sfc.f006.nc
 
 geometry:
   fms initialization:

@@ -71,6 +71,10 @@ data_in:
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+
+    - ['{{ COMIN_ATMOS_RESTART_PREV }}/mem{{ '%03d' % gmem }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV }}/mem{{ '%03d' % gmem }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+
     {% if DOIAU %}
         # if using IAU, also need backgrounds copied at the beginning of the window
 ##TODO: for soil IAU copy the actual restarts at the three time steps
@@ -87,6 +91,10 @@ data_in:
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+#TODO: add time info/prefix for iau in csg
+    - ['{{ COMIN_ATMOS_RESTART_PREV }}/mem{{ '%03d' % gmem }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV }}/mem{{ '%03d' % gmem }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+
     {% endif %}
 {% endfor %}
 
@@ -147,6 +155,17 @@ data_in:
 #    {% endfilter %}
 
 
+#    copy_opt:
+##    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_atm.f006.nc']
+##    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_sfc.f006.nc']
+#
+#    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h-12.smap_soil.nc', '{{ DATA }}/obs']
+#    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h-6.smap_soil.nc', '{{ DATA }}/obs']
+#    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h0.smap_soil.nc', '{{ DATA }}/obs']
+#    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h6.smap_soil.nc', '{{ DATA }}/obs']
+#    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h12.smap_soil.nc', '{{ DATA }}/obs']
+
+
 data_out:
     copy_req:
     # Configuration files
@@ -175,21 +194,21 @@ data_out:
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc']
     - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc']
-# As bkg for next timestep
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc']
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc']
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc']
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc']
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc']
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc']
+# bkg + inc required as bkg for next timestep
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
+    {% endfor %}
+{% endfor %}
 
-
+    copy_opt:
+    # Increments  TODO: make this _req once options between csg and fv3 well handled
+{% for bkgtime in bkgtimes %}
+    {% for imem in range(1, NMEM_ENS+1) %}
+        {% set memchar = 'mem%03d' | format(imem) %}
     # Increments
     - ['{{ DATA }}/anl/{{ memchar }}/soilinc.{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.soil_increment.sfc_data.tile1.nc']
@@ -204,5 +223,8 @@ data_out:
     - ['{{ DATA }}/anl/{{ memchar }}/soilinc.{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.soil_increment.sfc_data.tile6.nc']
     
+    - ['{{ DATA }}/anl/{{ memchar }}/soilinc_{{ GPREFIX }}csg_sfc.f006.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/{{ current_cycle | to_fv3time }}.soil_increment.csg_sfc.nc']
+
     {% endfor %}
 {% endfor %}

@@ -1,0 +1,106 @@
+covariance model: ensemble
+localization:
+  localization method: SABER
+  saber central block:
+    saber block name: ID
+members from template:
+  template:
+    states:
+      datapath: /scratch5/purged/Tseganeh.Gichamo/letkf_smap_workdir/mem%mem%/
+      filetype: fms restart
+      skip coupler file: true
+      datetime: '2024-03-01T00:00:00Z'
+      state variables:
+      - soilMoistureVolumetric
+      - slc
+      - stc
+      - totalSnowDepth
+      - sheleg
+      - vtype
+      - slmsk
+      - filtered_orography
+      - fraction_of_ice
+      - fraction_of_land
+      - air_temperature_at_2m
+      - specfic_humidity_at_2m
+      field io names:
+        soilMoistureVolumetric: smc
+        totalSnowDepth: snodl
+        filtered_orography: orog_filt
+        fraction_of_ice: fice
+        fraction_of_land: land_frac
+        air_temperature_at_2m: t2m
+        specfic_humidity_at_2m: q2m
+      filename_sfcd: 20240301.000000.sfc_data.nc
+      filename_cplr: 20240301.000000.coupler.res
+      filename_orog: C96.mx100_oro_data.nc
+  pattern: '%mem%'
+  nmembers: 3
+  zero padding: 3
+#covariance model: SABER
+#saber central block:
+#  saber block name: BUMP_NICAS
+#  read:   #calibration
+#    general:
+#      universe length-scale: 5000000.0
+#    drivers:
+#      multivariate strategy: univariate
+#      read global nicas: true  #compute nicas: true
+#      #write global nicas: true
+#    nicas:
+#      resolution: 6
+#      max horizontal grid size: 400000
+#      explicit length-scales: true
+#      horizontal length-scale:
+#      - groups:
+#        - soilMoistureVolumetric
+#        - slc
+#        - stc
+#        - air_temperature_at_2m
+#        - specfic_humidity_at_2m
+#        value: 250000.0
+#      vertical length-scale:
+#      - groups:
+#        - soilMoistureVolumetric
+#        - slc
+#        - stc
+#        - air_temperature_at_2m
+#        - specfic_humidity_at_2m
+#        value: 800.0
+#      interpolation type:
+#      - groups:
+#        - soilMoistureVolumetric
+#        - slc
+#        - stc
+#        - air_temperature_at_2m
+#        - specfic_humidity_at_2m
+#        type: c0
+#      same horizontal convolution: true
+#    io:
+#      data directory: ./berror 
+#      files prefix: smc_bump   
+##_nicas.nc #_{{ soil_background_time_fv3 }}
+##  saber block name: ID
+#saber outer blocks:
+#- saber block name: BUMP_StdDev
+#  read:
+#    drivers:
+#      compute variance: true
+#    variance:
+#      explicit stddev: true
+#      stddev:
+#      - variables:
+#        - soilMoistureVolumetric
+#        value: 0.2
+#      - variables:
+#        - slc
+#        value: 0.2
+#      - variables:
+#        - stc
+#        value: 0.5
+#      - variables:
+#        - air_temperature_at_2m
+#        value: 1.0
+#      - variables:
+#        - specfic_humidity_at_2m
+#        value: 0.5

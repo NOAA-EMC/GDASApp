@@ -13,36 +13,21 @@
       engine:
         type: H5File
         obsfile: "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}{{observation_from_jcb}}.nc"
-#        - "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}h-12.{{observation_from_jcb}}.nc"
-#        - "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}h-6.{{observation_from_jcb}}.nc"
-#        - "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}h0.{{observation_from_jcb}}.nc"
-#        - "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}h6.{{observation_from_jcb}}.nc"
-#        - "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}h12.{{observation_from_jcb}}.nc"
-#        missing file action: warn
-#      obsgrouping:
-#        group variables:
-#        - stationIdentification
+        #missing file action: warn
     obsdataout:
-      write multiple files: false
       engine:
         type: H5File
         obsfile: "{{soil_obsdataout_path}}/{{soil_obsdataout_prefix}}{{observation_from_jcb}}{{soil_obsdataout_suffix}}"
-        allow overwrite: true
-    io pool:
-      max pool size: 1
-#    observed variables:
-#    - soill1
-    simulated variables:
-    - soill1
+    simulated variables: [soilMoistureVolumetric]
   #
 
   # Observation Operator
   # --------------------
   obs operator:
     name: Identity
-#  linear obs operator:
-#    name: Identity
   #
+  linear obs operator:
+    name: Identity
 
   # localization TODO: generalize this condioned on da algo
   # ------------
@@ -73,8 +58,8 @@
         initial value: false
       - name: landice_check
         initial value: false
-#      - name: seaice_check
-#        initial value: false
+      - name: seaice_check
+        initial value: false
       - name: snow_check
         initial value: false
       - name: retrv_qual_check
@@ -89,14 +74,14 @@
         initial value: false
     - filter: Perform Action
       filter variables:
-      - name: soill1
+      - name: soilMoistureVolumetric
       action:
         name: assign error
-        error parameter: 0.04
+        error parameter: 0.1
     - filter: Domain Check
       where:
       - variable:
-          name: ObsValue/soill1
+          name: ObsValue/soilMoistureVolumetric
         value: is_valid
       actions:
       - name: set
@@ -116,7 +101,7 @@
   obs prior filters:
     - filter: Bounds Check
       filter variables:
-      - name: soill1
+      - name: soilMoistureVolumetric
       minvalue: 0.0
       maxvalue: 1.0
       actions:
@@ -124,16 +109,16 @@
         flag: invalid_smc
         ignore: rejected observations
       - name: reject
-#    - filter: Domain Check # land only
-#      where:
-#      - variable:
-#          name: GeoVaLs/fraction_of_land
-#        minvalue: 0.5
-#      actions:
-#      - name: set
-#        flag: land_check
-#        ignore: rejected observations
-#      - name: reject
+    - filter: Domain Check # land only
+      where:
+      - variable:
+          name: GeoVaLs/fraction_of_land
+        minvalue: 0.5
+      actions:
+      - name: set
+        flag: land_check
+        ignore: rejected observations
+      - name: reject
 #    - filter: Domain Check
 #      where:
 #      - variable:
@@ -145,16 +130,16 @@
 #        flag: invalid_elevation
 #        ignore: rejected observations
 #      - name: reject
-#    - filter: Domain Check # land only, no sea ice
-#      where:
-#      - variable:
-#          name: GeoVaLs/fraction_of_ice
-#        maxvalue: 0.0
-#      actions:
-#      - name: set
-#        flag: seaice_check
-#        ignore: rejected observations
-#      - name: reject
+    - filter: Domain Check # land only, no sea ice
+      where:
+      - variable:
+          name: GeoVaLs/fraction_of_ice
+        maxvalue: 0.0
+      actions:
+      - name: set
+        flag: seaice_check
+        ignore: rejected observations
+      - name: reject
     - filter: Domain Check   # no snow
       where:
       - variable:
@@ -168,7 +153,7 @@
     - filter: Domain Check   # high-quality retrievals
       where:
       - variable:
-          name: PreQC/soill1
+          name: PreQC/soilMoistureVolumetric
         is_in: 0, 8
       actions:
       - name: set
@@ -197,6 +182,7 @@
 #        flag: vegtype_check
 #        ignore: rejected observations
 #      - name: reject
+
 #    - filter: Difference Check # elevation check
 #      reference: MetaData/stationElevation
 #      value: GeoVaLs/filtered_orography
@@ -221,9 +207,9 @@
     - filter: Bounds Check
       udescriptor: "bounds_check_ObsError"
       filter variables:
-      - name: soill1
+      - name: soilMoistureVolumetric
       test variables:
-      - name:  ObsErrorData/soill1
+      - name:  ObsErrorData/soilMoistureVolumetric
       minvalue: 0.0
       maxvalue: 0.2
       action:
@@ -233,9 +219,7 @@
     - filter: Bounds Check
       udescriptor: "bounds_check_ObsValue"
       filter variables:
-      - name: soill1
-      test variables:
-      - name: ObsValue/soill1
+      - name: soilMoistureVolumetric
       minvalue: 0.02
       maxvalue: 0.5
       action:
@@ -243,7 +227,7 @@
 
     - filter: Background Check # gross error check
       filter variables:
-      - name: soill1
+      - name: soilMoistureVolumetric
       #threshold: 5
       absolute threshold: 0.5
       bias correction parameter: 1.0

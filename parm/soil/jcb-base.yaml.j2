@@ -10,11 +10,11 @@ app_path_observation_chronicle: "{{PARMgdas}}/jcb-gdas/observation_chronicle/soi
 # ------------------------------------------------------------
 model_file: model_pseudo
 initial_condition_file: background  # Initial conditions for 4D apps is background
-final_increment_file: soil_final_increment_fms
+final_increment_file: soil_final_increment_csg
 output_mean_prior_file: soil_output_mean_prior_fms
 posterior_output_file: soil_posterior_output_fms
-output_ensemble_increments_file: soil_ensemble_increments_fms
-output_increment_file: soil_output_increment_fms   
+output_ensemble_increments_file: soil_ensemble_increments_csg
+output_increment_file: soil_output_increment_csg
 output_variance_prior_file: soil_output_variance_prior_fms
 output_variance_posterior_file: soil_output_variance_posterior_fms
 #jedi_increment_output: gaussian
@@ -37,7 +37,8 @@ soil_increment_time_fv3: "{{ bkg_time_fv3 }}"
 
 # Analysis standard things
 # ------------------------
-analysis_variables: [soilMoistureVolumetric, slc, stc, air_temperature_at_2m, specfic_humidity_at_2m]
+analysis_variables: [soill1, soill2, soilt1, soilt2]
+#soilMoistureVolumetric, slc, stc, air_temperature_at_2m]
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
@@ -65,11 +66,13 @@ soil_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 # Background
 soil_background_path: {{ soil_bkg_path }}
 soil_background_ensemble_path: ./bkg/mem%mem%
+background_file: soil_background
 
 # Background error
 soil_bump_data_directory: "{{ DATA }}/berror"
 
 soil_background_error_file: "{{BERROR_YAML}}"
+background_error_file: "{{BERROR_YAML}}"
 
 # Forecasting
 soil_forecast_length: "{{ SNOW_WINDOW_LENGTH }}"
@@ -178,7 +181,8 @@ soil_analysis_ensemble_path: ./anl/mem%mem%
 # -------------------------
 local_ensemble_da_solver: Deterministic LETKF   #GETKF
 
-increment_variables: [soilMoistureVolumetric,slc,stc,air_temperature_at_2m,specfic_humidity_at_2m] #, smc, sphum] 
+increment_variables: [soill1, soill2, soilt1, soilt2, air_temperature_at_2m, specfic_humidity_at_2m]
+#soilMoistureVolumetric,slc,stc,air_temperature_at_2m,specfic_humidity_at_2m] #, smc, sphum] 
 #[ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
 
 # Veritcal localization for GETKF
@@ -191,13 +195,13 @@ inflation_mult: 1.0
 
 # Driver
 driver_update_obs_config_with_geometry_info: true
-driver_save_posterior_mean: true
-driver_save_posterior_ensemble: true
+driver_save_posterior_mean: false #true
+driver_save_posterior_ensemble: false #true
 driver_save_posterior_mean_increment: true
 driver_save_posterior_ensemble_increments: true
-driver_save_prior_variance: true
-driver_save_posterior_variance: true
-driver_save_prior_mean: true  #(default false)
+driver_save_prior_variance: false #true
+driver_save_posterior_variance: false #true
+driver_save_prior_mean: false #true  #(default false)
 driver_do_test_prints: false  #(default true)
 #default driver_do_posterior_observer: true
 #default driver_use_control_member: false

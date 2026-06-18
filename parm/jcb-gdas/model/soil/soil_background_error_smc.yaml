@@ -1,0 +1,54 @@
+covariance model: SABER
+saber central block:
+  saber block name: BUMP_NICAS
+  calibration:    #read:
+    general:
+      universe length-scale: 5000000.0
+    drivers:
+      multivariate strategy: univariate
+      compute nicas: true     #read global nicas: true
+      write global nicas: true
+    nicas:
+      resolution: 4
+      explicit length-scales: true
+      horizontal length-scale:
+      - groups:
+        - soilMoistureVolumetric
+        value: 1000000.0
+      vertical length-scale:
+      - groups:
+        - soilMoistureVolumetric
+        value: 1500.0
+      interpolation type:
+      - groups:
+        - soilMoistureVolumetric
+        type: c0
+      same horizontal convolution: true
+    io:
+      data directory: ./berror 
+      files prefix: smc_bump_nicas_1000km.nc  
+#_{{ soil_background_time_fv3 }}
+#  saber block name: ID
+saber outer blocks:
+- saber block name: BUMP_StdDev
+  read:
+    drivers:
+      compute variance: true
+    variance:
+      explicit stddev: true
+      stddev:
+      - variables:
+        - soilMoistureVolumetric
+        value: 0.2
+      - variables:
+        - slc
+        value: 0.2
+      - variables:
+        - stc
+        value: 0.5
+      - variables:
+        - air_temperature_at_2m
+        value: 1.0
+      - variables:
+        - specfic_humidity_at_2m
+        value: 0.5

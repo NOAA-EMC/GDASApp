@@ -1,39 +1,40 @@
-#datetime: '{{ soil_background_time_iso }}'
 members from template:
   template:
     datetime: '{{ soil_background_time_iso }}'
-    filetype: fms restart
-    skip coupler file: true
-#    provider: ufs
-    state variables: &state_vars
-    - soilMoistureVolumetric
-    - stc
-    - slc
-    - totalSnowDepth
+    datapath: {{ soil_background_ensemble_path }}
+    filetype: cube sphere history
+    provider: ufs
+    filenames:
+    ###- {{ soil_variational_history_prefix }}csg_atm.f006.nc
+    - {{ soil_variational_history_prefix }}csg_sfc.f006.nc    #[enkf]gdas.t12z.csg_sfc.f006.nc
+    max allowable geometry difference: 1e-4
+    state variables:
+    - soill1
+    - soill2
+    - soill3
+    - soilt1
+    - soilt2
+    - soilt3
+    - air_temperature_at_2m
+    - specfic_humidity_at_2m
     - sheleg
     - vtype
     - slmsk
-    - filtered_orography
-    - fraction_of_ice
-    - fraction_of_land
-    - air_temperature_at_2m 
-    - specfic_humidity_at_2m 
-#temperature_2m
-#spec_humidity_2m
-    field io names: &field_ios
-      soilMoistureVolumetric: smc
-      totalSnowDepth: snodl
-      filtered_orography: orog_filt
-      fraction_of_ice: fice
-      fraction_of_land: land_frac
-      air_temperature_at_2m: t2m
-      specfic_humidity_at_2m: q2m
-    datapath: {{ soil_background_ensemble_path }}
-    filename is datetime templated: true
-    filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
-    filename_cplr: '{{ soil_background_time_fv3 }}.coupler.res'
-    filename_orog: '{{ soil_orog_prefix }}_oro_data.nc'
-    max allowable geometry difference: 1e-4
+    #- stype
+    #- vfrac
+    #- geopotential_height_at_surface
+    #- skin_temperature_at_surface
+    #filtered_orography
+    field io names:
+      #filtered_orography: orog_filt
+      air_temperature_at_2m: tmp2m
+      specfic_humidity_at_2m: spfh2m
+      slmsk: land
+      sheleg: weasd
+      #geopotential_height_at_surface: hgtsfc
+      #skin_temperature_at_surface: tmpsfc
+      #stype: sotyp
+      #vfrac: veg
   pattern: "{{ soil_ensemble_pattern | default("%mem%", true) }}"
   nmembers: {{ soil_number_ensemble_members }}
   zero padding: 3
