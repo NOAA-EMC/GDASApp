@@ -82,19 +82,6 @@ atmosphere_iau_times_iso: {{ iau_times_iso }}
 # ------------------
 observations: all_observations
 
-#From Cory: https://docs.google.com/document/d/1CNfOZ7UzAOrVEXNyxeHAKafjjZp7WeBn-F07itWo6eE/
-#replace QC filters with a blanket configuration...to get listed obs' QC decisions from GSI:
-replace_obs_filters:
-  observations:
-    - adpsfc_air_temperature_at_2m_181_gsi
-  override_filters:         #only assimilate when GsiEffectiveQCAnl is 0
-    - filter: PreQC
-      inputQC: 'GsiEffectiveQCAnl'
-      maxvalue: 0.0
-      action:
-        name: reject
-
-
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
@@ -140,8 +127,7 @@ bias_files_dict:
 # -------------------------
 local_ensemble_da_solver: Deterministic GETKF
 
-increment_variables: [air_temperature]
-#[eastward_wind,northward_wind,layer_thickness,air_pressure_thickness,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,snow_water,rain_water,graupel,ozone_mass_mixing_ratio]
+increment_variables: [eastward_wind,northward_wind,layer_thickness,air_pressure_thickness,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,snow_water,rain_water,graupel,ozone_mass_mixing_ratio]
 
 atm_enkfonly: {{ DOENKFONLY_ATM | default(false, true) }}
 
