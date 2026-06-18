@@ -37,8 +37,7 @@ soil_increment_time_fv3: "{{ bkg_time_fv3 }}"
 
 # Analysis standard things
 # ------------------------
-analysis_variables: [soill1, soill2, soilt1, soilt2]
-#soilMoistureVolumetric, slc, stc, air_temperature_at_2m]
+analysis_variables: [soill1, soill2, soilt1, soilt2]    #soilMoistureVolumetric, slc, stc, air_temperature_at_2m]
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
@@ -82,19 +81,6 @@ soil_forecast_timestep: "{{ BKG_TSTEP }}"
 # ------------------
 observations: all_observations
 
-#From Cory: https://docs.google.com/document/d/1CNfOZ7UzAOrVEXNyxeHAKafjjZp7WeBn-F07itWo6eE/
-#replace QC filters with a blanket configuration...to get listed obs' QC decisions from GSI:
-#*replace_obs_filters:
-#*  observations:
-#*    - adpsfc_air_temperature_at_2m_181_gsi
-#*#    - sfcship         #Clara: no need for this to assimiate into soil
-#*  override_filters:         #only assimilate when GsiEffectiveQCAnl is 0
-#*    - filter: PreQC
-#*      inputQC: 'GsiEffectiveQCAnl'
-#*      maxvalue: 0.0
-#*      action:
-#*        name: reject
-
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
 # Naming conventions for observational files
@@ -125,54 +111,6 @@ soil_obsbiasout_suffix: ".satbias.nc"
 soil_obsbiascovout_prefix: "{{APREFIX}}"
 soil_obsbiascovout_suffix: ".satbias_cov.nc"
 
-atmosphere_obsbiasin_path: "{{DATA}}/obs/"
-atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
-atmosphere_obsbiasin_suffix: ".satbias.nc"    #GSI converters produce 1 file but JEDI produces 2
-atmosphere_obstlapsein_prefix: "{{GPREFIX}}"
-atmosphere_obstlapsein_suffix: ".tlapse.txt"
-atmosphere_obsbiascovin_prefix: "{{GPREFIX}}"
-atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
-
-#####----blindly copied from atm; unlikely to apply here------------ 
-# Naming conventions for observational files
-atmosphere_obsdatain_path: "{{DATA}}/obs"
-atmosphere_obsdatain_script_path: "{{HOMEgfs}}/ush/spoc/atmosphere"
-atmosphere_obsdatain_prefix: "{{OPREFIX}}"
-atmosphere_obsdatain_suffix: ".nc"
-atmosphere_obsdatain_suffix_bufr: ".tm00.bufr_d"
-
-atmosphere_obsdataout_path: "{{DATA}}/diags"
-atmosphere_obsdataout_prefix: diag_
-atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
-
-# Naming conventions for bias correction files
-
-atmosphere_obsbiasin_path: "{{DATA}}/obs/"
-atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
-atmosphere_obsbiasin_suffix: ".satbias.nc"
-atmosphere_obstlapsein_prefix: "{{GPREFIX}}"
-atmosphere_obstlapsein_suffix: ".tlapse.txt"
-atmosphere_obsbiascovin_prefix: "{{GPREFIX}}"
-atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
-
-atmosphere_obsbiasout_path: "{{DATA}}/bc/"
-atmosphere_obsbiasout_prefix: "{{APREFIX}}"
-atmosphere_obsbiasout_suffix: ".satbias.nc"   #GSI converters produce 1 file but JEDI produces 2
-atmosphere_obsbiascovout_prefix: "{{APREFIX}}"
-atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
-
-bias_files_dict:
-    radiance_atms_n20: rad_varbc_params.tar
-    radiance_atms_npp: rad_varbc_params.tar
-    radiance_mtiasi_metop-a: rad_varbc_params.tar
-    radiance_mtiasi_metop-b: rad_varbc_params.tar
-    radiance_amsua_n19: rad_varbc_params.tar
-    radiance_ssmis_f17: rad_varbc_params.tar
-    radiance_ssmis_f18: rad_varbc_params.tar
-    radiance_cris-fsr_n20: rad_varbc_params.tar
-    radiance_cris-fsr_npp: rad_varbc_params.tar
-####--------------------------------------------------------------
-
 # Ensemble mean things
 soil_number_ensemble_members: {{NMEM_ENS | default(1, true) }}
 soil_analysis_ensemble_path: ./anl/mem%mem%
@@ -187,7 +125,7 @@ increment_variables: [soill1, soill2, soilt1, soilt2, air_temperature_at_2m, spe
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
-vl_lengthscale: 22.1
+vl_lengthscale: 2.1
 vl_lengthscale_units: logp
 inflation_rtps: 0.85
 inflation_rtpp: 0.0
