@@ -36,7 +36,7 @@
 [submodule "sorc/fv3-jedi"]
   path = sorc/fv3-jedi
   url = https://github.com/tsga/fv3-jedi   #https://github.com/jcsda/fv3-jedi.git
-  branch = landsfc   #develop
+  branch = soil_csg   #develop
 [submodule "sorc/soca"]
   path = sorc/soca
   url = https://github.com/NOAA-EMC/soca.git
@@ -44,7 +44,7 @@
 [submodule "sorc/land-jediincr"]
   path = sorc/land-jediincr
   url = https://github.com/tsga/land-apply_jedi_incr   #https://github.com/NOAA-EMC/land-apply_jedi_incr.git
-  branch = tq2m  #develop
+  branch = soilinc  #develop
 [submodule "sorc/crtm"]
   path = sorc/crtm
   url = https://github.com/jcsda/crtm.git
