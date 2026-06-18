@@ -13,12 +13,7 @@
       engine:
         type: H5File
         obsfile: "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}{{observation_from_jcb}}.nc"
-#        - "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}h-12.{{observation_from_jcb}}.nc"
-#        - "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}h-6.{{observation_from_jcb}}.nc"
-#        - "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}h0.{{observation_from_jcb}}.nc"
-#        - "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}h6.{{observation_from_jcb}}.nc"
-#        - "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}h12.{{observation_from_jcb}}.nc"
-#        missing file action: warn
+        missing file action: warn
 #      obsgrouping:
 #        group variables:
 #        - stationIdentification
@@ -30,11 +25,10 @@
         allow overwrite: true
     io pool:
       max pool size: 1
-#    observed variables:
-#    - soill1
-    simulated variables:
+    observed variables:
     - soill1
-  #
+    simulated variables:
+    - soill1 
 
   # Observation Operator
   # --------------------
@@ -63,18 +57,12 @@
       flags:
       - name: missing_smc
         initial value: false
-#      - name: missing_elevation
-#        initial value: false
       - name: invalid_smc
         initial value: false
-#      - name: invalid_elevation
-#        initial value: false
       - name: land_check
         initial value: false
       - name: landice_check
         initial value: false
-#      - name: seaice_check
-#        initial value: false
       - name: snow_check
         initial value: false
       - name: retrv_qual_check
@@ -83,8 +71,6 @@
         initial value: false
       - name: elevation_bkgdiff
         initial value: false
-#      - name: rejectlist
-#        initial value: false
       - name: background_check
         initial value: false
     - filter: Perform Action
@@ -114,37 +100,6 @@
         flag: invalid_smc
         ignore: rejected observations
       - name: reject
-#    - filter: Domain Check # land only
-#      where:
-#      - variable:
-#          name: GeoVaLs/fraction_of_land
-#        minvalue: 0.5
-#      actions:
-#      - name: set
-#        flag: land_check
-#        ignore: rejected observations
-#      - name: reject
-#    - filter: Domain Check
-#      where:
-#      - variable:
-#          name: MetaData/stationElevation
-#        minvalue: -200.0
-#        maxvalue: 9000.0
-#      actions:
-#      - name: set
-#        flag: invalid_elevation
-#        ignore: rejected observations
-#      - name: reject
-#    - filter: Domain Check # land only, no sea ice
-#      where:
-#      - variable:
-#          name: GeoVaLs/fraction_of_ice
-#        maxvalue: 0.0
-#      actions:
-#      - name: set
-#        flag: seaice_check
-#        ignore: rejected observations
-#      - name: reject
     - filter: Domain Check   # no snow
       where:
       - variable:
@@ -185,25 +140,6 @@
 #      actions:
 #      - name: set
 #        flag: vegtype_check
-#        ignore: rejected observations
-#      - name: reject
-#    - filter: Difference Check # elevation check
-#      reference: MetaData/stationElevation
-#      value: GeoVaLs/filtered_orography
-#      threshold: 800.
-#      actions:
-#      - name: set
-#        flag: elevation_bkgdiff
-#        ignore: rejected observations
-#      - name: reject
-#    - filter: BlackList
-#      where:
-#      - variable:
-#          name: MetaData/stationIdentification
-#        is_in: {{ get_conventional_rejected_stations(observation_from_jcb) }}
-#      actions:
-#      - name: set
-#        flag: rejectlist
 #        ignore: rejected observations
 #      - name: reject
   obs post filters:

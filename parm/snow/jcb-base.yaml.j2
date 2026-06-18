@@ -65,7 +65,6 @@ snow_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
 snow_background_path: {{snow_bkg_path}}
-#background_ensemble_path: ./ens/mem%mem%   #TODO: this may not be ncessary
 snow_background_ensemble_path: ./bkg/mem%mem%
 
 # Background error
@@ -75,7 +74,6 @@ snow_background_error_file: "{{BERROR_YAML}}"
 # Forecasting
 snow_forecast_length: "{{ SNOW_WINDOW_LENGTH }}"
 snow_forecast_timestep: "{{ BKG_TSTEP }}"
-
 
 # Observation things
 # ------------------
@@ -109,8 +107,7 @@ snow_obsbiascovout_prefix: "{{APREFIX}}"
 snow_obsbiascovout_suffix: ".satbias_cov.nc"
 
 # Ensemble mean things
-snow_number_ensemble_members: {{NMEM_ENS | default(1, true) }}   #do we need the one below?
-#number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
+snow_number_ensemble_members: {{NMEM_ENS | default(1, true) }}   
 
 # Local Ensemble DA (LETKF)
 # -------------------------
