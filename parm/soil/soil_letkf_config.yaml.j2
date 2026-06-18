@@ -6,16 +6,12 @@ jedi_config:
         jedi_args: ['fv3jedi', 'localensembleda']
         jcb_base_yaml: '{{ PARMgfs }}/gdas/soil/jcb-base.yaml.j2'
         jcb_algo_yaml: '{{ PARMgfs }}/gdas/soil/jcb-prototype_lgetkf.yaml.j2'
-#        jcb_algo: 'local_ensemble_da'
-#        obs_list_yaml: '{{ OBS_LIST_YAML }}'
     soilletkfaddinc:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgdas }}/fv3jedi_addincrement.x'
         mpi_cmd: '{{ APRUN_SOILLETKF_ADDINC }}'
         jcb_base_yaml: '{{ PARMgdas }}/soil/jcb-base.yaml.j2'
-#        jcb_algo: 'soil_lgetkf_addincrement'
         jcb_algo: 'soil_lgetkf_increment'
-#        jcb_algo: 'soil_fv3jedi_fv3inc_lgetkf'
 
 #TODO: add observer mode
 #    soilensanlobs:
@@ -155,10 +151,10 @@ data_in:
 #    {% endfilter %}
 
 
-#    copy_opt:
-##    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_atm.f006.nc']
-##    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_sfc.f006.nc']
-#
+    copy_opt:
+#    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_atm.f006.nc']
+#    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_sfc.f006.nc']
+
 #    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h-12.smap_soil.nc', '{{ DATA }}/obs']
 #    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h-6.smap_soil.nc', '{{ DATA }}/obs']
 #    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h0.smap_soil.nc', '{{ DATA }}/obs']
@@ -194,13 +190,6 @@ data_out:
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc']
     - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ memchar }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc']
-# bkg + inc required as bkg for next timestep
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
-    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc', '{{ COMIN_ATMOS_RESTART }}/{{ memchar }}/']
     {% endfor %}
 {% endfor %}
 
