@@ -1,10 +1,8 @@
-#datetime: '{{ soil_background_time_iso }}'
 members from template:
   template:
     datetime: '{{ soil_background_time_iso }}'
     filetype: fms restart
     skip coupler file: true
-#    provider: ufs
     state variables: &state_vars
     - soilMoistureVolumetric
     - stc
@@ -18,8 +16,6 @@ members from template:
     - fraction_of_land
     - air_temperature_at_2m 
     - specfic_humidity_at_2m 
-#temperature_2m
-#spec_humidity_2m
     field io names: &field_ios
       soilMoistureVolumetric: smc
       totalSnowDepth: snodl

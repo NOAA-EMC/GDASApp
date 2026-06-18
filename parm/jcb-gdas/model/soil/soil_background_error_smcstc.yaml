@@ -40,8 +40,6 @@ saber central block:
     io:
       data directory: ./berror 
       files prefix: smc_bump   
-#_nicas.nc #_{{ soil_background_time_fv3 }}
-#  saber block name: ID
 saber outer blocks:
 - saber block name: BUMP_StdDev
   read:
