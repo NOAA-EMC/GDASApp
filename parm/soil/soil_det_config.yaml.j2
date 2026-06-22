@@ -60,7 +60,7 @@ data_out:
     # Configuration files
     - ['{{ DATA }}/soilanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanlvar.yaml']
     - ['{{ DATA }}/soilanladdinc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanladdinc.yaml']
-    - ['{{ DATA }}/soil_obs_list.yaml.j2', '{{ COMOUT_CONF }}/{{ APREFIX }}soil_obs_list.yaml.j2']
+#    - ['{{ DATA }}/soil_obs_list.yaml.j2', '{{ COMOUT_CONF }}/{{ APREFIX }}soil_obs_list.yaml.j2']
 
 {% if DOIAU %}
     {% set bkgtimes = [ current_cycle, WINDOW_BEGIN ] %}

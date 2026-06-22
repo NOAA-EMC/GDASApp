@@ -2,9 +2,16 @@
 # -------------------
 commissioned: 2015-04-01T00:00:00
 
-observer_type: satellite # Type of chronicle to use
+#observer_type: satellite # Type of chronicle to use
+observer_type: conventional  # Type of chronicle to use
 
 window_option: max
 
+# observation type initial configuration
+# --------------------------------
+stations_to_reject:
+  totalSnowDepth: ['fakelist']
+
 # Chronicle of changes for this observation type
 # ----------------------------------------
+
