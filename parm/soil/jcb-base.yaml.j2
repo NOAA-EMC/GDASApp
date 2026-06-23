@@ -57,6 +57,7 @@ soil_npy_anl: {{ npy_ges | default(49, true) }}
 soil_npz_anl: {{ npz_ges | default(127, true) }}
 
 soil_variational_history_prefix: "{{ GPREFIX }}"
+soil_ensemble_history_prefix: "{{ GPREFIX_ENS }}"
 
 soil_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
 soil_orog_files_path: "{{ soil_bkg_path }}"
