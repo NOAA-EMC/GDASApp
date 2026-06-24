@@ -36,8 +36,6 @@ load("esmf-D/8.8.0")
 load("eckit/1.28.0")
 load("fckit/0.13.1")
 load("atlas/0.39.0")
--- hack for FMS
-setenv('fms_ROOT', '/apps/prod/hpc-stack/i-19.1.3.304__m-8.1.19__h-1.14.0__n-4.9.2__p-2.5.10__e-8.8.0_pnetcdf/intel-19.1.3.304/cray-mpich-8.1.19/fms/2024.01')
 
 setenv("CC","cc")
 setenv("CXX","CC")

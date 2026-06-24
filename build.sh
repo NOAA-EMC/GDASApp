@@ -81,6 +81,11 @@ case ${BUILD_TARGET} in
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET.$COMPILER
+    if [[ ${BUILD_TARGET} == 'wcoss2' ]]; then
+      if [[ -v FMS_ROOT ]]; then
+        export fms_ROOT=${FMS_ROOT}
+      fi
+    fi
     CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=OFF -DBUILD_IODA_CONVERTERS=$BUILD_IODA_CONVERTERS"
     module list
     ;;
