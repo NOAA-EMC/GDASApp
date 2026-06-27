@@ -47,22 +47,22 @@ analysis_variables: {{ _analysis_vars }}
 # ------------
 
 # State variables
-soil_det_state_variables: {{ _analysis_vars + ['stc',
-                                               'totalSnowDepth',
+soil_det_state_variables: {{ _analysis_vars + ['slmsk',
                                                'sheleg',
                                                'vtype',
-                                               'slmsk',
-                                               'fraction_of_ice'
+                                               'stc',
                                                'filtered_orography',
-                                               'fraction_of_land'] }}
+                                               'fraction_of_ice'
+                                               'fraction_of_land',
+                                               'totalSnowDepth'] }}
 
 # Increment variables
 soil_det_increment_variables:       {{ _analysis_vars }}
-soil_det_increment_variables_final: {{ _analysis_vars + ['stc',
-                                                         'totalSnowDepth',
+soil_det_increment_variables_final: {{ _analysis_vars + ['slmsk',
                                                          'sheleg',
                                                          'vtype',
-                                                         'slmsk'] }}
+                                                         'stc',
+                                                         'totalSnowDepth'] }}
 
 # Variable IO names
 soil_field_io_names:

@@ -47,19 +47,19 @@ analysis_variables: {{ _analysis_vars }}
 # ------------
 
 # State variables
-snow_det_state_variables: {{ _analysis_vars + ['vtype',
-                                               'slmsk',
+snow_det_state_variables: {{ _analysis_vars + ['slmsk',
                                                'sheleg',
+                                               'vtype',
+                                               'stc',
                                                'filtered_orography',
                                                'fraction_of_ice',
-                                               'fraction_of_land',
-                                               'stc'] }}
-snow_ensmean_state_variables: {{ _analysis_vars + ['vtype',
-                                                   'slmsk',
+                                               'fraction_of_land'] }}
+snow_ensmean_state_variables: {{ _analysis_vars + ['slmsk',
                                                    'sheleg',
+                                                   'vtype',
+                                                   'stc',
                                                    'filtered_orography',
-                                                   'fraction_of_ice',
-                                                   'stc'] }}
+                                                   'fraction_of_ice'] }}
 
 # Increment variables
 snow_det_increment_variables:       {{ _analysis_vars }}

@@ -24,6 +24,8 @@ minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
 number_of_outer_loops: 1
+
+# Analysis Variables
 {% set _analysis_vars = ['mass_fraction_of_sulfate_in_air',
                          'mass_fraction_of_hydrophobic_black_carbon_in_air',
                          'mass_fraction_of_hydrophilic_black_carbon_in_air',
@@ -38,6 +40,7 @@ number_of_outer_loops: 1
                          'mass_fraction_of_sea_salt002_in_air',
                          'mass_fraction_of_sea_salt003_in_air',
                          'mass_fraction_of_sea_salt004_in_air'] %}
+
 analysis_variables: {{ _analysis_vars }}
 
 # Model things

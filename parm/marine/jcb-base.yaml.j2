@@ -33,6 +33,7 @@ number_of_outer_loops: 1
                          'sea_water_salinity',
                          'sea_water_potential_temperature',
                          'sea_surface_height_above_geoid'] %}
+
 analysis_variables: {{ _analysis_vars }}
 
 # Model things
@@ -42,15 +43,14 @@ analysis_variables: {{ _analysis_vars }}
 marine_det_state_variables: {{ _analysis_vars + ['air_temperature',
                                                  'bulk_ice_salinity',
                                                  'sea_water_cell_thickness',
-                                                 'ocean_mixed_layer_thickness',
                                                  'sea_water_depth',
+                                                 'ocean_mixed_layer_thickness',
                                                  'snow_ice_surface_temperature'] }}
 
-marine_saber_central_block_variables:
-- 'sea_water_potential_temperature'
-- 'sea_water_salinity'
-- 'sea_surface_height_above_geoid'
-- 'sea_ice_area_fraction'
+marine_saber_central_block_variables: {{ ['sea_ice_area_fraction'
+                                          'sea_water_salinity',
+                                          'sea_water_potential_temperature',                               
+                                          'sea_surface_height_above_geoid'] }}
 
 # Increment variables
 marine_det_increment_variables: {{ _analysis_vars }}
