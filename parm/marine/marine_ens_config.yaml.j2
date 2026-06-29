@@ -38,28 +38,20 @@ data_out:
     - '{{ COMOUT_OCEAN_LETKF }}/diags'
 
 {% for mem in range(1, NMEM_ENS + 1) %}
-    {% set tmpl_dict = {'${ROTDIR}':ROTDIR,
-                       '${RUN}': GDUMP_ENS,
-                       '${YMD}': current_cycle | to_YMD,
-                       '${HH}': current_cycle | strftime('%H'),
-                       '${MEMDIR}':'mem' + '%03d' % mem} %}
-
-    - '{{ COM_OCEAN_LETKF_TMPL | replace_tmpl(tmpl_dict) }}'
-    - '{{ COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) }}'
+    {% set mem_ocn_letkf = ROTDIR ~ '/' ~ GDUMP_ENS ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/mem' ~ '%03d' % mem ~ '/analysis/ocean/letkf' %}
+    {% set mem_ice_letkf = ROTDIR ~ '/' ~ GDUMP_ENS ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/mem' ~ '%03d' % mem ~ '/analysis/ice/letkf' %}
+    - '{{ mem_ocn_letkf }}'
+    - '{{ mem_ice_letkf }}'
 {% endfor %}
 
     copy_req:
 
     # save letkf analysis to comout
 {% for mem in range(1, NMEM_ENS + 1) %}
-    {% set tmpl_dict = {'${ROTDIR}':ROTDIR,
-                       '${RUN}': GDUMP_ENS,
-                       '${YMD}': current_cycle | to_YMD,
-                       '${HH}': current_cycle | strftime('%H'),
-                       '${MEMDIR}':'mem' + '%03d' % mem} %}
-
-    - ['{{ DATA }}/letkf_output/ocn.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_OCEAN_LETKF_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_analysis.a006.nc']
-    - ['{{ DATA }}/letkf_output/ice.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ COM_ICE_LETKF_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_analysis.a006.nc']
+    {% set mem_ocn_letkf = ROTDIR ~ '/' ~ GDUMP_ENS ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/mem' ~ '%03d' % mem ~ '/analysis/ocean/letkf' %}
+    {% set mem_ice_letkf = ROTDIR ~ '/' ~ GDUMP_ENS ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/mem' ~ '%03d' % mem ~ '/analysis/ice/letkf' %}
+    - ['{{ DATA }}/letkf_output/ocn.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ mem_ocn_letkf }}/{{ APREFIX_ENS }}jedi_analysis.a006.nc']
+    - ['{{ DATA }}/letkf_output/ice.letkf.ens.{{ mem }}.{{ WINDOW_BEGIN | to_isotime }}.PT3H.nc', '{{ mem_ice_letkf }}/{{ APREFIX_ENS }}jedi_analysis.a006.nc']
 {% endfor %}
 
     # Save LETKF background and analysis mean and variance, mean analysis increment
