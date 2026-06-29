@@ -35,8 +35,8 @@
   branch = develop
 [submodule "sorc/fv3-jedi"]
   path = sorc/fv3-jedi
-  url = https://github.com/tsga/fv3-jedi   #https://github.com/jcsda/fv3-jedi.git
-  branch = soil_csg   #develop
+  url = https://github.com/jcsda/fv3-jedi.git
+  branch = feature/add_soil_layers_fields   #develop
 [submodule "sorc/soca"]
   path = sorc/soca
   url = https://github.com/NOAA-EMC/soca.git
