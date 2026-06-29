@@ -274,7 +274,7 @@
     where:
     - variable:
         name: MetaData/stationIdentification
-      is_in: {{ get_conventional_rejected_stations(observation_from_jcb) }}
+      is_in: {{ get_conventional_rejected_stations(observation_from_jcb, 'airTemperature') }}
 
   # Observation Post Filters (QC)
   # -----------------------------
