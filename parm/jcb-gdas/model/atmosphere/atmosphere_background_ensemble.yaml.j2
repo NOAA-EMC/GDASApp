@@ -32,7 +32,7 @@ members from template:
     - totalSnowDepthMeters
     - eastward_wind_at_surface
     - northward_wind_at_surface
-    - f10m
+    - ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m
     field io names:
       eastward_wind: ugrd
       northward_wind: vgrd
@@ -60,6 +60,7 @@ members from template:
       northward_wind_at_surface: vgrd_hyblev1
       soilm: soilw1
       soilt: soilt1
+      f10m: ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m
     datapath: {{ atmosphere_background_ensemble_path }}
     filename is datetime templated: true
     filenames:

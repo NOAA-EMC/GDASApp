@@ -62,10 +62,10 @@ variables:
 		snwdph:long_name = "totalSnowDepth" ;
 		snwdph:units = "mm" ;
 		snwdph:checksum = "6B84796221165DFF" ;
-	double f10m(Time, zaxis_1, yaxis_1, xaxis_1) ;
-		f10m:long_name = "f10m" ;
-		f10m:units = "none" ;
-		f10m:checksum = "C9624F96E8056332" ;
+	double ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m(Time, zaxis_1, yaxis_1, xaxis_1) ;
+		ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m:long_name = "ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m" ;
+		ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m:units = "none" ;
+		ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m:checksum = "C9624F96E8056332" ;
 	double sss(Time, zaxis_1, yaxis_1, xaxis_1) ;
 		sss:long_name = "sss" ;
 		sss:units = "psu" ;
@@ -467,7 +467,7 @@ data:
   0, 0, 0, 24.7154575386472, 0, 187.124006894563, 0, 0, 0, 76.2561453569787, 
     0, 0 ;
 
- f10m =
+ ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m =
   0.991058235751435, 0.992983456146504, 0.994009653238881, 0.993931503722348, 
     0.99887149507686, 0.995636916927906, 0.9971632341696, 0.996243791116734, 
     0.997632364003599, 0.998664161780413, 0.997851983162025, 0.987762731707353,
