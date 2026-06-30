@@ -1,0 +1,124 @@
+# Coupled (FV3JEDI atmosphere + SOCA ocean) JCB client integration test config.
+#
+# This reuses the stock jcb-algorithms templates (hofx3d, 3dvar) by pointing their
+# overridable section files at coupled wrapper fragments in algorithm/coupled/. The
+# coupled wrappers emit one block per model component (FV3JEDI, SOCA), reusing the
+# existing atmosphere_* and marine_* model fragments unchanged.
+
+# Algorithms exercised by the client integration test
+# ---------------------------------------------------
+supported_algorithms:
+- hofx3d
+- 3dvar
+
+# Search paths: coupled wrappers (algorithm) plus BOTH model and BOTH observation
+# components. app_paths_model_extra / app_paths_observations_extra are coupled-DA
+# additions handled by the renderer.
+# ------------------------------------------------------------------------------
+app_path_algorithm: gdas/algorithm/coupled
+app_path_model: gdas/model/atmosphere
+app_paths_model_extra:
+- gdas/model/marine
+app_path_observations: gdas/observations/atmosphere
+app_paths_observations_extra:
+- gdas/observations/marine
+
+# Point the stock algorithm templates' overridable section files at the coupled wrappers.
+# model_component is set explicitly to 'coupled' so the 3dvar variational outer-loop
+# include resolves to coupled_3dvar_outer_loop_<n>.yaml.j2.
+# ---------------------------------------------------------------------------------------
+model_component: coupled_
+geometry_background_file: coupled_geometry_background
+background_file: coupled_background
+background_error_file: coupled_background_error
+
+# Coupling definition: name = YAML key emitted, dir = model directory / fragment prefix.
+# Generalizes to other model pairings (e.g. add land) by extending this list.
+# -------------------------------------------------------------------------------------
+coupled_components:
+- name: FV3JEDI
+  dir: atmosphere
+- name: SOCA
+  dir: marine
+
+# Per-component background error fragment selection (keyed by component dir)
+coupled_background_error_files:
+  atmosphere: atmosphere_background_error_static_identity
+  marine: marine_background_error_static_diffusion
+
+# Coupled-only geometry key
+coupled_fv3jedi_exclude_variables:
+- skin_temperature_at_surface_where_sea
+- sea_surface_height_above_geoid
+- sea_water_cell_thickness
+- sea_water_potential_temperature
+- sea_water_salinity
+
+# Global analysis things
+# ----------------------
+window_begin: '2020-12-14T18:00:00Z'
+window_length: PT6H
+bound_to_include: begin
+minimizer: DRPCG
+number_of_outer_loops: 1
+final_diagnostics_departures: oman
+analysis_variables:
+- eastward_wind
+- northward_wind
+- air_temperature
+- air_pressure_thickness
+- water_vapor_mixing_ratio_wrt_moist_air
+- cloud_liquid_ice
+- cloud_liquid_water
+- ozone_mass_mixing_ratio
+- sea_water_salinity
+- sea_water_potential_temperature
+
+# Coupled outer loop (single shared iteration)
+coupled_ninner_1: 10
+coupled_grad_red_1: 1e-7
+coupled_outer_loop_departures: bkgmob
+
+# Atmosphere (FV3JEDI) model things
+# ---------------------------------
+atmosphere_fv3jedi_files_path: Data/fv3files
+atmosphere_layout_x: 1
+atmosphere_layout_y: 1
+atmosphere_npx_ges: 13
+atmosphere_npy_ges: 13
+atmosphere_npz_ges: 127
+atmosphere_background_path: Data/inputs/gfs_c12/bkg
+atmosphere_background_time_iso: '2020-12-14T21:00:00Z'
+atmosphere_variational_history_prefix: 'bkg_'
+
+# Marine (SOCA) model things
+# --------------------------
+marine_soca_files_path: Data/soca
+marine_background_path: ./INPUT/
+marine_background_time: '2020-12-14T21:00:00Z'
+marine_vt_levels: 25
+marine_stddev_time: '2020-12-14T21:00:00Z'
+
+# Observations: one atmosphere obs and one marine obs to exercise both components.
+# No observation chronicle is used, so all listed observers are kept.
+# -------------------------------------------------------------------------------
+observations:
+- conventional_ps
+- adt_rads_all
+
+# Atmosphere obs file naming
+atmosphere_obsdatain_path: Data/obs
+atmosphere_obsdatain_prefix: ''
+atmosphere_obsdatain_suffix: '.2020121500.nc4'
+atmosphere_obsdataout_path: Data/hofx
+atmosphere_obsdataout_prefix: ''
+atmosphere_obsdataout_suffix: '_2020121500.nc4'
+
+# Marine obs file naming
+marine_obsdatain_path: Data/obs
+marine_obsdatain_prefix: ''
+marine_obsdatain_suffix: '.2020121500.nc4'
+marine_obsdataout_path: Data/hofx
+marine_obsdataout_prefix: ''
+marine_obsdataout_suffix: '_2020121500.nc4'
+marine_letkf_dist_halo_size: 5.0e5
