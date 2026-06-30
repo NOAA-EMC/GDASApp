@@ -1,0 +1,17 @@
+- ninner: {{ marineijedi_ninner_1 }}
+  gradient norm reduction: {{ marineijedi_grad_red_1 }}
+  geometry:
+    geometry_type: mom6
+    ocean_hgrid: {{ marineijedi_ocean_hgrid }}
+    ocean_topog: {{ marineijedi_ocean_topog }}
+    vertical geometry from: {{ marineijedi_vertical_geometry_from }}
+    coarsen factor: {{ marineijedi_coarsen_factor | default(1) }}
+    has northern fold: {{ marineijedi_has_northern_fold | default(true) }}
+    MOM_input:
+      NIGLOBAL: {{ marineijedi_niglobal }}
+      NJGLOBAL: {{ marineijedi_njglobal }}
+      NZ: {{ marineijedi_nz }}
+      LAYOUT: {{ marineijedi_layout }}
+      MINIMUM_DEPTH: {{ marineijedi_minimum_depth | default(0.5) }}
+  diagnostics:
+    departures: ombg
