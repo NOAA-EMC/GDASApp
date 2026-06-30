@@ -1,7 +1,7 @@
 # Coupled (FV3JEDI atmosphere + SOCA ocean) JCB client integration test config.
 #
 # This reuses the stock jcb-algorithms templates (hofx3d, 3dvar) by pointing their
-# overridable section files at coupled wrapper fragments in algorithm/coupled/. The
+# overridable section files at coupled wrapper fragments in model/coupled/. The
 # coupled wrappers emit one block per model component (FV3JEDI, SOCA), reusing the
 # existing atmosphere_* and marine_* model fragments unchanged.
 
@@ -11,23 +11,26 @@ supported_algorithms:
 - hofx3d
 - 3dvar
 
-# Search paths: coupled wrappers (algorithm) plus BOTH model and BOTH observation
-# components. app_paths_model_extra / app_paths_observations_extra are coupled-DA
-# additions handled by the renderer.
+# Search paths: the coupled model component (model/coupled, which holds the coupled
+# wrapper fragments) plus BOTH single-component models and BOTH observation components.
+# app_paths_model_extra / app_paths_observations_extra are coupled-DA additions handled
+# by the renderer. The stock hofx3d/3dvar algorithm templates come from the base
+# algorithms path, so no app_path_algorithm is needed.
 # ------------------------------------------------------------------------------
-app_path_algorithm: gdas/algorithm/coupled
-app_path_model: gdas/model/atmosphere
+app_path_model: gdas/model/coupled
 app_paths_model_extra:
+- gdas/model/atmosphere
 - gdas/model/marine
 app_path_observations: gdas/observations/atmosphere
 app_paths_observations_extra:
 - gdas/observations/marine
 
-# Point the stock algorithm templates' overridable section files at the coupled wrappers.
-# model_component is set explicitly to 'coupled' so the 3dvar variational outer-loop
-# include resolves to coupled_3dvar_outer_loop_<n>.yaml.j2.
+# app_path_model = gdas/model/coupled makes the renderer derive model_component = 'coupled_',
+# so the stock templates' default section files (coupled_geometry_background, coupled_background,
+# coupled_background_error) and the 3dvar outer-loop include (coupled_3dvar_outer_loop_<n>)
+# all resolve to the coupled wrappers in model/coupled/. The explicit overrides below are
+# therefore redundant but kept for clarity.
 # ---------------------------------------------------------------------------------------
-model_component: coupled_
 geometry_background_file: coupled_geometry_background
 background_file: coupled_background
 background_error_file: coupled_background_error
