@@ -35,6 +35,7 @@
   #       even including the temporal thinning which is applied in GSI but not JEDI (by this filter below). See
   #       GDASApp Issue #758 for details: https://github.com/NOAA-EMC/GDASApp/issues/758
   #obs pre filters:
+  #{% if do_thinning | default(true) %}
   #- filter: Gaussian Thinning
   #  where:
   #  - variable: ObsType/windEastward
@@ -44,6 +45,7 @@
   #  use_reduced_horizontal_grid: true
   #  round_horizontal_bin_count_to_nearest: true
   #  partition_longitude_bins_using_mesh: true
+  #{% endif %}
 
   # Observation Pre Filters (QC)
   # -----------------------------
@@ -189,6 +191,7 @@
       name: reject
   
   # THINNING: METEOSAT winds are prioritized by qiWithoutForecast
+  {% if do_thinning | default(true) %}
   - filter: Gaussian Thinning
     horizontal_mesh: 100
     vertical_mesh: 10000
@@ -212,6 +215,7 @@
       maxvalue: 50000.
     action:
       name: reduce obs space
+  {% endif %}
 
   # Observation Prior Filters (QC)
   # ------------------------------

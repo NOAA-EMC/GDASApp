@@ -209,11 +209,12 @@
 
 
 #Step4: Thinning
+  {% if do_thinning | default(true) %}
   - filter: Gaussian Thinning
     filter variables:
     - name: brightnessTemperature
       channels: *{{observation_from_jcb}}_simulated_channels 
-    horizontal_mesh: 145
+    horizontal_mesh: {{default_horizontal_mesh}}
     use_reduced_horizontal_grid: true
     distance_norm: maximum 
     time_mesh: 'PT06H' 
@@ -222,6 +223,7 @@
     priority_variable: DerivedMetaData/thinningCriteria
     action:
       name: reject
+  {% endif %}
 
 #Step5: Surface type check
 # Reject channels 5-6 over land-dominant area 
