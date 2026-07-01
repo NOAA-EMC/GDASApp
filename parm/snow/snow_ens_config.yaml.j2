@@ -1,25 +1,25 @@
 jedi_config:
     esnowanlensmean:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_ESNOWANL }}'
         jedi_args: ['fv3jedi', 'ensmean']
         jcb_algo: 'fv3jedi_snow_ensmean'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/snow/jcb-base.yaml.j2'
     snowanlvar:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_ESNOWANL }}'
         jedi_args: ['fv3jedi', 'variational']
         jcb_algo: '3dvar'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/snow/jcb-base.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
     scf_to_ioda:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_scf_to_ioda.x'
+        exe_src: '{{ EXECglobal }}/gdas_fv3jedi_scf_to_ioda.x'
         mpi_cmd: '{{ APRUN_ESNOWANL }}'
         jcb_algo: 'snow_ims_scf_preprocess'
-        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/snow/jcb-base.yaml.j2'
 
 data_in:
     mkdir:

@@ -75,6 +75,13 @@ elif [[ $MACHINE_ID = gaea* ]] ; then
     fi
     module reset
 
+elif [[ $MACHINE_ID = derecho ]] ; then
+    # We are on NCAR derecho
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+        source /glade/u/apps/derecho/24.12/spack/opt/spack/lmod/8.7.37/gcc/12.4.0/nr3e/lmod/lmod/init/bash
+    fi
+    module --force purge
+
 elif [[ $MACHINE_ID = expanse* ]]; then
     # We are on SDSC Expanse
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -95,7 +102,16 @@ elif [[ $MACHINE_ID = noaacloud* ]]; then
 
 elif [[ $MACHINE_ID = container* ]]; then
     # We are on container 
-    source /usr/lmod/lmod/init/bash
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+        source /usr/lmod/lmod/init/bash
+    fi
+    module purge
+
+elif [[ $MACHINE_ID = aws-ec2* ]]; then
+    # We are on AWS ec2 
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+        source /usr/share/lmod/lmod/init/bash
+    fi
     module purge
 
 else

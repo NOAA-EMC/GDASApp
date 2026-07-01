@@ -1,10 +1,10 @@
 # Search path for model and obs for JCB
 # -------------------------------------
-algorithm_path: "{{PARMgfs}}/gdas/jcb-algorithms"
-app_path_algorithm: "{{PARMgfs}}/gdas/jcb-gdas/algorithm/atmosphere"
-app_path_model: "{{PARMgfs}}/gdas/jcb-gdas/model/atmosphere"
-app_path_observations: "{{PARMgfs}}/gdas/jcb-gdas/observations/atmosphere"
-app_path_observation_chronicle: "{{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/atmosphere"
+algorithm_path: "{{PARMglobal}}/gdas/jcb-algorithms"
+app_path_algorithm: "{{PARMglobal}}/gdas/jcb-gdas/algorithm/atmosphere"
+app_path_model: "{{PARMglobal}}/gdas/jcb-gdas/model/atmosphere"
+app_path_observations: "{{PARMglobal}}/gdas/jcb-gdas/observations/atmosphere"
+app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chronicle/atmosphere"
 
 
 # Places where we deviate from the generic file name of a yaml
@@ -90,7 +90,7 @@ rad_to_tb: false
 # Naming conventions for observational files
 
 atmosphere_obsdatain_path: "{{DATA}}/obs"
-atmosphere_obsdatain_script_path: "{{HOMEgfs}}/ush/spoc/atmosphere"
+atmosphere_obsdatain_script_path: "{{HOMEglobal}}/ush/spoc/atmosphere"
 atmosphere_obsdatain_prefix: "{{OPREFIX}}"
 atmosphere_obsdatain_suffix: ".nc"
 atmosphere_obsdatain_suffix_bufr: ".tm00.bufr_d"
@@ -101,32 +101,32 @@ atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 # Naming conventions for bias correction files
 
-atmosphere_obsbiasin_path: "{{DATA}}/obs/"
+atmosphere_obsbiasin_path: "{{DATA}}/bc_in/"
 atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
-atmosphere_obsbiasin_suffix: ".satbias.nc"
+atmosphere_obsbiasin_suffix: ".bias.nc"
 atmosphere_obstlapsein_prefix: "{{GPREFIX}}"
 atmosphere_obstlapsein_suffix: ".tlapse.txt"
 atmosphere_obsbiascovin_prefix: "{{GPREFIX}}"
 #atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
 atmosphere_obsbiascovin_suffix: ".satbias.nc"
 
-atmosphere_obsbiasout_path: "{{DATA}}/bc/"
+atmosphere_obsbiasout_path: "{{DATA}}/bc_out/"
 atmosphere_obsbiasout_prefix: "{{APREFIX}}"
-atmosphere_obsbiasout_suffix: ".satbias.nc"
+atmosphere_obsbiasout_suffix: ".bias.nc"
 atmosphere_obsbiascovout_prefix: "{{APREFIX}}"
 #atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
 atmosphere_obsbiascovout_suffix: ".satbias.nc"
 
 bias_files_dict:
-    radiance_atms_n20: rad_varbc_params.tar
-    radiance_atms_npp: rad_varbc_params.tar
-    radiance_mtiasi_metop-a: rad_varbc_params.tar
-    radiance_mtiasi_metop-b: rad_varbc_params.tar
-    radiance_amsua_n19: rad_varbc_params.tar
-    radiance_ssmis_f17: rad_varbc_params.tar
-    radiance_ssmis_f18: rad_varbc_params.tar
-    radiance_cris-fsr_n20: rad_varbc_params.tar
-    radiance_cris-fsr_npp: rad_varbc_params.tar
+    radiance_atms_n20: varbc_params.tar
+    radiance_atms_npp: varbc_params.tar
+    radiance_mtiasi_metop-a: varbc_params.tar
+    radiance_mtiasi_metop-b: varbc_params.tar
+    radiance_amsua_n19: varbc_params.tar
+    radiance_ssmis_f17: varbc_params.tar
+    radiance_ssmis_f18: varbc_params.tar
+    radiance_cris-fsr_n20: varbc_params.tar
+    radiance_cris-fsr_npp: varbc_params.tar
 
 # Local Ensemble DA (LETKF)
 # -------------------------

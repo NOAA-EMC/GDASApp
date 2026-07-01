@@ -6,9 +6,9 @@ srcdir=$2
 
 type="jjob_ens_init_split"
 
-# Set g-w HOMEgfs
+# Set g-w HOMEglobal
 topdir=$(cd "$(dirname "$(readlink -f -n "${bindir}" )" )/../../.." && pwd -P)
-export HOMEgfs=$topdir
+export HOMEglobal=$topdir
 
 # Set variables for ctest
 export PSLOT=gdas_test
@@ -27,24 +27,23 @@ export ACCOUNT=da-cpu
 
 # Set GFS COM paths
 export STRICT="NO"
-source "${HOMEgfs}/ush/preamble.sh"
-source "${HOMEgfs}/dev/parm/config/gfs/config.com"
+source "${HOMEglobal}/dev/parm/config/gfs/config.com"
 
 # Detect machine
-source "${HOMEgfs}/ush/detect_machine.sh"
+source "${HOMEglobal}/ush/detect_machine.sh"
 
-# Set up the PYTHONPATH to include wxflow from HOMEgfs
-if [[ -d "${HOMEgfs}/sorc/wxflow/src" ]]; then
-  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEgfs}/sorc/wxflow/src"
+# Set up the PYTHONPATH to include wxflow from HOMEglobal
+if [[ -d "${HOMEglobal}/sorc/wxflow/src" ]]; then
+  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEglobal}/sorc/wxflow/src"
 fi
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEgfs}/ush/python"
+wxflowPATH="${HOMEglobal}/ush/python"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
 export PYTHONPATH
 
 # Export library path
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEgfs}/lib"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEglobal}/lib"
 
 # Set date variables for previous cycle
 gPDY=$(date +%Y%m%d -d "${PDY} ${cyc} - 6 hours")
@@ -56,10 +55,8 @@ gprefix=$GDUMP.t${gcyc}z
 oprefix=$GDUMP.t${cyc}z
 
 # Generate COM variables from templates
-RUN=${GDUMP} YMD=${PDY} HH=${cyc} declare_from_tmpl -rx \
-   COMIN_OBS:COM_OBS_TMPL
-RUN=${GDUMP} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -rx \
-   COMIN_ATMOS_ANALYSIS_PREV:COM_ATMOS_ANALYSIS_TMPL \
+declare -rx COMIN_OBS="${ROTDIR}/${GDUMP}.${PDY}/${cyc}/obs"
+declare -rx COMIN_ATMOS_ANALYSIS_PREV="${ROTDIR}/${GDUMP}.${gPDY}/${gcyc}/analysis/atmos"
 
 # Link observations
 dpath=gdas.$PDY/$cyc/obs
@@ -86,8 +83,7 @@ dpath=enkfgdas.$gPDY/$gcyc
 for imem in $(seq 1 $NMEM_ENS); do
     memchar="mem"$(printf %03i $imem)
 
-    MEMDIR=${memchar} RUN=${RUN} YMD=${gPDY} HH=${gcyc} declare_from_tmpl -x \
-	COMIN_ATMOS_HISTORY_PREV_ENS:COM_ATMOS_HISTORY_TMPL
+    declare -x COMIN_ATMOS_HISTORY_PREV_ENS="${ROTDIR}/${RUN}.${gPDY}/${gcyc}/${memchar}/model/atmos/history"    
 
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
     target=$COMIN_ATMOS_HISTORY_PREV_ENS
@@ -117,20 +113,20 @@ fi
 config_yaml="./config_${type}.yaml"
 cat <<EOF > ${config_yaml}
 machine: ${MACHINE_ID}
-homegfs: ${HOMEgfs}
+homegfs: ${HOMEglobal}
 job_name: ${type}
 walltime: "00:30:00"
 nodes: 1
 ntasks_per_node: 1
 threads_per_task: 1
 memory: ${memory}
-command: ${HOMEgfs}/dev/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
+command: ${HOMEglobal}/dev/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 filename: submit_${type}.sh
 EOF
 
 # Create script to execute j-job
-$HOMEgfs/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
-SCHEDULER=$(echo `grep SCHEDULER ${HOMEgfs}/sorc/gdas.cd/test/workflow/hosts/${MACHINE_ID}.yaml | cut -d":" -f2` | tr -d ' ')
+$HOMEglobal/sorc/gdas.cd/test/workflow/generate_job_script.py ${config_yaml}
+SCHEDULER=$(echo `grep SCHEDULER ${HOMEglobal}/sorc/gdas.cd/test/workflow/hosts/${MACHINE_ID}.yaml | cut -d":" -f2` | tr -d ' ')
 
 # Submit script to execute j-job
 if [[ $SCHEDULER = 'slurm' ]]; then
@@ -138,5 +134,5 @@ if [[ $SCHEDULER = 'slurm' ]]; then
 elif [[ $SCHEDULER = 'pbspro' ]]; then
     qsub -V -W block=true submit_${type}.sh
 else
-    ${HOMEgfs}/dev/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
+    ${HOMEglobal}/dev/jobs/JGLOBAL_ATMENS_ANALYSIS_INITIALIZE
 fi
