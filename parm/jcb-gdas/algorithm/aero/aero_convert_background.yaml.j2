@@ -24,7 +24,7 @@ states:
 - input:
     datetime: '{{ aero_background_error_time_iso }}'
     filetype: fms restart
-  state variables: {{ aero_bmat_state_variables }}
+    state variables: {{ aero_bmat_state_variables }}
     field io names: {{ aero_field_io_names }}
     datapath: {{ aero_background_path }}
     filename_core: '{{ aero_background_error_time_fv3 }}.fv_core.res.nc'
