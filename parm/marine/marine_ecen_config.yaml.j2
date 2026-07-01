@@ -22,8 +22,8 @@ data_in:
     copy_req:
 {% for imem in range(1,NMEM_ENS+1) %}
     {% set memchar = 'mem%03d' | format(imem) %}
-    {% set ens_ice_restart = ROTDIR ~ '/enkfgdas.' ~ (previous_cycle | to_YMD) ~ '/' ~ (previous_cycle | strftime('%H')) ~ '/' ~ memchar ~ '/model/ice/restart' %}
-    - ['{{ ens_ice_restart }}/{{ cice_rst_date }}.cice_model.res.nc', '{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc']
+    {% set COMIN_ICE_RESTART_PREV_MEM = ROTDIR ~ '/enkfgdas.' ~ (previous_cycle | to_YMD) ~ '/' ~ (previous_cycle | strftime('%H')) ~ '/' ~ memchar ~ '/model/ice/restart' %}
+    - ['{{ COMIN_ICE_RESTART_PREV_MEM }}/{{ cice_rst_date }}.cice_model.res.nc', '{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc']
 {% endfor %}
 
 {% filter indent(width=4) %}
@@ -34,34 +34,34 @@ data_in:
 
 data_out:
     mkdir:
-    {% set ensstat_ocn_anl = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/ensstat/analysis/ocean' %}
-    {% set ensstat_ice_anl = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/ensstat/analysis/ice' %}
-    - '{{ ensstat_ocn_anl }}'
-    - '{{ ensstat_ice_anl }}'
+    {% set COMOUT_OCEAN_ENSTAT_ANALYSIS = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/ensstat/analysis/ocean' %}
+    {% set COMOUT_ICE_ENSTAT_ANALYSIS = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/ensstat/analysis/ice' %}
+    - '{{ COMOUT_OCEAN_ENSTAT_ANALYSIS }}'
+    - '{{ COMOUT_ICE_ENSTAT_ANALYSIS }}'
 
 {% for imem in range(1,NMEM_ENS+1) %}
-    {% set mem_ocn_anl = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/ocean' %}
-    {% set mem_ice_anl = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/ice' %}
-    - '{{ mem_ocn_anl }}'
-    - '{{ mem_ice_anl }}'
+    {% set COMOUT_OCEAN_ANALYSIS_MEM = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/ocean' %}
+    {% set COMOUT_ICE_ANALYSIS_MEM = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/ice' %}
+    - '{{ COMOUT_OCEAN_ANALYSIS_MEM }}'
+    - '{{ COMOUT_ICE_ANALYSIS_MEM }}'
 {% endfor %}
 
     copy_req:
 
 {% for imem in range(1,NMEM_ENS+1) %}
-    {% set mem_ocn_anl = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/ocean' %}
-    {% set mem_ice_anl = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/ice' %}
+    {% set COMOUT_OCEAN_ANALYSIS_MEM = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/ocean' %}
+    {% set COMOUT_ICE_ANALYSIS_MEM = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/ice' %}
 
     # ocean increments are saved as 0..n-1
-    - ['{{ DATA }}/ocn.recenter.ens.{{ (imem-1) | string }}.{{ WINDOW_END | to_isotime }}.PT0S.nc', '{{ mem_ocn_anl }}/{{ APREFIX_ENS }}mom6_increment.i006.nc']
+    - ['{{ DATA }}/ocn.recenter.ens.{{ (imem-1) | string }}.{{ WINDOW_END | to_isotime }}.PT0S.nc', '{{ COMOUT_OCEAN_ANALYSIS_MEM }}/{{ APREFIX_ENS }}mom6_increment.i006.nc']
 
     # ice restarts are saved as 1..n
-    - ['{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc', '{{ mem_ice_anl }}/{{ cice_rst_date }}.analysis.cice_model.res.nc']
+    - ['{{ DATA }}/ens/cice_model.res.{{ imem | string }}.nc', '{{ COMOUT_ICE_ANALYSIS_MEM }}/{{ cice_rst_date }}.analysis.cice_model.res.nc']
 {% endfor %}
 
-    {% set ensstat_ocn_anl = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/ensstat/analysis/ocean' %}
-    {% set ensstat_ice_anl = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/ensstat/analysis/ice' %}
-    - ['{{ DATA }}/ocn.ensvar.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ ensstat_ocn_anl }}/{{ APREFIX_ENS }}bg_ensvar.nc']
-    - ['{{ DATA }}/ice.ensvar.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ ensstat_ice_anl }}/{{ APREFIX_ENS }}bg_ensvar.nc']
-    - ['{{ DATA }}/ocn.ensmean.an.{{ WINDOW_END | to_isotime }}.nc', '{{ ensstat_ocn_anl }}/{{ APREFIX_ENS }}bg_ensmean.nc']
-    - ['{{ DATA }}/ice.ensmean.an.{{ WINDOW_END | to_isotime }}.nc', '{{ ensstat_ice_anl }}/{{ APREFIX_ENS }}bg_ensmean.nc']
+    {% set COMOUT_OCEAN_ANALYSIS_ENSTAT_MEM = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/ensstat/analysis/ocean' %}
+    {% set COMOUT_ICE_ANALYSIS_ENSTAT_MEM = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/ensstat/analysis/ice' %}
+    - ['{{ DATA }}/ocn.ensvar.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS_ENSTAT_MEM }}/{{ APREFIX_ENS }}bg_ensvar.nc']
+    - ['{{ DATA }}/ice.ensvar.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS_ENSTAT_MEM }}/{{ APREFIX_ENS }}bg_ensvar.nc']
+    - ['{{ DATA }}/ocn.ensmean.an.{{ WINDOW_END | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS_ENSTAT_MEM }}/{{ APREFIX_ENS }}bg_ensmean.nc']
+    - ['{{ DATA }}/ice.ensmean.an.{{ WINDOW_END | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS_ENSTAT_MEM }}/{{ APREFIX_ENS }}bg_ensmean.nc']

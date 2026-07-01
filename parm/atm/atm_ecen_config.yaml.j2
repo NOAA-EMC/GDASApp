@@ -32,8 +32,8 @@ data_in:
     - ["{{ COMIN_ATMOS_ANALYSIS }}/{{ APREFIX }}jedi_increment.atm.i{{ '%03d' % fh }}.tile6.nc", "{{ DATA }}/{{ APREFIX }}cubed_sphere_grid_atmi{{ '%03d' % fh }}.tile6.nc"]
 
 {% for imem in range(1,NMEM_ENS+1) %}
-    {% set ens_anl = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/atmos' %}
-    - ['{{ ens_anl }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i{{ '%03d' % fh }}.nc', '{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atmi{{ '%03d' % fh }}.nc']
+    {% set COM_ATMOS_ANALYSIS_MEM = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/atmos' %}
+    - ['{{ COM_ATMOS_ANALYSIS_MEM }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i{{ '%03d' % fh }}.nc', '{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atmi{{ '%03d' % fh }}.nc']
 
 {% endfor %}
 {% endfor %}
@@ -48,12 +48,12 @@ data_out:
     - ['{{ DATA }}/ensemble_recenter.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}ensemble_recenter.yaml']
 {% for fh in IAUFHRS %}
     {% for imem in range(1,NMEM_ENS+1) %}
-        {% set ens_anl = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/atmos' %}
-    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile1.nc', '{{ ens_anl }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile1.nc']
-    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile2.nc', '{{ ens_anl }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile2.nc']
-    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile3.nc', '{{ ens_anl }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile3.nc']
-    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile4.nc', '{{ ens_anl }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile4.nc']
-    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile5.nc', '{{ ens_anl }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile5.nc']
-    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile6.nc', '{{ ens_anl }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile6.nc']
+        {% set COMOUT_ATMOS_ANALYSIS_MEM = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/atmos' %}
+    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile1.nc', '{{ COMOUT_ATMOS_ANALYSIS_MEM }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile1.nc']
+    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile2.nc', '{{ COMOUT_ATMOS_ANALYSIS_MEM }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile2.nc']
+    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile3.nc', '{{ COMOUT_ATMOS_ANALYSIS_MEM }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile3.nc']
+    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile4.nc', '{{ COMOUT_ATMOS_ANALYSIS_MEM }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile4.nc']
+    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile5.nc', '{{ COMOUT_ATMOS_ANALYSIS_MEM }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile5.nc']
+    - ['{{ DATA }}/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_ratmi{{ '%03d' % fh }}.tile6.nc', '{{ COMOUT_ATMOS_ANALYSIS_MEM }}/{{ APREFIX_ENS }}recentered_jedi_increment.atm.i{{ '%03d' % fh }}.tile6.nc']
     {% endfor %}
 {% endfor %}
