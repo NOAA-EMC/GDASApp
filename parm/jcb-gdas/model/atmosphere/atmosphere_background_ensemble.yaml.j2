@@ -4,62 +4,8 @@ members from template:
     datetime: '{{ atmosphere_background_time_iso }}'
     filetype: cube sphere history
     provider: ufs
-    state variables:
-    - eastward_wind
-    - northward_wind
-    - air_temperature
-    - layer_thickness
-    - air_pressure_thickness
-    - air_pressure_at_surface
-    - water_vapor_mixing_ratio_wrt_moist_air
-    - cloud_liquid_ice
-    - cloud_liquid_water
-    - snow_water
-    - rain_water
-    - graupel
-    - cloud_ice_number_concentration
-    - rain_number_concentration
-    - ozone_mass_mixing_ratio
-    - geopotential_height_at_surface
-    - slmsk
-    - sheleg
-    - skin_temperature_at_surface
-    - vtype
-    - stype
-    - vfrac
-    - soilt
-    - soilm
-    - totalSnowDepthMeters
-    - eastward_wind_at_surface
-    - northward_wind_at_surface
-    - f10m
-    field io names:
-      eastward_wind: ugrd
-      northward_wind: vgrd
-      air_temperature: tmp
-      layer_thickness: delz
-      air_pressure_thickness: dpres
-      air_pressure_at_surface: pressfc
-      water_vapor_mixing_ratio_wrt_moist_air: spfh
-      cloud_liquid_ice: icmr
-      cloud_liquid_water: clwmr
-      snow_water: snmr
-      rain_water: rwmr
-      graupel: grle
-      cloud_ice_number_concentration: nccice
-      rain_number_concentration: nconrd
-      ozone_mass_mixing_ratio: o3mr
-      geopotential_height_at_surface: hgtsfc
-      slmsk: land
-      sheleg: weasd
-      skin_temperature_at_surface: tmpsfc
-      stype: sotyp
-      vfrac: veg
-      totalSnowDepthMeters: snod
-      eastward_wind_at_surface: ugrd_hyblev1
-      northward_wind_at_surface: vgrd_hyblev1
-      soilm: soilw1
-      soilt: soilt1
+    state variables: {{ atmosphere_ens_state_variables }}
+    field io names: {{ atmosphere_background_field_io_names }}
     datapath: {{ atmosphere_background_ensemble_path }}
     filename is datetime templated: true
     filenames:
