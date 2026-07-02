@@ -8,9 +8,9 @@
         {% set gmem = gmem-NMEM_ENS_MAX %}
     {% endif %}
     {% set ens_bkg_base = ROTDIR ~ '/' ~ GDUMP_ENS ~ '.' ~ (previous_cycle | to_YMD) ~ '/' ~ (previous_cycle | strftime('%H')) ~ '/mem' ~ '%03d' % gmem %}
-    {% set COMIN_OCEAN_HISTORY_PREV_MEM = ens_bkg_base ~ '/model/ocean/history' %}
-    {% set COMIN_ICE_HISTORY_PREV_MEM = ens_bkg_base ~ '/model/ice/history' %}
+    {% set COMIN_OCEAN_HISTORY_MEM_PREV = ens_bkg_base ~ '/model/ocean/history' %}
+    {% set COMIN_ICE_HISTORY_MEM_PREV = ens_bkg_base ~ '/model/ice/history' %}
 
-- ['{{ COMIN_OCEAN_HISTORY_PREV_MEM }}/{{ GPREFIX_ENS }}inst.f006.nc', '{{ DATAens }}/ens/ocean.{{ mem }}.nc']
-- ['{{ COMIN_ICE_HISTORY_PREV_MEM }}/{{ GPREFIX_ENS }}inst.f006.nc', '{{ DATAens }}/ens/ice.{{ mem }}.nc']
+- ['{{ COMIN_OCEAN_HISTORY_MEM_PREV }}/{{ GPREFIX_ENS }}inst.f006.nc', '{{ DATAens }}/ens/ocean.{{ mem }}.nc']
+- ['{{ COMIN_ICE_HISTORY_MEM_PREV }}/{{ GPREFIX_ENS }}inst.f006.nc', '{{ DATAens }}/ens/ice.{{ mem }}.nc']
 {% endfor %}

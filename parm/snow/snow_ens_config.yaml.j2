@@ -43,38 +43,38 @@ data_in:
         {% set gmem = gmem-NMEM_ENS_MAX %}
     {% endif %}
     # Construct per-member restart path for the previous enkfgdas cycle directly.
-    {% set COMIN_ATMOS_RESTART_PREV_MEM = ROTDIR ~ '/enkfgdas.' ~ (previous_cycle | to_YMD) ~ '/' ~ (previous_cycle | strftime('%H')) ~ '/mem' ~ '%03d' % gmem ~ '/model/atmos/restart' %}
+    {% set COMIN_ATMOS_RESTART_MEM_PREV = ROTDIR ~ '/enkfgdas.' ~ (previous_cycle | to_YMD) ~ '/' ~ (previous_cycle | strftime('%H')) ~ '/mem' ~ '%03d' % gmem ~ '/model/atmos/restart' %}
 
     # copy coupler file
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
     # we need to copy them to two places, one serves as the basis for the analysis
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
     {% if DOIAU %}
         # if using IAU, also need backgrounds copied at the beginning of the window
         # we need to copy them to two places, one serves as the basis for the analysis
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
-    - ['{{ COMIN_ATMOS_RESTART_PREV_MEM }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_MEM_PREV }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
     {% endif %}
 {% endfor %}
 
