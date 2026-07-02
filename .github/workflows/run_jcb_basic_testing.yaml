@@ -99,7 +99,7 @@ jobs:
         cat > jcb_clients.yaml << EOF
         gdas:
           git_url: noaa-emc/gdasapp
-          git_ref: ${{ env.JCB_APP_BRANCH }}
+          git_ref: develop
           app_subdir: parm/jcb-gdas
         EOF
 
