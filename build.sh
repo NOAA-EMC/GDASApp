@@ -81,6 +81,7 @@ case ${BUILD_TARGET} in
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET.$COMPILER
+    export pybind11_DIR=/apps/prod/ve/intel/19.1.3.304/python/3.12.0/gfs/17.0/lib/python3.12/site-packages/pybind11/share/cmake/pybind11
     if [[ ${BUILD_TARGET} == 'wcoss2' ]]; then
       if [[ -v FMS_ROOT ]]; then
         export fms_ROOT=${FMS_ROOT}
