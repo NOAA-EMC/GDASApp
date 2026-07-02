@@ -41,11 +41,51 @@ marine_stddev_time: '2024-01-31T21:00:00Z'
 # Background
 marine_background_time: '2024-01-31T21:00:00Z'
 marine_background_path: DATA/bkg
+marine_det_state_variables:
+- sea_ice_area_fraction
+- sea_ice_thickness
+- sea_ice_snow_thickness
+- sea_water_salinity
+- sea_water_potential_temperature
+- sea_surface_height_above_geoid
+- air_temperature
+- bulk_ice_salinity
+- sea_water_cell_thickness
+- sea_water_depth
+- ocean_mixed_layer_thickness
+- snow_ice_surface_temperature
+marine_det_increment_variables:
+- sea_ice_area_fraction
+- sea_ice_thickness
+- sea_ice_snow_thickness
+- sea_water_salinity
+- sea_water_potential_temperature
+- sea_surface_height_above_geoid
+marine_saber_central_block_variables:
+- sea_ice_area_fraction
+- sea_water_salinity
+- sea_water_potential_temperature
+- sea_surface_height_above_geoid
+marine_window_begin: '2024-01-31T21:00:00Z'
+marine_window_begin_iso: '2024-01-31T21:00:00Z'
+marine_window_middle_iso: '2024-02-01T00:00:00Z'
+marine_window_end_iso: '2024-02-01T03:00:00Z'
+marine_enspert_relpath: ./anl
+marine_cice_date_fms: '2024-02-01-000000'
 
 
 # Background error
 marine_window_middle: '2024-02-01T00:00:00Z'
 marine_number_ensemble_members: 3
+marine_number_ensemble_members_per_mpi: 1
+marine_ensemble_b: false
+marine_obsdatastats_path: DATA/diags/stats
+marine_output_dir: Data
+marine_output_exp: 3dvarfgat_pseudo
+marine_output_freq: PT3H
+marine_final_increment_dir: Data
+marine_final_increment_exp: 3dvarfgat_pseudo
+marine_config_path: DATA/conf
 
 # Forecasting
 marine_forecast_timestep: PT1H
@@ -88,6 +128,14 @@ marine_obsdataout_suffix: "_2024020100.nc"
 # Local Ensemble DA (LETKF)
 # -------------------------
 local_ensemble_da_solver: Deterministic GETKF
+marine_ens_state_variables:
+- sea_ice_area_fraction
+- sea_water_salinity
+- sea_water_potential_temperature
+- sea_surface_height_above_geoid
+- sea_water_cell_thickness
+- eastward_sea_water_velocity
+- northward_sea_water_velocity
 
 increment_variables: [cicen, hicen, hsnon, socn, tocn, uocn, vocn, ssh]
 
