@@ -163,3 +163,17 @@ driver_save_posterior_ensemble_increments: true
 # Diagnostics
 atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
 atmosphere_posterior_output_gaussian: "./mem%{member}%/atmanl."
+
+# Add to atmosphere-oriented test YAML configuration files
+atmosphere_det_state_variables:
+  - ua
+  - va
+  - t
+atmosphere_ens_state_variables:
+  - ua
+  - va
+  - t
+atmosphere_jedi2fv3inc_state_variables:
+  - ua
+  - va
+  - t
