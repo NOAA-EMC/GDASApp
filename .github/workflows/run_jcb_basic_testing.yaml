@@ -128,7 +128,7 @@ jobs:
           atmosphere_jedi2fv3inc_state_variables: [ua, va, t]
           marine_det_state_variables: [sst, sea_ice]
         EOF
-	
+
     - name: Run the JCB client integration tests
       run: |
         cd jcb_repo/test/client_integration
