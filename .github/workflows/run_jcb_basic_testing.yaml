@@ -76,13 +76,16 @@ jobs:
           # is simply create a branch with the same name (even if empty) in the main jcb repo. This
           # will ensure the branches of the other applications are checked out by the init script.
 
-          if [ "${{ env.JCB_BRANCH }}" == "develop" ]; then
+          if [ "$JCB_BRANCH" == "develop" ]; then
             echo "Branch $BRANCH_NAME exists in jcb-algorithms repo but not in the main jcb repo. "
             echo "Please create a branch with the same name (even if empty with no PR) in the main "
             echo "jcb repo. This ensures safely checking all the clients that depend on the "
             echo "jcb and jcb-algorithms repos with the changes being proposed."
             exit 1
           fi
+        else
+          # keep repos aligned when no feature branch exists in algorithms
+          echo "JCB_ALGO_BRANCH=develop" >> $GITHUB_ENV
         fi
 
     - name: Clone jcb repository
