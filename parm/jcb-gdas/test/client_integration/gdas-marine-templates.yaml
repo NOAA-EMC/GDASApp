@@ -110,8 +110,3 @@ driver_save_posterior_ensemble_increments: true
 # Diagnostics
 marine_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
 marine_posterior_output_gaussian: "./mem%{member}%/atmanl."
-
-# Add to marine-oriented test YAML configuration files
-marine_det_state_variables:
-  - sst
-  - sea_ice
