@@ -114,6 +114,21 @@ jobs:
         cd jcb_repo
         pip install .[testing]
 
+    - name: Patch JCB test templates with centralized variables
+      run: |
+        cat > jcb_repo/test/client_integration/gdas-atmosphere-templates.yaml << EOF
+          atmosphere_det_state_variables: [ua, va, t]
+          atmosphere_ens_state_variables: [ua, va, t]
+          atmosphere_jedi2fv3inc_state_variables: [ua, va, t]
+          marine_det_state_variables: [sst, sea_ice]
+        EOF
+        cat > jcb_repo/test/client_integration/gdas-marine-templates.yaml << EOF
+          atmosphere_det_state_variables: [ua, va, t]
+          atmosphere_ens_state_variables: [ua, va, t]
+          atmosphere_jedi2fv3inc_state_variables: [ua, va, t]
+          marine_det_state_variables: [sst, sea_ice]
+        EOF
+	
     - name: Run the JCB client integration tests
       run: |
         cd jcb_repo/test/client_integration
