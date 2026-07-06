@@ -20,9 +20,7 @@
         state variables:
         - filtered_orography
         - fraction_of_land
-        field io names:
-          filtered_orography: orog_filt
-          fraction_of_land: land_frac
+        field io names: {{ snow_field_io_names }}
         datapath: {{ snow_orog_files_path }}/
         filename_orog: {{ snow_orog_prefix }}_oro_data.nc
   diagnostics:
