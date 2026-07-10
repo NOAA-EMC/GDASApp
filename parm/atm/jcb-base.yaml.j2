@@ -213,6 +213,9 @@ atmosphere_obsbiasout_suffix: ".satbias.nc"
 atmosphere_obsbiascovout_prefix: "{{APREFIX}}"
 atmosphere_obsbiascovout_suffix: ".bias_cov.nc"
 
+distribution: "RoundRobin"
+empty_obs_space_action: "create output"
+
 bias_files_dict:
     radiance_atms_n20: varbc_params.tar
     radiance_atms_npp: varbc_params.tar
@@ -223,6 +226,10 @@ bias_files_dict:
     radiance_ssmis_f18: varbc_params.tar
     radiance_cris-fsr_n20: varbc_params.tar
     radiance_cris-fsr_npp: varbc_params.tar
+
+# Analysis iuse flag (default: passivate)
+# Upper-air conventional
+iuse_adpupa_airTemperature: "accept"
 
 # Local Ensemble DA (LETKF)
 # -------------------------
