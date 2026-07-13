@@ -165,8 +165,6 @@
   - filter: Spike and Step Check
     independent: MetaData/depth
     dependent: ObsValue/waterTemperature
-    tolerance:
-      nominal value: 0.05
     count spikes: false
     count steps: true
     tolerance:
@@ -213,6 +211,15 @@
           # sigo_total = 1.0 + (-0.00045)*depth + 0.1*sigo_original
           coefs:     [-0.00045, 0.1]
           intercept: 1.0
+
+  # Relative check against the final effective error: rejects the bogus
+  # H(x) extrapolation below the deepest model level on steep bathymetry,
+  # which passes the absolute check and the depth vs sea_floor_depth check
+  # (the sea_floor_depth GeoVaL over-estimates the column depth there)
+  - filter: Background Check
+    filter variables:
+    - name: waterTemperature
+    threshold: 5.0
 
 
 {% if marine_letkf_app | default(false) %}

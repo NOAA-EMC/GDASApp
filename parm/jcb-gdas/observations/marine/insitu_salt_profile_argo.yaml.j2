@@ -207,8 +207,8 @@
       error parameter: 0.05
 
   # Linear decay from surface to 2000m depth:
-  #    - minimum error of 0.1K at 2000m (and below)
-  #    - maximum error of 1.0K at surface
+  #    - minimum error of ~0.05 PSU at 2000m (and below)
+  #    - maximum error of 0.5 PSU at surface
   # original error is rescaled and added to reflect the out of window error
   - filter: Perform Action
     where:
@@ -221,9 +221,20 @@
         name: ObsFunction/Arithmetic
         options:
           variables: [MetaData/depth, ObsError/salinity]
-          # sigo_total = 0.5 + (-0.00045)*depth + 0.1*sigo_original
-          coefs:     [-0.00025, 0.1]
+          # sigo_total = 0.5 + (-0.000225)*depth + 0.1*sigo_original
+          # note: a slope of -0.00025 zeroes the error at 2000m, giving deep
+          # obs ~0.001 PSU errors and O(1000 sigma) departures
+          coefs:     [-0.000225, 0.1]
           intercept: 0.5
+
+  # Relative check against the final effective error: rejects the bogus
+  # H(x) extrapolation below the deepest model level on steep bathymetry,
+  # which passes the absolute check and the depth vs sea_floor_depth check
+  # (the sea_floor_depth GeoVaL over-estimates the column depth there)
+  - filter: Background Check
+    filter variables:
+    - name: salinity
+    threshold: 5.0
 
 
 {% if marine_letkf_app | default(false) %}
