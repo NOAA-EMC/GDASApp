@@ -7,12 +7,6 @@ jedi_config:
         jcb_base_yaml: '{{ PARMgdas }}/soil/jcb-base.yaml.j2'
         jcb_algo: '3dvar'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
-    soilanladdinc:
-        rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgdas }}/fv3jedi_addincrement.x'
-        mpi_cmd: '{{ APRUN_SOIL_ADDINC }}'
-        jcb_base_yaml: '{{ PARMgdas }}/soil/jcb-base.yaml.j2'
-        jcb_algo: 'soil_addincrement'
 
 data_in:
     mkdir:
@@ -24,6 +18,11 @@ data_in:
     - '{{ DATA }}/berror'
 
     copy_req:
+
+{% if  soil_file_type == 'csg'  %}
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_atm.f006.nc']
+    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_sfc.f006.nc']
+{% else %}
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/']
@@ -31,13 +30,13 @@ data_in:
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/']
-
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile1.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile1.nc" ]
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile2.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile2.nc" ]
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile3.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile3.nc" ]
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile4.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile4.nc" ]
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile5.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile5.nc" ]
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile6.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile6.nc" ]
+{% endif %}
 
 {% filter indent(width=4) %}
 {% include 'soil_stage_jedi_fix.yaml.j2' %}
@@ -45,9 +44,6 @@ data_in:
 {% endfilter %}
 
     copy_opt:
-    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_atm.f006.nc']
-    - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_sfc.f006.nc']
-
 #    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h-12.smap_soil.nc', '{{ DATA }}/obs']
 #    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h-6.smap_soil.nc', '{{ DATA }}/obs']
 #    - ['{{ COMIN_OBS }}/{{ OPREFIX }}h0.smap_soil.nc', '{{ DATA }}/obs']
@@ -62,30 +58,28 @@ data_out:
     - ['{{ DATA }}/soilanladdinc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanladdinc.yaml']
 #    - ['{{ DATA }}/soil_obs_list.yaml.j2', '{{ COMOUT_CONF }}/{{ APREFIX }}soil_obs_list.yaml.j2']
 
-{% if DOIAU %}
-    {% set bkgtimes = [ current_cycle, WINDOW_BEGIN ] %}
-{% else %}
-    {% set bkgtimes = [ current_cycle ] %}
-{% endif %}
-
-{% for bkgtime in bkgtimes %}
+{% if  soil_file_type == 'csg'  %}
+    # Increments
+    - ['{{ DATA }}/anl/soilinc_{{ GPREFIX }}csg_sfc.f006.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.csg_sfc.nc']
     # Analysis = bkg + inc
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc']
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc']
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc']
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc']
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc']
-    - ['{{ DATA }}/anl/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc']
-{% endfor %}
-
-    copy_opt:
-    # Increments  TODO: make this _req once choice between csg and fv3 finalized 
+    - ['{{ DATA }}/anl/{{ GPREFIX }}csg_sfc.f006.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.csg_sfc.nc']
+{% else %}
+    # Analysis = bkg + inc
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc']
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc']
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc']
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc']
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc']
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc']
+    # Increments   
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile1.nc']
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
@@ -98,6 +92,4 @@ data_out:
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile5.nc']
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc',
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile6.nc']
-
-    - ['{{ DATA }}/anl/soilinc_{{ GPREFIX }}csg_sfc.f006.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.csg_sfc.nc']
+{% endif %}

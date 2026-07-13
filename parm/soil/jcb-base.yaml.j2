@@ -12,6 +12,7 @@ model_file: model_pseudo
 initial_condition_file: background  # Initial conditions for 4D apps is background
 # file type csg or fms
 {% set _file_type = 'csg' %}
+soil_file_type: {{ _file_type }}
 final_increment_file: soil_final_increment_{{ _file_type }}
 output_mean_prior_file: soil_output_mean_prior_{{ _file_type }}
 posterior_output_file: soil_posterior_output_{{ _file_type }}
