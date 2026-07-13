@@ -10,13 +10,15 @@ app_path_observation_chronicle: "{{PARMgdas}}/jcb-gdas/observation_chronicle/soi
 # ------------------------------------------------------------
 model_file: model_pseudo
 initial_condition_file: background  # Initial conditions for 4D apps is background
-final_increment_file: soil_final_increment_csg
-output_mean_prior_file: soil_output_mean_prior_fms
-posterior_output_file: soil_posterior_output_fms
-output_ensemble_increments_file: soil_ensemble_increments_csg
-output_increment_file: soil_output_increment_csg
-output_variance_prior_file: soil_output_variance_prior_fms
-output_variance_posterior_file: soil_output_variance_posterior_fms
+# file type csg or fms
+{% set _file_type = 'csg' %}
+final_increment_file: soil_final_increment_{{ _file_type }}
+output_mean_prior_file: soil_output_mean_prior_{{ _file_type }}
+posterior_output_file: soil_posterior_output_{{ _file_type }}
+output_ensemble_increments_file: soil_ensemble_increments_{{ _file_type }}
+output_increment_file: soil_output_increment_{{ _file_type }}
+output_variance_prior_file: soil_output_variance_prior_{{ _file_type }}
+output_variance_posterior_file: soil_output_variance_posterior_{{ _file_type }}
 #jedi_increment_output: gaussian
 
 # Assimilation window
@@ -37,15 +39,58 @@ soil_increment_time_fv3: "{{ bkg_time_fv3 }}"
 
 # Analysis standard things
 # ------------------------
-analysis_variables: [soill1, soill2, soilt1, soilt2]    #soilMoistureVolumetric, slc, stc, air_temperature_at_2m]
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
 cost_type: 3D-Var
 number_of_outer_loops: 1
 
+# Analysis variables
+{% set _analysis_vars_csg = ['soill1', 'soill2', 'soilt1', 'soilt2', 'air_temperature_at_2m', 'specfic_humidity_at_2m'] %}
+{% set _analysis_vars_fv3 = ['soilMoistureVolumetric', 'stc', 'air_temperature_at_2m', 'specfic_humidity_at_2m'] %}
+
+{% if  _file_type == 'csg'  %}
+    analysis_variables: {{ _analysis_vars_csg }}
+{% else %}
+    analysis_variables: {{ _analysis_vars_fv3 }}
+{% endif %}
+
 # Model things
 # ------------
+
+# State variables
+soil_state_variables_csg: {{ _analysis_vars_csg + ['slmsk', 'sheleg', 'vtype', 'stype', 'vfrac'] }}
+soil_state_variables_fv3: {{ _analysis_vars_fv3 + ['slmsk',
+                                                       'sheleg',
+                                                       'vtype',
+                                                       'filtered_orography',
+                                                       'fraction_of_ice'
+                                                       'fraction_of_land',
+                                                       'totalSnowDepth'] }}
+
+# Increment variables
+soil_increment_variables_csg:       {{ _analysis_vars_csg }}
+soil_increment_variables_fv3:       {{ _analysis_vars_fv3 }}
+soil_increment_variables_final_csg: {{ _analysis_vars_csg }} + ['slmsk', 'sheleg', 'vtype', 'stype', 'vfrac'] }}
+soil_increment_variables_final_fv3: {{ _analysis_vars_fv3 }} + ['slmsk', 'sheleg', 'vtype', 'totalSnowDepth'] }}
+
+
+# Variable IO names
+soil_field_io_names_csg:
+    air_temperature_at_2m: tmp2m
+    specfic_humidity_at_2m: spfh2m
+    slmsk: land
+    sheleg: weasd
+    stype: sotyp
+    vfrac: veg
+
+soil_field_io_names_fv3:
+    soilMoistureVolumetric: smc
+    totalSnowDepth: snodl
+    filtered_orography: orog_filt
+    fraction_of_ice: fice
+    fraction_of_land: land_frac
+
 # Geometry
 soil_layout_x: {{ layout_x | default(1, true) }}
 soil_layout_y: {{ layout_y | default(1, true) }}
@@ -57,7 +102,6 @@ soil_npy_anl: {{ npy_ges | default(49, true) }}
 soil_npz_anl: {{ npz_ges | default(127, true) }}
 
 soil_variational_history_prefix: "{{ GPREFIX }}"
-soil_ensemble_history_prefix: "{{ GPREFIX_ENS }}"
 
 soil_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
 soil_orog_files_path: "{{ soil_bkg_path }}"
@@ -65,17 +109,15 @@ soil_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
 soil_background_path: {{ soil_bkg_path }}
-soil_background_ensemble_path: ./bkg/mem%mem%
-background_file: soil_background_csg
+#background_file: soil_background_csg
 
 # Background error
 soil_bump_data_directory: "{{ DATA }}/berror"
-
-soil_background_error_file: "{{BERROR_YAML}}"
-background_error_file: "{{BERROR_YAML}}"
+soil_background_error_file: "{{ BERROR_YAML }}"
+#background_error_file: "{{BERROR_YAML}}"
 
 # Forecasting
-soil_forecast_length: "{{ SNOW_WINDOW_LENGTH }}"
+soil_forecast_length: "{{ SOIL_FORECAST_LENGTH }}"
 soil_forecast_timestep: "{{ BKG_TSTEP }}"
 
 # Observation things
@@ -96,8 +138,6 @@ soil_obsdataout_prefix: diag_
 soil_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 # Naming conventions for bias correction files
-# note these are really for atm--see below//most may not be applicable for sfc-only DA
-##TODO: not sure which of these are needed
 soil_obsbiasin_path: "{{DATA}}/obs/"
 soil_obsbiasin_prefix: "{{GPREFIX}}"
 soil_obsbiasin_suffix: ".satbias.nc"
@@ -112,17 +152,23 @@ soil_obsbiasout_suffix: ".satbias.nc"
 soil_obsbiascovout_prefix: "{{APREFIX}}"
 soil_obsbiascovout_suffix: ".satbias_cov.nc"
 
-# Ensemble mean things
+# Ensemble things
 soil_number_ensemble_members: {{NMEM_ENS | default(1, true) }}
+soil_background_ensemble_path: ./bkg/mem%mem%
 soil_analysis_ensemble_path: ./anl/mem%mem%
+soil_ensemble_history_prefix: "{{ GPREFIX_ENS }}"
+soil_ensemble_analysis_prefix: "{{ APREFIX_ENS }}"
 
 # Local Ensemble DA (LETKF)
 # -------------------------
-local_ensemble_da_solver: Deterministic LETKF   #GETKF
+local_ensemble_da_solver: Deterministic LETKF  #GETKF
 
-increment_variables: [soill1, soill2, soilt1, soilt2, air_temperature_at_2m, specfic_humidity_at_2m]
-#soilMoistureVolumetric,slc,stc,air_temperature_at_2m,specfic_humidity_at_2m] #, smc, sphum] 
-#[ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
+increment_variables: {{ analysis_variables }}  
+{% if  _file_type == 'csg'  %}
+    increment_variables: {{ _analysis_vars_csg }}
+{% else %}
+    increment_variables: {{ _analysis_vars_fv3 }}
+{% endif %}
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
