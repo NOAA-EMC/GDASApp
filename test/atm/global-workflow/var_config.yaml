@@ -1,0 +1,13 @@
+var:
+    rundir: './'
+    mpi_cmd: 'srun -n 6'
+    exe_src: '{{ HOMEgdas }}/exec/gdas.x'
+    jedi_args: ['fv3jedi', 'variational']
+    jcb_algo: '3dvar'
+    obs_list: ['radiance_amsua_n19', 'sondes']
+    app_test:
+        do_testing: true
+        test_reference_filename: '{{ HOMEgdas }}/test/testreference/atm_jjob_3dvar.ref'
+        test_output_filename: '{{ HOMEgdas }}/build/gdas/test/testoutput/atm_jjob_3dvar.test.out'
+        test_float_relative_tolerance: 1.0e-3
+        test_float_absolute_tolerance: 1.0e-5
