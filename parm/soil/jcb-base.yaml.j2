@@ -60,7 +60,9 @@ number_of_outer_loops: 1
 # ------------
 
 # State variables
-soil_state_variables_csg: {{ _analysis_vars_csg + ['slmsk', 'sheleg', 'vtype', 'stype', 'vfrac'] }}
+soil_state_variables_csg: {{ _analysis_vars_csg + ['slmsk', 'sheleg', 'vtype', 'stype', 'vfrac',
+                                                   'geopotential_height_at_surface',
+                                                   'skin_temperature_at_surface'] }}
 soil_state_variables_fv3: {{ _analysis_vars_fv3 + ['slmsk',
                                                        'sheleg',
                                                        'vtype',
@@ -84,6 +86,8 @@ soil_field_io_names_csg:
     sheleg: weasd
     stype: sotyp
     vfrac: veg
+    geopotential_height_at_surface: hgtsfc
+    skin_temperature_at_surface: tmpsfc
 
 soil_field_io_names_fv3:
     soilMoistureVolumetric: smc
