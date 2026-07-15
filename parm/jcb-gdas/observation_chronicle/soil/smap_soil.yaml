@@ -10,7 +10,7 @@ window_option: max
 # observation type initial configuration
 # --------------------------------
 stations_to_reject:
-  totalSnowDepth: ['fakelist']
+  soill1: ['fakelist']
 
 # Chronicle of changes for this observation type
 # ----------------------------------------
