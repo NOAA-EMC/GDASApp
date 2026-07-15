@@ -21,33 +21,16 @@ increment geometry:
   npy: {{ soil_npy_anl }}
   npz: {{ soil_npz_anl }}
 state:
+  state variables: {{ soil_state_variables_fv3 }}
+  field io names: {{ soil_field_io_names_fv3 }}
   datapath: ./bkg
   filetype: fms restart
   skip coupler file: true
   datetime: '{{ soil_background_time_iso }}'
   filename_sfcd: {{ soil_background_time_fv3 }}.sfc_data.nc
-  state variables: &statevars
-  - soilMoistureVolumetric
-  - totalSnowDepth
-  - fraction_of_ice
-  - sheleg
-  - stc
-  - slmsk
-  - vtype
-  - air_temperature_at_2m
-  - specfic_humidity_at_2m
-  - slc
-  field io names: &fionames
-    soilMoistureVolumetric: smc
-    totalSnowDepth: snodl
-    fraction_of_ice: fice
-    air_temperature_at_2m: t2m
-    specfic_humidity_at_2m: q2m
 increment:
-  added variables:
-  - soilMoistureVolumetric
-  field io names:
-    soilMoistureVolumetric: smc
+  added variables: {{ soil_increment_variables_fv3 }}
+  field io names: {{ soil_field_io_names_fv3 }}
   datapath: ./anl
   filetype: fms restart
   skip coupler file: true
@@ -63,5 +46,5 @@ output:
   filename is datetime templated: true
   datetime: '{{ soil_background_time_iso }}'
   filename_sfcd: {{ soil_background_time_fv3 }}.sfc_data.nc
-  state variables: *statevars
-  field io names: *fionames
+  state variables: {{ soil_increment_variables_fv3 }}
+  field io names: {{ soil_field_io_names_fv3 }}

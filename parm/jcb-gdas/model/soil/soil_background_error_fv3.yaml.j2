@@ -12,21 +12,18 @@ saber central block:
       resolution: 4
       explicit length-scales: true
       horizontal length-scale:
-      - groups:
-        - soilMoistureVolumetric
+      - groups: {{ soil_det_increment_variables }}
         value: 1000000.0
       vertical length-scale:
-      - groups:
-        - soilMoistureVolumetric
+      - groups: {{ soil_det_increment_variables }}
         value: 1500.0
       interpolation type:
-      - groups:
-        - soilMoistureVolumetric
+      - groups: {{ soil_det_increment_variables }}
         type: c0
       same horizontal convolution: true
     io:
       data directory: ./berror 
-      files prefix: smc_bump_nicas_1000km.nc  
+      files prefix: smc_bump_nicas_1000km_{{ soil_background_time_fv3 }}
 saber outer blocks:
 - saber block name: BUMP_StdDev
   read:
@@ -35,6 +32,5 @@ saber outer blocks:
     variance:
       explicit stddev: true
       stddev:
-      - variables:
-        - soilMoistureVolumetric
-        value: 0.05
+      - variables: {{ soil_det_increment_variables }}
+        value: 0.2

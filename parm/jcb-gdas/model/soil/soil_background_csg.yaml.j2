@@ -3,33 +3,8 @@ filetype: cube sphere history
 provider: ufs
 datetime: '{{ soil_background_time_iso }}'
 filenames:
-#- {{ soil_variational_history_prefix }}csg_atm.f006.nc
+- {{ soil_variational_history_prefix }}csg_atm.f006.nc
 - {{ soil_variational_history_prefix }}csg_sfc.f006.nc    
 max allowable geometry difference: 1e-4
-state variables:
-- soill1
-- soill2
-- soill3
-- soilt1
-- soilt2
-- soilt3
-- air_temperature_at_2m
-- specfic_humidity_at_2m
-- sheleg
-- vtype
-- slmsk
-#- stype
-#- vfrac
-#- geopotential_height_at_surface
-#- skin_temperature_at_surface
-#filtered_orography
-field io names:
-  #filtered_orography: orog_filt
-  air_temperature_at_2m: tmp2m
-  specfic_humidity_at_2m: spfh2m
-  slmsk: land
-  sheleg: weasd
-  #geopotential_height_at_surface: hgtsfc
-  #skin_temperature_at_surface: tmpsfc
-  #stype: sotyp
-  #vfrac: veg
+state variables: {{ soil_state_variables_csg }}
+field io names: {{ soil_field_io_names_csg }}
