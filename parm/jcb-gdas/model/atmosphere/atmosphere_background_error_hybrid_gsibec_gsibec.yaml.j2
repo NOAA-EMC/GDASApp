@@ -28,7 +28,8 @@ saber outer blocks:
     local interpolator type: oops unstructured grid interpolator
   state variables to inverse: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,
                                water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,
-                               snow_water,rain_water,graupel,ozone_mass_mixing_ratio]
+                               snow_water,rain_water,graupel,ozone_mass_mixing_ratio,
+                               geopotential_height_at_surface,skin_temperature_at_surface]
 linear variable change:
   linear variable change name: Control2Analysis
   input variables:
@@ -43,6 +44,8 @@ linear variable change:
   - rain_water
   - graupel
   - mole_fraction_of_ozone_in_air
+  - geopotential_height_at_surface
+  - skin_temperature_at_surface
   output variables:
   - eastward_wind
   - northward_wind
@@ -55,3 +58,5 @@ linear variable change:
   - rain_water
   - graupel
   - ozone_mass_mixing_ratio
+  - geopotential_height_at_surface
+  - skin_temperature_at_surface
