@@ -1,10 +1,11 @@
 # Search path for model and obs for JCB
 # -------------------------------------
-algorithm_path: "{{PARMgdas}}/jcb-algorithms"
-app_path_algorithm: "{{PARMgdas}}/jcb-gdas/algorithm/soil"
-app_path_model: "{{PARMgdas}}/jcb-gdas/model/soil"
-app_path_observations: "{{PARMgdas}}/jcb-gdas/observations/soil"
-app_path_observation_chronicle: "{{PARMgdas}}/jcb-gdas/observation_chronicle/soil"
+algorithm_path: "{{PARMglobal}}/gdas/jcb-algorithms"
+app_path_algorithm: "{{PARMglobal}}/gdas/jcb-gdas/algorithm/soil"
+app_path_model: "{{PARMglobal}}/gdas/jcb-gdas/model/soil"
+app_path_observations: "{{PARMglobal}}/gdas/jcb-gdas/observations/soil"
+app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chronicle/soil"
+
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
@@ -50,32 +51,26 @@ number_of_outer_loops: 1
 {% set _analysis_vars_csg = ['soill1', 'soill2', 'soilt1', 'soilt2', 'air_temperature_at_2m', 'specfic_humidity_at_2m'] %}
 {% set _analysis_vars_fv3 = ['soilMoistureVolumetric', 'stc', 'air_temperature_at_2m', 'specfic_humidity_at_2m'] %}
 
-{% if  _file_type == 'csg'  %}
-    analysis_variables: {{ _analysis_vars_csg }}
-{% else %}
-    analysis_variables: {{ _analysis_vars_fv3 }}
-{% endif %}
+#{% if  _file_type == 'csg'  %}
+analysis_variables: {{ _analysis_vars_csg }}
+#{% else %}
+#    analysis_variables: {{ _analysis_vars_fv3 }}
+#{% endif %}
 
 # Model things
 # ------------
 
 # State variables
-soil_state_variables_csg: {{ _analysis_vars_csg + ['slmsk', 'sheleg', 'vtype', 'stype', 'vfrac',
-                                                   'geopotential_height_at_surface',
-                                                   'skin_temperature_at_surface'] }}
-soil_state_variables_fv3: {{ _analysis_vars_fv3 + ['slmsk',
-                                                       'sheleg',
-                                                       'vtype',
-                                                       'filtered_orography',
-                                                       'fraction_of_ice'
-                                                       'fraction_of_land',
-                                                       'totalSnowDepth'] }}
+soil_state_variables_csg: ['soill1', 'soill2', 'soilt1', 'soilt2', 'air_temperature_at_2m', 'specfic_humidity_at_2m', 'slmsk', 'sheleg', 'vtype', 'stype', 'vfrac','geopotential_height_at_surface', 'skin_temperature_at_surface']
+#soil_state_variables_csg: {{ _analysis_vars_csg + ['slmsk', 'sheleg', 'vtype', 'stype', 'vfrac','geopotential_height_at_surface', 'skin_temperature_at_surface'] }}
+#soil_state_variables_fv3: {{ _analysis_vars_fv3 + ['slmsk', 'sheleg', 'vtype', 'filtered_orography', 'fraction_of_ice', 'fraction_of_land', 'totalSnowDepth'] }}
 
 # Increment variables
 soil_increment_variables_csg:       {{ _analysis_vars_csg }}
 soil_increment_variables_fv3:       {{ _analysis_vars_fv3 }}
-soil_increment_variables_final_csg: {{ _analysis_vars_csg }} + ['slmsk', 'sheleg', 'vtype', 'stype', 'vfrac'] }}
-soil_increment_variables_final_fv3: {{ _analysis_vars_fv3 }} + ['slmsk', 'sheleg', 'vtype', 'totalSnowDepth'] }}
+soil_increment_variables_final_csg: ['soill1', 'soill2', 'soilt1', 'soilt2', 'air_temperature_at_2m', 'specfic_humidity_at_2m', 'slmsk','slmsk', 'sheleg', 'vtype', 'stype', 'vfrac']
+#soil_increment_variables_final_csg: {{ _analysis_vars_csg }} + ['slmsk', 'sheleg', 'vtype', 'stype', 'vfrac'] }}
+#soil_increment_variables_final_fv3: {{ _analysis_vars_fv3 }} + ['slmsk', 'sheleg', 'vtype', 'totalSnowDepth'] }}
 
 
 # Variable IO names
@@ -169,11 +164,11 @@ soil_ensemble_analysis_prefix: "{{ APREFIX_ENS }}"
 local_ensemble_da_solver: Deterministic LETKF  #GETKF
 
 increment_variables: {{ analysis_variables }}  
-{% if  _file_type == 'csg'  %}
-    increment_variables: {{ _analysis_vars_csg }}
-{% else %}
-    increment_variables: {{ _analysis_vars_fv3 }}
-{% endif %}
+#{% if  _file_type == 'csg'  %}
+increment_variables: {{ _analysis_vars_csg }}
+#{% else %}
+#    increment_variables: {{ _analysis_vars_fv3 }}
+#{% endif %}
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750

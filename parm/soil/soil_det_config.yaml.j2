@@ -1,10 +1,10 @@
 jedi_config:
     soilanlvar:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECgdas }}/gdas.x'
+        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_SOILANL }}'
         jedi_args: ['fv3jedi', 'variational']
-        jcb_base_yaml: '{{ PARMgdas }}/soil/jcb-base.yaml.j2'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/soil/jcb-base.yaml.j2'
         jcb_algo: '3dvar'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
 
