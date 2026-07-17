@@ -3,7 +3,7 @@ Load environment for running the GDAS application with Intel compilers and MPI.
 ]])
 
 local pkgName    = myModuleName()
-local pkgVersion = myModuleVersion() or "1.0"
+local pkgVersion = myModuleVersion()
 local pkgNameVer = myModuleFullName()
 
 local PrgEnv_intel_ver=os.getenf("PrgEnv_intel_ver") or "8.5.0"
