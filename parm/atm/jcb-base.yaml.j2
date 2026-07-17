@@ -149,7 +149,7 @@ atmosphere_background_ensemble_path: ./ens/mem%mem%
 atmosphere_background_time_iso: "{{ current_cycle | to_isotime }}"
 
 # Background error
-atmosphere_gsibec_path: "{{ DATA }}/berror"
+atmosphere_gsibec_path: "./berror"
 atmosphere_number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
 atmosphere_layout_gsib_x: {{ layout_gsib_x | default(1, true) }}
 atmosphere_layout_gsib_y: {{ layout_gsib_y | default(1, true) }}
@@ -172,7 +172,7 @@ atmosphere_iau_times_iso: {{ iau_times_iso }}
 # ------------------
 observations: all_observations
 
-crtm_coefficient_path: "{{ DATA }}/crtm/"
+crtm_coefficient_path: "./crtm"
 
 # Naming conventions for observational files
 
