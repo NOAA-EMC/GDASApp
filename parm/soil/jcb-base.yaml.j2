@@ -11,10 +11,10 @@ app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chroni
 # ------------------------------------------------------------
 model_file: model_pseudo
 initial_condition_file: background  # Initial conditions for 4D apps is background
-# file type csg or fms
-{% set _file_type = 'csg' %}
-soil_file_type: {{ _file_type }}
+# file type csg or fv3
+{% set _file_type = SOIL_FILE_TYPE %}
 final_increment_file: soil_final_increment_{{ _file_type }}
+#final_increment_file: soil_final_increment_gaussian
 output_mean_prior_file: soil_output_mean_prior_{{ _file_type }}
 posterior_output_file: soil_posterior_output_{{ _file_type }}
 output_ensemble_increments_file: soil_ensemble_increments_{{ _file_type }}
@@ -22,6 +22,8 @@ output_increment_file: soil_output_increment_{{ _file_type }}
 output_variance_prior_file: soil_output_variance_prior_{{ _file_type }}
 output_variance_posterior_file: soil_output_variance_posterior_{{ _file_type }}
 #jedi_increment_output: gaussian
+final_increment_to_latlon_file: soil_final_increment_gaussian
+#final_analysis_to_latlon_file: soil_final_analysis_latlon
 
 # Assimilation window
 # -------------------
@@ -48,14 +50,15 @@ cost_type: 3D-Var
 number_of_outer_loops: 1
 
 # Analysis variables
-{% set _analysis_vars_csg = ['soill1', 'soill2', 'soilt1', 'soilt2', 'air_temperature_at_2m', 'specfic_humidity_at_2m'] %}
+{% set _analysis_vars_csg = ['soill1',
+                             'soill2',
+                             'soilt1',
+                             'soilt2'] %}
+#                             'air_temperature_at_2m',
+#                             'specfic_humidity_at_2m'] %}
 {% set _analysis_vars_fv3 = ['soilMoistureVolumetric', 'stc', 'air_temperature_at_2m', 'specfic_humidity_at_2m'] %}
 
-#{% if  _file_type == 'csg'  %}
 analysis_variables: {{ _analysis_vars_csg }}
-#{% else %}
-#    analysis_variables: {{ _analysis_vars_fv3 }}
-#{% endif %}
 
 # Model things
 # ------------
@@ -97,24 +100,29 @@ soil_layout_y: {{ layout_y | default(1, true) }}
 soil_npx_ges: {{ npx_ges | default(49, true) }}
 soil_npy_ges: {{ npy_ges | default(49, true) }}
 soil_npz_ges: {{ npz_ges | default(127, true) }}
-soil_npx_anl: {{ npx_ges | default(49, true) }}
-soil_npy_anl: {{ npy_ges | default(49, true) }}
-soil_npz_anl: {{ npz_ges | default(127, true) }}
+soil_npx_his: {{ npx_his | default(49, true) }}
+soil_npy_his: {{ npy_his | default(49, true) }}
+soil_npz_his: {{ npz_his | default(127, true) }}
+soil_npx_anl: {{ npx_anl | default(49, true) }}
+soil_npy_anl: {{ npy_anl | default(49, true) }}
+soil_npz_anl: {{ npz_anl | default(127, true) }}
+
+soil_gaussian_latres: {{ GAUSSIAN_LATRES | default(0.9375, true) }}
 
 soil_variational_history_prefix: "{{ GPREFIX }}"
 
 soil_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
-soil_orog_files_path: "{{ soil_bkg_path }}"
+soil_orog_files_path: "{{ DATA }}/bkg"
 soil_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
-soil_background_path: {{ soil_bkg_path }}
-#background_file: soil_background_csg
+soil_background_path: ./bkg
+background_file: soil_background_csg
 
 # Background error
 soil_bump_data_directory: "{{ DATA }}/berror"
-soil_background_error_file: "{{ BERROR_YAML }}"
-#background_error_file: "{{BERROR_YAML}}"
+#soil_background_error_file: "{{ BERROR_YAML }}"
+background_error_file: "{{BERROR_YAML}}"
 
 # Forecasting
 soil_forecast_length: "{{ SOIL_FORECAST_LENGTH }}"
@@ -162,8 +170,7 @@ soil_ensemble_analysis_prefix: "{{ APREFIX_ENS }}"
 # Local Ensemble DA (LETKF)
 # -------------------------
 local_ensemble_da_solver: Deterministic LETKF  #GETKF
-
-increment_variables: {{ analysis_variables }}  
+ 
 #{% if  _file_type == 'csg'  %}
 increment_variables: {{ _analysis_vars_csg }}
 #{% else %}
@@ -194,6 +201,7 @@ driver_do_test_prints: false  #(default true)
 # Diagnostics
 soil_increment_path: ./anl
 soil_increment_ensemble_path: ./anl/mem%mem%
-soil_increment_prefix: "soilinc"
+soil_increment_prefix: "{{ SOIL_INC_PREFIX }}"
+soil_gaussian_increment_prefix: "{{ SOIL_GINC_PREFIX }}"
 #posterior_output_gaussian: "./mem%{member}%/soilanl."
 #
