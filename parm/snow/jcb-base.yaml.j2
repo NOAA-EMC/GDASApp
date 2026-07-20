@@ -38,15 +38,46 @@ snow_increment_time_fv3: "{{ bkg_time_fv3 }}"
 
 # Analysis standard things
 # ------------------------
-analysis_variables: [totalSnowDepth]
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
 cost_type: 3D-Var
 number_of_outer_loops: 1
 
+# Analysis variables
+{% set _analysis_vars = ['totalSnowDepth'] %}
+analysis_variables: {{ _analysis_vars }}
+
 # Model things
 # ------------
+
+# State variables
+snow_det_state_variables: {{ _analysis_vars + ['slmsk',
+                                               'sheleg',
+                                               'vtype',
+                                               'stc',
+                                               'filtered_orography',
+                                               'fraction_of_ice',
+                                               'fraction_of_land'] }}
+snow_ensmean_state_variables: {{ _analysis_vars + ['slmsk',
+                                                   'sheleg',
+                                                   'vtype',
+                                                   'stc',
+                                                   'filtered_orography',
+                                                   'fraction_of_ice'] }}
+
+# Increment variables
+snow_det_increment_variables:       {{ _analysis_vars }}
+snow_det_increment_variables_final: {{ _analysis_vars + ['vtype',
+                                                         'slmsk'] }}
+
+# Variable IO names
+snow_field_io_names:
+    totalSnowDepth: snodl
+    filtered_orography: orog_filt
+    fraction_of_ice: fice
+    fraction_of_land: land_frac
+
 # Geometry
 snow_layout_x: {{ layout_x | default(1, true) }}
 snow_layout_y: {{ layout_y | default(1, true) }}

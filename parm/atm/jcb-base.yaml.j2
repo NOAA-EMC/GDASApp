@@ -31,10 +31,103 @@ atmosphere_ninner_1: {{ NINNER_LOOP1 | default(2, true) }}
 atmosphere_grad_red_1: 1e-10
 atmosphere_ninner_2: {{ NINNER_LOOP2 | default(4, true) }}
 atmosphere_grad_red_2: 1e-10
-analysis_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,snow_water,rain_water,graupel,ozone_mass_mixing_ratio]
+
+# Analysis variables 
+{% set _analysis_vars = ['eastward_wind',
+                         'northward_wind',
+                         'air_temperature',
+                         'water_vapor_mixing_ratio_wrt_moist_air',
+                         'cloud_liquid_ice',
+                         'cloud_liquid_water',
+                         'air_pressure_at_surface',
+                         'ozone_mass_mixing_ratio',
+                         'snow_water',
+                         'rain_water',
+                         'graupel'] %}
+
+analysis_variables: {{ _analysis_vars }}
 
 # Model things
 # ------------
+
+{% set _fv3_increment_vars =             (_analysis_vars | reject('equalto', 'air_pressure_at_surface') | list)
+                                         + ['air_pressure_thickness', 'layer_thickness'] %}
+{% set _analysis_vars_noprecip =         _analysis_vars | reject('in', ['snow_water', 'rain_water', 'graupel']) | list %}
+{% set _analysis_vars_molesO3 =          (_analysis_vars | reject('equalto', 'ozone_mass_mixing_ratio') | list)
+                                         + ['mole_fraction_of_ozone_in_air'] %}
+{% set _analysis_vars_molesO3_noprecip = (_analysis_vars_noprecip | reject('equalto', 'ozone_mass_mixing_ratio') | list)
+                                         + ['mole_fraction_of_ozone_in_air'] %}
+
+{% set _grid_vars = ['geopotential_height_at_surface'] %}
+
+{% set _crtm_vars = ['cloud_ice_number_concentration',
+                     'rain_number_concentration',
+                     'slmsk',
+                     'sheleg',
+                     'skin_temperature_at_surface',
+                     'vtype',
+                     'stype',
+                     'vfrac',
+                     'soilt',
+                     'soilm',
+                     'eastward_wind_at_surface',
+                     'northward_wind_at_surface',
+                     'f10m'] %}
+
+# State variables
+atmosphere_det_state_variables: {{ _analysis_vars + _grid_vars + _crtm_vars }}
+atmosphere_jedi2fv3inc_state_variables: {{ _analysis_vars + _grid_vars }}
+
+# Increment variables
+atmosphere_det_increment_variables: {{ _analysis_vars }}
+atmosphere_det_increment_variables_molesO3: {{ _analysis_vars_molesO3 }}
+atmosphere_det_increment_variables_noprecip: {{ _analysis_vars_noprecip }}
+atmosphere_det_increment_variables_molesO3_noprecip: {{ _analysis_vars_molesO3_noprecip }}
+atmosphere_fv3_increment_variables:  {{ _fv3_increment_vars }}
+
+# Variable IO names
+atmosphere_background_field_io_names:
+    eastward_wind: ugrd
+    northward_wind: vgrd
+    air_temperature: tmp
+    layer_thickness: delz
+    air_pressure_thickness: dpres
+    air_pressure_at_surface: pressfc
+    water_vapor_mixing_ratio_wrt_moist_air: spfh
+    cloud_liquid_ice: icmr
+    cloud_liquid_water: clwmr
+    snow_water: snmr
+    rain_water: rwmr
+    graupel: grle
+    cloud_ice_number_concentration: nccice
+    rain_number_concentration: nconrd
+    ozone_mass_mixing_ratio: o3mr
+    geopotential_height_at_surface: hgtsfc
+    slmsk: land
+    sheleg: weasd
+    skin_temperature_at_surface: tmpsfc
+    stype: sotyp
+    vfrac: veg
+    totalSnowDepthMeters: snod
+    eastward_wind_at_surface: ugrd_hyblev1
+    northward_wind_at_surface: vgrd_hyblev1
+    soilm: soilw1
+    soilt: soilt1
+    soilMoistureVolumetric: smc
+atmosphere_increment_field_io_names:
+    eastward_wind: u_inc
+    northward_wind: v_inc
+    air_temperature: T_inc
+    water_vapor_mixing_ratio_wrt_moist_air: sphum_inc
+    cloud_liquid_water: liq_wat_inc
+    ozone_mass_mixing_ratio: o3mr_inc
+    cloud_liquid_ice: icmr_inc
+    snow_water: snmr_inc
+    rain_water: rwmr_inc
+    graupel: grle_inc
+    air_pressure_thickness: delp_inc
+    layer_thickness: delz_inc
+
 # Geometry
 atmosphere_layout_x: {{ layout_x | default(1, true) }}
 atmosphere_layout_y: {{ layout_y | default(1, true) }}
@@ -127,7 +220,11 @@ bias_files_dict:
 # -------------------------
 local_ensemble_da_solver: Deterministic GETKF
 
-increment_variables: [eastward_wind,northward_wind,layer_thickness,air_pressure_thickness,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,snow_water,rain_water,graupel,ozone_mass_mixing_ratio]
+{% set _increment_vars = _analysis_vars %}
+
+increment_variables: {{ _increment_vars }}
+
+atmosphere_ens_state_variables: {{ _increment_vars + _crtm_vars + _grid_vars + ['layer_thickness', 'air_pressure_thickness']}}
 
 atm_enkfonly: {{ DOENKFONLY_ATM | default(false, true) }}
 
