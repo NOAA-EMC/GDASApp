@@ -19,7 +19,7 @@ data_in:
 
     copy_req:
 
-{% if  soil_file_type == 'csg'  %}
+{% if SOIL_FILE_TYPE == 'csg' %}
     - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_atm.f006.nc']
     - ['{{ COMIN_ATMOS_HISTORY_PREV }}/{{ GPREFIX }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ GPREFIX }}csg_sfc.f006.nc']
 {% else %}
@@ -30,13 +30,13 @@ data_in:
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/']
     - ['{{ COMIN_ATMOS_RESTART_PREV }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/']
+{% endif %}
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile1.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile1.nc" ]
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile2.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile2.nc" ]
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile3.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile3.nc" ]
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile4.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile4.nc" ]
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile5.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile5.nc" ]
     - ["{{ FIXorog }}/{{ CASE }}/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile6.nc", "{{ DATA }}/bkg/{{ CASE }}.mx{{ OCNRES }}_oro_data.tile6.nc" ]
-{% endif %}
 
 {% filter indent(width=4) %}
 {% include 'soil_stage_jedi_fix.yaml.j2' %}
@@ -55,31 +55,21 @@ data_out:
     copy_req:
     # Configuration files
     - ['{{ DATA }}/soilanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanlvar.yaml']
-    - ['{{ DATA }}/soilanladdinc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanladdinc.yaml']
+#    - ['{{ DATA }}/soilanladdinc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soilanladdinc.yaml']
 #    - ['{{ DATA }}/soil_obs_list.yaml.j2', '{{ COMOUT_CONF }}/{{ APREFIX }}soil_obs_list.yaml.j2']
 
-{% if  soil_file_type == 'csg'  %}
-    # Increments
-    - ['{{ DATA }}/anl/soilinc_{{ GPREFIX }}csg_sfc.f006.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.csg_sfc.nc']
-    # Analysis = bkg + inc
-    - ['{{ DATA }}/anl/{{ GPREFIX }}csg_sfc.f006.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.csg_sfc.nc']
+# Increments
+{% if SOIL_FILE_TYPE == 'csg' %}
+    - ['{{ DATA }}/anl/soilinc_{{ GPREFIX }}nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment_csg.sfci006.nc']
+    - ['{{ DATA }}/anl/soilinc_{{ GPREFIX }}nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ APREFIX }}jedi_increment.sfc.i006.nc']
+
+    - ['{{ DATA }}/anl/sfcinc.{{ current_cycle | to_YMD }}T{{ current_cycle | strftime('%H') }}0000Z.gaussian.modelLevels.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment_gaussian.sfci006.nc']
+    - ['{{ DATA }}/anl/sfcinc.{{ current_cycle | to_YMD }}T{{ current_cycle | strftime('%H') }}0000Z.gaussian.modelLevels.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/{{ APREFIX }}increment.sfc.i006.nc']
 {% else %}
-    # Analysis = bkg + inc
-    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc']
-    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc']
-    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc']
-    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc']
-    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc']
-    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc',
-       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc']
-    # Increments   
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile1.nc']
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
@@ -92,4 +82,25 @@ data_out:
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile5.nc']
     - ['{{ DATA }}/anl/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc',
        '{{ COMOUT_SOIL_ANALYSIS }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile6.nc']
+{% endif %}
+
+{% if DO_ADD_SOIL_INCR %}
+# Copy soil analysis (for non-iau)  # Analysis = bkg + inc
+    {% if SOIL_FILE_TYPE == 'csg' %}
+    - ['{{ DATA }}/anl/{{ GPREFIX }}csg_sfc.f006.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.csg_sfc.nc']
+    {% else %}
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc']
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc']
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc']
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc']
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc']
+    - ['{{ DATA }}/anl/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COMOUT_SOIL_ANALYSIS }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc']
+    {% endif %}
 {% endif %}

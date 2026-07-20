@@ -1,24 +1,10 @@
 output:
   state component:
-    datapath: ./anl
-    state variables:
-    - soilMoistureVolumetric
-    - slc
-    - stc
-    - totalSnowDepth
-    - sheleg
-    - vtype
-    - slmsk
-    field io names:
-      soilMoistureVolumetric: smc
-      totalSnowDepth: snodl
     filetype: cube sphere history
     provider: ufs
-    ufs soil nlev: 4
-    ufs fields split by level:
-    - smc
-    - stc
-    filename: soilinc_{{ soil_variational_history_prefix }}.nc
+    datapath: ./anl
+    filename: soilinc_{{ soil_variational_history_prefix }}nc
+    field io names: {{ soil_field_io_names_csg }}
 
 geometry:
   fms initialization:
@@ -28,6 +14,6 @@ geometry:
   layout:
   - {{ soil_layout_x }}
   - {{ soil_layout_y }}
-  npx: {{ soil_npx_ges }}
-  npy: {{ soil_npy_ges }}
-  npz: {{ soil_npz_ges }}
+  npx: {{ soil_npx_anl }}
+  npy: {{ soil_npy_anl }}
+  npz: {{ soil_npz_anl }}

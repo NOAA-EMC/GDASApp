@@ -1,0 +1,33 @@
+grid type: regular gaussian
+local interpolator type: oops unstructured grid interpolator
+number of latitude gridpoints: {{ (soil_npy_anl | int) - 1 }}  #96
+#resolution in degrees: {{ soil_gaussian_latres }} #0.9375
+datapath: ./anl
+prefix: {{ soil_gaussian_increment_prefix }}
+#filename: {{ soil_gaussian_increment_prefix }}
+all model levels: true
+date colons: false
+variables to output: 
+- soilt1
+- soilt2
+- soill1
+- soill2
+field io names: 
+  soilt1: stc1_inc
+  soilt2: stc2_inc
+  soill1: slc1_inc
+  soill2: slc2_inc
+#type: inc
+#exp: 3dvar-soil
+
+#geometry:
+#  fms initialization:
+#    namelist filename: "{{ soil_fv3jedi_files_path }}/fmsmpp.nml"
+#    field table filename: "{{ soil_fv3jedi_files_path }}/field_table"
+#  akbk: "{{ soil_fv3jedi_files_path }}/akbk.nc4"
+#  layout:
+#  - {{ soil_layout_x }}
+#  - {{ soil_layout_y }}
+#  npx: {{ soil_npx_anl }}
+#  npy: {{ soil_npy_anl }}
+#  npz: {{ soil_npz_anl }}

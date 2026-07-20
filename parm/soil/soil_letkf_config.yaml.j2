@@ -33,7 +33,7 @@ data_in:
                          '${YMD}': previous_cycle | to_YMD,
                          '${HH}': previous_cycle | strftime('%H'),
                          '${MEMDIR}': 'mem%03d' | format(mem) }) %}
-    {% if  soil_file_type == 'csg'  %}
+    {% if SOIL_FILE_TYPE == 'csg' %}
     - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}csg_atm.f006.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
     - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}csg_sfc.f006.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
     {% else %}
@@ -119,9 +119,16 @@ data_out:
                           '${HH}': current_cycle | strftime('%H'),
                           '${MEMDIR}': 'mem%03d' | format(imem) }) %}
     # Increments
-    {% if  soil_file_type == 'csg'  %}
-    - ['{{ DATA }}/anl/{{ memchar }}/soilinc_{{ GPREFIX_ENS }}csg_sfc.f006.nc',
-       '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.soil_inc.csg_sfc.nc']
+    {% if SOIL_FILE_TYPE == 'csg' %}
+    - ['{{ DATA }}/anl/{{ memchar }}/soilinc_{{ GPREFIX_ENS }}nc',
+       '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.soil_increment_csg.sfci006.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/soilinc_{{ GPREFIX_ENS }}nc',
+       '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX }}jedi_increment.sfc.i006.nc']
+
+    - ['{{ DATA }}/anl/{{ memchar }}/sfcinc.{{ current_cycle | to_YMD }}T{{ current_cycle | strftime('%H') }}0000Z.gaussian.modelLevels.nc',
+       '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.soil_increment_gaussian.sfci006.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/sfcinc.{{ current_cycle | to_YMD }}T{{ current_cycle | strftime('%H') }}0000Z.gaussian.modelLevels.nc',
+       '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX }}increment.sfc.i006.nc']
     {% else %}
     - ['{{ DATA }}/anl/{{ memchar }}/soilinc.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
        '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile1.nc']
@@ -137,13 +144,12 @@ data_out:
        '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.soil_increment.sfc_data.tile6.nc']    
     {% endif %}
 
+  # Copy soil analysis (for non-iau)
   {% if DO_ADD_SOIL_INCR %}
-  # Copy soil analysis (for non-iau) 
-    {% if  soil_file_type == 'csg'  %}
+    {% if SOIL_FILE_TYPE == 'csg' %}
     - ['{{ DATA }}/anl/{{ memchar }}/{{ GPREFIX_ENS }}csg_sfc.f006.nc',
        '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.soilanl.csg_sfc.nc']
     {% else %}
-
     - ['{{ DATA }}/anl/{{ memchar }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc',
        '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/soilanl.{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc']
     - ['{{ DATA }}/anl/{{ memchar }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc',
