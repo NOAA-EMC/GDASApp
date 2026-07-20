@@ -1,6 +1,6 @@
 datapath: ./anl/mem%{member}%
-filetype: cube sphere history
-provider: ufs
-filename: soilinc_ensmean_{{ soil_ensemble_history_prefix }}nc
+filetype: auxgrid
+gridtype: gaussian
+filename: ./anl/mem%{member}%/sfcinc.
 state variables: {{ soil_state_variables_csg }}
 field io names: {{ soil_field_io_names_csg }}
