@@ -5,45 +5,47 @@ from typing import Any, Dict
 
 class varGDAS(Task):
     def __init__(self, config: Dict[str, Any]):
-        # Make sure Task class constructor gets PDY, cyc, and assim_freq
-        for key in ['PDY', 'cyc', 'assim_freq', 'MACHINE_ID']:
+        # Make sure Task class constructor gets PDY, cyc, and assim_freq from config,
+        # and make sure the current constructor gets MACHINE ID
+        for key in ['PDY', 'cyc', 'assim_freq',
+                    'MACHINE_ID']:
             if key not in config:
                 raise KeyError(f"config is missing required key: '{key}'")
 
         super().__init__(config)
 
         # Set fixed files for this MACHINE_ID
-        if config.MACHINE_ID == 'hera' or config.MACHINE_ID == 'ursa':
+        if self.task_config.MACHINE_ID in ['hera', 'ursa']:
             _GDASAPP_TESTDATA = '/scratch3/NCEPDEV/da/role.jedipara/GDASApp/testdata'
             _FIXglobal        = '/scratch3/NCEPDEV/global/role.glopara/fix'
-        elif config.MACHINE_ID == 'orion' or config.MACHINE_ID == 'hercules':
+        elif self.task_config.MACHINE_ID in ['orion', 'hercules']:
             _GDASAPP_TESTDATA = '/work2/noaa/da/role-da/gdasApp/testdata'
             _FIXglobal        = '/work2/noaa/global/role-global/fix'
-        elif config.MACHINE_ID == 'wcoss2':
+        elif self.task_config.MACHINE_ID == 'wcoss2':
             _GDASAPP_TESTDATA = '/lfs/h2/emc/da/noscrub/emc.da/GDASApp/testdata'
             _FIXglobal        = '/lfs/h2/emc/global/noscrub/emc.global/FIX/fix'
-        elif config.MACHINE_ID == 'gaeac6':
+        elif self.task_config.MACHINE_ID == 'gaeac6':
             _GDASAPP_TESTDATA = '/gpfs/f6/ira-sti/world-shared/GDASApp/testdata'
             _FIXglobal        = '/gpfs/f6/ira-sti/world-shared/GDASApp/fix'
 
-        # Grid dimensions
+        # Various intermediate parameters
         _npz = 127
         _npx = 49
         _npy = 49
+        _layout_x = 1
+        _layout_y = 1
 
         # Update task configuration
         self.task_config.update(AttrDict(
             {
                 # Configurable parameters
+                'NMEM_ENS':                     3,
                 'NUMBER_OUTER_LOOPS':           2,
                 'NINNER_LOOP1':                 2,
                 'NINNER_LOOP2':                 4,
-                'NMEM_ENS':                     3,
                 'STATICB_TYPE':                 'identity',
-                'layout_x':                     1,
-                'layout_y':                     1,
-                'layout_gsib_x':                3,
-                'layout_gsib_y':                2,
+                'layout_x':                     _layout_x,
+                'layout_y':                     _layout_y,
                 # File prefixes
                 'GPREFIX':                      'gdas.t12z',
                 'OPREFIX':                      'gdas.t18z',
@@ -69,8 +71,29 @@ class varGDAS(Task):
                 'npy_ges':                      _npy,
                 'WINDOW_BEGIN':                 add_to_datetime(self.task_config.current_cycle, -to_timedelta(f"{self.task_config.assim_freq}H") / 2),
                 'WINDOW_LENGTH':                f"PT{self.task_config.assim_freq}H",
+                'layout_gsib_x':                3 * _layout_x,
+                'layout_gsib_y':                2 * _layout_y,
             }
         ))
+
+        # Set JEDI configuration dictionary
+        self.jedi_config = {
+            '3dvar': {
+                'rundir': './',
+                'exe_src': '{{ HOMEgdas }}/exec/gdas.x',
+                'jedi_args': ['fv3jedi', 'variational'],
+                'jcb_algo': '3dvar',
+                'obs_list': ['radiance_amsua_n19',
+                             'sondes'],
+                'app_test': {
+                    'do_testing': True,
+                    'test_reference_filename': '{{ HOMEgdas }}/test/testreference/atm_jjob_3dvar.ref',
+                    'test_output_filename': '{{ HOMEgdas }}/build/gdas/test/testoutput/atm_jjob_3dvar.test.out',
+                    'test_float_relative_tolerance': 1.0e-3,
+                    'test_float_absolute_tolerance': 1.0e-5
+                }
+            }
+        }
 
         # Create dictionary of Jedi objects
         expected_keys = ['3dvar']
