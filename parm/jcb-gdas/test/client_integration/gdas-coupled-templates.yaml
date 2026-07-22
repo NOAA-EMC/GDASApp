@@ -94,6 +94,37 @@ atmosphere_background_path: Data/inputs/gfs_c12/bkg
 atmosphere_background_time_iso: '2020-12-14T21:00:00Z'
 atmosphere_variational_history_prefix: 'bkg_'
 
+# Centralized atmosphere variable lists (see the atmosphere client config, which these mirror)
+atmosphere_det_state_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio, snow_water, rain_water, graupel, geopotential_height_at_surface, cloud_ice_number_concentration, rain_number_concentration, slmsk, sheleg, skin_temperature_at_surface, vtype, stype, vfrac, soilt, soilm, eastward_wind_at_surface, northward_wind_at_surface, f10m]
+atmosphere_background_field_io_names:
+  eastward_wind: ugrd
+  northward_wind: vgrd
+  air_temperature: tmp
+  layer_thickness: delz
+  air_pressure_thickness: dpres
+  air_pressure_at_surface: pressfc
+  water_vapor_mixing_ratio_wrt_moist_air: spfh
+  cloud_liquid_ice: icmr
+  cloud_liquid_water: clwmr
+  snow_water: snmr
+  rain_water: rwmr
+  graupel: grle
+  cloud_ice_number_concentration: nccice
+  rain_number_concentration: nconrd
+  ozone_mass_mixing_ratio: o3mr
+  geopotential_height_at_surface: hgtsfc
+  slmsk: land
+  sheleg: weasd
+  skin_temperature_at_surface: tmpsfc
+  stype: sotyp
+  vfrac: veg
+  totalSnowDepthMeters: snod
+  eastward_wind_at_surface: ugrd_hyblev1
+  northward_wind_at_surface: vgrd_hyblev1
+  soilm: soilw1
+  soilt: soilt1
+  soilMoistureVolumetric: smc
+
 # Marine (SOCA) model things
 # --------------------------
 marine_soca_files_path: Data/soca
@@ -101,6 +132,11 @@ marine_background_path: ./INPUT/
 marine_background_time: '2020-12-14T21:00:00Z'
 marine_vt_levels: 25
 marine_stddev_time: '2020-12-14T21:00:00Z'
+
+# Centralized marine variable lists (see the marine client config, which these mirror)
+marine_det_state_variables: [sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness, sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, air_temperature, bulk_ice_salinity, sea_water_cell_thickness, sea_water_depth, ocean_mixed_layer_thickness, snow_ice_surface_temperature]
+marine_saber_central_block_variables: [sea_ice_area_fraction, sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid]
+marine_det_increment_variables: [sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness, sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid]
 
 # Observations: one atmosphere obs and one marine obs to exercise both components.
 # No observation chronicle is used, so all listed observers are kept.
