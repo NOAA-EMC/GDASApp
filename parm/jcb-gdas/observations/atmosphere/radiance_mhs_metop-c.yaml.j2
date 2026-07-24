@@ -208,6 +208,16 @@
             channels: [2]
           coefs: [-1]
           intercept: 300.0
+  # Make diff_300_obs2 >= 1.0e-5
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/diff_300_obs2
+      type: float
+      value: 1.0e-5
+    where:
+    - variable:
+        name: DerivedMetaData/diff_300_obs2
+      maxvalue: 1.0e-5
   # Step E3: Define "OmF_ch2 / (300 - Obs_ch2)"
   - filter: Variable Assignment
     assignments:
@@ -303,6 +313,16 @@
     - variable:
         name: DerivedMetaData/tpwc_index
       maxvalue: 1.0
+  # Make inflationFactor0 >= 1.0e-5
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/inflationFactor0
+      type: float
+      value: 1.0e-5
+    where:
+    - variable:
+        name: DerivedMetaData/inflationFactor0
+      maxvalue: 1.0e-5
   # Step H1: Assign inflationFactor1 = 1.0/(inflationFactor0)^(0.5)
   - filter: Variable Assignment
     assignments:
