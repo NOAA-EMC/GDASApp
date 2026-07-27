@@ -120,12 +120,12 @@ if(BUILD_GDASBUNDLE)
 
 # ioda, ufo, fv3-jedi, and saber test data
 #---------------------------------
-if(CLONE_JCSDADATA)
+  if(CLONE_JCSDADATA)
 
-  set(JCSDA_DATA_ROOT "$ENV{GDASAPP_TESTDATA}/jcsda")
-  ecbuild_bundle( PROJECT ioda-data SOURCE "${JCSDA_DATA_ROOT}/ioda-data" )
-  ecbuild_bundle( PROJECT ufo-data SOURCE "${JCSDA_DATA_ROOT}/ufo-data" )
-  ecbuild_bundle( PROJECT fv3-jedi-data SOURCE "${JCSDA_DATA_ROOT}/fv3-jedi-data" )
+   set(JCSDA_DATA_ROOT "$ENV{GDASAPP_TESTDATA}/jcsda")
+   ecbuild_bundle( PROJECT ioda-data SOURCE "${JCSDA_DATA_ROOT}/ioda-data" )
+   ecbuild_bundle( PROJECT ufo-data SOURCE "${JCSDA_DATA_ROOT}/ufo-data" )
+   ecbuild_bundle( PROJECT fv3-jedi-data SOURCE "${JCSDA_DATA_ROOT}/fv3-jedi-data" )
 
   endif(CLONE_JCSDADATA)
 
