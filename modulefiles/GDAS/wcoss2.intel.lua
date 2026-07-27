@@ -6,7 +6,7 @@ local pkgName    = myModuleName()
 local pkgVersion = myModuleVersion()
 local pkgNameVer = myModuleFullName()
 
-local PrgEnv_intel_ver=os.getenf("PrgEnv_intel_ver") or "8.5.0"
+local PrgEnv_intel_ver=os.getenv("PrgEnv_intel_ver") or "8.5.0"
 local intel_ver=os.getenv("intel_ver") or "19.1.3.304"
 local craype_ver=os.getenv("craype_ver") or "2.7.17"
 local cmake_ver=os.getenv("cmake_ver") or "3.27.9"
