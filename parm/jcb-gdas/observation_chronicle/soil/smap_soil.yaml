@@ -3,6 +3,7 @@
 commissioned: 2015-04-01T00:00:00
 
 #observer_type: satellite # Type of chronicle to use
+# specifying this as satellite requires more info in obs yaml; so keeping it conventiona for now.
 observer_type: conventional  # Type of chronicle to use
 
 window_option: max
