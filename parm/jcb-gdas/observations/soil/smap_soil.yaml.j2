@@ -14,9 +14,6 @@
         type: H5File
         obsfile: "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}{{observation_from_jcb}}.nc"
         missing file action: warn
-#      obsgrouping:
-#        group variables:
-#        - stationIdentification
     obsdataout:
       write multiple files: false
       engine:
@@ -25,7 +22,8 @@
         allow overwrite: true
     io pool:
       max pool size: 1
-    observed variables:
+    #TODO: change these to include alias names with SoilMoistureVolumetric
+    observed variables:  
     - soill1
     simulated variables:
     - soill1 
@@ -34,9 +32,6 @@
   # --------------------
   obs operator:
     name: Identity
-#  linear obs operator:
-#    name: Identity
-  #
 
   # localization TODO: generalize this condioned on da algo
   # ------------
