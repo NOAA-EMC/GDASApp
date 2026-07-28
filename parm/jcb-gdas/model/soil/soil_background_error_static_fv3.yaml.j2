@@ -1,13 +1,12 @@
 covariance model: SABER
 saber central block:
   saber block name: BUMP_NICAS
-  read:   #calibration
+  read:  
     general:
       universe length-scale: 250000.0
     drivers:
       multivariate strategy: univariate
-      read global nicas: true  #compute nicas: true
-      #write global nicas: true
+      read global nicas: true 
     nicas:
       resolution: 6
       max horizontal grid size: 400000
@@ -15,26 +14,14 @@ saber central block:
       horizontal length-scale:
       - groups:
         - soilMoistureVolumetric
-        - slc
-        - stc
-        - air_temperature_at_2m
-        - specfic_humidity_at_2m
         value: 250000.0
       vertical length-scale:
       - groups:
         - soilMoistureVolumetric
-        - slc
-        - stc
-        - air_temperature_at_2m
-        - specfic_humidity_at_2m
         value: 800.0
       interpolation type:
       - groups:
         - soilMoistureVolumetric
-        - slc
-        - stc
-        - air_temperature_at_2m
-        - specfic_humidity_at_2m
         type: c0
       same horizontal convolution: true
     io:
@@ -51,14 +38,6 @@ saber outer blocks:
       - variables:
         - soilMoistureVolumetric
         value: 0.05
-      - variables:
-        - slc
-        value: 0.05
-      - variables:
-        - stc
-        value: 2.0
-      - variables:
-        - air_temperature_at_2m
         value: 2.0
       - variables:
         - specfic_humidity_at_2m
