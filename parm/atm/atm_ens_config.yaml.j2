@@ -37,25 +37,17 @@ data_in:
     - '{{ DATA }}/fv3jedi'
     - '{{ DATA }}/crtm'
 {% for imem in range(1,NMEM_ENS+1) %}
-   {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
-                         '${RUN}': RUN,
-                         '${YMD}': current_cycle | to_YMD,
-                         '${HH}': current_cycle | strftime('%H'),
-                         '${MEMDIR}': 'mem%03d' | format(imem) }) %}
+    {% set COMOUT_ATMOS_ANALYSIS_MEM = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/atmos' %}
     - '{{ DATA }}/bkg/{{ 'mem%03d' | format(imem) }}'
     - '{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}'
-    - '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}'
+    - '{{ COMOUT_ATMOS_ANALYSIS_MEM }}'
 {% endfor %}
 
     copy:
 {% for imem in range(1,NMEM_ENS+1) %}
-   {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
-                         '${RUN}': RUN,
-                         '${YMD}': previous_cycle | to_YMD,
-                         '${HH}': previous_cycle | strftime('%H'),
-                         '${MEMDIR}': 'mem%03d' | format(imem) }) %}
-    - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ 'mem%03d' | format(imem) }}/{{ GPREFIX_ENS }}cubed_sphere_grid_atmf006.nc']
-    - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ 'mem%03d' | format(imem) }}/{{ GPREFIX_ENS }}cubed_sphere_grid_sfcf006.nc']
+    {% set COMIN_ATMOS_ANALYSIS_MEM = ROTDIR ~ '/' ~ RUN ~ '.' ~ (previous_cycle | to_YMD) ~ '/' ~ (previous_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/model/atmos/history' %}
+    - ['{{ COMIN_ATMOS_ANALYSIS_MEM }}/{{ GPREFIX_ENS }}csg_atm.f006.nc', '{{ DATA }}/bkg/{{ 'mem%03d' | format(imem) }}/{{ GPREFIX_ENS }}cubed_sphere_grid_atmf006.nc']
+    - ['{{ COMIN_ATMOS_ANALYSIS_MEM }}/{{ GPREFIX_ENS }}csg_sfc.f006.nc', '{{ DATA }}/bkg/{{ 'mem%03d' | format(imem) }}/{{ GPREFIX_ENS }}cubed_sphere_grid_sfcf006.nc']
 {% endfor %}
 
 {% filter indent(width=4) %}
@@ -75,10 +67,6 @@ data_out:
     - ['{{ DATA }}/atmensanlfv3inc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}atmensanlfv3inc.yaml']
     - ['{{ DATA }}/anl/{{ APREFIX_ENS }}cubed_sphere_grid_atmanl.ensmean.nc', '{{ COMOUT_ATMOS_ANALYSIS_ENS }}/{{ APREFIX_ENS }}csg_ensmean_jedi_analysis.atm.a006.nc']
 {% for imem in range(1,NMEM_ENS+1) %}
-   {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
-                         '${RUN}': RUN,
-                         '${YMD}': current_cycle | to_YMD,
-                         '${HH}': current_cycle | strftime('%H'),
-                         '${MEMDIR}': 'mem%03d' | format(imem) }) %}
-    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.nc', '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.nc']
+    {% set COMOUT_ATMOS_ANALYSIS_MEM = ROTDIR ~ '/' ~ RUN ~ '.' ~ (current_cycle | to_YMD) ~ '/' ~ (current_cycle | strftime('%H')) ~ '/' ~ ('mem%03d' | format(imem)) ~ '/analysis/atmos' %}
+    - ['{{ DATA }}/anl/{{ 'mem%03d' | format(imem) }}/{{ APREFIX_ENS }}cubed_sphere_grid_atminc.nc', '{{ COMOUT_ATMOS_ANALYSIS_MEM }}/{{ APREFIX_ENS }}csg_jedi_increment.atm.i006.nc']
 {% endfor %}
