@@ -1,0 +1,549 @@
+---
+# Test jobs and dependencies for GDASApp GW-CI tests.
+#
+# For each pslot (CI test case), this file defines:
+#   - half_cycle: tasks and their dependencies for the first (half) cycle
+#   - full_cycle: tasks and their dependencies for the second (full) cycle
+#
+# Dependency notation:
+#   H:<task>  - depends on the named task from the half cycle
+#   F:<task>  - depends on the named task from the full cycle
+#
+# Tasks with no entry in 'dependencies' depend on the experiment
+# setup test (create_exp).
+
+C96C48_hybatmDA:
+  half_cycle:
+    tasks:
+      - gdas_stage_ic
+      - gdas_fcst
+      - gdas_atmos_prod
+      - enkfgdas_stage_ic
+      - enkfgdas_fcst
+      - enkfgdas_echgres
+      - enkfgdas_epmn
+    dependencies:
+      gdas_fcst:
+        - H:gdas_stage_ic
+      gdas_atmos_prod:
+        - H:gdas_fcst
+      enkfgdas_fcst:
+        - H:enkfgdas_stage_ic
+      enkfgdas_echgres:
+        - H:gdas_fcst
+        - H:enkfgdas_fcst
+      enkfgdas_epmn:
+        - H:enkfgdas_fcst
+  full_cycle:
+    tasks:
+      - gdas_prep
+      - gdas_anal
+      - gdas_sfcanl_gcycle
+      - gdas_sfcanl_regrid
+      - gdas_analcalc
+      - gdas_fcst
+      - enkfgdas_eobs
+      - enkfgdas_ediag
+      - enkfgdas_eupd
+      - enkfgdas_ecmn
+      - enkfgdas_esfc_gcycle
+      - enkfgdas_esfc_regrid
+      - enkfgdas_fcst
+    dependencies:
+      gdas_prep:
+        - H:gdas_fcst
+        - H:gdas_atmos_prod
+      gdas_anal:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      gdas_sfcanl_gcycle:
+        - F:gdas_anal
+        - F:enkfgdas_eupd
+      gdas_sfcanl_regrid:
+        - F:enkfgdas_eupd
+      gdas_analcalc:
+        - H:enkfgdas_echgres
+        - F:gdas_sfcanl_gcycle
+        - F:gdas_regrid
+      gdas_fcst:
+        - F:gdas_sfcanl_gcycle
+        - F:gdas_sfcanl_regrid
+      enkfgdas_eobs:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      enkfgdas_ediag:
+        - F:enkfgdas_eobs
+      enkfgdas_eupd:
+        - F:enkfgdas_ediag
+      enkfgdas_ecmn:
+        - F:gdas_analcalc
+        - F:enkfgdas_eupd
+      enkfgdas_esfc_gcycle:
+        - F:gdas_anal
+        - F:enkfgdas_eupd
+      enkfgdas_esfc_regrid:
+        - F:enkfgdas_eupd
+      enkfgdas_fcst:
+        - F:enkfgdas_esfc_gcycle
+        - F:enkfgdas_ecmn
+
+C96C48_ufs_hybatmDA:
+  half_cycle:
+    tasks:
+      - gdas_stage_ic
+      - gdas_fcst
+      - gdas_atmos_prod
+      - enkfgdas_stage_ic
+      - enkfgdas_fcst
+      - enkfgdas_epmn
+    dependencies:
+      gdas_fcst:
+        - H:gdas_stage_ic
+      gdas_atmos_prod:
+        - H:gdas_fcst
+      enkfgdas_fcst:
+        - H:enkfgdas_stage_ic
+      enkfgdas_epmn:
+        - H:enkfgdas_fcst
+  full_cycle:
+    tasks:
+      - gdas_prep
+      - gdas_atmanlinit
+      - gdas_atmanlvar
+      - gdas_atmanlfv3inc
+      - gdas_atmanlfinal
+      - gdas_sfcanl_gcycle
+      - gdas_analcalc_fv3jedi
+      - gdas_fcst
+      - enkfgdas_atmensanlinit
+      - enkfgdas_atmensanlobs
+      - enkfgdas_atmensanlsol
+      - enkfgdas_atmensanlfv3inc
+      - enkfgdas_atmensanlfinal
+      - enkfgdas_ecen_fv3jedi
+      - enkfgdas_esfc_gcycle
+      - enkfgdas_fcst
+    dependencies:
+      gdas_prep:
+        - H:gdas_fcst
+        - H:gdas_atmos_prod
+      gdas_atmanlinit:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      gdas_atmanlvar:
+        - F:gdas_atmanlinit
+      gdas_atmanlfv3inc:
+        - F:gdas_atmanlvar
+      gdas_atmanlfinal:
+        - F:gdas_atmanlfv3inc
+      gdas_sfcanl_gcycle:
+        - F:gdas_atmanlfinal
+      gdas_analcalc_fv3jedi:
+        - F:gdas_atmanlfinal
+      gdas_fcst:
+        - F:gdas_sfcanl_gcycle
+      enkfgdas_atmensanlinit:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      enkfgdas_atmensanlobs:
+        - F:enkfgdas_atmensanlinit
+      enkfgdas_atmensanlsol:
+        - F:enkfgdas_atmensanlobs
+      enkfgdas_atmensanlfv3inc:
+        - F:enkfgdas_atmensanlsol
+      enkfgdas_atmensanlfinal:
+        - F:enkfgdas_atmensanlfv3inc
+      enkfgdas_ecen_fv3jedi:
+        - F:gdas_atmanlfinal
+        - F:enkfgdas_atmensanlfinal
+      enkfgdas_esfc_gcycle:
+        - F:enkfgdas_atmensanlfinal
+      enkfgdas_fcst:
+        - F:enkfgdas_esfc_gcycle
+        - F:enkfgdas_ecen_fv3jedi
+
+C96C48_ufsgsi_hybatmDA:
+  half_cycle:
+    tasks:
+      - gdas_stage_ic
+      - gdas_fcst
+      - gdas_atmos_prod
+      - enkfgdas_stage_ic
+      - enkfgdas_fcst
+      - enkfgdas_echgres
+      - enkfgdas_epmn
+    dependencies:
+      gdas_fcst:
+        - H:gdas_stage_ic
+      gdas_atmos_prod:
+        - H:gdas_fcst
+      enkfgdas_fcst:
+        - H:enkfgdas_stage_ic
+      enkfgdas_echgres:
+        - H:gdas_fcst
+        - H:enkfgdas_fcst
+      enkfgdas_epmn:
+        - H:enkfgdas_fcst
+  full_cycle:
+    tasks:
+      - gdas_prep
+      - gdas_atmanlinit
+      - gdas_atmanlvar
+      - gdas_atmanlfv3inc
+      - gdas_atmanlfinal
+      - gdas_sfcanl_gcycle
+      - gdas_analcalc
+      - gdas_fcst
+      - enkfgdas_eobs
+      - enkfgdas_ediag
+      - enkfgdas_eupd
+      - enkfgdas_ecmn
+      - enkfgdas_esfc_gcycle
+      - enkfgdas_fcst
+    dependencies:
+      gdas_prep:
+        - H:gdas_fcst
+        - H:gdas_atmos_prod
+      gdas_atmanlinit:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      gdas_atmanlvar:
+        - F:gdas_atmanlinit
+      gdas_atmanlfv3inc:
+        - F:gdas_atmanlvar
+      gdas_atmanlfinal:
+        - F:gdas_atmanlfv3inc
+      gdas_sfcanl_gcycle:
+        - F:gdas_atmanlfinal
+      gdas_analcalc:
+        - H:enkfgdas_echgres
+        - F:gdas_sfcanl_gcycle
+        - F:gdas_atmanlfinal
+      gdas_fcst:
+        - F:gdas_sfcanl_gcycle
+      enkfgdas_eobs:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      enkfgdas_ediag:
+        - F:enkfgdas_eobs
+      enkfgdas_eupd:
+        - F:enkfgdas_ediag
+      enkfgdas_ecmn:
+        - F:gdas_analcalc
+        - F:enkfgdas_eupd
+      enkfgdas_esfc_gcycle:
+        - F:gdas_analcalc
+        - F:enkfgdas_eupd
+      enkfgdas_fcst:
+        - F:enkfgdas_esfc_gcycle
+        - F:enkfgdas_ecmn
+
+C48_ufsenkf_atmDA:
+  half_cycle:
+    tasks:
+      - enkfgdas_stage_ic
+      - enkfgdas_fcst
+      - enkfgdas_epmn
+    dependencies:
+      enkfgdas_fcst:
+        - H:enkfgdas_stage_ic
+      enkfgdas_epmn:
+        - H:enkfgdas_fcst
+  full_cycle:
+    tasks:
+      - gdas_fetchatmanlbias
+      - gdas_prep
+      - gdas_prepatmanlbias
+      - enkfgdas_atmensanlinit
+      - enkfgdas_atmensanlobs
+      - enkfgdas_atmensanlsol
+      - enkfgdas_atmensanlfv3inc
+      - enkfgdas_atmensanlfinal
+      - enkfgdas_esfc_gcycle
+      - enkfgdas_fcst
+    dependencies:
+      gdas_fetchatmanlbias:
+        - H:enkfgdas_epmn
+      gdas_prep:
+        - H:enkfgdas_epmn
+      gdas_prepatmanlbias:
+        - F:gdas_fetchatmanlbias
+      enkfgdas_atmensanlinit:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+        - F:gdas_prepatmanlbias
+      enkfgdas_atmensanlobs:
+        - F:enkfgdas_atmensanlinit
+      enkfgdas_atmensanlsol:
+        - F:enkfgdas_atmensanlobs
+      enkfgdas_atmensanlfv3inc:
+        - F:enkfgdas_atmensanlsol
+      enkfgdas_atmensanlfinal:
+        - F:enkfgdas_atmensanlfv3inc
+      enkfgdas_esfc_gcycle:
+        - F:enkfgdas_atmensanlfinal
+      enkfgdas_fcst:
+        - F:enkfgdas_esfc_gcycle
+
+C96_gcafs_cycled:
+  half_cycle:
+    tasks:
+      - gcdas_stage_ic
+      - gcdas_prep_emissions
+      - gcdas_fcst
+      - gcdas_atmos_prod
+      - gcdas_aeroanlgenb
+    dependencies:
+      gcdas_fcst:
+        - H:gcdas_stage_ic
+        - H:gcdas_prep_emissions
+      gcdas_atmos_prod:
+        - H:gcdas_fcst
+      gcdas_aeroanlgenb:
+        - H:gcdas_fcst
+  full_cycle:
+    tasks:
+      - gcdas_fetch
+      - gcdas_offlineanl
+      - gcdas_sfcanl_gcycle
+      - gcdas_aeroanlgenb
+      - gcdas_aeroanlinit
+      - gcdas_aeroanlvar
+      - gcdas_aeroanlfinal
+      - gcdas_prep
+      - gcdas_prep_emissions
+      - gcdas_fcst
+    dependencies:
+      gcdas_offlineanl:
+        - H:gcdas_fcst
+        - F:gcdas_fetch
+      gcdas_sfcanl_gcycle:
+        - F:gcdas_offlineanl
+      gcdas_aeroanlgenb:
+        - F:gcdas_fcst
+      gcdas_aeroanlinit:
+        - H:gcdas_aeroanlgenb
+        - F:gcdas_prep
+      gcdas_aeroanlvar:
+        - F:gcdas_aeroanlinit
+      gcdas_aeroanlfinal:
+        - F:gcdas_aeroanlvar
+        - F:gcdas_sfcanl_gcycle
+      gcdas_prep:
+        - H:gcdas_fcst
+        - H:gcdas_atmos_prod
+      gcdas_fcst:
+        - F:gcdas_sfcanl_gcycle
+        - F:gcdas_prep_emissions
+        - F:gcdas_aeroanlfinal
+
+C96C48_hybatmsnowDA:
+  half_cycle:
+    tasks:
+      - gdas_stage_ic
+      - gdas_fcst
+      - gdas_atmos_prod
+      - enkfgdas_stage_ic
+      - enkfgdas_fcst
+      - enkfgdas_echgres
+      - enkfgdas_epmn
+    dependencies:
+      gdas_fcst:
+        - H:gdas_stage_ic
+      gdas_atmos_prod:
+        - H:gdas_fcst
+      enkfgdas_fcst:
+        - H:enkfgdas_stage_ic
+      enkfgdas_echgres:
+        - H:gdas_fcst
+        - H:enkfgdas_fcst
+      enkfgdas_epmn:
+        - H:enkfgdas_fcst
+  full_cycle:
+    tasks:
+      - gdas_prep
+      - gdas_anal
+      - gdas_snowanl
+      - gdas_sfcanl_gcycle
+      - gdas_analcalc
+      - gdas_fcst
+      - enkfgdas_eobs
+      - enkfgdas_ediag
+      - enkfgdas_eupd
+      - enkfgdas_ecmn
+      - enkfgdas_esnowanl
+      - enkfgdas_esfc_gcycle
+      - enkfgdas_fcst
+    dependencies:
+      gdas_prep:
+        - H:gdas_fcst
+        - H:gdas_atmos_prod
+      gdas_anal:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      gdas_snowanl:
+        - F:gdas_prep
+      gdas_sfcanl_gcycle:
+        - F:gdas_anal
+        - F:snowanal
+      gdas_analcalc:
+        - H:enkfgdas_echgres
+        - F:gdas_sfcanl_gcycle
+      gdas_fcst:
+        - F:gdas_sfcanl_gcycle
+      enkfgdas_eobs:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      enkfgdas_ediag:
+        - F:enkfgdas_eobs
+      enkfgdas_eupd:
+        - F:enkfgdas_ediag
+      enkfgdas_ecmn:
+        - F:gdas_analcalc
+        - F:enkfgdas_eupd
+      enkfgdas_esnowanl:
+        - H:enkfgdas_epmn
+        - F:gdas_snowanl
+      enkfgdas_esfc_gcycle:
+        - F:gdas_analcalc
+        - F:enkfgdas_eupd
+        - F:enkfgdas_esnowanl
+      enkfgdas_fcst:
+        - F:enkfgdas_esfc_gcycle
+        - F:enkfgdas_ecmn
+
+C48mx500_3DVarAOWCDA:
+  half_cycle:
+    tasks:
+      - gdas_stage_ic
+      - gdas_waveinit
+      - gdas_fcst
+    dependencies:
+      gdas_fcst:
+        - H:gdas_stage_ic
+        - H:gdas_waveinit
+  full_cycle:
+    tasks:
+      - gdas_prepoceanobs
+      - gdas_marinebmatinit
+      - gdas_marinebmat
+      - gdas_marineanlinit
+      - gdas_marineanlvar
+      - gdas_marineanlchkpt
+      - gdas_marineanlfinal
+    dependencies:
+      gdas_prepoceanobs:
+        - H:gdas_fcst
+      gdas_marinebmatinit:
+        - H:gdas_fcst
+      gdas_marinebmat:
+        - F:gdas_marinebmatinit
+      gdas_marineanlinit:
+        - H:gdas_fcst
+        - F:gdas_prepoceanobs
+        - F:gdas_marinebmat
+      gdas_marineanlvar:
+        - F:gdas_marineanlinit
+      gdas_marineanlchkpt:
+        - F:gdas_marineanlvar
+      gdas_marineanlfinal:
+        - F:gdas_marineanlchkpt
+
+C48mx500_hybAOWCDA:
+  half_cycle:
+    tasks:
+      - gdas_stage_ic
+      - gdas_fcst
+      - enkfgdas_stage_ic
+      - enkfgdas_fcst
+    dependencies:
+      gdas_fcst:
+        - H:gdas_stage_ic
+      enkfgdas_fcst:
+        - H:enkfgdas_stage_ic
+  full_cycle:
+    tasks:
+      - gdas_prepoceanobs
+      - gdas_marinebmatinit
+      - gdas_marinebmat
+      - enkfgdas_marineanlletkf
+      - gdas_marineanlinit
+      - gdas_marineanlvar
+      - enkfgdas_marineanlecen
+      - gdas_marineanlchkpt
+      - gdas_marineanlfinal
+    dependencies:
+      gdas_prepoceanobs:
+        - H:gdas_fcst
+      gdas_marinebmatinit:
+        - H:gdas_fcst
+        - H:enkfgdas_fcst
+      gdas_marinebmat:
+        - F:gdas_marinebmatinit
+      enkfgdas_marineanlletkf:
+        - F:gdas_prepoceanobs
+        - F:gdas_marinebmat
+      gdas_marineanlinit:
+        - H:gdas_fcst
+        - F:gdas_prepoceanobs
+        - F:gdas_marinebmat
+      gdas_marineanlvar:
+        - F:gdas_marineanlinit
+      enkfgdas_marineanlecen:
+        - F:gdas_marinebmatinit
+      gdas_marineanlchkpt:
+        - F:gdas_marineanlvar
+        - F:enkfgdas_marineanlecen
+      gdas_marineanlfinal:
+        - F:gdas_marineanlchkpt
+        - F:enkfgdas_marineanlletkf
+
+C384mx025_3DVarAOWCDA:
+  half_cycle:
+    tasks:
+      - gdas_stage_ic
+      - gdas_fcst
+    dependencies:
+      gdas_fcst:
+        - H:gdas_stage_ic
+  full_cycle:
+    tasks:
+      - gdas_prepoceanobs
+      - gdas_marinebmatinit
+      - gdas_marinebmat
+      - gdas_marineanlinit
+      - gdas_marineanlvar
+      - gdas_marineanlchkpt
+      - gdas_marineanlfinal
+      - gdas_ocnanalvrfy
+      - gdas_prep
+      - gdas_anal
+      - gdas_sfcanl_gcycle
+      - gdas_fcst
+    dependencies:
+      gdas_prepoceanobs:
+        - H:gdas_fcst
+      gdas_marinebmatinit:
+        - H:gdas_fcst
+      gdas_marinebmat:
+        - F:gdas_marinebmatinit
+      gdas_marineanlinit:
+        - H:gdas_fcst
+        - F:gdas_prepoceanobs
+        - F:gdas_marinebmat
+      gdas_marineanlvar:
+        - F:gdas_marineanlinit
+      gdas_marineanlchkpt:
+        - F:gdas_marineanlvar
+      gdas_marineanlfinal:
+        - F:gdas_marineanlchkpt
+      gdas_prep:
+        - H:gdas_fcst
+        - H:gdas_atmos_prod
+      gdas_anal:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      gdas_sfcanl_gcycle:
+        - F:gdas_anal
+      gdas_fcst:
+        - F:gdas_sfcanl_gcycle
