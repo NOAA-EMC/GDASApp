@@ -12,16 +12,5 @@
     npx: {{ soil_npx_anl }}
     npy: {{ soil_npy_anl }}
     npz: {{ soil_npz_anl }}
-    time invariant fields:
-      state fields:
-        datetime: '{{ soil_background_time_iso }}'
-        filetype: fms restart
-        skip coupler file: true
-        state variables:
-        - filtered_orography
-        - fraction_of_land
-        field io names: {{ soil_field_io_names_fv3 }}
-        datapath: {{ soil_orog_files_path }}/
-        filename_orog: {{ soil_orog_prefix }}_oro_data.nc
   diagnostics:
     departures: bkgmob
