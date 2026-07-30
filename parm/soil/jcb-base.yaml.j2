@@ -136,6 +136,7 @@ soil_obsbiascovout_suffix: ".satbias_cov.nc"
 # Ensemble things
 soil_number_ensemble_members: {{NMEM_ENS | default(1, true) }}
 soil_background_ensemble_path: ./bkg/mem%mem%
+background_ensemble_file: soil_background_ensemble_csg
 soil_analysis_ensemble_path: ./anl/mem%mem%
 soil_ensemble_history_prefix: "{{ GPREFIX_ENS }}"
 soil_ensemble_analysis_prefix: "{{ APREFIX_ENS }}"
