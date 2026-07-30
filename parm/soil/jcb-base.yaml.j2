@@ -11,21 +11,18 @@ app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chroni
 # ------------------------------------------------------------
 model_file: model_pseudo
 initial_condition_file: background  # Initial conditions for 4D apps is background
-# file type csg or fv3
-{% set _file_type = SOIL_FILE_TYPE %}
-final_increment_file: soil_final_increment_{{ _file_type }}
-#final_increment_file: soil_final_increment_gaussian
-output_mean_prior_file: soil_output_mean_prior_{{ _file_type }}
-posterior_output_file: soil_posterior_output_{{ _file_type }}
-#output_ensemble_increments_file: soil_ensemble_increments_{{ _file_type }}
-#output_increment_file: soil_output_increment_{{ _file_type }}
-output_variance_prior_file: soil_output_variance_prior_{{ _file_type }}
-output_variance_posterior_file: soil_output_variance_posterior_{{ _file_type }}
+final_increment_file: soil_final_increment_csg
+output_mean_prior_file: soil_output_mean_prior_csg
+posterior_output_file: soil_posterior_output_csg
+output_ensemble_increments_file: soil_ensemble_increments_csg
+output_increment_file: soil_output_increment_csg
+output_variance_prior_file: soil_output_variance_prior_csg
+output_variance_posterior_file: soil_output_variance_posterior_csg
 #jedi_increment_output: gaussian
 final_increment_to_latlon_file: soil_final_increment_gaussian
 #final_analysis_to_latlon_file: soil_final_analysis_latlon
-output_ensemble_increments_file: soil_ensemble_increments_gaussian
-output_increment_file: soil_output_increment_gaussian
+#output_ensemble_increments_file: soil_ensemble_increments_gaussian
+#output_increment_file: soil_output_increment_gaussian
 
 # Assimilation window
 # -------------------
@@ -52,49 +49,23 @@ cost_type: 3D-Var
 number_of_outer_loops: 1
 
 # Analysis variables
-{% set _analysis_vars_csg = ['soill1',
-                             'soill2',
-                             'soilt1',
-                             'soilt2'] %}
-#                             'air_temperature_at_2m',
-#                             'specfic_humidity_at_2m'] %}
-{% set _analysis_vars_fv3 = ['soilMoistureVolumetric', 'stc', 'air_temperature_at_2m', 'specfic_humidity_at_2m'] %}
-
-analysis_variables: {{ _analysis_vars_csg }}
+analysis_variables: ['soill1', 'soilt1']
 
 # Model things
 # ------------
-
 # State variables
-soil_state_variables_csg: ['soill1', 'soill2', 'soilt1', 'soilt2', 'air_temperature_at_2m', 'specfic_humidity_at_2m', 'slmsk', 'sheleg', 'vtype', 'stype', 'vfrac','geopotential_height_at_surface', 'skin_temperature_at_surface']
-#soil_state_variables_csg: {{ _analysis_vars_csg + ['slmsk', 'sheleg', 'vtype', 'stype', 'vfrac','geopotential_height_at_surface', 'skin_temperature_at_surface'] }}
-#soil_state_variables_fv3: {{ _analysis_vars_fv3 + ['slmsk', 'sheleg', 'vtype', 'filtered_orography', 'fraction_of_ice', 'fraction_of_land', 'totalSnowDepth'] }}
+soil_state_variables_csg: ['soill1', 'soill2', 'soilt1', 'soilt2', 'slmsk', 'sheleg', 'vtype', 'stype', 'vfrac']
 
 # Increment variables
-soil_increment_variables_csg:       {{ _analysis_vars_csg }}
-soil_increment_variables_fv3:       {{ _analysis_vars_fv3 }}
-soil_increment_variables_final_csg: ['soill1', 'soill2', 'soilt1', 'soilt2', 'air_temperature_at_2m', 'specfic_humidity_at_2m', 'slmsk','slmsk', 'sheleg', 'vtype', 'stype', 'vfrac']
-#soil_increment_variables_final_csg: {{ _analysis_vars_csg }} + ['slmsk', 'sheleg', 'vtype', 'stype', 'vfrac'] }}
-#soil_increment_variables_final_fv3: {{ _analysis_vars_fv3 }} + ['slmsk', 'sheleg', 'vtype', 'totalSnowDepth'] }}
-
+soil_increment_variables_csg: ['soill1', 'soilt1']
+soil_increment_variables_final_csg: ['soill1', 'soill2', 'soilt1', 'soilt2', 'slmsk', 'sheleg', 'vtype', 'stype', 'vfrac']
 
 # Variable IO names
 soil_field_io_names_csg:
-    air_temperature_at_2m: tmp2m
-    specfic_humidity_at_2m: spfh2m
     slmsk: land
     sheleg: weasd
     stype: sotyp
     vfrac: veg
-    geopotential_height_at_surface: hgtsfc
-    skin_temperature_at_surface: tmpsfc
-
-soil_field_io_names_fv3:
-    soilMoistureVolumetric: smc
-    totalSnowDepth: snodl
-    filtered_orography: orog_filt
-    fraction_of_ice: fice
-    fraction_of_land: land_frac
 
 # Geometry
 soil_layout_x: {{ layout_x | default(1, true) }}
@@ -173,11 +144,7 @@ soil_ensemble_analysis_prefix: "{{ APREFIX_ENS }}"
 # -------------------------
 local_ensemble_da_solver: Deterministic LETKF  #GETKF
  
-#{% if  _file_type == 'csg'  %}
-increment_variables: {{ _analysis_vars_csg }}
-#{% else %}
-#    increment_variables: {{ _analysis_vars_fv3 }}
-#{% endif %}
+increment_variables: ['soill1', 'soill2', 'soilt1', 'soilt2']
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
