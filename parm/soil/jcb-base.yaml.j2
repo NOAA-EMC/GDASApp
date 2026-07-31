@@ -49,19 +49,35 @@ cost_type: 3D-Var
 number_of_outer_loops: 1
 
 # Analysis variables
-analysis_variables: ['soill1']  #, 'soilt1']
+{% set _analysis_vars = ['soill1'] %}
+analysis_variables: {{ _analysis_vars }}
 
 # Model things
 # ------------
+
 # State variables
-soil_state_variables_csg: ['soill1', 'soill2', 'soilt1', 'soilt2', 'slmsk', 'sheleg', 'vtype', 'stype', 'vfrac']
+soil_state_variables: {{ _analysis_vars + ['soill2',
+                                           'soilt1',
+                                           'soilt2',
+                                           'slmsk',
+                                           'sheleg',
+                                           'vtype',
+                                           'stype',
+                                           'vfrac'] }}
 
 # Increment variables
-soil_increment_variables_csg: ['soill1', 'soilt1']
-soil_increment_variables_final_csg: ['soill1', 'soill2', 'soilt1', 'soilt2', 'slmsk', 'sheleg', 'vtype', 'stype', 'vfrac']
+soil_det_increment_variables:       {{ _analysis_vars }}
+soil_det_increment_variables_final: {{ _analysis_vars + ['soill2',
+                                                         'soilt1',
+                                                         'soilt2',
+                                                         'slmsk',
+                                                         'sheleg',
+                                                         'vtype',
+                                                         'stype',
+                                                         'vfrac'] }}
 
 # Variable IO names
-soil_field_io_names_csg:
+soil_field_io_names:
     slmsk: land
     sheleg: weasd
     stype: sotyp
