@@ -38,6 +38,15 @@
   # Observation Prior Filters (QC)
   # ------------------------------
   obs prior filters:
+  - filter: RejectList
+    udescriptor: obs_type_check_ps
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable:
+        name: ObsType/stationPressure
+      is_not_in: 120
+
   # Initial Error Assignments for SFC Observations 
   - filter: Perform Action
     filter variables:
