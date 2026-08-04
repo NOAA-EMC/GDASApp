@@ -15,6 +15,11 @@
 # categories:           Number of categories for a field with a category dimension (Default: -1)
 #                       If > 0, then the fields "name", and "io name" can use the
 #                       placeholder "<CATEGORY>" which will be replaced with the category number
+# layers:               Number of per-layer entries to expand (Default: -1). If > 0, "name",
+#                       "io name", and "io sup name" can use the placeholder "<LEVEL>" which is
+#                       replaced with the layer number. Combines with "categories" (C*L entries).
+#                       Used for CICE per-layer restart variables (qice001.., sice001..) where
+#                       each layer is a distinct file variable, not one level of a 4D variable.
 # --------------------------------------------------------------------------------------------------
 
 
@@ -74,18 +79,28 @@
 # --------------------------------------------------------------------------------------------------
 # ice state variables with no categories
 # --------------------------------------------------------------------------------------------------
-- name: sea_ice_thickness
+- name: sea_ice_volume           # per unit grid cell area
   io file: ice
   io name: hi_h #note, was hicen
+  property: positive_definite
+
+- name: sea_ice_thickness        # per ice area, i.e. sea_ice_volume / sea_ice_area_fraction
+  io file: ice
+  io name: hi_div_aice_h
   property: positive_definite
 
 - name: sea_ice_area_fraction
   io file: ice
   io name: aice_h #note, was aicen
 
-- name: sea_ice_snow_thickness
+- name: sea_ice_snow_volume      # per unit grid cell area
   io file: ice
   io name: hs_h #note, was hsnon
+  property: positive_definite
+
+- name: sea_ice_snow_thickness   # per ice area, i.e. sea_ice_snow_volume / sea_ice_area_fraction
+  io file: ice
+  io name: hs_div_aice_h
   property: positive_definite
 
 - name: snow_ice_surface_temperature
@@ -106,23 +121,80 @@
 - name: sea_ice_category<CATEGORY>_area_fraction
   categories: 5
   io file: ice
-  io sup name: aicen_h
-  io name: aice<CATEGORY>_h
+  io sup name: aicen
+  io name: aice<CATEGORY>
   property: positive_definite
 
 - name: sea_ice_category<CATEGORY>_volume
   categories: 5
   io file: ice
-  io sup name: vicen_h
-  io name: vice<CATEGORY>_h
+  io sup name: vicen
+  io name: vice<CATEGORY>
   property: positive_definite
 
 - name: sea_ice_snow_category<CATEGORY>_volume
   categories: 5
   io file: ice
-  io sup name: vsnon_h
-  io name: vsno<CATEGORY>_h
+  io sup name: vsnon
+  io name: vsno<CATEGORY>
   property: positive_definite
+
+# --------------------------------------------------------------------------------------------------
+# CICE restart thermo/pond variables with category dimension (per-category 2D
+# fields). io sup name is the literal CICE restart variable name.
+# --------------------------------------------------------------------------------------------------
+- name: sea_ice_category<CATEGORY>_surface_temperature
+  categories: 5
+  io file: ice
+  io sup name: Tsfcn
+  io name: Tsfcn<CATEGORY>
+
+- name: sea_ice_category<CATEGORY>_pond_area_fraction
+  categories: 5
+  io file: ice
+  io sup name: apnd
+  io name: apnd<CATEGORY>
+  property: positive_definite
+
+- name: sea_ice_category<CATEGORY>_pond_depth
+  categories: 5
+  io file: ice
+  io sup name: hpnd
+  io name: hpnd<CATEGORY>
+  property: positive_definite
+
+- name: sea_ice_category<CATEGORY>_pond_lid_thickness
+  categories: 5
+  io file: ice
+  io sup name: ipnd
+  io name: ipnd<CATEGORY>
+  property: positive_definite
+
+# --------------------------------------------------------------------------------------------------
+# CICE restart per-layer thermo variables (category x layer 2D fields). Each
+# CICE layer is its own restart variable qice00N / sice00N / qsno00N, so these
+# expand via the <LEVEL> placeholder into one single-level field per (cat,layer).
+# --------------------------------------------------------------------------------------------------
+- name: sea_ice_category<CATEGORY>_layer<LEVEL>_enthalpy
+  categories: 5
+  layers: 7
+  io file: ice
+  io sup name: qice00<LEVEL>
+  io name: qice<CATEGORY>_00<LEVEL>
+
+- name: sea_ice_category<CATEGORY>_layer<LEVEL>_ice_salinity
+  categories: 5
+  layers: 7
+  io file: ice
+  io sup name: sice00<LEVEL>
+  io name: sice<CATEGORY>_00<LEVEL>
+
+- name: sea_ice_snow_category<CATEGORY>_layer<LEVEL>_enthalpy
+  categories: 5
+  layers: 1
+  io file: ice
+  io sup name: qsno00<LEVEL>
+  io name: qsno<CATEGORY>_00<LEVEL>
 
 # --------------------------------------------------------------------------------------------------
 # Thermodynamic ice state variables with category and level dimension

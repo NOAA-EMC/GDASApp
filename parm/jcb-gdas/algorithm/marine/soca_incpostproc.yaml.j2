@@ -83,33 +83,22 @@ soca background:  # background at the beginning of the window, used to compute a
   - sea_ice_thickness
   - sea_ice_snow_thickness
 
-ice analysis postprocessing:
-  variable change name: Soca2Cice
-  arctic:
-    seaice edge: 0.4
-    shuffle: true
-    rescale prior:
-      rescale: true
-      min hice: 0.5
-      min hsno: 0.1
-  antarctic:
-    seaice edge: 0.4
-    shuffle: true
-    rescale prior:
-      rescale: true
-      min hice: 0.5
-      min hsno: 0.1
-  cice background state:
-    restart: ./Data/{{ marine_cice_date_fms }}.cice_model.res.nc
-    ncat: 5
-    ice_lev: 7
-    sno_lev: 1
-  cice output:
-    restart: ./Data/{{ marine_cice_date_fms }}.cice_model.res.nc
-  output variables:
-  - sea_water_potential_temperature
-  - sea_water_salinity
-  - sea_ice_area_fraction
-  - sea_ice_thickness
-  - sea_ice_snow_thickness
 
+# Sea-ice analysis postprocessing via the C++/atlas PostProcessIce path
+# (replaces the Fortran Soca2Cice variable change). PostProcessIce reads
+# the per-category CICE restart itself and writes the postprocessed restart in
+# update mode
+postprocess ice:
+  ncat: 5
+  ice_lev: 7
+  sno_lev: 1
+  cice restart:
+    input:  ./Data/{{ marine_cice_date_fms }}.cice_model.res.nc
+    output: ./Data/{{ marine_cice_date_fms }}.cice_model.res.nc
+  snow:
+    min snow thickness: 0.0001     # 0.1 mm floor (Python uses 1e-4)
+  freeboard:
+    enforce: true
+  itd:
+    rebin: true
+    category bounds: [0.0, 0.64, 1.39, 2.47, 4.57, 1000]
