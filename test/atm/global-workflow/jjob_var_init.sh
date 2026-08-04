@@ -28,7 +28,13 @@ export ACCOUNT=da-cpu
 # Set GFS COM paths
 export STRICT="NO"
 source "${HOMEglobal}/ush/preamble.sh"
-source "${HOMEglobal}/dev/parm/config/gfs/config.com"
+# COM_*_TMPL must match the canonical source in dev/workflow/com_paths.py
+# shellcheck disable=SC2016
+export COM_OBS_TMPL='${ROTDIR}/${RUN}.${YMD}/${HH}/obs'
+# shellcheck disable=SC2016
+export COM_ATMOS_ANALYSIS_TMPL='${ROTDIR}/${RUN}.${YMD}/${HH}/${MEMDIR}/analysis/atmos'
+# shellcheck disable=SC2016
+export COM_ATMOS_HISTORY_TMPL='${ROTDIR}/${RUN}.${YMD}/${HH}/${MEMDIR}/model/atmos/history'
 
 # Detect machine
 source "${HOMEglobal}/ush/detect_machine.sh"

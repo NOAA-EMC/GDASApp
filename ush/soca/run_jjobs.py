@@ -173,8 +173,11 @@ class JobCard:
         print(f"RUN: {self.RUN}")
 
         # setup COM variables
-        self.f.write("source ${HOMEglobal}/dev/parm/config/gfs/config.com\n")
+        # COM_*_TMPL must match the canonical source in dev/workflow/com_paths.py
         self.f.write("source ${HOMEglobal}/ush/preamble.sh\n")
+        self.f.write("export COM_OCEAN_HISTORY_TMPL='${ROTDIR}/${RUN}.${YMD}/${HH}/${MEMDIR}/model/ocean/history'\n")
+        self.f.write("export COM_ICE_HISTORY_TMPL='${ROTDIR}/${RUN}.${YMD}/${HH}/${MEMDIR}/model/ice/history'\n")
+        self.f.write("export COM_ICE_RESTART_TMPL='${ROTDIR}/${RUN}.${YMD}/${HH}/${MEMDIR}/model/ice/restart'\n")
         self.precom('COM_OCEAN_HISTORY_PREV', 'COM_OCEAN_HISTORY_TMPL')
         self.precom('COM_ICE_HISTORY_PREV', 'COM_ICE_HISTORY_TMPL')
         self.precom('COM_ICE_RESTART_PREV', 'COM_ICE_RESTART_TMPL')
