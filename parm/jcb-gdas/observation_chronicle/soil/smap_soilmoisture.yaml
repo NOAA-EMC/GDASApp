@@ -1,0 +1,15 @@
+# Instrument metadata
+# -------------------
+commissioned: 2015-04-01T00:00:00
+
+observer_type: satellite # Type of chronicle to use
+
+channel_variables:
+  simulated: min
+
+channel_values:
+  1: [true]
+
+# Chronicle of changes for this observation type
+# ----------------------------------------
+chronicles: []
