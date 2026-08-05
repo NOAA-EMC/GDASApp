@@ -15,8 +15,8 @@
         obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
-    simulated variables: [stationPressure, airTemperature]
-    observed variables: [stationPressure, airTemperature]
+    simulated variables: [stationPressure, airTemperatureAt2M]
+    observed variables: [stationPressure, airTemperatureAt2M]
 
   # Observation Operator
   # -------------------
@@ -30,22 +30,22 @@
       geovar_geomz: geopotential_height
       variables:
       - name: stationPressure
-    # to-do: replace airTemperature with airTemperatureAt2m, and use identity
-    - name: VertInterp
-      vertical coordinate: air_pressure
-      observation vertical coordinate: pressure
-      observation vertical coordinate group: MetaData
-      interpolation method: log-linear
+    - name: Identity
       variables:
-      - name: airTemperature
+      - name: airTemperatureAt2M
 
   # Linear Observation Operator
   # ---------------------------
   linear obs operator:
-    name: Identity
-    variables:
-    - name: stationPressure
-    - name: airTemperature
+    name: Composite
+    components:
+    - name: Identity
+      variables:
+      - name: stationPressure
+    - name: Identity
+      variables:
+      - name: airTemperatureAt2M
+        alias: air_temperature
 
   # Observation Prior Filters (QC)
   # ------------------------------
@@ -253,7 +253,7 @@
   #- filter: Perform Action
   #  udescriptor: "obs_type_check"
   #  where:
-  #  - variable: ObsValue/airTemperature
+  #  - variable: ObsValue/airTemperatureAt2M
   #    value: is_not_valid
   #  action:
   #    name: reduce obs space
@@ -263,18 +263,18 @@
   - filter: RejectList
     udescriptor: "obs_type_check"
     filter variables:
-    - name: airTemperature
+    - name: airTemperatureAt2M
     where:
     - variable:
-        name: ObsType/airTemperature
+        name: ObsType/airTemperatureAt2M
       is_not_in: [181]
   - filter: RejectList
     filter variables:
-    - name: airTemperature
+    - name: airTemperatureAt2M
     where:
     - variable:
         name: MetaData/stationIdentification
-      is_in: {{ get_conventional_rejected_stations(observation_from_jcb, 'airTemperature') }}
+      is_in: {{ get_conventional_rejected_stations(observation_from_jcb, 'airTemperatureAt2M') }}
 
   # Observation Post Filters (QC)
   # -----------------------------
