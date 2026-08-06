@@ -3,21 +3,8 @@ members from template:
     datetime: '{{ snow_background_time_iso }}'
     filetype: fms restart
     skip coupler file: true
-#    provider: ufs
-    state variables:
-    - totalSnowDepth
-    - vtype
-    - slmsk
-    - sheleg
-    - filtered_orography
-    - fraction_of_ice
-    - fraction_of_land
-    - stc
-    field io names:
-      totalSnowDepth: snodl
-      filtered_orography: orog_filt
-      fraction_of_ice: fice
-      fraction_of_land: land_frac
+    state variables: {{ snow_det_state_variables }}
+    field io names: {{ snow_field_io_names }}
     datapath: {{ snow_background_ensemble_path }}
     filename is datetime templated: true
     filename_sfcd: '{{ snow_background_time_fv3 }}.sfc_data.nc'
