@@ -37,15 +37,13 @@
   # Linear Observation Operator
   # ---------------------------
   linear obs operator:
-    name: Composite
-    components:
-    - name: Identity
-      variables:
-      - name: stationPressure
-    - name: Identity
-      variables:
+    name: Identity
+    variable maps:
       - name: airTemperatureAt2M
         alias: air_temperature
+    variables:
+    - name: stationPressure
+    - name: airTemperatureAt2M
 
   # Observation Prior Filters (QC)
   # ------------------------------
