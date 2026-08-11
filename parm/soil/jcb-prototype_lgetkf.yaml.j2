@@ -1,0 +1,31 @@
+# Use observations for lgetkf
+# ---------------------------
+app_path_observations: {{PARMglobal}}/gdas/jcb-gdas/observations/soil
+app_path_observation_chronicle: {{PARMglobal}}/gdas/jcb-gdas/observation_chronicle/soil
+## Algorithm
+## ---------
+algorithm: local_ensemble_da
+#
+## Model things
+## ------------
+soil_background_ensemble_path: ./bkg/mem%mem%
+
+# Observation things
+# ------------------
+#? does obs list yaml get constructed from settings?
+use_linear_observer: true
+{% include OBS_LIST_YAML %}
+
+# Observation distribution and localization
+# TODO: 
+distribution_type: "Halo"
+localization_method: "Horizontal Gaspari-Cohn"
+halo_size: 1250e3
+loc_length_scale: 1250e3
+max_nobs: 10000
+
+# Testing things
+# --------------
+{% if DO_TEST_MODE %}
+{% include LETKF_JEDI_TEST_YAML %}
+{% endif %}

@@ -1,0 +1,7 @@
+prefix: soil_ensvariance_prior
+datapath: ./anl/
+filetype: cube sphere history
+provider: ufs
+filename: soilinc_{{ soil_ensemble_history_prefix }}.nc
+state variables: {{ soil_state_variables }}
+field io names: {{ soil_field_io_names }}

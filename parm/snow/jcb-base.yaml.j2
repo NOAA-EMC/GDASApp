@@ -9,10 +9,16 @@ app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chroni
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
-final_increment_file: snow_final_increment_fms
 model_file: model_pseudo
 initial_condition_file: background  # Initial conditions for 4D apps is background
-
+final_increment_file: snow_final_increment_fms
+output_mean_prior_file: snow_output_mean_prior_fms
+posterior_output_file: snow_posterior_output_fms
+output_ensemble_increments_file: snow_ensemble_increments_fms
+output_increment_file: snow_output_increment_fms  #snow_ensemblemean_increment_fms.yaml.j2 
+output_variance_prior_file: snow_output_variance_prior_fms
+output_variance_posterior_file: snow_output_variance_posterior_fms
+#jedi_increment_output: gaussian
 
 # Assimilation window
 # -------------------
@@ -29,7 +35,6 @@ snow_background_time_fv3: "{{ bkg_time_fv3 }}"
 snow_background_time_julian: "{{ bkg_time_julian }}"
 snow_increment_time_iso: "{{ bkg_time_iso }}"
 snow_increment_time_fv3: "{{ bkg_time_fv3 }}"
-
 
 # Analysis standard things
 # ------------------------
@@ -91,18 +96,15 @@ snow_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
 snow_background_path: {{snow_bkg_path}}
-background_ensemble_path: ./ens/mem%mem%
+snow_background_ensemble_path: ./bkg/mem%mem%
 
 # Background error
 snow_bump_data_directory: "{{ DATA }}/berror"
-number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
-
 snow_background_error_file: "{{BERROR_YAML}}"
 
 # Forecasting
 snow_forecast_length: "{{ SNOW_WINDOW_LENGTH }}"
 snow_forecast_timestep: "{{ BKG_TSTEP }}"
-
 
 # Observation things
 # ------------------
@@ -136,13 +138,13 @@ snow_obsbiascovout_prefix: "{{APREFIX}}"
 snow_obsbiascovout_suffix: ".satbias_cov.nc"
 
 # Ensemble mean things
-snow_number_ensemble_members: {{NMEM_ENS}}
+snow_number_ensemble_members: {{NMEM_ENS | default(1, true) }}   
 
 # Local Ensemble DA (LETKF)
 # -------------------------
 local_ensemble_da_solver: Deterministic GETKF
 
-increment_variables: {{ _analysis_vars }} # dummy for now
+increment_variables: [totalSnowDepth,vtype,slmsk] 
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
@@ -154,12 +156,17 @@ inflation_mult: 1.0
 
 # Driver
 driver_update_obs_config_with_geometry_info: true
-driver_save_posterior_mean: false
-driver_save_posterior_ensemble: false
-driver_save_prior_mean: false
-driver_save_posterior_mean_increment: false
+driver_save_posterior_mean: true
+driver_save_posterior_ensemble: true
+driver_save_posterior_mean_increment: true
 driver_save_posterior_ensemble_increments: true
+driver_save_prior_variance: true
+driver_save_posterior_variance: true
+driver_save_prior_mean: true  #(default false)
+#driver_do_test_prints: false (default true)
+#default driver_do_posterior_observer: true
+#default driver_use_control_member: false
 
 # Diagnostics
-ensemble_increment_prefix: "./anl/mem%{member}%/snowinc."
+#ensemble_increment_prefix: "./anl/mem%{member}%/snowinc."
 #posterior_output_gaussian: "./mem%{member}%/snowanl."
