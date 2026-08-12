@@ -21,8 +21,6 @@ output_variance_posterior_file: soil_output_variance_posterior_csg
 #jedi_increment_output: gaussian
 final_increment_to_latlon_file: soil_final_increment_gaussian
 #final_analysis_to_latlon_file: soil_final_analysis_latlon
-#output_ensemble_increments_file: soil_ensemble_increments_gaussian
-#output_increment_file: soil_output_increment_gaussian
 
 # Assimilation window
 # -------------------
@@ -105,7 +103,7 @@ soil_orog_files_path: "{{ DATA }}/bkg"
 soil_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
-soil_background_path: ./bkg
+soil_background_path: "{{ DATA }}/bkg"
 background_file: soil_background_csg
 
 # Background error
@@ -151,9 +149,9 @@ soil_obsbiascovout_suffix: ".satbias_cov.nc"
 
 # Ensemble things
 soil_number_ensemble_members: {{NMEM_ENS | default(1, true) }}
-soil_background_ensemble_path: ./bkg/mem%mem%
+soil_background_ensemble_path: "{{DATA}}/bkg/mem%mem%"
 background_ensemble_file: soil_background_ensemble_csg
-soil_analysis_ensemble_path: ./anl/mem%mem%
+soil_analysis_ensemble_path: "{{DATA}}/anl/mem%mem%"
 soil_ensemble_history_prefix: "{{ GPREFIX_ENS }}"
 soil_ensemble_analysis_prefix: "{{ APREFIX_ENS }}"
 
@@ -185,9 +183,8 @@ driver_do_test_prints: false  #(default true)
 #default driver_use_control_member: false
 
 # Diagnostics
-soil_increment_path: ./anl
-soil_increment_ensemble_path: ./anl/mem%mem%
+soil_increment_path: "{{DATA}}/anl"
+soil_increment_ensemble_path: "{{DATA}}/anl/mem%mem%"
 soil_increment_prefix: "{{ SOIL_INC_PREFIX }}"
 soil_gaussian_increment_prefix: "{{ SOIL_GINC_PREFIX }}"
-#posterior_output_gaussian: "./mem%{member}%/soilanl."
-#
+#posterior_output_gaussian: ""{{DATA}}/mem%{member}%/soilanl."
