@@ -1,18 +1,6 @@
-# Use observations for lgetkf
-# ---------------------------
-app_path_observations: {{PARMgfs}}/gdas/jcb-gdas/observations/snow
-app_path_observation_chronicle: {{PARMgfs}}/gdas/jcb-gdas/observation_chronicle/snow/{{cycle}}
 # Algorithm
 # ---------
 algorithm: local_ensemble_da
-
-# Model things
-# ------------
-snow_background_ensemble_path: ./bkg/mem%mem%
-
-# Observation things
-# ------------------
-{% include OBS_LIST_YAML %}
 
 # Observation distribution and localization
 # TODO: 
@@ -21,9 +9,3 @@ localization_method: "Horizontal Box car"
 halo_size: 250e3
 loc_length_scale: 250e3
 max_nobs: 50
-
-# Testing things
-# --------------
-{% if DO_TEST_MODE %}
-{% include LETKF_JEDI_TEST_YAML %}
-{% endif %}
