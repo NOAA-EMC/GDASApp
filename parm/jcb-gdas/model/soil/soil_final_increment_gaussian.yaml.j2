@@ -1,6 +1,6 @@
 grid type: regular gaussian
 local interpolator type: oops unstructured grid interpolator
-number of latitude gridpoints: {{ (soil_npy_anl | int) - 1 }} 
+number of latitude gridpoints: {{ soil_npy_anl | int - 1 }} 
 datapath: ./anl
 prefix: {{ soil_gaussian_increment_prefix }}
 all model levels: true
