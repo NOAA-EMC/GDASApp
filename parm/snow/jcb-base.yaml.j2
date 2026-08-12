@@ -145,6 +145,7 @@ snow_number_ensemble_members: {{NMEM_ENS | default(1, true) }}
 local_ensemble_da_solver: Deterministic GETKF
 
 increment_variables: [totalSnowDepth,vtype,slmsk] 
+snow_increment_variables: {{ increment_variables }}
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
