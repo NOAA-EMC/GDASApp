@@ -13,6 +13,7 @@ increment variables: &vars
 - eastward_sea_water_velocity
 - northward_sea_water_velocity
 {% endif %}
+- sea_surface_height_above_geoid
 - sea_ice_area_fraction
 - sea_ice_thickness
 - sea_ice_snow_thickness
@@ -35,6 +36,10 @@ backgrounds:
       - eastward_sea_water_velocity
       - northward_sea_water_velocity
 {% endif %}
+      - sea_surface_height_above_geoid
+      - ocean_mixed_layer_thickness
+      - distance_from_coast
+      - sea_water_depth
       - sea_ice_area_fraction
       - sea_ice_thickness
       - sea_ice_snow_thickness
@@ -69,6 +74,8 @@ recentering state:
 {% endif %}
   - sea_water_cell_thickness
   - sea_water_depth
+  - sea_surface_height_above_geoid
+  - distance_from_coast
   - ocean_mixed_layer_thickness
   - sea_ice_area_fraction
   - sea_ice_thickness
@@ -102,6 +109,20 @@ increment postprocessing:
   set increment variables to zero:
   - eastward_sea_water_velocity
   - northward_sea_water_velocity
+  # Keep the analysis within physical bounds
+  bounds check:
+    state bounds:
+      sea_water_potential_temperature: [-2.5, 36.0]
+      sea_water_salinity: [0.0, 44.0]
+
+    absolute steric increment max: 0.5
+    steric variable change:
+      linear variable changes:
+      - linear variable change name: BalanceSOCA
+
+    coastal increment filter:
+      min distance: 0.0       # [m] zero increments at the coast
+      max distance: 200000.0  # [m] full increments beyond 200 km from coast
 
 analysis postprocessing:
   pattern: "%mem%"
