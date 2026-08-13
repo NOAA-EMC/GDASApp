@@ -3,19 +3,17 @@
 set -x
 
 # Detect machine
-source "detect_machine.sh"
-
-# Set up the PYTHONPATH to include wxflow from HOMEglobal
-if [[ -d "${HOMEglobal}/sorc/wxflow/src" ]]; then
-  PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${HOMEglobal}/sorc/wxflow/src"
-fi
+source "/scratch3/NCEPDEV/da/David.New/gdasapp-jediflow/ush/detect_machine.sh"
 
 # Set python path for workflow utilities and tasks
-wxflowPATH="${HOMEglobal}/ush/python"
+wxflowPATH="/scratch3/NCEPDEV/da/David.New/wxflow"
+dautilsPATH="/scratch3/NCEPDEV/da/David.New/gdasapp-jediflow/sorc/da-utils/ush/jedi/"
 PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${wxflowPATH}"
-export PYTHONPATH
+PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${dautilsPATH}"
 
 # Export library path
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEglobal}/lib"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/scratch3/NCEPDEV/da/David.New/gdasapp-jediflow/build/lib"
+
+test_gdasapp.py
 
 set +x

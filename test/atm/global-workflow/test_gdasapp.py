@@ -79,7 +79,7 @@ class varGDAS(Task):
         # Set JEDI configuration dictionary
         self.jedi_config = {
             '3dvar': {
-                'rundir': './',
+                'rundir': '/scratch3/NCEPDEV/da/David.New/test_gdasapp',
                 'exe_src': '{{ HOMEgdas }}/exec/gdas.x',
                 'jedi_args': ['fv3jedi', 'variational'],
                 'jcb_algo': '3dvar',
