@@ -53,6 +53,15 @@
   ###############################################
 
   obs prior filters:
+  - filter: RejectList
+    udescriptor: obs_type_check_ps
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable:
+        name: ObsType/stationPressure
+      is_not_in: 181, 187
+
   # Initial Error Assignments for SFC Observations 
   - filter: Perform Action
     filter variables:
@@ -402,10 +411,10 @@
       is_not_in: 0, 1
     action:
       name: reject
-# for now, discard all T2m
+  # TEMPORARY: REJECT ALL T OBS
   - filter: RejectList
     filter variables:
-    - name: airTemperatureAt2M
+    - name: airTemperature
   # End of Filters 
 
 
