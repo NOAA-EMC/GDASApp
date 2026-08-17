@@ -186,24 +186,17 @@
   obs post filters:
 
   # Compute and apply inflation factor from model-observation terrain mismatch
-  - filter: Variable Assignment
-    assignments:
-    - name: ObsErrorFactorSfcPressure/stationPressure
-      type: float
-      function:
-        name: ObsFunction/ObsErrorFactorSfcPressure
-        options:
-          geovar_sfc_geomz: height_above_mean_sea_level_at_surface
-          geovar_geomz: geopotential_height
-          station_altitude: height
-
   - filter: Perform Action
     filter variables:
     - name: stationPressure
     action:
       name: inflate error
       inflation variable:
-        name: ObsErrorFactorSfcPressure/stationPressure
+        name: ObsFunction/ObsErrorFactorSfcPressure
+        options:
+          geovar_sfc_geomz: height_above_mean_sea_level_at_surface
+          geovar_geomz: geopotential_height
+          station_altitude: height
 
   # retaining GSI order: compute duplicate check, apply O-F check 
   # using initial errors, then apply duplicate error inflation
@@ -218,18 +211,6 @@
           variable: stationPressure
 
   # Compute and apply background-check for non-QM=3 pressure obs
-  - filter: Variable Assignment
-    assignments:
-    - name: DerivedMetaData/ObsErrorBoundSfcPressure1
-      type: float
-      function:
-        name: ObsFunction/ObsErrorBoundConventional
-        options:
-          obsvar: stationPressure
-          obserr_bound_min: 100
-          obserr_bound_max: 300
-          obserr_bound_factor: 5.0
-
   - filter: Background Check
     filter variables:
     - name: stationPressure
@@ -237,22 +218,14 @@
     - variable: QualityMarker/stationPressure
       is_not_in: 3
     function absolute threshold:
-    - name: DerivedMetaData/ObsErrorBoundSfcPressure1
+    - name: ObsFunction/ObsErrorBoundConventional
+      options:
+        obsvar: stationPressure
+        obserr_bound_min: 100
+        obserr_bound_max: 300
+        obserr_bound_factor: 5.0
     action:
       name: reject
-
-   # Compute and apply background-check for QM=3 pressure obs
-  - filter: Variable Assignment
-    assignments:
-    - name: DerivedMetaData/ObsErrorBoundSfcPressure2
-      type: float
-      function:
-        name: ObsFunction/ObsErrorBoundConventional
-        options:
-          obsvar: stationPressure
-          obserr_bound_min: 100
-          obserr_bound_max: 300
-          obserr_bound_factor: 3.5
 
   # Reject QM=3 pressure obs with large background departures
   - filter: Background Check
@@ -262,7 +235,12 @@
     - variable: QualityMarker/stationPressure
       is_in: 3
     function absolute threshold:
-    - name: DerivedMetaData/ObsErrorBoundSfcPressure2
+    - name: ObsFunction/ObsErrorBoundConventional
+      options:
+        obsvar: stationPressure
+        obserr_bound_min: 100
+        obserr_bound_max: 300
+        obserr_bound_factor: 3.5
     action:
       name: reject
 
@@ -282,11 +260,7 @@
     where:
     - variable:
         name: ObsValue/stationPressure
-      is_defined:
-    - variable:
-        name: ObsValue/stationPressure
       maxvalue: 50000.00
-    where operator: and
 
   - filter: RejectList
     filter variables:
@@ -309,4 +283,5 @@
   # Passed benchmark for UFO testing
   # --------------------------------
   passedBenchmark: 0
+
 
