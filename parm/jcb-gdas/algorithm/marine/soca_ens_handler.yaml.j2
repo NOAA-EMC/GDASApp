@@ -9,8 +9,10 @@ nens per MPI task: '{{ marine_number_ensemble_members_per_mpi }}'
 increment variables: &vars
 - sea_water_potential_temperature
 - sea_water_salinity
+{% if not marine_letkf_app | default(false) %}
 - eastward_sea_water_velocity
 - northward_sea_water_velocity
+{% endif %}
 - sea_ice_area_fraction
 - sea_ice_thickness
 - sea_ice_snow_thickness
@@ -29,18 +31,42 @@ backgrounds:
       - sea_water_potential_temperature
       - sea_water_salinity
       - sea_water_cell_thickness
+{% if not marine_letkf_app | default(false) %}
       - eastward_sea_water_velocity
       - northward_sea_water_velocity
+{% endif %}
       - sea_ice_area_fraction
       - sea_ice_thickness
       - sea_ice_snow_thickness
+
+{% if marine_letkf_app | default(false) %}
+analysis increments:
+  members from template:
+    nmembers: '{{ marine_number_ensemble_members }}'
+    pattern: "%mem%"
+    template:
+      date: "{{ marine_window_end_iso }}"
+      basename: ./inc/
+      ocn_filename: "ocean.inc.%mem%.nc"
+      ice_filename: "ice.inc.%mem%.nc"
+      read_from_file: 1
+      state variables:
+      - sea_water_potential_temperature
+      - sea_water_salinity
+      - sea_water_cell_thickness
+      - sea_ice_area_fraction
+      - sea_ice_thickness
+      - sea_ice_snow_thickness
+{% endif %}
 
 recentering state:
   state variables:
   - sea_water_potential_temperature
   - sea_water_salinity
+{% if not marine_letkf_app | default(false) %}
   - eastward_sea_water_velocity
   - northward_sea_water_velocity
+{% endif %}
   - sea_water_cell_thickness
   - sea_water_depth
   - ocean_mixed_layer_thickness
@@ -48,9 +74,15 @@ recentering state:
   - sea_ice_thickness
   - sea_ice_snow_thickness
   date: "{{ marine_window_end_iso }}"
+{% if marine_letkf_app | default(false) %}
+  basename: ./anl/
+  ocn_filename: ocean.anl.a006.nc
+  ice_filename: ice.anl.a006.nc
+{% else %}
   basename: ./bkg/
   ocn_filename: ocean.bkg.f006.nc
   ice_filename: ice.bkg.f006.nc
+{% endif %}
   read_from_file: 1
 
 output increments:
@@ -72,36 +104,21 @@ increment postprocessing:
   - northward_sea_water_velocity
 
 analysis postprocessing:
-  sea ice variable change:
-    variable change name: Soca2Cice
-    pattern: "%mem%"
-    arctic:
-      seaice edge: 0.4
-      shuffle: true
-      rescale prior:
-        rescale: true
-        min hice: 10e+8 # effectively turn off rescaling for now as it's not working correctly
-        min hsno: 10e+8 # effectively turn off rescaling for now as it's not working correctly
-    antarctic:
-      seaice edge: 0.4
-      shuffle: true
-      rescale prior:
-        rescale: true
-        min hice: 10e+8 # effectively turn off rescaling for now as it's not working correctly
-        min hsno: 10e+8 # effectively turn off rescaling for now as it's not working correctly
-    cice background state:
-      restart: ens/cice_model.res.%mem%.nc
-      ncat: 5
-      ice_lev: 7
-      sno_lev: 1
-    cice output:
-      restart: ens/cice_model.res.%mem%.nc
-    output variables:
-    - sea_water_potential_temperature
-    - sea_water_salinity
-    - sea_ice_area_fraction
-    - sea_ice_thickness
-    - sea_ice_snow_thickness
+  pattern: "%mem%"
+  postprocess ice:
+    ncat: 5
+    ice_lev: 7
+    sno_lev: 1
+    cice restart:
+      input:  ens/cice_model.res.%mem%.nc
+      output: ens/cice_model.res.%mem%.nc
+    snow:
+      min snow thickness: 0.0001     # 0.1 mm floor (Python uses 1e-4)
+    freeboard:
+      enforce: true
+    itd:
+      rebin: true
+      category bounds: [0.0, 0.64, 1.39, 2.47, 4.57, 1000]
 
 ensemble variance output:
   datadir: ./

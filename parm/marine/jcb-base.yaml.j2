@@ -132,6 +132,18 @@ local_ensemble_da_solver: Deterministic LETKF
 use_linear_observer: true
 
 # Increment variables
+{% if letkf_app | default(false) %}
+{% set _increment_vars = ['sea_ice_area_fraction',
+                          'sea_water_salinity',
+                          'sea_water_potential_temperature',
+                          'sea_surface_height_above_geoid',
+                          'sea_water_cell_thickness',
+                          'eastward_sea_water_velocity',
+                          'northward_sea_water_velocity',
+                          'sea_ice_thickness',
+                          'sea_ice_snow_thickness'] %}
+increment_variables: {{ _increment_vars }}
+{% else %}
 {% set _increment_vars = ['sea_ice_area_fraction',
                           'sea_water_salinity',
                           'sea_water_potential_temperature',
@@ -140,6 +152,7 @@ use_linear_observer: true
                           'eastward_sea_water_velocity',
                           'northward_sea_water_velocity'] %}
 increment_variables: {{ _increment_vars }}
+{% endif %}
 
 # State variables
 marine_ens_state_variables: {{ _increment_vars }}
@@ -148,14 +161,16 @@ marine_ens_state_variables: {{ _increment_vars }}
 driver_save_posterior_mean: true
 driver_save_prior_mean: true
 driver_save_posterior_mean_increment: true
+driver_save_posterior_ensemble_increments: true
+driver_save_posterior_ensemble: false
 driver_save_prior_variance: true
 driver_save_posterior_variance: true
 driver_do_posterior_observer: true
 
 # Inflation
-inflation_rtps: 0.5
-inflation_rtpp: 0.6
-inflation_mult: 1.1
+inflation_rtps: 0.0
+inflation_rtpp: 0.0
+inflation_mult: 1.0
 
 # Using LETKF app? (used in obs YAMLs)
 marine_letkf_app: {{ letkf_app | default(false) }}
