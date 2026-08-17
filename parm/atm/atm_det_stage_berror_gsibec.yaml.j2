@@ -1,2 +1,2 @@
-- ['{{ HOMEglobal }}/fix/gdas/gsibec/{{ CASE_ANL }}/gfs_gsi_global_{{ LOCALIZATION_TYPE }}.nml', '{{ DATA }}/berror/gfs_gsi_global.nml']
+- ['{{ HOMEglobal }}/fix/gdas/gsibec/{{ CASE_ANL }}/gfs_gsi_global{{ ('_' ~ LOCALIZATION_TYPE) if LOCALIZATION_TYPE is defined else '' }}.nml', '{{ DATA }}/berror/gfs_gsi_global.nml']
 - ['{{ HOMEglobal }}/fix/gdas/gsibec/{{ CASE_ANL }}/gsi-coeffs-gfs-global.nc', '{{ DATA }}/berror']
