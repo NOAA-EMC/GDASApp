@@ -139,17 +139,17 @@ atmosphere_npx_anl: {{ npx_anl | default(49, true) }}
 atmosphere_npy_anl: {{ npy_anl | default(49, true) }}
 atmosphere_npz_anl: {{ npz_anl | default(127, true) }}
 
-atmosphere_fv3jedi_files_path: ./fv3jedi
+atmosphere_fv3jedi_files_path: "{{ DATA }}/fv3jedi"
 
 # Background
-atmosphere_background_path: ./bkg
-atmosphere_background_ensemble_path: ./ens/mem%mem%
+atmosphere_background_path: "{{ DATA }}/bkg"
+atmosphere_background_ensemble_path: "{{ DATA }}/ens/mem%mem%"
 
 # Default background time is for 3D applications
 atmosphere_background_time_iso: "{{ current_cycle | to_isotime }}"
 
 # Background error
-atmosphere_gsibec_path: "./berror"
+atmosphere_gsibec_path: "{{ DATA }}/berror"
 atmosphere_number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
 atmosphere_layout_gsib_x: {{ layout_gsib_x | default(1, true) }}
 atmosphere_layout_gsib_y: {{ layout_gsib_y | default(1, true) }}
@@ -158,7 +158,7 @@ atmosphere_layout_gsib_y: {{ layout_gsib_y | default(1, true) }}
 atmosphere_forecast_timestep: "{{ BKG_TSTEP }}"
 
 # Write final increment on Guassian grid in variational
-atmosphere_final_increment_prefix: "./anl/atminc."
+atmosphere_final_increment_prefix: "{{ DATA }}/anl/atminc."
 
 atmosphere_variational_history_prefix: "{{GPREFIX}}"
 atmosphere_variational_analysis_prefix: "{{APREFIX}}"
@@ -172,21 +172,21 @@ atmosphere_iau_times_iso: {{ iau_times_iso }}
 # ------------------
 observations: all_observations
 
-crtm_coefficient_path: "./crtm"
+crtm_coefficient_path: "{{ DATA }}/crtm"
 
 # Naming conventions for observational files
 
-atmosphere_obsdatain_path: "./obs"
+atmosphere_obsdatain_path: "{{ DATA }}/obs"
 atmosphere_obsdatain_prefix: "{{OPREFIX}}"
 atmosphere_obsdatain_suffix: ".nc"
 
-atmosphere_obsdataout_path: "./diags"
+atmosphere_obsdataout_path: "{{ DATA }}/diags"
 atmosphere_obsdataout_prefix: diag_
 atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 # Naming conventions for bias correction files
 
-atmosphere_obsbiasin_path: "./bc_in/"
+atmosphere_obsbiasin_path: "{{ DATA }}/bc_in/"
 atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
 atmosphere_obsbiasin_suffix: ".bias.nc"
 atmosphere_obstlapsein_prefix: "{{GPREFIX}}"
@@ -194,7 +194,7 @@ atmosphere_obstlapsein_suffix: ".tlapse.txt"
 atmosphere_obsbiascovin_prefix: "{{GPREFIX}}"
 atmosphere_obsbiascovin_suffix: ".bias_cov.nc"
 
-atmosphere_obsbiasout_path: "./bc_out/"
+atmosphere_obsbiasout_path: "{{ DATA }}/bc_out/"
 atmosphere_obsbiasout_prefix: "{{APREFIX}}"
 atmosphere_obsbiasout_suffix: ".bias.nc"
 atmosphere_obsbiascovout_prefix: "{{APREFIX}}"
@@ -240,8 +240,8 @@ driver_save_posterior_mean_increment: false
 driver_save_posterior_ensemble_increments: true
 
 # Diagnostics
-atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
-atmosphere_posterior_output_gaussian: "./mem%{member}%/atmanl."
+atmosphere_ensemble_increment_prefix: "{{ DATA }}/anl/mem%{member}%/atminc."
+atmosphere_posterior_output_gaussian: "{{ DATA }}/mem%{member}%/atmanl."
 
 atmosphere_ensemble_history_prefix: "{{ GPREFIX_ENS }}"
 atmosphere_ensemble_analysis_prefix: "{{ APREFIX_ENS }}"

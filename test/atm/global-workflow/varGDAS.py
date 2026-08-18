@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from jedi import Jedi
-from wxflow import AttrDict, Task, to_timedelta, add_to_datetime
+from wxflow import AttrDict, FileHandler, Task, to_timedelta, add_to_datetime, to_isotime
 from typing import Any, Dict
 
 class varGDAS(Task):
@@ -8,7 +8,7 @@ class varGDAS(Task):
         # Make sure Task class constructor gets PDY, cyc, and assim_freq from config,
         # and make sure the current constructor gets MACHINE ID
         for key in ['PDY', 'cyc', 'assim_freq',
-                    'MACHINE_ID']:
+                    'MACHINE_ID', 'HOMEgdas', 'DATA']:
             if key not in config:
                 raise KeyError(f"config is missing required key: '{key}'")
 
@@ -34,6 +34,12 @@ class varGDAS(Task):
         _npy = 49
         _layout_x = 1
         _layout_y = 1
+        _IAUFHRS = [3]
+        _WINDOW_BEGIN = add_to_datetime(self.task_config.current_cycle, -to_timedelta(f"{self.task_config.assim_freq}H") / 2)
+
+        _iau_times_iso = []
+        for hour in _IAUFHRS:
+            _iau_times_iso.append(to_isotime(_WINDOW_BEGIN + to_timedelta(f"{str(hour)}H") - to_timedelta(f"{self.task_config.assim_freq}H") / 2))
 
         # Update task configuration
         self.task_config.update(AttrDict(
@@ -46,15 +52,18 @@ class varGDAS(Task):
                 'STATICB_TYPE':                 'identity',
                 'layout_x':                     _layout_x,
                 'layout_y':                     _layout_y,
+                'IAUFHRS':                      _IAUFHRS,
+                'iau_times_iso':                _iau_times_iso,
+                'DO_TEST_MODE':                 True,
                 # File prefixes
-                'GPREFIX':                      'gdas.t12z',
-                'OPREFIX':                      'gdas.t18z',
-                'GPREFIX_ENS':                  'enkfgdas.t12z',
-                'OPREFIX_ENS':                  'enkfgdas.t18z',
+                'GPREFIX':                      'gdas.t12z.',
+                'OPREFIX':                      'gdas.t18z.',
+                'GPREFIX_ENS':                  'enkfgdas.t12z.',
+                'OPREFIX_ENS':                  'enkfgdas.t18z.',
                 # Data directories
-                'CRTM_FIX':                     f"{_FIXglobal}/crtm/2.4.0",
+                'CRTM_FIX':                     f"{_FIXglobal}/crtm/v2.4.0.2",
                 'BERROR_FIX':                   f"{_FIXglobal}/gdas/gsibec/C48",
-                'FV3FILES_FIX':                 f"{_FIXglobal}/gdas/fv3jedi/fv3files",
+                'FV3FILES_FIX':                 f"{_FIXglobal}/gdas/fv3jedi/20241115/fv3files",
                 'COMIN_OBS':                    f"{_GDASAPP_TESTDATA}/lowres/gdas.20210323/18/obs/atmos",
                 'COMIN_ATMOS_ANALYSIS_PREV':    f"{_GDASAPP_TESTDATA}/lowres/gdas.20210323/12/analysis/atmos/",
                 'COMIN_ATMOS_HISTORY_PREV':     f"{_GDASAPP_TESTDATA}/lowres/gdas.20210323/12/model/atmos/history",
@@ -77,18 +86,20 @@ class varGDAS(Task):
         ))
 
         # Set JEDI configuration dictionary
-        self.jedi_config = {
+        self.task_config.jedi_config = {
             '3dvar': {
-                'rundir': '/scratch3/NCEPDEV/da/David.New/test_gdasapp',
-                'exe_src': '{{ HOMEgdas }}/exec/gdas.x',
+                'rundir': f"{ self.task_config.DATA }",
+                'exe_src': f"{ self.task_config.HOMEgdas }/exec/gdas.x",
+                'mpi_cmd': 'srun -n 6',
+                'jcb_base_yaml': f"{ self.task_config.HOMEgdas }/parm/atm/jcb-base.yaml.j2",
                 'jedi_args': ['fv3jedi', 'variational'],
                 'jcb_algo': '3dvar',
                 'obs_list': ['radiance_amsua_n19',
                              'sondes'],
                 'app_test': {
                     'do_testing': True,
-                    'test_reference_filename': '{{ HOMEgdas }}/test/testreference/atm_jjob_3dvar.ref',
-                    'test_output_filename': '{{ HOMEgdas }}/build/gdas/test/testoutput/atm_jjob_3dvar.test.out',
+                    'test_reference_filename': f"{ self.task_config.HOMEgdas }/test/testreference/atm_jjob_3dvar.ref",
+                    'test_output_filename': f"{ self.task_config.HOMEgdas }/build/gdas/test/testoutput/atm_jjob_3dvar.test.out",
                     'test_float_relative_tolerance': 1.0e-3,
                     'test_float_absolute_tolerance': 1.0e-5
                 }
@@ -119,10 +130,10 @@ class varGDAS(Task):
         # 
         for imem in range(1, self.task_config.NMEM_ENS+1):
             sdir = f"{self.task_config.COMIN_ATMOS_HISTORY_PREV_ENS(imem)}"
-            tdir = f"{self.jedi_dict['3dvar'].RUNDIR}/ens/mem{imem:03d}"
+            tdir = f"{self.jedi_dict['3dvar'].jedi_config.rundir}/ens/mem{imem:03d}"
             fh_dict['mkdir'].append(tdir)
-            fh_dict['copy_req'].append([f"{sdir}/{self.task_config.GPREFIX}csg_atm.f006.nc", f"{tdir}/{self.task_config.GPREFIX}cubed_sphere_grid_atmf006.nc"])
-            fh_dict['copy_req'].append([f"{sdir}/{self.task_config.GPREFIX}csg_sfc.f006.nc", f"{tdir}/{self.task_config.GPREFIX}cubed_sphere_grid_sfcf006.nc"])
+            fh_dict['copy_req'].append([f"{sdir}/{self.task_config.GPREFIX_ENS}csg_atm.f006.nc", f"{tdir}/{self.task_config.GPREFIX}cubed_sphere_grid_atmf006.nc"])
+            fh_dict['copy_req'].append([f"{sdir}/{self.task_config.GPREFIX_ENS}csg_sfc.f006.nc", f"{tdir}/{self.task_config.GPREFIX}cubed_sphere_grid_sfcf006.nc"])
 
         # Stage JEDI fix files
         sdir = f"{self.task_config.FV3FILES_FIX}"
@@ -147,6 +158,9 @@ class varGDAS(Task):
             fh_dict['copy_req'].append([f"{sdir}/gfs_gsi_global.nml", f"{tdir}"])
             fh_dict['copy_req'].append([f"{sdir}/gsi-coeffs-gfs-global.nc", f"{tdir}"])
 
+        # Sync file handler
+        FileHandler(fh_dict).sync()
+            
     def execute(self, jedi_dict_key: str) -> None:
         self.jedi_dict[jedi_dict_key].execute()
 
