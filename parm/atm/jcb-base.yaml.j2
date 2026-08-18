@@ -41,14 +41,16 @@ atmosphere_grad_red_2: 1e-10
                          'ozone_mass_mixing_ratio',
                          'snow_water',
                          'rain_water',
-                         'graupel'] %}
+                         'graupel',
+                         'geopotential_height_at_surface',
+                         'skin_temperature_at_surface'] %}
 
 analysis_variables: {{ _analysis_vars }}
 
 # Model things
 # ------------
 
-{% set _fv3_increment_vars =             (_analysis_vars | reject('equalto', 'air_pressure_at_surface') | list)
+{% set _fv3_increment_vars =             (_analysis_vars | reject('in', ['air_pressure_at_surface', 'geopotential_height_at_surface', 'skin_temperature_at_surface']) | list)
                                          + ['air_pressure_thickness', 'layer_thickness'] %}
 {% set _analysis_vars_noprecip =         _analysis_vars | reject('in', ['snow_water', 'rain_water', 'graupel']) | list %}
 {% set _analysis_vars_molesO3 =          (_analysis_vars | reject('equalto', 'ozone_mass_mixing_ratio') | list)
@@ -56,13 +58,14 @@ analysis_variables: {{ _analysis_vars }}
 {% set _analysis_vars_molesO3_noprecip = (_analysis_vars_noprecip | reject('equalto', 'ozone_mass_mixing_ratio') | list)
                                          + ['mole_fraction_of_ozone_in_air'] %}
 
-{% set _grid_vars = ['geopotential_height_at_surface'] %}
+{% set _grid_vars = [] %}
+
+{% set _sfcDA_vars = ['air_temperature_at_2m'] %}
 
 {% set _crtm_vars = ['cloud_ice_number_concentration',
                      'rain_number_concentration',
                      'slmsk',
                      'sheleg',
-                     'skin_temperature_at_surface',
                      'vtype',
                      'stype',
                      'vfrac',
@@ -70,10 +73,10 @@ analysis_variables: {{ _analysis_vars }}
                      'soilm',
                      'eastward_wind_at_surface',
                      'northward_wind_at_surface',
-                     'f10m'] %}
+                     'ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m'] %}
 
 # State variables
-atmosphere_det_state_variables: {{ _analysis_vars + _grid_vars + _crtm_vars }}
+atmosphere_det_state_variables: {{ _analysis_vars + _grid_vars + _crtm_vars + _sfcDA_vars }}
 atmosphere_jedi2fv3inc_state_variables: {{ _analysis_vars + _grid_vars }}
 
 # Increment variables
@@ -100,6 +103,7 @@ atmosphere_background_field_io_names:
     cloud_ice_number_concentration: nccice
     rain_number_concentration: nconrd
     ozone_mass_mixing_ratio: o3mr
+    ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m: f10m
     geopotential_height_at_surface: hgtsfc
     slmsk: land
     sheleg: weasd
@@ -112,6 +116,7 @@ atmosphere_background_field_io_names:
     soilm: soilw1
     soilt: soilt1
     soilMoistureVolumetric: smc
+    air_temperature_at_2m : tmp2m
 atmosphere_increment_field_io_names:
     eastward_wind: u_inc
     northward_wind: v_inc
