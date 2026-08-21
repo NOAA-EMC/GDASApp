@@ -212,8 +212,13 @@
         name: ObsFunction/ObsErrorFactorTopoRad
         channels: *{{observation_from_jcb}}_simulated_channels
         options:
-          sensor: *{{observation_from_jcb}}_sensor_id
+          sensor: microwave
           channels: *{{observation_from_jcb}}_simulated_channels
+          height groups:
+          - channels: 1-6, 15
+            height: 2000
+          - channels: 7
+            height: 4000
   #  Transmittnace Top Check
   - filter: BlackList
     filter variables:
@@ -336,7 +341,12 @@
           channels: *{{observation_from_jcb}}_simulated_channels
           options:
             channels: *{{observation_from_jcb}}_simulated_channels
-            sensor: *{{observation_from_jcb}}_sensor_id
+            sensor: microwave
+            height groups:
+            - channels: 1-6, 15
+              height: 2000
+            - channels: 7
+              height: 4000
         obserr_function:
           name: ObsFunction/ObsErrorModelRamp
           channels: *{{observation_from_jcb}}_simulated_channels
