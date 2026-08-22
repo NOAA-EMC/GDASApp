@@ -349,8 +349,13 @@
         name: ObsErrorFactorTopoRad@ObsFunction
         channels: *{{observation_from_jcb}}_simulated_channels
         options:
-          sensor: *{{observation_from_jcb}}_sensor_id
+          sensor: microwave
           channels: *{{observation_from_jcb}}_simulated_channels
+          height groups:
+          - channels: 1-7, 16-22
+            height: 2000 #default
+          - channels: 8
+            height: 4000 #default
   - filter: Perform Action
     filter variables:
     - name: brightnessTemperature
