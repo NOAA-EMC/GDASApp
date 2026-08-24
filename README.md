@@ -3,6 +3,13 @@ Global Data Assimilation System Application
 
 The one app to rule them all
 
+## Optional FV3-JEDI-LM support
+
+FV3-JEDI-LM is built by default. To configure GDASApp without the local
+FV3-JEDI-LM source tree, use `./build.sh -l OFF`. This disables the FV3LM
+model and tangent-linear/adjoint applications and tests; checkout management
+for the FV3-JEDI-LM source tree remains external to this build option.
+
 ## Notes to developers
 
 1 - As a developer, you will have to build the GDASApp againt the `dev/gdasapp` branch of the `global-workflow`

@@ -37,6 +37,7 @@ option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
 option(BUILD_REGRID_STATES "Build regrid states land DA utility" ON)
 option(BUILD_IODA_CONVERTERS "Build IODA Converters" OFF)
+option(BUILD_FV3JEDI_LM "Build fv3-jedi-lm" ON)
 
 # Depend path for non-ecbuild packages
 set(DEPEND_LIB_ROOT ${CMAKE_CURRENT_BINARY_DIR}/Depends)
@@ -102,7 +103,9 @@ if(BUILD_GDASBUNDLE)
   ecbuild_bundle( PROJECT ufo SOURCE "../sorc/ufo" )
 
 # fv3-jedi and associated repositories
-  ecbuild_bundle( PROJECT fv3-jedi-lm SOURCE "../sorc/fv3-jedi-lm" )
+  if(BUILD_FV3JEDI_LM)
+    ecbuild_bundle( PROJECT fv3-jedi-lm SOURCE "../sorc/fv3-jedi-lm" )
+  endif()
   option(ENABLE_FV3_JEDI_DATA "Obtain fv3-jedi test data from fv3-jedi-data repository (vs tarball)" ON)
   ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
 
