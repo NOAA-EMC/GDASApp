@@ -115,7 +115,7 @@ namespace obsforge {
         util::DateTime dateTime(year, month, day, hour, minute, second);
 
         // Convert Obs DateTime objects to epoch time offsets in seconds
-        // 0000-00-00T00:00:00Z will be converterd to negative seconds
+        // 0000-00-00T00:00:00Z will be converted to negative seconds
         int64_t timeOffsets
            = ioda::convertDtimeToTimeOffsets(epochDtime, {dateTime})[0];
 
