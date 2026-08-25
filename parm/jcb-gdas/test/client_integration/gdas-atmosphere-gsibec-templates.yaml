@@ -1,16 +1,10 @@
-# This part is for testing only. Normally this would just show algorithm: <algorithm>
-# -----------------------------------------------------------------------------------
+# Template dictionary for testing the atmosphere_background_error_hybrid_gsibec_gsibec
+# background error covariance model.
+
 supported_algorithms:
-- 3dvar
-- hofx3d
-- hofx4d
-- local_ensemble_da
-# Local algorithms
-- fv3jedi_fv3inc_lgetkf
 - fv3jedi_fv3inc_variational
 
-# This is overwritten in the testing but allows command line test of jcb
-algorithm: fv3jedi_fv3inc_lgetkf
+algorithm: fv3jedi_fv3inc_variational
 
 # Search path for model and obs for JCB (relative for the submodule, or can be absolute)
 # --------------------------------------------------------------------------------------
@@ -26,7 +20,7 @@ final_increment_file: atmosphere_final_increment_gaussian
 output_ensemble_increments_file: atmosphere_output_ensemble_increments_gaussian
 model_file: atmosphere_model_pseudo
 initial_condition_file: atmosphere_background
-background_error_file: atmosphere_background_error_hybrid_gsibec_bump
+background_error_file: atmosphere_background_error_hybrid_gsibec_gsibec
 
 
 # Global analysis things
@@ -138,31 +132,13 @@ atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
 atmosphere_obsbiascovout_acft_suffix: ".acft_out_cov.nc"
 
 
-# Local Ensemble DA (LETKF)
-# -------------------------
-local_ensemble_da_solver: Deterministic GETKF
-
-increment_variables: [ua,va,DZ,delp,t,ps,sphum,ice_wat,liq_wat,o3mr]
-
-# Veritcal localization for GETKF
-vl_fraction_of_retained_variance: 0.750
-vl_lengthscale: 2.1
-vl_lengthscale_units: logp
-inflation_rtps: 0.85
-inflation_rtpp: 0.0
-inflation_mult: 1.0
-
 # Driver
 driver_update_obs_config_with_geometry_info: true
 driver_save_posterior_mean: false
 driver_save_posterior_ensemble: false
 driver_save_prior_mean: false
 driver_save_posterior_mean_increment: false
-driver_save_posterior_ensemble_increments: true
-
-# Diagnostics
-atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
-atmosphere_posterior_output_gaussian: "./mem%{member}%/atmanl."
+driver_save_posterior_ensemble_increments: false
 
 # Variables needed for testing after centralization into jcb-base.yaml.j2
 atmosphere_det_state_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio, snow_water, rain_water, graupel, geopotential_height_at_surface, cloud_ice_number_concentration, rain_number_concentration, slmsk, sheleg, skin_temperature_at_surface, vtype, stype, vfrac, soilt, soilm, eastward_wind_at_surface, northward_wind_at_surface, ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m]
