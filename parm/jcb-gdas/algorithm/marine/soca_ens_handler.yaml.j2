@@ -108,10 +108,6 @@ increment postprocessing:
       sea_water_potential_temperature: [-2.5, 36.0]
       sea_water_salinity: [0.0, 44.0]
 
-ensemble inflation:
-  method: RTPS
-  factor: 0.8
-
 analysis postprocessing:
   pattern: "%mem%"
   postprocess ice:
@@ -133,10 +129,4 @@ ensemble variance output:
   datadir: ./
   date: "{{ marine_window_end_iso }}"
   exp: ensvar
-  type: incr
-
-analysis ensemble variance output:
-  datadir: ./
-  date: "{{ marine_window_end_iso }}"
-  exp: ensvar_final
   type: incr
