@@ -15,29 +15,53 @@
         obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
-    simulated variables: [stationPressure]
+    simulated variables: [stationPressure, airTemperatureAt2M]
+    observed variables: [stationPressure, airTemperatureAt2M]
 
   # Observation Operator
-  # --------------------
+  # -------------------
   obs operator:
-    name: SfcCorrected
-    variables:
-    - name: stationPressure
-    correction scheme to use: GSL
-    station_altitude: height
-    geovar_sfc_geomz: height_above_mean_sea_level_at_surface
-    geovar_geomz: geopotential_height
+    name: Composite
+    components:
+    - name: SfcCorrected
+      correction scheme to use: GSL
+      station_altitude: height
+      geovar_sfc_geomz: height_above_mean_sea_level_at_surface
+      geovar_geomz: geopotential_height
+      variables:
+      - name: stationPressure
+    - name: Identity
+      variables:
+      - name: airTemperatureAt2M
 
   # Linear Observation Operator
   # ---------------------------
   linear obs operator:
     name: Identity
-    variables:
-    - name: stationPressure
+    variable maps:
+    - name: airTemperatureAt2M
+      alias: air_temperature
+      variables:
+      - name: stationPressure
+      - name: airTemperatureAt2M
 
   # Observation Prior Filters (QC)
   # ------------------------------
+
+  ###############################################
+  # PRESSURE PRE-FILTERS
+  ###############################################
+
   obs prior filters:
+  - filter: RejectList
+    udescriptor: obs_type_check_ps
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable:
+        name: ObsType/stationPressure
+      is_not_in: 181, 187
+
   # Initial Error Assignments for SFC Observations 
   - filter: Perform Action
     filter variables:
@@ -126,7 +150,7 @@
       type: float
       source variable: ObsErrorData/stationPressure
 
-  # Set observation quality-realted variables 
+  # Set observation quality-related variables 
   # Create PreQC group variable (pqm in GSI read_prepbufr)
   - filter: Variable Assignment
     assignments:
@@ -227,6 +251,37 @@
     action:
       name: inflate error
       inflation factor: 1.2
+
+  ###############################################
+  # TEMPERATURE PRE-FILTERS
+  ###############################################
+
+  # Retain only temp obs
+  #- filter: Perform Action
+  #  udescriptor: "obs_type_check"
+  #  where:
+  #  - variable: ObsValue/airTemperatureAt2M
+  #    value: is_not_valid
+  #  action:
+  #    name: reduce obs space
+
+  # For T obs, keep only desired obs types
+  # to-do add in 187 here
+  - filter: RejectList
+    udescriptor: "obs_type_check"
+    filter variables:
+    - name: airTemperatureAt2M
+    where:
+    - variable:
+        name: ObsType/airTemperatureAt2M
+      is_not_in: [181]
+  - filter: RejectList
+    filter variables:
+    - name: airTemperatureAt2M
+    where:
+    - variable:
+        name: MetaData/stationIdentification
+      is_in: {{ get_conventional_rejected_stations(observation_from_jcb, 'airTemperatureAt2M') }}
 
   # Observation Post Filters (QC)
   # -----------------------------
@@ -356,6 +411,10 @@
       is_not_in: 0, 1
     action:
       name: reject
+  # TEMPORARY: REJECT ALL T OBS
+  - filter: RejectList
+    filter variables:
+    - name: airTemperatureAt2M
   # End of Filters 
 
 

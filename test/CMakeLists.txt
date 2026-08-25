@@ -4,23 +4,42 @@ set(URL "https://ftp.emc.ncep.noaa.gov/static_files/public/GDASApp")
 set(SHA "bda76f96666405f72abef56ad4d7d5b93ca153cd7d675853fbdb199096949f8a")
 string(SUBSTRING ${SHA} 0 6 SHORTSHA)
 set(TAR "gdasapp-fix-${SHORTSHA}.tgz")
+set(TAR_PATH "${CMAKE_CURRENT_BINARY_DIR}/${TAR}")
+
 IF(DEFINED ENV{GDASAPP_UNIT_TEST_DATA_PATH})
   set(GDASAPP_UNIT_TEST_DATA_PATH "$ENV{GDASAPP_UNIT_TEST_DATA_PATH}")
-  file(COPY ${GDASAPP_UNIT_TEST_DATA_PATH}/${TAR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  if(EXISTS "${GDASAPP_UNIT_TEST_DATA_PATH}/${TAR}")
+    file(COPY "${GDASAPP_UNIT_TEST_DATA_PATH}/${TAR}" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  else()
+    message(FATAL_ERROR
+      "GDASAPP_UNIT_TEST_DATA_PATH is set to '${GDASAPP_UNIT_TEST_DATA_PATH}', but '${TAR}' was not found there. "
+      "Set GDASAPP_UNIT_TEST_DATA_PATH to a directory containing ${TAR}."
+      )
+  endif()
+ELSEIF(EXISTS "${TAR_PATH}")
+  message(STATUS "Reusing existing unit test data tarball: ${TAR_PATH}")
 ELSE()
   # download test files
   file(DOWNLOAD
     ${URL}/${TAR}
-    ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
-    INACTIVITY_TIMEOUT 30
-    TIMEOUT 90
+    ${TAR_PATH}
+    INACTIVITY_TIMEOUT 60
+    TIMEOUT 300
     SHOW_PROGRESS
     STATUS status
     EXPECTED_HASH SHA256=${SHA}
     )
+  list(GET status 0 status_code)
+  list(GET status 1 status_message)
+  if(NOT status_code EQUAL 0)
+    message(FATAL_ERROR
+      "Failed to download unit test data '${URL}/${TAR}' (status ${status_code}: ${status_message}). "
+      "Set GDASAPP_UNIT_TEST_DATA_PATH to a directory containing ${TAR}."
+      )
+  endif()
 ENDIF()
 # Extract tarball.
-file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${TAR}
+file(ARCHIVE_EXTRACT INPUT ${TAR_PATH}
   DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 # list of test binary/data files to install
 list(APPEND test_data
@@ -132,4 +151,3 @@ add_subdirectory(atm)
 
 # gdas aerosol tests
 add_subdirectory(aero)
-

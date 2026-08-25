@@ -1,0 +1,193 @@
+# Template dictionary for testing the atmosphere_background_error_hybrid_gsibec_gsibec
+# background error covariance model.
+
+supported_algorithms:
+- fv3jedi_fv3inc_variational
+
+algorithm: fv3jedi_fv3inc_variational
+
+# Search path for model and obs for JCB (relative for the submodule, or can be absolute)
+# --------------------------------------------------------------------------------------
+app_path_algorithm: gdas/algorithm/atmosphere
+app_path_model: gdas/model/atmosphere
+app_path_observations: gdas/observations/atmosphere
+app_path_observation_chronicle: gdas/observation_chronicle/atmosphere
+
+
+# Places where we deviate from the generic file name of a yaml
+# ------------------------------------------------------------
+final_increment_file: atmosphere_final_increment_gaussian
+output_ensemble_increments_file: atmosphere_output_ensemble_increments_gaussian
+model_file: atmosphere_model_pseudo
+initial_condition_file: atmosphere_background
+background_error_file: atmosphere_background_error_hybrid_gsibec_gsibec
+
+
+# Global analysis things
+# ----------------------
+window_begin: '2024-02-01T00:00:00Z'
+window_length: PT6H
+bound_to_include: begin
+minimizer: DRPCG
+final_diagnostics_departures: anlmob
+analysis_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,ice_wat,liq_wat,o3mr,geopotential_height_at_surface,skin_temperature_at_surface]
+number_of_outer_loops: 2
+
+# Testing
+# -------
+
+do_testing: false
+
+# Model things
+# ------------
+atmosphere_layout_x: 2
+atmosphere_layout_y: 2
+atmosphere_npx_ges: 361
+atmosphere_npy_ges: 361
+atmosphere_npz_ges: 127
+atmosphere_npx_his: 361
+atmosphere_npy_his: 361
+atmosphere_npz_his: 127
+atmosphere_npx_anl: 361
+atmosphere_npy_anl: 361
+atmosphere_npz_anl: 127
+atmosphere_fv3jedi_files_path: DATA/fv3jedi
+
+# Background
+atmosphere_background_path: DATA/bkg
+atmosphere_background_ensemble_path: "DATA/ens/mem%mem%"
+
+atmosphere_variational_history_prefix: "bkg_"
+atmosphere_ensemble_history_prefix: "ens_"
+
+atmosphere_variational_analysis_prefix: "anl_"
+atmosphere_ensemble_analysis_prefix: "anl_"
+
+atmosphere_background_time_iso: '2024-02-02T00:00:00Z'
+
+# Background error
+atmosphere_bump_data_directory: DATA/berror
+atmosphere_gsibec_path: DATA/berror
+atmosphere_number_ensemble_members: 3
+atmosphere_layout_gsib_x: 2
+atmosphere_layout_gsib_y: 2
+
+# Minimization options
+atmosphere_ninner_1: 4
+atmosphere_ninner_2: 2
+atmosphere_grad_red_1: 1e-5
+atmosphere_grad_red_2: 1e-5
+
+# Forecasting
+atmosphere_forecast_length: PT6H
+atmosphere_forecast_timestep: PT1H
+
+# Write final increment on Gaussian grid in variational
+atmosphere_variational_increment_type: "gaussian"
+atmosphere_final_increment_prefix: "./anl/atminc."
+
+# Observation things
+# ------------------
+observations: all_observations
+
+# JCB level option to replace obs filters
+# ---------------------------------------
+replace_obs_filters:
+  observations:
+    - abi_g16
+  override_filters:
+    - filter: PreQC
+      maxvalue: 1.0
+      action:
+        name: reject
+
+crtm_coefficient_path: "DATA/crtm/"
+
+# Naming conventions for observational files
+atmosphere_obsdatain_path: DATA/obs
+atmosphere_obsdatain_prefix: OPREFIX
+atmosphere_obsdatain_suffix: ".2024020100.nc"
+
+atmosphere_obsdataout_path: DATA/diags
+atmosphere_obsdataout_prefix: diag
+atmosphere_obsdataout_suffix: "_2024020100.nc"
+
+# Naming conventions for bias correction files
+atmosphere_obsbiasin_path: DATA/obs
+atmosphere_obsbiasin_prefix: GPREFIX
+atmosphere_obsbiasin_suffix: ".satbias.nc"
+atmosphere_obsbiasin_acft_suffix: ".acft_out.nc"
+atmosphere_obstlapsein_prefix: GPREFIX
+atmosphere_obstlapsein_suffix: ".tlapse.txt"
+atmosphere_obsbiascovin_prefix: GPREFIX
+atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
+atmosphere_obsbiascovin_acft_suffix: ".acft_out_cov.nc"
+
+atmosphere_obsbiasout_path: DATA/bc
+atmosphere_obsbiasout_prefix: APREFIX
+atmosphere_obsbiasout_suffix: ".satbias.nc"
+atmosphere_obsbiasout_acft_suffix: ".acft_out.nc"
+atmosphere_obsbiascovout_prefix: APREFIX
+atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
+atmosphere_obsbiascovout_acft_suffix: ".acft_out_cov.nc"
+
+
+# Driver
+driver_update_obs_config_with_geometry_info: true
+driver_save_posterior_mean: false
+driver_save_posterior_ensemble: false
+driver_save_prior_mean: false
+driver_save_posterior_mean_increment: false
+driver_save_posterior_ensemble_increments: false
+
+# Variables needed for testing after centralization into jcb-base.yaml.j2
+atmosphere_det_state_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio, snow_water, rain_water, graupel, geopotential_height_at_surface, cloud_ice_number_concentration, rain_number_concentration, slmsk, sheleg, skin_temperature_at_surface, vtype, stype, vfrac, soilt, soilm, eastward_wind_at_surface, northward_wind_at_surface, ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m]
+atmosphere_jedi2fv3inc_state_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio, snow_water, rain_water, graupel, geopotential_height_at_surface]
+atmosphere_det_increment_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio, snow_water, rain_water, graupel]
+atmosphere_det_increment_variables_molesO3: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, snow_water, rain_water, graupel, mole_fraction_of_ozone_in_air]
+atmosphere_det_increment_variables_noprecip: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio]
+atmosphere_det_increment_variables_molesO3_noprecip: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, mole_fraction_of_ozone_in_air]
+atmosphere_fv3_increment_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, ozone_mass_mixing_ratio, snow_water, rain_water, graupel, air_pressure_thickness, layer_thickness]
+atmosphere_ens_state_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio, snow_water, rain_water, graupel, cloud_ice_number_concentration, rain_number_concentration, slmsk, sheleg, skin_temperature_at_surface, vtype, stype, vfrac, soilt, soilm, eastward_wind_at_surface, northward_wind_at_surface, ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m, geopotential_height_at_surface, layer_thickness, air_pressure_thickness]
+atmosphere_background_field_io_names:
+  eastward_wind: ugrd
+  northward_wind: vgrd
+  air_temperature: tmp
+  layer_thickness: delz
+  air_pressure_thickness: dpres
+  air_pressure_at_surface: pressfc
+  water_vapor_mixing_ratio_wrt_moist_air: spfh
+  cloud_liquid_ice: icmr
+  cloud_liquid_water: clwmr
+  snow_water: snmr
+  rain_water: rwmr
+  graupel: grle
+  cloud_ice_number_concentration: nccice
+  rain_number_concentration: nconrd
+  ozone_mass_mixing_ratio: o3mr
+  ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m: f10m
+  geopotential_height_at_surface: hgtsfc
+  slmsk: land
+  sheleg: weasd
+  skin_temperature_at_surface: tmpsfc
+  stype: sotyp
+  vfrac: veg
+  totalSnowDepthMeters: snod
+  eastward_wind_at_surface: ugrd_hyblev1
+  northward_wind_at_surface: vgrd_hyblev1
+  soilm: soilw1
+  soilt: soilt1
+  soilMoistureVolumetric: smc
+atmosphere_increment_field_io_names:
+  eastward_wind: u_inc
+  northward_wind: v_inc
+  air_temperature: T_inc
+  water_vapor_mixing_ratio_wrt_moist_air: sphum_inc
+  cloud_liquid_water: liq_wat_inc
+  ozone_mass_mixing_ratio: o3mr_inc
+  cloud_liquid_ice: icmr_inc
+  snow_water: snmr_inc
+  rain_water: rwmr_inc
+  graupel: grle_inc
+  air_pressure_thickness: delp_inc
+  layer_thickness: delz_inc
