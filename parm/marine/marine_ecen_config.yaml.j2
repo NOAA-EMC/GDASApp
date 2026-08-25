@@ -38,7 +38,7 @@ data_in:
 
 {% filter indent(width=4) %}
 {% include 'marine_det_stage_bkg.yaml.j2' %}
-{% include 'marine_stage_fix_' ~ OCNRES ~ '.yaml.j2' %}
+{% include 'marine_stage_fix_' ~ '%03d'|format(OCNRES|int) ~ '.yaml.j2' %}
 {% include 'marine_stage_utilities.yaml.j2' %}
 {% endfilter %}
 
@@ -85,3 +85,5 @@ data_out:
                       '${MEMDIR}': 'ensstat' }) %}
     - ['{{ DATA }}/ocn.ensvar.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}bg_ensvar.nc']
     - ['{{ DATA }}/ice.ensvar.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}bg_ensvar.nc']
+    - ['{{ DATA }}/ocn.ensmean.an.{{ WINDOW_END | to_isotime }}.nc', '{{ COM_OCEAN_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}bg_ensmean.nc']
+    - ['{{ DATA }}/ice.ensmean.an.{{ WINDOW_END | to_isotime }}.nc', '{{ COM_ICE_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}bg_ensmean.nc']

@@ -29,7 +29,7 @@ data_in:
     - ['{{ COMIN_ICE_HISTORY_PREV }}/{{ GPREFIX }}inst.f009.nc', '{{ DATA }}/INPUT/cice.res.nc']
 
 {% filter indent(width=4) %}
-{% include 'marine_stage_fix_' ~ OCNRES ~ '.yaml.j2' %}
+{% include 'marine_stage_fix_' ~ '%03d'|format(OCNRES|int) ~ '.yaml.j2' %}
 {% include 'marine_ens_stage_bkg.yaml.j2' %}
 {% endfilter %}
 

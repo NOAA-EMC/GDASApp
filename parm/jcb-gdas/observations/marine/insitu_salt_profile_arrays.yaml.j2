@@ -1,0 +1,121 @@
+- obs space:
+    name: {{observation_from_jcb}}
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdatain_path}}/{{marine_obsdatain_prefix}}{{observation_from_jcb}}{{marine_obsdatain_suffix}}"
+        missing file action: warn
+      obsgrouping:
+        group variables: [latitude, longitude, dateTime]
+        sort variable: depth
+        sort group: MetaData
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdataout_path}}/{{marine_obsdataout_prefix}}{{observation_from_jcb}}{{marine_obsdataout_suffix}}"
+    simulated variables: [salinity]
+    observed variables: [salinity]
+    io pool:
+      max pool size: 1
+{% if marine_letkf_app | default(false) %}
+    distribution:
+      name: Halo
+      halo size: {{ marine_letkf_dist_halo_size }}
+{% endif %}
+  obs operator:
+    name: VertInterp
+    observation alias file: ./obsop_name_map.yaml
+    vertical coordinate: sea_water_depth
+    observation vertical coordinate: depth
+    interpolation method: linear
+
+  obs error:
+    covariance model: diagonal
+
+  obs pre filters:
+  # Pre-filters credits to Kriti Bhargava
+  # Global range test
+  - filter: Bounds Check
+    filter variables:
+    - name: salinity
+    minvalue: 2.0
+    maxvalue: 41.0
+
+  obs prior filters:
+  - filter: Domain Check
+    where:
+    - variable:
+        name: GeoVaLs/sea_area_fraction
+      value: is_valid
+      minvalue: 0.5
+
+#  # Reject stair-step profiles (rounded values)
+#  - filter: Create Diagnostic Flags
+#    filter variables:
+#    - name: salinity
+#    flags:
+#    - name: ProfileSpike
+#      initial value: false
+#    - name: ProfileStep
+#      initial value: false
+#
+#  - filter: Spike and Step Check
+#    independent: MetaData/depth
+#    dependent: ObsValue/salinity
+#    count spikes: false
+#    count steps: true
+#    tolerance:
+#      nominal value: 0.05                   # tune: < 0.1 if obs rounded to 0.1
+#    action:
+#      name: reject
+
+  obs post filters:
+#  # Reject profiles with large differences from background
+#  - filter: Profile Background Check
+#    filter variables:
+#    - name: salinity
+#    absolute threshold: 0.5
+
+  # Reject obs that are 5PSU away from the background
+  - filter: Background Check
+    filter variables:
+    - name: salinity
+    absolute threshold: 5.0
+
+  # Force constant observation error everywhere
+  - filter: Perform Action
+    filter variables:
+    - name: salinity
+    action:
+      name: assign error
+      error parameter: 0.05
+
+  # Linear decay from surface to 2000m depth:
+  #    - minimum error of 0.1K at 2000m (and below)
+  #    - maximum error of 1.0K at surface
+  # original error is rescaled and added to reflect the out of window error
+  - filter: Perform Action
+    where:
+    - variable:
+        name: MetaData/depth
+      maxvalue: 2000.0
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables: [MetaData/depth, ObsError/salinity]
+          # sigo_total = 0.5 + (-0.00045)*depth + 0.1*sigo_original
+          coefs:     [-0.00025, 0.1]
+          intercept: 0.5
+
+
+{% if marine_letkf_app | default(false) %}
+  obs localizations:
+  - localization method: Rossby
+    base value: 100.0e3
+    rossby mult: 1.0
+    min grid mult: 2.0
+    min value: 200.0e3
+    max value: 900.0e3
+{% endif %}
