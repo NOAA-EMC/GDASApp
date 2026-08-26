@@ -77,15 +77,15 @@
     action:
       name: reduce obs space
 
-# # Data Thinning
-# - filter: Gaussian Thinning
-#   horizontal_mesh: 145
-#   use_reduced_horizontal_grid: true
-#   distance_norm: geodesic
-#   round_horizontal_bin_count_to_nearest: true
-# #  partition_longitude_bins_using_mesh: true
-#   action:
-#     name: reduce obs space
+  # Data Thinning
+  - filter: Gaussian Thinning
+    horizontal_mesh: 145
+    use_reduced_horizontal_grid: true
+    distance_norm: geodesic
+    round_horizontal_bin_count_to_nearest: true
+  #  partition_longitude_bins_using_mesh: true
+    action:
+      name: reduce obs space
 
   # Observation Post Filters (QC)
   # -----------------------------
@@ -208,6 +208,16 @@
             channels: [2]
           coefs: [-1]
           intercept: 300.0
+  # Make diff_300_obs2 >= 1.0e-5
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/diff_300_obs2
+      type: float
+      value: 1.0e-5
+    where:
+    - variable:
+        name: DerivedMetaData/diff_300_obs2
+      maxvalue: 1.0e-5
   # Step E3: Define "OmF_ch2 / (300 - Obs_ch2)"
   - filter: Variable Assignment
     assignments:
@@ -221,11 +231,11 @@
             channels: [2]
           - name: DerivedMetaData/diff_300_obs2
           exponents: [1, -1]
-    where:
-    - variable:
-        name: ObsValue/brightnessTemperature_2
-      maxvalue: 300.0
-      max_exclusive: true
+          where:
+          - variable:
+              name: ObsValue/brightnessTemperature_2
+            maxvalue: 300.0
+            max_exclusive: true
   # Step E4: Get final 'cloud_index' ('dsi' in qc_mhs in GSI)
   - filter: Variable Assignment
     assignments:
@@ -241,14 +251,14 @@
           - name: DerivedMetaData/omf2_diff_300_obs2
           coefs: [1, -33.58]
           total coefficient: 0.13
-    where:
-    - variable:
-        name: DerivedMetaData/surface_water_ice_snow
-      is_in: 1
-    - variable:
-        name: ObsValue/brightnessTemperature_2
-      maxvalue: 300.0
-      max_exclusive: true
+          where:
+          - variable:
+              name: DerivedMetaData/surface_water_ice_snow
+            is_in: 1
+          - variable:
+              name: ObsValue/brightnessTemperature_2
+            maxvalue: 300.0
+            max_exclusive: true
   # Step E5: Make cloud_index >= 0
   - filter: Variable Assignment
     assignments:
@@ -303,6 +313,16 @@
     - variable:
         name: DerivedMetaData/tpwc_index
       maxvalue: 1.0
+  # Make inflationFactor0 >= 1.0e-5
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/inflationFactor0
+      type: float
+      value: 1.0e-5
+    where:
+    - variable:
+        name: DerivedMetaData/inflationFactor0
+      maxvalue: 1.0e-5
   # Step H1: Assign inflationFactor1 = 1.0/(inflationFactor0)^(0.5)
   - filter: Variable Assignment
     assignments:
@@ -314,11 +334,11 @@
           variables:
           - name: DerivedMetaData/inflationFactor0
           exponents: [-0.5]
-    where:
-    - variable:
-        name: DerivedMetaData/tpwc_index
-      maxvalue: 1.0
-      max_exclusive: true
+          where:
+          - variable:
+              name: DerivedMetaData/tpwc_index
+            maxvalue: 1.0
+            max_exclusive: true
   # Step H2: Assign inflationFactor1 = 1.0 where tpwc_index >= 1.0
   - filter: Variable Assignment
     assignments:
@@ -354,7 +374,7 @@
         name: ObsErrorFactorTopoRad@ObsFunction
         channels: *{{observation_from_jcb}}_simulated_channels
         options:
-          sensor: *{{observation_from_jcb}}_sensor_id
+          sensor: microwave
           channels: *{{observation_from_jcb}}_simulated_channels
   - filter: Perform Action
     filter variables:
