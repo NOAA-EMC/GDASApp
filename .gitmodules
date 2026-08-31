@@ -15,23 +15,23 @@
   branch = develop
 [submodule "sorc/saber"]
   path = sorc/saber
-  url = https://github.com/jcsda/saber.git
+  url = https://github.com/jcsda-internal/saber.git
   branch = develop
 [submodule "sorc/ioda"]
   path = sorc/ioda
-  url = https://github.com/jcsda/ioda.git
+  url = https://github.com/JCSDA-internal/ioda.git
   branch = develop
 [submodule "sorc/ufo"]
   path = sorc/ufo
-  url = https://github.com/jcsda/ufo.git
+  url = https://github.com/jcsda-internal/ufo.git
   branch = develop
 [submodule "sorc/fv3-jedi-lm"]
   path = sorc/fv3-jedi-lm
-  url = https://github.com/jcsda/fv3-jedi-linearmodel.git
+  url = https://github.com/jcsda-internal/fv3-jedi-linearmodel.git
   branch = develop
 [submodule "sorc/fv3-jedi"]
   path = sorc/fv3-jedi
-  url = https://github.com/jcsda/fv3-jedi.git
+  url = https://github.com/jcsda-internal/fv3-jedi.git
   branch = develop
 [submodule "sorc/soca"]
   path = sorc/soca
