@@ -1,12 +1,11 @@
 output:
   state component:
+    filetype: cube sphere history
+    provider: ufs
     datapath: ./anl
-    prefix: soilinc
-    filetype: fms restart
-    filename_sfcd: '{{ soil_background_time_fv3 }}.sfc_data.nc'
-    filename_cplr: '{{ soil_background_time_fv3 }}.coupler.res'
-    state variables: {{ soil_det_increment_variables_final }}
+    filename: soilinc_{{ soil_variational_history_prefix }}nc
     field io names: {{ soil_field_io_names }}
+
 geometry:
   fms initialization:
     namelist filename: "{{ soil_fv3jedi_files_path }}/fmsmpp.nml"
@@ -15,6 +14,6 @@ geometry:
   layout:
   - {{ soil_layout_x }}
   - {{ soil_layout_y }}
-  npx: {{ soil_npx_ges }}
-  npy: {{ soil_npy_ges }}
-  npz: {{ soil_npz_ges }}
+  npx: {{ soil_npx_anl }}
+  npy: {{ soil_npy_anl }}
+  npz: {{ soil_npz_anl }}
