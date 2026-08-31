@@ -1,5 +1,5 @@
 jedi_config:
-    snowletkfanl:
+    snowanlletkf:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECgfs }}/gdas.x'
         mpi_cmd: '{{ APRUN_SNOWLETKFANL }}'
@@ -130,7 +130,7 @@ data_in:
 data_out:
     copy_req:
     # Configuration files
-    - ['{{ DATA }}/snowletkfanl.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}snowletkfanl.yaml']
+    - ['{{ DATA }}/snowanlletkf.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}snowanlletkf.yaml']
     - ['{{ DATA }}/apply_incr_nml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}apply_incr_nml']
 
 {% if  DO_IMS_SCF %}
