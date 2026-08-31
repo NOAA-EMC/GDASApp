@@ -16,7 +16,7 @@ source $dir_root/ush/detect_machine.sh
 usage() {
   set +x
   echo
-  echo "Usage: $0 -p <prefix> | -t <target> -l <ON|OFF> -h"
+  echo "Usage: $0 -p <prefix> | -t <target> -h"
   echo
   echo "  -p  installation prefix <prefix>    DEFAULT: <none>"
   echo "  -t  target to build for <target>    DEFAULT: $MACHINE_ID"
@@ -26,7 +26,6 @@ usage() {
   echo "  -d  include JCSDA ctest data        DEFAULT: NO"
   echo "  -a  build everything in bundle      DEFAULT: NO"
   echo "  -i  clone and build ioda-converters DEFAULT: NO"
-  echo "  -l  build fv3-jedi-lm               DEFAULT: ON"
   echo "  -h  display this message and quit"
   echo
   exit 1
@@ -46,9 +45,8 @@ CLEAN_BUILD="NO"
 COMPILER="${COMPILER:-intel}"
 WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 BUILD_IODA_CONVERTERS=${BUILD_IODA_CONVERTERS:-"NO"}
-BUILD_FV3JEDI_LM=${BUILD_FV3JEDI_LM:-"ON"}
 
-while getopts "w:t:c:hvdfail:" opt; do
+while getopts "w:t:c:hvdfai" opt; do
   case $opt in
     w)
       HOMEglobal=$OPTARG
@@ -71,23 +69,11 @@ while getopts "w:t:c:hvdfail:" opt; do
     i)
       BUILD_IODA_CONVERTERS=YES
       ;;
-    l)
-      BUILD_FV3JEDI_LM=$OPTARG
-      ;;
     h|\?|:)
       usage
       ;;
   esac
 done
-
-case ${BUILD_FV3JEDI_LM} in
-  ON | OFF )
-    ;;
-  *)
-    echo "ERROR: -l must be ON or OFF"
-    usage
-    ;;
-esac
 
 case ${BUILD_TARGET} in
   hera | orion | hercules | wcoss2 | noaacloud | gaeac5 | gaeac6 | ursa )
@@ -112,7 +98,7 @@ case ${BUILD_TARGET} in
     ;;
 esac
 
-CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET -DBUILD_TESTING=$BUILD_TESTING -DBUILD_FV3JEDI_LM=$BUILD_FV3JEDI_LM"
+CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET -DBUILD_TESTING=$BUILD_TESTING"
 
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
 if [[ $CLEAN_BUILD == 'YES' ]]; then
