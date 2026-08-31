@@ -55,7 +55,7 @@ def run(yaml_file):
     # do not vary as much with longitude as they do with latitude
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=RuntimeWarning)
-        smoothingScale = np.nanmean(np.where(mask, hz_scales/np.sqrt(area), np.NaN), axis=1)
+        smoothingScale = np.nanmean(np.where(mask, hz_scales/np.sqrt(area), np.nan), axis=1)
     smoothingScale[0] = smoothingScale[1]
     smoothingScale[-1] = smoothingScale[-2]
 

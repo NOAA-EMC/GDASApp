@@ -95,7 +95,13 @@ case ${BUILD_TARGET} in
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
     module load GDAS/$BUILD_TARGET.$COMPILER
-    CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=OFF -DBUILD_IODA_CONVERTERS=$BUILD_IODA_CONVERTERS"
+    if [[ ${BUILD_TARGET} == 'wcoss2' ]]; then
+      if [[ -v FMS_ROOT ]]; then
+        export fms_ROOT=${FMS_ROOT}
+      fi
+      export pybind11_DIR=${VIRTUAL_ENV}/lib/python3.12/site-packages/pybind11/share/cmake/pybind11
+    fi
+    CMAKE_OPTS+=" -DBUILD_GSIBEC=OFF -DBUILD_IODA_CONVERTERS=$BUILD_IODA_CONVERTERS"
     module list
     ;;
   $(hostname))
@@ -107,13 +113,6 @@ case ${BUILD_TARGET} in
 esac
 
 CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET -DBUILD_TESTING=$BUILD_TESTING -DBUILD_FV3JEDI_LM=$BUILD_FV3JEDI_LM"
-
-# TODO: Remove LD_LIBRARY_PATH line as soon as permanent solution is available
-if [[ $BUILD_TARGET == 'wcoss2' ]]; then
-  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.29/ofi/intel/2022.1/lib"
-  export LMOD_MPI_NAME=cray-mpich
-  export LMOD_MPI_VERSION=8.1.29-xhbciau
-fi
 
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
 if [[ $CLEAN_BUILD == 'YES' ]]; then
@@ -148,13 +147,14 @@ CMAKE_OPTS+=" -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
 CMAKE_OPTS+=" -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}"
 
 # JCSDA changed test data things, need to make a dummy CRTM directory
-if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
-if [ -d "$dir_root/bundle/test-data-release/" ]; then rm -rf $dir_root/bundle/test-data-release/; fi
-mkdir -p $dir_root/bundle/fix/test-data-release/
-mkdir -p $dir_root/bundle/test-data-release/
-ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
-ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
-
+if [[ $CLONE_JCSDADATA == 'YES' ]]; then
+  if [ -d "$dir_root/bundle/fix/test-data-release/" ]; then rm -rf $dir_root/bundle/fix/test-data-release/; fi
+  if [ -d "$dir_root/bundle/test-data-release/" ]; then rm -rf $dir_root/bundle/test-data-release/; fi
+  mkdir -p $dir_root/bundle/fix/test-data-release/
+  mkdir -p $dir_root/bundle/test-data-release/
+  ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/fix/test-data-release/crtm
+  ln -sf $GDASAPP_TESTDATA/crtm $dir_root/bundle/test-data-release/crtm
+fi
 # Hack OOPS one line change to harden code for operations,
 # remove once the change is merged into the JCSDA develop branch and we can update the submodule
 sed -i 's|  ASSERT(spaces_.size() >0);|  // ASSERT(spaces_.size() >0);|' $dir_root/sorc/oops/src/oops/base/ObsSpaces.h

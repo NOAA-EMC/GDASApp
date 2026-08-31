@@ -3,115 +3,68 @@ Load environment for running the GDAS application with Intel compilers and MPI.
 ]])
 
 local pkgName    = myModuleName()
-local pkgVersion = myModuleVersion() or "1.0"
+local pkgVersion = myModuleVersion()
 local pkgNameVer = myModuleFullName()
 
-prepend_path("MODULEPATH", "/apps/ops/test/spack-stack-nco-1.9/modulefiles/Core")
+local PrgEnv_intel_ver=os.getenv("PrgEnv_intel_ver") or "8.5.0"
+local intel_ver=os.getenv("intel_ver") or "19.1.3.304"
+local craype_ver=os.getenv("craype_ver") or "2.7.17"
+local cmake_ver=os.getenv("cmake_ver") or "3.27.9"
+local cray_pals_ver=os.getenv("cray_pals_ver") or "1.3.2"
+local git_ver=os.getenv("git_ver") or "2.29.0"
+local cray_mpich_ver=os.getenv("cray_mpich_ver") or "8.1.19"
+local hdf5_ver=os.getenv("hdf5_ver") or "1.14.0"
+local pnetcdf_ver=os.getenv("pnetcdf_ver") or "1.12.2"
+local netcdf_ver=os.getenv("netcdf_ver") or "4.9.2"
+local udunits_ver=os.getenv("udunits_ver") or "2.2.28"
+local eigen_ver=os.getenv("eigen_ver") or "3.4.0"
+local boost_ver=os.getenv("boost_ver") or "1.79.0"
+local gsl_lite_ver=os.getenv("gsl_lite_ver") or "v0.40.0"
+local sp_ver=os.getenv("sp_ver") or "2.4.0"
+local python_ver=os.getenv("python_ver") or "3.12.0"
+local ve_gfs_ver=os.getenv("ve_gfs_ver") or "17.0"
+local ecbuild_ver=os.getenv("ecbuild_ver") or "3.7.2"
+local qhull_ver=os.getenv("qhull_ver") or "2020.2"
+local nco_ver=os.getenv("nco_ver") or "5.2.4"
+local gsl_ver=os.getenv("gsl_ver") or "2.7"
+local bufr_ver=os.getenv("bufr_ver") or "12.3.0"
+local fms_ver=os.getenv("fms_ver") or "2024.01"
+local esmf_ver=os.getenv("esmf_ver") or "8.8.0"
+local eckit_ver=os.getenv("eckit_ver") or "1.28.0"
+local fckit_ver=os.getenv("fckit_ver") or "0.13.1"
+local atlas_ver=os.getenv("atlas_ver") or "0.39.0"
 
-load("stack-oneapi/2024.2.1")
-load("stack-cray-mpich/8.1.29")
-load("stack-python/3.11.7")
-load("cmake/3.27.9")
-load("craype/2.7.17")
-load("cray-pals/1.3.2")
-
-load("git/2.47.0")
-load("git-lfs/3.5.1")
-
-load("zstd/1.5.6")
-load("pigz/2.8")
-load("tar/1.34")
-load("gettext/0.22.5")
-load("curl/8.10.1")
-load("hdf5/1.14.3")
-load("parallel-netcdf/1.12.3")
-load("netcdf-c/4.9.2")
-load("nccmp/1.9.0.1")
-load("netcdf-fortran/4.6.1")
-load("nco/5.2.4")
-load("parallelio/2.6.2")
-load("wget/1.21.1")
-load("boost/1.84.0")
-load("ecbuild/3.7.2")
-load("eccodes/2.33.0")
-load("eigen/3.4.0")
-load("openblas/0.3.24")
-load("eckit/1.28.3")
-load("fckit/0.13.2")
-load("fms/2024.02")
-load("python-venv/1.0")
-load("py-pyyaml/6.0.2")
-load("intel-oneapi-runtime/2024.2.1")
-load("glibc/2.31")
-load("esmf/8.8.0")
-load("atlas/0.40.0")
-load("sp/2.5.0")
-load("ip/5.1.0")
-load("gsl-lite/0.37.0")
-load("libjpeg/2.1.0")
-load("krb5/1.21.1-1")
-load("libtirpc/1.3.3")
-load("hdf/4.2.15")
-load("jedi-cmake/1.4.0")
-load("libpng/1.6.37")
-load("libxt/1.3.0")
-load("libxmu/1.2.1")
-load("libxpm/3.5.17")
-load("libxaw/1.0.16")
-load("udunits/2.2.28")
-load("ncview/2.1.9")
-load("netcdf-cxx4/4.3.1")
-load("json/3.11.3")
---load("crtm/v2.4_jedi")
--- Do not load prod_util when running ecflow
-local is_ecf = os.getenv("ECF_JOB") ~= nil
-if not is_ecf then
-    load("prod_util/2.0.14")
-end
-load("grib-util/1.4.0")
-
-load("py-numpy/1.26.4")
-load("bufr/12.1.0")
-
-load("py-markupsafe/2.1.3")
-load("py-jinja2/3.1.4")
-load("py-cftime/1.0.3.4")
-load("py-certifi/2023.7.22")
-load("py-netcdf4/1.7.1.post2")
-load("py-pybind11/2.13.5")
-load("py-setuptools/63.4.3")
-load("py-pycodestyle/2.11.0")
-load("py-pyyaml/6.0.2")
-load("py-scipy/1.14.1")
-
-load("py-setuptools/63.4.3")
-load("py-tzdata/2023.3")
-load("py-pytz/2023.3")
-load("py-six/1.16.0")
-load("py-python-dateutil/2.8.2")
-load("py-pandas/2.2.3")
-load("py-packaging/24.1")
-load("py-xarray/2024.7.0")
-load("py-f90nml/1.4.3")
-load("py-pip/23.1.2")
-load("py-click/8.1.7")
-load("py-wheel/0.41.2")
-
-append_path("MODULEPATH", "/apps/ops/test/nco/modulefiles/core")
-load("rocoto/1.3.5")
+load(pathJoin("PrgEnv-intel", PrgEnv_intel_ver))
+load(pathJoin("cmake", cmake_ver))
+load(pathJoin("craype", craype_ver))
+load(pathJoin("cray-pals", cray_pals_ver))
+load(pathJoin("git", git_ver))
+load(pathJoin("intel", intel_ver))
+load(pathJoin("cray-mpich", cray_mpich_ver))
+load(pathJoin("hdf5-D", hdf5_ver))
+load(pathJoin("pnetcdf-D", pnetcdf_ver))
+load(pathJoin("netcdf-D", netcdf_ver))
+load(pathJoin("udunits", udunits_ver))
+load(pathJoin("eigen", eigen_ver))
+load(pathJoin("boost", boost_ver))
+load(pathJoin("gsl-lite", gsl_lite_ver))
+load(pathJoin("sp", sp_ver))
+load(pathJoin("python", python_ver))
+load(pathJoin("ve","gfs", ve_gfs_ver))
+load(pathJoin("ecbuild", ecbuild_ver))
+load(pathJoin("qhull", qhull_ver))
+load(pathJoin("nco", nco_ver))
+load(pathJoin("gsl", gsl_ver)) 
+load(pathJoin("bufr", bufr_ver)) 
+load(pathJoin("fms-D", fms_ver))
+load(pathJoin("esmf-D", esmf_ver))
+load(pathJoin("eckit", eckit_ver))
+load(pathJoin("fckit", fckit_ver))
+load(pathJoin("atlas", atlas_ver))
 
 setenv("CC","cc")
 setenv("CXX","CC")
-setenv("FC","ifort")
-
-local mpiexec = '/opt/cray/pals/1.3.2/bin/mpirun'
-local mpinproc = '-n'
-setenv('MPIEXEC_EXEC', mpiexec)
-setenv('MPIEXEC_NPROC', mpinproc)
-
-setenv("CRTM_FIX","/lfs/h2/emc/da/noscrub/emc.da/GDASApp/fix/crtm/2.4.0")
-setenv("GDASAPP_TESTDATA","/lfs/h2/emc/da/noscrub/emc.da/GDASApp/testdata")
-setenv("GDASAPP_UNIT_TEST_DATA_PATH", "/lfs/h2/emc/da/noscrub/emc.da/GDASApp/unittestdata")
+setenv("FC","ftn")
 
 whatis("Name: ".. pkgName)
 whatis("Version: ".. pkgVersion)

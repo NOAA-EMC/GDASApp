@@ -7,14 +7,10 @@
     {% if gmem > NMEM_ENS_MAX %}
         {% set gmem = gmem-NMEM_ENS_MAX %}
     {% endif %}
+    {% set ens_bkg_base = ROTDIR ~ '/' ~ GDUMP_ENS ~ '.' ~ (previous_cycle | to_YMD) ~ '/' ~ (previous_cycle | strftime('%H')) ~ '/mem' ~ '%03d' % gmem %}
+    {% set COMIN_OCEAN_HISTORY_MEM_PREV = ens_bkg_base ~ '/model/ocean/history' %}
+    {% set COMIN_ICE_HISTORY_MEM_PREV = ens_bkg_base ~ '/model/ice/history' %}
 
-    # define variables used in the history template
-    {% set tmpl_dict = {'${ROTDIR}':ROTDIR,
-                        '${RUN}': GDUMP_ENS,
-                        '${YMD}':previous_cycle | to_YMD,
-                        '${HH}':previous_cycle | strftime('%H'),
-                        '${MEMDIR}':'mem' + '%03d' % gmem} %}
-
-- ['{{ COM_OCEAN_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}inst.f006.nc', '{{ DATAens }}/ens/ocean.{{ mem }}.nc']
-- ['{{ COM_ICE_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}inst.f006.nc', '{{ DATAens }}/ens/ice.{{ mem }}.nc']
+- ['{{ COMIN_OCEAN_HISTORY_MEM_PREV }}/{{ GPREFIX_ENS }}inst.f006.nc', '{{ DATAens }}/ens/ocean.{{ mem }}.nc']
+- ['{{ COMIN_ICE_HISTORY_MEM_PREV }}/{{ GPREFIX_ENS }}inst.f006.nc', '{{ DATAens }}/ens/ice.{{ mem }}.nc']
 {% endfor %}
