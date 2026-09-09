@@ -224,7 +224,7 @@ local_ensemble_da_solver: Deterministic GETKF
 
 increment_variables: {{ _increment_vars }}
 
-atmosphere_ens_state_variables: {{ _increment_vars + _crtm_vars + _grid_vars + ['layer_thickness', 'air_pressure_thickness']}}
+atmosphere_ens_state_variables: {{ _increment_vars + _crtm_vars + _grid_vars + _sfcDA_vars + ['layer_thickness', 'air_pressure_thickness']}}
 
 atm_enkfonly: {{ DOENKFONLY_ATM | default(false, true) }}
 
