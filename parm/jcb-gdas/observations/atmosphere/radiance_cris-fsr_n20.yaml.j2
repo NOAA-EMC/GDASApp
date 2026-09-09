@@ -13,7 +13,7 @@
         obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
-{% if rad_to_tb | default(false) %}
+{% if rad_to_tb | default(true) %}
     observed variables: [spectralRadiance]
     derived variables: [brightnessTemperature]
 {% endif %}
