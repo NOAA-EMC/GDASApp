@@ -12,6 +12,7 @@ increment variables: &vars
 {% if not marine_letkf_app | default(false) %}
 - eastward_sea_water_velocity
 - northward_sea_water_velocity
+{% endif %}
 - sea_surface_height_above_geoid
 - sea_ice_area_fraction
 - sea_ice_thickness
@@ -34,6 +35,7 @@ backgrounds:
 {% if not marine_letkf_app | default(false) %}
       - eastward_sea_water_velocity
       - northward_sea_water_velocity
+{% endif %}
       - sea_surface_height_above_geoid
       - ocean_mixed_layer_thickness
       - distance_from_coast
