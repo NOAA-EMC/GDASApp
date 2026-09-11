@@ -31,8 +31,8 @@ analysis_variables:
 - sea_ice_snow_thickness
 - sea_water_salinity
 - sea_water_potential_temperature
-#- eastward_sea_water_velocity
-#- northward_sea_water_velocity
+- eastward_sea_water_velocity
+- northward_sea_water_velocity
 - sea_surface_height_above_geoid
 
 # Model things
@@ -132,5 +132,3 @@ inflation_mult: 1.1
 # Using LETKF app? (used in obs YAMLs)
 marine_letkf_app: {{ letkf_app | default(false) }}
 marine_letkf_dist_halo_size: '{{ DIST_HALO_SIZE }}'
-
-

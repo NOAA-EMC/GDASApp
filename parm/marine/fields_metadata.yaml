@@ -12,9 +12,16 @@
 #                       This parameter cannot be used with io_file/io_name
 # fill value:           If the field is masked, this value will be used for the masked areas.
 #                       (Default: 0.0)
+# min valid:            Minimum physically reasonable value for quality control (Default: -1e30)
+# max valid:            Maximum physically reasonable value for quality control (Default: 1e30)
 # categories:           Number of categories for a field with a category dimension (Default: -1)
 #                       If > 0, then the fields "name", and "io name" can use the
 #                       placeholder "<CATEGORY>" which will be replaced with the category number
+# layers:               Number of per-layer entries to expand (Default: -1). If > 0, "name",
+#                       "io name", and "io sup name" can use the placeholder "<LEVEL>" which is
+#                       replaced with the layer number. Combines with "categories" (C*L entries).
+#                       Used for CICE per-layer restart variables (qice001.., sice001..) where
+#                       each layer is a distinct file variable, not one level of a 4D variable.
 # --------------------------------------------------------------------------------------------------
 
 
@@ -26,6 +33,8 @@
   levels: full_ocn
   io file: ocn
   io name: Temp
+  min valid: -5.0
+  max valid: 50.0
 
 - name: sea_water_salinity
   name surface: sea_surface_salinity
@@ -33,6 +42,8 @@
   io file: ocn
   io name: Salt
   property: positive_definite
+  min valid: 0.0
+  max valid: 50.0
 
 - name: eastward_sea_water_velocity
   name surface: surface_eastward_sea_water_velocity
@@ -40,6 +51,8 @@
   levels: full_ocn
   io file: ocn
   io name: u
+  min valid: -5.0
+  max valid: 5.0
 
 - name: northward_sea_water_velocity
   name surface: surface_northward_sea_water_velocity
@@ -47,58 +60,149 @@
   levels: full_ocn
   io file: ocn
   io name: v
+  min valid: -5.0
+  max valid: 5.0
 
 - name: sea_water_cell_thickness
   levels: full_ocn
   io file: ocn
   io name: h
   vert interp: false
+  min valid: 0.0
+  max valid: 6000.0
 
 - name: sea_surface_height_above_geoid
   io file: ocn
   io name: ave_ssh
+  min valid: -6.0
+  max valid: 6.0
 
 - name: barotropic_eastward_sea_water_velocity
   io file: ocn
   io name: ubg
+  min valid: -5.0
+  max valid: 5.0
 
 - name: barotropic_northward_sea_water_velocity
   io file: ocn
   io name: vbg
+  min valid: -5.0
+  max valid: 5.0
 
 - name: mom6_mld
   io file: ocn
   io name: MLD
   fill value: 0.0
+  min valid: 0.0
+  max valid: 6000.0
+
+# --------------------------------------------------------------------------------------------------
+# extra variables used in torchbalance
+# --------------------------------------------------------------------------------------------------
+- name: eastward_wind
+  io file: ice
+  io name: uatm_h
+  min valid: -40
+  max valid: 40.0
+
+- name: northward_wind
+  io file: ice
+  io name: vatm_h
+  min valid: -40
+  max valid: 40.0
+
+- name: water_vapor_mixing_ratio_wrt_moist_air
+  io file: ice
+  io name: Qref_h
+  property: positive_definite
+  min valid: 0
+  max valid: 100.0
+
+- name: surface_downwelling_longwave_flux_in_air
+  io file: ice
+  io name: flwdn_h
+  min valid: 0
+  max valid: 600
+
+- name: surface_downwelling_shortwave_flux_in_air
+  io file: ice
+  io name: fswdn_h
+  min valid: 0
+  max valid: 600
 
 # --------------------------------------------------------------------------------------------------
 # ice state variables with no categories
 # --------------------------------------------------------------------------------------------------
-- name: sea_ice_thickness
+- name: sea_ice_volume           # per unit grid cell area
   io file: ice
   io name: hi_h #note, was hicen
   property: positive_definite
+  min valid: 0.0
+  max valid: 15.0
+
+- name: sea_ice_thickness
+  io file: ice
+  io name: hi_div_aice_h #note, was hicen
+  property: positive_definite
+  min valid: 0.0
+  max valid: 15.0
 
 - name: sea_ice_area_fraction
   io file: ice
   io name: aice_h #note, was aicen
+  min valid: 0.0
+  max valid: 1.0
 
-- name: sea_ice_snow_thickness
+- name: sea_ice_snow_volume      # per unit grid cell area
   io file: ice
   io name: hs_h #note, was hsnon
   property: positive_definite
+  min valid: 0.0
+  max valid: 15.0
+
+- name: sea_ice_snow_thickness
+  io file: ice
+  io name: hs_div_aice_h #note, was hsnon
+  property: positive_definite
+  min valid: 0.0
+  max valid: 15.0
 
 - name: snow_ice_surface_temperature
   io file: ice
   io name: Tsfc_h
+  min valid: -50.0
+  max valid: 1.0
 
 - name: air_temperature
   io file: ice
   io name: Tair_h
+  min valid: -50.0
+  max valid: 50.0
 
-- name: bulk_ice_salinity
+- name: sea_ice_salinity
   io file: ice
   io name: sice_h
+  min valid: 0.0
+  max valid: 50.0
+
+- name: sea_ice_strain_rate_divergence
+  io file: ice
+  io name: divu_h
+  min valid: -1000
+  max valid: 1000
+
+- name: sea_ice_strain_rate_shear
+  io file: ice
+  io name: shear_h
+  min valid: 0
+  max valid: 1000
+
+- name: pole_selector
+  io file: ice
+  io name: TLAT
+  min valid: -90
+  max valid: 90
+
 
 # --------------------------------------------------------------------------------------------------
 # ice state variables with category dimension
@@ -106,23 +210,80 @@
 - name: sea_ice_category<CATEGORY>_area_fraction
   categories: 5
   io file: ice
-  io sup name: aicen_h
-  io name: aice<CATEGORY>_h
+  io sup name: aicen
+  io name: aice<CATEGORY>
   property: positive_definite
 
 - name: sea_ice_category<CATEGORY>_volume
   categories: 5
   io file: ice
-  io sup name: vicen_h
-  io name: vice<CATEGORY>_h
+  io sup name: vicen
+  io name: vice<CATEGORY>
   property: positive_definite
 
 - name: sea_ice_snow_category<CATEGORY>_volume
   categories: 5
   io file: ice
-  io sup name: vsnon_h
-  io name: vsno<CATEGORY>_h
+  io sup name: vsnon
+  io name: vsno<CATEGORY>
   property: positive_definite
+
+# --------------------------------------------------------------------------------------------------
+# CICE restart thermo/pond variables with category dimension (per-category 2D
+# fields). io sup name is the literal CICE restart variable name.
+# --------------------------------------------------------------------------------------------------
+- name: sea_ice_category<CATEGORY>_surface_temperature
+  categories: 5
+  io file: ice
+  io sup name: Tsfcn
+  io name: Tsfcn<CATEGORY>
+
+- name: sea_ice_category<CATEGORY>_pond_area_fraction
+  categories: 5
+  io file: ice
+  io sup name: apnd
+  io name: apnd<CATEGORY>
+  property: positive_definite
+
+- name: sea_ice_category<CATEGORY>_pond_depth
+  categories: 5
+  io file: ice
+  io sup name: hpnd
+  io name: hpnd<CATEGORY>
+  property: positive_definite
+
+- name: sea_ice_category<CATEGORY>_pond_lid_thickness
+  categories: 5
+  io file: ice
+  io sup name: ipnd
+  io name: ipnd<CATEGORY>
+  property: positive_definite
+
+# --------------------------------------------------------------------------------------------------
+# CICE restart per-layer thermo variables (category x layer 2D fields). Each
+# CICE layer is its own restart variable qice00N / sice00N / qsno00N, so these
+# expand via the <LEVEL> placeholder into one single-level field per (cat,layer).
+# --------------------------------------------------------------------------------------------------
+- name: sea_ice_category<CATEGORY>_layer<LEVEL>_enthalpy
+  categories: 5
+  layers: 7
+  io file: ice
+  io sup name: qice00<LEVEL>
+  io name: qice<CATEGORY>_00<LEVEL>
+
+- name: sea_ice_category<CATEGORY>_layer<LEVEL>_ice_salinity
+  categories: 5
+  layers: 7
+  io file: ice
+  io sup name: sice00<LEVEL>
+  io name: sice<CATEGORY>_00<LEVEL>
+
+- name: sea_ice_snow_category<CATEGORY>_layer<LEVEL>_enthalpy
+  categories: 5
+  layers: 1
+  io file: ice
+  io sup name: qsno00<LEVEL>
+  io name: qsno<CATEGORY>_00<LEVEL>
 
 # --------------------------------------------------------------------------------------------------
 # Thermodynamic ice state variables with category and level dimension

@@ -1,26 +1,151 @@
+# Dual-scale static B.
+#
+# Two BUMP_NICAS central blocks combined by SABER's hybrid block chain: the
+# existing 200 km operator, unchanged, plus a 100 km operator. The outer blocks
+# (StdDev, TorchBalance) sit at the hybrid level and are applied ONCE to the sum,
+# so the torchscript emulators are still loaded and evaluated a single time.
+#
+# Weights are variance weights -- SaberHybridBlockChain applies sqrt(weight) on
+# either side of each component -- so they must sum to 1.0 to leave the total
+# variance unchanged. 0.5/0.5 is the starting split.
+#
+# Both groups get the short scale, but for different reasons, and it is worth
+# being clear which is which:
+#
+#   ocean3d  -- this is the ADT lever. sea_surface_height_above_geoid sits in
+#               surf2d, but its parametric stddev is exactly zero
+#               (`max ssh: 0.0` in soca_diagb.yaml.j2), so its NICAS output is
+#               multiplied away. Every metre of ADT increment instead arrives
+#               through the TorchBalance steric emulator, from T and S. So
+#               shortening surf2d does nothing for ADT; only ocean3d does.
+#
+#   surf2d   -- this is the sea ice lever. sea_ice_area_fraction, thickness and
+#               snow thickness do have non-zero stddevs, and their decorrelation
+#               scales are genuinely shorter than 200 km. With the 0.5/0.5 split
+#               they now see a mixture of 200 km and 100 km rather than 200 km
+#               alone.
 covariance model: SABER
 change background resolution: true
-saber central block:
-  saber block name: diffusion
-  read:
-    groups:
-    - variables:
-      - sea_water_potential_temperature
-      - sea_water_salinity
-      - sea_surface_height_above_geoid
-      - sea_ice_area_fraction
-      horizontal:
-        filepath: ./staticb/hz_ocean
-      vertical:
-        levels: {{marine_vt_levels}}
-        filepath: ./staticb/vt_ocean
-# TODO(G): OK to not use what's below but it will need
-#          to be fixed when we add ice thickness and
-#          snow depth
-#    - variables: [sea_ice_area_fraction]
-#      horizontal:
-#        filepath: ./staticb/hz_ice
+covariance type: hybrid
 
+components:
+
+# ---- component 1: the current operator, unchanged --------------------------
+- covariance:
+    saber central block:
+      saber block name: BUMP_NICAS
+      calibration:
+        drivers:
+          multivariate strategy: univariate
+          compute nicas: true
+          write local nicas: false
+        general:
+          universe length-scale: 10000.0e3
+        model:
+          do not cross mask boundaries: true
+          groups:
+          - group name: ocean3d
+            variables:
+            - sea_water_potential_temperature
+            - sea_water_salinity
+            - eastward_sea_water_velocity
+            - northward_sea_water_velocity
+          - group name: surf2d
+            variables:
+            - sea_ice_area_fraction
+            - sea_ice_thickness
+            - sea_ice_snow_thickness
+            - sea_surface_height_above_geoid
+        nicas:
+          resolution: 5.0
+          smooth interpolation factor: 0.5
+          min effective resolution: 2.7
+          max horizontal grid size: 242203
+          grid type: octahedral
+          explicit length-scales: true
+          horizontal length-scale:
+          - groups:
+              - ocean3d
+              - surf2d
+            value: 200000.0
+          vertical length-scale:
+          - groups:
+              - ocean3d
+            value: 10.0
+  weight:
+    value: 0.5
+
+# ---- component 2: the new short scale --------------------------------------
+# BUMP sizes the NICAS subset as
+#     nc1 = floor( 2 * area * resolution^2 / (sqrt(3) * rhs^2) )
+# then clips it to `max horizontal grid size`, and ABORTS if the resulting
+# effective resolution falls below `min effective resolution`
+# (type_nicas_cmp.fypp:3049, "effective resolution is too low").
+#
+# MEASURED at cycle 2025121906 -- this ran, but the binding constraint is NOT
+# this cap, it is the analysis grid. From the log:
+#
+#   200 km  estimated nc1 229328 -> final nc1 262194 -> effective resolution 5.35
+#   100 km  estimated nc1 917315 -> final nc1 278082 -> effective resolution 2.75
+#                                                        ("very low" warning)
+#
+# anl_geom is 720x540 with 242203 wet points (~1/2 degree, 55 km at the equator).
+# nc1 goes as 1/L^2, so 100 km asks for 917k points on a grid that only has 242k,
+# and the octahedral draw saturates just above the wet-point count either way.
+# Raising this cap beyond ~280000 therefore buys nothing; the 969446 below came
+# from the 1/4 degree BACKGROUND gridspec and is simply inert.
+#
+# 2.75 clears `min effective resolution: 2.7` by 0.05. That is thin -- a mask
+# change, a grid change or a shorter length-scale trips the abort at
+# type_nicas_cmp.fypp:3049. 100 km is about the shortest scale this analysis
+# grid can support; going shorter means refining anl_geom, not tuning NICAS.
+- covariance:
+    saber central block:
+      saber block name: BUMP_NICAS
+      calibration:
+        drivers:
+          multivariate strategy: univariate
+          compute nicas: true
+          write local nicas: false
+        general:
+          universe length-scale: 10000.0e3
+        model:
+          do not cross mask boundaries: true
+          groups:
+          - group name: ocean3d
+            variables:
+            - sea_water_potential_temperature
+            - sea_water_salinity
+            - eastward_sea_water_velocity
+            - northward_sea_water_velocity
+          - group name: surf2d
+            variables:
+            - sea_ice_area_fraction
+            - sea_ice_thickness
+            - sea_ice_snow_thickness
+            - sea_surface_height_above_geoid
+        nicas:
+          resolution: 5.0
+          smooth interpolation factor: 0.5
+          min effective resolution: 2.7
+          max horizontal grid size: 969446
+          grid type: octahedral
+          explicit length-scales: true
+          horizontal length-scale:
+          - groups:
+              - ocean3d
+            value: 100000.0
+          - groups:
+              - surf2d
+            value: 100000.0
+          vertical length-scale:
+          - groups:
+              - ocean3d
+            value: 10.0
+  weight:
+    value: 0.5
+
+# ---- applied once, to the sum of the two components ------------------------
 saber outer blocks:
 - saber block name: StdDev
   read:
@@ -31,42 +156,39 @@ saber outer blocks:
       ice_filename: 'ice.bkgerr_parametric_stddev.nc'
       read_from_file: 3
 
-#- saber block name: MLBalance
-#  geometry:
-#    mom6_input_nml: mom_input.nml
-#    fields metadata: ./fields_metadata.yaml
-#  ML Balances:
-#    arctic:
-#      ffnn:
-#        inputSize: 7
-#        outputSize: 1
-#        hiddenSize: 2
-#        load model: /work/noaa/da/gvernier/ai/runs/arctic.pt
-#    antarctic:
-#      ffnn:
-#        inputSize: 7
-#        outputSize: 1
-#        hiddenSize: 2
-#        load model: /work/noaa/da/gvernier/ai/runs/antarctic.pt
+- saber block name: TorchBalance
+  save jacobians: true
+  surface emulators:
+  - name: sea_ice_area_fraction
+    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/runs/ml_aice/ml_aice_dual.ts
+    jacobian wrt:
+    - sea_ice_thickness
+    - sea_ice_snow_thickness
+    - sea_water_salinity
+    - sea_water_potential_temperature
+    jacobian masking:
+      variable: sea_ice_area_fraction
+      level: 0
 
-linear variable change:
-  input variables:
-  - sea_ice_area_fraction
-  - sea_ice_thickness
-  - sea_ice_snow_thickness
-  - sea_water_salinity
-  - sea_water_potential_temperature
-  #- eastward_sea_water_velocity
-  #- northward_sea_water_velocity
-  - sea_surface_height_above_geoid
-  output variables:
-  - sea_ice_area_fraction
-  - sea_ice_thickness
-  - sea_ice_snow_thickness
-  - sea_water_salinity
-  - sea_water_potential_temperature
-  #- eastward_sea_water_velocity
-  #- northward_sea_water_velocity
-  - sea_surface_height_above_geoid
-  linear variable changes:
-  - linear variable change name: BalanceSOCA
+  vertical emulators:
+  - name: sea_surface_height_above_geoid
+    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/runs/phy_steric/steric.ts
+    jacobian wrt:
+    - sea_water_potential_temperature
+    - sea_water_salinity
+
+  - name: sea_water_salinity
+    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/emulators/heave_salinity/scripts/heave_salinity.ts
+    jacobian wrt:
+    - sea_water_potential_temperature
+
+  non-local emulators:
+  - name: geostrophy
+    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/emulators/geostrophy/scripts/geostrophy_nonlocal.ts
+    geometry tensors:
+    - lonlat
+    - edge_node_connectivity
+    background tensors:
+    - sea_water_potential_temperature
+    - sea_water_salinity
+    - sea_water_cell_thickness

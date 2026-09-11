@@ -1,0 +1,150 @@
+- obs space:
+    name: {{observation_from_jcb}}
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdatain_path}}/{{marine_obsdatain_prefix}}{{observation_from_jcb}}{{marine_obsdatain_suffix}}"
+        missing file action: warn
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdataout_path}}/{{marine_obsdataout_prefix}}{{observation_from_jcb}}{{marine_obsdataout_suffix}}"
+    simulated variables: [seaIceFreeboard, seaIceFraction]
+    io pool:
+      max pool size: 1
+{% if marine_letkf_app | default(false) %}
+    distribution:
+      name: Halo
+      halo size: {{ marine_letkf_dist_halo_size }}
+{% endif %}
+  get values:
+    time interpolation: linear
+  obs operator:
+    name: Composite
+    components:
+    - name: SeaIceFreeboard
+      instrument: laser
+      sea ice density: 917.0
+      snow density: 330.0
+      seawater density: 1026.0
+      variables:
+      - name: seaIceFreeboard
+    - name: Identity
+      variables:
+      - name: seaIceFraction
+      observation alias file: obsop_name_map.yaml
+  obs error:
+    covariance model: diagonal
+
+  obs pre filters:
+  # Reject obs flagged by the upstream ICESat-2 processing
+  - filter: PreQC
+    filter variables:
+    - name: seaIceFreeboard
+    maxvalue: 1
+    action:
+      name: reject
+
+  # Physical range test on the reported freeboard
+  - filter: Bounds Check
+    filter variables:
+    - name: seaIceFreeboard
+    minvalue: 0.0
+    maxvalue: 1.0
+    action:
+      name: reject
+
+  # Physical range test on the sea ice fraction
+  - filter: Bounds Check
+    filter variables:
+    - name: seaIceFraction
+    minvalue: 0.0
+    maxvalue: 1.0
+{% if marine_letkf_app | default(false) %}
+
+  # Thin the dense along-track sampling; must stay a pre filter since
+  # the "reduce obs space" action is not implemented for prior/post stages
+  - filter: Gaussian Thinning
+    horizontal_mesh: 25  #km
+    use_reduced_horizontal_grid: true
+    select_median: true
+    action:
+      name: reduce obs space
+{% endif %}
+
+  obs prior filters:
+  - filter: Domain Check
+    where:
+    - variable: {name: GeoVaLs/sea_area_fraction}
+      value: is_valid
+      minvalue: 0.9
+
+  - filter: Domain Check
+    where:
+    - variable: {name: GeoVaLs/sea_ice_area_fraction}
+      minvalue: 0.5
+
+  # Reject sea ice freeboard obs over open/very warm water
+  - filter: Domain Check
+    filter variables:
+    - name: seaIceFraction
+    where:
+    - variable: {name: GeoVaLs/sea_surface_temperature}
+      maxvalue: -1.0
+
+  obs post filters:
+  - filter: Background Check
+    filter variables:
+    - name: seaIceFreeboard
+    absolute threshold: 0.1
+
+  - filter: Background Check
+    filter variables:
+    - name: seaIceFraction
+    absolute threshold: 0.5
+
+  # Add a constant to the error read from the file -- a floor on how well
+  # either variable can be believed, independent of how small the reported
+  # error happens to be. Additive in the standard deviation, not the
+  # variance, and in each variable's own units: 0.05 m of freeboard, 0.1 of
+  # ice fraction.
+  #
+  # `ObsError/` is the ORIGINAL error from the file, so these are not
+  # cumulative with each other or with a rerun. `assign error` overwrites,
+  # so both filters must stay LAST among the error filters -- anything added
+  # after them replaces this rather than compounding it.
+  - filter: Perform Action
+    filter variables:
+    - name: seaIceFreeboard
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          # sigo_total = 1.0 * sigo_original + 0.05
+          variables: [ObsError/seaIceFreeboard]
+          coefs:     [1.0]
+          intercept: 0.05
+
+  - filter: Perform Action
+    filter variables:
+    - name: seaIceFraction
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          # sigo_total = 1.0 * sigo_original + 0.1
+          variables: [ObsError/seaIceFraction]
+          coefs:     [1.0]
+          intercept: 0.1
+
+{% if marine_letkf_app | default(false) %}
+  obs localizations:
+  - localization method: Rossby
+    base value: 100.0e3
+    rossby mult: 1.0
+    min grid mult: 2.0
+    min value: 200.0e3
+    max value: 900.0e3
+{% endif %}

@@ -34,21 +34,92 @@
     - variable: { name: GeoVaLs/sea_surface_temperature}
       minvalue: 5.0
   - filter: Background Check
-    absolute threshold: 1.0
-  - filter: Domain Check
-    where:
-    - variable: {name: GeoVaLs/sea_floor_depth_below_sea_surface}
-      minvalue: 500
+    absolute threshold: 0.1
+  #- filter: Domain Check
+  #  where:
+  #  - variable: {name: GeoVaLs/sea_floor_depth_below_sea_surface}
+  #    minvalue: 500
+
   - filter: Perform Action
+    filter variables:
+    - name: absoluteDynamicTopography
+    action:
+      name: assign error
+      error parameter: 0.1
+
+  # Flow-dependent sigo: shrink the error where the ADT gradient is large, so
+  # the analysis draws harder to the altimeter in the energetic regions.
+  # Geostrophy gives |grad(eta)| = (f/g)|u_surf|, so the background surface
+  # speed stands in for the gradient. Caveat that comes with it: the reduction
+  # lands where the MODEL puts the current, not where it actually is. That is
+  # why x0 is deliberately low (~global p60 of speed at obs locations) and the
+  # ramp is broad -- the reduced-sigo footprint then covers the whole energetic
+  # surround, not just the jet core, so the 50-100 km axis error we measured in
+  # the frontal analysis still falls inside it. Do not sharpen this ramp.
+  #
+  # ObsErrorModelRamp is a *decaying* ramp (err1 < err0) clamped outside
+  # [x0, x1], so 0.03 m is a hard floor. That floor is the along-track
+  # altimeter noise level: in fronts we trust the obs to its own instrumental
+  # accuracy and nothing tighter.
+  #
+  #   |u| <= 0.10 m/s -> 0.100 m   quiet ocean, unchanged
+  #   |u| =  0.25 m/s -> 0.074 m   WBC median                ~1.8x the weight
+  #   |u| >= 0.50 m/s -> 0.030 m   jet cores                 11.1x the weight
+  #
+  # Measured on 20251217/00 (7 satellites, model background surface speed
+  # sampled at the obs locations): 35% of obs keep 0.1 m, 3.6% reach the floor,
+  # global mean weight change x2.0. Median assigned sigo by region --
+  # Agulhas 0.048, Brazil/Malvinas 0.062, EAC 0.071, Kuroshio 0.072,
+  # ACC-Indian 0.075, Gulf Stream 0.076, quiet N.Pac 0.091.
+  #
+  # The |lat| >= 10 guard is NOT optional. Equatorward of that, f -> 0 and the
+  # surface flow is fast while the ADT gradient is not: measured median model
+  # speed is 0.43 m/s at |lat| < 3, ABOVE the Gulf Stream's 0.24 m/s. Without
+  # the guard, 41% of equatorial obs hit the 0.03 m floor against 17% in the
+  # Gulf Stream, i.e. the scheme would mostly re-weight the tropics. By
+  # |lat| 10-15 the median speed is back to 0.236 m/s, indistinguishable from
+  # a mid-latitude WBC, so 10 degrees is where the guard belongs.
+  #
+  # Note this does NOT loosen QC: the Background Check above uses an *absolute*
+  # threshold, which BackgroundCheck.cc leaves independent of ObsError.
+  - filter: Perform Action
+    filter variables:
+    - name: absoluteDynamicTopography
+    where:
+    - variable: {name: MetaData/latitude}
+      maxvalue: -10.0
+    - variable: {name: MetaData/latitude}
+      minvalue: 10.0
+    where operator: or
     action:
       name: assign error
       error function:
-        name: ObsFunction/LinearCombination
+        name: ObsFunction/ObsErrorModelRamp
         options:
-          variables: [GeoVaLs/mesoscale_representation_error,
-                      ObsError/absoluteDynamicTopography]
-          coefs: [0.2,
-                  3.0]
+          save: true
+          xvar:
+            name: ObsFunction/Arithmetic
+            options:
+              variables:
+              - GeoVaLs/surface_eastward_sea_water_velocity
+              - GeoVaLs/surface_northward_sea_water_velocity
+              exponents: [2, 2]
+              total exponent: 0.5
+          x0:   [0.10]
+          x1:   [0.50]
+          err0: [0.10]
+          err1: [0.03]
+
+  #- filter: Perform Action
+  #  action:
+  #    name: assign error
+  #    error function:
+  #      name: ObsFunction/LinearCombination
+  #      options:
+  #        variables: [GeoVaLs/mesoscale_representation_error,
+  #                    ObsError/absoluteDynamicTopography]
+  #        coefs: [0.0,
+  #                1.0]
   - filter: Domain Check
     where:
     - variable: { name: GeoVaLs/sea_ice_area_fraction}
@@ -56,17 +127,17 @@
   - filter: Domain Check
     where:
     - variable: {name: GeoVaLs/distance_from_coast}
-      minvalue: 50e3
-  - filter: BlackList
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 4
-      maxvalue: 30
-    - variable:
-        name: MetaData/longitude
-      minvalue: 32
-      maxvalue: 56
+      minvalue: 25e3
+#  - filter: BlackList
+#    where:
+#    - variable:
+#        name: MetaData/latitude
+#      minvalue: 4
+#      maxvalue: 30
+#    - variable:
+#        name: MetaData/longitude
+#      minvalue: 32
+#      maxvalue: 56
 {% if marine_letkf_app | default(false) %}
   obs localizations:
   - localization method: Rossby

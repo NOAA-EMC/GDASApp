@@ -2,7 +2,7 @@
         output_directory = './',
         input_filename = 'r'
         restart_input_dir = 'INPUT/',
-        restart_output_dir = 'RESTART/',
+        restart_output_dir = './',
         parameter_filename = 'MOM_input' /
 
  &diag_manager_nml
