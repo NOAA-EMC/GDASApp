@@ -1,5 +1,5 @@
 export GDAS_CI_HOST='hera'
-export GDAS_CI_ROOT=/scratch3/NCEPDEV/da/${USER}/CI/${GDAS_CI_HOST}/GDASApp
+export GDAS_CI_ROOT=/scratch4/NCEPDEV/stmp/${USER}/CI/${GDAS_CI_HOST}/GDASApp
 export GDAS_MODULE_USE=${GDAS_CI_ROOT}/repo/modulefiles
 export SLURM_ACCOUNT=da-cpu
 export SALLOC_ACCOUNT=${SLURM_ACCOUNT}

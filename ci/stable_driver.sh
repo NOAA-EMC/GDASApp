@@ -172,10 +172,18 @@ Problem syncing NOAA-EMC forks of JCSDA repositories. Please check $stableroot/$
 
 EOF
 fi
-cat $BODY $stableroot/$datestr/output > $BODY
+
+# Safely append the output log to the body without erasing the text above
+if [ -f "$stableroot/$datestr/output" ]; then
+    cat "$stableroot/$datestr/output" >> "$BODY"
+fi
+
 cat $BODY
 echo $SUBJECT
-mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" "$PEOPLE" < $BODY
+
+# Mail status email to $PEOPLE
+mail -r "Darth Vader - NOAA Affiliate <darth.vader@noaa.gov>" -s "$SUBJECT" $PEOPLE < "$BODY"
+
 # ==============================================================================
 # publish some information to RZDM for quick viewing
 # THIS IS A TODO FOR NOW

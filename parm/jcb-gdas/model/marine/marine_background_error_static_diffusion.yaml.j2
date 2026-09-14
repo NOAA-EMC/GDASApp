@@ -192,3 +192,12 @@ saber outer blocks:
     - sea_water_potential_temperature
     - sea_water_salinity
     - sea_water_cell_thickness
+
+# The SOCA balance operator, superseded above by the TorchBalance outer block.
+# Kept commented so we can switch back: drop the TorchBalance block and
+# uncomment this one.
+#linear variable change:
+#  input variables: {{ marine_det_increment_variables }}
+#  output variables: {{ marine_det_increment_variables }}
+#  linear variable changes:
+#  - linear variable change name: BalanceSOCA

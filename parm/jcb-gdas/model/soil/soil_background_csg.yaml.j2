@@ -1,0 +1,10 @@
+datapath: {{ soil_background_path }}
+filetype: cube sphere history
+provider: ufs
+datetime: '{{ soil_background_time_iso }}'
+filenames:
+- {{ soil_variational_history_prefix }}csg_atm.f006.nc
+- {{ soil_variational_history_prefix }}csg_sfc.f006.nc    
+max allowable geometry difference: 1e-4
+state variables: {{ soil_state_variables }}
+field io names: {{ soil_field_io_names }}

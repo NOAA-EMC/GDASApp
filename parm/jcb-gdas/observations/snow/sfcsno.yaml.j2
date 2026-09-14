@@ -197,7 +197,7 @@
       where:
       - variable:
           name: MetaData/stationIdentification
-        is_in: {{ get_conventional_rejected_stations(observation_from_jcb) }}
+        is_in: {{ get_conventional_rejected_stations(observation_from_jcb, 'totalSnowDepth') }}
       actions:
       - name: set
         flag: rejectlist

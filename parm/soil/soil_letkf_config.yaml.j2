@@ -1,0 +1,67 @@
+jedi_config:
+    soilletkfanl:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECglobal }}/gdas.x'
+        mpi_cmd: '{{ APRUN_SOILLETKFANL }}'
+        jedi_args: ['fv3jedi', 'localensembleda']
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/soil/jcb-base.yaml.j2'
+        jcb_algo_yaml: '{{ PARMglobal }}/gdas/soil/jcb-prototype_lgetkf.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
+
+data_in:
+    mkdir:
+    - '{{ DATA }}/bkg'
+    - '{{ DATA }}/anl'
+    - '{{ DATA }}/bkg/ensmean'
+    - '{{ DATA }}/anl/ensmean'
+{% for mem in range(0, NMEM_ENS + 1) %}
+    - '{{ DATA }}/bkg/mem{{ '%03d' % mem }}'
+    - '{{ DATA }}/anl/mem{{ '%03d' % mem }}'
+{% endfor %}
+    - '{{ DATA }}/orog/ens'
+    - '{{ DATA }}/fv3jedi'
+    - '{{ DATA }}/berror'
+
+    copy_req:
+{% for mem in range(1, NMEM_ENS + 1) %}
+    {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                         '${RUN}': RUN,
+                         '${YMD}': previous_cycle | to_YMD,
+                         '${HH}': previous_cycle | strftime('%H'),
+                         '${MEMDIR}': 'mem%03d' | format(mem) }) %}
+    - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}csg_atm.f006.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COM_ATMOS_HISTORY_TMPL | replace_tmpl(tmpl_dict) }}/{{ GPREFIX_ENS }}csg_sfc.f006.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+{% endfor %}
+
+{% filter indent(width=4) %}
+{% include 'soil_stage_jedi_fix.yaml.j2' %}
+{% include 'soil_stage_berror.yaml.j2' %}
+#{% include 'soil_stage_bufr2ioda_mapping.yaml.j2' %}
+{% endfilter %}
+
+data_out:
+    copy_req:
+    # Configuration files
+    - ['{{ DATA }}/soilletkfanl.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}soilletkfanl.yaml']
+   
+    # ens mean increment
+    - ['{{ DATA }}/anl/mem000/soilinc_ensmean_{{ GPREFIX_ENS }}nc',
+       '{{ COMOUT_ATMOS_ANALYSIS_ENS }}/{{ APREFIX_ENS }}jedi_increment.sfc.i006.nc']
+
+{% for imem in range(1, NMEM_ENS+1) %}
+    {% set memchar = 'mem%03d' | format(imem) %}
+    {% set tmpl_dict = ({ '${ROTDIR}': ROTDIR,
+                          '${RUN}': RUN,
+                          '${YMD}': current_cycle | to_YMD,
+                          '${HH}': current_cycle | strftime('%H'),
+                          '${MEMDIR}': 'mem%03d' | format(imem) }) %}
+    # Increments
+    - ['{{ DATA }}/anl/{{ memchar }}/soilinc_{{ GPREFIX_ENS }}nc',
+       '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ APREFIX_ENS }}jedi_increment.sfc.i006.nc']
+
+  # Copy soil analysis (for non-iau)
+  {% if DO_ADD_SOIL_INCR %}
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ GPREFIX_ENS }}csg_sfc.f006.nc',
+       '{{ COM_ATMOS_ANALYSIS_TMPL | replace_tmpl(tmpl_dict) }}/{{ current_cycle | to_fv3time }}.soilanl.csg_sfc.nc']
+  {% endif %}
+{% endfor %}
