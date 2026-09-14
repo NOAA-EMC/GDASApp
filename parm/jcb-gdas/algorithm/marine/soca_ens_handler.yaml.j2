@@ -102,6 +102,11 @@ increment postprocessing:
   set increment variables to zero:
   - eastward_sea_water_velocity
   - northward_sea_water_velocity
+  # Keep the analysis within physical bounds
+  bounds check:
+    state bounds:
+      sea_water_potential_temperature: [-2.5, 36.0]
+      sea_water_salinity: [0.0, 44.0]
 
 analysis postprocessing:
   pattern: "%mem%"
