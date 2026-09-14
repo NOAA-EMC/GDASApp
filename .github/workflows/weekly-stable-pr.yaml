@@ -6,9 +6,8 @@ on:
   schedule:
     # Primary run at 09:17 UTC every Saturday (avoids top-of-hour contention)
     - cron: '17 9 * * 6'
-    # Fallback windows in case scheduled events are delayed/dropped
-    - cron: '37 9 * * 6'
-    - cron: '7 10 * * 6'
+    # Fallback window in case scheduled events are delayed/dropped
+    - cron: '37 14 * * 6'
   workflow_dispatch: # Allows manual triggering for testing
 
 concurrency:
@@ -24,9 +23,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v6
 
       - name: Scheduled run marker
         run: |
@@ -88,7 +85,8 @@ jobs:
             --assignee "RussTreadon-NOAA" \
             --title "Weekly Merge: stable-nightly to develop ($DATE_STR)" \
             --body-file /tmp/pr_body.md \
-            --label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT"
+            --label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT" \
+	    --idle-timeout 60m
 
       - name: Update existing PR
         if: steps.check_pr.outputs.pr_number != ''
@@ -98,5 +96,7 @@ jobs:
           # Ensure labels, assignee, and body with all CI tests checked are present
           gh pr edit ${{ steps.check_pr.outputs.pr_number }} \
             --add-assignee "RussTreadon-NOAA" \
+	    --title "Weekly Merge: stable-nightly to develop ($DATE_STR)" \
             --add-label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT" \
-            --body-file /tmp/pr_body.md
+            --body-file /tmp/pr_body.md \
+	    --idle-timeout 60m
