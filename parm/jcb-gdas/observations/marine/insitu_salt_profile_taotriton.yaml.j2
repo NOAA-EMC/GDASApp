@@ -34,117 +34,12 @@
     covariance model: diagonal
 
   obs pre filters:
-  # Pre-filters credits to Kriti Bhargava
   # Global range test
   - filter: Bounds Check
     filter variables:
     - name: salinity
     minvalue: 2.0
     maxvalue: 41.0
-
-  # Regional range test
-  # Red Sea
-  - filter: Bounds Check
-    filter variables:
-    - name: salinity
-    minvalue: 2.0
-    maxvalue: 41.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 10
-      maxvalue: 30
-    - variable:
-        name: MetaData/longitude
-      minvalue: 30
-      maxvalue: 45
-
-  # Mediterranean Sea
-  - filter: Bounds Check
-    filter variables:
-    - name: salinity
-    minvalue: 2.0
-    maxvalue: 40.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 30
-      maxvalue: 40
-    - variable:
-        name: MetaData/longitude
-      minvalue: -6
-      maxvalue: 40
-  - filter: Bounds Check
-    filter variables:
-    - name: salinity
-    minvalue: 2.0
-    maxvalue: 40.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 40
-      maxvalue: 41.5
-    - variable:
-        name: MetaData/longitude
-      minvalue: 20
-      maxvalue: 30
-  - filter: Bounds Check
-    filter variables:
-    - name: salinity
-    minvalue: 2.0
-    maxvalue: 40.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 40
-      maxvalue: 46
-    - variable:
-        name: MetaData/longitude
-      minvalue: 0
-      maxvalue: 20
-
-  # Northwestern shelves
-  - filter: Bounds Check
-    filter variables:
-    - name: salinity
-    minvalue: 0.0
-    maxvalue: 37.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 50
-      maxvalue: 60
-    - variable:
-        name: MetaData/longitude
-      minvalue: -20
-      maxvalue: 10
-
-  # Southwestern shelves
-  - filter: Bounds Check
-    filter variables:
-    - name: salinity
-    minvalue: 0.0
-    maxvalue: 38
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 25
-      maxvalue: 50
-    - variable:
-        name: MetaData/longitude
-      minvalue: -30
-      maxvalue: 0
-
-  # Arctic
-  - filter: Bounds Check
-    filter variables:
-    - name: salinity
-    minvalue: 2.0
-    maxvalue: 40.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 60
 
   obs prior filters:
   - filter: Domain Check
@@ -221,19 +116,14 @@
         name: ObsFunction/Arithmetic
         options:
           variables: [MetaData/depth, ObsError/salinity]
-          # sigo_total = 0.5 + (-0.00045)*depth + 0.1*sigo_original
+          # sigo_total = 0.5 + (-0.00025)*depth + 0.1*sigo_original
           coefs:     [-0.00025, 0.1]
           intercept: 0.5
 
-
-  # Smoothly inflate the obs error in the tropics.
-  # The inflation factor is a Gaussian in latitude,
-  #     factor(lat) = 1 + (A - 1) * exp(-lat^2 / (2*sigma^2))
-  # with a peak of A = 4 at the equator and sigma = 15 degrees, so it decays
-  # to 2.8 at 15N/S, 2.2 at 20N/S, 1.4 at 30N/S and ~1 by 50N/S.
-  # Deliberately has no "where" clause: the factor is a continuous function of
-  # latitude, so there is no jump at a band edge. Squaring the latitude (rather
-  # than taking its absolute value) keeps the curve smooth at the equator too.
+  # The PIRATA / RAMA / TAO-TRITON arrays sit entirely within the tropics
+  # (all moorings within ~20 deg of the equator), so there is nothing for a
+  # latitude-dependent curve to resolve here: apply the same peak amplitude
+  # (A = 4) used by the Gaussian on the basin-scale platforms, as a flat factor.
   # Must stay the LAST error filter -- the "assign error" filters above would
   # otherwise overwrite the inflated error.
   - filter: Perform Action
@@ -241,18 +131,7 @@
     - name: salinity
     action:
       name: inflate error
-      inflation variable:
-        name: ObsFunction/Exponential
-        options:
-          variables:
-          - name: ObsFunction/Arithmetic   # lat^2
-            options:
-              variables: [MetaData/latitude]
-              exponents: [2]
-          coeffA: 3.0            # A - 1
-          coeffB: -0.00222222    # -1/(2*sigma^2), sigma = 15 deg
-          coeffC: 1.0            # factor -> 1 outside the tropics
-          coeffD: 1.0            # latitude missing -> no inflation
+      inflation factor: 4.0
 
 {% if marine_letkf_app | default(false) %}
   obs localizations:
