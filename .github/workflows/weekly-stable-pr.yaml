@@ -16,6 +16,7 @@ concurrency:
 jobs:
   create-pull-request:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       pull-requests: write
       issues: write
@@ -85,18 +86,17 @@ jobs:
             --assignee "RussTreadon-NOAA" \
             --title "Weekly Merge: stable-nightly to develop ($DATE_STR)" \
             --body-file /tmp/pr_body.md \
-            --label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT" \
-	    --idle-timeout 60m
+            --label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT"
 
       - name: Update existing PR
         if: steps.check_pr.outputs.pr_number != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          DATE_STR: ${{ steps.date.outputs.date_str }}
         run: |
           # Ensure labels, assignee, and body with all CI tests checked are present
           gh pr edit ${{ steps.check_pr.outputs.pr_number }} \
             --add-assignee "RussTreadon-NOAA" \
 	    --title "Weekly Merge: stable-nightly to develop ($DATE_STR)" \
             --add-label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT" \
-            --body-file /tmp/pr_body.md \
-	    --idle-timeout 60m
+            --body-file /tmp/pr_body.md
