@@ -112,8 +112,8 @@ namespace obsforge {
       ncFile.getVar("sses_standard_deviation").getAtt("scale_factor").getValues(&errScaleFactor);
 
       // Read preQc
-      signed char sstPreQC[dimTime][dimLat][dimLon];
-      ncFile.getVar("quality_level").getVar(sstPreQC);
+      std::vector<signed char> sstPreQC(dimTime*dimLat*dimLon);
+      ncFile.getVar("quality_level").getVar(sstPreQC.data());
 
       // Apply scaling/unit change and compute the necessary fields
       std::vector<std::vector<int>> mask(dimLat, std::vector<int>(dimLon));
@@ -128,7 +128,7 @@ namespace obsforge {
           // Note: the qc flags in GDS2.0 run from 0 to 5, with higher numbers being better.
           // IODA typically expects 0 to be good, and larger numbers to be worse so the
           // provider's QC is flipped
-          preqc[i][j] = 5 - static_cast<int>(sstPreQC[0][i][j]);
+          preqc[i][j] = 5 - static_cast<int>(sstPreQC[i*dimLon+j]);
 
           // bias corrected sst, regressed to the drifter depth
           // Remove added sstOffSet for Celsius

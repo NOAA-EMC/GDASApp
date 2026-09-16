@@ -51,21 +51,21 @@ namespace obsforge {
       oops::Log::info() << "row,col " << dimRow << dimCol << std::endl;
 
       // Read lat and lon
-      float lon2d[dimRow][dimCol];
-      ncFile.getVar("Longitude").getVar(lon2d);
+      std::vector<float> lon2d(dimRow*dimCol);
+      ncFile.getVar("Longitude").getVar(lon2d.data());
 
-      float lat2d[dimRow][dimCol];
-      ncFile.getVar("Latitude").getVar(lat2d);
+      std::vector<float> lat2d(dimRow*dimCol);
+      ncFile.getVar("Latitude").getVar(lat2d.data());
 
-      float aod550[dimRow][dimCol];
-      ncFile.getVar("AOD550").getVar(aod550);
+      std::vector<float> aod550(dimRow*dimCol);
+      ncFile.getVar("AOD550").getVar(aod550.data());
       const float missingValue = -999.999;
 
-      int8_t qcall[dimRow][dimCol];
-      ncFile.getVar("QCAll").getVar(qcall);
+      std::vector<int8_t> qcall(dimRow*dimCol);
+      ncFile.getVar("QCAll").getVar(qcall.data());
 
-      int8_t qcpath[dimRow][dimCol];
-      ncFile.getVar("QCPath").getVar(qcpath);
+      std::vector<int8_t> qcpath(dimRow*dimCol);
+      ncFile.getVar("QCPath").getVar(qcpath.data());
 
       // string obstime
       std::string time_coverage_end;
@@ -112,23 +112,24 @@ namespace obsforge {
       // Create thinning and missing value mask
       for (int i = 0; i < dimRow; i++) {
         for (int j = 0; j < dimCol; j++) {
-          if (aod550[i][j] != missingValue && qcall[i][j] <= preQcValue) {
+            const int idx = i*dimCol+j;
+            if (aod550[idx] != missingValue && qcall[idx] <= preQcValue) {
          // Random number generation for thinning
              float isThin = dis(gen);
              if (isThin > thinThreshold) {
-                preqc[i][j] = static_cast<int>(qcall[i][j]);
-                obsvalue[i][j] = static_cast<float>(aod550[i][j]);
-                lat[i][j] = lat2d[i][j];
-                lon[i][j] = lon2d[i][j];
+              preqc[i][j] = static_cast<int>(qcall[idx]);
+              obsvalue[i][j] = static_cast<float>(aod550[idx]);
+              lat[i][j] = lat2d[idx];
+              lon[i][j] = lon2d[idx];
                 // dark land
-                float obserrorValue = 0.111431 + 0.128699 * static_cast<float>(aod550[i][j]);
+              float obserrorValue = 0.111431 + 0.128699 * static_cast<float>(aod550[idx]);
                 // ocean
-                if (qcpath[i][j] % 2 == 1) {
-                    obserrorValue = 0.00784394 + 0.219923 * static_cast<float>(aod550[i][j]);
+              if (qcpath[idx] % 2 == 1) {
+                obserrorValue = 0.00784394 + 0.219923 * static_cast<float>(aod550[idx]);
                 }
                 // bright land
-                if (qcpath[i][j] % 4 == 2) {
-                   obserrorValue = 0.0550472 + 0.299558 *  static_cast<float>(aod550[i][j]);
+              if (qcpath[idx] % 4 == 2) {
+                 obserrorValue = 0.0550472 + 0.299558 *  static_cast<float>(aod550[idx]);
                 }
                 obserror[i][j] = obserrorValue;
                 mask[i][j] = 1;
