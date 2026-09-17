@@ -89,7 +89,7 @@ class varGDAS(Task):
         self.task_config.jedi_config = {
             '3dvar': {
                 'rundir': f"{ self.task_config.DATA }",
-                'exe_src': f"{ self.task_config.HOMEgdas }/exec/gdas.x",
+                'exe_src': f"{ self.task_config.HOMEgdas }/install/bin/gdas.x",
                 'mpi_cmd': 'srun -n 6',
                 'jcb_base_yaml': f"{ self.task_config.HOMEgdas }/parm/atm/jcb-base.yaml.j2",
                 'jedi_args': ['fv3jedi', 'variational'],
