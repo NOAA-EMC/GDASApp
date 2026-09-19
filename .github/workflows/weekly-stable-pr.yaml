@@ -6,9 +6,6 @@ on:
   schedule:
     # Primary run at 09:17 UTC every Saturday (avoids top-of-hour contention)
     - cron: '17 9 * * 6'
-    # Fallback windows in case scheduled events are delayed/dropped
-    - cron: '37 9 * * 6'
-    - cron: '7 10 * * 6'
   workflow_dispatch: # Allows manual triggering for testing
 
 concurrency:
