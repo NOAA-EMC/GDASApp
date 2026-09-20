@@ -52,18 +52,18 @@ jobs:
           echo "ahead_by=${AHEAD_COUNT}" >> "$GITHUB_OUTPUT"
 
           # 2. Check for an existing open PR
-PR_INFO=$(gh pr list --repo "$REPO" --head "$HEAD_REF" --base "$BASE_REF" --json number,title --jq '.[0] // empty')
-PR_NUM=$(jq -r '.number // empty' <<< "${PR_INFO:-null}")
-PR_TITLE=$(jq -r '.title // empty' <<< "${PR_INFO:-null}")
+          PR_INFO=$(gh pr list --repo "$REPO" --head "$HEAD_REF" --base "$BASE_REF" --json number,title --jq '.[0] // empty')
+          PR_NUM=$(jq -r '.number // empty' <<< "${PR_INFO:-null}")
+          PR_TITLE=$(jq -r '.title // empty' <<< "${PR_INFO:-null}")
 
-echo "pr_number=${PR_NUM}" >> "$GITHUB_OUTPUT"
+          echo "pr_number=${PR_NUM}" >> "$GITHUB_OUTPUT"
 
-# 3. Check if PR was already created/updated today
-if [[ -n "$PR_TITLE" && "$PR_TITLE" == *"$DATE_STR"* ]]; then
-  echo "already_updated=true" >> "$GITHUB_OUTPUT"
-else
-  echo "already_updated=false" >> "$GITHUB_OUTPUT"
-fi
+          # 3. Check if PR was already created/updated today
+          if [[ -n "$PR_TITLE" && "$PR_TITLE" == *"$DATE_STR"* ]]; then
+            echo "already_updated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_updated=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Generate PR body
         if: ${{ (steps.pr_status.outputs.ahead_by > 0 || steps.pr_status.outputs.pr_number != '') && steps.pr_status.outputs.already_updated == 'false' }}
