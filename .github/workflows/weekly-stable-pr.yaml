@@ -68,7 +68,7 @@ jobs:
           fi
 
       - name: Generate PR body
-        if: ${{ (fromJSON(steps.pr_status.outputs.ahead_by) > 0 || steps.pr_status.outputs.pr_number != '') && steps.pr_status.outputs.already_updated == 'false' }}
+if: ${{ fromJSON(steps.pr_status.outputs.ahead_by) > 0 || (steps.pr_status.outputs.pr_number != '' && steps.pr_status.outputs.already_updated == 'false') }}
         env:
           DATE_STR: ${{ steps.date.outputs.date_str }}
         run: |
