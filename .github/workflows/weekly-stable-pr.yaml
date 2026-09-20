@@ -45,13 +45,14 @@ jobs:
           DATE_STR: ${{ steps.date.outputs.date_str }}
         run: |
           # 1. Check if there are ahead commits between branches
-          AHEAD_COUNT=$(gh api "repos/${REPO}/compare/develop...feature/stable-nightly" --jq '.ahead_by')
+          BASE_REF="develop"
+          HEAD_REF="feature/stable-nightly"
+          HEAD_REF_ENC="${HEAD_REF//\//%2F}"
+          AHEAD_COUNT=$(gh api "repos/${REPO}/compare/${BASE_REF}...${HEAD_REF_ENC}" --jq '.ahead_by')
           echo "ahead_by=${AHEAD_COUNT}" >> "$GITHUB_OUTPUT"
 
           # 2. Check for an existing open PR
-          PR_INFO=$(gh pr list --repo "$REPO" --head feature/stable-nightly --base develop --json number,title --jq '.[0]')
-          EXISTING_PR=$(echo "$PR_INFO" | jq -r '.number // empty')
-          PR_TITLE=$(echo "$PR_INFO" | jq -r '.title // empty')
+          PR_INFO=$(gh pr list --repo "$REPO" --head "$HEAD_REF" --base "$BASE_REF" --json number,title --jq '.[0]')
 
           echo "pr_number=${EXISTING_PR}" >> "$GITHUB_OUTPUT"
 
