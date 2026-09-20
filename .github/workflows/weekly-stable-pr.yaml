@@ -88,7 +88,7 @@ jobs:
           EOF
 
       - name: Create or Update Pull Request
-        if: ${{ (steps.pr_status.outputs.ahead_by > 0 || steps.pr_status.outputs.pr_number != '') && steps.pr_status.outputs.already_updated == 'false' }}
+        if: ${{ (fromJSON(steps.pr_status.outputs.ahead_by) > 0 || steps.pr_status.outputs.pr_number != '') && steps.pr_status.outputs.already_updated == 'false' }}
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -119,7 +119,7 @@ jobs:
           fi
 
       - name: Skip Notification
-        if: ${{ steps.pr_status.outputs.already_updated == 'true' || (steps.pr_status.outputs.ahead_by == 0 && steps.pr_status.outputs.pr_number == '') }}
+        if: ${{ steps.pr_status.outputs.already_updated == 'true' || (fromJSON(steps.pr_status.outputs.ahead_by) == 0 && steps.pr_status.outputs.pr_number == '') }}
         run: |
           if [ "${{ steps.pr_status.outputs.already_updated }}" = "true" ]; then
             echo "PR #${{ steps.pr_status.outputs.pr_number }} was already created or updated today (${{ steps.date.outputs.date_str }}). Skipping evening run."
