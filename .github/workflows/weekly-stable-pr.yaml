@@ -19,6 +19,8 @@ jobs:
   create-pull-request:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      TZ: UT
     permissions:
       pull-requests: write
       issues: write
@@ -35,7 +37,7 @@ jobs:
 
       - name: Generate Date String
         id: date
-        run: echo "date_str=$(date +'%Y%m%d')" >> "$GITHUB_OUTPUT"
+        run: echo "date_str=$(date -u +'%Y%m%d')" >> "$GITHUB_OUTPUT"
 
       - name: Check branch comparison and existing PR
         id: pr_status
