@@ -4,99 +4,125 @@ run-name: Weekly Stable PR (${{ github.event_name }})
 
 on:
   schedule:
-    # Primary run at 09:17 UTC every Saturday (avoids top-of-hour contention)
+    # Primary run: Morning Saturday at 09:17 UTC
     - cron: '17 9 * * 6'
-    # Fallback windows in case scheduled events are delayed/dropped
-    - cron: '37 9 * * 6'
-    - cron: '7 10 * * 6'
+    # Fallback run: Evening Saturday at 21:37 UTC
+    - cron: '37 21 * * 6'
+
   workflow_dispatch: # Allows manual triggering for testing
 
 concurrency:
   group: ${{ github.workflow }}-develop-feature/stable-nightly
   cancel-in-progress: false
+
 jobs:
   create-pull-request:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TZ: UTC
     permissions:
       pull-requests: write
       issues: write
       contents: read
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
+    steps:
       - name: Scheduled run marker
         run: |
           echo "event_name=${{ github.event_name }}"
           echo "workflow=${{ github.workflow }}"
           echo "run_id=${{ github.run_id }}"
-          echo "run_attempt=${{ github.run_attempt }}"
-          echo "repository=${{ github.repository }}"
-          echo "ref=${{ github.ref }}"
-          echo "sha=${{ github.sha }}"
           echo "actor=${{ github.actor }}"
           echo "triggered_at_utc=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          echo "github_event_path=$GITHUB_EVENT_PATH"
-          if [ -f "$GITHUB_EVENT_PATH" ]; then
-            echo "event_payload_excerpt:"
-            jq '{schedule, repository: .repository.full_name, sender: .sender.login}' "$GITHUB_EVENT_PATH" || cat "$GITHUB_EVENT_PATH"
-          fi
 
       - name: Generate Date String
         id: date
-        run: echo "date_str=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+        run: echo "date_str=$(date -u +'%Y%m%d')" >> "$GITHUB_OUTPUT"
 
-      - name: Check for existing PR
-        id: check_pr
+      - name: Check branch comparison and existing PR
+        id: pr_status
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          DATE_STR: ${{ steps.date.outputs.date_str }}
         run: |
-          existing_pr=$(gh pr list --head feature/stable-nightly --base develop --json number --jq '.[0].number // empty')
-          echo "pr_number=$existing_pr" >> $GITHUB_OUTPUT
+          # 1. Check if there are ahead commits between branches
+          BASE_REF="develop"
+          HEAD_REF="feature/stable-nightly"
+          HEAD_REF_ENC="${HEAD_REF//\//%2F}"
+          AHEAD_COUNT=$(gh api "repos/${REPO}/compare/${BASE_REF}...${HEAD_REF_ENC}" --jq '.ahead_by')
+          echo "ahead_by=${AHEAD_COUNT}" >> "$GITHUB_OUTPUT"
+
+          # 2. Check for an existing open PR
+          PR_INFO=$(gh pr list --repo "$REPO" --head "$HEAD_REF" --base "$BASE_REF" --json number,title --jq '.[0] // empty')
+          PR_NUM=$(jq -r '.number // empty' <<< "${PR_INFO:-null}")
+          PR_TITLE=$(jq -r '.title // empty' <<< "${PR_INFO:-null}")
+
+          echo "pr_number=${PR_NUM}" >> "$GITHUB_OUTPUT"
+
+          # 3. Check if PR was already created/updated today
+          if [[ -n "$PR_TITLE" && "$PR_TITLE" == *"$DATE_STR"* ]]; then
+            echo "already_updated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_updated=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Generate PR body
+        if: ${{ fromJSON(steps.pr_status.outputs.ahead_by) > 0 || (steps.pr_status.outputs.pr_number != '' && steps.pr_status.outputs.already_updated == 'false') }}
         env:
           DATE_STR: ${{ steps.date.outputs.date_str }}
         run: |
-          {
-            echo "Automated weekly PR to sync stable-nightly updates into develop. Triggered on ${DATE_STR}."
-            echo ""
-            echo "# Automated CI tests to run in Global Workflow"
-            echo "- [x] atm_jjob <!-- JEDI atm single cycle DA !-->"
-            echo "- [x] C96C48_ufs_hybatmDA <!-- JEDI atm cycled DA !-->"
-            echo "- [x] C96C48_hybatmsnowDA <!-- JEDI snow cycled DA !-->"
-            echo "- [x] C96_gcafs_cycled <!-- JEDI aerosol cycled DA !-->"
-            echo "- [x] C48mx500_3DVarAOWCDA <!-- JEDI low-res marine 3DVar cycled DA  !-->"
-            echo "- [x] C48mx500_hybAOWCDA <!-- JEDI marine hybrid envar cycled DA !-->"
-            echo "- [x] C96C48_ufsgsi_hybatmDA <!-- JEDI atm Var with GSI EnKF cycled DA !-->"
-            echo "- [x] C48_ufsenkf_atmDA <!-- JEDI atm EnKF cycled DA !-->"
-            echo "- [x] C96C48_hybatmDA <!-- GSI atm cycled DA !-->"
-          } > /tmp/pr_body.md
+          cat << EOF > /tmp/pr_body.md
+          Automated weekly PR to sync stable-nightly updates into develop. Triggered on ${DATE_STR}.
 
-      - name: Create Pull Request
-        if: steps.check_pr.outputs.pr_number == ''
+          # Automated CI tests to run in Global Workflow
+          - [x] atm_jjob <!-- JEDI atm single cycle DA !-->
+          - [x] C96C48_ufs_hybatmDA <!-- JEDI atm cycled DA !-->
+          - [x] C96C48_hybatmsnowDA <!-- JEDI snow cycled DA !-->
+          - [x] C96_gcafs_cycled <!-- JEDI aerosol cycled DA !-->
+          - [x] C48mx500_3DVarAOWCDA <!-- JEDI low-res marine 3DVar cycled DA  !-->
+          - [x] C48mx500_hybAOWCDA <!-- JEDI marine hybrid envar cycled DA !-->
+          - [x] C96C48_ufsgsi_hybatmDA <!-- JEDI atm Var with GSI EnKF cycled DA !-->
+          - [x] C48_ufsenkf_atmDA <!-- JEDI atm EnKF cycled DA !-->
+          - [x] C96C48_hybatmDA <!-- GSI atm cycled DA !-->
+          EOF
+
+      - name: Create or Update Pull Request
+        if: ${{ (fromJSON(steps.pr_status.outputs.ahead_by) > 0 || steps.pr_status.outputs.pr_number != '') && steps.pr_status.outputs.already_updated == 'false' }}
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           DATE_STR: ${{ steps.date.outputs.date_str }}
+          PR_NUM: ${{ steps.pr_status.outputs.pr_number }}
+          TITLE: "Weekly Merge: stable-nightly to develop (${{ steps.date.outputs.date_str }})"
+          ASSIGNEE: "RussTreadon-NOAA"
+          LABELS: "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT"
         run: |
-          gh pr create \
-            --base develop \
-            --head feature/stable-nightly \
-            --assignee "RussTreadon-NOAA" \
-            --title "Weekly Merge: stable-nightly to develop ($DATE_STR)" \
-            --body-file /tmp/pr_body.md \
-            --label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT"
+          if [ -z "$PR_NUM" ]; then
+            echo "Creating new PR..."
+            gh pr create \
+              --repo "$REPO" \
+              --base develop \
+              --head feature/stable-nightly \
+              --assignee "$ASSIGNEE" \
+              --title "$TITLE" \
+              --body-file /tmp/pr_body.md \
+              --label "$LABELS"
+          else
+            echo "Updating existing PR #${PR_NUM}..."
+            gh pr edit "$PR_NUM" \
+              --repo "$REPO" \
+              --add-assignee "$ASSIGNEE" \
+              --title "$TITLE" \
+              --add-label "$LABELS" \
+              --body-file /tmp/pr_body.md
+          fi
 
-      - name: Update existing PR
-        if: steps.check_pr.outputs.pr_number != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Skip Notification
+        if: ${{ steps.pr_status.outputs.already_updated == 'true' || (fromJSON(steps.pr_status.outputs.ahead_by) == 0 && steps.pr_status.outputs.pr_number == '') }}
         run: |
-          # Ensure labels, assignee, and body with all CI tests checked are present
-          gh pr edit ${{ steps.check_pr.outputs.pr_number }} \
-            --add-assignee "RussTreadon-NOAA" \
-            --add-label "gaeac6-GW-RT,hera-GW-RT,hercules-GW-RT,orion-GW-RT,ursa-GW-RT" \
-            --body-file /tmp/pr_body.md
+          if [ "${{ steps.pr_status.outputs.already_updated }}" = "true" ]; then
+            echo "PR #${{ steps.pr_status.outputs.pr_number }} was already created or updated today (${{ steps.date.outputs.date_str }}). Skipping evening run."
+          else
+            echo "No commits to sync from feature/stable-nightly to develop and no open PR exists. Skipping execution."
+          fi
