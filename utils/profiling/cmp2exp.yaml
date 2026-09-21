@@ -1,0 +1,49 @@
+oops log: ['exp1.log','exp2.log']
+plot type: bars
+bar attributes:
+  colors: ['b','r']
+  labels: ['Exp1','Exp2']
+  width: 0.35
+methods:
+- oops::Covariance::SABER::multiply                   
+- oops::Geometry::Geometry                            
+#- oops::GetValues::GetValues                          
+#- oops::GetValues::finalizeAD                         
+- oops::GetValues::process                            
+- oops::GetValues::processAD                          
+- oops::GetValues::processTL                          
+#- oops::Increment::Increment                          
+#- oops::Increment::axpy                               
+#- oops::Increment::dot_product_with                   
+#- oops::Increment::fromFieldSet                       
+#- oops::Increment::operator=                          
+#- oops::Increment::print                              
+- oops::Increment::write                              
+#- oops::Increment::toFieldSet                         
+#- oops::LinearObsOper::AIRS AQUA::simulateObsAD       
+#- oops::LinearObsOper::CRIS-FSR NOAA-20::setTrajectory
+#- oops::LinearObsOper::CRIS-FSR NOAA-20::simulateObsAD
+#- oops::LinearObsOper::CRIS-FSR NPP::setTrajectory    
+#- oops::LinearObsOper::CRIS-FSR NPP::simulateObsAD    
+#- oops::LinearObsOper::IASI METOP-B::setTrajectory    
+#- oops::LinearObsOper::IASI METOP-B::simulateObsAD    
+#- oops::LinearObsOper::IASI METOP-C::setTrajectory    
+#- oops::LinearObsOper::IASI METOP-C::simulateObsAD    
+#- oops::LinearObsOper::ssmis_f17::simulateObsAD       
+#- oops::LinearVariableChange::changeVarAD             
+#- oops::LinearVariableChange::changeVarTL             
+#- oops::ObsAuxControl::ObsAuxControl                  
+#- oops::ObsDataVector::print                          
+#- oops::ObsOperator::AIRS AQUA::simulateObs           
+#- oops::ObsOperator::CRIS-FSR NOAA-20::simulateObs    
+#- oops::ObsOperator::CRIS-FSR NPP::simulateObs        
+#- oops::ObsOperator::IASI METOP-B::simulateObs        
+#- oops::ObsOperator::IASI METOP-C::simulateObs        
+- oops::ObsSpace::ObsSpace                            
+- oops::ObsSpace::save                                
+- oops::State::State                                  
+#- oops::State::print                                  
+#- oops::State::write                                  
+- oops::UnstructuredInterpolator::apply               
+- oops::UnstructuredInterpolator::applyAD             
+#- oops::VariableChange::changeVar                     
