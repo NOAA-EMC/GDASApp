@@ -1,0 +1,57 @@
+- filter: Variable Assignment
+  assignments:
+  - name: DerivedMetaData/elevation_diff_func
+    type: float
+    function:
+      name: ObsFunction/Arithmetic
+      options:
+        variables:
+        - MetaData/stationElevation
+        - GeoVaLs/filtered_orography
+        coefs:
+        - 1.0
+        - -1.0
+        total exponent: 2
+        total coefficient: 1.5625e-06
+        abort if invalid operation: true
+- filter: Variable Assignment
+  assignments:
+  - name: DerivedMetaData/elevation_infl_factor
+    type: float
+    function:
+      name: ObsFunction/Exponential
+      options:
+        variables:
+        - DerivedMetaData/elevation_diff_func
+        coeffA: 1.0
+        coeffB: 1.0
+        coeffC: 0.0
+        coeffD: 3.0
+- filter: Variable Assignment
+  assignments:
+  - name: DerivedMetaData/elevation_infl_factor
+    type: float
+    value: 1.
+  where:
+  - variable:
+      name: DerivedMetaData/elevation_infl_factor
+    maxvalue: 1.
+- filter: Variable Assignment
+  assignments:
+  - name: DerivedMetaData/elevation_infl_factor
+    type: float
+    value: 3.
+  where:
+  - variable:
+      name: DerivedMetaData/elevation_infl_factor
+    minvalue: 3.
+- filter: Perform Action
+  filter variables:
+  - name: totalSnowDepth
+  where:
+  - variable:
+      name: ObsValue/totalSnowDepth
+    minvalue: 0.0
+  action:
+    name: inflate error
+    inflation variable: DerivedMetaData/elevation_infl_factor
