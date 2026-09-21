@@ -156,48 +156,48 @@ saber outer blocks:
       ice_filename: 'ice.bkgerr_parametric_stddev.nc'
       read_from_file: 3
 
-- saber block name: TorchBalance
-  save jacobians: true
-  surface emulators:
-  - name: sea_ice_area_fraction
-    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/runs/ml_aice/ml_aice_dual.ts
-    jacobian wrt:
-    - sea_ice_thickness
-    - sea_ice_snow_thickness
-    - sea_water_salinity
-    - sea_water_potential_temperature
-    jacobian masking:
-      variable: sea_ice_area_fraction
-      level: 0
-
-  vertical emulators:
-  - name: sea_surface_height_above_geoid
-    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/runs/phy_steric/steric.ts
-    jacobian wrt:
-    - sea_water_potential_temperature
-    - sea_water_salinity
-
-  - name: sea_water_salinity
-    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/emulators/heave_salinity/scripts/heave_salinity.ts
-    jacobian wrt:
-    - sea_water_potential_temperature
-
-  non-local emulators:
-  - name: geostrophy
-    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/emulators/geostrophy/scripts/geostrophy_nonlocal.ts
-    geometry tensors:
-    - lonlat
-    - edge_node_connectivity
-    background tensors:
-    - sea_water_potential_temperature
-    - sea_water_salinity
-    - sea_water_cell_thickness
-
+#- saber block name: TorchBalance
+#  save jacobians: true
+#  surface emulators:
+#  - name: sea_ice_area_fraction
+#    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/runs/ml_aice/ml_aice_dual.ts
+#    jacobian wrt:
+#    - sea_ice_thickness
+#    - sea_ice_snow_thickness
+#    - sea_water_salinity
+#    - sea_water_potential_temperature
+#    jacobian masking:
+#      variable: sea_ice_area_fraction
+#      level: 0
+#
+#  vertical emulators:
+#  - name: sea_surface_height_above_geoid
+#    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/runs/phy_steric/steric.ts
+#    jacobian wrt:
+#    - sea_water_potential_temperature
+#    - sea_water_salinity
+#
+#  - name: sea_water_salinity
+#    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/emulators/heave_salinity/scripts/heave_salinity.ts
+#    jacobian wrt:
+#    - sea_water_potential_temperature
+#
+#  non-local emulators:
+#  - name: geostrophy
+#    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/emulators/geostrophy/scripts/geostrophy_nonlocal.ts
+#    geometry tensors:
+#    - lonlat
+#    - edge_node_connectivity
+#    background tensors:
+#    - sea_water_potential_temperature
+#    - sea_water_salinity
+#    - sea_water_cell_thickness
+#
 # The SOCA balance operator, superseded above by the TorchBalance outer block.
 # Kept commented so we can switch back: drop the TorchBalance block and
 # uncomment this one.
-#linear variable change:
-#  input variables: {{ marine_det_increment_variables }}
-#  output variables: {{ marine_det_increment_variables }}
-#  linear variable changes:
-#  - linear variable change name: BalanceSOCA
+linear variable change:
+  input variables: {{ marine_det_increment_variables }}
+  output variables: {{ marine_det_increment_variables }}
+  linear variable changes:
+  - linear variable change name: BalanceSOCA
