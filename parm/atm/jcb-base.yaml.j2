@@ -1,3 +1,6 @@
+{# The atmosphere key block is both imported (for its variable lists) and included
+   (for its atmosphere_* keys) below. #}
+{% import 'atmosphere_keys.yaml.j2' as atm with context %}
 # Search path for model and obs for JCB
 # -------------------------------------
 algorithm_path: "{{PARMglobal}}/gdas/jcb-algorithms"
@@ -27,188 +30,15 @@ minimizer: DRPCG
 final_diagnostics_departures: anlmob
 final_prints_frequency: PT3H
 number_of_outer_loops: {{ NUMBER_OUTER_LOOPS | default(2, true) }}
-atmosphere_ninner_1: {{ NINNER_LOOP1 | default(2, true) }}
-atmosphere_grad_red_1: 1e-10
-atmosphere_ninner_2: {{ NINNER_LOOP2 | default(4, true) }}
-atmosphere_grad_red_2: 1e-10
 
-# Analysis variables 
-{% set _analysis_vars = ['eastward_wind',
-                         'northward_wind',
-                         'air_temperature',
-                         'water_vapor_mixing_ratio_wrt_moist_air',
-                         'cloud_liquid_ice',
-                         'cloud_liquid_water',
-                         'air_pressure_at_surface',
-                         'ozone_mass_mixing_ratio',
-                         'snow_water',
-                         'rain_water',
-                         'graupel',
-                         'geopotential_height_at_surface',
-                         'skin_temperature_at_surface'] %}
-
-analysis_variables: {{ _analysis_vars }}
-
-# Model things
-# ------------
-
-{% set _fv3_increment_vars =             (_analysis_vars | reject('in', ['air_pressure_at_surface', 'geopotential_height_at_surface', 'skin_temperature_at_surface']) | list)
-                                         + ['air_pressure_thickness', 'layer_thickness'] %}
-{% set _analysis_vars_noprecip =         _analysis_vars | reject('in', ['snow_water', 'rain_water', 'graupel']) | list %}
-{% set _analysis_vars_molesO3 =          (_analysis_vars | reject('equalto', 'ozone_mass_mixing_ratio') | list)
-                                         + ['mole_fraction_of_ozone_in_air'] %}
-{% set _analysis_vars_molesO3_noprecip = (_analysis_vars_noprecip | reject('equalto', 'ozone_mass_mixing_ratio') | list)
-                                         + ['mole_fraction_of_ozone_in_air'] %}
-
-{% set _grid_vars = [] %}
-
-{% set _sfcDA_vars = ['air_temperature_at_2m'] %}
-
-{% set _crtm_vars = ['cloud_ice_number_concentration',
-                     'rain_number_concentration',
-                     'slmsk',
-                     'sheleg',
-                     'vtype',
-                     'stype',
-                     'vfrac',
-                     'soilt',
-                     'soilm',
-                     'eastward_wind_at_surface',
-                     'northward_wind_at_surface',
-                     'ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m'] %}
-
-# State variables
-atmosphere_det_state_variables: {{ _analysis_vars + _grid_vars + _crtm_vars + _sfcDA_vars }}
-atmosphere_jedi2fv3inc_state_variables: {{ _analysis_vars + _grid_vars }}
-
-# Increment variables
-atmosphere_det_increment_variables: {{ _analysis_vars }}
-atmosphere_det_increment_variables_molesO3: {{ _analysis_vars_molesO3 }}
-atmosphere_det_increment_variables_noprecip: {{ _analysis_vars_noprecip }}
-atmosphere_det_increment_variables_molesO3_noprecip: {{ _analysis_vars_molesO3_noprecip }}
-atmosphere_fv3_increment_variables:  {{ _fv3_increment_vars }}
-
-# Variable IO names
-atmosphere_background_field_io_names:
-    eastward_wind: ugrd
-    northward_wind: vgrd
-    air_temperature: tmp
-    layer_thickness: delz
-    air_pressure_thickness: dpres
-    air_pressure_at_surface: pressfc
-    water_vapor_mixing_ratio_wrt_moist_air: spfh
-    cloud_liquid_ice: icmr
-    cloud_liquid_water: clwmr
-    snow_water: snmr
-    rain_water: rwmr
-    graupel: grle
-    cloud_ice_number_concentration: nccice
-    rain_number_concentration: nconrd
-    ozone_mass_mixing_ratio: o3mr
-    ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m: f10m
-    geopotential_height_at_surface: hgtsfc
-    slmsk: land
-    sheleg: weasd
-    skin_temperature_at_surface: tmpsfc
-    stype: sotyp
-    vfrac: veg
-    totalSnowDepthMeters: snod
-    eastward_wind_at_surface: ugrd_hyblev1
-    northward_wind_at_surface: vgrd_hyblev1
-    soilm: soilw1
-    soilt: soilt1
-    soilMoistureVolumetric: smc
-    air_temperature_at_2m : tmp2m
-atmosphere_increment_field_io_names:
-    eastward_wind: u_inc
-    northward_wind: v_inc
-    air_temperature: T_inc
-    water_vapor_mixing_ratio_wrt_moist_air: sphum_inc
-    cloud_liquid_water: liq_wat_inc
-    ozone_mass_mixing_ratio: o3mr_inc
-    cloud_liquid_ice: icmr_inc
-    snow_water: snmr_inc
-    rain_water: rwmr_inc
-    graupel: grle_inc
-    air_pressure_thickness: delp_inc
-    layer_thickness: delz_inc
-
-# Geometry
-atmosphere_layout_x: {{ layout_x | default(1, true) }}
-atmosphere_layout_y: {{ layout_y | default(1, true) }}
-atmosphere_npx_ges: {{ npx_ges | default(49, true) }}
-atmosphere_npy_ges: {{ npy_ges | default(49, true) }}
-atmosphere_npz_ges: {{ npz_ges | default(127, true) }}
-atmosphere_npx_his: {{ npx_his | default(49, true) }}
-atmosphere_npy_his: {{ npy_his | default(49, true) }}
-atmosphere_npz_his: {{ npz_his | default(127, true) }}
-atmosphere_npx_anl: {{ npx_anl | default(49, true) }}
-atmosphere_npy_anl: {{ npy_anl | default(49, true) }}
-atmosphere_npz_anl: {{ npz_anl | default(127, true) }}
-
-atmosphere_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3jedi but FMS
-
-# Background
-atmosphere_background_path: ./bkg
-atmosphere_background_ensemble_path: ./ens/mem%mem%
-
-# Default background time is for 3D applications
-atmosphere_background_time_iso: "{{ current_cycle | to_isotime }}"
-
-# Background error
-atmosphere_bump_data_directory: "{{ DATA }}/berror"
-atmosphere_gsibec_path: "{{ DATA }}/berror"
-atmosphere_number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
-atmosphere_layout_gsib_x: {{ layout_gsib_x | default(1, true) }}
-atmosphere_layout_gsib_y: {{ layout_gsib_y | default(1, true) }}
-
-# Forecasting
-atmosphere_forecast_timestep: "{{ BKG_TSTEP }}"
-
-# Write final increment on Guassian grid in variational
-atmosphere_final_increment_prefix: "./anl/atminc."
-
-atmosphere_variational_history_prefix: "{{GPREFIX}}"
-atmosphere_variational_analysis_prefix: "{{APREFIX}}"
-atmosphere_variational_increment_type: {{ ATMINC_GRID | default('cubed_grid_sphere', true) }}
-
-# IAU hours
-atmosphere_iau_hours: {{ IAUFHRS }}
-atmosphere_iau_times_iso: {{ iau_times_iso }}
+# Analysis variables
+analysis_variables: {{ atm.analysis_vars }}
 
 # Observation things
 # ------------------
 observations: all_observations
 
 crtm_coefficient_path: "{{ DATA }}/crtm/"
-
-# Naming conventions for observational files
-
-atmosphere_obsdatain_path: "{{DATA}}/obs"
-atmosphere_obsdatain_script_path: "{{HOMEglobal}}/ush/spoc/atmosphere"
-atmosphere_obsdatain_prefix: "{{OPREFIX}}"
-atmosphere_obsdatain_suffix: ".nc"
-atmosphere_obsdatain_suffix_bufr: ".tm00.bufr_d"
-
-atmosphere_obsdataout_path: "{{DATA}}/diags"
-atmosphere_obsdataout_prefix: diag_
-atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
-
-# Naming conventions for bias correction files
-
-atmosphere_obsbiasin_path: "{{DATA}}/bc_in/"
-atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
-atmosphere_obsbiasin_suffix: ".bias.nc"
-atmosphere_obstlapsein_prefix: "{{GPREFIX}}"
-atmosphere_obstlapsein_suffix: ".tlapse.txt"
-atmosphere_obsbiascovin_prefix: "{{GPREFIX}}"
-atmosphere_obsbiascovin_suffix: ".bias_cov.nc"
-
-atmosphere_obsbiasout_path: "{{DATA}}/bc_out/"
-atmosphere_obsbiasout_prefix: "{{APREFIX}}"
-atmosphere_obsbiasout_suffix: ".bias.nc"
-atmosphere_obsbiascovout_prefix: "{{APREFIX}}"
-atmosphere_obsbiascovout_suffix: ".bias_cov.nc"
 
 bias_files_dict:
     radiance_atms_n20: varbc_params.tar
@@ -225,11 +55,7 @@ bias_files_dict:
 # -------------------------
 local_ensemble_da_solver: Deterministic GETKF
 
-{% set _increment_vars = _analysis_vars %}
-
-increment_variables: {{ _increment_vars }}
-
-atmosphere_ens_state_variables: {{ _increment_vars + _crtm_vars + _grid_vars + _sfcDA_vars + ['layer_thickness', 'air_pressure_thickness']}}
+increment_variables: {{ atm.increment_vars }}
 
 atm_enkfonly: {{ DOENKFONLY_ATM | default(false, true) }}
 
@@ -249,9 +75,7 @@ driver_save_prior_mean: false
 driver_save_posterior_mean_increment: false
 driver_save_posterior_ensemble_increments: true
 
-# Diagnostics
-atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
-atmosphere_posterior_output_gaussian: "./mem%{member}%/atmanl."
 
-atmosphere_ensemble_history_prefix: "{{ GPREFIX_ENS }}"
-atmosphere_ensemble_analysis_prefix: "{{ APREFIX_ENS }}"
+# Atmosphere model keys (also included by the coupled base)
+# ---------------------------------------------------------
+{% include 'atmosphere_keys.yaml.j2' %}
