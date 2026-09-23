@@ -8,7 +8,8 @@ window_option: max
 
 # observation type initial configuration
 # --------------------------------
-stations_to_reject: ['BFTU1', 'FRDN5', 'MWDO3', 'SGNN5', 'NUTA3', 'CNDA3', 'HBEA3', 'ELCN5']
+stations_to_reject:
+  totalSnowDepth: ['BFTU1', 'FRDN5', 'MWDO3', 'SGNN5', 'NUTA3', 'CNDA3', 'HBEA3', 'ELCN5']
 
 # Chronicle of changes for this observation type
 # ----------------------------------------

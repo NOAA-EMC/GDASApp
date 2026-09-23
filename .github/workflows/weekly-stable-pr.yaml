@@ -1,9 +1,14 @@
 name: Weekly Stable-to-Develop PR
 
+run-name: Weekly Stable PR (${{ github.event_name }})
+
 on:
   schedule:
-    # Runs at 09:00 UTC every Saturday
-    - cron: '0 9 * * 6'
+    # Primary run at 09:17 UTC every Saturday (avoids top-of-hour contention)
+    - cron: '17 9 * * 6'
+    # Fallback windows in case scheduled events are delayed/dropped
+    - cron: '37 9 * * 6'
+    - cron: '7 10 * * 6'
   workflow_dispatch: # Allows manual triggering for testing
 
 concurrency:
@@ -22,6 +27,23 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Scheduled run marker
+        run: |
+          echo "event_name=${{ github.event_name }}"
+          echo "workflow=${{ github.workflow }}"
+          echo "run_id=${{ github.run_id }}"
+          echo "run_attempt=${{ github.run_attempt }}"
+          echo "repository=${{ github.repository }}"
+          echo "ref=${{ github.ref }}"
+          echo "sha=${{ github.sha }}"
+          echo "actor=${{ github.actor }}"
+          echo "triggered_at_utc=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "github_event_path=$GITHUB_EVENT_PATH"
+          if [ -f "$GITHUB_EVENT_PATH" ]; then
+            echo "event_payload_excerpt:"
+            jq '{schedule, repository: .repository.full_name, sender: .sender.login}' "$GITHUB_EVENT_PATH" || cat "$GITHUB_EVENT_PATH"
+          fi
 
       - name: Generate Date String
         id: date
