@@ -1,0 +1,11 @@
+# Observations assimilated by the coupled analysis: the union of the two single-component
+# lists, so the coupled run sees exactly what the separate atmosphere and marine analyses
+# see today. Every entry must resolve in exactly one of the two observations/ directories.
+#
+# To assimilate a different set, point OBS_LIST_YAML at another file rather than editing
+# this one, the way the CI cases already do.
+observations:
+{% filter indent(width=0) %}
+{% include PARMglobal ~ '/gdas/atm/atm_obs_entries.yaml.j2' %}
+{% include PARMglobal ~ '/gdas/marine/obs/marine_obs_entries.yaml.j2' %}
+{% endfilter %}

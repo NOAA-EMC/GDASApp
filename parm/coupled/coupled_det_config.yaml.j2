@@ -1,0 +1,109 @@
+# Deterministic coupled (FV3JEDI atmosphere + SOCA ocean/ice) analysis task config.
+#
+# Only coupledanlvar is a coupled application. The three post-processing apps stay
+# single-component and reuse their own component's base verbatim.
+
+jedi_config:
+    coupledanlvar:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECglobal }}/gdas.x'
+        mpi_cmd: '{{ APRUN_COUPLEDANLVAR }}'
+        jedi_args: ['coupled', 'variational']
+        jcb_algo: '3dvar'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/coupled/jcb-base.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
+    coupledanlfv3inc:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECglobal }}/gdas_fv3jedi_fv3inc.x'
+        mpi_cmd: '{{ APRUN_COUPLEDANLFV3INC }}'
+        jcb_algo: 'fv3jedi_fv3inc_variational'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
+    soca_incpostproc:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECglobal }}/gdas_soca_incr_handler.x'
+        mpi_cmd: '{{ APRUN_COUPLEDANLCHKPT }}'
+        jcb_algo: 'soca_incpostproc'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
+    soca_diag_stats:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECglobal }}/gdas_soca_obsstats.x'
+        mpi_cmd: '{{ APRUN_COUPLEDANLOBSSTATS }}'
+        jcb_algo: 'soca_diag_stats'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
+
+data_in:
+    mkdir:
+    # atmosphere
+    - '{{ DATA }}/anl'
+    - '{{ DATA }}/fv3jedi'
+    - '{{ DATA }}/crtm'
+    - '{{ DATA }}/berror'
+    # marine
+    - '{{ DATA }}/bkg'
+    - '{{ DATA }}/INPUT'
+    - '{{ DATA }}/anl_geom'
+    - '{{ DATA }}/Data'
+
+    copy_req:
+    # stage soca grid
+    - ['{{ COMIN_OCEAN_BMATRIX }}/soca_gridspec.nc', '{{ DATA }}']
+
+    # stage CICE6 restart
+    - ['{{ COMIN_ICE_RESTART_PREV }}/{{ rst_date }}.cice_model.res.nc', '{{ DATA }}/Data']
+
+{% filter indent(width=4) %}
+{% include PARMglobal ~ '/gdas/atm/atm_det_stage_bkg.yaml.j2' %}
+{% include PARMglobal ~ '/gdas/atm/atm_stage_jedi_fix.yaml.j2' %}
+{% include PARMglobal ~ '/gdas/atm/atm_stage_crtm_coeff.yaml.j2' %}
+{% if STATICB_TYPE != 'identity' %}
+{% include PARMglobal ~ '/gdas/atm/atm_det_stage_berror_' ~ STATICB_TYPE ~ '.yaml.j2' %}
+{% endif %}
+{% include PARMglobal ~ '/gdas/marine/marine_det_stage_bkg.yaml.j2' %}
+{% include PARMglobal ~ '/gdas/marine/marine_stage_fix_' ~ '%03d'|format(OCNRES|int) ~ '.yaml.j2' %}
+{% include PARMglobal ~ '/gdas/marine/marine_stage_utilities.yaml.j2' %}
+{% endfilter %}
+
+    link_req:
+    # the SOCA static B, produced by marinebmat under the shared DATAjob root
+    - ['{{ DATA }}/../staticb', '{{ DATA }}/staticb']
+
+data_out:
+    mkdir:
+    - '{{ COMOUT_OCEAN_ANALYSIS }}/diags'
+    - '{{ COMOUT_OCEAN_ANALYSIS }}/bump'
+
+    copy_req:
+    # generated JEDI configs
+    - ['{{ DATA }}/coupledanlvar.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}anlvar.coupled.yaml']
+    - ['{{ DATA }}/coupledanlfv3inc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}anlvar.fv3.atm.yaml']
+    - ['{{ DATA }}/soca_incpostproc.yaml', '{{ COMOUT_CONF }}/']
+    - ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_CONF }}']
+    - ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_CONF }}/']
+
+    # Ocean IAU increment (intended for MOM6)
+    - ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}mom6_increment.i006.nc']
+
+    # Ocean increment and analysis from JEDI. soca_genfilename names these after the
+    # field's own valid time, which for 3D-Var is the window middle, and after
+    # marine_final_increment_exp / marine_output_exp. Those still read 3dvarfgat_pseudo:
+    # a misleading name here, but shared with the marine chain, so the two write the same
+    # filenames and everything downstream of COM stays identical.
+    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
+    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
+
+    # SeaIce increment and analysis from JEDI
+    - ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
+    - ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
+
+    # Postprocessed ice increment
+    - ['{{ DATA }}/ice.inc.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}pp_increment.i006.nc']
+
+    # DA grid (computed for the start of the window)
+    - ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_gridspec.tm03.nc']
+
+    # CICE analysis restart
+    - ['{{ DATA }}/Data/{{ cice_rst_date }}.cice_model.res.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ cice_rst_date }}.analysis.cice_model.res.nc']
+
+{% filter indent(width=4) %}
+{% include PARMglobal ~ '/gdas/atm/atm_det_save_anl.yaml.j2' %}
+{% endfilter %}
