@@ -26,6 +26,28 @@ app_paths_observations_extra:
 app_path_observation_chronicle: '{{PARMglobal}}/gdas/jcb-gdas/observation_chronicle/atmosphere'
 
 
+# Component model keys
+# --------------------
+# Included before the coupled keys below so that the coupled application can override an
+# individual component key where coupling changes it; YAML takes the last definition.
+{% include PARMglobal ~ '/gdas/atm/atmosphere_keys.yaml.j2' %}
+{% include PARMglobal ~ '/gdas/marine/marine_keys.yaml.j2' %}
+
+
+# Component key overrides for coupled DA
+# --------------------------------------
+# Coupled 3D-Var solves for one state, valid at the window middle. The marine keys are
+# written for the marine chain's 3DFGAT, whose background is the window-begin restart pair
+# propagated by a pseudo model; taking that unchanged would leave the ocean background
+# three hours earlier than the atmosphere's, and StateCoupled would report the coupled
+# state at the ocean's time. Point the ocean and sea ice background at the f006 history
+# instead, which is the same time the atmosphere background is read at.
+marine_background_path: ./bkg/
+marine_background_time: '{{ WINDOW_MIDDLE | to_isotime }}'
+marine_background_ocn_filename: ocean.bkg.f006.nc
+marine_background_ice_filename: ice.bkg.f006.nc
+
+
 # Coupling definition
 # -------------------
 # name = the YAML key each component is emitted under, and the name its Trait reports;
@@ -122,8 +144,3 @@ bias_files_dict:
 cleaned_observations: {{ cleaned_observations | default([]) }}
 obs_variables: {{ obs_variables | default({}) }}
 
-
-# Component model keys
-# --------------------
-{% include PARMglobal ~ '/gdas/atm/atmosphere_keys.yaml.j2' %}
-{% include PARMglobal ~ '/gdas/marine/marine_keys.yaml.j2' %}
