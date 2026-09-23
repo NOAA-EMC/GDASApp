@@ -31,8 +31,8 @@ vertical geometry:
 soca increment:
   date: '{{ marine_window_begin_iso }}'
   basename: ./Data/
-  ocn_filename: 'ocn.3dvarfgat_pseudo.incr.{{ marine_window_middle_iso }}.nc'
-  ice_filename: 'ice.3dvarfgat_pseudo.incr.{{ marine_window_middle_iso }}.nc'
+  ocn_filename: 'ocn.{{ marine_final_increment_exp }}.incr.{{ marine_window_middle_iso }}.nc'
+  ice_filename: 'ice.{{ marine_final_increment_exp }}.incr.{{ marine_window_middle_iso }}.nc'
   read_from_file: 1
 
 output increment:

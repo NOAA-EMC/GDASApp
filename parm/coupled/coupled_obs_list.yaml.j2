@@ -5,7 +5,5 @@
 # To assimilate a different set, point OBS_LIST_YAML at another file rather than editing
 # this one, the way the CI cases already do.
 observations:
-{% filter indent(width=0) %}
 {% include PARMglobal ~ '/gdas/atm/atm_obs_entries.yaml.j2' %}
 {% include PARMglobal ~ '/gdas/marine/obs/marine_obs_entries.yaml.j2' %}
-{% endfilter %}

@@ -1,10 +1,17 @@
-{# Split into a writer and a geometry half; see atmosphere_final_increment_cubed_sphere.yaml.j2 #}
 output:
   state component:
-{% filter indent(width=4) %}
-{% include 'atmosphere_final_increment_gaussian_writer.yaml.j2' %}
-{% endfilter %}
+    filetype: auxgrid
+    gridtype: gaussian
+    filename: {{atmosphere_final_increment_prefix}}
+    field io names: {{ atmosphere_increment_field_io_names }}
 geometry:
-{% filter indent(width=2) %}
-{% include 'atmosphere_final_increment_gaussian_geometry.yaml.j2' %}
-{% endfilter %}
+  fms initialization:
+    namelist filename: "{{atmosphere_fv3jedi_files_path}}/fmsmpp.nml"
+    field table filename: "{{atmosphere_fv3jedi_files_path}}/field_table"
+  akbk: "{{atmosphere_fv3jedi_files_path}}/akbk.nc4"
+  layout:
+  - {{atmosphere_layout_x}}
+  - {{atmosphere_layout_y}}
+  npx: {{atmosphere_npx_anl}}
+  npy: {{atmosphere_npy_anl}}
+  npz: {{atmosphere_npz_anl}}

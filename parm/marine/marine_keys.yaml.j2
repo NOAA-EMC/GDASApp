@@ -1,26 +1,19 @@
 # Marine (SOCA) JCB keys.
 #
-# Every key here is prefixed 'marine_' and is therefore safe to combine with another
-# model component's key block. Included by parm/marine/jcb-base.yaml.j2 for marine-only
-# applications, and by the coupled base alongside atm/atmosphere_keys.yaml.j2.
+# Every key here is prefixed 'marine_' and is therefore safe to combine with another model
+# component's key block.
 #
-# The jinja variables set below are local to this file, so each component's key block can
-# use the same names without clashing. A base yaml that needs the variable lists themselves
-# imports this file "with context" and reads analysis_vars / increment_vars off the import
-# alias. Names starting with an underscore are private to this file and are not exported.
-# Analysis variables
-{% set analysis_vars = ['sea_ice_area_fraction',
-                         'sea_ice_thickness',
-                         'sea_ice_snow_thickness',
-                         'sea_water_salinity',
-                         'sea_water_potential_temperature',
-                         'sea_surface_height_above_geoid'] %}
+# Included by parm/marine/jcb-base.yaml.j2 for marine-only applications, and by the coupled
+# base alongside atm/atmosphere_keys.yaml.j2. The including base sets the jinja variables
+# marine_analysis_vars and marine_increment_vars, which the state and increment variable
+# lists below are derived from. It can also set marine_background_* to read the background
+# from somewhere other than the window-begin restart pair.
 
 # Model things
 # ------------
 
 # State variables
-marine_det_state_variables: {{ analysis_vars + ['air_temperature',
+marine_det_state_variables: {{ marine_analysis_vars + ['air_temperature',
                                                  'bulk_ice_salinity',
                                                  'sea_water_cell_thickness',
                                                  'sea_water_depth',
@@ -33,7 +26,7 @@ marine_saber_central_block_variables: {{ ['sea_ice_area_fraction',
                                           'sea_surface_height_above_geoid'] }}
 
 # Increment variables
-marine_det_increment_variables: {{ analysis_vars }}
+marine_det_increment_variables: {{ marine_analysis_vars }}
 
 marine_window_begin: '{{ WINDOW_BEGIN }}'
 marine_window_middle: '{{ WINDOW_MIDDLE }}'
@@ -53,9 +46,15 @@ marine_cice_date_iso: '{{ WINDOW_MIDDLE | to_isotime }}'
 marine_soca_files_path: .
 marine_vt_levels: '{{MOM6_LEVS}}'
 
-# Initial conditions
-marine_background_path: ./INPUT/
-marine_background_time: '{{ WINDOW_BEGIN | to_isotime }}'
+# Initial conditions. The including base can set the jinja variables marine_background_*
+# to read the background from somewhere else; coupled 3D-Var reads the window-middle
+# history rather than the window-begin restart pair.
+marine_background_path: {{ marine_background_path | default('./INPUT/', true) }}
+marine_background_time: '{{ marine_background_time | default(WINDOW_BEGIN, true) | to_isotime }}'
+{% if marine_background_ocn_filename is defined %}
+marine_background_ocn_filename: {{ marine_background_ocn_filename }}
+marine_background_ice_filename: {{ marine_background_ice_filename }}
+{% endif %}
 
 # Pseudo model
 marine_forecast_timestep: PT3H
@@ -79,13 +78,13 @@ marine_grad_red_1: 1e-7
 
 # Output
 marine_output_dir: Data
-marine_output_exp: 3dvarfgat_pseudo
+marine_output_exp: {{ marine_var_exp }}   # experiment tag in the filenames; set by marine_task_config
 marine_output_freq: PT3H   # can only writes out the analysis at the middle of the window
                            # when using 3D-FGAT as cost function
 
 # Final increment
 marine_final_increment_dir: Data
-marine_final_increment_exp: 3dvarfgat_pseudo
+marine_final_increment_exp: {{ marine_var_exp }}   # experiment tag in the filenames; set by marine_task_config
 
 # Background list
 marine_pseudo_model_states: {{ marine_pseudo_model_states | default([]) }}
@@ -93,29 +92,8 @@ marine_pseudo_model_states: {{ marine_pseudo_model_states | default([]) }}
 # COM path for configuration files
 marine_config_path: '{{COMOUT_CONF}}'
 
-# Increment variables
-{% if letkf_app | default(false) %}
-{% set increment_vars = ['sea_ice_area_fraction',
-                          'sea_water_salinity',
-                          'sea_water_potential_temperature',
-                          'sea_surface_height_above_geoid',
-                          'sea_water_cell_thickness',
-                          'eastward_sea_water_velocity',
-                          'northward_sea_water_velocity',
-                          'sea_ice_thickness',
-                          'sea_ice_snow_thickness'] %}
-{% else %}
-{% set increment_vars = ['sea_ice_area_fraction',
-                          'sea_water_salinity',
-                          'sea_water_potential_temperature',
-                          'sea_surface_height_above_geoid',
-                          'sea_water_cell_thickness',
-                          'eastward_sea_water_velocity',
-                          'northward_sea_water_velocity'] %}
-{% endif %}
-
 # State variables
-marine_ens_state_variables: {{ increment_vars }}
+marine_ens_state_variables: {{ marine_increment_vars }}
 
 # Using LETKF app? (used in obs YAMLs)
 marine_letkf_app: {{ letkf_app | default(false) }}
