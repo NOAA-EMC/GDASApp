@@ -26,15 +26,14 @@ variables:
   name:
   - sea_water_potential_temperature
   - sea_water_salinity
-#  - eastward_sea_water_velocity
-#  - northward_sea_water_velocity
+  - eastward_sea_water_velocity
+  - northward_sea_water_velocity
   - sea_water_cell_thickness
   - sea_surface_height_above_geoid
   - sea_ice_area_fraction
   - sea_ice_thickness
   - sea_ice_snow_thickness
 #  - mom6_mld
-
 
 vertical e-folding scale dynamic: 200.0
 vertical e-folding scale static: 300.0
@@ -45,7 +44,49 @@ rescale static: 1.0
 static sig B:
   sigT: 0.5
   sigS: 0.1
-  sigSic: 0.01
-max ssh: 0.0
+  sigSic: 0.0  #0.01
+  # hi and hs use a FRACTIONAL static B, sigma = max(frac * |background|, sigX).
+  # A flat value alone cannot serve both the ice edge and thick multiyear ice: the
+  # flat pair (sigHi 0.0, sigHs 0.05) left ice explaining under 1% of the freeboard
+  # variance. But a pure fraction is no better at the other end -- sigHs = 0.5*hs
+  # falls to 1.6 mm at p5 of the pack, which sends q = sigma_hi^2/sigma_hs^2 to 430
+  # at p90 and leaves the rmax clip below arbitrating 29% of the ice points. Snow
+  # error does not vanish with snow depth, so sigHi/sigHs are kept as a FLOOR under
+  # the fractional value rather than being superseded by it.
+  #
+  # Measured on the 2025121906 background (aice >= 0.1, hi p50 0.78 m, hs p50 0.069 m)
+  # with fracHi 0.2 / fracHs 0.5 and a 0.05 m snow floor: sigma_hi p50 0.156 m,
+  # sigma_hs p50 0.05 m, q p50 8.2 / p90 23, the clip fires on ~2% of points, and ice
+  # carries ~17% of the laser freeboard variance at p50.
+  sigHi: 0.0
+  sigHs: 0.05
+  fracHi: 0.2
+  fracHs: 0.5
+max ssh: 0.0   # Zero out sigb ssh: Use steric height as strong constraint
+max aice: 0.5  # Zero out sigb aice: Use TorchBalance for aice as strong constraint
+max hi: 0.5    # Absolute ceiling on sigb hi: the rmax clip only bounds the hi/hs ratio
+min aice: 0.1  # hi/aice and hs/aice are undefined below this: no sigb, no stencil contribution
 min depth: 100.0
 vertical bin size: 1.0
+
+# Densities feeding the rmax -> qmax conversion. Keep the seawater density in
+# sync with the freeboard operators in parm/jcb-gdas/observations/marine/icefb_*
+# so that qmax constrains the operator it is meant to constrain.
+rho ice: 917.0
+rho snow: 330.0
+rho water: 1026.0
+
+# Max freeboard-induced delta_hi/delta_hs increment ratio. At the clip boundary
+# the freeboard variance splits as (ice share)/(snow share) = (alpha/beta)*rmax,
+# so ice can only lead if rmax > beta/alpha -- 6.4 for laser total freeboard,
+# 3.0 for radar ice freeboard. The old default of 3.0 made it arithmetically
+# impossible for ice to lead laser freeboard, whatever sigma_hi was set to.
+# 8.0 clears that bound and puts qmax at 51, above the q the fractional B with a
+# 0.05 m snow floor produces (p50 8.2, p90 23, p95 34), so the clip fires on ~2% of
+# ice points -- a guard on outliers rather than the thing that sets the split.
+#
+# qmax is derived with the LASER beta. beta/alpha is 6.39 for laser but 3.03 for
+# radar, so rmax 8.0 bounds |delta_hi/delta_hs| at 8 for ICESat-2 and at 16.9 for
+# CryoSat-2; and beta_radar is negative, so for radar the ice and snow increments
+# have opposite signs and "ratio <= rmax" is a laser statement applied to both.
+rmax: 8.0

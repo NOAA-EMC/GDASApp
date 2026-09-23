@@ -14,8 +14,8 @@
       engine:
         type: H5File
         obsfile: "{{marine_obsdataout_path}}/{{marine_obsdataout_prefix}}{{observation_from_jcb}}{{marine_obsdataout_suffix}}"
-    simulated variables: [waterTemperature]
-    observed variables: [waterTemperature]
+    simulated variables: [salinity]
+    observed variables: [salinity]
     io pool:
       max pool size: 1
 {% if marine_letkf_app | default(false) %}
@@ -24,114 +24,22 @@
       halo size: {{ marine_letkf_dist_halo_size }}
 {% endif %}
   obs operator:
-    name: InsituTemperature
+    name: VertInterp
+    observation alias file: ./obsop_name_map.yaml
+    vertical coordinate: sea_water_depth
+    observation vertical coordinate: depth
+    interpolation method: linear
+
   obs error:
     covariance model: diagonal
 
   obs pre filters:
-  # Pre-filters credits to Kriti Bhargava
   # Global range test
   - filter: Bounds Check
-    filter variables: [{name: waterTemperature}]
-    minvalue: -2.5
-    maxvalue: 40.0
-
-  # Regional range test
-  # Red Sea
-  - filter: Bounds Check
-    filter variables: [{name: waterTemperature}]
-    minvalue: 21.7
-    maxvalue: 40.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 10
-      maxvalue: 30
-    - variable:
-        name: MetaData/longitude
-      minvalue: 30
-      maxvalue: 45
-
-  # Mediterranean Sea
-  - filter: Bounds Check
-    filter variables: [{name: waterTemperature}]
-    minvalue: 10.0
-    maxvalue: 40.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 30
-      maxvalue: 40
-    - variable:
-        name: MetaData/longitude
-      minvalue: -6
-      maxvalue: 40
-  - filter: Bounds Check
-    filter variables: [{name: waterTemperature}]
-    minvalue: 10.0
-    maxvalue: 40.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 40
-      maxvalue: 41.5
-    - variable:
-        name: MetaData/longitude
-      minvalue: 20
-      maxvalue: 30
-  - filter: Bounds Check
-    filter variables: [{name: waterTemperature}]
-    minvalue: 10.0
-    maxvalue: 40.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 40
-      maxvalue: 46
-    - variable:
-        name: MetaData/longitude
-      minvalue: 0
-      maxvalue: 20
-
-  # Northwestern shelves
-  - filter: Bounds Check
-    filter variables: [{name: waterTemperature}]
-    minvalue: -2.0
-    maxvalue: 24.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 50
-      maxvalue: 60
-    - variable:
-        name: MetaData/longitude
-      minvalue: -20
-      maxvalue: 10
-
-  # Southwestern shelves
-  - filter: Bounds Check
-    filter variables: [{name: waterTemperature}]
-    minvalue: -2.0
-    maxvalue: 30
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 25
-      maxvalue: 50
-    - variable:
-        name: MetaData/longitude
-      minvalue: -30
-      maxvalue: 0
-
-  # Arctic Ocean
-  - filter: Bounds Check
-    filter variables: [{name: waterTemperature}]
-    minvalue: -1.92
-    maxvalue: 25.0
-    where:
-    - variable:
-        name: MetaData/latitude
-      minvalue: 60
+    filter variables:
+    - name: salinity
+    minvalue: 2.0
+    maxvalue: 41.0
 
   obs prior filters:
   - filter: Domain Check
@@ -144,7 +52,7 @@
   # Reject obs where MetaData/depth > GeoVaLs/sea_floor_depth_below_sea_surface - maxvalue
   - filter: Bounds Check
     filter variables:
-    - name: waterTemperature
+    - name: salinity
     test variables:
     - name: ObsFunction/Arithmetic
       options:
@@ -155,7 +63,7 @@
   # Reject stair-step profiles (rounded values)
   - filter: Create Diagnostic Flags
     filter variables:
-    - name: waterTemperature
+    - name: salinity
     flags:
     - name: ProfileSpike
       initial value: false
@@ -164,7 +72,7 @@
 
   - filter: Spike and Step Check
     independent: MetaData/depth
-    dependent: ObsValue/waterTemperature
+    dependent: ObsValue/salinity
     count spikes: false
     count steps: true
     tolerance:
@@ -176,22 +84,22 @@
   # Reject profiles with large differences from background
   - filter: Profile Background Check
     filter variables:
-    - name: waterTemperature
+    - name: salinity
     absolute threshold: 0.5
 
-  # Reject obs that are 5K from the background
+  # Reject obs that are 5PSU away from the background
   - filter: Background Check
     filter variables:
-    - name: waterTemperature
+    - name: salinity
     absolute threshold: 5.0
 
   # Force constant observation error everywhere
   - filter: Perform Action
     filter variables:
-    - name: waterTemperature
+    - name: salinity
     action:
       name: assign error
-      error parameter: 0.1
+      error parameter: 0.05
 
   # Linear decay from surface to 2000m depth:
   #    - minimum error of 0.1K at 2000m (and below)
@@ -207,10 +115,10 @@
       error function:
         name: ObsFunction/Arithmetic
         options:
-          variables: [MetaData/depth, ObsError/waterTemperature]
-          # sigo_total = 1.0 + (-0.00045)*depth + 0.1*sigo_original
-          coefs:     [-0.00045, 0.1]
-          intercept: 1.0
+          variables: [MetaData/depth, ObsError/salinity]
+          # sigo_total = 0.5 + (-0.00025)*depth + 0.1*sigo_original
+          coefs:     [-0.00025, 0.1]
+          intercept: 0.5
 
   # Smoothly inflate the obs error in the tropics.
   # The inflation factor is a Gaussian in latitude,
@@ -224,7 +132,7 @@
   # otherwise overwrite the inflated error.
   - filter: Perform Action
     filter variables:
-    - name: waterTemperature
+    - name: salinity
     action:
       name: inflate error
       inflation variable:

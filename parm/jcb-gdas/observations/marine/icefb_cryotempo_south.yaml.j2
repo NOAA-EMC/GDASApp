@@ -1,0 +1,213 @@
+- obs space:
+    name: {{observation_from_jcb}}
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdatain_path}}/{{marine_obsdatain_prefix}}{{observation_from_jcb}}{{marine_obsdatain_suffix}}"
+        missing file action: warn
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{marine_obsdataout_path}}/{{marine_obsdataout_prefix}}{{observation_from_jcb}}{{marine_obsdataout_suffix}}"
+    simulated variables: [seaIceFreeboard, snowDepth]
+    io pool:
+      max pool size: 1
+{% if marine_letkf_app | default(false) %}
+    distribution:
+      name: Halo
+      halo size: {{ marine_letkf_dist_halo_size }}
+{% endif %}
+  get values:
+    time interpolation: linear
+  obs operator:
+    name: Composite
+    components:
+    # CryoSat-2/SIRAL is a radar altimeter: the retrieval is referenced to the
+    # snow/ice interface, so this is ice-only (not total) freeboard.
+    - name: SeaIceFreeboard
+      instrument: radar
+      sea ice density: 905.0
+      snow density: 330.0
+      # Reconciled 1000.0 -> 1026.0 to match icefb_icesat2_* and soca_diagb.
+      # 1000 is fresh water: it inflated 1/alpha from 8.48 to 10.53, a 24%
+      # over-amplification of every thickness increment from this stream, and
+      # it meant diagb's qmax did not match the operator it constrains.
+      seawater density: 1026.0
+      variables:
+      - name: seaIceFreeboard
+    # Cryo-TEMPO carries no sea ice concentration, but it does provide the snow
+    # depth used in its own freeboard conversion; assimilate it against the
+    # model snow thickness instead.
+    - name: Identity
+      variables:
+      - name: snowDepth
+      variable maps:
+      - name: snowDepth
+        alias: sea_ice_snow_thickness
+  obs error:
+    covariance model: diagonal
+
+  obs pre filters:
+  # Reject obs flagged by the upstream Cryo-TEMPO processing
+  - filter: PreQC
+    filter variables:
+    - name: seaIceFreeboard
+    - name: snowDepth
+    maxvalue: 0
+    action:
+      name: reject
+
+  # Radar freeboard can legitimately be slightly negative when the snow load
+  # depresses the snow/ice interface below sea level, so the lower bound is not 0
+  #
+  # maxvalue tightened 1.5 -> 1.0 to match the ICESat-2 files. This bites less
+  # here than it does there: radar freeboard is referenced to the snow/ice
+  # interface and so is systematically smaller than ICESat-2's total (snow
+  # surface) freeboard. Measured over the Dec 2025 cycles (946k obs), the
+  # change rejects 267 additional observations, 0.03% -- the lower bound is
+  # doing far more work at this end, rejecting ~1%.
+  - filter: Bounds Check
+    filter variables:
+    - name: seaIceFreeboard
+    minvalue: -0.2
+    maxvalue: 1.0
+    action:
+      name: reject
+
+  # Physical range test on the retrieved snow depth
+  - filter: Bounds Check
+    filter variables:
+    - name: snowDepth
+    minvalue: 0.0
+    maxvalue: 1.0
+    action:
+      name: reject
+
+  # Reject retrievals in the marginal ice zone, where wave contamination makes
+  # the radar freeboard unreliable
+  - filter: Domain Check
+    where:
+    - variable: {name: MetaData/mizFlag}
+      maxvalue: 0
+{% if marine_letkf_app | default(false) %}
+
+  # Thin the dense along-track sampling; must stay a pre filter since
+  # the "reduce obs space" action is not implemented for prior/post stages
+  - filter: Gaussian Thinning
+    horizontal_mesh: 25  #km
+    use_reduced_horizontal_grid: true
+    select_median: true
+    action:
+      name: reduce obs space
+{% endif %}
+
+  obs prior filters:
+  - filter: Domain Check
+    where:
+    - variable: {name: GeoVaLs/sea_area_fraction}
+      value: is_valid
+      minvalue: 0.9
+
+  # Raised 0.1 -> 0.5 to match the ICESat-2 files: freeboard in loosely packed
+  # ice is unreliable. This overlaps the mizFlag pre filter above, which is a
+  # retrieval-side marginal-ice flag rather than a model-side concentration
+  # gate -- they reject for different reasons, so both are kept.
+  - filter: Domain Check
+    where:
+    - variable: {name: GeoVaLs/sea_ice_area_fraction}
+      minvalue: 0.5
+
+  # Reject retrievals over open/very warm water. Unscoped, unlike the ICESat-2
+  # version: that one is scoped to seaIceFraction, which this obs space does
+  # not simulate, so here it applies to freeboard and snow depth alike.
+  - filter: Domain Check
+    where:
+    - variable: {name: GeoVaLs/sea_surface_temperature}
+      maxvalue: -1.0
+
+  obs post filters:
+  # Tightened 0.5 -> 0.25, part way to the ICESat-2 files' 0.1 rather than all
+  # the way: the reported Cryo-TEMPO freeboard error is ~0.26 m (against ~0.01 m
+  # for ICESat-2), so 0.1 m here would be well inside one sigma of the
+  # observation itself and would reject on retrieval noise.
+  - filter: Background Check
+    filter variables:
+    - name: seaIceFreeboard
+    absolute threshold: 0.25
+
+  - filter: Background Check
+    filter variables:
+    - name: snowDepth
+    absolute threshold: 0.3
+
+  # Retuned. The reported Cryo-TEMPO error plus the old +0.05 gave a mean
+  # sigma_o of 0.308 m against an innovation spread of 0.10 m, i.e. an
+  # ombg/sigma_o standard deviation of 0.32 (north) / 0.31 (south) where a
+  # tuned system gives ~1. The freeboard was being assimilated at close to
+  # zero weight. Scaling the whole expression by the measured 0.32 lands
+  # sigma_o at ~0.10 m, matching the innovation spread.
+  #
+  # Additive in the standard deviation, not the variance, and in each
+  # variable's own units.
+  #
+  # `ObsError/` is the ORIGINAL error from the file, so these are not
+  # cumulative with each other or with a rerun. `assign error` overwrites,
+  # so both filters must stay LAST among the error filters -- anything added
+  # after them replaces this rather than compounding it.
+  - filter: Perform Action
+    filter variables:
+    - name: seaIceFreeboard
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          # sigo_total = 0.32 * (sigo_original + 0.05) = 0.32 * sigo_original + 0.016
+          variables: [ObsError/seaIceFreeboard]
+          coefs:     [0.32]
+          intercept: 0.016
+
+  - filter: Perform Action
+    filter variables:
+    - name: snowDepth
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          # sigo_total = 1.0 * sigo_original + 0.05
+          # 0.05 m, not the 0.1 the ICESat-2 files use for seaIceFraction --
+          # that is a dimensionless fraction, this is a depth in metres, so
+          # the value does not carry over. Reported snow-depth error is
+          # 0.05-0.15 m, so this roughly doubles the smallest of them.
+          variables: [ObsError/snowDepth]
+          coefs:     [1.0]
+          intercept: 0.05
+
+  # snowDepth is MONITORED, not assimilated. It shares an obs space -- and
+  # therefore a linearised operator -- with the radar freeboard, whose snow
+  # coefficient beta = -rho_s/rho_w is NEGATIVE: raising snow lowers simulated
+  # freeboard. Cryo-TEMPO reports 0.204 m against a model 0.078 m, an
+  # uncorrected 2.6x bias, so assimilating it pushed freeboard away from the
+  # observations. In the south beta*d_hs accounted for 111% of the whole
+  # H(xa)-H(xb), which is why O-A > O-B there.
+  #
+  # Passivating keeps H(x), ombg and sigma_o in the diag files while removing
+  # the variable from the minimisation. Revisit once snowDepth is
+  # bias-corrected. Must stay last: `passivate` only demotes obs that are
+  # still passing, so any rejection above is preserved as a rejection.
+  - filter: Perform Action
+    filter variables:
+    - name: snowDepth
+    action:
+      name: passivate
+
+{% if marine_letkf_app | default(false) %}
+  obs localizations:
+  - localization method: Rossby
+    base value: 100.0e3
+    rossby mult: 1.0
+    min grid mult: 2.0
+    min value: 200.0e3
+    max value: 900.0e3
+{% endif %}
