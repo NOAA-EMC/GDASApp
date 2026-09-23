@@ -1,0 +1,15 @@
+{# Coupled analysis state output. StateCoupled::write dispatches on the model name, so this
+   is one block per component, each naming the fragment given by coupled_output_files.
+
+   Note on write cadence: oops StateWriter reads "frequency" from the top of this config, not
+   from inside a component block, so a component fragment that carries its own frequency (the
+   marine one does, for 3DFGAT) has no effect here. Set coupled_output_freq instead. #}
+{% for component in coupled_components %}
+{{ component.name }}:
+{% filter indent(width=2) %}
+{% include coupled_output_files[component.dir] ~ '.yaml.j2' %}
+{% endfilter %}
+{% endfor %}
+{% if coupled_output_freq is defined %}
+frequency: {{ coupled_output_freq }}
+{% endif %}

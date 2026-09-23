@@ -44,10 +44,23 @@ coupled_components:
 - name: SOCA
   dir: marine
 
-# Per-component background error fragment selection (keyed by component dir)
+# Per-component fragment selection (keyed by component dir)
 coupled_background_error_files:
   atmosphere: atmosphere_background_error_static_identity
   marine: marine_background_error_static_diffusion
+
+# The final increment wrapper appends _writer / _geometry to each of these.
+coupled_final_increment_files:
+  atmosphere: atmosphere_final_increment_cubed_sphere
+  marine: marine_final_increment
+
+coupled_output_files:
+  atmosphere: atmosphere_output_cubed_sphere
+  marine: marine_output
+
+# Write both the final increment and the analysis state
+final_increment_file: coupled_final_increment
+output_file: coupled_output
 
 # Coupled-only geometry key
 coupled_fv3jedi_exclude_variables:
@@ -63,7 +76,7 @@ window_begin: '2020-12-14T18:00:00Z'
 window_length: PT6H
 bound_to_include: begin
 minimizer: DRPCG
-number_of_outer_loops: 1
+number_of_outer_loops: 2
 final_diagnostics_departures: oman
 analysis_variables:
 - eastward_wind
@@ -77,10 +90,14 @@ analysis_variables:
 - sea_water_salinity
 - sea_water_potential_temperature
 
-# Coupled outer loop (single shared iteration)
+# Coupled outer loops (one shared geometry and minimizer across both components)
 coupled_ninner_1: 10
 coupled_grad_red_1: 1e-7
-coupled_outer_loop_departures: bkgmob
+coupled_ninner_2: 5
+coupled_grad_red_2: 1e-7
+
+# Both geometries are constructed on every rank
+coupled_geometry_parallel: false
 
 # Atmosphere (FV3JEDI) model things
 # ---------------------------------
@@ -90,11 +107,25 @@ atmosphere_layout_y: 1
 atmosphere_npx_ges: 13
 atmosphere_npy_ges: 13
 atmosphere_npz_ges: 127
+atmosphere_npx_his: 13
+atmosphere_npy_his: 13
+atmosphere_npz_his: 127
+atmosphere_variational_increment_type: cubed_sphere
 atmosphere_background_path: Data/inputs/gfs_c12/bkg
 atmosphere_background_time_iso: '2020-12-14T21:00:00Z'
 atmosphere_variational_history_prefix: 'bkg_'
 
 # Centralized atmosphere variable lists (see the atmosphere client config, which these mirror)
+atmosphere_det_increment_variables: [eastward_wind, northward_wind, air_temperature, air_pressure_thickness, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, ozone_mass_mixing_ratio]
+atmosphere_increment_field_io_names:
+  eastward_wind: ua
+  northward_wind: va
+  air_temperature: t
+  air_pressure_thickness: delp
+  water_vapor_mixing_ratio_wrt_moist_air: sphum
+  cloud_liquid_ice: ice_wat
+  cloud_liquid_water: liq_wat
+  ozone_mass_mixing_ratio: o3mr
 atmosphere_det_state_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio, snow_water, rain_water, graupel, geopotential_height_at_surface, cloud_ice_number_concentration, rain_number_concentration, slmsk, sheleg, skin_temperature_at_surface, vtype, stype, vfrac, soilt, soilm, eastward_wind_at_surface, northward_wind_at_surface, f10m]
 atmosphere_background_field_io_names:
   eastward_wind: ugrd
@@ -131,6 +162,12 @@ marine_soca_files_path: Data/soca
 marine_background_path: ./INPUT/
 marine_background_time: '2020-12-14T21:00:00Z'
 marine_vt_levels: 25
+marine_window_begin: '2020-12-14T18:00:00Z'
+marine_final_increment_dir: Data
+marine_final_increment_exp: 3dvar_coupled
+marine_output_dir: Data
+marine_output_exp: 3dvar_coupled
+marine_output_freq: PT6H
 marine_stddev_time: '2020-12-14T21:00:00Z'
 
 # Centralized marine variable lists (see the marine client config, which these mirror)

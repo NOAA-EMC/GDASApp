@@ -1,0 +1,16 @@
+{# Geometry options shared by every coupled geometry block.
+
+   parallel: false  -> every rank constructs both geometries, so the task count must be a
+                       valid decomposition for both models at once.
+   parallel: true   -> the communicator is split exactly in half, the first half running the
+                       first model and the second half the second.
+
+   Emitted explicitly rather than left to the GeometryCoupled default so that the choice is
+   visible in the generated YAML. #}
+parallel: {{ coupled_geometry_parallel | default(false) }}
+{% if coupled_fv3jedi_exclude_variables is defined %}
+FV3JEDI exclude variables:
+{% for variable in coupled_fv3jedi_exclude_variables %}
+- {{ variable }}
+{% endfor %}
+{% endif %}

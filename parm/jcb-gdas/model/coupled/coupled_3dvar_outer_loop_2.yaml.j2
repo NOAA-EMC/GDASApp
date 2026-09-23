@@ -1,0 +1,4 @@
+{% set coupled_loop_ninner = coupled_ninner_2 %}
+{% set coupled_loop_grad_red = coupled_grad_red_2 %}
+{% set coupled_loop_departures = coupled_outer_loop_departures_2 | default('bkgmob1', true) %}
+{% include 'coupled_3dvar_outer_loop.yaml.j2' %}

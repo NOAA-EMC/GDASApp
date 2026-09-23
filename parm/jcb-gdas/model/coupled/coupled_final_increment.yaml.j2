@@ -1,0 +1,18 @@
+{# Coupled final increment (analysis minus background), written once the minimisation has
+   finished. "state component" is the ControlIncrement level, below which IncrementCoupled
+   dispatches on the model name; each component contributes the writer half of its own
+   final increment fragment, named <coupled_final_increment_files[dir]>_writer.yaml.j2. #}
+output:
+  state component:
+{% filter indent(width=4) %}
+{% for component in coupled_components %}
+{{ component.name }}:
+{% filter indent(width=2) %}
+{% include coupled_final_increment_files[component.dir] ~ '_writer.yaml.j2' %}
+{% endfilter %}
+{% endfor %}
+{% endfilter %}
+geometry:
+{% filter indent(width=2) %}
+{% include 'coupled_geometry_final_increment.yaml.j2' %}
+{% endfilter %}

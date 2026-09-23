@@ -1,0 +1,11 @@
+{# Geometry the final increment is written on. The final increment is generally not on the
+   background geometry (the atmosphere writes it on the history grid for fv3inc), so each
+   component contributes the geometry half of its own final increment fragment, named
+   <coupled_final_increment_files[dir]>_geometry.yaml.j2. #}
+{% for component in coupled_components %}
+{{ component.name }}:
+{% filter indent(width=2) %}
+{% include coupled_final_increment_files[component.dir] ~ '_geometry.yaml.j2' %}
+{% endfilter %}
+{% endfor %}
+{% include 'coupled_geometry_options.yaml.j2' %}
