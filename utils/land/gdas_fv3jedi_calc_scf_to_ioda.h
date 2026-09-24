@@ -63,8 +63,8 @@ namespace gdasapp {
     void calc_fcst_snow_cover_fraction(fv3jedi::State & bkgState, const fv3jedi::Geometry & geom);
     static constexpr std::array<float, 20> mfsno_table = {
         1.00f, 1.00f, 1.00f, 1.00f, 1.00f, 2.00f, 2.00f,
-        2.00f, 2.00f, 2.00f, 3.00f, 3.00f, 3.00f, 3.00f,
-        2.50f, 3.00f, 3.00f, 3.00f, 3.00f, 3.00f
+        2.00f, 2.00f, 2.00f, 3.00f, 3.00f, 4.00f, 4.00f,
+        2.50f, 3.00f, 3.00f, 3.50f, 3.50f, 3.50f
     };
     static constexpr std::array<float, 20> scffac_table = {
         0.005f, 0.005f, 0.005f, 0.005f, 0.005f, 0.008f,
