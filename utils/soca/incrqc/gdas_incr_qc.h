@@ -121,6 +121,15 @@ inline void qcIncrement(const soca::State& xb,
   // Brute force bounds check
   applyBruteForceBoundsCheck(dxFs, xbFs, ghostView, viewBathy, stateBounds);
 
+  // The QC above modifies owned nodes through atlas views, which leaves the halos stale without
+  // flagging the fields as dirty. Downstream halo exchanges (e.g. the one oops::GlobalInterpolator
+  // does when the increment is interpolated to the Gaussian product grid) are skipped for a field
+  // that claims to be clean, so refresh the halos here before handing the increment back.
+  for (auto & field : dxFs) {
+    field.set_dirty(true);
+    meshConn.nodeColumns.haloExchange(field);
+  }
+
   dx.fromFieldSet(dxFs);
   oops::Log::info() << "======      Finished quality control on increment" << std::endl;
   }
