@@ -1,0 +1,16 @@
+{# Coupled geometry: emit one block per model component, reusing each component's
+   existing <component>_geometry_background.yaml.j2 fragment. The list of components
+   (name = YAML key, dir = model directory / fragment prefix) is provided by the
+   client config via coupled_components. #}
+{% for component in coupled_components %}
+{{ component.name }}:
+{% filter indent(width=2) %}
+{% include component.dir ~ '_geometry_background.yaml.j2' %}
+{% endfilter %}
+{% endfor %}
+{% if coupled_fv3jedi_exclude_variables is defined %}
+FV3JEDI exclude variables:
+{% for variable in coupled_fv3jedi_exclude_variables %}
+- {{ variable }}
+{% endfor %}
+{% endif %}
