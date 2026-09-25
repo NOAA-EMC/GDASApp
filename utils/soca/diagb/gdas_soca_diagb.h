@@ -158,8 +158,6 @@ class SocaDiagB : public oops::Application {
         }
       }
 
-      // The exchange above happens at the top of each iteration, so without this the halos
-      // would be left one iteration behind the owned points.
       meshConn.nodeColumns.haloExchange(sum_localFs[var]);
       meshConn.nodeColumns.haloExchange(sum2_localFs[var]);
     }
@@ -218,9 +216,6 @@ class SocaDiagB : public oops::Application {
                          (var == "sea_water_salinity") ? configD.sigS :
                          (var == "sea_ice_area_fraction") ? configD.sigSic : 0.0;
 
-      // Note: ghost nodes are scaled as well. Skipping them would leave the halo without the
-      // dynamic rescaling, the vertical taper and the static B, which shows up as the pattern of
-      // the MPI decomposition once the field is interpolated to the output geometry.
       for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
         for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
           if (viewBathy(jnode, 0) > 0.0) {
@@ -244,10 +239,7 @@ class SocaDiagB : public oops::Application {
     }
 
     // -- Step 10: Output result --
-    // Steps 8 and 9 modify the fields through atlas views, which does not flag them as dirty.
-    // Downstream halo exchanges (e.g. the one oops::GlobalInterpolator does when the output
-    // geometry differs from the background geometry) are skipped for a field that claims to be
-    // clean, so mark the fields dirty and refresh the halos here.
+    // Steps 8 and 9 modify the fields through atlas views: flag them as dirty.
     for (const auto & var : configD.socaVars.variables()) {
       dynaBkgErrFs[var].set_dirty(true);
       meshConn.nodeColumns.haloExchange(dynaBkgErrFs[var]);
