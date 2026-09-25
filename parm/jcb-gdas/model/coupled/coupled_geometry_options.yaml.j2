@@ -6,11 +6,21 @@
                        first model and the second half the second.
 
    Emitted explicitly rather than left to the GeometryCoupled default so that the choice is
-   visible in the generated YAML. #}
+   visible in the generated YAML.
+
+   GeometryCoupled splits the requested GeoVaLs between the two models by the variable list
+   each declares, and errors on any variable neither claims or both claim. The include and
+   exclude lists below correct each model's default list; see the coupled base for why. #}
 parallel: {{ coupled_geometry_parallel | default(false) }}
 {% if coupled_fv3jedi_exclude_variables is defined %}
 FV3JEDI exclude variables:
 {% for variable in coupled_fv3jedi_exclude_variables %}
+- {{ variable }}
+{% endfor %}
+{% endif %}
+{% if coupled_soca_include_variables is defined %}
+SOCA include variables:
+{% for variable in coupled_soca_include_variables %}
 - {{ variable }}
 {% endfor %}
 {% endif %}
