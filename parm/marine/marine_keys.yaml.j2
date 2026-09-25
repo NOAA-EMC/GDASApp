@@ -7,7 +7,8 @@
 # base alongside atm/atmosphere_keys.yaml.j2. The including base sets the jinja variables
 # marine_analysis_vars and marine_increment_vars, which the state and increment variable
 # lists below are derived from. It can also set marine_background_* to read the background
-# from somewhere other than the window-begin restart pair.
+# from somewhere other than the window-begin restart pair, and marine_var_exp to change the
+# experiment tag in the analysis and increment filenames.
 
 # Model things
 # ------------
@@ -78,13 +79,13 @@ marine_grad_red_1: 1e-7
 
 # Output
 marine_output_dir: Data
-marine_output_exp: {{ marine_var_exp }}   # experiment tag in the filenames; set by marine_task_config
+marine_output_exp: {{ marine_var_exp | default('3dvarfgat_pseudo', true) }}
 marine_output_freq: PT3H   # can only writes out the analysis at the middle of the window
                            # when using 3D-FGAT as cost function
 
 # Final increment
 marine_final_increment_dir: Data
-marine_final_increment_exp: {{ marine_var_exp }}   # experiment tag in the filenames; set by marine_task_config
+marine_final_increment_exp: {{ marine_var_exp | default('3dvarfgat_pseudo', true) }}
 
 # Background list
 marine_pseudo_model_states: {{ marine_pseudo_model_states | default([]) }}
