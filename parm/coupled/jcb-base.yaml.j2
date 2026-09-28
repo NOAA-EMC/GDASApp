@@ -110,6 +110,7 @@ coupled_geometry_parallel: false
 # build.
 coupled_fv3jedi_exclude_variables:
 - skin_temperature_at_surface_where_sea
+- sea_surface_temperature
 - sea_surface_height_above_geoid
 - sea_water_cell_thickness
 - sea_water_potential_temperature
@@ -122,10 +123,18 @@ coupled_fv3jedi_exclude_variables:
 # them here cannot create an overlap. Model2GeoVaLs can also produce latitude and longitude,
 # which are deliberately left out: they are not ocean specific, and nothing should be routed
 # to SOCA for them without deciding that is what is wanted.
+#
+# sea_surface_temperature is the exception that needs both lists. SOCA provides it as the
+# surface name of sea_water_potential_temperature, but FV3JEDI declares it too, so it is
+# excluded above and claimed here: the ocean owns SST in a coupled analysis. Left with
+# FV3JEDI it would still resolve, and the SST, sea ice concentration, ADT, salinity and
+# in situ operators would all have been interpolating from the atmosphere, sending their
+# sensitivity to atmospheric variables instead of to ocean temperature.
 coupled_soca_include_variables:
 - sea_floor_depth_below_sea_surface
 - mesoscale_representation_error
 - sea_water_depth
+- sea_surface_temperature
 
 # Outer loops. One shared geometry and one minimizer across both components, so these
 # replace the per-component atmosphere_ninner_* / marine_ninner_*.
