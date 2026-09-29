@@ -247,13 +247,13 @@
         name: ObsValue/stationPressure
       maxvalue: 50000.00
 
-    - filter: RejectList
-      filter variables:
-      - name: stationPressure
-      where:
-      - variable:
-          name: QualityMarker/stationPressure
-        is_not_in: 0-3
+  - filter: RejectList
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable:
+        name: QualityMarker/stationPressure
+      is_not_in: 0-3
 
   # End of Filters
 
