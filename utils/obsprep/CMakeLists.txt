@@ -1,6 +1,7 @@
 # Define the library target
 add_library(netcdf2ioda
     IcecAmsr2Ioda.h
+    IcecAmsr3Ioda.h
     IcecAbi2Ioda.h
     Ghrsst2Ioda.h
     Viirsaod2Ioda.h

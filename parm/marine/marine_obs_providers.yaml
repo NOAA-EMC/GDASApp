@@ -36,6 +36,13 @@ providers:
     qc config:
       min: 0.0
       max: 1.0
+  nesdis_amsr3:
+    list:
+      - icec_amsr3_north
+      - icec_amsr3_south
+    qc config:
+      min: 0.0
+      max: 1.0
   nesdis_mirs:
     list:
       - icec_amsu_ma1_l2
