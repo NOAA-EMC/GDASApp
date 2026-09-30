@@ -146,6 +146,8 @@ if (WORKFLOW_TESTS)
   option(TEST_MARINE_VAR "Enable the GFSv17 Marine JEDI 3D VAR FGAT tests" ON)
   option(TEST_MARINE_HYB "Enable the GFSv17 Marine JEDI 3d HYB VAR tests" ON)
   option(TEST_GFS17 "Enable the GFSv17 WCDA tests" OFF)
+  # The i-jedi test needs BUILD_IJEDI=ON (and mist access), so it is opt-in
+  option(TEST_MARINE_IJEDI "Enable the Marine i-jedi (MOM6 geometry) 3DVar FGAT tests" OFF)
 
   # Setup the environment
   set(HOMEglobal ${CMAKE_SOURCE_DIR}/../../..)
@@ -210,6 +212,14 @@ if (WORKFLOW_TESTS)
     set(YAML_PATH ${HOMEglobal}/dev/ci/cases/pr/${pslot}.yaml)
     add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEglobal} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR})
   endif()  # TEST_MARINE_HYB
+
+  if(${TEST_MARINE_IJEDI})
+    # Marine DA with i-jedi (MOM6 geometry) mx500
+    # -------------------------------------------
+    set(pslot "C48mx500_3DVarAOWCDA_ijedi")
+    set(YAML_PATH ${HOMEglobal}/dev/ci/cases/pr/${pslot}.yaml)
+    add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEglobal} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR})
+  endif()  # TEST_MARINE_IJEDI
 
   # GFSv17, 3DVAR prototype
   # -----------------------
