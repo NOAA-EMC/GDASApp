@@ -42,3 +42,13 @@ ecbuild_add_executable( TARGET  gdas_fv3jedi_error_covariance_toolbox.x
                         SOURCES ${CMAKE_SOURCE_DIR}/fv3-jedi/src/mains/fv3jediErrorCovarianceToolbox.cc
                         LIBS    fv3jedi saber
                       )
+
+if (BUILD_IJEDI)
+# Build the i-jedi generic-interface executable
+# (apps: var, hofx3d, letkf, convertstate, errortoolbox, geometry_cache)
+# ----------------------------------------------------------------------
+ecbuild_add_executable( TARGET  gdas_ijedi.x
+                        SOURCES gdas_ijedi.cc
+                        LIBS    ijedi ufo ioda saber
+                      )
+endif()
