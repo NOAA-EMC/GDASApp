@@ -1,0 +1,12 @@
+geometry_type: mom6
+ocean_hgrid: ./INPUT/ocean_hgrid.nc
+ocean_topog: ./INPUT/ocean_topog.nc
+vertical geometry from: ./INPUT/MOM.res.nc
+has northern fold: true
+coarsen factor: 1
+MOM_input:
+  NIGLOBAL: {{marine_ijedi_niglobal}}
+  NJGLOBAL: {{marine_ijedi_njglobal}}
+  NZ: {{marine_ijedi_nz}}
+  LAYOUT: [{{marine_ijedi_layout_x}}, {{marine_ijedi_layout_y}}]
+  MINIMUM_DEPTH: {{marine_ijedi_minimum_depth}}

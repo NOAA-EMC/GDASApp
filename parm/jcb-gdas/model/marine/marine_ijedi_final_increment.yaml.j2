@@ -1,0 +1,7 @@
+output:
+  state component:
+    io:
+      filetype: mom6
+      datapath: ./{{marine_final_increment_dir}}
+      ocn_file: 'ocn.{{marine_final_increment_exp}}.incr.{{marine_window_middle_iso}}.nc'
+      field io names: {{ marine_ijedi_field_io_names }}

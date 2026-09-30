@@ -1,0 +1,10 @@
+# Write the analysis once, at the middle of the window (first: PT3H with a frequency
+# longer than the remaining window). The i-jedi mom6 writer takes an explicit filename,
+# so a single write is required to avoid overwriting.
+first: PT3H
+frequency: PT6H
+io:
+  filetype: mom6
+  datapath: ./{{marine_output_dir}}
+  ocn_file: 'ocn.{{marine_output_exp}}.an.{{marine_window_middle_iso}}.nc'
+  field io names: {{ marine_ijedi_field_io_names }}
