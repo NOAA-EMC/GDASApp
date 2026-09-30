@@ -9,10 +9,20 @@ app_path_observation_chronicle: '{{PARMglobal}}/gdas/jcb-gdas/observation_chroni
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+# i-jedi interface: reroute the model fragments to the marine_ijedi_* templates
+# (observations, chronicles and generic algorithms are shared with soca)
+model_component: marine_ijedi_
+model_file: marine_ijedi_model_pseudo
+initial_condition_file: marine_ijedi_background  # Initial conditions for 4D apps is background
+output_file: marine_ijedi_output
+final_increment_file: marine_ijedi_final_increment
+{% else %}
 model_file: marine_model_pseudo
 initial_condition_file: marine_background  # Initial conditions for 4D apps is background
 output_file: marine_output
 final_increment_file: marine_final_increment
+{% endif %}
 
 
 # Assimilation standard things (not prepended with model choice)
@@ -27,12 +37,19 @@ final_prints_frequency: PT3H
 number_of_outer_loops: 1
 
 # Analysis variables
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+# i-jedi has no sea-ice fields yet: the analysis is ocean only
+{% set _analysis_vars = ['sea_water_salinity',
+                         'sea_water_potential_temperature',
+                         'sea_surface_height_above_geoid'] %}
+{% else %}
 {% set _analysis_vars = ['sea_ice_area_fraction',
                          'sea_ice_thickness',
                          'sea_ice_snow_thickness',
                          'sea_water_salinity',
                          'sea_water_potential_temperature',
                          'sea_surface_height_above_geoid'] %}
+{% endif %}
 
 analysis_variables: {{ _analysis_vars }}
 
@@ -72,6 +89,34 @@ marine_cice_date_iso: '{{ WINDOW_MIDDLE | to_isotime }}'
 # Geometry
 marine_soca_files_path: .
 marine_vt_levels: '{{MOM6_LEVS}}'
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+
+# i-jedi MOM6 geometry (JEDI_MARINE_INTERFACE=ijedi)
+# --------------------------------------------------
+# Grid dimensions must match the staged MOM_input (only 5 deg, 72x35x25, is supported;
+# config.marineanl enforces OCNRES=500). The layout is derived by config.resources
+# (marineanlinit) from the marineanlvar task count. i-jedi treats MINIMUM_DEPTH as the depth
+# below which cells are land, i.e. MOM6's MASKING_DEPTH (0.0), not MOM6's MINIMUM_DEPTH.
+marine_ijedi_niglobal: 72
+marine_ijedi_njglobal: 35
+marine_ijedi_minimum_depth: 0.0
+marine_ijedi_nz: '{{MOM6_LEVS}}'
+marine_ijedi_layout_x: {{ layout_marine_ijedi_x | default(1, true) }}
+marine_ijedi_layout_y: {{ layout_marine_ijedi_y | default(1, true) }}
+
+# i-jedi state variables and file-variable name map (ocean only)
+marine_ijedi_state_variables: {{ _analysis_vars }}
+marine_ijedi_field_io_names:
+    sea_water_potential_temperature: Temp
+    sea_water_salinity: Salt
+    sea_surface_height_above_geoid: ave_ssh
+
+# Static B central block variables (ocean subset; no balance operator in i-jedi)
+marine_ijedi_saber_central_block_variables: {{ _analysis_vars }}
+
+# The increment post-processing (soca-based) runs in ocean-only mode
+marine_incpostproc_domains: ['ocn']
+{% endif %}
 
 # Initial conditions
 marine_background_path: ./INPUT/
@@ -81,7 +126,12 @@ marine_background_time: '{{ WINDOW_BEGIN | to_isotime }}'
 marine_forecast_timestep: PT3H
 
 # Background error model
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+# Identity until marinebmat calibrates i-jedi diffusion parameters (soca's cannot be read)
+background_error_file: marine_ijedi_background_error_static_identity
+{% else %}
 background_error_file: '{{berror_model}}'
+{% endif %}
 marine_number_ensemble_members: '{{NMEM_ENS}}'
 marine_number_ensemble_members_per_mpi: '{{NMEM_ENS_PER_MPI}}'
 marine_stddev_time: '{{ WINDOW_MIDDLE  | to_isotime }}'

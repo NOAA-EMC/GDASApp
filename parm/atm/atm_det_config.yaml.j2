@@ -1,9 +1,15 @@
 jedi_config:
     atmanlvar:
         rundir: '{{ DATA }}'
+{% if JEDI_ATM_INTERFACE | default('fv3jedi') == 'ijedi' %}
+        exe_src: '{{ EXECglobal }}/gdas_ijedi.x'
+        mpi_cmd: '{{ APRUN_ATMANLVAR }}'
+        jedi_args: ['var']
+{% else %}
         exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_ATMANLVAR }}'
         jedi_args: ['fv3jedi', 'variational']
+{% endif %}
         jcb_algo: '3dvar'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
