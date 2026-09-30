@@ -18,6 +18,6 @@ export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}${jcbPATH}"
 # Export library path
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/scratch3/NCEPDEV/da/David.New/gdasapp-jediflow/build/lib"
 
-python test_varGDAS.py --MACHINE_ID "${MACHINE_ID}" --HOMEgdas "${HOMEgdas}" --DATA "${DATA}"
+python "${HOMEgdas}"/test/atm/global-workflow/test_varGDAS.py --MACHINE_ID "${MACHINE_ID}" --HOMEgdas "${HOMEgdas}" --DATA "${DATA}"
 
 set +x
