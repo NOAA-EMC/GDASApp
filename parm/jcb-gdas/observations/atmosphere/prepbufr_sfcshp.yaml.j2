@@ -26,15 +26,10 @@
     station_altitude: height
     geovar_sfc_geomz: height_above_mean_sea_level_at_surface
     geovar_geomz: geopotential_height
-    temperature_name: airTemperature
-    specific_humidity_name: specificHumidity
+    observed temperature variable: airTemperature
+    observed specific humidity variable: specificHumidity
     variables:
     - name: stationPressure
-
-  # Needed for FGAT
-  # ---------------------------
-  get values:
-    time interpolation: linear
 
   # Linear Observation Operator
   # ---------------------------
@@ -183,8 +178,8 @@
           geovar_sfc_geomz: height_above_mean_sea_level_at_surface
           geovar_geomz: geopotential_height
           station_altitude: height
-          temperature_name: airTemperature
-          specific_humidity_name: specificHumidity
+          observed temperature variable: airTemperature
+          observed specific humidity variable: specificHumidity
 
   # FOR TESTING, USE l_closeobs=True (temporal filter, instead of error inflation)
   # retaining GSI order: compute duplicate check, apply O-F check 
@@ -259,6 +254,14 @@
     - variable:
         name: QualityMarker/stationPressure
       is_not_in: 0-3
+
+  - filter: RejectList
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable:
+        name: QualityMarker/height
+      is_in: 7, 8, 10-14
 
   # End of Filters
 

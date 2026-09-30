@@ -34,11 +34,6 @@
       variables:
       - name: airTemperatureAt2M
 
-  # Needed for FGAT
-  # ---------------------------
-  get values:
-    time interpolation: linear
-
   # Linear Observation Operator
   # ---------------------------
   linear obs operator:
@@ -254,6 +249,14 @@
     - variable:
         name: QualityMarker/stationPressure
       is_not_in: 0-3
+
+  - filter: RejectList
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable:
+        name: QualityMarker/height
+      is_in: 7, 8, 10-14
   # End of Filters
 
 
