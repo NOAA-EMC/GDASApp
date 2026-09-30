@@ -47,6 +47,8 @@ WORKFLOW_BUILD=${WORKFLOW_BUILD:-"OFF"}
 BUILD_GSIBEC=${BUILD_GSIBEC:-"ON"}
 BUILD_IODA_CONVERTERS=${BUILD_IODA_CONVERTERS:-"NO"}
 BUILD_SOCA=${BUILD_SOCA:-"ON"}
+BUILD_IJEDI=${BUILD_IJEDI:-"OFF"}
+MIST_TAG=${MIST_TAG:-"develop"}
 
 while getopts "w:t:c:hvdfai" opt; do
   case $opt in
@@ -94,7 +96,7 @@ case ${BUILD_TARGET} in
     ;;
 esac
 
-CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET -DBUILD_TESTING=$BUILD_TESTING"
+CMAKE_OPTS+=" -DCLONE_JCSDADATA=$CLONE_JCSDADATA -DMACHINE=$BUILD_TARGET -DBUILD_TESTING=$BUILD_TESTING -DBUILD_IJEDI=$BUILD_IJEDI"
 
 # TODO: Remove LD_LIBRARY_PATH line as soon as permanent solution is available
 if [[ $BUILD_TARGET == 'wcoss2' ]]; then
@@ -129,6 +131,15 @@ fi
 if [[ $BUILD_IODA_CONVERTERS == 'YES' ]]; then
   # Clone and build ioda-converters
   git clone https://github.com/jcsda-internal/ioda-converters "$dir_root/sorc/iodaconv"
+fi
+
+if [[ $BUILD_IJEDI == 'ON' ]]; then
+  # Clone mist (i-jedi dependency); JCSDA-internal, requires repository access
+  # (CI uses the JCSDA_MIST_KEY deploy key)
+  if [[ ! -d "$dir_root/sorc/mist" ]]; then
+    git clone https://github.com/jcsda-internal/mist.git "$dir_root/sorc/mist"
+    git -C "$dir_root/sorc/mist" checkout "$MIST_TAG"
+  fi
 fi
 
 # Set INSTALL_PREFIX as CMake option
