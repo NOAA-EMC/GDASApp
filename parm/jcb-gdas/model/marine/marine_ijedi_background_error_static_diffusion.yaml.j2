@@ -1,0 +1,27 @@
+# The diffusion parameter files are indexed by i-jedi mesh node (ocean plus land fringe), so
+# they must come from an i-jedi calibration (gdas_ijedi.x errortoolbox); files written by soca
+# have a different node count and cannot be read. There is no balance operator, so the
+# covariance is univariate.
+covariance model: SABER
+saber central block:
+  saber block name: diffusion
+  read:
+    groups:
+    - variables: {{ marine_ijedi_saber_central_block_variables }}
+      multivariate strategy: univariate
+      horizontal:
+        filepath: ./staticb/hz_ocean
+      vertical:
+        levels: {{marine_vt_levels}}
+        filepath: ./staticb/vt_ocean
+
+saber outer blocks:
+- saber block name: StdDev
+  read:
+    model file:
+      date: '{{marine_stddev_time}}'
+      io:
+        filetype: mom6
+        datapath: ./staticb
+        ocn_file: 'ocn.bkgerr_parametric_stddev.nc'
+        field io names: {{ marine_ijedi_field_io_names }}

@@ -1,0 +1,12 @@
+name: PseudoModel
+tstep: {{marine_forecast_timestep}}
+states:
+{% for marine_pseudo_model_state in marine_pseudo_model_states %}
+- date: '{{ marine_pseudo_model_state.date }}'
+  state variables: {{ marine_ijedi_state_variables }}
+  io:
+    filetype: mom6
+    datapath: '{{ marine_pseudo_model_state.basename }}'
+    ocn_file: '{{ marine_pseudo_model_state.ocn_filename }}'
+    field io names: {{ marine_ijedi_field_io_names }}
+{% endfor %}
