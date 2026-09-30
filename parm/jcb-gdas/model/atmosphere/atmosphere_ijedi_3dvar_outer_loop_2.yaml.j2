@@ -1,0 +1,19 @@
+- ninner: {{atmosphere_ninner_2}}
+  gradient norm reduction: {{atmosphere_grad_red_2}}
+  test: on
+  geometry:
+    geometry_type: fv3
+    fms initialization:
+      namelist filename: {{atmosphere_fv3jedi_files_path}}/fmsmpp.nml
+      field table filename: {{atmosphere_fv3jedi_files_path}}/field_table
+    akbk: gfs_{{atmosphere_npz_anl}}
+    layout:
+    - {{atmosphere_layout_x}}
+    - {{atmosphere_layout_y}}
+    npx: {{atmosphere_npx_anl}}
+    npy: {{atmosphere_npy_anl}}
+    npz: {{atmosphere_npz_anl}}
+    ntiles: 6
+    vert coordinate: logp
+  diagnostics:
+    departures: bkgmob

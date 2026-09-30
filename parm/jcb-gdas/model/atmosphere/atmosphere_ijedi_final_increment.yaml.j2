@@ -1,0 +1,27 @@
+output:
+  state component:
+    io:
+      filetype: fv3 history
+      datapath: ./anl
+      atm_file: cubed_sphere_grid_atminc.jedi.nc
+      field io names: {{ atmosphere_increment_field_io_names }}
+geometry:
+  geometry_type: fv3
+  fms initialization:
+    namelist filename: "{{atmosphere_fv3jedi_files_path}}/fmsmpp.nml"
+    field table filename: "{{atmosphere_fv3jedi_files_path}}/field_table"
+  layout:
+  - {{atmosphere_layout_x}}
+  - {{atmosphere_layout_y}}
+  ntiles: 6
+{% if atmosphere_variational_increment_type == 'gaussian' %}
+  akbk: gfs_{{atmosphere_npz_anl}}
+  npx: {{atmosphere_npx_anl}}
+  npy: {{atmosphere_npy_anl}}
+  npz: {{atmosphere_npz_anl}}
+{% else %}
+  akbk: gfs_{{atmosphere_npz_his}}
+  npx: {{atmosphere_npx_his}}
+  npy: {{atmosphere_npy_his}}
+  npz: {{atmosphere_npz_his}}
+{% endif %}
