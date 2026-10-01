@@ -77,7 +77,7 @@ class SocaDiagB : public oops::Application {
    * @param fullConfig The top-level configuration for the application
    * @return 0 on success
    */
-  int execute(const eckit::Configuration & fullConfig) const {
+  int execute(const eckit::Configuration & fullConfig) const override {
     // -- Step 1: Parse configuration --
     gdasapp::diagb::utils::SocaDiagBConfig configD;
     configD.setup(fullConfig);

@@ -27,7 +27,7 @@ class SocaToFv3 : public oops::Application {
     : Application(comm) {}
   static const std::string classname() {return "gdasapp::coupled::SocaToFv3";}
 
-  int execute(const eckit::Configuration & fullConfig) const {
+  int execute(const eckit::Configuration & fullConfig) const override {
     oops::Log::info() << "gdasapp::coupled::SocaToFv3 starting" << std::endl;
 
     // Setup the soca geometry

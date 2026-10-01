@@ -64,7 +64,7 @@ class RunDiagnostics : public oops::Application {
   }
 
  private:
-    std::string appname() const {
+    std::string appname() const override {
       return "gdasapp::RunDiagnostics";
     }
 };
