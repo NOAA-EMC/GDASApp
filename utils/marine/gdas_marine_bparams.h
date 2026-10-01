@@ -16,6 +16,7 @@
 
 #include "oops/base/Geometry.h"
 #include "oops/base/Increment.h"
+#include "oops/base/State.h"
 #include "oops/base/Variables.h"
 #include "oops/generic/gc99.h"
 #include "oops/mpi/mpi.h"
@@ -23,6 +24,7 @@
 #include "oops/util/DateTime.h"
 #include "oops/util/Logger.h"
 
+#include "gdas_marine_mesh.h"
 #include "gdas_marine_read_nc_interp.h"
 
 namespace gdasapp {
@@ -39,11 +41,20 @@ namespace gdasapp {
  *   (3.57 converts a Gaussian sigma to a Gaspari-Cohn half width), optionally tapered to zero
  *   around listed islands. The rossby radius is taken from a geometry field or interpolated
  *   from a rossby radius file.
+ *
+ * vertical scales: decorrelation length scales, in model layers, for the vertical diffusion
+ *   operator, following soca's calc_scales.py: the mixed layer depth is smoothed horizontally
+ *   with a Gaussian of width clamp(rossby mult * rossby_radius, >= min grid mult * sqrt(area),
+ *   <= max value), converted to a fractional number of layers inside the mixed layer, and
+ *   vt(k) = clamp(mixed layer layers - k, min value, max value), 0 in layers thinner than 1 cm.
+ *   The smoothing is a diffusion over the model mesh rather than calc_scales.py's i/j Gaussian
+ *   filter, so it applies on any geometry (and across the tripolar fold and the dateline).
  */
 template <typename MODEL>
 class MarineBParams : public oops::Application {
   typedef oops::Geometry<MODEL>  Geometry_;
   typedef oops::Increment<MODEL> Increment_;
+  typedef oops::State<MODEL>     State_;
 
  public:
   explicit MarineBParams(const eckit::mpi::Comm & comm = oops::mpi::world())
@@ -56,6 +67,9 @@ class MarineBParams : public oops::Application {
 
     if (fullConfig.has("horizontal scales")) {
       horizontalScales(geom, date, eckit::LocalConfiguration(fullConfig, "horizontal scales"));
+    }
+    if (fullConfig.has("vertical scales")) {
+      verticalScales(geom, date, eckit::LocalConfiguration(fullConfig, "vertical scales"));
     }
     return 0;
   }
@@ -113,6 +127,83 @@ class MarineBParams : public oops::Application {
     rh.synchronizeFields();
     rh.write(eckit::LocalConfiguration(conf, "output"));
     oops::Log::test() << "Output horizontal scales: " << rh << std::endl;
+  }
+
+  void verticalScales(const Geometry_ & geom, const util::DateTime & date,
+                      const eckit::Configuration & conf) const {
+    const State_ xb(geom, eckit::LocalConfiguration(conf, "background"));
+    const atlas::Field hField =
+      xb.fieldSet()[conf.getString("layer thickness variable", "sea_water_cell_thickness")];
+    atlas::Field mldField =
+      xb.fieldSet()[conf.getString("mixed layer depth variable", "mom6_mld")].clone();
+    const auto h = atlas::array::make_view<double, 2>(hField);
+    auto mld = atlas::array::make_view<double, 2>(mldField);
+    const atlas::idx_t nnodes = hField.shape(0);
+    const atlas::idx_t nz = hField.shape(1);
+
+    const auto mask = atlas::array::make_view<double, 2>(
+      geom.fields().field(conf.getString("mask field")));
+    const auto area = atlas::array::make_view<double, 2>(
+      geom.fields().field(conf.getString("area field", "area")));
+    const auto rossby = atlas::array::make_view<double, 2>(
+      rossbyRadius(geom, eckit::LocalConfiguration(conf, "rossby radius")));
+
+    // horizontal smoothing width, in grid cells
+    const eckit::LocalConfiguration smoothing(conf, "smoothing");
+    const double rossbyMult = smoothing.getDouble("rossby mult", 1.0);
+    const double minGridMult = smoothing.getDouble("min grid mult", 1.0);
+    const double maxValue = smoothing.getDouble("max value", std::numeric_limits<double>::max());
+    std::vector<double> sigma(nnodes, 0.0);
+    std::vector<bool> wet(nnodes);
+    for (atlas::idx_t jnode = 0; jnode < nnodes; ++jnode) {
+      wet[jnode] = mask(jnode, 0) > 0.0;
+      if (!wet[jnode]) continue;
+      const double dx = std::sqrt(area(jnode, 0));
+      // np.clip semantics: the upper bound wins when the bounds cross
+      const double hz = std::min(std::max(rossbyMult * rossby(jnode, 0), minGridMult * dx),
+                                 maxValue);
+      sigma[jnode] = hz / dx;
+    }
+    MeshSmoother(geom.functionSpace()).smooth(mldField, sigma, wet);
+
+    const double minValue = conf.getDouble("min value");
+    const double maxLayers = conf.getDouble("max value");
+    const double thin = 0.01;  // layers thinner than this (m) are ignored, as in calc_scales.py
+    const std::string outVar = conf.getString("output variable");
+    Increment_ vt(geom, oops::Variables({outVar}), date);
+    atlas::Field vtField = vt.fieldSet()[outVar];
+    ASSERT(vtField.shape(1) == nz);
+    auto vtView = atlas::array::make_view<double, 2>(vtField);
+    vtView.assign(0.0);
+    std::vector<double> layerDepth(nz);
+    for (atlas::idx_t jnode = 0; jnode < nnodes; ++jnode) {
+      if (!wet[jnode]) continue;
+      double top = 0.0;
+      int maxLevels = 0;
+      int mlLevels = 0;
+      for (atlas::idx_t jlev = 0; jlev < nz; ++jlev) {
+        layerDepth[jlev] = top + 0.5 * h(jnode, jlev);
+        top += h(jnode, jlev);
+        if (h(jnode, jlev) > thin) {
+          ++maxLevels;
+          if (layerDepth[jlev] < mld(jnode, 0)) ++mlLevels;
+        }
+      }
+      // last layer in the mixed layer, plus the fraction of the next one above the mld
+      const int last = std::min(std::max(mlLevels - 1, 0), static_cast<int>(nz) - 2);
+      const double d1 = layerDepth[last];
+      const double d2 = layerDepth[last + 1];
+      double mlLayers = last + (mld(jnode, 0) - d1) / (d2 - d1);
+      mlLayers = std::min(std::max(mlLayers, 1.0), static_cast<double>(maxLevels));
+      for (atlas::idx_t jlev = 0; jlev < nz; ++jlev) {
+        if (h(jnode, jlev) <= thin) continue;
+        vtView(jnode, jlev) = std::min(std::max(mlLayers - jlev, minValue), maxLayers);
+      }
+    }
+
+    vt.synchronizeFields();
+    vt.write(eckit::LocalConfiguration(conf, "output"));
+    oops::Log::test() << "Output vertical scales: " << vt << std::endl;
   }
 
   // Reduce the scales to zero around islands too small for the model grid to resolve
