@@ -454,6 +454,12 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
     }
     ncfile.close();
   } catch (netCDF::exceptions::NcException &e) {
+    if (isNetCDF) {
+      throw eckit::BadValue(
+          "Error reading IMS netCDF file " + imspath_ +
+          ": " + std::string(e.what()), Here());
+    }
+
     oops::Log::info() << "Failed to open as netCDF, will try ASCII: " << imspath_ << std::endl;
   }
 
@@ -558,8 +564,19 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
              << j_ims << " x "
              << t_ims
              << std::endl;
+  // Define checkside
+  auto checkSize = [&](const netCDF::NcVar &v, size_t expected, const char *name) {
+    size_t n = 1;
+    for (const auto &d : v.getDims()) n *= d.getSize();
+    if (n != expected)
+      throw eckit::BadValue(std::string("mapping '") + name + "' has " +
+                            std::to_string(n) + " elements, expected " +
+                            std::to_string(expected), Here());
+  };
+
   // Read into a flat buffer and copy to IMS_index
   std::vector<int> tile_buffer(i_ims * j_ims);
+  checkSize(tileVar,  i_ims * j_ims,     "tile");
   tileVar.getVar(tile_buffer.data());
   for (size_t i = 0; i < i_ims; ++i) {
     for (size_t j = 0; j < j_ims; ++j) {
@@ -570,6 +587,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   netCDF::NcVar tile_iVar = ncfile.getVar("tile_i");
   netcdf_err(tile_iVar.isNull() ? -1 : NC_NOERR,
              "error reading tile_i variable from mapping file");
+  checkSize(tile_iVar, i_ims * j_ims,    "tile_i");
   tile_iVar.getVar(tile_buffer.data());
   for (size_t i = 0; i < i_ims; ++i) {
     for (size_t j = 0; j < j_ims; ++j) {
@@ -580,6 +598,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   netCDF::NcVar tile_jVar = ncfile.getVar("tile_j");
   netcdf_err(tile_jVar.isNull() ? -1 : NC_NOERR,
              "error reading tile_j variable from mapping file");
+  checkSize(tile_jVar, i_ims * j_ims,    "tile_j");
   tile_jVar.getVar(tile_buffer.data());
   for (size_t i = 0; i < i_ims; ++i) {
     for (size_t j = 0; j < j_ims; ++j) {
@@ -594,6 +613,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   // Read lat_fv3 into latFV3
   netCDF::NcVar latVar = ncfile.getVar("lat_fv3");
   netcdf_err(latVar.isNull() ? -1 : NC_NOERR, "error reading latFV3 variable from mapping file");
+  checkSize(latVar, 6 * npy * npx,       "lat_fv3");
   latVar.getVar(cube_buffer.data());
   for (size_t j = 0; j < npy; ++j) {
     for (size_t i = 0; i < npx; ++i) {
@@ -604,6 +624,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   // Read lon_fv3 into lonFV3
   netCDF::NcVar lonVar = ncfile.getVar("lon_fv3");
   netcdf_err(lonVar.isNull() ? -1 : NC_NOERR, "error reading lonFV3 variable from mapping file");
+  checkSize(lonVar, 6 * npy * npx,       "lon_fv3");
   lonVar.getVar(cube_buffer.data());
   for (size_t j = 0; j < npy; ++j) {
     for (size_t i = 0; i < npx; ++i) {
@@ -613,6 +634,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   // Read oro_fv3 into oroFV3
   netCDF::NcVar oroVar = ncfile.getVar("oro_fv3");
   netcdf_err(oroVar.isNull() ? -1 : NC_NOERR, "error reading oroFV3 variable from mapping file");
+  checkSize(oroVar, 6 * npy * npx,       "oro_fv3");
   oroVar.getVar(cube_buffer.data());
   for (size_t j = 0; j < npy; ++j) {
     for (size_t i = 0; i < npx; ++i) {
@@ -631,6 +653,19 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
         int _tile = this->IMS_index[i][j][0]-1;
         int _tile_i = this->IMS_index[i][j][1]-1;
         int _tile_j = this->IMS_index[i][j][2]-1;
+
+        if (_tile < 0 || _tile >= 6 ||
+            _tile_i < 0 || _tile_i >= static_cast<int>(npx) ||
+            _tile_j < 0 || _tile_j >= static_cast<int>(npy)) {
+          throw eckit::BadValue(
+              "Invalid IMS-to-FV3 mapping index at IMS (" +
+              std::to_string(i) + ", " + std::to_string(j) + "): tile=" +
+              std::to_string(_tile + 1) + ", tile_i=" +
+              std::to_string(_tile_i + 1) + ", tile_j=" +
+              std::to_string(_tile_j + 1),
+              Here());
+        }
+
         land_points[_tile][_tile_j][_tile_i] += 1.0f;
         snow_points[_tile][_tile_j][_tile_i] += IMS_flag[i][j];
       }
