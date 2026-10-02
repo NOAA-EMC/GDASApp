@@ -19,7 +19,7 @@ usage() {
 # ==============================================================================
 TEST_WORKFLOW=0
 ctest_regex_exclude=""
-while getopts "d:o:h:E:w" opt; do
+while getopts "d:o:E:hw" opt; do
   case $opt in
     d)
       repodir=$OPTARG
@@ -32,7 +32,7 @@ while getopts "d:o:h:E:w" opt; do
       ;;
     w)
       TEST_WORKFLOW=1
-      ;;    
+      ;;
     h|\?|:)
       usage
       ;;
@@ -47,7 +47,6 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
     gdasapp_dir=$workflow_dir/sorc/gdas.cd
 
     build_cmd_dir=$workflow_dir/sorc
-    sed -i 's/\(WORKFLOW_TESTS=.*:-"\)OFF\("\)/\1ON\2/' ${build_cmd_dir}/build_gdas.sh
     build_cmd="./build_all.sh -A ${SLURM_ACCOUNT} -c gfs gcafs gsi gdas"
     build_dir=$workflow_dir/build
 else

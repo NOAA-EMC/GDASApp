@@ -24,7 +24,7 @@ usage() {
 export TARGET="$(hostname)"
 
 TEST_WORKFLOW=0
-while getopts "t:h:w" opt; do
+while getopts "t:hw" opt; do
   case $opt in
     t)
       TARGET=$OPTARG
@@ -115,10 +115,20 @@ for pr in $open_pr_list; do
   echo " "
   echo "Starting processing of pull request #${pr} at $(date)"
 
+  # Reset PR-local state each iteration.
+  gdasapp_url="https://github.com/NOAA-EMC/GDASApp.git"
+  branch_owner=""
+  branch_name=""
+  if [[ $TEST_WORKFLOW == 1 ]]; then
+    workflow_url="https://github.com/NOAA-EMC/global-workflow.git"
+    workflow_branch="develop"
+    companion_pr=""
+  fi
+
   # get the branch name used for the PR
   gdasapp_branch=$(gh pr view $pr --json headRefName -q ".headRefName")
 
-  # get additional branch informatio
+  # get additional branch information
   branch_owner=$(gh pr view $pr --repo ${gdasapp_url} --json headRepositoryOwner --jq '.headRepositoryOwner.login')
   branch_name=$(gh pr view $pr --repo ${gdasapp_url} --json headRepository --jq '.headRepository.name')
   pr_assignees=$(gh pr view $pr --repo ${gdasapp_url} --json assignees --jq '.assignees[].login')
@@ -126,12 +136,10 @@ for pr in $open_pr_list; do
   # check if any assignee is authorized to run CI
   rc=1
   for str in ${pr_assignees[@]}; do
-    grep $str $AUTHORIZED_USERS_FILE > /dev/null
-    if (( rc != 0 )); then
-	rc=$?
-    fi
-    if (( rc == 0 )); then
+    if grep -Fxq "$str" "$AUTHORIZED_USERS_FILE"; then
+      rc=0
       echo "Authorized user $str assigned to this PR"
+      break
     fi
   done
 
@@ -141,6 +149,10 @@ for pr in $open_pr_list; do
 
     # update PR label
     gh pr edit $pr --remove-label $CI_LABEL --add-label ${CI_LABEL}-Running
+
+    if [[ $TEST_WORKFLOW != 1 ]] && [[ "$branch_owner" != "NOAA-EMC" ]]; then
+      gdasapp_url="https://github.com/${branch_owner}/${branch_name}.git"
+    fi
 
     echo "GDASApp URL: $gdasapp_url"
     echo "GDASApp branch Name: $gdasapp_branch"
@@ -160,9 +172,10 @@ for pr in $open_pr_list; do
         # Construct fork URL. Update workflow branch name
         workflow_url="https://github.com/$branch_owner/$branch_name.git"
         workflow_branch=$gdasapp_branch
+
+        echo "Found companion Global Workflow PR #${companion_pr}!"
       fi
 
-      echo "Found companion Global Workflow PR #${companion_pr}!"
       echo "Global Workflow URL: $workflow_url"
       echo "Global Workflow branch name: $workflow_branch"
     fi
@@ -181,7 +194,7 @@ for pr in $open_pr_list; do
       git clone --recursive --jobs 8 --branch $workflow_branch $workflow_url
       cd global-workflow/sorc/gdas.cd
     else
-      echo "Cloning GDASApp branch $workflow_branch at $(date)"
+      echo "Cloning GDASApp branch $gdasapp_branch from $gdasapp_url at $(date)"
       git clone --recursive --jobs 8 --branch $gdasapp_branch $gdasapp_url
       cd GDASApp
     fi
@@ -244,6 +257,6 @@ for pr in $open_pr_list; do
 done
 
 # ==============================================================================
-# scrub working directory for older files
-find $PR_TEST_DIR/* -maxdepth 1 -mtime +3 -exec rm -rf {} \;
+# scrub working directory for older PR directories
+find "$PR_TEST_DIR" -mindepth 1 -maxdepth 1 -type d -mtime +3 -exec rm -rf {} +
 echo "Finished automated testing at $(date)"
