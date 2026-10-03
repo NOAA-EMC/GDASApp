@@ -364,6 +364,10 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     iodaSCFPreQC.write(qc_scf);
     iodaSDPreQC.write(qc_sd);
     // Write errors
+    double scfErr = oberr_scf;
+    config_.get("scf obs error", scfErr);
+    if (!(scfErr > 0.0)) throw eckit::BadValue("scf obs error must be > 0", Here());
+    oberr_scf = static_cast<float>(scfErr);
     std::vector<float> err_scf(nobs, oberr_scf);
     std::vector<float> err_sd(nobs, oberr_snd);
     iodaSCFError.write(err_scf);
@@ -470,7 +474,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
       throw eckit::UserError("Failed to open IMS file as ASCII: " + imspath_, Here());
     }
     oops::Log::info() << "Opened IMS file as ASCII: " << imspath_ << std::endl;
-    int i_ims, j_ims;
+    int i_ims = 0, j_ims = 0;
     // skip some of the header lines
     std::string dummyLine;
     for (int i = 0; i < 9; ++i) {
@@ -479,7 +483,8 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
     std::getline(asciifile, dummyLine);  // Read the line to get dataset dimensions
     std::string dummy, dummy2;
     std::istringstream iss(dummyLine);
-    iss >> dummy >> i_ims >> dummy2 >> j_ims;
+    if (!(iss >> dummy >> i_ims >> dummy2 >> j_ims) || i_ims <= 0 || j_ims <= 0)
+      throw eckit::BadValue("Cannot parse IMS dimensions from " + imspath_, Here());
     oops::Log::info() << "IMS dimensions: " << i_ims << " x " << j_ims << std::endl;
     // Skip the next 20 lines which are not needed
     for (int i = 0; i < 20; ++i) {
@@ -508,7 +513,8 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
     } while (row < j_ims && std::getline(asciifile, dummyLine));
 
     if (row != j_ims) {
-        std::cerr << "Warning: Expected " << j_ims << " rows, got " << row << std::endl;
+        throw eckit::BadValue("IMS ASCII file truncated: expected " + std::to_string(j_ims) +
+                              " rows, got " + std::to_string(row), Here());
     }
     asciifile.close();
   }
