@@ -197,7 +197,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   // This would involve creating an IODA file, populating it with the calculated
   // observations, and saving it to disk.
   oops::Log::info() << "Writing observations to IODA format..." << std::endl;
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
   // get the fieldset from the geometry
   atlas::FunctionSpace fs = geom.functionSpace();
   // convert the state to an atlas fieldset
@@ -252,7 +252,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   auto snd = atlas::array::make_view<double, 2>(global_fields["totalSnowDepth"]);
 
   // Create empty group backed by HDF file
-  if (oops::mpi::world().rank() == 0) {
+  if (comm_.rank() == 0) {
     // Create the observations, Latitude, Longitude, and Elevation vectors
     std::vector<float> lat_var, lon_var, orog_var, scf_var, snd_var;
     std::vector<std::string> station_ids;
@@ -366,7 +366,8 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     // Write errors
     double scfErr = oberr_scf;
     config_.get("scf obs error", scfErr);
-    if (!(scfErr > 0.0)) throw eckit::BadValue("scf obs error must be > 0", Here());
+    if (!std::isfinite(scfErr) || !(scfErr > 0.0))
+      throw eckit::BadValue("scf obs error must be a positive number", Here());
     oberr_scf = static_cast<float>(scfErr);
     std::vector<float> err_scf(nobs, oberr_scf);
     std::vector<float> err_sd(nobs, oberr_snd);
@@ -380,7 +381,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     iodaSD.write(snd_var);
     iodaStation.write(station_ids);
   }
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
   oops::Log::info() << "Observations written successfully." << std::endl;
   oops::Log::info() << "=========================================================" << std::endl;
 }
@@ -539,7 +540,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
       }
     }
   }
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
 }
 
 void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
@@ -647,7 +648,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
       this->oroFV3[j][i] = cube_buffer[tilenum * npy * npx + j * npx + i];
     }
   }
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
   // Now let us calculate things
   std::vector<std::vector<std::vector<float>>> land_points(6,
     std::vector<std::vector<float>>(npy, std::vector<float>(npx, 0.0f)));
@@ -677,7 +678,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
       }
     }
   }
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
   // compute scfIMS based on where land_points are greater than 0
   for (size_t j = 0; j < npy; ++j) {
     for (size_t i = 0; i < npx; ++i) {
@@ -693,7 +694,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   this->IMS_index.shrink_to_fit();
   this->IMS_flag.clear();
   this->IMS_flag.shrink_to_fit();
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
 }
 
 // Calculate IMS snow depth
@@ -743,7 +744,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
       }
     }
   }
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
 }
 
 // Update IMS snow depth
