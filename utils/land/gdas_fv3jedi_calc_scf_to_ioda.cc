@@ -70,7 +70,7 @@ void gdasapp::CalcSCFtoIODA::run() {
   oops::Log::info() << "=========================================================" << std::endl;
 
   // Create an IMSscf object to handle IMS data
-  IMSscf imsscf(imspath, weightspath, geom);
+  IMSscf imsscf(imspath, weightspath, geom, comm_);
 
   // Read snow cover fraction (SCF) data
   imsscf.readIMS();
@@ -177,8 +177,8 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgS
 
 // Constructor for IMSscf is defined only in one place to avoid multiple definition errors.
 gdasapp::CalcSCFtoIODA::IMSscf::IMSscf(const std::string &imspath, const std::string &weightspath,
-                                       const fv3jedi::Geometry & geom)
-  : imspath_(imspath), weightspath_(weightspath), geom_(geom) {
+                                       const fv3jedi::Geometry & geom, const eckit::mpi::Comm & comm)
+  : imspath_(imspath), weightspath_(weightspath), geom_(geom), comm_(comm) {
   this->latFV3.resize(geom_.npy()-1, std::vector<float>(geom_.npx()-1));
   this->lonFV3.resize(geom_.npy()-1, std::vector<float>(geom_.npx()-1));
   this->oroFV3.resize(geom_.npy()-1, std::vector<float>(geom_.npx()-1));
