@@ -4,6 +4,8 @@ ocean_topog: ./INPUT/ocean_topog.nc
 vertical geometry from: ./INPUT/MOM.res.nc
 has northern fold: true
 coarsen factor: 1
+distance from coast: true
+rossby radius file: ./rossrad.nc
 MOM_input:
   NIGLOBAL: {{marine_ijedi_niglobal}}
   NJGLOBAL: {{marine_ijedi_njglobal}}

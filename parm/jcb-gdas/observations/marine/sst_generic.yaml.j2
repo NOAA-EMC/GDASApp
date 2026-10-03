@@ -54,10 +54,12 @@
     - variable: {name: GeoVaLs/sea_area_fraction}
       value: is_valid
       minvalue: 0.9
+{% if marine_sea_ice_checks | default(true) %}
   - filter: Domain Check
     where:
     - variable: { name: GeoVaLs/sea_ice_area_fraction}
       maxvalue: 1.0e-5
+{% endif %}
   - filter: Domain Check
     where:
     - variable: {name: GeoVaLs/sea_surface_temperature}

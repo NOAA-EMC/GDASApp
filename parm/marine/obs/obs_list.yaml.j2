@@ -24,9 +24,11 @@ observations:
 #- sst_ahi_h08_l3c
 #- sst_ahi_h09_l3c
 
-# Ice concentration
+# Ice concentration (not with i-jedi: no sea-ice state yet)
+{% if JEDI_MARINE_INTERFACE | default('soca') != 'ijedi' %}
 - icec_amsr2_north
 - icec_amsr2_south
+{% endif %}
 #- icec_viirs_n20_l2_north
 #- icec_viirs_n20_l2_south
 #- icec_amsu_mb_l2

@@ -13,6 +13,8 @@ app_path_observation_chronicle: gdas/observation_chronicle/marine
 # i-jedi interface: route the model fragment includes to the marine_ijedi_* templates
 # ------------------------------------------------------------------------------------
 model_component: marine_ijedi_
+# No sea-ice state in i-jedi yet: drop the SST/ADT sea-ice QC checks (as the jcb-base does)
+marine_sea_ice_checks: false
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
