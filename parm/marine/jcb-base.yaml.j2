@@ -17,6 +17,8 @@ model_file: marine_ijedi_model_pseudo
 initial_condition_file: marine_ijedi_background  # Initial conditions for 4D apps is background
 output_file: marine_ijedi_output
 final_increment_file: marine_ijedi_final_increment
+# No sea-ice state in i-jedi yet: drop the SST/ADT sea-ice QC checks
+marine_sea_ice_checks: false
 {% else %}
 model_file: marine_model_pseudo
 initial_condition_file: marine_background  # Initial conditions for 4D apps is background
