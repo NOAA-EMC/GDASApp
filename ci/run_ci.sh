@@ -47,6 +47,8 @@ if [[ $TEST_WORKFLOW == 1 ]]; then
     gdasapp_dir=$workflow_dir/sorc/gdas.cd
 
     build_cmd_dir=$workflow_dir/sorc
+    # TODO: replace sed with -t option in run_ci.sh, build_all.sh, and build_gdas.sh
+    sed -i 's/\(WORKFLOW_TESTS=.*:-"\)OFF\("\)/\1ON\2/' ${build_cmd_dir}/build_gdas.sh
     build_cmd="./build_all.sh -A ${SLURM_ACCOUNT} -c gfs gcafs gsi gdas"
     build_dir=$workflow_dir/build
 else
