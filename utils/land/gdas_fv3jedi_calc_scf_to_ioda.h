@@ -73,7 +73,7 @@ namespace gdasapp {
         0.008f, 0.010f, 0.010f, 0.010f, 0.010f, 0.007f, 0.021f,
         0.013f, 0.015f, 0.008f, 0.015f, 0.015f, 0.015f, 0.015f
     };
-    float oberr_scf = 0.0f;
+    float oberr_scf = 0.0f;  // This error is a placeholder and scf is not assimilated
     float oberr_snd = 80.0f;
     static constexpr float nodata_float = -999.0f;
     static constexpr float nodata_tol = 0.1f;  // Tolerance for nodata checks

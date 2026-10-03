@@ -52,11 +52,6 @@ void gdasapp::CalcSCFtoIODA::run() {
   config_.get("input scf file", imspath);
   config_.get("mapping file", weightspath);
   config_.get("output ioda file", outputpath);
-  double scfErr = oberr_scf;
-  config_.get("scf obs error", scfErr);
-  if (!std::isfinite(scfErr) || !(scfErr > 0.0))
-    throw eckit::BadValue("scf obs error must be a positive number", Here());
-  oberr_scf = static_cast<float>(scfErr);
 
   // Read the model background state
   const eckit::LocalConfiguration bkgConfig(config_, "background");
