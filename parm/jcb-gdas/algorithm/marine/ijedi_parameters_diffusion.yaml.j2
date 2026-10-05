@@ -1,0 +1,51 @@
+# SABER diffusion calibration on the i-jedi MOM6 geometry (gdas_ijedi.x errortoolbox), from the
+# scales written by ijedi_marine_bparams: horizontal (as soca_parameters_diffusion_hz) and vertical
+# (as soca_parameters_diffusion_vt) in one run. The files are indexed by i-jedi mesh node, so the
+# i-jedi variational analysis can read them (soca's cannot).
+geometry:
+{% filter indent(width=2) %}
+{% include 'marine_ijedi_geometry_background.yaml.j2' %}
+{% endfilter %}
+
+background:
+  date: '{{ marine_window_end_iso }}'
+  state variables: {{ marine_ijedi_state_variables }}
+  io:
+    filetype: mom6
+    datapath: ./bkg
+    ocn_file: ocean.bkg.f009.nc
+    field io names: {{ marine_ijedi_field_io_names }}
+
+background error:
+  covariance model: SABER
+  saber central block:
+    saber block name: diffusion
+    calibration:
+      normalization:
+        method: randomization
+        iterations: 1000
+      groups:
+      - horizontal:
+          model file:
+            date: '{{ marine_window_end_iso }}'
+            io:
+              filetype: mom6
+              datapath: ./
+              ocn_file: ocn.cor_rh.nc
+              field io names: {sea_surface_height_above_geoid: ave_ssh}
+          model variable: sea_surface_height_above_geoid
+        write:
+          filepath: ./staticb/hz_ocean
+      - vertical:
+          as gaussian: true
+          levels: {{ marine_vt_levels }}
+          model file:
+            date: '{{ marine_window_end_iso }}'
+            io:
+              filetype: mom6
+              datapath: ./
+              ocn_file: vt_scales.nc
+              field io names: {sea_water_potential_temperature: Temp}
+          model variable: sea_water_potential_temperature
+        write:
+          filepath: ./staticb/vt_ocean

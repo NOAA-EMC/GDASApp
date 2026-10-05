@@ -1,0 +1,90 @@
+# Marine static-B parameters on the i-jedi MOM6 geometry (gdas_ijedi_marine_bparams.x), from the
+# f009 background: horizontal scales (as soca_setcorscales), vertical scales (as soca_vtscales /
+# calc_scales.py) and the parametric stddev (as soca_diagb), with the same parameter values. At
+# 5 deg the analysis geometry is the native one, so there is no change of resolution.
+geometry:
+{% filter indent(width=2) %}
+{% include 'marine_ijedi_geometry_background.yaml.j2' %}
+{% endfilter %}
+
+date: '{{ marine_window_end_iso }}'
+
+horizontal scales:
+  variables: [sea_surface_height_above_geoid]
+  rossby radius:
+    geometry field: rossby_radius
+  area field: area
+  scales:
+    sea_surface_height_above_geoid:
+      rossby mult: 1.0
+      min grid mult: 1.0
+  islands:
+    # Barrier Islands between the Pamlico Sound and the Atlantic
+    scale: 100.0  # in kilometers
+    lat: [ 34.636, 35.065, 35.49,  35.87,  36.28]
+    lon: [-76.52, -76.03, -75.46, -75.56, -75.78]
+  output:
+    io:
+      filetype: mom6
+      datapath: ./
+      ocn_file: ocn.cor_rh.nc
+      field io names: {sea_surface_height_above_geoid: ave_ssh}
+
+vertical scales:
+  background:
+    date: '{{ marine_window_end_iso }}'
+    state variables: [sea_water_cell_thickness, mom6_mld]
+    io:
+      filetype: mom6
+      datapath: ./bkg
+      ocn_file: ocean.bkg.f009.nc
+      field io names: {sea_water_cell_thickness: h, mom6_mld: MLD}
+  mask field: mask2d
+  area field: area
+  rossby radius:
+    geometry field: rossby_radius
+  smoothing:
+    rossby mult: 1.0
+    min grid mult: 2.0
+    max value: 200e3
+  min value: 5
+  max value: 15
+  output variable: sea_water_potential_temperature
+  output:
+    io:
+      filetype: mom6
+      datapath: ./
+      ocn_file: vt_scales.nc
+      field io names: {sea_water_potential_temperature: Temp}
+
+background error stddev:
+  variables: {{ marine_ijedi_state_variables + ['sea_water_cell_thickness'] }}
+  background:
+    date: '{{ marine_window_end_iso }}'
+    state variables: {{ marine_ijedi_state_variables + ['sea_water_cell_thickness'] }}
+    io:
+      filetype: mom6
+      datapath: ./bkg
+      ocn_file: ocean.bkg.f009.nc
+      field io names: {sea_water_potential_temperature: Temp, sea_water_salinity: Salt,
+                       sea_surface_height_above_geoid: ave_ssh, sea_water_cell_thickness: h}
+  vertical e-folding scale dynamic: 200.0
+  vertical e-folding scale static: 300.0
+  stencil growth iterations: 100
+  min efold depth ratio: 3.0
+  rescale dynamic: 0.2
+  rescale static: 1.0
+  static sig B:
+    sigT: 0.5
+    sigS: 0.1
+    sigSic: 0.01
+  max ssh: 0.0
+  min depth: 100.0
+  vertical bin size: 1.0
+  output:
+    io:
+      filetype: mom6
+      datapath: ./staticb
+      ocn_file: ocn.bkgerr_parametric_stddev.nc
+      field io names: {sea_water_potential_temperature: Temp, sea_water_salinity: Salt,
+                       sea_surface_height_above_geoid: ave_ssh, sea_water_cell_thickness: h}
