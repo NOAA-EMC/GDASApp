@@ -1,4 +1,5 @@
 #!/bin/bash --login
+set -euo pipefail
 
 echo "Starting automated testing at $(date)"
 
@@ -8,6 +9,7 @@ echo "Set my_dir ${my_dir}"
 # Validate required environment variables
 : "${GDAS_CI_ROOT:?Error: GDAS_CI_ROOT environment variable is not set}"
 : "${GDAS_CI_HOST:?Error: GDAS_CI_HOST environment variable is not set}"
+: "${GITHUB_RUN_ID:?Error: GITHUB_RUN_ID environment variable is not set. This script expects to run in a GitHub Actions environment.}"
 
 # Upstream repository constant for gh CLI operations
 UPSTREAM_REPO="NOAA-EMC/GDASApp"
@@ -249,7 +251,25 @@ for pr in $open_pr_list; do
       ci_status=$?
       echo "Finished running run_ci.sh with ci_status ${ci_status} at $(date)"
 
-      gh pr comment "$pr" --repo "$UPSTREAM_REPO" --body-file "$PR_TEST_DIR/$pr/output_${commit}"
+      # Generate summary and add log URL
+      LOG_FILE="$PR_TEST_DIR/$pr/output_${commit}"
+      SUMMARY_FILE="$PR_TEST_DIR/$pr/summary_${commit}"
+      LOG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+      echo "### CI Run Summary for PR #${pr} (Commit: $commit)" > "$SUMMARY_FILE"
+      echo "" >> "$SUMMARY_FILE"
+      echo "Full logs: $LOG_URL" >> "$SUMMARY_FILE"
+      echo "" >> "$SUMMARY_FILE"
+      echo "#### First 10 lines of output:" >> "$SUMMARY_FILE"
+      head -n 10 "$LOG_FILE" >> "$SUMMARY_FILE"
+      echo "" >> "$SUMMARY_FILE"
+      echo "#### Last 10 lines of output:" >> "$SUMMARY_FILE"
+      tail -n 10 "$LOG_FILE" >> "$SUMMARY_FILE"
+      echo "" >> "$SUMMARY_FILE"
+      echo "CI Status: $([[ $ci_status -eq 0 ]] && echo "Passed" || echo "Failed")" >> "$SUMMARY_FILE"
+
+
+      gh pr comment "$pr" --repo "$UPSTREAM_REPO" --body-file "$SUMMARY_FILE"
       if [[ $ci_status -eq 0 ]]; then
         gh pr edit "$pr" --repo "$UPSTREAM_REPO" --remove-label "${CI_LABEL}-Running" --add-label "${CI_LABEL}-Passed"
       else
