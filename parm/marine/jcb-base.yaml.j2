@@ -129,8 +129,8 @@ marine_forecast_timestep: PT3H
 
 # Background error model
 {% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
-# Identity until marinebmat calibrates i-jedi diffusion parameters (soca's cannot be read)
-background_error_file: marine_ijedi_background_error_static_identity
+# Univariate diffusion B from the i-jedi marinebmat chain (soca's diffusion files cannot be read)
+background_error_file: marine_ijedi_background_error_static_diffusion
 {% else %}
 background_error_file: '{{berror_model}}'
 {% endif %}

@@ -5,6 +5,23 @@ jedi_config:
         mpi_cmd: '{{ APRUN_MARINEBMAT }}'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_gridgen
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+    # i-jedi: scales and parametric stddev in one run, then one diffusion calibration (the soca
+    # grid is still generated: the marine analysis and its post-processing use soca_gridspec.nc)
+    ijedi_bparams:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECglobal }}/gdas_ijedi_marine_bparams.x'
+        mpi_cmd: '{{ APRUN_MARINEBMAT }}'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_algo: ijedi_marine_bparams
+    ijedi_diffusion:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECglobal }}/gdas_ijedi.x'
+        mpi_cmd: '{{ APRUN_MARINEBMAT }}'
+        jedi_args: ['errortoolbox']
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_algo: ijedi_parameters_diffusion
+{% else %}
     soca_diagb:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECglobal }}/gdas_soca_diagb.x'
@@ -48,6 +65,7 @@ jedi_config:
         mpi_cmd: '{{ APRUN_MARINEBMAT }}'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_ensweights
+{% endif %}
 
 data_in:
     mkdir:
@@ -78,9 +96,11 @@ data_out:
     - ['{{ DATAstaticb }}/hz_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}hz.nc']
     - ['{{ DATAstaticb }}/vt_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}vt.nc']
 
+{% if JEDI_MARINE_INTERFACE | default('soca') != 'ijedi' %}
     # diag B rename (do we really need this?)
     - ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc']
     - ['{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.incr.{{ WINDOW_END | to_isotime }}.nc', '{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.nc']
+{% endif %}
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
     - ['{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc','{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.nc']
     - ['{{ DATAstaticb }}/ice.bkgerr_ens_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc','{{ DATAstaticb }}/ice.bkgerr_ens_stddev.nc']
@@ -88,7 +108,9 @@ data_out:
 
     # diag B
     - ['{{ DATAstaticb }}/ocn.bkgerr_parametric_stddev.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}bkgerr_parametric_stddev.nc']
+{% if JEDI_MARINE_INTERFACE | default('soca') != 'ijedi' %}
     - ['{{ DATAstaticb }}/ice.bkgerr_parametric_stddev.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}bkgerr_parametric_stddev.nc']
+{% endif %}
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
     - ['{{ DATAstaticb }}/ocn.bkgerr_ens_stddev.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}bkgerr_ens_stddev.nc']
     - ['{{ DATAstaticb }}/ice.bkgerr_ens_stddev.nc', '{{ COMOUT_ICE_BMATRIX }}/{{ APREFIX }}bkgerr_ens_stddev.nc']
@@ -112,12 +134,17 @@ data_out:
     - ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}bmat_fields_metadata.yaml']
     - ['{{ DATA }}/gridgen.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}gridgen.yaml']
     - ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}obsop_name_map.yaml']
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+    - ['{{ DATA }}/ijedi_bparams.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}ijedi_bparams.yaml']
+    - ['{{ DATA }}/ijedi_diffusion.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}ijedi_diffusion.yaml']
+{% else %}
     - ['{{ DATA }}/soca_chgres.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_chgres.yaml']
     - ['{{ DATA }}/soca_diagb.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_diagb.yaml']
     - ['{{ DATA }}/soca_parameters_diffusion_hz.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_parameters_diffusion_hz.yaml']
     - ['{{ DATA }}/soca_parameters_diffusion_vt.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_parameters_diffusion_vt.yaml']
     - ['{{ DATA }}/soca_setcorscales.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_setcorscales.yaml']
     - ['{{ DATA }}/soca_vtscales.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_vtscales.yaml']
+{% endif %}
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
     - ['{{ DATA }}/soca_ensb.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_ensb.yaml']
     - ['{{ DATA }}/soca_ensweights.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}soca_ensweights.yaml']
