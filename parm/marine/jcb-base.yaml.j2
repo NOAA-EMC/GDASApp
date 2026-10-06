@@ -17,8 +17,6 @@ model_file: marine_ijedi_model_pseudo
 initial_condition_file: marine_ijedi_background  # Initial conditions for 4D apps is background
 output_file: marine_ijedi_output
 final_increment_file: marine_ijedi_final_increment
-# No sea-ice state in i-jedi yet: drop the SST/ADT sea-ice QC checks
-marine_sea_ice_checks: false
 {% else %}
 model_file: marine_model_pseudo
 initial_condition_file: marine_background  # Initial conditions for 4D apps is background
@@ -112,6 +110,15 @@ marine_ijedi_field_io_names:
     sea_water_potential_temperature: Temp
     sea_water_salinity: Salt
     sea_surface_height_above_geoid: ave_ssh
+
+# Background states: the analysis variables plus the sea-ice fraction from the CICE background, which the
+# marine QC checks need (sea ice is read, not analysed)
+marine_ijedi_background_variables: {{ _analysis_vars + ['sea_ice_area_fraction'] }}
+marine_ijedi_background_io_names:
+    sea_water_potential_temperature: Temp
+    sea_water_salinity: Salt
+    sea_surface_height_above_geoid: ave_ssh
+    sea_ice_area_fraction: aice_h
 
 # Static B central block variables (ocean subset; no balance operator in i-jedi)
 marine_ijedi_saber_central_block_variables: {{ _analysis_vars }}
