@@ -36,7 +36,7 @@ soca increment:
   basename: ./Data/
   ocn_filename: 'ocn.3dvarfgat_pseudo.incr.{{ marine_window_middle_iso }}.nc'
 {% if 'ice' in _incpp_domains %}
-  ice_filename: 'ice.3dvarfgat_pseudo.incr.{{ marine_window_middle_iso }}.nc'
+  ice_filename: '{{ marine_incpostproc_ice_increment_file | default('ice.3dvarfgat_pseudo.incr.' ~ marine_window_middle_iso ~ '.nc') }}'
 {% endif %}
   read_from_file: 1
 

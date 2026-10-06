@@ -37,19 +37,12 @@ final_prints_frequency: PT3H
 number_of_outer_loops: 1
 
 # Analysis variables
-{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
-# i-jedi has no sea-ice fields yet: the analysis is ocean only
-{% set _analysis_vars = ['sea_water_salinity',
-                         'sea_water_potential_temperature',
-                         'sea_surface_height_above_geoid'] %}
-{% else %}
 {% set _analysis_vars = ['sea_ice_area_fraction',
                          'sea_ice_thickness',
                          'sea_ice_snow_thickness',
                          'sea_water_salinity',
                          'sea_water_potential_temperature',
                          'sea_surface_height_above_geoid'] %}
-{% endif %}
 
 analysis_variables: {{ _analysis_vars }}
 
@@ -104,27 +97,40 @@ marine_ijedi_nz: '{{MOM6_LEVS}}'
 marine_ijedi_layout_x: {{ layout_marine_ijedi_x | default(1, true) }}
 marine_ijedi_layout_y: {{ layout_marine_ijedi_y | default(1, true) }}
 
-# i-jedi state variables and file-variable name map (ocean only)
-marine_ijedi_state_variables: {{ _analysis_vars }}
+# i-jedi ocean state variables (B-matrix calibration) and the file-variable name map used for
+# writing (increment, analysis, B stddev); the sea-ice names are soca's, so the soca increment
+# post-processing reads the i-jedi increment
+marine_ijedi_state_variables: ['sea_water_salinity', 'sea_water_potential_temperature',
+                               'sea_surface_height_above_geoid']
 marine_ijedi_field_io_names:
     sea_water_potential_temperature: Temp
     sea_water_salinity: Salt
     sea_surface_height_above_geoid: ave_ssh
+    sea_ice_area_fraction: aice_h
+    sea_ice_thickness: hi_div_aice_h
+    sea_ice_snow_thickness: hs_div_aice_h
 
-# Background states: the analysis variables plus the sea-ice fraction from the CICE background, which the
-# marine QC checks need (sea ice is read, not analysed)
-marine_ijedi_background_variables: {{ _analysis_vars + ['sea_ice_area_fraction'] }}
+# Background states: the analysis variables, sea ice from the CICE history backgrounds with the
+# thicknesses per ice area derived from the per-cell volumes (as soca reads them)
+marine_ijedi_background_variables: {{ _analysis_vars }}
+marine_ijedi_background_derived_variables: ['sea_ice_thickness', 'sea_ice_snow_thickness']
 marine_ijedi_background_io_names:
     sea_water_potential_temperature: Temp
     sea_water_salinity: Salt
     sea_surface_height_above_geoid: ave_ssh
     sea_ice_area_fraction: aice_h
+    sea_ice_volume: hi_h
+    sea_ice_snow_volume: hs_h
 
-# Static B central block variables (ocean subset; no balance operator in i-jedi)
-marine_ijedi_saber_central_block_variables: {{ _analysis_vars }}
+# Static B central block variables (as soca; no balance operator in i-jedi)
+marine_ijedi_saber_central_block_variables: ['sea_ice_area_fraction', 'sea_water_salinity',
+                                             'sea_water_potential_temperature',
+                                             'sea_surface_height_above_geoid']
 
-# The increment post-processing (soca-based) runs in ocean-only mode
-marine_incpostproc_domains: ['ocn']
+# i-jedi writes ocean and sea ice into one increment file: the soca increment post-processing
+# reads the sea ice from it
+marine_incpostproc_ice_increment_file: 'ocn.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc'
+
 {% endif %}
 
 # Initial conditions
