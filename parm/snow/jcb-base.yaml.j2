@@ -134,7 +134,7 @@ snow_obsbiascovout_prefix: "{{APREFIX}}"
 snow_obsbiascovout_suffix: ".satbias_cov.nc"
 
 # Ensemble mean things
-snow_number_ensemble_members: {{NMEM_ENS}}
+snow_number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
 
 # Local Ensemble DA (LETKF)
 # -------------------------
