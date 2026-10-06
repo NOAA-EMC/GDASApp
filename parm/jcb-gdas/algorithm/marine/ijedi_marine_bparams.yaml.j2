@@ -1,7 +1,8 @@
 # Marine static-B parameters on the i-jedi MOM6 geometry (gdas_ijedi_marine_bparams.x), from the
 # f009 background: horizontal scales (as soca_setcorscales), vertical scales (as soca_vtscales /
-# calc_scales.py) and the parametric stddev (as soca_diagb), with the same parameter values. At
-# 5 deg the analysis geometry is the native one, so there is no change of resolution.
+# calc_scales.py) and the parametric stddev (as soca_diagb, sea ice included), with the same
+# parameter values. At 5 deg the analysis geometry is the native one, so there is no change of
+# resolution.
 geometry:
 {% filter indent(width=2) %}
 {% include 'marine_ijedi_geometry_background.yaml.j2' %}
@@ -58,16 +59,19 @@ vertical scales:
       field io names: {sea_water_potential_temperature: Temp}
 
 background error stddev:
-  variables: {{ marine_ijedi_state_variables + ['sea_water_cell_thickness'] }}
+  variables: {{ marine_ijedi_background_variables + ['sea_water_cell_thickness'] }}
   background:
     date: '{{ marine_window_end_iso }}'
-    state variables: {{ marine_ijedi_state_variables + ['sea_water_cell_thickness'] }}
+    state variables: {{ marine_ijedi_background_variables + ['sea_water_cell_thickness'] }}
+    derived variables: {{ marine_ijedi_background_derived_variables }}
     io:
       filetype: mom6
       datapath: ./bkg
       ocn_file: ocean.bkg.f009.nc
+      ice_file: ice.bkg.f009.nc
       field io names: {sea_water_potential_temperature: Temp, sea_water_salinity: Salt,
-                       sea_surface_height_above_geoid: ave_ssh, sea_water_cell_thickness: h}
+                       sea_surface_height_above_geoid: ave_ssh, sea_water_cell_thickness: h,
+                       sea_ice_area_fraction: aice_h, sea_ice_volume: hi_h, sea_ice_snow_volume: hs_h}
   vertical e-folding scale dynamic: 200.0
   vertical e-folding scale static: 300.0
   stencil growth iterations: 100
@@ -87,4 +91,6 @@ background error stddev:
       datapath: ./staticb
       ocn_file: ocn.bkgerr_parametric_stddev.nc
       field io names: {sea_water_potential_temperature: Temp, sea_water_salinity: Salt,
-                       sea_surface_height_above_geoid: ave_ssh, sea_water_cell_thickness: h}
+                       sea_surface_height_above_geoid: ave_ssh, sea_water_cell_thickness: h,
+                       sea_ice_area_fraction: aice_h, sea_ice_thickness: hi_div_aice_h,
+                       sea_ice_snow_thickness: hs_div_aice_h}

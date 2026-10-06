@@ -4,6 +4,7 @@ states:
 {% for marine_pseudo_model_state in marine_pseudo_model_states %}
 - date: '{{ marine_pseudo_model_state.date }}'
   state variables: {{ marine_ijedi_background_variables }}
+  derived variables: {{ marine_ijedi_background_derived_variables }}
   io:
     filetype: mom6
     datapath: '{{ marine_pseudo_model_state.basename }}'

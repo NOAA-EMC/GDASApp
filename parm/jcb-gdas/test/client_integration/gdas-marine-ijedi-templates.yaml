@@ -30,7 +30,8 @@ window_length: PT6H
 bound_to_include: begin
 minimizer: RPCG
 final_diagnostics_departures: oman
-analysis_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid]
+analysis_variables: [sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness, sea_water_salinity,
+                     sea_water_potential_temperature, sea_surface_height_above_geoid]
 number_of_outer_loops: 1
 
 
@@ -48,23 +49,31 @@ marine_ijedi_layout_x: 2
 marine_ijedi_layout_y: 1
 marine_ijedi_minimum_depth: 0.0
 
-# i-jedi state variables and file-variable name map (ocean only)
+# i-jedi ocean state variables (B calibration) and file-variable name map for writing
 marine_ijedi_state_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid]
 marine_ijedi_field_io_names:
   sea_water_potential_temperature: Temp
   sea_water_salinity: Salt
   sea_surface_height_above_geoid: ave_ssh
+  sea_ice_area_fraction: aice_h
+  sea_ice_thickness: hi_div_aice_h
+  sea_ice_snow_thickness: hs_div_aice_h
 
-# Background states (analysis variables plus the sea-ice fraction from the CICE background)
-marine_ijedi_background_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, sea_ice_area_fraction]
+# Background states (sea ice from the CICE history, thicknesses derived from the volumes)
+marine_ijedi_background_variables: [sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness,
+                                    sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid]
+marine_ijedi_background_derived_variables: [sea_ice_thickness, sea_ice_snow_thickness]
 marine_ijedi_background_io_names:
   sea_water_potential_temperature: Temp
   sea_water_salinity: Salt
   sea_surface_height_above_geoid: ave_ssh
   sea_ice_area_fraction: aice_h
+  sea_ice_volume: hi_h
+  sea_ice_snow_volume: hs_h
 
 # Static B central block variables
-marine_ijedi_saber_central_block_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid]
+marine_ijedi_saber_central_block_variables: [sea_ice_area_fraction, sea_water_salinity, sea_water_potential_temperature,
+                                             sea_surface_height_above_geoid]
 
 # Background
 marine_background_time: '2024-01-31T21:00:00Z'
