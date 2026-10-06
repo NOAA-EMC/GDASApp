@@ -9,39 +9,59 @@
         type: H5File
         obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
         missing file action: warn
+      obsgrouping:
+        group variables: ["stationIdentification"]
+        sort variable: "pressure"
+        sort order: "descending"
     obsdataout:
       engine:
         type: H5File
         obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
-    simulated variables: [stationPressure]
-    observed variables: [stationPressure]
+    simulated variables: [stationPressure, virtualTemperature, airTemperature]
+    observed variables: [stationPressure, virtualTemperature, airTemperature]
 
   # Observation Operator
   # -------------------
   obs operator:
-    name: SfcCorrected
-    correction scheme to use: GSL
-    station_altitude: height
-    geovar_sfc_geomz: height_above_mean_sea_level_at_surface
-    geovar_geomz: geopotential_height
-    observed temperature variable: airTemperature
-    observed specific humidity variable: specificHumidity
-    variables:
-    - name: stationPressure
+    name: Composite
+    components:
+    - name: SfcCorrected
+      correction scheme to use: GSL
+      station_altitude: height
+      geovar_sfc_geomz: height_above_mean_sea_level_at_surface
+      geovar_geomz: geopotential_height
+      observed temperature variable: airTemperature
+      observed specific humidity variable: specificHumidity
+      variables:
+      - name: stationPressure
+    - name: VertInterp
+      vertical coordinate: air_pressure
+      observation vertical coordinate: pressure
+      observation vertical coordinate group: MetaData
+      interpolation method: log-linear
+      variables:
+      - name: virtualTemperature
+      - name: airTemperature
 
   # Linear Observation Operator
   # ---------------------------
   linear obs operator:
-    name: Identity
-    variables:
-    - name: stationPressure
+    name: Composite
+    components:
+    - name: Identity
+      variables:
+      - name: stationPressure
+    - name: VertInterp
+      variables:
+      - name: virtualTemperature
+      - name: airTemperature
 
   # Observation Pre Filters (QC)
   # ------------------------------
 
-{% set assim_variables = ['stationPressure'] %}
+{% set assim_variables = ['stationPressure', 'virtualTemperature', 'airTemperature'] %}
 {% set assim_obstypes         = [120] %}
 
   obs pre filters:
@@ -116,6 +136,113 @@
       name: inflate error
       inflation factor: 1.2
  
+  # Temperature (radiosonde, type 120): assimilate Tv where it is the top of the
+  # prepbufr event stack, dry T elsewhere (GSI default, tsensible=.false.)
+  # Quality marks (noiqc=.true. -> lim_qm=8)
+  - filter: RejectList
+    filter variables:
+    - name: virtualTemperature
+    where:
+    - variable: QualityMarker/virtualTemperature
+      is_in: 8-15
+      value: is_not_valid
+    where operator: or
+
+  - filter: RejectList
+    filter variables:
+    - name: airTemperature
+    where:
+    - variable: QualityMarker/airTemperature
+      is_in: 8-15
+      value: is_not_valid
+    where operator: or
+
+  - filter: RejectList
+    filter variables:
+    - name: virtualTemperature
+    - name: airTemperature
+    where:
+    - variable: QualityMarker/pressure
+      is_in: 8-15
+
+  # Keep one profile per station, closest to the analysis time (GSI l_closeobs=.true.)
+  - filter: Temporal Thinning
+    filter variables:
+    - name: virtualTemperature
+    - name: airTemperature
+    category_variable:
+      name: MetaData/stationIdentification
+    records_are_single_obs: true
+    min_spacing: PT6H
+    seed_time: '{{ atmosphere_background_time_iso }}'
+    action:
+      name: reject
+
+  # Initial error is the prepbufr obs error, ObsError (GSI oberrflg=.false.)
+  - filter: Variable Assignment
+    assignments:
+    - name: InputObsError/virtualTemperature
+      type: float
+      source variable: ObsErrorData/virtualTemperature
+    - name: InputObsError/airTemperature
+      type: float
+      source variable: ObsErrorData/airTemperature
+
+  # Inflate errors for QM 3 or 7, and for p < 100 hPa (read_prepbufr)
+  - filter: Perform Action
+    filter variables:
+    - name: virtualTemperature
+    where:
+    - variable: QualityMarker/virtualTemperature
+      is_in: 3, 7
+    action:
+      name: inflate error
+      inflation factor: 1.2
+
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    where:
+    - variable: QualityMarker/airTemperature
+      is_in: 3, 7
+    action:
+      name: inflate error
+      inflation factor: 1.2
+
+  - filter: Perform Action
+    filter variables:
+    - name: virtualTemperature
+    - name: airTemperature
+    where:
+    - variable: MetaData/pressure
+      maxvalue: 9999.0
+    action:
+      name: inflate error
+      inflation factor: 1.2
+
+  - filter: Bounds Check
+    filter variables:
+    - name: virtualTemperature
+    test variables:
+    - name: ObsErrorData/virtualTemperature
+    minvalue: 0.0
+    maxvalue: 1000
+
+  - filter: Bounds Check
+    filter variables:
+    - name: airTemperature
+    test variables:
+    - name: ObsErrorData/airTemperature
+    minvalue: 0.0
+    maxvalue: 1000
+
+  - filter: Bounds Check
+    filter variables:
+    - name: virtualTemperature
+    - name: airTemperature
+    minvalue: 100
+    maxvalue: 400
+
   # Observation Post Filters (QC)
   # -----------------------------
   obs post filters:
@@ -227,6 +354,155 @@
         name: QualityMarker/height
       is_in: 7, 8, 10-14
 
+  # Temperature: errormod (qcmod.f90). GSI treats Tv and dry-T levels as one profile,
+  # so compute the factor from airTemperature before dry T is rejected at Tv levels.
+  - filter: Variable Assignment
+    assignments:
+    - name: ErrormodFactor/airTemperature
+      type: float
+      function:
+        name: ObsFunction/ObsErrorFactorConventional
+        options:
+          inflate variables: [airTemperature]
+          pressure: MetaData/pressure
+
+  - filter: Perform Action
+    filter variables:
+    - name: virtualTemperature
+    action:
+      name: inflate error
+      inflation variable:
+        name: ErrormodFactor/airTemperature
+
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: inflate error
+      inflation variable:
+        name: ErrormodFactor/airTemperature
+
+  # Use Tv where available, dry T only where Tv is missing
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    where:
+    - variable: ObsValue/virtualTemperature
+      value: is_valid
+    action:
+      name: reject
+
+  # Below-surface error term, added after the multiplicative inflations
+  # (setupt: err + 8*rlow; global l_sfcobserror_ramp_t=.false.)
+  - filter: Perform Action
+    filter variables:
+    - name: virtualTemperature
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorPressureCheck
+        options:
+          variable: virtualTemperature
+          surface observation error ramp: false
+          inflation factor: 8.0
+
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorPressureCheck
+        options:
+          variable: airTemperature
+          surface observation error ramp: false
+          inflation factor: 8.0
+
+  # Gross check on errors bounded by ermin/ermax (convinfo: gross 8.0, ermax 5.6, ermin 1.3),
+  # then restore the unbounded errors
+  - filter: Variable Assignment
+    apply at iterations: 0,1
+    assignments:
+    - name: TempObsErrorData/virtualTemperature
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsErrorData/virtualTemperature
+    - name: TempObsErrorData/airTemperature
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsErrorData/airTemperature
+
+{% for var in ['virtualTemperature', 'airTemperature'] %}
+  - filter: Perform Action
+    apply at iterations: 0,1
+    filter variables:
+    - name: {{ var }}
+    action:
+      name: assign error
+      error parameter: 1.3
+    where:
+    - variable:
+        name: ObsErrorData/{{ var }}
+      maxvalue: 1.3
+    - variable:
+        name: ObsErrorData/{{ var }}
+      value: is_valid
+
+  - filter: Perform Action
+    apply at iterations: 0,1
+    filter variables:
+    - name: {{ var }}
+    action:
+      name: assign error
+      error parameter: 5.6
+    where:
+    - variable:
+        name: ObsErrorData/{{ var }}
+      minvalue: 5.6
+    - variable:
+        name: ObsErrorData/{{ var }}
+      value: is_valid
+
+  - filter: Background Check
+    apply at iterations: 0,1
+    filter variables:
+    - name: {{ var }}
+    threshold: 8.0
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_not_in: 3
+    action:
+      name: reject
+
+  - filter: Background Check
+    apply at iterations: 0,1
+    filter variables:
+    - name: {{ var }}
+    threshold: 5.6
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 3
+    action:
+      name: reject
+
+  - filter: Perform Action
+    apply at iterations: 0,1
+    filter variables:
+    - name: {{ var }}
+    action:
+      name: assign error
+      error function: TempObsErrorData/{{ var }}
+    where:
+    - variable:
+        name: TempObsErrorData/{{ var }}
+      value: is_valid
+{% endfor %}
   # End of Filters
 
   # GeoVaLs for Driving Observation Operators (testing mode)
