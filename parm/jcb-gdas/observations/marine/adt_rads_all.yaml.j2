@@ -49,12 +49,10 @@
                       ObsError/absoluteDynamicTopography]
           coefs: [0.2,
                   3.0]
-{% if marine_sea_ice_checks | default(true) %}
   - filter: Domain Check
     where:
     - variable: { name: GeoVaLs/sea_ice_area_fraction}
       maxvalue: 0.00001
-{% endif %}
   - filter: Domain Check
     where:
     - variable: {name: GeoVaLs/distance_from_coast}

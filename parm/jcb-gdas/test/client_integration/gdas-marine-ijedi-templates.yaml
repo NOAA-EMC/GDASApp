@@ -13,8 +13,6 @@ app_path_observation_chronicle: gdas/observation_chronicle/marine
 # i-jedi interface: route the model fragment includes to the marine_ijedi_* templates
 # ------------------------------------------------------------------------------------
 model_component: marine_ijedi_
-# No sea-ice state in i-jedi yet: drop the SST/ADT sea-ice QC checks (as the jcb-base does)
-marine_sea_ice_checks: false
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
@@ -56,6 +54,14 @@ marine_ijedi_field_io_names:
   sea_water_potential_temperature: Temp
   sea_water_salinity: Salt
   sea_surface_height_above_geoid: ave_ssh
+
+# Background states (analysis variables plus the sea-ice fraction from the CICE background)
+marine_ijedi_background_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, sea_ice_area_fraction]
+marine_ijedi_background_io_names:
+  sea_water_potential_temperature: Temp
+  sea_water_salinity: Salt
+  sea_surface_height_above_geoid: ave_ssh
+  sea_ice_area_fraction: aice_h
 
 # Static B central block variables
 marine_ijedi_saber_central_block_variables: [sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid]
