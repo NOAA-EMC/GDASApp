@@ -47,6 +47,8 @@ void postprocessIce(const oops::Geometry<MODEL> & geom, const oops::State<MODEL>
 /// does not touch, rounds to a set precision, QCs the increment against the background (water
 /// column stability, steric height, analysis bounds), postprocesses the sea ice and writes the
 /// result. Port of gdasapp::SocaIncrHandler / PostProcIncr; with soca it gives the same output.
+/// With an output configuration in soca's naming (datadir, exp, type, output file) the written
+/// files are renamed per domain; otherwise the model writes them where its io configuration says.
 template <typename MODEL>
 class MarineIncrHandler : public oops::Application {
   typedef oops::Geometry<MODEL>             Geometry_;
@@ -86,17 +88,20 @@ class MarineIncrHandler : public oops::Application {
       zeroVars = oops::Variables(fullConfig, "set increment variables to zero");
     }
 
-    // Input increments: one, or a list of members from a template
+    // Input increments: one (`increment`), or a list of members from a template (`increments`);
+    // `soca increment(s)` are accepted as well
     eckit::LocalConfiguration inputIncrConfig;
     int ensSize = 1;
     std::string pattern;
-    if (fullConfig.has("soca increments.template")) {
-      fullConfig.get("soca increments.template", inputIncrConfig);
-      fullConfig.get("soca increments.number of increments", ensSize);
-      fullConfig.get("soca increments.pattern", pattern);
+    const std::string incrsKey = fullConfig.has("increments") ? "increments" : "soca increments";
+    if (fullConfig.has(incrsKey + ".template")) {
+      fullConfig.get(incrsKey + ".template", inputIncrConfig);
+      fullConfig.get(incrsKey + ".number of increments", ensSize);
+      fullConfig.get(incrsKey + ".pattern", pattern);
     } else {
-      fullConfig.get("soca increment", inputIncrConfig);
+      fullConfig.get(fullConfig.has("increment") ? "increment" : "soca increment", inputIncrConfig);
     }
+    const std::string bkgKey = fullConfig.has("background") ? "background" : "soca background";
     oops::Log::info() << "increments: " << std::endl << inputIncrConfig << std::endl;
     const eckit::LocalConfiguration outputIncrConfig(fullConfig, "output increment");
 
@@ -137,7 +142,7 @@ class MarineIncrHandler : public oops::Application {
       }
 
       // Background
-      State_ xx(geom, eckit::LocalConfiguration(fullConfig, "soca background"));
+      State_ xx(geom, eckit::LocalConfiguration(fullConfig, bkgKey));
 
       // QC the increment
       if (fullConfig.has("qc increment")) {
