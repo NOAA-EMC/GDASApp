@@ -125,13 +125,16 @@ inline void qcIncrementFields(atlas::FieldSet& xbFs,
   int niterations = config.getInt("increment stability iterations", 10);
   int nSmoothingIterations = config.getInt("increment smoothing iterations", 30);
   const double rhoMinGrad = config.getDouble("min stable density gradient", 1e-4);
+  // Skip the interfaces with a massless layer (otherwise only those between two massless layers
+  // are skipped, and the fill values of the layers below the bottom enter the stability check)
+  const bool skipMassless = config.getBool("skip massless interfaces", false);
 
   // Steric height increment and stability checks
   applyWaterColumnStabilityCheck(dxFs,
                                  viewTempBkg, viewSaltBkg,
                                  viewHocn, viewDepth, lonlat,
                                  niterations, rhoMinGrad, nSmoothingIterations,
-                                 viewBathy, meshConn);
+                                 viewBathy, meshConn, skipMassless);
 
   for (atlas::idx_t jnode = 0; jnode < viewTempIncr.shape(0); ++jnode) {
     // Skip ghost and land nodes
