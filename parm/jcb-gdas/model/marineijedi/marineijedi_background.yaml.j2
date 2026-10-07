@@ -1,0 +1,23 @@
+date: "{{ marineijedi_background_time }}"
+state variables:
+- sea_ice_area_fraction
+- sea_ice_thickness
+- sea_ice_snow_thickness
+- sea_water_salinity
+- sea_water_potential_temperature
+- sea_surface_height_above_geoid
+- sea_water_depth
+io:
+  filetype: mom6
+  datapath: {{ marineijedi_background_path }}
+  ocn_file: MOM.res.nc
+  ice_file: cice6.nc
+  fix_file: {{ marineijedi_fix_file | default('mom6_structuredgeometry_cache_grid.nc') }}
+  field io names:
+    sea_water_potential_temperature: Temp
+    sea_water_salinity: Salt
+    sea_surface_height_above_geoid: ave_ssh
+    sea_water_depth: depth
+    sea_ice_area_fraction: aice_h
+    sea_ice_thickness: hi_h
+    sea_ice_snow_thickness: hs_h

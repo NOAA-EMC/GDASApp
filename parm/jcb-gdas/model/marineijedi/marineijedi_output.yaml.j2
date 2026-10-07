@@ -1,0 +1,12 @@
+io:
+  filetype: mom6
+  datapath: {{ marineijedi_output_dir }}
+  ocn_file: {{ marineijedi_output_exp }}.an.nc
+  ice_file: {{ marineijedi_output_exp }}.ice.an.nc
+  field io names:
+    sea_water_potential_temperature: Temp
+    sea_water_salinity: Salt
+    sea_surface_height_above_geoid: ave_ssh
+    sea_ice_area_fraction: aice_h
+    sea_ice_thickness: hi_h
+    sea_ice_snow_thickness: hs_h

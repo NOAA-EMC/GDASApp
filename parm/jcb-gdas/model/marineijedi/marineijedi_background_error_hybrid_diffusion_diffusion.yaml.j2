@@ -1,0 +1,78 @@
+covariance model: hybrid
+components:
+- covariance:
+    covariance model: SABER
+    change background resolution: true
+    saber central block:
+      saber block name: diffusion
+      read:
+        groups:
+        - variables:
+          - sea_water_potential_temperature
+          - sea_water_salinity
+          - sea_surface_height_above_geoid
+          - sea_ice_area_fraction
+          horizontal:
+            filepath: ./staticb/hz_ocean
+          vertical:
+            levels: {{ marineijedi_vt_levels }}
+            filepath: ./staticb/vt_ocean
+  weight:
+    value: 1.00
+
+{% if marineijedi_ensemble_b | default(false) %}
+- covariance:
+    covariance model: SABER
+    ensemble:
+      members from template:
+        template:
+          date: '{{ marineijedi_stddev_time }}'
+          state variables:
+          - sea_water_potential_temperature
+          - sea_water_salinity
+          - sea_surface_height_above_geoid
+          - sea_ice_area_fraction
+          - sea_ice_thickness
+          - sea_ice_snow_thickness
+          io:
+            filetype: mom6
+            datapath: ../ensdata
+            ocn_file: ocn.pert.%mem%.nc
+            ice_file: ice.pert.%mem%.nc
+            field io names:
+              sea_water_potential_temperature: Temp
+              sea_water_salinity: Salt
+              sea_surface_height_above_geoid: ave_ssh
+              sea_ice_area_fraction: aice_h
+              sea_ice_thickness: hi_h
+              sea_ice_snow_thickness: hs_h
+        pattern: '%mem%'
+        nmembers: {{ marineijedi_number_ensemble_members }}
+    saber central block:
+      saber block name: Ensemble
+      localization:
+        saber central block:
+          saber block name: diffusion
+          read:
+            groups:
+            - variables:
+              - sea_water_potential_temperature
+              - sea_water_salinity
+              - sea_surface_height_above_geoid
+              - sea_ice_area_fraction
+              multivariate strategy: duplicated
+              horizontal:
+                filepath: ./staticb/hz_ocean
+              vertical:
+                strategy: duplicated
+  weight:
+    date: '{{ marineijedi_stddev_time }}'
+    io:
+      filetype: mom6
+      datapath: ./
+      ocn_file: ocean.ens_weights.nc
+      ice_file: ice.ens_weights.nc
+      field io names:
+        sea_water_potential_temperature: Temp
+        sea_water_salinity: Salt
+{% endif %}

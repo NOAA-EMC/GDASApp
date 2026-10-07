@@ -1,0 +1,18 @@
+name: PseudoModel
+tstep: {{ marineijedi_forecast_timestep }}
+states:
+{% for marineijedi_pseudo_model_state in marineijedi_pseudo_model_states %}
+- date: '{{ marineijedi_pseudo_model_state.date }}'
+  io:
+    filetype: mom6
+    datapath: '{{ marineijedi_pseudo_model_state.datapath }}'
+    ocn_file: '{{ marineijedi_pseudo_model_state.ocn_file }}'
+    ice_file: '{{ marineijedi_pseudo_model_state.ice_file }}'
+    field io names:
+      sea_water_potential_temperature: Temp
+      sea_water_salinity: Salt
+      sea_surface_height_above_geoid: ave_ssh
+      sea_ice_area_fraction: aice_h
+      sea_ice_thickness: hi_h
+      sea_ice_snow_thickness: hs_h
+{% endfor %}
