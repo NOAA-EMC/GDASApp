@@ -12,13 +12,10 @@
 #include "atlas/field.h"
 #include "atlas/field/FieldSet.h"
 
-#include "../diagb/gdas_soca_diagb_utils.h"
-#include "../gdas_soca_utils.h"
-
 #include "oops/util/Logger.h"
 
-#include "soca/Increment/Increment.h"
-#include "soca/State/State.h"
+#include "gdas_marine_mesh.h"
+#include "gdas_marine_ocean_utils.h"
 
 namespace gdasapp {
 namespace incrqc {
@@ -90,7 +87,7 @@ inline void applyWaterColumnStabilityCheck(
     const double rhoMinGrad,
     const int nSmoothingIterations,
     const atlas::array::ArrayView<const double, 2>& viewBathy,
-    const gdasapp::diagb::utils::MeshBundle& meshConn) {
+    const gdasapp::marine::MeshBundle& meshConn) {
 
   auto viewTempIncr = atlas::array::make_view<double, 2>(dxFs["sea_water_potential_temperature"]);
   auto viewSaltIncr = atlas::array::make_view<double, 2>(dxFs["sea_water_salinity"]);
@@ -199,7 +196,7 @@ inline void applyWaterColumnStabilityCheck(
         if (viewBathy(jnode, 0) <= 0.0) continue;
 
         // Get neighbors for this node
-        auto neighbors = gdasapp::diagb::utils::get_neighbors_of_node(meshConn.mesh,
+        auto neighbors = gdasapp::marine::get_neighbors_of_node(meshConn.mesh,
                             meshConn.node2edge,
                             meshConn.edge2node,
                             jnode);

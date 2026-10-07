@@ -19,6 +19,8 @@
 
 #include "oops/util/DateTime.h"
 
+#include "../../marine/gdas_marine_mesh.h"
+
 namespace gdasapp {
 namespace diagb {
 namespace utils {
@@ -109,97 +111,14 @@ struct SocaDiagBConfig {
     }
 };
 // -----------------------------------------------------------------------------
-/**
- * @brief Bundles together Atlas mesh and related components for mesh operations
- *
- * MeshBundle provides a convenient way to group an Atlas mesh with its associated
- * function space, connectivity information, and ghost views. This simplifies
- * passing mesh-related data between functions.
- *
- * @note The constructor takes ownership of the provided mesh via move semantics.
- *
- * @member mesh The Atlas mesh
- * @member nodeColumns Function space for node columns with a halo of 1
- * @member node2edge Connectivity from nodes to edges
- * @member edge2node Connectivity from edges to nodes
- * @member ghostView Array view identifying ghost nodes
- */
-struct MeshBundle {
-  atlas::Mesh mesh;
-  atlas::functionspace::NodeColumns nodeColumns;
-  atlas::mesh::IrregularConnectivity const& node2edge;
-  atlas::mesh::MultiBlockConnectivity const& edge2node;
-  atlas::array::ArrayView<int, 1> ghostView;
-  atlas::array::ArrayView<double, 2> lonlat;
+/// Mesh with edges and a 1-node halo (moved to gdas_marine_mesh.h, model independent)
+using gdasapp::marine::MeshBundle;
+using gdasapp::marine::get_neighbors_of_node;
 
-
-  explicit MeshBundle(atlas::Mesh&& m)
-    : mesh(std::move(m)),
-      nodeColumns(mesh, atlas::option::halo(1)),
-      node2edge(mesh.nodes().edge_connectivity()),
-      edge2node(mesh.edges().node_connectivity()),
-      ghostView(atlas::array::make_view<int, 1>(nodeColumns.ghost())),
-      lonlat(atlas::array::make_view<double, 2>(nodeColumns.lonlat())) {}
-};
-
-/**
- * @brief Builds mesh connectivity from a SOCA geometry
- *
- * This function takes a SOCA geometry object and constructs an enhanced mesh with
- * the following additional connectivity information:
- *  - Edges
- *  - Node-to-edge connectivity
- *  - Halo of size 1
- *
- * @param geom The SOCA geometry object containing the base function space
- * @return MeshBundle A bundle containing the enhanced mesh with connectivity information
- */
-inline MeshBundle buildMeshConnectivity(const soca::Geometry & geom) {
-  auto originalNodeColumns = atlas::functionspace::NodeColumns(geom.functionSpace());
-  atlas::Mesh mesh = originalNodeColumns.mesh();
-
-  atlas::mesh::actions::build_edges(mesh);
-  atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
-  atlas::mesh::actions::build_halo(mesh, 1);
-
-  return MeshBundle(std::move(mesh));
+template <typename GEOMETRY>
+inline MeshBundle buildMeshConnectivity(const GEOMETRY & geom) {
+  return gdasapp::marine::buildMeshConnectivity(geom.functionSpace());
 }
-
-/**
- * @brief Gets the neighboring node indices of a given node in an Atlas mesh.
- *
- * Includes the node itself and its direct neighbors found via mesh edges.
- *
- * @param mesh The Atlas mesh object.
- * @param node2edge Node-to-edge connectivity.
- * @param edge2node Edge-to-node connectivity.
- * @param node The node index to query.
- * @return Vector of neighboring node indices (including `node` itself).
- */
-inline std::vector<int> get_neighbors_of_node(
-    const atlas::Mesh& mesh,
-    const atlas::mesh::IrregularConnectivity& node2edge,
-    const atlas::mesh::MultiBlockConnectivity& edge2node,
-    int node) {
-    std::vector<int> neighbors{};
-    neighbors.reserve(5);
-    neighbors.push_back(node);
-
-    if (node >= mesh.nodes().size()) {
-        return neighbors;
-    }
-
-    const int nb_edges = node2edge.cols(node);
-    for (int ie = 0; ie < nb_edges; ++ie) {
-        const int edge = node2edge(node, ie);
-        const int node0 = edge2node(edge, 0);
-        const int node1 = edge2node(edge, 1);
-        neighbors.push_back(node != node0 ? node0 : node1);
-    }
-
-    return neighbors;
-}
-
 // -----------------------------------------------------------------------------
 
 /**
