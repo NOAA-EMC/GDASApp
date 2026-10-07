@@ -105,7 +105,7 @@
     where:
     - variable:
         name: ObsValue/stationPressure
-      maxvalue: 50000.00
+      maxvalue: 50000.00 # reject station pressures below 500 hPa
 
   - filter: RejectList
     filter variables:
