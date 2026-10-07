@@ -159,8 +159,13 @@ class MarineIncrHandler : public oops::Application {
         postprocessIce(geom, xx, eckit::LocalConfiguration(fullConfig, "postprocess ice"));
       }
 
-      // Save the final increment
+      // Save the final increment, and optionally its sea-ice part to a separate file (for models
+      // whose io writes only the fields with a file name, e.g. i-jedi)
       result = save(dx, outputIncrConfig, i, domains);
+      if (fullConfig.has("output ice increment")) {
+        dx.write(eckit::LocalConfiguration(fullConfig, "output ice increment"));
+        this->getComm().barrier();
+      }
       oops::Log::debug() << "========= after appending layer and after saving:" << std::endl;
       oops::Log::debug() << dx << std::endl;
 
