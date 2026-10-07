@@ -9,39 +9,60 @@
         type: H5File
         obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
         missing file action: warn
+      obsgrouping:
+        group variables: ["stationIdentification"]
+        sort variable: "pressure"
+        sort order: "descending"
     obsdataout:
       engine:
         type: H5File
         obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
-    simulated variables: [stationPressure]
-    observed variables: [stationPressure]
+    simulated variables: [stationPressure, virtualTemperature, airTemperature]
+    observed variables: [stationPressure, virtualTemperature, airTemperature]
 
   # Observation Operator
   # -------------------
   obs operator:
-    name: SfcCorrected
-    correction scheme to use: GSL
-    station_altitude: height
-    geovar_sfc_geomz: height_above_mean_sea_level_at_surface
-    geovar_geomz: geopotential_height
-    observed temperature variable: airTemperature
-    observed specific humidity variable: specificHumidity
-    variables:
-    - name: stationPressure
+    name: Composite
+    components:
+    - name: SfcCorrected
+      correction scheme to use: GSL
+      station_altitude: height
+      geovar_sfc_geomz: height_above_mean_sea_level_at_surface
+      geovar_geomz: geopotential_height
+      observed temperature variable: airTemperature
+      observed specific humidity variable: specificHumidity
+      variables:
+      - name: stationPressure
+    - name: VertInterp
+      vertical coordinate: air_pressure
+      observation vertical coordinate: pressure
+      observation vertical coordinate group: MetaData
+      interpolation method: log-linear
+      variables:
+      - name: virtualTemperature
+      - name: airTemperature
 
   # Linear Observation Operator
   # ---------------------------
   linear obs operator:
-    name: Identity
-    variables:
-    - name: stationPressure
+    name: Composite
+    components:
+    - name: Identity
+      variables:
+      - name: stationPressure
+    - name: VertInterp
+      variables:
+      - name: virtualTemperature
+      - name: airTemperature
 
   # Observation Pre Filters (QC)
   # ------------------------------
 
-{% set assim_variables = ['stationPressure'] %}
+{% set temperature_variables = ['virtualTemperature', 'airTemperature'] %}
+{% set assim_variables = ['stationPressure'] + temperature_variables %}
 {% set assim_obstypes         = [120] %}
 
   obs pre filters:
@@ -50,13 +71,10 @@
   # reject all obs not of desired variable
   # --------------------------------
  
-  # discard obs outside of desired obs types
-  # NOTE: hard-coded "pressure" as var name, as ObsType not 
-  # present for stationPressure.
   - filter: Perform Action
     where:
     - variable:
-        name: ObsType/pressure
+        name: ObsType/pressure # hard-coded, as files don't have ObsType/stationPressure
       is_not_in: {{ assim_obstypes | join(', ') }}
     action:
       name: reduce obs space
@@ -78,15 +96,103 @@
 
   obs prior filters:
 
+  # stationPressure QC
+  # ---------------------------------
+
+  - filter: RejectList
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable:
+        name: ObsValue/stationPressure
+      maxvalue: 50000.00 # reject station pressures below 500 hPa
+
+  - filter: RejectList
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable:
+        name: QualityMarker/stationPressure
+      is_not_in: 0-3
+
+  - filter: RejectList
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable:
+        name: QualityMarker/height
+      is_in: 7, 8, 10-14
+
+  # temperature QC
+  # ---------------------------------
+
+{% for var in temperature_variables %}
+  - filter: RejectList
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 8-15
+      value: is_not_valid
+    where operator: or
+
+  - filter: RejectList
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/pressure
+      is_in: 8-15
+
+  - filter: Bounds Check
+    filter variables:
+    - name: {{ var }}
+    minvalue: 100
+    maxvalue: 400
+{% endfor %}
+
+  # temporal thinning
+  # ---------------------------------
+  # TURN ON FOR TESTING l_closeobs=True (temporal filter, instead of error inflation)
+  - filter: Temporal Thinning
+    filter variables:
+    - name: stationPressure
+    category_variable: MetaData/stationIdentification
+    min_spacing: PT6H
+    seed_time: '{{ atmosphere_background_time_iso }}'
+    action:
+      name: reject
+
+  # TURN OFF FOR TESTING, l_closeobs=False 
+  # order matters - compute duplicate check (here) then apply O-F check 
+  # using initial errors, then apply duplicate error inflation
+  #- filter: Variable Assignment
+  #  assignments:
+  #  - name: ObsErrorFactorDuplicateCheck/stationPressure
+  #    type: float
+  #    function:
+  #      name: ObsFunction/ObsErrorFactorDuplicateCheck
+  #      options:
+  #        use_air_pressure: false
+  #        variable: stationPressure
+
+  - filter: Temporal Thinning
+    filter variables:
+    - name: virtualTemperature
+    - name: airTemperature
+    category_variable:
+      name: MetaData/stationIdentification
+    records_are_single_obs: true
+    min_spacing: PT6H
+    seed_time: '{{ atmosphere_background_time_iso }}'
+    action:
+      name: reject
+
   # stationPressure error assignments
   # ---------------------------------
 
   - filter: Perform Action
     filter variables:
     - name: stationPressure
-    where:
-    - variable: ObsType/pressure
-      is_in: [120]
     action:
       name: assign error
       error function:
@@ -115,20 +221,6 @@
     action:
       name: inflate error
       inflation factor: 1.2
- 
-  # Observation Post Filters (QC)
-  # -----------------------------
-  obs post filters:
-
-  # FOR TESTING, USE l_closeobs=True (temporal filter, instead of error inflation)
-  - filter: Temporal Thinning
-    filter variables:
-    - name: stationPressure
-    category_variable: MetaData/stationIdentification
-    min_spacing: PT6H
-    seed_time: '{{ atmosphere_background_time_iso }}'
-    action:
-      name: reject
 
   # Compute and apply inflation factor from model-observation terrain mismatch
   - filter: Perform Action
@@ -144,21 +236,102 @@
           station_altitude: height
           observed temperature variable: airTemperature
           observed specific humidity variable: specificHumidity
+ 
+  # temperature error assignments
+  # ---------------------------------
 
-  # FOR TESTING, USE l_closeobs=True (temporal filter, instead of error inflation)
-  # retaining GSI order: compute duplicate check, apply O-F check 
-  # using initial errors, then apply duplicate error inflation
-  #- filter: Variable Assignment
-  #  assignments:
-  #  - name: ObsErrorFactorDuplicateCheck/stationPressure
-  #    type: float
-  #    function:
-  #      name: ObsFunction/ObsErrorFactorDuplicateCheck
-  #      options:
-  #        use_air_pressure: false
-  #        variable: stationPressure
+{% for var in temperature_variables %}
+  - filter: Variable Assignment
+    assignments:
+    - name: InputObsError/{{ var }}
+      type: float
+      source variable: ObsErrorData/{{ var }}
 
-  # Compute and apply background-check for non-QM=3 pressure obs
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 3, 7
+    action:
+      name: inflate error
+      inflation factor: 1.2
+
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: MetaData/pressure
+      maxvalue: 9999.0
+    action:
+      name: inflate error
+      inflation factor: 1.2
+
+  - filter: Bounds Check
+    filter variables:
+    - name: {{ var }}
+    test variables:
+    - name: ObsErrorData/{{ var }}
+    minvalue: 0.0
+    maxvalue: 1000
+{% endfor %}
+
+  # order matters - Use the full T dry profile to compute error inflation (here)
+  # then reject T dry where have T virtual.
+  - filter: Variable Assignment
+    assignments:
+    - name: ErrormodFactor/airTemperature
+      type: float
+      function:
+        name: ObsFunction/ObsErrorFactorConventional
+        options:
+          inflate variables: [airTemperature]
+          pressure: MetaData/pressure
+
+{% for var in temperature_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    action:
+      name: inflate error
+      inflation variable:
+        name: ErrormodFactor/airTemperature
+{% endfor %}
+
+  # order matters - Use the full T dry profile to compute error inflation
+  # then reject T dry where have T virtual (here)
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    where:
+    - variable: ObsValue/virtualTemperature
+      value: is_valid
+    action:
+      name: reject
+
+  # order matters - do after ErrormodFactor inflations
+{% for var in temperature_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorPressureCheck
+        options:
+          variable: {{ var }}
+          surface observation error ramp: false
+          inflation factor: 8.0
+{% endfor %}
+
+  # Observation Post Filters (QC)
+  # -----------------------------
+
+  obs post filters:
+
+  # stationPressure background checks
+  # ---------------------------------
+
   - filter: Background Check
     filter variables:
     - name: stationPressure
@@ -175,7 +348,6 @@
     action:
       name: reject
 
-  # Reject QM=3 pressure obs with large background departures
   - filter: Background Check
     filter variables:
     - name: stationPressure
@@ -192,8 +364,9 @@
     action:
       name: reject
 
-  # FOR TESTING, USE l_closeobs=True (temporal filter, instead of error inflation)
-  # Inflate obs error based on duplicate check
+  # TURN OFF FOR TESTING l_closeobs=False (temporal filter, instead of error inflation)
+  # order matters - compute duplicate check, then apply O-F check 
+  # using initial errors, then apply duplicate error inflation (here)
   #- filter: Perform Action
   #  filter variables:
   #  - name: stationPressure
@@ -202,30 +375,42 @@
   #    inflation variable:
   #      name: ObsErrorFactorDuplicateCheck/stationPressure
 
-  # Reject defined station pressure values below 50000 Pa
-  - filter: RejectList
-    filter variables:
-    - name: stationPressure
-    where:
-    - variable:
-        name: ObsValue/stationPressure
-      maxvalue: 50000.00
 
-  - filter: RejectList
-    filter variables:
-    - name: stationPressure
-    where:
-    - variable:
-        name: QualityMarker/stationPressure
-      is_not_in: 0-3
+  # temperature background checks
+  # ---------------------------------
 
-  - filter: RejectList
+  # GSI gross check (convinfo: gross 8.0, ermax 5.6, ermin 1.3):
+  # threshold = gross * min(max(err, ermin), ermax)
+{% for var in temperature_variables %}
+{% for qm_test, gross in [('is_not_in', 8.0), ('is_in', 5.6)] %}
+  # err <= ermin: threshold = gross * ermin
+  - filter: Background Check
     filter variables:
-    - name: stationPressure
+    - name: {{ var }}
+    absolute threshold: {{ '%.2f' | format(gross * 1.3) }}
     where:
-    - variable:
-        name: QualityMarker/height
-      is_in: 7, 8, 10-14
+    - variable: QualityMarker/{{ var }}
+      {{ qm_test }}: 3
+    - variable: ObsErrorData/{{ var }}
+      maxvalue: 1.3
+    action:
+      name: reject
+
+  # err > ermin: threshold = gross * min(err, ermax)
+  - filter: Background Check
+    filter variables:
+    - name: {{ var }}
+    threshold: {{ gross }}
+    absolute threshold: {{ '%.2f' | format(gross * 5.6) }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      {{ qm_test }}: 3
+    - variable: ObsErrorData/{{ var }}
+      minvalue: 1.3
+    action:
+      name: reject
+{% endfor %}
+{% endfor %}
 
   # End of Filters
 
@@ -237,5 +422,3 @@
   # Passed benchmark for UFO testing
   # --------------------------------
   passedBenchmark: 0
-
-
