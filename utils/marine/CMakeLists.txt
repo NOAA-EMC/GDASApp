@@ -16,3 +16,18 @@ if (BUILD_IJEDI)
                           SOURCES gdas_ijedi_marine_bparams.cc )
   target_link_libraries( gdas_ijedi_marine_bparams.x PUBLIC gdas_marine_utils ijedi )
 endif()
+
+# Marine increment post processing (JEDI increment -> MOM6 IAU increment, sea-ice restart)
+if (BUILD_SOCA)
+  ecbuild_add_executable( TARGET  gdas_soca_incr_handler.x
+                          SOURCES gdas_soca_incr_handler.cc ../genutils/Flood.cc )
+  target_link_libraries( gdas_soca_incr_handler.x PUBLIC gdas_marine_utils soca )
+  target_link_libraries( gdas_soca_incr_handler.x PRIVATE stdc++fs )
+endif()
+
+if (BUILD_IJEDI)
+  ecbuild_add_executable( TARGET  gdas_ijedi_marine_incr_handler.x
+                          SOURCES gdas_ijedi_marine_incr_handler.cc ../genutils/Flood.cc )
+  target_link_libraries( gdas_ijedi_marine_incr_handler.x PUBLIC gdas_marine_utils ijedi )
+  target_link_libraries( gdas_ijedi_marine_incr_handler.x PRIVATE stdc++fs )
+endif()
