@@ -1,6 +1,7 @@
 # Marine utilities written against the generic oops interfaces, built once per model interface
 
-add_library(gdas_marine_utils STATIC gdas_marine_read_nc_interp.cc)
+add_library(gdas_marine_utils STATIC gdas_marine_read_nc_interp.cc gdas_marine_ice_physics.cc
+                                     gdas_marine_postprocess_ice.cc)
 target_include_directories(gdas_marine_utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(gdas_marine_utils PUBLIC NetCDF::NetCDF_C atlas oops)
 
