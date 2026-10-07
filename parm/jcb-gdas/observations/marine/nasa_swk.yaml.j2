@@ -173,16 +173,6 @@
           err0: [0.10]
           err1: [0.03]
 
-  #- filter: Perform Action
-  #  action:
-  #    name: assign error
-  #    error function:
-  #      name: ObsFunction/LinearCombination
-  #      options:
-  #        variables: [GeoVaLs/mesoscale_representation_error,
-  #                    ObsError/absoluteDynamicTopography]
-  #        coefs: [0.0,
-  #                1.0]
   - filter: Domain Check
     where:
     - variable: { name: GeoVaLs/sea_ice_area_fraction}
@@ -191,16 +181,7 @@
     where:
     - variable: {name: GeoVaLs/distance_from_coast}
       minvalue: 25e3
-#  - filter: BlackList
-#    where:
-#    - variable:
-#        name: MetaData/latitude
-#      minvalue: 4
-#      maxvalue: 30
-#    - variable:
-#        name: MetaData/longitude
-#      minvalue: 32
-#      maxvalue: 56
+
 {% if marine_letkf_app | default(false) %}
   obs localizations:
   - localization method: Rossby
