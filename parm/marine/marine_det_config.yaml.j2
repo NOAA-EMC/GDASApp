@@ -41,8 +41,13 @@ data_in:
     - '{{ DATA }}/Data'
 
     copy_req:
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+    # stage the i-jedi grid
+    - ["{{ COMIN_OCEAN_BMATRIX }}/ijedi_gridspec.nc", "{{ DATA }}"]
+{% else %}
     # stage soca grid
     - ["{{ COMIN_OCEAN_BMATRIX }}/soca_gridspec.nc", "{{ DATA }}"]
+{% endif %}
 
     # stage ensemble weights
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}
@@ -97,7 +102,11 @@ data_out:
     {% endif %}
 
     # DA grid (computed for the start of the window)
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+    - ['{{ DATA }}/ijedi_gridspec.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_gridspec.tm03.nc']
+{% else %}
     - ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_gridspec.tm03.nc']
+{% endif %}
 
     # CICE analysis restart
     - ['{{ DATA }}/Data/{{ cice_rst_date }}.cice_model.res.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ cice_rst_date }}.analysis.cice_model.res.nc']
