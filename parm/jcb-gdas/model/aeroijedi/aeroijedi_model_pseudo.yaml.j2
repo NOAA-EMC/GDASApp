@@ -1,0 +1,18 @@
+# oops generic PseudoModel: the first state is read after the first step, so the
+# list starts at window begin + tstep (the background provides window begin).
+name: PseudoModel
+tstep: {{ aero_forecast_timestep }}
+states:
+{% for aeroijedi_pseudo_model_state in aeroijedi_pseudo_model_states %}
+- date: '{{ aeroijedi_pseudo_model_state.date }}'
+  state variables: {{ aero_det_state_variables }}
+  io:
+    filetype: fv3 restart
+    datapath: {{ aero_background_path }}
+    filename_core: '{{ aeroijedi_pseudo_model_state.fv3time }}.fv_core.res.nc'
+    filename_trcr: '{{ aeroijedi_pseudo_model_state.fv3time }}.fv_tracer.res.nc'
+    filename_sfcd: '{{ aeroijedi_pseudo_model_state.fv3time }}.sfc_data.nc'
+    filename_sfcw: '{{ aeroijedi_pseudo_model_state.fv3time }}.fv_srf_wnd.res.nc'
+    filename_cplr: '{{ aeroijedi_pseudo_model_state.fv3time }}.coupler.res'
+    field io names: {{ aero_field_io_names_crtm }}
+{% endfor %}

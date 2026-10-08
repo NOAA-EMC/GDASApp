@@ -1,0 +1,42 @@
+geometry:
+  geometry_type: fv3
+  fms initialization:
+    namelist filename: "{{aero_fv3jedi_files_path}}/fmsmpp.nml"
+    field table filename: "{{aero_fv3jedi_files_path}}/field_table"
+  akbk: "{{aero_fv3jedi_files_path}}/akbk.nc4"
+  layout:
+  - {{ aero_layout_x }}
+  - {{ aero_layout_y }}
+  npx: {{ aero_npx_anl }}
+  npy: {{ aero_npy_anl }}
+  npz: {{ aero_npz_anl }}
+  ntiles: {{ aeroijedi_ntiles | default(6) }}
+date: '{{ aero_background_error_time_iso }}'
+background:
+  date: '{{ aero_background_error_time_iso }}'
+  state variables: {{ aero_bmat_state_variables }}
+  io:
+    filetype: fv3 restart
+    datapath: {{ aero_background_path }}
+    filename_core: '{{ aero_background_error_time_fv3 }}.anlres.fv_core.res.nc'
+    filename_trcr: '{{ aero_background_error_time_fv3 }}.anlres.fv_tracer.res.nc'
+    filename_cplr: '{{ aero_background_error_time_fv3 }}.anlres.coupler.res'
+    field io names: {{ aero_field_io_names }}
+background error:
+  covariance model: SABER
+  saber central block:
+    saber block name: diffusion
+    calibration:
+      normalization:
+        iterations: {{ aero_diffusion_iter }}
+      groups:
+      - horizontal:
+          fixed value: {{ aero_diffusion_horiz_len }}
+        write:
+          filepath: "{{ aero_berror_diffusion_directory }}/diffusion_hz"
+      - vertical:
+          levels: {{ aero_npz_ges }}
+          fixed value: {{ aero_diffusion_fixed_val }}
+          as gaussian: true
+        write:
+          filepath: "{{ aero_berror_diffusion_directory }}/diffusion_vt"

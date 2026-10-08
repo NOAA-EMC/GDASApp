@@ -1,0 +1,140 @@
+# This part is for testing only. Normally this would just show algorithm: <algorithm>
+# -----------------------------------------------------------------------------------
+supported_algorithms:
+- hofx3d
+- 3dvar
+- 3dfgat
+# Local algorithms
+- aeroijedi_convert_background
+- aeroijedi_gen_bmatrix_diffusion
+
+# This is overwritten in the testing but allows command line test of jcb
+algorithm: 3dfgat
+
+# Search path for model and obs for JCB (relative for the submodule, or can be absolute)
+# --------------------------------------------------------------------------------------
+app_path_algorithm: gdas/algorithm/aeroijedi
+app_path_model: gdas/model/aeroijedi
+app_path_observations: gdas/observations/aero
+
+
+# Places where we deviate from the generic file name of a yaml
+# ------------------------------------------------------------
+final_increment_to_latlon_file: aeroijedi_final_increment_gaussian
+final_increment_file: aeroijedi_final_increment_cubed_sphere
+model_file: aeroijedi_model_pseudo
+initial_condition_file: aeroijedi_background
+background_error_file: aeroijedi_background_error_static_diffusion
+
+
+# Global analysis things
+# ----------------------
+window_begin: '2024-01-31T21:00:00Z'
+window_length: PT6H
+bound_to_include: begin
+minimizer: DRPCG
+final_diagnostics_departures: anlmob
+final_prints_frequency: PT3H
+number_of_outer_loops: 1
+analysis_variables: [mass_fraction_of_sulfate_in_air, mass_fraction_of_hydrophobic_black_carbon_in_air, mass_fraction_of_hydrophilic_black_carbon_in_air, mass_fraction_of_hydrophobic_organic_carbon_in_air, mass_fraction_of_hydrophilic_organic_carbon_in_air, mass_fraction_of_dust001_in_air, mass_fraction_of_dust002_in_air, mass_fraction_of_dust003_in_air, mass_fraction_of_dust004_in_air, mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air, mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air, mass_fraction_of_sea_salt004_in_air]
+
+
+# Model things (i-jedi fv3 geometry)
+# ----------------------------------
+aeroijedi_ntiles: 6
+aero_layout_x: 1
+aero_layout_y: 1
+aero_npx_ges: 49
+aero_npy_ges: 49
+aero_npz_ges: 127
+aero_npx_anl: 49
+aero_npy_anl: 49
+aero_npz_anl: 127
+aero_fv3jedi_files_path: ./fv3jedi
+
+# Variables
+aero_det_state_variables: [mass_fraction_of_sulfate_in_air, mass_fraction_of_hydrophobic_black_carbon_in_air, mass_fraction_of_hydrophilic_black_carbon_in_air, mass_fraction_of_hydrophobic_organic_carbon_in_air, mass_fraction_of_hydrophilic_organic_carbon_in_air, mass_fraction_of_dust001_in_air, mass_fraction_of_dust002_in_air, mass_fraction_of_dust003_in_air, mass_fraction_of_dust004_in_air, mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air, mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air, mass_fraction_of_sea_salt004_in_air, air_temperature, air_pressure_thickness, water_vapor_mixing_ratio_wrt_moist_air]
+aero_bmat_state_variables: [mass_fraction_of_sulfate_in_air, mass_fraction_of_hydrophobic_black_carbon_in_air, mass_fraction_of_hydrophilic_black_carbon_in_air, mass_fraction_of_hydrophobic_organic_carbon_in_air, mass_fraction_of_hydrophilic_organic_carbon_in_air, mass_fraction_of_dust001_in_air, mass_fraction_of_dust002_in_air, mass_fraction_of_dust003_in_air, mass_fraction_of_dust004_in_air, mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air, mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air, mass_fraction_of_sea_salt004_in_air, mass_fraction_of_sea_salt005_in_air]
+aero_det_increment_variables: [mass_fraction_of_sulfate_in_air, mass_fraction_of_hydrophobic_black_carbon_in_air, mass_fraction_of_hydrophilic_black_carbon_in_air, mass_fraction_of_hydrophobic_organic_carbon_in_air, mass_fraction_of_hydrophilic_organic_carbon_in_air, mass_fraction_of_dust001_in_air, mass_fraction_of_dust002_in_air, mass_fraction_of_dust003_in_air, mass_fraction_of_dust004_in_air, mass_fraction_of_dust005_in_air, mass_fraction_of_sea_salt001_in_air, mass_fraction_of_sea_salt002_in_air, mass_fraction_of_sea_salt003_in_air, mass_fraction_of_sea_salt004_in_air]
+
+aero_field_io_names:
+  air_temperature: T
+  air_pressure_thickness: delp
+  water_vapor_mixing_ratio_wrt_moist_air: sphum
+  mass_fraction_of_sulfate_in_air: so4
+  mass_fraction_of_hydrophobic_black_carbon_in_air: bc1
+  mass_fraction_of_hydrophilic_black_carbon_in_air: bc2
+  mass_fraction_of_hydrophobic_organic_carbon_in_air: oc1
+  mass_fraction_of_hydrophilic_organic_carbon_in_air: oc2
+  mass_fraction_of_dust001_in_air: dust1
+  mass_fraction_of_dust002_in_air: dust2
+  mass_fraction_of_dust003_in_air: dust3
+  mass_fraction_of_dust004_in_air: dust4
+  mass_fraction_of_dust005_in_air: dust5
+  mass_fraction_of_sea_salt001_in_air: seas1
+  mass_fraction_of_sea_salt002_in_air: seas2
+  mass_fraction_of_sea_salt003_in_air: seas3
+  mass_fraction_of_sea_salt004_in_air: seas4
+  mass_fraction_of_sea_salt005_in_air: seas5
+aero_field_io_names_crtm:
+  air_temperature: T
+  air_pressure_thickness: delp
+  water_vapor_mixing_ratio_wrt_moist_air: sphum
+  mass_fraction_of_sulfate_in_air: so4
+  mass_fraction_of_hydrophobic_black_carbon_in_air: bc1
+  mass_fraction_of_hydrophilic_black_carbon_in_air: bc2
+  mass_fraction_of_hydrophobic_organic_carbon_in_air: oc1
+  mass_fraction_of_hydrophilic_organic_carbon_in_air: oc2
+  mass_fraction_of_dust001_in_air: dust1
+  mass_fraction_of_dust002_in_air: dust2
+  mass_fraction_of_dust003_in_air: dust3
+  mass_fraction_of_dust004_in_air: dust4
+  mass_fraction_of_dust005_in_air: dust5
+  mass_fraction_of_sea_salt001_in_air: seas2
+  mass_fraction_of_sea_salt002_in_air: seas3
+  mass_fraction_of_sea_salt003_in_air: seas4
+  mass_fraction_of_sea_salt004_in_air: seas5
+
+# Background
+aero_background_path: ./bkg
+aero_background_time_iso: '2024-01-31T21:00:00Z'
+aeroijedi_background_time_fv3: '20240131.210000'
+aero_cycle_time_iso: '2024-02-01T00:00:00Z'
+aero_cycle_time_fv3: '20240201.000000'
+aero_background_error_time_iso: '2024-02-01T06:00:00Z'
+aero_background_error_time_fv3: '20240201.060000'
+
+# Forecasting (PseudoModel states start at window begin + tstep)
+aero_forecast_timestep: PT3H
+aeroijedi_pseudo_model_states:
+- date: '2024-02-01T00:00:00Z'
+  fv3time: '20240201.000000'
+- date: '2024-02-01T03:00:00Z'
+  fv3time: '20240201.030000'
+
+# Background error
+aero_berror_data_directory: ./berror
+aero_berror_diffusion_directory: ./diffusion
+aero_diffusion_iter: 10
+aero_diffusion_horiz_len: 2500000.0
+aero_diffusion_fixed_val: 1.5
+
+# Analysis
+aero_analysis_path: ./anl
+
+
+# Observation things
+# ------------------
+observations:
+- retrieval_aod_viirs_npp
+- retrieval_aod_viirs_n20
+- retrieval_aod_viirs_n21
+
+crtm_coefficient_path: ./crtm/
+
+aero_obsdatain_path: ./obs/
+aero_obsdatain_prefix: gdas.t00z.
+aero_obsdatain_suffix: .nc
+aero_obsdataout_path: ./diags/
+aero_obsdataout_prefix: diag_
+aero_obsdataout_suffix: _2024020100.nc

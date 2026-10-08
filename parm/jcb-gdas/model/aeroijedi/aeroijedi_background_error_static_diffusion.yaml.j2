@@ -1,0 +1,24 @@
+covariance model: SABER
+saber central block:
+  saber block name: diffusion
+  read:
+    groups:
+    - variables: {{ aero_det_increment_variables }}
+      horizontal:
+        filepath: "{{aero_berror_data_directory}}/diffusion_hz"
+      vertical:
+        levels: {{aero_npz_anl}}
+        filepath: "{{aero_berror_data_directory}}/diffusion_vt"
+saber outer blocks:
+- saber block name: StdDev
+  read:
+    model file:
+      date: "{{ aero_cycle_time_iso }}"
+      io:
+        filetype: fv3 restart
+        psinfile: true
+        datapath: "{{aero_berror_data_directory}}"
+        filename_core: '{{ aero_cycle_time_fv3 }}.stddev.fv_core.res.nc'
+        filename_trcr: '{{ aero_cycle_time_fv3 }}.stddev.fv_tracer.res.nc'
+        filename_cplr: '{{ aero_cycle_time_fv3 }}.stddev.coupler.res'
+        field io names: {{ aero_field_io_names_crtm }}

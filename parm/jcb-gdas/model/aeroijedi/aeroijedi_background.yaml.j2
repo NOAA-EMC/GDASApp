@@ -1,0 +1,10 @@
+date: '{{ aero_background_time_iso }}'
+state variables: {{ aero_det_state_variables }}
+io:
+  filetype: fv3 restart
+  datapath: {{ aero_background_path }}
+  # i-jedi does not support 'filename is datetime templated'; names are rendered here
+  filename_core: '{{ aeroijedi_background_time_fv3 }}.fv_core.res.nc'
+  filename_trcr: '{{ aeroijedi_background_time_fv3 }}.fv_tracer.res.nc'
+  filename_cplr: '{{ aeroijedi_background_time_fv3 }}.coupler.res'
+  field io names: {{ aero_field_io_names_crtm }}

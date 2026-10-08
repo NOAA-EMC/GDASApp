@@ -1,19 +1,22 @@
+# Model interface: fv3-jedi (aero) or i-jedi (aeroijedi)
+{% set _comp = 'aeroijedi' if (aero_use_ijedi | default(false) | string | lower) in ['true', 'yes', '1'] else 'aero' %}
+
 # Search path for model and obs for JCB
 # -------------------------------------
 algorithm_path: "{{PARMglobal}}/gdas/jcb-algorithms"
-app_path_algorithm: "{{PARMglobal}}/gdas/jcb-gdas/algorithm/aero"
-app_path_model: "{{PARMglobal}}/gdas/jcb-gdas/model/aero"
+app_path_algorithm: "{{PARMglobal}}/gdas/jcb-gdas/algorithm/{{ _comp }}"
+app_path_model: "{{PARMglobal}}/gdas/jcb-gdas/model/{{ _comp }}"
 app_path_observations: "{{PARMglobal}}/gdas/jcb-gdas/observations/aero"
 app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chronicle/aero"
 
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
-final_increment_to_latlon_file: aero_final_increment_gaussian
-final_increment_file: aero_final_increment_cubed_sphere
-model_file: aero_model_pseudo
-initial_condition_file: aero_background  # Initial conditions for 4D apps is background
-background_error_file: "{{BERROR_YAML}}"
+final_increment_to_latlon_file: {{ _comp }}_final_increment_gaussian
+final_increment_file: {{ _comp }}_final_increment_cubed_sphere
+model_file: {{ _comp }}_model_pseudo
+initial_condition_file: {{ _comp }}_background  # Initial conditions for 4D apps is background
+background_error_file: "{{ BERROR_YAML | replace('aero_', _comp ~ '_', 1) }}"
 
 # Assimilation standard things (not prepended with model choice)
 # ----------------------------
@@ -150,6 +153,21 @@ aero_analysis_path: ./anl
 
 # Forecasting
 aero_forecast_timestep: "{{ BKG_TSTEP }}"
+
+{% if _comp == 'aeroijedi' %}
+# i-jedi only
+# -----------
+# i-jedi does not support datetime-templated fv3 restart filenames, so render them here
+aeroijedi_ntiles: 6
+aeroijedi_background_time_fv3: "{{ WINDOW_BEGIN | to_fv3time }}"
+
+# oops PseudoModel reads its first state after one step: skip the window-begin background
+aeroijedi_pseudo_model_states:
+{% for bkg_time in (bkg_times | default([]))[1:] %}
+- date: "{{ bkg_time | to_isotime }}"
+  fv3time: "{{ bkg_time | to_fv3time }}"
+{% endfor %}
+{% endif %}
 
 # Observation things
 # ------------------
