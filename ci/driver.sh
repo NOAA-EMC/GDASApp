@@ -375,8 +375,22 @@ process_pr() {
   # Generate summary and add log URL
   LOG_FILE="$PR_TEST_DIR/$pr/output_${commit}"
   SUMMARY_FILE="$PR_TEST_DIR/$pr/summary_${commit}"
-  LOG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+  if [[ -n "${GITHUB_SERVER_URL:-}" && -n "${GITHUB_REPOSITORY:-}" && -n "${GITHUB_RUN_ID:-}" ]]; then
+    LOG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+  else
+    LOG_URL="GitHub Actions run URL unavailable; GITHUB_SERVER_URL/GITHUB_REPOSITORY/GITHUB_RUN_ID are not set"
+  fi
 
+  ##DEBUG
+  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo "Set LOG_FILE to $LOG_FILE" >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo "Set SUMMARY_FILE to $SUMMARY_FILE" >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo "GITHUB_SERVER_URL is $GITHUB_SERVER_URL" >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo "GITHUB_REPOSITORY is $GITHUB_REPOSITORY" >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo "GITHUB_RUN_ID is $GITHUB_RUN_ID" >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
+  ##DEBUG
+  
   echo "### CI Run Summary for PR #${pr} (Commit: $commit)" > "$SUMMARY_FILE"
   echo "" >> "$SUMMARY_FILE"
   echo "Full logs: $LOG_URL" >> "$SUMMARY_FILE"
@@ -389,6 +403,17 @@ process_pr() {
   echo "" >> "$SUMMARY_FILE"
   echo "CI Status: $([[ $ci_status -eq 0 ]] && echo "Passed" || echo "Failed")" >> "$SUMMARY_FILE"
 
+  ##DEBUG
+  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo "SUMMARY_FILE is ${SUMMARY_FILE}" >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo "Before cat $SUMMARY_FILE" >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
+  cat $SUMMARY_FILE >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo "After cat $SUMMARY_FILE" >> "$PR_TEST_DIR/$pr/output_${commit}"
+  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
+  ##DEBUG
+  
   gh pr comment "$pr" --repo "$UPSTREAM_REPO" --body-file "$SUMMARY_FILE"
   if [ "$ci_status" -eq 0 ]; then
     gh pr edit "$pr" --repo "$gdasapp_repo" --remove-label "${CI_LABEL}-Running" --add-label "${CI_LABEL}-Passed"
