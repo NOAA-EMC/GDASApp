@@ -97,6 +97,7 @@ source "$my_dir/ci_tests.sh" || die "could not source $my_dir/ci_tests.sh"
 # call so that PR numbers, comments and labels always refer to the upstream PR.
 gdasapp_repo="NOAA-EMC/GDASApp"
 workflow_repo="NOAA-EMC/global-workflow"
+UPSTREAM_REPO="${UPSTREAM_REPO:-$gdasapp_repo}"
 
 if [[ $TEST_WORKFLOW == 1 ]]; then
   echo "Testing GDASApp inside the Global Workflow"
@@ -387,40 +388,13 @@ process_pr() {
     LOG_URL="${server_url}/${repo_name}/pull/${pr}"
   fi
   
-  ##DEBUG
-  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo "Set LOG_FILE to $LOG_FILE" >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo "Set SUMMARY_FILE to $SUMMARY_FILE" >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo "GITHUB_SERVER_URL is $GITHUB_SERVER_URL" >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo "GITHUB_REPOSITORY is $GITHUB_REPOSITORY" >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo "GITHUB_RUN_ID is $GITHUB_RUN_ID" >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
-  ##DEBUG
-  
   echo "### CI Run Summary for PR #${pr} (Commit: $commit)" > "$SUMMARY_FILE"
   echo "" >> "$SUMMARY_FILE"
-  echo "Full logs: $LOG_URL" >> "$SUMMARY_FILE"
-  echo "" >> "$SUMMARY_FILE"
-  echo "#### First 10 lines of output:" >> "$SUMMARY_FILE"
-  head -n 10 "$LOG_FILE" >> "$SUMMARY_FILE"
-  echo "" >> "$SUMMARY_FILE"
-  echo "#### Last 10 lines of output:" >> "$SUMMARY_FILE"
-  tail -n 10 "$LOG_FILE" >> "$SUMMARY_FILE"
+  cat "$LOG_FILE" >> "$SUMMARY_FILE"
   echo "" >> "$SUMMARY_FILE"
   echo "CI Status: $([[ $ci_status -eq 0 ]] && echo "Passed" || echo "Failed")" >> "$SUMMARY_FILE"
 
-  ##DEBUG
-  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo "SUMMARY_FILE is ${SUMMARY_FILE}" >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo "Before cat $SUMMARY_FILE" >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
-  cat $SUMMARY_FILE >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo "After cat $SUMMARY_FILE" >> "$PR_TEST_DIR/$pr/output_${commit}"
-  echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
-  ##DEBUG
-  
-  gh pr comment "$pr" --repo "$UPSTREAM_REPO" --body-file "$SUMMARY_FILE"
+  gh pr comment "$pr" --repo "${UPSTREAM_REPO:-$gdasapp_repo}" --body-file "$SUMMARY_FILE"  
   if [ "$ci_status" -eq 0 ]; then
     gh pr edit "$pr" --repo "$gdasapp_repo" --remove-label "${CI_LABEL}-Running" --add-label "${CI_LABEL}-Passed"
   else
