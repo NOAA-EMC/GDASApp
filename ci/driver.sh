@@ -375,12 +375,18 @@ process_pr() {
   # Generate summary and add log URL
   LOG_FILE="$PR_TEST_DIR/$pr/output_${commit}"
   SUMMARY_FILE="$PR_TEST_DIR/$pr/summary_${commit}"
-  if [[ -n "${GITHUB_SERVER_URL:-}" && -n "${GITHUB_REPOSITORY:-}" && -n "${GITHUB_RUN_ID:-}" ]]; then
-    LOG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-  else
-    LOG_URL="GitHub Actions run URL unavailable; GITHUB_SERVER_URL/GITHUB_REPOSITORY/GITHUB_RUN_ID are not set"
-  fi
 
+  # Set defaults for GitHub environment variables when running under cron
+  server_url="${GITHUB_SERVER_URL:-https://github.com}"
+  repo_name="${GITHUB_REPOSITORY:-$gdasapp_repo}"
+
+  # Construct LOG_URL depending on whether running in GH Actions or local cron
+  if [[ -n "${GITHUB_RUN_ID:-}" ]]; then
+    LOG_URL="${server_url}/${repo_name}/actions/runs/${GITHUB_RUN_ID}"
+  else
+    LOG_URL="${server_url}/${repo_name}/pull/${pr}"
+  fi
+  
   ##DEBUG
   echo " " >> "$PR_TEST_DIR/$pr/output_${commit}"
   echo "Set LOG_FILE to $LOG_FILE" >> "$PR_TEST_DIR/$pr/output_${commit}"
