@@ -4,6 +4,9 @@
 # from the UNESCO equation of state (no balance operator in i-jedi). The sea-ice analysis is
 # postprocessed into the CICE restart (Data/<date>.cice_model.res.nc, updated in place) and its
 # increment is written to ice.inc.nc.
+{# the geometry is laid out on the tasks of the increment postprocessing #}
+{% set marine_ijedi_layout_x = marine_ijedi_incpostproc_layout_x | default(marine_ijedi_layout_x) %}
+{% set marine_ijedi_layout_y = marine_ijedi_incpostproc_layout_y | default(marine_ijedi_layout_y) %}
 geometry:
 {% filter indent(width=2) %}
 {% include 'marine_ijedi_geometry_background.yaml.j2' %}

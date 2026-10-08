@@ -127,9 +127,10 @@ marine_ijedi_saber_central_block_variables: ['sea_ice_area_fraction', 'sea_water
                                              'sea_water_potential_temperature',
                                              'sea_surface_height_above_geoid']
 
-# i-jedi writes ocean and sea ice into one increment file: the soca increment post-processing
-# reads the sea ice from it
-marine_incpostproc_ice_increment_file: 'ocn.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc'
+# MOM6 layout of the increment postprocessing (marineanlchkpt), derived by config.resources
+# (marineanlinit) from its task count
+marine_ijedi_incpostproc_layout_x: {{ layout_marine_ijedi_chkpt_x | default(1, true) }}
+marine_ijedi_incpostproc_layout_y: {{ layout_marine_ijedi_chkpt_y | default(1, true) }}
 
 {% endif %}
 
