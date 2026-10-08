@@ -1,13 +1,15 @@
 jedi_config:
+{% if JEDI_MARINE_INTERFACE | default('soca') != 'ijedi' %}
     gridgen:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECglobal }}/gdas_soca_gridgen.x'
         mpi_cmd: '{{ APRUN_MARINEBMAT }}'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_gridgen
+{% endif %}
 {% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
-    # i-jedi: scales and parametric stddev in one run, then one diffusion calibration (the soca
-    # grid is still generated: the marine analysis and its post-processing use soca_gridspec.nc)
+    # i-jedi: scales and parametric stddev in one run (which also saves the grid,
+    # ijedi_gridspec.nc), then one diffusion calibration
     ijedi_bparams:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECglobal }}/gdas_ijedi_marine_bparams.x'
@@ -89,8 +91,13 @@ data_in:
 
 data_out:
     copy_req:
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+    # i-jedi grid
+    - ['{{ DATA }}/ijedi_gridspec.nc', '{{ COMOUT_OCEAN_BMATRIX }}']
+{% else %}
     # soca grid
     - ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_BMATRIX }}']
+{% endif %}
 
     # Copy the diffusion coefficient files to the ROTDIR
     - ['{{ DATAstaticb }}/hz_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}hz.nc']
@@ -132,7 +139,9 @@ data_out:
 
     # yaml files
     - ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}bmat_fields_metadata.yaml']
+{% if JEDI_MARINE_INTERFACE | default('soca') != 'ijedi' %}
     - ['{{ DATA }}/gridgen.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}gridgen.yaml']
+{% endif %}
     - ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}obsop_name_map.yaml']
 {% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
     - ['{{ DATA }}/ijedi_bparams.yaml', '{{ COMOUT_CONF }}/{{ APREFIX }}ijedi_bparams.yaml']

@@ -7,6 +7,9 @@ geometry:
 {% filter indent(width=2) %}
 {% include 'marine_ijedi_geometry_background.yaml.j2' %}
 {% endfilter %}
+  # the analysis grid on the structured MOM6 grid (lon/lat, cell sizes and areas, masks, layers),
+  # saved in COM as the marine analysis gridspec
+  save structured grid to: ./ijedi_gridspec.nc
 
 date: '{{ marine_window_end_iso }}'
 
