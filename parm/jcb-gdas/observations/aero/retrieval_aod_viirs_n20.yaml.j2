@@ -56,65 +56,148 @@
       maxvalue: 4.9
       action:
         name: reject
-    # Surface-dependent observation error: obserr = a * ObsValue + b
+    # Surface-dependent observation error: obserr = max(a1 * ObsValue + b1, a2 * ObsValue + b2)
     # MetaData/qcpathflag: 0 = ocean, 1 = bright land, 2 = dark land
-    - filter: Perform Action
-      filter variables:
-      - name: aerosolOpticalDepth
-        channels: 4
+    # Locations with any other qcpathflag keep the obs error from the input file.
+    - filter: Variable Assignment
       where:
       - variable:
           name: MetaData/qcpathflag
         is_in: 0  # ocean
-      action:
-        name: assign error
-        error function:
+      assignments:
+      - name: DerivedMetaData/aodObsError1
+        channels: 4
+        type: float
+        function:
           name: ObsFunction/Arithmetic
           channels: 4
           options:
             variables:
-            - name: ObsValue/aerosolOpticalDepth
+            #- name: ObsValue/aerosolOpticalDepth
+            - name: MetaData/ObsValue_raw_4
+            #  channels: 4
+            coefs: [0.219923]  # a1
+            intercept: 0.00784394  # b1
+      - name: DerivedMetaData/aodObsError2
+        channels: 4
+        type: float
+        function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+            #- name: ObsValue/aerosolOpticalDepth
+            - name: MetaData/ObsValue_raw_4
+            #  channels: 4
+            coefs: [0.483]  # a2
+            intercept: -0.069  # b2
+    - filter: Variable Assignment
+      where:
+      - variable:
+          name: MetaData/qcpathflag
+        is_in: 2  # bright land
+      assignments:
+      - name: DerivedMetaData/aodObsError1
+        channels: 4
+        type: float
+        function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+           # - name: ObsValue/aerosolOpticalDepth
+            - name: MetaData/ObsValue_raw_4
+          #    channels: 4
+            coefs: [0.299558]  # a1
+            intercept: 0.0550472  # b1
+      - name: DerivedMetaData/aodObsError2
+        channels: 4
+        type: float
+        function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+            - name: MetaData/ObsValue_raw_4
+           #   channels: 4
+            coefs: [0.644]  # a2
+            intercept: -0.101  # b2
+    - filter: Variable Assignment
+      where:
+      - variable:
+          name: MetaData/qcpathflag
+        is_in: 1  # dark land
+      assignments:
+      - name: DerivedMetaData/aodObsError1
+        channels: 4
+        type: float
+        function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+           # - name: ObsValue/aerosolOpticalDepth
+            - name: MetaData/ObsValue_raw_4
+           #   channels: 4
+            coefs: [0.128699]  # a1
+            intercept: 0.111431  # b1
+      - name: DerivedMetaData/aodObsError2
+        channels: 4
+        type: float
+        function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+           # - name: ObsValue/aerosolOpticalDepth
+            - name: MetaData/ObsValue_raw_4
+           #   channels: 4
+            coefs: [0.547]  # a2
+            intercept: -0.127  # b2
+    - filter: Variable Assignment
+      assignments:
+      - name: DerivedMetaData/aodObsErrorDiff
+        channels: 4
+        type: float
+        function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+            - name: DerivedMetaData/aodObsError2
               channels: 4
-            coefs: [0.1]  # a
-            intercept: 0.03  # b
+            - name: DerivedMetaData/aodObsError1
+              channels: 4
+            coefs: [1.0, -1.0]
     - filter: Perform Action
       filter variables:
       - name: aerosolOpticalDepth
         channels: 4
       where:
       - variable:
-          name: MetaData/qcpathflag
-        is_in: 1  # bright land
+          name: DerivedMetaData/aodObsError1
+          channels: 4
+        value: is_valid
       action:
         name: assign error
         error function:
-          name: ObsFunction/Arithmetic
+          name: DerivedMetaData/aodObsError1
           channels: 4
-          options:
-            variables:
-            - name: ObsValue/aerosolOpticalDepth
-              channels: 4
-            coefs: [0.2]  # a
-            intercept: 0.05  # b
     - filter: Perform Action
       filter variables:
       - name: aerosolOpticalDepth
         channels: 4
       where:
       - variable:
-          name: MetaData/qcpathflag
-        is_in: 2  # dark land
+          name: DerivedMetaData/aodObsErrorDiff
+          channels: 4
+        minvalue: 0.0
+        min_exclusive: true
       action:
         name: assign error
         error function:
-          name: ObsFunction/Arithmetic
+          name: DerivedMetaData/aodObsError2
           channels: 4
-          options:
-            variables:
-            - name: ObsValue/aerosolOpticalDepth
-              channels: 4
-            coefs: [0.15]  # a
-            intercept: 0.05  # b
     # Surface-dependent bias correction: BCed obs = ObsValue - (a * ObsValue + b)
     # Written to DerivedObsValue, which is used in place of ObsValue from here on;
     # the raw ObsValue is kept in the output. Initialize with the raw value so
@@ -142,17 +225,19 @@
           channels: 4
           options:
             variables:
-            - name: ObsValue/aerosolOpticalDepth
-              channels: 4
-            - name: ObsValue/aerosolOpticalDepth
-              channels: 4
-            coefs: [1.0, -0.0]  # [1, -a]
-            intercept: -0.0  # -b
+            #- name: ObsValue/aerosolOpticalDepth
+            - name: MetaData/ObsValue_raw_4
+            #  channels: 4
+            #- name: ObsValue/aerosolOpticalDepth
+            - name: MetaData/ObsValue_raw_4
+            #  channels: 4
+            coefs: [1.0, -0.077]  # [1, -a]
+            intercept: 0.015  # -b
     - filter: Variable Assignment
       where:
       - variable:
           name: MetaData/qcpathflag
-        is_in: 1  # bright land
+        is_in: 2  # bright land
       assignments:
       - name: DerivedObsValue/aerosolOpticalDepth
         channels: 4
@@ -162,17 +247,19 @@
           channels: 4
           options:
             variables:
-            - name: ObsValue/aerosolOpticalDepth
-              channels: 4
-            - name: ObsValue/aerosolOpticalDepth
-              channels: 4
-            coefs: [1.0, -0.0]  # [1, -a]
-            intercept: -0.0  # -b
+           # - name: ObsValue/aerosolOpticalDepth
+            - name: MetaData/ObsValue_raw_4
+           #   channels: 4
+           # - name: ObsValue/aerosolOpticalDepth
+            - name: MetaData/ObsValue_raw_4
+           #   channels: 4
+            coefs: [1.0, -0.150]  # [1, -a]
+            intercept: 0.011  # -b
     - filter: Variable Assignment
       where:
       - variable:
           name: MetaData/qcpathflag
-        is_in: 2  # dark land
+        is_in: 1  # dark land
       assignments:
       - name: DerivedObsValue/aerosolOpticalDepth
         channels: 4
@@ -182,12 +269,14 @@
           channels: 4
           options:
             variables:
-            - name: ObsValue/aerosolOpticalDepth
-              channels: 4
-            - name: ObsValue/aerosolOpticalDepth
-              channels: 4
-            coefs: [1.0, -0.0]  # [1, -a]
-            intercept: -0.0  # -b
+            #- name: ObsValue/aerosolOpticalDepth
+            - name: MetaData/ObsValue_raw_4
+            #  channels: 4
+           # - name: ObsValue/aerosolOpticalDepth
+            - name: MetaData/ObsValue_raw_4
+           #   channels: 4
+            coefs: [1.0, -0.158]  # [1, -a]
+            intercept: 0.014  # -b
     - filter: Background Check
       channels: 4
       threshold: 3.0
