@@ -56,6 +56,138 @@
       maxvalue: 4.9
       action:
         name: reject
+    # Surface-dependent observation error: obserr = a * ObsValue + b
+    # MetaData/qcpathflag: 0 = ocean, 1 = bright land, 2 = dark land
+    - filter: Perform Action
+      filter variables:
+      - name: aerosolOpticalDepth
+        channels: 4
+      where:
+      - variable:
+          name: MetaData/qcpathflag
+        is_in: 0  # ocean
+      action:
+        name: assign error
+        error function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+            - name: ObsValue/aerosolOpticalDepth
+              channels: 4
+            coefs: [0.1]  # a
+            intercept: 0.03  # b
+    - filter: Perform Action
+      filter variables:
+      - name: aerosolOpticalDepth
+        channels: 4
+      where:
+      - variable:
+          name: MetaData/qcpathflag
+        is_in: 1  # bright land
+      action:
+        name: assign error
+        error function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+            - name: ObsValue/aerosolOpticalDepth
+              channels: 4
+            coefs: [0.2]  # a
+            intercept: 0.05  # b
+    - filter: Perform Action
+      filter variables:
+      - name: aerosolOpticalDepth
+        channels: 4
+      where:
+      - variable:
+          name: MetaData/qcpathflag
+        is_in: 2  # dark land
+      action:
+        name: assign error
+        error function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+            - name: ObsValue/aerosolOpticalDepth
+              channels: 4
+            coefs: [0.15]  # a
+            intercept: 0.05  # b
+    # Surface-dependent bias correction: BCed obs = ObsValue - (a * ObsValue + b)
+    # Written to DerivedObsValue, which is used in place of ObsValue from here on;
+    # the raw ObsValue is kept in the output. Initialize with the raw value so
+    # locations with any other qcpathflag are left uncorrected (not set missing).
+    # a = b = 0 is a no-op; set the coefficients below to turn it on.
+    - filter: Variable Assignment
+      assignments:
+      - name: DerivedObsValue/aerosolOpticalDepth
+        channels: 4
+        type: float
+        source variable:
+          name: ObsValue/aerosolOpticalDepth
+          channels: 4
+    - filter: Variable Assignment
+      where:
+      - variable:
+          name: MetaData/qcpathflag
+        is_in: 0  # ocean
+      assignments:
+      - name: DerivedObsValue/aerosolOpticalDepth
+        channels: 4
+        type: float
+        function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+            - name: ObsValue/aerosolOpticalDepth
+              channels: 4
+            - name: ObsValue/aerosolOpticalDepth
+              channels: 4
+            coefs: [1.0, -0.0]  # [1, -a]
+            intercept: -0.0  # -b
+    - filter: Variable Assignment
+      where:
+      - variable:
+          name: MetaData/qcpathflag
+        is_in: 1  # bright land
+      assignments:
+      - name: DerivedObsValue/aerosolOpticalDepth
+        channels: 4
+        type: float
+        function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+            - name: ObsValue/aerosolOpticalDepth
+              channels: 4
+            - name: ObsValue/aerosolOpticalDepth
+              channels: 4
+            coefs: [1.0, -0.0]  # [1, -a]
+            intercept: -0.0  # -b
+    - filter: Variable Assignment
+      where:
+      - variable:
+          name: MetaData/qcpathflag
+        is_in: 2  # dark land
+      assignments:
+      - name: DerivedObsValue/aerosolOpticalDepth
+        channels: 4
+        type: float
+        function:
+          name: ObsFunction/Arithmetic
+          channels: 4
+          options:
+            variables:
+            - name: ObsValue/aerosolOpticalDepth
+              channels: 4
+            - name: ObsValue/aerosolOpticalDepth
+              channels: 4
+            coefs: [1.0, -0.0]  # [1, -a]
+            intercept: -0.0  # -b
     - filter: Background Check
       channels: 4
       threshold: 3.0
