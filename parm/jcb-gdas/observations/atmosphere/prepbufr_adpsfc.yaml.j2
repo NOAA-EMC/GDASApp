@@ -316,6 +316,7 @@
     - variable: DerivedMetaData/stationMinusModelHeight
       value: is_not_valid
     where operator: or
+    defer to post: true # needs GeoVaLs/height_above_mean_sea_level_at_surface
 
   # order matters - adjust obs to the model terrain height (here), then
   # inflate obs errors for the adjustment and apply O-F checks
@@ -348,6 +349,7 @@
           - name: DerivedMetaData/stationMinusModelHeight
           coefs: [1.0, 0.00225]
           absolute value: [false, true]
+    defer to post: true # needs GeoVaLs/height_above_mean_sea_level_at_surface
 
   # Observation Post Filters (QC)
   # -----------------------------
