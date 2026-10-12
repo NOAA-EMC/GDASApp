@@ -97,6 +97,7 @@ source "$my_dir/ci_tests.sh" || die "could not source $my_dir/ci_tests.sh"
 # call so that PR numbers, comments and labels always refer to the upstream PR.
 gdasapp_repo="NOAA-EMC/GDASApp"
 workflow_repo="NOAA-EMC/global-workflow"
+UPSTREAM_REPO="${UPSTREAM_REPO:-$gdasapp_repo}"
 
 if [[ $TEST_WORKFLOW == 1 ]]; then
   echo "Testing GDASApp inside the Global Workflow"
@@ -375,21 +376,25 @@ process_pr() {
   # Generate summary and add log URL
   LOG_FILE="$PR_TEST_DIR/$pr/output_${commit}"
   SUMMARY_FILE="$PR_TEST_DIR/$pr/summary_${commit}"
-  LOG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
+  # Set defaults for GitHub environment variables when running under cron
+  server_url="${GITHUB_SERVER_URL:-https://github.com}"
+  repo_name="${GITHUB_REPOSITORY:-$gdasapp_repo}"
+
+  # Construct LOG_URL depending on whether running in GH Actions or local cron
+  if [[ -n "${GITHUB_RUN_ID:-}" ]]; then
+    LOG_URL="${server_url}/${repo_name}/actions/runs/${GITHUB_RUN_ID}"
+  else
+    LOG_URL="${server_url}/${repo_name}/pull/${pr}"
+  fi
+  
   echo "### CI Run Summary for PR #${pr} (Commit: $commit)" > "$SUMMARY_FILE"
   echo "" >> "$SUMMARY_FILE"
-  echo "Full logs: $LOG_URL" >> "$SUMMARY_FILE"
-  echo "" >> "$SUMMARY_FILE"
-  echo "#### First 10 lines of output:" >> "$SUMMARY_FILE"
-  head -n 10 "$LOG_FILE" >> "$SUMMARY_FILE"
-  echo "" >> "$SUMMARY_FILE"
-  echo "#### Last 10 lines of output:" >> "$SUMMARY_FILE"
-  tail -n 10 "$LOG_FILE" >> "$SUMMARY_FILE"
+  cat "$LOG_FILE" >> "$SUMMARY_FILE"
   echo "" >> "$SUMMARY_FILE"
   echo "CI Status: $([[ $ci_status -eq 0 ]] && echo "Passed" || echo "Failed")" >> "$SUMMARY_FILE"
 
-  gh pr comment "$pr" --repo "$UPSTREAM_REPO" --body-file "$SUMMARY_FILE"
+  gh pr comment "$pr" --repo "${UPSTREAM_REPO:-$gdasapp_repo}" --body-file "$SUMMARY_FILE"  
   if [ "$ci_status" -eq 0 ]; then
     gh pr edit "$pr" --repo "$gdasapp_repo" --remove-label "${CI_LABEL}-Running" --add-label "${CI_LABEL}-Passed"
   else
