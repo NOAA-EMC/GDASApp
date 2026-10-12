@@ -1,5 +1,5 @@
 #!/bin/bash --login
-set -euo pipefail
+set -euox pipefail
 
 echo "Starting automated testing at $(date)"
 
@@ -172,9 +172,22 @@ valid_repo()  { [[ "$1" =~ ^[A-Za-z0-9._-]+$ && "$1" != "null" ]]; }
 fail_pr() {
   local num=$1 msg=$2
   echo "ERROR (PR #${num}): ${msg}"
-  gh pr comment "$num" --repo "$gdasapp_repo" --body "CI could not complete: ${msg}"
-  gh pr edit "$num" --repo "$gdasapp_repo" \
-    --remove-label "${CI_LABEL}-Running" --add-label "${CI_LABEL}-Failed"
+  gh_retry pr comment "$num" --repo "$gdasapp_repo" --body "CI could not complete: ${msg}" \
+    || echo "WARNING: could not post failure comment on PR #${num}"
+  gh_retry pr edit "$num" --repo "$gdasapp_repo" \
+    --remove-label "${CI_LABEL}-Running" --add-label "${CI_LABEL}-Failed" \
+    || echo "WARNING: could not update labels on PR #${num}; remove '-Running' manually"
+}
+
+# Run gh with up to 3 attempts to ride out transient API/network errors.
+gh_retry() {
+  local attempt
+  for attempt in 1 2 3; do
+    gh "$@" && return 0
+    echo "WARNING: 'gh $1 $2' failed (attempt ${attempt}/3)" >&2
+    sleep $((attempt * 5))
+  done
+  return 1
 }
 
 # ==============================================================================
@@ -200,11 +213,14 @@ process_pr() {
 
   # --------------------------------------------------------------------------
   # Gather PR information (all queries are against the upstream repo)
-  gdasapp_branch=$(gh pr view "$pr" --repo "$gdasapp_repo" --json headRefName --jq '.headRefName // empty') \
-    || { echo "ERROR: gh failed to read PR #${pr}; will retry next cycle"; return 1; }
-  head_owner=$(gh pr view "$pr" --repo "$gdasapp_repo" --json headRepositoryOwner --jq '.headRepositoryOwner.login // empty')
-  head_repo=$(gh pr view "$pr" --repo "$gdasapp_repo" --json headRepository --jq '.headRepository.name // empty')
-  head_sha=$(gh pr view "$pr" --repo "$gdasapp_repo" --json headRefOid --jq '.headRefOid // empty')
+  pr_json=$(gh_retry pr view "$pr" --repo "$gdasapp_repo" \
+		     --json headRefName,headRefOid,headRepositoryOwner,headRepository) \
+      || { echo "ERROR: gh failed to read PR #${pr}; will retry next cycle"; return 1; }
+  
+  gdasapp_branch=$(jq -r '.headRefName // empty'            <<< "$pr_json")
+  head_sha=$(      jq -r '.headRefOid // empty'             <<< "$pr_json")
+  head_owner=$(    jq -r '.headRepositoryOwner.login // empty' <<< "$pr_json")
+  head_repo=$(     jq -r '.headRepository.name // empty'    <<< "$pr_json")  
 
   if [[ -z "$gdasapp_branch" || -z "$head_sha" ]]; then
     echo "ERROR: could not determine head branch/commit of PR #${pr}; will retry next cycle"
@@ -264,12 +280,13 @@ process_pr() {
         return 1
       fi
 
-      companion_repo=$(gh pr view "$companion_pr" --repo "$workflow_repo" --json headRepository --jq '.headRepository.name // empty')
-      companion_sha=$(gh pr view "$companion_pr" --repo "$workflow_repo" --json headRefOid --jq '.headRefOid // empty')
-      if ! valid_repo "$companion_repo" || [[ -z "$companion_sha" ]]; then
-        fail_pr "$pr" "could not read head repository of companion PR #${companion_pr}"
-        return 1
-      fi
+      if ! companion_pr=$(gh_retry pr list --repo "$workflow_repo" \
+	   --head "$gdasapp_branch" --state open \
+	   --json number,headRepositoryOwner \
+	   --jq "[.[] | select(.headRepositoryOwner.login == \"${head_owner}\")][0].number // empty"); then
+	  fail_pr "$pr" "could not query ${workflow_repo} for a companion PR"
+	  return 1
+      fi      
 
       # Construct fork URL. Update workflow branch name
       workflow_clone_url="https://github.com/${head_owner}/${companion_repo}.git"
@@ -336,7 +353,7 @@ process_pr() {
   if [[ $TEST_WORKFLOW == 1 ]]; then
     # get ci tests from PR description and convert into a regular expressions to be excluded
     branch_body=$(gh pr view "$pr" --repo "$gdasapp_repo" --json body --jq '.body')
-    ci_checklist=$(printf '%s\n' "$branch_body" | grep -i '\[x\]')
+    ci_checklist=$(printf '%s\n' "$branch_body" | grep -i '\[x\]' || true)
     ctest_regex_exclude=""
     n_selected=0
 
@@ -369,8 +386,7 @@ process_pr() {
       run_ci_cmd+=(-E "$ctest_regex_exclude")
     fi
   fi
-  "${run_ci_cmd[@]}"
-  ci_status=$?
+  ci_status=0; "${run_ci_cmd[@]}" || ci_status=$?
   echo "Finished running run_ci.sh with ci_status ${ci_status} at $(date)"
 
   # Generate summary and add log URL
