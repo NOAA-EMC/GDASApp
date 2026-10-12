@@ -385,7 +385,7 @@ C96C48_hybatmsnowDA:
         - F:gdas_prep
       gdas_sfcanl_gcycle:
         - F:gdas_anal
-        - F:snowanal
+        - F:gdas_snowanl
       gdas_analcalc:
         - H:enkfgdas_echgres
         - F:gdas_sfcanl_gcycle

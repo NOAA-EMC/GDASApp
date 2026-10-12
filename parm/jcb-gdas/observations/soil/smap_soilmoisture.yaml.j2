@@ -4,23 +4,47 @@
   # -----------------------
   obs space:
     name: {{observation_from_jcb}}
+{% if algorithm == "local_ensemble_da" %}
+    distribution:
+      name: {{ distribution_type }}
+      halo size: {{ halo_size }}
+{% endif %}
     obsdatain:
       engine:
         type: H5File
         obsfile: "{{soil_obsdatain_path}}/{{soil_obsdatain_prefix}}{{observation_from_jcb}}.nc"
         missing file action: warn
     obsdataout:
+      write multiple files: false
       engine:
         type: H5File
         obsfile: "{{soil_obsdataout_path}}/{{soil_obsdataout_prefix}}{{observation_from_jcb}}{{soil_obsdataout_suffix}}"
-    simulated variables: [soilMoistureVolumetric]
-  #
+        allow overwrite: true
+    io pool:
+      max pool size: 1
+    #TODO: change these to include alias names with SoilMoistureVolumetric
+    simulated variables:
+    - soill1 
+    variable maps:
+    - name: soilMoistureVolumetric
+      alias: soill1
 
   # Observation Operator
   # --------------------
   obs operator:
     name: Identity
-  #
+
+  # localization TODO: generalize this condioned on da algo
+  # ------------
+{% if algorithm == "local_ensemble_da" %}
+  obs localizations:
+  - localization method: {{ localization_method }}
+    lengthscale: {{ loc_length_scale }}
+    max nobs: {{ max_nobs }}
+{% endif %}
+
+  obs error:
+    covariance model: diagonal
 
   # Observation Filters (QC)
   # ------------------------
@@ -29,17 +53,11 @@
       flags:
       - name: missing_smc
         initial value: false
-#      - name: missing_elevation
-#        initial value: false
       - name: invalid_smc
         initial value: false
-#      - name: invalid_elevation
-#        initial value: false
       - name: land_check
         initial value: false
       - name: landice_check
-        initial value: false
-      - name: seaice_check
         initial value: false
       - name: snow_check
         initial value: false
@@ -49,20 +67,18 @@
         initial value: false
       - name: elevation_bkgdiff
         initial value: false
-#      - name: rejectlist
-#        initial value: false
       - name: background_check
         initial value: false
     - filter: Perform Action
       filter variables:
-      - name: soilMoistureVolumetric
+      - name: soill1
       action:
         name: assign error
-        error parameter: 0.20
+        error parameter: 0.04
     - filter: Domain Check
       where:
       - variable:
-          name: ObsValue/soilMoistureVolumetric
+          name: ObsValue/soill1
         value: is_valid
       actions:
       - name: set
@@ -72,32 +88,12 @@
   obs prior filters:
     - filter: Bounds Check
       filter variables:
-      - name: soilMoistureVolumetric
+      - name: soill1
       minvalue: 0.0
       maxvalue: 1.0
       actions:
       - name: set
         flag: invalid_smc
-        ignore: rejected observations
-      - name: reject
-    - filter: Domain Check # land only
-      where:
-      - variable:
-          name: GeoVaLs/fraction_of_land
-        minvalue: 0.5
-      actions:
-      - name: set
-        flag: land_check
-        ignore: rejected observations
-      - name: reject
-    - filter: Domain Check # land only, no sea ice
-      where:
-      - variable:
-          name: GeoVaLs/fraction_of_ice
-        maxvalue: 0.0
-      actions:
-      - name: set
-        flag: seaice_check
         ignore: rejected observations
       - name: reject
     - filter: Domain Check   # no snow
@@ -113,7 +109,7 @@
     - filter: Domain Check   # high-quality retrievals
       where:
       - variable:
-          name: PreQC/soilMoistureVolumetric
+          name: PreQC/soill1
         is_in: 0, 8
       actions:
       - name: set
@@ -131,21 +127,45 @@
         flag: landice_check
         ignore: rejected observations
       - name: reject
-    - filter: RejectList   # exclude certain IGBP vegetation types
+    - filter: RejectList   # exclude land ice and water (IGBP vegetation types)
       where:
       - variable:
           name: GeoVaLs/vtype
         absolute_tolerance: 1.0e-3
-        is_close_to_any_of: [1, 2, 3, 4, 13, 15, 17]
+        is_close_to_any_of: [0, 15, 17]  #[0, 1, 2, 3, 4, 13, 15, 17]
       actions:
       - name: set
         flag: vegtype_check
         ignore: rejected observations
       - name: reject
   obs post filters:
+    # Bounds Check (ObsError)
+    - filter: Bounds Check
+      udescriptor: "bounds_check_ObsError"
+      filter variables:
+      - name: soill1
+      test variables:
+      - name:  ObsErrorData/soill1
+      minvalue: 0.0
+      maxvalue: 0.2
+      action:
+        name: reject   
+
+    # Bounds Check (ObsValue)
+    - filter: Bounds Check
+      udescriptor: "bounds_check_ObsValue"
+      filter variables:
+      - name: soill1
+      test variables:
+      - name: ObsValue/soill1
+      minvalue: 0.02
+      maxvalue: 0.5
+      action:
+        name: reject   
+
     - filter: Background Check # gross error check
       filter variables:
-      - name: soilMoistureVolumetric
+      - name: soill1
       #threshold: 5
       absolute threshold: 0.5
       bias correction parameter: 1.0

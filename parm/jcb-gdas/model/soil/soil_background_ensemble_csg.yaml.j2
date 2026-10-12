@@ -1,0 +1,15 @@
+members from template:
+  template:
+    datetime: '{{ soil_background_time_iso }}'
+    datapath: {{ soil_background_ensemble_path }}
+    filetype: cube sphere history
+    provider: ufs
+    filenames:
+    - {{ soil_ensemble_history_prefix }}csg_atm.f006.nc
+    - {{ soil_ensemble_history_prefix }}csg_sfc.f006.nc    
+    max allowable geometry difference: 1e-4
+    state variables: {{ soil_state_variables }}
+    field io names: {{ soil_field_io_names }}
+  pattern: "{{ soil_ensemble_pattern | default("%mem%", true) }}"
+  nmembers: {{ soil_number_ensemble_members }}
+  zero padding: 3
