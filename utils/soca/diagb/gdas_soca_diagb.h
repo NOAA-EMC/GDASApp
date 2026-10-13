@@ -216,9 +216,6 @@ class SocaDiagB : public oops::Application {
                          (var == "sea_water_salinity") ? configD.sigS :
                          (var == "sea_ice_area_fraction") ? configD.sigSic : 0.0;
 
-      // Note: ghost nodes are scaled as well. Skipping them would leave the halo without the
-      // dynamic rescaling, the vertical taper and the static B, which shows up as the pattern of
-      // the MPI decomposition once the field is interpolated to the output geometry.
       for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
         for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
           if (viewBathy(jnode, 0) > 0.0) {
