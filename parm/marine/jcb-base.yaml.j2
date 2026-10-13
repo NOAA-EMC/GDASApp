@@ -68,6 +68,13 @@ marine_number_ensemble_members: '{{NMEM_ENS}}'
 marine_number_ensemble_members_per_mpi: '{{NMEM_ENS_PER_MPI}}'
 marine_stddev_time: '{{ WINDOW_MIDDLE  | to_isotime }}'
 
+# Balance: soca (BalanceSOCA) or torch (TorchBalance, needs gdas built with Torch_ROOT)
+marine_balance: '{{ MARINE_BALANCE | default("soca") }}'
+marine_torch_seaice: {{ MARINE_TORCH_SEAICE | default(false) }}
+{% if MARINE_TORCH_EMULATORS_DIR is defined %}
+marine_torch_emulators_dir: '{{ MARINE_TORCH_EMULATORS_DIR }}'
+{% endif %}
+
 # Observations
 observations: all_observations
 

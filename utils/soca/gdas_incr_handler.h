@@ -61,6 +61,9 @@ namespace gdasapp {
         // Read increment from file
         soca::Increment incr = postProcIncr.read(i);
 
+        // Rotate vector increments from geographical to logical grid
+        postProcIncr.rotate2grid(incr);
+
         // Append variables to the increment
         oops::Variables extraVars(postProcIncr.socaZeroIncrVar_);
         extraVars += postProcIncr.layerVar_;

@@ -2,8 +2,9 @@
 #
 # Two BUMP_NICAS central blocks combined by SABER's hybrid block chain: the
 # existing 200 km operator, unchanged, plus a 100 km operator. The outer blocks
-# (StdDev, TorchBalance) sit at the hybrid level and are applied ONCE to the sum,
-# so the torchscript emulators are still loaded and evaluated a single time.
+# (StdDev, and TorchBalance when marine_balance is torch) sit at the hybrid level
+# and are applied ONCE to the sum, so the torchscript emulators are still loaded
+# and evaluated a single time. See marine_background_error_balance.yaml.j2.
 #
 # Weights are variance weights -- SaberHybridBlockChain applies sqrt(weight) on
 # either side of each component -- so they must sum to 1.0 to leave the total
@@ -16,7 +17,7 @@
 #               surf2d, but its parametric stddev is exactly zero
 #               (`max ssh: 0.0` in soca_diagb.yaml.j2), so its NICAS output is
 #               multiplied away. Every metre of ADT increment instead arrives
-#               through the TorchBalance steric emulator, from T and S. So
+#               through the balance (steric emulator or BalanceSOCA), from T and S. So
 #               shortening surf2d does nothing for ADT; only ocean3d does.
 #
 #   surf2d   -- this is the sea ice lever. sea_ice_area_fraction, thickness and
@@ -156,39 +157,4 @@ saber outer blocks:
       ice_filename: 'ice.bkgerr_parametric_stddev.nc'
       read_from_file: 3
 
-- saber block name: TorchBalance
-  save jacobians: true
-  surface emulators:
-  - name: sea_ice_area_fraction
-    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/runs/ml_aice/ml_aice_dual.ts
-    jacobian wrt:
-    - sea_ice_thickness
-    - sea_ice_snow_thickness
-    - sea_water_salinity
-    - sea_water_potential_temperature
-    jacobian masking:
-      variable: sea_ice_area_fraction
-      level: 0
-
-  vertical emulators:
-  - name: sea_surface_height_above_geoid
-    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/runs/phy_steric/steric.ts
-    jacobian wrt:
-    - sea_water_potential_temperature
-    - sea_water_salinity
-
-  - name: sea_water_salinity
-    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/emulators/heave_salinity/scripts/heave_salinity.ts
-    jacobian wrt:
-    - sea_water_potential_temperature
-
-  non-local emulators:
-  - name: geostrophy
-    path: /scratch3/NCEPDEV/da/Guillaume.Vernieres/sandboxes/saber-pytorch/emulators/geostrophy/scripts/geostrophy_nonlocal.ts
-    geometry tensors:
-    - lonlat
-    - edge_node_connectivity
-    background tensors:
-    - sea_water_potential_temperature
-    - sea_water_salinity
-    - sea_water_cell_thickness
+{% include 'marine_background_error_balance.yaml.j2' %}

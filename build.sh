@@ -112,6 +112,12 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 # Set WORKFLOW_TESTS as CMake option
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
 
+# Optional: build SABER against libtorch if Torch_ROOT is set in the environment
+if [[ -n "${Torch_ROOT:-}" ]]; then
+  echo "Building with Torch from ${Torch_ROOT}"
+  CMAKE_OPTS+=" -DTorch_ROOT=${Torch_ROOT}"
+fi
+
 if [[ $BUILD_SOCA == 'ON' ]]; then
   if [[ $WORKFLOW_BUILD == 'ON' ]]; then
     # Link MOM6 and Icepack in SOCA to submodules in the UFS repo
