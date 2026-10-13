@@ -3,13 +3,13 @@
 # outer block list and adds the BalanceSOCA linear variable change.
 #
 #   marine_balance: torch  -> TorchBalance (requires SABER built with Torch_ROOT)
-#                   soca   -> BalanceSOCA (default)
+#                   soca   -> BalanceSOCA (default, also when undefined)
 #   marine_torch_emulators_dir: directory holding the torchscript (.ts) emulators
 #   marine_torch_seaice: true to also apply the sea ice concentration emulator
-{% if marine_balance == 'torch' %}
+{% if marine_balance | default('soca') == 'torch' %}
 - saber block name: TorchBalance
   save jacobians: true
-{% if marine_torch_seaice %}
+{% if marine_torch_seaice | default(false) %}
   surface emulators:
   - name: sea_ice_area_fraction
     path: '{{ marine_torch_emulators_dir }}/ml_aice_dual_pack05.ts'
