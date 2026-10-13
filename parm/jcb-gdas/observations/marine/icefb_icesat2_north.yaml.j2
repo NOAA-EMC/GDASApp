@@ -84,7 +84,7 @@
     - variable: {name: GeoVaLs/sea_ice_area_fraction}
       minvalue: 0.5
 
-  # Reject sea ice freeboard obs over open/very warm water
+  # Reject sea ice fraction obs over open/very warm water
   - filter: Domain Check
     filter variables:
     - name: seaIceFraction

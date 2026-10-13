@@ -33,6 +33,9 @@ set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
 
 # Handle user options.
 option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
+option(BUILD_JEDI "Build core JEDI libraries (oops, vader, saber, ioda, ufo, crtm, gsibec, bufr-query)" ON)
+option(BUILD_GDAS "Build GDAS application code (fv3-jedi, soca, gdas, da-utils, land-jediincr, jcb)" ON)
+option(BUILD_SOCA "Build SOCA" ON)
 option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
 option(BUILD_REGRID_STATES "Build regrid states land DA utility" ON)
@@ -78,67 +81,72 @@ if(BUILD_GDASBUNDLE)
   # TODO remove the CRTM from here and use it as a library
   #option("BUNDLE_SKIP_CRTM" "Don't build CRTM" "OFF") # Don't build crtm unless user passes -DBUNDLE_SKIP_CRTM=OFF
   #ecbuild_bundle( PROJECT crtm GIT "https://github.com/JCSDA/crtm.git"   TAG v2.4.1-jedi.2 )
-  ecbuild_bundle( PROJECT crtm SOURCE "../sorc/crtm" )
+  if(BUILD_JEDI)
+    ecbuild_bundle( PROJECT crtm SOURCE "../sorc/crtm" )
 
 # Build GSI-B
-  option(BUILD_GSIBEC "Build GSI-B" OFF)
-  if(BUILD_GSIBEC)
-    ecbuild_bundle( PROJECT gsibec SOURCE "../sorc/gsibec" )
-  endif()
+    option(BUILD_GSIBEC "Build GSI-B" OFF)
+    if(BUILD_GSIBEC)
+      ecbuild_bundle( PROJECT gsibec SOURCE "../sorc/gsibec" )
+    endif()
 
-# Gibbs seawater
-  if (BUILD_SOCA)
-    ecbuild_bundle( PROJECT gsw SOURCE "../sorc/gsw" )
-  endif()
+# Gibbs seawater (optional dependency for vader)
+    if (BUILD_SOCA)
+      ecbuild_bundle( PROJECT gsw SOURCE "../sorc/gsw" )
+    endif()
 
 # EMC BUFR-query library
-  ecbuild_bundle( PROJECT bufr-query SOURCE "../sorc/bufr-query" )
+    ecbuild_bundle( PROJECT bufr-query SOURCE "../sorc/bufr-query" )
 
 # Core JEDI repositories
-  ecbuild_bundle( PROJECT oops SOURCE "../sorc/oops" )
-  ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
-  ecbuild_bundle( PROJECT saber SOURCE "../sorc/saber" )
-  option(ENABLE_IODA_DATA "Obtain ioda test data from ioda-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT ioda SOURCE "../sorc/ioda" )
-  option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT ufo SOURCE "../sorc/ufo" )
+    ecbuild_bundle( PROJECT oops SOURCE "../sorc/oops" )
+    ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
+    ecbuild_bundle( PROJECT saber SOURCE "../sorc/saber" )
+    option(ENABLE_IODA_DATA "Obtain ioda test data from ioda-data repository (vs tarball)" ON)
+    ecbuild_bundle( PROJECT ioda SOURCE "../sorc/ioda" )
+    option(ENABLE_UFO_DATA "Obtain ufo test data from ufo-data repository (vs tarball)" ON)
+    ecbuild_bundle( PROJECT ufo SOURCE "../sorc/ufo" )
+  endif(BUILD_JEDI)
+
+# GDAS application code
+  if(BUILD_GDAS)
 
 # fv3-jedi and associated repositories
-  ecbuild_bundle( PROJECT fv3-jedi-lm SOURCE "../sorc/fv3-jedi-lm" )
-  option(ENABLE_FV3_JEDI_DATA "Obtain fv3-jedi test data from fv3-jedi-data repository (vs tarball)" ON)
-  ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
+    ecbuild_bundle( PROJECT fv3-jedi-lm SOURCE "../sorc/fv3-jedi-lm" )
+    option(ENABLE_FV3_JEDI_DATA "Obtain fv3-jedi test data from fv3-jedi-data repository (vs tarball)" ON)
+    ecbuild_bundle( PROJECT fv3-jedi SOURCE "../sorc/fv3-jedi" )
 
 # SOCA associated repositories
-  option(BUILD_SOCA "Build SOCA" ON)
-  if (BUILD_SOCA)
-    ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
-  endif()
+    if (BUILD_SOCA)
+      ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
+    endif()
 
-  # Build JEDI/DA or other peripherals
-  ecbuild_bundle( PROJECT gdas-utils SOURCE "../utils" )
-  ecbuild_bundle( PROJECT da-utils SOURCE "../sorc/da-utils" )
+    # Build JEDI/DA or other peripherals
+    ecbuild_bundle( PROJECT gdas-utils SOURCE "../utils" )
+    ecbuild_bundle( PROJECT da-utils SOURCE "../sorc/da-utils" )
 
 # Build IODA converters
-  if(BUILD_IODA_CONVERTERS)
-    ecbuild_bundle( PROJECT iodaconv SOURCE "../sorc/iodaconv" )
-  endif()
+    if(BUILD_IODA_CONVERTERS)
+      ecbuild_bundle( PROJECT iodaconv SOURCE "../sorc/iodaconv" )
+    endif()
 
 # Land associated repositories
-  ecbuild_bundle( PROJECT land-jediincr SOURCE "../sorc/land-jediincr" )
+    ecbuild_bundle( PROJECT land-jediincr SOURCE "../sorc/land-jediincr" )
 
 # GDASApp
-  ecbuild_bundle( PROJECT gdas SOURCE "../")
+    ecbuild_bundle( PROJECT gdas SOURCE "../")
 
 # Install jcb (JEDI Configuration Builder) Python package
-  message(STATUS "Installing jcb (JEDI Configuration Builder)")
-  execute_process(
-    COMMAND ${Python3_EXECUTABLE} -m pip install --no-deps --no-build-isolation --prefix ${CMAKE_INSTALL_PREFIX} .
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../sorc/jcb
-    RESULT_VARIABLE jcb_install_result
-  )
-  if(NOT jcb_install_result EQUAL 0)
-    message(FATAL_ERROR "Failed to install jcb Python package")
-  endif()
+    message(STATUS "Installing jcb (JEDI Configuration Builder)")
+    execute_process(
+      COMMAND ${Python3_EXECUTABLE} -m pip install --no-deps --no-build-isolation --prefix ${CMAKE_INSTALL_PREFIX} .
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../sorc/jcb
+      RESULT_VARIABLE jcb_install_result
+    )
+    if(NOT jcb_install_result EQUAL 0)
+      message(FATAL_ERROR "Failed to install jcb Python package")
+    endif()
+  endif(BUILD_GDAS)
 
 # ioda, ufo, fv3-jedi, and saber test data
 #---------------------------------

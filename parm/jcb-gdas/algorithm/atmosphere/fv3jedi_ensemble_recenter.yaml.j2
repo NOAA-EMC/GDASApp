@@ -25,64 +25,16 @@ members:
     npz: {{ atmosphere_npz_anl }}
   state:
     datetime: '{{ atmosphere_iau_times_iso[ihour] }}'
-    state variables:
-    - eastward_wind
-    - northward_wind
-    - air_temperature
-    - water_vapor_mixing_ratio_wrt_moist_air
-    - cloud_liquid_ice
-    - cloud_liquid_water
-    - snow_water
-    - rain_water
-    - graupel
-    - ozone_mass_mixing_ratio
-    - air_pressure_thickness
-    - layer_thickness
-    field io names:
-      eastward_wind: u_inc
-      northward_wind: v_inc
-      air_temperature: T_inc
-      water_vapor_mixing_ratio_wrt_moist_air: sphum_inc
-      cloud_liquid_ice: icmr_inc
-      cloud_liquid_water: liq_wat_inc
-      snow_water: snmr_inc
-      rain_water: rwmr_inc
-      graupel: grle_inc
-      ozone_mass_mixing_ratio: o3mr_inc
-      air_pressure_thickness: delp_inc
-      layer_thickness: delz_inc
+    state variables: {{ atmosphere_fv3_increment_variables }}
+    field io names: {{ atmosphere_increment_field_io_names }}
     filetype: cube sphere history
     provider: ufs
     datapath: ./
     filename: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_catmi{{ '%03d' % atmosphere_iau_hours[ihour] }}.nc
     max allowable geometry difference: 1e-4
   increment:
-    added variables:
-    - eastward_wind
-    - northward_wind
-    - air_temperature
-    - water_vapor_mixing_ratio_wrt_moist_air
-    - cloud_liquid_ice
-    - cloud_liquid_water
-    - snow_water
-    - rain_water
-    - graupel
-    - ozone_mass_mixing_ratio
-    - air_pressure_thickness
-    - layer_thickness
-    field io names:
-      eastward_wind: u_inc
-      northward_wind: v_inc
-      air_temperature: T_inc
-      water_vapor_mixing_ratio_wrt_moist_air: sphum_inc
-      cloud_liquid_ice: icmr_inc
-      cloud_liquid_water: liq_wat_inc
-      snow_water: snmr_inc
-      rain_water: rwmr_inc
-      graupel: grle_inc
-      ozone_mass_mixing_ratio: o3mr_inc
-      air_pressure_thickness: delp_inc
-      layer_thickness: delz_inc
+    added variables: {{ atmosphere_fv3_increment_variables }}
+    field io names: {{ atmosphere_increment_field_io_names  }}
     filetype: cube sphere history
     provider: ufs
     datapath: ./mem{{ '%0{}d'.format(3)|format(imember+1) }}
@@ -92,18 +44,6 @@ members:
     is restart: false
     datapath: ./mem{{ '%0{}d'.format(3)|format(imember+1) }}
     filename_nonrestart: {{ atmosphere_ensemble_analysis_prefix }}cubed_sphere_grid_ratmi{{ '%03d' % atmosphere_iau_hours[ihour] }}.nc
-    field io names:
-      eastward_wind: u_inc
-      northward_wind: v_inc
-      air_temperature: T_inc
-      water_vapor_mixing_ratio_wrt_moist_air: sphum_inc
-      cloud_liquid_ice: icmr_inc
-      cloud_liquid_water: liq_wat_inc
-      snow_water: snmr_inc
-      rain_water: rwmr_inc
-      graupel: grle_inc
-      ozone_mass_mixing_ratio: o3mr_inc
-      air_pressure_thickness: delp_inc
-      layer_thickness: delz_inc
+    field io names: {{ atmosphere_increment_field_io_names }}
 {% endfor %}
 {% endfor %}

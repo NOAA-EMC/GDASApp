@@ -147,6 +147,11 @@
   min valid: 0.0
   max valid: 15.0
 
+- name: sea_ice_thickness        # per ice area, i.e. sea_ice_volume / sea_ice_area_fraction
+  io file: ice
+  io name: hi_div_aice_h
+  property: positive_definite
+
 - name: sea_ice_area_fraction
   io file: ice
   io name: aice_h #note, was aicen
@@ -166,6 +171,11 @@
   property: positive_definite
   min valid: 0.0
   max valid: 15.0
+
+- name: sea_ice_snow_thickness   # per ice area, i.e. sea_ice_snow_volume / sea_ice_area_fraction
+  io file: ice
+  io name: hs_div_aice_h
+  property: positive_definite
 
 - name: snow_ice_surface_temperature
   io file: ice

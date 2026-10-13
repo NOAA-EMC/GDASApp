@@ -36,7 +36,7 @@ window_length: PT6H
 bound_to_include: begin
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
-analysis_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,ice_wat,liq_wat,o3mr]
+analysis_variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,ice_wat,liq_wat,o3mr,geopotential_height_at_surface,skin_temperature_at_surface]
 number_of_outer_loops: 2
 
 # Testing
@@ -163,3 +163,55 @@ driver_save_posterior_ensemble_increments: true
 # Diagnostics
 atmosphere_ensemble_increment_prefix: "./anl/mem%{member}%/atminc."
 atmosphere_posterior_output_gaussian: "./mem%{member}%/atmanl."
+
+# Variables needed for testing after centralization into jcb-base.yaml.j2
+atmosphere_det_state_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio, snow_water, rain_water, graupel, geopotential_height_at_surface, cloud_ice_number_concentration, rain_number_concentration, slmsk, sheleg, skin_temperature_at_surface, vtype, stype, vfrac, soilt, soilm, eastward_wind_at_surface, northward_wind_at_surface, ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m]
+atmosphere_jedi2fv3inc_state_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio, snow_water, rain_water, graupel, geopotential_height_at_surface]
+atmosphere_det_increment_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio, snow_water, rain_water, graupel]
+atmosphere_det_increment_variables_molesO3: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, snow_water, rain_water, graupel, mole_fraction_of_ozone_in_air]
+atmosphere_det_increment_variables_noprecip: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio]
+atmosphere_det_increment_variables_molesO3_noprecip: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, mole_fraction_of_ozone_in_air]
+atmosphere_fv3_increment_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, ozone_mass_mixing_ratio, snow_water, rain_water, graupel, air_pressure_thickness, layer_thickness]
+atmosphere_ens_state_variables: [eastward_wind, northward_wind, air_temperature, water_vapor_mixing_ratio_wrt_moist_air, cloud_liquid_ice, cloud_liquid_water, air_pressure_at_surface, ozone_mass_mixing_ratio, snow_water, rain_water, graupel, cloud_ice_number_concentration, rain_number_concentration, slmsk, sheleg, skin_temperature_at_surface, vtype, stype, vfrac, soilt, soilm, eastward_wind_at_surface, northward_wind_at_surface, ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m, geopotential_height_at_surface, layer_thickness, air_pressure_thickness]
+atmosphere_background_field_io_names:
+  eastward_wind: ugrd
+  northward_wind: vgrd
+  air_temperature: tmp
+  layer_thickness: delz
+  air_pressure_thickness: dpres
+  air_pressure_at_surface: pressfc
+  water_vapor_mixing_ratio_wrt_moist_air: spfh
+  cloud_liquid_ice: icmr
+  cloud_liquid_water: clwmr
+  snow_water: snmr
+  rain_water: rwmr
+  graupel: grle
+  cloud_ice_number_concentration: nccice
+  rain_number_concentration: nconrd
+  ozone_mass_mixing_ratio: o3mr
+  ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m: f10m
+  geopotential_height_at_surface: hgtsfc
+  slmsk: land
+  sheleg: weasd
+  skin_temperature_at_surface: tmpsfc
+  stype: sotyp
+  vfrac: veg
+  totalSnowDepthMeters: snod
+  eastward_wind_at_surface: ugrd_hyblev1
+  northward_wind_at_surface: vgrd_hyblev1
+  soilm: soilw1
+  soilt: soilt1
+  soilMoistureVolumetric: smc
+atmosphere_increment_field_io_names:
+  eastward_wind: u_inc
+  northward_wind: v_inc
+  air_temperature: T_inc
+  water_vapor_mixing_ratio_wrt_moist_air: sphum_inc
+  cloud_liquid_water: liq_wat_inc
+  ozone_mass_mixing_ratio: o3mr_inc
+  cloud_liquid_ice: icmr_inc
+  snow_water: snmr_inc
+  rain_water: rwmr_inc
+  graupel: grle_inc
+  air_pressure_thickness: delp_inc
+  layer_thickness: delz_inc
