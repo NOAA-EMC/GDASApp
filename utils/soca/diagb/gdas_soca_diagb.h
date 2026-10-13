@@ -190,6 +190,9 @@ class SocaDiagB : public oops::Application {
           }
         }
       }
+
+      meshConn.nodeColumns.haloExchange(sum_localFs[var]);
+      meshConn.nodeColumns.haloExchange(sum2_localFs[var]);
     }
 
     // -- Step 8: Final variance calculation --
@@ -284,7 +287,6 @@ class SocaDiagB : public oops::Application {
       const auto viewXbVar = atlas::array::make_view<const double, 2>(xbFs[var]);
 
       for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
-        if (meshConn.ghostView(jnode) > 0) continue;
         for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
           if (viewBathy(jnode, 0) > 0.0) {
             double z = viewDepth(jnode, level);
@@ -359,6 +361,12 @@ class SocaDiagB : public oops::Application {
     // Same backward-compatibility fixup as on read: make sure no missing-value
     // sentinel ends up in the file written out below.
     gdasapp::diagb::utils::replaceMissingWithZero(dynaBkgErrFs, configD.socaVars);
+
+    // Steps 8 and 9 modify the fields through atlas views: flag them as dirty.
+    for (const auto & var : configD.socaVars.variables()) {
+      dynaBkgErrFs[var].set_dirty(true);
+      meshConn.nodeColumns.haloExchange(dynaBkgErrFs[var]);
+    }
 
     const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
     soca::Increment bkgErrOut(geomOut, dynaBkgErr);

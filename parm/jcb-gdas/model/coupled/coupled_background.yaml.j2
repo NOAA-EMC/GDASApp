@@ -1,0 +1,9 @@
+{# Coupled background / state: emit one block per model component, reusing each
+   component's existing <component>_background.yaml.j2 fragment. Used for the
+   variational "background" and the HofX "state". #}
+{% for component in coupled_components %}
+{{ component.name }}:
+{% filter indent(width=2) %}
+{% include component.dir ~ '_background.yaml.j2' %}
+{% endfilter %}
+{% endfor %}
