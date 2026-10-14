@@ -1,5 +1,5 @@
 #!/bin/bash --login
-set -euox pipefail
+set -euo pipefail
 
 echo "Starting automated testing at $(date)"
 
