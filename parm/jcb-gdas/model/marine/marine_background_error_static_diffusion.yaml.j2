@@ -1,15 +1,17 @@
 covariance model: SABER
 change background resolution: true
 saber central block:
-  saber block name: diffusion
-  read:
-    groups:
-    - variables: {{ marine_saber_central_block_variables }}
-      horizontal:
-        filepath: ./staticb/hz_ocean
-      vertical:
-        levels: {{marine_vt_levels}}
-        filepath: ./staticb/vt_ocean
+  saber block name: ID
+#saber central block:
+#  saber block name: diffusion
+#  read:
+#    groups:
+#    - variables: {{ marine_saber_central_block_variables }}
+#      horizontal:
+#        filepath: ./staticb/hz_ocean
+#      vertical:
+#        levels: {{marine_vt_levels}}
+#        filepath: ./staticb/vt_ocean
 # TODO(G): OK to not use what's below but it will need
 #          to be fixed when we add ice thickness and
 #          snow depth
@@ -17,15 +19,15 @@ saber central block:
 #      horizontal:
 #        filepath: ./staticb/hz_ice
 
-saber outer blocks:
-- saber block name: StdDev
-  read:
-    model file:
-      date: '{{marine_stddev_time}}'
-      basename: ./staticb/
-      ocn_filename: 'ocn.bkgerr_parametric_stddev.nc'
-      ice_filename: 'ice.bkgerr_parametric_stddev.nc'
-      read_from_file: 3
+#saber outer blocks:
+#- saber block name: StdDev
+#  read:
+#    model file:
+#      date: '{{marine_stddev_time}}'
+#      basename: ./staticb/
+#      ocn_filename: 'ocn.bkgerr_parametric_stddev.nc'
+#      ice_filename: 'ice.bkgerr_parametric_stddev.nc'
+#      read_from_file: 3
 
 #- saber block name: MLBalance
 #  geometry:
@@ -45,8 +47,8 @@ saber outer blocks:
 #        hiddenSize: 2
 #        load model: /work/noaa/da/gvernier/ai/runs/antarctic.pt
 
-linear variable change:
-  input variables: {{ marine_det_increment_variables }}
-  output variables: {{ marine_det_increment_variables }}
-  linear variable changes:
-  - linear variable change name: BalanceSOCA
+#linear variable change:
+#  input variables: {{ marine_det_increment_variables }}
+#  output variables: {{ marine_det_increment_variables }}
+#  linear variable changes:
+#  - linear variable change name: BalanceSOCA
