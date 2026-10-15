@@ -1,0 +1,54 @@
+# Calibrate the horizontal and vertical diffusion operators used by the
+# static background error. i-jedi computes both groups in a single calibration
+# (see i-jedi tier1_integration_diffusion-mom6).
+geometry: &geom
+  geometry_type: mom6
+  ocean_hgrid: {{ marineijedi_ocean_hgrid }}
+  ocean_topog: {{ marineijedi_ocean_topog }}
+  vertical geometry from: {{ marineijedi_vertical_geometry_from }}
+  coarsen factor: {{ marineijedi_coarsen_factor | default(1) }}
+  has northern fold: {{ marineijedi_has_northern_fold | default(true) }}
+  MOM_input:
+    NIGLOBAL: {{ marineijedi_niglobal }}
+    NJGLOBAL: {{ marineijedi_njglobal }}
+    NZ: {{ marineijedi_nz }}
+    LAYOUT: {{ marineijedi_layout }}
+    MINIMUM_DEPTH: {{ marineijedi_minimum_depth | default(0.5) }}
+
+background:
+  date: '{{ marineijedi_window_end_iso }}'
+  state variables:
+  - sea_water_salinity
+  - sea_water_potential_temperature
+  - sea_surface_height_above_geoid
+  io:
+    filetype: mom6
+    datapath: {{ marineijedi_background_path }}
+    ocn_file: MOM.res.nc
+    fix_file: {{ marineijedi_fix_file | default('mom6_structuredgeometry_cache_grid.nc') }}
+    field io names:
+      sea_water_potential_temperature: Temp
+      sea_water_salinity: Salt
+      sea_surface_height_above_geoid: ave_ssh
+
+background error:
+  covariance model: SABER
+  saber central block:
+    saber block name: diffusion
+    geometry: *geom
+    calibration:
+      normalization:
+        method: randomization
+        iterations: {{ marineijedi_diffusion_normalization_iterations | default(1000) }}
+      groups:
+      - horizontal:
+          fixed value: {{ marineijedi_hz_diffusion_sigma | default(100000.0) }}    # Gaussian sigma in meters
+          as gaussian: true
+        write:
+          filepath: ./staticb/hz_ocean
+      - vertical:
+          fixed value: {{ marineijedi_vt_diffusion_sigma | default(2.0) }}         # Gaussian sigma in levels
+          levels: {{ marineijedi_vt_levels }}
+          as gaussian: true
+        write:
+          filepath: ./staticb/vt_ocean
