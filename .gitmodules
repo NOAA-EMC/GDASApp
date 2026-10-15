@@ -70,3 +70,11 @@
   url = https://github.com/noaa-emc/spoc.git
   branch = develop
   ignore = dirty
+[submodule "sorc/mist"]
+  path = sorc/mist
+  url = https://github.com/JCSDA-internal/mist.git
+  branch = develop
+[submodule "sorc/i-jedi"]
+  path = sorc/i-jedi
+  url = https://github.com/NOAA-EMC/i-jedi.git
+  branch = develop

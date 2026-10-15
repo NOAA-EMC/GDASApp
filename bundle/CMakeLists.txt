@@ -34,8 +34,9 @@ set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
 # Handle user options.
 option(BUILD_GDASBUNDLE "Build GDAS Bundle" ON)
 option(BUILD_JEDI "Build core JEDI libraries (oops, vader, saber, ioda, ufo, crtm, gsibec, bufr-query)" ON)
-option(BUILD_GDAS "Build GDAS application code (fv3-jedi, soca, gdas, da-utils, land-jediincr, jcb)" ON)
+option(BUILD_GDAS "Build GDAS application code (fv3-jedi, soca, i-jedi, gdas, da-utils, land-jediincr, jcb)" ON)
 option(BUILD_SOCA "Build SOCA" ON)
+option(BUILD_IJEDI "Build i-jedi and its mist dependency" ON)
 option(CLONE_JCSDADATA "Clone JCSDA test data repositories" OFF)
 option(WORKFLOW_TESTS "Include global-workflow dependent tests" OFF)
 option(BUILD_REGRID_STATES "Build regrid states land DA utility" ON)
@@ -101,6 +102,9 @@ if(BUILD_GDASBUNDLE)
 # Core JEDI repositories
     ecbuild_bundle( PROJECT oops SOURCE "../sorc/oops" )
     ecbuild_bundle( PROJECT vader SOURCE "../sorc/vader" )
+    if (BUILD_IJEDI)
+      ecbuild_bundle( PROJECT mist SOURCE "../sorc/mist" )
+    endif()
     ecbuild_bundle( PROJECT saber SOURCE "../sorc/saber" )
     option(ENABLE_IODA_DATA "Obtain ioda test data from ioda-data repository (vs tarball)" ON)
     ecbuild_bundle( PROJECT ioda SOURCE "../sorc/ioda" )
@@ -119,6 +123,11 @@ if(BUILD_GDASBUNDLE)
 # SOCA associated repositories
     if (BUILD_SOCA)
       ecbuild_bundle( PROJECT soca SOURCE "../sorc/soca" )
+    endif()
+
+# i-jedi (generic model interface for FV3 and MOM6)
+    if (BUILD_IJEDI)
+      ecbuild_bundle( PROJECT ijedi SOURCE "../sorc/i-jedi" )
     endif()
 
     # Build JEDI/DA or other peripherals
