@@ -1,6 +1,6 @@
 CostJo   : Nonlinear Jo(prepbufr_adpsfc) = 9.3192538069534858e+03, nobs = 12270, Jo/n = 7.5951538768977067e-01, err = 1.6460955224647131e+02
 CostJo   : Nonlinear Jo(prepbufr_adpupa) = 3.6897426648094799e+04, nobs = 38287, Jo/n = 9.6370639245944578e-01, err = 2.4826839926375126e+01
-CostJo   : Nonlinear Jo(prepbufr_sfcshp) = 2.3791542312071397e+03, nobs = 3778, Jo/n = 6.2973907655032813e-01, err = 2.6733197482531385e+09
+CostJo   : Nonlinear Jo(prepbufr_sfcshp) = 2.3791542312071397e+03, nobs = 3508, Jo/n = 6.7820816168960651e-01, err = 1.1024259276516742e+02
 CostJo   : Nonlinear Jo(gnssro_cosmic2) = 7.1783483930399030e+04, nobs = 227798, Jo/n = 3.1511902620040139e-01, err = 3.3492091544180672e-04
 CostFunction: Nonlinear J = 1.2037931861665446e+05
 DRPCGMinimizer: reduction in residual norm = 8.4933424355170173e-01
@@ -36,7 +36,7 @@ water_vapor_mixing_ratio_wrt_moist_air       | Min:+0.0000000000000000e+00 Max:+
 ----------------------------------------------------------------------------------------------------
 CostJo   : Nonlinear Jo(prepbufr_adpsfc) = 7561.793820535778, nobs = 12270, Jo/n = 0.6162831149580911, err = 164.6095522464713
 CostJo   : Nonlinear Jo(prepbufr_adpupa) = 35619.33180455379, nobs = 38287, Jo/n = 0.9303244392235952, err = 24.82683992637513
-CostJo   : Nonlinear Jo(prepbufr_sfcshp) = 2228.459221816945, nobs = 3778, Jo/n = 0.5898515674475766, err = 2673319748.253139
+CostJo   : Nonlinear Jo(prepbufr_sfcshp) = 2228.459221816945, nobs = 3508, Jo/n = 0.6352506333571678, err = 110.2425927651674
 CostJo   : Nonlinear Jo(gnssro_cosmic2) = 69798.58043629254, nobs = 227740, Jo/n = 0.306483623589587, err = 0.0003342654311522115
 CostFunction: Nonlinear J = 115208.1652831991
 DRPCGMinimizer: reduction in residual norm = 1.066826680526896
@@ -72,6 +72,6 @@ water_vapor_mixing_ratio_wrt_moist_air       | Min:+0.0000000000000000e+00 Max:+
 ----------------------------------------------------------------------------------------------------
 CostJo   : Nonlinear Jo(prepbufr_adpsfc) = 6671.777783242953, nobs = 12270, Jo/n = 0.5437471705984477, err = 164.6095522464713
 CostJo   : Nonlinear Jo(prepbufr_adpupa) = 34090.01430169884, nobs = 38287, Jo/n = 0.890380920461223, err = 24.82683992637513
-CostJo   : Nonlinear Jo(prepbufr_sfcshp) = 2073.30675759477, nobs = 3778, Jo/n = 0.5487842132331312, err = 2673319748.253139
+CostJo   : Nonlinear Jo(prepbufr_sfcshp) = 2073.30675759477, nobs = 3508, Jo/n = 0.5910224508536972, err = 110.2425927651674
 CostJo   : Nonlinear Jo(gnssro_cosmic2) = 66973.80759269555, nobs = 227693, Jo/n = 0.2941408281883745, err = 0.0003337547966040853
 CostFunction: Nonlinear J = 109808.9064352321
