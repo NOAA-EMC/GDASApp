@@ -85,6 +85,9 @@ case ${BUILD_TARGET} in
     module load GDAS/$BUILD_TARGET.$COMPILER
     CMAKE_OPTS+=" -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC -DBUILD_GSIBEC=$BUILD_GSIBEC -DBUILD_IODA_CONVERTERS=$BUILD_IODA_CONVERTERS -DBUILD_SOCA=$BUILD_SOCA"
     module list
+    module load rdhpcs-python/3.13
+    source /scratch4/NCEPDEV/stmp/Cory.R.Martin/oct2026/geode-venv/bin/activate
+    export pybind11_DIR=$(python -m pybind11 --cmakedir)
     ;;
   $(hostname))
     echo "Building GDASApp on $BUILD_TARGET"
