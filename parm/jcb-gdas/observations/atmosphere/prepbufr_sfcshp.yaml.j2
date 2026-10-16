@@ -321,6 +321,16 @@
           variable: {{ var }}
           surface observation error ramp: false
           inflation factor: 8.0
+
+  # Reject obs given drpx = 1e10 by the pressure check (|dpres| > 4 model levels,
+  # e.g. ships next to elevated model terrain). GSI keeps these with ~zero weight.
+  - filter: Bounds Check
+    filter variables:
+    - name: {{ var }}
+    test variables:
+    - name: ObsErrorData/{{ var }}
+    maxvalue: 1.0e9
+    defer to post: true # needs GeoVaLs-based error from the pressure check
 {% endfor %}
 
   # Observation Post Filters (QC)
