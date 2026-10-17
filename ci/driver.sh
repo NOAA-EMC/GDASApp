@@ -213,14 +213,29 @@ process_pr() {
 
   # --------------------------------------------------------------------------
   # Gather PR information (all queries are against the upstream repo)
-  pr_json=$(gh_retry pr view "$pr" --repo "$gdasapp_repo" \
-		     --json headRefName,headRefOid,headRepositoryOwner,headRepository) \
-      || { echo "ERROR: gh failed to read PR #${pr}; will retry next cycle"; return 1; }
-  
-  gdasapp_branch=$(jq -r '.headRefName // empty'            <<< "$pr_json")
-  head_sha=$(      jq -r '.headRefOid // empty'             <<< "$pr_json")
-  head_owner=$(    jq -r '.headRepositoryOwner.login // empty' <<< "$pr_json")
-  head_repo=$(     jq -r '.headRepository.name // empty'    <<< "$pr_json")  
+  pr_meta=$(gh_retry pr view "$pr" --repo "$gdasapp_repo" \
+      --json headRefName,headRefOid,headRepositoryOwner,headRepository) || {
+    echo "ERROR: gh failed to read PR #${pr}; will retry next cycle"
+    return 1
+  }
+  pr_fields=$(printf '%s\n' "$pr_meta" | python3 -c '
+  import json
+  import sys
+
+  payload = json.load(sys.stdin)
+  print(payload.get("headRefName") or "")
+  print(payload.get("headRefOid") or "")
+  print((payload.get("headRepositoryOwner") or {}).get("login") or "")
+  print((payload.get("headRepository") or {}).get("name") or "")
+  ') || {
+    echo "ERROR: could not parse PR #${pr} metadata from GitHub"
+    return 1
+  }
+  readarray -t pr_values <<< "$pr_fields"
+  gdasapp_branch=${pr_values[0]}
+  head_sha=${pr_values[1]}
+  head_owner=${pr_values[2]}
+  head_repo=${pr_values[3]}
 
   if [[ -z "$gdasapp_branch" || -z "$head_sha" ]]; then
     echo "ERROR: could not determine head branch/commit of PR #${pr}; will retry next cycle"
