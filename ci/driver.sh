@@ -213,22 +213,10 @@ process_pr() {
 
   # --------------------------------------------------------------------------
   # Gather PR information (all queries are against the upstream repo)
-  pr_meta=$(gh_retry pr view "$pr" --repo "$gdasapp_repo" \
-      --json headRefName,headRefOid,headRepositoryOwner,headRepository) || {
+  pr_fields=$(gh_retry pr view "$pr" --repo "$gdasapp_repo" \
+      --json headRefName,headRefOid,headRepositoryOwner,headRepository \
+      --jq '.headRefName // "", .headRefOid // "", (.headRepositoryOwner.login // ""), (.headRepository.name // "")') || {
     echo "ERROR: gh failed to read PR #${pr}; will retry next cycle"
-    return 1
-  }
-  pr_fields=$(printf '%s\n' "$pr_meta" | python3 -c '
-  import json
-  import sys
-
-  payload = json.load(sys.stdin)
-  print(payload.get("headRefName") or "")
-  print(payload.get("headRefOid") or "")
-  print((payload.get("headRepositoryOwner") or {}).get("login") or "")
-  print((payload.get("headRepository") or {}).get("name") or "")
-  ') || {
-    echo "ERROR: could not parse PR #${pr} metadata from GitHub"
     return 1
   }
   readarray -t pr_values <<< "$pr_fields"
