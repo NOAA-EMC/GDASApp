@@ -280,13 +280,12 @@ process_pr() {
         return 1
       fi
 
-      if ! companion_json=$(gh_retry pr view "$companion_pr" --repo "$workflow_repo" \
-           --json headRepository,headRefOid); then
+      if ! companion_repo=$(gh_retry pr view "$companion_pr" --repo "$workflow_repo" \
+           --json headRepository --jq '.headRepository.name // empty'); then
         fail_pr "$pr" "could not read head repository of companion PR #${companion_pr}"
         return 1
       fi
-      companion_repo=$(jq -r '.headRepository.name // empty' <<< "$companion_json")
-      companion_sha=$(jq -r '.headRefOid // empty' <<< "$companion_json")
+      companion_sha=$(gh_retry pr view "$companion_pr" --repo "$workflow_repo" --json headRefOid --jq '.headRefOid // empty')
       if ! valid_repo "$companion_repo" || [[ -z "$companion_sha" ]]; then
         fail_pr "$pr" "could not read head repository of companion PR #${companion_pr}"
         return 1
