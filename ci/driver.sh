@@ -280,13 +280,17 @@ process_pr() {
         return 1
       fi
 
-      if ! companion_pr=$(gh_retry pr list --repo "$workflow_repo" \
-	   --head "$gdasapp_branch" --state open \
-	   --json number,headRepositoryOwner \
-	   --jq "[.[] | select(.headRepositoryOwner.login == \"${head_owner}\")][0].number // empty"); then
-	  fail_pr "$pr" "could not query ${workflow_repo} for a companion PR"
-	  return 1
-      fi      
+      if ! companion_json=$(gh_retry pr view "$companion_pr" --repo "$workflow_repo" \
+           --json headRepository,headRefOid); then
+        fail_pr "$pr" "could not read head repository of companion PR #${companion_pr}"
+        return 1
+      fi
+      companion_repo=$(jq -r '.headRepository.name // empty' <<< "$companion_json")
+      companion_sha=$(jq -r '.headRefOid // empty' <<< "$companion_json")
+      if ! valid_repo "$companion_repo" || [[ -z "$companion_sha" ]]; then
+        fail_pr "$pr" "could not read head repository of companion PR #${companion_pr}"
+        return 1
+      fi
 
       # Construct fork URL. Update workflow branch name
       workflow_clone_url="https://github.com/${head_owner}/${companion_repo}.git"
