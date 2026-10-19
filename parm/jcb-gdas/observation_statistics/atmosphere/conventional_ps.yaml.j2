@@ -1,0 +1,50 @@
+- obs space:
+    name: prepbufr_adpsfc
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{ atmosphere_obsdatain_path }}/{{ atmosphere_obsdatain_prefix }}{{ observation_from_jcb }}{{ atmosphere_obsdatain_suffix }}"
+    simulated variables: ['stationPressure']
+    observed variables: ['stationPressure']
+  statistics to compute: ['mean', 'count', 'RMS']
+  variables: ['stationPressure']
+  groups to process: ['ombg', 'oman']
+  qc groups: ['EffectiveQC0', 'EffectiveQC1']  
+  output file: "{{ atmosphere_obsdataout_path }}/{{ atmosphere_obsdataout_prefix }}{{ observation_from_jcb }}{{ atmosphere_obsdataout_suffix }}"
+  output ascii file: "{{ atmosphere_obsdataout_path }}/{{ observation_from_jcb }}_ioda_stats.txt"
+  regular grid binning:
+    bin size in degrees: 1.0
+    use negative longitudes: true 
+  domains to process:
+  - domain:
+      name: "SH"
+      first mask variable: latitude
+      first mask range: [-90,0]
+  - domain:
+      name: "NH"
+      first mask variable: latitude
+      first mask range: [0,90]
+  - domain:
+      name: "CONUS"
+      first mask variable: latitude
+      first mask range: [25,49]
+      second mask variable: longitude
+      second mask range: [-125,-66]
+  - domain:
+      name: "Europe"
+      first mask variable: latitude
+      first mask range: [35,70]
+      second mask variable: longitude
+      second mask range: [-11,38]
+  - domain:
+      name: "Africa"
+      first mask variable: latitude
+      first mask range: [-35,37]
+      second mask variable: longitude
+      second mask range: [-17,52]
+  - domain:
+      name: "Asia"
+      first mask variable: latitude
+      first mask range: [0,70]
+      second mask variable: longitude
+      second mask range: [38, 180]
