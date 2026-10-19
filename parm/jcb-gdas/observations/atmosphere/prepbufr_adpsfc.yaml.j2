@@ -52,6 +52,9 @@
 
 {% set assim_variables = ['stationPressure', 'airTemperatureAt2M'] %}
 {% set assim_obstypes         = [181, 187] %}
+{# Prepbufr from the v16 obs-processing workflow has QM=9 and no obs error for (nearly) all 2m T.  #}
+{# If true, keep these obs with a 2.0 K error (as the GSI's ignore_2mQM). Can be overridden in the jcb config. #}
+{% set ignore_2mQM_from_v16_prepbufr = ignore_2mQM_from_v16_prepbufr | default(true) %}
 
   obs pre filters:
 
@@ -130,12 +133,17 @@
         name: MetaData/stationIdentification
       is_in: {{ get_conventional_rejected_stations(observation_from_jcb, 'airTemperatureAt2M') }}
 
+  # if ignore_2mQM_from_v16_prepbufr, keep QM=9 obs (GSI ignore_2mQM treats QM=9 as QM=2)
   - filter: RejectList
     filter variables:
     - name: airTemperatureAt2M
     where:
     - variable: QualityMarker/airTemperatureAt2M
+{% if ignore_2mQM_from_v16_prepbufr %}
+      is_in: 8, 10-15
+{% else %}
       is_in: 8-15
+{% endif %}
       value: is_not_valid
     where operator: or
 
@@ -258,6 +266,19 @@
   # temperature error assignments
   # ---------------------------------
 
+{% if ignore_2mQM_from_v16_prepbufr %}
+  # GSI ignore_2mQM: QM=9 obs have no obs error, assign 2.0 K
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperatureAt2M
+    where:
+    - variable: QualityMarker/airTemperatureAt2M
+      is_in: 9
+    action:
+      name: assign error
+      error parameter: 2.0
+
+{% endif %}
   - filter: Variable Assignment
     assignments:
     - name: InputObsError/airTemperatureAt2M
