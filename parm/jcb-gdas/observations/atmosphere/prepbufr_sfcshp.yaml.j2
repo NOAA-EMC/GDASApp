@@ -322,8 +322,7 @@
           surface observation error ramp: false
           inflation factor: 8.0
 
-  # Reject obs given drpx = 1e10 by the pressure check (|dpres| > 4 model levels,
-  # e.g. ships next to elevated model terrain). GSI keeps these with ~zero weight.
+  # Above assigns large errors; reject for easier book-keeping
   - filter: Bounds Check
     filter variables:
     - name: {{ var }}
