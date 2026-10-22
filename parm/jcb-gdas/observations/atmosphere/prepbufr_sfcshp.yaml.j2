@@ -321,6 +321,16 @@
           variable: {{ var }}
           surface observation error ramp: false
           inflation factor: 8.0
+
+  # Above assigns large errors; reject for easier book-keeping
+  - filter: Bounds Check
+    filter variables:
+    - name: {{ var }}
+    test variables:
+    - name: ObsErrorData/{{ var }}
+    maxvalue: 1.0e9
+    defer to post: true # needs GeoVaLs-based error from the pressure check
+
 {% endfor %}
 
   # Observation Post Filters (QC)
