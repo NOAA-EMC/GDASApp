@@ -1,0 +1,131 @@
+ &SETUP
+   qoption=2,
+!  pseudo_q2=.false.,
+   mockbkg=.false.,
+   cwoption=3,
+ /
+ &GRIDOPTS
+   JCAP=192,JCAP_B=384,NLAT=386,NLON=768,nsig=127,
+   USE_SP_EQSPACE=.false.,
+ /
+ 
+ &STRONGOPTS
+   tlnmc_option=TLNMC_OPTION,nstrong=1,nvmodes_keep=NVMODES_KEEP,period_max=6.,period_width=1.5,baldiag_full=.false.,baldiag_inc=.false.,
+ /
+ 
+ &BKGERR
+   vs=0.7,
+   hzscl=1.7,0.8,0.5,
+   hswgt=0.45,0.3,0.25,
+   bw=0.0,norsp=4,
+   bkgv_flowdep=.false.,bkgv_rewgtfct=1.5,
+!  bkgv_flowdep=.true.,bkgv_rewgtfct=1.5,
+!  bkgv_write=.true.,
+!  bkgv_write_cv='cv_bundle',
+!  simcv=.true,
+!  bkgv_write_sv='sv_bundle',
+   simcv=.false.,
+ /
+
+ &HYBRID_ENSEMBLE
+   l_hyb_ens=.true., uv_hyb_ens=.true.,
+   beta_s0=BETAS0,s_ens_h=800.,s_ens_v=-0.8,
+   generate_ens=.false.,
+   NLAT_ENS=386,NLON_ENS=768,JCAP_ENS=192,jcap_ens_test=192,
+   use_localization_grid=.false.,
+   readin_localization=.true.,
+   readin_beta=.false.,
+   ens_fname_tmpl='./ens/mem%e3/PREFIX_ENS.atm.f006.nc',
+   EnsSource='GFS',
+   n_ens=NMEM_ENS,
+   write_ens_sprd=.false.,
+   ens_fast_read=.false.,
+ /
+
+met_guess::
+!var     level   crtm_use    desc                 orig_name
+  ps        1      -1         surface_pressure     ps
+  z         1      -1         geopotential_height  phis
+  u       127       2         zonal_wind           u
+  v       127       2         meridional_wind      v
+  div     127      -1         zonal_wind           div
+  vor     127      -1         meridional_wind      vor
+  tv      127       2         virtial_temperature  tv
+  tsen    127       2         sensible_temperature tsen
+  q       127       2         specific_humidity    sphum
+  oz      127       2         ozone                o3mr
+  ql      127      12         Water                ql
+  qi      127      12         Ice                  qi
+  qr      127      12         Rain                 qr
+  qs      127      12         Snow                 qs
+  qg      127      12         Graupel              qg
+! ni      127       1         cloud_ice conc       ni
+! nr      127       1         rain conc            nr
+::
+
+state_derivatives::
+!var  level  src
+ ps   1      met_guess
+ u    127    met_guess
+ v    127    met_guess
+ tv   127    met_guess
+ q    127    met_guess
+ oz   127    met_guess
+ ql   127    met_guess
+ qi   127    met_guess
+ qr   127    met_guess
+ qs   127    met_guess
+ qg   127    met_guess
+ prse 128    met_guess
+::
+
+state_tendencies::
+!var  levels  source
+ u    127     met_guess
+ v    127     met_guess
+ tv   127     met_guess
+ q    127     met_guess
+ oz   127     met_guess
+ ql   127     met_guess
+ qi   127     met_guess
+ qr   127     met_guess
+ qs   127     met_guess
+ qg   127     met_guess
+ prse 128     met_guess
+::
+
+state_vector::
+!var     level  itracer source     funcof
+ u       127      0     met_guess    u
+ v       127      0     met_guess    v
+ tv      127      0     met_guess    tv
+ tsen    127      0     met_guess    tv,q
+ q       127      1     met_guess    q
+ oz      127      1     met_guess    oz
+ ql      127      1     met_guess    ql
+ qi      127      1     met_guess    qi
+ qr      127      1     met_guess    qr
+ qs      127      1     met_guess    qs
+ qg      127      1     met_guess    qg
+ prse    128      0     met_guess    prse
+ ps        1      0     met_guess    prse
+ sst       1      0     met_guess    sst
+::
+
+control_vector::
+!var     level  itracer as/tsfc_sdv  an_amp0   source  funcof  be
+ sf      127      0       1.00        -1.0     state    u,v     -1.00
+ vp      127      0       1.00        -1.0     state    u,v     -1.00
+ t       127      0       1.50        -1.0     state    tv      -1.00
+ q       127      1       1.50        -1.0     state    q       -1.00
+ oz      127      1       2.00        -1.0     state    oz      -1.00
+ ql      127      1       1.00        -1.0     state    ql      -1.00
+ qi      127      1       1.00        -1.0     state    qi      -1.00
+ qr      127      1       1.00        -1.0     state    qr      -1.00
+ qs      127      1       1.00        -1.0     state    qs      -1.00
+ qg      127      1       1.00        -1.0     state    qg      -1.00
+ ps        1      0       1.20        -1.0     state    prse    -1.00
+ sst       1      0       1.00        -1.0     state    sst     -1.00
+ stl       1      0       3.00        -1.0     motley   sst     -1.00
+ sti       1      0       3.00        -1.0     motley   sst     -1.00
+::
