@@ -86,13 +86,17 @@ marine_vt_levels: '{{MOM6_LEVS}}'
 
 # i-jedi MOM6 geometry (JEDI_MARINE_INTERFACE=ijedi)
 # --------------------------------------------------
-# Grid dimensions must match the staged MOM_input (only 5 deg, 72x35x25, is supported;
-# config.marineanl enforces OCNRES=500). The layout is derived by config.resources
-# (marineanlinit) from the marineanlvar task count. i-jedi treats MINIMUM_DEPTH as the depth
-# below which cells are land, i.e. MOM6's MASKING_DEPTH (0.0), not MOM6's MINIMUM_DEPTH.
-marine_ijedi_niglobal: 72
-marine_ijedi_njglobal: 35
-marine_ijedi_minimum_depth: 0.0
+# Grid dimensions must match the staged MOM_input (5 deg 72x35, 1 deg 360x320, 1/4 deg 1440x1080,
+# 1/12 deg 4500x3297; config.base rejects other OCNRES). i-jedi analyses on this native grid:
+# SOCA_ANL_GEOM is not used. The layout is derived by config.resources (marineanlinit) from the
+# marineanlvar task count. i-jedi treats MINIMUM_DEPTH as the depth below which cells are land,
+# i.e. MOM6's MASKING_DEPTH (0.0 at 500/100/025), or MOM6's MINIMUM_DEPTH when MASKING_DEPTH is
+# unset (MOM_input_008: MASKING_DEPTH = -9999.0, MINIMUM_DEPTH = 3.0).
+{% set _ijedi_mom6_grid = {'500': [72, 35, 0.0], '100': [360, 320, 0.0], '025': [1440, 1080, 0.0],
+                           '008': [4500, 3297, 3.0]}[OCNRES] %}
+marine_ijedi_niglobal: {{ _ijedi_mom6_grid[0] }}
+marine_ijedi_njglobal: {{ _ijedi_mom6_grid[1] }}
+marine_ijedi_minimum_depth: {{ _ijedi_mom6_grid[2] }}
 marine_ijedi_nz: '{{MOM6_LEVS}}'
 marine_ijedi_layout_x: {{ layout_marine_ijedi_x | default(1, true) }}
 marine_ijedi_layout_y: {{ layout_marine_ijedi_y | default(1, true) }}
