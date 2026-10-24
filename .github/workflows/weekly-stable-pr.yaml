@@ -43,7 +43,7 @@ jobs:
         id: pr_status
         env:
           GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
+          REPO: NOAA-EMC/GDASApp
           DATE_STR: ${{ steps.date.outputs.date_str }}
         run: |
           # 1. Check if there are ahead commits between branches
@@ -91,7 +91,7 @@ jobs:
         if: ${{ (fromJSON(steps.pr_status.outputs.ahead_by) > 0 || steps.pr_status.outputs.pr_number != '') && steps.pr_status.outputs.already_updated == 'false' }}
         env:
           GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
+          REPO: NOAA-EMC/GDASApp
           DATE_STR: ${{ steps.date.outputs.date_str }}
           PR_NUM: ${{ steps.pr_status.outputs.pr_number }}
           TITLE: "Weekly Merge: stable-nightly to develop (${{ steps.date.outputs.date_str }})"
