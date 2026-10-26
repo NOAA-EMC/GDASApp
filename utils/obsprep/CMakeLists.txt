@@ -47,3 +47,11 @@ target_include_directories(netcdf2ioda PUBLIC ${OOPS_INCLUDE_DIRS})
 target_link_libraries(netcdf2ioda PUBLIC oops ioda)
 
 add_subdirectory(applications)
+
+# Install libnetcdf2ioda into ${CMAKE_INSTALL_LIBDIR}
+install(TARGETS netcdf2ioda
+    EXPORT GDASAppTargets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
