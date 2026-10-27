@@ -251,14 +251,14 @@
           - name: DerivedMetaData/omf2_diff_300_obs2
           coefs: [1, -33.58]
           total coefficient: 0.13
-          where:
-          - variable:
-              name: DerivedMetaData/surface_water_ice_snow
-            is_in: 1
-          - variable:
-              name: ObsValue/brightnessTemperature_2
-            maxvalue: 300.0
-            max_exclusive: true
+    where:
+    - variable:
+        name: DerivedMetaData/surface_water_ice_snow
+      is_in: 1
+    - variable:
+        name: ObsValue/brightnessTemperature_2
+      maxvalue: 300.0
+      max_exclusive: true
   # Step E5: Make cloud_index >= 0
   - filter: Variable Assignment
     assignments:
@@ -334,11 +334,11 @@
           variables:
           - name: DerivedMetaData/inflationFactor0
           exponents: [-0.5]
-          where:
-          - variable:
-              name: DerivedMetaData/tpwc_index
-            maxvalue: 1.0
-            max_exclusive: true
+    where:
+    - variable:
+        name: DerivedMetaData/tpwc_index
+      maxvalue: 1.0
+      max_exclusive: true
   # Step H2: Assign inflationFactor1 = 1.0 where tpwc_index >= 1.0
   - filter: Variable Assignment
     assignments:
