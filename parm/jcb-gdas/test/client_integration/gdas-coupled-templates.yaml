@@ -22,6 +22,7 @@ app_paths_model_extra:
 - gdas/model/atmosphere
 - gdas/model/marine
 app_path_observations: gdas/observations/atmosphere
+app_path_observation_chronicle: gdas/observation_chronicle/atmosphere
 app_paths_observations_extra:
 - gdas/observations/marine
 
@@ -139,10 +140,10 @@ marine_saber_central_block_variables: [sea_ice_area_fraction, sea_water_salinity
 marine_det_increment_variables: [sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness, sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid]
 
 # Observations: one atmosphere obs and one marine obs to exercise both components.
-# No observation chronicle is used, so all listed observers are kept.
+# The atmosphere observation chronicle provides the prepbufr_adpsfc station reject lists.
 # -------------------------------------------------------------------------------
 observations:
-- conventional_ps
+- prepbufr_adpsfc
 - adt_rads_all
 
 # Atmosphere obs file naming
