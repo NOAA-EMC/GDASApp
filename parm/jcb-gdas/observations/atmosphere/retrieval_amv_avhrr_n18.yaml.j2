@@ -27,12 +27,14 @@
   #       even including the temporal thinning which is applied in GSI but not JEDI (by this filter below). See
   #       GDASApp Issue #741 for details: https://github.com/NOAA-EMC/GDASApp/issues/741
   #obs pre filters:
+  #{% if do_thinning | default(true) %}
   #- filter: Gaussian Thinning
   #  horizontal_mesh: 200
   #  vertical_mesh: 10000
   #  use_reduced_horizontal_grid: true
   #  round_horizontal_bin_count_to_nearest: true
   #  partition_longitude_bins_using_mesh: true
+  #{% endif %}
 
   obs prior filters:
   # Apply variable changes needed for wind scaling

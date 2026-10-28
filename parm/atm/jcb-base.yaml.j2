@@ -182,6 +182,13 @@ observations: all_observations
 
 crtm_coefficient_path: "{{ DATA }}/crtm/"
 
+# rad_to_tb for hyperspectral sounders?
+rad_to_tb: true
+
+# Default thinning distance:
+default_horizontal_mesh: 145
+do_thinning: false
+
 # Naming conventions for observational files
 
 atmosphere_obsdatain_path: "{{DATA}}/obs"
@@ -198,17 +205,26 @@ atmosphere_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 atmosphere_obsbiasin_path: "{{DATA}}/bc_in/"
 atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
-atmosphere_obsbiasin_suffix: ".bias.nc"
+atmosphere_obsbiasin_suffix: ".satbias.nc"
 atmosphere_obstlapsein_prefix: "{{GPREFIX}}"
 atmosphere_obstlapsein_suffix: ".tlapse.txt"
 atmosphere_obsbiascovin_prefix: "{{GPREFIX}}"
-atmosphere_obsbiascovin_suffix: ".bias_cov.nc"
+#atmosphere_obsbiascovin_suffix: ".satbias_cov.nc"
+atmosphere_obsbiascovin_suffix: ".satbias.nc"
 
 atmosphere_obsbiasout_path: "{{DATA}}/bc_out/"
 atmosphere_obsbiasout_prefix: "{{APREFIX}}"
+#atmosphere_obsbiasout_suffix: ".bias.nc"
 atmosphere_obsbiasout_suffix: ".bias.nc"
 atmosphere_obsbiascovout_prefix: "{{APREFIX}}"
-atmosphere_obsbiascovout_suffix: ".bias_cov.nc"
+#atmosphere_obsbiascovout_suffix: ".satbias_cov.nc"
+atmosphere_obsbiascovout_suffix: ".satbias.nc"
+
+distribution: "RoundRobin"
+empty_obs_space_action: "create output"
+
+distribution: "RoundRobin"
+empty_obs_space_action: "create output"
 
 bias_files_dict:
     radiance_atms_n20: varbc_params.tar
@@ -220,6 +236,10 @@ bias_files_dict:
     radiance_ssmis_f18: varbc_params.tar
     radiance_cris-fsr_n20: varbc_params.tar
     radiance_cris-fsr_npp: varbc_params.tar
+
+# Analysis iuse flag (default: passivate)
+# Upper-air conventional
+iuse_adpupa_airTemperature: "accept"
 
 # Local Ensemble DA (LETKF)
 # -------------------------
@@ -255,3 +275,22 @@ atmosphere_posterior_output_gaussian: "./mem%{member}%/atmanl."
 
 atmosphere_ensemble_history_prefix: "{{ GPREFIX_ENS }}"
 atmosphere_ensemble_analysis_prefix: "{{ APREFIX_ENS }}"
+
+### Get obs errors from GSI
+##replace_obs_filters:
+##  observations:
+##    - sfc
+##    - sfcship
+##    - sondes
+##    - radiance_cris-fsr_n20
+##    - radiance_cris-fsr_n21
+##    - radiance_iasi_metop-b
+##    - radiance_iasi_metop-c
+##    - radiance_atms_n20
+##  override_filters:
+##    - filter: PreQC
+##      inputQC: 'GsiEffectiveQCAnl'
+##      maxvalue: 0.0
+##      action:
+##        name: reject
+

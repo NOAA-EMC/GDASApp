@@ -4,7 +4,7 @@ jedi_config:
         exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_ATMANLVAR }}'
         jedi_args: ['fv3jedi', 'variational']
-        jcb_algo: '3dvar'
+        jcb_algo: '{{ JCB_ALGO }}'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/atm/jcb-base.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
         app_test_yaml: '{{ VAR_JEDI_TEST_YAML }}'

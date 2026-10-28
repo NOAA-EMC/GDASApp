@@ -185,6 +185,7 @@
 #      name: reject
   
   # THINNING: Himawari winds are not prioritized
+  {% if do_thinning | default(true) %}
   - filter: Gaussian Thinning
     horizontal_mesh: 100
     vertical_mesh: 10000
@@ -204,6 +205,7 @@
       maxvalue: 50000.
     action:
       name: reduce obs space
+  {% endif %}
 
   # Observation Prior Filters (QC)
   # ------------------------------

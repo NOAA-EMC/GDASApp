@@ -56,12 +56,14 @@
     action:
       name: reject
 
+  #{% if do_thinning | default(true) %}
   #- filter: Gaussian Thinning
   #  horizontal_mesh: 150
   #  use_reduced_horizontal_grid: true
   #  distance_norm: geodesic
   #  action:
   #    name: reject
+  #{% endif %}
 
   # Accept total_ozone_error_flag values of 0 and 1, but not any others.
   - filter: RejectList
@@ -103,12 +105,14 @@
         name: MetaData/latitude
       maxvalue: -50.0
 
+  {% if do_thinning | default(true) %}
   - filter: Gaussian Thinning
     horizontal_mesh: 150
     use_reduced_horizontal_grid: true
     distance_norm: geodesic
     action:
       name: reduce obs space
+  {% endif %}
 
   # Observation Post Filters (QC)
   # -----------------------------

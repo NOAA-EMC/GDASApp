@@ -141,16 +141,18 @@
       value: 85 
 
   # Step 3: Data Thinning
+  {% if do_thinning | default(true) %}
   - filter: Gaussian Thinning
     filter variables:
     - name: brightnessTemperature
       channels: *{{observation_from_jcb}}_simulated_channels
-    horizontal_mesh: 145
+    horizontal_mesh: {{default_horizontal_mesh}}
     use_reduced_horizontal_grid: true
     distance_norm: geodesic
     priority_variable: DerivedMetaData/thinningScore
     action:
       name: reduce obs space
+  {% endif %}
 
   # Step 4: Initial Observation Error Assignment
   - filter: Perform Action
