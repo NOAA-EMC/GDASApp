@@ -10,7 +10,11 @@ prepend_path("MODULEPATH", "/opt/intel/oneapi/mpi/2021.18/etc/modulefiles/mpi")
 prepend_path("MODULEPATH", "/lfs/work/alexander_richert/stack/spack-stack/envs/nco-core-gcc-11.5.0/modules_flat/Core")
 prepend_path("MODULEPATH", "/lfs/work/alexander_richert/stack/spack-stack/envs/nco-sci-oneapi-2026.1.0/modules_flat/Core")
 
-load("2021.18")
+load("mpi/2021.18")
+load("mkl/2023.2.0")
+
+load("pmix/5.0.11")
+
 load("cmake/3.31.11")
 load("python/3.11.15")
 

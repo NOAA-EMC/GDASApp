@@ -107,7 +107,7 @@ for imem in $(seq 1 $NMEM_ENS); do
     flist=("csg_atm.f006.nc" "csg_sfc.f006.nc")
     for file in "${flist[@]}"; do
         rm -rf $target/enkf${gprefix}.${file}
-        ln -fs $source/enkf${gprefix}.${file} $target/
+        ln -fs $source/enkf${gprefix}.${file} $target/enkf${gprefix}.${file}
     done
 done
 

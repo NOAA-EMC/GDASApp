@@ -56,6 +56,22 @@ set -x
 cd $SLURM_SUBMIT_DIR
 {command}
 """
+        elif machine_id == 'nimbus':
+            script = f"""#!/bin/bash
+#SBATCH -J {job_name}
+#SBATCH -o {job_name}.o%J
+#SBATCH -e {job_name}.o%J
+#SBATCH -p {partition}
+#SBATCH -t {walltime}
+#SBATCH --nodes={nodes}
+#SBATCH --ntasks-per-node={ntasks_per_node}
+#SBATCH --cpus-per-task={threads_per_task}
+#SBATCH --mem={memory}
+
+set -x
+cd $SLURM_SUBMIT_DIR
+{command}
+"""
         else:
             script = f"""#!/bin/bash
 #SBATCH -J {job_name}
