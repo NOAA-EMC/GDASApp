@@ -34,7 +34,7 @@
 
   non-local emulators:
   - name: geostrophy
-    path: '{{ marine_torch_emulators_dir }}/geostrophy_nonlocal.ts'
+    path: '{{ marine_torch_emulators_dir }}/geostrophy_nonlocal_bc.ts'
     geometry tensors:
     - lonlat
     - edge_node_connectivity
@@ -48,7 +48,7 @@
 - saber block name: TorchBalance
   vertical emulators:
   - name: sea_water_salinity
-    path: '{{ marine_torch_emulators_dir }}/heave_salinity.ts'
+    path: '{{ marine_torch_emulators_dir }}/heave_salinity_bounded.ts'
     jacobian wrt:
     - sea_water_potential_temperature
 {% else %}

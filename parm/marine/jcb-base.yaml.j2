@@ -103,6 +103,12 @@ marine_torch_seaice: {{ MARINE_TORCH_SEAICE | default(false) }}
 marine_torch_emulators_dir: '{{ MARINE_TORCH_EMULATORS_DIR }}'
 {% endif %}
 
+# diagb: monthly T/S climatology (ocean.clim_MM.nc) used for the dynamic part of the
+# parametric B instead of the background. Set MARINE_DIAGB_CLIMATOLOGY_DIR in config.marinebmat.
+{% if MARINE_DIAGB_CLIMATOLOGY_DIR is defined %}
+marine_diagb_climatology_dir: '{{ MARINE_DIAGB_CLIMATOLOGY_DIR }}'
+{% endif %}
+
 # Observations
 observations: all_observations
 

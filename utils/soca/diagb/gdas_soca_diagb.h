@@ -97,6 +97,39 @@ class SocaDiagB : public oops::Application {
     // value sentinel instead of 0. Reset them to 0 here.
     gdasapp::diagb::utils::replaceMissingWithZero(xbFs, configD.socaVars);
 
+    // -- Step 3b: Optional T/S climatology for the dynamic component --
+    // The spatial std below is then computed from climatology interpolated to the
+    // cycle, which cannot feed back on itself through cycling the way the
+    // background does. Layer thicknesses, SSH, currents and ice still come from
+    // the background.
+    if (configD.useClimatology) {
+      const auto w = gdasapp::diagb::utils::climatologyWeights(configD.climDate,
+                                                               configD.climMidDay);
+      const oops::Variables tsVars(std::vector<std::string>{"sea_water_potential_temperature",
+                                                            "sea_water_salinity"});
+      soca::Increment clim(geom, tsVars, configD.cycleDate);
+      clim.read(gdasapp::diagb::utils::climatologyFileConfig(configD.climConf, w.month1));
+      clim *= w.w1;
+      soca::Increment clim2(geom, tsVars, configD.cycleDate);
+      clim2.read(gdasapp::diagb::utils::climatologyFileConfig(configD.climConf, w.month2));
+      clim.axpy(w.w2, clim2, false);
+      atlas::FieldSet climFs;
+      clim.toFieldSet(climFs);
+      gdasapp::diagb::utils::replaceMissingWithZero(climFs, tsVars);
+      for (const auto & var : tsVars.variables()) {
+        auto dst = atlas::array::make_view<double, 2>(xbFs[var]);
+        const auto src = atlas::array::make_view<const double, 2>(climFs[var]);
+        for (atlas::idx_t jnode = 0; jnode < dst.shape(0); ++jnode) {
+          for (atlas::idx_t level = 0; level < dst.shape(1); ++level) {
+            dst(jnode, level) = src(jnode, level);
+          }
+        }
+      }
+      oops::Log::info() << "SocaDiagB: T/S from climatology at " << configD.climDate
+                        << ": " << w.w1 << " x month " << w.month1 << " + " << w.w2
+                        << " x month " << w.month2 << std::endl;
+    }
+
     // -- Step 4: Output geometry setup --
     const std::string outputGeometryKey =
              fullConfig.has("output geometry") ? "output geometry" : "geometry";
@@ -286,6 +319,10 @@ class SocaDiagB : public oops::Application {
       const bool useFracStatic = staticFrac > 0.0;
       const auto viewXbVar = atlas::array::make_view<const double, 2>(xbFs[var]);
 
+      // Deep floor (T and S only), added in quadrature after the static term.
+      const double deepFloor = (var == "sea_water_potential_temperature") ? configD.deepFloorT :
+                               (var == "sea_water_salinity") ? configD.deepFloorS : 0.0;
+
       for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
         for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
           if (viewBathy(jnode, 0) > 0.0) {
@@ -311,6 +348,11 @@ class SocaDiagB : public oops::Application {
               stat(jnode, level) = 0.0;
             }
             dyna(jnode, level) += stat(jnode, level);
+            if (deepFloor > 0.0 && viewHocn(jnode, level) > 0.1) {
+              const double f = deepFloor * gdasapp::diagb::utils::deepFloorWeight(
+                                   z, configD.deepFloorDepth, configD.deepFloorTransition);
+              dyna(jnode, level) = std::sqrt(dyna(jnode, level) * dyna(jnode, level) + f * f);
+            }
             if (var == "sea_surface_height_above_geoid") {
               dyna(jnode, level) = std::min(dyna(jnode, level), configD.sshMax);
             }
