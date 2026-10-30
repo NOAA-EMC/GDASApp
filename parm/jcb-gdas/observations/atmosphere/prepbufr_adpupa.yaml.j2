@@ -380,7 +380,6 @@
   # ---------------------------------
 
   # GSI gross check (convinfo: gross 8.0, ermin 1.3, ermax 5.6):
-  # reject if |O-B| > gross * clamp(ObsError, ermin, ermax)
 {% for var in temperature_variables %}
   - filter: Background Check
     filter variables:
