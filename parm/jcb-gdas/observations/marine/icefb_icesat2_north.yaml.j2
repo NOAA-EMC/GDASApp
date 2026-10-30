@@ -9,7 +9,7 @@
       engine:
         type: H5File
         obsfile: "{{marine_obsdataout_path}}/{{marine_obsdataout_prefix}}{{observation_from_jcb}}{{marine_obsdataout_suffix}}"
-    simulated variables: [seaIceFreeboard, seaIceFraction]
+    simulated variables: [seaIceFreeboard]
     io pool:
       max pool size: 1
 {% if marine_letkf_app | default(false) %}
@@ -20,19 +20,11 @@
   get values:
     time interpolation: linear
   obs operator:
-    name: Composite
-    components:
-    - name: SeaIceFreeboard
-      instrument: laser
-      sea ice density: 905.0
-      snow density: 330.0
-      seawater density: 1000.0
-      variables:
-      - name: seaIceFreeboard
-    - name: Identity
-      variables:
-      - name: seaIceFraction
-      observation alias file: obsop_name_map.yaml
+    name: SeaIceFreeboard
+    instrument: lidar
+    sea ice density: 917.0
+    surface snow density: 330.0
+    sea water density: 1026.0
   obs error:
     covariance model: diagonal
 
@@ -41,7 +33,7 @@
   - filter: PreQC
     filter variables:
     - name: seaIceFreeboard
-    maxvalue: 3
+    maxvalue: 1
     action:
       name: reject
 
@@ -50,16 +42,9 @@
     filter variables:
     - name: seaIceFreeboard
     minvalue: 0.0
-    maxvalue: 3.0
+    maxvalue: 1.0
     action:
       name: reject
-
-  # Physical range test on the sea ice fraction
-  - filter: Bounds Check
-    filter variables:
-    - name: seaIceFraction
-    minvalue: 0.0
-    maxvalue: 1.0
 {% if marine_letkf_app | default(false) %}
 
   # Thin the dense along-track sampling; must stay a pre filter since
@@ -82,37 +67,35 @@
   - filter: Domain Check
     where:
     - variable: {name: GeoVaLs/sea_ice_area_fraction}
-      minvalue: 0.1
-
-  # Reject sea ice fraction obs over open/very warm water
-  - filter: Domain Check
-    filter variables:
-    - name: seaIceFraction
-    where:
-    - variable: {name: GeoVaLs/sea_surface_temperature}
-      maxvalue: 2.0
-
-  # Inflate error near the ice edge (below-freezing SST)
-  - filter: Domain Check
-    filter variables:
-    - name: seaIceFraction
-    where:
-    - variable: {name: GeoVaLs/sea_surface_temperature}
-      maxvalue: 0.0
-    action:
-      name: inflate error
-      inflation factor: 2.0
+      minvalue: 0.5
 
   obs post filters:
   - filter: Background Check
     filter variables:
     - name: seaIceFreeboard
-    absolute threshold: 3.0
+    absolute threshold: 0.1
 
-  - filter: Background Check
+  # Add a constant to the error read from the file -- a floor on how well
+  # the freeboard can be believed, independent of how small the reported
+  # error happens to be. Additive in the standard deviation, not the
+  # variance: 0.05 m of freeboard.
+  #
+  # `ObsError/` is the ORIGINAL error from the file, so this is not
+  # cumulative with a rerun. `assign error` overwrites, so this filter must
+  # stay LAST among the error filters -- anything added after it replaces
+  # this rather than compounding it.
+  - filter: Perform Action
     filter variables:
-    - name: seaIceFraction
-    absolute threshold: 0.5
+    - name: seaIceFreeboard
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          # sigo_total = 1.0 * sigo_original + 0.05
+          variables: [ObsError/seaIceFreeboard]
+          coefs:     [1.0]
+          intercept: 0.05
 
 {% if marine_letkf_app | default(false) %}
   obs localizations:

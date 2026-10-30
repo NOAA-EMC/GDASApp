@@ -26,8 +26,8 @@ variables:
   name:
   - sea_water_potential_temperature
   - sea_water_salinity
-#  - eastward_sea_water_velocity
-#  - northward_sea_water_velocity
+  - eastward_sea_water_velocity
+  - northward_sea_water_velocity
   - sea_water_cell_thickness
   - sea_surface_height_above_geoid
   - sea_ice_area_fraction
@@ -35,17 +35,90 @@ variables:
   - sea_ice_snow_thickness
 #  - mom6_mld
 
+{% if marine_diagb_climatology_dir is defined %}
+# The spatial std behind the dynamic T/S component is computed from the monthly
+# climatology interpolated to the cycle, not from the background: a background-based
+# sigma feeds back on itself through cycling (it locked in a spurious deep equatorial
+# structure and moved 12-16% per week, against 3-5% for climatology).
+climatology:
+  basename: '{{ marine_diagb_climatology_dir }}/'
+  ocn_filename: 'ocean.clim_%MM%.nc'
+  date: '{{ marine_window_middle_iso }}'
+  mid month day: 15
+{% endif %}
 
-vertical e-folding scale dynamic: 200.0
+# T/S settings fitted to the 80-member coupled-ensemble spread (shape and horizontal
+# structure, 4 cycles Dec 2025 - Jan 2026, held-out check on 2026011000), using the
+# climatology above for the dynamic component, then inflated by 2.6 so that the steric
+# SSH error implied through B matches the ADT background error from a
+# Hollingsworth-Lonnberg split of O-B in the tropics (~3.7 cm). Fitted before inflation:
+# rescale dynamic 0.166, sigT 0.0516, sigS 0.0120. These values assume the climatology
+# block is active (MARINE_DIAGB_CLIMATOLOGY_DIR set); the background-based spatial std is
+# larger, so without it the dynamic component is roughly 2x too strong.
+# Study: saber-pytorch/equatorial-shock (dfit, adt-scale, steric checks).
+vertical e-folding scale dynamic: 1500.0
 vertical e-folding scale static: 300.0
 stencil growth iterations: 100
-min efold depth ratio: 3.0
-rescale dynamic: 0.2
+min efold depth ratio: 2.0
+rescale dynamic: 0.432
 rescale static: 1.0
+# Deep floor, added in quadrature below `depth` and independent of the e-folding scales
+# and of the depth ratio, so that Argo/Deep Argo keep a non-zero background error down to
+# the bottom (Argo T O-B rms is 0.04-0.07 degC below 1500 m; S provisional).
+deep floor:
+  sigT: 0.04
+  sigS: 0.005
+  depth: 1000.0
+  transition: 500.0
 static sig B:
-  sigT: 0.5
-  sigS: 0.1
-  sigSic: 0.01
-max ssh: 0.0
+  sigT: 0.134
+  sigS: 0.0312
+  # Concentration: the dynamic part (rescale dynamic is shared with the ice variables)
+  # already matches the ensemble at the ice edge; 0.02 fills the pack, where the
+  # ensemble is under-dispersive (Antarctic pack median 0.058 against 0.063).
+  sigSic: 0.02
+  # hi and hs use a FRACTIONAL static B, sigma = max(frac * |background|, sigX).
+  # A flat value alone cannot serve both the ice edge and thick multiyear ice: the
+  # flat pair (sigHi 0.0, sigHs 0.05) left ice explaining under 1% of the freeboard
+  # variance. But a pure fraction is no better at the other end -- sigHs = 0.5*hs
+  # falls to 1.6 mm at p5 of the pack, which sends q = sigma_hi^2/sigma_hs^2 to 430
+  # at p90 and leaves the rmax clip below arbitrating 29% of the ice points. Snow
+  # error does not vanish with snow depth, so sigHi/sigHs are kept as a FLOOR under
+  # the fractional value rather than being superseded by it.
+  #
+  # Measured on the 2025121906 background (aice >= 0.1, hi p50 0.78 m, hs p50 0.069 m)
+  # with fracHi 0.2 / fracHs 0.5 and a 0.05 m snow floor: sigma_hi p50 0.156 m,
+  # sigma_hs p50 0.05 m, q p50 8.2 / p90 23, the clip fires on ~2% of points, and ice
+  # carries ~17% of the lidar (ICESat-2) freeboard variance at p50.
+  sigHi: 0.0
+  sigHs: 0.05
+  fracHi: 0.2
+  fracHs: 0.5
+max ssh: 0.0   # Zero out sigb ssh: Use steric height as strong constraint
+max aice: 0.5  # Zero out sigb aice: Use TorchBalance for aice as strong constraint
+max hi: 0.5    # Absolute ceiling on sigb hi: the rmax clip only bounds the hi/hs ratio
+min aice: 0.1  # hi/aice and hs/aice are undefined below this: no sigb, no stencil contribution
 min depth: 100.0
 vertical bin size: 1.0
+
+# Densities feeding the rmax -> qmax conversion. Keep the seawater density in
+# sync with the freeboard operators in parm/jcb-gdas/observations/marine/icefb_*
+# so that qmax constrains the operator it is meant to constrain.
+rho ice: 917.0
+rho snow: 330.0
+rho water: 1026.0
+
+# Max freeboard-induced delta_hi/delta_hs increment ratio. At the clip boundary
+# the freeboard variance splits as (ice share)/(snow share) = (alpha/beta)*rmax,
+# so ice can only lead if rmax > beta/alpha -- 6.4 for lidar (ICESat-2) total freeboard,
+# 3.0 for radar ice freeboard. The old default of 3.0 made it arithmetically
+# impossible for ice to lead lidar freeboard, whatever sigma_hi was set to.
+# 8.0 clears that bound and puts qmax at 51, above the q the fractional B with a
+# 0.05 m snow floor produces (p50 8.2, p90 23, p95 34), so the clip fires on ~2% of
+# ice points -- a guard on outliers rather than the thing that sets the split.
+#
+# qmax is derived with the LIDAR beta. beta/alpha is 6.39 for lidar but 3.03 for
+# radar, so rmax 8.0 bounds |delta_hi/delta_hs| at 8 for ICESat-2 and at 16.9 for
+# CryoSat-2; and beta_radar is negative, so for radar the ice and snow increments
+# have opposite signs and "ratio <= rmax" is a lidar statement applied to both.
+rmax: 8.0

@@ -93,7 +93,7 @@ class PrepOceanObs(Task):
         # Ensure output directory exists
         os.makedirs(comout_obs, exist_ok=True)
 
-        obs_types = ['adt', 'icec', 'sst', 'sss', 'insitu']
+        obs_types = ['adt', 'icec', 'icefb', 'sst', 'sss', 'insitu']
 
         # Loop through the observation types
         for obs_type in obs_types:
