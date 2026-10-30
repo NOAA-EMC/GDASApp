@@ -1,10 +1,8 @@
-output:
-  state component:
-    filetype: cube sphere history
-    filename: ./anl/cubed_sphere_grid_atminc.jedi.nc
-    provider: ufs
-    fields to write: {{ atmosphere_det_increment_variables }}
-    field io names: {{ atmosphere_increment_field_io_names }}
+filetype: cube sphere history
+filename: ./anl/cubed_sphere_grid_atminc.jedi.nc
+provider: ufs
+fields to write: {{ atmosphere_det_increment_variables }}
+field io names: {{ atmosphere_increment_field_io_names }}
 geometry:
   fms initialization:
     namelist filename: "{{atmosphere_fv3jedi_files_path}}/fmsmpp.nml"
