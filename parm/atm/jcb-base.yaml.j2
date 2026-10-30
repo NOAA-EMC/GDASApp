@@ -152,6 +152,13 @@ atmosphere_fv3jedi_files_path: ./fv3jedi  # Ideally this would be {{DATA}}/fv3je
 atmosphere_background_path: ./bkg
 atmosphere_background_ensemble_path: ./ens/mem%mem%
 
+# oops now requires an output block to be present for variational jobs.
+output:
+  analysis:
+    datadir: "{{ DATA }}/anl"
+    exp: "{{ APREFIX }}"
+    type: an
+
 # Default background time is for 3D applications
 atmosphere_background_time_iso: "{{ current_cycle | to_isotime }}"
 
