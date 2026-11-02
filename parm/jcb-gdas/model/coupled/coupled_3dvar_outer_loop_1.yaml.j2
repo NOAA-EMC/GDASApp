@@ -1,13 +1,12 @@
 {# Coupled 3D-Var outer loop (single iteration). Unlike the single-component outer
-   loops, coupled DA uses one shared geometry (the full coupled geometry) and one
-   minimizer. The coupled geometry is re-emitted here by reusing the coupled geometry
-   wrapper. #}
+   loops, coupled DA uses one shared geometry and one minimizer. The inner loop runs on
+   the coupled analysis geometry, built from each component's own inner-loop geometry. #}
 - ninner: {{coupled_ninner_1}}
   gradient norm reduction: {{coupled_grad_red_1}}
   test: on
   geometry:
 {% filter indent(width=4) %}
-{% include 'coupled_geometry_background.yaml.j2' %}
+{% include 'coupled_geometry_analysis.yaml.j2' %}
 {% endfilter %}
   diagnostics:
     departures: {{coupled_outer_loop_departures | default('bkgmob', true)}}

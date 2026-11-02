@@ -1,0 +1,12 @@
+{# Coupled inner-loop geometry: one block per model component, each from that component's
+   <component>_geometry_analysis.yaml.j2, the geometry its own variational chain minimizes
+   on (the atmosphere at npx_anl, the ocean and sea ice on anl_geom). Keeping it apart from
+   the background geometry is what lets the coupled minimization run at a lower resolution
+   than the backgrounds; oops interpolates each component's increment between the two. #}
+{% for component in coupled_components %}
+{{ component.name }}:
+{% filter indent(width=2) %}
+{% include component.dir ~ '_geometry_analysis.yaml.j2' %}
+{% endfilter %}
+{% endfor %}
+{% include 'coupled_geometry_options.yaml.j2' %}
