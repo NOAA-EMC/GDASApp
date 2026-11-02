@@ -20,10 +20,7 @@ atmosphere_grad_red_2: 1e-10
 
 {% set _fv3_increment_vars =             (atmosphere_analysis_vars | reject('in', ['air_pressure_at_surface', 'geopotential_height_at_surface', 'skin_temperature_at_surface']) | list)
                                          + ['air_pressure_thickness', 'layer_thickness'] %}
-{% set _analysis_vars_noprecip =         atmosphere_analysis_vars | reject('in', ['snow_water', 'rain_water', 'graupel']) | list %}
 {% set _analysis_vars_molesO3 =          (atmosphere_analysis_vars | reject('equalto', 'ozone_mass_mixing_ratio') | list)
-                                         + ['mole_fraction_of_ozone_in_air'] %}
-{% set _analysis_vars_molesO3_noprecip = (_analysis_vars_noprecip | reject('equalto', 'ozone_mass_mixing_ratio') | list)
                                          + ['mole_fraction_of_ozone_in_air'] %}
 
 {% set _grid_vars = [] %}
@@ -50,8 +47,6 @@ atmosphere_jedi2fv3inc_state_variables: {{ atmosphere_analysis_vars + _grid_vars
 # Increment variables
 atmosphere_det_increment_variables: {{ atmosphere_analysis_vars }}
 atmosphere_det_increment_variables_molesO3: {{ _analysis_vars_molesO3 }}
-atmosphere_det_increment_variables_noprecip: {{ _analysis_vars_noprecip }}
-atmosphere_det_increment_variables_molesO3_noprecip: {{ _analysis_vars_molesO3_noprecip }}
 atmosphere_fv3_increment_variables:  {{ _fv3_increment_vars }}
 
 # Variable IO names
