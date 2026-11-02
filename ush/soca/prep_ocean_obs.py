@@ -111,7 +111,7 @@ class PrepOceanObs(Task):
                 search_path = os.path.join(dmpdir, f"{run}.{run_date}", cycle, 'ocean', obs_type, '*.nc')
             else:
                 search_path = os.path.join(dmpdir, f"{run}.{run_date}", cycle, 'obs', '*.nc')
-                
+ 
             src_files = glob.glob(search_path)
             logger.info(f"***** Found {len(src_files)} files for {obs_type} in {dmpdir}")
 
