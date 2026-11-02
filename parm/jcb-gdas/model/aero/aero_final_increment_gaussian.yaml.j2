@@ -3,7 +3,8 @@ local interpolator type: atlas interpolator
 interpolation method:
   type: finite-element
 number of latitude gridpoints: {{ aero_npy_anl - 1 }}
-variables to output: {{ aero_det_increment_variables }}
+variables: {{ aero_det_increment_variables }}
 all model levels: true
 datapath: {{ aero_analysis_path }}
+times: ['{{ aero_cycle_time_iso }}']
 prefix: aeroinc_gauss
