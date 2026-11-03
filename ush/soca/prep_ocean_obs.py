@@ -96,10 +96,10 @@ class PrepOceanObs(Task):
         # Ensure output directory exists
         os.makedirs(comout_obs, exist_ok=True)
 
-        if not use_ecf:
-            obs_types = ['adt', 'icec', 'sst', 'sss', 'insitu']
-        else:
+        if use_ecf:
             obs_types = ['ecflow generated marine obs']
+        else:
+            obs_types = ['adt', 'icec', 'sst', 'sss', 'insitu']
 
         # Loop through the observation types
         for obs_type in obs_types:
@@ -109,10 +109,10 @@ class PrepOceanObs(Task):
                 logger.info(f"***** Skipping {obs_type} for cycle {cycle}")
                 continue
 
-            if not use_ecf:
-                search_path = os.path.join(dmpdir, f"{run}.{run_date}", cycle, 'ocean', obs_type, '*.nc')
-            else:
+            if use_ecf:
                 search_path = os.path.join(dmpdir, f"{run}.{run_date}", cycle, 'obs', '*.nc')
+            else:
+                search_path = os.path.join(dmpdir, f"{run}.{run_date}", cycle, 'ocean', obs_type, '*.nc')
             src_files = glob.glob(search_path)
             logger.info(f"***** Found {len(src_files)} files for {obs_type} in {dmpdir}")
 
