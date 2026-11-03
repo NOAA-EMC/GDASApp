@@ -91,10 +91,12 @@ class PrepOceanObs(Task):
         use_ecf = self.task_config['USE_ECF_OBS']
         PARMglobal = self.task_config['PARMglobal']
 
+        print(f'DEBUG the value of use_ecf is {use_ecf}')
+
         # Ensure output directory exists
         os.makedirs(comout_obs, exist_ok=True)
 
-        if use_ecf == 'NO':
+        if not use_ecf:
             obs_types = ['adt', 'icec', 'sst', 'sss', 'insitu']
         else:
             obs_types = ['ecflow']
@@ -107,7 +109,7 @@ class PrepOceanObs(Task):
                 logger.info(f"***** Skipping {obs_type} for cycle {cycle}")
                 continue
 
-            if use_ecf == 'NO':
+            if not use_ecf:
                 search_path = os.path.join(dmpdir, f"{run}.{run_date}", cycle, 'ocean', obs_type, '*.nc')
             else:
                 search_path = os.path.join(dmpdir, f"{run}.{run_date}", cycle, 'obs', '*.nc')
