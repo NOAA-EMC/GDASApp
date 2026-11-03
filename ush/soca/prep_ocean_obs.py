@@ -91,8 +91,6 @@ class PrepOceanObs(Task):
         use_ecf = self.task_config['USE_ECF_OBS']
         PARMglobal = self.task_config['PARMglobal']
 
-        print(f'DEBUG the value of use_ecf is {use_ecf}')
-
         # Ensure output directory exists
         os.makedirs(comout_obs, exist_ok=True)
 
