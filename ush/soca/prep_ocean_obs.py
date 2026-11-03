@@ -99,7 +99,7 @@ class PrepOceanObs(Task):
         if not use_ecf:
             obs_types = ['adt', 'icec', 'sst', 'sss', 'insitu']
         else:
-            obs_types = ['ecflow']
+            obs_types = ['ecflow_obs']
 
         # Loop through the observation types
         for obs_type in obs_types:
