@@ -1,5 +1,6 @@
 base:
   HOMEglobal: "@topdir@"
+  FIXglobal: "${HOMEglobal}/fix"
   DOHYBVAR: "NO"
   DO_JEDIATMVAR: "YES"
   DO_JEDIATMENS: "YES"
