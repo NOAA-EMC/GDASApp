@@ -79,7 +79,6 @@ load("py-pybind11/3.0.2")
 load("py-pycodestyle/2.14.0")
 load("py-scipy/1.17.1")
 
-load("py-setuptools/73.0.1")
 load("py-six/1.17.0")
 load("py-python-dateutil/2.9.0.post0")
 load("py-pandas/3.0.3")
@@ -97,7 +96,7 @@ setenv("I_MPI_CC", "icx")
 setenv("I_MPI_CXX", "icpx")
 setenv("I_MPI_F90", "ifx")
 
-local mpiexec = 'usr/bin/srun'
+local mpiexec = '/usr/bin/srun'
 local mpinproc = '-n'
 setenv('MPIEXEC_EXEC', mpiexec)
 setenv('MPIEXEC_NPROC', mpinproc)
