@@ -61,6 +61,8 @@ cd $SLURM_SUBMIT_DIR
 #SBATCH -J {job_name}
 #SBATCH -o {job_name}.o%J
 #SBATCH -e {job_name}.o%J
+#TODO - activate line below when Nimbus uses account codes
+##SBATCH -A {account}
 #SBATCH -p {partition}
 #SBATCH -t {walltime}
 #SBATCH --nodes={nodes}
