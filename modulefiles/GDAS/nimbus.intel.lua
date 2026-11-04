@@ -77,7 +77,6 @@ load("py-certifi/2026.2.25")
 load("py-netcdf4/1.7.2")
 load("py-pybind11/3.0.2")
 load("py-pycodestyle/2.14.0")
-load("py-pyyaml/6.0.3")
 load("py-scipy/1.17.1")
 
 load("py-setuptools/73.0.1")
