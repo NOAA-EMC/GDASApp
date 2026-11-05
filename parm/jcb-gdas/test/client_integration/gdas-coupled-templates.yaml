@@ -171,7 +171,8 @@ marine_soca_files_path: Data/soca
 marine_background_path: ./INPUT/
 marine_background_time: '2020-12-14T21:00:00Z'
 marine_vt_levels: 25
-marine_window_begin: '2020-12-14T18:00:00Z'
+marine_window_begin_iso: '2020-12-14T18:00:00Z'
+marine_window_middle_iso: '2020-12-14T21:00:00Z'
 marine_final_increment_dir: Data
 marine_final_increment_exp: 3dvar_coupled
 marine_output_dir: Data

@@ -1,11 +1,7 @@
-{# Split into a writer and a geometry half so the coupled final increment wrapper can
-   compose them the other way round: one "output: state component:" holding every
-   component's writer, and one "geometry:" holding every component's geometry. #}
-output:
-  state component:
-{% filter indent(width=4) %}
+{# Split into a writer and a geometry half so the coupled final increment can compose them
+   the other way round: one block per component holding its writer, and one "geometry:"
+   holding every component's geometry. #}
 {% include 'atmosphere_final_increment_cubed_sphere_writer.yaml.j2' %}
-{% endfilter %}
 geometry:
 {% filter indent(width=2) %}
 {% include 'atmosphere_final_increment_cubed_sphere_geometry.yaml.j2' %}

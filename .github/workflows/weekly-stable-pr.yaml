@@ -4,10 +4,10 @@ run-name: Weekly Stable PR (${{ github.event_name }})
 
 on:
   schedule:
-    # Primary run: Morning Saturday at 10:17 UTC
-    - cron: '17 10 * * 6'
-    # Fallback run: Evening Saturday at 21:37 UTC
-    - cron: '37 21 * * 6'
+    # Primary run: Morning Saturday at 08:17 UTC
+    - cron: '17 08 * * 6'
+    # Fallback run: Afternoon Saturday at 14:37 UTC
+    - cron: '37 14 * * 6'
 
   workflow_dispatch: # Allows manual triggering for testing
 
