@@ -1,4 +1,5 @@
 base:
+  FIXglobal: "${HOMEglobal}/fix"
   DATAPATH: "@bindir@/test/aero/global-workflow/testrun"
   DUMPDIR: "@dumpdir@"
   STMP: "@bindir@/test/aero/global-workflow/testrun"
