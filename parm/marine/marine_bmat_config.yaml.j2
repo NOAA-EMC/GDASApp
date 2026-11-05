@@ -75,7 +75,8 @@ data_out:
     - ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_BMATRIX }}']
 
     # Copy the diffusion coefficient files to the ROTDIR
-    - ['{{ DATAstaticb }}/hz_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}hz.nc']
+    - ['{{ DATAstaticb }}/hz_ocean_small.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}hz_small.nc']
+    - ['{{ DATAstaticb }}/hz_ocean_large.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}hz_large.nc']
     - ['{{ DATAstaticb }}/vt_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}vt.nc']
 
     # diag B rename (do we really need this?)

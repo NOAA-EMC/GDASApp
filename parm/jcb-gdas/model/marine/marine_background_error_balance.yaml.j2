@@ -1,0 +1,73 @@
+# Multivariate balance, shared by the static B files. Include it right after the
+# StdDev outer block: it either appends TorchBalance outer blocks, or closes the
+# outer block list and adds the BalanceSOCA linear variable change.
+#
+#   marine_balance: torch  -> TorchBalance (requires SABER built with Torch_ROOT)
+#                   soca   -> BalanceSOCA (default, also when undefined)
+#   marine_torch_emulators_dir: directory holding the torchscript (.ts) emulators
+#   marine_torch_seaice: true to also apply the sea ice concentration emulator
+{% if marine_balance | default('soca') == 'torch' %}
+- saber block name: TorchBalance
+  save jacobians: true
+{% if marine_torch_seaice | default(false) %}
+  surface emulators:
+  - name: sea_ice_area_fraction
+    path: '{{ marine_torch_emulators_dir }}/ml_aice_dual_pack05.ts'
+    jacobian wrt:
+    - sea_ice_thickness
+    - sea_ice_snow_thickness
+    - sea_water_salinity
+    - sea_water_potential_temperature
+    jacobian masking:
+      variable: sea_ice_area_fraction
+      level: 0
+{% else %}
+  surface emulators: []
+{% endif %}
+
+  vertical emulators:
+  - name: sea_surface_height_above_geoid
+    path: '{{ marine_torch_emulators_dir }}/steric.ts'
+    jacobian wrt:
+    - sea_water_potential_temperature
+    - sea_water_salinity
+
+  non-local emulators:
+  - name: geostrophy
+    path: '{{ marine_torch_emulators_dir }}/geostrophy_nonlocal_bc.ts'
+    geometry tensors:
+    - lonlat
+    - edge_node_connectivity
+    background tensors:
+    - sea_water_potential_temperature
+    - sea_water_salinity
+    - sea_water_cell_thickness
+
+# Heave salinity in its own block: listed last, so applied first in the forward. The block above
+# then sees S = S_u + dS/dT*T (Weaver et al. 2005), while SSH is still unbalanced for geostrophy.
+- saber block name: TorchBalance
+  vertical emulators:
+  - name: sea_water_salinity
+    path: '{{ marine_torch_emulators_dir }}/heave_salinity_bounded.ts'
+    jacobian wrt:
+    - sea_water_potential_temperature
+{% else %}
+
+linear variable change:
+  input variables:
+  - sea_ice_area_fraction
+  - sea_ice_thickness
+  - sea_ice_snow_thickness
+  - sea_water_salinity
+  - sea_water_potential_temperature
+  - sea_surface_height_above_geoid
+  output variables:
+  - sea_ice_area_fraction
+  - sea_ice_thickness
+  - sea_ice_snow_thickness
+  - sea_water_salinity
+  - sea_water_potential_temperature
+  - sea_surface_height_above_geoid
+  linear variable changes:
+  - linear variable change name: BalanceSOCA
+{% endif %}

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/exception/Exceptions.h"
 
 #include "atlas/field.h"
 #include "atlas/grid.h"
@@ -87,6 +88,17 @@ class PostProcIncr {
    * @param socaIncr Increment whose fields may be zeroed out.
    */
   void setToZero(soca::Increment& socaIncr);
+
+  /**
+   * @brief Rotates vector increments from geographical (east/north) to the logical grid frame.
+   *
+   * This method rotates the (u, v) pairs listed under "rotate increment to grid" in the
+   * configuration, using the cos_rot/sin_rot geometry fields (same convention as
+   * soca::State::rotate2grid and the MOM6 cap).
+   *
+   * @param socaIncr Increment whose vector fields may be rotated.
+   */
+  void rotate2grid(soca::Increment& socaIncr) const;
 
   /**
    * @brief Applies a linear variable change to the increment.
@@ -188,6 +200,9 @@ class PostProcIncr {
   bool setToZero_;
   bool doLVC_;
   oops::Variables socaZeroIncrVar_;
+  bool rotate_;
+  oops::Variables uRot_;
+  oops::Variables vRot_;
   int ensSize_;
   std::string pattern_;
 };
