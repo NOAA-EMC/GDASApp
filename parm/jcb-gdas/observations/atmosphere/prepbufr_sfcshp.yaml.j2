@@ -15,8 +15,8 @@
         obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
-    simulated variables: [stationPressure, virtualTemperature, airTemperature, specificHumidity]
-    observed variables: [stationPressure, virtualTemperature, airTemperature, specificHumidity]
+    simulated variables: [stationPressure, virtualTemperature, airTemperature, specificHumidity, windEastward, windNorthward]
+    observed variables: [stationPressure, virtualTemperature, airTemperature, specificHumidity, windEastward, windNorthward]
 
   # Observation Operator
   # -------------------
@@ -44,6 +44,17 @@
     - name: Identity
       variables:
       - name: specificHumidity
+    - name: VertInterp
+      vertical coordinate: geopotential_height
+      observation vertical coordinate: windHeightAboveSeaLevel
+      observation vertical coordinate group: DerivedVariables
+      interpolation method: linear
+      variables:
+      - name: windEastward
+      - name: windNorthward
+      # 10 m wind reduction, as GSI setupw factw
+      hofx scaling field: SurfaceWindScalingHeight
+      hofx scaling field group: DerivedVariables
 
   # Linear Observation Operator
   # ---------------------------
@@ -58,13 +69,25 @@
       variables:
       - name: virtualTemperature
       - name: airTemperature
+    - name: VertInterp
+      vertical coordinate: geopotential_height
+      observation vertical coordinate: windHeightAboveSeaLevel
+      observation vertical coordinate group: DerivedVariables
+      interpolation method: linear
+      variables:
+      - name: windEastward
+      - name: windNorthward
+      hofx scaling field: SurfaceWindScalingHeight
+      hofx scaling field group: DerivedVariables
 
   # Observation Pre Filters (QC)
   # ------------------------------
 
 {% set temperature_variables = ['virtualTemperature', 'airTemperature'] %}
-{% set assim_variables = ['stationPressure'] + temperature_variables + ['specificHumidity'] %}
-{% set assim_obstypes         = [180] %}
+{% set wind_variables = ['windEastward', 'windNorthward'] %}
+{% set mass_variables = ['stationPressure'] + temperature_variables + ['specificHumidity'] %}
+{% set assim_variables = mass_variables + wind_variables %}
+{% set assim_obstypes         = [180, 182, 280, 282] %}
 
   obs pre filters:
 
@@ -118,6 +141,27 @@
       source variable:
         name: ObsValue/pressureReducedToMeanSeaLevel
 
+  # mass variables come from types 180 and 182 (splash-level dropsonde), winds from 280 and 282
+  - filter: RejectList
+    filter variables:
+{% for var in mass_variables %}
+    - name: {{ var }}
+{% endfor %}
+    where:
+    - variable:
+        name: ObsType/stationPressure
+      is_not_in: 180, 182
+
+  - filter: RejectList
+    filter variables:
+{% for var in wind_variables %}
+    - name: {{ var }}
+{% endfor %}
+    where:
+    - variable:
+        name: ObsType/stationPressure
+      is_in: 180, 182
+
   # Observation Prior Filters (QC)
   # ------------------------------
 
@@ -132,7 +176,8 @@
     where:
     - variable:
         name: ObsValue/stationPressure
-      maxvalue: 50000.00 # reject station pressures below 500 hPa
+      maxvalue: 59999.99 # reject station pressures below 600 hPa, where the GSI error table
+                         # has very large errors (no weight in the analysis)
 
   - filter: RejectList
     filter variables:
@@ -205,6 +250,83 @@
     minvalue: -1000.0
     maxvalue: 1000.0
 
+  # wind QC
+  # ---------------------------------
+
+{% for var in wind_variables %}
+  - filter: RejectList
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 8-15
+      value: is_not_valid
+    where operator: or
+
+  - filter: RejectList
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/stationPressure
+      is_in: 8-15
+{% endfor %}
+
+  # wind observation height above the surface. Height is not reported: as GSI read_prepbufr,
+  # 10 m by default, 20 m for 282, and 20 m above sea level for 280 subtypes 522, 523, 531.
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedVariables/windHeightAboveSurface
+      type: float
+      value: 10.0
+
+  - filter: Variable Assignment
+    where:
+    - variable:
+        name: ObsType/stationPressure
+      is_in: 282
+    assignments:
+    - name: DerivedVariables/windHeightAboveSurface
+      type: float
+      value: 20.0
+
+  - filter: Variable Assignment
+    where:
+    - variable:
+        name: ObsType/stationPressure
+      is_in: 280
+    - variable:
+        name: MetaData/observationSubTypeNum
+      is_in: 522, 523, 531
+    assignments:
+    - name: DerivedVariables/windHeightAboveSurface
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: MetaData/stationElevation
+          coefs: [-1.0]
+          intercept: 20.0
+
+  # convert to height above mean sea level, as for the model heights (geopotential_height)
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedVariables/windHeightAboveSeaLevel
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: DerivedVariables/windHeightAboveSurface
+          - name: GeoVaLs/height_above_mean_sea_level_at_surface
+          coefs: [1.0, 1.0]
+
+  - filter: Variable Transforms
+    Transform: SurfaceWindScalingHeight
+    height variable group: DerivedVariables
+    height variable name: windHeightAboveSeaLevel
+    SkipWhenNoObs: false
+
   # reduce to keep T virtual where present, otherwise Tdry. 
   # ----------------------------------
 
@@ -253,12 +375,24 @@
     action:
       name: reject
  
-  # to-do: revise duplicate thinning for ship-obs
-  # GSI setupq treats marine q obs at the same position and pressure as
-  # duplicates and keeps the one closest to the analysis time
-  - filter: DuplicateThinning
+  # GSI setupq treats marine q obs with the same station id as duplicates and keeps the one
+  # closest to the analysis time
+  - filter: Temporal Thinning
     filter variables:
     - name: specificHumidity
+    category_variable: MetaData/stationIdentification
+    min_spacing: PT6H
+    seed_time: '{{ atmosphere_background_time_iso }}'
+    action:
+      name: reject
+
+  # GSI setupw treats winds at the same position and pressure as duplicates
+  # and keeps the one closest to the analysis time
+  - filter: DuplicateThinning
+    filter variables:
+{% for var in wind_variables %}
+    - name: {{ var }}
+{% endfor %}
     variable names:
     - MetaData/latitude
     - MetaData/longitude
@@ -280,14 +414,7 @@
     - name: stationPressure
     action:
       name: assign error
-      error function:
-        name: ObsFunction/ObsErrorModelStepwiseLinear
-        options:
-          round_to_the_nearest_integer: true
-          xvar:
-            name: ObsValue/stationPressure
-          xvals: [60000, 55000]
-          errors: [130, 1.0e+11]
+      error parameter: 130
  
   # order matters: before conversion to q units.
   - filter: RejectList
@@ -447,6 +574,29 @@
           - name: ObsErrorData/specificHumidity
           - name: PressureCheckError/specificHumidity
 
+  # order matters - do after the multiplicative error inflations
+  # wind: error += 0.005 * |station elevation - model surface height| (GSI setupw drpx)
+{% for var in wind_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsErrorData/{{ var }}
+          - name: ObsFunction/Arithmetic
+            options:
+              variables:
+              - name: MetaData/stationElevation
+              - name: GeoVaLs/height_above_mean_sea_level_at_surface
+              coefs: [1.0, -1.0]
+          coefs: [1.0, 0.005]
+          absolute value: [false, true]
+{% endfor %}
+
   # Observation Post Filters (QC)
   # -----------------------------
 
@@ -544,6 +694,44 @@
       is_in: 3
     action:
       name: reject
+
+  # GSI wind gross check on the vector residual (convinfo: gross 6.0, ermin 1.4, ermax 6.1;
+  # gross*0.7 for QM=3)
+{% for var in wind_variables %}
+  - filter: Background Check
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_not_in: 3
+    function absolute threshold:
+    - name: ObsFunction/WindsSPDBCheck
+      options:
+        wndtype: [280, 282]
+        cgross: [6.0, 6.0]
+        error_min: [1.4, 1.4]
+        error_max: [6.1, 6.1]
+        variable: {{ var }}
+    action:
+      name: reject
+
+  - filter: Background Check
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 3
+    function absolute threshold:
+    - name: ObsFunction/WindsSPDBCheck
+      options:
+        wndtype: [280, 282]
+        cgross: [4.2, 4.2]
+        error_min: [1.4, 1.4]
+        error_max: [6.1, 6.1]
+        variable: {{ var }}
+    action:
+      name: reject
+{% endfor %}
 
   # Apply duplicate error inflation
   # ---------------------------------

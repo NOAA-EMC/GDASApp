@@ -137,7 +137,8 @@
     where:
     - variable:
         name: ObsValue/stationPressure
-      maxvalue: 50000.00 # reject station pressures below 500 hPa
+      maxvalue: 59999.99 # reject station pressures below 600 hPa, where the GSI error table
+                         # has very large errors (no weight in the analysis)
 
   - filter: RejectList
     filter variables:
@@ -287,8 +288,8 @@
           round_to_the_nearest_integer: true
           xvar:
             name: ObsValue/stationPressure
-          xvals: [80000, 75000, 60000, 55000]
-          errors: [110, 120, 120, 1.0e+11]
+          xvals: [80000, 75000, 60000]
+          errors: [110, 120, 120]
 
   - filter: Perform Action
     filter variables:
@@ -304,8 +305,8 @@
           round_to_the_nearest_integer: true
           xvar:
             name: ObsValue/stationPressure
-          xvals: [85000, 80000, 60000, 55000]
-          errors: [120, 140, 140, 1.0e+11]
+          xvals: [85000, 80000, 60000]
+          errors: [120, 140, 140]
  
   # order matters: before conversion to q units 
   - filter: RejectList

@@ -19,8 +19,8 @@
         obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
-    simulated variables: [stationPressure, virtualTemperature, airTemperature]
-    observed variables: [stationPressure, virtualTemperature, airTemperature]
+    simulated variables: [stationPressure, virtualTemperature, airTemperature, specificHumidity, windEastward, windNorthward]
+    observed variables: [stationPressure, virtualTemperature, airTemperature, specificHumidity, windEastward, windNorthward]
 
   # Observation Operator
   # -------------------
@@ -44,6 +44,18 @@
       variables:
       - name: virtualTemperature
       - name: airTemperature
+      - name: specificHumidity
+    - name: VertInterp
+      vertical coordinate: air_pressure
+      observation vertical coordinate: pressure
+      observation vertical coordinate group: MetaData
+      interpolation method: log-linear
+      variables:
+      - name: windEastward
+      - name: windNorthward
+      # 10 m wind reduction, as GSI setupw factw
+      hofx scaling field: SurfaceWindScalingPressure
+      hofx scaling field group: DerivedVariables
 
   # Linear Observation Operator
   # ---------------------------
@@ -57,13 +69,22 @@
       variables:
       - name: virtualTemperature
       - name: airTemperature
+      - name: specificHumidity
+    - name: VertInterp
+      variables:
+      - name: windEastward
+      - name: windNorthward
+      hofx scaling field: SurfaceWindScalingPressure
+      hofx scaling field group: DerivedVariables
 
   # Observation Pre Filters (QC)
   # ------------------------------
 
 {% set temperature_variables = ['virtualTemperature', 'airTemperature'] %}
-{% set assim_variables = ['stationPressure'] + temperature_variables %}
-{% set assim_obstypes         = [120] %}
+{% set wind_variables = ['windEastward', 'windNorthward'] %}
+{% set mass_variables = ['stationPressure'] + temperature_variables + ['specificHumidity'] %}
+{% set assim_variables = mass_variables + wind_variables %}
+{% set assim_obstypes         = [120, 132, 220, 221, 232] %}
 
   obs pre filters:
 
@@ -91,6 +112,28 @@
       name: accept
 {% endfor %}
 
+  # mass variables come from type 120 and 132 (dropsonde) reports, winds from 220 (rawinsonde),
+  # 221 (pibal) and 232 (dropsonde)
+  - filter: RejectList
+    filter variables:
+{% for var in mass_variables %}
+    - name: {{ var }}
+{% endfor %}
+    where:
+    - variable:
+        name: ObsType/pressure
+      is_not_in: 120, 132
+
+  - filter: RejectList
+    filter variables:
+{% for var in wind_variables %}
+    - name: {{ var }}
+{% endfor %}
+    where:
+    - variable:
+        name: ObsType/pressure
+      is_in: 120, 132
+
   # Observation Prior Filters (QC)
   # ------------------------------
 
@@ -99,13 +142,23 @@
   # stationPressure QC
   # ---------------------------------
 
+  # dropsonde Ps is monitored in GSI (ps 132 iuse -1); drop surface pressure is type 182 in SFCSHP
+  - filter: RejectList
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable:
+        name: ObsType/pressure
+      is_in: 132
+
   - filter: RejectList
     filter variables:
     - name: stationPressure
     where:
     - variable:
         name: ObsValue/stationPressure
-      maxvalue: 50000.00 # reject station pressures below 500 hPa
+      maxvalue: 59999.99 # reject station pressures below 600 hPa, where the GSI error table
+                         # has very large errors (no weight in the analysis)
 
   - filter: RejectList
     filter variables:
@@ -157,11 +210,59 @@
     maxvalue: 400
 {% endfor %}
 
+  # humidity QC
+  # ---------------------------------
+
+  - filter: RejectList
+    filter variables:
+    - name: specificHumidity
+    where:
+    - variable: QualityMarker/specificHumidity
+      is_in: 8-15
+      value: is_not_valid
+    where operator: or
+
+  - filter: RejectList
+    filter variables:
+    - name: specificHumidity
+    where:
+    - variable: QualityMarker/pressure
+      is_in: 8-15
+
+  # wind QC
+  # ---------------------------------
+
+{% for var in wind_variables %}
+  - filter: RejectList
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 8-15
+      value: is_not_valid
+    where operator: or
+
+  - filter: RejectList
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/pressure
+      is_in: 8-15
+{% endfor %}
+
+  # variables for the surface wind scaling in the obs operator
+  - filter: Variable Transforms
+    Transform: SurfaceWindScalingPressure
+    SkipWhenNoObs: false
+
   # reject obs above the highest model level (0.013 hPa)
   - filter: Bounds Check
     filter variables:
     - name: virtualTemperature
     - name: airTemperature
+    - name: specificHumidity
+    - name: windEastward
+    - name: windNorthward
     test variables:
     - name: MetaData/pressure
     minvalue: 1.3
@@ -174,6 +275,9 @@
     - name: stationPressure
     - name: virtualTemperature
     - name: airTemperature
+    - name: specificHumidity
+    - name: windEastward
+    - name: windNorthward
     category_variable:
       name: MetaData/stationIdentification
     records_are_single_obs: true
@@ -212,8 +316,27 @@
           round_to_the_nearest_integer: true
           xvar:
             name: ObsValue/stationPressure
-          xvals: [80000, 75000, 60000, 55000]
-          errors: [110, 120, 120, 1.0e+11]
+          xvals: [80000, 75000, 60000]
+          errors: [110, 120, 120]
+
+  # order matters: before conversion to q units.
+  - filter: RejectList
+    filter variables:
+    - name: specificHumidity
+    where:
+    - variable: ObsErrorData/specificHumidity
+      value: is_not_valid
+
+  - filter: Perform Action
+    filter variables:
+    - name: specificHumidity
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorSatSpecHumidity
+        options:
+          variable: specificHumidity
+          input_error_name: ObsErrorData
 
 {% for var in assim_variables %}
   - filter: Variable Assignment
@@ -303,6 +426,87 @@
           coefs: [1.0, 8.0]
 {% endfor %}
  
+  # humidity: profile spacing inflation (errormod)
+  - filter: Perform Action
+    filter variables:
+    - name: specificHumidity
+    action:
+      name: inflate error
+      inflation variable:
+        name: ObsFunction/ObsErrorFactorConventional
+        options:
+          inflate variables: [specificHumidity]
+          pressure: MetaData/pressure
+
+  # order matters - apply the profile spacing inflation, then the minimum q error (here)
+  - filter: Perform Action
+    filter variables:
+    - name: specificHumidity
+    where:
+    - variable: ObsErrorData/specificHumidity
+      maxvalue: 1.0e-4
+    action:
+      name: assign error
+      error parameter: 1.0e-4
+
+  # order matters - compute the profile spacing inflation (which counts q obs below the surface as
+  # neighbours, as GSI does), then reject q obs below the model surface (here). GSI instead adds 8
+  # (in q units) per model level below the surface, which removes them from the analysis.
+  - filter: Bounds Check
+    filter variables:
+    - name: specificHumidity
+    test variables:
+    - name: ObsFunction/ModelLevelsBelowSurface
+    maxvalue: 0.0
+
+  # wind: x1.2 above 50 hPa, and profile spacing inflation (errormod)
+{% for var in wind_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: MetaData/pressure
+      maxvalue: 4999.9
+    action:
+      name: inflate error
+      inflation factor: 1.2
+{% endfor %}
+
+  - filter: Variable Assignment
+    assignments:
+    - name: ErrormodFactor/windEastward
+      type: float
+      function:
+        name: ObsFunction/ObsErrorFactorConventional
+        options:
+          inflate variables: [windEastward]
+          pressure: MetaData/pressure
+
+{% for var in wind_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    action:
+      name: inflate error
+      inflation variable:
+        name: ErrormodFactor/windEastward
+
+  # order matters - do after the multiplicative error inflations
+  # error += 4 m/s per model level below the model surface (GSI setupw rlow)
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsErrorData/{{ var }}
+          - name: ObsFunction/ModelLevelsBelowSurface
+          coefs: [1.0, 4.0]
+{% endfor %}
+
   # reduce to keep T virtual where present, otherwise Tdry. 
   # ----------------------------------
 
@@ -357,8 +561,71 @@
     action:
       name: reject
 
-  # GSI gross check (convinfo: gross 8.0, ermin 1.3, ermax 5.6):
+  # GSI gross check (convinfo: gross 8.0 for 120, 7.0 for 132, ermin 1.3, ermax 5.6, x0.7 for QM=3)
 {% for var in temperature_variables %}
+{% for obstype, gross, gross_qm3 in [(120, 8.0, 5.6), (132, 7.0, 4.9)] %}
+  - filter: Background Check
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_not_in: 3
+    - variable: ObsType/pressure
+      is_in: {{ obstype }}
+    function absolute threshold:
+    - name: ObsFunction/ObsErrorBoundConventional
+      options:
+        obsvar: {{ var }}
+        obserr_bound_min: 1.3
+        obserr_bound_max: 5.6
+        obserr_bound_factor: {{ gross }}
+    action:
+      name: reject
+
+  - filter: Background Check
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 3
+    - variable: ObsType/pressure
+      is_in: {{ obstype }}
+    function absolute threshold:
+    - name: ObsFunction/ObsErrorBoundConventional
+      options:
+        obsvar: {{ var }}
+        obserr_bound_min: 1.3
+        obserr_bound_max: 5.6
+        obserr_bound_factor: {{ gross_qm3 }}
+    action:
+      name: reject
+{% endfor %}
+{% endfor %}
+
+  # GSI gross check for q (convinfo: gross 8.0; gross*0.7 for QM=3)
+  - filter: Background Check
+    filter variables:
+    - name: specificHumidity
+    threshold: 8.0
+    where:
+    - variable: QualityMarker/specificHumidity
+      is_not_in: 3
+    action:
+      name: reject
+
+  - filter: Background Check
+    filter variables:
+    - name: specificHumidity
+    threshold: 5.6
+    where:
+    - variable: QualityMarker/specificHumidity
+      is_in: 3
+    action:
+      name: reject
+
+  # GSI wind gross check on the vector residual (convinfo: gross 8.0, ermin 1.4, ermax 6.1;
+  # gross*0.7 for QM=3)
+{% for var in wind_variables %}
   - filter: Background Check
     filter variables:
     - name: {{ var }}
@@ -366,16 +633,16 @@
     - variable: QualityMarker/{{ var }}
       is_not_in: 3
     function absolute threshold:
-    - name: ObsFunction/ObsErrorBoundConventional
+    - name: ObsFunction/WindsSPDBCheck
       options:
-        obsvar: {{ var }}
-        obserr_bound_min: 1.3
-        obserr_bound_max: 5.6
-        obserr_bound_factor: 8.0
+        wndtype: [220, 221, 232]
+        cgross: [8.0, 8.0, 7.0]
+        error_min: [1.4, 1.4, 1.4]
+        error_max: [6.1, 6.1, 6.1]
+        variable: {{ var }}
     action:
       name: reject
 
-  # GSI tightens the gross limit for QM=3 obs (gross * 0.7 = 5.6)
   - filter: Background Check
     filter variables:
     - name: {{ var }}
@@ -383,12 +650,13 @@
     - variable: QualityMarker/{{ var }}
       is_in: 3
     function absolute threshold:
-    - name: ObsFunction/ObsErrorBoundConventional
+    - name: ObsFunction/WindsSPDBCheck
       options:
-        obsvar: {{ var }}
-        obserr_bound_min: 1.3
-        obserr_bound_max: 5.6
-        obserr_bound_factor: 5.6
+        wndtype: [220, 221, 232]
+        cgross: [5.6, 5.6, 4.9]
+        error_min: [1.4, 1.4, 1.4]
+        error_max: [6.1, 6.1, 6.1]
+        variable: {{ var }}
     action:
       name: reject
 {% endfor %}
