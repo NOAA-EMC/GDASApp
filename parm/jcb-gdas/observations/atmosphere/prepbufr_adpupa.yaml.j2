@@ -314,6 +314,13 @@
     - variable: ObsErrorData/specificHumidity
       value: is_not_valid
 
+  # convert into specific humidity units, by *qsat_mod
+  - filter: Variable Assignment
+    assignments:
+    - name: RelativeHumidityObsError/specificHumidity
+      type: float
+      source variable: ObsErrorData/specificHumidity
+
   - filter: Perform Action
     filter variables:
     - name: specificHumidity
@@ -323,7 +330,7 @@
         name: ObsFunction/ObsErrorSatSpecHumidity
         options:
           variable: specificHumidity
-          input_error_name: ObsErrorData
+          input_error_name: RelativeHumidityObsError
 
 {% for var in assim_variables %}
   - filter: Variable Assignment
