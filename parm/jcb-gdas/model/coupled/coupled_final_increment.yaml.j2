@@ -12,5 +12,11 @@
 {% endfor %}
 geometry:
 {% filter indent(width=2) %}
-{% include 'coupled_geometry_final_increment.yaml.j2' %}
+{% for component in coupled_components %}
+{{ component.name }}:
+{% filter indent(width=2) %}
+{% include coupled_final_increment_files[component.dir] ~ '_geometry.yaml.j2' %}
+{% endfilter %}
+{% endfor %}
+{% include 'coupled_geometry_options.yaml.j2' %}
 {% endfilter %}
