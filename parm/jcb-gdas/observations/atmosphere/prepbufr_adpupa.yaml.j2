@@ -81,15 +81,16 @@
   # ------------------------------
 
 {% set temperature_variables = ['virtualTemperature', 'airTemperature'] %}
-{% set wind_variables = ['windEastward', 'windNorthward'] %}
 {% set mass_variables = ['stationPressure'] + temperature_variables + ['specificHumidity'] %}
+{% set wind_variables = ['windEastward', 'windNorthward'] %}
 {% set assim_variables = mass_variables + wind_variables %}
-{% set assim_obstypes         = [120, 132, 220, 221, 232] %}
+{% set mass_obstypes          = [120, 132] %}
+{% set wind_obstypes          = [220, 221, 232] %}
+{% set assim_obstypes         = mass_obstypes + wind_obstypes %}
 
   obs pre filters:
 
   # remove all records not in desired obs type from obs space
-  # reject all obs not of desired variable
   # --------------------------------
 
   - filter: Perform Action
@@ -100,40 +101,26 @@
     action:
       name: reduce obs space
 
-  # Reject everything, then re-accept desired variables
+  # Re-accept desired variables and obs type combinations.
+  # --------------------------------
+
   - filter: RejectList
     udescriptor: "reject_all"
 
-{% for var in assim_variables %}
+{% for variables, obstypes in [(mass_variables, mass_obstypes), (wind_variables, wind_obstypes)] %}
   - filter: Perform Action
     filter variables:
+{% for var in variables %}
     - name: {{ var }}
+{% endfor %}
+    where:
+    - variable:
+        name: ObsType/pressure
+      is_in: {{ obstypes | join(', ') }}
     action:
       name: accept
-{% endfor %}
 
-  # mass variables come from type 120 and 132 (dropsonde) reports, winds from 220 (rawinsonde),
-  # 221 (pibal) and 232 (dropsonde)
-  - filter: RejectList
-    filter variables:
-{% for var in mass_variables %}
-    - name: {{ var }}
 {% endfor %}
-    where:
-    - variable:
-        name: ObsType/pressure
-      is_not_in: 120, 132
-
-  - filter: RejectList
-    filter variables:
-{% for var in wind_variables %}
-    - name: {{ var }}
-{% endfor %}
-    where:
-    - variable:
-        name: ObsType/pressure
-      is_in: 120, 132
-
   # Observation Prior Filters (QC)
   # ------------------------------
 

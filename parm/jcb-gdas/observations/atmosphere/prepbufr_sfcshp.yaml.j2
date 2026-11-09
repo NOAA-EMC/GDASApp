@@ -87,12 +87,13 @@
 {% set wind_variables = ['windEastward', 'windNorthward'] %}
 {% set mass_variables = ['stationPressure'] + temperature_variables + ['specificHumidity'] %}
 {% set assim_variables = mass_variables + wind_variables %}
-{% set assim_obstypes         = [180, 182, 280, 282] %}
+{% set mass_obstypes          = [180, 182] %}
+{% set wind_obstypes          = [280, 282] %}
+{% set assim_obstypes         = mass_obstypes + wind_obstypes %}
 
   obs pre filters:
 
   # remove all records not in desired obs type from obs space
-  # reject all obs not of desired variable
   # --------------------------------
 
   - filter: Perform Action
@@ -103,16 +104,26 @@
     action:
       name: reduce obs space
 
-  # Reject everything, then re-accept desired variables
+  # Reject everything, then re-accept desired variables from their obs types:
+  # mass from 180 and 182 (splash-level dropsonde), winds from 280 and 282
+  # --------------------------------
+
   - filter: RejectList
     udescriptor: "reject_all"
 
-{% for var in assim_variables %}
+{% for variables, obstypes in [(mass_variables, mass_obstypes), (wind_variables, wind_obstypes)] %}
   - filter: Perform Action
     filter variables:
+{% for var in variables %}
     - name: {{ var }}
+{% endfor %}
+    where:
+    - variable:
+        name: ObsType/{{ assim_variables[0] }}
+      is_in: {{ obstypes | join(', ') }}
     action:
       name: accept
+
 {% endfor %}
 
   # replace Ps with P at MSLP if ob height is 0.
@@ -140,27 +151,6 @@
       type: float
       source variable:
         name: ObsValue/pressureReducedToMeanSeaLevel
-
-  # mass variables come from types 180 and 182 (splash-level dropsonde), winds from 280 and 282
-  - filter: RejectList
-    filter variables:
-{% for var in mass_variables %}
-    - name: {{ var }}
-{% endfor %}
-    where:
-    - variable:
-        name: ObsType/stationPressure
-      is_not_in: 180, 182
-
-  - filter: RejectList
-    filter variables:
-{% for var in wind_variables %}
-    - name: {{ var }}
-{% endfor %}
-    where:
-    - variable:
-        name: ObsType/stationPressure
-      is_in: 180, 182
 
   # Observation Prior Filters (QC)
   # ------------------------------
