@@ -31,6 +31,15 @@
 
   # Observation Prior Filters (QC)
   # ------------------------------
+  obs pre filters:
+  # Types 240 (GOES SWIR) and 251 (GOES VIS) are not assimilated (GSI convinfo iuse -1)
+  - filter: Perform Action
+    where:
+    - variable: ObsType/windEastward
+      is_in: 240, 251
+    action:
+      name: reduce obs space
+
   obs prior filters:
   # Apply variable changes needed for wind scaling
   # For wind observations with pressure provided
@@ -64,24 +73,6 @@
   # Assign the initial observation error, based on height/pressure
   # Hard-wiring to prepobs_errtable.global by Type
   # ObsError is currently not updating in diag file, but passes directly to EffectiveError when no inflation is specified in YAML
-  # Type 240 (GOES SWIR): Assigned all dummy values in prepobs_errtable.global
-  - filter: Perform Action
-    filter variables:
-    - name: windEastward
-    - name: windNorthward
-    where:
-    - variable: ObsType/windEastward
-      is_in: 240
-    action:
-      name: assign error
-      error function:
-        name: ObsFunction/ObsErrorModelStepwiseLinear
-        options:
-          xvar:
-            name: MetaData/pressure
-          xvals: [110000., 0.]  #Pressure (Pa)
-          errors: [1000000000., 1000000000.]
-
   # Type 245 (GOES LWIR): I am assuming these are halved relative to prepobs_errtable.global, based on read_satwnd.f90: L1410–1416
   - filter: Perform Action
     filter variables:
@@ -151,24 +142,6 @@
             10., 12., 12.6, 13.2, 14., 14., 14., 14., 14., 14., 14., 14., 14., 14.,
             14., 14., 14., 14., 14., 14.]
 
-  # Type 251 (GOES VIS): Assigned all dummy values
-  - filter: Perform Action
-    filter variables:
-    - name: windEastward
-    - name: windNorthward
-    where:
-    - variable: ObsType/windEastward
-      is_in: 251
-    action:
-      name: assign error
-      error function:
-        name: ObsFunction/ObsErrorModelStepwiseLinear
-        options:
-          xvar:
-            name: MetaData/pressure
-          xvals: [110000., 0.]  #Pressure (Pa)
-          errors: [1000000000., 1000000000.]
-
   # sanity-check criteria
   # Observation Range Sanity Check
   # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
@@ -194,17 +167,6 @@
       name: reject
 
   # GSI read routine QC (part-1)
-  # Exclude Type 251 (VIS) --- obs tossed without passing to setup routine 
-  - filter: Perform Action
-    filter variables:
-    - name: windEastward
-    - name: windNorthward
-    where:
-    - variable: ObsType/windEastward
-      is_in: 251
-    action:
-      name: reject
-
   # Exclude data with satellite zenith angle > 68 for all types --- obs tossed without passing to setup routine
   - filter: Bounds Check
     filter variables:
@@ -360,18 +322,6 @@
     test variables:
     - name: ObsFunction/SatWindsErrnormCheck
     maxvalue: 0.9
-    action:
-      name: reject
-
-  # Reject all Type=240 (GOES SWIR) AMVs: These are not currently assimilated in GSI and they have missing-values
-  # assigned to ob-errors
-  - filter: Perform Action
-    filter variables:
-    - name: windEastward
-    - name: windNorthward
-    where:
-    - variable: ObsType/windEastward
-      is_in: 240
     action:
       name: reject
 

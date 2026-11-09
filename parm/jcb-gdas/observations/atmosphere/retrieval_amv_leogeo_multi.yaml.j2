@@ -109,6 +109,22 @@
     action:
       name: reject
 
+  # GSI setupw treats winds at the same position and pressure as duplicates
+  # and keeps the one closest to the analysis time
+  - filter: DuplicateThinning
+    filter variables:
+    - name: windEastward
+    - name: windNorthward
+    variable names:
+    - MetaData/latitude
+    - MetaData/longitude
+    - MetaData/pressure
+    tolerance: [1.0e-6, 1.0e-6, 1.0e-6]
+    analysis_time: '{{ atmosphere_background_time_iso }}'
+    min_spacing: PT6H
+    action:
+      name: reject
+
   # GSI setupw routine QC
   # Reject any ob Type [240–260] when pressure greater than 950 mb.
   # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa    

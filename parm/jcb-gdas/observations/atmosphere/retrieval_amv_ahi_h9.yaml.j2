@@ -185,26 +185,6 @@
 #      name: reject
   
   # THINNING: Himawari winds are not prioritized
-  - filter: Gaussian Thinning
-    horizontal_mesh: 100
-    vertical_mesh: 10000
-    where:
-    - variable:
-        name: MetaData/pressure
-      minvalue: 50001.
-    action:
-      name: reduce obs space
-
-  - filter: Gaussian Thinning
-    horizontal_mesh: 90
-    vertical_mesh: 10000
-    where:
-    - variable:
-        name: MetaData/pressure
-      maxvalue: 50000.
-    action:
-      name: reduce obs space
-
   # Observation Prior Filters (QC)
   # ------------------------------
   obs prior filters:
@@ -232,6 +212,26 @@
     Transform: SurfaceWindScalingPressure
     SkipWhenNoObs: false
   
+  # GSI thins after the reader QC, including the surface check above.
+  # GSI convinfo: 200 km, 100 hPa, 2 hours, separately for each type, preferring high quality index
+  - filter: Gaussian Thinning
+    where:
+    - variable: ObsType/windEastward
+      is_in: 242,250,252
+    horizontal_mesh: 200
+    use_reduced_horizontal_grid: true
+    round_horizontal_bin_count_to_nearest: true
+    partition_longitude_bins_using_mesh: true
+    vertical_mesh: 10000
+    time_mesh: PT2H
+    time_min: '{{ window_begin }}'
+    category_variable:
+      name: ObsType/windEastward
+    priority_variable:
+      name: MetaData/qiWithoutForecast
+    action:
+      name: reject
+
   # Observation Post Filters (QC)
   # ------------------------------
   obs post filters:

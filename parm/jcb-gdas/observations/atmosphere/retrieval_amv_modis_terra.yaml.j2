@@ -85,7 +85,7 @@
           xvals: [110000.,105000.,100000.,95000.,90000.,85000.,80000.,75000.,70000.,65000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
           errors: [3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.8,3.9,3.9,4.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
 
-  # Type 258 (MODIS WVCT): Some levels assigned dummy values
+  # Type 258 (MODIS WVCT)
   - filter: Perform Action
     filter variables:
     - name: windEastward
@@ -100,10 +100,10 @@
         options:
           xvar:
             name: MetaData/pressure
-          xvals: [110000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
-          errors: [1000000000.,1000000000.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
+          xvals: [55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
+          errors: [4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
 
-  # Type 259 (MODIS WVDL): Some levels assigned dummy values
+  # Type 259 (MODIS WVDL)
   - filter: Perform Action
     filter variables:
     - name: windEastward
@@ -118,8 +118,8 @@
         options:
           xvar:
             name: MetaData/pressure
-          xvals: [110000.,60000.,55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
-          errors: [1000000000.,1000000000.,4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
+          xvals: [55000.,50000.,45000.,40000.,35000.,30000.,25000.,20000.,15000.,10000.,7500.,5000.,4000.,3000.,2000.,1000.,500.,400.,300.,200.,100.,0.]   #Pressure (Pa)
+          errors: [4.,4.1,5.,6.,6.3,6.6,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
 
   # sanity-check criteria
   # Observation Range Sanity Check
@@ -172,9 +172,9 @@
     action:
       name: reject
 
-  # MODIS-Aqua/Terra (258) and (259), reject when pressure greater than 600 mb.
-  # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
-  # maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+  # MODIS-Aqua/Terra (258) and (259), reject when pressure greater than 550 hPa. GSI gives these
+  # obs very large errors between 550 and 600 hPa and rejects them below 600 hPa, which has the same
+  # effect on the analysis.
   - filter: Bounds Check
     filter variables:
     - name: windEastward
@@ -184,7 +184,7 @@
       is_in: 258, 259
     test variables:
     - name: MetaData/pressure
-    maxvalue: 60000.
+    maxvalue: 55000.
     action:
       name: reject
 
