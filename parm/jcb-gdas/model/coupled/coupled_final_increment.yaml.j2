@@ -1,0 +1,22 @@
+{# Coupled final increment (analysis minus background), written once the minimisation has
+   finished. The oops IncrementWriter writes it as one Increment, which IncrementCoupled
+   splits by model name: each component contributes the writer half of its own final
+   increment fragment, named <coupled_final_increment_files[dir]>_writer.yaml.j2, and the
+   geometry halves make up the coupled geometry it is written on. Only the fragments the
+   coupled analysis uses are split into _writer and _geometry halves. #}
+{% for component in coupled_components %}
+{{ component.name }}:
+{% filter indent(width=2) %}
+{% include coupled_final_increment_files[component.dir] ~ '_writer.yaml.j2' %}
+{% endfilter %}
+{% endfor %}
+geometry:
+{% filter indent(width=2) %}
+{% for component in coupled_components %}
+{{ component.name }}:
+{% filter indent(width=2) %}
+{% include coupled_final_increment_files[component.dir] ~ '_geometry.yaml.j2' %}
+{% endfilter %}
+{% endfor %}
+{% include 'coupled_geometry_options.yaml.j2' %}
+{% endfilter %}

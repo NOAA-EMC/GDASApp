@@ -145,6 +145,7 @@ if (WORKFLOW_TESTS)
   option(TEST_LAND "Enable the GFSv17 Land JEDI tests" ON)
   option(TEST_MARINE_VAR "Enable the GFSv17 Marine JEDI 3D VAR FGAT tests" ON)
   option(TEST_MARINE_HYB "Enable the GFSv17 Marine JEDI 3d HYB VAR tests" ON)
+  option(TEST_COUPLED_VAR "Enable the coupled Atmos and Marine JEDI 3D VAR tests" ON)
   option(TEST_GFS17 "Enable the GFSv17 WCDA tests" OFF)
 
   # Setup the environment
@@ -210,6 +211,19 @@ if (WORKFLOW_TESTS)
     set(YAML_PATH ${HOMEglobal}/dev/ci/cases/pr/${pslot}.yaml)
     add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEglobal} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR})
   endif()  # TEST_MARINE_HYB
+
+  if(${TEST_COUPLED_VAR})
+    # JEDI coupled Atm and Marine 3DVar C48mx500
+    # -----------------------------------------
+    set(pslot "C48mx500_coupledDA")
+    set(YAML_PATH ${HOMEglobal}/dev/ci/cases/pr/${pslot}.yaml)
+    # The case is defined in global-workflow: skip it in a checkout that does not have it yet
+    if(EXISTS ${YAML_PATH})
+      add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEglobal} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR})
+    else()
+      message(STATUS "${YAML_PATH} not found, skipping the ${pslot} tests")
+    endif()
+  endif()  # TEST_COUPLED_VAR
 
   # GFSv17, 3DVAR prototype
   # -----------------------

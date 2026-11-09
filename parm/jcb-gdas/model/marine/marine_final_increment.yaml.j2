@@ -1,8 +1,7 @@
-datadir: {{marine_final_increment_dir}}
-date: '{{ marine_window_begin_iso }}'
-times: ['{{ marine_window_middle_iso }}']
-exp: {{marine_final_increment_exp}}
-type: incr
+{# Split into a writer and a geometry half so the coupled final increment can compose them
+   the other way round; see the atmosphere equivalent. #}
+{% include 'marine_final_increment_writer.yaml.j2' %}
 geometry:
-  mom6_input_nml: mom_input.nml
-  fields metadata: {{marine_soca_files_path}}/fields_metadata.yaml
+{% filter indent(width=2) %}
+{% include 'marine_final_increment_geometry.yaml.j2' %}
+{% endfilter %}
