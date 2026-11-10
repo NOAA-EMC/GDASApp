@@ -64,12 +64,17 @@ rescale dynamic: 0.432
 rescale static: 1.0
 # Deep floor, added in quadrature below `depth` and independent of the e-folding scales
 # and of the depth ratio, so that Argo/Deep Argo keep a non-zero background error down to
-# the bottom (Argo T O-B rms is 0.04-0.07 degC below 1500 m; S provisional).
+# the bottom. Ramps in over 300-600 m to also fill the 500-1500 m gap left by the 300 m
+# static e-folding scale. Sized on the spatially coherent part of the Argo O-B (10-deg box
+# means, cp06.c192.torch at equilibrium: ~0.06-0.08 degC / 0.012-0.016 psu at 450-1000 m);
+# the sub-box residual is uncorrelated at >= 25 km and is left to R. With the tapered
+# steric Jacobian, the implied steric SSH std stays within ~10% of the ADT calibration
+# (cp07.c192.torchbalance.1; was 0.04 / 0.005 from 1000 m in .0).
 deep floor:
-  sigT: 0.04
-  sigS: 0.005
-  depth: 1000.0
-  transition: 500.0
+  sigT: 0.05
+  sigS: 0.010
+  depth: 600.0
+  transition: 300.0
 static sig B:
   sigT: 0.134
   sigS: 0.0312
