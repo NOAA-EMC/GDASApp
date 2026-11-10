@@ -4,6 +4,10 @@ test_reference_filename: {{ HOMEglobal }}/sorc/gdas.cd/test/testreference/atm_jj
 test_output_filename: {{ HOMEglobal }}/sorc/gdas.cd/build/gdas/test/testoutput/atm_jjob_lgetkf.test.out
 test_float_relative_tolerance: 1.0e-3
 test_float_absolute_tolerance: 1.0e-5
+# One-step L/GETKF: compute H(x) under RoundRobin, then redistribute obs into Halo for the solver
+do_onestep_letkf: true
+# Skip posterior H(x) to reduce ctest runtime
+driver_do_posterior_observer: false
 {% else %}
 do_testing: false
 {% endif %}
