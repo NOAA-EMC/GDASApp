@@ -96,7 +96,6 @@ background:
   - sea_ice_area_fraction
   - sea_ice_thickness
   - sea_ice_snow_thickness
-  derived variables: {{ marine_ijedi_background_derived_variables }}
   io:
     filetype: mom6
     datapath: ./INPUT/
@@ -105,8 +104,8 @@ background:
     field io names: {sea_water_potential_temperature: Temp, sea_water_salinity: Salt,
                      sea_surface_height_above_geoid: ave_ssh, eastward_sea_water_velocity: u,
                      northward_sea_water_velocity: v, sea_water_cell_thickness: h,
-                     sea_ice_area_fraction: aice_h, sea_ice_volume: hi_h,
-                     sea_ice_snow_volume: hs_h}
+                     sea_ice_area_fraction: aice_h}
+    thickness from volume: {{ marine_ijedi_background_thickness_from_volume }}
 
 # Sea-ice analysis postprocessing into the CICE restart (as soca_incpostproc), with the i-jedi
 # "cice" io (one field per CICE restart variable, one level per category)

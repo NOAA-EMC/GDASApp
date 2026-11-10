@@ -16,7 +16,7 @@ date: '{{ marine_window_end_iso }}'
 horizontal scales:
   variables: [sea_surface_height_above_geoid]
   rossby radius:
-    geometry field: rossby_radius
+    file: ./rossrad.nc
   area field: area
   scales:
     sea_surface_height_above_geoid:
@@ -46,7 +46,7 @@ vertical scales:
   mask field: mask2d
   area field: area
   rossby radius:
-    geometry field: rossby_radius
+    file: ./rossrad.nc
   smoothing:
     rossby mult: 1.0
     min grid mult: 2.0
@@ -66,7 +66,6 @@ background error stddev:
   background:
     date: '{{ marine_window_end_iso }}'
     state variables: {{ marine_ijedi_background_variables + ['sea_water_cell_thickness'] }}
-    derived variables: {{ marine_ijedi_background_derived_variables }}
     io:
       filetype: mom6
       datapath: ./bkg
@@ -74,7 +73,8 @@ background error stddev:
       ice_file: ice.bkg.f009.nc
       field io names: {sea_water_potential_temperature: Temp, sea_water_salinity: Salt,
                        sea_surface_height_above_geoid: ave_ssh, sea_water_cell_thickness: h,
-                       sea_ice_area_fraction: aice_h, sea_ice_volume: hi_h, sea_ice_snow_volume: hs_h}
+                       sea_ice_area_fraction: aice_h}
+      thickness from volume: {{ marine_ijedi_background_thickness_from_volume }}
   vertical e-folding scale dynamic: 200.0
   vertical e-folding scale static: 300.0
   stencil growth iterations: 100

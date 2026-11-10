@@ -114,17 +114,18 @@ marine_ijedi_field_io_names:
     sea_ice_thickness: hi_div_aice_h
     sea_ice_snow_thickness: hs_div_aice_h
 
-# Background states: the analysis variables, sea ice from the CICE history backgrounds with the
-# thicknesses per ice area derived from the per-cell volumes (as soca reads them)
+# Background states: the analysis variables, sea ice from the CICE history backgrounds, whose
+# per-cell volumes the i-jedi mom6 io divides by the ice fraction into thicknesses per ice area
+# (as soca reads them)
 marine_ijedi_background_variables: {{ _analysis_vars }}
-marine_ijedi_background_derived_variables: ['sea_ice_thickness', 'sea_ice_snow_thickness']
 marine_ijedi_background_io_names:
     sea_water_potential_temperature: Temp
     sea_water_salinity: Salt
     sea_surface_height_above_geoid: ave_ssh
     sea_ice_area_fraction: aice_h
-    sea_ice_volume: hi_h
-    sea_ice_snow_volume: hs_h
+marine_ijedi_background_thickness_from_volume:
+    sea_ice_thickness: hi_h
+    sea_ice_snow_thickness: hs_h
 
 # Static B central block variables (as soca; no balance operator in i-jedi)
 marine_ijedi_saber_central_block_variables: ['sea_ice_area_fraction', 'sea_water_salinity',
