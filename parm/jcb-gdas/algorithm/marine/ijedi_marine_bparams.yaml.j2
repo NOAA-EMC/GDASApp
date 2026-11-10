@@ -75,17 +75,42 @@ background error stddev:
                        sea_surface_height_above_geoid: ave_ssh, sea_water_cell_thickness: h,
                        sea_ice_area_fraction: aice_h}
       thickness from volume: {{ marine_ijedi_background_thickness_from_volume }}
-  vertical e-folding scale dynamic: 200.0
+{% if marine_diagb_climatology_dir is defined %}
+  # The spatial std behind the dynamic T/S component is computed from the monthly
+  # climatology interpolated to the cycle, not from the background (as soca_diagb): a
+  # background-based sigma feeds back on itself through cycling.
+  climatology:
+    date: '{{ marine_window_middle_iso }}'
+    mid month day: 15
+    io:
+      filetype: mom6
+      datapath: '{{ marine_diagb_climatology_dir }}'
+      ocn_file: 'ocean.clim_%MM%.nc'
+      field io names: {sea_water_potential_temperature: Temp, sea_water_salinity: Salt}
+{% endif %}
+  # T/S settings of soca_diagb.yaml.j2 (fitted to the coupled-ensemble spread with the
+  # climatology above for the dynamic component, inflated to match the ADT background error
+  # through the steric balance). Without the climatology the dynamic component is roughly 2x
+  # too strong. The soca_diagb sea-ice extras (fracHi/fracHs, sigHi/sigHs, max aice/hi, min
+  # aice, rmax clip) are not ported: they serve the freeboard obs, not used with i-jedi yet.
+  vertical e-folding scale dynamic: 1500.0
   vertical e-folding scale static: 300.0
   stencil growth iterations: 100
-  min efold depth ratio: 3.0
-  rescale dynamic: 0.2
+  min efold depth ratio: 2.0
+  rescale dynamic: 0.432
   rescale static: 1.0
+  # Deep floor, added in quadrature below `depth`, so that Argo/Deep Argo keep a non-zero
+  # background error down to the bottom (see soca_diagb.yaml.j2)
+  deep floor:
+    sigT: 0.05
+    sigS: 0.010
+    depth: 600.0
+    transition: 300.0
   static sig B:
-    sigT: 0.5
-    sigS: 0.1
-    sigSic: 0.01
-  max ssh: 0.0
+    sigT: 0.134
+    sigS: 0.0312
+    sigSic: 0.02
+  max ssh: 0.0   # Zero out sigb ssh: use the steric height as a strong constraint
   min depth: 100.0
   vertical bin size: 1.0
   output:
