@@ -4,6 +4,10 @@
 # from the UNESCO equation of state (no balance operator in i-jedi). The sea-ice analysis is
 # postprocessed into the CICE restart (Data/<date>.cice_model.res.nc, updated in place) and its
 # increment is written to ice.inc.nc.
+# With TorchBalance (marine_balance: torch) the analysis has eastward/northward current increments
+# (geostrophy): they are passed through and the i-jedi mom6 io writes them grid-relative on the
+# MOM6 C-grid ("velocity grid: native": rotated with the geometry's cos/sin_rot and interpolated to
+# the faces), as MOM6 IAU expects. Otherwise the u/v increments are zero.
 {# the geometry is laid out on the tasks of the increment postprocessing #}
 {% set marine_ijedi_layout_x = marine_ijedi_incpostproc_layout_x | default(marine_ijedi_layout_x) %}
 {% set marine_ijedi_layout_y = marine_ijedi_incpostproc_layout_y | default(marine_ijedi_layout_y) %}
@@ -23,10 +27,15 @@ increment variables:
 - sea_ice_area_fraction
 - sea_ice_thickness
 - sea_ice_snow_thickness
+{% if marine_balance | default('soca') == 'torch' %}
+- eastward_sea_water_velocity
+- northward_sea_water_velocity
+{% else %}
 
 set increment variables to zero:
 - eastward_sea_water_velocity
 - northward_sea_water_velocity
+{% endif %}
 
 vertical geometry:
   io:
@@ -47,6 +56,9 @@ output increment:
     filetype: mom6
     datapath: ./
     ocn_file: ocn.inc.nc
+{% if marine_balance | default('soca') == 'torch' %}
+    velocity grid: native
+{% endif %}
     field io names: {sea_water_potential_temperature: Temp, sea_water_salinity: Salt,
                      sea_surface_height_above_geoid: ave_ssh, eastward_sea_water_velocity: u,
                      northward_sea_water_velocity: v, sea_water_cell_thickness: h}

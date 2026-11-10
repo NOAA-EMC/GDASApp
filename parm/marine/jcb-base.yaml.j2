@@ -37,14 +37,20 @@ final_prints_frequency: PT3H
 number_of_outer_loops: 1
 
 # Analysis variables
+# (i-jedi analyses the currents only with the TorchBalance B, MARINE_BALANCE=torch: its univariate
+# B has no velocity error, and the i-jedi increment postprocessing then zeroes the u/v increments)
+{% set _marine_ijedi = JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+{% set _marine_torch = MARINE_BALANCE | default('soca') == 'torch' %}
 {% set _analysis_vars = ['sea_ice_area_fraction',
                          'sea_ice_thickness',
                          'sea_ice_snow_thickness',
                          'sea_water_salinity',
-                         'sea_water_potential_temperature',
-                         'eastward_sea_water_velocity',
-                         'northward_sea_water_velocity',
-                         'sea_surface_height_above_geoid'] %}
+                         'sea_water_potential_temperature'] %}
+{% if _marine_torch or not _marine_ijedi %}
+{% set _analysis_vars = _analysis_vars + ['eastward_sea_water_velocity',
+                                          'northward_sea_water_velocity'] %}
+{% endif %}
+{% set _analysis_vars = _analysis_vars + ['sea_surface_height_above_geoid'] %}
 
 analysis_variables: {{ _analysis_vars }}
 
@@ -123,24 +129,50 @@ marine_ijedi_field_io_names:
     sea_ice_area_fraction: aice_h
     sea_ice_thickness: hi_div_aice_h
     sea_ice_snow_thickness: hs_div_aice_h
+{% if _marine_torch %}
+    # eastward/northward at tracer points (the default "velocity grid: tracer")
+    eastward_sea_water_velocity: u
+    northward_sea_water_velocity: v
+{% endif %}
 
 # Background states: the analysis variables, sea ice from the CICE history backgrounds, whose
 # per-cell volumes the i-jedi mom6 io divides by the ice fraction into thicknesses per ice area
-# (as soca reads them)
+# (as soca reads them). With TorchBalance the layer thicknesses are added (background tensor of
+# the geostrophy emulator); the MOM6 C-grid currents are read as eastward/northward at tracer
+# points (the io detects the staggered layout of restarts and histories).
+{% if _marine_torch %}
+marine_ijedi_background_variables: {{ _analysis_vars + ['sea_water_cell_thickness'] }}
+{% else %}
 marine_ijedi_background_variables: {{ _analysis_vars }}
+{% endif %}
 marine_ijedi_background_io_names:
     sea_water_potential_temperature: Temp
     sea_water_salinity: Salt
     sea_surface_height_above_geoid: ave_ssh
     sea_ice_area_fraction: aice_h
+{% if _marine_torch %}
+    eastward_sea_water_velocity: u
+    northward_sea_water_velocity: v
+    sea_water_cell_thickness: h
+{% endif %}
 marine_ijedi_background_thickness_from_volume:
     sea_ice_thickness: hi_h
     sea_ice_snow_thickness: hs_h
 
-# Static B central block variables (as soca; no balance operator in i-jedi)
+# Static B central block variables (as soca). Univariate: with TorchBalance
+# (MARINE_BALANCE=torch) the currents are added, the cross-variable covariances then come from
+# the balance outer blocks.
+{% if _marine_torch %}
+marine_ijedi_saber_central_block_variables: ['sea_ice_area_fraction', 'sea_water_salinity',
+                                             'sea_water_potential_temperature',
+                                             'eastward_sea_water_velocity',
+                                             'northward_sea_water_velocity',
+                                             'sea_surface_height_above_geoid']
+{% else %}
 marine_ijedi_saber_central_block_variables: ['sea_ice_area_fraction', 'sea_water_salinity',
                                              'sea_water_potential_temperature',
                                              'sea_surface_height_above_geoid']
+{% endif %}
 
 # MOM6 layout of the increment postprocessing (marineanlchkpt), derived by config.resources
 # (marineanlinit) from its task count
@@ -158,7 +190,8 @@ marine_forecast_timestep: PT3H
 
 # Background error model
 {% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
-# Univariate diffusion B from the i-jedi marinebmat chain (soca's diffusion files cannot be read)
+# Diffusion B from the i-jedi marinebmat chain (soca's diffusion files cannot be read),
+# univariate, or multivariate through TorchBalance with MARINE_BALANCE=torch
 background_error_file: marine_ijedi_background_error_static_diffusion
 {% else %}
 background_error_file: '{{berror_model}}'
