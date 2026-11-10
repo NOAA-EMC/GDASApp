@@ -87,6 +87,14 @@ class MarineIncrHandler : public oops::Application {
     if (fullConfig.has("set increment variables to zero")) {
       zeroVars = oops::Variables(fullConfig, "set increment variables to zero");
     }
+    // Vector increments (u, v pairs) to rotate from geographical to the logical grid frame
+    oops::Variables uRot, vRot;
+    if (fullConfig.has("rotate increment to grid")) {
+      const eckit::LocalConfiguration rotConfig(fullConfig, "rotate increment to grid");
+      uRot = oops::Variables(rotConfig, "u");
+      vRot = oops::Variables(rotConfig, "v");
+      ASSERT(uRot.size() == vRot.size());
+    }
 
     // Input increments: one (`increment`), or a list of members from a template (`increments`);
     // `soca increment(s)` are accepted as well
@@ -128,6 +136,9 @@ class MarineIncrHandler : public oops::Application {
       dxIn.read(memberConfig);
       oops::Log::debug() << "-------------------- input increment: " << std::endl;
       oops::Log::debug() << dxIn << std::endl;
+
+      // Rotate vector increments from geographical to logical grid
+      rotate2grid(geom, uRot, vRot, dxIn);
 
       // Append the layer thicknesses and the zero increments
       Increment_ dx = appendVariables(geom, date, dxIn, layerThickness, outputVars);
@@ -196,6 +207,61 @@ class MarineIncrHandler : public oops::Application {
     copyFields(layerThickness, toAppend);
     dx += toAppend;
     return dx;
+  }
+
+  /// Rotates the (u, v) increment pairs from geographical (east/north) to the logical grid frame,
+  /// with the cos_rot/sin_rot geometry fields (same convention as soca::State::rotate2grid and
+  /// the MOM6 cap). For models whose io already writes grid-relative velocities (i-jedi with
+  /// "velocity grid: native"), leave "rotate increment to grid" out of the configuration.
+  static void rotate2grid(const Geometry_ & geom, const oops::Variables & uRot,
+                          const oops::Variables & vRot, Increment_ & dx) {
+    oops::Log::info() << "==========================================" << std::endl;
+    if (uRot.size() == 0) {
+      oops::Log::info() << "======      no vector increments to rotate" << std::endl;
+      return;
+    }
+    oops::Log::info() << "======      Rotate vector increments from geographical to logical grid"
+                      << std::endl;
+    atlas::FieldSet dxFs;
+    dx.toFieldSet(dxFs);
+    const atlas::FieldSet & geomFs = geom.fields();
+    if (!geomFs.has("cos_rot") || !geomFs.has("sin_rot")) {
+      throw eckit::UserError("rotate increment to grid: the geometry has no cos_rot/sin_rot",
+                             Here());
+    }
+    const auto cosView = atlas::array::make_view<const double, 2>(geomFs.field("cos_rot"));
+    const auto sinView = atlas::array::make_view<const double, 2>(geomFs.field("sin_rot"));
+    const auto ghostView = atlas::array::make_view<int, 1>(geom.functionSpace().ghost());
+
+    for (size_t n = 0; n < uRot.size(); ++n) {
+      const std::string & uName = uRot[n].name();
+      const std::string & vName = vRot[n].name();
+      if (!dxFs.has(uName) || !dxFs.has(vName)) {
+        throw eckit::UserError("Increment variables " + uName + " or " + vName + " not found.",
+                               Here());
+      }
+      oops::Log::info() << "rotating " << uName << " and " << vName << std::endl;
+      atlas::Field uField = dxFs[uName];
+      atlas::Field vField = dxFs[vName];
+      auto uView = atlas::array::make_view<double, 2>(uField);
+      auto vView = atlas::array::make_view<double, 2>(vField);
+      ASSERT(uView.shape(1) == vView.shape(1));
+      // Ghost points are skipped: cos_rot/sin_rot are only set on owned points
+      for (atlas::idx_t i = 0; i < uView.shape(0); ++i) {
+        if (ghostView(i)) continue;
+        for (atlas::idx_t j = 0; j < uView.shape(1); ++j) {
+          const double uGeo = uView(i, j);
+          const double vGeo = vView(i, j);
+          uView(i, j) = uGeo * cosView(i, 0) - vGeo * sinView(i, 0);
+          vView(i, j) = uGeo * sinView(i, 0) + vGeo * cosView(i, 0);
+        }
+      }
+      uField.set_dirty();
+      vField.set_dirty();
+    }
+    dx.fromFieldSet(dxFs);
+    oops::Log::debug() << "-------------------- increment with rotated vector fields: " << std::endl;
+    oops::Log::debug() << dx << std::endl;
   }
 
   /// Copies the fields of src into the fields of the same name in dst.

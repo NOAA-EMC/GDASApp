@@ -100,7 +100,12 @@ data_out:
 {% endif %}
 
     # Copy the diffusion coefficient files to the ROTDIR
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
     - ['{{ DATAstaticb }}/hz_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}hz.nc']
+{% else %}
+    - ['{{ DATAstaticb }}/hz_ocean_small.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}hz_small.nc']
+    - ['{{ DATAstaticb }}/hz_ocean_large.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}hz_large.nc']
+{% endif %}
     - ['{{ DATAstaticb }}/vt_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}vt.nc']
 
 {% if JEDI_MARINE_INTERFACE | default('soca') != 'ijedi' %}

@@ -125,6 +125,19 @@ $$
   - `vertical e-folding scale static/dynamic`: base vertical decay length
   - `min efold depth ratio`: floor on depth/e-folding ratio
   - `static sig B.sigT`, `.sigS`, `.sigSic`: default static stddev for each variable
+  - `rmax`: max allowed freeboard-induced increment ratio delta_hi/delta_hs (default `3.0`); bounds the raw
+    binned sigma_hi^2/sigma_hs^2 ratio, preserving sigma_hi^2 + sigma_hs^2 where the bound is active
+  - `rho ice`, `rho snow`, `rho water`: densities (kg/m^3) used to convert `rmax` into the variance-ratio
+    bound (defaults `917.0`, `330.0`, `1025.0`). Keep `rho water` in sync with the `seawater density` of
+    the freeboard operators in `parm/jcb-gdas/observations/marine/icefb_*`
+  - `max ssh`, `max aice`, `max hi`: absolute ceilings on the stddev of the corresponding variable
+    (`max ssh` defaults to `0.0`, the other two are unbounded by default). `rmax` only bounds the
+    hi/hs *ratio*, so `max hi` is still needed to stop both variances growing together
+  - `min aice`: sea ice concentration floor (default `0.0`, i.e. off). `sea_ice_thickness` and
+    `sea_ice_snow_thickness` are the ratios hi/aice and hs/aice, which are undefined as aice goes to
+    zero. Cells below the floor are excluded from the variance stencils and given a zero background
+    error, so slivers neither acquire nor spread an increment. `sea_ice_area_fraction` is deliberately
+    left unmasked so that the analysis can still move the ice edge
 
 ---
 
