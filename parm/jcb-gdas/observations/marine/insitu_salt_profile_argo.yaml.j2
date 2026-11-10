@@ -236,6 +236,8 @@
   # than taking its absolute value) keeps the curve smooth at the equator too.
   # Must stay the LAST error filter -- the "assign error" filters above would
   # otherwise overwrite the inflated error.
+  # DISABLED (coeffA 0.0, factor = 1): tropical R is now the mid-latitude value,
+  # still 1.5-4x the tropical Argo O-B. Set coeffA back to 3.0 (or 1.0 for x2) to restore.
   - filter: Perform Action
     filter variables:
     - name: salinity
@@ -249,7 +251,7 @@
             options:
               variables: [MetaData/latitude]
               exponents: [2]
-          coeffA: 3.0            # A - 1
+          coeffA: 0.0            # A - 1; was 3.0 (x4 at the equator), disabled -- see above
           coeffB: -0.00222222    # -1/(2*sigma^2), sigma = 15 deg
           coeffC: 1.0            # factor -> 1 outside the tropics
           coeffD: 1.0            # latitude missing -> no inflation
