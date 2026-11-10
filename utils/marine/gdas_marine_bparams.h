@@ -27,9 +27,11 @@
 #include "oops/generic/gc99.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
+#include "oops/util/ConfigFunctions.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Logger.h"
 
+#include "gdas_marine_climatology.h"
 #include "gdas_marine_mesh.h"
 #include "gdas_marine_read_nc_interp.h"
 
@@ -58,7 +60,9 @@ namespace gdasapp {
  *
  * background error stddev: the parametric stddev of soca's SocaDiagB (gdas_soca_diagb.x), the
  *   local variance of the background over a mesh stencil grown by iterative averaging, tapered
- *   with depth and added to a static part, optionally written on an output geometry.
+ *   with depth and added to a static part, optionally written on an output geometry. As in
+ *   SocaDiagB, the T/S moments can optionally come from a monthly climatology interpolated in
+ *   time (`climatology:`), and a deep T/S floor can be added in quadrature (`deep floor:`).
  */
 template <typename MODEL>
 class MarineBParams : public oops::Application {
@@ -237,6 +241,14 @@ class MarineBParams : public oops::Application {
     const double efoldDyna = conf.getDouble("vertical e-folding scale dynamic", 300.0);
     const double efoldStatic = conf.getDouble("vertical e-folding scale static", 300.0);
     const double sshMax = conf.getDouble("max ssh", 0.0);
+    // Deep floor for T/S (as SocaDiagB): sigma = sqrt(sigma^2 + (w(z) * floor)^2), w ramping
+    // smoothly from 0 at depth - transition to 1 at depth. Zero floors (the default) keep the
+    // previous behaviour.
+    const std::map<std::string, double> deepFloor = {
+      {"sea_water_potential_temperature", conf.getDouble("deep floor.sigT", 0.0)},
+      {"sea_water_salinity", conf.getDouble("deep floor.sigS", 0.0)}};
+    const double deepFloorDepth = conf.getDouble("deep floor.depth", 1000.0);
+    const double deepFloorTransition = conf.getDouble("deep floor.transition", 500.0);
     const eckit::LocalConfiguration staticSigConf(conf, "static sig B");
     const std::map<std::string, double> staticSig = {
       {"sea_water_potential_temperature", staticSigConf.getDouble("sigT", 0.5)},
@@ -257,6 +269,14 @@ class MarineBParams : public oops::Application {
 
     atlas::FieldSet bkg;
     for (const auto & var : vars) bkg.add(xb.fieldSet()[var.name()].clone());
+
+    // Optional T/S climatology for the dynamic component (SocaDiagB step 3b): the moments of T
+    // and S are computed from the monthly climatology interpolated to the cycle, which cannot
+    // feed back on itself through cycling the way the background does. Layer thicknesses, SSH
+    // and ice still come from the background.
+    if (conf.has("climatology")) {
+      climatologyTS(geom, date, eckit::LocalConfiguration(conf, "climatology"), bkg);
+    }
     nodeColumns.haloExchange(bkg[hVar]);
     const auto h = atlas::array::make_view<double, 2>(bkg[hVar]);
     const atlas::idx_t nnodes = h.shape(0);
@@ -337,6 +357,12 @@ class MarineBParams : public oops::Application {
             const double statEfold = localGCScale(bathy[jnode], efoldStatic, efoldRatio);
             dyna *= rescaleDyna * oops::gc99(z / dynEfold);
             dyna += rescaleStatic * sig * oops::gc99(z / statEfold);
+            const auto floorIt = deepFloor.find(name);
+            if (floorIt != deepFloor.end() && floorIt->second > 0.0 && h(jnode, jlev) > 0.1) {
+              const double f = floorIt->second * gdasapp::marine::deepFloorWeight(
+                                 z, deepFloorDepth, deepFloorTransition);
+              dyna = std::sqrt(dyna * dyna + f * f);
+            }
             if (name == "sea_surface_height_above_geoid") dyna = std::min(dyna, sshMax);
           }
           out(jnode, jlev) = dyna;
@@ -354,6 +380,54 @@ class MarineBParams : public oops::Application {
       stddev.write(eckit::LocalConfiguration(conf, "output"));
       oops::Log::test() << "Output background error stddev: " << stddev << std::endl;
     }
+  }
+
+  // Replaces the T and S of bkg with the monthly climatology interpolated linearly in time to
+  // `date` (or to the climatology `date`), as SocaDiagB. The monthly files are read through the
+  // model io from the climatology block, with %MM% replaced by the two-digit month.
+  static void climatologyTS(const Geometry_ & geom, const util::DateTime & date,
+                            const eckit::LocalConfiguration & climConf, atlas::FieldSet & bkg) {
+    const util::DateTime climDate = climConf.has("date")
+                                    ? util::DateTime(climConf.getString("date")) : date;
+    const auto w = gdasapp::marine::climatologyWeights(climDate,
+                                                       climConf.getInt("mid month day", 15));
+    oops::Variables tsVars;
+    for (const std::string var : {"sea_water_potential_temperature", "sea_water_salinity"}) {
+      if (bkg.has(var)) tsVars.push_back(var);
+    }
+    if (tsVars.size() == 0) {
+      oops::Log::warning() << "MarineBParams: climatology requested without T or S, ignored"
+                           << std::endl;
+      return;
+    }
+    const auto monthConf = [&climConf](const int month) {
+      eckit::LocalConfiguration monthConfig(climConf);
+      const std::string mm = (month < 10 ? "0" : "") + std::to_string(month);
+      util::seekAndReplace(monthConfig, "%MM%", mm);
+      return monthConfig;
+    };
+    Increment_ clim(geom, tsVars, date);
+    clim.read(monthConf(w.month1));
+    clim *= w.w1;
+    Increment_ clim2(geom, tsVars, date);
+    clim2.read(monthConf(w.month2));
+    clim.axpy(w.w2, clim2, false);
+    atlas::FieldSet climFs;
+    clim.toFieldSet(climFs);
+    gdasapp::marine::replaceMissingWithZero(climFs, tsVars);
+    for (const auto & var : tsVars) {
+      auto dst = atlas::array::make_view<double, 2>(bkg[var.name()]);
+      const auto src = atlas::array::make_view<const double, 2>(climFs[var.name()]);
+      ASSERT(dst.shape(0) == src.shape(0) && dst.shape(1) == src.shape(1));
+      for (atlas::idx_t jnode = 0; jnode < dst.shape(0); ++jnode) {
+        for (atlas::idx_t jlev = 0; jlev < dst.shape(1); ++jlev) {
+          dst(jnode, jlev) = src(jnode, jlev);
+        }
+      }
+    }
+    oops::Log::info() << "MarineBParams: T/S from climatology at " << climDate
+                      << ": " << w.w1 << " x month " << w.month1 << " + " << w.w2
+                      << " x month " << w.month2 << std::endl;
   }
 
   // Mean of a moment over the 1-ring neighbours of a node, at one level, as in
