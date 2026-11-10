@@ -70,7 +70,7 @@ void gdasapp::CalcSCFtoIODA::run() {
   oops::Log::info() << "=========================================================" << std::endl;
 
   // Create an IMSscf object to handle IMS data
-  IMSscf imsscf(imspath, weightspath, geom);
+  IMSscf imsscf(imspath, weightspath, geom, comm_);
 
   // Read snow cover fraction (SCF) data
   imsscf.readIMS();
@@ -177,8 +177,8 @@ void gdasapp::CalcSCFtoIODA::calc_fcst_snow_cover_fraction(fv3jedi::State & bkgS
 
 // Constructor for IMSscf is defined only in one place to avoid multiple definition errors.
 gdasapp::CalcSCFtoIODA::IMSscf::IMSscf(const std::string &imspath, const std::string &weightspath,
-                                       const fv3jedi::Geometry & geom)
-  : imspath_(imspath), weightspath_(weightspath), geom_(geom) {
+                                       const fv3jedi::Geometry & geom, const eckit::mpi::Comm & comm)
+  : imspath_(imspath), weightspath_(weightspath), geom_(geom), comm_(comm) {
   this->latFV3.resize(geom_.npy()-1, std::vector<float>(geom_.npx()-1));
   this->lonFV3.resize(geom_.npy()-1, std::vector<float>(geom_.npx()-1));
   this->oroFV3.resize(geom_.npy()-1, std::vector<float>(geom_.npx()-1));
@@ -197,7 +197,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   // This would involve creating an IODA file, populating it with the calculated
   // observations, and saving it to disk.
   oops::Log::info() << "Writing observations to IODA format..." << std::endl;
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
   // get the fieldset from the geometry
   atlas::FunctionSpace fs = geom.functionSpace();
   // convert the state to an atlas fieldset
@@ -252,7 +252,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
   auto snd = atlas::array::make_view<double, 2>(global_fields["totalSnowDepth"]);
 
   // Create empty group backed by HDF file
-  if (oops::mpi::world().rank() == 0) {
+  if (comm_.rank() == 0) {
     // Create the observations, Latitude, Longitude, and Elevation vectors
     std::vector<float> lat_var, lon_var, orog_var, scf_var, snd_var;
     std::vector<std::string> station_ids;
@@ -376,7 +376,7 @@ void gdasapp::CalcSCFtoIODA::writeToIoda(const std::string & outputpath,
     iodaSD.write(snd_var);
     iodaStation.write(station_ids);
   }
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
   oops::Log::info() << "Observations written successfully." << std::endl;
   oops::Log::info() << "=========================================================" << std::endl;
 }
@@ -454,6 +454,12 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
     }
     ncfile.close();
   } catch (netCDF::exceptions::NcException &e) {
+    if (isNetCDF) {
+      throw eckit::BadValue(
+          "Error reading IMS netCDF file " + imspath_ +
+          ": " + std::string(e.what()), Here());
+    }
+
     oops::Log::info() << "Failed to open as netCDF, will try ASCII: " << imspath_ << std::endl;
   }
 
@@ -464,7 +470,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
       throw eckit::UserError("Failed to open IMS file as ASCII: " + imspath_, Here());
     }
     oops::Log::info() << "Opened IMS file as ASCII: " << imspath_ << std::endl;
-    int i_ims, j_ims;
+    int i_ims = 0, j_ims = 0;
     // skip some of the header lines
     std::string dummyLine;
     for (int i = 0; i < 9; ++i) {
@@ -473,7 +479,8 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
     std::getline(asciifile, dummyLine);  // Read the line to get dataset dimensions
     std::string dummy, dummy2;
     std::istringstream iss(dummyLine);
-    iss >> dummy >> i_ims >> dummy2 >> j_ims;
+    if (!(iss >> dummy >> i_ims >> dummy2 >> j_ims) || i_ims <= 0 || j_ims <= 0)
+      throw eckit::BadValue("Cannot parse IMS dimensions from " + imspath_, Here());
     oops::Log::info() << "IMS dimensions: " << i_ims << " x " << j_ims << std::endl;
     // Skip the next 20 lines which are not needed
     for (int i = 0; i < 20; ++i) {
@@ -502,7 +509,8 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
     } while (row < j_ims && std::getline(asciifile, dummyLine));
 
     if (row != j_ims) {
-        std::cerr << "Warning: Expected " << j_ims << " rows, got " << row << std::endl;
+        throw eckit::BadValue("IMS ASCII file truncated: expected " + std::to_string(j_ims) +
+                              " rows, got " + std::to_string(row), Here());
     }
     asciifile.close();
   }
@@ -527,7 +535,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readIMS() {
       }
     }
   }
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
 }
 
 void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
@@ -558,8 +566,19 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
              << j_ims << " x "
              << t_ims
              << std::endl;
+  // Define checkside
+  auto checkSize = [&](const netCDF::NcVar &v, size_t expected, const char *name) {
+    size_t n = 1;
+    for (const auto &d : v.getDims()) n *= d.getSize();
+    if (n != expected)
+      throw eckit::BadValue(std::string("mapping '") + name + "' has " +
+                            std::to_string(n) + " elements, expected " +
+                            std::to_string(expected), Here());
+  };
+
   // Read into a flat buffer and copy to IMS_index
   std::vector<int> tile_buffer(i_ims * j_ims);
+  checkSize(tileVar,  i_ims * j_ims,     "tile");
   tileVar.getVar(tile_buffer.data());
   for (size_t i = 0; i < i_ims; ++i) {
     for (size_t j = 0; j < j_ims; ++j) {
@@ -570,6 +589,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   netCDF::NcVar tile_iVar = ncfile.getVar("tile_i");
   netcdf_err(tile_iVar.isNull() ? -1 : NC_NOERR,
              "error reading tile_i variable from mapping file");
+  checkSize(tile_iVar, i_ims * j_ims,    "tile_i");
   tile_iVar.getVar(tile_buffer.data());
   for (size_t i = 0; i < i_ims; ++i) {
     for (size_t j = 0; j < j_ims; ++j) {
@@ -580,6 +600,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   netCDF::NcVar tile_jVar = ncfile.getVar("tile_j");
   netcdf_err(tile_jVar.isNull() ? -1 : NC_NOERR,
              "error reading tile_j variable from mapping file");
+  checkSize(tile_jVar, i_ims * j_ims,    "tile_j");
   tile_jVar.getVar(tile_buffer.data());
   for (size_t i = 0; i < i_ims; ++i) {
     for (size_t j = 0; j < j_ims; ++j) {
@@ -594,6 +615,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   // Read lat_fv3 into latFV3
   netCDF::NcVar latVar = ncfile.getVar("lat_fv3");
   netcdf_err(latVar.isNull() ? -1 : NC_NOERR, "error reading latFV3 variable from mapping file");
+  checkSize(latVar, 6 * npy * npx,       "lat_fv3");
   latVar.getVar(cube_buffer.data());
   for (size_t j = 0; j < npy; ++j) {
     for (size_t i = 0; i < npx; ++i) {
@@ -604,6 +626,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   // Read lon_fv3 into lonFV3
   netCDF::NcVar lonVar = ncfile.getVar("lon_fv3");
   netcdf_err(lonVar.isNull() ? -1 : NC_NOERR, "error reading lonFV3 variable from mapping file");
+  checkSize(lonVar, 6 * npy * npx,       "lon_fv3");
   lonVar.getVar(cube_buffer.data());
   for (size_t j = 0; j < npy; ++j) {
     for (size_t i = 0; i < npx; ++i) {
@@ -613,13 +636,14 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   // Read oro_fv3 into oroFV3
   netCDF::NcVar oroVar = ncfile.getVar("oro_fv3");
   netcdf_err(oroVar.isNull() ? -1 : NC_NOERR, "error reading oroFV3 variable from mapping file");
+  checkSize(oroVar, 6 * npy * npx,       "oro_fv3");
   oroVar.getVar(cube_buffer.data());
   for (size_t j = 0; j < npy; ++j) {
     for (size_t i = 0; i < npx; ++i) {
       this->oroFV3[j][i] = cube_buffer[tilenum * npy * npx + j * npx + i];
     }
   }
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
   // Now let us calculate things
   std::vector<std::vector<std::vector<float>>> land_points(6,
     std::vector<std::vector<float>>(npy, std::vector<float>(npx, 0.0f)));
@@ -631,12 +655,25 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
         int _tile = this->IMS_index[i][j][0]-1;
         int _tile_i = this->IMS_index[i][j][1]-1;
         int _tile_j = this->IMS_index[i][j][2]-1;
+
+        if (_tile < 0 || _tile >= 6 ||
+            _tile_i < 0 || _tile_i >= static_cast<int>(npx) ||
+            _tile_j < 0 || _tile_j >= static_cast<int>(npy)) {
+          throw eckit::BadValue(
+              "Invalid IMS-to-FV3 mapping index at IMS (" +
+              std::to_string(i) + ", " + std::to_string(j) + "): tile=" +
+              std::to_string(_tile + 1) + ", tile_i=" +
+              std::to_string(_tile_i + 1) + ", tile_j=" +
+              std::to_string(_tile_j + 1),
+              Here());
+        }
+
         land_points[_tile][_tile_j][_tile_i] += 1.0f;
         snow_points[_tile][_tile_j][_tile_i] += IMS_flag[i][j];
       }
     }
   }
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
   // compute scfIMS based on where land_points are greater than 0
   for (size_t j = 0; j < npy; ++j) {
     for (size_t i = 0; i < npx; ++i) {
@@ -652,7 +689,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::readMapping() {
   this->IMS_index.shrink_to_fit();
   this->IMS_flag.clear();
   this->IMS_flag.shrink_to_fit();
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
 }
 
 // Calculate IMS snow depth
@@ -702,7 +739,7 @@ void gdasapp::CalcSCFtoIODA::IMSscf::calcIMSsd(fv3jedi::State &state,
       }
     }
   }
-  oops::mpi::world().barrier();  // Ensure all ranks finish before proceeding
+  comm_.barrier();  // Ensure all ranks finish before proceeding
 }
 
 // Update IMS snow depth
