@@ -1,7 +1,10 @@
 # The diffusion parameter files are indexed by i-jedi mesh node (ocean plus land fringe), so
 # they must come from an i-jedi calibration (gdas_ijedi.x errortoolbox); files written by soca
-# have a different node count and cannot be read. There is no balance operator, so the
-# covariance is univariate.
+# have a different node count and cannot be read. The central block is univariate; with
+# marine_balance: torch (MARINE_BALANCE=torch) the TorchBalance outer blocks of
+# marine_background_error_balance.yaml.j2 make the covariance multivariate (steric SSH, heave
+# salinity, geostrophic currents). Otherwise there is no balance operator (BalanceSOCA is soca
+# only), so the covariance is univariate.
 covariance model: SABER
 saber central block:
   saber block name: diffusion
@@ -25,3 +28,6 @@ saber outer blocks:
         datapath: ./staticb
         ocn_file: 'ocn.bkgerr_parametric_stddev.nc'
         field io names: {{ marine_ijedi_field_io_names }}
+{% if marine_balance | default('soca') == 'torch' %}
+{% include 'marine_background_error_balance.yaml.j2' %}
+{% endif %}
