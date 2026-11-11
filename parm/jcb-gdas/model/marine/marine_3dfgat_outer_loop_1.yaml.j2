@@ -1,8 +1,8 @@
 - ninner: {{marine_ninner_1}}
   gradient norm reduction: {{marine_grad_red_1}}
   geometry:
-    geom_grid_file: ./anl_geom/soca_gridspec.nc
-    mom6_input_nml: ./anl_geom/mom_input.nml
-    fields metadata: {{marine_soca_files_path}}/fields_metadata.yaml
+{% filter indent(width=4, first=True) -%}
+{% include 'marine_geometry_analysis.yaml.j2' %}
+{%- endfilter %}
   diagnostics:
     departures: ombg
