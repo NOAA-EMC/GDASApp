@@ -38,6 +38,14 @@
     maxvalue: 1.0
   - filter: Background Check
     absolute threshold: 0.5
+  # Constant error 0.05 (the files carry 0.1 everywhere); doubled below where the model SST
+  # is above 0 C
+  - filter: Perform Action
+    filter variables:
+    - name: seaIceFraction
+    action:
+      name: assign error
+      error parameter: 0.05
   - filter: Domain Check
     where:
     - variable: { name: GeoVaLs/sea_surface_temperature}
