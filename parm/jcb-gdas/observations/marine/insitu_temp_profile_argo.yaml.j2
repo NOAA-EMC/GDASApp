@@ -216,11 +216,72 @@
 
 
 {% if marine_letkf_app | default(false) %}
+  # LETKF only: the error the LETKF uses, sigma = max(0.25 sigma, 0.2 K). About 0.25 K near
+  # the surface (Desroziers 0.16-0.32 K); 0.2 K at depth, where the formula for 3DVar goes down
+  # to O(0.01) K, below what an ensemble DA can handle.
+  - filter: Perform Action
+    filter variables:
+    - name: waterTemperature
+    action:
+      name: inflate error
+      inflation factor: 0.25
+  - filter: Perform Action
+    filter variables:
+    - name: waterTemperature
+    where:
+    - variable:
+        name: ObsErrorData/waterTemperature
+      maxvalue: 0.2
+    action:
+      name: assign error
+      error parameter: 0.2
+
+  # LETKF only: reject |O-B| larger than 6 times that error. Before the thinning, so the
+  # thinning picks obs that pass this check.
+  - filter: Background Check
+    filter variables:
+    - name: waterTemperature
+    threshold: 6.0
+
+  # LETKF only: vertical thinning to one value per depth bin and float (10 m bins above
+  # 300 m, 100 m below). Profiles arrive with 600-4000 levels that would otherwise enter
+  # as independent obs. min_num_obs_per_bin 1: the UFO default of 5 rejects every obs in
+  # sparser bins (and, for values >= 2, also obs outside the filter's where selection).
+  - filter: Gaussian Thinning
+    filter variables:
+    - name: waterTemperature
+    where:
+    - variable:
+        name: MetaData/depth
+      maxvalue: 300.0
+    vertical_coordinate: depth
+    vertical_coordinate group: MetaData
+    vertical_mesh: 10.0
+    vertical_min: 0.0
+    vertical_max: 300.0
+    category_variable:
+      name: MetaData/stationID
+    select_median: true
+    min_num_obs_per_bin: 1
+  - filter: Gaussian Thinning
+    filter variables:
+    - name: waterTemperature
+    where:
+    - variable:
+        name: MetaData/depth
+      minvalue: 300.0
+    vertical_coordinate: depth
+    vertical_coordinate group: MetaData
+    vertical_mesh: 100.0
+    vertical_min: 300.0
+    vertical_max: 6000.0
+    category_variable:
+      name: MetaData/stationID
+    select_median: true
+    min_num_obs_per_bin: 1
+
   obs localizations:
-  - localization method: Rossby
-    base value: 100.0e3
-    rossby mult: 1.0
-    min grid mult: 2.0
-    min value: 200.0e3
-    max value: 900.0e3
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 500.0e3
+    max nobs: 2000
 {% endif %}

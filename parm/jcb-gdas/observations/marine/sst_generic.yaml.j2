@@ -66,13 +66,26 @@
   obs post filters:
   - filter: Background Check
     absolute threshold: 5.0
+{% if marine_letkf_app | default(false) %}
+  # LETKF only: inflate the error of the dense satellite SST
+  - filter: Perform Action
+    action:
+      name: inflate error
+      inflation factor: 2.0
+  # LETKF only: reject |O-B| larger than 4 times the inflated error
+  - filter: Background Check
+    threshold: 4.0
+{% endif %}
 
 {% if marine_letkf_app | default(false) %}
+  # Rossby-radius localization with the Gaspari-Cohn cutoff (3.65 L) capped at 300 km:
+  # 300 km at 0-20 deg, the Rossby value poleward (median 215 km at 30-45 deg, 166 km at
+  # 45-60 deg). Beats the common 500 km cutoff against OSTIA and drifters.
   obs localizations:
   - localization method: Rossby
-    base value: 100.0e3
+    base value: 30.0e3
     rossby mult: 1.0
-    min grid mult: 2.0
-    min value: 200.0e3
-    max value: 900.0e3
+    min value: 40.0e3
+    max value: 82.16e3
+    max nobs: 300
 {% endif %}

@@ -53,13 +53,15 @@
   obs post filters:
   - filter: Background Check
     absolute threshold: 5.0
+{% if marine_letkf_app | default(false) %}
+  # LETKF only: reject |O-B| larger than 8 times the obs error (2.4 K for the 0.3 K error)
+  - filter: Background Check
+    threshold: 8.0
+{% endif %}
 
 {% if marine_letkf_app | default(false) %}
   obs localizations:
-  - localization method: Rossby
-    base value: 100.0e3
-    rossby mult: 1.0
-    min grid mult: 2.0
-    min value: 200.0e3
-    max value: 900.0e3
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 500.0e3
+    max nobs: 2000
 {% endif %}
