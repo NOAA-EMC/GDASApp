@@ -60,15 +60,26 @@ inline void qcIncrement(const soca::State& xb,
   const auto ghostView = meshConn.ghostView;
   const auto & lonlat = meshConn.lonlat;
 
-  // Get the physical bounds from configuration
-  std::vector<double> tempBounds(2);
-  config.get("state bounds.sea_water_potential_temperature", tempBounds);
-  std::vector<double> saltBounds(2);
-  config.get("state bounds.sea_water_salinity", saltBounds);
-  const std::unordered_map<std::string, std::pair<double, double>> stateBounds = {
-    {"sea_water_potential_temperature", {tempBounds[0], tempBounds[1]}},
-    {"sea_water_salinity", {saltBounds[0], saltBounds[1]}},
-  };
+  // Get the physical bounds from configuration. Any increment variable listed
+  // under "state bounds" is bounded; variables absent from the list are left
+  // alone. This used to be hardwired to temperature and salinity, which
+  // silently ignored bounds requested for the sea-ice variables.
+  std::unordered_map<std::string, std::pair<double, double>> stateBounds;
+  for (const auto& field : dxFs) {
+    const std::string name = field.name();
+    const std::string key = "state bounds." + name;
+    if (!config.has(key)) continue;
+    std::vector<double> bounds;
+    config.get(key, bounds);
+    if (bounds.size() != 2) {
+      oops::Log::warning() << "QC: ignoring malformed state bounds for " << name
+                           << " (expected [min, max])" << std::endl;
+      continue;
+    }
+    stateBounds[name] = {bounds[0], bounds[1]};
+    oops::Log::info() << "QC: bounding " << name << " to ["
+                      << bounds[0] << ", " << bounds[1] << "]" << std::endl;
+  }
 
   // Get increment bounds from configuration
   double deltaSshMax = config.getDouble("increment max.steric", 10.0);
