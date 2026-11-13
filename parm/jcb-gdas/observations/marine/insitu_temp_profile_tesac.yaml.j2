@@ -81,11 +81,36 @@
     - name: waterTemperature
     absolute threshold: 0.5
 
-  # Reject obs that are 5K from the background
+  # Depth-dependent background check (K): <=300 m 5.0 / <=500 m 3.0 / <=1000 m 2.0 / <=1900 m 1.0 / deeper 0.5.
+  # The flat 5 K check let through deep salinity whose H(x) mixes in model columns
+  # shallower than the ob (steep bathymetry): O-B of 2.5-4.5 psu near 2000 m, accepted with
+  # sigo down to 0.001 psu, gave -11.7 degC / +6.9 psu increments in cp07.c192.torchbalance.1.
+  # Each threshold sits above p99.9 of the accepted |O-B| in .1 (8 cycles) for its layer.
+  # Thresholds are absolute, so they do not depend on the assigned sigo.
   - filter: Background Check
     filter variables:
     - name: waterTemperature
-    absolute threshold: 5.0
+    function absolute threshold:
+    - name: ObsFunction/Conditional
+      options:
+        defaultvalue: 0.5
+        cases:
+        - where:
+          - variable: {name: MetaData/depth}
+            maxvalue: 300
+          value: 5.0
+        - where:
+          - variable: {name: MetaData/depth}
+            maxvalue: 500
+          value: 3.0
+        - where:
+          - variable: {name: MetaData/depth}
+            maxvalue: 1000
+          value: 2.0
+        - where:
+          - variable: {name: MetaData/depth}
+            maxvalue: 1900
+          value: 1.0
 
   # Force constant observation error everywhere
   - filter: Perform Action
@@ -93,7 +118,7 @@
     - name: waterTemperature
     action:
       name: assign error
-      error parameter: 0.1
+      error parameter: 0.05
 
   # Linear decay from surface to 2000m depth:
   #    - minimum error of 0.1K at 2000m (and below)
@@ -110,9 +135,23 @@
         name: ObsFunction/Arithmetic
         options:
           variables: [MetaData/depth, ObsError/waterTemperature]
-          # sigo_total = 1.0 + (-0.00045)*depth + 0.1*sigo_original
-          coefs:     [-0.00045, 0.1]
+          # sigo_total = 1.0 + (-0.000475)*depth + 0.1*sigo_original: ~0.07 K at 2000 m,
+          # then floored at 0.05 K below, continuous with the 0.05 K used under 2000 m
+          coefs:     [-0.000475, 0.1]
           intercept: 1.0
+
+  # Error floor of 0.05 K, the value used below 2000 m: the ramp above can fall
+  # far below the deep background error (sigo 0.001 psu seen at 1990-2000 m in .1).
+  # Must stay before the tropical inflation, which has to be the last error filter.
+  - filter: Perform Action
+    filter variables:
+    - name: waterTemperature
+    where:
+    - variable: {name: ObsErrorData/waterTemperature}
+      maxvalue: 0.05
+    action:
+      name: assign error
+      error parameter: 0.05
 
   # Smoothly inflate the obs error in the tropics.
   # The inflation factor is a Gaussian in latitude,
@@ -124,6 +163,8 @@
   # than taking its absolute value) keeps the curve smooth at the equator too.
   # Must stay the LAST error filter -- the "assign error" filters above would
   # otherwise overwrite the inflated error.
+  # DISABLED (coeffA 0.0, factor = 1): tropical R is now the mid-latitude value,
+  # still 1.5-4x the tropical Argo O-B. Set coeffA back to 3.0 (or 1.0 for x2) to restore.
   - filter: Perform Action
     filter variables:
     - name: waterTemperature
@@ -137,7 +178,7 @@
             options:
               variables: [MetaData/latitude]
               exponents: [2]
-          coeffA: 3.0            # A - 1
+          coeffA: 0.0            # A - 1; was 3.0 (x4 at the equator), disabled -- see above
           coeffB: -0.00222222    # -1/(2*sigma^2), sigma = 15 deg
           coeffC: 1.0            # factor -> 1 outside the tropics
           coeffD: 1.0            # latitude missing -> no inflation

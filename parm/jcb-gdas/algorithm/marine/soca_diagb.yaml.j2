@@ -75,6 +75,14 @@ deep floor:
   sigS: 0.010
   depth: 600.0
   transition: 300.0
+  # Decay below 1000 m to the robust Argo O-B spread at depth (cp07.c192.torchbalance.1,
+  # 8 cycles: 0.017-0.026 degC and 0.002-0.004 psu below 1900 m, where the constant floor
+  # was 2-5x larger and let a few bad deep salinity obs drive -12 degC increments).
+  # Log-linear from sigT/sigS at 1000 m to the abyssal values at 2000 m, constant below.
+  decay start: 1000.0
+  abyssal depth: 2000.0
+  abyssal sigT: 0.02
+  abyssal sigS: 0.003
 static sig B:
   sigT: 0.134
   sigS: 0.0312

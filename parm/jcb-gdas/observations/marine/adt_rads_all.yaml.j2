@@ -173,6 +173,28 @@
           err0: [0.10]
           err1: [0.03]
 
+  # Out-of-window ADT. ADT is assimilated at 00z only, so the 00z file carries every
+  # ob within +-48 h, and the prep step pins each ob outside the 6 h window to the
+  # window edge: 21:00:01 (begin + 1 s) or 02:59:59 (end - 1 s). Each such ob is then
+  # used in 4 consecutive daily analyses; inflating its sigo by 2 (variance x4) makes it
+  # count about once in total. Obs genuinely inside the window keep their sigo.
+  #
+  # The where clause selects the COMPLEMENT of the window: UFO keeps
+  # min <= time-of-day <= max with no wrap past midnight, so it picks 02:59:59 -> 21:00:01,
+  # which overlaps the 21z -> 03z window only at those two pinned seconds (and an ob at
+  # exactly 03:00:00). Swapping min and max would select nothing.
+  # Valid for the 00z window only. Must stay the last error filter.
+  - filter: Perform Action
+    filter variables:
+    - name: absoluteDynamicTopography
+    where:
+    - variable: {name: MetaData/dateTime}
+      minvalue: "****-**-**T02:59:59Z"
+      maxvalue: "****-**-**T21:00:01Z"
+    action:
+      name: inflate error
+      inflation factor: 2.0
+
   #- filter: Perform Action
   #  action:
   #    name: assign error

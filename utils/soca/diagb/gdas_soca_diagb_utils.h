@@ -21,6 +21,7 @@
 
 #include "eckit/config/LocalConfiguration.h"
 
+#include "eckit/exception/Exceptions.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Duration.h"
 #include "oops/util/missingValues.h"
@@ -69,6 +70,13 @@ struct SocaDiagBConfig {
     double deepFloorS;              ///< Floor stddev for salinity (0 disables)
     double deepFloorDepth;          ///< Depth (m) at which the floor is fully on
     double deepFloorTransition;     ///< Thickness (m) of the smooth ramp above it
+    /// Optional decay of the floor with depth: deepFloorT/S down to deepFloorDecayStart,
+    /// log-linear to deepFloorAbyssalT/S at deepFloorAbyssalDepth, constant below.
+    /// The abyssal values default to deepFloorT/S, i.e. no decay.
+    double deepFloorAbyssalT;       ///< Floor stddev for temperature at and below the abyssal depth
+    double deepFloorAbyssalS;       ///< Floor stddev for salinity at and below the abyssal depth
+    double deepFloorDecayStart;     ///< Depth (m) where the decay starts
+    double deepFloorAbyssalDepth;   ///< Depth (m) where the abyssal value is reached
 
     /// Climatology: when present, the T/S whose spatial std makes the dynamic
     /// component are read from monthly climatology files interpolated to climDate,
@@ -148,6 +156,13 @@ struct SocaDiagBConfig {
         deepFloorS = fullConfig.getDouble("deep floor.sigS", 0.0);
         deepFloorDepth = fullConfig.getDouble("deep floor.depth", 1000.0);
         deepFloorTransition = fullConfig.getDouble("deep floor.transition", 500.0);
+        // Optional decay below the floor depth; the defaults leave the floor constant.
+        deepFloorAbyssalT = fullConfig.getDouble("deep floor.abyssal sigT", deepFloorT);
+        deepFloorAbyssalS = fullConfig.getDouble("deep floor.abyssal sigS", deepFloorS);
+        deepFloorDecayStart = fullConfig.getDouble("deep floor.decay start", deepFloorDepth);
+        deepFloorAbyssalDepth = fullConfig.getDouble("deep floor.abyssal depth",
+                                                     deepFloorDecayStart);
+        ASSERT(deepFloorAbyssalDepth >= deepFloorDecayStart);
 
         // --- T/S climatology for the dynamic component ---
         useClimatology = fullConfig.has("climatology");
@@ -197,7 +212,9 @@ struct SocaDiagBConfig {
       oops::Log::debug() << "  Stencil growth iterations: " << stencilGrowthIterations << std::endl;
       oops::Log::debug() << "  Deep floor (T/S): " << deepFloorT << " / " << deepFloorS
                          << " below " << deepFloorDepth << " m, ramp " << deepFloorTransition
-                         << " m" << std::endl;
+                         << " m, decaying to " << deepFloorAbyssalT << " / " << deepFloorAbyssalS
+                         << " between " << deepFloorDecayStart << " and "
+                         << deepFloorAbyssalDepth << " m" << std::endl;
       oops::Log::debug() << "  T/S climatology for the dynamic component: "
                          << (useClimatology ? climConf.getString("basename", "") : "no")
                          << std::endl;
@@ -334,6 +351,23 @@ inline double deepFloorWeight(const double z, const double depth, const double t
     if (transition <= 0.0) return (z >= depth) ? 1.0 : 0.0;
     const double x = std::min(1.0, std::max(0.0, (z - (depth - transition)) / transition));
     return x * x * (3.0 - 2.0 * x);
+}
+
+// -----------------------------------------------------------------------------
+
+/**
+ * @brief Value of the deep T/S floor at depth z, before the deepFloorWeight ramp.
+ *
+ * `floor` down to `start`, log-linear to `abyssal` at `end`, `abyssal` below. Returns
+ * `floor` unchanged when there is no decay (abyssal == floor, or either value <= 0), so
+ * existing configurations are reproduced exactly.
+ */
+inline double deepFloorValue(const double z, const double floor, const double abyssal,
+                             const double start, const double end) {
+    if (abyssal == floor || floor <= 0.0 || abyssal <= 0.0) return floor;
+    if (z <= start) return floor;
+    if (z >= end || end <= start) return abyssal;
+    return floor * std::pow(abyssal / floor, (z - start) / (end - start));
 }
 
 // -----------------------------------------------------------------------------

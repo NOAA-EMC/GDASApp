@@ -322,6 +322,9 @@ class SocaDiagB : public oops::Application {
       // Deep floor (T and S only), added in quadrature after the static term.
       const double deepFloor = (var == "sea_water_potential_temperature") ? configD.deepFloorT :
                                (var == "sea_water_salinity") ? configD.deepFloorS : 0.0;
+      const double deepFloorAbyssal =
+          (var == "sea_water_potential_temperature") ? configD.deepFloorAbyssalT :
+          (var == "sea_water_salinity") ? configD.deepFloorAbyssalS : 0.0;
 
       for (atlas::idx_t jnode = 0; jnode < xbFs[var].shape(0); ++jnode) {
         for (atlas::idx_t level = 0; level < xbFs[var].shape(1); ++level) {
@@ -349,7 +352,10 @@ class SocaDiagB : public oops::Application {
             }
             dyna(jnode, level) += stat(jnode, level);
             if (deepFloor > 0.0 && viewHocn(jnode, level) > 0.1) {
-              const double f = deepFloor * gdasapp::diagb::utils::deepFloorWeight(
+              const double f = gdasapp::diagb::utils::deepFloorValue(
+                                   z, deepFloor, deepFloorAbyssal,
+                                   configD.deepFloorDecayStart, configD.deepFloorAbyssalDepth)
+                               * gdasapp::diagb::utils::deepFloorWeight(
                                    z, configD.deepFloorDepth, configD.deepFloorTransition);
               dyna(jnode, level) = std::sqrt(dyna(jnode, level) * dyna(jnode, level) + f * f);
             }
