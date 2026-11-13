@@ -1,0 +1,109 @@
+# Marine (SOCA) JCB keys.
+#
+# Every key here is prefixed 'marine_' and is therefore safe to combine with another model
+# component's key block.
+#
+# Included by parm/marine/jcb-base.yaml.j2 for marine-only applications, and by the coupled
+# base alongside atm/atmosphere_jcb_keys.yaml.j2. The including base sets the jinja variables
+# marine_analysis_vars and marine_increment_vars, which the state and increment variable
+# lists below are derived from. It can also set marine_background_* to read the background
+# from somewhere other than the window-begin restart pair, and marine_var_exp to change the
+# experiment tag in the analysis and increment filenames.
+
+# Model things
+# ------------
+
+# State variables
+marine_det_state_variables: {{ marine_analysis_vars + ['air_temperature',
+                                                 'sea_ice_salinity',
+                                                 'sea_water_cell_thickness',
+                                                 'sea_water_depth',
+                                                 'ocean_mixed_layer_thickness',
+                                                 'snow_ice_surface_temperature',
+                                                 'eastward_wind',
+                                                 'northward_wind',
+                                                 'water_vapor_mixing_ratio_wrt_moist_air',
+                                                 'surface_downwelling_longwave_flux_in_air',
+                                                 'surface_downwelling_shortwave_flux_in_air',
+                                                 'sea_ice_strain_rate_divergence',
+                                                 'sea_ice_strain_rate_shear',
+                                                 'pole_selector'] }}
+
+marine_saber_central_block_variables: {{ ['sea_ice_area_fraction',
+                                          'sea_water_salinity',
+                                          'sea_water_potential_temperature',
+                                          'sea_surface_height_above_geoid'] }}
+
+# Increment variables
+marine_det_increment_variables: {{ marine_analysis_vars }}
+
+marine_window_begin: '{{ WINDOW_BEGIN }}'
+marine_window_middle: '{{ WINDOW_MIDDLE }}'
+marine_window_begin_iso: '{{ WINDOW_BEGIN | to_isotime }}'
+marine_window_middle_iso: '{{ WINDOW_MIDDLE | to_isotime }}'
+marine_window_end_iso: '{{ WINDOW_END | to_isotime }}'
+marine_enspert_relpath: '{{ ENSPERT_RELPATH }}'
+{% if DOIAU %}
+marine_cice_date_fms: '{{ WINDOW_BEGIN | to_fv3time }}'
+marine_cice_date_iso: '{{ WINDOW_BEGIN | to_isotime }}'
+{% else %}
+marine_cice_date_fms: '{{ WINDOW_MIDDLE | to_fv3time }}'
+marine_cice_date_iso: '{{ WINDOW_MIDDLE | to_isotime }}'
+{% endif %}
+
+# Geometry
+marine_soca_files_path: .
+marine_vt_levels: '{{MOM6_LEVS}}'
+
+# Initial conditions. The including base can set the jinja variables marine_background_*
+# to read the background from somewhere else; coupled 3D-Var reads the window-middle
+# history rather than the window-begin restart pair.
+marine_background_path: {{ marine_background_path | default('./INPUT/', true) }}
+marine_background_time: '{{ marine_background_time | default(WINDOW_BEGIN, true) | to_isotime }}'
+{% if marine_background_ocn_filename is defined %}
+marine_background_ocn_filename: {{ marine_background_ocn_filename }}
+marine_background_ice_filename: {{ marine_background_ice_filename }}
+{% endif %}
+
+# Pseudo model
+marine_forecast_timestep: PT3H
+marine_number_ensemble_members: '{{NMEM_ENS}}'
+marine_number_ensemble_members_per_mpi: '{{NMEM_ENS_PER_MPI}}'
+marine_stddev_time: '{{ WINDOW_MIDDLE  | to_isotime }}'
+
+marine_obsdataroot_path: '{{COMIN_OBS}}'
+marine_obsdatastats_path: '{{COMOUT_OCEAN_ANALYSIS}}/diags'
+
+marine_obsdatain_path: '{{DATA}}/obs'
+marine_obsdatain_prefix: '{{OPREFIX}}'
+marine_obsdatain_suffix: '.nc'
+marine_obsdataout_path: '{{DATA}}/diags'
+marine_obsdataout_prefix: ''
+marine_obsdataout_suffix: '.nc'
+
+# Outer loops
+marine_ninner_1: '{{NINNER}}'
+marine_grad_red_1: 1e-7
+
+# Output
+marine_output_dir: Data
+marine_output_exp: {{ marine_var_exp | default('3dvarfgat_pseudo', true) }}
+marine_output_freq: PT3H   # can only writes out the analysis at the middle of the window
+                           # when using 3D-FGAT as cost function
+
+# Final increment
+marine_final_increment_dir: Data
+marine_final_increment_exp: {{ marine_var_exp | default('3dvarfgat_pseudo', true) }}
+
+# Background list
+marine_pseudo_model_states: {{ marine_pseudo_model_states | default([]) }}
+
+# COM path for configuration files
+marine_config_path: '{{COMOUT_CONF}}'
+
+# State variables
+marine_ens_state_variables: {{ marine_increment_vars }}
+
+# Using LETKF app? (used in obs YAMLs)
+marine_letkf_app: {{ letkf_app | default(false) }}
+marine_letkf_dist_halo_size: '{{ DIST_HALO_SIZE }}'

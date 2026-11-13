@@ -113,7 +113,7 @@ Always reference these instructions first and fallback to search or bash command
 │   ├── aero/, atmosphere/, marine/, snow/
 │   └── atmosphere/atmosphere_background.yaml.j2  # Example model config
 ├── observations/
-│   ├── aero/, atmosphere/, atmosphere-lgetkf/, marine/, snow/
+│   ├── aero/, atmosphere/, marine/, snow/
 │   └── atmosphere/iasi_metop-a.yaml.j2  # Example observation
 ├── observation_chronicle/
 │   ├── atmosphere/, snow/

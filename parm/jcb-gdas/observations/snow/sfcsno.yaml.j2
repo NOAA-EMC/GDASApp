@@ -150,49 +150,10 @@
         flag: elevation_bkgdiff
         ignore: rejected observations
       - name: reject
-    # Add inflate error characterized by a function of elevation difference
-    - filter: Variable Assignment
-      assignments:
-      - name: DerivedMetaData/elevation_diff
-        type: float
-        function:
-          name: ObsFunction/Arithmetic
-          options:
-            variables: [MetaData/stationElevation, GeoVaLs/filtered_orography]
-            coefficients: [1., -1.]
-            total exponent: 2
-            total coefficient: 0.0000015625  #1/(800*800)
-    - filter: Variable Assignment
-      assignments:
-      - name: DerivedMetaData/elevation_diff_exp
-        type: float
-        function:
-          name: ObsFunction/Exponential
-          options:
-            variables: [DerivedMetaData/elevation_diff]
-            coeffA: 1.
-            coeffB: -1.
-            coeffC: 0.
-            coeffD: 1.
-    - filter: Variable Assignment
-      assignments:
-      - name: DerivedMetaData/elevation_diff_exp_inv
-        type: float
-        function:
-          name: ObsFunction/Arithmetic
-          options:
-            variables: [DerivedMetaData/elevation_diff_exp]
-            total exponent: -1.
-    - filter: Perform Action
-      filter variables:
-      - name: totalSnowDepth
-      where:
-      - variable:
-          name: ObsValue/totalSnowDepth
-        minvalue: 0.
-      action:
-        name: inflate error
-        inflation variable: DerivedMetaData/elevation_diff_exp_inv # 2.0
+## obs error inflation for obs-model elevation difference 
+{% filter indent(width=4) %}
+{% include 'station_obs_error_inflation.yaml.j2' %}
+{% endfilter %}
     - filter: BlackList
       where:
       - variable:
