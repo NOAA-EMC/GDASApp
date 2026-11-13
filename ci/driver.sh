@@ -97,6 +97,7 @@ source "$my_dir/ci_tests.sh" || die "could not source $my_dir/ci_tests.sh"
 # call so that PR numbers, comments and labels always refer to the upstream PR.
 gdasapp_repo="NOAA-EMC/GDASApp"
 workflow_repo="NOAA-EMC/global-workflow"
+UPSTREAM_REPO="${UPSTREAM_REPO:-$gdasapp_repo}"
 
 if [[ $TEST_WORKFLOW == 1 ]]; then
   echo "Testing GDASApp inside the Global Workflow"
@@ -171,9 +172,22 @@ valid_repo()  { [[ "$1" =~ ^[A-Za-z0-9._-]+$ && "$1" != "null" ]]; }
 fail_pr() {
   local num=$1 msg=$2
   echo "ERROR (PR #${num}): ${msg}"
-  gh pr comment "$num" --repo "$gdasapp_repo" --body "CI could not complete: ${msg}"
-  gh pr edit "$num" --repo "$gdasapp_repo" \
-    --remove-label "${CI_LABEL}-Running" --add-label "${CI_LABEL}-Failed"
+  gh_retry pr comment "$num" --repo "$gdasapp_repo" --body "CI could not complete: ${msg}" \
+    || echo "WARNING: could not post failure comment on PR #${num}"
+  gh_retry pr edit "$num" --repo "$gdasapp_repo" \
+    --remove-label "${CI_LABEL}-Running" --add-label "${CI_LABEL}-Failed" \
+    || echo "WARNING: could not update labels on PR #${num}; remove '-Running' manually"
+}
+
+# Run gh with up to 3 attempts to ride out transient API/network errors.
+gh_retry() {
+  local attempt
+  for attempt in 1 2 3; do
+    gh "$@" && return 0
+    echo "WARNING: 'gh $1 $2' failed (attempt ${attempt}/3)" >&2
+    sleep $((attempt * 5))
+  done
+  return 1
 }
 
 # ==============================================================================
@@ -199,11 +213,17 @@ process_pr() {
 
   # --------------------------------------------------------------------------
   # Gather PR information (all queries are against the upstream repo)
-  gdasapp_branch=$(gh pr view "$pr" --repo "$gdasapp_repo" --json headRefName --jq '.headRefName // empty') \
-    || { echo "ERROR: gh failed to read PR #${pr}; will retry next cycle"; return 1; }
-  head_owner=$(gh pr view "$pr" --repo "$gdasapp_repo" --json headRepositoryOwner --jq '.headRepositoryOwner.login // empty')
-  head_repo=$(gh pr view "$pr" --repo "$gdasapp_repo" --json headRepository --jq '.headRepository.name // empty')
-  head_sha=$(gh pr view "$pr" --repo "$gdasapp_repo" --json headRefOid --jq '.headRefOid // empty')
+  pr_fields=$(gh_retry pr view "$pr" --repo "$gdasapp_repo" \
+      --json headRefName,headRefOid,headRepositoryOwner,headRepository \
+      --jq '.headRefName // "", .headRefOid // "", (.headRepositoryOwner.login // ""), (.headRepository.name // "")') || {
+    echo "ERROR: gh failed to read PR #${pr}; will retry next cycle"
+    return 1
+  }
+  readarray -t pr_values <<< "$pr_fields"
+  gdasapp_branch=${pr_values[0]}
+  head_sha=${pr_values[1]}
+  head_owner=${pr_values[2]}
+  head_repo=${pr_values[3]}
 
   if [[ -z "$gdasapp_branch" || -z "$head_sha" ]]; then
     echo "ERROR: could not determine head branch/commit of PR #${pr}; will retry next cycle"
@@ -263,8 +283,15 @@ process_pr() {
         return 1
       fi
 
-      companion_repo=$(gh pr view "$companion_pr" --repo "$workflow_repo" --json headRepository --jq '.headRepository.name // empty')
-      companion_sha=$(gh pr view "$companion_pr" --repo "$workflow_repo" --json headRefOid --jq '.headRefOid // empty')
+      if ! companion_repo=$(gh_retry pr view "$companion_pr" --repo "$workflow_repo" \
+           --json headRepository --jq '.headRepository.name // empty'); then
+        fail_pr "$pr" "could not read head repository of companion PR #${companion_pr}"
+        return 1
+      fi
+      if ! companion_sha=$(gh_retry pr view "$companion_pr" --repo "$workflow_repo" --json headRefOid --jq '.headRefOid // empty'); then
+        fail_pr "$pr" "could not read head commit of companion PR #${companion_pr}"
+        return 1
+      fi
       if ! valid_repo "$companion_repo" || [[ -z "$companion_sha" ]]; then
         fail_pr "$pr" "could not read head repository of companion PR #${companion_pr}"
         return 1
@@ -335,7 +362,7 @@ process_pr() {
   if [[ $TEST_WORKFLOW == 1 ]]; then
     # get ci tests from PR description and convert into a regular expressions to be excluded
     branch_body=$(gh pr view "$pr" --repo "$gdasapp_repo" --json body --jq '.body')
-    ci_checklist=$(printf '%s\n' "$branch_body" | grep -i '\[x\]')
+    ci_checklist=$(printf '%s\n' "$branch_body" | grep -i '\[x\]' || true)
     ctest_regex_exclude=""
     n_selected=0
 
@@ -368,28 +395,31 @@ process_pr() {
       run_ci_cmd+=(-E "$ctest_regex_exclude")
     fi
   fi
-  "${run_ci_cmd[@]}"
-  ci_status=$?
+  ci_status=0; "${run_ci_cmd[@]}" || ci_status=$?
   echo "Finished running run_ci.sh with ci_status ${ci_status} at $(date)"
 
   # Generate summary and add log URL
   LOG_FILE="$PR_TEST_DIR/$pr/output_${commit}"
   SUMMARY_FILE="$PR_TEST_DIR/$pr/summary_${commit}"
-  LOG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
+  # Set defaults for GitHub environment variables when running under cron
+  server_url="${GITHUB_SERVER_URL:-https://github.com}"
+  repo_name="${GITHUB_REPOSITORY:-$gdasapp_repo}"
+
+  # Construct LOG_URL depending on whether running in GH Actions or local cron
+  if [[ -n "${GITHUB_RUN_ID:-}" ]]; then
+    LOG_URL="${server_url}/${repo_name}/actions/runs/${GITHUB_RUN_ID}"
+  else
+    LOG_URL="${server_url}/${repo_name}/pull/${pr}"
+  fi
+  
   echo "### CI Run Summary for PR #${pr} (Commit: $commit)" > "$SUMMARY_FILE"
   echo "" >> "$SUMMARY_FILE"
-  echo "Full logs: $LOG_URL" >> "$SUMMARY_FILE"
-  echo "" >> "$SUMMARY_FILE"
-  echo "#### First 10 lines of output:" >> "$SUMMARY_FILE"
-  head -n 10 "$LOG_FILE" >> "$SUMMARY_FILE"
-  echo "" >> "$SUMMARY_FILE"
-  echo "#### Last 10 lines of output:" >> "$SUMMARY_FILE"
-  tail -n 10 "$LOG_FILE" >> "$SUMMARY_FILE"
+  cat "$LOG_FILE" >> "$SUMMARY_FILE"
   echo "" >> "$SUMMARY_FILE"
   echo "CI Status: $([[ $ci_status -eq 0 ]] && echo "Passed" || echo "Failed")" >> "$SUMMARY_FILE"
 
-  gh pr comment "$pr" --repo "$UPSTREAM_REPO" --body-file "$SUMMARY_FILE"
+  gh pr comment "$pr" --repo "${UPSTREAM_REPO:-$gdasapp_repo}" --body-file "$SUMMARY_FILE"  
   if [ "$ci_status" -eq 0 ]; then
     gh pr edit "$pr" --repo "$gdasapp_repo" --remove-label "${CI_LABEL}-Running" --add-label "${CI_LABEL}-Passed"
   else

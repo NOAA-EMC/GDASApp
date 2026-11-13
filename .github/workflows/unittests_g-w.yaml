@@ -20,7 +20,7 @@ jobs:
         sudo mkdir -p /work/noaa # to trick workflow into thinking this is RDHPCS Orion
 
     - name: Checkout wxflow
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
       with:
         repository: NOAA-EMC/wxflow
         ref: develop
@@ -32,14 +32,14 @@ jobs:
         pip install .
 
     - name: Checkout workflow
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
       with:
         repository: NOAA-EMC/global-workflow
         ref: develop
         path: global-workflow
 
     - name: Checkout GDASApp
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
       with:
         path: global-workflow/sorc/gdas.cd
 

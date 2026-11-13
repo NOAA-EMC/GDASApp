@@ -8,9 +8,4 @@
 {% include component.dir ~ '_geometry_background.yaml.j2' %}
 {% endfilter %}
 {% endfor %}
-{% if coupled_fv3jedi_exclude_variables is defined %}
-FV3JEDI exclude variables:
-{% for variable in coupled_fv3jedi_exclude_variables %}
-- {{ variable }}
-{% endfor %}
-{% endif %}
+{% include 'coupled_geometry_options.yaml.j2' %}
