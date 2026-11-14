@@ -49,33 +49,12 @@ ecbuild_add_test(TARGET test_gdasapp_atm_jjob_ens_letkf
 	         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun
                  TEST_DEPENDS test_gdasapp_atm_jjob_ens_init)
 
-ecbuild_add_test(TARGET test_gdasapp_atm_jjob_ens_init_split
-                 TYPE SCRIPT                 
-                 COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_init_split.sh
-                 ARGS ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-                 WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun
-                 TEST_DEPENDS test_gdasapp_atm_jjob_ens_letkf)
-
-ecbuild_add_test(TARGET test_gdasapp_atm_jjob_ens_obs
-                 TYPE SCRIPT
-                 COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_obs.sh
-                 ARGS ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-                 WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun
-                 TEST_DEPENDS test_gdasapp_atm_jjob_ens_init_split)
-
-ecbuild_add_test(TARGET test_gdasapp_atm_jjob_ens_sol
-                 TYPE SCRIPT
-                 COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_sol.sh
-                 ARGS ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
-                 WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun
-                 TEST_DEPENDS test_gdasapp_atm_jjob_ens_obs)
-	
 ecbuild_add_test(TARGET test_gdasapp_atm_jjob_ens_inc
                  TYPE SCRIPT
                  COMMAND ${PROJECT_SOURCE_DIR}/test/atm/global-workflow/jjob_ens_inc.sh
                  ARGS ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}
                  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/test/atm/global-workflow/testrun
-                 TEST_DEPENDS test_gdasapp_atm_jjob_ens_sol)
+                 TEST_DEPENDS test_gdasapp_atm_jjob_ens_letkf)
 
 ecbuild_add_test(TARGET test_gdasapp_atm_jjob_ens_final
                  TYPE SCRIPT

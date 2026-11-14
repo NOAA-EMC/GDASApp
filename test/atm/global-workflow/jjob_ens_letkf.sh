@@ -44,9 +44,6 @@ export PYTHONPATH
 # Export library path
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${HOMEglobal}/lib"
 
-# Set DO_JEDIATMENS_SPLIT_OBSSOL="NO" to run letkf as combined observer and solver job
-cp $EXPDIR/config.base_split_obssol_false $EXPDIR/config.base
-
 # Create yaml with job configuration
 memory="32Gb"
 if [[ ${MACHINE_ID} == "gaeac6" ]]; then
