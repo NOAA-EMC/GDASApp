@@ -72,19 +72,22 @@ data_out:
     - '{{ COMOUT_OCEAN_ANALYSIS }}/diags'
     - '{{ COMOUT_OCEAN_ANALYSIS }}/bump'
 
+{% set _marine_anl_tag = WINDOW_MIDDLE | to_isotime %}
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+{% set _marine_anl_tag = _marine_anl_tag | replace(":", "_") %}{% endif %}
     copy_req:
     # Ocean IAU increment (intended for MOM6)
     - ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}mom6_increment.i006.nc']
 
     # Ocean increment and analysis from JEDI
-    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
-    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
+    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.incr.{{ _marine_anl_tag }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
+    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.an.{{ _marine_anl_tag }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
 
     # SeaIce increment and analysis from JEDI
 {% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
     # (i-jedi writes ocean and sea ice into one file)
-    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
-    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
+    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.incr.{{ _marine_anl_tag }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
+    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.an.{{ _marine_anl_tag }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
 {% else %}
     - ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
     - ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']

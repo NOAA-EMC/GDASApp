@@ -83,6 +83,7 @@ marine_background_path: DATA/bkg
 # Background error
 marine_window_middle: '2024-02-01T00:00:00Z'
 marine_window_middle_iso: '2024-02-01T00:00:00Z'
+marine_window_middle_fname: '2024-02-01T00_00_00Z'
 marine_number_ensemble_members: 3
 
 # Forecasting

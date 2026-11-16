@@ -85,6 +85,8 @@ marine_window_begin: '{{ WINDOW_BEGIN }}'
 marine_window_middle: '{{ WINDOW_MIDDLE }}'
 marine_window_begin_iso: '{{ WINDOW_BEGIN | to_isotime }}'
 marine_window_middle_iso: '{{ WINDOW_MIDDLE | to_isotime }}'
+# file-name form of the window middle: MPI-IO cannot open names with ':' in parallel
+marine_window_middle_fname: '{{ WINDOW_MIDDLE | to_isotime | replace(":", "_") }}'
 marine_window_end_iso: '{{ WINDOW_END | to_isotime }}'
 marine_enspert_relpath: '{{ ENSPERT_RELPATH }}'
 {% if DOIAU %}
