@@ -1,0 +1,177 @@
+jedi_config:
+    snowanlletkf:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas.x'
+        mpi_cmd: '{{ APRUN_SNOWLETKFANL }}'
+        jedi_args: ['fv3jedi', 'localensembleda']
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+        jcb_algo_yaml: '{{ PARMgfs }}/gdas/snow/jcb-prototype_lgetkf.yaml.j2'
+        obs_list_yaml: '{{ OBS_LIST_YAML }}'
+    scf_to_ioda:
+        rundir: '{{ DATA }}'
+        exe_src: '{{ EXECgfs }}/gdas_fv3jedi_scf_to_ioda.x'
+        mpi_cmd: '{{ APRUN_SNOWANL }}'
+        jcb_algo: 'snow_ims_scf_preprocess'
+        jcb_base_yaml: '{{ PARMgfs }}/gdas/snow/jcb-base.yaml.j2'
+#TODO: add observer/sol mode if needed
+
+data_in:
+    mkdir:
+    - '{{ DATA }}/bkg'
+    - '{{ DATA }}/anl'
+    - '{{ DATA }}/bkg/ensmean'
+    - '{{ DATA }}/anl/ensmean'
+{% for mem in range(0, NMEM_ENS + 1) %}
+    - '{{ DATA }}/bkg/mem{{ '%03d' % mem }}'
+    - '{{ DATA }}/anl/mem{{ '%03d' % mem }}'
+{% endfor %}
+    - '{{ DATA }}/orog/ens'
+    - '{{ DATA }}/fv3jedi'
+    - '{{ DATA }}/berror'
+
+    copy_req:
+{% for mem in range(1, NMEM_ENS + 1) %}
+    {% set gmem = mem+mem_offset %}
+    {% if gmem > NMEM_ENS_MAX %}
+        {% set gmem = gmem-NMEM_ENS_MAX %}
+    {% endif %}
+    # define variables
+    # copy coupler file
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.coupler.res', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    # we need to copy them to two places, one serves as the basis for the analysis
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ current_cycle | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    {% if DOIAU %}
+        # if using IAU, also need backgrounds copied at the beginning of the window
+        # we need to copy them to two places, one serves as the basis for the analysis
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/bkg/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile1.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile2.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile3.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile4.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile5.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    - ['{{ COMIN_ATMOS_RESTART_PREV_ENS }}/mem{{ '%03d' % gmem }}/{{ WINDOW_BEGIN | to_fv3time }}.sfc_data.tile6.nc', '{{ DATA }}/anl/mem{{ '%03d' % mem }}/']
+    {% endif %}
+{% endfor %}
+
+{% filter indent(width=4) %}
+{% include 'snow_stage_jedi_fix.yaml.j2' %}
+{% include 'snow_stage_berror.yaml.j2' %}
+{% include 'snow_stage_bufr2ioda_mapping.yaml.j2' %}
+{% endfilter %}
+
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_mosaic.nc', '{{ DATA }}/orog/ens/']
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile1.nc', '{{ DATA }}/orog/ens/']
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile2.nc', '{{ DATA }}/orog/ens/']
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile3.nc', '{{ DATA }}/orog/ens/']
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile4.nc', '{{ DATA }}/orog/ens/']
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile5.nc', '{{ DATA }}/orog/ens/']
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}_grid.tile6.nc', '{{ DATA }}/orog/ens/']
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile1.nc', '{{ DATA }}/orog/ens/' ]
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile2.nc', '{{ DATA }}/orog/ens/' ]
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile3.nc', '{{ DATA }}/orog/ens/' ]
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile4.nc', '{{ DATA }}/orog/ens/' ]
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile5.nc', '{{ DATA }}/orog/ens/' ]
+    - ['{{ FIXorog }}/{{ CASE_ENS }}/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile6.nc', '{{ DATA }}/orog/ens/' ]
+
+    link_req:
+{% for imem in range(1, NMEM_ENS+1) %}
+     {% set memchar = 'mem%03d' | format(imem) %}
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_mosaic.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile1.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile2.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile3.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile4.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile5.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile6.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile1.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile2.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile3.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile4.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile5.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile6.nc', '{{ DATA }}/bkg/{{ memchar }}/']
+{% endfor %}
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_mosaic.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile1.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile2.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile3.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile4.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile5.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}_grid.tile6.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile1.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile2.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile3.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile4.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile5.nc', '{{ DATA }}/bkg/ensmean/']
+    - ['{{ DATA }}/orog/ens/{{ CASE_ENS }}.mx{{ OCNRES }}_oro_data.tile6.nc', '{{ DATA }}/bkg/ensmean/']
+
+    copy_opt:
+{% filter indent(width=4) %}
+{% if  DO_IMS_SCF %}
+{% include 'snow_stage_ims_scf2ioda.yaml.j2' %}
+{% endif %}
+{% endfilter %}
+
+data_out:
+    copy_req:
+    # Configuration files
+    - ['{{ DATA }}/snowanlletkf.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}snowanlletkf.yaml']
+    - ['{{ DATA }}/apply_incr_nml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}apply_incr_nml']
+
+{% if  DO_IMS_SCF %}
+    - ['{{ DATA }}/scf_to_ioda.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}scf_to_ioda.yaml']
+{% endif %}
+
+{% if DOIAU %}
+    {% set bkgtimes = [ current_cycle, WINDOW_BEGIN ] %}
+{% else %}
+    {% set bkgtimes = [ current_cycle ] %}
+{% endif %}
+{% for bkgtime in bkgtimes %}
+    {% for imem in range(1, NMEM_ENS+1) %}
+        {% set memchar = 'mem%03d' | format(imem) %}
+    # Analysis
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile1.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile2.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile3.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile4.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile5.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_analysis.sfc_data.tile6.nc']
+
+    # Increments
+    - ['{{ DATA }}/anl/{{ memchar }}/snowinc.{{ bkgtime | to_fv3time }}.sfc_data.tile1.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_increment.sfc_data.tile1.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/snowinc.{{ bkgtime | to_fv3time }}.sfc_data.tile2.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_increment.sfc_data.tile2.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/snowinc.{{ bkgtime | to_fv3time }}.sfc_data.tile3.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_increment.sfc_data.tile3.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/snowinc.{{ bkgtime | to_fv3time }}.sfc_data.tile4.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_increment.sfc_data.tile4.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/snowinc.{{ bkgtime | to_fv3time }}.sfc_data.tile5.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_increment.sfc_data.tile5.nc']
+    - ['{{ DATA }}/anl/{{ memchar }}/snowinc.{{ bkgtime | to_fv3time }}.sfc_data.tile6.nc',
+       '{{ COMOUT_SNOW_ANALYSIS }}/{{ memchar }}/{{ bkgtime | to_fv3time }}.snow_increment.sfc_data.tile6.nc']
+    
+    {% endfor %}
+{% endfor %}

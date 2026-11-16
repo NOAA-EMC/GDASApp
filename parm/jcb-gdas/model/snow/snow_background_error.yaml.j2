@@ -31,10 +31,10 @@ saber outer blocks:
     totalSnowDepth:
       vert_coord: filtered_orography
   calibration:
-    number of shadow levels: 50
-    lowest shadow level: -450.0
-    highest shadow level: 8850.0
-    vertical length-scale: 2000.0
+    groups:
+    - variables: [totalSnowDepth]
+      number of shadow levels: 50
+      vertical length-scale: 2000.0
 - saber block name: BUMP_StdDev
   read:
     drivers:

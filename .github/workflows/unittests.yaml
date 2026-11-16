@@ -16,7 +16,7 @@ jobs:
         pip install xarray
 
     - name: Checkout wxflow
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
       with:
         repository: NOAA-EMC/wxflow
         ref: develop
@@ -28,7 +28,7 @@ jobs:
         pip install .
 
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v5
       with:
         path: GDASApp
 

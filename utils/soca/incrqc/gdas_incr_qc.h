@@ -121,6 +121,12 @@ inline void qcIncrement(const soca::State& xb,
   // Brute force bounds check
   applyBruteForceBoundsCheck(dxFs, xbFs, ghostView, viewBathy, stateBounds);
 
+  // Set dirty and halo exchange
+  for (auto & field : dxFs) {
+    field.set_dirty(true);
+    meshConn.nodeColumns.haloExchange(field);
+  }
+
   dx.fromFieldSet(dxFs);
   oops::Log::info() << "======      Finished quality control on increment" << std::endl;
   }

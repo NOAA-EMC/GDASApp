@@ -1,0 +1,11 @@
+{# Coupled background error: a "Coupled Block Diagonal" covariance with one block per
+   model component, reusing each component's existing background error fragment. The
+   fragment chosen for each component is given by coupled_background_error_files, keyed
+   by the component directory name (e.g. atmosphere, marine). #}
+covariance model: Coupled Block Diagonal
+{% for component in coupled_components %}
+{{ component.name }}:
+{% filter indent(width=2) %}
+{% include coupled_background_error_files[component.dir] ~ '.yaml.j2' %}
+{% endfilter %}
+{% endfor %}

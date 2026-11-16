@@ -17,8 +17,8 @@
 
 #include "soca/Geometry/Geometry.h"
 #include "soca/Increment/Increment.h"
+#include "soca/PostProcess/PostProcessIce.h"
 #include "soca/State/State.h"
-#include "soca/VariableChange/VariableChange.h"
 
 #include "gdas_postprocincr.h"
 
@@ -104,29 +104,27 @@ namespace gdasapp {
           oops::Log::debug() << incr_mom6 << std::endl;
         }
 
-        // Postprocess the sea ice: get analysis
-        // xx and xa are now the analysis
-        if (fullConfig.has("ice analysis postprocessing")) {
-          xx += incr_mom6;
-          soca::State xa(xx);
+        // Postprocess the sea ice: write a CICE-consistent restart from the
+        // soca analysis using the C++/atlas PostProcessIce path.
+        if (fullConfig.has("postprocess ice")) {
+          xx += incr_mom6;     // analysis = bg + incr (aggregate ice + T/S)
           oops::Log::debug() << "========= analysis before sea ice postprocessing:" << std::endl;
-          oops::Log::debug() << xa << std::endl;
-          eckit::LocalConfiguration vcConfig(fullConfig, "ice analysis postprocessing");
-          soca::VariableChange vc(vcConfig, geom);
-          oops::Variables varout(vcConfig, "output variables");
-          vc.changeVar(xa, varout);
-          // xa is now the postprocessed analysis
+          oops::Log::debug() << xx << std::endl;
+
+          // PostProcessIce::postprocess opens the CICE background restart, postprocesses,
+          // writes the postprocessed restart, and returns an aggregate-ice State
+          // matching what was written. The MOM6 IAU pipeline doesn't need
+          // that aggregate, so we discard it. PostProcessIce is purely
+          // sea-ice; it does not read or write ocean fields.
+          const eckit::LocalConfiguration ppIceConfig(fullConfig, "postprocess ice");
+          soca::PostProcessIce ppIce(geom, ppIceConfig);
+	  soca::State xa_pproc = ppIce.postprocess(xx);
           oops::Log::debug() << "========= analysis after sea ice postprocessing:" << std::endl;
-          oops::Log::debug() << xa << std::endl;
-          soca::Increment dx(xa.geometry(), xa.variables(), xa.validTime());
-          dx.diff(xa, xx);
+          oops::Log::debug() << xa_pproc << std::endl;
+          soca::Increment dx(xa_pproc.geometry(), xa_pproc.variables(), xa_pproc.validTime());
+          dx.diff(xa_pproc, xx);
           oops::Log::debug() << "========= sea ice postprocessing difference:" << std::endl;
           oops::Log::debug() << dx << std::endl;
-          // Bring in the SST adjustment from ice postprocessing to MOM6 increment
-          incr_mom6 += dx;
-          oops::Log::debug() << "========= increment after adding sea ice postprocessing:"
-                             << std::endl;
-          oops::Log::debug() << incr_mom6 << std::endl;
         }
 
         // Save final increment

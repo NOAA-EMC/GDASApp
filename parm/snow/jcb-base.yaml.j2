@@ -91,13 +91,11 @@ snow_orog_prefix: "{{ CASE }}.mx{{ OCNRES }}"
 
 # Background
 snow_background_path: {{snow_bkg_path}}
-background_ensemble_path: ./ens/mem%mem%
+snow_background_ensemble_path: ./bkg/mem%mem%
 
 # Background error
 snow_bump_data_directory: "{{ DATA }}/berror"
 number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
-
-snow_background_error_file: "{{BERROR_YAML}}"
 
 # Forecasting
 snow_forecast_length: "{{ SNOW_WINDOW_LENGTH }}"
@@ -136,7 +134,7 @@ snow_obsbiascovout_prefix: "{{APREFIX}}"
 snow_obsbiascovout_suffix: ".satbias_cov.nc"
 
 # Ensemble mean things
-snow_number_ensemble_members: {{NMEM_ENS}}
+snow_number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
 
 # Local Ensemble DA (LETKF)
 # -------------------------
@@ -158,7 +156,7 @@ driver_save_posterior_mean: false
 driver_save_posterior_ensemble: false
 driver_save_prior_mean: false
 driver_save_posterior_mean_increment: false
-driver_save_posterior_ensemble_increments: true
+driver_save_posterior_ensemble_increments: false
 
 # Diagnostics
 ensemble_increment_prefix: "./anl/mem%{member}%/snowinc."

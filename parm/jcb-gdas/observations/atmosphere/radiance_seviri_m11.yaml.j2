@@ -184,12 +184,12 @@
     - variable:
         name: ClearSkyStdDev/brightnessTemperature
         channels: 5
-      is_defined:
+      is_valid:
     where:
     - variable:
         name: ClearSkyStdDev/brightnessTemperature
         channels: 6
-      is_defined:
+      is_valid:
       where operator: and
 
   - filter: Domain Check
@@ -304,7 +304,7 @@
         name: ObsFunction/ObsErrorFactorTopoRad
         channels: *{{observation_from_jcb}}_simulated_channels
         options:
-          sensor: seviri_m11
+          sensor: infrared
           channels: *{{observation_from_jcb}}_simulated_channels
 
   - filter: Perform Action

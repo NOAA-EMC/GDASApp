@@ -1,7 +1,7 @@
 #!/bin/bash --login
 
 # Turn off git-lfs for git commands in this script
-GIT_LFS_SKIP_SMUDGE=1
+export GIT_LFS_SKIP_SMUDGE=1
 
 # List of forked repositories
 fork_repos=("soca")

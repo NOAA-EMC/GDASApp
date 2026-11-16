@@ -69,8 +69,12 @@ data_in:
 
 data_out:
     copy_req:
+{% if DO_JEDIATMENS_SPLIT_OBSSOL | default(true) %}
     - ['{{ DATA }}/atmensanlobs.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}atmensanlobs.yaml']
     - ['{{ DATA }}/atmensanlsol.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}atmensanlsol.yaml']
+{% else %}
+    - ['{{ DATA }}/atmensanlletkf.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}atmensanlletkf.yaml']
+{% endif %}
     - ['{{ DATA }}/atmensanlfv3inc.yaml', '{{ COMOUT_CONF }}/{{ APREFIX_ENS }}atmensanlfv3inc.yaml']
     - ['{{ DATA }}/anl/{{ APREFIX_ENS }}cubed_sphere_grid_atmanl.ensmean.nc', '{{ COMOUT_ATMOS_ANALYSIS_ENS }}/{{ APREFIX_ENS }}csg_ensmean_jedi_analysis.atm.a006.nc']
 {% for imem in range(1,NMEM_ENS+1) %}

@@ -88,20 +88,16 @@ for imem in $(seq 1 $NMEM_ENS); do
     target=$COMIN_ATMOS_HISTORY_PREV_ENS
     mkdir -p $target
     rm -rf $target/enkfgdas.t${gcyc}z.atmf006.nc
-    ln -fs $source/enkfgdas.t${gcyc}z.atmf006.nc $target/
+    ln -fs $source/enkfgdas.t${gcyc}z.atmf006.nc $target/enkfgdas.t${gcyc}z.atmf006.nc
 
     source=$GDASAPP_TESTDATA/lowres/$dpath/$memchar/model/atmos/history
     target=$COMIN_ATMOS_HISTORY_PREV_ENS
     flist=("csg_atm.f006.nc" "csg_sfc.f006.nc")
     for file in "${flist[@]}"; do
 	rm -rf $target/enkf${gprefix}.${file}
-        ln -fs $source/enkf${gprefix}.${file} $target/
+        ln -fs $source/enkf${gprefix}.${file} $target/enkf${gprefix}.${file}
     done
 done
-
-# Set DO_JEDIATMENS_SPLIT_OBSSOL="NO" to run letkf as single observer and solver job
-# NOTE:  atmensanlinit creates input yaml for atmensanlletkf job
-cp $EXPDIR/config.base_split_obssol_false $EXPDIR/config.base
 
 # Create yaml with job configuration
 memory="8Gb"
