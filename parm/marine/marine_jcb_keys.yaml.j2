@@ -65,6 +65,19 @@ marine_background_ocn_filename: {{ marine_background_ocn_filename }}
 marine_background_ice_filename: {{ marine_background_ice_filename }}
 {% endif %}
 
+# NICAS horizontal length scales (m) for the marine B (static and ensemble localization),
+# per ocean resolution. BUMP sizes the NICAS subset as nc1 ~ 240017*(200 km/L)^2 over the
+# global ocean; if that exceeds what the analysis grid can hold, the run aborts with
+# "effective resolution is too low". The 5 deg grid has only ~1900 wet points.
+{% set marine_nicas_by_res = {
+     '500': {'long': 2000.0e3, 'short': 1500.0e3, 'loc': 2000.0e3},
+   } %}
+{% set marine_nicas = marine_nicas_by_res.get('%03d'|format(OCNRES|default(25)|int),
+                                              {'long': 200.0e3, 'short': 100.0e3, 'loc': 300.0e3}) %}
+marine_nicas_hz_long: {{ marine_nicas.long }}
+marine_nicas_hz_short: {{ marine_nicas.short }}
+marine_nicas_hz_ens_loc: {{ marine_nicas.loc }}
+
 # Pseudo model
 marine_forecast_timestep: PT3H
 marine_number_ensemble_members: '{{NMEM_ENS}}'
