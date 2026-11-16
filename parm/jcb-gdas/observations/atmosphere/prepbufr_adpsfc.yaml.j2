@@ -316,26 +316,14 @@
     - variable: ObsErrorData/specificHumidityAt2M
       value: is_not_valid
 
-  # convert into specific humidity units, by *qsat_mod
-  - filter: Variable Assignment
-    assignments:
-    - name: RelativeHumidityObsError/specificHumidityAt2M
-      type: float
-      source variable: ObsErrorData/specificHumidityAt2M
-
+  # convert into specific humidity units, by *qsat_mod (2m)
   - filter: Perform Action
     filter variables:
     - name: specificHumidityAt2M
     action:
-      name: assign error
-      error function:
-        name: ObsFunction/ObsErrorSatSpecHumidity
-        options:
-          variable: specificHumidityAt2M
-          input_error_name: RelativeHumidityObsError
-          surface observation types: {{ assim_obstypes }}
-          surface saturation specific humidity:
-            name: GeoVaLs/saturation_water_vapor_mixing_ratio_wrt_moist_air_at_2m
+      name: inflate error
+      inflation variable:
+        name: GeoVaLs/saturation_water_vapor_mixing_ratio_wrt_moist_air_at_2m
 
   - filter: Perform Action
     filter variables:
