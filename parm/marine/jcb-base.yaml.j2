@@ -35,223 +35,42 @@ minimizer: RPCG
 final_diagnostics_departures: oman
 final_prints_frequency: PT3H
 number_of_outer_loops: 1
+final_j_evaluation: true
 
-# Analysis variables
+# Analysis variables. The marine key block included at the bottom derives its state and
+# increment variable lists from these.
 # (i-jedi analyses the currents only with the TorchBalance B, MARINE_BALANCE=torch: its univariate
 # B has no velocity error, and the i-jedi increment postprocessing then zeroes the u/v increments)
 {% set _marine_ijedi = JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
 {% set _marine_torch = MARINE_BALANCE | default('soca') == 'torch' %}
-{% set _analysis_vars = ['sea_ice_area_fraction',
-                         'sea_ice_thickness',
-                         'sea_ice_snow_thickness',
-                         'sea_water_salinity',
-                         'sea_water_potential_temperature'] %}
+{% set marine_analysis_vars = ['sea_ice_area_fraction',
+                                'sea_ice_thickness',
+                                'sea_ice_snow_thickness',
+                                'sea_water_salinity',
+                                'sea_water_potential_temperature'] %}
 {% if _marine_torch or not _marine_ijedi %}
-{% set _analysis_vars = _analysis_vars + ['eastward_sea_water_velocity',
-                                          'northward_sea_water_velocity'] %}
+{% set marine_analysis_vars = marine_analysis_vars + ['eastward_sea_water_velocity',
+                                                      'northward_sea_water_velocity'] %}
 {% endif %}
-{% set _analysis_vars = _analysis_vars + ['sea_surface_height_above_geoid'] %}
-
-analysis_variables: {{ _analysis_vars }}
-
-# Model things
-# ------------
-
-# State variables
-marine_det_state_variables: {{ _analysis_vars + ['air_temperature',
-                                                 'sea_ice_salinity',
-                                                 'sea_water_cell_thickness',
-                                                 'sea_water_depth',
-                                                 'ocean_mixed_layer_thickness',
-                                                 'snow_ice_surface_temperature',
-                                                 'eastward_wind',
-                                                 'northward_wind',
-                                                 'water_vapor_mixing_ratio_wrt_moist_air',
-                                                 'surface_downwelling_longwave_flux_in_air',
-                                                 'surface_downwelling_shortwave_flux_in_air',
-                                                 'sea_ice_strain_rate_divergence',
-                                                 'sea_ice_strain_rate_shear',
-                                                 'pole_selector'] }}
-
-marine_saber_central_block_variables: {{ ['sea_ice_area_fraction',
-                                          'sea_water_salinity',
-                                          'sea_water_potential_temperature',                               
-                                          'sea_surface_height_above_geoid'] }}
-
-# Increment variables
-marine_det_increment_variables: {{ _analysis_vars }}
-
-marine_window_begin: '{{ WINDOW_BEGIN }}'
-marine_window_middle: '{{ WINDOW_MIDDLE }}'
-marine_window_begin_iso: '{{ WINDOW_BEGIN | to_isotime }}'
-marine_window_middle_iso: '{{ WINDOW_MIDDLE | to_isotime }}'
-# file-name form of the window middle: MPI-IO cannot open names with ':' in parallel
-marine_window_middle_fname: '{{ WINDOW_MIDDLE | to_isotime | replace(":", "_") }}'
-marine_window_end_iso: '{{ WINDOW_END | to_isotime }}'
-marine_enspert_relpath: '{{ ENSPERT_RELPATH }}'
-{% if DOIAU %}
-marine_cice_date_fms: '{{ WINDOW_BEGIN | to_fv3time }}'
-marine_cice_date_iso: '{{ WINDOW_BEGIN | to_isotime }}'
-{% else %}
-marine_cice_date_fms: '{{ WINDOW_MIDDLE | to_fv3time }}'
-marine_cice_date_iso: '{{ WINDOW_MIDDLE | to_isotime }}'
-{% endif %}
-
-# Geometry
-marine_soca_files_path: .
-marine_vt_levels: '{{MOM6_LEVS}}'
-{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
-
-# i-jedi MOM6 geometry (JEDI_MARINE_INTERFACE=ijedi)
-# --------------------------------------------------
-# Grid dimensions must match the staged MOM_input (5 deg 72x35, 1 deg 360x320, 1/4 deg 1440x1080,
-# 1/12 deg 4500x3297; config.base rejects other OCNRES). i-jedi analyses on this native grid:
-# SOCA_ANL_GEOM is not used. The layout is derived by config.resources (marineanlinit) from the
-# marineanlvar task count. i-jedi treats MINIMUM_DEPTH as the depth below which cells are land,
-# i.e. MOM6's MASKING_DEPTH (0.0 at 500/100/025), or MOM6's MINIMUM_DEPTH when MASKING_DEPTH is
-# unset (MOM_input_008: MASKING_DEPTH = -9999.0, MINIMUM_DEPTH = 3.0).
-{% set _ijedi_mom6_grid = {'500': [72, 35, 0.0], '100': [360, 320, 0.0], '025': [1440, 1080, 0.0],
-                           '008': [4500, 3297, 3.0]}[OCNRES] %}
-marine_ijedi_niglobal: {{ _ijedi_mom6_grid[0] }}
-marine_ijedi_njglobal: {{ _ijedi_mom6_grid[1] }}
-marine_ijedi_minimum_depth: {{ _ijedi_mom6_grid[2] }}
-marine_ijedi_nz: '{{MOM6_LEVS}}'
-marine_ijedi_layout_x: {{ layout_marine_ijedi_x | default(1, true) }}
-marine_ijedi_layout_y: {{ layout_marine_ijedi_y | default(1, true) }}
-
-# i-jedi ocean state variables (B-matrix calibration) and the file-variable name map used for
-# writing (increment, analysis, B stddev); the sea-ice names are soca's, so the soca increment
-# post-processing reads the i-jedi increment
-marine_ijedi_state_variables: ['sea_water_salinity', 'sea_water_potential_temperature',
-                               'sea_surface_height_above_geoid']
-marine_ijedi_field_io_names:
-    sea_water_potential_temperature: Temp
-    sea_water_salinity: Salt
-    sea_surface_height_above_geoid: ave_ssh
-    sea_ice_area_fraction: aice_h
-    sea_ice_thickness: hi_div_aice_h
-    sea_ice_snow_thickness: hs_div_aice_h
-{% if _marine_torch %}
-    # eastward/northward at tracer points (the default "velocity grid: tracer")
-    eastward_sea_water_velocity: u
-    northward_sea_water_velocity: v
-{% endif %}
-
-# Background states: the analysis variables, sea ice from the CICE history backgrounds, whose
-# per-cell volumes the i-jedi mom6 io divides by the ice fraction into thicknesses per ice area
-# (as soca reads them). With TorchBalance the layer thicknesses are added (background tensor of
-# the geostrophy emulator); the MOM6 C-grid currents are read as eastward/northward at tracer
-# points (the io detects the staggered layout of restarts and histories).
-{% if _marine_torch %}
-marine_ijedi_background_variables: {{ _analysis_vars + ['sea_water_cell_thickness'] }}
-{% else %}
-marine_ijedi_background_variables: {{ _analysis_vars }}
-{% endif %}
-marine_ijedi_background_io_names:
-    sea_water_potential_temperature: Temp
-    sea_water_salinity: Salt
-    sea_surface_height_above_geoid: ave_ssh
-    sea_ice_area_fraction: aice_h
-{% if _marine_torch %}
-    eastward_sea_water_velocity: u
-    northward_sea_water_velocity: v
-    sea_water_cell_thickness: h
-{% endif %}
-marine_ijedi_background_thickness_from_volume:
-    sea_ice_thickness: hi_h
-    sea_ice_snow_thickness: hs_h
-
-# Static B central block variables (as soca). Univariate: with TorchBalance
-# (MARINE_BALANCE=torch) the currents are added, the cross-variable covariances then come from
-# the balance outer blocks.
-{% if _marine_torch %}
-marine_ijedi_saber_central_block_variables: ['sea_ice_area_fraction', 'sea_water_salinity',
-                                             'sea_water_potential_temperature',
-                                             'eastward_sea_water_velocity',
-                                             'northward_sea_water_velocity',
-                                             'sea_surface_height_above_geoid']
-{% else %}
-marine_ijedi_saber_central_block_variables: ['sea_ice_area_fraction', 'sea_water_salinity',
-                                             'sea_water_potential_temperature',
-                                             'sea_surface_height_above_geoid']
-{% endif %}
-
-# MOM6 layout of the increment postprocessing (marineanlchkpt), derived by config.resources
-# (marineanlinit) from its task count
-marine_ijedi_incpostproc_layout_x: {{ layout_marine_ijedi_chkpt_x | default(1, true) }}
-marine_ijedi_incpostproc_layout_y: {{ layout_marine_ijedi_chkpt_y | default(1, true) }}
-
-{% endif %}
-
-# Initial conditions
-marine_background_path: ./INPUT/
-marine_background_time: '{{ WINDOW_BEGIN | to_isotime }}'
-
-# Pseudo model
-marine_forecast_timestep: PT3H
+{% set marine_analysis_vars = marine_analysis_vars + ['sea_surface_height_above_geoid'] %}
+analysis_variables: {{ marine_analysis_vars }}
 
 # Background error model
-{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+{% if _marine_ijedi %}
 # Diffusion B from the i-jedi marinebmat chain (soca's diffusion files cannot be read),
 # univariate, or multivariate through TorchBalance with MARINE_BALANCE=torch
 background_error_file: marine_ijedi_background_error_static_diffusion
 {% else %}
 background_error_file: '{{berror_model}}'
 {% endif %}
-marine_number_ensemble_members: '{{NMEM_ENS}}'
-marine_number_ensemble_members_per_mpi: '{{NMEM_ENS_PER_MPI}}'
-marine_stddev_time: '{{ WINDOW_MIDDLE  | to_isotime }}'
-
-# Balance: soca (BalanceSOCA) or torch (TorchBalance, needs gdas built with Torch_ROOT)
-marine_balance: '{{ MARINE_BALANCE | default("soca") }}'
-marine_torch_seaice: {{ MARINE_TORCH_SEAICE | default(false) }}
-{% if MARINE_TORCH_EMULATORS_DIR is defined %}
-marine_torch_emulators_dir: '{{ MARINE_TORCH_EMULATORS_DIR }}'
-{% endif %}
-
-# diagb: monthly T/S climatology (ocean.clim_MM.nc) used for the dynamic part of the
-# parametric B instead of the background. Set MARINE_DIAGB_CLIMATOLOGY_DIR in config.marinebmat.
-{% if MARINE_DIAGB_CLIMATOLOGY_DIR is defined %}
-marine_diagb_climatology_dir: '{{ MARINE_DIAGB_CLIMATOLOGY_DIR }}'
-{% endif %}
 
 # Observations
 observations: all_observations
-
-marine_obsdataroot_path: '{{COMIN_OBS}}'
-marine_obsdatastats_path: '{{COMOUT_OCEAN_ANALYSIS}}/diags'
-
-marine_obsdatain_path: '{{DATA}}/obs'
-marine_obsdatain_prefix: '{{OPREFIX}}'
-marine_obsdatain_suffix: '.nc'
-marine_obsdataout_path: '{{DATA}}/diags'
-marine_obsdataout_prefix: ''
-marine_obsdataout_suffix: '.nc'
-
-# Outer loops
-marine_ninner_1: '{{NINNER}}'
-marine_grad_red_1: 1e-7
-
-# Output
-marine_output_dir: Data
-marine_output_exp: 3dvarfgat_pseudo
-marine_output_freq: PT3H   # can only writes out the analysis at the middle of the window
-                           # when using 3D-FGAT as cost function
-
-# Final increment
-marine_final_increment_dir: Data
-marine_final_increment_exp: 3dvarfgat_pseudo
-
-# Background list
-marine_pseudo_model_states: {{ marine_pseudo_model_states | default([]) }}
 
 # These parameters are a bit of a hack that will be removed in the future when the anlstat
 # job fully replaces the SOCA obs_diag_stats application
 cleaned_observations: {{ cleaned_observations | default([]) }}
 obs_variables: {{ obs_variables | default({}) }}
-
-# COM path for configuration files
-marine_config_path: '{{COMOUT_CONF}}'
 
 # Local Ensemble DA (LETKF)
 # -------------------------
@@ -262,29 +81,25 @@ use_linear_observer: true
 
 # Increment variables
 {% if letkf_app | default(false) %}
-{% set _increment_vars = ['sea_ice_area_fraction',
-                          'sea_water_salinity',
-                          'sea_water_potential_temperature',
-                          'sea_surface_height_above_geoid',
-                          'sea_water_cell_thickness',
-                          'eastward_sea_water_velocity',
-                          'northward_sea_water_velocity',
-                          'sea_ice_thickness',
-                          'sea_ice_snow_thickness'] %}
-increment_variables: {{ _increment_vars }}
+{% set marine_increment_vars = ['sea_ice_area_fraction',
+                                 'sea_water_salinity',
+                                 'sea_water_potential_temperature',
+                                 'sea_surface_height_above_geoid',
+                                 'sea_water_cell_thickness',
+                                 'eastward_sea_water_velocity',
+                                 'northward_sea_water_velocity',
+                                 'sea_ice_thickness',
+                                 'sea_ice_snow_thickness'] %}
 {% else %}
-{% set _increment_vars = ['sea_ice_area_fraction',
-                          'sea_water_salinity',
-                          'sea_water_potential_temperature',
-                          'sea_surface_height_above_geoid',
-                          'sea_water_cell_thickness',
-                          'eastward_sea_water_velocity',
-                          'northward_sea_water_velocity'] %}
-increment_variables: {{ _increment_vars }}
+{% set marine_increment_vars = ['sea_ice_area_fraction',
+                                 'sea_water_salinity',
+                                 'sea_water_potential_temperature',
+                                 'sea_surface_height_above_geoid',
+                                 'sea_water_cell_thickness',
+                                 'eastward_sea_water_velocity',
+                                 'northward_sea_water_velocity'] %}
 {% endif %}
-
-# State variables
-marine_ens_state_variables: {{ _increment_vars }}
+increment_variables: {{ marine_increment_vars }}
 
 # Driver
 driver_save_posterior_mean: true
@@ -301,6 +116,6 @@ inflation_rtps: 0.0
 inflation_rtpp: 0.0
 inflation_mult: 1.0
 
-# Using LETKF app? (used in obs YAMLs)
-marine_letkf_app: {{ letkf_app | default(false) }}
-marine_letkf_dist_halo_size: '{{ DIST_HALO_SIZE }}'
+# Marine model keys (also included by the coupled base)
+# ------------------------------------------------------
+{% include 'marine_jcb_keys.yaml.j2' %}

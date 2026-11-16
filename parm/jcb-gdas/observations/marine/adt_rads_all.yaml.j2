@@ -13,7 +13,10 @@
     io pool:
       max pool size: 1
 {% if marine_letkf_app | default(false) %}
-    distribution:
+    # LETKF: H(x) on the default (RoundRobin) distribution, then the obs are moved to Halo
+    # patches for the local solver (IODA data-frame container)
+    use data frame container: true
+    redistribution:
       name: Halo
       halo size: {{ marine_letkf_dist_halo_size }}
 {% endif %}

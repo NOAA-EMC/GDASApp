@@ -72,52 +72,10 @@ data_out:
     - '{{ COMOUT_OCEAN_ANALYSIS }}/diags'
     - '{{ COMOUT_OCEAN_ANALYSIS }}/bump'
 
-{% set _marine_anl_tag = WINDOW_MIDDLE | to_isotime %}
-{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
-{% set _marine_anl_tag = _marine_anl_tag | replace(":", "_") %}{% endif %}
     copy_req:
-    # Ocean IAU increment (intended for MOM6)
-    - ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}mom6_increment.i006.nc']
-
-    # Ocean increment and analysis from JEDI
-    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.incr.{{ _marine_anl_tag }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
-    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.an.{{ _marine_anl_tag }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
-
-    # SeaIce increment and analysis from JEDI
-{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
-    # (i-jedi writes ocean and sea ice into one file)
-    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.incr.{{ _marine_anl_tag }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
-    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.an.{{ _marine_anl_tag }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
-{% else %}
-    - ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
-    - ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
-{% endif %}
-
-    # Postprocessed ice increment
-    - ['{{ DATA }}/ice.inc.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}pp_increment.i006.nc']
-
-    # ssh diagnostics
-    {% if NMEM_ENS > 2 %}
-    - ['{{ DATA }}/staticb/ocn.ssh_steric_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_steric_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.ssh_unbal_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_unbal_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.ssh_total_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_total_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.steric_explained_variance.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}steric_explained_variance.nc']
-    {% endif %}
-
-    # DA grid (computed for the start of the window)
-{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
-    - ['{{ DATA }}/ijedi_gridspec.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_gridspec.tm03.nc']
-{% else %}
-    - ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_gridspec.tm03.nc']
-{% endif %}
-
-    # CICE analysis restart
-    - ['{{ DATA }}/Data/{{ cice_rst_date }}.cice_model.res.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ cice_rst_date }}.analysis.cice_model.res.nc']
-
-    # YAML files
-    - ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_CONF }}']
-    - ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_CONF }}/']
-    - ['{{ DATA }}/soca_incpostproc.yaml', '{{ COMOUT_CONF }}/']
+{% filter indent(width=4) %}
+{% include 'marine_det_save_anl.yaml.j2' %}
+{% endfilter %}
     - ['{{ DATA }}/var.yaml', '{{ COMOUT_CONF }}/']
 
     copy_opt:
