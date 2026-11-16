@@ -1,3 +1,8 @@
+# Write the increment once, at the middle of the window, like the analysis (see
+# marine_ijedi_output.yaml.j2). The increment writer stores the background at each processed time
+# on its first pass and differences the analysis against it on the second, so both passes must
+# process the same times; the final 3D-FGAT evaluation only processes the middle of the window.
+times: ['{{ marine_window_middle_iso }}']
 io:
   filetype: mom6
   datapath: ./{{marine_final_increment_dir}}
