@@ -27,6 +27,7 @@ background_error_file: atmosphere_background_error_hybrid_gsibec_gsibec
 # ----------------------
 window_begin: '2024-02-01T00:00:00Z'
 window_length: PT6H
+window_end: '2024-02-01T06:00:00Z'
 bound_to_include: begin
 minimizer: DRPCG
 final_diagnostics_departures: anlmob
