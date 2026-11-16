@@ -7,6 +7,10 @@ app_path_observation_chronicle: {{PARMglobal}}/gdas/jcb-gdas/observation_chronic
 # ---------
 algorithm: local_ensemble_da
 
+# One-step L/GETKF: compute H(x) under RoundRobin (default) distribution,
+# then redistribute obs into the Halo distribution below for the solver
+do_onestep_letkf: true
+
 # Model things
 # ------------
 atmosphere_background_ensemble_path: ./bkg/mem%mem%
