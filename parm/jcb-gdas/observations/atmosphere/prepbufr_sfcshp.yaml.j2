@@ -15,8 +15,8 @@
         obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
-    simulated variables: [stationPressure, virtualTemperature, airTemperature]
-    observed variables: [stationPressure, virtualTemperature, airTemperature]
+    simulated variables: [stationPressure, virtualTemperature, airTemperature, specificHumidity]
+    observed variables: [stationPressure, virtualTemperature, airTemperature, specificHumidity]
 
   # Observation Operator
   # -------------------
@@ -40,6 +40,10 @@
       variables:
       - name: virtualTemperature
       - name: airTemperature
+    # GSI uses the lowest model level for marine q
+    - name: Identity
+      variables:
+      - name: specificHumidity
 
   # Linear Observation Operator
   # ---------------------------
@@ -49,6 +53,7 @@
     - name: Identity
       variables:
       - name: stationPressure
+      - name: specificHumidity
     - name: VertInterp
       variables:
       - name: virtualTemperature
@@ -58,7 +63,7 @@
   # ------------------------------
 
 {% set temperature_variables = ['virtualTemperature', 'airTemperature'] %}
-{% set assim_variables = ['stationPressure'] + temperature_variables %}
+{% set assim_variables = ['stationPressure'] + temperature_variables + ['specificHumidity'] %}
 {% set assim_obstypes         = [180] %}
 
   obs pre filters:
@@ -87,16 +92,10 @@
       name: accept
 {% endfor %}
 
-  # Observation Prior Filters (QC)
+  # replace Ps with P at MSLP if ob height is 0.
   # ------------------------------
 
-  obs prior filters:
-
-  # stationPressure QC
-  # ---------------------------------
-
-  # order matters - if recorded height of ship ob is 0, replace Ps with
-  # P at MSLP (here), before the stationPressure QC, error assignment and checks
+  # order matters - before the stationPressure QC, error assignment and checks
   - filter: Variable Assignment
     assignments:
     - name: DerivedObsValue/stationPressure
@@ -105,19 +104,27 @@
         name: ObsValue/stationPressure
   - filter: Variable Assignment
     where:
-    - variable:                                  # ZOB ~ 0  (GSI: abs(ZOB) < tiny)
+    - variable: 
         name: MetaData/height
       minvalue: -0.0001
       maxvalue:  0.0001
-    - variable:                                  # PMO present & plausible
+    - variable:
         name: ObsValue/pressureReducedToMeanSeaLevel
-      minvalue:  80000.0                          # GSI: |PMO - 1000 hPa| < 200
+      minvalue:  80000.0
       maxvalue: 120000.0
     assignments:
     - name: DerivedObsValue/stationPressure
       type: float
       source variable:
         name: ObsValue/pressureReducedToMeanSeaLevel
+
+  # Observation Prior Filters (QC)
+  # ------------------------------
+
+  obs prior filters:
+
+  # stationPressure QC
+  # ---------------------------------
 
   - filter: RejectList
     filter variables:
@@ -143,10 +150,17 @@
         name: QualityMarker/height
       is_in: 7, 8, 10-14
 
-  # temperature QC
+  - filter: RejectList
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: MetaData/height
+      value: is_not_valid
+
+  # temperature and humidity QC
   # ---------------------------------
 
-{% for var in temperature_variables %}
+{% for var in temperature_variables + ['specificHumidity'] %}
   - filter: RejectList
     filter variables:
     - name: {{ var }}
@@ -162,13 +176,37 @@
     where:
     - variable: QualityMarker/stationPressure
       is_in: 8-15
+{% endfor %}
 
+{% for var in temperature_variables %}
   - filter: Bounds Check
     filter variables:
     - name: {{ var }}
     minvalue: 100
     maxvalue: 400
 {% endfor %}
+
+  - filter: Bounds Check
+    filter variables:
+{% for var in temperature_variables + ['specificHumidity'] %}
+    - name: {{ var }}
+{% endfor %}
+    test variables:
+    - name: MetaData/pressure
+    minvalue: 1.3
+
+  - filter: Difference Check
+    filter variables:
+{% for var in temperature_variables %}
+    - name: {{ var }}
+{% endfor %}
+    reference: GeoVaLs/air_pressure_at_surface
+    value: MetaData/pressure
+    minvalue: -1000.0
+    maxvalue: 1000.0
+
+  # reduce to keep T virtual where present, otherwise Tdry. 
+  # ----------------------------------
 
   - filter: Perform Action
     filter variables:
@@ -214,8 +252,27 @@
     seed_time: '{{ atmosphere_background_time_iso }}'
     action:
       name: reject
+ 
+  # to-do: revise duplicate thinning for ship-obs
+  # GSI setupq treats marine q obs at the same position and pressure as
+  # duplicates and keeps the one closest to the analysis time
+  - filter: DuplicateThinning
+    filter variables:
+    - name: specificHumidity
+    variable names:
+    - MetaData/latitude
+    - MetaData/longitude
+    - MetaData/pressure
+    tolerance: [1.0e-6, 1.0e-6, 1.0e-6]
+    analysis_time: '{{ atmosphere_background_time_iso }}'
+    min_spacing: PT6H
+    action:
+      name: reject
 
-  # stationPressure error assignments
+  # error assignments
+  # ---------------------------------
+
+  # set initial errors, then save
   # ---------------------------------
 
   - filter: Perform Action
@@ -231,24 +288,58 @@
             name: ObsValue/stationPressure
           xvals: [60000, 55000]
           errors: [130, 1.0e+11]
+ 
+  # order matters: before conversion to q units.
+  - filter: RejectList
+    filter variables:
+    - name: specificHumidity
+    where:
+    - variable: ObsErrorData/specificHumidity
+      value: is_not_valid
 
-  # save initial error assignmnet
-  - filter: Variable Assignment
-    assignments:
-    - name: InputObsError/stationPressure
-      type: float
-      source variable: ObsErrorData/stationPressure
-
-  # Adjustments to obs errors
   - filter: Perform Action
     filter variables:
-    - name: stationPressure
+    - name: specificHumidity
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorSatSpecHumidity
+        options:
+          variable: specificHumidity
+          input_error_name: ObsErrorData
+
+  - filter: Perform Action
+    filter variables:
+    - name: specificHumidity
     where:
-    - variable: QualityMarker/stationPressure
-      is_in: 3
+    - variable: ObsErrorData/specificHumidity
+      maxvalue: 1.0e-4
+    action:
+      name: assign error
+      error parameter: 1.0e-4
+
+{% for var in assim_variables %}
+  - filter: Variable Assignment
+    assignments:
+    - name: InputObsError/{{ var }}
+      type: float
+      source variable: ObsErrorData/{{ var }}
+{% endfor %}
+
+  # apply error inflation terms
+  # ---------------------------------
+
+{% for var in assim_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 3, 7
     action:
       name: inflate error
       inflation factor: 1.2
+{% endfor %}
 
   - filter: Perform Action
     filter variables:
@@ -264,7 +355,6 @@
       name: inflate error
       inflation factor: 0.7
 
-  # Compute and apply inflation factor from model-observation terrain mismatch
   - filter: Perform Action
     filter variables:
     - name: stationPressure
@@ -279,66 +369,90 @@
           observed temperature variable: airTemperature
           observed specific humidity variable: specificHumidity
 
-  # temperature error assignments
-  # ---------------------------------
-
+  # order matters - do after the multiplicative error inflations
+  # error += |1 - (ps/p)^(R/cp)| * 273.15 + 8 K per model level below the model surface
 {% for var in temperature_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsErrorData/{{ var }}
+          # 1 - (ps/p)^(R/cp)
+          - name: ObsFunction/Arithmetic
+            options:
+              variables:
+              - name: ObsFunction/ElementMultiply
+                options:
+                  variables:
+                  - name: GeoVaLs/air_pressure_at_surface
+                  - name: MetaData/pressure
+                  exponents: [0.2857356, -0.2857356]
+                  abort if invalid operation: false
+              coefs: [-1.0]
+              intercept: 1.0
+          - name: ObsFunction/ModelLevelsBelowSurface
+          coefs: [1.0, 273.15, 8.0]
+          absolute value: [false, true, false]
+{% endfor %}
+
+  # error += |1 - p/ps| * 10 (relative humidity) * qsat
   - filter: Variable Assignment
     assignments:
-    - name: InputObsError/{{ var }}
+    - name: PressureCheckErrorRH/specificHumidity
       type: float
-      source variable: ObsErrorData/{{ var }}
-
-  - filter: Perform Action
-    filter variables:
-    - name: {{ var }}
-    where:
-    - variable: QualityMarker/{{ var }}
-      is_in: 3, 7
-    action:
-      name: inflate error
-      inflation factor: 1.2
-
-  - filter: Bounds Check
-    filter variables:
-    - name: {{ var }}
-    test variables:
-    - name: ObsErrorData/{{ var }}
-    minvalue: 0.0
-    maxvalue: 1000
-{% endfor %}
-
-  # order matters - do after the multiplicative error inflations
-{% for var in temperature_variables %}
-  - filter: Perform Action
-    filter variables:
-    - name: {{ var }}
-    action:
-      name: inflate error
-      inflation variable:
-        name: ObsFunction/ObsErrorFactorPressureCheck
+      function:
+        name: ObsFunction/Arithmetic
         options:
-          variable: {{ var }}
-          surface observation error ramp: false
-          inflation factor: 8.0
+          variables:
+          # 1 - p/ps
+          - name: ObsFunction/Arithmetic
+            options:
+              variables:
+              - name: ObsFunction/ElementMultiply
+                options:
+                  variables:
+                  - name: MetaData/pressure
+                  - name: GeoVaLs/air_pressure_at_surface
+                  exponents: [1.0, -1.0]
+                  abort if invalid operation: false
+              coefs: [-1.0]
+              intercept: 1.0
+          coefs: [10.0]
+          absolute value: [true]
 
-  # Above assigns large errors; reject for easier book-keeping
-  - filter: Bounds Check
+  - filter: Variable Assignment
+    assignments:
+    - name: PressureCheckError/specificHumidity
+      type: float
+      function:
+        name: ObsFunction/ObsErrorSatSpecHumidity
+        options:
+          variable: specificHumidity
+          input_error_name: PressureCheckErrorRH
+
+  - filter: Perform Action
     filter variables:
-    - name: {{ var }}
-    test variables:
-    - name: ObsErrorData/{{ var }}
-    maxvalue: 1.0e9
-    defer to post: true # needs GeoVaLs-based error from the pressure check
-
-{% endfor %}
+    - name: specificHumidity
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsErrorData/specificHumidity
+          - name: PressureCheckError/specificHumidity
 
   # Observation Post Filters (QC)
   # -----------------------------
 
   obs post filters:
 
-  # stationPressure background checks
+  # background checks
   # ---------------------------------
 
   - filter: Background Check
@@ -372,20 +486,6 @@
         obserr_bound_factor: 3.5
     action:
       name: reject
-
-  # TURN OFF FOR TESTING l_closeobs=False (temporal filter, instead of error inflation)
-  # order matters - compute duplicate check, then apply O-F check
-  # using initial errors, then apply duplicate error inflation (here)
-  #- filter: Perform Action
-  #  filter variables:
-  #  - name: stationPressure
-  #  action:
-  #    name: inflate error
-  #    inflation variable:
-  #      name: ObsErrorFactorDuplicateCheck/stationPressure
-
-  # temperature background checks
-  # ---------------------------------
 
   # GSI gross check (convinfo: gross 7.0, ermin 1.3, ermax 5.6):
 {% for var in temperature_variables %}
@@ -422,6 +522,42 @@
     action:
       name: reject
 {% endfor %}
+
+  # GSI gross check (convinfo: gross 8.0; gross*0.7 for QM=3). The convinfo
+  # error bounds (10%-100% of qsat) do not bind for these obs.
+  - filter: Background Check
+    filter variables:
+    - name: specificHumidity
+    threshold: 8.0
+    where:
+    - variable: QualityMarker/specificHumidity
+      is_not_in: 3
+    action:
+      name: reject
+
+  - filter: Background Check
+    filter variables:
+    - name: specificHumidity
+    threshold: 5.6
+    where:
+    - variable: QualityMarker/specificHumidity
+      is_in: 3
+    action:
+      name: reject
+
+  # Apply duplicate error inflation
+  # ---------------------------------
+
+  # TURN OFF FOR TESTING l_closeobs=False (temporal filter, instead of error inflation)
+  # order matters - compute duplicate check, then apply O-F check
+  # using initial errors, then apply duplicate error inflation (here)
+  #- filter: Perform Action
+  #  filter variables:
+  #  - name: stationPressure
+  #  action:
+  #    name: inflate error
+  #    inflation variable:
+  #      name: ObsErrorFactorDuplicateCheck/stationPressure
 
   # End of Filters
 

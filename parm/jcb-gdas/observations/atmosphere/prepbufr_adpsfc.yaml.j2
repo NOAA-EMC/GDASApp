@@ -15,8 +15,8 @@
         obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
     io pool:
       max pool size: 1
-    simulated variables: [stationPressure, airTemperatureAt2M]
-    observed variables: [stationPressure, airTemperatureAt2M]
+    simulated variables: [stationPressure, airTemperatureAt2M, specificHumidityAt2M]
+    observed variables: [stationPressure, airTemperatureAt2M, specificHumidityAt2M]
 
   # Observation Operator
   # -------------------
@@ -34,6 +34,7 @@
     - name: Identity
       variables:
       - name: airTemperatureAt2M
+      - name: specificHumidityAt2M
 
   # Linear Observation Operator
   # ---------------------------
@@ -43,17 +44,23 @@
     variable maps:
     - name: airTemperatureAt2M
       alias: air_temperature
+    - name: specificHumidityAt2M
+      alias: water_vapor_mixing_ratio_wrt_moist_air
     variables:
     - name: stationPressure
     - name: airTemperatureAt2M
+    - name: specificHumidityAt2M
 
   # Observation Pre Filters (QC)
   # ------------------------------
 
-{% set assim_variables = ['stationPressure', 'airTemperatureAt2M'] %}
+{% set variables_2m = ['airTemperatureAt2M', 'specificHumidityAt2M'] %}
+{% set assim_variables = ['stationPressure', ] + variables_2m %}
 {% set assim_obstypes         = [181, 187] %}
-{# Prepbufr from the v16 obs-processing workflow has QM=9 and no obs error for (nearly) all 2m T.  #}
-{# If true, keep these obs with a 2.0 K error (as the GSI's ignore_2mQM). Can be overridden in the jcb config. #}
+
+{# Prepbufr from the v16 workflow has QM=9 and no obs error for (nearly) all 2m obs. #}
+{# This flag sets T2m and q2m obs with QM=9 to QM=2 and assign errors of 2.0 K and #}
+{# 0.1 (relative humidity fraction). This is equivalent to GSI's ignore_2mQM flag. #}
 {% set ignore_2mQM_from_v16_prepbufr = ignore_2mQM_from_v16_prepbufr | default(true) %}
 
   obs pre filters:
@@ -82,13 +89,39 @@
       name: accept
 {% endfor %}
 
-  # save raw T2m for use in Ps processing
+{% for var in variables_2m %}
+  # save 2m obs before terrain-adjustment
   - filter: Variable Assignment
     assignments:
-    - name: MetaData/airTemperatureAt2MObserved
+    - name: MetaData/{{ var }}Observed
       type: float
-      source variable: ObsValue/airTemperatureAt2M
+      source variable: ObsValue/{{ var }}
       skip derived: true
+{% endfor %}
+
+{% if ignore_2mQM_from_v16_prepbufr %}
+{% set qm9_obs_errors = {'airTemperatureAt2M': 2.0, 'specificHumidityAt2M': 0.1} %}
+{% for var in variables_2m %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 9
+    action:
+      name: assign error
+      error parameter: {{ qm9_obs_errors[var] }}
+
+  - filter: Variable Assignment
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 9
+    assignments:
+    - name: QualityMarker/{{ var }}
+      type: int
+      value: 2
+{% endfor %}
+{% endif %}
 
   # Observation Prior Filters (QC)
   # ------------------------------
@@ -122,37 +155,57 @@
         name: QualityMarker/height
       is_in: 7, 8, 10-14
 
-  # temperature QC
+  - filter: RejectList
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: MetaData/height
+      value: is_not_valid
+
+  # temperature and humidity QC
   # ---------------------------------
 
+  # same reject list for both variables
   - filter: RejectList
     filter variables:
     - name: airTemperatureAt2M
+    - name: specificHumidityAt2M
     where:
     - variable:
         name: MetaData/stationIdentification
       is_in: {{ get_conventional_rejected_stations(observation_from_jcb, 'airTemperatureAt2M') }}
 
-  # if ignore_2mQM_from_v16_prepbufr, keep QM=9 obs (GSI ignore_2mQM treats QM=9 as QM=2)
+{% for var in variables_2m %}
   - filter: RejectList
     filter variables:
-    - name: airTemperatureAt2M
+    - name: {{ var }}
     where:
-    - variable: QualityMarker/airTemperatureAt2M
-{% if ignore_2mQM_from_v16_prepbufr %}
-      is_in: 8, 10-15
-{% else %}
+    - variable: QualityMarker/{{ var }}
       is_in: 8-15
-{% endif %}
       value: is_not_valid
     where operator: or
 
   - filter: RejectList
     filter variables:
-    - name: airTemperatureAt2M
+    - name: {{ var }}
     where:
     - variable: QualityMarker/stationPressure
       is_in: 8-15
+{% endfor %}
+
+# to-do: replace with land_frac
+# to-do: check for land for GSI Ps
+{% for var in variables_2m %}
+  - filter: RejectList
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: GeoVaLs/slmsk
+      maxvalue: 0.5
+    - variable: GeoVaLs/slmsk
+      minvalue: 1.5
+    where operator: or
+{% endfor %}
 
   - filter: Bounds Check
     filter variables:
@@ -160,17 +213,44 @@
     minvalue: 100
     maxvalue: 400
 
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/stationMinusModelHeight
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: MetaData/stationElevation
+          - name: GeoVaLs/height_above_mean_sea_level_at_surface
+          coefs: [1.0, -1.0]
+
+  - filter: RejectList
+    filter variables:
+    - name: airTemperatureAt2M
+    - name: specificHumidityAt2M
+    where:
+    - variable: DerivedMetaData/stationMinusModelHeight
+      maxvalue: -300.0
+    - variable: DerivedMetaData/stationMinusModelHeight
+      minvalue: 300.0
+    - variable: DerivedMetaData/stationMinusModelHeight
+      value: is_not_valid
+    where operator: or
+
   # temporal thinning
   # ---------------------------------
   # TURN ON FOR TESTING l_closeobs=True (temporal filter, instead of error inflation)
+{% for var in assim_variables %}
   - filter: Temporal Thinning
     filter variables:
-    - name: stationPressure
+    - name: {{ var }}
     category_variable: MetaData/stationIdentification
     min_spacing: PT6H
     seed_time: '{{ atmosphere_background_time_iso }}'
     action:
       name: reject
+{% endfor %}
 
   # TURN OFF FOR TESTING, l_closeobs=False
   # order matters - compute duplicate check (here) then apply O-F check
@@ -185,16 +265,12 @@
   #        use_air_pressure: false
   #        variable: stationPressure
 
-  - filter: Temporal Thinning
-    filter variables:
-    - name: airTemperatureAt2M
-    category_variable: MetaData/stationIdentification
-    min_spacing: PT6H
-    seed_time: '{{ atmosphere_background_time_iso }}'
-    action:
-      name: reject
+  # to do - add duplicate check for T and q
 
-  # stationPressure error assignments
+  # error assignments
+  # ---------------------------------
+
+  # set initial errors, then save
   # ---------------------------------
 
   - filter: Perform Action
@@ -231,25 +307,68 @@
           xvals: [85000, 80000, 60000, 55000]
           errors: [120, 140, 140, 1.0e+11]
  
-  # save initial error assignment
+  # order matters: before conversion to q units 
+  - filter: RejectList
+    filter variables:
+    - name: specificHumidityAt2M
+    where:
+    - variable: ObsErrorData/specificHumidityAt2M
+      value: is_not_valid
+
+  # convert into specific humidity units, by *qsat_mod
   - filter: Variable Assignment
     assignments:
-    - name: InputObsError/stationPressure
+    - name: RelativeHumidityObsError/specificHumidityAt2M
       type: float
-      source variable: ObsErrorData/stationPressure
+      source variable: ObsErrorData/specificHumidityAt2M
 
-  # Adjustments to obs errors
   - filter: Perform Action
     filter variables:
-    - name: stationPressure
+    - name: specificHumidityAt2M
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorSatSpecHumidity
+        options:
+          variable: specificHumidityAt2M
+          input_error_name: RelativeHumidityObsError
+          surface observation types: {{ assim_obstypes }}
+          surface saturation specific humidity:
+            name: GeoVaLs/saturation_water_vapor_mixing_ratio_wrt_moist_air_at_2m
+
+  - filter: Perform Action
+    filter variables:
+    - name: specificHumidityAt2M
     where:
-    - variable: QualityMarker/stationPressure
-      is_in: 3
+    - variable: ObsErrorData/specificHumidityAt2M
+      maxvalue: 1.0e-4
+    action:
+      name: assign error
+      error parameter: 1.0e-4
+
+{% for var in assim_variables %}
+  - filter: Variable Assignment
+    assignments:
+    - name: InputObsError/{{ var }}
+      type: float
+      source variable: ObsErrorData/{{ var }}
+{% endfor %}
+
+  # apply error inflation terms
+  # ---------------------------------
+
+{% for var in assim_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 3, 7
     action:
       name: inflate error
       inflation factor: 1.2
+{% endfor %}
 
-  # Compute and apply inflation factor from model-observation terrain mismatch
   - filter: Perform Action
     filter variables:
     - name: stationPressure
@@ -262,82 +381,6 @@
           geovar_geomz: geopotential_height
           station_altitude: height
           observed temperature variable: MetaData/airTemperatureAt2MObserved
-
-  # temperature error assignments
-  # ---------------------------------
-
-{% if ignore_2mQM_from_v16_prepbufr %}
-  # GSI ignore_2mQM: QM=9 obs have no obs error, assign 2.0 K
-  - filter: Perform Action
-    filter variables:
-    - name: airTemperatureAt2M
-    where:
-    - variable: QualityMarker/airTemperatureAt2M
-      is_in: 9
-    action:
-      name: assign error
-      error parameter: 2.0
-
-{% endif %}
-  - filter: Variable Assignment
-    assignments:
-    - name: InputObsError/airTemperatureAt2M
-      type: float
-      source variable: ObsErrorData/airTemperatureAt2M
-
-  - filter: Perform Action
-    filter variables:
-    - name: airTemperatureAt2M
-    where:
-    - variable: QualityMarker/airTemperatureAt2M
-      is_in: 3, 7
-    action:
-      name: inflate error
-      inflation factor: 1.2
-
-  - filter: Bounds Check
-    filter variables:
-    - name: airTemperatureAt2M
-    test variables:
-    - name: ObsErrorData/airTemperatureAt2M
-    minvalue: 0.0
-    maxvalue: 1000
-
- # to-do: replace with land_frac (add to state vars)
-  - filter: RejectList
-    filter variables:
-    - name: airTemperatureAt2M
-    where:
-    - variable: GeoVaLs/slmsk
-      maxvalue: 0.5
-    - variable: GeoVaLs/slmsk
-      minvalue: 1.5
-    where operator: or
-
-  - filter: Variable Assignment
-    assignments:
-    - name: DerivedMetaData/stationMinusModelHeight
-      type: float
-      function:
-        name: ObsFunction/Arithmetic
-        options:
-          variables:
-          - name: MetaData/stationElevation
-          - name: GeoVaLs/height_above_mean_sea_level_at_surface
-          coefs: [1.0, -1.0]
-
-  - filter: RejectList
-    filter variables:
-    - name: airTemperatureAt2M
-    where:
-    - variable: DerivedMetaData/stationMinusModelHeight
-      maxvalue: -300.0
-    - variable: DerivedMetaData/stationMinusModelHeight
-      minvalue: 300.0
-    - variable: DerivedMetaData/stationMinusModelHeight
-      value: is_not_valid
-    where operator: or
-    defer to post: true # needs GeoVaLs/height_above_mean_sea_level_at_surface
 
   # order matters - adjust obs to the model terrain height (here), then
   # inflate obs errors for the adjustment and apply O-F checks
@@ -370,14 +413,68 @@
           - name: DerivedMetaData/stationMinusModelHeight
           coefs: [1.0, 0.00225]
           absolute value: [false, true]
-    defer to post: true # needs GeoVaLs/height_above_mean_sea_level_at_surface
+
+  # order matters - adjust obs to the model terrain height (here), then
+  # inflate obs errors for the adjustment and apply O-F checks
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/airTemperatureAt2MModelAtStation
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: GeoVaLs/air_temperature_at_2m
+          - name: MetaData/stationElevation
+          - name: GeoVaLs/height_above_mean_sea_level_at_surface
+          coefs: [1.0, -0.0045, 0.0045]
+
+  # order matters - adjust obs to the model terrain height, then inflate obs
+  # errors for the adjustment (here)
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedObsValue/specificHumidityAt2M
+      type: float
+      function:
+        name: ObsFunction/ModelHeightAdjustedSpecificHumidity
+        options:
+          observed specific humidity variable: MetaData/specificHumidityAt2MObserved
+          observed temperature variable: DerivedMetaData/airTemperatureAt2MModelAtStation
+          adjusted temperature variable: GeoVaLs/air_temperature_at_2m
+          station pressure variable: GeoVaLs/air_pressure_at_surface
+
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/specificHumidityAt2MTerrainAdjustment
+      type: float
+      function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: DerivedObsValue/specificHumidityAt2M
+          - name: MetaData/specificHumidityAt2MObserved
+          coefs: [1.0, -1.0]
+
+  - filter: Perform Action
+    filter variables:
+    - name: specificHumidityAt2M
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsErrorData/specificHumidityAt2M
+          - name: DerivedMetaData/specificHumidityAt2MTerrainAdjustment
+          coefs: [1.0, 0.5]
+          absolute value: [false, true]
 
   # Observation Post Filters (QC)
   # -----------------------------
 
   obs post filters:
 
-  # stationPressure background checks
+  # background checks
   # ---------------------------------
 
   - filter: Background Check
@@ -412,20 +509,6 @@
     action:
       name: reject
 
-  # TURN OFF FOR TESTING l_closeobs=False (temporal filter, instead of error inflation)
-  # order matters - compute duplicate check, then apply O-F check
-  # using initial errors, then apply duplicate error inflation (here)
-  #- filter: Perform Action
-  #  filter variables:
-  #  - name: stationPressure
-  #  action:
-  #    name: inflate error
-  #    inflation variable:
-  #      name: ObsErrorFactorDuplicateCheck/stationPressure
-
-  # temperature background checks
-  # ---------------------------------
-
   # GSI gross check (convinfo: gross 5.0, ermin = ermax = 2.0):
   # the error is always clamped to 2.0, so reject |O-B| > 2.0 * 5.0
   - filter: Background Check
@@ -448,6 +531,53 @@
     absolute threshold: 7.0
     action:
       name: reject
+
+  # GSI gross check (convinfo: gross 5.0, ermin = ermax = 10% RH):
+  # the error is always clamped to 0.1 * qsat, so reject |O-B| > 0.1 * 5.0 * qsat
+  - filter: Background Check
+    filter variables:
+    - name: specificHumidityAt2M
+    where:
+    - variable: QualityMarker/specificHumidityAt2M
+      is_not_in: 3
+    function absolute threshold:
+    - name: ObsFunction/Arithmetic
+      options:
+        variables:
+        - name: GeoVaLs/saturation_water_vapor_mixing_ratio_wrt_moist_air_at_2m
+        coefs: [0.5]
+    action:
+      name: reject
+
+  # GSI tightens the gross limit for QM=3 obs: reject |O-B| > 0.1 * (0.7 * 5.0) * qsat
+  - filter: Background Check
+    filter variables:
+    - name: specificHumidityAt2M
+    where:
+    - variable: QualityMarker/specificHumidityAt2M
+      is_in: 3
+    function absolute threshold:
+    - name: ObsFunction/Arithmetic
+      options:
+        variables:
+        - name: GeoVaLs/saturation_water_vapor_mixing_ratio_wrt_moist_air_at_2m
+        coefs: [0.35]
+    action:
+      name: reject
+
+  # Apply duplicate error inflation
+  # ---------------------------------
+
+  # TURN OFF FOR TESTING l_closeobs=False (temporal filter, instead of error inflation)
+  # order matters - compute duplicate check, then apply O-F check
+  # using initial errors, then apply duplicate error inflation (here)
+  #- filter: Perform Action
+  #  filter variables:
+  #  - name: stationPressure
+  #  action:
+  #    name: inflate error
+  #    inflation variable:
+  #      name: ObsErrorFactorDuplicateCheck/stationPressure
 
   # End of Filters
 

@@ -70,7 +70,7 @@
   # remove all records not in desired obs type from obs space
   # reject all obs not of desired variable
   # --------------------------------
- 
+
   - filter: Perform Action
     where:
     - variable:
@@ -123,6 +123,13 @@
         name: QualityMarker/height
       is_in: 7, 8, 10-14
 
+  - filter: RejectList
+    filter variables:
+    - name: stationPressure
+    where:
+    - variable: MetaData/height
+      value: is_not_valid
+
   # temperature QC
   # ---------------------------------
 
@@ -150,20 +157,33 @@
     maxvalue: 400
 {% endfor %}
 
+  # reject obs above the highest model level (0.013 hPa)
+  - filter: Bounds Check
+    filter variables:
+    - name: virtualTemperature
+    - name: airTemperature
+    test variables:
+    - name: MetaData/pressure
+    minvalue: 1.3
+
   # temporal thinning
   # ---------------------------------
   # TURN ON FOR TESTING l_closeobs=True (temporal filter, instead of error inflation)
   - filter: Temporal Thinning
     filter variables:
     - name: stationPressure
-    category_variable: MetaData/stationIdentification
+    - name: virtualTemperature
+    - name: airTemperature
+    category_variable:
+      name: MetaData/stationIdentification
+    records_are_single_obs: true
     min_spacing: PT6H
     seed_time: '{{ atmosphere_background_time_iso }}'
     action:
       name: reject
 
-  # TURN OFF FOR TESTING, l_closeobs=False 
-  # order matters - compute duplicate check (here) then apply O-F check 
+  # TURN OFF FOR TESTING, l_closeobs=False
+  # order matters - compute duplicate check (here) then apply O-F check
   # using initial errors, then apply duplicate error inflation
   #- filter: Variable Assignment
   #  assignments:
@@ -175,19 +195,10 @@
   #        use_air_pressure: false
   #        variable: stationPressure
 
-  - filter: Temporal Thinning
-    filter variables:
-    - name: virtualTemperature
-    - name: airTemperature
-    category_variable:
-      name: MetaData/stationIdentification
-    records_are_single_obs: true
-    min_spacing: PT6H
-    seed_time: '{{ atmosphere_background_time_iso }}'
-    action:
-      name: reject
+  # error assignments
+  # ---------------------------------
 
-  # stationPressure error assignments
+  # set initial errors, then save
   # ---------------------------------
 
   - filter: Perform Action
@@ -204,25 +215,29 @@
           xvals: [80000, 75000, 60000, 55000]
           errors: [110, 120, 120, 1.0e+11]
 
-  # save initial error assignmnet
+{% for var in assim_variables %}
   - filter: Variable Assignment
     assignments:
-    - name: InputObsError/stationPressure
+    - name: InputObsError/{{ var }}
       type: float
-      source variable: ObsErrorData/stationPressure
- 
-  # Adjustments to obs errors
+      source variable: ObsErrorData/{{ var }}
+{% endfor %}
+
+  # apply error inflation terms
+  # ---------------------------------
+
+{% for var in assim_variables %}
   - filter: Perform Action
     filter variables:
-    - name: stationPressure
+    - name: {{ var }}
     where:
-    - variable: QualityMarker/stationPressure
-      is_in: 3
+    - variable: QualityMarker/{{ var }}
+      is_in: 3, 7
     action:
       name: inflate error
       inflation factor: 1.2
+{% endfor %}
 
-  # Compute and apply inflation factor from model-observation terrain mismatch
   - filter: Perform Action
     filter variables:
     - name: stationPressure
@@ -236,27 +251,8 @@
           station_altitude: height
           observed temperature variable: airTemperature
           observed specific humidity variable: specificHumidity
- 
-  # temperature error assignments
-  # ---------------------------------
 
 {% for var in temperature_variables %}
-  - filter: Variable Assignment
-    assignments:
-    - name: InputObsError/{{ var }}
-      type: float
-      source variable: ObsErrorData/{{ var }}
-
-  - filter: Perform Action
-    filter variables:
-    - name: {{ var }}
-    where:
-    - variable: QualityMarker/{{ var }}
-      is_in: 3, 7
-    action:
-      name: inflate error
-      inflation factor: 1.2
-
   - filter: Perform Action
     filter variables:
     - name: {{ var }}
@@ -266,18 +262,10 @@
     action:
       name: inflate error
       inflation factor: 1.2
-
-  - filter: Bounds Check
-    filter variables:
-    - name: {{ var }}
-    test variables:
-    - name: ObsErrorData/{{ var }}
-    minvalue: 0.0
-    maxvalue: 1000
 {% endfor %}
 
   # order matters - Use the full T dry profile to compute error inflation (here)
-  # then reject T dry where have T virtual.
+  # then reject T dry where have T virtual, and additive inflation for below-surface.
   - filter: Variable Assignment
     assignments:
     - name: ErrormodFactor/airTemperature
@@ -299,6 +287,26 @@
 {% endfor %}
 
   # order matters - Use the full T dry profile to compute error inflation
+  # then additive inflation for below-surface (here). 
+{% for var in temperature_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsErrorData/{{ var }}
+          - name: ObsFunction/ModelLevelsBelowSurface
+          coefs: [1.0, 8.0]
+{% endfor %}
+ 
+  # reduce to keep T virtual where present, otherwise Tdry. 
+  # ----------------------------------
+
+  # order matters - Use the full T dry profile to compute error inflation
   # then reject T dry where have T virtual (here)
   - filter: Perform Action
     filter variables:
@@ -309,27 +317,12 @@
     action:
       name: reject
 
-  # order matters - do after ErrormodFactor inflations
-{% for var in temperature_variables %}
-  - filter: Perform Action
-    filter variables:
-    - name: {{ var }}
-    action:
-      name: inflate error
-      inflation variable:
-        name: ObsFunction/ObsErrorFactorPressureCheck
-        options:
-          variable: {{ var }}
-          surface observation error ramp: false
-          inflation factor: 8.0
-{% endfor %}
-
   # Observation Post Filters (QC)
   # -----------------------------
 
   obs post filters:
 
-  # stationPressure background checks
+  # background checks
   # ---------------------------------
 
   - filter: Background Check
@@ -363,21 +356,6 @@
         obserr_bound_factor: 3.5
     action:
       name: reject
-
-  # TURN OFF FOR TESTING l_closeobs=False (temporal filter, instead of error inflation)
-  # order matters - compute duplicate check, then apply O-F check 
-  # using initial errors, then apply duplicate error inflation (here)
-  #- filter: Perform Action
-  #  filter variables:
-  #  - name: stationPressure
-  #  action:
-  #    name: inflate error
-  #    inflation variable:
-  #      name: ObsErrorFactorDuplicateCheck/stationPressure
-
-
-  # temperature background checks
-  # ---------------------------------
 
   # GSI gross check (convinfo: gross 8.0, ermin 1.3, ermax 5.6):
 {% for var in temperature_variables %}
@@ -414,6 +392,20 @@
     action:
       name: reject
 {% endfor %}
+
+  # Apply duplicate error inflation
+  # ---------------------------------
+
+  # TURN OFF FOR TESTING l_closeobs=False (temporal filter, instead of error inflation)
+  # order matters - compute duplicate check, then apply O-F check
+  # using initial errors, then apply duplicate error inflation (here)
+  #- filter: Perform Action
+  #  filter variables:
+  #  - name: stationPressure
+  #  action:
+  #    name: inflate error
+  #    inflation variable:
+  #      name: ObsErrorFactorDuplicateCheck/stationPressure
 
   # End of Filters
 
