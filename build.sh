@@ -78,7 +78,7 @@ while getopts "w:t:c:hvdfai" opt; do
 done
 
 case ${BUILD_TARGET} in
-  hera | orion | hercules | wcoss2 | noaacloud | gaeac6 | ursa | derecho | aws-ec2 )
+  hera | orion | hercules | wcoss2 | noaacloud | gaeac6 | ursa | derecho | aws-ec2 | nimbus )
     echo "Building GDASApp on $BUILD_TARGET"
     source $dir_root/ush/module-setup.sh
     module use $dir_root/modulefiles
@@ -103,6 +103,14 @@ if [[ $BUILD_TARGET == 'wcoss2' ]]; then
   export LMOD_MPI_VERSION=8.1.29-xhbciau
 fi
 
+# TODO: remove this patch when compiler issue fixed
+if [[ $BUILD_TARGET == 'nimbus' ]]; then
+    CMAKE_AR=/opt/intel/oneapi/compiler/2026.1/bin/compiler/llvm-ar
+    CMAKE_RANLIB=/opt/intel/oneapi/compiler/2026.1/bin/compiler/llvm-ranlib
+    CMAKE_OPTS+=" -DCMAKE_AR=${CMAKE_AR}"
+    CMAKE_OPTS+=" -DCMAKE_RANLIB=${CMAKE_RANLIB}"
+fi
+
 BUILD_DIR=${BUILD_DIR:-$dir_root/build}
 if [[ $CLEAN_BUILD == 'YES' ]]; then
   [[ -d ${BUILD_DIR} ]] && rm -rf ${BUILD_DIR}
@@ -111,6 +119,12 @@ mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
 
 # Set WORKFLOW_TESTS as CMake option
 CMAKE_OPTS+=" -DWORKFLOW_TESTS=${WORKFLOW_TESTS:-${WORKFLOW_BUILD}}"
+
+# Optional: build SABER against libtorch if Torch_ROOT is set in the environment
+if [[ -n "${Torch_ROOT:-}" ]]; then
+  echo "Building with Torch from ${Torch_ROOT}"
+  CMAKE_OPTS+=" -DTorch_ROOT=${Torch_ROOT}"
+fi
 
 if [[ $BUILD_SOCA == 'ON' ]]; then
   if [[ $WORKFLOW_BUILD == 'ON' ]]; then

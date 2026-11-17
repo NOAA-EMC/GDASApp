@@ -14,6 +14,7 @@ PostProcIncr::PostProcIncr(const eckit::Configuration & fullConfig, const soca::
       ensSize_(1),
       setToZero_(false),
       doLVC_(false),
+      rotate_(false),
       pattern_() {
     oops::Log::info() << "Date: " << std::endl << dt_ << std::endl;
 
@@ -37,6 +38,14 @@ PostProcIncr::PostProcIncr(const eckit::Configuration & fullConfig, const soca::
       oops::Variables socaZeroIncrVar(fullConfig, "set increment variables to zero");
       socaZeroIncrVar_ = socaZeroIncrVar;
       setToZero_ = true;
+    }
+
+    if ( fullConfig.has("rotate increment to grid") ) {
+      const eckit::LocalConfiguration rotConfig(fullConfig, "rotate increment to grid");
+      uRot_ = oops::Variables(rotConfig, "u");
+      vRot_ = oops::Variables(rotConfig, "v");
+      ASSERT(uRot_.size() == vRot_.size());
+      rotate_ = true;
     }
 }
 
@@ -124,6 +133,58 @@ void PostProcIncr::setToZero(soca::Increment& socaIncr) {
   }
   socaIncr.fromFieldSet(socaIncrFs);
   oops::Log::debug() << "-------------------- increment with zero'ed out fields: " << std::endl;
+  oops::Log::debug() << socaIncr << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+void PostProcIncr::rotate2grid(soca::Increment& socaIncr) const {
+  oops::Log::info() << "==========================================" << std::endl;
+  if (!this->rotate_) {
+    oops::Log::info() << "======      no vector increments to rotate" << std::endl;
+    return;
+  }
+  oops::Log::info() << "======      Rotate vector increments from geographical to logical grid"
+                    << std::endl;
+
+  atlas::FieldSet socaIncrFs;
+  socaIncr.toFieldSet(socaIncrFs);
+
+  const auto & geomFs = socaIncr.geometry().fields();
+  const auto cosView = atlas::array::make_view<double, 2>(geomFs.field("cos_rot"));
+  const auto sinView = atlas::array::make_view<double, 2>(geomFs.field("sin_rot"));
+  const auto ghostView =
+    atlas::array::make_view<int, 1>(socaIncr.geometry().functionSpace().ghost());
+
+  for (size_t n = 0; n < uRot_.size(); ++n) {
+    const std::string & uName = uRot_[n].name();
+    const std::string & vName = vRot_[n].name();
+    if (!socaIncrFs.has(uName) || !socaIncrFs.has(vName)) {
+      throw eckit::UserError("Increment variables " + uName + " or " + vName + " not found.",
+                             Here());
+    }
+    oops::Log::info() << "rotating " << uName << " and " << vName << std::endl;
+
+    atlas::Field uField = socaIncrFs[uName];
+    atlas::Field vField = socaIncrFs[vName];
+    auto uView = atlas::array::make_view<double, 2>(uField);
+    auto vView = atlas::array::make_view<double, 2>(vField);
+    ASSERT(uView.shape(1) == vView.shape(1));
+
+    // Ghost points are skipped: cos_rot/sin_rot are only set on owned points
+    for (atlas::idx_t i = 0; i < uView.shape(0); ++i) {
+      if (ghostView(i)) continue;
+      for (atlas::idx_t j = 0; j < uView.shape(1); ++j) {
+        const double uGeo = uView(i, j);
+        const double vGeo = vView(i, j);
+        uView(i, j) = uGeo * cosView(i, 0) - vGeo * sinView(i, 0);
+        vView(i, j) = uGeo * sinView(i, 0) + vGeo * cosView(i, 0);
+      }
+    }
+    uField.set_dirty();
+    vField.set_dirty();
+  }
+  socaIncr.fromFieldSet(socaIncrFs);
+  oops::Log::debug() << "-------------------- increment with rotated vector fields: " << std::endl;
   oops::Log::debug() << socaIncr << std::endl;
 }
 

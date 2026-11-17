@@ -1,0 +1,11 @@
+{# Geometry options shared by every coupled geometry block.
+
+   GeometryCoupled is left at its default, parallel: false, so every rank constructs both
+   geometries and the task count must be a valid decomposition for both models at once.
+
+   GeometryCoupled splits the requested GeoVaLs between the two models by the variable list
+   each declares, and errors on any variable neither claims or both claim. The include and
+   exclude lists below correct each model's default list; see the coupled base for why. #}
+FV3JEDI exclude variables: {{ coupled_fv3jedi_exclude_variables }}
+SOCA include variables: {{ coupled_soca_include_variables }}
+SOCA exclude variables: {{ coupled_soca_exclude_variables }}
