@@ -15,11 +15,19 @@
 
 # State variables
 marine_det_state_variables: {{ marine_analysis_vars + ['air_temperature',
-                                                 'bulk_ice_salinity',
+                                                 'sea_ice_salinity',
                                                  'sea_water_cell_thickness',
                                                  'sea_water_depth',
                                                  'ocean_mixed_layer_thickness',
-                                                 'snow_ice_surface_temperature'] }}
+                                                 'snow_ice_surface_temperature',
+                                                 'eastward_wind',
+                                                 'northward_wind',
+                                                 'water_vapor_mixing_ratio_wrt_moist_air',
+                                                 'surface_downwelling_longwave_flux_in_air',
+                                                 'surface_downwelling_shortwave_flux_in_air',
+                                                 'sea_ice_strain_rate_divergence',
+                                                 'sea_ice_strain_rate_shear',
+                                                 'pole_selector'] }}
 
 marine_saber_central_block_variables: {{ ['sea_ice_area_fraction',
                                           'sea_water_salinity',
@@ -56,6 +64,19 @@ marine_background_time: '{{ marine_background_time | default(WINDOW_BEGIN, true)
 marine_background_ocn_filename: {{ marine_background_ocn_filename }}
 marine_background_ice_filename: {{ marine_background_ice_filename }}
 {% endif %}
+
+# NICAS horizontal length scales (m) for the marine B (static and ensemble localization),
+# per ocean resolution. BUMP sizes the NICAS subset as nc1 ~ 240017*(200 km/L)^2 over the
+# global ocean; if that exceeds what the analysis grid can hold, the run aborts with
+# "effective resolution is too low". The 5 deg grid has only ~1900 wet points.
+{% set marine_nicas_by_res = {
+     '500': {'long': 2000.0e3, 'short': 1500.0e3, 'loc': 2000.0e3},
+   } %}
+{% set marine_nicas = marine_nicas_by_res.get('%03d'|format(OCNRES|default(25)|int),
+                                              {'long': 200.0e3, 'short': 100.0e3, 'loc': 300.0e3}) %}
+marine_nicas_hz_long: {{ marine_nicas.long }}
+marine_nicas_hz_short: {{ marine_nicas.short }}
+marine_nicas_hz_ens_loc: {{ marine_nicas.loc }}
 
 # Pseudo model
 marine_forecast_timestep: PT3H

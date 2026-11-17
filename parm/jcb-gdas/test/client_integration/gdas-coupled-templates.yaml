@@ -179,6 +179,9 @@ marine_output_dir: Data
 marine_output_exp: 3dvar_coupled
 marine_output_freq: PT6H
 marine_stddev_time: '2020-12-14T21:00:00Z'
+marine_nicas_hz_long: 200000.0
+marine_nicas_hz_short: 100000.0
+marine_nicas_hz_ens_loc: 300000.0
 
 # Centralized marine variable lists (see the marine client config, which these mirror)
 marine_det_state_variables: [sea_ice_area_fraction, sea_ice_thickness, sea_ice_snow_thickness, sea_water_salinity, sea_water_potential_temperature, sea_surface_height_above_geoid, air_temperature, bulk_ice_salinity, sea_water_cell_thickness, sea_water_depth, ocean_mixed_layer_thickness, snow_ice_surface_temperature]
