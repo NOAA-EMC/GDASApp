@@ -498,6 +498,45 @@ C48mx500_hybAOWCDA:
         - F:gdas_marineanlchkpt
         - F:enkfgdas_marineanlletkf
 
+C48mx500_coupledDA:
+  half_cycle:
+    tasks:
+      - gdas_stage_ic
+      - gdas_fcst
+    dependencies:
+      gdas_fcst:
+        - H:gdas_stage_ic
+  full_cycle:
+    tasks:
+      - gdas_prepoceanobs
+      - gdas_marinebmatinit
+      - gdas_marinebmat
+      - gdas_coupledanlinit
+      - gdas_coupledanlvar
+      - gdas_coupledanlfv3inc
+      - gdas_coupledanlchkpt
+      - gdas_coupledanlfinal
+    dependencies:
+      gdas_prepoceanobs:
+        - H:gdas_fcst
+      gdas_marinebmatinit:
+        - H:gdas_fcst
+      gdas_marinebmat:
+        - F:gdas_marinebmatinit
+      gdas_coupledanlinit:
+        - H:gdas_fcst
+        - F:gdas_prepoceanobs
+        - F:gdas_marinebmat
+      gdas_coupledanlvar:
+        - F:gdas_coupledanlinit
+      gdas_coupledanlfv3inc:
+        - F:gdas_coupledanlvar
+      gdas_coupledanlchkpt:
+        - F:gdas_coupledanlvar
+      gdas_coupledanlfinal:
+        - F:gdas_coupledanlfv3inc
+        - F:gdas_coupledanlchkpt
+
 C384mx025_3DVarAOWCDA:
   half_cycle:
     tasks:

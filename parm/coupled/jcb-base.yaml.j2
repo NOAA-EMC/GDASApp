@@ -1,0 +1,193 @@
+{# Coupled (FV3JEDI atmosphere + SOCA ocean/ice) JCB base.
+
+   The two component key blocks are included at the bottom. Every key in them is prefixed
+   with its component name, so the two combine without collisions; the unprefixed
+   assimilation keys all live here, where the coupled application makes one choice for
+   both components. #}
+# Search path for model and obs for JCB
+# -------------------------------------
+# app_path_model ending in 'coupled' makes the renderer derive model_component = 'coupled_',
+# so the stock algorithm templates pick up the coupled wrappers. The _extra paths put both
+# components' fragments on the search path for those wrappers to include, and make
+# all_observations span both observation directories.
+algorithm_path: '{{PARMglobal}}/gdas/jcb-algorithms'
+app_path_model: '{{PARMglobal}}/gdas/jcb-gdas/model/coupled'
+app_paths_model_extra:
+- '{{PARMglobal}}/gdas/jcb-gdas/model/atmosphere'
+- '{{PARMglobal}}/gdas/jcb-gdas/model/marine'
+app_path_observations: '{{PARMglobal}}/gdas/jcb-gdas/observations/atmosphere'
+app_paths_observations_extra:
+- '{{PARMglobal}}/gdas/jcb-gdas/observations/marine'
+# Only the atmosphere observations consult a chronicle; no marine observation template calls
+# the chronicle functions, and there is no marine chronicle directory.
+app_path_observation_chronicle: '{{PARMglobal}}/gdas/jcb-gdas/observation_chronicle/atmosphere'
+
+
+# Component variable lists
+# ------------------------
+# Restated from parm/atm/jcb-base.yaml.j2 and parm/marine/jcb-base.yaml.j2; the component
+# key blocks included at the bottom derive their state and increment variables from them.
+# Keep them in step with those two files. The coupled analysis is deterministic, so the
+# marine LETKF increment list is not needed.
+#
+# Both analysis lists are sorted. oops splits the coupled variables between the components
+# with Variables::intersection, which returns them in canonical (alphabetical) order, while
+# BalanceSOCA pairs its input and output fields by position. With the lists in any other
+# order the balance reads salinity from the SSH slot (and SSH from salinity), so salinity
+# observations produced no salinity increment. Sorting here makes every list the component
+# blocks derive from these match the order the coupled increment has.
+{% set atmosphere_analysis_vars = ['eastward_wind',
+                                    'northward_wind',
+                                    'air_temperature',
+                                    'water_vapor_mixing_ratio_wrt_moist_air',
+                                    'cloud_liquid_ice',
+                                    'cloud_liquid_water',
+                                    'air_pressure_at_surface',
+                                    'ozone_mass_mixing_ratio',
+                                    'snow_water',
+                                    'rain_water',
+                                    'graupel',
+                                    'geopotential_height_at_surface',
+                                    'skin_temperature_at_surface'] | sort %}
+{% set atmosphere_increment_vars = atmosphere_analysis_vars %}
+{% set marine_analysis_vars = ['sea_ice_area_fraction',
+                                'sea_ice_thickness',
+                                'sea_ice_snow_thickness',
+                                'sea_water_salinity',
+                                'sea_water_potential_temperature',
+                                'sea_surface_height_above_geoid'] | sort %}
+{% set marine_increment_vars = ['sea_ice_area_fraction',
+                                 'sea_water_salinity',
+                                 'sea_water_potential_temperature',
+                                 'sea_surface_height_above_geoid',
+                                 'sea_water_cell_thickness',
+                                 'eastward_sea_water_velocity',
+                                 'northward_sea_water_velocity'] %}
+
+
+# Component key overrides for coupled DA
+# --------------------------------------
+# Coupled 3D-Var solves for one state, valid at the window middle. The marine keys are
+# written for the marine chain's 3DFGAT, whose background is the window-begin restart pair
+# propagated by a pseudo model; taking that unchanged would leave the ocean background
+# three hours earlier than the atmosphere's, and StateCoupled would report the coupled
+# state at the ocean's time. Point the ocean and sea ice background at the f006 history
+# instead, which is the same time the atmosphere background is read at.
+{% set marine_background_path = './bkg/' %}
+{% set marine_background_time = WINDOW_MIDDLE %}
+{% set marine_background_ocn_filename = 'ocean.bkg.f006.nc' %}
+{% set marine_background_ice_filename = 'ice.bkg.f006.nc' %}
+
+
+# Coupling definition
+# -------------------
+# name = the YAML key each component is emitted under, and the name its Trait reports;
+# dir = the model directory, and the prefix of that component's fragments.
+coupled_components:
+- name: FV3JEDI
+  dir: atmosphere
+- name: SOCA
+  dir: marine
+
+# Per-component fragment selection, keyed by component dir
+coupled_background_error_files:
+  atmosphere: '{{ BERROR_YAML }}'
+  marine: '{{ berror_model }}'
+
+# The final increment wrapper appends _writer / _geometry to each of these
+coupled_final_increment_files:
+  atmosphere: atmosphere_final_increment_cubed_sphere
+  marine: marine_final_increment
+
+coupled_output_files:
+  atmosphere: atmosphere_output_cubed_sphere
+  marine: marine_output
+
+# Each model declares a variable list, and GeometryCoupled routes every requested GeoVaL to
+# whichever model claims it. Both defaults need correcting.
+#
+# FV3JEDI's default is every long name in its field metadata, which includes ocean names, so
+# drop those: each field must be claimed by exactly one component or the geometry refuses to
+# build.
+coupled_fv3jedi_exclude_variables:
+- sea_surface_temperature
+- sea_surface_height_above_geoid
+- sea_water_cell_thickness
+- sea_water_potential_temperature
+- sea_water_salinity
+- sea_surface_salinity
+
+# SOCA's default is a hardcoded list in soca::ModelData that omits variables its
+# Model2GeoVaLs can perfectly well produce. Nothing declares them, so an observation operator
+# asking for one fails with "Not all variables can be provided by the coupled model". These
+# three are what the ADT and Argo operators ask for. FV3JEDI declares none of them, so adding
+# them here cannot create an overlap. Model2GeoVaLs can also produce latitude and longitude,
+# which are deliberately left out: they are not ocean specific, and nothing should be routed
+# to SOCA for them without deciding that is what is wanted.
+#
+# sea_surface_temperature is the exception that needs both lists. SOCA provides it as the
+# surface name of sea_water_potential_temperature, but FV3JEDI declares it too, so it is
+# excluded above and claimed here: the ocean owns SST in a coupled analysis. Left with
+# FV3JEDI it would still resolve, and the SST, sea ice concentration, ADT, salinity and
+# in situ operators would all have been interpolating from the atmosphere, sending their
+# sensitivity to atmospheric variables instead of to ocean temperature. sea_surface_salinity
+# is the same case: FV3JEDI declares it, the SSS operators read it, and the ocean owns it.
+coupled_soca_include_variables:
+- sea_floor_depth_below_sea_surface
+- mesoscale_representation_error
+- sea_water_depth
+- sea_surface_temperature
+- sea_surface_salinity
+
+# skin_temperature_at_surface_where_sea, the water temperature CRTM reads for radiances, is
+# in both default lists. It is left with FV3JEDI and excluded from SOCA. SOCA's version is
+# interpolated from the masked ocean grid and comes back as a missing value at points the
+# MOM6 mask calls land but FV3 calls water; FOV-averaged, that made CRTM reject the water
+# surface (Invalid Water Surface data) and abort. With FV3JEDI providing it, radiances see the
+# same surface as in the atmosphere-only analysis and do not feed back on the ocean.
+coupled_soca_exclude_variables:
+- skin_temperature_at_surface_where_sea
+
+# Outer loop. One shared geometry and one minimizer across both components, so these
+# replace the per-component atmosphere_ninner_* / marine_ninner_*. There is one outer loop
+# (model/coupled has no second one).
+coupled_ninner_1: {{ COUPLED_NINNER_LOOP1 | default(2, true) }}
+coupled_grad_red_1: 1e-10
+
+
+# Places where we deviate from the generic file name of a yaml
+# ------------------------------------------------------------
+final_increment_file: coupled_final_increment
+# The analysis state. Only the ocean and ice halves are saved to COM, matching what the
+# marine chain writes today; the atmosphere half is written because StateCoupled needs a
+# block per component, and is then left in the run directory.
+output_file: coupled_output
+
+
+# Assimilation standard things (not prepended with model choice)
+# ----------------------------
+window_begin: '{{ WINDOW_BEGIN | to_isotime }}'
+window_length: '{{ WINDOW_LENGTH }}'
+bound_to_include: begin
+minimizer: DRPCG
+# One departures group name covers both components' observation files. 'oman' is what the
+# observation_statistics templates read, for the atmosphere as well as the marine.
+final_diagnostics_departures: oman
+final_prints_frequency: PT3H
+number_of_outer_loops: 1
+
+# The union of what the two separate analyses solve for today
+analysis_variables: {{ atmosphere_analysis_vars + marine_analysis_vars }}
+
+
+# Observation things
+# ------------------
+observations: all_observations
+
+crtm_coefficient_path: "{{ DATA }}/crtm/"
+
+
+# Component model keys
+# --------------------
+{% include PARMglobal ~ '/gdas/atm/atmosphere_jcb_keys.yaml.j2' %}
+{% include PARMglobal ~ '/gdas/marine/marine_jcb_keys.yaml.j2' %}

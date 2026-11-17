@@ -55,38 +55,9 @@ data_out:
     - '{{ COMOUT_OCEAN_ANALYSIS }}/bump'
 
     copy_req:
-    # Ocean IAU increment (intended for MOM6)
-    - ['{{ DATA }}/ocn.inc.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}mom6_increment.i006.nc']
-
-    # Ocean increment and analysis from JEDI
-    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
-    - ['{{ DATA }}/Data/ocn.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
-
-    # SeaIce increment and analysis from JEDI
-    - ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.incr.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_increment.i006.nc']
-    - ['{{ DATA }}/Data/ice.3dvarfgat_pseudo.an.{{ WINDOW_MIDDLE | to_isotime }}.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}jedi_analysis.a006.nc']
-
-    # Postprocessed ice increment
-    - ['{{ DATA }}/ice.inc.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ APREFIX }}pp_increment.i006.nc']
-
-    # ssh diagnostics
-    {% if NMEM_ENS > 2 %}
-    - ['{{ DATA }}/staticb/ocn.ssh_steric_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_steric_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.ssh_unbal_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_unbal_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.ssh_total_stddev.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}ssh_total_stddev.nc']
-    - ['{{ DATA }}/staticb/ocn.steric_explained_variance.incr.{{ WINDOW_BEGIN | to_isotime }}.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}steric_explained_variance.nc']
-    {% endif %}
-
-    # DA grid (computed for the start of the window)
-    - ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_ANALYSIS }}/{{ APREFIX }}jedi_gridspec.tm03.nc']
-
-    # CICE analysis restart
-    - ['{{ DATA }}/Data/{{ cice_rst_date }}.cice_model.res.nc', '{{ COMOUT_ICE_ANALYSIS }}/{{ cice_rst_date }}.analysis.cice_model.res.nc']
-
-    # YAML files
-    - ['{{ DATA }}/fields_metadata.yaml', '{{ COMOUT_CONF }}']
-    - ['{{ DATA }}/obsop_name_map.yaml', '{{ COMOUT_CONF }}/']
-    - ['{{ DATA }}/soca_incpostproc.yaml', '{{ COMOUT_CONF }}/']
+{% filter indent(width=4) %}
+{% include 'marine_det_save_anl.yaml.j2' %}
+{% endfilter %}
     - ['{{ DATA }}/var.yaml', '{{ COMOUT_CONF }}/']
 
     copy_opt:

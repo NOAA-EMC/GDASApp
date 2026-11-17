@@ -1,0 +1,27 @@
+# Observations assimilated by the coupled analysis. The default is what the atmosphere
+# (parm/atm/atm_obs_list.yaml.j2) and marine (parm/marine/obs/obs_list.yaml.j2) analyses
+# assimilate by default. Every entry must resolve in exactly one of the two observations/
+# directories.
+#
+# To assimilate a different set, point COUPLED_OBS_LIST at another file rather than
+# editing this one.
+observations:
+# Atmosphere
+- prepbufr_adpsfc
+- prepbufr_adpupa
+- prepbufr_sfcshp
+- radiance_atms_n20
+
+# ADT
+- adt_rads_all
+
+# SST
+- sst_avhrr_ma_l3u
+- sst_avhrr_mb_l3u
+- sst_avhrr_mc_l3u
+- sst_viirs_npp_l3u
+- sst_viirs_n20_l3u
+
+# Ice concentration
+- icec_amsr2_north
+- icec_amsr2_south
