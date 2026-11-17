@@ -194,6 +194,18 @@ if (WORKFLOW_TESTS)
     set(pslot "C96C48_hybatmsnowDA")
     set(YAML_PATH ${HOMEglobal}/dev/ci/cases/pr/${pslot}.yaml)
     add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEglobal} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR})
+    
+    # Soil DA with GSI EnKF C96/C48
+    # ----------------------------
+    set(pslot "C96C48_hybatmsoilDA")
+    set(YAML_PATH ${HOMEglobal}/dev/ci/cases/pr/${pslot}.yaml)
+    add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEglobal} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR})
+    
+    # Soil DA with JEDI 2DVar and LETKF C96/C48
+    # ----------------------------
+    set(pslot "C96C48_ufs_hybatmsoilDA")
+    set(YAML_PATH ${HOMEglobal}/dev/ci/cases/pr/${pslot}.yaml)
+    add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEglobal} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR})
   endif()  # TEST_LAND
 
   if(${TEST_MARINE_VAR})
