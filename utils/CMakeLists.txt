@@ -21,6 +21,12 @@ if (BUILD_IJEDI)
 endif()
 find_package(fv3jedi REQUIRED)
 
+# GDASApp root, so the utilities include each other as "utils/<dir>/<header>". The bundle reaches
+# this directory through a symlink (bundle/gdas-utils), so resolve it before going up.
+get_filename_component(GDAS_UTILS_DIR ${CMAKE_CURRENT_SOURCE_DIR} REALPATH)
+get_filename_component(GDAS_ROOT_DIR ${GDAS_UTILS_DIR} DIRECTORY)
+include_directories(${GDAS_ROOT_DIR})
+
 if (BUILD_SOCA)
   add_subdirectory(soca)
 endif()

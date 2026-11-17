@@ -68,7 +68,7 @@ components:
           - groups:
               - ocean3d
               - surf2d
-            value: 200000.0
+            value: {{ marine_nicas_hz_long }}
           vertical length-scale:
           - groups:
               - ocean3d
@@ -77,6 +77,9 @@ components:
     value: 0.5
 
 # ---- component 2: the new short scale --------------------------------------
+# Horizontal length scales are resolution dependent: see marine_nicas_hz_* in
+# parm/marine/marine_jcb_keys.yaml.j2 (the values quoted below are the 1/4 deg defaults).
+#
 # BUMP sizes the NICAS subset as
 #     nc1 = floor( 2 * area * resolution^2 / (sqrt(3) * rhs^2) )
 # then clips it to `max horizontal grid size`, and ABORTS if the resulting
@@ -135,10 +138,10 @@ components:
           horizontal length-scale:
           - groups:
               - ocean3d
-            value: 100000.0
+            value: {{ marine_nicas_hz_short }}
           - groups:
               - surf2d
-            value: 100000.0
+            value: {{ marine_nicas_hz_short }}
           vertical length-scale:
           - groups:
               - ocean3d

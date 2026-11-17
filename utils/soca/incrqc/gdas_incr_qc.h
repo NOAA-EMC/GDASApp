@@ -16,8 +16,8 @@
 #include "soca/Increment/Increment.h"
 #include "soca/State/State.h"
 
-#include "../../marine/gdas_marine_incr_qc.h"
-#include "../gdas_soca_utils.h"
+#include "utils/marine/gdas_marine_incr_qc.h"
+#include "utils/soca/gdas_soca_utils.h"
 
 namespace gdasapp {
 namespace incrqc {

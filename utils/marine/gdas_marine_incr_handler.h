@@ -30,7 +30,7 @@
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
 
-#include "../genutils/Flood.h"
+#include "utils/genutils/Flood.h"
 #include "gdas_marine_incr_qc.h"
 
 namespace gdasapp {

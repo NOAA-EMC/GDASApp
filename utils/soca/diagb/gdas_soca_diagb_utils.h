@@ -27,8 +27,8 @@
 
 #include "gdas_soca_diagb_hihs_clip.h"
 
-#include "../../marine/gdas_marine_climatology.h"
-#include "../../marine/gdas_marine_mesh.h"
+#include "utils/marine/gdas_marine_climatology.h"
+#include "utils/marine/gdas_marine_mesh.h"
 
 namespace gdasapp {
 namespace diagb {

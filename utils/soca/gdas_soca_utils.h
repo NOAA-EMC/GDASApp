@@ -8,7 +8,7 @@
 #include "soca/LinearVariableChange/LinearVariableChange.h"
 #include "soca/State/State.h"
 
-#include "../marine/gdas_marine_ocean_utils.h"
+#include "utils/marine/gdas_marine_ocean_utils.h"
 
 namespace gdasapp {
 namespace utils {
