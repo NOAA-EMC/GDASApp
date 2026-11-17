@@ -202,7 +202,7 @@ if (WORKFLOW_TESTS)
     add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEglobal} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR})
     
     # Soil DA with JEDI 2DVar and LETKF C96/C48
-    # ----------------------------
+    # -----------------------------------------
     set(pslot "C96C48_ufs_hybatmsoilDA")
     set(YAML_PATH ${HOMEglobal}/dev/ci/cases/pr/${pslot}.yaml)
     add_cycling_tests(${pslot} ${YAML_PATH} ${HOMEglobal} ${WORKING_DIRECTORY} ${PROJECT_SOURCE_DIR})
