@@ -622,6 +622,7 @@ C96C48_hybatmsoilDA:
       - enkfgdas_ediag
       - enkfgdas_eupd
       - enkfgdas_ecmn
+      - enkfgdas_esnowanl
       - enkfgdas_esfc_gcycle
       - enkfgdas_esfc_regrid
       - enkfgdas_fcst
@@ -704,6 +705,7 @@ C96C48_ufs_hybatmsoilDA:
       - enkfgdas_ediag
       - enkfgdas_eupd
       - enkfgdas_ecmn
+      - enkfgdas_esnowanl
       - enkfgdas_esfc_gcycle
       - enkfgdas_soilanlens
       - enkfgdas_fcst
