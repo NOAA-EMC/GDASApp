@@ -134,7 +134,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
                     'ice_filename': ice_filename,
                     'read_from_file': 1}
 
-        bkg_date = bkg_date + timedelta(hours=dt_pseudo)  
+        bkg_date = bkg_date + timedelta(hours=dt_pseudo)
         bkg_list.append(bkg_dict)
 
     # save pseudo model yaml configuration
