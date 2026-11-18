@@ -1,9 +1,12 @@
+#include <filesystem>
+#include <set>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "atlas/array.h"
 #include "atlas/field.h"
+
+#include "eckit/exception/Exceptions.h"
 
 #include "gdas_marine_incr_handler.h"
 #include "gdas_marine_postprocess_ice.h"
@@ -12,43 +15,42 @@
 
 namespace gdasapp {
 namespace {
-// i-jedi CICE restart fields (one level per category) and their CICE restart names, matching
-// the per-category fields of PostProcessIce: sea_ice_category<k>_area_fraction is level k-1 of
-// sea_ice_category_area_fraction, and so on
-std::vector<std::pair<std::string, std::string>> ciceFields(const int iceLev, const int snoLev) {
-  std::vector<std::pair<std::string, std::string>> fields = {
-    {"sea_ice_category_area_fraction", "aicen"},
-    {"sea_ice_category_volume", "vicen"},
-    {"sea_ice_snow_category_volume", "vsnon"},
-    {"sea_ice_category_surface_temperature", "Tsfcn"},
-    {"sea_ice_category_pond_area_fraction", "apnd"},
-    {"sea_ice_category_pond_depth", "hpnd"},
-    {"sea_ice_category_pond_lid_thickness", "ipnd"}};
-  const auto layer = [](int l) {return std::string(l < 10 ? "00" : "0") + std::to_string(l);};
-  for (int l = 1; l <= iceLev; ++l) {
-    fields.push_back({"sea_ice_category_layer" + std::to_string(l) + "_enthalpy",
-                      "qice" + layer(l)});
-    fields.push_back({"sea_ice_category_layer" + std::to_string(l) + "_ice_salinity",
-                      "sice" + layer(l)});
-  }
-  for (int l = 1; l <= snoLev; ++l) {
-    fields.push_back({"sea_ice_snow_category_layer" + std::to_string(l) + "_enthalpy",
-                      "qsno" + layer(l)});
-  }
+// i-jedi CICE restart fields of category k (io "cice"): the category is in the name and the levels
+// are the ice or snow layers. A single-level field has the PostProcessIce name already; level l-1
+// of a layered field is the PostProcessIce field <prefix>_category<k>_layer<l>_<suffix>.
+struct CiceField {
+  std::string prefix;   // sea_ice or sea_ice_snow
+  std::string suffix;   // e.g. area_fraction, enthalpy
+  bool layered;
+  bool snow;            // layers are snow layers (else ice layers)
+};
+const std::vector<CiceField> & ciceFields() {
+  static const std::vector<CiceField> fields = {
+    {"sea_ice", "area_fraction", false, false},
+    {"sea_ice", "volume", false, false},
+    {"sea_ice_snow", "volume", false, false},
+    {"sea_ice", "surface_temperature", false, false},
+    {"sea_ice", "pond_area_fraction", false, false},
+    {"sea_ice", "pond_depth", false, false},
+    {"sea_ice", "pond_lid_thickness", false, false},
+    {"sea_ice", "enthalpy", true, false},
+    {"sea_ice", "ice_salinity", true, false},
+    {"sea_ice_snow", "enthalpy", true, true}};
   return fields;
 }
 
-// Per-category name of level k (0-based) of an i-jedi category field
-std::string categoryName(const std::string & name, const int k) {
-  const std::string cat = "category";
-  const size_t pos = name.find(cat) + cat.size();
-  return name.substr(0, pos) + std::to_string(k + 1) + name.substr(pos);
+std::string ijediName(const CiceField & f, const int k) {
+  return f.prefix + "_category" + std::to_string(k) + "_" + f.suffix;
+}
+std::string layerName(const CiceField & f, const int k, const int l) {
+  return f.prefix + "_category" + std::to_string(k) + "_layer" + std::to_string(l) + "_" + f.suffix;
 }
 }  // namespace
 
-// The CICE background restart is read with the i-jedi "cice" io (one field per CICE variable,
-// one level per category), split into the per-category fields of PostProcessIce, postprocessed
-// toward the analysis aggregate ice, merged back and written in update mode.
+// The CICE background restart is read with the i-jedi "cice" io, split into the per-category,
+// per-layer fields of PostProcessIce, postprocessed toward the analysis aggregate ice, merged back
+// and written: the cice io updates the restart in place (variables and categories it does not
+// hold keep their values).
 template <>
 void postprocessIce<ijedi::Traits>(const oops::Geometry<ijedi::Traits> & geom,
                                    const oops::State<ijedi::Traits> & analysis,
@@ -58,65 +60,104 @@ void postprocessIce<ijedi::Traits>(const oops::Geometry<ijedi::Traits> & geom,
                        config);
   const auto & params = ppIce.parameters();
   const int ncat = params.ncat.value();
+  const int iceLev = params.ice_lev.value();
+  const int snoLev = params.sno_lev.value();
   const std::string input = params.ciceRestart.value().input.value();
   const std::string output = params.ciceRestart.value().output.value();
-  const auto fields = ciceFields(params.ice_lev.value(), params.sno_lev.value());
+
+  // The sea-ice dimensions of the postprocessing must be those of the i-jedi geometry
+  const auto modelData = geom.geometry().modelData();
+  if (modelData.getInt("sea ice categories") != ncat
+      || modelData.getInt("sea ice layers") != iceLev
+      || modelData.getInt("snow layers") != snoLev) {
+    throw eckit::UserError("postprocess ice: ncat, ice_lev, sno_lev ("
+                           + std::to_string(ncat) + ", " + std::to_string(iceLev) + ", "
+                           + std::to_string(snoLev) + ") differ from the geometry's sea ice "
+                           "categories, sea ice layers, snow layers", Here());
+  }
 
   std::vector<std::string> names;
-  eckit::LocalConfiguration ioNames;
-  for (const auto & f : fields) {
-    names.push_back(f.first);
-    ioNames.set(f.first, f.second);
+  for (int k = 1; k <= ncat; ++k) {
+    for (const auto & f : ciceFields()) names.push_back(ijediName(f, k));
   }
   eckit::LocalConfiguration io;
   io.set("filetype", "cice");
   io.set("datapath", ".");
   io.set("restart_file", input);
-  io.set("field io names", ioNames);
   eckit::LocalConfiguration readConfig;
   readConfig.set("date", analysis.validTime().toString());
   readConfig.set("state variables", names);
   readConfig.set("io", io);
   State_ restartState(geom, readConfig);
 
-  // Split into the per-category fields
+  // Split into the single-level fields of PostProcessIce
+  const std::vector<std::string> ppVars =
+    PostProcessIce::ciceRestartVariables(ncat, iceLev, snoLev).variables();
+  const std::set<std::string> ppNames(ppVars.begin(), ppVars.end());
   atlas::FieldSet restartFs;
   restartState.toFieldSet(restartFs);
   atlas::FieldSet restart, pproc;
-  for (const auto & f : fields) {
-    const auto view = atlas::array::make_view<const double, 2>(restartFs[f.first]);
-    ASSERT(view.shape(1) == ncat);
-    for (int k = 0; k < ncat; ++k) {
-      atlas::Field cat = geom.functionSpace().createField<double>(
-        atlas::option::name(categoryName(f.first, k)) | atlas::option::levels(1));
-      auto catView = atlas::array::make_view<double, 2>(cat);
-      for (atlas::idx_t jnode = 0; jnode < view.shape(0); ++jnode) {
-        catView(jnode, 0) = view(jnode, k);
+  auto addLevel = [&](const atlas::Field & field, const int level, const std::string & name) {
+    ASSERT(ppNames.count(name) == 1);
+    const auto view = atlas::array::make_view<const double, 2>(field);
+    atlas::Field single = geom.functionSpace().createField<double>(
+      atlas::option::name(name) | atlas::option::levels(1));
+    auto singleView = atlas::array::make_view<double, 2>(single);
+    for (atlas::idx_t jnode = 0; jnode < view.shape(0); ++jnode) {
+      singleView(jnode, 0) = view(jnode, level);
+    }
+    restart.add(single);
+    pproc.add(single.clone());
+  };
+  for (int k = 1; k <= ncat; ++k) {
+    for (const auto & f : ciceFields()) {
+      const atlas::Field & field = restartFs[ijediName(f, k)];
+      if (!f.layered) {
+        addLevel(field, 0, ijediName(f, k));
+        continue;
       }
-      restart.add(cat);
-      pproc.add(cat.clone());
+      const int nLayers = f.snow ? snoLev : iceLev;
+      ASSERT(field.shape(1) == nLayers);
+      for (int l = 1; l <= nLayers; ++l) addLevel(field, l - 1, layerName(f, k, l));
     }
   }
+  ASSERT(static_cast<size_t>(restart.size()) == ppNames.size());
   atlas::FieldSet analysisFs;
   analysis.toFieldSet(analysisFs);
 
   const atlas::FieldSet aggregate = ppIce.run(pproc, restart, analysisFs);
 
-  // Merge back and write in update mode (the input restart is the template)
-  for (const auto & f : fields) {
-    auto view = atlas::array::make_view<double, 2>(restartFs[f.first]);
-    for (int k = 0; k < ncat; ++k) {
-      const auto catView = atlas::array::make_view<const double, 2>(
-        pproc[categoryName(f.first, k)]);
-      for (atlas::idx_t jnode = 0; jnode < view.shape(0); ++jnode) {
-        view(jnode, k) = catView(jnode, 0);
-      }
+  // Merge back
+  auto mergeLevel = [&](atlas::Field & field, const int level, const std::string & name) {
+    auto view = atlas::array::make_view<double, 2>(field);
+    const auto singleView = atlas::array::make_view<const double, 2>(pproc[name]);
+    for (atlas::idx_t jnode = 0; jnode < view.shape(0); ++jnode) {
+      view(jnode, level) = singleView(jnode, 0);
     }
+  };
+  for (int k = 1; k <= ncat; ++k) {
+    for (const auto & f : ciceFields()) {
+      atlas::Field field = restartFs[ijediName(f, k)];
+      if (!f.layered) {
+        mergeLevel(field, 0, ijediName(f, k));
+        continue;
+      }
+      const int nLayers = f.snow ? snoLev : iceLev;
+      for (int l = 1; l <= nLayers; ++l) mergeLevel(field, l - 1, layerName(f, k, l));
+    }
+  }
+
+  // The cice io updates the restart in place: a different output starts as a copy of the input
+  if (output != input) {
+    if (geom.getComm().rank() == 0) {
+      std::filesystem::copy_file(input, output,
+                                 std::filesystem::copy_options::overwrite_existing);
+    }
+    geom.getComm().barrier();
   }
   State_ pprocState(restartState);
   pprocState.fromFieldSet(restartFs);
   io.set("restart_file", output);
-  if (output != input) io.set("template_file", input);
   eckit::LocalConfiguration writeConfig;
   writeConfig.set("io", io);
   pprocState.write(writeConfig);
