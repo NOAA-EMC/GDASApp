@@ -13,7 +13,10 @@
     io pool:
       max pool size: 1
 {% if marine_letkf_app | default(false) %}
-    distribution:
+    # LETKF: H(x) on the default (RoundRobin) distribution, then the obs are moved to Halo
+    # patches for the local solver (IODA data-frame container)
+    use data frame container: true
+    redistribution:
       name: Halo
       halo size: {{ marine_letkf_dist_halo_size }}
 {% endif %}
@@ -35,6 +38,14 @@
     maxvalue: 1.0
   - filter: Background Check
     absolute threshold: 0.5
+  # Constant error 0.05 (the files carry 0.1 everywhere); doubled below where the model SST
+  # is above 0 C
+  - filter: Perform Action
+    filter variables:
+    - name: seaIceFraction
+    action:
+      name: assign error
+      error parameter: 0.05
   - filter: Domain Check
     where:
     - variable: { name: GeoVaLs/sea_surface_temperature}
@@ -47,19 +58,19 @@
       name: inflate error
       inflation factor: 2.0
 {% if marine_letkf_app | default(false) %}
+  # LETKF only: 10 km thinning keeps ~90% of the 3DVar's 10 km cells.
+  # min_num_obs_per_bin 1: the UFO default of 5 rejects every obs in sparser bins.
   - filter: Gaussian Thinning
-    horizontal_mesh: 25  #km
+    horizontal_mesh: 10  #km
     use_reduced_horizontal_grid: true
     select_median: true
+    min_num_obs_per_bin: 1
     action:
       name: reduce obs space
 {% endif %}
 {% if marine_letkf_app | default(false) %}
   obs localizations:
-  - localization method: Rossby
-    base value: 100.0e3
-    rossby mult: 1.0
-    min grid mult: 2.0
-    min value: 200.0e3
-    max value: 900.0e3
+  - localization method: Horizontal Gaspari-Cohn
+    lengthscale: 300.0e3
+    max nobs: 2000
 {% endif %}

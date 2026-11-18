@@ -3,7 +3,7 @@ base:
   DOHYBVAR: "NO"
   DO_JEDIATMVAR: "YES"
   DO_JEDIATMENS: "YES"
-  DO_JEDIATMENS_SPLIT_OBSSOL: "YES"
+  DO_JEDIATMENS_SPLIT_OBSSOL: "NO"
   DOENKFONLY_ATM: "NO"
   EUPD_CYC: "gdas"
   DATAPATH: "@bindir@/test/atm/global-workflow/testrun"
@@ -28,6 +28,7 @@ atmensanl:
   LAYOUT_Y_ATMENSANL: 1
   OBS_LIST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/atm_obs_list.yaml.j2"
   LETKF_JEDI_TEST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf.yaml.j2"
+  # OBS/SOL test yamls are required: atmens jobs build all JEDI apps (observer and solver included) even when only LETKF runs
   OBS_JEDI_TEST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-observer.yaml.j2"
   SOL_JEDI_TEST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-solver.yaml.j2"
   FV3INC_JEDI_TEST_YAML: "${HOMEglobal}/sorc/gdas.cd/test/atm/global-workflow/jedi-test_lgetkf-fv3inc.yaml.j2"
