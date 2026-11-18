@@ -1,9 +1,14 @@
 jedi_config:
     aeroanlvar:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_AEROANL }}'
+        {% if JEDI_AERO_INTERFACE | default('fv3jedi') == 'ijedi' %}
+        exe_src: '{{ EXECglobal }}/gdas_ijedi.x'
+        jedi_args: ['var']
+        {% else %}
+        exe_src: '{{ EXECglobal }}/gdas.x'
         jedi_args: ['fv3jedi', 'variational']
+        {% endif %}
         jcb_algo: '3dfgat'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/aero/jcb-base.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'

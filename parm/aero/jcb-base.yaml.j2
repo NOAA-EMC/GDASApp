@@ -1,11 +1,11 @@
 # Model interface: fv3-jedi (aero) or i-jedi (aeroijedi)
-{% set _comp = 'aeroijedi' if (aero_use_ijedi | default(false) | string | lower) in ['true', 'yes', '1'] else 'aero' %}
+{% set _comp = 'aero_ijedi' if ( JEDI_AERO_INTERFACE | default('fv3jedi') | string | lower) in ['ijedi'] else 'aero' %}
 
 # Search path for model and obs for JCB
 # -------------------------------------
 algorithm_path: "{{PARMglobal}}/gdas/jcb-algorithms"
-app_path_algorithm: "{{PARMglobal}}/gdas/jcb-gdas/algorithm/{{ _comp }}"
-app_path_model: "{{PARMglobal}}/gdas/jcb-gdas/model/{{ _comp }}"
+app_path_algorithm: "{{PARMglobal}}/gdas/jcb-gdas/algorithm/aero"
+app_path_model: "{{PARMglobal}}/gdas/jcb-gdas/model/aero"
 app_path_observations: "{{PARMglobal}}/gdas/jcb-gdas/observations/aero"
 app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chronicle/aero"
 
@@ -154,7 +154,7 @@ aero_analysis_path: ./anl
 # Forecasting
 aero_forecast_timestep: "{{ BKG_TSTEP }}"
 
-{% if _comp == 'aeroijedi' %}
+{% if JEDI_AERO_INTERFACE == 'ijedi' %}
 # i-jedi only
 # -----------
 # i-jedi does not support datetime-templated fv3 restart filenames, so render them here
@@ -187,19 +187,19 @@ aero_obsdataout_suffix: "_{{ current_cycle | to_YMDH }}.nc"
 
 # Naming conventions for bias correction files
 
-aero_obsbiasin_path: "{{DATA}}/obs/"
-aero_obsbiasin_prefix: "{{GPREFIX}}"
-aero_obsbiasin_suffix: ".satbias.nc"
-aero_obstlapsein_prefix: "{{GPREFIX}}"
-aero_obstlapsein_suffix: ".tlapse.txt"
-aero_obsbiascovin_prefix: "{{GPREFIX}}"
-aero_obsbiascovin_suffix: ".satbias_cov.nc"
+"aero_obsbiasin_path": "{{DATA}}/obs/"
+"aero_obsbiasin_prefix": "{{GPREFIX}}"
+"aero_obsbiasin_suffix": ".satbias.nc"
+"aero_obstlapsein_prefix": "{{GPREFIX}}"
+"aero_obstlapsein_suffix": ".tlapse.txt"
+"aero_obsbiascovin_prefix": "{{GPREFIX}}"
+"aero_obsbiascovin_suffix": ".satbias_cov.nc"
 
-aero_obsbiasout_path: "{{DATA}}/bc/"
-aero_obsbiasout_prefix: "{{APREFIX}}"
-aero_obsbiasout_suffix: ".satbias.nc"
-aero_obsbiascovout_prefix: "{{APREFIX}}"
-aero_obsbiascovout_suffix: ".satbias_cov.nc"
+"aero_obsbiasout_path": "{{DATA}}/bc/"
+"aero_obsbiasout_prefix": "{{APREFIX}}"
+"aero_obsbiasout_suffix": ".satbias.nc"
+"aero_obsbiascovout_prefix": "{{APREFIX}}"
+"aero_obsbiascovout_suffix": ".satbias_cov.nc"
 
 bias_files_dict:
     retrieval_aod_viirs_npp: aero_varbc_params.tar

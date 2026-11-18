@@ -76,5 +76,5 @@
   branch = develop
 [submodule "sorc/i-jedi"]
   path = sorc/i-jedi
-  url = https://github.com/NOAA-EMC/i-jedi.git
+  url = https://github.com/noaa-emc/i-jedi.git
   branch = develop
