@@ -127,7 +127,6 @@ class PrepOceanObs(Task):
             # source is arbitrary sst
             dummy_source = "sst_avhrr_ma_l3u"
             output_nc = f"{run}.t{cycle}z.{dummy_source}.nc"
-            # TODO (AFE) replace this with something set in a config file
             dummy_cdl = os.path.join(PARMglobal, 'gdas', 'marine', 'marine_prepobs_dummyobs.cdl')
 
             converter = Executable('ncgen')

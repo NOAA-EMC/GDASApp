@@ -165,7 +165,6 @@ class JobCard:
     def copy_bkgs(self):
         """
         Fill the ROTDIR with backgrounds
-        TODO: replace by fill comroot?
         """
         print(f"gPDY: {self.gPDY}")
         print(f"gcyc: {self.gcyc}")
