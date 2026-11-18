@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# TODO: Copied/pasted from SOCA, point to the original one after we update the JEDI #
 
 import netCDF4 as nc
 import numpy as np

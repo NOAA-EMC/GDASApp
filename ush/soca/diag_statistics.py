@@ -73,7 +73,6 @@ def get_diag_stats():
         # this is a crude filter to obtain surface t observations, hopefully
         # catching at least most of the airborn observations and passing the
         # sea observations (with much else)
-        # TODO: This needs to be refined, possibly using obtype
         df = df[df.Station_Elevation <= 10.0]
 
         meaned_cols = ['Obs_Minus_Forecast_unadjusted',

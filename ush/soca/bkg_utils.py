@@ -80,7 +80,6 @@ def cice_hist2fms(input_filename, output_filename):
 def test_hist_date(histfile, ref_date):
     """
     Check that the date in the MOM6 history file is the expected one for the cycle.
-    TODO: Implement the same for seaice
     """
 
     ncf = Dataset(histfile, 'r')
@@ -96,7 +95,6 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
     """
 
     # Pseudo model parameters (time step, start date)
-    # TODO: make this a parameter
     dt_pseudo = 3
     bkg_date = window_begin
 
@@ -136,7 +134,7 @@ def gen_bkg_list(bkg_path, out_path, window_begin=' ', yaml_name='bkg.yaml', ice
                     'ice_filename': ice_filename,
                     'read_from_file': 1}
 
-        bkg_date = bkg_date + timedelta(hours=dt_pseudo)  # TODO: make the bkg interval a configurable
+        bkg_date = bkg_date + timedelta(hours=dt_pseudo)
         bkg_list.append(bkg_dict)
 
     # save pseudo model yaml configuration
