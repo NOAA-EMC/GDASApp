@@ -716,8 +716,6 @@ C96C48_ufs_hybatmsoilDA:
       gdas_anal:
         - H:enkfgdas_epmn
         - F:gdas_prep
-      gdas_soilanlvar:
-        - F:gdas_prep
       gdas_snowanl:
         - F:gdas_prep
       gdas_sfcanl_gcycle:
