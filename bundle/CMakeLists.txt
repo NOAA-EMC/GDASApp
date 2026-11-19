@@ -76,7 +76,7 @@ if(BUILD_GDASBUNDLE)
 
   ecbuild_bundle( PROJECT eckit GIT "https://github.com/ecmwf/eckit.git" TAG 1.16.0 )
   ecbuild_bundle( PROJECT fckit GIT "https://github.com/ecmwf/fckit.git" TAG 0.9.2 )
-  ecbuild_bundle( PROJECT atlas GIT "https://github.com/ecmwf/atlas.git" TAG 0.44.1 )
+  ecbuild_bundle( PROJECT atlas SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/../sorc/atlas)
 
 # External (required) observation operators
   # TODO remove the CRTM from here and use it as a library
