@@ -161,6 +161,7 @@ bias_files_dict:
     radiance_ssmis_f18: varbc_params.tar
     radiance_cris-fsr_n20: varbc_params.tar
     radiance_cris-fsr_npp: varbc_params.tar
+    prepbufr_aircraft: varbc_params.tar
 
 atmosphere_obsbiasin_path: "{{DATA}}/bc_in/"
 atmosphere_obsbiasin_prefix: "{{GPREFIX}}"
@@ -169,6 +170,13 @@ atmosphere_obstlapsein_prefix: "{{GPREFIX}}"
 atmosphere_obstlapsein_suffix: ".tlapse.txt"
 atmosphere_obsbiascovin_prefix: "{{GPREFIX}}"
 atmosphere_obsbiascovin_suffix: ".bias_cov.nc"
+
+# Aircraft bias correction: while these keys are undefined, prepbufr_aircraft starts from zero
+# coefficients every cycle (its bias output is still written and archived in varbc_params.tar).
+# Uncomment to cycle bias correction coefficients
+# (only after a cycle has written the aircraft bias files, or the read will fail).
+#atmosphere_obsbiasin_acft_suffix: ".bias.nc"
+#atmosphere_obsbiascovin_acft_suffix: ".bias_cov.nc"
 
 atmosphere_obsbiasout_path: "{{DATA}}/bc_out/"
 atmosphere_obsbiasout_prefix: "{{APREFIX}}"
