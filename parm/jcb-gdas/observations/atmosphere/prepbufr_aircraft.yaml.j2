@@ -1,0 +1,499 @@
+-
+
+  # Observation Space (I/O)
+  # -----------------------
+  obs space:
+    name: {{observation_from_jcb}}
+    obsdatain:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}{{atmosphere_obsdatain_suffix}}"
+        missing file action: warn
+      obsgrouping:
+        group variables: ["stationIdentification"]
+        sort variable: "pressure"
+        sort order: "descending"
+    obsdataout:
+      engine:
+        type: H5File
+        obsfile: "{{atmosphere_obsdataout_path}}/{{atmosphere_obsdataout_prefix}}{{observation_from_jcb}}{{atmosphere_obsdataout_suffix}}"
+    io pool:
+      max pool size: 1
+    simulated variables: [airTemperature, specificHumidity, windEastward, windNorthward]
+    observed variables: [airTemperature, specificHumidity, windEastward, windNorthward]
+
+  # Observation Operator
+  # -------------------
+  obs operator:
+    name: Composite
+    components:
+    - name: VertInterp
+      vertical coordinate: air_pressure
+      observation vertical coordinate: pressure
+      observation vertical coordinate group: MetaData
+      interpolation method: log-linear
+      variables:
+      - name: airTemperature
+      - name: specificHumidity
+    - name: VertInterp
+      vertical coordinate: air_pressure
+      observation vertical coordinate: pressure
+      observation vertical coordinate group: MetaData
+      interpolation method: log-linear
+      variables:
+      - name: windEastward
+      - name: windNorthward
+      # 10 m wind reduction, as GSI setupw factw
+      hofx scaling field: SurfaceWindScalingPressure
+      hofx scaling field group: DerivedVariables
+
+  # Linear Observation Operator
+  # ---------------------------
+  linear obs operator:
+    name: Composite
+    components:
+    - name: VertInterp
+      variables:
+      - name: airTemperature
+      - name: specificHumidity
+    - name: VertInterp
+      variables:
+      - name: windEastward
+      - name: windNorthward
+      hofx scaling field: SurfaceWindScalingPressure
+      hofx scaling field group: DerivedVariables
+
+  # Observation Bias Correction (VarBC), per aircraft tail number, as GSI aircraft_t_bc
+  # -----------------------------------
+  obs bias:
+    input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_acft_suffix}}"
+    variables without bc: [specificHumidity, windEastward, windNorthward]
+    bc by record: true
+    variational bc:
+      predictors:
+      - name: constant
+      - name: obsMetadataPredictor
+        variable: instantaneousAltitudeRate
+      - name: obsMetadataPredictor
+        variable: instantaneousAltitudeRate
+        order: 2
+    covariance:
+      minimal required obs number: 20
+      variance range: [1.0e-6, 10.0]
+      step size: 1.0e-4
+      largest analysis variance: 10000.0
+      prior:
+        input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_acft_suffix}}"
+        inflation:
+          ratio: 1.1
+          ratio for small dataset: 2.0
+
+  # Observation Pre Filters (QC)
+  # ------------------------------
+
+{% set wind_variables = ['windEastward', 'windNorthward'] %}
+{% set assim_variables = ['airTemperature', 'specificHumidity'] + wind_variables %}
+{% set temperature_obstypes   = [130, 131, 133, 134, 135] %}
+{% set humidity_obstypes      = [133] %}
+{% set wind_obstypes          = [230, 231, 233, 234, 235] %}
+
+  obs pre filters:
+
+  # remove all records not in desired obs type from obs space
+  # --------------------------------
+
+  - filter: Perform Action
+    where:
+    - variable:
+        name: ObsType/airTemperature
+      is_not_in: {{ temperature_obstypes | join(', ') }}
+    action:
+      name: reduce obs space
+
+  # remove the empty levels that pad each report
+  - filter: Perform Action
+    where:
+    - variable: ObsValue/airTemperature
+      value: is_not_valid
+    - variable: ObsValue/specificHumidity
+      value: is_not_valid
+    - variable: ObsValue/windEastward
+      value: is_not_valid
+    where operator: and
+    action:
+      name: reduce obs space
+
+  # Reject everything, then re-accept desired variables from their obs types:
+  # q is only assimilated for type 133 (monitored for the other types in GSI convinfo)
+  # --------------------------------
+
+  - filter: RejectList
+    udescriptor: "reject_all"
+
+{% for variables, obstypes in [(['airTemperature'], temperature_obstypes),
+                               (['specificHumidity'], humidity_obstypes),
+                               (wind_variables, wind_obstypes)] %}
+  - filter: Perform Action
+    filter variables:
+{% for var in variables %}
+    - name: {{ var }}
+{% endfor %}
+    where:
+    - variable:
+        name: ObsType/{{ variables[0] }}
+      is_in: {{ obstypes | join(', ') }}
+    action:
+      name: accept
+
+{% endfor %}
+
+  # Observation Prior Filters (QC)
+  # ------------------------------
+
+  obs prior filters:
+
+  # temperature, humidity and wind QC
+  # ---------------------------------
+
+{% for var in assim_variables %}
+  - filter: RejectList
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 8-15
+      value: is_not_valid
+    where operator: or
+
+  - filter: RejectList
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/pressure
+      is_in: 8-15
+{% endfor %}
+
+  - filter: Bounds Check
+    filter variables:
+    - name: airTemperature
+    minvalue: 100
+    maxvalue: 400
+
+  # reject obs above the highest model level (0.013 hPa)
+  - filter: Bounds Check
+    filter variables:
+{% for var in assim_variables %}
+    - name: {{ var }}
+{% endfor %}
+    test variables:
+    - name: MetaData/pressure
+    minvalue: 1.3
+
+  # GSI setupw: no aircraft winds above 126 hPa
+  - filter: Bounds Check
+    filter variables:
+{% for var in wind_variables %}
+    - name: {{ var }}
+{% endfor %}
+    test variables:
+    - name: MetaData/pressure
+    minvalue: 12600.0
+
+  # variables for the surface wind scaling in the obs operator
+  - filter: Variable Transforms
+    Transform: SurfaceWindScalingPressure
+    SkipWhenNoObs: false
+
+  # duplicate thinning
+  # ---------------------------------
+  # GSI treats reports at the same position and pressure as duplicates and keeps the
+  # one closest to the analysis time
+{% for vars in [['airTemperature'], ['specificHumidity'], wind_variables] %}
+  - filter: DuplicateThinning
+    filter variables:
+{% for var in vars %}
+    - name: {{ var }}
+{% endfor %}
+    variable names:
+    - MetaData/latitude
+    - MetaData/longitude
+    - MetaData/pressure
+    tolerance: [1.0e-6, 1.0e-6, 1.0e-6]
+    analysis_time: '{{ atmosphere_background_time_iso }}'
+    min_spacing: PT6H
+    action:
+      name: reject
+{% endfor %}
+
+  # error assignments
+  # ---------------------------------
+
+  # set initial errors, then save
+  # ---------------------------------
+
+  # order matters: before conversion to q units.
+  - filter: RejectList
+    filter variables:
+    - name: specificHumidity
+    where:
+    - variable: ObsErrorData/specificHumidity
+      value: is_not_valid
+
+  # convert into specific humidity units, by *qsat
+  - filter: Perform Action
+    filter variables:
+    - name: specificHumidity
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/ObsErrorSatSpecHumidity
+        options:
+          variable: specificHumidity
+          input_error_name: ObsErrorData
+
+{% for var in assim_variables %}
+  - filter: Variable Assignment
+    assignments:
+    - name: InputObsError/{{ var }}
+      type: float
+      source variable: ObsErrorData/{{ var }}
+{% endfor %}
+
+  # apply error inflation terms
+  # ---------------------------------
+
+{% for var in assim_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      is_in: 3, 7
+    action:
+      name: inflate error
+      inflation factor: 1.2
+{% endfor %}
+
+  # GSI read_prepbufr: x1.2 above 100 hPa for T, above 50 hPa for wind
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    where:
+    - variable: MetaData/pressure
+      maxvalue: 9999.9
+    action:
+      name: inflate error
+      inflation factor: 1.2
+
+{% for var in wind_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: MetaData/pressure
+      maxvalue: 4999.9
+    action:
+      name: inflate error
+      inflation factor: 1.2
+{% endfor %}
+
+  # GSI setupt: x1.5 for large vertical velocity
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    where:
+    - variable: MetaData/instantaneousAltitudeRate
+      minvalue: 30.0
+    action:
+      name: inflate error
+      inflation factor: 1.5
+
+  - filter: Perform Action
+    filter variables:
+    - name: airTemperature
+    where:
+    - variable: MetaData/instantaneousAltitudeRate
+      maxvalue: -30.0
+    action:
+      name: inflate error
+      inflation factor: 1.5
+
+  # profile spacing inflation, as GSI errormod_aircraft (neighbours must be within 60 km).
+  # GSI applies this within a report, so level-flight (33x) reports, which have a single level and
+  # zero altitude rate, are not inflated. JEDI records are per tail number (needed for VarBC).
+{% for name, vars in [('airTemperature', ['airTemperature']), ('specificHumidity', ['specificHumidity']), ('windEastward', wind_variables)] %}
+  - filter: Variable Assignment
+    assignments:
+    - name: ErrormodFactor/{{ name }}
+      type: float
+      function:
+        name: ObsFunction/ObsErrorFactorConventional
+        options:
+          inflate variables: [{{ name }}]
+          pressure: MetaData/pressure
+          distance threshold: 60000.
+
+{% for var in vars %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: MetaData/instantaneousAltitudeRate
+      minvalue: 1.0e-3
+    - variable: MetaData/instantaneousAltitudeRate
+      maxvalue: -1.0e-3
+    where operator: or
+    action:
+      name: inflate error
+      inflation variable:
+        name: ErrormodFactor/{{ name }}
+{% endfor %}
+{% endfor %}
+
+  # order matters - apply the profile spacing inflation, then the minimum q error (here)
+  - filter: Perform Action
+    filter variables:
+    - name: specificHumidity
+    where:
+    - variable: ObsErrorData/specificHumidity
+      maxvalue: 1.0e-4
+    action:
+      name: assign error
+      error parameter: 1.0e-4
+
+  # order matters - do after the multiplicative error inflations
+  # error += 8 K (T) or 4 m/s (wind) per model level below the model surface
+{% for var, coef in [('airTemperature', 8.0), ('windEastward', 4.0), ('windNorthward', 4.0)] %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    action:
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
+        options:
+          variables:
+          - name: ObsErrorData/{{ var }}
+          - name: ObsFunction/ModelLevelsBelowSurface
+          coefs: [1.0, {{ coef }}]
+{% endfor %}
+
+  # order matters - compute the profile spacing inflation (which counts q obs below the surface as
+  # neighbours, as GSI does), then reject q obs below the model surface (here). GSI instead adds 8
+  # (in q units) per model level below the surface, which removes them from the analysis.
+  - filter: Bounds Check
+    filter variables:
+    - name: specificHumidity
+    test variables:
+    - name: ObsFunction/ModelLevelsBelowSurface
+    maxvalue: 0.0
+
+  # order matters - compute the density error inflation for winds passing QC so far (here), then
+  # apply the background checks, then apply the density inflation.
+  # GSI down-weights dense aircraft winds (230, 231, 233) to about 2 obs per 100 km x 100 km x 800 m
+  # x 1 hour (convinfo ithin 20, rmesh 100, pmesh 800, ptime 1). The thresholds differ above and
+  # below 600 hPa to match GSI's density estimate, which counts more obs along flight tracks.
+{% for pwhere, threshold in [('maxvalue: 59999.99', 1.35), ('minvalue: 60000.0', 1.7)] %}
+  - filter: Variable Assignment
+    where:
+    - variable:
+        name: ObsType/windEastward
+      is_in: 230, 231, 233
+    - variable:
+        name: MetaData/pressure
+      {{ pwhere }}
+    assignments:
+    - name: DensityFactor/windEastward
+      type: float
+      function:
+        name: ObsFunction/ObsErrorFactorDensity
+        options:
+          variable: windEastward
+          horizontal mesh: 100.
+          vertical coordinate: MetaData/height
+          vertical mesh: 800.
+          time mesh: PT1H
+          density threshold: {{ threshold }}
+{% endfor %}
+
+  # Observation Post Filters (QC)
+  # -----------------------------
+
+  obs post filters:
+
+  # background checks
+  # ---------------------------------
+
+  # GSI gross check (convinfo: gross 7.0, ermin 1.3, ermax 5.6; gross*0.7 for QM=3)
+{% for qmwhere, factor in [('is_not_in', 7.0), ('is_in', 4.9)] %}
+  - filter: Background Check
+    filter variables:
+    - name: airTemperature
+    where:
+    - variable: QualityMarker/airTemperature
+      {{ qmwhere }}: 3
+    function absolute threshold:
+    - name: ObsFunction/ObsErrorBoundConventional
+      options:
+        obsvar: airTemperature
+        obserr_bound_min: 1.3
+        obserr_bound_max: 5.6
+        obserr_bound_factor: {{ factor }}
+    action:
+      name: reject
+{% endfor %}
+
+  # GSI gross check for q (convinfo: gross 8.0; gross*0.7 for QM=3)
+{% for qmwhere, thr in [('is_not_in', 8.0), ('is_in', 5.6)] %}
+  - filter: Background Check
+    filter variables:
+    - name: specificHumidity
+    threshold: {{ thr }}
+    where:
+    - variable: QualityMarker/specificHumidity
+      {{ qmwhere }}: 3
+    action:
+      name: reject
+{% endfor %}
+
+  # GSI wind gross check on the vector residual (convinfo: gross 6.0, 6.5, 7.5, 7.5, 7.5, ermin 1.4,
+  # ermax 6.1; gross*0.7 for QM=3)
+{% for var in wind_variables %}
+{% for qmwhere, cgross in [('is_not_in', [6.0, 6.5, 7.5, 7.5, 7.5]), ('is_in', [4.2, 4.55, 5.25, 5.25, 5.25])] %}
+  - filter: Background Check
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable: QualityMarker/{{ var }}
+      {{ qmwhere }}: 3
+    function absolute threshold:
+    - name: ObsFunction/WindsSPDBCheck
+      options:
+        wndtype: [230, 231, 233, 234, 235]
+        cgross: {{ cgross }}
+        error_min: [1.4, 1.4, 1.4, 1.4, 1.4]
+        error_max: [6.1, 6.1, 6.1, 6.1, 6.1]
+        variable: {{ var }}
+    action:
+      name: reject
+{% endfor %}
+{% endfor %}
+
+  # apply density error inflation
+  # ---------------------------------
+
+  # order matters - compute the density error inflation, apply the background checks, then apply
+  # the density inflation (here), as GSI does.
+{% for var in wind_variables %}
+  - filter: Perform Action
+    filter variables:
+    - name: {{ var }}
+    where:
+    - variable:
+        name: ObsType/windEastward
+      is_in: 230, 231, 233
+    action:
+      name: inflate error
+      inflation variable:
+        name: DensityFactor/windEastward
+{% endfor %}
