@@ -101,6 +101,10 @@ if [[ $BUILD_TARGET == 'wcoss2' ]]; then
   export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/mpich/8.1.29/ofi/intel/2022.1/lib"
   export LMOD_MPI_NAME=cray-mpich
   export LMOD_MPI_VERSION=8.1.29-xhbciau
+  CMAKE_OPTS+=" -DBUNDLE_SKIP_ATLAS=OFF"
+  CMAKE_OPTS+=" -DENABLE_TESSELATION=ON"
+  module unload atlas
+  unset atlas_ROOT atlas_DIR Atlas_ROOT
 fi
 
 # TODO: remove this patch when compiler issue fixed
