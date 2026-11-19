@@ -65,8 +65,17 @@
 
   # Observation Bias Correction (VarBC), per aircraft tail number, as GSI aircraft_t_bc
   # -----------------------------------
+  # The bias input is read only if atmosphere_obsbiasin_acft_suffix is set. Otherwise all
+  # coefficients start at zero, and the covariance starts from the variance range limits with no
+  # prior (this is not the UFO 'cold start' option, which can't be used with bc by record).
+  # The covariance input defaults to the coefficient file, since a file converted from GSI holds
+  # both. The output is always written; cycling it needs the workflow to stage it into the next
+  # cycle's bias input path.
   obs bias:
+{% if atmosphere_obsbiasin_acft_suffix is defined %}
     input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_acft_suffix}}"
+{% endif %}
+    output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiasout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasout_acft_suffix | default(atmosphere_obsbiasout_suffix)}}"
     variables without bc: [specificHumidity, windEastward, windNorthward]
     bc by record: true
     variational bc:
@@ -82,11 +91,14 @@
       variance range: [1.0e-6, 10.0]
       step size: 1.0e-4
       largest analysis variance: 10000.0
+{% if atmosphere_obsbiasin_acft_suffix is defined %}
       prior:
-        input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiasin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiasin_acft_suffix}}"
+        input file: "{{atmosphere_obsbiasin_path}}/{{atmosphere_obsbiascovin_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovin_acft_suffix | default(atmosphere_obsbiasin_acft_suffix)}}"
         inflation:
           ratio: 1.1
           ratio for small dataset: 2.0
+{% endif %}
+      output file: "{{atmosphere_obsbiasout_path}}/{{atmosphere_obsbiascovout_prefix}}{{observation_from_jcb}}{{atmosphere_obsbiascovout_acft_suffix | default(atmosphere_obsbiascovout_suffix)}}"
 
   # Observation Pre Filters (QC)
   # ------------------------------
