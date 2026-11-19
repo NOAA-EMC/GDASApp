@@ -9,10 +9,16 @@ app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chroni
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
-final_increment_file: snow_final_increment_fms
 model_file: model_pseudo
 initial_condition_file: background  # Initial conditions for 4D apps is background
-
+final_increment_file: snow_final_increment_fms
+output_mean_prior_file: snow_output_mean_prior_fms
+posterior_output_file: snow_posterior_output_fms
+output_ensemble_increments_file: snow_ensemble_increments_fms
+output_increment_file: snow_output_increment_fms
+output_variance_prior_file: snow_output_variance_prior_fms
+output_variance_posterior_file: snow_output_variance_posterior_fms
+# jedi_increment_output: gaussian
 
 # Assimilation window
 # -------------------
@@ -141,6 +147,7 @@ snow_number_ensemble_members: {{ NMEM_ENS | default(1, true) }}
 local_ensemble_da_solver: Deterministic GETKF
 
 increment_variables: {{ _analysis_vars }} # dummy for now
+snow_increment_variables: {{ _analysis_vars }}
 
 # Veritcal localization for GETKF
 vl_fraction_of_retained_variance: 0.750
@@ -155,8 +162,8 @@ driver_update_obs_config_with_geometry_info: true
 driver_save_posterior_mean: false
 driver_save_posterior_ensemble: false
 driver_save_prior_mean: false
-driver_save_posterior_mean_increment: false
-driver_save_posterior_ensemble_increments: false
+driver_save_posterior_mean_increment: true
+driver_save_posterior_ensemble_increments: true
 
 # Diagnostics
 ensemble_increment_prefix: "./anl/mem%{member}%/snowinc."
