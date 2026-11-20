@@ -1,12 +1,14 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <numeric>
 #include <string>
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/exception/Exceptions.h"
 
 #include "atlas/field.h"
 #include "atlas/functionspace/NodeColumns.h"
@@ -19,7 +21,11 @@
 #include "atlas/util/Point.h"
 
 #include "oops/base/FieldSet3D.h"
+#include "oops/base/Geometry.h"
 #include "oops/base/GeometryData.h"
+#include "oops/base/Increment.h"
+#include "oops/base/State.h"
+#include "oops/base/Variables.h"
 #include "oops/mpi/mpi.h"
 #include "oops/runs/Application.h"
 #include "oops/util/DateTime.h"
@@ -28,32 +34,38 @@
 #include "oops/util/FieldSetOperations.h"
 #include "oops/util/Logger.h"
 
-#include "fv3jedi/Geometry/Geometry.h"
-#include "fv3jedi/Increment/Increment.h"
-#include "fv3jedi/State/State.h"
-
 namespace gdasapp {
   /**
-   * FV3ChemDiagB Class Implementation
+   * ChemDiagB Class Implementation
    *
    * Implements variance partitioning within the GDAS for the aerosols and tracers. It is used as a proxy for the
    * diagonal of B.
    * This class is designed to partition the variance of aerosol and tracer fields by analyzing the variance within
    * predefined geographical bins.
    * This approach allows for an ensemble-free estimate of a flow-dependent background error.
+   *
+   * The application is templated on the model traits and only uses the generic oops Geometry,
+   * State and Increment interfaces, so the same code serves fv3-jedi and i-jedi (FV3 now, MPAS
+   * once i-jedi supports it). The geometry must provide a mesh-based atlas NodeColumns
+   * function space.
    */
 
-  class FV3ChemDiagB : public oops::Application {
+  template <typename MODEL>
+  class ChemDiagB : public oops::Application {
+    typedef oops::Geometry<MODEL>  Geometry_;
+    typedef oops::Increment<MODEL> Increment_;
+    typedef oops::State<MODEL>     State_;
+
    public:
-    explicit FV3ChemDiagB(const eckit::mpi::Comm & comm = oops::mpi::world())
+    explicit ChemDiagB(const eckit::mpi::Comm & comm = oops::mpi::world())
       : Application(comm) {}
-    static const std::string classname() {return "gdasapp::FV3ChemDiagB";}
+    static const std::string classname() {return "gdasapp::ChemDiagB<" + MODEL::name() + ">";}
 
     int execute(const eckit::Configuration & fullConfig) const {
-      /// Setup the fv3jedi geometry
+      /// Setup the model geometry
       oops::Log::info() << "====================== geometry" << std::endl;
       const eckit::LocalConfiguration geomConfig(fullConfig, "geometry");
-      const fv3jedi::Geometry geom(geomConfig, this->getComm());
+      const Geometry_ geom(geomConfig, this->getComm());
 
       oops::Log::info() << "====================== date" << std::endl;
       /// Get the date
@@ -70,22 +82,27 @@ namespace gdasapp {
       /// Read the background
       // --------------------
       oops::Log::info() << "====================== read bkg" << std::endl;
-      fv3jedi::State xb(geom, chemVars, cycleDate);
+      State_ xb(geom, chemVars, cycleDate);
       const eckit::LocalConfiguration bkgConfig(fullConfig, "background");
       xb.read(bkgConfig);
-      atlas::FieldSet xbFs;
-      xb.toFieldSet(xbFs);
+      atlas::FieldSet xbFs = xb.fieldSet().fieldSet();
       oops::Log::info() << "Background:" << std::endl;
       oops::Log::info() << xb << std::endl;
 
       /// Create the mesh connectivity (Copy/paste of Francois's stuff)
       // --------------------------------------------------------------
+      // The neighbor search needs a mesh, so the model geometry must provide a mesh-based
+      // NodeColumns function space (as fv3-jedi and i-jedi FV3 do)
+      if (geom.functionSpace().type() != "NodeColumns") {
+        throw eckit::UserError(classname() + " requires a NodeColumns function space, but the "
+                               "geometry provides " + geom.functionSpace().type(), Here());
+      }
       // Build edges, then connections between nodes and edges
       int nbHalos(2);
       fullConfig.get("number of halo points", nbHalos);
       int nbNeighbors(4);
       fullConfig.get("number of neighbors", nbNeighbors);
-      atlas::functionspace::NodeColumns nodeColumns = geom.functionSpace();
+      atlas::functionspace::NodeColumns nodeColumns(geom.functionSpace());
       atlas::Mesh mesh = nodeColumns.mesh();
       atlas::mesh::actions::build_edges(mesh);
       atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
@@ -117,18 +134,12 @@ namespace gdasapp {
         }
         return neighbors;
       };
-
       /// Compute local std. dev. as a proxy of the bkg error
       // ----------------------------------------------------
-      // Identify halo nodes
-      const auto ghostView =
-        atlas::array::make_view<int, 1>(geom.functionSpace().ghost());
-
       // Create the background error fieldset
-      fv3jedi::Increment bkgErr(geom, chemVars, cycleDate);
+      Increment_ bkgErr(geom, chemVars, cycleDate);
       bkgErr.zero();
-      atlas::FieldSet bkgErrFs;
-      bkgErr.toFieldSet(bkgErrFs);
+      atlas::FieldSet & bkgErrFs = bkgErr.fieldSet().fieldSet();
 
       // Loop through variables
       for (auto & var : chemVars.variables()) {
@@ -164,8 +175,6 @@ namespace gdasapp {
               for (int nn = 0; nn < nbh; ++nn) {
                 stdDev += std::pow(local[nn] - mean, 2.0);
               }
-              // Setup the additive variance (only used ofr sst)
-              double additiveStdDev(0.0);
               if (stdDev > 0.0 || local.size() > 2) {
                 stdDevBkg(jnode, level)  = std::sqrt(stdDev / (local.size() - 1));
               }
@@ -173,7 +182,6 @@ namespace gdasapp {
           }  // end level
         }  // end jnode
       }  // end var
-
       // Synchronize all MPI tasks before proceeding
       oops::mpi::world().barrier();
 
@@ -235,22 +243,22 @@ namespace gdasapp {
           }
         }
       }
+
       // Synchronize all MPI tasks before proceeding
       oops::mpi::world().barrier();
      // Rescale from file
       if (fullConfig.has("global rescale")) {
         const eckit::LocalConfiguration GlobalRescaleConfig(fullConfig, "global rescale");
         const eckit::LocalConfiguration GlobalRescaleGeomConfig(GlobalRescaleConfig, "geometry");
-        const fv3jedi::Geometry GlobalRescaleGeom(GlobalRescaleGeomConfig, this-> getComm());
-        fv3jedi::Increment global_rescale(GlobalRescaleGeom, chemVars, cycleDate);
+        const Geometry_ GlobalRescaleGeom(GlobalRescaleGeomConfig, this-> getComm());
+        Increment_ global_rescale(GlobalRescaleGeom, chemVars, cycleDate);
         global_rescale.zero();
         const eckit::LocalConfiguration GlobalRescaleStdConfig(GlobalRescaleConfig,
                                                     "rescale stddev");
         global_rescale.read(GlobalRescaleStdConfig);
         // interpolate to background resolution
-        fv3jedi::Increment global_rescale_interp(geom, global_rescale);
-        atlas::FieldSet xrsFs;
-        global_rescale_interp.toFieldSet(xrsFs);
+        Increment_ global_rescale_interp(geom, global_rescale);
+        const atlas::FieldSet & xrsFs = global_rescale_interp.fieldSet().fieldSet();
         oops::Log::info() << "global rescaling coefficients:" << std::endl;
         oops::Log::info() << xrsFs << std::endl;
         util::multiplyFieldSets(bkgErrFs, xrsFs);
@@ -260,14 +268,8 @@ namespace gdasapp {
       if (fullConfig.has("rescaling factors")) {
         oops::Log::info() << "========== Rescaling factors found in YAML" << std::endl;
         const eckit::LocalConfiguration rescaleConfig(fullConfig, "rescaling factors");
-        fv3jedi::Increment rescaling(geom, chemVars, cycleDate);
-        rescaling.ones();
-        atlas::FieldSet rescaleFs;
-        rescaling.toFieldSet(rescaleFs);
-        atlas::FunctionSpace fs = geom.functionSpace();
-        atlas::FieldSet geom_fs = geom.fields();
-        const auto slmskView = atlas::array::make_view<double, 2>(geom_fs["slmsk"]);
-        const auto lonLatView = atlas::array::make_view<double, 2>(fs.lonlat());
+        const std::vector<bool> isLand = landMask(fullConfig, geom, cycleDate);
+        const auto lonLatView = atlas::array::make_view<double, 2>(geom.functionSpace().lonlat());
         // Synchronize all MPI tasks before proceeding
         oops::mpi::world().barrier();
         for (auto & var : chemVars.variables()) {
@@ -298,12 +300,12 @@ namespace gdasapp {
                                 << HighLat << " degrees by factor "
                                 << rescaleFactorHighLat << " for " << var << std::endl;
             }
-            // compute the rescaling factor
+            // compute and apply the rescaling factor
             oops::Log::info() << "Computing rescaling factor for " << var << std::endl;
-            auto rescaleView = atlas::array::make_view<double, 2>(rescaleFs[var]);
-            for (atlas::idx_t jnode = 0; jnode < rescaleFs[var].shape(0); ++jnode) {
+            auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
+            for (atlas::idx_t jnode = 0; jnode < bkgErrFs[var].shape(0); ++jnode) {
               double finalRescaleFactor = 1.0;
-                if (std::abs(slmskView(jnode, 0) - 1.0) < 1e-6) {  // land
+              if (isLand[jnode]) {
                 finalRescaleFactor = rescaleFactorLand;
               } else {  // ocean
                 finalRescaleFactor = rescaleFactorOcean;
@@ -311,8 +313,8 @@ namespace gdasapp {
               if (std::abs(lonLatView(jnode, 1)) > HighLat) {
                 finalRescaleFactor *= rescaleFactorHighLat;
               }
-              for (atlas::idx_t level = 0; level < rescaleFs[var].shape(1); ++level) {
-                rescaleView(jnode, level) = finalRescaleFactor;
+              for (atlas::idx_t level = 0; level < bkgErrFs[var].shape(1); ++level) {
+                stdDevBkg(jnode, level) *= finalRescaleFactor;
               }
             }
             oops::Log::info() << "Done computing rescaling factor for " << var << std::endl;
@@ -320,11 +322,9 @@ namespace gdasapp {
           // Synchronize all MPI tasks before proceeding
           oops::mpi::world().barrier();
         }
-        util::multiplyFieldSets(bkgErrFs, rescaleFs);
       }
       // Synchronize all MPI tasks before proceeding
       oops::mpi::world().barrier();
-      bkgErr.fromFieldSet(bkgErrFs);
 
       // Hybrid B option
       if (fullConfig.has("climate background error")) {
@@ -336,51 +336,41 @@ namespace gdasapp {
         // Initialize and read the climatological background error standard deviation field
         oops::Log::info() << "====================== read climat bkg error std dev" << std::endl;
         const eckit::LocalConfiguration climBGeomConfig(ClimBConfig, "geometry");
-        const fv3jedi::Geometry climBGeom(climBGeomConfig, this->getComm());
-        fv3jedi::Increment ClimBkgErrorStdDevOrig(climBGeom, chemVars, cycleDate);
+        const Geometry_ climBGeom(climBGeomConfig, this->getComm());
+        Increment_ ClimBkgErrorStdDevOrig(climBGeom, chemVars, cycleDate);
         ClimBkgErrorStdDevOrig.zero();
         const eckit::LocalConfiguration ClimBkgErrorStdDevConfig(ClimBConfig,
         "climate background error stddev");
         ClimBkgErrorStdDevOrig.read(ClimBkgErrorStdDevConfig);
         // interpolate to background resolution
-        fv3jedi::Increment ClimBkgErrorStdDev(geom, ClimBkgErrorStdDevOrig);
-        atlas::FieldSet ClimBkgErrorStdDevFs;
-        ClimBkgErrorStdDev.toFieldSet(ClimBkgErrorStdDevFs);
-
-        // Replace negative values with zeros
-        for (const auto &var : chemVars.variables()) {
-            auto ClimBkgErrView = atlas::array::make_view<double, 2>(ClimBkgErrorStdDevFs[var]);
-            for (atlas::idx_t jnode = 0; jnode < ClimBkgErrorStdDevFs[var].shape(0); ++jnode) {
-              for (atlas::idx_t level = 0; level < ClimBkgErrorStdDevFs[var].shape(1); ++level) {
-                ClimBkgErrView(jnode, level) = std::max(ClimBkgErrView(jnode, level), 0.0);
-              }
-            }
-          }
+        Increment_ ClimBkgErrorStdDev(geom, ClimBkgErrorStdDevOrig);
+        const atlas::FieldSet & ClimBkgErrorStdDevFs = ClimBkgErrorStdDev.fieldSet().fieldSet();
 
         // Staticb rescale
         double rescale_staticb;
         ClimBConfig.get("staticb rescaling factor", rescale_staticb);
 
-
-        // Combine diagb and climatological background errors
-        fv3jedi::Increment stddev_hybrid(geom, chemVars, cycleDate);
-        stddev_hybrid.zero();
-
-        // Convert FieldSets to States for accumulation
-        fv3jedi::State bkgErrState(geom, chemVars, cycleDate);
-        bkgErrState.fromFieldSet(bkgErrFs);
-
-        fv3jedi::State ClimBkgErrorStdDevState(geom, chemVars, cycleDate);
-        ClimBkgErrorStdDevState.fromFieldSet(ClimBkgErrorStdDevFs);
-
-        // Accumulate the fields with the given weights
-        stddev_hybrid.accumul(diagb_weight, bkgErrState);
-        stddev_hybrid.accumul((1.0 - diagb_weight)*rescale_staticb, ClimBkgErrorStdDevState);
-        // Use the hybrid increment
-        bkgErr = stddev_hybrid;
+        // Combine diagb and climatological background errors, replacing negative
+        // climatological values with zeros:
+        // std = diagb_weight*diagb_std + (1-diagb_weight)*staticb_rescale*max(Climat_std, 0)
+        const double climWeight = (1.0 - diagb_weight)*rescale_staticb;
+        for (const auto &var : chemVars.variables()) {
+          auto stdDevBkg = atlas::array::make_view<double, 2>(bkgErrFs[var]);
+          const auto ClimBkgErrView =
+            atlas::array::make_view<const double, 2>(ClimBkgErrorStdDevFs[var]);
+          for (atlas::idx_t jnode = 0; jnode < bkgErrFs[var].shape(0); ++jnode) {
+            for (atlas::idx_t level = 0; level < bkgErrFs[var].shape(1); ++level) {
+              double hybrid = diagb_weight*stdDevBkg(jnode, level);
+              hybrid += climWeight*std::max(ClimBkgErrView(jnode, level), 0.0);
+              stdDevBkg(jnode, level) = hybrid;
+            }
+          }
+        }
       }
 
+
       // Save the background error
+      bkgErr.synchronizeFields();
       oops::Log::info() << "Output Standard Deviations:" << std::endl;
       oops::Log::info() << bkgErr << std::endl;
       const eckit::LocalConfiguration bkgErrorConfig(fullConfig, "background error");
@@ -392,9 +382,83 @@ namespace gdasapp {
     // -----------------------------------------------------------------------------
    private:
     std::string appname() const {
-      return "gdasapp::FV3ChemDiagB";
+      return "gdasapp::ChemDiagB<" + MODEL::name() + ">";
+    }
+
+    // -----------------------------------------------------------------------------
+    /// \brief Land mask on the nodes of the geometry, used by the land/ocean rescaling.
+    ///
+    /// Optional "land mask" configuration (defaults reproduce the original fv3-jedi behavior):
+    ///   land mask:
+    ///     variable: slmsk          # name of the mask field (default: slmsk)
+    ///     land values: [1.0]       # mask values that denote land (default: [1.0])
+    ///     state: {...}             # if present, read the mask through the model State
+    ///                              # (e.g. MPAS landmask/xland from an init or restart
+    ///                              # file); otherwise take it from the geometry fields
+    std::vector<bool> landMask(const eckit::Configuration & fullConfig, const Geometry_ & geom,
+                               const util::DateTime & date) const {
+      eckit::LocalConfiguration maskConfig;
+      if (fullConfig.has("land mask")) maskConfig = eckit::LocalConfiguration(fullConfig,
+                                                                                "land mask");
+      const std::string maskVar = maskConfig.getString("variable", "slmsk");
+      const std::vector<double> landValues =
+        maskConfig.getDoubleVector("land values", std::vector<double>{1.0});
+
+      atlas::Field maskField;
+      if (maskConfig.has("state")) {
+        oops::Log::info() << "Reading land mask " << maskVar << " from the model state"
+                          << std::endl;
+        State_ maskState(geom, oops::Variables(std::vector<std::string>{maskVar}), date);
+        maskState.read(eckit::LocalConfiguration(maskConfig, "state"));
+        maskField = maskState.fieldSet().fieldSet()[maskVar];
+      } else {
+        oops::Log::info() << "Taking land mask " << maskVar << " from the geometry"
+                          << std::endl;
+        if (!geom.fields().has(maskVar)) {
+          throw eckit::UserError("Land mask " + maskVar + " is not a geometry field; provide "
+                                 "'land mask.state' to read it from a file", Here());
+        }
+        maskField = geom.fields()[maskVar];
+      }
+
+      // Mask value on level 0 for each node, whatever the field datatype and rank
+      std::vector<double> mask(maskField.shape(0));
+      if (maskField.datatype().kind() == atlas::array::DataType::kind<int>()) {
+        if (maskField.rank() == 1) {
+          const auto view = atlas::array::make_view<const int, 1>(maskField);
+          for (atlas::idx_t jnode = 0; jnode < maskField.shape(0); ++jnode) {
+            mask[jnode] = view(jnode);
+          }
+        } else {
+          const auto view = atlas::array::make_view<const int, 2>(maskField);
+          for (atlas::idx_t jnode = 0; jnode < maskField.shape(0); ++jnode) {
+            mask[jnode] = view(jnode, 0);
+          }
+        }
+      } else {
+        if (maskField.rank() == 1) {
+          const auto view = atlas::array::make_view<const double, 1>(maskField);
+          for (atlas::idx_t jnode = 0; jnode < maskField.shape(0); ++jnode) {
+            mask[jnode] = view(jnode);
+          }
+        } else {
+          const auto view = atlas::array::make_view<const double, 2>(maskField);
+          for (atlas::idx_t jnode = 0; jnode < maskField.shape(0); ++jnode) {
+            mask[jnode] = view(jnode, 0);
+          }
+        }
+      }
+
+      std::vector<bool> isLand(mask.size(), false);
+      for (size_t jnode = 0; jnode < mask.size(); ++jnode) {
+        for (const double landValue : landValues) {
+          if (std::abs(mask[jnode] - landValue) < 1e-6) isLand[jnode] = true;
+        }
+      }
+      return isLand;
     }
     // -----------------------------------------------------------------------------
   };
 
 }  // namespace gdasapp
+                                                                                               

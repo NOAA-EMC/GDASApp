@@ -42,7 +42,7 @@ states:
       filetype: fv3 restart
       datapath: {{ aero_background_path }}
       # i-jedi does not prepend the date on write, so this matches the fv3-jedi
-      # output read back by aeroijedi_gen_bmatrix_diffusion
+      # output read back by aero_ijedi_gen_bmatrix_diffusion
       filename_core: '{{ aero_background_error_time_fv3 }}.anlres.fv_core.res.nc'
       filename_trcr: '{{ aero_background_error_time_fv3 }}.anlres.fv_tracer.res.nc'
       filename_cplr: '{{ aero_background_error_time_fv3 }}.anlres.coupler.res'

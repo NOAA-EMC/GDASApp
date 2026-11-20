@@ -1,0 +1,81 @@
+geometry:
+  geometry_type: fv3
+  fms initialization:
+    namelist filename: "{{aero_fv3jedi_files_path}}/fmsmpp.nml"
+    field table filename: "{{aero_fv3jedi_files_path}}/field_table"
+  akbk: "{{aero_fv3jedi_files_path}}/akbk.nc4"
+  layout:
+  - {{ aero_layout_x }}
+  - {{ aero_layout_y }}
+  npx: {{ aero_npx_anl }}
+  npy: {{ aero_npy_anl }}
+  npz: {{ aero_npz_anl }}
+  ntiles: {{ aeroijedi_ntiles | default(6) }}
+date: '{{ aero_background_error_time_iso }}'
+background:
+  date: '{{ aero_background_error_time_iso }}'
+  state variables: {{ aero_bmat_state_variables }}
+  io:
+    filetype: fv3 restart
+    datapath: {{ aero_background_path }}
+    filename_core: '{{ aero_background_error_time_fv3 }}.anlres.fv_core.res.nc'
+    filename_trcr: '{{ aero_background_error_time_fv3 }}.anlres.fv_tracer.res.nc'
+    filename_cplr: '{{ aero_background_error_time_fv3 }}.anlres.coupler.res'
+    field io names: {{ aero_field_io_names }}
+# The i-jedi geometry has no slmsk, so read it from the surface restart
+land mask:
+  variable: slmsk
+  land values: [1]
+  state:
+    date: '{{ aero_background_error_time_iso }}'
+    state variables: [slmsk]
+    io:
+      filetype: fv3 restart
+      datapath: {{ aero_background_path }}
+      filename_sfcd: '{{ aero_background_error_time_fv3 }}.sfc_data.nc'
+      filename_cplr: '{{ aero_background_error_time_fv3 }}.coupler.res'
+      field io names: {{ aero_field_io_names }}
+# i-jedi does not prepend the date on write, so the output names carry it explicitly,
+# matching the fv3-jedi output staged out by the aerosol B-matrix task
+background error:
+  io:
+    filetype: fv3 restart
+    datapath: {{ aero_standard_deviation_path }}
+    filename_trcr: '{{ aero_background_error_time_fv3 }}.stddev.fv_tracer.res.nc'
+    filename_cplr: '{{ aero_background_error_time_fv3 }}.stddev.coupler.res'
+    field io names: {{ aero_field_io_names }}
+climate background error:
+  geometry:
+    geometry_type: fv3
+    fms initialization:
+      namelist filename: "{{aero_fv3jedi_files_path}}/fmsmpp.nml"
+      field table filename: "{{aero_fv3jedi_files_path}}/field_table"
+    akbk: "{{aero_fv3jedi_files_path}}/akbk.nc4"
+    layout:
+    - {{ aero_layout_x }}
+    - {{ aero_layout_y }}
+    npx: {{ aero_npx_clim_b }}
+    npy: {{ aero_npy_clim_b }}
+    npz: {{ aero_npz_clim_b }}
+    ntiles: {{ aeroijedi_ntiles | default(6) }}
+  climate background error stddev:
+    io:
+      filetype: fv3 restart
+      skip coupler file: true
+      datapath: {{ aero_climatological_b_path }}
+      filename_trcr: stddev.fv_tracer.res.nc
+      filename_cplr: stddev.coupler.res
+      field io names: {{ aero_field_io_names }}
+  diagb weight: {{ aero_diagb_weight }}
+  staticb rescaling factor: {{ aero_diagb_static_rescale_factor }}
+variables:
+  name: {{ aero_bmat_state_variables }}
+
+{% set rescaling_factor_file = aero_rescaling_factor_file|default(aero_gen_bmatrix_rescale_default) %}
+{% include rescaling_factor_file %}
+
+number of halo points: {{ aero_diagb_n_halo }}
+number of neighbors: {{ aero_diagb_n_neighbors }}
+simple smoothing:
+  horizontal iterations: {{ aero_diagb_smooth_horiz_iter }}
+  vertical iterations: {{ aero_diagb_smooth_vert_iter }}

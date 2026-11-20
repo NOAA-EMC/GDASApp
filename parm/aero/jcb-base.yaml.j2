@@ -1,4 +1,4 @@
-# Model interface: fv3-jedi (aero) or i-jedi (aeroijedi)
+# Model interface: fv3-jedi (aero) or i-jedi (aero_ijedi)
 {% set _comp = 'aero_ijedi' if ( JEDI_AERO_INTERFACE | default('fv3jedi') | string | lower) in ['ijedi'] else 'aero' %}
 
 # Search path for model and obs for JCB
@@ -12,6 +12,9 @@ app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chroni
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
+#aero_ijedi: {{ 'true' if _comp == 'aero_ijedi' else 'false' }}
+geometry_background_file: {{ _comp }}_geometry_background
+background_file: {{ _comp }}_background
 final_increment_to_latlon_file: {{ _comp }}_final_increment_gaussian
 final_increment_file: {{ _comp }}_final_increment_cubed_sphere
 model_file: {{ _comp }}_model_pseudo
@@ -154,7 +157,7 @@ aero_analysis_path: ./anl
 # Forecasting
 aero_forecast_timestep: "{{ BKG_TSTEP }}"
 
-{% if JEDI_AERO_INTERFACE == 'ijedi' %}
+{% if _comp == 'aero_ijedi' %}
 # i-jedi only
 # -----------
 # i-jedi does not support datetime-templated fv3 restart filenames, so render them here

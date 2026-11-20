@@ -29,10 +29,10 @@ jedi_config:
         jcb_algo: aero_ijedi_convert_background
     aero_diagb:
         rundir: '{{ DATA }}'
-        exe_src: '{{ EXECglobal }}/gdas_fv3jedi_chem_diagb.x'
+        exe_src: '{{ EXECglobal }}/gdas_ijedi_chem_diagb.x'
         mpi_cmd: '{{ APRUN_AEROANLGENB }}'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/aero/jcb-base.yaml.j2'
-        jcb_algo: aero_gen_bmatrix_diagb
+        jcb_algo: aero_ijedi_gen_bmatrix_diagb
     aero_diffusion:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECglobal }}/gdas_ijedi.x'
