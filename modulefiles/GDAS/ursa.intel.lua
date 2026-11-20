@@ -62,6 +62,7 @@ load("json/3.12.0")
 load("rocoto/1.3.7")
 load("prod_util/2.1.2")
 load("grib-util/1.4.0")
+load("qhull/2020.2")
 
 load("py-jinja2/3.1.6")
 load("py-netcdf4/1.7.2")

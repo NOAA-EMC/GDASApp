@@ -107,6 +107,14 @@ if [[ $BUILD_TARGET == 'wcoss2' ]]; then
   CMAKE_OPTS+=" -DENABLE_TESSELATION=ON"
 fi
 
+# TODO: remove this patch when machines are updated to spack-stack-2.2.0
+if [[ $BUILD_TARGET == 'orion' || $BUILD_TARGET == 'hercules' || $BUILD_TARGET == 'gaeac6' || $BUILD_TARGET == 'hera' ]]; then
+    module unload atlas
+    unset atlas_ROOT atlas_DIR Atlas_ROOT
+    CMAKE_OPTS+=" -DBUNDLE_SKIP_ATLAS=OFF"
+    CMAKE_OPTS+=" -DENABLE_TESSELATION=ON"
+fi
+
 # TODO: remove this patch when compiler issue fixed
 if [[ $BUILD_TARGET == 'nimbus' ]]; then
     CMAKE_AR=/opt/intel/oneapi/compiler/2026.1/bin/compiler/llvm-ar

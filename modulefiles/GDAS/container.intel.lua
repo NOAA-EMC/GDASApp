@@ -65,6 +65,7 @@ local gdas_modules = {
   {["crtm"]            = "2.4.0.1"},
   {["esmf"]            = "8.8.0"},
   {["prod_util"]       = "2.1.1"},
+  {["qhull"]           = "2020.2"},
   {["py-jinja2"]       = "3.1.4"},
   {["py-netcdf4"]      = "1.7.1.post2"},
   {["py-pybind11"]     = "2.13.5"},
