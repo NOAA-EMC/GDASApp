@@ -36,9 +36,9 @@ atmosphere_grad_red_2: 1e-10
                      'vfrac',
                      'soilt',
                      'soilm',
-                     'eastward_wind_at_surface',
-                     'northward_wind_at_surface',
-                     'ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m'] %}
+                     'eastward_wind_at_surface_adjacent_layer',
+                     'northward_wind_at_surface_adjacent_layer',
+                     'ratio_of_wind_at_10m_to_wind_at_surface_adjacent_layer'] %}
 
 # State variables
 atmosphere_det_state_variables: {{ atmosphere_analysis_vars + _grid_vars + _crtm_vars + _sfcDA_vars }}
@@ -66,7 +66,7 @@ atmosphere_background_field_io_names:
     cloud_ice_number_concentration: nccice
     rain_number_concentration: nconrd
     ozone_mass_mixing_ratio: o3mr
-    ratio_of_wind_at_surface_adjacent_layer_to_wind_at_10m: f10m
+    ratio_of_wind_at_10m_to_wind_at_surface_adjacent_layer: f10m
     geopotential_height_at_surface: hgtsfc
     slmsk: land
     sheleg: weasd
@@ -74,8 +74,8 @@ atmosphere_background_field_io_names:
     stype: sotyp
     vfrac: veg
     totalSnowDepthMeters: snod
-    eastward_wind_at_surface: ugrd_hyblev1
-    northward_wind_at_surface: vgrd_hyblev1
+    eastward_wind_at_surface_adjacent_layer: ugrd_hyblev1
+    northward_wind_at_surface_adjacent_layer: vgrd_hyblev1
     soilm: soilw1
     soilt: soilt1
     soilMoistureVolumetric: smc

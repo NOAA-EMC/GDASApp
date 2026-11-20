@@ -70,10 +70,10 @@ field metadata:
 - long name: totalSnowDepthMeters
   io name: snod
 
-- long name: eastward_wind_at_surface
+- long name: eastward_wind_at_surface_adjacent_layer
   io name: ugrd_hyblev1
 
-- long name: northward_wind_at_surface
+- long name: northward_wind_at_surface_adjacent_layer
   io name: vgrd_hyblev1
 
 - long name: soilm

@@ -403,7 +403,7 @@
 - name: water_vapor   #g/cm^2
   constant value: 1.2
 
-- name: wind_speed_at_surface
+- name: wind_speed_at_10m
   constant value: 6
 
 - name: air_pressure_at_surface

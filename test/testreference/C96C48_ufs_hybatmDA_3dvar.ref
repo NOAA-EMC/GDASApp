@@ -14,11 +14,11 @@ cloud_ice_number_concentration               | Min:-2.9104013643532767e-10 Max:+
 cloud_liquid_ice                             | Min:+0.0000000000000000e+00 Max:+4.7663236063714038e-04 RMS:+9.0034707592171968e-06
 cloud_liquid_water                           | Min:+0.0000000000000000e+00 Max:+2.0100997534691404e-03 RMS:+3.9041557128831114e-05
 eastward_wind                                | Min:-9.1823067857568276e+01 Max:+1.3646434790707778e+02 RMS:+1.8226931247671494e+01
-eastward_wind_at_surface                     | Min:-1.6646636962890625e+01 Max:+1.7885168075561523e+01 RMS:+5.2140159509622634e+00
+eastward_wind_at_surface_adjacent_layer      | Min:-1.6646636962890625e+01 Max:+1.7885168075561523e+01 RMS:+5.2140159509622634e+00
 geopotential_height_at_surface               | Min:-3.5488761901855469e+01 Max:+5.3870571289062500e+03 RMS:+6.3393310455782841e+02
 graupel                                      | Min:+0.0000000000000000e+00 Max:+2.5376670790792824e-04 RMS:+5.7014402036952307e-07
 northward_wind                               | Min:-8.8831134366403575e+01 Max:+9.6103458685264826e+01 RMS:+1.0659757560286366e+01
-northward_wind_at_surface                    | Min:-2.0141300201416016e+01 Max:+1.9309326171875000e+01 RMS:+4.7390850745203723e+00
+northward_wind_at_surface_adjacent_layer     | Min:-2.0141300201416016e+01 Max:+1.9309326171875000e+01 RMS:+4.7390850745203723e+00
 ozone_mass_mixing_ratio                      | Min:+4.3085184719788285e-11 Max:+1.7326599588897710e-05 RMS:+4.4655615080051624e-06
 rain_number_concentration                    | Min:-2.6291241319448266e-13 Max:+2.0364173828125000e+04 RMS:+1.6384826113880817e+02
 rain_water                                   | Min:+0.0000000000000000e+00 Max:+8.0999496075110039e-04 RMS:+6.2836272496017198e-06
@@ -50,11 +50,11 @@ cloud_ice_number_concentration               | Min:-2.9104013643532767e-10 Max:+
 cloud_liquid_ice                             | Min:+0.0000000000000000e+00 Max:+5.2330356582463023e-04 RMS:+9.2260128317299305e-06
 cloud_liquid_water                           | Min:+0.0000000000000000e+00 Max:+2.5482772919516502e-03 RMS:+3.9205575132140502e-05
 eastward_wind                                | Min:-9.1831857752805334e+01 Max:+1.3642302498147896e+02 RMS:+1.8232080081009578e+01
-eastward_wind_at_surface                     | Min:-1.6646636962890625e+01 Max:+1.7885168075561523e+01 RMS:+5.2140159509622634e+00
+eastward_wind_at_surface_adjacent_layer      | Min:-1.6646636962890625e+01 Max:+1.7885168075561523e+01 RMS:+5.2140159509622634e+00
 geopotential_height_at_surface               | Min:-3.5488761901855469e+01 Max:+5.3870571289062500e+03 RMS:+6.3393310455782841e+02
 graupel                                      | Min:+0.0000000000000000e+00 Max:+2.5366470316746134e-04 RMS:+5.6985490916868466e-07
 northward_wind                               | Min:-8.9367429697986537e+01 Max:+9.6104416349844811e+01 RMS:+1.0660066130889925e+01
-northward_wind_at_surface                    | Min:-2.0141300201416016e+01 Max:+1.9309326171875000e+01 RMS:+4.7390850745203723e+00
+northward_wind_at_surface_adjacent_layer     | Min:-2.0141300201416016e+01 Max:+1.9309326171875000e+01 RMS:+4.7390850745203723e+00
 ozone_mass_mixing_ratio                      | Min:+0.0000000000000000e+00 Max:+1.7329190384723184e-05 RMS:+4.4655825608575077e-06
 rain_number_concentration                    | Min:-2.6291241319448266e-13 Max:+2.0364173828125000e+04 RMS:+1.6384826113880817e+02
 rain_water                                   | Min:+0.0000000000000000e+00 Max:+8.1304153632181261e-04 RMS:+6.3107523172953718e-06
