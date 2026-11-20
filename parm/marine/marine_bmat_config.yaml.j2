@@ -68,7 +68,7 @@ data_out:
     # soca grid
     - ['{{ DATA }}/soca_gridspec.nc', '{{ COMOUT_OCEAN_BMATRIX }}']
 
-    # Copy the diffusion coefficient files to the ROTDIR
+    # Copy the diffusion coefficient files to the COMOUT
     - ['{{ DATAstaticb }}/hz_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}hz.nc']
     - ['{{ DATAstaticb }}/vt_ocean.nc', '{{ COMOUT_OCEAN_BMATRIX }}/{{ APREFIX }}vt.nc']
 
