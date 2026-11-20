@@ -1,18 +1,31 @@
 jedi_config:
     var:
         rundir: '{{ DATA }}'
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+        exe_src: '{{ EXECglobal }}/gdas_ijedi.x'
+        mpi_cmd: '{{ APRUN_MARINEANLVAR }}'
+        jedi_args: ['var']
+{% else %}
         exe_src: '{{ EXECglobal }}/gdas.x'
         mpi_cmd: '{{ APRUN_MARINEANLVAR }}'
         jedi_args: ['soca', 'variational']
+{% endif %}
         jcb_algo: '3dfgat'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         obs_list_yaml: '{{ OBS_LIST_YAML }}'
     soca_incpostproc:
         rundir: '{{ DATA }}'
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+        exe_src: '{{ EXECglobal }}/gdas_ijedi_marine_incr_handler.x'
+        mpi_cmd: '{{ APRUN_MARINEANLCHKPT }}'
+        jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
+        jcb_algo: ijedi_incpostproc
+{% else %}
         exe_src: '{{ EXECglobal }}/gdas_soca_incr_handler.x'
         mpi_cmd: '{{ APRUN_MARINEANLCHKPT }}'
         jcb_base_yaml: '{{ PARMglobal }}/gdas/marine/jcb-base.yaml.j2'
         jcb_algo: soca_incpostproc
+{% endif %}
     soca_diag_stats:
         rundir: '{{ DATA }}'
         exe_src: '{{ EXECglobal }}/gdas_soca_obsstats.x'
@@ -28,8 +41,13 @@ data_in:
     - '{{ DATA }}/Data'
 
     copy_req:
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+    # stage the i-jedi grid
+    - ["{{ COMIN_OCEAN_BMATRIX }}/ijedi_gridspec.nc", "{{ DATA }}"]
+{% else %}
     # stage soca grid
     - ["{{ COMIN_OCEAN_BMATRIX }}/soca_gridspec.nc", "{{ DATA }}"]
+{% endif %}
 
     # stage ensemble weights
 {% if DOHYBVAR_OCN == "YES" or NMEM_ENS >= 2 %}

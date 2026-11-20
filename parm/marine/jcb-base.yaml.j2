@@ -9,10 +9,20 @@ app_path_observation_chronicle: '{{PARMglobal}}/gdas/jcb-gdas/observation_chroni
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
+{% if JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+# i-jedi interface: reroute the model fragments to the marine_ijedi_* templates
+# (observations, chronicles and generic algorithms are shared with soca)
+model_component: marine_ijedi_
+model_file: marine_ijedi_model_pseudo
+initial_condition_file: marine_ijedi_background  # Initial conditions for 4D apps is background
+output_file: marine_ijedi_output
+final_increment_file: marine_ijedi_final_increment
+{% else %}
 model_file: marine_model_pseudo
 initial_condition_file: marine_background  # Initial conditions for 4D apps is background
 output_file: marine_output
 final_increment_file: marine_final_increment
+{% endif %}
 
 
 # Assimilation standard things (not prepended with model choice)
@@ -29,30 +39,29 @@ final_j_evaluation: true
 
 # Analysis variables. The marine key block included at the bottom derives its state and
 # increment variable lists from these.
+# (i-jedi analyses the currents only with the TorchBalance B, MARINE_BALANCE=torch: its univariate
+# B has no velocity error, and the i-jedi increment postprocessing then zeroes the u/v increments)
+{% set _marine_ijedi = JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+{% set _marine_torch = MARINE_BALANCE | default('soca') == 'torch' %}
 {% set marine_analysis_vars = ['sea_ice_area_fraction',
                                 'sea_ice_thickness',
                                 'sea_ice_snow_thickness',
                                 'sea_water_salinity',
-                                'sea_water_potential_temperature',
-                                'eastward_sea_water_velocity',
-                                'northward_sea_water_velocity',
-                                'sea_surface_height_above_geoid'] %}
+                                'sea_water_potential_temperature'] %}
+{% if _marine_torch or not _marine_ijedi %}
+{% set marine_analysis_vars = marine_analysis_vars + ['eastward_sea_water_velocity',
+                                                      'northward_sea_water_velocity'] %}
+{% endif %}
+{% set marine_analysis_vars = marine_analysis_vars + ['sea_surface_height_above_geoid'] %}
 analysis_variables: {{ marine_analysis_vars }}
 
 # Background error model
+{% if _marine_ijedi %}
+# Diffusion B from the i-jedi marinebmat chain (soca's diffusion files cannot be read),
+# univariate, or multivariate through TorchBalance with MARINE_BALANCE=torch
+background_error_file: marine_ijedi_background_error_static_diffusion
+{% else %}
 background_error_file: '{{berror_model}}'
-
-# Balance: soca (BalanceSOCA) or torch (TorchBalance, needs gdas built with Torch_ROOT)
-marine_balance: '{{ MARINE_BALANCE | default("soca") }}'
-marine_torch_seaice: {{ MARINE_TORCH_SEAICE | default(false) }}
-{% if MARINE_TORCH_EMULATORS_DIR is defined %}
-marine_torch_emulators_dir: '{{ MARINE_TORCH_EMULATORS_DIR }}'
-{% endif %}
-
-# diagb: monthly T/S climatology (ocean.clim_MM.nc) used for the dynamic part of the
-# parametric B instead of the background. Set MARINE_DIAGB_CLIMATOLOGY_DIR in config.marinebmat.
-{% if MARINE_DIAGB_CLIMATOLOGY_DIR is defined %}
-marine_diagb_climatology_dir: '{{ MARINE_DIAGB_CLIMATOLOGY_DIR }}'
 {% endif %}
 
 # Observations

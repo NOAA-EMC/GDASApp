@@ -34,7 +34,7 @@
 #include "soca/Increment/Increment.h"
 #include "soca/State/State.h"
 
-#include "../gdas_soca_utils.h"
+#include "utils/soca/gdas_soca_utils.h"
 #include "gdas_soca_diagb_utils.h"
 
 namespace gdasapp {

@@ -27,6 +27,9 @@
 
 #include "gdas_soca_diagb_hihs_clip.h"
 
+#include "utils/marine/gdas_marine_climatology.h"
+#include "utils/marine/gdas_marine_mesh.h"
+
 namespace gdasapp {
 namespace diagb {
 namespace utils {
@@ -208,97 +211,14 @@ struct SocaDiagBConfig {
     }
 };
 // -----------------------------------------------------------------------------
-/**
- * @brief Bundles together Atlas mesh and related components for mesh operations
- *
- * MeshBundle provides a convenient way to group an Atlas mesh with its associated
- * function space, connectivity information, and ghost views. This simplifies
- * passing mesh-related data between functions.
- *
- * @note The constructor takes ownership of the provided mesh via move semantics.
- *
- * @member mesh The Atlas mesh
- * @member nodeColumns Function space for node columns with a halo of 1
- * @member node2edge Connectivity from nodes to edges
- * @member edge2node Connectivity from edges to nodes
- * @member ghostView Array view identifying ghost nodes
- */
-struct MeshBundle {
-  atlas::Mesh mesh;
-  atlas::functionspace::NodeColumns nodeColumns;
-  atlas::mesh::IrregularConnectivity const& node2edge;
-  atlas::mesh::MultiBlockConnectivity const& edge2node;
-  atlas::array::ArrayView<int, 1> ghostView;
-  atlas::array::ArrayView<double, 2> lonlat;
+/// Mesh with edges and a 1-node halo (moved to gdas_marine_mesh.h, model independent)
+using gdasapp::marine::MeshBundle;
+using gdasapp::marine::get_neighbors_of_node;
 
-
-  explicit MeshBundle(atlas::Mesh&& m)
-    : mesh(std::move(m)),
-      nodeColumns(mesh, atlas::option::halo(1)),
-      node2edge(mesh.nodes().edge_connectivity()),
-      edge2node(mesh.edges().node_connectivity()),
-      ghostView(atlas::array::make_view<int, 1>(nodeColumns.ghost())),
-      lonlat(atlas::array::make_view<double, 2>(nodeColumns.lonlat())) {}
-};
-
-/**
- * @brief Builds mesh connectivity from a SOCA geometry
- *
- * This function takes a SOCA geometry object and constructs an enhanced mesh with
- * the following additional connectivity information:
- *  - Edges
- *  - Node-to-edge connectivity
- *  - Halo of size 1
- *
- * @param geom The SOCA geometry object containing the base function space
- * @return MeshBundle A bundle containing the enhanced mesh with connectivity information
- */
-inline MeshBundle buildMeshConnectivity(const soca::Geometry & geom) {
-  auto originalNodeColumns = atlas::functionspace::NodeColumns(geom.functionSpace());
-  atlas::Mesh mesh = originalNodeColumns.mesh();
-
-  atlas::mesh::actions::build_edges(mesh);
-  atlas::mesh::actions::build_node_to_edge_connectivity(mesh);
-  atlas::mesh::actions::build_halo(mesh, 1);
-
-  return MeshBundle(std::move(mesh));
+template <typename GEOMETRY>
+inline MeshBundle buildMeshConnectivity(const GEOMETRY & geom) {
+  return gdasapp::marine::buildMeshConnectivity(geom.functionSpace());
 }
-
-/**
- * @brief Gets the neighboring node indices of a given node in an Atlas mesh.
- *
- * Includes the node itself and its direct neighbors found via mesh edges.
- *
- * @param mesh The Atlas mesh object.
- * @param node2edge Node-to-edge connectivity.
- * @param edge2node Edge-to-node connectivity.
- * @param node The node index to query.
- * @return Vector of neighboring node indices (including `node` itself).
- */
-inline std::vector<int> get_neighbors_of_node(
-    const atlas::Mesh& mesh,
-    const atlas::mesh::IrregularConnectivity& node2edge,
-    const atlas::mesh::MultiBlockConnectivity& edge2node,
-    int node) {
-    std::vector<int> neighbors{};
-    neighbors.reserve(5);
-    neighbors.push_back(node);
-
-    if (node >= mesh.nodes().size()) {
-        return neighbors;
-    }
-
-    const int nb_edges = node2edge.cols(node);
-    for (int ie = 0; ie < nb_edges; ++ie) {
-        const int edge = node2edge(node, ie);
-        const int node0 = edge2node(edge, 0);
-        const int node1 = edge2node(edge, 1);
-        neighbors.push_back(node != node0 ? node0 : node1);
-    }
-
-    return neighbors;
-}
-
 // -----------------------------------------------------------------------------
 
 /**
@@ -319,60 +239,14 @@ inline double computeLocalGCScale(const double depth, const double eFoldingLengt
 
 // -----------------------------------------------------------------------------
 
-/**
- * @brief Weight of the deep T/S floor at depth z.
- *
- * 0 above depth - transition, 1 below depth, smoothstep in between; a step at
- * depth when transition <= 0.
- *
- * @param z Layer depth.
- * @param depth Depth at which the floor is fully on.
- * @param transition Thickness of the ramp above `depth`.
- * @return Weight in [0, 1].
- */
-inline double deepFloorWeight(const double z, const double depth, const double transition) {
-    if (transition <= 0.0) return (z >= depth) ? 1.0 : 0.0;
-    const double x = std::min(1.0, std::max(0.0, (z - (depth - transition)) / transition));
-    return x * x * (3.0 - 2.0 * x);
-}
+// deepFloorWeight, ClimWeights, climatologyWeights and replaceMissingWithZero are shared with the
+// model-generic marine B parameters (utils/marine/gdas_marine_climatology.h)
+using gdasapp::marine::deepFloorWeight;
+using gdasapp::marine::ClimWeights;
+using gdasapp::marine::climatologyWeights;
+using gdasapp::marine::replaceMissingWithZero;
 
 // -----------------------------------------------------------------------------
-
-/// Two bracketing monthly climatologies and their linear-interpolation weights.
-struct ClimWeights {
-  int month1;
-  double w1;
-  int month2;
-  double w2;
-};
-
-/**
- * @brief Linear-in-time weights between the two monthly climatologies bracketing t.
- *
- * Each monthly file is valid at 00Z on day `midDay` of its month; December and
- * January wrap across the year boundary.
- *
- * @param t Time to interpolate to.
- * @param midDay Day of the month the monthly files are valid at.
- * @return The two months and their weights (w1 + w2 = 1).
- */
-inline ClimWeights climatologyWeights(const util::DateTime & t, const int midDay) {
-  int y, m, d, hh, mi, ss;
-  t.toYYYYMMDDhhmmss(y, m, d, hh, mi, ss);
-  int y1 = y, m1 = m, y2 = y, m2 = m;
-  if (util::DateTime(y, m, midDay, 0, 0, 0) <= t) {
-    m2 = m % 12 + 1;
-    y2 = (m == 12) ? y + 1 : y;
-  } else {
-    m1 = (m + 10) % 12 + 1;
-    y1 = (m == 1) ? y - 1 : y;
-  }
-  const util::DateTime t1(y1, m1, midDay, 0, 0, 0);
-  const util::DateTime t2(y2, m2, midDay, 0, 0, 0);
-  const double w2 = static_cast<double>((t - t1).toSeconds())
-                  / static_cast<double>((t2 - t1).toSeconds());
-  return {m1, 1.0 - w2, m2, w2};
-}
 
 /**
  * @brief Read configuration for one monthly climatology file.
@@ -383,43 +257,10 @@ inline ClimWeights climatologyWeights(const util::DateTime & t, const int midDay
 inline eckit::LocalConfiguration climatologyFileConfig(const eckit::LocalConfiguration & climConf,
                                                        const int month) {
   eckit::LocalConfiguration conf(climConf);
-  std::string fname = climConf.getString("ocn_filename");
-  const std::string key = "%MM%";
-  const std::string mm = (month < 10 ? "0" : "") + std::to_string(month);
-  for (size_t pos = fname.find(key); pos != std::string::npos; pos = fname.find(key)) {
-    fname.replace(pos, key.size(), mm);
-  }
-  conf.set("ocn_filename", fname);
+  conf.set("ocn_filename",
+           gdasapp::marine::substituteMonth(climConf.getString("ocn_filename"), month));
   conf.set("read_from_file", 3);
   return conf;
-}
-
-// -----------------------------------------------------------------------------
-
-/**
- * @brief Replaces missing values (land mask sentinel) in a FieldSet with 0.0.
- *
- * gdas_soca_diagb was written assuming masked/land cells are 0, but soca can
- * now fill them with util::missingValue<double>() (~-1e38). Reset those cells
- * to 0 right after reading the background so the rest of the application sees
- * the same values it always has. NaN (the land fill of the climatology files)
- * is treated the same way.
- *
- * @param fs FieldSet to sanitize in place.
- * @param vars Variables to process.
- */
-inline void replaceMissingWithZero(atlas::FieldSet & fs, const oops::Variables & vars) {
-  const double missing = util::missingValue<double>();
-  for (const auto & var : vars.variables()) {
-    auto view = atlas::array::make_view<double, 2>(fs[var]);
-    for (atlas::idx_t jnode = 0; jnode < view.shape(0); ++jnode) {
-      for (atlas::idx_t level = 0; level < view.shape(1); ++level) {
-        if (view(jnode, level) == missing || std::isnan(view(jnode, level))) {
-          view(jnode, level) = 0.0;
-        }
-      }
-    }
-  }
 }
 
 // -----------------------------------------------------------------------------
