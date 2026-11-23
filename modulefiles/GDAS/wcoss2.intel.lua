@@ -44,7 +44,7 @@ load("py-pyyaml/6.0.2")
 load("intel-oneapi-runtime/2024.2.1")
 load("glibc/2.31")
 load("esmf/8.8.0")
-load("atlas/0.40.0")
+--load("atlas/0.44.1")
 load("sp/2.5.0")
 load("ip/5.1.0")
 load("gsl-lite/0.37.0")
@@ -69,6 +69,7 @@ if not is_ecf then
     load("prod_util/2.0.14")
 end
 load("grib-util/1.4.0")
+load("qhull/2020.2")
 
 load("py-numpy/1.26.4")
 load("bufr/12.1.0")
