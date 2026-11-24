@@ -4,65 +4,65 @@
 [submodule "sorc/gsw"]
   path = sorc/gsw
   url = https://github.com/jcsda-internal/GSW-Fortran.git
-  branch = develop
+  branch = release/soca-1.0.0
 [submodule "sorc/oops"]
   path = sorc/oops
   url = https://github.com/jcsda/oops.git
-  branch = develop
+  branch = release/1.12
 [submodule "sorc/vader"]
   path = sorc/vader
   url = https://github.com/jcsda/vader.git
-  branch = develop
+  branch = release/1.9
 [submodule "sorc/saber"]
   path = sorc/saber
   url = https://github.com/NOAA-EMC/saber.git
-  branch = develop
+  branch = release/gfs.v17
 [submodule "sorc/ioda"]
   path = sorc/ioda
   url = https://github.com/NOAA-EMC/ioda.git
-  branch = develop
+  branch = release/gfs.v17
 [submodule "sorc/ufo"]
   path = sorc/ufo
   url = https://github.com/NOAA-EMC/ufo.git
-  branch = develop
+  branch = release/gfs.v17
 [submodule "sorc/fv3-jedi-lm"]
   path = sorc/fv3-jedi-lm
   url = https://github.com/NOAA-EMC/fv3-jedi-linearmodel.git
-  branch = develop
+  branch = release/gfs.v17
 [submodule "sorc/fv3-jedi"]
   path = sorc/fv3-jedi
   url = https://github.com/NOAA-EMC/fv3-jedi.git
-  branch = develop
+  branch = release/gfs.v17
 [submodule "sorc/soca"]
   path = sorc/soca
   url = https://github.com/NOAA-EMC/soca.git
-  branch = dev/emc
+  branch = release/1.0
 [submodule "sorc/land-jediincr"]
   path = sorc/land-jediincr
   url = https://github.com/NOAA-EMC/land-apply_jedi_incr.git
-  branch = develop
+  branch = release/1.0
 [submodule "sorc/jcb"]
   path = sorc/jcb
   url = https://github.com/noaa-emc/jcb.git
-  branch = develop
+  branch = release/1.0
 [submodule "parm/jcb-gdas"]
   path = parm/jcb-gdas
   url = https://github.com/noaa-emc/jcb-gdas
-  branch = develop
+  branch = release/1.0
 [submodule "parm/jcb-algorithms"]
   path = parm/jcb-algorithms
   url = https://github.com/noaa-emc/jcb-algorithms
-  branch = develop
+  branch = release/1.0
 [submodule "sorc/da-utils"]
   path = sorc/da-utils
   url = https://github.com/noaa-emc/da-utils.git
-  branch = develop
+  branch = release/1.0
 [submodule "sorc/bufr-query"]
   path = sorc/bufr-query
   url = https://github.com/noaa-emc/bufr-query.git
-  branch = develop
+  branch = release/1.0
 [submodule "sorc/spoc"]
   path = sorc/spoc
   url = https://github.com/noaa-emc/spoc.git
-  branch = develop
+  branch = release/1.0
   ignore = dirty
