@@ -20,7 +20,9 @@ final_increment_file: {{ _comp }}_final_increment_cubed_sphere
 model_file: {{ _comp }}_model_pseudo
 initial_condition_file: {{ _comp }}_background  # Initial conditions for 4D apps is background
 background_error_file: "{{ BERROR_YAML | replace('aero_', _comp ~ '_', 1) }}"
+{% if _comp == 'aero_ijedi' %}
 vader_custom_cookbook_file: aero_vader_custom_cookbook
+{% endif %}
 
 # Assimilation standard things (not prepended with model choice)
 # ----------------------------

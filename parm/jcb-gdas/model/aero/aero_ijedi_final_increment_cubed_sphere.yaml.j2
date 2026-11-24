@@ -11,14 +11,13 @@ geometry:
   npy: {{aero_npy_ges}}
   npz: {{aero_npz_ges}}
   ntiles: {{ aeroijedi_ntiles | default(6) }}
-output:
-  state component:
-    io:
-      filetype: fv3 restart
-      datapath: {{ aero_analysis_path }}
-      # i-jedi writes <prefix>.<filename>, i.e. aeroinc.YYYYMMDD.HHMMSS.fv_tracer.res.nc
-      prefix: aeroinc
-      filename_core: '{{ aero_cycle_time_fv3 }}.fv_core.res.nc'
-      filename_trcr: '{{ aero_cycle_time_fv3 }}.fv_tracer.res.nc'
-      filename_cplr: '{{ aero_cycle_time_fv3 }}.coupler.res'
-      field io names: {{ aero_field_io_names_crtm }}
+variables: {{ aero_det_increment_variables }}
+times: ['{{ aero_cycle_time_iso }}']
+io:
+  filetype: fv3 restart
+  datapath: {{ aero_analysis_path }}
+  prefix: aeroinc
+  filename_core: 'aeroinc.{{ aero_cycle_time_fv3 }}.fv_core.res.nc'
+  filename_trcr: 'aeroinc.{{ aero_cycle_time_fv3 }}.fv_tracer.res.nc'
+  filename_cplr: 'aeroinc.{{ aero_cycle_time_fv3 }}.coupler.res'
+  field io names: {{ aero_field_io_names_crtm }}
