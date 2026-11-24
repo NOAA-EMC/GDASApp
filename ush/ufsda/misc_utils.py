@@ -64,7 +64,6 @@ cd {working_dir}
             if scheduler[job_config['machine']] == 'slurm':
                 f.write(f"srun -n $SLURM_NTASKS {executable} {yaml_path}\n")
         else:
-            # TODO (Guillaume): Hard coded for soca in a few places, change that
             scripts_path = os.path.join(job_config['modulepath'], '../', 'scripts')
             # run the pre/run/post scripts
             f.write(f"source load_envar.sh\n")
@@ -92,7 +91,6 @@ def datetime_from_cdate(cdate):
 
 def get_env_config(component='atm'):
     # get config dict based on environment variables
-    # TODO break this into component specific sections
     # datetime objects
     cdate = os.environ['PDY']+os.environ['cyc']
     valid_time = datetime_from_cdate(cdate)
