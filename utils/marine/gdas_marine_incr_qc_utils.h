@@ -12,13 +12,10 @@
 #include "atlas/field.h"
 #include "atlas/field/FieldSet.h"
 
-#include "../diagb/gdas_soca_diagb_utils.h"
-#include "../gdas_soca_utils.h"
-
 #include "oops/util/Logger.h"
 
-#include "soca/Increment/Increment.h"
-#include "soca/State/State.h"
+#include "gdas_marine_mesh.h"
+#include "gdas_marine_ocean_utils.h"
 
 namespace gdasapp {
 namespace incrqc {
@@ -75,6 +72,8 @@ inline double adjustAnalysisBounds(double xB, double dX, double minBound, double
  * @param nSmoothingIterations Number of smoothing iterations for weight fields
  * @param ghostView Array view indicating ghost nodes (1 for ghost, 0 for real nodes)
  * @param viewBathy Bathymetry values (positive for water points, negative or zero for land)
+ * @param skipMassless Skip the interfaces with a massless layer (thickness <= 0.1 m) on either side,
+ *                     rather than only those between two massless layers
  *
  * @note The correction factor is determined based on the ratio of the analysis density
  *       gradient to rhoMinGrad, with values clamped between 0.1 and 1.0
@@ -90,7 +89,8 @@ inline void applyWaterColumnStabilityCheck(
     const double rhoMinGrad,
     const int nSmoothingIterations,
     const atlas::array::ArrayView<const double, 2>& viewBathy,
-    const gdasapp::diagb::utils::MeshBundle& meshConn) {
+    const gdasapp::marine::MeshBundle& meshConn,
+    const bool skipMassless = false) {
 
   auto viewTempIncr = atlas::array::make_view<double, 2>(dxFs["sea_water_potential_temperature"]);
   auto viewSaltIncr = atlas::array::make_view<double, 2>(dxFs["sea_water_salinity"]);
@@ -142,7 +142,11 @@ inline void applyWaterColumnStabilityCheck(
       }
 
       for (atlas::idx_t level = 1; level < nlevels; ++level) {
-        if (viewHocn(jnode, level) <= 0.1 && viewHocn(jnode, level - 1) <= 0.1) continue;
+        if (skipMassless) {
+          if (viewHocn(jnode, level) <= 0.1 || viewHocn(jnode, level - 1) <= 0.1) continue;
+        } else {
+          if (viewHocn(jnode, level) <= 0.1 && viewHocn(jnode, level - 1) <= 0.1) continue;
+        }
 
         const double dz = viewDepth(jnode, level) - viewDepth(jnode, level - 1);
         if (std::abs(dz) < 1e-5) continue;
@@ -199,7 +203,7 @@ inline void applyWaterColumnStabilityCheck(
         if (viewBathy(jnode, 0) <= 0.0) continue;
 
         // Get neighbors for this node
-        auto neighbors = gdasapp::diagb::utils::get_neighbors_of_node(meshConn.mesh,
+        auto neighbors = gdasapp::marine::get_neighbors_of_node(meshConn.mesh,
                             meshConn.node2edge,
                             meshConn.edge2node,
                             jnode);

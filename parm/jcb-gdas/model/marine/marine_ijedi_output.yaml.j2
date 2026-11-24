@@ -1,0 +1,10 @@
+# Write the analysis once, at the middle of the window. The i-jedi mom6 writer takes an
+# explicit filename, so a single write is required to avoid overwriting. The time is given
+# explicitly because the final 3D-FGAT evaluation only processes the analysis at the middle
+# of the window, so a "first" offset from the start of the processed period would skip it.
+times: ['{{ marine_window_middle_iso }}']
+io:
+  filetype: mom6
+  datapath: ./{{marine_output_dir}}
+  ocn_file: 'ocn.{{marine_output_exp}}.an.{{marine_window_middle_fname}}.nc'
+  field io names: {{ marine_ijedi_field_io_names }}

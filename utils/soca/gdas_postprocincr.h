@@ -16,7 +16,7 @@
 #include "oops/base/GeometryData.h"
 #include "oops/base/PostProcessor.h"
 //  #include "oops/generic/Flood.h"  // Use this when/if oops PR is merged
-#include "../genutils/Flood.h"
+#include "utils/genutils/Flood.h"
 #include "oops/generic/GlobalInterpolator.h"
 #include "oops/mpi/mpi.h"
 #include "oops/util/ConfigFunctions.h"
@@ -30,7 +30,7 @@
 #include "soca/State/State.h"
 #include "soca/Traits.h"
 
-#include "incrqc/gdas_incr_qc.h"
+#include "utils/soca/incrqc/gdas_incr_qc.h"
 
 namespace gdasapp {
 

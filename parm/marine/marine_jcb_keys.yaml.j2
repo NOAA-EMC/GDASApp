@@ -10,6 +10,9 @@
 # from somewhere other than the window-begin restart pair, and marine_var_exp to change the
 # experiment tag in the analysis and increment filenames.
 
+{% set _marine_ijedi = JEDI_MARINE_INTERFACE | default('soca') == 'ijedi' %}
+{% set _marine_torch = MARINE_BALANCE | default('soca') == 'torch' %}
+
 # Model things
 # ------------
 
@@ -41,6 +44,8 @@ marine_window_begin: '{{ WINDOW_BEGIN }}'
 marine_window_middle: '{{ WINDOW_MIDDLE }}'
 marine_window_begin_iso: '{{ WINDOW_BEGIN | to_isotime }}'
 marine_window_middle_iso: '{{ WINDOW_MIDDLE | to_isotime }}'
+# file-name form of the window middle: MPI-IO cannot open names with ':' in parallel
+marine_window_middle_fname: '{{ WINDOW_MIDDLE | to_isotime | replace(":", "_") }}'
 marine_window_end_iso: '{{ WINDOW_END | to_isotime }}'
 marine_enspert_relpath: '{{ ENSPERT_RELPATH }}'
 {% if DOIAU %}
@@ -54,6 +59,88 @@ marine_cice_date_iso: '{{ WINDOW_MIDDLE | to_isotime }}'
 # Geometry
 marine_soca_files_path: .
 marine_vt_levels: '{{MOM6_LEVS}}'
+{% if _marine_ijedi %}
+
+# i-jedi MOM6 geometry (JEDI_MARINE_INTERFACE=ijedi)
+# --------------------------------------------------
+# Grid dimensions must match the staged MOM_input (5 deg 72x35, 1 deg 360x320, 1/4 deg 1440x1080,
+# 1/12 deg 4500x3297; config.base rejects other OCNRES). i-jedi analyses on this native grid:
+# SOCA_ANL_GEOM is not used. The layout is derived by config.resources (marineanlinit) from the
+# marineanlvar task count. i-jedi treats MINIMUM_DEPTH as the depth below which cells are land,
+# i.e. MOM6's MASKING_DEPTH (0.0 at 500/100/025), or MOM6's MINIMUM_DEPTH when MASKING_DEPTH is
+# unset (MOM_input_008: MASKING_DEPTH = -9999.0, MINIMUM_DEPTH = 3.0).
+{% set _ijedi_mom6_grid = {'500': [72, 35, 0.0], '100': [360, 320, 0.0], '025': [1440, 1080, 0.0],
+                           '008': [4500, 3297, 3.0]}[OCNRES] %}
+marine_ijedi_niglobal: {{ _ijedi_mom6_grid[0] }}
+marine_ijedi_njglobal: {{ _ijedi_mom6_grid[1] }}
+marine_ijedi_minimum_depth: {{ _ijedi_mom6_grid[2] }}
+marine_ijedi_nz: '{{MOM6_LEVS}}'
+marine_ijedi_layout_x: {{ layout_marine_ijedi_x | default(1, true) }}
+marine_ijedi_layout_y: {{ layout_marine_ijedi_y | default(1, true) }}
+
+# i-jedi ocean state variables (B-matrix calibration) and the file-variable name map used for
+# writing (increment, analysis, B stddev); the sea-ice names are soca's, so the soca increment
+# post-processing reads the i-jedi increment
+marine_ijedi_state_variables: ['sea_water_salinity', 'sea_water_potential_temperature',
+                               'sea_surface_height_above_geoid']
+marine_ijedi_field_io_names:
+    sea_water_potential_temperature: Temp
+    sea_water_salinity: Salt
+    sea_surface_height_above_geoid: ave_ssh
+    sea_ice_area_fraction: aice_h
+    sea_ice_thickness: hi_div_aice_h
+    sea_ice_snow_thickness: hs_div_aice_h
+{% if _marine_torch %}
+    # eastward/northward at tracer points (the default "velocity grid: tracer")
+    eastward_sea_water_velocity: u
+    northward_sea_water_velocity: v
+{% endif %}
+
+# Background states: the analysis variables, sea ice from the CICE history backgrounds, whose
+# per-cell volumes the i-jedi mom6 io divides by the ice fraction into thicknesses per ice area
+# (as soca reads them). With TorchBalance the layer thicknesses are added (background tensor of
+# the geostrophy emulator); the MOM6 C-grid currents are read as eastward/northward at tracer
+# points (the io detects the staggered layout of restarts and histories).
+{% if _marine_torch %}
+marine_ijedi_background_variables: {{ marine_analysis_vars + ['sea_water_cell_thickness'] }}
+{% else %}
+marine_ijedi_background_variables: {{ marine_analysis_vars }}
+{% endif %}
+marine_ijedi_background_io_names:
+    sea_water_potential_temperature: Temp
+    sea_water_salinity: Salt
+    sea_surface_height_above_geoid: ave_ssh
+    sea_ice_area_fraction: aice_h
+{% if _marine_torch %}
+    eastward_sea_water_velocity: u
+    northward_sea_water_velocity: v
+    sea_water_cell_thickness: h
+{% endif %}
+marine_ijedi_background_thickness_from_volume:
+    sea_ice_thickness: hi_h
+    sea_ice_snow_thickness: hs_h
+
+# Static B central block variables (as soca). Univariate: with TorchBalance
+# (MARINE_BALANCE=torch) the currents are added, the cross-variable covariances then come from
+# the balance outer blocks.
+{% if _marine_torch %}
+marine_ijedi_saber_central_block_variables: ['sea_ice_area_fraction', 'sea_water_salinity',
+                                             'sea_water_potential_temperature',
+                                             'eastward_sea_water_velocity',
+                                             'northward_sea_water_velocity',
+                                             'sea_surface_height_above_geoid']
+{% else %}
+marine_ijedi_saber_central_block_variables: ['sea_ice_area_fraction', 'sea_water_salinity',
+                                             'sea_water_potential_temperature',
+                                             'sea_surface_height_above_geoid']
+{% endif %}
+
+# MOM6 layout of the increment postprocessing (marineanlchkpt), derived by config.resources
+# (marineanlinit) from its task count
+marine_ijedi_incpostproc_layout_x: {{ layout_marine_ijedi_chkpt_x | default(1, true) }}
+marine_ijedi_incpostproc_layout_y: {{ layout_marine_ijedi_chkpt_y | default(1, true) }}
+
+{% endif %}
 
 # Initial conditions. The including base can set the jinja variables marine_background_*
 # to read the background from somewhere else; coupled 3D-Var reads the window-middle
@@ -83,6 +170,19 @@ marine_forecast_timestep: PT3H
 marine_number_ensemble_members: '{{NMEM_ENS}}'
 marine_number_ensemble_members_per_mpi: '{{NMEM_ENS_PER_MPI}}'
 marine_stddev_time: '{{ WINDOW_MIDDLE  | to_isotime }}'
+
+# Balance: soca (BalanceSOCA) or torch (TorchBalance, needs gdas built with Torch_ROOT)
+marine_balance: '{{ MARINE_BALANCE | default("soca") }}'
+marine_torch_seaice: {{ MARINE_TORCH_SEAICE | default(false) }}
+{% if MARINE_TORCH_EMULATORS_DIR is defined %}
+marine_torch_emulators_dir: '{{ MARINE_TORCH_EMULATORS_DIR }}'
+{% endif %}
+
+# diagb: monthly T/S climatology (ocean.clim_MM.nc) used for the dynamic part of the
+# parametric B instead of the background. Set MARINE_DIAGB_CLIMATOLOGY_DIR in config.marinebmat.
+{% if MARINE_DIAGB_CLIMATOLOGY_DIR is defined %}
+marine_diagb_climatology_dir: '{{ MARINE_DIAGB_CLIMATOLOGY_DIR }}'
+{% endif %}
 
 marine_obsdataroot_path: '{{COMIN_OBS}}'
 marine_obsdatastats_path: '{{COMOUT_OCEAN_ANALYSIS}}/diags'
