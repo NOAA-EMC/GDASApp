@@ -34,11 +34,26 @@ final_j_evaluation: true
                                 'sea_ice_snow_thickness',
                                 'sea_water_salinity',
                                 'sea_water_potential_temperature',
+                                'eastward_sea_water_velocity',
+                                'northward_sea_water_velocity',
                                 'sea_surface_height_above_geoid'] %}
 analysis_variables: {{ marine_analysis_vars }}
 
 # Background error model
 background_error_file: '{{berror_model}}'
+
+# Balance: soca (BalanceSOCA) or torch (TorchBalance, needs gdas built with Torch_ROOT)
+marine_balance: '{{ MARINE_BALANCE | default("soca") }}'
+marine_torch_seaice: {{ MARINE_TORCH_SEAICE | default(false) }}
+{% if MARINE_TORCH_EMULATORS_DIR is defined %}
+marine_torch_emulators_dir: '{{ MARINE_TORCH_EMULATORS_DIR }}'
+{% endif %}
+
+# diagb: monthly T/S climatology (ocean.clim_MM.nc) used for the dynamic part of the
+# parametric B instead of the background. Set MARINE_DIAGB_CLIMATOLOGY_DIR in config.marinebmat.
+{% if MARINE_DIAGB_CLIMATOLOGY_DIR is defined %}
+marine_diagb_climatology_dir: '{{ MARINE_DIAGB_CLIMATOLOGY_DIR }}'
+{% endif %}
 
 # Observations
 observations: all_observations

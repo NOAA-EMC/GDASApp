@@ -5,26 +5,26 @@ supported_algorithms:
 - 3dvar
 - 3dfgat
 # Local algorithms
-- aeroijedi_convert_background
-- aeroijedi_gen_bmatrix_diffusion
+- aero_ijedi_convert_background
+- aero_ijedi_gen_bmatrix_diffusion
 
 # This is overwritten in the testing but allows command line test of jcb
 algorithm: 3dfgat
 
 # Search path for model and obs for JCB (relative for the submodule, or can be absolute)
 # --------------------------------------------------------------------------------------
-app_path_algorithm: gdas/algorithm/aeroijedi
-app_path_model: gdas/model/aeroijedi
+app_path_algorithm: gdas/algorithm/aero
+app_path_model: gdas/model/aero
 app_path_observations: gdas/observations/aero
 
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
-final_increment_to_latlon_file: aeroijedi_final_increment_gaussian
-final_increment_file: aeroijedi_final_increment_cubed_sphere
-model_file: aeroijedi_model_pseudo
-initial_condition_file: aeroijedi_background
-background_error_file: aeroijedi_background_error_static_diffusion
+final_increment_to_latlon_file: aero_ijedi_final_increment_gaussian
+final_increment_file: aero_ijedi_final_increment_cubed_sphere
+model_file: aero_ijedi_model_pseudo
+initial_condition_file: aero_ijedi_background
+background_error_file: aeroi_jedi_background_error_static_diffusion
 
 
 # Global analysis things

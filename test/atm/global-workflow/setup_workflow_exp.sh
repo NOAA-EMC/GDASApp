@@ -67,9 +67,4 @@ echo " "
 echo "$expdir/../config.yaml is"
 cat $expdir/../config.yaml
 
-# config.base contains with DO_JEDIATMENS_SPLIT_OBSSOL="YES"  Create config.base with DO_JEDIATMENS_SPLIT_OBSSOL="NO" for jjob_ens_letkf.sh
-EXPDIR=$expdir/$pslot
-cp $EXPDIR/config.base $EXPDIR/config.base_split_obssol_true
-sed 's/export DO_JEDIATMENS_SPLIT_OBSSOL="YES"/export DO_JEDIATMENS_SPLIT_OBSSOL="NO"/' $EXPDIR/config.base > $EXPDIR/config.base_split_obssol_false
-
 exit $?
