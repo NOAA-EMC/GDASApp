@@ -1,3 +1,6 @@
+{% if aero_ijedi | default('false') %}
+{% include "aero_ijedi_3dvar_outer_loop_1.yaml.j2" %}
+{% else %}
 - ninner: 35
   gradient norm reduction: 1e-10
   test: on
@@ -14,3 +17,4 @@
     npz: {{aero_npz_anl}}
   diagnostics:
     departures: bkgmob1
+{% endif %}

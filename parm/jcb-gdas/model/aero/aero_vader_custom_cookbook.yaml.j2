@@ -1,0 +1,23 @@
+      variable change:
+        variable change name: Model2GeoVaLs
+        vader:
+          recipe parameters:
+          - recipe name: RelativeHumidity_B
+            clip relative humidity: false
+          - recipe name: SaturationVaporPressure_B
+            use goff-gratch table: true
+        vader custom cookbook:
+          relative_humidity:
+          - RelativeHumidity_B
+          water_vapor_mixing_ratio_wrt_moist_air_assuming_saturation:
+          - SaturationSpecificHumidity_B
+          svp:
+          - SaturationVaporPressure_B
+          air_pressure:
+          - AirPressure_A
+          air_potential_temperature:
+          - AirPotentialTemperature_B
+          air_pressure_levels:
+          - AirPressureAtInterface_B
+          water_vapor_mixing_ratio_wrt_dry_air:
+          - WaterVaporMixingRatioWrtDryAir_C

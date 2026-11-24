@@ -12,7 +12,7 @@ app_path_observation_chronicle: "{{PARMglobal}}/gdas/jcb-gdas/observation_chroni
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
-#aero_ijedi: {{ 'true' if _comp == 'aero_ijedi' else 'false' }}
+aero_ijedi: {{ 'true' if _comp == 'aero_ijedi' else 'false' }}
 geometry_background_file: {{ _comp }}_geometry_background
 background_file: {{ _comp }}_background
 final_increment_to_latlon_file: {{ _comp }}_final_increment_gaussian
@@ -20,6 +20,7 @@ final_increment_file: {{ _comp }}_final_increment_cubed_sphere
 model_file: {{ _comp }}_model_pseudo
 initial_condition_file: {{ _comp }}_background  # Initial conditions for 4D apps is background
 background_error_file: "{{ BERROR_YAML | replace('aero_', _comp ~ '_', 1) }}"
+vader_custom_cookbook_file: aero_vader_custom_cookbook
 
 # Assimilation standard things (not prepended with model choice)
 # ----------------------------
