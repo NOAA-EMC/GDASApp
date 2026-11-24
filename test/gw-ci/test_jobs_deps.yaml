@@ -586,3 +586,169 @@ C384mx025_3DVarAOWCDA:
         - F:gdas_anal
       gdas_fcst:
         - F:gdas_sfcanl_gcycle
+
+C96C48_hybatmsoilDA:
+  half_cycle:
+    tasks:
+      - gdas_stage_ic
+      - gdas_fcst
+      - gdas_atmos_prod
+      - enkfgdas_stage_ic
+      - enkfgdas_fcst
+      - enkfgdas_echgres
+      - enkfgdas_epmn
+    dependencies:
+      gdas_fcst:
+        - H:gdas_stage_ic
+      gdas_atmos_prod:
+        - H:gdas_fcst
+      enkfgdas_fcst:
+        - H:enkfgdas_stage_ic
+      enkfgdas_echgres:
+        - H:gdas_fcst
+        - H:enkfgdas_fcst
+      enkfgdas_epmn:
+        - H:enkfgdas_fcst
+  full_cycle:
+    tasks:
+      - gdas_prep
+      - gdas_anal
+      - gdas_snowanl
+      - gdas_sfcanl_gcycle
+      - gdas_sfcanl_regrid
+      - gdas_analcalc
+      - gdas_fcst
+      - enkfgdas_eobs
+      - enkfgdas_ediag
+      - enkfgdas_eupd
+      - enkfgdas_ecmn
+      - enkfgdas_esnowanl
+      - enkfgdas_esfc_gcycle
+      - enkfgdas_esfc_regrid
+      - enkfgdas_fcst
+    dependencies:
+      gdas_prep:
+        - H:gdas_fcst
+        - H:gdas_atmos_prod
+      gdas_anal:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      gdas_snowanl:
+        - F:gdas_prep
+      gdas_sfcanl_gcycle:
+        - F:gdas_anal
+        - F:gdas_snowanl
+      gdas_sfcanl_regrid:
+        - F:enkfgdas_eupd
+      gdas_analcalc:
+        - H:enkfgdas_echgres
+        - F:gdas_sfcanl_gcycle
+        - F:gdas_sfcanl_regrid
+      gdas_fcst:
+        - F:gdas_sfcanl_gcycle
+        - F:gdas_sfcanl_regrid
+      enkfgdas_eobs:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      enkfgdas_ediag:
+        - F:enkfgdas_eobs
+      enkfgdas_eupd:
+        - F:enkfgdas_ediag
+      enkfgdas_ecmn:
+        - F:gdas_analcalc
+        - F:enkfgdas_eupd
+      enkfgdas_esnowanl:
+        - H:enkfgdas_epmn
+        - F:gdas_snowanl
+      enkfgdas_esfc_gcycle:
+        - F:gdas_anal
+        - F:enkfgdas_esnowanl
+      enkfgdas_esfc_regrid:
+        - F:enkfgdas_eupd
+      enkfgdas_fcst:
+        - F:enkfgdas_esfc_gcycle
+        - F:enkfgdas_esfc_regrid
+        - F:enkfgdas_ecmn
+
+C96C48_ufs_hybatmsoilDA:
+  half_cycle:
+    tasks:
+      - gdas_stage_ic
+      - gdas_fcst
+      - gdas_atmos_prod
+      - enkfgdas_stage_ic
+      - enkfgdas_fcst
+      - enkfgdas_echgres
+      - enkfgdas_epmn
+    dependencies:
+      gdas_fcst:
+        - H:gdas_stage_ic
+      gdas_atmos_prod:
+        - H:gdas_fcst
+      enkfgdas_fcst:
+        - H:enkfgdas_stage_ic
+      enkfgdas_echgres:
+        - H:gdas_fcst
+        - H:enkfgdas_fcst
+      enkfgdas_epmn:
+        - H:enkfgdas_fcst
+  full_cycle:
+    tasks:
+      - gdas_prep
+      - gdas_soilanlvar
+      - gdas_anal
+      - gdas_snowanl
+      - gdas_sfcanl_gcycle
+      - gdas_analcalc
+      - gdas_fcst
+      - enkfgdas_eobs
+      - enkfgdas_ediag
+      - enkfgdas_eupd
+      - enkfgdas_ecmn
+      - enkfgdas_esnowanl
+      - enkfgdas_esfc_gcycle
+      - enkfgdas_soilanlens
+      - enkfgdas_fcst
+    dependencies:
+      gdas_prep:
+        - H:gdas_fcst
+        - H:gdas_atmos_prod
+      gdas_soilanlvar:
+        - F:gdas_prep
+      gdas_anal:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      gdas_snowanl:
+        - F:gdas_prep
+      gdas_sfcanl_gcycle:
+        - F:gdas_anal
+        - F:gdas_snowanl
+      gdas_analcalc:
+        - H:enkfgdas_echgres
+        - F:gdas_sfcanl_gcycle
+      gdas_fcst:
+        - F:gdas_sfcanl_gcycle
+        - F:gdas_soilanlvar
+      enkfgdas_eobs:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      enkfgdas_ediag:
+        - F:enkfgdas_eobs
+      enkfgdas_eupd:
+        - F:enkfgdas_ediag
+      enkfgdas_ecmn:
+        - F:gdas_analcalc
+        - F:enkfgdas_eupd
+      enkfgdas_esnowanl:
+        - H:enkfgdas_epmn
+        - F:gdas_snowanl
+      enkfgdas_esfc_gcycle:
+        - F:gdas_anal
+        - F:enkfgdas_esnowanl
+      enkfgdas_soilanlens:
+        - H:enkfgdas_epmn
+        - F:gdas_prep
+      enkfgdas_fcst:
+        - F:enkfgdas_esfc_gcycle
+        - F:enkfgdas_soilanlens
+        - F:enkfgdas_ecmn
