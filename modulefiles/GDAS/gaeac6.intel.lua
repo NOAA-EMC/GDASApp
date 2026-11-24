@@ -10,7 +10,8 @@ prepend_path("MODULEPATH", '/ncrc/proj/epic/spack-stack/c6/spack-stack-2.0.0/env
 
 load("stack-intel-oneapi-compilers/2025.2.1")
 load("stack-cray-mpich/8.1.32")
---load("stack-python/3.11.7")
+load("Core/24.11")
+load("stack-python/3.11.7")
 
 load("cmake/3.31.8")
 load("gettext/0.23.1")
