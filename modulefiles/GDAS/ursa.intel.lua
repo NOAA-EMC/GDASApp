@@ -16,6 +16,7 @@ load("stack-intel-oneapi-mpi/2021.17")
 prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-2.2.0/envs/ue-oneapi-2025.3.1/modules/intel-oneapi-mpi/2021.17/intel-oneapi-compilers/2025.3.1")
 
 load("intel-oneapi-mkl/2025.3")
+load("python/3.13.13")
 
 load("cmake/3.31.11")
 load("gettext/1.0")
