@@ -6,4 +6,7 @@ CI_TESTS=("atm_jjob"
           "C48_ufsenkf_atmDA"
           "C48mx500_3DVarAOWCDA"
           "C48mx500_hybAOWCDA"
-          "C96C48_hybatmDA")
+          "C48mx500_coupledDA"
+          "C96C48_hybatmDA"
+          "C96C48_hybatmsoilDA"
+          "C96C48_ufs_hybatmsoilDA")

@@ -19,7 +19,8 @@ namespace gdasapp {
      public:
       IMSscf(const std::string &imspath,
              const std::string &weightspath,
-             const fv3jedi::Geometry & geom);
+             const fv3jedi::Geometry & geom,
+             const eckit::mpi::Comm & comm);
       void readIMS();
       void readMapping();
       void calcIMSsd(fv3jedi::State &state, const fv3jedi::Geometry &geom);
@@ -29,6 +30,7 @@ namespace gdasapp {
 
      private:
       const fv3jedi::Geometry & geom_;
+      const eckit::mpi::Comm & comm_;
       std::string imspath_;
       std::string weightspath_;
       std::vector<std::vector<int>> IMS_flag;
@@ -71,7 +73,7 @@ namespace gdasapp {
         0.008f, 0.010f, 0.010f, 0.010f, 0.010f, 0.007f, 0.021f,
         0.013f, 0.015f, 0.008f, 0.015f, 0.015f, 0.015f, 0.015f
     };
-    float oberr_scf = 0.0f;
+    float oberr_scf = 0.0f;  // This error is a placeholder and scf is not assimilated
     float oberr_snd = 80.0f;
     static constexpr float nodata_float = -999.0f;
     static constexpr float nodata_tol = 0.1f;  // Tolerance for nodata checks

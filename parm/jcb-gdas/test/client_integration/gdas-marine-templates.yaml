@@ -46,6 +46,9 @@ marine_background_path: DATA/bkg
 # Background error
 marine_window_middle: '2024-02-01T00:00:00Z'
 marine_number_ensemble_members: 3
+marine_nicas_hz_long: 200000.0
+marine_nicas_hz_short: 100000.0
+marine_nicas_hz_ens_loc: 300000.0
 
 # Forecasting
 marine_forecast_timestep: PT1H

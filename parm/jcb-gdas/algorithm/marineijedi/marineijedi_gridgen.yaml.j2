@@ -1,0 +1,17 @@
+# Generate and cache the mom6 grid (structured + unstructured)
+# i-jedi equivalent of soca gridgen / geometry_cache application.
+geometry:
+  geometry_type: mom6
+  ocean_hgrid: {{ marineijedi_ocean_hgrid }}
+  ocean_topog: {{ marineijedi_ocean_topog }}
+  vertical geometry from: {{ marineijedi_vertical_geometry_from }}
+  coarsen factor: {{ marineijedi_coarsen_factor | default(1) }}
+  has northern fold: {{ marineijedi_has_northern_fold | default(true) }}
+  save unstructured grid to: {{ marineijedi_unstructured_grid_file | default('mom6_unstructuredgeometry_cache_grid.nc') }}
+  save structured grid to: {{ marineijedi_fix_file | default('mom6_structuredgeometry_cache_grid.nc') }}
+  MOM_input:
+    NIGLOBAL: {{ marineijedi_niglobal }}
+    NJGLOBAL: {{ marineijedi_njglobal }}
+    NZ: {{ marineijedi_nz }}
+    LAYOUT: {{ marineijedi_layout }}
+    MINIMUM_DEPTH: {{ marineijedi_minimum_depth | default(0.5) }}

@@ -65,6 +65,7 @@ load("json/3.12.0")
 --if not is_ecf then
 --    load("prod_util/2.0.14")
 --end
+load("qhull/2020.2")
 
 load("py-setuptools/73.0.1")
 load("py-numpy/1.26.4")

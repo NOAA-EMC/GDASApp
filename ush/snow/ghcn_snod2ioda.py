@@ -73,7 +73,7 @@ class GHCNConverter(object):
 
         # read in the GHCN data csv file
         cols = ["ID", "DATETIME", "ELEMENT", "DATA_VALUE", "M_FLAG", "Q_FLAG", "S_FLAG", "OBS_TIME"]
-        sub_cols = ["ID", "DATETIME", "ELEMENT", "DATA_VALUE"]
+        sub_cols = ["ID", "DATETIME", "ELEMENT", "DATA_VALUE", "Q_FLAG"]
         df30_list = []
         # Fix dtypeWarning with mixed types via set low_memory=False
         df20all = pd.read_csv(self.filename, header=None, names=cols, low_memory=False)
@@ -86,6 +86,7 @@ class GHCNConverter(object):
         df30 = pd.concat(df30_list, ignore_index=True)
         df30 = df30[df30["ELEMENT"] == "SNWD"]
         df30 = df30[df30["DATA_VALUE"].astype('float32') >= 0.0]
+        df30 = df30[df30["Q_FLAG"].isna()]          # drop obs that failed GHCN QC
         df30["DATETIME"] = df30.apply(lambda row: parse(str(row["DATETIME"])).date(), axis=1)
         startdate = self.date
         valid_date = datetime.strptime(startdate, "%Y%m%d%H")
@@ -108,11 +109,19 @@ class GHCNConverter(object):
         df300 = pd.merge(df30, df10[['ID', 'LATITUDE', 'LONGITUDE', 'ELEVATION']], on='ID', how='left')
 
         # if merge (left) cannot find ID in df10, will insert NaN
-        if any(df300['LATITUDE'].isna()):
-            if (self.warn):
-                print(f"\n WARNING: ignoring ghcn stations missing from station_list")
+        missing = (
+            df300["LATITUDE"].isna() |
+            df300["LONGITUDE"].isna() |
+            df300["ELEVATION"].isna()
+        )
+        if missing.any():
+            bad_ids = sorted(df300.loc[missing, 'ID'].unique())
+            if self.warn:
+                print(f"\n WARNING: dropping {missing.sum()} obs from {len(bad_ids)} "
+                      f"stations missing from station_list: {bad_ids}")
+                df300 = df300[~missing]
             else:
-                sys.exit(f"\n ERROR: ghcn data files contains station not in station_list.")
+                sys.exit(f"\n ERROR: ghcn data contains stations not in station_list: {bad_ids}")
 
         sites = df300["ID"].values
         vals = df300["DATA_VALUE"].values
