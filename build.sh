@@ -108,7 +108,7 @@ if [[ $BUILD_TARGET == 'wcoss2' ]]; then
 fi
 
 # TODO: remove this patch when machines are updated to spack-stack-2.2.0
-if [[ $BUILD_TARGET == 'orion' || $BUILD_TARGET == 'hercules' || $BUILD_TARGET == 'gaeac6' || $BUILD_TARGET == 'hera' ]]; then
+if [[ $BUILD_TARGET == 'orion' || $BUILD_TARGET == 'hercules' || $BUILD_TARGET == 'hera' ]]; then
     module unload atlas
     unset atlas_ROOT atlas_DIR Atlas_ROOT
     CMAKE_OPTS+=" -DBUNDLE_SKIP_ATLAS=OFF"
