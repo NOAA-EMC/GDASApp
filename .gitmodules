@@ -70,3 +70,6 @@
   url = https://github.com/noaa-emc/spoc.git
   branch = develop
   ignore = dirty
+[submodule "sorc/atlas"]
+  path = sorc/atlas
+  url = https://github.com/ecmwf/atlas.git
