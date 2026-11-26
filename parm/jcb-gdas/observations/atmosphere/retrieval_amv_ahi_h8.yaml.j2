@@ -185,26 +185,6 @@
 #      name: reject
   
   # THINNING: Himawari winds are not prioritized
-  - filter: Gaussian Thinning
-    horizontal_mesh: 100
-    vertical_mesh: 10000
-    where:
-    - variable:
-        name: MetaData/pressure
-      minvalue: 50001.
-    action:
-      name: reduce obs space
-
-  - filter: Gaussian Thinning
-    horizontal_mesh: 90
-    vertical_mesh: 10000
-    where:
-    - variable:
-        name: MetaData/pressure
-      maxvalue: 50000.
-    action:
-      name: reduce obs space
-
   # Observation Prior Filters (QC)
   # ------------------------------
   obs prior filters:
@@ -232,6 +212,27 @@
     Transform: SurfaceWindScalingPressure
     SkipWhenNoObs: false
   
+  # GSI thins after the reader QC, including the surface check above.
+  # GSI convinfo: 200 km, 100 hPa, 2 hours, separately for each type, preferring high quality index
+  - filter: Gaussian Thinning
+    where:
+    - variable: ObsType/windEastward
+      is_in: 242,250,252
+    horizontal_mesh: 200
+    use_reduced_horizontal_grid: true
+    round_horizontal_bin_count_to_nearest: true
+    partition_longitude_bins_using_mesh: true
+    vertical_mesh: 10000
+    time_mesh: PT2H
+    time_min: '{{ window_begin }}'
+    time_max: '{{ window_end }}'
+    category_variable:
+      name: ObsType/windEastward
+    priority_variable:
+      name: MetaData/qiWithoutForecast
+    action:
+      name: reject
+
   # Observation Post Filters (QC)
   # ------------------------------
   obs post filters:
@@ -330,42 +331,52 @@
     action:
       name: reject
 
-  # All satwinds must adjust errors based on ObsErrorFactorPressureCheck
-  # prior to the SPDB check (i.e. the gross-error check). The gross-error
-  # check uses the adjusted errors for error-bound tightening and rejection,
-  # so this check has to come first. This check will inflate errors for obs
-  # that are too close to either the model top or bottom.
-  # Notes (eliu): GMAO added a required parameter: adjusted_error_name.
+  # Satwinds below the model surface: increase the error by 4 m/s per model level below the
+  # surface (GSI setupw: error + four*rlow). This replaces ObsErrorFactorPressureCheck. It must come
+  # before the gross-error check, which uses the adjusted errors. ObsErrorFactorPressureCheck also
+  # rejected satwinds above the model top; the pressure bounds above already remove these.
+  - filter: Variable Assignment
+    assignments:
+    - name: DerivedMetaData/modelLevelsBelowSurface
+      type: float
+      function:
+        name: ObsFunction/ModelLevelsBelowSurface
+
   - filter: Perform Action
     filter variables:
     - name: windEastward
     where:
     - variable:
-        name: ObsType/windEastward
-      is_in: 240-260
+        name: DerivedMetaData/modelLevelsBelowSurface
+      minvalue: 0.
+      min_exclusive: true
     action:
-      name: inflate error
-      inflation variable:
-        name: ObsFunction/ObsErrorFactorPressureCheck
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
         options:
-          surface_obs: false
-          variable: windEastward
-          inflation factor: 4.0
+          variables:
+          - name: ObsErrorData/windEastward
+          - name: DerivedMetaData/modelLevelsBelowSurface
+          coefs: [1., 4.]
 
   - filter: Perform Action
     filter variables:
     - name: windNorthward
     where:
     - variable:
-        name: ObsType/windNorthward
-      is_in: 240-260
+        name: DerivedMetaData/modelLevelsBelowSurface
+      minvalue: 0.
+      min_exclusive: true
     action:
-      name: inflate error
-      inflation variable:
-        name: ObsFunction/ObsErrorFactorPressureCheck
+      name: assign error
+      error function:
+        name: ObsFunction/Arithmetic
         options:
-          variable: windNorthward
-          inflation factor: 4.0
+          variables:
+          - name: ObsErrorData/windNorthward
+          - name: DerivedMetaData/modelLevelsBelowSurface
+          coefs: [1., 4.]
 
   # All satwinds subject to a gross-error check that contains significant
   # modifiers for satwinds with a negative speed-bias. ALL wind gross-error

@@ -84,6 +84,7 @@ coupled_soca_exclude_variables:
 # ----------------------
 window_begin: '2020-12-14T18:00:00Z'
 window_length: PT6H
+window_end: '2020-12-15T00:00:00Z'
 bound_to_include: begin
 minimizer: DRPCG
 number_of_outer_loops: 1
